@@ -106,7 +106,7 @@ const SquadPage = ({
   useJoinReferral();
   const { logEvent } = useContext(LogContext);
   const { sidebarRendered } = useSidebarRendered();
-  const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
+  const { isListFeedLayout } = useFeedLayout();
   const { user, isFetched: isBootFetched } = useContext(AuthContext);
   const [loggedImpression, setLoggedImpression] = useState(false);
   const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
@@ -210,7 +210,7 @@ const SquadPage = ({
     return <Custom404 />;
   }
 
-  const FeedPageComponent = shouldUseListMode
+  const FeedPageComponent = isListFeedLayout
     ? FeedPageLayoutList
     : BaseFeedPage;
 
@@ -228,19 +228,19 @@ const SquadPage = ({
           className={classNames(
             'squad-background-fade absolute top-0 h-full w-full',
             sidebarRendered &&
-              !shouldUseListMode &&
+              !isListFeedLayout &&
               '-left-full translate-x-[60%]',
           )}
         />
         <SquadPageHeader
           squad={squad}
           members={squadMembers}
-          shouldUseListMode={shouldUseListMode}
+          shouldUseListMode={isListFeedLayout}
         />
         <Feed
           className={classNames(
             'pt-14 laptop:pt-10',
-            shouldUseListFeedLayout ? 'px-0' : 'px-6',
+            isListFeedLayout ? 'px-0' : 'px-6',
           )}
           feedName={OtherFeedPage.Squad}
           feedQueryKey={[

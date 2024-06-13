@@ -1,6 +1,6 @@
-import { useContext } from 'react';
+import { useContext, ComponentType, HTMLAttributes, useMemo } from 'react';
 import { useViewSize, ViewSize } from './useViewSize';
-import { useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
+import { useActiveFeedNameContext } from '../contexts';
 import {
   CommentFeedPage,
   FeedPage,
@@ -12,14 +12,9 @@ import { AllFeedPages, OtherFeedPage } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 
 interface UseFeedLayoutReturn {
-  shouldUseListFeedLayout: boolean;
-  FeedPageLayoutComponent: React.ComponentType<
-    React.HTMLAttributes<HTMLDivElement>
-  >;
-  screenCenteredOnMobileLayout?: boolean;
-  shouldUseCommentFeedLayout: boolean;
-  isListMode: boolean;
-  shouldUseListMode: boolean;
+  isListFeedLayout: boolean;
+  shouldBeCentered: boolean;
+  FeedPageLayoutComponent: ComponentType<HTMLAttributes<HTMLDivElement>>;
 }
 
 interface UseFeedLayoutProps {
@@ -64,31 +59,6 @@ export const UserProfileFeedPages = new Set([
   OtherFeedPage.UserPosts,
 ]);
 
-const getFeedPageLayoutComponent = ({
-  shouldUseListFeedLayoutOnMobileTablet,
-  shouldUseCommentFeedLayout,
-  shouldUseListMode,
-}: Pick<
-  UseFeedLayoutReturn,
-  'shouldUseCommentFeedLayout' | 'shouldUseListMode'
-> & {
-  shouldUseListFeedLayoutOnMobileTablet: boolean;
-}): UseFeedLayoutReturn['FeedPageLayoutComponent'] => {
-  if (shouldUseCommentFeedLayout) {
-    return CommentFeedPage;
-  }
-
-  if (shouldUseListMode) {
-    return FeedPageLayoutList;
-  }
-
-  if (shouldUseListFeedLayoutOnMobileTablet) {
-    return FeedPageLayoutMobile;
-  }
-
-  return FeedPage;
-};
-
 export const useFeedLayout = ({
   feedRelated = true,
 }: UseFeedLayoutProps = {}): UseFeedLayoutReturn => {
@@ -96,7 +66,7 @@ export const useFeedLayout = ({
   const { feedName } = useActiveFeedNameContext();
   const { insaneMode: isListMode } = useContext(SettingsContext);
 
-  const shouldUseListFeedLayoutOnProfilePages = UserProfileFeedPages.has(
+  const isListFeedLayoutOnProfilePages = UserProfileFeedPages.has(
     feedName as UserProfileFeedType,
   );
 
@@ -104,34 +74,34 @@ export const useFeedLayout = ({
     feedName as FeedPagesWithMobileLayoutType,
   );
 
-  const shouldUseListFeedLayoutOnMobileTablet =
-    !isLaptop && isFeedIncludedInListLayout;
+  const getListFeedEvaluation = () => {
+    if (isListMode || !isLaptop) {
+      if (feedRelated) {
+        return isFeedIncludedInListLayout || isListFeedLayoutOnProfilePages;
+      }
 
-  const shouldUseListMode =
-    isListMode && isLaptop && isFeedIncludedInListLayout;
+      return true;
+    }
 
-  const shouldUseListFeedLayout = feedRelated
-    ? shouldUseListFeedLayoutOnMobileTablet ||
-      shouldUseListFeedLayoutOnProfilePages ||
-      shouldUseListMode
-    : isListMode || !isLaptop;
+    return false;
+  };
 
-  const shouldUseCommentFeedLayout = feedName === SharedFeedPage.Discussed;
-
-  const FeedPageLayoutComponent = getFeedPageLayoutComponent({
-    shouldUseListMode,
-    shouldUseListFeedLayoutOnMobileTablet,
-    shouldUseCommentFeedLayout,
-  });
+  const isListFeedLayout = getListFeedEvaluation();
+  const isListFeedMobile = isListMode && !isLaptop;
 
   return {
-    shouldUseListFeedLayout,
-    shouldUseCommentFeedLayout,
-    FeedPageLayoutComponent,
-    isListMode,
-    shouldUseListMode,
-    screenCenteredOnMobileLayout:
-      shouldUseListFeedLayoutOnMobileTablet &&
-      !UserProfileFeedPages.has(feedName as UserProfileFeedType),
+    isListFeedLayout,
+    shouldBeCentered: isListFeedMobile && !isListFeedLayoutOnProfilePages,
+    FeedPageLayoutComponent: useMemo(() => {
+      if (feedName === SharedFeedPage.Discussed) {
+        return CommentFeedPage;
+      }
+
+      if (isListFeedLayout) {
+        return isLaptop ? FeedPageLayoutList : FeedPageLayoutMobile;
+      }
+
+      return FeedPage;
+    }, [feedName, isLaptop, isListFeedLayout]),
   };
 };

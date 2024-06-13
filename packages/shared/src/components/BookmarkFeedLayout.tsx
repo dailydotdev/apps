@@ -41,11 +41,7 @@ export default function BookmarkFeedLayout({
   searchChildren,
   children,
 }: BookmarkFeedLayoutProps): ReactElement {
-  const {
-    shouldUseListFeedLayout,
-    FeedPageLayoutComponent,
-    shouldUseListMode,
-  } = useFeedLayout();
+  const { isListFeedLayout, FeedPageLayoutComponent } = useFeedLayout();
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showEmptyScreen, setShowEmptyScreen] = useState(false);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
@@ -101,7 +97,7 @@ export default function BookmarkFeedLayout({
       <CustomFeedHeader
         className={classNames(
           'mb-6 flex',
-          shouldUseListFeedLayout && !shouldUseListMode && 'px-4',
+          isListFeedLayout && !isListFeedLayout && 'px-4',
         )}
       >
         {searchChildren}

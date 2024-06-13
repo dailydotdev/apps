@@ -148,7 +148,6 @@ export default function Feed<T>({
   const router = useRouter();
   const queryClient = useQueryClient();
   const { openNewTab, spaciness, loadedSettings } = useContext(SettingsContext);
-  const { isListMode } = useFeedLayout();
   const { isFetched, alerts } = useAlertsContext();
   const shouldEvaluateSurvey =
     !!user &&
@@ -163,7 +162,7 @@ export default function Feed<T>({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === OtherFeedPage.Squad;
-  const { shouldUseListFeedLayout } = useFeedLayout();
+  const { isListFeedLayout } = useFeedLayout();
   const showAcquisitionForm =
     feedName === SharedFeedPage.MyFeed &&
     (router.query?.[acquisitionKey] as string)?.toLocaleLowerCase() ===
@@ -186,7 +185,7 @@ export default function Feed<T>({
   } = useFeed(
     feedQueryKey,
     pageSize ?? currentSettings.pageSize,
-    isSquadFeed || shouldUseListFeedLayout ? 2 : adSpot,
+    isSquadFeed || isListFeedLayout ? 2 : adSpot,
     numCards,
     {
       query,
@@ -208,8 +207,7 @@ export default function Feed<T>({
   const [postModalIndex, setPostModalIndex] = useState<PostLocation>(null);
   const { onMenuClick, postMenuIndex, postMenuLocation, setPostMenuIndex } =
     useFeedContextMenu({ contextId });
-  const useList = isListMode && numCards > 1;
-  const virtualizedNumCards = useList ? 1 : numCards;
+  const virtualizedNumCards = isListFeedLayout ? 1 : numCards;
   const logOpts = useMemo(() => {
     return {
       columns: virtualizedNumCards,
@@ -338,7 +336,7 @@ export default function Feed<T>({
     await onPostClick(post, index, row, column, {
       skipPostUpdate: true,
     });
-    if (!shouldUseListFeedLayout) {
+    if (!isListFeedLayout) {
       onPostModalOpen({ index, row, column });
     }
   };
@@ -376,7 +374,7 @@ export default function Feed<T>({
         ...feedLogExtra(feedName, ranking),
       }),
     );
-    if (!shouldUseListFeedLayout) {
+    if (!isListFeedLayout) {
       onPostModalOpen({ index, row, column });
     }
   };
@@ -488,10 +486,10 @@ export default function Feed<T>({
         />
         <ShareOptionsMenu
           {...commonMenuItems}
-          shouldUseListFeedLayout={shouldUseListFeedLayout}
+          shouldUseListFeedLayout={isListFeedLayout}
           onHidden={onShareOptionsHidden}
         />
-        {!shouldUseListFeedLayout && selectedPost && PostModal && (
+        {!isListFeedLayout && selectedPost && PostModal && (
           <PostModal
             isOpen={!!selectedPost}
             id={selectedPost.id}

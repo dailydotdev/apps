@@ -17,8 +17,8 @@ export function FeedSurveyCard({
 }: FeedSurveyProps): ReactElement {
   const [score, setScore] = useState(0);
   const { submitted, onSubmit, onHide } = useFeedSurvey({ score });
-  const { shouldUseListFeedLayout } = useFeedLayout();
-  const CardComponent = shouldUseListFeedLayout ? ListCard : Card;
+  const { isListFeedLayout } = useFeedLayout();
+  const CardComponent = isListFeedLayout ? ListCard : Card;
 
   return (
     <div
@@ -28,7 +28,7 @@ export function FeedSurveyCard({
       <CardComponent
         className={classNames(
           'relative items-center gap-4 overflow-hidden !rounded-14 border-0 shadow-none',
-          shouldUseListFeedLayout ? '!py-10' : 'pt-20',
+          isListFeedLayout ? '!py-10' : 'pt-20',
         )}
         style={{ background: feedSurveyBg }}
       >

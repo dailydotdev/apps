@@ -111,23 +111,17 @@ const PostTypeToTagList: Record<PostType, FunctionComponent> = {
 
 type GetTagsProps = {
   isListFeedLayout: boolean;
-  shouldUseListMode: boolean;
   postType: PostType;
 };
 
-const getTags = ({
-  isListFeedLayout,
-  shouldUseListMode,
-  postType,
-}: GetTagsProps) => {
-  const useListCards = isListFeedLayout || shouldUseListMode;
+const getTags = ({ isListFeedLayout, postType }: GetTagsProps) => {
   return {
-    PostTag: useListCards
+    PostTag: isListFeedLayout
       ? PostTypeToTagList[postType] ?? ArticlePostList
       : PostTypeToTagCard[postType] ?? ArticlePostCard,
-    AdTag: useListCards ? AdList : AdCard,
-    PlaceholderTag: useListCards ? PlaceholderList : PlaceholderCard,
-    MarketingCtaTag: useListCards ? MarketingCtaList : MarketingCtaCard,
+    AdTag: isListFeedLayout ? AdList : AdCard,
+    PlaceholderTag: isListFeedLayout ? PlaceholderList : PlaceholderCard,
+    MarketingCtaTag: isListFeedLayout ? MarketingCtaList : MarketingCtaCard,
   };
 };
 
@@ -168,10 +162,9 @@ export default function FeedItemComponent({
     ranking,
   );
 
-  const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
+  const { isListFeedLayout } = useFeedLayout();
   const { PostTag, AdTag, PlaceholderTag, MarketingCtaTag } = getTags({
-    isListFeedLayout: shouldUseListFeedLayout,
-    shouldUseListMode,
+    isListFeedLayout,
     postType: (item as PostItem).post?.type,
   });
 

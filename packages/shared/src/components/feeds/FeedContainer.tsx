@@ -161,7 +161,7 @@ export const FeedContainer = ({
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
   const { spaciness, loadedSettings } = useContext(SettingsContext);
-  const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
+  const { isListFeedLayout } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
   const { isAnyExplore, isExplorePopular, isExploreLatest } = useFeedName({
@@ -169,20 +169,18 @@ export const FeedContainer = ({
   });
   const router = useRouter();
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
-  const isList =
-    (isHorizontal || isListMode) && !shouldUseListFeedLayout
-      ? false
-      : (isListMode && numCards > 1) || shouldUseListFeedLayout;
+  const isList = !isHorizontal && (isListFeedLayout || numCards === 1);
   const feedGapPx =
     getFeedGapPx[
       gapClass({
         isList,
-        isFeedLayoutList: shouldUseListFeedLayout,
+        isFeedLayoutList: isListFeedLayout,
         space: spaciness,
       })
     ];
   const style = {
-    '--num-cards': isHorizontal && isListMode && numCards >= 2 ? 2 : numCards,
+    '--num-cards':
+      isHorizontal && isListFeedLayout && numCards >= 2 ? 2 : numCards,
     '--feed-gap': `${feedGapPx / 16}rem`,
   } as CSSProperties;
   const cardContainerStyle = { ...getStyle(isList, spaciness) };
@@ -232,7 +230,7 @@ export const FeedContainer = ({
           data-testid="posts-feed"
         >
           {inlineHeader && header}
-          {isSearch && !shouldUseListFeedLayout && (
+          {isSearch && !isListFeedLayout && (
             <span
               className={classNames(
                 'flex flex-1 items-center',
@@ -247,9 +245,9 @@ export const FeedContainer = ({
               {shortcuts}
             </span>
           )}
-          {shouldUseListFeedLayout && !isShortcutsV1 && shortcuts}
+          {isListFeedLayout && !isShortcutsV1 && shortcuts}
           <ConditionalWrapper
-            condition={shouldUseListFeedLayout}
+            condition={isListFeedLayout}
             wrapper={(child) => (
               <div
                 className={classNames(
@@ -289,12 +287,12 @@ export const FeedContainer = ({
               className={classNames(
                 'grid',
                 !isLaptop && (isExplorePopular || isExploreLatest) && 'mt-4',
-                isSearch && !shouldUseListFeedLayout && !isAnyExplore && 'mt-8',
+                isSearch && !isListFeedLayout && !isAnyExplore && 'mt-8',
                 isHorizontal &&
                   'no-scrollbar snap-x snap-mandatory grid-flow-col overflow-x-scroll scroll-smooth',
                 gapClass({
                   isList,
-                  isFeedLayoutList: shouldUseListFeedLayout,
+                  isFeedLayoutList: isListFeedLayout,
                   space: spaciness,
                 }),
                 cardClass({ isList, numberOfCards: numCards, isHorizontal }),

@@ -181,11 +181,7 @@ export default function MainFeedLayout({
   } = useFeedName({
     feedName,
   });
-  const {
-    shouldUseListFeedLayout,
-    shouldUseCommentFeedLayout,
-    FeedPageLayoutComponent,
-  } = useFeedLayout();
+  const { isListFeedLayout, FeedPageLayoutComponent } = useFeedLayout();
 
   const config = useMemo(() => {
     if (!feedName) {
@@ -345,8 +341,8 @@ export default function MainFeedLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
-  const disableTopPadding =
-    isFinder || shouldUseListFeedLayout || shouldUseCommentFeedLayout;
+  const isCommentsDiscussed = feedName === SharedFeedPage.Discussed;
+  const disableTopPadding = isFinder || isListFeedLayout || isCommentsDiscussed;
 
   const onTabChange = (clickedTab: ExploreTabs) => {
     if (onNavTabClick) {
@@ -368,7 +364,7 @@ export default function MainFeedLayout({
     >
       {isAnyExplore && feedExploreComponent}
       {isSearchOn && search}
-      {shouldUseCommentFeedLayout ? (
+      {isCommentsDiscussed ? (
         <CommentFeed
           isMainFeed
           feedQueryKey={generateQueryKey(RequestKey.CommentFeed, null)}
@@ -388,7 +384,7 @@ export default function MainFeedLayout({
             {...feedProps}
             shortcuts={shortcuts}
             className={classNames(
-              shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
+              isListFeedLayout && !isFinder && 'laptop:px-6',
             )}
           />
         )

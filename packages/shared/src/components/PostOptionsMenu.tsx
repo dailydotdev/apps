@@ -286,7 +286,7 @@ export default function PostOptionsMenu({
     },
   ];
 
-  const { shouldUseListFeedLayout } = useFeedLayout();
+  const { isListFeedLayout } = useFeedLayout();
 
   const { value: shareVia } = useConditionalFeature({
     feature: feature.shareVia,
@@ -305,7 +305,7 @@ export default function PostOptionsMenu({
     });
   }
 
-  if (!shouldUseListFeedLayout) {
+  if (!isListFeedLayout) {
     postOptions.push({
       icon: (
         <MenuIcon

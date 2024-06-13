@@ -42,7 +42,7 @@ function MyFeedHeading({
   const { showTopSites, toggleShowTopSites } = useSettingsContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { logEvent } = useContext(LogContext);
-  const { shouldUseListFeedLayout } = useFeedLayout();
+  const { isListFeedLayout } = useFeedLayout();
   const queryClient = useQueryClient();
   const forceRefresh = useFeature(feature.forceRefresh);
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -84,9 +84,7 @@ function MyFeedHeading({
           className="mr-auto"
           onClick={onRefresh}
           icon={<RefreshIcon />}
-          iconPosition={
-            shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined
-          }
+          iconPosition={isListFeedLayout ? ButtonIconPosition.Right : undefined}
           loading={isRefreshing}
         >
           {isLaptop ? 'Refresh feed' : null}
@@ -98,9 +96,7 @@ function MyFeedHeading({
         size={ButtonSize.Medium}
         variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
         icon={<FilterIcon />}
-        iconPosition={
-          shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined
-        }
+        iconPosition={isListFeedLayout ? ButtonIconPosition.Right : undefined}
       >
         {!isMobile ? feedFiltersLabel : null}
       </FeedSettingsButton>
@@ -117,7 +113,7 @@ function MyFeedHeading({
             }}
             icon={<PlusIcon />}
             iconPosition={
-              shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined
+              isListFeedLayout ? ButtonIconPosition.Right : undefined
             }
           >
             Shortcuts

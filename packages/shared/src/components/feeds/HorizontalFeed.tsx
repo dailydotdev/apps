@@ -28,7 +28,7 @@ export default function HorizontalFeed<T>({
   const currentSettings = useContext(FeedContext);
   const { spaciness } = useContext(SettingsContext);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
-  const { isListMode } = useFeedLayout();
+  const { isListFeedLayout } = useFeedLayout();
 
   useEffect(() => {
     const element = feedContainerRef;
@@ -97,7 +97,7 @@ export default function HorizontalFeed<T>({
       allowFetchMore={false}
       pageSize={10}
       isHorizontal
-      className={classnames('mx-4 mb-10', isListMode && 'laptop:mx-auto')}
+      className={classnames('mx-4 mb-10', isListFeedLayout && 'laptop:mx-auto')}
       feedContainerRef={(ref) => setFeedContainerRef(ref)}
     />
   );

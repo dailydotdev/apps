@@ -28,7 +28,7 @@ export function PublicSquadEligibilityCard(): ReactElement {
     sourceId: squad?.id,
   });
   const postsCount = squad?.flags?.totalPosts;
-  const { shouldUseListFeedLayout } = useFeedLayout();
+  const { isListFeedLayout } = useFeedLayout();
   const { completeAction } = useActions();
   const { openModal } = useLazyModal();
 
@@ -52,7 +52,7 @@ export function PublicSquadEligibilityCard(): ReactElement {
   }
 
   const isEligible = postsCount >= PUBLIC_SQUAD_REQUEST_REQUIREMENT;
-  const CardComponent = shouldUseListFeedLayout ? ListCard : Card;
+  const CardComponent = isListFeedLayout ? ListCard : Card;
 
   return (
     <CardComponent

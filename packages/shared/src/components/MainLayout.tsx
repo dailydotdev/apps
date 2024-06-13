@@ -88,7 +88,7 @@ function MainLayoutComponent({
   const { isCustomFeed } = useFeedName({ feedName });
 
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
-  const { screenCenteredOnMobileLayout } = useFeedLayout();
+  const { shouldBeCentered } = useFeedLayout();
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   useAuthErrors();
   useAuthVerificationRecovery();
@@ -151,8 +151,7 @@ function MainLayoutComponent({
   ) {
     return null;
   }
-  const isScreenCentered =
-    isLaptopXL && screenCenteredOnMobileLayout ? true : screenCentered;
+  const isScreenCentered = (isLaptopXL && shouldBeCentered) || screenCentered;
 
   return (
     <div className="antialiased">

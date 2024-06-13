@@ -97,7 +97,7 @@ export default function useOnPostClick({
   const { logEvent } = useContext(LogContext);
   const { checkReadingStreak } = useReadingStreak();
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
-  const { shouldUseListFeedLayout } = useFeedLayout({
+  const { isListFeedLayout } = useFeedLayout({
     feedRelated: false,
   });
 
@@ -154,7 +154,7 @@ export default function useOnPostClick({
             }
 
             updateFeedPostCache({ index: postIndex });
-          } else if (!feedName && shouldUseListFeedLayout) {
+          } else if (!feedName && isListFeedLayout) {
             const trySetPostRead = (queryKey: QueryKey, id: string) => {
               const updateFeedPost = updateCachedPagePost(
                 queryKey as unknown[],
@@ -187,7 +187,7 @@ export default function useOnPostClick({
       feedName,
       feedQueryKey,
       checkReadingStreak,
-      shouldUseListFeedLayout,
+      isListFeedLayout,
       items,
       ranking,
       origin,

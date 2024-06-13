@@ -41,7 +41,7 @@ const feature = {
   shortcutsUI: new Feature('shortcuts_ui', ShortcutsUIExperiment.Control),
   shareVia: new Feature('share_via', false),
   showRoadmap: new Feature('show_roadmap', false),
-  seoSidebar: new Feature('seo_sidebar', SeoSidebarExperiment.Control),
+  seoSidebar: new Feature('seo_sidebar', SeoSidebarExperiment.V1),
 };
 
 export { feature };

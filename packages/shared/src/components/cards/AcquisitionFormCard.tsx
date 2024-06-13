@@ -40,7 +40,7 @@ export function AcquisitionFormCard(): ReactElement {
   const { logEvent } = useContext(LogContext);
   const [isDismissed, setIsDismissed] = useState(false);
   const [value, setValue] = useState<AcquisitionChannel>();
-  const { shouldUseListFeedLayout } = useFeedLayout();
+  const { isListFeedLayout } = useFeedLayout();
   const [shuffledOptions] = useState(() => shuffle(options));
   const router = useRouter();
   const onRemoveQueryParams = () => {
@@ -82,7 +82,7 @@ export function AcquisitionFormCard(): ReactElement {
     return null;
   }
 
-  const CardComponent = shouldUseListFeedLayout ? ListCard : Card;
+  const CardComponent = isListFeedLayout ? ListCard : Card;
 
   return (
     <CardComponent data-testid="acquisitionFormCard" className="p-4">
@@ -104,10 +104,7 @@ export function AcquisitionFormCard(): ReactElement {
         value={value}
       />
       <Button
-        className={classNames(
-          'w-full',
-          shouldUseListFeedLayout ? 'mt-4' : 'mt-auto',
-        )}
+        className={classNames('w-full', isListFeedLayout ? 'mt-4' : 'mt-auto')}
         variant={ButtonVariant.Primary}
         size={ButtonSize.Small}
         loading={isLoading}
