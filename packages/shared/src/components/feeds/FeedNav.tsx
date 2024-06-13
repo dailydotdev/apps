@@ -29,6 +29,7 @@ import {
 } from '../../lib/featureValues';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
+import { SharedFeedPage } from '../utilities';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -93,15 +94,15 @@ function FeedNav(): ReactElement {
     };
 
     if (seoSidebar === SeoSidebarExperiment.V1) {
-      urls[`${webappUrl}explore`] = FeedNavTab.Explore;
+      urls[`${webappUrl}${SharedFeedPage.Explore}`] = FeedNavTab.Explore;
     } else {
-      urls[`${webappUrl}popular`] = FeedNavTab.Popular;
-      urls[`${webappUrl}upvoted`] = FeedNavTab.MostUpvoted;
+      urls[`${webappUrl}${SharedFeedPage.Popular}`] = FeedNavTab.Popular;
+      urls[`${webappUrl}${SharedFeedPage.Upvoted}`] = FeedNavTab.MostUpvoted;
     }
 
     return {
       ...urls,
-      [`${webappUrl}discussed`]: FeedNavTab.Discussions,
+      [`${webappUrl}${SharedFeedPage.Discussed}`]: FeedNavTab.Discussions,
       [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
       [`${webappUrl}history`]: FeedNavTab.History,
     };

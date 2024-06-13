@@ -77,7 +77,7 @@ const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
   popular: {
     query: ANONYMOUS_FEED_QUERY,
   },
-  explore: {
+  posts: {
     query: ANONYMOUS_FEED_QUERY,
   },
   search: {

@@ -16,6 +16,7 @@ import { feature } from '../../lib/featureManagement';
 import { SeoSidebarExperiment } from '../../lib/featureValues';
 import { checkIsExtension } from '../../lib/func';
 import { webappUrl } from '../../lib/constants';
+import { SharedFeedPage } from '../utilities';
 
 interface DiscoverSectionProps extends SectionCommonProps {
   isItemsButton?: boolean;
@@ -52,8 +53,11 @@ export function DiscoverSection({
         <ListIcon Icon={() => <HotIcon secondary={active} />} />
       ),
       title: isV1Sidebar ? 'Explore' : 'Popular',
-      path: isV1Sidebar ? '/explore' : '/popular',
-      action: () => onNavTabClick?.(isV1Sidebar ? 'explore' : 'popular'),
+      path: isV1Sidebar ? '/posts' : '/popular',
+      action: () =>
+        onNavTabClick?.(
+          isV1Sidebar ? SharedFeedPage.Explore : SharedFeedPage.Popular,
+        ),
     };
 
     const discussion = {
@@ -64,7 +68,7 @@ export function DiscoverSection({
       path: '/discussed',
       action: () => {
         completeAction(ActionType.CommentFeed);
-        onNavTabClick?.('discussed');
+        onNavTabClick?.(SharedFeedPage.Discussed);
       },
       ...(!hasCompletedCommentFeed && {
         rightIcon: () => (
@@ -85,7 +89,7 @@ export function DiscoverSection({
           ),
           title: 'Most upvoted',
           path: '/upvoted',
-          action: () => onNavTabClick?.('upvoted'),
+          action: () => onNavTabClick?.(SharedFeedPage.Upvoted),
         },
         {
           icon: (active: boolean) => (
