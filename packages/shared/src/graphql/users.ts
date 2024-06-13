@@ -461,6 +461,7 @@ export const DEV_CARD_QUERY = gql`
       isProfileCover
       showBorder
       articlesRead
+      longestStreak
       tags
       sources {
         name

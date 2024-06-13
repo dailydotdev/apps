@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { DevCardTheme } from '../../components/profile/devcard/common';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { graphqlUrl } from '../../lib/config';
-import { DEV_CARD_QUERY } from '../../graphql/users';
+import { DEV_CARD_QUERY, UserStreakData } from '../../graphql/users';
 import { useRequestProtocol } from '../useRequestProtocol';
 import { PublicProfile } from '../../lib/user';
 import { Source } from '../../graphql/sources';
@@ -19,6 +19,7 @@ export interface DevCardData {
   articlesRead: number;
   tags: string[];
   sources: Source[];
+  longestStreak: number;
 }
 
 export interface UseDevCard {
@@ -46,5 +47,9 @@ export const useDevCard = (userId: string): UseDevCard => {
     (isProfileCover ? user.cover : undefined) ??
     cloudinary.devcard.defaultCoverImage;
 
-  return { devcard, isLoading, coverImage };
+  return {
+    devcard,
+    isLoading,
+    coverImage,
+  };
 };
