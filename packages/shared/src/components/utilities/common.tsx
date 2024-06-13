@@ -85,7 +85,7 @@ export const PageWidgets = ({
 export const ResponsivePageContainer = classed(
   PageContainer,
   pageBorders,
-  'py-6 laptop:min-h-screen',
+  'py-6',
 );
 
 export const BaseFeedPage = classed(
