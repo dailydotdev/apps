@@ -218,7 +218,9 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     const url = res?.devCard?.imageUrl;
 
     if (url) {
-      downloadImage(url);
+      if (!isMobile) {
+        downloadImage(url);
+      }
       logEvent({
         event_name: LogEvent.DownloadDevcard,
         extra: JSON.stringify({
