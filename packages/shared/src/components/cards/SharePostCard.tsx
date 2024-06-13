@@ -52,9 +52,6 @@ export const SharePostCard = forwardRef(function SharePostCard(
   const improvedSharedPostCard = useFeature(feature.improvedSharedPostCard);
 
   const postImage = improvedSharedPostCard ? post.sharedPost.image : post.image;
-  const postCreatedAt = improvedSharedPostCard
-    ? post.createdAt
-    : post.sharedPost.createdAt;
 
   return (
     <FeedItemContainer
@@ -88,7 +85,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
             <CardSpace />
             <PostTags tags={post.sharedPost.tags} />
             <PostMetadata
-              createdAt={postCreatedAt}
+              createdAt={post.createdAt}
               readTime={post.sharedPost.readTime}
               isVideoType={isVideoType}
               className="mx-4"
