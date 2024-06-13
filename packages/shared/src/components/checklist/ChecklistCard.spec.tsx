@@ -25,7 +25,7 @@ describe('ChecklistCard component', () => {
     renderComponent({
       steps,
       title: 'Card title',
-      description: 'Card description',
+      content: <p>Card description</p>,
     });
 
     const title = await screen.findByText('Card title');
@@ -54,7 +54,7 @@ describe('ChecklistCard component', () => {
     renderComponent({
       steps,
       title: 'Card title',
-      description: 'Card description',
+      content: <p>Card description</p>,
     });
 
     const progress = await screen.findAllByTestId('checklist-card-progress');

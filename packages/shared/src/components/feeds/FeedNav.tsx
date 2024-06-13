@@ -29,10 +29,11 @@ import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
 import { useAuthContext } from '../../contexts/AuthContext';
 
-const OnboardingChecklistBar = dynamic(() =>
-  import(
-    /* webpackChunkName: "onboardingChecklistBar" */ '../checklist/OnboardingChecklistBar'
-  ).then((mod) => mod.OnboardingChecklistBar),
+const OnboardingChecklistBar = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "onboardingChecklistBar" */ '../checklist/OnboardingChecklistBar'
+    ),
 );
 
 enum FeedNavTab {

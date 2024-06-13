@@ -58,10 +58,11 @@ import { CustomFeedsExperiment } from '../../lib/featureValues';
 import { feature } from '../../lib/featureManagement';
 import { HypeButton } from '../referral';
 
-const SidebarOnboardingChecklistCard = dynamic(() =>
-  import(
-    /* webpackChunkName: "sidebarOnboardingChecklistCard" */ '../checklist/SidebarOnboardingChecklistCard'
-  ).then((mod) => mod.SidebarOnboardingChecklistCard),
+const SidebarOnboardingChecklistCard = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "sidebarOnboardingChecklistCard" */ '../checklist/SidebarOnboardingChecklistCard'
+    ),
 );
 
 export default function Sidebar({

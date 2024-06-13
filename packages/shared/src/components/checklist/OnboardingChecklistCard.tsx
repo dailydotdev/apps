@@ -83,3 +83,5 @@ export const OnboardingChecklistCard = withExperiment(
     value: true,
   },
 );
+
+export default OnboardingChecklistCard;

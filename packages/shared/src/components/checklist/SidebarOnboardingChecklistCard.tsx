@@ -11,10 +11,11 @@ import { OnboardingChecklistOptions } from './OnboardingChecklistOptions';
 import { ChecklistCard } from './ChecklistCard';
 import { OnboardingChecklistDismissButton } from './OnboardingChecklistDismissButton';
 
-const OnboardingChecklistCard = dynamic(() =>
-  import(
-    /* webpackChunkName: "onboardingChecklistCard" */ './OnboardingChecklistCard'
-  ).then((mod) => mod.OnboardingChecklistCard),
+const OnboardingChecklistCard = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "onboardingChecklistCard" */ './OnboardingChecklistCard'
+    ),
 );
 
 export type SidebarOnboardingChecklistCardProps = {
@@ -100,3 +101,5 @@ export const SidebarOnboardingChecklistCard = withExperiment(
     value: true,
   },
 );
+
+export default SidebarOnboardingChecklistCard;

@@ -84,3 +84,5 @@ export const OnboardingChecklistBar = withExperiment(
     value: true,
   },
 );
+
+export default OnboardingChecklistBar;
