@@ -218,7 +218,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     const url = res?.devCard?.imageUrl;
 
     if (url) {
-      if (isMobile && navigator.userAgent.indexOf('Mobi') > -1) {
+      if (isMobile) {
         window.open(url, '_blank');
       } else {
         downloadImage(url);
