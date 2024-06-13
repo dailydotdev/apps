@@ -91,16 +91,16 @@ export default function BookmarkFeedLayout({
   return (
     <FeedPageLayoutComponent>
       {children}
-      <FeedPageHeader className="mb-5">
-        <h1 className="font-bold typo-callout">Bookmarks</h1>
-      </FeedPageHeader>
-      <CustomFeedHeader
-        className={classNames('mb-6 flex', !isListFeedLayout && 'px-4')}
-      >
-        {searchChildren}
-        {shareBookmarksButton('hidden laptop:flex ml-4', 'Share bookmarks')}
-        {shareBookmarksButton('flex laptop:hidden ml-4')}
-      </CustomFeedHeader>
+      <span className={classNames('w-full', !isListFeedLayout && 'px-4')}>
+        <FeedPageHeader className="mb-5">
+          <h1 className="font-bold typo-callout">Bookmarks</h1>
+        </FeedPageHeader>
+        <CustomFeedHeader className="mb-6 flex">
+          {searchChildren}
+          {shareBookmarksButton('hidden laptop:flex ml-4', 'Share bookmarks')}
+          {shareBookmarksButton('flex laptop:hidden ml-4')}
+        </CustomFeedHeader>
+      </span>
 
       {showSharedBookmarks && (
         <SharedBookmarksModal
