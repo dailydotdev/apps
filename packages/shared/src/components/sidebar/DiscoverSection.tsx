@@ -24,6 +24,9 @@ interface DiscoverSectionProps extends SectionCommonProps {
   onNavTabClick?: (page: string) => unknown;
 }
 
+const locationPush = (path: string) => () =>
+  window.location.assign(`${webappUrl}${path}`);
+
 export function DiscoverSection({
   isItemsButton,
   onNavTabClick,
@@ -33,19 +36,9 @@ export function DiscoverSection({
   const seoSidebar = useFeature(feature.seoSidebar);
   const isV1Sidebar = seoSidebar === SeoSidebarExperiment.V1;
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
+  const isExtension = checkIsExtension();
   const hasCompletedCommentFeed =
     !isActionsFetched || checkHasCompleted(ActionType.CommentFeed);
-  const locationPush = useCallback((path: string) => {
-    const isExtension = checkIsExtension();
-
-    if (!isExtension) {
-      return null;
-    }
-
-    return window.location.assign(`${webappUrl}${path}`);
-    // router is unstable
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const discoverMenuItems: SidebarMenuItem[] = useMemo(() => {
     const feeds = {
@@ -113,7 +106,7 @@ export function DiscoverSection({
         ),
         title: 'Tags',
         path: '/tags',
-        action: () => locationPush('/tags'),
+        action: isExtension ? locationPush('/tags') : undefined,
       },
       {
         icon: (active: boolean) => (
@@ -121,7 +114,7 @@ export function DiscoverSection({
         ),
         title: 'Sources',
         path: '/sources',
-        action: () => locationPush('/sources'),
+        action: isExtension ? locationPush('/sources') : undefined,
       },
     ];
   }, [
