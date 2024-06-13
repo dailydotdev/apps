@@ -61,7 +61,7 @@ export const ProgressiveEnhancementContextProvider = ({
 
   return (
     <ProgressiveEnhancementContext.Provider value={contextData}>
-      {children}
+      {windowLoaded ? children : null}
     </ProgressiveEnhancementContext.Provider>
   );
 };
