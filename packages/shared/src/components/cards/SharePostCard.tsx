@@ -51,7 +51,15 @@ export const SharePostCard = forwardRef(function SharePostCard(
   const isVideoType = isVideoPost(post);
   const improvedSharedPostCard = useFeature(feature.improvedSharedPostCard);
 
-  const postImage = improvedSharedPostCard ? post.sharedPost.image : post.image;
+  // Just for this experiment, we are modifying the post object to use set the
+  // image from the shared post, this is just to avoid modifying the `PostCardFooter`
+  // component to handle this case just for this experiment.
+  if (improvedSharedPostCard) {
+    // eslint-disable-next-line no-param-reassign
+    post.image = post.sharedPost.image;
+    // eslint-disable-next-line no-param-reassign
+    post.sharedPost.createdAt = post.createdAt;
+  }
 
   return (
     <FeedItemContainer
@@ -85,7 +93,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
             <CardSpace />
             <PostTags tags={post.sharedPost.tags} />
             <PostMetadata
-              createdAt={post.createdAt}
+              createdAt={post.sharedPost.createdAt}
               readTime={post.sharedPost.readTime}
               isVideoType={isVideoType}
               className="mx-4"
@@ -116,15 +124,9 @@ export const SharePostCard = forwardRef(function SharePostCard(
         className={!improvedSharedPostCard && 'min-h-0 justify-end'}
       >
         {improvedSharedPostCard ? (
-          <PostCardFooter
-            image={postImage}
-            openNewTab={openNewTab}
-            post={post}
-            className={{}}
-          />
+          <PostCardFooter openNewTab={openNewTab} post={post} className={{}} />
         ) : (
           <SharedPostCardFooter
-            image={postImage}
             sharedPost={post.sharedPost}
             isShort={isSharedPostShort}
             isVideoType={isVideoType}
