@@ -10,6 +10,11 @@ import {
 import { useChecklist } from '../../hooks/useChecklist';
 import { ChecklistConfetti } from './ChecklistConfetti';
 
+const containerClassNameMap: ChecklistVariantClassNameMap = {
+  [ChecklistCardVariant.Default]: 'rounded-14',
+  [ChecklistCardVariant.Small]: 'rounded-10',
+};
+
 const headerClassNameMap: ChecklistVariantClassNameMap = {
   [ChecklistCardVariant.Default]: 'p-4 rounded-t-12',
   [ChecklistCardVariant.Small]: 'p-2 rounded-t-8',
@@ -53,7 +58,9 @@ const ChecklistCard = ({
   });
 
   return (
-    <ChecklistCardComponent className={className}>
+    <ChecklistCardComponent
+      className={classNames(className, containerClassNameMap[variant])}
+    >
       <div
         className={classNames(
           'relative overflow-hidden bg-gradient-to-t from-raw-cabbage-90 to-raw-cabbage-50',

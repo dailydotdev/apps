@@ -44,9 +44,7 @@ export const ChecklistBar = ({
         {isDone && (
           <ChecklistConfetti className="inset-0" variant="checklistBar" />
         )}
-        <p className={classNames('font-bold text-white typo-footnote')}>
-          {title}
-        </p>
+        <p className="font-bold text-white typo-footnote">{title}</p>
         {!isDone && (
           <p className="text-white typo-caption1">
             {`${completedSteps.length}/${steps.length}${
