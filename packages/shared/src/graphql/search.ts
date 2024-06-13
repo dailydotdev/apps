@@ -11,6 +11,7 @@ export enum SearchProviderEnum {
   Chat = 'chat',
   Tags = 'tags',
   Google = 'google',
+  Sources = 'sources',
 }
 
 const searchPageUrl = `${webappUrl}search`;
@@ -156,6 +157,19 @@ export const SEARCH_TAG_SUGGESTIONS = gql`
       hits {
         id
         title
+      }
+    }
+  }
+`;
+
+export const SEARCH_SOURCE_SUGGESTIONS = gql`
+  query SearchSourceSuggestions($query: String!, $version: Int, $limit: Int) {
+    searchSourceSuggestions(query: $query, version: $version, limit: $limit) {
+      hits {
+        id
+        title
+        subtitle
+        image
       }
     }
   }
@@ -320,6 +334,8 @@ export const sendSearchQuery = async (
 export type SearchSuggestion = {
   id?: string;
   title: string;
+  subtitle?: string;
+  image?: string;
 };
 
 export type SearchSuggestionResult = {
