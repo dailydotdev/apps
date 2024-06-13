@@ -1,4 +1,4 @@
-import React, { ReactElement, useState, useContext } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { format } from 'date-fns';
 import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
 import {

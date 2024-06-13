@@ -99,7 +99,7 @@ export default function MainFeedPage({
     setSearchQuery(undefined);
   };
 
-  const onShowDndClick = useCallback(() => setShowDnd(true), []);
+  const onShowDndClick = useCallback(() => setShowDnd(true), [setShowDnd]);
 
   return (
     <>

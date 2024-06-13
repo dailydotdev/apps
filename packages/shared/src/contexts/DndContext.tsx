@@ -18,7 +18,14 @@ export interface DndContextData {
   onDndSettings: (settings: DndSettings) => Promise<void>;
 }
 
-const DndContext = React.createContext<DndContextData>(null);
+const DEFAULT_VALUE = {
+  showDnd: null,
+  setShowDnd: null,
+  dndSettings: null,
+  isActive: false,
+  onDndSettings: null,
+};
+const DndContext = React.createContext<DndContextData>(DEFAULT_VALUE);
 const now = new Date();
 
 interface DndContextProviderProps {
@@ -34,15 +41,7 @@ export const DndContextProvider = ({
 
   if (!checkIsExtension()) {
     return (
-      <DndContext.Provider
-        value={{
-          showDnd: null,
-          setShowDnd: null,
-          dndSettings: null,
-          isActive: false,
-          onDndSettings: null,
-        }}
-      >
+      <DndContext.Provider value={DEFAULT_VALUE}>
         {children}
       </DndContext.Provider>
     );
