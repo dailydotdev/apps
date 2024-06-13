@@ -14,10 +14,12 @@ interface PostCardFooterProps extends CommonCardCoverProps {
   openNewTab: boolean;
   post: Post;
   className: PostCardFooterClassName;
+  image?: string;
 }
 
 export const PostCardFooter = ({
   post,
+  image,
   className,
   onShare,
 }: PostCardFooterProps): ReactElement => {
@@ -31,7 +33,7 @@ export const PostCardFooter = ({
         imageProps={{
           loading: 'lazy',
           alt: 'Post Cover image',
-          src: post.image,
+          src: image ?? post.image,
           className: classNames(
             'w-full',
             className.image,
