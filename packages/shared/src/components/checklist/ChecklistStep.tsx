@@ -9,7 +9,7 @@ import {
 } from '../../lib/checklist';
 
 const iconToClassNameMap: ChecklistVariantClassNameMap = {
-  [ChecklistCardVariant.Default]: 'w-10 h-10',
+  [ChecklistCardVariant.Default]: 'size-10',
   [ChecklistCardVariant.Small]: 'w-8 h-6',
 };
 

@@ -8,9 +8,9 @@ import ContextMenu from '../fields/ContextMenu';
 import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 import useContextMenu from '../../hooks/useContextMenu';
 import { useOnboardingChecklist } from '../../hooks';
-import { RankConfetti } from '../../svg/RankConfetti';
 import { withExperiment } from '../withExperiment';
 import { feature } from '../../lib/featureManagement';
+import { ChecklistConfetti } from './ChecklistConfetti';
 
 const OnboardingChecklistCard = dynamic(() =>
   import(
@@ -44,7 +44,7 @@ const SidebarOnboardingChecklistCardComponent = ({
           'relative m-2 mt-0 flex flex-col items-center gap-2 overflow-hidden rounded-8 bg-gradient-to-t from-raw-cabbage-90 to-raw-cabbage-50 p-2',
         )}
       >
-        <RankConfetti className="pointer-events-none absolute bottom-0 left-0 right-0 top-0 opacity-40" />
+        <ChecklistConfetti className="pointer-events-none" />
         <p
           className={classNames(
             'mb-1 text-center font-bold text-white typo-footnote',

@@ -8,7 +8,7 @@ import {
   ChecklistVariantClassNameMap,
 } from '../../lib/checklist';
 import { useChecklist } from '../../hooks/useChecklist';
-import { RankConfetti } from '../../svg/RankConfetti';
+import { ChecklistConfetti } from './ChecklistConfetti';
 
 const headerClassNameMap: ChecklistVariantClassNameMap = {
   [ChecklistCardVariant.Default]: 'p-4 rounded-t-12',
@@ -67,9 +67,7 @@ const ChecklistCard = ({
             : headerClassNameClosedMap[variant],
         )}
       >
-        {isDone && (
-          <RankConfetti className="absolute bottom-0 left-0 right-0 top-0 opacity-40" />
-        )}
+        {isDone && <ChecklistConfetti />}
         <p
           className={classNames(
             'mb-1 font-bold text-white',

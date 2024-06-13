@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { ChecklistBarProps } from '../../lib/checklist';
 import { useChecklist } from '../../hooks/useChecklist';
-import { RankConfetti } from '../../svg/RankConfetti';
+import { ChecklistConfetti } from './ChecklistConfetti';
 
 export const ChecklistBar = ({
   className,
@@ -36,9 +36,7 @@ export const ChecklistBar = ({
             );
           })}
         </div>
-        {isDone && (
-          <RankConfetti className="absolute bottom-0 left-0 right-0 top-0 opacity-40" />
-        )}
+        {isDone && <ChecklistConfetti />}
         <p className={classNames('font-bold text-white typo-footnote')}>
           {title}
         </p>
