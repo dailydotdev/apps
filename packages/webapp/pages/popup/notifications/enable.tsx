@@ -5,8 +5,8 @@ import classed from '@dailydotdev/shared/src/lib/classed';
 import { postWindowMessage } from '@dailydotdev/shared/src/lib/func';
 import { ENABLE_NOTIFICATION_WINDOW_KEY } from '@dailydotdev/shared/src/hooks/useNotificationPermissionPopup';
 import { useRouter } from 'next/router';
-import { NotificationPromptSource } from '@dailydotdev/shared/src/lib/analytics';
-import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { NotificationPromptSource } from '@dailydotdev/shared/src/lib/log';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { usePushNotificationMutation } from '@dailydotdev/shared/src/hooks/notifications';
 import dynamic from 'next/dynamic';
@@ -38,10 +38,10 @@ const Description = classed('p', 'typo-callout text-text-tertiary');
 
 function Enable(): React.ReactElement {
   const router = useRouter();
-  const { isSubscribed, isInitialized, trackPermissionGranted } =
+  const { isSubscribed, isInitialized, logPermissionGranted } =
     usePushNotificationContext();
   const { onEnablePush } = usePushNotificationMutation();
-  const { sendBeacon } = useAnalyticsContext();
+  const { sendBeacon } = useLogContext();
   const { source } = router.query;
 
   useEffect(() => {
@@ -59,7 +59,7 @@ function Enable(): React.ReactElement {
         postWindowMessage(ENABLE_NOTIFICATION_WINDOW_KEY, {
           permission: 'granted',
         });
-        trackPermissionGranted(source as NotificationPromptSource);
+        logPermissionGranted(source as NotificationPromptSource);
         closeWindow();
         return;
       }

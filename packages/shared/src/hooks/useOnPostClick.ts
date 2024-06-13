@@ -5,17 +5,16 @@ import {
   QueryKey,
   useQueryClient,
 } from '@tanstack/react-query';
-import AnalyticsContext from '../contexts/AnalyticsContext';
+import LogContext from '../contexts/LogContext';
 import {
-  feedAnalyticsExtra,
+  feedLogExtra,
   optimisticPostUpdateInFeed,
-  postAnalyticsEvent,
+  postLogEvent,
 } from '../lib/feed';
 import { Post, PostType } from '../graphql/posts';
-import { Origin } from '../lib/analytics';
+import { Origin } from '../lib/log';
 import { ActiveFeedContext } from '../contexts';
 import { updateCachedPagePost } from '../lib/query';
-import { usePostFeedback } from './usePostFeedback';
 import { FeedLayoutMobileFeedPages, useFeedLayout } from './useFeedLayout';
 import { FeedData } from '../graphql/feed';
 import { useReadingStreak } from './streaks';
@@ -95,25 +94,23 @@ export default function useOnPostClick({
   origin,
 }: UseOnPostClickProps): FeedPostClick {
   const client = useQueryClient();
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const { checkReadingStreak } = useReadingStreak();
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const { shouldUseListFeedLayout } = useFeedLayout({
     feedRelated: false,
   });
 
-  const { isLowImpsEnabled } = usePostFeedback();
-
   return useMemo(
     () =>
       async ({ post, row, column, optional }): Promise<void> => {
-        trackEvent(
-          postAnalyticsEvent(eventName, post, {
+        logEvent(
+          postLogEvent(eventName, post, {
             columns,
             column,
             row,
             extra: {
-              ...feedAnalyticsExtra(
+              ...feedLogExtra(
                 feedName,
                 ranking,
                 null,
@@ -122,7 +119,6 @@ export default function useOnPostClick({
                 optional?.parent_id,
               ).extra,
               feedback: post.type === PostType.Article ? true : undefined,
-              low_imps: isLowImpsEnabled ? true : undefined,
             },
           }),
         );
@@ -192,11 +188,10 @@ export default function useOnPostClick({
       feedQueryKey,
       checkReadingStreak,
       shouldUseListFeedLayout,
-      isLowImpsEnabled,
       items,
       ranking,
       origin,
-      trackEvent,
+      logEvent,
     ],
   );
 }

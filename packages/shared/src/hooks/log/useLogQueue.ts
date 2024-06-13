@@ -4,7 +4,7 @@ import { apiUrl } from '../../lib/config';
 import useDebounce from '../useDebounce';
 import { ExtensionMessageType } from '../../lib/extension';
 
-export interface AnalyticsEvent extends Record<string, unknown> {
+export interface LogEvent extends Record<string, unknown> {
   visit_id?: string;
   event_timestamp?: Date;
   event_duration?: number;
@@ -13,27 +13,27 @@ export interface AnalyticsEvent extends Record<string, unknown> {
   device_id?: string;
 }
 
-export type PushToQueueFunc = (events: AnalyticsEvent[]) => void;
+export type PushToQueueFunc = (events: LogEvent[]) => void;
 
-const ANALYTICS_ENDPOINT = `${apiUrl}/e`;
+const LOG_ENDPOINT = `${apiUrl}/e`;
 
-type UseAnalyticsQueueProps = {
+type UseLogQueueProps = {
   fetchMethod: typeof fetch;
   backgroundMethod?: (msg: unknown) => Promise<unknown>;
 };
-export default function useAnalyticsQueue({
+export default function useLogQueue({
   fetchMethod,
   backgroundMethod,
-}: UseAnalyticsQueueProps): {
+}: UseLogQueueProps): {
   pushToQueue: PushToQueueFunc;
   setEnabled: (enabled: boolean) => void;
-  queueRef: MutableRefObject<AnalyticsEvent[]>;
+  queueRef: MutableRefObject<LogEvent[]>;
   sendBeacon: () => void;
 } {
   const enabledRef = useRef(false);
   const { mutateAsync: sendEvents } = useMutation(
-    async (events: AnalyticsEvent[]) => {
-      const res = await fetchMethod(ANALYTICS_ENDPOINT, {
+    async (events: LogEvent[]) => {
+      const res = await fetchMethod(LOG_ENDPOINT, {
         method: 'POST',
         body: JSON.stringify({ events }),
         credentials: 'include',
@@ -48,7 +48,7 @@ export default function useAnalyticsQueue({
     },
   );
 
-  const queueRef = useRef<AnalyticsEvent[]>([]);
+  const queueRef = useRef<LogEvent[]>([]);
   const [debouncedSendEvents] = useDebounce(() => {
     if (enabledRef.current && queueRef.current.length) {
       const queue = queueRef.current;
@@ -81,7 +81,7 @@ export default function useAnalyticsQueue({
           });
           if (backgroundMethod) {
             backgroundMethod?.({
-              url: ANALYTICS_ENDPOINT,
+              url: LOG_ENDPOINT,
               type: ExtensionMessageType.FetchRequest,
               args: {
                 body: JSON.stringify({ events }),
@@ -93,7 +93,7 @@ export default function useAnalyticsQueue({
               },
             });
           } else {
-            navigator.sendBeacon(ANALYTICS_ENDPOINT, blob);
+            navigator.sendBeacon(LOG_ENDPOINT, blob);
           }
         }
       },

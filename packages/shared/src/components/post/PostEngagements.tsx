@@ -2,7 +2,7 @@ import dynamic from 'next/dynamic';
 import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Post } from '../../graphql/posts';
-import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
+import { PostOrigin } from '../../hooks/log/useLogContextData';
 import { useShareComment } from '../../hooks/useShareComment';
 import { useUpvoteQuery } from '../../hooks/useUpvoteQuery';
 import { AuthTriggers } from '../../lib/auth';
@@ -11,7 +11,7 @@ import { PostActions } from './PostActions';
 import { PostComments } from './PostComments';
 import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
 import { Comment } from '../../graphql/comments';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/log';
 import {
   isSourcePublicSquad,
   SQUAD_COMMENT_JOIN_BANNER_KEY,
@@ -25,7 +25,7 @@ const AuthorOnboarding = dynamic(
 
 interface PostEngagementsProps {
   post: Post;
-  analyticsOrigin: PostOrigin;
+  logOrigin: PostOrigin;
   shouldOnboardAuthor?: boolean;
   onCopyLinkClick?: (post?: Post) => void;
 }
@@ -33,7 +33,7 @@ interface PostEngagementsProps {
 function PostEngagements({
   post,
   onCopyLinkClick,
-  analyticsOrigin,
+  logOrigin,
   shouldOnboardAuthor,
 }: PostEngagementsProps): ReactElement {
   const postQueryKey = ['post', post.id];
@@ -45,7 +45,7 @@ function PostEngagements({
   const [joinNotificationCommentId, setJoinNotificationCommentId] =
     useState<string>();
   const { onShowUpvoted } = useUpvoteQuery();
-  const { openShareComment } = useShareComment(analyticsOrigin);
+  const { openShareComment } = useShareComment(logOrigin);
   const [isJoinSquadBannerDismissed] = usePersistentContext(
     SQUAD_COMMENT_JOIN_BANNER_KEY,
     false,
@@ -87,7 +87,7 @@ function PostEngagements({
           commentRef.current.onShowInput(Origin.PostCommentButton)
         }
         actionsClassName="hidden laptop:flex"
-        origin={analyticsOrigin}
+        origin={logOrigin}
       />
       <PostContentShare post={post} />
       <NewComment
@@ -98,7 +98,7 @@ function PostEngagements({
       />
       <PostComments
         post={post}
-        origin={analyticsOrigin}
+        origin={logOrigin}
         onShare={(comment) => openShareComment(comment, post)}
         onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}
         permissionNotificationCommentId={permissionNotificationCommentId}

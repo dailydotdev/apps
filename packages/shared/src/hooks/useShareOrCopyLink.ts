@@ -1,25 +1,25 @@
 import { useContext } from 'react';
-import AnalyticsContext from '../contexts/AnalyticsContext';
+import LogContext from '../contexts/LogContext';
 import { CopyNotifyFunction, useCopyLink } from './useCopy';
 import { ShareProvider } from '../lib/share';
-import { AnalyticsEvent } from './analytics/useAnalyticsQueue';
+import { LogEvent } from './log/useLogQueue';
 import { useGetShortUrl } from './utils/useGetShortUrl';
 import { ReferralCampaignKey } from '../lib';
 
 interface UseShareOrCopyLinkProps {
   link: string;
   text: string;
-  trackObject?: (provider: ShareProvider) => AnalyticsEvent;
+  logObject?: (provider: ShareProvider) => LogEvent;
   shortenUrl?: boolean;
   cid?: ReferralCampaignKey;
 }
 export function useShareOrCopyLink({
   link,
   text,
-  trackObject,
+  logObject,
   cid,
 }: UseShareOrCopyLinkProps): ReturnType<typeof useCopyLink> {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const [copying, copyLink] = useCopyLink();
   const { getShortUrl } = useGetShortUrl();
 
@@ -31,12 +31,12 @@ export function useShareOrCopyLink({
         await navigator.share({
           text: `${text}\n${shortLink}`,
         });
-        trackEvent(trackObject(ShareProvider.Native));
+        logEvent(logObject(ShareProvider.Native));
       } catch (err) {
         // Do nothing
       }
     } else {
-      trackEvent(trackObject(ShareProvider.CopyLink));
+      logEvent(logObject(ShareProvider.CopyLink));
       copyLink({ link: shortLink });
     }
   };

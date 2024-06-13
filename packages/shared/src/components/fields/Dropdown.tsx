@@ -143,25 +143,34 @@ export function Dropdown({
         tabIndex={0}
         aria-haspopup="true"
         aria-expanded={isVisible}
-      >
-        {icon &&
+        icon={
+          icon &&
           React.cloneElement(icon as ReactElement<IconProps>, {
             secondary:
               (icon as ReactElement<IconProps>).props.secondary ?? isVisible,
-          })}
-        <span
-          className={classNames('mr-1 flex flex-1 truncate', className.label)}
-        >
-          {selectedIndex >= 0 ? options[selectedIndex] : placeholder}
-        </span>
-        <ArrowIcon
-          className={classNames(
-            'ml-auto text-xl transition-transform group-hover:text-text-tertiary',
-            isVisible ? 'rotate-0' : 'rotate-180',
-            styles.chevron,
-            className.chevron,
-          )}
-        />
+          })
+        }
+      >
+        {iconOnly ? null : (
+          <>
+            <span
+              className={classNames(
+                'mr-1 flex flex-1 truncate',
+                className.label,
+              )}
+            >
+              {selectedIndex >= 0 ? options[selectedIndex] : placeholder}
+            </span>
+            <ArrowIcon
+              className={classNames(
+                'ml-auto text-xl transition-transform group-hover:text-text-tertiary',
+                isVisible ? 'rotate-0' : 'rotate-180',
+                styles.chevron,
+                className.chevron,
+              )}
+            />
+          </>
+        )}
       </Button>
       {fullScreen ? (
         <RootPortal>

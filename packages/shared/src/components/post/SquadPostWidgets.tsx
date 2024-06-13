@@ -9,7 +9,7 @@ import { PostHeaderActions } from './PostHeaderActions';
 import SourceButton from '../cards/SourceButton';
 import { SourceMember, Squad } from '../../graphql/sources';
 import { SquadJoinButton } from '../squads/SquadJoinButton';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/log';
 import { useSquad } from '../../hooks';
 import { getSquadMembers, isSourcePublicSquad } from '../../graphql/squads';
 import SquadMemberShortList from '../squads/SquadMemberShortList';

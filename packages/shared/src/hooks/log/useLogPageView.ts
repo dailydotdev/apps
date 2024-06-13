@@ -1,25 +1,25 @@
 import { MutableRefObject, useContext, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 
-export default function useTrackPageView(): MutableRefObject<() => void> {
+export default function useLogPageView(): MutableRefObject<() => void> {
   const router = useRouter();
-  const { trackEventStart, trackEventEnd } = useContext(AnalyticsContext);
+  const { logEventStart, logEventEnd } = useContext(LogContext);
   const routeChangedCallbackRef = useRef<() => void>();
   const lifecycleCallbackRef = useRef<(event: CustomEvent) => void>();
 
   useEffect(() => {
     routeChangedCallbackRef.current = () => {
-      trackEventEnd('page view');
-      trackEventStart('page view', { event_name: 'page view' });
+      logEventEnd('page view');
+      logEventStart('page view', { event_name: 'page view' });
     };
 
     lifecycleCallbackRef.current = (event) => {
       if (event.detail.newState === 'active') {
-        trackEventStart('page view', { event_name: 'page view' });
+        logEventStart('page view', { event_name: 'page view' });
       }
     };
-  }, [trackEventStart, trackEventEnd]);
+  }, [logEventStart, logEventEnd]);
 
   useEffect(() => {
     const handleRouteChange = () => routeChangedCallbackRef.current();

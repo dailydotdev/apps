@@ -1,6 +1,5 @@
 import { useContext, useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useFeatureIsOn } from '@growthbook/growthbook-react';
 import { Post, dismissPostFeedback, UserVote } from '../graphql/posts';
 import { optimisticPostUpdateInFeed } from '../lib/feed';
 import { updatePostCache } from './usePostById';
@@ -8,9 +7,8 @@ import { updateCachedPagePost } from '../lib/query';
 import { ActiveFeedContext } from '../contexts/ActiveFeedContext';
 import { SharedFeedPage } from '../components/utilities';
 import { EmptyResponse } from '../graphql/emptyResponse';
-import AnalyticsContext from '../contexts/AnalyticsContext';
-import { AnalyticsEvent } from '../lib/analytics';
-import { feature } from '../lib/featureManagement';
+import LogContext from '../contexts/LogContext';
+import { LogEvent } from '../lib/log';
 
 type UsePostFeedbackProps = {
   post?: Pick<Post, 'id' | 'userState' | 'read'>;
@@ -19,7 +17,6 @@ type UsePostFeedbackProps = {
 interface UsePostFeedback {
   showFeedback: boolean;
   dismissFeedback: () => Promise<EmptyResponse>;
-  isLowImpsEnabled: boolean;
 }
 
 export const usePostFeedback = ({
@@ -27,9 +24,7 @@ export const usePostFeedback = ({
 }: UsePostFeedbackProps = {}): UsePostFeedback => {
   const client = useQueryClient();
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
-  const { trackEvent } = useContext(AnalyticsContext);
-
-  const isLowImpsEnabled = useFeatureIsOn(feature.lowImps.id);
+  const { logEvent } = useContext(LogContext);
 
   const isMyFeed = useMemo(() => {
     return feedQueryKey?.some((item) => item === SharedFeedPage.MyFeed);
@@ -43,8 +38,8 @@ export const usePostFeedback = ({
           return;
         }
 
-        trackEvent({
-          event_name: AnalyticsEvent.ClickDismissFeedback,
+        logEvent({
+          event_name: LogEvent.ClickDismissFeedback,
         });
 
         const mutationHandler = (postItem: Post) => {
@@ -99,6 +94,5 @@ export const usePostFeedback = ({
   return {
     showFeedback,
     dismissFeedback: dismissFeedbackMutation.mutateAsync,
-    isLowImpsEnabled,
   };
 };

@@ -26,12 +26,12 @@ import {
 } from '@dailydotdev/shared/src/graphql/settings';
 import { Alerts } from '@dailydotdev/shared/src/graphql/alerts';
 import browser, { TopSites } from 'webextension-polyfill';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import {
-  AnalyticsEvent,
+  LogEvent,
   ShortcutsSourceType,
   TargetType,
-} from '@dailydotdev/shared/src/lib/analytics';
+} from '@dailydotdev/shared/src/lib/log';
 import ShortcutLinks from './ShortcutLinks';
 
 jest.mock('@dailydotdev/shared/src/lib/boot', () => ({
@@ -114,7 +114,7 @@ const getBootMock = (bootMock: BootCacheData): Boot => ({
   feeds: [],
 });
 
-const trackEvent = jest.fn();
+const logEvent = jest.fn();
 
 const renderComponent = (bootData = defaultBootData): RenderResult => {
   const queryClient = new QueryClient();
@@ -129,16 +129,16 @@ const renderComponent = (bootData = defaultBootData): RenderResult => {
         deviceId="123"
         getPage={jest.fn()}
       >
-        <AnalyticsContext.Provider
+        <LogContext.Provider
           value={{
-            trackEvent,
-            trackEventStart: jest.fn(),
-            trackEventEnd: jest.fn(),
+            logEvent,
+            logEventStart: jest.fn(),
+            logEventEnd: jest.fn(),
             sendBeacon: jest.fn(),
           }}
         >
           <ShortcutLinks shouldUseListFeedLayout={false} />
-        </AnalyticsContext.Provider>
+        </LogContext.Provider>
       </BootDataProvider>
     </QueryClientProvider>,
   );
@@ -162,8 +162,8 @@ describe('shortcut links component', () => {
       expect(addShortcuts).toBeVisible();
     });
 
-    expect(trackEvent).toHaveBeenCalledWith({
-      event_name: AnalyticsEvent.Impression,
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.Impression,
       target_type: TargetType.Shortcuts,
       extra: JSON.stringify({ source: ShortcutsSourceType.Custom }),
     });
@@ -176,8 +176,8 @@ describe('shortcut links component', () => {
     const shortcuts = await screen.findAllByRole('link');
     expect(shortcuts.length).toEqual(3);
 
-    expect(trackEvent).toHaveBeenCalledWith({
-      event_name: AnalyticsEvent.Impression,
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.Impression,
       target_type: TargetType.Shortcuts,
       extra: JSON.stringify({ source: ShortcutsSourceType.Browser }),
     });
@@ -220,8 +220,8 @@ describe('shortcut links component', () => {
     const shortcuts = await screen.findAllByRole('link');
     expect(shortcuts.length).toEqual(3);
 
-    expect(trackEvent).toHaveBeenCalledWith({
-      event_name: AnalyticsEvent.SaveShortcutAccess,
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.SaveShortcutAccess,
       target_type: TargetType.Shortcuts,
       extra: JSON.stringify({ source: ShortcutsSourceType.Browser }),
     });
@@ -249,8 +249,8 @@ describe('shortcut links component', () => {
     const addShortcuts = await screen.findByText('Add shortcuts');
     expect(addShortcuts).toBeVisible();
 
-    expect(trackEvent).toHaveBeenCalledWith({
-      event_name: AnalyticsEvent.RevokeShortcutAccess,
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.RevokeShortcutAccess,
       target_type: TargetType.Shortcuts,
     });
   });
@@ -286,8 +286,8 @@ describe('shortcut links component', () => {
     const edit = await screen.findByLabelText('Edit shortcuts');
     fireEvent.click(edit);
 
-    expect(trackEvent).toHaveBeenCalledWith({
-      event_name: AnalyticsEvent.OpenShortcutConfig,
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.OpenShortcutConfig,
       target_type: TargetType.Shortcuts,
     });
 
@@ -318,22 +318,22 @@ describe('shortcut links component', () => {
     const updated = await screen.findAllByRole('link');
     expect(updated.length).toEqual(6);
 
-    expect(trackEvent).toHaveBeenCalledWith({
-      event_name: AnalyticsEvent.SaveShortcutAccess,
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.SaveShortcutAccess,
       target_type: TargetType.Shortcuts,
       extra: JSON.stringify({ source: ShortcutsSourceType.Custom }),
     });
   });
 
-  it('should track click event for individual shortcuts', async () => {
+  it('should log click event for individual shortcuts', async () => {
     renderComponent();
 
     const shortcutLink = await screen.findByAltText('http://custom1.com');
 
     fireEvent.click(shortcutLink);
 
-    expect(trackEvent).toHaveBeenCalledWith({
-      event_name: AnalyticsEvent.Click,
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.Click,
       target_type: TargetType.Shortcuts,
       extra: JSON.stringify({ source: ShortcutsSourceType.Custom }),
     });

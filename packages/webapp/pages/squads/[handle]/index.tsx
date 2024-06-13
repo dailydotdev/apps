@@ -32,8 +32,8 @@ import {
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import SquadLoading from '@dailydotdev/shared/src/components/errors/SquadLoading';
 import { useQuery } from '@tanstack/react-query';
-import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import dynamic from 'next/dynamic';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import classNames from 'classnames';
@@ -104,28 +104,28 @@ const SquadPage = ({
   referringUser,
 }: SourcePageProps): ReactElement => {
   useJoinReferral();
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const { sidebarRendered } = useSidebarRendered();
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
   const { user, isFetched: isBootFetched } = useContext(AuthContext);
-  const [trackedImpression, setTrackedImpression] = useState(false);
+  const [loggedImpression, setLoggedImpression] = useState(false);
   const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
   const { isActionsFetched, checkHasCompleted } = useActions();
   const squadId = squad?.id;
 
   useEffect(() => {
-    if (trackedImpression || !squadId) {
+    if (loggedImpression || !squadId) {
       return;
     }
 
-    trackEvent({
-      event_name: AnalyticsEvent.ViewSquadPage,
+    logEvent({
+      event_name: LogEvent.ViewSquadPage,
       extra: JSON.stringify({ squad: squadId }),
     });
-    setTrackedImpression(true);
+    setLoggedImpression(true);
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [squadId, trackedImpression]);
+  }, [squadId, loggedImpression]);
 
   const { data: squadMembers } = useQuery<SourceMember[]>(
     ['squadMembersInitial', handle],
@@ -148,11 +148,11 @@ const SquadPage = ({
       return;
     }
 
-    trackEvent({
-      event_name: AnalyticsEvent.ViewSquadForbiddenPage,
+    logEvent({
+      event_name: LogEvent.ViewSquadForbiddenPage,
       extra: JSON.stringify({ squad: squadId ?? handle }),
     });
-  }, [isForbidden, squadId, handle, trackEvent]);
+  }, [isForbidden, squadId, handle, logEvent]);
 
   const seoData = squad || initialData;
   const seo = !!seoData && (

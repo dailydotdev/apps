@@ -11,31 +11,29 @@ import {
   REMOVE_BOOKMARK_MUTATION,
   ReadHistoryPost,
 } from '../graphql/posts';
-import AnalyticsContext from '../contexts/AnalyticsContext';
+import LogContext from '../contexts/LogContext';
 import { useToastNotification } from './useToastNotification';
 import { useRequestProtocol } from './useRequestProtocol';
 import AuthContext from '../contexts/AuthContext';
 import { updatePostCache } from './usePostById';
 import { AuthTriggers } from '../lib/auth';
-import { AnalyticsEvent, Origin } from '../lib/analytics';
+import { LogEvent, Origin } from '../lib/log';
 import {
-  PostAnalyticsEventFnOptions,
+  PostLogEventFnOptions,
   optimisticPostUpdateInFeed,
-  postAnalyticsEvent,
+  postLogEvent,
 } from '../lib/feed';
 import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
-import { feature } from '../lib/featureManagement';
 import { ActionType } from '../graphql/actions';
 import { LazyModal } from '../components/modals/common/types';
 import { promotion } from '../components/modals/generic';
-import { useFeature } from '../components/GrowthBookProvider';
 import { useLazyModal } from './useLazyModal';
 import { useActions } from './useActions';
 
 export type ToggleBookmarkProps = {
   origin: Origin;
   post: Post | ReadHistoryPost;
-  opts?: PostAnalyticsEventFnOptions;
+  opts?: PostLogEventFnOptions;
 };
 
 export const bookmarkMutationKey = ['post', 'mutation', 'bookmark'];
@@ -59,10 +57,10 @@ export type UseBookmarkPostProps = {
   mutationKey?: MutationKey;
 };
 
-const prepareBookmarkPostAnalyticsOptions = ({
+const prepareBookmarkPostLogOptions = ({
   origin,
   opts,
-}: ToggleBookmarkProps): PostAnalyticsEventFnOptions => {
+}: ToggleBookmarkProps): PostLogEventFnOptions => {
   const { extra, ...restOpts } = opts || {};
 
   return {
@@ -83,8 +81,7 @@ const useBookmarkPost = ({
   const client = useQueryClient();
   const { displayToast } = useToastNotification();
   const { user, showLogin } = useContext(AuthContext);
-  const { trackEvent } = useContext(AnalyticsContext);
-  const bookmarkLoops = useFeature(feature.bookmarkLoops);
+  const { logEvent } = useContext(LogContext);
   const { openModal } = useLazyModal();
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
   const seenBookmarkPromotion = useMemo(
@@ -148,33 +145,25 @@ const useBookmarkPost = ({
         return;
       }
 
-      const analyticsOptions = prepareBookmarkPostAnalyticsOptions({
+      const logOptions = prepareBookmarkPostLogOptions({
         post,
         origin,
         opts,
       });
 
       if (post.bookmarked) {
-        trackEvent(
-          postAnalyticsEvent(
-            AnalyticsEvent.RemovePostBookmark,
-            post,
-            analyticsOptions,
-          ),
-        );
+        logEvent(postLogEvent(LogEvent.RemovePostBookmark, post, logOptions));
         await removeBookmark({ id: post.id });
         displayToast('Post was removed from your bookmarks');
         return;
       }
 
-      trackEvent(
-        postAnalyticsEvent(AnalyticsEvent.BookmarkPost, post, analyticsOptions),
-      );
+      logEvent(postLogEvent(LogEvent.BookmarkPost, post, logOptions));
 
       await addBookmark({ id: post.id });
       displayToast('Post was added to your bookmarks');
 
-      if (!seenBookmarkPromotion && bookmarkLoops) {
+      if (!seenBookmarkPromotion) {
         completeAction(ActionType.BookmarkPromoteMobile);
         openModal({
           type: LazyModal.MarketingCta,
@@ -184,14 +173,13 @@ const useBookmarkPost = ({
     },
     [
       addBookmark,
-      bookmarkLoops,
       completeAction,
       displayToast,
       openModal,
       removeBookmark,
       seenBookmarkPromotion,
       showLogin,
-      trackEvent,
+      logEvent,
       user,
     ],
   );

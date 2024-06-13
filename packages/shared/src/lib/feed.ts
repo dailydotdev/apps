@@ -1,8 +1,8 @@
 import { FeedItem, PostItem } from '../hooks/useFeed';
 import { Ad, Post, ReadHistoryPost } from '../graphql/posts';
-import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
+import { LogEvent } from '../hooks/log/useLogQueue';
 import { PostBootData } from './boot';
-import { Origin } from './analytics';
+import { Origin } from './log';
 import { SharedFeedPage } from '../components/utilities';
 import { AllFeedPages, OtherFeedPage } from './query';
 
@@ -22,7 +22,7 @@ export function optimisticPostUpdateInFeed(
   };
 }
 
-interface FeedItemAnalyticsEvent extends AnalyticsEvent {
+interface FeedItemLogEvent extends LogEvent {
   event_name: string;
   feed_grid_columns?: number;
   feed_item_grid_column?: number;
@@ -35,7 +35,7 @@ interface FeedItemAnalyticsEvent extends AnalyticsEvent {
   target_type: string;
 }
 
-interface PostItemAnalyticsEvent extends FeedItemAnalyticsEvent {
+interface PostItemLogEvent extends FeedItemLogEvent {
   post_author_id: string;
   post_scout_id: string;
   post_comments_count: number;
@@ -47,11 +47,11 @@ interface PostItemAnalyticsEvent extends FeedItemAnalyticsEvent {
   post_upvotes_count: number;
 }
 
-interface AdItemAnalyticsEvent extends FeedItemAnalyticsEvent {
+interface AdItemLogEvent extends FeedItemLogEvent {
   ad_provider_id: string;
 }
 
-interface FeedAnalyticsExtra {
+interface FeedLogExtra {
   extra: {
     origin: string;
     feed: string;
@@ -61,7 +61,7 @@ interface FeedAnalyticsExtra {
   };
 }
 
-export function feedAnalyticsExtra(
+export function feedLogExtra(
   feedName: string,
   ranking?: string,
   extra?: {
@@ -70,7 +70,7 @@ export function feedAnalyticsExtra(
   origin?: Origin,
   variant?: string,
   parent_id?: string,
-): FeedAnalyticsExtra {
+): FeedLogExtra {
   return {
     extra: {
       origin: origin ?? Origin.Feed,
@@ -89,17 +89,17 @@ export interface FeedItemPosition {
   row?: number;
 }
 
-export type PostAnalyticsEventFnOptions = FeedItemPosition & {
+export type PostLogEventFnOptions = FeedItemPosition & {
   extra?: Record<string, unknown>;
 };
 
 const feedPathWithIdMatcher = /^\/feeds\/(?<feedId>[A-z0-9]{9})\/?$/;
 
-export function postAnalyticsEvent(
+export function postLogEvent(
   eventName: string,
   post: Post | ReadHistoryPost | PostBootData,
-  opts?: PostAnalyticsEventFnOptions,
-): PostItemAnalyticsEvent {
+  opts?: PostLogEventFnOptions,
+): PostItemLogEvent {
   const extra = {
     ...opts?.extra,
   };
@@ -140,7 +140,7 @@ export function postAnalyticsEvent(
   };
 }
 
-export function adAnalyticsEvent(
+export function adLogEvent(
   eventName: string,
   ad: Ad,
   opts?: {
@@ -149,7 +149,7 @@ export function adAnalyticsEvent(
     row?: number;
     extra?: Record<string, unknown>;
   },
-): AdItemAnalyticsEvent {
+): AdItemLogEvent {
   return {
     event_name: eventName,
     feed_grid_columns: opts?.columns,

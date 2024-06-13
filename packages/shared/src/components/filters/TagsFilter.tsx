@@ -20,7 +20,7 @@ import { MenuIcon } from '../icons';
 import AuthContext from '../../contexts/AuthContext';
 import classed from '../../lib/classed';
 import { HTMLElementComponent } from '../utilities';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/log';
 import useDebounce from '../../hooks/useDebounce';
 import { useTagSearch } from '../../hooks';
 

@@ -12,7 +12,6 @@ import {
   EyeIcon,
   BlockIcon,
   FlagIcon,
-  BookmarkIcon,
   PlusIcon,
   EditIcon,
   UpvoteIcon,
@@ -26,8 +25,8 @@ import {
 } from './icons';
 import { ReportedCallback } from './modals';
 import useTagAndSource from '../hooks/useTagAndSource';
-import AnalyticsContext from '../contexts/AnalyticsContext';
-import { postAnalyticsEvent } from '../lib/feed';
+import LogContext from '../contexts/LogContext';
+import { postLogEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
 import {
   ToastSubject,
@@ -36,26 +35,17 @@ import {
   useSourceSubscription,
   useToastNotification,
 } from '../hooks';
-import {
-  AllFeedPages,
-  generateQueryKey,
-  updateCachedPagePost,
-} from '../lib/query';
+import { AllFeedPages, generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
-import { AnalyticsEvent, Origin } from '../lib/analytics';
+import { LogEvent, Origin } from '../lib/log';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
 import { getPostByIdKey } from '../hooks/usePostById';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { labels } from '../lib';
 import { MenuItemProps } from './fields/ContextMenu';
-import {
-  mutateBookmarkFeedPost,
-  useBookmarkPost,
-} from '../hooks/useBookmarkPost';
 import { ActiveFeedContext } from '../contexts';
 import { useAdvancedSettings } from '../hooks/feed';
-import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { ContextMenu as ContextMenuTypes } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
@@ -109,16 +99,12 @@ export default function PostOptionsMenu({
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({ enabled: isPostOptionsOpen });
   const { onUpdateSettings } = useAdvancedSettings({ enabled: false });
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const { hidePost, unhidePost } = useReportPost();
   const { openSharePost } = useSharePost(origin);
 
   const { openModal } = useLazyModal();
-  const {
-    queryKey: feedQueryKey,
-    items,
-    trackingOpts,
-  } = useContext(ActiveFeedContext);
+  const { queryKey: feedQueryKey, logOpts } = useContext(ActiveFeedContext);
   const {
     onFollowSource,
     onUnfollowSource,
@@ -143,24 +129,6 @@ export default function PostOptionsMenu({
   const sourceSubscribe = useSourceSubscription({
     source: shouldShowSubscribe ? post?.source : undefined,
   });
-
-  const { toggleBookmark } = useBookmarkPost({
-    mutationKey: feedQueryKey,
-    onMutate: feedQueryKey
-      ? ({ id }) => {
-          const updatePost = updateCachedPagePost(
-            feedQueryKey as unknown[],
-            client,
-          );
-
-          return mutateBookmarkFeedPost({ id, items, updatePost });
-        }
-      : undefined,
-  });
-
-  const onToggleBookmark = async () => {
-    toggleBookmark({ post, origin, opts: trackingOpts });
-  };
 
   const showMessageAndRemovePost = async (
     message: string,
@@ -206,10 +174,10 @@ export default function PostOptionsMenu({
       await client.invalidateQueries(feedQueryKey);
     },
     onPostDeleted: ({ index, post: deletedPost }) => {
-      trackEvent(
-        postAnalyticsEvent(AnalyticsEvent.DeletePost, deletedPost, {
+      logEvent(
+        postLogEvent(LogEvent.DeletePost, deletedPost, {
           extra: { origin },
-          ...trackingOpts,
+          ...logOpts,
         }),
       );
       return showMessageAndRemovePost('The post has been deleted', index, null);
@@ -296,10 +264,10 @@ export default function PostOptionsMenu({
       return;
     }
 
-    trackEvent(
-      postAnalyticsEvent('hide post', post, {
+    logEvent(
+      postLogEvent('hide post', post, {
         extra: { origin: Origin.PostContextMenu },
-        ...trackingOpts,
+        ...logOpts,
       }),
     );
 
@@ -319,9 +287,6 @@ export default function PostOptionsMenu({
   ];
 
   const { shouldUseListFeedLayout } = useFeedLayout();
-  const bookmarkLoops = useFeature(feature.bookmarkLoops);
-  const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
-  const shouldShowBookmark = bookmarkLoops || bookmarkOnCard;
 
   const { value: shareVia } = useConditionalFeature({
     feature: feature.shareVia,
@@ -335,22 +300,8 @@ export default function PostOptionsMenu({
       action: () =>
         openSharePost({
           post,
-          ...trackingOpts,
+          ...logOpts,
         }),
-    });
-  }
-
-  if (!shouldShowBookmark && !shouldUseListFeedLayout) {
-    postOptions.push({
-      icon: (
-        <MenuIcon
-          secondary={post?.bookmarked}
-          Icon={BookmarkIcon}
-          className={post?.bookmarked && 'text-accent-bun-default'}
-        />
-      ),
-      label: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
-      action: onToggleBookmark,
     });
   }
 

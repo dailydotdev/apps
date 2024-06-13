@@ -1,6 +1,8 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { RadioItem, RadioItemProps } from './RadioItem';
+import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 interface ClassName {
   container?: string;
@@ -15,6 +17,11 @@ export interface RadioProps<T extends string = string> {
   value?: T;
   onChange: (value: T) => unknown;
   className?: ClassName;
+  tooltip?: {
+    placement?: TooltipPosition;
+    content?: string;
+  };
+  disabled?: boolean;
 }
 
 export function Radio<T extends string = string>({
@@ -23,6 +30,8 @@ export function Radio<T extends string = string>({
   value,
   onChange,
   className = {},
+  tooltip,
+  disabled,
 }: RadioProps<T>): ReactElement {
   return (
     <div
@@ -38,7 +47,7 @@ export function Radio<T extends string = string>({
           name={name}
           id={`${name}-${option.id || option.value}`}
           value={option.value}
-          disabled={option.disabled}
+          disabled={option.disabled || disabled}
           checked={value === option.value}
           onChange={() => onChange(option.value)}
           className={{
@@ -51,7 +60,12 @@ export function Radio<T extends string = string>({
           }}
           afterElement={option.afterElement}
         >
-          {option.label}
+          <SimpleTooltip
+            content={tooltip?.content}
+            placement={tooltip?.placement}
+          >
+            <span>{option.label}</span>
+          </SimpleTooltip>
         </RadioItem>
       ))}
     </div>

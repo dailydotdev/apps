@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import { USER_COMMENTS_QUERY } from '@dailydotdev/shared/src/graphql/comments';
-import { Origin } from '@dailydotdev/shared/src/lib/analytics';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
 import {
   generateQueryKey,
   RequestKey,
@@ -50,7 +50,7 @@ const ProfileCommentsPage = ({ user }: ProfileLayoutProps): ReactElement => {
     <CommentFeed
       feedQueryKey={generateQueryKey(RequestKey.UserComments, null, userId)}
       query={USER_COMMENTS_QUERY}
-      analyticsOrigin={Origin.Profile}
+      logOrigin={Origin.Profile}
       variables={{ userId }}
       emptyScreen={emptyScreen}
       commentClassName={commentClassName}

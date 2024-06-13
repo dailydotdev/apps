@@ -22,7 +22,7 @@ import { AuthFormProps, providerMap } from './common';
 import AuthContext from '../../contexts/AuthContext';
 import { ProfileFormHint } from '../../hooks/useProfileForm';
 import { Checkbox } from '../fields/Checkbox';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 import AuthForm from './AuthForm';
 import { Modal } from '../modals/common/Modal';
 import { IconSize } from '../Icon';
@@ -30,10 +30,7 @@ import { useGenerateUsername } from '../../hooks';
 import AuthContainer from './AuthContainer';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SignBackProvider, useSignBack } from '../../hooks/auth/useSignBack';
-import { feature } from '../../lib/featureManagement';
-import { useFeature } from '../GrowthBookProvider';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
-import { ExperienceLevelExperiment } from '../../lib/featureValues';
 
 export interface SocialRegistrationFormProps extends AuthFormProps {
   className?: string;
@@ -64,7 +61,7 @@ export const SocialRegistrationForm = ({
   isLoading,
   simplified,
 }: SocialRegistrationFormProps): ReactElement => {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const { user } = useContext(AuthContext);
   const [nameHint, setNameHint] = useState<string>(null);
   const [usernameHint, setUsernameHint] = useState<string>(null);
@@ -74,20 +71,17 @@ export const SocialRegistrationForm = ({
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { username, setUsername } = useGenerateUsername(name);
   const { onUpdateSignBack } = useSignBack();
-  const experienceLevelVersion = useFeature(feature.experienceLevel);
-  const showExperienceLevel =
-    experienceLevelVersion === ExperienceLevelExperiment.V1;
 
   useEffect(() => {
-    trackEvent({
+    logEvent({
       event_name: AuthEventNames.StartSignUpForm,
     });
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const trackError = (error) => {
-    trackEvent({
+  const logError = (error) => {
+    logEvent({
       event_name: AuthEventNames.SubmitSignUpFormError,
       extra: JSON.stringify({ error }),
     });
@@ -95,7 +89,7 @@ export const SocialRegistrationForm = ({
 
   useEffect(() => {
     if (Object.keys(hints).length) {
-      trackError(hints);
+      logError(hints);
     }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -104,7 +98,7 @@ export const SocialRegistrationForm = ({
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    trackEvent({
+    logEvent({
       event_name: AuthEventNames.SubmitSignUpForm,
     });
 
@@ -114,25 +108,25 @@ export const SocialRegistrationForm = ({
     );
 
     if (!values.name) {
-      trackError('Name not provided');
+      logError('Name not provided');
       setNameHint('Please prove your name');
       return;
     }
 
     if (!values.username) {
-      trackError('Username not provided');
+      logError('Username not provided');
       setUsernameHint('Please choose a username');
       return;
     }
 
-    if (!values.experienceLevel && showExperienceLevel) {
-      trackError('Experience level not provided');
+    if (!values.experienceLevel) {
+      logError('Experience level not provided');
       setExperienceLevelHint('Please select your experience level');
       return;
     }
 
     if (isAuthorOnboarding && !values.twitter) {
-      trackError('Twitter not provider');
+      logError('Twitter not provider');
       setTwitterHint('Please add your twitter handle');
     }
 
@@ -244,20 +238,18 @@ export const SocialRegistrationForm = ({
             }}
           />
         )}
-        {showExperienceLevel && (
-          <ExperienceLevelDropdown
-            className={{ container: 'w-full' }}
-            name="experienceLevel"
-            onChange={() => {
-              if (experienceLevelHint) {
-                setExperienceLevelHint(null);
-              }
-            }}
-            valid={experienceLevelHint === null}
-            hint={experienceLevelHint}
-            saveHintSpace
-          />
-        )}
+        <ExperienceLevelDropdown
+          className={{ container: 'w-full' }}
+          name="experienceLevel"
+          onChange={() => {
+            if (experienceLevelHint) {
+              setExperienceLevelHint(null);
+            }
+          }}
+          valid={experienceLevelHint === null}
+          hint={experienceLevelHint}
+          saveHintSpace
+        />
         <span className="border-b border-border-subtlest-tertiary pb-4 text-text-secondary typo-subhead">
           Your email will be used to send you product and community updates
         </span>

@@ -4,9 +4,9 @@ import {
   companionPermissionGrantedLink,
   isProduction,
 } from '@dailydotdev/shared/src/lib/constants';
-import { AnalyticsEvent as AnalyticsEventName } from '@dailydotdev/shared/src/lib/analytics';
+import { LogEvent as LogEventName } from '@dailydotdev/shared/src/lib/log';
 import { QueryClient } from '@tanstack/react-query';
-import { AnalyticsEvent } from '@dailydotdev/shared/src/hooks/analytics/useAnalyticsQueue';
+import { LogEvent } from '@dailydotdev/shared/src/hooks/log/useLogQueue';
 
 export type RequestContentScripts = (data: {
   origin: string;
@@ -15,7 +15,7 @@ export type RequestContentScripts = (data: {
 
 export type CreateRequestContentScripts = (
   client: QueryClient,
-  trackEvent: (e: AnalyticsEvent) => void,
+  logEvent: (e: LogEvent) => void,
 ) => RequestContentScripts;
 
 export const HOST_PERMISSIONS = isProduction
@@ -76,7 +76,7 @@ export const getContentScriptPermissionAndRegister =
 
 export const requestContentScripts: CreateRequestContentScripts = (
   client,
-  trackEvent,
+  logEvent,
 ) => {
   return async ({
     origin,
@@ -85,8 +85,8 @@ export const requestContentScripts: CreateRequestContentScripts = (
     origin: string;
     skipRedirect?: boolean;
   }) => {
-    trackEvent({
-      event_name: AnalyticsEventName.RequestContentScripts,
+    logEvent({
+      event_name: LogEventName.RequestContentScripts,
       extra: JSON.stringify({ origin }),
     });
 
@@ -95,8 +95,8 @@ export const requestContentScripts: CreateRequestContentScripts = (
     });
 
     if (granted) {
-      trackEvent({
-        event_name: AnalyticsEventName.ApproveContentScripts,
+      logEvent({
+        event_name: LogEventName.ApproveContentScripts,
         extra: JSON.stringify({ origin }),
       });
       client.setQueryData(contentScriptKey, true);
@@ -106,8 +106,8 @@ export const requestContentScripts: CreateRequestContentScripts = (
         window.open(companionPermissionGrantedLink, '_blank');
       }
     } else {
-      trackEvent({
-        event_name: AnalyticsEventName.DeclineContentScripts,
+      logEvent({
+        event_name: LogEventName.DeclineContentScripts,
         extra: JSON.stringify({ origin }),
       });
     }

@@ -1,9 +1,9 @@
 import React, { Dispatch, ReactElement, useContext } from 'react';
-import { ShareProvider, addTrackingQueryParams } from '../../lib/share';
+import { ShareProvider, addLogQueryParams } from '../../lib/share';
 import { Post } from '../../graphql/posts';
-import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
-import { AnalyticsEvent, Origin } from '../../lib/analytics';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { FeedItemPosition, postLogEvent } from '../../lib/feed';
+import { LogEvent, Origin } from '../../lib/log';
+import LogContext from '../../contexts/LogContext';
 import { Comment, getCommentHash } from '../../graphql/comments';
 import { useSharePost } from '../../hooks/useSharePost';
 import { SocialShareContainer } from './SocialShareContainer';
@@ -49,16 +49,16 @@ export const SocialShare = ({
   // as well as passed into the SocialShareList component
   const link =
     isAuthReady && user
-      ? addTrackingQueryParams({ link: href, userId: user.id, cid })
+      ? addLogQueryParams({ link: href, userId: user.id, cid })
       : href;
   const { getShortUrl } = useGetShortUrl();
   const [copying, copyLink] = useCopyLink();
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const { openNativeSharePost } = useSharePost(Origin.Share);
   const [squadToShare, setSquadToShare] = shareToSquadState;
-  const trackClick = (provider: ShareProvider) =>
-    trackEvent(
-      postAnalyticsEvent('share post', post, {
+  const logClick = (provider: ShareProvider) =>
+    logEvent(
+      postLogEvent('share post', post, {
         columns,
         column,
         row,
@@ -66,14 +66,14 @@ export const SocialShare = ({
       }),
     );
 
-  const trackAndCopyLink = async () => {
+  const logAndCopyLink = async () => {
     const shortLink = await getShortUrl(link);
     copyLink({ link: shortLink });
-    trackClick(ShareProvider.CopyLink);
+    logClick(ShareProvider.CopyLink);
   };
 
   const onSharedSuccessfully = () => {
-    trackEvent(postAnalyticsEvent(AnalyticsEvent.ShareToSquad, post));
+    logEvent(postLogEvent(LogEvent.ShareToSquad, post));
 
     if (onClose) {
       onClose();
@@ -92,9 +92,9 @@ export const SocialShare = ({
           link={link}
           description={post?.title}
           isCopying={copying}
-          onCopy={trackAndCopyLink}
+          onCopy={logAndCopyLink}
           onNativeShare={() => openNativeSharePost(post)}
-          onClickSocial={trackClick}
+          onClickSocial={logClick}
           emailTitle="I found this amazing post"
         />
       </SocialShareContainer>

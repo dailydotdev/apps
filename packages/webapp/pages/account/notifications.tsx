@@ -13,13 +13,13 @@ import Pointer, {
 } from '@dailydotdev/shared/src/components/alert/Pointer';
 import useProfileForm from '@dailydotdev/shared/src/hooks/useProfileForm';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import {
-  AnalyticsEvent,
+  LogEvent,
   NotificationCategory,
   NotificationChannel,
   NotificationPromptSource,
-} from '@dailydotdev/shared/src/lib/analytics';
+} from '@dailydotdev/shared/src/lib/log';
 import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
 import { SendType, usePersonalizedDigest } from '@dailydotdev/shared/src/hooks';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
@@ -48,7 +48,7 @@ const AccountNotificationsPage = (): ReactElement => {
     true,
   );
   const { updateUserProfile } = useProfileForm();
-  const { trackEvent } = useAnalyticsContext();
+  const { logEvent } = useLogContext();
   const { user } = useContext(AuthContext);
   const {
     getPersonalizedDigest,
@@ -92,7 +92,7 @@ const AccountNotificationsPage = (): ReactElement => {
   const onToggleEmailSettings = () => {
     const value = !emailNotification;
 
-    const defaultTrackingProps = {
+    const defaultLogProps = {
       extra: JSON.stringify({
         channel: NotificationChannel.Email,
         category: [
@@ -104,14 +104,14 @@ const AccountNotificationsPage = (): ReactElement => {
     };
 
     if (value) {
-      trackEvent({
-        event_name: AnalyticsEvent.EnableNotification,
-        ...defaultTrackingProps,
+      logEvent({
+        event_name: LogEvent.EnableNotification,
+        ...defaultLogProps,
       });
     } else {
-      trackEvent({
-        event_name: AnalyticsEvent.DisableNotification,
-        ...defaultTrackingProps,
+      logEvent({
+        event_name: LogEvent.DisableNotification,
+        ...defaultLogProps,
       });
     }
 
@@ -127,38 +127,38 @@ const AccountNotificationsPage = (): ReactElement => {
     }
   };
 
-  const onTrackToggle = (
+  const onLogToggle = (
     isEnabled: boolean,
     channel: NotificationChannel,
     category: NotificationCategory,
   ) => {
-    const baseTrackingProps = {
+    const baseLogProps = {
       extra: JSON.stringify({ channel, category }),
     };
     if (isEnabled) {
-      trackEvent({
-        event_name: AnalyticsEvent.EnableNotification,
-        ...baseTrackingProps,
+      logEvent({
+        event_name: LogEvent.EnableNotification,
+        ...baseLogProps,
       });
     } else {
-      trackEvent({
-        event_name: AnalyticsEvent.DisableNotification,
-        ...baseTrackingProps,
+      logEvent({
+        event_name: LogEvent.DisableNotification,
+        ...baseLogProps,
       });
     }
   };
 
   const onToggleReadingReminder = (forceValue?: boolean) => {
     const value = forceValue || !readingReminder;
-    onTrackToggle(
+    onLogToggle(
       value,
       NotificationChannel.Web,
       NotificationCategory.ReadingReminder,
     );
 
     if (value) {
-      trackEvent({
-        event_name: AnalyticsEvent.ScheduleReadingReminder,
+      logEvent({
+        event_name: LogEvent.ScheduleReadingReminder,
         extra: JSON.stringify({
           hour: readingTimeIndex,
           timezone: user?.timezone,
@@ -176,17 +176,17 @@ const AccountNotificationsPage = (): ReactElement => {
 
   const onToggleStreakReminder = (forceValue?: boolean) => {
     const value = forceValue || !streakReminder;
-    onTrackToggle(
+    onLogToggle(
       value,
       NotificationChannel.Web,
       NotificationCategory.StreakReminder,
     );
 
     if (value) {
-      trackEvent({
-        event_name: AnalyticsEvent.ScheduleStreakReminder,
+      logEvent({
+        event_name: LogEvent.ScheduleStreakReminder,
         extra: JSON.stringify({
-          hour: readingTimeIndex,
+          hour: 20,
           timezone: user?.timezone,
         }),
       });
@@ -203,7 +203,7 @@ const AccountNotificationsPage = (): ReactElement => {
   };
 
   const onTogglePush = async () => {
-    onTrackToggle(
+    onLogToggle(
       !isSubscribed,
       NotificationChannel.Web,
       NotificationCategory.Product,
@@ -214,17 +214,13 @@ const AccountNotificationsPage = (): ReactElement => {
 
   const onToggleEmailNotification = () => {
     const value = !notificationEmail;
-    onTrackToggle(
-      value,
-      NotificationChannel.Email,
-      NotificationCategory.Product,
-    );
+    onLogToggle(value, NotificationChannel.Email, NotificationCategory.Product);
     updateUserProfile({ notificationEmail: value });
   };
 
   const onToggleEmailMarketing = () => {
     const value = !acceptedMarketing;
-    onTrackToggle(
+    onLogToggle(
       value,
       NotificationChannel.Email,
       NotificationCategory.Marketing,
@@ -233,7 +229,7 @@ const AccountNotificationsPage = (): ReactElement => {
   };
 
   const setPersonalizedDigestType = (sendType: SendType): void => {
-    onTrackToggle(
+    onLogToggle(
       sendType !== SendType.Off,
       NotificationChannel.Email,
       NotificationCategory.Digest,
@@ -242,8 +238,8 @@ const AccountNotificationsPage = (): ReactElement => {
     if (sendType === SendType.Off) {
       unsubscribePersonalizedDigest();
     } else {
-      trackEvent({
-        event_name: AnalyticsEvent.ScheduleDigest,
+      logEvent({
+        event_name: LogEvent.ScheduleDigest,
         extra: JSON.stringify({
           hour: digestTimeIndex,
           timezone: user?.timezone,
@@ -260,16 +256,16 @@ const AccountNotificationsPage = (): ReactElement => {
     setHour: React.Dispatch<SetStateAction<number>>,
   ): void => {
     if (type === UserPersonalizedDigestType.ReadingReminder) {
-      trackEvent({
-        event_name: AnalyticsEvent.ScheduleReadingReminder,
+      logEvent({
+        event_name: LogEvent.ScheduleReadingReminder,
         extra: JSON.stringify({
           hour: preferredHour,
           timezone: user?.timezone,
         }),
       });
     } else if (type === UserPersonalizedDigestType.Digest) {
-      trackEvent({
-        event_name: AnalyticsEvent.ScheduleDigest,
+      logEvent({
+        event_name: LogEvent.ScheduleDigest,
         extra: JSON.stringify({
           hour: preferredHour,
           timezone: user?.timezone,
