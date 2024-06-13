@@ -5,6 +5,7 @@ import {
   HashtagIcon,
   HotIcon,
   SearchIcon,
+  SquadIcon,
   UpvoteIcon,
 } from '../icons';
 import { ListIcon, SidebarMenuItem } from './common';
@@ -115,6 +116,14 @@ export function DiscoverSection({
         title: 'Sources',
         path: '/sources',
         action: isExtension ? locationPush('/sources') : undefined,
+      },
+      {
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <SquadIcon secondary={active} />} />
+        ),
+        title: 'Leaderboard',
+        path: '/leaderboard',
+        action: isExtension ? locationPush('/leaderboard') : undefined,
       },
     ];
   }, [

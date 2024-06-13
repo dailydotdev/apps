@@ -1,9 +1,18 @@
-import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
-import React, { ReactElement, ReactNode } from 'react';
+import React, {
+  Dispatch,
+  ReactElement,
+  ReactNode,
+  useContext,
+  useState,
+} from 'react';
+import usePersistentContext from '../hooks/usePersistentContext';
+import { checkIsExtension } from '../lib/func';
 
 export type DndSettings = { expiration: Date; link: string };
 
 export interface DndContextData {
+  setShowDnd: Dispatch<boolean>;
+  showDnd: boolean;
   dndSettings: DndSettings;
   isActive: boolean;
   onDndSettings: (settings: DndSettings) => Promise<void>;
@@ -19,12 +28,31 @@ interface DndContextProviderProps {
 export const DndContextProvider = ({
   children,
 }: DndContextProviderProps): ReactElement => {
+  const [showDnd, setShowDnd] = useState(false);
   const [dndSettings, setDndSettings] =
     usePersistentContext<DndSettings>('dnd');
+
+  if (!checkIsExtension()) {
+    return (
+      <DndContext.Provider
+        value={{
+          showDnd: null,
+          setShowDnd: null,
+          dndSettings: null,
+          isActive: false,
+          onDndSettings: null,
+        }}
+      >
+        {children}
+      </DndContext.Provider>
+    );
+  }
 
   return (
     <DndContext.Provider
       value={{
+        showDnd,
+        setShowDnd,
         dndSettings,
         isActive: dndSettings?.expiration?.getTime() > now.getTime(),
         onDndSettings: setDndSettings,
@@ -36,3 +64,5 @@ export const DndContextProvider = ({
 };
 
 export default DndContext;
+
+export const useDndContext = (): DndContextData => useContext(DndContext);

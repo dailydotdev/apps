@@ -21,9 +21,9 @@ import {
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
 import ShortcutLinks from './ShortcutLinks';
 import DndBanner from './DndBanner';
-import DndContext from './DndContext';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
 import { useCompanionSettings } from '../companion/useCompanionSettings';
 
@@ -51,10 +51,9 @@ export default function MainFeedPage({
   const { user, loadingUser } = useContext(AuthContext);
   const [feedName, setFeedName] = useState<string>('default');
   const [searchQuery, setSearchQuery] = useState<string>();
-  const [showDnd, setShowDnd] = useState(false);
   const { shouldUseListFeedLayout } = useFeedLayout({ feedRelated: false });
   useCompanionSettings();
-  const { isActive: isDndActive } = useContext(DndContext);
+  const { isActive: isDndActive, showDnd, setShowDnd } = useDndContext();
   const enableSearch = () => {
     window.location.assign(
       getSearchUrl({ provider: SearchProviderEnum.Posts }),

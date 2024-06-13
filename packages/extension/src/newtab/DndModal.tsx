@@ -12,8 +12,8 @@ import {
   ModalProps,
 } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { Justify } from '@dailydotdev/shared/src/components/utilities';
+import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
 import { getDefaultLink, dndOption, CustomTime, TimeFormat } from './dnd';
-import DndContext from './DndContext';
 
 const timeFormatOptions = Object.entries(dndOption).map(([k, v]) => ({
   label: v.label,
@@ -25,7 +25,7 @@ export default function DndModal({
   onRequestClose,
   ...modalProps
 }: ModalProps): ReactElement {
-  const { dndSettings, onDndSettings, isActive } = useContext(DndContext);
+  const { dndSettings, onDndSettings, isActive } = useDndContext();
   const [link, setLink] = useState<string>(null);
   const [customNumber, setCustomNumber] = useState(0);
   const [customTimeIndex, setCustomTimeIndex] = useState(0);

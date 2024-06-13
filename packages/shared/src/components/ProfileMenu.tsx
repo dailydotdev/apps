@@ -7,6 +7,8 @@ import {
   SettingsIcon,
   ReputationLightningIcon,
   ExitIcon,
+  PlayIcon,
+  PauseIcon,
 } from './icons';
 import InteractivePopup, {
   InteractivePopupPosition,
@@ -26,8 +28,9 @@ import { LogoutReason } from '../lib/user';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { SeoSidebarExperiment } from '../lib/featureValues';
-import { LazyModal } from './modals/common/types';
 import { useLazyModal } from '../hooks/useLazyModal';
+import { checkIsExtension } from '../lib/func';
+import { useDndContext } from '../contexts/DndContext';
 
 interface ListItem {
   title: string;
@@ -46,6 +49,7 @@ export default function ProfileMenu({
   const seoSidebar = useFeature(feature.seoSidebar);
   const { user, logout } = useContext(AuthContext);
   const hypeCampaign = useFeature(feature.hypeCampaign);
+  const { isActive: isDndActive, setShowDnd } = useDndContext();
 
   const items: ListItem[] = useMemo(() => {
     const list: ListItem[] = [
@@ -94,12 +98,22 @@ export default function ProfileMenu({
       },
     ];
 
+    if (checkIsExtension()) {
+      const DndIcon = isDndActive ? PlayIcon : PauseIcon;
+      list.push({
+        title: 'Pause new tab',
+        buttonProps: {
+          icon: <DndIcon />,
+          onClick: () => setShowDnd(true),
+        },
+      });
+    }
+
     if (seoSidebar === SeoSidebarExperiment.V1) {
       list.push({
         title: 'Customize',
         buttonProps: {
           icon: <SettingsIcon />,
-          onClick: () => openModal({ type: LazyModal.UserSettings }),
         },
       });
     }
