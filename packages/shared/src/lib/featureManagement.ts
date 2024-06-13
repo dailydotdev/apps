@@ -37,6 +37,7 @@ const feature = {
   shortcutsUI: new Feature('shortcuts_ui', ShortcutsUIExperiment.Control),
   shareVia: new Feature('share_via', false),
   showRoadmap: new Feature('show_roadmap', false),
+  searchSources: new Feature('search_sources', false),
 };
 
 export { feature };
