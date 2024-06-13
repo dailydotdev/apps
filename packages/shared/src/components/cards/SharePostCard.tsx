@@ -105,7 +105,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
           <SquadPostCardHeader
             author={post.author}
             source={post.source}
-            createdAt={postCreatedAt}
+            createdAt={post.createdAt}
             enableSourceHeader={enableSourceHeader}
           />
           <SharedPostText
