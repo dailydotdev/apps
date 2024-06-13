@@ -55,6 +55,7 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   syncSettings: (bootUserId?: string) => Promise<unknown>;
   onToggleHeaderPlacement(): Promise<unknown>;
   setOnboardingChecklistView: (value: ChecklistViewState) => Promise<unknown>;
+  setSettings: (newSettings: Partial<RemoteSettings>) => Promise<void>;
 }
 
 const SettingsContext = React.createContext<SettingsContextData>(null);
@@ -240,6 +241,7 @@ export const SettingsContextProvider = ({
           ...settings,
           onboardingChecklistView: value,
         }),
+      setSettings,
     }),
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
