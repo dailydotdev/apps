@@ -35,6 +35,9 @@ enum FeedNavTab {
   ForYou = 'For you',
   Popular = 'Popular',
   Explore = 'Explore',
+  Tags = 'Tags',
+  Sources = 'Sources',
+  Leaderboard = 'Leaderboard',
   Bookmarks = 'Bookmarks',
   History = 'History',
   MostUpvoted = 'Most Upvoted',
@@ -100,9 +103,16 @@ function FeedNav(): ReactElement {
       urls[`${webappUrl}${SharedFeedPage.Upvoted}`] = FeedNavTab.MostUpvoted;
     }
 
+    urls[`${webappUrl}${SharedFeedPage.Discussed}`] = FeedNavTab.Discussions;
+
+    if (seoSidebar === SeoSidebarExperiment.V1) {
+      urls[`${webappUrl}tags`] = FeedNavTab.Tags;
+      urls[`${webappUrl}sources`] = FeedNavTab.Sources;
+      urls[`${webappUrl}leaderboard`] = FeedNavTab.Leaderboard;
+    }
+
     return {
       ...urls,
-      [`${webappUrl}${SharedFeedPage.Discussed}`]: FeedNavTab.Discussions,
       [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
       [`${webappUrl}history`]: FeedNavTab.History,
     };
