@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { DevCardTheme } from '../../components/profile/devcard/common';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { graphqlUrl } from '../../lib/config';
-import { DEV_CARD_QUERY, UserStreakData } from '../../graphql/users';
+import { DEV_CARD_QUERY } from '../../graphql/users';
 import { useRequestProtocol } from '../useRequestProtocol';
 import { PublicProfile } from '../../lib/user';
 import { Source } from '../../graphql/sources';
