@@ -461,13 +461,15 @@ export const DEV_CARD_QUERY = gql`
       isProfileCover
       showBorder
       articlesRead
-      maxStreak
       tags
       sources {
         name
         permalink
         image
       }
+    }
+    userStreakProfile(id: $id) {
+      max
     }
   }
   ${USER_SHORT_INFO_FRAGMENT}

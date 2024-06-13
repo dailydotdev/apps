@@ -19,7 +19,16 @@ export interface DevCardData {
   articlesRead: number;
   tags: string[];
   sources: Source[];
-  maxStreak: number;
+  streak: {
+    max: number;
+  };
+}
+
+export interface DevCardQueryData {
+  devCard: DevCardData;
+  userStreakProfile: {
+    max: number;
+  };
 }
 
 export interface UseDevCard {
@@ -30,25 +39,27 @@ export interface UseDevCard {
 
 export const useDevCard = (userId: string): UseDevCard => {
   const { requestMethod } = useRequestProtocol();
-  const { data: devcard, isLoading } = useQuery<DevCardData>(
+  const { data, isLoading } = useQuery<DevCardQueryData>(
     generateQueryKey(RequestKey.DevCard, { id: userId }),
     async () => {
       const res = await requestMethod(graphqlUrl, DEV_CARD_QUERY, {
         id: userId,
       });
 
-      return res.devCard;
+      return res;
     },
     { staleTime: StaleTime.Default, enabled: !!userId },
   );
 
-  const { isProfileCover, user } = devcard ?? {};
+  const { devCard, userStreakProfile } = data || {};
+
+  const { isProfileCover, user } = devCard ?? {};
   const coverImage =
     (isProfileCover ? user.cover : undefined) ??
     cloudinary.devcard.defaultCoverImage;
 
   return {
-    devcard,
+    devcard: { ...devCard, streak: { ...userStreakProfile } },
     isLoading,
     coverImage,
   };
