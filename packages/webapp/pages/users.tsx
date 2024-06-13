@@ -169,9 +169,9 @@ export async function getStaticProps(): Promise<
       props: {
         highestReputation: res.highestReputation,
         longestStreak: res.longestStreak,
-        highestPostViews: null,
-        mostUpvoted: null,
-        mostReferrals: null,
+        highestPostViews: res.highestPostViews,
+        mostUpvoted: res.mostUpvoted,
+        mostReferrals: res.mostReferrals,
         mostReadingDays: res.mostReadingDays,
       },
       revalidate: 60,
