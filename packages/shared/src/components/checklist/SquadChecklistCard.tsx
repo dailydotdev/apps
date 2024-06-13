@@ -36,6 +36,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
   const onRequestClose = () => {
     logEvent({
       event_name: LogEvent.ChecklistClose,
+      target_id: TargetId.Squad,
       extra: JSON.stringify({ squad: squad.id }),
     });
     setChecklistVisible(false);

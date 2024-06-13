@@ -11,6 +11,8 @@ import { LazyModal } from '../components/modals/common/types';
 import { webappUrl } from '../lib/constants';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useSettingsContext } from '../contexts/SettingsContext';
+import { useLogContext } from '../contexts/LogContext';
+import { LogEvent, TargetId } from '../lib/log';
 
 type UseOnboardingChecklist = UseChecklist & {
   checklistView: ChecklistViewState;
@@ -19,6 +21,7 @@ type UseOnboardingChecklist = UseChecklist & {
 };
 
 export const useOnboardingChecklist = (): UseOnboardingChecklist => {
+  const { logEvent } = useLogContext();
   const {
     onboardingChecklistView: checklistView,
     setOnboardingChecklistView: setChecklistView,
@@ -147,7 +150,16 @@ export const useOnboardingChecklist = (): UseOnboardingChecklist => {
   return {
     ...checklist,
     checklistView,
-    setChecklistView,
+    setChecklistView: (value: ChecklistViewState) => {
+      if (value === ChecklistViewState.Closed) {
+        logEvent({
+          event_name: LogEvent.ChecklistClose,
+          target_id: TargetId.General,
+        });
+      }
+
+      setChecklistView(value);
+    },
     isChecklistReady,
   };
 };

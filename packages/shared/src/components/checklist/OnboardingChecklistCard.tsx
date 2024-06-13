@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useEffect } from 'react';
+import React, { ReactElement, useContext, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { ChecklistCard } from './ChecklistCard';
 import LogContext from '../../contexts/LogContext';
@@ -29,16 +29,25 @@ export const OnboardingChecklistCardComponent = ({
 }: OnboardingChecklistCardProps): ReactElement => {
   const { logEvent } = useContext(LogContext);
   const { steps, completedSteps, nextStep } = useOnboardingChecklist();
+  const trackedRef = useRef(false);
 
   useEffect(() => {
+    if (trackedRef.current === isOpen) {
+      return;
+    }
+
+    trackedRef.current = isOpen;
+
+    if (!isOpen) {
+      return;
+    }
+
     logEvent({
       event_name: LogEvent.Impression,
       target_type: TargetType.OnboardingChecklist,
       target_id: TargetId.General,
     });
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isOpen, logEvent]);
 
   if (!steps.length) {
     return null;

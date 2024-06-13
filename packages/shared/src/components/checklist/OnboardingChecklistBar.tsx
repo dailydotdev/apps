@@ -1,6 +1,6 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import LogContext from '../../contexts/LogContext';
-import { LogEvent, TargetId, TargetType } from '../../lib/log';
+import { LogEvent, TargetId } from '../../lib/log';
 import { useOnboardingChecklist } from '../../hooks';
 import { ChecklistBarProps, ChecklistViewState } from '../../lib/checklist';
 import { ChecklistBar } from './ChecklistBar';
@@ -24,20 +24,12 @@ const OnboardingChecklistBarComponent = ({
 
   const onRequestClose = () => {
     setPopupOpen(false);
-  };
-
-  useEffect(() => {
-    // TODO AS-356 - add proper event tracking
-    return;
 
     logEvent({
-      event_name: LogEvent.Impression,
-      target_type: TargetType.OnboardingChecklist,
+      event_name: LogEvent.ChecklistClose,
       target_id: TargetId.General,
     });
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  };
 
   if (checklistView === ChecklistViewState.Hidden) {
     return null;
