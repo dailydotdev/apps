@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { AnalyticsEvent, TargetId, TargetType } from '../../lib/analytics';
+import LogContext from '../../contexts/LogContext';
+import { LogEvent, TargetId, TargetType } from '../../lib/log';
 import { useOnboardingChecklist } from '../../hooks';
 import { ChecklistBarProps, ChecklistViewState } from '../../lib/checklist';
 import { ChecklistBar } from './ChecklistBar';
@@ -21,7 +21,7 @@ export type OnboardingChecklistBarProps = Pick<ChecklistBarProps, 'className'>;
 const OnboardingChecklistBarComponent = ({
   className,
 }: OnboardingChecklistBarProps): ReactElement => {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const { steps, setChecklistView } = useOnboardingChecklist();
   const { onMenuClick: showOptionsMenu, isOpen: isOptionsOpen } =
     useContextMenu({
@@ -37,8 +37,8 @@ const OnboardingChecklistBarComponent = ({
     // TODO AS-356 - add proper event tracking
     return;
 
-    trackEvent({
-      event_name: AnalyticsEvent.Impression,
+    logEvent({
+      event_name: LogEvent.Impression,
       target_type: TargetType.OnboardingChecklist,
       target_id: TargetId.General,
     });

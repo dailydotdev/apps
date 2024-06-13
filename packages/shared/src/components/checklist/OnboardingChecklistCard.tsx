@@ -1,8 +1,8 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import { ChecklistCard } from './ChecklistCard';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { AnalyticsEvent, TargetId, TargetType } from '../../lib/analytics';
+import LogContext from '../../contexts/LogContext';
+import { LogEvent, TargetId, TargetType } from '../../lib/log';
 import { useOnboardingChecklist } from '../../hooks';
 import { ChecklistCardProps, ChecklistCardVariant } from '../../lib/checklist';
 import { feature } from '../../lib/featureManagement';
@@ -18,12 +18,12 @@ export const OnboardingChecklistCardComponent = ({
   isOpen = true,
   variant = ChecklistCardVariant.Default,
 }: OnboardingChecklistCardProps): ReactElement => {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const { steps, completedSteps, nextStep } = useOnboardingChecklist();
 
   useEffect(() => {
-    trackEvent({
-      event_name: AnalyticsEvent.Impression,
+    logEvent({
+      event_name: LogEvent.Impression,
       target_type: TargetType.OnboardingChecklist,
       target_id: TargetId.General,
     });
