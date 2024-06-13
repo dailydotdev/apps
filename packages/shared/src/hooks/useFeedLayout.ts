@@ -1,6 +1,6 @@
 import { useContext, ComponentType, HTMLAttributes, useMemo } from 'react';
 import { useViewSize, ViewSize } from './useViewSize';
-import { useActiveFeedNameContext } from '../contexts';
+import { useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
 import {
   CommentFeedPage,
   FeedPage,
