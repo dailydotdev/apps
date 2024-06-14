@@ -407,7 +407,11 @@ function AuthOptions({
         </Tab>
         <Tab label={AuthDisplay.Registration}>
           <RegistrationForm
-            onBack={() => onSetActiveDisplay(defaultDisplay)}
+            onBack={
+              defaultDisplay !== AuthDisplay.Registration
+                ? () => onSetActiveDisplay(defaultDisplay)
+                : undefined
+            }
             formRef={formRef}
             simplified={simplified}
             email={email}
