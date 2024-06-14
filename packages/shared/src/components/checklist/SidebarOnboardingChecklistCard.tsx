@@ -4,8 +4,7 @@ import classNames from 'classnames';
 import { ChecklistCardVariant, ChecklistViewState } from '../../lib/checklist';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
-import { useOnboardingChecklist } from '../../hooks';
-import { withExperiment } from '../withExperiment';
+import { useConditionalFeature, useOnboardingChecklist } from '../../hooks';
 import { feature } from '../../lib/featureManagement';
 import { OnboardingChecklistOptions } from './OnboardingChecklistOptions';
 import { ChecklistCard } from './ChecklistCard';
@@ -22,12 +21,21 @@ export type SidebarOnboardingChecklistCardProps = {
   className?: string;
 };
 
-const SidebarOnboardingChecklistCardComponent = ({
+export const SidebarOnboardingChecklistCard = ({
   className,
 }: SidebarOnboardingChecklistCardProps): ReactElement => {
   const { checklistView, setChecklistView, isDone } = useOnboardingChecklist();
+  const isHidden = checklistView === ChecklistViewState.Hidden;
+  const { value: isFeatureEnabled } = useConditionalFeature({
+    feature: feature.onboardingChecklist,
+    shouldEvaluate: !isHidden,
+  });
 
-  if (checklistView === ChecklistViewState.Hidden) {
+  if (!isFeatureEnabled) {
+    return null;
+  }
+
+  if (isHidden) {
     return null;
   }
 
@@ -93,13 +101,5 @@ const SidebarOnboardingChecklistCardComponent = ({
     </div>
   );
 };
-
-export const SidebarOnboardingChecklistCard = withExperiment(
-  SidebarOnboardingChecklistCardComponent,
-  {
-    feature: feature.onboardingChecklist,
-    value: true,
-  },
-);
 
 export default SidebarOnboardingChecklistCard;

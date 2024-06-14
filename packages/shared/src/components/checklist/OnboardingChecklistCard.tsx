@@ -9,8 +9,6 @@ import {
   ChecklistCardVariant,
   ChecklistVariantClassNameMap,
 } from '../../lib/checklist';
-import { feature } from '../../lib/featureManagement';
-import { withExperiment } from '../withExperiment';
 
 export type OnboardingChecklistCardProps = Pick<
   ChecklistCardProps,
@@ -22,7 +20,7 @@ const descriptionSizeToClassNameMap: ChecklistVariantClassNameMap = {
   [ChecklistCardVariant.Small]: 'typo-caption1',
 };
 
-export const OnboardingChecklistCardComponent = ({
+export const OnboardingChecklistCard = ({
   className,
   isOpen = true,
   variant = ChecklistCardVariant.Default,
@@ -75,13 +73,5 @@ export const OnboardingChecklistCardComponent = ({
     />
   );
 };
-
-export const OnboardingChecklistCard = withExperiment(
-  OnboardingChecklistCardComponent,
-  {
-    feature: feature.onboardingChecklist,
-    value: true,
-  },
-);
 
 export default OnboardingChecklistCard;
