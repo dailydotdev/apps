@@ -45,7 +45,7 @@ import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useActions } from '@dailydotdev/shared/src/hooks';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
-  DevCardData,
+  DevCardQueryData,
   useDevCard,
 } from '@dailydotdev/shared/src/hooks/profile/useDevCard';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
@@ -187,10 +187,15 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
 
   const onUpdatePreference = useCallback(
     (props: Partial<Omit<GenerateDevCardParams, 'type'>>) => {
-      client.setQueryData(key, (oldData: DevCardData) => ({
-        ...oldData,
-        ...props,
-      }));
+      client.setQueryData(key, (oldData: DevCardQueryData) => {
+        return {
+          ...oldData,
+          devCard: {
+            ...oldData?.devCard,
+            ...props,
+          },
+        };
+      });
     },
     [key, client],
   );
