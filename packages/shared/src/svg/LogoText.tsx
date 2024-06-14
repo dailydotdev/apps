@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import classNames from 'classnames';
 
 interface LogoTextProps {
   className?: {

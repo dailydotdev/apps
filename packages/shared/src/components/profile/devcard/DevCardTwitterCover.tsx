@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { DevCardContainer } from './DevCardContainer';
-import { devCardBoxShadow, DevCardTheme, DevCardType } from './common';
+import { devCardBoxShadow, DevCardType } from './common';
 import { DevCardStats } from './DevCardStats';
 import { DevCardFooter } from './DevCardFooter';
 import Logo from '../../Logo';
