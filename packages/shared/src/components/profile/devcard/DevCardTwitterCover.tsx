@@ -20,10 +20,7 @@ export function DevCardTwitterCover({
       style={{ backgroundImage: `url(${coverImage})` }}
     >
       <div className="flex flex-col items-center">
-        <DevCardContainer
-          theme={DevCardTheme.Default}
-          className="max-w-[21.25rem]"
-        >
+        <DevCardContainer theme={devcard.theme} className="max-w-[21.25rem]">
           <div
             className="flex w-full flex-col-reverse items-center gap-4 rounded-24 p-3"
             style={{ boxShadow: devCardBoxShadow }}
