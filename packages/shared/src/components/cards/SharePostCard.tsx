@@ -71,6 +71,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
       }}
       ref={ref}
       flagProps={{ pinnedAt, trending }}
+      bookmarked={post.bookmarked}
     >
       <CardOverlay post={post} onPostCardClick={onPostCardClick} />
       {improvedSharedPostCard ? (

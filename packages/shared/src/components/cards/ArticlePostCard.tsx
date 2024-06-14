@@ -70,6 +70,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
       }}
       ref={ref}
       flagProps={{ pinnedAt, trending }}
+      bookmarked={post.bookmarked}
     >
       <CardOverlay post={post} onPostCardClick={onPostCardClick} />
       {showFeedback && (

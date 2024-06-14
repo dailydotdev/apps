@@ -14,12 +14,14 @@ import { ListCard, CardLink } from './ListCard';
 import { RaisedLabel, RaisedLabelType } from './RaisedLabel';
 import { useFeedPreviewMode } from '../../../hooks';
 import { TypeLabel } from './TypeLabel';
+import { bookmarkProviderListBg } from '../../../styles/custom';
 
 interface FeedItemContainerProps {
   flagProps?: FlagProps;
   children: ReactNode;
   domProps: HTMLAttributes<HTMLDivElement>;
   linkProps?: AnchorHTMLAttributes<HTMLAnchorElement>;
+  bookmarked?: boolean;
 }
 
 interface FlagProps extends Pick<Post, 'pinnedAt' | 'trending' | 'type'> {
@@ -27,7 +29,13 @@ interface FlagProps extends Pick<Post, 'pinnedAt' | 'trending' | 'type'> {
 }
 
 function FeedItemContainer(
-  { flagProps, children, domProps, linkProps }: FeedItemContainerProps,
+  {
+    flagProps,
+    children,
+    domProps,
+    linkProps,
+    bookmarked,
+  }: FeedItemContainerProps,
   ref?: Ref<HTMLElement>,
 ): ReactElement {
   const { adAttribution, pinnedAt, trending, type } = flagProps;
@@ -48,7 +56,13 @@ function FeedItemContainer(
       {...domProps}
       data-testid="postItem"
       ref={ref}
-      className={classNames(domProps?.className, focus && 'bg-surface-float')}
+      className={classNames(
+        domProps?.className,
+        focus && 'bg-surface-float',
+        bookmarked &&
+          '!border-action-bookmark-active hover:!border-action-bookmark-default',
+      )}
+      style={{ ...(bookmarked && { background: bookmarkProviderListBg }) }}
     >
       {linkProps && (
         <Link href={linkProps.href}>
