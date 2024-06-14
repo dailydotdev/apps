@@ -20,7 +20,10 @@ const logoPositionToClassName: Record<LogoPosition, string> = {
   [LogoPosition.Initial]: '',
 };
 interface LogoSvgElemProps {
-  className?: string;
+  className?: {
+    container?: string;
+    group?: string;
+  };
   src?: string;
   fallback: typeof LogoText | typeof LogoIcon;
 }
@@ -31,14 +34,19 @@ const LogoSvgElem = ({
   fallback: FallbackElem,
 }: LogoSvgElemProps): ReactElement => {
   if (src) {
-    return <img src={src} className={className} alt="daily.dev logo" />;
+    return (
+      <img src={src} className={className?.container} alt="daily.dev logo" />
+    );
   }
   return <FallbackElem className={className} />;
 };
 
 interface LogoProps {
   className?: string;
-  logoClassName?: string;
+  logoClassName?: {
+    container?: string;
+    group?: string;
+  };
   showGreeting?: boolean;
   onLogoClick?: (e: React.MouseEvent) => unknown;
   hideTextMobile?: boolean;
@@ -52,7 +60,7 @@ interface LogoProps {
 
 export default function Logo({
   className,
-  logoClassName = 'h-logo',
+  logoClassName = { container: 'h-logo' },
   showGreeting,
   onLogoClick,
   hideTextMobile = false,
@@ -89,11 +97,14 @@ export default function Logo({
             unmountOnExit
           >
             <LogoSvgElem
-              className={classNames(
-                'ml-1',
-                logoClassName,
-                hideTextMobile && 'hidden laptop:block',
-              )}
+              className={{
+                container: classNames(
+                  'ml-1',
+                  logoClassName?.container,
+                  hideTextMobile && 'hidden laptop:block',
+                ),
+                group: logoClassName?.group,
+              }}
               src={featureTheme?.logoText}
               fallback={LogoText}
             />

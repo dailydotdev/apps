@@ -42,7 +42,11 @@ import {
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { useActions } from '@dailydotdev/shared/src/hooks';
+import {
+  useActions,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   DevCardQueryData,
@@ -134,6 +138,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     showBorder: true,
     isProfileCover: false,
   };
+  const isMobile = useViewSize(ViewSize.MobileL);
 
   const randomStr = Math.random().toString(36).substring(2, 5);
   const [devCardSrc, setDevCardSrc] = useState<string>(
@@ -218,7 +223,9 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     const url = res?.devCard?.imageUrl;
 
     if (url) {
-      downloadImage(url);
+      if (!isMobile) {
+        downloadImage(url);
+      }
       logEvent({
         event_name: LogEvent.DownloadDevcard,
         extra: JSON.stringify({
@@ -264,7 +271,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
           >
             {user && (
               <Tilt
-                className="relative mt-4 w-fit self-stretch overflow-hidden rounded-32"
+                className="relative m-4 mt-8 w-fit self-stretch overflow-hidden rounded-32"
                 glareEnable
                 perspective={1000}
                 glareMaxOpacity={0.25}
@@ -284,6 +291,9 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
               size={ButtonSize.Medium}
               onClick={() => generateThenDownload({})}
               disabled={downloading || isLoading}
+              tag={isMobile ? 'a' : 'button'}
+              href={devCardSrc}
+              target={isMobile ? '_blank' : undefined}
             >
               Download DevCard
             </Button>
