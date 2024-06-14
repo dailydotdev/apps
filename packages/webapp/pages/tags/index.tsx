@@ -91,7 +91,17 @@ const TagsPage = ({
     return Object.keys(filteredTags)
       .sort()
       .reduce((acc, cur) => {
-        acc[cur] = filteredTags[cur];
+        acc[cur] = filteredTags[cur].sort((a: Keyword, b: Keyword) => {
+          if (a.value < b.value) {
+            return -1;
+          }
+
+          if (a.value > b.value) {
+            return 1;
+          }
+
+          return 0;
+        });
         return acc;
       }, []);
   }, [tags]);
