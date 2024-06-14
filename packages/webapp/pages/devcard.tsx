@@ -191,7 +191,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
         return {
           ...oldData,
           devCard: {
-            ...oldData.devCard,
+            ...oldData?.devCard,
             ...props,
           },
         };
