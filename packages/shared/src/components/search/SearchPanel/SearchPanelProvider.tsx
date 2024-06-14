@@ -21,6 +21,11 @@ export const SearchPanelProvider = ({
   className,
 }: SearchPanelProviderProps): ReactElement => {
   const searchPanel = useContext(SearchPanelContext);
+
+  if (searchPanel.providerIcon) {
+    return searchPanel.providerIcon;
+  }
+
   const Component = providerToComponentMap[searchPanel.provider];
 
   if (!Component) {

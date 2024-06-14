@@ -91,7 +91,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
             <CardSpace />
             <PostTags tags={post.sharedPost.tags} />
             <PostMetadata
-              createdAt={post.sharedPost.createdAt}
+              createdAt={post.createdAt}
               readTime={post.sharedPost.readTime}
               isVideoType={isVideoType}
               className="mx-4"
