@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Separator } from '../../cards/common';
 import { TimeFormatType } from '../../../lib/dateFormat';
-import { Divider, DateFormat } from '../../utilities';
+import { DateFormat, Divider } from '../../utilities';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { DevCardStats } from './DevCardStats';
 import {
@@ -16,6 +16,7 @@ import { DevCardContainer } from './DevCardContainer';
 import { useDevCard } from '../../../hooks/profile/useDevCard';
 import { DevCardTwitterCover } from './DevCardTwitterCover';
 import { checkLowercaseEquality } from '../../../lib/strings';
+import { devcardBorder } from '../../../styles/custom';
 
 interface DevCardProps {
   type?: DevCardType;
@@ -58,7 +59,7 @@ export function DevCard({
   return (
     <DevCardContainer
       theme={theme}
-      className={classNames('m-4', !isHorizontal && 'w-[20.25rem] flex-col')}
+      className={classNames(!isHorizontal && 'w-[20.25rem] flex-col')}
     >
       <ConditionalWrapper
         condition={isHorizontal}
@@ -84,18 +85,17 @@ export function DevCard({
         >
           <div
             className={classNames(
-              'relative flex flex-col bg-cover p-2 pb-10',
-              isHorizontal
-                ? 'rounded-32 border-8 border-raw-salt-90'
-                : 'rounded-12',
+              'relative flex flex-col rounded-24 bg-cover p-2 pb-10',
+              isHorizontal && 'm-2 ',
             )}
             style={{
               backgroundImage: `url(${coverImage})`,
             }}
           >
-            {type !== DevCardType.Horizontal && (
-              <RoundedContainer className="absolute -inset-2 border-8 border-raw-salt-90" />
-            )}
+            <RoundedContainer
+              className="absolute -inset-2 border-8"
+              style={{ borderColor: devcardBorder }}
+            />
             <img
               src={user.image}
               alt={`avatar of ${user.name}`}
