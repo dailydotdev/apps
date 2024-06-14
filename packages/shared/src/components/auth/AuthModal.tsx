@@ -45,7 +45,9 @@ export default function AuthModal({
     closeLogin();
   };
 
-  const defaultDisplay = Display.Default;
+  const defaultDisplay = loginState?.formValues?.email
+    ? Display.Registration
+    : Display.Default;
 
   return (
     <Modal
@@ -66,6 +68,7 @@ export default function AuthModal({
         isLoginFlow={isLogoutFlow || loginState?.isLogin}
         defaultDisplay={defaultDisplay}
         onDisplayChange={(display: Display) => setScreenValue(display)}
+        initialEmail={loginState?.formValues?.email}
       />
     </Modal>
   );
