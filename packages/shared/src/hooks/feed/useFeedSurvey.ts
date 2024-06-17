@@ -24,7 +24,7 @@ export const useFeedSurvey = ({ score }: UseFeedSurveyProps): UseFeedSurvey => {
       target_type: TargetType.PromotionCard,
       target_id: TargetId.FeedSurvey,
       event_name,
-      extra,
+      ...(extra && { extra: JSON.stringify(extra) }),
     });
 
   const onSubmit = () => {
