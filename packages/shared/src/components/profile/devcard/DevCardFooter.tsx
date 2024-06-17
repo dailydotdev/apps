@@ -38,7 +38,7 @@ export function DevCardFooter({
             !elementsClickable && 'pointer-events-none',
           ),
           tag: classNames(
-            'typo-caption1',
+            '!shadow-none typo-caption1',
             checkLowercaseEquality(theme, DevCardTheme.Iron)
               ? 'border-white text-white'
               : 'border-raw-pepper-90 text-raw-pepper-90',
@@ -68,7 +68,14 @@ export function DevCardFooter({
             !elementsClickable && 'pointer-events-none',
           )}
         >
-          <Logo showGreeting={false} position={LogoPosition.Relative} />
+          <Logo
+            showGreeting={false}
+            position={LogoPosition.Relative}
+            logoClassName={{
+              group: 'fill-raw-salt-0',
+              container: 'h-logo',
+            }}
+          />
         </span>
       )}
     </>

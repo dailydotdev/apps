@@ -39,8 +39,15 @@ export function AuthenticationBanner(): ReactElement {
           className={{
             onboardingSignup: '!gap-4',
           }}
-          onAuthStateUpdate={() =>
-            showLogin({ trigger: AuthTriggers.Onboarding })
+          onAuthStateUpdate={(props) =>
+            showLogin({
+              trigger: AuthTriggers.Onboarding,
+              options: {
+                formValues: {
+                  email: props?.email,
+                },
+              },
+            })
           }
           onboardingSignupButton={{
             variant: ButtonVariant.Primary,

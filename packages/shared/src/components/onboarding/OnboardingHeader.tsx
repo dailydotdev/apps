@@ -42,7 +42,7 @@ export const OnboardingHeader = ({
         />
         <div className="flex w-full max-w-4xl items-center justify-between !px-4 py-10 tablet:!px-6">
           <Logo
-            logoClassName={classNames('h-6')}
+            logoClassName={{ container: 'h-6' }}
             position={LogoPosition.Relative}
           />
           {activeScreen === OnboardingStep.EditTag && (
@@ -71,7 +71,7 @@ export const OnboardingHeader = ({
     >
       <Logo
         className="w-auto"
-        logoClassName="h-6 tablet:h-8"
+        logoClassName={{ container: 'h-6 tablet:h-8' }}
         position={LogoPosition.Relative}
       />
 

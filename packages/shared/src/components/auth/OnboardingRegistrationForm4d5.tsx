@@ -99,7 +99,10 @@ export const OnboardingRegistrationForm4d5 = ({
     <>
       <div className={classNames(className, 'flex flex-1 flex-col p-6')}>
         <div className="relative mb-auto flex items-center justify-between">
-          <Logo position={LogoPosition.Relative} logoClassName="h-6" />
+          <Logo
+            position={LogoPosition.Relative}
+            logoClassName={{ container: 'h-6' }}
+          />
           <ModalClose right="0" onClick={onClose} />
         </div>
 

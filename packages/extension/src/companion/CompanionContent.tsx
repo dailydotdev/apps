@@ -64,7 +64,7 @@ export default function CompanionContent({
     >
       <div className="flex flex-row items-center gap-3">
         <a href={process.env.NEXT_PUBLIC_WEBAPP_URL} target="_parent">
-          <LogoIcon className="w-8 rounded-8" />
+          <LogoIcon className={{ container: 'w-8 rounded-8' }} />
         </a>
         {post?.trending && <HotLabel />}
         <SimpleTooltip
