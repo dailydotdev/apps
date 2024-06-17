@@ -35,6 +35,7 @@ export const SOURCE_DIRECTORY_INFO_FRAGMENT = gql`
     handle
     image
     permalink
+    description
   }
 `;
 
