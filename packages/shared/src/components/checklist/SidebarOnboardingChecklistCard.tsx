@@ -43,7 +43,7 @@ export const SidebarOnboardingChecklistCard = ({
 
   if (isDone) {
     return (
-      <div className="m-2">
+      <div className="sticky bottom-2 mx-2">
         <ChecklistCard
           className="!h-auto w-full !border-0 text-center"
           title="Get started like a pro"
