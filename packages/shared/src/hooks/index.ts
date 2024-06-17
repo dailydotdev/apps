@@ -27,3 +27,4 @@ export * from './useBoot';
 export * from './useConditionalFeature';
 export * from './useProgressAnimation';
 export * from './feed';
+export * from './useOnboardingChecklist';

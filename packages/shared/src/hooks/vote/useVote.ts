@@ -11,18 +11,26 @@ import {
   UseVote,
   UseVoteProps,
   createVoteMutationKey,
+  UserVoteEntity,
 } from './types';
 import { VOTE_MUTATION } from '../../graphql/users';
+import { useActions } from '../useActions';
+import { ActionType } from '../../graphql/actions';
 
 const useVote = ({ onMutate, entity, variables }: UseVoteProps): UseVote => {
   const { requestMethod } = useRequestProtocol();
   const { user, showLogin } = useContext(AuthContext);
   const mutationKey = createVoteMutationKey({ entity, variables });
+  const { completeAction } = useActions();
 
   const { mutateAsync: voteEntity, isLoading } = useMutation(
     (mutationProps: UseVoteMutationProps) => {
       if (isLoading) {
         return Promise.resolve(null);
+      }
+
+      if (mutationProps.entity === UserVoteEntity.Post) {
+        completeAction(ActionType.VotePost);
       }
 
       return requestMethod(graphqlUrl, VOTE_MUTATION, mutationProps);

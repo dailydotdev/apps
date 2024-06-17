@@ -32,6 +32,7 @@ import {
   ShortcutsSourceType,
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
+import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
 import ShortcutLinks from './ShortcutLinks';
 
 jest.mock('@dailydotdev/shared/src/lib/boot', () => ({
@@ -96,6 +97,7 @@ const defaultSettings: RemoteSettings = {
     'http://custom4.com',
     'http://custom5.com',
   ],
+  onboardingChecklistView: ChecklistViewState.Hidden,
 };
 
 const defaultBootData: BootCacheData = {

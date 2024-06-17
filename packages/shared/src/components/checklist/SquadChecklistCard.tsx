@@ -7,7 +7,7 @@ import InteractivePopup, {
 } from '../tooltips/InteractivePopup';
 import { useChecklist } from '../../hooks/useChecklist';
 import LogContext from '../../contexts/LogContext';
-import { LogEvent, TargetType } from '../../lib/log';
+import { LogEvent, TargetId, TargetType } from '../../lib/log';
 
 const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
   const { steps, isChecklistVisible, setChecklistVisible, isChecklistReady } =
@@ -22,6 +22,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
     logEvent({
       event_name: LogEvent.Impression,
       target_type: TargetType.OnboardingChecklist,
+      target_id: TargetId.Squad,
       extra: JSON.stringify({ squad: squad.id }),
     });
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
@@ -35,6 +36,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
   const onRequestClose = () => {
     logEvent({
       event_name: LogEvent.ChecklistClose,
+      target_id: TargetId.Squad,
       extra: JSON.stringify({ squad: squad.id }),
     });
     setChecklistVisible(false);
@@ -55,7 +57,9 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
         title={
           isDone ? 'Good job! you nailed it. 🥳' : 'Get started with squads'
         }
-        description={`${totalStepsCount} simple steps to Squad greatness!`}
+        content={
+          <p className="text-white typo-callout">{`${totalStepsCount} simple steps to Squad greatness!`}</p>
+        }
         steps={steps}
         className="max-w-full border-0"
       />
