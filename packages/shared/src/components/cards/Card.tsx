@@ -62,7 +62,7 @@ export const Card = classed(
 export const ChecklistCardComponent = classed(
   'article',
   styles.card,
-  'tablet:max-w-[21.5rem] w-full relative max-h-fit h-full flex flex-col rounded-14 bg-background-subtle tablet:border border-accent-cabbage-default hover:border-accent-cabbage-default shadow-2',
+  'tablet:max-w-[21.5rem] w-full relative max-h-fit h-full flex flex-col bg-background-subtle tablet:border border-accent-cabbage-default hover:border-accent-cabbage-default shadow-2',
 );
 
 export const CardHeader = classed(

@@ -6,6 +6,7 @@ import { LoggedUser, Roles } from '../../lib/user';
 import CommentActionButtons, { Props } from './CommentActionButtons';
 import { Comment } from '../../graphql/comments';
 import {
+  completeActionMock,
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
@@ -17,6 +18,7 @@ import { VOTE_MUTATION } from '../../graphql/users';
 import { UserVoteEntity } from '../../hooks';
 import { UserVote } from '../../graphql/posts';
 import LogContext from '../../contexts/LogContext';
+import { ActionType } from '../../graphql/actions';
 
 const showLogin = jest.fn();
 const onComment = jest.fn();
@@ -127,6 +129,7 @@ it('should send upvote mutation', async () => {
         return { data: { _: true } };
       },
     },
+    completeActionMock({ action: ActionType.VotePost }),
   ]);
   const el = await screen.findByLabelText('Upvote');
   el.click();
@@ -176,6 +179,7 @@ it('should send cancel upvote mutation', async () => {
           return { data: { _: true } };
         },
       },
+      completeActionMock({ action: ActionType.VotePost }),
     ],
   );
   const el = await screen.findByLabelText('Upvote');

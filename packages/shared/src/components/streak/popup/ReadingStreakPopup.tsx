@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement, useEffect, useMemo } from 'react';
 import { addDays, isSameDay, subDays } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
@@ -13,6 +13,8 @@ import {
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { Weekends } from '../../../lib/dateFormat';
 import StreakReminderSwitch from '../StreakReminderSwitch';
+import { useActions } from '../../../hooks';
+import { ActionType } from '../../../graphql/actions';
 
 const getStreak = ({
   value,
@@ -78,6 +80,7 @@ export function ReadingStreakPopup({
   fullWidth,
 }: ReadingStreakPopupProps): ReactElement {
   const { user } = useAuthContext();
+  const { completeAction } = useActions();
   const { data: history } = useQuery<ReadingDay[]>(
     generateQueryKey(RequestKey.ReadingStreak30Days, user),
     () => getReadingStreak30Days(user.id),
@@ -104,6 +107,12 @@ export function ReadingStreakPopup({
       );
     });
   }, [history, dateToday]);
+
+  useEffect(() => {
+    if ([streak.max, streak.current].some((value) => value >= 2)) {
+      completeAction(ActionType.StreakMilestone);
+    }
+  }, [completeAction, streak]);
 
   return (
     <div className="flex flex-col-reverse tablet:flex-col">

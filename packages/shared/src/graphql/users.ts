@@ -468,6 +468,9 @@ export const DEV_CARD_QUERY = gql`
         image
       }
     }
+    userStreakProfile(id: $id) {
+      max
+    }
   }
   ${USER_SHORT_INFO_FRAGMENT}
 `;

@@ -3,11 +3,19 @@ import { SourceMemberRole, Squad } from '../graphql/sources';
 import { Action, ActionType } from '../graphql/actions';
 import { StorageTopic, generateStorageKey } from './storage';
 
+export enum ChecklistCardVariant {
+  Default = 'default',
+  Small = 'small',
+}
+
 export type ChecklistCardProps = {
   className?: string;
   title: string;
-  description: string;
+  content?: ReactNode;
   steps: ChecklistStepType[];
+  variant?: ChecklistCardVariant;
+  isOpen?: boolean;
+  showProgressBar?: boolean;
 };
 
 export type ChecklistStepType = {
@@ -29,6 +37,7 @@ export interface ChecklistStepProps {
   isActive: boolean;
   onToggle: (action: Action) => void;
   children?: ReactNode;
+  variant: ChecklistCardVariant;
 }
 
 export interface ChecklistStepPropsWithSquad extends ChecklistStepProps {
@@ -81,3 +90,19 @@ export const SQUAD_CHECKLIST_VISIBLE_KEY = generateStorageKey(
   StorageTopic.Squad,
   'checklistVisible',
 );
+
+export type ChecklistVariantClassNameMap<T = string> = Record<
+  ChecklistCardVariant,
+  T
+>;
+
+export enum ChecklistViewState {
+  Open = 'open',
+  Closed = 'closed',
+  Hidden = 'hidden',
+}
+
+export type ChecklistBarProps = Pick<
+  ChecklistCardProps,
+  'className' | 'title' | 'steps'
+>;

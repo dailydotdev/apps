@@ -108,6 +108,9 @@ const useBookmarkPost = ({
         ? [...bookmarkMutationKey, ...mutationKey]
         : bookmarkMutationKey,
       onMutate: onMutate || defaultOnMutate,
+      onSuccess: () => {
+        completeAction(ActionType.BookmarkPost);
+      },
       onError: (err, _, rollback?: () => void) => rollback?.(),
     },
   );

@@ -114,6 +114,7 @@ export function ReadingStreakButton({
         )}
       >
         <Button
+          id="reading-streak-header-button"
           type="button"
           iconPosition={iconPosition}
           icon={<ReadingStreakIcon secondary={hasReadToday} />}

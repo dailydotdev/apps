@@ -53,10 +53,12 @@ function CompanionToggle({
           icon={
             <>
               <LogoIcon
-                className={classNames(
-                  'w-6',
-                  companionState ? 'hidden' : 'group-hover:hidden',
-                )}
+                className={{
+                  container: classNames(
+                    'w-6',
+                    companionState ? 'hidden' : 'group-hover:hidden',
+                  ),
+                }}
               />
               <ArrowIcon
                 className={classNames(

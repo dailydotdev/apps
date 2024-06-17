@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+import { ChecklistViewState } from '../lib/checklist';
 
 export type Spaciness = 'eco' | 'roomy' | 'cozy';
 export type RemoteTheme = 'darcula' | 'bright' | 'auto';
@@ -22,6 +23,7 @@ export type RemoteSettings = {
   autoDismissNotifications: boolean;
   customLinks?: string[];
   campaignCtaPlacement?: CampaignCtaPlacement;
+  onboardingChecklistView: ChecklistViewState;
 };
 
 export const UPDATE_USER_SETTINGS_MUTATION = gql`

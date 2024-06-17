@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React, { ReactElement, useContext, useMemo } from 'react';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { useActiveFeedNameContext } from '../../contexts';
 import useActiveNav from '../../hooks/useActiveNav';
@@ -26,6 +27,14 @@ import { feature } from '../../lib/featureManagement';
 import { CustomFeedsExperiment } from '../../lib/featureValues';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
+import { useAuthContext } from '../../contexts/AuthContext';
+
+const OnboardingChecklistBar = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "onboardingChecklistBar" */ '../checklist/OnboardingChecklistBar'
+    ),
+);
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -44,6 +53,7 @@ const StickyNavIconWrapper = classed(
 
 function FeedNav(): ReactElement {
   const router = useRouter();
+  const { isLoggedIn } = useAuthContext();
   const { feedName } = useActiveFeedNameContext();
   const { sortingEnabled } = useContext(SettingsContext);
   const { isSortableFeed } = useFeedName({ feedName });
@@ -98,6 +108,8 @@ function FeedNav(): ReactElement {
     return null;
   }
 
+  const checklistBarElement = isLoggedIn ? <OnboardingChecklistBar /> : null;
+
   return (
     <div
       className={classNames(
@@ -105,7 +117,13 @@ function FeedNav(): ReactElement {
         scrollClassName,
       )}
     >
-      {isMobile && <MobileFeedActions />}
+      {!isMobile && checklistBarElement}
+      {isMobile && (
+        <>
+          <MobileFeedActions />
+          {checklistBarElement}
+        </>
+      )}
       <div className="mb-4 h-[3.25rem] tablet:mb-0">
         <TabContainer
           controlledActive={urlToTab[router.asPath] ?? ''}
