@@ -87,8 +87,10 @@ const ChecklistStep = ({
           <p
             className={classNames(
               'flex-1 text-left',
-              isActive ? 'font-bold text-text-primary' : 'font-normal',
-              isCompleted ? 'text-text-quaternary' : 'text-text-tertiary',
+              isActive ? 'font-bold !text-text-primary' : 'font-normal',
+              isCompleted
+                ? 'text-text-quaternary line-through'
+                : 'text-text-tertiary',
               titleSizeToClassNameMap[variant],
               className.title,
             )}
@@ -112,7 +114,7 @@ const ChecklistStep = ({
         >
           <p
             className={classNames(
-              'text-text-tertiary',
+              'text-text-secondary',
               descriptionSizeToClassNameMap[variant],
               className.description,
             )}
