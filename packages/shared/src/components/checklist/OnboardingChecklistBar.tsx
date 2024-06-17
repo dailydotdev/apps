@@ -55,6 +55,10 @@ export const OnboardingChecklistBar = ({
         onClick={(event) => {
           event.stopPropagation();
 
+          if (isDone) {
+            return;
+          }
+
           setPopupOpen(true);
         }}
       >
@@ -78,7 +82,7 @@ export const OnboardingChecklistBar = ({
           className="flex w-full max-w-[21.5rem] justify-center rounded-none !bg-transparent"
           onClose={onRequestClose}
         >
-          <OnboardingChecklistCard isOpen />
+          <OnboardingChecklistCard isOpen showProgressBar={false} />
         </InteractivePopup>
       )}
     </>

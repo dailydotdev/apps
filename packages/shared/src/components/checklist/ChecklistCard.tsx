@@ -52,6 +52,7 @@ const ChecklistCard = ({
   steps,
   variant = ChecklistCardVariant.Default,
   isOpen = true,
+  showProgressBar = true,
 }: ChecklistCardProps): ReactElement => {
   const { isDone, openStep, onToggleStep, activeStep } = useChecklist({
     steps,
@@ -79,25 +80,27 @@ const ChecklistCard = ({
           {title}
         </p>
         <div className="relative">{content}</div>
-        <div className={classNames('flex', progressClassNameMap[variant])}>
-          {steps.map((step) => {
-            return (
-              <div
-                key={step.action.type}
-                className={classNames(
-                  'flex-1',
-                  !step.action.completedAt && 'opacity-24',
-                  progressItemClassNameMap[variant],
-                )}
-                data-testid={
-                  step.action.completedAt
-                    ? 'checklist-card-progress'
-                    : undefined
-                }
-              />
-            );
-          })}
-        </div>
+        {showProgressBar && (
+          <div className={classNames('flex', progressClassNameMap[variant])}>
+            {steps.map((step) => {
+              return (
+                <div
+                  key={step.action.type}
+                  className={classNames(
+                    'flex-1',
+                    !step.action.completedAt && 'opacity-24',
+                    progressItemClassNameMap[variant],
+                  )}
+                  data-testid={
+                    step.action.completedAt
+                      ? 'checklist-card-progress'
+                      : undefined
+                  }
+                />
+              );
+            })}
+          </div>
+        )}
       </div>
       {isOpen && (
         <div

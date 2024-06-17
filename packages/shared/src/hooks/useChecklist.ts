@@ -52,7 +52,7 @@ const useChecklist = ({ steps }: UseChecklistProps): UseChecklist => {
   );
 
   const isDone = useMemo(() => {
-    return steps.every((item) => !!item.action.completedAt);
+    return steps.length > 0 && steps.every((item) => !!item.action.completedAt);
   }, [steps]);
 
   const completedSteps = useMemo(() => {

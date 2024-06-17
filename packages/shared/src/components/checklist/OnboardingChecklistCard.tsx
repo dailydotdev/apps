@@ -12,7 +12,7 @@ import {
 
 export type OnboardingChecklistCardProps = Pick<
   ChecklistCardProps,
-  'className' | 'isOpen' | 'variant'
+  'className' | 'isOpen' | 'variant' | 'showProgressBar'
 >;
 
 const descriptionSizeToClassNameMap: ChecklistVariantClassNameMap = {
@@ -24,9 +24,10 @@ export const OnboardingChecklistCard = ({
   className,
   isOpen = true,
   variant = ChecklistCardVariant.Default,
+  showProgressBar,
 }: OnboardingChecklistCardProps): ReactElement => {
   const { logEvent } = useContext(LogContext);
-  const { steps, completedSteps, nextStep } = useOnboardingChecklist();
+  const { steps, completedSteps, nextStep, isDone } = useOnboardingChecklist();
   const trackedRef = useRef(false);
 
   useEffect(() => {
@@ -62,14 +63,17 @@ export const OnboardingChecklistCard = ({
             descriptionSizeToClassNameMap[variant],
           )}
         >
-          {`${completedSteps.length}/${steps.length}${
-            nextStep ? ` 👉 ${nextStep?.title}` : ''
-          }`}
+          {isDone
+            ? 'Perfectly done!'
+            : `${completedSteps.length}/${steps.length}${
+                nextStep ? ` 👉 ${nextStep?.title}` : ''
+              }`}
         </p>
       }
       steps={steps}
       variant={variant}
       isOpen={isOpen}
+      showProgressBar={showProgressBar}
     />
   );
 };

@@ -24,7 +24,8 @@ export type SidebarOnboardingChecklistCardProps = {
 export const SidebarOnboardingChecklistCard = ({
   className,
 }: SidebarOnboardingChecklistCardProps): ReactElement => {
-  const { checklistView, setChecklistView, isDone } = useOnboardingChecklist();
+  const { checklistView, setChecklistView, isDone, steps } =
+    useOnboardingChecklist();
   const isHidden = checklistView === ChecklistViewState.Hidden;
   const { value: isFeatureEnabled } = useConditionalFeature({
     feature: feature.onboardingChecklist,
@@ -59,9 +60,10 @@ export const SidebarOnboardingChecklistCard = ({
               <OnboardingChecklistDismissButton />
             </>
           }
-          steps={[]}
+          steps={steps}
           variant={ChecklistCardVariant.Small}
           isOpen={false}
+          showProgressBar={false}
         />
       </div>
     );
