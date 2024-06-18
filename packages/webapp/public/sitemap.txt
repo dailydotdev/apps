@@ -3,3 +3,4 @@ https://app.daily.dev/squads
 https://app.daily.dev/tags
 https://app.daily.dev/devcard
 https://app.daily.dev/roast
+https://app.daily.dev/users
