@@ -212,7 +212,6 @@ function CreatePost(): ReactElement {
               className="mt-4"
               onPostSuccess={() => {
                 onAskConfirmation(false);
-                push(squad.permalink);
               }}
             />
           </Tab>

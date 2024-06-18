@@ -1,5 +1,6 @@
 import React, { FormEventHandler, ReactElement, useState } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import { Squad } from '../../../graphql/sources';
 import MarkdownInput from '../../fields/MarkdownInput';
 import { WriteFooter } from './WriteFooter';
@@ -8,6 +9,9 @@ import { usePostToSquad } from '../../../hooks';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { Post } from '../../../graphql/posts';
 import { WriteLinkPreview } from './WriteLinkPreview';
+import { generateDefaultSquad } from './SquadsDropdown';
+import { useSquadCreate } from '../../../hooks/squads/useSquadCreate';
+import { useAuthContext } from '../../../contexts/AuthContext';
 
 interface ShareLinkProps {
   squad: Squad;
@@ -24,6 +28,7 @@ export function ShareLink({
 }: ShareLinkProps): ReactElement {
   const { displayToast } = useToastNotification();
   const [commentary, setCommentary] = useState('');
+  const { squads, user } = useAuthContext();
 
   const {
     getLinkPreview,
@@ -34,17 +39,40 @@ export function ShareLink({
     onUpdatePost,
     onUpdatePreview,
   } = usePostToSquad({ onPostSuccess, initialPreview: post?.sharedPost });
+  const { push } = useRouter();
+
+  const [event, setEvent] = useState(null);
+
+  const { onCreateSquad, isLoading } = useSquadCreate({
+    onSuccess: (newSquad) => {
+      onSubmitPost(event, newSquad.id, commentary);
+      return push(newSquad.permalink);
+    },
+    retryWithRandomizedHandle: true,
+  });
 
   const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
+
+    if (isPosting || isLoading) {
+      return null;
+    }
 
     if (!squad) {
       return displayToast('You must select a Squad to post to!');
     }
 
-    return post?.id
-      ? onUpdatePost(e, post.id, commentary)
-      : onSubmitPost(e, squad.id, commentary);
+    if (post?.id) {
+      return onUpdatePost(e, post.id, commentary);
+    }
+
+    if (squads.some(({ id }) => squad.id === id)) {
+      return onSubmitPost(e, squad.id, commentary);
+    }
+
+    setEvent(e);
+
+    return onCreateSquad(generateDefaultSquad(user.username));
   };
 
   return (
