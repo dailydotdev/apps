@@ -31,6 +31,7 @@ import { SeoSidebarExperiment } from '../lib/featureValues';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { checkIsExtension } from '../lib/func';
 import { useDndContext } from '../contexts/DndContext';
+import { LazyModal } from './modals/common/types';
 
 interface ListItem {
   title: string;
@@ -98,22 +99,23 @@ export default function ProfileMenu({
       },
     ];
 
-    if (checkIsExtension()) {
-      const DndIcon = isDndActive ? PlayIcon : PauseIcon;
-      list.push({
-        title: 'Pause new tab',
-        buttonProps: {
-          icon: <DndIcon />,
-          onClick: () => setShowDnd(true),
-        },
-      });
-    }
-
     if (seoSidebar === SeoSidebarExperiment.V1) {
+      if (checkIsExtension()) {
+        const DndIcon = isDndActive ? PlayIcon : PauseIcon;
+        list.push({
+          title: 'Pause new tab',
+          buttonProps: {
+            icon: <DndIcon />,
+            onClick: () => setShowDnd(true),
+          },
+        });
+      }
+
       list.push({
         title: 'Customize',
         buttonProps: {
           icon: <SettingsIcon />,
+          onClick: () => openModal({ type: LazyModal.UserSettings }),
         },
       });
     }
