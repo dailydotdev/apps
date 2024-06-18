@@ -27,11 +27,16 @@ const tabsToFeedMap: Partial<Record<SharedFeedPage, ExploreTabs>> = {
 };
 
 export const urlToTab: Record<string, ExploreTabs> = {
-  '/explore': ExploreTabs.Popular,
-  '/explore/upvoted': ExploreTabs.MostUpvoted,
-  '/explore/discussed': ExploreTabs.BestDiscussions,
-  '/explore/latest': ExploreTabs.ByDate,
+  [`/${SharedFeedPage.Explore}`]: ExploreTabs.Popular,
+  [`/${SharedFeedPage.Explore}/upvoted`]: ExploreTabs.MostUpvoted,
+  [`/${SharedFeedPage.Explore}/discussed`]: ExploreTabs.BestDiscussions,
+  [`/${SharedFeedPage.Explore}/latest`]: ExploreTabs.ByDate,
 };
+
+export const tabToUrl = Object.entries(urlToTab).reduce(
+  (result, [url, tab]) => ({ ...result, [tab]: url }),
+  {},
+) as Record<ExploreTabs, string>;
 
 interface FeedExploreHeaderProps {
   tab: ExploreTabs;

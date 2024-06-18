@@ -30,6 +30,9 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
       SharedFeedPage.ExploreLatest,
       SharedFeedPage.ExploreUpvoted,
       SharedFeedPage.ExploreDiscussed,
+      OtherFeedPage.Tags,
+      OtherFeedPage.Sources,
+      OtherFeedPage.Leaderboard,
       'users',
     ];
 

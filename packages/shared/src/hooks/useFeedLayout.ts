@@ -10,7 +10,6 @@ import {
 } from '../components/utilities';
 import { AllFeedPages, OtherFeedPage } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
-import { isNullOrUndefined } from '../lib/func';
 
 interface UseFeedLayoutReturn {
   shouldUseListFeedLayout: boolean;
@@ -106,7 +105,7 @@ export const useFeedLayout = ({
   );
 
   const shouldUseListFeedLayoutOnMobileTablet =
-    !isNullOrUndefined(isLaptop) && !isLaptop && isFeedIncludedInListLayout;
+    !isLaptop && isFeedIncludedInListLayout;
 
   const shouldUseListMode =
     isListMode && isLaptop && isFeedIncludedInListLayout;
@@ -115,7 +114,7 @@ export const useFeedLayout = ({
     ? shouldUseListFeedLayoutOnMobileTablet ||
       shouldUseListFeedLayoutOnProfilePages ||
       shouldUseListMode
-    : isListMode || (!isNullOrUndefined(isLaptop) && !isLaptop);
+    : isListMode || !isLaptop;
 
   const shouldUseCommentFeedLayout = feedName === SharedFeedPage.Discussed;
 

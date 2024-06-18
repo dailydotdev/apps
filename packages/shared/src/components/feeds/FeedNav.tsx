@@ -24,9 +24,13 @@ import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
-import { CustomFeedsExperiment } from '../../lib/featureValues';
+import {
+  CustomFeedsExperiment,
+  SeoSidebarExperiment,
+} from '../../lib/featureValues';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
+import { SharedFeedPage } from '../utilities';
 import { useAuthContext } from '../../contexts/AuthContext';
 
 const OnboardingChecklistBar = dynamic(
@@ -39,6 +43,10 @@ const OnboardingChecklistBar = dynamic(
 enum FeedNavTab {
   ForYou = 'For you',
   Popular = 'Popular',
+  Explore = 'Explore',
+  Tags = 'Tags',
+  Sources = 'Sources',
+  Leaderboard = 'Leaderboard',
   Bookmarks = 'Bookmarks',
   History = 'History',
   MostUpvoted = 'Most Upvoted',
@@ -67,7 +75,7 @@ function FeedNav(): ReactElement {
   );
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
-
+  const seoSidebar = useFeature(feature.seoSidebar);
   const { feeds } = useFeeds();
   const customFeedsVersion = useFeature(feature.customFeeds);
   const hasCustomFeedsEnabled =
@@ -88,7 +96,7 @@ function FeedNav(): ReactElement {
         }, {})
       : [];
 
-    return {
+    const urls = {
       ...(hasCustomFeedsEnabled
         ? {
             [`${webappUrl}feeds/new`]: FeedNavTab.NewFeed,
@@ -96,13 +104,35 @@ function FeedNav(): ReactElement {
         : undefined),
       [`${webappUrl}`]: FeedNavTab.ForYou,
       ...customFeeds,
-      [`${webappUrl}popular`]: FeedNavTab.Popular,
-      [`${webappUrl}upvoted`]: FeedNavTab.MostUpvoted,
-      [`${webappUrl}discussed`]: FeedNavTab.Discussions,
+    };
+
+    if (seoSidebar === SeoSidebarExperiment.V1) {
+      urls[`${webappUrl}${SharedFeedPage.Explore}`] = FeedNavTab.Explore;
+    } else {
+      urls[`${webappUrl}${SharedFeedPage.Popular}`] = FeedNavTab.Popular;
+      urls[`${webappUrl}${SharedFeedPage.Upvoted}`] = FeedNavTab.MostUpvoted;
+    }
+
+    urls[`${webappUrl}${SharedFeedPage.Discussed}`] = FeedNavTab.Discussions;
+
+    if (seoSidebar === SeoSidebarExperiment.V1) {
+      urls[`${webappUrl}tags`] = FeedNavTab.Tags;
+      urls[`${webappUrl}sources`] = FeedNavTab.Sources;
+      urls[`${webappUrl}users`] = FeedNavTab.Leaderboard;
+    }
+
+    return {
+      ...urls,
       [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
       [`${webappUrl}history`]: FeedNavTab.History,
     };
-  }, [feeds, router.pathname, router.query.slugOrId, hasCustomFeedsEnabled]);
+  }, [
+    seoSidebar,
+    feeds,
+    router.pathname,
+    router.query.slugOrId,
+    hasCustomFeedsEnabled,
+  ]);
 
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
