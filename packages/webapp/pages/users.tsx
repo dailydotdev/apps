@@ -174,7 +174,7 @@ export async function getStaticProps(): Promise<
         mostReferrals: res.mostReferrals,
         mostReadingDays: res.mostReadingDays,
       },
-      revalidate: 60,
+      revalidate: 3600,
     };
   } catch (err) {
     if (
