@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import Modal from 'react-modal';
@@ -33,11 +39,11 @@ import { useHostStatus } from '@dailydotdev/shared/src/hooks/useHostPermissionSt
 import ExtensionPermissionsPrompt from '@dailydotdev/shared/src/components/ExtensionPermissionsPrompt';
 import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
 import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
+import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
-import { DndContextProvider } from './DndContext';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
 import { useContentScriptStatus } from '../../../shared/src/hooks';
@@ -85,10 +91,13 @@ function InternalApp(): ReactElement {
 
   const { dismissToast } = useToastNotification();
 
-  const onPageChanged = (page: string): void => {
-    setCurrentPage(page);
-    dismissToast();
-  };
+  const onPageChanged = useCallback(
+    (page: string): void => {
+      setCurrentPage(page);
+      dismissToast();
+    },
+    [dismissToast, setCurrentPage],
+  );
 
   useEffect(() => {
     if (contentScriptGranted) {

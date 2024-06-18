@@ -8,16 +8,16 @@ import {
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
 const seo: NextSeoProps = {
-  title: 'Most discussed posts on daily.dev',
+  title: 'Most upvoted posts on daily.dev',
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
 };
 
-const ExploreDiscussed = (): ReactElement => {
+const PostsUpvoted = (): ReactElement => {
   return <NextSeo {...seo} />;
 };
 
-ExploreDiscussed.getLayout = getMainFeedLayout;
-ExploreDiscussed.layoutProps = mainFeedLayoutProps;
+PostsUpvoted.getLayout = getMainFeedLayout;
+PostsUpvoted.layoutProps = mainFeedLayoutProps;
 
-export default ExploreDiscussed;
+export default PostsUpvoted;
