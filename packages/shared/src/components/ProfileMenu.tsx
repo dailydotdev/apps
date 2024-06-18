@@ -133,6 +133,7 @@ export default function ProfileMenu({
     hypeCampaign,
     isDndActive,
     logout,
+    openModal,
     seoSidebar,
     setShowDnd,
     user.permalink,
