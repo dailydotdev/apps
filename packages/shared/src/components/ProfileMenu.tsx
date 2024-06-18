@@ -7,6 +7,8 @@ import {
   SettingsIcon,
   ReputationLightningIcon,
   ExitIcon,
+  PlayIcon,
+  PauseIcon,
 } from './icons';
 import InteractivePopup, {
   InteractivePopupPosition,
@@ -25,6 +27,11 @@ import { anchorDefaultRel } from '../lib/strings';
 import { LogoutReason } from '../lib/user';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
+import { SeoSidebarExperiment } from '../lib/featureValues';
+import { useLazyModal } from '../hooks/useLazyModal';
+import { checkIsExtension } from '../lib/func';
+import { useDndContext } from '../contexts/DndContext';
+import { LazyModal } from './modals/common/types';
 
 interface ListItem {
   title: string;
@@ -39,8 +46,11 @@ interface ProfileMenuProps {
 export default function ProfileMenu({
   onClose,
 }: ProfileMenuProps): ReactElement {
+  const { openModal } = useLazyModal();
+  const seoSidebar = useFeature(feature.seoSidebar);
   const { user, logout } = useContext(AuthContext);
   const hypeCampaign = useFeature(feature.hypeCampaign);
+  const { isActive: isDndActive, setShowDnd } = useDndContext();
 
   const items: ListItem[] = useMemo(() => {
     const list: ListItem[] = [
@@ -87,17 +97,47 @@ export default function ProfileMenu({
         },
         rightEmoji: hypeCampaign && '👕',
       },
-      {
-        title: 'Logout',
-        buttonProps: {
-          icon: <ExitIcon />,
-          onClick: () => logout(LogoutReason.ManualLogout),
-        },
-      },
     ];
 
+    if (seoSidebar === SeoSidebarExperiment.V1) {
+      if (checkIsExtension()) {
+        const DndIcon = isDndActive ? PlayIcon : PauseIcon;
+        list.push({
+          title: 'Pause new tab',
+          buttonProps: {
+            icon: <DndIcon />,
+            onClick: () => setShowDnd(true),
+          },
+        });
+      }
+
+      list.push({
+        title: 'Customize',
+        buttonProps: {
+          icon: <SettingsIcon />,
+          onClick: () => openModal({ type: LazyModal.UserSettings }),
+        },
+      });
+    }
+
+    list.push({
+      title: 'Logout',
+      buttonProps: {
+        icon: <ExitIcon />,
+        onClick: () => logout(LogoutReason.ManualLogout),
+      },
+    });
+
     return list;
-  }, [hypeCampaign, logout, user.permalink]);
+  }, [
+    hypeCampaign,
+    isDndActive,
+    logout,
+    openModal,
+    seoSidebar,
+    setShowDnd,
+    user.permalink,
+  ]);
 
   if (!user) {
     return <></>;

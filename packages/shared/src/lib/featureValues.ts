@@ -30,3 +30,8 @@ export interface FeatureTheme {
   cursor?: string;
   [key: string]: number | FeatureThemeVariant | string | undefined;
 }
+
+export enum SeoSidebarExperiment {
+  Control = 'control',
+  V1 = 'v1',
+}
