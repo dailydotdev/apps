@@ -30,6 +30,7 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
       SharedFeedPage.ExploreLatest,
       SharedFeedPage.ExploreUpvoted,
       SharedFeedPage.ExploreDiscussed,
+      'users',
     ];
 
     if (!isLaptop) {

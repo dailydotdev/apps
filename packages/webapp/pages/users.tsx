@@ -107,8 +107,8 @@ const LeaderboardPage = ({
   }
 
   return (
-    <main className="py-6 tablet:px-4 laptop:px-10">
-      <div className="mb-6 flex justify-between">
+    <main className="tablet:p-4 laptop:px-10">
+      <div className="mb-6 hidden justify-between laptop:flex">
         <BreadCrumbs>
           <SquadIcon size={IconSize.XSmall} secondary /> Leaderboard
         </BreadCrumbs>
