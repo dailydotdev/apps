@@ -63,7 +63,8 @@ export function ShareLink({
     }
 
     if (post?.id) {
-      return onUpdatePost(e, post.id, commentary);
+      onUpdatePost(e, post.id, commentary);
+      return push(squad.permalink);
     }
 
     if (squads.some(({ id }) => squad.id === id)) {
