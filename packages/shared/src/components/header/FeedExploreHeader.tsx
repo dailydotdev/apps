@@ -6,7 +6,6 @@ import { IconSize } from '../Icon';
 import TabList from '../tabs/TabList';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { checkIsExtension } from '../../lib/func';
-import { SharedFeedPage } from '../utilities';
 import { getFeedName } from '../../lib/feed';
 import { Dropdown } from '../fields/Dropdown';
 import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';

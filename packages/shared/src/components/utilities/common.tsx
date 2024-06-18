@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import classed from '../../lib/classed';
 import styles from './utilities.module.css';
 import { ArrowIcon } from '../icons';
-import { OtherFeedPage } from '../../lib/query';
 
 export enum Theme {
   Avocado = 'avocado',
