@@ -2,7 +2,7 @@ import { gql } from 'graphql-request';
 import { LEADERBOARD_FRAMENT } from './fragments';
 
 export const LEADERBOARD_QUERY = gql`
-  query Leaderboard($limit: Int = 15) {
+  query Leaderboard($limit: Int = 10) {
     highestReputation(limit: $limit) {
       ...LeaderboardFragment
     }
