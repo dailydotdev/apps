@@ -18,6 +18,7 @@ import { SeoSidebarExperiment } from '../../lib/featureValues';
 import { checkIsExtension } from '../../lib/func';
 import { webappUrl } from '../../lib/constants';
 import { SharedFeedPage } from '../utilities';
+import { OtherFeedPage } from '../../lib/query';
 
 interface DiscoverSectionProps extends SectionCommonProps {
   isItemsButton?: boolean;
@@ -50,7 +51,7 @@ export function DiscoverSection({
       path: isV1Sidebar ? '/posts' : '/popular',
       action: () =>
         onNavTabClick?.(
-          isV1Sidebar ? SharedFeedPage.Explore : SharedFeedPage.Popular,
+          isV1Sidebar ? OtherFeedPage.Explore : SharedFeedPage.Popular,
         ),
     };
 

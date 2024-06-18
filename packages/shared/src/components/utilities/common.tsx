@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import classed from '../../lib/classed';
 import styles from './utilities.module.css';
 import { ArrowIcon } from '../icons';
+import { OtherFeedPage } from '../../lib/query';
 
 export enum Theme {
   Avocado = 'avocado',
@@ -164,10 +165,6 @@ export type HTMLElementComponent<T = HTMLElement> = React.FC<HTMLAttributes<T>>;
 export enum SharedFeedPage {
   MyFeed = 'my-feed',
   Popular = 'popular',
-  Explore = 'posts',
-  ExploreLatest = 'postslatest',
-  ExploreDiscussed = 'postsdiscussed',
-  ExploreUpvoted = 'postsupvoted',
   Search = 'search',
   Upvoted = 'upvoted',
   Discussed = 'discussed',
