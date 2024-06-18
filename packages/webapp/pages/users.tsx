@@ -76,7 +76,7 @@ const UserTopList = ({
                 showReputation
                 className={{
                   wrapper: 'min-w-0 flex-shrink !p-2',
-                  image: '!h-8 !w-8',
+                  image: '!size-8',
                   textWrapper: '!ml-2',
                   name: '!typo-caption1',
                   reputation: '!typo-caption1',
