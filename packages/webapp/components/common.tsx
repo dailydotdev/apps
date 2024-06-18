@@ -18,7 +18,7 @@ export const ListItem = ({
   return (
     <li className={className}>
       <Link href={href} passHref key={href} prefetch={false}>
-        <a className="flex w-full flex-row items-center hover:bg-accent-pepper-subtler">
+        <a className="flex w-full flex-row items-center rounded-8 px-2 hover:bg-accent-pepper-subtler">
           <span className="inline-flex w-4 text-text-quaternary">{index}</span>
           {children}
         </a>

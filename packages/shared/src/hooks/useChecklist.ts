@@ -17,6 +17,7 @@ export type UseChecklist = {
   isDone: boolean;
   activeStep: ActionType | undefined;
   completedSteps: ChecklistStepType[];
+  nextStep: ChecklistStepType | undefined;
 };
 
 const useChecklist = ({ steps }: UseChecklistProps): UseChecklist => {
@@ -51,7 +52,7 @@ const useChecklist = ({ steps }: UseChecklistProps): UseChecklist => {
   );
 
   const isDone = useMemo(() => {
-    return steps.every((item) => !!item.action.completedAt);
+    return steps.length > 0 && steps.every((item) => !!item.action.completedAt);
   }, [steps]);
 
   const completedSteps = useMemo(() => {
@@ -72,6 +73,15 @@ const useChecklist = ({ steps }: UseChecklistProps): UseChecklist => {
     });
   }, [steps]);
 
+  const nextStep = useMemo(() => {
+    return steps?.find(
+      (step) =>
+        !completedSteps.some(
+          (completedStep) => completedStep.action === step.action,
+        ),
+    );
+  }, [steps, completedSteps]);
+
   return {
     steps: sortedStepsByCompletion,
     openStep,
@@ -79,6 +89,7 @@ const useChecklist = ({ steps }: UseChecklistProps): UseChecklist => {
     isDone,
     activeStep,
     completedSteps,
+    nextStep,
   };
 };
 

@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import nock from 'nock';
 import { GraphQLError } from 'graphql-request/dist/types';
+import {
+  ActionType,
+  COMPLETE_ACTION_MUTATION,
+} from '../../src/graphql/actions';
 
 export interface GraphQLRequest {
   query: string;
@@ -26,3 +30,17 @@ export const mockGraphQL = <TData = Record<string, any>>(
     })
     .reply(200, res.result);
 };
+
+export const completeActionMock = ({
+  action,
+}: {
+  action: ActionType;
+}): MockedGraphQLResponse => ({
+  request: {
+    query: COMPLETE_ACTION_MUTATION,
+    variables: { type: action },
+  },
+  result: () => {
+    return { data: { _: true } };
+  },
+});

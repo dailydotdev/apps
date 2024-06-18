@@ -118,7 +118,7 @@ export function SearchResult({
   return (
     <Container className={className}>
       <div className="mr-4 flex h-10 w-10 rounded-10 bg-accent-cabbage-default p-2">
-        <LogoIcon className="max-w-full" />
+        <LogoIcon className={{ container: 'max-w-full' }} />
       </div>
       <div className="flex-1">
         <SearchMessage

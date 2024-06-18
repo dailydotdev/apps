@@ -19,7 +19,10 @@ const ExtensionOnboarding = (): ReactElement => {
 
   return (
     <div className="flex max-h-[100vh] min-h-[100vh] flex-col items-center justify-center overflow-hidden px-7 text-center antialiased">
-      <Logo position={LogoPosition.Relative} logoClassName="h-logo-big" />
+      <Logo
+        position={LogoPosition.Relative}
+        logoClassName={{ container: 'h-logo-big' }}
+      />
 
       <OnboardingTitleGradient className="my-6 typo-mega2 tablet:typo-mega1">
         Let&apos;s jump back&nbsp;in!

@@ -8,6 +8,11 @@ import {
 } from '@testing-library/react';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
+import {
+  completeActionMock,
+  mockGraphQL,
+} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import App from './App';
 
 jest.mock('content-scripts-register-polyfill', () => ({}));
@@ -211,6 +216,8 @@ describe('companion app', () => {
   });
 
   it('should decrement number of upvotes if downvoting post that was upvoted', async () => {
+    mockGraphQL(completeActionMock({ action: ActionType.VotePost }));
+
     renderComponent(
       {
         userState: {
