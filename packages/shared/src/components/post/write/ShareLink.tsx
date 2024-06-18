@@ -41,11 +41,9 @@ export function ShareLink({
   } = usePostToSquad({ onPostSuccess, initialPreview: post?.sharedPost });
   const { push } = useRouter();
 
-  const [event, setEvent] = useState(null);
-
   const { onCreateSquad, isLoading } = useSquadCreate({
     onSuccess: (newSquad) => {
-      onSubmitPost(event, newSquad.id, commentary);
+      onSubmitPost(null, newSquad.id, commentary);
       return push(newSquad.permalink);
     },
     retryWithRandomizedHandle: true,
@@ -71,8 +69,6 @@ export function ShareLink({
       onSubmitPost(e, squad.id, commentary);
       return push(squad.permalink);
     }
-
-    setEvent(e);
 
     return onCreateSquad(generateDefaultSquad(user.username));
   };
