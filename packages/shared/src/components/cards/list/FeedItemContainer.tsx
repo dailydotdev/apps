@@ -15,6 +15,7 @@ import { RaisedLabel, RaisedLabelType } from './RaisedLabel';
 import { useFeedPreviewMode } from '../../../hooks';
 import { TypeLabel } from './TypeLabel';
 import { bookmarkProviderListBg } from '../../../styles/custom';
+import { useBookmarkProvider } from '../../../hooks/useBookmarkProvider';
 
 interface FeedItemContainerProps {
   flagProps?: FlagProps;
@@ -38,6 +39,7 @@ function FeedItemContainer(
   }: FeedItemContainerProps,
   ref?: Ref<HTMLElement>,
 ): ReactElement {
+  const highlightBookmarkedPost = useBookmarkProvider({ bookmarked });
   const { adAttribution, pinnedAt, trending, type } = flagProps;
   const raisedLabelType = pinnedAt
     ? RaisedLabelType.Pinned
@@ -59,10 +61,12 @@ function FeedItemContainer(
       className={classNames(
         domProps?.className,
         focus && 'bg-surface-float',
-        bookmarked &&
+        highlightBookmarkedPost &&
           '!border-action-bookmark-active hover:!border-action-bookmark-default',
       )}
-      style={{ ...(bookmarked && { background: bookmarkProviderListBg }) }}
+      style={{
+        ...(highlightBookmarkedPost && { background: bookmarkProviderListBg }),
+      }}
     >
       {linkProps && (
         <Link href={linkProps.href}>

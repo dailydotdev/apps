@@ -12,6 +12,7 @@ import { ButtonVariant } from '../buttons/Button';
 import { FlagProps } from './FeedItemContainer';
 import { BookmarkIcon } from '../icons';
 import { useBookmarkProvider } from '../../hooks/useBookmarkProvider';
+import { BookmakProviderHeader } from './BookmarkProviderHeader';
 
 interface CardHeaderProps {
   post: Post;
@@ -38,21 +39,14 @@ export const PostCardHeader = ({
   openNewTab,
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
-  const highlightBookmarkedPost = useBookmarkProvider(post.bookmarked);
+  const highlightBookmarkedPost = useBookmarkProvider({
+    bookmarked: post.bookmarked,
+  });
 
   return (
     <>
       {highlightBookmarkedPost && (
-        <CardHeader
-          className={classNames(
-            className,
-            'laptop:mouse:flex laptop:mouse:group-hover:hidden',
-            'text-action-bookmark-default typo-footnote',
-          )}
-        >
-          <BookmarkIcon secondary className="ml-1 mr-1" />
-          Revisit this post you saved earlier?
-        </CardHeader>
+        <BookmakProviderHeader className={className} isArticleCard />
       )}
       <CardHeader
         className={classNames(

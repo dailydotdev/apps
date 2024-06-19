@@ -7,14 +7,16 @@ interface UseBookmarkProviderReturn {
   highlightBookmarkedPost: boolean;
 }
 
-export const useBookmarkProvider = (
-  bookmarked: boolean,
-): UseBookmarkProviderReturn => {
+interface UseBookmarkProviderProps {
+  bookmarked?: boolean;
+}
+
+export const useBookmarkProvider = ({
+  bookmarked = false,
+}: UseBookmarkProviderProps): UseBookmarkProviderReturn => {
   const bookmarkProvider = useFeature(feature.bookmark_provider);
   const { feedName } = useActiveFeedNameContext();
-  console.log(
-    bookmarkProvider && feedName === SharedFeedPage.MyFeed && bookmarked,
-  );
+
   return {
     highlightBookmarkedPost:
       bookmarkProvider && feedName === SharedFeedPage.MyFeed && bookmarked,

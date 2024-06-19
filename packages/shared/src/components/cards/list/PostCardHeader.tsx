@@ -8,9 +8,10 @@ import { useFeedPreviewMode } from '../../../hooks';
 import { Post, PostType } from '../../../graphql/posts';
 import { ButtonVariant } from '../../buttons/common';
 import PostMetadata, { PostMetadataProps } from './PostMetadata';
-import { BookmarkIcon, MenuIcon, OpenLinkIcon } from '../../icons';
+import { MenuIcon, OpenLinkIcon } from '../../icons';
 import { useReadPostButtonText } from './hooks';
 import { useBookmarkProvider } from '../../../hooks/useBookmarkProvider';
+import { BookmakProviderHeader } from './BookmarkProviderHeader';
 
 interface CardHeaderProps {
   post: Post;
@@ -40,7 +41,9 @@ export const PostCardHeader = ({
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
   const postButtonText = useReadPostButtonText(post);
-  const highlightBookmarkedPost = useBookmarkProvider(post.bookmarked);
+  const highlightBookmarkedPost = useBookmarkProvider({
+    bookmarked: post.bookmarked,
+  });
 
   const isCollectionType = post.type === 'collection';
   const showCTA =
@@ -50,15 +53,7 @@ export const PostCardHeader = ({
   return (
     <>
       {highlightBookmarkedPost && (
-        <CardHeader
-          className={classNames(
-            className,
-            'mb-4 text-action-bookmark-default typo-footnote',
-          )}
-        >
-          <BookmarkIcon secondary className="ml-1 mr-1" />
-          Revisit this post you saved earlier?
-        </CardHeader>
+        <BookmakProviderHeader className={classNames(className, 'mb-4')} />
       )}
       <CardHeader className={className}>
         {children}

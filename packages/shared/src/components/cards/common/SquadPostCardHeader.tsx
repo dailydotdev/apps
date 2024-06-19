@@ -4,9 +4,9 @@ import { Post } from '../../../graphql/posts';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import SourceButton from '../SourceButton';
 import PostMetadata from '../PostMetadata';
-import { CardHeader } from '../Card';
 import { BookmarkIcon } from '../../icons';
 import { useBookmarkProvider } from '../../../hooks/useBookmarkProvider';
+import { BookmakProviderHeader } from '../BookmarkProviderHeader';
 
 type SquadPostCardHeaderProps = Pick<
   Post,
@@ -20,7 +20,7 @@ export const SquadPostCardHeader = ({
   enableSourceHeader = false,
   bookmarked,
 }: SquadPostCardHeaderProps): ReactElement => {
-  const highlightBookmarkedPost = useBookmarkProvider(bookmarked);
+  const highlightBookmarkedPost = useBookmarkProvider({ bookmarked });
 
   const getDescription = () => {
     if (!author) {
@@ -41,16 +41,12 @@ export const SquadPostCardHeader = ({
   return (
     <>
       {highlightBookmarkedPost && (
-        <div
+        <BookmakProviderHeader
           className={classNames(
-            'laptop:mouse:flex laptop:mouse:group-hover:hidden',
-            'relative my-2 flex py-2 text-action-bookmark-default typo-footnote',
+            'relative my-2 flex py-2',
             enableSourceHeader ? 'h-10' : 'h-12',
           )}
-        >
-          <BookmarkIcon secondary className="mx-1" />
-          Revisit this post you saved earlier?
-        </div>
+        />
       )}
       <div
         className={classNames(
