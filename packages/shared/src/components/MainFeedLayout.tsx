@@ -22,7 +22,7 @@ import {
   PREVIEW_FEED_QUERY,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
-import { generateQueryKey, RequestKey } from '../lib/query';
+import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
@@ -69,7 +69,7 @@ type FeedQueryProps = {
   variables?: Record<string, unknown>;
 };
 
-const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
+const propsByFeed: Record<SharedFeedPage & OtherFeedPage, FeedQueryProps> = {
   'my-feed': {
     query: ANONYMOUS_FEED_QUERY,
     queryIfLogged: FEED_QUERY,
@@ -90,13 +90,13 @@ const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
   discussed: {
     query: MOST_DISCUSSED_FEED_QUERY,
   },
-  [SharedFeedPage.ExploreLatest]: {
+  [OtherFeedPage.ExploreLatest]: {
     query: ANONYMOUS_FEED_QUERY,
   },
-  [SharedFeedPage.ExploreUpvoted]: {
+  [OtherFeedPage.ExploreUpvoted]: {
     query: MOST_UPVOTED_FEED_QUERY,
   },
-  [SharedFeedPage.ExploreDiscussed]: {
+  [OtherFeedPage.ExploreDiscussed]: {
     query: MOST_DISCUSSED_FEED_QUERY,
   },
   [SharedFeedPage.Custom]: {
