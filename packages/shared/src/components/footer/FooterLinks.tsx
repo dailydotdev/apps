@@ -25,6 +25,9 @@ export const FooterLinks = withExperiment(
           </a>
         </li>
         <li>
+          <a href={`${webappUrl}posts`}>Explore</a>
+        </li>
+        <li>
           <a href={`${webappUrl}tags`}>Tags</a>
         </li>
         <li>
@@ -32,6 +35,9 @@ export const FooterLinks = withExperiment(
         </li>
         <li>
           <a href={`${webappUrl}squads`}>Squads</a>
+        </li>
+        <li>
+          <a href={`${webappUrl}users`}>Leaderboard</a>
         </li>
       </ul>
     );
