@@ -199,3 +199,13 @@ export const CUSTOM_FEED_FRAGMENT = gql`
     createdAt
   }
 `;
+
+export const LEADERBOARD_FRAMENT = gql`
+  fragment LeaderboardFragment on Leaderboard {
+    score
+    user {
+      ...UserShortInfo
+    }
+  }
+  ${USER_SHORT_INFO_FRAGMENT}
+`;

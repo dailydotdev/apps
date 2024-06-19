@@ -44,11 +44,13 @@ interface SourceAuthorProps {
 
 interface UserHighlightProps extends SourceAuthorProps {
   allowSubscribe?: boolean;
+  showReputation?: boolean;
   className?: {
     wrapper?: string;
     image?: string;
     textWrapper?: string;
     name?: string;
+    reputation?: string;
     handle?: string;
   };
 }
@@ -114,6 +116,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
     reputation,
     allowSubscribe = true,
     className,
+    showReputation = false,
   } = props;
   const Icon = getUserIcon(userType);
   const isUserTypeSource = userType === UserType.Source;
@@ -173,28 +176,24 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
             className?.textWrapper,
           )}
         >
-          {isUserTypeSource && (
+          <div className="flex">
             <ProfileLink
-              className={classNames('!block truncate font-bold typo-callout')}
+              className={classNames(
+                'truncate font-bold typo-callout',
+                className?.name,
+              )}
               href={permalink}
             >
               {name}
             </ProfileLink>
-          )}
-          {!isUserTypeSource && (
-            <div className="flex">
-              <ProfileLink
-                className={classNames(
-                  'font-bold typo-callout',
-                  className?.name,
-                )}
-                href={permalink}
-              >
-                {name}
-              </ProfileLink>
-              <ReputationUserBadge user={{ reputation }} />
-            </div>
-          )}
+
+            {(showReputation || !isUserTypeSource) && (
+              <ReputationUserBadge
+                className={className?.reputation}
+                user={{ reputation }}
+              />
+            )}
+          </div>
           {(handle || username || id) && (
             <ProfileLink
               className={classNames(
