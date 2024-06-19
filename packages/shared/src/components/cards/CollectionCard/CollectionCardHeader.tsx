@@ -14,6 +14,7 @@ interface CollectionCardHeaderProps {
   totalSources: number;
   onMenuClick?: (e: React.MouseEvent) => void;
   bookmarked?: boolean;
+  postId?: string;
 }
 
 export const CollectionCardHeader = ({
@@ -21,8 +22,12 @@ export const CollectionCardHeader = ({
   totalSources,
   onMenuClick,
   bookmarked,
+  postId,
 }: CollectionCardHeaderProps): ReactElement => {
-  const { highlightBookmarkedPost } = useBookmarkProvider({ bookmarked });
+  const { highlightBookmarkedPost } = useBookmarkProvider({
+    bookmarked,
+    postId,
+  });
 
   return (
     <>

@@ -26,13 +26,17 @@ interface FeedItemContainerProps {
   children: ReactNode;
   domProps: HTMLAttributes<HTMLDivElement>;
   bookmarked?: boolean;
+  postId: string;
 }
 
 function FeedItemContainer(
-  { flagProps, children, domProps, bookmarked }: FeedItemContainerProps,
+  { flagProps, children, domProps, bookmarked, postId }: FeedItemContainerProps,
   ref?: Ref<HTMLElement>,
 ): ReactElement {
-  const { highlightBookmarkedPost } = useBookmarkProvider({ bookmarked });
+  const { highlightBookmarkedPost } = useBookmarkProvider({
+    bookmarked,
+    postId,
+  });
   const { listMode, pinnedAt, trending } = flagProps;
   const type = pinnedAt ? RaisedLabelType.Pinned : RaisedLabelType.Hot;
   const description =

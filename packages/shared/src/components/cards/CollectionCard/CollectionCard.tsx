@@ -37,6 +37,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
       ref={ref}
       flagProps={{ pinnedAt, trending }}
       bookmarked={post.bookmarked}
+      postId={post.id}
     >
       <CardOverlay post={post} onPostCardClick={onPostCardClick} />
       <CollectionCardHeader

@@ -12,7 +12,7 @@ import {
 
 type SquadPostCardHeaderProps = Pick<
   Post,
-  'author' | 'source' | 'permalink' | 'createdAt' | 'bookmarked'
+  'author' | 'source' | 'permalink' | 'createdAt' | 'bookmarked' | 'id'
 > & { enableSourceHeader?: boolean };
 
 export const SquadPostCardHeader = ({
@@ -21,8 +21,12 @@ export const SquadPostCardHeader = ({
   source,
   enableSourceHeader = false,
   bookmarked,
+  id,
 }: SquadPostCardHeaderProps): ReactElement => {
-  const { highlightBookmarkedPost } = useBookmarkProvider({ bookmarked });
+  const { highlightBookmarkedPost } = useBookmarkProvider({
+    bookmarked,
+    postId: id,
+  });
 
   const getDescription = () => {
     if (!author) {

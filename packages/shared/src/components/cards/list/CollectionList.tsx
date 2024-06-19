@@ -48,6 +48,7 @@ export const CollectionList = forwardRef(function CollectionCard(
         href: post.commentsPermalink,
       }}
       bookmarked={post.bookmarked}
+      postId={post.id}
     >
       <CardContainer>
         <PostCardHeader

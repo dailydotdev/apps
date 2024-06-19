@@ -58,6 +58,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
       ref={ref}
       flagProps={{ pinnedAt, trending }}
       bookmarked={post.bookmarked}
+      postId={post.id}
     >
       <CardOverlay post={post} onPostCardClick={onPostCardClick} />
       <OptionsButton
@@ -71,6 +72,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
         createdAt={post.createdAt}
         enableSourceHeader={enableSourceHeader}
         bookmarked={post.bookmarked}
+        id={post.id}
       />
       <FreeformCardTitle
         className={classNames(

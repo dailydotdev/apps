@@ -23,6 +23,7 @@ interface FeedItemContainerProps {
   domProps: HTMLAttributes<HTMLDivElement>;
   linkProps?: AnchorHTMLAttributes<HTMLAnchorElement>;
   bookmarked?: boolean;
+  postId?: string;
 }
 
 interface FlagProps extends Pick<Post, 'pinnedAt' | 'trending' | 'type'> {
@@ -36,10 +37,14 @@ function FeedItemContainer(
     domProps,
     linkProps,
     bookmarked,
+    postId,
   }: FeedItemContainerProps,
   ref?: Ref<HTMLElement>,
 ): ReactElement {
-  const { highlightBookmarkedPost } = useBookmarkProvider({ bookmarked });
+  const { highlightBookmarkedPost } = useBookmarkProvider({
+    bookmarked,
+    postId,
+  });
   const { adAttribution, pinnedAt, trending, type } = flagProps;
   const raisedLabelType = pinnedAt
     ? RaisedLabelType.Pinned
