@@ -5,7 +5,10 @@ import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import SourceButton from '../SourceButton';
 import PostMetadata from '../PostMetadata';
 import useBookmarkProvider from '../../../hooks/useBookmarkProvider';
-import { BookmakProviderHeader } from '../BookmarkProviderHeader';
+import {
+  BookmakProviderHeader,
+  headerHiddenClassName,
+} from '../BookmarkProviderHeader';
 
 type SquadPostCardHeaderProps = Pick<
   Post,
@@ -50,8 +53,7 @@ export const SquadPostCardHeader = ({
       <div
         className={classNames(
           'relative m-2 flex gap-2',
-          highlightBookmarkedPost &&
-            'laptop:mouse:hidden laptop:mouse:group-hover:flex',
+          highlightBookmarkedPost && headerHiddenClassName,
         )}
       >
         <div className="relative">

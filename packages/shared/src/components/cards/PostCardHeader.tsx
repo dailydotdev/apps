@@ -11,7 +11,10 @@ import { getReadPostButtonText, Post } from '../../graphql/posts';
 import { ButtonVariant } from '../buttons/Button';
 import { FlagProps } from './FeedItemContainer';
 import useBookmarkProvider from '../../hooks/useBookmarkProvider';
-import { BookmakProviderHeader } from './BookmarkProviderHeader';
+import {
+  BookmakProviderHeader,
+  headerHiddenClassName,
+} from './BookmarkProviderHeader';
 
 interface CardHeaderProps {
   post: Post;
@@ -52,8 +55,7 @@ export const PostCardHeader = ({
       <CardHeader
         className={classNames(
           className,
-          highlightBookmarkedPost &&
-            'laptop:mouse:hidden laptop:mouse:group-hover:flex',
+          highlightBookmarkedPost && headerHiddenClassName,
         )}
       >
         <SourceButton source={source} />

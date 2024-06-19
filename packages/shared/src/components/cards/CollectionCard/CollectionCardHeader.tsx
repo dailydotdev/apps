@@ -4,7 +4,10 @@ import { SourceAvatarProps } from '../../profile/source';
 import { CollectionPillSources } from '../../post/collection';
 import OptionsButton from '../../buttons/OptionsButton';
 import useBookmarkProvider from '../../../hooks/useBookmarkProvider';
-import { BookmakProviderHeader } from '../BookmarkProviderHeader';
+import {
+  BookmakProviderHeader,
+  headerHiddenClassName,
+} from '../BookmarkProviderHeader';
 
 interface CollectionCardHeaderProps {
   sources: SourceAvatarProps['source'][];
@@ -32,8 +35,7 @@ export const CollectionCardHeader = ({
         className={{
           main: classNames(
             'm-2',
-            highlightBookmarkedPost &&
-              'laptop:mouse:hidden laptop:mouse:group-hover:flex',
+            highlightBookmarkedPost && headerHiddenClassName,
           ),
         }}
         sources={sources}

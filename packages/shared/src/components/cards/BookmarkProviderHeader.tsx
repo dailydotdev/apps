@@ -9,6 +9,8 @@ export const bookmarkProviderTextClassName =
   'text-action-bookmark-default typo-footnote';
 const bookmarkProviderMouseClassName =
   'laptop:mouse:flex laptop:mouse:group-hover:hidden';
+export const headerHiddenClassName =
+  'laptop:mouse:hidden laptop:mouse:group-hover:flex';
 
 interface BookmakProviderHeaderProps {
   className: string;
