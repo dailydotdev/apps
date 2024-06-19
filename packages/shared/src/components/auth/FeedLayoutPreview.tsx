@@ -1,7 +1,14 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { Radio } from '../fields/Radio';
 import SettingsContext, {
+  ThemeMode,
   themes as layoutThemes,
 } from '../../contexts/SettingsContext';
 import { CardIcon, LineIcon } from '../icons';
@@ -9,8 +16,11 @@ import { Checkbox } from '../fields/Checkbox';
 import { IconProps, IconSize } from '../Icon';
 import { PlaceholderCard } from '../cards/PlaceholderCard';
 import { PlaceholderList } from '../cards/list/PlaceholderList';
+import { LogEvent, TargetId, TargetType } from '../../lib/log';
+import { useLogContext } from '../../contexts/LogContext';
 
 export const FeedLayoutPreview = (): ReactElement => {
+  const { logEvent } = useLogContext();
   const { themeMode, setTheme, insaneMode, toggleInsaneMode } =
     useContext(SettingsContext);
   const [themes, setThemes] = useState(layoutThemes);
@@ -24,6 +34,27 @@ export const FeedLayoutPreview = (): ReactElement => {
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const onThemeToggle = useCallback(
+    (newThemeMode: ThemeMode) => {
+      logEvent({
+        event_name: LogEvent.ChangeSettings,
+        target_type: TargetType.Theme,
+        target_id: newThemeMode,
+      });
+      return setTheme(newThemeMode);
+    },
+    [logEvent, setTheme],
+  );
+
+  const onLayoutToggle = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.ChangeSettings,
+      target_type: TargetType.Layout,
+      target_id: insaneMode ? TargetId.Cards : TargetId.List,
+    });
+    return toggleInsaneMode();
+  }, [insaneMode, logEvent, toggleInsaneMode]);
 
   const CustomRadio = ({
     IconComponent,
@@ -45,7 +76,7 @@ export const FeedLayoutPreview = (): ReactElement => {
             ? 'border-accent-cabbage-bolder bg-surface-float text-text-primary'
             : 'text-text-tertiary',
         )}
-        onClick={toggleInsaneMode}
+        onClick={onLayoutToggle}
       >
         <div className="flex">
           <IconComponent secondary={active} size={IconSize.Medium} />
@@ -93,7 +124,7 @@ export const FeedLayoutPreview = (): ReactElement => {
             name="theme"
             options={themes}
             value={themeMode}
-            onChange={setTheme}
+            onChange={onThemeToggle}
           />
         </aside>
         <section className="w-full laptop:w-[38.75rem]">
