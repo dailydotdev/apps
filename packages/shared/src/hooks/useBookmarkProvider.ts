@@ -11,7 +11,7 @@ interface UseBookmarkProviderProps {
   bookmarked?: boolean;
 }
 
-export const useBookmarkProvider = ({
+const useBookmarkProvider = ({
   bookmarked = false,
 }: UseBookmarkProviderProps): UseBookmarkProviderReturn => {
   const bookmarkProvider = useFeature(feature.bookmark_provider);
@@ -22,3 +22,5 @@ export const useBookmarkProvider = ({
       bookmarkProvider && feedName === SharedFeedPage.MyFeed && bookmarked,
   };
 };
+
+export default useBookmarkProvider;

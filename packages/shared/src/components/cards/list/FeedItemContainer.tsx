@@ -15,7 +15,7 @@ import { RaisedLabel, RaisedLabelType } from './RaisedLabel';
 import { useFeedPreviewMode } from '../../../hooks';
 import { TypeLabel } from './TypeLabel';
 import { bookmarkProviderListBg } from '../../../styles/custom';
-import { useBookmarkProvider } from '../../../hooks/useBookmarkProvider';
+import useBookmarkProvider from '../../../hooks/useBookmarkProvider';
 
 interface FeedItemContainerProps {
   flagProps?: FlagProps;
@@ -39,7 +39,7 @@ function FeedItemContainer(
   }: FeedItemContainerProps,
   ref?: Ref<HTMLElement>,
 ): ReactElement {
-  const highlightBookmarkedPost = useBookmarkProvider({ bookmarked });
+  const { highlightBookmarkedPost } = useBookmarkProvider({ bookmarked });
   const { adAttribution, pinnedAt, trending, type } = flagProps;
   const raisedLabelType = pinnedAt
     ? RaisedLabelType.Pinned

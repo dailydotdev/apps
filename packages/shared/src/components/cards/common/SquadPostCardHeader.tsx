@@ -4,7 +4,7 @@ import { Post } from '../../../graphql/posts';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import SourceButton from '../SourceButton';
 import PostMetadata from '../PostMetadata';
-import { useBookmarkProvider } from '../../../hooks/useBookmarkProvider';
+import useBookmarkProvider from '../../../hooks/useBookmarkProvider';
 import { BookmakProviderHeader } from '../BookmarkProviderHeader';
 
 type SquadPostCardHeaderProps = Pick<
@@ -19,7 +19,7 @@ export const SquadPostCardHeader = ({
   enableSourceHeader = false,
   bookmarked,
 }: SquadPostCardHeaderProps): ReactElement => {
-  const highlightBookmarkedPost = useBookmarkProvider({ bookmarked });
+  const { highlightBookmarkedPost } = useBookmarkProvider({ bookmarked });
 
   const getDescription = () => {
     if (!author) {

@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { SourceAvatarProps } from '../../profile/source';
 import { CollectionPillSources } from '../../post/collection';
 import OptionsButton from '../../buttons/OptionsButton';
-import { useBookmarkProvider } from '../../../hooks/useBookmarkProvider';
+import useBookmarkProvider from '../../../hooks/useBookmarkProvider';
 import { BookmakProviderHeader } from '../BookmarkProviderHeader';
 
 interface CollectionCardHeaderProps {
@@ -19,7 +19,7 @@ export const CollectionCardHeader = ({
   onMenuClick,
   bookmarked,
 }: CollectionCardHeaderProps): ReactElement => {
-  const highlightBookmarkedPost = useBookmarkProvider({ bookmarked });
+  const { highlightBookmarkedPost } = useBookmarkProvider({ bookmarked });
 
   return (
     <>

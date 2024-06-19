@@ -10,7 +10,7 @@ import { useFeedPreviewMode } from '../../hooks';
 import { getReadPostButtonText, Post } from '../../graphql/posts';
 import { ButtonVariant } from '../buttons/Button';
 import { FlagProps } from './FeedItemContainer';
-import { useBookmarkProvider } from '../../hooks/useBookmarkProvider';
+import useBookmarkProvider from '../../hooks/useBookmarkProvider';
 import { BookmakProviderHeader } from './BookmarkProviderHeader';
 
 interface CardHeaderProps {
@@ -40,11 +40,9 @@ export const PostCardHeader = ({
   showFeedback,
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
-  const highlightBookmarkedPost = useBookmarkProvider({
+  const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: post.bookmarked && !showFeedback,
   });
-
-  console.log(highlightBookmarkedPost);
 
   return (
     <>
