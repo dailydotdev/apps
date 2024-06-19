@@ -189,6 +189,7 @@ const useBookmarkPost = ({
       showLogin,
       logEvent,
       user,
+      addPostToJustBookmarked,
     ],
   );
 
