@@ -165,8 +165,9 @@ const useBookmarkPost = ({
 
       logEvent(postLogEvent(LogEvent.BookmarkPost, post, logOptions));
 
-      await addBookmark({ id: post.id });
       addPostToJustBookmarked(post.id);
+
+      await addBookmark({ id: post.id });
 
       displayToast('Post was added to your bookmarks');
 
