@@ -17,10 +17,13 @@ import { WritePostContextProvider } from '@dailydotdev/shared/src/contexts';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import { ShareLink } from '@dailydotdev/shared/src/components/post/write/ShareLink';
+import { useActions } from '@dailydotdev/shared/src/hooks';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 
 function EditPost(): ReactElement {
+  const { completeAction } = useActions();
   const { query, isReady, push } = useRouter();
   const { post, isLoading } = usePostById({ id: query.id as string });
   const { squads, user } = useAuthContext();
@@ -46,9 +49,13 @@ function EditPost(): ReactElement {
     onMutate: () => {
       onAskConfirmation(false);
     },
-    onSuccess: async () => {
+    onSuccess: async (data) => {
       clearDraft();
-      await push(post.commentsPermalink);
+      await push(data.commentsPermalink);
+
+      if (data.type === PostType.Welcome) {
+        completeAction(ActionType.EditWelcomePost);
+      }
     },
     onError: (data: ApiErrorResult) => {
       if (data?.response?.errors?.[0]) {

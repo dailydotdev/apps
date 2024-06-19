@@ -18,6 +18,9 @@ import {
 } from '../../graphql/squads';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { PostContentShare } from './common/PostContentShare';
+import { SourceType } from '../../graphql/sources';
+import { useActions } from '../../hooks';
+import { ActionType } from '../../graphql/actions';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -36,6 +39,7 @@ function PostEngagements({
   logOrigin,
   shouldOnboardAuthor,
 }: PostEngagementsProps): ReactElement {
+  const { completeAction } = useActions();
   const postQueryKey = ['post', post.id];
   const { user, showLogin } = useAuthContext();
   const commentRef = useRef<NewCommentRef>();
@@ -64,6 +68,10 @@ function PostEngagements({
       !isJoinSquadBannerDismissed
     ) {
       setJoinNotificationCommentId(comment.id);
+    }
+
+    if (post.source?.type === SourceType.Squad) {
+      completeAction(ActionType.SquadFirstComment);
     }
   };
 
