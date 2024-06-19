@@ -70,6 +70,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
         source={post.source}
         createdAt={post.createdAt}
         enableSourceHeader={enableSourceHeader}
+        bookmarked={post.bookmarked}
       />
       <FreeformCardTitle
         className={classNames(

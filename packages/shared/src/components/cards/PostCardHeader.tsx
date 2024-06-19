@@ -1,4 +1,5 @@
 import React, { ReactElement, ReactNode } from 'react';
+import classNames from 'classnames';
 import OptionsButton from '../buttons/OptionsButton';
 import { CardHeader } from './Card';
 import SourceButton from './SourceButton';
@@ -9,6 +10,7 @@ import { useFeedPreviewMode } from '../../hooks';
 import { getReadPostButtonText, Post } from '../../graphql/posts';
 import { ButtonVariant } from '../buttons/Button';
 import { FlagProps } from './FeedItemContainer';
+import { BookmarkIcon } from '../icons';
 
 interface CardHeaderProps {
   post: Post;
@@ -20,6 +22,7 @@ interface CardHeaderProps {
   postLink: string;
   openNewTab?: boolean;
   flagProps?: FlagProps;
+  bookmarked?: boolean;
 }
 
 const Container = getGroupedHoverContainer('span');
@@ -33,31 +36,51 @@ export const PostCardHeader = ({
   source,
   postLink,
   openNewTab,
+  bookmarked,
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
 
   return (
-    <CardHeader className={className}>
-      <SourceButton source={source} />
-      {children}
-      <Container
-        className="ml-auto flex flex-row"
-        data-testid="cardHeaderActions"
-      >
-        {!isFeedPreview && (
-          <>
-            <ReadArticleButton
-              content={getReadPostButtonText(post)}
-              className="mr-2"
-              variant={ButtonVariant.Primary}
-              href={postLink}
-              onClick={onReadArticleClick}
-              openNewTab={openNewTab}
-            />
-            <OptionsButton onClick={onMenuClick} tooltipPlacement="top" />
-          </>
+    <>
+      {bookmarked && (
+        <CardHeader
+          className={classNames(
+            className,
+            'laptop:mouse:flex laptop:mouse:group-hover:hidden',
+            'text-action-bookmark-default typo-footnote',
+          )}
+        >
+          <BookmarkIcon secondary className="ml-1 mr-1" />
+          Revisit this post you saved earlier?
+        </CardHeader>
+      )}
+      <CardHeader
+        className={classNames(
+          className,
+          bookmarked && 'laptop:mouse:hidden laptop:mouse:group-hover:flex',
         )}
-      </Container>
-    </CardHeader>
+      >
+        <SourceButton source={source} />
+        {children}
+        <Container
+          className="ml-auto flex flex-row"
+          data-testid="cardHeaderActions"
+        >
+          {!isFeedPreview && (
+            <>
+              <ReadArticleButton
+                content={getReadPostButtonText(post)}
+                className="mr-2"
+                variant={ButtonVariant.Primary}
+                href={postLink}
+                onClick={onReadArticleClick}
+                openNewTab={openNewTab}
+              />
+              <OptionsButton onClick={onMenuClick} tooltipPlacement="top" />
+            </>
+          )}
+        </Container>
+      </CardHeader>
+    </>
   );
 };

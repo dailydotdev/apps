@@ -43,6 +43,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
         sources={post.collectionSources}
         totalSources={post.numCollectionSources}
         onMenuClick={(event) => onMenuClick?.(event, post)}
+        bookmarked={post.bookmarked}
       />
       <FreeformCardTitle
         className={classNames(

@@ -85,6 +85,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
               postLink={post.sharedPost.permalink}
               onMenuClick={(event) => onMenuClick?.(event, post)}
               onReadArticleClick={onReadArticleClick}
+              bookmarked={post.bookmarked}
             />
             <CardTitle>{post?.title || post.sharedPost.title}</CardTitle>
           </CardTextContainer>
@@ -111,6 +112,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
             source={post.source}
             createdAt={post.createdAt}
             enableSourceHeader={enableSourceHeader}
+            bookmarked={post.bookmarked}
           />
           <SharedPostText
             title={post.title}
