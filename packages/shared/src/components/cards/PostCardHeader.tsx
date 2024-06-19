@@ -10,7 +10,6 @@ import { useFeedPreviewMode } from '../../hooks';
 import { getReadPostButtonText, Post } from '../../graphql/posts';
 import { ButtonVariant } from '../buttons/Button';
 import { FlagProps } from './FeedItemContainer';
-import { BookmarkIcon } from '../icons';
 import { useBookmarkProvider } from '../../hooks/useBookmarkProvider';
 import { BookmakProviderHeader } from './BookmarkProviderHeader';
 
@@ -24,6 +23,7 @@ interface CardHeaderProps {
   postLink: string;
   openNewTab?: boolean;
   flagProps?: FlagProps;
+  showFeedback?: boolean;
 }
 
 const Container = getGroupedHoverContainer('span');
@@ -37,11 +37,14 @@ export const PostCardHeader = ({
   source,
   postLink,
   openNewTab,
+  showFeedback,
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
   const highlightBookmarkedPost = useBookmarkProvider({
-    bookmarked: post.bookmarked,
+    bookmarked: post.bookmarked && !showFeedback,
   });
+
+  console.log(highlightBookmarkedPost);
 
   return (
     <>

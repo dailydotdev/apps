@@ -4,7 +4,6 @@ import { Post } from '../../../graphql/posts';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import SourceButton from '../SourceButton';
 import PostMetadata from '../PostMetadata';
-import { BookmarkIcon } from '../../icons';
 import { useBookmarkProvider } from '../../../hooks/useBookmarkProvider';
 import { BookmakProviderHeader } from '../BookmarkProviderHeader';
 

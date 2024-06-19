@@ -70,7 +70,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
       }}
       ref={ref}
       flagProps={{ pinnedAt, trending }}
-      bookmarked={post.bookmarked}
+      bookmarked={post.bookmarked && !showFeedback}
     >
       <CardOverlay post={post} onPostCardClick={onPostCardClick} />
       {showFeedback && (
@@ -99,6 +99,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
             postLink={post.permalink}
             onMenuClick={(event) => onMenuClick?.(event, post)}
             onReadArticleClick={onReadArticleClick}
+            showFeedback={showFeedback}
           />
           <CardTitle lineClamp={showFeedback ? 'line-clamp-2' : undefined}>
             {post.title}

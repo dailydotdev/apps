@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import { SourceAvatarProps } from '../../profile/source';
 import { CollectionPillSources } from '../../post/collection';
 import OptionsButton from '../../buttons/OptionsButton';
-import { BookmarkIcon } from '../../icons';
 import { useBookmarkProvider } from '../../../hooks/useBookmarkProvider';
 import { BookmakProviderHeader } from '../BookmarkProviderHeader';
 
