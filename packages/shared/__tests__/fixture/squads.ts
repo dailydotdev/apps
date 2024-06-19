@@ -18,7 +18,7 @@ export const generateTestAdmin = (
     id: 'Se4LmwLU0q6aVDpX1MkqX',
     name: 'Lee Hansel Solevilla',
     image:
-      'https://daily-now-res.cloudinary.com/image/upload/f_auto/v1664367305/placeholders/placeholder3',
+      'https://res.cloudinary.com/daily-now/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
     permalink: 'http://webapp.local.com:5002/abc123zzzz',
     username: 'abc123zzzz',
   },
@@ -40,7 +40,7 @@ export const generateTestAdmin = (
               id: 'Se4LmwLU0q6aVDpX1MkqX',
               name: 'Lee Hansel Solevilla',
               image:
-                'https://daily-now-res.cloudinary.com/image/upload/f_auto/v1664367305/placeholders/placeholder3',
+                'https://res.cloudinary.com/daily-now/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
               permalink: 'http://webapp.local.com:5002/a123124124111',
               username: 'a123124124111',
             },
@@ -59,7 +59,7 @@ export const generateTestAdmin = (
         id: 'Se4LmwLU0q6aVDpX1MkqX',
         name: 'Lee Hansel Solevilla',
         image:
-          'https://daily-now-res.cloudinary.com/image/upload/f_auto/v1664367305/placeholders/placeholder3',
+          'https://res.cloudinary.com/daily-now/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
         permalink: 'http://webapp.local.com:5002/a123124124111',
         username: 'a123124124111',
       },
@@ -160,7 +160,7 @@ export const generateTestMember = (
   user: {
     id: `Se4LmwLU0q6aVDpX1MkqX${i}`,
     name: `Lee Hansel Solevilla - ${i}`,
-    image: `https://daily-now-res.cloudinary.com/image/upload/f_auto/v1664367305/placeholders/placeholder3${i}`,
+    image: `https://res.cloudinary.com/daily-now/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile${i}`,
     permalink: `http://webapp.local.com:5002/abc123zzzz${i}`,
     username: `abc123zzzz${i}`,
   },
