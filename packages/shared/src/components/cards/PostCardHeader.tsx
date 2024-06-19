@@ -45,7 +45,6 @@ export const PostCardHeader = ({
   const isFeedPreview = useFeedPreviewMode();
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: post.bookmarked && !showFeedback,
-    postId: post.id,
   });
 
   return (

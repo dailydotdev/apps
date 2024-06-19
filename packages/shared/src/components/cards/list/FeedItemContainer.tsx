@@ -37,13 +37,11 @@ function FeedItemContainer(
     domProps,
     linkProps,
     bookmarked,
-    postId,
   }: FeedItemContainerProps,
   ref?: Ref<HTMLElement>,
 ): ReactElement {
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked,
-    postId,
   });
   const { adAttribution, pinnedAt, trending, type } = flagProps;
   const raisedLabelType = pinnedAt

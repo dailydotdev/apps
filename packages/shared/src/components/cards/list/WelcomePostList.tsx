@@ -74,7 +74,6 @@ export const WelcomePostList = forwardRef(function SharePostCard(
         }
       }
       bookmarked={post.bookmarked}
-      postId={post.id}
     >
       <CardContainer>
         <PostCardHeader

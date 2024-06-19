@@ -63,7 +63,6 @@ export const SharePostList = forwardRef(function SharePostCard(
         }
       }
       bookmarked={post.bookmarked}
-      postId={post.id}
     >
       <PostCardHeader
         post={{

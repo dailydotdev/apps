@@ -65,7 +65,6 @@ export const ArticlePostList = forwardRef(function PostCard(
         }
       }
       bookmarked={post.bookmarked}
-      postId={post.id}
     >
       {showFeedback ? (
         <FeedbackList

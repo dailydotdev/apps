@@ -29,7 +29,6 @@ import { LazyModal } from '../components/modals/common/types';
 import { promotion } from '../components/modals/generic';
 import { useLazyModal } from './useLazyModal';
 import { useActions } from './useActions';
-import { useJustBookmarkedContext } from '../contexts';
 
 export type ToggleBookmarkProps = {
   origin: Origin;
@@ -90,7 +89,6 @@ const useBookmarkPost = ({
       isActionsFetched && checkHasCompleted(ActionType.BookmarkPromoteMobile),
     [checkHasCompleted, isActionsFetched],
   );
-  const { addPostToJustBookmarked } = useJustBookmarkedContext();
 
   const defaultOnMutate = ({ id }) => {
     updatePostCache(client, id, (post) => ({ bookmarked: !post.bookmarked }));
@@ -165,8 +163,6 @@ const useBookmarkPost = ({
 
       logEvent(postLogEvent(LogEvent.BookmarkPost, post, logOptions));
 
-      addPostToJustBookmarked(post.id);
-
       await addBookmark({ id: post.id });
 
       displayToast('Post was added to your bookmarks');
@@ -189,7 +185,6 @@ const useBookmarkPost = ({
       showLogin,
       logEvent,
       user,
-      addPostToJustBookmarked,
     ],
   );
 

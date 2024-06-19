@@ -43,7 +43,6 @@ export const PostCardHeader = ({
   const postButtonText = useReadPostButtonText(post);
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: post.bookmarked,
-    postId: post.id,
   });
 
   const isCollectionType = post.type === 'collection';

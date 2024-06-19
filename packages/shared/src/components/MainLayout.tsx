@@ -31,7 +31,6 @@ import { useBanner } from '../hooks/useBanner';
 import { useGrowthBookContext } from './GrowthBookProvider';
 import {
   ActiveFeedNameContextProvider,
-  JustBookmarkedContextProvider,
   useActiveFeedNameContext,
 } from '../contexts';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
@@ -202,9 +201,7 @@ function MainLayoutComponent({
 
 const MainLayout = (props: MainLayoutProps): ReactElement => (
   <ActiveFeedNameContextProvider>
-    <JustBookmarkedContextProvider>
-      <MainLayoutComponent {...props} />
-    </JustBookmarkedContextProvider>
+    <MainLayoutComponent {...props} />
   </ActiveFeedNameContextProvider>
 );
 
