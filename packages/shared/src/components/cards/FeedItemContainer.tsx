@@ -15,6 +15,7 @@ import {
 } from './RaisedLabel';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useFeedPreviewMode } from '../../hooks';
+import { useBookmarkProvider } from '../../hooks/useBookmarkProvider';
 
 export interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {
   listMode?: boolean;
@@ -31,6 +32,7 @@ function FeedItemContainer(
   { flagProps, children, domProps, bookmarked }: FeedItemContainerProps,
   ref?: Ref<HTMLElement>,
 ): ReactElement {
+  const highlightBookmarkedPost = useBookmarkProvider(bookmarked);
   const { listMode, pinnedAt, trending } = flagProps;
   const type = pinnedAt ? RaisedLabelType.Pinned : RaisedLabelType.Hot;
   const description =
@@ -60,7 +62,7 @@ function FeedItemContainer(
         className={classNames(
           domProps.className,
           !listMode && isFeedPreview && 'hover:border-border-subtlest-tertiary',
-          bookmarked &&
+          highlightBookmarkedPost &&
             '!border-action-bookmark-active !bg-action-bookmark-float hover:!border-action-bookmark-default',
         )}
       >

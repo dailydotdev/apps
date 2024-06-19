@@ -99,7 +99,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
             postLink={post.permalink}
             onMenuClick={(event) => onMenuClick?.(event, post)}
             onReadArticleClick={onReadArticleClick}
-            bookmarked={post.bookmarked}
           />
           <CardTitle lineClamp={showFeedback ? 'line-clamp-2' : undefined}>
             {post.title}

@@ -10,6 +10,7 @@ import { ButtonVariant } from '../../buttons/common';
 import PostMetadata, { PostMetadataProps } from './PostMetadata';
 import { BookmarkIcon, MenuIcon, OpenLinkIcon } from '../../icons';
 import { useReadPostButtonText } from './hooks';
+import { useBookmarkProvider } from '../../../hooks/useBookmarkProvider';
 
 interface CardHeaderProps {
   post: Post;
@@ -39,6 +40,8 @@ export const PostCardHeader = ({
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
   const postButtonText = useReadPostButtonText(post);
+  const highlightBookmarkedPost = useBookmarkProvider(post.bookmarked);
+
   const isCollectionType = post.type === 'collection';
   const showCTA =
     !isFeedPreview &&
@@ -46,7 +49,7 @@ export const PostCardHeader = ({
 
   return (
     <>
-      {post.bookmarked && (
+      {highlightBookmarkedPost && (
         <CardHeader
           className={classNames(
             className,

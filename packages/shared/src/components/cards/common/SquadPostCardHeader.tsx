@@ -6,11 +6,12 @@ import SourceButton from '../SourceButton';
 import PostMetadata from '../PostMetadata';
 import { CardHeader } from '../Card';
 import { BookmarkIcon } from '../../icons';
+import { useBookmarkProvider } from '../../../hooks/useBookmarkProvider';
 
 type SquadPostCardHeaderProps = Pick<
   Post,
-  'author' | 'source' | 'permalink' | 'createdAt'
-> & { enableSourceHeader?: boolean; bookmarked?: boolean };
+  'author' | 'source' | 'permalink' | 'createdAt' | 'bookmarked'
+> & { enableSourceHeader?: boolean };
 
 export const SquadPostCardHeader = ({
   author,
@@ -19,6 +20,8 @@ export const SquadPostCardHeader = ({
   enableSourceHeader = false,
   bookmarked,
 }: SquadPostCardHeaderProps): ReactElement => {
+  const highlightBookmarkedPost = useBookmarkProvider(bookmarked);
+
   const getDescription = () => {
     if (!author) {
       return undefined;
@@ -37,7 +40,7 @@ export const SquadPostCardHeader = ({
 
   return (
     <>
-      {bookmarked && (
+      {highlightBookmarkedPost && (
         <div
           className={classNames(
             'laptop:mouse:flex laptop:mouse:group-hover:hidden',
@@ -52,7 +55,8 @@ export const SquadPostCardHeader = ({
       <div
         className={classNames(
           'relative m-2 flex gap-2',
-          bookmarked && 'laptop:mouse:hidden laptop:mouse:group-hover:flex',
+          highlightBookmarkedPost &&
+            'laptop:mouse:hidden laptop:mouse:group-hover:flex',
         )}
       >
         <div className="relative">

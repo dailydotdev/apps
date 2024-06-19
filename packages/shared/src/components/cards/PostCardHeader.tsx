@@ -11,6 +11,7 @@ import { getReadPostButtonText, Post } from '../../graphql/posts';
 import { ButtonVariant } from '../buttons/Button';
 import { FlagProps } from './FeedItemContainer';
 import { BookmarkIcon } from '../icons';
+import { useBookmarkProvider } from '../../hooks/useBookmarkProvider';
 
 interface CardHeaderProps {
   post: Post;
@@ -22,7 +23,6 @@ interface CardHeaderProps {
   postLink: string;
   openNewTab?: boolean;
   flagProps?: FlagProps;
-  bookmarked?: boolean;
 }
 
 const Container = getGroupedHoverContainer('span');
@@ -36,13 +36,13 @@ export const PostCardHeader = ({
   source,
   postLink,
   openNewTab,
-  bookmarked,
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
+  const highlightBookmarkedPost = useBookmarkProvider(post.bookmarked);
 
   return (
     <>
-      {bookmarked && (
+      {highlightBookmarkedPost && (
         <CardHeader
           className={classNames(
             className,
@@ -57,7 +57,8 @@ export const PostCardHeader = ({
       <CardHeader
         className={classNames(
           className,
-          bookmarked && 'laptop:mouse:hidden laptop:mouse:group-hover:flex',
+          highlightBookmarkedPost &&
+            'laptop:mouse:hidden laptop:mouse:group-hover:flex',
         )}
       >
         <SourceButton source={source} />

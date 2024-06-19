@@ -5,6 +5,7 @@ import { SourceAvatarProps } from '../../profile/source';
 import { CollectionPillSources } from '../../post/collection';
 import OptionsButton from '../../buttons/OptionsButton';
 import { BookmarkIcon } from '../../icons';
+import { useBookmarkProvider } from '../../../hooks/useBookmarkProvider';
 
 interface CollectionCardHeaderProps {
   sources: SourceAvatarProps['source'][];
@@ -19,9 +20,11 @@ export const CollectionCardHeader = ({
   onMenuClick,
   bookmarked,
 }: CollectionCardHeaderProps): ReactElement => {
+  const highlightBookmarkedPost = useBookmarkProvider(bookmarked);
+
   return (
     <>
-      {bookmarked && (
+      {highlightBookmarkedPost && (
         <div
           className={classNames(
             'laptop:mouse:flex laptop:mouse:group-hover:hidden',
@@ -36,7 +39,8 @@ export const CollectionCardHeader = ({
         className={{
           main: classnames(
             'm-2',
-            bookmarked && 'laptop:mouse:hidden laptop:mouse:group-hover:flex',
+            highlightBookmarkedPost &&
+              'laptop:mouse:hidden laptop:mouse:group-hover:flex',
           ),
         }}
         sources={sources}
