@@ -1,5 +1,5 @@
 import { SharedFeedPage } from '../../components/utilities';
-import { AllFeedPages } from '../../lib/query';
+import { AllFeedPages, OtherFeedPage } from '../../lib/query';
 
 interface UseFeedNameProps {
   feedName: AllFeedPages;
@@ -32,11 +32,11 @@ export const useFeedName = ({ feedName }: UseFeedNameProps): UseFeedName => {
   return {
     isUpvoted: feedName === SharedFeedPage.Upvoted,
     isPopular: feedName === SharedFeedPage.Popular,
-    isAnyExplore: feedName?.startsWith(SharedFeedPage.Explore),
-    isExplorePopular: feedName === SharedFeedPage.Explore,
-    isExploreLatest: feedName === SharedFeedPage.ExploreLatest,
-    isExploreUpvoted: feedName === SharedFeedPage.ExploreUpvoted,
-    isExploreDiscussed: feedName === SharedFeedPage.ExploreDiscussed,
+    isAnyExplore: feedName?.startsWith(OtherFeedPage.Explore),
+    isExplorePopular: feedName === OtherFeedPage.Explore,
+    isExploreLatest: feedName === OtherFeedPage.ExploreLatest,
+    isExploreUpvoted: feedName === OtherFeedPage.ExploreUpvoted,
+    isExploreDiscussed: feedName === OtherFeedPage.ExploreDiscussed,
     isDiscussed: feedName === SharedFeedPage.Discussed,
     isCustomFeed: customFeeds.includes(feedName),
     isSortableFeed: sortableFeeds.includes(feedName),

@@ -127,10 +127,10 @@ const feedNameToHeading: Record<
     | 'tags[tag]/best-discussed'
     | SharedFeedPage.Custom
     | SharedFeedPage.CustomForm
-    | SharedFeedPage.Explore
-    | SharedFeedPage.ExploreLatest
-    | SharedFeedPage.ExploreUpvoted
-    | SharedFeedPage.ExploreDiscussed
+    | OtherFeedPage.Explore
+    | OtherFeedPage.ExploreLatest
+    | OtherFeedPage.ExploreUpvoted
+    | OtherFeedPage.ExploreDiscussed
     | OtherFeedPage.Tags
     | OtherFeedPage.Sources
     | OtherFeedPage.Leaderboard
