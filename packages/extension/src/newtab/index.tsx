@@ -10,8 +10,8 @@ import {
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { get as getCache } from 'idb-keyval';
 import browser from 'webextension-polyfill';
+import { DndSettings } from '@dailydotdev/shared/src/contexts/DndContext';
 import App from './App';
-import { DndSettings } from './DndContext';
 
 declare global {
   interface Window {

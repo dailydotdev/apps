@@ -35,6 +35,7 @@ export const SOURCE_DIRECTORY_INFO_FRAGMENT = gql`
     handle
     image
     permalink
+    description
   }
 `;
 
@@ -197,4 +198,14 @@ export const CUSTOM_FEED_FRAGMENT = gql`
     slug
     createdAt
   }
+`;
+
+export const LEADERBOARD_FRAMENT = gql`
+  fragment LeaderboardFragment on Leaderboard {
+    score
+    user {
+      ...UserShortInfo
+    }
+  }
+  ${USER_SHORT_INFO_FRAGMENT}
 `;

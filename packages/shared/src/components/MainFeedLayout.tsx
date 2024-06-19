@@ -22,14 +22,13 @@ import {
   PREVIEW_FEED_QUERY,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
-import { generateQueryKey, RequestKey } from '../lib/query';
+import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
 import { useFeature, useFeaturesReadyContext } from './GrowthBookProvider';
 import {
   algorithms,
-  algorithmsList,
   DEFAULT_ALGORITHM_INDEX,
   DEFAULT_ALGORITHM_KEY,
   LayoutHeader,
@@ -51,9 +50,9 @@ import CommentFeed from './CommentFeed';
 import { COMMENT_FEED_QUERY } from '../graphql/comments';
 import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
 import { Origin } from '../lib/log';
-import { ExploreTabs, FeedExploreHeader, urlToTab } from './header';
-import { Dropdown } from './fields/Dropdown';
+import { ExploreTabs, FeedExploreHeader, tabToUrl, urlToTab } from './header';
 import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
+import { FeedExploreDropdown } from './header/FeedExploreDropdown';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -70,7 +69,7 @@ type FeedQueryProps = {
   variables?: Record<string, unknown>;
 };
 
-const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
+const propsByFeed: Record<SharedFeedPage & OtherFeedPage, FeedQueryProps> = {
   'my-feed': {
     query: ANONYMOUS_FEED_QUERY,
     queryIfLogged: FEED_QUERY,
@@ -78,7 +77,7 @@ const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
   popular: {
     query: ANONYMOUS_FEED_QUERY,
   },
-  explore: {
+  posts: {
     query: ANONYMOUS_FEED_QUERY,
   },
   search: {
@@ -91,13 +90,13 @@ const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
   discussed: {
     query: MOST_DISCUSSED_FEED_QUERY,
   },
-  [SharedFeedPage.ExploreLatest]: {
+  [OtherFeedPage.ExploreLatest]: {
     query: ANONYMOUS_FEED_QUERY,
   },
-  [SharedFeedPage.ExploreUpvoted]: {
+  [OtherFeedPage.ExploreUpvoted]: {
     query: MOST_UPVOTED_FEED_QUERY,
   },
-  [SharedFeedPage.ExploreDiscussed]: {
+  [OtherFeedPage.ExploreDiscussed]: {
     query: MOST_DISCUSSED_FEED_QUERY,
   },
   [SharedFeedPage.Custom]: {
@@ -117,6 +116,7 @@ export interface MainFeedLayoutProps
   searchChildren?: ReactNode;
   navChildren?: ReactNode;
   isFinder?: boolean;
+  onNavTabClick?: (tab: string) => void;
 }
 
 const getQueryBasedOnLogin = (
@@ -155,6 +155,7 @@ export default function MainFeedLayout({
   shortcuts,
   navChildren,
   isFinder,
+  onNavTabClick,
 }: MainFeedLayoutProps): ReactElement {
   useScrollRestoration();
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
@@ -174,7 +175,6 @@ export default function MainFeedLayout({
     isUpvoted,
     isPopular,
     isAnyExplore,
-    isExplorePopular,
     isExploreLatest,
     isSortableFeed,
     isCustomFeed,
@@ -276,7 +276,10 @@ export default function MainFeedLayout({
       if (isAnyExplore) {
         const laptopValue =
           tab === ExploreTabs.ByDate || isExploreLatest ? 1 : 0;
-        const finalAlgo = isLaptop ? laptopValue : selectedAlgo;
+        const mobileValue =
+          urlToTab[router.pathname] === ExploreTabs.ByDate ? 1 : 0;
+        const finalAlgo = isLaptop ? laptopValue : mobileValue;
+
         return {
           ...config.variables,
           ranking: algorithms[finalAlgo].value,
@@ -294,21 +297,6 @@ export default function MainFeedLayout({
     };
 
     const variables = getVariables();
-    const mobileExploreActions = !isLaptop &&
-      (isExplorePopular || isExploreLatest) && (
-        <Dropdown
-          className={{ container: 'mx-4 mb-2 !w-56' }}
-          selectedIndex={selectedAlgo}
-          options={algorithmsList}
-          onChange={(_, index) => setSelectedAlgo(index)}
-        />
-      );
-    const controlFeedActions = feedWithActions && (
-      <SearchControlHeader
-        algoState={[selectedAlgo, setSelectedAlgo]}
-        feedName={feedName}
-      />
-    );
 
     return {
       feedName,
@@ -320,7 +308,12 @@ export default function MainFeedLayout({
       query: config.query,
       variables,
       emptyScreen: <FeedEmptyScreen />,
-      actionButtons: isAnyExplore ? mobileExploreActions : controlFeedActions,
+      actionButtons: feedWithActions && (
+        <SearchControlHeader
+          algoState={[selectedAlgo, setSelectedAlgo]}
+          feedName={feedName}
+        />
+      ),
     };
   }, [
     isUpvoted,
@@ -335,7 +328,6 @@ export default function MainFeedLayout({
     feedName,
     user,
     isLaptop,
-    isExplorePopular,
     isExploreLatest,
     selectedAlgo,
     getFeatureValue,
@@ -356,13 +348,25 @@ export default function MainFeedLayout({
   const disableTopPadding =
     isFinder || shouldUseListFeedLayout || shouldUseCommentFeedLayout;
 
+  const onTabChange = (clickedTab: ExploreTabs) => {
+    if (onNavTabClick) {
+      onNavTabClick(tabToUrl[clickedTab]);
+    }
+
+    setTab(clickedTab);
+  };
+
+  const feedExploreComponent = isLaptop ? (
+    <FeedExploreHeader tab={tab} setTab={onTabChange} />
+  ) : (
+    <FeedExploreDropdown />
+  );
+
   return (
     <FeedPageLayoutComponent
       className={classNames('relative', disableTopPadding && '!pt-0')}
     >
-      {isAnyExplore && isLaptop && (
-        <FeedExploreHeader tab={tab} setTab={setTab} />
-      )}
+      {isAnyExplore && feedExploreComponent}
       {isSearchOn && search}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed

@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useMemo, useState } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
@@ -15,9 +21,9 @@ import {
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
 import ShortcutLinks from './ShortcutLinks';
 import DndBanner from './DndBanner';
-import DndContext from './DndContext';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
 import { useCompanionSettings } from '../companion/useCompanionSettings';
 
@@ -45,28 +51,30 @@ export default function MainFeedPage({
   const { user, loadingUser } = useContext(AuthContext);
   const [feedName, setFeedName] = useState<string>('default');
   const [searchQuery, setSearchQuery] = useState<string>();
-  const [showDnd, setShowDnd] = useState(false);
   const { shouldUseListFeedLayout } = useFeedLayout({ feedRelated: false });
   useCompanionSettings();
-  const { isActive: isDndActive } = useContext(DndContext);
+  const { isActive: isDndActive, showDnd, setShowDnd } = useDndContext();
   const enableSearch = () => {
     window.location.assign(
       getSearchUrl({ provider: SearchProviderEnum.Posts }),
     );
   };
 
-  const onNavTabClick = (tab: string): void => {
-    if (tab !== 'search') {
-      setIsSearchOn(false);
-    }
-    setFeedName(tab);
-    const isMyFeed = tab === '/my-feed';
-    if (getShouldRedirect(isMyFeed, !!user)) {
-      onPageChanged(`/`);
-    } else {
-      onPageChanged(`/${tab}`);
-    }
-  };
+  const onNavTabClick = useCallback(
+    (tab: string): void => {
+      if (tab !== 'search') {
+        setIsSearchOn(false);
+      }
+      setFeedName(tab);
+      const isMyFeed = tab === '/my-feed';
+      if (getShouldRedirect(isMyFeed, !!user)) {
+        onPageChanged(`/`);
+      } else {
+        onPageChanged(`/${tab}`);
+      }
+    },
+    [onPageChanged, user],
+  );
 
   const activePage = useMemo(() => {
     if (isSearchOn) {
@@ -91,6 +99,8 @@ export default function MainFeedPage({
     setSearchQuery(undefined);
   };
 
+  const onShowDndClick = useCallback(() => setShowDnd(true), [setShowDnd]);
+
   return (
     <>
       <div className="fixed bottom-0 left-0 z-2 w-full">
@@ -103,7 +113,7 @@ export default function MainFeedPage({
         onLogoClick={onLogoClick}
         showDnd={showDnd}
         dndActive={isDndActive}
-        onShowDndClick={() => setShowDnd(true)}
+        onShowDndClick={onShowDndClick}
         enableSearch={enableSearch}
         onNavTabClick={onNavTabClick}
         screenCentered={false}
@@ -115,6 +125,7 @@ export default function MainFeedPage({
             feedName={feedName}
             isSearchOn={isSearchOn}
             searchQuery={searchQuery}
+            onNavTabClick={onNavTabClick}
             searchChildren={
               <PostsSearch
                 onSubmitQuery={async (query) => {

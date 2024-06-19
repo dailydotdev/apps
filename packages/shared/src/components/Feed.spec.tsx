@@ -29,6 +29,7 @@ import {
   UserVote,
 } from '../graphql/posts';
 import {
+  completeActionMock,
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../__tests__/helpers/graphql';
@@ -69,7 +70,7 @@ import { SharedFeedPage } from './utilities';
 import { AllFeedPages } from '../lib/query';
 import { UserVoteEntity } from '../hooks';
 import * as hooks from '../hooks/useViewSize';
-import { COMPLETE_ACTION_MUTATION } from '../graphql/actions';
+import { ActionType, COMPLETE_ACTION_MUTATION } from '../graphql/actions';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -303,6 +304,7 @@ it('should send upvote mutation', async () => {
         return { data: { _: true } };
       },
     },
+    completeActionMock({ action: ActionType.VotePost }),
   ]);
   const [el] = await screen.findAllByLabelText('Upvote');
   el.click();
@@ -340,6 +342,7 @@ it('should send cancel upvote mutation', async () => {
         return { data: { _: true } };
       },
     },
+    completeActionMock({ action: ActionType.VotePost }),
   ]);
   const [el] = await screen.findAllByLabelText('Remove upvote');
   el.click();
@@ -391,6 +394,7 @@ it('should send add bookmark mutation', async () => {
         return { data: { _: true } };
       },
     },
+    completeActionMock({ action: ActionType.BookmarkPost }),
   ]);
   const [el] = await screen.findAllByLabelText('Bookmark');
   el.click();
@@ -420,6 +424,7 @@ it('should send remove bookmark mutation', async () => {
         return { data: { _: true } };
       },
     },
+    completeActionMock({ action: ActionType.BookmarkPost }),
   ]);
   const [el] = await screen.findAllByLabelText('Remove bookmark');
   el.click();

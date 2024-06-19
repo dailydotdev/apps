@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React, { ReactElement, useContext, useMemo } from 'react';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { useActiveFeedNameContext } from '../../contexts';
 import useActiveNav from '../../hooks/useActiveNav';
@@ -23,13 +24,30 @@ import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
-import { CustomFeedsExperiment } from '../../lib/featureValues';
+import {
+  CustomFeedsExperiment,
+  SeoSidebarExperiment,
+} from '../../lib/featureValues';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
+import { SharedFeedPage } from '../utilities';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { OtherFeedPage } from '../../lib/query';
+
+const OnboardingChecklistBar = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "onboardingChecklistBar" */ '../checklist/OnboardingChecklistBar'
+    ),
+);
 
 enum FeedNavTab {
   ForYou = 'For you',
   Popular = 'Popular',
+  Explore = 'Explore',
+  Tags = 'Tags',
+  Sources = 'Sources',
+  Leaderboard = 'Leaderboard',
   Bookmarks = 'Bookmarks',
   History = 'History',
   MostUpvoted = 'Most Upvoted',
@@ -44,6 +62,7 @@ const StickyNavIconWrapper = classed(
 
 function FeedNav(): ReactElement {
   const router = useRouter();
+  const { isLoggedIn } = useAuthContext();
   const { feedName } = useActiveFeedNameContext();
   const { sortingEnabled } = useContext(SettingsContext);
   const { isSortableFeed } = useFeedName({ feedName });
@@ -57,7 +76,7 @@ function FeedNav(): ReactElement {
   );
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
-
+  const seoSidebar = useFeature(feature.seoSidebar);
   const { feeds } = useFeeds();
   const customFeedsVersion = useFeature(feature.customFeeds);
   const hasCustomFeedsEnabled =
@@ -78,7 +97,7 @@ function FeedNav(): ReactElement {
         }, {})
       : [];
 
-    return {
+    const urls = {
       ...(hasCustomFeedsEnabled
         ? {
             [`${webappUrl}feeds/new`]: FeedNavTab.NewFeed,
@@ -86,17 +105,41 @@ function FeedNav(): ReactElement {
         : undefined),
       [`${webappUrl}`]: FeedNavTab.ForYou,
       ...customFeeds,
-      [`${webappUrl}popular`]: FeedNavTab.Popular,
-      [`${webappUrl}upvoted`]: FeedNavTab.MostUpvoted,
-      [`${webappUrl}discussed`]: FeedNavTab.Discussions,
+    };
+
+    if (seoSidebar === SeoSidebarExperiment.V1) {
+      urls[`${webappUrl}${OtherFeedPage.Explore}`] = FeedNavTab.Explore;
+    } else {
+      urls[`${webappUrl}${SharedFeedPage.Popular}`] = FeedNavTab.Popular;
+      urls[`${webappUrl}${SharedFeedPage.Upvoted}`] = FeedNavTab.MostUpvoted;
+    }
+
+    urls[`${webappUrl}${SharedFeedPage.Discussed}`] = FeedNavTab.Discussions;
+
+    if (seoSidebar === SeoSidebarExperiment.V1) {
+      urls[`${webappUrl}tags`] = FeedNavTab.Tags;
+      urls[`${webappUrl}sources`] = FeedNavTab.Sources;
+      urls[`${webappUrl}users`] = FeedNavTab.Leaderboard;
+    }
+
+    return {
+      ...urls,
       [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
       [`${webappUrl}history`]: FeedNavTab.History,
     };
-  }, [feeds, router.pathname, router.query.slugOrId, hasCustomFeedsEnabled]);
+  }, [
+    seoSidebar,
+    feeds,
+    router.pathname,
+    router.query.slugOrId,
+    hasCustomFeedsEnabled,
+  ]);
 
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
   }
+
+  const checklistBarElement = isLoggedIn ? <OnboardingChecklistBar /> : null;
 
   return (
     <div
@@ -105,7 +148,13 @@ function FeedNav(): ReactElement {
         scrollClassName,
       )}
     >
-      {isMobile && <MobileFeedActions />}
+      {!isMobile && checklistBarElement}
+      {isMobile && (
+        <>
+          <MobileFeedActions />
+          {checklistBarElement}
+        </>
+      )}
       <div className="mb-4 h-[3.25rem] tablet:mb-0">
         <TabContainer
           controlledActive={urlToTab[router.asPath] ?? ''}

@@ -6,11 +6,11 @@ import { IconSize } from '../Icon';
 import TabList from '../tabs/TabList';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { checkIsExtension } from '../../lib/func';
-import { SharedFeedPage } from '../utilities';
 import { getFeedName } from '../../lib/feed';
 import { Dropdown } from '../fields/Dropdown';
 import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import { periodTexts } from '../layout/common';
+import { OtherFeedPage } from '../../lib/query';
 
 export enum ExploreTabs {
   Popular = 'Popular',
@@ -19,19 +19,24 @@ export enum ExploreTabs {
   ByDate = 'By date',
 }
 
-const tabsToFeedMap: Partial<Record<SharedFeedPage, ExploreTabs>> = {
-  [SharedFeedPage.Explore]: ExploreTabs.Popular,
-  [SharedFeedPage.ExploreUpvoted]: ExploreTabs.MostUpvoted,
-  [SharedFeedPage.ExploreDiscussed]: ExploreTabs.BestDiscussions,
-  [SharedFeedPage.ExploreLatest]: ExploreTabs.ByDate,
+const tabsToFeedMap: Partial<Record<OtherFeedPage, ExploreTabs>> = {
+  [OtherFeedPage.Explore]: ExploreTabs.Popular,
+  [OtherFeedPage.ExploreUpvoted]: ExploreTabs.MostUpvoted,
+  [OtherFeedPage.ExploreDiscussed]: ExploreTabs.BestDiscussions,
+  [OtherFeedPage.ExploreLatest]: ExploreTabs.ByDate,
 };
 
 export const urlToTab: Record<string, ExploreTabs> = {
-  '/explore': ExploreTabs.Popular,
-  '/explore/upvoted': ExploreTabs.MostUpvoted,
-  '/explore/discussed': ExploreTabs.BestDiscussions,
-  '/explore/latest': ExploreTabs.ByDate,
+  [`/${OtherFeedPage.Explore}`]: ExploreTabs.Popular,
+  [`/${OtherFeedPage.Explore}/upvoted`]: ExploreTabs.MostUpvoted,
+  [`/${OtherFeedPage.Explore}/discussed`]: ExploreTabs.BestDiscussions,
+  [`/${OtherFeedPage.Explore}/latest`]: ExploreTabs.ByDate,
 };
+
+export const tabToUrl = Object.entries(urlToTab).reduce(
+  (result, [url, tab]) => ({ ...result, [tab]: url }),
+  {},
+) as Record<ExploreTabs, string>;
 
 interface FeedExploreHeaderProps {
   tab: ExploreTabs;
@@ -39,8 +44,8 @@ interface FeedExploreHeaderProps {
 }
 
 const withDateRange = [
-  SharedFeedPage.ExploreUpvoted,
-  SharedFeedPage.ExploreDiscussed,
+  OtherFeedPage.ExploreUpvoted,
+  OtherFeedPage.ExploreDiscussed,
 ];
 
 export function FeedExploreHeader({
@@ -79,7 +84,7 @@ export function FeedExploreHeader({
           </TabContainer>
         )}
         <span className="ml-auto">
-          {withDateRange.includes(path as SharedFeedPage) && (
+          {withDateRange.includes(path as OtherFeedPage) && (
             <Dropdown
               iconOnly
               dynamicMenuWidth

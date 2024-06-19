@@ -72,7 +72,6 @@ export const CollectionCard = forwardRef(function CollectionCard(
           onUpvoteClick={onUpvoteClick}
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}
-          className={classNames('mx-4 mt-auto justify-between')}
           onBookmarkClick={onBookmarkClick}
         />
       </Container>

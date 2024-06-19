@@ -144,7 +144,7 @@ export const usePostToSquad = ({
 
   const onSubmitPost = useCallback<UsePostToSquad['onSubmitPost']>(
     (e, sourceId, commentary) => {
-      e.preventDefault();
+      e?.preventDefault();
 
       if (isPosting) {
         return null;

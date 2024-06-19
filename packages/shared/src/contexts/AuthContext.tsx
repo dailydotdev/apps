@@ -21,6 +21,9 @@ import { checkIsExtension, isNullOrUndefined } from '../lib/func';
 
 export interface LoginState {
   trigger: AuthTriggersType;
+  formValues?: {
+    email?: string;
+  };
   referral?: string;
   referralOrigin?: string;
   onLoginSuccess?: () => void;

@@ -28,6 +28,7 @@ import { SharedFeedPage } from '../utilities';
 import { FeedSurveyBanner } from '../cards/survey';
 import { FeedSettingsButton } from './FeedSettingsButton';
 import { useFeedName } from '../../hooks/feed/useFeedName';
+import { OtherFeedPage } from '../../lib/query';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -126,10 +127,13 @@ const feedNameToHeading: Record<
     | 'tags[tag]/best-discussed'
     | SharedFeedPage.Custom
     | SharedFeedPage.CustomForm
-    | SharedFeedPage.Explore
-    | SharedFeedPage.ExploreLatest
-    | SharedFeedPage.ExploreUpvoted
-    | SharedFeedPage.ExploreDiscussed
+    | OtherFeedPage.Explore
+    | OtherFeedPage.ExploreLatest
+    | OtherFeedPage.ExploreUpvoted
+    | OtherFeedPage.ExploreDiscussed
+    | OtherFeedPage.Tags
+    | OtherFeedPage.Sources
+    | OtherFeedPage.Leaderboard
   >,
   string
 > = {
