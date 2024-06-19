@@ -11,7 +11,8 @@ import { OnboardingStep, wrapperMaxWidth } from './common';
 type OnboardingHeaderProps = {
   showOnboardingPage: boolean;
   setAuth: Dispatch<SetStateAction<AuthProps>>;
-  onClickNext: () => void;
+  onClickCreateFeed: () => void;
+  onClickNext?: () => void;
   activeScreen: OnboardingStep;
 };
 
@@ -19,6 +20,7 @@ export const OnboardingHeader = ({
   showOnboardingPage,
   activeScreen,
   setAuth,
+  onClickCreateFeed,
   onClickNext,
 }: OnboardingHeaderProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -46,7 +48,14 @@ export const OnboardingHeader = ({
             position={LogoPosition.Relative}
           />
           {activeScreen === OnboardingStep.EditTag && (
-            <CreateFeedButton onClick={onClickNext} />
+            <CreateFeedButton onClick={onClickCreateFeed} />
+          )}
+          {activeScreen === OnboardingStep.FeedLayout && (
+            <div className="relative">
+              <Button variant={ButtonVariant.Primary} onClick={onClickNext}>
+                Done, let&apos;s go
+              </Button>
+            </div>
           )}
         </div>
       </header>
