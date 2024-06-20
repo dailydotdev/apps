@@ -27,7 +27,6 @@ import {
   parseOrDefault,
 } from '@dailydotdev/shared/src/lib/func';
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
-import { getRandom4Digits } from '@dailydotdev/shared/src/lib';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 
