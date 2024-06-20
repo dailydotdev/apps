@@ -34,7 +34,6 @@ const feature = {
   featureTheme: new Feature('feature_theme', {}),
   customFeeds: new Feature('custom_feeds', CustomFeedsExperiment.Control),
   hypeCampaign: new Feature('hype_campaign', false),
-  searchGoogle: new Feature('search_google', false),
   improvedSharedPostCard: new Feature('improved_shared_post_card', false),
   feedSettingsFeedback: new Feature('feed_settings_feedback', false),
   onboardingLinks: new Feature('onboarding_links', false),
