@@ -28,6 +28,15 @@ import { ActionType } from '../../graphql/actions';
 
 const showLogin = jest.fn();
 
+jest.mock('../../hooks/useBookmarkProvider', () => ({
+  __esModule: true,
+  default: jest
+    .fn()
+    .mockImplementation((): { highlightBookmarkedPost: boolean } => ({
+      highlightBookmarkedPost: false,
+    })),
+}));
+
 beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();

@@ -36,12 +36,14 @@ export const CollectionCard = forwardRef(function CollectionCard(
       }}
       ref={ref}
       flagProps={{ pinnedAt, trending }}
+      bookmarked={post.bookmarked}
     >
       <CardOverlay post={post} onPostCardClick={onPostCardClick} />
       <CollectionCardHeader
         sources={post.collectionSources}
         totalSources={post.numCollectionSources}
         onMenuClick={(event) => onMenuClick?.(event, post)}
+        bookmarked={post.bookmarked}
       />
       <FreeformCardTitle
         className={classNames(
