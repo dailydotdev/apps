@@ -33,9 +33,14 @@ import {
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import {
+  useActions,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
 import { useSquadCreate } from '@dailydotdev/shared/src/hooks/squads/useSquadCreate';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
@@ -51,6 +56,7 @@ enum WriteFormTab {
 }
 
 function CreatePost(): ReactElement {
+  const { completeAction } = useActions();
   const { push, isReady: isRouteReady, query } = useRouter();
   const { squads, user, isAuthReady, isFetched } = useAuthContext();
   const [selected, setSelected] = useState(-1);
@@ -101,6 +107,8 @@ function CreatePost(): ReactElement {
     onSuccess: async (post) => {
       clearDraft();
       await push(post.commentsPermalink);
+
+      completeAction(ActionType.SquadFirstPost);
     },
     onError: (data: ApiErrorResult) => {
       if (data?.response?.errors?.[0]) {
@@ -212,7 +220,6 @@ function CreatePost(): ReactElement {
               className="mt-4"
               onPostSuccess={() => {
                 onAskConfirmation(false);
-                push(squad.permalink);
               }}
             />
           </Tab>

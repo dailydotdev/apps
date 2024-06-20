@@ -32,6 +32,7 @@ import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
 import { SharedFeedPage } from '../utilities';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { OtherFeedPage } from '../../lib/query';
 
 const OnboardingChecklistBar = dynamic(
   () =>
@@ -107,7 +108,7 @@ function FeedNav(): ReactElement {
     };
 
     if (seoSidebar === SeoSidebarExperiment.V1) {
-      urls[`${webappUrl}${SharedFeedPage.Explore}`] = FeedNavTab.Explore;
+      urls[`${webappUrl}${OtherFeedPage.Explore}`] = FeedNavTab.Explore;
     } else {
       urls[`${webappUrl}${SharedFeedPage.Popular}`] = FeedNavTab.Popular;
       urls[`${webappUrl}${SharedFeedPage.Upvoted}`] = FeedNavTab.MostUpvoted;
