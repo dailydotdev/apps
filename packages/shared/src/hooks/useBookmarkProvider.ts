@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useRef } from 'react';
 import { feature } from '../lib/featureManagement';
 import { useActiveFeedNameContext } from '../contexts';
 import { SharedFeedPage } from '../components/utilities';
@@ -15,19 +15,13 @@ interface UseBookmarkProviderProps {
 const useBookmarkProvider = ({
   bookmarked = false,
 }: UseBookmarkProviderProps): UseBookmarkProviderReturn => {
-  const [isBookmarked] = useState<boolean>(bookmarked);
-  const [justBookmarked, setJustBookmarked] = useState<boolean>(false);
+  const isBookmarked = useRef<boolean>(bookmarked);
   const { feedName } = useActiveFeedNameContext();
-
-  useEffect(() => {
-    if (bookmarked !== isBookmarked) {
-      setJustBookmarked(bookmarked);
-    }
-  }, [bookmarked, justBookmarked, setJustBookmarked, isBookmarked]);
+  const justBookmarked = bookmarked !== isBookmarked.current && bookmarked;
 
   const isMyFeed = feedName === SharedFeedPage.MyFeed;
   const isCardShownFromBookmarkProvider =
-    isMyFeed && isBookmarked && !justBookmarked;
+    isMyFeed && isBookmarked.current && !justBookmarked && bookmarked;
 
   const { value: bookmarkProvider } = useConditionalFeature({
     feature: feature.bookmark_provider,
