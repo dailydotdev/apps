@@ -22,7 +22,7 @@ import { SearchPanelPostSuggestions } from './SearchPanelPostSuggestions';
 import SettingsContext from '../../../contexts/SettingsContext';
 import { useConditionalFeature, useEventListener } from '../../../hooks';
 import { defaultSearchProvider, providerToLabelTextMap } from './common';
-import { ArrowKeyEnum } from '../../../lib/func';
+import { ArrowKeyEnum, checkIsExtension } from '../../../lib/func';
 import { ArrowIcon } from '../../icons';
 import { useSearchProvider } from '../../../hooks/search';
 import { SearchPanelCustomAction } from './SearchPanelCustomAction';
@@ -154,11 +154,6 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
     shouldEvaluate: showDropdown,
   });
 
-  const { value: isGoogleSearchEnabled } = useConditionalFeature({
-    feature: feature.searchGoogle,
-    shouldEvaluate: showDropdown,
-  });
-
   return (
     <SearchPanelContext.Provider value={searchPanel}>
       <div
@@ -203,7 +198,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
               <div className="flex flex-1 flex-col">
                 <SearchPanelAction provider={SearchProviderEnum.Posts} />
                 <SearchPanelAction provider={SearchProviderEnum.Chat} />
-                {isGoogleSearchEnabled && (
+                {checkIsExtension() && (
                   <SearchPanelAction provider={SearchProviderEnum.Google} />
                 )}
                 <SearchPanelTagSuggestions title="Tags" />
