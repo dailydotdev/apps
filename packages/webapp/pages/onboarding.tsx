@@ -53,6 +53,7 @@ import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
   GtagTracking,
+  logSignUp,
   PixelTracking,
   TiktokTracking,
   logSignUp,
@@ -70,6 +71,7 @@ import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/load
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
+import { FeedLayoutPreview } from '@dailydotdev/shared/src/components/auth/FeedLayoutPreview';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -111,6 +113,12 @@ export function OnboardPage(): ReactElement {
     feature: feature.readingReminder,
     shouldEvaluate: shouldEnrollInReadingReminder,
   });
+  const [shouldEnrollFeedLayoutPreview, setShouldEnrollFeedLayoutPreview] =
+    useState(false);
+  const { value: showFeedLayoutPreview } = useConditionalFeature({
+    feature: feature.feedLayoutPreview,
+    shouldEvaluate: shouldEnrollFeedLayoutPreview,
+  });
   const [auth, setAuth] = useState<AuthProps>({
     isAuthenticating: !!storage.getItem(SIGNIN_METHOD_KEY) || shouldVerify,
     isLoginFlow: false,
@@ -129,6 +137,7 @@ export function OnboardPage(): ReactElement {
   const isPageReady = growthbook?.ready && isAuthReady;
   const { feedSettings } = useFeedSettings();
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const onboardingVisual: OnboardingVisual = useFeature(
     feature.onboardingVisual,
   );
@@ -147,6 +156,15 @@ export function OnboardPage(): ReactElement {
 
     if (activeScreen === OnboardingStep.EditTag && showReadingReminder) {
       return setActiveScreen(OnboardingStep.ReadingReminder);
+    }
+
+    // Since reading reminder is experiment we can't be sure which was the previous
+    if (
+      showFeedLayoutPreview &&
+      (activeScreen === OnboardingStep.ReadingReminder ||
+        activeScreen === OnboardingStep.EditTag)
+    ) {
+      return setActiveScreen(OnboardingStep.FeedLayout);
     }
 
     if (!hasSelectTopics) {
@@ -171,6 +189,10 @@ export function OnboardPage(): ReactElement {
 
   const onClickCreateFeed = () => {
     setShouldEnrollInReadingReminder(true);
+    if (isLaptop) {
+      // Experiment is only for desktop users
+      setShouldEnrollFeedLayoutPreview(true);
+    }
 
     const onboardingChecklist = getFeatureValue(feature.onboardingChecklist);
 
@@ -288,6 +310,7 @@ export function OnboardPage(): ReactElement {
         {activeScreen === OnboardingStep.ReadingReminder && (
           <ReadingReminder onClickNext={onClickNext} />
         )}
+        {activeScreen === OnboardingStep.FeedLayout && <FeedLayoutPreview />}
         {activeScreen === OnboardingStep.EditTag && (
           <>
             <Title className="text-center typo-large-title">
@@ -402,7 +425,8 @@ export function OnboardPage(): ReactElement {
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}
         setAuth={setAuth}
-        onClickNext={onClickCreateFeed}
+        onClickCreateFeed={onClickCreateFeed}
+        onClickNext={onClickNext}
         activeScreen={activeScreen}
       />
       <div
