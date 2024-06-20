@@ -41,6 +41,7 @@ const feature = {
   showRoadmap: new Feature('show_roadmap', false),
   seoSidebar: new Feature('seo_sidebar', SeoSidebarExperiment.Control),
   searchSources: new Feature('search_sources', false),
+  bookmark_provider: new Feature('bookmark_provider', false),
   onboardingChecklist: new Feature('onboarding_checklist', false),
   feedLayoutPreview: new Feature('feed_layout_preview', false),
   onboardingBanner: new Feature('onboarding_banner', OnboardingBanner.Control),
