@@ -56,7 +56,6 @@ import {
   logSignUp,
   PixelTracking,
   TiktokTracking,
-  logSignUp,
   HotJarTracking,
 } from '@dailydotdev/shared/src/components/auth/OnboardingLogs';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
