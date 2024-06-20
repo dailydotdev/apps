@@ -2,6 +2,7 @@ import React, {
   HTMLAttributes,
   ReactElement,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -11,6 +12,7 @@ import classed from '../lib/classed';
 import { Radio } from './fields/Radio';
 import { Switch } from './fields/Switch';
 import SettingsContext, {
+  ThemeMode,
   themes as layoutThemes,
 } from '../contexts/SettingsContext';
 import { CardIcon, LineIcon } from './icons';
@@ -19,6 +21,8 @@ import { checkIsExtension } from '../lib/func';
 import AuthContext from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
 import { useViewSize, ViewSize } from '../hooks';
+import { LogEvent, TargetId, TargetType } from '../lib/log';
+import { useLogContext } from '../contexts/LogContext';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -84,6 +88,7 @@ export default function Settings({
     optOutReadingStreak,
     toggleOptOutReadingStreak,
   } = useContext(SettingsContext);
+  const { logEvent } = useLogContext();
   const [themes, setThemes] = useState(layoutThemes);
 
   const onToggleForLoggedInUsers = (
@@ -107,6 +112,27 @@ export default function Settings({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const onThemeToggle = useCallback(
+    (newThemeMode: ThemeMode) => {
+      logEvent({
+        event_name: LogEvent.ChangeSettings,
+        target_type: TargetType.Theme,
+        target_id: newThemeMode,
+      });
+      return setTheme(newThemeMode);
+    },
+    [logEvent, setTheme],
+  );
+
+  const onLayoutToggle = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.ChangeSettings,
+      target_type: TargetType.Layout,
+      target_id: insaneMode ? TargetId.Cards : TargetId.List,
+    });
+    return toggleInsaneMode();
+  }, [insaneMode, logEvent, toggleInsaneMode]);
+
   return (
     <div className={classNames('flex', 'flex-col', className)} {...props}>
       {isLaptop && (
@@ -119,7 +145,7 @@ export default function Settings({
             rightContent={<LineIcon secondary={insaneMode} />}
             checked={insaneMode}
             className="mx-1.5"
-            onToggle={toggleInsaneMode}
+            onToggle={onLayoutToggle}
           />
         </Section>
       )}
@@ -129,7 +155,7 @@ export default function Settings({
           name="theme"
           options={themes}
           value={themeMode}
-          onChange={setTheme}
+          onChange={onThemeToggle}
         />
       </Section>
       {isLaptop && (

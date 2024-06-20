@@ -43,6 +43,7 @@ const feature = {
   searchSources: new Feature('search_sources', false),
   bookmark_provider: new Feature('bookmark_provider', false),
   onboardingChecklist: new Feature('onboarding_checklist', false),
+  feedLayoutPreview: new Feature('feed_layout_preview', false),
 };
 
 export { feature };
