@@ -34,6 +34,7 @@ interface SquadDetailsProps {
   createMode: boolean;
   onRequestClose?: () => void;
   children?: ReactNode;
+  isLoading?: boolean;
 }
 
 const getFormData = async (
@@ -67,6 +68,7 @@ export function SquadDetails({
   form,
   createMode = true,
   children,
+  isLoading,
 }: SquadDetailsProps): ReactElement {
   const {
     name,
@@ -168,9 +170,10 @@ export function SquadDetails({
           router.push(createMode ? '/squads' : `/squads/${handle}`),
       }}
       rightButtonProps={{
-        disabled: !canSubmit,
+        disabled: !canSubmit || isLoading,
         variant: ButtonVariant.Primary,
         color: createMode ? ButtonColor.Cabbage : undefined,
+        loading: isLoading,
       }}
     >
       {children}
