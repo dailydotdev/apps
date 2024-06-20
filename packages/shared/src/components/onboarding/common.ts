@@ -9,6 +9,7 @@ export enum OnboardingStep {
   Theme = 'theme',
   EditTag = 'edit_tag',
   ReadingReminder = 'reading_reminder',
+  FeedLayout = 'feed_layout',
 }
 
 export const OnboardingTitle = classed(

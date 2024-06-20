@@ -164,6 +164,9 @@ export enum LogEvent {
   UpdateCustomFeed = 'update custom feed',
   DeleteCustomFeed = 'delete custom feed',
   // custom feeds end
+  // Settings
+  ChangeSettings = 'change settings',
+  // End settings
 }
 
 export enum FeedItemTitle {
@@ -195,6 +198,10 @@ export enum TargetType {
   MarketingCtaPopover = 'promotion_popover',
   Comment = 'comment',
   ReadingReminder = 'reading reminder',
+  // Settings
+  Layout = 'layout',
+  Theme = 'theme',
+  // End settings
 }
 
 export enum TargetId {
@@ -209,6 +216,10 @@ export enum TargetId {
   InviteFriendsPage = 'invite friends page',
   Squad = 'squad',
   General = 'general',
+  // Settings
+  Cards = 'cards',
+  List = 'list',
+  // End settings
 }
 
 export enum NotificationChannel {

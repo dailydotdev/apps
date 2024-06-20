@@ -17,8 +17,7 @@ export const PlaceholderCard = forwardRef(function PlaceholderCard(
       aria-busy
       className={classNames(
         className,
-        'flex flex-col rounded-16 bg-theme-post-disabled p-2',
-        'min-h-card',
+        'flex min-h-card flex-col rounded-16 bg-background-subtle p-2',
       )}
       {...props}
       ref={ref}
