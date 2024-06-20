@@ -466,10 +466,13 @@ type EditSquadForm = Pick<
   memberInviteRole?: SourceMemberRole;
 };
 
-export async function editSquad(
-  id: string,
-  form: EditSquadForm,
-): Promise<Squad> {
+export async function editSquad({
+  id,
+  form,
+}: {
+  id: string;
+  form: EditSquadForm;
+}): Promise<Squad> {
   const inputData: EditSquadInput = {
     sourceId: id,
     description: form.description,
