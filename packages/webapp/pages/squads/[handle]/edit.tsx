@@ -22,8 +22,12 @@ import {
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { PrivacyOption } from '@dailydotdev/shared/src/hooks/squads/useSquadPrivacyOptions';
-import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
+import {
+  isNullOrUndefined,
+  parseOrDefault,
+} from '@dailydotdev/shared/src/lib/func';
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import { getRandom4Digits } from '@dailydotdev/shared/src/lib';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 
@@ -36,6 +40,8 @@ const seo: NextSeoProps = {
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
 };
+
+const DEFAULT_ERROR = "Oops! That didn't seem to work. Let's try again!";
 
 const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
   const { isReady: isRouteReady } = useRouter();
@@ -55,6 +61,15 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
         await queryClient.invalidateQueries(queryKey);
         updateSquad(data);
         displayToast('The Squad has been updated');
+      },
+      onError: (error: ApiErrorResult) => {
+        const result = parseOrDefault<Record<string, string>>(
+          error?.response?.errors?.[0]?.message,
+        );
+
+        displayToast(
+          typeof result === 'object' ? result.handle : DEFAULT_ERROR,
+        );
       },
     });
 
