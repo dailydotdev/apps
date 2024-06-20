@@ -1,6 +1,7 @@
 import { JSONValue } from '@growthbook/growthbook';
 import {
   CustomFeedsExperiment,
+  OnboardingBanner,
   SeoSidebarExperiment,
   ShortcutsUIExperiment,
 } from './featureValues';
@@ -44,6 +45,7 @@ const feature = {
   bookmark_provider: new Feature('bookmark_provider', false),
   onboardingChecklist: new Feature('onboarding_checklist', false),
   feedLayoutPreview: new Feature('feed_layout_preview', false),
+  onboardingBanner: new Feature('onboarding_banner', OnboardingBanner.Control),
 };
 
 export { feature };
