@@ -96,9 +96,10 @@ function InteractivePopup({
     !disableOverlay;
   const shouldCloseOnOverlayClick = closeOutsideClick || withOverlay;
   const { sidebarExpanded } = useSettingsContext();
-  const finalPosition = validateSidebar
-    ? position
-    : InteractivePopupPosition.Center;
+  const finalPosition =
+    disableOverlay || validateSidebar
+      ? position
+      : InteractivePopupPosition.Center;
   const classes = positionClass[finalPosition];
   useOutsideClick(container, onCloseRef.current, shouldCloseOnOverlayClick);
 

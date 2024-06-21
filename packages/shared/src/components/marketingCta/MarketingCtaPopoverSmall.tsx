@@ -6,7 +6,9 @@ import { CTAButton, Description, MarketingCta, Title } from './common';
 import { ViewSize, useBoot, useViewSize } from '../../hooks';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
-import { ButtonSize } from '../buttons/common';
+import { ButtonSize, ButtonVariant } from '../buttons/common';
+import { MiniCloseIcon } from '../icons';
+import { Button } from '../buttons/Button';
 
 export function MarketingCtaPopoverSmall({
   marketingCta,
@@ -53,9 +55,9 @@ export function MarketingCtaPopoverSmall({
   return (
     <Card
       className={classNames(
-        ' !p-0',
+        '!p-0',
         isMobile
-          ? '!border-none !bg-transparent !shadow-none'
+          ? '!max-h-none !border-none !bg-transparent !shadow-none'
           : 'max-w-64 border-2 !border-accent-onion-default',
       )}
     >
@@ -91,6 +93,17 @@ export function MarketingCtaPopoverSmall({
             ctaText={ctaText}
           />
         )}
+        <Button
+          size={isMobile ? ButtonSize.Medium : ButtonSize.Small}
+          variant={isMobile ? ButtonVariant.Float : ButtonVariant.Primary}
+          className={classNames(
+            isMobile ? 'mb-4 w-full' : 'absolute right-2 top-2 z-1',
+          )}
+          icon={!isMobile && <MiniCloseIcon />}
+          onClick={onCtaDismiss}
+        >
+          {isMobile ? 'Close' : null}
+        </Button>
       </div>
     </Card>
   );

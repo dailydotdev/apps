@@ -1,4 +1,4 @@
-import React, { Children, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions, useBoot } from '../../hooks';
@@ -35,7 +35,7 @@ export const BootPopups = (): JSX.Element => {
   const [bootPopups, setBootPopups] = useState(() => new Map());
   const [interactiveBootPopup, setInteractiveBootPopup] =
     useState<InteractivePopupProps | null>(null);
-  const { getMarketingCta, clearMarketingCta } = useBoot();
+  const { getMarketingCta } = useBoot();
   const marketingCtaPopover = getMarketingCta(MarketingCtaVariant.Popover);
   const marketingCtaPopoverSmall = getMarketingCta(
     MarketingCtaVariant.PopoverSmall,
@@ -123,20 +123,10 @@ export const BootPopups = (): JSX.Element => {
       setInteractiveBootPopup({
         isDrawerOnMobile: true,
         drawerProps: {
-          className: { close: 'px-4', wrapper: '!px-0 !pt-0' },
-          displayCloseButton: true,
+          className: { wrapper: '!p-0' },
         },
         position: InteractivePopupPosition.RightEnd,
         disableOverlay: true,
-        onClose: () => {
-          setInteractiveBootPopup(null);
-          logEvent({
-            event_name: LogEvent.MarketingCtaDismiss,
-            target_type: TargetType.MarketingCtaPopoverSmall,
-            target_id: marketingCtaPopoverSmall.campaignId,
-          });
-          clearMarketingCta(marketingCtaPopoverSmall.campaignId);
-        },
         closeButton: {
           variant: ButtonVariant.Primary,
         },
@@ -147,7 +137,7 @@ export const BootPopups = (): JSX.Element => {
     } else {
       setInteractiveBootPopup(null);
     }
-  }, [clearMarketingCta, logEvent, marketingCtaPopoverSmall]);
+  }, [marketingCtaPopoverSmall]);
 
   /** *
    * Boot popup for generic referral campaign
