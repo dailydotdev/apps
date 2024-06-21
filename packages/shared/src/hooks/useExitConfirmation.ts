@@ -24,7 +24,7 @@ export function useExitConfirmation({
 
   useEffect(() => {
     if (!router.isReady) {
-      return null;
+      return () => {};
     }
 
     const closeHandler = (e: BeforeUnloadEvent) => {

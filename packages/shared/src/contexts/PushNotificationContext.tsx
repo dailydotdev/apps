@@ -120,7 +120,7 @@ export function PushNotificationContextProvider({
 
   useEffect(() => {
     if (!OneSignalCache) {
-      return undefined;
+      return () => {};
     }
 
     const onChange: Parameters<

@@ -61,12 +61,7 @@ function MainLayoutHeader({
             {additionalButtons}
             {isLoggedIn ? (
               <>
-                <LinkWithTooltip
-                  tooltip={{ placement: 'bottom', content: 'Notifications' }}
-                  href={`${webappUrl}notifications`}
-                >
-                  <NotificationsBell />
-                </LinkWithTooltip>
+                <NotificationsBell />
                 <ProfileButton className="hidden laptop:flex" />
               </>
             ) : (

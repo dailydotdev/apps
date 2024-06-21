@@ -20,7 +20,7 @@ export const useScrollTopOffset = (
     const element = getElement();
 
     if (!element) {
-      return null;
+      return () => {};
     }
 
     const onScroll = (e) => {
