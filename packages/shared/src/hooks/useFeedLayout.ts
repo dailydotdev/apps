@@ -93,8 +93,7 @@ const getFeedPageLayoutComponent = ({
 export const useFeedLayout = ({
   feedRelated = true,
 }: UseFeedLayoutProps = {}): UseFeedLayoutReturn => {
-  const isLaptopSize = useViewSize(ViewSize.Laptop);
-  const isLaptop = isNullOrUndefined(isLaptopSize) || isLaptopSize;
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
   const { insaneMode: isListMode } = useContext(SettingsContext);
 
@@ -107,16 +106,15 @@ export const useFeedLayout = ({
   );
 
   const shouldUseListFeedLayoutOnMobileTablet =
-    !isLaptop && isFeedIncludedInListLayout;
+    !isLaptop || isFeedIncludedInListLayout;
 
   const shouldUseListMode =
-    isListMode && isLaptop && isFeedIncludedInListLayout;
+    !isLaptop ||
+    isListMode ||
+    (feedRelated &&
+      (shouldUseListFeedLayoutOnProfilePages || isFeedIncludedInListLayout));
 
-  const shouldUseListFeedLayout = feedRelated
-    ? shouldUseListFeedLayoutOnMobileTablet ||
-      shouldUseListFeedLayoutOnProfilePages ||
-      shouldUseListMode
-    : isListMode || !isLaptop;
+  const shouldUseListFeedLayout = shouldUseListMode;
 
   const shouldUseCommentFeedLayout = feedName === SharedFeedPage.Discussed;
 
