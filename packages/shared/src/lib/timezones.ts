@@ -183,6 +183,10 @@ const TIME_ZONES: TimeZoneItem[] = [
     label: 'Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna',
   },
   {
+    value: 'Europe/Oslo',
+    label: 'Oslo',
+  },
+  {
     value: 'Europe/Belgrade',
     label: 'Belgrade, Bratislava, Budapest, Ljubljana, Prague',
   },
