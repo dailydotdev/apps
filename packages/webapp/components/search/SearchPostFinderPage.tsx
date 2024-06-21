@@ -80,7 +80,7 @@ const AiSearchProviderButton = () => {
   const { logEvent } = useLogContext();
   const searchQuery = router.query?.q?.toString();
   const { spaciness } = useContext(SettingsContext);
-  const { isListMode: isList } = useFeedLayout();
+  const { insaneMode: isList } = useSettingsContext();
   const currentSettings = useContext(FeedContext);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const feedGapPx =
