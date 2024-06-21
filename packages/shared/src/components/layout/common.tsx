@@ -18,12 +18,7 @@ import { IconSize } from '../Icon';
 import { RankingAlgorithm } from '../../graphql/feed';
 import SettingsContext from '../../contexts/SettingsContext';
 import { useFeedName } from '../../hooks/feed/useFeedName';
-import {
-  useConditionalFeature,
-  useFeedLayout,
-  useViewSize,
-  ViewSize,
-} from '../../hooks';
+import { useConditionalFeature, useViewSize, ViewSize } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
@@ -74,7 +69,6 @@ export const SearchControlHeader = ({
   const { openModal } = useLazyModal();
   const { sortingEnabled } = useContext(SettingsContext);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
-  const { shouldUseListFeedLayout } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
@@ -95,10 +89,7 @@ export const SearchControlHeader = ({
     className: { label: 'hidden', chevron: 'hidden', button: '!px-1' },
     dynamicMenuWidth: true,
     shouldIndicateSelected: true,
-    buttonSize:
-      shouldUseListFeedLayout && isMobile
-        ? ButtonSize.Small
-        : ButtonSize.Medium,
+    buttonSize: isMobile ? ButtonSize.Small : ButtonSize.Medium,
     iconOnly: true,
     buttonVariant: isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary,
   };
