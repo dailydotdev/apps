@@ -28,6 +28,7 @@ import {
 import {
   useActions,
   useConditionalFeature,
+  useFeedLayout,
   useToastNotification,
 } from '@dailydotdev/shared/src/hooks';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
@@ -125,13 +126,9 @@ const ShortcutUIItemPlaceholder = ({ children }: { children: ReactNode }) => {
   );
 };
 
-interface ShortcutLinksProps {
-  shouldUseListFeedLayout: boolean;
-}
-export default function ShortcutLinks({
-  shouldUseListFeedLayout,
-}: ShortcutLinksProps): ReactElement {
-  const className = !shouldUseListFeedLayout
+export default function ShortcutLinks(): ReactElement {
+  const { isListFeedLayout } = useFeedLayout();
+  const className = !isListFeedLayout
     ? 'ml-auto'
     : 'mt-4 w-fit mx-4 laptop:mx-0';
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
@@ -321,7 +318,7 @@ export default function ShortcutLinks({
       <div
         className={classNames(
           'hidden tablet:flex',
-          shouldUseListFeedLayout ? 'mx-6 mb-3 mt-1' : '-mt-2 mb-5',
+          isListFeedLayout ? 'mx-6 mb-3 mt-1' : '-mt-2 mb-5',
         )}
       >
         {shortcutLinks?.length ? (

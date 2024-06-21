@@ -20,7 +20,6 @@ import {
 } from '@dailydotdev/shared/src/graphql/search';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
 import ShortcutLinks from './ShortcutLinks';
 import DndBanner from './DndBanner';
@@ -51,7 +50,6 @@ export default function MainFeedPage({
   const { user, loadingUser } = useContext(AuthContext);
   const [feedName, setFeedName] = useState<string>('default');
   const [searchQuery, setSearchQuery] = useState<string>();
-  const { isListFeedLayout } = useFeedLayout({ feedRelated: false });
   useCompanionSettings();
   const { isActive: isDndActive, showDnd, setShowDnd } = useDndContext();
   const enableSearch = () => {
@@ -144,9 +142,7 @@ export default function MainFeedPage({
                 }}
               />
             }
-            shortcuts={
-              <ShortcutLinks shouldUseListFeedLayout={isListFeedLayout} />
-            }
+            shortcuts={<ShortcutLinks />}
           />
         </FeedLayout>
         <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />

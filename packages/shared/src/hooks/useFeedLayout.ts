@@ -10,15 +10,12 @@ import {
 } from '../components/utilities';
 import { AllFeedPages, OtherFeedPage } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
+import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 
 interface UseFeedLayoutReturn {
   isListFeedLayout: boolean;
   shouldBeCentered: boolean;
   FeedPageLayoutComponent: ComponentType<HTMLAttributes<HTMLDivElement>>;
-}
-
-interface UseFeedLayoutProps {
-  feedRelated?: boolean;
 }
 
 export type FeedPagesWithMobileLayoutType = Exclude<
@@ -59,9 +56,7 @@ export const UserProfileFeedPages = new Set([
   OtherFeedPage.UserPosts,
 ]);
 
-export const useFeedLayout = ({
-  feedRelated = true,
-}: UseFeedLayoutProps = {}): UseFeedLayoutReturn => {
+export const useFeedLayout = (): UseFeedLayoutReturn => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
   const { insaneMode: isListMode } = useContext(SettingsContext);
@@ -74,19 +69,8 @@ export const useFeedLayout = ({
     feedName as FeedPagesWithMobileLayoutType,
   );
 
-  const getListFeedEvaluation = () => {
-    if (isListMode || !isLaptop) {
-      if (feedRelated) {
-        return isFeedIncludedInListLayout || isListFeedLayoutOnProfilePages;
-      }
-
-      return true;
-    }
-
-    return false;
-  };
-
-  const isListFeedLayout = getListFeedEvaluation();
+  const isListFeedLayout =
+    isListMode || !isLaptop || isFeedIncludedInListLayout;
   const isListFeedMobile = isListMode && !isLaptop;
 
   return {
