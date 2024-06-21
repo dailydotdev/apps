@@ -37,6 +37,7 @@ export interface InteractivePopupProps extends DrawerOnMobileProps {
   closeOutsideClick?: boolean;
   onClose?: PopupCloseFunc;
   closeButton?: CloseButtonProps;
+  disableOverlay?: boolean;
 }
 
 const centerClassX = 'left-1/2 -translate-x-1/2';
@@ -76,6 +77,7 @@ function InteractivePopup({
   closeButton = {},
   isDrawerOnMobile,
   drawerProps,
+  disableOverlay = false,
   ...props
 }: InteractivePopupProps): ReactElement {
   const {
@@ -90,7 +92,8 @@ function InteractivePopup({
   const validateSidebar =
     sidebarRendered || position === InteractivePopupPosition.Screen;
   const withOverlay =
-    position === InteractivePopupPosition.Center || !validateSidebar;
+    (position === InteractivePopupPosition.Center || !validateSidebar) &&
+    !disableOverlay;
   const shouldCloseOnOverlayClick = closeOutsideClick || withOverlay;
   const { sidebarExpanded } = useSettingsContext();
   const finalPosition = validateSidebar
