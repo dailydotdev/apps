@@ -5,7 +5,7 @@ import { useActions, useBoot } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { LazyModal } from './common/types';
 import AlertContext from '../../contexts/AlertContext';
-import { MarketingCtaVariant } from '../cards/MarketingCta/common';
+import { MarketingCtaVariant } from '../marketingCta/common';
 import { LogEvent, TargetType } from '../../lib/log';
 import LogContext from '../../contexts/LogContext';
 import { promotion } from './generic';

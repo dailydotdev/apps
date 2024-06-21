@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { MiniCloseIcon } from '../../icons';
-import { CardTitle } from '../Card';
-import classed from '../../../lib/classed';
-import { anchorDefaultRel } from '../../../lib/strings';
-import { Pill, PillSize } from '../../Pill';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { MiniCloseIcon } from '../icons';
+import { CardTitle } from '../cards/Card';
+import classed from '../../lib/classed';
+import { anchorDefaultRel } from '../../lib/strings';
+import { Pill, PillSize } from '../Pill';
 
 export type MarketingCtaFlags = {
   title: string;
