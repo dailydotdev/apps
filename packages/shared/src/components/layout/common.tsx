@@ -95,7 +95,10 @@ export const SearchControlHeader = ({
     className: { label: 'hidden', chevron: 'hidden', button: '!px-1' },
     dynamicMenuWidth: true,
     shouldIndicateSelected: true,
-    buttonSize: shouldUseListFeedLayout ? ButtonSize.Small : ButtonSize.Medium,
+    buttonSize:
+      shouldUseListFeedLayout && isMobile
+        ? ButtonSize.Small
+        : ButtonSize.Medium,
     iconOnly: true,
     buttonVariant: isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary,
   };
