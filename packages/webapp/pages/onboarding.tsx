@@ -36,6 +36,7 @@ import { NextSeo, NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import {
   useFeature,
+  useFeaturesReadyContext,
   useGrowthBookContext,
 } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import TrustedCompanies from '@dailydotdev/shared/src/components/TrustedCompanies';
@@ -52,9 +53,9 @@ import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
   GtagTracking,
+  logSignUp,
   PixelTracking,
   TiktokTracking,
-  logSignUp,
 } from '@dailydotdev/shared/src/components/auth/OnboardingLogs';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
@@ -66,6 +67,9 @@ import {
 import { ReadingReminder } from '@dailydotdev/shared/src/components/auth/ReadingReminder';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
+import { FeedLayoutPreview } from '@dailydotdev/shared/src/components/auth/FeedLayoutPreview';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -92,6 +96,8 @@ const seo: NextSeoProps = {
 
 export function OnboardPage(): ReactElement {
   const router = useRouter();
+  const { getFeatureValue } = useFeaturesReadyContext();
+  const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
   const { user, isAuthReady, anonymous } = useAuthContext();
   const shouldVerify = anonymous?.shouldVerify;
@@ -104,6 +110,12 @@ export function OnboardPage(): ReactElement {
   const { value: showReadingReminder, isLoading } = useConditionalFeature({
     feature: feature.readingReminder,
     shouldEvaluate: shouldEnrollInReadingReminder,
+  });
+  const [shouldEnrollFeedLayoutPreview, setShouldEnrollFeedLayoutPreview] =
+    useState(false);
+  const { value: showFeedLayoutPreview } = useConditionalFeature({
+    feature: feature.feedLayoutPreview,
+    shouldEvaluate: shouldEnrollFeedLayoutPreview,
   });
   const [auth, setAuth] = useState<AuthProps>({
     isAuthenticating: !!storage.getItem(SIGNIN_METHOD_KEY) || shouldVerify,
@@ -123,10 +135,10 @@ export function OnboardPage(): ReactElement {
   const isPageReady = growthbook?.ready && isAuthReady;
   const { feedSettings } = useFeedSettings();
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const onboardingVisual: OnboardingVisual = useFeature(
     feature.onboardingVisual,
   );
-  const onboardingFlip = useFeature(feature.onboardingFlip);
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
@@ -142,6 +154,15 @@ export function OnboardPage(): ReactElement {
 
     if (activeScreen === OnboardingStep.EditTag && showReadingReminder) {
       return setActiveScreen(OnboardingStep.ReadingReminder);
+    }
+
+    // Since reading reminder is experiment we can't be sure which was the previous
+    if (
+      showFeedLayoutPreview &&
+      (activeScreen === OnboardingStep.ReadingReminder ||
+        activeScreen === OnboardingStep.EditTag)
+    ) {
+      return setActiveScreen(OnboardingStep.FeedLayout);
     }
 
     if (!hasSelectTopics) {
@@ -166,6 +187,19 @@ export function OnboardPage(): ReactElement {
 
   const onClickCreateFeed = () => {
     setShouldEnrollInReadingReminder(true);
+    if (isLaptop) {
+      // Experiment is only for desktop users
+      setShouldEnrollFeedLayoutPreview(true);
+    }
+
+    const onboardingChecklist = getFeatureValue(feature.onboardingChecklist);
+
+    if (onboardingChecklist) {
+      setSettings({
+        sidebarExpanded: true,
+        onboardingChecklistView: ChecklistViewState.Open,
+      });
+    }
   };
 
   // Manual evaluation after feature is loaded to force next from the above onClickCreateFeed function
@@ -264,11 +298,8 @@ export function OnboardPage(): ReactElement {
         className={classNames(
           'flex tablet:flex-1',
           activeScreen === OnboardingStep.Intro
-            ? 'laptop:max-w-[37.5rem]'
+            ? 'tablet:ml-auto laptop:max-w-[37.5rem]'
             : 'mb-10 ml-0 flex w-full flex-col items-center justify-start',
-          activeScreen === OnboardingStep.Intro && onboardingFlip
-            ? 'tablet:mr-auto'
-            : 'tablet:ml-auto',
           activeScreen === OnboardingStep.Intro &&
             onboardingVisual.fullBackground &&
             'flex-1',
@@ -277,6 +308,7 @@ export function OnboardPage(): ReactElement {
         {activeScreen === OnboardingStep.ReadingReminder && (
           <ReadingReminder onClickNext={onClickNext} />
         )}
+        {activeScreen === OnboardingStep.FeedLayout && <FeedLayoutPreview />}
         {activeScreen === OnboardingStep.EditTag && (
           <>
             <Title className="text-center typo-large-title">
@@ -390,16 +422,14 @@ export function OnboardPage(): ReactElement {
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}
         setAuth={setAuth}
-        onClickNext={onClickCreateFeed}
+        onClickCreateFeed={onClickCreateFeed}
+        onClickNext={onClickNext}
         activeScreen={activeScreen}
       />
       <div
         className={classNames(
-          'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:gap-10 tablet:px-6',
+          'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
           activeScreen === OnboardingStep.Intro && wrapperMaxWidth,
-          activeScreen === OnboardingStep.Intro && onboardingFlip
-            ? 'tablet:flex-row-reverse'
-            : 'tablet:flex-row',
           !isAuthenticating && 'mt-7.5 flex-1 content-center',
         )}
       >
@@ -429,9 +459,6 @@ export function OnboardPage(): ReactElement {
           className={classNames(
             'flex h-full max-h-[10rem] w-full px-4 tablet:px-6',
             wrapperMaxWidth,
-            activeScreen === OnboardingStep.Intro &&
-              onboardingFlip &&
-              'flex-row-reverse',
           )}
         >
           <div className="relative flex flex-1 flex-col gap-6 pb-6 tablet:mt-auto laptop:mr-8 laptop:max-w-[27.5rem]">

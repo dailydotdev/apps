@@ -11,7 +11,8 @@ import { OnboardingStep, wrapperMaxWidth } from './common';
 type OnboardingHeaderProps = {
   showOnboardingPage: boolean;
   setAuth: Dispatch<SetStateAction<AuthProps>>;
-  onClickNext: () => void;
+  onClickCreateFeed: () => void;
+  onClickNext?: () => void;
   activeScreen: OnboardingStep;
 };
 
@@ -19,6 +20,7 @@ export const OnboardingHeader = ({
   showOnboardingPage,
   activeScreen,
   setAuth,
+  onClickCreateFeed,
   onClickNext,
 }: OnboardingHeaderProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -42,11 +44,18 @@ export const OnboardingHeader = ({
         />
         <div className="flex w-full max-w-4xl items-center justify-between !px-4 py-10 tablet:!px-6">
           <Logo
-            logoClassName={classNames('h-6')}
+            logoClassName={{ container: 'h-6' }}
             position={LogoPosition.Relative}
           />
           {activeScreen === OnboardingStep.EditTag && (
-            <CreateFeedButton onClick={onClickNext} />
+            <CreateFeedButton onClick={onClickCreateFeed} />
+          )}
+          {activeScreen === OnboardingStep.FeedLayout && (
+            <div className="relative">
+              <Button variant={ButtonVariant.Primary} onClick={onClickNext}>
+                Done, let&apos;s go
+              </Button>
+            </div>
           )}
         </div>
       </header>
@@ -71,7 +80,7 @@ export const OnboardingHeader = ({
     >
       <Logo
         className="w-auto"
-        logoClassName="h-6 tablet:h-8"
+        logoClassName={{ container: 'h-6 tablet:h-8' }}
         position={LogoPosition.Relative}
       />
 

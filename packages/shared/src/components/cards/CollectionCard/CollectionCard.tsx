@@ -36,12 +36,14 @@ export const CollectionCard = forwardRef(function CollectionCard(
       }}
       ref={ref}
       flagProps={{ pinnedAt, trending }}
+      bookmarked={post.bookmarked}
     >
       <CardOverlay post={post} onPostCardClick={onPostCardClick} />
       <CollectionCardHeader
         sources={post.collectionSources}
         totalSources={post.numCollectionSources}
         onMenuClick={(event) => onMenuClick?.(event, post)}
+        bookmarked={post.bookmarked}
       />
       <FreeformCardTitle
         className={classNames(
@@ -70,7 +72,6 @@ export const CollectionCard = forwardRef(function CollectionCard(
           onUpvoteClick={onUpvoteClick}
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}
-          className={classNames('mx-4 mt-auto justify-between')}
           onBookmarkClick={onBookmarkClick}
         />
       </Container>

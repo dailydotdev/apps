@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement, useEffect, useMemo } from 'react';
 import { addDays, isSameDay, subDays } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
@@ -12,6 +12,9 @@ import {
 } from '../../../graphql/users';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { Weekends } from '../../../lib/dateFormat';
+import StreakReminderSwitch from '../StreakReminderSwitch';
+import { useActions } from '../../../hooks';
+import { ActionType } from '../../../graphql/actions';
 
 const getStreak = ({
   value,
@@ -77,6 +80,7 @@ export function ReadingStreakPopup({
   fullWidth,
 }: ReadingStreakPopupProps): ReactElement {
   const { user } = useAuthContext();
+  const { completeAction } = useActions();
   const { data: history } = useQuery<ReadingDay[]>(
     generateQueryKey(RequestKey.ReadingStreak30Days, user),
     () => getReadingStreak30Days(user.id),
@@ -104,23 +108,32 @@ export function ReadingStreakPopup({
     });
   }, [history, dateToday]);
 
+  useEffect(() => {
+    if ([streak.max, streak.current].some((value) => value >= 2)) {
+      completeAction(ActionType.StreakMilestone);
+    }
+  }, [completeAction, streak]);
+
   return (
-    <div className="flex flex-col">
-      <div className="flex flex-row">
-        <StreakSection streak={streak.current} label="Current streak" />
-        <StreakSection streak={streak.max} label="Longest streak 🏆" />
+    <div className="flex flex-col-reverse tablet:flex-col">
+      <div>
+        <div className="flex flex-row">
+          <StreakSection streak={streak.current} label="Current streak" />
+          <StreakSection streak={streak.max} label="Longest streak 🏆" />
+        </div>
+        <div
+          className={classNames(
+            'mt-6 flex flex-row gap-2',
+            fullWidth && 'justify-between',
+          )}
+        >
+          {streaks}
+        </div>
+        <div className="mt-4 text-center font-bold leading-8 text-text-tertiary">
+          Total reading days: {streak.total}
+        </div>
       </div>
-      <div
-        className={classNames(
-          'mt-6 flex flex-row gap-2',
-          fullWidth && 'justify-between',
-        )}
-      >
-        {streaks}
-      </div>
-      <div className="mt-4 text-center font-bold leading-8 text-text-tertiary">
-        Total reading days: {streak.total}
-      </div>
+      <StreakReminderSwitch className="mb-5 mt-1 tablet:mx-auto tablet:mb-0 tablet:mt-4" />
     </div>
   );
 }

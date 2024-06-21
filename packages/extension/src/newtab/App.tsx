@@ -39,11 +39,11 @@ import { useHostStatus } from '@dailydotdev/shared/src/hooks/useHostPermissionSt
 import ExtensionPermissionsPrompt from '@dailydotdev/shared/src/components/ExtensionPermissionsPrompt';
 import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
 import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
+import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
-import { DndContextProvider } from './DndContext';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
 import { useContentScriptStatus } from '../../../shared/src/hooks';

@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { DevCardContainer } from './DevCardContainer';
-import { devCardBoxShadow, DevCardTheme, DevCardType } from './common';
+import { devCardBoxShadow, DevCardType } from './common';
 import { DevCardStats } from './DevCardStats';
 import { DevCardFooter } from './DevCardFooter';
 import Logo from '../../Logo';
@@ -20,10 +20,7 @@ export function DevCardTwitterCover({
       style={{ backgroundImage: `url(${coverImage})` }}
     >
       <div className="flex flex-col items-center">
-        <DevCardContainer
-          theme={DevCardTheme.Default}
-          className="max-w-[21.25rem]"
-        >
+        <DevCardContainer theme={devcard.theme} className="max-w-[21.25rem]">
           <div
             className="flex w-full flex-col-reverse items-center gap-4 rounded-24 p-3"
             style={{ boxShadow: devCardBoxShadow }}
@@ -31,6 +28,7 @@ export function DevCardTwitterCover({
             <DevCardStats
               user={devcard.user}
               articlesRead={devcard.articlesRead}
+              maxStreak={devcard.streak?.max}
             />
             <DevCardFooter
               shouldShowLogo={false}

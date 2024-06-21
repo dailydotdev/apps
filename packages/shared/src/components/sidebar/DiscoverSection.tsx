@@ -1,10 +1,11 @@
-import React, { ReactElement, useCallback, useMemo } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import {
   DiscussIcon,
   EarthIcon,
   HashtagIcon,
   HotIcon,
   SearchIcon,
+  SquadIcon,
   UpvoteIcon,
 } from '../icons';
 import { ListIcon, SidebarMenuItem } from './common';
@@ -16,12 +17,17 @@ import { feature } from '../../lib/featureManagement';
 import { SeoSidebarExperiment } from '../../lib/featureValues';
 import { checkIsExtension } from '../../lib/func';
 import { webappUrl } from '../../lib/constants';
+import { SharedFeedPage } from '../utilities';
+import { OtherFeedPage } from '../../lib/query';
 
 interface DiscoverSectionProps extends SectionCommonProps {
   isItemsButton?: boolean;
   enableSearch?: () => void;
   onNavTabClick?: (page: string) => unknown;
 }
+
+const locationPush = (path: string) => () =>
+  window.location.assign(`${webappUrl}${path}`);
 
 export function DiscoverSection({
   isItemsButton,
@@ -34,26 +40,19 @@ export function DiscoverSection({
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const hasCompletedCommentFeed =
     !isActionsFetched || checkHasCompleted(ActionType.CommentFeed);
-  const locationPush = useCallback((path: string) => {
-    const isExtension = checkIsExtension();
-
-    if (!isExtension) {
-      return null;
-    }
-
-    return window.location.assign(`${webappUrl}${path}`);
-    // router is unstable
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const discoverMenuItems: SidebarMenuItem[] = useMemo(() => {
+    const isExtension = checkIsExtension();
     const feeds = {
       icon: (active: boolean) => (
         <ListIcon Icon={() => <HotIcon secondary={active} />} />
       ),
       title: isV1Sidebar ? 'Explore' : 'Popular',
-      path: isV1Sidebar ? '/explore' : '/popular',
-      action: () => onNavTabClick?.(isV1Sidebar ? 'explore' : 'popular'),
+      path: isV1Sidebar ? '/posts' : '/popular',
+      action: () =>
+        onNavTabClick?.(
+          isV1Sidebar ? OtherFeedPage.Explore : SharedFeedPage.Popular,
+        ),
     };
 
     const discussion = {
@@ -64,7 +63,7 @@ export function DiscoverSection({
       path: '/discussed',
       action: () => {
         completeAction(ActionType.CommentFeed);
-        onNavTabClick?.('discussed');
+        onNavTabClick?.(SharedFeedPage.Discussed);
       },
       ...(!hasCompletedCommentFeed && {
         rightIcon: () => (
@@ -85,7 +84,7 @@ export function DiscoverSection({
           ),
           title: 'Most upvoted',
           path: '/upvoted',
-          action: () => onNavTabClick?.('upvoted'),
+          action: () => onNavTabClick?.(SharedFeedPage.Upvoted),
         },
         {
           icon: (active: boolean) => (
@@ -109,7 +108,7 @@ export function DiscoverSection({
         ),
         title: 'Tags',
         path: '/tags',
-        action: () => locationPush('/tags'),
+        action: isExtension ? locationPush('/tags') : undefined,
       },
       {
         icon: (active: boolean) => (
@@ -117,7 +116,15 @@ export function DiscoverSection({
         ),
         title: 'Sources',
         path: '/sources',
-        action: () => locationPush('/sources'),
+        action: isExtension ? locationPush('/sources') : undefined,
+      },
+      {
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <SquadIcon secondary={active} />} />
+        ),
+        title: 'Leaderboard',
+        path: '/users',
+        action: isExtension ? locationPush('/users') : undefined,
       },
     ];
   }, [
@@ -125,7 +132,6 @@ export function DiscoverSection({
     enableSearch,
     hasCompletedCommentFeed,
     isV1Sidebar,
-    locationPush,
     onNavTabClick,
   ]);
 

@@ -13,11 +13,11 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
-const Explore = (): ReactElement => {
+const Posts = (): ReactElement => {
   return <NextSeo {...seo} />;
 };
 
-Explore.getLayout = getMainFeedLayout;
-Explore.layoutProps = mainFeedLayoutProps;
+Posts.getLayout = getMainFeedLayout;
+Posts.layoutProps = mainFeedLayoutProps;
 
-export default Explore;
+export default Posts;

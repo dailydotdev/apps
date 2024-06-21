@@ -57,6 +57,20 @@ export function ManageSection({
       },
     ];
 
+    if (isV1Sidebar) {
+      return [
+        {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <LinkIcon secondary={active} />} />
+          ),
+          title: 'Submit a link',
+          action: () => openModal({ type: LazyModal.SubmitArticle }),
+          active: modal?.type === LazyModal.SubmitArticle,
+        },
+        ...items,
+      ];
+    }
+
     if (shouldShowDnD) {
       const DndIcon = isDndActive ? PlayIcon : PauseIcon;
       items.push({
@@ -69,30 +83,16 @@ export function ManageSection({
       });
     }
 
-    if (!isV1Sidebar) {
-      return [
-        ...items,
-        {
-          icon: (active: boolean) => (
-            <ListIcon Icon={() => <SettingsIcon secondary={active} />} />
-          ),
-          title: 'Customize',
-          action: () => onShowSettings(true),
-          active: showSettings,
-        },
-      ];
-    }
-
     return [
+      ...items,
       {
         icon: (active: boolean) => (
-          <ListIcon Icon={() => <LinkIcon secondary={active} />} />
+          <ListIcon Icon={() => <SettingsIcon secondary={active} />} />
         ),
-        title: 'Submit a link',
-        action: () => openModal({ type: LazyModal.SubmitArticle }),
-        active: modal?.type === LazyModal.SubmitArticle,
+        title: 'Customize',
+        action: () => onShowSettings(true),
+        active: showSettings,
       },
-      ...items,
     ];
   }, [
     isDndActive,

@@ -37,6 +37,7 @@ import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import {
+  completeActionMock,
   MockedGraphQLResponse,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
@@ -370,6 +371,7 @@ it('should send upvote mutation', async () => {
         return { data: { _: true } };
       },
     },
+    completeActionMock({ action: ActionType.VotePost }),
   ]);
   const el = await screen.findByLabelText('Upvote');
   fireEvent.click(el);
@@ -399,6 +401,7 @@ it('should send cancel upvote mutation', async () => {
         return { data: { _: true } };
       },
     },
+    completeActionMock({ action: ActionType.VotePost }),
   ]);
   const el = await screen.findByLabelText('Upvote');
   fireEvent.click(el);
@@ -591,6 +594,7 @@ it('should send remove bookmark mutation from remove bookmark action', async () 
         return { data: { _: true } };
       },
     },
+    completeActionMock({ action: ActionType.BookmarkPost }),
   ]);
   await new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -607,7 +611,10 @@ it('should not show TLDR when there is no summary', async () => {
 });
 
 it('should show TLDR when there is a summary', async () => {
-  renderPost({}, [createPostMock({ summary: 'test summary' })]);
+  renderPost({}, [
+    createPostMock({ summary: 'test summary' }),
+    completeActionMock({ action: ActionType.BookmarkPost }),
+  ]);
   const el = await screen.findByText('TLDR');
   expect(el).toBeInTheDocument();
   // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
@@ -621,6 +628,7 @@ it('should toggle TLDR on click', async () => {
       summary:
         "Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book type specimen book type specimen book type specimen book type.Ipsum is simply dummy text of the printing and typesetting industry. book type.Ipsum is simply dummy text of the printing and typesetting industry.",
     }),
+    completeActionMock({ action: ActionType.BookmarkPost }),
   ]);
   const el = await screen.findByText('TLDR');
   expect(el).toBeInTheDocument();
@@ -688,6 +696,7 @@ it('should send downvote mutation', async () => {
         return { data: { _: true } };
       },
     },
+    completeActionMock({ action: ActionType.VotePost }),
   ]);
 
   const el = await screen.findByLabelText('Downvote');
@@ -719,6 +728,7 @@ it('should send cancel downvote mutation', async () => {
         return { data: { _: true } };
       },
     },
+    completeActionMock({ action: ActionType.VotePost }),
   ]);
 
   const el = await screen.findByLabelText('Downvote');
@@ -750,6 +760,7 @@ it('should decrement number of upvotes if downvoting post that was upvoted', asy
         return { data: { _: true } };
       },
     },
+    completeActionMock({ action: ActionType.VotePost }),
   ]);
 
   const downvote = await screen.findByLabelText('Downvote');
@@ -808,6 +819,7 @@ describe('downvote flow', () => {
         },
         result: () => ({ data: { _: true } }),
       },
+      completeActionMock({ action: ActionType.VotePost }),
     ]);
     const downvote = await screen.findByLabelText('Downvote');
     fireEvent.click(downvote);

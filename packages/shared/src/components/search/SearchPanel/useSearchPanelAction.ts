@@ -1,4 +1,4 @@
-import { HTMLAttributes, useContext } from 'react';
+import { HTMLAttributes, ReactElement, useContext } from 'react';
 import { SearchProviderEnum } from '../../../graphql/search';
 import { SearchPanelContext } from './SearchPanelContext';
 import { providerToLabelTextMap } from './common';
@@ -6,6 +6,7 @@ import { providerToLabelTextMap } from './common';
 export type UseSearchPanelActionProps = {
   provider: SearchProviderEnum;
   text?: string;
+  icon?: ReactElement;
 };
 
 export type UseSearchPanelAction = {
@@ -18,6 +19,7 @@ export type UseSearchPanelAction = {
 export const useSearchPanelAction = ({
   provider,
   text,
+  icon,
 }: UseSearchPanelActionProps): UseSearchPanelAction => {
   const searchPanel = useContext(SearchPanelContext);
 
@@ -25,6 +27,7 @@ export const useSearchPanelAction = ({
     searchPanel.setProvider({
       provider,
       text: text || providerToLabelTextMap[provider],
+      icon,
     });
   };
 

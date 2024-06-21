@@ -82,6 +82,8 @@ export interface AuthProps {
 interface ClassName {
   container?: string;
   onboardingSignup?: string;
+  onboardingForm?: string;
+  onboardingDivider?: string;
 }
 
 export interface AuthOptionsProps {
@@ -407,7 +409,11 @@ function AuthOptions({
         </Tab>
         <Tab label={AuthDisplay.Registration}>
           <RegistrationForm
-            onBack={() => onSetActiveDisplay(defaultDisplay)}
+            onBack={
+              defaultDisplay !== AuthDisplay.Registration
+                ? () => onSetActiveDisplay(defaultDisplay)
+                : undefined
+            }
             formRef={formRef}
             simplified={simplified}
             email={email}
@@ -442,7 +448,7 @@ function AuthOptions({
             isReady={isReady}
             simplified={simplified}
             targetId={targetId}
-            className={className?.onboardingSignup}
+            className={className}
             onboardingSignupButton={onboardingSignupButton}
           />
         </Tab>

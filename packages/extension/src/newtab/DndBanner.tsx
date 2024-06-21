@@ -1,14 +1,14 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { MiniCloseIcon as XIcon } from '@dailydotdev/shared/src/components/icons';
-import DndContext from './DndContext';
+import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
 
 export default function DndBanner(): ReactElement {
-  const { onDndSettings } = useContext(DndContext);
+  const { onDndSettings } = useDndContext();
 
   const turnOff = () => onDndSettings(null);
 

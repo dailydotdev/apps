@@ -17,15 +17,25 @@ import defaultFeedPage from '../../../__tests__/fixture/feed';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import FurtherReading from './FurtherReading';
 import {
+  completeActionMock,
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import post from '../../../__tests__/fixture/post';
 import { AuthTriggers } from '../../lib/auth';
-import { COMPLETE_ACTION_MUTATION } from '../../graphql/actions';
+import { ActionType } from '../../graphql/actions';
 
 const showLogin = jest.fn();
+
+jest.mock('../../hooks/useBookmarkProvider', () => ({
+  __esModule: true,
+  default: jest
+    .fn()
+    .mockImplementation((): { highlightBookmarkedPost: boolean } => ({
+      highlightBookmarkedPost: false,
+    })),
+}));
 
 beforeEach(() => {
   jest.restoreAllMocks();
@@ -138,15 +148,7 @@ it('should show number of upvotes and comments', async () => {
 
 it('should send add bookmark mutation', async () => {
   let mutationCalled = false;
-  mockGraphQL({
-    request: {
-      query: COMPLETE_ACTION_MUTATION,
-      variables: { type: 'bookmark_promote_mobile' },
-    },
-    result: () => {
-      return { data: {} };
-    },
-  });
+  mockGraphQL(completeActionMock({ action: ActionType.BookmarkPromoteMobile }));
   renderComponent([
     createFeedMock(),
     {
@@ -159,6 +161,7 @@ it('should send add bookmark mutation', async () => {
         return { data: { _: true } };
       },
     },
+    completeActionMock({ action: ActionType.BookmarkPost }),
   ]);
   const [el] = await screen.findAllByLabelText('Bookmark');
   el.click();
@@ -168,6 +171,7 @@ it('should send add bookmark mutation', async () => {
 
 it('should send remove bookmark mutation', async () => {
   let mutationCalled = false;
+  mockGraphQL(completeActionMock({ action: ActionType.BookmarkPromoteMobile }));
   renderComponent([
     createFeedMock([
       { ...defaultFeedPage.edges[0].node, trending: 50, bookmarked: true },
@@ -182,6 +186,7 @@ it('should send remove bookmark mutation', async () => {
         return { data: { _: true } };
       },
     },
+    completeActionMock({ action: ActionType.BookmarkPost }),
   ]);
   const [el] = await screen.findAllByLabelText('Remove bookmark');
   await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'true'));

@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React, { ReactElement, useContext, useMemo } from 'react';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { useActiveFeedNameContext } from '../../contexts';
 import useActiveNav from '../../hooks/useActiveNav';
@@ -29,11 +30,24 @@ import {
 } from '../../lib/featureValues';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
+import { SharedFeedPage } from '../utilities';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { OtherFeedPage } from '../../lib/query';
+
+const OnboardingChecklistBar = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "onboardingChecklistBar" */ '../checklist/OnboardingChecklistBar'
+    ),
+);
 
 enum FeedNavTab {
   ForYou = 'For you',
   Popular = 'Popular',
   Explore = 'Explore',
+  Tags = 'Tags',
+  Sources = 'Sources',
+  Leaderboard = 'Leaderboard',
   Bookmarks = 'Bookmarks',
   History = 'History',
   MostUpvoted = 'Most Upvoted',
@@ -48,6 +62,7 @@ const StickyNavIconWrapper = classed(
 
 function FeedNav(): ReactElement {
   const router = useRouter();
+  const { isLoggedIn } = useAuthContext();
   const { feedName } = useActiveFeedNameContext();
   const { sortingEnabled } = useContext(SettingsContext);
   const { isSortableFeed } = useFeedName({ feedName });
@@ -93,15 +108,22 @@ function FeedNav(): ReactElement {
     };
 
     if (seoSidebar === SeoSidebarExperiment.V1) {
-      urls[`${webappUrl}explore`] = FeedNavTab.Explore;
+      urls[`${webappUrl}${OtherFeedPage.Explore}`] = FeedNavTab.Explore;
     } else {
-      urls[`${webappUrl}popular`] = FeedNavTab.Popular;
-      urls[`${webappUrl}upvoted`] = FeedNavTab.MostUpvoted;
+      urls[`${webappUrl}${SharedFeedPage.Popular}`] = FeedNavTab.Popular;
+      urls[`${webappUrl}${SharedFeedPage.Upvoted}`] = FeedNavTab.MostUpvoted;
+    }
+
+    urls[`${webappUrl}${SharedFeedPage.Discussed}`] = FeedNavTab.Discussions;
+
+    if (seoSidebar === SeoSidebarExperiment.V1) {
+      urls[`${webappUrl}tags`] = FeedNavTab.Tags;
+      urls[`${webappUrl}sources`] = FeedNavTab.Sources;
+      urls[`${webappUrl}users`] = FeedNavTab.Leaderboard;
     }
 
     return {
       ...urls,
-      [`${webappUrl}discussed`]: FeedNavTab.Discussions,
       [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
       [`${webappUrl}history`]: FeedNavTab.History,
     };
@@ -117,6 +139,8 @@ function FeedNav(): ReactElement {
     return null;
   }
 
+  const checklistBarElement = isLoggedIn ? <OnboardingChecklistBar /> : null;
+
   return (
     <div
       className={classNames(
@@ -124,7 +148,13 @@ function FeedNav(): ReactElement {
         scrollClassName,
       )}
     >
-      {isMobile && <MobileFeedActions />}
+      {!isMobile && checklistBarElement}
+      {isMobile && (
+        <>
+          <MobileFeedActions />
+          {checklistBarElement}
+        </>
+      )}
       <div className="mb-4 h-[3.25rem] tablet:mb-0">
         <TabContainer
           controlledActive={urlToTab[router.asPath] ?? ''}

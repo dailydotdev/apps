@@ -30,7 +30,6 @@ import { postLogEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
 import {
   ToastSubject,
-  useConditionalFeature,
   useFeedLayout,
   useSourceSubscription,
   useToastNotification,
@@ -46,11 +45,9 @@ import { labels } from '../lib';
 import { MenuItemProps } from './fields/ContextMenu';
 import { ActiveFeedContext } from '../contexts';
 import { useAdvancedSettings } from '../hooks/feed';
-import { feature } from '../lib/featureManagement';
 import { ContextMenu as ContextMenuTypes } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
 import { SourceType } from '../graphql/sources';
-import { isNullOrUndefined } from '../lib/func';
 import { useSharePost } from '../hooks/useSharePost';
 
 const ContextMenu = dynamic(
@@ -280,21 +277,6 @@ export default function PostOptionsMenu({
 
   const postOptions: MenuItemProps[] = [
     {
-      icon: <MenuIcon Icon={EyeIcon} />,
-      label: 'Hide',
-      action: onHidePost,
-    },
-  ];
-
-  const { isListFeedLayout } = useFeedLayout();
-
-  const { value: shareVia } = useConditionalFeature({
-    feature: feature.shareVia,
-    shouldEvaluate: !isNullOrUndefined(post),
-  });
-
-  if (shareVia) {
-    postOptions.unshift({
       icon: <MenuIcon Icon={ShareIcon} />,
       label: 'Share via',
       action: () =>
@@ -302,8 +284,15 @@ export default function PostOptionsMenu({
           post,
           ...logOpts,
         }),
-    });
-  }
+    },
+    {
+      icon: <MenuIcon Icon={EyeIcon} />,
+      label: 'Hide',
+      action: onHidePost,
+    },
+  ];
+
+  const { isListFeedLayout } = useFeedLayout();
 
   if (!isListFeedLayout) {
     postOptions.push({

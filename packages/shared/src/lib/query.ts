@@ -15,9 +15,12 @@ import { SharedFeedPage } from '../components/utilities';
 
 export enum OtherFeedPage {
   Tag = 'tag',
+  Tags = 'tags',
   Squad = 'squads',
   SquadPage = 'squads[handle]',
   Source = 'source',
+  Sources = 'sources',
+  Leaderboard = 'users',
   Bookmarks = 'bookmarks',
   SearchBookmarks = 'search-bookmarks',
   Preview = 'preview',
@@ -32,6 +35,10 @@ export enum OtherFeedPage {
   SourceBestDiscussed = 'sources[source]/best-discussed',
   TagsMostUpvoted = 'tags[tag]/most-upvoted',
   TagsBestDiscussed = 'tags[tag]/best-discussed',
+  Explore = 'posts',
+  ExploreLatest = 'postslatest',
+  ExploreDiscussed = 'postsdiscussed',
+  ExploreUpvoted = 'postsupvoted',
 }
 
 const ONE_MINUTE = 60 * 1000;

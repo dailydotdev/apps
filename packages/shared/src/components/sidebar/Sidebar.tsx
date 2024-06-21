@@ -2,6 +2,7 @@ import React, { ReactElement, useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 import SettingsContext from '../../contexts/SettingsContext';
 import {
   Nav,
@@ -59,6 +60,13 @@ import {
 } from '../../lib/featureValues';
 import { feature } from '../../lib/featureManagement';
 import { HypeButton } from '../referral';
+
+const SidebarOnboardingChecklistCard = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "sidebarOnboardingChecklistCard" */ '../checklist/SidebarOnboardingChecklistCard'
+    ),
+);
 
 export default function Sidebar({
   promotionalBannerActive = false,
@@ -331,6 +339,7 @@ export default function Sidebar({
             {...defaultRenderSectionProps}
             showSettings={showSettings}
           />
+          {isLoggedIn && sidebarExpanded && <SidebarOnboardingChecklistCard />}
         </SidebarScrollWrapper>
       </SidebarAside>
     </>

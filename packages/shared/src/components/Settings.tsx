@@ -2,6 +2,7 @@ import React, {
   HTMLAttributes,
   ReactElement,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -11,6 +12,7 @@ import classed from '../lib/classed';
 import { Radio } from './fields/Radio';
 import { Switch } from './fields/Switch';
 import SettingsContext, {
+  ThemeMode,
   themes as layoutThemes,
 } from '../contexts/SettingsContext';
 import { CardIcon, LineIcon } from './icons';
@@ -18,6 +20,9 @@ import { CustomSwitch } from './fields/CustomSwitch';
 import { checkIsExtension } from '../lib/func';
 import AuthContext from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
+import { useViewSize, ViewSize } from '../hooks';
+import { LogEvent, TargetId, TargetType } from '../lib/log';
+import { useLogContext } from '../contexts/LogContext';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -61,6 +66,7 @@ export default function Settings({
 }: HTMLAttributes<HTMLDivElement>): ReactElement {
   const isExtension = checkIsExtension();
   const { user, showLogin } = useContext(AuthContext);
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   const {
     spaciness,
@@ -82,6 +88,7 @@ export default function Settings({
     optOutReadingStreak,
     toggleOptOutReadingStreak,
   } = useContext(SettingsContext);
+  const { logEvent } = useLogContext();
   const [themes, setThemes] = useState(layoutThemes);
 
   const onToggleForLoggedInUsers = (
@@ -105,38 +112,70 @@ export default function Settings({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const onThemeToggle = useCallback(
+    (newThemeMode: ThemeMode) => {
+      logEvent({
+        event_name: LogEvent.ChangeSettings,
+        target_type: TargetType.Theme,
+        target_id: newThemeMode,
+      });
+      return setTheme(newThemeMode);
+    },
+    [logEvent, setTheme],
+  );
+
+  const onLayoutToggle = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.ChangeSettings,
+      target_type: TargetType.Layout,
+      target_id: insaneMode ? TargetId.Cards : TargetId.List,
+    });
+    return toggleInsaneMode();
+  }, [insaneMode, logEvent, toggleInsaneMode]);
+
   return (
     <div className={classNames('flex', 'flex-col', className)} {...props}>
-      <Section className="!mt-0">
-        <SectionTitle>Layout</SectionTitle>
-        <CustomSwitch
-          inputId="layout-switch"
-          name="insaneMode"
-          leftContent={<CardIcon secondary={!insaneMode} />}
-          rightContent={<LineIcon secondary={insaneMode} />}
-          checked={insaneMode}
-          className="mx-1.5"
-          onToggle={toggleInsaneMode}
-        />
-      </Section>
-      <Section>
+      {isLaptop && (
+        <Section className="!mt-0">
+          <SectionTitle>Layout</SectionTitle>
+          <CustomSwitch
+            inputId="layout-switch"
+            name="insaneMode"
+            leftContent={<CardIcon secondary={!insaneMode} />}
+            rightContent={<LineIcon secondary={insaneMode} />}
+            checked={insaneMode}
+            className="mx-1.5"
+            onToggle={onLayoutToggle}
+          />
+        </Section>
+      )}
+      <Section className={!isLaptop && '!mt-0'}>
         <SectionTitle>Theme</SectionTitle>
         <Radio
           name="theme"
           options={themes}
           value={themeMode}
-          onChange={setTheme}
+          onChange={onThemeToggle}
         />
       </Section>
-      <Section>
-        <SectionTitle>Density</SectionTitle>
-        <Radio
-          name="density"
-          options={densities}
-          value={spaciness}
-          onChange={setSpaciness}
-        />
-      </Section>
+      {isLaptop && (
+        <Section>
+          <SectionTitle>Density</SectionTitle>
+          <Radio
+            name="density"
+            options={densities}
+            value={spaciness}
+            onChange={setSpaciness}
+            tooltip={
+              insaneMode && {
+                content: 'Density will be fixed for the list mode layout',
+                placement: 'top-start',
+              }
+            }
+            disabled={insaneMode}
+          />
+        </Section>
+      )}
       <Section>
         <SectionTitle>Preferences</SectionTitle>
         <SectionContent>

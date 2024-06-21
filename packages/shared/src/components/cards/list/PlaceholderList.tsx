@@ -24,10 +24,16 @@ export const PlaceholderList = forwardRef(function PlaceholderCard(
         </CardSpace>
       </CardTextContainer>
       <CardSpace className="my-4">
-        <Text className="h-4 w-3/4" />
-        <Text className="mt-2 h-4 w-1/2" />
+        <CardSpace className="flex">
+          <CardSpace className="flex flex-col">
+            <Text className="h-4 w-3/4" />
+            <Text className="mt-2 h-4 w-1/2" />
+            <CardSpace className="flex" />
+            <Text className="h-10 w-56" />
+          </CardSpace>
+          <ElementPlaceholder className="h-auto max-h-[12.5rem] min-h-[10rem] w-full rounded-16 mobileXL:max-h-40 mobileXL:w-40 mobileXXL:max-h-56 mobileXXL:w-56" />
+        </CardSpace>
       </CardSpace>
-      <ElementPlaceholder className="h-50 rounded-16" />
     </ListCard>
   );
 });

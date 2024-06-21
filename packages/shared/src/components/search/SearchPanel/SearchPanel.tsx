@@ -22,7 +22,7 @@ import { SearchPanelPostSuggestions } from './SearchPanelPostSuggestions';
 import SettingsContext from '../../../contexts/SettingsContext';
 import { useConditionalFeature, useEventListener } from '../../../hooks';
 import { defaultSearchProvider, providerToLabelTextMap } from './common';
-import { ArrowKeyEnum } from '../../../lib/func';
+import { ArrowKeyEnum, isExtension } from '../../../lib/func';
 import { ArrowIcon } from '../../icons';
 import { useSearchProvider } from '../../../hooks/search';
 import { SearchPanelCustomAction } from './SearchPanelCustomAction';
@@ -30,6 +30,7 @@ import { LogEvent } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
 import { SearchPanelTagSuggestions } from './SearchPanelTagSuggestions';
 import { feature } from '../../../lib/featureManagement';
+import { SearchPanelSourceSuggestions } from './SearchPanelSourceSuggestions';
 
 export type SearchPanelProps = {
   className?: SearchPanelClassName;
@@ -52,6 +53,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
       query: '',
       isActive: false,
       providerText: undefined,
+      providerIcon: undefined,
     };
   });
 
@@ -76,9 +78,14 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
   const searchPanel = useMemo<SearchPanelContextValue>(() => {
     return {
       ...state,
-      setProvider: ({ provider, text }) => {
+      setProvider: ({ provider, text, icon }) => {
         setState((currentState) => {
-          return { ...currentState, provider, providerText: text || undefined };
+          return {
+            ...currentState,
+            provider,
+            providerText: text || undefined,
+            providerIcon: icon || undefined,
+          };
         });
       },
       setActive: ({ isActive }) => {
@@ -142,8 +149,8 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
   const showDropdown =
     state.isActive && state.query.length >= minSearchQueryLength;
 
-  const { value: isGoogleSearchEnabled } = useConditionalFeature({
-    feature: feature.searchGoogle,
+  const { value: isSourceSearchEnabled } = useConditionalFeature({
+    feature: feature.searchSources,
     shouldEvaluate: showDropdown,
   });
 
@@ -169,6 +176,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
                 // reset provider label while typing
                 provider: undefined,
                 providerText: providerToLabelTextMap[defaultSearchProvider],
+                providerIcon: undefined,
               };
             });
           }}
@@ -190,11 +198,14 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
               <div className="flex flex-1 flex-col">
                 <SearchPanelAction provider={SearchProviderEnum.Posts} />
                 <SearchPanelAction provider={SearchProviderEnum.Chat} />
-                {isGoogleSearchEnabled && (
+                {isExtension && (
                   <SearchPanelAction provider={SearchProviderEnum.Google} />
                 )}
                 <SearchPanelTagSuggestions title="Tags" />
                 <SearchPanelPostSuggestions title="Posts on daily.dev" />
+                {isSourceSearchEnabled && (
+                  <SearchPanelSourceSuggestions title="Sources" />
+                )}
                 <SearchPanelCustomAction
                   provider={SearchProviderEnum.Posts}
                   onClick={() => {
