@@ -19,6 +19,7 @@ export type MarketingCtaFlags = {
 export enum MarketingCtaVariant {
   Card = 'card',
   Popover = 'popover',
+  PopoverSmall = 'popover_small',
 }
 
 export interface MarketingCta {
