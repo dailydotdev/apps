@@ -104,7 +104,13 @@ module.exports = withTM(
           return [
               {
                   source: '/:path*',
-                  headers: securityHeaders
+                  headers: [
+                    ...securityHeaders,
+                    {
+                      key: 'X-Recruiting',
+                      value: 'We are hiring! Check https://daily.dev/careers for more info!'
+                    },
+                  ]
               }
           ]
         },
