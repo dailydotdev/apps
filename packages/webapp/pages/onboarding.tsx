@@ -56,7 +56,6 @@ import {
   logSignUp,
   PixelTracking,
   TiktokTracking,
-  HotJarTracking,
 } from '@dailydotdev/shared/src/components/auth/OnboardingLogs';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
@@ -417,7 +416,6 @@ export function OnboardPage(): ReactElement {
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
       <PixelTracking />
       <GtagTracking />
-      <HotJarTracking />
       <TiktokTracking />
       {getProgressBar()}
       {showGenerigLoader && <GenericLoader />}
