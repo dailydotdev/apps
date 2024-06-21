@@ -94,7 +94,7 @@ export const useFeedLayout = ({
   feedRelated = true,
 }: UseFeedLayoutProps = {}): UseFeedLayoutReturn => {
   const isLaptopSize = useViewSize(ViewSize.Laptop);
-  const isLaptop = isNullOrUndefined(isLaptopSize) ? true : isLaptopSize;
+  const isLaptop = isNullOrUndefined(isLaptopSize) || isLaptopSize;
   const { feedName } = useActiveFeedNameContext();
   const { insaneMode: isListMode } = useContext(SettingsContext);
 
