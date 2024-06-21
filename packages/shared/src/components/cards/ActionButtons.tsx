@@ -21,10 +21,10 @@ import { useFeedPreviewMode } from '../../hooks';
 
 export interface ActionButtonsProps {
   post: Post;
-  onUpvoteClick?: (post: Post) => unknown;
-  onCommentClick?: (post: Post) => unknown;
-  onBookmarkClick?: (post: Post) => unknown;
-  onCopyLinkClick?: (event: React.MouseEvent, post: Post) => unknown;
+  onUpvoteClick: (post: Post) => unknown;
+  onCommentClick: (post: Post) => unknown;
+  onBookmarkClick: (post: Post) => unknown;
+  onCopyLinkClick: (event: React.MouseEvent, post: Post) => unknown;
   className?: string;
 }
 
