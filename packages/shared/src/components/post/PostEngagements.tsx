@@ -21,6 +21,7 @@ import { PostContentShare } from './common/PostContentShare';
 import { SourceType } from '../../graphql/sources';
 import { useActions } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
+import { AdAsComment } from '../comments/AdAsComment';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -104,6 +105,7 @@ function PostEngagements({
         ref={commentRef}
         onCommented={onCommented}
       />
+      <AdAsComment />
       <PostComments
         post={post}
         origin={logOrigin}
