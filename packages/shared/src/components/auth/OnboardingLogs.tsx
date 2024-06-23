@@ -124,6 +124,7 @@ export const TiktokTracking = (): ReactElement => {
 
 interface LogSignUpProps {
   experienceLevel: keyof typeof UserExperienceLevel;
+  instanceId?: string;
 }
 
 const EXPERIENCE_TO_SENIORITY: Record<
@@ -139,9 +140,16 @@ const EXPERIENCE_TO_SENIORITY: Record<
   NOT_ENGINEER: 'not_engineer',
 };
 
-export const logSignUp = ({ experienceLevel }: LogSignUpProps): void => {
+export const logSignUp = ({
+  experienceLevel,
+  instanceId,
+}: LogSignUpProps): void => {
   if (typeof globalThis.gtag === 'function') {
-    globalThis.gtag('event', 'signup');
+    let props: Record<string, unknown>;
+    if (instanceId) {
+      props = { client_id: instanceId };
+    }
+    globalThis.gtag('event', 'signup', props);
   }
 
   if (typeof globalThis.fbq === 'function') {
