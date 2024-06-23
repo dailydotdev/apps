@@ -1,7 +1,6 @@
 alert("Port script loaded!");
 
 window.addEventListener("message", function (event) {
-  alert("Port script received message!");
   // We are receiveing messages from any origin, you can check of the origin by
   // using event.origin
 
