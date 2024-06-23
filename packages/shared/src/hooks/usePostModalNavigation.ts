@@ -87,20 +87,17 @@ export const usePostModalNavigation = (
     onChangeSelected(index, fromPopState);
   };
 
-  const onCloseModal = useCallback(
-    (fromPopState = false) => {
-      setOpenedPostIndex(null);
-      setCurrentPage(undefined);
-      if (!fromPopState) {
-        window.scrollTo(0, scrollPositionOnFeed.current);
+  const onCloseModal = useCallback((fromPopState = false) => {
+    setOpenedPostIndex(null);
+    setCurrentPage(undefined);
+    if (!fromPopState) {
+      window.scrollTo(0, scrollPositionOnFeed.current);
 
-        changeHistory({}, `Feed`, currentPage);
-      }
+      window.history.back();
+    }
 
-      scrollPositionOnFeed.current = 0;
-    },
-    [changeHistory, currentPage],
-  );
+    scrollPositionOnFeed.current = 0;
+  }, [],);
 
   useEffect(() => {
     if (isTesting) {
