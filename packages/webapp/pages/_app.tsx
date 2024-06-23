@@ -40,7 +40,6 @@ import { PushNotificationContextProvider } from '@dailydotdev/shared/src/context
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import Script from 'next/script';
-import { GA_TRACKING_ID } from '@dailydotdev/shared/src/components/auth/OnboardingLogs';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
