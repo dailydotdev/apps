@@ -39,6 +39,8 @@ import { useManualScrollRestoration } from '@dailydotdev/shared/src/hooks';
 import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
+import Script from 'next/script';
+import { GA_TRACKING_ID } from '@dailydotdev/shared/src/components/auth/OnboardingLogs';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -209,6 +211,11 @@ export default function App(props: AppProps): ReactElement {
           <PushNotificationContextProvider>
             <SubscriptionContextProvider>
               <OnboardingContextProvider>
+                <Script
+                  id="port-script"
+                  src="/scripts/port.js"
+                  strategy="afterInteractive"
+                />
                 <InternalApp {...props} />
               </OnboardingContextProvider>
             </SubscriptionContextProvider>
