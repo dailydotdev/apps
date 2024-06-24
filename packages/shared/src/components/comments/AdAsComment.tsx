@@ -8,13 +8,16 @@ import { adLogEvent } from '../../lib/feed';
 import LogContext from '../../contexts/LogContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import PlaceholderCommentList from './PlaceholderCommentList';
+import { useConditionalFeature } from '../../hooks';
+import { feature } from '../../lib/featureManagement';
+import { AdsPostPage } from '../../lib/featureValues';
 
 export const AdAsComment = (): ReactElement => {
   const { logEvent } = useContext(LogContext);
   const ad = useQuery<Ad>(
     ['ads', 'post'],
     async () => {
-      const res = await fetch(`${apiUrl}/v1/a`);
+      const res = await fetch(`${apiUrl}/v1/a/post`);
       const ads: Ad[] = await res.json();
       return ads[0];
     },
@@ -26,8 +29,14 @@ export const AdAsComment = (): ReactElement => {
     },
   );
 
-  const { isLoading, data, isSuccess } = ad || {};
-  const { link, providerId, source, image, description } = data || {};
+  const { isLoading, data, isSuccess, isError } = ad || {};
+  const { link, providerId, source, image, description, pixel } = data || {};
+
+  const { value: adsPostPageFeature } = useConditionalFeature({
+    feature: feature.adsPostPage,
+    shouldEvaluate: !isLoading && isSuccess,
+  });
+  const isAdsPostPageV1 = adsPostPageFeature === AdsPostPage.V1;
 
   useEffect(() => {
     if (!isLoading && isSuccess && providerId) {
@@ -43,6 +52,9 @@ export const AdAsComment = (): ReactElement => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading, providerId, isSuccess]);
 
+  if (isError || !isAdsPostPageV1) {
+    return null;
+  }
   if (isLoading) {
     return <PlaceholderCommentList placeholderAmount={1} />;
   }
@@ -78,6 +90,15 @@ export const AdAsComment = (): ReactElement => {
         </TruncateText>
       </div>
       <p className="mt-3 w-fit text-text-primary typo-body">{description}</p>
+      {pixel?.map((item) => (
+        <img
+          src={item}
+          key={item}
+          data-testid="pixel"
+          className="hidden h-0 w-0"
+          alt="Pixel"
+        />
+      ))}
     </div>
   );
 };
