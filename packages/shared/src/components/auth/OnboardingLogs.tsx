@@ -4,7 +4,7 @@ import { isProduction } from '../../lib/constants';
 import { UserExperienceLevel } from '../../lib/user';
 
 export const FB_PIXEL_ID = '519268979315924';
-export const GA_TRACKING_ID = 'G-T0967GPY29';
+export const GA_TRACKING_ID = 'G-VTGLXD7QSN';
 export const TWITTER_TRACKING_ID = 'o6izs';
 export const REDDIT_TRACKING_ID = 't2_j1li1n7e';
 export const TIKTOK_TRACKING_ID = 'CO2RCPBC77U37LT1TAIG';
