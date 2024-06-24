@@ -142,7 +142,6 @@ export interface Ad {
   providerId?: string;
   renderTracked?: boolean;
   impressionStatus?: number;
-  id?: string;
 }
 
 export type ReadHistoryPost = Pick<
