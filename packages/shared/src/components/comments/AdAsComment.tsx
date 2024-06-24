@@ -8,7 +8,7 @@ import { adLogEvent } from '../../lib/feed';
 import LogContext from '../../contexts/LogContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import PlaceholderCommentList from './PlaceholderCommentList';
-import { generateQueryKey, RequestKey } from '../../lib/query';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import AuthContext from '../../contexts/AuthContext';
 
 interface AdAsCommentProps {
@@ -30,6 +30,7 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
       refetchOnMount: false,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
+      staleTime: StaleTime.OneHour,
     },
   );
 
