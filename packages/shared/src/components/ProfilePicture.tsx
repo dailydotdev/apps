@@ -28,6 +28,7 @@ export interface ProfilePictureProps
   rounded?: ProfileImageRoundSize;
   className?: string;
   nativeLazyLoading?: boolean;
+  fallbackSrc?: string;
 }
 
 export const sizeClasses: Record<ProfileImageSize, string> = {
@@ -82,6 +83,7 @@ function ProfilePictureComponent(
     className,
     nativeLazyLoading,
     eager,
+    fallbackSrc,
     ...props
   }: ProfilePictureProps,
   ref?: Ref<HTMLImageElement>,
@@ -118,7 +120,7 @@ function ProfilePictureComponent(
       imgSrc={user.image}
       imgAlt={`${user.username || user.id}'s profile`}
       className={classes}
-      fallbackSrc={fallbackImages.avatar}
+      fallbackSrc={fallbackSrc ?? fallbackImages.avatar}
     />
   );
 }
