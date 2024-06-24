@@ -39,7 +39,6 @@ const feature = {
   shortcutsUI: new Feature('shortcuts_ui', ShortcutsUIExperiment.Control),
   showRoadmap: new Feature('show_roadmap', false),
   seoSidebar: new Feature('seo_sidebar', SeoSidebarExperiment.Control),
-  searchSources: new Feature('search_sources', false),
   bookmark_provider: new Feature('bookmark_provider', false),
   onboardingChecklist: new Feature('onboarding_checklist', false),
   feedLayoutPreview: new Feature('feed_layout_preview', false),
