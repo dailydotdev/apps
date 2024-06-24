@@ -1,12 +1,12 @@
 import React, { ReactElement, useCallback, useEffect, useRef } from 'react';
-import { Card } from '../Card';
-import { CardCover } from '../common/CardCover';
+import { ListCard } from '../cards/list/ListCard';
+import { useBoot } from '../../hooks';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent, TargetType } from '../../lib/log';
 import { CTAButton, Description, Header, MarketingCta, Title } from './common';
-import { useBoot } from '../../../hooks';
-import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent, TargetType } from '../../../lib/log';
+import { CardCoverList } from '../cards/list/CardCover';
 
-export function MarketingCtaCard({
+export function MarketingCtaList({
   marketingCta,
 }: {
   marketingCta: MarketingCta;
@@ -15,10 +15,10 @@ export function MarketingCtaCard({
     marketingCta.flags;
   const { clearMarketingCta } = useBoot();
   const { logEvent } = useLogContext();
-  const isImpressionTracked = useRef(false);
+  const isImpressionLogged = useRef(false);
 
   useEffect(() => {
-    if (isImpressionTracked.current) {
+    if (isImpressionLogged.current) {
       return;
     }
 
@@ -27,7 +27,7 @@ export function MarketingCtaCard({
       target_type: TargetType.PromotionCard,
       target_id: marketingCta.campaignId,
     });
-    isImpressionTracked.current = true;
+    isImpressionLogged.current = true;
   }, [marketingCta.campaignId, logEvent]);
 
   const onCtaClick = useCallback(() => {
@@ -49,14 +49,14 @@ export function MarketingCtaCard({
   }, [clearMarketingCta, marketingCta.campaignId, logEvent]);
 
   return (
-    <Card className="p-4">
+    <ListCard className="p-4">
       {tagColor && tagText && (
         <Header tagColor={tagColor} tagText={tagText} onClose={onCtaDismiss} />
       )}
       <Title>{title}</Title>
       {description && <Description>{description}</Description>}
       {image && (
-        <CardCover
+        <CardCoverList
           imageProps={{
             loading: 'lazy',
             alt: 'Post Cover',
@@ -68,6 +68,6 @@ export function MarketingCtaCard({
       {ctaUrl && ctaText && (
         <CTAButton onClick={onCtaClick} ctaUrl={ctaUrl} ctaText={ctaText} />
       )}
-    </Card>
+    </ListCard>
   );
 }

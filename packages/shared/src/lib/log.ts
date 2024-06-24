@@ -196,6 +196,7 @@ export enum TargetType {
   StreaksMilestone = 'streaks milestone',
   PromotionCard = 'promotion_card',
   MarketingCtaPopover = 'promotion_popover',
+  MarketingCtaPopoverSmall = 'promotion_popover_small',
   Comment = 'comment',
   ReadingReminder = 'reading reminder',
   // Settings

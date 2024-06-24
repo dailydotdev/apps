@@ -36,6 +36,7 @@ interface ClassName {
   drawer?: string;
   close?: string;
   title?: string;
+  wrapper?: string;
 }
 
 export interface DrawerProps
@@ -107,6 +108,7 @@ function BaseDrawer({
           !isFullScreen && drawerPositionToClassName[position],
           isAnimating && animatePositionClassName[position],
           !title && 'px-4 pt-3',
+          className?.wrapper,
         )}
         ref={(node) => {
           container.current = node;

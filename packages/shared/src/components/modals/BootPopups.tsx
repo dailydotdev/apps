@@ -1,15 +1,21 @@
-import { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions, useBoot } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { LazyModal } from './common/types';
 import AlertContext from '../../contexts/AlertContext';
-import { MarketingCtaVariant } from '../cards/MarketingCta/common';
+import { MarketingCtaVariant } from '../marketingCta/common';
 import { LogEvent, TargetType } from '../../lib/log';
 import LogContext from '../../contexts/LogContext';
 import { promotion } from './generic';
 import { useReadingStreak } from '../../hooks/streaks';
+import InteractivePopup, {
+  InteractivePopupPosition,
+  InteractivePopupProps,
+} from '../tooltips/InteractivePopup';
+import { MarketingCtaPopoverSmall } from '../marketingCta/MarketingCtaPopoverSmall';
+import { ButtonVariant } from '../buttons/common';
 
 const REP_TRESHOLD = 250;
 
@@ -19,7 +25,7 @@ const REP_TRESHOLD = 250;
  * These popups are removed when the users interact with page (clicks outside, closes, completes action).
  * @constructor
  */
-export const BootPopups = (): null => {
+export const BootPopups = (): JSX.Element => {
   const { logEvent } = useContext(LogContext);
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const { openModal } = useLazyModal();
@@ -27,8 +33,13 @@ export const BootPopups = (): null => {
   const { alerts, loadedAlerts, updateAlerts, updateLastBootPopup } =
     useContext(AlertContext);
   const [bootPopups, setBootPopups] = useState(() => new Map());
+  const [interactiveBootPopup, setInteractiveBootPopup] =
+    useState<InteractivePopupProps | null>(null);
   const { getMarketingCta } = useBoot();
-  const marketingCta = getMarketingCta(MarketingCtaVariant.Popover);
+  const marketingCtaPopover = getMarketingCta(MarketingCtaVariant.Popover);
+  const marketingCtaPopoverSmall = getMarketingCta(
+    MarketingCtaVariant.PopoverSmall,
+  );
   const {
     streak,
     shouldShowPopup: shouldShowStreaksPopup,
@@ -87,16 +98,16 @@ export const BootPopups = (): null => {
    * Boot popup based on marketing CTA
    */
   useEffect(() => {
-    if (marketingCta) {
+    if (marketingCtaPopover) {
       addBootPopup({
         type: LazyModal.MarketingCta,
         props: {
-          marketingCta,
+          marketingCta: marketingCtaPopover,
           onAfterOpen: () => {
             logEvent({
               event_name: LogEvent.Impression,
               target_type: TargetType.MarketingCtaPopover,
-              target_id: marketingCta.campaignId,
+              target_id: marketingCtaPopover.campaignId,
             });
           },
           onAfterClose: () => {
@@ -105,7 +116,28 @@ export const BootPopups = (): null => {
         },
       });
     }
-  }, [marketingCta, logEvent, updateLastBootPopup]);
+  }, [marketingCtaPopover, logEvent, updateLastBootPopup]);
+
+  useEffect(() => {
+    if (marketingCtaPopoverSmall) {
+      setInteractiveBootPopup({
+        isDrawerOnMobile: true,
+        drawerProps: {
+          className: { wrapper: '!p-0' },
+        },
+        position: InteractivePopupPosition.RightEnd,
+        disableOverlay: true,
+        closeButton: {
+          variant: ButtonVariant.Primary,
+        },
+        children: (
+          <MarketingCtaPopoverSmall marketingCta={marketingCtaPopoverSmall} />
+        ),
+      });
+    } else {
+      setInteractiveBootPopup(null);
+    }
+  }, [marketingCtaPopoverSmall]);
 
   /** *
    * Boot popup for generic referral campaign
@@ -182,5 +214,7 @@ export const BootPopups = (): null => {
     setBootPopups(new Map());
   }, [alerts?.bootPopup, bootPopups, loadedAlerts, openModal]);
 
-  return null;
+  return !interactiveBootPopup ? null : (
+    <InteractivePopup {...interactiveBootPopup} />
+  );
 };
