@@ -12,7 +12,6 @@ import {
   UPDATE_FEED_MUTATION,
 } from '../../graphql/feed';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
-import { CustomFeedsExperiment } from '../../lib/featureValues';
 import { BootApp } from '../../lib/boot';
 import { GrowthBookProvider } from '../../components/GrowthBookProvider';
 
@@ -38,11 +37,6 @@ const Wrapper = ({ children }) => {
             f: '{}',
             e: [],
             a: [],
-            features: {
-              custom_feeds: {
-                defaultValue: CustomFeedsExperiment.V1,
-              },
-            },
           }}
         >
           {children}
