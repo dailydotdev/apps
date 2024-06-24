@@ -36,7 +36,8 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
   );
 
   const { isLoading, data, isError } = ad || {};
-  const { link, providerId, source, image, description, pixel } = data || {};
+  const { providerId, source, image, description, pixel, company, tagLine } =
+    data || {};
 
   useEffect(() => {
     if (isImpressionTracked.current || isLoading || isError) {
@@ -61,8 +62,6 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
     return <PlaceholderCommentList placeholderAmount={1} />;
   }
 
-  const { hostname } = link ? new URL(link) : { hostname: undefined };
-
   const onAdLinkClick = () => {
     logEvent(
       adLogEvent('click', data, {
@@ -85,13 +84,17 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
       />
       <div className="ml-3 inline-block flex-col">
         <TruncateText className="commentAuthor flex w-fit font-bold text-text-primary typo-callout">
-          {hostname}
+          {company}
         </TruncateText>
         <TruncateText className="flex w-fit text-text-quaternary typo-callout">
           Promoted by {source}
         </TruncateText>
       </div>
-      <p className="mt-3 w-fit text-text-primary typo-body">{description}</p>
+      <p className="mt-3 w-fit text-text-primary typo-body">
+        <b>{tagLine}</b>
+        <br />
+        {description}
+      </p>
       {pixel?.map((item) => (
         <img
           src={item}
