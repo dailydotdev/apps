@@ -217,7 +217,10 @@ export function OnboardPage(): ReactElement {
   };
 
   const onSuccessfulRegistration = (userRefetched: LoggedUser) => {
-    logSignUp({ experienceLevel: userRefetched?.experienceLevel });
+    logSignUp({
+      experienceLevel: userRefetched?.experienceLevel,
+      instanceId: router.query?.aiid?.toString(),
+    });
     setActiveScreen(OnboardingStep.EditTag);
   };
 

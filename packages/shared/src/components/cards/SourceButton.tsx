@@ -52,7 +52,6 @@ export default function SourceButton({
         picture={{ size, rounded: 'full' }}
         user={{
           id: source.id,
-          name: source.name,
           image: source.image,
           permalink: source.permalink,
           username: source.handle,

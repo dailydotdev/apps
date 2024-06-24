@@ -40,7 +40,6 @@ function NotificationItemAvatar({
           user={{
             id: referenceId,
             username: referenceId,
-            name,
             image,
             permalink: targetUrl,
           }}
