@@ -109,6 +109,7 @@ function ProfilePictureComponent(
         className={classes}
         loading={eager || isCompanion ? 'eager' : 'lazy'}
         type={ImageType.Avatar}
+        fallbackSrc={fallbackSrc}
       />
     );
   }
