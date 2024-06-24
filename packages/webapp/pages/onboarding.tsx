@@ -56,7 +56,6 @@ import {
   logSignUp,
   PixelTracking,
   TiktokTracking,
-  HotJarTracking,
 } from '@dailydotdev/shared/src/components/auth/OnboardingLogs';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
@@ -218,7 +217,10 @@ export function OnboardPage(): ReactElement {
   };
 
   const onSuccessfulRegistration = (userRefetched: LoggedUser) => {
-    logSignUp({ experienceLevel: userRefetched?.experienceLevel });
+    logSignUp({
+      experienceLevel: userRefetched?.experienceLevel,
+      instanceId: router.query?.aiid?.toString(),
+    });
     setActiveScreen(OnboardingStep.EditTag);
   };
 
@@ -417,7 +419,6 @@ export function OnboardPage(): ReactElement {
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
       <PixelTracking />
       <GtagTracking />
-      <HotJarTracking />
       <TiktokTracking />
       {getProgressBar()}
       {showGenerigLoader && <GenericLoader />}

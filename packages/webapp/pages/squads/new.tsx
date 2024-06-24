@@ -27,7 +27,7 @@ const seo: NextSeoProps = {
 const NewSquad = (): ReactElement => {
   const { isReady: isRouteReady } = useRouter();
   const { user, isAuthReady, isFetched } = useAuthContext();
-  const { onCreateSquad } = useSquadCreate();
+  const { onCreateSquad, isLoading } = useSquadCreate();
 
   const onCreate = async (e: FormEvent, squadForm: SquadForm) => {
     e.preventDefault();
@@ -55,6 +55,7 @@ const NewSquad = (): ReactElement => {
         onRequestClose={handleClose}
         onSubmit={onCreate}
         createMode
+        isLoading={isLoading}
       >
         <div
           style={{

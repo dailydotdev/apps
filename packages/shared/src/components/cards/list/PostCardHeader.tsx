@@ -10,6 +10,8 @@ import { ButtonVariant } from '../../buttons/common';
 import PostMetadata, { PostMetadataProps } from './PostMetadata';
 import { MenuIcon, OpenLinkIcon } from '../../icons';
 import { useReadPostButtonText } from './hooks';
+import useBookmarkProvider from '../../../hooks/useBookmarkProvider';
+import { BookmakProviderHeader } from './BookmarkProviderHeader';
 
 interface CardHeaderProps {
   post: Post;
@@ -39,48 +41,57 @@ export const PostCardHeader = ({
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
   const postButtonText = useReadPostButtonText(post);
+  const { highlightBookmarkedPost } = useBookmarkProvider({
+    bookmarked: post.bookmarked,
+  });
+
   const isCollectionType = post.type === 'collection';
   const showCTA =
     !isFeedPreview &&
     [PostType.Article, PostType.VideoYouTube].includes(post.type);
 
   return (
-    <CardHeader className={className}>
-      {children}
-      <PostMetadata
-        className={classNames(
-          'mr-2 flex-1',
-          !isCollectionType && 'ml-4',
-          isCollectionType && 'ml-2',
-        )}
-        createdAt={post.createdAt}
-        {...metadata}
-      />
-      <Container
-        className="relative ml-auto flex flex-row"
-        data-testid="cardHeaderActions"
-      >
-        {!isFeedPreview && (
-          <>
-            {showCTA && (
-              <ReadArticleButton
-                content={postButtonText}
-                className="mr-2"
-                variant={ButtonVariant.Tertiary}
-                icon={<OpenLinkIcon />}
-                href={postLink}
-                onClick={onReadArticleClick}
-                openNewTab={openNewTab}
+    <>
+      {highlightBookmarkedPost && (
+        <BookmakProviderHeader className={classNames(className, 'mb-4')} />
+      )}
+      <CardHeader className={className}>
+        {children}
+        <PostMetadata
+          className={classNames(
+            'mr-2 flex-1',
+            !isCollectionType && 'ml-4',
+            isCollectionType && 'ml-2',
+          )}
+          createdAt={post.createdAt}
+          {...metadata}
+        />
+        <Container
+          className="relative ml-auto flex flex-row"
+          data-testid="cardHeaderActions"
+        >
+          {!isFeedPreview && (
+            <>
+              {showCTA && (
+                <ReadArticleButton
+                  content={postButtonText}
+                  className="mr-2"
+                  variant={ButtonVariant.Tertiary}
+                  icon={<OpenLinkIcon />}
+                  href={postLink}
+                  onClick={onReadArticleClick}
+                  openNewTab={openNewTab}
+                />
+              )}
+              <OptionsButton
+                icon={<MenuIcon className="rotate-90" />}
+                onClick={onMenuClick}
+                tooltipPlacement="top"
               />
-            )}
-            <OptionsButton
-              icon={<MenuIcon className="rotate-90" />}
-              onClick={onMenuClick}
-              tooltipPlacement="top"
-            />
-          </>
-        )}
-      </Container>
-    </CardHeader>
+            </>
+          )}
+        </Container>
+      </CardHeader>
+    </>
   );
 };

@@ -9,7 +9,7 @@ import { useBoot } from '@dailydotdev/shared/src/hooks/useBoot';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
 import { MangeSquadPageSkeleton } from '@dailydotdev/shared/src/components/squads/MangeSquadPageSkeleton';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSquad } from '@dailydotdev/shared/src/hooks';
 import {
   GetStaticPathsResult,
@@ -22,9 +22,13 @@ import {
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { PrivacyOption } from '@dailydotdev/shared/src/hooks/squads/useSquadPrivacyOptions';
-import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
-import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
+import {
+  isNullOrUndefined,
+  parseOrDefault,
+} from '@dailydotdev/shared/src/lib/func';
+import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
+import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 
 type EditSquadPageProps = { handle: string };
 
@@ -35,6 +39,8 @@ const seo: NextSeoProps = {
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
 };
+
+const DEFAULT_ERROR = "Oops! That didn't seem to work. Let's try again!";
 
 const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
   const { isReady: isRouteReady } = useRouter();
@@ -47,6 +53,24 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
   const queryClient = useQueryClient();
   const { updateSquad } = useBoot();
   const { displayToast } = useToastNotification();
+  const { mutateAsync: onUpdateSquad, isLoading: isUpdatingSquad } =
+    useMutation(editSquad, {
+      onSuccess: async (data) => {
+        const queryKey = generateQueryKey(RequestKey.Squad, user, data.handle);
+        await queryClient.invalidateQueries(queryKey);
+        updateSquad(data);
+        displayToast('The Squad has been updated');
+      },
+      onError: (error: ApiErrorResult) => {
+        const result = parseOrDefault<Record<string, string>>(
+          error?.response?.errors?.[0]?.message,
+        );
+
+        displayToast(
+          typeof result === 'object' ? result.handle : DEFAULT_ERROR,
+        );
+      },
+    });
 
   const onSubmit = async (e, form: SquadForm) => {
     e.preventDefault();
@@ -62,17 +86,7 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
         ? undefined
         : form.status === PrivacyOption.Public,
     };
-    const editedSquad = await editSquad(squad.id, formJson);
-    if (editedSquad) {
-      const queryKey = generateQueryKey(
-        RequestKey.Squad,
-        user,
-        editedSquad.handle,
-      );
-      await queryClient.invalidateQueries(queryKey);
-      updateSquad(editedSquad);
-      displayToast('The Squad has been updated');
-    }
+    onUpdateSquad({ id: squad.id, form: formJson });
   };
 
   const isLoading =
@@ -92,7 +106,12 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
   return (
     <ManageSquadPageContainer>
       <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
-      <SquadDetails form={squad} onSubmit={onSubmit} createMode={false} />
+      <SquadDetails
+        form={squad}
+        onSubmit={onSubmit}
+        createMode={false}
+        isLoading={isUpdatingSquad}
+      />
     </ManageSquadPageContainer>
   );
 };
