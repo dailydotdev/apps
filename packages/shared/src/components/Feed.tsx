@@ -55,7 +55,7 @@ import {
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { acquisitionKey } from './cards/AcquisitionFormCard';
-import { MarketingCtaVariant } from './cards/MarketingCta/common';
+import { MarketingCtaVariant } from './marketingCta/common';
 import { useAlertsContext } from '../contexts/AlertContext';
 import { isNullOrUndefined } from '../lib/func';
 

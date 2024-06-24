@@ -103,7 +103,9 @@ const ReputationPrivilegesModal = dynamic(
 
 const MarketingCtaModal = dynamic(
   () =>
-    import(/* webpackChunkName: "marketingCtaModal" */ './MarketingCtaModal'),
+    import(
+      /* webpackChunkName: "marketingCtaModal" */ '../marketingCta/MarketingCtaModal'
+    ),
 );
 
 const UserSettingsModal = dynamic(

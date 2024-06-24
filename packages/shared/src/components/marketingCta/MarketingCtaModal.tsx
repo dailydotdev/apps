@@ -1,18 +1,13 @@
 import React, { ReactElement } from 'react';
-import { Modal, ModalProps } from './common/Modal';
+import { Modal, ModalProps } from '../modals/common/Modal';
 import { ButtonSize } from '../buttons/Button';
 import { CardCover } from '../cards/common/CardCover';
-import type { MarketingCta } from '../cards/MarketingCta/common';
-import {
-  CTAButton,
-  Description,
-  Header,
-  Title,
-} from '../cards/MarketingCta/common';
+import type { MarketingCta } from './common';
+import { CTAButton, Description, Header, Title } from './common';
 import { useBoot } from '../../hooks';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
-import { promotion } from './generic';
+import { promotion } from '../modals/generic';
 
 export interface MarketingCtaModalProps extends ModalProps {
   marketingCta: MarketingCta;

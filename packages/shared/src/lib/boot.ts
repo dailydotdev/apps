@@ -6,7 +6,7 @@ import { RemoteSettings } from '../graphql/settings';
 import { Post } from '../graphql/posts';
 import { Squad } from '../graphql/sources';
 import { decrypt } from '../components/crypto';
-import { MarketingCta } from '../components/cards/MarketingCta/common';
+import { MarketingCta } from '../components/marketingCta/common';
 import { Feed } from '../graphql/feed';
 
 interface NotificationsBootData {

@@ -134,6 +134,7 @@ export type RelatedPost = Pick<
 export interface Ad {
   pixel?: string[];
   source: string;
+  company: string;
   link: string;
   description: string;
   image: string;
@@ -142,6 +143,7 @@ export interface Ad {
   providerId?: string;
   renderTracked?: boolean;
   impressionStatus?: number;
+  tagLine?: string;
 }
 
 export type ReadHistoryPost = Pick<

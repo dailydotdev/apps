@@ -1,18 +1,12 @@
 import React, { ReactElement, useCallback, useEffect, useRef } from 'react';
-import { ListCard } from './ListCard';
-import { useBoot } from '../../../hooks';
-import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent, TargetType } from '../../../lib/log';
-import {
-  CTAButton,
-  Description,
-  Header,
-  MarketingCta,
-  Title,
-} from '../MarketingCta/common';
-import { CardCoverList } from './CardCover';
+import { Card } from '../cards/Card';
+import { CardCover } from '../cards/common/CardCover';
+import { CTAButton, Description, Header, MarketingCta, Title } from './common';
+import { useBoot } from '../../hooks';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent, TargetType } from '../../lib/log';
 
-export function MarketingCtaList({
+export function MarketingCtaCard({
   marketingCta,
 }: {
   marketingCta: MarketingCta;
@@ -21,10 +15,10 @@ export function MarketingCtaList({
     marketingCta.flags;
   const { clearMarketingCta } = useBoot();
   const { logEvent } = useLogContext();
-  const isImpressionLogged = useRef(false);
+  const isImpressionTracked = useRef(false);
 
   useEffect(() => {
-    if (isImpressionLogged.current) {
+    if (isImpressionTracked.current) {
       return;
     }
 
@@ -33,7 +27,7 @@ export function MarketingCtaList({
       target_type: TargetType.PromotionCard,
       target_id: marketingCta.campaignId,
     });
-    isImpressionLogged.current = true;
+    isImpressionTracked.current = true;
   }, [marketingCta.campaignId, logEvent]);
 
   const onCtaClick = useCallback(() => {
@@ -55,14 +49,14 @@ export function MarketingCtaList({
   }, [clearMarketingCta, marketingCta.campaignId, logEvent]);
 
   return (
-    <ListCard className="p-4">
+    <Card className="p-4">
       {tagColor && tagText && (
         <Header tagColor={tagColor} tagText={tagText} onClose={onCtaDismiss} />
       )}
       <Title>{title}</Title>
       {description && <Description>{description}</Description>}
       {image && (
-        <CardCoverList
+        <CardCover
           imageProps={{
             loading: 'lazy',
             alt: 'Post Cover',
@@ -74,6 +68,6 @@ export function MarketingCtaList({
       {ctaUrl && ctaText && (
         <CTAButton onClick={onCtaClick} ctaUrl={ctaUrl} ctaText={ctaText} />
       )}
-    </ListCard>
+    </Card>
   );
 }
