@@ -128,6 +128,7 @@ export enum RequestKey {
   PublicSquadRequests = 'public_squad_requests',
   Feeds = 'feeds',
   FeedSettings = 'feedSettings',
+  Ads = 'ads',
 }
 
 export type HasConnection<
