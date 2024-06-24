@@ -8,9 +8,6 @@ import { adLogEvent } from '../../lib/feed';
 import LogContext from '../../contexts/LogContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import PlaceholderCommentList from './PlaceholderCommentList';
-import { useConditionalFeature } from '../../hooks';
-import { feature } from '../../lib/featureManagement';
-import { AdsPostPage } from '../../lib/featureValues';
 
 export const AdAsComment = (): ReactElement => {
   const { logEvent } = useContext(LogContext);
@@ -32,12 +29,6 @@ export const AdAsComment = (): ReactElement => {
   const { isLoading, data, isSuccess, isError } = ad || {};
   const { link, providerId, source, image, description, pixel } = data || {};
 
-  const { value: adsPostPageFeature } = useConditionalFeature({
-    feature: feature.adsPostPage,
-    shouldEvaluate: !isLoading && isSuccess,
-  });
-  const isAdsPostPageV1 = adsPostPageFeature === AdsPostPage.V1;
-
   useEffect(() => {
     if (!isLoading && isSuccess && providerId) {
       logEvent(
@@ -52,7 +43,7 @@ export const AdAsComment = (): ReactElement => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading, providerId, isSuccess]);
 
-  if (isError || !isAdsPostPageV1) {
+  if (isError) {
     return null;
   }
   if (isLoading) {
