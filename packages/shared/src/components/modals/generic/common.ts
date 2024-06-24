@@ -1,9 +1,6 @@
 import { cloudinary } from '../../../lib/image';
 import { bookmarkLoops, migrateUserToStreaks } from '../../../lib/constants';
-import {
-  MarketingCta,
-  MarketingCtaVariant,
-} from '../../cards/MarketingCta/common';
+import { MarketingCta, MarketingCtaVariant } from '../../marketingCta/common';
 
 export const promotion: Record<string, MarketingCta> = {
   migrateStreaks: {

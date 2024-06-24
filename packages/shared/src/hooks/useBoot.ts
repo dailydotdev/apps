@@ -6,7 +6,7 @@ import { Boot } from '../lib/boot';
 import {
   MarketingCta,
   MarketingCtaVariant,
-} from '../components/cards/MarketingCta/common';
+} from '../components/marketingCta/common';
 import { CLEAR_MARKETING_CTA_MUTATION } from '../graphql/users';
 import { graphqlUrl } from '../lib/config';
 

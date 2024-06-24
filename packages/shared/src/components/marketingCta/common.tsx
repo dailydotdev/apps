@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { MiniCloseIcon } from '../../icons';
-import { CardTitle } from '../Card';
-import classed from '../../../lib/classed';
-import { anchorDefaultRel } from '../../../lib/strings';
-import { Pill, PillSize } from '../../Pill';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { MiniCloseIcon } from '../icons';
+import { CardTitle } from '../cards/Card';
+import classed from '../../lib/classed';
+import { anchorDefaultRel } from '../../lib/strings';
+import { Pill, PillSize } from '../Pill';
 
 export type MarketingCtaFlags = {
   title: string;
@@ -19,6 +19,7 @@ export type MarketingCtaFlags = {
 export enum MarketingCtaVariant {
   Card = 'card',
   Popover = 'popover',
+  PopoverSmall = 'popover_small',
 }
 
 export interface MarketingCta {
@@ -68,6 +69,7 @@ type CTAButtonType = Pick<MarketingCtaFlags, 'ctaText' | 'ctaUrl'> & {
   onClick?: (e?: React.MouseEvent | React.KeyboardEvent) => void;
   className?: string;
   buttonSize?: ButtonSize;
+  buttonVariant?: ButtonVariant;
 };
 export const CTAButton = ({
   ctaUrl,
@@ -75,13 +77,14 @@ export const CTAButton = ({
   onClick,
   className = 'mt-auto w-full',
   buttonSize = ButtonSize.Small,
+  buttonVariant = ButtonVariant.Primary,
 }: CTAButtonType): ReactElement => (
   <Button
     tag="a"
     rel={anchorDefaultRel}
     href={ctaUrl}
     className={className}
-    variant={ButtonVariant.Primary}
+    variant={buttonVariant}
     onClick={onClick}
     size={buttonSize}
     target="_blank"
