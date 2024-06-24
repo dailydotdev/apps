@@ -11,7 +11,7 @@ export type AdLinkProps = {
 export default function AdLink({ ad, onLinkClick }: AdLinkProps): ReactElement {
   return (
     <CardLink
-      href={ad?.link}
+      href={ad.link}
       target="_blank"
       rel="noopener"
       title={ad?.description}

@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useEffect } from 'react';
+import React, { ReactElement, useContext, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Ad } from '../../graphql/posts';
 import { apiUrl } from '../../lib/config';
@@ -8,11 +8,18 @@ import { adLogEvent } from '../../lib/feed';
 import LogContext from '../../contexts/LogContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import PlaceholderCommentList from './PlaceholderCommentList';
+import { generateQueryKey, RequestKey } from '../../lib/query';
+import AuthContext from '../../contexts/AuthContext';
 
-export const AdAsComment = (): ReactElement => {
+interface AdAsCommentProps {
+  postId: string;
+}
+export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
   const { logEvent } = useContext(LogContext);
+  const { user } = useContext(AuthContext);
+  const isImpressionTracked = useRef(false);
   const ad = useQuery<Ad>(
-    ['ads', 'post'],
+    generateQueryKey(RequestKey.Ads, user, postId),
     async () => {
       const res = await fetch(`${apiUrl}/v1/a/post`);
       const ads: Ad[] = await res.json();
@@ -26,22 +33,24 @@ export const AdAsComment = (): ReactElement => {
     },
   );
 
-  const { isLoading, data, isSuccess, isError } = ad || {};
+  const { isLoading, data, isError } = ad || {};
   const { link, providerId, source, image, description, pixel } = data || {};
 
   useEffect(() => {
-    if (!isLoading && isSuccess && providerId) {
-      logEvent(
-        adLogEvent('impression', data, {
-          extra: {
-            origin: 'post page',
-          },
-        }),
-      );
+    if (isImpressionTracked.current || isLoading || isError) {
+      return;
     }
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, providerId, isSuccess]);
+
+    logEvent(
+      adLogEvent('impression', data, {
+        extra: {
+          origin: 'post page',
+        },
+      }),
+    );
+
+    isImpressionTracked.current = true;
+  }, [isLoading, isError, isImpressionTracked, logEvent, data]);
 
   if (isError) {
     return null;
@@ -52,20 +61,19 @@ export const AdAsComment = (): ReactElement => {
 
   const { hostname } = link ? new URL(link) : { hostname: undefined };
 
+  const onAdLinkClick = () => {
+    logEvent(
+      adLogEvent('click', data, {
+        extra: {
+          origin: 'post page',
+        },
+      }),
+    );
+  };
+
   return (
     <div className="relative mt-6 flex flex-wrap rounded-24 border border-border-subtlest-tertiary p-4 hover:bg-surface-hover focus:outline">
-      <AdLink
-        ad={data}
-        onLinkClick={() => {
-          logEvent(
-            adLogEvent('click', data, {
-              extra: {
-                origin: 'post page',
-              },
-            }),
-          );
-        }}
-      />
+      <AdLink ad={data} onLinkClick={onAdLinkClick} />
       <ProfilePicture
         nativeLazyLoading
         className="!inline-block"

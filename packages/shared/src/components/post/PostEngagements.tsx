@@ -110,7 +110,7 @@ function PostEngagements({
         ref={commentRef}
         onCommented={onCommented}
       />
-      {isAdsPostPageV1 && <AdAsComment />}
+      {isAdsPostPageV1 && <AdAsComment postId={post.id} />}
       <PostComments
         post={post}
         origin={logOrigin}
