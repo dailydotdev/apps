@@ -145,11 +145,10 @@ export const logSignUp = ({
   instanceId,
 }: LogSignUpProps): void => {
   if (typeof globalThis.gtag === 'function') {
-    let props: Record<string, unknown>;
     if (instanceId) {
-      props = { client_id: instanceId };
+      globalThis.gtag('set', 'client_id', instanceId);
     }
-    globalThis.gtag('event', 'signup', props);
+    globalThis.gtag('event', 'signup');
   }
 
   if (typeof globalThis.fbq === 'function') {
