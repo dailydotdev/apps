@@ -24,10 +24,7 @@ import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
-import {
-  CustomFeedsExperiment,
-  SeoSidebarExperiment,
-} from '../../lib/featureValues';
+import { SeoSidebarExperiment } from '../../lib/featureValues';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
 import { SharedFeedPage } from '../utilities';
@@ -78,31 +75,21 @@ function FeedNav(): ReactElement {
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const seoSidebar = useFeature(feature.seoSidebar);
   const { feeds } = useFeeds();
-  const customFeedsVersion = useFeature(feature.customFeeds);
-  const hasCustomFeedsEnabled =
-    customFeedsVersion !== CustomFeedsExperiment.Control;
 
   const urlToTab: Record<string, FeedNavTab> = useMemo(() => {
-    const customFeeds = hasCustomFeedsEnabled
-      ? feeds?.edges?.reduce((acc, { node: feed }) => {
-          const feedPath = `${webappUrl}feeds/${feed.id}`;
-          const isEditingFeed =
-            router.query.slugOrId === feed.id &&
-            router.pathname.endsWith('/edit');
-          const urlPath = `${feedPath}${isEditingFeed ? '/edit' : ''}`;
+    const customFeeds = feeds?.edges?.reduce((acc, { node: feed }) => {
+      const feedPath = `${webappUrl}feeds/${feed.id}`;
+      const isEditingFeed =
+        router.query.slugOrId === feed.id && router.pathname.endsWith('/edit');
+      const urlPath = `${feedPath}${isEditingFeed ? '/edit' : ''}`;
 
-          acc[urlPath] = feed.flags?.name || `Feed ${feed.id}`;
+      acc[urlPath] = feed.flags?.name || `Feed ${feed.id}`;
 
-          return acc;
-        }, {})
-      : [];
+      return acc;
+    }, {});
 
     const urls = {
-      ...(hasCustomFeedsEnabled
-        ? {
-            [`${webappUrl}feeds/new`]: FeedNavTab.NewFeed,
-          }
-        : undefined),
+      [`${webappUrl}feeds/new`]: FeedNavTab.NewFeed,
       [`${webappUrl}`]: FeedNavTab.ForYou,
       ...customFeeds,
     };
@@ -127,13 +114,7 @@ function FeedNav(): ReactElement {
       [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
       [`${webappUrl}history`]: FeedNavTab.History,
     };
-  }, [
-    seoSidebar,
-    feeds,
-    router.pathname,
-    router.query.slugOrId,
-    hasCustomFeedsEnabled,
-  ]);
+  }, [seoSidebar, feeds, router.pathname, router.query.slugOrId]);
 
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;

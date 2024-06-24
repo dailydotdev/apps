@@ -6,11 +6,6 @@ export enum ExperimentWinner {
   OnboardingV4 = 'v4',
 }
 
-export enum CustomFeedsExperiment {
-  Control = 'control',
-  V1 = 'v1',
-}
-
 export enum ShortcutsUIExperiment {
   Control = 'control',
   V1 = 'v1',

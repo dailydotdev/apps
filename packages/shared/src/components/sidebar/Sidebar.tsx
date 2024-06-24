@@ -54,10 +54,7 @@ import { AlertColor, AlertDot } from '../AlertDot';
 import { cloudinary } from '../../lib/image';
 import { ActionType } from '../../graphql/actions';
 import { useFeature } from '../GrowthBookProvider';
-import {
-  CustomFeedsExperiment,
-  SeoSidebarExperiment,
-} from '../../lib/featureValues';
+import { SeoSidebarExperiment } from '../../lib/featureValues';
 import { feature } from '../../lib/featureManagement';
 import { HypeButton } from '../referral';
 
@@ -93,10 +90,7 @@ export default function Sidebar({
   const isTablet = useViewSize(ViewSize.Tablet);
   const featureTheme = useFeatureTheme();
   const { checkHasCompleted, isActionsFetched } = useActions();
-  const customFeedsVersion = useFeature(feature.customFeeds);
   const hypeCampaign = useFeature(feature.hypeCampaign);
-  const hasCustomFeedsEnabled =
-    customFeedsVersion !== CustomFeedsExperiment.Control;
   const seoSidebar = useFeature(feature.seoSidebar);
 
   const feedName = getFeedName(activePageProp, {
@@ -274,47 +268,44 @@ export default function Sidebar({
                 }
               />
             )}
-            {hasCustomFeedsEnabled && (
-              <MyFeedButton
-                {...defaultRenderSectionProps}
-                isButton={false}
-                title="New feed"
-                path={`${webappUrl}feeds/new`}
-                icon={
-                  <div className="rounded-6 bg-background-subtle">
-                    <PlusIcon />
+            <MyFeedButton
+              {...defaultRenderSectionProps}
+              isButton={false}
+              title="New feed"
+              path={`${webappUrl}feeds/new`}
+              icon={
+                <div className="rounded-6 bg-background-subtle">
+                  <PlusIcon />
+                </div>
+              }
+              rightIcon={() =>
+                showCustomFeedsBetaBadge ? (
+                  <div className="absolute -right-3 -top-2 h-4 w-10">
+                    <img src={cloudinary.feed.betaTag} alt="Beta" />
                   </div>
-                }
-                rightIcon={() =>
-                  showCustomFeedsBetaBadge ? (
-                    <div className="absolute -right-3 -top-2 h-4 w-10">
-                      <img src={cloudinary.feed.betaTag} alt="Beta" />
-                    </div>
-                  ) : undefined
-                }
-              />
-            )}
-            {hasCustomFeedsEnabled &&
-              feeds?.edges?.map((feed) => {
-                const feedPath = `${webappUrl}feeds/${feed.node.id}`;
+                ) : undefined
+              }
+            />
+            {feeds?.edges?.map((feed) => {
+              const feedPath = `${webappUrl}feeds/${feed.node.id}`;
 
-                return (
-                  <MyFeedButton
-                    {...defaultRenderSectionProps}
-                    key={feed.node.id}
-                    isButton={false}
-                    title={feed.node.flags.name || `Feed ${feed.node.id}`}
-                    path={feedPath}
-                    icon={
-                      <HashtagIcon
-                        secondary={
-                          defaultRenderSectionProps.activePage === feedPath
-                        }
-                      />
-                    }
-                  />
-                );
-              })}
+              return (
+                <MyFeedButton
+                  {...defaultRenderSectionProps}
+                  key={feed.node.id}
+                  isButton={false}
+                  title={feed.node.flags.name || `Feed ${feed.node.id}`}
+                  path={feedPath}
+                  icon={
+                    <HashtagIcon
+                      secondary={
+                        defaultRenderSectionProps.activePage === feedPath
+                      }
+                    />
+                  }
+                />
+              );
+            })}
             <SquadSection {...defaultRenderSectionProps} />
             <DiscoverSection
               {...defaultRenderSectionProps}

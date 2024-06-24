@@ -37,12 +37,8 @@ import {
   FeedCustomActions,
   FeedCustomPreview,
   FeedPreviewControls,
-  Redirect,
 } from '@dailydotdev/shared/src/components';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
-import { withExperiment } from '@dailydotdev/shared/src/components/withExperiment';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { CustomFeedsExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { generateQueryKey } from '@dailydotdev/shared/src/lib/query';
 import { SharedFeedPage } from '@dailydotdev/shared/src/components/utilities';
@@ -322,8 +318,4 @@ const EditFeedPage = (): ReactElement => {
 EditFeedPage.getLayout = getLayout;
 EditFeedPage.layoutProps = mainFeedLayoutProps;
 
-export default withExperiment(EditFeedPage, {
-  feature: feature.customFeeds,
-  value: CustomFeedsExperiment.V1,
-  fallback: Redirect,
-});
+export default EditFeedPage;
