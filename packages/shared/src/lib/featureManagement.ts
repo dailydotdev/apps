@@ -1,5 +1,6 @@
 import { JSONValue } from '@growthbook/growthbook';
 import {
+  AdsPostPage,
   CustomFeedsExperiment,
   OnboardingBanner,
   SeoSidebarExperiment,
@@ -45,6 +46,7 @@ const feature = {
   onboardingChecklist: new Feature('onboarding_checklist', false),
   feedLayoutPreview: new Feature('feed_layout_preview', false),
   onboardingBanner: new Feature('onboarding_banner', OnboardingBanner.Control),
+  adsPostPage: new Feature('ads_post_page', AdsPostPage.Control),
 };
 
 export { feature };
