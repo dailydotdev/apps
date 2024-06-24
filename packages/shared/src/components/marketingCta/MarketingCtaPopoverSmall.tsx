@@ -1,6 +1,5 @@
 import React, { ReactElement, useCallback, useEffect, useRef } from 'react';
 import classNames from 'classnames';
-import { Card } from '../cards/Card';
 import { CardCover } from '../cards/common/CardCover';
 import { CTAButton, Description, MarketingCta, Title } from './common';
 import { ViewSize, useBoot, useViewSize } from '../../hooks';
@@ -53,12 +52,10 @@ export function MarketingCtaPopoverSmall({
   }, [clearMarketingCta, marketingCta.campaignId, logEvent]);
 
   return (
-    <Card
+    <article
       className={classNames(
-        '!p-0',
-        isMobile
-          ? '!max-h-none !border-none !bg-transparent !shadow-none'
-          : 'max-w-64 border-2 !border-accent-onion-default',
+        !isMobile &&
+          'relative h-full max-w-64 rounded-16 border-2 border-accent-onion-default bg-background-subtle shadow-2',
       )}
     >
       {image && (
@@ -108,6 +105,6 @@ export function MarketingCtaPopoverSmall({
           {isMobile ? 'Close' : null}
         </Button>
       </div>
-    </Card>
+    </article>
   );
 }
