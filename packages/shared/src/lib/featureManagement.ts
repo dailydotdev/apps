@@ -1,7 +1,6 @@
 import { JSONValue } from '@growthbook/growthbook';
 import {
   AdsPostPage,
-  CustomFeedsExperiment,
   OnboardingBanner,
   SeoSidebarExperiment,
   ShortcutsUIExperiment,
@@ -33,7 +32,6 @@ const feature = {
   onboardingMostVisited: new Feature('onboarding_most_visited', false),
   shareExperience: new Feature('share_experience', false),
   featureTheme: new Feature('feature_theme', {}),
-  customFeeds: new Feature('custom_feeds', CustomFeedsExperiment.Control),
   hypeCampaign: new Feature('hype_campaign', false),
   improvedSharedPostCard: new Feature('improved_shared_post_card', false),
   feedSettingsFeedback: new Feature('feed_settings_feedback', false),
