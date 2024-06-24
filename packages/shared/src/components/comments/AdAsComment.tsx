@@ -86,7 +86,7 @@ export const AdAsComment = (): ReactElement => {
           src={item}
           key={item}
           data-testid="pixel"
-          className="hidden h-0 w-0"
+          className="hidden size-0"
           alt="Pixel"
         />
       ))}
