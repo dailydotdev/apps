@@ -69,6 +69,7 @@ type CTAButtonType = Pick<MarketingCtaFlags, 'ctaText' | 'ctaUrl'> & {
   onClick?: (e?: React.MouseEvent | React.KeyboardEvent) => void;
   className?: string;
   buttonSize?: ButtonSize;
+  buttonVariant?: ButtonVariant;
 };
 export const CTAButton = ({
   ctaUrl,
@@ -76,13 +77,14 @@ export const CTAButton = ({
   onClick,
   className = 'mt-auto w-full',
   buttonSize = ButtonSize.Small,
+  buttonVariant = ButtonVariant.Primary,
 }: CTAButtonType): ReactElement => (
   <Button
     tag="a"
     rel={anchorDefaultRel}
     href={ctaUrl}
     className={className}
-    variant={ButtonVariant.Primary}
+    variant={buttonVariant}
     onClick={onClick}
     size={buttonSize}
     target="_blank"

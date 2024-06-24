@@ -88,6 +88,9 @@ export function MarketingCtaPopoverSmall({
         {ctaUrl && ctaText && (
           <CTAButton
             buttonSize={ButtonSize.Medium}
+            buttonVariant={
+              isMobile ? ButtonVariant.Primary : ButtonVariant.Secondary
+            }
             onClick={onCtaClick}
             ctaUrl={ctaUrl}
             ctaText={ctaText}
