@@ -55,7 +55,7 @@ export function MarketingCtaPopoverSmall({
     <article
       className={classNames(
         !isMobile &&
-          'relative h-full max-w-64 rounded-16 border-2 border-accent-onion-default bg-background-subtle shadow-2',
+          'relative h-full max-w-64 rounded-16 border border-accent-onion-default bg-background-subtle shadow-2',
       )}
     >
       {image && (
@@ -64,7 +64,10 @@ export function MarketingCtaPopoverSmall({
             loading: 'lazy',
             alt: 'Post Cover',
             src: image,
-            className: classNames('w-full', isMobile ? 'h-48' : '!rounded-14'),
+            className: classNames(
+              'w-full',
+              isMobile ? 'h-48' : 'rounded-[15px]',
+            ),
           }}
         />
       )}
