@@ -14,7 +14,7 @@ export default function AdLink({ ad, onLinkClick }: AdLinkProps): ReactElement {
       href={ad.link}
       target="_blank"
       rel="noopener"
-      title={ad?.description}
+      title={ad.description}
       {...combinedClicks(() => onLinkClick?.(ad))}
     />
   );
