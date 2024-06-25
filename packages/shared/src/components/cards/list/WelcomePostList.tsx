@@ -128,7 +128,7 @@ export const WelcomePostList = forwardRef(function SharePostCard(
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}
           onBookmarkClick={onBookmarkClick}
-          className="mt-4 laptop:mt-auto"
+          className={classNames('mt-4', image && 'laptop:mt-auto')}
         />
       </Container>
       {children}
