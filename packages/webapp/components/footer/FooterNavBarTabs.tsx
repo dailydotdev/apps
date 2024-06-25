@@ -1,6 +1,7 @@
-import React, { isValidElement, ReactElement, ReactNode } from 'react';
+import React, { isValidElement, ReactElement, ReactNode, useMemo } from 'react';
 import {
   AiIcon,
+  BellIcon,
   HomeIcon,
   SourceIcon,
   UserIcon,
@@ -9,6 +10,11 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Link from 'next/link';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import classNames from 'classnames';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
+import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import { FooterNavBarContainerProps, FooterTab, getNavPath } from './common';
 import { FooterPlusButton } from './FooterPlusButton';
 import { FooterNavBarItem, FooterNavBarItemProps } from './FooterNavBarItem';
@@ -82,12 +88,45 @@ const Tab = ({ tab, isActive }: TabProps) => {
   );
 };
 
+const Notifications = ({ active }: { active: boolean }): JSX.Element => {
+  const { unreadCount } = useNotificationContext();
+
+  return (
+    <div className="relative">
+      <BellIcon secondary={active} size={IconSize.Medium} />
+      {!!unreadCount && (
+        <Bubble
+          className={classNames('-right-1.5 -top-1.5 cursor-pointer px-1')}
+        >
+          {getUnreadText(unreadCount)}
+        </Bubble>
+      )}
+    </div>
+  );
+};
+
 export function FooterNavBarTabs({
   activeTab,
 }: FooterNavBarContainerProps): ReactElement {
+  const notificationsNavBar = useFeature(feature.notificationsNavBar);
+
+  const tabs = useMemo(() => {
+    if (notificationsNavBar) {
+      mobileUxTabs.pop();
+      mobileUxTabs.splice(-1, 0, {
+        requiresLogin: true,
+        path: '/notifications',
+        title: 'Notifications',
+        icon: (active: boolean) => <Notifications active={active} />,
+      });
+    }
+
+    return mobileUxTabs;
+  }, [notificationsNavBar]);
+
   return (
     <>
-      {mobileUxTabs.map((tab) => {
+      {tabs.map((tab) => {
         if (isValidElement(tab)) {
           return tab;
         }
