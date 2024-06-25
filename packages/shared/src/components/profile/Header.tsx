@@ -8,6 +8,10 @@ import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { largeNumberFormat, ReferralCampaignKey } from '../../lib';
 import { ProfileSettingsMenu } from './ProfileSettingsMenu';
 import { RootPortal } from '../tooltips/Portal';
+import { GoBackButton } from '../post/GoBackHeaderMobile';
+import { ViewSize, useViewSize } from '../../hooks';
+import { feature } from '../../lib/featureManagement';
+import { useFeature } from '../GrowthBookProvider';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -30,6 +34,8 @@ export function Header({
     cid: ReferralCampaignKey.ShareProfile,
     logObject: () => ({ event_name: 'share profile', target_id: user.id }),
   });
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const notificationsNavBar = useFeature(feature.notificationsNavBar);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
@@ -37,23 +43,28 @@ export function Header({
       className={classNames('flex h-12 items-center px-4', className)}
       style={style}
     >
-      {sticky ? (
-        <>
-          <ProfilePicture
-            user={user}
-            nativeLazyLoading
-            size={ProfileImageSize.Medium}
-          />
-          <div className="ml-2 flex flex-col typo-footnote">
-            <p className="font-bold">{user.name}</p>
-            <p className="text-text-tertiary">
-              {largeNumberFormat(user.reputation)} Reputation
-            </p>
-          </div>
-        </>
-      ) : (
-        <h2 className="font-bold typo-body">Profile</h2>
-      )}
+      <>
+        {isMobile && notificationsNavBar && (
+          <GoBackButton showLogo={false} className={!sticky && 'mr-3'} />
+        )}
+        {sticky ? (
+          <>
+            <ProfilePicture
+              user={user}
+              nativeLazyLoading
+              size={ProfileImageSize.Medium}
+            />
+            <div className="ml-2 flex flex-col typo-footnote">
+              <p className="font-bold">{user.name}</p>
+              <p className="text-text-tertiary">
+                {largeNumberFormat(user.reputation)} Reputation
+              </p>
+            </div>
+          </>
+        ) : (
+          <h2 className="font-bold typo-body">Profile</h2>
+        )}
+      </>
       {isSameUser && (
         <Button
           className="ml-auto mr-2 hidden laptop:flex"
