@@ -9,9 +9,8 @@ import { largeNumberFormat, ReferralCampaignKey } from '../../lib';
 import { ProfileSettingsMenu } from './ProfileSettingsMenu';
 import { RootPortal } from '../tooltips/Portal';
 import { GoBackButton } from '../post/GoBackHeaderMobile';
-import { ViewSize, useViewSize } from '../../hooks';
+import { ViewSize, useConditionalFeature, useViewSize } from '../../hooks';
 import { feature } from '../../lib/featureManagement';
-import { useFeature } from '../GrowthBookProvider';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -35,7 +34,10 @@ export function Header({
     logObject: () => ({ event_name: 'share profile', target_id: user.id }),
   });
   const isMobile = useViewSize(ViewSize.MobileL);
-  const notificationsNavBar = useFeature(feature.notificationsNavBar);
+  const { value: notificationsNavBar } = useConditionalFeature({
+    feature: feature.notificationsNavBar,
+    shouldEvaluate: isMobile,
+  });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
