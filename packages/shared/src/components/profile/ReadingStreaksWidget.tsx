@@ -33,7 +33,7 @@ export function ReadingStreaksWidget({
 }: ReadingStreaksWidgetProps): ReactElement {
   return (
     <ActivityContainer>
-      <ActivitySectionHeader title="Reading streaks" Icon={ReadingStreakIcon} />
+      <ActivitySectionHeader title="Reading streak" Icon={ReadingStreakIcon} />
       <div className="flex gap-5">
         <StreakTag
           streak={streak?.max}
