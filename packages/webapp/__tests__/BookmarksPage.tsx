@@ -4,7 +4,7 @@ import {
   supportedTypesForPrivateSources,
 } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
-import React from 'react';
+import React, { act } from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
@@ -108,9 +108,9 @@ it('should show empty screen when feed is empty', async () => {
     }),
   ]);
   await waitForNock();
-  expect(
-    await screen.findByText('Your bookmark list is empty.'),
-  ).toBeInTheDocument();
+  await act(async () => {
+    await screen.findByText('Your bookmark list is empty.');
+  });
   await waitFor(() => {
     const elements = screen.queryAllByTestId('postItem');
     expect(elements.length).toBeFalsy();

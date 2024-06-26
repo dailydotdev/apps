@@ -33,7 +33,7 @@ export default function HorizontalFeed<T>({
   useEffect(() => {
     const element = feedContainerRef;
     if (!element) {
-      return null;
+      return () => {};
     }
 
     const onScroll = (e) => {

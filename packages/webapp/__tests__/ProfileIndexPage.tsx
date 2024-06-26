@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { act } from 'react';
 import { render, RenderResult, screen } from '@testing-library/react';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import nock from 'nock';
@@ -9,18 +9,20 @@ import {
   ProfileReadingData,
 } from '@dailydotdev/shared/src/graphql/users';
 import { QueryClient } from '@tanstack/react-query';
-import { startOfTomorrow, subDays, subMonths } from 'date-fns';
+import { startOfTomorrow, subDays, subYears } from 'date-fns';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
+import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import ProfilePage from '../pages/[userId]/index';
 
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
+  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
 });
 
 const defaultTopTags: MostReadTag[] = [
@@ -42,7 +44,7 @@ const defaultTopTags: MostReadTag[] = [
 ];
 
 const before = startOfTomorrow();
-const after = subMonths(subDays(before, 2), 6);
+const after = subYears(subDays(before, 2), 1);
 
 const createReadingHistoryMock = (
   rankHistory: UserReadingRankHistory[] = [
@@ -65,6 +67,7 @@ const createReadingHistoryMock = (
       userReadingRankHistory: rankHistory,
       userReadHistory: [{ date: '2021-02-01', reads: 2 }],
       userMostReadTags: defaultTopTags,
+      userStreakProfile: null,
     },
   },
 });
@@ -96,7 +99,7 @@ const renderComponent = (
   mocks.forEach(mockGraphQL);
   return render(
     <TestBootProvider client={client} auth={{ user: null }}>
-      <ProfilePage user={{ ...defaultProfile, ...profile }} />
+      <ProfilePage user={{ ...defaultProfile, ...profile }} noindex />
     </TestBootProvider>,
   );
 };
@@ -104,11 +107,9 @@ const renderComponent = (
 it('should show the top reading tags of the user', async () => {
   renderComponent();
   await waitForNock();
+  await screen.findByText('Top tags by reading days');
   await Promise.all(
-    defaultTopTags.map(async ({ value: tag }) => {
-      const el = await screen.findByText(`#${tag}`);
-      expect(el).toBeInTheDocument();
-    }),
+    defaultTopTags.map(({ value: tag }) => screen.findByText(`#${tag}`)),
   );
 });
 
