@@ -105,7 +105,7 @@ export type AuthContextProviderProps = {
   firstLoad?: boolean;
   refetchBoot?: () => Promise<QueryObserverResult<Boot>>;
   children?: ReactNode;
-  deleteLocalBootData: () => void;
+  updateLocalBootThemeData?: () => void;
 } & Pick<
   AuthContextData,
   | 'getRedirectUri'
@@ -133,7 +133,7 @@ export const AuthContextProvider = ({
   firstLoad,
   accessToken,
   squads,
-  deleteLocalBootData,
+  updateLocalBootThemeData,
 }: AuthContextProviderProps): ReactElement => {
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
@@ -150,7 +150,7 @@ export const AuthContextProvider = ({
 
   const deleteAccount = async () => {
     await dispatchDeleteAccount();
-    deleteLocalBootData();
+    updateLocalBootThemeData?.();
   };
 
   return (
