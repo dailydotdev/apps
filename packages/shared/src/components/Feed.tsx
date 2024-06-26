@@ -189,6 +189,7 @@ export default function Feed<T>({
     isSquadFeed || shouldUseListFeedLayout ? 2 : adSpot,
     numCards,
     {
+      onEmptyFeed,
       query,
       variables,
       options,
@@ -240,12 +241,6 @@ export default function Feed<T>({
     selectedPost,
     selectedPostIndex,
   } = usePostModalNavigation(items, fetchPage, updatePost, canFetchMore);
-
-  useEffect(() => {
-    if (emptyFeed) {
-      onEmptyFeed?.();
-    }
-  }, [emptyFeed, onEmptyFeed]);
 
   const infiniteScrollRef = useFeedInfiniteScroll({
     fetchPage,
