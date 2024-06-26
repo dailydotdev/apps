@@ -1,4 +1,4 @@
-import React, { act } from 'react';
+import React from 'react';
 import { render, RenderResult, screen } from '@testing-library/react';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import nock from 'nock';
