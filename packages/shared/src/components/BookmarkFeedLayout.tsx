@@ -100,7 +100,7 @@ export default function BookmarkFeedLayout({
       </FeedPageHeader>
       <CustomFeedHeader
         className={classNames(
-          'mb-6 flex',
+          'mb-6',
           shouldUseListFeedLayout && !shouldUseListMode && 'px-4',
         )}
       >
