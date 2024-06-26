@@ -112,8 +112,8 @@ export function FooterNavBarTabs({
 
   const tabs = useMemo(() => {
     if (notificationsNavBar) {
-      mobileUxTabs.pop();
       if (!mobileUxTabs.some((tab: FooterTab) => tab?.title === 'Activity')) {
+        mobileUxTabs.pop();
         mobileUxTabs.splice(-1, 0, {
           requiresLogin: true,
           path: '/notifications',
