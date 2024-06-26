@@ -190,6 +190,9 @@ importers:
       '@types/react':
         specifier: ^18.3.3
         version: 18.3.3
+      '@types/react-dom':
+        specifier: ^18.3.0
+        version: 18.3.0
       '@types/react-modal':
         specifier: ^3.13.1
         version: 3.13.1
