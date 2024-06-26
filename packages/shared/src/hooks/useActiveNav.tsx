@@ -3,6 +3,8 @@ import { useMemo } from 'react';
 import { AllFeedPages, OtherFeedPage } from '../lib/query';
 import { SharedFeedPage } from '../components/utilities';
 import { useViewSize, ViewSize } from './useViewSize';
+import { useConditionalFeature } from './useConditionalFeature';
+import { feature } from '../lib/featureManagement';
 
 export interface UseActiveNav {
   home: boolean;
@@ -16,6 +18,11 @@ export interface UseActiveNav {
 export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
   const router = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const { value: notificationsNavBar } = useConditionalFeature({
+    feature: feature.notificationsNavBar,
+    shouldEvaluate: isMobile,
+  });
 
   const isHomeActive = useMemo(() => {
     const homePages = [
@@ -36,7 +43,11 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
     ];
 
     if (!isLaptop) {
-      homePages.push(OtherFeedPage.Bookmarks, OtherFeedPage.Notifications);
+      homePages.push(OtherFeedPage.Bookmarks);
+
+      if (!notificationsNavBar && !isMobile) {
+        homePages.push(OtherFeedPage.Notifications);
+      }
     }
 
     if (homePages.includes(activeFeed)) {
@@ -44,7 +55,7 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
     }
 
     return router?.route?.startsWith('/posts/[id]'); // if post page the [id] was expected
-  }, [activeFeed, isLaptop, router?.route]);
+  }, [activeFeed, isLaptop, isMobile, notificationsNavBar, router?.route]);
 
   const isProfileActive = router.pathname?.includes('/[userId]');
   const isSearchActive = activeFeed === SharedFeedPage.Search;
