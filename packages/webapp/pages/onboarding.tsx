@@ -351,11 +351,7 @@ export function OnboardPage(): ReactElement {
         {activeScreen === OnboardingStep.Intro &&
           !onboardingVisual.fullBackground && (
             <div className="block flex-1">
-              <div
-                className={classNames(
-                  'tablet:min-h-[800px]:pt-[100%] relative overflow-y-clip tablet:overflow-y-visible tablet:pt-[80%]',
-                )}
-              >
+              <div className="tablet:min-h-[800px]:pt-[100%] relative overflow-y-clip tablet:overflow-y-visible tablet:pt-[80%]">
                 <img
                   src={onboardingVisual.image}
                   alt="Onboarding cover"

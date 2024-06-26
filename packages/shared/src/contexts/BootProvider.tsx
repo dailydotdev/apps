@@ -148,7 +148,7 @@ export const BootDataProvider = ({
   useEffect(() => {
     const boot = getLocalBootData();
     if (boot) {
-      if (boot?.settings?.theme) {
+      if (boot?.settings?.theme && !!user) {
         applyTheme(themeModes[boot.settings.theme]);
       }
 
