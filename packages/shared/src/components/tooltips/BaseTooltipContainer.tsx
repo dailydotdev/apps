@@ -9,7 +9,8 @@ export type TooltipPosition =
   | 'right-end'
   | 'bottom'
   | 'bottom-start'
-  | 'left';
+  | 'left'
+  | 'bottom-end';
 
 export type TooltipArrowProps = {
   'data-popper-arrow': true;

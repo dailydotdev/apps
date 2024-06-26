@@ -148,7 +148,7 @@ export default function ProfileMenu({
       onClose={onClose}
       closeOutsideClick
       position={InteractivePopupPosition.ProfileMenu}
-      className="w-full max-w-64 !rounded-24 border border-border-subtlest-tertiary"
+      className="!top-14 w-full max-w-64 !rounded-24 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest"
       closeButton={{
         variant: ButtonVariant.Primary,
         size: ButtonSize.XSmall,
