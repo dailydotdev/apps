@@ -20,16 +20,15 @@ import {
 import { SearchPanelAction } from './SearchPanelAction';
 import { SearchPanelPostSuggestions } from './SearchPanelPostSuggestions';
 import SettingsContext from '../../../contexts/SettingsContext';
-import { useConditionalFeature, useEventListener } from '../../../hooks';
+import { useEventListener } from '../../../hooks';
 import { defaultSearchProvider, providerToLabelTextMap } from './common';
-import { ArrowKeyEnum } from '../../../lib/func';
+import { ArrowKeyEnum, isExtension } from '../../../lib/func';
 import { ArrowIcon } from '../../icons';
 import { useSearchProvider } from '../../../hooks/search';
 import { SearchPanelCustomAction } from './SearchPanelCustomAction';
 import { LogEvent } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
 import { SearchPanelTagSuggestions } from './SearchPanelTagSuggestions';
-import { feature } from '../../../lib/featureManagement';
 import { SearchPanelSourceSuggestions } from './SearchPanelSourceSuggestions';
 
 export type SearchPanelProps = {
@@ -149,16 +148,6 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
   const showDropdown =
     state.isActive && state.query.length >= minSearchQueryLength;
 
-  const { value: isSourceSearchEnabled } = useConditionalFeature({
-    feature: feature.searchSources,
-    shouldEvaluate: showDropdown,
-  });
-
-  const { value: isGoogleSearchEnabled } = useConditionalFeature({
-    feature: feature.searchGoogle,
-    shouldEvaluate: showDropdown,
-  });
-
   return (
     <SearchPanelContext.Provider value={searchPanel}>
       <div
@@ -203,14 +192,12 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
               <div className="flex flex-1 flex-col">
                 <SearchPanelAction provider={SearchProviderEnum.Posts} />
                 <SearchPanelAction provider={SearchProviderEnum.Chat} />
-                {isGoogleSearchEnabled && (
+                {isExtension && (
                   <SearchPanelAction provider={SearchProviderEnum.Google} />
                 )}
                 <SearchPanelTagSuggestions title="Tags" />
                 <SearchPanelPostSuggestions title="Posts on daily.dev" />
-                {isSourceSearchEnabled && (
-                  <SearchPanelSourceSuggestions title="Sources" />
-                )}
+                <SearchPanelSourceSuggestions title="Sources" />
                 <SearchPanelCustomAction
                   provider={SearchProviderEnum.Posts}
                   onClick={() => {

@@ -17,9 +17,6 @@ import { ContentTypesFilter } from './ContentTypesFilter';
 import { Source } from '../../graphql/sources';
 import { webappUrl } from '../../lib/constants';
 import { ViewSize, useFeeds, useViewSize } from '../../hooks';
-import { feature } from '../../lib/featureManagement';
-import { CustomFeedsExperiment } from '../../lib/featureValues';
-import { useFeature } from '../GrowthBookProvider';
 
 enum FilterMenuTitle {
   MyFeed = 'My feed',
@@ -56,22 +53,17 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
     }
   };
   const isMobile = useViewSize(ViewSize.MobileL);
-  const customFeedsVersion = useFeature(feature.customFeeds);
-  const hasCustomFeedsEnabled =
-    customFeedsVersion !== CustomFeedsExperiment.Control;
 
   const { feeds } = useFeeds();
 
-  const filtersTab = hasCustomFeedsEnabled
-    ? FilterMenuTitle.MyFeed
-    : FilterMenuTitle.Tags;
+  const filtersTab = FilterMenuTitle.MyFeed;
 
   const tabs = [
     {
       title: filtersTab,
       options: { icon: <HomeIcon />, group: 'Feeds' },
     },
-    ...(isMobile && hasCustomFeedsEnabled
+    ...(isMobile
       ? feeds?.edges?.map(({ node: feed }) => {
           return {
             title: feed.flags?.name || `Feed ${feed.id}`,
@@ -103,7 +95,7 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
       options: { icon: <BlockIcon />, group: 'Preference' },
     },
   ].map((item) =>
-    isMobile && hasCustomFeedsEnabled
+    isMobile
       ? item
       : {
           ...item,

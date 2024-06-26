@@ -192,7 +192,7 @@ function MarkdownInput(
             tabListProps={{ className: { indicator: '!w-6' } }}
           >
             <Tab label={CommentTab.Write}>{children}</Tab>
-            <Tab label={CommentTab.Preview} className="p-4">
+            <Tab label={CommentTab.Preview} className="min-h-[11.125rem] p-4">
               <MarkdownPreview
                 input={input}
                 sourceId={sourceId}

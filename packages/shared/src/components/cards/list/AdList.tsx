@@ -5,6 +5,7 @@ import { Ad } from '../../../graphql/posts';
 import AdAttribution from '../AdAttribution';
 import FeedItemContainer from './FeedItemContainer';
 import getLinkProps from './AdLink';
+import { cloudinary } from '../../../lib/image';
 
 type Callback = (ad: Ad) => unknown;
 
@@ -47,6 +48,7 @@ export const AdList = forwardRef(function AdCard(
               showBlurredImage && 'absolute inset-0 m-auto',
             )}
             style={{ objectFit: showBlurredImage ? 'contain' : 'cover' }}
+            fallbackSrc={cloudinary.post.imageCoverPlaceholder}
           />
           {showBlurredImage && (
             <CardImage

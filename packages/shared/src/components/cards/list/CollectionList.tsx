@@ -28,6 +28,7 @@ export const CollectionList = forwardRef(function CollectionCard(
     onMenuClick,
     onCopyLinkClick,
     onPostClick,
+    onBookmarkClick,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
@@ -47,6 +48,7 @@ export const CollectionList = forwardRef(function CollectionCard(
         onClick: () => onPostClick(post),
         href: post.commentsPermalink,
       }}
+      bookmarked={post.bookmarked}
     >
       <CardContainer>
         <PostCardHeader
@@ -100,6 +102,7 @@ export const CollectionList = forwardRef(function CollectionCard(
           onDownvoteClick={onDownvoteClick}
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}
+          onBookmarkClick={onBookmarkClick}
         />
       </Container>
       {children}

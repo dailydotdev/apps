@@ -18,6 +18,7 @@ export interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
   id?: string;
   children?: ReactNode;
   className?: string;
+  checkmarkClassName?: string;
   onToggle?: (checked: boolean) => unknown;
 }
 
@@ -27,6 +28,7 @@ export const Checkbox = forwardRef(function Checkbox(
     checked,
     children,
     className,
+    checkmarkClassName,
     onToggle,
     id,
     disabled,
@@ -72,6 +74,7 @@ export const Checkbox = forwardRef(function Checkbox(
         className={classNames(
           'relative z-1 mr-3 flex h-5 w-5 items-center justify-center rounded-6 border-2 border-border-subtlest-primary',
           styles.checkmark,
+          checkmarkClassName,
         )}
       >
         <VIcon

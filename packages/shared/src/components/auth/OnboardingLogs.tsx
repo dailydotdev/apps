@@ -4,7 +4,7 @@ import { isProduction } from '../../lib/constants';
 import { UserExperienceLevel } from '../../lib/user';
 
 export const FB_PIXEL_ID = '519268979315924';
-export const GA_TRACKING_ID = 'G-T0967GPY29';
+export const GA_TRACKING_ID = 'G-VTGLXD7QSN';
 export const TWITTER_TRACKING_ID = 'o6izs';
 export const REDDIT_TRACKING_ID = 't2_j1li1n7e';
 export const TIKTOK_TRACKING_ID = 'CO2RCPBC77U37LT1TAIG';
@@ -124,6 +124,7 @@ export const TiktokTracking = (): ReactElement => {
 
 interface LogSignUpProps {
   experienceLevel: keyof typeof UserExperienceLevel;
+  instanceId?: string;
 }
 
 const EXPERIENCE_TO_SENIORITY: Record<
@@ -139,8 +140,14 @@ const EXPERIENCE_TO_SENIORITY: Record<
   NOT_ENGINEER: 'not_engineer',
 };
 
-export const logSignUp = ({ experienceLevel }: LogSignUpProps): void => {
+export const logSignUp = ({
+  experienceLevel,
+  instanceId,
+}: LogSignUpProps): void => {
   if (typeof globalThis.gtag === 'function') {
+    if (instanceId) {
+      globalThis.gtag('set', 'client_id', instanceId);
+    }
     globalThis.gtag('event', 'signup');
   }
 

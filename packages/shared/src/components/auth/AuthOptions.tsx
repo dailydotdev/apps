@@ -82,6 +82,8 @@ export interface AuthProps {
 interface ClassName {
   container?: string;
   onboardingSignup?: string;
+  onboardingForm?: string;
+  onboardingDivider?: string;
 }
 
 export interface AuthOptionsProps {
@@ -446,7 +448,7 @@ function AuthOptions({
             isReady={isReady}
             simplified={simplified}
             targetId={targetId}
-            className={className?.onboardingSignup}
+            className={className}
             onboardingSignupButton={onboardingSignupButton}
           />
         </Tab>

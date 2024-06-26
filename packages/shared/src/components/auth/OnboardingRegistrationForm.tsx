@@ -20,6 +20,12 @@ import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 
 const signupProviders = [providerMap.google, providerMap.github];
 
+interface ClassName {
+  onboardingSignup?: string;
+  onboardingForm?: string;
+  onboardingDivider?: string;
+}
+
 interface OnboardingRegistrationFormProps extends AuthFormProps {
   onExistingEmail?: (email: string) => unknown;
   onSignup?: (email: string) => unknown;
@@ -30,7 +36,7 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   signUpTitle?: string;
   trigger: AuthTriggersType;
   isReady: boolean;
-  className?: string;
+  className?: ClassName;
   onboardingSignupButton?: ButtonProps<'button'>;
 }
 
@@ -102,7 +108,10 @@ const OnboardingRegistrationForm = ({
 
   return (
     <>
-      <AuthForm className="mb-8 gap-8" onSubmit={onEmailSignup}>
+      <AuthForm
+        className={classNames('mb-8 gap-8', className?.onboardingForm)}
+        onSubmit={onEmailSignup}
+      >
         <TextField
           leftIcon={<MailIcon size={IconSize.Small} />}
           required
@@ -140,9 +149,17 @@ const OnboardingRegistrationForm = ({
           Sign up - Free forever ➔
         </Button>
       </AuthForm>
-      <OrDivider className="mb-8" label="Or sign up with" />
+      <OrDivider
+        className={classNames('mb-8', className?.onboardingDivider)}
+        label="Or sign up with"
+      />
 
-      <div className={classNames('flex flex-col gap-8 pb-8', className)}>
+      <div
+        className={classNames(
+          'flex flex-col gap-8 pb-8',
+          className.onboardingSignup,
+        )}
+      >
         {signupProviders.map((provider) => (
           <Button
             key={provider.value}

@@ -6,11 +6,6 @@ export enum ExperimentWinner {
   OnboardingV4 = 'v4',
 }
 
-export enum CustomFeedsExperiment {
-  Control = 'control',
-  V1 = 'v1',
-}
-
 export enum ShortcutsUIExperiment {
   Control = 'control',
   V1 = 'v1',
@@ -32,6 +27,16 @@ export interface FeatureTheme {
 }
 
 export enum SeoSidebarExperiment {
+  Control = 'control',
+  V1 = 'v1',
+}
+
+export enum OnboardingBanner {
+  Control = 'control',
+  V1 = 'v1',
+}
+
+export enum AdsPostPage {
   Control = 'control',
   V1 = 'v1',
 }

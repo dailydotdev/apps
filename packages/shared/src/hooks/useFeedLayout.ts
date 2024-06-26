@@ -10,6 +10,7 @@ import {
 } from '../components/utilities';
 import { AllFeedPages, OtherFeedPage } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
+import { isNullOrUndefined } from '../lib/func';
 
 interface UseFeedLayoutReturn {
   shouldUseListFeedLayout: boolean;
@@ -57,6 +58,10 @@ export const FeedLayoutMobileFeedPages = new Set([
   OtherFeedPage.SearchBookmarks,
   OtherFeedPage.UserUpvoted,
   OtherFeedPage.UserPosts,
+  OtherFeedPage.Explore,
+  OtherFeedPage.ExploreLatest,
+  OtherFeedPage.ExploreDiscussed,
+  OtherFeedPage.ExploreUpvoted,
 ]);
 
 export const UserProfileFeedPages = new Set([
@@ -92,7 +97,8 @@ const getFeedPageLayoutComponent = ({
 export const useFeedLayout = ({
   feedRelated = true,
 }: UseFeedLayoutProps = {}): UseFeedLayoutReturn => {
-  const isLaptop = useViewSize(ViewSize.Laptop);
+  const isLaptopSize = useViewSize(ViewSize.Laptop);
+  const isLaptop = isNullOrUndefined(isLaptopSize) || isLaptopSize;
   const { feedName } = useActiveFeedNameContext();
   const { insaneMode: isListMode } = useContext(SettingsContext);
 

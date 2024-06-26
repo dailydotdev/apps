@@ -134,7 +134,7 @@ export function TabContainer<T extends string = string>({
           'flex flex-row',
           className?.header,
           showBorder &&
-            'border-b border-border-subtlest-tertiary bg-background-default',
+            'border-b border-border-subtlest-tertiary bg-background-default tablet:bg-[unset]',
         )}
       >
         <TabList<T>

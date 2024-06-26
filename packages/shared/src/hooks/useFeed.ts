@@ -22,7 +22,7 @@ import {
   updateCachedPagePost,
 } from '../lib/query';
 import { getShouldRefreshFeed } from '../lib/refreshFeed';
-import { MarketingCta } from '../components/cards/MarketingCta/common';
+import { MarketingCta } from '../components/marketingCta/common';
 import { FeedItemType } from '../components/cards/common';
 
 interface FeedItemBase<T extends FeedItemType> {

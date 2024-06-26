@@ -14,3 +14,6 @@ export const feedSurveyTopBorder =
   'linear-gradient(90deg, var(--theme-accent-cheese-default) 0%, var(--theme-accent-bacon-default) 50%, var(--theme-accent-onion-default) 100%)';
 
 export const devcardBorder = `color-mix(in srgb, ${colors.salt[90]}, transparent 20%)`;
+
+export const bookmarkProviderListBg =
+  'linear-gradient(180deg, var(--theme-actions-bookmark-float) 0%, color-mix(in srgb, var(--theme-accent-bun-bolder), transparent 100%) 100%)';

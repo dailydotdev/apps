@@ -29,7 +29,6 @@ import {
   FeedCustomPreview,
   FeedPreviewControls,
   PreparingYourFeed,
-  Redirect,
 } from '@dailydotdev/shared/src/components';
 import {
   PromptOptions,
@@ -38,9 +37,6 @@ import {
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
-import { withExperiment } from '@dailydotdev/shared/src/components/withExperiment';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { CustomFeedsExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -258,8 +254,4 @@ const NewFeedPage = (): ReactElement => {
 NewFeedPage.getLayout = getLayout;
 NewFeedPage.layoutProps = mainFeedLayoutProps;
 
-export default withExperiment(NewFeedPage, {
-  feature: feature.customFeeds,
-  value: CustomFeedsExperiment.V1,
-  fallback: Redirect,
-});
+export default NewFeedPage;

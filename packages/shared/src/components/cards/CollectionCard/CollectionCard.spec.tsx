@@ -16,6 +16,15 @@ const defaultProps: PostCardProps = {
   onReadArticleClick: jest.fn(),
 };
 
+jest.mock('../../../hooks/useBookmarkProvider', () => ({
+  __esModule: true,
+  default: jest
+    .fn()
+    .mockImplementation((): { highlightBookmarkedPost: boolean } => ({
+      highlightBookmarkedPost: false,
+    })),
+}));
+
 beforeEach(() => {
   jest.clearAllMocks();
 });
