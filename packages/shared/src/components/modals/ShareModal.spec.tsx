@@ -6,7 +6,7 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import React from 'react';
+import React, { act } from 'react';
 import nock from 'nock';
 import { useRouter } from 'next/router';
 import ShareModal from './ShareModal';
@@ -109,7 +109,9 @@ describe('ShareModal Test Suite:', () => {
     renderComponent(true, true);
     const btn = await screen.findByTestId(`social-share-@${squads[0].handle}`);
     btn.click();
-    expect(screen.getByText('New post')).toBeInTheDocument();
+    await act(async () => {
+      await screen.findByText('New post');
+    });
   });
 
   it('should render the Facebook button and navigate to the correct link', async () => {
