@@ -23,27 +23,49 @@ const checkSameSite = () => {
   );
 };
 
-export function GoBackHeaderMobile({
-  children,
+export const GoBackButton = ({
   className,
-}: PropsWithChildren<WithClassNameProps>): ReactElement {
+  showLogo = true,
+}: WithClassNameProps & {
+  showLogo?: boolean;
+}): JSX.Element => {
   const router = useRouter();
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const goHome = useCallback(() => router.push('/'), [router]);
   const featureTheme = useFeatureTheme();
-  const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
 
-  const logoButton = (
+  const canGoBack =
+    globalThis?.history?.length > 1 && (checkSameSite() || isDevelopment);
+
+  const logoButton = showLogo ? (
     <Logo
       className="my-2"
       onLogoClick={goHome}
       position={LogoPosition.Initial}
       featureTheme={featureTheme}
     />
-  );
+  ) : null;
 
-  const canGoBack =
-    globalThis?.history?.length > 1 && (checkSameSite() || isDevelopment);
+  return canGoBack ? (
+    <Button
+      icon={<ArrowIcon className="-rotate-90" />}
+      size={ButtonSize.Small}
+      variant={ButtonVariant.Tertiary}
+      onClick={router.back}
+      className={className}
+    />
+  ) : (
+    logoButton
+  );
+};
+
+export function GoBackHeaderMobile({
+  children,
+  className,
+}: PropsWithChildren<WithClassNameProps>): ReactElement {
+  const router = useRouter();
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const featureTheme = useFeatureTheme();
+  const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
 
   if (isLaptop || !router?.isReady || !globalThis?.history) {
     return null;
@@ -57,16 +79,7 @@ export function GoBackHeaderMobile({
         className,
       )}
     >
-      {canGoBack ? (
-        <Button
-          icon={<ArrowIcon className="-rotate-90" />}
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Tertiary}
-          onClick={router.back}
-        />
-      ) : (
-        logoButton
-      )}
+      <GoBackButton />
       {children}
     </span>
   );

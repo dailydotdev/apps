@@ -1,7 +1,7 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import AuthContext from '../../contexts/AuthContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { SettingsIcon } from '../icons';
@@ -26,7 +26,7 @@ export default function ProfileButton({
   settingsIconOnly,
 }: ProfileButtonProps): ReactElement {
   const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
-  const { user } = useContext(AuthContext);
+  const { user } = useAuthContext();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
 
   return (
