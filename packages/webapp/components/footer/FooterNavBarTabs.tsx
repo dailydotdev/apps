@@ -116,7 +116,7 @@ export function FooterNavBarTabs({
       mobileUxTabs.splice(-1, 0, {
         requiresLogin: true,
         path: '/notifications',
-        title: 'Notifications',
+        title: 'Activity',
         icon: (active: boolean) => <Notifications active={active} />,
       });
     }

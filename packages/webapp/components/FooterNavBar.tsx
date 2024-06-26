@@ -27,7 +27,7 @@ const selectedMapToTitle: Record<keyof UseActiveNav, string> = {
   home: 'Home',
   search: 'Search',
   bookmarks: 'Bookmarks',
-  notifications: 'Notifications',
+  notifications: 'Activity',
   squads: 'Squads',
   profile: 'Profile',
 };
