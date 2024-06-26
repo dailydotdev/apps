@@ -129,12 +129,12 @@ export const SettingsContextProvider = ({
   const { unsubscribePersonalizedDigest } = usePersonalizedDigest();
 
   useEffect(() => {
-    if (!loadedSettings || !userId) {
+    if (!loadedSettings) {
       return;
     }
 
     applyTheme(themeModes[settings.theme]);
-  }, [settings.theme, loadedSettings, userId]);
+  }, [settings.theme, loadedSettings]);
 
   const { mutateAsync: updateRemoteSettings } = useMutation<
     unknown,

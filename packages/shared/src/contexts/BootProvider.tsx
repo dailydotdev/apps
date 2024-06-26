@@ -76,6 +76,10 @@ const updateLocalBootData = (
   return result;
 };
 
+const deleteLocalBootData = () => {
+  storage.setItem(BOOT_LOCAL_KEY, JSON.stringify({}));
+};
+
 export type PreloadFeeds = ({
   feeds,
   user,
@@ -148,7 +152,7 @@ export const BootDataProvider = ({
   useEffect(() => {
     const boot = getLocalBootData();
     if (boot) {
-      if (boot?.settings?.theme && !!user) {
+      if (boot?.settings?.theme) {
         applyTheme(themeModes[boot.settings.theme]);
       }
 
@@ -246,6 +250,7 @@ export const BootDataProvider = ({
         firstLoad={initialLoad}
         accessToken={bootRemoteData?.accessToken}
         squads={squads}
+        deleteLocalBootData={deleteLocalBootData}
       >
         <SettingsContextProvider
           settings={settings}

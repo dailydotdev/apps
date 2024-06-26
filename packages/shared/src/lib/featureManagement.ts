@@ -41,7 +41,7 @@ const feature = {
   seoSidebar: new Feature('seo_sidebar', SeoSidebarExperiment.Control),
   bookmark_provider: new Feature('bookmark_provider', false),
   onboardingChecklist: new Feature('onboarding_checklist', false),
-  feedLayoutPreview: new Feature('feed_layout_preview', false),
+  feedLayoutPreview: new Feature('feed_layout_preview', true),
   onboardingBanner: new Feature('onboarding_banner', OnboardingBanner.Control),
   adsPostPage: new Feature('ads_post_page', AdsPostPage.Control),
 };
