@@ -19,7 +19,7 @@ export const useRawBackgroundRequest = (
 
   useEffect(() => {
     if (!browser) {
-      return null;
+      return () => {};
     }
 
     const handler = ({ key, ...args }) => {
