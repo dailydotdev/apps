@@ -106,6 +106,8 @@ export interface AuthOptionsProps {
   onboardingSignupButton?: ButtonProps<'button'>;
 }
 
+const CHOSEN_PROVIDER_KEY = 'chosen_provider';
+
 function AuthOptions({
   onClose,
   onAuthStateUpdate,
@@ -150,7 +152,7 @@ function AuthOptions({
   const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
   const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
   const [chosenProvider, setChosenProvider] = usePersistentState(
-    'chosen_provider',
+    CHOSEN_PROVIDER_KEY,
     null,
   );
   const [isRegistration, setIsRegistration] = useState(false);
