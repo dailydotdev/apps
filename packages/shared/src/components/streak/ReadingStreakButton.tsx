@@ -53,7 +53,7 @@ function CustomStreaksTooltip({
         paddingClassName: 'p-4',
         bgClassName: 'bg-accent-pepper-subtlest',
         textClassName: 'text-text-primary typo-callout',
-        className: 'border border-border-subtlest-tertiary',
+        className: 'border border-border-subtlest-tertiary rounded-16',
       }}
       content={<ReadingStreakPopup streak={streak} />}
       onClickOutside={() => setShouldShowStreaks(false)}
@@ -107,7 +107,7 @@ export function ReadingStreakButton({
             streak={streak}
             shouldShowStreaks={shouldShowStreaks}
             setShouldShowStreaks={setShouldShowStreaks}
-            placement={!isMobile && !isLaptop ? 'bottom-start' : 'bottom'}
+            placement={!isMobile && !isLaptop ? 'bottom-start' : 'bottom-end'}
           >
             {children}
           </Tooltip>
