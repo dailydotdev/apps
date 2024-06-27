@@ -55,6 +55,7 @@ import OnboardingRegistrationForm from './OnboardingRegistrationForm';
 import EmailCodeVerification from './EmailCodeVerification';
 import { ButtonProps } from '../buttons/Button';
 import { OnboardingRegistrationForm4d5 } from './OnboardingRegistrationForm4d5';
+import usePersistentState from '../../hooks/usePersistentState';
 
 export enum AuthDisplay {
   Default = 'default',
@@ -148,7 +149,10 @@ function AuthOptions({
   const isVerified = loginState?.trigger === AuthTriggers.Verification;
   const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
   const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
-  const [chosenProvider, setChosenProvider] = useState<string>(null);
+  const [chosenProvider, setChosenProvider] = usePersistentState(
+    'chosen_provider',
+    null,
+  );
   const [isRegistration, setIsRegistration] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
   const windowPopup = useRef<Window>(null);
@@ -237,6 +241,10 @@ function AuthOptions({
   });
   const onProfileSuccess = async () => {
     const { data } = await refetchBoot();
+    if (data.user) {
+      const provider = chosenProvider || 'password';
+      onSignBackLogin(data.user as LoggedUser, provider as SignBackProvider);
+    }
     onSuccessfulRegistration?.(data?.user);
     onClose?.(null, true);
   };
