@@ -48,16 +48,19 @@ export interface MenuItemProps<
 
 interface ContextMenuProps extends Omit<MenuProps, 'children'> {
   options: MenuItemProps[] | ContextMenuDrawerItem[];
-  isOpen: boolean;
+  isOpen?: boolean;
 }
 
 export default function ContextMenu({
   options,
   onHidden,
+  isOpen,
   ...props
 }: ContextMenuProps): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { onHide } = useContextMenu({ id: String(props.id) });
+  const { isOpen: isMenuOpen, onHide } = useContextMenu({
+    id: String(props.id),
+  });
 
   const handleClose = useCallback(() => {
     onHide();
@@ -69,7 +72,7 @@ export default function ContextMenu({
       <RootPortal>
         <ContextMenuDrawer
           drawerProps={{
-            isOpen: props.isOpen,
+            isOpen: isOpen || isMenuOpen,
             onClose: handleClose,
             displayCloseButton: true,
           }}
