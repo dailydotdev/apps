@@ -9,6 +9,7 @@ import {
   ExitIcon,
   PlayIcon,
   PauseIcon,
+  EditIcon,
 } from './icons';
 import InteractivePopup, {
   InteractivePopupPosition,
@@ -66,7 +67,7 @@ export default function ProfileMenu({
         title: 'Account details',
         buttonProps: {
           tag: 'a',
-          icon: <SettingsIcon />,
+          icon: <EditIcon />,
           href: `${webappUrl}account/profile`,
         },
       },
