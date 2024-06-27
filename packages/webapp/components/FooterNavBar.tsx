@@ -27,7 +27,7 @@ const selectedMapToTitle: Record<keyof UseActiveNav, string> = {
   home: 'Home',
   search: 'Search',
   bookmarks: 'Bookmarks',
-  notifications: 'Notifications',
+  notifications: 'Activity',
   squads: 'Squads',
   profile: 'Profile',
 };
@@ -88,7 +88,7 @@ export default function FooterNavBar({
         spring="veryGentle"
         element="nav"
         className={classNames(
-          'grid w-full grid-flow-col items-center justify-between rounded-16 px-3',
+          'grid w-full auto-cols-fr grid-flow-col items-center justify-between rounded-16',
           !post && activeClasses,
           !showNav && 'hidden',
           !post && 'border-t border-border-subtlest-tertiary',
