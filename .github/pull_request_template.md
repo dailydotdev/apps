@@ -15,9 +15,19 @@ Log the new/changed events below:
 |--------|-------------|-------|
 | Change/New | event name  | extra: { ... } |
 
-### **Please make sure existing components are not breaking/affected by this PR**
+## Experiment
+
+Did you introduce any new experiments?
+Don't forget to send a message to the [#experiments](https://dailydotdev.slack.com/archives/C02JAUF8HJL/p1715175315620999) channel, following the template in slack, and adding a link to the message here.
+
+> [!IMPORTANT]
+> Please do not merge the PR until the experiment enrolment is approved.
 
 ## Manual Testing
+
+> [!CAUTION]
+> Please make sure existing components are not breaking/affected by this PR
+
 
 ### On those affected packages:
 - [ ] Have you done sanity checks in the webapp?
