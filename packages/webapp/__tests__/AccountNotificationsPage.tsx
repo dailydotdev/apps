@@ -411,6 +411,7 @@ it('should change hour for personalized digest subscription', async () => {
         day: 3,
         hour: 0,
         type: UserPersonalizedDigestType.Digest,
+        sendType: SendType.Weekly,
       },
     },
     result: {
