@@ -162,7 +162,7 @@ export const logSignUp = ({
       globalThis.fbq('track', `signup3_${seniority}`);
     }
     if (isEngineer) {
-      globalThis.gtag('event', 'engineer signup');
+      globalThis.fbq('track', 'engineer signup');
     }
   }
 
