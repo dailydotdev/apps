@@ -33,7 +33,6 @@ const feature = {
   featureTheme: new Feature('feature_theme', {}),
   hypeCampaign: new Feature('hype_campaign', false),
   improvedSharedPostCard: new Feature('improved_shared_post_card', false),
-  feedSettingsFeedback: new Feature('feed_settings_feedback', false),
   onboardingLinks: new Feature('onboarding_links', false),
   shortcutsUI: new Feature('shortcuts_ui', ShortcutsUIExperiment.Control),
   showRoadmap: new Feature('show_roadmap', false),
