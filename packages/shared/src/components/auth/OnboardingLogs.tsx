@@ -144,11 +144,15 @@ export const logSignUp = ({
   experienceLevel,
   instanceId,
 }: LogSignUpProps): void => {
+  const isEngineer = !!experienceLevel && experienceLevel !== 'NOT_ENGINEER';
   if (typeof globalThis.gtag === 'function') {
     if (instanceId) {
       globalThis.gtag('set', 'client_id', instanceId);
     }
     globalThis.gtag('event', 'signup');
+    if (isEngineer) {
+      globalThis.gtag('event', 'engineer signup');
+    }
   }
 
   if (typeof globalThis.fbq === 'function') {
@@ -156,6 +160,9 @@ export const logSignUp = ({
     const seniority = EXPERIENCE_TO_SENIORITY[experienceLevel];
     if (seniority) {
       globalThis.fbq('track', `signup3_${seniority}`);
+    }
+    if (isEngineer) {
+      globalThis.gtag('event', 'engineer signup');
     }
   }
 
