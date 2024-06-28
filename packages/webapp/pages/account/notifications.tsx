@@ -274,7 +274,11 @@ const AccountNotificationsPage = (): ReactElement => {
       });
     }
 
-    subscribePersonalizedDigest({ type, hour: preferredHour });
+    subscribePersonalizedDigest({
+      type,
+      hour: preferredHour,
+      sendType: personalizedDigestType,
+    });
     // comment for change
     setHour(preferredHour);
   };
