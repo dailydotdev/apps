@@ -1,15 +1,12 @@
-import React, { ReactElement, useContext } from 'react';
-import { useIsFetching, useQueryClient } from '@tanstack/react-query';
+import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
-import { FilterIcon, PlusIcon, RefreshIcon } from '../icons';
+import { FilterIcon, PlusIcon } from '../icons';
 import {
   Button,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
-import LogContext from '../../contexts/LogContext';
-import { LogEvent } from '../../lib/log';
 import {
   useActions,
   useConditionalFeature,
@@ -18,9 +15,6 @@ import {
   ViewSize,
 } from '../../hooks';
 import { feature } from '../../lib/featureManagement';
-import { useFeature } from '../GrowthBookProvider';
-import { setShouldRefreshFeed } from '../../lib/refreshFeed';
-import { SharedFeedPage } from '../utilities';
 import { getFeedName } from '../../lib/feed';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { checkIsExtension } from '../../lib/func';
@@ -41,10 +35,7 @@ function MyFeedHeading({
   const { checkHasCompleted } = useActions();
   const { showTopSites, toggleShowTopSites } = useSettingsContext();
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { logEvent } = useContext(LogContext);
   const { shouldUseListFeedLayout } = useFeedLayout();
-  const queryClient = useQueryClient();
-  const forceRefresh = useFeature(feature.forceRefresh);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const feedName = getFeedName(router.pathname);
   const { isCustomFeed } = useFeedName({ feedName });
@@ -53,22 +44,6 @@ function MyFeedHeading({
     shouldEvaluate: isExtension,
   });
   const isShortcutsUIV1 = shortcutsUIFeature === ShortcutsUIExperiment.V1;
-
-  const onRefresh = async () => {
-    logEvent({ event_name: LogEvent.RefreshFeed });
-    setShouldRefreshFeed(true);
-    await queryClient.refetchQueries({ queryKey: [SharedFeedPage.MyFeed] });
-    setShouldRefreshFeed(false);
-  };
-
-  const isFetchingFeed =
-    useIsFetching({ queryKey: [SharedFeedPage.MyFeed] }) > 0;
-  const feedQueryState = queryClient.getQueryState([SharedFeedPage.MyFeed], {
-    exact: false,
-  });
-  const isRefreshing = feedQueryState?.status === 'success' && isFetchingFeed;
-  const shouldShowFeedRefresh = forceRefresh && !isCustomFeed;
-
   let feedFiltersLabel = 'Feed settings';
 
   if (isCustomFeed) {
@@ -77,21 +52,6 @@ function MyFeedHeading({
 
   return (
     <>
-      {shouldShowFeedRefresh && (
-        <Button
-          size={ButtonSize.Medium}
-          variant={isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float}
-          className="mr-auto"
-          onClick={onRefresh}
-          icon={<RefreshIcon />}
-          iconPosition={
-            shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined
-          }
-          loading={isRefreshing}
-        >
-          {isLaptop ? 'Refresh feed' : null}
-        </Button>
-      )}
       <FeedSettingsButton
         onClick={onOpenFeedFilters}
         className="mr-auto"

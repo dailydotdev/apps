@@ -21,7 +21,6 @@ import {
   RequestKey,
   updateCachedPagePost,
 } from '../lib/query';
-import { getShouldRefreshFeed } from '../lib/refreshFeed';
 import { MarketingCta } from '../components/marketingCta/common';
 import { FeedItemType } from '../components/cards/common';
 
@@ -122,7 +121,6 @@ export default function useFeed<T>(
     ({ pageParam }) =>
       request(graphqlUrl, query, {
         ...variables,
-        ...(getShouldRefreshFeed() && { refresh: true }),
         first: pageSize,
         after: pageParam,
         loggedIn: !!user,
