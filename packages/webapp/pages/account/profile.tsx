@@ -135,7 +135,7 @@ const AccountProfilePage = (): ReactElement => {
     </span>
   );
 
-  const RenderForm = () => (
+  const form = (
     <form ref={formRef} id="submit-profile">
       <AccountContentSection
         className={{ heading: 'mt-0' }}
@@ -281,9 +281,7 @@ const AccountProfilePage = (): ReactElement => {
           },
         }}
       >
-        <div className="p-4">
-          <RenderForm />
-        </div>
+        <div className="p-4">{form}</div>
       </FormWrapper>
     );
   }
@@ -303,7 +301,7 @@ const AccountProfilePage = (): ReactElement => {
         </Button>
       }
     >
-      <RenderForm />
+      {form}
     </AccountPageContainer>
   );
 };
