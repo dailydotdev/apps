@@ -25,7 +25,6 @@ const feature = {
     fullBackground: false,
     image: cloudinary.onboarding.default,
   }),
-  forceRefresh: new Feature('force_refresh', false),
   feedAdSpot: new Feature('feed_ad_spot', 0),
   searchVersion: new Feature('search_version', 1),
   readingReminder: new Feature('reading_reminder', false),
