@@ -31,10 +31,7 @@ import {
   PromptOptions,
   usePrompt,
 } from '@dailydotdev/shared/src/hooks/usePrompt';
-import {
-  SIGNIN_METHOD_KEY,
-  useSignBack,
-} from '@dailydotdev/shared/src/hooks/auth/useSignBack';
+import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import { useEventListener } from '@dailydotdev/shared/src/hooks';
 import { capitalize } from '@dailydotdev/shared/src/lib/strings';
 import { BOOT_LOCAL_KEY } from '@dailydotdev/shared/src/contexts/common';
