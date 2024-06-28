@@ -52,10 +52,8 @@ import { OtherFeedPage, RequestKey } from '@dailydotdev/shared/src/lib/query';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
-  GtagTracking,
   logSignUp,
-  PixelTracking,
-  TiktokTracking,
+  OnboardingLogs,
 } from '@dailydotdev/shared/src/components/auth/OnboardingLogs';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
@@ -219,7 +217,6 @@ export function OnboardPage(): ReactElement {
   const onSuccessfulRegistration = (userRefetched: LoggedUser) => {
     logSignUp({
       experienceLevel: userRefetched?.experienceLevel,
-      instanceId: router.query?.aiid?.toString(),
     });
     setActiveScreen(OnboardingStep.EditTag);
   };
@@ -393,6 +390,9 @@ export function OnboardPage(): ReactElement {
     return null;
   }
 
+  const instanceId = router.query?.aiid?.toString();
+  const userId = user?.id || anonymous?.id;
+
   return (
     <div
       className={classNames(
@@ -413,9 +413,7 @@ export function OnboardPage(): ReactElement {
       }}
     >
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
-      <PixelTracking />
-      <GtagTracking />
-      <TiktokTracking />
+      <OnboardingLogs userId={userId} instanceId={instanceId} />
       {getProgressBar()}
       {showGenerigLoader && <GenericLoader />}
       <OnboardingHeader

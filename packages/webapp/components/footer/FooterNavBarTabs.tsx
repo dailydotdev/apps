@@ -112,13 +112,15 @@ export function FooterNavBarTabs({
 
   const tabs = useMemo(() => {
     if (notificationsNavBar) {
-      mobileUxTabs.pop();
-      mobileUxTabs.splice(-1, 0, {
-        requiresLogin: true,
-        path: '/notifications',
-        title: 'Notifications',
-        icon: (active: boolean) => <Notifications active={active} />,
-      });
+      if (!mobileUxTabs.some((tab: FooterTab) => tab?.title === 'Activity')) {
+        mobileUxTabs.pop();
+        mobileUxTabs.splice(-1, 0, {
+          requiresLogin: true,
+          path: '/notifications',
+          title: 'Activity',
+          icon: (active: boolean) => <Notifications active={active} />,
+        });
+      }
     }
 
     return mobileUxTabs;
