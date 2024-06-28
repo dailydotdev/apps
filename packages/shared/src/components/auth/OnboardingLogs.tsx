@@ -132,7 +132,7 @@ export const logSignUp = ({ experienceLevel }: LogSignUpProps): void => {
   if (typeof globalThis.gtag === 'function') {
     globalThis.gtag('event', 'signup');
     if (isEngineer) {
-      globalThis.gtag('event', 'engineer signup');
+      globalThis.gtag('event', 'engineer_signup');
     }
   }
 
