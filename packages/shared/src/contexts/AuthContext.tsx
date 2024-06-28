@@ -8,7 +8,7 @@ import React, {
 import { QueryObserverResult } from '@tanstack/react-query';
 import {
   AnonymousUser,
-  deleteAccount as dispatchDeleteAccount,
+  deleteAccount,
   LoggedUser,
   logout as dispatchLogout,
   LogoutReason,
@@ -105,7 +105,6 @@ export type AuthContextProviderProps = {
   firstLoad?: boolean;
   refetchBoot?: () => Promise<QueryObserverResult<Boot>>;
   children?: ReactNode;
-  updateLocalBootThemeData?: () => void;
 } & Pick<
   AuthContextData,
   | 'getRedirectUri'
@@ -133,7 +132,6 @@ export const AuthContextProvider = ({
   firstLoad,
   accessToken,
   squads,
-  updateLocalBootThemeData,
 }: AuthContextProviderProps): ReactElement => {
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
@@ -147,11 +145,6 @@ export const AuthContextProvider = ({
   if (isLegacyLogout && !loginState) {
     setLoginState({ trigger: AuthTriggers.LegacyLogout });
   }
-
-  const deleteAccount = async () => {
-    await dispatchDeleteAccount();
-    updateLocalBootThemeData?.();
-  };
 
   return (
     <AuthContext.Provider

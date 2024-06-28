@@ -223,13 +223,6 @@ export const BootDataProvider = ({
     setCachedBootData((cachedData) => updateLocalBootData(cachedData, { exp }));
   }, []);
 
-  const updateLocalBootThemeData = () => {
-    const updated = updateLocalBootData(cachedBootData, {
-      settings: { ...settings, theme: 'darcula' },
-    });
-    setCachedBootData(updated);
-  };
-
   return (
     <GrowthBookProvider
       app={app}
@@ -253,7 +246,6 @@ export const BootDataProvider = ({
         firstLoad={initialLoad}
         accessToken={bootRemoteData?.accessToken}
         squads={squads}
-        updateLocalBootThemeData={updateLocalBootThemeData}
       >
         <SettingsContextProvider
           settings={settings}

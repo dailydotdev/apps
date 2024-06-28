@@ -31,9 +31,13 @@ import {
   PromptOptions,
   usePrompt,
 } from '@dailydotdev/shared/src/hooks/usePrompt';
-import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
+import {
+  SIGNIN_METHOD_KEY,
+  useSignBack,
+} from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import { useEventListener } from '@dailydotdev/shared/src/hooks';
 import { capitalize } from '@dailydotdev/shared/src/lib/strings';
+import { BOOT_LOCAL_KEY } from '@dailydotdev/shared/src/contexts/common';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
 import {
@@ -142,6 +146,7 @@ function AccountSecurityDefault({
       await deleteAccount();
       await onUpdateSignBack(null, null);
       window.location.replace('/');
+      globalThis?.localStorage.removeItem(BOOT_LOCAL_KEY);
     }
   };
 
