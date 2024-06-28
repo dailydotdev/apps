@@ -11,7 +11,7 @@
 Did you introduce any new tracking events?
 
 <!--
-If yes please remove the comment ```<!-- -->``` and fill the table below
+If yes please remove the comment HTML comment tags and fill the table below
 
 Don't forget to update the [Analytics Taxonomy sheet](https://docs.google.com/spreadsheets/d/18Lv7zXges9QfVX5VYL1a-Hyl0e1sQ3sLr0OK8YZWKXI/edit#gid=0)
 
@@ -28,7 +28,7 @@ Log the new/changed events below:
 Did you introduce any new experiments?
 
 <!--
-If yes please remove the comment ```<!-- -->``` and follow the instructions below
+If yes please remove the comment HTML comment tags and follow the instructions below
 
 Don't forget to send a message to the [#experiments](https://dailydotdev.slack.com/archives/C02JAUF8HJL/p1715175315620999) channel, following the template in slack, and adding a link to the message here.
 
