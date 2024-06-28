@@ -59,6 +59,7 @@ const GtagTracking = ({
   );
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const HotJarTracking = (): ReactElement => {
   return (
     <Script strategy="afterInteractive" id="load-hotjar">

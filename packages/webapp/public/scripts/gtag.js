@@ -3,9 +3,17 @@ const userId = document.currentScript.getAttribute('data-user-id');
 const instanceId = document.currentScript.getAttribute('data-instance-id');
 
 window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
+
+function gtag() {
+  dataLayer.push(arguments);
+}
+
 gtag('js', new Date());
-gtag('config', GA_ID, {
+
+const props = {
   'user_id': userId,
-  'client_id': instanceId,
-});
+};
+if (instanceId) {
+  props.client_id = instanceId;
+}
+gtag('config', GA_ID, props);
