@@ -42,7 +42,6 @@ browser.runtime.onMessage.addListener((props) => {
 
   const container = getCompanionWrapper();
 
-  console.log('with post data: ', postData);
   if (postData) {
     renderApp(props);
   } else if (container && root) {
