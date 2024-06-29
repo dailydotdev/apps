@@ -58,7 +58,7 @@ export default function ContextMenu({
   ...props
 }: ContextMenuProps): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { isOpen: isMenuOpen, onHide } = useContextMenu({
+  const { onHide } = useContextMenu({
     id: String(props.id),
   });
 
@@ -72,7 +72,7 @@ export default function ContextMenu({
       <RootPortal>
         <ContextMenuDrawer
           drawerProps={{
-            isOpen: isOpen || isMenuOpen,
+            isOpen,
             onClose: handleClose,
             displayCloseButton: true,
           }}
