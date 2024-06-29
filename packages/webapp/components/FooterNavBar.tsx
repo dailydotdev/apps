@@ -91,7 +91,6 @@ export default function FooterNavBar({
           className={classNames(
             'grid w-full auto-cols-fr grid-flow-col items-center justify-between rounded-16',
             !post && activeClasses,
-            !showNav && 'hidden',
             !post && 'border-t border-border-subtlest-tertiary',
           )}
         >
