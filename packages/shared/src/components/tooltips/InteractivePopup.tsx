@@ -58,7 +58,7 @@ const positionClass: Record<InteractivePopupPosition, string> = {
   leftStart: classNames(leftClass, startClass),
   leftCenter: classNames(leftClass, centerClassY),
   leftEnd: classNames(leftClass, endClass),
-  profileMenu: classNames(profileMenuRightClass, startClass),
+  profileMenu: classNames(profileMenuRightClass, 'top-14'),
   screen: 'inset-0 w-screen h-screen',
 };
 

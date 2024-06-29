@@ -3,24 +3,26 @@ import Script from 'next/script';
 import { isProduction } from '../../lib/constants';
 import { UserExperienceLevel } from '../../lib/user';
 
-export const FB_PIXEL_ID = '519268979315924';
-export const GA_TRACKING_ID = 'G-VTGLXD7QSN';
-export const TWITTER_TRACKING_ID = 'o6izs';
-export const REDDIT_TRACKING_ID = 't2_j1li1n7e';
-export const TIKTOK_TRACKING_ID = 'CO2RCPBC77U37LT1TAIG';
+const FB_PIXEL_ID = '519268979315924';
+const GA_TRACKING_ID = 'G-VTGLXD7QSN';
+const TWITTER_TRACKING_ID = 'o6izs';
+const REDDIT_TRACKING_ID = 't2_j1li1n7e';
+const TIKTOK_TRACKING_ID = 'CO2RCPBC77U37LT1TAIG';
 
-export const PixelTracking = (): ReactElement => {
-  if (!isProduction) {
-    return null;
-  }
+export type OnboardingLogsProps = {
+  instanceId?: string;
+  userId?: string;
+};
 
+const FbTracking = ({ userId }: OnboardingLogsProps): ReactElement => {
   return (
     <>
       <Script
         id="fb-pixel"
-        src="/scripts/pixel.js"
+        src="/scripts/fb.js"
         strategy="afterInteractive"
         data-pixel-id={FB_PIXEL_ID}
+        data-user-id={userId}
       />
       <noscript>
         <img
@@ -35,11 +37,10 @@ export const PixelTracking = (): ReactElement => {
   );
 };
 
-export const GtagTracking = (): ReactElement => {
-  if (!isProduction) {
-    return null;
-  }
-
+const GtagTracking = ({
+  userId,
+  instanceId,
+}: OnboardingLogsProps): ReactElement => {
   return (
     <>
       <Script
@@ -51,16 +52,15 @@ export const GtagTracking = (): ReactElement => {
         src="/scripts/gtag.js"
         strategy="afterInteractive"
         data-ga-id={GA_TRACKING_ID}
+        data-user-id={userId}
+        data-instance-id={instanceId}
       />
     </>
   );
 };
 
-export const HotJarTracking = (): ReactElement => {
-  if (!isProduction) {
-    return null;
-  }
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const HotJarTracking = (): ReactElement => {
   return (
     <Script strategy="afterInteractive" id="load-hotjar">
       {`
@@ -77,11 +77,7 @@ export const HotJarTracking = (): ReactElement => {
   );
 };
 
-export const TwitterTracking = (): ReactElement => {
-  if (!isProduction) {
-    return null;
-  }
-
+const TwitterTracking = (): ReactElement => {
   return (
     <Script
       id="twitter-pixel"
@@ -92,11 +88,7 @@ export const TwitterTracking = (): ReactElement => {
   );
 };
 
-export const RedditTracking = (): ReactElement => {
-  if (!isProduction) {
-    return null;
-  }
-
+const RedditTracking = (): ReactElement => {
   return (
     <Script
       id="reddit-pixel"
@@ -107,11 +99,7 @@ export const RedditTracking = (): ReactElement => {
   );
 };
 
-export const TiktokTracking = (): ReactElement => {
-  if (!isProduction) {
-    return null;
-  }
-
+const TiktokTracking = (): ReactElement => {
   return (
     <Script
       id="tiktok-pixel"
@@ -124,7 +112,6 @@ export const TiktokTracking = (): ReactElement => {
 
 interface LogSignUpProps {
   experienceLevel: keyof typeof UserExperienceLevel;
-  instanceId?: string;
 }
 
 const EXPERIENCE_TO_SENIORITY: Record<
@@ -140,15 +127,13 @@ const EXPERIENCE_TO_SENIORITY: Record<
   NOT_ENGINEER: 'not_engineer',
 };
 
-export const logSignUp = ({
-  experienceLevel,
-  instanceId,
-}: LogSignUpProps): void => {
+export const logSignUp = ({ experienceLevel }: LogSignUpProps): void => {
+  const isEngineer = !!experienceLevel && experienceLevel !== 'NOT_ENGINEER';
   if (typeof globalThis.gtag === 'function') {
-    if (instanceId) {
-      globalThis.gtag('set', 'client_id', instanceId);
-    }
     globalThis.gtag('event', 'signup');
+    if (isEngineer) {
+      globalThis.gtag('event', 'engineer_signup');
+    }
   }
 
   if (typeof globalThis.fbq === 'function') {
@@ -156,6 +141,9 @@ export const logSignUp = ({
     const seniority = EXPERIENCE_TO_SENIORITY[experienceLevel];
     if (seniority) {
       globalThis.fbq('track', `signup3_${seniority}`);
+    }
+    if (isEngineer) {
+      globalThis.fbq('track', 'engineer signup');
     }
   }
 
@@ -170,4 +158,21 @@ export const logSignUp = ({
   if (typeof globalThis.ttq?.track === 'function') {
     globalThis.ttq.track('CompletePayment', { value: 1 });
   }
+};
+
+export const OnboardingLogs = (props: OnboardingLogsProps): ReactElement => {
+  const { userId } = props;
+  if (!isProduction || !userId) {
+    return null;
+  }
+
+  return (
+    <>
+      <FbTracking {...props} />
+      <GtagTracking {...props} />
+      <TiktokTracking />
+      <TwitterTracking />
+      <RedditTracking />
+    </>
+  );
 };

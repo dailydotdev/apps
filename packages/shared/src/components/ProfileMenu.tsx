@@ -9,6 +9,7 @@ import {
   ExitIcon,
   PlayIcon,
   PauseIcon,
+  EditIcon,
 } from './icons';
 import InteractivePopup, {
   InteractivePopupPosition,
@@ -66,7 +67,7 @@ export default function ProfileMenu({
         title: 'Account details',
         buttonProps: {
           tag: 'a',
-          icon: <SettingsIcon />,
+          icon: <EditIcon />,
           href: `${webappUrl}account/profile`,
         },
       },
@@ -148,7 +149,7 @@ export default function ProfileMenu({
       onClose={onClose}
       closeOutsideClick
       position={InteractivePopupPosition.ProfileMenu}
-      className="w-full max-w-64 !rounded-24 border border-border-subtlest-tertiary"
+      className="w-full max-w-64 !rounded-24 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest"
       closeButton={{
         variant: ButtonVariant.Primary,
         size: ButtonSize.XSmall,
