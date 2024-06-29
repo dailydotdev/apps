@@ -50,7 +50,7 @@
     "@svgr/cli": "^5.5.0",
     "@svgr/webpack": "^5.5.0",
     "@testing-library/jest-dom": "^5.16.1",
-    "@testing-library/react": "^12.1.5",
+    "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/dompurify": "^2.3.1",
     "@types/jest": "^26.0.24",
