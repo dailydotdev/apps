@@ -6,7 +6,6 @@ import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { Divider } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
 import { LazyModal } from '../modals/common/types';
-import NotificationsBell from '../notifications/NotificationsBell';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { useReadingStreak } from '../../hooks/streaks';
 import { ButtonIconPosition } from '../buttons/common';
@@ -24,7 +23,6 @@ export function MobileFeedActions(): ReactElement {
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const featureTheme = useFeatureTheme();
   const hypeCampaign = useFeature(feature.hypeCampaign);
-  const notificationsNavBar = useFeature(feature.notificationsNavBar);
 
   return (
     <div className="flex flex-row justify-between px-4 py-1">
@@ -53,19 +51,15 @@ export function MobileFeedActions(): ReactElement {
             })
           }
         />
-        {notificationsNavBar ? (
-          <Link href={user.permalink} passHref>
-            <a>
-              <ProfilePicture
-                user={user}
-                size={ProfileImageSize.Medium}
-                nativeLazyLoading
-              />
-            </a>
-          </Link>
-        ) : (
-          <NotificationsBell compact />
-        )}
+        <Link href={user.permalink} passHref>
+          <a>
+            <ProfilePicture
+              user={user}
+              size={ProfileImageSize.Medium}
+              nativeLazyLoading
+            />
+          </a>
+        </Link>
       </span>
     </div>
   );
