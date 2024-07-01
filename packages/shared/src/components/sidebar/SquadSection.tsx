@@ -20,11 +20,6 @@ export function SquadSection(props: SectionCommonProps): ReactElement {
       path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}squads`,
       isForcedLink: true,
     },
-    {
-      icon: () => <NewSquadIcon />,
-      title: 'New Squad',
-      action: () => openNewSquad({ origin: Origin.Sidebar }),
-    },
   ];
 
   squads?.forEach((squad) => {
@@ -39,6 +34,12 @@ export function SquadSection(props: SectionCommonProps): ReactElement {
       title: name,
       path: permalink,
     });
+  });
+
+  squadMenuItems.push({
+    icon: () => <NewSquadIcon />,
+    title: 'New Squad',
+    action: () => openNewSquad({ origin: Origin.Sidebar }),
   });
 
   return (
