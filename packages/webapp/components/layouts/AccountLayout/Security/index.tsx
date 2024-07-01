@@ -142,8 +142,8 @@ function AccountSecurityDefault({
     if (await showPrompt(deleteAccountPromptOptions)) {
       await deleteAccount();
       await onUpdateSignBack(null, null);
-      window.location.replace('/');
       globalThis?.localStorage.removeItem(BOOT_LOCAL_KEY);
+      window.location.replace('/');
     }
   };
 
