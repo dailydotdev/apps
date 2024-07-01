@@ -1,4 +1,4 @@
-import React, { isValidElement, ReactElement, ReactNode, useMemo } from 'react';
+import React, { isValidElement, ReactElement, ReactNode } from 'react';
 import {
   AiIcon,
   BellIcon,
@@ -15,6 +15,23 @@ import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/
 import { FooterNavBarContainerProps, FooterTab, getNavPath } from './common';
 import { FooterPlusButton } from './FooterPlusButton';
 import { FooterNavBarItem, FooterNavBarItemProps } from './FooterNavBarItem';
+
+const Notifications = ({ active }: { active: boolean }): JSX.Element => {
+  const { unreadCount } = useNotificationContext();
+
+  return (
+    <div className="relative">
+      <BellIcon secondary={active} size={IconSize.Medium} />
+      {!!unreadCount && (
+        <Bubble
+          className={classNames('-right-1.5 -top-1.5 cursor-pointer px-1')}
+        >
+          {getUnreadText(unreadCount)}
+        </Bubble>
+      )}
+    </div>
+  );
+};
 
 export const tabs: (FooterTab | ReactNode)[] = [
   {
@@ -80,23 +97,6 @@ const Tab = ({ tab, isActive }: TabProps) => {
         </a>
       </Link>
     </FooterNavBarItem>
-  );
-};
-
-const Notifications = ({ active }: { active: boolean }): JSX.Element => {
-  const { unreadCount } = useNotificationContext();
-
-  return (
-    <div className="relative">
-      <BellIcon secondary={active} size={IconSize.Medium} />
-      {!!unreadCount && (
-        <Bubble
-          className={classNames('-right-1.5 -top-1.5 cursor-pointer px-1')}
-        >
-          {getUnreadText(unreadCount)}
-        </Bubble>
-      )}
-    </div>
   );
 };
 
