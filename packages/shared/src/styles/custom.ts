@@ -4,15 +4,6 @@
 
 import colors from './colors';
 
-export const feedSurveyBg =
-  'color-mix(in srgb, var(--theme-background-default), transparent 8%)';
-
-export const feedSurveyBorder =
-  'linear-gradient(180deg, var(--theme-accent-cheese-default) 0%, var(--theme-accent-bacon-default) 50%, var(--theme-accent-onion-default) 100%)';
-
-export const feedSurveyTopBorder =
-  'linear-gradient(90deg, var(--theme-accent-cheese-default) 0%, var(--theme-accent-bacon-default) 50%, var(--theme-accent-onion-default) 100%)';
-
 export const devcardBorder = `color-mix(in srgb, ${colors.salt[90]}, transparent 20%)`;
 
 export const bookmarkProviderListBg =

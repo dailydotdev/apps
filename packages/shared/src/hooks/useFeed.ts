@@ -46,7 +46,6 @@ export type FeedItem =
   | PostItem
   | AdItem
   | MarketingCtaItem
-  | FeedItemBase<FeedItemType.FeedSurvey>
   | FeedItemBase<FeedItemType.Placeholder>
   | FeedItemBase<FeedItemType.UserAcquisition>
   | FeedItemBase<FeedItemType.PublicSquadEligibility>;

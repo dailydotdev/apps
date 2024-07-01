@@ -51,7 +51,6 @@ export enum Origin {
 }
 
 export enum LogEvent {
-  DismissPromotion = 'dismiss promotion',
   Click = 'click',
   CommentPost = 'comment post',
   StartSubmitArticle = 'start submit article',
@@ -204,7 +203,6 @@ export enum TargetType {
 }
 
 export enum TargetId {
-  FeedSurvey = 'feed survey',
   SearchReferralBadge = 'search referral badge',
   InviteBanner = 'invite banner',
   InviteProfileMenu = 'invite in profile menu',
