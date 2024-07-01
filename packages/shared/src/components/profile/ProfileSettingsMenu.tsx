@@ -5,7 +5,6 @@ import {
   CardIcon,
   EditIcon,
   LockIcon,
-  MenuIcon,
   DevCardIcon,
   ExitIcon,
   EmbedIcon,
@@ -82,11 +81,6 @@ const useMenuItems = (): NavItemProps[] => {
         label: 'Notifications',
         icon: <BellIcon />,
         href: '/account/notifications',
-      },
-      {
-        label: 'Other settings',
-        icon: <MenuIcon className="rotate-90" />,
-        href: '/account/others',
       },
       {
         label: 'Contribute',
