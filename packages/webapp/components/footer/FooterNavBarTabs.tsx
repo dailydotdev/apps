@@ -23,9 +23,7 @@ const Notifications = ({ active }: { active: boolean }): JSX.Element => {
     <div className="relative">
       <BellIcon secondary={active} size={IconSize.Medium} />
       {!!unreadCount && (
-        <Bubble
-          className={classNames('-right-1.5 -top-1.5 cursor-pointer px-1')}
-        >
+        <Bubble className="-right-1.5 -top-1.5 cursor-pointer px-1">
           {getUnreadText(unreadCount)}
         </Bubble>
       )}

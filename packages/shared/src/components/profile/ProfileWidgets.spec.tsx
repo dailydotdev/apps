@@ -14,6 +14,8 @@ import {
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { PUBLIC_SOURCE_MEMBERSHIPS_QUERY } from '../../graphql/users';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
+import { settingsContext } from '../../../__tests__/helpers/boot';
+import SettingsContext from '../../contexts/SettingsContext';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -106,11 +108,13 @@ const renderComponent = (
           getRedirectUri: jest.fn(),
         }}
       >
-        <ProfileWidgets
-          user={{ ...defaultProfile, ...profile }}
-          sources={memberships}
-          userStats={{ upvotes: 5_000, views: 83_000 }}
-        />
+        <SettingsContext.Provider value={settingsContext}>
+          <ProfileWidgets
+            user={{ ...defaultProfile, ...profile }}
+            sources={memberships}
+            userStats={{ upvotes: 5_000, views: 83_000 }}
+          />
+        </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
