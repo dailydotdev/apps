@@ -51,15 +51,17 @@ export function MobileFeedActions(): ReactElement {
             })
           }
         />
-        <Link href={user.permalink} passHref>
-          <a>
-            <ProfilePicture
-              user={user}
-              size={ProfileImageSize.Medium}
-              nativeLazyLoading
-            />
-          </a>
-        </Link>
+        {user && (
+          <Link href={user.permalink} passHref>
+            <a>
+              <ProfilePicture
+                user={user}
+                size={ProfileImageSize.Medium}
+                nativeLazyLoading
+              />
+            </a>
+          </Link>
+        )}
       </span>
     </div>
   );
