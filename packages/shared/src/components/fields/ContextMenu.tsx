@@ -58,9 +58,7 @@ export default function ContextMenu({
   ...props
 }: ContextMenuProps): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { onHide } = useContextMenu({
-    id: String(props.id),
-  });
+  const { onHide } = useContextMenu({ id: String(props.id) });
 
   const handleClose = useCallback(() => {
     onHide();
