@@ -42,7 +42,6 @@ const feature = {
   feedLayoutPreview: new Feature('feed_layout_preview', false),
   onboardingBanner: new Feature('onboarding_banner', OnboardingBanner.Control),
   adsPostPage: new Feature('ads_post_page', AdsPostPage.Control),
-  notificationsNavBar: new Feature('notifications_nav_bar', false),
 };
 
 export { feature };

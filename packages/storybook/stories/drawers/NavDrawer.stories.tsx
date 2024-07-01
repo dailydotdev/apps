@@ -11,7 +11,6 @@ import {
   CardIcon,
   EditIcon,
   LockIcon,
-  MenuIcon,
   TrashIcon,
 } from '@dailydotdev/shared/src/components/icons';
 
@@ -43,7 +42,6 @@ const meta: Meta<typeof NavDrawer> = {
       { label: 'Customize', icon: <CardIcon /> },
       { label: 'Security', icon: <LockIcon /> },
       { label: 'Notifications', icon: <BellIcon /> },
-      { label: 'Other settings', icon: <MenuIcon className="rotate-90" /> },
     ],
   },
 };
