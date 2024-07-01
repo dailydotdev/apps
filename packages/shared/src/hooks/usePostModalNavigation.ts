@@ -104,7 +104,7 @@ export const usePostModalNavigation = (
 
   useEffect(() => {
     if (isTesting) {
-      return () => {};
+      return undefined;
     }
 
     const routeHandler = () => {
@@ -119,7 +119,7 @@ export const usePostModalNavigation = (
 
   useEffect(() => {
     if (isExtension) {
-      return () => {};
+      return undefined;
     }
 
     const onPopState = () => {
