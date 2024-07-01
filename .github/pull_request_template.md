@@ -1,7 +1,8 @@
 ## Changes
 
-### Describe what this PR does
 <!--
+### Describe what this PR does
+
 - Short and concise, bullet points can help
 - Screenshots if applicable can also help
 -->
@@ -42,6 +43,8 @@ Don't forget to send a message to the [#experiments](https://dailydotdev.slack.c
 > [!CAUTION]
 > Please make sure existing components are not breaking/affected by this PR
 
+<!--
+If relevant, please remove the comment HTML comment tags and fill the checkboxes below
 
 ### On those affected packages:
 - [ ] Have you done sanity checks in the webapp?
@@ -57,4 +60,12 @@ Don't forget to send a message to the [#experiments](https://dailydotdev.slack.c
 - [ ] iOS (Chrome and Safari)
 - [ ] Android
 
-WT-{number} #done
+-->
+
+<!--
+Copy and paste the below line outside the HTML comment tags to link this PR to the ticket in Jira
+
+AS-{number} #done
+or
+MI-{number} #done
+-->
