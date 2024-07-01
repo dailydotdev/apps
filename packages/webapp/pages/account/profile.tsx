@@ -77,9 +77,9 @@ const AccountProfilePage = (): ReactElement => {
       github: values.github,
       portfolio: values.portfolio,
       experienceLevel: values.experienceLevel,
+      onUpdateSuccess: () => router.push(`/${values.username}`),
     };
     updateUserProfile(params);
-    router.push(`/${values.username}`);
   };
 
   const { mutate: uploadCoverImage } = useMutation<

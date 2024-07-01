@@ -173,6 +173,7 @@ export default function PostItemCard({
                   icon={<MenuIcon />}
                   onClick={(event) => {
                     event.stopPropagation();
+                    event.preventDefault();
                     onContextMenu(event, postItem);
                   }}
                   size={ButtonSize.Small}

@@ -23,6 +23,7 @@ export interface ProfileFormHint {
 
 export interface UpdateProfileParameters extends Partial<UserProfile> {
   image?: File;
+  onUpdateSuccess?: () => void;
 }
 
 interface UseProfileForm {
@@ -89,15 +90,16 @@ const useProfileForm = ({
     ResponseError,
     UpdateProfileParameters
   >(
-    ({ image, ...data }) =>
+    ({ image, onUpdateSuccess, ...data }) =>
       request(graphqlUrl, UPDATE_USER_PROFILE_MUTATION, {
         data,
         upload: image,
       }),
     {
-      onSuccess: async (_, { image, ...vars }) => {
+      onSuccess: async (_, { image, onUpdateSuccess, ...vars }) => {
         setHint({});
         await updateUser({ ...user, ...vars });
+        onUpdateSuccess?.();
         onSuccess?.();
       },
       onError: (err) => {
