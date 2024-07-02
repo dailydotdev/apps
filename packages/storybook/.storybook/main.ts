@@ -9,6 +9,9 @@ const config: StorybookConfig = {
     '../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)',
   ],
   framework: '@storybook/react-vite',
+  core: {
+    builder: '@storybook/builder-vite'
+  },
   typescript: {
     reactDocgen: 'react-docgen-typescript',
   },

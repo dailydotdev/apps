@@ -731,6 +731,9 @@ importers:
       '@types/react':
         specifier: ^17.0.47
         version: 17.0.47
+      '@types/webextension-polyfill':
+        specifier: ^0.10.5
+        version: 0.10.5
       '@vitejs/plugin-react':
         specifier: ^1.3.2
         version: 1.3.2

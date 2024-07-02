@@ -11,6 +11,11 @@ const meta: Meta<typeof ShortcutLinks> = {
   title: 'Extension/ShortcutLinks',
   component: ShortcutLinks,
   tags: ['autodocs'],
+  parameters: {
+    nextjs: {
+      appDirectory: true, // 👈 Set this
+    },
+  },
   args: {
     shouldUseListFeedLayout: true,
   },

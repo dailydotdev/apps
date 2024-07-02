@@ -1,11 +1,11 @@
-import React, { FC } from 'react';
 import {
   BootDataProvider,
 } from '@dailydotdev/shared/src/contexts/BootProvider';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Boot, BootApp, BootCacheData } from '@dailydotdev/shared/src/lib/boot';
+import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { Browser } from 'webextension-polyfill';
+import type { FC } from 'react';
 
 const app = BootApp.Extension;
 const queryClient = new QueryClient();
