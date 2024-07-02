@@ -56,6 +56,7 @@ interface LogoProps {
     logo?: string;
     logoText?: string;
   };
+  linkDisabled?: boolean;
 }
 
 export default function Logo({
@@ -67,6 +68,7 @@ export default function Logo({
   compact = false,
   position = LogoPosition.Absolute,
   featureTheme,
+  linkDisabled,
 }: LogoProps): ReactElement {
   return (
     <LinkWithTooltip
@@ -81,6 +83,7 @@ export default function Logo({
           'flex items-center',
           logoPositionToClassName[position],
           className,
+          linkDisabled && 'pointer-events-none',
         )}
         onClick={onLogoClick}
       >
