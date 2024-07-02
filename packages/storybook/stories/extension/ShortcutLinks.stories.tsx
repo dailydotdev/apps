@@ -11,11 +11,6 @@ import { http, HttpResponse } from 'msw';
 const meta: Meta<typeof ShortcutLinks> = {
   title: 'Extension/ShortcutLinks',
   component: ShortcutLinks,
-  parameters: {
-    nextjs: {
-      appDirectory: true, // 👈 Set this
-    },
-  },
   args: {
     shouldUseListFeedLayout: true,
   },
