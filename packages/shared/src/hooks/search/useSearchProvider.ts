@@ -12,7 +12,6 @@ import {
 import { useRequestProtocol } from '../useRequestProtocol';
 import { graphqlUrl } from '../../lib/config';
 import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
 
 export type UseSearchProviderProps = {
   provider: SearchProviderEnum;
@@ -69,11 +68,8 @@ export const useSearchProvider = (): UseSearchProvider => {
           };
         }
 
-        const searchVersion = getFeatureValue(feature.searchVersion);
-
         const result = await requestMethod(graphqlUrl, graphqlQuery, {
           query,
-          version: searchVersion,
           limit,
         });
 

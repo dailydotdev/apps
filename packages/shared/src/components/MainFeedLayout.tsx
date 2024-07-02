@@ -246,7 +246,6 @@ export default function MainFeedLayout({
     }
 
     if (isSearchOn && searchQuery) {
-      const searchVersion = getFeatureValue(feature.searchVersion);
       return {
         feedName: SharedFeedPage.Search,
         feedQueryKey: generateQueryKey(
@@ -255,7 +254,7 @@ export default function MainFeedLayout({
           searchQuery,
         ),
         query: SEARCH_POSTS_QUERY,
-        variables: { query: searchQuery, version: searchVersion },
+        variables: { query: searchQuery },
         emptyScreen: <SearchEmptyScreen />,
       };
     }
