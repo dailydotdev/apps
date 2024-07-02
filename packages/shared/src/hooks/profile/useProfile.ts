@@ -19,5 +19,5 @@ export function useProfile(initialUser?: PublicProfile): PublicProfile {
     },
   );
 
-  return user ?? initialUser;
+  return user;
 }
