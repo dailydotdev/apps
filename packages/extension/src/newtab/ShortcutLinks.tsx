@@ -50,84 +50,16 @@ import ShortcutOptionsMenu from './ShortcutOptionsMenu';
 const pixelRatio = globalThis?.window.devicePixelRatio ?? 1;
 const iconSize = Math.round(24 * pixelRatio);
 
-const ShortCutV1Placeholder = ({
-  initialItem = false,
-  onClick,
-}: {
-  initialItem?: boolean;
-  onClick: () => void;
-}) => {
-  return (
-    <button
-      className="group mr-4 flex flex-col items-center first:mr-2 last-of-type:mr-2 hover:cursor-pointer"
-      onClick={onClick}
-      type="button"
-    >
-      <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary group-first:mb-1 group-hover:text-text-primary">
-        <PlusIcon
-          className="inline group-hover:hidden"
-          size={IconSize.Size16}
-        />
-        <PlusIcon
-          className="hidden group-hover:inline"
-          secondary
-          size={IconSize.Size16}
-        />
-      </div>
-      {initialItem ? (
-        <span className="text-text-tertiary typo-caption2">Add shortcut</span>
-      ) : (
-        <span className="h-2 w-10 rounded-10 bg-surface-float" />
-      )}
-    </button>
-  );
-};
-
-const ShortcutV1Item = ({
-  url,
-  onLinkClick,
-}: {
-  url: string;
-  onLinkClick: () => void;
-}) => {
-  const cleanUrl = url.replace(/http(s)?(:)?(\/\/)?|(\/\/)?(www\.)?/g, '');
-  return (
-    <a
-      href={url}
-      rel="noopener noreferrer"
-      {...combinedClicks(onLinkClick)}
-      className="group mr-4 flex flex-col items-center"
-    >
-      <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
-        <img
-          src={`https://api.daily.dev/icon?url=${encodeURIComponent(
-            url,
-          )}&size=${iconSize}`}
-          alt={url}
-          className="size-6"
-        />
-      </div>
-      <span className="max-w-12 truncate text-text-tertiary typo-caption2">
-        {cleanUrl}
-      </span>
-    </a>
-  );
-};
-
-const ShortcutUIItemPlaceholder = ({ children }: { children: ReactNode }) => {
-  return (
-    <div className="group flex flex-col items-center">
-      <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
-        {children}
-      </div>
-      <span className="h-2 w-10 rounded-10 bg-surface-float" />
-    </div>
-  );
-};
-
 interface ShortcutLinksProps {
   shouldUseListFeedLayout: boolean;
 }
+
+type ActualShortcutLinksProps = {
+  shortcutLinks: string[];
+  onLinkClick: () => void;
+  onOptionsOpen: () => void;
+};
+
 export default function ShortcutLinks({
   shouldUseListFeedLayout,
 }: ShortcutLinksProps): ReactElement {
@@ -316,73 +248,30 @@ export default function ShortcutLinks({
     });
   };
 
-  const ShortcutV1 = () => {
-    return (
-      <div
-        className={classNames(
-          'hidden tablet:flex',
-          shouldUseListFeedLayout ? 'mx-6 mb-3 mt-1' : '-mt-2 mb-5',
-        )}
-      >
-        {shortcutLinks?.length ? (
-          <>
-            {shortcutLinks.map((url) => (
-              <ShortcutV1Item key={url} url={url} onLinkClick={onLinkClick} />
-            ))}
-            <Button
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              icon={<MenuIcon className="rotate-90" secondary />}
-              onClick={onMenuClick}
-              className="mt-2"
-            />
-          </>
-        ) : (
-          <>
-            <ShortCutV1Placeholder initialItem onClick={onOptionsOpen} />
-            {Array.from({ length: 5 }).map((_, index) => (
-              /* eslint-disable-next-line react/no-array-index-key */
-              <ShortCutV1Placeholder key={index} onClick={onOptionsOpen} />
-            ))}
-            <Button
-              variant={ButtonVariant.Tertiary}
-              onClick={onV1Hide}
-              size={ButtonSize.Small}
-              icon={<ClearIcon secondary />}
-              className="mt-2"
-            />
-          </>
-        )}
-      </div>
-    );
-  };
-
   return (
     <>
       {isShortcutsV1 ? (
-        <ShortcutV1 />
+        <ShortcutLinksV1
+          {...{
+            shouldUseListFeedLayout,
+            onLinkClick,
+            onMenuClick,
+            onOptionsOpen,
+            onV1Hide,
+            shortcutLinks,
+          }}
+        />
       ) : (
-        <>
-          {shortcutLinks?.length ? (
-            <CustomLinks
-              links={shortcutLinks}
-              className={className}
-              onOptions={onOptionsOpen}
-              onLinkClick={onLinkClick}
-            />
-          ) : (
-            <Button
-              className={className}
-              variant={ButtonVariant.Tertiary}
-              icon={<PlusIcon />}
-              iconPosition={ButtonIconPosition.Right}
-              onClick={onOptionsOpen}
-            >
-              Add shortcuts
-            </Button>
-          )}
-        </>
+        <ShortcutLinksV2
+          {...{
+            shortcutLinks,
+            onLinkClick,
+            onOptionsOpen,
+            className,
+          }}
+        />
       )}
+
       {showModal && (
         <MostVisitedSitesModal
           isOpen={showModal}
@@ -424,3 +313,164 @@ export default function ShortcutLinks({
     </>
   );
 }
+
+function ShortcutLinksV1(
+  props: ActualShortcutLinksProps & {
+    onV1Hide: () => void;
+    shouldUseListFeedLayout: boolean;
+    onMenuClick: React.MouseEventHandler<Element>;
+  },
+) {
+  const {
+    shouldUseListFeedLayout,
+    onLinkClick,
+    onMenuClick,
+    onOptionsOpen,
+    onV1Hide,
+    shortcutLinks,
+  } = props;
+
+  return (
+    <div
+      className={classNames(
+        'hidden tablet:flex',
+        shouldUseListFeedLayout ? 'mx-6 mb-3 mt-1' : '-mt-2 mb-5',
+      )}
+    >
+      {shortcutLinks?.length ? (
+        <>
+          {shortcutLinks.map((url) => (
+            <ShortcutV1Item key={url} url={url} onLinkClick={onLinkClick} />
+          ))}
+          <Button
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            icon={<MenuIcon className="rotate-90" secondary />}
+            onClick={onMenuClick}
+            className="mt-2"
+          />
+        </>
+      ) : (
+        <>
+          <ShortCutV1Placeholder initialItem onClick={onOptionsOpen} />
+          {Array.from({ length: 5 }).map((_, index) => (
+            /* eslint-disable-next-line react/no-array-index-key */
+            <ShortCutV1Placeholder key={index} onClick={onOptionsOpen} />
+          ))}
+          <Button
+            variant={ButtonVariant.Tertiary}
+            onClick={onV1Hide}
+            size={ButtonSize.Small}
+            icon={<ClearIcon secondary />}
+            className="mt-2"
+          />
+        </>
+      )}
+    </div>
+  );
+}
+
+function ShortcutLinksV2(
+  props: ActualShortcutLinksProps & {
+    className?: string;
+  },
+) {
+  const { shortcutLinks, onLinkClick, onOptionsOpen, className } = props;
+  return (
+    <>
+      {shortcutLinks?.length ? (
+        <CustomLinks
+          links={shortcutLinks}
+          className={className}
+          onOptions={onOptionsOpen}
+          onLinkClick={onLinkClick}
+        />
+      ) : (
+        <Button
+          className={className}
+          variant={ButtonVariant.Tertiary}
+          icon={<PlusIcon />}
+          iconPosition={ButtonIconPosition.Right}
+          onClick={onOptionsOpen}
+        >
+          Add shortcuts
+        </Button>
+      )}
+    </>
+  );
+}
+
+function ShortCutV1Placeholder({
+  initialItem = false,
+  onClick,
+}: {
+  initialItem?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      className="group mr-4 flex flex-col items-center first:mr-2 last-of-type:mr-2 hover:cursor-pointer"
+      onClick={onClick}
+      type="button"
+    >
+      <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary group-first:mb-1 group-hover:text-text-primary">
+        <PlusIcon
+          className="inline group-hover:hidden"
+          size={IconSize.Size16}
+        />
+        <PlusIcon
+          className="hidden group-hover:inline"
+          secondary
+          size={IconSize.Size16}
+        />
+      </div>
+      {initialItem ? (
+        <span className="text-text-tertiary typo-caption2">Add shortcut</span>
+      ) : (
+        <span className="h-2 w-10 rounded-10 bg-surface-float" />
+      )}
+    </button>
+  );
+}
+
+function ShortcutV1Item({
+  url,
+  onLinkClick,
+}: {
+  url: string;
+  onLinkClick: () => void;
+}) {
+  const cleanUrl = url.replace(/http(s)?(:)?(\/\/)?|(\/\/)?(www\.)?/g, '');
+  return (
+    <a
+      href={url}
+      rel="noopener noreferrer"
+      {...combinedClicks(onLinkClick)}
+      className="group mr-4 flex flex-col items-center"
+    >
+      <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
+        <img
+          src={`https://api.daily.dev/icon?url=${encodeURIComponent(
+            url,
+          )}&size=${iconSize}`}
+          alt={url}
+          className="size-6"
+        />
+      </div>
+      <span className="max-w-12 truncate text-text-tertiary typo-caption2">
+        {cleanUrl}
+      </span>
+    </a>
+  );
+}
+
+const ShortcutUIItemPlaceholder = ({ children }: { children: ReactNode }) => {
+  return (
+    <div className="group flex flex-col items-center">
+      <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
+        {children}
+      </div>
+      <span className="h-2 w-10 rounded-10 bg-surface-float" />
+    </div>
+  );
+};

@@ -39,6 +39,10 @@ export default function ShortcutOptionsMenu({
     },
   ];
 
+  if (typeof ContextMenu === 'object') {
+    return null;
+  }
+
   return (
     <ContextMenu
       options={options}
