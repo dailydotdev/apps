@@ -7,10 +7,7 @@ import { AuthTriggers } from '../../lib/auth';
 import { MemberAlready } from '../onboarding/MemberAlready';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { BottomBannerContainer } from '../banners';
-import { ButtonSize, ButtonVariant } from '../buttons/common';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
-import { OnboardingBanner } from '../../lib/featureValues';
+import { ButtonVariant } from '../buttons/common';
 
 const Section = classed('div', 'flex flex-col');
 export const authGradientBg =
@@ -18,14 +15,12 @@ export const authGradientBg =
 
 export function AuthenticationBanner(): ReactElement {
   const { showLogin } = useAuthContext();
-  const onboardingBanner = useFeature(feature.onboardingBanner);
 
   return (
     <BottomBannerContainer
       className={classNames(
-        'gap-24 border-t border-accent-cabbage-default shadow-3 laptopL:gap-32',
+        'gap-24 border-t border-accent-cabbage-default py-10 shadow-3 laptopL:gap-32',
         authGradientBg,
-        onboardingBanner === OnboardingBanner.V1 ? 'pb-5 pt-10' : 'py-10',
       )}
     >
       <Section className="w-[32.5rem]">
@@ -42,14 +37,7 @@ export function AuthenticationBanner(): ReactElement {
           defaultDisplay={AuthDisplay.OnboardingSignup}
           forceDefaultDisplay
           className={{
-            onboardingSignup: classNames(
-              '!gap-4',
-              onboardingBanner === OnboardingBanner.V1 && '!flex-row',
-            ),
-            ...(onboardingBanner === OnboardingBanner.V1 && {
-              onboardingDivider: '!mb-3 h-8',
-              onboardingForm: '!gap-4 !mb-3',
-            }),
+            onboardingSignup: classNames('!gap-4'),
           }}
           onAuthStateUpdate={(props) =>
             showLogin({
@@ -63,10 +51,6 @@ export function AuthenticationBanner(): ReactElement {
           }
           onboardingSignupButton={{
             variant: ButtonVariant.Primary,
-            ...(onboardingBanner === OnboardingBanner.V1 && {
-              className: 'flex-1',
-              size: ButtonSize.Medium,
-            }),
           }}
         />
         <MemberAlready
