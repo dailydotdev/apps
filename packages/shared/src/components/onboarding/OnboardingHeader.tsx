@@ -44,6 +44,7 @@ export const OnboardingHeader = ({
           <Logo
             logoClassName={{ container: 'h-6' }}
             position={LogoPosition.Relative}
+            linkDisabled
           />
           {activeScreen === OnboardingStep.EditTag && (
             <CreateFeedButton onClick={onClickCreateFeed} />
@@ -73,8 +74,8 @@ export const OnboardingHeader = ({
         className="w-auto"
         logoClassName={{ container: 'h-6 tablet:h-8' }}
         position={LogoPosition.Relative}
+        linkDisabled
       />
-
       <span className={classNames('flex items-center', 'text-text-tertiary')}>
         <span className="hidden tablet:block">Already using daily.dev?</span>
         <Button
