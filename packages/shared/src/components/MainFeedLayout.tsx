@@ -26,7 +26,7 @@ import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
-import { useFeature, useFeaturesReadyContext } from './GrowthBookProvider';
+import { useFeature } from './GrowthBookProvider';
 import {
   algorithms,
   DEFAULT_ALGORITHM_INDEX,
@@ -160,7 +160,6 @@ export default function MainFeedLayout({
   useScrollRestoration();
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
-  const { getFeatureValue } = useFeaturesReadyContext();
   const { alerts } = useContext(AlertContext);
   const router = useRouter();
   const [tab, setTab] = useState(ExploreTabs.Popular);
