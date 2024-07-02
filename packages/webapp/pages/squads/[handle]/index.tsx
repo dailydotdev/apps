@@ -30,7 +30,6 @@ import {
   Squad,
 } from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
-import SquadLoading from '@dailydotdev/shared/src/components/errors/SquadLoading';
 import { useQuery } from '@tanstack/react-query';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
@@ -69,6 +68,14 @@ const SquadEmptyScreen = dynamic(
     import(
       /* webpackChunkName: "squadEmptyScreen" */ '@dailydotdev/shared/src/components/squads/SquadEmptyScreen'
     ),
+);
+
+const SquadLoading = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "squadLoading" */ '@dailydotdev/shared/src/components/errors/SquadLoading'
+    ),
+  { ssr: false },
 );
 
 type SourcePageProps = {

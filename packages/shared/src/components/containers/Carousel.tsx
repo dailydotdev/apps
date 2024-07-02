@@ -24,7 +24,7 @@ export interface CarouselProps {
   onClose?: SwipeCallback;
   onEnd?: SwipeCallback;
   onScreenIndexChange?: (index: number) => void;
-  children?: (props: ChildProps, stepIndicator: ReactNode) => void;
+  children?: (props: ChildProps, stepIndicator: ReactNode) => ReactNode;
 }
 
 function Carousel({

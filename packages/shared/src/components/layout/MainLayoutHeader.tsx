@@ -3,10 +3,8 @@ import React, { ReactElement, ReactNode, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { webappUrl } from '../../lib/constants';
 import LoginButton from '../LoginButton';
 import ProfileButton from '../profile/ProfileButton';
-import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import HeaderLogo from './HeaderLogo';
 import { CreatePostButton } from '../post/write';
 import { useViewSize, ViewSize } from '../../hooks';
@@ -61,12 +59,7 @@ function MainLayoutHeader({
             {additionalButtons}
             {isLoggedIn ? (
               <>
-                <LinkWithTooltip
-                  tooltip={{ placement: 'bottom', content: 'Notifications' }}
-                  href={`${webappUrl}notifications`}
-                >
-                  <NotificationsBell />
-                </LinkWithTooltip>
+                <NotificationsBell />
                 <ProfileButton className="hidden laptop:flex" />
               </>
             ) : (

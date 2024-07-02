@@ -6,7 +6,7 @@ import {
   fireEvent,
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import React, { act } from 'react';
 import nock from 'nock';
 import Comment from '../../../../__tests__/fixture/comment';
 import { REPORT_COMMENT_MUTATION } from '../../../graphql/comments';
@@ -125,14 +125,16 @@ it('submit the report with text', async () => {
     },
   });
 
-  otherRadio.click();
-  await expect(otherRadio).toBeChecked();
+  await act(async () => {
+    otherRadio.click();
+    await expect(otherRadio).toBeChecked();
 
-  const input = screen.getByTestId('report_comment') as HTMLTextAreaElement;
-  fireEvent.change(input, { target: { value: 'test note' } });
-  input.dispatchEvent(new Event('input', { bubbles: true }));
+    const input = screen.getByTestId('report_comment') as HTMLTextAreaElement;
+    fireEvent.change(input, { target: { value: 'test note' } });
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    expect(input.value).toBe('test note');
+  });
 
-  expect(input.value).toBe('test note');
   expect(submitButton).toBeEnabled();
   await new Promise(process.nextTick);
 

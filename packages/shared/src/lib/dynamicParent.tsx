@@ -1,6 +1,7 @@
 import React, {
   ComponentClass,
   FunctionComponent,
+  PropsWithChildren,
   ReactHTML,
   ReactNode,
 } from 'react';
@@ -14,15 +15,19 @@ export const DynamicParentPlaceholder = ({
   children?: ReactNode;
 }): ReactElement => <>{children}</>;
 
-export default function dynamicParent<P, T = Record<string, unknown>>(
-  loader: () => Promise<LoaderResult<P>>,
+export default function dynamicParent<
+  P,
+  T = Record<string, unknown>,
+  PC extends PropsWithChildren<P> = PropsWithChildren<P>,
+>(
+  loader: () => Promise<LoaderResult<PC>>,
   placeholder: string | keyof ReactHTML | FunctionComponent<T>,
-): React.ComponentType<P & T & { shouldLoad: boolean }> {
+): React.ComponentType<PC & T & { shouldLoad: boolean }> {
   return class DynamicParent extends React.Component<
-    P & T & { shouldLoad: boolean },
-    { componentClass?: LoaderResult<P> }
+    PC & T & { shouldLoad: boolean },
+    { componentClass?: LoaderResult<PC> }
   > {
-    constructor(props: P & T & { shouldLoad: boolean }) {
+    constructor(props: PC & T & { shouldLoad: boolean }) {
       super(props);
       this.state = { componentClass: null };
     }

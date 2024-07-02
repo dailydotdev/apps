@@ -7,13 +7,20 @@ import React, {
 } from 'react';
 import { useRouter } from 'next/router';
 import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
-import MainFeedLayout, {
-  MainFeedLayoutProps,
-} from '@dailydotdev/shared/src/components/MainFeedLayout';
+import type { MainFeedLayoutProps } from '@dailydotdev/shared/src/components/MainFeedLayout';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
 import { getFeedName as getFeedNameLib } from '@dailydotdev/shared/src/lib/feed';
+import dynamic from 'next/dynamic';
 import { getLayout } from './FeedLayout';
+
+const MainFeedLayout = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "goBackHeaderMobile" */ '@dailydotdev/shared/src/components/MainFeedLayout'
+    ),
+  { ssr: false },
+);
 
 export type MainFeedPageProps = {
   children?: ReactNode;

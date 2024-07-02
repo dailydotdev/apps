@@ -1,6 +1,6 @@
 import '@dailydotdev/shared/src/lib/lazysizesImport';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { getLocalBootData } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { BootCacheData } from '@dailydotdev/shared/src/lib/boot';
@@ -29,11 +29,10 @@ window.addEventListener(
   },
 );
 
+const root = createRoot(document.getElementById('__next'));
+
 const renderApp = (data?: BootCacheData) => {
-  ReactDOM.render(
-    <App localBootData={data} />,
-    document.getElementById('__next'),
-  );
+  root.render(<App localBootData={data} />);
 };
 
 const redirectApp = async (url: string) => {

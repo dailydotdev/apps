@@ -83,19 +83,20 @@ export default function FooterNavBar({
       ) : (
         <ScrollToTopButton />
       )}
-      <Flipper
-        flipKey={activeTab}
-        spring="veryGentle"
-        element="nav"
-        className={classNames(
-          'grid w-full auto-cols-fr grid-flow-col items-center justify-between rounded-16',
-          !post && activeClasses,
-          !showNav && 'hidden',
-          !post && 'border-t border-border-subtlest-tertiary',
-        )}
-      >
-        <FooterNavBarTabs activeTab={activeTab} />
-      </Flipper>
+      {showNav && (
+        <Flipper
+          flipKey={activeTab}
+          spring="veryGentle"
+          element="nav"
+          className={classNames(
+            'grid w-full auto-cols-fr grid-flow-col items-center justify-between rounded-16',
+            !post && activeClasses,
+            !post && 'border-t border-border-subtlest-tertiary',
+          )}
+        >
+          <FooterNavBarTabs activeTab={activeTab} />
+        </Flipper>
+      )}
     </div>
   );
 }

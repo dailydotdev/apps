@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 import PromotionalBanner from './PromotionalBanner';
 import Sidebar from './sidebar/Sidebar';
 import useSidebarRendered from '../hooks/useSidebarRendered';
@@ -34,9 +35,16 @@ import {
   useActiveFeedNameContext,
 } from '../contexts';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
-import { GoBackHeaderMobile } from './post/GoBackHeaderMobile';
 import { BootPopups } from './modals/BootPopups';
 import { useFeedName } from '../hooks/feed/useFeedName';
+
+const GoBackHeaderMobile = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "goBackHeaderMobile" */ './post/GoBackHeaderMobile'
+    ),
+  { ssr: false },
+);
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,

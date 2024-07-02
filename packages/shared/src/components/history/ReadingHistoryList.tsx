@@ -10,16 +10,6 @@ import { useSharePost } from '../../hooks/useSharePost';
 import { Origin } from '../../lib/log';
 import { DateFormat } from '../utilities';
 
-const getDateGroup = (date: Date) => {
-  return (
-    <DateFormat
-      date={date}
-      type={TimeFormatType.ReadHistory}
-      className="my-3 px-6 text-text-tertiary typo-body first:mt-0"
-    />
-  );
-};
-
 export interface ReadHistoryListProps {
   data: ReadHistoryInfiniteData;
   onHide: HideReadHistory;
@@ -50,7 +40,14 @@ export default function ReadHistoryList({
 
         if (!currentDate || !isDateOnlyEqual(currentDate, date)) {
           currentDate = date;
-          dom.push(getDateGroup(date));
+          dom.push(
+            <DateFormat
+              key={date.toISOString()}
+              date={date}
+              type={TimeFormatType.ReadHistory}
+              className="my-3 px-6 text-text-tertiary typo-body first:mt-0"
+            />,
+          );
         }
 
         const indexes = { page: pageIndex, edge: edgeIndex };

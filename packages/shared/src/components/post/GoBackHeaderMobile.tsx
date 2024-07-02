@@ -84,3 +84,5 @@ export function GoBackHeaderMobile({
     </span>
   );
 }
+
+export default GoBackHeaderMobile;

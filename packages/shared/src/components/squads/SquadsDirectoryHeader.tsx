@@ -27,9 +27,8 @@ export const SquadsDirectoryHeader = ({
     >
       <div className="relative z-1 flex flex-col items-center">
         <SourceBetaIcon
-          width="auto"
           height="3rem"
-          className="mb-4 translate-x-[1.125rem] text-white"
+          className="mb-4 w-full translate-x-[1.125rem] text-white"
         />
         <h1 className="mb-3 flex items-center justify-center font-bold text-white typo-large-title">
           Public Squads

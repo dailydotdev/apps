@@ -93,6 +93,7 @@ export interface UseFeedOptionalParams<T> {
   options?: UseInfiniteQueryOptions<FeedData>;
   settings?: UseFeedSettingParams;
   showPublicSquadsEligibility?: boolean;
+  onEmptyFeed?: () => void;
 }
 
 export default function useFeed<T>(
@@ -108,6 +109,7 @@ export default function useFeed<T>(
     options = {},
     settings,
     showPublicSquadsEligibility,
+    onEmptyFeed,
   } = params;
   const { user, tokenRefreshed } = useContext(AuthContext);
   const queryClient = useQueryClient();
@@ -115,13 +117,24 @@ export default function useFeed<T>(
 
   const feedQuery = useInfiniteQuery<FeedData>(
     feedQueryKey,
-    ({ pageParam }) =>
-      request(graphqlUrl, query, {
+    async ({ pageParam }) => {
+      const res = await request(graphqlUrl, query, {
         ...variables,
         first: pageSize,
         after: pageParam,
         loggedIn: !!user,
-      }),
+      });
+
+      if (
+        !feedQuery?.data?.pages[0]?.page.edges.length &&
+        !res?.page?.edges?.length &&
+        onEmptyFeed
+      ) {
+        onEmptyFeed();
+      }
+
+      return res;
+    },
     {
       refetchOnMount: false,
       ...options,
