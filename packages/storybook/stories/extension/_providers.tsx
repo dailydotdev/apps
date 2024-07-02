@@ -7,6 +7,7 @@ import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { Browser } from 'webextension-polyfill';
 import type { FC } from 'react';
 
+
 const app = BootApp.Extension;
 const queryClient = new QueryClient();
 
@@ -25,17 +26,16 @@ export const ExtensionProviders: FC = ({ children }) => {
       deviceId='123'
       getPage={() => '/'}
     >
-      <LogContext.Provider
-        value={{
-          logEvent: () => {
-          },
-          logEventStart: console.log,
-          logEventEnd: console.log,
-          sendBeacon: console.log,
-        }}
-      >
-        {children}
-      </LogContext.Provider>
+        <LogContext.Provider
+          value={{
+            logEvent: console.log,
+            logEventStart: console.log,
+            logEventEnd: console.log,
+            sendBeacon: console.log,
+          }}
+        >
+          {children}
+        </LogContext.Provider>
     </BootDataProvider>
   </QueryClientProvider>;
 };

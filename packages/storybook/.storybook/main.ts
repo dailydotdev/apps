@@ -10,11 +10,13 @@ const config: StorybookConfig = {
   ],
   framework: '@storybook/react-vite',
   core: {
-    builder: '@storybook/builder-vite'
+    builder: '@storybook/builder-vite',
   },
   typescript: {
     reactDocgen: 'react-docgen-typescript',
   },
+
+  staticDirs: ['../public'],
 
   async viteFinal(config, { configType }) {
     return mergeConfig(config, {
@@ -29,6 +31,7 @@ const config: StorybookConfig = {
           '@growthbook/growthbook': 'mock/gb.ts',
           'node-fetch': 'mock/node-fetch.ts',
           'webextension-polyfill': 'mock/webextension-polyfill.ts',
+          '../hooks/log/useLogSharedProps': 'mock/use-log-shared-props.ts',
         },
       },
       define: {
