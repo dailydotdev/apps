@@ -12,7 +12,6 @@ type OnboardingHeaderProps = {
   showOnboardingPage: boolean;
   setAuth: Dispatch<SetStateAction<AuthProps>>;
   onClickCreateFeed: () => void;
-  onClickNext?: () => void;
   activeScreen: OnboardingStep;
 };
 
@@ -21,7 +20,6 @@ export const OnboardingHeader = ({
   activeScreen,
   setAuth,
   onClickCreateFeed,
-  onClickNext,
 }: OnboardingHeaderProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -50,13 +48,6 @@ export const OnboardingHeader = ({
           />
           {activeScreen === OnboardingStep.EditTag && (
             <CreateFeedButton onClick={onClickCreateFeed} />
-          )}
-          {activeScreen === OnboardingStep.FeedLayout && (
-            <div className="relative">
-              <Button variant={ButtonVariant.Primary} onClick={onClickNext}>
-                Done, let&apos;s go
-              </Button>
-            </div>
           )}
         </div>
       </header>
