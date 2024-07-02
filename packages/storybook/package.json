@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "storybook dev -p 6006",
+    "dev": "storybook dev -p 6006 --no-open",
     "build": "storybook build --docs",
     "preview-storybook": "serve storybook-static",
     "clean": "rm -rf .turbo && rm -rf node_modules",
@@ -12,8 +12,11 @@
   "prettier": "@dailydotdev/prettier-config",
   "dependencies": {
     "@dailydotdev/shared": "*",
+    "@tanstack/react-query": "^4.36.1",
+    "extension": "*",
     "react": "17.0.2",
-    "react-dom": "17.0.2"
+    "react-dom": "17.0.2",
+    "webextension-polyfill": "^0.10.0"
   },
   "devDependencies": {
     "@dailydotdev/eslint-config": "*",

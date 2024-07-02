@@ -1,24 +1,27 @@
 import type { StorybookConfig } from '@storybook/react-vite';
 import { mergeConfig } from 'vite';
 import svgrPlugin from 'vite-plugin-svgr';
+import browser from '../mock/webextension-polyfill';
 
 const config: StorybookConfig = {
   stories: [
     '../stories/**/*.mdx',
     '../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)',
   ],
+
   addons: [
     '@storybook/addon-docs',
     '@storybook/addon-links',
     '@storybook/addon-essentials',
     '@storybook/addon-themes',
-    '@storybook/addon-interactions',
-    '@storybook/addon-designs'
+    '@storybook/addon-designs',
+    '@storybook/addon-mdx-gfm'
   ],
-  framework: '@storybook/react-vite',
   docs: {
-    autodocs: true,
+    autodocs: 'tag',
   },
+  framework: '@storybook/react-vite',
+
   async viteFinal(config) {
     return mergeConfig(config, {
       server: {
@@ -29,10 +32,13 @@ const config: StorybookConfig = {
       resolve: {
         alias: {
           '@growthbook/growthbook': 'mock/gb.ts',
-        }
+          'node-fetch': 'mock/node-fetch.ts',
+          'webextension-polyfill': 'mock/webextension-polyfill.ts',
+        },
       },
       define: {
-        "process.env": {},
+        'process.env': {},
+        browser: browser,
       },
       plugins: [
         svgrPlugin({

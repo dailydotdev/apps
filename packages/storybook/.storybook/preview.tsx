@@ -1,6 +1,5 @@
 import { Preview, ReactRenderer } from '@storybook/react';
 import { withThemeByClassName } from '@storybook/addon-themes';
-
 import '@dailydotdev/shared/src/styles/globals.css';
 
 const preview: Preview = {
