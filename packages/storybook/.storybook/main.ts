@@ -1,29 +1,21 @@
 import type { StorybookConfig } from '@storybook/react-vite';
 import { mergeConfig } from 'vite';
-import svgrPlugin from 'vite-plugin-svgr';
 import browser from '../mock/webextension-polyfill';
+import svgrPlugin from 'vite-plugin-svgr';
 
 const config: StorybookConfig = {
   stories: [
-    '../stories/**/*.mdx',
+    '../stories/**/*.@(md|mdx)',
     '../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)',
   ],
-
-  addons: [
-    '@storybook/addon-docs',
-    '@storybook/addon-links',
-    '@storybook/addon-essentials',
-    '@storybook/addon-themes',
-    '@storybook/addon-designs',
-    '@storybook/addon-mdx-gfm'
-  ],
-  docs: {
-    autodocs: 'tag',
-  },
   framework: '@storybook/react-vite',
+  typescript: {
+    reactDocgen: 'react-docgen-typescript',
+  },
 
-  async viteFinal(config) {
+  async viteFinal(config, { configType }) {
     return mergeConfig(config, {
+      assetsInclude: ['**/*.mdx'],
       server: {
         fs: {
           strict: false,
@@ -61,4 +53,5 @@ const config: StorybookConfig = {
     });
   },
 };
+
 export default config;
