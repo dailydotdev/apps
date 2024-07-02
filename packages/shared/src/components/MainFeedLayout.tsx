@@ -329,7 +329,6 @@ export default function MainFeedLayout({
     isLaptop,
     isExploreLatest,
     selectedAlgo,
-    getFeatureValue,
     tab,
     selectedPeriod,
     setSelectedAlgo,

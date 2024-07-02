@@ -11,7 +11,6 @@ import {
 } from '../../graphql/search';
 import { useRequestProtocol } from '../useRequestProtocol';
 import { graphqlUrl } from '../../lib/config';
-import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
 
 export type UseSearchProviderProps = {
   provider: SearchProviderEnum;
@@ -48,7 +47,6 @@ const searchProviderExtractResultMap: Partial<
 export const useSearchProvider = (): UseSearchProvider => {
   const router = useRouter();
   const { requestMethod } = useRequestProtocol();
-  const { getFeatureValue } = useFeaturesReadyContext();
 
   return {
     search: useCallback(
@@ -75,7 +73,7 @@ export const useSearchProvider = (): UseSearchProvider => {
 
         return resultExtractor(result);
       },
-      [getFeatureValue, requestMethod],
+      [requestMethod],
     ),
   };
 };
