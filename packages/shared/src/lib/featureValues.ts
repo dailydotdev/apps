@@ -31,11 +31,6 @@ export enum SeoSidebarExperiment {
   V1 = 'v1',
 }
 
-export enum OnboardingBanner {
-  Control = 'control',
-  V1 = 'v1',
-}
-
 export enum AdsPostPage {
   Control = 'control',
   V1 = 'v1',
