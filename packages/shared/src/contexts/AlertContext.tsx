@@ -32,7 +32,6 @@ export interface AlertContextData {
   >;
   updateLastReferralReminder?: UseMutateAsyncFunction;
   updateLastBootPopup?: UseMutateAsyncFunction;
-  updateLocalBoot?: (alerts: Partial<Alerts>) => void;
 }
 
 export const MAX_DATE = new Date(3021, 0, 1);
@@ -124,11 +123,8 @@ export const AlertContextProvider = ({
       updateAlerts: updateRemoteAlerts,
       updateLastReferralReminder,
       updateLastBootPopup,
-      updateLocalBoot: (params: Partial<Alerts>) =>
-        updateAlerts({ ...alerts, ...params }),
     }),
     [
-      updateAlerts,
       alerts,
       loadedAlerts,
       isFetched,

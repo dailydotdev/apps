@@ -16,7 +16,7 @@ import useActiveNav, {
 } from '@dailydotdev/shared/src/hooks/useActiveNav';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import { FooterTab } from './footer/common';
-import { FooterNavBarTabs, mobileUxTabs } from './footer/FooterNavBarTabs';
+import { FooterNavBarTabs, tabs } from './footer/FooterNavBarTabs';
 
 interface FooterNavBarProps {
   showNav?: boolean;
@@ -48,7 +48,7 @@ export default function FooterNavBar({
     }
 
     const active = (
-      mobileUxTabs.filter((tab) => !isValidElement(tab)) as FooterTab[]
+      tabs.filter((tab) => !isValidElement(tab)) as FooterTab[]
     ).find((tab) => tab.path === router?.pathname);
 
     return active?.title;

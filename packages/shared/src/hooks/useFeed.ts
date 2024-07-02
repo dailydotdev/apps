@@ -46,7 +46,6 @@ export type FeedItem =
   | PostItem
   | AdItem
   | MarketingCtaItem
-  | FeedItemBase<FeedItemType.FeedSurvey>
   | FeedItemBase<FeedItemType.Placeholder>
   | FeedItemBase<FeedItemType.UserAcquisition>
   | FeedItemBase<FeedItemType.PublicSquadEligibility>;
@@ -94,7 +93,6 @@ export interface UseFeedOptionalParams<T> {
   options?: UseInfiniteQueryOptions<FeedData>;
   settings?: UseFeedSettingParams;
   showPublicSquadsEligibility?: boolean;
-  shouldShowSurvey?: boolean;
   onEmptyFeed?: () => void;
 }
 
@@ -110,7 +108,6 @@ export default function useFeed<T>(
     variables,
     options = {},
     settings,
-    shouldShowSurvey,
     showPublicSquadsEligibility,
     onEmptyFeed,
   } = params;
@@ -205,8 +202,6 @@ export default function useFeed<T>(
             });
           } else if (withFirstIndex(settings.showAcquisitionForm)) {
             posts.splice(adSpot, 0, { type: FeedItemType.UserAcquisition });
-          } else if (withFirstIndex(shouldShowSurvey)) {
-            posts.splice(adSpot, 0, { type: FeedItemType.FeedSurvey });
           } else if (withFirstIndex(showPublicSquadsEligibility)) {
             posts.splice(adSpot, 0, {
               type: FeedItemType.PublicSquadEligibility,
@@ -237,7 +232,6 @@ export default function useFeed<T>(
     feedQuery.isFetching,
     settings.marketingCta,
     settings.showAcquisitionForm,
-    shouldShowSurvey,
     showPublicSquadsEligibility,
     isAdsQueryEnabled,
     adSpot,

@@ -19,6 +19,7 @@ export enum AuthEventNames {
   StartSignUpForm = 'start signup form',
   SubmitSignUpForm = 'submit signup form',
   SubmitSignUpFormError = 'submit signup form error',
+  SignupSuccessfully = 'signup successfully',
   LoginSuccessfully = 'login successfully',
   LoginError = 'login error',
   ForgotPassword = 'forgot password',

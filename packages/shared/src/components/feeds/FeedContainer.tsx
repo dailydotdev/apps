@@ -25,8 +25,6 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { useActiveFeedNameContext } from '../../contexts';
 import { feature } from '../../lib/featureManagement';
 import { SharedFeedPage } from '../utilities';
-import { FeedSurveyBanner } from '../cards/survey';
-import { FeedSettingsButton } from './FeedSettingsButton';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { OtherFeedPage } from '../../lib/query';
 
@@ -40,7 +38,6 @@ export interface FeedContainerProps {
   shortcuts?: ReactNode;
   actionButtons?: ReactNode;
   isHorizontal?: boolean;
-  shouldShowSurvey?: boolean;
   feedContainerRef?: React.Ref<HTMLDivElement>;
 }
 
@@ -155,7 +152,6 @@ export const FeedContainer = ({
   shortcuts,
   actionButtons,
   isHorizontal,
-  shouldShowSurvey,
   feedContainerRef,
 }: FeedContainerProps): ReactElement => {
   const { value: isShortcutsV1 } = useConditionalFeature({
@@ -278,17 +274,6 @@ export const FeedContainer = ({
               </div>
             )}
           >
-            {shouldShowSurvey && (
-              <FeedSurveyBanner
-                title="Rate your feed quality"
-                max={5}
-                lowScore={{
-                  value: 4,
-                  message: 'Improve your feed by adjusting your settings.',
-                  cta: <FeedSettingsButton className="mt-4 w-fit" />,
-                }}
-              />
-            )}
             <div
               className={classNames(
                 'grid',

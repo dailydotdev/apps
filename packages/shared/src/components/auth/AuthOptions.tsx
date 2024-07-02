@@ -215,6 +215,9 @@ function AuthOptions({
       }
       await syncSettings(data?.user?.id);
       onSetActiveDisplay(AuthDisplay.EmailSent);
+      logEvent({
+        event_name: AuthEventNames.SignupSuccessfully,
+      });
       onSuccessfulRegistration?.(data?.user);
     },
     onInvalidRegistration: setRegistrationHints,
@@ -247,6 +250,9 @@ function AuthOptions({
       const provider = chosenProvider || 'password';
       onSignBackLogin(data.user as LoggedUser, provider as SignBackProvider);
     }
+    logEvent({
+      event_name: AuthEventNames.SignupSuccessfully,
+    });
     onSuccessfulRegistration?.(data?.user);
     onClose?.(null, true);
   };

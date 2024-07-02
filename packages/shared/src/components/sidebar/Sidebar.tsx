@@ -268,24 +268,6 @@ export default function Sidebar({
                 }
               />
             )}
-            <MyFeedButton
-              {...defaultRenderSectionProps}
-              isButton={false}
-              title="New feed"
-              path={`${webappUrl}feeds/new`}
-              icon={
-                <div className="rounded-6 bg-background-subtle">
-                  <PlusIcon />
-                </div>
-              }
-              rightIcon={() =>
-                showCustomFeedsBetaBadge ? (
-                  <div className="absolute -right-3 -top-2 h-4 w-10">
-                    <img src={cloudinary.feed.betaTag} alt="Beta" />
-                  </div>
-                ) : undefined
-              }
-            />
             {feeds?.edges?.map((feed) => {
               const feedPath = `${webappUrl}feeds/${feed.node.id}`;
 
@@ -306,6 +288,24 @@ export default function Sidebar({
                 />
               );
             })}
+            <MyFeedButton
+              {...defaultRenderSectionProps}
+              isButton={false}
+              title="New feed"
+              path={`${webappUrl}feeds/new`}
+              icon={
+                <div className="rounded-6 bg-background-subtle">
+                  <PlusIcon />
+                </div>
+              }
+              rightIcon={() =>
+                showCustomFeedsBetaBadge ? (
+                  <div className="absolute -right-3 -top-2 h-4 w-10">
+                    <img src={cloudinary.feed.betaTag} alt="Beta" />
+                  </div>
+                ) : undefined
+              }
+            />
             <SquadSection {...defaultRenderSectionProps} />
             <DiscoverSection
               {...defaultRenderSectionProps}

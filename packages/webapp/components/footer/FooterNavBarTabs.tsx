@@ -1,17 +1,14 @@
-import React, { isValidElement, ReactElement, ReactNode, useMemo } from 'react';
+import React, { isValidElement, ReactElement, ReactNode } from 'react';
 import {
   AiIcon,
   BellIcon,
   HomeIcon,
   SourceIcon,
-  UserIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Link from 'next/link';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import classNames from 'classnames';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
@@ -19,7 +16,22 @@ import { FooterNavBarContainerProps, FooterTab, getNavPath } from './common';
 import { FooterPlusButton } from './FooterPlusButton';
 import { FooterNavBarItem, FooterNavBarItemProps } from './FooterNavBarItem';
 
-export const mobileUxTabs: (FooterTab | ReactNode)[] = [
+const Notifications = ({ active }: { active: boolean }): JSX.Element => {
+  const { unreadCount } = useNotificationContext();
+
+  return (
+    <div className="relative">
+      <BellIcon secondary={active} size={IconSize.Medium} />
+      {!!unreadCount && (
+        <Bubble className="-right-1.5 -top-1.5 cursor-pointer px-1">
+          {getUnreadText(unreadCount)}
+        </Bubble>
+      )}
+    </div>
+  );
+};
+
+export const tabs: (FooterTab | ReactNode)[] = [
   {
     requiresLogin: true,
     path: '/',
@@ -38,18 +50,16 @@ export const mobileUxTabs: (FooterTab | ReactNode)[] = [
   },
   <FooterPlusButton key="write-action" />,
   {
+    requiresLogin: true,
+    path: '/notifications',
+    title: 'Activity',
+    icon: (active: boolean) => <Notifications active={active} />,
+  },
+  {
     path: '/squads',
     title: 'Squads',
     icon: (active: boolean) => (
       <SourceIcon secondary={active} size={IconSize.Medium} />
-    ),
-  },
-  {
-    requiresLogin: true,
-    path: (user) => user?.permalink,
-    title: 'Profile',
-    icon: (active: boolean) => (
-      <UserIcon secondary={active} size={IconSize.Medium} />
     ),
   },
 ];
@@ -88,44 +98,9 @@ const Tab = ({ tab, isActive }: TabProps) => {
   );
 };
 
-const Notifications = ({ active }: { active: boolean }): JSX.Element => {
-  const { unreadCount } = useNotificationContext();
-
-  return (
-    <div className="relative">
-      <BellIcon secondary={active} size={IconSize.Medium} />
-      {!!unreadCount && (
-        <Bubble
-          className={classNames('-right-1.5 -top-1.5 cursor-pointer px-1')}
-        >
-          {getUnreadText(unreadCount)}
-        </Bubble>
-      )}
-    </div>
-  );
-};
-
 export function FooterNavBarTabs({
   activeTab,
 }: FooterNavBarContainerProps): ReactElement {
-  const notificationsNavBar = useFeature(feature.notificationsNavBar);
-
-  const tabs = useMemo(() => {
-    if (notificationsNavBar) {
-      if (!mobileUxTabs.some((tab: FooterTab) => tab?.title === 'Activity')) {
-        mobileUxTabs.pop();
-        mobileUxTabs.splice(-1, 0, {
-          requiresLogin: true,
-          path: '/notifications',
-          title: 'Activity',
-          icon: (active: boolean) => <Notifications active={active} />,
-        });
-      }
-    }
-
-    return mobileUxTabs;
-  }, [notificationsNavBar]);
-
   return (
     <>
       {tabs.map((tab) => {
