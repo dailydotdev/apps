@@ -123,7 +123,6 @@ describe('useSearchProvider hook', () => {
         query: SEARCH_POST_SUGGESTIONS,
         variables: {
           query: 'apples',
-          version: 1,
           limit: defaultSearchSuggestionsLimit,
         },
       },
