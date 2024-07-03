@@ -163,9 +163,7 @@ function FeedNav(): ReactElement {
           }}
         >
           {Object.entries(urlToTab).map(([url, label]) => (
-            // key is assigned automatically in the Tab component
-            // eslint-disable-next-line react/jsx-key
-            <Tab label={label} url={url} />
+            <Tab key={label} label={label} url={url} />
           ))}
         </TabContainer>
 
