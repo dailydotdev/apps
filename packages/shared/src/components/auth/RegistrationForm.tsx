@@ -151,6 +151,7 @@ export const RegistrationForm = ({
   const isUsernameValid = !hints?.['traits.username'] && isSubmitted;
   const isExperienceLevelValid =
     !isSubmitted || !hints?.['traits.experienceLevel'];
+
   return (
     <>
       <AuthHeader simplified={simplified} title="Sign up" onBack={onBack} />
