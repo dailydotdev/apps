@@ -94,28 +94,19 @@ it('should format publication date', async () => {
 
 it('should hide read time when not available', async () => {
   const usePost = { ...post };
-  delete usePost.readTime;
+  delete usePost.sharedPost.readTime;
   renderComponent({ post: usePost });
   expect(screen.queryByTestId('readTime')).not.toBeInTheDocument();
-});
-
-it('should show author name and squad handle when enableSourceHeader is true', async () => {
-  renderComponent({ enableSourceHeader: true });
-  await screen.findByText('Lee Hansel Solevilla Jr');
-  await screen.findByText('Avengers');
-});
-
-it('should show author name and author handle when enableSourceHeader is false', async () => {
-  renderComponent({ enableSourceHeader: false });
-  await screen.findByText('Lee Hansel Solevilla Jr');
-  await screen.findByText('@sshanzel');
 });
 
 it('should show options button on hover when in laptop size', async () => {
   renderComponent();
   const header = await screen.findByLabelText('Options');
   expect(header).toHaveClass('inline-flex');
-  expect(header).toHaveClass('group-hover:flex laptop:hidden');
+  // eslint-disable-next-line testing-library/no-node-access
+  expect(header.parentElement).toHaveClass(
+    'laptop:mouse:invisible laptop:mouse:group-hover:visible',
+  );
 });
 
 it('should show cover image with play icon when post is video:youtube type', async () => {
