@@ -102,7 +102,7 @@ const defaultSettings: RemoteSettings = {
 
 const defaultBootData: BootCacheData = {
   alerts: defaultAlerts,
-  user: defaultUser,
+  user: { ...defaultUser, createdAt: '2024-02-16T00:00:00.000Z' },
   settings: defaultSettings,
   squads: [],
   notifications: { unreadNotificationsCount: 0 },
