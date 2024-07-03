@@ -17,7 +17,7 @@ import {
 } from '@dailydotdev/react-contexify';
 import { ArrowIcon, VIcon } from '../icons';
 import styles from './Dropdown.module.css';
-import { useViewSize, ViewSize } from '../../hooks';
+import { usePrevious, useViewSize, ViewSize } from '../../hooks';
 import { ListDrawer } from '../drawers/ListDrawer';
 import { SelectParams } from '../drawers/common';
 import { RootPortal } from '../tooltips/Portal';
@@ -78,6 +78,7 @@ export function Dropdown({
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isVisible, setVisibility] = useState(false);
   const [menuWidth, setMenuWidth] = useState<number>();
+  const wasVisible = usePrevious(`${isVisible}`);
   const triggerRef = useRef<HTMLButtonElement>();
   const { show, hideAll } = useContextMenu({ id });
 
@@ -126,7 +127,7 @@ export function Dropdown({
   const fullScreen = openFullScreen ?? isMobile;
 
   useLayoutEffect(() => {
-    if (!isVisible) {
+    if (wasVisible === 'true' && !isVisible) {
       triggerRef?.current?.focus?.();
     }
   }, [isVisible]);
