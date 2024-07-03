@@ -1,11 +1,12 @@
 import type { StorybookConfig } from '@storybook/react-vite';
 import { mergeConfig } from 'vite';
-import browser from '../mock/webextension-polyfill';
 import svgrPlugin from 'vite-plugin-svgr';
+import browser from '../mock/webextension-polyfill';
+import * as path from 'node:path';
 
 const config: StorybookConfig = {
   stories: [
-    '../stories/**/*.@(md|mdx)',
+    '../stories/**/*.mdx',
     '../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)',
   ],
   addons: [
@@ -15,21 +16,15 @@ const config: StorybookConfig = {
     '@storybook/addon-themes',
     '@storybook/addon-interactions',
     '@storybook/addon-designs',
-    // 'msw-storybook-addon',
+    'msw-storybook-addon',
   ],
   framework: '@storybook/react-vite',
-  core: {
-    builder: '@storybook/builder-vite',
-  },
   typescript: {
     reactDocgen: 'react-docgen-typescript',
   },
-
   staticDirs: ['../public'],
-
   async viteFinal(config, { configType }) {
     return mergeConfig(config, {
-      assetsInclude: ['../stories/**/*.mdx'],
       server: {
         fs: {
           strict: false,
@@ -37,15 +32,15 @@ const config: StorybookConfig = {
       },
       resolve: {
         alias: {
-          '@growthbook/growthbook': 'mock/gb.ts',
-          'node-fetch': 'mock/node-fetch.ts',
-          'webextension-polyfill': 'mock/webextension-polyfill.ts',
-          '../hooks/log/useLogSharedProps': 'mock/use-log-shared-props.ts',
+          '@growthbook/growthbook': path.resolve(__dirname, '../mock/gb.ts'),
+          'node-fetch': path.resolve(__dirname, '../mock/node-fetch.ts'),
+          'webextension-polyfill': path.resolve(__dirname, '../mock/webextension-polyfill.ts'),
+          'next/router': path.resolve(__dirname, '../mock/next-router.ts'),
         },
       },
       define: {
         'process.env': {},
-        browser: browser,
+        browser,
       },
       plugins: [
         svgrPlugin({
