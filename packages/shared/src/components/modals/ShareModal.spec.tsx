@@ -108,8 +108,8 @@ describe('ShareModal Test Suite:', () => {
   it('should render the component with logged user and squads and open the share to squad modal', async () => {
     renderComponent(true, true);
     const btn = await screen.findByTestId(`social-share-@${squads[0].handle}`);
-    btn.click();
-    expect(screen.getByText('New post')).toBeInTheDocument();
+    fireEvent.click(btn);
+    await screen.findByText('New post');
   });
 
   it('should render the Facebook button and navigate to the correct link', async () => {

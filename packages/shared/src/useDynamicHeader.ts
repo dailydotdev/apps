@@ -33,7 +33,7 @@ export const useDynamicHeader = <T extends HTMLElement>(
 
   useEffect(() => {
     if (!enabled) {
-      return () => {};
+      return undefined;
     }
 
     const callback = () => onScroll.current?.();
