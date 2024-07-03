@@ -59,6 +59,7 @@ export const OnboardingHeader = ({
       <Logo
         className="w-auto px-10 py-8 laptop:w-full"
         position={LogoPosition.Relative}
+        linkDisabled
       />
     );
   }

@@ -119,11 +119,11 @@ export const SocialRegistrationForm = ({
       return;
     }
 
-    if (!values.experienceLevel) {
-      logError('Experience level not provided');
-      setExperienceLevelHint('Please select your experience level');
-      return;
-    }
+    // if (!values.experienceLevel) {
+    //   logError('Experience level not provided');
+    //   setExperienceLevelHint('Please select your experience level');
+    //   return;
+    // }
 
     if (isAuthorOnboarding && !values.twitter) {
       logError('Twitter not provider');

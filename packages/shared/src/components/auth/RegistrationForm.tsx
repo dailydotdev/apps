@@ -97,11 +97,7 @@ export const RegistrationForm = ({
       formRef?.current ?? form,
     );
 
-    if (
-      !values['traits.name']?.length ||
-      !values['traits.username']?.length ||
-      !values['traits.experienceLevel']?.length
-    ) {
+    if (!values['traits.name']?.length || !values['traits.username']?.length) {
       const setHints = { ...hints };
 
       if (!values['traits.name']?.length) {
@@ -110,9 +106,9 @@ export const RegistrationForm = ({
       if (!values['traits.username']?.length) {
         setHints['traits.username'] = 'Please provide username.';
       }
-      if (!values['traits.experienceLevel']?.length) {
-        setHints['traits.experienceLevel'] = 'Please provide experience level.';
-      }
+      // if (!values['traits.experienceLevel']?.length) {
+      //   setHints['traits.experienceLevel'] = 'Please provide experience level.';
+      // }
 
       onUpdateHints(setHints);
       return;
@@ -149,9 +145,7 @@ export const RegistrationForm = ({
 
   const isNameValid = !hints?.['traits.name'] && isSubmitted;
   const isUsernameValid = !hints?.['traits.username'] && isSubmitted;
-  const isExperienceLevelValid =
-    !isSubmitted || !hints?.['traits.experienceLevel'];
-
+  const isExperienceLevelValid = true;
   return (
     <>
       <AuthHeader simplified={simplified} title="Sign up" onBack={onBack} />
