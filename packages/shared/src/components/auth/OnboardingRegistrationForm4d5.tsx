@@ -102,6 +102,7 @@ export const OnboardingRegistrationForm4d5 = ({
           <Logo
             position={LogoPosition.Relative}
             logoClassName={{ container: 'h-6' }}
+            linkDisabled
           />
           <ModalClose right="0" onClick={onClose} />
         </div>
