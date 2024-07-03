@@ -39,7 +39,7 @@ export default function ShortcutOptionsMenu({
     },
   ];
 
-  if (typeof ContextMenu === 'object') {
+  if (!React.isValidElement(ContextMenu)) {
     return null;
   }
 
