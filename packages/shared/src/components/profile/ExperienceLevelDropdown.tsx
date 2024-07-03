@@ -87,6 +87,7 @@ const ExperienceLevelDropdown = ({
           className="hidden"
           name={name}
           value={Object.keys(UserExperienceLevel)[selectedIndex]}
+          readOnly
         />
       )}
       {(hint?.length > 0 || saveHintSpace) && (

@@ -108,9 +108,7 @@ it('should show empty screen when feed is empty', async () => {
     }),
   ]);
   await waitForNock();
-  expect(
-    await screen.findByText('Your bookmark list is empty.'),
-  ).toBeInTheDocument();
+  await screen.findByText('Your bookmark list is empty.');
   await waitFor(() => {
     const elements = screen.queryAllByTestId('postItem');
     expect(elements.length).toBeFalsy();

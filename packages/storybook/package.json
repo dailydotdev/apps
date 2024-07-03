@@ -16,8 +16,8 @@
     "extension": "*",
     "next": "^12.2.2",
     "next-router-mock": "^0.9.13",
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
     "webextension-polyfill": "^0.10.0"
   },
   "devDependencies": {

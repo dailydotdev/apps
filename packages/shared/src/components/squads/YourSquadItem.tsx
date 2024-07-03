@@ -1,6 +1,7 @@
 import React, {
   AnchorHTMLAttributes,
   HTMLAttributes,
+  MutableRefObject,
   ReactElement,
 } from 'react';
 import { Squad } from '../../graphql/sources';
@@ -19,14 +20,14 @@ const classes = 'flex flex-row items-center gap-4';
 const Anchor = classed('a', classes);
 const Span = classed('span', classes);
 
-export function YourSquadItem({
-  squad,
-  elementProps,
-}: YourSquadItemProps): ReactElement {
+function Component(
+  { squad, elementProps }: YourSquadItemProps,
+  ref: MutableRefObject<HTMLElement>,
+): ReactElement {
   const Element = elementProps && 'href' in elementProps ? Anchor : Span;
 
   return (
-    <Element {...elementProps}>
+    <Element ref={ref} {...elementProps}>
       <img
         src={squad.image}
         alt={`avatar of ${squad.handle}`}
@@ -43,3 +44,5 @@ export function YourSquadItem({
     </Element>
   );
 }
+
+export const YourSquadItem = React.forwardRef(Component);

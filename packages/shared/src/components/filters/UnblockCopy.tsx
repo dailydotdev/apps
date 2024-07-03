@@ -6,19 +6,24 @@ export type CopyProps = {
 };
 
 export const UnblockTagCopy = ({ name }: CopyProps): ReactElement => {
+  const tag = typeof name === 'string' ? name : name.name;
+  const copy = `#${tag}`;
+
   return (
     <p>
-      Unblocking <strong className="text-text-primary">#{name}</strong> means
+      Unblocking <strong className="text-text-primary">{copy}</strong> means
       that you might see posts containing this tag in your feed.
     </p>
   );
 };
 
 export const UnblockSourceCopy = ({ name }: CopyProps): ReactElement => {
+  const tag = typeof name === 'string' ? name : name.name;
+
   return (
     <p>
-      Unblocking <strong className="text-text-primary">{name}</strong> means
-      that you might see posts from this source in your feed.
+      Unblocking <strong className="text-text-primary">{tag}</strong> means that
+      you might see posts from this source in your feed.
     </p>
   );
 };

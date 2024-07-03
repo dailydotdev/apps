@@ -266,6 +266,7 @@ describe('squad header bar', () => {
   it('should show three of the squad member images when sidebar is not rendered', async () => {
     const members = generateMembersResult().sourceMembers.edges.slice(0, 3);
     renderComponent();
+    await screen.findByLabelText('Members list');
     const result = await Promise.all(
       members.map(({ node: { user } }) =>
         screen.findByAltText(`${user.username}'s profile`),
