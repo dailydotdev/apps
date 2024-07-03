@@ -27,7 +27,6 @@ import {
 } from '@dailydotdev/shared/src/lib/log';
 import {
   useActions,
-  useConditionalFeature,
   useToastNotification,
 } from '@dailydotdev/shared/src/hooks';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
@@ -40,7 +39,10 @@ import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { ShortcutsUIExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
-import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
+import {
+  useShortcuts,
+  useThemedAsset,
+} from '@dailydotdev/shared/src/hooks/utils';
 import CustomLinksModal from './ShortcutLinksModal';
 import MostVisitedSitesModal from './MostVisitedSitesModal';
 import { CustomLinks } from './CustomLinks';
@@ -95,10 +97,7 @@ export default function ShortcutLinks({
   const loggedInitialRef = useRef(false);
   const loggedRef = useRef(false);
 
-  const { value: isShortcutsV1 } = useConditionalFeature({
-    feature: feature.onboardingMostVisited,
-    shouldEvaluate: showTopSites,
-  });
+  const { isShortcutsV1 } = useShortcuts();
   const { onMenuClick, isOpen } = useContextMenu({
     id: ContextMenu.ShortcutContext,
   });

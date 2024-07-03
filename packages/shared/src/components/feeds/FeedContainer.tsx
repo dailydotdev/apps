@@ -15,7 +15,6 @@ import {
   useFeedLayout,
   ToastSubject,
   useToastNotification,
-  useConditionalFeature,
   FeedPagesWithMobileLayoutType,
   useViewSize,
   ViewSize,
@@ -23,10 +22,10 @@ import {
 } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useActiveFeedNameContext } from '../../contexts';
-import { feature } from '../../lib/featureManagement';
 import { SharedFeedPage } from '../utilities';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { OtherFeedPage } from '../../lib/query';
+import { useShortcuts } from '../../hooks/utils';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -154,10 +153,7 @@ export const FeedContainer = ({
   isHorizontal,
   feedContainerRef,
 }: FeedContainerProps): ReactElement => {
-  const { value: isShortcutsV1 } = useConditionalFeature({
-    feature: feature.onboardingMostVisited,
-    shouldEvaluate: !!shortcuts,
-  });
+  const { isShortcutsV1 } = useShortcuts();
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
   const { spaciness, loadedSettings } = useContext(SettingsContext);

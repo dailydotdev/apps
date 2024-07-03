@@ -27,7 +27,6 @@ const feature = {
   feedAdSpot: new Feature('feed_ad_spot', 0),
   searchVersion: new Feature('search_version', 1),
   readingReminder: new Feature('reading_reminder', false),
-  onboardingMostVisited: new Feature('onboarding_most_visited', false),
   shareExperience: new Feature('share_experience', false),
   featureTheme: new Feature('feature_theme', {}),
   hypeCampaign: new Feature('hype_campaign', false),
