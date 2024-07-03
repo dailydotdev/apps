@@ -26,7 +26,7 @@ import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
-import { useFeature, useFeaturesReadyContext } from './GrowthBookProvider';
+import { useFeature } from './GrowthBookProvider';
 import {
   algorithms,
   DEFAULT_ALGORITHM_INDEX,
@@ -160,7 +160,6 @@ export default function MainFeedLayout({
   useScrollRestoration();
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
-  const { getFeatureValue } = useFeaturesReadyContext();
   const { alerts } = useContext(AlertContext);
   const router = useRouter();
   const [tab, setTab] = useState(ExploreTabs.Popular);
@@ -246,7 +245,6 @@ export default function MainFeedLayout({
     }
 
     if (isSearchOn && searchQuery) {
-      const searchVersion = getFeatureValue(feature.searchVersion);
       return {
         feedName: SharedFeedPage.Search,
         feedQueryKey: generateQueryKey(
@@ -255,7 +253,7 @@ export default function MainFeedLayout({
           searchQuery,
         ),
         query: SEARCH_POSTS_QUERY,
-        variables: { query: searchQuery, version: searchVersion },
+        variables: { query: searchQuery },
         emptyScreen: <SearchEmptyScreen />,
       };
     }
@@ -330,7 +328,6 @@ export default function MainFeedLayout({
     isLaptop,
     isExploreLatest,
     selectedAlgo,
-    getFeatureValue,
     tab,
     selectedPeriod,
     setSelectedAlgo,
