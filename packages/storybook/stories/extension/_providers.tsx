@@ -5,7 +5,7 @@ import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { Browser } from 'webextension-polyfill';
-import type { FC } from 'react';
+import type { FC, PropsWithChildren } from 'react';
 
 
 const app = BootApp.Extension;
@@ -17,7 +17,7 @@ declare global {
   }
 }
 
-export const ExtensionProviders: FC = ({ children }) => {
+export const ExtensionProviders: FC<PropsWithChildren> = ({ children }) => {
   return <QueryClientProvider client={queryClient}>
     <BootDataProvider
       app={app}
@@ -26,16 +26,16 @@ export const ExtensionProviders: FC = ({ children }) => {
       deviceId='123'
       getPage={() => '/'}
     >
-        <LogContext.Provider
-          value={{
-            logEvent: console.log,
-            logEventStart: console.log,
-            logEventEnd: console.log,
-            sendBeacon: console.log,
-          }}
-        >
-          {children}
-        </LogContext.Provider>
+      <LogContext.Provider
+        value={{
+          logEvent: console.log,
+          logEventStart: console.log,
+          logEventEnd: console.log,
+          sendBeacon: console.log,
+        }}
+      >
+        {children}
+      </LogContext.Provider>
     </BootDataProvider>
   </QueryClientProvider>;
 };
