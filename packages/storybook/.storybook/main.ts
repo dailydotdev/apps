@@ -8,6 +8,14 @@ const config: StorybookConfig = {
     '../stories/**/*.@(md|mdx)',
     '../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)',
   ],
+  addons: [
+    '@storybook/addon-docs',
+    '@storybook/addon-links',
+    '@storybook/addon-essentials',
+    '@storybook/addon-themes',
+    '@storybook/addon-interactions',
+    '@storybook/addon-designs'
+  ],
   framework: '@storybook/react-vite',
   core: {
     builder: '@storybook/builder-vite',
@@ -20,7 +28,7 @@ const config: StorybookConfig = {
 
   async viteFinal(config, { configType }) {
     return mergeConfig(config, {
-      assetsInclude: ['**/*.mdx'],
+      assetsInclude: ['../stories/**/*.mdx'],
       server: {
         fs: {
           strict: false,
