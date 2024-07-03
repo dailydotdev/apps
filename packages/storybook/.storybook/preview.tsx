@@ -2,9 +2,11 @@ import { Preview, ReactRenderer } from '@storybook/react';
 import { withThemeByClassName } from '@storybook/addon-themes';
 import '@dailydotdev/shared/src/styles/globals.css';
 
-import { initialize, mswLoader } from 'msw-storybook-addon';
+// import { initialize, mswLoader } from 'msw-storybook-addon';
 
-initialize();
+// initialize({
+//   onUnhandledRequest: 'warn',
+// });
 
 const preview: Preview = {
   parameters: {

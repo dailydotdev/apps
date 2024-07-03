@@ -14,7 +14,8 @@ const config: StorybookConfig = {
     '@storybook/addon-essentials',
     '@storybook/addon-themes',
     '@storybook/addon-interactions',
-    '@storybook/addon-designs'
+    '@storybook/addon-designs',
+    // 'msw-storybook-addon',
   ],
   framework: '@storybook/react-vite',
   core: {

@@ -6,7 +6,6 @@ import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import { Alerts } from '@dailydotdev/shared/src/graphql/alerts';
 import { RemoteSettings } from '@dailydotdev/shared/src/graphql/settings';
 import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
-import { http, HttpResponse } from 'msw';
 
 const meta: Meta<typeof ShortcutLinks> = {
   title: 'Extension/ShortcutLinks',
