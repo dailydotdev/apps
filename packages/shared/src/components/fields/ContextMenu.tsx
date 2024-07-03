@@ -29,7 +29,12 @@ function PortalMenu({
 
   return (
     <RootPortal>
-      <Menu {...props} id={id} onHidden={onHidden} />
+      <Menu
+        {...props}
+        animation={{ enter: 'fade', exit: false }}
+        id={id}
+        onHidden={onHidden}
+      />
     </RootPortal>
   );
 }
@@ -84,7 +89,6 @@ export default function ContextMenu({
     <PortalMenu
       disableBoundariesCheck
       className="menu-primary"
-      animation="fade"
       onHidden={onHidden}
       {...props}
     >
