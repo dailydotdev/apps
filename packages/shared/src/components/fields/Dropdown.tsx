@@ -3,6 +3,8 @@ import React, {
   ReactElement,
   ReactNode,
   useEffect,
+  useId,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
@@ -72,8 +74,8 @@ export function Dropdown({
   openFullScreen,
   ...props
 }: DropdownProps): ReactElement {
+  const id = useId();
   const isMobile = useViewSize(ViewSize.MobileL);
-  const [id] = useState(`dropdown-${Math.random().toString(36).substring(7)}`);
   const [isVisible, setVisibility] = useState(false);
   const [menuWidth, setMenuWidth] = useState<number>();
   const triggerRef = useRef<HTMLButtonElement>();
@@ -123,6 +125,12 @@ export function Dropdown({
 
   const fullScreen = openFullScreen ?? isMobile;
 
+  useLayoutEffect(() => {
+    if (!isVisible) {
+      triggerRef?.current?.focus?.();
+    }
+  }, [isVisible]);
+
   return (
     <div
       className={classNames(styles.dropdown, className.container)}
@@ -143,6 +151,7 @@ export function Dropdown({
         tabIndex={0}
         aria-haspopup="true"
         aria-expanded={isVisible}
+        aria-controls={id}
         icon={
           icon &&
           React.cloneElement(icon as ReactElement<IconProps>, {
