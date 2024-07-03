@@ -29,7 +29,12 @@ function PortalMenu({
 
   return (
     <RootPortal>
-      <Menu {...props} id={id} onHidden={onHidden} />
+      <Menu
+        {...props}
+        animation={{ enter: 'fade', exit: false }}
+        id={id}
+        onHidden={onHidden}
+      />
     </RootPortal>
   );
 }
@@ -48,12 +53,13 @@ export interface MenuItemProps<
 
 interface ContextMenuProps extends Omit<MenuProps, 'children'> {
   options: MenuItemProps[] | ContextMenuDrawerItem[];
-  isOpen: boolean;
+  isOpen?: boolean;
 }
 
 export default function ContextMenu({
   options,
   onHidden,
+  isOpen,
   ...props
 }: ContextMenuProps): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -69,7 +75,7 @@ export default function ContextMenu({
       <RootPortal>
         <ContextMenuDrawer
           drawerProps={{
-            isOpen: props.isOpen,
+            isOpen,
             onClose: handleClose,
             displayCloseButton: true,
           }}
@@ -83,7 +89,6 @@ export default function ContextMenu({
     <PortalMenu
       disableBoundariesCheck
       className="menu-primary"
-      animation="fade"
       onHidden={onHidden}
       {...props}
     >

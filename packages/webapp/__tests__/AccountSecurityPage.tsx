@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { act } from 'react';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import {
@@ -18,7 +18,6 @@ import {
   verifiedLoginData,
 } from '@dailydotdev/shared/__tests__/fixture/auth';
 import {
-  act,
   fireEvent,
   render,
   RenderResult,

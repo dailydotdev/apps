@@ -163,7 +163,7 @@ describe('getTodayTz', () => {
 
   it('should return same date as today if second argument is not supplied', () => {
     const dateNow = new Date();
-    const date = getTodayTz('UTC');
+    const date = getTodayTz(Intl.DateTimeFormat().resolvedOptions().timeZone);
     expect(date.toISOString().slice(0, 10)).toEqual(
       dateNow.toISOString().slice(0, 10),
     );

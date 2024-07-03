@@ -81,7 +81,7 @@ function NewCommentComponent(
 
     const { comment, ...query } = router.query;
 
-    onShowComment(Origin.SquadChecklist, comment);
+    onShowComment(Origin.SquadChecklist, comment as string);
 
     router.replace({ pathname: router.pathname, query }, undefined, {
       shallow: true,

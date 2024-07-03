@@ -4,11 +4,16 @@ import classNames from 'classnames';
 import PostNavigation from './PostNavigation';
 import PostEngagements from './PostEngagements';
 import { BasePostContentProps } from './common';
-import { GoBackHeaderMobile } from './GoBackHeaderMobile';
 import { PostHeaderActions } from './PostHeaderActions';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
+);
+
+const GoBackHeaderMobile = dynamic(
+  () =>
+    import(/* webpackChunkName: "goBackHeaderMobile" */ './GoBackHeaderMobile'),
+  { ssr: false },
 );
 
 export const ONBOARDING_OFFSET = 120;

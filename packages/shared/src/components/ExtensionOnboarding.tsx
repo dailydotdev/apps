@@ -22,6 +22,7 @@ const ExtensionOnboarding = (): ReactElement => {
       <Logo
         position={LogoPosition.Relative}
         logoClassName={{ container: 'h-logo-big' }}
+        linkDisabled
       />
 
       <OnboardingTitleGradient className="my-6 typo-mega2 tablet:typo-mega1">
