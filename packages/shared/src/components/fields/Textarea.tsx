@@ -28,6 +28,7 @@ function Textarea({
   maxLength = 100,
   rows,
   fieldType = 'primary',
+  onBlur: onExternalBlur,
   ...props
 }: BaseFieldProps<HTMLTextAreaElement> & {
   className?: FieldClassName;
@@ -103,7 +104,12 @@ function Textarea({
         id={inputId}
         ref={inputRef}
         onFocus={onFocus}
-        onBlur={onBlur}
+        onBlur={(e) => {
+          if (onExternalBlur) {
+            onExternalBlur(e);
+          }
+          onBlur();
+        }}
         onInput={onInput}
         maxLength={maxLength}
         readOnly={readOnly}

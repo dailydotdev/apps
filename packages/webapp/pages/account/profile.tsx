@@ -63,6 +63,7 @@ const AccountProfilePage = (): ReactElement => {
       update: true,
     }),
   );
+  const [updatedUser, setUpdatedUser] = useState(user);
 
   const onSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -128,6 +129,16 @@ const AccountProfilePage = (): ReactElement => {
     [updateUserProfile, uploadCoverImage],
   );
 
+  const handleInputChange = (
+    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    setUpdatedUser({
+      ...updatedUser,
+      [name]: value,
+    });
+  };
+
   const CoverHoverIcon = () => (
     <span className="text-theme-label-secondary ml-26 mr-3 flex flex-wrap items-center justify-center">
       <CameraIcon size={IconSize.Large} />
@@ -135,7 +146,7 @@ const AccountProfilePage = (): ReactElement => {
     </span>
   );
 
-  const RenderForm = () => (
+  const form = (
     <form ref={formRef} id="submit-profile">
       <AccountContentSection
         className={{ heading: 'mt-0' }}
@@ -150,7 +161,7 @@ const AccountProfilePage = (): ReactElement => {
               img: 'object-cover',
               container: 'border-4 !border-background-default',
             }}
-            initialValue={user.image}
+            initialValue={updatedUser.image}
             hoverIcon={<CameraIcon size={IconSize.Large} />}
             onChange={(_, file) => onImageInputChange(file)}
           />
@@ -182,7 +193,8 @@ const AccountProfilePage = (): ReactElement => {
           hint={hint.name}
           valid={!hint.name}
           leftIcon={<UserIcon />}
-          value={user.name}
+          value={updatedUser.name}
+          onBlur={handleInputChange}
         />
         <AccountTextField
           label="Username"
@@ -191,10 +203,14 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.username}
           name="username"
           leftIcon={<AtIcon />}
-          value={user.username}
+          value={updatedUser.username}
+          onBlur={handleInputChange}
         />
         <ExperienceLevelDropdown
-          defaultValue={user.experienceLevel}
+          defaultValue={updatedUser.experienceLevel}
+          onChange={(value) => {
+            setUpdatedUser({ ...updatedUser, experienceLevel: value });
+          }}
           name="experienceLevel"
           className={{
             container: 'mt-6 max-w-sm tablet:relative',
@@ -210,20 +226,23 @@ const AccountProfilePage = (): ReactElement => {
           inputId="bio"
           name="bio"
           rows={5}
-          value={user.bio}
+          value={updatedUser.bio}
+          onBlur={handleInputChange}
           className={{ container: 'mt-6 max-w-sm' }}
         />
         <AccountTextField
           label="Company"
           inputId="company"
           name="company"
-          value={user.company}
+          value={updatedUser.company}
+          onBlur={handleInputChange}
         />
         <AccountTextField
           label="Job Title"
           inputId="title"
           name="title"
-          value={user.title}
+          value={updatedUser.title}
+          onBlur={handleInputChange}
         />
       </AccountContentSection>
       <AccountContentSection title="Your timezone">
@@ -244,7 +263,8 @@ const AccountProfilePage = (): ReactElement => {
           hint={hint.twitter}
           valid={!hint.twitter}
           name="twitter"
-          value={user.twitter}
+          value={updatedUser.twitter}
+          onBlur={handleInputChange}
         />
         <AccountTextField
           leftIcon={<GitHubIcon />}
@@ -253,7 +273,8 @@ const AccountProfilePage = (): ReactElement => {
           hint={hint.github}
           valid={!hint.github}
           name="github"
-          value={user.github}
+          value={updatedUser.github}
+          onBlur={handleInputChange}
         />
         <AccountTextField
           leftIcon={<LinkIcon />}
@@ -262,7 +283,8 @@ const AccountProfilePage = (): ReactElement => {
           hint={hint.portfolio}
           valid={!hint.portfolio}
           name="portfolio"
-          value={user.portfolio}
+          value={updatedUser.portfolio}
+          onBlur={handleInputChange}
         />
       </AccountContentSection>
     </form>
@@ -277,13 +299,11 @@ const AccountProfilePage = (): ReactElement => {
         rightButtonProps={{ onClick: onSubmit, disabled: isLoading }}
         leftButtonProps={{
           onClick: () => {
-            router.push(user.permalink);
+            router.push(updatedUser.permalink);
           },
         }}
       >
-        <div className="p-4">
-          <RenderForm />
-        </div>
+        <div className="p-4">{form}</div>
       </FormWrapper>
     );
   }
@@ -303,7 +323,7 @@ const AccountProfilePage = (): ReactElement => {
         </Button>
       }
     >
-      <RenderForm />
+      {form}
     </AccountPageContainer>
   );
 };
