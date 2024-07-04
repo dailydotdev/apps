@@ -22,9 +22,6 @@ import { SourceType } from '../../graphql/sources';
 import { useActions } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { AdAsComment } from '../comments/AdAsComment';
-import { feature } from '../../lib/featureManagement';
-import { AdsPostPage } from '../../lib/featureValues';
-import { useFeature } from '../GrowthBookProvider';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -58,8 +55,6 @@ function PostEngagements({
     SQUAD_COMMENT_JOIN_BANNER_KEY,
     false,
   );
-  const adsPostPageFeature = useFeature(feature.adsPostPage);
-  const isAdsPostPageV1 = adsPostPageFeature === AdsPostPage.V1;
 
   const onCommented = (comment: Comment, isNew: boolean) => {
     if (!isNew) {
@@ -110,7 +105,7 @@ function PostEngagements({
         ref={commentRef}
         onCommented={onCommented}
       />
-      {isAdsPostPageV1 && <AdAsComment postId={post.id} />}
+      <AdAsComment postId={post.id} />
       <PostComments
         post={post}
         origin={logOrigin}

@@ -90,7 +90,7 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
           Promoted by {source}
         </TruncateText>
       </div>
-      <p className="mt-3 w-fit text-text-primary typo-body">
+      <p className="mt-3 w-full text-text-primary typo-body">
         <b>{tagLine}</b>
         <br />
         {description}
