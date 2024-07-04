@@ -1,4 +1,8 @@
-import React, { FC, PropsWithChildren } from 'react';
+import React, {
+  MouseEventHandler,
+  PropsWithChildren,
+  ReactElement,
+} from 'react';
 import {
   ClearIcon,
   MenuIcon,
@@ -23,7 +27,7 @@ const iconSize = Math.round(24 * pixelRatio);
 
 type ShortcutLinksV1Props = {
   onLinkClick: () => void;
-  onMenuClick: React.MouseEventHandler<Element>;
+  onMenuClick: MouseEventHandler<Element>;
   onOptionsOpen: () => void;
   onV1Hide: () => void;
   shortcutLinks: string[];
@@ -32,10 +36,13 @@ type ShortcutLinksV1Props = {
   toggleShowTopSites: () => void;
 };
 
-const ShortCutV1Placeholder: FC<{
+function ShortCutV1Placeholder({
+  initialItem = false,
+  onClick,
+}: {
   initialItem?: boolean;
   onClick: () => void;
-}> = ({ initialItem = false, onClick }) => {
+}) {
   return (
     <button
       className="group mr-4 flex flex-col items-center first:mr-2 last-of-type:mr-2 hover:cursor-pointer"
@@ -60,12 +67,15 @@ const ShortCutV1Placeholder: FC<{
       )}
     </button>
   );
-};
+}
 
-const ShortcutV1Item: FC<{
+function ShortcutV1Item({
+  url,
+  onLinkClick,
+}: {
   url: string;
   onLinkClick: () => void;
-}> = ({ url, onLinkClick }) => {
+}) {
   const cleanUrl = url.replace(/http(s)?(:)?(\/\/)?|(\/\/)?(www\.)?/g, '');
   return (
     <a
@@ -88,9 +98,9 @@ const ShortcutV1Item: FC<{
       </span>
     </a>
   );
-};
+}
 
-const ShortcutUIItemPlaceholder: FC<PropsWithChildren> = ({ children }) => {
+function ShortcutUIItemPlaceholder({ children }: PropsWithChildren) {
   return (
     <div className="group flex flex-col items-center">
       <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
@@ -99,9 +109,9 @@ const ShortcutUIItemPlaceholder: FC<PropsWithChildren> = ({ children }) => {
       <span className="h-2 w-10 rounded-10 bg-surface-float" />
     </div>
   );
-};
+}
 
-export const ShortcutLinksUIV1: FC<ShortcutLinksV1Props> = (props) => {
+export function ShortcutLinksUIV1(props: ShortcutLinksV1Props): ReactElement {
   const {
     onLinkClick,
     onMenuClick,
@@ -209,4 +219,4 @@ export const ShortcutLinksUIV1: FC<ShortcutLinksV1Props> = (props) => {
       )}
     </div>
   );
-};
+}
