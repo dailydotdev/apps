@@ -176,7 +176,6 @@ describe('shortcut links component', () => {
       settings: { ...defaultBootData.settings, customLinks: null },
     });
 
-    await act(() => new Promise((resolve) => setTimeout(resolve, 10)));
     const shortcuts = await screen.findAllByRole('link');
     expect(shortcuts.length).toEqual(3);
 
