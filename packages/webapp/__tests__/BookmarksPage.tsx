@@ -4,8 +4,14 @@ import {
   supportedTypesForPrivateSources,
 } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
-import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import React, { act } from 'react';
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { NextRouter, useRouter } from 'next/router';
@@ -121,24 +127,17 @@ it('should show the search bar', async () => {
   expect(await screen.findByTestId('searchField')).toBeInTheDocument();
 });
 
-it('should update query param on enter', async (done) => {
+it('should update query param on enter', async () => {
   renderComponent();
   await waitForNock();
-  const input = (await screen.findByPlaceholderText(
-    'Search bookmarks',
-  )) as HTMLInputElement;
-  input.value = 'daily';
-  input.dispatchEvent(new Event('input', { bubbles: true }));
-  setTimeout(async () => {
-    input.dispatchEvent(
-      new KeyboardEvent('keydown', { bubbles: true, keyCode: 13 }),
-    );
-    await waitFor(() =>
-      expect(routerReplace).toBeCalledWith({
-        pathname: '/bookmarks',
-        query: { q: 'daily' },
-      }),
-    );
-    done();
-  }, 150);
+  const input = await screen.findByPlaceholderText('Search bookmarks');
+  fireEvent.input(input, { target: { value: 'daily' } });
+  await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
+  fireEvent.keyDown(input, { key: 'Enter', code: 'Enter', keyCode: 13 });
+  await waitFor(() =>
+    expect(routerReplace).toBeCalledWith({
+      pathname: '/bookmarks',
+      query: { q: 'daily' },
+    }),
+  );
 });
