@@ -70,14 +70,7 @@ jest.mock('webextension-polyfill', () => {
   };
 });
 
-beforeEach(() => {
-  nock.cleanAll();
-  jest.clearAllMocks();
-});
-
-const defaultAlerts: Alerts = { filter: true, rankLastSeen: null };
-
-const defaultSettings: RemoteSettings = {
+const settings: RemoteSettings = {
   theme: 'bright',
   openNewTab: false,
   spaciness: 'roomy',
@@ -97,6 +90,16 @@ const defaultSettings: RemoteSettings = {
   ],
   onboardingChecklistView: ChecklistViewState.Hidden,
 };
+
+let defaultSettings: RemoteSettings;
+
+beforeEach(() => {
+  nock.cleanAll();
+  jest.clearAllMocks();
+  defaultSettings = settings;
+});
+
+const defaultAlerts: Alerts = { filter: true, rankLastSeen: null };
 
 const defaultBootData: BootCacheData = {
   alerts: defaultAlerts,
@@ -171,8 +174,10 @@ describe('shortcut links component', () => {
 
   it('should display top sites if permission is previously granted', async () => {
     await browser.permissions.request({ permissions: ['topSites'] });
+    defaultSettings.customLinks = null;
     renderComponent();
 
+    await act(() => new Promise((resolve) => setTimeout(resolve, 10)));
     const shortcuts = await screen.findAllByRole('link');
     expect(shortcuts.length).toEqual(3);
 
@@ -316,7 +321,7 @@ describe('shortcut links component', () => {
     expect(mutationCalled).toBeTruthy();
 
     const updated = await screen.findAllByRole('link');
-    expect(updated.length).toEqual(6);
+    expect(updated.length).toEqual(5);
 
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.SaveShortcutAccess,
