@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import ShortcutLinks from 'extension/src/newtab/ShortcutLinks';
 import ExtensionProviders from './_providers';
 import { Boot, BootCacheData } from '@dailydotdev/shared/src/lib/boot';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
@@ -7,6 +6,7 @@ import { Alerts } from '@dailydotdev/shared/src/graphql/alerts';
 import { RemoteSettings } from '@dailydotdev/shared/src/graphql/settings';
 import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
 import { HttpResponse, http } from 'msw';
+import ShortcutLinks from 'extension/src/newtab/ShortcutLinks/ShortcutLinks';
 
 const meta: Meta<typeof ShortcutLinks> = {
   title: 'Extension/ShortcutLinks',
@@ -16,7 +16,9 @@ const meta: Meta<typeof ShortcutLinks> = {
   },
   render: (args) => {
     return (
-      <ExtensionProviders><ShortcutLinks {...args} /></ExtensionProviders>
+      <ExtensionProviders>
+        <ShortcutLinks {...args} />
+      </ExtensionProviders>
     );
   },
 };
@@ -81,7 +83,6 @@ export const ListFeedLayout: Story = {
     },
   },
 };
-
 
 export const GridFeedLayout: Story = {
   ...ListFeedLayout,

@@ -44,8 +44,8 @@ import {
   useThemedAsset,
 } from '@dailydotdev/shared/src/hooks/utils';
 import CustomLinksModal from './ShortcutLinksModal';
-import MostVisitedSitesModal from './MostVisitedSitesModal';
-import { CustomLinks } from './CustomLinks';
+import MostVisitedSitesModal from '../MostVisitedSitesModal';
+import { CustomLinks } from '../CustomLinks';
 import useShortcutLinks from './useShortcutLinks';
 import ShortcutOptionsMenu from './ShortcutOptionsMenu';
 
