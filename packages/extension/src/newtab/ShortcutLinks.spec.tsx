@@ -94,7 +94,6 @@ const defaultSettings: RemoteSettings = {
     'http://custom2.com',
     'http://custom3.com',
     'http://custom4.com',
-    'http://custom5.com',
   ],
   onboardingChecklistView: ChecklistViewState.Hidden,
 };
@@ -260,7 +259,7 @@ describe('shortcut links component', () => {
     renderComponent();
 
     const shortcuts = await screen.findAllByRole('link');
-    expect(shortcuts.length).toEqual(5);
+    expect(shortcuts.length).toEqual(4);
   });
 
   it('should allow user to customize shortcut links', async () => {
@@ -282,7 +281,7 @@ describe('shortcut links component', () => {
     renderComponent();
 
     const shortcuts = await screen.findAllByRole('link');
-    expect(shortcuts.length).toEqual(5);
+    expect(shortcuts.length).toEqual(4);
 
     const edit = await screen.findByLabelText('Edit shortcuts');
     fireEvent.click(edit);
