@@ -1,9 +1,5 @@
 import { JSONValue } from '@growthbook/growthbook';
-import {
-  AdsPostPage,
-  SeoSidebarExperiment,
-  ShortcutsUIExperiment,
-} from './featureValues';
+import { SeoSidebarExperiment, ShortcutsUIExperiment } from './featureValues';
 import { cloudinary } from './image';
 
 export class Feature<T extends JSONValue> {
@@ -29,14 +25,12 @@ const feature = {
   readingReminder: new Feature('reading_reminder', false),
   shareExperience: new Feature('share_experience', false),
   featureTheme: new Feature('feature_theme', {}),
-  hypeCampaign: new Feature('hype_campaign', false),
   onboardingLinks: new Feature('onboarding_links', false),
   shortcutsUI: new Feature('shortcuts_ui', ShortcutsUIExperiment.Control),
   showRoadmap: new Feature('show_roadmap', false),
   seoSidebar: new Feature('seo_sidebar', SeoSidebarExperiment.Control),
   bookmark_provider: new Feature('bookmark_provider', false),
   onboardingChecklist: new Feature('onboarding_checklist', false),
-  adsPostPage: new Feature('ads_post_page', AdsPostPage.Control),
 };
 
 export { feature };
