@@ -15,7 +15,7 @@ export function useProfile(initialUser?: PublicProfile): PublicProfile {
     {
       ...disabledRefetch,
       cacheTime: StaleTime.OneHour,
-      placeholderData: initialUser,
+      initialData: initialUser,
       enabled: !!initialUser && isSameUser,
     },
   );
