@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { act } from 'react';
 import nock from 'nock';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import {
-  act,
   fireEvent,
   render,
   RenderResult,
