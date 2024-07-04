@@ -128,8 +128,6 @@ export const cloudinary = {
       'https://daily-now-res.cloudinary.com/image/upload/s--YzB9MTQz--/v1686039108/main-background_ciqmr7.svg',
     purpleEdgeGlow:
       'https://daily-now-res.cloudinary.com/image/upload/s--Va9xODJM--/v1686074969/Glow_fjelt5.svg',
-    hypeCampaign:
-      'https://daily-now-res.cloudinary.com/image/upload/s--WLukth0U--/f_auto/v1716900469/dailydev_kawaii_tshirt__jwxmqw',
   },
   search: {
     og: 'https://daily-now-res.cloudinary.com/image/upload/s--Lq4XRH5V--/f_auto/v1693378429/public/dailv.dev_-_OG_Search',

@@ -56,7 +56,6 @@ import { ActionType } from '../../graphql/actions';
 import { useFeature } from '../GrowthBookProvider';
 import { SeoSidebarExperiment } from '../../lib/featureValues';
 import { feature } from '../../lib/featureManagement';
-import { HypeButton } from '../referral';
 
 const SidebarOnboardingChecklistCard = dynamic(
   () =>
@@ -90,7 +89,6 @@ export default function Sidebar({
   const isTablet = useViewSize(ViewSize.Tablet);
   const featureTheme = useFeatureTheme();
   const { checkHasCompleted, isActionsFetched } = useActions();
-  const hypeCampaign = useFeature(feature.hypeCampaign);
   const seoSidebar = useFeature(feature.seoSidebar);
 
   const feedName = getFeedName(activePageProp, {
@@ -145,9 +143,6 @@ export default function Sidebar({
           className={classNames('h-10 pt-4')}
           featureTheme={featureTheme}
         />
-
-        {hypeCampaign && <HypeButton />}
-
         <Link href={`${webappUrl}`} prefetch={false} passHref>
           <Button
             {...buttonProps}
