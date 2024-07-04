@@ -3,7 +3,7 @@ import React, { ReactElement, ReactNode } from 'react';
 import Link from 'next/link';
 import { Comment, getCommentHash } from '../../graphql/comments';
 import { Post } from '../../graphql/posts';
-import { FeatherIcon, ScoutIcon } from '../icons';
+import { DailyIcon, FeatherIcon, ScoutIcon } from '../icons';
 import Markdown from '../Markdown';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import { ProfileLink } from '../profile/ProfileLink';
@@ -108,6 +108,17 @@ export default function CommentContainer({
               className="ml-1"
               user={comment.author}
             />
+            {comment.author.isTeamMember && (
+              <UserBadge
+                key="team"
+                className="text-accent-bacon-default"
+                content="Staff"
+                Icon={DailyIcon}
+                iconProps={{
+                  secondary: true,
+                }}
+              />
+            )}
             <SquadMemberBadge key="squadMemberRole" role={role} />
             {comment.author.id === postAuthorId && (
               <UserBadge
