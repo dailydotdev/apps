@@ -726,9 +726,9 @@ it('should unblock a source', async () => {
     expect(data).toBeTruthy();
   });
   const contextBtn = await screen.findByText('Show posts from Echo JS');
-  contextBtn.click();
 
   await waitFor(async () => {
+    fireEvent.click(contextBtn);
     await screen.findByRole('alert');
     const feed = await screen.findByTestId('posts-feed');
 
