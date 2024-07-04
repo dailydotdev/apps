@@ -69,14 +69,14 @@ const ProfilePage = ({
       {readingHistory?.userReadingRankHistory && (
         <>
           <ReadingTagsWidget mostReadTags={readingHistory?.userMostReadTags} />
-          {/* <ReadingHeatmapWidget */}
-          {/*  fullHistory={fullHistory} */}
-          {/*  selectedHistoryYear={selectedHistoryYear} */}
-          {/*  readHistory={readingHistory?.userReadHistory} */}
-          {/*  before={before} */}
-          {/*  after={after} */}
-          {/*  yearOptions={yearOptions} */}
-          {/* /> */}
+          <ReadingHeatmapWidget
+            fullHistory={fullHistory}
+            selectedHistoryYear={selectedHistoryYear}
+            readHistory={readingHistory?.userReadHistory}
+            before={before}
+            after={after}
+            yearOptions={yearOptions}
+          />
         </>
       )}
     </div>
