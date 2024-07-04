@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { HttpResponse, http } from 'msw';
 import ExtensionProviders from './_providers';
 import { Boot, BootCacheData } from '@dailydotdev/shared/src/lib/boot';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import { Alerts } from '@dailydotdev/shared/src/graphql/alerts';
 import { RemoteSettings } from '@dailydotdev/shared/src/graphql/settings';
 import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
-import { HttpResponse, http } from 'msw';
 import ShortcutLinks from 'extension/src/newtab/ShortcutLinks/ShortcutLinks';
 
 const meta: Meta<typeof ShortcutLinks> = {
