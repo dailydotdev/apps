@@ -248,6 +248,8 @@ it('should allow setting new password but require to verify session', async () =
   fireEvent.input(screen.getByPlaceholderText('Password'), {
     target: { value: password },
   });
+  const el = await screen.findByPlaceholderText('Password');
+  expect(el).toHaveValue('#123xAbc');
   const { nodes } = settingsFlowMockData.ui;
   const token = getNodeValue('csrf_token', nodes);
   const params = {
@@ -260,10 +262,10 @@ it('should allow setting new password but require to verify session', async () =
   const submitResetPassword = await screen.findByText('Set password');
   fireEvent.click(submitResetPassword);
   await waitForNock();
-  mockSettingsValidation(params);
+  const mock = mockSettingsValidation(params);
   await verifySession();
-  const input = await screen.findByPlaceholderText('Password');
-  expect(input).toHaveValue('#123xAbc');
+  await waitForNock();
+  expect(mock.isDone()).toBeTruthy();
 });
 
 it('should allow linking social providers', async () => {
