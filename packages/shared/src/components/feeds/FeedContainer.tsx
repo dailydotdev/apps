@@ -130,6 +130,7 @@ const feedNameToHeading: Record<
     | OtherFeedPage.Tags
     | OtherFeedPage.Sources
     | OtherFeedPage.Leaderboard
+    | OtherFeedPage.FeedByIds
   >,
   string
 > = {
