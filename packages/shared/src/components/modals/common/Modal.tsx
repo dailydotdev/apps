@@ -193,6 +193,7 @@ export function Modal({
       overlayClassName={modalOverlayClassName}
       onRequestClose={onRequestClose}
       className={modalClassName}
+      shouldCloseOnOverlayClick={shouldCloseOnOverlayClick}
       {...props}
     >
       {content}
