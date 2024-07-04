@@ -10,9 +10,6 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { useReadingStreak } from '../../hooks/streaks';
 import { ButtonIconPosition } from '../buttons/common';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
-import { HypeButton } from '../referral';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 
@@ -22,7 +19,6 @@ export function MobileFeedActions(): ReactElement {
   const { user } = useAuthContext();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const featureTheme = useFeatureTheme();
-  const hypeCampaign = useFeature(feature.hypeCampaign);
 
   return (
     <div className="flex flex-row justify-between px-4 py-1">
@@ -32,7 +28,6 @@ export function MobileFeedActions(): ReactElement {
         onLogoClick={() => router.push('/')}
         featureTheme={featureTheme}
       />
-      {hypeCampaign && <HypeButton />}
       <span className="flex flex-row items-center gap-2">
         {isStreaksEnabled && (
           <ReadingStreakButton
