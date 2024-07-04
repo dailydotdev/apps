@@ -25,7 +25,6 @@ const feature = {
   readingReminder: new Feature('reading_reminder', false),
   shareExperience: new Feature('share_experience', false),
   featureTheme: new Feature('feature_theme', {}),
-  hypeCampaign: new Feature('hype_campaign', false),
   onboardingLinks: new Feature('onboarding_links', false),
   shortcutsUI: new Feature('shortcuts_ui', ShortcutsUIExperiment.Control),
   showRoadmap: new Feature('show_roadmap', false),

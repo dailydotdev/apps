@@ -14,9 +14,6 @@ import NotificationsBell from '../notifications/NotificationsBell';
 import FeedNav from '../feeds/FeedNav';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
-import { feature } from '../../lib/featureManagement';
-import { useFeature } from '../GrowthBookProvider';
-import { HypeButton } from '../referral';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 
 export interface MainLayoutHeaderProps {
@@ -48,7 +45,6 @@ function MainLayoutHeader({
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const hypeCampaign = useFeature(feature.hypeCampaign);
 
   const RenderButtons = useCallback(() => {
     return (
@@ -135,7 +131,6 @@ function MainLayoutHeader({
               onLogoClick={onLogoClick}
               greeting={false}
             />
-            {hypeCampaign && <HypeButton className="ml-4" />}
           </div>
           <RenderSearchPanel />
           <RenderButtons />
