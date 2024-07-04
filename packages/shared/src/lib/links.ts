@@ -13,6 +13,12 @@ export function isValidHttpUrl(link: string): boolean {
   }
 }
 
+const validSchema = ['http:', 'https:'];
+export const withHttps = (url: string): string =>
+  url.replace(/^(?:(.*:)?\/\/)?(.*)/i, (match, schema, nonSchemaUrl) => {
+    return validSchema.includes(schema) ? match : `https://${nonSchemaUrl}`;
+  });
+
 export const stripLinkParameters = (link: string): string => {
   const { origin, pathname } = new URL(link);
 
