@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getProfile, PublicProfile } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
-import { generateQueryKey, RequestKey } from '../../lib/query';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { disabledRefetch } from '../../lib/func';
 
 export function useProfile(initialUser?: PublicProfile): PublicProfile {
@@ -14,6 +14,7 @@ export function useProfile(initialUser?: PublicProfile): PublicProfile {
     () => getProfile(initialUser?.id),
     {
       ...disabledRefetch,
+      cacheTime: StaleTime.OneHour,
       placeholderData: initialUser,
       enabled: !!initialUser && isSameUser,
     },
