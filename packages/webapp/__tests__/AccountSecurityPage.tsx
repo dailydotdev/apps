@@ -121,12 +121,10 @@ const verifySession = async (email = defaultLoggedUser.email) => {
     method: 'password',
   };
   mockKratosPost({ action, params }, verifiedLoginData);
-  await act(async () => {
-    const submitLogin = await screen.findByText('Verify');
-    fireEvent.click(submitLogin);
-    await waitForNock();
-    expect(refetchBoot).toHaveBeenCalled();
-  });
+  const submitLogin = await screen.findByText('Verify');
+  fireEvent.click(submitLogin);
+  await waitForNock();
+  expect(refetchBoot).toHaveBeenCalled();
   return true;
 };
 
