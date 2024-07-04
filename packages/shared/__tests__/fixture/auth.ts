@@ -1308,9 +1308,9 @@ export const mockSettingsValidation = (
   params: Partial<EmptyObjectLiteral>,
   result: unknown = successfulSettingsFlowData,
   code = 200,
-): void => {
+): nock.Scope => {
   const url = new URL(settingsFlowMockData.ui.action);
-  nock(authUrl, {
+  return nock(authUrl, {
     reqheaders: {
       'Content-Type': 'application/json',
       'X-CSRF-Token': params.csrf_token,
