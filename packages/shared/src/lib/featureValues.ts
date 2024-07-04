@@ -30,8 +30,3 @@ export enum SeoSidebarExperiment {
   Control = 'control',
   V1 = 'v1',
 }
-
-export enum AdsPostPage {
-  Control = 'control',
-  V1 = 'v1',
-}

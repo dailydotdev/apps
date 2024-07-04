@@ -50,7 +50,6 @@ export default function ProfileMenu({
   const { openModal } = useLazyModal();
   const seoSidebar = useFeature(feature.seoSidebar);
   const { user, logout } = useContext(AuthContext);
-  const hypeCampaign = useFeature(feature.hypeCampaign);
   const { isActive: isDndActive, setShowDnd } = useDndContext();
 
   const items: ListItem[] = useMemo(() => {
@@ -96,7 +95,6 @@ export default function ProfileMenu({
           icon: <InviteIcon />,
           href: `${webappUrl}account/invite`,
         },
-        rightEmoji: hypeCampaign && '👕',
       },
     ];
 
@@ -130,15 +128,7 @@ export default function ProfileMenu({
     });
 
     return list;
-  }, [
-    hypeCampaign,
-    isDndActive,
-    logout,
-    openModal,
-    seoSidebar,
-    setShowDnd,
-    user.permalink,
-  ]);
+  }, [isDndActive, logout, openModal, seoSidebar, setShowDnd, user.permalink]);
 
   if (!user) {
     return <></>;

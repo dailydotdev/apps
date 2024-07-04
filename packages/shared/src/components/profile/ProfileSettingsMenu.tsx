@@ -28,8 +28,6 @@ import { LogoutReason } from '../../lib/user';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { usePrompt } from '../../hooks/usePrompt';
 import { ButtonColor } from '../buttons/Button';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
 
 const useMenuItems = (): NavItemProps[] => {
   const { logout } = useAuthContext();
@@ -46,7 +44,6 @@ const useMenuItems = (): NavItemProps[] => {
       logout(LogoutReason.ManualLogout);
     }
   }, [logout, showPrompt]);
-  const hypeCampaign = useFeature(feature.hypeCampaign);
 
   return useMemo(
     () => [
@@ -59,7 +56,6 @@ const useMenuItems = (): NavItemProps[] => {
         label: 'Invite friends',
         icon: <AddUserIcon />,
         href: '/account/invite',
-        rightEmoji: hypeCampaign && '👕',
       },
       { label: 'Devcard', icon: <DevCardIcon />, href: '/devcard' },
       {
@@ -134,7 +130,7 @@ const useMenuItems = (): NavItemProps[] => {
         rel: anchorDefaultRel,
       },
     ],
-    [hypeCampaign, onLogout, openModal],
+    [onLogout, openModal],
   );
 };
 
