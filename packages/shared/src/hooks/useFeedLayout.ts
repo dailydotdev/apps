@@ -62,6 +62,7 @@ export const FeedLayoutMobileFeedPages = new Set([
   OtherFeedPage.ExploreLatest,
   OtherFeedPage.ExploreDiscussed,
   OtherFeedPage.ExploreUpvoted,
+  OtherFeedPage.FeedByIds,
 ]);
 
 export const UserProfileFeedPages = new Set([
@@ -105,6 +106,8 @@ export const useFeedLayout = ({
   const shouldUseListFeedLayoutOnProfilePages = UserProfileFeedPages.has(
     feedName as UserProfileFeedType,
   );
+
+  console.log('feedname', feedName);
 
   const isFeedIncludedInListLayout = FeedLayoutMobileFeedPages.has(
     feedName as FeedPagesWithMobileLayoutType,
