@@ -40,6 +40,8 @@ import ExtensionPermissionsPrompt from '@dailydotdev/shared/src/components/Exten
 import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
 import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
+import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
@@ -48,6 +50,7 @@ import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
 import { useContentScriptStatus } from '../../../shared/src/hooks';
 
+const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
 const DEFAULT_TAB_TITLE = 'New Tab';
 const router = new CustomRouter();
 const queryClient = new QueryClient(defaultQueryClientConfig);
@@ -68,7 +71,31 @@ function InternalApp(): ReactElement {
   useLazyModal();
   usePrompt();
   useWebVitals();
-  const { setCurrentPage, currentPage } = useExtensionContext();
+  const { openModal } = useLazyModal();
+  const { setCurrentPage, currentPage, promptUninstallExtension } =
+    useExtensionContext();
+  const [analyticsConsent, setAnalyticsConsent] = usePersistentState(
+    'consent',
+    false,
+    isFirefoxExtension ? null : true,
+  );
+
+  const analyticsConsentPrompt = useCallback(() => {
+    openModal({
+      type: LazyModal.FirefoxPrivacy,
+      props: {
+        onAccept: () => setAnalyticsConsent(true),
+        onDecline: () => promptUninstallExtension(),
+      },
+    });
+  }, [openModal, promptUninstallExtension, setAnalyticsConsent]);
+
+  useEffect(() => {
+    if (analyticsConsent === null) {
+      analyticsConsentPrompt();
+    }
+  }, [analyticsConsent, analyticsConsentPrompt]);
+
   const { unreadCount } = useNotificationContext();
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useContentScriptStatus();
@@ -121,7 +148,6 @@ function InternalApp(): ReactElement {
 
   return (
     <DndContextProvider>
-      <LazyModalElement />
       <MainFeedPage onPageChanged={onPageChanged} />
       {shouldShowLogin && (
         <AuthModal
@@ -162,6 +188,7 @@ export default function App({
             >
               <SubscriptionContextProvider>
                 <OnboardingContextProvider>
+                  <LazyModalElement />
                   <InternalAppWithFeaturesBoundary />
                 </OnboardingContextProvider>
               </SubscriptionContextProvider>

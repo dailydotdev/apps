@@ -9,6 +9,7 @@ import {
   getContentScriptPermission,
   getHostPermission,
   HOST_PERMISSIONS,
+  promptUninstallExtension,
 } from '../lib/extensionScripts';
 
 export type ExtensionContextProviderProps = {
@@ -34,6 +35,7 @@ export const ExtensionContextProvider = ({
       origins: HOST_PERMISSIONS,
       currentPage,
       setCurrentPage,
+      promptUninstallExtension,
     }),
     [client, currentPage, setCurrentPage, logEvent],
   );

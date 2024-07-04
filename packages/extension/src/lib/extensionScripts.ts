@@ -120,3 +120,8 @@ export const getHostPermission = (): Promise<boolean> =>
   browser.permissions.contains({
     origins: HOST_PERMISSIONS,
   });
+
+export const promptUninstallExtension = (): Promise<void> =>
+  browser.management.uninstallSelf({
+    showConfirmDialog: true,
+  });
