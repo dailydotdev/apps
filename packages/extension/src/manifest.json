@@ -62,7 +62,7 @@
   "__firefox__web_accessible_resources":  ["index.html", "companion.html", "js/companion.bundle.js", "css/companion.css"],
   "__firefox__browser_specific_settings": {
     "gecko": {
-      "strict_min_version": "54.0"
+      "strict_min_version": "58.0"
     }
   },
 
