@@ -107,8 +107,6 @@ export const useFeedLayout = ({
     feedName as UserProfileFeedType,
   );
 
-  console.log('feedname', feedName);
-
   const isFeedIncludedInListLayout = FeedLayoutMobileFeedPages.has(
     feedName as FeedPagesWithMobileLayoutType,
   );
