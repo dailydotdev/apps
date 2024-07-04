@@ -30,18 +30,18 @@ function FirefoxPrivacyModal({
         </h1>
         <div className="mb-6 mt-4 text-center text-text-secondary typo-callout">
           <p>
-            We{' '}
+            We collect{' '}
             <a
               href={privacyPolicy}
               target="_blank"
               rel={anchorDefaultRel}
               className="font-bold underline"
             >
-              collect
+              user data
             </a>{' '}
-            user data to provide a personalized experience on daily.dev. Instead
-            of just collecting data right away, we would like to ask for your
-            approval. We promise to never misuse it.
+            to provide a personalized experience on daily.dev. Instead of just
+            collecting data right away, we would like to ask for your approval.
+            We promise to never misuse it.
             <br />
             <br />
             Do you agree to opt-in?
