@@ -42,6 +42,7 @@ export function DiscoverSection({
     !isActionsFetched || checkHasCompleted(ActionType.CommentFeed);
 
   const discoverMenuItems: SidebarMenuItem[] = useMemo(() => {
+    const pushToDiscussed = locationPush(SharedFeedPage.Discussed);
     const isExtension = checkIsExtension();
     const feeds = {
       icon: (active: boolean) => (
@@ -63,7 +64,9 @@ export function DiscoverSection({
       path: '/discussed',
       action: () => {
         completeAction(ActionType.CommentFeed);
-        onNavTabClick?.(SharedFeedPage.Discussed);
+        if (isExtension) {
+          pushToDiscussed();
+        }
       },
       ...(!hasCompletedCommentFeed && {
         rightIcon: () => (
