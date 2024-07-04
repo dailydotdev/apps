@@ -42,3 +42,7 @@ schema.graphql
 extension.xml
 shared.xml
 webapp.xml
+
+
+# IDE files
+.idea/
