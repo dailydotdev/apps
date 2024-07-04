@@ -85,7 +85,7 @@ function MainLayoutHeader({
             container: classNames(
               'left-0 top-0 z-header mr-auto items-center py-3 tablet:left-16 laptop:left-0 laptopL:mx-auto laptopL:w-full',
               isSearchPage
-                ? 'absolute right-0 laptop:relative laptop:top-0'
+                ? 'right-0 tablet:absolute laptop:relative laptop:top-0'
                 : 'hidden laptop:flex',
               hasBanner && 'tablet:top-18',
             ),
