@@ -3,7 +3,6 @@ import {
   Dispatch,
   FormEvent,
   MutableRefObject,
-  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -50,22 +49,17 @@ export default function useShortcutLinks(): UseShortcutLinks {
   const hasCustomLinks = customLinks?.length > 0;
   const isTopSiteActive =
     hasCheckedPermission && !hasCustomLinks && hasTopSites;
-  const memoizedLinks = useMemo(() => {
-    const sites = topSites?.map((site) => site.url);
-    const formLinks = (isManual ? customLinks : sites) || [];
-    const shortcutLinks = isTopSiteActive ? sites : customLinks;
+  const sites = topSites?.map((site) => site.url);
+  const shortcutLinks = isTopSiteActive ? sites : customLinks;
+  const formLinks = (isManual ? customLinks : sites) || [];
 
-    return { formLinks, shortcutLinks };
-  }, [customLinks, isManual, isTopSiteActive, topSites]);
-  const { formLinks, shortcutLinks } = memoizedLinks;
-
-  const resetSelected = useCallback(() => {
+  const resetSelected = () => {
     if (topSites !== undefined && !hasCustomLinks) {
       setIsManual(false);
     } else {
       setIsManual(true);
     }
-  }, [hasCustomLinks, topSites]);
+  };
 
   const getFormInputs = () =>
     Array.from(formRef.current.elements).filter(
@@ -80,7 +74,7 @@ export default function useShortcutLinks(): UseShortcutLinks {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasCheckedPermission]);
 
-  const onRevokePermission = useCallback(async () => {
+  const onRevokePermission = async () => {
     await revokePermission();
 
     setIsManual(true);
@@ -89,43 +83,40 @@ export default function useShortcutLinks(): UseShortcutLinks {
       event_name: LogEvent.RevokeShortcutAccess,
       target_type: TargetType.Shortcuts,
     });
-  }, [logEvent, revokePermission]);
+  };
 
-  const onSaveChanges = useCallback(
-    async (e: FormEvent) => {
-      e.preventDefault();
+  const onSaveChanges = async (e: FormEvent) => {
+    e.preventDefault();
 
-      if (!isManual) {
-        updateCustomLinks([]);
-        return { errors: null };
-      }
-
-      if (!formRef.current) {
-        return { errors: { message: 'Form not available' } };
-      }
-
-      const isValid = formRef.current.checkValidity();
-
-      if (!isValid) {
-        return { errors: { message: 'Some of the links are not valid!' } };
-      }
-
-      const links = getFormInputs()
-        .map((el) => el.value.trim())
-        .filter((link) => !!link);
-
-      updateCustomLinks(links);
-
-      logEvent({
-        event_name: LogEvent.SaveShortcutAccess,
-        target_type: TargetType.Shortcuts,
-        extra: JSON.stringify({ source: ShortcutsSourceType.Custom }),
-      });
-
+    if (!isManual) {
+      updateCustomLinks([]);
       return { errors: null };
-    },
-    [isManual, logEvent, updateCustomLinks],
-  );
+    }
+
+    if (!formRef.current) {
+      return { errors: { message: 'Form not available' } };
+    }
+
+    const isValid = formRef.current.checkValidity();
+
+    if (!isValid) {
+      return { errors: { message: 'Some of the links are not valid!' } };
+    }
+
+    const links = getFormInputs()
+      .map((el) => el.value.trim())
+      .filter((link) => !!link);
+
+    updateCustomLinks(links);
+
+    logEvent({
+      event_name: LogEvent.SaveShortcutAccess,
+      target_type: TargetType.Shortcuts,
+      extra: JSON.stringify({ source: ShortcutsSourceType.Custom }),
+    });
+
+    return { errors: null };
+  };
 
   useEffect(() => {
     if (!formRef?.current) {
@@ -138,33 +129,53 @@ export default function useShortcutLinks(): UseShortcutLinks {
       // eslint-disable-next-line no-param-reassign
       input.value = formLinks?.[i]?.trim() || '';
     });
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isManual, hasCustomLinks]);
 
-  return {
-    formRef,
-    isManual,
-    formLinks,
-    shortcutLinks,
-    hasTopSites,
-    isTopSiteActive,
-    hasCheckedPermission,
-    onSaveChanges,
-    askTopSitesPermission: useCallback(async () => {
-      const granted = await askTopSitesPermission();
+  return useMemo(
+    () => ({
+      formRef,
+      isManual,
+      formLinks,
+      shortcutLinks,
+      hasTopSites,
+      isTopSiteActive,
+      hasCheckedPermission,
+      customLinks,
+      onSaveChanges,
+      askTopSitesPermission: async () => {
+        const granted = await askTopSitesPermission();
 
-      if (granted) {
-        logEvent({
-          event_name: LogEvent.SaveShortcutAccess,
-          target_type: TargetType.Shortcuts,
-          extra: JSON.stringify({ source: ShortcutsSourceType.Browser }),
-        });
-      }
+        if (granted) {
+          logEvent({
+            event_name: LogEvent.SaveShortcutAccess,
+            target_type: TargetType.Shortcuts,
+            extra: JSON.stringify({ source: ShortcutsSourceType.Browser }),
+          });
+        }
 
-      return granted;
-    }, [askTopSitesPermission, logEvent]),
-    resetSelected,
-    onIsManual: setIsManual,
-    revokePermission: onRevokePermission,
-  };
+        return granted;
+      },
+      resetSelected,
+      onIsManual: setIsManual,
+      revokePermission: onRevokePermission,
+    }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      formRef,
+      isManual,
+      formLinks,
+      shortcutLinks,
+      hasTopSites,
+      isTopSiteActive,
+      hasCheckedPermission,
+      onSaveChanges,
+      askTopSitesPermission,
+      resetSelected,
+      setIsManual,
+      onRevokePermission,
+    ],
+  );
 }
