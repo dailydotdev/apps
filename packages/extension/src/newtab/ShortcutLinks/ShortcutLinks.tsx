@@ -31,7 +31,7 @@ import MostVisitedSitesModal from '../MostVisitedSitesModal';
 import { CustomLinks } from '../CustomLinks';
 import useShortcutLinks from './useShortcutLinks';
 import ShortcutOptionsMenu from './ShortcutOptionsMenu';
-import { ShortcutLinksV1 } from './experiments/ShortcutLinksV1';
+import { ShortcutLinksUIV1 } from './experiments/ShortcutLinksUIV1';
 
 interface ShortcutLinksProps {
   shouldUseListFeedLayout: boolean;
@@ -43,6 +43,32 @@ type ShortcutLinksControlProps = {
   onOptionsOpen: () => void;
   shortcutLinks: string[];
 };
+
+function ShortcutLinksUIControl(props: ShortcutLinksControlProps) {
+  const { shortcutLinks, onLinkClick, onOptionsOpen, className } = props;
+  return (
+    <>
+      {shortcutLinks?.length ? (
+        <CustomLinks
+          links={shortcutLinks}
+          className={className}
+          onOptions={onOptionsOpen}
+          onLinkClick={onLinkClick}
+        />
+      ) : (
+        <Button
+          className={className}
+          variant={ButtonVariant.Tertiary}
+          icon={<PlusIcon />}
+          iconPosition={ButtonIconPosition.Right}
+          onClick={onOptionsOpen}
+        >
+          Add shortcuts
+        </Button>
+      )}
+    </>
+  );
+}
 
 export default function ShortcutLinks({
   shouldUseListFeedLayout,
@@ -172,7 +198,7 @@ export default function ShortcutLinks({
   return (
     <>
       {isShortcutsV1 ? (
-        <ShortcutLinksV1
+        <ShortcutLinksUIV1
           {...{
             onLinkClick,
             onMenuClick,
@@ -185,7 +211,7 @@ export default function ShortcutLinks({
           }}
         />
       ) : (
-        <ShortcutLinksControl
+        <ShortcutLinksUIControl
           {...{
             shortcutLinks,
             onLinkClick,
@@ -233,32 +259,6 @@ export default function ShortcutLinks({
         onHide={onV1Hide}
         onManage={onOptionsOpen}
       />
-    </>
-  );
-}
-
-function ShortcutLinksControl(props: ShortcutLinksControlProps) {
-  const { shortcutLinks, onLinkClick, onOptionsOpen, className } = props;
-  return (
-    <>
-      {shortcutLinks?.length ? (
-        <CustomLinks
-          links={shortcutLinks}
-          className={className}
-          onOptions={onOptionsOpen}
-          onLinkClick={onLinkClick}
-        />
-      ) : (
-        <Button
-          className={className}
-          variant={ButtonVariant.Tertiary}
-          icon={<PlusIcon />}
-          iconPosition={ButtonIconPosition.Right}
-          onClick={onOptionsOpen}
-        >
-          Add shortcuts
-        </Button>
-      )}
     </>
   );
 }

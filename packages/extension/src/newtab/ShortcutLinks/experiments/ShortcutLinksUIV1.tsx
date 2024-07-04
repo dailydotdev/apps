@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { FC, PropsWithChildren } from 'react';
 import {
   ClearIcon,
   MenuIcon,
@@ -32,7 +32,76 @@ type ShortcutLinksV1Props = {
   toggleShowTopSites: () => void;
 };
 
-export function ShortcutLinksV1(props: ShortcutLinksV1Props) {
+const ShortCutV1Placeholder: FC<{
+  initialItem?: boolean;
+  onClick: () => void;
+}> = ({ initialItem = false, onClick }) => {
+  return (
+    <button
+      className="group mr-4 flex flex-col items-center first:mr-2 last-of-type:mr-2 hover:cursor-pointer"
+      onClick={onClick}
+      type="button"
+    >
+      <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary group-first:mb-1 group-hover:text-text-primary">
+        <PlusIcon
+          className="inline group-hover:hidden"
+          size={IconSize.Size16}
+        />
+        <PlusIcon
+          className="hidden group-hover:inline"
+          secondary
+          size={IconSize.Size16}
+        />
+      </div>
+      {initialItem ? (
+        <span className="text-text-tertiary typo-caption2">Add shortcut</span>
+      ) : (
+        <span className="h-2 w-10 rounded-10 bg-surface-float" />
+      )}
+    </button>
+  );
+};
+
+const ShortcutV1Item: FC<{
+  url: string;
+  onLinkClick: () => void;
+}> = ({ url, onLinkClick }) => {
+  const cleanUrl = url.replace(/http(s)?(:)?(\/\/)?|(\/\/)?(www\.)?/g, '');
+  return (
+    <a
+      href={url}
+      rel="noopener noreferrer"
+      {...combinedClicks(onLinkClick)}
+      className="group mr-4 flex flex-col items-center"
+    >
+      <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
+        <img
+          src={`https://api.daily.dev/icon?url=${encodeURIComponent(
+            url,
+          )}&size=${iconSize}`}
+          alt={url}
+          className="size-6"
+        />
+      </div>
+      <span className="max-w-12 truncate text-text-tertiary typo-caption2">
+        {cleanUrl}
+      </span>
+    </a>
+  );
+};
+
+const ShortcutUIItemPlaceholder: FC<PropsWithChildren> = ({ children }) => {
+  return (
+    <div className="group flex flex-col items-center">
+      <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
+        {children}
+      </div>
+      <span className="h-2 w-10 rounded-10 bg-surface-float" />
+    </div>
+  );
+};
+
+export const ShortcutLinksUIV1: FC<ShortcutLinksV1Props> = (props) => {
   const {
     onLinkClick,
     onMenuClick,
@@ -138,81 +207,6 @@ export function ShortcutLinksV1(props: ShortcutLinksV1Props) {
           />
         </>
       )}
-    </div>
-  );
-}
-
-function ShortCutV1Placeholder({
-  initialItem = false,
-  onClick,
-}: {
-  initialItem?: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      className="group mr-4 flex flex-col items-center first:mr-2 last-of-type:mr-2 hover:cursor-pointer"
-      onClick={onClick}
-      type="button"
-    >
-      <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary group-first:mb-1 group-hover:text-text-primary">
-        <PlusIcon
-          className="inline group-hover:hidden"
-          size={IconSize.Size16}
-        />
-        <PlusIcon
-          className="hidden group-hover:inline"
-          secondary
-          size={IconSize.Size16}
-        />
-      </div>
-      {initialItem ? (
-        <span className="text-text-tertiary typo-caption2">Add shortcut</span>
-      ) : (
-        <span className="h-2 w-10 rounded-10 bg-surface-float" />
-      )}
-    </button>
-  );
-}
-
-function ShortcutV1Item({
-  url,
-  onLinkClick,
-}: {
-  url: string;
-  onLinkClick: () => void;
-}) {
-  const cleanUrl = url.replace(/http(s)?(:)?(\/\/)?|(\/\/)?(www\.)?/g, '');
-  return (
-    <a
-      href={url}
-      rel="noopener noreferrer"
-      {...combinedClicks(onLinkClick)}
-      className="group mr-4 flex flex-col items-center"
-    >
-      <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
-        <img
-          src={`https://api.daily.dev/icon?url=${encodeURIComponent(
-            url,
-          )}&size=${iconSize}`}
-          alt={url}
-          className="size-6"
-        />
-      </div>
-      <span className="max-w-12 truncate text-text-tertiary typo-caption2">
-        {cleanUrl}
-      </span>
-    </a>
-  );
-}
-
-const ShortcutUIItemPlaceholder = ({ children }: { children: ReactNode }) => {
-  return (
-    <div className="group flex flex-col items-center">
-      <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
-        {children}
-      </div>
-      <span className="h-2 w-10 rounded-10 bg-surface-float" />
     </div>
   );
 };
