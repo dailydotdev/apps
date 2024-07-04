@@ -3,6 +3,8 @@ import { Modal, ModalProps } from '../common/Modal';
 import { ModalSize } from '../common/types';
 import { ButtonVariant } from '../../buttons/common';
 import { Button } from '../../buttons/Button';
+import { privacyPolicy } from '../../../lib/constants';
+import { anchorDefaultRel } from '../../../lib/strings';
 
 export interface FirefoxPrivacyModalProps extends ModalProps {
   onAccept: () => void;
@@ -28,9 +30,18 @@ function FirefoxPrivacyModal({
         </h1>
         <div className="mb-6 mt-4 text-center text-text-secondary typo-callout">
           <p>
-            We collect user data to provide a personalized experience on
-            daily.dev. Instead of just collecting data right away, we would like
-            to ask for your approval. We promise to never misuse it.
+            We{' '}
+            <a
+              href={privacyPolicy}
+              target="_blank"
+              rel={anchorDefaultRel}
+              className="font-bold underline"
+            >
+              collect
+            </a>{' '}
+            user data to provide a personalized experience on daily.dev. Instead
+            of just collecting data right away, we would like to ask for your
+            approval. We promise to never misuse it.
             <br />
             <br />
             Do you agree to opt-in?
