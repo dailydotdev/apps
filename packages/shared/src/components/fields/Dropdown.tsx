@@ -130,7 +130,7 @@ export function Dropdown({
     if (wasVisible === 'true' && !isVisible) {
       triggerRef?.current?.focus?.();
     }
-  }, [isVisible]);
+  }, [isVisible, wasVisible]);
 
   return (
     <div
