@@ -12,6 +12,7 @@ import { UserHighlight } from '@dailydotdev/shared/src/components/widgets/PostUs
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import { ListItem, TopList } from '../components/common';
@@ -176,20 +177,21 @@ export async function getStaticProps(): Promise<
       },
       revalidate: 3600,
     };
-  } catch (err) {
+  } catch (err: unknown) {
+    const error = err as GraphQLError;
     if (
       [ApiError.NotFound, ApiError.Forbidden].includes(
-        err?.response?.errors?.[0]?.extensions?.code,
+        error?.response?.errors?.[0]?.extensions?.code,
       )
     ) {
       return {
         props: {
-          highestReputation: null,
-          longestStreak: null,
-          highestPostViews: null,
-          mostUpvoted: null,
-          mostReferrals: null,
-          mostReadingDays: null,
+          highestReputation: [],
+          longestStreak: [],
+          highestPostViews: [],
+          mostUpvoted: [],
+          mostReferrals: [],
+          mostReadingDays: [],
         },
         revalidate: 60,
       };

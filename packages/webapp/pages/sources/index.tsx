@@ -21,6 +21,7 @@ import { GetStaticPropsResult } from 'next';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
+import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { ListItem, TopList } from '../../components/common';
@@ -155,17 +156,18 @@ export async function getStaticProps(): Promise<
       revalidate: 60,
     };
   } catch (err) {
+    const error = err as GraphQLError;
     if (
       [ApiError.NotFound, ApiError.Forbidden].includes(
-        err?.response?.errors?.[0]?.extensions?.code,
+        error?.response?.errors?.[0]?.extensions?.code,
       )
     ) {
       return {
         props: {
-          mostRecentSources: null,
-          trendingSources: null,
-          popularSources: null,
-          topVideoSources: null,
+          mostRecentSources: [],
+          trendingSources: [],
+          popularSources: [],
+          topVideoSources: [],
         },
         revalidate: 60,
       };

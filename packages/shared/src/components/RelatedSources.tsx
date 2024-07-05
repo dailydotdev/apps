@@ -7,7 +7,7 @@ import { ElementPlaceholder } from './ElementPlaceholder';
 interface RelatedSourcesProps {
   title: string;
   isLoading: boolean;
-  sources: Source[];
+  sources?: Source[];
   className?: string;
 }
 export const RelatedSources = ({
