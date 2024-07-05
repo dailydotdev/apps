@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { CSSTransition } from 'react-transition-group';
-import { Post, UserVote } from '../../../../graphql/posts';
+import { Post, UserVote } from '#graphql/posts';
 import InteractionCounter from '../../../InteractionCounter';
 import {
   UpvoteIcon,
@@ -9,20 +8,21 @@ import {
   DownvoteIcon,
   DiscussIcon as CommentIcon,
   LinkIcon,
-} from '../../../icons';
+} from '#components/icons';
 import { Button, ButtonColor, ButtonVariant } from '../../../buttons/Button';
 import { SimpleTooltip } from '../../../tooltips/SimpleTooltip';
-import { useFeedPreviewMode } from '../../../../hooks';
+import { useFeedPreviewMode } from '#hooks';
 import { ActionButtonsProps } from '../../ActionButtons';
-import { combinedClicks } from '../../../../lib/click';
-import { useBlockPostPanel } from '../../../../hooks/post/useBlockPostPanel';
+import { combinedClicks } from '#lib/click';
+import { useBlockPostPanel } from '#hooks/post/useBlockPostPanel';
 import ConditionalWrapper from '../../../ConditionalWrapper';
 import { PostTagsPanel } from '../../../post/block/PostTagsPanel';
 import { IconSize } from '../../../Icon';
 import { LinkWithTooltip } from '../../../tooltips/LinkWithTooltip';
-import { useFeature } from '../../../GrowthBookProvider';
-import { feature } from '../../../../lib/featureManagement';
-import { UpvoteExperiment } from '../../../../lib/featureValues';
+import { feature } from '#lib/featureManagement';
+import { UpvoteExperiment } from '#lib/featureValues';
+import styles from './ActionButtons.module.css';
+import { useFeature } from '#components/GrowthBookProvider';
 
 interface ActionButtonsPropsList extends ActionButtonsProps {
   onDownvoteClick?: (post: Post) => unknown;
@@ -42,7 +42,7 @@ export default function ActionButtons({
   const { showTagsPanel } = data;
 
   const currentVersion = useFeature(feature.upvote);
-  const isAnimated = currentVersion === UpvoteExperiment.Animated;
+  const isAnimatedVersion = currentVersion === UpvoteExperiment.Animated;
 
   if (isFeedPreview) {
     return null;
@@ -58,7 +58,7 @@ export default function ActionButtons({
     await onDownvoteClick?.(post);
   };
 
-  const isPressed = post?.userState?.vote === UserVote.Up;
+  const isUpvoteActive = post?.userState?.vote === UserVote.Up;
 
   return (
     <ConditionalWrapper
@@ -84,16 +84,13 @@ export default function ActionButtons({
               )}
               id={`post-${post.id}-upvote-btn`}
               color={ButtonColor.Avocado}
-              pressed={isPressed}
+              pressed={isUpvoteActive}
               onClick={() => onUpvoteClick?.(post)}
               variant={ButtonVariant.Tertiary}
             >
-              <span className="relative">
-                <UpvoteIcon
-                  secondary={post?.userState?.vote === UserVote.Up}
-                  size={IconSize.Medium}
-                />
-                {isAnimated && isPressed && <AnimatedUpvoteIcons />}
+              <span className="pointer-events-none relative">
+                <UpvoteIcon secondary={isUpvoteActive} size={IconSize.Medium} />
+                {isAnimatedVersion && isUpvoteActive && <AnimatedUpvoteIcons />}
               </span>
               {post?.numUpvotes > 0 ? (
                 <InteractionCounter
@@ -179,20 +176,25 @@ export default function ActionButtons({
   );
 }
 
-const AnimatedUpvoteIcons = () => {
-  const arrows = ['text-accent-avocado-bolder', 'text-accent-cabbage-bolder'];
+const AnimatedUpvoteIcons = React.memo(function InnerAnimatedUpvoteIcons() {
+  const arrows = Array.from({ length: 5 }, (_, i) => i + 1);
   return (
-    <CSSTransition in timeout={0} classNames="upvotes">
-      <span className="upvotes absolute left-0 top-0 h-full w-full">
-        {arrows.map((className, i) => (
-          <UpvoteIcon
-            secondary
-            size={IconSize.XXSmall}
-            className={className}
-            key={`${className}-${i.toString()}`}
-          />
-        ))}
-      </span>
-    </CSSTransition>
+    <span
+      aria-hidden
+      className={classNames(
+        styles.upvotes,
+        'absolute left-0 top-0 h-full w-full',
+      )}
+      role="presentation"
+    >
+      {arrows.map((i) => (
+        <UpvoteIcon
+          secondary
+          size={IconSize.XXSmall}
+          className={styles.upvote}
+          key={i}
+        />
+      ))}
+    </span>
   );
-};
+});

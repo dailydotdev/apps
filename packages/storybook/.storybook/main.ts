@@ -39,14 +39,10 @@ const config: StorybookConfig = {
             '../mock/webextension-polyfill.ts',
           ),
           'next/router': path.resolve(__dirname, '../mock/next-router.ts'),
-          '../../GrowthBookProvider': path.resolve(
+          '#components/GrowthBookProvider': path.resolve(
             __dirname,
             '../mock/GrowthBookProvider.tsx',
           ),
-          // '@dailydotdev/shared/src/components/GrowthBookProvider': path.resolve(
-          //   __dirname,
-          //   '../mock/GrowthBookProvider.tsx',
-          // ),
         },
       },
       define: {

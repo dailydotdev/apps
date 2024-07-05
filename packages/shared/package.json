@@ -130,5 +130,8 @@
   "sideEffects": [
     "./src/lib/lazysizesImport.ts",
     "*.css"
-  ]
+  ],
+  "imports": {
+    "#*": "./src/*"
+  }
 }

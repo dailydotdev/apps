@@ -5,9 +5,9 @@ import ActionButtons from '@dailydotdev/shared/src/components/cards/list/ActionB
 import { Post, UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import post from '@dailydotdev/shared/__tests__/fixture/post';
 import ExtensionProviders from '../extension/_providers';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useFeature } from '../../mock/GrowthBookProvider';
 import { UpvoteExperiment } from '@dailydotdev/shared/src/lib/featureValues';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 
 const meta: Meta<typeof ActionButtons> = {
   title: 'components/ActionButtons',
@@ -32,6 +32,7 @@ const meta: Meta<typeof ActionButtons> = {
   },
   render: (props) => {
     const currentFeature = useFeature(feature.upvote);
+
     const [post, setPost] = useState(props.post);
     const onUpvoteClick = async (post: Post) => {
       const isAdding = post.userState?.vote !== UserVote.Up;
@@ -48,8 +49,12 @@ const meta: Meta<typeof ActionButtons> = {
     return (
       <ExtensionProviders>
         <>Feature: "{currentFeature}"</>
-        <hr className={'my-4 border-accent-salt-baseline'}/>
-        <ActionButtons {...props} post={post} onUpvoteClick={onUpvoteClick} />
+        <hr className={'my-4 border-accent-salt-baseline'} />
+
+        <div className={'py-20 grid place-items-center'}>
+          <ActionButtons {...props} post={post} onUpvoteClick={onUpvoteClick} />
+        </div>
+
       </ExtensionProviders>
     );
   },
