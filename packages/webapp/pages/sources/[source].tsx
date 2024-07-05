@@ -64,18 +64,16 @@ import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalF
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts/ActiveFeedNameContext';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
+import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
 
-type SourcePageProps = { source: Source };
+type SourcePageProps = { source?: Source };
+type SourceIdProps = { sourceId?: string };
 
-const SourceRelatedTags = ({
-  sourceId,
-}: {
-  sourceId: string;
-}): ReactElement => {
+const SourceRelatedTags = ({ sourceId }: SourceIdProps): ReactElement => {
   const { data: relatedTags, isLoading } = useQuery(
     [RequestKey.SourceRelatedTags, null, sourceId],
     async () =>
@@ -93,12 +91,12 @@ const SourceRelatedTags = ({
   return (
     <RecommendedTags
       isLoading={isLoading}
-      tags={relatedTags?.relatedTags?.tags}
+      tags={relatedTags?.relatedTags?.tags ?? []}
     />
   );
 };
 
-const SimilarSources = ({ sourceId }: { sourceId: string }) => {
+const SimilarSources = ({ sourceId }: SourceIdProps) => {
   const { shouldUseListFeedLayout } = useFeedLayout();
   const { data: similarSources, isLoading } = useQuery(
     [RequestKey.SimilarSources, null, sourceId],
@@ -126,7 +124,7 @@ const SimilarSources = ({ sourceId }: { sourceId: string }) => {
       isLoading={isLoading}
       sources={sources}
       title="Similar sources"
-      className={shouldUseListFeedLayout && 'mx-4'}
+      className={shouldUseListFeedLayout ? 'mx-4' : undefined}
     />
   );
 };
@@ -179,6 +177,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
       return true;
     }
     return (
+      feedSettings.excludeSources &&
       feedSettings.excludeSources?.findIndex(
         (excludedSource) => source?.id === excludedSource.id,
       ) >= 0
@@ -220,7 +219,9 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   return (
     <FeedPageLayoutComponent className="overflow-x-hidden">
       <NextSeo {...seo} />
-      <PageInfoHeader className={shouldUseListFeedLayout && 'mx-4 !w-auto'}>
+      <PageInfoHeader
+        className={shouldUseListFeedLayout ? 'mx-4 !w-auto' : undefined}
+      >
         <div className="flex items-center font-bold">
           <img
             src={source.image}
@@ -328,13 +329,13 @@ export async function getStaticProps({
 > {
   try {
     const res = await request<SourceData>(graphqlUrl, SOURCE_QUERY, {
-      id: params.source,
+      id: params?.source,
     });
 
     if (res.source?.type === 'squad') {
       return {
         redirect: {
-          destination: `/squads/${params.source}`,
+          destination: `/squads/${params?.source}`,
           permanent: false,
         },
       };
@@ -347,14 +348,15 @@ export async function getStaticProps({
       revalidate: 60,
     };
   } catch (err) {
+    const error = err as GraphQLError;
     if (
       [ApiError.NotFound, ApiError.Forbidden].includes(
-        err?.response?.errors?.[0]?.extensions?.code,
+        error?.response?.errors?.[0]?.extensions?.code,
       )
     ) {
       return {
         props: {
-          source: null,
+          source: undefined,
         },
         revalidate: 60,
       };

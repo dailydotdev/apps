@@ -1,3 +1,5 @@
+import { ApiError } from '../graphql/common';
+
 export class HttpError extends Error {
   public url: string;
 
@@ -14,3 +16,7 @@ export class HttpError extends Error {
     this.response = response;
   }
 }
+
+export type GraphQLError = {
+  response: { errors: { extensions: { code: ApiError } }[] };
+};
