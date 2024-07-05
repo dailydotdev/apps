@@ -733,55 +733,58 @@ export const settingsFlowMockData: InitializationData & { identity: Identity } =
   };
 
 const getWhoamiMockData = (email = 'lee@daily.dev') => ({
-  id: 'c005cab5-e770-4337-a3b3-7903b79abc61',
-  active: true,
-  expires_at: '2022-09-01T06:19:36.095759Z',
-  authenticated_at: '2022-08-31T06:19:36.095759Z',
-  authenticator_assurance_level: 'aal1',
-  authentication_methods: [
-    {
-      method: 'password',
-      aal: 'aal1',
-      completed_at: '2022-08-31T06:19:36.095757137Z',
-    },
-  ],
-  issued_at: '2022-08-31T06:19:36.095759Z',
-  identity: {
-    id: '4a1fed11-17f6-42e6-87ee-219bb249c6ba',
-    schema_id: 'default',
-    schema_url: `${authUrl}/schemas/ZGVmYXVsdA`,
-    state: 'active',
-    state_changed_at: '2022-08-24T03:30:19.668093Z',
-    traits: {
-      name: 'Lee Hansel Solevilla',
-      email,
-      image:
-        'https://lh3.googleusercontent.com/a-/AFdZucrCRkShFtfp4KDx2ipH0cgIzKmD7fcDYfwLqX8Q=s96-c',
-      username: 'lee',
-    },
-    verifiable_addresses: [
+  verified: true,
+  session: {
+    id: 'c005cab5-e770-4337-a3b3-7903b79abc61',
+    active: true,
+    expires_at: '2022-09-01T06:19:36.095759Z',
+    authenticated_at: '2022-08-31T06:19:36.095759Z',
+    authenticator_assurance_level: 'aal1',
+    authentication_methods: [
       {
-        id: '99a84554-56a8-4a1c-b269-869ddd0b4b8d',
-        value: email,
-        verified: false,
-        via: 'email',
-        status: 'sent',
-        created_at: '2022-08-24T03:30:19.705492Z',
-        updated_at: '2022-08-31T03:48:02.420377Z',
+        method: 'password',
+        aal: 'aal1',
+        completed_at: '2022-08-31T06:19:36.095757137Z',
       },
     ],
-    recovery_addresses: [
-      {
-        id: 'a530e776-6a87-4b19-9523-4eef4a01b0dd',
-        value: email,
-        via: 'email',
-        created_at: '2022-08-24T03:30:19.714243Z',
-        updated_at: '2022-08-31T03:48:02.423298Z',
+    issued_at: '2022-08-31T06:19:36.095759Z',
+    identity: {
+      id: '4a1fed11-17f6-42e6-87ee-219bb249c6ba',
+      schema_id: 'default',
+      schema_url: `${authUrl}/schemas/ZGVmYXVsdA`,
+      state: 'active',
+      state_changed_at: '2022-08-24T03:30:19.668093Z',
+      traits: {
+        name: 'Lee Hansel Solevilla',
+        email,
+        image:
+          'https://lh3.googleusercontent.com/a-/AFdZucrCRkShFtfp4KDx2ipH0cgIzKmD7fcDYfwLqX8Q=s96-c',
+        username: 'lee',
       },
-    ],
-    metadata_public: null,
-    created_at: '2022-08-24T03:30:19.690974Z',
-    updated_at: '2022-08-24T03:30:19.690974Z',
+      verifiable_addresses: [
+        {
+          id: '99a84554-56a8-4a1c-b269-869ddd0b4b8d',
+          value: email,
+          verified: false,
+          via: 'email',
+          status: 'sent',
+          created_at: '2022-08-24T03:30:19.705492Z',
+          updated_at: '2022-08-31T03:48:02.420377Z',
+        },
+      ],
+      recovery_addresses: [
+        {
+          id: 'a530e776-6a87-4b19-9523-4eef4a01b0dd',
+          value: email,
+          via: 'email',
+          created_at: '2022-08-24T03:30:19.714243Z',
+          updated_at: '2022-08-31T03:48:02.423298Z',
+        },
+      ],
+      metadata_public: null,
+      created_at: '2022-08-24T03:30:19.690974Z',
+      updated_at: '2022-08-24T03:30:19.690974Z',
+    },
   },
 });
 

@@ -343,7 +343,12 @@ export const submitKratosFlow = async <
   return { error: json?.error || json };
 };
 
-export const getKratosSession = async (): Promise<AuthSession> => {
+interface KratosSession {
+  session: AuthSession;
+  verified: boolean;
+}
+
+export const getKratosSession = async (): Promise<KratosSession> => {
   const res = await fetch(`${heimdallUrl}/api/whoami`, {
     credentials: 'include',
   });

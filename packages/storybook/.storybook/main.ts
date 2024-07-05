@@ -1,6 +1,8 @@
 import type { StorybookConfig } from '@storybook/react-vite';
 import { mergeConfig } from 'vite';
 import svgrPlugin from 'vite-plugin-svgr';
+import browser from '../mock/webextension-polyfill';
+import * as path from 'node:path';
 
 const config: StorybookConfig = {
   stories: [
@@ -13,13 +15,15 @@ const config: StorybookConfig = {
     '@storybook/addon-essentials',
     '@storybook/addon-themes',
     '@storybook/addon-interactions',
-    '@storybook/addon-designs'
+    '@storybook/addon-designs',
+    'msw-storybook-addon',
   ],
   framework: '@storybook/react-vite',
-  docs: {
-    autodocs: true,
+  typescript: {
+    reactDocgen: 'react-docgen-typescript',
   },
-  async viteFinal(config) {
+  staticDirs: ['../public'],
+  async viteFinal(config, { configType }) {
     return mergeConfig(config, {
       server: {
         fs: {
@@ -28,11 +32,15 @@ const config: StorybookConfig = {
       },
       resolve: {
         alias: {
-          '@growthbook/growthbook': 'mock/gb.ts',
-        }
+          '@growthbook/growthbook': path.resolve(__dirname, '../mock/gb.ts'),
+          'node-fetch': path.resolve(__dirname, '../mock/node-fetch.ts'),
+          'webextension-polyfill': path.resolve(__dirname, '../mock/webextension-polyfill.ts'),
+          'next/router': path.resolve(__dirname, '../mock/next-router.ts'),
+        },
       },
       define: {
-        "process.env": {},
+        'process.env': {},
+        browser,
       },
       plugins: [
         svgrPlugin({
@@ -55,4 +63,5 @@ const config: StorybookConfig = {
     });
   },
 };
+
 export default config;
