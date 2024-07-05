@@ -71,12 +71,9 @@ import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
 
 type SourcePageProps = { source?: Source };
+type SourceIdProps = { sourceId?: string };
 
-const SourceRelatedTags = ({
-  sourceId,
-}: {
-  sourceId: string | undefined;
-}): ReactElement => {
+const SourceRelatedTags = ({ sourceId }: SourceIdProps): ReactElement => {
   const { data: relatedTags, isLoading } = useQuery(
     [RequestKey.SourceRelatedTags, null, sourceId],
     async () =>
@@ -99,7 +96,7 @@ const SourceRelatedTags = ({
   );
 };
 
-const SimilarSources = ({ sourceId }: { sourceId: string | undefined }) => {
+const SimilarSources = ({ sourceId }: SourceIdProps) => {
   const { shouldUseListFeedLayout } = useFeedLayout();
   const { data: similarSources, isLoading } = useQuery(
     [RequestKey.SimilarSources, null, sourceId],
