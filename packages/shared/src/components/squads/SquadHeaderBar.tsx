@@ -17,7 +17,13 @@ import { SourcePermissions } from '../../graphql/sources';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { isTesting } from '../../lib/constants';
 import { SquadJoinButton } from './SquadJoinButton';
-import { BellIcon, ChecklistBIcon, AddUserIcon, MenuIcon } from '../icons';
+import {
+  BellIcon,
+  ChecklistBIcon,
+  AddUserIcon,
+  MenuIcon,
+  SlackIcon,
+} from '../icons';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { ContextMenu } from '../../hooks/constants';
@@ -74,6 +80,21 @@ export function SquadHeaderBar({
           Invitation link
         </Button>
       )}
+      <Button
+        variant={ButtonVariant.Secondary}
+        onClick={() => {
+          openModal({
+            type: LazyModal.SlackIntegration,
+            props: {
+              source: squad,
+            },
+          });
+        }}
+        icon={<SlackIcon />}
+        disabled={copying}
+      >
+        Add to Slack
+      </Button>
       {showJoinButton && (
         <SquadJoinButton
           className={{ wrapper: firstItemClasses }}

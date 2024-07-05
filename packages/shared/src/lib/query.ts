@@ -61,11 +61,11 @@ export type AllFeedPages = SharedFeedPage | OtherFeedPage;
 
 export type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
 
-export const generateQueryKey = (
+export const generateQueryKey = <T = unknown>(
   name: RequestKey | AllFeedPages,
   user?: Pick<LoggedUser, 'id'>,
-  ...additional: unknown[]
-): unknown[] => {
+  ...additional: T[]
+): [RequestKey | AllFeedPages, string, ...T[]] => {
   return [name, user?.id ?? 'anonymous', ...additional];
 };
 
@@ -132,6 +132,8 @@ export enum RequestKey {
   FeedSettings = 'feedSettings',
   Ads = 'ads',
   FeedByIds = 'feedByIds',
+  SlackChannels = 'slack_channels',
+  UserIntegrations = 'user_integrations',
 }
 
 export type HasConnection<
