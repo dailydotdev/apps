@@ -23,10 +23,16 @@ export interface FeatureTheme {
   light?: FeatureThemeVariant;
   dark?: FeatureThemeVariant;
   cursor?: string;
+
   [key: string]: number | FeatureThemeVariant | string | undefined;
 }
 
 export enum SeoSidebarExperiment {
   Control = 'control',
   V1 = 'v1',
+}
+
+export enum UpvoteExperiment {
+  Control = 'control',
+  Animated = 'v1',
 }
