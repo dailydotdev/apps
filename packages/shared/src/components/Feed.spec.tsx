@@ -730,8 +730,7 @@ it('should unblock a source', async () => {
   await waitFor(async () => {
     fireEvent.click(contextBtn);
     await screen.findByRole('alert');
-    const feed = await screen.findByTestId('posts-feed');
-
+    const feed = screen.getByTestId('posts-feed');
     return expect(feed).toHaveAttribute('aria-live', 'assertive');
   });
 
