@@ -39,6 +39,7 @@ export enum OtherFeedPage {
   ExploreLatest = 'postslatest',
   ExploreDiscussed = 'postsdiscussed',
   ExploreUpvoted = 'postsupvoted',
+  FeedByIds = 'feed-by-ids',
 }
 
 const ONE_MINUTE = 60 * 1000;
@@ -129,6 +130,7 @@ export enum RequestKey {
   Feeds = 'feeds',
   FeedSettings = 'feedSettings',
   Ads = 'ads',
+  FeedByIds = 'feedByIds',
 }
 
 export type HasConnection<

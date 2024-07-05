@@ -16,6 +16,7 @@ import { GetStaticPropsResult } from 'next';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
+import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { ListItem, TopList } from '../../components/common';
@@ -77,7 +78,7 @@ const TagsPage = ({
   const tagsByFirstLetter = useMemo(() => {
     const filteredTags = tags?.reduce((acc, cur) => {
       const rawLetter = cur.value[0].toLowerCase();
-      const firstLetter = new RegExp(/^[a-zA-Z]+$/).test(rawLetter)
+      const firstLetter: string = new RegExp(/^[a-zA-Z]+$/).test(rawLetter)
         ? rawLetter
         : '#';
       acc[firstLetter] = (acc[firstLetter] || []).concat([cur]);
@@ -185,16 +186,17 @@ export async function getStaticProps(): Promise<
       revalidate: 60,
     };
   } catch (err) {
+    const error = err as GraphQLError;
     if (
       [ApiError.NotFound, ApiError.Forbidden].includes(
-        err?.response?.errors?.[0]?.extensions?.code,
+        error?.response?.errors?.[0]?.extensions?.code,
       )
     ) {
       return {
         props: {
-          tags: null,
-          trendingTags: null,
-          popularTags: null,
+          tags: [],
+          trendingTags: [],
+          popularTags: [],
         },
         revalidate: 60,
       };

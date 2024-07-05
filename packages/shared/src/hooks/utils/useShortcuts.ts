@@ -14,8 +14,10 @@ export const useShortcuts = (): UseShortcuts => {
   const { user } = useAuthContext();
 
   const isShortcutsV1 = useMemo(
-    () => new Date(user?.createdAt) >= new Date('2024-04-16T00:00:00.000Z'),
-    [user?.createdAt],
+    () =>
+      user?.isTeamMember ||
+      new Date(user?.createdAt) >= new Date('2024-04-16T00:00:00.000Z'),
+    [user?.isTeamMember, user?.createdAt],
   );
 
   return {
