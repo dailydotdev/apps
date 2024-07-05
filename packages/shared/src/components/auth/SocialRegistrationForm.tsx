@@ -119,7 +119,7 @@ export const SocialRegistrationForm = ({
       return;
     }
 
-    if (!values.experienceLevel) {
+    if (!values.experienceLevel?.length) {
       logError('Experience level not provided');
       setExperienceLevelHint('Please select your experience level');
       return;
@@ -129,6 +129,16 @@ export const SocialRegistrationForm = ({
       logError('Twitter not provider');
       setTwitterHint('Please add your twitter handle');
     }
+
+    logEvent({
+      event_name: AuthEventNames.SubmitSignupFormExtra,
+      extra: JSON.stringify({
+        username: values?.username,
+        twitter: values?.twitter,
+        acceptedMarketing: !values?.optOutMarketing,
+        experienceLevel: values?.experienceLevel,
+      }),
+    });
 
     onUpdateSignBack(
       { name: values.name, email: user.email, image: user.image },
