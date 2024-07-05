@@ -125,7 +125,8 @@ const AccountSecurityPage = (): ReactElement => {
     },
   );
 
-  const { data: session } = useQuery(sessionKey, getKratosSession);
+  const { data: kratos } = useQuery(sessionKey, getKratosSession);
+  const { session } = kratos ?? {};
   const onChangeEmail = async (email: string) => {
     if (!email) {
       return;

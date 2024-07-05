@@ -185,7 +185,7 @@ const useLogin = ({
       return;
     }
 
-    const verified = await getKratosSession();
+    const { session: verified } = await getKratosSession();
 
     if (!verified) {
       return;
