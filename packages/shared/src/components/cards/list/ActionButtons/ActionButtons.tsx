@@ -1,24 +1,28 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Post, UserVote } from '../../../graphql/posts';
-import InteractionCounter from '../../InteractionCounter';
+import { CSSTransition } from 'react-transition-group';
+import { Post, UserVote } from '../../../../graphql/posts';
+import InteractionCounter from '../../../InteractionCounter';
 import {
   UpvoteIcon,
   BookmarkIcon,
   DownvoteIcon,
   DiscussIcon as CommentIcon,
   LinkIcon,
-} from '../../icons';
-import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
-import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
-import { useFeedPreviewMode } from '../../../hooks';
-import { ActionButtonsProps } from '../ActionButtons';
-import { combinedClicks } from '../../../lib/click';
-import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
-import ConditionalWrapper from '../../ConditionalWrapper';
-import { PostTagsPanel } from '../../post/block/PostTagsPanel';
-import { IconSize } from '../../Icon';
-import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
+} from '../../../icons';
+import { Button, ButtonColor, ButtonVariant } from '../../../buttons/Button';
+import { SimpleTooltip } from '../../../tooltips/SimpleTooltip';
+import { useFeedPreviewMode } from '../../../../hooks';
+import { ActionButtonsProps } from '../../ActionButtons';
+import { combinedClicks } from '../../../../lib/click';
+import { useBlockPostPanel } from '../../../../hooks/post/useBlockPostPanel';
+import ConditionalWrapper from '../../../ConditionalWrapper';
+import { PostTagsPanel } from '../../../post/block/PostTagsPanel';
+import { IconSize } from '../../../Icon';
+import { LinkWithTooltip } from '../../../tooltips/LinkWithTooltip';
+import { useFeature } from '../../../GrowthBookProvider';
+import { feature } from '../../../../lib/featureManagement';
+import { UpvoteExperiment } from '../../../../lib/featureValues';
 
 interface ActionButtonsPropsList extends ActionButtonsProps {
   onDownvoteClick?: (post: Post) => unknown;
@@ -37,6 +41,9 @@ export default function ActionButtons({
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
 
+  const currentVersion = useFeature(feature.upvote);
+  const isAnimated = currentVersion === UpvoteExperiment.Animated;
+
   if (isFeedPreview) {
     return null;
   }
@@ -50,6 +57,8 @@ export default function ActionButtons({
 
     await onDownvoteClick?.(post);
   };
+
+  const isPressed = post?.userState?.vote === UserVote.Up;
 
   return (
     <ConditionalWrapper
@@ -75,14 +84,17 @@ export default function ActionButtons({
               )}
               id={`post-${post.id}-upvote-btn`}
               color={ButtonColor.Avocado}
-              pressed={post?.userState?.vote === UserVote.Up}
+              pressed={isPressed}
               onClick={() => onUpvoteClick?.(post)}
               variant={ButtonVariant.Tertiary}
             >
-              <UpvoteIcon
-                secondary={post?.userState?.vote === UserVote.Up}
-                size={IconSize.Medium}
-              />
+              <span className="relative">
+                <UpvoteIcon
+                  secondary={post?.userState?.vote === UserVote.Up}
+                  size={IconSize.Medium}
+                />
+                {isAnimated && isPressed && <AnimatedUpvoteIcons />}
+              </span>
               {post?.numUpvotes > 0 ? (
                 <InteractionCounter
                   className="ml-1.5 tabular-nums"
@@ -166,3 +178,21 @@ export default function ActionButtons({
     </ConditionalWrapper>
   );
 }
+
+const AnimatedUpvoteIcons = () => {
+  const arrows = ['text-accent-avocado-bolder', 'text-accent-cabbage-bolder'];
+  return (
+    <CSSTransition in timeout={0} classNames="upvotes">
+      <span className="upvotes absolute left-0 top-0 h-full w-full">
+        {arrows.map((className, i) => (
+          <UpvoteIcon
+            secondary
+            size={IconSize.XXSmall}
+            className={className}
+            key={`${className}-${i.toString()}`}
+          />
+        ))}
+      </span>
+    </CSSTransition>
+  );
+};
