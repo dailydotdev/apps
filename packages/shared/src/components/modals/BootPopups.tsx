@@ -16,6 +16,7 @@ import InteractivePopup, {
 } from '../tooltips/InteractivePopup';
 import { MarketingCtaPopoverSmall } from '../marketingCta/MarketingCtaPopoverSmall';
 import { ButtonVariant } from '../buttons/common';
+import { isNullOrUndefined } from '../../lib/func';
 
 const REP_TRESHOLD = 250;
 
@@ -46,19 +47,19 @@ export const BootPopups = (): JSX.Element => {
     isStreaksEnabled,
   } = useReadingStreak();
 
-  // hide modal if feature is not enabled
-  let shouldHideStreaksModal = !isStreaksEnabled;
-  // hide modal if actions are not fetched
-  shouldHideStreaksModal = shouldHideStreaksModal || !isActionsFetched;
-  // hide modal if user already opted out of the milestone
-  shouldHideStreaksModal =
-    shouldHideStreaksModal ||
-    checkHasCompleted(ActionType.DisableReadingStreakMilestone);
-  // hide modal if user already closed it
-  shouldHideStreaksModal =
-    shouldHideStreaksModal || alerts?.showStreakMilestone !== true;
-  // hide modal if there's no streak
-  shouldHideStreaksModal = shouldHideStreaksModal || !streak?.current;
+  const isDisabledMilestone = checkHasCompleted(
+    ActionType.DisableReadingStreakMilestone,
+  );
+  const hideEvaluations = [
+    !isStreaksEnabled,
+    !isActionsFetched,
+    isNullOrUndefined(isDisabledMilestone),
+    isDisabledMilestone,
+    alerts?.showStreakMilestone !== true,
+    !streak?.current,
+  ];
+
+  const shouldHideStreaksModal = hideEvaluations.some(Boolean);
 
   const addBootPopup = (popup) => {
     setBootPopups((prev) => new Map([...prev, [popup.type, popup]]));
