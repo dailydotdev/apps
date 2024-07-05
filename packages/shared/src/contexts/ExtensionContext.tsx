@@ -15,6 +15,7 @@ export interface ExtensionContextData {
   origins?: string[];
   currentPage?: string;
   setCurrentPage?: React.Dispatch<React.SetStateAction<string>>;
+  promptUninstallExtension?: () => Promise<void>;
 }
 
 // This is an empty context when used outside the extension

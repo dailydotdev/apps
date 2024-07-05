@@ -94,7 +94,6 @@ const defaultSettings: RemoteSettings = {
     'http://custom2.com',
     'http://custom3.com',
     'http://custom4.com',
-    'http://custom5.com',
   ],
   onboardingChecklistView: ChecklistViewState.Hidden,
 };
@@ -172,7 +171,10 @@ describe('shortcut links component', () => {
 
   it('should display top sites if permission is previously granted', async () => {
     await browser.permissions.request({ permissions: ['topSites'] });
-    renderComponent();
+    renderComponent({
+      ...defaultBootData,
+      settings: { ...defaultBootData.settings, customLinks: null },
+    });
 
     const shortcuts = await screen.findAllByRole('link');
     expect(shortcuts.length).toEqual(3);
@@ -260,7 +262,7 @@ describe('shortcut links component', () => {
     renderComponent();
 
     const shortcuts = await screen.findAllByRole('link');
-    expect(shortcuts.length).toEqual(5);
+    expect(shortcuts.length).toEqual(4);
   });
 
   it('should allow user to customize shortcut links', async () => {
@@ -282,7 +284,7 @@ describe('shortcut links component', () => {
     renderComponent();
 
     const shortcuts = await screen.findAllByRole('link');
-    expect(shortcuts.length).toEqual(5);
+    expect(shortcuts.length).toEqual(4);
 
     const edit = await screen.findByLabelText('Edit shortcuts');
     fireEvent.click(edit);
@@ -317,7 +319,7 @@ describe('shortcut links component', () => {
     expect(mutationCalled).toBeTruthy();
 
     const updated = await screen.findAllByRole('link');
-    expect(updated.length).toEqual(6);
+    expect(updated.length).toEqual(5);
 
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.SaveShortcutAccess,

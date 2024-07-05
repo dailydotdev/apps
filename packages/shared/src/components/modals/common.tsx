@@ -131,6 +131,13 @@ const PrivilegedMemberModal = dynamic(
     ),
 );
 
+const FirefoxPrivacyModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "firefoxPrivacyModal" */ './firefoxPrivacy/FirefoxPrivacyModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -154,6 +161,7 @@ export const modals = {
   [LazyModal.Share]: ShareModal,
   [LazyModal.SubmitSquadForReview]: SubmitSquadForReviewModal,
   [LazyModal.PrivilegedMembers]: PrivilegedMemberModal,
+  [LazyModal.FirefoxPrivacy]: FirefoxPrivacyModal,
 };
 
 type GetComponentProps<T> = T extends

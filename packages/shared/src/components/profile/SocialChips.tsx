@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import { GitHubIcon, TwitterIcon, LinkIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { withHttps } from '../../lib/links';
 
 export interface SocialChipsProps {
   links: { github?: string; twitter?: string; portfolio?: string };
@@ -26,7 +27,7 @@ const handlers: Record<
   },
   portfolio: {
     icon: <LinkIcon />,
-    href: (x) => x,
+    href: (x) => withHttps(x),
     // Strip protocol from url
     label: (x) => x.replace(/(^\w+:|^)\/\//, ''),
   },
