@@ -11,8 +11,8 @@ import {
 } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { Justify } from '@dailydotdev/shared/src/components/utilities';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { CardSelection } from './CardSelection';
-import { LinksForm } from './LinksForm';
+import { CardSelection } from '../CardSelection';
+import { LinksForm } from '../LinksForm';
 
 interface CustomLinksModalProps extends ModalProps {
   onSubmit: FormEventHandler<HTMLFormElement>;

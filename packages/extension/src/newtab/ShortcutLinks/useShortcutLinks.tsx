@@ -15,7 +15,7 @@ import {
   ShortcutsSourceType,
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
-import useTopSites from './useTopSites';
+import useTopSites from '../useTopSites';
 
 interface UseShortcutLinks {
   formRef: MutableRefObject<HTMLFormElement>;
