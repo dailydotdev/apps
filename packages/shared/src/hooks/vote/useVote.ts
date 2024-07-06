@@ -48,7 +48,6 @@ const useVote = ({ onMutate, entity, variables }: UseVoteProps): UseVote => {
 
   const upvote = useCallback(
     ({ id }: VoteProps) => {
-      console.log('got here');
       return voteEntity({ id, vote: UserVote.Up, entity });
     },
     [voteEntity, entity],
