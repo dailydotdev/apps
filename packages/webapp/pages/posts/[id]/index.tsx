@@ -12,7 +12,7 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import NextSeo from 'next-seo';
+import { NextSeo } from 'next-seo';
 import {
   POST_BY_ID_STATIC_FIELDS_QUERY,
   PostData,

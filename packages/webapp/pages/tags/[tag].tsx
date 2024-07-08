@@ -17,7 +17,7 @@ import {
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';
-import NextSeo from 'next-seo';
+import { NextSeo } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import {
   MOST_DISCUSSED_FEED_QUERY,

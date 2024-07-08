@@ -14,7 +14,7 @@ import { ParsedUrlQuery } from 'querystring';
 import { ClientError } from 'graphql-request';
 import { ProfileV2 } from '@dailydotdev/shared/src/graphql/users';
 import Head from 'next/head';
-import NextSeo from 'next-seo';
+import { NextSeo } from 'next-seo';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';

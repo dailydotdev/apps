@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import NextSeo from 'next-seo';
+import { NextSeo } from 'next-seo';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import { useRouter } from 'next/router';
 import {

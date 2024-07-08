@@ -9,7 +9,7 @@ import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import classNames from 'classnames';
 import { FormErrorMessage } from '@dailydotdev/shared/src/components/utilities';
 import { NextSeoProps } from 'next-seo/lib/types';
-import NextSeo from 'next-seo';
+import { NextSeo } from 'next-seo';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { labels } from '@dailydotdev/shared/src/lib';
 import {

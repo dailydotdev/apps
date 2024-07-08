@@ -11,7 +11,7 @@ import {
   FeedData,
   KEYWORD_FEED_QUERY,
 } from '@dailydotdev/shared/src/graphql/feed';
-import NextSeo from 'next-seo';
+import { NextSeo } from 'next-seo';
 import ActivitySection from '@dailydotdev/shared/src/components/profile/ActivitySection';
 import Link from 'next/link';
 import { smallPostImage } from '@dailydotdev/shared/src/lib/image';
