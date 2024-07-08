@@ -31,7 +31,7 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { NextSeo } from 'next-seo';
+import NextSeo from 'next-seo';
 import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';

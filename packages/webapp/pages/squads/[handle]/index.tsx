@@ -7,7 +7,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { NextSeo } from 'next-seo';
+import NextSeo from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import {
   SOURCE_FEED_QUERY,

@@ -4,7 +4,7 @@ import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
-import { NextSeo } from 'next-seo';
+import NextSeo from 'next-seo';
 import { ProfileSettingsMenu } from '@dailydotdev/shared/src/components/profile/ProfileSettingsMenu';
 import {
   generateQueryKey,

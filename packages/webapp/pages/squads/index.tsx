@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
+import NextSeo from 'next-seo';
 import { BaseFeedPage } from '@dailydotdev/shared/src/components/utilities';
 import { SQUAD_DIRECTORY_SOURCES } from '@dailydotdev/shared/src/graphql/squads';
 import InfiniteScrolling, {

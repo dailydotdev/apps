@@ -23,7 +23,7 @@ import classNames from 'classnames';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
+import NextSeo from 'next-seo';
 import DevCardPlaceholder from '@dailydotdev/shared/src/components/DevCardPlaceholder';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { devCard } from '@dailydotdev/shared/src/lib/constants';
