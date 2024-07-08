@@ -26,7 +26,7 @@
 
     &:nth-child(1) {
       @apply text-accent-avocado-default;
-      animation-duration: .9s;
+      animation-duration: .8s;
       --upvote-start-x: 20%;
       --upvote-end-x: 30%;
       --upvote-start-y: 70%;
@@ -37,13 +37,13 @@
     &:nth-child(2) {
       @apply text-accent-cabbage-default;
       animation-delay: .4s;
-      animation-duration: .7s;
+      animation-duration: .4s;
       animation-timing-function: cubic-bezier(0.440, -0.600, 0.460, 0.965);
 
       --upvote-start-x: 70%;
       --upvote-end-x: 20%;
       --upvote-start-y: 80%;
-      --upvote-end-y: -20%;
+      --upvote-end-y: -30%;
       --upvote-start-scale: 1.5;
       --upvote-end-scale: 1.3;
       --upvote-start-rotate: -.05turn;
@@ -54,7 +54,7 @@
     &:nth-child(3) {
       @apply text-accent-blueCheese-default;
       animation-delay: .55s;
-      animation-duration: .85s;
+      animation-duration: .75s;
       --upvote-start-x: 75%;
       --upvote-end-x: 75%;
       --upvote-start-y: 100%;
@@ -67,8 +67,8 @@
     &:nth-child(4) {
       animation-delay: .55s;
       animation-duration: .75s;
-      --upvote-start-x: 50%;
-      --upvote-end-x: 70%;
+      --upvote-start-x: 30%;
+      --upvote-end-x: 40%;
       --upvote-start-y: 100%;
       --upvote-end-y: -30%;
       --upvote-start-rotate: 0;
@@ -82,8 +82,8 @@
       animation-delay: .45s;
       animation-duration: .8s;
 
-      --upvote-start-x: 100%;
-      --upvote-end-x: 80%;
+      --upvote-start-x: 110%;
+      --upvote-end-x: 85%;
       --upvote-start-y: 100%;
       --upvote-end-y: -30%;
       --upvote-start-rotate: 0;
