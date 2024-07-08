@@ -14,15 +14,17 @@
     --upvote-end-scale: 1;
 
     @apply absolute bottom-0;
-    animation: upvoteToUp 1.2s cubic-bezier(0.54,-0.59, 0.38, 0.73) forwards;
-
+    animation: upvoteToUp 1.2s cubic-bezier(0.54, -0.59, 0.38, 0.73) forwards;
     left: var(--upvote-start-x);
     opacity: 0;
     rotate: var(--upvote-start-rotate);
     top: var(--upvote-start-y);
-
     transform: translate3d(-50%, -50%, 0);
     will-change: left, top, transform;
+
+    @media screen and (prefers-reduced-motion) {
+      animation: none;
+    }
 
     &:nth-child(1) {
       @apply text-accent-avocado-default;
@@ -35,11 +37,6 @@
     }
 
     &:nth-child(2) {
-      @apply text-accent-cabbage-default;
-      animation-delay: .4s;
-      animation-duration: .4s;
-      animation-timing-function: cubic-bezier(0.440, -0.600, 0.460, 0.965);
-
       --upvote-start-x: 70%;
       --upvote-end-x: 20%;
       --upvote-start-y: 80%;
@@ -48,7 +45,10 @@
       --upvote-end-scale: 1.3;
       --upvote-start-rotate: -.05turn;
       --upvote-end-rotate: .01turn;
-      z-index: 1;
+      @apply text-accent-cabbage-default z-1;
+      animation-delay: .4s;
+      animation-duration: .4s;
+      animation-timing-function: cubic-bezier(0.440, -0.600, 0.460, 0.965);
     }
 
     &:nth-child(3) {
@@ -114,7 +114,7 @@
     rotate: var(--upvote-start-rotate);
   }
 
-  95%{
+  95% {
     rotate: var(--upvote-end-rotate);
   }
 
