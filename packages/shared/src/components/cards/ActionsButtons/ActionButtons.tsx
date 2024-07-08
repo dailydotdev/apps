@@ -17,7 +17,7 @@ import {
   ButtonVariant,
 } from '../../buttons/Button';
 import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
-import { useFeedPreviewMode } from '../../../hooks';
+import { useFeedPreviewMode, usePrevious } from '../../../hooks';
 import { useFeature } from '../../GrowthBookProvider';
 import { feature } from '../../../lib/featureManagement';
 import { UpvoteExperiment } from '../../../lib/featureValues';
@@ -72,6 +72,9 @@ export default function ActionButtons({
   const currentVersion = useFeature(feature.upvote);
   const isAnimatedVersion = currentVersion === UpvoteExperiment.Animated;
 
+  const isUpvoteActive = post?.userState?.vote === UserVote.Up;
+  const wasUpvoted = usePrevious(isUpvoteActive);
+
   if (isFeedPreview) {
     return null;
   }
@@ -100,8 +103,6 @@ export default function ActionButtons({
     </>
   );
 
-  const isUpvoteActive = post?.userState?.vote === UserVote.Up;
-
   return (
     <div
       className={classNames(
@@ -119,7 +120,9 @@ export default function ActionButtons({
           icon={
             <span className="pointer-events-none relative">
               <UpvoteIcon secondary={post?.userState?.vote === UserVote.Up} />
-              {isAnimatedVersion && isUpvoteActive && <AnimatedUpvoteIcons />}
+              {isAnimatedVersion && !wasUpvoted && isUpvoteActive && (
+                <AnimatedUpvoteIcons />
+              )}
             </span>
           }
           pressed={isUpvoteActive}
