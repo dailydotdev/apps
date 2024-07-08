@@ -33,6 +33,29 @@ export interface ActionButtonsProps {
   className?: string;
 }
 
+const AnimatedUpvoteIcons = React.memo(function InnerAnimatedUpvoteIcons() {
+  const arrows = Array.from({ length: 5 }, (_, i) => i + 1);
+  return (
+    <span
+      aria-hidden
+      className={classNames(
+        styles.upvotes,
+        'absolute left-1/2 top-0 h-full w-[125%] -translate-x-1/2',
+      )}
+      role="presentation"
+    >
+      {arrows.map((i) => (
+        <UpvoteIcon
+          secondary
+          size={IconSize.XXSmall}
+          className={styles.upvote}
+          key={i}
+        />
+      ))}
+    </span>
+  );
+});
+
 export default function ActionButtons({
   post,
   onUpvoteClick,
@@ -125,26 +148,3 @@ export default function ActionButtons({
     </div>
   );
 }
-
-const AnimatedUpvoteIcons = React.memo(function InnerAnimatedUpvoteIcons() {
-  const arrows = Array.from({ length: 5 }, (_, i) => i + 1);
-  return (
-    <span
-      aria-hidden
-      className={classNames(
-        styles.upvotes,
-        'absolute left-1/2 top-0 h-full w-[125%] -translate-x-1/2',
-      )}
-      role="presentation"
-    >
-      {arrows.map((i) => (
-        <UpvoteIcon
-          secondary
-          size={IconSize.XXSmall}
-          className={styles.upvote}
-          key={i}
-        />
-      ))}
-    </span>
-  );
-});
