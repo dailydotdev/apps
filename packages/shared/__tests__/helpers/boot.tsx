@@ -13,7 +13,6 @@ import {
 } from '../../src/contexts/NotificationsContext';
 import SettingsContext, {
   SettingsContextData,
-  ThemeMode,
 } from '../../src/contexts/SettingsContext';
 import {
   AlertContextProvider,
@@ -21,6 +20,7 @@ import {
 } from '../../src/contexts/AlertContext';
 import { FeaturesReadyContext } from '../../src/components/GrowthBookProvider';
 import { LazyModalElement } from '../../src/components/modals/LazyModalElement';
+import { defaultTestSettings } from '../fixture/settings';
 
 interface TestBootProviderProps {
   children: ReactNode;
@@ -32,19 +32,7 @@ interface TestBootProviderProps {
   gb?: GrowthBook;
 }
 
-export const settingsContext: Partial<SettingsContextData> = {
-  spaciness: 'eco',
-  openNewTab: true,
-  setTheme: jest.fn(),
-  themeMode: ThemeMode.Dark,
-  setSpaciness: jest.fn(),
-  toggleOpenNewTab: jest.fn(),
-  insaneMode: false,
-  loadedSettings: true,
-  toggleInsaneMode: jest.fn(),
-  showTopSites: true,
-  toggleShowTopSites: jest.fn(),
-};
+export const settingsContext = defaultTestSettings;
 
 export const TestBootProvider = ({
   client,

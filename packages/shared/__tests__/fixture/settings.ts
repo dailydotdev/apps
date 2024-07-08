@@ -2,6 +2,7 @@ import {
   SettingsContextData,
   ThemeMode,
 } from '../../src/contexts/SettingsContext';
+import { ChecklistViewState } from '../../src/lib/checklist';
 
 export const createTestSettings = (
   props: Partial<SettingsContextData> = {},
@@ -22,6 +23,7 @@ export const createTestSettings = (
   optOutReadingStreak: true,
   sidebarExpanded: true,
   sortingEnabled: true,
+  companionExpanded: false,
   toggleAutoDismissNotifications: jest.fn(),
   toggleOptOutCompanion: jest.fn(),
   toggleOptOutReadingStreak: jest.fn(),
@@ -29,6 +31,10 @@ export const createTestSettings = (
   toggleSortingEnabled: jest.fn(),
   syncSettings: jest.fn(),
   updateCustomLinks: jest.fn(),
+  onToggleHeaderPlacement: jest.fn(),
+  setOnboardingChecklistView: jest.fn(),
+  setSettings: jest.fn(),
+  onboardingChecklistView: ChecklistViewState.Hidden,
   ...props,
 });
 

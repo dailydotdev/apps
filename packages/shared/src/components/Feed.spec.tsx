@@ -48,7 +48,6 @@ import {
 import { SubscriptionCallbacks } from '../hooks/useSubscription';
 import SettingsContext, {
   SettingsContextData,
-  ThemeMode,
 } from '../contexts/SettingsContext';
 import { waitForNock } from '../../__tests__/helpers/utilities';
 import {
@@ -71,6 +70,7 @@ import { AllFeedPages } from '../lib/query';
 import { UserVoteEntity } from '../hooks';
 import * as hooks from '../hooks/useViewSize';
 import { ActionType, COMPLETE_ACTION_MUTATION } from '../graphql/actions';
+import { defaultTestSettings } from '../../__tests__/fixture/settings';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -176,28 +176,7 @@ const renderComponent = (
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
-  const settingsContext: SettingsContextData = {
-    spaciness: 'eco',
-    openNewTab: true,
-    setTheme: jest.fn(),
-    themeMode: ThemeMode.Dark,
-    setSpaciness: jest.fn(),
-    toggleOpenNewTab: jest.fn(),
-    insaneMode: false,
-    loadedSettings: true,
-    toggleInsaneMode: jest.fn(),
-    showTopSites: true,
-    toggleShowTopSites: jest.fn(),
-    toggleSortingEnabled: jest.fn(),
-    sortingEnabled: false,
-    toggleOptOutReadingStreak: jest.fn(),
-    optOutReadingStreak: true,
-    sidebarExpanded: true,
-    autoDismissNotifications: true,
-    toggleAutoDismissNotifications: jest.fn(),
-    updateCustomLinks: jest.fn(),
-    toggleSidebarExpanded: jest.fn(),
-  };
+  const settingsContext: SettingsContextData = defaultTestSettings;
   return render(
     <QueryClientProvider client={queryClient}>
       <AuthContext.Provider

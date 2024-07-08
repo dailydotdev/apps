@@ -8,7 +8,6 @@ import { LoggedUser } from '../../lib/user';
 import Sidebar from './Sidebar';
 import SettingsContext, {
   SettingsContextData,
-  ThemeMode,
 } from '../../contexts/SettingsContext';
 import {
   mockGraphQL,
@@ -19,6 +18,7 @@ import { AlertContextProvider } from '../../contexts/AlertContext';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import { Alerts } from '../../graphql/alerts';
+import { defaultTestSettings } from '../../../__tests__/fixture/settings';
 
 let client: QueryClient;
 const updateAlerts = jest.fn();
@@ -47,19 +47,8 @@ const renderComponent = (
   sidebarExpanded = true,
 ): RenderResult => {
   const settingsContext: SettingsContextData = {
-    spaciness: 'eco',
-    openNewTab: true,
-    setTheme: jest.fn(),
-    themeMode: ThemeMode.Dark,
-    setSpaciness: jest.fn(),
-    toggleOpenNewTab: jest.fn(),
-    insaneMode: false,
-    loadedSettings: true,
-    toggleInsaneMode: jest.fn(),
-    showTopSites: true,
-    toggleShowTopSites: jest.fn(),
+    ...defaultTestSettings,
     sidebarExpanded,
-    toggleSidebarExpanded,
   };
   client = new QueryClient();
   mocks.forEach(mockGraphQL);

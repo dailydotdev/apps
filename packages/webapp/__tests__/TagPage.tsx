@@ -31,6 +31,7 @@ import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertContext';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
+import defaultTestSettings from '@dailydotdev/shared/__tests__/fixture/settings';
 import TagPage from '../pages/tags/[tag]';
 import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
 
@@ -101,19 +102,7 @@ const renderComponent = (
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
-  const settingsContext: SettingsContextData = {
-    spaciness: 'eco',
-    openNewTab: true,
-    setTheme: jest.fn(),
-    themeMode: 'dark',
-    setSpaciness: jest.fn(),
-    toggleOpenNewTab: jest.fn(),
-    insaneMode: false,
-    loadedSettings: true,
-    toggleInsaneMode: jest.fn(),
-    showTopSites: true,
-    toggleShowTopSites: jest.fn(),
-  };
+  const settingsContext: SettingsContextData = defaultTestSettings;
   return render(
     <QueryClientProvider client={client}>
       <AuthContext.Provider
