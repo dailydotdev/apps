@@ -33,7 +33,7 @@ const feature = {
   showRoadmap: new Feature('show_roadmap', false),
   seoSidebar: new Feature('seo_sidebar', SeoSidebarExperiment.Control),
   onboardingChecklist: new Feature('onboarding_checklist', false),
-  upvote: new Feature('animated_upvote', UpvoteExperiment.Animated),
+  upvote: new Feature('animated_upvote', UpvoteExperiment.Control),
 };
 
 export { feature };
