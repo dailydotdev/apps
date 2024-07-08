@@ -17,7 +17,6 @@ interface UseSharePost {
   openSharePost: (props: FuncProps) => void;
   copyLink: (props: FuncProps) => void;
   openNativeSharePost?: (post: Post) => void;
-  openNativeShareOrPopup: (props: FuncProps) => void;
 }
 
 export function useSharePost(origin: Origin): UseSharePost {
@@ -73,21 +72,9 @@ export function useSharePost(origin: Origin): UseSharePost {
     [getShortUrl, origin, logEvent],
   );
 
-  const openNativeShareOrPopup = useCallback(
-    (props: FuncProps) => {
-      if (globalThis.navigator?.share) {
-        return openNativeSharePost(props.post);
-      }
-
-      return openSharePost(props);
-    },
-    [openNativeSharePost, openSharePost],
-  );
-
   return {
     openSharePost,
     copyLink: copyLinkShare,
     openNativeSharePost,
-    openNativeShareOrPopup,
   };
 }

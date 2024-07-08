@@ -7,17 +7,11 @@ import {
   BookmarkIcon,
   DownvoteIcon,
   LinkIcon,
-  ShareIcon,
 } from '../icons';
 import { Post, UserVote } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import { PostOrigin } from '../../hooks/log/useLogContextData';
-import {
-  useConditionalFeature,
-  useViewSize,
-  useVotePost,
-  ViewSize,
-} from '../../hooks';
+import { useVotePost } from '../../hooks';
 import { Origin } from '../../lib/log';
 import { Card } from '../cards/Card';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -30,8 +24,6 @@ import {
   mutateBookmarkFeedPost,
   useBookmarkPost,
 } from '../../hooks/useBookmarkPost';
-import { useSharePost } from '../../hooks/useSharePost';
-import { feature } from '../../lib/featureManagement';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';
 
 interface PostActionsProps {
@@ -54,12 +46,6 @@ export function PostActions({
   const { showTagsPanel } = data;
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const queryClient = useQueryClient();
-  const { openNativeShareOrPopup } = useSharePost(origin);
-  const isMobile = useViewSize(ViewSize.MobileL);
-  const shareExperience = useConditionalFeature({
-    feature: feature.shareExperience,
-    shouldEvaluate: isMobile,
-  });
 
   const { toggleUpvote, toggleDownvote } = useVotePost({
     variables: { feedName: feedQueryKey },
@@ -187,22 +173,10 @@ export function PostActions({
             onClick={() => onCopyLinkClick(post)}
             icon={<LinkIcon />}
             responsiveLabelClass={actionsClassName}
-            className={classNames(
-              'btn-tertiary-cabbage',
-              shareExperience && 'hidden tablet:flex',
-            )}
+            className="btn-tertiary-cabbage"
           >
             Copy
           </QuaternaryButton>
-          {shareExperience && (
-            <QuaternaryButton
-              id="share-post-btn"
-              onClick={() => openNativeShareOrPopup({ post })}
-              icon={<ShareIcon />}
-              responsiveLabelClass={actionsClassName}
-              className="btn-tertiary-cabbage flex tablet:hidden"
-            />
-          )}
         </div>
       </div>
     </ConditionalWrapper>
