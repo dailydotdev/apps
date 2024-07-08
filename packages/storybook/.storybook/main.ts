@@ -45,6 +45,7 @@ const config: StorybookConfig = {
           ),
           'next/router': path.resolve(__dirname, '../mock/next-router.ts'),
           '../../GrowthBookProvider': GrowthBookMockPath,
+          '../../../hooks': path.resolve(__dirname, '../mock/hooks.ts'),
         },
       },
       define: {

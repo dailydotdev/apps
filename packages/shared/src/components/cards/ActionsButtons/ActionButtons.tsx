@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { Post, UserVote } from '../../../graphql/posts';
 import InteractionCounter from '../../InteractionCounter';
@@ -17,12 +17,16 @@ import {
   ButtonVariant,
 } from '../../buttons/Button';
 import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
-import { useFeedPreviewMode, usePrevious } from '../../../hooks';
-import { useFeature } from '../../GrowthBookProvider';
+import {
+  useConditionalFeature,
+  useFeedPreviewMode,
+  useMedia,
+} from '../../../hooks';
 import { feature } from '../../../lib/featureManagement';
 import { UpvoteExperiment } from '../../../lib/featureValues';
 import styles from './ActionButtons.module.css';
 import { IconSize } from '../../Icon';
+import { userPrefersReducedMotions } from '../../../styles/media';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -56,6 +60,25 @@ const AnimatedUpvoteIcons = React.memo(function InnerAnimatedUpvoteIcons() {
   );
 });
 
+function useAnimatedActionButtons() {
+  // this is needed for preventing animation fire on first load
+  const [userClicked, setUserClickedUpvote] = useState(false);
+
+  const haveUserPrefersReducedMotions = useMedia(
+    [userPrefersReducedMotions.replace('@media', '')],
+    [false],
+    false,
+    false,
+  );
+  const currentVersion = useConditionalFeature({
+    feature: feature.upvote,
+    shouldEvaluate: !haveUserPrefersReducedMotions,
+  });
+  const isAnimatedVersion = currentVersion.value === UpvoteExperiment.Animated;
+
+  return { isAnimatedVersion, userClicked, setUserClickedUpvote };
+}
+
 export default function ActionButtons({
   post,
   onUpvoteClick,
@@ -69,11 +92,9 @@ export default function ActionButtons({
   };
   const isFeedPreview = useFeedPreviewMode();
 
-  const currentVersion = useFeature(feature.upvote);
-  const isAnimatedVersion = currentVersion === UpvoteExperiment.Animated;
-
+  const { isAnimatedVersion, userClicked, setUserClickedUpvote } =
+    useAnimatedActionButtons();
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
-  const wasUpvoted = usePrevious(isUpvoteActive);
 
   if (isFeedPreview) {
     return null;
@@ -120,13 +141,16 @@ export default function ActionButtons({
           icon={
             <span className="pointer-events-none relative">
               <UpvoteIcon secondary={post?.userState?.vote === UserVote.Up} />
-              {isAnimatedVersion && !wasUpvoted && isUpvoteActive && (
+              {isAnimatedVersion && userClicked && isUpvoteActive && (
                 <AnimatedUpvoteIcons />
               )}
             </span>
           }
           pressed={isUpvoteActive}
-          onClick={() => onUpvoteClick?.(post)}
+          onClick={() => {
+            setUserClickedUpvote(true);
+            onUpvoteClick?.(post);
+          }}
           {...upvoteCommentProps}
           className="btn-tertiary-avocado !min-w-[4.625rem]"
         >

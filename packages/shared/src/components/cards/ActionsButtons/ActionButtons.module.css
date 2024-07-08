@@ -22,10 +22,6 @@
     transform: translate3d(-50%, -50%, 0);
     will-change: left, top, transform;
 
-    @media screen and (prefers-reduced-motion) {
-      animation: none;
-    }
-
     &:nth-child(1) {
       @apply text-accent-avocado-default;
       animation-duration: .8s;
