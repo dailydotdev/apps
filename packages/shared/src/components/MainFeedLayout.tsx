@@ -254,6 +254,7 @@ export default function MainFeedLayout({
         ),
         query: SEARCH_POSTS_QUERY,
         variables: { query: searchQuery },
+        pageSize: 500,
         emptyScreen: <SearchEmptyScreen />,
       };
     }
