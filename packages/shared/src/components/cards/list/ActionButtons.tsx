@@ -12,13 +12,13 @@ import {
 import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
 import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
 import { useFeedPreviewMode } from '../../../hooks';
-import { ActionButtonsProps } from '../ActionsButtons/ActionButtons';
 import { combinedClicks } from '../../../lib/click';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { IconSize } from '../../Icon';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
+import { ActionButtonsProps } from '../ActionsButtons';
 
 interface ActionButtonsPropsList extends ActionButtonsProps {
   onDownvoteClick?: (post: Post) => unknown;
@@ -51,8 +51,6 @@ export default function ActionButtons({
     await onDownvoteClick?.(post);
   };
 
-  const isUpvoteActive = post?.userState?.vote === UserVote.Up;
-
   return (
     <ConditionalWrapper
       condition={showTagsPanel === true}
@@ -77,11 +75,14 @@ export default function ActionButtons({
               )}
               id={`post-${post.id}-upvote-btn`}
               color={ButtonColor.Avocado}
-              pressed={isUpvoteActive}
+              pressed={post?.userState?.vote === UserVote.Up}
               onClick={() => onUpvoteClick?.(post)}
               variant={ButtonVariant.Tertiary}
             >
-              <UpvoteIcon secondary={isUpvoteActive} size={IconSize.Medium} />
+              <UpvoteIcon
+                secondary={post?.userState?.vote === UserVote.Up}
+                size={IconSize.Medium}
+              />
               {post?.numUpvotes > 0 ? (
                 <InteractionCounter
                   className="ml-1.5 tabular-nums"

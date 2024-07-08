@@ -3,7 +3,6 @@ const withPWA = require('next-pwa');
 const withTM = require('next-transpile-modules')(['@dailydotdev/shared']);
 const { version } = require('../extension/package.json');
 const runtimeCaching = require('./cache');
-const path = require('path');
 
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
@@ -12,9 +11,9 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 const securityHeaders = [
   {
     key: 'X-Frame-Options',
-    value: 'DENY',
-  },
-];
+    value: 'DENY'
+  }
+]
 
 module.exports = withTM(
   withPWA({
@@ -22,7 +21,7 @@ module.exports = withTM(
       dest: 'public',
       disable: process.env.NODE_ENV === 'development',
       runtimeCaching,
-      buildExcludes: [/react-syntax-highlighter|reactSyntaxHighlighter/],
+      buildExcludes: [/react-syntax-highlighter|reactSyntaxHighlighter/]
     },
     ...withBundleAnalyzer({
       i18n: {
@@ -33,7 +32,7 @@ module.exports = withTM(
         reactRemoveProperties: { properties: ['^data-testid$'] },
       },
       webpack5: true,
-      webpack: (config, { dev, isServer, dir, defaultLoaders }) => {
+      webpack: (config, { dev, isServer }) => {
         config.module.rules.push({
           test: /\.svg$/i,
           issuer: /\.[jt]sx?$/,
@@ -61,6 +60,7 @@ module.exports = withTM(
             fullySpecified: false,
           },
         });
+
         return config;
       },
       env: {
@@ -77,28 +77,28 @@ module.exports = withTM(
           has: [
             {
               type: 'query',
-              key: 'provider',
-            },
-          ],
+              key: 'provider'
+            }
+          ]
         },
         {
           source: '/search',
-          destination: '/search/posts',
-        },
+          destination: '/search/posts'
+        }
       ],
       redirects: () => {
         return [
           {
             source: '/posts/finder',
             destination: '/search?provider=posts',
-            permanent: false,
+            permanent: false
           },
           {
             source: '/signup',
             destination: '/onboarding',
-            permanent: false,
-          },
-        ];
+            permanent: false
+          }
+        ]
       },
       headers: async () => {
         return [
@@ -108,12 +108,11 @@ module.exports = withTM(
               ...securityHeaders,
               {
                 key: 'X-Recruiting',
-                value:
-                  'We are hiring! Check https://daily.dev/careers for more info!',
+                value: 'We are hiring! Check https://daily.dev/careers for more info!'
               },
-            ],
-          },
-        ];
+            ]
+          }
+        ]
       },
       poweredByHeader: false,
       reactStrictMode: false,
