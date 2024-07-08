@@ -1,8 +1,6 @@
 import { useRef } from 'react';
-import { feature } from '../lib/featureManagement';
 import { useActiveFeedNameContext } from '../contexts';
 import { SharedFeedPage } from '../components/utilities';
-import { useConditionalFeature } from './useConditionalFeature';
 
 interface UseBookmarkProviderReturn {
   highlightBookmarkedPost: boolean;
@@ -20,17 +18,11 @@ const useBookmarkProvider = ({
   const justBookmarked = bookmarked !== isBookmarked.current && bookmarked;
 
   const isMyFeed = feedName === SharedFeedPage.MyFeed;
-  const isCardShownFromBookmarkProvider =
+  const highlightBookmarkedPost =
     isMyFeed && isBookmarked.current && !justBookmarked && bookmarked;
 
-  const { value: bookmarkProvider } = useConditionalFeature({
-    feature: feature.bookmark_provider,
-    shouldEvaluate: isCardShownFromBookmarkProvider,
-  });
-
   return {
-    highlightBookmarkedPost:
-      bookmarkProvider && isCardShownFromBookmarkProvider,
+    highlightBookmarkedPost,
   };
 };
 
