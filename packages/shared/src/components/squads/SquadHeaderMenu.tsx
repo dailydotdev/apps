@@ -27,6 +27,7 @@ import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { Origin } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
+import useContextMenu from '../../hooks/useContextMenu';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ '../fields/ContextMenu'),
@@ -50,6 +51,7 @@ export default function SquadHeaderMenu({
   const router = useRouter();
   const { openModal } = useLazyModal();
   const { editSquad } = useSquadNavigation();
+  const { isOpen } = useContextMenu({ id: ContextMenuIds.SquadMenuContext });
 
   const { onDeleteSquad } = useDeleteSquad({
     squad,
@@ -144,6 +146,7 @@ export default function SquadHeaderMenu({
       className="menu-primary"
       animation="fade"
       options={items}
+      isOpen={isOpen}
     />
   );
 }
