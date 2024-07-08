@@ -7,7 +7,7 @@ import {
   getPostClassNames,
 } from './Card';
 import PostMetadata from './PostMetadata';
-import ActionButtons from './ActionButtons';
+import ActionButtons from './ActionsButtons/ActionButtons';
 import { PostCardHeader } from './PostCardHeader';
 import { PostCardFooter } from './PostCardFooter';
 import { Container, PostCardProps } from './common';

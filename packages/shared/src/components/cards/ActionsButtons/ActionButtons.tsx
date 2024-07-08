@@ -1,23 +1,28 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Post, UserVote } from '../../graphql/posts';
-import InteractionCounter from '../InteractionCounter';
-import { QuaternaryButton } from '../buttons/QuaternaryButton';
+import { Post, UserVote } from '../../../graphql/posts';
+import InteractionCounter from '../../InteractionCounter';
+import { QuaternaryButton } from '../../buttons/QuaternaryButton';
 import {
   UpvoteIcon,
   DiscussIcon as CommentIcon,
   BookmarkIcon,
   LinkIcon,
-} from '../icons';
+} from '../../icons';
 import {
   Button,
   ButtonColor,
   ButtonProps,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/Button';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { useFeedPreviewMode } from '../../hooks';
+} from '../../buttons/Button';
+import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
+import { useFeedPreviewMode } from '../../../hooks';
+import { useFeature } from '../../GrowthBookProvider';
+import { feature } from '../../../lib/featureManagement';
+import { UpvoteExperiment } from '../../../lib/featureValues';
+import styles from './ActionButtons.module.css';
+import { IconSize } from '../../Icon';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -40,6 +45,9 @@ export default function ActionButtons({
     size: ButtonSize.Small,
   };
   const isFeedPreview = useFeedPreviewMode();
+
+  const currentVersion = useFeature(feature.upvote);
+  const isAnimatedVersion = currentVersion === UpvoteExperiment.Animated;
 
   if (isFeedPreview) {
     return null;
@@ -69,6 +77,8 @@ export default function ActionButtons({
     </>
   );
 
+  const isUpvoteActive = post?.userState?.vote === UserVote.Up;
+
   return (
     <div
       className={classNames(
@@ -84,9 +94,12 @@ export default function ActionButtons({
         <QuaternaryButton
           id={`post-${post.id}-upvote-btn`}
           icon={
-            <UpvoteIcon secondary={post?.userState?.vote === UserVote.Up} />
+            <span className="pointer-events-none relative">
+              <UpvoteIcon secondary={post?.userState?.vote === UserVote.Up} />
+              {isAnimatedVersion && isUpvoteActive && <AnimatedUpvoteIcons />}
+            </span>
           }
-          pressed={post?.userState?.vote === UserVote.Up}
+          pressed={isUpvoteActive}
           onClick={() => onUpvoteClick?.(post)}
           {...upvoteCommentProps}
           className="btn-tertiary-avocado !min-w-[4.625rem]"
@@ -112,3 +125,26 @@ export default function ActionButtons({
     </div>
   );
 }
+
+const AnimatedUpvoteIcons = React.memo(function InnerAnimatedUpvoteIcons() {
+  const arrows = Array.from({ length: 5 }, (_, i) => i + 1);
+  return (
+    <span
+      aria-hidden
+      className={classNames(
+        styles.upvotes,
+        'absolute left-1/2 top-0 h-full w-[125%] -translate-x-1/2',
+      )}
+      role="presentation"
+    >
+      {arrows.map((i) => (
+        <UpvoteIcon
+          secondary
+          size={IconSize.XXSmall}
+          className={styles.upvote}
+          key={i}
+        />
+      ))}
+    </span>
+  );
+});

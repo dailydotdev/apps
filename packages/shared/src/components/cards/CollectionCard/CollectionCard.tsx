@@ -5,7 +5,7 @@ import FeedItemContainer from '../FeedItemContainer';
 import { CollectionCardHeader } from './CollectionCardHeader';
 import { getPostClassNames, FreeformCardTitle, CardSpace } from '../Card';
 import { WelcomePostCardFooter } from '../WelcomePostCardFooter';
-import ActionButtons from '../ActionButtons';
+import ActionButtons from '../ActionsButtons/ActionButtons';
 import PostMetadata from '../PostMetadata';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import CardOverlay from '../common/CardOverlay';

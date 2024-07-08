@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
-import ActionButtons from '@dailydotdev/shared/src/components/cards/list/ActionButtons/ActionButtons';
 import { Post, UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import post from '@dailydotdev/shared/__tests__/fixture/post';
 import ExtensionProviders from '../extension/_providers';
 import { useFeature } from '../../mock/GrowthBookProvider';
 import { UpvoteExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import ActionButtons from '@dailydotdev/shared/src/components/cards/ActionsButtons/ActionButtons';
 
 const meta: Meta<typeof ActionButtons> = {
   title: 'components/ActionButtons',
@@ -22,7 +22,6 @@ const meta: Meta<typeof ActionButtons> = {
       },
     },
     onUpvoteClick: fn(),
-    onDownvoteClick: fn(),
     onCommentClick: fn(),
     onBookmarkClick: fn(),
     onCopyLinkClick: fn(),
@@ -54,7 +53,6 @@ const meta: Meta<typeof ActionButtons> = {
         <div className={'py-20 grid place-items-center'}>
           <ActionButtons {...props} post={post} onUpvoteClick={onUpvoteClick} />
         </div>
-
       </ExtensionProviders>
     );
   },
@@ -64,7 +62,11 @@ export default meta;
 
 type Story = StoryObj<typeof ActionButtons>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  beforeEach: async () => {
+    useFeature.mockReturnValue(UpvoteExperiment.Control);
+  },
+};
 
 export const AnimatedUpvote: Story = {
   beforeEach: async () => {

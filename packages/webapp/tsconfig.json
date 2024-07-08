@@ -17,7 +17,13 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "incremental": true
+    "incremental": true,
+    "paths": {
+      "#shared/*": [
+        "@dailydotdev/shared/*"
+      ]
+    },
+    "baseUrl": "."
   },
   "include": [
     "next-env.d.ts",

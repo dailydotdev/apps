@@ -1,28 +1,24 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Post, UserVote } from '#graphql/posts';
-import InteractionCounter from '../../../InteractionCounter';
+import { Post, UserVote } from '../../../graphql/posts';
+import InteractionCounter from '../../InteractionCounter';
 import {
   UpvoteIcon,
   BookmarkIcon,
   DownvoteIcon,
   DiscussIcon as CommentIcon,
   LinkIcon,
-} from '#components/icons';
-import { Button, ButtonColor, ButtonVariant } from '../../../buttons/Button';
-import { SimpleTooltip } from '../../../tooltips/SimpleTooltip';
-import { useFeedPreviewMode } from '#hooks';
-import { ActionButtonsProps } from '../../ActionButtons';
-import { combinedClicks } from '#lib/click';
-import { useBlockPostPanel } from '#hooks/post/useBlockPostPanel';
-import ConditionalWrapper from '../../../ConditionalWrapper';
-import { PostTagsPanel } from '../../../post/block/PostTagsPanel';
-import { IconSize } from '../../../Icon';
-import { LinkWithTooltip } from '../../../tooltips/LinkWithTooltip';
-import { feature } from '#lib/featureManagement';
-import { UpvoteExperiment } from '#lib/featureValues';
-import styles from './ActionButtons.module.css';
-import { useFeature } from '#components/GrowthBookProvider';
+} from '../../icons';
+import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
+import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
+import { useFeedPreviewMode } from '../../../hooks';
+import { ActionButtonsProps } from '../ActionsButtons/ActionButtons';
+import { combinedClicks } from '../../../lib/click';
+import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
+import ConditionalWrapper from '../../ConditionalWrapper';
+import { PostTagsPanel } from '../../post/block/PostTagsPanel';
+import { IconSize } from '../../Icon';
+import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 
 interface ActionButtonsPropsList extends ActionButtonsProps {
   onDownvoteClick?: (post: Post) => unknown;
@@ -40,9 +36,6 @@ export default function ActionButtons({
   const isFeedPreview = useFeedPreviewMode();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
-
-  const currentVersion = useFeature(feature.upvote);
-  const isAnimatedVersion = currentVersion === UpvoteExperiment.Animated;
 
   if (isFeedPreview) {
     return null;
@@ -88,10 +81,7 @@ export default function ActionButtons({
               onClick={() => onUpvoteClick?.(post)}
               variant={ButtonVariant.Tertiary}
             >
-              <span className="pointer-events-none relative">
-                <UpvoteIcon secondary={isUpvoteActive} size={IconSize.Medium} />
-                {isAnimatedVersion && isUpvoteActive && <AnimatedUpvoteIcons />}
-              </span>
+              <UpvoteIcon secondary={isUpvoteActive} size={IconSize.Medium} />
               {post?.numUpvotes > 0 ? (
                 <InteractionCounter
                   className="ml-1.5 tabular-nums"
@@ -175,26 +165,3 @@ export default function ActionButtons({
     </ConditionalWrapper>
   );
 }
-
-const AnimatedUpvoteIcons = React.memo(function InnerAnimatedUpvoteIcons() {
-  const arrows = Array.from({ length: 5 }, (_, i) => i + 1);
-  return (
-    <span
-      aria-hidden
-      className={classNames(
-        styles.upvotes,
-        'absolute left-0 top-0 h-full w-full',
-      )}
-      role="presentation"
-    >
-      {arrows.map((i) => (
-        <UpvoteIcon
-          secondary
-          size={IconSize.XXSmall}
-          className={styles.upvote}
-          key={i}
-        />
-      ))}
-    </span>
-  );
-});
