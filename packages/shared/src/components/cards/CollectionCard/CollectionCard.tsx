@@ -73,6 +73,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}
           onBookmarkClick={onBookmarkClick}
+          className="mt-auto"
         />
       </Container>
       {children}
