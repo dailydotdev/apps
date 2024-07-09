@@ -1,10 +1,9 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Post, UserVote } from '../../../graphql/posts';
 import InteractionCounter from '../../InteractionCounter';
 import { QuaternaryButton } from '../../buttons/QuaternaryButton';
 import {
-  UpvoteIcon,
   DiscussIcon as CommentIcon,
   BookmarkIcon,
   LinkIcon,
@@ -17,16 +16,8 @@ import {
   ButtonVariant,
 } from '../../buttons/Button';
 import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
-import {
-  useConditionalFeature,
-  useFeedPreviewMode,
-  useMedia,
-} from '../../../hooks';
-import { feature } from '../../../lib/featureManagement';
-import { UpvoteExperiment } from '../../../lib/featureValues';
-import styles from './ActionButtons.module.css';
-import { IconSize } from '../../Icon';
-import { userPrefersReducedMotions } from '../../../styles/media';
+import { useFeedPreviewMode } from '../../../hooks';
+import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -35,48 +26,6 @@ export interface ActionButtonsProps {
   onBookmarkClick: (post: Post) => unknown;
   onCopyLinkClick: (event: React.MouseEvent, post: Post) => unknown;
   className?: string;
-}
-
-const AnimatedUpvoteIcons = React.memo(function InnerAnimatedUpvoteIcons() {
-  const arrows = Array.from({ length: 5 }, (_, i) => i + 1);
-  return (
-    <span
-      aria-hidden
-      className={classNames(
-        styles.upvotes,
-        'absolute left-1/2 top-0 h-full w-[125%] -translate-x-1/2',
-      )}
-      role="presentation"
-    >
-      {arrows.map((i) => (
-        <UpvoteIcon
-          secondary
-          size={IconSize.XXSmall}
-          className={styles.upvote}
-          key={i}
-        />
-      ))}
-    </span>
-  );
-});
-
-function useAnimatedActionButtons() {
-  // this is needed for preventing animation fire on first load
-  const [userClicked, setUserClickedUpvote] = useState(false);
-
-  const haveUserPrefersReducedMotions = useMedia(
-    [userPrefersReducedMotions.replace('@media', '')],
-    [false],
-    false,
-    false,
-  );
-  const currentVersion = useConditionalFeature({
-    feature: feature.upvote,
-    shouldEvaluate: !haveUserPrefersReducedMotions,
-  });
-  const isAnimatedVersion = currentVersion.value === UpvoteExperiment.Animated;
-
-  return { isAnimatedVersion, userClicked, setUserClickedUpvote };
 }
 
 export default function ActionButtons({
@@ -91,9 +40,6 @@ export default function ActionButtons({
     size: ButtonSize.Small,
   };
   const isFeedPreview = useFeedPreviewMode();
-
-  const { isAnimatedVersion, userClicked, setUserClickedUpvote } =
-    useAnimatedActionButtons();
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
 
   if (isFeedPreview) {
@@ -139,16 +85,12 @@ export default function ActionButtons({
         <QuaternaryButton
           id={`post-${post.id}-upvote-btn`}
           icon={
-            <span className="pointer-events-none relative">
-              <UpvoteIcon secondary={post?.userState?.vote === UserVote.Up} />
-              {isAnimatedVersion && userClicked && isUpvoteActive && (
-                <AnimatedUpvoteIcons />
-              )}
-            </span>
+            <UpvoteButtonIcon
+              secondary={post?.userState?.vote === UserVote.Up}
+            />
           }
           pressed={isUpvoteActive}
           onClick={() => {
-            setUserClickedUpvote(true);
             onUpvoteClick?.(post);
           }}
           {...upvoteCommentProps}

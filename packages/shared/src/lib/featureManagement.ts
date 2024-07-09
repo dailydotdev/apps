@@ -1,9 +1,5 @@
 import { JSONValue } from '@growthbook/growthbook';
-import {
-  SeoSidebarExperiment,
-  ShortcutsUIExperiment,
-  UpvoteExperiment,
-} from './featureValues';
+import { SeoSidebarExperiment, ShortcutsUIExperiment } from './featureValues';
 import { cloudinary } from './image';
 
 export class Feature<T extends JSONValue> {
@@ -32,7 +28,7 @@ const feature = {
   showRoadmap: new Feature('show_roadmap', false),
   seoSidebar: new Feature('seo_sidebar', SeoSidebarExperiment.Control),
   onboardingChecklist: new Feature('onboarding_checklist', false),
-  upvote: new Feature('animated_upvote', UpvoteExperiment.Control),
+  animatedUpvote: new Feature('animated_upvote', true),
 };
 
 export { feature };

@@ -44,6 +44,7 @@ const config: StorybookConfig = {
             '../mock/webextension-polyfill.ts',
           ),
           'next/router': path.resolve(__dirname, '../mock/next-router.ts'),
+          './GrowthBookProvider': GrowthBookMockPath,
           '../../GrowthBookProvider': GrowthBookMockPath,
           '../../../hooks': path.resolve(__dirname, '../mock/hooks.ts'),
         },

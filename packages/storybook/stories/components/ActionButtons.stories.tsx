@@ -4,8 +4,9 @@ import { fn } from '@storybook/test';
 import { Post, UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import post from '@dailydotdev/shared/__tests__/fixture/post';
 import ExtensionProviders from '../extension/_providers';
-import { UpvoteExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import ActionButtons from '@dailydotdev/shared/src/components/cards/ActionsButtons/ActionButtons';
+import { useFeature } from '../../mock/GrowthBookProvider';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useConditionalFeature } from '../../mock/hooks';
 
 const meta: Meta<typeof ActionButtons> = {
@@ -26,13 +27,13 @@ const meta: Meta<typeof ActionButtons> = {
     onCopyLinkClick: fn(),
   },
   beforeEach: async () => {
-    useConditionalFeature.mockReturnValue({
-      value: UpvoteExperiment.Control,
+    useFeature.mockReturnValue({
+      value: false,
       isLoading: false,
     });
   },
   render: (props) => {
-    const { value: currentFeature } = useConditionalFeature();
+    const currentFeature = useFeature(feature.animatedUpvote);
 
     const [post, setPost] = useState(props.post);
     const onUpvoteClick = async (post: Post) => {
@@ -49,7 +50,7 @@ const meta: Meta<typeof ActionButtons> = {
 
     return (
       <ExtensionProviders>
-        <>Feature: "{currentFeature}"</>
+        <>Animated upvote button: "{`${currentFeature}`}"</>
         <hr className={'my-4 border-accent-salt-baseline'} />
 
         <div className={'py-20 grid place-items-center'}>
@@ -66,18 +67,13 @@ type Story = StoryObj<typeof ActionButtons>;
 
 export const Default: Story = {
   beforeEach: async () => {
-    useConditionalFeature.mockReturnValue({
-      value: UpvoteExperiment.Control,
-      isLoading: false,
-    });
+    useFeature.mockReturnValue(false);
   },
 };
 
 export const AnimatedUpvote: Story = {
   beforeEach: async () => {
-    useConditionalFeature.mockReturnValue({
-      value: UpvoteExperiment.Animated,
-      isLoading: false,
-    });
+    useFeature.mockReturnValue(true);
+    useConditionalFeature.mockReturnValue({ value: true });
   },
 };
