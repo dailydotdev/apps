@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { QueryObserverResult } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import {
   AnonymousUser,
   deleteAccount,
@@ -64,6 +65,7 @@ export interface AuthContextData {
   squads?: Squad[];
   isAuthReady?: boolean;
 }
+
 const isExtension = checkIsExtension();
 const AuthContext = React.createContext<AuthContextData>(null);
 export const useAuthContext = (): AuthContextData => useContext(AuthContext);
@@ -138,7 +140,12 @@ export const AuthContextProvider = ({
   const referral = user?.referralId || user?.referrer;
   const referralOrigin = user?.referralOrigin;
 
-  if (firstLoad === true && endUser && !endUser?.infoConfirmed) {
+  const router = useRouter();
+  const isOnboardingNeeded =
+    endUser && (!endUser.username || !endUser.infoConfirmed);
+  const isNotOnboardingRoute = !router.pathname.includes('onboarding');
+
+  if (isOnboardingNeeded && (isNotOnboardingRoute || firstLoad === true)) {
     logout(LogoutReason.IncomleteOnboarding);
   }
 
