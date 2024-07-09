@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import AuthContext from '../../contexts/AuthContext';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import AuthDefault from './AuthDefault';
@@ -134,6 +135,7 @@ function AuthOptions({
     {},
   );
   const { refetchBoot, user, loginState } = useContext(AuthContext);
+  const router = useRouter();
   const [email, setEmail] = useState(initialEmail);
   const [flow, setFlow] = useState('');
   const [activeDisplay, setActiveDisplay] = useState(() =>
@@ -244,15 +246,24 @@ function AuthOptions({
       return displayToast(labels.auth.error.generic);
     },
   });
-  const onProfileSuccess = async () => {
+  const onProfileSuccess = async (options: { redirect?: string } = {}) => {
+    const { redirect } = options;
     const { data } = await refetchBoot();
+
     if (data.user) {
       const provider = chosenProvider || 'password';
       onSignBackLogin(data.user as LoggedUser, provider as SignBackProvider);
     }
+
     logEvent({
       event_name: AuthEventNames.SignupSuccessfully,
     });
+
+    // if redirect is set move before modal close
+    if (redirect) {
+      await router.push(redirect);
+    }
+
     onSuccessfulRegistration?.(data?.user);
     onClose?.(null, true);
   };
@@ -519,7 +530,7 @@ function AuthOptions({
         </Tab>
         <Tab label={AuthDisplay.ChangePassword}>
           <ChangePasswordForm
-            onSubmit={onProfileSuccess}
+            onSubmit={() => onProfileSuccess({ redirect: '/' })}
             simplified={simplified}
           />
         </Tab>
