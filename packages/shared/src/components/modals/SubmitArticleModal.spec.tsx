@@ -1,4 +1,10 @@
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
@@ -17,6 +23,7 @@ import SubmitArticleModal from './SubmitArticleModal';
 import user from '../../../__tests__/fixture/loggedUser';
 import { NotificationsContextProvider } from '../../contexts/NotificationsContext';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
+import Toast from '../notifications/Toast';
 
 const onRequestClose = jest.fn();
 
@@ -53,6 +60,7 @@ const renderComponent = (
         loadedUserFromCache
       >
         <NotificationsContextProvider>
+          <Toast />
           <SubmitArticleModal isOpen onRequestClose={onRequestClose} />
         </NotificationsContextProvider>
       </AuthContextProvider>
@@ -76,7 +84,7 @@ it('should submit a valid URL', async () => {
   input.value = link;
   const btn = await screen.findByLabelText('Submit');
   await waitFor(() => expect(btn).toBeEnabled());
-  btn.click();
+  fireEvent.click(btn);
 
   mockGraphQL({
     request: {
