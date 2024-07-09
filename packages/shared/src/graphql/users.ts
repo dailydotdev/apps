@@ -1,13 +1,12 @@
-import request, { gql } from 'graphql-request';
+import { gql } from 'graphql-request';
 import { subDays } from 'date-fns';
 import {
   SHARED_POST_INFO_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
 import type { PublicProfile } from '../lib/user';
-import { Connection } from './common';
+import { Connection, gqlClient } from './common';
 import { SourceMember } from './sources';
-import { graphqlUrl } from '../lib/config';
 import type { SendType } from '../hooks';
 
 export const USER_BY_ID_STATIC_FIELDS_QUERY = `
@@ -414,7 +413,7 @@ export const getReadingStreak30Days = async (
   start: Date = subDays(new Date(), 30),
 ): Promise<ReadingDay[]> => {
   const today = new Date();
-  const res = await request(graphqlUrl, USER_STREAK_HISTORY, {
+  const res = await gqlClient.request(USER_STREAK_HISTORY, {
     after: start.toISOString(),
     before: today.toISOString(),
     id,
@@ -442,7 +441,7 @@ export interface UserStreak {
 }
 
 export const getReadingStreak = async (): Promise<UserStreak> => {
-  const res = await request(graphqlUrl, USER_STREAK_QUERY);
+  const res = await gqlClient.request(USER_STREAK_QUERY);
 
   return res.userStreak;
 };
@@ -496,7 +495,7 @@ export const USER_ACQUISITION_MUTATION = gql`
 export const updateUserAcquisition = (
   acquisitionChannel: AcquisitionChannel,
 ): Promise<void> =>
-  request(graphqlUrl, USER_ACQUISITION_MUTATION, { acquisitionChannel });
+  gqlClient.request(USER_ACQUISITION_MUTATION, { acquisitionChannel });
 
 export const CLEAR_MARKETING_CTA_MUTATION = gql`
   mutation ClearUserMarketingCta($campaignId: String!) {

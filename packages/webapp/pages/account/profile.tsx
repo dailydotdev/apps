@@ -29,10 +29,11 @@ import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNoti
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useMutation } from '@tanstack/react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import request from 'graphql-request';
-import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { UPLOAD_COVER_MUTATION } from '@dailydotdev/shared/src/graphql/users';
-import { ResponseError } from '@dailydotdev/shared/src/graphql/common';
+import {
+  ResponseError,
+  gqlClient,
+} from '@dailydotdev/shared/src/graphql/common';
 import { FormWrapper } from '@dailydotdev/shared/src/components/fields/form';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
@@ -88,7 +89,7 @@ const AccountProfilePage = (): ReactElement => {
     { image: File }
   >(
     ({ image }) =>
-      request(graphqlUrl, UPLOAD_COVER_MUTATION, {
+      gqlClient.request(UPLOAD_COVER_MUTATION, {
         upload: image,
       }),
     {

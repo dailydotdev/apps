@@ -1,4 +1,3 @@
-import request from 'graphql-request';
 import React, { ReactNode, ReactElement, useMemo, useContext } from 'react';
 import { UseMutateAsyncFunction, useMutation } from '@tanstack/react-query';
 import {
@@ -8,7 +7,7 @@ import {
   UPDATE_LAST_BOOT_POPUP,
   UPDATE_LAST_REFERRAL_REMINDER,
 } from '../graphql/alerts';
-import { graphqlUrl } from '../lib/config';
+import { gqlClient } from '../graphql/common';
 
 export const ALERT_DEFAULTS: Alerts = {
   filter: true,
@@ -63,7 +62,7 @@ export const AlertContextProvider = ({
     Alerts
   >(
     (params) =>
-      request(graphqlUrl, UPDATE_ALERTS, {
+      gqlClient.request(UPDATE_ALERTS, {
         data: params,
       }),
     {
@@ -80,7 +79,7 @@ export const AlertContextProvider = ({
   );
 
   const { mutateAsync: updateLastReferralReminder } = useMutation(
-    () => request(graphqlUrl, UPDATE_LAST_REFERRAL_REMINDER),
+    () => gqlClient.request(UPDATE_LAST_REFERRAL_REMINDER),
     {
       onMutate: () =>
         updateAlerts({
@@ -97,7 +96,7 @@ export const AlertContextProvider = ({
   );
 
   const { mutateAsync: updateLastBootPopup } = useMutation(
-    () => request(graphqlUrl, UPDATE_LAST_BOOT_POPUP),
+    () => gqlClient.request(UPDATE_LAST_BOOT_POPUP),
     {
       onMutate: () =>
         updateAlerts({

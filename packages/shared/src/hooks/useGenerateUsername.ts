@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useState, useRef } from 'react';
 import { useRequestProtocol } from './useRequestProtocol';
 import { GET_USERNAME_SUGGESTION } from '../graphql/users';
-import { graphqlUrl } from '../lib/config';
 
 interface UseGenerateUsername {
   username?: string;
@@ -22,7 +21,6 @@ export const useGenerateUsername = (
     usernameQueryKey,
     () =>
       requestMethod(
-        graphqlUrl,
         GET_USERNAME_SUGGESTION,
         { name },
         { requestKey: JSON.stringify(usernameQueryKey) },

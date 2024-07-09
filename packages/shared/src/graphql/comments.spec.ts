@@ -1,6 +1,6 @@
-import request from 'graphql-request';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
 import { deleteComment, DELETE_COMMENT_MUTATION } from './comments';
+import { gqlRequest } from './common';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -25,6 +25,6 @@ it('should send deleteComment query', async () => {
       };
     },
   });
-  await deleteComment(id, request);
+  await deleteComment(id, gqlRequest);
   expect(queryCalled).toBeTruthy();
 });

@@ -12,8 +12,7 @@ import useFeedSettings, {
 import { useExitConfirmation } from '@dailydotdev/shared/src/hooks/useExitConfirmation';
 import { useRouter } from 'next/router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import request, { ClientError } from 'graphql-request';
-import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
+import { ClientError } from 'graphql-request';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import {
@@ -38,6 +37,7 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -92,7 +92,7 @@ const NewFeedPage = (): ReactElement => {
     async ({ name }: NewFeedFormProps) => {
       const result = await createFeed({ name });
 
-      await request(graphqlUrl, ADD_FILTERS_TO_FEED_MUTATION, {
+      await gqlClient.request(ADD_FILTERS_TO_FEED_MUTATION, {
         feedId: result.id,
         filters: {
           includeTags: feedSettings?.includeTags || [],
