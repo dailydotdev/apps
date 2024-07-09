@@ -36,6 +36,7 @@ import {
 } from '../../lib/log';
 import { Justify } from '../utilities';
 import { ReputationAlert } from './ReputationAlert';
+import { useToastNotification } from '../../hooks';
 
 const defaultErrorMessage = 'Something went wrong, try again';
 const formTitle = 'Community picks';
@@ -48,9 +49,9 @@ export default function SubmitArticleModal({
   const { user } = useContext(AuthContext);
   const client = useQueryClient();
   const { logEvent } = useContext(LogContext);
+  const { displayToast } = useToastNotification();
   const [enableSubmission, setEnableSubmission] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [existingArticle, setExistingArticle] = useState<PostItem>(null);
   const [urlHint, setUrlHint] = useState<string>();
   const availabilityKey = ['submission_availability', user?.id];
@@ -118,11 +119,14 @@ export default function SubmitArticleModal({
         submission,
       } = res.submitArticle;
       if (submission) {
-        setIsSubmitted(true);
         const updated = { submissionAvailability };
         updated.submissionAvailability.todaySubmissionsCount += 1;
         client.setQueryData(availabilityKey, updated);
         logEvent({ event_name: 'submit article succeed' });
+        displayToast(
+          'We will notify you about the post-submission status via email',
+        );
+        onRequestClose(null);
       } else if (post) {
         setExistingArticle({ post });
         submitArticleFailEvent('Article exists already');
@@ -255,18 +259,11 @@ export default function SubmitArticleModal({
             valid={!urlHint}
             valueChanged={onUrlChanged}
           />
-          {isSubmitted ? (
+          {submissionAvailability?.todaySubmissionsCount === 3 && (
             <Alert
-              type={AlertType.Success}
-              title="We will notify you about the post-submission status via email"
+              type={AlertType.Error}
+              title="You have reached the limit of 3 submissions per day"
             />
-          ) : (
-            submissionAvailability?.todaySubmissionsCount === 3 && (
-              <Alert
-                type={AlertType.Error}
-                title="You have reached the limit of 3 submissions per day"
-              />
-            )
           )}
           {isEnabled && (
             <EnableNotification
@@ -282,27 +279,16 @@ export default function SubmitArticleModal({
           <PostItemCard postItem={existingArticle} showButtons={false} />
         </div>
       )}
-      <Modal.Footer justify={isSubmitted ? Justify.Center : Justify.End}>
-        {(!isSubmitted || !!existingArticle) && (
-          <Button
-            {...submitButtonProps}
-            variant={ButtonVariant.Primary}
-            type="submit"
-            form="submit-article"
-          >
-            <span className={isValidating ? 'invisible' : ''}>Submit</span>
-          </Button>
-        )}
-        {isSubmitted && (
-          <Button
-            className="max-w-[22.5rem] flex-1"
-            variant={ButtonVariant.Primary}
-            aria-label="Close community picks modal"
-            onClick={onRequestClose}
-          >
-            Close
-          </Button>
-        )}
+      <Modal.Footer justify={Justify.End}>
+        <Button
+          {...submitButtonProps}
+          variant={ButtonVariant.Primary}
+          type="submit"
+          form="submit-article"
+          loading={isValidating}
+        >
+          Submit
+        </Button>
       </Modal.Footer>
     </Modal>
   );
