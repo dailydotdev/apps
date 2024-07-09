@@ -31,7 +31,7 @@ const CommentPopup = dynamic(
 );
 
 export type FeedItemComponentProps = {
-  items: FeedItem[];
+  item: FeedItem;
   index: number;
   row: number;
   column: number;
@@ -77,8 +77,7 @@ export type FeedItemComponentProps = {
   onAdClick: (ad: Ad, row: number, column: number) => void;
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'>;
 
-export function getFeedItemKey(items: FeedItem[], index: number): string {
-  const item = items[index];
+export function getFeedItemKey(item: FeedItem, index: number): string {
   switch (item.type) {
     case 'post':
       return item.post.id;
@@ -130,7 +129,7 @@ const getTags = ({
 };
 
 export default function FeedItemComponent({
-  items,
+  item,
   index,
   row,
   column,
@@ -155,7 +154,6 @@ export default function FeedItemComponent({
   onAdClick,
   onReadArticleClick,
 }: FeedItemComponentProps): ReactElement {
-  const item = items[index];
   const inViewRef = useLogImpression(
     item,
     index,
