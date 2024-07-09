@@ -5,7 +5,6 @@ import { Post, UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import post from '@dailydotdev/shared/__tests__/fixture/post';
 import ExtensionProviders from '../extension/_providers';
 import ActionButtons from '@dailydotdev/shared/src/components/cards/ActionsButtons/ActionButtons';
-import { useFeature } from '../../mock/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useConditionalFeature } from '../../mock/hooks';
 
@@ -27,13 +26,10 @@ const meta: Meta<typeof ActionButtons> = {
     onCopyLinkClick: fn(),
   },
   beforeEach: async () => {
-    useFeature.mockReturnValue({
-      value: false,
-      isLoading: false,
-    });
+    useConditionalFeature.mockReturnValue({ value: false });
   },
   render: (props) => {
-    const currentFeature = useFeature(feature.animatedUpvote);
+    const currentFeature = useConditionalFeature(feature.animatedUpvote);
 
     const [post, setPost] = useState(props.post);
     const onUpvoteClick = async (post: Post) => {
@@ -50,7 +46,7 @@ const meta: Meta<typeof ActionButtons> = {
 
     return (
       <ExtensionProviders>
-        <>Animated upvote button: "{`${currentFeature}`}"</>
+        <>Animated upvote button: "{`${currentFeature.value}`}"</>
         <hr className={'my-4 border-accent-salt-baseline'} />
 
         <div className={'py-20 grid place-items-center'}>
@@ -67,13 +63,12 @@ type Story = StoryObj<typeof ActionButtons>;
 
 export const Default: Story = {
   beforeEach: async () => {
-    useFeature.mockReturnValue(false);
+    useConditionalFeature.mockReturnValue({ value: false });
   },
 };
 
 export const AnimatedUpvote: Story = {
   beforeEach: async () => {
-    useFeature.mockReturnValue(true);
     useConditionalFeature.mockReturnValue({ value: true });
   },
 };

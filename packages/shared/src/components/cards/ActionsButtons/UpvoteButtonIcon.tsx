@@ -1,24 +1,37 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { withExperiment } from '../../withExperiment';
 import { feature } from '../../../lib/featureManagement';
 import { UpvoteIcon } from '../../icons';
 import { IconProps, IconSize } from '../../Icon';
 import { userPrefersReducedMotions } from '../../../styles/media';
-import { useMedia } from '../../../hooks';
+import { useConditionalFeature, useMedia } from '../../../hooks';
 import styles from './ActionButtons.module.css';
 
 type AnimatedButtonIconProps = IconProps & { userClicked?: boolean };
 
 const arrows = Array.from({ length: 5 }, (_, i) => i + 1);
 
-const AnimatedButtonIcon = (props: AnimatedButtonIconProps): ReactElement => {
+export const UpvoteButtonIcon = React.memo(function UpvoteButtonIconComp(
+  props: AnimatedButtonIconProps,
+): ReactElement {
   const { secondary: isUpvoteActive, userClicked } = props;
+
+  const haveUserPrefersReducedMotions = useMedia(
+    [userPrefersReducedMotions.replace('@media', '')],
+    [false],
+    false,
+    false,
+  );
+
+  const { value: isAnimatedVersion } = useConditionalFeature({
+    feature: feature.animatedUpvote,
+    shouldEvaluate: !haveUserPrefersReducedMotions,
+  });
 
   return (
     <span className="pointer-events-none relative">
       <UpvoteIcon secondary={isUpvoteActive} />
-      {userClicked && isUpvoteActive && (
+      {isAnimatedVersion && userClicked && isUpvoteActive && (
         <span
           aria-hidden
           className={classNames(
@@ -39,28 +52,4 @@ const AnimatedButtonIcon = (props: AnimatedButtonIconProps): ReactElement => {
       )}
     </span>
   );
-};
-
-const AnimatedUpvoteButtonIcon = React.memo(
-  function AnimatedUpvoteButtonIconComp(
-    props: AnimatedButtonIconProps,
-  ): ReactElement {
-    const haveUserPrefersReducedMotions = useMedia(
-      [userPrefersReducedMotions.replace('@media', '')],
-      [false],
-      false,
-      false,
-    );
-
-    const Experiment = withExperiment(AnimatedButtonIcon, {
-      feature: feature.animatedUpvote,
-      value: true,
-      fallback: () => <UpvoteIcon secondary={props.secondary} />,
-      shouldEvaluate: !haveUserPrefersReducedMotions,
-    });
-
-    return <Experiment {...props} />;
-  },
-);
-
-export { AnimatedUpvoteButtonIcon as UpvoteButtonIcon };
+});
