@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { Post, UserVote } from '../../../graphql/posts';
 import InteractionCounter from '../../InteractionCounter';
@@ -41,6 +41,7 @@ export default function ActionButtons({
   };
   const isFeedPreview = useFeedPreviewMode();
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
+  const [userUpvoted, setUserUpvoted] = useState(false);
 
   if (isFeedPreview) {
     return null;
@@ -87,11 +88,13 @@ export default function ActionButtons({
           icon={
             <UpvoteButtonIcon
               secondary={post?.userState?.vote === UserVote.Up}
+              userClicked={userUpvoted}
             />
           }
           pressed={isUpvoteActive}
           onClick={() => {
             onUpvoteClick?.(post);
+            setUserUpvoted(true);
           }}
           {...upvoteCommentProps}
           className="btn-tertiary-avocado !min-w-[4.625rem]"
