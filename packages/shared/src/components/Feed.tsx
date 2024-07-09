@@ -417,14 +417,14 @@ export default function Feed<T>({
         isHorizontal={isHorizontal}
         feedContainerRef={feedContainerRef}
       >
-        {items.map((_, index) => (
+        {items.map((item, index) => (
           <FeedItemComponent
-            items={items}
+            item={item}
             index={index}
             row={calculateRow(index, virtualizedNumCards)}
             column={calculateColumn(index, virtualizedNumCards)}
             columns={virtualizedNumCards}
-            key={getFeedItemKey(items, index)}
+            key={getFeedItemKey(item, index)}
             openNewTab={openNewTab}
             postMenuIndex={postMenuIndex}
             showCommentPopupId={showCommentPopupId}
