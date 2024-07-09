@@ -25,14 +25,12 @@ export const withExperiment = <
     feature: Feature<TFeature>;
     value: WidenPrimitives<TFeature>;
     fallback?: ComponentType<Props>;
-    shouldEvaluate?: boolean;
   },
 ): ComponentType<Props> => {
   const WithExperiment = (props: Props): ReactElement => {
     const featureValue = useFeature(options.feature);
-    const { shouldEvaluate = true } = options;
 
-    if (!shouldEvaluate || featureValue !== options.value) {
+    if (featureValue !== options.value) {
       const FallbackComponent = options?.fallback;
 
       return FallbackComponent ? <FallbackComponent {...props} /> : null;
