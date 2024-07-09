@@ -14,7 +14,7 @@ const arrows = Array.from({ length: 5 }, (_, i) => i + 1);
 export const UpvoteButtonIcon = React.memo(function UpvoteButtonIconComp(
   props: AnimatedButtonIconProps,
 ): ReactElement {
-  const { secondary: isUpvoteActive, userClicked } = props;
+  const { secondary: isUpvoteActive, userClicked, ...attrs } = props;
 
   const haveUserPrefersReducedMotions = useMedia(
     [userPrefersReducedMotions.replace('@media', '')],
@@ -30,7 +30,7 @@ export const UpvoteButtonIcon = React.memo(function UpvoteButtonIconComp(
 
   return (
     <span className="pointer-events-none relative">
-      <UpvoteIcon secondary={isUpvoteActive} />
+      <UpvoteIcon secondary={isUpvoteActive} {...attrs} />
       {isAnimatedVersion && userClicked && isUpvoteActive && (
         <span
           aria-hidden
