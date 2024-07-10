@@ -11,18 +11,19 @@ import {
   ReminderPreference,
 } from '../../hooks/notifications/useBookmarkReminder';
 
-export type ReminderModalProps = {
+export interface ReminderModalProps
+  extends Pick<ModalProps, 'isOpen' | 'onRequestClose'> {
   onReminderSet: (reminder: string) => void;
-} & Pick<ModalProps, 'isOpen' | 'onRequestClose'>;
+}
 
-type ReminderModalOptionProps = {
+interface ReminderModalOptionProps {
   onClick: () => void;
   isActive: boolean;
   option: {
     label: ReminderPreference;
     value: string;
   };
-};
+}
 
 const MODAL_OPTIONS: Array<ReminderModalOptionProps['option']> = Object.entries(
   ReminderPreference,
@@ -81,37 +82,35 @@ export const ReminderModal = (props: ReminderModalProps): ReactElement => {
   };
 
   return (
-    <>
-      <Modal
-        size={ModalSize.Small}
-        isOpen={isOpen}
-        onRequestClose={onRequestClose}
-      >
-        <ModalHeader title="Set reminder" />
-        <ModalBody>
-          <form onSubmit={handleSubmit}>
-            <div
-              role="radiogroup"
-              aria-required
-              aria-label="Reminder time options"
-              tabIndex={0}
-            >
-              {MODAL_OPTIONS.map((option) => (
-                <ReminderModalOption
-                  key={option.value}
-                  onClick={() => setSelectedOption(option.value)}
-                  isActive={selectedOption === option.value}
-                  option={option}
-                />
-              ))}
-            </div>
-            <div className="mt-5 flex flex-row justify-center">
-              <Button variant={ButtonVariant.Primary}>Set reminder</Button>
-            </div>
-          </form>
-        </ModalBody>
-      </Modal>
-    </>
+    <Modal
+      size={ModalSize.Small}
+      isOpen={isOpen}
+      onRequestClose={onRequestClose}
+    >
+      <ModalHeader title="Set reminder" />
+      <ModalBody>
+        <form onSubmit={handleSubmit}>
+          <div
+            role="radiogroup"
+            aria-required
+            aria-label="Reminder time options"
+            tabIndex={0}
+          >
+            {MODAL_OPTIONS.map((option) => (
+              <ReminderModalOption
+                key={option.value}
+                onClick={() => setSelectedOption(option.value)}
+                isActive={selectedOption === option.value}
+                option={option}
+              />
+            ))}
+          </div>
+          <div className="mt-5 flex flex-row justify-center">
+            <Button variant={ButtonVariant.Primary}>Set reminder</Button>
+          </div>
+        </form>
+      </ModalBody>
+    </Modal>
   );
 };
 
