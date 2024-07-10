@@ -15,6 +15,7 @@ import {
 } from '@dailydotdev/shared/src/components/icons';
 
 const meta: Meta<typeof NavDrawer> = {
+  title: 'Components/Drawers/NavDrawer',
   component: NavDrawer,
   parameters: {
     controls: {

@@ -28,6 +28,7 @@ const feature = {
   showRoadmap: new Feature('show_roadmap', false),
   seoSidebar: new Feature('seo_sidebar', SeoSidebarExperiment.Control),
   onboardingChecklist: new Feature('onboarding_checklist', false),
+  animatedUpvote: new Feature('animated_upvote', false),
 };
 
 export { feature };

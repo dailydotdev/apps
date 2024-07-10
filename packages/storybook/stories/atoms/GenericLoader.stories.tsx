@@ -6,7 +6,7 @@ import { StoryObj } from '@storybook/react';
 type CustomProps = ComponentProps<typeof GenericLoader> & { label?: string };
 
 const meta: Meta<CustomProps> = {
-  title: 'GenericLoader',
+  title: 'Atoms/GenericLoader',
   component: GenericLoader,
   args: {
     label: 'Preparing...',
