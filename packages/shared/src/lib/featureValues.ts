@@ -23,6 +23,7 @@ export interface FeatureTheme {
   light?: FeatureThemeVariant;
   dark?: FeatureThemeVariant;
   cursor?: string;
+
   [key: string]: number | FeatureThemeVariant | string | undefined;
 }
 

@@ -16,7 +16,7 @@ interface TagComponentProps {
 const TagComponent = ({Tag, children, ...props}: TagComponentProps) => <Tag {...props}>{children}</Tag>
 
 const meta: Meta = {
-  title: 'Typography',
+  title: 'Tokens/Typography',
   args: {
     Tag: 'h1',
     children: 'The quick brown fox jumps over the lazy dog.',

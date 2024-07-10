@@ -3,6 +3,7 @@ import { Pill, PillSize } from '@dailydotdev/shared/src/components/Pill';
 
 
 const meta: Meta<typeof Pill> = {
+  title: "Atoms/Pill",
   component: Pill,
   argTypes: {
     label: {
