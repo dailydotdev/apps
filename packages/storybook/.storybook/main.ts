@@ -4,6 +4,11 @@ import svgrPlugin from 'vite-plugin-svgr';
 import browser from '../mock/webextension-polyfill';
 import * as path from 'node:path';
 
+const GrowthBookMockPath = path.resolve(
+  __dirname,
+  '../mock/GrowthBookProvider.tsx',
+);
+
 const config: StorybookConfig = {
   stories: [
     '../stories/**/*.mdx',
@@ -34,8 +39,14 @@ const config: StorybookConfig = {
         alias: {
           '@growthbook/growthbook': path.resolve(__dirname, '../mock/gb.ts'),
           'node-fetch': path.resolve(__dirname, '../mock/node-fetch.ts'),
-          'webextension-polyfill': path.resolve(__dirname, '../mock/webextension-polyfill.ts'),
+          'webextension-polyfill': path.resolve(
+            __dirname,
+            '../mock/webextension-polyfill.ts',
+          ),
           'next/router': path.resolve(__dirname, '../mock/next-router.ts'),
+          './GrowthBookProvider': GrowthBookMockPath,
+          '../../GrowthBookProvider': GrowthBookMockPath,
+          '../../../hooks': path.resolve(__dirname, '../mock/hooks.ts'),
         },
       },
       define: {

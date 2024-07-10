@@ -5,7 +5,7 @@ import {
   CardTitle,
   getPostClassNames,
 } from './Card';
-import ActionButtons from './ActionButtons';
+import ActionButtons from './ActionsButtons/ActionButtons';
 import { Container, PostCardProps } from './common';
 import FeedItemContainer from './FeedItemContainer';
 import { isVideoPost } from '../../graphql/posts';

@@ -9,7 +9,12 @@ initialize({
 
 const preview: Preview = {
   parameters: {
-    controls: { expanded: true }
+    controls: { expanded: true },
+    options: {
+      storySort: {
+        order: ['Tokens', 'Atoms', 'Components', 'Pages', 'Experiments', 'Extension'],
+      },
+    },
   },
   decorators: [
     withThemeByClassName<ReactRenderer>({

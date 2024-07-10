@@ -1,0 +1,127 @@
+.upvotes {
+
+  .upvote {
+    --upvote-start-x: 0%;
+    --upvote-end-x: 50%;
+
+    --upvote-start-y: 60%;
+    --upvote-end-y: 0;
+
+    --upvote-start-rotate: 0turn;
+    --upvote-end-rotate: 0turn;
+
+    --upvote-start-scale: 1;
+    --upvote-end-scale: 1;
+
+    @apply absolute bottom-0;
+    animation: upvoteToUp 1.2s cubic-bezier(0.54, -0.59, 0.38, 0.73) forwards;
+    left: var(--upvote-start-x);
+    opacity: 0;
+    rotate: var(--upvote-start-rotate);
+    top: var(--upvote-start-y);
+    transform: translate3d(-50%, -50%, 0);
+    will-change: left, top, transform;
+
+    &:nth-child(1) {
+      @apply text-accent-avocado-default;
+      animation-duration: .8s;
+      --upvote-start-x: 20%;
+      --upvote-end-x: 30%;
+      --upvote-start-y: 70%;
+      --upvote-end-y: 0%;
+      --upvote-end-rotate: .015turn;
+    }
+
+    &:nth-child(2) {
+      --upvote-start-x: 70%;
+      --upvote-end-x: 20%;
+      --upvote-start-y: 80%;
+      --upvote-end-y: -30%;
+      --upvote-start-scale: 1.5;
+      --upvote-end-scale: 1.3;
+      --upvote-start-rotate: -.05turn;
+      --upvote-end-rotate: .01turn;
+      @apply text-accent-cabbage-default z-1;
+      animation-delay: .4s;
+      animation-duration: .4s;
+      animation-timing-function: cubic-bezier(0.440, -0.600, 0.460, 0.965);
+    }
+
+    &:nth-child(3) {
+      @apply text-accent-blueCheese-default;
+      animation-delay: .55s;
+      animation-duration: .75s;
+      --upvote-start-x: 75%;
+      --upvote-end-x: 75%;
+      --upvote-start-y: 100%;
+      --upvote-end-y: -60%;
+      --upvote-start-scale: 1.4;
+      --upvote-end-scale: 1.6;
+      z-index: 2;
+    }
+
+    &:nth-child(4) {
+      animation-delay: .55s;
+      animation-duration: .75s;
+      --upvote-start-x: 30%;
+      --upvote-end-x: 40%;
+      --upvote-start-y: 100%;
+      --upvote-end-y: -30%;
+      --upvote-start-rotate: 0;
+      --upvote-end-rotate: .1;
+      --upvote-start-scale: .8;
+      --upvote-end-scale: .8;
+    }
+
+    &:nth-child(5) {
+      @apply text-accent-cheese-default;
+      animation-delay: .45s;
+      animation-duration: .8s;
+
+      --upvote-start-x: 110%;
+      --upvote-end-x: 85%;
+      --upvote-start-y: 100%;
+      --upvote-end-y: -30%;
+      --upvote-start-rotate: 0;
+      --upvote-end-rotate: -.05turn;
+      z-index: 1;
+    }
+  }
+}
+
+@keyframes upvoteToUp {
+  0% {
+    left: var(--upvote-start-x);
+    opacity: 0;
+    rotate: var(--upvote-start-rotate);
+    scale: 0;
+    top: var(--upvote-start-y);
+  }
+
+  15% {
+    opacity: 1;
+  }
+
+  30% {
+    scale: var(--upvote-start-scale);
+  }
+
+  50% {
+    rotate: var(--upvote-start-rotate);
+  }
+
+  95% {
+    rotate: var(--upvote-end-rotate);
+  }
+
+  99% {
+    opacity: 1;
+  }
+
+  100% {
+    top: var(--upvote-end-y);
+    left: var(--upvote-end-x);
+    scale: var(--upvote-end-scale);
+    opacity: 0;
+  }
+}
