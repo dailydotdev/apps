@@ -1,13 +1,14 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useActiveFeedNameContext } from '../contexts';
 import { SharedFeedPage } from '../components/utilities';
+import { isNullOrUndefined } from '../lib/func';
 
 interface UseBookmarkProviderReturn {
   highlightBookmarkedPost: boolean;
 }
 
 interface UseBookmarkProviderProps {
-  bookmarked?: boolean;
+  bookmarked: boolean;
 }
 
 interface UseJustBookmarked {
@@ -16,12 +17,23 @@ interface UseJustBookmarked {
 }
 
 export const useJustBookmarked = ({
-  bookmarked = false,
+  bookmarked,
 }: UseBookmarkProviderProps): UseJustBookmarked => {
-  const wasBookmarked = useRef<boolean>(bookmarked);
-  const justBookmarked = bookmarked !== wasBookmarked.current && bookmarked;
+  const wasBookmarkedRef = useRef<boolean>(bookmarked);
+  const justBookmarked = bookmarked !== wasBookmarkedRef.current && bookmarked;
 
-  return { justBookmarked, wasBookmarked: wasBookmarked.current };
+  useEffect(() => {
+    const isInitialRender =
+      isNullOrUndefined(wasBookmarkedRef.current) &&
+      !isNullOrUndefined(bookmarked);
+    const turnedOffBookmark = wasBookmarkedRef.current && !bookmarked;
+
+    if (isInitialRender || turnedOffBookmark) {
+      wasBookmarkedRef.current = bookmarked;
+    }
+  }, [bookmarked]);
+
+  return { justBookmarked, wasBookmarked: wasBookmarkedRef.current };
 };
 
 const useBookmarkProvider = ({
