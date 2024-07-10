@@ -1,11 +1,15 @@
-import { FormEventHandler, ReactElement, useState } from 'react';
+import React, { FormEventHandler, ReactElement, useState } from 'react';
 import classNames from 'classnames';
-import { addHours, format } from 'date-fns';
+import { format } from 'date-fns';
 import { Modal, ModalProps } from '../modals/common/Modal';
 import { ModalHeader } from '../modals/common/ModalHeader';
 import { ModalBody } from '../modals/common/ModalBody';
 import { ModalSize } from '../modals/common/types';
 import { Button, ButtonVariant } from '../buttons/Button';
+import {
+  getRemindAt,
+  ReminderPreference,
+} from '../../hooks/notifications/useBookmarkReminder';
 
 export type ReminderModalProps = {
   onReminderSet: (reminder: string) => void;
@@ -20,15 +24,6 @@ type ReminderModalItemProps = {
   };
 };
 
-// todo: replace with one coming from hook
-enum ReminderPreference {
-  OneHour = 'In 1 hour',
-  LaterToday = 'Later today',
-  Tomorrow = 'Tomorrow',
-  TwoDays = 'In 2 days',
-  NextWeek = 'Next week',
-}
-
 const MODAL_OPTIONS: Array<ReminderModalItemProps['option']> = Object.entries(
   ReminderPreference,
 ).map(([value, label]) => ({
@@ -36,15 +31,22 @@ const MODAL_OPTIONS: Array<ReminderModalItemProps['option']> = Object.entries(
   label,
 }));
 
-const getRemindAt = (date: Date, preference: ReminderPreference) =>
-  addHours(date, 1);
+const TIME_FOR_OPTION_FORMAT_MAP = {
+  [ReminderPreference.OneHour]: null,
+  [ReminderPreference.LaterToday]: 'h:mm a',
+  [ReminderPreference.Tomorrow]: 'eee, h:mm a',
+  [ReminderPreference.TwoDays]: 'eee, h:mm a',
+  [ReminderPreference.NextWeek]: 'eee, MMM d, h:mm a',
+};
 
 const ReminderModalOption = (props: ReminderModalItemProps) => {
   const { option, onClick, isActive } = props;
   const { label, value } = option;
 
   const now = new Date();
-  const timeForOption = format(getRemindAt(now, label), 'h:mm a');
+  const timeFormat = TIME_FOR_OPTION_FORMAT_MAP[label];
+  const timeForOption =
+    timeFormat && format(getRemindAt(now, label), timeFormat);
 
   return (
     <Button
@@ -62,7 +64,9 @@ const ReminderModalOption = (props: ReminderModalItemProps) => {
         className={classNames('flex-1 text-left', { 'text-white': isActive })}
       >
         {label}
-        <span className="text-text-quaternary"> ({timeForOption})</span>
+        {timeForOption && (
+          <span className="text-text-quaternary"> ({timeForOption})</span>
+        )}
       </span>
     </Button>
   );
