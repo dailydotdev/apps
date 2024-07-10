@@ -9,6 +9,8 @@ import { Post } from '../../../graphql/posts';
 import { BookmarkReminderIcon } from '../../icons/Bookmark/Reminder';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { IconSize } from '../../Icon';
+import { useLazyModal } from '../../../hooks/useLazyModal';
+import { LazyModal } from '../../modals/common/types';
 
 interface PostContentReminderProps {
   post: Post;
@@ -19,6 +21,7 @@ export function PostContentReminder({
 }: PostContentReminderProps): ReactElement {
   const shouldShowReminder = useBookmarkReminderEnrollment(post);
   const { onBookmarkReminder } = useBookmarkReminder();
+  const { openModal } = useLazyModal();
 
   if (!shouldShowReminder) {
     return null;
@@ -55,9 +58,7 @@ export function PostContentReminder({
         <Button
           variant={ButtonVariant.Float}
           size={ButtonSize.XSmall}
-          onClick={() => {
-            // open modal
-          }}
+          onClick={() => openModal({ type: LazyModal.ReadItLater })}
         >
           Other
         </Button>
