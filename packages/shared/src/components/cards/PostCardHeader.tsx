@@ -10,7 +10,7 @@ import { useFeedPreviewMode } from '../../hooks';
 import { getReadPostButtonText, Post } from '../../graphql/posts';
 import { ButtonVariant } from '../buttons/Button';
 import { FlagProps } from './FeedItemContainer';
-import useBookmarkProvider from '../../hooks/useBookmarkProvider';
+import useBookmarkProvider from '../../hooks/bookmark/useBookmarkProvider';
 import {
   BookmakProviderHeader,
   headerHiddenClassName,

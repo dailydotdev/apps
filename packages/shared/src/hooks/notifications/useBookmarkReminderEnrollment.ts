@@ -1,4 +1,4 @@
-import { useJustBookmarked } from '../useBookmarkProvider';
+import { useJustBookmarked } from '../bookmark';
 import { useConditionalFeature } from '../useConditionalFeature';
 import { feature } from '../../lib/featureManagement';
 import { Post } from '../../graphql/posts';
