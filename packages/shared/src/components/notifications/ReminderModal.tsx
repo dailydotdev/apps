@@ -17,8 +17,8 @@ export interface ReminderModalProps
 }
 
 interface ReminderModalOptionProps {
-  onClick: () => void;
   isActive: boolean;
+  onClick: () => void;
   option: {
     label: ReminderPreference;
     value: string;
@@ -83,16 +83,16 @@ export const ReminderModal = (props: ReminderModalProps): ReactElement => {
 
   return (
     <Modal
-      size={ModalSize.Small}
-      isOpen={isOpen}
-      onRequestClose={onRequestClose}
-      isDrawerOnMobile
       drawerProps={{
         title: 'Set reminder',
         className: {
           title: '!block text-center border-transparent !typo-title2 pb-2',
         },
       }}
+      isDrawerOnMobile={isOpen}
+      isOpen={isOpen}
+      onRequestClose={onRequestClose}
+      size={ModalSize.Small}
     >
       <ModalHeader title="Set reminder" />
       <ModalBody>
