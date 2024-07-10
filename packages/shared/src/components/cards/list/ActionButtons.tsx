@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import { Post, UserVote } from '../../../graphql/posts';
 import InteractionCounter from '../../InteractionCounter';
 import {
-  UpvoteIcon,
   BookmarkIcon,
   DownvoteIcon,
   DiscussIcon as CommentIcon,
