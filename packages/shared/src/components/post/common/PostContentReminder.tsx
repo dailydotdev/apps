@@ -27,7 +27,7 @@ export function PostContentReminder({
   const runBookmarkReminder = (preference: ReminderPreference) =>
     onBookmarkReminder({
       postId: post.id,
-      existingReminder: post.bookmark.remindAt,
+      existingReminder: post.bookmark?.remindAt,
       preference,
     });
 

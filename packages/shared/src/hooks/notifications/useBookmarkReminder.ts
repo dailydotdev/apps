@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { addDays, addHours, nextMonday, setHours } from 'date-fns';
 import {
@@ -6,6 +6,7 @@ import {
   SetBookmarkReminderProps,
 } from '../../graphql/bookmarks';
 import { useToastNotification } from '../useToastNotification';
+import { updatePostCache } from '../usePostById';
 
 export enum ReminderPreference {
   OneHour = 'In 1 hour',
@@ -51,13 +52,17 @@ export const getRemindAt = (
 };
 
 export const useBookmarkReminder = (): UseBookmarkReminder => {
+  const client = useQueryClient();
   const { displayToast } = useToastNotification();
   const { mutateAsync: onUndoReminder } = useMutation(setBookmarkReminder);
   const { mutateAsync: onSetBookmarkReminder } = useMutation(
     ({ postId, remindAt }: MutateBookmarkProps) =>
       setBookmarkReminder({ postId, remindAt }),
     {
-      onSuccess: (_, { postId, existingReminder, preference }) => {
+      onSuccess: (_, { postId, existingReminder, preference, remindAt }) => {
+        updatePostCache(client, postId, (post) => ({
+          bookmark: { ...post.bookmark, remindAt },
+        }));
         displayToast(`Reminder set for ${preference.toLowerCase()}`, {
           onUndo: () => onUndoReminder({ postId, remindAt: existingReminder }),
         });
