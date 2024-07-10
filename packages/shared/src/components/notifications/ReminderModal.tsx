@@ -15,7 +15,7 @@ export type ReminderModalProps = {
   onReminderSet: (reminder: string) => void;
 } & Pick<ModalProps, 'isOpen' | 'onRequestClose'>;
 
-type ReminderModalItemProps = {
+type ReminderModalOptionProps = {
   onClick: () => void;
   isActive: boolean;
   option: {
@@ -24,7 +24,7 @@ type ReminderModalItemProps = {
   };
 };
 
-const MODAL_OPTIONS: Array<ReminderModalItemProps['option']> = Object.entries(
+const MODAL_OPTIONS: Array<ReminderModalOptionProps['option']> = Object.entries(
   ReminderPreference,
 ).map(([value, label]) => ({
   value,
@@ -39,7 +39,7 @@ const TIME_FOR_OPTION_FORMAT_MAP = {
   [ReminderPreference.NextWeek]: 'eee, MMM d, h:mm a',
 };
 
-const ReminderModalOption = (props: ReminderModalItemProps) => {
+const ReminderModalOption = (props: ReminderModalOptionProps) => {
   const { option, onClick, isActive } = props;
   const { label, value } = option;
 
