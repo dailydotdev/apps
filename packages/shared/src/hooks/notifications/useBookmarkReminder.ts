@@ -30,7 +30,10 @@ interface UseBookmarkReminder {
   onBookmarkReminder: (props: BookmarkReminderProps) => void;
 }
 
-const getRemindAt = (date: Date, preference: ReminderPreference) => {
+export const getRemindAt = (
+  date: Date,
+  preference: ReminderPreference,
+): Date => {
   switch (preference) {
     case ReminderPreference.OneHour:
       return addHours(date, 1);
