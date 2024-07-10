@@ -86,6 +86,13 @@ export const ReminderModal = (props: ReminderModalProps): ReactElement => {
       size={ModalSize.Small}
       isOpen={isOpen}
       onRequestClose={onRequestClose}
+      isDrawerOnMobile
+      drawerProps={{
+        title: 'Set reminder',
+        className: {
+          title: '!block text-center border-transparent !typo-title2 pb-2',
+        },
+      }}
     >
       <ModalHeader title="Set reminder" />
       <ModalBody>
@@ -106,7 +113,12 @@ export const ReminderModal = (props: ReminderModalProps): ReactElement => {
             ))}
           </div>
           <div className="mt-5 flex flex-row justify-center">
-            <Button variant={ButtonVariant.Primary}>Set reminder</Button>
+            <Button
+              className="w-full responsiveModalBreakpoint:w-auto"
+              variant={ButtonVariant.Primary}
+            >
+              Set reminder
+            </Button>
           </div>
         </form>
       </ModalBody>
