@@ -1,6 +1,10 @@
 import { useState } from 'react';
 
-export const useToggle = (initialState = false) => {
+type UseToggle = (
+  initialState: boolean,
+) => readonly [boolean, (forced?: boolean) => void];
+
+export const useToggle: UseToggle = (initialState) => {
   const [state, setState] = useState(initialState);
   const toggle = (forced?: boolean) => {
     if (typeof forced === 'boolean') {
@@ -8,7 +12,7 @@ export const useToggle = (initialState = false) => {
       return;
     }
 
-    setState((state) => !state);
+    setState((value) => !value);
   };
   return [state, toggle] as const;
 };
