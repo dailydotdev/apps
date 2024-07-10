@@ -25,7 +25,7 @@ const meta: Meta<typeof ReminderModal> = {
             {...props}
             isOpen={isOpen}
             onRequestClose={() => {
-              toggle();
+              toggle(false);
             }}
           />
         </div>
