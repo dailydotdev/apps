@@ -60,9 +60,7 @@ const ReminderModalOption = (props: ReminderModalItemProps) => {
       value={value}
       variant={isActive ? ButtonVariant.Float : ButtonVariant.Option}
     >
-      <span
-        className={classNames('flex-1 text-left', { 'text-white': isActive })}
-      >
+      <span className={classNames('flex-1 text-left')}>
         {label}
         {timeForOption && (
           <span className="text-text-quaternary"> ({timeForOption})</span>
