@@ -1,7 +1,7 @@
 import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
 import classNames from 'classnames';
 import { FreeformCardTitle, getPostClassNames } from './Card';
-import ActionButtons from './ActionButtons';
+import ActionButtons from './ActionsButtons/ActionButtons';
 import { Container, generateTitleClamp, PostCardProps } from './common';
 import OptionsButton from '../buttons/OptionsButton';
 import { WelcomePostCardFooter } from './WelcomePostCardFooter';

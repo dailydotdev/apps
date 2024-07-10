@@ -10,7 +10,7 @@ const iconMap = {...icons};
 type CustomProps = ComponentProps<typeof Icon> & { renderIcon: React.ReactElement };
 
 const meta: Meta<CustomProps> = {
-  title: 'Icon',
+  title: 'Atoms/Icon',
   component: Icon,
   args: {
     renderIcon: 'AiIcon',

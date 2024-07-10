@@ -1,9 +1,8 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { Post, UserVote } from '../../../graphql/posts';
 import InteractionCounter from '../../InteractionCounter';
 import {
-  UpvoteIcon,
   BookmarkIcon,
   DownvoteIcon,
   DiscussIcon as CommentIcon,
@@ -12,13 +11,14 @@ import {
 import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
 import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
 import { useFeedPreviewMode } from '../../../hooks';
-import { ActionButtonsProps } from '../ActionButtons';
 import { combinedClicks } from '../../../lib/click';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { IconSize } from '../../Icon';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
+import { ActionButtonsProps } from '../ActionsButtons';
+import { UpvoteButtonIcon } from '../ActionsButtons/UpvoteButtonIcon';
 
 interface ActionButtonsPropsList extends ActionButtonsProps {
   onDownvoteClick?: (post: Post) => unknown;
@@ -36,6 +36,7 @@ export default function ActionButtons({
   const isFeedPreview = useFeedPreviewMode();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
+  const [userUpvoted, setUserUpvoted] = useState(false);
 
   if (isFeedPreview) {
     return null;
@@ -76,12 +77,16 @@ export default function ActionButtons({
               id={`post-${post.id}-upvote-btn`}
               color={ButtonColor.Avocado}
               pressed={post?.userState?.vote === UserVote.Up}
-              onClick={() => onUpvoteClick?.(post)}
+              onClick={() => {
+                onUpvoteClick?.(post);
+                setUserUpvoted(true);
+              }}
               variant={ButtonVariant.Tertiary}
             >
-              <UpvoteIcon
+              <UpvoteButtonIcon
                 secondary={post?.userState?.vote === UserVote.Up}
                 size={IconSize.Medium}
+                userClicked={userUpvoted}
               />
               {post?.numUpvotes > 0 ? (
                 <InteractionCounter

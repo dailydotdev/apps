@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import YoutubeVideo from '@dailydotdev/shared/src/components/video/YoutubeVideo';
+import YoutubeVideo
+  from '@dailydotdev/shared/src/components/video/YoutubeVideo';
 
 const meta: Meta<typeof YoutubeVideo> = {
+  title: 'Atoms/YoutubeVideo',
   component: YoutubeVideo,
 };
 
