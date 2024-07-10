@@ -66,13 +66,13 @@ export const useBookmarkReminder = (): UseBookmarkReminder => {
     (props: BookmarkReminderProps) => {
       const { preference } = props;
       const now = new Date();
-      const preferenceValid =
+      const isValidPreference =
         Object.values(ReminderPreference).includes(preference);
       const isPastLaterToday = now.getHours() >= 19;
-      const laterTodayValid =
+      const isInvalidLaterToday =
         ReminderPreference.LaterToday === preference && isPastLaterToday;
 
-      if (!preferenceValid || laterTodayValid) {
+      if (!isValidPreference || isInvalidLaterToday) {
         throw new Error('Invalid preference');
       }
 
