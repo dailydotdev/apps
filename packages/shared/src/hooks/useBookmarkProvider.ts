@@ -10,16 +10,29 @@ interface UseBookmarkProviderProps {
   bookmarked?: boolean;
 }
 
+interface UseJustBookmarked {
+  justBookmarked: boolean;
+  wasBookmarked: boolean;
+}
+
+export const useJustBookmarked = ({
+  bookmarked = false,
+}: UseBookmarkProviderProps): UseJustBookmarked => {
+  const wasBookmarked = useRef<boolean>(bookmarked);
+  const justBookmarked = bookmarked !== wasBookmarked.current && bookmarked;
+
+  return { justBookmarked, wasBookmarked: wasBookmarked.current };
+};
+
 const useBookmarkProvider = ({
   bookmarked = false,
 }: UseBookmarkProviderProps): UseBookmarkProviderReturn => {
-  const isBookmarked = useRef<boolean>(bookmarked);
   const { feedName } = useActiveFeedNameContext();
-  const justBookmarked = bookmarked !== isBookmarked.current && bookmarked;
+  const { justBookmarked, wasBookmarked } = useJustBookmarked({ bookmarked });
 
   const isMyFeed = feedName === SharedFeedPage.MyFeed;
   const highlightBookmarkedPost =
-    isMyFeed && isBookmarked.current && !justBookmarked && bookmarked;
+    isMyFeed && wasBookmarked && !justBookmarked && bookmarked;
 
   return {
     highlightBookmarkedPost,

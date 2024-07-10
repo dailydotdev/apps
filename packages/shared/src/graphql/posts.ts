@@ -11,6 +11,7 @@ import {
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
 import { acceptedTypesList, MEGABYTE } from '../components/fields/ImageInput';
+import { Bookmark } from './bookmarks';
 
 export type ReportReason = 'BROKEN' | 'NSFW' | 'CLICKBAIT' | 'LOW';
 
@@ -122,6 +123,7 @@ export interface Post {
   videoId?: string;
   updatedAt?: string;
   slug?: string;
+  bookmark?: Bookmark;
 }
 
 export type RelatedPost = Pick<
