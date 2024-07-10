@@ -17,6 +17,7 @@ export function optimisticPostUpdateInFeed(
     updatePost(item.page, item.index, {
       ...post,
       ...mutationFunction(post),
+      bookmark: { createdAt: new Date() },
     });
     return () => updatePost(item.page, item.index, post);
   };

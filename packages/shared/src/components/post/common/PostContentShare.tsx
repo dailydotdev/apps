@@ -30,7 +30,7 @@ export function PostContentShare({
 
   return (
     <PostContentWidget
-      className="mt-2"
+      className="mt-6"
       title="Should anyone else see this post?"
     >
       <InviteLinkInput

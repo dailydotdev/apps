@@ -1,16 +1,15 @@
 import { useJustBookmarked } from '../useBookmarkProvider';
 import { useConditionalFeature } from '../useConditionalFeature';
 import { feature } from '../../lib/featureManagement';
-import { Bookmark } from '../../graphql/bookmarks';
+import { Post } from '../../graphql/posts';
 
-export const useBookmarkReminderEnrollment = (bookmark: Bookmark): boolean => {
-  const { justBookmarked } = useJustBookmarked({ bookmarked: !!bookmark });
-  const isBookmarked = !!bookmark && !bookmark.remindAt;
-  const shouldShowReminder = justBookmarked && !bookmark.remindAt;
+export const useBookmarkReminderEnrollment = (post: Post): boolean => {
+  const { justBookmarked } = useJustBookmarked({ bookmarked: post.bookmarked });
+  const shouldShowReminder = justBookmarked && !post.bookmark?.remindAt;
   const { value: readItLater } = useConditionalFeature({
     feature: feature.readItLater,
-    shouldEvaluate: shouldShowReminder || isBookmarked,
+    shouldEvaluate: shouldShowReminder,
   });
 
-  return readItLater;
+  return shouldShowReminder && readItLater;
 };

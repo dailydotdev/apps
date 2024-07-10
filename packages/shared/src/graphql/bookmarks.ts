@@ -11,7 +11,7 @@ export const SET_BOOKMARK_REMINDER = gql`
 `;
 
 export interface Bookmark {
-  createdAt: string;
+  createdAt: Date;
   remindAt?: Date;
 }
 
