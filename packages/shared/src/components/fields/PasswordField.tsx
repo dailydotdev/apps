@@ -72,6 +72,7 @@ export function PasswordField({
           ? passwordStrengthStates[passwordStrengthLevel].className
           : 'text-status-error',
         baseField: shouldShowStrength && `password-${passwordStrengthLevel}`,
+        input: 'hide-ms-reveal',
       }}
       progress={
         shouldShowStrength &&
