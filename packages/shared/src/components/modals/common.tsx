@@ -162,6 +162,7 @@ export const modals = {
   [LazyModal.SubmitSquadForReview]: SubmitSquadForReviewModal,
   [LazyModal.PrivilegedMembers]: PrivilegedMemberModal,
   [LazyModal.FirefoxPrivacy]: FirefoxPrivacyModal,
+  [LazyModal.ReadItLater]: null,
 };
 
 type GetComponentProps<T> = T extends
