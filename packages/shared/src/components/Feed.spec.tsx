@@ -75,7 +75,7 @@ import { ActionType, COMPLETE_ACTION_MUTATION } from '../graphql/actions';
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
 
-jest.mock('../hooks/bookmark/useBookmarkProvider', () => ({
+jest.mock('../hooks/useBookmarkProvider', () => ({
   __esModule: true,
   default: jest
     .fn()

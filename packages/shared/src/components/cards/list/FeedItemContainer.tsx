@@ -15,7 +15,7 @@ import { RaisedLabel, RaisedLabelType } from './RaisedLabel';
 import { useFeedPreviewMode } from '../../../hooks';
 import { TypeLabel } from './TypeLabel';
 import { bookmarkProviderListBg } from '../../../styles/custom';
-import useBookmarkProvider from '../../../hooks/bookmark/useBookmarkProvider';
+import useBookmarkProvider from '../../../hooks/useBookmarkProvider';
 
 interface FeedItemContainerProps {
   flagProps?: FlagProps;

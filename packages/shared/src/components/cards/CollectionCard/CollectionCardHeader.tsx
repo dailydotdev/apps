@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { SourceAvatarProps } from '../../profile/source';
 import { CollectionPillSources } from '../../post/collection';
 import OptionsButton from '../../buttons/OptionsButton';
-import useBookmarkProvider from '../../../hooks/bookmark/useBookmarkProvider';
+import useBookmarkProvider from '../../../hooks/useBookmarkProvider';
 import {
   BookmakProviderHeader,
   headerHiddenClassName,

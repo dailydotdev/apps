@@ -10,7 +10,7 @@ import { ButtonVariant } from '../../buttons/common';
 import PostMetadata, { PostMetadataProps } from './PostMetadata';
 import { MenuIcon, OpenLinkIcon } from '../../icons';
 import { useReadPostButtonText } from './hooks';
-import useBookmarkProvider from '../../../hooks/bookmark/useBookmarkProvider';
+import useBookmarkProvider from '../../../hooks/useBookmarkProvider';
 import { BookmakProviderHeader } from './BookmarkProviderHeader';
 
 interface CardHeaderProps {
