@@ -11,6 +11,7 @@ const meta: Meta<typeof ReminderModal> = {
   component: ReminderModal,
   args: {
     onReminderSet: fn(),
+    onRequestClose: fn(),
   },
   beforeEach: async () => {},
   render: (props) => {
@@ -23,11 +24,19 @@ const meta: Meta<typeof ReminderModal> = {
           <ReminderModal
             {...props}
             isOpen={isOpen}
-            onRequestClose={() => toggle()}
+            onRequestClose={() => {
+              toggle();
+            }}
           />
         </div>
       </ExtensionProviders>
     );
+  },
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/proto/nmfWPS7x3kzLUvYMkBx2kW/daily.dev---Dev-Mode?node-id=11948-88340&t=gwv0XNAQIwQWLzOS-0&scaling=min-zoom&content-scaling=fixed&page-id=11947%3A88177',
+    },
   },
 };
 
