@@ -19,7 +19,6 @@ const Wrapper = ({ children }) => (
 
 describe('useBookmarkReminder hook', () => {
   beforeEach(() => {
-    process.env.TZ = 'UTC'; // unfortunately this doesn't work. the offset is still there
     mockedNow = new Date(2024, 6, 14, 15, 0, 0); // Sun Jul 14 2024 15:00:00
     client.clear();
     jest.useFakeTimers('modern').setSystemTime(mockedNow);
