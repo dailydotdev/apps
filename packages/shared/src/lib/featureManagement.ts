@@ -29,6 +29,7 @@ const feature = {
   seoSidebar: new Feature('seo_sidebar', SeoSidebarExperiment.Control),
   onboardingChecklist: new Feature('onboarding_checklist', false),
   readItLater: new Feature('read_it_later', false),
+  animatedUpvote: new Feature('animated_upvote', false),
 };
 
 export { feature };

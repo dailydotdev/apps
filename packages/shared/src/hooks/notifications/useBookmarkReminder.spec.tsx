@@ -1,12 +1,8 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
-import { addDays, addHours } from 'date-fns';
-import {
-  getNextMonday,
-  BookmarkReminderPreference,
-  useBookmarkReminder,
-} from './useBookmarkReminder';
+import { addDays, addHours, nextMonday } from 'date-fns';
+import { ReminderPreference, useBookmarkReminder } from './useBookmarkReminder';
 import { setBookmarkReminder } from '../../graphql/bookmarks';
 
 jest.mock('../../graphql/bookmarks', () => ({
@@ -23,7 +19,6 @@ const Wrapper = ({ children }) => (
 
 describe('useBookmarkReminder hook', () => {
   beforeEach(() => {
-    process.env.TZ = 'UTC'; // unfortunately this doesn't work. the offset is still there
     mockedNow = new Date(2024, 6, 14, 15, 0, 0); // Sun Jul 14 2024 15:00:00
     client.clear();
     jest.useFakeTimers('modern').setSystemTime(mockedNow);
@@ -41,7 +36,7 @@ describe('useBookmarkReminder hook', () => {
 
     result.current.onBookmarkReminder({
       postId: 'p1',
-      preference: BookmarkReminderPreference.OneHour,
+      preference: ReminderPreference.OneHour,
     });
 
     const nextHour = addHours(mockedNow, 1);
@@ -61,7 +56,7 @@ describe('useBookmarkReminder hook', () => {
 
     result.current.onBookmarkReminder({
       postId: 'p1',
-      preference: BookmarkReminderPreference.LaterToday,
+      preference: ReminderPreference.LaterToday,
     });
 
     const laterToday = new Date(mockedNow.setHours(19));
@@ -82,7 +77,7 @@ describe('useBookmarkReminder hook', () => {
 
     result.current.onBookmarkReminder({
       postId: 'p1',
-      preference: BookmarkReminderPreference.LaterToday,
+      preference: ReminderPreference.LaterToday,
     });
 
     jest.useRealTimers();
@@ -98,7 +93,7 @@ describe('useBookmarkReminder hook', () => {
 
     result.current.onBookmarkReminder({
       postId: 'p1',
-      preference: BookmarkReminderPreference.Tomorrow,
+      preference: ReminderPreference.Tomorrow,
     });
 
     const tomorrow = addDays(mockedNow.setHours(9), 1);
@@ -121,7 +116,7 @@ describe('useBookmarkReminder hook', () => {
 
     result.current.onBookmarkReminder({
       postId: 'p1',
-      preference: BookmarkReminderPreference.TwoDays,
+      preference: ReminderPreference.TwoDays,
     });
 
     const twoDays = addDays(mockedNow.setHours(9), 2);
@@ -144,36 +139,18 @@ describe('useBookmarkReminder hook', () => {
 
     result.current.onBookmarkReminder({
       postId: 'p1',
-      preference: BookmarkReminderPreference.NextWeek,
+      preference: ReminderPreference.NextWeek,
     });
 
-    const nextMonday = new Date(getNextMonday(mockedNow).setHours(9));
-    expect(nextMonday.getDay()).toBe(1); // Monday
-    expect(nextMonday.getDate()).toBe(15); // 15th
+    const nextMondayReminder = nextMonday(mockedNow.setHours(9));
+    expect(nextMondayReminder.getDay()).toBe(1); // Monday
+    expect(nextMondayReminder.getDate()).toBe(15); // 15th
     jest.useRealTimers();
     await waitFor(() => {
       expect(setBookmarkReminder).toHaveBeenCalledWith({
         postId: 'p1',
-        remindAt: nextMonday,
+        remindAt: nextMondayReminder,
       });
     });
-  });
-});
-
-describe('function getNextMonday', () => {
-  it('should return the next Monday', () => {
-    const date = new Date(2024, 6, 14, 15, 0, 0); // Sun Jul 14 2024 15:00:00
-    const nextMonday = getNextMonday(date);
-
-    expect(nextMonday.getDay()).toBe(1); // Monday
-    expect(nextMonday.getDate()).toBe(15); // 15th
-  });
-
-  it('should return the next Monday if today is Monday', () => {
-    const date = new Date(2024, 6, 15, 15, 0, 0); // Mon Jul 15 2024 15:00:00
-    const nextMonday = getNextMonday(date);
-
-    expect(nextMonday.getDay()).toBe(1); // Monday
-    expect(nextMonday.getDate()).toBe(22); // 22nd
   });
 });

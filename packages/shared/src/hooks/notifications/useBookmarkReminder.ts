@@ -1,13 +1,13 @@
 import { useMutation } from '@tanstack/react-query';
 import { useCallback } from 'react';
-import { addDays, addHours } from 'date-fns';
+import { addDays, addHours, nextMonday, setHours } from 'date-fns';
 import {
   setBookmarkReminder,
   SetBookmarkReminderProps,
 } from '../../graphql/bookmarks';
 import { useToastNotification } from '../useToastNotification';
 
-export enum BookmarkReminderPreference {
+export enum ReminderPreference {
   OneHour = 'In 1 hour',
   LaterToday = 'Later today',
   Tomorrow = 'Tomorrow',
@@ -17,12 +17,12 @@ export enum BookmarkReminderPreference {
 
 interface MutateBookmarkProps extends SetBookmarkReminderProps {
   existingReminder?: Date;
-  preference: BookmarkReminderPreference;
+  preference: ReminderPreference;
 }
 
 interface BookmarkReminderProps {
   postId: string;
-  preference: BookmarkReminderPreference;
+  preference: ReminderPreference;
   existingReminder?: Date;
 }
 
@@ -30,34 +30,21 @@ interface UseBookmarkReminder {
   onBookmarkReminder: (props: BookmarkReminderProps) => void;
 }
 
-export function getNextMonday(date: Date): Date {
-  const nextMonday = new Date(date);
-  const day = date.getDay();
-  const daysUntilNextMonday = (8 - day) % 7 || 7; // 8 % 7 = 1 (if today is Monday, get the next Monday)
-  nextMonday.setDate(date.getDate() + daysUntilNextMonday);
-  return nextMonday;
-}
-
-const getRemindAt = (date: Date, preference: BookmarkReminderPreference) => {
-  const isPastLaterToday = date.getHours() >= 19;
-  if (
-    !Object.values(BookmarkReminderPreference).includes(preference) ||
-    (BookmarkReminderPreference.LaterToday === preference && isPastLaterToday)
-  ) {
-    throw new Error('Invalid preference');
-  }
-
+export const getRemindAt = (
+  date: Date,
+  preference: ReminderPreference,
+): Date => {
   switch (preference) {
-    case BookmarkReminderPreference.OneHour:
+    case ReminderPreference.OneHour:
       return addHours(date, 1);
-    case BookmarkReminderPreference.LaterToday:
-      return new Date(date.setHours(19));
-    case BookmarkReminderPreference.Tomorrow:
+    case ReminderPreference.LaterToday:
+      return setHours(date, 19);
+    case ReminderPreference.Tomorrow:
       return addDays(date.setHours(9), 1);
-    case BookmarkReminderPreference.TwoDays:
+    case ReminderPreference.TwoDays:
       return addDays(date.setHours(9), 2);
-    case BookmarkReminderPreference.NextWeek:
-      return new Date(getNextMonday(date).setHours(9));
+    case ReminderPreference.NextWeek:
+      return nextMonday(date.setHours(9));
     default:
       return addHours(date, 1);
   }
@@ -82,13 +69,13 @@ export const useBookmarkReminder = (): UseBookmarkReminder => {
     (props: BookmarkReminderProps) => {
       const { preference } = props;
       const now = new Date();
+      const isValidPreference =
+        Object.values(ReminderPreference).includes(preference);
       const isPastLaterToday = now.getHours() >= 19;
+      const isInvalidLaterToday =
+        ReminderPreference.LaterToday === preference && isPastLaterToday;
 
-      if (
-        !Object.values(BookmarkReminderPreference).includes(preference) ||
-        (BookmarkReminderPreference.LaterToday === preference &&
-          isPastLaterToday)
-      ) {
+      if (!isValidPreference || isInvalidLaterToday) {
         throw new Error('Invalid preference');
       }
 

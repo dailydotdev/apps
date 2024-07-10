@@ -7,3 +7,4 @@ export const laptopL = `@media (min-width: 1360px)`;
 export const laptopXL = `@media (min-width: 1668px)`;
 export const desktop = `@media (min-width: 1976px)`;
 export const desktopL = `@media (min-width: 2156px)`;
+export const userPrefersReducedMotions = `@media (prefers-reduced-motion)`;

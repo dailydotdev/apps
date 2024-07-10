@@ -5,6 +5,7 @@ import { SharePostCard } from './SharePostCard';
 import { sharePost } from '../../../__tests__/fixture/post';
 import { PostCardProps } from './common';
 import { PostType } from '../../graphql/posts';
+import { AuthContextProvider } from '../../contexts/AuthContext';
 
 const post = sharePost;
 const defaultProps: PostCardProps = {
@@ -33,9 +34,16 @@ beforeEach(() => {
 
 const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
   return render(
-    <QueryClientProvider client={new QueryClient()}>
-      <SharePostCard {...defaultProps} {...props} />
-    </QueryClientProvider>,
+    <AuthContextProvider
+      user={null}
+      updateUser={jest.fn()}
+      tokenRefreshed={false}
+      getRedirectUri={jest.fn()}
+    >
+      <QueryClientProvider client={new QueryClient()}>
+        <SharePostCard {...defaultProps} {...props} />
+      </QueryClientProvider>
+    </AuthContextProvider>,
   );
 };
 

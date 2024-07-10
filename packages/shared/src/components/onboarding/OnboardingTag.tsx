@@ -21,7 +21,6 @@ export const OnboardingTag = ({
 }: OnboardingTagProps): ReactElement => {
   return (
     <Button
-      key={tag.name}
       className={classNames(
         {
           'btn-tag': !isSelected,
