@@ -25,7 +25,8 @@ export const UpvoteButtonIcon = React.memo(function UpvoteButtonIconComp(
 
   const { value: isAnimatedVersion } = useConditionalFeature({
     feature: feature.animatedUpvote,
-    shouldEvaluate: !haveUserPrefersReducedMotions && userClicked && isUpvoteActive,
+    shouldEvaluate:
+      !haveUserPrefersReducedMotions && userClicked && isUpvoteActive,
   });
 
   return (
