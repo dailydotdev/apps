@@ -86,11 +86,13 @@ export const ReminderModal = (props: ReminderModalProps): ReactElement => {
   const handleSubmit: FormEventHandler = async (e) => {
     e.preventDefault();
     onReminderSet?.(selectedOption);
-    onBookmarkReminder({ postId: post.id, preference: selectedOption }).then(
-      () => {
-        onRequestClose(null);
-      },
-    );
+    onBookmarkReminder({
+      existingReminder: post.bookmark?.remindAt,
+      postId: post.id,
+      preference: selectedOption,
+    }).then(() => {
+      onRequestClose(null);
+    });
   };
 
   return (
