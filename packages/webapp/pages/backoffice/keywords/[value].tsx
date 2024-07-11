@@ -4,8 +4,6 @@ import {
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
-import request from 'graphql-request';
-import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { ParsedUrlQuery } from 'querystring';
 import {
   KEYWORD_QUERY,
@@ -15,6 +13,7 @@ import { useQuery } from '@tanstack/react-query';
 import useRequirePermissions from '@dailydotdev/shared/src/hooks/useRequirePermissions';
 import { Roles } from '@dailydotdev/shared/src/lib/user';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import Custom404 from '../../404';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import KeywordManagement from '../../../components/KeywordManagement';
@@ -30,7 +29,7 @@ const KeywordPage = ({
   const { data: keywordData, isLoading: isLoadingKeyword } =
     useQuery<KeywordData>(
       ['keyword', keywordValue],
-      () => request(graphqlUrl, KEYWORD_QUERY, { value: keywordValue }),
+      () => gqlClient.request(KEYWORD_QUERY, { value: keywordValue }),
       {
         enabled: tokenRefreshed && !!keywordValue,
       },

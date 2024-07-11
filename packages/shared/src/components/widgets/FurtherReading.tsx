@@ -1,13 +1,11 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
-import request from 'graphql-request';
 import { QueryClient, useQuery, useQueryClient } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import {
   FURTHER_READING_QUERY,
   FurtherReadingData,
 } from '../../graphql/furtherReading';
-import { graphqlUrl } from '../../lib/config';
 import {
   UseBookmarkPostRollback,
   useBookmarkPost,
@@ -21,6 +19,7 @@ import { FeedData, SOURCE_FEED_QUERY } from '../../graphql/feed';
 import { isSourcePublicSquad } from '../../graphql/squads';
 import { SquadPostListItem } from '../squads/SquadPostListItem';
 import { disabledRefetch } from '../../lib/func';
+import { gqlClient } from '../../graphql/common';
 
 export type FurtherReadingProps = {
   currentPost: Post;
@@ -75,8 +74,7 @@ export default function FurtherReading({
       const squad = currentPost.source;
 
       if (isPublicSquad) {
-        const squadPostsResult = await request<FeedData>(
-          graphqlUrl,
+        const squadPostsResult = await gqlClient.request<FeedData>(
           SOURCE_FEED_QUERY,
           {
             first: max,
@@ -102,7 +100,7 @@ export default function FurtherReading({
         };
       }
 
-      return request(graphqlUrl, FURTHER_READING_QUERY, {
+      return gqlClient.request(FURTHER_READING_QUERY, {
         loggedIn: !!user,
         post: postId,
         trendingFirst: 1,

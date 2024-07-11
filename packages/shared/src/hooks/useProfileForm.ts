@@ -1,4 +1,3 @@
-import request from 'graphql-request';
 import { useCallback, useContext, useState } from 'react';
 import { UseMutateFunction, useMutation } from '@tanstack/react-query';
 import AuthContext from '../contexts/AuthContext';
@@ -7,10 +6,9 @@ import {
   socialHandleRegex,
   UPDATE_USER_PROFILE_MUTATION,
 } from '../graphql/users';
-import { graphqlUrl } from '../lib/config';
 import { LoggedUser, UserProfile } from '../lib/user';
 import { useToastNotification } from './useToastNotification';
-import { errorMessage, ResponseError } from '../graphql/common';
+import { errorMessage, gqlClient, ResponseError } from '../graphql/common';
 
 export interface ProfileFormHint {
   portfolio?: string;
@@ -91,7 +89,7 @@ const useProfileForm = ({
     UpdateProfileParameters
   >(
     ({ image, onUpdateSuccess, ...data }) =>
-      request(graphqlUrl, UPDATE_USER_PROFILE_MUTATION, {
+      gqlClient.request(UPDATE_USER_PROFILE_MUTATION, {
         data,
         upload: image,
       }),

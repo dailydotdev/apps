@@ -26,7 +26,6 @@ import {
   RECOMMEND_MENTIONS_QUERY,
   RecommendedMentionsData,
 } from '../../graphql/comments';
-import { graphqlUrl } from '../../lib/config';
 import { isNullOrUndefined } from '../../lib/func';
 import {
   ArrowKey,
@@ -168,7 +167,6 @@ export const useMarkdownInput = ({
       key,
       () =>
         requestMethod(
-          graphqlUrl,
           RECOMMEND_MENTIONS_QUERY,
           { postId, query, sourceId },
           { requestKey: JSON.stringify(key) },

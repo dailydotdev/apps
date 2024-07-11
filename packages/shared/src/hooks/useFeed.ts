@@ -1,5 +1,4 @@
 import { useContext, useEffect, useMemo } from 'react';
-import request from 'graphql-request';
 import {
   InfiniteData,
   useInfiniteQuery,
@@ -14,7 +13,7 @@ import {
   PostsEngaged,
 } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
-import { apiUrl, graphqlUrl } from '../lib/config';
+import { apiUrl } from '../lib/config';
 import useSubscription from './useSubscription';
 import {
   removeCachedPagePost,
@@ -23,6 +22,7 @@ import {
 } from '../lib/query';
 import { MarketingCta } from '../components/marketingCta/common';
 import { FeedItemType } from '../components/cards/common';
+import { gqlClient } from '../graphql/common';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -118,7 +118,7 @@ export default function useFeed<T>(
   const feedQuery = useInfiniteQuery<FeedData>(
     feedQueryKey,
     async ({ pageParam }) => {
-      const res = await request(graphqlUrl, query, {
+      const res = await gqlClient.request(query, {
         ...variables,
         first: pageSize,
         after: pageParam,

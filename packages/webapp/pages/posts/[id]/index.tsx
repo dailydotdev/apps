@@ -20,8 +20,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/posts';
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
-import request, { ClientError } from 'graphql-request';
-import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
+import { ClientError } from 'graphql-request';
 import {
   PostContent,
   SCROLL_OFFSET,
@@ -31,7 +30,7 @@ import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOf
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import SquadPostContent from '@dailydotdev/shared/src/components/post/SquadPostContent';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
-import { ApiError } from '@dailydotdev/shared/src/graphql/common';
+import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { ONBOARDING_OFFSET } from '@dailydotdev/shared/src/components/post/BasePostContent';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
 import classNames from 'classnames';
@@ -188,8 +187,7 @@ export async function getStaticProps({
 }: GetStaticPropsContext<PostParams>): Promise<GetStaticPropsResult<Props>> {
   const { id } = params;
   try {
-    const initialData = await request<PostData>(
-      graphqlUrl,
+    const initialData = await gqlClient.request<PostData>(
       POST_BY_ID_STATIC_FIELDS_QUERY,
       { id },
     );

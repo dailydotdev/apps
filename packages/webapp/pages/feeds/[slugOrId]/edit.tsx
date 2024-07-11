@@ -18,8 +18,7 @@ import useFeedSettings, {
 import { useExitConfirmation } from '@dailydotdev/shared/src/hooks/useExitConfirmation';
 import { useRouter } from 'next/router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import request, { ClientError } from 'graphql-request';
-import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
+import { ClientError } from 'graphql-request';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import { useFeeds, useToastNotification } from '@dailydotdev/shared/src/hooks';
@@ -42,6 +41,7 @@ import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { generateQueryKey } from '@dailydotdev/shared/src/lib/query';
 import { SharedFeedPage } from '@dailydotdev/shared/src/components/utilities';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
@@ -100,7 +100,7 @@ const EditFeedPage = (): ReactElement => {
     async ({ name }: EditFeedFormProps) => {
       const result = await updateFeed({ feedId, name });
       const tagPromises = [
-        request(graphqlUrl, ADD_FILTERS_TO_FEED_MUTATION, {
+        gqlClient.request(ADD_FILTERS_TO_FEED_MUTATION, {
           feedId: result.id,
           filters: {
             includeTags: feedSettings?.includeTags || [],
@@ -112,7 +112,7 @@ const EditFeedPage = (): ReactElement => {
 
       if (removedTags.length > 0) {
         tagPromises.push(
-          request(graphqlUrl, REMOVE_FILTERS_FROM_FEED_MUTATION, {
+          gqlClient.request(REMOVE_FILTERS_FROM_FEED_MUTATION, {
             feedId: result.id,
             filters: {
               includeTags: removedTags,

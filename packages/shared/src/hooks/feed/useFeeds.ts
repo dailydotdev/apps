@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import request from 'graphql-request';
 import {
   FeedList,
   FEED_LIST_QUERY,
@@ -8,11 +7,11 @@ import {
   UPDATE_FEED_MUTATION,
   DELETE_FEED_MUTATION,
 } from '../../graphql/feed';
-import { graphqlUrl } from '../../lib/config';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { labels } from '../../lib';
 import { useToastNotification } from '../useToastNotification';
+import { gqlClient } from '../../graphql/common';
 
 export type CreateFeedProps = {
   name: string;
@@ -38,7 +37,7 @@ export const useFeeds = (): UseFeeds => {
   const { data: feeds } = useQuery(
     queryKey,
     async () => {
-      const result = await request<FeedList>(graphqlUrl, FEED_LIST_QUERY);
+      const result = await gqlClient.request<FeedList>(FEED_LIST_QUERY);
 
       return result.feedList;
     },
@@ -50,8 +49,7 @@ export const useFeeds = (): UseFeeds => {
 
   const { mutateAsync: createFeed } = useMutation(
     async ({ name }: CreateFeedProps) => {
-      const result = await request<{ createFeed: Feed }>(
-        graphqlUrl,
+      const result = await gqlClient.request<{ createFeed: Feed }>(
         CREATE_FEED_MUTATION,
         {
           name,
@@ -82,8 +80,7 @@ export const useFeeds = (): UseFeeds => {
 
   const { mutateAsync: updateFeed } = useMutation(
     async ({ feedId, name }: UpdateFeedProps) => {
-      const result = await request<{ updateFeed: Feed }>(
-        graphqlUrl,
+      const result = await gqlClient.request<{ updateFeed: Feed }>(
         UPDATE_FEED_MUTATION,
         {
           feedId,
@@ -116,7 +113,7 @@ export const useFeeds = (): UseFeeds => {
 
   const { mutateAsync: deleteFeed } = useMutation(
     async ({ feedId }: DeleteFeedProps): Promise<Pick<Feed, 'id'>> => {
-      await request(graphqlUrl, DELETE_FEED_MUTATION, {
+      await gqlClient.request(DELETE_FEED_MUTATION, {
         feedId,
       });
 

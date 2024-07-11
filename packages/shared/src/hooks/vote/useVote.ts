@@ -3,7 +3,6 @@ import { useMutation } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import { UserVote } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
-import { graphqlUrl } from '../../lib/config';
 import { useRequestProtocol } from '../useRequestProtocol';
 import {
   UseVoteMutationProps,
@@ -36,7 +35,7 @@ const useVote = ({ onMutate, entity, variables }: UseVoteProps): UseVote => {
         completeAction(ActionType.VotePost);
       }
 
-      return requestMethod(graphqlUrl, VOTE_MUTATION, mutationProps);
+      return requestMethod(VOTE_MUTATION, mutationProps);
     },
     {
       mutationKey,

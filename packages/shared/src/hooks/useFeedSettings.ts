@@ -1,6 +1,5 @@
 import { useCallback, useContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { request } from 'graphql-request';
 import {
   AdvancedSettings,
   AllTagCategoriesData,
@@ -9,10 +8,10 @@ import {
   TagCategory,
 } from '../graphql/feedSettings';
 import AuthContext from '../contexts/AuthContext';
-import { graphqlUrl } from '../lib/config';
 import { LoggedUser } from '../lib/user';
 import { disabledRefetch } from '../lib/func';
 import { RequestKey, StaleTime } from '../lib/query';
+import { gqlClient } from '../graphql/common';
 
 export const getFeedSettingsQueryKey = (
   user?: LoggedUser,
@@ -48,8 +47,7 @@ export default function useFeedSettings({
   const { data: feedQuery = {}, isLoading } = useQuery<AllTagCategoriesData>(
     filtersKey,
     () =>
-      request(
-        graphqlUrl,
+      gqlClient.request(
         FEED_SETTINGS_QUERY,
         feedId
           ? {
