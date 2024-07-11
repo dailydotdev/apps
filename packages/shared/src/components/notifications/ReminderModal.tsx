@@ -9,28 +9,33 @@ import { Button, ButtonVariant } from '../buttons/Button';
 import {
   getRemindAt,
   ReminderPreference,
+  useBookmarkReminder,
 } from '../../hooks/notifications/useBookmarkReminder';
+import { Post } from '../../graphql/posts';
 
 export interface ReminderModalProps
   extends Pick<ModalProps, 'isOpen' | 'onRequestClose'> {
   onReminderSet: (reminder: string) => void;
+  post: Post;
 }
 
 interface ReminderModalOptionProps {
   isActive: boolean;
   onClick: () => void;
   option: {
-    label: ReminderPreference;
-    value: string;
+    key: keyof typeof ReminderPreference;
+    value: ReminderPreference;
   };
 }
 
 const MODAL_OPTIONS: Array<ReminderModalOptionProps['option']> = Object.entries(
   ReminderPreference,
-).map(([value, label]) => ({
-  value,
-  label,
-}));
+).map(
+  ([key, value]: [keyof typeof ReminderPreference, ReminderPreference]) => ({
+    key,
+    value,
+  }),
+);
 
 const TIME_FOR_OPTION_FORMAT_MAP = {
   [ReminderPreference.OneHour]: null,
@@ -42,17 +47,17 @@ const TIME_FOR_OPTION_FORMAT_MAP = {
 
 const ReminderModalOption = (props: ReminderModalOptionProps) => {
   const { option, onClick, isActive } = props;
-  const { label, value } = option;
+  const { value } = option;
 
   const now = new Date();
-  const timeFormat = TIME_FOR_OPTION_FORMAT_MAP[label];
+  const timeFormat = TIME_FOR_OPTION_FORMAT_MAP[value];
   const timeForOption =
-    timeFormat && format(getRemindAt(now, label), timeFormat);
+    timeFormat && format(getRemindAt(now, value), timeFormat);
 
   return (
     <Button
       aria-checked={isActive}
-      aria-label={label}
+      aria-label={value}
       className="w-full"
       name="bookmarkReminder"
       onClick={onClick}
@@ -62,7 +67,7 @@ const ReminderModalOption = (props: ReminderModalOptionProps) => {
       variant={isActive ? ButtonVariant.Float : ButtonVariant.Option}
     >
       <span className={classNames('flex-1 text-left')}>
-        {label}
+        {value}
         {timeForOption && (
           <span className="text-text-quaternary"> ({timeForOption})</span>
         )}
@@ -72,13 +77,20 @@ const ReminderModalOption = (props: ReminderModalOptionProps) => {
 };
 
 export const ReminderModal = (props: ReminderModalProps): ReactElement => {
-  const { isOpen, onRequestClose, onReminderSet } = props;
-  const defaultOption = 'OneHour';
-  const [selectedOption, setSelectedOption] = useState<string>(defaultOption);
+  const { post, onReminderSet, isOpen, onRequestClose } = props;
+  const [selectedOption, setSelectedOption] = useState<ReminderPreference>(
+    ReminderPreference.OneHour,
+  );
+  const { onBookmarkReminder } = useBookmarkReminder();
 
-  const handleSubmit: FormEventHandler = (e) => {
+  const handleSubmit: FormEventHandler = async (e) => {
     e.preventDefault();
-    onReminderSet(selectedOption);
+    onReminderSet?.(selectedOption);
+    onBookmarkReminder({ postId: post.id, preference: selectedOption }).then(
+      () => {
+        onRequestClose(null);
+      },
+    );
   };
 
   return (
@@ -105,7 +117,7 @@ export const ReminderModal = (props: ReminderModalProps): ReactElement => {
           >
             {MODAL_OPTIONS.map((option) => (
               <ReminderModalOption
-                key={option.value}
+                key={option.key}
                 onClick={() => setSelectedOption(option.value)}
                 isActive={selectedOption === option.value}
                 option={option}

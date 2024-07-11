@@ -6,6 +6,7 @@ import {
   SetBookmarkReminderProps,
 } from '../../graphql/bookmarks';
 import { useToastNotification } from '../useToastNotification';
+import { EmptyResponse } from '../../graphql/emptyResponse';
 
 export enum ReminderPreference {
   OneHour = 'In 1 hour',
@@ -27,7 +28,7 @@ interface BookmarkReminderProps {
 }
 
 interface UseBookmarkReminder {
-  onBookmarkReminder: (props: BookmarkReminderProps) => void;
+  onBookmarkReminder: (props: BookmarkReminderProps) => Promise<EmptyResponse>;
 }
 
 export const getRemindAt = (
@@ -62,6 +63,7 @@ export const useBookmarkReminder = (): UseBookmarkReminder => {
           onUndo: () => onUndoReminder({ postId, remindAt: existingReminder }),
         });
       },
+      onError: () => displayToast('Failed to set reminder'),
     },
   );
 
