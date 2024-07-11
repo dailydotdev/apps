@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { useCallback } from 'react';
-import { addDays, addHours, nextMonday, setHours } from 'date-fns';
+import { addDays, addHours, nextMonday, set } from 'date-fns';
 import {
   setBookmarkReminder,
   SetBookmarkReminderProps,
@@ -35,17 +35,19 @@ export const getRemindAt = (
   date: Date,
   preference: ReminderPreference,
 ): Date => {
+  const atNineAM = (date: Date) => set(date, { hours: 9, minutes: 0 });
+
   switch (preference) {
     case ReminderPreference.OneHour:
       return addHours(date, 1);
     case ReminderPreference.LaterToday:
-      return setHours(date, 19);
+      return set(date, { hours: 19, minutes: 0 });
     case ReminderPreference.Tomorrow:
-      return addDays(date.setHours(9), 1);
+      return addDays(atNineAM(date), 1);
     case ReminderPreference.TwoDays:
-      return addDays(date.setHours(9), 2);
+      return addDays(atNineAM(date), 2);
     case ReminderPreference.NextWeek:
-      return nextMonday(date.setHours(9));
+      return nextMonday(atNineAM(date));
     default:
       return addHours(date, 1);
   }
