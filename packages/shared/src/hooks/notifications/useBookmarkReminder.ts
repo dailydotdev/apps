@@ -10,7 +10,6 @@ import { useToastNotification } from '../useToastNotification';
 import { updatePostCache } from '../usePostById';
 import { ActiveFeedContext } from '../../contexts';
 import { updateCachedPagePost } from '../../lib/query';
-import { mutateBookmarkFeedPost } from '../useBookmarkPost';
 import { optimisticPostUpdateInFeed } from '../../lib/feed';
 
 export enum ReminderPreference {
