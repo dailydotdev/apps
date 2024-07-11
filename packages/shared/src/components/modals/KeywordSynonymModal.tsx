@@ -1,15 +1,14 @@
 import React, { ReactElement, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import request from 'graphql-request';
 import { TextField } from '../fields/TextField';
 import {
   SEARCH_KEYWORDS_QUERY,
   SearchKeywordData,
   SET_KEYWORD_AS_SYNONYM_MUTATION,
 } from '../../graphql/keywords';
-import { graphqlUrl } from '../../lib/config';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { Modal, ModalProps } from './common/Modal';
+import { gqlClient } from '../../graphql/common';
 
 export type KeywordSynonymModalProps = { selectedKeyword: string } & ModalProps;
 
@@ -22,12 +21,12 @@ export default function KeywordSynonymModal({
 
   const { data: searchResults, isLoading: isSearching } =
     useQuery<SearchKeywordData>(['searchKeywords', query], () =>
-      request(graphqlUrl, SEARCH_KEYWORDS_QUERY, { query }),
+      gqlClient.request(SEARCH_KEYWORDS_QUERY, { query }),
     );
 
   const { mutateAsync: setSynonym } = useMutation(
     (originalKeyword: string) =>
-      request(graphqlUrl, SET_KEYWORD_AS_SYNONYM_MUTATION, {
+      gqlClient.request(SET_KEYWORD_AS_SYNONYM_MUTATION, {
         originalKeyword,
         keywordToUpdate: selectedKeyword.toLowerCase(),
       }),

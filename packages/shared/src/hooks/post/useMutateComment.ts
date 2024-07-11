@@ -9,7 +9,6 @@ import {
   EDIT_COMMENT_MUTATION,
 } from '../../graphql/comments';
 import { LogEvent } from '../../lib/log';
-import { graphqlUrl } from '../../lib/config';
 import { postLogEvent } from '../../lib/feed';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useBackgroundRequest } from '../companion';
@@ -153,7 +152,7 @@ export const useMutateComment = ({
     isSuccess,
   } = useMutation<MutateCommentResult, unknown, SubmitComment>(
     (variables) =>
-      requestMethod(graphqlUrl, mutation, variables, {
+      requestMethod(mutation, variables, {
         requestKey: JSON.stringify(key),
       }),
     {
@@ -172,7 +171,7 @@ export const useMutateComment = ({
     SubmitComment
   >(
     (variables) =>
-      requestMethod(graphqlUrl, EDIT_COMMENT_MUTATION, variables, {
+      requestMethod(EDIT_COMMENT_MUTATION, variables, {
         requestKey: JSON.stringify(key),
       }),
     { onSuccess: (data) => onSuccess(data?.comment) },

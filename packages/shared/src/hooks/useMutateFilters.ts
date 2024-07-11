@@ -4,10 +4,8 @@ import {
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
-import request from 'graphql-request';
 import cloneDeep from 'lodash.clonedeep';
 import { LoggedUser } from '../lib/user';
-import { graphqlUrl } from '../lib/config';
 import {
   FeedAdvancedSettings,
   ADD_FILTERS_TO_FEED_MUTATION,
@@ -20,6 +18,7 @@ import {
 import { Source } from '../graphql/sources';
 import { getFeedSettingsQueryKey } from './useFeedSettings';
 import { RequestKey, generateQueryKey } from '../lib/query';
+import { gqlClient } from '../graphql/common';
 
 export const getSearchTagsQueryKey = (query: string): string[] => [
   'searchTags',
@@ -176,7 +175,7 @@ export default function useMutateFilters(
         blockedTags: Array.from(new Set(blockedTags)),
         excludeSources: Array.from(new Set(excludeSources)),
       };
-      return request(graphqlUrl, FEED_FILTERS_FROM_REGISTRATION, {
+      return gqlClient.request(FEED_FILTERS_FROM_REGISTRATION, {
         filters: fixed,
         settings: advancedSettings,
       });
@@ -214,7 +213,7 @@ export default function useMutateFilters(
     () => Promise<void>
   >(
     ({ advancedSettings: settings }) =>
-      request(graphqlUrl, UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION, {
+      gqlClient.request(UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION, {
         settings,
       }),
     {
@@ -246,7 +245,7 @@ export default function useMutateFilters(
     () => Promise<void>
   >(
     ({ tags }) =>
-      request(graphqlUrl, ADD_FILTERS_TO_FEED_MUTATION, {
+      gqlClient.request(ADD_FILTERS_TO_FEED_MUTATION, {
         filters: {
           includeTags: tags,
         },
@@ -286,7 +285,7 @@ export default function useMutateFilters(
     () => Promise<void>
   >(
     ({ tags }) =>
-      request(graphqlUrl, ADD_FILTERS_TO_FEED_MUTATION, {
+      gqlClient.request(ADD_FILTERS_TO_FEED_MUTATION, {
         filters: {
           blockedTags: tags,
         },
@@ -322,7 +321,7 @@ export default function useMutateFilters(
     () => void
   >(
     ({ tags }) =>
-      request(graphqlUrl, REMOVE_FILTERS_FROM_FEED_MUTATION, {
+      gqlClient.request(REMOVE_FILTERS_FROM_FEED_MUTATION, {
         filters: {
           includeTags: tags,
         },
@@ -358,7 +357,7 @@ export default function useMutateFilters(
     () => void
   >(
     ({ tags }) =>
-      request(graphqlUrl, REMOVE_FILTERS_FROM_FEED_MUTATION, {
+      gqlClient.request(REMOVE_FILTERS_FROM_FEED_MUTATION, {
         filters: {
           blockedTags: tags,
         },
@@ -397,7 +396,7 @@ export default function useMutateFilters(
     () => void
   >(
     ({ source }) =>
-      request(graphqlUrl, REMOVE_FILTERS_FROM_FEED_MUTATION, {
+      gqlClient.request(REMOVE_FILTERS_FROM_FEED_MUTATION, {
         filters: {
           excludeSources: [source.id],
         },
@@ -431,7 +430,7 @@ export default function useMutateFilters(
     () => Promise<void>
   >(
     ({ source }) =>
-      request(graphqlUrl, ADD_FILTERS_TO_FEED_MUTATION, {
+      gqlClient.request(ADD_FILTERS_TO_FEED_MUTATION, {
         filters: {
           excludeSources: [source.id],
         },

@@ -1,13 +1,12 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import request from 'graphql-request';
 import { useCallback } from 'react';
-import { graphqlUrl } from '../../lib/config';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { GET_SHORT_URL_QUERY } from '../../graphql/urlShortener';
 import { addLogQueryParams } from '../../lib/share';
 import { RequestKey, generateQueryKey } from '../../lib/query';
 import { ReferralCampaignKey } from '../../lib';
 import { disabledRefetch } from '../../lib/func';
+import { gqlClient } from '../../graphql/common';
 
 interface LinkAsQuery {
   url: string;
@@ -44,7 +43,7 @@ export const useGetShortUrl = ({
   );
 
   const queryShortUrl = async (url: string) => {
-    const res = await request(graphqlUrl, GET_SHORT_URL_QUERY, { url });
+    const res = await gqlClient.request(GET_SHORT_URL_QUERY, { url });
     return res.getShortUrl;
   };
 

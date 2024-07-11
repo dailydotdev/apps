@@ -5,7 +5,6 @@ import {
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
-import request from 'graphql-request';
 import {
   collapsePinnedPosts,
   expandPinnedPosts,
@@ -14,12 +13,12 @@ import {
   unblockSquadMember,
   updateSquadMemberRole,
 } from '../../graphql/squads';
-import { graphqlUrl } from '../../lib/config';
 import { SourceMember, SourceMemberRole, Squad } from '../../graphql/sources';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { updateFlagsCache } from '../../graphql/source/common';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ActiveFeedContext } from '../../contexts/ActiveFeedContext';
+import { gqlClient } from '../../graphql/common';
 
 export interface UseSquadActions {
   onUnblock?: typeof unblockSquadMember;
@@ -86,7 +85,7 @@ export const useSquadActions = ({
   const membersQueryResult = useInfiniteQuery<SquadEdgesData>(
     membersQueryKey,
     ({ pageParam }) =>
-      request(graphqlUrl, SQUAD_MEMBERS_QUERY, {
+      gqlClient.request(SQUAD_MEMBERS_QUERY, {
         id: squad?.id,
         after: typeof pageParam === 'string' ? pageParam : undefined,
         query,

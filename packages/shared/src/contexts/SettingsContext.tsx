@@ -6,7 +6,6 @@ import React, {
   useMemo,
 } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import request from 'graphql-request';
 import {
   CampaignCtaPlacement,
   RemoteSettings,
@@ -15,12 +14,12 @@ import {
   UPDATE_USER_SETTINGS_MUTATION,
 } from '../graphql/settings';
 import AuthContext from './AuthContext';
-import { graphqlUrl } from '../lib/config';
 import { capitalize } from '../lib/strings';
 import { storageWrapper } from '../lib/storageWrapper';
 import { usePersonalizedDigest } from '../hooks/usePersonalizedDigest';
 import { UserPersonalizedDigestType } from '../graphql/users';
 import { ChecklistViewState } from '../lib/checklist';
+import { gqlClient } from '../graphql/common';
 
 export enum ThemeMode {
   Dark = 'dark',
@@ -142,7 +141,7 @@ export const SettingsContextProvider = ({
     RemoteSettings
   >(
     (params) =>
-      request(graphqlUrl, UPDATE_USER_SETTINGS_MUTATION, {
+      gqlClient.request(UPDATE_USER_SETTINGS_MUTATION, {
         data: params,
       }),
     {
