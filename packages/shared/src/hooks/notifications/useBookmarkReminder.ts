@@ -35,7 +35,7 @@ export const getRemindAt = (
   date: Date,
   preference: ReminderPreference,
 ): Date => {
-  const atNineAM = (date: Date) => set(date, { hours: 9, minutes: 0 });
+  const atNineAM = (value: Date) => set(value, { hours: 9, minutes: 0 });
 
   switch (preference) {
     case ReminderPreference.OneHour:
