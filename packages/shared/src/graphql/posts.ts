@@ -1,9 +1,8 @@
-import request, { gql } from 'graphql-request';
+import { gql } from 'graphql-request';
 import type { Author, Scout } from './comments';
-import { Connection } from './common';
+import { Connection, gqlClient, gqlRequest } from './common';
 import { Source, SourceType, Squad } from './sources';
 import { EmptyResponse } from './emptyResponse';
-import { graphqlUrl } from '../lib/config';
 import {
   RELATED_POST_FRAGMENT,
   SHARED_POST_INFO_FRAGMENT,
@@ -378,29 +377,29 @@ export const UNHIDE_POST_MUTATION = gql`
 `;
 
 export const dismissPostFeedback = (id: string): Promise<EmptyResponse> => {
-  return request(graphqlUrl, DISMISS_POST_FEEDBACK_MUTATION, {
+  return gqlClient.request(DISMISS_POST_FEEDBACK_MUTATION, {
     id,
   });
 };
 
 export const banPost = (id: string): Promise<EmptyResponse> => {
-  return request(graphqlUrl, BAN_POST_MUTATION, {
+  return gqlClient.request(BAN_POST_MUTATION, {
     id,
   });
 };
 
 export const promotePost = (id: string): Promise<EmptyResponse> =>
-  request(graphqlUrl, PROMOTE_TO_PUBLIC_MUTATION, {
+  gqlClient.request(PROMOTE_TO_PUBLIC_MUTATION, {
     id,
   });
 
 export const demotePost = (id: string): Promise<EmptyResponse> =>
-  request(graphqlUrl, DEMOTE_FROM_PUBLIC_MUTATION, {
+  gqlClient.request(DEMOTE_FROM_PUBLIC_MUTATION, {
     id,
   });
 
 export const deletePost = (id: string): Promise<EmptyResponse> => {
-  return request(graphqlUrl, DELETE_POST_MUTATION, {
+  return gqlClient.request(DELETE_POST_MUTATION, {
     id,
   });
 };
@@ -414,7 +413,7 @@ export const VIEW_POST_MUTATION = gql`
 `;
 
 export const sendViewPost = (id: string): Promise<void> =>
-  request(graphqlUrl, VIEW_POST_MUTATION, { id });
+  gqlClient.request(VIEW_POST_MUTATION, { id });
 
 export const LATEST_CHANGELOG_POST_QUERY = gql`
   query LatestChangelogPost {
@@ -443,8 +442,7 @@ export const LATEST_CHANGELOG_POST_QUERY = gql`
 `;
 
 export const getLatestChangelogPost = async (): Promise<Post> => {
-  const feedData = await request<FeedData>(
-    graphqlUrl,
+  const feedData = await gqlClient.request<FeedData>(
     LATEST_CHANGELOG_POST_QUERY,
   );
 
@@ -492,9 +490,9 @@ export const PREVIEW_LINK_MUTATION = gql`
 
 export const getExternalLinkPreview = async (
   url: string,
-  requestMethod = request,
+  requestMethod = gqlRequest,
 ): Promise<ExternalLinkPreview> => {
-  const res = await requestMethod(graphqlUrl, PREVIEW_LINK_MUTATION, { url });
+  const res = await requestMethod(PREVIEW_LINK_MUTATION, { url });
 
   return res.checkLinkPreview;
 };
@@ -507,9 +505,9 @@ export interface SubmitExternalLink
 
 export const submitExternalLink = (
   params: SubmitExternalLink,
-  requestMethod = request,
+  requestMethod = gqlRequest,
 ): Promise<EmptyResponse> =>
-  requestMethod(graphqlUrl, SUBMIT_EXTERNAL_LINK_MUTATION, params);
+  requestMethod(SUBMIT_EXTERNAL_LINK_MUTATION, params);
 
 export const EDIT_POST_MUTATION = gql`
   mutation EditPost(
@@ -552,7 +550,7 @@ export interface CreatePostProps
 export const editPost = async (
   variables: Partial<EditPostProps>,
 ): Promise<Post> => {
-  const res = await request(graphqlUrl, EDIT_POST_MUTATION, variables);
+  const res = await gqlClient.request(EDIT_POST_MUTATION, variables);
 
   return res.editPost;
 };
@@ -572,7 +570,7 @@ interface UpdatePinnedProps {
 
 export const updatePinnedPost = async (
   variables: UpdatePinnedProps,
-): Promise<void> => request(graphqlUrl, PIN_POST_MUTATION, variables);
+): Promise<void> => gqlClient.request(PIN_POST_MUTATION, variables);
 
 export const SWAP_PINNED_POSTS_MUTATION = gql`
   mutation SwapPinnedPosts($id: ID!, $swapWithId: ID!) {
@@ -589,7 +587,7 @@ interface SwapPinnedPostsProps {
 
 export const swapPinnedPosts = async (
   variables: SwapPinnedPostsProps,
-): Promise<void> => request(graphqlUrl, SWAP_PINNED_POSTS_MUTATION, variables);
+): Promise<void> => gqlClient.request(SWAP_PINNED_POSTS_MUTATION, variables);
 
 export const CREATE_POST_MUTATION = gql`
   mutation CreatePost(
@@ -620,7 +618,7 @@ export const CREATE_POST_MUTATION = gql`
 export const createPost = async (
   variables: Partial<CreatePostProps>,
 ): Promise<Post> => {
-  const res = await request(graphqlUrl, CREATE_POST_MUTATION, variables);
+  const res = await gqlClient.request(CREATE_POST_MUTATION, variables);
 
   return res.createFreeformPost;
 };
@@ -653,7 +651,7 @@ export const uploadContentImage = async (
     onProcessing(image);
   }
 
-  const res = await request(graphqlUrl, UPLOAD_IMAGE_MUTATION, { image });
+  const res = await gqlClient.request(UPLOAD_IMAGE_MUTATION, { image });
 
   return res.uploadContentImage;
 };

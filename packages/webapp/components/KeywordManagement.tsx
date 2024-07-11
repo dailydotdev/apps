@@ -5,8 +5,6 @@ import {
   Keyword,
 } from '@dailydotdev/shared/src/graphql/keywords';
 import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
-import request from 'graphql-request';
-import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   FeedData,
   KEYWORD_FEED_QUERY,
@@ -25,6 +23,7 @@ import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/util
 import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import classNames from 'classnames';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import styles from './KeywordManagement.module.css';
 
 const KeywordSynonymModal = dynamic(
@@ -57,7 +56,7 @@ export default function KeywordManagement({
 
   const { mutateAsync: allowKeyword } = useMutation(
     () =>
-      request(graphqlUrl, ALLOW_KEYWORD_MUTATION, {
+      gqlClient.request(ALLOW_KEYWORD_MUTATION, {
         keyword: keyword.value,
       }),
     {
@@ -67,7 +66,7 @@ export default function KeywordManagement({
 
   const { mutateAsync: denyKeyword } = useMutation(
     () =>
-      request(graphqlUrl, DENY_KEYWORD_MUTATION, {
+      gqlClient.request(DENY_KEYWORD_MUTATION, {
         keyword: keyword.value,
       }),
     {
@@ -78,7 +77,7 @@ export default function KeywordManagement({
   const posts = useInfiniteQuery<FeedData>(
     ['keyword_post', keyword.value],
     ({ pageParam }) =>
-      request(graphqlUrl, KEYWORD_FEED_QUERY, {
+      gqlClient.request(KEYWORD_FEED_QUERY, {
         keyword: keyword.value,
         first: 4,
         after: pageParam,

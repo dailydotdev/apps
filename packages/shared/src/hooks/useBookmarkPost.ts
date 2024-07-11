@@ -4,7 +4,6 @@ import {
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
-import { graphqlUrl } from '../lib/config';
 import {
   ADD_BOOKMARKS_MUTATION,
   Post,
@@ -100,7 +99,7 @@ const useBookmarkPost = ({
 
   const { mutateAsync: bookmarkPost } = useMutation(
     ({ mutation, payload }: UseBookmarkPostMutationProps) =>
-      requestMethod(graphqlUrl, mutation, {
+      requestMethod(mutation, {
         ...payload,
       }),
     {
