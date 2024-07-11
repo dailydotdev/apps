@@ -32,7 +32,7 @@ export function BookmarkButton({
   const Icon = hasReminder ? BookmarkReminderIcon : BookmarkIcon;
   const onClick = (e: MouseEvent<HTMLButtonElement>) => {
     if (hasReminder) {
-      return onMenuClick(e); // open context menu
+      return onMenuClick(e);
     }
 
     return buttonProps.onClick?.(e);
