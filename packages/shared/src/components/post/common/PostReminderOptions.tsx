@@ -17,7 +17,7 @@ import { useLazyModal } from '../../../hooks/useLazyModal';
 interface PostReminderOptionsProps {
   post: Post;
   className?: string;
-  buttonProps: ButtonProps<'button'>;
+  buttonProps?: ButtonProps<'button'>;
 }
 
 export function PostReminderOptions({
