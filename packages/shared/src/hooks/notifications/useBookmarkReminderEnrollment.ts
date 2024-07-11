@@ -7,7 +7,7 @@ export const useBookmarkReminderEnrollment = (post: Post): boolean => {
   const { justBookmarked } = useJustBookmarked({ bookmarked: post.bookmarked });
   const shouldShowReminder = justBookmarked && !post.bookmark?.remindAt;
   const { value: readItLater } = useConditionalFeature({
-    feature: feature.readItLater,
+    feature: feature.bookmarkReminder,
     shouldEvaluate: shouldShowReminder,
   });
 
