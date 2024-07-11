@@ -1,5 +1,4 @@
 import React, { FormEventHandler, ReactElement, useState } from 'react';
-import classNames from 'classnames';
 import { format } from 'date-fns';
 import { Modal, ModalProps } from '../modals/common/Modal';
 import { ModalHeader } from '../modals/common/ModalHeader';
@@ -66,7 +65,7 @@ const ReminderModalOption = (props: ReminderModalOptionProps) => {
       value={value}
       variant={isActive ? ButtonVariant.Float : ButtonVariant.Option}
     >
-      <span className={classNames('flex-1 text-left')}>
+      <span className="flex-1 text-left">
         {value}
         {timeForOption && (
           <span className="text-text-quaternary"> ({timeForOption})</span>
