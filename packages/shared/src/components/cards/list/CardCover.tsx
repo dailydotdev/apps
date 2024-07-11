@@ -6,7 +6,7 @@ import {
   SharedCardCoverProps,
 } from '../common/SharedCardCover';
 
-interface CardCoverProps extends SharedCardCoverProps {
+interface CardCoverProps extends Omit<SharedCardCoverProps, 'renderOverlay'> {
   className?: string;
 }
 

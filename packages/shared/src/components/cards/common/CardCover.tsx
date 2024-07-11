@@ -1,7 +1,9 @@
 import React, { ReactElement } from 'react';
 import { SharedCardCover, SharedCardCoverProps } from './SharedCardCover';
 
-export function CardCover(props: SharedCardCoverProps): ReactElement {
+export function CardCover(
+  props: Omit<SharedCardCoverProps, 'renderOverlay'>,
+): ReactElement {
   return (
     <SharedCardCover
       {...props}
