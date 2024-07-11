@@ -34,7 +34,7 @@ export const HourDropdown = ({
   setHourIndex,
   className,
 }: {
-  hourIndex: number;
+  hourIndex?: number;
   setHourIndex: (index: number) => void;
   className?: DropdownClassName;
 }): ReactElement => {

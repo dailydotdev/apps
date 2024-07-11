@@ -22,7 +22,7 @@ export const getStaticPaths = getProfileStaticPaths;
 const ProfilePostsPage = ({ user }: ProfileLayoutProps): ReactElement => {
   const { user: loggedUser } = useContext(AuthContext);
   const { shouldUseListFeedLayout } = useFeedLayout();
-  const isSameUser = loggedUser?.id === user.id;
+  const isSameUser = user && loggedUser?.id === user.id;
 
   const userId = user?.id;
   const feedProps: FeedProps<unknown> = {
@@ -42,7 +42,7 @@ const ProfilePostsPage = ({ user }: ProfileLayoutProps): ReactElement => {
       />
     ) : (
       <ProfileEmptyScreen
-        title={`${user.name} hasn't posted yet`}
+        title={`${user?.name ?? 'User'} hasn't posted yet`}
         text="Once they do, those posts will show up here."
       />
     ),
