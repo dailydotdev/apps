@@ -22,6 +22,7 @@ import {
   BellSubscribedIcon,
   BellIcon,
   ShareIcon,
+  BookmarkIcon,
 } from './icons';
 import { ReportedCallback } from './modals';
 import useTagAndSource from '../hooks/useTagAndSource';
@@ -49,6 +50,8 @@ import { ContextMenu as ContextMenuTypes } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
 import { SourceType } from '../graphql/sources';
 import { useSharePost } from '../hooks/useSharePost';
+import { useFeature } from './GrowthBookProvider';
+import { feature } from '../lib/featureManagement';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -308,6 +311,17 @@ export default function PostOptionsMenu({
       ),
       label: 'Downvote',
       action: onToggleDownvotePost,
+    });
+  }
+
+  const isReminderActive = useFeature(feature.readingReminder);
+  if (isReminderActive) {
+    postOptions.push({
+      icon: <MenuIcon Icon={BookmarkIcon} />,
+      label: 'Read it later',
+      action: () => {
+        console.log('Read it later');
+      },
     });
   }
 
