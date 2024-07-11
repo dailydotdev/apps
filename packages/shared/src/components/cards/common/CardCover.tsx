@@ -3,9 +3,8 @@ import classNames from 'classnames';
 import { ImageProps, ImageType } from '../../image/Image';
 import VideoImage, { VideoImageProps } from '../../image/VideoImage';
 import { CardImage } from '../Card';
-import { CardCoverShare } from './CardCoverShare';
 import { CommonCardCoverProps } from '../common';
-import { usePostShareLoop } from '../../../hooks/post/usePostShareLoop';
+import { useCardCover } from '../../../hooks/feed/useCardCover';
 
 interface CardCoverProps extends CommonCardCoverProps {
   imageProps: ImageProps;
@@ -20,20 +19,10 @@ export function CardCover({
   onShare,
   post,
 }: CardCoverProps): ReactElement {
-  const { shouldShowOverlay, onInteract } = usePostShareLoop(post);
-  const coverShare = (
-    <CardCoverShare
-      post={post}
-      onShare={() => {
-        onInteract();
-        onShare(post);
-      }}
-      onCopy={onInteract}
-    />
-  );
+  const { overlay } = useCardCover({ post, onShare });
   const imageClasses = classNames(
     imageProps?.className,
-    shouldShowOverlay && 'opacity-16',
+    !!overlay && 'opacity-16',
   );
 
   if (isVideoType) {
@@ -41,7 +30,7 @@ export function CardCover({
       <VideoImage
         {...videoProps}
         CardImageComponent={CardImage}
-        overlay={shouldShowOverlay ? coverShare : undefined}
+        overlay={overlay}
         imageProps={{
           ...imageProps,
           className: imageClasses,
@@ -52,7 +41,7 @@ export function CardCover({
 
   return (
     <div className="pointer-events-none relative flex flex-1">
-      {shouldShowOverlay && coverShare}
+      {overlay}
       <CardImage
         {...imageProps}
         type={ImageType.Post}

@@ -5,8 +5,7 @@ import VideoImage, { VideoImageProps } from '../../image/VideoImage';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { CardImage } from './ListCard';
 import { CommonCardCoverProps } from '../common';
-import { usePostShareLoop } from '../../../hooks/post/usePostShareLoop';
-import { CardCoverShare } from '../common/CardCoverShare';
+import { useCardCover } from '../../../hooks/feed/useCardCover';
 
 interface CardCoverProps extends CommonCardCoverProps {
   imageProps: ImageProps;
@@ -23,20 +22,10 @@ export function CardCoverList({
   post,
   className,
 }: CardCoverProps): ReactElement {
-  const { shouldShowOverlay, onInteract } = usePostShareLoop(post);
-  const coverShare = (
-    <CardCoverShare
-      post={post}
-      onShare={() => {
-        onInteract();
-        onShare(post);
-      }}
-      onCopy={onInteract}
-    />
-  );
+  const { overlay } = useCardCover({ post, onShare });
   const imageClasses = classNames(
     imageProps?.className,
-    shouldShowOverlay && 'opacity-16',
+    !!overlay && 'opacity-16',
   );
 
   if (isVideoType) {
@@ -44,7 +33,7 @@ export function CardCoverList({
       <VideoImage
         {...videoProps}
         CardImageComponent={CardImage}
-        overlay={shouldShowOverlay ? coverShare : undefined}
+        overlay={overlay}
         imageProps={{
           ...imageProps,
           className: imageClasses,
@@ -55,10 +44,10 @@ export function CardCoverList({
 
   return (
     <ConditionalWrapper
-      condition={shouldShowOverlay}
+      condition={!!overlay}
       wrapper={(component) => (
         <div className={classNames('relative flex', className)}>
-          {coverShare}
+          {overlay}
           {component}
         </div>
       )}

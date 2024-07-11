@@ -1,12 +1,17 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useCallback, useContext } from 'react';
 import { addDays, addHours, nextMonday, setHours } from 'date-fns';
 import {
+  Bookmark,
   setBookmarkReminder,
   SetBookmarkReminderProps,
 } from '../../graphql/bookmarks';
 import { useToastNotification } from '../useToastNotification';
 import { updatePostCache } from '../usePostById';
+import { ActiveFeedContext } from '../../contexts';
+import { updateCachedPagePost } from '../../lib/query';
+import { mutateBookmarkFeedPost } from '../useBookmarkPost';
+import { optimisticPostUpdateInFeed } from '../../lib/feed';
 
 export enum ReminderPreference {
   OneHour = 'In 1 hour',
@@ -53,6 +58,7 @@ export const getRemindAt = (
 
 export const useBookmarkReminder = (): UseBookmarkReminder => {
   const client = useQueryClient();
+  const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const { displayToast } = useToastNotification();
   const { mutateAsync: onUndoReminder } = useMutation(setBookmarkReminder);
   const { mutateAsync: onSetBookmarkReminder } = useMutation(
@@ -63,6 +69,20 @@ export const useBookmarkReminder = (): UseBookmarkReminder => {
         updatePostCache(client, postId, (post) => ({
           bookmark: { ...post.bookmark, remindAt },
         }));
+
+        if (feedQueryKey) {
+          const bookmark: Bookmark = { createdAt: new Date(), remindAt };
+          const updatePost = updateCachedPagePost(feedQueryKey, client);
+          const postIndexToUpdate = items.findIndex(
+            (item) => item.type === 'post' && item.post.id === postId,
+          );
+          const update = optimisticPostUpdateInFeed(items, updatePost, () => ({
+            bookmark,
+          }));
+
+          update({ index: postIndexToUpdate });
+        }
+
         displayToast(`Reminder set for ${preference.toLowerCase()}`, {
           onUndo: () => onUndoReminder({ postId, remindAt: existingReminder }),
         });
