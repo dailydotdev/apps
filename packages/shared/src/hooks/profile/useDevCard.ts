@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { DevCardTheme } from '../../components/profile/devcard/common';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import { graphqlUrl } from '../../lib/config';
 import { DEV_CARD_QUERY } from '../../graphql/users';
 import { useRequestProtocol } from '../useRequestProtocol';
 import { PublicProfile } from '../../lib/user';
@@ -42,7 +41,7 @@ export const useDevCard = (userId: string): UseDevCard => {
   const { data, isLoading } = useQuery<DevCardQueryData>(
     generateQueryKey(RequestKey.DevCard, { id: userId }),
     async () => {
-      const res = await requestMethod(graphqlUrl, DEV_CARD_QUERY, {
+      const res = await requestMethod(DEV_CARD_QUERY, {
         id: userId,
       });
 

@@ -5,7 +5,6 @@ import {
   useQueryClient,
   UseQueryResult,
 } from '@tanstack/react-query';
-import { graphqlUrl } from '../../lib/config';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import {
@@ -41,7 +40,7 @@ const useCommentById = ({
     isLoading,
   } = useQuery<CommentOnData>(
     generateQueryKey(RequestKey.Comment, user, id),
-    () => requestMethod(graphqlUrl, query, { id: `${id}` }),
+    () => requestMethod(query, { id: `${id}` }),
     {
       ...options,
       enabled: !!id && options.enabled,

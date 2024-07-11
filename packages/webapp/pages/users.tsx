@@ -1,8 +1,6 @@
 import React from 'react';
 import { GetStaticPropsResult } from 'next';
-import { ApiError } from '@dailydotdev/shared/src/graphql/common';
-import request from 'graphql-request';
-import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
+import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { LEADERBOARD_QUERY } from '@dailydotdev/shared/src/graphql/leaderboard';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header';
@@ -164,7 +162,7 @@ export async function getStaticProps(): Promise<
   GetStaticPropsResult<PageProps>
 > {
   try {
-    const res = await request<PageProps>(graphqlUrl, LEADERBOARD_QUERY);
+    const res = await gqlClient.request<PageProps>(LEADERBOARD_QUERY);
 
     return {
       props: {

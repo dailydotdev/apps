@@ -1,17 +1,16 @@
 import { useContext } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import request from 'graphql-request';
 import {
   HIDE_POST_MUTATION,
   REPORT_POST_MUTATION,
   ReportReason,
   UNHIDE_POST_MUTATION,
 } from '../graphql/posts';
-import { graphqlUrl } from '../lib/config';
 import AuthContext from '../contexts/AuthContext';
 import { BooleanPromise } from '../components/filters/common';
 import { AuthTriggers } from '../lib/auth';
 import { useRequestProtocol } from './useRequestProtocol';
+import { gqlClient } from '../graphql/common';
 
 type UseReportPostRet = {
   reportPost: (variables: {
@@ -37,14 +36,14 @@ export default function useReportPost(): UseReportPostRet {
     void,
     unknown,
     ReportPostProps
-  >((variables) => requestMethod(graphqlUrl, REPORT_POST_MUTATION, variables));
+  >((variables) => requestMethod(REPORT_POST_MUTATION, variables));
 
   const { mutateAsync: hidePostAsync } = useMutation<void, unknown, string>(
-    (id) => request(graphqlUrl, HIDE_POST_MUTATION, { id }),
+    (id) => gqlClient.request(HIDE_POST_MUTATION, { id }),
   );
 
   const { mutateAsync: unhidePostAsync } = useMutation<void, unknown, string>(
-    (id) => request(graphqlUrl, UNHIDE_POST_MUTATION, { id }),
+    (id) => gqlClient.request(UNHIDE_POST_MUTATION, { id }),
   );
 
   const reportPost = async (params: ReportPostProps) => {

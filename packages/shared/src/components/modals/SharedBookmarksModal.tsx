@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import request from 'graphql-request';
 import {
   CopyIcon,
   TwitterIcon,
@@ -15,12 +14,12 @@ import {
   BOOKMARK_SHARING_MUTATION,
   BOOKMARK_SHARING_QUERY,
 } from '../../graphql/bookmarksSharing';
-import { graphqlUrl } from '../../lib/config';
 import { TextField } from '../fields/TextField';
 import { useCopyLink } from '../../hooks/useCopy';
 import { sharingBookmarks } from '../../lib/constants';
 import { Modal, ModalProps } from './common/Modal';
 import { IconSize } from '../Icon';
+import { gqlClient } from '../../graphql/common';
 
 export default function SharedBookmarksModal({
   ...props
@@ -29,7 +28,7 @@ export default function SharedBookmarksModal({
 
   const { data: bookmarksSharingData, isFetched } =
     useQuery<BookmarksSharingData>(['bookmarksSharing'], () =>
-      request(graphqlUrl, BOOKMARK_SHARING_QUERY),
+      gqlClient.request(BOOKMARK_SHARING_QUERY),
     );
 
   const { mutateAsync: updateBookmarksSharing } = useMutation<{
@@ -37,7 +36,7 @@ export default function SharedBookmarksModal({
   }>(
     () => {
       const updatedValue = !bookmarksSharingData?.bookmarksSharing?.enabled;
-      return request(graphqlUrl, BOOKMARK_SHARING_MUTATION, {
+      return gqlClient.request(BOOKMARK_SHARING_MUTATION, {
         enabled: updatedValue,
       });
     },

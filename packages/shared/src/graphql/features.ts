@@ -1,6 +1,6 @@
-import request, { gql } from 'graphql-request';
-import { graphqlUrl } from '../lib/config';
+import { gql } from 'graphql-request';
 import { ReferralCampaignKey } from '../hooks';
+import { gqlClient } from './common';
 
 export const ACCEPT_FEATURE_MUTATION = gql`
   mutation AcceptFeatureInvite(
@@ -37,4 +37,4 @@ interface AcceptFeatureInvitation {
 
 export const acceptFeatureInvitation = (
   props: AcceptFeatureInvitation,
-): Promise<void> => request(graphqlUrl, ACCEPT_FEATURE_MUTATION, props);
+): Promise<void> => gqlClient.request(ACCEPT_FEATURE_MUTATION, props);
