@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import {
   UpvoteIcon,
   DiscussIcon as CommentIcon,
-  BookmarkIcon,
   DownvoteIcon,
   LinkIcon,
 } from '../icons';
