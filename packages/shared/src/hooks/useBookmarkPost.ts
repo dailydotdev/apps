@@ -217,9 +217,18 @@ export const mutateBookmarkFeedPost = ({
     return undefined;
   }
 
-  const mutationHandler = (post: Post) => ({ bookmarked: !post.bookmarked });
-  const previousState = (items[postIndexToUpdate] as PostItem)?.post
-    ?.bookmarked;
+  const mutationHandler = (post: Post) => {
+    const isBookmarked = !post?.bookmarked;
+
+    return {
+      bookmarked: isBookmarked,
+      bookmark: !isBookmarked ? undefined : post?.bookmark,
+    };
+  };
+
+  const postItem = (items[postIndexToUpdate] as PostItem)?.post;
+  const previousBookmark = postItem?.bookmark;
+  const previousState = postItem?.bookmarked;
 
   optimisticPostUpdateInFeed(
     items,
@@ -236,7 +245,10 @@ export const mutateBookmarkFeedPost = ({
       return;
     }
 
-    const rollbackMutationHandler = () => ({ bookmarked: previousState });
+    const rollbackMutationHandler = () => ({
+      bookmarked: previousState,
+      bookmark: previousBookmark,
+    });
 
     optimisticPostUpdateInFeed(
       items,
