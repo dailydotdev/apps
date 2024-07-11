@@ -9,6 +9,7 @@ import {
 } from '@dailydotdev/shared/src/components/drawers/ListDrawer';
 
 const meta: Meta<typeof ListDrawer> = {
+  title: 'Components/Drawers/ListDrawer',
   component: ListDrawer,
   parameters: {
     controls: {

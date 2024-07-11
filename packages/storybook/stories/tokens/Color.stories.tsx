@@ -2,7 +2,7 @@ import React from 'react';
 import type { Meta } from '@storybook/react';
 import { StoryObj } from '@storybook/react';
 
-import config from '../tailwind.config';
+import config from '../../tailwind.config';
 
 const {
   theme: { colors },
@@ -28,7 +28,7 @@ const flattenColorArr = (data: any, prefix: string): string[] => {
 const flatColorArr = flattenColorArr(colors, 'bg-');
 
 const meta: Meta = {
-  title: 'Color',
+  title: 'Tokens/Color',
   args: {
     className: 'bg-white',
   },

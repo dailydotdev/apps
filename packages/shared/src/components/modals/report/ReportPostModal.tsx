@@ -164,7 +164,7 @@ export function ReportPostModal({
       onReport={onReportPost}
       reasons={reportOptionsForActiveReason}
       heading="Report post"
-      title={`"${post?.title}"`}
+      title={post?.title ? `"${post.title}"` : undefined}
       footer={
         <Checkbox ref={inputRef} name="blockSource" className="font-normal">
           Don&apos;t show posts from {post?.source?.name}

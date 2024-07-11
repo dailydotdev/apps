@@ -210,7 +210,7 @@ export function FilterOnboardingV4({
 
             return (
               <OnboardingTag
-                key={tag.name}
+                key={`tag-${tag.name}`}
                 tag={tag}
                 onClick={handleClickTag}
                 isSelected={isSelected}
@@ -228,7 +228,7 @@ export function FilterOnboardingV4({
 
             return (
               <OnboardingTag
-                key={tag}
+                key={`feed-settings-${tag}`}
                 tag={{ name: tag }}
                 onClick={handleClickTag}
                 isSelected

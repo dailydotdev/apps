@@ -3,6 +3,7 @@ import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
 import { DateFormat } from '@dailydotdev/shared/src/components/utilities';
 
 const meta: Meta<typeof DateFormat> = {
+  title: "Atoms/Date Format",
   component: DateFormat,
   argTypes: {
     date: {

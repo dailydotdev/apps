@@ -737,6 +737,9 @@ importers:
       '@storybook/react-vite':
         specifier: ^8.1.11
         version: 8.1.11(prettier@3.3.2)(react-dom@18.3.1)(react@18.3.1)(typescript@4.9.5)(vite@5.3.3)
+      '@storybook/test':
+        specifier: ^8.1.11
+        version: 8.1.11
       '@storybook/theming':
         specifier: ^8.1.11
         version: 8.1.11(react-dom@18.3.1)(react@18.3.1)
@@ -3733,7 +3736,7 @@ packages:
       '@babel/helper-module-imports': 7.22.5
       '@babel/helper-plugin-utils': 7.22.5
       '@babel/plugin-syntax-jsx': 7.22.5(@babel/core@7.24.7)
-      '@babel/types': 7.22.5
+      '@babel/types': 7.24.7
     dev: true
 
   /@babel/plugin-transform-react-pure-annotations@7.22.5(@babel/core@7.17.9):
@@ -15893,7 +15896,7 @@ packages:
     resolution: {integrity: sha512-1mxKf0e58bvyjSCtKYY4sRe9itRk3PJpquJOjeIkz885CczcI4IvJJDLPS72oowuSh+pBxUFROpX+TU++hxhZQ==}
     engines: {node: '>= 0.4'}
     dependencies:
-      call-bind: 1.0.2
+      call-bind: 1.0.7
       define-properties: 1.2.0
       has-symbols: 1.0.3
       object-keys: 1.1.1

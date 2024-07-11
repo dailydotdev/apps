@@ -11,6 +11,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 
 const meta: Meta<typeof DrawerComponent> = {
+  title: 'Components/Drawers/Drawer',
   component: DrawerComponent,
   parameters: {
     controls: {

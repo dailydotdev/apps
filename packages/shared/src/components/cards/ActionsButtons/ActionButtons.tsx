@@ -1,23 +1,23 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
-import { Post, UserVote } from '../../graphql/posts';
-import InteractionCounter from '../InteractionCounter';
-import { QuaternaryButton } from '../buttons/QuaternaryButton';
+import { Post, UserVote } from '../../../graphql/posts';
+import InteractionCounter from '../../InteractionCounter';
+import { QuaternaryButton } from '../../buttons/QuaternaryButton';
 import {
-  UpvoteIcon,
   DiscussIcon as CommentIcon,
   BookmarkIcon,
   LinkIcon,
-} from '../icons';
+} from '../../icons';
 import {
   Button,
   ButtonColor,
   ButtonProps,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/Button';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { useFeedPreviewMode } from '../../hooks';
+} from '../../buttons/Button';
+import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
+import { useFeedPreviewMode } from '../../../hooks';
+import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -40,6 +40,8 @@ export default function ActionButtons({
     size: ButtonSize.Small,
   };
   const isFeedPreview = useFeedPreviewMode();
+  const isUpvoteActive = post?.userState?.vote === UserVote.Up;
+  const [userUpvoted, setUserUpvoted] = useState(false);
 
   if (isFeedPreview) {
     return null;
@@ -84,10 +86,16 @@ export default function ActionButtons({
         <QuaternaryButton
           id={`post-${post.id}-upvote-btn`}
           icon={
-            <UpvoteIcon secondary={post?.userState?.vote === UserVote.Up} />
+            <UpvoteButtonIcon
+              secondary={post?.userState?.vote === UserVote.Up}
+              userClicked={userUpvoted}
+            />
           }
-          pressed={post?.userState?.vote === UserVote.Up}
-          onClick={() => onUpvoteClick?.(post)}
+          pressed={isUpvoteActive}
+          onClick={() => {
+            onUpvoteClick?.(post);
+            setUserUpvoted(true);
+          }}
           {...upvoteCommentProps}
           className="btn-tertiary-avocado !min-w-[4.625rem]"
         >

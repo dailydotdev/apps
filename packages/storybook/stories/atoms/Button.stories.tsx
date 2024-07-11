@@ -9,6 +9,7 @@ import {
 import { ShareIcon } from '@dailydotdev/shared/src/components/icons';
 
 const meta: Meta<typeof Button> = {
+  title: 'Atoms/Button',
   component: Button,
   parameters: {
     controls: {
