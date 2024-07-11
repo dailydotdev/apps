@@ -9,6 +9,7 @@ import useContextMenu from '../../hooks/useContextMenu';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useBookmarkReminder } from '../../hooks/notifications';
+import { ButtonColor, ButtonVariant } from './Button';
 
 interface BookmarkButtonProps {
   buttonProps?: QuaternaryButtonProps<'button'>;
@@ -41,6 +42,8 @@ export function BookmarkButton({
     <>
       <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
         <QuaternaryButton
+          color={ButtonColor.Bun}
+          variant={ButtonVariant.Tertiary}
           {...buttonProps}
           type="button"
           pressed={post.bookmarked}

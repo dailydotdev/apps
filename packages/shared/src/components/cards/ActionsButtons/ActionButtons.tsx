@@ -56,7 +56,7 @@ export default function ActionButtons({
           id: `post-${post.id}-bookmark-btn`,
           icon: <BookmarkIcon secondary={post.bookmarked} />,
           onClick: () => onBookmarkClick(post),
-          className: 'btn-tertiary-bun !min-w-[4.625rem]',
+          className: '!min-w-[4.625rem]',
         }}
       />
       <SimpleTooltip content="Copy link">
