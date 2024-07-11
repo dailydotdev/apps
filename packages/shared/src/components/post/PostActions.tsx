@@ -25,6 +25,7 @@ import {
   useBookmarkPost,
 } from '../../hooks/useBookmarkPost';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';
+import { BookmarkButton } from '../buttons';
 
 interface PostActionsProps {
   post: Post;
@@ -157,17 +158,19 @@ export function PostActions({
           >
             Comment
           </QuaternaryButton>
-          <QuaternaryButton
-            id="bookmark-post-btn"
-            pressed={post.bookmarked}
-            onClick={onToggleBookmark}
-            icon={<BookmarkIcon secondary={post.bookmarked} />}
-            aria-label={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
-            responsiveLabelClass={actionsClassName}
-            className="btn-tertiary-bun"
+          <BookmarkButton
+            post={post}
+            contextMenuId="post-content-bookmark"
+            buttonProps={{
+              id: 'bookmark-post-btn',
+              pressed: post.bookmarked,
+              onClick: onToggleBookmark,
+              responsiveLabelClass: actionsClassName,
+              className: 'btn-tertiary-bun',
+            }}
           >
             Bookmark
-          </QuaternaryButton>
+          </BookmarkButton>
           <QuaternaryButton
             id="copy-post-btn"
             onClick={() => onCopyLinkClick(post)}

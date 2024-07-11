@@ -1,8 +1,7 @@
-import React, { ReactElement, MouseEvent } from 'react';
-import { ButtonProps } from './Button';
+import React, { ReactElement, MouseEvent, ReactNode } from 'react';
 import { Post } from '../../graphql/posts';
 import ContextMenu from '../fields/ContextMenu';
-import { QuaternaryButton } from './QuaternaryButton';
+import { QuaternaryButton, QuaternaryButtonProps } from './QuaternaryButton';
 import { BookmarkIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
@@ -12,15 +11,17 @@ import { LazyModal } from '../modals/common/types';
 import { useBookmarkReminder } from '../../hooks/notifications';
 
 interface BookmarkButtonProps {
-  buttonProps?: ButtonProps<'button'>;
+  buttonProps?: QuaternaryButtonProps<'button'>;
   contextMenuId?: string;
   post: Post;
+  children?: ReactNode;
 }
 
 export function BookmarkButton({
   contextMenuId = 'bookmark-action',
   buttonProps = {},
   post,
+  children,
 }: BookmarkButtonProps): ReactElement {
   const finalId = `${contextMenuId}-${post.id}`;
   const hasReminder = !!post.bookmark?.remindAt;
@@ -44,9 +45,10 @@ export function BookmarkButton({
           type="button"
           pressed={post.bookmarked}
           onClick={onClick}
-          id={`post-${post.id}-bookmark-btn`}
           icon={<Icon secondary={post.bookmarked} />}
-        />
+        >
+          {children}
+        </QuaternaryButton>
       </SimpleTooltip>
       <ContextMenu
         id={finalId}
