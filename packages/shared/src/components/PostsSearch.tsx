@@ -7,11 +7,9 @@ import React, {
 } from 'react';
 import dynamic from 'next/dynamic';
 import { useQuery } from '@tanstack/react-query';
-import request from 'graphql-request';
 import classNames from 'classnames';
 import { SearchField } from './fields/SearchField';
 import { useAutoComplete } from '../hooks/useAutoComplete';
-import { graphqlUrl } from '../lib/config';
 import useDebounce from '../hooks/useDebounce';
 import {
   SEARCH_POST_SUGGESTIONS,
@@ -19,6 +17,7 @@ import {
 } from '../graphql/search';
 import { SEARCH_BOOKMARKS_SUGGESTIONS } from '../graphql/feed';
 import { SEARCH_READING_HISTORY_SUGGESTIONS } from '../graphql/users';
+import { gqlClient } from '../graphql/common';
 
 const AutoCompleteMenu = dynamic(
   () =>
@@ -67,13 +66,9 @@ export default function PostsSearch({
 
   const { data: searchResults, isLoading } = useQuery<{
     [suggestionType: string]: { hits: { title: string }[] };
-  }>(
-    [suggestionType, query],
-    () => request(graphqlUrl, SEARCH_URL, { query }),
-    {
-      enabled: !!query,
-    },
-  );
+  }>([suggestionType, query], () => gqlClient.request(SEARCH_URL, { query }), {
+    enabled: !!query,
+  });
 
   useEffect(() => {
     if (!initialQuery) {

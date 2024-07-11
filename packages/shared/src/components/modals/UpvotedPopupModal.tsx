@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { graphqlUrl } from '../../lib/config';
 import { RequestQuery, UpvotesData } from '../../graphql/common';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { ModalProps } from './common/Modal';
@@ -22,7 +21,6 @@ export function UpvotedPopupModal({
     queryKey,
     ({ pageParam }) =>
       requestMethod(
-        graphqlUrl,
         query,
         { ...params, after: pageParam },
         { requestKey: JSON.stringify(queryKey) },

@@ -1,9 +1,8 @@
-import request, { gql } from 'graphql-request';
-import { Connection } from './common';
+import { gql } from 'graphql-request';
+import { Connection, gqlClient } from './common';
 import { COMMENT_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { EmptyResponse } from './emptyResponse';
 import { UserShortProfile } from '../lib/user';
-import { graphqlUrl } from '../lib/config';
 import type { Post, UserVote } from './posts';
 
 export type ReportCommentReason =
@@ -237,9 +236,9 @@ export const REPORT_COMMENT_MUTATION = gql`
 
 export const deleteComment = (
   id: string,
-  requestMethod: typeof request,
+  requestMethod: typeof gqlClient.request,
 ): Promise<EmptyResponse> => {
-  return requestMethod(graphqlUrl, DELETE_COMMENT_MUTATION, {
+  return requestMethod(DELETE_COMMENT_MUTATION, {
     id,
   });
 };

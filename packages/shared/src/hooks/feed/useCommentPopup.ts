@@ -1,14 +1,13 @@
 import { useContext, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import request from 'graphql-request';
 import {
   COMMENT_ON_POST_MUTATION,
   CommentOnData,
 } from '../../graphql/comments';
-import { graphqlUrl } from '../../lib/config';
 import LogContext from '../../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../../lib/feed';
 import { Post } from '../../graphql/posts';
+import { gqlClient } from '../../graphql/common';
 
 export default function useCommentPopup(
   feedName: string,
@@ -40,7 +39,7 @@ export default function useCommentPopup(
     }
   >(
     ({ post, content }) =>
-      request(graphqlUrl, COMMENT_ON_POST_MUTATION, {
+      gqlClient.request(COMMENT_ON_POST_MUTATION, {
         id: post.id,
         content,
       }),

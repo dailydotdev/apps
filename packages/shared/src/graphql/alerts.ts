@@ -1,6 +1,6 @@
-import request, { gql } from 'graphql-request';
-import { graphqlUrl } from '../lib/config';
+import { gql } from 'graphql-request';
 import { EmptyResponse } from './emptyResponse';
+import { gqlClient } from './common';
 
 export type Alerts = {
   filter?: boolean;
@@ -61,4 +61,4 @@ const UPDATE_FEED_FEEDBACK_REMINDER = `
 `;
 
 export const updateFeedFeedbackReminder = (): Promise<EmptyResponse> =>
-  request(graphqlUrl, UPDATE_FEED_FEEDBACK_REMINDER);
+  gqlClient.request(UPDATE_FEED_FEEDBACK_REMINDER);

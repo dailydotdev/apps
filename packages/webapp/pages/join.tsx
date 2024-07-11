@@ -1,14 +1,13 @@
 import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
-import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { isDevelopment } from '@dailydotdev/shared/src/lib/constants';
-import request from 'graphql-request';
 import React, { FunctionComponent, ReactElement, useEffect } from 'react';
 import { GetServerSideProps } from 'next';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { setCookie } from '@dailydotdev/shared/src/lib/cookie';
 import { oneYear } from '@dailydotdev/shared/src/lib/dateFormat';
 import { useReferralConfig } from '@dailydotdev/shared/src/hooks/referral/useReferralConfig';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { defaultOpenGraph } from '../next-seo';
 import { JoinPageProps } from '../components/invite/common';
 import { AISearchInvite } from '../components/invite/AISearchInvite';
@@ -110,13 +109,11 @@ export const getServerSideProps: GetServerSideProps<JoinPageProps> = async ({
     };
   }
 
-  const result = await request<{ user: JoinPageProps['referringUser'] }>(
-    graphqlUrl,
-    GET_REFERRING_USER_QUERY,
-    {
-      id: userId,
-    },
-  );
+  const result = await gqlClient.request<{
+    user: JoinPageProps['referringUser'];
+  }>(GET_REFERRING_USER_QUERY, {
+    id: userId,
+  });
 
   res.setHeader(
     'Cache-Control',

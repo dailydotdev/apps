@@ -9,8 +9,6 @@ import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/type
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import classed from '@dailydotdev/shared/src/lib/classed';
-import request from 'graphql-request';
-import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   Source,
   SOURCE_DIRECTORY_QUERY,
@@ -18,7 +16,7 @@ import {
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { GetStaticPropsResult } from 'next';
-import { ApiError } from '@dailydotdev/shared/src/graphql/common';
+import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
@@ -141,8 +139,7 @@ export async function getStaticProps(): Promise<
   GetStaticPropsResult<SourcesPageProps>
 > {
   try {
-    const res = await request<SourcesPageProps>(
-      graphqlUrl,
+    const res = await gqlClient.request<SourcesPageProps>(
       SOURCE_DIRECTORY_QUERY,
     );
 
