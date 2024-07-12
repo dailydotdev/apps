@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useContext } from 'react';
-import { addDays, addHours, nextMonday, setHours } from 'date-fns';
+import { addDays, addHours, nextMonday, set } from 'date-fns';
 import {
   Bookmark,
   setBookmarkReminder,
@@ -11,6 +11,7 @@ import { updatePostCache } from '../usePostById';
 import { ActiveFeedContext } from '../../contexts';
 import { updateCachedPagePost } from '../../lib/query';
 import { optimisticPostUpdateInFeed } from '../../lib/feed';
+import { EmptyResponse } from '../../graphql/emptyResponse';
 
 export enum ReminderPreference {
   OneHour = 'In 1 hour',
@@ -32,24 +33,26 @@ interface BookmarkReminderProps {
 }
 
 interface UseBookmarkReminder {
-  onBookmarkReminder: (props: BookmarkReminderProps) => void;
+  onBookmarkReminder: (props: BookmarkReminderProps) => Promise<EmptyResponse>;
 }
 
 export const getRemindAt = (
   date: Date,
   preference: ReminderPreference,
 ): Date => {
+  const atNineAM = (value: Date) => set(value, { hours: 9, minutes: 0 });
+
   switch (preference) {
     case ReminderPreference.OneHour:
       return addHours(date, 1);
     case ReminderPreference.LaterToday:
-      return setHours(date, 19);
+      return set(date, { hours: 19, minutes: 0 });
     case ReminderPreference.Tomorrow:
-      return addDays(date.setHours(9), 1);
+      return addDays(atNineAM(date), 1);
     case ReminderPreference.TwoDays:
-      return addDays(date.setHours(9), 2);
+      return addDays(atNineAM(date), 2);
     case ReminderPreference.NextWeek:
-      return nextMonday(date.setHours(9));
+      return nextMonday(atNineAM(date));
     default:
       return addHours(date, 1);
   }
@@ -86,6 +89,7 @@ export const useBookmarkReminder = (): UseBookmarkReminder => {
           onUndo: () => onUndoReminder({ postId, remindAt: existingReminder }),
         });
       },
+      onError: () => displayToast('Failed to set reminder'),
     },
   );
 

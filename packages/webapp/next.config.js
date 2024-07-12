@@ -68,10 +68,6 @@ module.exports = withTM(
       },
       rewrites: () => [
         {
-          source: '/api/:path*',
-          destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
-        },
-        {
           source: '/search',
           destination: '/search/:provider',
           has: [

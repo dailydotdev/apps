@@ -51,7 +51,9 @@ export function PostReminderOptions({
       </Button>
       <Button
         {...buttonProps}
-        onClick={() => openModal({ type: LazyModal.ReadItLater })}
+        onClick={() =>
+          openModal({ type: LazyModal.BookmarkReminder, props: { post } })
+        }
       >
         Other
       </Button>

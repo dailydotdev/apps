@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
-import { graphqlUrl } from '../../lib/config';
 import { PREVIEW_COMMENT_MUTATION } from '../../graphql/comments';
 import Markdown from '../Markdown';
 import { useBackgroundRequest } from '../../hooks/companion';
@@ -29,7 +28,6 @@ function MarkdownPreview({
     query,
     () =>
       requestMethod(
-        graphqlUrl,
         PREVIEW_COMMENT_MUTATION,
         { content: input, sourceId },
         { requestKey: isCompanion ? JSON.stringify(query) : undefined },

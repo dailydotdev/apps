@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import request, { ClientError } from 'graphql-request';
+import { ClientError } from 'graphql-request';
 import { useState } from 'react';
 import { generateQueryKey, RequestKey } from '../../lib/query';
-import { graphqlUrl } from '../../lib/config';
 import { UPDATE_README_MUTATION, USER_README_QUERY } from '../../graphql/users';
 import { PublicProfile } from '../../lib/user';
 import { useToastNotification } from '../useToastNotification';
+import { gqlClient } from '../../graphql/common';
 
 export type UseProfileReadmeRet = {
   readme?: string;
@@ -27,7 +27,7 @@ export function useProfileReadme(user: PublicProfile): UseProfileReadmeRet {
   }>(
     queryKey,
     () =>
-      request(graphqlUrl, USER_README_QUERY, {
+      gqlClient.request(USER_README_QUERY, {
         id: user.id,
       }),
     {
@@ -42,7 +42,7 @@ export function useProfileReadme(user: PublicProfile): UseProfileReadmeRet {
     { updateReadme: { readmeHtml: string } },
     unknown,
     string
-  >((content) => request(graphqlUrl, UPDATE_README_MUTATION, { content }), {
+  >((content) => gqlClient.request(UPDATE_README_MUTATION, { content }), {
     onSuccess: async () => {
       setEditMode(false);
       await client.invalidateQueries(queryKey);

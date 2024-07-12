@@ -10,7 +10,7 @@ module.exports = {
     'plugin:prettier/recommended',
     'plugin:react-hooks/recommended',
   ],
-  plugins: ['prettier', 'tailwindcss', 'react-hooks'],
+  plugins: ['prettier', 'tailwindcss', 'react-hooks', 'unused-imports'],
   parserOptions: {
     project: './tsconfig.eslint.json',
     ecmaVersion: 2020,
@@ -32,6 +32,7 @@ module.exports = {
     node: true,
   },
   rules: {
+    'unused-imports/no-unused-imports': 'error',
     curly: ['error', 'all'],
     'import/no-cycle': ['error', {ignoreExternal: false, maxDepth: 3}],
     'react/prop-types': 0,
