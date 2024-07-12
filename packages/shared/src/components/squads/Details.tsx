@@ -25,6 +25,7 @@ import {
 import Alert, { AlertType } from '../widgets/Alert';
 import { Anchor } from '../text';
 import { usePublicSquadRequests } from '../../hooks';
+import { PUBLIC_SQUAD_REQUEST_REQUIREMENT } from '../../lib/config';
 
 const squadImageId = 'squad_image_file';
 
@@ -78,7 +79,9 @@ export function SquadDetails({
     memberInviteRole: initialMemberInviteRole,
   } = form;
   const isRequestsEnabled =
-    !createMode && !form.flags?.totalPosts && !!form?.id;
+    !createMode &&
+    (form.flags?.totalPosts ?? 0) >= PUBLIC_SQUAD_REQUEST_REQUIREMENT &&
+    !!form?.id;
   const { status, daysLeft } = usePublicSquadRequests({
     isQueryEnabled: isRequestsEnabled,
     sourceId: form?.id,
