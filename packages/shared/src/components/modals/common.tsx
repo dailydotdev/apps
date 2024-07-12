@@ -169,7 +169,7 @@ export const modals = {
   [LazyModal.SubmitSquadForReview]: SubmitSquadForReviewModal,
   [LazyModal.PrivilegedMembers]: PrivilegedMemberModal,
   [LazyModal.FirefoxPrivacy]: FirefoxPrivacyModal,
-  [LazyModal.ReadItLater]: BookmarkReminderModal,
+  [LazyModal.BookmarkReminder]: BookmarkReminderModal,
 };
 
 type GetComponentProps<T> = T extends
