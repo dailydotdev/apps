@@ -52,6 +52,7 @@ import { SourceType } from '../graphql/sources';
 import { useSharePost } from '../hooks/useSharePost';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
+import { useBookmarkReminder } from '../hooks/notifications/useBookmarkReminder';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -315,9 +316,12 @@ export default function PostOptionsMenu({
   }
 
   const isReminderActive = useFeature(feature.readingReminder);
+  const { onRemoveBookmarkReminder } = useBookmarkReminder();
+
   if (isReminderActive && isLoggedIn) {
     const hasPostReminder = !!post?.bookmark?.remindAt;
 
+    // Add/Edit reminder
     postOptions.push({
       icon: <MenuIcon Icon={BookmarkIcon} />,
       label: hasPostReminder ? 'Edit reminder' : 'Read it later',
@@ -326,13 +330,13 @@ export default function PostOptionsMenu({
       },
     });
 
-    // has post reminder
     if (hasPostReminder) {
+      // Remove
       postOptions.push({
         icon: <MenuIcon Icon={BookmarkIcon} />,
         label: 'Remove reminder',
         action: () => {
-          console.log('Remove reminder');
+          onRemoveBookmarkReminder(post.id, post.bookmark.remindAt);
         },
       });
     }

@@ -29,6 +29,10 @@ interface BookmarkReminderProps {
 
 interface UseBookmarkReminder {
   onBookmarkReminder: (props: BookmarkReminderProps) => Promise<EmptyResponse>;
+  onRemoveBookmarkReminder: (
+    postId: string,
+    remindAt: Date,
+  ) => Promise<EmptyResponse>;
 }
 
 export const getRemindAt = (
@@ -91,5 +95,12 @@ export const useBookmarkReminder = (): UseBookmarkReminder => {
     [onSetBookmarkReminder],
   );
 
-  return { onBookmarkReminder };
+  const onRemoveBookmarkReminder = useCallback(
+    (postId: string, remindAt: Date) => {
+      return onUndoReminder({ postId, remindAt });
+    },
+    [onUndoReminder],
+  );
+
+  return { onBookmarkReminder, onRemoveBookmarkReminder };
 };
