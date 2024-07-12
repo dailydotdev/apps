@@ -6,7 +6,7 @@ export function CardCover(props: ReusedCardCoverProps): ReactElement {
   return (
     <SharedCardCover
       {...props}
-      CardImage={CardImage}
+      CardImageComponent={CardImage}
       renderOverlay={({ overlay, image }) => (
         <div className="pointer-events-none relative flex flex-1">
           {overlay}

@@ -13,14 +13,14 @@ interface RenderProps {
 
 export type ReusedCardCoverProps = Omit<
   SharedCardCoverProps,
-  'renderOverlay' | 'CardImage'
+  'renderOverlay' | 'CardImageComponent'
 >;
 
 export interface SharedCardCoverProps extends CommonCardCoverProps {
   imageProps: ImageProps;
   videoProps?: Omit<VideoImageProps, 'imageProps'>;
   isVideoType?: boolean;
-  CardImage: typeof CardImage;
+  CardImageComponent: typeof CardImage;
   renderOverlay: (props: RenderProps) => ReactNode;
 }
 
@@ -31,7 +31,7 @@ export function SharedCardCover({
   onShare,
   post,
   renderOverlay,
-  CardImage,
+  CardImageComponent,
 }: SharedCardCoverProps): ReactElement {
   const { overlay } = useCardCover({ post, onShare });
   const imageClasses = classNames(
@@ -43,7 +43,7 @@ export function SharedCardCover({
     return (
       <VideoImage
         {...videoProps}
-        CardImageComponent={CardImage}
+        CardImageComponent={CardImageComponent}
         overlay={overlay}
         imageProps={{
           ...imageProps,

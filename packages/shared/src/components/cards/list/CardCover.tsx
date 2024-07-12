@@ -18,7 +18,7 @@ export function CardCoverList({
   return (
     <SharedCardCover
       {...props}
-      CardImage={CardImage}
+      CardImageComponent={CardImage}
       renderOverlay={({ overlay, image }) => (
         <ConditionalWrapper
           condition={!!overlay}
