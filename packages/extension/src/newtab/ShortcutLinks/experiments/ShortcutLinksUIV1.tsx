@@ -114,6 +114,7 @@ function ShortcutUIItemPlaceholder({ children }: PropsWithChildren) {
 export function ShortcutLinksUIV1(props: ShortcutLinksV1Props): ReactElement {
   const {
     onLinkClick,
+    onMenuClick,
     onOptionsOpen,
     onV1Hide,
     shortcutLinks,
@@ -196,7 +197,7 @@ export function ShortcutLinksUIV1(props: ShortcutLinksV1Props): ReactElement {
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             icon={<MenuIcon className="rotate-90" secondary />}
-            onClick={onOptionsOpen}
+            onClick={onMenuClick}
             className="mt-2"
           />
         </>

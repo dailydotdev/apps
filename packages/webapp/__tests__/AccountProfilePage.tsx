@@ -49,7 +49,7 @@ const renderComponent = (): RenderResult => {
 
 it('should show profile image', async () => {
   renderComponent();
-  const el = await screen.findByAltText('File upload preview');
+  const el = await screen.findByTestId('image_avatar_file');
   expect(el).toHaveAttribute('src', defaultLoggedUser.image);
 });
 

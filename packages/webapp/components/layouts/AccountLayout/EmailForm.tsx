@@ -34,7 +34,7 @@ export interface EmailFormProps {
   emailProps?: Partial<TextFieldProps>;
   passwordProps?: Partial<PasswordFieldProps>;
   hint?: string;
-  setHint?: Dispatch<SetStateAction<string>>;
+  setHint?: Dispatch<SetStateAction<string | undefined>>;
 }
 
 function EmailForm({
