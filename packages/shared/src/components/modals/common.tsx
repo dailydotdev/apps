@@ -142,7 +142,7 @@ const BookmarkReminderModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "bookmarkReminderModal" */ './post/BookmarkReminderModal'
-      ),
+    ),
 );
 
 export const modals = {
