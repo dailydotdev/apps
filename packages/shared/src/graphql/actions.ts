@@ -1,5 +1,5 @@
-import request, { gql } from 'graphql-request';
-import { graphqlUrl } from '../lib/config';
+import { gql } from 'graphql-request';
+import { gqlClient } from './common';
 
 export enum ActionType {
   CreateSquad = 'create_squad',
@@ -49,7 +49,7 @@ export const COMPLETED_USER_ACTIONS = gql`
 `;
 
 export const getUserActions = async (): Promise<Action[]> => {
-  const res = await request(graphqlUrl, COMPLETED_USER_ACTIONS);
+  const res = await gqlClient.request(COMPLETED_USER_ACTIONS);
 
   return res.actions;
 };
@@ -63,4 +63,4 @@ export const COMPLETE_ACTION_MUTATION = gql`
 `;
 
 export const completeUserAction = async (type: ActionType): Promise<void> =>
-  request(graphqlUrl, COMPLETE_ACTION_MUTATION, { type });
+  gqlClient.request(COMPLETE_ACTION_MUTATION, { type });

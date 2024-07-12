@@ -136,6 +136,7 @@ const getProfileRequest = async (method = fetch, id: string) => {
         id,
       },
     }),
+    credentials: 'include',
   });
   if (userRes.status === 404) {
     throw new Error('not found');
@@ -160,6 +161,7 @@ const getProfileV2ExtraRequest = async (
         id,
       },
     }),
+    credentials: 'include',
   });
   if (userRes.status === 404) {
     throw new Error('not found');

@@ -1,10 +1,9 @@
-import request, { gql } from 'graphql-request';
+import { gql } from 'graphql-request';
 import {
   NotificationIconType,
   NotificationType,
 } from '../components/notifications/utils';
-import { Connection } from './common';
-import { graphqlUrl } from '../lib/config';
+import { Connection, gqlClient } from './common';
 import { EmptyResponse } from './emptyResponse';
 import { WithClassNameProps } from '../components/utilities';
 
@@ -213,7 +212,7 @@ type FetchParams = Pick<
 export const getNotificationPreferences = async (
   params: FetchParams[],
 ): Promise<NotificationPreference[]> => {
-  const res = await request(graphqlUrl, NOTIFICATION_PREFERENCES_QUERY, {
+  const res = await gqlClient.request(NOTIFICATION_PREFERENCES_QUERY, {
     data: params,
   });
 
@@ -235,7 +234,7 @@ export const notificationPreferenceMap: Partial<
 export const muteNotification = async (
   params: NotificationPreferenceParams,
 ): Promise<EmptyResponse> => {
-  const res = await request(graphqlUrl, MUTE_NOTIFICATION_MUTATION, params);
+  const res = await gqlClient.request(MUTE_NOTIFICATION_MUTATION, params);
 
   return res.muteNotificationPreference;
 };
@@ -243,8 +242,7 @@ export const muteNotification = async (
 export const clearNotificationPreference = async (
   params: NotificationPreferenceParams,
 ): Promise<EmptyResponse> => {
-  const res = await request(
-    graphqlUrl,
+  const res = await gqlClient.request(
     CLEAR_NOTIFICATION_PREFERENCE_MUTATION,
     params,
   );
@@ -255,7 +253,7 @@ export const clearNotificationPreference = async (
 export const hideSourceFeedPosts = async (
   sourceId: string,
 ): Promise<EmptyResponse> => {
-  const res = await request(graphqlUrl, HIDE_SOURCE_ON_FEED_MUTATION, {
+  const res = await gqlClient.request(HIDE_SOURCE_ON_FEED_MUTATION, {
     sourceId,
   });
 
@@ -265,7 +263,7 @@ export const hideSourceFeedPosts = async (
 export const showSourceFeedPosts = async (
   sourceId: string,
 ): Promise<EmptyResponse> => {
-  const res = await request(graphqlUrl, SHOW_SOURCE_ON_FEED_MUTATION, {
+  const res = await gqlClient.request(SHOW_SOURCE_ON_FEED_MUTATION, {
     sourceId,
   });
 
@@ -275,11 +273,7 @@ export const showSourceFeedPosts = async (
 export const subscribeNotification = async (
   params: NotificationPreferenceParams,
 ): Promise<EmptyResponse> => {
-  const res = await request(
-    graphqlUrl,
-    SUBSCRIBE_NOTIFICATION_MUTATION,
-    params,
-  );
+  const res = await gqlClient.request(SUBSCRIBE_NOTIFICATION_MUTATION, params);
 
   return res.subscribeNotificationPreference;
 };

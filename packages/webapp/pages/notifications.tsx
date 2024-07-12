@@ -16,8 +16,6 @@ import {
   pageBorders,
   pageContainerClassNames,
 } from '@dailydotdev/shared/src/components/utilities';
-import request from 'graphql-request';
-import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
 import FirstNotification from '@dailydotdev/shared/src/components/notifications/FirstNotification';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
@@ -35,6 +33,7 @@ import {
 import { usePromotionModal } from '@dailydotdev/shared/src/hooks/notifications/usePromotionModal';
 import { NotificationPreferenceMenu } from '@dailydotdev/shared/src/components/tooltips/notifications';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
@@ -60,13 +59,13 @@ const Notifications = (): ReactElement => {
   const { isSubscribed } = usePushNotificationContext();
 
   const { mutateAsync: readNotifications } = useMutation(
-    () => request(graphqlUrl, READ_NOTIFICATIONS_MUTATION),
+    () => gqlClient.request(READ_NOTIFICATIONS_MUTATION),
     { onSuccess: clearUnreadCount },
   );
   const queryResult = useInfiniteQuery<NotificationsData>(
     ['notifications'],
     ({ pageParam }) =>
-      request(graphqlUrl, NOTIFICATIONS_QUERY, {
+      gqlClient.request(NOTIFICATIONS_QUERY, {
         first: 100,
         after: pageParam,
       }),

@@ -1,7 +1,7 @@
-import request, { gql } from 'graphql-request';
-import { apiUrl, graphqlUrl } from '../lib/config';
+import { gql } from 'graphql-request';
+import { apiUrl } from '../lib/config';
 import { isNullOrUndefined } from '../lib/func';
-import { Connection, RequestQueryParams } from './common';
+import { Connection, RequestQueryParams, gqlClient } from './common';
 import { webappUrl } from '../lib/constants';
 import { Post } from './posts';
 import { labels } from '../lib';
@@ -188,10 +188,10 @@ interface SearchFeedbackProps {
 
 export const sendSearchFeedback = (
   params: SearchFeedbackProps,
-): Promise<void> => request(graphqlUrl, SEARCH_FEEDBACK_MUTATION, params);
+): Promise<void> => gqlClient.request(SEARCH_FEEDBACK_MUTATION, params);
 
 export const getSearchSession = async (id: string): Promise<Search> => {
-  const res = await request(graphqlUrl, SEARCH_SESSION_QUERY, { id });
+  const res = await gqlClient.request(SEARCH_SESSION_QUERY, { id });
 
   return res.searchSession;
 };
@@ -199,10 +199,10 @@ export const getSearchSession = async (id: string): Promise<Search> => {
 export const getSearchHistory = async (
   params: RequestQueryParams,
 ): Promise<SearchHistoryData> =>
-  request(graphqlUrl, SEARCH_HISTORY_QUERY, params);
+  gqlClient.request(SEARCH_HISTORY_QUERY, params);
 
 export const getSearchSuggestions = async (): Promise<SearchQuestion[]> => {
-  const res = await request(graphqlUrl, SEARCH_POST_RECOMMENDATION);
+  const res = await gqlClient.request(SEARCH_POST_RECOMMENDATION);
 
   return res.searchQuestionRecommendations;
 };

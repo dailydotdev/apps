@@ -44,9 +44,8 @@ import {
   useSquad,
 } from '@dailydotdev/shared/src/hooks';
 import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
-import request, { ClientError } from 'graphql-request';
-import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
-import { ApiError } from '@dailydotdev/shared/src/graphql/common';
+import { ClientError } from 'graphql-request';
+import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
@@ -304,22 +303,23 @@ export async function getServerSideProps({
     const promises = [];
 
     promises.push(
-      request<{
+      gqlClient.request<{
         source: SourcePageProps['initialData'];
-      }>(graphqlUrl, SQUAD_STATIC_FIELDS_QUERY, {
+      }>(SQUAD_STATIC_FIELDS_QUERY, {
         handle,
       }),
     );
 
     if (userId && campaign) {
       promises.push(
-        request<{ user: SourcePageProps['referringUser'] }>(
-          graphqlUrl,
-          GET_REFERRING_USER_QUERY,
-          {
-            id: userId,
-          },
-        ).catch(() => undefined),
+        gqlClient
+          .request<{ user: SourcePageProps['referringUser'] }>(
+            GET_REFERRING_USER_QUERY,
+            {
+              id: userId,
+            },
+          )
+          .catch(() => undefined),
       );
     }
 

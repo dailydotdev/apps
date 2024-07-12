@@ -1,6 +1,5 @@
 import React, { ReactElement, ReactNode } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import request from 'graphql-request';
 import classNames from 'classnames';
 import InfiniteScrolling, {
   checkFetchMore,
@@ -10,11 +9,11 @@ import { Origin } from '../lib/log';
 import { useShareComment } from '../hooks/useShareComment';
 import { useUpvoteQuery } from '../hooks/useUpvoteQuery';
 import { useDeleteComment } from '../hooks/comments/useDeleteComment';
-import { graphqlUrl } from '../lib/config';
 import PlaceholderCommentList from './comments/PlaceholderCommentList';
 import { CommentClassName } from './comments/common';
 import { CommentFeedData } from '../graphql/comments';
 import { useViewSize, ViewSize } from '../hooks';
+import { gqlClient } from '../graphql/common';
 
 interface CommentFeedProps<T> {
   feedQueryKey: unknown[];
@@ -43,7 +42,7 @@ export default function CommentFeed<T>({
   const queryResult = useInfiniteQuery<CommentFeedData>(
     feedQueryKey,
     ({ pageParam }) =>
-      request(graphqlUrl, query, {
+      gqlClient.request(query, {
         ...variables,
         first: 20,
         after: pageParam,

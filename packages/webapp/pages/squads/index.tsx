@@ -7,8 +7,7 @@ import InfiniteScrolling, {
   checkFetchMore,
 } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { InfiniteData, useInfiniteQuery } from '@tanstack/react-query';
-import request, { ClientError } from 'graphql-request';
-import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
+import { ClientError } from 'graphql-request';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   FeedContainer,
@@ -23,7 +22,7 @@ import { squadsPublicSuggestion } from '@dailydotdev/shared/src/lib/constants';
 import { GetStaticPropsResult } from 'next';
 import { ApiError } from 'next/dist/server/api-utils';
 import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
-import { Connection } from '@dailydotdev/shared/src/graphql/common';
+import { Connection, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import {
   Button,
@@ -67,7 +66,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
   const queryResult = useInfiniteQuery(
     ['sourcesFeed'],
     ({ pageParam }) =>
-      request(graphqlUrl, SQUAD_DIRECTORY_SOURCES, {
+      gqlClient.request(SQUAD_DIRECTORY_SOURCES, {
         filterOpenSquads: true,
         featured: true,
         first: 100,
@@ -215,7 +214,7 @@ SquadsPage.layoutProps = {
 
 export async function getStaticProps(): Promise<GetStaticPropsResult<Props>> {
   try {
-    const initialData = await request(graphqlUrl, SQUAD_DIRECTORY_SOURCES, {
+    const initialData = await gqlClient.request(SQUAD_DIRECTORY_SOURCES, {
       filterOpenSquads: true,
       featured: true,
       first: 100,

@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import browser from 'webextension-polyfill';
-import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   ADD_BOOKMARKS_MUTATION,
   REMOVE_BOOKMARK_MUTATION,
@@ -45,7 +44,7 @@ export default function useCompanionActions<
     T,
     (() => void) | undefined
   >(({ id }) =>
-    companionRequest(graphqlUrl, ADD_FILTERS_TO_FEED_MUTATION, {
+    companionRequest(ADD_FILTERS_TO_FEED_MUTATION, {
       filters: {
         excludeSources: [id],
       },
@@ -70,7 +69,7 @@ export default function useCompanionActions<
     (() => void) | undefined
   >(
     ({ id }) =>
-      companionRequest(graphqlUrl, ADD_BOOKMARKS_MUTATION, {
+      companionRequest(ADD_BOOKMARKS_MUTATION, {
         data: { postIds: [id] },
       }),
     {
@@ -88,7 +87,7 @@ export default function useCompanionActions<
     (() => void) | undefined
   >(
     ({ id }) =>
-      companionRequest(graphqlUrl, REMOVE_BOOKMARK_MUTATION, {
+      companionRequest(REMOVE_BOOKMARK_MUTATION, {
         id,
       }),
     {
@@ -106,7 +105,7 @@ export default function useCompanionActions<
     (() => void) | undefined
   >(
     () =>
-      companionRequest(graphqlUrl, UPDATE_ALERTS, {
+      companionRequest(UPDATE_ALERTS, {
         data: {
           companionHelper: false,
         },
@@ -126,7 +125,7 @@ export default function useCompanionActions<
     (() => void) | undefined
   >(
     ({ companionExpandedValue }) =>
-      companionRequest(graphqlUrl, UPDATE_USER_SETTINGS_MUTATION, {
+      companionRequest(UPDATE_USER_SETTINGS_MUTATION, {
         data: {
           companionExpanded: companionExpandedValue,
         },

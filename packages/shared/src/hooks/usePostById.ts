@@ -1,4 +1,3 @@
-import request from 'graphql-request';
 import { useMemo } from 'react';
 import {
   QueryClient,
@@ -7,7 +6,6 @@ import {
   useQuery,
   UseQueryResult,
 } from '@tanstack/react-query';
-import { graphqlUrl } from '../lib/config';
 import { useAuthContext } from '../contexts/AuthContext';
 import {
   Post,
@@ -17,7 +15,7 @@ import {
 } from '../graphql/posts';
 import { PostCommentsData } from '../graphql/comments';
 import { generateQueryKey, RequestKey } from '../lib/query';
-import { Connection } from '../graphql/common';
+import { Connection, gqlClient } from '../graphql/common';
 
 interface UsePostByIdProps {
   id: string;
@@ -109,7 +107,7 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
     isLoading,
   } = useQuery<PostData>(
     key,
-    () => request(graphqlUrl, POST_BY_ID_QUERY, { id }),
+    () => gqlClient.request(POST_BY_ID_QUERY, { id }),
     {
       ...options,
       enabled: !!id && tokenRefreshed,

@@ -6,7 +6,6 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import request from 'graphql-request';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { RequestKey, generateQueryKey } from '../../lib/query';
 import {
@@ -14,7 +13,6 @@ import {
   GET_RECOMMENDED_TAGS_QUERY,
   TagsData,
 } from '../../graphql/feedSettings';
-import { graphqlUrl } from '../../lib/config';
 import { disabledRefetch, getRandomNumber } from '../../lib/func';
 import { SearchField } from '../fields/SearchField';
 import useDebounce from '../../hooks/useDebounce';
@@ -25,6 +23,7 @@ import { Origin } from '../../lib/log';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { OnSelectTagProps } from './common';
 import { OnboardingTag } from './OnboardingTag';
+import { gqlClient } from '../../graphql/common';
 
 const tagsSelector = (data: TagsData) => data?.tags || [];
 
@@ -91,9 +90,9 @@ export function FilterOnboardingV4({
   const { data: onboardingTags, isLoading } = useQuery(
     onboardingTagsQueryKey,
     async () => {
-      const result = await request<{
+      const result = await gqlClient.request<{
         onboardingTags: TagsData;
-      }>(graphqlUrl, GET_ONBOARDING_TAGS_QUERY, {});
+      }>(GET_ONBOARDING_TAGS_QUERY, {});
 
       return result.onboardingTags;
     },
@@ -122,9 +121,9 @@ export function FilterOnboardingV4({
 
   const { mutate: recommendTags, data: recommendedTags } = useMutation(
     async ({ tag }: Pick<OnSelectTagProps, 'tag'>) => {
-      const result = await request<{
+      const result = await gqlClient.request<{
         recommendedTags: TagsData;
-      }>(graphqlUrl, GET_RECOMMENDED_TAGS_QUERY, {
+      }>(GET_RECOMMENDED_TAGS_QUERY, {
         tags: [tag.name],
         excludedTags,
       });

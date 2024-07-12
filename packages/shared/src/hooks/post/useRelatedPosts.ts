@@ -13,7 +13,6 @@ import {
   PostData,
   RELATED_POSTS_PER_PAGE_DEFAULT,
 } from '../../graphql/posts';
-import { graphqlUrl } from '../../lib/config';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { getPostByIdKey } from '../usePostById';
 import { useRequestProtocol } from '../useRequestProtocol';
@@ -56,7 +55,7 @@ export const useRelatedPosts = ({
     async ({ pageParam }) => {
       const result = await requestMethod<{
         relatedPosts: RelatedPostsQueryData;
-      }>(graphqlUrl, RELATED_POSTS_QUERY, {
+      }>(RELATED_POSTS_QUERY, {
         id: postId,
         relationType,
         first: perPage,
