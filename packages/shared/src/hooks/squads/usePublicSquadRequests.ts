@@ -92,7 +92,7 @@ export const usePublicSquadRequests = ({
       },
     });
 
-  const edges = requests?.pages[requests?.pages?.length - 1]?.edges;
+  const edges = requests?.pages.at(-1)?.edges;
   const latestRequest = edges?.[edges?.length - 1]?.node;
 
   const status = useMemo(() => {
@@ -113,7 +113,7 @@ export const usePublicSquadRequests = ({
     }
 
     return remoteStatusMap[latestRequest.status];
-  }, [latestRequest, isPublic]);
+  }, [sourceId, latestRequest, isPublic]);
 
   const daysLeft = useMemo(() => {
     if (
