@@ -14,7 +14,7 @@ import { Post } from '../../../graphql/posts';
 
 export interface BookmarkReminderProps
   extends Pick<ModalProps, 'isOpen' | 'onRequestClose'> {
-  onReminderSet: (reminder: string) => void;
+  onReminderSet?: (reminder: string) => void;
   post: Post;
 }
 
