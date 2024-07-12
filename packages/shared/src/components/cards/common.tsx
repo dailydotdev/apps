@@ -7,12 +7,10 @@ import React, {
 import { Post } from '../../graphql/posts';
 import classed, { ClassedHTML } from '../../lib/classed';
 import { Origin } from '../../lib/log';
-import { CardImage } from './Card';
 
 export interface CommonCardCoverProps {
   post?: Post;
   onShare?: (post: Post) => unknown;
-  CardImage: typeof CardImage;
 }
 
 export const separatorCharacter = <>&#x2022;</>;

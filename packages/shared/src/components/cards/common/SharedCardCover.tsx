@@ -4,6 +4,7 @@ import { CommonCardCoverProps } from '../common';
 import { ImageProps, ImageType } from '../../image/Image';
 import VideoImage, { VideoImageProps } from '../../image/VideoImage';
 import { useCardCover } from '../../../hooks/feed/useCardCover';
+import { CardImage } from '../Card';
 
 interface RenderProps {
   overlay: ReactNode;
@@ -19,6 +20,7 @@ export interface SharedCardCoverProps extends CommonCardCoverProps {
   imageProps: ImageProps;
   videoProps?: Omit<VideoImageProps, 'imageProps'>;
   isVideoType?: boolean;
+  CardImage: typeof CardImage;
   renderOverlay: (props: RenderProps) => ReactNode;
 }
 
