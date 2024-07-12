@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
-import { addDays, addHours, nextMonday } from 'date-fns';
+import { addDays, addHours, nextMonday, set } from 'date-fns';
 import { ReminderPreference, useBookmarkReminder } from './useBookmarkReminder';
 import { setBookmarkReminder } from '../../graphql/bookmarks';
 
@@ -19,7 +19,7 @@ const Wrapper = ({ children }) => (
 
 describe('useBookmarkReminder hook', () => {
   beforeEach(() => {
-    mockedNow = new Date(2024, 6, 14, 15, 0, 0); // Sun Jul 14 2024 15:00:00
+    mockedNow = new Date(2024, 6, 14, 15, 23, 0); // Sun Jul 14 2024 15:23:00
     client.clear();
     jest.useFakeTimers('modern').setSystemTime(mockedNow);
     jest.clearAllMocks();
@@ -59,7 +59,7 @@ describe('useBookmarkReminder hook', () => {
       preference: ReminderPreference.LaterToday,
     });
 
-    const laterToday = new Date(mockedNow.setHours(19));
+    const laterToday = new Date(set(mockedNow, { hours: 19, minutes: 0 }));
     jest.useRealTimers();
     await waitFor(() => {
       expect(setBookmarkReminder).toHaveBeenCalledWith({
@@ -96,10 +96,11 @@ describe('useBookmarkReminder hook', () => {
       preference: ReminderPreference.Tomorrow,
     });
 
-    const tomorrow = addDays(mockedNow.setHours(9), 1);
+    const tomorrow = addDays(set(mockedNow, { hours: 9, minutes: 0 }), 1);
     const differenceInDays = tomorrow.getDate() - mockedNow.getDate();
     expect(differenceInDays).toBe(1);
     expect(tomorrow.getHours()).toBe(9);
+    expect(tomorrow.getMinutes()).toBe(0);
     jest.useRealTimers();
     await waitFor(() => {
       expect(setBookmarkReminder).toHaveBeenCalledWith({
@@ -119,10 +120,12 @@ describe('useBookmarkReminder hook', () => {
       preference: ReminderPreference.TwoDays,
     });
 
-    const twoDays = addDays(mockedNow.setHours(9), 2);
+    const twoDays = addDays(set(mockedNow, { hours: 9, minutes: 0 }), 2);
     const differenceInDays = twoDays.getDate() - mockedNow.getDate();
     expect(differenceInDays).toBe(2);
     expect(twoDays.getHours()).toBe(9);
+    expect(twoDays.getMinutes()).toBe(0);
+
     jest.useRealTimers();
     await waitFor(() => {
       expect(setBookmarkReminder).toHaveBeenCalledWith({
@@ -142,9 +145,16 @@ describe('useBookmarkReminder hook', () => {
       preference: ReminderPreference.NextWeek,
     });
 
-    const nextMondayReminder = nextMonday(mockedNow.setHours(9));
+    const nextMondayReminder = nextMonday(
+      set(mockedNow, {
+        hours: 9,
+        minutes: 0,
+      }),
+    );
     expect(nextMondayReminder.getDay()).toBe(1); // Monday
     expect(nextMondayReminder.getDate()).toBe(15); // 15th
+    expect(nextMondayReminder.getHours()).toBe(9); // 15th
+    expect(nextMondayReminder.getMinutes()).toBe(0); // 15th
     jest.useRealTimers();
     await waitFor(() => {
       expect(setBookmarkReminder).toHaveBeenCalledWith({
