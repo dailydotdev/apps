@@ -316,7 +316,7 @@ export default function PostOptionsMenu({
 
   const isReminderActive = useFeature(feature.readingReminder);
   if (isReminderActive && isLoggedIn) {
-    const hasPostReminder = !!post.bookmark.remindAt;
+    const hasPostReminder = !!post?.bookmark?.remindAt;
 
     if (!hasPostReminder) {
       postOptions.push({

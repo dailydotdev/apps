@@ -9,7 +9,7 @@ import {
   getRemindAt,
   ReminderPreference,
   useBookmarkReminder,
-} from '../../../hooks/notifications';
+} from '../../../hooks/notifications/useBookmarkReminder';
 import { Post } from '../../../graphql/posts';
 
 export interface BookmarkReminderProps
