@@ -142,6 +142,7 @@ function ImageInput({
               !viewOnly && 'mouse:group-hover:opacity-64',
             )}
             src={image}
+            data-testid={`image_${id}`}
             alt="File upload preview"
             onError={onError}
           />

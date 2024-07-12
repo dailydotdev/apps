@@ -55,8 +55,8 @@ const AccountProfilePage = (): ReactElement => {
   const onSuccess = () => displayToast('Profile updated');
   const { updateUserProfile, isLoading, hint } = useProfileForm({ onSuccess });
   const { user, updateUser } = useContext(AuthContext);
-  const [coverImage, setCoverImage] = useState<string>(user.cover);
-  const currentCoverImage = coverImage || user.cover;
+  const [coverImage, setCoverImage] = useState(user?.cover);
+  const currentCoverImage = coverImage || user?.cover;
   const isMobile = useViewSize(ViewSize.MobileL);
   const [userTimeZone, setUserTimeZone] = useState<string>(
     getUserInitialTimezone({
@@ -94,7 +94,7 @@ const AccountProfilePage = (): ReactElement => {
       }),
     {
       onSuccess: async (res) => {
-        await updateUser({ ...user, cover: res.user.cover });
+        await updateUser({ ...user, cover: res.user.cover } as LoggedUser);
         displayToast('Cover image updated');
       },
       onError: (err) => {
@@ -107,7 +107,7 @@ const AccountProfilePage = (): ReactElement => {
   );
 
   const onImageInputChange = useCallback(
-    (file: File, fileName?: string, isCover = false) => {
+    (file?: File, fileName?: string, isCover = false) => {
       if (isCover) {
         setCoverImage(fileName);
       }
@@ -151,7 +151,7 @@ const AccountProfilePage = (): ReactElement => {
               img: 'object-cover',
               container: 'border-4 !border-background-default',
             }}
-            initialValue={user.image}
+            initialValue={user?.image}
             hoverIcon={<CameraIcon size={IconSize.Large} />}
             onChange={(_, file) => onImageInputChange(file)}
           />
@@ -165,7 +165,7 @@ const AccountProfilePage = (): ReactElement => {
             }}
             size="cover"
             initialValue={currentCoverImage}
-            fallbackImage={null}
+            fallbackImage={undefined}
             alwaysShowHover={!currentCoverImage}
             hoverIcon={<CoverHoverIcon />}
             fileSizeLimitMB={5}
@@ -183,7 +183,7 @@ const AccountProfilePage = (): ReactElement => {
           hint={hint.name}
           valid={!hint.name}
           leftIcon={<UserIcon />}
-          value={user.name}
+          value={user?.name}
         />
         <AccountTextField
           label="Username"
@@ -192,10 +192,10 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.username}
           name="username"
           leftIcon={<AtIcon />}
-          value={user.username}
+          value={user?.username}
         />
         <ExperienceLevelDropdown
-          defaultValue={user.experienceLevel}
+          defaultValue={user?.experienceLevel}
           name="experienceLevel"
           className={{
             container: 'mt-6 max-w-sm tablet:relative',
@@ -211,20 +211,20 @@ const AccountProfilePage = (): ReactElement => {
           inputId="bio"
           name="bio"
           rows={5}
-          value={user.bio}
+          value={user?.bio}
           className={{ container: 'mt-6 max-w-sm' }}
         />
         <AccountTextField
           label="Company"
           inputId="company"
           name="company"
-          value={user.company}
+          value={user?.company}
         />
         <AccountTextField
           label="Job Title"
           inputId="title"
           name="title"
-          value={user.title}
+          value={user?.title}
         />
       </AccountContentSection>
       <AccountContentSection title="Your timezone">
@@ -245,7 +245,7 @@ const AccountProfilePage = (): ReactElement => {
           hint={hint.twitter}
           valid={!hint.twitter}
           name="twitter"
-          value={user.twitter}
+          value={user?.twitter}
         />
         <AccountTextField
           leftIcon={<GitHubIcon />}
@@ -254,7 +254,7 @@ const AccountProfilePage = (): ReactElement => {
           hint={hint.github}
           valid={!hint.github}
           name="github"
-          value={user.github}
+          value={user?.github}
         />
         <AccountTextField
           leftIcon={<LinkIcon />}
@@ -263,7 +263,7 @@ const AccountProfilePage = (): ReactElement => {
           hint={hint.portfolio}
           valid={!hint.portfolio}
           name="portfolio"
-          value={user.portfolio}
+          value={user?.portfolio}
         />
       </AccountContentSection>
     </form>
@@ -278,7 +278,7 @@ const AccountProfilePage = (): ReactElement => {
         rightButtonProps={{ onClick: onSubmit, disabled: isLoading }}
         leftButtonProps={{
           onClick: () => {
-            router.push(user.permalink);
+            router.push(user?.permalink ?? '/');
           },
         }}
       >

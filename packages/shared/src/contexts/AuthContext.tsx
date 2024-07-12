@@ -99,7 +99,7 @@ const logout = async (reason: string): Promise<void> => {
 };
 
 export type AuthContextProviderProps = {
-  user: LoggedUser | AnonymousUser | undefined;
+  user?: LoggedUser | AnonymousUser;
   isFetched?: boolean;
   isLegacyLogout?: boolean;
   firstLoad?: boolean;

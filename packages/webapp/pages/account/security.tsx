@@ -43,8 +43,8 @@ const AccountSecurityPage = (): ReactElement => {
   const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);
-  const [verificationId, setVerificationId] = useState<string>(null);
-  const [hint, setHint] = useState<string>(null);
+  const [verificationId, setVerificationId] = useState<string>();
+  const [hint, setHint] = useState<string>();
   const { onUpdateSignBack, signBack, provider } = useSignBack();
   const providersKey = generateQueryKey(RequestKey.Providers, user);
   const { data: userProviders } = useQuery(providersKey, () =>
@@ -68,7 +68,7 @@ const AccountSecurityPage = (): ReactElement => {
       onSuccess: ({ redirect, error, code }, params) => {
         if (redirect && code === 403) {
           const onVerified = () => resetPassword(params);
-          return initializePrivilegedSession(redirect, onVerified);
+          return initializePrivilegedSession?.(redirect, onVerified);
         }
 
         if (error) {
@@ -93,19 +93,19 @@ const AccountSecurityPage = (): ReactElement => {
   const sessionKey = generateQueryKey(RequestKey.CurrentSession, user);
   const { mutateAsync: changeEmail } = useMutation(
     (params: ValidateChangeEmail) => {
-      setHint(null);
+      setHint(undefined);
       return submitKratosFlow(params);
     },
     {
       onSuccess: async ({ data, redirect, error, code }, params) => {
         if (redirect && code === 403) {
           const onVerified = () => changeEmail(params);
-          initializePrivilegedSession(redirect, onVerified);
+          initializePrivilegedSession?.(redirect, onVerified);
           return;
         }
 
         if (error) {
-          if (error?.ui?.messages[0]?.id === KRATOS_ERROR.EXISTING_USER) {
+          if (error?.ui?.messages?.[0]?.id === KRATOS_ERROR.EXISTING_USER) {
             setHint('This email address is already in use');
           }
         }
@@ -160,7 +160,7 @@ const AccountSecurityPage = (): ReactElement => {
       onSuccess: ({ redirect, error, code }, vars) => {
         if (redirect) {
           if (code === 403) {
-            initializePrivilegedSession(redirect, () => updateSettings(vars));
+            initializePrivilegedSession?.(redirect, () => updateSettings(vars));
             return;
           }
 
@@ -180,7 +180,7 @@ const AccountSecurityPage = (): ReactElement => {
           client.invalidateQueries(providersKey);
 
           if ('unlink' in params && params.unlink === provider) {
-            const validProvider = userProviders.result?.find(
+            const validProvider = userProviders?.result?.find(
               (userProvider) => userProvider !== provider,
             );
             onUpdateSignBack(signBack, validProvider as SignBackProvider);

@@ -29,7 +29,7 @@ const commentClassName = {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfileCommentsPage = ({ user }: ProfileLayoutProps): ReactElement => {
   const { user: loggedUser } = useContext(AuthContext);
-  const isSameUser = loggedUser?.id === user.id;
+  const isSameUser = user && loggedUser?.id === user.id;
   const userId = user?.id;
 
   const emptyScreen = isSameUser ? (
@@ -41,7 +41,7 @@ const ProfileCommentsPage = ({ user }: ProfileLayoutProps): ReactElement => {
     />
   ) : (
     <ProfileEmptyScreen
-      title={`${user.name} hasn't replied to any post yet`}
+      title={`${user?.name ?? 'User'} hasn't replied to any post yet`}
       text="Once they do, those replies will show up here."
     />
   );
