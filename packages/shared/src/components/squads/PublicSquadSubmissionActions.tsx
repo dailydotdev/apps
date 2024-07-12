@@ -15,7 +15,7 @@ interface PublicSquadSubmissionActionsProps {
   isDetailsVisible?: boolean;
 }
 
-export const PublicSquadSubmissionActions = (
+const PublicSquadSubmissionActions = (
   props: PublicSquadSubmissionActionsProps,
 ): ReactElement => {
   const { squad, isDetailsVisible = true } = props;
