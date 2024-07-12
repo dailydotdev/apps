@@ -315,14 +315,36 @@ export default function PostOptionsMenu({
   }
 
   const isReminderActive = useFeature(feature.readingReminder);
-  if (isReminderActive) {
-    postOptions.push({
-      icon: <MenuIcon Icon={BookmarkIcon} />,
-      label: 'Read it later',
-      action: () => {
-        console.log('Read it later');
-      },
-    });
+  if (isReminderActive && isLoggedIn) {
+    const hasPostReminder = !!post.bookmark.remindAt;
+
+    if (!hasPostReminder) {
+      postOptions.push({
+        icon: <MenuIcon Icon={BookmarkIcon} />,
+        label: 'Read it later',
+        action: () => {
+          openModal({ type: LazyModal.BookmarkReminder, props: { post } });
+        },
+      });
+    } else {
+      // has post reminder
+      postOptions.push(
+        {
+          icon: <MenuIcon Icon={BookmarkIcon} />,
+          label: 'Edit reminder',
+          action: () => {
+            console.log('Edit reminder');
+          },
+        },
+        {
+          icon: <MenuIcon Icon={BookmarkIcon} />,
+          label: 'Remove reminder',
+          action: () => {
+            console.log('Remove reminder');
+          },
+        },
+      );
+    }
   }
 
   if (shouldShowSubscribe) {
@@ -452,3 +474,7 @@ export default function PostOptionsMenu({
     />
   );
 }
+
+PostOptionsMenu.ReminderItem = function ReminderItem(): ReactElement {
+  return <div>Reminder</div>;
+};
