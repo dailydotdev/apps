@@ -8,7 +8,7 @@ import { fn } from '@storybook/test';
 import post from '@dailydotdev/shared/__tests__/fixture/post';
 
 const meta: Meta<typeof BookmarkReminderModal> = {
-  title: 'components/Notifications/BookmarkReminderModal',
+  title: 'components/Modals/BookmarkReminderModal',
   component: BookmarkReminderModal,
   args: {
     onReminderSet: fn(),
