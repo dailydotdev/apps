@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { squadsPublicGuide } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
@@ -17,7 +17,7 @@ interface PublicSquadSubmissionActionsProps {
 
 export const PublicSquadSubmissionActions = (
   props: PublicSquadSubmissionActionsProps,
-) => {
+): ReactElement => {
   const { squad, isDetailsVisible = true } = props;
   const { isFetched, status } = usePublicSquadRequests({
     sourceId: squad?.id,
