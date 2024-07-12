@@ -113,7 +113,7 @@ export const usePublicSquadRequests = ({
     }
 
     return remoteStatusMap[latestRequest.status];
-  }, [sourceId, latestRequest, isPublic]);
+  }, [latestRequest, isPublic]);
 
   const daysLeft = useMemo(() => {
     if (
