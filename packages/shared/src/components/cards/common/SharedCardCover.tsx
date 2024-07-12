@@ -3,13 +3,17 @@ import classNames from 'classnames';
 import { CommonCardCoverProps } from '../common';
 import { ImageProps, ImageType } from '../../image/Image';
 import VideoImage, { VideoImageProps } from '../../image/VideoImage';
-import { CardImage } from '../list/ListCard';
 import { useCardCover } from '../../../hooks/feed/useCardCover';
 
 interface RenderProps {
   overlay: ReactNode;
   image: ReactNode;
 }
+
+export type ReusedCardCoverProps = Omit<
+  SharedCardCoverProps,
+  'renderOverlay' | 'CardImage'
+>;
 
 export interface SharedCardCoverProps extends CommonCardCoverProps {
   imageProps: ImageProps;
@@ -25,6 +29,7 @@ export function SharedCardCover({
   onShare,
   post,
   renderOverlay,
+  CardImage,
 }: SharedCardCoverProps): ReactElement {
   const { overlay } = useCardCover({ post, onShare });
   const imageClasses = classNames(

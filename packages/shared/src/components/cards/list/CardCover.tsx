@@ -2,11 +2,12 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import {
+  ReusedCardCoverProps,
   SharedCardCover,
-  SharedCardCoverProps,
 } from '../common/SharedCardCover';
+import { CardImage } from './ListCard';
 
-interface CardCoverProps extends Omit<SharedCardCoverProps, 'renderOverlay'> {
+interface CardCoverProps extends ReusedCardCoverProps {
   className?: string;
 }
 
@@ -17,6 +18,7 @@ export function CardCoverList({
   return (
     <SharedCardCover
       {...props}
+      CardImage={CardImage}
       renderOverlay={({ overlay, image }) => (
         <ConditionalWrapper
           condition={!!overlay}
