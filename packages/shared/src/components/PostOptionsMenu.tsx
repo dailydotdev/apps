@@ -318,32 +318,23 @@ export default function PostOptionsMenu({
   if (isReminderActive && isLoggedIn) {
     const hasPostReminder = !!post?.bookmark?.remindAt;
 
-    if (!hasPostReminder) {
+    postOptions.push({
+      icon: <MenuIcon Icon={BookmarkIcon} />,
+      label: hasPostReminder ? 'Edit reminder' : 'Read it later',
+      action: () => {
+        openModal({ type: LazyModal.BookmarkReminder, props: { post } });
+      },
+    });
+
+    // has post reminder
+    if (hasPostReminder) {
       postOptions.push({
         icon: <MenuIcon Icon={BookmarkIcon} />,
-        label: 'Read it later',
+        label: 'Remove reminder',
         action: () => {
-          openModal({ type: LazyModal.BookmarkReminder, props: { post } });
+          console.log('Remove reminder');
         },
       });
-    } else {
-      // has post reminder
-      postOptions.push(
-        {
-          icon: <MenuIcon Icon={BookmarkIcon} />,
-          label: 'Edit reminder',
-          action: () => {
-            console.log('Edit reminder');
-          },
-        },
-        {
-          icon: <MenuIcon Icon={BookmarkIcon} />,
-          label: 'Remove reminder',
-          action: () => {
-            console.log('Remove reminder');
-          },
-        },
-      );
     }
   }
 
