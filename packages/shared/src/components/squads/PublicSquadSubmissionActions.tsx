@@ -41,8 +41,6 @@ export const PublicSquadSubmissionActions = (
     return null;
   }
 
-  console.log(squad, { status });
-
   return (
     <div className="flex items-center justify-between">
       {isDetailsVisible && (
