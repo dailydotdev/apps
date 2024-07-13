@@ -113,7 +113,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
                   label="Your squads"
                   className="grid grid-cols-1 gap-4 px-4 py-5"
                 >
-                  {squads.map((squad) => (
+                  {squads?.map((squad) => (
                     <Link href={squad.permalink} key={squad.handle} passHref>
                       <YourSquadItem
                         squad={squad}
@@ -144,7 +144,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
                 className="mt-5 px-6"
                 inlineHeader
               >
-                {queryResult?.data?.pages?.length > 0 && (
+                {queryResult?.data && queryResult?.data?.pages?.length > 0 && (
                   <>
                     {queryResult.data.pages.map((page) =>
                       page.sources.edges.reduce(

@@ -27,6 +27,7 @@ import {
 import {
   SourceMember,
   SourceMemberRole,
+  SourceType,
   Squad,
 } from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
@@ -78,8 +79,11 @@ const SquadLoading = dynamic(
 );
 
 type SourcePageProps = {
-  handle: string;
-  initialData?: Pick<Squad, 'id' | 'name' | 'public' | 'description' | 'image'>;
+  handle?: string;
+  initialData?: Pick<
+    Squad,
+    'id' | 'name' | 'public' | 'description' | 'image' | 'type'
+  >;
   referringUser?: Pick<PublicProfile, 'id' | 'name' | 'image'>;
 };
 
@@ -289,7 +293,7 @@ export async function getServerSideProps({
 }: GetServerSidePropsContext<SquadPageParams>): Promise<
   GetServerSidePropsResult<SourcePageProps>
 > {
-  const { handle } = params;
+  const { handle } = params ?? {};
   const { userid: userId, cid: campaign } = query;
 
   const setCacheHeader = () => {
@@ -325,7 +329,7 @@ export async function getServerSideProps({
 
     const [{ source: squad }, referringUser] = await Promise.all(promises);
 
-    if (squad?.type === 'machine') {
+    if ((squad?.type as SourceType) === SourceType.Machine) {
       return {
         redirect: {
           destination: `/sources/${handle}`,
@@ -340,7 +344,7 @@ export async function getServerSideProps({
       props: {
         handle,
         initialData: squad,
-        referringUser: referringUser?.user || null,
+        referringUser: referringUser?.user,
       },
     };
   } catch (err) {

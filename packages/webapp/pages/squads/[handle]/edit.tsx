@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { FormEvent, ReactElement } from 'react';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -72,7 +72,7 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
       },
     });
 
-  const onSubmit = async (e, form: SquadForm) => {
+  const onSubmit = async (e: FormEvent, form: SquadForm) => {
     e.preventDefault();
     const formJson = {
       ...squad,
@@ -123,7 +123,7 @@ export async function getStaticPaths(): Promise<GetStaticPathsResult> {
 }
 
 interface SquadPageParams extends ParsedUrlQuery {
-  handle: string;
+  handle?: string;
 }
 
 export function getStaticProps({
