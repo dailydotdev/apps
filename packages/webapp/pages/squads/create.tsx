@@ -152,10 +152,7 @@ function CreatePost(): ReactElement {
     setDisplay(WriteFormTab.Share);
   }, [shareParam]);
 
-  const onClickSubmit = async (
-    e: FormEvent<HTMLFormElement>,
-    params: Partial<CreatePostProps>,
-  ) => {
+  const onClickSubmit = async (e: FormEvent<HTMLFormElement>, params) => {
     if (isPosting || isSuccess || isLoading) {
       return null;
     }
