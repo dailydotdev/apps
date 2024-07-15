@@ -316,7 +316,7 @@ export default function PostOptionsMenu({
   }
 
   const isReminderActive = useFeature(feature.readingReminder);
-  const { onRemoveBookmarkReminder } = useBookmarkReminder();
+  const { onRemoveReminder } = useBookmarkReminder();
 
   if (isReminderActive && isLoggedIn) {
     const hasPostReminder = !!post?.bookmark?.remindAt;
@@ -336,7 +336,7 @@ export default function PostOptionsMenu({
         icon: <MenuIcon Icon={BookmarkIcon} />,
         label: 'Remove reminder',
         action: () => {
-          onRemoveBookmarkReminder(post.id, post.bookmark.remindAt);
+          onRemoveReminder(post.id);
         },
       });
     }
