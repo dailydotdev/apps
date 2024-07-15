@@ -23,8 +23,9 @@ export enum PrivacyOption {
 }
 
 export const useSquadPrivacyOptions = ({
-  totalPosts,
+  squadId,
   status,
+  totalPosts,
 }: UseSquadPrivacyOptionsProps): RadioItemProps<PrivacyOption>[] =>
   useMemo(() => {
     if (isNullOrUndefined(totalPosts)) {
@@ -48,7 +49,11 @@ export const useSquadPrivacyOptions = ({
         disabled: status !== SquadStatus.Approved,
         className: classes,
         afterElement: (
-          <SettingsPublicSection status={status} totalPosts={totalPosts} />
+          <SettingsPublicSection
+            squadId={squadId}
+            status={status}
+            totalPosts={totalPosts}
+          />
         ),
       },
     ];
