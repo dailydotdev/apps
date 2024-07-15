@@ -10,48 +10,30 @@ import { Button } from '../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Card } from '../cards/Card';
 import { ListCard } from '../cards/list/ListCard';
-import { EarthIcon, MiniCloseIcon, TimerIcon } from '../icons';
+import { EarthIcon, MiniCloseIcon } from '../icons';
 import { ActionType } from '../../graphql/actions';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { LazyModal } from '../modals/common/types';
-import { anchorDefaultRel } from '../../lib/strings';
 import { SquadPostsProgressBar } from './SquadPostsProgressBar';
-import { squadsPublicGuide } from '../../lib/constants';
-import { SquadStatus } from './settings';
 import { PlaceholderCard } from '../cards/PlaceholderCard';
-import { PUBLIC_SQUAD_REQUEST_REQUIREMENT } from '../../lib/config';
+import PublicSquadSubmissionActions from './PublicSquadSubmissionActions';
 
 export function PublicSquadEligibilityCard(): ReactElement {
   const router = useRouter();
   const { squad } = useSquad({ handle: router.query.handle as string });
-  const { isFetched, status } = usePublicSquadRequests({
+  const { isFetched } = usePublicSquadRequests({
     sourceId: squad?.id,
   });
   const postsCount = squad?.flags?.totalPosts;
   const { shouldUseListFeedLayout } = useFeedLayout();
   const { completeAction } = useActions();
-  const { openModal } = useLazyModal();
 
   const onDismiss = useCallback(() => {
     completeAction(ActionType.HidePublicSquadEligibilityCard);
   }, [completeAction]);
 
-  const onSubmit = useCallback(() => {
-    if (!squad.id) {
-      return;
-    }
-
-    openModal({
-      type: LazyModal.SubmitSquadForReview,
-      props: { squadId: squad.id },
-    });
-  }, [openModal, squad]);
-
   if (!isFetched) {
     return <PlaceholderCard />;
   }
 
-  const isEligible = postsCount >= PUBLIC_SQUAD_REQUEST_REQUIREMENT;
   const CardComponent = shouldUseListFeedLayout ? ListCard : Card;
 
   return (
@@ -80,33 +62,7 @@ export function PublicSquadEligibilityCard(): ReactElement {
         feed giving your content a lot more exposure
       </p>
       <SquadPostsProgressBar postsCount={postsCount} />
-      <div className="flex items-center justify-between">
-        <Button
-          variant={ButtonVariant.Secondary}
-          size={ButtonSize.Small}
-          tag="a"
-          href={squadsPublicGuide}
-          target="_blank"
-          rel={anchorDefaultRel}
-        >
-          Details
-        </Button>
-        {status === SquadStatus.Pending ? (
-          <div className="flex gap-1 pr-3 font-bold text-text-tertiary typo-callout">
-            <TimerIcon />
-            In review
-          </div>
-        ) : (
-          <Button
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Small}
-            disabled={!isEligible}
-            onClick={onSubmit}
-          >
-            Submit for review
-          </Button>
-        )}
-      </div>
+      <PublicSquadSubmissionActions squad={squad} />
     </CardComponent>
   );
 }

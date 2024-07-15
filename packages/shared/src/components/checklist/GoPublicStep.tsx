@@ -1,11 +1,8 @@
 import React, { ReactElement } from 'react';
 import { ChecklistStepPropsWithSquad } from '../../lib/checklist';
-import { Button, ButtonVariant } from '../buttons/Button';
 import { ChecklistStep } from './ChecklistStep';
-import { TourIcon } from '../icons';
-import { anchorDefaultRel } from '../../lib/strings';
 import { SquadPostsProgressBar } from '../squads/SquadPostsProgressBar';
-import { squadsPublicGuide } from '../../lib/constants';
+import PublicSquadSubmissionActions from '../squads/PublicSquadSubmissionActions';
 
 export const GoPublicStep = ({
   squad,
@@ -27,17 +24,7 @@ export const GoPublicStep = ({
             container: 'flex-col-reverse gap-2',
           }}
         />
-        <Button
-          tag="a"
-          href={squadsPublicGuide}
-          target="_blank"
-          rel={anchorDefaultRel}
-          variant={ButtonVariant.Primary}
-          icon={<TourIcon />}
-          className="self-start"
-        >
-          Details
-        </Button>
+        <PublicSquadSubmissionActions squad={squad} />
       </div>
     </ChecklistStep>
   );
