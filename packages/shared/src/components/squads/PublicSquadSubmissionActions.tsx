@@ -27,7 +27,7 @@ const PublicSquadSubmissionActions = (
   const isEligible = postsCount >= PUBLIC_SQUAD_REQUEST_REQUIREMENT;
 
   const onSubmit = useCallback(() => {
-    if (!squad.id) {
+    if (squad.id) {
       return;
     }
 
