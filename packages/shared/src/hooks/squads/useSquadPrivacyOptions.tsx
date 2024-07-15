@@ -57,4 +57,4 @@ export const useSquadPrivacyOptions = ({
         ),
       },
     ];
-  }, [status, totalPosts]);
+  }, [status, totalPosts, squadId]);
