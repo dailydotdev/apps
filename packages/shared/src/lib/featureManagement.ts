@@ -28,6 +28,7 @@ const feature = {
   showRoadmap: new Feature('show_roadmap', false),
   seoSidebar: new Feature('seo_sidebar', SeoSidebarExperiment.Control),
   onboardingChecklist: new Feature('onboarding_checklist', false),
+  bookmarkReminder: new Feature('bookmark_reminder', false),
   animatedUpvote: new Feature('animated_upvote', false),
 };
 

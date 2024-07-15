@@ -1,6 +1,11 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import {
+  Button,
+  ButtonProps,
+  ButtonSize,
+  ButtonVariant,
+} from '../../buttons/Button';
 import {
   ReminderPreference,
   useBookmarkReminder,
@@ -12,11 +17,13 @@ import { useLazyModal } from '../../../hooks/useLazyModal';
 interface PostReminderOptionsProps {
   post: Post;
   className?: string;
+  buttonProps?: ButtonProps<'button'>;
 }
 
 export function PostReminderOptions({
   post,
   className,
+  buttonProps = { variant: ButtonVariant.Float, size: ButtonSize.XSmall },
 }: PostReminderOptionsProps): ReactElement {
   const { openModal } = useLazyModal();
   const { onBookmarkReminder } = useBookmarkReminder();
@@ -31,22 +38,19 @@ export function PostReminderOptions({
   return (
     <span className={classNames('flex flex-row gap-3', className)}>
       <Button
-        variant={ButtonVariant.Float}
-        size={ButtonSize.XSmall}
+        {...buttonProps}
         onClick={() => runBookmarkReminder(ReminderPreference.OneHour)}
       >
         1h
       </Button>
       <Button
-        variant={ButtonVariant.Float}
-        size={ButtonSize.XSmall}
+        {...buttonProps}
         onClick={() => runBookmarkReminder(ReminderPreference.Tomorrow)}
       >
         24h
       </Button>
       <Button
-        variant={ButtonVariant.Float}
-        size={ButtonSize.XSmall}
+        {...buttonProps}
         onClick={() =>
           openModal({ type: LazyModal.BookmarkReminder, props: { post } })
         }
