@@ -53,6 +53,7 @@ export enum LazyModal {
   SubmitSquadForReview = 'submitSquadForReview',
   PrivilegedMembers = 'privilegedMembers',
   FirefoxPrivacy = 'firefoxPrivacy',
+  BookmarkReminder = 'bookmarkReminder',
 }
 
 export type ModalTabItem = {
