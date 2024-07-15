@@ -127,6 +127,9 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     numUpvotes
     numComments
     videoId
+    bookmark {
+      remindAt
+    }
     scout {
       ...UserShortInfo
     }
