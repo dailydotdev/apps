@@ -1,7 +1,6 @@
 import React, {
   ReactElement,
   ReactNode,
-  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -283,12 +282,6 @@ export default function Feed<T>({
     }
   }, [selectedPost]);
 
-  const onShareClick = useCallback(
-    (post: Post, row?: number, column?: number) =>
-      openSharePost({ post, columns: virtualizedNumCards, column, row }),
-    [openSharePost, virtualizedNumCards],
-  );
-
   if (!loadedSettings) {
     return <></>;
   }
@@ -384,6 +377,9 @@ export default function Feed<T>({
         ...feedLogExtra(feedName, ranking),
       },
     });
+
+  const onShareClick = (post: Post, row?: number, column?: number) =>
+    openSharePost({ post, columns: virtualizedNumCards, column, row });
 
   const post = (items[postMenuIndex] as PostItem)?.post;
   const commonMenuItems = {

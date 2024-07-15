@@ -138,13 +138,6 @@ const FirefoxPrivacyModal = dynamic(
     ),
 );
 
-const BookmarkReminderModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "bookmarkReminderModal" */ './post/BookmarkReminderModal'
-    ),
-);
-
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -169,7 +162,6 @@ export const modals = {
   [LazyModal.SubmitSquadForReview]: SubmitSquadForReviewModal,
   [LazyModal.PrivilegedMembers]: PrivilegedMemberModal,
   [LazyModal.FirefoxPrivacy]: FirefoxPrivacyModal,
-  [LazyModal.BookmarkReminder]: BookmarkReminderModal,
 };
 
 type GetComponentProps<T> = T extends

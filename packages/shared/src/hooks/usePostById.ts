@@ -47,14 +47,12 @@ export const updatePostCache = (
   return client.setQueryData<PostData>(getPostByIdKey(id), (node) => {
     const update =
       typeof postUpdate === 'function' ? postUpdate(node.post) : postUpdate;
-    const updatedPost = { ...node.post, ...update } as Post;
-    const bookmark = updatedPost.bookmark ?? { createdAt: new Date() };
 
     return {
       post: {
-        ...updatedPost,
+        ...node.post,
+        ...update,
         id: node.post.id,
-        bookmark: !updatedPost.bookmarked ? null : bookmark,
       },
     };
   });

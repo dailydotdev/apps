@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useActiveFeedNameContext } from '../../contexts';
 import { useMutationSubscription } from '../mutationSubscription';
 import {
@@ -42,8 +42,5 @@ export const usePostShareLoop = (post: Post): UsePostShareLoop => {
     },
   });
 
-  return {
-    shouldShowOverlay,
-    onInteract: useCallback(() => setHasInteracted(true), []),
-  };
+  return { shouldShowOverlay, onInteract: () => setHasInteracted(true) };
 };

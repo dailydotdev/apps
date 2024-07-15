@@ -18,7 +18,6 @@ import {
 import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
 import { useFeedPreviewMode } from '../../../hooks';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
-import { BookmarkButton } from '../../buttons';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -50,15 +49,16 @@ export default function ActionButtons({
 
   const lastActions = (
     <>
-      <BookmarkButton
-        post={post}
-        buttonProps={{
-          id: `post-${post.id}-bookmark-btn`,
-          icon: <BookmarkIcon secondary={post.bookmarked} />,
-          onClick: () => onBookmarkClick(post),
-          className: '!min-w-[4.625rem]',
-        }}
-      />
+      <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
+        <QuaternaryButton
+          id={`post-${post.id}-bookmark-btn`}
+          icon={<BookmarkIcon secondary={post.bookmarked} />}
+          onClick={() => onBookmarkClick(post)}
+          className="btn-tertiary-bun !min-w-[4.625rem]"
+          pressed={post.bookmarked}
+          {...upvoteCommentProps}
+        />
+      </SimpleTooltip>
       <SimpleTooltip content="Copy link">
         <Button
           size={ButtonSize.Small}

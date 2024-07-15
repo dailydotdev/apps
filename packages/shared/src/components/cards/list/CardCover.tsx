@@ -1,37 +1,73 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import { ImageProps, ImageType } from '../../image/Image';
+import VideoImage, { VideoImageProps } from '../../image/VideoImage';
 import ConditionalWrapper from '../../ConditionalWrapper';
-import {
-  ReusedCardCoverProps,
-  SharedCardCover,
-} from '../common/SharedCardCover';
 import { CardImage } from './ListCard';
+import { CommonCardCoverProps } from '../common';
+import { usePostShareLoop } from '../../../hooks/post/usePostShareLoop';
+import { CardCoverShare } from '../common/CardCoverShare';
 
-interface CardCoverProps extends ReusedCardCoverProps {
+interface CardCoverProps extends CommonCardCoverProps {
+  imageProps: ImageProps;
+  videoProps?: Omit<VideoImageProps, 'imageProps'>;
+  isVideoType?: boolean;
   className?: string;
 }
 
 export function CardCoverList({
+  imageProps,
+  videoProps,
+  isVideoType,
+  onShare,
+  post,
   className,
-  ...props
 }: CardCoverProps): ReactElement {
-  return (
-    <SharedCardCover
-      {...props}
-      CardImageComponent={CardImage}
-      renderOverlay={({ overlay, image }) => (
-        <ConditionalWrapper
-          condition={!!overlay}
-          wrapper={(component) => (
-            <div className={classNames('relative flex', className)}>
-              {overlay}
-              {component}
-            </div>
-          )}
-        >
-          {image}
-        </ConditionalWrapper>
-      )}
+  const { shouldShowOverlay, onInteract } = usePostShareLoop(post);
+  const coverShare = (
+    <CardCoverShare
+      post={post}
+      onShare={() => {
+        onInteract();
+        onShare(post);
+      }}
+      onCopy={onInteract}
     />
+  );
+  const imageClasses = classNames(
+    imageProps?.className,
+    shouldShowOverlay && 'opacity-16',
+  );
+
+  if (isVideoType) {
+    return (
+      <VideoImage
+        {...videoProps}
+        CardImageComponent={CardImage}
+        overlay={shouldShowOverlay ? coverShare : undefined}
+        imageProps={{
+          ...imageProps,
+          className: imageClasses,
+        }}
+      />
+    );
+  }
+
+  return (
+    <ConditionalWrapper
+      condition={shouldShowOverlay}
+      wrapper={(component) => (
+        <div className={classNames('relative flex', className)}>
+          {coverShare}
+          {component}
+        </div>
+      )}
+    >
+      <CardImage
+        {...imageProps}
+        type={ImageType.Post}
+        className={imageClasses}
+      />
+    </ConditionalWrapper>
   );
 }
