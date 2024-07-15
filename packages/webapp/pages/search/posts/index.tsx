@@ -29,6 +29,6 @@ SearchPostsPage.getLayout = SearchControlPage.getLayout;
 SearchPostsPage.layoutProps = SearchControlPage.layoutProps;
 
 export default withFeaturesBoundary<
-  Record<string, unknown>,
+  unknown,
   typeof SearchControlPage.layoutProps
 >(SearchPostsPage);

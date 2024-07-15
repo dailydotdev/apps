@@ -25,7 +25,7 @@ const defaultSquad = {
   memberInviteRole: SourceMemberRole.Admin,
 };
 
-export const generateDefaultSquad = (username?: string): Squad => ({
+export const generateDefaultSquad = (username: string): Squad => ({
   ...defaultSquad,
   id: username,
   handle: username,
