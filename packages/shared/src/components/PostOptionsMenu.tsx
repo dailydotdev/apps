@@ -469,7 +469,3 @@ export default function PostOptionsMenu({
     />
   );
 }
-
-PostOptionsMenu.ReminderItem = function ReminderItem(): ReactElement {
-  return <div>Reminder</div>;
-};
