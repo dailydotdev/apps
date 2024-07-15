@@ -57,8 +57,10 @@ const AccountNotificationsPage = (): ReactElement => {
     unsubscribePersonalizedDigest,
   } = usePersonalizedDigest();
   const { isStreaksEnabled } = useReadingStreak();
-  const [digestTimeIndex, setDigestTimeIndex] = useState(8);
-  const [readingTimeIndex, setReadingTimeIndex] = useState(8);
+  const [digestTimeIndex, setDigestTimeIndex] = useState<number | undefined>(8);
+  const [readingTimeIndex, setReadingTimeIndex] = useState<number | undefined>(
+    8,
+  );
 
   const readingReminder = getPersonalizedDigest(
     UserPersonalizedDigestType.ReadingReminder,
@@ -83,7 +85,7 @@ const AccountNotificationsPage = (): ReactElement => {
     setReadingTimeIndex(readingReminder?.preferredHour);
   }
   const personalizedDigestType =
-    personalizedDigest?.flags?.sendType || (!isLoading ? 'off' : null);
+    personalizedDigest?.flags?.sendType || (!isLoading ? SendType.Off : null);
 
   const { acceptedMarketing, notificationEmail } = user ?? {};
   const emailNotification =
@@ -253,7 +255,7 @@ const AccountNotificationsPage = (): ReactElement => {
   const setCustomTime = (
     type: UserPersonalizedDigestType,
     preferredHour: number,
-    setHour: React.Dispatch<SetStateAction<number>>,
+    setHour: React.Dispatch<SetStateAction<number | undefined>>,
   ): void => {
     if (type === UserPersonalizedDigestType.ReadingReminder) {
       logEvent({
@@ -351,9 +353,9 @@ const AccountNotificationsPage = (): ReactElement => {
           name="personalizedDigest"
           value={personalizedDigestType}
           options={[
-            { label: 'Daily (Mon-Fri)', value: 'workdays' },
-            { label: 'Weekly', value: 'weekly' },
-            { label: 'Off', value: 'off' },
+            { label: 'Daily (Mon-Fri)', value: SendType.Workdays },
+            { label: 'Weekly', value: SendType.Weekly },
+            { label: 'Off', value: SendType.Off },
           ]}
           onChange={setPersonalizedDigestType}
         />

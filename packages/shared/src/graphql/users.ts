@@ -331,7 +331,7 @@ export type UserPersonalizedDigest = {
   preferredHour: number;
   type?: UserPersonalizedDigestType;
   flags: {
-    sendType?: string;
+    sendType?: SendType;
   };
 };
 
