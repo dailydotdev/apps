@@ -138,7 +138,6 @@ export const useBookmarkReminder = ({
         remindAt: getRemindAt(now, preference),
       });
     },
-
     [logEvent, onSetBookmarkReminder, post],
   );
 
