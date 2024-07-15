@@ -90,10 +90,7 @@ const DemoPage = (): ReactElement => {
           what&apos;s out there.
         </p>
       </div>
-      <Feed
-        className={classNames(feedProps.className, 'px-6')}
-        {...feedProps}
-      />
+      <Feed className={feedProps.className} {...feedProps} />
       <div className="mb-6 flex h-80 flex-col items-center justify-center gap-2 p-6">
         <h2 className="text-center font-bold text-text-primary typo-title1">
           Where developers suffer together
