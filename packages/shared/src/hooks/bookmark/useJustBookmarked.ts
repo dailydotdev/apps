@@ -11,7 +11,8 @@ export const useJustBookmarked = ({
   bookmarked,
 }: UseBookmarkProviderProps): UseJustBookmarked => {
   const wasBookmarkedRef = useRef<boolean>(bookmarked);
-  const justBookmarked = bookmarked !== wasBookmarkedRef.current && bookmarked;
+  const justBookmarked =
+    bookmarked !== wasBookmarkedRef.current && !!bookmarked;
 
   useEffect(() => {
     // on initial render, we only have few props (server side call) which does not include bookmark information. that would lead to inaccurate value of wasBookmarked
