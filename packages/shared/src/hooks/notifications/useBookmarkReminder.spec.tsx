@@ -4,6 +4,7 @@ import React from 'react';
 import { addDays, addHours, nextMonday, set } from 'date-fns';
 import { ReminderPreference, useBookmarkReminder } from './useBookmarkReminder';
 import { setBookmarkReminder } from '../../graphql/bookmarks';
+import post from '../../../__tests__/fixture/post';
 
 jest.mock('../../graphql/bookmarks', () => ({
   ...(jest.requireActual('../../graphql/bookmarks') as Iterable<unknown>),
@@ -30,7 +31,7 @@ describe('useBookmarkReminder hook', () => {
   });
 
   it('should properly add one hour from now', async () => {
-    const { result } = renderHook(() => useBookmarkReminder(), {
+    const { result } = renderHook(() => useBookmarkReminder(post), {
       wrapper: Wrapper,
     });
 
@@ -50,7 +51,7 @@ describe('useBookmarkReminder hook', () => {
   });
 
   it('should properly set 19:00 today', async () => {
-    const { result } = renderHook(() => useBookmarkReminder(), {
+    const { result } = renderHook(() => useBookmarkReminder(post), {
       wrapper: Wrapper,
     });
 
@@ -71,7 +72,7 @@ describe('useBookmarkReminder hook', () => {
 
   it('should throw error if we set later today and it is past 19:00', async () => {
     mockedNow = new Date(2024, 6, 14, 19, 0, 0); // Sun Jul 14 2024 19:00:00
-    const { result } = renderHook(() => useBookmarkReminder(), {
+    const { result } = renderHook(() => useBookmarkReminder(post), {
       wrapper: Wrapper,
     });
 
@@ -87,7 +88,7 @@ describe('useBookmarkReminder hook', () => {
   });
 
   it('should properly set tomorrow at 09:00', async () => {
-    const { result } = renderHook(() => useBookmarkReminder(), {
+    const { result } = renderHook(() => useBookmarkReminder(post), {
       wrapper: Wrapper,
     });
 
@@ -111,7 +112,7 @@ describe('useBookmarkReminder hook', () => {
   });
 
   it('should properly set two days from now at 09:00', async () => {
-    const { result } = renderHook(() => useBookmarkReminder(), {
+    const { result } = renderHook(() => useBookmarkReminder(post), {
       wrapper: Wrapper,
     });
 
@@ -136,7 +137,7 @@ describe('useBookmarkReminder hook', () => {
   });
 
   it('should properly set to next Monday', async () => {
-    const { result } = renderHook(() => useBookmarkReminder(), {
+    const { result } = renderHook(() => useBookmarkReminder(post), {
       wrapper: Wrapper,
     });
 
