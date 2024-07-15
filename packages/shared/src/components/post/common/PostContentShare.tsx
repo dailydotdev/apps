@@ -6,6 +6,7 @@ import { usePostShareLoop } from '../../../hooks/post/usePostShareLoop';
 import { postLogEvent } from '../../../lib/feed';
 import { ShareProvider } from '../../../lib/share';
 import { ReferralCampaignKey, useGetShortUrl } from '../../../hooks';
+import { PostContentWidget } from './PostContentWidget';
 
 interface PostContentShareProps {
   post: Post;
@@ -28,10 +29,10 @@ export function PostContentShare({
   }
 
   return (
-    <div className="mt-6 flex flex-col items-center gap-2 rounded-16 border border-border-subtlest-tertiary px-4 py-2 laptop:flex-row laptop:gap-4">
-      <span className="font-bold text-text-tertiary typo-callout">
-        Should anyone else see this post?
-      </span>
+    <PostContentWidget
+      className="mt-6"
+      title="Should anyone else see this post?"
+    >
       <InviteLinkInput
         className={{ container: 'w-full flex-1' }}
         link={shareLink}
@@ -43,6 +44,6 @@ export function PostContentShare({
           },
         })}
       />
-    </div>
+    </PostContentWidget>
   );
 }

@@ -11,7 +11,7 @@ import { LazyModal } from '../modals/common/types';
 import { Squad } from '../../graphql/sources';
 
 interface PublicSquadSubmissionActionsProps {
-  squad: Squad;
+  squad?: Squad;
   isDetailsVisible?: boolean;
 }
 
@@ -27,7 +27,7 @@ const PublicSquadSubmissionActions = (
   const isEligible = postsCount >= PUBLIC_SQUAD_REQUEST_REQUIREMENT;
 
   const onSubmit = useCallback(() => {
-    if (squad.id) {
+    if (!squad.id) {
       return;
     }
 
