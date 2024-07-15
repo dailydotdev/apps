@@ -1,20 +1,25 @@
+import { useRef } from 'react';
 import { useActiveFeedNameContext } from '../contexts';
 import { SharedFeedPage } from '../components/utilities';
-import { UseBookmarkProviderProps, useJustBookmarked } from './bookmark';
 
 interface UseBookmarkProviderReturn {
   highlightBookmarkedPost: boolean;
 }
 
+interface UseBookmarkProviderProps {
+  bookmarked?: boolean;
+}
+
 const useBookmarkProvider = ({
   bookmarked = false,
 }: UseBookmarkProviderProps): UseBookmarkProviderReturn => {
+  const isBookmarked = useRef<boolean>(bookmarked);
   const { feedName } = useActiveFeedNameContext();
-  const { justBookmarked, wasBookmarked } = useJustBookmarked({ bookmarked });
+  const justBookmarked = bookmarked !== isBookmarked.current && bookmarked;
 
   const isMyFeed = feedName === SharedFeedPage.MyFeed;
   const highlightBookmarkedPost =
-    isMyFeed && wasBookmarked && !justBookmarked && bookmarked;
+    isMyFeed && isBookmarked.current && !justBookmarked && bookmarked;
 
   return {
     highlightBookmarkedPost,
