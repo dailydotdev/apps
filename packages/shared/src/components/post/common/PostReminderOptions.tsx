@@ -26,7 +26,7 @@ export function PostReminderOptions({
   buttonProps = { variant: ButtonVariant.Float, size: ButtonSize.XSmall },
 }: PostReminderOptionsProps): ReactElement {
   const { openModal } = useLazyModal();
-  const { onBookmarkReminder } = useBookmarkReminder(post);
+  const { onBookmarkReminder } = useBookmarkReminder({ post });
 
   const runBookmarkReminder = (preference: ReminderPreference) =>
     onBookmarkReminder({

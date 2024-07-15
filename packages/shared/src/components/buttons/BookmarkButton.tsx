@@ -27,7 +27,7 @@ export function BookmarkButton({
   const finalId = `${contextMenuId}-${post.id}`;
   const hasReminder = !!post.bookmark?.remindAt;
   const { openModal } = useLazyModal();
-  const { onRemoveReminder } = useBookmarkReminder(post);
+  const { onRemoveReminder } = useBookmarkReminder({ post });
   const { onMenuClick } = useContextMenu({ id: finalId });
   const Icon = hasReminder ? BookmarkReminderIcon : BookmarkIcon;
   const onClick = (e: MouseEvent<HTMLButtonElement>) => {
