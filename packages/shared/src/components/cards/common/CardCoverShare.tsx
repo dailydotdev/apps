@@ -4,6 +4,7 @@ import { ShareIcon } from '../../icons';
 import { useLoggedCopyPostLink } from '../../../hooks/post';
 import { Post } from '../../../graphql/posts';
 import { ShareProvider } from '../../../lib/share';
+import { CardCoverContainer } from './CardCoverContainer';
 
 interface CardCoverShareProps {
   onShare: () => void;
@@ -23,10 +24,7 @@ export function CardCoverShare({
   };
 
   return (
-    <span className="absolute inset-0 z-1 flex flex-col items-center justify-center">
-      <p className="mt-5 text-center font-bold typo-callout laptopL:mt-0">
-        Should anyone else see this post?
-      </p>
+    <CardCoverContainer title="Should anyone else see this post?">
       <span className="mt-2 flex flex-row flex-wrap justify-center gap-3 p-2">
         <Button
           variant={ButtonVariant.Secondary}
@@ -41,6 +39,6 @@ export function CardCoverShare({
           onClick={onShare}
         />
       </span>
-    </span>
+    </CardCoverContainer>
   );
 }
