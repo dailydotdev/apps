@@ -10,12 +10,13 @@ import {
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import request from 'graphql-request';
-import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { REFERRED_USERS_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import UserList from '@dailydotdev/shared/src/components/profile/UserList';
 import { checkFetchMore } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
-import { ReferredUsersData } from '@dailydotdev/shared/src/graphql/common';
+import {
+  ReferredUsersData,
+  gqlClient,
+} from '@dailydotdev/shared/src/graphql/common';
 import { SocialShareList } from '@dailydotdev/shared/src/components/widgets/SocialShareList';
 import { Separator } from '@dailydotdev/shared/src/components/cards/common';
 import { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
@@ -57,7 +58,7 @@ const AccountInvitePage = (): ReactElement => {
   const usersResult = useInfiniteQuery<ReferredUsersData>(
     referredKey,
     ({ pageParam }) =>
-      request(graphqlUrl, REFERRED_USERS_QUERY, {
+      gqlClient.request(REFERRED_USERS_QUERY, {
         after: typeof pageParam === 'string' ? pageParam : undefined,
       }),
     {

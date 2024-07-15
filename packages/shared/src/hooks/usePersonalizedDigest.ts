@@ -1,4 +1,3 @@
-import request from 'graphql-request';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import {
@@ -9,10 +8,9 @@ import {
   UserPersonalizedDigestSubscribe,
   UserPersonalizedDigestType,
 } from '../graphql/users';
-import { graphqlUrl } from '../lib/config';
 import { RequestKey, generateQueryKey } from '../lib/query';
 import { useAuthContext } from '../contexts/AuthContext';
-import { ApiError, getApiError } from '../graphql/common';
+import { ApiError, getApiError, gqlClient } from '../graphql/common';
 
 export enum SendType {
   Weekly = 'weekly',
@@ -43,9 +41,9 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
     queryKey,
     async () => {
       try {
-        const result = await request<{
+        const result = await gqlClient.request<{
           personalizedDigest: UserPersonalizedDigest[];
-        }>(graphqlUrl, GET_PERSONALIZED_DIGEST_SETTINGS, {});
+        }>(GET_PERSONALIZED_DIGEST_SETTINGS, {});
 
         return result.personalizedDigest;
       } catch (error) {
@@ -87,12 +85,12 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
         type = UserPersonalizedDigestType.Digest,
         sendType,
       } = params || {};
-      const result = await request<
+      const result = await gqlClient.request<
         {
           subscribePersonalizedDigest: UserPersonalizedDigest;
         },
         Partial<UserPersonalizedDigestSubscribe>
-      >(graphqlUrl, SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION, {
+      >(SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION, {
         day: 3,
         hour,
         type,
@@ -136,7 +134,7 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
   const { mutateAsync: unsubscribePersonalizedDigest } = useMutation(
     async (params: { type?: UserPersonalizedDigestType }) => {
       const { type = UserPersonalizedDigestType.Digest } = params || {};
-      await request(graphqlUrl, UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION, {
+      await gqlClient.request(UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION, {
         type,
       });
 

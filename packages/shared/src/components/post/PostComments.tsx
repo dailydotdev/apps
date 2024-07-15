@@ -6,7 +6,6 @@ import React, {
   useState,
 } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { graphqlUrl } from '../../lib/config';
 import AuthContext from '../../contexts/AuthContext';
 import {
   Comment,
@@ -58,7 +57,6 @@ export function PostComments({
       queryKey,
       () =>
         requestMethod(
-          graphqlUrl,
           POST_COMMENTS_QUERY,
           { postId: id, [initialDataKey]: comments, first: 500 },
           { requestKey: JSON.stringify(queryKey) },

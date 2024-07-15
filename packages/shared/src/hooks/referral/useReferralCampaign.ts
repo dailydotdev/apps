@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useContext } from 'react';
 import { useRequestProtocol } from '../useRequestProtocol';
 import { REFERRAL_CAMPAIGN_QUERY } from '../../graphql/users';
-import { graphqlUrl } from '../../lib/config';
 import { RequestKey, generateQueryKey, STALE_TIME } from '../../lib/query';
 import AuthContext from '../../contexts/AuthContext';
 import { Feature } from '../../lib/featureManagement';
@@ -56,7 +55,6 @@ const useReferralCampaign = ({
       const result = await requestMethod<{
         referralCampaign: ReferralCampaign;
       }>(
-        graphqlUrl,
         REFERRAL_CAMPAIGN_QUERY,
         { referralOrigin: campaignKey },
         { requestKey: JSON.stringify(queryKey) },

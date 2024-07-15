@@ -6,10 +6,8 @@ import React, {
   useState,
 } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import request from 'graphql-request';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { formToJson } from '../../lib/form';
-import { graphqlUrl } from '../../lib/config';
 import {
   communityLinksGuidelines,
   contentGuidelines,
@@ -37,6 +35,7 @@ import {
 import { Justify } from '../utilities';
 import { ReputationAlert } from './ReputationAlert';
 import { useToastNotification } from '../../hooks';
+import { gqlClient } from '../../graphql/common';
 
 const defaultErrorMessage = 'Something went wrong, try again';
 const formTitle = 'Community picks';
@@ -57,7 +56,7 @@ export default function SubmitArticleModal({
   const availabilityKey = ['submission_availability', user?.id];
   const { data: access, isFetched } = useQuery<{
     submissionAvailability: SubmissionAvailability;
-  }>(availabilityKey, () => request(graphqlUrl, SUBMISSION_AVAILABILITY_QUERY));
+  }>(availabilityKey, () => gqlClient.request(SUBMISSION_AVAILABILITY_QUERY));
   const { submissionAvailability } = access || {};
   const isEnabled = submissionAvailability?.hasAccess;
   const { mutateAsync: submitArticle } = useMutation<
@@ -65,7 +64,7 @@ export default function SubmitArticleModal({
     unknown,
     string
   >((articleUrl: string) =>
-    request(graphqlUrl, SUBMIT_ARTICLE_MUTATION, {
+    gqlClient.request(SUBMIT_ARTICLE_MUTATION, {
       url: articleUrl,
     }),
   );

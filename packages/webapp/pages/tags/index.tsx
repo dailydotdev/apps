@@ -1,7 +1,5 @@
 import React, { ReactElement, useMemo } from 'react';
 import { getTagPageLink } from '@dailydotdev/shared/src/lib/links';
-import request from 'graphql-request';
-import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   Keyword,
   Tag,
@@ -13,7 +11,7 @@ import { HashtagIcon } from '@dailydotdev/shared/src/components/icons';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { GetStaticPropsResult } from 'next';
-import { ApiError } from '@dailydotdev/shared/src/graphql/common';
+import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
@@ -176,7 +174,7 @@ export async function getStaticProps(): Promise<
   GetStaticPropsResult<TagsPageProps>
 > {
   try {
-    const res = await request<TagsPageProps>(graphqlUrl, TAG_DIRECTORY_QUERY);
+    const res = await gqlClient.request<TagsPageProps>(TAG_DIRECTORY_QUERY);
     return {
       props: {
         tags: res.tags,

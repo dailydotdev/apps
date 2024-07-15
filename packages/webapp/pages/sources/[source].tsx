@@ -21,8 +21,6 @@ import {
   SOURCE_RELATED_TAGS_QUERY,
   SourceData,
 } from '@dailydotdev/shared/src/graphql/sources';
-import request from 'graphql-request';
-import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   Button,
@@ -40,7 +38,11 @@ import {
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { ApiError, Connection } from '@dailydotdev/shared/src/graphql/common';
+import {
+  ApiError,
+  Connection,
+  gqlClient,
+} from '@dailydotdev/shared/src/graphql/common';
 import {
   OtherFeedPage,
   RequestKey,
@@ -77,9 +79,9 @@ const SourceRelatedTags = ({ sourceId }: SourceIdProps): ReactElement => {
   const { data: relatedTags, isLoading } = useQuery(
     [RequestKey.SourceRelatedTags, null, sourceId],
     async () =>
-      await request<{
+      await gqlClient.request<{
         relatedTags: TagsData;
-      }>(graphqlUrl, SOURCE_RELATED_TAGS_QUERY, {
+      }>(SOURCE_RELATED_TAGS_QUERY, {
         sourceId,
       }),
     {
@@ -101,8 +103,7 @@ const SimilarSources = ({ sourceId }: SourceIdProps) => {
   const { data: similarSources, isLoading } = useQuery(
     [RequestKey.SimilarSources, null, sourceId],
     async () =>
-      await request<{ similarSources: Connection<Source> }>(
-        graphqlUrl,
+      await gqlClient.request<{ similarSources: Connection<Source> }>(
         SIMILAR_SOURCES_QUERY,
         {
           sourceId,
@@ -328,7 +329,7 @@ export async function getStaticProps({
   GetStaticPropsResult<SourcePageProps>
 > {
   try {
-    const res = await request<SourceData>(graphqlUrl, SOURCE_QUERY, {
+    const res = await gqlClient.request<SourceData>(SOURCE_QUERY, {
       id: params?.source,
     });
 

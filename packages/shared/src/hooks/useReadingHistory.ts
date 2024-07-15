@@ -1,11 +1,10 @@
 import { useQueryClient, useMutation, QueryKey } from '@tanstack/react-query';
-import request from 'graphql-request';
-import { graphqlUrl } from '../lib/config';
 import {
   HidePostItemCardProps,
   HIDE_READING_HISTORY_MUTATION,
 } from '../graphql/users';
 import { ReadHistoryInfiniteData } from './useInfiniteReadingHistory';
+import { gqlClient } from '../graphql/common';
 
 export type QueryIndexes = { page: number; edge: number };
 
@@ -26,7 +25,7 @@ function useReadingHistory(key: QueryKey): UseReadingHistoryReturn {
     () => void
   >(
     ({ postId, timestamp }: HidePostItemCardProps) =>
-      request(graphqlUrl, HIDE_READING_HISTORY_MUTATION, {
+      gqlClient.request(HIDE_READING_HISTORY_MUTATION, {
         postId,
         timestamp,
       }),

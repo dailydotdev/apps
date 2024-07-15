@@ -1,5 +1,4 @@
 import { useQueryClient } from '@tanstack/react-query';
-import request from 'graphql-request';
 import { BOOT_QUERY_KEY } from '../contexts/common';
 import { Squad } from '../graphql/sources';
 import { Boot } from '../lib/boot';
@@ -8,7 +7,7 @@ import {
   MarketingCtaVariant,
 } from '../components/marketingCta/common';
 import { CLEAR_MARKETING_CTA_MUTATION } from '../graphql/users';
-import { graphqlUrl } from '../lib/config';
+import { gqlClient } from '../graphql/common';
 
 type UseBoot = {
   addSquad: (squad: Squad) => void;
@@ -74,7 +73,7 @@ export const useBoot = (): UseBoot => {
 
   const clearMarketingCta = (campaignId: string) => {
     const bootData = getBootData();
-    request(graphqlUrl, CLEAR_MARKETING_CTA_MUTATION, {
+    gqlClient.request(CLEAR_MARKETING_CTA_MUTATION, {
       campaignId,
     });
 

@@ -1,6 +1,5 @@
 import { useContext } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { graphqlUrl } from '../lib/config';
 import AuthContext from '../contexts/AuthContext';
 import { BooleanPromise } from '../components/filters/common';
 import { AuthTriggers } from '../lib/auth';
@@ -31,9 +30,7 @@ export default function useReportComment(): UseReportCommentRet {
     void,
     unknown,
     ReportCommentProps
-  >((variables) =>
-    requestMethod(graphqlUrl, REPORT_COMMENT_MUTATION, variables),
-  );
+  >((variables) => requestMethod(REPORT_COMMENT_MUTATION, variables));
 
   const reportComment = async (params: ReportCommentProps) => {
     if (!user) {

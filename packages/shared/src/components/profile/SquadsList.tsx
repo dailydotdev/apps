@@ -2,7 +2,6 @@ import React, { ReactElement, useContext, useState } from 'react';
 import Link from 'next/link';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import request from 'graphql-request';
 import { SourceMember, SourceMemberRole } from '../../graphql/sources';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import { Image } from '../image/Image';
@@ -19,13 +18,12 @@ import {
 } from '../../hooks';
 import { labels } from '../../lib';
 import { generateQueryKey, RequestKey } from '../../lib/query';
-import { graphqlUrl } from '../../lib/config';
 import AuthContext from '../../contexts/AuthContext';
 import {
   ProfileV2,
   PUBLIC_SOURCE_MEMBERSHIPS_QUERY,
 } from '../../graphql/users';
-import { Connection } from '../../graphql/common';
+import { Connection, gqlClient } from '../../graphql/common';
 import { AuthTriggers } from '../../lib/auth';
 import { webappUrl } from '../../lib/constants';
 
@@ -151,7 +149,7 @@ export function SquadsList({
     sources: ProfileV2['sources'];
   }>(
     generateQueryKey(RequestKey.PublicSourceMemberships, loggedUser, userId),
-    () => request(graphqlUrl, PUBLIC_SOURCE_MEMBERSHIPS_QUERY, { id: userId }),
+    () => gqlClient.request(PUBLIC_SOURCE_MEMBERSHIPS_QUERY, { id: userId }),
     {
       enabled: !!tokenRefreshed,
       refetchOnWindowFocus: false,

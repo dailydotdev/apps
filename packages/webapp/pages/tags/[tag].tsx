@@ -44,10 +44,8 @@ import {
   KEYWORD_QUERY,
   Keyword,
 } from '@dailydotdev/shared/src/graphql/keywords';
-import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useQuery } from '@tanstack/react-query';
-import request from 'graphql-request';
 import {
   GET_RECOMMENDED_TAGS_QUERY,
   TagsData,
@@ -58,7 +56,7 @@ import {
   SOURCES_BY_TAG_QUERY,
   Source,
 } from '@dailydotdev/shared/src/graphql/sources';
-import { Connection } from '@dailydotdev/shared/src/graphql/common';
+import { Connection, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { RelatedSources } from '@dailydotdev/shared/src/components/RelatedSources';
 import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts';
 import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
@@ -78,9 +76,9 @@ const TagRecommendedTags = ({ tag, blockedTags }): ReactElement => {
   const { data: recommendedTags, isLoading } = useQuery(
     [RequestKey.RecommendedTags, null, tag],
     async () =>
-      await request<{
+      await gqlClient.request<{
         recommendedTags: TagsData;
-      }>(graphqlUrl, GET_RECOMMENDED_TAGS_QUERY, {
+      }>(GET_RECOMMENDED_TAGS_QUERY, {
         tags: [tag],
         excludedTags: blockedTags || [],
       }),
@@ -103,8 +101,7 @@ const TagTopSources = ({ tag }: { tag: string }) => {
   const { data: topSources, isLoading } = useQuery(
     [RequestKey.SourceByTag, null, tag],
     async () =>
-      await request<{ sourcesByTag: Connection<Source> }>(
-        graphqlUrl,
+      await gqlClient.request<{ sourcesByTag: Connection<Source> }>(
         SOURCES_BY_TAG_QUERY,
         {
           tag,
@@ -376,8 +373,7 @@ export async function getStaticProps({
   let initialData: Keyword | null = null;
 
   try {
-    const result = await request<{ keyword: Keyword }>(
-      graphqlUrl,
+    const result = await gqlClient.request<{ keyword: Keyword }>(
       KEYWORD_QUERY,
       {
         value: params.tag,

@@ -10,7 +10,6 @@ import {
   SEARCH_SOURCE_SUGGESTIONS,
 } from '../../graphql/search';
 import { useRequestProtocol } from '../useRequestProtocol';
-import { graphqlUrl } from '../../lib/config';
 
 export type UseSearchProviderProps = {
   provider: SearchProviderEnum;
@@ -66,7 +65,7 @@ export const useSearchProvider = (): UseSearchProvider => {
           };
         }
 
-        const result = await requestMethod(graphqlUrl, graphqlQuery, {
+        const result = await requestMethod(graphqlQuery, {
           query,
           limit,
         });
