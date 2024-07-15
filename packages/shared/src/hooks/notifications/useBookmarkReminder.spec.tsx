@@ -1,10 +1,11 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { addDays, addHours, nextMonday, set } from 'date-fns';
 import { ReminderPreference, useBookmarkReminder } from './useBookmarkReminder';
 import { setBookmarkReminder } from '../../graphql/bookmarks';
 import post from '../../../__tests__/fixture/post';
+import { TestBootProvider } from '../../../__tests__/helpers/boot';
 
 jest.mock('../../graphql/bookmarks', () => ({
   ...(jest.requireActual('../../graphql/bookmarks') as Iterable<unknown>),
@@ -13,9 +14,12 @@ jest.mock('../../graphql/bookmarks', () => ({
 
 const client = new QueryClient();
 let mockedNow: Date;
+const logEvent = jest.fn();
 
 const Wrapper = ({ children }) => (
-  <QueryClientProvider client={client}>{children}</QueryClientProvider>
+  <TestBootProvider client={client} log={{ logEvent }}>
+    {children}
+  </TestBootProvider>
 );
 
 describe('useBookmarkReminder hook', () => {
@@ -35,7 +39,7 @@ describe('useBookmarkReminder hook', () => {
       wrapper: Wrapper,
     });
 
-    result.current.onBookmarkReminder({
+    await result.current.onBookmarkReminder({
       postId: 'p1',
       preference: ReminderPreference.OneHour,
     });
@@ -48,6 +52,34 @@ describe('useBookmarkReminder hook', () => {
         remindAt: nextHour,
       });
     });
+
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: 'set bookmark reminder',
+      extra: '{"remind_in":"In 1 hour"}',
+      // important parts are the props above this line
+      feed_grid_columns: undefined,
+      feed_item_grid_column: undefined,
+      feed_item_grid_row: undefined,
+      feed_item_image:
+        'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
+      feed_item_meta: undefined,
+      feed_item_target_url:
+        'https://api.daily.dev/r/e3fd75b62cadd02073a31ee3444975cc',
+      feed_item_title: 'The Prosecutor’s Fallacy',
+      post_author_id: 'u1',
+      post_comments_count: undefined,
+      post_created_at: '2018-06-13T01:20:42.000Z',
+      post_read_time: 8,
+      post_scout_id: undefined,
+      post_source_id: 'tds',
+      post_source_type: undefined,
+      post_tags: ['webdev', 'javascript'],
+      post_trending_value: undefined,
+      post_type: 'article',
+      post_upvotes_count: undefined,
+      target_id: 'e3fd75b62cadd02073a31ee3444975cc',
+      target_type: 'post',
+    });
   });
 
   it('should properly set 19:00 today', async () => {
@@ -55,7 +87,7 @@ describe('useBookmarkReminder hook', () => {
       wrapper: Wrapper,
     });
 
-    result.current.onBookmarkReminder({
+    await result.current.onBookmarkReminder({
       postId: 'p1',
       preference: ReminderPreference.LaterToday,
     });
@@ -68,23 +100,54 @@ describe('useBookmarkReminder hook', () => {
         remindAt: laterToday,
       });
     });
+
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: 'set bookmark reminder',
+      extra: '{"remind_in":"Later today"}',
+      // important parts are the props above this line
+      feed_grid_columns: undefined,
+      feed_item_grid_column: undefined,
+      feed_item_grid_row: undefined,
+      feed_item_image:
+        'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
+      feed_item_meta: undefined,
+      feed_item_target_url:
+        'https://api.daily.dev/r/e3fd75b62cadd02073a31ee3444975cc',
+      feed_item_title: 'The Prosecutor’s Fallacy',
+      post_author_id: 'u1',
+      post_comments_count: undefined,
+      post_created_at: '2018-06-13T01:20:42.000Z',
+      post_read_time: 8,
+      post_scout_id: undefined,
+      post_source_id: 'tds',
+      post_source_type: undefined,
+      post_tags: ['webdev', 'javascript'],
+      post_trending_value: undefined,
+      post_type: 'article',
+      post_upvotes_count: undefined,
+      target_id: 'e3fd75b62cadd02073a31ee3444975cc',
+      target_type: 'post',
+    });
   });
 
   it('should throw error if we set later today and it is past 19:00', async () => {
     mockedNow = new Date(2024, 6, 14, 19, 0, 0); // Sun Jul 14 2024 19:00:00
+    jest.useFakeTimers('modern').setSystemTime(mockedNow);
     const { result } = renderHook(() => useBookmarkReminder({ post }), {
       wrapper: Wrapper,
     });
 
-    result.current.onBookmarkReminder({
-      postId: 'p1',
-      preference: ReminderPreference.LaterToday,
-    });
+    try {
+      await result.current.onBookmarkReminder({
+        postId: 'p1',
+        preference: ReminderPreference.LaterToday,
+      });
+    } catch (err) {
+      expect(err).toEqual(new Error('Invalid preference'));
+    }
 
-    jest.useRealTimers();
-    await waitFor(() => {
-      expect(setBookmarkReminder).not.toHaveBeenCalled();
-    });
+    expect(logEvent).not.toHaveBeenCalled();
+    expect(setBookmarkReminder).not.toHaveBeenCalled();
   });
 
   it('should properly set tomorrow at 09:00', async () => {
@@ -92,7 +155,7 @@ describe('useBookmarkReminder hook', () => {
       wrapper: Wrapper,
     });
 
-    result.current.onBookmarkReminder({
+    await result.current.onBookmarkReminder({
       postId: 'p1',
       preference: ReminderPreference.Tomorrow,
     });
@@ -109,6 +172,34 @@ describe('useBookmarkReminder hook', () => {
         remindAt: tomorrow,
       });
     });
+
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: 'set bookmark reminder',
+      extra: '{"remind_in":"Tomorrow"}',
+      // important parts are the props above this line
+      feed_grid_columns: undefined,
+      feed_item_grid_column: undefined,
+      feed_item_grid_row: undefined,
+      feed_item_image:
+        'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
+      feed_item_meta: undefined,
+      feed_item_target_url:
+        'https://api.daily.dev/r/e3fd75b62cadd02073a31ee3444975cc',
+      feed_item_title: 'The Prosecutor’s Fallacy',
+      post_author_id: 'u1',
+      post_comments_count: undefined,
+      post_created_at: '2018-06-13T01:20:42.000Z',
+      post_read_time: 8,
+      post_scout_id: undefined,
+      post_source_id: 'tds',
+      post_source_type: undefined,
+      post_tags: ['webdev', 'javascript'],
+      post_trending_value: undefined,
+      post_type: 'article',
+      post_upvotes_count: undefined,
+      target_id: 'e3fd75b62cadd02073a31ee3444975cc',
+      target_type: 'post',
+    });
   });
 
   it('should properly set two days from now at 09:00', async () => {
@@ -116,7 +207,7 @@ describe('useBookmarkReminder hook', () => {
       wrapper: Wrapper,
     });
 
-    result.current.onBookmarkReminder({
+    await result.current.onBookmarkReminder({
       postId: 'p1',
       preference: ReminderPreference.TwoDays,
     });
@@ -134,6 +225,34 @@ describe('useBookmarkReminder hook', () => {
         remindAt: twoDays,
       });
     });
+
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: 'set bookmark reminder',
+      extra: '{"remind_in":"In 2 days"}',
+      // important parts are the props above this line
+      feed_grid_columns: undefined,
+      feed_item_grid_column: undefined,
+      feed_item_grid_row: undefined,
+      feed_item_image:
+        'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
+      feed_item_meta: undefined,
+      feed_item_target_url:
+        'https://api.daily.dev/r/e3fd75b62cadd02073a31ee3444975cc',
+      feed_item_title: 'The Prosecutor’s Fallacy',
+      post_author_id: 'u1',
+      post_comments_count: undefined,
+      post_created_at: '2018-06-13T01:20:42.000Z',
+      post_read_time: 8,
+      post_scout_id: undefined,
+      post_source_id: 'tds',
+      post_source_type: undefined,
+      post_tags: ['webdev', 'javascript'],
+      post_trending_value: undefined,
+      post_type: 'article',
+      post_upvotes_count: undefined,
+      target_id: 'e3fd75b62cadd02073a31ee3444975cc',
+      target_type: 'post',
+    });
   });
 
   it('should properly set to next Monday', async () => {
@@ -141,7 +260,7 @@ describe('useBookmarkReminder hook', () => {
       wrapper: Wrapper,
     });
 
-    result.current.onBookmarkReminder({
+    await result.current.onBookmarkReminder({
       postId: 'p1',
       preference: ReminderPreference.NextWeek,
     });
@@ -162,6 +281,78 @@ describe('useBookmarkReminder hook', () => {
         postId: 'p1',
         remindAt: nextMondayReminder,
       });
+    });
+
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: 'set bookmark reminder',
+      extra: '{"remind_in":"Next week"}',
+      // important parts are the props above this line
+      feed_grid_columns: undefined,
+      feed_item_grid_column: undefined,
+      feed_item_grid_row: undefined,
+      feed_item_image:
+        'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
+      feed_item_meta: undefined,
+      feed_item_target_url:
+        'https://api.daily.dev/r/e3fd75b62cadd02073a31ee3444975cc',
+      feed_item_title: 'The Prosecutor’s Fallacy',
+      post_author_id: 'u1',
+      post_comments_count: undefined,
+      post_created_at: '2018-06-13T01:20:42.000Z',
+      post_read_time: 8,
+      post_scout_id: undefined,
+      post_source_id: 'tds',
+      post_source_type: undefined,
+      post_tags: ['webdev', 'javascript'],
+      post_trending_value: undefined,
+      post_type: 'article',
+      post_upvotes_count: undefined,
+      target_id: 'e3fd75b62cadd02073a31ee3444975cc',
+      target_type: 'post',
+    });
+  });
+
+  it('should properly remove bookmark reminder', async () => {
+    const { result } = renderHook(() => useBookmarkReminder({ post }), {
+      wrapper: Wrapper,
+    });
+
+    await result.current.onRemoveReminder('p1');
+
+    jest.useRealTimers();
+
+    await waitFor(() => {
+      expect(setBookmarkReminder).toHaveBeenCalledWith({
+        postId: 'p1',
+        remindAt: null,
+      });
+    });
+
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: 'remove bookmark reminder',
+      // important parts are the props above this line
+      feed_grid_columns: undefined,
+      feed_item_grid_column: undefined,
+      feed_item_grid_row: undefined,
+      feed_item_image:
+        'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
+      feed_item_meta: undefined,
+      feed_item_target_url:
+        'https://api.daily.dev/r/e3fd75b62cadd02073a31ee3444975cc',
+      feed_item_title: 'The Prosecutor’s Fallacy',
+      post_author_id: 'u1',
+      post_comments_count: undefined,
+      post_created_at: '2018-06-13T01:20:42.000Z',
+      post_read_time: 8,
+      post_scout_id: undefined,
+      post_source_id: 'tds',
+      post_source_type: undefined,
+      post_tags: ['webdev', 'javascript'],
+      post_trending_value: undefined,
+      post_type: 'article',
+      post_upvotes_count: undefined,
+      target_id: 'e3fd75b62cadd02073a31ee3444975cc',
+      target_type: 'post',
     });
   });
 });
