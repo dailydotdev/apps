@@ -70,7 +70,8 @@ const NewFeedPage = (): ReactElement => {
   const { user } = useAuthContext();
   const { feedSettings } = useFeedSettings({ feedId: newFeedId });
   const [isPreviewFeedVisible, setPreviewFeedVisible] = useState(false);
-  const isPreviewFeedEnabled = feedSettings?.includeTags?.length >= 1;
+  const isPreviewFeedEnabled =
+    feedSettings?.includeTags && feedSettings.includeTags?.length >= 1;
 
   const { finished, onFinished, delayedRedirect, isAnimating } =
     useProgressAnimation();

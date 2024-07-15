@@ -5,7 +5,7 @@ import type { Tag } from '../graphql/feedSettings';
 
 interface RecommendedTagsProps {
   isLoading: boolean;
-  tags: Tag[];
+  tags?: Tag[];
 }
 export const RecommendedTags = ({
   isLoading,

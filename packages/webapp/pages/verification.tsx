@@ -8,7 +8,7 @@ const Verification = (): ReactElement => {
   const router = useRouter();
 
   if (!router.isReady) {
-    return null;
+    return <></>;
   }
 
   return (

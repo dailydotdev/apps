@@ -80,7 +80,7 @@ function EditPost(): ReactElement {
     ...defaultSeo,
   };
 
-  const isAuthor = post?.author.id === user?.id;
+  const isAuthor = post?.author?.id === user?.id;
 
   const canEdit = (() => {
     if (isAuthor) {
@@ -113,7 +113,7 @@ function EditPost(): ReactElement {
       >
         <WritePostHeader isEdit />
 
-        {post?.type === PostType.Share ? (
+        {post?.type === PostType.Share && !!squad ? (
           <ShareLink
             post={post}
             squad={squad}

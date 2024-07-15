@@ -25,7 +25,7 @@ export interface WritePostProps {
     prop: WriteForm,
   ) => Promise<Post>;
   isPosting: boolean;
-  squad: Squad;
+  squad?: Squad;
   post?: Post;
   enableUpload: boolean;
   formRef?: MutableRefObject<HTMLFormElement>;

@@ -10,7 +10,9 @@ import { Button, ButtonVariant } from '../buttons/Button';
 import { Modal, ModalProps } from './common/Modal';
 import { gqlClient } from '../../graphql/common';
 
-export type KeywordSynonymModalProps = { selectedKeyword: string } & ModalProps;
+export type KeywordSynonymModalProps = {
+  selectedKeyword?: string;
+} & ModalProps;
 
 export default function KeywordSynonymModal({
   selectedKeyword,

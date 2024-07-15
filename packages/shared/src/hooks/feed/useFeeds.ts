@@ -17,7 +17,7 @@ export type CreateFeedProps = {
   name: string;
 };
 
-export type UpdateFeedProps = { feedId: string } & CreateFeedProps;
+export type UpdateFeedProps = { feedId?: string } & CreateFeedProps;
 
 export type DeleteFeedProps = Pick<UpdateFeedProps, 'feedId'>;
 

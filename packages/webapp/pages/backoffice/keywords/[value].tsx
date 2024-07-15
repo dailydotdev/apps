@@ -18,7 +18,7 @@ import Custom404 from '../../404';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import KeywordManagement from '../../../components/KeywordManagement';
 
-export type KeywordPageProps = { keyword: string };
+export type KeywordPageProps = { keyword?: string };
 
 const KeywordPage = ({
   keyword: keywordValue,
@@ -69,7 +69,7 @@ export async function getStaticProps({
 }: GetStaticPropsContext<KeywordParams>): Promise<
   GetStaticPropsResult<KeywordPageProps>
 > {
-  const { value } = params;
+  const { value } = params ?? {};
   return {
     props: {
       keyword: value,

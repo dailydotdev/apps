@@ -72,7 +72,13 @@ import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
 type TagPageProps = { tag: string; initialData: Keyword };
 
-const TagRecommendedTags = ({ tag, blockedTags }): ReactElement => {
+const TagRecommendedTags = ({
+  tag,
+  blockedTags,
+}: {
+  tag: string;
+  blockedTags?: string[];
+}): ReactElement => {
   const { data: recommendedTags, isLoading } = useQuery(
     [RequestKey.RecommendedTags, null, tag],
     async () =>
@@ -124,7 +130,7 @@ const TagTopSources = ({ tag }: { tag: string }) => {
       isLoading={isLoading}
       sources={sources}
       title="🔔 Top sources covering it"
-      className={shouldUseListFeedLayout && 'mx-4'}
+      className={shouldUseListFeedLayout ? 'mx-4' : undefined}
     />
   );
 };
@@ -164,15 +170,16 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
       return 'unfollowed';
     }
     if (
-      feedSettings.blockedTags?.findIndex((blockedTag) => tag === blockedTag) >
-      -1
+      feedSettings.blockedTags &&
+      feedSettings.blockedTags.findIndex((blockedTag) => tag === blockedTag) >
+        -1
     ) {
       return 'blocked';
     }
     if (
-      feedSettings.includeTags?.findIndex(
-        (includedTag) => tag === includedTag,
-      ) > -1
+      feedSettings.includeTags &&
+      feedSettings.includeTags.findIndex((includedTag) => tag === includedTag) >
+        -1
     ) {
       return 'followed';
     }
@@ -227,7 +234,9 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   return (
     <FeedPageLayoutComponent>
       <NextSeo {...seo} />
-      <PageInfoHeader className={shouldUseListFeedLayout && 'mx-4 !w-auto'}>
+      <PageInfoHeader
+        className={shouldUseListFeedLayout ? 'mx-4 !w-auto' : undefined}
+      >
         <div className="flex items-center font-bold">
           <HashtagIcon size={IconSize.XXLarge} />
           <h1 className="ml-2 w-fit typo-title2">{title}</h1>
@@ -376,7 +385,7 @@ export async function getStaticProps({
     const result = await gqlClient.request<{ keyword: Keyword }>(
       KEYWORD_QUERY,
       {
-        value: params.tag,
+        value: params?.tag,
       },
     );
 
@@ -389,7 +398,7 @@ export async function getStaticProps({
 
   return {
     props: {
-      tag: params.tag,
+      tag: params?.tag,
       initialData,
     },
     revalidate: 3600,

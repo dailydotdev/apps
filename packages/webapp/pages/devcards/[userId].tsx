@@ -21,7 +21,7 @@ interface DevCardPageProps {
 export async function getStaticProps({
   params,
 }: GetStaticPropsContext): Promise<GetStaticPropsResult<DevCardPageProps>> {
-  const { userId } = params;
+  const { userId } = params ?? {};
 
   if (!userId) {
     return {

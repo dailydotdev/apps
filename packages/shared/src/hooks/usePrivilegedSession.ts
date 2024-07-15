@@ -13,7 +13,7 @@ interface UsePrivilegedSession {
 }
 
 interface UsePrivilegedSessionProps {
-  providers: string[];
+  providers?: string[];
 }
 
 const usePrivilegedSession = ({

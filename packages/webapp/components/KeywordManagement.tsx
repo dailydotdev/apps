@@ -34,7 +34,7 @@ const KeywordSynonymModal = dynamic(
 );
 
 export type KeywordManagerProps = {
-  keyword: Keyword;
+  keyword?: Keyword;
   subtitle: string;
   onOperationCompleted?: () => Promise<void>;
 };
@@ -57,7 +57,7 @@ export default function KeywordManagement({
   const { mutateAsync: allowKeyword } = useMutation(
     () =>
       gqlClient.request(ALLOW_KEYWORD_MUTATION, {
-        keyword: keyword.value,
+        keyword: keyword?.value,
       }),
     {
       onSuccess: () => nextKeyword(),
@@ -67,7 +67,7 @@ export default function KeywordManagement({
   const { mutateAsync: denyKeyword } = useMutation(
     () =>
       gqlClient.request(DENY_KEYWORD_MUTATION, {
-        keyword: keyword.value,
+        keyword: keyword?.value,
       }),
     {
       onSuccess: () => nextKeyword(),
@@ -75,16 +75,17 @@ export default function KeywordManagement({
   );
 
   const posts = useInfiniteQuery<FeedData>(
-    ['keyword_post', keyword.value],
+    ['keyword_post', keyword?.value],
     ({ pageParam }) =>
       gqlClient.request(KEYWORD_FEED_QUERY, {
-        keyword: keyword.value,
+        keyword: keyword?.value,
         first: 4,
         after: pageParam,
       }),
     {
       getNextPageParam: (lastPage) =>
         lastPage.page.pageInfo.hasNextPage && lastPage.page.pageInfo.endCursor,
+      enabled: !!keyword,
     },
   );
 
@@ -105,9 +106,9 @@ export default function KeywordManagement({
   return (
     <ResponsivePageContainer>
       <NextSeo title="Pending Keywords" nofollow noindex />
-      <h1 className="m-0 font-bold typo-title2">{keyword.value}</h1>
+      <h1 className="m-0 font-bold typo-title2">{keyword?.value}</h1>
       <div className="my-1 flex items-center justify-between text-text-tertiary typo-callout">
-        <span>Occurrences: {keyword.occurrences}</span>
+        <span>Occurrences: {keyword?.occurrences}</span>
         <span>{subtitle}</span>
       </div>
       <ActivitySection
@@ -184,7 +185,7 @@ export default function KeywordManagement({
       {(windowLoaded || currentAction === 'synonym') && (
         <KeywordSynonymModal
           isOpen={currentAction === 'synonym'}
-          selectedKeyword={keyword.value}
+          selectedKeyword={keyword?.value}
           onRequestClose={nextKeyword}
         />
       )}

@@ -68,10 +68,10 @@ const AccountInvitePage = (): ReactElement => {
     },
   );
   const users: UserShortProfile[] = useMemo(() => {
-    const list = [];
+    const list: UserShortProfile[] = [];
     usersResult.data?.pages.forEach((page) => {
       page?.referredUsers.edges.forEach(({ node }) => {
-        list.push(node);
+        list.push(node as UserShortProfile);
       });
     }, []);
 

@@ -79,7 +79,7 @@ function Enable(): React.ReactElement {
   }, [isInitialized]);
 
   if (!isInitialized) {
-    return null;
+    return <></>;
   }
 
   return (

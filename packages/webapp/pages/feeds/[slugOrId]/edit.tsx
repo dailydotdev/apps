@@ -81,7 +81,8 @@ const EditFeedPage = (): ReactElement => {
   const { user } = useAuthContext();
   const { feedSettings } = useFeedSettings({ feedId, enabled: !!feedId });
   const [isPreviewFeedVisible, setPreviewFeedVisible] = useState(true);
-  const isPreviewFeedEnabled = feedSettings?.includeTags?.length >= 1;
+  const isPreviewFeedEnabled =
+    feedSettings?.includeTags && feedSettings.includeTags.length >= 1;
   const [isDirty, setDirty] = useState(false);
   const [tagsToRemove, setTagsToRemove] = useState<Record<string, true>>(
     () => ({}),
@@ -213,12 +214,12 @@ const EditFeedPage = (): ReactElement => {
   useEffect(() => {
     return () => {
       // cleanup on discard or navigation without save
-      cleanupRef.current();
+      cleanupRef.current?.();
     };
   }, []);
 
   if (!feed) {
-    return null;
+    return <></>;
   }
 
   const seo: NextSeoProps = {
@@ -285,7 +286,9 @@ const EditFeedPage = (): ReactElement => {
                 if (action === 'follow') {
                   setTagsToRemove((current) => {
                     const newTags = { ...current };
-                    delete newTags[tag.name];
+                    if (tag.name) {
+                      delete newTags[tag.name];
+                    }
 
                     return newTags;
                   });
@@ -307,7 +310,7 @@ const EditFeedPage = (): ReactElement => {
             />
           </div>
         </LayoutHeader>
-        {isPreviewFeedEnabled && isPreviewFeedVisible && (
+        {isPreviewFeedEnabled && isPreviewFeedVisible && feedId && (
           <FeedCustomPreview feedId={feedId} />
         )}
       </FeedPageLayoutComponent>
