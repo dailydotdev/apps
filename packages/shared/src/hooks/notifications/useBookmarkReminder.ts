@@ -62,7 +62,13 @@ export const getRemindAt = (
   }
 };
 
-export const useBookmarkReminder = (post: Post): UseBookmarkReminder => {
+interface UseBookmarkReminderProps {
+  post: Post;
+}
+
+export const useBookmarkReminder = ({
+  post,
+}: UseBookmarkReminderProps): UseBookmarkReminder => {
   const client = useQueryClient();
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const { displayToast } = useToastNotification();
@@ -133,9 +139,7 @@ export const useBookmarkReminder = (post: Post): UseBookmarkReminder => {
       });
     },
 
-    // logEvent is known to be unstable
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [onSetBookmarkReminder, post],
+    [logEvent, onSetBookmarkReminder, post],
   );
 
   return {
@@ -146,9 +150,7 @@ export const useBookmarkReminder = (post: Post): UseBookmarkReminder => {
 
         return onUndoReminder({ postId, remindAt: null });
       },
-      // logEvent is known to be unstable
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [onUndoReminder, post],
+      [logEvent, onUndoReminder, post],
     ),
   };
 };
