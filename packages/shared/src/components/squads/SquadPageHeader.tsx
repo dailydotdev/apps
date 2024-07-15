@@ -37,7 +37,7 @@ import { LazyModal } from '../modals/common/types';
 
 interface SquadPageHeaderProps {
   squad: Squad;
-  members?: SourceMember[];
+  members: SourceMember[];
   shouldUseListMode: boolean;
 }
 

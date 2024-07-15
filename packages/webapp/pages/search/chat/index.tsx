@@ -10,6 +10,4 @@ const SearchChatPage = (): ReactElement => {
 
 SearchChatPage.getLayout = GetSearchLayout;
 
-export default withFeaturesBoundary<Record<string, unknown>, MainLayoutProps>(
-  SearchChatPage,
-);
+export default withFeaturesBoundary<unknown, MainLayoutProps>(SearchChatPage);
