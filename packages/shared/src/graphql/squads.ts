@@ -510,7 +510,7 @@ export const expandPinnedPosts = async (
 };
 
 export const verifyPermission = (
-  squad?: Squad,
+  squad: Squad,
   permission: SourcePermissions,
 ): boolean => !!squad?.currentMember?.permissions?.includes(permission);
 
