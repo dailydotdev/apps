@@ -8,7 +8,10 @@ import {
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { ViewSize, useViewSize } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
-import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
+import {
+  onboardingUrl,
+  webappUrl,
+} from '@dailydotdev/shared/src/lib/constants';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import {
   Button,
@@ -32,7 +35,7 @@ const seo: NextSeoProps = {
 
 const DemoPage = (): ReactElement => {
   const router = useRouter();
-  const { user, showLogin } = useAuthContext();
+  const { user, showLogin, isAuthReady, isLoggedIn } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
 
   const feedProps: FeedProps<void> = {
@@ -48,6 +51,12 @@ const DemoPage = (): ReactElement => {
       router.replace(onboardingUrl);
     }
   }, [isLaptop, router]);
+
+  useEffect(() => {
+    if (isAuthReady && isLoggedIn) {
+      router.replace(webappUrl);
+    }
+  }, [isAuthReady, isLoggedIn, router]);
 
   return (
     <>
