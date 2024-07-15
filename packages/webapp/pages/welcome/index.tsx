@@ -18,8 +18,17 @@ import {
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import classNames from 'classnames';
+import { NextSeo, NextSeoProps } from 'next-seo';
+import { authGradientBg } from '@dailydotdev/shared/src/components/auth';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/FeedLayout';
+import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
+
+const seo: NextSeoProps = {
+  title: defaultSeoTitle,
+  openGraph: { ...defaultOpenGraph },
+  ...defaultSeo,
+};
 
 const DemoPage = (): ReactElement => {
   const router = useRouter();
@@ -41,8 +50,14 @@ const DemoPage = (): ReactElement => {
   }, [isLaptop, router]);
 
   return (
-    <div className="relative">
-      <div className="sticky flex h-12 justify-between px-4 py-2">
+    <>
+      <NextSeo {...seo} />
+      <div
+        className={classNames(
+          'sticky top-0 z-max flex h-12 w-full justify-between border-b border-accent-cabbage-default px-4 py-2',
+          authGradientBg,
+        )}
+      >
         <Logo position={LogoPosition.Relative} />
         <Button
           onClick={() => showLogin({ trigger: AuthTriggers.WelcomePage })}
@@ -82,7 +97,7 @@ const DemoPage = (): ReactElement => {
           Sign up to continue ➔
         </Button>
       </div>
-    </div>
+    </>
   );
 };
 

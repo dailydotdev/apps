@@ -38,3 +38,5 @@ export const getSquadOpenGraph = ({
       ? [{ url: squad.image }]
       : defaultOpenGraph.images,
 });
+
+export const defaultSeoTitle = 'daily.dev | Where developers grow together';
