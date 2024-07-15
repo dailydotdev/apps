@@ -94,53 +94,43 @@ const Step2 = ({ roast, error }: StepProps): ReactElement => {
   const { mutateAsync: onDownloadUrl, isLoading } = useMutation(downloadUrl);
 
   const downloadImage = async (): Promise<void> => {
-    if (!roast) {
-      return;
-    }
-    await onDownloadUrl({
-      url: roast.image,
-      filename: `${user?.username}.png`,
-    });
+    await onDownloadUrl({ url: roast.image, filename: `${user.username}.png` });
   };
 
   return (
     <div className="flex w-full max-w-[50rem] flex-col items-center gap-8">
-      {roast && (
-        <>
-          <div className="flex flex-col items-center gap-4">
-            <h2 className="text-center font-bold typo-title2	">
-              Your roast is ready 🤬
-            </h2>
-            <p className="text-center text-text-tertiary typo-body">
-              Download and share #IGotRoasted 📸
-            </p>
-          </div>
-          <LazyImage
-            imgSrc={roast.image}
-            imgAlt={roast.text}
-            ratio="75%"
-            className="w-full"
-            eager
-          />
-          <div className="flex flex-row justify-center gap-4">
-            <Button
-              variant={ButtonVariant.Secondary}
-              size={ButtonSize.Large}
-              onClick={() => window.location.reload()}
-            >
-              Start over
-            </Button>
-            <Button
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Large}
-              onClick={downloadImage}
-              loading={isLoading}
-            >
-              Download image
-            </Button>
-          </div>
-        </>
-      )}
+      <div className="flex flex-col items-center gap-4">
+        <h2 className="text-center font-bold typo-title2	">
+          Your roast is ready 🤬
+        </h2>
+        <p className="text-center text-text-tertiary typo-body">
+          Download and share #IGotRoasted 📸
+        </p>
+      </div>
+      <LazyImage
+        imgSrc={roast.image}
+        imgAlt={roast.text}
+        ratio="75%"
+        className="w-full"
+        eager
+      />
+      <div className="flex flex-row justify-center gap-4">
+        <Button
+          variant={ButtonVariant.Secondary}
+          size={ButtonSize.Large}
+          onClick={() => window.location.reload()}
+        >
+          Start over
+        </Button>
+        <Button
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Large}
+          onClick={downloadImage}
+          loading={isLoading}
+        >
+          Download image
+        </Button>
+      </div>
       {error && <FormErrorMessage role="alert">{error}</FormErrorMessage>}
     </div>
   );
@@ -201,7 +191,7 @@ const RoastPage = (): ReactElement => {
   const onError = (err?: HttpError) => {
     if (err?.statusCode === 429) {
       setImageError(labels.error.rateLimit);
-    } else if (err && err.statusCode < 500) {
+    } else if (err?.statusCode < 500) {
       setImageError(err.response);
     } else {
       setImageError(labels.error.generic);
@@ -215,7 +205,7 @@ const RoastPage = (): ReactElement => {
     RoastParams
   >(Automation.Roaster, {
     onMutate() {
-      setImageError(undefined);
+      setImageError(null);
       setIsLoadingImage(true);
     },
     onSuccess(res) {

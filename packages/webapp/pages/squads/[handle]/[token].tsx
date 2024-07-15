@@ -46,20 +46,14 @@ import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePict
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { getSquadOpenGraph } from '../../../next-seo';
 
-const getOthers = ({
-  others,
-  total,
-}: {
-  total: number;
-  others?: Edge<SourceMember>[];
-}) => {
-  const { length } = others ?? { length: 0 };
+const getOthers = (others: Edge<SourceMember>[], total: number) => {
+  const { length } = others;
   if (length === 0) {
     return 'is';
   }
 
   if (length === 1) {
-    const member = others?.[0].node.user.name;
+    const member = others[0].node.user.name;
     return `and ${member} are`;
   }
 
@@ -189,19 +183,17 @@ const SquadReferral = ({
   };
 
   if (!member) {
-    return <></>;
+    return null;
   }
 
   const { user, source } = member;
-  const others = source.members?.edges.filter(
+  const others = source.members.edges.filter(
     ({ node }) => node.user.id !== user.id,
   );
-  const othersLabel = getOthers({
-    total: source.membersCount,
-    others: source.members?.edges.filter(
-      ({ node }) => node.user.id !== user.id,
-    ),
-  });
+  const othersLabel = getOthers(
+    source.members.edges.filter(({ node }) => node.user.id !== user.id),
+    source.membersCount,
+  );
 
   const seo: NextSeoProps = {
     title: `${user.name} invited you to ${source.name}`,
@@ -266,7 +258,7 @@ const SquadReferral = ({
         {user.name} {othersLabel} waiting for you inside. Join them now!
       </BodyParagraph>
       <span className="mt-6 flex flex-row flex-wrap gap-2">
-        {others?.slice(0, 10).map(({ node }) => (
+        {others.slice(0, 10).map(({ node }) => (
           <ProfileImageLink key={node.user.id} user={node.user} />
         ))}
       </span>

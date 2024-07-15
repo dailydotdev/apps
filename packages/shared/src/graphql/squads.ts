@@ -379,7 +379,7 @@ export async function getSquad(handle: string): Promise<Squad> {
   return res.source;
 }
 
-export async function getSquadMembers(id?: string): Promise<SourceMember[]> {
+export async function getSquadMembers(id: string): Promise<SourceMember[]> {
   const res = await gqlClient.request<SquadEdgesData>(SQUAD_MEMBERS_QUERY, {
     id,
     first: 5,
@@ -397,7 +397,7 @@ export interface SquadInvitationProps {
 }
 
 export const getSquadInvitation = async (
-  token?: string,
+  token: string,
 ): Promise<SourceMember> => {
   try {
     const res = await gqlClient.request<SquadInvitation>(

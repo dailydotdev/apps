@@ -32,10 +32,7 @@ import {
 } from '@dailydotdev/shared/src/components/post/write';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
-import {
-  SourcePermissions,
-  Squad,
-} from '@dailydotdev/shared/src/graphql/sources';
+import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import {
   useActions,
   useViewSize,
@@ -63,16 +60,15 @@ function CreatePost(): ReactElement {
   const { push, isReady: isRouteReady, query } = useRouter();
   const { squads, user, isAuthReady, isFetched } = useAuthContext();
   const [selected, setSelected] = useState(-1);
-  const activeSquads: Squad[] = useMemo(() => {
+  const activeSquads = useMemo(() => {
     const collator = new Intl.Collator('en');
-    const filtered =
-      squads
-        ?.filter(
-          (squadItem) =>
-            squadItem?.active &&
-            verifyPermission(squadItem, SourcePermissions.Post),
-        )
-        .sort((a, b) => collator.compare(a.name, b.name)) ?? [];
+    const filtered = squads
+      ?.filter(
+        (squadItem) =>
+          squadItem?.active &&
+          verifyPermission(squadItem, SourcePermissions.Post),
+      )
+      .sort((a, b) => collator.compare(a.name, b.name));
 
     if (!user) {
       return filtered;
@@ -84,8 +80,8 @@ function CreatePost(): ReactElement {
         name: 'Create new Squad',
         handle: null,
       },
-      filtered && { ...filtered },
-    ] as unknown as Squad[];
+      ...filtered,
+    ];
   }, [squads, user]);
   const squad = activeSquads?.[selected];
   const [display, setDisplay] = useState(WriteFormTab.NewPost);
@@ -162,11 +158,11 @@ function CreatePost(): ReactElement {
       return null;
     }
 
-    if (squads?.some(({ id }) => squad.id === id)) {
+    if (squads.some(({ id }) => squad.id === id)) {
       return onCreatePost({ ...params, sourceId: squad.id });
     }
 
-    await onCreateSquad(generateDefaultSquad(user?.username));
+    await onCreateSquad(generateDefaultSquad(user.username));
 
     return null;
   };

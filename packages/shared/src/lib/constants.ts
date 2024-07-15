@@ -54,8 +54,7 @@ export const isChrome = (): boolean =>
   /Chrome/.test(globalThis?.navigator?.userAgent) &&
   /Google Inc/.test(globalThis?.navigator?.vendor);
 
-export const webappUrl =
-  process.env.NEXT_PUBLIC_WEBAPP_URL || 'http://webapp.local.com:5002/';
+export const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL;
 export const onboardingUrl = `${webappUrl}onboarding`;
 
 export const authUrl =
