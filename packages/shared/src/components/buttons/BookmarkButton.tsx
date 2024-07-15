@@ -58,7 +58,8 @@ export function BookmarkButton({
         options={[
           {
             label: 'Edit reminder',
-            action: () => openModal({ type: LazyModal.ReadItLater }),
+            action: () =>
+              openModal({ type: LazyModal.BookmarkReminder, props: { post } }),
           },
           {
             label: 'Remove reminder',
