@@ -22,7 +22,7 @@ const feature = {
   }),
   feedAdSpot: new Feature('feed_ad_spot', 0),
   searchVersion: new Feature('search_version', 1),
-  readingReminder: new Feature('reading_reminder', true),
+  readingReminder: new Feature('reading_reminder', false),
   featureTheme: new Feature('feature_theme', {}),
   shortcutsUI: new Feature('shortcuts_ui', ShortcutsUIExperiment.Control),
   showRoadmap: new Feature('show_roadmap', false),
