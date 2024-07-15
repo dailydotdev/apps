@@ -1,18 +1,63 @@
 import React, { ReactElement } from 'react';
-import { ReusedCardCoverProps, SharedCardCover } from './SharedCardCover';
+import classNames from 'classnames';
+import { ImageProps, ImageType } from '../../image/Image';
+import VideoImage, { VideoImageProps } from '../../image/VideoImage';
 import { CardImage } from '../Card';
+import { CardCoverShare } from './CardCoverShare';
+import { CommonCardCoverProps } from '../common';
+import { usePostShareLoop } from '../../../hooks/post/usePostShareLoop';
 
-export function CardCover(props: ReusedCardCoverProps): ReactElement {
-  return (
-    <SharedCardCover
-      {...props}
-      CardImageComponent={CardImage}
-      renderOverlay={({ overlay, image }) => (
-        <div className="pointer-events-none relative flex flex-1">
-          {overlay}
-          {image}
-        </div>
-      )}
+interface CardCoverProps extends CommonCardCoverProps {
+  imageProps: ImageProps;
+  videoProps?: Omit<VideoImageProps, 'imageProps'>;
+  isVideoType?: boolean;
+}
+
+export function CardCover({
+  imageProps,
+  videoProps,
+  isVideoType,
+  onShare,
+  post,
+}: CardCoverProps): ReactElement {
+  const { shouldShowOverlay, onInteract } = usePostShareLoop(post);
+  const coverShare = (
+    <CardCoverShare
+      post={post}
+      onShare={() => {
+        onInteract();
+        onShare(post);
+      }}
+      onCopy={onInteract}
     />
+  );
+  const imageClasses = classNames(
+    imageProps?.className,
+    shouldShowOverlay && 'opacity-16',
+  );
+
+  if (isVideoType) {
+    return (
+      <VideoImage
+        {...videoProps}
+        CardImageComponent={CardImage}
+        overlay={shouldShowOverlay ? coverShare : undefined}
+        imageProps={{
+          ...imageProps,
+          className: imageClasses,
+        }}
+      />
+    );
+  }
+
+  return (
+    <div className="pointer-events-none relative flex flex-1">
+      {shouldShowOverlay && coverShare}
+      <CardImage
+        {...imageProps}
+        type={ImageType.Post}
+        className={imageClasses}
+      />
+    </div>
   );
 }

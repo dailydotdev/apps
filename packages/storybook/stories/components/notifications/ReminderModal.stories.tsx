@@ -1,15 +1,15 @@
 import React from 'react';
 import { Meta, StoryObj } from '@storybook/react';
-import { BookmarkReminderModal } from '@dailydotdev/shared/src/components/modals/post/BookmarkReminderModal';
+import { ReminderModal } from '@dailydotdev/shared/src/components/notifications/ReminderModal';
 import ExtensionProviders from '../../extension/_providers';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { useToggle } from '@dailydotdev/shared/src/hooks/useToggle';
 import { fn } from '@storybook/test';
 import post from '@dailydotdev/shared/__tests__/fixture/post';
 
-const meta: Meta<typeof BookmarkReminderModal> = {
-  title: 'components/Modals/BookmarkReminderModal',
-  component: BookmarkReminderModal,
+const meta: Meta<typeof ReminderModal> = {
+  title: 'components/Notifications/ReminderModal',
+  component: ReminderModal,
   args: {
     onReminderSet: fn(),
     onRequestClose: fn(),
@@ -23,7 +23,7 @@ const meta: Meta<typeof BookmarkReminderModal> = {
       <ExtensionProviders>
         <Button onClick={() => toggle()}>Toggle modal</Button>
         <div className={'py-20'}>
-          <BookmarkReminderModal
+          <ReminderModal
             {...props}
             isOpen={isOpen}
             onRequestClose={() => {
@@ -44,6 +44,6 @@ const meta: Meta<typeof BookmarkReminderModal> = {
 
 export default meta;
 
-type Story = StoryObj<typeof BookmarkReminderModal>;
+type Story = StoryObj<typeof ReminderModal>;
 
 export const Default: Story = {};

@@ -19,7 +19,6 @@ import { IconSize } from '../../Icon';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 import { ActionButtonsProps } from '../ActionsButtons';
 import { UpvoteButtonIcon } from '../ActionsButtons/UpvoteButtonIcon';
-import { BookmarkButton } from '../../buttons';
 
 interface ActionButtonsPropsList extends ActionButtonsProps {
   onDownvoteClick?: (post: Post) => unknown;
@@ -146,16 +145,19 @@ export default function ActionButtons({
             ) : null}
           </Button>
         </LinkWithTooltip>
-        <BookmarkButton
-          post={post}
-          buttonProps={{
-            id: `post-${post.id}-bookmark-btn`,
-            icon: <BookmarkIcon secondary={post.bookmarked} />,
-            onClick: () => onBookmarkClick(post),
-            variant: ButtonVariant.Float,
-            className: 'pointer-events-auto ml-2',
-          }}
-        />
+        <SimpleTooltip
+          content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
+        >
+          <Button
+            id={`post-${post.id}-bookmark-btn`}
+            className="pointer-events-auto ml-2"
+            icon={<BookmarkIcon secondary={post.bookmarked} />}
+            onClick={() => onBookmarkClick(post)}
+            color={ButtonColor.Bun}
+            pressed={post.bookmarked}
+            variant={ButtonVariant.Float}
+          />
+        </SimpleTooltip>
         <SimpleTooltip content="Copy link">
           <Button
             className="pointer-events-auto ml-2"
