@@ -36,7 +36,7 @@ interface UsePublicSquadRequestsResult {
 
 interface UsePublicSquadRequestsProps {
   isQueryEnabled?: boolean;
-  sourceId: string;
+  sourceId?: string;
   status?: string;
   isPublic?: boolean;
   onSuccessfulSubmission?: () => void;

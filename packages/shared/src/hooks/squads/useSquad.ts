@@ -9,7 +9,7 @@ import { isNullOrUndefined } from '../../lib/func';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 
 interface UseSquadProps {
-  handle: string;
+  handle?: string;
 }
 
 interface UseSquad {

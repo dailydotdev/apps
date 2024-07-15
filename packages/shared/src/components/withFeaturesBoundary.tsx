@@ -11,9 +11,9 @@ export type WrappedComponentType<
   LayoutProps = unknown,
 > = ComponentType<Props> & {
   getLayout?: (
-    page: ReactElement,
-    pageProps?: Props,
-    layoutProps?: LayoutProps,
+    page: ReactNode,
+    pageProps: Props,
+    layoutProps: LayoutProps,
   ) => ReactNode;
   layoutProps?: LayoutProps;
 };
