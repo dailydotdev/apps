@@ -208,6 +208,12 @@ export const cloudinary = {
     checklistBar:
       'https://daily-now-res.cloudinary.com/image/upload/s--BNjSTWER--/f_auto,q_auto/v1716231116/conffeti-tablet-mobile_yvq4lg',
   },
+  welcomePage: {
+    header: {
+      mainImage:
+        'https://daily-now-res.cloudinary.com/image/upload/s--Jdotiu2M--/f_auto,q_auto/v1721028744/daily-to-dev-suffer-together_jfefj3',
+    },
+  },
 };
 
 export const smallPostImage = (url: string): string => {
