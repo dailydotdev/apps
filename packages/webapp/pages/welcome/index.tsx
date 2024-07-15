@@ -63,7 +63,7 @@ const DemoPage = (): ReactElement => {
       <NextSeo {...seo} />
       <div
         className={classNames(
-          'sticky top-0 z-max flex h-12 w-full justify-between border-b border-accent-cabbage-default px-4 py-2',
+          'sticky top-0 z-header flex h-12 w-full justify-between border-b border-accent-cabbage-default px-4 py-2',
           authGradientBg,
         )}
       >
