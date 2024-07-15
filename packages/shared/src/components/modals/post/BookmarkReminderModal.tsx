@@ -1,6 +1,6 @@
 import React, { FormEventHandler, ReactElement, useState } from 'react';
 import { format } from 'date-fns';
-import { Modal, ModalProps } from '../common/Modal';
+import { LazyModalCommonProps, Modal } from '../common/Modal';
 import { ModalHeader } from '../common/ModalHeader';
 import { ModalBody } from '../common/ModalBody';
 import { ModalSize } from '../common/types';
@@ -12,8 +12,7 @@ import {
 } from '../../../hooks/notifications';
 import { Post } from '../../../graphql/posts';
 
-export interface BookmarkReminderProps
-  extends Pick<ModalProps, 'isOpen' | 'onRequestClose'> {
+export interface BookmarkReminderProps extends LazyModalCommonProps {
   onReminderSet?: (reminder: string) => void;
   post: Post;
 }

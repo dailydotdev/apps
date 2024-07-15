@@ -34,6 +34,7 @@ interface BookmarkReminderProps {
 
 interface UseBookmarkReminder {
   onBookmarkReminder: (props: BookmarkReminderProps) => Promise<EmptyResponse>;
+  onRemoveReminder: (postId: string) => void;
 }
 
 export const getRemindAt = (
@@ -62,28 +63,37 @@ export const useBookmarkReminder = (): UseBookmarkReminder => {
   const client = useQueryClient();
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const { displayToast } = useToastNotification();
-  const { mutateAsync: onUndoReminder } = useMutation(setBookmarkReminder);
+
+  const onUpdateCache = (postId: string, remindAt?: Date) => {
+    updatePostCache(client, postId, (post) => ({
+      bookmark: { ...post.bookmark, remindAt },
+    }));
+
+    if (feedQueryKey) {
+      const bookmark: Bookmark = { createdAt: new Date(), remindAt };
+      const updatePost = updateCachedPagePost(feedQueryKey, client);
+      const postIndexToUpdate = items.findIndex(
+        (item) => item.type === 'post' && item.post.id === postId,
+      );
+      const update = optimisticPostUpdateInFeed(items, updatePost, () => ({
+        bookmark,
+      }));
+
+      update({ index: postIndexToUpdate });
+    }
+  };
+
+  const { mutateAsync: onUndoReminder } = useMutation(setBookmarkReminder, {
+    onSuccess: (_, { postId, remindAt }) => {
+      onUpdateCache(postId, remindAt);
+    },
+  });
   const { mutateAsync: onSetBookmarkReminder } = useMutation(
     ({ postId, remindAt }: MutateBookmarkProps) =>
       setBookmarkReminder({ postId, remindAt }),
     {
       onSuccess: (_, { postId, existingReminder, preference, remindAt }) => {
-        updatePostCache(client, postId, (post) => ({
-          bookmark: { ...post.bookmark, remindAt },
-        }));
-
-        if (feedQueryKey) {
-          const bookmark: Bookmark = { createdAt: new Date(), remindAt };
-          const updatePost = updateCachedPagePost(feedQueryKey, client);
-          const postIndexToUpdate = items.findIndex(
-            (item) => item.type === 'post' && item.post.id === postId,
-          );
-          const update = optimisticPostUpdateInFeed(items, updatePost, () => ({
-            bookmark,
-          }));
-
-          update({ index: postIndexToUpdate });
-        }
+        onUpdateCache(postId, remindAt);
 
         displayToast(`Reminder set for ${preference.toLowerCase()}`, {
           onUndo: () => onUndoReminder({ postId, remindAt: existingReminder }),
@@ -115,5 +125,11 @@ export const useBookmarkReminder = (): UseBookmarkReminder => {
     [onSetBookmarkReminder],
   );
 
-  return { onBookmarkReminder };
+  return {
+    onBookmarkReminder,
+    onRemoveReminder: useCallback(
+      (postId) => onUndoReminder({ postId, remindAt: null }),
+      [onUndoReminder],
+    ),
+  };
 };

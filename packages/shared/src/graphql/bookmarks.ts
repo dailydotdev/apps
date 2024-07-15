@@ -26,5 +26,5 @@ export const setBookmarkReminder = ({
 }: SetBookmarkReminderProps): Promise<EmptyResponse> =>
   request(graphqlUrl, SET_BOOKMARK_REMINDER, {
     postId,
-    remindAt: remindAt.toISOString(),
+    remindAt: remindAt ? remindAt.toISOString() : null,
   });
