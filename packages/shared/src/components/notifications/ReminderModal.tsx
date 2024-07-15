@@ -1,23 +1,24 @@
 import React, { FormEventHandler, ReactElement, useState } from 'react';
 import { format } from 'date-fns';
-import { LazyModalCommonProps, Modal } from '../common/Modal';
-import { ModalHeader } from '../common/ModalHeader';
-import { ModalBody } from '../common/ModalBody';
-import { ModalSize } from '../common/types';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import { Modal, ModalProps } from '../modals/common/Modal';
+import { ModalHeader } from '../modals/common/ModalHeader';
+import { ModalBody } from '../modals/common/ModalBody';
+import { ModalSize } from '../modals/common/types';
+import { Button, ButtonVariant } from '../buttons/Button';
 import {
   getRemindAt,
   ReminderPreference,
   useBookmarkReminder,
-} from '../../../hooks/notifications';
-import { Post } from '../../../graphql/posts';
+} from '../../hooks/notifications/useBookmarkReminder';
+import { Post } from '../../graphql/posts';
 
-export interface BookmarkReminderProps extends LazyModalCommonProps {
-  onReminderSet?: (reminder: string) => void;
+export interface ReminderModalProps
+  extends Pick<ModalProps, 'isOpen' | 'onRequestClose'> {
+  onReminderSet: (reminder: string) => void;
   post: Post;
 }
 
-interface BookmarkReminderModalOptionProps {
+interface ReminderModalOptionProps {
   isActive: boolean;
   onClick: () => void;
   option: {
@@ -26,13 +27,14 @@ interface BookmarkReminderModalOptionProps {
   };
 }
 
-const MODAL_OPTIONS: Array<BookmarkReminderModalOptionProps['option']> =
-  Object.entries(ReminderPreference).map(
-    ([key, value]: [keyof typeof ReminderPreference, ReminderPreference]) => ({
-      key,
-      value,
-    }),
-  );
+const MODAL_OPTIONS: Array<ReminderModalOptionProps['option']> = Object.entries(
+  ReminderPreference,
+).map(
+  ([key, value]: [keyof typeof ReminderPreference, ReminderPreference]) => ({
+    key,
+    value,
+  }),
+);
 
 const TIME_FOR_OPTION_FORMAT_MAP = {
   [ReminderPreference.OneHour]: null,
@@ -42,9 +44,7 @@ const TIME_FOR_OPTION_FORMAT_MAP = {
   [ReminderPreference.NextWeek]: 'eee, MMM d, h:mm a',
 };
 
-const BookmarkReminderModalOption = (
-  props: BookmarkReminderModalOptionProps,
-) => {
+const ReminderModalOption = (props: ReminderModalOptionProps) => {
   const { option, onClick, isActive } = props;
   const { value } = option;
 
@@ -75,9 +75,7 @@ const BookmarkReminderModalOption = (
   );
 };
 
-export const BookmarkReminderModal = (
-  props: BookmarkReminderProps,
-): ReactElement => {
+export const ReminderModal = (props: ReminderModalProps): ReactElement => {
   const { post, onReminderSet, isOpen, onRequestClose } = props;
   const [selectedOption, setSelectedOption] = useState<ReminderPreference>(
     ReminderPreference.OneHour,
@@ -119,7 +117,7 @@ export const BookmarkReminderModal = (
             tabIndex={0}
           >
             {MODAL_OPTIONS.map((option) => (
-              <BookmarkReminderModalOption
+              <ReminderModalOption
                 key={option.key}
                 onClick={() => setSelectedOption(option.value)}
                 isActive={selectedOption === option.value}
@@ -141,4 +139,4 @@ export const BookmarkReminderModal = (
   );
 };
 
-export default BookmarkReminderModal;
+export default ReminderModal;

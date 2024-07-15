@@ -1,10 +1,9 @@
 import React, { ReactElement, ReactNode } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import NotificationItem, { NotificationItemProps } from './NotificationItem';
 import { NotificationAvatarType } from '../../graphql/notifications';
 import { NotificationType, NotificationIconType } from './utils';
-import { TestBootProvider } from '../../../__tests__/helpers/boot';
 
 const sampleNotificationTitle = 'Welcome to your new notification center!';
 const sampleNotificationDescription =
@@ -48,7 +47,9 @@ jest.mock(
 
 const renderComponent = (component: ReactNode) => {
   const client = new QueryClient();
-  render(<TestBootProvider client={client}>{component}</TestBootProvider>);
+  render(
+    <QueryClientProvider client={client}>{component}</QueryClientProvider>,
+  );
 };
 
 describe('notification attachment', () => {

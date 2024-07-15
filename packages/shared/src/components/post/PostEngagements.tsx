@@ -22,7 +22,6 @@ import { SourceType } from '../../graphql/sources';
 import { useActions } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { AdAsComment } from '../comments/AdAsComment';
-import { PostContentReminder } from './common/PostContentReminder';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -99,7 +98,6 @@ function PostEngagements({
         actionsClassName="hidden laptop:flex"
         origin={logOrigin}
       />
-      <PostContentReminder post={post} />
       <PostContentShare post={post} />
       <NewComment
         className={{ container: 'mt-6 hidden tablet:flex' }}
