@@ -75,7 +75,7 @@ const DemoPage = (): ReactElement => {
   }, [isAuthReady, isLoggedIn, router]);
 
   const [didScroll, setDidScroll] = useState(false);
-  useEventListener(global?.window, 'scroll', () => {
+  useEventListener(globalThis, 'scroll', () => {
     setDidScroll(window.scrollY > 100);
   });
   const hasData = !!queryClient.getQueryData(feedProps.feedQueryKey);
