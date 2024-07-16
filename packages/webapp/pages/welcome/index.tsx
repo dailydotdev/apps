@@ -7,7 +7,12 @@ import {
   generateQueryKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { ViewSize, useViewSize } from '@dailydotdev/shared/src/hooks';
+import {
+  ViewSize,
+  useEventListener,
+  useScrollRestoration,
+  useViewSize,
+} from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
 import {
   onboardingUrl,
@@ -24,7 +29,7 @@ import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import classNames from 'classnames';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { authGradientBg } from '@dailydotdev/shared/src/components/auth';
-import { useIsFetching } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
@@ -36,9 +41,11 @@ const seo: NextSeoProps = {
 };
 
 const DemoPage = (): ReactElement => {
+  useScrollRestoration();
   const router = useRouter();
   const { user, showLogin, isAuthReady, isLoggedIn } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const queryClient = useQueryClient();
 
   const feedProps: FeedProps<void> = {
     feedName: OtherFeedPage.Welcome,
@@ -65,12 +72,12 @@ const DemoPage = (): ReactElement => {
     }
   }, [isAuthReady, isLoggedIn, router]);
 
-  const [didStartFetching, setDidStartFetching] = useState(false);
-  const isFetching = useIsFetching({ queryKey: feedProps.feedQueryKey });
-
-  useEffect(() => {
-    setDidStartFetching((current) => current || isFetching > 0);
-  }, [isFetching]);
+  const [didScroll, setDidScroll] = useState(false);
+  useEventListener(global?.window, 'scroll', () => {
+    setDidScroll(window.scrollY > 100);
+  });
+  const hasData = !!queryClient.getQueryData(feedProps.feedQueryKey);
+  const showSignupFooter = didScroll || hasData;
 
   return (
     <>
@@ -107,7 +114,7 @@ const DemoPage = (): ReactElement => {
         </p>
       </div>
       <Feed className={feedProps.className} {...feedProps} />
-      {didStartFetching && (
+      {showSignupFooter && (
         <div className="mb-6 flex h-80 flex-col items-center justify-center gap-6 p-6">
           <h2 className="text-center font-bold text-text-primary typo-title1">
             Where developers suffer together
