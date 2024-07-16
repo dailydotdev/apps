@@ -1,8 +1,9 @@
-import React, { ReactElement, useEffect } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import Feed, { FeedProps } from '@dailydotdev/shared/src/components/Feed';
 import { ANONYMOUS_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import {
   OtherFeedPage,
+  StaleTime,
   generateQueryKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -23,6 +24,7 @@ import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import classNames from 'classnames';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { authGradientBg } from '@dailydotdev/shared/src/components/auth';
+import { useIsFetching } from '@tanstack/react-query';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
@@ -45,6 +47,10 @@ const DemoPage = (): ReactElement => {
     pageSize: 10,
     allowFetchMore: false,
     disableAds: true,
+    showSearch: false,
+    options: {
+      staleTime: StaleTime.Default,
+    },
   };
 
   useEffect(() => {
@@ -58,6 +64,13 @@ const DemoPage = (): ReactElement => {
       router.replace(webappUrl);
     }
   }, [isAuthReady, isLoggedIn, router]);
+
+  const [didStartFetching, setDidStartFetching] = useState(false);
+  const isFetching = useIsFetching({ queryKey: feedProps.feedQueryKey });
+
+  useEffect(() => {
+    setDidStartFetching((current) => current || isFetching > 0);
+  }, [isFetching]);
 
   return (
     <>
@@ -94,18 +107,20 @@ const DemoPage = (): ReactElement => {
         </p>
       </div>
       <Feed className={feedProps.className} {...feedProps} />
-      <div className="mb-6 flex h-80 flex-col items-center justify-center gap-2 p-6">
-        <h2 className="text-center font-bold text-text-primary typo-title1">
-          Where developers suffer together
-        </h2>
-        <Button
-          onClick={() => showLogin({ trigger: AuthTriggers.WelcomePage })}
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
-        >
-          Sign up to continue ➔
-        </Button>
-      </div>
+      {didStartFetching && (
+        <div className="mb-6 flex h-80 flex-col items-center justify-center gap-2 p-6">
+          <h2 className="text-center font-bold text-text-primary typo-title1">
+            Where developers suffer together
+          </h2>
+          <Button
+            onClick={() => showLogin({ trigger: AuthTriggers.WelcomePage })}
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
+          >
+            Sign up to continue ➔
+          </Button>
+        </div>
+      )}
     </>
   );
 };
