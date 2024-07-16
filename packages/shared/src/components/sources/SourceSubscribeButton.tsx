@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { Button } from '../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
-import { BellSubscribedIcon } from '../icons';
+import { BellAddIcon, BellSubscribedIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips';
 import { Source } from '../../graphql/sources';
 import { isTesting } from '../../lib/constants';
@@ -51,10 +51,11 @@ const SourceSubscribeButtonSubscribed = ({
         className={className}
         size={ButtonSize.Small}
         variant={ButtonVariant.Tertiary}
-        icon={<BellSubscribedIcon />}
         disabled={isFetching}
         onClick={onClick}
-      />
+      >
+        Subscribed
+      </Button>
     </SimpleTooltip>
   );
 };
@@ -65,21 +66,42 @@ const SourceSubscribeButton = ({
   variant = ButtonVariant.Primary,
 }: SourceSubscribeButtonProps): ReactElement => {
   const { isLoggedIn } = useAuthContext();
-  const { isSubscribed, onSubscribe, isReady } = useSourceSubscription({
-    source,
-  });
+  const { isFollowing, isSubscribed, onSubscribe, onFollowing, isReady } =
+    useSourceSubscription({
+      source,
+    });
 
   const ButtonComponent = isSubscribed
     ? SourceSubscribeButtonSubscribed
     : SourceSubscribeButtonRegular;
 
+  const follow = {
+    icon: isFollowing ? <BellSubscribedIcon /> : <BellAddIcon />,
+    label: `${isFollowing ? 'Disable' : 'Enable'} notifications`,
+    variant: isFollowing ? ButtonVariant.Tertiary : ButtonVariant.Secondary,
+  };
+
   return (
-    <ButtonComponent
-      className={className}
-      isFetching={isLoggedIn && !isReady}
-      onClick={onSubscribe}
-      variant={variant}
-    />
+    <>
+      <ButtonComponent
+        className={className}
+        isFetching={isLoggedIn && !isReady}
+        onClick={onSubscribe}
+        variant={variant}
+      />
+      {isSubscribed && (
+        <SimpleTooltip content={follow.label}>
+          <Button
+            aria-label={follow.label}
+            icon={follow.icon}
+            onClick={onFollowing}
+            size={ButtonSize.Small}
+            title={follow.label}
+            variant={follow.variant}
+          />
+        </SimpleTooltip>
+      )}
+    </>
   );
 };
 

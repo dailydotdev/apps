@@ -7,14 +7,17 @@ import { LogEvent } from '../../lib/log';
 import { AuthTriggers } from '../../lib/auth';
 import { useNotificationPreferenceToggle } from '../notifications';
 import { useToastNotification } from '../useToastNotification';
+import { useToggle } from '../useToggle';
 
 export type UseSourceSubscriptionProps = {
   source: Pick<Source, 'id'>;
 };
 
 export type UseSourceSubscription = {
+  isFollowing: boolean;
   isSubscribed: boolean;
   isReady: boolean;
+  onFollowing: () => void;
   onSubscribe: () => Promise<void>;
 };
 
@@ -24,6 +27,7 @@ export const useSourceSubscription = ({
   const { logEvent } = useLogContext();
   const { isLoggedIn, showLogin } = useAuthContext();
   const { displayToast } = useToastNotification();
+  const [isFollowing, toggleFollow] = useToggle(false);
   const { isSubscribed, isReady, onToggle } = useNotificationPreferenceToggle({
     params: source?.id
       ? {
@@ -59,10 +63,15 @@ export const useSourceSubscription = ({
         : '⛔️ You are now unsubscribed',
     );
   }, [isLoggedIn, onToggle, showLogin, source?.id, logEvent, displayToast]);
+  const onFollowing = useCallback(() => {
+    toggleFollow();
+  }, [isFollowing, toggleFollow]);
 
   return {
+    isFollowing,
     isSubscribed,
     isReady,
+    onFollowing,
     onSubscribe,
   };
 };
