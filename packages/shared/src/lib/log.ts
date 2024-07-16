@@ -150,6 +150,9 @@ export enum LogEvent {
   // source
   SubscribeSource = 'subscribe source',
   UnsubscribeSource = 'unsubscribe source',
+  // follow
+  FollowSource = 'follow source',
+  UnfollowSource = 'unfollow source',
   // marketing CTA
   MarketingCtaDismiss = 'dismiss promotion',
   // Reading reminder
