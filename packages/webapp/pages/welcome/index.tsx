@@ -44,6 +44,7 @@ const DemoPage = (): ReactElement => {
     query: ANONYMOUS_FEED_QUERY,
     pageSize: 10,
     allowFetchMore: false,
+    disableAds: true,
   };
 
   useEffect(() => {
