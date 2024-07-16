@@ -211,7 +211,7 @@ export const cloudinary = {
   welcomePage: {
     header: {
       mainImage:
-        'https://res.cloudinary.com/daily-now/image/upload/s--jn7-qwCj--/f_auto,q_auto/v1721135725/public/daily-to-dev-suffer-together',
+        'https://res.cloudinary.com/daily-now/image/upload/s--jn7-qwCj--/f_auto,q_auto/v1721136180/public/daily-to-dev-suffer-together',
     },
   },
 };
