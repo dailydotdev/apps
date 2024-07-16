@@ -38,6 +38,8 @@ const seo: NextSeoProps = {
   title: defaultSeoTitle,
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
+  nofollow: true,
+  noindex: true,
 };
 
 const DemoPage = (): ReactElement => {
