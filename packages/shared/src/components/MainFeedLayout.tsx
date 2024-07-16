@@ -390,14 +390,12 @@ export default function MainFeedLayout({
 
     return <FeedExploreDropdown />;
   }, [isLaptop, mobileExploreTab, onTabChange, tab]);
-  const shouldShowFeedExploreComponent =
-    isAnyExplore || (isSearchOn && mobileExploreTab);
 
   return (
     <FeedPageLayoutComponent
       className={classNames('relative', disableTopPadding && '!pt-0')}
     >
-      {shouldShowFeedExploreComponent && <FeedExploreComponent />}
+      {isAnyExplore && <FeedExploreComponent />}
       {isSearchOn && search}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed

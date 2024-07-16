@@ -8,6 +8,7 @@ import React, {
   useRef,
 } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import { BaseField, FieldInput } from '../../fields/common';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { IconSize } from '../../Icon';
@@ -18,7 +19,12 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { AuthTriggers } from '../../../lib/auth';
 import { SearchPanelContext } from './SearchPanelContext';
-import { ViewSize, useEventListener, useViewSize } from '../../../hooks';
+import {
+  ViewSize,
+  useEventListener,
+  useViewSize,
+  useConditionalFeature,
+} from '../../../hooks';
 import {
   isAppleDevice,
   isNullOrUndefined,
@@ -32,6 +38,8 @@ import { useSearchProvider } from '../../../hooks/search';
 import { defaultSearchProvider, providerToLabelTextMap } from './common';
 import { Button, ButtonSize } from '../../buttons/Button';
 import { useSearchPanelAction } from './useSearchPanelAction';
+import { feature } from '../../../lib/featureManagement';
+import { webappUrl } from '../../../lib/constants';
 
 export type SearchPanelInputClassName = {
   container?: string;
@@ -54,6 +62,7 @@ export const SearchPanelInput = ({
   valueChanged,
   children,
 }: SearchPanelInputProps): ReactElement => {
+  const router = useRouter();
   const { search } = useSearchProvider();
   const searchPanel = useContext(SearchPanelContext);
   const fieldRef = useRef<HTMLInputElement>();
@@ -73,6 +82,10 @@ export const SearchPanelInput = ({
     useInputField(value, valueChanged);
   const { isLoggedIn, showLogin } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { value: mobileExploreTab } = useConditionalFeature({
+    feature: feature.mobileExploreTab,
+    shouldEvaluate: !isLaptop,
+  });
 
   const onInputClick = () => {
     if (!isLoggedIn) {
@@ -231,6 +244,10 @@ export const SearchPanelInput = ({
                 title="Clear query"
                 onClick={(event: MouseEvent): void => {
                   event.stopPropagation();
+
+                  if (mobileExploreTab) {
+                    router.push(`${webappUrl}posts`);
+                  }
 
                   setInput('');
 

@@ -107,9 +107,11 @@ function MainLayoutHeader({
       return (
         <div className="sticky top-0 z-header w-full bg-background-default tablet:pl-16">
           <RenderSearchPanel />
-          <h3 className="mx-4 flex h-12 items-center font-bold typo-body">
-            Explore
-          </h3>
+          {!isSearch && (
+            <h3 className="mx-4 flex h-12 items-center font-bold typo-body">
+              Explore
+            </h3>
+          )}
         </div>
       );
     }
