@@ -9,11 +9,11 @@ import React, {
 import classNames from 'classnames';
 import { AllowedTags, Button, ButtonElementType, ButtonProps } from './Button';
 
-type QuandaryButtonProps = {
-  id: string;
-  reverse?: boolean;
-  responsiveLabelClass?: string;
-};
+export type QuaternaryButtonProps<TagName extends AllowedTags> =
+  ButtonProps<TagName> & {
+    reverse?: boolean;
+    responsiveLabelClass?: string;
+  };
 
 function QuaternaryButtonComponent<TagName extends AllowedTags>(
   {
@@ -25,7 +25,7 @@ function QuaternaryButtonComponent<TagName extends AllowedTags>(
     responsiveLabelClass,
     tag = 'button',
     ...props
-  }: ButtonProps<TagName> & QuandaryButtonProps,
+  }: QuaternaryButtonProps<TagName>,
   ref?: Ref<ButtonElementType<TagName>>,
 ): ReactElement {
   const anchorRef = useRef<ButtonElementType<TagName>>(null);
