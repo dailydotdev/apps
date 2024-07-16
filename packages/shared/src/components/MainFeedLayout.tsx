@@ -1,6 +1,7 @@
 import React, {
   ReactElement,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -37,6 +38,7 @@ import {
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import {
+  useConditionalFeature,
   useFeedLayout,
   useScrollRestoration,
   useViewSize,
@@ -163,12 +165,15 @@ export default function MainFeedLayout({
   const { alerts } = useContext(AlertContext);
   const router = useRouter();
   const [tab, setTab] = useState(ExploreTabs.Popular);
-  const isSearchPage = !!router.pathname?.startsWith('/search');
   const feedName = getFeedName(feedNameProp, {
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
   });
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { value: mobileExploreTab } = useConditionalFeature({
+    feature: feature.mobileExploreTab,
+    shouldEvaluate: !isLaptop,
+  });
   const feedVersion = useFeature(feature.feedVersion);
   const {
     isUpvoted,
@@ -177,6 +182,7 @@ export default function MainFeedLayout({
     isExploreLatest,
     isSortableFeed,
     isCustomFeed,
+    isSearch: isSearchPage,
   } = useFeedName({
     feedName,
   });
@@ -353,17 +359,42 @@ export default function MainFeedLayout({
     setTab(clickedTab);
   };
 
-  const feedExploreComponent = isLaptop ? (
-    <FeedExploreHeader tab={tab} setTab={onTabChange} />
-  ) : (
-    <FeedExploreDropdown />
-  );
+  const FeedExploreComponent = useCallback(() => {
+    if (isLaptop) {
+      return (
+        <FeedExploreHeader
+          tab={tab}
+          setTab={onTabChange}
+          className={{ tabWrapper: 'my-4' }}
+        />
+      );
+    }
+
+    if (mobileExploreTab) {
+      return (
+        <FeedExploreHeader
+          tab={tab}
+          setTab={onTabChange}
+          showBreadcrumbs={false}
+          showDropdown={false}
+          className={{
+            container:
+              'sticky top-[7.5rem] z-header w-full border-b border-border-subtlest-tertiary bg-background-default',
+          }}
+        />
+      );
+    }
+
+    return <FeedExploreDropdown />;
+  }, [isLaptop, mobileExploreTab, onTabChange, tab]);
+  const shouldShowFeedExploreComponent =
+    isAnyExplore || (isSearchOn && mobileExploreTab);
 
   return (
     <FeedPageLayoutComponent
       className={classNames('relative', disableTopPadding && '!pt-0')}
     >
-      {isAnyExplore && feedExploreComponent}
+      {shouldShowFeedExploreComponent && <FeedExploreComponent />}
       {isSearchOn && search}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed

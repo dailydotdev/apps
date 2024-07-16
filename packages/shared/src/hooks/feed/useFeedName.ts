@@ -8,6 +8,7 @@ interface UseFeedNameProps {
 interface UseFeedName {
   isUpvoted: boolean;
   isPopular: boolean;
+  isSearch: boolean;
   isAnyExplore: boolean;
   isExplorePopular: boolean;
   isExploreLatest: boolean;
@@ -32,6 +33,7 @@ export const useFeedName = ({ feedName }: UseFeedNameProps): UseFeedName => {
   return {
     isUpvoted: feedName === SharedFeedPage.Upvoted,
     isPopular: feedName === SharedFeedPage.Popular,
+    isSearch: feedName?.startsWith(SharedFeedPage.Search),
     isAnyExplore: feedName?.startsWith(OtherFeedPage.Explore),
     isExplorePopular: feedName === OtherFeedPage.Explore,
     isExploreLatest: feedName === OtherFeedPage.ExploreLatest,
