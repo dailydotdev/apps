@@ -98,6 +98,7 @@ export function SquadDetails({
   const privacyOptions = useSquadPrivacyOptions({
     totalPosts: form?.flags?.totalPosts,
     status,
+    squadId: form?.id,
   });
   const router = useRouter();
   const [memberPostingRole, setMemberPostingRole] = useState(
