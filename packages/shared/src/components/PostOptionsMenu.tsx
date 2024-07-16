@@ -51,6 +51,7 @@ import { ContextMenu as ContextMenuTypes } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
 import { SourceType } from '../graphql/sources';
 import { useSharePost } from '../hooks/useSharePost';
+import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { useBookmarkReminder } from '../hooks/notifications/useBookmarkReminder';
 
