@@ -10,8 +10,13 @@ import { PUBLIC_SQUAD_REQUEST_REQUIREMENT } from '../../lib/config';
 import { LazyModal } from '../modals/common/types';
 import { Squad } from '../../graphql/sources';
 
+interface MinimalEditSquad {
+  id: Squad['id'];
+  flags: Partial<Squad['flags']>;
+}
+
 interface PublicSquadSubmissionActionsProps {
-  squad: Squad;
+  squad?: Squad | MinimalEditSquad;
   isDetailsVisible?: boolean;
 }
 
@@ -27,7 +32,7 @@ const PublicSquadSubmissionActions = (
   const isEligible = postsCount >= PUBLIC_SQUAD_REQUEST_REQUIREMENT;
 
   const onSubmit = useCallback(() => {
-    if (squad.id) {
+    if (!squad.id) {
       return;
     }
 
