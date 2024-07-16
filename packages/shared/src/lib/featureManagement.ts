@@ -21,7 +21,7 @@ const feature = {
     image: cloudinary.onboarding.default,
   }),
   feedAdSpot: new Feature('feed_ad_spot', 0),
-  searchVersion: new Feature('search_version', 1),
+  searchVersion: new Feature('search_version', 2),
   readingReminder: new Feature('reading_reminder', false),
   featureTheme: new Feature('feature_theme', {}),
   shortcutsUI: new Feature('shortcuts_ui', ShortcutsUIExperiment.Control),

@@ -26,7 +26,7 @@ import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
-import { useFeature } from './GrowthBookProvider';
+import { useFeature, useFeaturesReadyContext } from './GrowthBookProvider';
 import {
   algorithms,
   DEFAULT_ALGORITHM_INDEX,
@@ -163,6 +163,7 @@ export default function MainFeedLayout({
   const { alerts } = useContext(AlertContext);
   const router = useRouter();
   const [tab, setTab] = useState(ExploreTabs.Popular);
+  const { getFeatureValue } = useFeaturesReadyContext();
   const isSearchPage = !!router.pathname?.startsWith('/search');
   const feedName = getFeedName(feedNameProp, {
     hasFiltered: !alerts?.filter,
@@ -245,6 +246,7 @@ export default function MainFeedLayout({
     }
 
     if (isSearchOn && searchQuery) {
+      const searchVersion = getFeatureValue(feature.searchVersion);
       return {
         feedName: SharedFeedPage.Search,
         feedQueryKey: generateQueryKey(
@@ -253,7 +255,7 @@ export default function MainFeedLayout({
           searchQuery,
         ),
         query: SEARCH_POSTS_QUERY,
-        variables: { query: searchQuery },
+        variables: { query: searchQuery, version: searchVersion },
         emptyScreen: <SearchEmptyScreen />,
       };
     }
@@ -317,6 +319,7 @@ export default function MainFeedLayout({
     isUpvoted,
     isPopular,
     isSortableFeed,
+    getFeatureValue,
     isCustomFeed,
     isSearchOn,
     searchQuery,
