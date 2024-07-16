@@ -105,7 +105,7 @@ export function OnboardPage(): ReactElement {
   const [shouldEnrollInReadingReminder, setShouldEnrollInReadingReminder] =
     useState(false);
   const { value: showReadingReminder, isLoading } = useConditionalFeature({
-    feature: feature.readingReminder,
+    feature: feature.bookmarkReminder,
     shouldEvaluate: shouldEnrollInReadingReminder,
   });
   const [auth, setAuth] = useState<AuthProps>({
