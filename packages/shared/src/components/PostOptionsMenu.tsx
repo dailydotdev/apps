@@ -31,6 +31,7 @@ import { postLogEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
 import {
   ToastSubject,
+  useConditionalFeature,
   useFeedLayout,
   useSourceSubscription,
   useToastNotification,
@@ -50,7 +51,6 @@ import { ContextMenu as ContextMenuTypes } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
 import { SourceType } from '../graphql/sources';
 import { useSharePost } from '../hooks/useSharePost';
-import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { useBookmarkReminder } from '../hooks/notifications/useBookmarkReminder';
 
@@ -315,8 +315,11 @@ export default function PostOptionsMenu({
     });
   }
 
-  const isReminderActive = useFeature(feature.readingReminder);
-  const { onRemoveBookmarkReminder } = useBookmarkReminder();
+  const isReminderActive = useConditionalFeature({
+    feature: feature.bookmarkReminder,
+    shouldEvaluate: isPostOptionsOpen,
+  });
+  const { onRemoveReminder } = useBookmarkReminder();
 
   if (isReminderActive && isLoggedIn) {
     const hasPostReminder = !!post?.bookmark?.remindAt;
@@ -336,7 +339,7 @@ export default function PostOptionsMenu({
         icon: <MenuIcon Icon={BookmarkIcon} />,
         label: 'Remove reminder',
         action: () => {
-          onRemoveBookmarkReminder(post.id, post.bookmark.remindAt);
+          onRemoveReminder(post.id);
         },
       });
     }
