@@ -22,7 +22,7 @@ import {
   BellSubscribedIcon,
   BellIcon,
   ShareIcon,
-  BookmarkIcon,
+  MiniCloseIcon,
 } from './icons';
 import { ReportedCallback } from './modals';
 import useTagAndSource from '../hooks/useTagAndSource';
@@ -51,9 +51,9 @@ import { ContextMenu as ContextMenuTypes } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
 import { SourceType } from '../graphql/sources';
 import { useSharePost } from '../hooks/useSharePost';
-import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { useBookmarkReminder } from '../hooks/notifications/useBookmarkReminder';
+import { BookmarkReminderIcon } from './icons/Bookmark/Reminder';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -327,7 +327,7 @@ export default function PostOptionsMenu({
 
     // Add/Edit reminder
     postOptions.push({
-      icon: <MenuIcon Icon={BookmarkIcon} />,
+      icon: <MenuIcon Icon={BookmarkReminderIcon} />,
       label: hasPostReminder ? 'Edit reminder' : 'Read it later',
       action: () => {
         openModal({ type: LazyModal.BookmarkReminder, props: { post } });
@@ -337,7 +337,7 @@ export default function PostOptionsMenu({
     if (hasPostReminder) {
       // Remove
       postOptions.push({
-        icon: <MenuIcon Icon={BookmarkIcon} />,
+        icon: <MenuIcon Icon={MiniCloseIcon} />,
         label: 'Remove reminder',
         action: () => {
           onRemoveReminder(post.id);
