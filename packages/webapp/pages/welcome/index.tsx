@@ -80,6 +80,8 @@ const DemoPage = (): ReactElement => {
       <div
         style={{
           backgroundImage: `url(${cloudinary.welcomePage.header.mainImage})`,
+          backgroundPosition: 'center',
+          backgroundSize: 'cover',
         }}
         className="mb-6 flex h-80 flex-col items-center justify-center gap-2 p-6"
       >
