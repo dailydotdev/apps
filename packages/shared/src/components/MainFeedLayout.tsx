@@ -351,13 +351,16 @@ export default function MainFeedLayout({
   const disableTopPadding =
     isFinder || shouldUseListFeedLayout || shouldUseCommentFeedLayout;
 
-  const onTabChange = (clickedTab: ExploreTabs) => {
-    if (onNavTabClick) {
-      onNavTabClick(tabToUrl[clickedTab]);
-    }
+  const onTabChange = useCallback(
+    (clickedTab: ExploreTabs) => {
+      if (onNavTabClick) {
+        onNavTabClick(tabToUrl[clickedTab]);
+      }
 
-    setTab(clickedTab);
-  };
+      setTab(clickedTab);
+    },
+    [onNavTabClick],
+  );
 
   const FeedExploreComponent = useCallback(() => {
     if (isLaptop) {
