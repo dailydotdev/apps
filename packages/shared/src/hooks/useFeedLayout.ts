@@ -63,6 +63,7 @@ export const FeedLayoutMobileFeedPages = new Set([
   OtherFeedPage.ExploreDiscussed,
   OtherFeedPage.ExploreUpvoted,
   OtherFeedPage.FeedByIds,
+  OtherFeedPage.Welcome,
 ]);
 
 export const UserProfileFeedPages = new Set([

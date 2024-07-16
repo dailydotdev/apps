@@ -131,6 +131,7 @@ const feedNameToHeading: Record<
     | OtherFeedPage.Sources
     | OtherFeedPage.Leaderboard
     | OtherFeedPage.FeedByIds
+    | OtherFeedPage.Welcome
   >,
   string
 > = {
