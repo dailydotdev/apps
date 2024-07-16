@@ -108,14 +108,14 @@ const DemoPage = (): ReactElement => {
       </div>
       <Feed className={feedProps.className} {...feedProps} />
       {didStartFetching && (
-        <div className="mb-6 flex h-80 flex-col items-center justify-center gap-2 p-6">
+        <div className="mb-6 flex h-80 flex-col items-center justify-center gap-6 p-6">
           <h2 className="text-center font-bold text-text-primary typo-title1">
             Where developers suffer together
           </h2>
           <Button
             onClick={() => showLogin({ trigger: AuthTriggers.WelcomePage })}
             variant={ButtonVariant.Primary}
-            size={ButtonSize.Small}
+            size={ButtonSize.Medium}
           >
             Sign up to continue ➔
           </Button>
