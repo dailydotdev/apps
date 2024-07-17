@@ -1,4 +1,4 @@
-import { useContext, useCallback, useState } from 'react';
+import { useContext, useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import { UserVote } from '../../graphql/posts';
@@ -18,19 +18,12 @@ import { ActionType } from '../../graphql/actions';
 
 const useVote = ({ onMutate, entity, variables }: UseVoteProps): UseVote => {
   const { requestMethod } = useRequestProtocol();
-  const [isVoting, setIsVoting] = useState(false);
   const { user, showLogin } = useContext(AuthContext);
   const mutationKey = createVoteMutationKey({ entity, variables });
   const { completeAction } = useActions();
 
-  const { mutateAsync: voteEntity } = useMutation(
+  const { mutateAsync: onVoteEntity, isLoading } = useMutation(
     (mutationProps: UseVoteMutationProps) => {
-      if (isVoting) {
-        return Promise.resolve(null);
-      }
-
-      setIsVoting(true);
-
       if (mutationProps.entity === UserVoteEntity.Post) {
         completeAction(ActionType.VotePost);
       }
@@ -40,9 +33,19 @@ const useVote = ({ onMutate, entity, variables }: UseVoteProps): UseVote => {
     {
       mutationKey,
       onMutate,
-      onSuccess: () => setIsVoting(false),
       onError: (err, _, rollback?: () => void) => rollback?.(),
     },
+  );
+
+  const voteEntity: typeof onVoteEntity = useCallback(
+    (props) => {
+      if (isLoading) {
+        return Promise.resolve(null);
+      }
+
+      return onVoteEntity(props);
+    },
+    [isLoading, onVoteEntity],
   );
 
   const upvote = useCallback(
