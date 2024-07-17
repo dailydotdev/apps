@@ -59,9 +59,7 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
     return router?.route?.startsWith('/posts/[id]'); // if post page the [id] was expected
   }, [activeFeed, isLaptop, isMobile, mobileExploreTab, router?.route]);
 
-  const isProfileActive = router.pathname?.includes('/[userId]');
-
-  const searchPages = [];
+  const searchPages: AllFeedPages[] = [SharedFeedPage.Search];
   if (mobileExploreTab) {
     searchPages.push(
       OtherFeedPage.Explore,
@@ -71,8 +69,8 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
     );
   }
 
-  const isSearchActive =
-    searchPages.includes(activeFeed) || SharedFeedPage.Search === activeFeed;
+  const isProfileActive = router.pathname?.includes('/[userId]');
+  const isSearchActive = searchPages.includes(activeFeed);
   const isBookmarksActive = activeFeed === OtherFeedPage.Bookmarks;
   const isNotificationsActive = activeFeed === OtherFeedPage.Notifications;
   const isSquadActive = activeFeed === OtherFeedPage.Squad;
