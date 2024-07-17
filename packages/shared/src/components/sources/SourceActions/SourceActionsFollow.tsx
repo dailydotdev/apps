@@ -4,19 +4,17 @@ import SimpleTooltip from '../../tooltips/SimpleTooltip';
 import { Button } from '../../buttons/Button';
 import { BellAddIcon, BellSubscribedIcon } from '../../icons';
 
-type SourceSubscribeButtonViewProps = {
-  isFollowing: boolean;
+interface SourceActionsFollowProps {
+  haveNotifications: boolean;
   onClick: () => void;
-};
+}
 
-const SourceActionsFollow = (
-  props: SourceSubscribeButtonViewProps,
-): ReactElement => {
-  const { isFollowing, onClick } = props;
+const SourceActionsFollow = (props: SourceActionsFollowProps): ReactElement => {
+  const { haveNotifications, onClick } = props;
 
-  const icon = isFollowing ? <BellSubscribedIcon /> : <BellAddIcon />;
-  const label = `${isFollowing ? 'Disable' : 'Enable'} notifications`;
-  const variant = isFollowing
+  const icon = haveNotifications ? <BellSubscribedIcon /> : <BellAddIcon />;
+  const label = `${haveNotifications ? 'Disable' : 'Enable'} notifications`;
+  const variant = haveNotifications
     ? ButtonVariant.Tertiary
     : ButtonVariant.Secondary;
 

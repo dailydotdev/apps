@@ -14,11 +14,11 @@ export type UseSourceSubscriptionProps = {
 };
 
 export type UseSourceSubscription = {
+  haveNotifications: boolean;
   isFollowing: boolean;
-  isSubscribed: boolean;
   isReady: boolean;
   onFollowing: () => void;
-  onSubscribe: () => Promise<void>;
+  onNotify: () => Promise<void>;
 };
 
 export const useSourceSubscription = ({
@@ -28,16 +28,17 @@ export const useSourceSubscription = ({
   const { isLoggedIn, showLogin } = useAuthContext();
   const { displayToast } = useToastNotification();
   const [isFollowing, toggleFollow] = useToggle(false);
-  const { isSubscribed, isReady, onToggle } = useNotificationPreferenceToggle({
-    params: source?.id
-      ? {
-          notificationType: NotificationType.SourcePostAdded,
-          referenceId: source?.id,
-        }
-      : undefined,
-  });
+  const { haveNotifications, isReady, onToggle } =
+    useNotificationPreferenceToggle({
+      params: source?.id
+        ? {
+            notificationType: NotificationType.SourcePostAdded,
+            referenceId: source?.id,
+          }
+        : undefined,
+    });
 
-  const onSubscribe = useCallback(async () => {
+  const onNotify = useCallback(async () => {
     if (!source?.id) {
       return;
     }
@@ -69,9 +70,9 @@ export const useSourceSubscription = ({
 
   return {
     isFollowing,
-    isSubscribed,
+    haveNotifications,
     isReady,
     onFollowing,
-    onSubscribe,
+    onNotify,
   };
 };

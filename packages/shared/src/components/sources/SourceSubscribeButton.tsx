@@ -66,12 +66,12 @@ const SourceSubscribeButton = ({
   variant = ButtonVariant.Primary,
 }: SourceSubscribeButtonProps): ReactElement => {
   const { isLoggedIn } = useAuthContext();
-  const { isFollowing, isSubscribed, onSubscribe, onFollowing, isReady } =
+  const { isFollowing, haveNotifications, onNotify, onFollowing, isReady } =
     useSourceSubscription({
       source,
     });
 
-  const ButtonComponent = isSubscribed
+  const ButtonComponent = haveNotifications
     ? SourceSubscribeButtonSubscribed
     : SourceSubscribeButtonRegular;
 
@@ -86,10 +86,10 @@ const SourceSubscribeButton = ({
       <ButtonComponent
         className={className}
         isFetching={isLoggedIn && !isReady}
-        onClick={onSubscribe}
+        onClick={onNotify}
         variant={variant}
       />
-      {isSubscribed && (
+      {haveNotifications && (
         <SimpleTooltip content={follow.label}>
           <Button
             aria-label={follow.label}

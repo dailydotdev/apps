@@ -22,22 +22,14 @@ import {
   SourceData,
 } from '@dailydotdev/shared/src/graphql/sources';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import {
-  Button,
-  ButtonProps,
-  ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+
 import { PageInfoHeader } from '@dailydotdev/shared/src/components/utilities';
 import {
-  BlockIcon,
   DiscussIcon,
-  PlusIcon,
   UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
-import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import {
   ApiError,
   Connection,
@@ -200,23 +192,6 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     description: source?.description || defaultSeo.description,
   };
 
-  const buttonProps: ButtonProps<'button'> = {
-    size: ButtonSize.Small,
-    icon: unfollowingSource ? <PlusIcon /> : <BlockIcon />,
-    onClick: async (): Promise<void> => {
-      if (user) {
-        if (unfollowingSource) {
-          await onFollowSource({ source });
-        } else {
-          await onUnfollowSource({ source });
-        }
-      } else {
-        showLogin({ trigger: AuthTriggers.Filter });
-      }
-    },
-    variant: ButtonVariant.Float,
-  };
-
   return (
     <FeedPageLayoutComponent className="overflow-x-hidden">
       <NextSeo {...seo} />
@@ -232,15 +207,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
           <h1 className="ml-2 w-fit typo-title2">{source.name}</h1>
         </div>
         <div className="flex flex-row gap-3">
-          {!unfollowingSource && (
-            <SourceActions source={source} subscribe={{}} block={{}} />
-          )}
-          <Button
-            {...buttonProps}
-            aria-label={unfollowingSource ? 'Follow' : 'Block'}
-          >
-            {unfollowingSource ? 'Follow' : 'Block'}
-          </Button>
+          <SourceActions source={source} subscribe={{}} block={{}} />
         </div>
         {source?.description && (
           <p className="typo-body">{source?.description}</p>
