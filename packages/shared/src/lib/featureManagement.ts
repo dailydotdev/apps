@@ -30,6 +30,7 @@ const feature = {
   onboardingChecklist: new Feature('onboarding_checklist', false),
   bookmarkReminder: new Feature('bookmark_reminder', false),
   animatedUpvote: new Feature('animated_upvote', false),
+  mobileExploreTab: new Feature('mobile_explore_tab', false),
 };
 
 export { feature };

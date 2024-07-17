@@ -29,7 +29,13 @@ import { getFeedName } from '../../lib/feed';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import Logo, { LogoPosition } from '../Logo';
-import { useActions, useFeeds, useViewSize, ViewSize } from '../../hooks';
+import {
+  useActions,
+  useConditionalFeature,
+  useFeeds,
+  useViewSize,
+  ViewSize,
+} from '../../hooks';
 import {
   Button,
   ButtonIconPosition,
@@ -90,7 +96,10 @@ export default function Sidebar({
   const featureTheme = useFeatureTheme();
   const { checkHasCompleted, isActionsFetched } = useActions();
   const seoSidebar = useFeature(feature.seoSidebar);
-
+  const { value: mobileExploreTab } = useConditionalFeature({
+    feature: feature.mobileExploreTab,
+    shouldEvaluate: !isLaptop,
+  });
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
     hasFiltered: !alerts?.filter,
@@ -158,7 +167,11 @@ export default function Sidebar({
           </Button>
         </Link>
 
-        <Link href={`${webappUrl}search`} prefetch={false} passHref>
+        <Link
+          href={mobileExploreTab ? `${webappUrl}posts` : `${webappUrl}search`}
+          prefetch={false}
+          passHref
+        >
           <Button
             {...buttonProps}
             tag="a"
@@ -169,7 +182,7 @@ export default function Sidebar({
             variant={ButtonVariant.Option}
             pressed={activeNav.search}
           >
-            Search
+            {mobileExploreTab ? 'Explore' : 'Search'}
           </Button>
         </Link>
 

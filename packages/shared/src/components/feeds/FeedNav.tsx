@@ -5,7 +5,12 @@ import dynamic from 'next/dynamic';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { useActiveFeedNameContext } from '../../contexts';
 import useActiveNav from '../../hooks/useActiveNav';
-import { useFeeds, useViewSize, ViewSize } from '../../hooks';
+import {
+  useConditionalFeature,
+  useFeeds,
+  useViewSize,
+  ViewSize,
+} from '../../hooks';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import {
   algorithmsList,
@@ -47,7 +52,7 @@ enum FeedNavTab {
   Leaderboard = 'Leaderboard',
   Bookmarks = 'Bookmarks',
   History = 'History',
-  MostUpvoted = 'Most Upvoted',
+  MostUpvoted = 'Most upvoted',
   Discussions = 'Discussions',
   NewFeed = 'New feed',
 }
@@ -65,6 +70,7 @@ function FeedNav(): ReactElement {
   const { isSortableFeed } = useFeedName({ feedName });
   const { home: shouldRenderNav } = useActiveNav(feedName);
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
     DEFAULT_ALGORITHM_INDEX,
@@ -74,6 +80,10 @@ function FeedNav(): ReactElement {
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const seoSidebar = useFeature(feature.seoSidebar);
+  const { value: mobileExploreTab } = useConditionalFeature({
+    feature: feature.mobileExploreTab,
+    shouldEvaluate: !isLaptop,
+  });
   const { feeds } = useFeeds();
 
   const urlToTab: Record<string, FeedNavTab> = useMemo(() => {
@@ -94,11 +104,13 @@ function FeedNav(): ReactElement {
       ...customFeeds,
     };
 
-    if (seoSidebar === SeoSidebarExperiment.V1) {
-      urls[`${webappUrl}${OtherFeedPage.Explore}`] = FeedNavTab.Explore;
-    } else {
-      urls[`${webappUrl}${SharedFeedPage.Popular}`] = FeedNavTab.Popular;
-      urls[`${webappUrl}${SharedFeedPage.Upvoted}`] = FeedNavTab.MostUpvoted;
+    if (!mobileExploreTab) {
+      if (seoSidebar === SeoSidebarExperiment.V1) {
+        urls[`${webappUrl}${OtherFeedPage.Explore}`] = FeedNavTab.Explore;
+      } else {
+        urls[`${webappUrl}${SharedFeedPage.Popular}`] = FeedNavTab.Popular;
+        urls[`${webappUrl}${SharedFeedPage.Upvoted}`] = FeedNavTab.MostUpvoted;
+      }
     }
 
     urls[`${webappUrl}${SharedFeedPage.Discussed}`] = FeedNavTab.Discussions;
@@ -114,7 +126,13 @@ function FeedNav(): ReactElement {
       [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
       [`${webappUrl}history`]: FeedNavTab.History,
     };
-  }, [seoSidebar, feeds, router.pathname, router.query.slugOrId]);
+  }, [
+    feeds?.edges,
+    mobileExploreTab,
+    seoSidebar,
+    router.query.slugOrId,
+    router.pathname,
+  ]);
 
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
