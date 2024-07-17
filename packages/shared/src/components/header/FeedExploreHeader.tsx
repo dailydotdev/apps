@@ -45,6 +45,8 @@ interface FeedExploreHeaderProps {
   className?: {
     container?: string;
     tabWrapper?: string;
+    tabBarHeader?: string;
+    tabBarContainer?: string;
   };
   showBreadcrumbs?: boolean;
   showDropdown?: boolean;
@@ -92,7 +94,10 @@ export function FeedExploreHeader({
         ) : (
           <TabContainer
             controlledActive={tabsToFeedMap[path]}
-            className={{ header: 'border-b-0' }}
+            className={{
+              header: classNames('border-b-0', className.tabBarHeader),
+              container: className.tabBarContainer,
+            }}
             shouldMountInactive
           >
             {Object.entries(urlToTab).map(([url, label]) => (

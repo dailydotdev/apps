@@ -383,6 +383,8 @@ export default function MainFeedLayout({
           className={{
             container:
               'sticky top-[7.5rem] z-header w-full border-b border-border-subtlest-tertiary bg-background-default',
+            tabBarHeader: 'no-scrollbar overflow-x-auto',
+            tabBarContainer: 'w-full',
           }}
         />
       );
