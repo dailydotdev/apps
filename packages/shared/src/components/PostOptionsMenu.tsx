@@ -320,7 +320,7 @@ export default function PostOptionsMenu({
     feature: feature.bookmarkReminder,
     shouldEvaluate: isPostOptionsOpen,
   });
-  const { onRemoveReminder } = useBookmarkReminder();
+  const { onRemoveReminder } = useBookmarkReminder({ post });
 
   if (isReminderActive && isLoggedIn) {
     const hasPostReminder = !!post?.bookmark?.remindAt;
