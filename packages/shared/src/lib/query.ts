@@ -40,6 +40,7 @@ export enum OtherFeedPage {
   ExploreDiscussed = 'postsdiscussed',
   ExploreUpvoted = 'postsupvoted',
   FeedByIds = 'feed-by-ids',
+  Welcome = 'welcome',
 }
 
 const ONE_MINUTE = 60 * 1000;
