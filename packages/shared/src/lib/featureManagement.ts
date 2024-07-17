@@ -1,5 +1,5 @@
 import { JSONValue } from '@growthbook/growthbook';
-import { SeoSidebarExperiment, ShortcutsUIExperiment } from './featureValues';
+import { ShortcutsUIExperiment } from './featureValues';
 import { cloudinary } from './image';
 
 export class Feature<T extends JSONValue> {
@@ -26,10 +26,10 @@ const feature = {
   featureTheme: new Feature('feature_theme', {}),
   shortcutsUI: new Feature('shortcuts_ui', ShortcutsUIExperiment.Control),
   showRoadmap: new Feature('show_roadmap', false),
-  seoSidebar: new Feature('seo_sidebar', SeoSidebarExperiment.Control),
   onboardingChecklist: new Feature('onboarding_checklist', false),
   bookmarkReminder: new Feature('bookmark_reminder', false),
   animatedUpvote: new Feature('animated_upvote', false),
+  mobileExploreTab: new Feature('mobile_explore_tab', false),
 };
 
 export { feature };

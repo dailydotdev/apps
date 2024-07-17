@@ -5,10 +5,10 @@ import {
   getMainFeedLayout,
   mainFeedLayoutProps,
 } from '../components/layouts/MainFeedPage';
-import { defaultOpenGraph, defaultSeo } from '../next-seo';
+import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../next-seo';
 
 const seo: NextSeoProps = {
-  title: 'daily.dev | Where developers grow together',
+  title: defaultSeoTitle,
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
 };

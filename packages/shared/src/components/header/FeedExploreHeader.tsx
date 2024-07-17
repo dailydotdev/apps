@@ -1,5 +1,6 @@
 import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
+import classNames from 'classnames';
 import { BreadCrumbs } from './BreadCrumbs';
 import { CalendarIcon, HotIcon } from '../icons';
 import { IconSize } from '../Icon';
@@ -19,7 +20,7 @@ export enum ExploreTabs {
   ByDate = 'By date',
 }
 
-const tabsToFeedMap: Partial<Record<OtherFeedPage, ExploreTabs>> = {
+export const tabsToFeedMap: Partial<Record<OtherFeedPage, ExploreTabs>> = {
   [OtherFeedPage.Explore]: ExploreTabs.Popular,
   [OtherFeedPage.ExploreUpvoted]: ExploreTabs.MostUpvoted,
   [OtherFeedPage.ExploreDiscussed]: ExploreTabs.BestDiscussions,
@@ -41,6 +42,14 @@ export const tabToUrl = Object.entries(urlToTab).reduce(
 interface FeedExploreHeaderProps {
   tab: ExploreTabs;
   setTab: (tab: ExploreTabs) => void;
+  className?: {
+    container?: string;
+    tabWrapper?: string;
+    tabBarHeader?: string;
+    tabBarContainer?: string;
+  };
+  showBreadcrumbs?: boolean;
+  showDropdown?: boolean;
 }
 
 const withDateRange = [
@@ -51,6 +60,9 @@ const withDateRange = [
 export function FeedExploreHeader({
   tab,
   setTab,
+  className,
+  showBreadcrumbs = true,
+  showDropdown = true,
 }: FeedExploreHeaderProps): ReactElement {
   const isExtension = checkIsExtension();
   const router = useRouter();
@@ -61,11 +73,18 @@ export function FeedExploreHeader({
   });
 
   return (
-    <div className="flex w-full flex-col">
-      <BreadCrumbs className="px-2">
-        <HotIcon size={IconSize.XSmall} secondary /> Explore
-      </BreadCrumbs>
-      <div className="my-4 flex flex-row items-center">
+    <div className={classNames('flex w-full flex-col', className.container)}>
+      {showBreadcrumbs && (
+        <BreadCrumbs className="px-2">
+          <HotIcon size={IconSize.XSmall} secondary /> Explore
+        </BreadCrumbs>
+      )}
+      <div
+        className={classNames(
+          'flex flex-row items-center',
+          className.tabWrapper,
+        )}
+      >
         {isExtension ? (
           <TabList<ExploreTabs>
             items={Object.values(ExploreTabs)}
@@ -75,7 +94,10 @@ export function FeedExploreHeader({
         ) : (
           <TabContainer
             controlledActive={tabsToFeedMap[path]}
-            className={{ header: 'border-b-0' }}
+            className={{
+              header: classNames('border-b-0', className.tabBarHeader),
+              container: className.tabBarContainer,
+            }}
             shouldMountInactive
           >
             {Object.entries(urlToTab).map(([url, label]) => (
@@ -83,19 +105,21 @@ export function FeedExploreHeader({
             ))}
           </TabContainer>
         )}
-        <span className="ml-auto">
-          {withDateRange.includes(path as OtherFeedPage) && (
-            <Dropdown
-              iconOnly
-              dynamicMenuWidth
-              shouldIndicateSelected
-              icon={<CalendarIcon size={IconSize.Medium} />}
-              selectedIndex={period}
-              options={periodTexts}
-              onChange={(_, index) => setPeriod(index)}
-            />
-          )}
-        </span>
+        {showDropdown && (
+          <span className="ml-auto">
+            {withDateRange.includes(path as OtherFeedPage) && (
+              <Dropdown
+                iconOnly
+                dynamicMenuWidth
+                shouldIndicateSelected
+                icon={<CalendarIcon size={IconSize.Medium} />}
+                selectedIndex={period}
+                options={periodTexts}
+                onChange={(_, index) => setPeriod(index)}
+              />
+            )}
+          </span>
+        )}
       </div>
     </div>
   );
