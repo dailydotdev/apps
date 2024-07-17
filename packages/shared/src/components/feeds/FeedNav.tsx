@@ -27,9 +27,7 @@ import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
-import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
-import { SeoSidebarExperiment } from '../../lib/featureValues';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
 import { SharedFeedPage } from '../utilities';
@@ -52,7 +50,6 @@ enum FeedNavTab {
   Leaderboard = 'Leaderboard',
   Bookmarks = 'Bookmarks',
   History = 'History',
-  MostUpvoted = 'Most upvoted',
   Discussions = 'Discussions',
   NewFeed = 'New feed',
 }
@@ -79,7 +76,6 @@ function FeedNav(): ReactElement {
   );
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
-  const seoSidebar = useFeature(feature.seoSidebar);
   const { value: mobileExploreTab } = useConditionalFeature({
     feature: feature.mobileExploreTab,
     shouldEvaluate: !isLaptop,
@@ -105,34 +101,19 @@ function FeedNav(): ReactElement {
     };
 
     if (!mobileExploreTab) {
-      if (seoSidebar === SeoSidebarExperiment.V1) {
-        urls[`${webappUrl}${OtherFeedPage.Explore}`] = FeedNavTab.Explore;
-      } else {
-        urls[`${webappUrl}${SharedFeedPage.Popular}`] = FeedNavTab.Popular;
-        urls[`${webappUrl}${SharedFeedPage.Upvoted}`] = FeedNavTab.MostUpvoted;
-      }
-    }
-
-    urls[`${webappUrl}${SharedFeedPage.Discussed}`] = FeedNavTab.Discussions;
-
-    if (seoSidebar === SeoSidebarExperiment.V1) {
-      urls[`${webappUrl}tags`] = FeedNavTab.Tags;
-      urls[`${webappUrl}sources`] = FeedNavTab.Sources;
-      urls[`${webappUrl}users`] = FeedNavTab.Leaderboard;
+      urls[`${webappUrl}${OtherFeedPage.Explore}`] = FeedNavTab.Explore;
     }
 
     return {
       ...urls,
+      [`${webappUrl}${SharedFeedPage.Discussed}`]: FeedNavTab.Discussions,
+      [`${webappUrl}tags`]: FeedNavTab.Tags,
+      [`${webappUrl}sources`]: FeedNavTab.Sources,
+      [`${webappUrl}users`]: FeedNavTab.Leaderboard,
       [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
       [`${webappUrl}history`]: FeedNavTab.History,
     };
-  }, [
-    feeds?.edges,
-    mobileExploreTab,
-    seoSidebar,
-    router.query.slugOrId,
-    router.pathname,
-  ]);
+  }, [feeds?.edges, mobileExploreTab, router.query.slugOrId, router.pathname]);
 
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
