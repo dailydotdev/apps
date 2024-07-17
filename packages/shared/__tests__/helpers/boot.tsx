@@ -21,6 +21,8 @@ import {
 } from '../../src/contexts/AlertContext';
 import { FeaturesReadyContext } from '../../src/components/GrowthBookProvider';
 import { LazyModalElement } from '../../src/components/modals/LazyModalElement';
+import LogContext from '../../src/contexts/LogContext';
+import { LogContextData } from '../../src/hooks/log/useLogContextData';
 
 interface TestBootProviderProps {
   children: ReactNode;
@@ -29,6 +31,7 @@ interface TestBootProviderProps {
   auth?: Partial<AuthContextData>;
   alerts?: Partial<AlertContextProviderProps>;
   notification?: Partial<NotificationsContextProviderProps>;
+  log?: Partial<LogContextData>;
   gb?: GrowthBook;
 }
 
@@ -46,6 +49,13 @@ export const settingsContext: Partial<SettingsContextData> = {
   toggleShowTopSites: jest.fn(),
 };
 
+export const defaultLogContextData: LogContextData = {
+  logEvent: jest.fn(),
+  logEventStart: jest.fn(),
+  logEventEnd: jest.fn(),
+  sendBeacon: jest.fn(),
+};
+
 export const TestBootProvider = ({
   client,
   children,
@@ -53,6 +63,7 @@ export const TestBootProvider = ({
   auth = {},
   alerts = {},
   notification = {},
+  log = {},
   gb = new GrowthBook(),
 }: TestBootProviderProps): ReactElement => {
   return (
@@ -82,20 +93,24 @@ export const TestBootProvider = ({
               <SettingsContext.Provider
                 value={{ ...settingsContext, ...settings }}
               >
-                <OnboardingContext.Provider
-                  value={{
-                    myFeedMode: OnboardingMode.Manual,
-                    isOnboardingOpen: false,
-                    onCloseOnboardingModal: jest.fn(),
-                    onInitializeOnboarding: jest.fn(),
-                    onShouldUpdateFilters: jest.fn(),
-                  }}
+                <LogContext.Provider
+                  value={{ ...defaultLogContextData, ...log }}
                 >
-                  <NotificationsContextProvider {...notification}>
-                    {children}
-                    <LazyModalElement />
-                  </NotificationsContextProvider>
-                </OnboardingContext.Provider>
+                  <OnboardingContext.Provider
+                    value={{
+                      myFeedMode: OnboardingMode.Manual,
+                      isOnboardingOpen: false,
+                      onCloseOnboardingModal: jest.fn(),
+                      onInitializeOnboarding: jest.fn(),
+                      onShouldUpdateFilters: jest.fn(),
+                    }}
+                  >
+                    <NotificationsContextProvider {...notification}>
+                      {children}
+                      <LazyModalElement />
+                    </NotificationsContextProvider>
+                  </OnboardingContext.Provider>
+                </LogContext.Provider>
               </SettingsContext.Provider>
             </FeaturesReadyContext.Provider>
           </GrowthBookProvider>
