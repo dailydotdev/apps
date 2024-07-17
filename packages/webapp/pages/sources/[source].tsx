@@ -50,7 +50,6 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
-import { SourceSubscribeButton } from '@dailydotdev/shared/src/components';
 import {
   useFeedLayout,
   useViewSize,
@@ -71,6 +70,7 @@ import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
+import { SourceActions } from '../../../shared/src/components/sources/SourceActions';
 
 type SourcePageProps = { source?: Source };
 type SourceIdProps = { sourceId?: string };
@@ -232,7 +232,9 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
           <h1 className="ml-2 w-fit typo-title2">{source.name}</h1>
         </div>
         <div className="flex flex-row gap-3">
-          {!unfollowingSource && <SourceSubscribeButton source={source} />}
+          {!unfollowingSource && (
+            <SourceActions source={source} subscribe={{}} block={{}} />
+          )}
           <Button
             {...buttonProps}
             aria-label={unfollowingSource ? 'Follow' : 'Block'}

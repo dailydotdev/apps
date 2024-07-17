@@ -4,19 +4,19 @@ import { Post } from '../../graphql/posts';
 import classed from '../../lib/classed';
 import { LazyImage } from '../LazyImage';
 import { WidgetContainer } from './common';
-import { ScoutIcon, FeatherIcon } from '../icons';
+import { FeatherIcon, ScoutIcon } from '../icons';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { ProfileLink } from '../profile/ProfileLink';
 import { Author as CommentAuthor } from '../../graphql/comments';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ReputationUserBadge } from '../ReputationUserBadge';
-import { SourceSubscribeButton } from '../sources';
 import { ButtonVariant } from '../buttons/common';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import EnableNotification from '../notifications/EnableNotification';
 import { NotificationPromptSource } from '../../lib/log';
 import { useSourceSubscription } from '../../hooks';
+import { SourceActions } from '../sources/SourceActions';
 
 interface PostAuthorProps {
   post: Post;
@@ -208,10 +208,10 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
         </div>
       </ConditionalWrapper>
       {!isSourceBlocked && isUserTypeSource && allowSubscribe && (
-        <SourceSubscribeButton
-          className="ml-2"
-          variant={ButtonVariant.Secondary}
+        <SourceActions
+          hideBlock
           source={{ id }}
+          block={{className: 'ml-2', variant: ButtonVariant.Secondary}}
         />
       )}
     </div>
