@@ -30,6 +30,7 @@ import classNames from 'classnames';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { authGradientBg } from '@dailydotdev/shared/src/components/auth';
 import { useQueryClient } from '@tanstack/react-query';
+import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
@@ -64,13 +65,15 @@ const DemoPage = (): ReactElement => {
 
   useEffect(() => {
     if (isLaptop) {
-      router.replace(onboardingUrl);
+      router.replace(
+        getPathnameWithQuery(onboardingUrl, window.location.search),
+      );
     }
   }, [isLaptop, router]);
 
   useEffect(() => {
     if (isAuthReady && isLoggedIn) {
-      router.replace(webappUrl);
+      router.replace(getPathnameWithQuery(webappUrl, window.location.search));
     }
   }, [isAuthReady, isLoggedIn, router]);
 
