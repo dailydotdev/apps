@@ -729,9 +729,10 @@ it('should unblock a source', async () => {
 
   await waitFor(async () => {
     fireEvent.click(contextBtn);
-    await screen.findByRole('alert');
+    const alert = screen.getByRole('alert');
+    expect(alert).toBeInTheDocument();
     const feed = screen.getByTestId('posts-feed');
-    return expect(feed).toHaveAttribute('aria-live', 'assertive');
+    expect(feed).toHaveAttribute('aria-live', 'assertive');
   });
 
   await waitFor(() => expect(mutationCalled).toBeTruthy());

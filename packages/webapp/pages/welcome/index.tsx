@@ -7,7 +7,12 @@ import {
   generateQueryKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { ViewSize, useViewSize } from '@dailydotdev/shared/src/hooks';
+import {
+  ViewSize,
+  useEventListener,
+  useScrollRestoration,
+  useViewSize,
+} from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
 import {
   onboardingUrl,
@@ -24,7 +29,9 @@ import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import classNames from 'classnames';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { authGradientBg } from '@dailydotdev/shared/src/components/auth';
-import { useIsFetching } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
+import { OnboardingLogs } from '@dailydotdev/shared/src/components/auth/OnboardingLogs';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
@@ -38,9 +45,12 @@ const seo: NextSeoProps = {
 };
 
 const DemoPage = (): ReactElement => {
+  useScrollRestoration();
   const router = useRouter();
-  const { user, showLogin, isAuthReady, isLoggedIn } = useAuthContext();
+  const { user, showLogin, isAuthReady, isLoggedIn, anonymous } =
+    useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const queryClient = useQueryClient();
 
   const feedProps: FeedProps<void> = {
     feedName: OtherFeedPage.Welcome,
@@ -57,26 +67,32 @@ const DemoPage = (): ReactElement => {
 
   useEffect(() => {
     if (isLaptop) {
-      router.replace(onboardingUrl);
+      router.replace(
+        getPathnameWithQuery(onboardingUrl, window.location.search),
+      );
     }
   }, [isLaptop, router]);
 
   useEffect(() => {
     if (isAuthReady && isLoggedIn) {
-      router.replace(webappUrl);
+      router.replace(getPathnameWithQuery(webappUrl, window.location.search));
     }
   }, [isAuthReady, isLoggedIn, router]);
 
-  const [didStartFetching, setDidStartFetching] = useState(false);
-  const isFetching = useIsFetching({ queryKey: feedProps.feedQueryKey });
+  const [didScroll, setDidScroll] = useState(false);
+  useEventListener(globalThis, 'scroll', () => {
+    setDidScroll(window.scrollY > 100);
+  });
+  const hasData = !!queryClient.getQueryData(feedProps.feedQueryKey);
+  const showSignupFooter = didScroll || hasData;
 
-  useEffect(() => {
-    setDidStartFetching((current) => current || isFetching > 0);
-  }, [isFetching]);
+  const instanceId = router.query?.aiid?.toString();
+  const userId = user?.id || anonymous?.id;
 
   return (
     <>
       <NextSeo {...seo} />
+      <OnboardingLogs userId={userId} instanceId={instanceId} />
       <div
         className={classNames(
           'sticky top-0 z-header flex h-12 w-full justify-between border-b border-accent-cabbage-default px-4 py-2',
@@ -109,15 +125,15 @@ const DemoPage = (): ReactElement => {
         </p>
       </div>
       <Feed className={feedProps.className} {...feedProps} />
-      {didStartFetching && (
-        <div className="mb-6 flex h-80 flex-col items-center justify-center gap-2 p-6">
+      {showSignupFooter && (
+        <div className="mb-6 flex h-80 flex-col items-center justify-center gap-6 p-6">
           <h2 className="text-center font-bold text-text-primary typo-title1">
             Where developers suffer together
           </h2>
           <Button
             onClick={() => showLogin({ trigger: AuthTriggers.WelcomePage })}
             variant={ButtonVariant.Primary}
-            size={ButtonSize.Small}
+            size={ButtonSize.Medium}
           >
             Sign up to continue ➔
           </Button>

@@ -3,6 +3,8 @@ import { useMemo } from 'react';
 import { AllFeedPages, OtherFeedPage } from '../lib/query';
 import { SharedFeedPage } from '../components/utilities';
 import { useViewSize, ViewSize } from './useViewSize';
+import { feature } from '../lib/featureManagement';
+import { useConditionalFeature } from './useConditionalFeature';
 
 export interface UseActiveNav {
   home: boolean;
@@ -17,7 +19,10 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
   const router = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
-
+  const { value: mobileExploreTab } = useConditionalFeature({
+    feature: feature.mobileExploreTab,
+    shouldEvaluate: !isLaptop,
+  });
   const isHomeActive = useMemo(() => {
     const homePages = [
       SharedFeedPage.MyFeed,
@@ -27,14 +32,18 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
       OtherFeedPage.History,
       SharedFeedPage.Custom,
       SharedFeedPage.CustomForm,
-      OtherFeedPage.Explore,
-      OtherFeedPage.ExploreLatest,
-      OtherFeedPage.ExploreUpvoted,
-      OtherFeedPage.ExploreDiscussed,
       OtherFeedPage.Tags,
       OtherFeedPage.Sources,
       OtherFeedPage.Leaderboard,
     ];
+    if (!mobileExploreTab) {
+      homePages.push(
+        OtherFeedPage.Explore,
+        OtherFeedPage.ExploreLatest,
+        OtherFeedPage.ExploreUpvoted,
+        OtherFeedPage.ExploreDiscussed,
+      );
+    }
 
     if (!isLaptop) {
       homePages.push(OtherFeedPage.Bookmarks);
@@ -48,10 +57,20 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
     }
 
     return router?.route?.startsWith('/posts/[id]'); // if post page the [id] was expected
-  }, [activeFeed, isLaptop, isMobile, router?.route]);
+  }, [activeFeed, isLaptop, isMobile, mobileExploreTab, router?.route]);
+
+  const searchPages: AllFeedPages[] = [SharedFeedPage.Search];
+  if (mobileExploreTab) {
+    searchPages.push(
+      OtherFeedPage.Explore,
+      OtherFeedPage.ExploreLatest,
+      OtherFeedPage.ExploreUpvoted,
+      OtherFeedPage.ExploreDiscussed,
+    );
+  }
 
   const isProfileActive = router.pathname?.includes('/[userId]');
-  const isSearchActive = activeFeed === SharedFeedPage.Search;
+  const isSearchActive = searchPages.includes(activeFeed);
   const isBookmarksActive = activeFeed === OtherFeedPage.Bookmarks;
   const isNotificationsActive = activeFeed === OtherFeedPage.Notifications;
   const isSquadActive = activeFeed === OtherFeedPage.Squad;

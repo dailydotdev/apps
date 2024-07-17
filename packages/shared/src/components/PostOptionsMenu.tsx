@@ -22,6 +22,7 @@ import {
   BellSubscribedIcon,
   BellIcon,
   ShareIcon,
+  MiniCloseIcon,
 } from './icons';
 import { ReportedCallback } from './modals';
 import useTagAndSource from '../hooks/useTagAndSource';
@@ -30,6 +31,7 @@ import { postLogEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
 import {
   ToastSubject,
+  useConditionalFeature,
   useFeedLayout,
   useSourceSubscription,
   useToastNotification,
@@ -49,6 +51,9 @@ import { ContextMenu as ContextMenuTypes } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
 import { SourceType } from '../graphql/sources';
 import { useSharePost } from '../hooks/useSharePost';
+import { feature } from '../lib/featureManagement';
+import { useBookmarkReminder } from '../hooks/notifications/useBookmarkReminder';
+import { BookmarkReminderIcon } from './icons/Bookmark/Reminder';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -309,6 +314,36 @@ export default function PostOptionsMenu({
       label: 'Downvote',
       action: onToggleDownvotePost,
     });
+  }
+
+  const isReminderActive = useConditionalFeature({
+    feature: feature.bookmarkReminder,
+    shouldEvaluate: isPostOptionsOpen,
+  });
+  const { onRemoveReminder } = useBookmarkReminder({ post });
+
+  if (isReminderActive && isLoggedIn) {
+    const hasPostReminder = !!post?.bookmark?.remindAt;
+
+    // Add/Edit reminder
+    postOptions.push({
+      icon: <MenuIcon Icon={BookmarkReminderIcon} />,
+      label: hasPostReminder ? 'Edit reminder' : 'Read it later',
+      action: () => {
+        openModal({ type: LazyModal.BookmarkReminder, props: { post } });
+      },
+    });
+
+    if (hasPostReminder) {
+      // Remove
+      postOptions.push({
+        icon: <MenuIcon Icon={MiniCloseIcon} />,
+        label: 'Remove reminder',
+        action: () => {
+          onRemoveReminder(post.id);
+        },
+      });
+    }
   }
 
   if (shouldShowSubscribe) {
