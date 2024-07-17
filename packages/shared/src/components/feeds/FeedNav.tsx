@@ -5,7 +5,12 @@ import dynamic from 'next/dynamic';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { useActiveFeedNameContext } from '../../contexts';
 import useActiveNav from '../../hooks/useActiveNav';
-import { useFeeds, useViewSize, ViewSize } from '../../hooks';
+import {
+  useConditionalFeature,
+  useFeeds,
+  useViewSize,
+  ViewSize,
+} from '../../hooks';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import {
   algorithmsList,
@@ -22,9 +27,7 @@ import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
-import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
-import { SeoSidebarExperiment } from '../../lib/featureValues';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
 import { SharedFeedPage } from '../utilities';
@@ -47,7 +50,6 @@ enum FeedNavTab {
   Leaderboard = 'Leaderboard',
   Bookmarks = 'Bookmarks',
   History = 'History',
-  MostUpvoted = 'Most Upvoted',
   Discussions = 'Discussions',
   NewFeed = 'New feed',
 }
@@ -65,6 +67,7 @@ function FeedNav(): ReactElement {
   const { isSortableFeed } = useFeedName({ feedName });
   const { home: shouldRenderNav } = useActiveNav(feedName);
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
     DEFAULT_ALGORITHM_INDEX,
@@ -73,7 +76,10 @@ function FeedNav(): ReactElement {
   );
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
-  const seoSidebar = useFeature(feature.seoSidebar);
+  const { value: mobileExploreTab } = useConditionalFeature({
+    feature: feature.mobileExploreTab,
+    shouldEvaluate: !isLaptop,
+  });
   const { feeds } = useFeeds();
 
   const urlToTab: Record<string, FeedNavTab> = useMemo(() => {
@@ -94,27 +100,20 @@ function FeedNav(): ReactElement {
       ...customFeeds,
     };
 
-    if (seoSidebar === SeoSidebarExperiment.V1) {
+    if (!mobileExploreTab) {
       urls[`${webappUrl}${OtherFeedPage.Explore}`] = FeedNavTab.Explore;
-    } else {
-      urls[`${webappUrl}${SharedFeedPage.Popular}`] = FeedNavTab.Popular;
-      urls[`${webappUrl}${SharedFeedPage.Upvoted}`] = FeedNavTab.MostUpvoted;
-    }
-
-    urls[`${webappUrl}${SharedFeedPage.Discussed}`] = FeedNavTab.Discussions;
-
-    if (seoSidebar === SeoSidebarExperiment.V1) {
-      urls[`${webappUrl}tags`] = FeedNavTab.Tags;
-      urls[`${webappUrl}sources`] = FeedNavTab.Sources;
-      urls[`${webappUrl}users`] = FeedNavTab.Leaderboard;
     }
 
     return {
       ...urls,
+      [`${webappUrl}${SharedFeedPage.Discussed}`]: FeedNavTab.Discussions,
+      [`${webappUrl}tags`]: FeedNavTab.Tags,
+      [`${webappUrl}sources`]: FeedNavTab.Sources,
+      [`${webappUrl}users`]: FeedNavTab.Leaderboard,
       [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
       [`${webappUrl}history`]: FeedNavTab.History,
     };
-  }, [seoSidebar, feeds, router.pathname, router.query.slugOrId]);
+  }, [feeds?.edges, mobileExploreTab, router.query.slugOrId, router.pathname]);
 
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
