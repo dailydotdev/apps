@@ -89,9 +89,11 @@ function MainLayoutHeader({
           className={{
             container: classNames(
               'left-0 top-0 z-header mr-auto items-center py-3 tablet:left-16 laptop:left-0 laptopL:mx-auto laptopL:w-full',
-              mobileExploreTab && isSearchPage ? 'relative' : 'tablet:absolute',
+              mobileExploreTab && isSearchPage
+                ? 'tablet:relative tablet:!left-0'
+                : undefined,
               isSearchPage
-                ? 'relative right-0 laptop:relative laptop:top-0'
+                ? 'relative right-0 tablet:absolute laptop:relative laptop:top-0'
                 : 'hidden laptop:flex',
               hasBanner && 'tablet:top-18',
             ),

@@ -167,7 +167,11 @@ export default function Sidebar({
           </Button>
         </Link>
 
-        <Link href={`${webappUrl}search`} prefetch={false} passHref>
+        <Link
+          href={mobileExploreTab ? `${webappUrl}posts` : `${webappUrl}search`}
+          prefetch={false}
+          passHref
+        >
           <Button
             {...buttonProps}
             tag="a"
