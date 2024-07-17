@@ -80,6 +80,7 @@ export const useSourceSubscription = ({
     });
 
     // toast notification
+    // todo: update source.id with source.name
     displayToast(
       wasFollowing
         ? `⛔️ You are now subscribed to ${source.id}`

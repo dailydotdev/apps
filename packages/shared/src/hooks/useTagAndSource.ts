@@ -37,8 +37,8 @@ interface UseTagAndSource {
   onUnfollowTags: (params: TagActionArguments) => BooleanPromise;
   onBlockTags: (params: TagActionArguments) => BooleanPromise;
   onUnblockTags: (params: TagActionArguments) => BooleanPromise;
-  onFollowSource: (params: SourceActionArguments) => BooleanPromise;
-  onUnfollowSource: (params: SourceActionArguments) => BooleanPromise;
+  onUnblockSource: (params: SourceActionArguments) => BooleanPromise;
+  onBlockSource: (params: SourceActionArguments) => BooleanPromise;
 }
 
 export default function useTagAndSource({
@@ -199,7 +199,7 @@ export default function useTagAndSource({
     ],
   );
 
-  const onFollowSource = useCallback(
+  const onUnblockSource = useCallback(
     async ({ source, requireLogin }: SourceActionArguments) => {
       if (shouldShowLogin(requireLogin)) {
         showLogin({ trigger: origin as AuthTriggersType });
@@ -228,7 +228,7 @@ export default function useTagAndSource({
     ],
   );
 
-  const onUnfollowSource = useCallback(
+  const onBlockSource = useCallback(
     async ({ source, requireLogin }: SourceActionArguments) => {
       if (shouldShowLogin(requireLogin)) {
         showLogin({ trigger: origin as AuthTriggersType });
@@ -262,7 +262,7 @@ export default function useTagAndSource({
     onUnfollowTags,
     onBlockTags,
     onUnblockTags,
-    onFollowSource,
-    onUnfollowSource,
+    onBlockSource,
+    onUnblockSource,
   };
 }

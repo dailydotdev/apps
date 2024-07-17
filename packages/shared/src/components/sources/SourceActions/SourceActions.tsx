@@ -1,13 +1,10 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { ReactElement } from 'react';
 import { ButtonVariant } from '../../buttons/common';
 import { Source } from '../../../graphql/sources';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { useSourceSubscription } from '../../../hooks';
-import SourceActionsFollow from './SourceActionsFollow';
-import { AuthTriggers } from '../../../lib/auth';
-import { useToggle } from '../../../hooks/useToggle';
+import { useSourceActions } from '../../../hooks';
+import SourceActionsNotify from './SourceActionsNotify';
 import SourceActionsBlock from './SourceActionsBlock';
-import SourceActionsSubscribe from './SourceActionsSubscribe';
+import SourceActionsFollow from './SourceActionsFollow';
 
 interface SourceActionsButton {
   className?: string;
@@ -36,57 +33,43 @@ export const SourceActions = ({
   follow,
   hideFollow = false,
 }: SourceActionsProps): ReactElement => {
-  const { isLoggedIn, user, showLogin } = useAuthContext();
-  const { isFollowing, haveNotifications, isReady, onFollowing, onNotify } =
-    useSourceSubscription({ source });
+  const {
+    isBlocked,
+    toggleBlock,
+    isFollowing,
+    toggleFollow,
+    haveNotifications,
+    toggleNotify,
+  } = useSourceActions({
+    source,
+  });
 
-  const [isBlocking, toggleBlock] = useToggle(false);
-  const onBlock = useCallback(() => {
-    //   if (unfollowingSource) {
-    //     await onFollowSource({ source });
-    //   } else {
-    //     await onUnfollowSource({ source });
-    //   }
-
-    toggleBlock();
-  }, [toggleBlock]);
-
-  const withAuthGuard = useCallback(
-    (callback: () => void, ...args: any[]) => {
-      if (!isLoggedIn) {
-        showLogin({ trigger: AuthTriggers.SourceSubscribe });
-        return;
-      }
-
-      return callback.bind(null, ...args);
-    },
-    [isLoggedIn, showLogin],
-  );
-
+  // todo: add alert for notify confirmation
   return (
-    <div className="inline-flex flex-row gap-2">
-      {!hideSubscribe && (
-        <SourceActionsSubscribe
-          isFetching={false}
-          isSubscribed={isFollowing}
-          onClick={withAuthGuard(onFollowing)}
-          variant={isFollowing ? ButtonVariant.Tertiary : ButtonVariant.Primary}
-          {...subscribe}
-        />
-      )}
-      {!hideFollow && isFollowing && (
-        <SourceActionsFollow
-          haveNotifications={haveNotifications}
-          onClick={withAuthGuard(onNotify)}
-        />
-      )}
-      {!hideBlock && !isFollowing && (
-        <SourceActionsBlock
-          isBlocking={isBlocking}
-          onClick={withAuthGuard(toggleBlock)}
-        />
-      )}
-    </div>
+    <>
+      <div className="inline-flex flex-row gap-2">
+        {!hideSubscribe && !isBlocked && (
+          <SourceActionsFollow
+            isFetching={false}
+            isSubscribed={isFollowing}
+            onClick={toggleFollow}
+            variant={
+              isFollowing ? ButtonVariant.Tertiary : ButtonVariant.Primary
+            }
+            {...subscribe}
+          />
+        )}
+        {!hideFollow && isFollowing && (
+          <SourceActionsNotify
+            haveNotifications={haveNotifications}
+            onClick={toggleNotify}
+          />
+        )}
+        {!hideBlock && !isFollowing && (
+          <SourceActionsBlock isBlocked={isBlocked} onClick={toggleBlock} />
+        )}
+      </div>
+    </>
   );
 };
 

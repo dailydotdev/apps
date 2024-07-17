@@ -28,8 +28,6 @@ import {
   DiscussIcon,
   UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
-import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import {
   ApiError,
   Connection,
@@ -40,7 +38,6 @@ import {
   RequestKey,
   StaleTime,
 } from '@dailydotdev/shared/src/lib/query';
-import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import {
   useFeedLayout,
@@ -160,22 +157,6 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     [source?.id],
   );
   const { shouldUseListFeedLayout, FeedPageLayoutComponent } = useFeedLayout();
-  const { feedSettings } = useFeedSettings();
-  const { onFollowSource, onUnfollowSource } = useTagAndSource({
-    origin: Origin.SourcePage,
-  });
-
-  const unfollowingSource = useMemo(() => {
-    if (!feedSettings) {
-      return true;
-    }
-    return (
-      feedSettings.excludeSources &&
-      feedSettings.excludeSources?.findIndex(
-        (excludedSource) => source?.id === excludedSource.id,
-      ) >= 0
-    );
-  }, [feedSettings, source]);
 
   if (!isFallback && !source) {
     return <Custom404 />;

@@ -35,19 +35,19 @@ function AdvancedSettingsFilter(): ReactElement {
     [feedSettings?.excludeSources],
   );
 
-  const { onFollowSource, onUnfollowSource } = useTagAndSource({
+  const { onUnblockSource, onBlockSource } = useTagAndSource({
     origin: Origin.SourcePage,
   });
 
   const onToggleSource = useCallback(
     (source: Source) => {
       if (checkSourceBlocked(source)) {
-        onFollowSource({ source });
+        onUnblockSource({ source });
       } else {
-        onUnfollowSource({ source });
+        onBlockSource({ source });
       }
     },
-    [checkSourceBlocked, onFollowSource, onUnfollowSource],
+    [checkSourceBlocked, onUnblockSource, onBlockSource],
   );
 
   return (

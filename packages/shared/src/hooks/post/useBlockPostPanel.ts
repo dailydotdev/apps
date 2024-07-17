@@ -66,7 +66,7 @@ export const useBlockPostPanel = (
 ): UseBlockPost => {
   const { openModal } = useLazyModal();
   const { displayToast } = useToastNotification();
-  const { onBlockTags, onUnfollowSource, onUnblockTags, onFollowSource } =
+  const { onBlockTags, onBlockSource, onUnblockTags, onUnblockSource } =
     useTagAndSource({
       origin: Origin.TagsFilter,
       postId: post?.id,
@@ -106,8 +106,8 @@ export const useBlockPostPanel = (
       shouldBlockSource?: boolean,
     ) => {
       const onUpdateSource = shouldBlockSource
-        ? onUnfollowSource
-        : onFollowSource;
+        ? onBlockSource
+        : onUnblockSource;
 
       const results = await Promise.all([
         blocks.length ? onBlockTags({ tags: blocks }) : ignoredCall(),
@@ -119,7 +119,7 @@ export const useBlockPostPanel = (
 
       return results.every(({ successful }) => successful);
     },
-    [onFollowSource, onUnfollowSource, onBlockTags, onUnblockTags, post],
+    [onUnblockSource, onBlockSource, onBlockTags, onUnblockTags, post],
   );
 
   const onUndo = useCallback(

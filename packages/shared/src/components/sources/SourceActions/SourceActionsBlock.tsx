@@ -3,23 +3,23 @@ import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { BlockIcon } from '../../icons';
 
 interface SourceActionBlockProps {
-  isBlocking: boolean;
+  isBlocked: boolean;
   onClick: () => void;
 }
 
 const SourceActionsBlock = ({
-  isBlocking,
+  isBlocked,
   onClick,
 }: SourceActionBlockProps): ReactElement => {
   return (
     <Button
-      aria-label={isBlocking ? 'Follow' : 'Block'}
+      aria-label={isBlocked ? 'Follow' : 'Block'}
       icon={<BlockIcon />}
       onClick={onClick}
       size={ButtonSize.Small}
       variant={ButtonVariant.Float}
     >
-      Block
+      {isBlocked ? 'Unblock' : 'Block'}
     </Button>
   );
 };
