@@ -6,6 +6,7 @@ import { Source } from '../../graphql/sources';
 import { useSourceSubscription } from './useSourceSubscription';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
+import { useToastNotification } from '../useToastNotification';
 
 interface UseSourceActionsProps {
   source: Source | Pick<Source, 'id'>;
@@ -14,6 +15,7 @@ interface UseSourceActionsProps {
 function useSourceBlockActions(props: UseSourceActionsProps) {
   const { source } = props;
   const { feedSettings } = useFeedSettings();
+  const { displayToast } = useToastNotification();
 
   const isBlocked = useMemo(() => {
     if (!feedSettings) {
@@ -38,10 +40,12 @@ function useSourceBlockActions(props: UseSourceActionsProps) {
 
     if (isBlocked) {
       await onUnblockSource({ source, requireLogin: true });
+      displayToast('✅ Source unblocked');
       return;
     }
 
-    return await onBlockSource({ source, requireLogin: true });
+    await onBlockSource({ source, requireLogin: true });
+    displayToast('⛔️ Source is now blocked');
   }, [isBlocked, onBlockSource, onUnblockSource]);
 
   return {

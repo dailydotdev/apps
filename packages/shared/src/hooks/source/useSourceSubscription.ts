@@ -83,8 +83,8 @@ export const useSourceSubscription = ({
     // todo: update source.id with source.name
     displayToast(
       wasFollowing
-        ? `⛔️ You are now subscribed to ${source.id}`
-        : `✅ You are now unsubscribed to ${source.id}`,
+        ? `⛔️ You are now unsubscribed to ${source.id}`
+        : `✅ You are now subscribed to ${source.id}`,
     );
   }, [isFollowing, toggleFollow]);
 
