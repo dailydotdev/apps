@@ -103,7 +103,10 @@ it('should submit a valid URL', async () => {
   });
 
   const sent = 'We will notify you about the post-submission status via email';
-  expect(await screen.findByText(sent)).toBeInTheDocument();
+  await waitFor(() => {
+    const element = screen.getByText(sent);
+    expect(element).toBeInTheDocument();
+  });
 });
 
 it('should feedback existing article', async () => {
