@@ -49,23 +49,42 @@ export const useSourceSubscription = ({
       return;
     }
 
-    const result = await onToggle();
+    const notifications = await onToggle();
 
     logEvent({
-      event_name: result.isSubscribed
+      event_name: notifications.isSubscribed
         ? LogEvent.SubscribeSource
         : LogEvent.UnsubscribeSource,
       target_id: source.id,
     });
 
     displayToast(
-      result.isSubscribed
-        ? '✅ You are now subscribed'
-        : '⛔️ You are now unsubscribed',
+      notifications.isSubscribed
+        ? `✅ You'll get notified every time ${source.id} posts`
+        : `⛔️ You'll no longer get notified about ${source.id} posts`,
     );
   }, [isLoggedIn, onToggle, showLogin, source?.id, logEvent, displayToast]);
+
   const onFollowing = useCallback(() => {
+    const wasFollowing = isFollowing;
+
+    // todo: handle errors (and show it with a toast?)
     toggleFollow();
+
+    // log for analytics
+    logEvent({
+      event_name: wasFollowing
+        ? LogEvent.UnfollowSource
+        : LogEvent.FollowSource,
+      target_id: source.id,
+    });
+
+    // toast notification
+    displayToast(
+      wasFollowing
+        ? `⛔️ You are now subscribed to ${source.id}`
+        : `✅ You are now unsubscribed to ${source.id}`,
+    );
   }, [isFollowing, toggleFollow]);
 
   return {
