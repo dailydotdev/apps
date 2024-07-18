@@ -60,8 +60,8 @@ function SquadItem({
       showLogin({
         trigger: AuthTriggers.JoinSquad,
         options: {
-          onLoginSuccess: joinSquad,
-          onRegistrationSuccess: joinSquad,
+          onLoginSuccess: () => joinSquad(),
+          onRegistrationSuccess: () => joinSquad(),
         },
       });
 
