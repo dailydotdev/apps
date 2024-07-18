@@ -12,9 +12,9 @@ import { Card } from '../cards/Card';
 import { ListCard } from '../cards/list/ListCard';
 import { EarthIcon, MiniCloseIcon } from '../icons';
 import { ActionType } from '../../graphql/actions';
-import { SquadPostsProgressBar } from './SquadPostsProgressBar';
 import { PlaceholderCard } from '../cards/PlaceholderCard';
 import PublicSquadSubmissionActions from './PublicSquadSubmissionActions';
+import { SquadPublicProgressBars } from './SquadPublicProgressBars';
 
 export function PublicSquadEligibilityCard(): ReactElement {
   const router = useRouter();
@@ -41,27 +41,30 @@ export function PublicSquadEligibilityCard(): ReactElement {
       data-testid="publicSquadEligibilityCard"
       className="min-h-[21.75rem] justify-between !bg-transparent p-4"
     >
-      <div className="flex items-center justify-between">
-        <div className="flex h-6 items-center gap-1 rounded-8 bg-surface-float pl-1 pr-2 text-text-tertiary typo-callout">
-          <EarthIcon />
-          Public Squad
+      <div>
+        <div className="mb-2 flex items-center justify-between">
+          <div className="flex h-6 items-center gap-1 rounded-8 bg-surface-float pl-1 pr-2 text-text-tertiary typo-callout">
+            <EarthIcon />
+            Public Squad
+          </div>
+          <Button
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Tertiary}
+            icon={<MiniCloseIcon />}
+            onClick={onDismiss}
+            aria-label="Close squad eligibility"
+          />
         </div>
-        <Button
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Tertiary}
-          icon={<MiniCloseIcon />}
-          onClick={onDismiss}
-          aria-label="Close squad eligibility"
-        />
+
+        <h3 className="mb-2 font-bold typo-title3">
+          Get more traffic by making your Squad public
+        </h3>
+        <p className="text-text-tertiary typo-callout">
+          With Public Squads your posts will organically appear on the daily.dev
+          feed giving your content a lot more exposure
+        </p>
       </div>
-      <h3 className="font-bold typo-title3">
-        Get more traffic by making your Squad public
-      </h3>
-      <p className="text-text-tertiary typo-callout">
-        With Public Squads your posts will organically appear on the daily.dev
-        feed giving your content a lot more exposure
-      </p>
-      <SquadPostsProgressBar postsCount={postsCount} />
+      <SquadPublicProgressBars postsCount={postsCount} />
       <PublicSquadSubmissionActions squad={squad} />
     </CardComponent>
   );
