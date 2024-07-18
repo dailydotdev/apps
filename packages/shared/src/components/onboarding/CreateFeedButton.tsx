@@ -4,32 +4,74 @@ import { Button, ButtonElementType, ButtonVariant } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips';
 import { isTesting } from '../../lib/constants';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
-import { REQUIRED_TAGS_THRESHOLD } from './common';
+import { OnboardingStep, REQUIRED_TAGS_THRESHOLD } from './common';
+import { useAdvancedSettings, useViewSize, ViewSize } from '../../hooks';
 
 export type CreateFeedButtonProps = {
   className?: string;
   customActionName?: string;
+  activeScreen: OnboardingStep;
 } & Pick<HTMLAttributes<ButtonElementType<'button'>>, 'onClick'>;
 
 export const CreateFeedButton = ({
   className,
   onClick,
   customActionName,
+  activeScreen,
 }: CreateFeedButtonProps): ReactElement => {
-  const { feedSettings } = useFeedSettings();
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const { feedSettings, contentSourceList, contentCurationList, videoSetting } =
+    useFeedSettings();
+  const { selectedSettings, checkSourceBlocked } = useAdvancedSettings();
+
+  const contentTypeStep = activeScreen === OnboardingStep.ContentTypes;
+
   const tagsCount = feedSettings?.includeTags?.length || 0;
-  const canCreateFeed = tagsCount >= REQUIRED_TAGS_THRESHOLD;
+  const tagsCountMatch =
+    tagsCount >= REQUIRED_TAGS_THRESHOLD &&
+    activeScreen === OnboardingStep.EditTag;
+
+  const advancedSettingsExceptCommunity = !![
+    ...contentCurationList,
+    videoSetting,
+  ]
+    ?.map(({ id, defaultEnabledState }) => {
+      return selectedSettings[id] ?? defaultEnabledState;
+    })
+    .find((setting) => setting === true);
+
+  const sourceCommunity = !!contentSourceList
+    .map(({ options }) => options.source)
+    .find((source) => !checkSourceBlocked(source));
+
+  const contentTypeNotEmpty =
+    (advancedSettingsExceptCommunity || sourceCommunity) && contentTypeStep;
+
+  const canCreateFeed = tagsCountMatch || contentTypeNotEmpty;
   const { sidebarRendered } = useSidebarRendered();
   const buttonName =
     customActionName ??
     `Create ${!sidebarRendered ? '' : 'personalized'} feed ➔`;
 
+  const tooltipName = () => {
+    if (activeScreen === OnboardingStep.EditTag && !canCreateFeed) {
+      return `Choose at least ${REQUIRED_TAGS_THRESHOLD} tags`;
+    }
+    if (contentTypeStep && !canCreateFeed) {
+      return 'Choose at least one content type';
+    }
+    return '';
+  };
+
+  const tooltipProps = {
+    ...(contentTypeStep ? { visible: !canCreateFeed && isLaptop } : {}),
+  };
+
   return (
     <SimpleTooltip
-      content={
-        canCreateFeed ? '' : `Choose at least ${REQUIRED_TAGS_THRESHOLD} tags`
-      }
+      content={tooltipName()}
       forceLoad={!isTesting}
+      {...tooltipProps}
     >
       <div className="relative">
         <Button

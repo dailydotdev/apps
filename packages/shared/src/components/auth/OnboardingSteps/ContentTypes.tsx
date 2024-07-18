@@ -1,15 +1,9 @@
-import React, { ReactElement, useCallback, useMemo } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Checkbox } from '../../fields/Checkbox';
 import useFeedSettings from '../../../hooks/useFeedSettings';
-import {
-  AdvancedSettings,
-  AdvancedSettingsGroup,
-} from '../../../graphql/feedSettings';
+
 import { useAdvancedSettings } from '../../../hooks';
-import { Source } from '../../../graphql/sources';
-import useTagAndSource from '../../../hooks/useTagAndSource';
-import { Origin } from '../../../lib/log';
 
 const CustomCheckbox = ({
   checked,
@@ -52,56 +46,16 @@ const CustomCheckbox = ({
     </button>
   );
 };
-interface ContentTypesProps {
-  // onClick: () => void;
-}
 
-export const ContentTypes = ({}: ContentTypesProps): ReactElement => {
-  const { advancedSettings, feedSettings } = useFeedSettings();
-  const { selectedSettings, onToggleSettings } = useAdvancedSettings();
-  const sourceList = useMemo(
-    () =>
-      advancedSettings?.filter(
-        ({ group }) => group === AdvancedSettingsGroup.ContentSource,
-      ) ?? [],
-    [advancedSettings],
-  );
-  const videos =
-    advancedSettings?.find(({ title }) => title === 'Videos') ?? [];
-
-  const settingsList = useMemo(
-    () =>
-      [
-        ...(advancedSettings?.filter(
-          ({ group }) => group === AdvancedSettingsGroup.ContentCuration,
-        ) ?? []),
-        videos,
-      ] as AdvancedSettings[],
-    [advancedSettings],
-  );
-
-  const checkSourceBlocked = useCallback(
-    (source: Source): boolean => {
-      const blockedSources = feedSettings?.excludeSources ?? [];
-      return blockedSources.some(({ id }) => id === source.id);
-    },
-    [feedSettings?.excludeSources],
-  );
-
-  const { onFollowSource, onUnfollowSource } = useTagAndSource({
-    origin: Origin.SourcePage,
-  });
-
-  const onToggleSource = useCallback(
-    (source: Source) => {
-      if (checkSourceBlocked(source)) {
-        onFollowSource({ source });
-      } else {
-        onUnfollowSource({ source });
-      }
-    },
-    [checkSourceBlocked, onFollowSource, onUnfollowSource],
-  );
+export const ContentTypes = (): ReactElement => {
+  const { contentSourceList, contentCurationList, videoSetting } =
+    useFeedSettings();
+  const {
+    selectedSettings,
+    onToggleSettings,
+    checkSourceBlocked,
+    onToggleSource,
+  } = useAdvancedSettings();
 
   return (
     <div className="flex max-w-[63.75rem] flex-col tablet:px-10">
@@ -109,7 +63,7 @@ export const ContentTypes = ({}: ContentTypesProps): ReactElement => {
         What kind of posts would you like to see on your feed?
       </h2>
       <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2 laptop:grid-cols-3">
-        {sourceList?.map(({ id, title, description, options }) => (
+        {contentSourceList?.map(({ id, title, description, options }) => (
           <CustomCheckbox
             key={id}
             name={`advancedSettings-${id}`}
@@ -119,7 +73,7 @@ export const ContentTypes = ({}: ContentTypesProps): ReactElement => {
             description={description}
           />
         ))}
-        {settingsList?.map(
+        {[...contentCurationList, videoSetting]?.map(
           ({ id, title, description, defaultEnabledState }) => (
             <CustomCheckbox
               key={id}

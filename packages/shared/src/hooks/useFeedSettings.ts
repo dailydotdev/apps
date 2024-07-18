@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   AdvancedSettings,
@@ -6,6 +6,7 @@ import {
   FeedSettings,
   FEED_SETTINGS_QUERY,
   TagCategory,
+  AdvancedSettingsGroup,
 } from '../graphql/feedSettings';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
@@ -24,6 +25,9 @@ export interface FeedSettingsReturnType {
   isLoading: boolean;
   hasAnyFilter?: boolean;
   advancedSettings: AdvancedSettings[];
+  contentCurationList: AdvancedSettings[];
+  contentSourceList: AdvancedSettings[];
+  videoSetting: AdvancedSettings;
   checkSettingsEnabledState(value: number): boolean;
 }
 
@@ -80,6 +84,30 @@ export default function useFeedSettings({
     [advancedSettings, feedSettings],
   );
 
+  const contentSourceList = useMemo(
+    () =>
+      advancedSettings?.filter(
+        ({ group }) => group === AdvancedSettingsGroup.ContentSource,
+      ) ?? [],
+    [advancedSettings],
+  );
+  const contentCurationList = useMemo(
+    () =>
+      advancedSettings?.filter(
+        ({ group }) => group === AdvancedSettingsGroup.ContentCuration,
+      ) ?? [],
+    [advancedSettings],
+  );
+
+  /*
+   * At the moment, we are only referencing the Video entity, but it should be based from the group that it is in.
+   * Point being, we have to send multiple mutation requests at the same time if the user toggles the switch.
+   * We should instead introduce a new mutation to handle an array of settings to toggle.
+   * */
+  const videoSetting = advancedSettings?.find(
+    ({ title }) => title === 'Videos',
+  );
+
   return {
     tagsCategories,
     feedSettings,
@@ -87,5 +115,8 @@ export default function useFeedSettings({
     advancedSettings,
     hasAnyFilter: getHasAnyFilter(feedSettings),
     checkSettingsEnabledState,
+    contentSourceList,
+    contentCurationList,
+    videoSetting,
   };
 }

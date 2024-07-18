@@ -53,6 +53,7 @@ export const OnboardingHeader = ({
             <CreateFeedButton
               onClick={onClickCreateFeed}
               customActionName={customActionName}
+              activeScreen={activeScreen}
             />
           )}
         </div>
