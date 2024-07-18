@@ -1,30 +1,18 @@
-import React, { ReactElement } from 'react';
-import { Button, ButtonVariant } from '../../buttons/Button';
-import { SquadPostsProgressBar } from '../SquadPostsProgressBar';
+import React, { PropsWithChildren, ReactElement } from 'react';
+import { SquadPublicProgressBars } from '../SquadPublicProgressBars';
 
 interface PublicStatusPanelProps {
   count: number;
-  required: number;
 }
 
 export function PublicStatusPanel({
+  children,
   count,
-  required,
-}: PublicStatusPanelProps): ReactElement {
+}: PropsWithChildren<PublicStatusPanelProps>): ReactElement {
   return (
-    <div className="flex flex-col items-end gap-2">
-      <SquadPostsProgressBar
-        postsCount={count}
-        goal={required}
-        className={{ container: 'w-full' }}
-      />
-      <Button
-        variant={ButtonVariant.Secondary}
-        className="mt-3 w-fit"
-        disabled={count < required}
-      >
-        Submit for review
-      </Button>
+    <div className="flex flex-col items-end gap-4">
+      <SquadPublicProgressBars postsCount={count} />
+      {children}
     </div>
   );
 }

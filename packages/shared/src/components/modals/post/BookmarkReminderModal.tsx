@@ -82,7 +82,7 @@ export const BookmarkReminderModal = (
   const [selectedOption, setSelectedOption] = useState<ReminderPreference>(
     ReminderPreference.OneHour,
   );
-  const { onBookmarkReminder } = useBookmarkReminder();
+  const { onBookmarkReminder } = useBookmarkReminder({ post });
 
   const handleSubmit: FormEventHandler = async (e) => {
     e.preventDefault();

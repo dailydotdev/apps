@@ -4,17 +4,12 @@ import {
   EarthIcon,
   HashtagIcon,
   HotIcon,
-  SearchIcon,
   SquadIcon,
-  UpvoteIcon,
 } from '../icons';
 import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
 import { useActions } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
-import { SeoSidebarExperiment } from '../../lib/featureValues';
 import { checkIsExtension } from '../../lib/func';
 import { webappUrl } from '../../lib/constants';
 import { SharedFeedPage } from '../utilities';
@@ -35,8 +30,6 @@ export function DiscoverSection({
   enableSearch,
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement {
-  const seoSidebar = useFeature(feature.seoSidebar);
-  const isV1Sidebar = seoSidebar === SeoSidebarExperiment.V1;
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const hasCompletedCommentFeed =
     !isActionsFetched || checkHasCompleted(ActionType.CommentFeed);
@@ -48,12 +41,9 @@ export function DiscoverSection({
       icon: (active: boolean) => (
         <ListIcon Icon={() => <HotIcon secondary={active} />} />
       ),
-      title: isV1Sidebar ? 'Explore' : 'Popular',
-      path: isV1Sidebar ? '/posts' : '/popular',
-      action: () =>
-        onNavTabClick?.(
-          isV1Sidebar ? OtherFeedPage.Explore : SharedFeedPage.Popular,
-        ),
+      title: 'Explore',
+      path: '/posts',
+      action: () => onNavTabClick?.(OtherFeedPage.Explore),
     };
 
     const discussion = {
@@ -76,31 +66,6 @@ export function DiscoverSection({
         ),
       }),
     };
-
-    if (!isV1Sidebar) {
-      return [
-        discussion,
-        feeds,
-        {
-          icon: (active: boolean) => (
-            <ListIcon Icon={() => <UpvoteIcon secondary={active} />} />
-          ),
-          title: 'Most upvoted',
-          path: '/upvoted',
-          action: () => onNavTabClick?.(SharedFeedPage.Upvoted),
-        },
-        {
-          icon: (active: boolean) => (
-            <ListIcon Icon={() => <SearchIcon secondary={active} />} />
-          ),
-          title: 'Search',
-          hideOnMobile: true,
-          path: '/search',
-          action: enableSearch,
-          showActiveAsH1: true,
-        },
-      ];
-    }
 
     return [
       feeds,
@@ -130,13 +95,7 @@ export function DiscoverSection({
         action: isExtension ? locationPush('/users') : undefined,
       },
     ];
-  }, [
-    completeAction,
-    enableSearch,
-    hasCompletedCommentFeed,
-    isV1Sidebar,
-    onNavTabClick,
-  ]);
+  }, [completeAction, hasCompletedCommentFeed, onNavTabClick]);
 
   return (
     <Section

@@ -111,7 +111,7 @@ it('should render the sidebar as open by default', async () => {
   renderComponent();
   const section = await screen.findByText('Discover');
   expect(section).toBeInTheDocument();
-  const sectionTwo = await screen.findByText('Manage');
+  const sectionTwo = await screen.findByText('Activity');
   expect(sectionTwo).toBeInTheDocument();
 });
 
@@ -146,12 +146,11 @@ it('should show the my feed items if the user has filters', async () => {
 });
 
 const sidebarItems = [
-  ['Popular', '/popular'],
-  ['Most upvoted', '/upvoted'],
+  ['Explore', '/posts'],
   ['Discussions', '/discussed'],
-  ['Search', '/search'],
-  ['Bookmarks', '/bookmarks'],
-  ['History', '/history'],
+  ['Tags', '/tags'],
+  ['Sources', '/sources'],
+  ['Leaderboard', '/users'],
 ];
 
 describe('sidebar items', () => {

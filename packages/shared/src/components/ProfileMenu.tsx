@@ -26,9 +26,6 @@ import { UserMetadata } from './profile/UserMetadata';
 import { HeroImage } from './profile/HeroImage';
 import { anchorDefaultRel } from '../lib/strings';
 import { LogoutReason } from '../lib/user';
-import { useFeature } from './GrowthBookProvider';
-import { feature } from '../lib/featureManagement';
-import { SeoSidebarExperiment } from '../lib/featureValues';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { checkIsExtension } from '../lib/func';
 import { useDndContext } from '../contexts/DndContext';
@@ -48,7 +45,6 @@ export default function ProfileMenu({
   onClose,
 }: ProfileMenuProps): ReactElement {
   const { openModal } = useLazyModal();
-  const seoSidebar = useFeature(feature.seoSidebar);
   const { user, logout } = useContext(AuthContext);
   const { isActive: isDndActive, setShowDnd } = useDndContext();
 
@@ -98,26 +94,24 @@ export default function ProfileMenu({
       },
     ];
 
-    if (seoSidebar === SeoSidebarExperiment.V1) {
-      if (checkIsExtension()) {
-        const DndIcon = isDndActive ? PlayIcon : PauseIcon;
-        list.push({
-          title: 'Pause new tab',
-          buttonProps: {
-            icon: <DndIcon />,
-            onClick: () => setShowDnd(true),
-          },
-        });
-      }
-
+    if (checkIsExtension()) {
+      const DndIcon = isDndActive ? PlayIcon : PauseIcon;
       list.push({
-        title: 'Customize',
+        title: 'Pause new tab',
         buttonProps: {
-          icon: <SettingsIcon />,
-          onClick: () => openModal({ type: LazyModal.UserSettings }),
+          icon: <DndIcon />,
+          onClick: () => setShowDnd(true),
         },
       });
     }
+
+    list.push({
+      title: 'Customize',
+      buttonProps: {
+        icon: <SettingsIcon />,
+        onClick: () => openModal({ type: LazyModal.UserSettings }),
+      },
+    });
 
     list.push({
       title: 'Logout',
@@ -128,7 +122,7 @@ export default function ProfileMenu({
     });
 
     return list;
-  }, [isDndActive, logout, openModal, seoSidebar, setShowDnd, user.permalink]);
+  }, [isDndActive, logout, openModal, setShowDnd, user.permalink]);
 
   if (!user) {
     return <></>;

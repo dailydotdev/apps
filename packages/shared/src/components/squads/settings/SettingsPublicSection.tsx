@@ -5,13 +5,16 @@ import { Anchor } from '../../text';
 import { squadsPublicGuide } from '../../../lib/constants';
 import { PublicStatusPanel } from './PublicStatusPanel';
 import { PUBLIC_SQUAD_REQUEST_REQUIREMENT } from '../../../lib/config';
+import PublicSquadSubmissionActions from '../PublicSquadSubmissionActions';
 
 export interface SettingsPublicSectionProps {
   totalPosts: number;
   status: string;
+  squadId: string;
 }
 
 export function SettingsPublicSection({
+  squadId,
   status,
   totalPosts,
 }: SettingsPublicSectionProps): ReactElement {
@@ -51,8 +54,17 @@ export function SettingsPublicSection({
       {isInProgress && (
         <PublicStatusPanel
           count={Math.min(totalPosts, PUBLIC_SQUAD_REQUEST_REQUIREMENT)}
-          required={PUBLIC_SQUAD_REQUEST_REQUIREMENT}
-        />
+        >
+          <PublicSquadSubmissionActions
+            isDetailsVisible={false}
+            squad={{
+              id: squadId,
+              flags: {
+                totalPosts,
+              },
+            }}
+          />
+        </PublicStatusPanel>
       )}
     </div>
   );

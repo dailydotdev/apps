@@ -1,6 +1,7 @@
 import React, {
   ReactElement,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -37,6 +38,7 @@ import {
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import {
+  useConditionalFeature,
   useFeedLayout,
   useScrollRestoration,
   useViewSize,
@@ -164,12 +166,15 @@ export default function MainFeedLayout({
   const router = useRouter();
   const [tab, setTab] = useState(ExploreTabs.Popular);
   const { getFeatureValue } = useFeaturesReadyContext();
-  const isSearchPage = !!router.pathname?.startsWith('/search');
   const feedName = getFeedName(feedNameProp, {
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
   });
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { value: mobileExploreTab } = useConditionalFeature({
+    feature: feature.mobileExploreTab,
+    shouldEvaluate: !isLaptop,
+  });
   const feedVersion = useFeature(feature.feedVersion);
   const {
     isUpvoted,
@@ -178,6 +183,7 @@ export default function MainFeedLayout({
     isExploreLatest,
     isSortableFeed,
     isCustomFeed,
+    isSearch: isSearchPage,
   } = useFeedName({
     feedName,
   });
@@ -348,25 +354,53 @@ export default function MainFeedLayout({
   const disableTopPadding =
     isFinder || shouldUseListFeedLayout || shouldUseCommentFeedLayout;
 
-  const onTabChange = (clickedTab: ExploreTabs) => {
-    if (onNavTabClick) {
-      onNavTabClick(tabToUrl[clickedTab]);
+  const onTabChange = useCallback(
+    (clickedTab: ExploreTabs) => {
+      if (onNavTabClick) {
+        onNavTabClick(tabToUrl[clickedTab]);
+      }
+
+      setTab(clickedTab);
+    },
+    [onNavTabClick],
+  );
+
+  const FeedExploreComponent = useCallback(() => {
+    if (isLaptop) {
+      return (
+        <FeedExploreHeader
+          tab={tab}
+          setTab={onTabChange}
+          className={{ tabWrapper: 'my-4' }}
+        />
+      );
     }
 
-    setTab(clickedTab);
-  };
+    if (mobileExploreTab) {
+      return (
+        <FeedExploreHeader
+          tab={tab}
+          setTab={onTabChange}
+          showBreadcrumbs={false}
+          showDropdown={false}
+          className={{
+            container:
+              'sticky top-[7.5rem] z-header w-full border-b border-border-subtlest-tertiary bg-background-default',
+            tabBarHeader: 'no-scrollbar overflow-x-auto',
+            tabBarContainer: 'w-full',
+          }}
+        />
+      );
+    }
 
-  const feedExploreComponent = isLaptop ? (
-    <FeedExploreHeader tab={tab} setTab={onTabChange} />
-  ) : (
-    <FeedExploreDropdown />
-  );
+    return <FeedExploreDropdown />;
+  }, [isLaptop, mobileExploreTab, onTabChange, tab]);
 
   return (
     <FeedPageLayoutComponent
       className={classNames('relative', disableTopPadding && '!pt-0')}
     >
-      {isAnyExplore && feedExploreComponent}
+      {isAnyExplore && <FeedExploreComponent />}
       {isSearchOn && search}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed
