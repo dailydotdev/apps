@@ -12,6 +12,7 @@ import {
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   ViewSize,
+  useConditionalFeature,
   useEventListener,
   useScrollRestoration,
   useViewSize,
@@ -36,7 +37,7 @@ import { authGradientBg } from '@dailydotdev/shared/src/components/auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { OnboardingLogs } from '@dailydotdev/shared/src/components/auth/OnboardingLogs';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { useFeaturesReadyContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/FeedLayout';
@@ -57,7 +58,11 @@ const DemoPage = (): ReactElement => {
     useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const queryClient = useQueryClient();
-  const feedVersion = useFeature(feature.feedVersion);
+  const { ready: featuresReady } = useFeaturesReadyContext();
+  const { value: feedVersion } = useConditionalFeature({
+    feature: feature.feedVersion,
+    shouldEvaluate: featuresReady,
+  });
 
   const feedProps: FeedProps<{
     version: number;
@@ -138,7 +143,7 @@ const DemoPage = (): ReactElement => {
           what&apos;s out there.
         </p>
       </div>
-      <Feed className={feedProps.className} {...feedProps} />
+      {featuresReady && <Feed className={feedProps.className} {...feedProps} />}
       {showSignupFooter && (
         <div className="mb-6 flex h-80 flex-col items-center justify-center gap-6 p-6">
           <h2 className="text-center font-bold text-text-primary typo-title1">
