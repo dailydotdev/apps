@@ -44,6 +44,7 @@ export interface SearchTagsData {
 export interface FeedSettings {
   includeTags?: string[];
   blockedTags?: string[];
+  includeSources?: Source[]; // Experimental
   excludeSources?: Source[];
   advancedSettings?: FeedAdvancedSettings[];
 }

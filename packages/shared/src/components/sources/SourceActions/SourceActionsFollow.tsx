@@ -15,9 +15,10 @@ const SourceActionsFollow = (props: SourceActionsFollowProps): ReactElement => {
   const { className, isSubscribed, isFetching, onClick, variant } = props;
 
   const WrapperEl = isSubscribed ? SimpleTooltip : Fragment;
+  const wrapperProps = isSubscribed ? { content: 'Unsubscribe' } : {};
 
   return (
-    <WrapperEl content="Unsubscribe">
+    <WrapperEl {...wrapperProps}>
       <Button
         className={className}
         disabled={isFetching}

@@ -51,8 +51,10 @@ type ReturnType = {
   unfollowTags: FollowTags;
   blockTag: FollowTags;
   unblockTag: FollowTags;
-  followSource: FollowSource;
   unfollowSource: FollowSource;
+  followSource: FollowSource;
+  unblockSource: FollowSource;
+  blockSource: FollowSource;
   updateAdvancedSettings: UpdateAdvancedSettings;
   updateFeedFilters: (feedSettings: FeedSettings) => Promise<unknown>;
 };
@@ -368,7 +370,7 @@ export default function useMutateFilters(
     },
   );
 
-  const onFollowSource = useCallback(
+  const onUnblockSource = useCallback(
     ({ source }: SourceMutationProps) =>
       onMutateSourcesSettings(
         source,
@@ -389,7 +391,7 @@ export default function useMutateFilters(
     [user, queryClient, feedId],
   );
 
-  const { mutateAsync: followSourceRemote } = useMutation<
+  const { mutateAsync: unblockSourceRemote } = useMutation<
     unknown,
     unknown,
     SourceMutationProps,
@@ -402,12 +404,46 @@ export default function useMutateFilters(
         },
       }),
     {
-      onMutate: onFollowSource,
+      onMutate: onUnblockSource,
       onError: (err, _, rollback) => rollback(),
     },
   );
 
+  const onFollowSource = useCallback(
+    ({ source }: SourceMutationProps) =>
+      onMutateSourcesSettings(
+        source,
+        queryClient,
+        (feedSettings, manipulateSource) => {
+          const newData = cloneDeep(feedSettings);
+          newData.includeSources.push(manipulateSource);
+          return newData;
+        },
+        user,
+        feedId,
+      ),
+    [user, queryClient, feedId],
+  );
+
   const onUnfollowSource = useCallback(
+    ({ source }: SourceMutationProps) =>
+      onMutateSourcesSettings(
+        source,
+        queryClient,
+        (feedSettings, manipulateSource) => {
+          const newData = cloneDeep(feedSettings);
+          newData.includeSources = newData.includeSources.filter(
+            (s) => s.id !== manipulateSource.id,
+          );
+          return newData;
+        },
+        user,
+        feedId,
+      ),
+    [user, queryClient, feedId],
+  );
+
+  const onBlockSource = useCallback(
     ({ source }: SourceMutationProps) =>
       onMutateSourcesSettings(
         source,
@@ -423,7 +459,7 @@ export default function useMutateFilters(
     [user, queryClient, feedId],
   );
 
-  const { mutateAsync: unfollowSourceRemote } = useMutation<
+  const { mutateAsync: blockSourceRemote } = useMutation<
     unknown,
     unknown,
     SourceMutationProps,
@@ -436,7 +472,7 @@ export default function useMutateFilters(
         },
       }),
     {
-      onMutate: onUnfollowSource,
+      onMutate: onBlockSource,
       onError: (err, _, rollback) => rollback(),
       onSuccess: () => {
         // when unfollowing source notification preference is cleared
@@ -452,11 +488,13 @@ export default function useMutateFilters(
       followTags: shouldFilterLocally ? onFollowTags : followTagsRemote,
       unfollowTags: shouldFilterLocally ? onUnfollowTags : unfollowTagsRemote,
       blockTag: shouldFilterLocally ? onBlockTags : blockTagRemote,
+      followSource: onFollowSource,
+      unfollowSource: onUnfollowSource,
       unblockTag: shouldFilterLocally ? onUnblockTags : unblockTagRemote,
-      followSource: shouldFilterLocally ? onFollowSource : followSourceRemote,
-      unfollowSource: shouldFilterLocally
-        ? onUnfollowSource
-        : unfollowSourceRemote,
+      unblockSource: shouldFilterLocally
+        ? onUnblockSource
+        : unblockSourceRemote,
+      blockSource: shouldFilterLocally ? onBlockSource : blockSourceRemote,
       updateAdvancedSettings: shouldFilterLocally
         ? onAdvancedSettingsUpdate
         : updateAdvancedSettingsRemote,
@@ -468,15 +506,15 @@ export default function useMutateFilters(
       onUnfollowTags,
       onBlockTags,
       onUnblockTags,
-      onFollowSource,
-      onUnfollowSource,
+      onUnblockSource,
+      onBlockSource,
       onAdvancedSettingsUpdate,
       followTagsRemote,
       unfollowTagsRemote,
       blockTagRemote,
       unblockTagRemote,
-      followSourceRemote,
-      unfollowSourceRemote,
+      unblockSourceRemote,
+      blockSourceRemote,
       updateAdvancedSettingsRemote,
     ],
   );

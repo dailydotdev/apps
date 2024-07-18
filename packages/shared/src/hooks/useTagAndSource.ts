@@ -39,6 +39,8 @@ interface UseTagAndSource {
   onUnblockTags: (params: TagActionArguments) => BooleanPromise;
   onUnblockSource: (params: SourceActionArguments) => BooleanPromise;
   onBlockSource: (params: SourceActionArguments) => BooleanPromise;
+  onUnfollowSource: (params: SourceActionArguments) => BooleanPromise;
+  onFollowSource: (params: SourceActionArguments) => BooleanPromise;
 }
 
 export default function useTagAndSource({
@@ -63,6 +65,8 @@ export default function useTagAndSource({
     unfollowTags,
     blockTag,
     unblockTag,
+    unblockSource,
+    blockSource,
     followSource,
     unfollowSource,
   } = useMutateFilters(user, feedId, shouldFilterLocally);
@@ -211,7 +215,8 @@ export default function useTagAndSource({
         target_id: source?.id,
         extra: JSON.stringify({ origin, post_id: postId }),
       });
-      await followSource({ source });
+
+      await unblockSource({ source });
 
       invalidateQueries();
 
@@ -222,7 +227,7 @@ export default function useTagAndSource({
       shouldShowLogin,
       origin,
       showLogin,
-      followSource,
+      unblockSource,
       postId,
       invalidateQueries,
     ],
@@ -240,6 +245,68 @@ export default function useTagAndSource({
         target_id: source?.id,
         extra: JSON.stringify({ origin, post_id: postId }),
       });
+      await blockSource({ source });
+
+      invalidateQueries();
+
+      return { successful: true };
+    },
+    [
+      logEvent,
+      shouldShowLogin,
+      origin,
+      showLogin,
+      blockSource,
+      postId,
+      invalidateQueries,
+    ],
+  );
+
+  const onFollowSource = useCallback(
+    async ({ source, requireLogin }: SourceActionArguments) => {
+      if (shouldShowLogin(requireLogin)) {
+        showLogin({ trigger: origin as AuthTriggersType });
+        return { successful: false };
+      }
+
+      logEvent({
+        event_name: 'follow',
+        target_type: 'source',
+        target_id: source?.id,
+        extra: JSON.stringify({ origin, post_id: postId }),
+      });
+
+      await followSource({ source });
+
+      invalidateQueries();
+
+      return { successful: true };
+    },
+    [
+      logEvent,
+      shouldShowLogin,
+      origin,
+      showLogin,
+      followSource,
+      postId,
+      invalidateQueries,
+    ],
+  );
+
+  const onUnfollowSource = useCallback(
+    async ({ source, requireLogin }: SourceActionArguments) => {
+      if (shouldShowLogin(requireLogin)) {
+        showLogin({ trigger: origin as AuthTriggersType });
+        return { successful: false };
+      }
+
+      logEvent({
+        event_name: 'unfollow',
+        target_type: 'source',
+        target_id: source?.id,
+        extra: JSON.stringify({ origin, post_id: postId }),
+      });
+
       await unfollowSource({ source });
 
       invalidateQueries();
@@ -251,7 +318,7 @@ export default function useTagAndSource({
       shouldShowLogin,
       origin,
       showLogin,
-      unfollowSource,
+      followSource,
       postId,
       invalidateQueries,
     ],
@@ -264,5 +331,7 @@ export default function useTagAndSource({
     onUnblockTags,
     onBlockSource,
     onUnblockSource,
+    onFollowSource,
+    onUnfollowSource,
   };
 }
