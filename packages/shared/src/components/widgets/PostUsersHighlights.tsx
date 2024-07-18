@@ -15,7 +15,7 @@ import { ButtonVariant } from '../buttons/common';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import EnableNotification from '../notifications/EnableNotification';
 import { NotificationPromptSource } from '../../lib/log';
-import { useSourceSubscription } from '../../hooks';
+import { useSourceActionsNotify } from '../../hooks';
 import { SourceActions } from '../sources/SourceActions';
 
 interface PostAuthorProps {
@@ -211,7 +211,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
         <SourceActions
           hideBlock
           source={{ id }}
-          block={{className: 'ml-2', variant: ButtonVariant.Secondary}}
+          block={{ className: 'ml-2', variant: ButtonVariant.Secondary }}
         />
       )}
     </div>
@@ -221,7 +221,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
 const EnableNotificationSourceSubscribe = ({
   source,
 }: Pick<Post, 'source'>) => {
-  const { isSubscribed } = useSourceSubscription({
+  const { isSubscribed } = useSourceActionsNotify({
     source,
   });
 

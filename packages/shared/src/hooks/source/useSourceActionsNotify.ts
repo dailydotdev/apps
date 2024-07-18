@@ -7,7 +7,6 @@ import { LogEvent } from '../../lib/log';
 import { AuthTriggers } from '../../lib/auth';
 import { useNotificationPreferenceToggle } from '../notifications';
 import { useToastNotification } from '../useToastNotification';
-import { useToggle } from '../useToggle';
 
 export type UseSourceSubscriptionProps = {
   source: Pick<Source, 'id'>;
@@ -15,19 +14,16 @@ export type UseSourceSubscriptionProps = {
 
 export type UseSourceSubscription = {
   haveNotifications: boolean;
-  isFollowing: boolean;
   isReady: boolean;
-  onFollowing: () => void;
   onNotify: () => Promise<void>;
 };
 
-export const useSourceSubscription = ({
+export const useSourceActionsNotify = ({
   source,
 }: UseSourceSubscriptionProps): UseSourceSubscription => {
   const { logEvent } = useLogContext();
   const { isLoggedIn, showLogin } = useAuthContext();
   const { displayToast } = useToastNotification();
-  const [isFollowing, toggleFollow] = useToggle(false);
   const { haveNotifications, isReady, onToggle } =
     useNotificationPreferenceToggle({
       params: source?.id
@@ -65,34 +61,9 @@ export const useSourceSubscription = ({
     );
   }, [isLoggedIn, onToggle, showLogin, source?.id, logEvent, displayToast]);
 
-  const onFollowing = useCallback(() => {
-    const wasFollowing = isFollowing;
-
-    // todo: handle errors (and show it with a toast?)
-    toggleFollow();
-
-    // log for analytics
-    logEvent({
-      event_name: wasFollowing
-        ? LogEvent.UnfollowSource
-        : LogEvent.FollowSource,
-      target_id: source.id,
-    });
-
-    // toast notification
-    // todo: update source.id with source.name
-    displayToast(
-      wasFollowing
-        ? `⛔️ You are now unsubscribed to ${source.id}`
-        : `✅ You are now subscribed to ${source.id}`,
-    );
-  }, [isFollowing, toggleFollow]);
-
   return {
-    isFollowing,
     haveNotifications,
     isReady,
-    onFollowing,
     onNotify,
   };
 };

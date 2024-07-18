@@ -5,7 +5,7 @@ import { BellAddIcon, BellSubscribedIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips';
 import { Source } from '../../graphql/sources';
 import { isTesting } from '../../lib/constants';
-import { useSourceSubscription } from '../../hooks';
+import { useSourceActionsNotify } from '../../hooks';
 import { useAuthContext } from '../../contexts/AuthContext';
 
 export type SourceSubscribeButtonProps = {
@@ -67,7 +67,7 @@ const SourceSubscribeButton = ({
 }: SourceSubscribeButtonProps): ReactElement => {
   const { isLoggedIn } = useAuthContext();
   const { isFollowing, haveNotifications, onNotify, onFollowing, isReady } =
-    useSourceSubscription({
+    useSourceActionsNotify({
       source,
     });
 

@@ -33,7 +33,7 @@ import {
   ToastSubject,
   useConditionalFeature,
   useFeedLayout,
-  useSourceSubscription,
+  useSourceActionsNotify,
   useToastNotification,
 } from '../hooks';
 import { AllFeedPages, generateQueryKey } from '../lib/query';
@@ -128,7 +128,7 @@ export default function PostOptionsMenu({
   const shouldShowSubscribe =
     isLoggedIn && !isSourceBlocked && post?.source?.type === SourceType.Machine;
 
-  const sourceSubscribe = useSourceSubscription({
+  const sourceSubscribe = useSourceActionsNotify({
     source: shouldShowSubscribe ? post?.source : undefined,
   });
 

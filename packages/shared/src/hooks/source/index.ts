@@ -1,2 +1,2 @@
 export * from './useSourceActions';
-export * from './useSourceSubscription';
+export * from './useSourceActionsNotify';
