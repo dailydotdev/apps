@@ -12,7 +12,7 @@ interface SourceActionsButton {
 }
 
 interface SourceActionsProps {
-  source: Source | Pick<Source, 'id'>;
+  source: Source;
 
   block?: SourceActionsButton;
   hideBlock?: boolean;

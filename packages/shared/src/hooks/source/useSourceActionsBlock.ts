@@ -6,7 +6,7 @@ import { Source } from '../../graphql/sources';
 import { useToastNotification } from '../useToastNotification';
 
 interface UseSourceActionsBlockProps {
-  source: Source | Pick<Source, 'id'>;
+  source: Source;
 }
 
 export function useSourceActionsBlock(props: UseSourceActionsBlockProps) {
@@ -31,10 +31,6 @@ export function useSourceActionsBlock(props: UseSourceActionsBlockProps) {
   });
 
   const toggleBlock = useCallback(async () => {
-    if (!('name' in source)) {
-      return;
-    }
-
     if (isBlocked) {
       await onUnblockSource({ source, requireLogin: true });
       displayToast('✅ Source unblocked');

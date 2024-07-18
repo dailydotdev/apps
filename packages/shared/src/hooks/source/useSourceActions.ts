@@ -7,7 +7,7 @@ import { useSourceActionsNotify } from './useSourceActionsNotify';
 import { useSourceActionsFollow } from './useSourceActionsFollow';
 
 interface UseSourceActionsProps {
-  source: Source | Pick<Source, 'id'>;
+  source: Source;
 }
 
 export const useSourceActions = (props: UseSourceActionsProps) => {

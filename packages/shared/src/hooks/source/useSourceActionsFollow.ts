@@ -1,12 +1,13 @@
 import { useCallback } from 'react';
 import { Source } from '../../graphql/sources';
 import { useToggle } from '../useToggle';
-import { LogEvent } from '../../lib/log';
+import { LogEvent, Origin } from '../../lib/log';
 import { useToastNotification } from '../useToastNotification';
 import { useLogContext } from '../../contexts/LogContext';
+import useTagAndSource from '../useTagAndSource';
 
 export type UseSourceActionsFollowProps = {
-  source: Pick<Source, 'id'>;
+  source: Source;
 };
 
 export interface UseSourceActionsFollow {
@@ -21,12 +22,20 @@ export function useSourceActionsFollow(
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
 
-  const [isFollowing, toggle] = useToggle(false);
+  const [isFollowing, toggleIsFollowing] = useToggle(false);
+  const { onFollowSource, onUnfollowSource } = useTagAndSource({
+    origin: Origin.SourcePage,
+  });
+
   const toggleFollow = useCallback(() => {
     const wasFollowing = isFollowing;
 
     // todo: handle errors (and show it with a toast?)
-    toggle();
+    if (wasFollowing) {
+      onUnfollowSource({ source, requireLogin: true });
+    } else {
+      onFollowSource({ source, requireLogin: true });
+    }
 
     // log for analytics
     logEvent({
@@ -43,7 +52,7 @@ export function useSourceActionsFollow(
         ? `⛔️ You are now unsubscribed to ${source.id}`
         : `✅ You are now subscribed to ${source.id}`,
     );
-  }, [isFollowing, toggle]);
+  }, [isFollowing, toggleIsFollowing]);
 
   return {
     isFollowing,

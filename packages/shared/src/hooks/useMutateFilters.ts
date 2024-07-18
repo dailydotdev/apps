@@ -170,6 +170,7 @@ export default function useMutateFilters(
       const {
         blockedTags = [],
         excludeSources = [],
+        includeSources = [],
         includeTags = [],
       } = filters ?? {};
       const fixed: typeof filters = {
@@ -416,6 +417,7 @@ export default function useMutateFilters(
         queryClient,
         (feedSettings, manipulateSource) => {
           const newData = cloneDeep(feedSettings);
+          console.log({ newData });
           newData.includeSources.push(manipulateSource);
           return newData;
         },

@@ -17,6 +17,7 @@ import EnableNotification from '../notifications/EnableNotification';
 import { NotificationPromptSource } from '../../lib/log';
 import { useSourceActionsNotify } from '../../hooks';
 import { SourceActions } from '../sources/SourceActions';
+import { Source } from '../../graphql/sources';
 
 interface PostAuthorProps {
   post: Post;
@@ -31,18 +32,14 @@ enum UserType {
 
 const StyledImage = classed(LazyImage, 'w-10 h-10');
 
-interface SourceAuthorProps {
-  id?: string;
-  handle?: string;
-  image: string;
-  name: string;
-  username?: string;
-  userType?: UserType;
-  permalink: string;
-  reputation?: number;
-}
+type SourceAuthorProps =
+  | ({ userType: UserType.Author } & CommentAuthor)
+  | ({
+      userType: UserType.Source;
+    } & Source)
+  | ({ userType: UserType.Scout } & CommentAuthor);
 
-interface UserHighlightProps extends SourceAuthorProps {
+type UserHighlightProps = SourceAuthorProps & {
   allowSubscribe?: boolean;
   showReputation?: boolean;
   className?: {
@@ -53,11 +50,11 @@ interface UserHighlightProps extends SourceAuthorProps {
     reputation?: string;
     handle?: string;
   };
-}
+};
 
-interface ImageProps extends SourceAuthorProps {
+type ImageProps = SourceAuthorProps & {
   className?: string;
-}
+};
 
 const getUserIcon = (userType: UserType) => {
   if (userType === UserType.Source) {
@@ -106,18 +103,19 @@ const Image = (props: ImageProps) => {
 };
 
 export const UserHighlight = (props: UserHighlightProps): ReactElement => {
+  const { userType, ...source } = props;
   const {
     id,
-    handle,
     name,
-    username,
     permalink,
-    userType = UserType.Source,
-    reputation,
     allowSubscribe = true,
     className,
     showReputation = false,
-  } = props;
+  } = source;
+
+  const typeHandle = 'handle' in source ? source.handle : source.username;
+  const reputation = 'reputation' in source ? source.reputation : NaN;
+
   const Icon = getUserIcon(userType);
   const isUserTypeSource = userType === UserType.Source;
   const { feedSettings } = useFeedSettings();
@@ -194,7 +192,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
               />
             )}
           </div>
-          {(handle || username || id) && (
+          {(typeHandle || id) && (
             <ProfileLink
               className={classNames(
                 'mt-0.5 !block truncate text-text-tertiary typo-footnote',
@@ -202,18 +200,21 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
               )}
               href={permalink}
             >
-              @{handle || username || id}
+              @{typeHandle || id}
             </ProfileLink>
           )}
         </div>
       </ConditionalWrapper>
-      {!isSourceBlocked && isUserTypeSource && allowSubscribe && (
-        <SourceActions
-          hideBlock
-          source={{ id }}
-          block={{ className: 'ml-2', variant: ButtonVariant.Secondary }}
-        />
-      )}
+      {!isSourceBlocked &&
+        isUserTypeSource &&
+        allowSubscribe &&
+        'handle' in source && (
+          <SourceActions
+            hideBlock
+            source={source}
+            block={{ className: 'ml-2', variant: ButtonVariant.Secondary }}
+          />
+        )}
     </div>
   );
 };
@@ -221,11 +222,11 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
 const EnableNotificationSourceSubscribe = ({
   source,
 }: Pick<Post, 'source'>) => {
-  const { isSubscribed } = useSourceActionsNotify({
+  const { haveNotifications } = useSourceActionsNotify({
     source,
   });
 
-  if (!isSubscribed) {
+  if (!haveNotifications) {
     return null;
   }
 
