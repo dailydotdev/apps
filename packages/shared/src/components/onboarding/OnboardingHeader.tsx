@@ -46,7 +46,8 @@ export const OnboardingHeader = ({
             position={LogoPosition.Relative}
             linkDisabled
           />
-          {activeScreen === OnboardingStep.EditTag && (
+          {(activeScreen === OnboardingStep.EditTag ||
+            activeScreen === OnboardingStep.ContentTypes) && (
             <CreateFeedButton onClick={onClickCreateFeed} />
           )}
         </div>
