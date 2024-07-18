@@ -13,6 +13,7 @@ type OnboardingHeaderProps = {
   setAuth: Dispatch<SetStateAction<AuthProps>>;
   onClickCreateFeed: () => void;
   activeScreen: OnboardingStep;
+  customActionName?: string;
 };
 
 export const OnboardingHeader = ({
@@ -20,6 +21,7 @@ export const OnboardingHeader = ({
   activeScreen,
   setAuth,
   onClickCreateFeed,
+  customActionName,
 }: OnboardingHeaderProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -48,7 +50,10 @@ export const OnboardingHeader = ({
           />
           {(activeScreen === OnboardingStep.EditTag ||
             activeScreen === OnboardingStep.ContentTypes) && (
-            <CreateFeedButton onClick={onClickCreateFeed} />
+            <CreateFeedButton
+              onClick={onClickCreateFeed}
+              customActionName={customActionName}
+            />
           )}
         </div>
       </header>

@@ -8,16 +8,21 @@ import { REQUIRED_TAGS_THRESHOLD } from './common';
 
 export type CreateFeedButtonProps = {
   className?: string;
+  customActionName?: string;
 } & Pick<HTMLAttributes<ButtonElementType<'button'>>, 'onClick'>;
 
 export const CreateFeedButton = ({
   className,
   onClick,
+  customActionName,
 }: CreateFeedButtonProps): ReactElement => {
   const { feedSettings } = useFeedSettings();
   const tagsCount = feedSettings?.includeTags?.length || 0;
   const canCreateFeed = tagsCount >= REQUIRED_TAGS_THRESHOLD;
   const { sidebarRendered } = useSidebarRendered();
+  const buttonName =
+    customActionName ??
+    `Create ${!sidebarRendered ? '' : 'personalized'} feed ➔`;
 
   return (
     <SimpleTooltip
@@ -33,7 +38,7 @@ export const CreateFeedButton = ({
           disabled={!canCreateFeed}
           onClick={onClick}
         >
-          Create {!sidebarRendered ? '' : 'personalized'} feed ➔
+          {buttonName}
         </Button>
       </div>
     </SimpleTooltip>

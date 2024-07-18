@@ -175,6 +175,19 @@ export function OnboardPage(): ReactElement {
   ]);
 
   const onClickCreateFeed = () => {
+    if (activeScreen === OnboardingStep.EditTag) {
+      const onboardingContentType = getFeatureValue(
+        feature.onboardingContentType,
+      );
+
+      if (onboardingContentType) {
+        shouldEnrollContentType.current = true;
+        return onClickNext();
+      }
+    } else if (activeScreen === OnboardingStep.ContentTypes) {
+      shouldEnrollContentType.current = false;
+    }
+
     const onboardingChecklist = getFeatureValue(feature.onboardingChecklist);
 
     if (onboardingChecklist) {
@@ -184,7 +197,7 @@ export function OnboardPage(): ReactElement {
       });
     }
 
-    onClickNext();
+    return onClickNext();
   };
 
   const onSuccessfulLogin = () => {
@@ -260,25 +273,6 @@ export function OnboardPage(): ReactElement {
     );
   };
 
-  const checkExperimentsAndContinue = () => {
-    if (activeScreen === OnboardingStep.EditTag) {
-      const onboardingContentType = getFeatureValue(
-        feature.onboardingContentType,
-      );
-
-      if (onboardingContentType) {
-        shouldEnrollContentType.current = true;
-        return onClickNext();
-      }
-
-      return onClickCreateFeed();
-    }
-    if (activeScreen === OnboardingStep.ContentTypes) {
-      shouldEnrollContentType.current = false;
-    }
-    return onClickCreateFeed();
-  };
-
   const getContent = (): ReactElement => {
     if (isAuthenticating && activeScreen === OnboardingStep.Intro) {
       return getAuthOptions();
@@ -303,17 +297,10 @@ export function OnboardPage(): ReactElement {
           <EditTag
             feedSettings={feedSettings}
             userId={user?.id}
-            onClick={checkExperimentsAndContinue}
+            onClick={onClickCreateFeed}
           />
         )}
-        {activeScreen === OnboardingStep.ContentTypes && (
-          <ContentTypes
-            onClick={() => {
-              shouldEnrollContentType.current = false;
-              checkExperimentsAndContinue();
-            }}
-          />
-        )}
+        {activeScreen === OnboardingStep.ContentTypes && <ContentTypes />}
         {activeScreen === OnboardingStep.Intro &&
           !onboardingVisual.fullBackground && (
             <div className="block flex-1">
@@ -388,7 +375,12 @@ export function OnboardPage(): ReactElement {
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}
         setAuth={setAuth}
-        onClickCreateFeed={checkExperimentsAndContinue}
+        customActionName={
+          activeScreen === OnboardingStep.EditTag && shouldEnrollContentType
+            ? 'Continue'
+            : undefined
+        }
+        onClickCreateFeed={onClickCreateFeed}
         activeScreen={activeScreen}
       />
       <div

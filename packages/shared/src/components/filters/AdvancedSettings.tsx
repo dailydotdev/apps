@@ -12,6 +12,7 @@ const ADVANCED_SETTINGS_KEY = 'advancedSettings';
 function AdvancedSettingsFilter(): ReactElement {
   const { advancedSettings, isLoading, feedSettings } = useFeedSettings();
   const { selectedSettings, onToggleSettings } = useAdvancedSettings();
+  console.log('advancedSettings', advancedSettings);
   const sourceList = useMemo(
     () =>
       advancedSettings?.filter(
