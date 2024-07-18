@@ -26,8 +26,3 @@ export interface FeatureTheme {
 
   [key: string]: number | FeatureThemeVariant | string | undefined;
 }
-
-export enum SeoSidebarExperiment {
-  Control = 'control',
-  V1 = 'v1',
-}

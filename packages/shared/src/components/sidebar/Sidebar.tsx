@@ -16,9 +16,8 @@ import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
 import AuthContext from '../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import {
-  ContributeSection,
   DiscoverSection,
-  ManageSection,
+  ActivitySection,
   MobileMenuIcon,
   MyFeedButton,
   SidebarBottomSection,
@@ -59,8 +58,6 @@ import { webappUrl } from '../../lib/constants';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { cloudinary } from '../../lib/image';
 import { ActionType } from '../../graphql/actions';
-import { useFeature } from '../GrowthBookProvider';
-import { SeoSidebarExperiment } from '../../lib/featureValues';
 import { feature } from '../../lib/featureManagement';
 
 const SidebarOnboardingChecklistCard = dynamic(
@@ -95,7 +92,6 @@ export default function Sidebar({
   const isTablet = useViewSize(ViewSize.Tablet);
   const featureTheme = useFeatureTheme();
   const { checkHasCompleted, isActionsFetched } = useActions();
-  const seoSidebar = useFeature(feature.seoSidebar);
   const { value: mobileExploreTab } = useConditionalFeature({
     feature: feature.mobileExploreTab,
     shouldEvaluate: !isLaptop,
@@ -321,10 +317,7 @@ export default function Sidebar({
               enableSearch={enableSearch}
               isItemsButton={isNavButtons}
             />
-            {seoSidebar === SeoSidebarExperiment.Control && (
-              <ContributeSection {...defaultRenderSectionProps} />
-            )}
-            <ManageSection
+            <ActivitySection
               {...defaultRenderSectionProps}
               isDndActive={dndActive}
               showDnd={showDnd}

@@ -24,9 +24,16 @@ const sortableFeeds: AllFeedPages[] = [
   SharedFeedPage.MyFeed,
 ];
 
-const customFeeds: string[] = [
+const customFeeds: AllFeedPages[] = [
   SharedFeedPage.Custom,
   SharedFeedPage.CustomForm,
+];
+
+const explorePages: AllFeedPages[] = [
+  OtherFeedPage.Explore,
+  OtherFeedPage.ExploreLatest,
+  OtherFeedPage.ExploreUpvoted,
+  OtherFeedPage.ExploreDiscussed,
 ];
 
 export const useFeedName = ({ feedName }: UseFeedNameProps): UseFeedName => {
@@ -34,7 +41,7 @@ export const useFeedName = ({ feedName }: UseFeedNameProps): UseFeedName => {
     isUpvoted: feedName === SharedFeedPage.Upvoted,
     isPopular: feedName === SharedFeedPage.Popular,
     isSearch: feedName?.startsWith(SharedFeedPage.Search),
-    isAnyExplore: feedName?.startsWith(OtherFeedPage.Explore),
+    isAnyExplore: explorePages.includes(feedName),
     isExplorePopular: feedName === OtherFeedPage.Explore,
     isExploreLatest: feedName === OtherFeedPage.ExploreLatest,
     isExploreUpvoted: feedName === OtherFeedPage.ExploreUpvoted,

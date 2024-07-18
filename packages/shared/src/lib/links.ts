@@ -43,3 +43,13 @@ export const link = {
     defaultUrl: 'https://daily.dev',
   },
 };
+
+export const getPathnameWithQuery = (
+  pathname: string,
+  params: URLSearchParams | string,
+): string => {
+  const searchParams = new URLSearchParams(params);
+  const queryString = searchParams.toString();
+
+  return `${pathname}${queryString ? `?${queryString}` : ''}`;
+};

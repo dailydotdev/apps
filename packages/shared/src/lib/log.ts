@@ -106,6 +106,8 @@ export enum LogEvent {
   // bookmark - start
   BookmarkPost = 'bookmark post',
   RemovePostBookmark = 'remove post bookmark',
+  SetBookmarkReminder = 'set bookmark reminder',
+  RemoveBookmarkReminder = 'remove bookmark reminder',
   // bookmark - end
   ReportComment = 'report comment',
   // search start

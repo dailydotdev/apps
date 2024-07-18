@@ -117,7 +117,6 @@ export function OnboardPage(): ReactElement {
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
-  const shouldEnrollInReadingReminder = useRef(false);
   const shouldEnrollContentType = useRef(false);
 
   const onClickNext = useCallback(() => {
@@ -137,15 +136,11 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.ContentTypes);
     }
 
-    const showReadingReminderFromEditTag =
-      activeScreen === OnboardingStep.EditTag &&
-      shouldEnrollInReadingReminder.current;
-
-    const showReadingReminderFromCustomTypes =
-      activeScreen === OnboardingStep.ContentTypes &&
-      shouldEnrollInReadingReminder.current;
-
-    if (showReadingReminderFromEditTag || showReadingReminderFromCustomTypes) {
+    if (
+      (activeScreen === OnboardingStep.EditTag ||
+        activeScreen === OnboardingStep.ContentTypes) &&
+      isMobile
+    ) {
       return setActiveScreen(OnboardingStep.ReadingReminder);
     }
 
@@ -169,7 +164,7 @@ export function OnboardPage(): ReactElement {
     });
   }, [
     activeScreen,
-    shouldEnrollInReadingReminder,
+    isMobile,
     shouldEnrollContentType,
     hasSelectTopics,
     logEvent,
@@ -274,25 +269,10 @@ export function OnboardPage(): ReactElement {
         return onClickNext();
       }
 
-      const readingReminder =
-        isMobile && getFeatureValue(feature.readingReminder);
-
-      if (readingReminder) {
-        shouldEnrollInReadingReminder.current = true;
-        return onClickNext();
-      }
       return onClickCreateFeed();
     }
     if (activeScreen === OnboardingStep.ContentTypes) {
       shouldEnrollContentType.current = false;
-
-      const readingReminder =
-        isMobile && getFeatureValue(feature.readingReminder);
-      if (readingReminder) {
-        shouldEnrollInReadingReminder.current = true;
-        return onClickNext();
-      }
-      return onClickCreateFeed();
     }
     return onClickCreateFeed();
   };

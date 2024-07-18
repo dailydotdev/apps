@@ -10,8 +10,11 @@ import { useToastNotification } from '../useToastNotification';
 import { updatePostCache } from '../usePostById';
 import { ActiveFeedContext } from '../../contexts';
 import { updateCachedPagePost } from '../../lib/query';
-import { optimisticPostUpdateInFeed } from '../../lib/feed';
+import { optimisticPostUpdateInFeed, postLogEvent } from '../../lib/feed';
 import { EmptyResponse } from '../../graphql/emptyResponse';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent } from '../../lib/log';
+import { Post } from '../../graphql/posts';
 
 export enum ReminderPreference {
   OneHour = 'In 1 hour',
@@ -59,14 +62,21 @@ export const getRemindAt = (
   }
 };
 
-export const useBookmarkReminder = (): UseBookmarkReminder => {
+interface UseBookmarkReminderProps {
+  post: Post;
+}
+
+export const useBookmarkReminder = ({
+  post,
+}: UseBookmarkReminderProps): UseBookmarkReminder => {
   const client = useQueryClient();
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
 
   const onUpdateCache = (postId: string, remindAt?: Date) => {
-    updatePostCache(client, postId, (post) => ({
-      bookmark: { ...post.bookmark, remindAt },
+    updatePostCache(client, postId, (_post) => ({
+      bookmark: { ..._post.bookmark, remindAt },
     }));
 
     if (feedQueryKey) {
@@ -117,19 +127,29 @@ export const useBookmarkReminder = (): UseBookmarkReminder => {
         throw new Error('Invalid preference');
       }
 
+      logEvent(
+        postLogEvent(LogEvent.SetBookmarkReminder, post, {
+          extra: { remind_in: preference },
+        }),
+      );
+
       return onSetBookmarkReminder({
         ...props,
         remindAt: getRemindAt(now, preference),
       });
     },
-    [onSetBookmarkReminder],
+    [logEvent, onSetBookmarkReminder, post],
   );
 
   return {
     onBookmarkReminder,
     onRemoveReminder: useCallback(
-      (postId) => onUndoReminder({ postId, remindAt: null }),
-      [onUndoReminder],
+      (postId) => {
+        logEvent(postLogEvent(LogEvent.RemoveBookmarkReminder, post));
+
+        return onUndoReminder({ postId, remindAt: null });
+      },
+      [logEvent, onUndoReminder, post],
     ),
   };
 };

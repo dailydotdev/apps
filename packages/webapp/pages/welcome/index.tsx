@@ -30,6 +30,8 @@ import classNames from 'classnames';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { authGradientBg } from '@dailydotdev/shared/src/components/auth';
 import { useQueryClient } from '@tanstack/react-query';
+import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
+import { OnboardingLogs } from '@dailydotdev/shared/src/components/auth/OnboardingLogs';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
@@ -45,7 +47,8 @@ const seo: NextSeoProps = {
 const DemoPage = (): ReactElement => {
   useScrollRestoration();
   const router = useRouter();
-  const { user, showLogin, isAuthReady, isLoggedIn } = useAuthContext();
+  const { user, showLogin, isAuthReady, isLoggedIn, anonymous } =
+    useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const queryClient = useQueryClient();
 
@@ -64,13 +67,15 @@ const DemoPage = (): ReactElement => {
 
   useEffect(() => {
     if (isLaptop) {
-      router.replace(onboardingUrl);
+      router.replace(
+        getPathnameWithQuery(onboardingUrl, window.location.search),
+      );
     }
   }, [isLaptop, router]);
 
   useEffect(() => {
     if (isAuthReady && isLoggedIn) {
-      router.replace(webappUrl);
+      router.replace(getPathnameWithQuery(webappUrl, window.location.search));
     }
   }, [isAuthReady, isLoggedIn, router]);
 
@@ -81,9 +86,13 @@ const DemoPage = (): ReactElement => {
   const hasData = !!queryClient.getQueryData(feedProps.feedQueryKey);
   const showSignupFooter = didScroll || hasData;
 
+  const instanceId = router.query?.aiid?.toString();
+  const userId = user?.id || anonymous?.id;
+
   return (
     <>
       <NextSeo {...seo} />
+      <OnboardingLogs userId={userId} instanceId={instanceId} />
       <div
         className={classNames(
           'sticky top-0 z-header flex h-12 w-full justify-between border-b border-accent-cabbage-default px-4 py-2',
