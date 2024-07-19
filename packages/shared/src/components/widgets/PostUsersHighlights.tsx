@@ -212,9 +212,12 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
         allowSubscribe &&
         'handle' in source && (
           <SourceActions
+            followProps={{
+              className: 'ml-2',
+              variant: ButtonVariant.Secondary,
+            }}
             hideBlock
             source={source}
-            block={{ className: 'ml-2', variant: ButtonVariant.Secondary }}
           />
         )}
     </div>

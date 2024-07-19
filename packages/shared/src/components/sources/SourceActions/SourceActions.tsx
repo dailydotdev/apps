@@ -13,22 +13,25 @@ interface SourceActionsButton {
 
 interface SourceActionsProps {
   source: Source;
-
-  block?: SourceActionsButton;
+  // block action
+  blockProps?: SourceActionsButton;
   hideBlock?: boolean;
-
+  // follow action
+  followProps?: SourceActionsButton;
   hideFollow?: boolean;
-
-  subscribe?: SourceActionsButton;
-  hideSubscribe?: boolean;
+  // notify action
+  notifyProps?: SourceActionsButton;
+  hideNotify?: boolean;
 }
 
 export const SourceActions = ({
-  source,
-  subscribe,
-  hideSubscribe = false,
+  blockProps,
+  followProps,
   hideBlock = false,
   hideFollow = false,
+  hideNotify = false,
+  source,
+  notifyProps,
 }: SourceActionsProps): ReactElement => {
   const {
     isBlocked,
@@ -44,7 +47,7 @@ export const SourceActions = ({
   return (
     <>
       <div className="inline-flex flex-row gap-2">
-        {!hideSubscribe && !isBlocked && (
+        {!hideFollow && !isBlocked && (
           <SourceActionsFollow
             isFetching={false}
             isSubscribed={isFollowing}
@@ -52,17 +55,22 @@ export const SourceActions = ({
             variant={
               isFollowing ? ButtonVariant.Tertiary : ButtonVariant.Primary
             }
-            {...subscribe}
+            {...followProps}
           />
         )}
-        {!hideFollow && isFollowing && (
+        {!hideNotify && isFollowing && (
           <SourceActionsNotify
             haveNotifications={haveNotifications}
             onClick={toggleNotify}
+            {...notifyProps}
           />
         )}
         {!hideBlock && !isFollowing && (
-          <SourceActionsBlock isBlocked={isBlocked} onClick={toggleBlock} />
+          <SourceActionsBlock
+            isBlocked={isBlocked}
+            onClick={toggleBlock}
+            {...blockProps}
+          />
         )}
       </div>
     </>

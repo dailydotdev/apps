@@ -478,7 +478,7 @@ export default function useMutateFilters(
         (feedSettings, manipulateSource) => {
           const newData = cloneDeep(feedSettings);
           newData.includeSources = newData.includeSources.filter(
-            (s) => s.id !== manipulateSource.id,
+            (s) => s.id !== manipulateSource?.id,
           );
           return newData;
         },
@@ -493,7 +493,7 @@ export default function useMutateFilters(
       await removeFiltersRemote(
         { source, key: 'includeSources' },
         {
-          onSuccess: onUnfollowSource,
+          onSuccess: () => onUnfollowSource({ source }),
         },
       );
     },
