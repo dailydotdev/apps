@@ -61,7 +61,7 @@ export const useSourceActionsNotify = ({
         ? `✅ You'll get notified every time ${displayName} posts`
         : `⛔️ You'll no longer get notified about ${displayName} posts`,
     );
-  }, [isLoggedIn, onToggle, showLogin, source?.id, logEvent, displayToast]);
+  }, [source, isLoggedIn, onToggle, logEvent, displayToast, showLogin]);
 
   return {
     haveNotifications,
