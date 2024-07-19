@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import { useOnboardingContext } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
 import classNames from 'classnames';
@@ -121,7 +115,7 @@ export function OnboardPage(): ReactElement {
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
   const shouldEnrollContentType = useRef(false);
 
-  const onClickNext = useCallback(() => {
+  const onClickNext = () => {
     logEvent({
       event_name: LogEvent.ClickOnboardingNext,
       extra: JSON.stringify({ screen_value: activeScreen }),
@@ -164,15 +158,7 @@ export function OnboardPage(): ReactElement {
         ua: 'true',
       },
     });
-  }, [
-    activeScreen,
-    isMobile,
-    shouldEnrollContentType,
-    hasSelectTopics,
-    logEvent,
-    onShouldUpdateFilters,
-    router,
-  ]);
+  };
 
   const onClickCreateFeed = () => {
     if (activeScreen === OnboardingStep.EditTag) {

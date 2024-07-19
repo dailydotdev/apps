@@ -5,7 +5,8 @@ import { SimpleTooltip } from '../tooltips';
 import { isTesting } from '../../lib/constants';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { OnboardingStep, REQUIRED_TAGS_THRESHOLD } from './common';
-import { useAdvancedSettings, useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks';
+import { useContentTypesOnboarding } from '../auth/OnboardingSteps/ContentTypes/useContentTypesOnboarding';
 
 export type CreateFeedButtonProps = {
   className?: string;
@@ -20,9 +21,9 @@ export const CreateFeedButton = ({
   activeScreen,
 }: CreateFeedButtonProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { feedSettings, contentSourceList, contentCurationList, videoSetting } =
-    useFeedSettings();
-  const { selectedSettings, checkSourceBlocked } = useAdvancedSettings();
+  const { contentTypeNotEmpty: contentTypeNotEmptyProp } =
+    useContentTypesOnboarding();
+  const { feedSettings } = useFeedSettings();
 
   const contentTypeStep = activeScreen === OnboardingStep.ContentTypes;
 
@@ -31,25 +32,7 @@ export const CreateFeedButton = ({
     tagsCount >= REQUIRED_TAGS_THRESHOLD &&
     activeScreen === OnboardingStep.EditTag;
 
-  const advancedSettingsExceptCommunity = [...contentCurationList];
-
-  if (videoSetting) {
-    advancedSettingsExceptCommunity.push(videoSetting);
-  }
-  const advancedSettingsExceptCommunitySelected =
-    !!advancedSettingsExceptCommunity
-      .map(({ id, defaultEnabledState }) => {
-        return selectedSettings[id] ?? defaultEnabledState;
-      })
-      .find((setting) => setting === true);
-
-  const sourceCommunitySelected = !!contentSourceList
-    .map(({ options }) => options.source)
-    .find((source) => !checkSourceBlocked(source));
-
-  const contentTypeNotEmpty =
-    (advancedSettingsExceptCommunitySelected || sourceCommunitySelected) &&
-    contentTypeStep;
+  const contentTypeNotEmpty = contentTypeNotEmptyProp && contentTypeStep;
 
   const canCreateFeed = tagsCountMatch || contentTypeNotEmpty;
   const { sidebarRendered } = useSidebarRendered();

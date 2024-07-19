@@ -1,7 +1,7 @@
 // TODO: move in a new component in shared if the onboardingContentType experiment is successful
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Checkbox } from '../../fields/Checkbox';
+import { Checkbox } from '../../../fields/Checkbox';
 
 interface CustomCheckboxProps {
   checked: boolean;
