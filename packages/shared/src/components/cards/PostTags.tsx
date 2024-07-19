@@ -24,7 +24,7 @@ export default function PostTags({ tags }: PostTagsProps): ReactElement {
     <div
       className={classNames(
         'flex min-h-px w-full items-center gap-2',
-        !isListMode && 'mx-2',
+        !isListMode && 'tablet:mx-2',
       )}
       ref={elementRef}
     >
