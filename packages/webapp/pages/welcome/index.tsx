@@ -1,6 +1,9 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import Feed, { FeedProps } from '@dailydotdev/shared/src/components/Feed';
-import { ANONYMOUS_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import {
+  ANONYMOUS_FEED_QUERY,
+  RankingAlgorithm,
+} from '@dailydotdev/shared/src/graphql/feed';
 import {
   OtherFeedPage,
   StaleTime,
@@ -9,12 +12,14 @@ import {
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   ViewSize,
+  useConditionalFeature,
   useEventListener,
   useScrollRestoration,
   useViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
 import {
+  isDevelopment,
   onboardingUrl,
   webappUrl,
 } from '@dailydotdev/shared/src/lib/constants';
@@ -32,6 +37,8 @@ import { authGradientBg } from '@dailydotdev/shared/src/components/auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { OnboardingLogs } from '@dailydotdev/shared/src/components/auth/OnboardingLogs';
+import { useFeaturesReadyContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
@@ -51,8 +58,16 @@ const DemoPage = (): ReactElement => {
     useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const queryClient = useQueryClient();
+  const { ready: featuresReady } = useFeaturesReadyContext();
+  const { value: feedVersion } = useConditionalFeature({
+    feature: feature.feedVersion,
+    shouldEvaluate: featuresReady,
+  });
 
-  const feedProps: FeedProps<void> = {
+  const feedProps: FeedProps<{
+    version: number;
+    ranking: RankingAlgorithm;
+  }> = {
     feedName: OtherFeedPage.Welcome,
     feedQueryKey: generateQueryKey(OtherFeedPage.Welcome, user),
     query: ANONYMOUS_FEED_QUERY,
@@ -62,6 +77,10 @@ const DemoPage = (): ReactElement => {
     showSearch: false,
     options: {
       staleTime: StaleTime.Default,
+    },
+    variables: {
+      version: isDevelopment ? 1 : feedVersion,
+      ranking: RankingAlgorithm.Popularity,
     },
   };
 
@@ -124,7 +143,7 @@ const DemoPage = (): ReactElement => {
           what&apos;s out there.
         </p>
       </div>
-      <Feed className={feedProps.className} {...feedProps} />
+      {featuresReady && <Feed className={feedProps.className} {...feedProps} />}
       {showSignupFooter && (
         <div className="mb-6 flex h-80 flex-col items-center justify-center gap-6 p-6">
           <h2 className="text-center font-bold text-text-primary typo-title1">
