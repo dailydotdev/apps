@@ -42,14 +42,14 @@ export function useSourceActionsBlock(
       });
 
       if (successful) {
-        displayToast('✅ Source unblocked');
+        displayToast(`✅ ${source.name} unblocked`);
       }
       return;
     }
 
     const { successful } = await onBlockSource({ source, requireLogin: true });
     if (successful) {
-      displayToast('⛔️ Source is now blocked');
+      displayToast(`⛔️ ${source.name} is now blocked`);
     }
   }, [displayToast, isBlocked, onBlockSource, onUnblockSource, source]);
 

@@ -38,14 +38,14 @@ export function useSourceActionsFollow(
         requireLogin: true,
       });
       if (successful) {
-        displayToast(`⛔️ You are now unsubscribed to ${source.id}`);
+        displayToast(`⛔️ You are now unsubscribed to ${source.name}`);
       }
       return;
     }
 
     const { successful } = await onFollowSource({ source, requireLogin: true });
     if (successful) {
-      displayToast(`✅ You are now subscribed to ${source.id}`);
+      displayToast(`✅ You are now subscribed to ${source.name}`);
     }
   }, [
     displayToast,

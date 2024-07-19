@@ -9,7 +9,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 
 export type SourceSubscribeButtonProps = {
   className?: string;
-  source: Pick<Source, 'id'>;
+  source: Source;
   variant?: ButtonVariant;
 };
 

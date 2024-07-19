@@ -11,7 +11,7 @@ interface SourceActionsButton {
   variant?: ButtonVariant;
 }
 
-interface SourceActionsProps {
+export interface SourceActionsProps {
   source: Source;
   // block action
   blockProps?: SourceActionsButton;

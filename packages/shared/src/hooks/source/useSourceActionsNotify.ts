@@ -9,7 +9,7 @@ import { useNotificationPreferenceToggle } from '../notifications';
 import { useToastNotification } from '../useToastNotification';
 
 export type UseSourceSubscriptionProps = {
-  source: Pick<Source, 'id'>;
+  source: Pick<Source, 'id'> | Source;
 };
 
 export type UseSourceSubscription = {
@@ -54,10 +54,12 @@ export const useSourceActionsNotify = ({
       target_id: source.id,
     });
 
+    const displayName = 'name' in source ? source.name : source?.id;
+
     displayToast(
       notifications.isSubscribed
-        ? `✅ You'll get notified every time ${source.id} posts`
-        : `⛔️ You'll no longer get notified about ${source.id} posts`,
+        ? `✅ You'll get notified every time ${displayName} posts`
+        : `⛔️ You'll no longer get notified about ${displayName} posts`,
     );
   }, [isLoggedIn, onToggle, showLogin, source?.id, logEvent, displayToast]);
 
