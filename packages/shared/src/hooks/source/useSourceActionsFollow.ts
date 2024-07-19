@@ -1,10 +1,10 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Source } from '../../graphql/sources';
-import { useToggle } from '../useToggle';
 import { LogEvent, Origin } from '../../lib/log';
 import { useToastNotification } from '../useToastNotification';
 import { useLogContext } from '../../contexts/LogContext';
 import useTagAndSource from '../useTagAndSource';
+import useFeedSettings from '../useFeedSettings';
 
 export type UseSourceActionsFollowProps = {
   source: Source;
@@ -22,7 +22,11 @@ export function useSourceActionsFollow(
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
 
-  const [isFollowing, toggleIsFollowing] = useToggle(false);
+  const { feedSettings } = useFeedSettings();
+  const isFollowing = useMemo(() => {
+    return !!feedSettings?.includeSources?.find(({ id }) => source?.id === id);
+  }, [feedSettings, source]);
+
   const { onFollowSource, onUnfollowSource } = useTagAndSource({
     origin: Origin.SourcePage,
   });
@@ -52,7 +56,14 @@ export function useSourceActionsFollow(
         ? `⛔️ You are now unsubscribed to ${source.id}`
         : `✅ You are now subscribed to ${source.id}`,
     );
-  }, [isFollowing, toggleIsFollowing]);
+  }, [
+    displayToast,
+    isFollowing,
+    logEvent,
+    onFollowSource,
+    onUnfollowSource,
+    source,
+  ]);
 
   return {
     isFollowing,

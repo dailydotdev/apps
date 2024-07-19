@@ -433,7 +433,7 @@ export default function useMutateFilters(
       await removeFiltersRemote(
         { source, key: 'excludeSources' },
         {
-          onSuccess: onUnblockSource,
+          onSuccess: () => onUnblockSource({ source }),
         },
       );
     },
@@ -454,6 +454,20 @@ export default function useMutateFilters(
         feedId,
       ),
     [user, queryClient, feedId],
+  );
+
+  const followSourceRemote = useCallback(
+    async ({ source }: SourceMutationProps) => {
+      await addFiltersRemote(
+        { source, key: 'includeSources' },
+        {
+          onSuccess: () => {
+            onFollowSource({ source });
+          },
+        },
+      );
+    },
+    [addFiltersRemote, onFollowSource],
   );
 
   const onUnfollowSource = useCallback(
@@ -523,7 +537,7 @@ export default function useMutateFilters(
       followTags: shouldFilterLocally ? onFollowTags : followTagsRemote,
       unfollowTags: shouldFilterLocally ? onUnfollowTags : unfollowTagsRemote,
       blockTag: shouldFilterLocally ? onBlockTags : blockTagRemote,
-      followSource: onFollowSource,
+      followSource: shouldFilterLocally ? onFollowSource : followSourceRemote,
       unfollowSource: shouldFilterLocally
         ? onUnfollowSource
         : unfollowSourceRemote,
