@@ -23,13 +23,10 @@ export function useSourceActionsBlock(
 
   const isBlocked = useMemo(() => {
     if (!feedSettings) {
-      return true;
+      return false;
     }
-    return (
-      feedSettings.excludeSources &&
-      feedSettings.excludeSources?.findIndex(
-        (excludedSource) => source?.id === excludedSource.id,
-      ) >= 0
+    return !!feedSettings.excludeSources?.find(
+      (excludedSource) => source?.id === excludedSource.id,
     );
   }, [feedSettings, source]);
 
@@ -39,13 +36,21 @@ export function useSourceActionsBlock(
 
   const toggleBlock = useCallback(async () => {
     if (isBlocked) {
-      await onUnblockSource({ source, requireLogin: true });
-      displayToast('✅ Source unblocked');
+      const { successful } = await onUnblockSource({
+        source,
+        requireLogin: true,
+      });
+
+      if (successful) {
+        displayToast('✅ Source unblocked');
+      }
       return;
     }
 
-    await onBlockSource({ source, requireLogin: true });
-    displayToast('⛔️ Source is now blocked');
+    const { successful } = await onBlockSource({ source, requireLogin: true });
+    if (successful) {
+      displayToast('⛔️ Source is now blocked');
+    }
   }, [displayToast, isBlocked, onBlockSource, onUnblockSource, source]);
 
   return {

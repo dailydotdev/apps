@@ -80,7 +80,11 @@ const createFeedMock = (
 const createSourcesSettingsMock = (
   feedSettings: FeedSettings = {
     excludeSources: [
-      { id: 'react', name: 'React', image: 'https://reactjs.org' },
+      {
+        id: 'react',
+        name: 'React',
+        image: 'https://reactjs.org',
+      },
     ],
   },
 ): MockedGraphQLResponse<AllTagCategoriesData> => ({
@@ -107,6 +111,7 @@ const renderComponent = (
     handle: 'react',
     permalink: 'permalink/react',
     type: SourceType.Machine,
+    public: true,
   },
 ): RenderResult => {
   client = new QueryClient();
@@ -212,7 +217,7 @@ it('should show login popup when logged-out on add to feed click', async () => {
   expect(showLogin).toBeCalledTimes(1);
 });
 
-it('should follow source', async () => {
+it('should activate notify from source', async () => {
   let mutationCalled = false;
   renderComponent();
   await waitFor(async () => {

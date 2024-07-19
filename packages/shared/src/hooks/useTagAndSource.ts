@@ -210,7 +210,7 @@ export default function useTagAndSource({
         return { successful: false };
       }
       logEvent({
-        event_name: 'follow',
+        event_name: 'unblock',
         target_type: 'source',
         target_id: source?.id,
         extra: JSON.stringify({ origin, post_id: postId }),
@@ -239,8 +239,9 @@ export default function useTagAndSource({
         showLogin({ trigger: origin as AuthTriggersType });
         return { successful: false };
       }
+
       logEvent({
-        event_name: 'unfollow',
+        event_name: 'block',
         target_type: 'source',
         target_id: source?.id,
         extra: JSON.stringify({ origin, post_id: postId }),

@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { Source } from '../../graphql/sources';
-import { LogEvent, Origin } from '../../lib/log';
+import { Origin } from '../../lib/log';
 import { useToastNotification } from '../useToastNotification';
 import { useLogContext } from '../../contexts/LogContext';
 import useTagAndSource from '../useTagAndSource';
@@ -31,31 +31,22 @@ export function useSourceActionsFollow(
     origin: Origin.SourcePage,
   });
 
-  const toggleFollow = useCallback(() => {
-    const wasFollowing = isFollowing;
-
-    // todo: handle errors (and show it with a toast?)
-    if (wasFollowing) {
-      onUnfollowSource({ source, requireLogin: true });
-    } else {
-      onFollowSource({ source, requireLogin: true });
+  const toggleFollow = useCallback(async () => {
+    if (isFollowing) {
+      const { successful } = await onUnfollowSource({
+        source,
+        requireLogin: true,
+      });
+      if (successful) {
+        displayToast(`⛔️ You are now unsubscribed to ${source.id}`);
+      }
+      return;
     }
 
-    // log for analytics
-    logEvent({
-      event_name: wasFollowing
-        ? LogEvent.UnfollowSource
-        : LogEvent.FollowSource,
-      target_id: source.id,
-    });
-
-    // toast notification
-    // todo: update source.id with source.name
-    displayToast(
-      wasFollowing
-        ? `⛔️ You are now unsubscribed to ${source.id}`
-        : `✅ You are now subscribed to ${source.id}`,
-    );
+    const { successful } = await onFollowSource({ source, requireLogin: true });
+    if (successful) {
+      displayToast(`✅ You are now subscribed to ${source.id}`);
+    }
   }, [
     displayToast,
     isFollowing,

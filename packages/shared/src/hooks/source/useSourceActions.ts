@@ -1,7 +1,4 @@
-import { useCallback } from 'react';
 import { Source } from '../../graphql/sources';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { AuthTriggers } from '../../lib/auth';
 import { useSourceActionsBlock } from './useSourceActionsBlock';
 import { useSourceActionsNotify } from './useSourceActionsNotify';
 import { useSourceActionsFollow } from './useSourceActionsFollow';
@@ -19,26 +16,13 @@ export const useSourceActions = (props: UseSourceActionsProps) => {
     source,
   });
 
-  const { isLoggedIn, showLogin } = useAuthContext();
-  const withAuthGuard = useCallback(
-    function guardedFunction(callback: () => void) {
-      if (!isLoggedIn) {
-        showLogin({ trigger: AuthTriggers.SourceSubscribe });
-        return () => null;
-      }
-
-      return callback.bind(null);
-    },
-    [isLoggedIn, showLogin],
-  );
-
   return {
     isBlocked,
-    toggleBlock: withAuthGuard(toggleBlock),
+    toggleBlock,
     isFollowing,
-    toggleFollow: withAuthGuard(toggleFollow),
+    toggleFollow,
     haveNotifications,
-    toggleNotify: withAuthGuard(onNotify),
+    toggleNotify: onNotify,
   };
 };
 
