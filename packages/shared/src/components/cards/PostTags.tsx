@@ -27,9 +27,7 @@ export default function PostTags({ tags }: PostTagsProps): ReactElement {
         setWidth(el.getBoundingClientRect().width);
       }}
     >
-      {list.map((tag) => (
-        <Chip key={tag}>#{tag}</Chip>
-      ))}
+      {width && list.map((tag) => <Chip key={tag}>#{tag}</Chip>)}
       {remainingTags > 0 && <Chip>+{remainingTags}</Chip>}
     </div>
   );
