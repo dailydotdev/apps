@@ -27,7 +27,7 @@ export interface LoginState {
   referral?: string;
   referralOrigin?: string;
   onLoginSuccess?: () => void;
-  onRegistrationSuccess?: () => void;
+  onRegistrationSuccess?: (user?: LoggedUser | AnonymousUser) => void;
   isLogin?: boolean;
 }
 
