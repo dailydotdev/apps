@@ -1,7 +1,6 @@
-import React, { ReactElement, useMemo, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { Post } from '../../graphql/posts';
 import Classed from '../../lib/classed';
-import { useFeedLayout } from '../../hooks';
 import { useFeedTags } from '../../hooks/feed/useFeedTags';
 
 type PostTagsProps = Pick<Post, 'tags'>;
@@ -12,30 +11,8 @@ const Chip = Classed(
 );
 
 export default function PostTags({ tags }: PostTagsProps): ReactElement {
-  const { isListMode } = useFeedLayout();
   const [width, setWidth] = useState(0);
-  const listModeTagsList = useFeedTags({ tags, width });
-  const tagList = useMemo(() => {
-    if (!tags) {
-      return [];
-    }
-
-    let totalLength = 0;
-    return tags.reduce((acc, tag) => {
-      totalLength += tag.length;
-      if (totalLength >= 12 && acc.length >= 2) {
-        return acc;
-      }
-      if (totalLength >= 18 && acc.length > 0) {
-        return acc;
-      }
-
-      acc.push(tag);
-      return acc;
-    }, []);
-  }, [tags]);
-
-  const list = isListMode ? listModeTagsList : tagList;
+  const list = useFeedTags({ tags, width });
   const tagsCount = tags?.length || 0;
   const remainingTags = tagsCount - list.length;
 
@@ -43,7 +20,7 @@ export default function PostTags({ tags }: PostTagsProps): ReactElement {
     <div
       className="flex w-full items-center gap-2"
       ref={(el) => {
-        if (!el || !isListMode) {
+        if (!el) {
           return;
         }
 
@@ -57,9 +34,7 @@ export default function PostTags({ tags }: PostTagsProps): ReactElement {
       {list.map((tag) => (
         <Chip key={tag}>#{tag}</Chip>
       ))}
-      {remainingTags > 0 && (
-        <Chip>{`+${remainingTags}${isListMode ? '' : ' tags'}`}</Chip>
-      )}
+      {remainingTags > 0 && <Chip>+{remainingTags}</Chip>}
     </div>
   );
 }

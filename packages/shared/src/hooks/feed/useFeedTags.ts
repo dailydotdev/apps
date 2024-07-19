@@ -9,7 +9,6 @@ const base = 25;
 const char = 8;
 const gap = 8;
 const baseWidth = base + gap;
-const plusCharacter = 1;
 
 export const useFeedTags = ({ tags, width }: UseFeedTags): string[] => {
   return useMemo(() => {
@@ -34,8 +33,7 @@ export const useFeedTags = ({ tags, width }: UseFeedTags): string[] => {
         return items;
       }
 
-      const total = remaining.toString().length + plusCharacter;
-      const remainingChars = total * char;
+      const remainingChars = remaining.toString().length * char;
       const remainingWidth = baseWidth + remainingChars;
 
       if (totalLength + remainingWidth > width) {
