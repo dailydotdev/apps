@@ -22,7 +22,7 @@ export const useFeedTags = ({ tags, width }: UseFeedTags): string[] => {
     return tags.reduce((items, tag, index) => {
       const minWidth = index === 0 ? base : baseWidth;
       const addition = tag.length * char + minWidth;
-      const remaining = tags.length - (items.length + plusCharacter);
+      const remaining = tags.length - (items.length + 1); // the value 1 is for the tag we are about to add here
 
       totalLength += addition;
 
@@ -34,7 +34,8 @@ export const useFeedTags = ({ tags, width }: UseFeedTags): string[] => {
         return items;
       }
 
-      const remainingChars = remaining.toString().length * char;
+      const total = remaining.toString().length + plusCharacter;
+      const remainingChars = total * char;
       const remainingWidth = baseWidth + remainingChars;
 
       if (totalLength + remainingWidth > width) {
