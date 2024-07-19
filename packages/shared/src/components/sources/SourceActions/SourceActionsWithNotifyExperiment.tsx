@@ -24,7 +24,7 @@ export interface SourceActionsProps {
   hideNotify?: boolean;
 }
 
-export const SourceActions = ({
+export const SourceActionsWithNotifyExperiment = ({
   blockProps,
   followProps,
   hideBlock = false,
@@ -77,4 +77,4 @@ export const SourceActions = ({
   );
 };
 
-export default SourceActions;
+export default SourceActionsWithNotifyExperiment;

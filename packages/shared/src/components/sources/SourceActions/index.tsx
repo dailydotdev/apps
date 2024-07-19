@@ -1,8 +1,8 @@
 import React from 'react';
 import {
-  SourceActions as SourceActionsWithNotifyExperiment,
+  SourceActionsWithNotifyExperiment,
   SourceActionsProps,
-} from './SourceActions';
+} from './SourceActionsWithNotifyExperiment';
 import { withExperiment } from '../../withExperiment';
 import { feature } from '../../../lib/featureManagement';
 import { SourceSubscribeButton } from '../SourceSubscribeButton';
@@ -10,14 +10,14 @@ import SourceActionsBlock from './SourceActionsBlock';
 import { useSourceActionsBlock } from '../../../hooks/source/useSourceActionsBlock';
 
 const SourceDefaultActions = (props: SourceActionsProps) => {
-  const { source, hideBlock, notifyProps } = props;
+  const { source, hideBlock, followProps } = props;
   const { isBlocked, toggleBlock } = useSourceActionsBlock({
     source,
   });
 
   return (
     <>
-      {!isBlocked && <SourceSubscribeButton source={source} {...notifyProps} />}
+      {!isBlocked && <SourceSubscribeButton source={source} {...followProps} />}
       {!hideBlock && (
         <SourceActionsBlock isBlocked={isBlocked} onClick={toggleBlock} />
       )}

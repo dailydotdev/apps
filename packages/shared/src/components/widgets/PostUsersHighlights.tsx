@@ -18,6 +18,7 @@ import { NotificationPromptSource } from '../../lib/log';
 import { useSourceActionsNotify } from '../../hooks';
 import { SourceActions } from '../sources/SourceActions';
 import { Source as ISource } from '../../graphql/sources';
+import { TruncateText } from '../utilities';
 
 interface PostAuthorProps {
   post: Post;
@@ -135,7 +136,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
   return (
     <div
       className={classNames(
-        'relative flex flex-row items-center p-3',
+        'relative flex flex-row items-center gap-4 p-3',
         className?.wrapper,
       )}
     >
@@ -172,19 +173,16 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
       >
         <div
           className={classNames(
-            'ml-4 flex min-w-0 flex-1 flex-col',
+            'flex min-w-0 flex-1 flex-col',
             className?.textWrapper,
           )}
         >
           <div className="flex">
             <ProfileLink
-              className={classNames(
-                'truncate font-bold typo-callout',
-                className?.name,
-              )}
+              className={classNames('font-bold typo-callout', className?.name)}
               href={permalink}
             >
-              {name}
+              <TruncateText>{name}</TruncateText>
             </ProfileLink>
 
             {(showReputation || !isUserTypeSource) && (
@@ -210,7 +208,6 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
       {!isSourceBlocked && isUserTypeSource && allowSubscribe && (
         <SourceActions
           followProps={{
-            className: 'ml-2',
             variant: ButtonVariant.Secondary,
           }}
           hideBlock
