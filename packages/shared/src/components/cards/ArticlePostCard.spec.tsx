@@ -6,12 +6,12 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
 import { ArticlePostCard } from './ArticlePostCard';
 import post from '../../../__tests__/fixture/post';
 import { PostCardProps, visibleOnGroupHover } from './common';
-import { AuthContextProvider } from '../../contexts/AuthContext';
 import { PostType } from '../../graphql/posts';
+import { TestBootProvider } from '../../../__tests__/helpers/boot';
 
 const defaultProps: PostCardProps = {
   post,
@@ -30,16 +30,9 @@ beforeEach(() => {
 
 const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
   return render(
-    <AuthContextProvider
-      user={null}
-      updateUser={jest.fn()}
-      tokenRefreshed={false}
-      getRedirectUri={jest.fn()}
-    >
-      <QueryClientProvider client={new QueryClient()}>
-        <ArticlePostCard {...defaultProps} {...props} />
-      </QueryClientProvider>
-    </AuthContextProvider>,
+    <TestBootProvider client={new QueryClient()}>
+      <ArticlePostCard {...defaultProps} {...props} />
+    </TestBootProvider>,
   );
 };
 
