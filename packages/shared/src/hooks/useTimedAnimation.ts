@@ -48,7 +48,7 @@ export const useTimedAnimation = ({
   const startAnimation = useCallback(
     (duration: number) => {
       if (interval.current) {
-        window.clearInterval(interval.current);
+        clearInterval();
       }
 
       setTimer(duration);
