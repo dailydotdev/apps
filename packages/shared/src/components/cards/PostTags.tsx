@@ -24,10 +24,7 @@ export default function PostTags({ tags }: PostTagsProps): ReactElement {
           return;
         }
 
-        const { width: elWidth } = el.getBoundingClientRect();
-
-        console.log('setting width: ', elWidth);
-        setWidth(elWidth);
+        setWidth(el.getBoundingClientRect().width);
       }}
     >
       {list.map((tag) => (
