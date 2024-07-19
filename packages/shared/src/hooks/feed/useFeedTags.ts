@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 interface UseFeedTags {
   tags: string[];
   width: number;
+  offset?: number;
 }
 
 const base = 25;
@@ -10,13 +11,17 @@ const char = 8;
 const gap = 8;
 const baseWidth = base + gap;
 
-export const useFeedTags = ({ tags, width }: UseFeedTags): string[] => {
+export const useFeedTags = ({
+  tags,
+  width,
+  offset = 0,
+}: UseFeedTags): string[] => {
   return useMemo(() => {
     if (!tags?.length || width === 0) {
       return [];
     }
 
-    let totalLength = 0;
+    let totalLength = offset;
 
     return tags.reduce((items, tag, index) => {
       const minWidth = index === 0 ? base : baseWidth;
@@ -44,5 +49,5 @@ export const useFeedTags = ({ tags, width }: UseFeedTags): string[] => {
 
       return items;
     }, []);
-  }, [tags, width]);
+  }, [tags, width, offset]);
 };
