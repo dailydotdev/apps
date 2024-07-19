@@ -26,7 +26,7 @@ export default function PostTags({ tags }: PostTagsProps): ReactElement {
 
         const { width: elWidth } = el.getBoundingClientRect();
 
-        console.log('setting width');
+        console.log('setting width: ', elWidth);
         setWidth(elWidth);
       }}
     >
