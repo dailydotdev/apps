@@ -6,6 +6,7 @@ import { Source } from '../../graphql/sources';
 import { isTesting } from '../../lib/constants';
 import { useSourceActionsNotify } from '../../hooks';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { BellSubscribedIcon } from '../icons';
 
 export type SourceSubscribeButtonProps = {
   className?: string;
@@ -50,11 +51,10 @@ const SourceSubscribeButtonSubscribed = ({
         className={className}
         size={ButtonSize.Small}
         variant={ButtonVariant.Tertiary}
+        icon={<BellSubscribedIcon />}
         disabled={isFetching}
         onClick={onClick}
-      >
-        Subscribed
-      </Button>
+      />
     </SimpleTooltip>
   );
 };
