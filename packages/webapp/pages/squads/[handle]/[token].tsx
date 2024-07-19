@@ -176,8 +176,8 @@ const SquadReferral = ({
       options: {
         referral: member.user.id,
         referralOrigin: ReferralOriginKey.Squad,
-        onLoginSuccess: onJoinSquad,
-        onRegistrationSuccess: onJoinSquad,
+        onLoginSuccess: () => onJoinSquad(),
+        onRegistrationSuccess: () => onJoinSquad(),
       },
     });
   };

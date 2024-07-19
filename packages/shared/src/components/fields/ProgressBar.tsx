@@ -5,6 +5,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 interface ClassName {
   wrapper?: string;
   bar?: string;
+  barColor?: string;
 }
 
 interface ProgressBarProps
@@ -35,8 +36,9 @@ export function ProgressBar({
     >
       <meter
         className={classNames(
-          'appearance-none bg-accent-cabbage-default transition-[width]',
+          'appearance-none transition-[width]',
           className?.bar,
+          className?.barColor ?? 'bg-accent-cabbage-default',
         )}
         style={{ width: `${percentage}%` }}
       />

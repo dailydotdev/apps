@@ -57,16 +57,14 @@ import {
 } from '@dailydotdev/shared/src/components/auth/OnboardingLogs';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
-import {
-  useConditionalFeature,
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { ReadingReminder } from '@dailydotdev/shared/src/components/auth/ReadingReminder';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
+import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -102,12 +100,6 @@ export function OnboardPage(): ReactElement {
   const { growthbook } = useGrowthBookContext();
   const { logEvent } = useLogContext();
   const [hasSelectTopics, setHasSelectTopics] = useState(false);
-  const [shouldEnrollInReadingReminder, setShouldEnrollInReadingReminder] =
-    useState(false);
-  const { value: showReadingReminder, isLoading } = useConditionalFeature({
-    feature: feature.readingReminder,
-    shouldEvaluate: shouldEnrollInReadingReminder,
-  });
   const [auth, setAuth] = useState<AuthProps>({
     isAuthenticating: !!storage.getItem(SIGNIN_METHOD_KEY) || shouldVerify,
     isLoginFlow: false,
@@ -142,7 +134,7 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.EditTag);
     }
 
-    if (activeScreen === OnboardingStep.EditTag && showReadingReminder) {
+    if (activeScreen === OnboardingStep.EditTag && isMobile) {
       return setActiveScreen(OnboardingStep.ReadingReminder);
     }
 
@@ -167,8 +159,6 @@ export function OnboardPage(): ReactElement {
   };
 
   const onClickCreateFeed = () => {
-    setShouldEnrollInReadingReminder(true);
-
     const onboardingChecklist = getFeatureValue(feature.onboardingChecklist);
 
     if (onboardingChecklist) {
@@ -177,20 +167,12 @@ export function OnboardPage(): ReactElement {
         onboardingChecklistView: ChecklistViewState.Open,
       });
     }
+
+    onClickNext();
   };
 
-  // Manual evaluation after feature is loaded to force next from the above onClickCreateFeed function
-  if (
-    !isLoading &&
-    activeScreen === OnboardingStep.EditTag &&
-    shouldEnrollInReadingReminder
-  ) {
-    onClickNext();
-    setShouldEnrollInReadingReminder(false);
-  }
-
   const onSuccessfulLogin = () => {
-    router.replace('/');
+    router.replace(getPathnameWithQuery(webappUrl, window.location.search));
   };
 
   const onSuccessfulRegistration = (userRefetched: LoggedUser) => {
@@ -206,7 +188,7 @@ export function OnboardPage(): ReactElement {
     }
 
     if (user) {
-      router.replace('/');
+      router.replace(getPathnameWithQuery(webappUrl, window.location.search));
       return;
     }
 

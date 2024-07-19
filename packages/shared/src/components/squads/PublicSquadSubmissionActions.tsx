@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { ReactElement, useCallback, useContext } from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { squadsPublicGuide } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
@@ -6,9 +6,13 @@ import { SquadStatus } from './settings';
 import { TimerIcon } from '../icons';
 import { usePublicSquadRequests } from '../../hooks';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import { PUBLIC_SQUAD_REQUEST_REQUIREMENT } from '../../lib/config';
+import {
+  PUBLIC_SQUAD_ADMIN_REPUTATION_REQUIREMENT,
+  PUBLIC_SQUAD_REQUEST_REQUIREMENT,
+} from '../../lib/config';
 import { LazyModal } from '../modals/common/types';
 import { Squad } from '../../graphql/sources';
+import AuthContext from '../../contexts/AuthContext';
 
 interface MinimalEditSquad {
   id: Squad['id'];
@@ -24,12 +28,17 @@ const PublicSquadSubmissionActions = (
   props: PublicSquadSubmissionActionsProps,
 ): ReactElement => {
   const { squad, isDetailsVisible = true } = props;
+  const { user } = useContext(AuthContext);
   const { isFetched, status } = usePublicSquadRequests({
     sourceId: squad?.id,
   });
   const { openModal } = useLazyModal();
   const postsCount = squad?.flags?.totalPosts ?? 0;
-  const isEligible = postsCount >= PUBLIC_SQUAD_REQUEST_REQUIREMENT;
+  const currentReputation = user?.reputation ?? 0;
+  const isPostEligible = postsCount >= PUBLIC_SQUAD_REQUEST_REQUIREMENT;
+  const isAdminEligable =
+    currentReputation >= PUBLIC_SQUAD_ADMIN_REPUTATION_REQUIREMENT;
+  const isEligible = isPostEligible && isAdminEligable;
 
   const onSubmit = useCallback(() => {
     if (!squad.id) {
