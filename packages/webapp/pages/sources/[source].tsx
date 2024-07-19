@@ -188,7 +188,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
           <h1 className="ml-2 w-fit typo-title2">{source.name}</h1>
         </div>
         <div className="flex flex-row gap-3">
-          <SourceActions source={source} subscribe={{}} block={{}} />
+          <SourceActions source={source} />
         </div>
         {source?.description && (
           <p className="typo-body">{source?.description}</p>

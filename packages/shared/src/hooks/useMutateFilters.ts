@@ -165,6 +165,41 @@ export default function useMutateFilters(
   const queryClient = useQueryClient();
   const shouldFilterLocally = shouldFilterLocallyProp || !user;
 
+  const { mutateAsync: removeFiltersRemote } = useMutation<
+    unknown,
+    unknown,
+    SourceMutationProps & { key?: string },
+    () => void
+  >(
+    ({ source, key = 'excludeSources' }) =>
+      gqlClient.request(REMOVE_FILTERS_FROM_FEED_MUTATION, {
+        filters: {
+          [key]: [source.id],
+        },
+      }),
+    {
+      // onMutate: onUnblockSource,
+      onError: (err, _, rollback) => rollback(),
+    },
+  );
+
+  const { mutateAsync: addFiltersRemote } = useMutation<
+    unknown,
+    unknown,
+    SourceMutationProps & { key?: string },
+    () => Promise<void>
+  >(
+    ({ source, key = 'excludeSources' }) =>
+      gqlClient.request(ADD_FILTERS_TO_FEED_MUTATION, {
+        filters: {
+          [key]: [source.id],
+        },
+      }),
+    {
+      onError: (err, _, rollback) => rollback(),
+    },
+  );
+
   const updateFeedFilters = useCallback(
     ({ advancedSettings, ...filters }: FeedSettings) => {
       const {
@@ -177,6 +212,7 @@ export default function useMutateFilters(
         includeTags: Array.from(new Set(includeTags)),
         blockedTags: Array.from(new Set(blockedTags)),
         excludeSources: Array.from(new Set(excludeSources)),
+        includeSources: Array.from(new Set(includeSources)),
       };
       return gqlClient.request(FEED_FILTERS_FROM_REGISTRATION, {
         filters: fixed,
@@ -392,22 +428,16 @@ export default function useMutateFilters(
     [user, queryClient, feedId],
   );
 
-  const { mutateAsync: unblockSourceRemote } = useMutation<
-    unknown,
-    unknown,
-    SourceMutationProps,
-    () => void
-  >(
-    ({ source }) =>
-      gqlClient.request(REMOVE_FILTERS_FROM_FEED_MUTATION, {
-        filters: {
-          excludeSources: [source.id],
+  const unblockSourceRemote = useCallback(
+    async ({ source }: SourceMutationProps) => {
+      await removeFiltersRemote(
+        { source, key: 'excludeSources' },
+        {
+          onSuccess: onUnblockSource,
         },
-      }),
-    {
-      onMutate: onUnblockSource,
-      onError: (err, _, rollback) => rollback(),
+      );
     },
+    [onUnblockSource, removeFiltersRemote],
   );
 
   const onFollowSource = useCallback(
@@ -417,7 +447,6 @@ export default function useMutateFilters(
         queryClient,
         (feedSettings, manipulateSource) => {
           const newData = cloneDeep(feedSettings);
-          console.log({ newData });
           newData.includeSources.push(manipulateSource);
           return newData;
         },
@@ -445,6 +474,18 @@ export default function useMutateFilters(
     [user, queryClient, feedId],
   );
 
+  const unfollowSourceRemote = useCallback(
+    async ({ source }: SourceMutationProps) => {
+      await removeFiltersRemote(
+        { source, key: 'includeSources' },
+        {
+          onSuccess: onUnfollowSource,
+        },
+      );
+    },
+    [onUnfollowSource, removeFiltersRemote],
+  );
+
   const onBlockSource = useCallback(
     ({ source }: SourceMutationProps) =>
       onMutateSourcesSettings(
@@ -461,27 +502,19 @@ export default function useMutateFilters(
     [user, queryClient, feedId],
   );
 
-  const { mutateAsync: blockSourceRemote } = useMutation<
-    unknown,
-    unknown,
-    SourceMutationProps,
-    () => Promise<void>
-  >(
-    ({ source }) =>
-      gqlClient.request(ADD_FILTERS_TO_FEED_MUTATION, {
-        filters: {
-          excludeSources: [source.id],
+  const blockSourceRemote = useCallback(
+    async ({ source }: SourceMutationProps) => {
+      await addFiltersRemote(
+        { source, key: 'excludeSources' },
+        {
+          onSuccess: () => {
+            onBlockSource({ source });
+            clearNotificationPreference({ queryClient, user });
+          },
         },
-      }),
-    {
-      onMutate: onBlockSource,
-      onError: (err, _, rollback) => rollback(),
-      onSuccess: () => {
-        // when unfollowing source notification preference is cleared
-        // on the api side so we invalidate the cache
-        clearNotificationPreference({ queryClient, user });
-      },
+      );
     },
+    [addFiltersRemote, onBlockSource, queryClient, user],
   );
 
   return useMemo(
@@ -491,7 +524,9 @@ export default function useMutateFilters(
       unfollowTags: shouldFilterLocally ? onUnfollowTags : unfollowTagsRemote,
       blockTag: shouldFilterLocally ? onBlockTags : blockTagRemote,
       followSource: onFollowSource,
-      unfollowSource: onUnfollowSource,
+      unfollowSource: shouldFilterLocally
+        ? onUnfollowSource
+        : unfollowSourceRemote,
       unblockTag: shouldFilterLocally ? onUnblockTags : unblockTagRemote,
       unblockSource: shouldFilterLocally
         ? onUnblockSource
@@ -502,21 +537,24 @@ export default function useMutateFilters(
         : updateAdvancedSettingsRemote,
     }),
     [
-      shouldFilterLocally,
       updateFeedFilters,
+      shouldFilterLocally,
       onFollowTags,
-      onUnfollowTags,
-      onBlockTags,
-      onUnblockTags,
-      onUnblockSource,
-      onBlockSource,
-      onAdvancedSettingsUpdate,
       followTagsRemote,
+      onUnfollowTags,
       unfollowTagsRemote,
+      onBlockTags,
       blockTagRemote,
+      onFollowSource,
+      onUnfollowSource,
+      unfollowSourceRemote,
+      onUnblockTags,
       unblockTagRemote,
+      onUnblockSource,
       unblockSourceRemote,
+      onBlockSource,
       blockSourceRemote,
+      onAdvancedSettingsUpdate,
       updateAdvancedSettingsRemote,
     ],
   );

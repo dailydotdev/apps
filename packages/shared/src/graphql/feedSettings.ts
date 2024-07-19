@@ -89,6 +89,11 @@ export const FEED_SETTINGS_QUERY = gql`
     feedSettings(feedId: $feedId) {
       includeTags
       blockedTags
+      includeSources {
+        id
+        name
+        image
+      }
       excludeSources {
         id
         name

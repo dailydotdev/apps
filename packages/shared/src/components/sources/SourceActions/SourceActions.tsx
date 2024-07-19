@@ -17,7 +17,6 @@ interface SourceActionsProps {
   block?: SourceActionsButton;
   hideBlock?: boolean;
 
-  follow?: {};
   hideFollow?: boolean;
 
   subscribe?: SourceActionsButton;
@@ -28,9 +27,7 @@ export const SourceActions = ({
   source,
   subscribe,
   hideSubscribe = false,
-  block,
   hideBlock = false,
-  follow,
   hideFollow = false,
 }: SourceActionsProps): ReactElement => {
   const {
@@ -44,7 +41,6 @@ export const SourceActions = ({
     source,
   });
 
-  // todo: add alert for notify confirmation
   return (
     <>
       <div className="inline-flex flex-row gap-2">
