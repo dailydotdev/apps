@@ -362,7 +362,8 @@ export function OnboardPage(): ReactElement {
         showOnboardingPage={showOnboardingPage}
         setAuth={setAuth}
         customActionName={
-          activeScreen === OnboardingStep.EditTag && shouldEnrollContentType
+          activeScreen === OnboardingStep.EditTag &&
+          shouldEnrollContentType.current
             ? 'Continue'
             : undefined
         }
