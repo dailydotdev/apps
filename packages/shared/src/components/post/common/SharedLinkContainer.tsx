@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useMemo, useState } from 'react';
+import React, { ReactElement, ReactNode, useState } from 'react';
 import classNames from 'classnames';
 import PostSummary from '../../cards/PostSummary';
 import { ArrowIcon } from '../../icons';
@@ -16,29 +16,13 @@ export function SharedLinkContainer({
   className,
   Wrapper,
 }: SharedLinkContainerProps): ReactElement {
-  const [height, setHeight] = useState<number>(null);
   const [shouldShowSummary, setShouldShowSummary] = useState(true);
-  const tldrHeight = useMemo(() => {
-    if (height === null) {
-      return 'auto';
-    }
-
-    return shouldShowSummary ? height : 0;
-  }, [shouldShowSummary, height]);
 
   const postSummary = (
     <PostSummary
-      ref={(el) => {
-        if (!el?.offsetHeight || height !== null) {
-          return;
-        }
-
-        setHeight(el.offsetHeight);
-      }}
-      style={{ height: tldrHeight }}
       className={classNames(
-        'mx-4 transition-all duration-300 ease-in-out',
-        shouldShowSummary && 'mb-4',
+        'mx-4 !grid transition-all duration-300 ease-in-out',
+        shouldShowSummary ? 'mb-4 grid-rows-[1fr]' : 'grid-rows-[0fr]',
       )}
       summary={summary}
     />
