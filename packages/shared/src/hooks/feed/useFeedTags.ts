@@ -33,7 +33,7 @@ export const useFeedTags = ({ tags, width }: UseFeedTags): string[] => {
         return items;
       }
 
-      const remainingChars = (remaining + 1).toString().length * char;
+      const remainingChars = (remaining.toString().length + 1) * char;
       const remainingWidth = baseWidth + remainingChars;
 
       if (totalLength + remainingWidth > width) {
