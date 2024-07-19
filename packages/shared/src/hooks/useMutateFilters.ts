@@ -560,6 +560,7 @@ export default function useMutateFilters(
       onBlockTags,
       blockTagRemote,
       onFollowSource,
+      followSourceRemote,
       onUnfollowSource,
       unfollowSourceRemote,
       onUnblockTags,

@@ -19,15 +19,15 @@ export const useSourceActions = (props: UseSourceActionsProps) => {
     source,
   });
 
-  const { isLoggedIn, user, showLogin } = useAuthContext();
+  const { isLoggedIn, showLogin } = useAuthContext();
   const withAuthGuard = useCallback(
-    (callback: () => void, ...args: any[]) => {
+    function guardedFunction(callback: () => void) {
       if (!isLoggedIn) {
         showLogin({ trigger: AuthTriggers.SourceSubscribe });
-        return;
+        return () => null;
       }
 
-      return callback.bind(null, ...args);
+      return callback.bind(null);
     },
     [isLoggedIn, showLogin],
   );

@@ -1,4 +1,4 @@
-import SourceActions from './SourceActions';
+import { SourceActions } from './SourceActions';
 
 export * from './SourceActions';
 

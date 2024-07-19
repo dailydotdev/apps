@@ -9,7 +9,14 @@ interface UseSourceActionsBlockProps {
   source: Source;
 }
 
-export function useSourceActionsBlock(props: UseSourceActionsBlockProps) {
+interface UseSourceActionsBlockReturn {
+  isBlocked: boolean;
+  toggleBlock: () => void;
+}
+
+export function useSourceActionsBlock(
+  props: UseSourceActionsBlockProps,
+): UseSourceActionsBlockReturn {
   const { source } = props;
   const { feedSettings } = useFeedSettings();
   const { displayToast } = useToastNotification();
@@ -39,7 +46,7 @@ export function useSourceActionsBlock(props: UseSourceActionsBlockProps) {
 
     await onBlockSource({ source, requireLogin: true });
     displayToast('⛔️ Source is now blocked');
-  }, [isBlocked, onBlockSource, onUnblockSource]);
+  }, [displayToast, isBlocked, onBlockSource, onUnblockSource, source]);
 
   return {
     isBlocked,
