@@ -20,9 +20,9 @@ export default function PostMetadata({
   return (
     <div className={classNames('grid items-center', className)}>
       {topLabel && (
-        <div className="line-clamp-1 font-bold typo-footnote">{topLabel}</div>
+        <div className="truncate font-bold typo-footnote">{topLabel}</div>
       )}
-      <div className="line-clamp-1 flex items-center text-text-tertiary typo-footnote">
+      <div className="items-center truncate text-text-tertiary typo-footnote">
         {bottomLabel}
         {!!bottomLabel && !!createdAt && <Separator />}
         {!!createdAt && (
