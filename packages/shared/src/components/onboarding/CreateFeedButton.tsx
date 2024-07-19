@@ -31,21 +31,25 @@ export const CreateFeedButton = ({
     tagsCount >= REQUIRED_TAGS_THRESHOLD &&
     activeScreen === OnboardingStep.EditTag;
 
-  const advancedSettingsExceptCommunity = !![
-    ...contentCurationList,
-    videoSetting,
-  ]
-    ?.map(({ id, defaultEnabledState }) => {
-      return selectedSettings[id] ?? defaultEnabledState;
-    })
-    .find((setting) => setting === true);
+  const advancedSettingsExceptCommunity = [...contentCurationList];
 
-  const sourceCommunity = !!contentSourceList
+  if (videoSetting) {
+    advancedSettingsExceptCommunity.push(videoSetting);
+  }
+  const advancedSettingsExceptCommunitySelected =
+    !!advancedSettingsExceptCommunity
+      .map(({ id, defaultEnabledState }) => {
+        return selectedSettings[id] ?? defaultEnabledState;
+      })
+      .find((setting) => setting === true);
+
+  const sourceCommunitySelected = !!contentSourceList
     .map(({ options }) => options.source)
     .find((source) => !checkSourceBlocked(source));
 
   const contentTypeNotEmpty =
-    (advancedSettingsExceptCommunity || sourceCommunity) && contentTypeStep;
+    (advancedSettingsExceptCommunitySelected || sourceCommunitySelected) &&
+    contentTypeStep;
 
   const canCreateFeed = tagsCountMatch || contentTypeNotEmpty;
   const { sidebarRendered } = useSidebarRendered();
