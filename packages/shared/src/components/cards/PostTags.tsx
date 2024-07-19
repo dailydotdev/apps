@@ -19,7 +19,7 @@ export default function PostTags({ tags }: PostTagsProps): ReactElement {
 
   return (
     <div className="flex min-h-px w-full items-center gap-2" ref={elementRef}>
-      {width && list.map((tag) => <Chip key={tag}>#{tag}</Chip>)}
+      {width > 0 && list.map((tag) => <Chip key={tag}>#{tag}</Chip>)}
       {remainingTags > 0 && <Chip>+{remainingTags}</Chip>}
     </div>
   );
