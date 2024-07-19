@@ -2,7 +2,6 @@ import { useCallback, useMemo } from 'react';
 import { Source } from '../../graphql/sources';
 import { Origin } from '../../lib/log';
 import { useToastNotification } from '../useToastNotification';
-import { useLogContext } from '../../contexts/LogContext';
 import useTagAndSource from '../useTagAndSource';
 import useFeedSettings from '../useFeedSettings';
 
@@ -20,7 +19,6 @@ export function useSourceActionsFollow(
 ): UseSourceActionsFollow {
   const { source } = props;
   const { displayToast } = useToastNotification();
-  const { logEvent } = useLogContext();
 
   const { feedSettings } = useFeedSettings();
   const isFollowing = useMemo(() => {
