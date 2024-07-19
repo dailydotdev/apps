@@ -119,7 +119,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
   const reputation = 'reputation' in source ? source.reputation : NaN;
 
   const Icon = getUserIcon(userType);
-  const isUserTypeSource = userType === UserType.Source;
+  const isUserTypeSource = userType === UserType.Source && 'handle' in source;
   const { feedSettings } = useFeedSettings();
 
   const isSourceBlocked = useMemo(() => {
@@ -207,19 +207,16 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
           )}
         </div>
       </ConditionalWrapper>
-      {!isSourceBlocked &&
-        isUserTypeSource &&
-        allowSubscribe &&
-        'handle' in source && (
-          <SourceActions
-            followProps={{
-              className: 'ml-2',
-              variant: ButtonVariant.Secondary,
-            }}
-            hideBlock
-            source={source}
-          />
-        )}
+      {!isSourceBlocked && isUserTypeSource && allowSubscribe && (
+        <SourceActions
+          followProps={{
+            className: 'ml-2',
+            variant: ButtonVariant.Secondary,
+          }}
+          hideBlock
+          source={source}
+        />
+      )}
     </div>
   );
 };
