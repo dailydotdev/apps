@@ -47,14 +47,7 @@ export function useSourceActionsFollow(
     if (successful) {
       displayToast(`✅ You are now subscribed to ${source.name}`);
     }
-  }, [
-    displayToast,
-    isFollowing,
-    logEvent,
-    onFollowSource,
-    onUnfollowSource,
-    source,
-  ]);
+  }, [displayToast, isFollowing, onFollowSource, onUnfollowSource, source]);
 
   return {
     isFollowing,

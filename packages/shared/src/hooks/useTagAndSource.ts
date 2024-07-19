@@ -315,13 +315,13 @@ export default function useTagAndSource({
       return { successful: true };
     },
     [
-      logEvent,
       shouldShowLogin,
+      logEvent,
       origin,
-      showLogin,
-      followSource,
       postId,
+      unfollowSource,
       invalidateQueries,
+      showLogin,
     ],
   );
 

@@ -7,7 +7,18 @@ interface UseSourceActionsProps {
   source: Source;
 }
 
-export const useSourceActions = (props: UseSourceActionsProps) => {
+interface UseSourceActionsReturn {
+  isBlocked: boolean;
+  toggleBlock: () => void;
+  isFollowing: boolean;
+  toggleFollow: () => void;
+  haveNotifications: boolean;
+  toggleNotify: () => void;
+}
+
+export const useSourceActions = (
+  props: UseSourceActionsProps,
+): UseSourceActionsReturn => {
   const { source } = props;
 
   const { isBlocked, toggleBlock } = useSourceActionsBlock({ source });
