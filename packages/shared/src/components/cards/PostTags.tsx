@@ -37,7 +37,7 @@ export default function PostTags({ tags }: PostTagsProps): ReactElement {
 
   const list = isListMode ? listModeTagsList : tagList;
   const tagsCount = tags?.length || 0;
-  const remainingTags = tagsCount - tagList.length;
+  const remainingTags = tagsCount - list.length;
 
   return (
     <div
