@@ -1,6 +1,6 @@
-import request, { gql } from 'graphql-request';
-import { graphqlUrl } from '../lib/config';
+import { gql } from 'graphql-request';
 import { EmptyResponse } from './emptyResponse';
+import { gqlClient } from './common';
 
 export const SET_BOOKMARK_REMINDER = gql`
   mutation SetBookmarkReminder($postId: ID!, $remindAt: DateTime) {
@@ -24,7 +24,7 @@ export const setBookmarkReminder = ({
   postId,
   remindAt,
 }: SetBookmarkReminderProps): Promise<EmptyResponse> =>
-  request(graphqlUrl, SET_BOOKMARK_REMINDER, {
+  gqlClient.request(SET_BOOKMARK_REMINDER, {
     postId,
     remindAt: remindAt ? remindAt.toISOString() : null,
   });

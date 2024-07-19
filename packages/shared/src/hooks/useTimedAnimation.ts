@@ -47,6 +47,10 @@ export const useTimedAnimation = ({
 
   const startAnimation = useCallback(
     (duration: number) => {
+      if (interval.current) {
+        clearInterval();
+      }
+
       setTimer(duration);
 
       if (isNullOrUndefined(duration) || duration <= 0) {

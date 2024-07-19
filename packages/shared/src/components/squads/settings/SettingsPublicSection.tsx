@@ -54,7 +54,6 @@ export function SettingsPublicSection({
       {isInProgress && (
         <PublicStatusPanel
           count={Math.min(totalPosts, PUBLIC_SQUAD_REQUEST_REQUIREMENT)}
-          required={PUBLIC_SQUAD_REQUEST_REQUIREMENT}
         >
           <PublicSquadSubmissionActions
             isDetailsVisible={false}

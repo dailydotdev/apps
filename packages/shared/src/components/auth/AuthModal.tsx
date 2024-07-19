@@ -6,7 +6,8 @@ import AuthContext from '../../contexts/AuthContext';
 import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
 import LogContext from '../../contexts/LogContext';
 import { Modal, ModalProps } from '../modals/common/Modal';
-import { LogoutReason } from '../../lib/user';
+import { AnonymousUser, LoggedUser, LogoutReason } from '../../lib/user';
+import { logSignUp } from './OnboardingLogs';
 
 export interface AuthModalProps extends ModalProps {
   trigger?: AuthTriggersType;
@@ -45,6 +46,12 @@ export default function AuthModal({
     closeLogin();
   };
 
+  const onSuccessfulRegistration = (newUser?: LoggedUser | AnonymousUser) => {
+    loginState?.onRegistrationSuccess?.(newUser);
+
+    logSignUp({ experienceLevel: (newUser as LoggedUser)?.experienceLevel });
+  };
+
   const defaultDisplay = loginState?.formValues?.email
     ? Display.Registration
     : Display.Default;
@@ -63,7 +70,7 @@ export default function AuthModal({
         onClose={onClose}
         formRef={formRef}
         onSuccessfulLogin={onSuccessfulLogin}
-        onSuccessfulRegistration={loginState?.onRegistrationSuccess}
+        onSuccessfulRegistration={onSuccessfulRegistration}
         trigger={trigger}
         isLoginFlow={isLogoutFlow || loginState?.isLogin}
         defaultDisplay={defaultDisplay}

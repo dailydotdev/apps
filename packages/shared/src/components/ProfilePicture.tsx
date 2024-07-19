@@ -7,6 +7,7 @@ import { Image, ImageType } from './image/Image';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
 
 export enum ProfileImageSize {
+  Size16 = 'size16',
   XXXXLarge = 'xxxxlarge',
   XXXLarge = 'xxxlarge',
   XXLarge = 'xxlarge',
@@ -32,6 +33,7 @@ export interface ProfilePictureProps
 }
 
 export const sizeClasses: Record<ProfileImageSize, string> = {
+  size16: 'size-4',
   xsmall: 'w-5 h-5',
   small: 'w-6 h-6',
   medium: 'w-8 h-8',
@@ -42,6 +44,7 @@ export const sizeClasses: Record<ProfileImageSize, string> = {
   xxxxlarge: 'w-24 h-24',
 };
 const roundClasses: Record<ProfileImageSize | 'full', string> = {
+  size16: 'rounded-4',
   xsmall: 'rounded-6',
   small: 'rounded-8',
   medium: 'rounded-10',
