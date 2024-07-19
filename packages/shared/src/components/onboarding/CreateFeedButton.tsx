@@ -11,7 +11,7 @@ import { useContentTypesOnboarding } from '../auth/OnboardingSteps/ContentTypes/
 export type CreateFeedButtonProps = {
   className?: string;
   customActionName?: string;
-  activeScreen: OnboardingStep;
+  activeScreen?: OnboardingStep;
 } & Pick<HTMLAttributes<ButtonElementType<'button'>>, 'onClick'>;
 
 export const CreateFeedButton = ({
