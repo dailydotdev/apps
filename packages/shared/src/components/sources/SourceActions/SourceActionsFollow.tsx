@@ -1,6 +1,6 @@
-import { Fragment, ReactElement } from 'react';
+import React, { Fragment, ReactElement } from 'react';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
-import SimpleTooltip from '../../tooltips/SimpleTooltip';
+import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
 import { Button } from '../../buttons/Button';
 
 interface SourceActionsFollowProps {

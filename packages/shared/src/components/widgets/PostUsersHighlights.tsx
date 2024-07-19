@@ -17,13 +17,13 @@ import EnableNotification from '../notifications/EnableNotification';
 import { NotificationPromptSource } from '../../lib/log';
 import { useSourceActionsNotify } from '../../hooks';
 import { SourceActions } from '../sources/SourceActions';
-import { Source } from '../../graphql/sources';
+import { Source as ISource } from '../../graphql/sources';
 
 interface PostAuthorProps {
   post: Post;
 }
 
-enum UserType {
+export enum UserType {
   Source = 'source',
   Author = 'author',
   Featured = 'featured',
@@ -33,11 +33,13 @@ enum UserType {
 const StyledImage = classed(LazyImage, 'w-10 h-10');
 
 type SourceAuthorProps =
-  | ({ userType: UserType.Author } & CommentAuthor)
+  | ({ userType?: null } & CommentAuthor)
+  | ({
+      userType: UserType.Featured | UserType.Author | UserType.Scout;
+    } & CommentAuthor)
   | ({
       userType: UserType.Source;
-    } & Source)
-  | ({ userType: UserType.Scout } & CommentAuthor);
+    } & ISource);
 
 type UserHighlightProps = SourceAuthorProps & {
   allowSubscribe?: boolean;
@@ -149,7 +151,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
           <Image {...props} className={className?.image} />
         </ProfileLink>
       </ConditionalWrapper>
-      {Icon && (
+      {userType && Icon && (
         <Icon
           secondary
           className={classNames(

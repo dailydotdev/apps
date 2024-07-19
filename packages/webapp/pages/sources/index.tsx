@@ -1,5 +1,8 @@
 import React, { ReactElement } from 'react';
-import { UserHighlight } from '@dailydotdev/shared/src/components/widgets/PostUsersHighlights';
+import {
+  UserHighlight,
+  UserType,
+} from '@dailydotdev/shared/src/components/widgets/PostUsersHighlights';
 import {
   Button,
   ButtonVariant,
@@ -48,6 +51,7 @@ const SourceTopList = ({
           <ListItem key={item.id} index={i + 1} href={item.permalink}>
             <UserHighlight
               {...item}
+              userType={UserType.Source}
               className={{
                 wrapper: 'min-w-0 flex-shrink !p-2',
                 image: '!h-8 !w-8',

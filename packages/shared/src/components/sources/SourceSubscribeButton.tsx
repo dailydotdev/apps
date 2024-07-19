@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
 import { Button } from '../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
-import { BellAddIcon, BellSubscribedIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips';
 import { Source } from '../../graphql/sources';
 import { isTesting } from '../../lib/constants';
@@ -66,20 +65,14 @@ const SourceSubscribeButton = ({
   variant = ButtonVariant.Primary,
 }: SourceSubscribeButtonProps): ReactElement => {
   const { isLoggedIn } = useAuthContext();
-  const { isFollowing, haveNotifications, onNotify, onFollowing, isReady } =
-    useSourceActionsNotify({
-      source,
-    });
+
+  const { haveNotifications, onNotify, isReady } = useSourceActionsNotify({
+    source,
+  });
 
   const ButtonComponent = haveNotifications
     ? SourceSubscribeButtonSubscribed
     : SourceSubscribeButtonRegular;
-
-  const follow = {
-    icon: isFollowing ? <BellSubscribedIcon /> : <BellAddIcon />,
-    label: `${isFollowing ? 'Disable' : 'Enable'} notifications`,
-    variant: isFollowing ? ButtonVariant.Tertiary : ButtonVariant.Secondary,
-  };
 
   return (
     <>
@@ -89,18 +82,6 @@ const SourceSubscribeButton = ({
         onClick={onNotify}
         variant={variant}
       />
-      {haveNotifications && (
-        <SimpleTooltip content={follow.label}>
-          <Button
-            aria-label={follow.label}
-            icon={follow.icon}
-            onClick={onFollowing}
-            size={ButtonSize.Small}
-            title={follow.label}
-            variant={follow.variant}
-          />
-        </SimpleTooltip>
-      )}
     </>
   );
 };

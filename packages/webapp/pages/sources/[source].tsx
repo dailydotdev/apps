@@ -124,7 +124,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { shouldShowAuthBanner } = useOnboarding();
   const shouldShowTagSourceSocialProof = shouldShowAuthBanner && isLaptop;
-  const { user, showLogin } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const mostUpvotedQueryVariables = useMemo(
     () => ({
       source: source?.id,
