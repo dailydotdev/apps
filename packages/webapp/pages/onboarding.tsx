@@ -113,7 +113,7 @@ export function OnboardPage(): ReactElement {
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
-  const shouldEnrollContentType = useRef(false);
+  const enableContentTypeStep = useRef(false);
 
   const onClickNext = () => {
     logEvent({
@@ -127,7 +127,7 @@ export function OnboardPage(): ReactElement {
 
     if (
       activeScreen === OnboardingStep.EditTag &&
-      shouldEnrollContentType.current
+      enableContentTypeStep.current
     ) {
       return setActiveScreen(OnboardingStep.ContentTypes);
     }
@@ -162,16 +162,9 @@ export function OnboardPage(): ReactElement {
 
   const onClickCreateFeed = () => {
     if (activeScreen === OnboardingStep.EditTag) {
-      const onboardingContentType = getFeatureValue(
-        feature.onboardingContentType,
-      );
-
-      if (onboardingContentType) {
-        shouldEnrollContentType.current = true;
+      if (enableContentTypeStep.current) {
         return onClickNext();
       }
-    } else if (activeScreen === OnboardingStep.ContentTypes) {
-      shouldEnrollContentType.current = false;
     }
 
     const onboardingChecklist = getFeatureValue(feature.onboardingChecklist);
@@ -335,6 +328,19 @@ export function OnboardPage(): ReactElement {
   const instanceId = router.query?.aiid?.toString();
   const userId = user?.id || anonymous?.id;
 
+  const shouldCheckForContentTypeStep =
+    activeScreen === OnboardingStep.EditTag && !enableContentTypeStep.current;
+
+  if (shouldCheckForContentTypeStep) {
+    const onboardingContentType = getFeatureValue(
+      feature.onboardingContentType,
+    );
+
+    if (onboardingContentType) {
+      enableContentTypeStep.current = true;
+    }
+  }
+
   return (
     <div
       className={classNames(
@@ -363,7 +369,7 @@ export function OnboardPage(): ReactElement {
         setAuth={setAuth}
         customActionName={
           activeScreen === OnboardingStep.EditTag &&
-          shouldEnrollContentType.current
+          enableContentTypeStep.current
             ? 'Continue'
             : undefined
         }

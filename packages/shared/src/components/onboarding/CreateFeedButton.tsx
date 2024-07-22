@@ -5,8 +5,8 @@ import { SimpleTooltip } from '../tooltips';
 import { isTesting } from '../../lib/constants';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { OnboardingStep, REQUIRED_TAGS_THRESHOLD } from './common';
-import { useViewSize, ViewSize } from '../../hooks';
-import { useContentTypesOnboarding } from '../auth/OnboardingSteps/ContentTypes/useContentTypesOnboarding';
+import { useAdvancedSettings, useViewSize, ViewSize } from '../../hooks';
+import { getContentTypeNotEmpty } from '../auth/OnboardingSteps/ContentTypes/helpers';
 
 export type CreateFeedButtonProps = {
   className?: string;
@@ -21,18 +21,23 @@ export const CreateFeedButton = ({
   activeScreen,
 }: CreateFeedButtonProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { contentTypeNotEmpty: contentTypeNotEmptyProp } =
-    useContentTypesOnboarding();
-  const { feedSettings } = useFeedSettings();
+  const { advancedSettings } = useFeedSettings();
+  const { selectedSettings, checkSourceBlocked } = useAdvancedSettings();
 
   const contentTypeStep = activeScreen === OnboardingStep.ContentTypes;
+
+  const contentTypeNotEmpty =
+    !!getContentTypeNotEmpty({
+      advancedSettings,
+      selectedSettings,
+      checkSourceBlocked,
+    }) && contentTypeStep;
+  const { feedSettings } = useFeedSettings();
 
   const tagsCount = feedSettings?.includeTags?.length || 0;
   const tagsCountMatch =
     tagsCount >= REQUIRED_TAGS_THRESHOLD &&
     activeScreen === OnboardingStep.EditTag;
-
-  const contentTypeNotEmpty = contentTypeNotEmptyProp && contentTypeStep;
 
   const canCreateFeed = tagsCountMatch || contentTypeNotEmpty;
   const { sidebarRendered } = useSidebarRendered();

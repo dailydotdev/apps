@@ -1,19 +1,41 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import useFeedSettings from '../../../../hooks/useFeedSettings';
 
 import { useAdvancedSettings } from '../../../../hooks';
 import { CustomCheckbox } from './CustomCheckbox';
-import { useContentTypesOnboarding } from './useContentTypesOnboarding';
+import {
+  getContentCurationList,
+  getContentSourceList,
+  getVideoSetting,
+} from '../../../filters/helpers';
 
 export const ContentTypes = (): ReactElement => {
-  const { contentSourceList } = useFeedSettings();
+  const { advancedSettings } = useFeedSettings();
   const {
     selectedSettings,
     onToggleSettings,
     checkSourceBlocked,
     onToggleSource,
   } = useAdvancedSettings();
-  const { advancedSettingsExceptCommunity } = useContentTypesOnboarding();
+
+  const contentSourceList = useMemo(
+    () => getContentSourceList(advancedSettings),
+    [advancedSettings],
+  );
+
+  const contentCurationList = useMemo(
+    () => getContentCurationList(advancedSettings),
+    [advancedSettings],
+  );
+
+  const videoSetting = getVideoSetting(advancedSettings);
+
+  const contentCurationAndVideoList = useMemo(() => {
+    if (videoSetting) {
+      return [...contentCurationList, videoSetting];
+    }
+    return contentCurationList;
+  }, [contentCurationList, videoSetting]);
 
   return (
     <div className="flex max-w-[63.75rem] flex-col tablet:px-10">
@@ -31,7 +53,7 @@ export const ContentTypes = (): ReactElement => {
             description={description}
           />
         ))}
-        {advancedSettingsExceptCommunity.map(
+        {contentCurationAndVideoList.map(
           ({ id, title, description, defaultEnabledState }) => (
             <CustomCheckbox
               key={id}

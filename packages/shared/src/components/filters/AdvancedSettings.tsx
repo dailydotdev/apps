@@ -1,19 +1,29 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { FilterSwitch } from './FilterSwitch';
 import { useAdvancedSettings } from '../../hooks/feed';
+import { getContentCurationList, getContentSourceList } from './helpers';
 
 const ADVANCED_SETTINGS_KEY = 'advancedSettings';
 
 function AdvancedSettingsFilter(): ReactElement {
-  const { isLoading, contentSourceList, contentCurationList } =
-    useFeedSettings();
+  const { isLoading, advancedSettings } = useFeedSettings();
   const {
     selectedSettings,
     onToggleSettings,
     checkSourceBlocked,
     onToggleSource,
   } = useAdvancedSettings();
+
+  const contentSourceList = useMemo(
+    () => getContentSourceList(advancedSettings),
+    [advancedSettings],
+  );
+
+  const contentCurationList = useMemo(
+    () => getContentCurationList(advancedSettings),
+    [advancedSettings],
+  );
 
   return (
     <section className="flex flex-col px-6" aria-busy={isLoading}>
