@@ -72,9 +72,17 @@ export const useSourceActionsNotify = ({
     try {
       await enablePushNotifications();
     } catch (e) {
-      console.error(e);
+      // errors are not handled here, do nothing for now
     }
-  }, [source, isLoggedIn, onToggle, logEvent, displayToast, showLogin]);
+  }, [
+    source,
+    isLoggedIn,
+    onToggle,
+    logEvent,
+    displayToast,
+    showLogin,
+    enablePushNotifications,
+  ]);
 
   return {
     haveNotifications,
