@@ -57,6 +57,120 @@ const sourceToButtonText: Partial<Record<NotificationPromptSource, string>> = {
   [NotificationPromptSource.SourceSubscribe]: 'Enable',
 };
 
+interface EnableNotificationAlertCTA {
+  show?: boolean;
+  text?: string;
+  onClick?: () => void;
+}
+
+interface EnableNotificationAlertProps {
+  acceptedJustNow?: boolean;
+  accept: EnableNotificationAlertCTA;
+  className?: string;
+  close?: EnableNotificationAlertCTA;
+  dismiss?: EnableNotificationAlertCTA;
+  message: string;
+  sourceType?: NotificationPromptSource;
+}
+
+export function EnableNotificationAlert(
+  props: EnableNotificationAlertProps,
+): ReactElement {
+  const {
+    acceptedJustNow = true,
+    className = '',
+    accept,
+    close,
+    dismiss,
+    sourceType = '',
+    message,
+  } = props;
+
+  return (
+    <div
+      className={classNames(
+        'relative overflow-hidden border-accent-cabbage-default py-4 typo-callout',
+        className,
+      )}
+    >
+      {sourceType === NotificationPromptSource.NotificationsPage && (
+        <span className="flex flex-row font-bold">
+          {acceptedJustNow && <VIcon className="mr-2" />}
+          {`Push notifications${
+            acceptedJustNow ? ' successfully enabled' : ''
+          }`}
+        </span>
+      )}
+      <div className="mt-2 flex justify-between gap-2">
+        <p
+          className={classNames(
+            'w-full text-text-tertiary tablet:w-3/5',
+            sourceType === NotificationPromptSource.SourceSubscribe && 'flex-1',
+          )}
+        >
+          {acceptedJustNow ? (
+            <>
+              Changing your{' '}
+              <a
+                className="underline hover:no-underline"
+                href={`${webappUrl}account/notifications`}
+              >
+                notification settings
+              </a>{' '}
+              can be done anytime through your account details
+            </>
+          ) : (
+            message
+          )}
+        </p>
+        <img
+          className={classNames(
+            sourceType === NotificationPromptSource.SourceSubscribe
+              ? 'h-16 w-auto'
+              : 'absolute -bottom-2 hidden w-[7.5rem] tablet:flex',
+            acceptedJustNow ? 'right-14' : 'right-4',
+          )}
+          src={
+            acceptedJustNow
+              ? cloudinary.notifications.browser_enabled
+              : cloudinary.notifications.browser
+          }
+          alt="A sample browser notification"
+        />
+      </div>
+      <div className="align-center mt-4 flex">
+        {!accept.show && (
+          <Button
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
+            className="mr-4"
+            onClick={accept.onClick}
+          >
+            {accept.text ?? 'Enable notifications'}
+          </Button>
+        )}
+        {dismiss?.show && (
+          <Button
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Tertiary}
+            onClick={dismiss?.onClick}
+          >
+            {dismiss.text ?? 'Dismiss'}
+          </Button>
+        )}
+      </div>
+      {close?.show && (
+        <CloseButton
+          size={ButtonSize.XSmall}
+          className="absolute right-1 top-1 laptop:right-3 laptop:top-3"
+          onClick={close?.onClick ?? dismiss?.onClick}
+        />
+      )}
+    </div>
+  );
+}
+
 function EnableNotification({
   source = NotificationPromptSource.NotificationsPage,
   contentName,
@@ -117,88 +231,23 @@ function EnableNotification({
   }
 
   return (
-    <div
-      className={classNames(
-        'relative overflow-hidden border-accent-cabbage-default py-4 typo-callout',
-        classes,
-        className,
-      )}
-    >
-      {source === NotificationPromptSource.NotificationsPage && (
-        <span className="flex flex-row font-bold">
-          {acceptedJustNow && <VIcon className="mr-2" />}
-          {`Push notifications${
-            acceptedJustNow ? ' successfully enabled' : ''
-          }`}
-        </span>
-      )}
-      <div className="mt-2 flex justify-between gap-2">
-        <p
-          className={classNames(
-            'w-full text-text-tertiary tablet:w-3/5',
-            source === NotificationPromptSource.SourceSubscribe && 'flex-1',
-          )}
-        >
-          {acceptedJustNow ? (
-            <>
-              Changing your{' '}
-              <a
-                className="underline hover:no-underline"
-                href={`${webappUrl}account/notifications`}
-              >
-                notification settings
-              </a>{' '}
-              can be done anytime through your account details
-            </>
-          ) : (
-            message
-          )}
-        </p>
-        <img
-          className={classNames(
-            source === NotificationPromptSource.SourceSubscribe
-              ? 'h-16 w-auto'
-              : 'absolute -bottom-2 hidden w-[7.5rem] tablet:flex',
-            acceptedJustNow ? 'right-14' : 'right-4',
-          )}
-          src={
-            acceptedJustNow
-              ? cloudinary.notifications.browser_enabled
-              : cloudinary.notifications.browser
-          }
-          alt="A sample browser notification"
-        />
-      </div>
-      <div className="align-center mt-4 flex">
-        {!acceptedJustNow && (
-          <Button
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Primary}
-            color={ButtonColor.Cabbage}
-            className="mr-4"
-            onClick={onEnable}
-          >
-            {buttonText}
-          </Button>
-        )}
-        {showTextCloseButton && (
-          <Button
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-            onClick={onDismiss}
-          >
-            Dismiss
-          </Button>
-        )}
-      </div>
-      {!showTextCloseButton && (
-        <CloseButton
-          size={ButtonSize.XSmall}
-          className="absolute right-1 top-1 laptop:right-3 laptop:top-3"
-          onClick={onDismiss}
-        />
-      )}
-    </div>
+    <EnableNotificationAlert
+      acceptedJustNow={acceptedJustNow}
+      accept={{
+        text: buttonText,
+        show: !acceptedJustNow,
+        onClick: onEnable,
+      }}
+      className={classNames(classes, className)}
+      close={{
+        show: showTextCloseButton,
+      }}
+      dismiss={{
+        show: showTextCloseButton,
+        onClick: onDismiss,
+      }}
+      message={message}
+    />
   );
 }
 
