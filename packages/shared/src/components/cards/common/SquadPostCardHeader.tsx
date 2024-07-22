@@ -9,6 +9,10 @@ import {
   BookmakProviderHeader,
   headerHiddenClassName,
 } from '../BookmarkProviderHeader';
+import { useConditionalFeature } from '../../../hooks';
+import { feature } from '../../../lib/featureManagement';
+import { ProfileTooltip } from '../../profile/ProfileTooltip';
+import { ProfileImageLink } from '../../profile/ProfileImageLink';
 
 type SquadPostCardHeaderProps = Pick<
   Post,
@@ -22,6 +26,10 @@ export const SquadPostCardHeader = ({
   enableSourceHeader = false,
   bookmarked,
 }: SquadPostCardHeaderProps): ReactElement => {
+  const { value: shouldShowNewImage } = useConditionalFeature({
+    shouldEvaluate: !!author,
+    feature: feature.authorImage,
+  });
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked,
   });
@@ -58,28 +66,42 @@ export const SquadPostCardHeader = ({
           highlightBookmarkedPost && headerHiddenClassName,
         )}
       >
-        <div className="relative">
-          {author && (
-            <ProfilePicture
-              user={author}
-              size={
-                enableSourceHeader
-                  ? ProfileImageSize.XSmall
-                  : ProfileImageSize.XLarge
-              }
-              className={enableSourceHeader && '-right-2.5 top-7'}
-              absolute={enableSourceHeader}
-            />
-          )}
+        <div className="relative flex flex-row gap-2">
           <SourceButton
             source={source}
-            className={!enableSourceHeader && 'absolute -bottom-2 -right-2'}
+            className={classNames(
+              'z-0',
+              !enableSourceHeader && 'absolute -bottom-2 -right-2',
+            )}
             size={
               enableSourceHeader
                 ? ProfileImageSize.Large
                 : ProfileImageSize.XSmall
             }
           />
+          {author &&
+            (shouldShowNewImage ? (
+              <ProfileTooltip user={author}>
+                <ProfileImageLink
+                  picture={{ size: ProfileImageSize.Large }}
+                  user={author}
+                />
+              </ProfileTooltip>
+            ) : (
+              <ProfilePicture
+                user={author}
+                size={
+                  enableSourceHeader
+                    ? ProfileImageSize.XSmall
+                    : ProfileImageSize.XLarge
+                }
+                className={classNames(
+                  'z-1',
+                  enableSourceHeader && '-right-2.5 top-7',
+                )}
+                absolute={enableSourceHeader}
+              />
+            ))}
         </div>
         <div className="ml-2 mr-6 flex flex-1 flex-col overflow-auto typo-footnote">
           <span
