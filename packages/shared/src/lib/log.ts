@@ -149,12 +149,20 @@ export enum LogEvent {
   ScheduleStreakReminder = 'schedule streak reminder',
   // 404 page
   View404Page = '404 page',
-  // source
+  // Source Actions - start
+  BlockSource = 'block source',
+  UnblockSource = 'unblock source',
   SubscribeSource = 'subscribe source',
   UnsubscribeSource = 'unsubscribe source',
-  // follow
   FollowSource = 'follow source',
   UnfollowSource = 'unfollow source',
+  // Source Actions - end
+  // Tags - start
+  FollowTag = 'follow tag',
+  UnfollowTag = 'unfollow tag',
+  BlockTag = 'block tag',
+  UnblockTag = 'unblock tag',
+  // Tags - end
   // marketing CTA
   MarketingCtaDismiss = 'dismiss promotion',
   // Reading reminder
