@@ -67,18 +67,6 @@ export const SquadPostCardHeader = ({
         )}
       >
         <div className="relative flex flex-row gap-2">
-          {!shouldShowNewImage && author && (
-            <ProfilePicture
-              user={author}
-              size={
-                enableSourceHeader
-                  ? ProfileImageSize.XSmall
-                  : ProfileImageSize.XLarge
-              }
-              className={enableSourceHeader && '-right-2.5 top-7'}
-              absolute={enableSourceHeader}
-            />
-          )}
           <SourceButton
             source={source}
             className={!enableSourceHeader && 'absolute -bottom-2 -right-2'}
@@ -88,14 +76,26 @@ export const SquadPostCardHeader = ({
                 : ProfileImageSize.XSmall
             }
           />
-          {shouldShowNewImage && author && (
-            <ProfileTooltip user={author}>
-              <ProfileImageLink
-                picture={{ size: ProfileImageSize.Large }}
+          {author &&
+            (shouldShowNewImage ? (
+              <ProfileTooltip user={author}>
+                <ProfileImageLink
+                  picture={{ size: ProfileImageSize.Large }}
+                  user={author}
+                />
+              </ProfileTooltip>
+            ) : (
+              <ProfilePicture
                 user={author}
+                size={
+                  enableSourceHeader
+                    ? ProfileImageSize.XSmall
+                    : ProfileImageSize.XLarge
+                }
+                className={enableSourceHeader && '-right-2.5 top-7'}
+                absolute={enableSourceHeader}
               />
-            </ProfileTooltip>
-          )}
+            ))}
         </div>
         <div className="ml-2 mr-6 flex flex-1 flex-col overflow-auto typo-footnote">
           <span
