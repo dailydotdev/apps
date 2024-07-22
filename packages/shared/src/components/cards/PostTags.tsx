@@ -1,6 +1,9 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement, useRef } from 'react';
+import classNames from 'classnames';
 import { Post } from '../../graphql/posts';
 import Classed from '../../lib/classed';
+import { useFeedTags } from '../../hooks/feed/useFeedTags';
+import { useFeedLayout } from '../../hooks';
 
 type PostTagsProps = Pick<Post, 'tags'>;
 
@@ -10,37 +13,23 @@ const Chip = Classed(
 );
 
 export default function PostTags({ tags }: PostTagsProps): ReactElement {
-  const tagList = useMemo(() => {
-    if (!tags) {
-      return [];
-    }
-
-    let totalLength = 0;
-    return tags.reduce((acc, tag) => {
-      totalLength += tag.length;
-      if (totalLength >= 12 && acc.length >= 2) {
-        return acc;
-      }
-      if (totalLength >= 18 && acc.length > 0) {
-        return acc;
-      }
-
-      acc.push(tag);
-      return acc;
-    }, []);
-  }, [tags]);
-
+  const { isListMode } = useFeedLayout();
+  const elementRef = useRef<HTMLDivElement>(null);
+  const width = elementRef?.current?.getBoundingClientRect()?.width || 0;
+  const list = useFeedTags({ tags, width, offset: isListMode ? 0 : 8 });
   const tagsCount = tags?.length || 0;
-  const remainingTags = tagsCount - tagList.length;
+  const remainingTags = tagsCount - list.length;
 
   return (
-    <div className="flex items-center tablet:mx-2">
-      {tagList.map((tag) => (
-        <Chip key={tag} className="mr-2">
-          #{tag}
-        </Chip>
-      ))}
-      {remainingTags > 0 && <Chip>+{remainingTags} tags</Chip>}
+    <div
+      className={classNames(
+        'flex min-h-px w-full items-center gap-2',
+        !isListMode && 'tablet:mx-2',
+      )}
+      ref={elementRef}
+    >
+      {width > 0 && list.map((tag) => <Chip key={tag}>#{tag}</Chip>)}
+      {remainingTags > 0 && <Chip>+{remainingTags}</Chip>}
     </div>
   );
 }

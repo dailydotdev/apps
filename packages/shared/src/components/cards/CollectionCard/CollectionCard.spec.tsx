@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
 import { CollectionCard } from './CollectionCard';
 import { sharePost as collectionPost } from '../../../../__tests__/fixture/post';
 import { PostCardProps } from '../common';
-import { AuthContextProvider } from '../../../contexts/AuthContext';
+import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 
 const post = collectionPost;
 const defaultProps: PostCardProps = {
@@ -32,16 +32,9 @@ beforeEach(() => {
 
 const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
   return render(
-    <AuthContextProvider
-      user={null}
-      updateUser={jest.fn()}
-      tokenRefreshed={false}
-      getRedirectUri={jest.fn()}
-    >
-      <QueryClientProvider client={new QueryClient()}>
-        <CollectionCard {...defaultProps} {...props} />
-      </QueryClientProvider>
-    </AuthContextProvider>,
+    <TestBootProvider client={new QueryClient()}>
+      <CollectionCard {...defaultProps} {...props} />
+    </TestBootProvider>,
   );
 };
 

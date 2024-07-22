@@ -18,6 +18,7 @@ function PostSummary(
   return (
     <SummaryContainer ref={ref} {...props}>
       <ShowMoreContent
+        className="overflow-hidden"
         content={summary}
         charactersLimit={330}
         threshold={50}
