@@ -65,11 +65,13 @@ interface EnableNotificationAlertCTA {
 
 interface EnableNotificationAlertProps {
   acceptedJustNow?: boolean;
-  accept: EnableNotificationAlertCTA;
+  acceptOptions: EnableNotificationAlertCTA;
   className?: string;
-  close?: EnableNotificationAlertCTA;
-  dismiss?: EnableNotificationAlertCTA;
-  message: string;
+  closeOptions?: EnableNotificationAlertCTA;
+  dismissOptions?: EnableNotificationAlertCTA;
+  imageOptions?: Pick<EnableNotificationAlertCTA, 'show'>;
+  message?: string;
+  showTitleOnAccept?: boolean;
   sourceType?: NotificationPromptSource;
 }
 
@@ -77,13 +79,15 @@ export function EnableNotificationAlert(
   props: EnableNotificationAlertProps,
 ): ReactElement {
   const {
+    acceptOptions,
     acceptedJustNow = true,
     className = '',
-    accept,
-    close,
-    dismiss,
-    sourceType = '',
+    closeOptions,
+    dismissOptions,
+    imageOptions = { show: true },
     message,
+    showTitleOnAccept = false,
+    sourceType = '',
   } = props;
 
   return (
@@ -93,7 +97,8 @@ export function EnableNotificationAlert(
         className,
       )}
     >
-      {sourceType === NotificationPromptSource.NotificationsPage && (
+      {(sourceType === NotificationPromptSource.NotificationsPage ||
+        (showTitleOnAccept && acceptedJustNow)) && (
         <span className="flex flex-row font-bold">
           {acceptedJustNow && <VIcon className="mr-2" />}
           {`Push notifications${
@@ -106,6 +111,10 @@ export function EnableNotificationAlert(
           className={classNames(
             'w-full text-text-tertiary tablet:w-3/5',
             sourceType === NotificationPromptSource.SourceSubscribe && 'flex-1',
+            showTitleOnAccept &&
+              acceptedJustNow &&
+              sourceType === NotificationPromptSource.SourceSubscribe &&
+              'ml-7',
           )}
         >
           {acceptedJustNow ? (
@@ -123,48 +132,52 @@ export function EnableNotificationAlert(
             message
           )}
         </p>
-        <img
-          className={classNames(
-            sourceType === NotificationPromptSource.SourceSubscribe
-              ? 'h-16 w-auto'
-              : 'absolute -bottom-2 hidden w-[7.5rem] tablet:flex',
-            acceptedJustNow ? 'right-14' : 'right-4',
+        {imageOptions?.show && (
+          <img
+            className={classNames(
+              sourceType === NotificationPromptSource.SourceSubscribe
+                ? 'h-16 w-auto'
+                : 'absolute -bottom-2 hidden w-[7.5rem] tablet:flex',
+              acceptedJustNow ? 'right-14' : 'right-4',
+            )}
+            src={
+              acceptedJustNow
+                ? cloudinary.notifications.browser_enabled
+                : cloudinary.notifications.browser
+            }
+            alt="A sample browser notification"
+          />
+        )}
+      </div>
+      {(acceptOptions?.show || dismissOptions?.show) && (
+        <div className="align-center mt-4 flex">
+          {acceptOptions?.show && (
+            <Button
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Primary}
+              color={ButtonColor.Cabbage}
+              className="mr-4"
+              onClick={acceptOptions.onClick}
+            >
+              {acceptOptions.text ?? 'Enable notifications'}
+            </Button>
           )}
-          src={
-            acceptedJustNow
-              ? cloudinary.notifications.browser_enabled
-              : cloudinary.notifications.browser
-          }
-          alt="A sample browser notification"
-        />
-      </div>
-      <div className="align-center mt-4 flex">
-        {!accept.show && (
-          <Button
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Primary}
-            color={ButtonColor.Cabbage}
-            className="mr-4"
-            onClick={accept.onClick}
-          >
-            {accept.text ?? 'Enable notifications'}
-          </Button>
-        )}
-        {dismiss?.show && (
-          <Button
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-            onClick={dismiss?.onClick}
-          >
-            {dismiss.text ?? 'Dismiss'}
-          </Button>
-        )}
-      </div>
-      {close?.show && (
+          {dismissOptions?.show && (
+            <Button
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Tertiary}
+              onClick={dismissOptions?.onClick}
+            >
+              {dismissOptions.text ?? 'Dismiss'}
+            </Button>
+          )}
+        </div>
+      )}
+      {closeOptions?.show && (
         <CloseButton
           size={ButtonSize.XSmall}
           className="absolute right-1 top-1 laptop:right-3 laptop:top-3"
-          onClick={close?.onClick ?? dismiss?.onClick}
+          onClick={closeOptions?.onClick ?? dismissOptions?.onClick}
         />
       )}
     </div>
@@ -233,16 +246,16 @@ function EnableNotification({
   return (
     <EnableNotificationAlert
       acceptedJustNow={acceptedJustNow}
-      accept={{
+      acceptOptions={{
         text: buttonText,
         show: !acceptedJustNow,
         onClick: onEnable,
       }}
       className={classNames(classes, className)}
-      close={{
+      closeOptions={{
         show: showTextCloseButton,
       }}
-      dismiss={{
+      dismissOptions={{
         show: showTextCloseButton,
         onClick: onDismiss,
       }}

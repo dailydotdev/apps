@@ -81,20 +81,25 @@ export const SourceActionsWithNotifyExperiment = ({
       </div>
       {isNotifyOpen && (
         <EnableNotificationAlert
-          sourceType={NotificationPromptSource.SourceSubscribe}
-          message={`Get notified whenever there are new posts from ${source.name}`}
           acceptedJustNow={haveNotifications}
-          accept={{
+          acceptOptions={{
             onClick: toggleNotify,
-          }}
-          dismiss={{
-            show: true,
-            onClick: toggleNotifyOpen,
+            show: !haveNotifications,
           }}
           className={classNames(
-            'w-full max-w-80 !pt-0 typo-footnote',
-            notifyProps?.alertClassName,
+            'w-full max-w-80 typo-footnote',
+            haveNotifications
+              ? '!border-0 bg-brand-float !p-3'
+              : `${notifyProps?.alertClassName} !pt-0`,
           )}
+          dismissOptions={{
+            show: !haveNotifications,
+            onClick: toggleNotifyOpen,
+          }}
+          imageOptions={{ show: !haveNotifications }}
+          message={`Get notified whenever there are new posts from ${source.name}`}
+          showTitleOnAccept
+          sourceType={NotificationPromptSource.SourceSubscribe}
         />
       )}
     </>
