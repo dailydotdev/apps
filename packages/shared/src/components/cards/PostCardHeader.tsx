@@ -6,7 +6,7 @@ import SourceButton from './SourceButton';
 import { Source } from '../../graphql/sources';
 import { ReadArticleButton } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
-import { useFeedPreviewMode } from '../../hooks';
+import { useConditionalFeature, useFeedPreviewMode } from '../../hooks';
 import { getReadPostButtonText, Post } from '../../graphql/posts';
 import { ButtonVariant } from '../buttons/Button';
 import { FlagProps } from './FeedItemContainer';
@@ -15,6 +15,10 @@ import {
   BookmakProviderHeader,
   headerHiddenClassName,
 } from './BookmarkProviderHeader';
+import { feature } from '../../lib/featureManagement';
+import { ProfileTooltip } from '../profile/ProfileTooltip';
+import { ProfileImageLink } from '../profile/ProfileImageLink';
+import { ProfileImageSize } from '../ProfilePicture';
 
 interface CardHeaderProps {
   post: Post;
@@ -43,6 +47,10 @@ export const PostCardHeader = ({
   showFeedback,
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
+  const { value: shouldShowImage } = useConditionalFeature({
+    shouldEvaluate: !!post?.author,
+    feature: feature.authorImage,
+  });
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: post.bookmarked && !showFeedback,
   });
@@ -59,6 +67,14 @@ export const PostCardHeader = ({
         )}
       >
         <SourceButton source={source} />
+        {shouldShowImage && post.author && (
+          <ProfileTooltip user={post.author}>
+            <ProfileImageLink
+              picture={{ size: ProfileImageSize.Medium }}
+              user={post.author}
+            />
+          </ProfileTooltip>
+        )}
         {children}
         <Container
           className="ml-auto flex flex-row"
