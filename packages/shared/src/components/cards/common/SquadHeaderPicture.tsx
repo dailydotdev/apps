@@ -3,6 +3,8 @@ import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import SourceButton from '../SourceButton';
 import { Author } from '../../../graphql/comments';
 import { Source } from '../../../graphql/sources';
+import { useConditionalFeature } from '../../../hooks';
+import { feature } from '../../../lib/featureManagement';
 
 interface SquadHeaderPictureProps {
   author?: Author;
@@ -15,10 +17,16 @@ export default function SquadHeaderPicture({
   source,
   reverse = false,
 }: SquadHeaderPictureProps): ReactElement {
+  const { value: shouldShowNewAuthorImage } = useConditionalFeature({
+    shouldEvaluate: !!author,
+    feature: feature.authorImage,
+  });
+  const shouldShowAuthor = !!author && !shouldShowNewAuthorImage;
+
   if (reverse) {
     return (
       <div className="relative">
-        {!!author && (
+        {shouldShowAuthor && (
           <ProfilePicture user={author} size={ProfileImageSize.Large} />
         )}
         <SourceButton
@@ -32,7 +40,7 @@ export default function SquadHeaderPicture({
   return (
     <div className="relative">
       <SourceButton size={ProfileImageSize.Large} source={source} />
-      {!!author && (
+      {shouldShowAuthor && (
         <ProfilePicture
           user={author}
           size={ProfileImageSize.XSmall}
