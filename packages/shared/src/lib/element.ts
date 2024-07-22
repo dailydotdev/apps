@@ -60,6 +60,6 @@ export const parentClassContains = (
 };
 
 export const isCompanionActivated = (): boolean =>
-  !!globalThis?.document
+  !!document
     ?.querySelector('daily-companion-app')
     ?.shadowRoot?.querySelector?.('#daily-companion-wrapper')?.firstChild;
