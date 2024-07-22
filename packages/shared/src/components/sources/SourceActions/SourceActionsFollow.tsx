@@ -26,7 +26,7 @@ const SourceActionsFollow = (props: SourceActionsFollowProps): ReactElement => {
         size={ButtonSize.Small}
         variant={variant}
       >
-        {isSubscribed ? 'Subscribed' : 'Subscribe'}
+        {isSubscribed ? 'Unfollow' : 'Follow'}
       </Button>
     </WrapperEl>
   );
