@@ -69,7 +69,10 @@ export const SquadPostCardHeader = ({
         <div className="relative flex flex-row gap-2">
           <SourceButton
             source={source}
-            className={!enableSourceHeader && 'absolute -bottom-2 -right-2'}
+            className={classNames(
+              'z-0',
+              !enableSourceHeader && 'absolute -bottom-2 -right-2',
+            )}
             size={
               enableSourceHeader
                 ? ProfileImageSize.Large
@@ -92,7 +95,10 @@ export const SquadPostCardHeader = ({
                     ? ProfileImageSize.XSmall
                     : ProfileImageSize.XLarge
                 }
-                className={enableSourceHeader && '-right-2.5 top-7'}
+                className={classNames(
+                  'z-1',
+                  enableSourceHeader && '-right-2.5 top-7',
+                )}
                 absolute={enableSourceHeader}
               />
             ))}
