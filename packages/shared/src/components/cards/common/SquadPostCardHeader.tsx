@@ -91,7 +91,7 @@ export const SquadPostCardHeader = ({
           {shouldShowNewImage && author && (
             <ProfileTooltip user={author}>
               <ProfileImageLink
-                picture={{ size: ProfileImageSize.Medium }}
+                picture={{ size: ProfileImageSize.Large }}
                 user={author}
               />
             </ProfileTooltip>
