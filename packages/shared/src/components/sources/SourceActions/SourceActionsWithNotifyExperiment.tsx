@@ -1,10 +1,14 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import { ButtonVariant } from '../../buttons/common';
 import { Source } from '../../../graphql/sources';
 import { useSourceActions } from '../../../hooks';
 import SourceActionsNotify from './SourceActionsNotify';
 import SourceActionsBlock from './SourceActionsBlock';
 import SourceActionsFollow from './SourceActionsFollow';
+import { useToggle } from '../../../hooks/useToggle';
+import { EnableNotificationAlert } from '../../notifications/EnableNotification';
+import { NotificationPromptSource } from '../../../lib/log';
 
 interface SourceActionsButton {
   className?: string;
@@ -20,7 +24,7 @@ export interface SourceActionsProps {
   followProps?: SourceActionsButton;
   hideFollow?: boolean;
   // notify action
-  notifyProps?: SourceActionsButton;
+  notifyProps?: SourceActionsButton & { alertClassName?: string };
   hideNotify?: boolean;
 }
 
@@ -44,9 +48,11 @@ export const SourceActionsWithNotifyExperiment = ({
     source,
   });
 
+  const [isNotifyOpen, toggleNotifyOpen] = useToggle(false);
+
   return (
     <>
-      <div className="inline-flex flex-row gap-2">
+      <div className="flex flex-row gap-2">
         {!hideFollow && !isBlocked && (
           <SourceActionsFollow
             isFetching={false}
@@ -60,8 +66,8 @@ export const SourceActionsWithNotifyExperiment = ({
         )}
         {!hideNotify && isFollowing && (
           <SourceActionsNotify
-            haveNotifications={haveNotifications}
-            onClick={toggleNotify}
+            haveNotifications={haveNotifications || isNotifyOpen}
+            onClick={haveNotifications ? toggleNotify : toggleNotifyOpen}
             {...notifyProps}
           />
         )}
@@ -73,6 +79,24 @@ export const SourceActionsWithNotifyExperiment = ({
           />
         )}
       </div>
+      {isNotifyOpen && (
+        <EnableNotificationAlert
+          sourceType={NotificationPromptSource.SourceSubscribe}
+          message={`Get notified whenever there are new posts from ${source.name}`}
+          acceptedJustNow={haveNotifications}
+          accept={{
+            onClick: toggleNotify,
+          }}
+          dismiss={{
+            show: true,
+            onClick: toggleNotifyOpen,
+          }}
+          className={classNames(
+            'w-full max-w-80 !pt-0 typo-footnote',
+            notifyProps?.alertClassName,
+          )}
+        />
+      )}
     </>
   );
 };

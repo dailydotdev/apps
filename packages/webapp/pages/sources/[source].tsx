@@ -187,8 +187,14 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
           />
           <h1 className="ml-2 w-fit typo-title2">{source.name}</h1>
         </div>
-        <div className="flex flex-row gap-3">
-          <SourceActions source={source} />
+        <div>
+          <SourceActions
+            source={source}
+            notifyProps={{
+              alertClassName:
+                'mt-2 rounded-10 border border-border-subtlest-tertiary !p-2',
+            }}
+          />
         </div>
         {source?.description && (
           <p className="typo-body">{source?.description}</p>

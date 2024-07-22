@@ -136,7 +136,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
   return (
     <div
       className={classNames(
-        'relative flex flex-row items-center gap-4 p-3',
+        'relative flex flex-row flex-wrap items-center gap-4 p-3',
         className?.wrapper,
       )}
     >
@@ -209,6 +209,9 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
         <SourceActions
           followProps={{
             variant: ButtonVariant.Secondary,
+          }}
+          notifyProps={{
+            alertClassName: '!py-0',
           }}
           hideBlock
           source={source}

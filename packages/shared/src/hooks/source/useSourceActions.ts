@@ -14,6 +14,7 @@ interface UseSourceActionsReturn {
   toggleFollow: () => void;
   haveNotifications: boolean;
   toggleNotify: () => void;
+  isReadyNotification: boolean;
 }
 
 export const useSourceActions = (
@@ -23,7 +24,11 @@ export const useSourceActions = (
 
   const { isBlocked, toggleBlock } = useSourceActionsBlock({ source });
   const { isFollowing, toggleFollow } = useSourceActionsFollow({ source });
-  const { haveNotifications, onNotify } = useSourceActionsNotify({
+  const {
+    haveNotifications,
+    onNotify,
+    isReady: isReadyNotification,
+  } = useSourceActionsNotify({
     source,
   });
 
@@ -34,6 +39,7 @@ export const useSourceActions = (
     toggleFollow,
     haveNotifications,
     toggleNotify: onNotify,
+    isReadyNotification,
   };
 };
 
