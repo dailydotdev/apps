@@ -13,11 +13,16 @@ interface CardCoverProps extends ReusedCardCoverProps {
 
 export function CardCoverList({
   className,
+  imageProps,
   ...props
 }: CardCoverProps): ReactElement {
   return (
     <SharedCardCover
       {...props}
+      imageProps={{
+        ...imageProps,
+        className: classNames(imageProps.className, 'tablet:w-60'),
+      }}
       CardImageComponent={CardImage}
       renderOverlay={({ overlay, image }) => (
         <ConditionalWrapper
