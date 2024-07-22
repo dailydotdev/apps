@@ -37,6 +37,7 @@ interface UseProfileForm {
 
 interface UseProfileFormProps {
   onSuccess?: () => void;
+  onError?: (error: ResponseError) => void;
 }
 
 type Handles = Pick<
@@ -79,6 +80,7 @@ export const onValidateHandles = (
 
 const useProfileForm = ({
   onSuccess,
+  onError,
 }: UseProfileFormProps = {}): UseProfileForm => {
   const { user, updateUser } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
@@ -101,10 +103,16 @@ const useProfileForm = ({
         onSuccess?.();
       },
       onError: (err) => {
+        onError?.(err);
+
         if (!err?.response?.errors?.length) {
           return;
         }
+
+        displayToast(errorMessage.profile.invalidData);
+
         const data = JSON.parse(err.response.errors[0].message);
+
         setHint(data);
       },
     },
@@ -112,16 +120,9 @@ const useProfileForm = ({
 
   const handleUpdate: typeof updateUserProfile = useCallback(
     (values) => {
-      const error = onValidateHandles(user, values);
-      const message = Object.values(error)[0];
-
-      if (message) {
-        return displayToast(message);
-      }
-
       return updateUserProfile(values);
     },
-    [displayToast, user, updateUserProfile],
+    [updateUserProfile],
   );
 
   return {
