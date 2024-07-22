@@ -212,7 +212,7 @@ it('should show login popup when logged-out on add to feed click', async () => {
     null,
   );
   await waitForNock();
-  const button = await screen.findByLabelText('Follow');
+  const button = await screen.findByTestId('blockButton');
   button.click();
   expect(showLogin).toBeCalledTimes(1);
 });

@@ -15,6 +15,7 @@ const SourceActionsFollow = (props: SourceActionsFollowProps): ReactElement => {
 
   return (
     <Button
+      aria-label={isSubscribed ? 'Unfollow' : 'Follow'}
       className={className}
       disabled={isFetching}
       onClick={onClick}

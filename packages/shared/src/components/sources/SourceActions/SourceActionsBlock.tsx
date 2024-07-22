@@ -13,7 +13,8 @@ const SourceActionsBlock = ({
 }: SourceActionBlockProps): ReactElement => {
   return (
     <Button
-      aria-label={isBlocked ? 'Follow' : 'Block'}
+      aria-label={isBlocked ? 'Unblock' : 'Block'}
+      data-testid="blockButton"
       icon={<BlockIcon />}
       onClick={onClick}
       size={ButtonSize.Small}
