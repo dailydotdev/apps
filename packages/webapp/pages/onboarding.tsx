@@ -161,10 +161,11 @@ export function OnboardPage(): ReactElement {
   };
 
   const onClickCreateFeed = () => {
-    if (activeScreen === OnboardingStep.EditTag) {
-      if (enableContentTypeStep.current) {
-        return onClickNext();
-      }
+    if (
+      activeScreen === OnboardingStep.EditTag &&
+      enableContentTypeStep.current
+    ) {
+      return onClickNext();
     }
 
     const onboardingChecklist = getFeatureValue(feature.onboardingChecklist);
