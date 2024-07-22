@@ -165,40 +165,6 @@ export default function useMutateFilters(
   const queryClient = useQueryClient();
   const shouldFilterLocally = shouldFilterLocallyProp || !user;
 
-  const { mutateAsync: removeFiltersRemote } = useMutation<
-    unknown,
-    unknown,
-    SourceMutationProps & { key?: string },
-    () => void
-  >(
-    ({ source, key = 'excludeSources' }) =>
-      gqlClient.request(REMOVE_FILTERS_FROM_FEED_MUTATION, {
-        filters: {
-          [key]: [source.id],
-        },
-      }),
-    {
-      onError: (err, _, rollback) => rollback(),
-    },
-  );
-
-  const { mutateAsync: addFiltersRemote } = useMutation<
-    unknown,
-    unknown,
-    SourceMutationProps & { key?: string },
-    () => Promise<void>
-  >(
-    ({ source, key = 'excludeSources' }) =>
-      gqlClient.request(ADD_FILTERS_TO_FEED_MUTATION, {
-        filters: {
-          [key]: [source.id],
-        },
-      }),
-    {
-      onError: (err, _, rollback) => rollback(),
-    },
-  );
-
   const updateFeedFilters = useCallback(
     ({ advancedSettings, ...filters }: FeedSettings) => {
       const {
@@ -356,7 +322,7 @@ export default function useMutateFilters(
     unknown,
     unknown,
     TagsMutationProps,
-    () => void
+    () => Promise<void>
   >(
     ({ tags }) =>
       gqlClient.request(REMOVE_FILTERS_FROM_FEED_MUTATION, {
@@ -392,7 +358,7 @@ export default function useMutateFilters(
     unknown,
     unknown,
     TagsMutationProps,
-    () => void
+    () => Promise<void>
   >(
     ({ tags }) =>
       gqlClient.request(REMOVE_FILTERS_FROM_FEED_MUTATION, {
@@ -427,17 +393,21 @@ export default function useMutateFilters(
     [user, queryClient, feedId],
   );
 
-  const unblockSourceRemote = useCallback(
-    async ({ source }: SourceMutationProps) => {
-      await removeFiltersRemote(
-        { source, key: 'excludeSources' },
-        {
-          onSuccess: () => onUnblockSource({ source }),
+  const { mutateAsync: unblockSourceRemote } = useMutation<
+    unknown,
+    unknown,
+    SourceMutationProps,
+    () => Promise<void>
+  >({
+    mutationFn: ({ source }) =>
+      gqlClient.request(REMOVE_FILTERS_FROM_FEED_MUTATION, {
+        filters: {
+          excludeSources: [source.id],
         },
-      );
-    },
-    [onUnblockSource, removeFiltersRemote],
-  );
+      }),
+    onMutate: onUnblockSource,
+    onError: (err, _, rollback) => rollback(),
+  });
 
   const onFollowSource = useCallback(
     ({ source }: SourceMutationProps) =>
@@ -455,19 +425,21 @@ export default function useMutateFilters(
     [user, queryClient, feedId],
   );
 
-  const followSourceRemote = useCallback(
-    async ({ source }: SourceMutationProps) => {
-      await addFiltersRemote(
-        { source, key: 'includeSources' },
-        {
-          onSuccess: () => {
-            onFollowSource({ source });
-          },
+  const { mutateAsync: followSourceRemote } = useMutation<
+    unknown,
+    unknown,
+    SourceMutationProps,
+    () => Promise<void>
+  >({
+    mutationFn: ({ source }) =>
+      gqlClient.request(ADD_FILTERS_TO_FEED_MUTATION, {
+        filters: {
+          includeSources: [source.id],
         },
-      );
-    },
-    [addFiltersRemote, onFollowSource],
-  );
+      }),
+    onMutate: onFollowSource,
+    onError: (err, _, rollback) => rollback(),
+  });
 
   const onUnfollowSource = useCallback(
     ({ source }: SourceMutationProps) =>
@@ -487,17 +459,21 @@ export default function useMutateFilters(
     [user, queryClient, feedId],
   );
 
-  const unfollowSourceRemote = useCallback(
-    async ({ source }: SourceMutationProps) => {
-      await removeFiltersRemote(
-        { source, key: 'includeSources' },
-        {
-          onSuccess: () => onUnfollowSource({ source }),
+  const { mutateAsync: unfollowSourceRemote } = useMutation<
+    unknown,
+    unknown,
+    SourceMutationProps,
+    () => Promise<void>
+  >({
+    mutationFn: ({ source }) =>
+      gqlClient.request(REMOVE_FILTERS_FROM_FEED_MUTATION, {
+        filters: {
+          includeSources: [source.id],
         },
-      );
-    },
-    [onUnfollowSource, removeFiltersRemote],
-  );
+      }),
+    onMutate: onUnfollowSource,
+    onError: (err, _, rollback) => rollback(),
+  });
 
   const onBlockSource = useCallback(
     ({ source }: SourceMutationProps) =>
@@ -515,20 +491,22 @@ export default function useMutateFilters(
     [user, queryClient, feedId],
   );
 
-  const blockSourceRemote = useCallback(
-    async ({ source }: SourceMutationProps) => {
-      await addFiltersRemote(
-        { source, key: 'excludeSources' },
-        {
-          onSuccess: () => {
-            onBlockSource({ source });
-            clearNotificationPreference({ queryClient, user });
-          },
+  const { mutateAsync: blockSourceRemote } = useMutation<
+    unknown,
+    unknown,
+    SourceMutationProps,
+    () => Promise<void>
+  >({
+    mutationFn: ({ source }) =>
+      gqlClient.request(ADD_FILTERS_TO_FEED_MUTATION, {
+        filters: {
+          excludeSources: [source.id],
         },
-      );
-    },
-    [addFiltersRemote, onBlockSource, queryClient, user],
-  );
+      }),
+    onMutate: onBlockSource,
+    onSuccess: () => clearNotificationPreference({ queryClient, user }),
+    onError: (err, _, rollback) => rollback(),
+  });
 
   return useMemo(
     () => ({
