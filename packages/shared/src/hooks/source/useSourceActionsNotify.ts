@@ -3,9 +3,12 @@ import { NotificationType } from '../../components/notifications/utils';
 import { useLogContext } from '../../contexts/LogContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Source } from '../../graphql/sources';
-import { LogEvent } from '../../lib/log';
+import { LogEvent, NotificationPromptSource } from '../../lib/log';
 import { AuthTriggers } from '../../lib/auth';
-import { useNotificationPreferenceToggle } from '../notifications';
+import {
+  useEnableNotification,
+  useNotificationPreferenceToggle,
+} from '../notifications';
 import { useToastNotification } from '../useToastNotification';
 
 export type UseSourceSubscriptionProps = {
@@ -34,6 +37,10 @@ export const useSourceActionsNotify = ({
         : undefined,
     });
 
+  const { onEnable: enablePushNotifications } = useEnableNotification({
+    source: NotificationPromptSource.SourceSubscribe,
+  });
+
   const onNotify = useCallback(async () => {
     if (!source?.id) {
       return;
@@ -41,7 +48,6 @@ export const useSourceActionsNotify = ({
 
     if (!isLoggedIn) {
       showLogin({ trigger: AuthTriggers.SourceSubscribe });
-
       return;
     }
 
@@ -61,6 +67,9 @@ export const useSourceActionsNotify = ({
         ? `✅ You'll get notified every time ${displayName} posts`
         : `⛔️ You'll no longer get notified about ${displayName} posts`,
     );
+
+    // ask for push notifications permission
+    await enablePushNotifications();
   }, [source, isLoggedIn, onToggle, logEvent, displayToast, showLogin]);
 
   return {
