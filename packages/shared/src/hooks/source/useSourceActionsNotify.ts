@@ -69,7 +69,11 @@ export const useSourceActionsNotify = ({
     );
 
     // ask for push notifications permission
-    await enablePushNotifications();
+    try {
+      await enablePushNotifications();
+    } catch (e) {
+      console.error(e);
+    }
   }, [source, isLoggedIn, onToggle, logEvent, displayToast, showLogin]);
 
   return {
