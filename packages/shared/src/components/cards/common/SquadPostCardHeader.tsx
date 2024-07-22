@@ -66,7 +66,7 @@ export const SquadPostCardHeader = ({
           highlightBookmarkedPost && headerHiddenClassName,
         )}
       >
-        <div className="relative">
+        <div className="relative flex flex-row gap-2">
           {!shouldShowNewImage && author && (
             <ProfilePicture
               user={author}
