@@ -9,6 +9,10 @@ import {
   BookmakProviderHeader,
   headerHiddenClassName,
 } from '../BookmarkProviderHeader';
+import { useConditionalFeature } from '../../../hooks';
+import { feature } from '../../../lib/featureManagement';
+import { ProfileTooltip } from '../../profile/ProfileTooltip';
+import { ProfileImageLink } from '../../profile/ProfileImageLink';
 
 type SquadPostCardHeaderProps = Pick<
   Post,
@@ -22,6 +26,10 @@ export const SquadPostCardHeader = ({
   enableSourceHeader = false,
   bookmarked,
 }: SquadPostCardHeaderProps): ReactElement => {
+  const { value: shouldShowNewImage } = useConditionalFeature({
+    shouldEvaluate: !!author,
+    feature: feature.authorImage,
+  });
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked,
   });
@@ -59,7 +67,7 @@ export const SquadPostCardHeader = ({
         )}
       >
         <div className="relative">
-          {author && (
+          {!shouldShowNewImage && author && (
             <ProfilePicture
               user={author}
               size={
@@ -80,6 +88,14 @@ export const SquadPostCardHeader = ({
                 : ProfileImageSize.XSmall
             }
           />
+          {shouldShowNewImage && author && (
+            <ProfileTooltip user={author}>
+              <ProfileImageLink
+                picture={{ size: ProfileImageSize.Medium }}
+                user={author}
+              />
+            </ProfileTooltip>
+          )}
         </div>
         <div className="ml-2 mr-6 flex flex-1 flex-col overflow-auto typo-footnote">
           <span
