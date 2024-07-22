@@ -1,6 +1,5 @@
-import React, { Fragment, ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
-import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
 import { Button } from '../../buttons/Button';
 
 interface SourceActionsFollowProps {
@@ -14,21 +13,16 @@ interface SourceActionsFollowProps {
 const SourceActionsFollow = (props: SourceActionsFollowProps): ReactElement => {
   const { className, isSubscribed, isFetching, onClick, variant } = props;
 
-  const WrapperEl = isSubscribed ? SimpleTooltip : Fragment;
-  const wrapperProps = isSubscribed ? { content: 'Unsubscribe' } : {};
-
   return (
-    <WrapperEl {...wrapperProps}>
-      <Button
-        className={className}
-        disabled={isFetching}
-        onClick={onClick}
-        size={ButtonSize.Small}
-        variant={variant}
-      >
-        {isSubscribed ? 'Unfollow' : 'Follow'}
-      </Button>
-    </WrapperEl>
+    <Button
+      className={className}
+      disabled={isFetching}
+      onClick={onClick}
+      size={ButtonSize.Small}
+      variant={variant}
+    >
+      {isSubscribed ? 'Unfollow' : 'Follow'}
+    </Button>
   );
 };
 
