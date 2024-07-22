@@ -178,7 +178,6 @@ export default function useMutateFilters(
         },
       }),
     {
-      // onMutate: onUnblockSource,
       onError: (err, _, rollback) => rollback(),
     },
   );
