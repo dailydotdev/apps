@@ -38,7 +38,7 @@ export const ContentTypes = (): ReactElement => {
   }, [contentCurationList, videoSetting]);
 
   return (
-    <div className="flex max-w-[63.75rem] flex-col tablet:px-10">
+    <div className="flex max-w-screen-laptop flex-col tablet:px-10">
       <h2 className="typo-bold mb-10 text-center typo-large-title">
         What kind of posts would you like to see on your feed?
       </h2>

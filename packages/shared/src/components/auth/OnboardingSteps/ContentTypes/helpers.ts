@@ -23,11 +23,11 @@ export const getContentTypeNotEmpty = ({
   const videoSetting = getVideoSetting(advancedSettings);
 
   const advancedSettingsSelected = (settings: AdvancedSettings[]) =>
-    !!settings
+    settings
       .map(({ id, defaultEnabledState }) => {
         return selectedSettings[id] ?? defaultEnabledState;
       })
-      .find((setting) => setting === true);
+      .some((setting) => setting === true);
 
   const advancedSettingsCurationListSelected =
     advancedSettingsSelected(contentCurationList);
@@ -35,9 +35,9 @@ export const getContentTypeNotEmpty = ({
   const advancedSettingsVideoSelected =
     !!videoSetting && advancedSettingsSelected([videoSetting]);
 
-  const sourceListSelected = !!contentSourceList
+  const sourceListSelected = contentSourceList
     .map(({ options }) => options.source)
-    .find((source) => !checkSourceBlocked(source));
+    .some((source) => !checkSourceBlocked(source));
 
   return (
     advancedSettingsCurationListSelected ||

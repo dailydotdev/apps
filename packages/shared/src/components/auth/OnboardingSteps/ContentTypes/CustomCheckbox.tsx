@@ -21,27 +21,25 @@ export const CustomCheckbox = ({
     <button
       type="button"
       className={classNames(
-        'h-[8.25rem] max-w-80 cursor-pointer rounded-16 border p-4 text-left',
+        'inline-grid h-[8.25rem] max-w-80 cursor-pointer content-start rounded-16 border p-4 text-left',
         checked
           ? 'border-accent-cabbage-bolder bg-surface-float text-text-primary'
           : 'text-text-tertiary',
       )}
       onClick={onCheckboxToggle}
     >
-      <div className="h-full">
-        <div className="flex">
-          <p className="mr-auto font-bold typo-title3">{title}</p>
-          {checked && (
-            <Checkbox
-              className="pointer-events-none !p-0"
-              checkmarkClassName="!mr-0"
-              name={name}
-              checked
-            />
-          )}
-        </div>
-        <p className="mt-1.5 text-text-tertiary typo-body">{description}</p>
+      <div className="flex">
+        <p className="mr-auto font-bold typo-title3">{title}</p>
+        {checked && (
+          <Checkbox
+            className="pointer-events-none !p-0"
+            checkmarkClassName="!mr-0"
+            name={name}
+            checked
+          />
+        )}
       </div>
+      <p className="mt-1.5 text-text-tertiary typo-body">{description}</p>
     </button>
   );
 };
