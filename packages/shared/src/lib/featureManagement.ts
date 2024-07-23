@@ -30,6 +30,7 @@ const feature = {
   animatedUpvote: new Feature('animated_upvote', false),
   mobileExploreTab: new Feature('mobile_explore_tab', false),
   authorImage: new Feature('author_image', false),
+  onboardingContentType: new Feature('onboarding_content_type', false),
 };
 
 export { feature };
