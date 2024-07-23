@@ -17,6 +17,7 @@ import { ActionType } from '../../../graphql/actions';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { SettingsIcon } from '../../icons';
 import StreakReminderSwitch from '../StreakReminderSwitch';
+import ReadingStreakSwitch from '../ReadingStreakSwitch';
 import { useToggle } from '../../../hooks/useToggle';
 
 const getStreak = ({
@@ -155,6 +156,7 @@ export function ReadingStreakPopup({
               General
             </p>
             <StreakReminderSwitch label="Notify me before my streak expires" />
+            <ReadingStreakSwitch />
           </div>
         </div>
       )}
