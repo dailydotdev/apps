@@ -65,29 +65,37 @@ export const useSourceActionsNotify = ({
 
     const displayName = 'name' in source ? source.name : source?.id;
 
-    displayToast(
-      notifications.isSubscribed
-        ? `✅ You'll get notified every time ${displayName} posts`
-        : `⛔️ You'll no longer get notified about ${displayName} posts`,
-    );
-
-    // ask for push notifications permission
     if (isNotifyExperiment) {
-      try {
-        await enablePushNotifications();
-      } catch (e) {
-        // errors are not handled here, do nothing for now
+      displayToast(
+        notifications.isSubscribed
+          ? `✅ You'll get notified every time ${displayName} posts`
+          : `⛔️ You'll no longer get notified about ${displayName} posts`,
+      );
+
+      // ask for push notifications permission
+      if (isNotifyExperiment) {
+        try {
+          await enablePushNotifications();
+        } catch (e) {
+          // errors are not handled here, do nothing for now
+        }
       }
+    } else {
+      displayToast(
+        notifications.isSubscribed
+          ? '✅ You are now subscribed'
+          : '⛔️ You are now unsubscribed',
+      );
     }
   }, [
+    source,
+    isLoggedIn,
+    onToggle,
+    logEvent,
+    isNotifyExperiment,
+    showLogin,
     displayToast,
     enablePushNotifications,
-    isLoggedIn,
-    isNotifyExperiment,
-    logEvent,
-    onToggle,
-    showLogin,
-    source,
   ]);
 
   return {

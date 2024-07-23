@@ -21,6 +21,7 @@ const SourceActionsFollow = (props: SourceActionsFollowProps): ReactElement => {
       onClick={onClick}
       size={ButtonSize.Small}
       variant={variant}
+      data-testid="followButton"
     >
       {isSubscribed ? 'Unfollow' : 'Follow'}
     </Button>

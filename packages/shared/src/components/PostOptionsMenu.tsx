@@ -357,8 +357,8 @@ export default function PostOptionsMenu({
       ),
       label: `${
         sourceSubscribe.haveNotifications
-          ? 'Receive notifications from'
-          : 'Receive notifications to'
+          ? '✅ You are now subscribed to '
+          : '⛔️ You are now unsubscribed to '
       } ${post?.source?.name}`,
       action: sourceSubscribe.isReady ? sourceSubscribe.onNotify : undefined,
       Wrapper: ({ children }: { children: ReactNode }) => <>{children}</>,

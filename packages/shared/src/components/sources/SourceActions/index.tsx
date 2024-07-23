@@ -5,7 +5,7 @@ import {
 } from './SourceActionsWithNotifyExperiment';
 import { withExperiment } from '../../withExperiment';
 import { feature } from '../../../lib/featureManagement';
-import { SourceSubscribeButton } from '../SourceSubscribeButton';
+import { SourceSubscribeButton } from './SourceSubscribeButton';
 import SourceActionsBlock from './SourceActionsBlock';
 import { useSourceActionsBlock } from '../../../hooks/source/useSourceActionsBlock';
 

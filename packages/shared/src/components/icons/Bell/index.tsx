@@ -9,3 +9,4 @@ export const BellIcon = (props: IconProps): ReactElement => (
 export * from './Disabled';
 export * from './Notify';
 export * from './Subscribed';
+export * from './Add';
