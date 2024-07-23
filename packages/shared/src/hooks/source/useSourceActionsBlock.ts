@@ -25,7 +25,6 @@ export function useSourceActionsBlock(
     if (!feedSettings?.excludeSources?.length) {
       return false;
     }
-    console.log(feedSettings.excludeSources);
     return !!feedSettings.excludeSources.find(
       (excludedSource) => source?.id === excludedSource.id,
     );
