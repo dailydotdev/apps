@@ -333,7 +333,7 @@ const AccountNotificationsPage = (): ReactElement => {
             This will affect the personalized digest, reading reminders and
             reading streak freeze days.
           </ContentText>
-          <ToggleWeekStart />
+          <ToggleWeekStart className={{ container: 'mt-3' }} />
         </div>
       </div>
       <div className="my-4 border-t border-border-subtlest-tertiary" />

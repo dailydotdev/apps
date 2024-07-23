@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { isNullOrUndefined } from '../../lib/func';
 import { DayOfWeek } from '../../lib/constants';
-import { Radio } from '../fields/Radio';
+import { Radio, ClassName as RadioClassName } from '../fields/Radio';
 import useProfileForm from '../../hooks/useProfileForm';
 
 const getDefaultStartOfWeek = (weekStart?: number): string => {
@@ -13,7 +13,11 @@ const getDefaultStartOfWeek = (weekStart?: number): string => {
   return (weekStart as number).toString();
 };
 
-export const ToggleWeekStart = (): ReactElement => {
+export const ToggleWeekStart = ({
+  className,
+}: {
+  className?: RadioClassName;
+}): ReactElement => {
   const { user } = useAuthContext();
   const { updateUserProfile } = useProfileForm();
 
@@ -36,6 +40,7 @@ export const ToggleWeekStart = (): ReactElement => {
         },
       ]}
       onChange={toggleWeekStart}
+      className={className}
     />
   );
 };
