@@ -108,10 +108,11 @@ export function ReadingStreakPopup({
           streak={streakDef}
           day={value.getDay()}
           shouldShowArrow={isToday}
+          onClick={() => toggleShowStreakConfig()}
         />
       );
     });
-  }, [history, dateToday]);
+  }, [dateToday, history, toggleShowStreakConfig]);
 
   useEffect(() => {
     if ([streak.max, streak.current].some((value) => value >= 2)) {

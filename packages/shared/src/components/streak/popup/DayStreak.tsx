@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { ReadingStreakIcon, TriangleArrowIcon } from '../../icons';
+import { ReadingStreakIcon, TriangleArrowIcon, EditIcon } from '../../icons';
 import classed from '../../../lib/classed';
 import { IconSize, iconSizeToClassName } from '../../Icon';
 import { isNullOrUndefined } from '../../../lib/func';
@@ -19,6 +19,7 @@ interface DayStreakProps {
   size?: IconSize;
   className?: string;
   shouldShowArrow?: boolean;
+  onClick?: () => void;
 }
 
 const dayInitial = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
@@ -33,6 +34,7 @@ export function DayStreak({
   size = IconSize.Medium,
   className,
   shouldShowArrow,
+  onClick,
 }: DayStreakProps): ReactElement {
   const renderIcon = () => {
     if (streak === Streak.Completed || streak === Streak.Pending) {
@@ -50,9 +52,17 @@ export function DayStreak({
         className={classNames(
           className,
           iconSizeToClassName[size],
-          streak === Streak.Freeze && 'bg-text-disabled',
+          streak === Streak.Freeze &&
+            'flex cursor-pointer items-center justify-center bg-text-disabled text-transparent hover:text-surface-secondary',
         )}
-      />
+        onClick={() => {
+          if (streak === Streak.Freeze && onClick) {
+            onClick();
+          }
+        }}
+      >
+        {streak === Streak.Freeze && <EditIcon size={IconSize.XSmall} />}
+      </Circle>
     );
   };
 
