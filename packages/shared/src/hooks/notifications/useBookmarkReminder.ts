@@ -15,8 +15,8 @@ import { EmptyResponse } from '../../graphql/emptyResponse';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, NotificationPromptSource } from '../../lib/log';
 import { Post } from '../../graphql/posts';
-import { useEnableNotification } from './useEnableNotification';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
+import { usePushNotificationMutation } from './usePushNotificationMutation';
 
 export enum ReminderPreference {
   OneHour = 'In 1 hour',
@@ -76,9 +76,7 @@ export const useBookmarkReminder = ({
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
   const { isPushSupported, isSubscribed } = usePushNotificationContext();
-  const { onEnable } = useEnableNotification({
-    source: NotificationPromptSource.BookmarkReminder,
-  });
+  const { onEnablePush } = usePushNotificationMutation();
 
   const onUpdateCache = (postId: string, remindAt?: Date) => {
     updatePostCache(client, postId, (_post) => ({
@@ -116,7 +114,7 @@ export const useBookmarkReminder = ({
         });
 
         if (isPushSupported && !isSubscribed) {
-          onEnable();
+          onEnablePush(NotificationPromptSource.BookmarkReminder);
         }
       },
       onError: () => displayToast('Failed to set reminder'),
