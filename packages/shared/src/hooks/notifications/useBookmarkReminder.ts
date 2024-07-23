@@ -13,8 +13,10 @@ import { updateCachedPagePost } from '../../lib/query';
 import { optimisticPostUpdateInFeed, postLogEvent } from '../../lib/feed';
 import { EmptyResponse } from '../../graphql/emptyResponse';
 import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent } from '../../lib/log';
+import { LogEvent, NotificationPromptSource } from '../../lib/log';
 import { Post } from '../../graphql/posts';
+import { useEnableNotification } from './useEnableNotification';
+import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 
 export enum ReminderPreference {
   OneHour = 'In 1 hour',
@@ -73,6 +75,10 @@ export const useBookmarkReminder = ({
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
+  const { isPushSupported, isSubscribed } = usePushNotificationContext();
+  const { onEnable } = useEnableNotification({
+    source: NotificationPromptSource.BookmarkReminder,
+  });
 
   const onUpdateCache = (postId: string, remindAt?: Date) => {
     updatePostCache(client, postId, (_post) => ({
@@ -108,6 +114,10 @@ export const useBookmarkReminder = ({
         displayToast(`Reminder set for ${preference.toLowerCase()}`, {
           onUndo: () => onUndoReminder({ postId, remindAt: existingReminder }),
         });
+
+        if (isPushSupported && !isSubscribed) {
+          onEnable();
+        }
       },
       onError: () => displayToast('Failed to set reminder'),
     },
