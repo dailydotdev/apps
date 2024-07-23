@@ -1,9 +1,12 @@
-import React, { ReactElement } from 'react';
+import React from 'react';
 import { SourceSubscribeButton } from './SourceSubscribeButton';
 import SourceActionsBlock from './SourceActionsBlock';
 import { useSourceActionsBlock } from '../../../hooks/source/useSourceActionsBlock';
 import { Source } from '../../../graphql/sources';
 import { ButtonVariant } from '../../buttons/common';
+import { feature } from '../../../lib/featureManagement';
+import { withExperiment } from '../../withExperiment';
+import { SourceActionsWithNotifyExperiment } from './SourceActionsWithNotifyExperiment';
 
 interface SourceActionsButton {
   className?: string;
@@ -16,7 +19,7 @@ interface SourceActionsProps {
   followProps?: SourceActionsButton;
 }
 
-export const SourceActions = (props: SourceActionsProps): ReactElement => {
+const SourceDefaultActions = (props: SourceActionsProps) => {
   const { source, hideBlock, followProps } = props;
   const { isBlocked, toggleBlock } = useSourceActionsBlock({
     source,
@@ -31,5 +34,11 @@ export const SourceActions = (props: SourceActionsProps): ReactElement => {
     </>
   );
 };
+
+export const SourceActions = withExperiment(SourceActionsWithNotifyExperiment, {
+  fallback: SourceDefaultActions,
+  feature: feature.sourceNotifyButton,
+  value: true,
+});
 
 export default SourceActions;

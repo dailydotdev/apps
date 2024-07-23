@@ -239,11 +239,11 @@ it('should activate notify from source', async () => {
       return { data: { feedSettings: { id: defaultUser.id } } };
     },
   });
-  const button = await screen.findByLabelText('Unblock');
+  const button = await screen.findByTestId('blockButton');
+  const initialText = button.textContent;
   button.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
-  const blockButton = await screen.findByLabelText('Block');
-  expect(blockButton).toBeInTheDocument();
+  expect(initialText).not.toBe(button.textContent);
 });
 
 it('should block source', async () => {
