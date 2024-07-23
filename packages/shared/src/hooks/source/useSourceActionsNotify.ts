@@ -3,15 +3,10 @@ import { NotificationType } from '../../components/notifications/utils';
 import { useLogContext } from '../../contexts/LogContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Source } from '../../graphql/sources';
-import { LogEvent, NotificationPromptSource } from '../../lib/log';
+import { LogEvent } from '../../lib/log';
 import { AuthTriggers } from '../../lib/auth';
-import {
-  useEnableNotification,
-  useNotificationPreferenceToggle,
-} from '../notifications';
+import { useNotificationPreferenceToggle } from '../notifications';
 import { useToastNotification } from '../useToastNotification';
-import { useFeature } from '../../components/GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
 
 export type UseSourceSubscriptionProps = {
   source: Pick<Source, 'id'> | Source;
@@ -26,7 +21,6 @@ export type UseSourceSubscription = {
 export const useSourceActionsNotify = ({
   source,
 }: UseSourceSubscriptionProps): UseSourceSubscription => {
-  const isNotifyExperiment = useFeature(feature.sourceNotifyButton);
   const { logEvent } = useLogContext();
   const { isLoggedIn, showLogin } = useAuthContext();
   const { displayToast } = useToastNotification();
@@ -39,10 +33,6 @@ export const useSourceActionsNotify = ({
           }
         : undefined,
     });
-
-  const { onEnable: enablePushNotifications } = useEnableNotification({
-    source: NotificationPromptSource.SourceSubscribe,
-  });
 
   const onNotify = useCallback(async () => {
     if (!source?.id) {
@@ -70,25 +60,7 @@ export const useSourceActionsNotify = ({
         ? `✅ You'll get notified every time ${displayName} posts`
         : `⛔️ You'll no longer get notified about ${displayName} posts`,
     );
-
-    // ask for push notifications permission
-    if (isNotifyExperiment) {
-      try {
-        await enablePushNotifications();
-      } catch (e) {
-        // errors are not handled here, do nothing for now
-      }
-    }
-  }, [
-    displayToast,
-    enablePushNotifications,
-    isLoggedIn,
-    isNotifyExperiment,
-    logEvent,
-    onToggle,
-    showLogin,
-    source,
-  ]);
+  }, [source, isLoggedIn, onToggle, logEvent, displayToast, showLogin]);
 
   return {
     haveNotifications,

@@ -29,7 +29,6 @@ const feature = {
   bookmarkReminder: new Feature('bookmark_reminder', false),
   animatedUpvote: new Feature('animated_upvote', false),
   mobileExploreTab: new Feature('mobile_explore_tab', false),
-  sourceNotifyButton: new Feature('source_notify_button', false),
   authorImage: new Feature('author_image', false),
 };
 

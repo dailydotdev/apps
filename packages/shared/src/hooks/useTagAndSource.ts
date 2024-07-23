@@ -39,8 +39,6 @@ interface UseTagAndSource {
   onUnblockTags: (params: TagActionArguments) => BooleanPromise;
   onUnblockSource: (params: SourceActionArguments) => BooleanPromise;
   onBlockSource: (params: SourceActionArguments) => BooleanPromise;
-  onUnfollowSource: (params: SourceActionArguments) => BooleanPromise;
-  onFollowSource: (params: SourceActionArguments) => BooleanPromise;
 }
 
 export default function useTagAndSource({
@@ -67,8 +65,6 @@ export default function useTagAndSource({
     unblockTag,
     unblockSource,
     blockSource,
-    followSource,
-    unfollowSource,
   } = useMutateFilters(user, feedId, shouldFilterLocally);
 
   const [invalidateQueries] = useDebounce(() => {
@@ -263,68 +259,6 @@ export default function useTagAndSource({
     ],
   );
 
-  const onFollowSource = useCallback(
-    async ({ source, requireLogin }: SourceActionArguments) => {
-      if (shouldShowLogin(requireLogin)) {
-        showLogin({ trigger: origin as AuthTriggersType });
-        return { successful: false };
-      }
-
-      logEvent({
-        event_name: LogEvent.FollowSource,
-        target_type: 'source',
-        target_id: source?.id,
-        extra: JSON.stringify({ origin, post_id: postId }),
-      });
-
-      await followSource({ source });
-
-      invalidateQueries();
-
-      return { successful: true };
-    },
-    [
-      logEvent,
-      shouldShowLogin,
-      origin,
-      showLogin,
-      followSource,
-      postId,
-      invalidateQueries,
-    ],
-  );
-
-  const onUnfollowSource = useCallback(
-    async ({ source, requireLogin }: SourceActionArguments) => {
-      if (shouldShowLogin(requireLogin)) {
-        showLogin({ trigger: origin as AuthTriggersType });
-        return { successful: false };
-      }
-
-      logEvent({
-        event_name: LogEvent.UnfollowSource,
-        target_type: 'source',
-        target_id: source?.id,
-        extra: JSON.stringify({ origin, post_id: postId }),
-      });
-
-      await unfollowSource({ source });
-
-      invalidateQueries();
-
-      return { successful: true };
-    },
-    [
-      shouldShowLogin,
-      logEvent,
-      origin,
-      postId,
-      unfollowSource,
-      invalidateQueries,
-      showLogin,
-    ],
-  );
-
   return {
     onFollowTags,
     onUnfollowTags,
@@ -332,7 +266,5 @@ export default function useTagAndSource({
     onUnblockTags,
     onBlockSource,
     onUnblockSource,
-    onFollowSource,
-    onUnfollowSource,
   };
 }

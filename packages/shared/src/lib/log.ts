@@ -152,10 +152,9 @@ export enum LogEvent {
   // Source Actions - start
   BlockSource = 'block source',
   UnblockSource = 'unblock source',
+  // Source Actions - end
   SubscribeSource = 'subscribe source',
   UnsubscribeSource = 'unsubscribe source',
-  FollowSource = 'follow source',
-  UnfollowSource = 'unfollow source',
   // Source Actions - end
   // Tags - start
   FollowTag = 'follow tag',

@@ -1,12 +1,12 @@
 import React, { ReactElement } from 'react';
-import { Button } from '../buttons/Button';
-import { ButtonSize, ButtonVariant } from '../buttons/common';
-import { SimpleTooltip } from '../tooltips';
-import { Source } from '../../graphql/sources';
-import { isTesting } from '../../lib/constants';
-import { useSourceActionsNotify } from '../../hooks';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { BellSubscribedIcon } from '../icons';
+import { Button } from '../../buttons/Button';
+import { ButtonSize, ButtonVariant } from '../../buttons/common';
+import { BellSubscribedIcon } from '../../icons';
+import { SimpleTooltip } from '../../tooltips';
+import { Source } from '../../../graphql/sources';
+import { isTesting } from '../../../lib/constants';
+import { useSourceActionsNotify } from '../../../hooks';
+import { useAuthContext } from '../../../contexts/AuthContext';
 
 export type SourceSubscribeButtonProps = {
   className?: string;
