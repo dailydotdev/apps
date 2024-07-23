@@ -39,7 +39,7 @@ export const useCardCover = ({
 
     if (shouldShowReminder) {
       return (
-        <CardCoverContainer title="Want to read / watch it later?">
+        <CardCoverContainer title="Remind about this post later?">
           <PostReminderOptions
             post={post}
             className="mt-2"
