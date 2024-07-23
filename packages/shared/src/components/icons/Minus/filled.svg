@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>Icon/Minus/Filled</title>
+  <path fill-rule="evenodd" clip-rule="evenodd"
+        d="M18.3613 11.2587C18.7227 11.3122 19 11.6238 19 12.0001C19 12.3795 18.718 12.6931 18.3522 12.7427L18.2505 12.7496L12.7497 12.75C12 12.75 12.2767 12.7415 11.2503 12.75L5.74951 12.7496L5.63875 12.7415C5.27733 12.6879 5 12.3764 5 12.0001C5 11.6206 5.28197 11.307 5.6478 11.2574L5.74951 11.2506L11.2503 11.2505C12 11.2506 12.1149 11.2587 12.7497 11.2505L18.2505 11.2506L18.3613 11.2587Z"
+        fill="currentColor"/>
+</svg>

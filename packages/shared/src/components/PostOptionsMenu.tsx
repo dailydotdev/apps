@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
+import { Simulate } from 'react-dom/test-utils';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
 import { Post, UserVote, isVideoPost } from '../graphql/posts';
@@ -23,6 +24,8 @@ import {
   BellIcon,
   ShareIcon,
   MiniCloseIcon,
+  MinusIcon,
+  BellAddIcon,
 } from './icons';
 import { ReportedCallback } from './modals';
 import useTagAndSource from '../hooks/useTagAndSource';
@@ -54,6 +57,9 @@ import { useSharePost } from '../hooks/useSharePost';
 import { feature } from '../lib/featureManagement';
 import { useBookmarkReminder } from '../hooks/notifications/useBookmarkReminder';
 import { BookmarkReminderIcon } from './icons/Bookmark/Reminder';
+import { useFeature } from './GrowthBookProvider';
+import { useSourceActionsFollow } from '../hooks/source/useSourceActionsFollow';
+import toggle = Simulate.toggle;
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -118,6 +124,8 @@ export default function PostOptionsMenu({
     postId: post?.id,
     shouldInvalidateQueries: false,
   });
+
+  const isNotifyExperiment = useFeature(feature.sourceNotifyButton);
 
   const isSourceBlocked = useMemo(() => {
     return !!feedSettings?.excludeSources?.some(
@@ -346,21 +354,45 @@ export default function PostOptionsMenu({
     }
   }
 
+  const { haveNotifications } = sourceSubscribe;
+  const { isFollowing, toggleFollow } = useSourceActionsFollow({
+    source: post?.source,
+  });
+
   if (shouldShowSubscribe) {
-    postOptions.push({
-      icon: (
-        <MenuIcon
-          Icon={
-            sourceSubscribe.haveNotifications ? BellSubscribedIcon : BellIcon
-          }
-        />
-      ),
-      label: `Receive notifications ${
-        sourceSubscribe.haveNotifications ? 'from' : 'to'
-      } ${post?.source?.name}`,
-      action: sourceSubscribe.isReady ? sourceSubscribe.onNotify : undefined,
-      Wrapper: ({ children }: { children: ReactNode }) => <>{children}</>,
-    });
+    if (!isNotifyExperiment) {
+      postOptions.push({
+        icon: (
+          <MenuIcon Icon={haveNotifications ? BellSubscribedIcon : BellIcon} />
+        ),
+        label: `Receive notifications ${
+          sourceSubscribe.haveNotifications ? 'from' : 'to'
+        } ${post?.source?.name}`,
+        action: sourceSubscribe.isReady ? sourceSubscribe.onNotify : undefined,
+        Wrapper: ({ children }: { children: ReactNode }) => <>{children}</>,
+      });
+    } else {
+      // is notify button experiment active
+      postOptions.push({
+        icon: <MenuIcon Icon={isFollowing ? MinusIcon : PlusIcon} />,
+        label: `${isFollowing ? 'Unfollow' : 'Follow'} ${post?.source?.name}`,
+        action: toggleFollow,
+      });
+
+      if (isFollowing) {
+        postOptions.push({
+          icon: (
+            <MenuIcon
+              Icon={haveNotifications ? BellSubscribedIcon : BellAddIcon}
+            />
+          ),
+          label: haveNotifications
+            ? `Remove notifications`
+            : `Notify on new post`,
+          action: sourceSubscribe.onNotify,
+        });
+      }
+    }
   }
 
   postOptions.push({
