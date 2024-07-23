@@ -116,7 +116,8 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
     showReputation = false,
   } = source;
 
-  const handleOrUsername = 'handle' in source ? source.handle : source.username;
+  const handleOrUsernameOrId =
+    ('handle' in source ? source.handle : source.username) || id;
   const reputation = 'reputation' in source ? source.reputation : NaN;
 
   const Icon = getUserIcon(userType);
@@ -192,7 +193,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
               />
             )}
           </div>
-          {(handleOrUsername || id) && (
+          {handleOrUsernameOrId && (
             <ProfileLink
               className={classNames(
                 'mt-0.5 !block truncate text-text-tertiary typo-footnote',
@@ -200,7 +201,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
               )}
               href={permalink}
             >
-              @{handleOrUsername || id}
+              @{handleOrUsernameOrId}
             </ProfileLink>
           )}
         </div>
