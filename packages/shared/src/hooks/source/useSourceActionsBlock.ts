@@ -22,10 +22,11 @@ export function useSourceActionsBlock(
   const { displayToast } = useToastNotification();
 
   const isBlocked = useMemo(() => {
-    if (!feedSettings) {
+    if (!feedSettings?.excludeSources?.length) {
       return false;
     }
-    return !!feedSettings.excludeSources?.find(
+    console.log(feedSettings.excludeSources);
+    return !!feedSettings.excludeSources.find(
       (excludedSource) => source?.id === excludedSource.id,
     );
   }, [feedSettings, source]);

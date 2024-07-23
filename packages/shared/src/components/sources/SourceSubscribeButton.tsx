@@ -34,6 +34,7 @@ const SourceSubscribeButtonRegular = ({
       disabled={isFetching}
       onClick={onClick}
       size={ButtonSize.Small}
+      data-testid="notifyButton"
     >
       Subscribe
     </Button>
@@ -54,6 +55,7 @@ const SourceSubscribeButtonSubscribed = ({
         icon={<BellSubscribedIcon />}
         disabled={isFetching}
         onClick={onClick}
+        data-testid="notifyButton"
       />
     </SimpleTooltip>
   );

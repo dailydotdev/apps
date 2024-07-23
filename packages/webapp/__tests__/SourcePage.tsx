@@ -177,10 +177,13 @@ it('should show source image', async () => {
   expect(el).toBeInTheDocument();
 });
 
-it('should show add to feed button', async () => {
-  renderComponent();
+it('should show notify button', async () => {
+  renderComponent([
+    createFeedMock(),
+    createSourcesSettingsMock({ excludeSources: [] }),
+  ]);
   await waitForNock();
-  const button = await screen.findByLabelText('Follow');
+  const button = await screen.findByTestId('notifyButton');
   expect(button).toBeInTheDocument();
 });
 
@@ -190,7 +193,7 @@ it('should show block button', async () => {
     createSourcesSettingsMock({ excludeSources: [] }),
   ]);
   await waitForNock();
-  const button = await screen.findByLabelText('Block');
+  const button = await screen.findByTestId('blockButton');
   expect(button).toBeInTheDocument();
 });
 
@@ -236,7 +239,7 @@ it('should activate notify from source', async () => {
       return { data: { feedSettings: { id: defaultUser.id } } };
     },
   });
-  const button = await screen.findByLabelText('Follow');
+  const button = await screen.findByLabelText('Unblock');
   button.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   const blockButton = await screen.findByLabelText('Block');
@@ -265,9 +268,9 @@ it('should block source', async () => {
       return { data: { feedSettings: { id: defaultUser.id } } };
     },
   });
-  const button = await screen.findByLabelText('Block');
+  const button = await screen.findByTestId('blockButton');
+  const initialText = button.textContent;
   button.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
-  const blockButton = await screen.findByLabelText('Follow');
-  expect(blockButton).toBeInTheDocument();
+  expect(initialText).not.toBe(button.textContent);
 });

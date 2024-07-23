@@ -10,6 +10,8 @@ import {
   useNotificationPreferenceToggle,
 } from '../notifications';
 import { useToastNotification } from '../useToastNotification';
+import { useFeature } from '../../components/GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
 
 export type UseSourceSubscriptionProps = {
   source: Pick<Source, 'id'> | Source;
@@ -24,6 +26,7 @@ export type UseSourceSubscription = {
 export const useSourceActionsNotify = ({
   source,
 }: UseSourceSubscriptionProps): UseSourceSubscription => {
+  const isNotifyExperiment = useFeature(feature.sourceNotifyButton);
   const { logEvent } = useLogContext();
   const { isLoggedIn, showLogin } = useAuthContext();
   const { displayToast } = useToastNotification();
@@ -69,19 +72,22 @@ export const useSourceActionsNotify = ({
     );
 
     // ask for push notifications permission
-    try {
-      await enablePushNotifications();
-    } catch (e) {
-      // errors are not handled here, do nothing for now
+    if (isNotifyExperiment) {
+      try {
+        await enablePushNotifications();
+      } catch (e) {
+        // errors are not handled here, do nothing for now
+      }
     }
   }, [
-    source,
-    isLoggedIn,
-    onToggle,
-    logEvent,
     displayToast,
-    showLogin,
     enablePushNotifications,
+    isLoggedIn,
+    isNotifyExperiment,
+    logEvent,
+    onToggle,
+    showLogin,
+    source,
   ]);
 
   return {
