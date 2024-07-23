@@ -36,6 +36,14 @@ const defaultLoggedUser: LoggedUser = {
   hashnode: 'idoshamun',
   portfolio: 'https://daily.dev/?key=vaue',
   permalink: 'https://daily.dev/ido',
+  roadmap: 'idoshamun',
+  threads: 'idoshamun',
+  codepen: 'idoshamun',
+  reddit: 'idoshamun',
+  stackoverflow: '999O999/idoshamun',
+  youtube: 'idoshamun',
+  linkedin: 'idoshamun',
+  mastodon: 'https://mastodon.social/@idoshamun',
 };
 
 const defaultProfile: PublicProfile = {
@@ -53,6 +61,14 @@ const defaultProfile: PublicProfile = {
   hashnode: 'dailydotdev',
   portfolio: 'https://daily.dev/?key=vaue',
   permalink: 'https://daily.dev/dailydotdev',
+  roadmap: 'dailydotdev',
+  threads: 'dailydotdev',
+  codepen: 'dailydotdev',
+  reddit: 'dailydotdev',
+  stackoverflow: '999O999/dailydotdev',
+  youtube: 'dailydotdev',
+  linkedin: 'dailydotdev',
+  mastodon: 'https://mastodon.social/@dailydotdev',
 };
 
 const defaultMemberships: Connection<SourceMember> = {
@@ -181,7 +197,7 @@ it('should show twitter link', () => {
   renderComponent();
 
   const el = screen.getByTestId('twitter');
-  expect(el).toHaveAttribute('href', 'https://twitter.com/dailydotdev');
+  expect(el).toHaveAttribute('href', 'https://x.com/dailydotdev');
   expect(el).toHaveTextContent('@dailydotdev');
 });
 
@@ -190,6 +206,65 @@ it('should show github link', () => {
   const el = screen.getByTestId('github');
   expect(el).toHaveAttribute('href', 'https://github.com/dailydotdev');
   expect(el).toHaveTextContent('@dailydotdev');
+});
+
+it('should show roadmap link', () => {
+  renderComponent();
+  const el = screen.getByTestId('roadmap');
+  expect(el).toHaveAttribute('href', 'https://roadmap.sh/u/dailydotdev');
+  expect(el).toHaveTextContent('dailydotdev');
+});
+
+it('should show threads link', () => {
+  renderComponent();
+  const el = screen.getByTestId('threads');
+  expect(el).toHaveAttribute('href', 'https://threads.net/@dailydotdev');
+  expect(el).toHaveTextContent('@dailydotdev');
+});
+
+it('should show codepen link', () => {
+  renderComponent();
+  const el = screen.getByTestId('codepen');
+  expect(el).toHaveAttribute('href', 'https://codepen.io/dailydotdev');
+  expect(el).toHaveTextContent('@dailydotdev');
+});
+
+it('should show reddit link', () => {
+  renderComponent();
+  const el = screen.getByTestId('reddit');
+  expect(el).toHaveAttribute('href', 'https://reddit.com/user/dailydotdev');
+  expect(el).toHaveTextContent('u/dailydotdev');
+});
+
+it('should show stackoverflow link', () => {
+  renderComponent();
+  const el = screen.getByTestId('stackoverflow');
+  expect(el).toHaveAttribute(
+    'href',
+    'https://stackoverflow.com/users/999O999/dailydotdev',
+  );
+  expect(el).toHaveTextContent('dailydotdev');
+});
+
+it('should show youtube link', () => {
+  renderComponent();
+  const el = screen.getByTestId('youtube');
+  expect(el).toHaveAttribute('href', 'https://youtube.com/@dailydotdev');
+  expect(el).toHaveTextContent('@dailydotdev');
+});
+
+it('should show linkedin link', () => {
+  renderComponent();
+  const el = screen.getByTestId('linkedin');
+  expect(el).toHaveAttribute('href', 'https://linkedin.com/in/dailydotdev');
+  expect(el).toHaveTextContent('dailydotdev');
+});
+
+it('should show mastodon link', () => {
+  renderComponent();
+  const el = screen.getByTestId('mastodon');
+  expect(el).toHaveAttribute('href', 'https://mastodon.social/@dailydotdev');
+  expect(el).toHaveTextContent('mastodon.social/@dailydotdev');
 });
 
 it('should show portfolio link', async () => {

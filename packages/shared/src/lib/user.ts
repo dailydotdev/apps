@@ -29,6 +29,14 @@ export interface PublicProfile {
   github?: string;
   hashnode?: string;
   portfolio?: string;
+  roadmap?: string;
+  threads?: string;
+  codepen?: string;
+  reddit?: string;
+  stackoverflow?: string;
+  youtube?: string;
+  linkedin?: string;
+  mastodon?: string;
   bio?: string;
   createdAt: string;
   premium: boolean;
