@@ -5,6 +5,7 @@ import classed from '../../../lib/classed';
 import { IconSize, iconSizeToClassName } from '../../Icon';
 import { isNullOrUndefined } from '../../../lib/func';
 import { SimpleTooltip } from '../../tooltips';
+import { useViewSize, ViewSize } from '../../../hooks';
 
 export enum Streak {
   Completed = 'completed',
@@ -36,6 +37,8 @@ export function DayStreak({
   shouldShowArrow,
   onClick,
 }: DayStreakProps): ReactElement {
+  const isLaptop = useViewSize(ViewSize.Laptop);
+
   const renderIcon = () => {
     if (streak === Streak.Completed || streak === Streak.Pending) {
       return (
@@ -53,10 +56,10 @@ export function DayStreak({
           className,
           iconSizeToClassName[size],
           streak === Streak.Freeze &&
-            'flex cursor-pointer items-center justify-center bg-text-disabled text-transparent hover:text-surface-secondary',
+            'flex cursor-pointer items-center justify-center bg-text-disabled text-transparent laptop:hover:text-surface-secondary',
         )}
         onClick={() => {
-          if (streak === Streak.Freeze && onClick) {
+          if (streak === Streak.Freeze && onClick && isLaptop) {
             onClick();
           }
         }}
