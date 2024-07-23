@@ -5,9 +5,9 @@ import { Tag } from '../../graphql/feedSettings';
 export enum OnboardingStep {
   Intro = 'intro',
   Topics = 'topics',
-  Layout = 'layout',
   Theme = 'theme',
   EditTag = 'edit_tag',
+  ContentTypes = 'content_types',
   ReadingReminder = 'reading_reminder',
 }
 

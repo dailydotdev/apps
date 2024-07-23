@@ -1,58 +1,33 @@
-import React, { ReactElement, useCallback, useMemo } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { FilterSwitch } from './FilterSwitch';
-import { AdvancedSettingsGroup } from '../../graphql/feedSettings';
 import { useAdvancedSettings } from '../../hooks/feed';
-import useTagAndSource from '../../hooks/useTagAndSource';
-import { Origin } from '../../lib/log';
-import { Source } from '../../graphql/sources';
+import { getContentCurationList, getContentSourceList } from './helpers';
 
 const ADVANCED_SETTINGS_KEY = 'advancedSettings';
 
 function AdvancedSettingsFilter(): ReactElement {
-  const { advancedSettings, isLoading, feedSettings } = useFeedSettings();
-  const { selectedSettings, onToggleSettings } = useAdvancedSettings();
-  const sourceList = useMemo(
-    () =>
-      advancedSettings?.filter(
-        ({ group }) => group === AdvancedSettingsGroup.ContentSource,
-      ) ?? [],
-    [advancedSettings],
-  );
-  const settingsList = useMemo(
-    () =>
-      advancedSettings?.filter(
-        ({ group }) => group === AdvancedSettingsGroup.ContentCuration,
-      ) ?? [],
+  const { isLoading, advancedSettings } = useFeedSettings();
+  const {
+    selectedSettings,
+    onToggleSettings,
+    checkSourceBlocked,
+    onToggleSource,
+  } = useAdvancedSettings();
+
+  const contentSourceList = useMemo(
+    () => getContentSourceList(advancedSettings),
     [advancedSettings],
   );
 
-  const checkSourceBlocked = useCallback(
-    (source: Source): boolean => {
-      const blockedSources = feedSettings?.excludeSources ?? [];
-      return blockedSources.some(({ id }) => id === source.id);
-    },
-    [feedSettings?.excludeSources],
-  );
-
-  const { onUnblockSource, onBlockSource } = useTagAndSource({
-    origin: Origin.SourcePage,
-  });
-
-  const onToggleSource = useCallback(
-    (source: Source) => {
-      if (checkSourceBlocked(source)) {
-        onUnblockSource({ source });
-      } else {
-        onBlockSource({ source });
-      }
-    },
-    [checkSourceBlocked, onUnblockSource, onBlockSource],
+  const contentCurationList = useMemo(
+    () => getContentCurationList(advancedSettings),
+    [advancedSettings],
   );
 
   return (
     <section className="flex flex-col px-6" aria-busy={isLoading}>
-      {sourceList?.map(({ id, title, description, options }) => (
+      {contentSourceList?.map(({ id, title, description, options }) => (
         <FilterSwitch
           key={id}
           label={title}
@@ -63,17 +38,19 @@ function AdvancedSettingsFilter(): ReactElement {
           onToggle={() => onToggleSource(options.source)}
         />
       ))}
-      {settingsList?.map(({ id, title, description, defaultEnabledState }) => (
-        <FilterSwitch
-          key={id}
-          label={title}
-          name={`${ADVANCED_SETTINGS_KEY}-${id}`}
-          inputId={`${ADVANCED_SETTINGS_KEY}-${id}`}
-          checked={selectedSettings[id] ?? defaultEnabledState}
-          description={description}
-          onToggle={() => onToggleSettings(id, defaultEnabledState)}
-        />
-      ))}
+      {contentCurationList?.map(
+        ({ id, title, description, defaultEnabledState }) => (
+          <FilterSwitch
+            key={id}
+            label={title}
+            name={`${ADVANCED_SETTINGS_KEY}-${id}`}
+            inputId={`${ADVANCED_SETTINGS_KEY}-${id}`}
+            checked={selectedSettings[id] ?? defaultEnabledState}
+            description={description}
+            onToggle={() => onToggleSettings(id, defaultEnabledState)}
+          />
+        ),
+      )}
     </section>
   );
 }
