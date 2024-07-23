@@ -44,7 +44,6 @@ export interface SearchTagsData {
 export interface FeedSettings {
   includeTags?: string[];
   blockedTags?: string[];
-  includeSources?: Source[]; // Experimental
   excludeSources?: Source[];
   advancedSettings?: FeedAdvancedSettings[];
 }
@@ -89,11 +88,6 @@ export const FEED_SETTINGS_QUERY = gql`
     feedSettings(feedId: $feedId) {
       includeTags
       blockedTags
-      includeSources {
-        id
-        name
-        image
-      }
       excludeSources {
         id
         name
