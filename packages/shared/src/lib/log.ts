@@ -156,12 +156,6 @@ export enum LogEvent {
   SubscribeSource = 'subscribe source',
   UnsubscribeSource = 'unsubscribe source',
   // Source Actions - end
-  // Tags - start
-  FollowTag = 'follow tag',
-  UnfollowTag = 'unfollow tag',
-  BlockTag = 'block tag',
-  UnblockTag = 'unblock tag',
-  // Tags - end
   // marketing CTA
   MarketingCtaDismiss = 'dismiss promotion',
   // Reading reminder
