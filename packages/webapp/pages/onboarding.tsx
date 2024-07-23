@@ -7,30 +7,21 @@ import AuthOptions, {
   AuthProps,
 } from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import {
-  CreateFeedButton,
-  FilterOnboardingV4,
-  OnboardingHeader,
-} from '@dailydotdev/shared/src/components/onboarding';
+import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
 import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
-import classed from '@dailydotdev/shared/src/lib/classed';
 import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import {
   OnboardingStep,
-  REQUIRED_TAGS_THRESHOLD,
   wrapperMaxWidth,
 } from '@dailydotdev/shared/src/components/onboarding/common';
-import {
-  OnboardingMode,
-  PREVIEW_FEED_QUERY,
-} from '@dailydotdev/shared/src/graphql/feed';
+import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
@@ -43,13 +34,9 @@ import TrustedCompanies from '@dailydotdev/shared/src/components/TrustedCompanie
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisclaimer';
 import {
-  FeedPreviewControls,
   FooterLinks,
   withFeaturesBoundary,
 } from '@dailydotdev/shared/src/components';
-import Feed from '@dailydotdev/shared/src/components/Feed';
-import { OtherFeedPage, RequestKey } from '@dailydotdev/shared/src/lib/query';
-import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
   logSignUp,
@@ -58,7 +45,11 @@ import {
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import { ReadingReminder } from '@dailydotdev/shared/src/components/auth/ReadingReminder';
+import {
+  ReadingReminder,
+  EditTag,
+  ContentTypes,
+} from '@dailydotdev/shared/src/components/auth/OnboardingSteps';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -78,8 +69,6 @@ type OnboardingVisual = {
     | false;
   image?: string;
 };
-
-const Title = classed('h2', 'font-bold');
 
 const maxAuthWidth = 'tablet:max-w-[30rem]';
 
@@ -124,6 +113,8 @@ export function OnboardPage(): ReactElement {
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
+  const enableContentTypeStep = useRef(false);
+
   const onClickNext = () => {
     logEvent({
       event_name: LogEvent.ClickOnboardingNext,
@@ -134,7 +125,18 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.EditTag);
     }
 
-    if (activeScreen === OnboardingStep.EditTag && isMobile) {
+    if (
+      activeScreen === OnboardingStep.EditTag &&
+      enableContentTypeStep.current
+    ) {
+      return setActiveScreen(OnboardingStep.ContentTypes);
+    }
+
+    if (
+      (activeScreen === OnboardingStep.EditTag ||
+        activeScreen === OnboardingStep.ContentTypes) &&
+      isMobile
+    ) {
       return setActiveScreen(OnboardingStep.ReadingReminder);
     }
 
@@ -159,6 +161,13 @@ export function OnboardPage(): ReactElement {
   };
 
   const onClickCreateFeed = () => {
+    if (
+      activeScreen === OnboardingStep.EditTag &&
+      enableContentTypeStep.current
+    ) {
+      return onClickNext();
+    }
+
     const onboardingChecklist = getFeatureValue(feature.onboardingChecklist);
 
     if (onboardingChecklist) {
@@ -168,7 +177,7 @@ export function OnboardPage(): ReactElement {
       });
     }
 
-    onClickNext();
+    return onClickNext();
   };
 
   const onSuccessfulLogin = () => {
@@ -244,12 +253,7 @@ export function OnboardPage(): ReactElement {
     );
   };
 
-  const [isPreviewVisible, setPreviewVisible] = useState(false);
-
   const getContent = (): ReactElement => {
-    const tagsCount = feedSettings?.includeTags?.length || 0;
-    const isPreviewEnabled = tagsCount >= REQUIRED_TAGS_THRESHOLD;
-
     if (isAuthenticating && activeScreen === OnboardingStep.Intro) {
       return getAuthOptions();
     }
@@ -270,41 +274,13 @@ export function OnboardPage(): ReactElement {
           <ReadingReminder onClickNext={onClickNext} />
         )}
         {activeScreen === OnboardingStep.EditTag && (
-          <>
-            <Title className="text-center typo-large-title">
-              Pick tags that are relevant to you
-            </Title>
-            <FilterOnboardingV4 className="mt-10 max-w-4xl" />
-            <FeedPreviewControls
-              isOpen={isPreviewVisible}
-              isDisabled={!isPreviewEnabled}
-              textDisabled={`${tagsCount}/${REQUIRED_TAGS_THRESHOLD} to show feed preview`}
-              origin={Origin.EditTag}
-              onClick={setPreviewVisible}
-            />
-            {isPreviewEnabled && isPreviewVisible && (
-              <FeedLayout>
-                <p className="-mb-4 mt-6 text-center text-text-secondary typo-body">
-                  Change your tag selection until you&apos;re happy with your
-                  feed preview.
-                </p>
-                <Feed
-                  className="px-6 pt-14 laptop:pt-10"
-                  feedName={OtherFeedPage.Preview}
-                  feedQueryKey={[RequestKey.FeedPreview, user?.id]}
-                  query={PREVIEW_FEED_QUERY}
-                  showSearch={false}
-                  options={{ refetchOnMount: true }}
-                  allowPin
-                />
-                <CreateFeedButton
-                  className="mt-20"
-                  onClick={onClickCreateFeed}
-                />
-              </FeedLayout>
-            )}
-          </>
+          <EditTag
+            feedSettings={feedSettings}
+            userId={user?.id}
+            onClick={onClickCreateFeed}
+          />
         )}
+        {activeScreen === OnboardingStep.ContentTypes && <ContentTypes />}
         {activeScreen === OnboardingStep.Intro &&
           !onboardingVisual.fullBackground && (
             <div className="block flex-1">
@@ -353,6 +329,19 @@ export function OnboardPage(): ReactElement {
   const instanceId = router.query?.aiid?.toString();
   const userId = user?.id || anonymous?.id;
 
+  const shouldCheckForContentTypeStep =
+    activeScreen === OnboardingStep.EditTag && !enableContentTypeStep.current;
+
+  if (shouldCheckForContentTypeStep) {
+    const onboardingContentType = getFeatureValue(
+      feature.onboardingContentType,
+    );
+
+    if (onboardingContentType) {
+      enableContentTypeStep.current = true;
+    }
+  }
+
   return (
     <div
       className={classNames(
@@ -379,6 +368,12 @@ export function OnboardPage(): ReactElement {
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}
         setAuth={setAuth}
+        customActionName={
+          activeScreen === OnboardingStep.EditTag &&
+          enableContentTypeStep.current
+            ? 'Continue'
+            : undefined
+        }
         onClickCreateFeed={onClickCreateFeed}
         activeScreen={activeScreen}
       />
