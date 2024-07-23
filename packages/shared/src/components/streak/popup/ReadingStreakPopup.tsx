@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useMemo } from 'react';
+import React, { ReactElement, useEffect, useMemo, useState } from 'react';
 import { addDays, isSameDay, subDays } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
@@ -19,6 +19,7 @@ import { SettingsIcon } from '../../icons';
 import StreakReminderSwitch from '../StreakReminderSwitch';
 import ReadingStreakSwitch from '../ReadingStreakSwitch';
 import { useToggle } from '../../../hooks/useToggle';
+import { Radio } from '../../fields/Radio';
 
 const getStreak = ({
   value,
@@ -92,6 +93,7 @@ export function ReadingStreakPopup({
     { staleTime: StaleTime.Default },
   );
   const [showStreakConfig, toggleShowStreakConfig] = useToggle(false);
+  const [freezeDays, setFreezeDays] = useState<string>('friday');
 
   const dateToday = new Date().getDate();
 
@@ -167,6 +169,21 @@ export function ReadingStreakPopup({
             </p>
             <StreakReminderSwitch />
             <ReadingStreakSwitch />
+          </div>
+          <div className="flex flex-col gap-3">
+            <p className="font-bold text-text-secondary typo-subhead">
+              Freeze days
+            </p>
+            {/* TODO: add mutation etc */}
+            <Radio
+              name="freeze-days"
+              value={freezeDays}
+              options={[
+                { label: 'Friday to Saturday', value: 'friday' },
+                { label: 'Saturday to Sunday', value: 'saturday' },
+              ]}
+              onChange={setFreezeDays}
+            />
           </div>
         </div>
       )}
