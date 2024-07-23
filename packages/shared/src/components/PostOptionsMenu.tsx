@@ -3,7 +3,6 @@ import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
-import { Simulate } from 'react-dom/test-utils';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
 import { Post, UserVote, isVideoPost } from '../graphql/posts';
@@ -59,7 +58,6 @@ import { useBookmarkReminder } from '../hooks/notifications/useBookmarkReminder'
 import { BookmarkReminderIcon } from './icons/Bookmark/Reminder';
 import { useFeature } from './GrowthBookProvider';
 import { useSourceActionsFollow } from '../hooks/source/useSourceActionsFollow';
-import toggle = Simulate.toggle;
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
