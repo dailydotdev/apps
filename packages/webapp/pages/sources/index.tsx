@@ -1,4 +1,7 @@
 import React, { ReactElement } from 'react';
+import { GetStaticPropsResult } from 'next';
+import { NextSeoProps } from 'next-seo/lib/types';
+import { NextSeo } from 'next-seo';
 import { UserHighlight } from '@dailydotdev/shared/src/components/widgets/PostUsersHighlights';
 import {
   Button,
@@ -15,7 +18,6 @@ import {
 } from '@dailydotdev/shared/src/graphql/sources';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { GetStaticPropsResult } from 'next';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
@@ -23,6 +25,14 @@ import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { ListItem, TopList } from '../../components/common';
+import { defaultOpenGraph } from '../../next-seo';
+
+const seo: NextSeoProps = {
+  title: 'Sources directory | daily.dev',
+  openGraph: { ...defaultOpenGraph },
+  description:
+    'Explore the top content sources on daily.dev. Discover, subscribe, and stay updated with the best content from leading developer communities and blogs.',
+};
 
 const PlaceholderList = classed(
   ElementPlaceholder,
@@ -86,43 +96,46 @@ const SourcesPage = ({
   }
 
   return (
-    <main className="py-6 tablet:px-4 laptop:px-10">
-      <div className="flex justify-between">
-        <BreadCrumbs>
-          <SitesIcon size={IconSize.XSmall} secondary /> Sources
-        </BreadCrumbs>
-        <Button
-          icon={<PlusIcon />}
-          variant={isLaptop ? ButtonVariant.Secondary : ButtonVariant.Float}
-          className="mb-6 ml-4 tablet:ml-0 laptop:float-right"
-          onClick={() => openModal({ type: LazyModal.NewSource })}
-        >
-          Suggest new source
-        </Button>
-      </div>
-      <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-4">
-        <SourceTopList
-          title="Trending sources"
-          items={trendingSources}
-          isLoading={isLoading}
-        />
-        <SourceTopList
-          title="Popular sources"
-          items={popularSources}
-          isLoading={isLoading}
-        />
-        <SourceTopList
-          title="Recently added sources"
-          items={mostRecentSources}
-          isLoading={isLoading}
-        />
-        <SourceTopList
-          title="Top video sources"
-          items={topVideoSources}
-          isLoading={isLoading}
-        />
-      </div>
-    </main>
+    <>
+      <NextSeo {...seo} />
+      <main className="py-6 tablet:px-4 laptop:px-10">
+        <div className="flex justify-between">
+          <BreadCrumbs>
+            <SitesIcon size={IconSize.XSmall} secondary /> Sources
+          </BreadCrumbs>
+          <Button
+            icon={<PlusIcon />}
+            variant={isLaptop ? ButtonVariant.Secondary : ButtonVariant.Float}
+            className="mb-6 ml-4 tablet:ml-0 laptop:float-right"
+            onClick={() => openModal({ type: LazyModal.NewSource })}
+          >
+            Suggest new source
+          </Button>
+        </div>
+        <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-4">
+          <SourceTopList
+            title="Trending sources"
+            items={trendingSources}
+            isLoading={isLoading}
+          />
+          <SourceTopList
+            title="Popular sources"
+            items={popularSources}
+            isLoading={isLoading}
+          />
+          <SourceTopList
+            title="Recently added sources"
+            items={mostRecentSources}
+            isLoading={isLoading}
+          />
+          <SourceTopList
+            title="Top video sources"
+            items={topVideoSources}
+            isLoading={isLoading}
+          />
+        </div>
+      </main>
+    </>
   );
 };
 

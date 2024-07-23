@@ -4,11 +4,16 @@ import { useAlertsContext } from '../../contexts/AlertContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import useMutateFilters from '../useMutateFilters';
+import { Source } from '../../graphql/sources';
+import useTagAndSource from '../useTagAndSource';
+import { Origin } from '../../lib/log';
 
 interface UseAdvancedSettings {
   selectedSettings: Record<string, boolean>;
   onToggleSettings(id: number, state: boolean): void;
+  onToggleSource(source: Source): void;
   onUpdateSettings(id: number, state: boolean): void;
+  checkSourceBlocked(source: Source): boolean;
 }
 
 export const useAdvancedSettings = (
@@ -61,5 +66,34 @@ export const useAdvancedSettings = (
     [alerts?.filter, selectedSettings, onUpdateSettings, updateAlerts, user],
   );
 
-  return { selectedSettings, onToggleSettings, onUpdateSettings };
+  const checkSourceBlocked = useCallback(
+    (source: Source): boolean => {
+      const blockedSources = feedSettings?.excludeSources ?? [];
+      return blockedSources.some(({ id }) => id === source.id);
+    },
+    [feedSettings?.excludeSources],
+  );
+
+  const { onFollowSource, onUnfollowSource } = useTagAndSource({
+    origin: Origin.SourcePage,
+  });
+
+  const onToggleSource = useCallback(
+    (source: Source) => {
+      if (checkSourceBlocked(source)) {
+        onFollowSource({ source });
+      } else {
+        onUnfollowSource({ source });
+      }
+    },
+    [checkSourceBlocked, onFollowSource, onUnfollowSource],
+  );
+
+  return {
+    selectedSettings,
+    onToggleSettings,
+    onUpdateSettings,
+    checkSourceBlocked,
+    onToggleSource,
+  };
 };

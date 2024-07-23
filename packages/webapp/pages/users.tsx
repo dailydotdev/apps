@@ -1,5 +1,7 @@
 import React from 'react';
 import { GetStaticPropsResult } from 'next';
+import { NextSeoProps } from 'next-seo/lib/types';
+import { NextSeo } from 'next-seo';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { LEADERBOARD_QUERY } from '@dailydotdev/shared/src/graphql/leaderboard';
 import { useRouter } from 'next/router';
@@ -14,6 +16,14 @@ import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import { ListItem, TopList } from '../components/common';
+import { defaultOpenGraph } from '../next-seo';
+
+const seo: NextSeoProps = {
+  title: 'Leaderboard | daily.dev',
+  openGraph: { ...defaultOpenGraph },
+  description:
+    'Check out the daily.dev Leaderboard to see the top-performing developers based on various criteria.',
+};
 
 type UserLeaderboard = {
   score: number;
@@ -106,45 +116,48 @@ const LeaderboardPage = ({
   }
 
   return (
-    <main className="tablet:p-4 laptop:px-10">
-      <div className="mb-6 hidden justify-between laptop:flex">
-        <BreadCrumbs>
-          <SquadIcon size={IconSize.XSmall} secondary /> Leaderboard
-        </BreadCrumbs>
-      </div>
-      <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-3">
-        <UserTopList
-          title="Highest reputation"
-          items={highestReputation}
-          isLoading={isLoading}
-        />
-        <UserTopList
-          title="Longest streak"
-          items={longestStreak}
-          isLoading={isLoading}
-        />
-        <UserTopList
-          title="Highest post views"
-          items={highestPostViews}
-          isLoading={isLoading}
-        />
-        <UserTopList
-          title="Most upvoted"
-          items={mostUpvoted}
-          isLoading={isLoading}
-        />
-        <UserTopList
-          title="Most referrals"
-          items={mostReferrals}
-          isLoading={isLoading}
-        />
-        <UserTopList
-          title="Most reading days"
-          items={mostReadingDays}
-          isLoading={isLoading}
-        />
-      </div>
-    </main>
+    <>
+      <NextSeo {...seo} />
+      <main className="tablet:p-4 laptop:px-10">
+        <div className="mb-6 hidden justify-between laptop:flex">
+          <BreadCrumbs>
+            <SquadIcon size={IconSize.XSmall} secondary /> Leaderboard
+          </BreadCrumbs>
+        </div>
+        <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-3">
+          <UserTopList
+            title="Highest reputation"
+            items={highestReputation}
+            isLoading={isLoading}
+          />
+          <UserTopList
+            title="Longest streak"
+            items={longestStreak}
+            isLoading={isLoading}
+          />
+          <UserTopList
+            title="Highest post views"
+            items={highestPostViews}
+            isLoading={isLoading}
+          />
+          <UserTopList
+            title="Most upvoted"
+            items={mostUpvoted}
+            isLoading={isLoading}
+          />
+          <UserTopList
+            title="Most referrals"
+            items={mostReferrals}
+            isLoading={isLoading}
+          />
+          <UserTopList
+            title="Most reading days"
+            items={mostReadingDays}
+            isLoading={isLoading}
+          />
+        </div>
+      </main>
+    </>
   );
 };
 
