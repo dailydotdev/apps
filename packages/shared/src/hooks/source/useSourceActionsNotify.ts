@@ -53,12 +53,10 @@ export const useSourceActionsNotify = ({
       target_id: source.id,
     });
 
-    const displayName = 'name' in source ? source.name : source?.id;
-
     displayToast(
       notifications.isSubscribed
-        ? `✅ You'll get notified every time ${displayName} posts`
-        : `⛔️ You'll no longer get notified about ${displayName} posts`,
+        ? '✅ You are now subscribed'
+        : '⛔️ You are now unsubscribed',
     );
   }, [source, isLoggedIn, onToggle, logEvent, displayToast, showLogin]);
 
