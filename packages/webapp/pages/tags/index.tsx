@@ -1,4 +1,7 @@
 import React, { ReactElement, useMemo } from 'react';
+import { GetStaticPropsResult } from 'next';
+import { NextSeoProps } from 'next-seo/lib/types';
+import { NextSeo } from 'next-seo';
 import { getTagPageLink } from '@dailydotdev/shared/src/lib/links';
 import {
   Keyword,
@@ -10,7 +13,6 @@ import classed from '@dailydotdev/shared/src/lib/classed';
 import { HashtagIcon } from '@dailydotdev/shared/src/components/icons';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { GetStaticPropsResult } from 'next';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
@@ -18,6 +20,15 @@ import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { ListItem, TopList } from '../../components/common';
+
+import { defaultOpenGraph } from '../../next-seo';
+
+const seo: NextSeoProps = {
+  title: 'Tags directory | daily.dev',
+  openGraph: { ...defaultOpenGraph },
+  description:
+    'Dive into the tags directory on daily.dev to find and follow topics that interest you. Discover a wide range of developer-related tags to enhance your learning and engagement.',
+};
 
 const PlaceholderList = classed(
   ElementPlaceholder,
@@ -110,54 +121,57 @@ const TagsPage = ({
   }
 
   return (
-    <main className="flex flex-col gap-4 p-0 tablet:px-10 tablet:py-6">
-      <BreadCrumbs>
-        <HashtagIcon size={IconSize.XSmall} secondary /> Tags
-      </BreadCrumbs>
-      <div className="grid grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3">
-        <TagTopList
-          title="Trending tags"
-          items={trendingTags}
-          isLoading={isLoading}
-        />
-        <TagTopList
-          title="Popular tags"
-          items={popularTags}
-          isLoading={isLoading}
-        />
-        <TagTopList
-          title="Recently added tags"
-          items={recentlyAddedTags}
-          isLoading={isLoading}
-          className="col-span-1 tablet:col-span-2 laptopL:col-span-1"
-        />
-      </div>
-      <div className="flex h-10 items-center justify-between px-4 tablet:px-0">
-        <p className="font-bold typo-body">All tags</p>
-      </div>
-      <div className="columns-[17rem] px-4 tablet:px-0">
-        {tagsByFirstLetter &&
-          Object.entries(tagsByFirstLetter).map(([letter, value]) => {
-            return (
-              <div
-                key={letter}
-                className="mt-3 flex flex-col items-baseline gap-3 px-4 first:mt-0"
-              >
-                <p className="flex h-8 items-center font-bold text-text-tertiary typo-callout">
-                  {letter}
-                </p>
-                {value.map((tag) => (
-                  <TagLink
-                    key={tag.value}
-                    tag={tag.value}
-                    className="!line-clamp-2 !h-auto"
-                  />
-                ))}
-              </div>
-            );
-          })}
-      </div>
-    </main>
+    <>
+      <NextSeo {...seo} />
+      <main className="flex flex-col gap-4 p-0 tablet:px-10 tablet:py-6">
+        <BreadCrumbs>
+          <HashtagIcon size={IconSize.XSmall} secondary /> Tags
+        </BreadCrumbs>
+        <div className="grid grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3">
+          <TagTopList
+            title="Trending tags"
+            items={trendingTags}
+            isLoading={isLoading}
+          />
+          <TagTopList
+            title="Popular tags"
+            items={popularTags}
+            isLoading={isLoading}
+          />
+          <TagTopList
+            title="Recently added tags"
+            items={recentlyAddedTags}
+            isLoading={isLoading}
+            className="col-span-1 tablet:col-span-2 laptopL:col-span-1"
+          />
+        </div>
+        <div className="flex h-10 items-center justify-between px-4 tablet:px-0">
+          <p className="font-bold typo-body">All tags</p>
+        </div>
+        <div className="columns-[17rem] px-4 tablet:px-0">
+          {tagsByFirstLetter &&
+            Object.entries(tagsByFirstLetter).map(([letter, value]) => {
+              return (
+                <div
+                  key={letter}
+                  className="mt-3 flex flex-col items-baseline gap-3 px-4 first:mt-0"
+                >
+                  <p className="flex h-8 items-center font-bold text-text-tertiary typo-callout">
+                    {letter}
+                  </p>
+                  {value.map((tag) => (
+                    <TagLink
+                      key={tag.value}
+                      tag={tag.value}
+                      className="!line-clamp-2 !h-auto"
+                    />
+                  ))}
+                </div>
+              );
+            })}
+        </div>
+      </main>
+    </>
   );
 };
 
