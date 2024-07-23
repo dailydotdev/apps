@@ -94,7 +94,7 @@ const AccountProfilePage = (): ReactElement => {
       linkedin: values.linkedin,
       mastodon: withHttps(values.mastodon),
       experienceLevel: values.experienceLevel,
-      // onUpdateSuccess: () => router.push(`/${values.username}`),
+      onUpdateSuccess: () => router.push(`/${values.username}`),
     };
     updateUserProfile(params);
   };
