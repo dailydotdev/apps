@@ -12,7 +12,6 @@ import {
 } from '../../../graphql/users';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { Weekends } from '../../../lib/dateFormat';
-import StreakReminderSwitch from '../StreakReminderSwitch';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 
@@ -133,7 +132,6 @@ export function ReadingStreakPopup({
           Total reading days: {streak.total}
         </div>
       </div>
-      <StreakReminderSwitch className="mb-5 mt-1 tablet:mx-auto tablet:mb-0 tablet:mt-4" />
     </div>
   );
 }
