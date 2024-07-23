@@ -262,6 +262,7 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.github}
           name="github"
           value={user?.github}
+          placeholder="username or url"
         />
         <AccountTextField
           leftIcon={<LinkedInIcon />}
@@ -271,6 +272,7 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.linkedin}
           name="linkedin"
           value={user?.linkedin}
+          placeholder="username or url"
         />
         <AccountTextField
           leftIcon={<LinkIcon />}
@@ -280,6 +282,7 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.portfolio}
           name="portfolio"
           value={user?.portfolio}
+          placeholder="example.com"
         />
         <AccountTextField
           leftIcon={<TwitterIcon />}
@@ -289,6 +292,7 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.twitter}
           name="twitter"
           value={user?.twitter}
+          placeholder="handle or url"
         />
         <AccountTextField
           leftIcon={<YoutubeIcon />}
@@ -298,6 +302,7 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.youtube}
           name="youtube"
           value={user?.youtube}
+          placeholder="username or url"
         />
         <AccountTextField
           leftIcon={<StackOverflowIcon />}
@@ -307,6 +312,7 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.stackoverflow}
           name="stackoverflow"
           value={withPrefix('stackoverflow.com/users/', user?.stackoverflow)}
+          placeholder="stackoverflow.com/users/999O999/username"
         />
         <AccountTextField
           leftIcon={<RedditIcon />}
@@ -316,6 +322,7 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.reddit}
           name="reddit"
           value={user?.reddit}
+          placeholder="username or url"
         />
         <AccountTextField
           leftIcon={<RoadmapIcon />}
@@ -325,6 +332,7 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.roadmap}
           name="roadmap"
           value={user?.roadmap}
+          placeholder="username or url"
         />
         {/* AS-444 add codepen icon */}
         <AccountTextField
@@ -335,6 +343,7 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.codepen}
           name="codepen"
           value={user?.codepen}
+          placeholder="username or url"
         />
         <AccountTextField
           leftIcon={<MastodonIcon />}
@@ -344,6 +353,7 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.mastodon}
           name="mastodon"
           value={user?.mastodon}
+          placeholder="mastodon.social/@username"
         />
         <AccountTextField
           leftIcon={<ThreadsIcon />}
@@ -353,6 +363,7 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.threads}
           name="threads"
           value={user?.threads}
+          placeholder="handle or url"
         />
       </AccountContentSection>
     </form>
