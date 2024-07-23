@@ -21,6 +21,14 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
       twitter
       github
       hashnode
+      roadmap
+      threads
+      codepen
+      reddit
+      stackoverflow
+      youtube
+      linkedin
+      mastodon
       timezone
       portfolio
       reputation
@@ -273,6 +281,14 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
       twitter
       github
       hashnode
+      roadmap
+      threads
+      codepen
+      reddit
+      stackoverflow
+      youtube
+      linkedin
+      mastodon
       createdAt
       infoConfirmed
       timezone

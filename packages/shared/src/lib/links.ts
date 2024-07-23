@@ -19,6 +19,9 @@ export const withHttps = (url: string): string =>
     return validSchema.includes(schema) ? match : `https://${nonSchemaUrl}`;
   });
 
+export const withoutProtocol = (url: string): string =>
+  url.replace(/(^\w+:|^)\/\//, '');
+
 export const stripLinkParameters = (link: string): string => {
   const { origin, pathname } = new URL(link);
 

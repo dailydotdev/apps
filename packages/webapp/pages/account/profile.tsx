@@ -6,6 +6,13 @@ import {
   TwitterIcon,
   UserIcon,
   CameraIcon,
+  LinkedInIcon,
+  YoutubeIcon,
+  StackOverflowIcon,
+  RedditIcon,
+  RoadmapIcon,
+  MastodonIcon,
+  ThreadsIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
@@ -77,8 +84,16 @@ const AccountProfilePage = (): ReactElement => {
       twitter: values.twitter,
       github: values.github,
       portfolio: values.portfolio,
+      roadmap: values.roadmap,
+      threads: values.threads,
+      codepen: values.codepen,
+      reddit: values.reddit,
+      stackoverflow: values.stackoverflow,
+      youtube: values.youtube,
+      linkedin: values.linkedin,
+      mastodon: values.mastodon,
       experienceLevel: values.experienceLevel,
-      onUpdateSuccess: () => router.push(`/${values.username}`),
+      // onUpdateSuccess: () => router.push(`/${values.username}`),
     };
     updateUserProfile(params);
   };
@@ -239,15 +254,6 @@ const AccountProfilePage = (): ReactElement => {
         can grow your network!"
       >
         <AccountTextField
-          leftIcon={<TwitterIcon />}
-          label="X"
-          inputId="twitter"
-          hint={hint.twitter}
-          valid={!hint.twitter}
-          name="twitter"
-          value={user?.twitter}
-        />
-        <AccountTextField
           leftIcon={<GitHubIcon />}
           label="GitHub"
           inputId="github"
@@ -257,6 +263,15 @@ const AccountProfilePage = (): ReactElement => {
           value={user?.github}
         />
         <AccountTextField
+          leftIcon={<LinkedInIcon />}
+          label="LinkedIn"
+          inputId="linkedin"
+          hint={hint.linkedin}
+          valid={!hint.linkedin}
+          name="linkedin"
+          value={user?.linkedin}
+        />
+        <AccountTextField
           leftIcon={<LinkIcon />}
           label="Your Website"
           inputId="portfolio"
@@ -264,6 +279,79 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.portfolio}
           name="portfolio"
           value={user?.portfolio}
+        />
+        <AccountTextField
+          leftIcon={<TwitterIcon />}
+          label="X"
+          inputId="twitter"
+          hint={hint.twitter}
+          valid={!hint.twitter}
+          name="twitter"
+          value={user?.twitter}
+        />
+        <AccountTextField
+          leftIcon={<YoutubeIcon />}
+          label="YouTube"
+          inputId="youtube"
+          hint={hint.youtube}
+          valid={!hint.youtube}
+          name="youtube"
+          value={user?.youtube}
+        />
+        <AccountTextField
+          leftIcon={<StackOverflowIcon />}
+          label="Stack Overflow"
+          inputId="stackoverflow"
+          hint={hint.stackoverflow}
+          valid={!hint.stackoverflow}
+          name="stackoverflow"
+          value={user?.stackoverflow}
+        />
+        <AccountTextField
+          leftIcon={<RedditIcon />}
+          label="Reddit"
+          inputId="reddit"
+          hint={hint.reddit}
+          valid={!hint.reddit}
+          name="reddit"
+          value={user?.reddit}
+        />
+        <AccountTextField
+          leftIcon={<RoadmapIcon />}
+          label="Roadmap.sh"
+          inputId="roadmap"
+          hint={hint.roadmap}
+          valid={!hint.roadmap}
+          name="roadmap"
+          value={user?.roadmap}
+        />
+        {/* AS-444 add codepen icon */}
+        <AccountTextField
+          leftIcon={<LinkIcon />}
+          label="CodePen"
+          inputId="codepen"
+          hint={hint.codepen}
+          valid={!hint.codepen}
+          name="codepen"
+          value={user?.codepen}
+        />
+        <AccountTextField
+          leftIcon={<MastodonIcon />}
+          label="Mastodon"
+          inputId="mastodon"
+          hint={hint.mastodon}
+          valid={!hint.mastodon}
+          name="mastodon"
+          value={user?.mastodon}
+        />
+        <AccountTextField
+          leftIcon={<ThreadsIcon />}
+          label="Threads"
+          inputId="threads"
+          hint={hint.threads}
+          valid={!hint.threads}
+          name="threads"
+          value={user?.threads}
         />
       </AccountContentSection>
     </form>

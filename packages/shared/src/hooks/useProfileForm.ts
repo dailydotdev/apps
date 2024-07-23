@@ -17,6 +17,14 @@ export interface ProfileFormHint {
   github?: string;
   hashnode?: string;
   name?: string;
+  roadmap?: string;
+  threads?: string;
+  codepen?: string;
+  reddit?: string;
+  stackoverflow?: string;
+  youtube?: string;
+  linkedin?: string;
+  mastodon?: string;
 }
 
 export interface UpdateProfileParameters extends Partial<UserProfile> {
@@ -42,9 +50,32 @@ interface UseProfileFormProps {
 
 type Handles = Pick<
   UserProfile,
-  'github' | 'hashnode' | 'twitter' | 'username'
+  | 'github'
+  | 'hashnode'
+  | 'twitter'
+  | 'username'
+  | 'roadmap'
+  | 'threads'
+  | 'codepen'
+  | 'reddit'
+  | 'stackoverflow'
+  | 'youtube'
+  | 'linkedin'
+  | 'mastodon'
 >;
-const socials: Array<keyof Handles> = ['github', 'hashnode', 'twitter'];
+const socials: Array<keyof Handles> = [
+  'github',
+  'hashnode',
+  'twitter',
+  'roadmap',
+  'threads',
+  'codepen',
+  'reddit',
+  'stackoverflow',
+  'youtube',
+  'linkedin',
+  'mastodon',
+];
 
 export const onValidateHandles = (
   before: Partial<Handles>,
@@ -109,9 +140,17 @@ const useProfileForm = ({
           return;
         }
 
-        displayToast(errorMessage.profile.invalidData);
+        const data: ProfileFormHint = JSON.parse(
+          err.response.errors[0].message,
+        );
 
-        const data = JSON.parse(err.response.errors[0].message);
+        if (
+          Object.values(data).some((errorHint) =>
+            socials.some((social) => errorHint.includes(social)),
+          )
+        ) {
+          displayToast(errorMessage.profile.invalidSocialLinks);
+        }
 
         setHint(data);
       },

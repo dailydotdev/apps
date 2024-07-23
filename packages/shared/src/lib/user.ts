@@ -59,6 +59,14 @@ export interface UserProfile {
   twitter?: string;
   github?: string;
   hashnode?: string;
+  roadmap?: string;
+  threads?: string;
+  codepen?: string;
+  reddit?: string;
+  stackoverflow?: string;
+  youtube?: string;
+  linkedin?: string;
+  mastodon?: string;
   portfolio?: string;
   bio?: string;
   acceptedMarketing?: boolean;

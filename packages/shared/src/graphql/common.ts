@@ -120,7 +120,8 @@ export const errorMessage = {
   profile: {
     invalidUsername: 'Invalid characters found in username!',
     invalidHandle: 'Invalid character(s) found in social handle',
-    invalidData: 'Some profile data is invalid, check below for details!',
+    invalidSocialLinks:
+      'Please follow the appropriate format to add your links',
   },
 };
 
