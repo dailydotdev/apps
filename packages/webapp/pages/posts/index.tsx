@@ -8,8 +8,10 @@ import {
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
 const seo: NextSeoProps = {
-  title: 'Popular posts on daily.dev',
+  title: 'Explore | daily.dev',
   openGraph: { ...defaultOpenGraph },
+  description:
+    'Discover the most popular posts and discussions on daily.dev. Explore trending topics and join conversations with fellow developers to stay ahead in the tech world.',
   ...defaultSeo,
 };
 
