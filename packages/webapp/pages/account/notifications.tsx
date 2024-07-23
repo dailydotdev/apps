@@ -25,17 +25,22 @@ import { SendType, usePersonalizedDigest } from '@dailydotdev/shared/src/hooks';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { usePushNotificationMutation } from '@dailydotdev/shared/src/hooks/notifications';
-import Link from 'next/link';
-import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
 import { HourDropdown } from '@dailydotdev/shared/src/components/fields/HourDropdown';
 import { UserPersonalizedDigestType } from '@dailydotdev/shared/src/graphql/users';
 import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import { useReadingStreak } from '@dailydotdev/shared/src/hooks/streaks';
+import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { TimezoneDropdown } from '@dailydotdev/shared/src/components/widgets/TimezoneDropdown';
+import { getUserInitialTimezone } from '@dailydotdev/shared/src/lib/timezones';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
-import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
+import AccountContentSection, {
+  ContentHeading,
+  ContentText,
+} from '../../components/layouts/AccountLayout/AccountContentSection';
 
 const ALERT_PUSH_KEY = 'alert_push_key';
 
@@ -61,6 +66,14 @@ const AccountNotificationsPage = (): ReactElement => {
   const [readingTimeIndex, setReadingTimeIndex] = useState<number | undefined>(
     8,
   );
+
+  const [userTimeZone, setUserTimeZone] = useState<string>(
+    getUserInitialTimezone({
+      userTimezone: user?.timezone,
+      update: true,
+    }),
+  );
+  const [freezeDays, setFreezeDays] = useState<string>('friday');
 
   const readingReminder = getPersonalizedDigest(
     UserPersonalizedDigestType.ReadingReminder,
@@ -289,18 +302,55 @@ const AccountNotificationsPage = (): ReactElement => {
 
   return (
     <AccountPageContainer title="Notifications">
-      <p className="mb-4 text-text-tertiary typo-footnote">
-        Some notifications are based on your{' '}
-        <Link href="/account/profile#yourtimezone">
-          <a
-            className="text-text-link hover:underline"
-            target="_blank"
-            rel={anchorDefaultRel}
-          >
-            timezone
-          </a>
-        </Link>
-      </p>
+      <div className="flex flex-col gap-4">
+        <AccountContentSection
+          className={{
+            heading: 'mt-0',
+            container: 'flex w-full flex-1 flex-col gap-4',
+          }}
+          title="Time preference"
+          description={
+            <>
+              Select your time zone and the beginning of the weekend in your
+              area, so that we can be accurate in sending the notifications.
+              This will also effect the{' '}
+              <ReadingStreakIcon
+                secondary
+                size={IconSize.Size16}
+                className="inline"
+              />{' '}
+              Reading streak freeze days.
+            </>
+          }
+        />
+        <div>
+          <ContentHeading>Timezone</ContentHeading>
+          <TimezoneDropdown
+            userTimeZone={userTimeZone}
+            setUserTimeZone={setUserTimeZone}
+            className={{ container: '!mt-3' }}
+          />
+        </div>
+        <div>
+          <ContentHeading>Weekend days</ContentHeading>
+          <ContentText>
+            This will affect the personalized digest, reading reminders and
+            reading streak freeze days.
+          </ContentText>
+          {/* TODO: add mutation etc */}
+          <Radio
+            name="freeze-days"
+            className={{ container: 'pt-3' }}
+            value={freezeDays}
+            options={[
+              { label: 'Friday to Saturday', value: 'friday' },
+              { label: 'Saturday to Sunday', value: 'saturday' },
+            ]}
+            onChange={setFreezeDays}
+          />
+        </div>
+      </div>
+      <div className="my-4 border-t border-border-subtlest-tertiary" />
       <div className="flex flex-row gap-4">
         <AccountContentSection
           className={{
