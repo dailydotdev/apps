@@ -71,10 +71,13 @@ export const useSourceActionsNotify = ({
           ? `✅ You'll get notified every time ${displayName} posts`
           : `⛔️ You'll no longer get notified about ${displayName} posts`,
       );
-      try {
-        await enablePushNotifications();
-      } catch (e) {
-        // errors are not handled here, do nothing for now
+
+      if (notifications.isSubscribed) {
+        try {
+          await enablePushNotifications();
+        } catch (e) {
+          // errors are not handled here, do nothing for now
+        }
       }
     } else {
       displayToast(
