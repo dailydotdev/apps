@@ -12,7 +12,7 @@ import {
 } from '../../../graphql/users';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { Weekends } from '../../../lib/dateFormat';
-import { useActions } from '../../../hooks';
+import { useActions, useViewSize, ViewSize } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { SettingsIcon } from '../../icons';
@@ -83,6 +83,7 @@ export function ReadingStreakPopup({
   streak,
   fullWidth,
 }: ReadingStreakPopupProps): ReactElement {
+  const isTablet = useViewSize(ViewSize.Tablet);
   const { user } = useAuthContext();
   const { completeAction } = useActions();
   const { data: history } = useQuery<ReadingDay[]>(
@@ -122,32 +123,40 @@ export function ReadingStreakPopup({
 
   return (
     <div className="flex flex-col">
-      <div className="flex flex-col-reverse p-4 tablet:flex-col">
-        <div>
-          <div className="flex flex-row">
-            <StreakSection streak={streak.current} label="Current streak" />
-            <StreakSection streak={streak.max} label="Longest streak 🏆" />
-          </div>
+      <div className="flex flex-col p-0 tablet:p-4">
+        <div className="flex flex-row">
+          <StreakSection streak={streak.current} label="Current streak" />
+          <StreakSection streak={streak.max} label="Longest streak 🏆" />
+        </div>
+        <div
+          className={classNames(
+            'mt-6 flex flex-row gap-2',
+            fullWidth && 'justify-between',
+          )}
+        >
+          {streaks}
+        </div>
+        <div className="mt-4 flex flex-col items-center tablet:flex-row">
           <div
             className={classNames(
-              'mt-6 flex flex-row gap-2',
-              fullWidth && 'justify-between',
+              'font-bold text-text-tertiary',
+              !isTablet && 'my-4 flex-1 text-center',
             )}
           >
-            {streaks}
+            Total reading days: {streak.total}
           </div>
-          <div className="mt-4 flex items-center">
-            <div className="font-bold text-text-tertiary">
-              Total reading days: {streak.total}
-            </div>
-            <Button
-              onClick={() => toggleShowStreakConfig()}
-              variant={ButtonVariant.Float}
-              pressed={showStreakConfig}
-              icon={<SettingsIcon />}
-              className="ml-auto"
-            />
-          </div>
+          <Button
+            onClick={() => toggleShowStreakConfig()}
+            variant={ButtonVariant.Float}
+            pressed={showStreakConfig}
+            icon={<SettingsIcon />}
+            className={classNames(
+              !isTablet ? 'w-full' : 'ml-auto',
+              !isTablet && showStreakConfig && 'hidden',
+            )}
+          >
+            {!isTablet ? 'Settings' : null}
+          </Button>
         </div>
       </div>
       {showStreakConfig && (
