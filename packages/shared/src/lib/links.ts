@@ -56,3 +56,15 @@ export const getPathnameWithQuery = (
 
   return `${pathname}${queryString ? `?${queryString}` : ''}`;
 };
+
+export const withPrefix = (prefix: string, url?: string): string => {
+  if (!url) {
+    return '';
+  }
+
+  if (url.includes(prefix)) {
+    return url;
+  }
+
+  return `${prefix}${url}`;
+};
