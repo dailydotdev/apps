@@ -14,11 +14,9 @@ import { useAuthContext } from '../../contexts/AuthContext';
 
 interface StreakReminderSwitchProps {
   className?: string;
-  label?: string;
 }
 const StreakReminderSwitch = ({
   className,
-  label = 'Streak reminder',
 }: StreakReminderSwitchProps): ReactElement => {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -78,7 +76,7 @@ const StreakReminderSwitch = ({
       compact={false}
       onToggle={onToggleStreakReminder}
     >
-      {label}
+      Notify me before my streak expires
     </Switch>
   );
 };

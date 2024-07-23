@@ -156,7 +156,7 @@ export function ReadingStreakPopup({
             <p className="font-bold text-text-secondary typo-subhead">
               General
             </p>
-            <StreakReminderSwitch label="Notify me before my streak expires" />
+            <StreakReminderSwitch />
             <ReadingStreakSwitch />
           </div>
         </div>
