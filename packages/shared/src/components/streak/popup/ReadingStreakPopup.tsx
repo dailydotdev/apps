@@ -14,6 +14,9 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { Weekends } from '../../../lib/dateFormat';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
+import { Button, ButtonVariant } from '../../buttons/Button';
+import { SettingsIcon } from '../../icons';
+import { useToggle } from '../../../hooks/useToggle';
 
 const getStreak = ({
   value,
@@ -85,6 +88,7 @@ export function ReadingStreakPopup({
     () => getReadingStreak30Days(user.id),
     { staleTime: StaleTime.Default },
   );
+  const [showStreakConfig, toggleShowStreakConfig] = useToggle(false);
 
   const dateToday = new Date().getDate();
 
@@ -114,22 +118,33 @@ export function ReadingStreakPopup({
   }, [completeAction, streak]);
 
   return (
-    <div className="flex flex-col-reverse tablet:flex-col">
-      <div>
-        <div className="flex flex-row">
-          <StreakSection streak={streak.current} label="Current streak" />
-          <StreakSection streak={streak.max} label="Longest streak 🏆" />
-        </div>
-        <div
-          className={classNames(
-            'mt-6 flex flex-row gap-2',
-            fullWidth && 'justify-between',
-          )}
-        >
-          {streaks}
-        </div>
-        <div className="mt-4 text-center font-bold leading-8 text-text-tertiary">
-          Total reading days: {streak.total}
+    <div className="flex flex-col">
+      <div className="flex flex-col-reverse p-4 tablet:flex-col">
+        <div>
+          <div className="flex flex-row">
+            <StreakSection streak={streak.current} label="Current streak" />
+            <StreakSection streak={streak.max} label="Longest streak 🏆" />
+          </div>
+          <div
+            className={classNames(
+              'mt-6 flex flex-row gap-2',
+              fullWidth && 'justify-between',
+            )}
+          >
+            {streaks}
+          </div>
+          <div className="mt-4 flex items-center">
+            <div className="font-bold text-text-tertiary">
+              Total reading days: {streak.total}
+            </div>
+            <Button
+              onClick={() => toggleShowStreakConfig()}
+              variant={ButtonVariant.Float}
+              pressed={showStreakConfig}
+              icon={<SettingsIcon />}
+              className="ml-auto"
+            />
+          </div>
         </div>
       </div>
     </div>
