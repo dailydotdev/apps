@@ -1,18 +1,13 @@
 import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
-import React, {
-  ReactElement,
-  SetStateAction,
-  useContext,
-  useState,
-} from 'react';
+import React, { ReactElement, SetStateAction, useState } from 'react';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import Pointer, {
   PointerColor,
 } from '@dailydotdev/shared/src/components/alert/Pointer';
 import useProfileForm from '@dailydotdev/shared/src/hooks/useProfileForm';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import {
   LogEvent,
@@ -34,7 +29,9 @@ import { useReadingStreak } from '@dailydotdev/shared/src/hooks/streaks';
 import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { TimezoneDropdown } from '@dailydotdev/shared/src/components/widgets/TimezoneDropdown';
+import { ToggleWeekStart } from '@dailydotdev/shared/src/components/widgets/ToggleWeekStart';
 import { getUserInitialTimezone } from '@dailydotdev/shared/src/lib/timezones';
+
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection, {
@@ -54,7 +51,7 @@ const AccountNotificationsPage = (): ReactElement => {
   );
   const { updateUserProfile } = useProfileForm();
   const { logEvent } = useLogContext();
-  const { user } = useContext(AuthContext);
+  const { user } = useAuthContext();
   const {
     getPersonalizedDigest,
     isLoading,
@@ -73,7 +70,6 @@ const AccountNotificationsPage = (): ReactElement => {
       update: true,
     }),
   );
-  const [freezeDays, setFreezeDays] = useState<string>('friday');
 
   const readingReminder = getPersonalizedDigest(
     UserPersonalizedDigestType.ReadingReminder,
@@ -337,17 +333,7 @@ const AccountNotificationsPage = (): ReactElement => {
             This will affect the personalized digest, reading reminders and
             reading streak freeze days.
           </ContentText>
-          {/* TODO: add mutation etc */}
-          <Radio
-            name="freeze-days"
-            className={{ container: 'pt-3' }}
-            value={freezeDays}
-            options={[
-              { label: 'Friday to Saturday', value: 'friday' },
-              { label: 'Saturday to Sunday', value: 'saturday' },
-            ]}
-            onChange={setFreezeDays}
-          />
+          <ToggleWeekStart />
         </div>
       </div>
       <div className="my-4 border-t border-border-subtlest-tertiary" />
