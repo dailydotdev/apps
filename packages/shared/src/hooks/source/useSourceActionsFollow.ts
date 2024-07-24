@@ -37,7 +37,7 @@ export function useSourceActionsFollow({
     if (successful) {
       displayToast(`✅ You are now subscribed to ${source.name}`);
     }
-  }, [displayToast, onFollowSource]);
+  }, [source, displayToast, onFollowSource]);
 
   const removeFollow = useCallback(async () => {
     if (haveNotificationsOn && isReady) {
@@ -51,14 +51,7 @@ export function useSourceActionsFollow({
     if (successful) {
       displayToast(`⛔️ You are now unsubscribed to ${source.name}`);
     }
-  }, [
-    displayToast,
-    haveNotificationsOn,
-    isReady,
-    onNotify,
-    onUnfollowSource,
-    ,
-  ]);
+  }, [source, displayToast, haveNotificationsOn, isReady, onNotify, onUnfollowSource]);
 
   const toggleFollow = useCallback(async () => {
     if (isFollowing) {
