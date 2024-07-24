@@ -359,6 +359,8 @@ export default function PostOptionsMenu({
     source: post?.source,
   });
 
+  console.log({ shouldShowSubscribe, isNotifyExperiment, isFollowing });
+
   if (shouldShowSubscribe) {
     if (!isNotifyExperiment) {
       postOptions.push({
@@ -379,26 +381,28 @@ export default function PostOptionsMenu({
         action: sourceSubscribe.isReady ? sourceSubscribe.onNotify : undefined,
         Wrapper: ({ children }: { children: ReactNode }) => <>{children}</>,
       });
-    }
-  } else {
-    postOptions.push({
-      icon: <MenuIcon Icon={isFollowing ? MinusIcon : PlusIcon} />,
-      label: `${isFollowing ? 'Unfollow' : 'Follow'} ${post?.source?.name}`,
-      action: toggleFollow,
-    });
+    } else {
+      console.log('sourceSubscribe', sourceSubscribe);
 
-    if (isFollowing) {
       postOptions.push({
-        icon: (
-          <MenuIcon
-            Icon={haveNotificationsOn ? BellSubscribedIcon : BellAddIcon}
-          />
-        ),
-        label: haveNotificationsOn
-          ? `Remove notifications`
-          : `Notify on new post`,
-        action: sourceSubscribe.onNotify,
+        icon: <MenuIcon Icon={isFollowing ? MinusIcon : PlusIcon} />,
+        label: `${isFollowing ? 'Unfollow' : 'Follow'} ${post?.source?.name}`,
+        action: toggleFollow,
       });
+
+      if (isFollowing) {
+        postOptions.push({
+          icon: (
+            <MenuIcon
+              Icon={haveNotificationsOn ? BellSubscribedIcon : BellAddIcon}
+            />
+          ),
+          label: haveNotificationsOn
+            ? `Remove notifications`
+            : `Notify on new post`,
+          action: sourceSubscribe.onNotify,
+        });
+      }
     }
   }
 
