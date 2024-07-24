@@ -12,7 +12,7 @@ interface UseSourceActionsReturn {
   toggleBlock: () => void;
   isFollowing: boolean;
   toggleFollow: () => void;
-  haveNotifications: boolean;
+  haveNotificationsOn: boolean;
   toggleNotify: () => void;
 }
 
@@ -32,7 +32,7 @@ export const useSourceActions = (
     toggleBlock,
     isFollowing,
     toggleFollow,
-    haveNotificationsOn: haveNotifications,
+    haveNotificationsOn,
     toggleNotify: onNotify,
   };
 };

@@ -5,16 +5,16 @@ import { Button } from '../../buttons/Button';
 import { BellAddIcon, BellSubscribedIcon } from '../../icons';
 
 interface SourceActionsNotifyProps {
-  haveNotifications: boolean;
+  haveNotificationsOn: boolean;
   onClick: () => void;
 }
 
 const SourceActionsNotify = (props: SourceActionsNotifyProps): ReactElement => {
-  const { haveNotifications, onClick } = props;
+  const { haveNotificationsOn, onClick } = props;
 
-  const icon = haveNotifications ? <BellSubscribedIcon /> : <BellAddIcon />;
-  const label = `${haveNotifications ? 'Disable' : 'Enable'} notifications`;
-  const variant = haveNotifications
+  const icon = haveNotificationsOn ? <BellSubscribedIcon /> : <BellAddIcon />;
+  const label = `${haveNotificationsOn ? 'Disable' : 'Enable'} notifications`;
+  const variant = haveNotificationsOn
     ? ButtonVariant.Tertiary
     : ButtonVariant.Secondary;
 

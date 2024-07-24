@@ -35,7 +35,7 @@ export const SourceActionsWithNotifyExperiment = ({
     toggleBlock,
     isFollowing,
     toggleFollow,
-    haveNotifications,
+    haveNotificationsOn,
     toggleNotify,
   } = useSourceActions({
     source,
@@ -54,7 +54,7 @@ export const SourceActionsWithNotifyExperiment = ({
       )}
       {!hideNotify && isFollowing && (
         <SourceActionsNotify
-          haveNotifications={haveNotifications}
+          haveNotificationsOn={haveNotificationsOn}
           onClick={toggleNotify}
           {...notifyProps}
         />
