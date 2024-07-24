@@ -48,7 +48,7 @@ export const SourceActionsWithNotifyExperiment = ({
           isFetching={false}
           isSubscribed={isFollowing}
           onClick={toggleFollow}
-          variant={isFollowing ? ButtonVariant.Tertiary : ButtonVariant.Primary}
+          variant={ButtonVariant.Primary}
           {...followProps}
         />
       )}

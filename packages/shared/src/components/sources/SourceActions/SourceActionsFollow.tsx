@@ -20,7 +20,7 @@ const SourceActionsFollow = (props: SourceActionsFollowProps): ReactElement => {
       disabled={isFetching}
       onClick={onClick}
       size={ButtonSize.Small}
-      variant={variant}
+      variant={isSubscribed ? ButtonVariant.Tertiary : variant}
     >
       {label}
     </Button>
