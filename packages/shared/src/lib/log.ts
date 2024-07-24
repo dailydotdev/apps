@@ -150,12 +150,15 @@ export enum LogEvent {
   // 404 page
   View404Page = '404 page',
   // Source Actions - start
-  BlockSource = 'block source',
-  UnblockSource = 'unblock source',
-  // Source Actions - end
+  BlockSource = 'unfollow',
+  UnblockSource = 'follow',
   SubscribeSource = 'subscribe source',
   UnsubscribeSource = 'unsubscribe source',
   // Source Actions - end
+  // Tags - start
+  BlockTag = 'block',
+  UnblockTag = 'unblock',
+  // Tags - end
   // marketing CTA
   MarketingCtaDismiss = 'dismiss promotion',
   // Reading reminder

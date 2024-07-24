@@ -111,10 +111,10 @@ export default function PostOptionsMenu({
   const { openModal } = useLazyModal();
   const { queryKey: feedQueryKey, logOpts } = useContext(ActiveFeedContext);
   const {
-    onUnblockSource,
     onBlockSource,
-    onFollowTags,
     onBlockTags,
+    onFollowTags,
+    onUnblockSource,
     onUnblockTags,
   } = useTagAndSource({
     origin: Origin.PostContextMenu,

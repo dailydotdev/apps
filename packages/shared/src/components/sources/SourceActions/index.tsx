@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { SourceSubscribeButton } from './SourceSubscribeButton';
 import SourceActionsBlock from './SourceActionsBlock';
 import { useSourceActionsBlock } from '../../../hooks/source/useSourceActionsBlock';
@@ -19,7 +19,7 @@ interface SourceActionsProps {
   followProps?: SourceActionsButton;
 }
 
-const SourceDefaultActions = (props: SourceActionsProps) => {
+const SourceDefaultActions = (props: SourceActionsProps): ReactElement => {
   const { source, hideBlock, followProps } = props;
   const { isBlocked, toggleBlock } = useSourceActionsBlock({
     source,
