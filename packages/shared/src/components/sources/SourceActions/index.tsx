@@ -19,7 +19,7 @@ interface SourceActionsProps {
   followProps?: SourceActionsButton;
 }
 
-const SourceDefaultActions = (props: SourceActionsProps): ReactElement => {
+const SourceActionsControl = (props: SourceActionsProps): ReactElement => {
   const { source, hideBlock, followProps } = props;
   const { isBlocked, toggleBlock } = useSourceActionsBlock({
     source,
@@ -36,7 +36,7 @@ const SourceDefaultActions = (props: SourceActionsProps): ReactElement => {
 };
 
 export const SourceActions = withExperiment(SourceActionsWithNotifyExperiment, {
-  fallback: SourceDefaultActions,
+  fallback: SourceActionsControl,
   feature: feature.sourceNotifyButton,
   value: true,
 });

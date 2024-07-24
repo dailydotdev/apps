@@ -23,7 +23,7 @@ export const useSourceActions = (
 
   const { isBlocked, toggleBlock } = useSourceActionsBlock({ source });
   const { isFollowing, toggleFollow } = useSourceActionsFollow({ source });
-  const { haveNotifications, onNotify } = useSourceActionsNotify({
+  const { haveNotificationsOn, onNotify } = useSourceActionsNotify({
     source,
   });
 
@@ -32,7 +32,7 @@ export const useSourceActions = (
     toggleBlock,
     isFollowing,
     toggleFollow,
-    haveNotifications,
+    haveNotificationsOn: haveNotifications,
     toggleNotify: onNotify,
   };
 };

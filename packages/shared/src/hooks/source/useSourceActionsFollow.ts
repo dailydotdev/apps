@@ -25,7 +25,7 @@ export function useSourceActionsFollow({
     return !!feedSettings?.includeSources?.find(({ id }) => source?.id === id);
   }, [feedSettings, source]);
 
-  const { haveNotifications, isReady, onNotify } = useSourceActionsNotify({
+  const { haveNotificationsOn, isReady, onNotify } = useSourceActionsNotify({
     source,
   });
   const { onFollowSource, onUnfollowSource } = useTagAndSource({
@@ -40,7 +40,7 @@ export function useSourceActionsFollow({
   }, [displayToast, onFollowSource]);
 
   const removeFollow = useCallback(async () => {
-    if (haveNotifications && isReady) {
+    if (haveNotificationsOn && isReady) {
       await onNotify();
     }
 
@@ -51,7 +51,14 @@ export function useSourceActionsFollow({
     if (successful) {
       displayToast(`⛔️ You are now unsubscribed to ${source.name}`);
     }
-  }, [displayToast, haveNotifications, isReady, onNotify, onUnfollowSource, ,]);
+  }, [
+    displayToast,
+    haveNotificationsOn,
+    isReady,
+    onNotify,
+    onUnfollowSource,
+    ,
+  ]);
 
   const toggleFollow = useCallback(async () => {
     if (isFollowing) {

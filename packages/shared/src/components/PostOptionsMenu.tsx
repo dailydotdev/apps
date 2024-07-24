@@ -354,7 +354,7 @@ export default function PostOptionsMenu({
     }
   }
 
-  const { haveNotifications } = sourceSubscribe;
+  const { haveNotificationsOn } = sourceSubscribe;
   const { isFollowing, toggleFollow } = useSourceActionsFollow({
     source: post?.source,
   });
@@ -365,12 +365,14 @@ export default function PostOptionsMenu({
         icon: (
           <MenuIcon
             Icon={
-              sourceSubscribe.haveNotifications ? BellSubscribedIcon : BellIcon
+              sourceSubscribe.haveNotificationsOn
+                ? BellSubscribedIcon
+                : BellIcon
             }
           />
         ),
         label: `${
-          sourceSubscribe.haveNotifications
+          sourceSubscribe.haveNotificationsOn
             ? 'Unsubscribe from'
             : 'Subscribe to'
         } ${post?.source?.name}`,
@@ -389,10 +391,10 @@ export default function PostOptionsMenu({
       postOptions.push({
         icon: (
           <MenuIcon
-            Icon={haveNotifications ? BellSubscribedIcon : BellAddIcon}
+            Icon={haveNotificationsOn ? BellSubscribedIcon : BellAddIcon}
           />
         ),
-        label: haveNotifications
+        label: haveNotificationsOn
           ? `Remove notifications`
           : `Notify on new post`,
         action: sourceSubscribe.onNotify,

@@ -222,11 +222,11 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
 const EnableNotificationSourceSubscribe = ({
   source,
 }: Pick<Post, 'source'>) => {
-  const { haveNotifications } = useSourceActionsNotify({
+  const { haveNotificationsOn } = useSourceActionsNotify({
     source,
   });
 
-  if (!haveNotifications) {
+  if (!haveNotificationsOn) {
     return null;
   }
 

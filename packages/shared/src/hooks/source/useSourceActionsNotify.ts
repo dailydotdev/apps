@@ -18,7 +18,7 @@ export type UseSourceSubscriptionProps = {
 };
 
 export type UseSourceSubscription = {
-  haveNotifications: boolean;
+  haveNotificationsOn: boolean;
   isReady: boolean;
   onNotify: () => Promise<void>;
 };
@@ -30,7 +30,7 @@ export const useSourceActionsNotify = ({
   const { logEvent } = useLogContext();
   const { isLoggedIn, showLogin } = useAuthContext();
   const { displayToast } = useToastNotification();
-  const { haveNotifications, isReady, onToggle } =
+  const { haveNotificationsOn, isReady, onToggle } =
     useNotificationPreferenceToggle({
       params: source?.id
         ? {
@@ -98,7 +98,7 @@ export const useSourceActionsNotify = ({
   ]);
 
   return {
-    haveNotifications,
+    haveNotificationsOn,
     isReady,
     onNotify,
   };
