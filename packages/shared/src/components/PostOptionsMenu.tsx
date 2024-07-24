@@ -354,36 +354,30 @@ export default function PostOptionsMenu({
     }
   }
 
-  const { haveNotificationsOn } = sourceSubscribe;
+  const {
+    haveNotificationsOn,
+    onNotify: onNotifyToggle,
+    isReady: isReadyNotifications,
+  } = sourceSubscribe;
   const { isFollowing, toggleFollow } = useSourceActionsFollow({
     source: post?.source,
   });
-
-  console.log({ shouldShowSubscribe, isNotifyExperiment, isFollowing });
 
   if (shouldShowSubscribe) {
     if (!isNotifyExperiment) {
       postOptions.push({
         icon: (
           <MenuIcon
-            Icon={
-              sourceSubscribe.haveNotificationsOn
-                ? BellSubscribedIcon
-                : BellIcon
-            }
+            Icon={haveNotificationsOn ? BellSubscribedIcon : BellIcon}
           />
         ),
-        label: `${
-          sourceSubscribe.haveNotificationsOn
-            ? 'Unsubscribe from'
-            : 'Subscribe to'
-        } ${post?.source?.name}`,
-        action: sourceSubscribe.isReady ? sourceSubscribe.onNotify : undefined,
+        label: `${haveNotificationsOn ? 'Unsubscribe from' : 'Subscribe to'} ${
+          post?.source?.name
+        }`,
+        action: isReadyNotifications ? onNotifyToggle : undefined,
         Wrapper: ({ children }: { children: ReactNode }) => <>{children}</>,
       });
     } else {
-      console.log('sourceSubscribe', sourceSubscribe);
-
       postOptions.push({
         icon: <MenuIcon Icon={isFollowing ? MinusIcon : PlusIcon} />,
         label: `${isFollowing ? 'Unfollow' : 'Follow'} ${post?.source?.name}`,
@@ -400,7 +394,7 @@ export default function PostOptionsMenu({
           label: haveNotificationsOn
             ? `Remove notifications`
             : `Notify on new post`,
-          action: sourceSubscribe.onNotify,
+          action: onNotifyToggle,
         });
       }
     }
