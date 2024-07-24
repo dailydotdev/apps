@@ -80,7 +80,11 @@ const createFeedMock = (
 const createSourcesSettingsMock = (
   feedSettings: FeedSettings = {
     excludeSources: [
-      { id: 'react', name: 'React', image: 'https://reactjs.org' },
+      {
+        id: 'react',
+        name: 'React',
+        image: 'https://reactjs.org',
+      },
     ],
   },
 ): MockedGraphQLResponse<AllTagCategoriesData> => ({
@@ -107,6 +111,7 @@ const renderComponent = (
     handle: 'react',
     permalink: 'permalink/react',
     type: SourceType.Machine,
+    public: true,
   },
 ): RenderResult => {
   client = new QueryClient();
@@ -172,10 +177,13 @@ it('should show source image', async () => {
   expect(el).toBeInTheDocument();
 });
 
-it('should show add to feed button', async () => {
-  renderComponent();
+it('should show notify button', async () => {
+  renderComponent([
+    createFeedMock(),
+    createSourcesSettingsMock({ excludeSources: [] }),
+  ]);
   await waitForNock();
-  const button = await screen.findByLabelText('Follow');
+  const button = await screen.findByTestId('notifyButton');
   expect(button).toBeInTheDocument();
 });
 
@@ -185,7 +193,7 @@ it('should show block button', async () => {
     createSourcesSettingsMock({ excludeSources: [] }),
   ]);
   await waitForNock();
-  const button = await screen.findByLabelText('Block');
+  const button = await screen.findByTestId('blockButton');
   expect(button).toBeInTheDocument();
 });
 
@@ -207,12 +215,12 @@ it('should show login popup when logged-out on add to feed click', async () => {
     null,
   );
   await waitForNock();
-  const button = await screen.findByLabelText('Follow');
+  const button = await screen.findByTestId('blockButton');
   button.click();
   expect(showLogin).toBeCalledTimes(1);
 });
 
-it('should follow source', async () => {
+it('should activate notify from source', async () => {
   let mutationCalled = false;
   renderComponent();
   await waitFor(async () => {
@@ -231,11 +239,11 @@ it('should follow source', async () => {
       return { data: { feedSettings: { id: defaultUser.id } } };
     },
   });
-  const button = await screen.findByLabelText('Follow');
+  const button = await screen.findByTestId('blockButton');
+  const initialText = button.textContent;
   button.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
-  const blockButton = await screen.findByLabelText('Block');
-  expect(blockButton).toBeInTheDocument();
+  expect(initialText).not.toBe(button.textContent);
 });
 
 it('should block source', async () => {
@@ -260,9 +268,9 @@ it('should block source', async () => {
       return { data: { feedSettings: { id: defaultUser.id } } };
     },
   });
-  const button = await screen.findByLabelText('Block');
+  const button = await screen.findByTestId('blockButton');
+  const initialText = button.textContent;
   button.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
-  const blockButton = await screen.findByLabelText('Follow');
-  expect(blockButton).toBeInTheDocument();
+  expect(initialText).not.toBe(button.textContent);
 });

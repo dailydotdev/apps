@@ -4,25 +4,27 @@ import { Post } from '../../graphql/posts';
 import classed from '../../lib/classed';
 import { LazyImage } from '../LazyImage';
 import { WidgetContainer } from './common';
-import { ScoutIcon, FeatherIcon } from '../icons';
+import { FeatherIcon, ScoutIcon } from '../icons';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { ProfileLink } from '../profile/ProfileLink';
 import { Author as CommentAuthor } from '../../graphql/comments';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ReputationUserBadge } from '../ReputationUserBadge';
-import { SourceSubscribeButton } from '../sources';
 import { ButtonVariant } from '../buttons/common';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import EnableNotification from '../notifications/EnableNotification';
 import { NotificationPromptSource } from '../../lib/log';
-import { useSourceSubscription } from '../../hooks';
+import { useSourceActionsNotify } from '../../hooks';
+import { SourceActions } from '../sources/SourceActions';
+import { Source as ISource } from '../../graphql/sources';
+import { TruncateText } from '../utilities';
 
 interface PostAuthorProps {
   post: Post;
 }
 
-enum UserType {
+export enum UserType {
   Source = 'source',
   Author = 'author',
   Featured = 'featured',
@@ -31,18 +33,16 @@ enum UserType {
 
 const StyledImage = classed(LazyImage, 'w-10 h-10');
 
-interface SourceAuthorProps {
-  id?: string;
-  handle?: string;
-  image: string;
-  name: string;
-  username?: string;
-  userType?: UserType;
-  permalink: string;
-  reputation?: number;
-}
+type SourceAuthorProps =
+  | ({ userType?: null } & CommentAuthor)
+  | ({
+      userType: UserType.Featured | UserType.Author | UserType.Scout;
+    } & CommentAuthor)
+  | ({
+      userType: UserType.Source;
+    } & ISource);
 
-interface UserHighlightProps extends SourceAuthorProps {
+type UserHighlightProps = SourceAuthorProps & {
   allowSubscribe?: boolean;
   showReputation?: boolean;
   className?: {
@@ -53,11 +53,11 @@ interface UserHighlightProps extends SourceAuthorProps {
     reputation?: string;
     handle?: string;
   };
-}
+};
 
-interface ImageProps extends SourceAuthorProps {
+type ImageProps = SourceAuthorProps & {
   className?: string;
-}
+};
 
 const getUserIcon = (userType: UserType) => {
   if (userType === UserType.Source) {
@@ -106,20 +106,22 @@ const Image = (props: ImageProps) => {
 };
 
 export const UserHighlight = (props: UserHighlightProps): ReactElement => {
+  const { userType, ...user } = props;
   const {
     id,
-    handle,
     name,
-    username,
     permalink,
-    userType = UserType.Source,
-    reputation,
     allowSubscribe = true,
     className,
     showReputation = false,
-  } = props;
+  } = user;
+
+  const handleOrUsernameOrId =
+    ('handle' in user ? user.handle : user.username) || id;
+  const reputation = 'reputation' in user ? user.reputation : NaN;
+
   const Icon = getUserIcon(userType);
-  const isUserTypeSource = userType === UserType.Source;
+  const isUserTypeSource = userType === UserType.Source && 'handle' in user;
   const { feedSettings } = useFeedSettings();
 
   const isSourceBlocked = useMemo(() => {
@@ -135,7 +137,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
   return (
     <div
       className={classNames(
-        'relative flex flex-row items-center p-3',
+        'relative flex flex-row items-center gap-4 p-3',
         className?.wrapper,
       )}
     >
@@ -151,7 +153,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
           <Image {...props} className={className?.image} />
         </ProfileLink>
       </ConditionalWrapper>
-      {Icon && (
+      {userType && Icon && (
         <Icon
           secondary
           className={classNames(
@@ -172,19 +174,16 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
       >
         <div
           className={classNames(
-            'ml-4 flex min-w-0 flex-1 flex-col',
+            'flex min-w-0 flex-1 flex-col',
             className?.textWrapper,
           )}
         >
           <div className="flex">
             <ProfileLink
-              className={classNames(
-                'truncate font-bold typo-callout',
-                className?.name,
-              )}
+              className={classNames('font-bold typo-callout', className?.name)}
               href={permalink}
             >
-              {name}
+              <TruncateText>{name}</TruncateText>
             </ProfileLink>
 
             {(showReputation || !isUserTypeSource) && (
@@ -194,7 +193,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
               />
             )}
           </div>
-          {(handle || username || id) && (
+          {handleOrUsernameOrId && (
             <ProfileLink
               className={classNames(
                 'mt-0.5 !block truncate text-text-tertiary typo-footnote',
@@ -202,16 +201,18 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
               )}
               href={permalink}
             >
-              @{handle || username || id}
+              @{handleOrUsernameOrId}
             </ProfileLink>
           )}
         </div>
       </ConditionalWrapper>
       {!isSourceBlocked && isUserTypeSource && allowSubscribe && (
-        <SourceSubscribeButton
-          className="ml-2"
-          variant={ButtonVariant.Secondary}
-          source={{ id }}
+        <SourceActions
+          followProps={{
+            variant: ButtonVariant.Secondary,
+          }}
+          hideBlock
+          source={user}
         />
       )}
     </div>
@@ -221,11 +222,11 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
 const EnableNotificationSourceSubscribe = ({
   source,
 }: Pick<Post, 'source'>) => {
-  const { isSubscribed } = useSourceSubscription({
+  const { haveNotifications } = useSourceActionsNotify({
     source,
   });
 
-  if (!isSubscribed) {
+  if (!haveNotifications) {
     return null;
   }
 

@@ -2,7 +2,10 @@ import React, { ReactElement, ReactNode } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import NotificationItem, { NotificationItemProps } from './NotificationItem';
-import { NotificationAvatarType } from '../../graphql/notifications';
+import {
+  NotificationAttachmentType,
+  NotificationAvatarType,
+} from '../../graphql/notifications';
 import { NotificationType, NotificationIconType } from './utils';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 
@@ -17,7 +20,11 @@ const sampleNotification: NotificationItemProps = {
   type: NotificationType.System,
   targetUrl: 'post url',
   attachments: [
-    { title: 'Sample attachment', image: 'sample attachment image' },
+    {
+      title: 'Sample attachment',
+      image: 'sample attachment image',
+      type: NotificationAttachmentType.Post,
+    },
   ],
   avatars: [
     {

@@ -9,60 +9,60 @@ import { useNotificationPreferenceToggle } from '../notifications';
 import { useToastNotification } from '../useToastNotification';
 
 export type UseSourceSubscriptionProps = {
-  source: Pick<Source, 'id'>;
+  source: Pick<Source, 'id'> | Source;
 };
 
 export type UseSourceSubscription = {
-  isSubscribed: boolean;
+  haveNotifications: boolean;
   isReady: boolean;
-  onSubscribe: () => Promise<void>;
+  onNotify: () => Promise<void>;
 };
 
-export const useSourceSubscription = ({
+export const useSourceActionsNotify = ({
   source,
 }: UseSourceSubscriptionProps): UseSourceSubscription => {
   const { logEvent } = useLogContext();
   const { isLoggedIn, showLogin } = useAuthContext();
   const { displayToast } = useToastNotification();
-  const { isSubscribed, isReady, onToggle } = useNotificationPreferenceToggle({
-    params: source?.id
-      ? {
-          notificationType: NotificationType.SourcePostAdded,
-          referenceId: source?.id,
-        }
-      : undefined,
-  });
+  const { haveNotifications, isReady, onToggle } =
+    useNotificationPreferenceToggle({
+      params: source?.id
+        ? {
+            notificationType: NotificationType.SourcePostAdded,
+            referenceId: source?.id,
+          }
+        : undefined,
+    });
 
-  const onSubscribe = useCallback(async () => {
+  const onNotify = useCallback(async () => {
     if (!source?.id) {
       return;
     }
 
     if (!isLoggedIn) {
       showLogin({ trigger: AuthTriggers.SourceSubscribe });
-
       return;
     }
 
-    const result = await onToggle();
+    const notifications = await onToggle();
 
     logEvent({
-      event_name: result.isSubscribed
+      event_name: notifications.isSubscribed
         ? LogEvent.SubscribeSource
         : LogEvent.UnsubscribeSource,
       target_id: source.id,
     });
 
     displayToast(
-      result.isSubscribed
+      notifications.isSubscribed
         ? '✅ You are now subscribed'
         : '⛔️ You are now unsubscribed',
     );
-  }, [isLoggedIn, onToggle, showLogin, source?.id, logEvent, displayToast]);
+  }, [source, isLoggedIn, onToggle, logEvent, displayToast, showLogin]);
 
   return {
-    isSubscribed,
+    haveNotifications,
     isReady,
-    onSubscribe,
+    onNotify,
   };
 };

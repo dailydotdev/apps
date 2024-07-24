@@ -1,16 +1,16 @@
 import React, { ReactElement } from 'react';
-import { Button } from '../buttons/Button';
-import { ButtonSize, ButtonVariant } from '../buttons/common';
-import { BellSubscribedIcon } from '../icons';
-import { SimpleTooltip } from '../tooltips';
-import { Source } from '../../graphql/sources';
-import { isTesting } from '../../lib/constants';
-import { useSourceSubscription } from '../../hooks';
-import { useAuthContext } from '../../contexts/AuthContext';
+import { Button } from '../../buttons/Button';
+import { ButtonSize, ButtonVariant } from '../../buttons/common';
+import { BellSubscribedIcon } from '../../icons';
+import { SimpleTooltip } from '../../tooltips';
+import { Source } from '../../../graphql/sources';
+import { isTesting } from '../../../lib/constants';
+import { useSourceActionsNotify } from '../../../hooks';
+import { useAuthContext } from '../../../contexts/AuthContext';
 
 export type SourceSubscribeButtonProps = {
   className?: string;
-  source: Pick<Source, 'id'>;
+  source: Source;
   variant?: ButtonVariant;
 };
 
@@ -34,6 +34,7 @@ const SourceSubscribeButtonRegular = ({
       disabled={isFetching}
       onClick={onClick}
       size={ButtonSize.Small}
+      data-testid="notifyButton"
     >
       Subscribe
     </Button>
@@ -54,6 +55,7 @@ const SourceSubscribeButtonSubscribed = ({
         icon={<BellSubscribedIcon />}
         disabled={isFetching}
         onClick={onClick}
+        data-testid="notifyButton"
       />
     </SimpleTooltip>
   );
@@ -65,11 +67,12 @@ const SourceSubscribeButton = ({
   variant = ButtonVariant.Primary,
 }: SourceSubscribeButtonProps): ReactElement => {
   const { isLoggedIn } = useAuthContext();
-  const { isSubscribed, onSubscribe, isReady } = useSourceSubscription({
+
+  const { haveNotifications, onNotify, isReady } = useSourceActionsNotify({
     source,
   });
 
-  const ButtonComponent = isSubscribed
+  const ButtonComponent = haveNotifications
     ? SourceSubscribeButtonSubscribed
     : SourceSubscribeButtonRegular;
 
@@ -77,7 +80,7 @@ const SourceSubscribeButton = ({
     <ButtonComponent
       className={className}
       isFetching={isLoggedIn && !isReady}
-      onClick={onSubscribe}
+      onClick={onNotify}
       variant={variant}
     />
   );
