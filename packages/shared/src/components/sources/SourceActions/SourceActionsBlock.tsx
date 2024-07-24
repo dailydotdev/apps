@@ -17,17 +17,18 @@ const SourceActionsBlock = ({
   const unblockLabel = isNotifyExperiment ? 'Unblock' : 'Follow';
   const defaultIcon = isBlocked ? <PlusIcon /> : <BlockIcon />;
   const icon = isNotifyExperiment ? <BlockIcon /> : defaultIcon;
+  const label = isBlocked ? unblockLabel : 'Block';
 
   return (
     <Button
-      aria-label={isBlocked ? unblockLabel : 'Block'}
+      aria-label={label}
       data-testid="blockButton"
       icon={icon}
       onClick={onClick}
       size={ButtonSize.Small}
       variant={ButtonVariant.Float}
     >
-      {isBlocked ? unblockLabel : 'Block'}
+      {label}
     </Button>
   );
 };

@@ -15,10 +15,9 @@ export interface UseSourceActionsFollow {
   toggleFollow: () => void;
 }
 
-export function useSourceActionsFollow(
-  props: UseSourceActionsFollowProps,
-): UseSourceActionsFollow {
-  const { source } = props;
+export function useSourceActionsFollow({
+  source,
+}: UseSourceActionsFollowProps): UseSourceActionsFollow {
   const { displayToast } = useToastNotification();
 
   const { feedSettings } = useFeedSettings();
@@ -33,39 +32,35 @@ export function useSourceActionsFollow(
     origin: Origin.SourcePage,
   });
 
-  const toggleFollow = useCallback(async () => {
-    // Unfollow path
-    if (isFollowing) {
-      // have to remove notifications first
-      if (haveNotifications && isReady) {
-        await onNotify();
-      }
-
-      const { successful } = await onUnfollowSource({
-        source,
-        requireLogin: true,
-      });
-      if (successful) {
-        displayToast(`⛔️ You are now unsubscribed to ${source.name}`);
-      }
-      return;
-    }
-
-    // follow path
+  const addFollow = useCallback(async () => {
     const { successful } = await onFollowSource({ source, requireLogin: true });
     if (successful) {
       displayToast(`✅ You are now subscribed to ${source.name}`);
     }
-  }, [
-    displayToast,
-    haveNotifications,
-    isFollowing,
-    isReady,
-    onFollowSource,
-    onNotify,
-    onUnfollowSource,
-    source,
-  ]);
+  }, [displayToast, onFollowSource]);
+
+  const removeFollow = useCallback(async () => {
+    if (haveNotifications && isReady) {
+      await onNotify();
+    }
+
+    const { successful } = await onUnfollowSource({
+      source,
+      requireLogin: true,
+    });
+    if (successful) {
+      displayToast(`⛔️ You are now unsubscribed to ${source.name}`);
+    }
+  }, [displayToast, haveNotifications, isReady, onNotify, onUnfollowSource, ,]);
+
+  const toggleFollow = useCallback(async () => {
+    if (isFollowing) {
+      await removeFollow();
+      return;
+    }
+
+    await addFollow();
+  }, [isFollowing, removeFollow, addFollow]);
 
   return {
     isFollowing,

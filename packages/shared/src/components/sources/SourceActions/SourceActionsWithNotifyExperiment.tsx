@@ -13,13 +13,10 @@ interface SourceActionsButton {
 
 export interface SourceActionsProps {
   source: Source;
-  // block action
   blockProps?: SourceActionsButton;
   hideBlock?: boolean;
-  // follow action
   followProps?: SourceActionsButton;
   hideFollow?: boolean;
-  // notify action
   notifyProps?: SourceActionsButton;
   hideNotify?: boolean;
 }
@@ -45,35 +42,31 @@ export const SourceActionsWithNotifyExperiment = ({
   });
 
   return (
-    <>
-      <div className="inline-flex flex-row gap-2">
-        {!hideFollow && !isBlocked && (
-          <SourceActionsFollow
-            isFetching={false}
-            isSubscribed={isFollowing}
-            onClick={toggleFollow}
-            variant={
-              isFollowing ? ButtonVariant.Tertiary : ButtonVariant.Primary
-            }
-            {...followProps}
-          />
-        )}
-        {!hideNotify && isFollowing && (
-          <SourceActionsNotify
-            haveNotifications={haveNotifications}
-            onClick={toggleNotify}
-            {...notifyProps}
-          />
-        )}
-        {!hideBlock && !isFollowing && (
-          <SourceActionsBlock
-            isBlocked={isBlocked}
-            onClick={toggleBlock}
-            {...blockProps}
-          />
-        )}
-      </div>
-    </>
+    <div className="inline-flex flex-row gap-2">
+      {!hideFollow && !isBlocked && (
+        <SourceActionsFollow
+          isFetching={false}
+          isSubscribed={isFollowing}
+          onClick={toggleFollow}
+          variant={isFollowing ? ButtonVariant.Tertiary : ButtonVariant.Primary}
+          {...followProps}
+        />
+      )}
+      {!hideNotify && isFollowing && (
+        <SourceActionsNotify
+          haveNotifications={haveNotifications}
+          onClick={toggleNotify}
+          {...notifyProps}
+        />
+      )}
+      {!hideBlock && !isFollowing && (
+        <SourceActionsBlock
+          isBlocked={isBlocked}
+          onClick={toggleBlock}
+          {...blockProps}
+        />
+      )}
+    </div>
   );
 };
 

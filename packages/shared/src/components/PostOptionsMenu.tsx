@@ -379,7 +379,6 @@ export default function PostOptionsMenu({
       });
     }
   } else {
-    // is notify button experiment active
     postOptions.push({
       icon: <MenuIcon Icon={isFollowing ? MinusIcon : PlusIcon} />,
       label: `${isFollowing ? 'Unfollow' : 'Follow'} ${post?.source?.name}`,

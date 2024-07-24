@@ -12,17 +12,17 @@ interface SourceActionsFollowProps {
 
 const SourceActionsFollow = (props: SourceActionsFollowProps): ReactElement => {
   const { className, isSubscribed, isFetching, onClick, variant } = props;
-
+  const label = isSubscribed ? 'Unfollow' : 'Follow';
   return (
     <Button
-      aria-label={isSubscribed ? 'Unfollow' : 'Follow'}
+      aria-label={label}
       className={className}
       disabled={isFetching}
       onClick={onClick}
       size={ButtonSize.Small}
       variant={variant}
     >
-      {isSubscribed ? 'Unfollow' : 'Follow'}
+      {label}
     </Button>
   );
 };
