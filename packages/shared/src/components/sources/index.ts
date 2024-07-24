@@ -1,2 +1,2 @@
 export * from './SourceCard';
-export * from './SourceSubscribeButton';
+export * from './SourceActions/SourceSubscribeButton';

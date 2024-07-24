@@ -9,7 +9,7 @@ import { BooleanPromise } from '../components/filters/common';
 import { generateQueryKey } from '../lib/query';
 import useDebounce from './useDebounce';
 import { SharedFeedPage } from '../components/utilities';
-import { Origin } from '../lib/log';
+import { LogEvent, Origin } from '../lib/log';
 import { AuthTriggersType } from '../lib/auth';
 
 export interface TagActionArguments {
@@ -37,8 +37,8 @@ interface UseTagAndSource {
   onUnfollowTags: (params: TagActionArguments) => BooleanPromise;
   onBlockTags: (params: TagActionArguments) => BooleanPromise;
   onUnblockTags: (params: TagActionArguments) => BooleanPromise;
-  onFollowSource: (params: SourceActionArguments) => BooleanPromise;
-  onUnfollowSource: (params: SourceActionArguments) => BooleanPromise;
+  onUnblockSource: (params: SourceActionArguments) => BooleanPromise;
+  onBlockSource: (params: SourceActionArguments) => BooleanPromise;
 }
 
 export default function useTagAndSource({
@@ -63,8 +63,8 @@ export default function useTagAndSource({
     unfollowTags,
     blockTag,
     unblockTag,
-    followSource,
-    unfollowSource,
+    unblockSource,
+    blockSource,
   } = useMutateFilters(user, feedId, shouldFilterLocally);
 
   const [invalidateQueries] = useDebounce(() => {
@@ -148,7 +148,7 @@ export default function useTagAndSource({
       }
 
       logEvent({
-        event_name: 'block',
+        event_name: LogEvent.BlockTag,
         target_type: 'tag',
         target_id: tags[0],
         extra: JSON.stringify({ origin, post_id: postId }),
@@ -177,7 +177,7 @@ export default function useTagAndSource({
         return { successful: false };
       }
       logEvent({
-        event_name: 'unblock',
+        event_name: LogEvent.UnblockTag,
         target_type: 'tag',
         target_id: tags[0],
         extra: JSON.stringify({ origin, post_id: postId }),
@@ -199,19 +199,20 @@ export default function useTagAndSource({
     ],
   );
 
-  const onFollowSource = useCallback(
+  const onUnblockSource = useCallback(
     async ({ source, requireLogin }: SourceActionArguments) => {
       if (shouldShowLogin(requireLogin)) {
         showLogin({ trigger: origin as AuthTriggersType });
         return { successful: false };
       }
       logEvent({
-        event_name: 'follow',
+        event_name: LogEvent.UnblockSource,
         target_type: 'source',
         target_id: source?.id,
         extra: JSON.stringify({ origin, post_id: postId }),
       });
-      await followSource({ source });
+
+      await unblockSource({ source });
 
       invalidateQueries();
 
@@ -222,25 +223,26 @@ export default function useTagAndSource({
       shouldShowLogin,
       origin,
       showLogin,
-      followSource,
+      unblockSource,
       postId,
       invalidateQueries,
     ],
   );
 
-  const onUnfollowSource = useCallback(
+  const onBlockSource = useCallback(
     async ({ source, requireLogin }: SourceActionArguments) => {
       if (shouldShowLogin(requireLogin)) {
         showLogin({ trigger: origin as AuthTriggersType });
         return { successful: false };
       }
+
       logEvent({
-        event_name: 'unfollow',
+        event_name: LogEvent.BlockSource,
         target_type: 'source',
         target_id: source?.id,
         extra: JSON.stringify({ origin, post_id: postId }),
       });
-      await unfollowSource({ source });
+      await blockSource({ source });
 
       invalidateQueries();
 
@@ -251,7 +253,7 @@ export default function useTagAndSource({
       shouldShowLogin,
       origin,
       showLogin,
-      unfollowSource,
+      blockSource,
       postId,
       invalidateQueries,
     ],
@@ -262,7 +264,7 @@ export default function useTagAndSource({
     onUnfollowTags,
     onBlockTags,
     onUnblockTags,
-    onFollowSource,
-    onUnfollowSource,
+    onBlockSource,
+    onUnblockSource,
   };
 }

@@ -51,8 +51,8 @@ type ReturnType = {
   unfollowTags: FollowTags;
   blockTag: FollowTags;
   unblockTag: FollowTags;
-  followSource: FollowSource;
-  unfollowSource: FollowSource;
+  unblockSource: FollowSource;
+  blockSource: FollowSource;
   updateAdvancedSettings: UpdateAdvancedSettings;
   updateFeedFilters: (feedSettings: FeedSettings) => Promise<unknown>;
 };
@@ -368,7 +368,7 @@ export default function useMutateFilters(
     },
   );
 
-  const onFollowSource = useCallback(
+  const onUnblockSource = useCallback(
     ({ source }: SourceMutationProps) =>
       onMutateSourcesSettings(
         source,
@@ -389,25 +389,23 @@ export default function useMutateFilters(
     [user, queryClient, feedId],
   );
 
-  const { mutateAsync: followSourceRemote } = useMutation<
+  const { mutateAsync: unblockSourceRemote } = useMutation<
     unknown,
     unknown,
     SourceMutationProps,
-    () => void
-  >(
-    ({ source }) =>
+    () => Promise<void>
+  >({
+    mutationFn: ({ source }) =>
       gqlClient.request(REMOVE_FILTERS_FROM_FEED_MUTATION, {
         filters: {
           excludeSources: [source.id],
         },
       }),
-    {
-      onMutate: onFollowSource,
-      onError: (err, _, rollback) => rollback(),
-    },
-  );
+    onMutate: onUnblockSource,
+    onError: (err, _, rollback) => rollback(),
+  });
 
-  const onUnfollowSource = useCallback(
+  const onBlockSource = useCallback(
     ({ source }: SourceMutationProps) =>
       onMutateSourcesSettings(
         source,
@@ -423,28 +421,22 @@ export default function useMutateFilters(
     [user, queryClient, feedId],
   );
 
-  const { mutateAsync: unfollowSourceRemote } = useMutation<
+  const { mutateAsync: blockSourceRemote } = useMutation<
     unknown,
     unknown,
     SourceMutationProps,
     () => Promise<void>
-  >(
-    ({ source }) =>
+  >({
+    mutationFn: ({ source }) =>
       gqlClient.request(ADD_FILTERS_TO_FEED_MUTATION, {
         filters: {
           excludeSources: [source.id],
         },
       }),
-    {
-      onMutate: onUnfollowSource,
-      onError: (err, _, rollback) => rollback(),
-      onSuccess: () => {
-        // when unfollowing source notification preference is cleared
-        // on the api side so we invalidate the cache
-        clearNotificationPreference({ queryClient, user });
-      },
-    },
-  );
+    onMutate: onBlockSource,
+    onSuccess: () => clearNotificationPreference({ queryClient, user }),
+    onError: (err, _, rollback) => rollback(),
+  });
 
   return useMemo(
     () => ({
@@ -453,31 +445,31 @@ export default function useMutateFilters(
       unfollowTags: shouldFilterLocally ? onUnfollowTags : unfollowTagsRemote,
       blockTag: shouldFilterLocally ? onBlockTags : blockTagRemote,
       unblockTag: shouldFilterLocally ? onUnblockTags : unblockTagRemote,
-      followSource: shouldFilterLocally ? onFollowSource : followSourceRemote,
-      unfollowSource: shouldFilterLocally
-        ? onUnfollowSource
-        : unfollowSourceRemote,
+      unblockSource: shouldFilterLocally
+        ? onUnblockSource
+        : unblockSourceRemote,
+      blockSource: shouldFilterLocally ? onBlockSource : blockSourceRemote,
       updateAdvancedSettings: shouldFilterLocally
         ? onAdvancedSettingsUpdate
         : updateAdvancedSettingsRemote,
     }),
     [
-      shouldFilterLocally,
-      updateFeedFilters,
-      onFollowTags,
-      onUnfollowTags,
-      onBlockTags,
-      onUnblockTags,
-      onFollowSource,
-      onUnfollowSource,
-      onAdvancedSettingsUpdate,
-      followTagsRemote,
-      unfollowTagsRemote,
+      blockSourceRemote,
       blockTagRemote,
+      followTagsRemote,
+      onAdvancedSettingsUpdate,
+      onBlockSource,
+      onBlockTags,
+      onFollowTags,
+      onUnblockSource,
+      onUnblockTags,
+      onUnfollowTags,
+      shouldFilterLocally,
+      unblockSourceRemote,
       unblockTagRemote,
-      followSourceRemote,
-      unfollowSourceRemote,
+      unfollowTagsRemote,
       updateAdvancedSettingsRemote,
+      updateFeedFilters,
     ],
   );
 }
