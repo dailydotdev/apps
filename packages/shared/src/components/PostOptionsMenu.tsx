@@ -54,9 +54,8 @@ import useContextMenu from '../hooks/useContextMenu';
 import { SourceType } from '../graphql/sources';
 import { useSharePost } from '../hooks/useSharePost';
 import { feature } from '../lib/featureManagement';
-import { useBookmarkReminder } from '../hooks/notifications/useBookmarkReminder';
+import { useBookmarkReminder } from '../hooks/notifications';
 import { BookmarkReminderIcon } from './icons/Bookmark/Reminder';
-import { useFeature } from './GrowthBookProvider';
 import { useSourceActionsFollow } from '../hooks/source/useSourceActionsFollow';
 
 const ContextMenu = dynamic(
@@ -123,7 +122,10 @@ export default function PostOptionsMenu({
     shouldInvalidateQueries: false,
   });
 
-  const isNotifyExperiment = useFeature(feature.sourceNotifyButton);
+  const { value: isNotifyExperiment } = useConditionalFeature({
+    feature: feature.sourceNotifyButton,
+    shouldEvaluate: isPostOptionsOpen,
+  });
 
   const isSourceBlocked = useMemo(() => {
     return !!feedSettings?.excludeSources?.some(
