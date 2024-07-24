@@ -9,7 +9,7 @@ import { BooleanPromise } from '../components/filters/common';
 import { generateQueryKey } from '../lib/query';
 import useDebounce from './useDebounce';
 import { SharedFeedPage } from '../components/utilities';
-import { Origin } from '../lib/log';
+import { LogEvent, Origin } from '../lib/log';
 import { AuthTriggersType } from '../lib/auth';
 
 export interface TagActionArguments {
@@ -148,7 +148,7 @@ export default function useTagAndSource({
       }
 
       logEvent({
-        event_name: 'block',
+        event_name: LogEvent.BlockTag,
         target_type: 'tag',
         target_id: tags[0],
         extra: JSON.stringify({ origin, post_id: postId }),
@@ -177,7 +177,7 @@ export default function useTagAndSource({
         return { successful: false };
       }
       logEvent({
-        event_name: 'unblock',
+        event_name: LogEvent.UnblockTag,
         target_type: 'tag',
         target_id: tags[0],
         extra: JSON.stringify({ origin, post_id: postId }),
@@ -206,7 +206,7 @@ export default function useTagAndSource({
         return { successful: false };
       }
       logEvent({
-        event_name: 'follow',
+        event_name: LogEvent.UnblockSource,
         target_type: 'source',
         target_id: source?.id,
         extra: JSON.stringify({ origin, post_id: postId }),
@@ -237,7 +237,7 @@ export default function useTagAndSource({
       }
 
       logEvent({
-        event_name: 'unfollow',
+        event_name: LogEvent.BlockSource,
         target_type: 'source',
         target_id: source?.id,
         extra: JSON.stringify({ origin, post_id: postId }),
