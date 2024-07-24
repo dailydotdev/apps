@@ -245,7 +245,7 @@ export enum NotificationTarget {
 }
 
 export enum NotificationPromptSource {
-  ReadItLater = 'read it later',
+  BookmarkReminder = 'bookmark reminder',
   NotificationsPage = 'notifications page',
   NewComment = 'new comment',
   CommunityPicks = 'community picks modal',

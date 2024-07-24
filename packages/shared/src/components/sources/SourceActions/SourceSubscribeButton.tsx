@@ -77,14 +77,12 @@ const SourceSubscribeButton = ({
     : SourceSubscribeButtonRegular;
 
   return (
-    <>
-      <ButtonComponent
-        className={className}
-        isFetching={isLoggedIn && !isReady}
-        onClick={onNotify}
-        variant={variant}
-      />
-    </>
+    <ButtonComponent
+      className={className}
+      isFetching={isLoggedIn && !isReady}
+      onClick={onNotify}
+      variant={variant}
+    />
   );
 };
 

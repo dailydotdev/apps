@@ -106,7 +106,7 @@ const Image = (props: ImageProps) => {
 };
 
 export const UserHighlight = (props: UserHighlightProps): ReactElement => {
-  const { userType, ...source } = props;
+  const { userType, ...user } = props;
   const {
     id,
     name,
@@ -114,14 +114,14 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
     allowSubscribe = true,
     className,
     showReputation = false,
-  } = source;
+  } = user;
 
   const handleOrUsernameOrId =
-    ('handle' in source ? source.handle : source.username) || id;
-  const reputation = 'reputation' in source ? source.reputation : NaN;
+    ('handle' in user ? user.handle : user.username) || id;
+  const reputation = 'reputation' in user ? user.reputation : NaN;
 
   const Icon = getUserIcon(userType);
-  const isUserTypeSource = userType === UserType.Source && 'handle' in source;
+  const isUserTypeSource = userType === UserType.Source && 'handle' in user;
   const { feedSettings } = useFeedSettings();
 
   const isSourceBlocked = useMemo(() => {
@@ -212,7 +212,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
             variant: ButtonVariant.Secondary,
           }}
           hideBlock
-          source={source}
+          source={user}
         />
       )}
     </div>

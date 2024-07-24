@@ -361,35 +361,41 @@ export default function PostOptionsMenu({
     if (!isNotifyExperiment) {
       postOptions.push({
         icon: (
-          <MenuIcon Icon={haveNotifications ? BellSubscribedIcon : BellIcon} />
+          <MenuIcon
+            Icon={
+              sourceSubscribe.haveNotifications ? BellSubscribedIcon : BellIcon
+            }
+          />
         ),
-        label: `Receive notifications ${
-          sourceSubscribe.haveNotifications ? 'from' : 'to'
+        label: `${
+          sourceSubscribe.haveNotifications
+            ? 'Unsubscribe from'
+            : 'Subscribe to'
         } ${post?.source?.name}`,
         action: sourceSubscribe.isReady ? sourceSubscribe.onNotify : undefined,
         Wrapper: ({ children }: { children: ReactNode }) => <>{children}</>,
       });
-    } else {
-      // is notify button experiment active
-      postOptions.push({
-        icon: <MenuIcon Icon={isFollowing ? MinusIcon : PlusIcon} />,
-        label: `${isFollowing ? 'Unfollow' : 'Follow'} ${post?.source?.name}`,
-        action: toggleFollow,
-      });
+    }
+  } else {
+    // is notify button experiment active
+    postOptions.push({
+      icon: <MenuIcon Icon={isFollowing ? MinusIcon : PlusIcon} />,
+      label: `${isFollowing ? 'Unfollow' : 'Follow'} ${post?.source?.name}`,
+      action: toggleFollow,
+    });
 
-      if (isFollowing) {
-        postOptions.push({
-          icon: (
-            <MenuIcon
-              Icon={haveNotifications ? BellSubscribedIcon : BellAddIcon}
-            />
-          ),
-          label: haveNotifications
-            ? `Remove notifications`
-            : `Notify on new post`,
-          action: sourceSubscribe.onNotify,
-        });
-      }
+    if (isFollowing) {
+      postOptions.push({
+        icon: (
+          <MenuIcon
+            Icon={haveNotifications ? BellSubscribedIcon : BellAddIcon}
+          />
+        ),
+        label: haveNotifications
+          ? `Remove notifications`
+          : `Notify on new post`,
+        action: sourceSubscribe.onNotify,
+      });
     }
   }
 
