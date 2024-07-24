@@ -134,6 +134,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
               onCommentClick={onCommentClick}
               onCopyLinkClick={onCopyLinkClick}
               onBookmarkClick={onBookmarkClick}
+              onDownvoteClick={onDownvoteClick}
             />
           )}
         </Container>
