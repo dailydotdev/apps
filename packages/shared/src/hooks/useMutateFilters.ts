@@ -146,9 +146,9 @@ const onMutateSourcesSettings = async (
 };
 
 const clearNotificationPreference = async ({
-                                             queryClient,
-                                             user,
-                                           }: {
+  queryClient,
+  user,
+}: {
   queryClient: QueryClient;
   user: LoggedUser;
 }) => {
