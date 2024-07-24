@@ -40,7 +40,7 @@ const defaultLoggedUser: LoggedUser = {
   threads: 'idoshamun',
   codepen: 'idoshamun',
   reddit: 'idoshamun',
-  stackoverflow: '999O999/idoshamun',
+  stackoverflow: '999999/idoshamun',
   youtube: 'idoshamun',
   linkedin: 'idoshamun',
   mastodon: 'https://mastodon.social/@idoshamun',
@@ -65,7 +65,7 @@ const defaultProfile: PublicProfile = {
   threads: 'dailydotdev',
   codepen: 'dailydotdev',
   reddit: 'dailydotdev',
-  stackoverflow: '999O999/dailydotdev',
+  stackoverflow: '999999/dailydotdev',
   youtube: 'dailydotdev',
   linkedin: 'dailydotdev',
   mastodon: 'https://mastodon.social/@dailydotdev',
@@ -241,7 +241,7 @@ it('should show stackoverflow link', () => {
   const el = screen.getByTestId('stackoverflow');
   expect(el).toHaveAttribute(
     'href',
-    'https://stackoverflow.com/users/999O999/dailydotdev',
+    'https://stackoverflow.com/users/999999/dailydotdev',
   );
   expect(el).toHaveTextContent('dailydotdev');
 });

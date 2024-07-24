@@ -31,7 +31,7 @@ const defaultLoggedUser: LoggedUser = {
   threads: 'dailydotdev',
   codepen: 'dailydotdev',
   reddit: 'dailydotdev',
-  stackoverflow: '999O999/dailydotdev',
+  stackoverflow: '999999/dailydotdev',
   youtube: 'dailydotdev',
   linkedin: 'dailydotdev',
   mastodon: 'https://mastodon.social/@dailydotdev',

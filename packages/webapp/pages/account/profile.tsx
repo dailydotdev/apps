@@ -312,7 +312,7 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.stackoverflow}
           name="stackoverflow"
           value={withPrefix('stackoverflow.com/users/', user?.stackoverflow)}
-          placeholder="stackoverflow.com/users/999O999/username"
+          placeholder="stackoverflow.com/users/999999/username"
         />
         <AccountTextField
           leftIcon={<RedditIcon />}
