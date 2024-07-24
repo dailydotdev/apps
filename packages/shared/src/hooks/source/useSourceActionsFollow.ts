@@ -49,9 +49,16 @@ export function useSourceActionsFollow({
       requireLogin: true,
     });
     if (successful) {
-      displayToast(`⛔️ You are now unsubscribed to ${source.name}`);
+      displayToast(`⛔️ You are now unsubscribed from ${source.name}`);
     }
-  }, [source, displayToast, haveNotificationsOn, isReady, onNotify, onUnfollowSource]);
+  }, [
+    source,
+    displayToast,
+    haveNotificationsOn,
+    isReady,
+    onNotify,
+    onUnfollowSource,
+  ]);
 
   const toggleFollow = useCallback(async () => {
     if (isFollowing) {

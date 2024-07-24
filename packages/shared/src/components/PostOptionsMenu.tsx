@@ -392,8 +392,8 @@ export default function PostOptionsMenu({
             />
           ),
           label: haveNotificationsOn
-            ? `Remove notifications`
-            : `Notify on new post`,
+            ? `Remove notifications from ${post.source.name}`
+            : `Notify on new post from ${post.source.name}`,
           action: onNotifyToggle,
         });
       }
