@@ -33,7 +33,7 @@ import {
   ToastSubject,
   useConditionalFeature,
   useFeedLayout,
-  useSourceSubscription,
+  useSourceActionsNotify,
   useToastNotification,
 } from '../hooks';
 import { AllFeedPages, generateQueryKey } from '../lib/query';
@@ -108,8 +108,8 @@ export default function PostOptionsMenu({
   const { openModal } = useLazyModal();
   const { queryKey: feedQueryKey, logOpts } = useContext(ActiveFeedContext);
   const {
-    onFollowSource,
-    onUnfollowSource,
+    onUnblockSource,
+    onBlockSource,
     onFollowTags,
     onBlockTags,
     onUnblockTags,
@@ -128,7 +128,7 @@ export default function PostOptionsMenu({
   const shouldShowSubscribe =
     isLoggedIn && !isSourceBlocked && post?.source?.type === SourceType.Machine;
 
-  const sourceSubscribe = useSourceSubscription({
+  const sourceSubscribe = useSourceActionsNotify({
     source: shouldShowSubscribe ? post?.source : undefined,
   });
 
@@ -194,12 +194,12 @@ export default function PostOptionsMenu({
     showMessageAndRemovePost(labels.reporting.reportFeedbackText, index);
 
     if (shouldBlockSource) {
-      await onUnfollowSource({ source: reportedPost?.source });
+      await onBlockSource({ source: reportedPost?.source });
     }
   };
 
-  const onBlockSource = async (): Promise<void> => {
-    const { successful } = await onUnfollowSource({
+  const onBlockSourceClick = async (): Promise<void> => {
+    const { successful } = await onBlockSource({
       source: post?.source,
       requireLogin: true,
     });
@@ -211,12 +211,12 @@ export default function PostOptionsMenu({
     showMessageAndRemovePost(
       `🚫 ${post?.source?.name} blocked`,
       postIndex,
-      () => onFollowSource({ source: post?.source }),
+      () => onUnblockSource({ source: post?.source }),
     );
   };
 
-  const onUnblockSource = async (): Promise<void> => {
-    const { successful } = await onFollowSource({
+  const onUnblockSourceClick = async (): Promise<void> => {
+    const { successful } = await onUnblockSource({
       source: post?.source,
       requireLogin: true,
     });
@@ -350,13 +350,15 @@ export default function PostOptionsMenu({
     postOptions.push({
       icon: (
         <MenuIcon
-          Icon={sourceSubscribe.isSubscribed ? BellSubscribedIcon : BellIcon}
+          Icon={
+            sourceSubscribe.haveNotifications ? BellSubscribedIcon : BellIcon
+          }
         />
       ),
       label: `${
-        sourceSubscribe.isSubscribed ? 'Unsubscribe from' : 'Subscribe to'
+        sourceSubscribe.haveNotifications ? 'Unsubscribe from' : 'Subscribe to'
       } ${post?.source?.name}`,
-      action: sourceSubscribe.isReady ? sourceSubscribe.onSubscribe : undefined,
+      action: sourceSubscribe.isReady ? sourceSubscribe.onNotify : undefined,
       Wrapper: ({ children }: { children: ReactNode }) => <>{children}</>,
     });
   }
@@ -366,7 +368,7 @@ export default function PostOptionsMenu({
     label: isSourceBlocked
       ? `Show posts from ${post?.source?.name}`
       : `Don't show posts from ${post?.source?.name}`,
-    action: isSourceBlocked ? onUnblockSource : onBlockSource,
+    action: isSourceBlocked ? onUnblockSourceClick : onBlockSourceClick,
   });
 
   if (video && isVideoPost(post)) {

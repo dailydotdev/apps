@@ -11,7 +11,7 @@ export default function BlockedFilter({
   onUnblockItem,
 }: FilterMenuProps): ReactElement {
   const { feedSettings, isLoading } = useFeedSettings();
-  const { onUnblockTags, onFollowSource } = useTagAndSource({
+  const { onUnblockTags, onUnblockSource } = useTagAndSource({
     origin: Origin.BlockedFilter,
   });
 
@@ -25,7 +25,7 @@ export default function BlockedFilter({
   const sourceItemAction = (source) => {
     onUnblockItem({
       source,
-      action: () => onFollowSource({ source }),
+      action: () => onUnblockSource({ source }),
     });
   };
 

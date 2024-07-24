@@ -12,7 +12,7 @@ export type UseNotificationPreferenceToggleProps = {
 };
 
 export type UseNotificationPreferenceToggle = {
-  isSubscribed: boolean;
+  haveNotifications: boolean;
   isReady: boolean;
   onToggle: () => Promise<{ isSubscribed: boolean }>;
 };
@@ -29,6 +29,7 @@ export const useNotificationPreferenceToggle = ({
   } = useNotificationPreference({
     params: params ? [params] : undefined,
   });
+
   const isSubscribed = useMemo(() => {
     return !!preferences?.some((item) =>
       checkHasStatusPreference(
@@ -62,7 +63,7 @@ export const useNotificationPreferenceToggle = ({
   });
 
   return {
-    isSubscribed,
+    haveNotifications: isSubscribed,
     isReady: !isFetching && isPreferencesReady,
     onToggle,
   };

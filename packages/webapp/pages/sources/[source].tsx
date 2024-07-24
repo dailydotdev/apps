@@ -22,22 +22,12 @@ import {
   SourceData,
 } from '@dailydotdev/shared/src/graphql/sources';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import {
-  Button,
-  ButtonProps,
-  ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+
 import { PageInfoHeader } from '@dailydotdev/shared/src/components/utilities';
 import {
-  BlockIcon,
   DiscussIcon,
-  PlusIcon,
   UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
-import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
-import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import {
   ApiError,
   Connection,
@@ -48,9 +38,7 @@ import {
   RequestKey,
   StaleTime,
 } from '@dailydotdev/shared/src/lib/query';
-import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
-import { SourceSubscribeButton } from '@dailydotdev/shared/src/components';
 import {
   useFeedLayout,
   useViewSize,
@@ -71,6 +59,7 @@ import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
+import { SourceActions } from '../../../shared/src/components/sources/SourceActions';
 
 type SourcePageProps = { source?: Source };
 type SourceIdProps = { sourceId?: string };
@@ -135,7 +124,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { shouldShowAuthBanner } = useOnboarding();
   const shouldShowTagSourceSocialProof = shouldShowAuthBanner && isLaptop;
-  const { user, showLogin } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const mostUpvotedQueryVariables = useMemo(
     () => ({
       source: source?.id,
@@ -168,22 +157,6 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     [source?.id],
   );
   const { shouldUseListFeedLayout, FeedPageLayoutComponent } = useFeedLayout();
-  const { feedSettings } = useFeedSettings();
-  const { onFollowSource, onUnfollowSource } = useTagAndSource({
-    origin: Origin.SourcePage,
-  });
-
-  const unfollowingSource = useMemo(() => {
-    if (!feedSettings) {
-      return true;
-    }
-    return (
-      feedSettings.excludeSources &&
-      feedSettings.excludeSources?.findIndex(
-        (excludedSource) => source?.id === excludedSource.id,
-      ) >= 0
-    );
-  }, [feedSettings, source]);
 
   if (!isFallback && !source) {
     return <Custom404 />;
@@ -198,23 +171,6 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     openGraph: { ...defaultOpenGraph },
     ...defaultSeo,
     description: source?.description || defaultSeo.description,
-  };
-
-  const buttonProps: ButtonProps<'button'> = {
-    size: ButtonSize.Small,
-    icon: unfollowingSource ? <PlusIcon /> : <BlockIcon />,
-    onClick: async (): Promise<void> => {
-      if (user) {
-        if (unfollowingSource) {
-          await onFollowSource({ source });
-        } else {
-          await onUnfollowSource({ source });
-        }
-      } else {
-        showLogin({ trigger: AuthTriggers.Filter });
-      }
-    },
-    variant: ButtonVariant.Float,
   };
 
   return (
@@ -232,13 +188,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
           <h1 className="ml-2 w-fit typo-title2">{source.name}</h1>
         </div>
         <div className="flex flex-row gap-3">
-          {!unfollowingSource && <SourceSubscribeButton source={source} />}
-          <Button
-            {...buttonProps}
-            aria-label={unfollowingSource ? 'Follow' : 'Block'}
-          >
-            {unfollowingSource ? 'Follow' : 'Block'}
-          </Button>
+          <SourceActions source={source} />
         </div>
         {source?.description && (
           <p className="typo-body">{source?.description}</p>
