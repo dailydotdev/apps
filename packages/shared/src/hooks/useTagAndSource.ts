@@ -241,7 +241,7 @@ export default function useTagAndSource({
       }
 
       logEvent({
-        event_name: 'block',
+        event_name: LogEvent.BlockSource,
         target_type: 'source',
         target_id: source?.id,
         extra: JSON.stringify({ origin, post_id: postId }),
@@ -271,7 +271,7 @@ export default function useTagAndSource({
       }
 
       logEvent({
-        event_name: 'follow source',
+        event_name: LogEvent.FollowSource,
         target_type: 'source',
         target_id: source?.id,
         extra: JSON.stringify({ origin, post_id: postId }),
@@ -302,7 +302,7 @@ export default function useTagAndSource({
       }
 
       logEvent({
-        event_name: 'unfollow source',
+        event_name: LogEvent.UnfollowSource,
         target_type: 'source',
         target_id: source?.id,
         extra: JSON.stringify({ origin, post_id: postId }),
