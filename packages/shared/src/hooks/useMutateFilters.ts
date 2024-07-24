@@ -51,6 +51,8 @@ type ReturnType = {
   unfollowTags: FollowTags;
   blockTag: FollowTags;
   unblockTag: FollowTags;
+  unfollowSource: FollowSource;
+  followSource: FollowSource;
   unblockSource: FollowSource;
   blockSource: FollowSource;
   updateAdvancedSettings: UpdateAdvancedSettings;
@@ -168,12 +170,14 @@ export default function useMutateFilters(
       const {
         blockedTags = [],
         excludeSources = [],
+        includeSources = [],
         includeTags = [],
       } = filters ?? {};
       const fixed: typeof filters = {
         includeTags: Array.from(new Set(includeTags)),
         blockedTags: Array.from(new Set(blockedTags)),
         excludeSources: Array.from(new Set(excludeSources)),
+        includeSources: Array.from(new Set(includeSources)),
       };
       return gqlClient.request(FEED_FILTERS_FROM_REGISTRATION, {
         filters: fixed,
@@ -405,6 +409,72 @@ export default function useMutateFilters(
     onError: (err, _, rollback) => rollback(),
   });
 
+  const onFollowSource = useCallback(
+    ({ source }: SourceMutationProps) =>
+      onMutateSourcesSettings(
+        source,
+        queryClient,
+        (feedSettings, manipulateSource) => {
+          const newData = cloneDeep(feedSettings);
+          newData.includeSources.push(manipulateSource);
+          return newData;
+        },
+        user,
+        feedId,
+      ),
+    [user, queryClient, feedId],
+  );
+
+  const { mutateAsync: followSourceRemote } = useMutation<
+    unknown,
+    unknown,
+    SourceMutationProps,
+    () => Promise<void>
+  >({
+    mutationFn: ({ source }) =>
+      gqlClient.request(ADD_FILTERS_TO_FEED_MUTATION, {
+        filters: {
+          includeSources: [source.id],
+        },
+      }),
+    onMutate: onFollowSource,
+    onError: (err, _, rollback) => rollback(),
+  });
+
+  const onUnfollowSource = useCallback(
+    ({ source }: SourceMutationProps) =>
+      onMutateSourcesSettings(
+        source,
+        queryClient,
+        (feedSettings, manipulateSource) => {
+          const newData = cloneDeep(feedSettings);
+          newData.includeSources = newData.includeSources.filter(
+            (s) => s.id !== manipulateSource?.id,
+          );
+          return newData;
+        },
+        user,
+        feedId,
+      ),
+    [user, queryClient, feedId],
+  );
+
+  const { mutateAsync: unfollowSourceRemote } = useMutation<
+    unknown,
+    unknown,
+    SourceMutationProps,
+    () => Promise<void>
+  >({
+    mutationFn: ({ source }) =>
+      gqlClient.request(REMOVE_FILTERS_FROM_FEED_MUTATION, {
+        filters: {
+          includeSources: [source.id],
+        },
+      }),
+    onMutate: onUnfollowSource,
+    onError: (err, _, rollback) => rollback(),
+  });
+
   const onBlockSource = useCallback(
     ({ source }: SourceMutationProps) =>
       onMutateSourcesSettings(
@@ -444,6 +514,10 @@ export default function useMutateFilters(
       followTags: shouldFilterLocally ? onFollowTags : followTagsRemote,
       unfollowTags: shouldFilterLocally ? onUnfollowTags : unfollowTagsRemote,
       blockTag: shouldFilterLocally ? onBlockTags : blockTagRemote,
+      followSource: shouldFilterLocally ? onFollowSource : followSourceRemote,
+      unfollowSource: shouldFilterLocally
+        ? onUnfollowSource
+        : unfollowSourceRemote,
       unblockTag: shouldFilterLocally ? onUnblockTags : unblockTagRemote,
       unblockSource: shouldFilterLocally
         ? onUnblockSource
@@ -456,17 +530,21 @@ export default function useMutateFilters(
     [
       blockSourceRemote,
       blockTagRemote,
+      followSourceRemote,
       followTagsRemote,
       onAdvancedSettingsUpdate,
       onBlockSource,
       onBlockTags,
+      onFollowSource,
       onFollowTags,
       onUnblockSource,
       onUnblockTags,
+      onUnfollowSource,
       onUnfollowTags,
       shouldFilterLocally,
       unblockSourceRemote,
       unblockTagRemote,
+      unfollowSourceRemote,
       unfollowTagsRemote,
       updateAdvancedSettingsRemote,
       updateFeedFilters,

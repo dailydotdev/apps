@@ -1,6 +1,8 @@
 import React, { ReactElement } from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { BlockIcon, PlusIcon } from '../../icons';
+import { useFeature } from '../../GrowthBookProvider';
+import { feature } from '../../../lib/featureManagement';
 
 interface SourceActionBlockProps {
   isBlocked: boolean;
@@ -11,16 +13,22 @@ const SourceActionsBlock = ({
   isBlocked,
   onClick,
 }: SourceActionBlockProps): ReactElement => {
+  const isNotifyExperiment = useFeature(feature.sourceNotifyButton);
+  const unblockLabel = isNotifyExperiment ? 'Unblock' : 'Follow';
+  const defaultIcon = isBlocked ? <PlusIcon /> : <BlockIcon />;
+  const icon = isNotifyExperiment ? <BlockIcon /> : defaultIcon;
+  const label = isBlocked ? unblockLabel : 'Block';
+
   return (
     <Button
-      aria-label={isBlocked ? 'Follow' : 'Block'}
+      aria-label={label}
       data-testid="blockButton"
-      icon={isBlocked ? <PlusIcon /> : <BlockIcon />}
+      icon={icon}
       onClick={onClick}
       size={ButtonSize.Small}
       variant={ButtonVariant.Float}
     >
-      {isBlocked ? 'Follow' : 'Block'}
+      {label}
     </Button>
   );
 };

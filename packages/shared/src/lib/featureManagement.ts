@@ -31,6 +31,7 @@ const feature = {
   mobileExploreTab: new Feature('mobile_explore_tab', false),
   authorImage: new Feature('author_image', false),
   onboardingContentType: new Feature('onboarding_content_type', false),
+  sourceNotifyButton: new Feature('source_notify_button', false),
 };
 
 export { feature };

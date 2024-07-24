@@ -12,7 +12,7 @@ export type UseNotificationPreferenceToggleProps = {
 };
 
 export type UseNotificationPreferenceToggle = {
-  haveNotifications: boolean;
+  haveNotificationsOn: boolean;
   isReady: boolean;
   onToggle: () => Promise<{ isSubscribed: boolean }>;
 };
@@ -63,7 +63,7 @@ export const useNotificationPreferenceToggle = ({
   });
 
   return {
-    haveNotifications: isSubscribed,
+    haveNotificationsOn: isSubscribed,
     isReady: !isFetching && isPreferencesReady,
     onToggle,
   };
