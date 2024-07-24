@@ -4,6 +4,9 @@ import SourceActionsBlock from './SourceActionsBlock';
 import { useSourceActionsBlock } from '../../../hooks/source/useSourceActionsBlock';
 import { Source } from '../../../graphql/sources';
 import { ButtonVariant } from '../../buttons/common';
+import { feature } from '../../../lib/featureManagement';
+import { withExperiment } from '../../withExperiment';
+import { SourceActionsWithNotifyExperiment } from './SourceActionsWithNotifyExperiment';
 
 interface SourceActionsButton {
   className?: string;
@@ -16,7 +19,7 @@ interface SourceActionsProps {
   followProps?: SourceActionsButton;
 }
 
-export const SourceActions = (props: SourceActionsProps): ReactElement => {
+const SourceActionsControl = (props: SourceActionsProps): ReactElement => {
   const { source, hideBlock, followProps } = props;
   const { isBlocked, toggleBlock } = useSourceActionsBlock({
     source,
@@ -31,5 +34,11 @@ export const SourceActions = (props: SourceActionsProps): ReactElement => {
     </>
   );
 };
+
+export const SourceActions = withExperiment(SourceActionsWithNotifyExperiment, {
+  fallback: SourceActionsControl,
+  feature: feature.sourceNotifyButton,
+  value: true,
+});
 
 export default SourceActions;

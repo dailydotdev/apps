@@ -68,11 +68,11 @@ const SourceSubscribeButton = ({
 }: SourceSubscribeButtonProps): ReactElement => {
   const { isLoggedIn } = useAuthContext();
 
-  const { haveNotifications, onNotify, isReady } = useSourceActionsNotify({
+  const { haveNotificationsOn, onNotify, isReady } = useSourceActionsNotify({
     source,
   });
 
-  const ButtonComponent = haveNotifications
+  const ButtonComponent = haveNotificationsOn
     ? SourceSubscribeButtonSubscribed
     : SourceSubscribeButtonRegular;
 
