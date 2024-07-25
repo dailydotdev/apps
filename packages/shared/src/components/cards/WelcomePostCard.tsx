@@ -92,9 +92,9 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
       </FreeformCardTitle>
       {shouldShowNewImage && (
         <>
-          <div className="flex-1" />
+          {image && <div className="flex-1" />}
           <PostMetadata
-            className="m-2 mt-0 line-clamp-1 break-words"
+            className="mx-2 mb-1 mt-0 line-clamp-1 break-words"
             createdAt={post.createdAt}
             readTime={post.readTime}
           />
