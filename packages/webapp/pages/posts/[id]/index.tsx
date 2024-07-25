@@ -135,7 +135,10 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
       return;
     }
 
-    showLogin({ trigger: AuthTriggers.FromNotification, isLogin: true });
+    showLogin({
+      trigger: AuthTriggers.FromNotification,
+      options: { isLogin: true },
+    });
   }, [shouldShowLogin, showLogin]);
 
   if (isLoading || isFallback) {
