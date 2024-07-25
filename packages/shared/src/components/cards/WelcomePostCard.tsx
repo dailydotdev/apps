@@ -94,7 +94,10 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
         <>
           {image && <div className="flex-1" />}
           <PostMetadata
-            className="mx-2 mb-1 mt-0 line-clamp-1 break-words"
+            className={classNames(
+              'mx-2 mb-1 line-clamp-1 break-words',
+              image ? 'mt-0' : 'mt-1',
+            )}
             createdAt={post.createdAt}
             readTime={post.readTime}
           />
