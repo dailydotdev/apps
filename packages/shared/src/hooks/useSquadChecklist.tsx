@@ -199,7 +199,7 @@ const useSquadChecklist = ({
       .filter(Boolean)
       .filter(filterPublicStepIfDismissed);
   }, [
-    actions,
+    checkHasCompleted,
     isChecklistReady,
     squad.currentMember?.role,
     squad.public,
