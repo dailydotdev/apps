@@ -40,7 +40,11 @@ type UseSquadChecklist = UseChecklist & {
 const useSquadChecklist = ({
   squad,
 }: UseSquadChecklistProps): UseSquadChecklist => {
-  const { actions, isActionsFetched: isChecklistReady } = useActions();
+  const {
+    actions,
+    checkHasCompleted,
+    isActionsFetched: isChecklistReady,
+  } = useActions();
   const { showArticleOnboarding } = useContext(OnboardingContext);
   const { isInitialized, isPushSupported } = usePushNotificationContext();
 
@@ -179,11 +183,7 @@ const useSquadChecklist = ({
 
     const filterPublicStepIfDismissed = (step: ChecklistStepType) => {
       const isGoPublicDismissed =
-        isChecklistReady &&
-        actions.some(
-          ({ type, completedAt }) =>
-            type === ActionType.HidePublicSquadStep && !!completedAt,
-        );
+        isChecklistReady && checkHasCompleted(ActionType.HidePublicSquadStep);
 
       return (
         !!squad.public ||
