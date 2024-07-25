@@ -27,6 +27,14 @@ const defaultLoggedUser: LoggedUser = {
   hashnode: 'dailydotdev',
   portfolio: 'https://daily.dev/?key=vaue',
   acceptedMarketing: true,
+  roadmap: 'dailydotdev',
+  threads: 'dailydotdev',
+  codepen: 'dailydotdev',
+  reddit: 'dailydotdev',
+  stackoverflow: '999999/dailydotdev',
+  youtube: 'dailydotdev',
+  linkedin: 'dailydotdev',
+  mastodon: 'https://mastodon.social/@dailydotdev',
 };
 const updateUser = jest.fn();
 
@@ -87,4 +95,30 @@ it('should show profile social links', () => {
   const portfolio = screen.getByPlaceholderText('Your Website');
   expect(portfolio).toBeInTheDocument();
   expect(portfolio).toHaveValue(defaultLoggedUser.portfolio);
+  const roadmap = screen.getByPlaceholderText('Roadmap.sh');
+  expect(roadmap).toBeInTheDocument();
+  expect(roadmap).toHaveValue(defaultLoggedUser.roadmap);
+  const threads = screen.getByPlaceholderText('Threads');
+  expect(threads).toBeInTheDocument();
+  expect(threads).toHaveValue(defaultLoggedUser.threads);
+  const codepen = screen.getByPlaceholderText('CodePen');
+  expect(codepen).toBeInTheDocument();
+  expect(codepen).toHaveValue(defaultLoggedUser.codepen);
+  const reddit = screen.getByPlaceholderText('Reddit');
+  expect(reddit).toBeInTheDocument();
+  expect(reddit).toHaveValue(defaultLoggedUser.reddit);
+  const stackoverflow = screen.getByPlaceholderText('Stack Overflow');
+  expect(stackoverflow).toBeInTheDocument();
+  expect(stackoverflow).toHaveValue(
+    `stackoverflow.com/users/${defaultLoggedUser.stackoverflow}`,
+  );
+  const youtube = screen.getByPlaceholderText('YouTube');
+  expect(youtube).toBeInTheDocument();
+  expect(youtube).toHaveValue(defaultLoggedUser.youtube);
+  const linkedin = screen.getByPlaceholderText('LinkedIn');
+  expect(linkedin).toBeInTheDocument();
+  expect(linkedin).toHaveValue(defaultLoggedUser.linkedin);
+  const mastodon = screen.getByPlaceholderText('Mastodon');
+  expect(mastodon).toBeInTheDocument();
+  expect(mastodon).toHaveValue(defaultLoggedUser.mastodon);
 });
