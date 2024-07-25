@@ -79,7 +79,7 @@ const ExperienceLevelDropdown = ({
         }}
         onOpenChange={setOpen}
         placeholder="Experience level"
-        icon={<TerminalIcon className="ml-0 mr-2 !w-5" />}
+        icon={<TerminalIcon className="ml-0 mr-1" />}
       />
       {name && selectedIndex > -1 && (
         <input
