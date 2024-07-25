@@ -7,6 +7,7 @@ import {
   DiscussIcon as CommentIcon,
   BookmarkIcon,
   LinkIcon,
+  DownvoteIcon,
 } from '../../icons';
 import {
   Button,
@@ -19,6 +20,10 @@ import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
 import { useFeedPreviewMode } from '../../../hooks';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
+import { feature } from '../../../lib/featureManagement';
+import { withExperiment } from '../../withExperiment';
+import { IconSize } from '../../Icon';
+import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -27,16 +32,17 @@ export interface ActionButtonsProps {
   onBookmarkClick: (post: Post) => unknown;
   onCopyLinkClick: (event: React.MouseEvent, post: Post) => unknown;
   className?: string;
+  onDownvoteClick?: (post: Post) => unknown;
 }
 
-export default function ActionButtons({
+const ActionButtonsControl = ({
   post,
   onUpvoteClick,
   onCommentClick,
   onBookmarkClick,
   onCopyLinkClick,
   className,
-}: ActionButtonsProps): ReactElement {
+}: ActionButtonsProps): ReactElement => {
   const upvoteCommentProps: ButtonProps<'button'> = {
     size: ButtonSize.Small,
   };
@@ -119,4 +125,137 @@ export default function ActionButtons({
       {lastActions}
     </div>
   );
-}
+};
+
+const ActionButtonsDownvote: typeof ActionButtonsControl = ({
+  post,
+  onUpvoteClick,
+  onCommentClick,
+  onBookmarkClick,
+  onCopyLinkClick,
+  className,
+  onDownvoteClick,
+}) => {
+  const isFeedPreview = useFeedPreviewMode();
+  const isUpvoteActive = post.userState?.vote === UserVote.Up;
+  const isDownvoteActive = post.userState?.vote === UserVote.Down;
+  const [userUpvoted, setUserUpvoted] = useState(false);
+  const { onShowPanel, onClose } = useBlockPostPanel(post);
+
+  if (isFeedPreview) {
+    return null;
+  }
+
+  const onToggleDownvote = async () => {
+    if (post.userState?.vote !== UserVote.Down) {
+      onShowPanel();
+    } else {
+      onClose(true);
+    }
+
+    await onDownvoteClick?.(post);
+  };
+
+  const lastActions = (
+    <>
+      <BookmarkButton
+        post={post}
+        buttonProps={{
+          id: `post-${post.id}-bookmark-btn`,
+          icon: <BookmarkIcon secondary={post.bookmarked} />,
+          onClick: () => onBookmarkClick(post),
+          size: ButtonSize.Small,
+        }}
+      />
+      <SimpleTooltip content="Copy link">
+        <Button
+          size={ButtonSize.Small}
+          icon={<LinkIcon />}
+          onClick={(e) => onCopyLinkClick?.(e, post)}
+          variant={ButtonVariant.Tertiary}
+          color={ButtonColor.Cabbage}
+        />
+      </SimpleTooltip>
+    </>
+  );
+
+  return (
+    <div
+      className={classNames(
+        'flex flex-row items-center justify-between',
+        className,
+      )}
+    >
+      <div className="flex flex-row items-center rounded-12 bg-surface-float">
+        <SimpleTooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
+          <Button
+            className={classNames(
+              'pointer-events-auto',
+              post.numUpvotes ? '!pl-1 !pr-3' : '!px-1',
+            )}
+            id={`post-${post.id}-upvote-btn`}
+            color={ButtonColor.Avocado}
+            pressed={isUpvoteActive}
+            onClick={() => {
+              onUpvoteClick?.(post);
+              setUserUpvoted(true);
+            }}
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+          >
+            <UpvoteButtonIcon
+              secondary={isUpvoteActive}
+              userClicked={userUpvoted}
+              size={IconSize.Small}
+            />
+            {post.numUpvotes ? (
+              <InteractionCounter
+                className="ml-1.5 tabular-nums"
+                value={post.numUpvotes}
+              />
+            ) : null}
+          </Button>
+        </SimpleTooltip>
+        <div className="box-border border border-surface-float py-2.5" />
+        <SimpleTooltip
+          content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
+        >
+          <Button
+            className="pointer-events-auto"
+            id={`post-${post.id}-downvote-btn`}
+            color={ButtonColor.Ketchup}
+            icon={<DownvoteIcon secondary={isDownvoteActive} />}
+            pressed={isDownvoteActive}
+            onClick={onToggleDownvote}
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+          />
+        </SimpleTooltip>
+      </div>
+      <SimpleTooltip content="Comments">
+        <QuaternaryButton
+          id={`post-${post.id}-comment-btn`}
+          icon={<CommentIcon secondary={post.commented} />}
+          pressed={post.commented}
+          onClick={() => onCommentClick?.(post)}
+          size={ButtonSize.Small}
+          className="btn-tertiary-blueCheese"
+          labelClassName="!pr-0"
+        >
+          {post.numComments ? (
+            <InteractionCounter value={post.numComments} />
+          ) : null}
+        </QuaternaryButton>
+      </SimpleTooltip>
+      {lastActions}
+    </div>
+  );
+};
+
+const ActionButtons = withExperiment(ActionButtonsDownvote, {
+  feature: feature.cardDownvote,
+  value: true,
+  fallback: ActionButtonsControl,
+});
+
+export default ActionButtons;
