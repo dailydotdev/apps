@@ -53,6 +53,7 @@ export * from './Image';
 export * from './ReputationLightning';
 export * from './Invite';
 export * from './Magic';
+export * from './Minus';
 export * from './Clear';
 export * from './JetBrains';
 export * from './Key';
