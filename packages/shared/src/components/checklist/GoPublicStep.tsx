@@ -4,7 +4,6 @@ import { ChecklistStep } from './ChecklistStep';
 import PublicSquadSubmissionActions from '../squads/PublicSquadSubmissionActions';
 import { SquadPublicProgressBars } from '../squads/SquadPublicProgressBars';
 import { Button } from '../buttons/Button';
-import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { ActionType } from '../../graphql/actions';
 import { useActions } from '../../hooks';
 
@@ -13,17 +12,11 @@ export const GoPublicStep = ({
   ...props
 }: ChecklistStepPropsWithSquad): ReactElement => {
   const postsCount = squad?.flags?.totalPosts ?? 0;
-  const { onToggleStep } = useSquadChecklist({ squad });
 
   const { completeAction } = useActions();
 
   const onDismiss = () => {
-    completeAction(ActionType.HidePublicSquadStep).then(() =>
-      onToggleStep({
-        type: ActionType.HidePublicSquadStep,
-        completedAt: new Date(),
-      }),
-    );
+    completeAction(ActionType.HidePublicSquadStep);
   };
 
   return (

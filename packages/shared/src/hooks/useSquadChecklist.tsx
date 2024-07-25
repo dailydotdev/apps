@@ -196,7 +196,7 @@ const useSquadChecklist = ({
       })
       .filter(Boolean)
       .filter(filterPublicStepIfDismissed);
-  }, [actions, squad.currentMember?.role, stepsMap]);
+  }, [actions, squad.currentMember?.role, squad.public, stepsMap]);
 
   const checklist = useChecklist({ steps });
 
