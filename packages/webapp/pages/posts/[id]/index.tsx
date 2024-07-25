@@ -129,13 +129,14 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   });
 
   const shouldShowLogin = !user && utmSource && isAuthReady;
+
   useEffect(() => {
     if (!shouldShowLogin) {
       return;
     }
 
     showLogin({ trigger: AuthTriggers.FromNotification });
-  }, [user, utmSource, isAuthReady, showLogin]);
+  }, [shouldShowLogin, showLogin]);
 
   if (isLoading || isFallback) {
     return (
