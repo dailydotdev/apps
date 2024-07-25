@@ -10,6 +10,7 @@ import {
   RoadmapIcon,
   MastodonIcon,
   ThreadsIcon,
+  CodePenIcon,
 } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { withHttps, withoutProtocol } from '../../lib/links';
@@ -90,10 +91,9 @@ const handlers: Record<
     label: (x) => `@${x}`,
   },
   codepen: {
-    // TODO AS-444 add codepen icon
-    icon: <LinkIcon />,
+    icon: <CodePenIcon />,
     href: (x) => `https://codepen.io/${x}`,
-    label: (x) => `@${x}`,
+    label: (x) => x,
   },
 };
 const order: (keyof SocialChipsProps['links'])[] = [

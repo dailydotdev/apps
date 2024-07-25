@@ -226,7 +226,7 @@ it('should show codepen link', () => {
   renderComponent();
   const el = screen.getByTestId('codepen');
   expect(el).toHaveAttribute('href', 'https://codepen.io/dailydotdev');
-  expect(el).toHaveTextContent('@dailydotdev');
+  expect(el).toHaveTextContent('dailydotdev');
 });
 
 it('should show reddit link', () => {

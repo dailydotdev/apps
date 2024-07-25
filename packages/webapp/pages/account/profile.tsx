@@ -13,6 +13,7 @@ import {
   RoadmapIcon,
   MastodonIcon,
   ThreadsIcon,
+  CodePenIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
@@ -334,9 +335,8 @@ const AccountProfilePage = (): ReactElement => {
           value={user?.roadmap}
           placeholder="Username or URL"
         />
-        {/* AS-444 add codepen icon */}
         <AccountTextField
-          leftIcon={<LinkIcon />}
+          leftIcon={<CodePenIcon />}
           label="CodePen"
           inputId="codepen"
           hint={hint.codepen}
