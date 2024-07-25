@@ -63,7 +63,7 @@ export default function FooterNavBar({
   return (
     <div
       className={classNames(
-        'fixed !bottom-0 left-0 z-2 w-full',
+        'fixed !bottom-0 left-0 z-3 w-full',
         showNav &&
           'footer-navbar bg-gradient-to-t from-background-subtle from-70% to-transparent px-2 pt-2',
       )}
