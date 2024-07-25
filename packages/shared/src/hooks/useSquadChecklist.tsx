@@ -177,12 +177,24 @@ const useSquadChecklist = ({
       actionsPerRoleMap[squad.currentMember?.role] ||
       actionsPerRoleMap[SourceMemberRole.Member];
 
+    const filterPublicStepIfDismissed = (step: ChecklistStepType) => {
+      const isGoPublicDismissed = actions.some(
+        ({ type, completedAt }) =>
+          type === ActionType.HidePublicSquadStep && !!completedAt,
+      );
+
+      return (
+        !isGoPublicDismissed || step.action.type !== ActionType.MakeSquadPublic
+      );
+    };
+
     return actionsForRole
       .map((actionType) => {
         return stepsMap[actionType];
       })
-      .filter(Boolean);
-  }, [squad.currentMember, stepsMap]);
+      .filter(Boolean)
+      .filter(filterPublicStepIfDismissed);
+  }, [actions, squad.currentMember?.role, stepsMap]);
 
   const checklist = useChecklist({ steps });
 
