@@ -85,7 +85,7 @@ const AccountProfilePage = (): ReactElement => {
       title: values.title,
       twitter: values.twitter,
       github: values.github,
-      portfolio: withHttps(values.portfolio),
+      portfolio: values.portfolio ? withHttps(values.portfolio) : undefined,
       roadmap: values.roadmap,
       threads: values.threads,
       codepen: values.codepen,
@@ -93,7 +93,7 @@ const AccountProfilePage = (): ReactElement => {
       stackoverflow: values.stackoverflow,
       youtube: values.youtube,
       linkedin: values.linkedin,
-      mastodon: withHttps(values.mastodon),
+      mastodon: values.mastodon ? withHttps(values.mastodon) : undefined,
       experienceLevel: values.experienceLevel,
       onUpdateSuccess: () => router.push(`/${values.username}`),
     };
