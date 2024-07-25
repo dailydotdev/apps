@@ -184,7 +184,9 @@ const useSquadChecklist = ({
       );
 
       return (
-        !isGoPublicDismissed || step.action.type !== ActionType.MakeSquadPublic
+        !!squad.public ||
+        !isGoPublicDismissed ||
+        step.action.type !== ActionType.MakeSquadPublic
       );
     };
 
