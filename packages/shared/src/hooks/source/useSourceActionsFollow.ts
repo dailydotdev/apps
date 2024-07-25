@@ -35,7 +35,7 @@ export function useSourceActionsFollow({
   const addFollow = useCallback(async () => {
     const { successful } = await onFollowSource({ source, requireLogin: true });
     if (successful) {
-      displayToast(`✅ You are now subscribed to ${source.name}`);
+      displayToast(`✅ You are now following ${source.name}`);
     }
   }, [source, displayToast, onFollowSource]);
 
@@ -49,7 +49,7 @@ export function useSourceActionsFollow({
       requireLogin: true,
     });
     if (successful) {
-      displayToast(`⛔️ You are now unsubscribed from ${source.name}`);
+      displayToast(`⛔️ You don't follow ${source.name} anymore`);
     }
   }, [
     source,
