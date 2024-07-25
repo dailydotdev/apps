@@ -13,6 +13,9 @@ import { PostType } from '../../graphql/posts';
 import { SquadPostCardHeader } from './common/SquadPostCardHeader';
 import { usePostImage } from '../../hooks/post/usePostImage';
 import CardOverlay from './common/CardOverlay';
+import { useConditionalFeature } from '../../hooks';
+import { feature } from '../../lib/featureManagement';
+import PostMetadata from './PostMetadata';
 
 export const WelcomePostCard = forwardRef(function SharePostCard(
   {
@@ -35,6 +38,10 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
   const image = usePostImage(post);
   const { openStep, isChecklistVisible } = useSquadChecklist({
     squad: post.source as Squad,
+  });
+  const { value: shouldShowNewImage } = useConditionalFeature({
+    shouldEvaluate: !!post.author,
+    feature: feature.authorImage,
   });
 
   const shouldShowHighlightPulse =
@@ -83,6 +90,13 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
       >
         {post.title}
       </FreeformCardTitle>
+      {shouldShowNewImage && (
+        <PostMetadata
+          className="m-2 line-clamp-1 break-words"
+          createdAt={post.createdAt}
+          readTime={post.readTime}
+        />
+      )}
       <Container ref={containerRef}>
         <WelcomePostCardFooter image={image} contentHtml={post.contentHtml} />
         <ActionButtons
