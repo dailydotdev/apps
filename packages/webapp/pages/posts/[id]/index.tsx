@@ -2,6 +2,7 @@ import React, {
   CSSProperties,
   ReactElement,
   useContext,
+  useEffect,
   useState,
 } from 'react';
 import { useRouter } from 'next/router';
@@ -45,6 +46,8 @@ import {
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -88,6 +91,8 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     id,
     options: { initialData, retry: false },
   });
+  const { showLogin, user, isAuthReady } = useAuthContext();
+  const utmSource = router?.query?.utm_source;
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
     'mb-16 min-h-page max-w-screen-laptop tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
@@ -122,6 +127,15 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     offset: SCROLL_OFFSET + (showArticleOnboarding ? ONBOARDING_OFFSET : 0),
     scrollProperty: 'scrollY',
   });
+
+  const shouldShowLogin = !user && utmSource && isAuthReady;
+  useEffect(() => {
+    if (!shouldShowLogin) {
+      return;
+    }
+
+    showLogin({ trigger: AuthTriggers.FromNotification });
+  }, [user, utmSource, isAuthReady, showLogin]);
 
   if (isLoading || isFallback) {
     return (
