@@ -19,6 +19,9 @@ export const withHttps = (url: string): string =>
     return validSchema.includes(schema) ? match : `https://${nonSchemaUrl}`;
   });
 
+export const withoutProtocol = (url: string): string =>
+  url.replace(/(^\w+:|^)\/\//, '');
+
 export const stripLinkParameters = (link: string): string => {
   const { origin, pathname } = new URL(link);
 
@@ -52,4 +55,16 @@ export const getPathnameWithQuery = (
   const queryString = searchParams.toString();
 
   return `${pathname}${queryString ? `?${queryString}` : ''}`;
+};
+
+export const withPrefix = (prefix: string, url?: string): string => {
+  if (!url) {
+    return '';
+  }
+
+  if (url.includes(prefix)) {
+    return url;
+  }
+
+  return `${prefix}${url}`;
 };

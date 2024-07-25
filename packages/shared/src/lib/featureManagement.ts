@@ -32,6 +32,7 @@ const feature = {
   authorImage: new Feature('author_image', false),
   onboardingContentType: new Feature('onboarding_content_type', false),
   sourceNotifyButton: new Feature('source_notify_button', false),
+  cardDownvote: new Feature('card_downvote', false),
 };
 
 export { feature };
