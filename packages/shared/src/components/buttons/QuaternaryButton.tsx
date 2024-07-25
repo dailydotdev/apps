@@ -13,6 +13,7 @@ export type QuaternaryButtonProps<TagName extends AllowedTags> =
   ButtonProps<TagName> & {
     reverse?: boolean;
     responsiveLabelClass?: string;
+    labelClassName?: string;
   };
 
 function QuaternaryButtonComponent<TagName extends AllowedTags>(
@@ -24,6 +25,7 @@ function QuaternaryButtonComponent<TagName extends AllowedTags>(
     reverse,
     responsiveLabelClass,
     tag = 'button',
+    labelClassName,
     ...props
   }: QuaternaryButtonProps<TagName>,
   ref?: Ref<ButtonElementType<TagName>>,
@@ -73,6 +75,7 @@ function QuaternaryButtonComponent<TagName extends AllowedTags>(
             'cursor-pointer items-center font-bold typo-callout',
             labelDisplay,
             { readOnly: props.disabled },
+            labelClassName,
           )}
         >
           {children}

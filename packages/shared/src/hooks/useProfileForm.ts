@@ -17,6 +17,14 @@ export interface ProfileFormHint {
   github?: string;
   hashnode?: string;
   name?: string;
+  roadmap?: string;
+  threads?: string;
+  codepen?: string;
+  reddit?: string;
+  stackoverflow?: string;
+  youtube?: string;
+  linkedin?: string;
+  mastodon?: string;
 }
 
 export interface UpdateProfileParameters extends Partial<UserProfile> {
@@ -37,13 +45,37 @@ interface UseProfileForm {
 
 interface UseProfileFormProps {
   onSuccess?: () => void;
+  onError?: (error: ResponseError) => void;
 }
 
 type Handles = Pick<
   UserProfile,
-  'github' | 'hashnode' | 'twitter' | 'username'
+  | 'github'
+  | 'hashnode'
+  | 'twitter'
+  | 'username'
+  | 'roadmap'
+  | 'threads'
+  | 'codepen'
+  | 'reddit'
+  | 'stackoverflow'
+  | 'youtube'
+  | 'linkedin'
+  | 'mastodon'
 >;
-const socials: Array<keyof Handles> = ['github', 'hashnode', 'twitter'];
+const socials: Array<keyof Handles> = [
+  'github',
+  'hashnode',
+  'twitter',
+  'roadmap',
+  'threads',
+  'codepen',
+  'reddit',
+  'stackoverflow',
+  'youtube',
+  'linkedin',
+  'mastodon',
+];
 
 export const onValidateHandles = (
   before: Partial<Handles>,
@@ -79,6 +111,7 @@ export const onValidateHandles = (
 
 const useProfileForm = ({
   onSuccess,
+  onError,
 }: UseProfileFormProps = {}): UseProfileForm => {
   const { user, updateUser } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
@@ -101,10 +134,24 @@ const useProfileForm = ({
         onSuccess?.();
       },
       onError: (err) => {
+        onError?.(err);
+
         if (!err?.response?.errors?.length) {
           return;
         }
-        const data = JSON.parse(err.response.errors[0].message);
+
+        const data: ProfileFormHint = JSON.parse(
+          err.response.errors[0].message,
+        );
+
+        if (
+          Object.values(data).some((errorHint) =>
+            socials.some((social) => errorHint.includes(social)),
+          )
+        ) {
+          displayToast(errorMessage.profile.invalidSocialLinks);
+        }
+
         setHint(data);
       },
     },
@@ -112,16 +159,9 @@ const useProfileForm = ({
 
   const handleUpdate: typeof updateUserProfile = useCallback(
     (values) => {
-      const error = onValidateHandles(user, values);
-      const message = Object.values(error)[0];
-
-      if (message) {
-        return displayToast(message);
-      }
-
       return updateUserProfile(values);
     },
-    [displayToast, user, updateUserProfile],
+    [updateUserProfile],
   );
 
   return {
