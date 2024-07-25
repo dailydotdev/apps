@@ -17,5 +17,5 @@ export const getPublicActions = (squad: Squad): Action[] => {
   const isComplete = squad.public;
   return isComplete
     ? [{ type: ActionType.MakeSquadPublic, completedAt: new Date() }]
-    : [{ type: ActionType.HidePublicSquadStep, completedAt: new Date() }];
+    : [];
 };
