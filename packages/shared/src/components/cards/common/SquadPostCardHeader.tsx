@@ -103,19 +103,21 @@ export const SquadPostCardHeader = ({
               />
             ))}
         </div>
-        <div className="ml-2 mr-6 flex flex-1 flex-col overflow-auto typo-footnote">
-          <span
-            className="line-clamp-2 break-words font-bold"
-            title={getHeaderName()}
-          >
-            {getHeaderName()}
-          </span>
-          <PostMetadata
-            className="line-clamp-1 break-words"
-            createdAt={createdAt}
-            description={getDescription()}
-          />
-        </div>
+        {!shouldShowNewImage && (
+          <div className="ml-2 mr-6 flex flex-1 flex-col overflow-auto typo-footnote">
+            <span
+              className="line-clamp-2 break-words font-bold"
+              title={getHeaderName()}
+            >
+              {getHeaderName()}
+            </span>
+            <PostMetadata
+              className="line-clamp-1 break-words"
+              createdAt={createdAt}
+              description={getDescription()}
+            />
+          </div>
+        )}
       </div>
     </>
   );
