@@ -22,6 +22,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
     onCopyLinkClick,
     onPostClick,
     onBookmarkClick,
+    onDownvoteClick,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
@@ -74,6 +75,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
           onCopyLinkClick={onCopyLinkClick}
           onBookmarkClick={onBookmarkClick}
           className="mt-auto"
+          onDownvoteClick={onDownvoteClick}
         />
       </Container>
       {children}
