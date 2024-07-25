@@ -49,7 +49,7 @@ export function useSourceActionsFollow({
       requireLogin: true,
     });
     if (successful) {
-      displayToast(`⛔️ You don't follow ${source.name} anymore`);
+      displayToast(`⛔️ You are no longer following ${source.name}`);
     }
   }, [
     source,
