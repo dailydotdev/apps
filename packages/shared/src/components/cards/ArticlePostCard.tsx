@@ -50,7 +50,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
       <PostTagsPanel
-        className="h-full max-h-[23.5rem] overflow-hidden"
+        className="h-full overflow-hidden"
         post={post}
         toastOnSuccess
       />
