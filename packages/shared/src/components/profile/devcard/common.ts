@@ -4,6 +4,10 @@ import classed from '../../../lib/classed';
 export const RoundedContainer = classed('div', 'rounded-32');
 export const devCardBoxShadow = '1px 1px 1px rgb(0 0 0 /30%)';
 
+export enum DevCardConstraints {
+  MaxSourceCount = 5,
+}
+
 export enum DevCardType {
   Vertical = 'DEFAULT',
   Horizontal = 'WIDE',

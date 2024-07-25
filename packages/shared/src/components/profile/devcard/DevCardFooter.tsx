@@ -4,7 +4,7 @@ import { TagLinks } from '../../TagLinks';
 import { ButtonVariant } from '../../buttons/common';
 import SourceButton from '../../cards/SourceButton';
 import Logo, { LogoPosition } from '../../Logo';
-import { DevCardTheme, DevCardType } from './common';
+import { DevCardConstraints, DevCardTheme, DevCardType } from './common';
 import { Source } from '../../../graphql/sources';
 import { checkLowercaseEquality } from '../../../lib/strings';
 import { ProfileImageSize } from '../../ProfilePicture';
@@ -21,11 +21,13 @@ export interface DevCardFooterProps {
 export function DevCardFooter({
   type,
   tags,
-  sources,
+  sources = [],
   theme,
   shouldShowLogo = true,
   elementsClickable = true,
 }: DevCardFooterProps): ReactElement {
+  const topSources = sources.slice(0, DevCardConstraints.MaxSourceCount);
+
   return (
     <>
       <TagLinks
@@ -53,7 +55,7 @@ export function DevCardFooter({
           !elementsClickable && 'pointer-events-none',
         )}
       >
-        {sources?.map((source) => (
+        {topSources?.map((source) => (
           <SourceButton
             key={source.name}
             source={source}
