@@ -28,6 +28,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
     children,
     onReadArticleClick,
     domProps = {},
+    onDownvoteClick,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
@@ -94,6 +95,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}
           onBookmarkClick={onBookmarkClick}
+          onDownvoteClick={onDownvoteClick}
         />
       </Container>
       {children}
