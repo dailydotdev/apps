@@ -262,7 +262,7 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.github}
           name="github"
           value={user?.github}
-          placeholder="username or url"
+          placeholder="Username or URL"
         />
         <AccountTextField
           leftIcon={<LinkedInIcon />}
@@ -272,7 +272,7 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.linkedin}
           name="linkedin"
           value={user?.linkedin}
-          placeholder="username or url"
+          placeholder="Username or URL"
         />
         <AccountTextField
           leftIcon={<LinkIcon />}
@@ -292,7 +292,7 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.twitter}
           name="twitter"
           value={user?.twitter}
-          placeholder="handle or url"
+          placeholder="Handle or URL"
         />
         <AccountTextField
           leftIcon={<YoutubeIcon />}
@@ -302,7 +302,7 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.youtube}
           name="youtube"
           value={user?.youtube}
-          placeholder="username or url"
+          placeholder="Username or URL"
         />
         <AccountTextField
           leftIcon={<StackOverflowIcon />}
@@ -322,7 +322,7 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.reddit}
           name="reddit"
           value={user?.reddit}
-          placeholder="username or url"
+          placeholder="Username or URL"
         />
         <AccountTextField
           leftIcon={<RoadmapIcon />}
@@ -332,7 +332,7 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.roadmap}
           name="roadmap"
           value={user?.roadmap}
-          placeholder="username or url"
+          placeholder="Username or URL"
         />
         {/* AS-444 add codepen icon */}
         <AccountTextField
@@ -343,7 +343,7 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.codepen}
           name="codepen"
           value={user?.codepen}
-          placeholder="username or url"
+          placeholder="Username or URL"
         />
         <AccountTextField
           leftIcon={<MastodonIcon />}
@@ -363,7 +363,7 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.threads}
           name="threads"
           value={user?.threads}
-          placeholder="handle or url"
+          placeholder="Handle or URL"
         />
       </AccountContentSection>
     </form>
