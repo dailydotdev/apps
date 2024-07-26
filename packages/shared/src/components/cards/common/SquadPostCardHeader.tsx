@@ -74,8 +74,8 @@ export const SquadPostCardHeader = ({
               !enableSourceHeader && 'absolute -bottom-2 -right-2',
             )}
             size={
-              enableSourceHeader
-                ? ProfileImageSize.Large
+              shouldShowNewImage || enableSourceHeader
+                ? ProfileImageSize.Medium
                 : ProfileImageSize.XSmall
             }
           />
@@ -83,7 +83,7 @@ export const SquadPostCardHeader = ({
             (shouldShowNewImage ? (
               <ProfileTooltip user={author}>
                 <ProfileImageLink
-                  picture={{ size: ProfileImageSize.Large }}
+                  picture={{ size: ProfileImageSize.Medium }}
                   user={author}
                 />
               </ProfileTooltip>
@@ -93,7 +93,7 @@ export const SquadPostCardHeader = ({
                 size={
                   enableSourceHeader
                     ? ProfileImageSize.XSmall
-                    : ProfileImageSize.XLarge
+                    : ProfileImageSize.Medium
                 }
                 className={classNames(
                   'z-1',
