@@ -97,7 +97,7 @@ export const SquadPostCardHeader = ({
                 }
                 className={classNames(
                   'z-1',
-                  enableSourceHeader && '-right-2.5 top-7',
+                  enableSourceHeader && '-right-2 top-6',
                 )}
                 absolute={enableSourceHeader}
               />
