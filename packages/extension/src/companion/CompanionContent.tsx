@@ -19,6 +19,7 @@ import { postLogEvent } from '@dailydotdev/shared/src/lib/feed';
 import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import { PostSummaryButton } from '@dailydotdev/shared/src/components/post/PostSummaryButton';
 import { CompanionEngagements } from './CompanionEngagements';
 import { CompanionDiscussion } from './CompanionDiscussion';
 import { useBackgroundPaginatedRequest } from './useBackgroundPaginatedRequest';
@@ -82,7 +83,8 @@ export default function CompanionContent({
           />
         </SimpleTooltip>
       </div>
-      <p className="my-4 flex-1 break-words typo-callout">
+      <p className="relative my-4 flex-1 break-words typo-callout">
+        {!!post?.summary && <PostSummaryButton summary={post.summary} />}
         <TLDRText>TLDR -</TLDRText>
         <span>
           {post?.summary ||
