@@ -33,6 +33,7 @@ const feature = {
   onboardingContentType: new Feature('onboarding_content_type', false),
   sourceNotifyButton: new Feature('source_notify_button', false),
   cardDownvote: new Feature('card_downvote', false),
+  generateSummary: new Feature('generate_summary', false),
 };
 
 export { feature };
