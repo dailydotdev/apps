@@ -352,6 +352,38 @@ it('should check meta tag with empty summary and empty description', async () =>
   );
 });
 
+it('should check meta tag with no description, summary of shared post', async () => {
+  const seo = getSeoDescription(
+    createPostMock({
+      title: null,
+      description: null,
+      summary: null,
+      sharedPost: {
+        id: 'sp1',
+        image: null,
+        permalink: 'https://daily.dev',
+        commentsPermalink: 'https://daily.dev',
+        type: PostType.Article,
+        title: 'GitHub is down',
+      },
+    }).result.data.post,
+  );
+  expect(seo).toEqual(
+    'Join us to the discussion about "GitHub is down" on daily.dev ✌️',
+  );
+});
+
+it('should check meta tag with no description, summary or title', async () => {
+  const seo = getSeoDescription(
+    createPostMock({
+      title: null,
+      description: null,
+      summary: null,
+    }).result.data.post,
+  );
+  expect(seo).toEqual('Join the discussion on daily.dev ✌️');
+});
+
 it('should send upvote mutation', async () => {
   let mutationCalled = false;
   renderPost({}, [
