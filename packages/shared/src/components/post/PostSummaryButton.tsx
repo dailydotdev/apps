@@ -22,7 +22,7 @@ export function PostSummaryButton({
 
   return (
     <>
-      <div className="absolute inset-0 bg-gradient-to-t from-background-default from-60% to-overlay-primary-pepper" />
+      <div className="from-pepper-90 absolute inset-0 bg-gradient-to-t from-60% to-overlay-primary-pepper" />
       <Button
         icon={isLoading ? <Loader /> : <MagicIcon secondary />}
         iconPosition={ButtonIconPosition.Right}
