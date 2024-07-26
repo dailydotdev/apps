@@ -11,7 +11,7 @@ import {
   useBookmarkPost,
 } from '../../hooks/useBookmarkPost';
 import { Post, PostType } from '../../graphql/posts';
-import SimilarPosts from './SimilarPosts';
+import SimilarPosts, { SimilarPostsProps } from './SimilarPosts';
 import BestDiscussions from './BestDiscussions';
 import PostToc from './PostToc';
 import { Origin } from '../../lib/log';
@@ -146,6 +146,16 @@ export default function FurtherReading({
   };
 
   const showToc = currentPost.toc?.length > 0;
+
+  const publicSquadProps: Partial<SimilarPostsProps> = {
+    title: `More posts from ${currentPost.source.name}`,
+    moreButtonProps: {
+      href: currentPost.source.permalink,
+      text: 'Show more',
+    },
+    ListItem: SquadPostListItem,
+  };
+
   return (
     <div className={classNames(className, 'flex flex-col gap-6')}>
       {showToc && <PostToc post={currentPost} className="hidden laptop:flex" />}
@@ -154,16 +164,7 @@ export default function FurtherReading({
           posts={similarPosts}
           isLoading={isLoading}
           onBookmark={onToggleBookmark}
-          title={
-            isPublicSquad
-              ? `More posts from ${currentPost.source.name}`
-              : undefined
-          }
-          moreButtonProps={{
-            href: isPublicSquad ? currentPost.source.permalink : undefined,
-            text: isPublicSquad ? 'Show more' : undefined,
-          }}
-          ListItem={isPublicSquad ? SquadPostListItem : undefined}
+          {...(isPublicSquad && publicSquadProps)}
         />
       )}
       {(isLoading || posts?.discussedPosts?.length > 0) && (

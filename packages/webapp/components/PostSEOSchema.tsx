@@ -8,7 +8,14 @@ export const getSeoDescription = (post: Post): string => {
   if (post?.description) {
     return post?.description;
   }
-  return `Join us to the discussion about "${post?.title}" on daily.dev ✌️`;
+
+  const postTitle = post?.title || post?.sharedPost?.title;
+
+  if (postTitle) {
+    return `Join us to the discussion about "${postTitle}" on daily.dev ✌️`;
+  }
+
+  return `Join the discussion on daily.dev ✌️`;
 };
 
 export const getSEOJsonLd = (post: Post): string => {
