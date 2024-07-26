@@ -54,7 +54,7 @@ export const SquadPostListItem = ({
           />
         )}
         <p className="mr-6 mt-1 line-clamp-3 text-text-primary typo-callout">
-          {post.title}
+          {post.title ?? post.sharedPost.title}
         </p>
       </div>
       <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>

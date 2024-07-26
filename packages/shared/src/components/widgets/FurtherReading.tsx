@@ -110,7 +110,7 @@ export default function FurtherReading({
         tags,
       });
     },
-    { ...disabledRefetch, enabled: !!postId && !!currentPost.source },
+    { ...disabledRefetch },
   );
 
   const { toggleBookmark } = useBookmarkPost({
