@@ -6,6 +6,14 @@ import {
   TwitterIcon,
   UserIcon,
   CameraIcon,
+  LinkedInIcon,
+  YoutubeIcon,
+  StackOverflowIcon,
+  RedditIcon,
+  RoadmapIcon,
+  MastodonIcon,
+  ThreadsIcon,
+  CodePenIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
@@ -40,6 +48,7 @@ import { useRouter } from 'next/router';
 import ExperienceLevelDropdown from '@dailydotdev/shared/src/components/profile/ExperienceLevelDropdown';
 import { TimezoneDropdown } from '@dailydotdev/shared/src/components/widgets/TimezoneDropdown';
 import { getUserInitialTimezone } from '@dailydotdev/shared/src/lib/timezones';
+import { withHttps, withPrefix } from '@dailydotdev/shared/src/lib';
 import { AccountTextField } from '../../components/layouts/AccountLayout/common';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
@@ -76,9 +85,20 @@ const AccountProfilePage = (): ReactElement => {
       title: values.title,
       twitter: values.twitter,
       github: values.github,
-      portfolio: values.portfolio,
+      portfolio: values.portfolio ? withHttps(values.portfolio) : undefined,
+      roadmap: values.roadmap,
+      threads: values.threads,
+      codepen: values.codepen,
+      reddit: values.reddit,
+      stackoverflow: values.stackoverflow,
+      youtube: values.youtube,
+      linkedin: values.linkedin,
+      mastodon: values.mastodon ? withHttps(values.mastodon) : undefined,
       experienceLevel: values.experienceLevel,
-      onUpdateSuccess: () => router.push(`/${values.username}`),
+      onUpdateSuccess: () =>
+        router.push(`/${values.username}`).then(() => {
+          router.reload();
+        }),
     };
     updateUserProfile(params);
   };
@@ -239,15 +259,6 @@ const AccountProfilePage = (): ReactElement => {
         can grow your network!"
       >
         <AccountTextField
-          leftIcon={<TwitterIcon />}
-          label="X"
-          inputId="twitter"
-          hint={hint.twitter}
-          valid={!hint.twitter}
-          name="twitter"
-          value={user?.twitter}
-        />
-        <AccountTextField
           leftIcon={<GitHubIcon />}
           label="GitHub"
           inputId="github"
@@ -255,6 +266,17 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.github}
           name="github"
           value={user?.github}
+          placeholder="Username or URL"
+        />
+        <AccountTextField
+          leftIcon={<LinkedInIcon />}
+          label="LinkedIn"
+          inputId="linkedin"
+          hint={hint.linkedin}
+          valid={!hint.linkedin}
+          name="linkedin"
+          value={user?.linkedin}
+          placeholder="Username or URL"
         />
         <AccountTextField
           leftIcon={<LinkIcon />}
@@ -264,6 +286,87 @@ const AccountProfilePage = (): ReactElement => {
           valid={!hint.portfolio}
           name="portfolio"
           value={user?.portfolio}
+          placeholder="example.com"
+        />
+        <AccountTextField
+          leftIcon={<TwitterIcon />}
+          label="X"
+          inputId="twitter"
+          hint={hint.twitter}
+          valid={!hint.twitter}
+          name="twitter"
+          value={user?.twitter}
+          placeholder="Handle or URL"
+        />
+        <AccountTextField
+          leftIcon={<YoutubeIcon />}
+          label="YouTube"
+          inputId="youtube"
+          hint={hint.youtube}
+          valid={!hint.youtube}
+          name="youtube"
+          value={user?.youtube}
+          placeholder="Username or URL"
+        />
+        <AccountTextField
+          leftIcon={<StackOverflowIcon />}
+          label="Stack Overflow"
+          inputId="stackoverflow"
+          hint={hint.stackoverflow}
+          valid={!hint.stackoverflow}
+          name="stackoverflow"
+          value={withPrefix('stackoverflow.com/users/', user?.stackoverflow)}
+          placeholder="stackoverflow.com/users/999999/username"
+        />
+        <AccountTextField
+          leftIcon={<RedditIcon />}
+          label="Reddit"
+          inputId="reddit"
+          hint={hint.reddit}
+          valid={!hint.reddit}
+          name="reddit"
+          value={user?.reddit}
+          placeholder="Username or URL"
+        />
+        <AccountTextField
+          leftIcon={<RoadmapIcon />}
+          label="Roadmap.sh"
+          inputId="roadmap"
+          hint={hint.roadmap}
+          valid={!hint.roadmap}
+          name="roadmap"
+          value={user?.roadmap}
+          placeholder="Username or URL"
+        />
+        <AccountTextField
+          leftIcon={<CodePenIcon />}
+          label="CodePen"
+          inputId="codepen"
+          hint={hint.codepen}
+          valid={!hint.codepen}
+          name="codepen"
+          value={user?.codepen}
+          placeholder="Username or URL"
+        />
+        <AccountTextField
+          leftIcon={<MastodonIcon />}
+          label="Mastodon"
+          inputId="mastodon"
+          hint={hint.mastodon}
+          valid={!hint.mastodon}
+          name="mastodon"
+          value={user?.mastodon}
+          placeholder="mastodon.social/@username"
+        />
+        <AccountTextField
+          leftIcon={<ThreadsIcon />}
+          label="Threads"
+          inputId="threads"
+          hint={hint.threads}
+          valid={!hint.threads}
+          name="threads"
+          value={user?.threads}
+          placeholder="Handle or URL"
         />
       </AccountContentSection>
     </form>

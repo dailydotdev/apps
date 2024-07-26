@@ -40,7 +40,11 @@ type UseSquadChecklist = UseChecklist & {
 const useSquadChecklist = ({
   squad,
 }: UseSquadChecklistProps): UseSquadChecklist => {
-  const { actions, isActionsFetched: isChecklistReady } = useActions();
+  const {
+    actions,
+    checkHasCompleted,
+    isActionsFetched: isChecklistReady,
+  } = useActions();
   const { showArticleOnboarding } = useContext(OnboardingContext);
   const { isInitialized, isPushSupported } = usePushNotificationContext();
 
@@ -177,12 +181,30 @@ const useSquadChecklist = ({
       actionsPerRoleMap[squad.currentMember?.role] ||
       actionsPerRoleMap[SourceMemberRole.Member];
 
+    const filterPublicStepIfDismissed = (step: ChecklistStepType) => {
+      const isGoPublicDismissed =
+        isChecklistReady && checkHasCompleted(ActionType.HidePublicSquadStep);
+
+      return (
+        !!squad.public ||
+        !isGoPublicDismissed ||
+        step.action.type !== ActionType.MakeSquadPublic
+      );
+    };
+
     return actionsForRole
       .map((actionType) => {
         return stepsMap[actionType];
       })
-      .filter(Boolean);
-  }, [squad.currentMember, stepsMap]);
+      .filter(Boolean)
+      .filter(filterPublicStepIfDismissed);
+  }, [
+    checkHasCompleted,
+    isChecklistReady,
+    squad.currentMember?.role,
+    squad.public,
+    stepsMap,
+  ]);
 
   const checklist = useChecklist({ steps });
 
