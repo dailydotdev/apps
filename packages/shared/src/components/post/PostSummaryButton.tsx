@@ -6,7 +6,7 @@ import { ButtonIconPosition, ButtonVariant } from '../buttons/common';
 import { Button, ButtonColor } from '../buttons/Button';
 
 interface PostSummaryButtonProps {
-  summary: string;
+  summary?: string;
 }
 
 export function PostSummaryButton({
@@ -30,6 +30,7 @@ export function PostSummaryButton({
         color={ButtonColor.Cabbage}
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
         onClick={onClickSummary}
+        disabled={isLoading}
       >
         Auto-summarize
       </Button>

@@ -7,7 +7,7 @@ import { useConditionalFeature } from '../useConditionalFeature';
 import { feature } from '../../lib/featureManagement';
 
 interface UseSummaryActivationProps {
-  summary: string;
+  summary?: string;
 }
 
 interface UseSummaryActivation {
@@ -44,8 +44,16 @@ export const useSummaryActivation = ({
   }, []);
 
   const onClickSummary = useCallback(() => {
+    if (isLoading) {
+      return;
+    }
+
     setIsLoading(true);
     completeAction(ActionType.ShowSummary);
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
 
     timeoutRef.current = window.setTimeout(() => {
       displayToast(
@@ -53,7 +61,7 @@ export const useSummaryActivation = ({
       );
       setIsLoading(false);
     }, 1000);
-  }, [completeAction, displayToast]);
+  }, [completeAction, displayToast, isLoading]);
 
   return { onClickSummary, isLoading, shouldShowOverlay };
 };
