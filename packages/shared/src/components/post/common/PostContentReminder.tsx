@@ -23,9 +23,9 @@ export function PostContentReminder({
     <PostContentWidget
       className="mt-6 w-full"
       icon={<BookmarkReminderIcon size={IconSize.Small} />}
-      title="Want to read / watch it later?"
+      title="Remind about this post later?"
     >
-      <PostReminderOptions post={post} className="ml-auto" />
+      <PostReminderOptions post={post} className="laptop:ml-auto" />
     </PostContentWidget>
   );
 }
