@@ -64,6 +64,7 @@ export enum AuthTriggers {
   SourceSubscribe = 'source subscribe',
   CommentDownvote = 'comment downvote',
   WelcomePage = 'welcome page',
+  FromNotification = 'from notification',
 }
 
 export type AuthTriggersType =
