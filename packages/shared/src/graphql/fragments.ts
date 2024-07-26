@@ -49,6 +49,7 @@ export const SOURCE_SHORT_INFO_FRAGMENT = gql`
     image
     type
     active
+    public
   }
 `;
 

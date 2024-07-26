@@ -92,7 +92,7 @@ export default function BestDiscussions({
 
   return (
     <BestDiscussionsContainer className={className}>
-      <h4 className="py-3 pl-6 pr-4 text-text-tertiary typo-body">
+      <h4 className="my-0.5 px-4 py-3 text-text-tertiary typo-body">
         Best discussions
       </h4>
       {Separator}
