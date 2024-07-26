@@ -37,6 +37,7 @@ import {
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BootPopups } from './modals/BootPopups';
 import { useFeedName } from '../hooks/feed/useFeedName';
+import { AuthTriggers } from '../lib/auth';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -84,7 +85,7 @@ function MainLayoutComponent({
 }: MainLayoutProps): ReactElement {
   const router = useRouter();
   const { logEvent } = useContext(LogContext);
-  const { user, isAuthReady } = useAuthContext();
+  const { user, isAuthReady, showLogin } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
@@ -152,6 +153,20 @@ function MainLayoutComponent({
 
     router.push(`${onboardingUrl}?${params.toString()}`);
   }, [shouldRedirectOnboarding, router]);
+
+  const utmSource = router?.query?.utm_source;
+  const shouldShowLogin = !user && utmSource && isAuthReady;
+
+  useEffect(() => {
+    if (!shouldShowLogin) {
+      return;
+    }
+
+    showLogin({
+      trigger: AuthTriggers.FromNotification,
+      options: { isLogin: true },
+    });
+  }, [shouldShowLogin, showLogin]);
 
   if (
     (!isPageReady && isPageApplicableForOnboarding) ||

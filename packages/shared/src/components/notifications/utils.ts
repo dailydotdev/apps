@@ -14,6 +14,7 @@ import {
   DevCardIcon,
 } from '../icons';
 import { NotificationPromptSource } from '../../lib/log';
+import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
 
 export const NotifContainer = classed(
   'div',
@@ -61,6 +62,7 @@ export enum NotificationIconType {
   User = 'User',
   Star = 'Star',
   DevCard = 'DevCard',
+  BookmarkReminder = 'BookmarkReminder',
 }
 
 export const notificationIcon: Record<
@@ -77,6 +79,7 @@ export const notificationIcon: Record<
   [NotificationIconType.User]: UserIcon,
   [NotificationIconType.Star]: StarIcon,
   [NotificationIconType.DevCard]: DevCardIcon,
+  [NotificationIconType.BookmarkReminder]: BookmarkReminderIcon,
 };
 
 export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
@@ -90,6 +93,7 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
   [NotificationIconType.Block]: '',
   [NotificationIconType.User]: '',
   [NotificationIconType.DevCard]: '',
+  [NotificationIconType.BookmarkReminder]: 'text-accent-bun-default',
 };
 
 export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
