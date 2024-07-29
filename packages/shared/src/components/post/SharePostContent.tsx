@@ -17,6 +17,7 @@ import { SharedPostLink } from './common/SharedPostLink';
 import { ButtonVariant } from '../buttons/Button';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { ProfileImageSize } from '../ProfilePicture';
+import { TruncateText } from '../utilities';
 
 interface SharePostContentProps {
   post: Post;
@@ -63,13 +64,13 @@ function SharePostContent({
         className="mb-5 mt-8"
       >
         <div className="flex max-w-full flex-col p-4 pt-5 laptop:flex-row">
-          <div className="mb-5 flex flex-1 flex-col laptop:mb-0">
+          <div className="mb-5 flex max-w-full flex-1 flex-col truncate laptop:mb-0">
             <SharedPostLink
               post={post}
               onGoToLinkProps={combinedClicks(openArticle)}
               className="mb-4 mt-0 flex flex-wrap font-bold typo-body"
             >
-              {post.sharedPost.title}
+              <TruncateText>{post.sharedPost.title}</TruncateText>
             </SharedPostLink>
             <PostSourceInfo
               date={
