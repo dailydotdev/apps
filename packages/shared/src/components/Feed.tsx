@@ -51,6 +51,8 @@ import { feature } from '../lib/featureManagement';
 import { acquisitionKey } from './cards/AcquisitionFormCard';
 import { MarketingCtaVariant } from './marketingCta/common';
 import { isNullOrUndefined } from '../lib/func';
+import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
+import { SearchResultsLayout } from './search/SearchResultsLayout';
 
 export interface FeedProps<T>
   extends Pick<
@@ -154,6 +156,8 @@ export default function Feed<T>({
   const { getMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Card);
   const showMarketingCta = !!marketingCta;
+
+  const { isSearchResultsUpgrade } = useSearchResultsLayout({ feedName });
 
   const {
     items,
@@ -409,18 +413,23 @@ export default function Feed<T>({
     feedName as SharedFeedPage,
   );
 
+  const FeedWrapperComponent = isSearchResultsUpgrade
+    ? SearchResultsLayout
+    : FeedContainer;
+  const containerProps = isSearchResultsUpgrade && {
+    header,
+    inlineHeader,
+    className,
+    showSearch: isValidFeed && showSearch,
+    shortcuts,
+    actionButtons,
+    isHorizontal,
+    feedContainerRef,
+  };
+
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>
-      <FeedContainer
-        header={header}
-        inlineHeader={inlineHeader}
-        className={className}
-        showSearch={showSearch && isValidFeed}
-        shortcuts={shortcuts}
-        actionButtons={actionButtons}
-        isHorizontal={isHorizontal}
-        feedContainerRef={feedContainerRef}
-      >
+      <FeedWrapperComponent {...containerProps}>
         {items.map((item, index) => (
           <FeedItemComponent
             item={item}
@@ -480,7 +489,7 @@ export default function Feed<T>({
             onRemovePost={() => onRemovePost(selectedPostIndex)}
           />
         )}
-      </FeedContainer>
+      </FeedWrapperComponent>
     </ActiveFeedContext.Provider>
   );
 }

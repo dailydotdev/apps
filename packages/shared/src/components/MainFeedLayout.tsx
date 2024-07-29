@@ -55,6 +55,7 @@ import { Origin } from '../lib/log';
 import { ExploreTabs, FeedExploreHeader, tabToUrl, urlToTab } from './header';
 import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
 import { FeedExploreDropdown } from './header/FeedExploreDropdown';
+import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -192,6 +193,8 @@ export default function MainFeedLayout({
     shouldUseCommentFeedLayout,
     FeedPageLayoutComponent,
   } = useFeedLayout();
+
+  const { isSearchResultsUpgrade } = useSearchResultsLayout();
 
   const config = useMemo(() => {
     if (!feedName) {
@@ -401,7 +404,7 @@ export default function MainFeedLayout({
       className={classNames('relative', disableTopPadding && '!pt-0')}
     >
       {isAnyExplore && <FeedExploreComponent />}
-      {isSearchOn && search}
+      {isSearchOn && !isSearchResultsUpgrade && search}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed
           isMainFeed

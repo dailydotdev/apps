@@ -11,6 +11,7 @@ import {
 import { AllFeedPages, OtherFeedPage } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import { isNullOrUndefined } from '../lib/func';
+import { useSearchResultsLayout } from './search/useSearchResultsLayout';
 
 interface UseFeedLayoutReturn {
   shouldUseListFeedLayout: boolean;
@@ -108,9 +109,10 @@ export const useFeedLayout = ({
     feedName as UserProfileFeedType,
   );
 
-  const isFeedIncludedInListLayout = FeedLayoutMobileFeedPages.has(
-    feedName as FeedPagesWithMobileLayoutType,
-  );
+  const { isSearchResultsUpgrade } = useSearchResultsLayout();
+  const isFeedIncludedInListLayout =
+    FeedLayoutMobileFeedPages.has(feedName as FeedPagesWithMobileLayoutType) ||
+    isSearchResultsUpgrade;
 
   const shouldUseListFeedLayoutOnMobileTablet =
     !isLaptop && isFeedIncludedInListLayout;
