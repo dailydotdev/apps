@@ -52,7 +52,7 @@ import { acquisitionKey } from './cards/AcquisitionFormCard';
 import { MarketingCtaVariant } from './marketingCta/common';
 import { isNullOrUndefined } from '../lib/func';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
-import { SearchResultsLayout } from './search/SearchResultsLayout';
+import { SearchResultsLayout } from './search/SearchResults/SearchResultsLayout';
 
 export interface FeedProps<T>
   extends Pick<
