@@ -5,7 +5,7 @@ import React, {
   useMemo,
 } from 'react';
 import { useRouter } from 'next/router';
-import { PageWidgets, SharedFeedPage } from '../../utilities';
+import { PageWidgets } from '../../utilities';
 import { StraightArrowIcon } from '../../icons';
 import {
   providerToIconMap,
