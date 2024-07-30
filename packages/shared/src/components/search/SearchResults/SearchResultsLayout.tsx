@@ -5,7 +5,7 @@ import React, {
   useMemo,
 } from 'react';
 import { useRouter } from 'next/router';
-import { PageWidgets } from '../../utilities';
+import { PageWidgets, SharedFeedPage } from '../../utilities';
 import { StraightArrowIcon } from '../../icons';
 import {
   providerToIconMap,
@@ -39,14 +39,15 @@ export const SearchResultsLayout = (
 ): ReactElement => {
   const { children } = props;
 
-  const { isSearchResultsUpgrade } = useSearchResultsLayout();
+  const { isSearchResultsUpgrade } = useSearchResultsLayout({
+    feedName: SharedFeedPage.Search,
+  });
   const { items = [] } = useContext(ActiveFeedContext);
   const {
     query: { q: query },
     push,
   } = useRouter();
   const { logEvent } = useLogContext();
-  const isLoading = !items.length;
 
   const postItems = items.filter(isItemPost);
 
@@ -121,13 +122,13 @@ export const SearchResultsLayout = (
           </SearchProviderButton>
 
           <SearchResultsTags
-            isLoading={isLoading}
+            isLoading={!items.length}
             items={tags}
             onTagClick={onTagClick}
           />
 
           <SearchResultsSources
-            isLoading={isLoading}
+            isLoading={!items.length}
             items={sources}
             onSourceClick={(source) => {
               logEvent({

@@ -5,7 +5,7 @@ import { AllFeedPages } from '../../lib/query';
 import { SharedFeedPage } from '../../components/utilities';
 
 interface UseSearchResultsLayoutProps {
-  feedName?: AllFeedPages;
+  feedName: AllFeedPages;
 }
 
 interface SearchResultsLayout {
@@ -13,15 +13,14 @@ interface SearchResultsLayout {
 }
 
 export const useSearchResultsLayout = (
-  props?: UseSearchResultsLayoutProps,
+  props: UseSearchResultsLayoutProps,
 ): SearchResultsLayout => {
-  const { feedName } = props ?? {};
+  const { feedName } = props;
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { value: isSearchUpgradeExperiment, isLoading } = useConditionalFeature(
     {
       feature: feature.searchResultsUpgrade,
-      shouldEvaluate:
-        !!isLaptop && (!feedName || feedName === SharedFeedPage.Search),
+      shouldEvaluate: !!isLaptop && feedName === SharedFeedPage.Search,
     },
   );
 
