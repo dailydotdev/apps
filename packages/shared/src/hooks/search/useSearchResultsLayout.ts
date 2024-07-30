@@ -1,21 +1,15 @@
 import { useViewSize, ViewSize } from '../useViewSize';
 import { useConditionalFeature } from '../useConditionalFeature';
 import { feature } from '../../lib/featureManagement';
-import { AllFeedPages } from '../../lib/query';
 import { SharedFeedPage } from '../../components/utilities';
-
-interface UseSearchResultsLayoutProps {
-  feedName: AllFeedPages;
-}
+import { useActiveFeedNameContext } from '../../contexts';
 
 interface SearchResultsLayout {
   isSearchResultsUpgrade: boolean;
 }
 
-export const useSearchResultsLayout = (
-  props: UseSearchResultsLayoutProps,
-): SearchResultsLayout => {
-  const { feedName } = props;
+export const useSearchResultsLayout = (): SearchResultsLayout => {
+  const { feedName } = useActiveFeedNameContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { value: isSearchUpgradeExperiment, isLoading } = useConditionalFeature(
     {

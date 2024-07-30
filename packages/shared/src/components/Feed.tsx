@@ -157,7 +157,7 @@ export default function Feed<T>({
   const marketingCta = getMarketingCta(MarketingCtaVariant.Card);
   const showMarketingCta = !!marketingCta;
 
-  const { isSearchResultsUpgrade } = useSearchResultsLayout({ feedName });
+  const { isSearchResultsUpgrade } = useSearchResultsLayout();
 
   const {
     items,

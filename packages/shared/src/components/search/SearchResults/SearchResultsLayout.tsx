@@ -40,9 +40,7 @@ export const SearchResultsLayout = (
 ): ReactElement => {
   const { children } = props;
 
-  const { isSearchResultsUpgrade } = useSearchResultsLayout({
-    feedName: SharedFeedPage.Search,
-  });
+  const { isSearchResultsUpgrade } = useSearchResultsLayout();
   const { items = [] } = useContext(ActiveFeedContext);
   const {
     query: { q: query },

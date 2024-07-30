@@ -194,7 +194,7 @@ export default function MainFeedLayout({
     FeedPageLayoutComponent,
   } = useFeedLayout();
 
-  const { isSearchResultsUpgrade } = useSearchResultsLayout({ feedName });
+  const { isSearchResultsUpgrade } = useSearchResultsLayout();
 
   const config = useMemo(() => {
     if (!feedName) {

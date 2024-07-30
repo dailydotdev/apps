@@ -109,7 +109,7 @@ export const useFeedLayout = ({
     feedName as UserProfileFeedType,
   );
 
-  const { isSearchResultsUpgrade } = useSearchResultsLayout({ feedName });
+  const { isSearchResultsUpgrade } = useSearchResultsLayout();
   const isFeedIncludedInListLayout =
     FeedLayoutMobileFeedPages.has(feedName as FeedPagesWithMobileLayoutType) ||
     isSearchResultsUpgrade;
