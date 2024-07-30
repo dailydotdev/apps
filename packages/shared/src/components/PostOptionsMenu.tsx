@@ -98,9 +98,10 @@ export default function PostOptionsMenu({
   const router = useRouter();
   const { user, isLoggedIn } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
-  const { isOpen: isPostOptionsOpen } = useContextMenu({
-    id: contextId,
-  });
+  const { isOpen: isPostOptionsOpen, onHide: closePostOptions } =
+    useContextMenu({
+      id: contextId,
+    });
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({ enabled: isPostOptionsOpen });
   const { onUpdateSettings } = useAdvancedSettings({ enabled: false });
@@ -447,7 +448,11 @@ export default function PostOptionsMenu({
     postOptions.push({
       icon: <MenuIcon Icon={EditIcon} />,
       label: 'Edit post',
-      action: () => router.push(`${post.commentsPermalink}/edit`),
+      action: () => {
+        router.push(`${post.commentsPermalink}/edit`).then(() => {
+          closePostOptions();
+        });
+      },
     });
   }
   if (onConfirmDeletePost) {
