@@ -1,8 +1,9 @@
-import request from 'graphql-request';
 import { useAuthContext } from '../contexts/AuthContext';
 import { setCookie } from '../lib/cookie';
-import { graphqlUrl } from '../lib/config';
 import { SLACK_CONNECT_SOURCE_MUTATION } from '../graphql/slack';
+import { isDevelopment } from '../lib/constants';
+import { gqlClient } from '../graphql/common';
+import { apiUrl } from '../lib/config';
 
 export type UseSlackProps = void;
 
@@ -28,9 +29,7 @@ export const useSlack = (): UseSlack => {
     connect: async ({ redirectPath }) => {
       const url = new URL('https://slack.com/oauth/v2/authorize');
 
-      const redirectUrl = new URL(
-        `${window.location.origin}/api/slack/auth/callback`,
-      );
+      const redirectUrl = new URL(`${apiUrl}/integrations/slack/auth/callback`);
       url.searchParams.append('redirect_uri', redirectUrl.toString());
 
       url.searchParams.append('state', user.id);
@@ -43,12 +42,15 @@ export const useSlack = (): UseSlack => {
       setCookie('slackRedirectPath', redirectPath, {
         path: '/',
         maxAge: 3600,
+        secure: !isDevelopment,
+        domain: process.env.NEXT_PUBLIC_DOMAIN,
+        sameSite: 'lax',
       });
 
       window.location.href = url.toString();
     },
     connectSource: async ({ integrationId, channelId, sourceId }) => {
-      await request(graphqlUrl, SLACK_CONNECT_SOURCE_MUTATION, {
+      await gqlClient.request(SLACK_CONNECT_SOURCE_MUTATION, {
         integrationId,
         channelId,
         sourceId,

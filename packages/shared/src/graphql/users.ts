@@ -544,9 +544,17 @@ export type UserIntegration = {
 export const USER_INTEGRATIONS = gql`
   query UserIntegrations {
     userIntegrations {
-      id
-      type
-      name
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          id
+          type
+          name
+        }
+      }
     }
   }
 `;

@@ -1,11 +1,9 @@
 import React, { ReactElement, useCallback, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import request from 'graphql-request';
 import { Modal, ModalProps } from './common/Modal';
 import { RequestKey, generateQueryKey } from '../../lib/query';
 import { SLACK_CHANNELS_QUERY, SlackChannels } from '../../graphql/slack';
 import user from '../../../__tests__/fixture/loggedUser';
-import { graphqlUrl } from '../../lib/config';
 import {
   USER_INTEGRATIONS,
   UserIntegration,
@@ -17,6 +15,7 @@ import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
 import { useSlack } from '../../hooks';
 import { Source, SourceType } from '../../graphql/sources';
+import { Connection, gqlClient } from '../../graphql/common';
 
 export type SlackIntegrationModalProps = Omit<ModalProps, 'children'> & {
   source: Pick<Source, 'id' | 'handle' | 'type'>;
@@ -29,17 +28,19 @@ const SlackIntegrationModal = ({
   const { data: slackIntegrations } = useQuery(
     generateQueryKey(RequestKey.UserIntegrations, user),
     async () => {
-      const result = await request<{
-        userIntegrations: UserIntegration[];
-      }>(graphqlUrl, USER_INTEGRATIONS);
+      const result = await gqlClient.request<{
+        userIntegrations: Connection<UserIntegration>;
+      }>(USER_INTEGRATIONS);
 
       return result.userIntegrations;
     },
     {
       select: useCallback((data) => {
-        return data?.filter(
-          (integration) => integration.type === UserIntegrationType.Slack,
-        );
+        return data?.edges
+          ?.map((item) => item.node)
+          .filter(
+            (integration) => integration.type === UserIntegrationType.Slack,
+          );
       }, []),
     },
   );
@@ -55,9 +56,9 @@ const SlackIntegrationModal = ({
     }),
     async ({ queryKey }) => {
       const [, , { integrationId }] = queryKey;
-      const result = await request<{
+      const result = await gqlClient.request<{
         slackChannels: SlackChannels[];
-      }>(graphqlUrl, SLACK_CHANNELS_QUERY, {
+      }>(SLACK_CHANNELS_QUERY, {
         integrationId,
       });
 
