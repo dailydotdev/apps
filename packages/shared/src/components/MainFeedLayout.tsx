@@ -265,7 +265,12 @@ export default function MainFeedLayout({
         ),
         query: SEARCH_POSTS_QUERY,
         variables: { query: searchQuery, version: searchVersion },
-        emptyScreen: <SearchEmptyScreen />,
+        emptyScreen: (
+          <>
+            {isSearchResultsUpgrade && search}
+            <SearchEmptyScreen />
+          </>
+        ),
       };
     }
 
