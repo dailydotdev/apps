@@ -238,11 +238,14 @@ export default function MainFeedLayout({
     defaultValue: 0,
   });
 
-  const search = (
-    <LayoutHeader className={isSearchPage && 'mt-16 laptop:mt-0'}>
-      {navChildren}
-      {isSearchOn && searchChildren ? searchChildren : undefined}
-    </LayoutHeader>
+  const search = useMemo(
+    () => (
+      <LayoutHeader className={isSearchPage && 'mt-16 laptop:mt-0'}>
+        {navChildren}
+        {isSearchOn && searchChildren ? searchChildren : undefined}
+      </LayoutHeader>
+    ),
+    [isSearchOn, isSearchPage, navChildren, searchChildren],
   );
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
