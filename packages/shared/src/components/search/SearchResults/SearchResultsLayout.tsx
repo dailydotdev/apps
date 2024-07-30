@@ -22,6 +22,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { webappUrl } from '../../../lib/constants';
 import { SearchResultsTags } from './SearchResultsTags';
 import { SearchResultsSources } from './SearchResultsSources';
+import { Source } from '../../../graphql/sources';
 
 type SearchResultsLayoutProps = PropsWithChildren;
 
@@ -58,15 +59,13 @@ export const SearchResultsLayout = (
 
   const sources = useMemo(() => {
     const ids = new Set<string>();
-    return postItems
-      .map((item) => item.post.source)
-      .filter((source) => {
-        if (ids.has(source.id)) {
-          return false;
-        }
-        ids.add(source.id);
-        return true;
-      });
+    return postItems.reduce((acc: Source[], item) => {
+      if (ids.has(item.post.source.id)) {
+        return acc;
+      }
+      ids.add(item.post.source.id);
+      return [...acc, item.post.source];
+    }, []);
   }, [postItems]);
 
   const onTagClick = (suggestion: SearchSuggestion) => {
