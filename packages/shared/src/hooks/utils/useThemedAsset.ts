@@ -11,9 +11,10 @@ interface UseAsset {
   githubShortcut: string;
 }
 
-export const useThemedAsset = (): UseAsset => {
+export const useIsLightTheme = (): boolean => {
   const { themeMode } = useSettingsContext();
-  const isLight = useMemo(() => {
+
+  return useMemo(() => {
     if (themeMode === ThemeMode.Auto) {
       return globalThis?.window?.matchMedia?.('(prefers-color-scheme:light)')
         .matches;
@@ -21,6 +22,10 @@ export const useThemedAsset = (): UseAsset => {
 
     return themeMode === ThemeMode.Light;
   }, [themeMode]);
+};
+
+export const useThemedAsset = (): UseAsset => {
+  const isLight = useIsLightTheme();
 
   return {
     onboardingIntroduction: isLight
