@@ -155,7 +155,7 @@ function MainLayoutComponent({
   }, [shouldRedirectOnboarding, router]);
 
   const utmSource = router?.query?.utm_source;
-  const shouldShowLogin = !user && utmSource && isAuthReady;
+  const shouldShowLogin = !user && isAuthReady && utmSource === 'notification';
 
   useEffect(() => {
     if (!shouldShowLogin) {
