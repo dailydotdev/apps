@@ -27,7 +27,7 @@ export function ShareLink({
   onPostSuccess,
 }: ShareLinkProps): ReactElement {
   const { displayToast } = useToastNotification();
-  const [commentary, setCommentary] = useState('');
+  const [commentary, setCommentary] = useState(post?.title ?? '');
   const { squads, user } = useAuthContext();
 
   const {
@@ -61,7 +61,9 @@ export function ShareLink({
     }
 
     if (post?.id) {
-      onUpdatePost(e, post.id, commentary);
+      if (commentary !== post?.title) {
+        onUpdatePost(e, post.id, commentary);
+      }
       return push(squad.permalink);
     }
 
@@ -95,7 +97,7 @@ export function ShareLink({
       )}
 
       <MarkdownInput
-        initialContent={commentary || post?.title}
+        initialContent={commentary || post?.title || ''}
         enabledCommand={{ mention: true }}
         showMarkdownGuide={false}
         onValueUpdate={setCommentary}
