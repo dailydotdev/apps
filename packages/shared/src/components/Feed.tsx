@@ -416,16 +416,18 @@ export default function Feed<T>({
   const FeedWrapperComponent = isSearchResultsUpgrade
     ? SearchResultsLayout
     : FeedContainer;
-  const containerProps = isSearchResultsUpgrade && {
-    header,
-    inlineHeader,
-    className,
-    showSearch: isValidFeed && showSearch,
-    shortcuts,
-    actionButtons,
-    isHorizontal,
-    feedContainerRef,
-  };
+  const containerProps = isSearchResultsUpgrade
+    ? {}
+    : {
+        header,
+        inlineHeader,
+        className,
+        showSearch: showSearch && isValidFeed,
+        shortcuts,
+        actionButtons,
+        isHorizontal,
+        feedContainerRef,
+      };
 
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>

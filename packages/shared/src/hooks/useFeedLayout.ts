@@ -112,7 +112,7 @@ export const useFeedLayout = ({
   const { isSearchResultsUpgrade } = useSearchResultsLayout();
   const isFeedIncludedInListLayout =
     FeedLayoutMobileFeedPages.has(feedName as FeedPagesWithMobileLayoutType) ||
-    isSearchResultsUpgrade;
+    (isSearchResultsUpgrade && feedName === SharedFeedPage.Search);
 
   const shouldUseListFeedLayoutOnMobileTablet =
     !isLaptop && isFeedIncludedInListLayout;
