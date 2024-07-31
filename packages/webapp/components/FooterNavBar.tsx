@@ -25,7 +25,7 @@ interface FooterNavBarProps {
 
 const selectedMapToTitle: Record<keyof UseActiveNav, string> = {
   home: 'Home',
-  search: 'Search',
+  explore: 'Explore',
   bookmarks: 'Bookmarks',
   notifications: 'Activity',
   squads: 'Squads',
