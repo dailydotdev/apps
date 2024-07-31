@@ -14,6 +14,11 @@ export const SearchResultsTags = (
   props: SearchResultsTagsProps,
 ): ReactElement => {
   const { items = [], isLoading, onTagClick } = props;
+
+  if (!isLoading && !items.length) {
+    return null;
+  }
+
   return (
     <WidgetCard heading="Related tags">
       {!!items?.length && (

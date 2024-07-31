@@ -25,6 +25,10 @@ export const SearchResultsSources = (
     public: true,
   }));
 
+  if (!isLoading && !items.length) {
+    return null;
+  }
+
   return (
     <WidgetCard heading="Related sources">
       {!!sources?.length && (
