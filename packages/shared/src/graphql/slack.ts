@@ -8,8 +8,10 @@ export type SlackChannels = {
 export const SLACK_CHANNELS_QUERY = gql`
   query SlackChannels($integrationId: ID!) {
     slackChannels(integrationId: $integrationId, limit: 999) {
-      id
-      name
+      data {
+        id
+        name
+      }
     }
   }
 `;

@@ -57,12 +57,14 @@ const SlackIntegrationModal = ({
     async ({ queryKey }) => {
       const [, , { integrationId }] = queryKey;
       const result = await gqlClient.request<{
-        slackChannels: SlackChannels[];
+        slackChannels: {
+          data: SlackChannels[];
+        };
       }>(SLACK_CHANNELS_QUERY, {
         integrationId,
       });
 
-      return result.slackChannels;
+      return result.slackChannels.data;
     },
     {
       enabled: !!selectedIntegration?.id,
@@ -75,7 +77,7 @@ const SlackIntegrationModal = ({
     <Modal kind={Modal.Kind.FlexibleCenter} size={Modal.Size.Medium} {...props}>
       <Modal.Header title="Get source updates on Slack" />
       <Modal.Body className="flex flex-col items-center gap-4">
-        {slackIntegrations?.length && (
+        {!!slackIntegrations?.length && (
           <>
             <p>Select slack integration</p>
             <Dropdown
@@ -114,7 +116,7 @@ const SlackIntegrationModal = ({
         >
           Connect Slack
         </Button>
-        {channels?.length && (
+        {!!channels?.length && (
           <>
             <p>Select channel</p>
             <Dropdown
