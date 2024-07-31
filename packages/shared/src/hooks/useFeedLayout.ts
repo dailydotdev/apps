@@ -11,7 +11,7 @@ import {
 import { AllFeedPages, OtherFeedPage } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import { isNullOrUndefined } from '../lib/func';
-import useSearchResultsLayout from './search/useSearchResultsLayout';
+import { useSearchResultsLayout } from './search/useSearchResultsLayout';
 
 interface UseFeedLayoutReturn {
   shouldUseListFeedLayout: boolean;
