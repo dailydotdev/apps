@@ -1,9 +1,11 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import { useSummaryActivation } from '../../hooks/experiments';
 import { Loader } from '../Loader';
 import { MagicIcon } from '../icons';
 import { ButtonIconPosition, ButtonVariant } from '../buttons/common';
 import { Button, ButtonColor } from '../buttons/Button';
+import { useIsLightTheme } from '../../hooks/utils';
 
 interface PostSummaryButtonProps {
   summary?: string;
@@ -12,6 +14,7 @@ interface PostSummaryButtonProps {
 export function PostSummaryButton({
   summary,
 }: PostSummaryButtonProps): ReactElement {
+  const isLight = useIsLightTheme();
   const { shouldShowOverlay, isLoading, onClickSummary } = useSummaryActivation(
     { summary },
   );
@@ -22,7 +25,12 @@ export function PostSummaryButton({
 
   return (
     <>
-      <div className="absolute inset-0 bg-gradient-to-t from-background-default from-60% to-overlay-primary-pepper" />
+      <div
+        className={classNames(
+          'absolute inset-0 bg-gradient-to-t from-background-default from-60%',
+          isLight ? 'to-overlay-primary-white' : 'to-overlay-primary-pepper',
+        )}
+      />
       <Button
         icon={isLoading ? <Loader /> : <MagicIcon secondary />}
         iconPosition={ButtonIconPosition.Right}
