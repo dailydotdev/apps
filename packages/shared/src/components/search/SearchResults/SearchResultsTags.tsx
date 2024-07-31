@@ -16,7 +16,7 @@ export const SearchResultsTags = (
   const { items = [], isLoading, onTagClick } = props;
   return (
     <WidgetCard heading="Related tags">
-      {!!items.length && (
+      {!!items?.length && (
         <div className="flex flex-wrap gap-3" role="list">
           {items.map((tag) => (
             <TagLink

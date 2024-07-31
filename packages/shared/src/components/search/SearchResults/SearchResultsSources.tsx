@@ -27,7 +27,7 @@ export const SearchResultsSources = (
 
   return (
     <WidgetCard heading="Related sources">
-      {!!sources.length && (
+      {!!sources?.length && (
         <ul className="flex flex-col gap-4">
           {sources.map((source) => (
             <li

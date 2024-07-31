@@ -72,18 +72,21 @@ export const UserProfileFeedPages = new Set([
   OtherFeedPage.UserPosts,
 ]);
 
+interface GetFeedPageLayoutComponentProps
+  extends Pick<
+    UseFeedLayoutReturn,
+    'shouldUseCommentFeedLayout' | 'shouldUseListMode'
+  > {
+  shouldUseListFeedLayoutOnMobileTablet: boolean;
+  isSearchResultsUpgrade: boolean;
+}
+
 const getFeedPageLayoutComponent = ({
   shouldUseListFeedLayoutOnMobileTablet,
   shouldUseCommentFeedLayout,
   shouldUseListMode,
   isSearchResultsUpgrade,
-}: Pick<
-  UseFeedLayoutReturn,
-  'shouldUseCommentFeedLayout' | 'shouldUseListMode'
-> & {
-  shouldUseListFeedLayoutOnMobileTablet: boolean;
-  isSearchResultsUpgrade: boolean;
-}): UseFeedLayoutReturn['FeedPageLayoutComponent'] => {
+}: GetFeedPageLayoutComponentProps): UseFeedLayoutReturn['FeedPageLayoutComponent'] => {
   if (shouldUseCommentFeedLayout) {
     return CommentFeedPage;
   }

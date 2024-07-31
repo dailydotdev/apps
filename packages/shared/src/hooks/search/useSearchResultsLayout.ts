@@ -11,15 +11,17 @@ interface SearchResultsLayout {
 export const useSearchResultsLayout = (): SearchResultsLayout => {
   const { feedName } = useActiveFeedNameContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const shouldShowNewLayout = !!isLaptop && feedName === SharedFeedPage.Search;
+
   const { value: isSearchUpgradeExperiment, isLoading } = useConditionalFeature(
     {
       feature: feature.searchResultsUpgrade,
-      shouldEvaluate: !!isLaptop && feedName === SharedFeedPage.Search,
+      shouldEvaluate: shouldShowNewLayout,
     },
   );
 
   const isSearchResultsUpgrade =
-    !isLoading && isSearchUpgradeExperiment && isLaptop;
+    !isLoading && isSearchUpgradeExperiment && shouldShowNewLayout;
 
   return {
     isSearchResultsUpgrade,
