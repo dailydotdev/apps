@@ -1,9 +1,4 @@
-import React, {
-  PropsWithChildren,
-  ReactElement,
-  useContext,
-  useMemo,
-} from 'react';
+import React, { PropsWithChildren, ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { PageWidgets } from '../../utilities';
@@ -15,16 +10,13 @@ import {
 } from '../SearchPanel';
 import { SearchProviderEnum, SearchSuggestion } from '../../../graphql/search';
 import { useSearchResultsLayout } from '../../../hooks/search/useSearchResultsLayout';
-import { ActiveFeedContext } from '../../../contexts';
-import { FeedItemType } from '../../cards/common';
-import { FeedItem, PostItem } from '../../../hooks/useFeed';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
 import { webappUrl } from '../../../lib/constants';
 import { SearchResultsTags } from './SearchResultsTags';
 import { SearchResultsSources } from './SearchResultsSources';
-import { Source } from '../../../graphql/sources';
 import { useFeedLayout } from '../../../hooks';
+import { useSearchProviderSuggestions } from '../../../hooks/search';
 
 type SearchResultsLayoutProps = PropsWithChildren;
 
@@ -33,10 +25,6 @@ const AICta = {
   Label: providerToLabelTextMap[SearchProviderEnum.Chat],
 };
 
-function isItemPost(item: FeedItem): item is PostItem {
-  return 'post' in item && item.type === FeedItemType.Post;
-}
-
 export const SearchResultsLayout = (
   props: SearchResultsLayoutProps,
 ): ReactElement => {
@@ -44,30 +32,27 @@ export const SearchResultsLayout = (
 
   const { isListMode } = useFeedLayout();
   const { isSearchResultsUpgrade } = useSearchResultsLayout();
-  const { items = [] } = useContext(ActiveFeedContext);
   const {
     query: { q: query },
     push,
   } = useRouter();
   const { logEvent } = useLogContext();
 
-  const postItems = items.filter(isItemPost);
+  const { isLoading: isTagsLoading, suggestions: suggestedTags } =
+    useSearchProviderSuggestions({
+      query: `${query}`,
+      provider: SearchProviderEnum.Tags,
+      limit: 10,
+    });
+  const tags = suggestedTags?.hits?.map(({ title }) => title) ?? [];
 
-  const tags = useMemo(
-    () => [...new Set(postItems.flatMap((item) => item.post.tags))],
-    [postItems],
-  );
-
-  const sources = useMemo(() => {
-    const ids = new Set<string>();
-    return postItems.reduce((acc: Source[], item) => {
-      if (ids.has(item.post.source.id)) {
-        return acc;
-      }
-      ids.add(item.post.source.id);
-      return [...acc, item.post.source];
-    }, []);
-  }, [postItems]);
+  const { isLoading: isSourcesLoading, suggestions: suggestedSources } =
+    useSearchProviderSuggestions({
+      query: `${query}`,
+      provider: SearchProviderEnum.Sources,
+      limit: 10,
+    });
+  const sources = suggestedSources?.hits ?? [];
 
   const onTagClick = (suggestion: SearchSuggestion) => {
     const tag = suggestion.id || suggestion.title.toLowerCase();
@@ -130,13 +115,13 @@ export const SearchResultsLayout = (
           </SearchProviderButton>
 
           <SearchResultsTags
-            isLoading={!items.length}
+            isLoading={isTagsLoading}
             items={tags}
             onTagClick={onTagClick}
           />
 
           <SearchResultsSources
-            isLoading={!items.length}
+            isLoading={isSourcesLoading}
             items={sources}
             onSourceClick={(source) => {
               logEvent({

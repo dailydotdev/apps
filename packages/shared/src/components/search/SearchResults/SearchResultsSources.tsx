@@ -1,11 +1,12 @@
 import React, { ReactElement } from 'react';
-import { Source } from '../../../graphql/sources';
+import { Source, SourceType } from '../../../graphql/sources';
 import { WidgetCard } from '../../widgets/WidgetCard';
 import { UserHighlight, UserType } from '../../widgets/PostUsersHighlights';
 import { ListItemPlaceholder } from '../../widgets/ListItemPlaceholder';
+import { SearchSuggestion } from '../../../graphql/search';
 
 interface SearchResultsSourcesProps {
-  items: Source[];
+  items: SearchSuggestion[];
   isLoading: boolean;
   onSourceClick: (source: Source) => void;
 }
@@ -14,11 +15,21 @@ export const SearchResultsSources = (
   props: SearchResultsSourcesProps,
 ): ReactElement => {
   const { items, isLoading, onSourceClick } = props;
+  const sources = items.map(({ id, image, title }) => ({
+    id,
+    name: title,
+    image,
+    handle: id,
+    permalink: `/sources/${id}`,
+    type: SourceType.Machine,
+    public: true,
+  }));
+
   return (
     <WidgetCard heading="Related sources">
-      {!!items.length && (
+      {!!sources.length && (
         <ul className="flex flex-col gap-4">
-          {items.map((source) => (
+          {sources.map((source) => (
             <li
               key={source.id}
               onClickCapture={() => {
