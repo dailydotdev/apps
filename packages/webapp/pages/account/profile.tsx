@@ -178,7 +178,7 @@ const AccountProfilePage = (): ReactElement => {
           <ImageInput
             id={coverId}
             className={{
-              root: 'absolute left-0 top-0 flex w-full',
+              root: '!absolute left-0 top-0 flex w-full',
               container:
                 'border-0 bg-background-subtle hover:bg-accent-pepper-subtlest',
               img: 'object-cover',

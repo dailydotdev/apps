@@ -111,7 +111,7 @@ function ImageInput({
   const onError = () => setImage(fallbackImage);
 
   return (
-    <div className={classNames(className?.root || 'relative z-1 flex w-min')}>
+    <div className={classNames(className?.root, 'relative z-1 flex w-min')}>
       <button
         type="button"
         onClick={onClick}
@@ -162,6 +162,7 @@ function ImageInput({
       </button>
       {image && closeable && (
         <CloseButton
+          title="Remove image"
           size={ButtonSize.Small}
           variant={ButtonVariant.Primary}
           className="absolute -right-2 -top-2 !shadow-2"
