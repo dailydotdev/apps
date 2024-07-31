@@ -11,7 +11,7 @@ import {
 import { AllFeedPages, OtherFeedPage } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import { isNullOrUndefined } from '../lib/func';
-import { useSearchResultsLayout } from './search/useSearchResultsLayout';
+import useSearchResultsLayout from './search/useSearchResultsLayout';
 
 interface UseFeedLayoutReturn {
   shouldUseListFeedLayout: boolean;
@@ -76,17 +76,19 @@ const getFeedPageLayoutComponent = ({
   shouldUseListFeedLayoutOnMobileTablet,
   shouldUseCommentFeedLayout,
   shouldUseListMode,
+  isSearchResultsUpgrade,
 }: Pick<
   UseFeedLayoutReturn,
   'shouldUseCommentFeedLayout' | 'shouldUseListMode'
 > & {
   shouldUseListFeedLayoutOnMobileTablet: boolean;
+  isSearchResultsUpgrade: boolean;
 }): UseFeedLayoutReturn['FeedPageLayoutComponent'] => {
   if (shouldUseCommentFeedLayout) {
     return CommentFeedPage;
   }
 
-  if (shouldUseListMode) {
+  if (shouldUseListMode && !isSearchResultsUpgrade) {
     return FeedPageLayoutList;
   }
 
@@ -109,10 +111,9 @@ export const useFeedLayout = ({
     feedName as UserProfileFeedType,
   );
 
-  const { isSearchResultsUpgrade } = useSearchResultsLayout();
-  const isFeedIncludedInListLayout =
-    FeedLayoutMobileFeedPages.has(feedName as FeedPagesWithMobileLayoutType) ||
-    (isSearchResultsUpgrade && feedName === SharedFeedPage.Search);
+  const isFeedIncludedInListLayout = FeedLayoutMobileFeedPages.has(
+    feedName as FeedPagesWithMobileLayoutType,
+  );
 
   const shouldUseListFeedLayoutOnMobileTablet =
     !isLaptop && isFeedIncludedInListLayout;
@@ -128,10 +129,12 @@ export const useFeedLayout = ({
 
   const shouldUseCommentFeedLayout = feedName === SharedFeedPage.Discussed;
 
+  const { isSearchResultsUpgrade } = useSearchResultsLayout();
   const FeedPageLayoutComponent = getFeedPageLayoutComponent({
     shouldUseListMode,
     shouldUseListFeedLayoutOnMobileTablet,
     shouldUseCommentFeedLayout,
+    isSearchResultsUpgrade,
   });
 
   return {

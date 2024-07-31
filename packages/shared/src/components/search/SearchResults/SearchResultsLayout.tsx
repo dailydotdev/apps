@@ -5,6 +5,7 @@ import React, {
   useMemo,
 } from 'react';
 import { useRouter } from 'next/router';
+import classNames from 'classnames';
 import { PageWidgets } from '../../utilities';
 import { StraightArrowIcon } from '../../icons';
 import {
@@ -23,6 +24,7 @@ import { webappUrl } from '../../../lib/constants';
 import { SearchResultsTags } from './SearchResultsTags';
 import { SearchResultsSources } from './SearchResultsSources';
 import { Source } from '../../../graphql/sources';
+import { useFeedLayout } from '../../../hooks';
 
 type SearchResultsLayoutProps = PropsWithChildren;
 
@@ -40,6 +42,7 @@ export const SearchResultsLayout = (
 ): ReactElement => {
   const { children } = props;
 
+  const { isListMode } = useFeedLayout();
   const { isSearchResultsUpgrade } = useSearchResultsLayout();
   const { items = [] } = useContext(ActiveFeedContext);
   const {
@@ -94,7 +97,15 @@ export const SearchResultsLayout = (
           <h2 className="px-4 py-4 font-bold text-text-primary typo-body">
             Related posts
           </h2>
-          <div role="list" className="[&>article]:rounded-none">
+          <div
+            role="list"
+            className={classNames(
+              'mt-2.5',
+              isListMode
+                ? 'flex flex-col [&>article]:rounded-none'
+                : 'grid w-3/4 grid-cols-1 gap-8 px-4 laptopL:w-96 laptopL:grid-cols-2',
+            )}
+          >
             {children}
           </div>
         </div>
