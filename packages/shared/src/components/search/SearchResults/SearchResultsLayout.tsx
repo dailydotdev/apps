@@ -103,7 +103,7 @@ export const SearchResultsLayout = (
               'mt-2.5',
               isListMode
                 ? 'flex flex-col [&>article]:rounded-none'
-                : 'grid w-3/4 grid-cols-1 gap-8 px-4 laptopL:w-96 laptopL:grid-cols-2',
+                : 'grid w-96 grid-cols-1 gap-8 px-4 laptopL:w-auto laptopL:grid-cols-2',
             )}
           >
             {children}
