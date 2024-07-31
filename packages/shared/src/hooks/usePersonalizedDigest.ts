@@ -8,7 +8,7 @@ import {
   UserPersonalizedDigestSubscribe,
   UserPersonalizedDigestType,
 } from '../graphql/users';
-import { RequestKey, generateQueryKey } from '../lib/query';
+import { RequestKey, StaleTime, generateQueryKey } from '../lib/query';
 import { useAuthContext } from '../contexts/AuthContext';
 import { ApiError, getApiError, gqlClient } from '../graphql/common';
 
@@ -60,6 +60,7 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
     },
     {
       enabled: isLoggedIn,
+      staleTime: StaleTime.Default,
     },
   );
 
