@@ -108,6 +108,7 @@ function EditPost(): ReactElement {
     >
       <NextSeo {...seo} noindex nofollow />
       <WritePage
+        isEdit
         isLoading={!isReady || isLoading || !isDraftReady}
         isForbidden={!isVerified || !squad || !canEdit}
       >
