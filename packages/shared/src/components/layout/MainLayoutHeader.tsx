@@ -6,7 +6,7 @@ import LoginButton from '../LoginButton';
 import ProfileButton from '../profile/ProfileButton';
 import HeaderLogo from './HeaderLogo';
 import { CreatePostButton } from '../post/write';
-import { useConditionalFeature, useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks';
 import { useReadingStreak } from '../../hooks/streaks';
 import { LogoPosition } from '../Logo';
 import NotificationsBell from '../notifications/NotificationsBell';
@@ -15,7 +15,6 @@ import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useActiveFeedNameContext } from '../../contexts';
 import { useFeedName } from '../../hooks/feed/useFeedName';
-import { feature } from '../../lib/featureManagement';
 import FeedNav from '../feeds/FeedNav';
 
 export interface MainLayoutHeaderProps {
@@ -47,11 +46,7 @@ function MainLayoutHeader({
     feedName,
   });
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { value: mobileExploreTab } = useConditionalFeature({
-    feature: feature.mobileExploreTab,
-    shouldEvaluate: !isLaptop,
-  });
-  const isSearchPage = isSearch || (isAnyExplore && mobileExploreTab);
+  const isSearchPage = isSearch || isAnyExplore;
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
 
@@ -89,11 +84,8 @@ function MainLayoutHeader({
           className={{
             container: classNames(
               'left-0 top-0 z-header mr-auto items-center py-3 tablet:left-16 laptop:left-0 laptopL:mx-auto laptopL:w-full',
-              mobileExploreTab && isSearchPage
-                ? 'tablet:relative tablet:!left-0'
-                : undefined,
               isSearchPage
-                ? 'relative right-0 tablet:absolute laptop:relative laptop:top-0'
+                ? 'relative right-0 tablet:!left-0 laptop:top-0'
                 : 'hidden laptop:flex',
               hasBanner && 'tablet:top-18',
             ),
@@ -101,11 +93,11 @@ function MainLayoutHeader({
           }}
         />
       ),
-    [loadedSettings, isLoggedIn, mobileExploreTab, isSearchPage, hasBanner],
+    [loadedSettings, isLoggedIn, isSearchPage, hasBanner],
   );
 
   if (loadedSettings && !isLaptop) {
-    if (mobileExploreTab && isSearchPage) {
+    if (isSearchPage) {
       return (
         <div className="sticky top-0 z-header w-full bg-background-default tablet:pl-16">
           <RenderSearchPanel />
