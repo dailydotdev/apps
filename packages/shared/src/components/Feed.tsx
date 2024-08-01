@@ -159,7 +159,6 @@ export default function Feed<T>({
 
   const { isSearchResultsUpgrade, isLoading: isSearchResultUpgradeLoading } =
     useSearchResultsLayout();
-  console.log('ready', isSearchResultsUpgrade, isSearchResultUpgradeLoading);
 
   const {
     items,

@@ -348,6 +348,7 @@ export default function MainFeedLayout({
     setSelectedAlgo,
     router.pathname,
     isSearchResultsUpgrade,
+    isSearchResultUpgradeLoading,
     search,
   ]);
 
