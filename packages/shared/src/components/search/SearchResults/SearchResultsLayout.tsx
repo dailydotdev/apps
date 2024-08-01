@@ -46,6 +46,7 @@ export const SearchResultsLayout = (
       query: `${query}`,
       provider: SearchProviderEnum.Tags,
       limit: 10,
+      minQueryLength: 1,
     });
   const tags = suggestedTags?.hits?.map(({ id }) => id) ?? [];
 
@@ -54,6 +55,7 @@ export const SearchResultsLayout = (
       query: `${query}`,
       provider: SearchProviderEnum.Sources,
       limit: 10,
+      minQueryLength: 1,
     });
   const sources = suggestedSources?.hits ?? [];
 
