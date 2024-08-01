@@ -28,7 +28,6 @@ const feature = {
   onboardingChecklist: new Feature('onboarding_checklist', false),
   bookmarkReminder: new Feature('bookmark_reminder', false),
   animatedUpvote: new Feature('animated_upvote', false),
-  mobileExploreTab: new Feature('mobile_explore_tab', false),
   authorImage: new Feature('author_image', false),
   onboardingContentType: new Feature('onboarding_content_type', false),
   sourceNotifyButton: new Feature('source_notify_button', false),

@@ -3,15 +3,13 @@ import { useMemo } from 'react';
 import { AllFeedPages, OtherFeedPage } from '../lib/query';
 import { SharedFeedPage } from '../components/utilities';
 import { useViewSize, ViewSize } from './useViewSize';
-import { feature } from '../lib/featureManagement';
-import { useConditionalFeature } from './useConditionalFeature';
 
 export interface UseActiveNav {
   home: boolean;
   profile: boolean;
   bookmarks: boolean;
   notifications: boolean;
-  search: boolean;
+  explore: boolean;
   squads: boolean;
 }
 
@@ -19,10 +17,6 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
   const router = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { value: mobileExploreTab } = useConditionalFeature({
-    feature: feature.mobileExploreTab,
-    shouldEvaluate: !isLaptop,
-  });
   const isHomeActive = useMemo(() => {
     const homePages = [
       SharedFeedPage.MyFeed,
@@ -36,14 +30,6 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
       OtherFeedPage.Sources,
       OtherFeedPage.Leaderboard,
     ];
-    if (!mobileExploreTab) {
-      homePages.push(
-        OtherFeedPage.Explore,
-        OtherFeedPage.ExploreLatest,
-        OtherFeedPage.ExploreUpvoted,
-        OtherFeedPage.ExploreDiscussed,
-      );
-    }
 
     if (!isLaptop) {
       homePages.push(OtherFeedPage.Bookmarks);
@@ -57,20 +43,18 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
     }
 
     return router?.route?.startsWith('/posts/[id]'); // if post page the [id] was expected
-  }, [activeFeed, isLaptop, isMobile, mobileExploreTab, router?.route]);
+  }, [activeFeed, isLaptop, isMobile, router?.route]);
 
-  const searchPages: AllFeedPages[] = [SharedFeedPage.Search];
-  if (mobileExploreTab) {
-    searchPages.push(
-      OtherFeedPage.Explore,
-      OtherFeedPage.ExploreLatest,
-      OtherFeedPage.ExploreUpvoted,
-      OtherFeedPage.ExploreDiscussed,
-    );
-  }
+  const explorePages: AllFeedPages[] = [
+    SharedFeedPage.Search,
+    OtherFeedPage.Explore,
+    OtherFeedPage.ExploreLatest,
+    OtherFeedPage.ExploreUpvoted,
+    OtherFeedPage.ExploreDiscussed,
+  ];
 
   const isProfileActive = router.pathname?.includes('/[userId]');
-  const isSearchActive = searchPages.includes(activeFeed);
+  const isExploreActive = explorePages.includes(activeFeed);
   const isBookmarksActive = activeFeed === OtherFeedPage.Bookmarks;
   const isNotificationsActive = activeFeed === OtherFeedPage.Notifications;
   const isSquadActive = activeFeed === OtherFeedPage.Squad;
@@ -80,7 +64,7 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
     profile: isProfileActive,
     bookmarks: isBookmarksActive,
     notifications: isNotificationsActive,
-    search: isSearchActive,
+    explore: isExploreActive,
     squads: isSquadActive,
   };
 }
