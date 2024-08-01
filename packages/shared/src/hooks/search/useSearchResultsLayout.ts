@@ -3,6 +3,7 @@ import { useConditionalFeature } from '../useConditionalFeature';
 import { feature } from '../../lib/featureManagement';
 import { SharedFeedPage } from '../../components/utilities';
 import { useActiveFeedNameContext } from '../../contexts';
+import { isTesting } from '../../lib/constants';
 
 interface SearchResultsLayout {
   isSearchResultsUpgrade: boolean;
@@ -26,7 +27,7 @@ export const useSearchResultsLayout = (): SearchResultsLayout => {
 
   return {
     isSearchResultsUpgrade,
-    isLoading: shouldShowNewLayout && isLoading,
+    isLoading: !isTesting && isLoading,
   };
 };
 
