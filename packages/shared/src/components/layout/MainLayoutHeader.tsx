@@ -78,8 +78,7 @@ function MainLayoutHeader({
 
   const RenderSearchPanel = useCallback(
     () =>
-      loadedSettings &&
-      isLoggedIn && (
+      loadedSettings && (
         <SearchPanel
           className={{
             container: classNames(
@@ -93,7 +92,7 @@ function MainLayoutHeader({
           }}
         />
       ),
-    [loadedSettings, isLoggedIn, isSearchPage, hasBanner],
+    [loadedSettings, isSearchPage, hasBanner],
   );
 
   if (loadedSettings && !isLaptop) {
