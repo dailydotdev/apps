@@ -294,7 +294,7 @@ export default function Feed<T>({
     [openSharePost, virtualizedNumCards],
   );
 
-  if (!loadedSettings) {
+  if (!loadedSettings || isSearchResultUpgradeLoading) {
     return <></>;
   }
 

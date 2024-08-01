@@ -76,10 +76,10 @@ const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
 
 jest.mock('../hooks/search/useSearchResultsLayout', () => ({
-  useSearchResultsLayout: jest.fn().mockReturnValue({
+  useSearchResultsLayout: jest.fn().mockImplementation(() => ({
     isSearchResultsUpgrade: false,
     isLoading: false,
-  }),
+  })),
 }));
 
 jest.mock('../hooks/useBookmarkProvider', () => ({
