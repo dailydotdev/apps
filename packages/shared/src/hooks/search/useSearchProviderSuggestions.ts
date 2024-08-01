@@ -14,7 +14,6 @@ import {
 
 export type UseSearchProviderSuggestionsProps = {
   limit?: number;
-  minQueryLength?: number;
 } & UseSearchProviderProps;
 
 export type UseSearchProviderSuggestions = {
@@ -26,7 +25,6 @@ export const useSearchProviderSuggestions = ({
   provider,
   query,
   limit = defaultSearchSuggestionsLimit,
-  minQueryLength = minSearchQueryLength,
 }: UseSearchProviderSuggestionsProps): UseSearchProviderSuggestions => {
   const { user } = useAuthContext();
   const { getSuggestions } = useSearchProvider();
@@ -41,7 +39,7 @@ export const useSearchProviderSuggestions = ({
       return getSuggestions({ provider, query, limit });
     },
     {
-      enabled: query?.length >= minQueryLength,
+      enabled: query?.length >= minSearchQueryLength,
       staleTime: StaleTime.Default,
       select: useCallback(
         (currentData) => {

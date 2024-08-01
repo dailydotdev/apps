@@ -342,7 +342,7 @@ export type SearchSuggestionResult = {
   hits: SearchSuggestion[];
 };
 
-export const minSearchQueryLength = 3;
+export const minSearchQueryLength = 1;
 
 export const sanitizeSearchTitleMatch = /<(\/?)strong>/g;
 
