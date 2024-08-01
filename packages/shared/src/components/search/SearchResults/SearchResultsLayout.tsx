@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, ReactElement } from 'react';
+import React, { PropsWithChildren, ReactElement, useContext } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { PageWidgets } from '../../utilities';
@@ -17,6 +17,8 @@ import { SearchResultsTags } from './SearchResultsTags';
 import { SearchResultsSources } from './SearchResultsSources';
 import { useFeedLayout } from '../../../hooks';
 import { useSearchProviderSuggestions } from '../../../hooks/search';
+import SettingsContext from '../../../contexts/SettingsContext';
+import { gapClass } from '../../feeds/FeedContainer';
 
 type SearchResultsLayoutProps = PropsWithChildren;
 
@@ -31,6 +33,7 @@ export const SearchResultsLayout = (
   const { children } = props;
 
   const { isListMode } = useFeedLayout();
+  const { spaciness } = useContext(SettingsContext);
   const { isSearchResultsUpgrade } = useSearchResultsLayout();
   const {
     query: { q: query },
@@ -44,7 +47,7 @@ export const SearchResultsLayout = (
       provider: SearchProviderEnum.Tags,
       limit: 10,
     });
-  const tags = suggestedTags?.hits?.map(({ title }) => title) ?? [];
+  const tags = suggestedTags?.hits?.map(({ id }) => id) ?? [];
 
   const { isLoading: isSourcesLoading, suggestions: suggestedSources } =
     useSearchProviderSuggestions({
@@ -86,9 +89,14 @@ export const SearchResultsLayout = (
             role="list"
             className={classNames(
               'mt-2.5',
+              gapClass({
+                isList: isListMode,
+                isFeedLayoutList: false,
+                space: spaciness,
+              }),
               isListMode
-                ? 'flex flex-col [&>article]:rounded-none'
-                : 'grid w-96 grid-cols-1 gap-8 px-4 laptopL:w-auto laptopL:grid-cols-2',
+                ? `flex flex-col [&>article]:rounded-none`
+                : `grid w-96 grid-cols-1 px-4 laptopL:w-auto laptopL:grid-cols-2`,
             )}
           >
             {children}
