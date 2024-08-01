@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { Origin } from '../../lib/log';
@@ -28,7 +28,7 @@ export const SquadCommentJoinBanner = ({
   post,
 }: SquadCommentJoinBannerProps): ReactElement => {
   const queryClient = useQueryClient();
-  const isSquadMember = !!squad?.currentMember;
+  const [isSquadMember, setIsSquadMember] = useState(!!squad?.currentMember);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { displayToast } = useToastNotification();
   const [isJoinSquadBannerDismissed, setJoinSquadBannerDismissed] =
@@ -42,7 +42,7 @@ export const SquadCommentJoinBanner = ({
     {
       onSuccess: () => {
         displayToast(`🙌 You joined the Squad ${squad.name}`);
-
+        setIsSquadMember(true);
         if (post?.id) {
           queryClient.invalidateQueries(['post', post.id]);
         }
