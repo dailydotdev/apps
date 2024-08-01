@@ -19,12 +19,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { AuthTriggers } from '../../../lib/auth';
 import { SearchPanelContext } from './SearchPanelContext';
-import {
-  ViewSize,
-  useEventListener,
-  useViewSize,
-  useConditionalFeature,
-} from '../../../hooks';
+import { ViewSize, useEventListener, useViewSize } from '../../../hooks';
 import {
   isAppleDevice,
   isNullOrUndefined,
@@ -38,7 +33,6 @@ import { useSearchProvider } from '../../../hooks/search';
 import { defaultSearchProvider, providerToLabelTextMap } from './common';
 import { Button, ButtonSize } from '../../buttons/Button';
 import { useSearchPanelAction } from './useSearchPanelAction';
-import { feature } from '../../../lib/featureManagement';
 import { webappUrl } from '../../../lib/constants';
 
 export type SearchPanelInputClassName = {
@@ -82,10 +76,6 @@ export const SearchPanelInput = ({
     useInputField(value, valueChanged);
   const { isLoggedIn, showLogin } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { value: mobileExploreTab } = useConditionalFeature({
-    feature: feature.mobileExploreTab,
-    shouldEvaluate: !isLaptop,
-  });
 
   const onInputClick = () => {
     if (!isLoggedIn) {
@@ -244,13 +234,8 @@ export const SearchPanelInput = ({
                 title="Clear query"
                 onClick={(event: MouseEvent): void => {
                   event.stopPropagation();
-
-                  if (mobileExploreTab) {
-                    router.push(`${webappUrl}posts`);
-                  }
-
+                  router.push(`${webappUrl}posts`);
                   setInput('');
-
                   inputRef.current?.focus();
                 }}
                 icon={<ClearIcon secondary />}

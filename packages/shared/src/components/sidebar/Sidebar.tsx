@@ -28,13 +28,7 @@ import { getFeedName } from '../../lib/feed';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import Logo, { LogoPosition } from '../Logo';
-import {
-  useActions,
-  useConditionalFeature,
-  useFeeds,
-  useViewSize,
-  ViewSize,
-} from '../../hooks';
+import { useActions, useFeeds, useViewSize, ViewSize } from '../../hooks';
 import {
   Button,
   ButtonIconPosition,
@@ -58,7 +52,6 @@ import { webappUrl } from '../../lib/constants';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { cloudinary } from '../../lib/image';
 import { ActionType } from '../../graphql/actions';
-import { feature } from '../../lib/featureManagement';
 
 const SidebarOnboardingChecklistCard = dynamic(
   () =>
@@ -92,10 +85,6 @@ export default function Sidebar({
   const isTablet = useViewSize(ViewSize.Tablet);
   const featureTheme = useFeatureTheme();
   const { checkHasCompleted, isActionsFetched } = useActions();
-  const { value: mobileExploreTab } = useConditionalFeature({
-    feature: feature.mobileExploreTab,
-    shouldEvaluate: !isLaptop,
-  });
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
     hasFiltered: !alerts?.filter,
@@ -163,22 +152,18 @@ export default function Sidebar({
           </Button>
         </Link>
 
-        <Link
-          href={mobileExploreTab ? `${webappUrl}posts` : `${webappUrl}search`}
-          prefetch={false}
-          passHref
-        >
+        <Link href={`${webappUrl}posts`} prefetch={false} passHref>
           <Button
             {...buttonProps}
             tag="a"
             icon={
-              <AiIcon secondary={activeNav.search} size={IconSize.Medium} />
+              <AiIcon secondary={activeNav.explore} size={IconSize.Medium} />
             }
             iconPosition={ButtonIconPosition.Top}
             variant={ButtonVariant.Option}
-            pressed={activeNav.search}
+            pressed={activeNav.explore}
           >
-            {mobileExploreTab ? 'Explore' : 'Search'}
+            Explore
           </Button>
         </Link>
 
