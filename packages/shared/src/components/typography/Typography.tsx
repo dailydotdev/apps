@@ -1,8 +1,8 @@
 import React, { HTMLAttributes, ReactElement, RefAttributes } from 'react';
 import classed from '../../lib/classed';
 
-export enum TypographyElement {
-  TIME = 'time',
+export enum TypographyTag {
+  Time = 'time',
   P = 'p',
   H1 = 'h1',
   H2 = 'h2',
@@ -11,6 +11,7 @@ export enum TypographyElement {
   H5 = 'h5',
   H6 = 'h6',
 }
+
 export enum TypographyType {
   Caption2 = 'typo-caption2',
   Caption1 = 'typo-caption1',
@@ -40,10 +41,11 @@ export enum TypographyColor {
   Link = 'text-text-link',
 }
 
-type AllowedTags = keyof Pick<JSX.IntrinsicElements, TypographyElement>;
+type AllowedTags = keyof Pick<JSX.IntrinsicElements, TypographyTag>;
 type AllowedElements = HTMLTimeElement | HTMLParagraphElement;
+
 export type TypographyProps<Tag extends AllowedTags> = {
-  element?: TypographyElement;
+  tag?: TypographyTag;
   type?: TypographyType;
   color?: TypographyColor;
   bold?: boolean;
@@ -52,7 +54,7 @@ export type TypographyProps<Tag extends AllowedTags> = {
   JSX.IntrinsicElements[Tag];
 
 export function Typography<TagName extends AllowedTags>({
-  element = TypographyElement.P,
+  tag = TypographyTag.P,
   type,
   color,
   bold = false,
@@ -60,6 +62,6 @@ export function Typography<TagName extends AllowedTags>({
   className,
   ...props
 }: TypographyProps<TagName>): ReactElement {
-  const Element = classed(element, className, type, bold && 'font-bold', color);
-  return <Element {...props}>{children}</Element>;
+  const Tag = classed(tag, className, type, bold && 'font-bold', color);
+  return <Tag {...props}>{children}</Tag>;
 }
