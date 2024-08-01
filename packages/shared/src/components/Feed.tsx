@@ -140,7 +140,8 @@ export default function Feed<T>({
   const { logEvent } = useContext(LogContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
-  const router = useRouter();
+  const { isFallback, query: routerQuery } = useRouter();
+
   const queryClient = useQueryClient();
   const { openNewTab, spaciness, loadedSettings } = useContext(SettingsContext);
   const { isListMode } = useFeedLayout();
@@ -149,8 +150,7 @@ export default function Feed<T>({
   const { shouldUseListFeedLayout } = useFeedLayout();
   const showAcquisitionForm =
     feedName === SharedFeedPage.MyFeed &&
-    (router.query?.[acquisitionKey] as string)?.toLocaleLowerCase() ===
-      'true' &&
+    (routerQuery?.[acquisitionKey] as string)?.toLocaleLowerCase() === 'true' &&
     !user?.acquisitionChannel;
   const adSpot = useFeature(feature.feedAdSpot);
   const { getMarketingCta } = useBoot();
@@ -294,7 +294,7 @@ export default function Feed<T>({
     [openSharePost, virtualizedNumCards],
   );
 
-  if (!loadedSettings || isSearchResultUpgradeLoading) {
+  if (!loadedSettings || isSearchResultUpgradeLoading || isFallback) {
     return <></>;
   }
 

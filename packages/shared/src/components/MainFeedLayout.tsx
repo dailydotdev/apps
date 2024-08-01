@@ -188,7 +188,8 @@ export default function MainFeedLayout({
     FeedPageLayoutComponent,
   } = useFeedLayout();
 
-  const { isSearchResultsUpgrade } = useSearchResultsLayout();
+  const { isSearchResultsUpgrade, isLoading: isSearchResultUpgradeLoading } =
+    useSearchResultsLayout();
 
   const config = useMemo(() => {
     if (!feedName) {
@@ -264,7 +265,7 @@ export default function MainFeedLayout({
         variables: { query: searchQuery, version: searchVersion },
         emptyScreen: (
           <>
-            {isSearchResultsUpgrade && search}
+            {isSearchResultsUpgrade && isSearchResultUpgradeLoading && search}
             <SearchEmptyScreen />
           </>
         ),
@@ -347,6 +348,7 @@ export default function MainFeedLayout({
     setSelectedAlgo,
     router.pathname,
     isSearchResultsUpgrade,
+    isSearchResultUpgradeLoading,
     search,
   ]);
 
