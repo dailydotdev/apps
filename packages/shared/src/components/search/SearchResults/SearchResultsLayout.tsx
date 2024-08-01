@@ -95,7 +95,7 @@ export const SearchResultsLayout = (
                 space: spaciness,
               }),
               isListMode
-                ? `flex flex-col [&>article]:rounded-none`
+                ? `flex flex-col`
                 : `grid w-96 grid-cols-1 px-4 laptopL:w-auto laptopL:grid-cols-2`,
             )}
           >
