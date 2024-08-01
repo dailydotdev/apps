@@ -15,11 +15,11 @@ export const SearchResultsSources = (
   props: SearchResultsSourcesProps,
 ): ReactElement => {
   const { items, isLoading, onSourceClick } = props;
-  const sources = items.map(({ id, image, title }) => ({
+  const sources = items.map(({ id, subtitle, image, title }) => ({
     id,
     name: title,
     image,
-    handle: id,
+    handle: subtitle,
     permalink: `/sources/${id}`,
     type: SourceType.Machine,
     public: true,

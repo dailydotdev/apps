@@ -6,6 +6,7 @@ import { useActiveFeedNameContext } from '../../contexts';
 
 interface SearchResultsLayout {
   isSearchResultsUpgrade: boolean;
+  isLoading: boolean;
 }
 
 export const useSearchResultsLayout = (): SearchResultsLayout => {
@@ -25,6 +26,7 @@ export const useSearchResultsLayout = (): SearchResultsLayout => {
 
   return {
     isSearchResultsUpgrade,
+    isLoading: shouldShowNewLayout && isLoading,
   };
 };
 
