@@ -5,12 +5,7 @@ import dynamic from 'next/dynamic';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { useActiveFeedNameContext } from '../../contexts';
 import useActiveNav from '../../hooks/useActiveNav';
-import {
-  useConditionalFeature,
-  useFeeds,
-  useViewSize,
-  ViewSize,
-} from '../../hooks';
+import { useFeeds, useViewSize, ViewSize } from '../../hooks';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import {
   algorithmsList,
@@ -27,12 +22,10 @@ import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
-import { feature } from '../../lib/featureManagement';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
 import { SharedFeedPage } from '../utilities';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { OtherFeedPage } from '../../lib/query';
 
 const OnboardingChecklistBar = dynamic(
   () =>
@@ -67,7 +60,6 @@ function FeedNav(): ReactElement {
   const { isSortableFeed } = useFeedName({ feedName });
   const { home: shouldRenderNav } = useActiveNav(feedName);
   const isMobile = useViewSize(ViewSize.MobileL);
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
     DEFAULT_ALGORITHM_INDEX,
@@ -76,10 +68,6 @@ function FeedNav(): ReactElement {
   );
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
-  const { value: mobileExploreTab } = useConditionalFeature({
-    feature: feature.mobileExploreTab,
-    shouldEvaluate: !isLaptop,
-  });
   const { feeds } = useFeeds();
 
   const urlToTab: Record<string, FeedNavTab> = useMemo(() => {
@@ -100,10 +88,6 @@ function FeedNav(): ReactElement {
       ...customFeeds,
     };
 
-    if (!mobileExploreTab) {
-      urls[`${webappUrl}${OtherFeedPage.Explore}`] = FeedNavTab.Explore;
-    }
-
     return {
       ...urls,
       [`${webappUrl}${SharedFeedPage.Discussed}`]: FeedNavTab.Discussions,
@@ -113,7 +97,7 @@ function FeedNav(): ReactElement {
       [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
       [`${webappUrl}history`]: FeedNavTab.History,
     };
-  }, [feeds?.edges, mobileExploreTab, router.query.slugOrId, router.pathname]);
+  }, [feeds?.edges, router.query.slugOrId, router.pathname]);
 
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;

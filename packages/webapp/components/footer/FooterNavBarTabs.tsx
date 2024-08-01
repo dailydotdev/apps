@@ -1,4 +1,4 @@
-import React, { isValidElement, ReactElement, ReactNode, useMemo } from 'react';
+import React, { isValidElement, ReactElement, ReactNode } from 'react';
 import {
   AiIcon,
   BellIcon,
@@ -12,8 +12,6 @@ import classNames from 'classnames';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { FooterNavBarContainerProps, FooterTab, getNavPath } from './common';
 import { FooterPlusButton } from './FooterPlusButton';
 import { FooterNavBarItem, FooterNavBarItemProps } from './FooterNavBarItem';
@@ -43,9 +41,9 @@ export const tabs: (FooterTab | ReactNode)[] = [
     ),
   },
   {
-    requiresLogin: true,
-    path: '/search',
-    title: 'Search',
+    requiresLogin: false,
+    path: '/posts',
+    title: 'Explore',
     icon: (active: boolean) => (
       <AiIcon secondary={active} size={IconSize.Medium} />
     ),
@@ -103,36 +101,15 @@ const Tab = ({ tab, isActive }: TabProps) => {
 export function FooterNavBarTabs({
   activeTab,
 }: FooterNavBarContainerProps): ReactElement {
-  const mobileExploreTab = useFeature(feature.mobileExploreTab);
-
-  const filteredTabs = useMemo(() => {
-    if (mobileExploreTab) {
-      if (!tabs.some((tab: FooterTab) => tab?.title === 'Explore')) {
-        tabs[1] = {
-          requiresLogin: false,
-          path: '/posts',
-          title: 'Explore',
-          icon: (active: boolean) => (
-            <AiIcon secondary={active} size={IconSize.Medium} />
-          ),
-        };
-      }
-    }
-    return tabs;
-  }, [mobileExploreTab]);
-
   return (
     <>
-      {filteredTabs.map((tab) => {
+      {tabs.map((tab) => {
         if (isValidElement(tab)) {
           return tab;
         }
 
         const current = tab as FooterTab;
-        const evalActiveTab =
-          mobileExploreTab && activeTab === 'Search' ? 'Explore' : activeTab;
-        const isActive = current.title === evalActiveTab;
-
+        const isActive = current.title === activeTab;
         return <Tab key={current.title} tab={current} isActive={isActive} />;
       })}
     </>
