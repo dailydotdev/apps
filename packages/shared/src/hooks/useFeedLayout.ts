@@ -11,6 +11,7 @@ import {
 import { AllFeedPages, OtherFeedPage } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import { isNullOrUndefined } from '../lib/func';
+import { useSearchResultsLayout } from './search/useSearchResultsLayout';
 
 interface UseFeedLayoutReturn {
   shouldUseListFeedLayout: boolean;
@@ -71,21 +72,26 @@ export const UserProfileFeedPages = new Set([
   OtherFeedPage.UserPosts,
 ]);
 
+interface GetFeedPageLayoutComponentProps
+  extends Pick<
+    UseFeedLayoutReturn,
+    'shouldUseCommentFeedLayout' | 'shouldUseListMode'
+  > {
+  shouldUseListFeedLayoutOnMobileTablet: boolean;
+  isSearchResultsUpgrade: boolean;
+}
+
 const getFeedPageLayoutComponent = ({
   shouldUseListFeedLayoutOnMobileTablet,
   shouldUseCommentFeedLayout,
   shouldUseListMode,
-}: Pick<
-  UseFeedLayoutReturn,
-  'shouldUseCommentFeedLayout' | 'shouldUseListMode'
-> & {
-  shouldUseListFeedLayoutOnMobileTablet: boolean;
-}): UseFeedLayoutReturn['FeedPageLayoutComponent'] => {
+  isSearchResultsUpgrade,
+}: GetFeedPageLayoutComponentProps): UseFeedLayoutReturn['FeedPageLayoutComponent'] => {
   if (shouldUseCommentFeedLayout) {
     return CommentFeedPage;
   }
 
-  if (shouldUseListMode) {
+  if (shouldUseListMode && !isSearchResultsUpgrade) {
     return FeedPageLayoutList;
   }
 
@@ -126,10 +132,12 @@ export const useFeedLayout = ({
 
   const shouldUseCommentFeedLayout = feedName === SharedFeedPage.Discussed;
 
+  const { isSearchResultsUpgrade } = useSearchResultsLayout();
   const FeedPageLayoutComponent = getFeedPageLayoutComponent({
     shouldUseListMode,
     shouldUseListFeedLayoutOnMobileTablet,
     shouldUseCommentFeedLayout,
+    isSearchResultsUpgrade,
   });
 
   return {
