@@ -56,7 +56,7 @@ const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
       />
       {!squad.currentMember && (
         <p className="mt-3 text-text-tertiary typo-callout">
-          Join Squad to see more posts from {squad.name}
+          Join the {squad.name} Squad to see more posts on your feed
         </p>
       )}
     </div>
