@@ -75,6 +75,13 @@ import { ActionType, COMPLETE_ACTION_MUTATION } from '../graphql/actions';
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
 
+jest.mock('../hooks/search/useSearchResultsLayout', () => ({
+  useSearchResultsLayout: jest.fn().mockReturnValue({
+    isSearchResultsUpgrade: false,
+    isLoading: false,
+  }),
+}));
+
 jest.mock('../hooks/useBookmarkProvider', () => ({
   __esModule: true,
   default: jest
