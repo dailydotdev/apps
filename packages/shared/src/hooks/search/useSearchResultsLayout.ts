@@ -27,7 +27,7 @@ export const useSearchResultsLayout = (): SearchResultsLayout => {
 
   return {
     isSearchResultsUpgrade,
-    isLoading: !isTesting && isLoading,
+    isLoading: !isTesting && shouldShowNewLayout && isLoading,
   };
 };
 
