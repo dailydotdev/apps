@@ -1,4 +1,4 @@
-import { isNullOrUndefined } from "./func";
+import { isNullOrUndefined } from './func';
 
 export enum DayOfWeek {
   Sunday = 0,
