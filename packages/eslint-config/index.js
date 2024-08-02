@@ -116,17 +116,17 @@ module.exports = {
       'toolbar',
       'top',
     ],
+    'no-restricted-imports': [
+      'error',
+      {
+        paths: [
+          {
+            name: 'date-fns',
+            importNames: ['isWeekend'],
+            message: 'Please import from src/common instead.',
+          },
+        ],
+      },
+    ]
   },
-  'no-restricted-imports': [
-    'error',
-    {
-      paths: [
-        {
-          name: 'date-fns',
-          importNames: ['isWeekend'],
-          message: 'Please import from src/common instead.',
-        },
-      ],
-    },
-  ]
 };
