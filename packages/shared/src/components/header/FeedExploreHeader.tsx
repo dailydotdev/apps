@@ -75,7 +75,7 @@ export function FeedExploreHeader({
   return (
     <div className={classNames('flex w-full flex-col', className.container)}>
       {showBreadcrumbs && (
-        <BreadCrumbs className="px-2">
+        <BreadCrumbs className="px-2 tablet:pt-4 laptop:pt-5">
           <HotIcon size={IconSize.XSmall} secondary /> Explore
         </BreadCrumbs>
       )}

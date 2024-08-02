@@ -361,7 +361,7 @@ export default function MainFeedLayout({
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
   const disableTopPadding =
-    shouldUseListFeedLayout || shouldUseCommentFeedLayout;
+    isFinder || shouldUseListFeedLayout || shouldUseCommentFeedLayout;
 
   const onTabChange = useCallback(
     (clickedTab: ExploreTabs) => {
