@@ -103,7 +103,7 @@ const SourcesPage = ({
   return (
     <>
       <NextSeo {...seo} />
-      <PageWrapperLayout>
+      <PageWrapperLayout className="py-6">
         <div className="flex justify-between">
           <BreadCrumbs>
             <SitesIcon size={IconSize.XSmall} secondary /> Sources
