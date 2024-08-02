@@ -1,4 +1,5 @@
 import React, { HTMLAttributes, ReactElement, RefAttributes } from 'react';
+import classNames from 'classnames';
 import classed from '../../lib/classed';
 
 export enum TypographyTag {
@@ -10,6 +11,7 @@ export enum TypographyTag {
   H4 = 'h4',
   H5 = 'h5',
   H6 = 'h6',
+  Span = 'span',
 }
 
 export enum TypographyType {
@@ -62,6 +64,9 @@ export function Typography<TagName extends AllowedTags>({
   className,
   ...props
 }: TypographyProps<TagName>): ReactElement {
-  const Tag = classed(tag, className, type, bold && 'font-bold', color);
+  const Tag = classed(
+    tag,
+    classNames(className, type, color, { 'font-bold': bold }),
+  );
   return <Tag {...props}>{children}</Tag>;
 }
