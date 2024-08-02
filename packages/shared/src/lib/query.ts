@@ -61,11 +61,11 @@ export type AllFeedPages = SharedFeedPage | OtherFeedPage;
 
 export type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
 
-export const generateQueryKey = <T = unknown>(
+export const generateQueryKey = (
   name: RequestKey | AllFeedPages,
   user?: Pick<LoggedUser, 'id'>,
-  ...additional: T[]
-): [RequestKey | AllFeedPages, string, ...T[]] => {
+  ...additional: unknown[]
+): [RequestKey | AllFeedPages, string, ...unknown[]] => {
   return [name, user?.id ?? 'anonymous', ...additional];
 };
 

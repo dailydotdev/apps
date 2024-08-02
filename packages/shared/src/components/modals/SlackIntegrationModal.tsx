@@ -55,7 +55,11 @@ const SlackIntegrationModal = ({
       integrationId: selectedIntegration?.id,
     }),
     async ({ queryKey }) => {
-      const [, , { integrationId }] = queryKey;
+      const [, , { integrationId }] = queryKey as [
+        unknown,
+        unknown,
+        { integrationId: string },
+      ];
       const result = await gqlClient.request<{
         slackChannels: {
           data: SlackChannels[];
