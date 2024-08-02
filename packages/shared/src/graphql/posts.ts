@@ -271,6 +271,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       updatedAt
       numCollectionSources
       slug
+      domain
     }
   }
   ${SOURCE_SHORT_INFO_FRAGMENT}
