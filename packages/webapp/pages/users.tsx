@@ -13,6 +13,7 @@ import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPl
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
+import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import { ListItem, TopList } from '../components/common';
@@ -118,7 +119,7 @@ const LeaderboardPage = ({
   return (
     <>
       <NextSeo {...seo} />
-      <main className="tablet:p-4 laptop:px-10">
+      <PageWrapperLayout>
         <div className="mb-6 hidden justify-between laptop:flex">
           <BreadCrumbs>
             <SquadIcon size={IconSize.XSmall} secondary /> Leaderboard
@@ -156,7 +157,7 @@ const LeaderboardPage = ({
             isLoading={isLoading}
           />
         </div>
-      </main>
+      </PageWrapperLayout>
     </>
   );
 };

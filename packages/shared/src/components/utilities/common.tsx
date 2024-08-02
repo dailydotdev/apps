@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import classed from '../../lib/classed';
 import styles from './utilities.module.css';
 import { ArrowIcon } from '../icons';
+import { pageMainClassNames } from '../layout/PageWrapperLayout';
 
 export enum Theme {
   Avocado = 'avocado',
@@ -96,12 +97,13 @@ export const BaseFeedPage = classed(
 
 export const FeedPage = classed(
   BaseFeedPage,
-  'pt-10 px-6 laptop:px-16',
+  pageMainClassNames,
   styles.feedPage,
 );
 export const FeedPageLayoutList = classed(
   BasePageContainer,
   pageContainerClassNames,
+  pageMainClassNames,
   'pt-10 !ml-auto !px-0 tablet:!max-w-full laptop:!w-full laptop:!max-w-[42.5rem]',
   styles.feedPage,
 );

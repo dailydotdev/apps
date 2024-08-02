@@ -17,6 +17,7 @@ import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
+import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { ListItem, TopList } from '../../components/common';
@@ -123,7 +124,7 @@ const TagsPage = ({
   return (
     <>
       <NextSeo {...seo} />
-      <main className="flex flex-col gap-4 p-0 tablet:px-10 tablet:py-6">
+      <PageWrapperLayout className="flex flex-col gap-4">
         <BreadCrumbs>
           <HashtagIcon size={IconSize.XSmall} secondary /> Tags
         </BreadCrumbs>
@@ -170,7 +171,7 @@ const TagsPage = ({
               );
             })}
         </div>
-      </main>
+      </PageWrapperLayout>
     </>
   );
 };
