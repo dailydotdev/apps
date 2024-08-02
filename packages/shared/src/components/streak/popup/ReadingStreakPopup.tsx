@@ -11,7 +11,6 @@ import {
   UserStreak,
 } from '../../../graphql/users';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { Weekends } from '../../../lib/dateFormat';
 import { useActions, useViewSize, ViewSize } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { Button, ButtonVariant } from '../../buttons/Button';
@@ -20,21 +19,23 @@ import StreakReminderSwitch from '../StreakReminderSwitch';
 import ReadingStreakSwitch from '../ReadingStreakSwitch';
 import { useToggle } from '../../../hooks/useToggle';
 import { ToggleWeekStart } from '../../widgets/ToggleWeekStart';
+import { isWeekend, DayOfWeek } from '../../../lib/date';
 
 const getStreak = ({
   value,
   today,
   dateToday,
   history,
+  startOfWeek = DayOfWeek.Monday,
 }: {
   value: Date;
   today: Date;
   dateToday: number;
   history?: ReadingDay[];
+  startOfWeek?: number;
 }): Streak => {
-  const day = value.getDay();
   const date = value.getDate();
-  const isFreezeDay = Weekends.includes(day);
+  const isFreezeDay = isWeekend(value, startOfWeek);
   const isToday = date === dateToday;
   const isFuture = value > today;
   const isCompleted =
@@ -102,7 +103,13 @@ export function ReadingStreakPopup({
 
     return streakDays.map((value) => {
       const isToday = value.getDate() === dateToday;
-      const streakDef = getStreak({ value, today, dateToday, history });
+      const streakDef = getStreak({
+        value,
+        today,
+        dateToday,
+        history,
+        startOfWeek: user.weekStart,
+      });
 
       return (
         <DayStreak
@@ -114,7 +121,7 @@ export function ReadingStreakPopup({
         />
       );
     });
-  }, [dateToday, history, toggleShowStreakConfig]);
+  }, [dateToday, history, toggleShowStreakConfig, user.weekStart]);
 
   useEffect(() => {
     if ([streak.max, streak.current].some((value) => value >= 2)) {
