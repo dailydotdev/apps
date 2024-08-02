@@ -50,7 +50,7 @@ export default function PostMetadata({
       )}
       {!!showReadTime && domain && (
         <>
-          <Separator /> <TruncateText>{domain}</TruncateText>
+          <Separator /> {domain}
         </>
       )}
       {(!!createdAt || showReadTime) && !!numUpvotes && <Separator />}

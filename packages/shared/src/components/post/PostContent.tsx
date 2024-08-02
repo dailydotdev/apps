@@ -19,6 +19,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useViewPost } from '../../hooks/post';
 import { feature } from '../../lib/featureManagement';
 import { useFeature } from '../GrowthBookProvider';
+import { TruncateText } from '../utilities';
 
 export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;
@@ -162,12 +163,12 @@ export function PostContent({
               !isVideoType &&
               showOriginDomain &&
               post.domain.length && (
-                <span>
+                <TruncateText>
                   From{' '}
-                  <ArticleLink className="hover:underline">
+                  <ArticleLink title={post.domain} className="hover:underline">
                     {post.domain}
                   </ArticleLink>
-                </span>
+                </TruncateText>
               )
             }
           />
