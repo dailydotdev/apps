@@ -123,6 +123,7 @@ export interface Post {
   updatedAt?: string;
   slug?: string;
   bookmark?: Bookmark;
+  domain?: string;
 }
 
 export type RelatedPost = Pick<
