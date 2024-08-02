@@ -1,17 +1,8 @@
 import React, { ReactElement } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { isNullOrUndefined } from '../../lib/func';
-import { DayOfWeek } from '../../lib/date';
+import { DayOfWeek, getDefaultStartOfWeek } from '../../lib/date';
 import { Radio, ClassName as RadioClassName } from '../fields/Radio';
 import useProfileForm from '../../hooks/useProfileForm';
-
-const getDefaultStartOfWeek = (weekStart?: number): string => {
-  if (isNullOrUndefined(weekStart)) {
-    return DayOfWeek.Monday.toString();
-  }
-
-  return (weekStart as number).toString();
-};
 
 export const ToggleWeekStart = ({
   className,

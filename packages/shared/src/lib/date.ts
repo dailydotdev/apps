@@ -1,3 +1,5 @@
+import { isNullOrUndefined } from "./func";
+
 export enum DayOfWeek {
   Sunday = 0,
   Monday = 1,
@@ -22,4 +24,12 @@ export const isWeekend = (
     default:
       return day === DayOfWeek.Saturday || day === DayOfWeek.Sunday;
   }
+};
+
+export const getDefaultStartOfWeek = (weekStart?: number): string => {
+  if (isNullOrUndefined(weekStart)) {
+    return DEFAULT_WEEK_START.toString();
+  }
+
+  return (weekStart as number).toString();
 };
