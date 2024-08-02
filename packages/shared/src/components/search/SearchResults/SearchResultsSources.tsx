@@ -20,7 +20,7 @@ export const SearchResultsSources = (
     name: title,
     image,
     handle: subtitle,
-    permalink: `/sources/${id}`,
+    permalink: `/sources/${subtitle}`,
     type: SourceType.Machine,
     public: true,
   }));
