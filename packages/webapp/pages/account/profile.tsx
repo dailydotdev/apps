@@ -165,6 +165,26 @@ const AccountProfilePage = (): ReactElement => {
         your comments and contributions easily!"
       >
         <div className="relative mt-6 flex">
+          <div className="absolute left-0 top-0 flex w-full">
+            <ImageInput
+              id={coverId}
+              className={{
+                root: 'w-full',
+                container:
+                  'border-0 bg-background-subtle hover:bg-accent-pepper-subtlest',
+                img: 'object-cover',
+              }}
+              size="cover"
+              initialValue={currentCoverImage}
+              fallbackImage={undefined}
+              alwaysShowHover={!currentCoverImage}
+              hoverIcon={<CoverHoverIcon />}
+              fileSizeLimitMB={5}
+              onChange={(fileName, file) =>
+                onImageInputChange(file, fileName, true)
+              }
+            />
+          </div>
           <ImageInput
             id={imageId}
             className={{
@@ -174,24 +194,6 @@ const AccountProfilePage = (): ReactElement => {
             initialValue={user?.image}
             hoverIcon={<CameraIcon size={IconSize.Large} />}
             onChange={(_, file) => onImageInputChange(file)}
-          />
-          <ImageInput
-            id={coverId}
-            className={{
-              root: 'absolute left-0 top-0 flex w-full',
-              container:
-                'border-0 bg-background-subtle hover:bg-accent-pepper-subtlest',
-              img: 'object-cover',
-            }}
-            size="cover"
-            initialValue={currentCoverImage}
-            fallbackImage={undefined}
-            alwaysShowHover={!currentCoverImage}
-            hoverIcon={<CoverHoverIcon />}
-            fileSizeLimitMB={5}
-            onChange={(fileName, file) =>
-              onImageInputChange(file, fileName, true)
-            }
           />
         </div>
       </AccountContentSection>

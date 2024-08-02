@@ -33,6 +33,7 @@ export const useSearchProviderSuggestions = ({
     generateQueryKey(RequestKey.Search, user, 'suggestions', {
       provider,
       query,
+      limit,
     }),
     async () => {
       return getSuggestions({ provider, query, limit });

@@ -104,7 +104,7 @@ export function WriteFreeformContent({
         className={{
           container:
             '!w-full border-none bg-accent-pepper-subtlest text-text-tertiary tablet:!w-[20.25rem] laptop:!w-[11.5rem]',
-          root: 'mobileL:w-full',
+          root: 'relative w-full tablet:w-min',
         }}
         enableHover={false}
         fallbackImage={null}

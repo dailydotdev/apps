@@ -51,6 +51,8 @@ import { feature } from '../lib/featureManagement';
 import { acquisitionKey } from './cards/AcquisitionFormCard';
 import { MarketingCtaVariant } from './marketingCta/common';
 import { isNullOrUndefined } from '../lib/func';
+import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
+import { SearchResultsLayout } from './search/SearchResults/SearchResultsLayout';
 
 export interface FeedProps<T>
   extends Pick<
@@ -138,7 +140,8 @@ export default function Feed<T>({
   const { logEvent } = useContext(LogContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
-  const router = useRouter();
+  const { isFallback, query: routerQuery } = useRouter();
+
   const queryClient = useQueryClient();
   const { openNewTab, spaciness, loadedSettings } = useContext(SettingsContext);
   const { isListMode } = useFeedLayout();
@@ -147,13 +150,15 @@ export default function Feed<T>({
   const { shouldUseListFeedLayout } = useFeedLayout();
   const showAcquisitionForm =
     feedName === SharedFeedPage.MyFeed &&
-    (router.query?.[acquisitionKey] as string)?.toLocaleLowerCase() ===
-      'true' &&
+    (routerQuery?.[acquisitionKey] as string)?.toLocaleLowerCase() === 'true' &&
     !user?.acquisitionChannel;
   const adSpot = useFeature(feature.feedAdSpot);
   const { getMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Card);
   const showMarketingCta = !!marketingCta;
+
+  const { isSearchResultsUpgrade, isLoading: isSearchResultUpgradeLoading } =
+    useSearchResultsLayout();
 
   const {
     items,
@@ -289,7 +294,7 @@ export default function Feed<T>({
     [openSharePost, virtualizedNumCards],
   );
 
-  if (!loadedSettings) {
+  if (!loadedSettings || isSearchResultUpgradeLoading || isFallback) {
     return <></>;
   }
 
@@ -409,18 +414,25 @@ export default function Feed<T>({
     feedName as SharedFeedPage,
   );
 
+  const FeedWrapperComponent = isSearchResultsUpgrade
+    ? SearchResultsLayout
+    : FeedContainer;
+  const containerProps = isSearchResultsUpgrade
+    ? {}
+    : {
+        header,
+        inlineHeader,
+        className,
+        showSearch: showSearch && isValidFeed,
+        shortcuts,
+        actionButtons,
+        isHorizontal,
+        feedContainerRef,
+      };
+
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>
-      <FeedContainer
-        header={header}
-        inlineHeader={inlineHeader}
-        className={className}
-        showSearch={showSearch && isValidFeed}
-        shortcuts={shortcuts}
-        actionButtons={actionButtons}
-        isHorizontal={isHorizontal}
-        feedContainerRef={feedContainerRef}
-      >
+      <FeedWrapperComponent {...containerProps}>
         {items.map((item, index) => (
           <FeedItemComponent
             item={item}
@@ -480,7 +492,7 @@ export default function Feed<T>({
             onRemovePost={() => onRemovePost(selectedPostIndex)}
           />
         )}
-      </FeedContainer>
+      </FeedWrapperComponent>
     </ActiveFeedContext.Provider>
   );
 }

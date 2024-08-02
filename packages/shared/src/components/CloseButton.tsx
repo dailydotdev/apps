@@ -17,11 +17,11 @@ function CloseButtonComponent(
 ): ReactElement {
   return (
     <Button
+      title="Close"
       {...props}
       size={size}
       variant={variant}
       ref={ref}
-      title="Close"
       icon={<CloseIcon />}
     />
   );

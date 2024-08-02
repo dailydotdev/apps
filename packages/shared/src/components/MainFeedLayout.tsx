@@ -38,7 +38,6 @@ import {
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import {
-  useConditionalFeature,
   useFeedLayout,
   useScrollRestoration,
   useViewSize,
@@ -54,7 +53,7 @@ import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
 import { Origin } from '../lib/log';
 import { ExploreTabs, FeedExploreHeader, tabToUrl, urlToTab } from './header';
 import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
-import { FeedExploreDropdown } from './header/FeedExploreDropdown';
+import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -171,10 +170,6 @@ export default function MainFeedLayout({
     hasUser: !!user,
   });
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { value: mobileExploreTab } = useConditionalFeature({
-    feature: feature.mobileExploreTab,
-    shouldEvaluate: !isLaptop,
-  });
   const feedVersion = useFeature(feature.feedVersion);
   const {
     isUpvoted,
@@ -192,6 +187,9 @@ export default function MainFeedLayout({
     shouldUseCommentFeedLayout,
     FeedPageLayoutComponent,
   } = useFeedLayout();
+
+  const { isSearchResultsUpgrade, isLoading: isSearchResultUpgradeLoading } =
+    useSearchResultsLayout();
 
   const config = useMemo(() => {
     if (!feedName) {
@@ -235,11 +233,14 @@ export default function MainFeedLayout({
     defaultValue: 0,
   });
 
-  const search = (
-    <LayoutHeader className={isSearchPage && 'mt-16 laptop:mt-0'}>
-      {navChildren}
-      {isSearchOn && searchChildren ? searchChildren : undefined}
-    </LayoutHeader>
+  const search = useMemo(
+    () => (
+      <LayoutHeader className={isSearchPage && 'mt-16 laptop:mt-0'}>
+        {navChildren}
+        {isSearchOn && searchChildren ? searchChildren : undefined}
+      </LayoutHeader>
+    ),
+    [isSearchOn, isSearchPage, navChildren, searchChildren],
   );
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
@@ -262,7 +263,12 @@ export default function MainFeedLayout({
         ),
         query: SEARCH_POSTS_QUERY,
         variables: { query: searchQuery, version: searchVersion },
-        emptyScreen: <SearchEmptyScreen />,
+        emptyScreen: (
+          <>
+            {isSearchResultsUpgrade && isSearchResultUpgradeLoading && search}
+            <SearchEmptyScreen />
+          </>
+        ),
       };
     }
 
@@ -341,6 +347,9 @@ export default function MainFeedLayout({
     selectedPeriod,
     setSelectedAlgo,
     router.pathname,
+    isSearchResultsUpgrade,
+    isSearchResultUpgradeLoading,
+    search,
   ]);
 
   useEffect(() => {
@@ -376,32 +385,28 @@ export default function MainFeedLayout({
       );
     }
 
-    if (mobileExploreTab) {
-      return (
-        <FeedExploreHeader
-          tab={tab}
-          setTab={onTabChange}
-          showBreadcrumbs={false}
-          showDropdown={false}
-          className={{
-            container:
-              'sticky top-[7.5rem] z-header w-full border-b border-border-subtlest-tertiary bg-background-default',
-            tabBarHeader: 'no-scrollbar overflow-x-auto',
-            tabBarContainer: 'w-full',
-          }}
-        />
-      );
-    }
-
-    return <FeedExploreDropdown />;
-  }, [isLaptop, mobileExploreTab, onTabChange, tab]);
+    return (
+      <FeedExploreHeader
+        tab={tab}
+        setTab={onTabChange}
+        showBreadcrumbs={false}
+        showDropdown={false}
+        className={{
+          container:
+            'sticky top-[7.5rem] z-header w-full border-b border-border-subtlest-tertiary bg-background-default',
+          tabBarHeader: 'no-scrollbar overflow-x-auto',
+          tabBarContainer: 'w-full',
+        }}
+      />
+    );
+  }, [isLaptop, onTabChange, tab]);
 
   return (
     <FeedPageLayoutComponent
       className={classNames('relative', disableTopPadding && '!pt-0')}
     >
       {isAnyExplore && <FeedExploreComponent />}
-      {isSearchOn && search}
+      {isSearchOn && !isSearchResultsUpgrade && search}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed
           isMainFeed
