@@ -6,7 +6,6 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { ChecklistAIcon } from '../icons';
-import ConditionalWrapper from '../ConditionalWrapper';
 
 interface CustomCheckboxProps {
   checked: boolean;
@@ -16,6 +15,24 @@ interface CustomCheckboxProps {
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
   className?: string;
 }
+
+const border = {
+  checked: `
+    radial-gradient(
+      circle at top left,
+      var(--theme-accent-onion-subtlest),
+      var(--theme-accent-cabbage-default)
+    )
+  `,
+  unchecked: `
+    radial-gradient(
+      circle at top left,
+      var(--theme-border-subtlest-tertiary),
+      var(--theme-border-subtlest-tertiary)
+    )
+  `,
+};
+
 export const CardCheckbox = ({
   checked,
   title,
@@ -25,32 +42,28 @@ export const CardCheckbox = ({
   className,
 }: CustomCheckboxProps): ReactElement => {
   return (
-    <ConditionalWrapper
-      condition={checked}
-      wrapper={(component) => (
-        <div
-          className={classNames('h-full w-full rounded-16 p-px', className)}
-          style={{
-            backgroundImage: `linear-gradient(180deg, var(--theme-accent-onion-subtlest), var(--theme-accent-cabbage-default))`,
-          }}
-        >
-          {component}
-        </div>
-      )}
+    <div
+      className="flex rounded-16 p-px"
+      style={{
+        backgroundImage: `
+          linear-gradient(
+            var(--theme-background-default),
+            var(--theme-background-default)
+          ),
+          ${checked ? border.checked : border.unchecked}
+        `,
+        backgroundClip: 'content-box, border-box',
+        backgroundOrigin: 'border-box',
+      }}
     >
       <button
         type="button"
         className={classNames(
-          'relative flex h-full w-full flex-col gap-2 rounded-16 px-3 py-4 hover:bg-surface-hover',
-          !checked && 'border border-border-subtlest-secondary',
-          !checked && className,
+          'relative flex h-full w-full flex-col gap-2 rounded-16 px-3 py-4',
+          checked ? 'bg-surface-float' : 'hover:bg-surface-hover',
+          className,
         )}
         onClick={onCheckboxToggle}
-        style={{
-          background:
-            checked &&
-            'color-mix(in srgb, var(--theme-background-default), transparent 8%)',
-        }}
       >
         <input {...inputProps} type="checkbox" hidden />
         {checked && (
@@ -67,6 +80,6 @@ export const CardCheckbox = ({
           {description}
         </Typography>
       </button>
-    </ConditionalWrapper>
+    </div>
   );
 };
