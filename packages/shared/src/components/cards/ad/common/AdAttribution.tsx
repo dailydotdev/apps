@@ -1,13 +1,13 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Ad } from '../../graphql/posts';
+import { Ad } from '../../../../graphql/posts';
 
 interface AdClassName {
   main?: string;
   typo?: string;
 }
 
-export interface AdAttributionProps {
+interface AdAttributionProps {
   ad: Ad;
   className?: AdClassName;
 }

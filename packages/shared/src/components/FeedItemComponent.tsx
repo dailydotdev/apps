@@ -3,8 +3,6 @@ import dynamic from 'next/dynamic';
 import { FeedItem } from '../hooks/useFeed';
 import { ArticlePostCard } from './cards/ArticlePostCard';
 import { ArticlePostList } from './cards/list/ArticlePostList';
-import { AdCard } from './cards/AdCard';
-import { AdList } from './cards/list/AdList';
 import { PlaceholderCard } from './cards/PlaceholderCard';
 import { PlaceholderList } from './cards/list/PlaceholderList';
 import { Ad, Post, PostItem, PostType } from '../graphql/posts';
@@ -25,6 +23,8 @@ import { MarketingCtaCard } from './marketingCta';
 import { MarketingCtaList } from './marketingCta/MarketingCtaList';
 import { FeedItemType } from './cards/common';
 import { PublicSquadEligibilityCard } from './squads/PublicSquadEligibilityCard';
+import { AdGrid } from './cards/ad/AdGrid';
+import { AdList } from './cards/ad/AdList';
 
 const CommentPopup = dynamic(
   () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
@@ -122,7 +122,7 @@ const getTags = ({
     PostTag: useListCards
       ? PostTypeToTagList[postType] ?? ArticlePostList
       : PostTypeToTagCard[postType] ?? ArticlePostCard,
-    AdTag: useListCards ? AdList : AdCard,
+    AdTag: useListCards ? AdList : AdGrid,
     PlaceholderTag: useListCards ? PlaceholderList : PlaceholderCard,
     MarketingCtaTag: useListCards ? MarketingCtaList : MarketingCtaCard,
   };
