@@ -1,4 +1,4 @@
-import React from 'react';
+import { MouseEvent } from 'react';
 import { EmptyObjectLiteral } from './kratos';
 
 export const nextTick = (): Promise<unknown> =>
@@ -67,7 +67,8 @@ export enum ArrowKeyEnum {
 }
 
 export const wrapStopPropagation =
-  (callback: () => void) => (event: React.MouseEvent) => {
+  (callback: () => void): ((event: MouseEvent) => unknown) =>
+  (event: MouseEvent) => {
     event.stopPropagation();
     callback();
   };
