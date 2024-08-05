@@ -9,7 +9,7 @@ import { PostCardHeader } from './PostCardHeader';
 import { CollectionPillSources } from '../../post/collection';
 import { useTruncatedSummary } from '../../../hooks';
 import PostTags from '../PostTags';
-import { CardCover } from '../common/CardCover';
+import { CardCoverList } from './CardCover';
 
 export const CollectionList = forwardRef(function CollectionCard(
   {
@@ -77,7 +77,7 @@ export const CollectionList = forwardRef(function CollectionCard(
           </div>
 
           {image && (
-            <CardCover
+            <CardCoverList
               post={post}
               imageProps={{
                 src: image,
