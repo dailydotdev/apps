@@ -12,6 +12,7 @@ interface PostMetadataProps
   description?: string;
   children?: ReactNode;
   isVideoType?: boolean;
+  domain?: ReactNode;
 }
 
 export default function PostMetadata({
@@ -22,6 +23,7 @@ export default function PostMetadata({
   children,
   description,
   isVideoType,
+  domain,
 }: PostMetadataProps): ReactElement {
   const timeActionContent = isVideoType ? 'watch' : 'read';
   const showReadTime = isVideoType ? Number.isInteger(readTime) : !!readTime;
@@ -45,6 +47,11 @@ export default function PostMetadata({
         <span data-testid="readTime">
           {formatReadTime(readTime)} {timeActionContent} time
         </span>
+      )}
+      {!!showReadTime && domain && (
+        <>
+          <Separator /> {domain}
+        </>
       )}
       {(!!createdAt || showReadTime) && !!numUpvotes && <Separator />}
       {!!numUpvotes && (

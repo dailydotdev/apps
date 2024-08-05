@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { ReactElement, useEffect } from 'react';
+import React, { ComponentProps, ReactElement, useEffect } from 'react';
 import { isVideoPost } from '../../graphql/posts';
 import PostMetadata from '../cards/PostMetadata';
 import PostSummary from '../cards/PostSummary';
@@ -17,6 +17,9 @@ import { PostContainer, PostContentProps, PostNavigationProps } from './common';
 import YoutubeVideo from '../video/YoutubeVideo';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useViewPost } from '../../hooks/post';
+import { feature } from '../../lib/featureManagement';
+import { useFeature } from '../GrowthBookProvider';
+import { TruncateText } from '../utilities';
 
 export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;
@@ -47,6 +50,7 @@ export function PostContent({
   });
   const { onCopyPostLink, onReadArticle } = engagementActions;
   const onSendViewPost = useViewPost(post);
+  const showOriginDomain = useFeature(feature.originDomain);
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);
@@ -74,6 +78,21 @@ export function PostContent({
 
     onSendViewPost(post.id);
   }, [isVideoType, onSendViewPost, post.id, user?.id]);
+
+  const ArticleLink = ({ children, ...props }: ComponentProps<'a'>) => {
+    return (
+      <a
+        href={post.permalink}
+        title="Go to post"
+        target="_blank"
+        rel="noopener"
+        {...combinedClicks(onReadArticle)}
+        {...props}
+      >
+        {children}
+      </a>
+    );
+  };
 
   return (
     <PostContentContainer
@@ -119,15 +138,7 @@ export function PostContent({
             className="my-6 break-words font-bold typo-large-title"
             data-testid="post-modal-title"
           >
-            <a
-              href={post.permalink}
-              title="Go to post"
-              target="_blank"
-              rel="noopener"
-              {...combinedClicks(onReadArticle)}
-            >
-              {post.title}
-            </a>
+            <ArticleLink>{post.title}</ArticleLink>
           </h1>
           {isVideoType && (
             <YoutubeVideo
@@ -148,14 +159,21 @@ export function PostContent({
               'mt-4 !typo-callout',
               isVideoType ? 'mb-4' : 'mb-8',
             )}
+            domain={
+              !isVideoType &&
+              showOriginDomain &&
+              post.domain.length > 0 && (
+                <TruncateText>
+                  From{' '}
+                  <ArticleLink title={post.domain} className="hover:underline">
+                    {post.domain}
+                  </ArticleLink>
+                </TruncateText>
+              )
+            }
           />
           {!isVideoType && (
-            <a
-              href={post.permalink}
-              title="Go to post"
-              target="_blank"
-              rel="noopener"
-              {...combinedClicks(onReadArticle)}
+            <ArticleLink
               className="mb-10 block cursor-pointer overflow-hidden rounded-16"
               style={{ maxWidth: '25.625rem' }}
             >
@@ -166,7 +184,7 @@ export function PostContent({
                 eager
                 fallbackSrc={cloudinary.post.imageCoverPlaceholder}
               />
-            </a>
+            </ArticleLink>
           )}
           {post.toc?.length > 0 && (
             <PostToc
