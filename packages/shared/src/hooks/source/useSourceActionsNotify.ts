@@ -61,6 +61,7 @@ export const useSourceActionsNotify = ({
         ? LogEvent.SubscribeSource
         : LogEvent.UnsubscribeSource,
       target_id: source.id,
+      target_type: 'source',
     });
 
     if (isNotifyExperiment) {
