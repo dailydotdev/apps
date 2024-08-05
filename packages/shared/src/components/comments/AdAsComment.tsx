@@ -81,6 +81,7 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
         size={ProfileImageSize.Large}
         user={{ id: providerId, username: source, image }}
         fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+        style={{ backgroundColor: data?.backgroundColor }}
       />
       <div className="ml-3 inline-block flex-col">
         <TruncateText className="commentAuthor flex w-fit font-bold text-text-primary typo-callout">
