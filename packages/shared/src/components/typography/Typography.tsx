@@ -11,6 +11,7 @@ export enum TypographyTag {
   H4 = 'h4',
   H5 = 'h5',
   H6 = 'h6',
+  Span = 'span',
 }
 
 export enum TypographyType {
@@ -63,7 +64,8 @@ export function Typography<TagName extends AllowedTags>({
   className,
   ...props
 }: TypographyProps<TagName>): ReactElement {
-  const classes = classNames(className, type, bold && 'font-bold', color);
+  const classes = classNames(className, type, { 'font-bold': bold }, color);
   const Tag = classed(tag, classes);
+  
   return <Tag {...props}>{children}</Tag>;
 }
