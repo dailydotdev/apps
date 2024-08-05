@@ -1,8 +1,6 @@
 import React, { ReactElement } from 'react';
-import { useAuthContext } from '../../contexts/AuthContext';
 import { DayOfWeek, getDefaultStartOfWeek } from '../../lib/date';
 import { Radio, ClassName as RadioClassName } from '../fields/Radio';
-import useProfileForm from '../../hooks/useProfileForm';
 import { useReadingStreak } from '../../hooks/streaks';
 
 export const ToggleWeekStart = ({
@@ -10,12 +8,10 @@ export const ToggleWeekStart = ({
 }: {
   className?: RadioClassName;
 }): ReactElement => {
-  const { user } = useAuthContext();
-  const { updateUserProfile } = useProfileForm();
-  const { streak, isLoading } = useReadingStreak();
+  const { streak, isLoading, updateStreakConfig } = useReadingStreak();
 
-  const toggleWeekStart = (value: string) => {
-    updateUserProfile({ weekStart: parseInt(value, 10) });
+  const toggleWeekStart = (weekStart: string) => {
+    updateStreakConfig({ weekStart: parseInt(weekStart, 10) });
   };
 
   if (isLoading) {

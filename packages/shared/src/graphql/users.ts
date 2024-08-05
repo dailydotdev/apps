@@ -529,3 +529,12 @@ export const VOTE_MUTATION = gql`
     }
   }
 `;
+
+export const UPDATE_STREAK_COUNT_MUTATION = gql`
+  mutation UpdateStreakConfig($weekStart: Int) {
+    updateStreakConfig(weekStart: $weekStart) {
+      ...UserStreakFragment
+    }
+  }
+  ${USER_STREAK_FRAGMENT}
+`;

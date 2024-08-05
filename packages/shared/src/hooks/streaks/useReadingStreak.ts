@@ -1,12 +1,27 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  UseMutateFunction,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { useContext, useRef } from 'react';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import { getReadingStreak, UserStreak } from '../../graphql/users';
+import {
+  getReadingStreak,
+  UPDATE_STREAK_COUNT_MUTATION,
+  UserStreak,
+} from '../../graphql/users';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions } from '../useActions';
 import { ActionType } from '../../graphql/actions';
 import useDebounce from '../useDebounce';
 import SettingsContext from '../../contexts/SettingsContext';
+import { gqlClient, ResponseError } from '../../graphql/common';
+import { DayOfWeek } from '../../lib/date';
+
+type UpdateReadingStreakConfig = {
+  weekStart: DayOfWeek;
+};
 
 interface UserReadingStreak {
   streak: UserStreak;
@@ -14,21 +29,48 @@ interface UserReadingStreak {
   shouldShowPopup: boolean;
   checkReadingStreak: () => Promise<void>;
   isStreaksEnabled: boolean;
+  updateStreakConfig: UseMutateFunction<
+    UserStreak,
+    ResponseError,
+    UpdateReadingStreakConfig
+  >;
 }
 
 export const useReadingStreak = (): UserReadingStreak => {
   const { user, isLoggedIn } = useAuthContext();
   const { optOutReadingStreak, loadedSettings } = useContext(SettingsContext);
-  const { data: streak, isLoading } = useQuery(
-    generateQueryKey(RequestKey.UserStreak, user),
-    getReadingStreak,
-    { staleTime: StaleTime.Default, enabled: isLoggedIn },
-  );
+  const queryClient = useQueryClient();
+  const queryKey = generateQueryKey(RequestKey.UserStreak, user);
+
+  const { data: streak, isLoading } = useQuery(queryKey, getReadingStreak, {
+    staleTime: StaleTime.Default,
+    enabled: isLoggedIn,
+  });
+
+  const { mutate: updateStreakConfig } = useMutation<
+    UserStreak,
+    ResponseError,
+    UpdateReadingStreakConfig
+  >((params) => gqlClient.request(UPDATE_STREAK_COUNT_MUTATION, params), {
+    onMutate: ({ weekStart }) => {
+      queryClient.cancelQueries(queryKey);
+
+      const currentStreak = queryClient.getQueryData<UserStreak>(queryKey);
+
+      queryClient.setQueryData(queryKey, (prev: UserStreak) => ({
+        ...prev,
+        weekStart,
+      }));
+
+      return () => {
+        queryClient.setQueryData(queryKey, currentStreak);
+      };
+    },
+  });
   const { checkHasCompleted } = useActions();
   const hasReadToday =
     new Date(streak?.lastViewAt).getDate() === new Date().getDate();
   const userStreakQueryKeyRef = useRef<unknown[]>();
-  const queryClient = useQueryClient();
 
   const [clearQueries] = useDebounce(async () => {
     if (!hasReadToday && userStreakQueryKeyRef.current?.length > 0) {
@@ -42,8 +84,9 @@ export const useReadingStreak = (): UserReadingStreak => {
     streak,
     isLoading,
     isStreaksEnabled,
+    updateStreakConfig,
     checkReadingStreak: async () => {
-      const userStreakQueryKey = generateQueryKey(RequestKey.UserStreak, user);
+      const userStreakQueryKey = queryKey;
       userStreakQueryKeyRef.current = userStreakQueryKey;
 
       clearQueries(hasReadToday ?? true);
