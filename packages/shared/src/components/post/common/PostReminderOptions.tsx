@@ -13,6 +13,7 @@ import {
 import { LazyModal } from '../../modals/common/types';
 import { Post } from '../../../graphql/posts';
 import { useLazyModal } from '../../../hooks/useLazyModal';
+import { wrapStopPropagation } from '../../../lib/func';
 
 interface PostReminderOptionsProps {
   post: Post;
@@ -34,12 +35,6 @@ export function PostReminderOptions({
       existingReminder: post.bookmark?.remindAt,
       preference,
     });
-
-  const wrapStopPropagation =
-    (callback: () => void) => (event: React.MouseEvent) => {
-      event.stopPropagation();
-      callback();
-    };
 
   return (
     <span className={classNames('flex flex-row gap-3', className)}>

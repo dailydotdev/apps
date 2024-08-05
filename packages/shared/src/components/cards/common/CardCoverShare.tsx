@@ -5,6 +5,7 @@ import { useLoggedCopyPostLink } from '../../../hooks/post';
 import { Post } from '../../../graphql/posts';
 import { ShareProvider } from '../../../lib/share';
 import { CardCoverContainer } from './CardCoverContainer';
+import { wrapStopPropagation } from '../../../lib/func';
 
 interface CardCoverShareProps {
   onShare: () => void;
@@ -28,7 +29,7 @@ export function CardCoverShare({
       <span className="mt-2 flex flex-row flex-wrap justify-center gap-3 p-2">
         <Button
           variant={ButtonVariant.Secondary}
-          onClick={onClick}
+          onClick={wrapStopPropagation(onClick)}
           loading={isLoading}
         >
           Copy link
@@ -36,7 +37,7 @@ export function CardCoverShare({
         <Button
           variant={ButtonVariant.Secondary}
           icon={<ShareIcon />}
-          onClick={onShare}
+          onClick={wrapStopPropagation(onShare)}
         />
       </span>
     </CardCoverContainer>
