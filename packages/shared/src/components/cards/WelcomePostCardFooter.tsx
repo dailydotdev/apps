@@ -8,11 +8,13 @@ interface WelcomePostCardFooterProps {
   post: Post;
   image?: string;
   contentHtml?: string;
+  onShare: (post: Post) => void;
 }
 
 export const WelcomePostCardFooter = ({
   post,
   image,
+  onShare,
   contentHtml,
 }: WelcomePostCardFooterProps): ReactElement => {
   const content = useMemo(
@@ -30,6 +32,7 @@ export const WelcomePostCardFooter = ({
       <>
         <CardSpace />
         <CardCover
+          onShare={onShare}
           post={post}
           imageProps={{
             src: image,
