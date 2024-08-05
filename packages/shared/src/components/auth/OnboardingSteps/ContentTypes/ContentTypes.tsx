@@ -2,12 +2,12 @@ import React, { ReactElement, useMemo } from 'react';
 import useFeedSettings from '../../../../hooks/useFeedSettings';
 
 import { useAdvancedSettings } from '../../../../hooks';
-import { CustomCheckbox } from './CustomCheckbox';
 import {
   getContentCurationList,
   getContentSourceList,
   getVideoSetting,
 } from '../../../filters/helpers';
+import { CardCheckbox } from '../../../fields/CardCheckbox';
 
 export const ContentTypes = (): ReactElement => {
   const { advancedSettings } = useFeedSettings();
@@ -37,6 +37,8 @@ export const ContentTypes = (): ReactElement => {
     return contentCurationList;
   }, [contentCurationList, videoSetting]);
 
+  const classes = '!h-[8.25rem] max-w-80';
+
   return (
     <div className="flex max-w-screen-laptop flex-col tablet:px-10">
       <h2 className="typo-bold mb-10 text-center typo-large-title">
@@ -44,24 +46,32 @@ export const ContentTypes = (): ReactElement => {
       </h2>
       <div className="m-auto grid grid-cols-1 gap-2 tablet:grid-cols-2 tablet:gap-5 laptop:grid-cols-3">
         {contentSourceList?.map(({ id, title, description, options }) => (
-          <CustomCheckbox
+          <CardCheckbox
             key={id}
-            name={`advancedSettings-${id}`}
+            className={classes}
             onCheckboxToggle={() => onToggleSource(options.source)}
             checked={!checkSourceBlocked(options.source)}
             title={title}
             description={description}
+            inputProps={{
+              checked: !checkSourceBlocked(options.source),
+              name: `advancedSettings-${id}`,
+            }}
           />
         ))}
         {contentCurationAndVideoList.map(
           ({ id, title, description, defaultEnabledState }) => (
-            <CustomCheckbox
+            <CardCheckbox
               key={id}
-              name={`advancedSettings-${id}`}
+              className={classes}
               onCheckboxToggle={() => onToggleSettings(id, defaultEnabledState)}
               checked={selectedSettings[id] ?? defaultEnabledState}
               title={title}
               description={description}
+              inputProps={{
+                checked: selectedSettings[id] ?? defaultEnabledState,
+                name: `advancedSettings-${id}`,
+              }}
             />
           ),
         )}
