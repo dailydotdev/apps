@@ -8,7 +8,7 @@ interface WelcomePostCardFooterProps {
   post: Post;
   image?: string;
   contentHtml?: string;
-  onShare: (post: Post) => void;
+  onShare?: (post: Post) => void;
 }
 
 export const WelcomePostCardFooter = ({

@@ -25,6 +25,10 @@ export const useCardCover = ({
 
   const overlay = useMemo(() => {
     if (shouldShowOverlay) {
+      if (!onShare) {
+        return undefined;
+      }
+
       return (
         <CardCoverShare
           post={post}
