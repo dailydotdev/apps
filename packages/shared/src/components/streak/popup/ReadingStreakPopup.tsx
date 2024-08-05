@@ -108,7 +108,7 @@ export function ReadingStreakPopup({
         today,
         dateToday,
         history,
-        startOfWeek: user.weekStart,
+        startOfWeek: streak.weekStart,
       });
 
       return (
@@ -121,7 +121,7 @@ export function ReadingStreakPopup({
         />
       );
     });
-  }, [dateToday, history, toggleShowStreakConfig, user.weekStart]);
+  }, [dateToday, history, streak.weekStart, toggleShowStreakConfig]);
 
   useEffect(() => {
     if ([streak.max, streak.current].some((value) => value >= 2)) {

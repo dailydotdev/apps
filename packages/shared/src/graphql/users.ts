@@ -9,6 +9,7 @@ import type { PublicProfile } from '../lib/user';
 import { Connection, gqlClient } from './common';
 import { SourceMember } from './sources';
 import type { SendType } from '../hooks';
+import { DayOfWeek } from '../lib/date';
 
 export const USER_BY_ID_STATIC_FIELDS_QUERY = `
   query User($id: ID!) {
@@ -452,6 +453,7 @@ export interface UserStreak {
   max: number;
   total: number;
   current: number;
+  weekStart: DayOfWeek;
   lastViewAt: Date;
 }
 

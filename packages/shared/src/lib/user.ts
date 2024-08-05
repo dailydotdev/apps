@@ -80,7 +80,6 @@ export interface UserProfile {
   acceptedMarketing?: boolean;
   notificationEmail?: boolean;
   timezone?: string;
-  weekStart?: number;
   cover?: string;
   experienceLevel?: keyof typeof UserExperienceLevel;
 }
@@ -105,7 +104,6 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   permalink: string;
   username: string;
   timezone?: string;
-  weekStart?: number;
   referralLink?: string;
   canSubmitArticle?: boolean;
   password?: string;
