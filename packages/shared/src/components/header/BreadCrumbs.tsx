@@ -1,5 +1,4 @@
 import React, { PropsWithChildren, ReactElement } from 'react';
-import { useRouter } from 'next/router';
 import classed from '../../lib/classed';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { HomeIcon } from '../icons';
@@ -14,8 +13,6 @@ export const BreadCrumbs = ({
   children,
   className,
 }: PropsWithChildren<WithClassNameProps>): ReactElement => {
-  const { pathname } = useRouter();
-
   return (
     <BreadCrumbsWrapper aria-label="breadcrumbs" className={className}>
       <ol className="flex-1 items-center gap-0.5 laptop:flex">
