@@ -146,6 +146,7 @@ export interface Ad {
   renderTracked?: boolean;
   impressionStatus?: number;
   tagLine?: string;
+  backgroundColor?: string;
 }
 
 export type ReadHistoryPost = Pick<
