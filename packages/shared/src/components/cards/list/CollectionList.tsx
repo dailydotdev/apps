@@ -23,6 +23,7 @@ export const CollectionList = forwardRef(function CollectionCard(
     onCopyLinkClick,
     onPostClick,
     onBookmarkClick,
+    onShare,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
@@ -79,6 +80,7 @@ export const CollectionList = forwardRef(function CollectionCard(
           {image && (
             <CardCoverList
               post={post}
+              onShare={onShare}
               imageProps={{
                 src: image,
                 className: 'my-2 w-full mobileXXL:self-start',
