@@ -64,9 +64,8 @@ export function Typography<TagName extends AllowedTags>({
   className,
   ...props
 }: TypographyProps<TagName>): ReactElement {
-  const Tag = classed(
-    tag,
-    classNames(className, type, color, { 'font-bold': bold }),
-  );
+  const classes = classNames(className, type, { 'font-bold': bold }, color);
+  const Tag = classed(tag, classes);
+
   return <Tag {...props}>{children}</Tag>;
 }
