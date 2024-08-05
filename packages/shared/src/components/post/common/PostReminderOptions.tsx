@@ -35,25 +35,35 @@ export function PostReminderOptions({
       preference,
     });
 
+  const wrapStopPropagation =
+    (callback: () => void) => (event: React.MouseEvent) => {
+      event.stopPropagation();
+      callback();
+    };
+
   return (
     <span className={classNames('flex flex-row gap-3', className)}>
       <Button
         {...buttonProps}
-        onClick={() => runBookmarkReminder(ReminderPreference.OneHour)}
+        onClick={wrapStopPropagation(() =>
+          runBookmarkReminder(ReminderPreference.OneHour),
+        )}
       >
         1h
       </Button>
       <Button
         {...buttonProps}
-        onClick={() => runBookmarkReminder(ReminderPreference.Tomorrow)}
+        onClick={wrapStopPropagation(() =>
+          runBookmarkReminder(ReminderPreference.Tomorrow),
+        )}
       >
         24h
       </Button>
       <Button
         {...buttonProps}
-        onClick={() =>
-          openModal({ type: LazyModal.BookmarkReminder, props: { post } })
-        }
+        onClick={wrapStopPropagation(() =>
+          openModal({ type: LazyModal.BookmarkReminder, props: { post } }),
+        )}
       >
         Other
       </Button>
