@@ -162,7 +162,7 @@ export function PostContent({
             domain={
               !isVideoType &&
               showOriginDomain &&
-              post.domain.length && (
+              post.domain.length > 0 && (
                 <TruncateText>
                   From{' '}
                   <ArticleLink title={post.domain} className="hover:underline">
