@@ -214,3 +214,12 @@ export const LEADERBOARD_FRAMENT = gql`
   }
   ${USER_SHORT_INFO_FRAGMENT}
 `;
+
+export const USER_STREAK_FRAGMENT = gql`
+  fragment UserStreakFragment on UserStreak {
+    max
+    total
+    current
+    lastViewAt
+  }
+`;

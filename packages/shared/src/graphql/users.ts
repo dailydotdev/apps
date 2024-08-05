@@ -3,6 +3,7 @@ import { subDays } from 'date-fns';
 import {
   SHARED_POST_INFO_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
+  USER_STREAK_FRAGMENT,
 } from './fragments';
 import type { PublicProfile } from '../lib/user';
 import { Connection, gqlClient } from './common';
@@ -441,12 +442,10 @@ export const getReadingStreak30Days = async (
 export const USER_STREAK_QUERY = gql`
   query UserStreak {
     userStreak {
-      max
-      total
-      current
-      lastViewAt
+      ...UserStreakFragment
     }
   }
+  ${USER_STREAK_FRAGMENT}
 `;
 
 export interface UserStreak {
