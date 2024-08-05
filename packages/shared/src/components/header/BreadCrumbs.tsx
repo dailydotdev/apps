@@ -29,14 +29,11 @@ export const BreadCrumbs = ({
           />
           <span aria-hidden>/</span>
         </li>
-        <li className="flex flex-row items-center gap-1 px-2 font-bold text-text-primary">
-          <a
-            href={pathname}
-            aria-current="page"
-            className="pointer-events-none flex flex-row items-center gap-1 typo-callout"
-          >
-            {children}
-          </a>
+        <li
+          className="flex flex-row items-center gap-1 px-2 font-bold text-text-primary typo-callout"
+          aria-current="page"
+        >
+          {children}
         </li>
       </ol>
     </BreadCrumbsWrapper>
