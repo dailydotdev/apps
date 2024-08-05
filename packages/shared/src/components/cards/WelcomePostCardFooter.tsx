@@ -1,14 +1,17 @@
 import React, { ReactElement, useMemo } from 'react';
 import { sanitize } from 'dompurify';
-import { CardImage, CardSpace } from './Card';
-import { cloudinary } from '../../lib/image';
+import { CardSpace } from './Card';
+import { Post } from '../../graphql/posts';
+import { CardCover } from './common/CardCover';
 
 interface WelcomePostCardFooterProps {
+  post: Post;
   image?: string;
   contentHtml?: string;
 }
 
 export const WelcomePostCardFooter = ({
+  post,
   image,
   contentHtml,
 }: WelcomePostCardFooterProps): ReactElement => {
@@ -26,12 +29,14 @@ export const WelcomePostCardFooter = ({
     return (
       <>
         <CardSpace />
-        <CardImage
-          alt="Post Cover image"
-          src={image}
-          fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-          className="my-2"
-          loading="lazy"
+        <CardCover
+          post={post}
+          imageProps={{
+            src: image,
+            className: 'my-2',
+            loading: 'lazy',
+            alt: 'Post Cover image',
+          }}
         />
       </>
     );

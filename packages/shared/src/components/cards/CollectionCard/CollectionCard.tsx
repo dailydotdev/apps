@@ -67,7 +67,11 @@ export const CollectionCard = forwardRef(function CollectionCard(
       />
 
       <Container>
-        <WelcomePostCardFooter image={image} contentHtml={post.contentHtml} />
+        <WelcomePostCardFooter
+          image={image}
+          contentHtml={post.contentHtml}
+          post={post}
+        />
         <ActionButtons
           post={post}
           onUpvoteClick={onUpvoteClick}

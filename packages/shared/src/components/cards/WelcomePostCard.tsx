@@ -105,7 +105,11 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
         </>
       )}
       <Container ref={containerRef}>
-        <WelcomePostCardFooter image={image} contentHtml={post.contentHtml} />
+        <WelcomePostCardFooter
+          image={image}
+          contentHtml={post.contentHtml}
+          post={post}
+        />
         <ActionButtons
           post={post}
           onUpvoteClick={onUpvoteClick}
