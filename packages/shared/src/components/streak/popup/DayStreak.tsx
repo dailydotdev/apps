@@ -5,7 +5,6 @@ import classed from '../../../lib/classed';
 import { IconSize, iconSizeToClassName } from '../../Icon';
 import { isNullOrUndefined } from '../../../lib/func';
 import { SimpleTooltip } from '../../tooltips';
-import { useViewSize, ViewSize } from '../../../hooks';
 
 export enum Streak {
   Completed = 'completed',
@@ -37,8 +36,6 @@ export function DayStreak({
   shouldShowArrow,
   onClick,
 }: DayStreakProps): ReactElement {
-  const isLaptop = useViewSize(ViewSize.Laptop);
-
   const renderIcon = () => {
     if (streak === Streak.Completed || streak === Streak.Pending) {
       return (
