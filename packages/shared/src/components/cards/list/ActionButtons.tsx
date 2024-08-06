@@ -53,6 +53,15 @@ export default function ActionButtons({
     await onDownvoteClick?.(post);
   };
 
+  const onToggleUpvote = () => {
+    if (post.userState?.vote === UserVote.Down && !!showTagsPanel) {
+      onClose(true);
+    }
+
+    onUpvoteClick?.(post);
+    setUserUpvoted(true);
+  };
+
   return (
     <ConditionalWrapper
       condition={showTagsPanel === true}
@@ -78,10 +87,7 @@ export default function ActionButtons({
               id={`post-${post.id}-upvote-btn`}
               color={ButtonColor.Avocado}
               pressed={post?.userState?.vote === UserVote.Up}
-              onClick={() => {
-                onUpvoteClick?.(post);
-                setUserUpvoted(true);
-              }}
+              onClick={onToggleUpvote}
               variant={ButtonVariant.Tertiary}
             >
               <UpvoteButtonIcon
