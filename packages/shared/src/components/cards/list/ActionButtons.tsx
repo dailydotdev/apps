@@ -54,12 +54,12 @@ export default function ActionButtons({
   };
 
   const onToggleUpvote = () => {
-    onUpvoteClick?.(post);
-    setUserUpvoted(true);
-
     if (post.userState?.vote === UserVote.Down && !!showTagsPanel) {
       onClose(true);
     }
+
+    onUpvoteClick?.(post);
+    setUserUpvoted(true);
   };
 
   return (
