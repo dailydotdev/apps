@@ -15,7 +15,7 @@ export const cloudinary = {
   },
   post: {
     imageCoverPlaceholder:
-      'https://res.cloudinary.com/daily-now/image/upload/s--P4t4XyoV--/f_auto/v1710058033/public/Placeholder%2001',
+      'https://res.cloudinary.com/daily-now/image/upload/s--P4t4XyoV--/f_auto/v1722860399/public/Placeholder%2001',
   },
   feedFilters: {
     recommended:

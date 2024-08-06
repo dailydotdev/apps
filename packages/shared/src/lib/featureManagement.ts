@@ -30,7 +30,6 @@ const feature = {
   bookmarkReminder: new Feature('bookmark_reminder', false),
   animatedUpvote: new Feature('animated_upvote', false),
   authorImage: new Feature('author_image', false),
-  onboardingContentType: new Feature('onboarding_content_type', false),
   sourceNotifyButton: new Feature('source_notify_button', false),
   cardDownvote: new Feature('card_downvote', false),
   generateSummary: new Feature('generate_summary', false),

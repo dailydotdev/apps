@@ -333,13 +333,7 @@ export function OnboardPage(): ReactElement {
     activeScreen === OnboardingStep.EditTag && !enableContentTypeStep.current;
 
   if (shouldCheckForContentTypeStep) {
-    const onboardingContentType = getFeatureValue(
-      feature.onboardingContentType,
-    );
-
-    if (onboardingContentType) {
-      enableContentTypeStep.current = true;
-    }
+    enableContentTypeStep.current = true;
   }
 
   return (
