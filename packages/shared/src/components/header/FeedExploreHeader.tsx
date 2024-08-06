@@ -12,6 +12,7 @@ import { Dropdown } from '../fields/Dropdown';
 import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import { periodTexts } from '../layout/common';
 import { OtherFeedPage } from '../../lib/query';
+import { useFeedLayout } from '../../hooks';
 
 export enum ExploreTabs {
   Popular = 'Popular',
@@ -71,11 +72,17 @@ export function FeedExploreHeader({
     key: [QueryStateKeys.FeedPeriod],
     defaultValue: 0,
   });
+  const { isListMode } = useFeedLayout();
 
   return (
     <div className={classNames('flex w-full flex-col', className.container)}>
       {showBreadcrumbs && (
-        <BreadCrumbs className="px-2">
+        <BreadCrumbs
+          className={classNames(
+            'px-2',
+            isListMode && 'tablet:pt-4 laptop:pt-5',
+          )}
+        >
           <HotIcon size={IconSize.XSmall} secondary /> Explore
         </BreadCrumbs>
       )}
