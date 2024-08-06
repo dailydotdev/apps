@@ -1,20 +1,14 @@
 import React, { ReactElement, useCallback, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { Modal, ModalProps } from './common/Modal';
-import { RequestKey, generateQueryKey } from '../../lib/query';
-import { SLACK_CHANNELS_QUERY, SlackChannels } from '../../graphql/slack';
-import user from '../../../__tests__/fixture/loggedUser';
 import {
-  USER_INTEGRATIONS,
   UserIntegration,
   UserIntegrationType,
-} from '../../graphql/users';
+} from '../../graphql/integrations';
 import { Dropdown } from '../fields/Dropdown';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
-import { useSlack } from '../../hooks';
-import { Source } from '../../graphql/sources';
-import { Connection, gqlClient } from '../../graphql/common';
+import { useViewSize, ViewSize } from '../../hooks';
+import { Source, SourceType } from '../../graphql/sources';
 import { ModalClose } from './common/ModalClose';
 import { SourceAvatar } from '../profile/source';
 import { ProfileImageSize } from '../ProfilePicture';
@@ -24,7 +18,12 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { SlackIcon } from '../icons';
+import { PlusIcon, SlackIcon } from '../icons';
+import { useSlack } from '../../hooks/integrations/slack/useSlack';
+import { useIntegrations } from '../../hooks/integrations/useIntegrations';
+import { useSourceIntegration } from '../../hooks/integrations/useSourceIntegration';
+import { useSlackChannels } from '../../hooks/integrations/slack/useSlackChannels';
+import { useIntegration } from '../../hooks/integrations/useIntegration';
 
 export type SlackIntegrationModalProps = Omit<ModalProps, 'children'> & {
   source: Pick<Source, 'id' | 'handle' | 'type' | 'image' | 'name'>;
@@ -34,60 +33,72 @@ const SlackIntegrationModal = ({
   source,
   ...props
 }: SlackIntegrationModalProps): ReactElement => {
-  const { data: slackIntegrations } = useQuery(
-    generateQueryKey(RequestKey.UserIntegrations, user),
-    async () => {
-      const result = await gqlClient.request<{
-        userIntegrations: Connection<UserIntegration>;
-      }>(USER_INTEGRATIONS);
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const { removeIntegration } = useIntegration();
 
-      return result.userIntegrations;
-    },
-    {
+  const [state, setState] = useState<{
+    userIntegration?: UserIntegration;
+    channelId?: string;
+  }>({});
+
+  const { data: sourceIntegration } = useSourceIntegration({
+    userIntegrationType: UserIntegrationType.Slack,
+    sourceId: source.id,
+  });
+
+  const { data: slackIntegrations } = useIntegrations({
+    queryOptions: {
       select: useCallback((data) => {
-        return data?.edges
-          ?.map((item) => item.node)
-          .filter(
-            (integration) => integration.type === UserIntegrationType.Slack,
-          );
+        const filteredData = data.filter(
+          (integration) => integration.type === UserIntegrationType.Slack,
+        );
+
+        filteredData.push({
+          id: 'new',
+          type: UserIntegrationType.Slack,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          name: 'Connect another workspace',
+          userId: 'new',
+        });
+
+        return filteredData;
       }, []),
     },
+  });
+
+  const selectedIntegration =
+    state.userIntegration || sourceIntegration?.userIntegration;
+  const selectedIntegrationIndex = slackIntegrations?.findIndex(
+    (item) => item.id === selectedIntegration?.id,
   );
 
-  const [selectedIntegrationIndex, setSelectedIntegrationIndex] = useState(0);
-  const [selectedChannelIndex, setSelectedChannelIndex] = useState(0);
+  const { data: channels } = useSlackChannels({
+    integrationId: selectedIntegration?.id,
+  });
 
-  const selectedIntegration = slackIntegrations?.[selectedIntegrationIndex];
-
-  const { data: channels } = useQuery(
-    generateQueryKey(RequestKey.SlackChannels, user, {
-      integrationId: selectedIntegration?.id,
-    }),
-    async ({ queryKey }) => {
-      const [, , { integrationId }] = queryKey as [
-        unknown,
-        unknown,
-        { integrationId: string },
-      ];
-      const result = await gqlClient.request<{
-        slackChannels: {
-          data: SlackChannels[];
-        };
-      }>(SLACK_CHANNELS_QUERY, {
-        integrationId,
-      });
-
-      return result.slackChannels.data;
-    },
-    {
-      enabled: !!selectedIntegration?.id,
-    },
+  const selectedChannel = state.channelId || sourceIntegration?.channelIds[0];
+  const selectedChannelIndex = channels?.findIndex(
+    (item) => item.id === selectedChannel,
   );
 
   const slack = useSlack();
 
+  const onConnectNew = () => {
+    slack.connect({
+      redirectPath: `/${
+        source.type === SourceType.Squad ? 'squads' : 'sources'
+      }/${source.handle}`,
+    });
+  };
+
   return (
-    <Modal kind={Modal.Kind.FlexibleCenter} size={Modal.Size.XSmall} {...props}>
+    <Modal
+      kind={Modal.Kind.FlexibleCenter}
+      size={Modal.Size.XSmall}
+      isDrawerOnMobile
+      {...props}
+    >
       <ModalClose className="top-4" onClick={props.onRequestClose} />
       <Modal.Body className="flex flex-col gap-4">
         <div className="mr-auto flex items-center justify-center">
@@ -121,20 +132,42 @@ const SlackIntegrationModal = ({
         </Typography>
         {!!slackIntegrations?.length && (
           <Dropdown
+            placeholder="Select workspace"
             shouldIndicateSelected
             buttonSize={ButtonSize.Medium}
             iconOnly={false}
             key="feed"
             selectedIndex={selectedIntegrationIndex}
-            renderItem={(_, index) => (
-              <span className="typo-callout">
-                {slackIntegrations[index].name}
-              </span>
-            )}
+            renderItem={(value, index) => {
+              const currentIntegration = slackIntegrations[index];
+              const ItemIcon =
+                currentIntegration.id === 'new' ? PlusIcon : SlackIcon;
+
+              return (
+                <span className="flex gap-2 typo-callout">
+                  <ItemIcon />
+                  {slackIntegrations[index].name}
+                </span>
+              );
+            }}
             icon={<SlackIcon />}
             options={slackIntegrations?.map((item) => item.name)}
             onChange={(value, index) => {
-              setSelectedIntegrationIndex(index);
+              const currentIntegration = slackIntegrations[index];
+
+              if (currentIntegration.id === 'new') {
+                onConnectNew();
+
+                return;
+              }
+
+              setState((current) => {
+                return {
+                  ...current,
+                  userIntegration: slackIntegrations[index],
+                  channelId: undefined,
+                };
+              });
             }}
             scrollable
           />
@@ -160,6 +193,7 @@ const SlackIntegrationModal = ({
           </Typography>
           {!!channels?.length && (
             <Dropdown
+              placeholder="Select channel"
               shouldIndicateSelected
               buttonSize={ButtonSize.Medium}
               iconOnly={false}
@@ -168,9 +202,14 @@ const SlackIntegrationModal = ({
               renderItem={(_, index) => (
                 <span className="typo-callout">{`#${channels[index].name}`}</span>
               )}
-              options={channels?.map((item) => item.name)}
+              options={channels?.map((item) => `#${item.name}`)}
               onChange={(value, index) => {
-                setSelectedChannelIndex(index);
+                setState((current) => {
+                  return {
+                    ...current,
+                    channelId: channels[index].id,
+                  };
+                });
               }}
               scrollable
             />
@@ -192,14 +231,14 @@ const SlackIntegrationModal = ({
         </Button>
         <Button
           type="button"
-          variant={ButtonVariant.Tertiary}
+          variant={isMobile ? ButtonVariant.Float : ButtonVariant.Tertiary}
           size={ButtonSize.Medium}
-          onClick={() => {
-            slack.connectSource({
-              channelId: channels[selectedChannelIndex].id,
+          onClick={async (event) => {
+            await removeIntegration({
               integrationId: selectedIntegration.id,
-              sourceId: source.id,
             });
+
+            props.onRequestClose?.(event);
           }}
         >
           Remove integration

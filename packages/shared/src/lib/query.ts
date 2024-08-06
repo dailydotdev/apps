@@ -134,6 +134,7 @@ export enum RequestKey {
   FeedByIds = 'feedByIds',
   SlackChannels = 'slack_channels',
   UserIntegrations = 'user_integrations',
+  UserSourceIntegrations = 'user_source_integrations',
 }
 
 export type HasConnection<

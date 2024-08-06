@@ -1,9 +1,9 @@
-import { useAuthContext } from '../contexts/AuthContext';
-import { setCookie } from '../lib/cookie';
-import { SLACK_CONNECT_SOURCE_MUTATION } from '../graphql/slack';
-import { isDevelopment } from '../lib/constants';
-import { gqlClient } from '../graphql/common';
-import { apiUrl } from '../lib/config';
+import { useAuthContext } from '../../../contexts/AuthContext';
+import { setCookie } from '../../../lib/cookie';
+import { SLACK_CONNECT_SOURCE_MUTATION } from '../../../graphql/integrations';
+import { isDevelopment } from '../../../lib/constants';
+import { gqlClient } from '../../../graphql/common';
+import { apiUrl } from '../../../lib/config';
 
 export type UseSlackProps = void;
 

@@ -529,18 +529,6 @@ export const VOTE_MUTATION = gql`
   }
 `;
 
-export enum UserIntegrationType {
-  Slack = 'slack',
-}
-
-export type UserIntegration = {
-  id: string;
-  type: UserIntegrationType;
-  createdAt: Date;
-  updatedAt: Date;
-  name: string;
-};
-
 export const USER_INTEGRATIONS = gql`
   query UserIntegrations {
     userIntegrations {

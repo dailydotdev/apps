@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { HTMLAttributes, ReactElement } from 'react';
+import React, { HTMLAttributes, ReactElement, useMemo } from 'react';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import SquadHeaderMenu from './SquadHeaderMenu';
@@ -27,6 +27,9 @@ import {
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { ContextMenu } from '../../hooks/constants';
+import { useSourceIntegration } from '../../hooks/integrations/useSourceIntegration';
+import { UserIntegrationType } from '../../graphql/integrations';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 export function SquadHeaderBar({
   squad,
@@ -34,6 +37,7 @@ export function SquadHeaderBar({
   className,
   ...props
 }: SquadMemberShortListProps & HTMLAttributes<HTMLDivElement>): ReactElement {
+  const { user } = useAuthContext();
   const { tourIndex } = useSquadTour();
   const { copying, logAndCopyLink } = useSquadInvitation({
     squad,
@@ -55,6 +59,31 @@ export function SquadHeaderBar({
   const checklistTooltipText = `${completedStepsCount}/${totalStepsCount}`;
   const showJoinButton = squad.public && !squad.currentMember;
   const firstItemClasses = 'order-5 tablet:order-1';
+
+  const { data: sourceIntegration, isLoading } = useSourceIntegration({
+    sourceId: squad.id,
+    userIntegrationType: UserIntegrationType.Slack,
+  });
+
+  const slackButtonLabel = useMemo(() => {
+    if (!verifyPermission(squad, SourcePermissions.ConnectSlack)) {
+      return null;
+    }
+
+    if (isLoading && !sourceIntegration) {
+      return null;
+    }
+
+    if (!sourceIntegration) {
+      return 'Connect to Slack';
+    }
+
+    if (sourceIntegration?.userIntegration.userId === user.id) {
+      return 'Manage';
+    }
+
+    return null;
+  }, [sourceIntegration, user, squad, isLoading]);
 
   return (
     <div
@@ -80,21 +109,23 @@ export function SquadHeaderBar({
           Invitation link
         </Button>
       )}
-      <Button
-        variant={ButtonVariant.Secondary}
-        onClick={() => {
-          openModal({
-            type: LazyModal.SlackIntegration,
-            props: {
-              source: squad,
-            },
-          });
-        }}
-        icon={<SlackIcon />}
-        disabled={copying}
-      >
-        Add to Slack
-      </Button>
+      {!!slackButtonLabel && (
+        <Button
+          variant={ButtonVariant.Secondary}
+          onClick={() => {
+            openModal({
+              type: LazyModal.SlackIntegration,
+              props: {
+                source: squad,
+              },
+            });
+          }}
+          icon={<SlackIcon />}
+          disabled={copying}
+        >
+          {slackButtonLabel}
+        </Button>
+      )}
       {showJoinButton && (
         <SquadJoinButton
           className={{ wrapper: firstItemClasses }}

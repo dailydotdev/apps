@@ -60,4 +60,20 @@ export const labels = {
       },
     },
   },
+  integrations: {
+    prompt: {
+      deleteIntegration: {
+        title: 'Delete integration',
+        description:
+          'Are you sure you want to delete this integration? We will no longer have access to your slack workspace.',
+        okButton: 'Yes, delete integration',
+      },
+      deleteSourceIntegration: {
+        title: 'Delete source integration',
+        description:
+          'Are you sure you want to delete this integration? You will no longer receive updates from this source.',
+        okButton: 'Yes, delete integration',
+      },
+    },
+  },
 };
