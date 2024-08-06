@@ -13,6 +13,7 @@ import {
 import { LazyModal } from '../../modals/common/types';
 import { Post } from '../../../graphql/posts';
 import { useLazyModal } from '../../../hooks/useLazyModal';
+import { wrapStopPropagation } from '../../../lib/func';
 
 interface PostReminderOptionsProps {
   post: Post;
@@ -39,21 +40,25 @@ export function PostReminderOptions({
     <span className={classNames('flex flex-row gap-3', className)}>
       <Button
         {...buttonProps}
-        onClick={() => runBookmarkReminder(ReminderPreference.OneHour)}
+        onClick={wrapStopPropagation(() =>
+          runBookmarkReminder(ReminderPreference.OneHour),
+        )}
       >
         1h
       </Button>
       <Button
         {...buttonProps}
-        onClick={() => runBookmarkReminder(ReminderPreference.Tomorrow)}
+        onClick={wrapStopPropagation(() =>
+          runBookmarkReminder(ReminderPreference.Tomorrow),
+        )}
       >
         24h
       </Button>
       <Button
         {...buttonProps}
-        onClick={() =>
-          openModal({ type: LazyModal.BookmarkReminder, props: { post } })
-        }
+        onClick={wrapStopPropagation(() =>
+          openModal({ type: LazyModal.BookmarkReminder, props: { post } }),
+        )}
       >
         Other
       </Button>
