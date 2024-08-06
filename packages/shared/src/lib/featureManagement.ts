@@ -22,7 +22,6 @@ const feature = {
   }),
   feedAdSpot: new Feature('feed_ad_spot', 0),
   searchVersion: new Feature('search_version', 2),
-  searchResultsUpgrade: new Feature('search_results_upgrade', false),
   featureTheme: new Feature('feature_theme', {}),
   shortcutsUI: new Feature('shortcuts_ui', ShortcutsUIExperiment.Control),
   showRoadmap: new Feature('show_roadmap', false),

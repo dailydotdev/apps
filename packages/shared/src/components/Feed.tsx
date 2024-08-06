@@ -157,8 +157,7 @@ export default function Feed<T>({
   const marketingCta = getMarketingCta(MarketingCtaVariant.Card);
   const showMarketingCta = !!marketingCta;
 
-  const { isSearchResultsUpgrade, isLoading: isSearchResultUpgradeLoading } =
-    useSearchResultsLayout();
+  const { isSearchResultsUpgrade } = useSearchResultsLayout();
 
   const {
     items,
@@ -294,7 +293,7 @@ export default function Feed<T>({
     [openSharePost, virtualizedNumCards],
   );
 
-  if (!loadedSettings || isSearchResultUpgradeLoading || isFallback) {
+  if (!loadedSettings || isFallback) {
     return <></>;
   }
 
