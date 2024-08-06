@@ -47,21 +47,23 @@ export function DayStreak({
       );
     }
 
+    const isStreakFreeze = streak === Streak.Freeze;
+
     return (
       <Circle
         className={classNames(
           className,
           iconSizeToClassName[size],
-          streak === Streak.Freeze &&
+          isStreakFreeze &&
             'flex cursor-pointer items-center justify-center bg-text-disabled text-transparent laptop:hover:text-surface-secondary',
         )}
         onClick={() => {
-          if (streak === Streak.Freeze && onClick) {
+          if (isStreakFreeze && onClick) {
             onClick();
           }
         }}
       >
-        {streak === Streak.Freeze && <EditIcon size={IconSize.XSmall} />}
+        {isStreakFreeze && <EditIcon size={IconSize.XSmall} />}
       </Circle>
     );
   };
