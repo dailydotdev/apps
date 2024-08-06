@@ -23,6 +23,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
     onPostClick,
     onBookmarkClick,
     onDownvoteClick,
+    onShare,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
@@ -67,7 +68,12 @@ export const CollectionCard = forwardRef(function CollectionCard(
       />
 
       <Container>
-        <WelcomePostCardFooter image={image} contentHtml={post.contentHtml} />
+        <WelcomePostCardFooter
+          image={image}
+          contentHtml={post.contentHtml}
+          post={post}
+          onShare={onShare}
+        />
         <ActionButtons
           post={post}
           onUpvoteClick={onUpvoteClick}
