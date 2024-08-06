@@ -1,21 +1,27 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import Link from 'next/link';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { Card } from '@dailydotdev/shared/src/components/cards/Card';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib';
 
+interface ListItemProps {
+  title: string;
+  children: ReactNode;
+  className?: string;
+}
+
+interface ListItemLinkProps extends Omit<ListItemProps, 'title'> {
+  href: string;
+  index: number;
+}
+
 export const ListItem = ({
   index,
   href,
   children,
   className,
-}: {
-  index: number;
-  href: string;
-  children: ReactElement;
-  className?: string;
-}): ReactElement => {
+}: ListItemLinkProps): ReactElement => {
   return (
     <li className={className}>
       <Link href={href} passHref key={href} prefetch={false}>
@@ -40,11 +46,7 @@ export const TopList = ({
   title,
   children,
   className,
-}: {
-  title: string;
-  children: ReactElement;
-  className?: string;
-}): ReactElement => {
+}: ListItemProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const Wrapper = isMobile ? TopListMobileDiv : TopListCardElement;
   return (

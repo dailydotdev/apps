@@ -48,20 +48,18 @@ const TagTopList = ({
 }): ReactElement => {
   return (
     <TopList {...props}>
-      <>
-        {/* eslint-disable-next-line react/no-array-index-key */}
-        {isLoading && [...Array(10)].map((_, i) => <PlaceholderList key={i} />)}
-        {items?.map((item, i) => (
-          <ListItem
-            key={item.value}
-            index={i + 1}
-            href={getTagPageLink(item.value)}
-            className="py-1.5 pr-2"
-          >
-            <p className="pl-4">{item.value}</p>
-          </ListItem>
-        ))}
-      </>
+      {/* eslint-disable-next-line react/no-array-index-key */}
+      {isLoading && [...Array(10)].map((_, i) => <PlaceholderList key={i} />)}
+      {items?.map((item, i) => (
+        <ListItem
+          key={item.value}
+          index={i + 1}
+          href={getTagPageLink(item.value)}
+          className="py-1.5 pr-2"
+        >
+          <p className="pl-4">{item.value}</p>
+        </ListItem>
+      ))}
     </TopList>
   );
 };
