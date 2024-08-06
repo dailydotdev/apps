@@ -36,7 +36,7 @@ export const ListItem = ({
   );
 };
 
-const TopListCardElement = classed(Card, '!p-4 !max-h-none');
+const TopListCardElement = classed(Card, '!p-4 !max-h-none h-fit');
 const TopListMobileDiv = classed(
   'div',
   'flex flex-col border-b border-b-border-subtlest-tertiary p-4',
