@@ -41,7 +41,17 @@ export const useSlackChannels = ({
         };
       }>(SLACK_CHANNELS_QUERY, queryVariables);
 
-      return result.slackChannels.data;
+      return result.slackChannels.data.sort((a, b) => {
+        if (a.name < b.name) {
+          return -1;
+        }
+
+        if (a.name > b.name) {
+          return 1;
+        }
+
+        return 0;
+      });
     },
     {
       staleTime: StaleTime.Default,
