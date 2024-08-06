@@ -37,7 +37,6 @@ export const WelcomePostCardFooter = ({
           imageProps={{
             src: image,
             className: 'my-2 w-full',
-            loading: 'lazy',
             alt: 'Post Cover image',
           }}
         />
