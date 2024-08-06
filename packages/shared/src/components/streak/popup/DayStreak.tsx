@@ -59,7 +59,7 @@ export function DayStreak({
             'flex cursor-pointer items-center justify-center bg-text-disabled text-transparent laptop:hover:text-surface-secondary',
         )}
         onClick={() => {
-          if (streak === Streak.Freeze && onClick && isLaptop) {
+          if (streak === Streak.Freeze && onClick) {
             onClick();
           }
         }}
