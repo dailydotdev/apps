@@ -1,4 +1,5 @@
 import React, { ReactElement, useCallback, useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Modal, ModalProps } from './common/Modal';
 import {
   UserIntegration,
@@ -7,7 +8,7 @@ import {
 import { Dropdown } from '../fields/Dropdown';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useToastNotification, useViewSize, ViewSize } from '../../hooks';
 import { Source, SourceType } from '../../graphql/sources';
 import { ModalClose } from './common/ModalClose';
 import { SourceAvatar } from '../profile/source';
@@ -24,6 +25,9 @@ import { useIntegrations } from '../../hooks/integrations/useIntegrations';
 import { useSourceIntegration } from '../../hooks/integrations/useSourceIntegration';
 import { useSlackChannels } from '../../hooks/integrations/slack/useSlackChannels';
 import { useIntegration } from '../../hooks/integrations/useIntegration';
+import { generateQueryKey, RequestKey } from '../../lib/query';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { labels } from '../../lib';
 
 export type SlackIntegrationModalProps = Omit<ModalProps, 'children'> & {
   source: Pick<Source, 'id' | 'handle' | 'type' | 'image' | 'name'>;
@@ -34,7 +38,10 @@ const SlackIntegrationModal = ({
   ...props
 }: SlackIntegrationModalProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { removeIntegration } = useIntegration();
+  const { removeSourceIntegration } = useIntegration();
+  const queryClient = useQueryClient();
+  const { user } = useAuthContext();
+  const { displayToast } = useToastNotification();
 
   const [state, setState] = useState<{
     userIntegration?: UserIntegration;
@@ -91,6 +98,25 @@ const SlackIntegrationModal = ({
       }/${source.handle}`,
     });
   };
+
+  const { mutateAsync: onSave, isLoading: isSaving } = useMutation(
+    async () => {
+      await slack.connectSource({
+        channelId: channels[selectedChannelIndex].id,
+        integrationId: selectedIntegration.id,
+        sourceId: source.id,
+      });
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(
+          generateQueryKey(RequestKey.UserSourceIntegrations, user),
+        );
+
+        displayToast(labels.integrations.success.integrationSaved);
+      },
+    },
+  );
 
   return (
     <Modal
@@ -219,13 +245,12 @@ const SlackIntegrationModal = ({
           type="button"
           variant={ButtonVariant.Primary}
           size={ButtonSize.Large}
-          onClick={() => {
-            slack.connectSource({
-              channelId: channels[selectedChannelIndex].id,
-              integrationId: selectedIntegration.id,
-              sourceId: source.id,
-            });
+          onClick={async (event) => {
+            await onSave();
+
+            props.onRequestClose?.(event);
           }}
+          loading={isSaving}
         >
           Save
         </Button>
@@ -234,8 +259,9 @@ const SlackIntegrationModal = ({
           variant={isMobile ? ButtonVariant.Float : ButtonVariant.Tertiary}
           size={ButtonSize.Medium}
           onClick={async (event) => {
-            await removeIntegration({
+            await removeSourceIntegration({
               integrationId: selectedIntegration.id,
+              sourceId: source.id,
             });
 
             props.onRequestClose?.(event);

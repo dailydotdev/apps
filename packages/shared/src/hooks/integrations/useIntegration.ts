@@ -1,5 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
+  REMOVE_INTEGRATION_MUTATION,
+  REMOVE_SOURCE_INTEGRATION_MUTATION,
   UserIntegration,
   UserSourceIntegration,
 } from '../../graphql/integrations';
@@ -10,6 +12,7 @@ import {
   deleteIntegrationPromptOptions,
   deleteSourceIntegrationPromptOptions,
 } from '../../lib/integrations';
+import { gqlClient } from '../../graphql/common';
 
 export type UseIntegration = {
   removeIntegration: ({
@@ -39,7 +42,9 @@ export const useIntegration = (): UseIntegration => {
         throw new Error('User cancelled integration deletion');
       }
 
-      // TODO AS-413 - Implement removeIntegration mutation
+      await gqlClient.request(REMOVE_INTEGRATION_MUTATION, {
+        integrationId,
+      });
     },
     {
       onSuccess: async (data, { integrationId }) => {
@@ -71,7 +76,10 @@ export const useIntegration = (): UseIntegration => {
         throw new Error('User cancelled source integration deletion');
       }
 
-      // TODO AS-413 - Implement removeSourceIntegration mutation
+      await gqlClient.request(REMOVE_SOURCE_INTEGRATION_MUTATION, {
+        sourceId,
+        integrationId,
+      });
     },
     {
       onSuccess: async (data, { sourceId, integrationId }) => {

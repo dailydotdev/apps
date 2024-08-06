@@ -104,3 +104,22 @@ export const SOURCE_INTEGRATIONS_QUERY = gql`
     }
   }
 `;
+
+export const REMOVE_INTEGRATION_MUTATION = gql`
+  mutation RemoveIntegration($integrationId: ID!) {
+    removeIntegration(integrationId: $integrationId) {
+      _
+    }
+  }
+`;
+
+export const REMOVE_SOURCE_INTEGRATION_MUTATION = gql`
+  mutation RemoveSourceIntegration($sourceId: ID!, $integrationId: ID!) {
+    removeSourceIntegration(
+      sourceId: $sourceId
+      integrationId: $integrationId
+    ) {
+      _
+    }
+  }
+`;

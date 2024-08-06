@@ -75,5 +75,8 @@ export const labels = {
         okButton: 'Yes, delete integration',
       },
     },
+    success: {
+      integrationSaved: 'Integration saved successfully',
+    },
   },
 };
