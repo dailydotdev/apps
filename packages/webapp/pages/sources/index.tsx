@@ -25,6 +25,7 @@ import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
+import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { ListItem, TopList } from '../../components/common';
@@ -102,7 +103,7 @@ const SourcesPage = ({
   return (
     <>
       <NextSeo {...seo} />
-      <main className="py-6 tablet:px-4 laptop:px-10">
+      <PageWrapperLayout className="py-6">
         <div className="flex justify-between">
           <BreadCrumbs>
             <SitesIcon size={IconSize.XSmall} secondary /> Sources
@@ -138,7 +139,7 @@ const SourcesPage = ({
             isLoading={isLoading}
           />
         </div>
-      </main>
+      </PageWrapperLayout>
     </>
   );
 };
