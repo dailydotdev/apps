@@ -4,7 +4,7 @@ import { Post } from '../../../graphql/posts';
 import { BookmarkReminderIcon } from '../../icons/Bookmark/Reminder';
 import { IconSize } from '../../Icon';
 import { PostReminderOptions } from './PostReminderOptions';
-import { useJustBookmarked } from '../../../hooks/bookmark';
+import { useBookmarkReminderCover } from '../../../hooks/bookmark/useBookmarkReminderCover';
 
 interface PostContentReminderProps {
   post: Post;
@@ -13,9 +13,7 @@ interface PostContentReminderProps {
 export function PostContentReminder({
   post,
 }: PostContentReminderProps): ReactElement {
-  const { justBookmarked: shouldShowReminder } = useJustBookmarked({
-    bookmarked: post?.bookmarked,
-  });
+  const shouldShowReminder = useBookmarkReminderCover(post);
 
   if (!shouldShowReminder) {
     return null;
