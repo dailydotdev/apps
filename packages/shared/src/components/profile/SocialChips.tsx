@@ -14,6 +14,9 @@ import {
 } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { withHttps, withoutProtocol } from '../../lib/links';
+import { useLogContext } from '../../contexts/LogContext';
+import { combinedClicks } from '../../lib/click';
+import { LogEvent, TargetType } from '../../lib/log';
 
 export interface SocialChipsProps {
   links: {
@@ -111,6 +114,8 @@ const order: (keyof SocialChipsProps['links'])[] = [
 ];
 
 export function SocialChips({ links }: SocialChipsProps): ReactElement {
+  const { logEvent } = useLogContext();
+
   const elements = order
     .filter((key) => !!links[key])
     .map((key) => (
@@ -124,6 +129,13 @@ export function SocialChips({ links }: SocialChipsProps): ReactElement {
         href={handlers[key].href(links[key])}
         key={key}
         data-testid={key}
+        {...combinedClicks(() => {
+          logEvent({
+            event_name: LogEvent.Click,
+            target_type: TargetType.SocialLink,
+            target_id: key,
+          });
+        })}
       >
         {handlers[key].label(links[key])}
       </Button>
