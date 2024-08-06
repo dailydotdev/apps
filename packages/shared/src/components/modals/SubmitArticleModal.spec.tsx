@@ -77,7 +77,29 @@ it('should disable the button on invalid URL', async () => {
 });
 
 it('should submit a valid URL', async () => {
+  let mutationCalled = false;
   renderComponent();
+
+  mockGraphQL({
+    request: {
+      query: SUBMIT_ARTICLE_MUTATION,
+      variables: { url: 'http://blog.daily.dev/blog/article-1' },
+    },
+    result: () => {
+      mutationCalled = true;
+
+      return {
+        data: {
+          submitArticle: {
+            submission: {
+              id: 1,
+            },
+          },
+        },
+      };
+    },
+  });
+
   const link = 'http://blog.daily.dev/blog/article-1';
   const input = (await screen.findByRole('textbox')) as HTMLInputElement;
   userEvent.type(input, link);
@@ -86,24 +108,10 @@ it('should submit a valid URL', async () => {
   await waitFor(() => expect(btn).toBeEnabled());
   fireEvent.click(btn);
 
-  mockGraphQL({
-    request: {
-      query: SUBMIT_ARTICLE_MUTATION,
-      variables: { url: 'http://blog.daily.dev/blog/article-1' },
-    },
-    result: {
-      data: {
-        submitArticle: {
-          submission: {
-            id: 1,
-          },
-        },
-      },
-    },
-  });
-
-  const sent = 'We will notify you about the post-submission status via email';
   await waitFor(() => {
+    expect(mutationCalled).toBeTruthy();
+    const sent =
+      'We will notify you about the post-submission status via email';
     const element = screen.getByText(sent);
     expect(element).toBeInTheDocument();
   });
