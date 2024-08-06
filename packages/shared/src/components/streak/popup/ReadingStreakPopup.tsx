@@ -85,7 +85,7 @@ export function ReadingStreakPopup({
   streak,
   fullWidth,
 }: ReadingStreakPopupProps): ReactElement {
-  const isTablet = useViewSize(ViewSize.Tablet);
+  const isMobile = useViewSize(ViewSize.MobileL);
   const { user } = useAuthContext();
   const { completeAction } = useActions();
   const { data: history } = useQuery<ReadingDay[]>(
@@ -148,7 +148,7 @@ export function ReadingStreakPopup({
           <div
             className={classNames(
               'font-bold text-text-tertiary',
-              !isTablet && 'my-4 flex-1 text-center',
+              isMobile && 'my-4 flex-1 text-center',
             )}
           >
             Total reading days: {streak.total}
@@ -159,11 +159,11 @@ export function ReadingStreakPopup({
             pressed={showStreakConfig}
             icon={<SettingsIcon />}
             className={classNames(
-              !isTablet ? 'w-full' : 'ml-auto',
-              !isTablet && showStreakConfig && 'hidden',
+              isMobile ? 'w-full' : 'ml-auto',
+              isMobile && showStreakConfig && 'hidden',
             )}
           >
-            {!isTablet ? 'Settings' : null}
+            {isMobile ? 'Settings' : null}
           </Button>
         </div>
       </div>
