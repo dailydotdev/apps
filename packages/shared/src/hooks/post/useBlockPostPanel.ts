@@ -199,13 +199,15 @@ export const useBlockPostPanel = (
           );
         };
 
-        displayToast(
-          getBlockedMessage(blocks.length, sourcePreferenceChanged),
-          {
-            onUndo: onUndoToast,
-            undoCopy: 'Undo',
-          },
-        );
+        if (blocks.length || sourcePreferenceChanged) {
+          displayToast(
+            getBlockedMessage(blocks.length, sourcePreferenceChanged),
+            {
+              onUndo: onUndoToast,
+              undoCopy: 'Undo',
+            },
+          );
+        }
       }
 
       setShowTagsPanel({
