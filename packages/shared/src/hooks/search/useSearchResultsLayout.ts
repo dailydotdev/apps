@@ -9,10 +9,10 @@ interface SearchResultsLayout {
 export const useSearchResultsLayout = (): SearchResultsLayout => {
   const { feedName } = useActiveFeedNameContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const shouldShowNewLayout = !!isLaptop && feedName === SharedFeedPage.Search;
+  const isSearchPageLaptop = !!isLaptop && feedName === SharedFeedPage.Search;
 
   return {
-    isSearchResultsUpgrade: shouldShowNewLayout,
+    isSearchResultsUpgrade: isSearchPageLaptop,
   };
 };
 
