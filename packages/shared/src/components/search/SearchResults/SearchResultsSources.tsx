@@ -30,7 +30,7 @@ export const SearchResultsSources = (
   }
 
   return (
-    <WidgetCard heading="Related sources">
+    <WidgetCard heading="Related sources" data-testid="related-sources">
       {!!sources?.length && (
         <ul className="flex flex-col gap-4">
           {sources.map((source) => (
