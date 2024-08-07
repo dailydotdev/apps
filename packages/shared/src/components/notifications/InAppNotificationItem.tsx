@@ -13,7 +13,10 @@ const NotificationLink = classed(
 );
 const NotificationAvatar = classed(
   'span',
-  classNames(styles.inAppNotificationAvatar, 'flex flex-row gap-[0.375rem]'),
+  classNames(
+    styles.inAppNotificationAvatar,
+    'flex flex-row items-start gap-[0.375rem]',
+  ),
 );
 const NotificationText = classed(
   'p',

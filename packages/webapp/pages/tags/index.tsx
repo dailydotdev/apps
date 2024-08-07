@@ -2,25 +2,21 @@ import React, { ReactElement, useMemo } from 'react';
 import { GetStaticPropsResult } from 'next';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
-import { getTagPageLink } from '@dailydotdev/shared/src/lib/links';
 import {
   Keyword,
-  Tag,
   TAG_DIRECTORY_QUERY,
 } from '@dailydotdev/shared/src/graphql/keywords';
 import { TagLink } from '@dailydotdev/shared/src/components/TagLinks';
-import classed from '@dailydotdev/shared/src/lib/classed';
 import { HashtagIcon } from '@dailydotdev/shared/src/components/icons';
-import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
+import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
+import { TagTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
-import { ListItem, TopList } from '../../components/common';
-
 import { defaultOpenGraph } from '../../next-seo';
 
 const seo: NextSeoProps = {
@@ -28,41 +24,6 @@ const seo: NextSeoProps = {
   openGraph: { ...defaultOpenGraph },
   description:
     'Dive into the tags directory on daily.dev to find and follow topics that interest you. Discover a wide range of developer-related tags to enhance your learning and engagement.',
-};
-
-const PlaceholderList = classed(
-  ElementPlaceholder,
-  'h-[1.6875rem] my-1.5 rounded-12',
-);
-
-const TagTopList = ({
-  items,
-  isLoading,
-  ...props
-}: {
-  title: string;
-  items: Tag[] | Keyword[];
-  isLoading: boolean;
-  className?: string;
-}): ReactElement => {
-  return (
-    <TopList {...props}>
-      <>
-        {/* eslint-disable-next-line react/no-array-index-key */}
-        {isLoading && [...Array(10)].map((_, i) => <PlaceholderList key={i} />)}
-        {items?.map((item, i) => (
-          <ListItem
-            key={item.value}
-            index={i + 1}
-            href={getTagPageLink(item.value)}
-            className="py-1.5 pr-2"
-          >
-            <p className="pl-4">{item.value}</p>
-          </ListItem>
-        ))}
-      </>
-    </TopList>
-  );
 };
 
 interface TagsPageProps {
@@ -123,26 +84,28 @@ const TagsPage = ({
   return (
     <>
       <NextSeo {...seo} />
-      <main className="flex flex-col gap-4 p-0 tablet:px-10 tablet:py-6">
+      <PageWrapperLayout className="flex flex-col gap-4">
         <BreadCrumbs>
           <HashtagIcon size={IconSize.XSmall} secondary /> Tags
         </BreadCrumbs>
-        <div className="grid grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3">
+        <div className="grid auto-rows-fr grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3">
           <TagTopList
-            title="Trending tags"
+            containerProps={{ title: 'Trending tags' }}
             items={trendingTags}
             isLoading={isLoading}
           />
           <TagTopList
-            title="Popular tags"
+            containerProps={{ title: 'Popular tags' }}
             items={popularTags}
             isLoading={isLoading}
           />
           <TagTopList
-            title="Recently added tags"
+            containerProps={{
+              title: 'Recently added tags',
+              className: 'col-span-1 tablet:col-span-2 laptopL:col-span-1',
+            }}
             items={recentlyAddedTags}
             isLoading={isLoading}
-            className="col-span-1 tablet:col-span-2 laptopL:col-span-1"
           />
         </div>
         <div className="flex h-10 items-center justify-between px-4 tablet:px-0">
@@ -170,7 +133,7 @@ const TagsPage = ({
               );
             })}
         </div>
-      </main>
+      </PageWrapperLayout>
     </>
   );
 };
