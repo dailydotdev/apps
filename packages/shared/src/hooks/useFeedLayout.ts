@@ -78,20 +78,20 @@ interface GetFeedPageLayoutComponentProps
     'shouldUseCommentFeedLayout' | 'shouldUseListMode'
   > {
   shouldUseListFeedLayoutOnMobileTablet: boolean;
-  isSearchResultsUpgrade: boolean;
+  isSearchPageLaptop: boolean;
 }
 
 const getFeedPageLayoutComponent = ({
   shouldUseListFeedLayoutOnMobileTablet,
   shouldUseCommentFeedLayout,
   shouldUseListMode,
-  isSearchResultsUpgrade,
+  isSearchPageLaptop,
 }: GetFeedPageLayoutComponentProps): UseFeedLayoutReturn['FeedPageLayoutComponent'] => {
   if (shouldUseCommentFeedLayout) {
     return CommentFeedPage;
   }
 
-  if (shouldUseListMode && !isSearchResultsUpgrade) {
+  if (shouldUseListMode && !isSearchPageLaptop) {
     return FeedPageLayoutList;
   }
 
@@ -132,12 +132,12 @@ export const useFeedLayout = ({
 
   const shouldUseCommentFeedLayout = feedName === SharedFeedPage.Discussed;
 
-  const { isSearchResultsUpgrade } = useSearchResultsLayout();
+  const { isSearchPageLaptop } = useSearchResultsLayout();
   const FeedPageLayoutComponent = getFeedPageLayoutComponent({
     shouldUseListMode,
     shouldUseListFeedLayoutOnMobileTablet,
     shouldUseCommentFeedLayout,
-    isSearchResultsUpgrade,
+    isSearchPageLaptop,
   });
 
   return {
