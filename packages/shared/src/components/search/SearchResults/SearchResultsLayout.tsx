@@ -34,7 +34,7 @@ export const SearchResultsLayout = (
 
   const { isListMode } = useFeedLayout();
   const { spaciness } = useContext(SettingsContext);
-  const { isSearchResultsUpgrade } = useSearchResultsLayout();
+  const { isSearchPageLaptop } = useSearchResultsLayout();
   const {
     query: { q: query },
     push,
@@ -74,7 +74,7 @@ export const SearchResultsLayout = (
     push(`${webappUrl}tags/${tag}`);
   };
 
-  if (!isSearchResultsUpgrade) {
+  if (!isSearchPageLaptop) {
     return <>{children}</>;
   }
 

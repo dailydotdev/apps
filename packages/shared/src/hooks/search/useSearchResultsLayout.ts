@@ -3,16 +3,15 @@ import { SharedFeedPage } from '../../components/utilities';
 import { useActiveFeedNameContext } from '../../contexts';
 
 interface SearchResultsLayout {
-  isSearchResultsUpgrade: boolean;
+  isSearchPageLaptop: boolean;
 }
 
 export const useSearchResultsLayout = (): SearchResultsLayout => {
   const { feedName } = useActiveFeedNameContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const isSearchPageLaptop = !!isLaptop && feedName === SharedFeedPage.Search;
 
   return {
-    isSearchResultsUpgrade: isSearchPageLaptop,
+    isSearchPageLaptop: !!isLaptop && feedName === SharedFeedPage.Search,
   };
 };
 

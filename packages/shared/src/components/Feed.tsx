@@ -157,7 +157,7 @@ export default function Feed<T>({
   const marketingCta = getMarketingCta(MarketingCtaVariant.Card);
   const showMarketingCta = !!marketingCta;
 
-  const { isSearchResultsUpgrade } = useSearchResultsLayout();
+  const { isSearchPageLaptop } = useSearchResultsLayout();
 
   const {
     items,
@@ -413,10 +413,10 @@ export default function Feed<T>({
     feedName as SharedFeedPage,
   );
 
-  const FeedWrapperComponent = isSearchResultsUpgrade
+  const FeedWrapperComponent = isSearchPageLaptop
     ? SearchResultsLayout
     : FeedContainer;
-  const containerProps = isSearchResultsUpgrade
+  const containerProps = isSearchPageLaptop
     ? {}
     : {
         header,

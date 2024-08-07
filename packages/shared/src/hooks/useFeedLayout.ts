@@ -132,12 +132,12 @@ export const useFeedLayout = ({
 
   const shouldUseCommentFeedLayout = feedName === SharedFeedPage.Discussed;
 
-  const { isSearchResultsUpgrade } = useSearchResultsLayout();
+  const { isSearchPageLaptop } = useSearchResultsLayout();
   const FeedPageLayoutComponent = getFeedPageLayoutComponent({
     shouldUseListMode,
     shouldUseListFeedLayoutOnMobileTablet,
     shouldUseCommentFeedLayout,
-    isSearchResultsUpgrade,
+    isSearchPageLaptop: isSearchResultsUpgrade,
   });
 
   return {

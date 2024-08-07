@@ -188,7 +188,7 @@ export default function MainFeedLayout({
     FeedPageLayoutComponent,
   } = useFeedLayout();
 
-  const { isSearchResultsUpgrade } = useSearchResultsLayout();
+  const { isSearchPageLaptop } = useSearchResultsLayout();
 
   const config = useMemo(() => {
     if (!feedName) {
@@ -264,7 +264,7 @@ export default function MainFeedLayout({
         variables: { query: searchQuery, version: searchVersion },
         emptyScreen: (
           <>
-            {isSearchResultsUpgrade && search}
+            {isSearchPageLaptop && search}
             <SearchEmptyScreen />
           </>
         ),
@@ -346,7 +346,7 @@ export default function MainFeedLayout({
     selectedPeriod,
     setSelectedAlgo,
     router.pathname,
-    isSearchResultsUpgrade,
+    isSearchPageLaptop,
     search,
   ]);
 
@@ -404,7 +404,7 @@ export default function MainFeedLayout({
       className={classNames('relative', disableTopPadding && '!pt-0')}
     >
       {isAnyExplore && <FeedExploreComponent />}
-      {isSearchOn && !isSearchResultsUpgrade && search}
+      {isSearchOn && !isSearchPageLaptop && search}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed
           isMainFeed
