@@ -123,6 +123,7 @@ export interface Post {
   updatedAt?: string;
   slug?: string;
   bookmark?: Bookmark;
+  domain?: string;
 }
 
 export type RelatedPost = Pick<
@@ -145,6 +146,7 @@ export interface Ad {
   renderTracked?: boolean;
   impressionStatus?: number;
   tagLine?: string;
+  backgroundColor?: string;
 }
 
 export type ReadHistoryPost = Pick<
@@ -270,6 +272,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       updatedAt
       numCollectionSources
       slug
+      domain
     }
   }
   ${SOURCE_SHORT_INFO_FRAGMENT}

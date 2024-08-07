@@ -207,10 +207,12 @@ export enum TargetType {
   MarketingCtaPopoverSmall = 'promotion_popover_small',
   Comment = 'comment',
   ReadingReminder = 'reading reminder',
+  Source = 'source',
   // Settings
   Layout = 'layout',
   Theme = 'theme',
   // End settings
+  SocialLink = 'social link',
 }
 
 export enum TargetId {

@@ -31,7 +31,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
             })
-            const hasAlreadyCommented = pullRequest.data.body.includes(knownString)
+            const hasAlreadyCommented = pullRequest.data.body ? pullRequest.data.body.includes(knownString) : false
 
             if (hasAlreadyCommented) {
               console.log('Already commented once')

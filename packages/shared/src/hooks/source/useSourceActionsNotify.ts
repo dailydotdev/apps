@@ -3,7 +3,7 @@ import { NotificationType } from '../../components/notifications/utils';
 import { useLogContext } from '../../contexts/LogContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Source } from '../../graphql/sources';
-import { LogEvent, NotificationPromptSource } from '../../lib/log';
+import { LogEvent, NotificationPromptSource, TargetType } from '../../lib/log';
 import { AuthTriggers } from '../../lib/auth';
 import {
   useEnableNotification,
@@ -61,6 +61,7 @@ export const useSourceActionsNotify = ({
         ? LogEvent.SubscribeSource
         : LogEvent.UnsubscribeSource,
       target_id: source.id,
+      target_type: TargetType.Source,
     });
 
     if (isNotifyExperiment) {

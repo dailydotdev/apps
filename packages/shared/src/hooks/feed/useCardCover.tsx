@@ -24,7 +24,7 @@ export const useCardCover = ({
   const shouldShowReminder = useBookmarkReminderEnrollment(post);
 
   const overlay = useMemo(() => {
-    if (shouldShowOverlay) {
+    if (shouldShowOverlay && onShare) {
       return (
         <CardCoverShare
           post={post}

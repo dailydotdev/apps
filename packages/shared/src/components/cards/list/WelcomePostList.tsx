@@ -1,7 +1,7 @@
 import React, { forwardRef, ReactElement, Ref, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { sanitize } from 'dompurify';
-import { CardContainer, CardContent, CardTitle, CardImage } from './ListCard';
+import { CardContainer, CardContent, CardTitle } from './ListCard';
 import ActionButtons from './ActionButtons';
 import { Container, generateTitleClamp, PostCardProps } from '../common';
 import { useSquadChecklist } from '../../../hooks/useSquadChecklist';
@@ -13,7 +13,7 @@ import { useFeedPreviewMode, useTruncatedSummary } from '../../../hooks';
 import { PostCardHeader } from './PostCardHeader';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import SquadHeaderPicture from '../common/SquadHeaderPicture';
-import { cloudinary } from '../../../lib/image';
+import { CardCoverList } from './CardCover';
 
 export const WelcomePostList = forwardRef(function SharePostCard(
   {
@@ -25,6 +25,7 @@ export const WelcomePostList = forwardRef(function SharePostCard(
     onMenuClick,
     onCopyLinkClick,
     onBookmarkClick,
+    onShare,
     children,
     enableSourceHeader = false,
     domProps = {},
@@ -109,12 +110,14 @@ export const WelcomePostList = forwardRef(function SharePostCard(
           </div>
 
           {image && (
-            <CardImage
-              alt="Post Cover image"
-              src={image}
-              fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-              className="my-2 mobileXXL:self-start"
-              loading="lazy"
+            <CardCoverList
+              onShare={onShare}
+              post={post}
+              imageProps={{
+                src: image,
+                className: 'my-2 mobileXXL:self-start w-full',
+                alt: 'Post Cover image',
+              }}
             />
           )}
         </CardContent>
