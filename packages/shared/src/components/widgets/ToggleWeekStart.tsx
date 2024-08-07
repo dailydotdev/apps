@@ -25,11 +25,11 @@ export const ToggleWeekStart = ({
       options={[
         {
           label: 'Friday to Saturday',
-          value: DayOfWeek.Monday.toString(),
+          value: DayOfWeek.Sunday.toString(),
         },
         {
           label: 'Saturday to Sunday',
-          value: DayOfWeek.Sunday.toString(),
+          value: DayOfWeek.Monday.toString(),
         },
       ]}
       onChange={toggleWeekStart}
