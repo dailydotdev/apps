@@ -59,12 +59,14 @@ interface ContextMenuProps extends Omit<MenuProps, 'children'> {
 export default function ContextMenu({
   options,
   onHidden,
-  isOpen,
+  isOpen: isOpenProps,
   ...props
 }: ContextMenuProps): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { onHide } = useContextMenu({ id: String(props.id) });
-
+  const { onHide, isOpen: isOpenHook } = useContextMenu({
+    id: String(props.id),
+  });
+  const isOpen = isOpenProps || isOpenHook;
   const handleClose = useCallback(() => {
     onHide();
     onHidden?.();
