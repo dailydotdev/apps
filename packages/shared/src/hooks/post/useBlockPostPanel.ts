@@ -26,17 +26,11 @@ interface BlockData {
 interface UseBlockPost {
   data: BlockData;
   blockedTags: number;
-
   onClose(forceClose?: boolean): void;
-
   onShowPanel(): void;
-
   onDismissPermanently(): void;
-
   onReport(): void;
-
   onUndo(): void;
-
   onBlock(tags: BlockTagSelection, shouldBlockSource: boolean): void;
 }
 
