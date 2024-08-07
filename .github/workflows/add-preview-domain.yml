@@ -18,7 +18,8 @@ jobs:
         uses: actions/github-script@v7.0.1
         with:
           script: |
-            const domain = `${{ github.head_ref }}.${{ vars.PREVIEW_DOMAIN }}`.toLowerCase().replaceAll("_","-")
+            const subdomain = `${{ github.head_ref }}`.slice(0, 32)
+            const domain = `${subdomain}.${{ vars.PREVIEW_DOMAIN }}`.toLowerCase().replaceAll("_","-")
             core.setOutput('domain', domain)
 
       - name: Comment with the assigned preview-domain
