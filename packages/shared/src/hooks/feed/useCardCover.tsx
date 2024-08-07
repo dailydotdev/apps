@@ -2,10 +2,10 @@ import React, { ReactNode, useMemo } from 'react';
 import { Post } from '../../graphql/posts';
 import { usePostShareLoop } from '../post/usePostShareLoop';
 import { CardCoverShare } from '../../components/cards/common/CardCoverShare';
-import { useBookmarkReminderEnrollment } from '../notifications';
 import { CardCoverContainer } from '../../components/cards/common/CardCoverContainer';
 import { PostReminderOptions } from '../../components/post/common/PostReminderOptions';
 import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
+import { useBookmarkReminderCover } from '../bookmark/useBookmarkReminderCover';
 
 interface UseCardCover {
   overlay: ReactNode;
@@ -21,7 +21,7 @@ export const useCardCover = ({
   onShare,
 }: UseCardCoverProps): UseCardCover => {
   const { shouldShowOverlay, onInteract } = usePostShareLoop(post);
-  const shouldShowReminder = useBookmarkReminderEnrollment(post);
+  const shouldShowReminder = useBookmarkReminderCover(post);
 
   const overlay = useMemo(() => {
     if (shouldShowOverlay && onShare) {

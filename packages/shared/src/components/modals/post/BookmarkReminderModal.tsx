@@ -27,12 +27,23 @@ interface BookmarkReminderModalOptionProps {
 }
 
 const MODAL_OPTIONS: Array<BookmarkReminderModalOptionProps['option']> =
-  Object.entries(ReminderPreference).map(
-    ([key, value]: [keyof typeof ReminderPreference, ReminderPreference]) => ({
-      key,
-      value,
-    }),
-  );
+  Object.entries(ReminderPreference)
+    .filter(([, option]) => {
+      const now = new Date();
+      const isPastLaterToday = now.getHours() >= 19;
+      const isInvalidLaterToday =
+        ReminderPreference.LaterToday === option && isPastLaterToday;
+      return !isInvalidLaterToday;
+    })
+    .map(
+      ([key, value]: [
+        keyof typeof ReminderPreference,
+        ReminderPreference,
+      ]) => ({
+        key,
+        value,
+      }),
+    );
 
 const TIME_FOR_OPTION_FORMAT_MAP = {
   [ReminderPreference.OneHour]: null,

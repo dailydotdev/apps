@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
 import { PostContentWidget } from './PostContentWidget';
-import { useBookmarkReminderEnrollment } from '../../../hooks/notifications';
 import { Post } from '../../../graphql/posts';
 import { BookmarkReminderIcon } from '../../icons/Bookmark/Reminder';
 import { IconSize } from '../../Icon';
 import { PostReminderOptions } from './PostReminderOptions';
+import { useBookmarkReminderCover } from '../../../hooks/bookmark/useBookmarkReminderCover';
 
 interface PostContentReminderProps {
   post: Post;
@@ -13,7 +13,7 @@ interface PostContentReminderProps {
 export function PostContentReminder({
   post,
 }: PostContentReminderProps): ReactElement {
-  const shouldShowReminder = useBookmarkReminderEnrollment(post);
+  const shouldShowReminder = useBookmarkReminderCover(post);
 
   if (!shouldShowReminder) {
     return null;
