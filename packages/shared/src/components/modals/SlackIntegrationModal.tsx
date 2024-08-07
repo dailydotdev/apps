@@ -32,6 +32,7 @@ import { Image } from '../image/Image';
 import { useThemedAsset } from '../../hooks/utils';
 import { slackIntegration } from '../../lib/constants';
 import { LazyModal } from './common/types';
+import { Loader } from '../Loader';
 
 export type SlackIntegrationModalProps = Omit<ModalProps, 'children'> & {
   source: Pick<Source, 'id' | 'handle' | 'type' | 'image' | 'name'>;
@@ -65,14 +66,16 @@ const SlackIntegrationModal = ({
             (integration) => integration.type === UserIntegrationType.Slack,
           );
 
-          filteredData.push({
-            id: 'new',
-            type: UserIntegrationType.Slack,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            name: 'Connect another workspace',
-            userId: 'new',
-          });
+          if (filteredData.length > 0) {
+            filteredData.push({
+              id: 'new',
+              type: UserIntegrationType.Slack,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              name: 'Connect another workspace',
+              userId: 'new',
+            });
+          }
 
           return filteredData;
         }, []),
@@ -135,6 +138,16 @@ const SlackIntegrationModal = ({
     isDrawerOnMobile: true,
     ...props,
   };
+
+  if (isLoadingIntegrations) {
+    return (
+      <Modal {...modalProps}>
+        <Modal.Body className="flex items-center justify-center">
+          <Loader />
+        </Modal.Body>
+      </Modal>
+    );
+  }
 
   if (noIntegrations) {
     return (
