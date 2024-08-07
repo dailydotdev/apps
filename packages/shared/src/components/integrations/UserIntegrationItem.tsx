@@ -79,7 +79,7 @@ export const UserIntegrationItem = ({
             isOpen={isOptionsOpen}
           />
           <Button
-            icon={<ArrowIcon className={classNames(isOpen && 'rotate-180')} />}
+            icon={<ArrowIcon className={classNames(!isOpen && 'rotate-180')} />}
             size={ButtonSize.Small}
             onClick={() => {
               onToggle();
