@@ -325,13 +325,9 @@ export default function PostOptionsMenu({
     });
   }
 
-  const isReminderActive = useConditionalFeature({
-    feature: feature.bookmarkReminder,
-    shouldEvaluate: isPostOptionsOpen,
-  });
   const { onRemoveReminder } = useBookmarkReminder({ post });
 
-  if (isReminderActive && isLoggedIn) {
+  if (isLoggedIn) {
     const hasPostReminder = !!post?.bookmark?.remindAt;
 
     // Add/Edit reminder

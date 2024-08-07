@@ -20,7 +20,7 @@ export const SearchResultsTags = (
   }
 
   return (
-    <WidgetCard heading="Related tags">
+    <WidgetCard heading="Related tags" data-testid="related-tags">
       {!!items?.length && (
         <div className="flex flex-wrap gap-3" role="list">
           {items.map((tag) => (

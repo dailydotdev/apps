@@ -212,6 +212,7 @@ export enum TargetType {
   Layout = 'layout',
   Theme = 'theme',
   // End settings
+  SocialLink = 'social link',
 }
 
 export enum TargetId {
