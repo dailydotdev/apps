@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, RenderResult, screen, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import userEvent from '@testing-library/user-event';
 import { LoggedUser, PublicProfile } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
 import { ProfileWidgets } from './ProfileWidgets';
@@ -16,6 +17,8 @@ import { PUBLIC_SOURCE_MEMBERSHIPS_QUERY } from '../../graphql/users';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import { settingsContext } from '../../../__tests__/helpers/boot';
 import SettingsContext from '../../contexts/SettingsContext';
+import LogContext from '../../contexts/LogContext';
+import { LogEvent, TargetType } from '../../lib/log';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -103,6 +106,8 @@ const defaultMemberships: Connection<SourceMember> = {
   ],
 };
 
+const logEvent = jest.fn();
+
 const renderComponent = (
   profile: Partial<PublicProfile> = {},
   memberships: Connection<SourceMember> = null,
@@ -124,13 +129,22 @@ const renderComponent = (
           getRedirectUri: jest.fn(),
         }}
       >
-        <SettingsContext.Provider value={settingsContext}>
-          <ProfileWidgets
-            user={{ ...defaultProfile, ...profile }}
-            sources={memberships}
-            userStats={{ upvotes: 5_000, views: 83_000 }}
-          />
-        </SettingsContext.Provider>
+        <LogContext.Provider
+          value={{
+            logEvent,
+            logEventStart: jest.fn(),
+            logEventEnd: jest.fn(),
+            sendBeacon: jest.fn(),
+          }}
+        >
+          <SettingsContext.Provider value={settingsContext}>
+            <ProfileWidgets
+              user={{ ...defaultProfile, ...profile }}
+              sources={memberships}
+              userStats={{ upvotes: 5_000, views: 83_000 }}
+            />
+          </SettingsContext.Provider>
+        </LogContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
@@ -331,4 +345,20 @@ it('should list all user squads', async () => {
   expect(await within(s2).findByLabelText('Join Squad')).toBeInTheDocument();
 
   expect(within(s1).queryByLabelText('Join Squad')).not.toBeInTheDocument();
+});
+
+it('should track link clicks', () => {
+  renderComponent();
+
+  const el = screen.getByTestId('github');
+  expect(el).toHaveAttribute('href', 'https://github.com/dailydotdev');
+  expect(el).toHaveTextContent('@dailydotdev');
+
+  userEvent.click(el);
+
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: LogEvent.Click,
+    target_type: TargetType.SocialLink,
+    target_id: 'github',
+  });
 });

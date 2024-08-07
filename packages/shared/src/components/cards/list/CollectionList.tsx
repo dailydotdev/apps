@@ -2,20 +2,14 @@ import React, { forwardRef, Ref } from 'react';
 import classNames from 'classnames';
 import { Container, generateTitleClamp, PostCardProps } from '../common';
 import FeedItemContainer from './FeedItemContainer';
-import {
-  CardImage,
-  CardTitle,
-  CardSpace,
-  CardContainer,
-  CardContent,
-} from './ListCard';
+import { CardTitle, CardSpace, CardContainer, CardContent } from './ListCard';
 import ActionButtons from './ActionButtons';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import { PostCardHeader } from './PostCardHeader';
 import { CollectionPillSources } from '../../post/collection';
-import { cloudinary } from '../../../lib/image';
 import { useTruncatedSummary } from '../../../hooks';
 import PostTags from '../PostTags';
+import { CardCoverList } from './CardCover';
 
 export const CollectionList = forwardRef(function CollectionCard(
   {
@@ -29,6 +23,7 @@ export const CollectionList = forwardRef(function CollectionCard(
     onCopyLinkClick,
     onPostClick,
     onBookmarkClick,
+    onShare,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
@@ -83,12 +78,15 @@ export const CollectionList = forwardRef(function CollectionCard(
           </div>
 
           {image && (
-            <CardImage
-              alt="Post Cover image"
-              src={image}
-              fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-              className="my-2 mobileXXL:self-start"
-              loading="lazy"
+            <CardCoverList
+              post={post}
+              onShare={onShare}
+              imageProps={{
+                src: image,
+                className: 'my-2 w-full mobileXXL:self-start',
+                loading: 'lazy',
+                alt: 'Post Cover image',
+              }}
             />
           )}
         </CardContent>
