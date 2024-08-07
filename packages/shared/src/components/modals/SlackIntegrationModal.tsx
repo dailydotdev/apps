@@ -31,6 +31,7 @@ import { labels } from '../../lib';
 import { Image } from '../image/Image';
 import { useThemedAsset } from '../../hooks/utils';
 import { slackIntegration } from '../../lib/constants';
+import { LazyModal } from './common/types';
 
 export type SlackIntegrationModalProps = Omit<ModalProps, 'children'> & {
   source: Pick<Source, 'id' | 'handle' | 'type' | 'image' | 'name'>;
@@ -79,7 +80,9 @@ const SlackIntegrationModal = ({
     });
 
   const selectedIntegration =
-    state.userIntegration || sourceIntegration?.userIntegration;
+    state.userIntegration ||
+    sourceIntegration?.userIntegration ||
+    slackIntegrations?.[0];
   const selectedIntegrationIndex = slackIntegrations?.findIndex(
     (item) => item.id === selectedIntegration?.id,
   );
@@ -99,7 +102,7 @@ const SlackIntegrationModal = ({
     slack.connect({
       redirectPath: `/${
         source.type === SourceType.Squad ? 'squads' : 'sources'
-      }/${source.handle}`,
+      }/${source.handle}?lzym=${LazyModal.SlackIntegration}`,
     });
   };
 
