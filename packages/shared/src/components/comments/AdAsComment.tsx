@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Ad } from '../../graphql/posts';
 import { apiUrl } from '../../lib/config';
 import { TruncateText } from '../utilities';
-import AdLink from '../cards/AdLink';
+import AdLink from '../cards/ad/common/AdLink';
 import { adLogEvent } from '../../lib/feed';
 import LogContext from '../../contexts/LogContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
@@ -11,6 +11,7 @@ import PlaceholderCommentList from './PlaceholderCommentList';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import AuthContext from '../../contexts/AuthContext';
 import { cloudinary } from '../../lib/image';
+import { AdPixel } from '../cards/ad/common/AdPixel';
 
 interface AdAsCommentProps {
   postId: string;
@@ -96,15 +97,7 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
         <br />
         {description}
       </p>
-      {pixel?.map((item) => (
-        <img
-          src={item}
-          key={item}
-          data-testid="pixel"
-          className="hidden size-0"
-          alt="Pixel"
-        />
-      ))}
+      <AdPixel pixel={pixel} />
     </div>
   );
 };
