@@ -527,48 +527,48 @@ it('should show author onboarding when the query param is set', async () => {
 
 /**
  * TODO: Flaky test should be refactored
- it('should update post on subscription message', async () => {
- renderPost();
- await waitFor(async () => {
- const data = await client.getQueryData([
- 'post',
- '0e4005b2d3cf191f8c44c2718a457a1e',
- ]);
- expect(data).toBeTruthy();
- });
- await act(async () => {
- nextCallback({
- postsEngaged: {
- id: '0e4005b2d3cf191f8c44c2718a457a1e',
- numUpvotes: 15,
- numComments: 0,
- },
- });
- });
+it('should update post on subscription message', async () => {
+  renderPost();
+  await waitFor(async () => {
+    const data = await client.getQueryData([
+      'post',
+      '0e4005b2d3cf191f8c44c2718a457a1e',
+    ]);
+    expect(data).toBeTruthy();
+  });
+  await act(async () => {
+    nextCallback({
+      postsEngaged: {
+        id: '0e4005b2d3cf191f8c44c2718a457a1e',
+        numUpvotes: 15,
+        numComments: 0,
+      },
+    });
+  });
 
- const el = await screen.findByTestId('statsBar');
- expect(el).toHaveTextContent('15 Upvotes');
- });
+  const el = await screen.findByTestId('statsBar');
+  expect(el).toHaveTextContent('15 Upvotes');
+});
 
- it('should not update post on subscription message when id is not the same', async () => {
- renderPost();
- await waitFor(async () => {
- const data = await client.getQueryData([
- 'post',
- '0e4005b2d3cf191f8c44c2718a457a1e',
- ]);
- expect(data).toBeTruthy();
- });
- nextCallback({
- postsEngaged: {
- id: 'asd',
- numUpvotes: 15,
- numComments: 0,
- },
- });
- const el = screen.queryByTestId('statsBar');
- expect(el).not.toBeInTheDocument();
- });
+it('should not update post on subscription message when id is not the same', async () => {
+  renderPost();
+  await waitFor(async () => {
+    const data = await client.getQueryData([
+      'post',
+      '0e4005b2d3cf191f8c44c2718a457a1e',
+    ]);
+    expect(data).toBeTruthy();
+  });
+  nextCallback({
+    postsEngaged: {
+      id: 'asd',
+      numUpvotes: 15,
+      numComments: 0,
+    },
+  });
+  const el = screen.queryByTestId('statsBar');
+  expect(el).not.toBeInTheDocument();
+});
  */
 
 it('should send bookmark mutation from bookmark action', async () => {
@@ -880,7 +880,6 @@ describe('downvote flow', () => {
     );
     await act(() => new Promise((resolve) => setTimeout(resolve, 10)));
     expect(allUnselected).toBeTruthy();
-
     const close = await screen.findByTitle('Close');
     fireEvent.click(close);
     await screen.findByText('No topics were blocked');
