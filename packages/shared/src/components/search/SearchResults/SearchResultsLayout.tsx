@@ -18,6 +18,7 @@ import { SearchResultsSources } from './SearchResultsSources';
 import { useSearchProviderSuggestions } from '../../../hooks/search';
 import SettingsContext from '../../../contexts/SettingsContext';
 import { gapClass } from '../../feeds/FeedContainer';
+import { useFeedLayout } from '../../../hooks';
 
 type SearchResultsLayoutProps = PropsWithChildren;
 
@@ -31,6 +32,7 @@ export const SearchResultsLayout = (
 ): ReactElement => {
   const { children } = props;
 
+  const { isListMode, isLoadingExperiment } = useFeedLayout();
   const { spaciness } = useContext(SettingsContext);
   const { isSearchPageLaptop } = useSearchResultsLayout();
   const {
@@ -72,6 +74,10 @@ export const SearchResultsLayout = (
     push(`${webappUrl}tags/${tag}`);
   };
 
+  if (isLoadingExperiment) {
+    return null;
+  }
+
   if (!isSearchPageLaptop) {
     return <>{children}</>;
   }
@@ -86,12 +92,15 @@ export const SearchResultsLayout = (
           <div
             role="list"
             className={classNames(
-              'mt-2.5 flex flex-col',
+              'mt-2.5',
               gapClass({
                 isList: true,
                 isFeedLayoutList: false,
                 space: spaciness,
               }),
+              isListMode
+                ? `flex flex-col`
+                : `grid w-96 grid-cols-1 px-4 laptopL:w-auto laptopL:grid-cols-2`,
             )}
           >
             {children}
