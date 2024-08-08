@@ -8,13 +8,13 @@ interface ClassName {
 
 interface AccountContentSectionProps {
   title: string;
-  description?: string;
+  description?: ReactNode;
   children?: ReactNode;
   className?: ClassName;
 }
 
-const ContentHeading = classed('h2', 'font-bold typo-body');
-const ContentText = classed('p', 'mt-1 typo-callout text-text-tertiary');
+export const ContentHeading = classed('h2', 'font-bold typo-body');
+export const ContentText = classed('p', 'mt-1 typo-callout text-text-tertiary');
 
 function AccountContentSection({
   title,

@@ -12,6 +12,8 @@ import { AllFeedPages, OtherFeedPage } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import { isNullOrUndefined } from '../lib/func';
 import { useSearchResultsLayout } from './search/useSearchResultsLayout';
+import { useConditionalFeature } from './useConditionalFeature';
+import { feature } from '../lib/featureManagement';
 
 interface UseFeedLayoutReturn {
   shouldUseListFeedLayout: boolean;
@@ -22,6 +24,7 @@ interface UseFeedLayoutReturn {
   shouldUseCommentFeedLayout: boolean;
   isListMode: boolean;
   shouldUseListMode: boolean;
+  isLoadingExperiment?: boolean;
 }
 
 interface UseFeedLayoutProps {
@@ -108,7 +111,16 @@ export const useFeedLayout = ({
   const isLaptopSize = useViewSize(ViewSize.Laptop);
   const isLaptop = isNullOrUndefined(isLaptopSize) || isLaptopSize;
   const { feedName } = useActiveFeedNameContext();
-  const { insaneMode: isListMode } = useContext(SettingsContext);
+  const { insaneMode } = useContext(SettingsContext);
+  const { isSearchPageLaptop } = useSearchResultsLayout();
+
+  const { value: isSearchListModeExperiment, isLoading: isLoadingExperiment } =
+    useConditionalFeature({
+      feature: feature.searchListMode,
+      shouldEvaluate: isSearchPageLaptop,
+    });
+
+  const isListMode = isSearchListModeExperiment || insaneMode;
 
   const shouldUseListFeedLayoutOnProfilePages = UserProfileFeedPages.has(
     feedName as UserProfileFeedType,
@@ -132,7 +144,6 @@ export const useFeedLayout = ({
 
   const shouldUseCommentFeedLayout = feedName === SharedFeedPage.Discussed;
 
-  const { isSearchPageLaptop } = useSearchResultsLayout();
   const FeedPageLayoutComponent = getFeedPageLayoutComponent({
     shouldUseListMode,
     shouldUseListFeedLayoutOnMobileTablet,
@@ -149,5 +160,6 @@ export const useFeedLayout = ({
     screenCenteredOnMobileLayout:
       shouldUseListFeedLayoutOnMobileTablet &&
       !UserProfileFeedPages.has(feedName as UserProfileFeedType),
+    isLoadingExperiment,
   };
 };
