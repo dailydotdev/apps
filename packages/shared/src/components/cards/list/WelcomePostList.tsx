@@ -14,7 +14,6 @@ import { PostCardHeader } from './PostCardHeader';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import SquadHeaderPicture from '../common/SquadHeaderPicture';
 import { CardCoverList } from './CardCover';
-import { useBookmarkReminderCover } from '../../../hooks/bookmark/useBookmarkReminderCover';
 import { PostContentReminder } from '../../post/common/PostContentReminder';
 
 export const WelcomePostList = forwardRef(function SharePostCard(
@@ -42,7 +41,6 @@ export const WelcomePostList = forwardRef(function SharePostCard(
   const { openStep, isChecklistVisible } = useSquadChecklist({
     squad: post.source as Squad,
   });
-  const shouldShowReminder = useBookmarkReminderCover(post);
 
   const shouldShowHighlightPulse =
     postType === PostType.Welcome &&
