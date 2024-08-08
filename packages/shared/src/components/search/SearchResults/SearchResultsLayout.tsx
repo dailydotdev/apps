@@ -74,10 +74,6 @@ export const SearchResultsLayout = (
     push(`${webappUrl}tags/${tag}`);
   };
 
-  if (isLoadingExperiment) {
-    return null;
-  }
-
   if (!isSearchPageLaptop) {
     return <>{children}</>;
   }
@@ -89,22 +85,24 @@ export const SearchResultsLayout = (
           <h2 className="px-4 py-4 font-bold text-text-primary typo-body">
             Related posts
           </h2>
-          <div
-            role="list"
-            className={classNames(
-              'mt-2.5',
-              gapClass({
-                isList: true,
-                isFeedLayoutList: false,
-                space: spaciness,
-              }),
-              isListMode
-                ? `flex flex-col`
-                : `grid w-96 grid-cols-1 px-4 laptopL:w-auto laptopL:grid-cols-2`,
-            )}
-          >
-            {children}
-          </div>
+          {!isLoadingExperiment && (
+            <div
+              role="list"
+              className={classNames(
+                'mt-2.5',
+                gapClass({
+                  isList: true,
+                  isFeedLayoutList: false,
+                  space: spaciness,
+                }),
+                isListMode
+                  ? `flex flex-col`
+                  : `grid w-96 grid-cols-1 px-4 laptopL:w-auto laptopL:grid-cols-2`,
+              )}
+            >
+              {children}
+            </div>
+          )}
         </div>
         <PageWidgets className="py-5">
           <SearchProviderButton
