@@ -161,14 +161,14 @@ const AccountProfilePage = (): ReactElement => {
             <ImageInput
               id={coverId}
               className={{
-                root: 'w-full',
+                root: 'w-full max-w-[19.25rem]',
                 container:
                   'border-0 bg-background-subtle hover:bg-accent-pepper-subtlest',
                 img: 'object-cover',
               }}
               size="cover"
               initialValue={currentCoverImage}
-              fallbackImage={undefined}
+              fallbackImage={null}
               alwaysShowHover={!currentCoverImage}
               hoverIcon={<CoverHoverIcon />}
               fileSizeLimitMB={5}
