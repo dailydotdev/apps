@@ -13,12 +13,18 @@ interface UseCardCover {
 
 interface UseCardCoverProps {
   post: Post;
-  onShare: (post: Post) => void;
+  onShare?: (post: Post) => void;
+  className?: {
+    bookmark?: {
+      container?: string;
+    };
+  };
 }
 
 export const useCardCover = ({
   post,
   onShare,
+  className = {},
 }: UseCardCoverProps): UseCardCover => {
   const { shouldShowOverlay, onInteract } = usePostShareLoop(post);
   const shouldShowReminder = useBookmarkReminderCover(post);
@@ -39,7 +45,10 @@ export const useCardCover = ({
 
     if (shouldShowReminder) {
       return (
-        <CardCoverContainer title="Remind about this post later?">
+        <CardCoverContainer
+          title="Remind about this post later?"
+          className={className?.bookmark?.container}
+        >
           <PostReminderOptions
             post={post}
             className="mt-2"
