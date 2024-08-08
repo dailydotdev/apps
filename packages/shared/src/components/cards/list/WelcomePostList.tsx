@@ -14,6 +14,7 @@ import { PostCardHeader } from './PostCardHeader';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import SquadHeaderPicture from '../common/SquadHeaderPicture';
 import { CardCoverList } from './CardCover';
+import { PostContentReminder } from '../../post/common/PostContentReminder';
 
 export const WelcomePostList = forwardRef(function SharePostCard(
   {
@@ -122,7 +123,6 @@ export const WelcomePostList = forwardRef(function SharePostCard(
           )}
         </CardContent>
       </CardContainer>
-
       <Container ref={containerRef} className="pointer-events-none">
         <ActionButtons
           post={post}
@@ -134,6 +134,7 @@ export const WelcomePostList = forwardRef(function SharePostCard(
           className={classNames('mt-4', !!image && 'laptop:mt-auto')}
         />
       </Container>
+      {!image && <PostContentReminder post={post} className="z-1" />}
       {children}
     </FeedItemContainer>
   );
