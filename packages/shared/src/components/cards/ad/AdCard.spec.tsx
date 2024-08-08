@@ -1,7 +1,8 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import { AdCard, AdCardProps } from './AdCard';
-import ad from '../../../__tests__/fixture/ad';
+import ad from '../../../../__tests__/fixture/ad';
+import { AdGrid } from './AdGrid';
+import { AdCardProps } from './common/common';
 
 const defaultProps: AdCardProps = {
   ad,
@@ -13,7 +14,7 @@ beforeEach(() => {
 });
 
 const renderComponent = (props: Partial<AdCardProps> = {}): RenderResult => {
-  return render(<AdCard {...defaultProps} {...props} />);
+  return render(<AdGrid {...defaultProps} {...props} />);
 };
 
 it('should call on click on component left click', async () => {
