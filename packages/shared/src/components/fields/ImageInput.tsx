@@ -30,7 +30,7 @@ interface ImageInputProps {
   size?: Size;
   id?: string;
   viewOnly?: boolean;
-  fallbackImage?: string;
+  fallbackImage?: string | null;
   hoverIcon?: ReactNode;
   enableHover?: boolean;
   closeable?: boolean;
