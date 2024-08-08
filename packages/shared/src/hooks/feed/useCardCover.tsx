@@ -62,7 +62,14 @@ export const useCardCover = ({
     }
 
     return undefined;
-  }, [onInteract, onShare, post, shouldShowOverlay, shouldShowReminder]);
+  }, [
+    className?.bookmark?.container,
+    onInteract,
+    onShare,
+    post,
+    shouldShowOverlay,
+    shouldShowReminder,
+  ]);
 
   return { overlay };
 };
