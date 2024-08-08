@@ -50,7 +50,7 @@ function CustomStreaksTooltip({
       visible={shouldShowStreaks}
       forceLoad={!isTesting}
       container={{
-        paddingClassName: 'p-4',
+        paddingClassName: 'p-0',
         bgClassName: 'bg-accent-pepper-subtlest',
         textClassName: 'text-text-primary typo-callout',
         className: 'border border-border-subtlest-tertiary rounded-16',

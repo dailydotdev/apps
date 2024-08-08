@@ -3,11 +3,13 @@ import { subDays } from 'date-fns';
 import {
   SHARED_POST_INFO_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
+  USER_STREAK_FRAGMENT,
 } from './fragments';
 import type { PublicProfile } from '../lib/user';
 import { Connection, gqlClient } from './common';
 import { SourceMember } from './sources';
 import type { SendType } from '../hooks';
+import { DayOfWeek } from '../lib/date';
 
 export const USER_BY_ID_STATIC_FIELDS_QUERY = `
   query User($id: ID!) {
@@ -441,18 +443,17 @@ export const getReadingStreak30Days = async (
 export const USER_STREAK_QUERY = gql`
   query UserStreak {
     userStreak {
-      max
-      total
-      current
-      lastViewAt
+      ...UserStreakFragment
     }
   }
+  ${USER_STREAK_FRAGMENT}
 `;
 
 export interface UserStreak {
   max: number;
   total: number;
   current: number;
+  weekStart: DayOfWeek;
   lastViewAt: Date;
 }
 
@@ -527,4 +528,13 @@ export const VOTE_MUTATION = gql`
       _
     }
   }
+`;
+
+export const UPDATE_STREAK_COUNT_MUTATION = gql`
+  mutation UpdateStreakConfig($weekStart: Int) {
+    updateStreakConfig(weekStart: $weekStart) {
+      ...UserStreakFragment
+    }
+  }
+  ${USER_STREAK_FRAGMENT}
 `;
