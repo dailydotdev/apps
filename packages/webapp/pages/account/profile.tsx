@@ -176,7 +176,7 @@ const AccountProfilePage = (): ReactElement => {
               }}
               size="cover"
               initialValue={currentCoverImage}
-              fallbackImage={undefined}
+              fallbackImage={null}
               alwaysShowHover={!currentCoverImage}
               hoverIcon={<CoverHoverIcon />}
               fileSizeLimitMB={5}
