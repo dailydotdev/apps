@@ -108,7 +108,10 @@ export const useFeedLayout = ({
   const isLaptopSize = useViewSize(ViewSize.Laptop);
   const isLaptop = isNullOrUndefined(isLaptopSize) || isLaptopSize;
   const { feedName } = useActiveFeedNameContext();
-  const { insaneMode: isListMode } = useContext(SettingsContext);
+  const { insaneMode } = useContext(SettingsContext);
+  const { isSearchPageLaptop } = useSearchResultsLayout();
+
+  const isListMode = isSearchPageLaptop || insaneMode;
 
   const shouldUseListFeedLayoutOnProfilePages = UserProfileFeedPages.has(
     feedName as UserProfileFeedType,
@@ -132,7 +135,6 @@ export const useFeedLayout = ({
 
   const shouldUseCommentFeedLayout = feedName === SharedFeedPage.Discussed;
 
-  const { isSearchPageLaptop } = useSearchResultsLayout();
   const FeedPageLayoutComponent = getFeedPageLayoutComponent({
     shouldUseListMode,
     shouldUseListFeedLayoutOnMobileTablet,
