@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import shuffle from 'lodash.shuffle';
 import { useRouter } from 'next/router';
 import { useMutation } from '@tanstack/react-query';
@@ -21,7 +21,7 @@ interface Props {
     button?: string;
   };
 }
-export const AcquisitionFormInner = ({ className }: Props) => {
+export const AcquisitionFormInner = ({ className }: Props): ReactElement => {
   const { logEvent } = useContext(LogContext);
   const [value, setValue] = useState<AcquisitionChannel>();
   const [shuffledOptions] = useState(() => shuffle(ACQUISITION_FORM_OPTIONS));
