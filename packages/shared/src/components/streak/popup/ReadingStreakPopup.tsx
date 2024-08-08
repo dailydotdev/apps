@@ -11,25 +11,31 @@ import {
   UserStreak,
 } from '../../../graphql/users';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { Weekends } from '../../../lib/dateFormat';
-import StreakReminderSwitch from '../StreakReminderSwitch';
-import { useActions } from '../../../hooks';
+import { useActions, useViewSize, ViewSize } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
+import { Button, ButtonVariant } from '../../buttons/Button';
+import { SettingsIcon } from '../../icons';
+import StreakReminderSwitch from '../StreakReminderSwitch';
+import ReadingStreakSwitch from '../ReadingStreakSwitch';
+import { useToggle } from '../../../hooks/useToggle';
+import { ToggleWeekStart } from '../../widgets/ToggleWeekStart';
+import { isWeekend, DayOfWeek } from '../../../lib/date';
 
 const getStreak = ({
   value,
   today,
   dateToday,
   history,
+  startOfWeek = DayOfWeek.Monday,
 }: {
   value: Date;
   today: Date;
   dateToday: number;
   history?: ReadingDay[];
+  startOfWeek?: number;
 }): Streak => {
-  const day = value.getDay();
   const date = value.getDate();
-  const isFreezeDay = Weekends.includes(day);
+  const isFreezeDay = isWeekend(value, startOfWeek);
   const isToday = date === dateToday;
   const isFuture = value > today;
   const isCompleted =
@@ -79,6 +85,7 @@ export function ReadingStreakPopup({
   streak,
   fullWidth,
 }: ReadingStreakPopupProps): ReactElement {
+  const isMobile = useViewSize(ViewSize.MobileL);
   const { user } = useAuthContext();
   const { completeAction } = useActions();
   const { data: history } = useQuery<ReadingDay[]>(
@@ -86,6 +93,7 @@ export function ReadingStreakPopup({
     () => getReadingStreak30Days(user.id),
     { staleTime: StaleTime.Default },
   );
+  const [showStreakConfig, toggleShowStreakConfig] = useToggle(false);
 
   const dateToday = new Date().getDate();
 
@@ -95,7 +103,13 @@ export function ReadingStreakPopup({
 
     return streakDays.map((value) => {
       const isToday = value.getDate() === dateToday;
-      const streakDef = getStreak({ value, today, dateToday, history });
+      const streakDef = getStreak({
+        value,
+        today,
+        dateToday,
+        history,
+        startOfWeek: streak.weekStart,
+      });
 
       return (
         <DayStreak
@@ -103,10 +117,11 @@ export function ReadingStreakPopup({
           streak={streakDef}
           day={value.getDay()}
           shouldShowArrow={isToday}
+          onClick={() => toggleShowStreakConfig()}
         />
       );
     });
-  }, [history, dateToday]);
+  }, [dateToday, history, streak.weekStart, toggleShowStreakConfig]);
 
   useEffect(() => {
     if ([streak.max, streak.current].some((value) => value >= 2)) {
@@ -115,8 +130,8 @@ export function ReadingStreakPopup({
   }, [completeAction, streak]);
 
   return (
-    <div className="flex flex-col-reverse tablet:flex-col">
-      <div>
+    <div className="flex flex-col">
+      <div className="flex flex-col p-0 tablet:p-4">
         <div className="flex flex-row">
           <StreakSection streak={streak.current} label="Current streak" />
           <StreakSection streak={streak.max} label="Longest streak 🏆" />
@@ -129,11 +144,46 @@ export function ReadingStreakPopup({
         >
           {streaks}
         </div>
-        <div className="mt-4 text-center font-bold leading-8 text-text-tertiary">
-          Total reading days: {streak.total}
+        <div className="mt-4 flex flex-col items-center tablet:flex-row">
+          <div
+            className={classNames(
+              'font-bold text-text-tertiary',
+              isMobile && 'my-4 flex-1 text-center',
+            )}
+          >
+            Total reading days: {streak.total}
+          </div>
+          <Button
+            onClick={() => toggleShowStreakConfig()}
+            variant={ButtonVariant.Float}
+            pressed={showStreakConfig}
+            icon={<SettingsIcon />}
+            className={classNames(
+              isMobile ? 'w-full' : 'ml-auto',
+              isMobile && showStreakConfig && 'hidden',
+            )}
+          >
+            {isMobile ? 'Settings' : null}
+          </Button>
         </div>
       </div>
-      <StreakReminderSwitch className="mb-5 mt-1 tablet:mx-auto tablet:mb-0 tablet:mt-4" />
+      {showStreakConfig && (
+        <div className="flex flex-col gap-5 border-t border-border-subtlest-tertiary p-4">
+          <div className="flex flex-col gap-3">
+            <p className="font-bold text-text-secondary typo-subhead">
+              General
+            </p>
+            <StreakReminderSwitch />
+            <ReadingStreakSwitch />
+          </div>
+          <div className="flex flex-col gap-3">
+            <p className="font-bold text-text-secondary typo-subhead">
+              Freeze days
+            </p>
+            <ToggleWeekStart />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
