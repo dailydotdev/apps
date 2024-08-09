@@ -113,7 +113,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
     permalink,
     allowSubscribe = true,
     className,
-    showReputation = false,
+    showReputation = userType !== UserType.Source,
   } = user;
 
   const handleOrUsernameOrId =
@@ -186,7 +186,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
               <TruncateText>{name}</TruncateText>
             </ProfileLink>
 
-            {(showReputation || !isUserTypeSource) && (
+            {showReputation && (
               <ReputationUserBadge
                 className={className?.reputation}
                 user={{ reputation }}

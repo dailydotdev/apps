@@ -262,12 +262,7 @@ export default function MainFeedLayout({
         ),
         query: SEARCH_POSTS_QUERY,
         variables: { query: searchQuery, version: searchVersion },
-        emptyScreen: (
-          <>
-            {isSearchPageLaptop && search}
-            <SearchEmptyScreen />
-          </>
-        ),
+        emptyScreen: <SearchEmptyScreen />,
       };
     }
 
@@ -346,8 +341,6 @@ export default function MainFeedLayout({
     selectedPeriod,
     setSelectedAlgo,
     router.pathname,
-    isSearchPageLaptop,
-    search,
   ]);
 
   useEffect(() => {

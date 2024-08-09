@@ -19,6 +19,9 @@ import { useSearchProviderSuggestions } from '../../../hooks/search';
 import SettingsContext from '../../../contexts/SettingsContext';
 import { gapClass } from '../../feeds/FeedContainer';
 import { useFeedLayout } from '../../../hooks';
+import { SearchResultsUsers } from './SearchResultsUsers';
+import { useFeature } from '../../GrowthBookProvider';
+import { feature } from '../../../lib/featureManagement';
 
 type SearchResultsLayoutProps = PropsWithChildren;
 
@@ -31,7 +34,7 @@ export const SearchResultsLayout = (
   props: SearchResultsLayoutProps,
 ): ReactElement => {
   const { children } = props;
-
+  const userSearch = useFeature(feature.searchUsers);
   const { isListMode, isLoadingExperiment } = useFeedLayout();
   const { spaciness } = useContext(SettingsContext);
   const { isSearchPageLaptop } = useSearchResultsLayout();
@@ -56,6 +59,14 @@ export const SearchResultsLayout = (
       limit: 10,
     });
   const sources = suggestedSources?.hits ?? [];
+
+  const { isLoading: isUsersLoading, suggestions: suggestedUsers } =
+    useSearchProviderSuggestions({
+      query: `${query}`,
+      provider: SearchProviderEnum.Users,
+      limit: 10,
+    });
+  const users = suggestedUsers?.hits ?? [];
 
   const onTagClick = (suggestion: SearchSuggestion) => {
     const tag = suggestion.id || suggestion.title.toLowerCase();
@@ -146,6 +157,9 @@ export const SearchResultsLayout = (
               });
             }}
           />
+          {userSearch && (
+            <SearchResultsUsers isLoading={isUsersLoading} items={users} />
+          )}
         </PageWidgets>
       </div>
     </section>

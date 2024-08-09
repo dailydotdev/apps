@@ -20,7 +20,7 @@ import {
 import { SearchPanelAction } from './SearchPanelAction';
 import { SearchPanelPostSuggestions } from './SearchPanelPostSuggestions';
 import SettingsContext from '../../../contexts/SettingsContext';
-import { useEventListener } from '../../../hooks';
+import { useConditionalFeature, useEventListener } from '../../../hooks';
 import { defaultSearchProvider, providerToLabelTextMap } from './common';
 import { ArrowKeyEnum, isExtension } from '../../../lib/func';
 import { ArrowIcon } from '../../icons';
@@ -30,6 +30,8 @@ import { LogEvent } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
 import { SearchPanelTagSuggestions } from './SearchPanelTagSuggestions';
 import { SearchPanelSourceSuggestions } from './SearchPanelSourceSuggestions';
+import { SearchPanelUserSuggestions } from './SearchPanelUserSuggestions';
+import { feature } from '../../../lib/featureManagement';
 
 export type SearchPanelProps = {
   className?: SearchPanelClassName;
@@ -148,6 +150,11 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
   const showDropdown =
     state.isActive && state.query.length >= minSearchQueryLength;
 
+  const { value: isUserSearchEnabled } = useConditionalFeature({
+    feature: feature.searchUsers,
+    shouldEvaluate: showDropdown,
+  });
+
   return (
     <SearchPanelContext.Provider value={searchPanel}>
       <div
@@ -198,6 +205,9 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
                 <SearchPanelTagSuggestions title="Tags" />
                 <SearchPanelPostSuggestions title="Posts on daily.dev" />
                 <SearchPanelSourceSuggestions title="Sources" />
+                {isUserSearchEnabled && (
+                  <SearchPanelUserSuggestions title="Users" />
+                )}
                 <SearchPanelCustomAction
                   provider={SearchProviderEnum.Posts}
                   onClick={() => {
