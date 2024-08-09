@@ -1,9 +1,14 @@
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { setCookie } from '../../../lib/cookie';
-import { SLACK_CONNECT_SOURCE_MUTATION } from '../../../graphql/integrations';
+import {
+  SLACK_CONNECT_SOURCE_MUTATION,
+  UserIntegrationType,
+} from '../../../graphql/integrations';
 import { isDevelopment } from '../../../lib/constants';
 import { gqlClient } from '../../../graphql/common';
 import { apiUrl } from '../../../lib/config';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 
 export type UseSlackProps = void;
 
@@ -24,6 +29,7 @@ const scopes = ['channels:read', 'chat:write', 'channels:join'];
 
 export const useSlack = (): UseSlack => {
   const { user } = useAuthContext();
+  const { logEvent } = useLogContext();
 
   return {
     connect: async ({ redirectPath }) => {
@@ -50,6 +56,14 @@ export const useSlack = (): UseSlack => {
       window.location.href = url.toString();
     },
     connectSource: async ({ integrationId, channelId, sourceId }) => {
+      logEvent({
+        event_name: LogEvent.SetIntegration,
+        target_id: UserIntegrationType.Slack,
+        extra: JSON.stringify({
+          source: sourceId,
+        }),
+      });
+
       await gqlClient.request(SLACK_CONNECT_SOURCE_MUTATION, {
         integrationId,
         channelId,

@@ -68,6 +68,7 @@ export const SOURCE_INTEGRATION_QUERY = gql`
       userIntegration {
         id
         userId
+        type
       }
       type
       createdAt
@@ -88,6 +89,7 @@ export const SOURCE_INTEGRATIONS_QUERY = gql`
           userIntegration {
             id
             userId
+            type
           }
           type
           createdAt

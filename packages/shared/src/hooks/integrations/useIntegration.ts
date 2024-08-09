@@ -3,6 +3,7 @@ import {
   REMOVE_INTEGRATION_MUTATION,
   REMOVE_SOURCE_INTEGRATION_MUTATION,
   UserIntegration,
+  UserIntegrationType,
   UserSourceIntegration,
 } from '../../graphql/integrations';
 import { generateQueryKey, RequestKey } from '../../lib/query';
@@ -13,12 +14,15 @@ import {
   deleteSourceIntegrationPromptOptions,
 } from '../../lib/integrations';
 import { gqlClient } from '../../graphql/common';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent } from '../../lib/log';
 
 export type UseIntegration = {
   removeIntegration: ({
     integrationId,
   }: {
     integrationId: string;
+    integrationType: UserIntegrationType;
   }) => Promise<void>;
   removeSourceIntegration: ({
     sourceId,
@@ -26,6 +30,7 @@ export type UseIntegration = {
   }: {
     sourceId: string;
     integrationId: string;
+    integrationType: UserIntegrationType;
   }) => Promise<void>;
 };
 
@@ -33,14 +38,26 @@ export const useIntegration = (): UseIntegration => {
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
   const { showPrompt } = usePrompt();
+  const { logEvent } = useLogContext();
 
   const { mutateAsync: removeIntegration } = useMutation(
-    async ({ integrationId }: { integrationId: string }) => {
+    async ({
+      integrationId,
+      integrationType,
+    }: {
+      integrationId: string;
+      integrationType: UserIntegrationType;
+    }) => {
       const deleteConfirmed = await showPrompt(deleteIntegrationPromptOptions);
 
       if (!deleteConfirmed) {
         throw new Error('User cancelled integration deletion');
       }
+
+      logEvent({
+        event_name: LogEvent.RevokeIntegrationAccess,
+        target_id: integrationType,
+      });
 
       await gqlClient.request(REMOVE_INTEGRATION_MUTATION, {
         integrationId,
@@ -64,9 +81,11 @@ export const useIntegration = (): UseIntegration => {
     async ({
       sourceId,
       integrationId,
+      integrationType,
     }: {
       sourceId: string;
       integrationId: string;
+      integrationType: UserIntegrationType;
     }) => {
       const deleteConfirmed = await showPrompt(
         deleteSourceIntegrationPromptOptions,
@@ -75,6 +94,14 @@ export const useIntegration = (): UseIntegration => {
       if (!deleteConfirmed) {
         throw new Error('User cancelled source integration deletion');
       }
+
+      logEvent({
+        event_name: LogEvent.RemoveIntegration,
+        target_id: integrationType,
+        extra: JSON.stringify({
+          source: sourceId,
+        }),
+      });
 
       await gqlClient.request(REMOVE_SOURCE_INTEGRATION_MUTATION, {
         sourceId,

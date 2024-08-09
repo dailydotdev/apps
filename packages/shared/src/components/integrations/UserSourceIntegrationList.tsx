@@ -55,6 +55,7 @@ export const UserSourceIntegrationList = ({
                   await removeSourceIntegration({
                     sourceId: sourceIntegration.source.id,
                     integrationId,
+                    integrationType: sourceIntegration.userIntegration.type,
                   });
                 }}
               >

@@ -72,6 +72,7 @@ export const UserIntegrationItem = ({
                 action: () => {
                   removeIntegration({
                     integrationId: integration.id,
+                    integrationType: integration.type,
                   });
                 },
               },

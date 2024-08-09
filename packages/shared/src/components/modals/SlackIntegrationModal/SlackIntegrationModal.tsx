@@ -191,6 +191,7 @@ const SlackIntegrationModal = ({
               await removeSourceIntegration({
                 integrationId: selectedIntegration.id,
                 sourceId: source.id,
+                integrationType: selectedIntegration.type,
               });
 
               props.onRequestClose?.(event);
