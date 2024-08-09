@@ -12,17 +12,19 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { Connection, gqlClient } from '../../graphql/common';
 import { useAuthContext } from '../../contexts/AuthContext';
 
-export type UseSourceIntegrationsProps = {
+export type UseSourceIntegrationsQueryProps = {
   integrationId: string;
   queryOptions?: UseQueryOptions<UserSourceIntegration[]>;
 };
 
-export type UseSourceIntegrations = UseQueryResult<UserSourceIntegration[]>;
+export type UseSourceIntegrationsQuery = UseQueryResult<
+  UserSourceIntegration[]
+>;
 
-export const useSourceIntegrations = ({
+export const useSourceIntegrationsQuery = ({
   integrationId,
   queryOptions,
-}: UseSourceIntegrationsProps): UseSourceIntegrations => {
+}: UseSourceIntegrationsQueryProps): UseSourceIntegrationsQuery => {
   const { user } = useAuthContext();
   const enabled = !!integrationId;
 

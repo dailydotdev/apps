@@ -9,15 +9,15 @@ import { gqlClient, Connection } from '../../graphql/common';
 import { USER_INTEGRATIONS } from '../../graphql/users';
 import { useAuthContext } from '../../contexts/AuthContext';
 
-export type UseIntegrationsProps = {
+export type UseIntegrationsQueryProps = {
   queryOptions?: UseQueryOptions<UserIntegration[]>;
 };
 
-export type UseIntegrations = UseQueryResult<UserIntegration[]>;
+export type UseIntegrationsQuery = UseQueryResult<UserIntegration[]>;
 
-export const useIntegrations = ({
+export const useIntegrationsQuery = ({
   queryOptions,
-}: UseIntegrationsProps = {}): UseIntegrations => {
+}: UseIntegrationsQueryProps = {}): UseIntegrationsQuery => {
   const { user } = useAuthContext();
   const enabled = !!user;
 

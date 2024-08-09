@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { useSourceIntegrations } from '../../hooks/integrations/useSourceIntegrations';
+import { useSourceIntegrationsQuery } from '../../hooks/integrations/useSourceIntegrationsQuery';
 import { ProfileImageSize } from '../ProfilePicture';
 import { SourceAvatar } from '../profile/source';
 import {
@@ -21,7 +21,7 @@ export type UserSourceIntegrationListProps = {
 export const UserSourceIntegrationList = ({
   integrationId,
 }: UserSourceIntegrationListProps): ReactElement => {
-  const { data: sourceIntegrations, isLoading } = useSourceIntegrations({
+  const { data: sourceIntegrations, isLoading } = useSourceIntegrationsQuery({
     integrationId,
   });
   const { openModal } = useLazyModal();

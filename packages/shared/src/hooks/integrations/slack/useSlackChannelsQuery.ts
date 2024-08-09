@@ -11,17 +11,17 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { gqlClient } from '../../../graphql/common';
 import { useAuthContext } from '../../../contexts/AuthContext';
 
-export type UseSlackChannelsProps = {
+export type UseSlackChannelsQueryProps = {
   integrationId: string;
   queryOptions?: UseQueryOptions<SlackChannel[]>;
 };
 
-export type UseSlackChannels = UseQueryResult<SlackChannel[]>;
+export type UseSlackChannelsQuery = UseQueryResult<SlackChannel[]>;
 
-export const useSlackChannels = ({
+export const useSlackChannelsQuery = ({
   integrationId,
   queryOptions,
-}: UseSlackChannelsProps): UseSlackChannels => {
+}: UseSlackChannelsQueryProps): UseSlackChannelsQuery => {
   const { user } = useAuthContext();
   const enabled = !!integrationId;
 

@@ -12,19 +12,19 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { ApiError, ApiErrorResult, gqlClient } from '../../graphql/common';
 import { useAuthContext } from '../../contexts/AuthContext';
 
-export type UseSourceIntegrationProps = {
+export type UseSourceIntegrationQueryProps = {
   userIntegrationType: UserIntegrationType;
   sourceId: string;
   queryOptions?: UseQueryOptions<UserSourceIntegration>;
 };
 
-export type UseSourceIntegration = UseQueryResult<UserSourceIntegration>;
+export type UseSourceIntegrationQuery = UseQueryResult<UserSourceIntegration>;
 
-export const useSourceIntegration = ({
+export const useSourceIntegrationQuery = ({
   userIntegrationType,
   sourceId,
   queryOptions,
-}: UseSourceIntegrationProps): UseSourceIntegration => {
+}: UseSourceIntegrationQueryProps): UseSourceIntegrationQuery => {
   const { user } = useAuthContext();
   const enabled = !!(userIntegrationType && sourceId);
 

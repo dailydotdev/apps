@@ -1,6 +1,6 @@
 import React, { ReactElement, useState } from 'react';
 
-import { useIntegrations } from '@dailydotdev/shared/src/hooks/integrations/useIntegrations';
+import { useIntegrationsQuery } from '@dailydotdev/shared/src/hooks/integrations/useIntegrationsQuery';
 import {
   Typography,
   TypographyColor,
@@ -26,7 +26,7 @@ const AccountIntegrationsPage = (): ReactElement => {
   }>({});
   const slack = useSlack();
 
-  const { data } = useIntegrations();
+  const { data } = useIntegrationsQuery();
 
   const hasNoIntegrations = data && !data.length;
 

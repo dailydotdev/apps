@@ -27,7 +27,7 @@ import {
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { ContextMenu } from '../../hooks/constants';
-import { useSourceIntegration } from '../../hooks/integrations/useSourceIntegration';
+import { useSourceIntegrationQuery } from '../../hooks/integrations/useSourceIntegrationQuery';
 import { UserIntegrationType } from '../../graphql/integrations';
 import { useAuthContext } from '../../contexts/AuthContext';
 
@@ -60,7 +60,7 @@ export function SquadHeaderBar({
   const showJoinButton = squad.public && !squad.currentMember;
   const firstItemClasses = 'order-5 tablet:order-1';
 
-  const { data: sourceIntegration, isLoading } = useSourceIntegration({
+  const { data: sourceIntegration, isLoading } = useSourceIntegrationQuery({
     sourceId: squad.id,
     userIntegrationType: UserIntegrationType.Slack,
   });

@@ -12,9 +12,9 @@ import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { LazyModal } from '../common/types';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useToastNotification } from '../../../hooks';
-import { useSlackChannels } from '../../../hooks/integrations/slack/useSlackChannels';
-import { useIntegrations } from '../../../hooks/integrations/useIntegrations';
-import { useSourceIntegration } from '../../../hooks/integrations/useSourceIntegration';
+import { useSlackChannelsQuery } from '../../../hooks/integrations/slack/useSlackChannelsQuery';
+import { useIntegrationsQuery } from '../../../hooks/integrations/useIntegrationsQuery';
+import { useSourceIntegrationQuery } from '../../../hooks/integrations/useSourceIntegrationQuery';
 import type { SlackIntegrationModalProps } from './SlackIntegrationModal';
 
 export type UseSlackIntegrationModalProps = Pick<
@@ -52,13 +52,13 @@ export const useSlackIntegrationModal = ({
     channelId?: string;
   }>({});
 
-  const { data: sourceIntegration } = useSourceIntegration({
+  const { data: sourceIntegration } = useSourceIntegrationQuery({
     userIntegrationType: UserIntegrationType.Slack,
     sourceId: source.id,
   });
 
   const { data: slackIntegrations, isLoading: isLoadingIntegrations } =
-    useIntegrations({
+    useIntegrationsQuery({
       queryOptions: {
         select: useCallback((data) => {
           const filteredData = data.filter(
@@ -93,7 +93,7 @@ export const useSlackIntegrationModal = ({
     );
   }, [slackIntegrations, selectedIntegration]);
 
-  const { data: channels } = useSlackChannels({
+  const { data: channels } = useSlackChannelsQuery({
     integrationId: selectedIntegration?.id,
   });
 
