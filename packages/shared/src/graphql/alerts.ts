@@ -17,6 +17,7 @@ export type Alerts = {
   shouldShowFeedFeedback?: boolean;
   lastBootPopup?: Date;
   bootPopup?: boolean;
+  streakRecovery?: boolean;
 };
 
 export type AlertsUpdate = Omit<Alerts, 'changelog' | 'banner'>;
