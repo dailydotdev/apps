@@ -214,6 +214,15 @@ export const cloudinary = {
         'https://res.cloudinary.com/daily-now/image/upload/s--jn7-qwCj--/f_auto,q_auto/v1721136180/public/daily-to-dev-suffer-together',
     },
   },
+  integrations: {
+    slack: {
+      header: {
+        light:
+          'https://res.cloudinary.com/daily-now/image/upload/s--5PV2NbVq--/f_auto,q_auto/v1721634746/public/Connection%20image%20-%20Light',
+        dark: 'https://res.cloudinary.com/daily-now/image/upload/s--zzudPNtR--/f_auto,q_auto/v1721634746/public/Connection%20image%20-%20Dark',
+      },
+    },
+  },
 };
 
 export const smallPostImage = (url: string): string => {

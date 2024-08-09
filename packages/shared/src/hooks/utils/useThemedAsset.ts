@@ -9,6 +9,7 @@ interface UseAsset {
   notFound: string;
   themeColor: string;
   githubShortcut: string;
+  slackIntegrationHeader: string;
 }
 
 export const useIsLightTheme = (): boolean => {
@@ -41,5 +42,8 @@ export const useThemedAsset = (): UseAsset => {
     githubShortcut: isLight
       ? cloudinary.shortcuts.icons.github.light
       : cloudinary.shortcuts.icons.github.dark,
+    slackIntegrationHeader: isLight
+      ? cloudinary.integrations.slack.header.light
+      : cloudinary.integrations.slack.header.dark,
   };
 };

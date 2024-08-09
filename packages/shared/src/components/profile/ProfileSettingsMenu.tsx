@@ -12,6 +12,7 @@ import {
   TerminalIcon,
   FeedbackIcon,
   HammerIcon,
+  AppIcon,
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
 import {
@@ -77,6 +78,11 @@ const useMenuItems = (): NavItemProps[] => {
         label: 'Notifications',
         icon: <BellIcon />,
         href: '/account/notifications',
+      },
+      {
+        label: 'Integrations',
+        icon: <AppIcon />,
+        href: '/account/integrations',
       },
       {
         label: 'Contribute',

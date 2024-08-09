@@ -25,6 +25,7 @@ export enum SourcePermissions {
   Delete = 'delete',
   Edit = 'edit',
   WelcomePostEdit = 'welcome_post_edit',
+  ConnectSlack = 'connect_slack',
 }
 
 export type SourceMemberFlag = Partial<{

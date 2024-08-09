@@ -154,8 +154,14 @@ function MainLayoutComponent({
     router.push(`${onboardingUrl}?${params.toString()}`);
   }, [shouldRedirectOnboarding, router]);
 
+  const ignoredUtmMediumForLogin = ['slack'];
   const utmSource = router?.query?.utm_source;
-  const shouldShowLogin = !user && isAuthReady && utmSource === 'notification';
+  const utmMedium = router?.query?.utm_medium;
+  const shouldShowLogin =
+    !user &&
+    isAuthReady &&
+    utmSource === 'notification' &&
+    !ignoredUtmMediumForLogin.includes(utmMedium as string);
 
   useEffect(() => {
     if (!shouldShowLogin) {

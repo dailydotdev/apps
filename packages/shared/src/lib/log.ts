@@ -175,6 +175,11 @@ export enum LogEvent {
   // Settings
   ChangeSettings = 'change settings',
   // End settings
+  // Integrations
+  SetIntegration = 'set integration',
+  RemoveIntegration = 'remove integration',
+  RevokeIntegrationAccess = 'revoke integration access',
+  // End integrations
 }
 
 export enum FeedItemTitle {

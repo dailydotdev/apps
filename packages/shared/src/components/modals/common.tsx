@@ -145,6 +145,13 @@ const BookmarkReminderModal = dynamic(
     ),
 );
 
+const SlackIntegrationModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "slackIntegrationModal" */ './SlackIntegrationModal/SlackIntegrationModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -170,6 +177,7 @@ export const modals = {
   [LazyModal.PrivilegedMembers]: PrivilegedMemberModal,
   [LazyModal.FirefoxPrivacy]: FirefoxPrivacyModal,
   [LazyModal.BookmarkReminder]: BookmarkReminderModal,
+  [LazyModal.SlackIntegration]: SlackIntegrationModal,
 };
 
 type GetComponentProps<T> = T extends
