@@ -54,6 +54,8 @@ import { SquadStatus } from '@dailydotdev/shared/src/components/squads/settings'
 import { useRouter } from 'next/router';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage, {
@@ -207,13 +209,23 @@ const SquadPage = ({
       return;
     }
 
+    const searchParams = new URLSearchParams(window.location.search);
+    searchParams.delete('lzym');
+    router.replace(
+      getPathnameWithQuery(`${webappUrl}squads/${squad.handle}`, searchParams),
+      undefined,
+      {
+        shallow: true,
+      },
+    );
+
     openModal({
       type: LazyModal.SlackIntegration,
       props: {
         source: squad,
       },
     });
-  }, [shouldManageSlack, squad, openModal]);
+  }, [shouldManageSlack, squad, openModal, router]);
 
   if (isLoading && (!isFetched || isRequestsLoading)) {
     return (
