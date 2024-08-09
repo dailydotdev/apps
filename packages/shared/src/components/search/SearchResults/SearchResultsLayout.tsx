@@ -19,6 +19,7 @@ import { useSearchProviderSuggestions } from '../../../hooks/search';
 import SettingsContext from '../../../contexts/SettingsContext';
 import { gapClass } from '../../feeds/FeedContainer';
 import { useFeedLayout } from '../../../hooks';
+import { SearchResultsUsers } from './SearchResultsUsers';
 
 type SearchResultsLayoutProps = PropsWithChildren;
 
@@ -56,6 +57,14 @@ export const SearchResultsLayout = (
       limit: 10,
     });
   const sources = suggestedSources?.hits ?? [];
+
+  const { isLoading: isUsersLoading, suggestions: suggestedUsers } =
+    useSearchProviderSuggestions({
+      query: `${query}`,
+      provider: SearchProviderEnum.Users,
+      limit: 10,
+    });
+  const users = suggestedUsers?.hits ?? [];
 
   const onTagClick = (suggestion: SearchSuggestion) => {
     const tag = suggestion.id || suggestion.title.toLowerCase();
@@ -146,6 +155,7 @@ export const SearchResultsLayout = (
               });
             }}
           />
+          <SearchResultsUsers isLoading={isUsersLoading} items={users} />
         </PageWidgets>
       </div>
     </section>

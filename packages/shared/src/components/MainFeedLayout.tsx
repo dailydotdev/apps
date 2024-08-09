@@ -262,12 +262,7 @@ export default function MainFeedLayout({
         ),
         query: SEARCH_POSTS_QUERY,
         variables: { query: searchQuery, version: searchVersion },
-        emptyScreen: (
-          <>
-            {isSearchPageLaptop && search}
-            <SearchEmptyScreen />
-          </>
-        ),
+        emptyScreen: <SearchEmptyScreen />,
       };
     }
 

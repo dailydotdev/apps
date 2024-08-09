@@ -405,7 +405,7 @@ export default function Feed<T>({
 
   const PostModal = PostModalMap[selectedPost?.type];
 
-  if (emptyScreen && emptyFeed) {
+  if (emptyScreen && emptyFeed && !isSearchPageLaptop) {
     return <>{emptyScreen}</>;
   }
 
@@ -432,6 +432,7 @@ export default function Feed<T>({
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>
       <FeedWrapperComponent {...containerProps}>
+        {isSearchPageLaptop && emptyScreen && emptyFeed && <>{emptyScreen}</>}
         {items.map((item, index) => (
           <FeedItemComponent
             item={item}
