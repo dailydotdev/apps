@@ -15,6 +15,8 @@ import { SourceAvatar } from '../../profile/source';
 import useFeedSettings from '../../../hooks/useFeedSettings';
 import { BlockTagSelection, getBlockedMessage } from './common';
 import { GenericTagButton } from '../../filters/TagButton';
+import { SimpleTooltip } from '../../tooltips';
+import ConditionalWrapper from '../../ConditionalWrapper';
 
 interface PostTagsPanelProps {
   post: Post;
@@ -75,6 +77,9 @@ export function PostTagsPanel({
     );
   }
 
+  const isBlockDisabled =
+    Object.values(tags).every((tag) => !tag) && !shouldBlockSource;
+
   return (
     <div
       className={classNames(
@@ -124,13 +129,23 @@ export function PostTagsPanel({
         >
           Report
         </Button>
-        <Button
-          variant={ButtonVariant.Primary}
-          color={ButtonColor.Cabbage}
-          onClick={() => onBlock(tags, shouldBlockSource)}
+        <ConditionalWrapper
+          condition={isBlockDisabled}
+          wrapper={(children: ReactElement) => (
+            <SimpleTooltip content="Select at least one tag or source to block">
+              <span>{children}</span>
+            </SimpleTooltip>
+          )}
         >
-          Block
-        </Button>
+          <Button
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
+            onClick={() => onBlock(tags, shouldBlockSource)}
+            disabled={isBlockDisabled}
+          >
+            Block
+          </Button>
+        </ConditionalWrapper>
       </span>
     </div>
   );

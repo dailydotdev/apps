@@ -142,21 +142,31 @@ export const useBlockPostPanel = (
     [setShowTagsPanel, updateFeedPreferences],
   );
 
+  const onDismissPermanently = useCallback(() => {
+    completeAction(ActionType.HideBlockPanel);
+    setShowTagsPanel({ showTagsPanel: undefined });
+  }, [completeAction, setShowTagsPanel]);
+
   const onClose = useCallback(
-    (forceClose?: boolean) =>
-      setShowTagsPanel({ showTagsPanel: forceClose ? undefined : false }),
-    [setShowTagsPanel],
+    (forceClose?: boolean) => {
+      const isRemovingDownvote = typeof forceClose === 'boolean';
+
+      if (!isRemovingDownvote) {
+        displayToast(getBlockedMessage(0, false), {
+          onUndo: onDismissPermanently,
+          undoCopy: `Don't ask again`,
+        });
+      }
+
+      setShowTagsPanel({ showTagsPanel: forceClose ? undefined : false });
+    },
+    [displayToast, onDismissPermanently, setShowTagsPanel],
   );
 
   const onShowPanel = useCallback(
     () => setShowTagsPanel({ showTagsPanel: true }),
     [setShowTagsPanel],
   );
-
-  const onDismissPermanently = useCallback(() => {
-    completeAction(ActionType.HideBlockPanel);
-    setShowTagsPanel({ showTagsPanel: undefined });
-  }, [completeAction, setShowTagsPanel]);
 
   const onReport = useCallback(() => {
     openModal({
@@ -182,7 +192,6 @@ export const useBlockPostPanel = (
 
       if (toastOnSuccess) {
         const sourcePreferenceChanged = blockedSource !== shouldBlockSource;
-        const noAction = blocks.length === 0 && !sourcePreferenceChanged;
         const onUndoToast = () => {
           onUndo(
             blocks,
@@ -190,13 +199,15 @@ export const useBlockPostPanel = (
           );
         };
 
-        displayToast(
-          getBlockedMessage(blocks.length, sourcePreferenceChanged),
-          {
-            onUndo: noAction ? onDismissPermanently : onUndoToast,
-            undoCopy: noAction ? `Don't ask again` : 'Undo',
-          },
-        );
+        if (blocks.length || sourcePreferenceChanged) {
+          displayToast(
+            getBlockedMessage(blocks.length, sourcePreferenceChanged),
+            {
+              onUndo: onUndoToast,
+              undoCopy: 'Undo',
+            },
+          );
+        }
       }
 
       setShowTagsPanel({
@@ -206,7 +217,6 @@ export const useBlockPostPanel = (
     },
     [
       displayToast,
-      onDismissPermanently,
       onUndo,
       blockedSource,
       setShowTagsPanel,
