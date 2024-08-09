@@ -83,24 +83,28 @@ const SlackIntegrationModal = ({
       )}
       {hasIntegrations && (
         <Modal.Body className="flex flex-col gap-4">
-          <div className="mr-auto flex items-center justify-center">
+          <div className="mr-auto flex w-[calc(100%-40px)] items-center justify-center">
             <SourceAvatar source={source} size={ProfileImageSize.Small} />
             <Typography
+              className="flex min-w-0 flex-1 flex-wrap"
               type={TypographyType.Callout}
               color={TypographyColor.Primary}
             >
               <Typography
+                className="mr-1"
                 tag={TypographyTag.Span}
                 bold
                 color={TypographyColor.Primary}
+                truncate
               >
                 {source.name}
-              </Typography>{' '}
+              </Typography>
               <Typography
                 tag={TypographyTag.Span}
                 color={TypographyColor.Tertiary}
+                truncate
               >
-                @{source.handle}
+                {`@${source.handle}`}
               </Typography>
             </Typography>
           </div>
