@@ -114,7 +114,6 @@ const SlackIntegrationModal = ({
               shouldIndicateSelected
               buttonSize={ButtonSize.Medium}
               iconOnly={false}
-              key="feed"
               selectedIndex={selectedIntegrationIndex}
               renderItem={(value, index) => {
                 const currentIntegration = slackIntegrations[index];
@@ -158,7 +157,6 @@ const SlackIntegrationModal = ({
                 shouldIndicateSelected
                 buttonSize={ButtonSize.Medium}
                 iconOnly={false}
-                key="feed"
                 selectedIndex={selectedChannelIndex}
                 renderItem={(_, index) => (
                   <span className="typo-callout">{`#${channels[index].name}`}</span>
