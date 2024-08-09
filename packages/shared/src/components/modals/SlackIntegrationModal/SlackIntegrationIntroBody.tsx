@@ -21,7 +21,7 @@ export const SlackIntegrationIntroBody = ({
 }: SlackIntegrationIntroBodyProps): ReactElement => {
   return (
     <Modal.Body className="flex flex-col items-center justify-center gap-4 text-center">
-      <Image src={headerImg} alt="Slack integration" />
+      <Image className="rounded-16" src={headerImg} alt="Slack integration" />
       <Typography
         type={TypographyType.Title1}
         bold

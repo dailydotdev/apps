@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import { Modal, ModalProps } from '../common/Modal';
 import { Dropdown } from '../../fields/Dropdown';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
@@ -59,7 +60,9 @@ const SlackIntegrationModal = ({
     >
       {!isLoadingIntegrations && (
         <ModalClose
-          className="top-4"
+          className={classNames(
+            hasIntegrations ? 'right-4 top-4' : 'right-6 top-6',
+          )}
           onClick={props.onRequestClose}
           variant={
             hasIntegrations ? ButtonVariant.Tertiary : ButtonVariant.Primary
