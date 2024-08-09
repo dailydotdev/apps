@@ -35,6 +35,7 @@ const feed: Connection<Post> = {
         upvoted: false,
         commented: true,
         type: PostType.Article,
+        domain: 'medium.com',
       },
     },
     {
@@ -65,6 +66,7 @@ const feed: Connection<Post> = {
         commented: true,
         bookmarked: true,
         type: PostType.Article,
+        domain: 'medium.com',
       },
     },
     {
@@ -94,6 +96,7 @@ const feed: Connection<Post> = {
         upvoted: true,
         commented: true,
         type: PostType.Article,
+        domain: 'medium.com',
       },
     },
     {
@@ -124,6 +127,7 @@ const feed: Connection<Post> = {
         upvoted: true,
         commented: true,
         type: PostType.Article,
+        domain: 'medium.com',
       },
     },
     {
@@ -153,6 +157,7 @@ const feed: Connection<Post> = {
         upvoted: true,
         commented: true,
         type: PostType.Article,
+        domain: 'medium.com',
       },
     },
     {
@@ -182,6 +187,7 @@ const feed: Connection<Post> = {
         upvoted: true,
         commented: true,
         type: PostType.Article,
+        domain: 'medium.com',
       },
     },
     {
@@ -211,6 +217,7 @@ const feed: Connection<Post> = {
         upvoted: false,
         commented: true,
         type: PostType.Article,
+        domain: 'medium.com',
       },
     },
   ],

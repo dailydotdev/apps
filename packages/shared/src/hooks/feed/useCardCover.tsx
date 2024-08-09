@@ -2,10 +2,10 @@ import React, { ReactNode, useMemo } from 'react';
 import { Post } from '../../graphql/posts';
 import { usePostShareLoop } from '../post/usePostShareLoop';
 import { CardCoverShare } from '../../components/cards/common/CardCoverShare';
-import { useBookmarkReminderEnrollment } from '../notifications';
 import { CardCoverContainer } from '../../components/cards/common/CardCoverContainer';
 import { PostReminderOptions } from '../../components/post/common/PostReminderOptions';
 import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
+import { useBookmarkReminderCover } from '../bookmark/useBookmarkReminderCover';
 
 interface UseCardCover {
   overlay: ReactNode;
@@ -13,15 +13,21 @@ interface UseCardCover {
 
 interface UseCardCoverProps {
   post: Post;
-  onShare: (post: Post) => void;
+  onShare?: (post: Post) => void;
+  className?: {
+    bookmark?: {
+      container?: string;
+    };
+  };
 }
 
 export const useCardCover = ({
   post,
   onShare,
+  className = {},
 }: UseCardCoverProps): UseCardCover => {
   const { shouldShowOverlay, onInteract } = usePostShareLoop(post);
-  const shouldShowReminder = useBookmarkReminderEnrollment(post);
+  const shouldShowReminder = useBookmarkReminderCover(post);
 
   const overlay = useMemo(() => {
     if (shouldShowOverlay && onShare) {
@@ -39,7 +45,10 @@ export const useCardCover = ({
 
     if (shouldShowReminder) {
       return (
-        <CardCoverContainer title="Remind about this post later?">
+        <CardCoverContainer
+          title="Remind about this post later?"
+          className={className?.bookmark?.container}
+        >
           <PostReminderOptions
             post={post}
             className="mt-2"
@@ -53,7 +62,14 @@ export const useCardCover = ({
     }
 
     return undefined;
-  }, [onInteract, onShare, post, shouldShowOverlay, shouldShowReminder]);
+  }, [
+    className?.bookmark?.container,
+    onInteract,
+    onShare,
+    post,
+    shouldShowOverlay,
+    shouldShowReminder,
+  ]);
 
   return { overlay };
 };

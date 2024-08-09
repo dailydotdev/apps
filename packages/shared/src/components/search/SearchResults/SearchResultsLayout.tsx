@@ -15,10 +15,10 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { webappUrl } from '../../../lib/constants';
 import { SearchResultsTags } from './SearchResultsTags';
 import { SearchResultsSources } from './SearchResultsSources';
-import { useFeedLayout } from '../../../hooks';
 import { useSearchProviderSuggestions } from '../../../hooks/search';
 import SettingsContext from '../../../contexts/SettingsContext';
 import { gapClass } from '../../feeds/FeedContainer';
+import { useFeedLayout } from '../../../hooks';
 
 type SearchResultsLayoutProps = PropsWithChildren;
 
@@ -32,9 +32,9 @@ export const SearchResultsLayout = (
 ): ReactElement => {
   const { children } = props;
 
-  const { isListMode } = useFeedLayout();
+  const { isListMode, isLoadingExperiment } = useFeedLayout();
   const { spaciness } = useContext(SettingsContext);
-  const { isSearchResultsUpgrade } = useSearchResultsLayout();
+  const { isSearchPageLaptop } = useSearchResultsLayout();
   const {
     query: { q: query },
     push,
@@ -74,33 +74,35 @@ export const SearchResultsLayout = (
     push(`${webappUrl}tags/${tag}`);
   };
 
-  if (!isSearchResultsUpgrade) {
+  if (!isSearchPageLaptop) {
     return <>{children}</>;
   }
 
   return (
     <section className="mx-auto w-full laptopL:max-w-screen-laptop">
-      <div className="flex flex-row border-border-subtlest-tertiary laptop:-mx-16 laptop:pb-0 laptopL:mx-auto laptopL:border-x">
+      <div className="flex flex-row border-border-subtlest-tertiary laptop:-mx-8 laptop:pb-0 laptopL:mx-auto laptopL:border-x">
         <div className="flex-1 border-r border-border-subtlest-tertiary">
           <h2 className="px-4 py-4 font-bold text-text-primary typo-body">
             Related posts
           </h2>
-          <div
-            role="list"
-            className={classNames(
-              'mt-2.5',
-              gapClass({
-                isList: isListMode,
-                isFeedLayoutList: false,
-                space: spaciness,
-              }),
-              isListMode
-                ? `flex flex-col`
-                : `grid w-96 grid-cols-1 px-4 laptopL:w-auto laptopL:grid-cols-2`,
-            )}
-          >
-            {children}
-          </div>
+          {!isLoadingExperiment && (
+            <div
+              role="list"
+              className={classNames(
+                'mt-2.5',
+                gapClass({
+                  isList: true,
+                  isFeedLayoutList: false,
+                  space: spaciness,
+                }),
+                isListMode
+                  ? `flex flex-col`
+                  : `grid w-96 grid-cols-1 px-4 laptopL:w-auto laptopL:grid-cols-2`,
+              )}
+            >
+              {children}
+            </div>
+          )}
         </div>
         <PageWidgets className="py-5">
           <SearchProviderButton

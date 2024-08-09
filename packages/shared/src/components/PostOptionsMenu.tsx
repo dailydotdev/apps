@@ -325,18 +325,16 @@ export default function PostOptionsMenu({
     });
   }
 
-  const isReminderActive = useConditionalFeature({
-    feature: feature.bookmarkReminder,
-    shouldEvaluate: isPostOptionsOpen,
-  });
   const { onRemoveReminder } = useBookmarkReminder({ post });
 
-  if (isReminderActive && isLoggedIn) {
+  if (isLoggedIn) {
     const hasPostReminder = !!post?.bookmark?.remindAt;
 
     // Add/Edit reminder
     postOptions.push({
-      icon: <MenuIcon Icon={BookmarkReminderIcon} />,
+      icon: (
+        <MenuIcon Icon={BookmarkReminderIcon} secondary={hasPostReminder} />
+      ),
       label: hasPostReminder ? 'Edit reminder' : 'Read it later',
       action: () => {
         openModal({ type: LazyModal.BookmarkReminder, props: { post } });

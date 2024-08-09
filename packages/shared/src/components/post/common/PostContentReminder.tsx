@@ -1,19 +1,22 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import { PostContentWidget } from './PostContentWidget';
-import { useBookmarkReminderEnrollment } from '../../../hooks/notifications';
 import { Post } from '../../../graphql/posts';
 import { BookmarkReminderIcon } from '../../icons/Bookmark/Reminder';
 import { IconSize } from '../../Icon';
 import { PostReminderOptions } from './PostReminderOptions';
+import { useBookmarkReminderCover } from '../../../hooks/bookmark/useBookmarkReminderCover';
 
 interface PostContentReminderProps {
   post: Post;
+  className?: string;
 }
 
 export function PostContentReminder({
   post,
+  className,
 }: PostContentReminderProps): ReactElement {
-  const shouldShowReminder = useBookmarkReminderEnrollment(post);
+  const shouldShowReminder = useBookmarkReminderCover(post);
 
   if (!shouldShowReminder) {
     return null;
@@ -21,8 +24,8 @@ export function PostContentReminder({
 
   return (
     <PostContentWidget
-      className="mt-6 w-full"
-      icon={<BookmarkReminderIcon size={IconSize.Small} />}
+      className={classNames('mt-6 w-full', className)}
+      icon={<BookmarkReminderIcon size={IconSize.Small} secondary />}
       title="Remind about this post later?"
     >
       <PostReminderOptions post={post} className="laptop:ml-auto" />

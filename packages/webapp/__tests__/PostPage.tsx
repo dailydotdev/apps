@@ -15,8 +15,8 @@ import {
   Post,
   POST_BY_ID_QUERY,
   PostData,
-  REMOVE_BOOKMARK_MUTATION,
   PostType,
+  REMOVE_BOOKMARK_MUTATION,
   UserVote,
   VIEW_POST_MUTATION,
 } from '@dailydotdev/shared/src/graphql/posts';
@@ -120,6 +120,7 @@ const defaultPost = {
   commentsPermalink: 'https://localhost:5002/posts/9CuRpr5NiEY5',
   numUpvotes: 0,
   numComments: 0,
+  domain: 'medium.com',
 };
 
 const createPostMock = (
@@ -215,6 +216,12 @@ it('should show source image', async () => {
     'src',
     'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/tds',
   );
+});
+
+it('should show domain', async () => {
+  renderPost();
+  const el = await screen.findByText('medium.com');
+  expect(el).toBeInTheDocument();
 });
 
 it('should show source name', async () => {
@@ -866,7 +873,13 @@ describe('downvote flow', () => {
     await screen.findByText("Don't show me posts from...");
   });
 
-  it('should display the option to never see the selection again if blocked no tags', async () => {
+  it('should prevent user to click block if no tags are selected', async () => {
+    await prepareDownvote();
+    const block = await screen.findByText<HTMLButtonElement>('Block');
+    expect(block?.disabled).toBe(true);
+  });
+
+  it('should display the option to never see the selection again if close panel', async () => {
     await prepareDownvote();
     const items = await screen.findAllByTestId('blockTagButton');
     const allUnselected = items.every((el) =>
@@ -874,8 +887,8 @@ describe('downvote flow', () => {
     );
     await act(() => new Promise((resolve) => setTimeout(resolve, 10)));
     expect(allUnselected).toBeTruthy();
-    const block = await screen.findByText('Block');
-    fireEvent.click(block);
+    const close = await screen.findByTitle('Close');
+    fireEvent.click(close);
     await screen.findByText('No topics were blocked');
     let mutationCalled = false;
     mockGraphQL({

@@ -67,16 +67,16 @@ const StreakReminderSwitch = ({
   return (
     <Switch
       checked={!!streakReminder}
-      data-testid="email_notification-switch"
-      inputId="email_notification-switch"
-      name="email_notification"
+      data-testid="streak-reminder-switch"
+      inputId="streak-reminder-switch"
+      name="streak-reminder"
       defaultTypo
       className={className}
       labelClassName="font-bold"
       compact={false}
       onToggle={onToggleStreakReminder}
     >
-      Streak reminder
+      Notify me before my streak expires
     </Switch>
   );
 };

@@ -3,6 +3,7 @@ import { sanitize } from 'dompurify';
 import { CardSpace } from './Card';
 import { Post } from '../../graphql/posts';
 import { CardCover } from './common/CardCover';
+import { useCardCover } from '../../hooks/feed/useCardCover';
 
 interface WelcomePostCardFooterProps {
   post: Post;
@@ -17,6 +18,14 @@ export const WelcomePostCardFooter = ({
   onShare,
   contentHtml,
 }: WelcomePostCardFooterProps): ReactElement => {
+  const { overlay } = useCardCover({
+    post,
+    className: {
+      bookmark: {
+        container: !image && '!justify-start !items-start ml-2 mt-4 gap-1',
+      },
+    },
+  });
   const content = useMemo(
     () => (contentHtml ? sanitize(contentHtml, { ALLOWED_TAGS: [] }) : ''),
     [contentHtml],
@@ -42,6 +51,10 @@ export const WelcomePostCardFooter = ({
         />
       </>
     );
+  }
+
+  if (overlay) {
+    return <>{overlay}</>;
   }
 
   if (content) {
