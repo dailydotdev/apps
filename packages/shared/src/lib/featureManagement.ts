@@ -22,6 +22,7 @@ const feature = {
   }),
   feedAdSpot: new Feature('feed_ad_spot', 0),
   searchVersion: new Feature('search_version', 2),
+  searchListMode: new Feature('search_list_mode', false),
   featureTheme: new Feature('feature_theme', {}),
   shortcutsUI: new Feature('shortcuts_ui', ShortcutsUIExperiment.Control),
   showRoadmap: new Feature('show_roadmap', false),
@@ -31,7 +32,6 @@ const feature = {
   sourceNotifyButton: new Feature('source_notify_button', false),
   cardDownvote: new Feature('card_downvote', false),
   generateSummary: new Feature('generate_summary', false),
-  originDomain: new Feature('origin_domain', false),
 };
 
 export { feature };

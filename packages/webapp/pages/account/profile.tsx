@@ -46,8 +46,6 @@ import { FormWrapper } from '@dailydotdev/shared/src/components/fields/form';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
 import ExperienceLevelDropdown from '@dailydotdev/shared/src/components/profile/ExperienceLevelDropdown';
-import { TimezoneDropdown } from '@dailydotdev/shared/src/components/widgets/TimezoneDropdown';
-import { getUserInitialTimezone } from '@dailydotdev/shared/src/lib/timezones';
 import { withHttps, withPrefix } from '@dailydotdev/shared/src/lib';
 import { AccountTextField } from '../../components/layouts/AccountLayout/common';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
@@ -67,12 +65,6 @@ const AccountProfilePage = (): ReactElement => {
   const [coverImage, setCoverImage] = useState(user?.cover);
   const currentCoverImage = coverImage || user?.cover;
   const isMobile = useViewSize(ViewSize.MobileL);
-  const [userTimeZone, setUserTimeZone] = useState<string>(
-    getUserInitialTimezone({
-      userTimezone: user?.timezone,
-      update: true,
-    }),
-  );
 
   const onSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -169,14 +161,14 @@ const AccountProfilePage = (): ReactElement => {
             <ImageInput
               id={coverId}
               className={{
-                root: 'w-full',
+                root: 'w-full max-w-[19.25rem]',
                 container:
                   'border-0 bg-background-subtle hover:bg-accent-pepper-subtlest',
                 img: 'object-cover',
               }}
               size="cover"
               initialValue={currentCoverImage}
-              fallbackImage={undefined}
+              fallbackImage={null}
               alwaysShowHover={!currentCoverImage}
               hoverIcon={<CoverHoverIcon />}
               fileSizeLimitMB={5}
@@ -247,12 +239,6 @@ const AccountProfilePage = (): ReactElement => {
           inputId="title"
           name="title"
           value={user?.title}
-        />
-      </AccountContentSection>
-      <AccountContentSection title="Your timezone">
-        <TimezoneDropdown
-          userTimeZone={userTimeZone}
-          setUserTimeZone={setUserTimeZone}
         />
       </AccountContentSection>
       <AccountContentSection

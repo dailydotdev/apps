@@ -17,8 +17,6 @@ import { PostContainer, PostContentProps, PostNavigationProps } from './common';
 import YoutubeVideo from '../video/YoutubeVideo';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useViewPost } from '../../hooks/post';
-import { feature } from '../../lib/featureManagement';
-import { useFeature } from '../GrowthBookProvider';
 import { TruncateText } from '../utilities';
 
 export const SCROLL_OFFSET = 80;
@@ -50,7 +48,6 @@ export function PostContent({
   });
   const { onCopyPostLink, onReadArticle } = engagementActions;
   const onSendViewPost = useViewPost(post);
-  const showOriginDomain = useFeature(feature.originDomain);
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);
@@ -161,7 +158,6 @@ export function PostContent({
             )}
             domain={
               !isVideoType &&
-              showOriginDomain &&
               post.domain.length > 0 && (
                 <TruncateText>
                   From{' '}

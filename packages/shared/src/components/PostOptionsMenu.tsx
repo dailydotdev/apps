@@ -332,7 +332,9 @@ export default function PostOptionsMenu({
 
     // Add/Edit reminder
     postOptions.push({
-      icon: <MenuIcon Icon={BookmarkReminderIcon} />,
+      icon: (
+        <MenuIcon Icon={BookmarkReminderIcon} secondary={hasPostReminder} />
+      ),
       label: hasPostReminder ? 'Edit reminder' : 'Read it later',
       action: () => {
         openModal({ type: LazyModal.BookmarkReminder, props: { post } });

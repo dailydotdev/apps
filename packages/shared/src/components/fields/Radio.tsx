@@ -4,7 +4,7 @@ import { RadioItem, RadioItemProps } from './RadioItem';
 import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
-interface ClassName {
+export interface ClassName {
   container?: string;
   content?: string;
 }

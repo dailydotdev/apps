@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import { ButtonSize } from '../buttons/common';
 import { Dropdown } from '../fields/Dropdown';
 import { getTimeZoneIcon, getTimeZoneOptions } from '../../lib/timezones';
@@ -10,10 +11,15 @@ const timeZoneValues = timeZoneOptions.map((timeZone) => timeZone.label);
 interface TimezoneDropdownProps {
   userTimeZone: string;
   setUserTimeZone: (timezone: string) => void;
+  className?: {
+    container?: string;
+    menu?: string;
+  };
 }
 const TimezoneDropdown = ({
   userTimeZone,
   setUserTimeZone,
+  className,
 }: TimezoneDropdownProps): ReactElement => {
   const { updateUserProfile } = useProfileForm();
 
@@ -30,7 +36,10 @@ const TimezoneDropdown = ({
     <Dropdown
       icon={<Icon />}
       buttonSize={ButtonSize.Large}
-      className={{ container: 'mt-6 w-70', menu: 'menu-secondary' }}
+      className={{
+        container: classNames('mt-6 w-70', className?.container),
+        menu: classNames('menu-secondary', className?.menu),
+      }}
       selectedIndex={timeZoneOptions.findIndex(
         (timeZone) => timeZone.value === userTimeZone,
       )}
