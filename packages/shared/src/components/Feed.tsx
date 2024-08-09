@@ -432,65 +432,70 @@ export default function Feed<T>({
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>
       <FeedWrapperComponent {...containerProps}>
-        {isSearchPageLaptop && emptyScreen && emptyFeed && <>{emptyScreen}</>}
-        {items.map((item, index) => (
-          <FeedItemComponent
-            item={item}
-            index={index}
-            row={calculateRow(index, virtualizedNumCards)}
-            column={calculateColumn(index, virtualizedNumCards)}
-            columns={virtualizedNumCards}
-            key={getFeedItemKey(item, index)}
-            openNewTab={openNewTab}
-            postMenuIndex={postMenuIndex}
-            showCommentPopupId={showCommentPopupId}
-            setShowCommentPopupId={setShowCommentPopupId}
-            isSendingComment={isSendingComment}
-            comment={comment}
-            user={user}
-            feedName={feedName}
-            ranking={ranking}
-            onBookmark={onCardBookmark}
-            toggleUpvote={toggleUpvote}
-            toggleDownvote={toggleDownvote}
-            onPostClick={onPostCardClick}
-            onShare={onShareClick}
-            onMenuClick={onMenuClick}
-            onCopyLinkClick={onCopyLinkClickLogged}
-            onCommentClick={onCommentClick}
-            onAdClick={onAdClick}
-            onReadArticleClick={onReadArticleClick}
-          />
-        ))}
-        {!isFetching && !isInitialLoading && !isHorizontal && (
-          <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
-        )}
-        <PostOptionsMenu
-          {...commonMenuItems}
-          feedName={feedName}
-          postIndex={postMenuIndex}
-          onHidden={() => setPostMenuIndex(null)}
-          onRemovePost={onRemovePost}
-          origin={origin}
-          allowPin={allowPin}
-          contextId={contextId}
-        />
-        <ShareOptionsMenu
-          {...commonMenuItems}
-          shouldUseListFeedLayout={shouldUseListFeedLayout}
-          onHidden={onShareOptionsHidden}
-        />
-        {!shouldUseListFeedLayout && selectedPost && PostModal && (
-          <PostModal
-            isOpen={!!selectedPost}
-            id={selectedPost.id}
-            onRequestClose={onPostModalClose}
-            onPreviousPost={onPrevious}
-            onNextPost={onNext}
-            postPosition={postPosition}
-            post={selectedPost}
-            onRemovePost={() => onRemovePost(selectedPostIndex)}
-          />
+        {isSearchPageLaptop && emptyScreen && emptyFeed ? (
+          <>{emptyScreen}</>
+        ) : (
+          <>
+            {items.map((item, index) => (
+              <FeedItemComponent
+                item={item}
+                index={index}
+                row={calculateRow(index, virtualizedNumCards)}
+                column={calculateColumn(index, virtualizedNumCards)}
+                columns={virtualizedNumCards}
+                key={getFeedItemKey(item, index)}
+                openNewTab={openNewTab}
+                postMenuIndex={postMenuIndex}
+                showCommentPopupId={showCommentPopupId}
+                setShowCommentPopupId={setShowCommentPopupId}
+                isSendingComment={isSendingComment}
+                comment={comment}
+                user={user}
+                feedName={feedName}
+                ranking={ranking}
+                onBookmark={onCardBookmark}
+                toggleUpvote={toggleUpvote}
+                toggleDownvote={toggleDownvote}
+                onPostClick={onPostCardClick}
+                onShare={onShareClick}
+                onMenuClick={onMenuClick}
+                onCopyLinkClick={onCopyLinkClickLogged}
+                onCommentClick={onCommentClick}
+                onAdClick={onAdClick}
+                onReadArticleClick={onReadArticleClick}
+              />
+            ))}
+            {!isFetching && !isInitialLoading && !isHorizontal && (
+              <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
+            )}
+            <PostOptionsMenu
+              {...commonMenuItems}
+              feedName={feedName}
+              postIndex={postMenuIndex}
+              onHidden={() => setPostMenuIndex(null)}
+              onRemovePost={onRemovePost}
+              origin={origin}
+              allowPin={allowPin}
+              contextId={contextId}
+            />
+            <ShareOptionsMenu
+              {...commonMenuItems}
+              shouldUseListFeedLayout={shouldUseListFeedLayout}
+              onHidden={onShareOptionsHidden}
+            />
+            {!shouldUseListFeedLayout && selectedPost && PostModal && (
+              <PostModal
+                isOpen={!!selectedPost}
+                id={selectedPost.id}
+                onRequestClose={onPostModalClose}
+                onPreviousPost={onPrevious}
+                onNextPost={onNext}
+                postPosition={postPosition}
+                post={selectedPost}
+                onRemovePost={() => onRemovePost(selectedPostIndex)}
+              />
+            )}
+          </>
         )}
       </FeedWrapperComponent>
     </ActiveFeedContext.Provider>
