@@ -341,8 +341,6 @@ export default function MainFeedLayout({
     selectedPeriod,
     setSelectedAlgo,
     router.pathname,
-    isSearchPageLaptop,
-    search,
   ]);
 
   useEffect(() => {
