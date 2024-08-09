@@ -148,7 +148,7 @@ const BookmarkReminderModal = dynamic(
 const SlackIntegrationModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "slackIntegrationModal" */ './SlackIntegrationModal'
+      /* webpackChunkName: "slackIntegrationModal" */ './SlackIntegrationModal/SlackIntegrationModal'
     ),
 );
 
