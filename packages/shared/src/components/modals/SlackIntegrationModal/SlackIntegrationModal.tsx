@@ -147,7 +147,6 @@ const SlackIntegrationModal = ({
                   tag={TypographyTag.Span}
                   type={TypographyType.Callout}
                   color={TypographyColor.Tertiary}
-                  bold={false}
                 >
                   {channels.length}
                 </Typography>
