@@ -21,6 +21,7 @@ import { Loader } from '../../Loader';
 import { ModalClose } from '../common/ModalClose';
 import { SlackIntegrationIntroBody } from './SlackIntegrationIntroBody';
 import { useSlackIntegrationModal } from './useSlackIntegrationModal';
+import { Bubble } from '../../tooltips/utils';
 
 export type SlackIntegrationModalProps = Omit<ModalProps, 'children'> & {
   source: Pick<Source, 'id' | 'handle' | 'type' | 'image' | 'name'>;
@@ -144,14 +145,9 @@ const SlackIntegrationModal = ({
             >
               Select channels
               {!!channels?.length && (
-                <Typography
-                  className="ml-1 flex min-h-6 min-w-6 items-center justify-center rounded-full bg-surface-float p-0.5"
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Tertiary}
-                >
+                <Bubble className="relative ml-1 bg-surface-float px-1">
                   {channels.length}
-                </Typography>
+                </Bubble>
               )}
             </Typography>
             {!!channels?.length && (
