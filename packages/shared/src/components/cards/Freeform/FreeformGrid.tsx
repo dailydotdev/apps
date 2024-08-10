@@ -1,23 +1,23 @@
 import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
 import classNames from 'classnames';
-import { FreeformCardTitle, getPostClassNames } from './Card';
-import ActionButtons from './ActionsButtons/ActionButtons';
-import { Container, generateTitleClamp, PostCardProps } from './common';
-import OptionsButton from '../buttons/OptionsButton';
-import { WelcomePostCardFooter } from './WelcomePostCardFooter';
-import { useSquadChecklist } from '../../hooks/useSquadChecklist';
-import { Squad } from '../../graphql/sources';
-import { ActionType } from '../../graphql/actions';
-import FeedItemContainer from './FeedItemContainer';
-import { PostType } from '../../graphql/posts';
-import { SquadPostCardHeader } from './common/SquadPostCardHeader';
-import { usePostImage } from '../../hooks/post/usePostImage';
-import CardOverlay from './common/CardOverlay';
-import { useConditionalFeature } from '../../hooks';
-import { feature } from '../../lib/featureManagement';
-import PostMetadata from './PostMetadata';
+import { Container, generateTitleClamp, PostCardProps } from '../common';
+import { usePostImage } from '../../../hooks/post/usePostImage';
+import { useSquadChecklist } from '../../../hooks/useSquadChecklist';
+import { Squad } from '../../../graphql/sources';
+import { useConditionalFeature } from '../../../hooks';
+import { feature } from '../../../lib/featureManagement';
+import { PostType } from '../../../graphql/posts';
+import { ActionType } from '../../../graphql/actions';
+import FeedItemContainer from '../FeedItemContainer';
+import { FreeformCardTitle, getPostClassNames } from '../Card';
+import CardOverlay from '../common/CardOverlay';
+import OptionsButton from '../../buttons/OptionsButton';
+import { SquadPostCardHeader } from '../common/SquadPostCardHeader';
+import PostMetadata from '../PostMetadata';
+import { WelcomePostCardFooter } from '../WelcomePostCardFooter';
+import ActionButtons from '../ActionsButtons/ActionButtons';
 
-export const WelcomePostCard = forwardRef(function SharePostCard(
+export const FreeformGrid = forwardRef(function SharePostCard(
   {
     post,
     onPostClick,
@@ -86,7 +86,6 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
             hasImage: !!image,
             hasHtmlContent: !!post.contentHtml,
           }),
-          'px-2 font-bold !text-text-primary typo-title3',
         )}
       >
         {post.title}
