@@ -403,7 +403,10 @@ const AccountNotificationsPage = (): ReactElement => {
               </h3>
             </div>
             <HourDropdown
-              className={{ container: 'w-40' }}
+              className={{
+                container: 'w-40',
+                ...(!isPushSupported && { menu: '-translate-y-[19rem]' }),
+              }}
               hourIndex={digestTimeIndex}
               setHourIndex={(hour) =>
                 setCustomTime(
