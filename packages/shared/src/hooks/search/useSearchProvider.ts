@@ -8,6 +8,7 @@ import {
   defaultSearchSuggestionsLimit,
   getSearchUrl,
   SEARCH_SOURCE_SUGGESTIONS,
+  SEARCH_USER_SUGGESTIONS,
 } from '../../graphql/search';
 import { useRequestProtocol } from '../useRequestProtocol';
 import { feature } from '../../lib/featureManagement';
@@ -32,6 +33,7 @@ const searchProviderSuggestionsQueryMap: Partial<
   [SearchProviderEnum.Posts]: SEARCH_POST_SUGGESTIONS,
   [SearchProviderEnum.Tags]: SEARCH_TAG_SUGGESTIONS,
   [SearchProviderEnum.Sources]: SEARCH_SOURCE_SUGGESTIONS,
+  [SearchProviderEnum.Users]: SEARCH_USER_SUGGESTIONS,
 };
 
 const searchProviderExtractResultMap: Partial<
@@ -43,6 +45,7 @@ const searchProviderExtractResultMap: Partial<
   [SearchProviderEnum.Posts]: (data) => data.searchPostSuggestions,
   [SearchProviderEnum.Tags]: (data) => data.searchTagSuggestions,
   [SearchProviderEnum.Sources]: (data) => data.searchSourceSuggestions,
+  [SearchProviderEnum.Users]: (data) => data.searchUserSuggestions,
 };
 
 export const useSearchProvider = (): UseSearchProvider => {
