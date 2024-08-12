@@ -1,13 +1,12 @@
 import classNames from 'classnames';
 import React, { HTMLAttributes, ReactElement, useMemo } from 'react';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import SquadHeaderMenu from './SquadHeaderMenu';
 import useContextMenu from '../../hooks/useContextMenu';
 import SquadMemberShortList, {
   SquadMemberShortListProps,
 } from './SquadMemberShortList';
-import { IconSize } from '../Icon';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { Origin } from '../../lib/log';
 import { TourScreenIndex } from './SquadTour';
@@ -30,6 +29,7 @@ import { ContextMenu } from '../../hooks/constants';
 import { useSourceIntegrationQuery } from '../../hooks/integrations/useSourceIntegrationQuery';
 import { UserIntegrationType } from '../../graphql/integrations';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { ProfileImageSize } from '../ProfilePicture';
 
 export function SquadHeaderBar({
   squad,
@@ -58,7 +58,6 @@ export function SquadHeaderBar({
   const totalStepsCount = steps.length;
   const checklistTooltipText = `${completedStepsCount}/${totalStepsCount}`;
   const showJoinButton = squad.public && !squad.currentMember;
-  const firstItemClasses = 'order-5 tablet:order-1';
 
   const { data: sourceIntegration, isLoading } = useSourceIntegrationQuery({
     sourceId: squad.id,
@@ -93,11 +92,23 @@ export function SquadHeaderBar({
         className,
       )}
     >
+      {showJoinButton && (
+        <SquadJoinButton
+          squad={squad}
+          origin={Origin.SquadPage}
+          size={ButtonSize.Small}
+        />
+      )}
+      <SquadMemberShortList
+        squad={squad}
+        members={members}
+        size={ProfileImageSize.Small}
+      />
       {verifyPermission(squad, SourcePermissions.Invite) && !showJoinButton && (
         <Button
           variant={ButtonVariant.Secondary}
+          size={ButtonSize.Small}
           className={classNames(
-            firstItemClasses,
             tourIndex === TourScreenIndex.CopyInvitation && 'highlight-pulse',
           )}
           onClick={() => {
@@ -122,22 +133,11 @@ export function SquadHeaderBar({
           }}
           icon={<SlackIcon />}
           disabled={copying}
+          size={ButtonSize.Small}
         >
           {slackButtonLabel}
         </Button>
       )}
-      {showJoinButton && (
-        <SquadJoinButton
-          className={{ wrapper: firstItemClasses }}
-          squad={squad}
-          origin={Origin.SquadPage}
-        />
-      )}
-      <SquadMemberShortList
-        className="order-1 tablet:order-2"
-        squad={squad}
-        members={members}
-      />
       {!!squad.currentMember && (
         <SimpleTooltip
           forceLoad={!isTesting}
@@ -151,12 +151,12 @@ export function SquadHeaderBar({
         >
           <Button
             data-testid="squad-checklist-button"
-            className="order-2 tablet:order-3"
             variant={ButtonVariant.Float}
-            icon={<ChecklistBIcon secondary size={IconSize.Small} />}
+            icon={<ChecklistBIcon secondary />}
             onClick={() => {
               setChecklistVisible(!isChecklistVisible);
             }}
+            size={ButtonSize.Small}
           />
         </SimpleTooltip>
       )}
@@ -173,7 +173,6 @@ export function SquadHeaderBar({
             icon={
               <BellIcon
                 secondary={modal?.type === LazyModal.SquadNotifications}
-                size={IconSize.Small}
               />
             }
             onClick={() => {
@@ -182,6 +181,7 @@ export function SquadHeaderBar({
                 props: { squad },
               });
             }}
+            size={ButtonSize.Small}
           />
         </SimpleTooltip>
       )}
@@ -189,8 +189,9 @@ export function SquadHeaderBar({
         <Button
           className="order-4 tablet:order-5"
           variant={ButtonVariant.Float}
-          icon={<MenuIcon size={IconSize.Small} />}
+          icon={<MenuIcon />}
           onClick={onMenuClick}
+          size={ButtonSize.Small}
         />
       </SimpleTooltip>
       <SquadHeaderMenu squad={squad} />
