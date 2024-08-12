@@ -10,8 +10,6 @@ import {
   useNotificationPreferenceToggle,
 } from '../notifications';
 import { useToastNotification } from '../useToastNotification';
-import { useFeature } from '../../components/GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
 
 export type UseSourceSubscriptionProps = {
   source: Pick<Source, 'id'> | Source;
@@ -26,7 +24,6 @@ export type UseSourceSubscription = {
 export const useSourceActionsNotify = ({
   source,
 }: UseSourceSubscriptionProps): UseSourceSubscription => {
-  const isNotifyExperiment = useFeature(feature.sourceNotifyButton);
   const { logEvent } = useLogContext();
   const { isLoggedIn, showLogin } = useAuthContext();
   const { displayToast } = useToastNotification();
@@ -64,35 +61,26 @@ export const useSourceActionsNotify = ({
       target_type: TargetType.Source,
     });
 
-    if (isNotifyExperiment) {
-      const displayName = 'name' in source ? source.name : source?.id;
+    const displayName = 'name' in source ? source.name : source?.id;
 
-      displayToast(
-        notifications.isSubscribed
-          ? `✅ You'll get notified every time ${displayName} posts`
-          : `⛔️ You'll no longer get notified about ${displayName} posts`,
-      );
+    displayToast(
+      notifications.isSubscribed
+        ? `✅ You'll get notified every time ${displayName} posts`
+        : `⛔️ You'll no longer get notified about ${displayName} posts`,
+    );
 
-      if (notifications.isSubscribed) {
-        try {
-          await enablePushNotifications();
-        } catch (e) {
-          // errors are not handled here, do nothing for now
-        }
+    if (notifications.isSubscribed) {
+      try {
+        await enablePushNotifications();
+      } catch (e) {
+        // errors are not handled here, do nothing for now
       }
-    } else {
-      displayToast(
-        notifications.isSubscribed
-          ? '✅ You are now subscribed'
-          : '⛔️ You are now unsubscribed',
-      );
     }
   }, [
     source,
     isLoggedIn,
     onToggle,
     logEvent,
-    isNotifyExperiment,
     showLogin,
     displayToast,
     enablePushNotifications,
