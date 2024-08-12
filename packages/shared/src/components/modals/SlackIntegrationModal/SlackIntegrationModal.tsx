@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { Modal, ModalProps } from '../common/Modal';
 import { Dropdown } from '../../fields/Dropdown';
@@ -22,17 +22,23 @@ import { ModalClose } from '../common/ModalClose';
 import { SlackIntegrationIntroBody } from './SlackIntegrationIntroBody';
 import { useSlackIntegrationModal } from './useSlackIntegrationModal';
 import { Bubble } from '../../tooltips/utils';
+import { useLogContext } from '../../../contexts/LogContext';
+import { UserIntegrationType } from '../../../graphql/integrations';
+import { LogEvent } from '../../../lib/log';
 
 export type SlackIntegrationModalProps = Omit<ModalProps, 'children'> & {
   source: Pick<Source, 'id' | 'handle' | 'type' | 'image' | 'name'>;
+  trackStart?: boolean;
 };
 
 const SlackIntegrationModal = ({
   source,
+  trackStart,
   ...props
 }: SlackIntegrationModalProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const { removeSourceIntegration } = useIntegration();
+  const { logEvent } = useLogContext();
 
   const {
     slackIntegrations,
@@ -46,9 +52,53 @@ const SlackIntegrationModal = ({
     onConnectNew,
     onWorkspaceChange,
     onChannelChange,
+    hasIntegrations,
   } = useSlackIntegrationModal({ source });
 
-  const hasIntegrations = !!slackIntegrations?.length && !isLoadingIntegrations;
+  const isStartTracked = useRef(false);
+
+  useEffect(() => {
+    if (!trackStart || isLoadingIntegrations) {
+      return;
+    }
+
+    if (isStartTracked.current) {
+      return;
+    }
+
+    isStartTracked.current = true;
+
+    logEvent({
+      event_name: LogEvent.StartAddingIntegration,
+      target_id: UserIntegrationType.Slack,
+      extra: JSON.stringify({
+        source: source.id,
+        has_integrations: hasIntegrations,
+      }),
+    });
+  }, [trackStart, isLoadingIntegrations, logEvent, source.id, hasIntegrations]);
+
+  const isManageTracked = useRef(false);
+
+  useEffect(() => {
+    if (!hasIntegrations) {
+      return;
+    }
+
+    if (isManageTracked.current) {
+      return;
+    }
+
+    isManageTracked.current = true;
+
+    logEvent({
+      event_name: LogEvent.ManageIntegration,
+      target_id: UserIntegrationType.Slack,
+      extra: JSON.stringify({
+        source: source.id,
+      }),
+    });
+  }, [hasIntegrations, logEvent, source.id]);
 
   const { slackIntegrationHeader } = useThemedAsset();
 

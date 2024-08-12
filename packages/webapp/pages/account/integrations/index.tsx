@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useCallback, useState } from 'react';
 
 import { useIntegrationsQuery } from '@dailydotdev/shared/src/hooks/integrations/useIntegrationsQuery';
 import {
@@ -13,10 +13,15 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { PlusIcon, SlackIcon } from '@dailydotdev/shared/src/components/icons';
-import { UserIntegration } from '@dailydotdev/shared/src/graphql/integrations';
+import {
+  UserIntegration,
+  UserIntegrationType,
+} from '@dailydotdev/shared/src/graphql/integrations';
 import { useSlack } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlack';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { UserIntegrationItem } from '@dailydotdev/shared/src/components/integrations/UserIntegrationItem';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { getAccountLayout } from '../../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../../components/layouts/AccountLayout/AccountPageContainer';
 
@@ -25,10 +30,25 @@ const AccountIntegrationsPage = (): ReactElement => {
     openIntegration?: UserIntegration;
   }>({});
   const slack = useSlack();
+  const { logEvent } = useLogContext();
 
   const { data } = useIntegrationsQuery();
 
   const hasNoIntegrations = data && !data.length;
+
+  const onConnectNew = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.StartAddingWorkspace,
+      target_id: UserIntegrationType.Slack,
+      extra: JSON.stringify({
+        origin: Origin.Settings,
+      }),
+    });
+
+    slack.connect({
+      redirectPath: `${webappUrl}account/integrations`,
+    });
+  }, [slack, logEvent]);
 
   return (
     <AccountPageContainer title="Integrations">
@@ -55,11 +75,7 @@ const AccountIntegrationsPage = (): ReactElement => {
               <Button
                 variant={ButtonVariant.Secondary}
                 size={ButtonSize.Small}
-                onClick={() => {
-                  slack.connect({
-                    redirectPath: `${webappUrl}account/integrations`,
-                  });
-                }}
+                onClick={onConnectNew}
               >
                 Connect
               </Button>
@@ -105,11 +121,7 @@ const AccountIntegrationsPage = (): ReactElement => {
               <Button
                 variant={ButtonVariant.Secondary}
                 size={ButtonSize.Small}
-                onClick={() => {
-                  slack.connect({
-                    redirectPath: `${webappUrl}account/integrations`,
-                  });
-                }}
+                onClick={onConnectNew}
               >
                 Connect
               </Button>

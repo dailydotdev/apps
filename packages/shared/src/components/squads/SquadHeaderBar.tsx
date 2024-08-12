@@ -128,6 +128,7 @@ export function SquadHeaderBar({
               type: LazyModal.SlackIntegration,
               props: {
                 source: squad,
+                trackStart: true,
               },
             });
           }}

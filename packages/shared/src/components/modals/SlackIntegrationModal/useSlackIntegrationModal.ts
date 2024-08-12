@@ -16,6 +16,8 @@ import { useSlackChannelsQuery } from '../../../hooks/integrations/slack/useSlac
 import { useIntegrationsQuery } from '../../../hooks/integrations/useIntegrationsQuery';
 import { useSourceIntegrationQuery } from '../../../hooks/integrations/useSourceIntegrationQuery';
 import type { SlackIntegrationModalProps } from './SlackIntegrationModal';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent, Origin } from '../../../lib/log';
 
 export type UseSlackIntegrationModalProps = Pick<
   SlackIntegrationModalProps,
@@ -38,6 +40,7 @@ export type UseSlackIntegrationModal = {
   onConnectNew: () => void;
   onWorkspaceChange: (value: string, index: number) => void;
   onChannelChange: (value: string, index: number) => void;
+  hasIntegrations: boolean;
 };
 
 export const useSlackIntegrationModal = ({
@@ -46,6 +49,7 @@ export const useSlackIntegrationModal = ({
   const queryClient = useQueryClient();
   const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
 
   const [state, setState] = useState<{
     userIntegration?: UserIntegration;
@@ -92,6 +96,7 @@ export const useSlackIntegrationModal = ({
       ) || 0
     );
   }, [slackIntegrations, selectedIntegration]);
+  const hasIntegrations = !!slackIntegrations?.length && !isLoadingIntegrations;
 
   const { data: channels } = useSlackChannelsQuery({
     integrationId: selectedIntegration?.id,
@@ -105,12 +110,21 @@ export const useSlackIntegrationModal = ({
   const slack = useSlack();
 
   const onConnectNew = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.StartAddingWorkspace,
+      target_id: UserIntegrationType.Slack,
+      extra: JSON.stringify({
+        source: source.id,
+        origin: hasIntegrations ? Origin.WorkspaceDropdown : Origin.SquadPage,
+      }),
+    });
+
     slack.connect({
       redirectPath: `/${
         source.type === SourceType.Squad ? 'squads' : 'sources'
       }/${source.handle}?lzym=${LazyModal.SlackIntegration}`,
     });
-  }, [slack, source]);
+  }, [slack, source, logEvent, hasIntegrations]);
 
   const { mutateAsync: onSave, isLoading: isSaving } = useMutation(
     async () => {
@@ -176,5 +190,6 @@ export const useSlackIntegrationModal = ({
       },
       [channels],
     ),
+    hasIntegrations,
   };
 };
