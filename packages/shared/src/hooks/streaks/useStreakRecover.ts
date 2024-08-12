@@ -1,6 +1,14 @@
 import { useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useToggle } from '../useToggle';
 import { useActions } from '../useActions';
+import {
+  USER_STREAK_RECOVER_QUERY,
+  UserStreakRecoverData,
+} from '../../graphql/users';
+import { generateQueryKey, RequestKey } from '../../lib/query';
+import { ActionType } from '../../graphql/actions';
+import { gqlClient } from '../../graphql/common';
 
 interface UseStreakRecoverProps {
   onRequestClose: () => void;
@@ -16,6 +24,7 @@ interface UseStreakRecoverReturn {
     canDo: boolean;
     cost: number;
     isLoading: boolean;
+    isDisabled: boolean;
     oldStreakLength: number;
   };
 }
@@ -23,13 +32,18 @@ interface UseStreakRecoverReturn {
 export const useStreakRecover = ({
   onRequestClose,
 }: UseStreakRecoverProps): UseStreakRecoverReturn => {
-  const { completeAction } = useActions();
+  const { completeAction, checkHasCompleted } = useActions();
   const [hideForever, toggleHideForever] = useToggle(false);
-  const amount = 0;
-  const canDo = true;
-  const length = 102;
 
-  const isLoading = false;
+  const { data, isLoading } = useQuery<{
+    recoverStreak: UserStreakRecoverData;
+  }>({
+    queryKey: generateQueryKey(RequestKey.UserStreakRecover),
+    queryFn: async () => {
+      return await gqlClient.request(USER_STREAK_RECOVER_QUERY);
+    },
+  });
+  const { amount, canDo, length } = data?.recoverStreak ?? {};
 
   const onClose = useCallback(async () => {
     // if (hideForever) {
@@ -37,7 +51,7 @@ export const useStreakRecover = ({
     // }
 
     onRequestClose?.();
-  }, [completeAction, hideForever, onRequestClose]);
+  }, [onRequestClose]);
 
   return {
     hideForever: {
@@ -50,6 +64,7 @@ export const useStreakRecover = ({
       canDo,
       oldStreakLength: length,
       isLoading,
+      isDisabled: checkHasCompleted(ActionType.DisableReadingStreakRecover),
     },
   };
 };

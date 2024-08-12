@@ -5,10 +5,14 @@ import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import type { LoggedUser } from '../../../lib/user';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import { Alerts } from '../../../graphql/alerts';
-import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
-import { UPDATE_USER_SETTINGS_MUTATION } from '../../../graphql/settings';
 import * as actionHook from '../../../hooks/useActions';
 import { BootPopups } from '../BootPopups';
+import { waitForNock } from '../../../../__tests__/helpers/utilities';
+import {
+  USER_STREAK_RECOVER_QUERY,
+  UserStreakRecoverData,
+} from '../../../graphql/users';
+import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
 
 interface TestProps {
   user?: LoggedUser | null;
@@ -28,36 +32,36 @@ const alertsWithStreakRecovery: Alerts = {
 
 const checkHasCompleted = jest.fn();
 
+const queryClient = new QueryClient({});
+
 const renderComponent = (props: TestProps) => {
   const {
     user = { ...loggedUser, reputation: 10 },
     alerts = alertsWithStreakRecovery,
   } = props;
-  const client = new QueryClient();
 
   return render(
-    <TestBootProvider client={client} auth={{ user }} alerts={{ alerts }}>
+    <TestBootProvider client={queryClient} auth={{ user }} alerts={{ alerts }}>
       <BootPopups />
     </TestBootProvider>,
   );
 };
 
-const mockRecoveryQuery = (data) => {
-  let mutationCalled = false;
-  mockGraphQL({
+const mockRecoveryQuery = (
+  data: UserStreakRecoverData,
+  callback?: () => void,
+) => {
+  mockGraphQL<{ recoverStreak: UserStreakRecoverData }>({
     request: {
-      query: UPDATE_USER_SETTINGS_MUTATION, // todo: update this
-      variables: {},
+      query: USER_STREAK_RECOVER_QUERY,
     },
     result: () => {
-      mutationCalled = true;
+      callback?.();
       return {
-        data,
+        data: { recoverStreak: data },
       };
     },
   });
-
-  return { mutationCalled };
 };
 
 beforeEach(async () => {
@@ -81,31 +85,52 @@ it('should not render if not logged && "recoverStreak" is true from boot', async
   expect(popup).not.toBeInTheDocument();
 });
 
-it('should render if loggedIn && "recoverStreak" is true from boot', async () => {
-  renderComponent({});
-  await waitFor(() => {
-    const popup = screen.queryByTestId('streak-recover-modal-heading');
-    expect(popup).toBeInTheDocument();
-  });
-});
-
 it('should never render if user disabled this popup', async () => {
   checkHasCompleted.mockReturnValue(true);
   renderComponent({});
+  await waitForNock();
   const popup = screen.queryByTestId('streak-recover-modal-heading');
   expect(popup).not.toBeInTheDocument();
 });
 
-it('should fetch recover streak infos on mount', async () => {
+it('should render and fetch initial data if logged user can recover streak', async () => {
   renderComponent({});
 
-  const { mutationCalled } = mockRecoveryQuery({});
+  let mutationCalled = false;
 
-  // expect mutation to be called
-  expect(mutationCalled).toBe(true);
+  mockGraphQL({
+    request: {
+      query: USER_STREAK_RECOVER_QUERY,
+    },
+    result: () => {
+      mutationCalled = true;
+      return {
+        data: {
+          recoverStreak: {
+            canDo: true,
+            amount: 25,
+            length: 10,
+          },
+        },
+      };
+    },
+  });
+
+  // fetched
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
+
+  // and rendered
+  const popup = screen.queryByTestId('streak-recover-modal-heading');
+  expect(popup).toBeInTheDocument();
 });
 
 it('Should have no cost for first time recovery', async () => {
+  mockRecoveryQuery({
+    canDo: true,
+    amount: 0,
+    length: 10,
+  });
+
   renderComponent({
     user: {
       ...loggedUser,
@@ -113,30 +138,26 @@ it('Should have no cost for first time recovery', async () => {
     },
   });
 
-  mockRecoveryQuery({
-    recovery: {
-      canDo: true,
-      amount: 0,
-    },
-  });
+  await waitForNock();
 
   // expect cost to be 0
-  const cost = await screen.findByLabelText('0 Rep');
-  expect(cost).toBeInTheDocument();
+  await waitFor(() => {
+    const cost = screen.queryByLabelText('0 Rep');
+    expect(cost).toBeInTheDocument();
+  });
 });
 
 it('Should have cost of 25 points for 2nd+ time recovery', async () => {
+  mockRecoveryQuery({
+    canDo: true,
+    amount: 25,
+    length: 10,
+  });
+
   renderComponent({
     user: {
       ...loggedUser,
       reputation: 50,
-    },
-  });
-
-  mockRecoveryQuery({
-    recovery: {
-      canDo: true,
-      amount: 25,
     },
   });
 
@@ -146,17 +167,16 @@ it('Should have cost of 25 points for 2nd+ time recovery', async () => {
 });
 
 it('Should show not enough points message if user does not have enough points', async () => {
+  mockRecoveryQuery({
+    canDo: false,
+    amount: 25,
+    length: 10,
+  });
+
   renderComponent({
     user: {
       ...loggedUser,
       reputation: 0,
-    },
-  });
-
-  mockRecoveryQuery({
-    recovery: {
-      canDo: false,
-      amount: 25,
     },
   });
 

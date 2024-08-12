@@ -138,14 +138,17 @@ export type ProfileReadingData = UserReadingRankHistoryData &
   UserStreakData;
 
 export type UserReadingRankHistory = { rank: number; count: number };
+
 export interface UserReadingRankHistoryData {
   userReadingRankHistory: UserReadingRankHistory[];
 }
 
 export type UserReadHistory = { date: string; reads: number };
+
 export interface UserReadHistoryData {
   userReadHistory: UserReadHistory[];
 }
+
 export interface UserReadingTopTagsData {
   userMostReadTags: MostReadTag[];
 }
@@ -462,6 +465,22 @@ export const getReadingStreak = async (): Promise<UserStreak> => {
 
   return res.userStreak;
 };
+
+export interface UserStreakRecoverData {
+  canDo: boolean;
+  amount: number;
+  length: number;
+}
+
+export const USER_STREAK_RECOVER_QUERY = gql`
+  query UserStreakRecover {
+    recoverStreak {
+      canDo
+      amount
+      length
+    }
+  }
+`;
 
 export const DEV_CARD_QUERY = gql`
   query DevCardById($id: ID!) {
