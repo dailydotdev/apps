@@ -32,6 +32,7 @@ const feature = {
   sourceNotifyButton: new Feature('source_notify_button', false),
   cardDownvote: new Feature('card_downvote', false),
   generateSummary: new Feature('generate_summary', false),
+  slackIntegration: new Feature('slack_integration', false),
 };
 
 export { feature };

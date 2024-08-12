@@ -33,9 +33,10 @@ export const useIntegrationsQuery = ({
     {
       staleTime: StaleTime.Default,
       ...queryOptions,
-      enabled: queryOptions?.enabled
-        ? queryOptions.enabled && enabled
-        : enabled,
+      enabled:
+        typeof queryOptions?.enabled !== 'undefined'
+          ? queryOptions.enabled && enabled
+          : enabled,
     },
   );
 

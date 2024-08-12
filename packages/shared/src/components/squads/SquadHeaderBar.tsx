@@ -30,6 +30,7 @@ import { useSourceIntegrationQuery } from '../../hooks/integrations/useSourceInt
 import { UserIntegrationType } from '../../graphql/integrations';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ProfileImageSize } from '../ProfilePicture';
+import { useSlack } from '../../hooks/integrations/slack/useSlack';
 
 export function SquadHeaderBar({
   squad,
@@ -45,6 +46,7 @@ export function SquadHeaderBar({
   });
   const { openModal, modal } = useLazyModal();
   const { onMenuClick } = useContextMenu({ id: ContextMenu.SquadMenuContext });
+  const slack = useSlack();
 
   const {
     steps,
@@ -62,9 +64,16 @@ export function SquadHeaderBar({
   const { data: sourceIntegration, isLoading } = useSourceIntegrationQuery({
     sourceId: squad.id,
     userIntegrationType: UserIntegrationType.Slack,
+    queryOptions: {
+      enabled: slack.isFeatureEnabled,
+    },
   });
 
   const slackButtonLabel = useMemo(() => {
+    if (!slack.isFeatureEnabled) {
+      return null;
+    }
+
     if (!verifyPermission(squad, SourcePermissions.ConnectSlack)) {
       return null;
     }
@@ -82,7 +91,7 @@ export function SquadHeaderBar({
     }
 
     return null;
-  }, [sourceIntegration, user, squad, isLoading]);
+  }, [sourceIntegration, user, squad, isLoading, slack.isFeatureEnabled]);
 
   return (
     <div

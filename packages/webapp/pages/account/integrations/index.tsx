@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useState } from 'react';
+import React, { ReactElement, useCallback, useEffect, useState } from 'react';
 
 import { useIntegrationsQuery } from '@dailydotdev/shared/src/hooks/integrations/useIntegrationsQuery';
 import {
@@ -22,6 +22,7 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { UserIntegrationItem } from '@dailydotdev/shared/src/components/integrations/UserIntegrationItem';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
+import { useRouter } from 'next/router';
 import { getAccountLayout } from '../../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../../components/layouts/AccountLayout/AccountPageContainer';
 
@@ -31,8 +32,13 @@ const AccountIntegrationsPage = (): ReactElement => {
   }>({});
   const slack = useSlack();
   const { logEvent } = useLogContext();
+  const router = useRouter();
 
-  const { data } = useIntegrationsQuery();
+  const { data } = useIntegrationsQuery({
+    queryOptions: {
+      enabled: slack.isFeatureEnabled,
+    },
+  });
 
   const hasNoIntegrations = data && !data.length;
 
@@ -49,6 +55,22 @@ const AccountIntegrationsPage = (): ReactElement => {
       redirectPath: `${webappUrl}account/integrations`,
     });
   }, [slack, logEvent]);
+
+  useEffect(() => {
+    if (slack.isFeatureLoading) {
+      return;
+    }
+
+    if (slack.isFeatureEnabled) {
+      return;
+    }
+
+    router.replace(webappUrl);
+  }, [slack.isFeatureLoading, slack.isFeatureEnabled, router]);
+
+  if (!slack.isFeatureEnabled) {
+    return <AccountPageContainer title="Integrations" />;
+  }
 
   return (
     <AccountPageContainer title="Integrations">
