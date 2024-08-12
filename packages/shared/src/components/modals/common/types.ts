@@ -46,6 +46,7 @@ export enum LazyModal {
   GenericReferral = 'genericReferral',
   Video = 'video',
   NewStreak = 'newStreak',
+  RecoverStreak = 'recoverStreak',
   ReputationPrivileges = 'reputationPrivileges',
   MarketingCta = 'marketingCta',
   UserSettings = 'userSettings',

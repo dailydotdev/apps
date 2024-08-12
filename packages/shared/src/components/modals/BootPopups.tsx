@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions, useBoot } from '../../hooks';
@@ -26,7 +26,7 @@ const REP_TRESHOLD = 250;
  * These popups are removed when the users interact with page (clicks outside, closes, completes action).
  * @constructor
  */
-export const BootPopups = (): JSX.Element => {
+export const BootPopups = (): ReactElement => {
   const { logEvent } = useContext(LogContext);
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const { openModal } = useLazyModal();
@@ -50,16 +50,15 @@ export const BootPopups = (): JSX.Element => {
   const isDisabledMilestone = checkHasCompleted(
     ActionType.DisableReadingStreakMilestone,
   );
-  const hideEvaluations = [
+
+  const shouldHideStreaksModal = [
     !isStreaksEnabled,
     !isActionsFetched,
     isNullOrUndefined(isDisabledMilestone),
     isDisabledMilestone,
     alerts?.showStreakMilestone !== true,
     !streak?.current,
-  ];
-
-  const shouldHideStreaksModal = hideEvaluations.some(Boolean);
+  ].some(Boolean);
 
   const addBootPopup = (popup) => {
     setBootPopups((prev) => new Map([...prev, [popup.type, popup]]));
@@ -203,6 +202,35 @@ export const BootPopups = (): JSX.Element => {
       },
     });
   }, [shouldHideStreaksModal, streak, updateAlerts, updateLastBootPopup]);
+
+  /**
+   * Streak recovery modal
+   */
+  useEffect(() => {
+    const hasMarkedAction = checkHasCompleted(
+      ActionType.DisableReadingStreakRecover,
+    );
+
+    if (!alerts.streakRecovery || !user || hasMarkedAction) {
+      return;
+    }
+
+    addBootPopup({
+      type: LazyModal.RecoverStreak,
+      props: {
+        user,
+        streak,
+      },
+    });
+  }, [
+    alerts,
+    checkHasCompleted,
+    isActionsFetched,
+    streak,
+    updateAlerts,
+    updateLastBootPopup,
+    user,
+  ]);
 
   /**
    * Actual rendering of the boot popup that's first in line

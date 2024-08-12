@@ -23,6 +23,7 @@ import { FeaturesReadyContext } from '../../src/components/GrowthBookProvider';
 import { LazyModalElement } from '../../src/components/modals/LazyModalElement';
 import LogContext from '../../src/contexts/LogContext';
 import { LogContextData } from '../../src/hooks/log/useLogContextData';
+import { ChecklistViewState } from '../../src/lib/checklist';
 
 interface TestBootProviderProps {
   children: ReactNode;
@@ -35,18 +36,35 @@ interface TestBootProviderProps {
   gb?: GrowthBook;
 }
 
-export const settingsContext: Partial<SettingsContextData> = {
-  spaciness: 'eco',
-  openNewTab: true,
-  setTheme: jest.fn(),
-  themeMode: ThemeMode.Dark,
-  setSpaciness: jest.fn(),
-  toggleOpenNewTab: jest.fn(),
+export const settingsContext: SettingsContextData = {
+  autoDismissNotifications: true,
+  companionExpanded: true,
   insaneMode: false,
   loadedSettings: true,
-  toggleInsaneMode: jest.fn(),
+  onToggleHeaderPlacement: jest.fn(),
+  onboardingChecklistView: ChecklistViewState.Hidden,
+  openNewTab: true,
+  optOutCompanion: false,
+  optOutReadingStreak: true,
+  setOnboardingChecklistView: jest.fn(),
+  setSettings: jest.fn(),
+  setSpaciness: jest.fn(),
+  setTheme: jest.fn(),
   showTopSites: true,
+  sidebarExpanded: true,
+  sortingEnabled: false,
+  spaciness: 'eco',
+  syncSettings: jest.fn(),
+  themeMode: ThemeMode.Dark,
+  toggleAutoDismissNotifications: jest.fn(),
+  toggleInsaneMode: jest.fn(),
+  toggleOpenNewTab: jest.fn(),
+  toggleOptOutCompanion: jest.fn(),
+  toggleOptOutReadingStreak: jest.fn(),
   toggleShowTopSites: jest.fn(),
+  toggleSidebarExpanded: jest.fn(),
+  toggleSortingEnabled: jest.fn(),
+  updateCustomLinks: jest.fn(),
 };
 
 export const defaultLogContextData: LogContextData = {
@@ -78,6 +96,8 @@ export const TestBootProvider = ({
             getRedirectUri: jest.fn(),
             isFetched: true,
             isLoggedIn: true,
+            showLogin: jest.fn(),
+            closeLogin: jest.fn(),
             ...auth,
           }}
         >
@@ -91,7 +111,10 @@ export const TestBootProvider = ({
               }}
             >
               <SettingsContext.Provider
-                value={{ ...settingsContext, ...settings }}
+                value={{
+                  ...settingsContext,
+                  ...settings,
+                }}
               >
                 <LogContext.Provider
                   value={{ ...defaultLogContextData, ...log }}
@@ -103,6 +126,8 @@ export const TestBootProvider = ({
                       onCloseOnboardingModal: jest.fn(),
                       onInitializeOnboarding: jest.fn(),
                       onShouldUpdateFilters: jest.fn(),
+                      onStartArticleOnboarding: jest.fn(),
+                      shouldSkipIntro: false,
                     }}
                   >
                     <NotificationsContextProvider {...notification}>

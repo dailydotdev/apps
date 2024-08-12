@@ -12,6 +12,7 @@ export enum TypographyTag {
   H5 = 'h5',
   H6 = 'h6',
   Span = 'span',
+  Label = 'label',
 }
 
 export enum TypographyType {

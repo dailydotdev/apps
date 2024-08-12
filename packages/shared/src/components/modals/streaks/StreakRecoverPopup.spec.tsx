@@ -1,13 +1,14 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { StreakRecoverPopup } from './StreakRecoverPopup';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import type { LoggedUser } from '../../../lib/user';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import { Alerts } from '../../../graphql/alerts';
 import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
 import { UPDATE_USER_SETTINGS_MUTATION } from '../../../graphql/settings';
+import * as actionHook from '../../../hooks/useActions';
+import { BootPopups } from '../BootPopups';
 
 interface TestProps {
   user?: LoggedUser | null;
@@ -17,6 +18,7 @@ interface TestProps {
 const defaultAlerts: Alerts = {
   filter: true,
   rankLastSeen: null,
+  bootPopup: true,
 };
 
 const alertsWithStreakRecovery: Alerts = {
@@ -24,15 +26,18 @@ const alertsWithStreakRecovery: Alerts = {
   streakRecovery: true,
 };
 
+const checkHasCompleted = jest.fn();
+
 const renderComponent = (props: TestProps) => {
   const {
     user = { ...loggedUser, reputation: 10 },
     alerts = alertsWithStreakRecovery,
   } = props;
   const client = new QueryClient();
+
   return render(
     <TestBootProvider client={client} auth={{ user }} alerts={{ alerts }}>
-      <StreakRecoverPopup {...props} />
+      <BootPopups />
     </TestBootProvider>,
   );
 };
@@ -55,6 +60,15 @@ const mockRecoveryQuery = (data) => {
   return { mutationCalled };
 };
 
+beforeEach(async () => {
+  jest.spyOn(actionHook, 'useActions').mockReturnValue({
+    completeAction: jest.fn(),
+    checkHasCompleted,
+    isActionsFetched: true,
+    actions: [],
+  });
+});
+
 it('should not render if user is not logged in', async () => {
   renderComponent({ user: null, alerts: defaultAlerts });
   const popup = screen.queryByLabelText('Recover your streak');
@@ -64,13 +78,22 @@ it('should not render if user is not logged in', async () => {
 it('should not render if not logged && "recoverStreak" is true from boot', async () => {
   renderComponent({ user: null });
   const popup = screen.queryByLabelText('Restore my streak');
-  expect(popup).toBeInTheDocument();
+  expect(popup).not.toBeInTheDocument();
 });
 
 it('should render if loggedIn && "recoverStreak" is true from boot', async () => {
   renderComponent({});
-  const popup = screen.queryByLabelText('Restore my streak');
-  expect(popup).toBeInTheDocument();
+  await waitFor(() => {
+    const popup = screen.queryByTestId('streak-recover-modal-heading');
+    expect(popup).toBeInTheDocument();
+  });
+});
+
+it('should never render if user disabled this popup', async () => {
+  checkHasCompleted.mockReturnValue(true);
+  renderComponent({});
+  const popup = screen.queryByTestId('streak-recover-modal-heading');
+  expect(popup).not.toBeInTheDocument();
 });
 
 it('should fetch recover streak infos on mount', async () => {

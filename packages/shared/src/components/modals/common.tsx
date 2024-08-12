@@ -145,6 +145,13 @@ const BookmarkReminderModal = dynamic(
     ),
 );
 
+const StreakRecoverModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "streakRecoverModal" */ './streaks/StreakRecoverModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -162,6 +169,7 @@ export const modals = {
   [LazyModal.GenericReferral]: GenericReferralModal,
   [LazyModal.Video]: VideoModal,
   [LazyModal.NewStreak]: NewStreakModal,
+  [LazyModal.RecoverStreak]: StreakRecoverModal,
   [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,
   [LazyModal.MarketingCta]: MarketingCtaModal,
   [LazyModal.UserSettings]: UserSettingsModal,
