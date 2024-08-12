@@ -148,6 +148,43 @@ export const useSlackIntegrationModal = ({
     },
   );
 
+  const onWorkspaceChange = useCallback<
+    UseSlackIntegrationModal['onWorkspaceChange']
+  >(
+    (value, index) => {
+      const currentIntegration = slackIntegrations[index];
+
+      if (currentIntegration.id === 'new') {
+        onConnectNew();
+
+        return;
+      }
+
+      setState((current) => {
+        return {
+          ...current,
+          userIntegration: slackIntegrations[index],
+          channelId: undefined,
+        };
+      });
+    },
+    [slackIntegrations, onConnectNew],
+  );
+
+  const onChannelChange = useCallback<
+    UseSlackIntegrationModal['onChannelChange']
+  >(
+    (value, index) => {
+      setState((current) => {
+        return {
+          ...current,
+          channelId: channels[index].id,
+        };
+      });
+    },
+    [channels],
+  );
+
   return {
     state,
     slackIntegrations,
@@ -159,37 +196,8 @@ export const useSlackIntegrationModal = ({
     onSave,
     isSaving,
     onConnectNew,
-    onWorkspaceChange: useCallback(
-      (value, index) => {
-        const currentIntegration = slackIntegrations[index];
-
-        if (currentIntegration.id === 'new') {
-          onConnectNew();
-
-          return;
-        }
-
-        setState((current) => {
-          return {
-            ...current,
-            userIntegration: slackIntegrations[index],
-            channelId: undefined,
-          };
-        });
-      },
-      [slackIntegrations, onConnectNew],
-    ),
-    onChannelChange: useCallback(
-      (value, index) => {
-        setState((current) => {
-          return {
-            ...current,
-            channelId: channels[index].id,
-          };
-        });
-      },
-      [channels],
-    ),
+    onWorkspaceChange,
+    onChannelChange,
     hasIntegrations,
   };
 };

@@ -10,6 +10,7 @@ import {
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { gqlClient } from '../../../graphql/common';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { sortAlphabeticallyByProperty } from '../../../lib/func';
 
 export type UseSlackChannelsQueryProps = {
   integrationId: string;
@@ -41,17 +42,9 @@ export const useSlackChannelsQuery = ({
         };
       }>(SLACK_CHANNELS_QUERY, queryVariables);
 
-      return result.slackChannels.data.sort((a, b) => {
-        if (a.name < b.name) {
-          return -1;
-        }
-
-        if (a.name > b.name) {
-          return 1;
-        }
-
-        return 0;
-      });
+      return result.slackChannels.data.sort(
+        sortAlphabeticallyByProperty('name'),
+      );
     },
     {
       staleTime: StaleTime.Default,

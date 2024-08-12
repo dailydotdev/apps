@@ -41,53 +41,55 @@ export const useSlack = (): UseSlack => {
       shouldEvaluate: isLoggedIn,
     });
 
+  const connect = useCallback<UseSlack['connect']>(
+    async ({ redirectPath }) => {
+      const url = new URL('https://slack.com/oauth/v2/authorize');
+
+      const redirectUrl = new URL(`${apiUrl}/integrations/slack/auth/callback`);
+      url.searchParams.append('redirect_uri', redirectUrl.toString());
+
+      url.searchParams.append('state', user.id);
+      url.searchParams.append('scope', scopes.join(','));
+      url.searchParams.append(
+        'client_id',
+        process.env.NEXT_PUBLIC_SLACK_CLIENT_ID,
+      );
+
+      setCookie('slackRedirectPath', redirectPath, {
+        path: '/',
+        maxAge: 3600,
+        secure: !isDevelopment,
+        domain: process.env.NEXT_PUBLIC_DOMAIN,
+        sameSite: 'lax',
+      });
+
+      window.location.href = url.toString();
+    },
+    [user?.id],
+  );
+
+  const connectSource = useCallback<UseSlack['connectSource']>(
+    async ({ integrationId, channelId, sourceId }) => {
+      logEvent({
+        event_name: LogEvent.SetIntegration,
+        target_id: UserIntegrationType.Slack,
+        extra: JSON.stringify({
+          source: sourceId,
+        }),
+      });
+
+      await gqlClient.request(SLACK_CONNECT_SOURCE_MUTATION, {
+        integrationId,
+        channelId,
+        sourceId,
+      });
+    },
+    [logEvent],
+  );
+
   return {
-    connect: useCallback(
-      async ({ redirectPath }) => {
-        const url = new URL('https://slack.com/oauth/v2/authorize');
-
-        const redirectUrl = new URL(
-          `${apiUrl}/integrations/slack/auth/callback`,
-        );
-        url.searchParams.append('redirect_uri', redirectUrl.toString());
-
-        url.searchParams.append('state', user.id);
-        url.searchParams.append('scope', scopes.join(','));
-        url.searchParams.append(
-          'client_id',
-          process.env.NEXT_PUBLIC_SLACK_CLIENT_ID,
-        );
-
-        setCookie('slackRedirectPath', redirectPath, {
-          path: '/',
-          maxAge: 3600,
-          secure: !isDevelopment,
-          domain: process.env.NEXT_PUBLIC_DOMAIN,
-          sameSite: 'lax',
-        });
-
-        window.location.href = url.toString();
-      },
-      [user?.id],
-    ),
-    connectSource: useCallback(
-      async ({ integrationId, channelId, sourceId }) => {
-        logEvent({
-          event_name: LogEvent.SetIntegration,
-          target_id: UserIntegrationType.Slack,
-          extra: JSON.stringify({
-            source: sourceId,
-          }),
-        });
-
-        await gqlClient.request(SLACK_CONNECT_SOURCE_MUTATION, {
-          integrationId,
-          channelId,
-          sourceId,
-        });
-      },
-      [logEvent],
-    ),
+    connect,
+    connectSource,
     isFeatureLoading,
     isFeatureEnabled: !isFeatureLoading && !!slackIntegration,
   };

@@ -37,67 +37,68 @@ export const UserSourceIntegrationList = ({
 
   return (
     <ul>
-      {sourceIntegrations?.map((sourceIntegration) => (
-        <li
-          key={`${sourceIntegration.userIntegration.id}-${sourceIntegration.source.id}`}
-          className="flex w-full items-center justify-center"
-        >
-          <Button
-            className="flex-1 pl-2 pr-3"
-            variant={ButtonVariant.Tertiary}
-            iconPosition={ButtonIconPosition.Right}
-            icon={
-              <button
-                type="button"
-                onClick={async (event) => {
-                  event.stopPropagation();
+      {sourceIntegrations?.map((sourceIntegration) => {
+        const onClick = async (event) => {
+          event.stopPropagation();
 
-                  await removeSourceIntegration({
-                    sourceId: sourceIntegration.source.id,
-                    integrationId,
-                    integrationType: sourceIntegration.userIntegration.type,
-                  });
-                }}
-              >
-                <MiniCloseIcon />
-              </button>
-            }
-            onClick={() => {
-              openModal({
-                type: LazyModal.SlackIntegration,
-                props: {
-                  source: sourceIntegration.source,
-                },
-              });
-            }}
+          await removeSourceIntegration({
+            sourceId: sourceIntegration.source.id,
+            integrationId,
+            integrationType: sourceIntegration.userIntegration.type,
+          });
+        };
+
+        return (
+          <li
+            key={`${sourceIntegration.userIntegration.id}-${sourceIntegration.source.id}`}
+            className="flex w-full items-center justify-center"
           >
-            <div className="flex flex-1">
-              <SourceAvatar
-                source={sourceIntegration.source}
-                size={ProfileImageSize.Small}
-              />
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Primary}
-              >
+            <Button
+              className="flex-1 pl-2 pr-3"
+              variant={ButtonVariant.Tertiary}
+              iconPosition={ButtonIconPosition.Right}
+              icon={
+                <button type="button" onClick={onClick}>
+                  <MiniCloseIcon />
+                </button>
+              }
+              onClick={() => {
+                openModal({
+                  type: LazyModal.SlackIntegration,
+                  props: {
+                    source: sourceIntegration.source,
+                  },
+                });
+              }}
+            >
+              <div className="flex flex-1">
+                <SourceAvatar
+                  source={sourceIntegration.source}
+                  size={ProfileImageSize.Small}
+                />
                 <Typography
-                  tag={TypographyTag.Span}
-                  bold
+                  type={TypographyType.Callout}
                   color={TypographyColor.Primary}
                 >
-                  {sourceIntegration.source.name}
-                </Typography>{' '}
-                <Typography
-                  tag={TypographyTag.Span}
-                  color={TypographyColor.Tertiary}
-                >
-                  @{sourceIntegration.source.handle}
+                  <Typography
+                    tag={TypographyTag.Span}
+                    bold
+                    color={TypographyColor.Primary}
+                  >
+                    {sourceIntegration.source.name}
+                  </Typography>{' '}
+                  <Typography
+                    tag={TypographyTag.Span}
+                    color={TypographyColor.Tertiary}
+                  >
+                    @{sourceIntegration.source.handle}
+                  </Typography>
                 </Typography>
-              </Typography>
-            </div>
-          </Button>
-        </li>
-      ))}
+              </div>
+            </Button>
+          </li>
+        );
+      })}
     </ul>
   );
 };
