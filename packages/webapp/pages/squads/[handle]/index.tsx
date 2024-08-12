@@ -56,6 +56,7 @@ import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/type
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage, {
@@ -227,7 +228,12 @@ const SquadPage = ({
     });
   }, [shouldManageSlack, squad, openModal, router]);
 
-  if (isLoading && (!isFetched || isRequestsLoading)) {
+  const privateSourceJoin = usePrivateSourceJoin();
+
+  if (
+    (isLoading && (!isFetched || isRequestsLoading)) ||
+    privateSourceJoin.isActive
+  ) {
     return (
       <>
         {seo}
