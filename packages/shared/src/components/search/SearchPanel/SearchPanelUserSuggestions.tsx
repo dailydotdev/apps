@@ -12,7 +12,7 @@ import { ButtonProps } from '../../buttons/Button';
 import { SearchPanelItem } from './SearchPanelItem';
 import { Image } from '../../image/Image';
 
-export type SearchPanelSourceSuggestionsProps = {
+export type SearchPanelUserSuggestionsProps = {
   className?: string;
   title: string;
 };
@@ -27,12 +27,12 @@ const PanelItem = ({ suggestion, ...rest }: PanelItemProps) => {
       loading="lazy"
       src={suggestion.image}
       alt={`${suggestion.title} logo`}
-      className="size-7 rounded-full"
+      className="size-7 rounded-8"
     />
   );
 
   const itemProps = useSearchPanelAction({
-    provider: SearchProviderEnum.Sources,
+    provider: SearchProviderEnum.Users,
     text: suggestion.title,
     icon: <Icon />,
   });
@@ -56,34 +56,34 @@ const PanelItem = ({ suggestion, ...rest }: PanelItemProps) => {
   );
 };
 
-export const SearchPanelSourceSuggestions = ({
+export const SearchPanelUserSuggestions = ({
   className,
   title,
-}: SearchPanelSourceSuggestionsProps): ReactElement => {
+}: SearchPanelUserSuggestionsProps): ReactElement => {
   const router = useRouter();
   const { logEvent } = useContext(LogContext);
   const searchPanel = useContext(SearchPanelContext);
 
   const { suggestions } = useSearchProviderSuggestions({
-    provider: SearchProviderEnum.Sources,
+    provider: SearchProviderEnum.Users,
     query: searchPanel.query,
     limit: 3,
   });
 
   const onSuggestionClick = (suggestion: SearchSuggestion) => {
-    const source = suggestion.id || suggestion.subtitle.toLowerCase();
+    const user = suggestion.id || suggestion.subtitle.toLowerCase();
     logEvent({
       event_name: LogEvent.Click,
       target_type: TargetType.SearchRecommendation,
-      target_id: source,
-      feed_item_title: source,
+      target_id: user,
+      feed_item_title: user,
       extra: JSON.stringify({
         origin: Origin.HomePage,
-        provider: SearchProviderEnum.Sources,
+        provider: SearchProviderEnum.Users,
       }),
     });
 
-    router.push(`${webappUrl}sources/${source}`);
+    router.push(`${webappUrl}/${user}`);
   };
 
   if (!suggestions?.hits?.length) {

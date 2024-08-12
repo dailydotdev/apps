@@ -12,6 +12,7 @@ export enum SearchProviderEnum {
   Tags = 'tags',
   Google = 'google',
   Sources = 'sources',
+  Users = 'users',
 }
 
 const searchPageUrl = `${webappUrl}search`;
@@ -165,6 +166,19 @@ export const SEARCH_TAG_SUGGESTIONS = gql`
 export const SEARCH_SOURCE_SUGGESTIONS = gql`
   query SearchSourceSuggestions($query: String!, $version: Int, $limit: Int) {
     searchSourceSuggestions(query: $query, version: $version, limit: $limit) {
+      hits {
+        id
+        title
+        subtitle
+        image
+      }
+    }
+  }
+`;
+
+export const SEARCH_USER_SUGGESTIONS = gql`
+  query SearchUserSuggestions($query: String!, $version: Int, $limit: Int) {
+    searchUserSuggestions(query: $query, version: $version, limit: $limit) {
       hits {
         id
         title
