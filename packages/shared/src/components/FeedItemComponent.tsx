@@ -16,7 +16,6 @@ import { Origin } from '../lib/log';
 import { useFeedLayout, UseVotePost } from '../hooks';
 import { CollectionCard } from './cards/CollectionCard';
 import { CollectionList } from './cards/list/CollectionList';
-import { AcquisitionFormCard } from './cards/AcquisitionFormCard';
 import { MarketingCtaCard } from './marketingCta';
 import { MarketingCtaList } from './marketingCta/MarketingCtaList';
 import { FeedItemType } from './cards/common';
