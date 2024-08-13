@@ -4,8 +4,7 @@ import classNames from 'classnames';
 import { ChecklistCardVariant, ChecklistViewState } from '../../lib/checklist';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
-import { useConditionalFeature, useOnboardingChecklist } from '../../hooks';
-import { feature } from '../../lib/featureManagement';
+import { useOnboardingChecklist } from '../../hooks';
 import { OnboardingChecklistOptions } from './OnboardingChecklistOptions';
 import { ChecklistCard } from './ChecklistCard';
 import { OnboardingChecklistDismissButton } from './OnboardingChecklistDismissButton';
@@ -27,14 +26,6 @@ export const SidebarOnboardingChecklistCard = ({
   const { checklistView, setChecklistView, isDone, steps } =
     useOnboardingChecklist();
   const isHidden = checklistView === ChecklistViewState.Hidden;
-  const { value: isFeatureEnabled } = useConditionalFeature({
-    feature: feature.onboardingChecklist,
-    shouldEvaluate: !isHidden,
-  });
-
-  if (!isFeatureEnabled) {
-    return null;
-  }
 
   if (isHidden) {
     return null;

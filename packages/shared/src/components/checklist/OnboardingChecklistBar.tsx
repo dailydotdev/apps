@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import LogContext from '../../contexts/LogContext';
 import { LogEvent, TargetId } from '../../lib/log';
-import { useConditionalFeature, useOnboardingChecklist } from '../../hooks';
+import { useOnboardingChecklist } from '../../hooks';
 import { ChecklistBarProps, ChecklistViewState } from '../../lib/checklist';
 import { ChecklistBar } from './ChecklistBar';
 import InteractivePopup, {
@@ -10,7 +10,6 @@ import InteractivePopup, {
 import { OnboardingChecklistCard } from './OnboardingChecklistCard';
 import { OnboardingChecklistOptions } from './OnboardingChecklistOptions';
 import { OnboardingChecklistDismissButton } from './OnboardingChecklistDismissButton';
-import { feature } from '../../lib/featureManagement';
 
 export type OnboardingChecklistBarProps = Pick<ChecklistBarProps, 'className'>;
 
@@ -21,10 +20,6 @@ export const OnboardingChecklistBar = ({
   const { steps, isDone, checklistView } = useOnboardingChecklist();
   const [isPopupOpen, setPopupOpen] = useState(false);
   const isHidden = checklistView === ChecklistViewState.Hidden;
-  const { value: isFeatureEnabled } = useConditionalFeature({
-    feature: feature.onboardingChecklist,
-    shouldEvaluate: !isHidden,
-  });
 
   const onRequestClose = () => {
     setPopupOpen(false);
@@ -34,10 +29,6 @@ export const OnboardingChecklistBar = ({
       target_id: TargetId.General,
     });
   };
-
-  if (!isFeatureEnabled) {
-    return null;
-  }
 
   if (isHidden) {
     return null;

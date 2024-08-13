@@ -168,14 +168,10 @@ export function OnboardPage(): ReactElement {
       return onClickNext();
     }
 
-    const onboardingChecklist = getFeatureValue(feature.onboardingChecklist);
-
-    if (onboardingChecklist) {
-      setSettings({
-        sidebarExpanded: true,
-        onboardingChecklistView: ChecklistViewState.Open,
-      });
-    }
+    setSettings({
+      sidebarExpanded: true,
+      onboardingChecklistView: ChecklistViewState.Open,
+    });
 
     return onClickNext();
   };
