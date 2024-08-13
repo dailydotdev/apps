@@ -351,8 +351,7 @@ export default function MainFeedLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
-  const disableTopPadding =
-    isFinder || shouldUseListFeedLayout || shouldUseCommentFeedLayout;
+  const disableTopPadding = isFinder || shouldUseListFeedLayout;
 
   const onTabChange = useCallback(
     (clickedTab: ExploreTabs) => {
