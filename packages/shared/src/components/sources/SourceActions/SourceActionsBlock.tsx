@@ -11,15 +11,13 @@ const SourceActionsBlock = ({
   isBlocked,
   onClick,
 }: SourceActionBlockProps): ReactElement => {
-  const unblockLabel = 'Unblock';
-  const icon = <BlockIcon />;
-  const label = isBlocked ? unblockLabel : 'Block';
+  const label = isBlocked ? 'Unblock' : 'Block';
 
   return (
     <Button
       aria-label={label}
       data-testid="blockButton"
-      icon={icon}
+      icon={<BlockIcon />}
       onClick={onClick}
       size={ButtonSize.Small}
       variant={ButtonVariant.Float}
