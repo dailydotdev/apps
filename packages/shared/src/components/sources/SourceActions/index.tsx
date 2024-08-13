@@ -1,44 +1,73 @@
 import React, { ReactElement } from 'react';
-import { SourceSubscribeButton } from './SourceSubscribeButton';
-import SourceActionsBlock from './SourceActionsBlock';
-import { useSourceActionsBlock } from '../../../hooks/source/useSourceActionsBlock';
-import { Source } from '../../../graphql/sources';
 import { ButtonVariant } from '../../buttons/common';
-import { feature } from '../../../lib/featureManagement';
-import { withExperiment } from '../../withExperiment';
-import { SourceActionsWithNotifyExperiment } from './SourceActionsWithNotifyExperiment';
+import { Source } from '../../../graphql/sources';
+import { useSourceActions } from '../../../hooks';
+import SourceActionsNotify from './SourceActionsNotify';
+import SourceActionsBlock from './SourceActionsBlock';
+import SourceActionsFollow from './SourceActionsFollow';
 
 interface SourceActionsButton {
   className?: string;
   variant?: ButtonVariant;
 }
 
-interface SourceActionsProps {
+export interface SourceActionsProps {
   source: Source;
+  blockProps?: SourceActionsButton;
   hideBlock?: boolean;
   followProps?: SourceActionsButton;
+  hideFollow?: boolean;
+  notifyProps?: SourceActionsButton;
+  hideNotify?: boolean;
 }
 
-const SourceActionsControl = (props: SourceActionsProps): ReactElement => {
-  const { source, hideBlock, followProps } = props;
-  const { isBlocked, toggleBlock } = useSourceActionsBlock({
+export const SourceActions = ({
+  blockProps,
+  followProps,
+  hideBlock = false,
+  hideFollow = false,
+  hideNotify = false,
+  source,
+  notifyProps,
+}: SourceActionsProps): ReactElement => {
+  const {
+    isBlocked,
+    toggleBlock,
+    isFollowing,
+    toggleFollow,
+    haveNotificationsOn,
+    toggleNotify,
+  } = useSourceActions({
     source,
   });
 
   return (
-    <>
-      {!isBlocked && <SourceSubscribeButton source={source} {...followProps} />}
-      {!hideBlock && (
-        <SourceActionsBlock isBlocked={isBlocked} onClick={toggleBlock} />
+    <div className="inline-flex flex-row gap-2">
+      {!hideFollow && !isBlocked && (
+        <SourceActionsFollow
+          isFetching={false}
+          isSubscribed={isFollowing}
+          onClick={toggleFollow}
+          variant={ButtonVariant.Primary}
+          {...followProps}
+        />
       )}
-    </>
+      {!hideNotify && isFollowing && (
+        <SourceActionsNotify
+          haveNotificationsOn={haveNotificationsOn}
+          onClick={toggleNotify}
+          {...notifyProps}
+        />
+      )}
+      {!hideBlock && !isFollowing && (
+        <SourceActionsBlock
+          isBlocked={isBlocked}
+          onClick={toggleBlock}
+          {...blockProps}
+        />
+      )}
+    </div>
   );
 };
-
-export const SourceActions = withExperiment(SourceActionsWithNotifyExperiment, {
-  fallback: SourceActionsControl,
-  feature: feature.sourceNotifyButton,
-  value: true,
-});
 
 export default SourceActions;

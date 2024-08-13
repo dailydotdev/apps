@@ -72,3 +72,17 @@ export const wrapStopPropagation =
     event.stopPropagation();
     callback();
   };
+
+export const sortAlphabeticallyByProperty =
+  <T>(property: keyof T) =>
+  (a: T, b: T): number => {
+    if (a[property] < b[property]) {
+      return -1;
+    }
+
+    if (a[property] > b[property]) {
+      return 1;
+    }
+
+    return 0;
+  };
