@@ -199,17 +199,20 @@ export const StreakRecoverModal = (
           )}
           <div className="flex flex-row items-center justify-center">
             <Checkbox
+              aria-labelledby={`showAgain-label-${id}`}
               checked={hideForever.isChecked}
-              onToggle={hideForever.toggle}
-              name="showAgain"
-              id={`showAgain-${id}`}
               className="!pr-0"
+              id={`showAgain-${id}`}
+              name="showAgain"
+              onToggle={hideForever.toggle}
             />
             <Typography
-              tag={TypographyTag.Label}
-              type={TypographyType.Footnote}
+              aria-label="Never show 'reading streak recover' popup again"
               className="cursor-pointer py-2.5 text-text-tertiary"
               htmlFor={`showAgain-${id}`}
+              id={`showAgain-label-${id}`}
+              tag={TypographyTag.Label}
+              type={TypographyType.Footnote}
             >
               Never show this again
             </Typography>
