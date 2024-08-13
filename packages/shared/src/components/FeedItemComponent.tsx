@@ -23,6 +23,8 @@ import { FeedItemType } from './cards/common';
 import { PublicSquadEligibilityCard } from './squads/PublicSquadEligibilityCard';
 import { AdGrid } from './cards/ad/AdGrid';
 import { AdList } from './cards/ad/AdList';
+import { AcquisitionFormGrid } from './cards/AcquisitionForm/AcquisitionFormGrid';
+import { AcquisitionFormList } from './cards/AcquisitionForm/AcquisitionFormList';
 import { FreeformGrid } from './cards/Freeform/FreeformGrid';
 import { FreeformList } from './cards/Freeform/FreeformList';
 
@@ -125,6 +127,9 @@ const getTags = ({
     AdTag: useListCards ? AdList : AdGrid,
     PlaceholderTag: useListCards ? PlaceholderList : PlaceholderCard,
     MarketingCtaTag: useListCards ? MarketingCtaList : MarketingCtaCard,
+    AcquisitionFormTag: useListCards
+      ? AcquisitionFormList
+      : AcquisitionFormGrid,
   };
 };
 
@@ -165,7 +170,13 @@ export default function FeedItemComponent({
   );
 
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
-  const { PostTag, AdTag, PlaceholderTag, MarketingCtaTag } = getTags({
+  const {
+    PostTag,
+    AdTag,
+    PlaceholderTag,
+    MarketingCtaTag,
+    AcquisitionFormTag,
+  } = getTags({
     isListFeedLayout: shouldUseListFeedLayout,
     shouldUseListMode,
     postType: (item as PostItem).post?.type,
@@ -248,7 +259,7 @@ export default function FeedItemComponent({
         />
       );
     case FeedItemType.UserAcquisition:
-      return <AcquisitionFormCard key="user-acquisition-card" />;
+      return <AcquisitionFormTag key="user-acquisition-card" />;
     case FeedItemType.PublicSquadEligibility:
       return <PublicSquadEligibilityCard />;
     case FeedItemType.MarketingCta:
