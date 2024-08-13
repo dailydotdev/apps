@@ -8,4 +8,7 @@ export enum ContextMenu {
   TagOptionsContext = 'tag-options-context',
   ShortcutContext = 'shortcut-context',
   SidebarOnboardingChecklistCard = 'sidebar-onboarding-checklist-card-context',
+  SourceIntegrationContext = 'source-integration-context',
 }
+
+export const ContextMenuIds = ContextMenu;
