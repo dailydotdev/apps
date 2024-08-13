@@ -1,22 +1,23 @@
 import React, { forwardRef, ReactElement, Ref, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { sanitize } from 'dompurify';
-import { CardContainer, CardContent, CardTitle } from './ListCard';
-import ActionButtons from './ActionButtons';
+
 import { Container, generateTitleClamp, PostCardProps } from '../common';
 import { useSquadChecklist } from '../../../hooks/useSquadChecklist';
 import { Squad } from '../../../graphql/sources';
 import { ActionType } from '../../../graphql/actions';
-import FeedItemContainer from './FeedItemContainer';
 import { PostType } from '../../../graphql/posts';
 import { useFeedPreviewMode, useTruncatedSummary } from '../../../hooks';
-import { PostCardHeader } from './PostCardHeader';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import SquadHeaderPicture from '../common/SquadHeaderPicture';
-import { CardCoverList } from './CardCover';
 import { PostContentReminder } from '../../post/common/PostContentReminder';
+import FeedItemContainer from '../list/FeedItemContainer';
+import { CardContainer, CardContent, CardTitle } from '../list/ListCard';
+import { PostCardHeader } from '../list/PostCardHeader';
+import { CardCoverList } from '../list/CardCover';
+import ActionButtons from '../list/ActionButtons';
 
-export const WelcomePostList = forwardRef(function SharePostCard(
+export const FreeformList = forwardRef(function SharePostCard(
   {
     post,
     onPostClick,
