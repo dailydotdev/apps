@@ -187,6 +187,7 @@ export function SquadPageHeader({
           {squad.description}
         </p>
       )}
+      <SquadHeaderBar squad={squad} members={members} className="mt-8" />
       <span className="mt-6 text-text-quaternary typo-footnote">
         Moderated by
       </span>
@@ -209,15 +210,6 @@ export function SquadPageHeader({
           </Button>
         )}
       </div>
-      <SquadHeaderBar
-        squad={squad}
-        members={members}
-        className={classNames(
-          'mt-8',
-          !shouldUseListMode &&
-            'laptopL:absolute laptopL:right-18 laptopL:top-0 laptopL:mt-0',
-        )}
-      />
       <EnableNotification
         contentName={squad.name}
         source={NotificationPromptSource.SquadPage}

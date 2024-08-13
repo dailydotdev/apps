@@ -30,6 +30,7 @@ import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOf
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import SquadPostContent from '@dailydotdev/shared/src/components/post/SquadPostContent';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
+import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { ONBOARDING_OFFSET } from '@dailydotdev/shared/src/components/post/BasePostContent';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
@@ -123,7 +124,9 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     scrollProperty: 'scrollY',
   });
 
-  if (isLoading || isFallback) {
+  const privateSourceJoin = usePrivateSourceJoin({ postId: id });
+
+  if (isLoading || isFallback || privateSourceJoin.isActive) {
     return (
       <>
         <PostSEOSchema post={post} />
