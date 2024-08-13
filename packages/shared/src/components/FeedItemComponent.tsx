@@ -12,8 +12,6 @@ import useLogImpression from '../hooks/feed/useLogImpression';
 import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
 import { SharePostCard } from './cards/SharePostCard';
 import { SharePostList } from './cards/list/SharePostList';
-import { WelcomePostCard } from './cards/WelcomePostCard';
-import { WelcomePostList } from './cards/list/WelcomePostList';
 import { Origin } from '../lib/log';
 import { useFeedLayout, UseVotePost } from '../hooks';
 import { CollectionCard } from './cards/CollectionCard';
@@ -26,6 +24,8 @@ import { AdGrid } from './cards/ad/AdGrid';
 import { AdList } from './cards/ad/AdList';
 import { AcquisitionFormGrid } from './cards/AcquisitionForm/AcquisitionFormGrid';
 import { AcquisitionFormList } from './cards/AcquisitionForm/AcquisitionFormList';
+import { FreeformGrid } from './cards/Freeform/FreeformGrid';
+import { FreeformList } from './cards/Freeform/FreeformList';
 
 const CommentPopup = dynamic(
   () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
@@ -92,8 +92,8 @@ export function getFeedItemKey(item: FeedItem, index: number): string {
 const PostTypeToTagCard: Record<PostType, FunctionComponent> = {
   [PostType.Article]: ArticlePostCard,
   [PostType.Share]: SharePostCard,
-  [PostType.Welcome]: WelcomePostCard,
-  [PostType.Freeform]: WelcomePostCard,
+  [PostType.Welcome]: FreeformGrid,
+  [PostType.Freeform]: FreeformGrid,
   [PostType.VideoYouTube]: ArticlePostCard,
   [PostType.Collection]: CollectionCard,
 };
@@ -101,8 +101,8 @@ const PostTypeToTagCard: Record<PostType, FunctionComponent> = {
 const PostTypeToTagList: Record<PostType, FunctionComponent> = {
   [PostType.Article]: ArticlePostList,
   [PostType.Share]: SharePostList,
-  [PostType.Welcome]: WelcomePostList,
-  [PostType.Freeform]: WelcomePostList,
+  [PostType.Welcome]: FreeformList,
+  [PostType.Freeform]: FreeformList,
   [PostType.VideoYouTube]: ArticlePostList,
   [PostType.Collection]: CollectionList,
 };
