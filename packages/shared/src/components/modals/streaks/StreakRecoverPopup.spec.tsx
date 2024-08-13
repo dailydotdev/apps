@@ -8,12 +8,14 @@ import { Alerts } from '../../../graphql/alerts';
 import { BootPopups } from '../BootPopups';
 import { waitForNock } from '../../../../__tests__/helpers/utilities';
 import {
+  USER_STREAK_RECOVER_MUTATION,
   USER_STREAK_RECOVER_QUERY,
   UserStreakRecoverData,
 } from '../../../graphql/users';
 import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
 import * as actionHook from '../../../hooks/useActions';
 import { ActionType } from '../../../graphql/actions';
+import Toast from '../../notifications/Toast';
 
 interface TestProps {
   user?: LoggedUser | null;
@@ -45,6 +47,7 @@ const renderComponent = (props: TestProps) => {
   return render(
     <TestBootProvider client={queryClient} auth={{ user }} alerts={{ alerts }}>
       <BootPopups />
+      <Toast autoDismissNotifications={false} />
     </TestBootProvider>,
   );
 };
@@ -65,7 +68,21 @@ const mockRecoveryQuery = (
     },
   });
 };
-//
+
+const mockRecoveryMutation = (data: unknown, callback?: () => void) => {
+  mockGraphQL({
+    request: {
+      query: USER_STREAK_RECOVER_MUTATION,
+    },
+    result: () => {
+      callback?.();
+      return {
+        data,
+      };
+    },
+  });
+};
+
 beforeEach(async () => {
   // need to reset the mock on useActions
   checkHasCompleted.mockReset();
@@ -111,8 +128,8 @@ it('should render and fetch initial data if logged user can recover streak', asy
   mockRecoveryQuery(
     {
       canDo: true,
-      amount: 25,
-      length: 10,
+      cost: 25,
+      oldStreakLength: 10,
     },
     () => {
       haveFetched = true;
@@ -134,8 +151,8 @@ it('should render and fetch initial data if logged user can recover streak', asy
 it('Should have no cost for first time recovery', async () => {
   mockRecoveryQuery({
     canDo: true,
-    amount: 0,
-    length: 10,
+    cost: 0,
+    oldStreakLength: 10,
   });
 
   renderComponent({
@@ -159,8 +176,8 @@ it('Should have no cost for first time recovery', async () => {
 it('Should have cost of 25 points for 2nd+ time recovery', async () => {
   mockRecoveryQuery({
     canDo: true,
-    amount: 25,
-    length: 10,
+    cost: 25,
+    oldStreakLength: 10,
   });
 
   renderComponent({
@@ -184,8 +201,8 @@ it('Should have cost of 25 points for 2nd+ time recovery', async () => {
 it('Should show not enough points message if user does not have enough points', async () => {
   mockRecoveryQuery({
     canDo: true,
-    amount: 25,
-    length: 10,
+    cost: 25,
+    oldStreakLength: 10,
   });
 
   renderComponent({
@@ -209,19 +226,47 @@ it('Should show not enough points message if user does not have enough points', 
   expect(copy).toHaveTextContent('You don’t have enough');
 });
 
-// it('Should show success message on recover', async () => {
-//   renderComponent({
-//     user: { ...loggedUser, reputation: 50 },
-//   });
-//   // click recover
-//   const recoverButton = await screen.findByLabelText('Restore my streak');
-//   fireEvent.click(recoverButton);
-//   // expect success message
-//   const successMessage = await screen.findByLabelText(
-//     'Lucky you! Your streak has been restored',
-//   );
-//   expect(successMessage).toBeInTheDocument();
-// });
+it('Should show success message on recover', async () => {
+  window.scrollTo = jest.fn();
+
+  mockRecoveryQuery({
+    canDo: true,
+    cost: 25,
+    oldStreakLength: 102,
+  });
+
+  renderComponent({
+    user: {
+      ...loggedUser,
+      reputation: 50,
+    },
+  });
+
+  await waitForNock();
+
+  // rendered
+  const popupHeader = screen.queryByTestId('streak-recover-modal-heading');
+  expect(popupHeader).toBeInTheDocument();
+
+  // button is there
+  const button = screen.getByTestId('streak-recover-button');
+  expect(button).toBeInTheDocument();
+  fireEvent.click(button);
+
+  let mutationCalled = false;
+  mockRecoveryMutation({}, () => {
+    mutationCalled = true;
+  });
+
+  await waitForNock();
+
+  // expect mutation to be called
+  expect(mutationCalled).toBeTruthy();
+
+  // expect success message
+  const alert = await screen.findByRole('alert');
+  expect(alert).toContainHTML('Lucky you! Your streak has been restored');
+});
 
 // it('Should show error message on recover fail', async () => {
 //   renderComponent({
@@ -243,8 +288,8 @@ it('Should dismiss popup on close if checked option', async () => {
   renderComponent({});
   mockRecoveryQuery({
     canDo: true,
-    amount: 25,
-    length: 10,
+    cost: 25,
+    oldStreakLength: 10,
   });
 
   await waitForNock();

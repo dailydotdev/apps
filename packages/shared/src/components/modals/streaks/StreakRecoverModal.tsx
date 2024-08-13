@@ -8,7 +8,12 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import {
+  Button,
+  ButtonProps,
+  ButtonSize,
+  ButtonVariant,
+} from '../../buttons/Button';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { reputation as reputationHref } from '../../../lib/constants';
 import { ReputationIcon } from '../../icons';
@@ -130,8 +135,12 @@ const StreakRecoveryCopy = ({
   );
 };
 
-const StreakRecoverButton = ({ cost }: Record<'cost', number>) => (
+const StreakRecoverButton = ({
+  cost,
+  ...props
+}: Record<'cost', number> & ButtonProps<'button'>) => (
   <Button
+    {...props}
     className="relative"
     variant={ButtonVariant.Primary}
     size={ButtonSize.Large}
@@ -157,7 +166,7 @@ export const StreakRecoverModal = (
   const { isOpen, onRequestClose, user } = props;
 
   const id = useId();
-  const { recover, hideForever, onClose } = useStreakRecover({
+  const { recover, hideForever, onClose, onRecover } = useStreakRecover({
     onRequestClose,
   });
 
@@ -185,7 +194,9 @@ export const StreakRecoverModal = (
           <StreakRecoverCover />
           <StreakRecoverHeading days={recover.oldStreakLength} />
           <StreakRecoveryCopy reputation={reputation} cost={recover.cost} />
-          {canUserRecover && <StreakRecoverButton cost={recover.cost} />}
+          {canUserRecover && (
+            <StreakRecoverButton onClick={onRecover} cost={recover.cost} />
+          )}
           <div className="flex flex-row items-center justify-center">
             <Checkbox
               checked={hideForever.isChecked}

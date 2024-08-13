@@ -482,6 +482,13 @@ export const USER_STREAK_RECOVER_QUERY = gql`
   }
 `;
 
+export const USER_STREAK_RECOVER_MUTATION = gql`
+  mutation RecoverStreak {
+    recoverStreak {
+    }
+  }
+`;
+
 export const DEV_CARD_QUERY = gql`
   query DevCardById($id: ID!) {
     devCard(id: $id) {

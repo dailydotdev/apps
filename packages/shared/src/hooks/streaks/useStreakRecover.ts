@@ -1,14 +1,16 @@
 import { useCallback } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useToggle } from '../useToggle';
 import { useActions } from '../useActions';
 import {
   USER_STREAK_RECOVER_QUERY,
   UserStreakRecoverData,
+  USER_STREAK_RECOVER_MUTATION,
 } from '../../graphql/users';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { ActionType } from '../../graphql/actions';
 import { gqlClient } from '../../graphql/common';
+import { useToastNotification } from '../useToastNotification';
 
 interface UseStreakRecoverProps {
   onRequestClose: () => void;
@@ -20,6 +22,7 @@ interface UseStreakRecoverReturn {
     toggle: () => void;
   };
   onClose?: () => void;
+  onRecover?: () => void;
   recover: {
     canDo: boolean;
     cost: number;
@@ -34,6 +37,7 @@ export const useStreakRecover = ({
 }: UseStreakRecoverProps): UseStreakRecoverReturn => {
   const { completeAction, checkHasCompleted } = useActions();
   const [hideForever, toggleHideForever] = useToggle(false);
+  const { displayToast } = useToastNotification();
 
   const { data, isLoading } = useQuery<{
     recoverStreak: UserStreakRecoverData;
@@ -41,6 +45,16 @@ export const useStreakRecover = ({
     queryKey: generateQueryKey(RequestKey.UserStreakRecover),
     queryFn: async () => {
       return await gqlClient.request(USER_STREAK_RECOVER_QUERY);
+    },
+  });
+
+  const recoverMutation = useMutation({
+    mutationKey: generateQueryKey(RequestKey.UserStreakRecover),
+    mutationFn: async () => {
+      return await gqlClient.request(USER_STREAK_RECOVER_MUTATION);
+    },
+    onSuccess: () => {
+      displayToast('Lucky you! Your streak has been restored');
     },
   });
 
@@ -52,12 +66,18 @@ export const useStreakRecover = ({
     onRequestClose?.();
   }, [completeAction, hideForever, onRequestClose]);
 
+  const onRecover = useCallback(async () => {
+    await recoverMutation.mutateAsync();
+    onRequestClose?.();
+  }, [displayToast, onRequestClose, recoverMutation]);
+
   return {
     hideForever: {
       isChecked: hideForever,
       toggle: toggleHideForever,
     },
     onClose,
+    onRecover,
     recover: {
       ...data?.recoverStreak,
       isLoading,
