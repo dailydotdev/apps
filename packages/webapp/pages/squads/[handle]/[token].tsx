@@ -77,15 +77,15 @@ const getJoinRedirectUrl = ({
   query: ParsedUrlQuery;
 }): string => {
   const postId = query?.post as string;
+  const searchParams = new URLSearchParams(window.location.search);
 
   if (postId) {
-    const searchParams = new URLSearchParams(window.location.search);
     searchParams.delete('post');
 
     return getPathnameWithQuery(`${webappUrl}/posts/${postId}`, searchParams);
   }
 
-  return pathname;
+  return getPathnameWithQuery(pathname, searchParams);
 };
 
 const SquadReferral = ({
