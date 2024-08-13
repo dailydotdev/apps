@@ -27,7 +27,6 @@ import { NextSeo, NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import {
   useFeature,
-  useFeaturesReadyContext,
   useGrowthBookContext,
 } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import TrustedCompanies from '@dailydotdev/shared/src/components/TrustedCompanies';
@@ -80,7 +79,6 @@ const seo: NextSeoProps = {
 
 export function OnboardPage(): ReactElement {
   const router = useRouter();
-  const { getFeatureValue } = useFeaturesReadyContext();
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
   const { user, isAuthReady, anonymous } = useAuthContext();
