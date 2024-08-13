@@ -12,12 +12,14 @@ export interface SquadMemberShortListProps {
   squad: Squad;
   members: SourceMember[];
   className?: string;
+  size?: ProfileImageSize;
 }
 
 function SquadMemberShortList({
   squad,
   members,
   className,
+  size = ProfileImageSize.Medium,
 }: SquadMemberShortListProps): ReactElement {
   const { sidebarRendered } = useSidebarRendered();
   const { openModal } = useLazyModal();
@@ -35,7 +37,7 @@ function SquadMemberShortList({
       <button
         type="button"
         className={classNames(
-          'flex h-10 flex-row-reverse items-center rounded-12 border border-border-subtlest-secondary p-1 pl-3 hover:bg-surface-hover active:bg-theme-active',
+          'flex flex-row-reverse items-center rounded-12 border border-border-subtlest-secondary pl-3 hover:bg-surface-hover active:bg-theme-active',
           className,
         )}
         onClick={openMemberListModal}
@@ -49,7 +51,7 @@ function SquadMemberShortList({
         {members?.slice(0, sidebarRendered ? 5 : 3).map(({ user }) => (
           <ProfilePicture
             className="-ml-2"
-            size={ProfileImageSize.Medium}
+            size={size}
             key={user.username}
             user={user}
           />

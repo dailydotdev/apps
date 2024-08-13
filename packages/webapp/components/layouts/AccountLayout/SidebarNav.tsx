@@ -1,4 +1,10 @@
-import React, { ReactElement, useCallback, useContext, useEffect } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+} from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -7,6 +13,7 @@ import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { isTouchDevice } from '@dailydotdev/shared/src/lib/tooltip';
+import { useSlack } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlack';
 import SidebarNavItem from './SidebarNavItem';
 import {
   AccountPage,
@@ -19,8 +26,6 @@ interface SidebarNavProps {
   className?: string;
   basePath?: string;
 }
-
-const pageKeys = Object.keys(accountPage) as AccountPage[];
 
 function SidebarNav({
   className,
@@ -36,6 +41,19 @@ function SidebarNav({
     ...disabledRefetch,
   });
   const { user } = useContext(AuthContext);
+  const slack = useSlack();
+
+  const pageKeys = useMemo(() => {
+    const items = Object.keys(accountPage) as AccountPage[];
+
+    return items.filter((pageItem) => {
+      if (pageItem === AccountPage.Integrations) {
+        return slack.isFeatureEnabled;
+      }
+
+      return true;
+    });
+  }, [slack.isFeatureEnabled]);
 
   useEffect(() => {
     if (!isTouchDevice()) {

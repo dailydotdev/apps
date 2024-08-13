@@ -23,10 +23,10 @@ const TitleDescription = ({ className }: HTMLAttributes<HTMLDivElement>) => (
 
 const Actions = ({ className }: HTMLAttributes<HTMLDivElement>) => (
   <FlexRow className={classNames('flex-col gap-3 laptopL:flex-row', className)}>
-    <RectangleElement className="h-10 w-40" />
+    <RectangleElement className="h-8 w-40" />
     <FlexRow className="justify-center gap-3">
-      <RectangleElement className="h-10 w-10" />
-      <RectangleElement className="h-10 w-10" />
+      <RectangleElement className="h-8 w-8" />
+      <RectangleElement className="h-8 w-8" />
     </FlexRow>
   </FlexRow>
 );
@@ -50,9 +50,9 @@ function SquadLoading({
         <PlaceholderElement className="h-16 w-16 rounded-full tablet:h-24 tablet:w-24" />
         {squad?.description && <TitleDescription />}
         <div className="mt-8 flex h-fit w-full flex-row justify-center gap-4 tablet:w-auto laptopL:absolute laptopL:right-18 laptopL:top-0 laptopL:mt-0">
-          <Actions className="hidden laptop:flex laptopL:ml-auto" />
           <Actions className="mt-8 flex laptop:hidden" />
         </div>
+        <Actions className="mt-8 hidden laptop:flex" />
         <FlexRow className="mt-6 gap-3">
           <RectangleElement className="h-12 w-32" />
           <RectangleElement className="h-12 w-12 tablet:w-32" />
