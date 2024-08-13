@@ -28,7 +28,7 @@ import { getFeedName } from '../../lib/feed';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import Logo, { LogoPosition } from '../Logo';
-import { useActions, useFeeds, useViewSize, ViewSize } from '../../hooks';
+import { useFeeds, useViewSize, ViewSize } from '../../hooks';
 import {
   Button,
   ButtonIconPosition,
@@ -50,8 +50,6 @@ import useActiveNav from '../../hooks/useActiveNav';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
 import { AlertColor, AlertDot } from '../AlertDot';
-import { cloudinary } from '../../lib/image';
-import { ActionType } from '../../graphql/actions';
 
 const SidebarOnboardingChecklistCard = dynamic(
   () =>
@@ -84,7 +82,6 @@ export default function Sidebar({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isTablet = useViewSize(ViewSize.Tablet);
   const featureTheme = useFeatureTheme();
-  const { checkHasCompleted, isActionsFetched } = useActions();
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
     hasFiltered: !alerts?.filter,
@@ -207,9 +204,6 @@ export default function Sidebar({
     );
   }
 
-  const showCustomFeedsBetaBadge =
-    isActionsFetched && !checkHasCompleted(ActionType.CustomFeed);
-
   return (
     <>
       {openMobileSidebar && sidebarRendered === false && (
@@ -286,13 +280,6 @@ export default function Sidebar({
                 <div className="rounded-6 bg-background-subtle">
                   <PlusIcon />
                 </div>
-              }
-              rightIcon={() =>
-                showCustomFeedsBetaBadge ? (
-                  <div className="absolute -right-3 -top-2 h-4 w-10">
-                    <img src={cloudinary.feed.betaTag} alt="Beta" />
-                  </div>
-                ) : undefined
               }
             />
             <SquadSection {...defaultRenderSectionProps} />

@@ -51,6 +51,12 @@ import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users'
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { SquadStatus } from '@dailydotdev/shared/src/components/squads/settings';
+import { useRouter } from 'next/router';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage, {
@@ -109,6 +115,8 @@ const SquadPage = ({
   initialData,
   referringUser,
 }: SourcePageProps): ReactElement => {
+  const router = useRouter();
+  const { openModal } = useLazyModal();
   useJoinReferral();
   const { logEvent } = useContext(LogContext);
   const { sidebarRendered } = useSidebarRendered();
@@ -195,7 +203,37 @@ const SquadPage = ({
   const isRequestsLoading =
     isRequestsEnabled && (!isRequestsFetched || !isActionsFetched);
 
-  if (isLoading && (!isFetched || isRequestsLoading)) {
+  const shouldManageSlack = router.query?.lzym === LazyModal.SlackIntegration;
+
+  useEffect(() => {
+    if (!shouldManageSlack || !squad) {
+      return;
+    }
+
+    const searchParams = new URLSearchParams(window.location.search);
+    searchParams.delete('lzym');
+    router.replace(
+      getPathnameWithQuery(`${webappUrl}squads/${squad.handle}`, searchParams),
+      undefined,
+      {
+        shallow: true,
+      },
+    );
+
+    openModal({
+      type: LazyModal.SlackIntegration,
+      props: {
+        source: squad,
+      },
+    });
+  }, [shouldManageSlack, squad, openModal, router]);
+
+  const privateSourceJoin = usePrivateSourceJoin();
+
+  if (
+    (isLoading && (!isFetched || isRequestsLoading)) ||
+    privateSourceJoin.isActive
+  ) {
     return (
       <>
         {seo}

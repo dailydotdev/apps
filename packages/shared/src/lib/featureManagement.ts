@@ -30,8 +30,9 @@ const feature = {
   animatedUpvote: new Feature('animated_upvote', false),
   authorImage: new Feature('author_image', false),
   sourceNotifyButton: new Feature('source_notify_button', false),
-  cardDownvote: new Feature('card_downvote', false),
   generateSummary: new Feature('generate_summary', false),
+  searchUsers: new Feature('search_users', false),
+  slackIntegration: new Feature('slack_integration', false),
 };
 
 export { feature };

@@ -1,6 +1,7 @@
 import React, { HTMLAttributes, ReactElement, RefAttributes } from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
+import { truncateTextClassNames } from '../utilities/common';
 
 export enum TypographyTag {
   Time = 'time',
@@ -52,6 +53,7 @@ export type TypographyProps<Tag extends AllowedTags> = {
   color?: TypographyColor;
   bold?: boolean;
   ref?: RefAttributes<AllowedElements>['ref'];
+  truncate?: boolean;
 } & HTMLAttributes<AllowedElements> &
   JSX.IntrinsicElements[Tag];
 
@@ -62,9 +64,16 @@ export function Typography<TagName extends AllowedTags>({
   bold = false,
   children,
   className,
+  truncate = false,
   ...props
 }: TypographyProps<TagName>): ReactElement {
-  const classes = classNames(className, type, { 'font-bold': bold }, color);
+  const classes = classNames(
+    className,
+    type,
+    { 'font-bold': bold },
+    color,
+    truncate && truncateTextClassNames,
+  );
   const Tag = classed(tag, classes);
 
   return <Tag {...props}>{children}</Tag>;

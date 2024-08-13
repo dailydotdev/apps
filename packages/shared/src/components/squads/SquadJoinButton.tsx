@@ -19,7 +19,7 @@ interface ClassName {
   button?: string;
 }
 
-interface SquadJoinProps {
+type SquadJoinProps = {
   className?: ClassName;
   squad: Squad;
   joinText?: string;
@@ -28,7 +28,7 @@ interface SquadJoinProps {
   origin: Origin;
   inviterMember?: Pick<UserShortProfile, 'id'>;
   onSuccess?: () => void;
-}
+} & Pick<ButtonProps<'button'>, 'size'>;
 
 export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
   className,

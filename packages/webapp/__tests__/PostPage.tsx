@@ -873,7 +873,13 @@ describe('downvote flow', () => {
     await screen.findByText("Don't show me posts from...");
   });
 
-  it('should display the option to never see the selection again if blocked no tags', async () => {
+  it('should prevent user to click block if no tags are selected', async () => {
+    await prepareDownvote();
+    const block = await screen.findByText<HTMLButtonElement>('Block');
+    expect(block?.disabled).toBe(true);
+  });
+
+  it('should display the option to never see the selection again if close panel', async () => {
     await prepareDownvote();
     const items = await screen.findAllByTestId('blockTagButton');
     const allUnselected = items.every((el) =>
@@ -881,8 +887,8 @@ describe('downvote flow', () => {
     );
     await act(() => new Promise((resolve) => setTimeout(resolve, 10)));
     expect(allUnselected).toBeTruthy();
-    const block = await screen.findByText('Block');
-    fireEvent.click(block);
+    const close = await screen.findByTitle('Close');
+    fireEvent.click(close);
     await screen.findByText('No topics were blocked');
     let mutationCalled = false;
     mockGraphQL({
