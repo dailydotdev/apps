@@ -74,13 +74,13 @@ export const wrapStopPropagation =
   };
 
 export const sortAlphabeticallyByProperty =
-  <T>(propery: keyof T) =>
+  <T>(property: keyof T) =>
   (a: T, b: T): number => {
-    if (a[propery] < b[propery]) {
+    if (a[property] < b[property]) {
       return -1;
     }
 
-    if (a[propery] > b[propery]) {
+    if (a[property] > b[property]) {
       return 1;
     }
 
