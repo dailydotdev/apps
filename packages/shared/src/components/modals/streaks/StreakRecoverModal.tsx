@@ -3,7 +3,6 @@ import { ModalSize } from '../common/types';
 import { ModalBody } from '../common/ModalBody';
 import { Modal } from '../common/Modal';
 import { LoggedUser } from '../../../lib/user';
-import { ModalHeader } from '../common/ModalHeader';
 import {
   Typography,
   TypographyTag,
@@ -16,6 +15,7 @@ import { ReputationIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { useStreakRecover } from '../../../hooks/streaks/useStreakRecover';
 import { Checkbox } from '../../fields/Checkbox';
+import { ModalClose } from '../common/ModalClose';
 
 export interface StreakRecoverModalProps {
   isOpen: boolean;
@@ -108,6 +108,7 @@ const StreakRecoveryCopy = ({
       className="text-center"
       tag={TypographyTag.P}
       type={TypographyType.Body}
+      data-testid="streak-recovery-copy"
     >
       {isFree && (
         <>
@@ -134,10 +135,15 @@ const StreakRecoverButton = ({ cost }: Record<'cost', number>) => (
     className="relative"
     variant={ButtonVariant.Primary}
     size={ButtonSize.Large}
+    data-testid="streak-recover-button"
   >
     Restore my streak
     <span className="absolute -right-0.5 -top-0.5 flex items-center whitespace-nowrap rounded-bl-14 rounded-tr-14 bg-accent-onion-default px-1.5 py-1 text-text-primary">
-      <Typography tag={TypographyTag.Span} type={TypographyType.Caption1}>
+      <Typography
+        tag={TypographyTag.Span}
+        type={TypographyType.Caption1}
+        data-testid="streak-recovery-cost"
+      >
         {cost} Rep
       </Typography>{' '}
       <ReputationIcon className="inline-block" size={IconSize.Size16} />
@@ -149,6 +155,7 @@ export const StreakRecoverModal = (
   props: StreakRecoverModalProps,
 ): ReactElement => {
   const { isOpen, onRequestClose, user } = props;
+
   const id = useId();
   const { recover, hideForever, onClose } = useStreakRecover({
     onRequestClose,
@@ -168,7 +175,11 @@ export const StreakRecoverModal = (
       onRequestClose={onClose}
       size={ModalSize.XSmall}
     >
-      <ModalHeader />
+      <ModalClose
+        aria-label="Close streak recover popup"
+        onClick={onClose}
+        title="Close streak recover popup"
+      />
       <ModalBody className="!p-4">
         <div className="flex flex-col gap-4">
           <StreakRecoverCover />

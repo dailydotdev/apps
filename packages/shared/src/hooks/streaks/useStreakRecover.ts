@@ -46,12 +46,12 @@ export const useStreakRecover = ({
   const { amount, canDo, length } = data?.recoverStreak ?? {};
 
   const onClose = useCallback(async () => {
-    // if (hideForever) {
-    //   await completeAction(ActionType.DisableReadingStreakRecover);
-    // }
+    if (hideForever) {
+      await completeAction(ActionType.DisableReadingStreakRecover);
+    }
 
     onRequestClose?.();
-  }, [onRequestClose]);
+  }, [completeAction, hideForever, onRequestClose]);
 
   return {
     hideForever: {
