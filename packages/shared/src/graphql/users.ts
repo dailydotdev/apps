@@ -468,8 +468,8 @@ export const getReadingStreak = async (): Promise<UserStreak> => {
 
 export interface UserStreakRecoverData {
   canDo: boolean;
-  amount: number;
-  length: number;
+  cost: number;
+  oldStreakLength: number;
 }
 
 export const USER_STREAK_RECOVER_QUERY = gql`

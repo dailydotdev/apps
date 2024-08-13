@@ -43,7 +43,6 @@ export const useStreakRecover = ({
       return await gqlClient.request(USER_STREAK_RECOVER_QUERY);
     },
   });
-  const { amount, canDo, length } = data?.recoverStreak ?? {};
 
   const onClose = useCallback(async () => {
     if (hideForever) {
@@ -60,9 +59,7 @@ export const useStreakRecover = ({
     },
     onClose,
     recover: {
-      cost: amount,
-      canDo,
-      oldStreakLength: length,
+      ...data?.recoverStreak,
       isLoading,
       isDisabled: checkHasCompleted(ActionType.DisableReadingStreakRecover),
     },
