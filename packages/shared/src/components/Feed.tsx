@@ -48,11 +48,11 @@ import {
 } from '../hooks/useBookmarkPost';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
-import { acquisitionKey } from './cards/AcquisitionFormCard';
 import { MarketingCtaVariant } from './marketingCta/common';
 import { isNullOrUndefined } from '../lib/func';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import { SearchResultsLayout } from './search/SearchResults/SearchResultsLayout';
+import { acquisitionKey } from './cards/AcquisitionForm/common/common';
 
 export interface FeedProps<T>
   extends Pick<
