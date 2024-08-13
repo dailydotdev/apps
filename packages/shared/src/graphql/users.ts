@@ -476,8 +476,8 @@ export const USER_STREAK_RECOVER_QUERY = gql`
   query UserStreakRecover {
     recoverStreak {
       canDo
-      amount
-      length
+      cost
+      oldStreakLength
     }
   }
 `;
