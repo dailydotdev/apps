@@ -69,7 +69,7 @@ export const useStreakRecover = ({
   const onRecover = useCallback(async () => {
     await recoverMutation.mutateAsync();
     onRequestClose?.();
-  }, [displayToast, onRequestClose, recoverMutation]);
+  }, [onRequestClose, recoverMutation]);
 
   return {
     hideForever: {
