@@ -39,7 +39,7 @@ import { useManualScrollRestoration } from '@dailydotdev/shared/src/hooks';
 import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
-import Seo from '../next-seo';
+import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
 const AuthModal = dynamic(
@@ -167,6 +167,8 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       </Head>
       <DefaultSeo
         {...Seo}
+        {...defaultSeo}
+        title={defaultSeoTitle}
         canonical={canonicalFromRouter(router)}
         titleTemplate={unreadCount ? `(${unreadText}) %s` : '%s'}
       />
