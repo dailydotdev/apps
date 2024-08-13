@@ -30,9 +30,7 @@ export function DiscoverSection({
   enableSearch,
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement {
-  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
-  const hasCompletedCommentFeed =
-    !isActionsFetched || checkHasCompleted(ActionType.CommentFeed);
+  const { completeAction } = useActions();
 
   const discoverMenuItems: SidebarMenuItem[] = useMemo(() => {
     const pushToDiscussed = locationPush(SharedFeedPage.Discussed);
@@ -58,13 +56,6 @@ export function DiscoverSection({
           pushToDiscussed();
         }
       },
-      ...(!hasCompletedCommentFeed && {
-        rightIcon: () => (
-          <span className="flex h-4 items-center rounded-6 bg-brand-default px-1 font-bold text-white typo-caption2">
-            NEW
-          </span>
-        ),
-      }),
     };
 
     return [
@@ -95,7 +86,7 @@ export function DiscoverSection({
         action: isExtension ? locationPush('/users') : undefined,
       },
     ];
-  }, [completeAction, hasCompletedCommentFeed, onNavTabClick]);
+  }, [completeAction, onNavTabClick]);
 
   return (
     <Section
