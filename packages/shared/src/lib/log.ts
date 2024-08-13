@@ -48,6 +48,8 @@ export enum Origin {
   EditTag = 'edit_tag',
   // Collection
   CollectionModal = 'collection modal',
+  Settings = 'settings',
+  WorkspaceDropdown = 'workspace dropdown',
 }
 
 export enum LogEvent {
@@ -175,6 +177,14 @@ export enum LogEvent {
   // Settings
   ChangeSettings = 'change settings',
   // End settings
+  // Integrations
+  StartAddingWorkspace = 'start adding workspace',
+  StartAddingIntegration = 'start adding integration',
+  ManageIntegration = 'manage integration',
+  SetIntegration = 'set integration',
+  RemoveIntegration = 'remove integration',
+  RevokeIntegrationAccess = 'revoke integration access',
+  // End integrations
 }
 
 export enum FeedItemTitle {

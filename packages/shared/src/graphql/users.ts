@@ -557,3 +557,21 @@ export const UPDATE_STREAK_COUNT_MUTATION = gql`
   }
   ${USER_STREAK_FRAGMENT}
 `;
+
+export const USER_INTEGRATIONS = gql`
+  query UserIntegrations {
+    userIntegrations {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          id
+          type
+          name
+        }
+      }
+    }
+  }
+`;

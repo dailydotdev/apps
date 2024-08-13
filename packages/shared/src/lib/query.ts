@@ -65,7 +65,7 @@ export const generateQueryKey = (
   name: RequestKey | AllFeedPages,
   user?: Pick<LoggedUser, 'id'>,
   ...additional: unknown[]
-): unknown[] => {
+): [RequestKey | AllFeedPages, string, ...unknown[]] => {
   return [name, user?.id ?? 'anonymous', ...additional];
 };
 
@@ -133,6 +133,9 @@ export enum RequestKey {
   FeedSettings = 'feedSettings',
   Ads = 'ads',
   FeedByIds = 'feedByIds',
+  SlackChannels = 'slack_channels',
+  UserIntegrations = 'user_integrations',
+  UserSourceIntegrations = 'user_source_integrations',
 }
 
 export type HasConnection<

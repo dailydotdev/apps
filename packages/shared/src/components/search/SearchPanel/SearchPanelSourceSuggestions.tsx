@@ -38,7 +38,12 @@ const PanelItem = ({ suggestion, ...rest }: PanelItemProps) => {
   });
 
   return (
-    <SearchPanelItem icon={<Icon />} {...itemProps} {...rest}>
+    <SearchPanelItem
+      icon={<Icon />}
+      {...itemProps}
+      {...rest}
+      className="px-2 py-1"
+    >
       <div className="flex w-full flex-col items-start">
         <span className="flex-shrink overflow-hidden overflow-ellipsis whitespace-nowrap font-bold text-text-primary typo-subhead">
           {suggestion.title}

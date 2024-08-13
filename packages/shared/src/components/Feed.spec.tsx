@@ -64,13 +64,13 @@ import OnboardingContext from '../contexts/OnboardingContext';
 import { LazyModalElement } from './modals/LazyModalElement';
 import { AuthTriggers } from '../lib/auth';
 import { SourceType } from '../graphql/sources';
-import { acquisitionKey } from './cards/AcquisitionFormCard';
 import { removeQueryParam } from '../lib/links';
 import { SharedFeedPage } from './utilities';
 import { AllFeedPages } from '../lib/query';
 import { UserVoteEntity } from '../hooks';
 import * as hooks from '../hooks/useViewSize';
 import { ActionType, COMPLETE_ACTION_MUTATION } from '../graphql/actions';
+import { acquisitionKey } from './cards/AcquisitionForm/common/common';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -974,7 +974,7 @@ describe('acquisition form card', () => {
   });
 
   it('should not show the card if the user dismissed it', async () => {
-    renderComponent([createFeedMock()], defaultUser);
+    const { unmount } = renderComponent([createFeedMock()], defaultUser);
     const close = await screen.findByLabelText('Close acquisition form');
     fireEvent.click(close);
 
@@ -984,8 +984,14 @@ describe('acquisition form card', () => {
       );
     });
 
-    const card = screen.queryByTestId('acquisitionFormCard');
-    expect(card).not.toBeInTheDocument();
+    // set mocked query to false
+    mockedQuery[acquisitionKey] = 'false';
+
+    // rerender
+    unmount();
+    renderComponent([createFeedMock()], defaultUser);
+
+    expect(screen.queryByTestId('acquisitionFormCard')).not.toBeInTheDocument();
   });
 
   it('should not show the card if the user has submitted already', async () => {

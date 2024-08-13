@@ -39,7 +39,7 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ReferralOriginKey } from '@dailydotdev/shared/src/lib/user';
 import { useJoinSquad } from '@dailydotdev/shared/src/hooks';
-import { labels } from '@dailydotdev/shared/src/lib';
+import { getPathnameWithQuery, labels } from '@dailydotdev/shared/src/lib';
 import { SimpleSquadJoinButton } from '@dailydotdev/shared/src/components/squads/SquadJoinButton';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
@@ -68,6 +68,25 @@ export interface SquadReferralProps {
   handle: string;
   initialData: SourceMember;
 }
+
+const getJoinRedirectUrl = ({
+  pathname,
+  query,
+}: {
+  pathname: string;
+  query: ParsedUrlQuery;
+}): string => {
+  const postId = query?.post as string;
+  const searchParams = new URLSearchParams(window.location.search);
+
+  if (postId) {
+    searchParams.delete('post');
+
+    return getPathnameWithQuery(`${webappUrl}/posts/${postId}`, searchParams);
+  }
+
+  return getPathnameWithQuery(pathname, searchParams);
+};
 
 const SquadReferral = ({
   token,
@@ -98,7 +117,10 @@ const SquadReferral = ({
           return router.replace(webappUrl);
         }
 
-        const squadsUrl = `/squads/${handle}`;
+        const squadsUrl = getJoinRedirectUrl({
+          pathname: `/squads/${handle}`,
+          query: router.query,
+        });
         const isValid = validateSourceHandle(handle, response.source);
 
         if (!isValid) {
@@ -147,7 +169,12 @@ const SquadReferral = ({
     }),
     {
       onSuccess: (data) => {
-        router.replace(data.permalink);
+        router.replace(
+          getJoinRedirectUrl({
+            pathname: data.permalink,
+            query: router.query,
+          }),
+        );
       },
       onError: (error: ApiErrorResult) => {
         const errorMessage = error?.response?.errors?.[0]?.message;

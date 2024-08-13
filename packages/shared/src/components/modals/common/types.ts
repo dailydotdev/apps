@@ -55,6 +55,7 @@ export enum LazyModal {
   PrivilegedMembers = 'privilegedMembers',
   FirefoxPrivacy = 'firefoxPrivacy',
   BookmarkReminder = 'bookmarkReminder',
+  SlackIntegration = 'slackIntegration',
 }
 
 export type ModalTabItem = {

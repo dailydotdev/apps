@@ -152,6 +152,13 @@ const StreakRecoverModal = dynamic(
     ),
 );
 
+const SlackIntegrationModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "slackIntegrationModal" */ './SlackIntegrationModal/SlackIntegrationModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -169,7 +176,6 @@ export const modals = {
   [LazyModal.GenericReferral]: GenericReferralModal,
   [LazyModal.Video]: VideoModal,
   [LazyModal.NewStreak]: NewStreakModal,
-  [LazyModal.RecoverStreak]: StreakRecoverModal,
   [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,
   [LazyModal.MarketingCta]: MarketingCtaModal,
   [LazyModal.UserSettings]: UserSettingsModal,
@@ -178,6 +184,8 @@ export const modals = {
   [LazyModal.PrivilegedMembers]: PrivilegedMemberModal,
   [LazyModal.FirefoxPrivacy]: FirefoxPrivacyModal,
   [LazyModal.BookmarkReminder]: BookmarkReminderModal,
+  [LazyModal.RecoverStreak]: StreakRecoverModal,
+  [LazyModal.SlackIntegration]: SlackIntegrationModal,
 };
 
 type GetComponentProps<T> = T extends

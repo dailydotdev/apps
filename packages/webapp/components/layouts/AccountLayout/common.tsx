@@ -3,6 +3,7 @@ import {
   LockIcon,
   BellIcon,
   InviteIcon,
+  AppIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import {
   ProfileImageSize,
@@ -42,6 +43,7 @@ export enum AccountPage {
   Profile = 'profile',
   Security = 'security',
   Notifications = 'notifications',
+  Integrations = 'integrations',
   InviteFriends = 'invite',
 }
 
@@ -114,6 +116,16 @@ export const accountPage: Record<AccountPage, AccountPageProps> = {
     href: '/notifications',
     getIcon: ({ isActive }) => (
       <BellIcon
+        secondary={isActive}
+        className={!isActive && 'text-text-secondary'}
+      />
+    ),
+  },
+  integrations: {
+    title: 'Integrations',
+    href: '/integrations',
+    getIcon: ({ isActive }) => (
+      <AppIcon
         secondary={isActive}
         className={!isActive && 'text-text-secondary'}
       />

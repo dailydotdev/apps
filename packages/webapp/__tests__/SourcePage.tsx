@@ -177,14 +177,38 @@ it('should show source image', async () => {
   expect(el).toBeInTheDocument();
 });
 
-it('should show notify button', async () => {
+it('should show follow button', async () => {
   renderComponent([
     createFeedMock(),
     createSourcesSettingsMock({ excludeSources: [] }),
   ]);
   await waitForNock();
-  const button = await screen.findByTestId('notifyButton');
+  const button = await screen.findByText('Follow');
   expect(button).toBeInTheDocument();
+});
+
+it('should show notify button if following', async () => {
+  renderComponent([
+    createFeedMock(),
+    createSourcesSettingsMock({
+      includeSources: [
+        {
+          id: 'react',
+          name: 'React',
+          image: 'https://reactjs.org',
+          handle: 'react',
+          permalink: 'permalink/react',
+          type: SourceType.Machine,
+          public: true,
+        },
+      ],
+    }),
+  ]);
+  await waitForNock();
+  const unfollowButton = await screen.findByText('Unfollow');
+  expect(unfollowButton).toBeInTheDocument();
+  const notifyButton = await screen.findByLabelText('Enable notifications');
+  expect(notifyButton).toBeInTheDocument();
 });
 
 it('should show block button', async () => {
