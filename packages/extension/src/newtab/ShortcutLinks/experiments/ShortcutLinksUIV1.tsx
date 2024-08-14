@@ -34,6 +34,7 @@ type ShortcutLinksV1Props = {
   shouldUseListFeedLayout: boolean;
   showTopSites: boolean;
   toggleShowTopSites: () => void;
+  hasCheckedPermission: boolean;
 };
 
 function ShortCutV1Placeholder({
@@ -121,12 +122,18 @@ export function ShortcutLinksUIV1(props: ShortcutLinksV1Props): ReactElement {
     shouldUseListFeedLayout,
     showTopSites,
     toggleShowTopSites,
+    hasCheckedPermission,
   } = props;
 
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const { githubShortcut } = useThemedAsset();
 
+  if (!hasCheckedPermission) {
+    return null;
+  }
+
   if (
+    !shortcutLinks?.length &&
     showTopSites &&
     isActionsFetched &&
     !checkHasCompleted(ActionType.FirstShortcutsSession)
