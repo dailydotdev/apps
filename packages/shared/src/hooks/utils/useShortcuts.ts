@@ -3,6 +3,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { feature } from '../../lib/featureManagement';
 import { ShortcutsUIExperiment } from '../../lib/featureValues';
 import { useConditionalFeature } from '../useConditionalFeature';
+import { isExtension } from '../../lib/func';
 
 interface UseShortcuts {
   isShortcutsV1: boolean;
@@ -17,7 +18,7 @@ export const useShortcuts = (): UseShortcuts => {
   const { isLoggedIn, user } = useAuthContext();
   const { value: shortcutsUIVersion } = useConditionalFeature({
     feature: feature.shortcutsUI,
-    shouldEvaluate: isLoggedIn,
+    shouldEvaluate: isLoggedIn && isExtension,
   });
 
   const isShortcutsV1 = useMemo(
