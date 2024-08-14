@@ -108,6 +108,23 @@ const StreakRecoveryCopy = ({
     </a>
   );
 
+  const isFreeText = (
+    <>
+      Lucky you! The first streak restore is on us 🎁. This usually costs 25{' '}
+      {reputationLink}. Be sure to come prepared next time!
+    </>
+  );
+  const canRecoverText = (
+    <>
+      Maintain your streak!
+      <br />
+      Use {cost} {reputationLink} to keep going.
+    </>
+  );
+  const noRecoverText = (
+    <>You don’t have enough {reputationLink} to restore your streaks.</>
+  );
+
   return (
     <Typography
       className="text-center"
@@ -115,22 +132,8 @@ const StreakRecoveryCopy = ({
       type={TypographyType.Body}
       data-testid="streak-recovery-copy"
     >
-      {isFree && (
-        <>
-          Lucky you! The first streak restore is on us 🎁. This usually costs 25{' '}
-          {reputationLink}. Be sure to come prepared next time!
-        </>
-      )}
-      {!isFree &&
-        (canRecover ? (
-          <>
-            Maintain your streak!
-            <br />
-            Use {cost} {reputationLink} to keep going.
-          </>
-        ) : (
-          <>You don’t have enough {reputationLink} to restore your streaks.</>
-        ))}
+      {isFree && isFreeText}
+      {!isFree && (canRecover ? canRecoverText : noRecoverText)}
     </Typography>
   );
 };
@@ -175,7 +178,7 @@ export const StreakRecoverModal = (
   }
 
   const { reputation } = user;
-  const canUserRecover = reputation >= recover.cost;
+  const canUserAffordTheCost = reputation >= recover.cost;
 
   return (
     <Modal
@@ -194,7 +197,7 @@ export const StreakRecoverModal = (
           <StreakRecoverCover />
           <StreakRecoverHeading days={recover.oldStreakLength} />
           <StreakRecoveryCopy reputation={reputation} cost={recover.cost} />
-          {canUserRecover && (
+          {canUserAffordTheCost && (
             <StreakRecoverButton onClick={onRecover} cost={recover.cost} />
           )}
           <div className="flex flex-row items-center justify-center">

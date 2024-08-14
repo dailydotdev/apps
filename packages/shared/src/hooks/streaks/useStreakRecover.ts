@@ -35,7 +35,7 @@ interface UseStreakRecoverReturn {
 export const useStreakRecover = ({
   onRequestClose,
 }: UseStreakRecoverProps): UseStreakRecoverReturn => {
-  const { completeAction, checkHasCompleted } = useActions();
+  const { isActionsFetched, completeAction, checkHasCompleted } = useActions();
   const [hideForever, toggleHideForever] = useToggle(false);
   const { displayToast } = useToastNotification();
 
@@ -71,6 +71,10 @@ export const useStreakRecover = ({
     onRequestClose?.();
   }, [onRequestClose, recoverMutation]);
 
+  const isDisabled =
+    !isActionsFetched ||
+    checkHasCompleted(ActionType.DisableReadingStreakRecover);
+
   return {
     hideForever: {
       isChecked: hideForever,
@@ -81,7 +85,7 @@ export const useStreakRecover = ({
     recover: {
       ...data?.recoverStreak,
       isLoading,
-      isDisabled: checkHasCompleted(ActionType.DisableReadingStreakRecover),
+      isDisabled,
     },
   };
 };
