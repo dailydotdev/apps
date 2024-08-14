@@ -25,6 +25,7 @@ import { Bubble } from '../../tooltips/utils';
 import { useLogContext } from '../../../contexts/LogContext';
 import { UserIntegrationType } from '../../../graphql/integrations';
 import { LogEvent } from '../../../lib/log';
+import { slackIntegration } from '../../../lib/constants';
 
 export type SlackIntegrationModalProps = Omit<ModalProps, 'children'> & {
   source: Pick<Source, 'id' | 'handle' | 'type' | 'image' | 'name'>;
@@ -220,6 +221,16 @@ const SlackIntegrationModal = ({
               />
             )}
           </div>
+          <Typography
+            className="mb-2 flex items-center"
+            type={TypographyType.Caption1}
+            color={TypographyColor.Tertiary}
+          >
+            Can&apos;t find your private channel?
+            <a className="ml-1 underline" href={slackIntegration}>
+              Read here
+            </a>
+          </Typography>
           <Button
             type="button"
             variant={ButtonVariant.Primary}
