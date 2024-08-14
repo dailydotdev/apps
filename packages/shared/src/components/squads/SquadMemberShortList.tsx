@@ -3,7 +3,11 @@ import React, { ReactElement } from 'react';
 import { SourceMember, Squad } from '../../graphql/sources';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import {
+  ProfileImageSize,
+  ProfilePicture,
+  roundClasses,
+} from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { largeNumberFormat } from '../../lib';
@@ -37,8 +41,9 @@ function SquadMemberShortList({
       <button
         type="button"
         className={classNames(
-          'flex flex-row-reverse items-center rounded-12 border border-border-subtlest-secondary pl-3 hover:bg-surface-hover active:bg-theme-active',
+          'flex flex-row-reverse items-center border border-border-subtlest-secondary pl-3 pr-1 hover:bg-surface-hover active:bg-theme-active',
           className,
+          roundClasses[size],
         )}
         onClick={openMemberListModal}
       >

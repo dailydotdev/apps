@@ -43,7 +43,7 @@ export const sizeClasses: Record<ProfileImageSize, string> = {
   xxxlarge: 'w-16 h-16',
   xxxxlarge: 'w-24 h-24',
 };
-const roundClasses: Record<ProfileImageSize | 'full', string> = {
+export const roundClasses: Record<ProfileImageSize | 'full', string> = {
   size16: 'rounded-4',
   xsmall: 'rounded-6',
   small: 'rounded-8',

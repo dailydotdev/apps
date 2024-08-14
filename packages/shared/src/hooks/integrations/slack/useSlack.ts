@@ -30,7 +30,7 @@ export type UseSlack = {
   isFeatureEnabled: boolean;
 };
 
-const scopes = ['channels:read', 'chat:write', 'channels:join'];
+const scopes = ['channels:read', 'chat:write', 'channels:join', 'groups:read'];
 
 export const useSlack = (): UseSlack => {
   const { user, isLoggedIn } = useAuthContext();

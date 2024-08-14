@@ -12,6 +12,7 @@ import {
   UserIcon,
   StarIcon,
   DevCardIcon,
+  ReadingStreakIcon,
 } from '../icons';
 import { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
@@ -63,6 +64,7 @@ export enum NotificationIconType {
   Star = 'Star',
   DevCard = 'DevCard',
   BookmarkReminder = 'BookmarkReminder',
+  ReadingStreak = 'ReadingStreak',
 }
 
 export const notificationIcon: Record<
@@ -80,6 +82,7 @@ export const notificationIcon: Record<
   [NotificationIconType.Star]: StarIcon,
   [NotificationIconType.DevCard]: DevCardIcon,
   [NotificationIconType.BookmarkReminder]: BookmarkReminderIcon,
+  [NotificationIconType.ReadingStreak]: ReadingStreakIcon,
 };
 
 export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
@@ -94,6 +97,7 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
   [NotificationIconType.User]: '',
   [NotificationIconType.DevCard]: '',
   [NotificationIconType.BookmarkReminder]: 'text-accent-bun-default',
+  [NotificationIconType.ReadingStreak]: '',
 };
 
 export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
