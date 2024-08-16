@@ -15,7 +15,7 @@ import {
   imageSizeLimitMB,
 } from '../../../../graphql/posts';
 import { formToJson } from '../../../../lib/form';
-import useDebounce from '../../../../hooks/useDebounce';
+import useDebounceFn from '../../../../hooks/useDebounceFn';
 import AlertPointer, { AlertPlacement } from '../../../alert/AlertPointer';
 import { useActions, useViewSize, ViewSize } from '../../../../hooks';
 import { ActionType } from '../../../../graphql/actions';
@@ -90,7 +90,7 @@ export function WriteFreeformContent({
     await updateDraft({ title, content, image: draft?.image });
   };
 
-  const [onFormUpdate] = useDebounce(onUpdate, 3000);
+  const [onFormUpdate] = useDebounceFn(onUpdate, 3000);
 
   return (
     <WritePageMain

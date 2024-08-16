@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { isNullOrUndefined } from '../lib/func';
-import useDebounce from './useDebounce';
+import useDebounceFn from './useDebounceFn';
 
 interface UseTimedAnimation {
   timer: number;
@@ -26,7 +26,7 @@ export const useTimedAnimation = ({
 }: UseTimedAnimationProps): UseTimedAnimation => {
   const [timer, setTimer] = useState(0);
   const interval = useRef<number>();
-  const [animationEnd] = useDebounce(onAnimationEnd, outAnimationDuration);
+  const [animationEnd] = useDebounceFn(onAnimationEnd, outAnimationDuration);
 
   const clearInterval = () => {
     if (!interval?.current) {
