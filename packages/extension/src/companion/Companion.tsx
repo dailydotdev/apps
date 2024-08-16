@@ -15,7 +15,7 @@ import { REQUEST_PROTOCOL_KEY } from '@dailydotdev/shared/src/graphql/common';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { AccessToken, PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
-import useDebounce from '@dailydotdev/shared/src/hooks/useDebounce';
+import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
 import { usePopupSelector } from '@dailydotdev/shared/src/hooks/usePopupSelector';
 import { useBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
 import {
@@ -108,7 +108,7 @@ export default function Companion({
     fetchMethod: companionFetch,
     isCompanion: true,
   }));
-  const [assetsLoadedDebounce] = useDebounce(() => setAssetsLoaded(true), 10);
+  const [assetsLoadedDebounce] = useDebounceFn(() => setAssetsLoaded(true), 10);
   const routeChangedCallbackRef = useLogPageView();
 
   useEffect(() => {
@@ -117,7 +117,7 @@ export default function Companion({
     }
   }, [routeChangedCallbackRef]);
 
-  const [checkAssets, clearCheckAssets] = useDebounce(() => {
+  const [checkAssets, clearCheckAssets] = useDebounceFn(() => {
     if (containerRef?.current?.offsetLeft === 0) {
       checkAssets();
     }

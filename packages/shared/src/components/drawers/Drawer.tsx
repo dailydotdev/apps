@@ -8,7 +8,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import useDebounce from '../../hooks/useDebounce';
+import useDebounceFn from '../../hooks/useDebounceFn';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
 import { ButtonVariant } from '../buttons/common';
@@ -86,7 +86,7 @@ function BaseDrawer({
 }: DrawerProps): ReactElement {
   const container = useRef<HTMLDivElement>();
   const [hasAnimated, setHasAnimated] = useState(false);
-  const [animate] = useDebounce(() => setHasAnimated(true), 1);
+  const [animate] = useDebounceFn(() => setHasAnimated(true), 1);
   const classes = className?.drawer ?? 'px-4 py-3';
   useOutsideClick(container, onClose, closeOnOutsideClick && hasAnimated);
   const isAnimating = !hasAnimated || isClosing;
@@ -176,7 +176,7 @@ function AnimatedDrawer(
   ref: MutableRefObject<DrawerRef>,
 ): ReactElement {
   const [isClosing, setIsClosing] = useState(false);
-  const [debounceClosing] = useDebounce((e: PopupEventType) => {
+  const [debounceClosing] = useDebounceFn((e: PopupEventType) => {
     setIsClosing(false);
     onClose?.(e);
   }, ANIMATION_MS);

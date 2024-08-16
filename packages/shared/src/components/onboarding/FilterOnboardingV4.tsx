@@ -15,7 +15,7 @@ import {
 } from '../../graphql/feedSettings';
 import { disabledRefetch, getRandomNumber } from '../../lib/func';
 import { SearchField } from '../fields/SearchField';
-import useDebounce from '../../hooks/useDebounce';
+import useDebounceFn from '../../hooks/useDebounceFn';
 import { useTagSearch } from '../../hooks';
 import type { FilterOnboardingProps } from './FilterOnboarding';
 import useTagAndSource from '../../hooks/useTagAndSource';
@@ -64,7 +64,7 @@ export function FilterOnboardingV4({
     shouldFilterLocally,
   });
 
-  const [refetchFeed] = useDebounce(() => {
+  const [refetchFeed] = useDebounceFn(() => {
     const feedQueryKey = [RequestKey.FeedPreview];
     const feedQueryKeyPredicate: QueryFilters['predicate'] = (query) => {
       return !query.queryKey.includes(RequestKey.FeedPreviewCustom);
@@ -111,7 +111,7 @@ export function FilterOnboardingV4({
   }, [onboardingTags]);
 
   const [searchQuery, setSearchQuery] = React.useState<string>();
-  const [onSearch] = useDebounce(setSearchQuery, 200);
+  const [onSearch] = useDebounceFn(setSearchQuery, 200);
 
   const { data: searchResult, isLoading: isSearchLoading } = useTagSearch({
     value: searchQuery,
