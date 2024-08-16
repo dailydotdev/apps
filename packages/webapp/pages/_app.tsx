@@ -129,6 +129,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         <meta name="apple-mobile-web-app-title" content="daily.dev" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="slack-app-id" content="A07AM7XC529" />
 
         <link
           rel="apple-touch-icon"
