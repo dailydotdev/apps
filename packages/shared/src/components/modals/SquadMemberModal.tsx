@@ -18,7 +18,7 @@ import { FlexCentered } from '../utilities';
 import { useSquadActions } from '../../hooks';
 import SquadMemberItemAdditionalContent from '../squads/SquadMemberItemAdditionalContent';
 import { verifyPermission } from '../../graphql/squads';
-import useDebounce from '../../hooks/useDebounce';
+import useDebounceFn from '../../hooks/useDebounceFn';
 import { defaultSearchDebounceMs } from '../../lib/func';
 import { BlockedMembersPlaceholder } from '../squads/Members';
 import { ContextMenu } from '../../hooks/constants';
@@ -74,7 +74,7 @@ export function SquadMemberModal({
     id: ContextMenu.SquadMemberContext,
   });
   const [query, setQuery] = useState('');
-  const [handleSearchDebounce] = useDebounce(
+  const [handleSearchDebounce] = useDebounceFn(
     (value: string) => setQuery(value),
     defaultSearchDebounceMs,
   );

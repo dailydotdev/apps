@@ -1,5 +1,5 @@
 import { SyntheticEvent, useEffect, useState } from 'react';
-import useDebounce from './useDebounce';
+import useDebounceFn from './useDebounceFn';
 import {
   UseInputField,
   useInputField,
@@ -39,7 +39,7 @@ function useInputFieldFunctions<
   } = useInputField<T>(value, valueChanged);
   const [inputLength, setInputLength] = useState<number>(undefined);
   const [validInput, setValidInput] = useState<boolean>(undefined);
-  const [idleTimeout, clearIdleTimeout] = useDebounce(() => {
+  const [idleTimeout, clearIdleTimeout] = useDebounceFn(() => {
     setValidInput(inputRef.current.checkValidity());
   }, 1500);
 

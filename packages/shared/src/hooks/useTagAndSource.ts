@@ -7,7 +7,7 @@ import { Source } from '../graphql/sources';
 import AlertContext from '../contexts/AlertContext';
 import { BooleanPromise } from '../components/filters/common';
 import { generateQueryKey } from '../lib/query';
-import useDebounce from './useDebounce';
+import useDebounceFn from './useDebounceFn';
 import { SharedFeedPage } from '../components/utilities';
 import { LogEvent, Origin } from '../lib/log';
 import { AuthTriggersType } from '../lib/auth';
@@ -71,7 +71,7 @@ export default function useTagAndSource({
     unfollowSource,
   } = useMutateFilters(user, feedId, shouldFilterLocally);
 
-  const [invalidateQueries] = useDebounce(() => {
+  const [invalidateQueries] = useDebounceFn(() => {
     if (!shouldInvalidateQueries) {
       return;
     }

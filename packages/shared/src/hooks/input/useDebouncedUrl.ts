@@ -1,4 +1,4 @@
-import useDebounce, { CancelEvent, StartFn } from '../useDebounce';
+import useDebounceFn, { CancelEvent, StartFn } from '../useDebounceFn';
 import { isValidHttpUrl } from '../../lib/links';
 
 export const useDebouncedUrl = (
@@ -6,7 +6,7 @@ export const useDebouncedUrl = (
   onValidate: StartFn<string, boolean>,
   delay = 1000,
 ): [StartFn<string>, CancelEvent] =>
-  useDebounce((value: string) => {
+  useDebounceFn((value: string) => {
     if (!isValidHttpUrl(value) || !onValidate(value)) {
       return null;
     }

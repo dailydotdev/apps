@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { MutableRefObject, useMemo, useRef } from 'react';
 import { apiUrl } from '../../lib/config';
-import useDebounce from '../useDebounce';
+import useDebounceFn from '../useDebounceFn';
 import { ExtensionMessageType } from '../../lib/extension';
 
 export interface LogEvent extends Record<string, unknown> {
@@ -49,7 +49,7 @@ export default function useLogQueue({
   );
 
   const queueRef = useRef<LogEvent[]>([]);
-  const [debouncedSendEvents] = useDebounce(() => {
+  const [debouncedSendEvents] = useDebounceFn(() => {
     if (enabledRef.current && queueRef.current.length) {
       const queue = queueRef.current;
       queueRef.current = [];

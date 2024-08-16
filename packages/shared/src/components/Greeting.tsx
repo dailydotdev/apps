@@ -4,7 +4,7 @@ import { get as getCache, set as setCache } from 'idb-keyval';
 import { isSameDay } from 'date-fns';
 import { LoggedUser } from '../lib/user';
 import { laptopL } from '../styles/media';
-import useDebounce from '../hooks/useDebounce';
+import useDebounceFn from '../hooks/useDebounceFn';
 
 type GreetingData = { text: string; emoji: string };
 
@@ -47,12 +47,12 @@ export default function Greeting({
   onExit: () => unknown;
 }): ReactElement {
   const [show, setShow] = useState(false);
-  const [removeShow] = useDebounce(() => setShow(false), 7000);
-  const [addShow] = useDebounce(() => {
+  const [removeShow] = useDebounceFn(() => setShow(false), 7000);
+  const [addShow] = useDebounceFn(() => {
     setShow(true);
     removeShow();
   }, 500);
-  const [showGreetingAnimation] = useDebounce(() => {
+  const [showGreetingAnimation] = useDebounceFn(() => {
     onEnter();
     addShow();
   }, 1500);
