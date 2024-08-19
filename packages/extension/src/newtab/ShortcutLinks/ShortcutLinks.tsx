@@ -208,6 +208,7 @@ export default function ShortcutLinks({
             shouldUseListFeedLayout,
             showTopSites,
             toggleShowTopSites,
+            hasCheckedPermission,
           }}
         />
       ) : (
