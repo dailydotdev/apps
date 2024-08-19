@@ -26,7 +26,7 @@ export function PostContentReminder({
     <PostContentWidget
       className={classNames('mt-6 w-full', className)}
       icon={<BookmarkReminderIcon size={IconSize.Small} secondary />}
-      title="Remind about this post later?"
+      title="Don’t have time now? Set a reminder"
     >
       <PostReminderOptions post={post} className="laptop:ml-auto" />
     </PostContentWidget>
