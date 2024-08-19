@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useMemo, useState } from 'react';
-import useDebounce from './useDebounce';
+import useDebounceFn from './useDebounceFn';
 
 type CallbackFn<T> = (params?: T) => void;
 export interface UseTimerReturnProps {
@@ -13,7 +13,7 @@ export default function useTimer<T = unknown>(
   initialTimer: number,
 ): UseTimerReturnProps {
   const [timer, setTimer] = useState(initialTimer);
-  const [runTimer, clearTimer] = useDebounce(() => {
+  const [runTimer, clearTimer] = useDebounceFn(() => {
     if (timer > 0) {
       setTimer((_timer) => _timer - 1);
       runTimer();

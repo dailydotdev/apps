@@ -11,7 +11,7 @@ export const oneMinute = 60;
 export const oneHour = 3600;
 export const oneDay = 86400;
 const oneWeek = 7 * oneDay;
-const oneMonth = 28 * oneDay;
+const oneMonth = 30 * oneDay;
 export const oneYear = oneDay * 365;
 
 const publishTimeRelative = (
