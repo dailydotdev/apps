@@ -46,7 +46,7 @@ export const useCardCover = ({
     if (shouldShowReminder) {
       return (
         <CardCoverContainer
-          title="Remind about this post later?"
+          title="Don’t have time now? Set a reminder"
           className={className?.bookmark?.container}
         >
           <PostReminderOptions
