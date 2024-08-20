@@ -1,14 +1,14 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import SquadMemberShortList from '../squads/SquadMemberShortList';
-import { Card } from '../cards/Card';
-import { SourceType } from '../../graphql/sources';
-import { Image } from '../image/Image';
-import { cloudinary } from '../../lib/image';
+import SquadMemberShortList from '../SquadMemberShortList';
+import { Card } from '../../cards/Card';
+import { SourceType } from '../../../graphql/sources';
+import { Image } from '../../image/Image';
+import { cloudinary } from '../../../lib/image';
 import { UnFeaturedSourceCardProps } from './common/types';
-import { SourceImage } from './common/SourceImage';
-import { SourceJoinButton } from './common/SourceJoinButton';
-import { ButtonVariant } from '../buttons/common';
+import { SquadImage } from './common/SquadImage';
+import { SquadJoinButton } from './common/SquadJoinButton';
+import { ButtonVariant } from '../../buttons/common';
 
 interface SourceCardProps extends UnFeaturedSourceCardProps {
   borderColor?: SourceCardBorderColor;
@@ -46,7 +46,7 @@ const borderColorToClassName: Record<SourceCardBorderColor, string> = {
   [SourceCardBorderColor.Pepper]: '!border-accent-pepper-default',
 };
 
-export const SourceCard = ({
+export const SourceGrid = ({
   source,
   title,
   subtitle,
@@ -77,7 +77,7 @@ export const SourceCard = ({
       <div className="-mt-12 flex flex-1 flex-col rounded-t-16 bg-background-subtle p-4">
         <div className="mb-3 flex items-end justify-between">
           <a href={source?.permalink}>
-            <SourceImage
+            <SquadImage
               image={source?.image}
               icon={icon}
               title={title}
@@ -113,7 +113,7 @@ export const SourceCard = ({
               ))}
           </div>
 
-          <SourceJoinButton
+          <SquadJoinButton
             action={action}
             source={source}
             variant={ButtonVariant.Secondary}

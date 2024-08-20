@@ -10,28 +10,28 @@ import React from 'react';
 import nock from 'nock';
 import { NextRouter, useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
-import { AuthContextProvider } from '../../contexts/AuthContext';
-import loggedUser from '../../../__tests__/fixture/loggedUser';
+import { AuthContextProvider } from '../../../contexts/AuthContext';
+import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import {
   generateMembersList,
   generateMembersResult,
   generateTestAdmin,
   generateTestSquad,
-} from '../../../__tests__/fixture/squads';
-import { SourceCard, SourceCardBorderColor } from './SourceCard';
-import { LazyModalElement } from '../modals/LazyModalElement';
+} from '../../../../__tests__/fixture/squads';
+import { SourceGrid, SourceCardBorderColor } from './SourceGrid';
+import { LazyModalElement } from '../../modals/LazyModalElement';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
-} from '../../../__tests__/helpers/graphql';
+} from '../../../../__tests__/helpers/graphql';
 import {
   SQUAD_JOIN_MUTATION,
   SQUAD_MEMBERS_QUERY,
   SquadEdgesData,
-} from '../../graphql/squads';
-import { waitForNock } from '../../../__tests__/helpers/utilities';
-import { cloudinary } from '../../lib/image';
-import { ActionType, COMPLETE_ACTION_MUTATION } from '../../graphql/actions';
+} from '../../../graphql/squads';
+import { waitForNock } from '../../../../__tests__/helpers/utilities';
+import { cloudinary } from '../../../lib/image';
+import { ActionType, COMPLETE_ACTION_MUTATION } from '../../../graphql/actions';
 
 const onClickTest = jest.fn();
 const routerReplace = jest.fn();
@@ -86,7 +86,7 @@ const renderComponent = (
         squads={squads}
       >
         <LazyModalElement />
-        <SourceCard
+        <SourceGrid
           title="title"
           subtitle="subtitle"
           icon={<div>icon</div>}

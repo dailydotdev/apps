@@ -11,7 +11,7 @@ import { ClientError } from 'graphql-request';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   FeedContainer,
-  SourceCard,
+  SquadGrid,
   SourceCardBorderColor,
   SquadsDirectoryHeader,
   YourSquadItem,
@@ -42,7 +42,7 @@ import {
 } from '@dailydotdev/shared/src/hooks';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
-import { UnfeaturedSourceCard } from '@dailydotdev/shared/src/components/sources/UnfeaturedSourceCard';
+import { UnfeaturedSquadGrid } from '@dailydotdev/shared/src/components/squads/cards/directory/UnfeaturedSquadGrid';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import FeedLayout, { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -156,7 +156,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
                           const isMember = user && props?.currentMember;
 
                           nodes.push(
-                            <SourceCard
+                            <SquadGrid
                               title={name}
                               subtitle={`@${props.handle}`}
                               action={{
@@ -176,7 +176,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
                           );
 
                           nodes.push(
-                            <UnfeaturedSourceCard
+                            <UnfeaturedSquadGrid
                               title={name}
                               subtitle={`@${props.handle}`}
                               action={{
@@ -199,7 +199,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
                         [],
                       ),
                     )}
-                    <SourceCard
+                    <SquadGrid
                       title="Which squads would you like to see next?"
                       action={{
                         type: 'link',

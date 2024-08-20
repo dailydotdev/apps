@@ -11,7 +11,7 @@ interface SourceImageProps {
   className?: string;
 }
 
-export const SourceImage = ({
+export const SquadImage = ({
   image,
   title,
   icon,

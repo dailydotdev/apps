@@ -1,9 +1,9 @@
 import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
-import { SourceType, Squad } from '../../../graphql/sources';
-import { SquadJoinButton } from '../../squads/SquadJoinButton';
-import { Origin } from '../../../lib/log';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import { SourceType, Squad } from '../../../../graphql/sources';
+import { SquadJoinButton } from '../../SquadJoinButton';
+import { Origin } from '../../../../lib/log';
+import { Button, ButtonVariant } from '../../../buttons/Button';
 import { SourceCardAction } from './types';
 
 interface SourceJoinButtonProps {
@@ -15,7 +15,7 @@ interface SourceJoinButtonProps {
     squadJoinButton?: string;
   };
 }
-export const SourceJoinButton = ({
+export const SquadJoinButton = ({
   action,
   source,
   variant,

@@ -1,21 +1,21 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import { Card, CardLink } from '../cards/Card';
-import { ButtonVariant } from '../buttons/Button';
+import { Card, CardLink } from '../../cards/Card';
+import { ButtonVariant } from '../../buttons/Button';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
-} from '../typography/Typography';
-import { largeNumberFormat } from '../../lib';
-import { Separator } from '../cards/common';
+} from '../../typography/Typography';
+import { largeNumberFormat } from '../../../lib';
+import { Separator } from '../../cards/common';
 import { UnFeaturedSourceCardProps } from './common/types';
-import { SourceImage } from './common/SourceImage';
-import { SourceJoinButton } from './common/SourceJoinButton';
+import { SquadImage } from './common/SquadImage';
+import { SquadJoinButton } from './common/SquadJoinButton';
 
-export const UnfeaturedSourceCard = ({
+export const UnfeaturedSourceGrid = ({
   source,
   title,
   subtitle,
@@ -33,13 +33,13 @@ export const UnfeaturedSourceCard = ({
         title={source.description}
       />
       <div className="mb-3 flex items-center justify-between">
-        <SourceImage
+        <SquadImage
           image={source?.image}
           icon={icon}
           title={title}
           size="size-16"
         />
-        <SourceJoinButton
+        <SquadJoinButton
           action={action}
           source={source}
           variant={ButtonVariant.Float}
