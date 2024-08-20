@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Squad } from '../../../../graphql/sources';
+import { Squad } from '../../../../../graphql/sources';
 
 type SquadCardActionType = 'link' | 'action';
 export interface SquadCardAction {

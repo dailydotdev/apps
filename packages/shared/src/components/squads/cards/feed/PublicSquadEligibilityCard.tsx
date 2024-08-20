@@ -5,16 +5,16 @@ import {
   useFeedLayout,
   useSquad,
   usePublicSquadRequests,
-} from '../../hooks';
-import { Button } from '../buttons/Button';
-import { ButtonSize, ButtonVariant } from '../buttons/common';
-import { Card } from '../cards/Card';
-import { ListCard } from '../cards/list/ListCard';
-import { EarthIcon, MiniCloseIcon } from '../icons';
-import { ActionType } from '../../graphql/actions';
-import { PlaceholderCard } from '../cards/PlaceholderCard';
-import PublicSquadSubmissionActions from './PublicSquadSubmissionActions';
-import { SquadPublicProgressBars } from './SquadPublicProgressBars';
+} from '../../../../hooks';
+import { Button } from '../../../buttons/Button';
+import { ButtonSize, ButtonVariant } from '../../../buttons/common';
+import { Card } from '../../../cards/Card';
+import { ListCard } from '../../../cards/list/ListCard';
+import { EarthIcon, MiniCloseIcon } from '../../../icons';
+import { ActionType } from '../../../../graphql/actions';
+import { PlaceholderCard } from '../../../cards/PlaceholderCard';
+import PublicSquadSubmissionActions from '../../PublicSquadSubmissionActions';
+import { SquadPublicProgressBars } from '../../SquadPublicProgressBars';
 
 export function PublicSquadEligibilityCard(): ReactElement {
   const router = useRouter();

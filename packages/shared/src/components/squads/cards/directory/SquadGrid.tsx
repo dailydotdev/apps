@@ -1,16 +1,16 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import SquadMemberShortList from '../SquadMemberShortList';
-import { Card } from '../../cards/Card';
-import { SourceType } from '../../../graphql/sources';
-import { Image } from '../../image/Image';
-import { cloudinary } from '../../../lib/image';
-import { UnFeaturedSourceCardProps } from './common/types';
+import SquadMemberShortList from '../../SquadMemberShortList';
+import { Card } from '../../../cards/Card';
+import { SourceType } from '../../../../graphql/sources';
+import { Image } from '../../../image/Image';
+import { cloudinary } from '../../../../lib/image';
+import { UnFeaturedSquadCardProps } from './common/types';
 import { SquadImage } from './common/SquadImage';
-import { SquadJoinButton } from './common/SquadJoinButton';
-import { ButtonVariant } from '../../buttons/common';
+import { SquadJoinButtonWrapper } from './common/SquadJoinButton';
+import { ButtonVariant } from '../../../buttons/common';
 
-interface SourceCardProps extends UnFeaturedSourceCardProps {
+interface SourceCardProps extends UnFeaturedSquadCardProps {
   borderColor?: SourceCardBorderColor;
   banner?: string;
 }
@@ -46,7 +46,7 @@ const borderColorToClassName: Record<SourceCardBorderColor, string> = {
   [SourceCardBorderColor.Pepper]: '!border-accent-pepper-default',
 };
 
-export const SourceGrid = ({
+export const SquadGrid = ({
   source,
   title,
   subtitle,
@@ -113,7 +113,7 @@ export const SourceGrid = ({
               ))}
           </div>
 
-          <SquadJoinButton
+          <SquadJoinButtonWrapper
             action={action}
             source={source}
             variant={ButtonVariant.Secondary}

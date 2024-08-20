@@ -1,30 +1,27 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { useRouter } from 'next/router';
-import { Card, CardLink } from '../../cards/Card';
-import { ButtonVariant } from '../../buttons/Button';
+import { Card, CardLink } from '../../../cards/Card';
+import { ButtonVariant } from '../../../buttons/Button';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
-} from '../../typography/Typography';
-import { largeNumberFormat } from '../../../lib';
-import { Separator } from '../../cards/common';
-import { UnFeaturedSourceCardProps } from './common/types';
+} from '../../../typography/Typography';
+import { largeNumberFormat } from '../../../../lib';
+import { Separator } from '../../../cards/common';
 import { SquadImage } from './common/SquadImage';
-import { SquadJoinButton } from './common/SquadJoinButton';
+import { SquadJoinButtonWrapper } from './common/SquadJoinButton';
+import { UnFeaturedSquadCardProps } from './common/types';
 
-export const UnfeaturedSourceGrid = ({
+export const UnfeaturedSquadGrid = ({
   source,
   title,
   subtitle,
   icon,
   action,
   description,
-}: UnFeaturedSourceCardProps): ReactElement => {
-  const router = useRouter();
-
+}: UnFeaturedSquadCardProps): ReactElement => {
   return (
     <Card className={classNames('overflow-hidden border-0 p-4')}>
       <CardLink
@@ -39,7 +36,7 @@ export const UnfeaturedSourceGrid = ({
           title={title}
           size="size-16"
         />
-        <SquadJoinButton
+        <SquadJoinButtonWrapper
           action={action}
           source={source}
           variant={ButtonVariant.Float}

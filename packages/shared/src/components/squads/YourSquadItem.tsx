@@ -33,7 +33,6 @@ function Component(
         alt={`avatar of ${squad.handle}`}
         className="size-14 rounded-full"
       />
-      aaa
       <div className="flex flex-col typo-callout">
         <span className="font-bold">{squad.name}</span>
         <span className="text-text-tertiary">@{squad.handle}</span>

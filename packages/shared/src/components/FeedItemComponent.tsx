@@ -19,7 +19,7 @@ import { CollectionList } from './cards/list/CollectionList';
 import { MarketingCtaCard } from './marketingCta';
 import { MarketingCtaList } from './marketingCta/MarketingCtaList';
 import { FeedItemType } from './cards/common';
-import { PublicSquadEligibilityCard } from './squads/PublicSquadEligibilityCard';
+import { PublicSquadEligibilityCard } from './squads/cards/feed/PublicSquadEligibilityCard';
 import { AdGrid } from './cards/ad/AdGrid';
 import { AdList } from './cards/ad/AdList';
 import { AcquisitionFormGrid } from './cards/AcquisitionForm/AcquisitionFormGrid';

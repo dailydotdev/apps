@@ -1,13 +1,13 @@
 import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
-import { SourceType, Squad } from '../../../../graphql/sources';
-import { SquadJoinButton } from '../../SquadJoinButton';
-import { Origin } from '../../../../lib/log';
-import { Button, ButtonVariant } from '../../../buttons/Button';
-import { SourceCardAction } from './types';
+import { SourceType, Squad } from '../../../../../graphql/sources';
+import { SquadJoinButton } from '../../../SquadJoinButton';
+import { Origin } from '../../../../../lib/log';
+import { Button, ButtonVariant } from '../../../../buttons/Button';
+import { SquadCardAction } from './types';
 
 interface SourceJoinButtonProps {
-  action?: SourceCardAction;
+  action?: SquadCardAction;
   source?: Squad;
   variant: ButtonVariant.Float | ButtonVariant.Secondary;
   className?: {
@@ -15,7 +15,7 @@ interface SourceJoinButtonProps {
     squadJoinButton?: string;
   };
 }
-export const SquadJoinButton = ({
+export const SquadJoinButtonWrapper = ({
   action,
   source,
   variant,
