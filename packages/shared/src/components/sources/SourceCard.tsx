@@ -1,16 +1,14 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { useRouter } from 'next/router';
 import SquadMemberShortList from '../squads/SquadMemberShortList';
 import { Card } from '../cards/Card';
 import { SourceType } from '../../graphql/sources';
 import { Image } from '../image/Image';
-import { SquadJoinButton } from '../squads/SquadJoinButton';
-import { Origin } from '../../lib/log';
 import { cloudinary } from '../../lib/image';
-import { Button, ButtonVariant } from '../buttons/Button';
-import { UnFeaturedSourceCardProps } from './commonTypes';
-import { SourceImage } from './SourceImage';
+import { UnFeaturedSourceCardProps } from './common/types';
+import { SourceImage } from './common/SourceImage';
+import { SourceJoinButton } from './common/SourceJoinButton';
+import { ButtonVariant } from '../buttons/common';
 
 interface SourceCardProps extends UnFeaturedSourceCardProps {
   borderColor?: SourceCardBorderColor;
@@ -58,8 +56,6 @@ export const SourceCard = ({
   borderColor = SourceCardBorderColor.Avocado,
   banner,
 }: SourceCardProps): ReactElement => {
-  const router = useRouter();
-
   return (
     <Card
       className={classNames(
@@ -117,31 +113,15 @@ export const SourceCard = ({
               ))}
           </div>
 
-          {!!action &&
-          action?.type === 'action' &&
-          source?.type === SourceType.Squad ? (
-            <SquadJoinButton
-              className={{ button: '!btn-secondary w-full' }}
-              squad={source}
-              origin={Origin.SquadDirectory}
-              onSuccess={() => router.push(source?.permalink)}
-              joinText={action?.text}
-              data-testid="squad-action"
-            />
-          ) : (
-            <Button
-              variant={ButtonVariant.Secondary}
-              className="w-full"
-              onClick={action?.type === 'action' ? action?.onClick : undefined}
-              tag={action?.type === 'link' ? 'a' : undefined}
-              href={action?.type === 'link' && action.href}
-              target={action?.target ? action.target : '_self'}
-              rel="noopener"
-              data-testid="source-action"
-            >
-              {action?.text}
-            </Button>
-          )}
+          <SourceJoinButton
+            action={action}
+            source={source}
+            variant={ButtonVariant.Secondary}
+            className={{
+              squadJoinButton: '!btn-secondary w-full',
+              simpleButton: 'w-full',
+            }}
+          />
         </div>
       </div>
     </Card>
