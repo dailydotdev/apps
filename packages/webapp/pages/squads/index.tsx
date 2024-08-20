@@ -42,6 +42,7 @@ import {
 } from '@dailydotdev/shared/src/hooks';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
+import { UnfeaturedSourceCard } from '@dailydotdev/shared/src/components/sources/UnfeaturedSourceCard';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import FeedLayout, { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -156,6 +157,26 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
 
                           nodes.push(
                             <SourceCard
+                              title={name}
+                              subtitle={`@${props.handle}`}
+                              action={{
+                                text: isMember ? 'View Squad' : 'Join Squad',
+                                type: isMember ? 'link' : 'action',
+                                href: isMember ? permalink : undefined,
+                              }}
+                              source={{
+                                name,
+                                permalink,
+                                id,
+                                borderColor: props.color,
+                                banner: props.headerImage,
+                                ...props,
+                              }}
+                            />,
+                          );
+
+                          nodes.push(
+                            <UnfeaturedSourceCard
                               title={name}
                               subtitle={`@${props.handle}`}
                               action={{
