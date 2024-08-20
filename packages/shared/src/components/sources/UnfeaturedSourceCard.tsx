@@ -1,8 +1,8 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import { Card } from '../cards/Card';
-import { SourceType, Squad } from '../../graphql/sources';
+import { Card, CardLink } from '../cards/Card';
+import { SourceType } from '../../graphql/sources';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { SquadJoinButton } from '../squads/SquadJoinButton';
 import { Origin } from '../../lib/log';
@@ -13,25 +13,10 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { largeNumberFormat } from '../../lib';
+import { Separator } from '../cards/common';
+import { UnFeaturedSourceCardProps } from './commonTypes';
+import { SourceImage } from './SourceImage';
 
-type SourceCardActionType = 'link' | 'action';
-
-interface SourceCardAction {
-  type: SourceCardActionType;
-  text: string;
-  href?: string;
-  target?: string;
-  onClick?: () => void;
-}
-
-interface SourceCardProps {
-  title: string;
-  subtitle?: string;
-  icon?: ReactNode;
-  action?: SourceCardAction;
-  description?: string;
-  source?: Squad;
-}
 export const UnfeaturedSourceCard = ({
   source,
   title,
@@ -39,24 +24,23 @@ export const UnfeaturedSourceCard = ({
   icon,
   action,
   description,
-}: SourceCardProps): ReactElement => {
+}: UnFeaturedSourceCardProps): ReactElement => {
   const router = useRouter();
 
   return (
     <Card className={classNames('overflow-hidden border-0 p-4')}>
-      {/* <CardOverlay post={post} onPostCardClick={() => source?.permalink} /> */}
-      <div className="mb-3 flex items-end justify-between">
-        {source?.image ? (
-          <img
-            className="h-16 w-16 rounded-full"
-            src={source?.image}
-            alt={`${title} source`}
-          />
-        ) : (
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent-pepper-subtle">
-            {icon}
-          </div>
-        )}
+      <CardLink
+        href={source.permalink}
+        rel="noopener"
+        title={source.description}
+      />
+      <div className="mb-3 flex items-center justify-between">
+        <SourceImage
+          image={source?.image}
+          icon={icon}
+          title={title}
+          size="size-16"
+        />
         {!!action &&
         action?.type === 'action' &&
         source?.type === SourceType.Squad ? (
@@ -81,35 +65,33 @@ export const UnfeaturedSourceCard = ({
             {action?.text}
           </Button>
         )}
-        {/* {source?.membersCount > 0 && ( */}
-        {/*  <SquadMemberShortList */}
-        {/*    squad={{ */}
-        {/*      ...source, */}
-        {/*      type: SourceType.Squad, */}
-        {/*    }} */}
-        {/*    members={source?.members?.edges?.reduce((acc, current) => { */}
-        {/*      acc.push(current.node); */}
-        {/*      return acc; */}
-        {/*    }, [])} */}
-        {/*  /> */}
-        {/* )} */}
       </div>
-      <Typography tag={TypographyTag.H1} type={TypographyType.Body} bold>
+      <Typography
+        tag={TypographyTag.H1}
+        type={TypographyType.Body}
+        bold
+        truncate
+      >
         {title}
       </Typography>
       <Typography
         tag={TypographyTag.P}
         type={TypographyType.Callout}
         color={TypographyColor.Tertiary}
-        className="multi-truncate line-clamp-5"
+        className="multi-truncate line-clamp-2"
       >
-        {source?.description || description} hhhghjggjh
+        {source?.description || description}
       </Typography>
 
       {subtitle && (
-        <div className="mt-2">
-          {subtitle} {largeNumberFormat(source.membersCount)}
-        </div>
+        <Typography
+          color={TypographyColor.Tertiary}
+          type={TypographyType.Footnote}
+          className="mt-2"
+        >
+          {subtitle} <Separator />
+          <strong>{largeNumberFormat(source.membersCount)}</strong>
+        </Typography>
       )}
     </Card>
   );

@@ -15,7 +15,6 @@ import { generateQueryKey, RequestKey } from '../../lib/query';
 import { AuthTriggers } from '../../lib/auth';
 
 interface ClassName {
-  wrapper?: string;
   button?: string;
 }
 
@@ -162,21 +161,19 @@ export const SquadJoinButton = ({
       disabled={!isMemberBlocked}
       content={blockedTooltipText}
     >
-      <div className={className?.wrapper}>
-        <SimpleSquadJoinButton
-          {...rest}
-          variant={
-            isCurrentMember ? ButtonVariant.Secondary : ButtonVariant.Primary
-          }
-          className={className?.button}
-          squad={squad}
-          disabled={isMemberBlocked || isLoading}
-          onClick={onLeaveSquad}
-          origin={origin}
-        >
-          {isCurrentMember ? leaveText : joinText}
-        </SimpleSquadJoinButton>
-      </div>
+      <SimpleSquadJoinButton
+        {...rest}
+        variant={
+          isCurrentMember ? ButtonVariant.Secondary : ButtonVariant.Primary
+        }
+        className={className?.button}
+        squad={squad}
+        disabled={isMemberBlocked || isLoading}
+        onClick={onLeaveSquad}
+        origin={origin}
+      >
+        {isCurrentMember ? leaveText : joinText}
+      </SimpleSquadJoinButton>
     </SimpleTooltip>
   );
 };

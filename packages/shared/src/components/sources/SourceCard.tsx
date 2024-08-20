@@ -1,36 +1,21 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import SquadMemberShortList from '../squads/SquadMemberShortList';
 import { Card } from '../cards/Card';
-import { SourceType, Squad } from '../../graphql/sources';
+import { SourceType } from '../../graphql/sources';
 import { Image } from '../image/Image';
 import { SquadJoinButton } from '../squads/SquadJoinButton';
 import { Origin } from '../../lib/log';
 import { cloudinary } from '../../lib/image';
 import { Button, ButtonVariant } from '../buttons/Button';
+import { UnFeaturedSourceCardProps } from './commonTypes';
+import { SourceImage } from './SourceImage';
 
-type SourceCardActionType = 'link' | 'action';
-
-interface SourceCardAction {
-  type: SourceCardActionType;
-  text: string;
-  href?: string;
-  target?: string;
-  onClick?: () => void;
-}
-
-interface SourceCardProps {
-  title: string;
-  subtitle?: string;
-  icon?: ReactNode;
-  action?: SourceCardAction;
-  description?: string;
+interface SourceCardProps extends UnFeaturedSourceCardProps {
   borderColor?: SourceCardBorderColor;
   banner?: string;
-  source?: Squad;
 }
-
 export enum SourceCardBorderColor {
   Avocado = 'avocado',
   Burger = 'burger',
@@ -96,17 +81,12 @@ export const SourceCard = ({
       <div className="-mt-12 flex flex-1 flex-col rounded-t-16 bg-background-subtle p-4">
         <div className="mb-3 flex items-end justify-between">
           <a href={source?.permalink}>
-            {source?.image ? (
-              <img
-                className="-mt-14 h-24 w-24 rounded-full"
-                src={source?.image}
-                alt={`${title} source`}
-              />
-            ) : (
-              <div className="-mt-14 flex h-24 w-24 items-center justify-center rounded-full bg-accent-pepper-subtle">
-                {icon}
-              </div>
-            )}
+            <SourceImage
+              image={source?.image}
+              icon={icon}
+              title={title}
+              className="-mt-14"
+            />
           </a>
           {source?.membersCount > 0 && (
             <SquadMemberShortList
