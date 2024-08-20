@@ -31,6 +31,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import AuthContainer from './AuthContainer';
 import { onValidateHandles } from '../../hooks/useProfileForm';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
+import { LanguageDropdown } from '../profile/LanguageDropdown';
 
 export interface RegistrationFormProps extends AuthFormProps {
   email: string;
@@ -100,7 +101,8 @@ export const RegistrationForm = ({
     if (
       !values['traits.name']?.length ||
       !values['traits.username']?.length ||
-      !values['traits.experienceLevel']?.length
+      !values['traits.experienceLevel']?.length ||
+      !values['traits.language']?.length
     ) {
       const setHints = { ...hints };
 
@@ -112,6 +114,9 @@ export const RegistrationForm = ({
       }
       if (!values['traits.experienceLevel']?.length) {
         setHints['traits.experienceLevel'] = 'Please provide experience level.';
+      }
+      if (!values['traits.language']?.length) {
+        setHints['traits.language'] = 'Please provide preferred language.';
       }
 
       onUpdateHints(setHints);
@@ -151,6 +156,7 @@ export const RegistrationForm = ({
   const isUsernameValid = !hints?.['traits.username'] && isSubmitted;
   const isExperienceLevelValid =
     !isSubmitted || !hints?.['traits.experienceLevel'];
+  const isLanguageValid = !isSubmitted || !hints?.['traits.language'];
 
   return (
     <>
@@ -244,6 +250,17 @@ export const RegistrationForm = ({
           onChange={() =>
             hints?.['traits.experienceLevel'] &&
             onUpdateHints({ ...hints, 'traits.experienceLevel': '' })
+          }
+          saveHintSpace
+        />
+        <LanguageDropdown
+          className={{ container: 'w-full' }}
+          name="traits.language"
+          valid={isLanguageValid}
+          hint={hints?.['traits.language']}
+          onChange={() =>
+            hints?.['traits.language'] &&
+            onUpdateHints({ ...hints, 'traits.language': '' })
           }
           saveHintSpace
         />

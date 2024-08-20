@@ -110,6 +110,7 @@ export interface SocialRegistrationParameters {
   acceptedMarketing?: boolean;
   optOutMarketing?: boolean;
   experienceLevel?: string;
+  language?: string;
 }
 
 export interface RegistrationParameters {
@@ -128,6 +129,7 @@ export interface RegistrationParameters {
   'traits.image': string;
   'traits.acceptedMarketing'?: boolean;
   'traits.experienceLevel'?: string;
+  'traits.language'?: string;
   optOutMarketing?: boolean;
 }
 
