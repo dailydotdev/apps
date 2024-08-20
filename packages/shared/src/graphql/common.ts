@@ -142,5 +142,23 @@ export const gqlClient = new GraphQLClient(graphqlUrl, {
   credentials: 'include',
 });
 
+// hack for now to simulate server/client language
+if (typeof window !== 'undefined') {
+  const langStorageKey = 'exp-200824-content-language';
+  const urlSearchParams = new URLSearchParams(window.location.search);
+  const contentLanguageQuery = urlSearchParams.get('lang');
+
+  if (contentLanguageQuery) {
+    localStorage.setItem(langStorageKey, contentLanguageQuery);
+  }
+
+  const contentLanguage =
+    contentLanguageQuery || localStorage.getItem(langStorageKey);
+
+  if (contentLanguage) {
+    gqlClient.setHeader('content-language', contentLanguage);
+  }
+}
+
 export const gqlRequest: typeof gqlClient.request = (...args) =>
   gqlClient.request(...args);
