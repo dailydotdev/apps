@@ -53,7 +53,7 @@ export type Props = {
 };
 
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Squad squad'),
+  title: getTemplatedTitle('Squad directory'),
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
 };
