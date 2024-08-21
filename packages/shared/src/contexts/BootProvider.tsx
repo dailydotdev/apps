@@ -9,7 +9,7 @@ import React, {
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { BootApp, BootCacheData, getBootData } from '../lib/boot';
 import { AuthContextProvider } from './AuthContext';
-import { AnonymousUser, LoggedUser } from '../lib/user';
+import { AnonymousUser, ContentLanguage, LoggedUser } from '../lib/user';
 import { AlertContextProvider } from './AlertContext';
 import { generateQueryKey, RequestKey, STALE_TIME } from '../lib/query';
 import {
@@ -26,6 +26,7 @@ import { GrowthBookProvider } from '../components/GrowthBookProvider';
 import { useHostStatus } from '../hooks/useHostPermissionStatus';
 import { checkIsExtension } from '../lib/func';
 import { Feed, FeedList } from '../graphql/feed';
+import { gqlClient } from '../graphql/common';
 
 function filteredProps<T extends Record<string, unknown>>(
   obj: T,
@@ -222,6 +223,19 @@ export const BootDataProvider = ({
   const updateExperimentation = useCallback((exp: BootCacheData['exp']) => {
     setCachedBootData((cachedData) => updateLocalBootData(cachedData, { exp }));
   }, []);
+
+  useEffect(() => {
+    const partialUser = user as Partial<LoggedUser>;
+
+    gqlClient.setHeader(
+      'content-language',
+      partialUser?.language || ContentLanguage.English,
+    );
+
+    return () => {
+      gqlClient.setHeader('content-language', ContentLanguage.English);
+    };
+  }, [user]);
 
   return (
     <GrowthBookProvider

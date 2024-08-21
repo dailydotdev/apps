@@ -111,7 +111,6 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   acquisitionChannel?: string;
   experienceLevel?: keyof typeof UserExperienceLevel;
   isTeamMember?: boolean;
-  language?: ContentLanguage;
 }
 
 interface BaseError {
