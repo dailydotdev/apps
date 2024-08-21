@@ -53,7 +53,7 @@ const renderComponent = (): RenderResult => {
 it('should render the component as a squad user', async () => {
   renderComponent();
 
-  const btn = await screen.findByTestId('squad-directory-join-waitlist');
+  const btn = await screen.findByTestId('squad-squad-join-waitlist');
   btn.click();
 
   await waitFor(() => {
@@ -82,7 +82,7 @@ it('should render the component and have a link to new suqad when squad owner', 
 
   renderComponent();
 
-  const btn = await screen.findByTestId('squad-directory-join-waitlist');
+  const btn = await screen.findByTestId('squad-squad-join-waitlist');
   btn.click();
 
   await waitFor(() => {

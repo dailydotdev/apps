@@ -1,15 +1,15 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Card, CardLink } from '../../../cards/Card';
-import { ButtonVariant } from '../../../buttons/Button';
+import { Card, CardLink } from '../Card';
+import { ButtonVariant } from '../../buttons/Button';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
-} from '../../../typography/Typography';
-import { largeNumberFormat } from '../../../../lib';
-import { Separator } from '../../../cards/common';
+} from '../../typography/Typography';
+import { largeNumberFormat } from '../../../lib';
+import { Separator } from '../common';
 import { SquadImage } from './common/SquadImage';
 import { SquadJoinButtonWrapper } from './common/SquadJoinButton';
 import { UnFeaturedSquadCardProps } from './common/types';

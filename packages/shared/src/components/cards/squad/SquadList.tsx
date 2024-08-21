@@ -3,20 +3,20 @@ import React, {
   HTMLAttributes,
   ReactElement,
 } from 'react';
-import { Squad } from '../../../../graphql/sources';
+import { Squad } from '../../../graphql/sources';
 import {
   Typography,
   TypographyColor,
   TypographyType,
-} from '../../../typography/Typography';
-import { Separator } from '../../../cards/common';
-import { largeNumberFormat } from '../../../../lib';
+} from '../../typography/Typography';
+import { Separator } from '../common';
+import { largeNumberFormat } from '../../../lib';
 import { SquadJoinButtonWrapper } from './common/SquadJoinButton';
-import { ButtonVariant } from '../../../buttons/common';
+import { ButtonVariant } from '../../buttons/common';
 import { SquadCardAction } from './common/types';
-import { ArrowIcon } from '../../../icons';
-import { IconSize } from '../../../Icon';
-import { CardLink } from '../../../cards/Card';
+import { ArrowIcon } from '../../icons';
+import { IconSize } from '../../Icon';
+import { CardLink } from '../Card';
 
 interface SquadListBaseProps {
   squad: Squad;

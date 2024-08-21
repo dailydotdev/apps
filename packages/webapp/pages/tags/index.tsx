@@ -20,10 +20,10 @@ import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../../next-seo';
 
 const seo: NextSeoProps = {
-  title: 'Tags directory | daily.dev',
+  title: 'Tags squad | daily.dev',
   openGraph: { ...defaultOpenGraph },
   description:
-    'Dive into the tags directory on daily.dev to find and follow topics that interest you. Discover a wide range of developer-related tags to enhance your learning and engagement.',
+    'Dive into the tags squad on daily.dev to find and follow topics that interest you. Discover a wide range of developer-related tags to enhance your learning and engagement.',
 };
 
 interface TagsPageProps {

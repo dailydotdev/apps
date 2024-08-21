@@ -27,7 +27,7 @@ import { getLayout as getFooterNavBarLayout } from '../../components/layouts/Foo
 import { defaultOpenGraph } from '../../next-seo';
 
 const seo: NextSeoProps = {
-  title: 'Sources directory | daily.dev',
+  title: 'Sources squad | daily.dev',
   openGraph: { ...defaultOpenGraph },
   description:
     'Explore the top content sources on daily.dev. Discover, subscribe, and stay updated with the best content from leading developer communities and blogs.',
