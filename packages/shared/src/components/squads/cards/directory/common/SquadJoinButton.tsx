@@ -1,5 +1,6 @@
 import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
+import classNames from 'classnames';
 import { SourceType, Squad } from '../../../../../graphql/sources';
 import { SquadJoinButton } from '../../../SquadJoinButton';
 import { Origin } from '../../../../../lib/log';
@@ -27,7 +28,7 @@ export const SquadJoinButtonWrapper = ({
     action?.type === 'action' &&
     source?.type === SourceType.Squad ? (
     <SquadJoinButton
-      className={{ button: className?.squadJoinButton }}
+      className={{ button: classNames(className?.squadJoinButton, 'z-0') }}
       squad={source}
       origin={Origin.SquadDirectory}
       onSuccess={() => router.push(source?.permalink)}
@@ -37,7 +38,7 @@ export const SquadJoinButtonWrapper = ({
   ) : (
     <Button
       variant={variant}
-      className={className?.simpleButton}
+      className={classNames(className?.simpleButton, 'z-0')}
       onClick={action?.type === 'action' ? action?.onClick : undefined}
       tag={action?.type === 'link' ? 'a' : undefined}
       href={action?.type === 'link' && action.href}
