@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { FilterCheckbox } from '../fields/FilterCheckbox';
 import { useAdvancedSettings } from '../../hooks/feed';
 import useFeedSettings from '../../hooks/useFeedSettings';
@@ -10,7 +10,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { Divider } from '../utilities';
+import { Divider, SharedFeedPage } from '../utilities';
 import { LanguageDropdown } from '../profile/LanguageDropdown';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ContentLanguage } from '../../lib/user';
@@ -18,12 +18,13 @@ import { UPDATE_USER_PROFILE_MUTATION } from '../../graphql/users';
 import { gqlClient } from '../../graphql/common';
 import { useToastNotification } from '../../hooks';
 import { labels } from '../../lib';
-import useDebounceFn from '../../hooks/useDebounceFn';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
+import { OtherFeedPage, RequestKey } from '../../lib/query';
 
 export function ContentTypesFilter(): ReactElement {
   const postTitleLanguageFeature = useFeature(feature.postTitleLanguage);
+  const queryClient = useQueryClient();
   const { advancedSettings, isLoading } = useFeedSettings();
   const { selectedSettings, onToggleSettings } = useAdvancedSettings();
   const { user, updateUser } = useAuthContext();
@@ -31,7 +32,7 @@ export function ContentTypesFilter(): ReactElement {
 
   const videoSetting = getVideoSetting(advancedSettings);
 
-  const { mutate } = useMutation(
+  const { mutate: onLanguageChange } = useMutation(
     async (value?: ContentLanguage) => {
       await updateUser({
         ...user,
@@ -45,12 +46,42 @@ export function ContentTypesFilter(): ReactElement {
       });
     },
     {
+      onSuccess: async () => {
+        const requestKeys = [
+          ...Object.values(SharedFeedPage),
+          OtherFeedPage.Preview,
+          RequestKey.Squad,
+          RequestKey.FeedPreview,
+          RequestKey.FeedPreviewCustom,
+          RequestKey.PostKey,
+          RequestKey.Bookmarks,
+          RequestKey.ReadingHistory,
+          RequestKey.RelatedPosts,
+          RequestKey.SourceFeed,
+          RequestKey.SourceMostUpvoted,
+          RequestKey.SourceBestDiscussed,
+          RequestKey.TagFeed,
+          RequestKey.TagsMostUpvoted,
+          RequestKey.TagsBestDiscussed,
+        ];
+
+        await Promise.all(
+          requestKeys.map((requestKey) => {
+            const queryKey = [requestKey];
+
+            return queryClient.invalidateQueries({
+              queryKey,
+              exact: false,
+              type: 'all',
+            });
+          }),
+        );
+      },
       onError: () => {
         displayToast(labels.error.generic);
       },
     },
   );
-  const [debouncedMutate] = useDebounceFn(mutate, 1000);
 
   return (
     <div className="flex flex-col gap-4 px-6">
@@ -78,7 +109,7 @@ export function ContentTypesFilter(): ReactElement {
               className={{ container: 'w-full max-w-60' }}
               name="language"
               defaultValue={user.language}
-              onChange={debouncedMutate}
+              onChange={(value) => onLanguageChange(value)}
               icon={null}
             />
           </section>
