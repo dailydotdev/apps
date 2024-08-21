@@ -2,6 +2,10 @@
   const PIXEL_ID = document.currentScript.getAttribute('data-pixel-id');
   const userId = document.currentScript.getAttribute('data-user-id');
 
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const anonId = urlParams.get('fb_anon_id');
+
   function initializeFacebookPixel(f, b, e, v, n, t, s) {
     if (f.fbq) return;
     n = f.fbq = function() {
@@ -26,5 +30,9 @@
     'https://connect.facebook.net/en_US/fbevents.js',
   );
 
-  window.fbq('init', PIXEL_ID, { external_id: userId });
+  const args = userId ? { external_id: userId } : {};
+  if (anonId) {
+    args.anon_id = anonId;
+  }
+  window.fbq('init', PIXEL_ID, args);
 })();

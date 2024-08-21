@@ -175,7 +175,7 @@ export default function CommentActionButtons({
     });
   }
 
-  const appendTo = isCompanion ? getCompanionWrapper : undefined;
+  const appendTo = isCompanion ? getCompanionWrapper : 'parent';
 
   return (
     <div className={classNames('flex flex-row items-center', className)}>

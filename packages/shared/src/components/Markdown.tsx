@@ -4,7 +4,7 @@ import styles from './markdown.module.css';
 import { ProfileTooltip } from './profile/ProfileTooltip';
 import { useProfileTooltip } from '../hooks/useProfileTooltip';
 import { CaretOffset } from '../lib/element';
-import useDebounce from '../hooks/useDebounce';
+import useDebounceFn from '../hooks/useDebounceFn';
 import { useDomPurify } from '../hooks/useDomPurify';
 
 interface MarkdownProps {
@@ -29,7 +29,10 @@ export default function Markdown({
     userId,
     requestUserInfo: true,
   });
-  const [clearUser, cancelUserClearing] = useDebounce(() => setUserId(''), 200);
+  const [clearUser, cancelUserClearing] = useDebounceFn(
+    () => setUserId(''),
+    200,
+  );
 
   useEffect(() => {
     if (!content || !ref?.current) {

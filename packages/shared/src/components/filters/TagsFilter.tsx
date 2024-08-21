@@ -21,7 +21,7 @@ import AuthContext from '../../contexts/AuthContext';
 import classed from '../../lib/classed';
 import { HTMLElementComponent } from '../utilities';
 import { Origin } from '../../lib/log';
-import useDebounce from '../../hooks/useDebounce';
+import useDebounceFn from '../../hooks/useDebounceFn';
 import { useTagSearch } from '../../hooks';
 
 const TagsContainer = classed('div', 'grid grid-cols-1 gap-4');
@@ -42,7 +42,7 @@ export default function TagsFilter({
   const searchRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState<string>(null);
   const { user } = useContext(AuthContext);
-  const [onSearch] = useDebounce(setQuery, 200);
+  const [onSearch] = useDebounceFn(setQuery, 200);
   const { tagsCategories, feedSettings, isLoading } = useFeedSettings();
   const { contextSelectedTag, setContextSelectedTag, onTagContextOptions } =
     useTagContext();

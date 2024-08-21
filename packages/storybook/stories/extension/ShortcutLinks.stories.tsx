@@ -113,6 +113,7 @@ export const ExperimentV1: Story = {
       shouldUseListFeedLayout: args.shouldUseListFeedLayout,
       showTopSites,
       toggleShowTopSites: () => setShowTopSites(!showTopSites),
+      hasCheckedPermission: true,
     };
     return (
       <ExtensionProviders>

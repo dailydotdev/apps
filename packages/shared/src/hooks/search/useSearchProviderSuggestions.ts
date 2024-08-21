@@ -11,6 +11,8 @@ import {
   defaultSearchSuggestionsLimit,
   minSearchQueryLength,
 } from '../../graphql/search';
+import useDebounce from '../useDebounce';
+import { defaultSearchDebounceMs } from '../../lib/func';
 
 export type UseSearchProviderSuggestionsProps = {
   limit?: number;
@@ -28,15 +30,16 @@ export const useSearchProviderSuggestions = ({
 }: UseSearchProviderSuggestionsProps): UseSearchProviderSuggestions => {
   const { user } = useAuthContext();
   const { getSuggestions } = useSearchProvider();
+  const debouncedQuery = useDebounce(query, defaultSearchDebounceMs);
 
   const { data, isLoading } = useQuery(
     generateQueryKey(RequestKey.Search, user, 'suggestions', {
       provider,
-      query,
+      debouncedQuery,
       limit,
     }),
     async () => {
-      return getSuggestions({ provider, query, limit });
+      return getSuggestions({ provider, query: debouncedQuery, limit });
     },
     {
       enabled: query?.length >= minSearchQueryLength,

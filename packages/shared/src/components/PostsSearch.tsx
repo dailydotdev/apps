@@ -10,7 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { SearchField } from './fields/SearchField';
 import { useAutoComplete } from '../hooks/useAutoComplete';
-import useDebounce from '../hooks/useDebounce';
+import useDebounceFn from '../hooks/useDebounceFn';
 import {
   SEARCH_POST_SUGGESTIONS,
   sanitizeSearchTitleMatch,
@@ -122,7 +122,10 @@ export default function PostsSearch({
   };
 
   const { selectedItemIndex, onKeyDown } = useAutoComplete(items, submitQuery);
-  const [debounceQuery] = useDebounce<string>((value) => setQuery(value), 100);
+  const [debounceQuery] = useDebounceFn<string>(
+    (value) => setQuery(value),
+    100,
+  );
   const onValueChanged = (value: string) => {
     if (!value.length) {
       hideMenu();

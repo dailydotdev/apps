@@ -1,5 +1,9 @@
 import { useMemo } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { feature } from '../../lib/featureManagement';
+import { ShortcutsUIExperiment } from '../../lib/featureValues';
+import { useConditionalFeature } from '../useConditionalFeature';
+import { isExtension } from '../../lib/func';
 
 interface UseShortcuts {
   isShortcutsV1: boolean;
@@ -11,13 +15,15 @@ interface UseShortcuts {
  * Keywords: shortcutsUI, onboarding_most_visited
  */
 export const useShortcuts = (): UseShortcuts => {
-  const { user } = useAuthContext();
+  const { isLoggedIn, user } = useAuthContext();
+  const { value: shortcutsUIVersion } = useConditionalFeature({
+    feature: feature.shortcutsUI,
+    shouldEvaluate: isLoggedIn && isExtension,
+  });
 
   const isShortcutsV1 = useMemo(
-    () =>
-      user?.isTeamMember ||
-      new Date(user?.createdAt) >= new Date('2024-04-16T00:00:00.000Z'),
-    [user?.isTeamMember, user?.createdAt],
+    () => user?.isTeamMember || shortcutsUIVersion === ShortcutsUIExperiment.V1,
+    [user?.isTeamMember, shortcutsUIVersion],
   );
 
   return {

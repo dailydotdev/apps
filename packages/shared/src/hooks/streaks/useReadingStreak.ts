@@ -14,7 +14,7 @@ import {
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions } from '../useActions';
 import { ActionType } from '../../graphql/actions';
-import useDebounce from '../useDebounce';
+import useDebounceFn from '../useDebounceFn';
 import SettingsContext from '../../contexts/SettingsContext';
 import { gqlClient, ResponseError } from '../../graphql/common';
 import { DayOfWeek } from '../../lib/date';
@@ -72,7 +72,7 @@ export const useReadingStreak = (): UserReadingStreak => {
     new Date(streak?.lastViewAt).getDate() === new Date().getDate();
   const userStreakQueryKeyRef = useRef<unknown[]>();
 
-  const [clearQueries] = useDebounce(async () => {
+  const [clearQueries] = useDebounceFn(async () => {
     if (!hasReadToday && userStreakQueryKeyRef.current?.length > 0) {
       await queryClient.invalidateQueries(userStreakQueryKeyRef.current);
     }

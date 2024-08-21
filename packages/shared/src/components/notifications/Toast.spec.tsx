@@ -50,51 +50,63 @@ const renderComponent = (autoDismissNotifications = true) => {
 };
 
 it('should display a toast notification', async () => {
+  jest.useFakeTimers();
   renderComponent();
   const button = await screen.findByText('Regular Toast');
   fireEvent.click(button);
-  await screen.findByRole('alert');
-  await screen.findByText('Sample Notification');
-  await waitForElementToBeRemoved(() => screen.queryByRole('alert'), {
-    timeout: 1000,
-  });
+  const alertEl = await screen.findByRole('alert');
+  expect(alertEl).toBeInTheDocument();
+  expect(setInterval).toHaveBeenCalledTimes(1);
+  const el = await screen.findByText('Sample Notification');
+  expect(el).toBeInTheDocument();
+  jest.advanceTimersByTime(500);
+  await waitForElementToBeRemoved(() => screen.queryByRole('alert'));
 });
 
 it('should display a toast notification and be dismissable', async () => {
+  jest.useFakeTimers();
   renderComponent();
   const button = await screen.findByText('Regular Toast');
   fireEvent.click(button);
-  await screen.findByRole('alert');
+  const alertEl = await screen.findByRole('alert');
+  expect(alertEl).toBeInTheDocument();
+  expect(setInterval).toHaveBeenCalledTimes(1);
   const dismiss = await screen.findByLabelText('Dismiss toast notification');
+  expect(dismiss).toBeInTheDocument();
   fireEvent.click(dismiss);
-  await waitForElementToBeRemoved(() => screen.queryByRole('alert'), {
-    timeout: 1000,
-  });
+  jest.advanceTimersByTime(500);
+  await waitForElementToBeRemoved(() => screen.queryByRole('alert'));
 });
 
 it('should display a toast notification and do not automatically close', async () => {
+  jest.useFakeTimers();
   renderComponent(false);
   const button = await screen.findByText('Regular Toast');
   fireEvent.click(button);
-  await screen.findByRole('alert');
-  await new Promise((resolve) => setTimeout(resolve, 10));
+  const alertEl = await screen.findByRole('alert');
+  expect(alertEl).toBeInTheDocument();
+  expect(setInterval).toHaveBeenCalledTimes(1);
   const dismiss = await screen.findByLabelText('Dismiss toast notification');
+  expect(dismiss).toBeInTheDocument();
   fireEvent.click(dismiss);
-  await waitForElementToBeRemoved(() => screen.queryByRole('alert'), {
-    timeout: 1000,
-  });
+  jest.advanceTimersByTime(500);
+  await waitForElementToBeRemoved(() => screen.queryByRole('alert'));
 });
 
 it('should display a toast notification and undoable action', async () => {
+  jest.useFakeTimers();
   renderComponent();
   const button = await screen.findByText('Undoable Toast');
   fireEvent.click(button);
-  await screen.findByRole('alert');
-  await screen.findByText('Undoable Notification');
+  const alertEl = await screen.findByRole('alert');
+  expect(alertEl).toBeInTheDocument();
+  expect(setInterval).toHaveBeenCalledTimes(1);
+  const el = await screen.findByText('Undoable Notification');
+  expect(el).toBeInTheDocument();
   const undoBtn = await screen.findByLabelText('Undo action');
+  expect(undoBtn).toBeInTheDocument();
   fireEvent.click(undoBtn);
-  await waitForElementToBeRemoved(() => screen.queryByRole('alert'), {
-    timeout: 1000,
-  });
+  jest.advanceTimersByTime(500);
+  await waitForElementToBeRemoved(() => screen.queryByRole('alert'));
   expect(undo).toBeCalled();
 });

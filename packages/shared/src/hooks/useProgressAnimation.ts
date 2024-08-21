@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import type Router from 'next/router';
 import { useRouter } from 'next/router';
-import useDebounce from './useDebounce';
+import useDebounceFn from './useDebounceFn';
 
 interface UseProgressAnimation {
   isAnimating: boolean;
@@ -22,8 +22,8 @@ export const useProgressAnimation = ({
   const router = useRouter();
   const [finished, setFinished] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [animate] = useDebounce(() => setIsAnimating(true), 1);
-  const [delayedRedirect] = useDebounce(router.replace, animationMs);
+  const [animate] = useDebounceFn(() => setIsAnimating(true), 1);
+  const [delayedRedirect] = useDebounceFn(router.replace, animationMs);
 
   const onFinished = useCallback(() => {
     setFinished(true);
