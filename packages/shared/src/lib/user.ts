@@ -228,13 +228,13 @@ export enum ContentLanguage {
 
 export const contnetLanguageToLabelMap = {
   [ContentLanguage.English]: 'English - Default',
-  [ContentLanguage.Spanish]: 'Spanish 🇪🇸',
-  [ContentLanguage.German]: 'German 🇩🇪',
-  [ContentLanguage.French]: 'French 🇫🇷',
-  [ContentLanguage.Italian]: 'Italian 🇮🇹',
-  [ContentLanguage.ChineseSimplified]: 'Chinese (Simplified) 🇨🇳',
-  [ContentLanguage.PortugueseBrazil]: 'Portuguese (Brazil) 🇧🇷',
-  [ContentLanguage.PortuguesePortugal]: 'Portuguese (Portugal) 🇵🇹',
-  [ContentLanguage.Japanese]: 'Japanese 🇯🇵',
+  [ContentLanguage.Spanish]: 'Spanish',
+  [ContentLanguage.German]: 'German',
+  [ContentLanguage.French]: 'French',
+  [ContentLanguage.Italian]: 'Italian',
+  [ContentLanguage.ChineseSimplified]: 'Chinese (Simplified)',
+  [ContentLanguage.PortugueseBrazil]: 'Portuguese (Brazil)',
+  [ContentLanguage.PortuguesePortugal]: 'Portuguese (Portugal)',
+  [ContentLanguage.Japanese]: 'Japanese',
   [ContentLanguage.Korean]: 'Korean',
 };
