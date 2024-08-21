@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { SquadList } from '@dailydotdev/shared/src/components/squads/cards/directory/SquadList';
+import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
 import { SourceMemberRole, SourceType } from '@dailydotdev/shared/src/graphql/sources';
 
 const meta: Meta<typeof SquadList> = {

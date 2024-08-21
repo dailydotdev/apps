@@ -3,7 +3,7 @@ import {
   SourceMemberRole,
   SourceType,
 } from '@dailydotdev/shared/src/graphql/sources';
-import { UnfeaturedSquadGrid } from '@dailydotdev/shared/src/components/squads/cards/directory/UnfeaturedSquadGrid';
+import { UnfeaturedSquadGrid } from '@dailydotdev/shared/src/components/cards/squad/UnfeaturedSquadGrid';
 
 const meta: Meta<typeof UnfeaturedSquadGrid> = {
   title: 'Components/Cards/Squad/UnfeaturedSquadGrid',
