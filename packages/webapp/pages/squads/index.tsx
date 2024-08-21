@@ -14,7 +14,6 @@ import {
   SquadGrid,
   SourceCardBorderColor,
   SquadsDirectoryHeader,
-  YourSquadItem,
 } from '@dailydotdev/shared/src/components';
 import { EditIcon, PlusIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -43,6 +42,7 @@ import {
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { UnfeaturedSquadGrid } from '@dailydotdev/shared/src/components/squads/cards/directory/UnfeaturedSquadGrid';
+import { SquadList } from '@dailydotdev/shared/src/components/squads/cards/directory/SquadList';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import FeedLayout, { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -116,9 +116,10 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
                 >
                   {squads.map((squad) => (
                     <Link href={squad.permalink} key={squad.handle} passHref>
-                      <YourSquadItem
+                      <SquadList
                         squad={squad}
                         elementProps={{ href: squad.permalink }}
+                        isUserSquad
                       />
                     </Link>
                   ))}
@@ -185,6 +186,25 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
                                 href: isMember ? permalink : undefined,
                               }}
                               source={{
+                                name,
+                                permalink,
+                                id,
+                                borderColor: props.color,
+                                banner: props.headerImage,
+                                ...props,
+                              }}
+                            />,
+                          );
+
+                          nodes.push(
+                            <SquadList
+                              action={{
+                                text: isMember ? 'View Squad' : 'Join Squad',
+                                type: isMember ? 'link' : 'action',
+                                href: isMember ? permalink : undefined,
+                              }}
+                              elementProps={{ href: permalink }}
+                              squad={{
                                 name,
                                 permalink,
                                 id,
