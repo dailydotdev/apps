@@ -224,18 +224,10 @@ export const BootDataProvider = ({
     setCachedBootData((cachedData) => updateLocalBootData(cachedData, { exp }));
   }, []);
 
-  useEffect(() => {
-    const partialUser = user as Partial<LoggedUser>;
-
-    gqlClient.setHeader(
-      'content-language',
-      partialUser?.language || ContentLanguage.English,
-    );
-
-    return () => {
-      gqlClient.setHeader('content-language', ContentLanguage.English);
-    };
-  }, [user]);
+  gqlClient.setHeader(
+    'content-language',
+    (user as Partial<LoggedUser>)?.language || ContentLanguage.English,
+  );
 
   return (
     <GrowthBookProvider
