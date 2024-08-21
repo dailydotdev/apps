@@ -21,6 +21,8 @@ import { labels } from '../../lib';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { OtherFeedPage, RequestKey } from '../../lib/query';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent, TargetType } from '../../lib/log';
 
 export function ContentTypesFilter(): ReactElement {
   const postTitleLanguageFeature = useFeature(feature.postTitleLanguage);
@@ -29,6 +31,7 @@ export function ContentTypesFilter(): ReactElement {
   const { selectedSettings, onToggleSettings } = useAdvancedSettings();
   const { user, updateUser } = useAuthContext();
   const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
 
   const videoSetting = getVideoSetting(advancedSettings);
 
@@ -46,6 +49,13 @@ export function ContentTypesFilter(): ReactElement {
       });
     },
     {
+      onMutate: (value) => {
+        logEvent({
+          event_name: LogEvent.ChangeSettings,
+          target_type: TargetType.Language,
+          target_id: value,
+        });
+      },
       onSuccess: async () => {
         const requestKeys = [
           ...Object.values(SharedFeedPage),
