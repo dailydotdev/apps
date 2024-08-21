@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { FilterCheckbox } from '../fields/FilterCheckbox';
 import { useAdvancedSettings } from '../../hooks/feed';
 import useFeedSettings from '../../hooks/useFeedSettings';
@@ -10,88 +9,22 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { Divider, SharedFeedPage } from '../utilities';
+import { Divider } from '../utilities';
 import { LanguageDropdown } from '../profile/LanguageDropdown';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { ContentLanguage } from '../../lib/user';
-import { UPDATE_USER_PROFILE_MUTATION } from '../../graphql/users';
-import { gqlClient } from '../../graphql/common';
-import { useToastNotification } from '../../hooks';
-import { labels } from '../../lib';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
-import { OtherFeedPage, RequestKey } from '../../lib/query';
-import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent, TargetType } from '../../lib/log';
+import { useLanguage } from '../../hooks/useLanguage';
 
 export function ContentTypesFilter(): ReactElement {
   const postTitleLanguageFeature = useFeature(feature.postTitleLanguage);
-  const queryClient = useQueryClient();
   const { advancedSettings, isLoading } = useFeedSettings();
   const { selectedSettings, onToggleSettings } = useAdvancedSettings();
-  const { user, updateUser } = useAuthContext();
-  const { displayToast } = useToastNotification();
-  const { logEvent } = useLogContext();
+  const { user } = useAuthContext();
 
   const videoSetting = getVideoSetting(advancedSettings);
 
-  const { mutate: onLanguageChange } = useMutation(
-    async (value?: ContentLanguage) => {
-      await updateUser({
-        ...user,
-        language: value,
-      });
-
-      await gqlClient.request(UPDATE_USER_PROFILE_MUTATION, {
-        data: {
-          language: value,
-        },
-      });
-    },
-    {
-      onMutate: (value) => {
-        logEvent({
-          event_name: LogEvent.ChangeSettings,
-          target_type: TargetType.Language,
-          target_id: value,
-        });
-      },
-      onSuccess: async () => {
-        const requestKeys = [
-          ...Object.values(SharedFeedPage),
-          OtherFeedPage.Preview,
-          RequestKey.Squad,
-          RequestKey.FeedPreview,
-          RequestKey.FeedPreviewCustom,
-          RequestKey.PostKey,
-          RequestKey.Bookmarks,
-          RequestKey.ReadingHistory,
-          RequestKey.RelatedPosts,
-          RequestKey.SourceFeed,
-          RequestKey.SourceMostUpvoted,
-          RequestKey.SourceBestDiscussed,
-          RequestKey.TagFeed,
-          RequestKey.TagsMostUpvoted,
-          RequestKey.TagsBestDiscussed,
-        ];
-
-        await Promise.all(
-          requestKeys.map((requestKey) => {
-            const queryKey = [requestKey];
-
-            return queryClient.invalidateQueries({
-              queryKey,
-              exact: false,
-              type: 'all',
-            });
-          }),
-        );
-      },
-      onError: () => {
-        displayToast(labels.error.generic);
-      },
-    },
-  );
+  const { onLanguageChange } = useLanguage();
 
   return (
     <div className="flex flex-col gap-4 px-6">
