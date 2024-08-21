@@ -71,7 +71,7 @@ export const SearchPanelSourceSuggestions = ({
   });
 
   const onSuggestionClick = (suggestion: SearchSuggestion) => {
-    const source = suggestion.subtitle.toLowerCase() || suggestion.id;
+    const source = suggestion.subtitle?.toLowerCase() || suggestion.id;
     logEvent({
       event_name: LogEvent.Click,
       target_type: TargetType.SearchRecommendation,
