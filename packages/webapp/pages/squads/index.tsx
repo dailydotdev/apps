@@ -33,7 +33,6 @@ import ConditionalWrapper from '@dailydotdev/shared/src/components/ConditionalWr
 import TabContainer, {
   Tab,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
-import Link from 'next/link';
 import {
   useSquadNavigation,
   useViewSize,
@@ -115,13 +114,12 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
                   className="grid grid-cols-1 gap-4 px-4 py-5"
                 >
                   {squads.map((squad) => (
-                    <Link href={squad.permalink} key={squad.handle} passHref>
-                      <SquadList
-                        squad={squad}
-                        elementProps={{ href: squad.permalink }}
-                        isUserSquad
-                      />
-                    </Link>
+                    <SquadList
+                      key={squad.handle}
+                      squad={squad}
+                      elementProps={{ href: squad.permalink }}
+                      isUserSquad
+                    />
                   ))}
                 </Tab>
                 <Tab label="Public squads" className="px-4">

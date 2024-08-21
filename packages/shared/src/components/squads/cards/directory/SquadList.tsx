@@ -1,11 +1,9 @@
 import React, {
   AnchorHTMLAttributes,
   HTMLAttributes,
-  MutableRefObject,
   ReactElement,
 } from 'react';
 import { Squad } from '../../../../graphql/sources';
-import classed from '../../../../lib/classed';
 import {
   Typography,
   TypographyColor,
@@ -18,6 +16,7 @@ import { ButtonVariant } from '../../../buttons/common';
 import { SquadCardAction } from './common/types';
 import { ArrowIcon } from '../../../icons';
 import { IconSize } from '../../../Icon';
+import { CardLink } from '../../../cards/Card';
 
 interface SquadListBaseProps {
   squad: Squad;
@@ -39,18 +38,14 @@ interface NonUserSquadProps extends SquadListBaseProps {
 
 type SquadListProps = UserSquadProps | NonUserSquadProps;
 
-const classes = 'flex flex-row items-center gap-4';
-const Anchor = classed('a', classes);
-const Span = classed('span', classes);
-
-function Component(
-  { squad, action, elementProps, isUserSquad }: SquadListProps,
-  ref: MutableRefObject<HTMLElement>,
-): ReactElement {
-  const Element = elementProps && 'href' in elementProps ? Anchor : Span;
-
+export const SquadList = ({
+  squad,
+  action,
+  isUserSquad,
+}: SquadListProps): ReactElement => {
   return (
-    <Element ref={ref} {...elementProps}>
+    <div className="relative flex flex-row items-center gap-4">
+      <CardLink href={squad.permalink} rel="noopener" title={squad.name} />
       <img
         src={squad.image}
         alt={`avatar of ${squad.handle}`}
@@ -87,8 +82,6 @@ function Component(
           }}
         />
       )}
-    </Element>
+    </div>
   );
-}
-
-export const SquadList = React.forwardRef(Component);
+};
