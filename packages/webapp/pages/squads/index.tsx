@@ -40,7 +40,6 @@ import {
 } from '@dailydotdev/shared/src/hooks';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
-import { UnfeaturedSquadGrid } from '@dailydotdev/shared/src/components/squads/cards/directory/UnfeaturedSquadGrid';
 import { SquadList } from '@dailydotdev/shared/src/components/squads/cards/directory/SquadList';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import FeedLayout, { getLayout } from '../../components/layouts/FeedLayout';
@@ -134,6 +133,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
               fetchNextPage={queryResult.fetchNextPage}
               className="w-full"
             >
+              {/* TODO: remove SquadsDirectoryHeader on MI-510 */}
               <FeedContainer
                 header={
                   <SquadsDirectoryHeader className="hidden laptop:flex" />
@@ -174,49 +174,12 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
                             />,
                           );
 
-                          nodes.push(
-                            <UnfeaturedSquadGrid
-                              title={name}
-                              subtitle={`@${props.handle}`}
-                              action={{
-                                text: isMember ? 'View Squad' : 'Join Squad',
-                                type: isMember ? 'link' : 'action',
-                                href: isMember ? permalink : undefined,
-                              }}
-                              source={{
-                                name,
-                                permalink,
-                                id,
-                                borderColor: props.color,
-                                banner: props.headerImage,
-                                ...props,
-                              }}
-                            />,
-                          );
-
-                          nodes.push(
-                            <SquadList
-                              action={{
-                                text: isMember ? 'View Squad' : 'Join Squad',
-                                type: isMember ? 'link' : 'action',
-                                href: isMember ? permalink : undefined,
-                              }}
-                              elementProps={{ href: permalink }}
-                              squad={{
-                                name,
-                                permalink,
-                                id,
-                                borderColor: props.color,
-                                banner: props.headerImage,
-                                ...props,
-                              }}
-                            />,
-                          );
                           return nodes;
                         },
                         [],
                       ),
                     )}
+                    {/* TODO: remove this on MI-510 */}
                     <SquadGrid
                       title="Which squads would you like to see next?"
                       action={{
