@@ -6,6 +6,7 @@ import { BaseFieldProps } from '../fields/BaseFieldContainer';
 import { ContentLanguage, contnetLanguageToLabelMap } from '../../lib/user';
 import { withExperiment } from '../withExperiment';
 import { feature } from '../../lib/featureManagement';
+import { IconProps } from '../Icon';
 
 type ClassName = {
   hint?: string;
@@ -16,7 +17,10 @@ type Props = {
   className?: ClassName;
   defaultValue?: ContentLanguage;
   onChange?: (value: ContentLanguage, index: number) => void;
+  icon?: ReactElement<IconProps>;
 } & Pick<BaseFieldProps, 'name' | 'valid' | 'hint' | 'saveHintSpace'>;
+
+const defaultIcon = <LanguageIcon className="ml-0 mr-1" />;
 
 const LanguageDropdownDefault = ({
   className = {},
@@ -26,6 +30,7 @@ const LanguageDropdownDefault = ({
   defaultValue,
   name,
   saveHintSpace = false,
+  icon = defaultIcon,
 }: Props): ReactElement => {
   const [open, setOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(
@@ -76,7 +81,7 @@ const LanguageDropdownDefault = ({
         }}
         onOpenChange={setOpen}
         placeholder="Preferred language"
-        icon={<LanguageIcon className="ml-0 mr-1" />}
+        icon={icon}
       />
       {name && selectedIndex > -1 && (
         <input

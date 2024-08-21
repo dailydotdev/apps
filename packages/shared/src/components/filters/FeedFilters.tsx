@@ -22,7 +22,7 @@ enum FilterMenuTitle {
   MyFeed = 'My feed',
   Tags = 'Manage tags',
   ManageCategories = 'Manage categories',
-  ContentTypes = 'Content types',
+  ContentTypes = 'Content & Language',
   Blocked = 'Blocked items',
 }
 
