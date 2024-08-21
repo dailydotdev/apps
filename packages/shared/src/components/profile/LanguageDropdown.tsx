@@ -1,9 +1,11 @@
 import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { Dropdown, DropdownClassName } from '../fields/Dropdown';
-import { TerminalIcon } from '../icons';
+import { LanguageIcon } from '../icons';
 import { BaseFieldProps } from '../fields/BaseFieldContainer';
 import { ContentLanguage, contnetLanguageToLabelMap } from '../../lib/user';
+import { withExperiment } from '../withExperiment';
+import { feature } from '../../lib/featureManagement';
 
 type ClassName = {
   hint?: string;
@@ -16,7 +18,7 @@ type Props = {
   onChange?: (value: ContentLanguage, index: number) => void;
 } & Pick<BaseFieldProps, 'name' | 'valid' | 'hint' | 'saveHintSpace'>;
 
-export const LanguageDropdown = ({
+const LanguageDropdownDefault = ({
   className = {},
   onChange,
   hint = '',
@@ -74,7 +76,7 @@ export const LanguageDropdown = ({
         }}
         onOpenChange={setOpen}
         placeholder="Preferred language"
-        icon={<TerminalIcon className="ml-0 mr-1" />}
+        icon={<LanguageIcon className="ml-0 mr-1" />}
       />
       {name && selectedIndex > -1 && (
         <input
@@ -101,3 +103,8 @@ export const LanguageDropdown = ({
     </div>
   );
 };
+
+export const LanguageDropdown = withExperiment(LanguageDropdownDefault, {
+  feature: feature.postTitleLanguage,
+  value: true,
+});

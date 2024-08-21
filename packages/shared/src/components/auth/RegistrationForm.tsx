@@ -101,8 +101,7 @@ export const RegistrationForm = ({
     if (
       !values['traits.name']?.length ||
       !values['traits.username']?.length ||
-      !values['traits.experienceLevel']?.length ||
-      !values['traits.language']?.length
+      !values['traits.experienceLevel']?.length
     ) {
       const setHints = { ...hints };
 
@@ -114,9 +113,6 @@ export const RegistrationForm = ({
       }
       if (!values['traits.experienceLevel']?.length) {
         setHints['traits.experienceLevel'] = 'Please provide experience level.';
-      }
-      if (!values['traits.language']?.length) {
-        setHints['traits.language'] = 'Please provide preferred language.';
       }
 
       onUpdateHints(setHints);

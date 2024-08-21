@@ -127,12 +127,6 @@ export const SocialRegistrationForm = ({
       return;
     }
 
-    if (!values.language?.length) {
-      logError('Language not provided');
-      setExperienceLevelHint('Please select your preferred language');
-      return;
-    }
-
     if (isAuthorOnboarding && !values.twitter) {
       logError('Twitter not provider');
       setTwitterHint('Please add your twitter handle');
