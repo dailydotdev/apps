@@ -11,7 +11,7 @@ export function ContentTypesFilter(): ReactElement {
   const videoSetting = getVideoSetting(advancedSettings);
 
   return (
-    <section className="flex flex-col gap-6 px-6" aria-busy={isLoading}>
+    <section className="flex flex-col gap-6" aria-busy={isLoading}>
       {videoSetting && (
         <FilterCheckbox
           name={videoSetting.title}
