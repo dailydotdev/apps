@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { getPathnameWithQuery } from '../../lib';
 import { webappUrl } from '../../lib/constants';
 import { SourceType } from '../../graphql/sources';
@@ -25,9 +25,25 @@ export const usePrivateSourceJoin = ({
   const squadJoinToken = router.query?.jt as string;
   const sourceId = router.query?.source as string;
   const sourceType = router.query?.type as string;
-  const { isAuthReady, isLoggedIn } = useAuthContext();
+  const { isAuthReady, squads } = useAuthContext();
+  const isSourceMember = useMemo(() => {
+    if (sourceType !== SourceType.Squad) {
+      return true;
+    }
 
-  const isActive = !!(squadJoinToken && sourceId && isAuthReady && !isLoggedIn);
+    const squad = squads?.find(
+      (item) => item.id === sourceId || item.handle === sourceId,
+    );
+
+    return !!squad;
+  }, [squads, sourceId, sourceType]);
+
+  const isActive = !!(
+    squadJoinToken &&
+    sourceId &&
+    isAuthReady &&
+    !isSourceMember
+  );
 
   useEffect(() => {
     if (!isActive) {

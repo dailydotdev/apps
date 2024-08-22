@@ -26,7 +26,7 @@ function AdvancedSettingsFilter(): ReactElement {
   );
 
   return (
-    <section className="flex flex-col px-6" aria-busy={isLoading}>
+    <section className="flex flex-col gap-4" aria-busy={isLoading}>
       {contentSourceList?.map(({ id, title, description, options }) => (
         <FilterSwitch
           key={id}

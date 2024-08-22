@@ -32,6 +32,7 @@ const feature = {
   generateSummary: new Feature('generate_summary', false),
   searchUsers: new Feature('search_users', false),
   slackIntegration: new Feature('slack_integration', false),
+  postTitleLanguage: new Feature('post_title_language', false),
 };
 
 export { feature };

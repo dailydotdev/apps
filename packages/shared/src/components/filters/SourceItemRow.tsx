@@ -17,7 +17,7 @@ export default function SourceItemRow({
 }): ReactElement {
   return (
     <FilterItem className="relative">
-      <a className="flex h-12 flex-1 cursor-default items-center rounded-6 py-2 pl-6 pr-14">
+      <a className="flex h-12 flex-1 cursor-default items-center rounded-6 py-2 pr-14">
         <LazyImage
           imgSrc={source.image}
           imgAlt={`${source.name} logo`}

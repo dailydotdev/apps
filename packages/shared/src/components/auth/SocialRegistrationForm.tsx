@@ -31,6 +31,7 @@ import AuthContainer from './AuthContainer';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SignBackProvider, useSignBack } from '../../hooks/auth/useSignBack';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
+import { LanguageDropdown } from '../profile/LanguageDropdown';
 
 export interface SocialRegistrationFormProps extends AuthFormProps {
   className?: string;
@@ -67,6 +68,7 @@ export const SocialRegistrationForm = ({
   const [usernameHint, setUsernameHint] = useState<string>(null);
   const [twitterHint, setTwitterHint] = useState<string>(null);
   const [experienceLevelHint, setExperienceLevelHint] = useState<string>(null);
+  const [languageHint, setLanguageHint] = useState<string>(null);
   const [name, setName] = useState(user?.name);
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { username, setUsername } = useGenerateUsername(name);
@@ -137,6 +139,7 @@ export const SocialRegistrationForm = ({
         twitter: values?.twitter,
         acceptedMarketing: !values?.optOutMarketing,
         experienceLevel: values?.experienceLevel,
+        language: values?.language,
       }),
     });
 
@@ -258,6 +261,18 @@ export const SocialRegistrationForm = ({
           }}
           valid={experienceLevelHint === null}
           hint={experienceLevelHint}
+          saveHintSpace
+        />
+        <LanguageDropdown
+          className={{ container: 'w-full' }}
+          name="language"
+          onChange={() => {
+            if (languageHint) {
+              setLanguageHint(null);
+            }
+          }}
+          valid={languageHint === null}
+          hint={languageHint}
           saveHintSpace
         />
         <span className="border-b border-border-subtlest-tertiary pb-4 text-text-secondary typo-subhead">

@@ -136,6 +136,12 @@ export enum RequestKey {
   SlackChannels = 'slack_channels',
   UserIntegrations = 'user_integrations',
   UserSourceIntegrations = 'user_source_integrations',
+  SourceFeed = 'sourceFeed',
+  SourceMostUpvoted = 'sourceMostUpvoted',
+  SourceBestDiscussed = 'sourceBestDiscussed',
+  TagFeed = 'tagFeed',
+  TagsMostUpvoted = 'tagsMostUpvoted',
+  TagsBestDiscussed = 'tagsBestDiscussed',
 }
 
 export type HasConnection<
