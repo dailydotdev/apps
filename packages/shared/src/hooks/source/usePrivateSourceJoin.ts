@@ -25,9 +25,9 @@ export const usePrivateSourceJoin = ({
   const squadJoinToken = router.query?.jt as string;
   const sourceId = router.query?.source as string;
   const sourceType = router.query?.type as string;
-  const { isAuthReady, isLoggedIn } = useAuthContext();
+  const { isAuthReady } = useAuthContext();
 
-  const isActive = !!(squadJoinToken && sourceId && isAuthReady && !isLoggedIn);
+  const isActive = !!(squadJoinToken && sourceId && isAuthReady);
 
   useEffect(() => {
     if (!isActive) {
