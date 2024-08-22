@@ -80,7 +80,7 @@ const LanguageDropdownDefault = ({
           setSelectedIndex(index);
         }}
         onOpenChange={setOpen}
-        placeholder="Preferred language"
+        placeholder="Preferred content language"
         icon={icon}
       />
       {name && selectedIndex > -1 && (
