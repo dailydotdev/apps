@@ -1,2 +1,2 @@
 export * from './SquadsDirectoryHeader';
-export * from './YourSquadItem';
+export * from '../cards/squad/SquadGrid';

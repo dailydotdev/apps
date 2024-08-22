@@ -10,28 +10,19 @@ import React from 'react';
 import nock from 'nock';
 import { NextRouter, useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
-import { AuthContextProvider } from '../../contexts/AuthContext';
-import loggedUser from '../../../__tests__/fixture/loggedUser';
+import { AuthContextProvider } from '../../../contexts/AuthContext';
+import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import {
   generateMembersList,
-  generateMembersResult,
   generateTestAdmin,
   generateTestSquad,
-} from '../../../__tests__/fixture/squads';
-import { SourceCard, SourceCardBorderColor } from './SourceCard';
-import { LazyModalElement } from '../modals/LazyModalElement';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '../../../__tests__/helpers/graphql';
-import {
-  SQUAD_JOIN_MUTATION,
-  SQUAD_MEMBERS_QUERY,
-  SquadEdgesData,
-} from '../../graphql/squads';
-import { waitForNock } from '../../../__tests__/helpers/utilities';
-import { cloudinary } from '../../lib/image';
-import { ActionType, COMPLETE_ACTION_MUTATION } from '../../graphql/actions';
+} from '../../../../__tests__/fixture/squads';
+import { LazyModalElement } from '../../modals/LazyModalElement';
+import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
+import { SQUAD_JOIN_MUTATION } from '../../../graphql/squads';
+import { waitForNock } from '../../../../__tests__/helpers/utilities';
+import { ActionType, COMPLETE_ACTION_MUTATION } from '../../../graphql/actions';
+import { SquadList } from './SquadList';
 
 const onClickTest = jest.fn();
 const routerReplace = jest.fn();
@@ -40,26 +31,6 @@ const members = generateMembersList();
 const admin = generateTestAdmin();
 admin.source.members.edges = members;
 admin.source.membersCount = members.length;
-const defaultSquad = generateTestSquad();
-
-const createSourceMembersMock = (
-  result = generateMembersResult(),
-  variables: unknown = { id: defaultSquad.id, first: 5 },
-): MockedGraphQLResponse<SquadEdgesData> => ({
-  request: { query: SQUAD_MEMBERS_QUERY, variables },
-  result: { data: result },
-});
-
-const openedMembersModal = async () => {
-  const result = generateMembersResult(members);
-  mockGraphQL(
-    createSourceMembersMock(result, { id: defaultSquad.id, role: null }),
-  );
-  const trigger = await screen.findByLabelText('Members list');
-  trigger.click();
-  await screen.findByText('Squad members');
-  return members;
-};
 
 beforeEach(async () => {
   nock.cleanAll();
@@ -68,9 +39,10 @@ beforeEach(async () => {
 
 const renderComponent = (
   isMember = false,
-  customStyle = false,
   setSource = false,
   setMembers = true,
+  setImage = false,
+  otherProps = {},
 ): RenderResult => {
   const client = new QueryClient();
 
@@ -86,21 +58,17 @@ const renderComponent = (
         squads={squads}
       >
         <LazyModalElement />
-        <SourceCard
-          title="title"
-          subtitle="subtitle"
-          icon={<div>icon</div>}
+        <SquadList
           action={{
             type: isMember ? 'link' : 'action',
             text: isMember ? 'View squad' : 'Test action',
             onClick: isMember ? undefined : onClickTest,
             href: isMember ? squads[0].permalink : undefined,
           }}
-          banner={customStyle ? 'banner-image.jpg' : undefined}
-          borderColor={customStyle ? SourceCardBorderColor.Onion : undefined}
-          source={
+          squad={
             setSource && {
               ...admin.source,
+              image: setImage ? admin.source.image : undefined,
               currentMember: setMembers ? admin.source.currentMember : null,
               members: {
                 ...admin.source.members,
@@ -108,13 +76,8 @@ const renderComponent = (
               },
             }
           }
-          // source={
-          //   hasMembers && {
-          //     ...admin.source,
-          //     image: 'test-image.jpg',
-          //     membersCount: hasMembers ? squads[0].membersCount : undefined,
-          //   }
-          // }
+          icon={<div>icon</div>}
+          {...otherProps}
         />
       </AuthContextProvider>
     </QueryClientProvider>,
@@ -122,28 +85,11 @@ const renderComponent = (
 };
 
 it('should render the component with basic props', async () => {
-  renderComponent();
-  const element = screen.getByRole('article');
-  const img = screen.getByAltText('Banner image for source');
-
-  expect(screen.getByText('title')).toBeInTheDocument();
-  expect(screen.getByText('icon')).toBeInTheDocument();
-  expect(element).toHaveClass('!border-accent-avocado-default');
-  expect(img).toHaveAttribute(
-    'src',
-    cloudinary.squads.directory.cardBannerDefault,
-  );
-});
-
-it('should render the component with basic props and custom border and banner', async () => {
   renderComponent(false, true, false);
-  const element = screen.getByRole('article');
-  const img = screen.getByAltText('Banner image for source');
 
-  expect(screen.getByText('title')).toBeInTheDocument();
+  expect(screen.getByText('Test')).toBeInTheDocument();
   expect(screen.getByText('icon')).toBeInTheDocument();
-  expect(element).toHaveClass('!border-accent-onion-default');
-  expect(img).toHaveAttribute('src', 'banner-image.jpg');
+  expect(screen.getByText('@test')).toBeInTheDocument();
 });
 
 it('should render the component and call the onClick function when the action button is clicked', async () => {
@@ -156,18 +102,18 @@ it('should render the component and call the onClick function when the action bu
 });
 
 it('should render the component with an image', () => {
-  renderComponent(false, false, true);
-  const img = screen.getByAltText('title source');
+  renderComponent(false, true, true, true);
+  const img = screen.getByAltText('Test source');
   const icon = screen.queryByText('icon');
 
   expect(img).toHaveAttribute('src', admin.source.image);
   expect(icon).not.toBeInTheDocument();
 });
 
-it('should render the component and member short list when members are provided', () => {
-  renderComponent(false, false, true);
+it('should render the component and member count when members are provided and is not user squad', () => {
+  renderComponent(false, true, true);
 
-  const memberCount = screen.getByLabelText('squad-members-count');
+  const memberCount = screen.getByTestId('squad-members-count');
 
   expect(memberCount).toBeInTheDocument();
   expect(memberCount.innerHTML).toEqual(
@@ -175,10 +121,21 @@ it('should render the component and member short list when members are provided'
   );
 });
 
-it('should show the admin on top of the list', async () => {
-  renderComponent(false, false, true);
-  const membersList = await openedMembersModal();
-  expect(membersList[0].node.user.name).toEqual('Eliz Kılıç');
+it('should NOT render the component and member count when members are provided and is user squad', () => {
+  renderComponent(false, true, true, true, { isUserSquad: true });
+
+  const memberCount = screen.queryByTestId('squad-members-count');
+
+  expect(memberCount).not.toBeInTheDocument();
+});
+
+it('should render the component with a arrow and no action button', async () => {
+  renderComponent(true, true, true, true, { isUserSquad: true });
+
+  const link = screen.queryByTestId('source-action');
+  const arrow = screen.queryByTestId('squad-list-arrow-icon');
+  expect(link).not.toBeInTheDocument();
+  expect(arrow).toBeInTheDocument();
 });
 
 it('should render the component with a view squad button', async () => {
@@ -198,7 +155,7 @@ it('should render the component with a join squad button', async () => {
         push: routerReplace,
       } as unknown as NextRouter),
   );
-  renderComponent(false, true, true, false);
+  renderComponent(false, true, false);
   let queryCalled = false;
   mockGraphQL({
     request: {
