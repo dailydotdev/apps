@@ -12,7 +12,7 @@ export function FilterSwitch({
   ...props
 }: FilterSwitchProps): ReactElement {
   return (
-    <div className="my-4 flex flex-col">
+    <div className="flex flex-col">
       <Switch
         className="h-8"
         defaultTypo={false}

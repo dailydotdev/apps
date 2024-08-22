@@ -43,7 +43,7 @@ export default function TagItemList({
   return (
     <Component className={!tags?.length ? 'mt-0' : 'mt-3'}>
       {!tags?.length && (
-        <p className="mx-6 text-text-tertiary typo-callout">{emptyText}</p>
+        <p className="text-text-tertiary typo-callout">{emptyText}</p>
       )}
       {tags?.map((tag) => (
         <TagItemRow
