@@ -27,7 +27,7 @@ export function ContentTypesFilter(): ReactElement {
   const { onLanguageChange } = useLanguage();
 
   return (
-    <div className="flex flex-col gap-4 px-6">
+    <div className="flex flex-col gap-4">
       {postTitleLanguageFeature && (
         <>
           <section className="flex flex-col gap-4" aria-busy={isLoading}>
