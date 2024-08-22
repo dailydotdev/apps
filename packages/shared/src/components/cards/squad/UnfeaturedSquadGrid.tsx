@@ -69,7 +69,9 @@ export const UnfeaturedSquadGrid = ({
           className="mt-2"
         >
           {subtitle} <Separator />
-          <strong>{largeNumberFormat(source.membersCount)}</strong>
+          <strong data-testid="squad-members-count">
+            {largeNumberFormat(source.membersCount)}
+          </strong>
         </Typography>
       )}
     </Card>
