@@ -16,7 +16,14 @@ import { UnblockSourceCopy, UnblockTagCopy } from './UnblockCopy';
 import { ContentTypesFilter } from './ContentTypesFilter';
 import { Source } from '../../graphql/sources';
 import { webappUrl } from '../../lib/constants';
-import { ViewSize, useFeeds, useViewSize } from '../../hooks';
+import {
+  ViewSize,
+  useConditionalFeature,
+  useFeeds,
+  useViewSize,
+} from '../../hooks';
+import { feature } from '../../lib/featureManagement';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 enum FilterMenuTitle {
   MyFeed = 'My feed',
@@ -41,6 +48,7 @@ const unBlockPromptOptions: PromptOptions = {
 };
 
 export default function FeedFilters(props: FeedFiltersProps): ReactElement {
+  const { isLoggedIn } = useAuthContext();
   const { showPrompt } = usePrompt();
   const unBlockPrompt = async ({ action, source, tag }: UnblockItem) => {
     const description = tag ? (
@@ -57,6 +65,15 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
   const { feeds } = useFeeds();
 
   const filtersTab = FilterMenuTitle.MyFeed;
+
+  const { value: postTitleLanguageFeature } = useConditionalFeature({
+    feature: feature.postTitleLanguage,
+    shouldEvaluate: isLoggedIn,
+  });
+
+  const contentTypesTab = postTitleLanguageFeature
+    ? 'Content & Language'
+    : FilterMenuTitle.ContentTypes;
 
   const tabs = [
     {
@@ -87,7 +104,7 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
       options: { icon: <FilterIcon />, group: 'Preference' },
     },
     {
-      title: FilterMenuTitle.ContentTypes,
+      title: contentTypesTab,
       options: { icon: <AppIcon />, group: 'Preference' },
     },
     {
@@ -128,7 +145,7 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
           <Modal.Body view={FilterMenuTitle.ManageCategories}>
             <AdvancedSettingsFilter />
           </Modal.Body>
-          <Modal.Body view={FilterMenuTitle.ContentTypes}>
+          <Modal.Body view={contentTypesTab}>
             <ContentTypesFilter />
           </Modal.Body>
           <Modal.Body view={FilterMenuTitle.Blocked}>
