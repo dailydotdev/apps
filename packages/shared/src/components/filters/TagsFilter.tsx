@@ -86,7 +86,7 @@ export default function TagsFilter({
       aria-busy={isLoading}
       data-testid="tagsFilter"
     >
-      <div className="flex flex-col px-6 pb-6">
+      <div className="flex flex-col pb-6">
         <SearchField
           inputId="search-filters"
           placeholder="Search"
