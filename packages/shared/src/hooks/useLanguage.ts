@@ -3,7 +3,6 @@ import { ContentLanguage } from '../lib/user';
 import { useAuthContext } from '../contexts/AuthContext';
 import { UPDATE_USER_PROFILE_MUTATION } from '../graphql/users';
 import { useLogContext } from '../contexts/LogContext';
-import user from '../../__tests__/fixture/loggedUser';
 import { SharedFeedPage } from '../components/utilities';
 import { gqlClient } from '../graphql/common';
 import { labels } from '../lib';
@@ -17,7 +16,7 @@ export type UseLanguage = {
 
 export const useLanguage = (): UseLanguage => {
   const queryClient = useQueryClient();
-  const { updateUser } = useAuthContext();
+  const { user, updateUser } = useAuthContext();
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
 
