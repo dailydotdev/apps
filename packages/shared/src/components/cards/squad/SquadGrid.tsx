@@ -1,36 +1,19 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { useRouter } from 'next/router';
-import SquadMemberShortList from '../squads/SquadMemberShortList';
-import { Card } from '../cards/Card';
-import { SourceType, Squad } from '../../graphql/sources';
-import { Image } from '../image/Image';
-import { SquadJoinButton } from '../squads/SquadJoinButton';
-import { Origin } from '../../lib/log';
-import { cloudinary } from '../../lib/image';
-import { Button, ButtonVariant } from '../buttons/Button';
+import SquadMemberShortList from '../../squads/SquadMemberShortList';
+import { Card } from '../Card';
+import { SourceType } from '../../../graphql/sources';
+import { Image } from '../../image/Image';
+import { cloudinary } from '../../../lib/image';
+import { UnFeaturedSquadCardProps } from './common/types';
+import { SquadImage } from './common/SquadImage';
+import { SquadJoinButtonWrapper } from './common/SquadJoinButton';
+import { ButtonVariant } from '../../buttons/common';
 
-type SourceCardActionType = 'link' | 'action';
-
-interface SourceCardAction {
-  type: SourceCardActionType;
-  text: string;
-  href?: string;
-  target?: string;
-  onClick?: () => void;
-}
-
-interface SourceCardProps {
-  title: string;
-  subtitle?: string;
-  icon?: ReactNode;
-  action?: SourceCardAction;
-  description?: string;
+interface SourceCardProps extends UnFeaturedSquadCardProps {
   borderColor?: SourceCardBorderColor;
   banner?: string;
-  source?: Squad;
 }
-
 export enum SourceCardBorderColor {
   Avocado = 'avocado',
   Burger = 'burger',
@@ -63,7 +46,7 @@ const borderColorToClassName: Record<SourceCardBorderColor, string> = {
   [SourceCardBorderColor.Pepper]: '!border-accent-pepper-default',
 };
 
-export const SourceCard = ({
+export const SquadGrid = ({
   source,
   title,
   subtitle,
@@ -73,8 +56,6 @@ export const SourceCard = ({
   borderColor = SourceCardBorderColor.Avocado,
   banner,
 }: SourceCardProps): ReactElement => {
-  const router = useRouter();
-
   return (
     <Card
       className={classNames(
@@ -96,17 +77,12 @@ export const SourceCard = ({
       <div className="-mt-12 flex flex-1 flex-col rounded-t-16 bg-background-subtle p-4">
         <div className="mb-3 flex items-end justify-between">
           <a href={source?.permalink}>
-            {source?.image ? (
-              <img
-                className="-mt-14 h-24 w-24 rounded-full"
-                src={source?.image}
-                alt={`${title} source`}
-              />
-            ) : (
-              <div className="-mt-14 flex h-24 w-24 items-center justify-center rounded-full bg-accent-pepper-subtle">
-                {icon}
-              </div>
-            )}
+            <SquadImage
+              image={source?.image}
+              icon={icon}
+              title={title}
+              className="-mt-14"
+            />
           </a>
           {source?.membersCount > 0 && (
             <SquadMemberShortList
@@ -137,31 +113,15 @@ export const SourceCard = ({
               ))}
           </div>
 
-          {!!action &&
-          action?.type === 'action' &&
-          source?.type === SourceType.Squad ? (
-            <SquadJoinButton
-              className={{ button: '!btn-secondary w-full' }}
-              squad={source}
-              origin={Origin.SquadDirectory}
-              onSuccess={() => router.push(source?.permalink)}
-              joinText={action?.text}
-              data-testid="squad-action"
-            />
-          ) : (
-            <Button
-              variant={ButtonVariant.Secondary}
-              className="w-full"
-              onClick={action?.type === 'action' ? action?.onClick : undefined}
-              tag={action?.type === 'link' ? 'a' : undefined}
-              href={action?.type === 'link' && action.href}
-              target={action?.target ? action.target : '_self'}
-              rel="noopener"
-              data-testid="source-action"
-            >
-              {action?.text}
-            </Button>
-          )}
+          <SquadJoinButtonWrapper
+            action={action}
+            source={source}
+            variant={ButtonVariant.Secondary}
+            className={{
+              squadJoinButton: '!btn-secondary w-full',
+              simpleButton: 'w-full',
+            }}
+          />
         </div>
       </div>
     </Card>
