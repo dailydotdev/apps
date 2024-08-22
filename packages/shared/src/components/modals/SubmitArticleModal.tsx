@@ -58,6 +58,7 @@ export default function SubmitArticleModal({
     submissionAvailability: SubmissionAvailability;
   }>(availabilityKey, () => gqlClient.request(SUBMISSION_AVAILABILITY_QUERY));
   const { submissionAvailability } = access || {};
+  const dailyLimit = submissionAvailability?.limit ?? 3;
   const isEnabled = submissionAvailability?.hasAccess;
   const { mutateAsync: submitArticle } = useMutation<
     { submitArticle: SubmitArticleResponse },
@@ -236,8 +237,7 @@ export default function SubmitArticleModal({
           </div>
           <p className="typo-callout">
             Daily suggestions used&nbsp;
-            {submissionAvailability?.todaySubmissionsCount ?? 0}/
-            {submissionAvailability?.limit ?? 3}
+            {submissionAvailability?.todaySubmissionsCount ?? 0}/{dailyLimit}
           </p>
           <TextField
             autoFocus
@@ -258,7 +258,7 @@ export default function SubmitArticleModal({
             valid={!urlHint}
             valueChanged={onUrlChanged}
           />
-          {submissionAvailability?.todaySubmissionsCount === 3 && (
+          {submissionAvailability?.todaySubmissionsCount === dailyLimit && (
             <Alert
               type={AlertType.Error}
               title="You have reached the limit of 3 submissions per day"

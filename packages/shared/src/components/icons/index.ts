@@ -114,3 +114,4 @@ export * from './StackOverflow';
 export * from './Threads';
 export * from './Youtube';
 export * from './CodePen';
+export * from './Language';

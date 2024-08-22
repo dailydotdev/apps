@@ -31,6 +31,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import AuthContainer from './AuthContainer';
 import { onValidateHandles } from '../../hooks/useProfileForm';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
+import { LanguageDropdown } from '../profile/LanguageDropdown';
 
 export interface RegistrationFormProps extends AuthFormProps {
   email: string;
@@ -151,6 +152,7 @@ export const RegistrationForm = ({
   const isUsernameValid = !hints?.['traits.username'] && isSubmitted;
   const isExperienceLevelValid =
     !isSubmitted || !hints?.['traits.experienceLevel'];
+  const isLanguageValid = !isSubmitted || !hints?.['traits.language'];
 
   return (
     <>
@@ -244,6 +246,17 @@ export const RegistrationForm = ({
           onChange={() =>
             hints?.['traits.experienceLevel'] &&
             onUpdateHints({ ...hints, 'traits.experienceLevel': '' })
+          }
+          saveHintSpace
+        />
+        <LanguageDropdown
+          className={{ container: 'w-full' }}
+          name="traits.language"
+          valid={isLanguageValid}
+          hint={hints?.['traits.language']}
+          onChange={() =>
+            hints?.['traits.language'] &&
+            onUpdateHints({ ...hints, 'traits.language': '' })
           }
           saveHintSpace
         />

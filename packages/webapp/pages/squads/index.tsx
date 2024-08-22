@@ -11,10 +11,9 @@ import { ClientError } from 'graphql-request';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   FeedContainer,
-  SourceCard,
+  SquadGrid,
   SourceCardBorderColor,
   SquadsDirectoryHeader,
-  YourSquadItem,
 } from '@dailydotdev/shared/src/components';
 import { EditIcon, PlusIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -34,7 +33,6 @@ import ConditionalWrapper from '@dailydotdev/shared/src/components/ConditionalWr
 import TabContainer, {
   Tab,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
-import Link from 'next/link';
 import {
   useSquadNavigation,
   useViewSize,
@@ -42,6 +40,7 @@ import {
 } from '@dailydotdev/shared/src/hooks';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
+import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import FeedLayout, { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -114,12 +113,12 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
                   className="grid grid-cols-1 gap-4 px-4 py-5"
                 >
                   {squads.map((squad) => (
-                    <Link href={squad.permalink} key={squad.handle} passHref>
-                      <YourSquadItem
-                        squad={squad}
-                        elementProps={{ href: squad.permalink }}
-                      />
-                    </Link>
+                    <SquadList
+                      key={squad.handle}
+                      squad={squad}
+                      elementProps={{ href: squad.permalink }}
+                      isUserSquad
+                    />
                   ))}
                 </Tab>
                 <Tab label="Public squads" className="px-4">
@@ -134,6 +133,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
               fetchNextPage={queryResult.fetchNextPage}
               className="w-full"
             >
+              {/* TODO: remove SquadsDirectoryHeader on MI-510 */}
               <FeedContainer
                 header={
                   <SquadsDirectoryHeader className="hidden laptop:flex" />
@@ -155,7 +155,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
                           const isMember = user && props?.currentMember;
 
                           nodes.push(
-                            <SourceCard
+                            <SquadGrid
                               title={name}
                               subtitle={`@${props.handle}`}
                               action={{
@@ -173,12 +173,14 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
                               }}
                             />,
                           );
+
                           return nodes;
                         },
                         [],
                       ),
                     )}
-                    <SourceCard
+                    {/* TODO: remove this on MI-510 */}
+                    <SquadGrid
                       title="Which squads would you like to see next?"
                       action={{
                         type: 'link',

@@ -298,6 +298,7 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
       infoConfirmed
       timezone
       experienceLevel
+      language
     }
   }
 `;
