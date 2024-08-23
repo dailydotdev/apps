@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useToggle } from '../useToggle';
 import { useActions } from '../useActions';
@@ -11,6 +11,8 @@ import { generateQueryKey, RequestKey } from '../../lib/query';
 import { ActionType } from '../../graphql/actions';
 import { gqlClient } from '../../graphql/common';
 import { useToastNotification } from '../useToastNotification';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent, TargetType } from '../../lib/log';
 
 interface UseStreakRecoverProps {
   onRequestClose: () => void;
@@ -38,6 +40,7 @@ export const useStreakRecover = ({
   const { isActionsFetched, completeAction, checkHasCompleted } = useActions();
   const [hideForever, toggleHideForever] = useToggle(false);
   const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
 
   const { data, isLoading } = useQuery<{
     recoverStreak: UserStreakRecoverData;
@@ -52,16 +55,22 @@ export const useStreakRecover = ({
       await gqlClient.request(USER_STREAK_RECOVER_MUTATION),
     onSuccess: () => {
       displayToast('Lucky you! Your streak has been restored');
+      logEvent({
+        event_name: LogEvent.StreakRecover,
+      });
     },
   });
 
   const onClose = useCallback(async () => {
     if (hideForever) {
       await completeAction(ActionType.DisableReadingStreakRecover);
+      logEvent({
+        event_name: LogEvent.DismissStreakRecover,
+      });
     }
 
     onRequestClose?.();
-  }, [completeAction, hideForever, onRequestClose]);
+  }, [completeAction, hideForever, logEvent, onRequestClose]);
 
   const onRecover = useCallback(async () => {
     await recoverMutation.mutateAsync();
@@ -71,6 +80,14 @@ export const useStreakRecover = ({
   const isDisabled =
     !isActionsFetched ||
     checkHasCompleted(ActionType.DisableReadingStreakRecover);
+
+  useEffect(() => {
+    logEvent({
+      event_name: LogEvent.Impression,
+      target_type: TargetType.StreakRecover,
+      target_id: 'restore streak',
+    });
+  }, [logEvent]);
 
   return {
     hideForever: {

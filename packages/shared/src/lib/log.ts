@@ -149,6 +149,8 @@ export enum LogEvent {
   OpenStreaks = 'open streaks',
   DismissStreaksMilestone = 'dismiss streaks milestone',
   ScheduleStreakReminder = 'schedule streak reminder',
+  StreakRecover = 'restore streak',
+  DismissStreakRecover = 'dimiss streaks milestone',
   // 404 page
   View404Page = '404 page',
   // Source Actions - start
@@ -212,6 +214,7 @@ export enum TargetType {
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',
   StreaksMilestone = 'streaks milestone',
+  StreakRecover = 'streak restore',
   PromotionCard = 'promotion_card',
   MarketingCtaPopover = 'promotion_popover',
   MarketingCtaPopoverSmall = 'promotion_popover_small',
