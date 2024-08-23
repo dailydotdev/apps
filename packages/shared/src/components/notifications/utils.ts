@@ -64,7 +64,7 @@ export enum NotificationIconType {
   Star = 'Star',
   DevCard = 'DevCard',
   BookmarkReminder = 'BookmarkReminder',
-  ReadingStreak = 'ReadingStreak',
+  Streak = 'Streak',
 }
 
 export const notificationIcon: Record<
@@ -82,7 +82,7 @@ export const notificationIcon: Record<
   [NotificationIconType.Star]: StarIcon,
   [NotificationIconType.DevCard]: DevCardIcon,
   [NotificationIconType.BookmarkReminder]: BookmarkReminderIcon,
-  [NotificationIconType.ReadingStreak]: ReadingStreakIcon,
+  [NotificationIconType.Streak]: ReadingStreakIcon,
 };
 
 export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
