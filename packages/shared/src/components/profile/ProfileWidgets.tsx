@@ -28,7 +28,6 @@ export function ProfileWidgets({
   enableSticky,
 }: ProfileWidgetsProps): ReactElement {
   const { user: loggedUser } = useContext(AuthContext);
-  console.log(user);
   const isSameUser = loggedUser?.id === user.id;
   const stats = { ...userStats, reputation: user?.reputation };
 
