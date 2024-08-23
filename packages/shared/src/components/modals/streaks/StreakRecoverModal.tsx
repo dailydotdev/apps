@@ -173,7 +173,7 @@ export const StreakRecoverModal = (
     onRequestClose,
   });
 
-  if (!user || !recover.canDo || recover.isLoading || recover.isDisabled) {
+  if (!user || !recover.canRecover || recover.isLoading || recover.isDisabled) {
     return null;
   }
 

@@ -127,7 +127,7 @@ it('should render and fetch initial data if logged user can recover streak', asy
   renderComponent({});
   mockRecoveryQuery(
     {
-      canDo: true,
+      canRecover: true,
       cost: 25,
       oldStreakLength: 10,
     },
@@ -150,7 +150,7 @@ it('should render and fetch initial data if logged user can recover streak', asy
 
 it('Should have no cost for first time recovery', async () => {
   mockRecoveryQuery({
-    canDo: true,
+    canRecover: true,
     cost: 0,
     oldStreakLength: 10,
   });
@@ -175,7 +175,7 @@ it('Should have no cost for first time recovery', async () => {
 
 it('Should have cost of 25 points for 2nd+ time recovery', async () => {
   mockRecoveryQuery({
-    canDo: true,
+    canRecover: true,
     cost: 25,
     oldStreakLength: 10,
   });
@@ -200,7 +200,7 @@ it('Should have cost of 25 points for 2nd+ time recovery', async () => {
 
 it('Should show not enough points message if user does not have enough points', async () => {
   mockRecoveryQuery({
-    canDo: true,
+    canRecover: true,
     cost: 25,
     oldStreakLength: 10,
   });
@@ -230,7 +230,7 @@ it('Should show success message on recover', async () => {
   window.scrollTo = jest.fn();
 
   mockRecoveryQuery({
-    canDo: true,
+    canRecover: true,
     cost: 25,
     oldStreakLength: 102,
   });
@@ -287,7 +287,7 @@ it('Should dismiss popup on close if checked option', async () => {
 
   renderComponent({});
   mockRecoveryQuery({
-    canDo: true,
+    canRecover: true,
     cost: 25,
     oldStreakLength: 10,
   });

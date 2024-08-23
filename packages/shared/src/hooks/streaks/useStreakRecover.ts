@@ -24,7 +24,7 @@ interface UseStreakRecoverReturn {
   onClose?: () => void;
   onRecover?: () => void;
   recover: {
-    canDo: boolean;
+    canRecover: boolean;
     cost: number;
     isLoading: boolean;
     isDisabled: boolean;
@@ -43,16 +43,13 @@ export const useStreakRecover = ({
     recoverStreak: UserStreakRecoverData;
   }>({
     queryKey: generateQueryKey(RequestKey.UserStreakRecover),
-    queryFn: async () => {
-      return await gqlClient.request(USER_STREAK_RECOVER_QUERY);
-    },
+    queryFn: async () => await gqlClient.request(USER_STREAK_RECOVER_QUERY),
   });
 
   const recoverMutation = useMutation({
     mutationKey: generateQueryKey(RequestKey.UserStreakRecover),
-    mutationFn: async () => {
-      return await gqlClient.request(USER_STREAK_RECOVER_MUTATION);
-    },
+    mutationFn: async () =>
+      await gqlClient.request(USER_STREAK_RECOVER_MUTATION),
     onSuccess: () => {
       displayToast('Lucky you! Your streak has been restored');
     },
