@@ -19,6 +19,7 @@ import { useSourceActionsNotify } from '../../hooks';
 import { SourceActions } from '../sources/SourceActions';
 import { Source as ISource } from '../../graphql/sources';
 import { TruncateText } from '../utilities';
+import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 
 interface PostAuthorProps {
   post: Post;
@@ -119,6 +120,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
   const handleOrUsernameOrId =
     ('handle' in user ? user.handle : user.username) || id;
   const reputation = 'reputation' in user ? user.reputation : NaN;
+  const companies = 'companies' in user ? user.companies : [];
 
   const Icon = getUserIcon(userType);
   const isUserTypeSource = userType === UserType.Source && 'handle' in user;
@@ -185,7 +187,9 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
             >
               <TruncateText>{name}</TruncateText>
             </ProfileLink>
-
+            {companies.length > 0 && (
+              <VerifiedCompanyUserBadge user={{ companies }} />
+            )}
             {showReputation && (
               <ReputationUserBadge
                 className={className?.reputation}
