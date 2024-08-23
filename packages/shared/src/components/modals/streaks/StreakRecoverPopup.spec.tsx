@@ -30,7 +30,7 @@ const defaultAlerts: Alerts = {
 
 const alertsWithStreakRecovery: Alerts = {
   ...defaultAlerts,
-  streakRecovery: true,
+  showRecoverStreak: true,
 };
 
 const checkHasCompleted = jest.fn();
@@ -56,7 +56,7 @@ const mockRecoveryQuery = (
   data: UserStreakRecoverData,
   callback?: () => void,
 ) => {
-  mockGraphQL<{ recoverStreak: UserStreakRecoverData }>({
+  mockGraphQL<{ streakRecover: UserStreakRecoverData }>({
     request: {
       query: USER_STREAK_RECOVER_QUERY,
     },
@@ -124,7 +124,6 @@ it('should never render if user disabled this popup', async () => {
 it('should render and fetch initial data if logged user can recover streak', async () => {
   let haveFetched = false;
 
-  renderComponent({});
   mockRecoveryQuery(
     {
       canRecover: true,
@@ -136,16 +135,16 @@ it('should render and fetch initial data if logged user can recover streak', asy
     },
   );
 
+  renderComponent({});
+
   await waitForNock();
 
-  await waitFor(() => {
-    // fetched
-    expect(haveFetched).toBeTruthy();
+  // fetched
+  expect(haveFetched).toBeTruthy();
 
-    // and rendered
-    const popup = screen.queryByTestId('streak-recover-modal-heading');
-    expect(popup).toBeInTheDocument();
-  });
+  // and rendered
+  const popup = screen.queryByTestId('streak-recover-modal-heading');
+  expect(popup).toBeInTheDocument();
 });
 
 it('Should have no cost for first time recovery', async () => {

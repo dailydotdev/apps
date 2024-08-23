@@ -90,12 +90,16 @@ export const useStreakRecover = ({
     checkHasCompleted(ActionType.DisableReadingStreakRecover);
 
   useEffect(() => {
+    if (!data?.streakRecover?.canRecover || isDisabled || isLoading) {
+      return;
+    }
+
     logEvent({
       event_name: LogEvent.Impression,
       target_type: TargetType.StreakRecover,
       target_id: 'restore streak',
     });
-  }, [logEvent]);
+  }, [data?.streakRecover, isDisabled, isLoading, logEvent]);
 
   return {
     hideForever: {

@@ -211,10 +211,9 @@ export const BootPopups = (): ReactElement => {
       ActionType.DisableReadingStreakRecover,
     );
 
-    if (!alerts.streakRecovery || !user || hasMarkedAction) {
+    if (!alerts.showRecoverStreak || !user || hasMarkedAction) {
       return;
     }
-
     addBootPopup({
       type: LazyModal.RecoverStreak,
       props: {
