@@ -50,8 +50,11 @@ const VerifyWorkEmail = ({
   );
 
   const { mutate: verifyUserCompanyCode } = useMutation(
-    ({ email, code }: { email: string; code: string }) =>
-      gqlClient.request(VERIFY_USER_COMPANY_CODE_MUTATION, { email, code }),
+    ({ email, code: submittedCode }: { email: string; code: string }) =>
+      gqlClient.request(VERIFY_USER_COMPANY_CODE_MUTATION, {
+        email,
+        submittedCode,
+      }),
     {
       onSuccess: (data) => {
         queryClient.setQueryData<UserCompany[]>(

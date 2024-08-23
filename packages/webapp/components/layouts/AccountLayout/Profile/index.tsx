@@ -3,7 +3,13 @@ import {
   ButtonColor,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import React, { useCallback, useContext, useRef, useState } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useContext,
+  useRef,
+  useState,
+} from 'react';
 import {
   AtIcon,
   CameraIcon,
@@ -54,7 +60,9 @@ import type { VerifiedCompanyBadgeSectionProps } from './VerifiedCompanyBadge/Ve
 const imageId = 'avatar_file';
 const coverId = 'cover_file';
 
-const ProfileIndex = ({ ...props }: VerifiedCompanyBadgeSectionProps) => {
+const ProfileIndex = ({
+  ...props
+}: VerifiedCompanyBadgeSectionProps): ReactElement => {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>();
   const { displayToast } = useToastNotification();

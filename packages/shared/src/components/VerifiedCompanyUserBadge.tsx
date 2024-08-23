@@ -20,7 +20,8 @@ export const VerifiedCompanyUserBadge = ({
         `Verified as a ${companies[0].name} employee.`,
         ...(isVerified
           ? []
-          : [<br />, 'Get your company badge via account settings.']),
+          : // eslint-disable-next-line react/jsx-key
+            [<br />, 'Get your company badge via account settings.']),
       ]}
       placement="bottom"
       container={{

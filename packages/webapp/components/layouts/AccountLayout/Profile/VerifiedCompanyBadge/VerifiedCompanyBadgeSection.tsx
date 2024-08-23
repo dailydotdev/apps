@@ -19,7 +19,7 @@ import Alert, {
   AlertParagraph,
   AlertType,
 } from '@dailydotdev/shared/src/components/widgets/Alert';
-import React, { useContext, useState } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import {
@@ -53,14 +53,14 @@ export const VerifiedCompanyBadgeSection = ({
   onSwitchDisplay,
   workEmail,
   setWorkEmail,
-}: VerifiedCompanyBadgeSectionProps) => {
+}: VerifiedCompanyBadgeSectionProps): ReactElement => {
   const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const { userCompanies } = useUserCompaniesQuery();
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
 
-  const userCompanyVerified = !!userCompanies?.[0]?.company!;
+  const userCompanyVerified = !!userCompanies?.[0]?.company;
   const userCompanyInReview = !userCompanyVerified && userCompanies?.length > 0;
   const [submitWorkEmailHint, setSubmitWorkEmailHint] = useState<string>();
 
