@@ -261,7 +261,7 @@ export default function SubmitArticleModal({
           {submissionAvailability?.todaySubmissionsCount === dailyLimit && (
             <Alert
               type={AlertType.Error}
-              title="You have reached the limit of 3 submissions per day"
+              title={`You have reached the limit of ${dailyLimit} submissions per day`}
             />
           )}
           {isEnabled && (
