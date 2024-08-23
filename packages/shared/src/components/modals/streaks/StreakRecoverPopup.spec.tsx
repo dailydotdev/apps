@@ -63,7 +63,7 @@ const mockRecoveryQuery = (
     result: () => {
       callback?.();
       return {
-        data: { recoverStreak: data },
+        data: { streakRecover: data },
       };
     },
   });
@@ -77,7 +77,7 @@ const mockRecoveryMutation = (data: unknown, callback?: () => void) => {
     result: () => {
       callback?.();
       return {
-        data,
+        data: { recoverStreak: data },
       };
     },
   });
@@ -268,19 +268,48 @@ it('Should show success message on recover', async () => {
   expect(alert).toContainHTML('Lucky you! Your streak has been restored');
 });
 
-// it('Should show error message on recover fail', async () => {
-//   renderComponent({
-//     user: { ...loggedUser, reputation: 50 },
-//   });
-//   // click recover
-//   const recoverButton = await screen.findByLabelText('Restore my streak');
-//   fireEvent.click(recoverButton);
-//   // expect error message
-//   const errorMessage = await screen.findByLabelText(
-//     'Oops! Something went wrong. Please try again',
-//   );
-//   expect(errorMessage).toBeInTheDocument();
-// });
+it('Should show error message on recover fail', async () => {
+  mockRecoveryQuery({
+    canRecover: true,
+    cost: 25,
+    oldStreakLength: 102,
+  });
+
+  renderComponent({
+    user: {
+      ...loggedUser,
+      reputation: 50,
+    },
+  });
+
+  await waitForNock();
+
+  // rendered
+  const popupHeader = screen.queryByTestId('streak-recover-modal-heading');
+  expect(popupHeader).toBeInTheDocument();
+
+  // button is there
+  const button = screen.getByTestId('streak-recover-button');
+  expect(button).toBeInTheDocument();
+  fireEvent.click(button);
+
+  mockGraphQL({
+    request: {
+      query: USER_STREAK_RECOVER_MUTATION,
+    },
+    result: {
+      errors: [{ message: 'error' }],
+    },
+  });
+
+  await waitForNock();
+
+  // expect error message
+  const alert = await screen.findByRole('alert');
+  expect(alert).toContainHTML(
+    'Oops! We are unable to recover your streak. Could you try again later?',
+  );
+});
 
 it('Should dismiss popup on close if checked option', async () => {
   window.scrollTo = jest.fn();

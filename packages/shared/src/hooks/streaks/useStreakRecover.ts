@@ -43,7 +43,7 @@ export const useStreakRecover = ({
   const { logEvent } = useLogContext();
 
   const { data, isLoading } = useQuery<{
-    recoverStreak: UserStreakRecoverData;
+    streakRecover: UserStreakRecoverData;
   }>({
     queryKey: generateQueryKey(RequestKey.UserStreakRecover),
     queryFn: async () => await gqlClient.request(USER_STREAK_RECOVER_QUERY),
@@ -52,7 +52,9 @@ export const useStreakRecover = ({
   const recoverMutation = useMutation({
     mutationKey: generateQueryKey(RequestKey.UserStreakRecover),
     mutationFn: async () =>
-      await gqlClient.request(USER_STREAK_RECOVER_MUTATION),
+      await gqlClient
+        .request(USER_STREAK_RECOVER_MUTATION)
+        .then((res) => res.recoverStreak),
     onSuccess: () => {
       displayToast('Lucky you! Your streak has been restored');
       logEvent({
@@ -73,9 +75,15 @@ export const useStreakRecover = ({
   }, [completeAction, hideForever, logEvent, onRequestClose]);
 
   const onRecover = useCallback(async () => {
-    await recoverMutation.mutateAsync();
-    onRequestClose?.();
-  }, [onRequestClose, recoverMutation]);
+    try {
+      await recoverMutation.mutateAsync();
+      onRequestClose?.();
+    } catch (e) {
+      displayToast(
+        'Oops! We are unable to recover your streak. Could you try again later?',
+      );
+    }
+  }, [displayToast, onRequestClose, recoverMutation]);
 
   const isDisabled =
     !isActionsFetched ||
@@ -97,7 +105,7 @@ export const useStreakRecover = ({
     onClose,
     onRecover,
     recover: {
-      ...data?.recoverStreak,
+      ...data?.streakRecover,
       isLoading,
       isDisabled,
     },

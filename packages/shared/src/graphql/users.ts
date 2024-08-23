@@ -475,10 +475,9 @@ export interface UserStreakRecoverData {
 
 export const USER_STREAK_RECOVER_QUERY = gql`
   query UserStreakRecover {
-    recoverStreak {
-      canRecover
-      cost
-      oldStreakLength
+    streakRecover {
+      current
+      lastViewAt
     }
   }
 `;
