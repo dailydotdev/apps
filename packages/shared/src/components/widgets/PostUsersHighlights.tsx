@@ -187,7 +187,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
             >
               <TruncateText>{name}</TruncateText>
             </ProfileLink>
-            {companies.length > 0 && (
+            {companies?.length > 0 && (
               <VerifiedCompanyUserBadge user={{ companies }} />
             )}
             {showReputation && (

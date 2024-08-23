@@ -93,7 +93,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
             <TruncateText className="font-bold" title={name}>
               {name}
             </TruncateText>
-            {companies.length > 0 && (
+            {companies?.length > 0 && (
               <VerifiedCompanyUserBadge user={{ companies }} />
             )}
             <ReputationUserBadge user={user} />

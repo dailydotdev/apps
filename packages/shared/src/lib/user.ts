@@ -5,7 +5,7 @@ import {
   ProfileV2,
   USER_BY_ID_STATIC_FIELDS_QUERY,
 } from '../graphql/users';
-import { Company, UserCompany } from './userCompany';
+import type { Company } from './userCompany';
 
 export enum Roles {
   Moderator = 'moderator',
@@ -113,7 +113,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   acquisitionChannel?: string;
   experienceLevel?: keyof typeof UserExperienceLevel;
   isTeamMember?: boolean;
-  companies?: UserCompany[];
+  companies?: Company[];
 }
 
 interface BaseError {

@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { PublicProfile } from '../lib/user';
+import type { PublicProfile } from '../lib/user';
 import { SimpleTooltip } from './tooltips';
 import { ProfileImageSize, ProfilePicture } from './ProfilePicture';
 import { useUserCompaniesQuery } from '../hooks/userCompany';

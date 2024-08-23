@@ -80,7 +80,7 @@ function SquadPostAuthor({
               {author.name}
             </TruncateText>
             <div className="flex gap-1">
-              {author.companies.length > 0 && (
+              {author?.companies?.length > 0 && (
                 <VerifiedCompanyUserBadge user={author} />
               )}
               <ReputationUserBadge user={author} />
