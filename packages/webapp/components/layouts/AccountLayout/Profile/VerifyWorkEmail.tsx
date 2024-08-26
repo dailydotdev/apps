@@ -109,6 +109,7 @@ const VerifyWorkEmail = ({
             <Button
               variant={ButtonVariant.Primary}
               type="button"
+              className="w-[10.875rem]"
               disabled={!workEmail || timer > 0}
               onClick={() => onSubmitCode()}
             >

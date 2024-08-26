@@ -122,6 +122,7 @@ function EmailForm({
           <Button
             variant={ButtonVariant.Primary}
             type="button"
+            className="w-[10.875rem]"
             disabled={!email || timer > 0}
             onClick={onSubmitEmail}
           >
