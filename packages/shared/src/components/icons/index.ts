@@ -65,7 +65,6 @@ export * from './Loader';
 export * from './Lock';
 export * from './Mail';
 export * from './Markdown';
-export * from './MarkOk';
 export * from './Megaphone';
 export * from './Menu';
 export * from './Microsoft';
