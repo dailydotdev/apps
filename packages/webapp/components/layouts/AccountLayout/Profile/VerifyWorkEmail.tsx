@@ -81,7 +81,6 @@ const VerifyWorkEmail = ({
     <AccountPageContainer
       title="Verify your work email"
       onBack={() => onSwitchDisplay(Display.Default)}
-      className={{ section: 'max-w-sm' }}
     >
       <form className={classNames('flex flex-col gap-3')}>
         <CommonTextField
@@ -95,7 +94,7 @@ const VerifyWorkEmail = ({
           rightIcon={<VIcon />}
         />
         <TextField
-          className={{ container: 'w-full' }}
+          className={{ container: 'w-full max-w-sm' }}
           name="code"
           type="code"
           inputId="code"
@@ -119,7 +118,7 @@ const VerifyWorkEmail = ({
         />
         <Button
           data-testid="change_email_btn"
-          className="mt-3 w-fit"
+          className="mt-3 w-full max-w-sm"
           type="button"
           disabled={!code || !workEmail}
           variant={ButtonVariant.Primary}
