@@ -66,7 +66,7 @@ export function UserMetadata({
           date={new Date(createdAt)}
         />
       </div>
-      {company && (
+      {!!company && (
         <div className="mt-4 flex items-center gap-1">
           <ProfilePicture
             size={ProfileImageSize.Size16}

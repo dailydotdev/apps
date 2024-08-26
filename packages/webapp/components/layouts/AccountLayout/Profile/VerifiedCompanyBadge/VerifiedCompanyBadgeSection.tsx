@@ -64,7 +64,7 @@ export const VerifiedCompanyBadgeSection = ({
   const userCompanyInReview = !userCompanyVerified && userCompanies?.length > 0;
   const [submitWorkEmailHint, setSubmitWorkEmailHint] = useState<string>();
 
-  const { mutate: onSubmitWorkEmail } = useMutation(
+  const { mutate: onSubmitWorkEmail, isLoading } = useMutation(
     (email: string) => gqlClient.request(ADD_USER_COMPANY_MUTATION, { email }),
     {
       onSuccess: () => {
@@ -201,6 +201,7 @@ export const VerifiedCompanyBadgeSection = ({
                 variant={ButtonVariant.Primary}
                 icon={<ArrowIcon className="rotate-90" />}
                 type="button"
+                loading={isLoading}
                 disabled={!workEmail && !!submitWorkEmailHint}
                 onClick={() => onSubmitWorkEmail(workEmail)}
               />

@@ -14,6 +14,10 @@ export const VerifiedCompanyUserBadge = ({
   const { isVerified } = useUserCompaniesQuery();
   const { companies } = user;
 
+  if (!companies || companies.length === 0) {
+    return null;
+  }
+
   return (
     <SimpleTooltip
       content={[
