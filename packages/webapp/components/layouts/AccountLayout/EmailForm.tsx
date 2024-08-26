@@ -107,7 +107,7 @@ function EmailForm({
         />
       )}
       <TextField
-        className={{ container: 'w-full' }}
+        className={{ container: 'w-full', baseField: '!pr-1' }}
         name="code"
         type="code"
         inputId="code"

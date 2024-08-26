@@ -94,7 +94,7 @@ const VerifyWorkEmail = ({
           rightIcon={<VIcon />}
         />
         <TextField
-          className={{ container: 'w-full max-w-sm' }}
+          className={{ container: 'w-full max-w-sm', baseField: '!pr-1' }}
           name="code"
           type="code"
           inputId="code"
