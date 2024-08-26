@@ -114,6 +114,72 @@ export const VerifiedCompanyBadgeSection = ({
     }
   };
 
+  const UserHasVerifiedCompanies = () => {
+    return (
+      <div className="mt-6 max-w-sm">
+        <ul>
+          {userCompanies.map((userCompany) => (
+            <li className="flex items-center gap-3" key={userCompany.email}>
+              <ProfilePicture
+                user={{
+                  image: userCompany.company.image,
+                  id: userCompany.company.name,
+                }}
+                rounded="full"
+              />
+              <div className="flex-1">
+                <Typography type={TypographyType.Callout}>
+                  {userCompany.company.name}
+                </Typography>
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
+                  {userCompany.email}
+                  <Typography
+                    className="ml-1"
+                    color={TypographyColor.StatusSuccess}
+                    tag={TypographyTag.Span}
+                  >
+                    Verified
+                  </Typography>
+                </Typography>
+              </div>
+              <Button
+                type="button"
+                variant={ButtonVariant.Tertiary}
+                onClick={() => onDeleteUserCompany(userCompany.email)}
+                icon={<TrashIcon />}
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+
+  const UserHasCompanyInReview = () => {
+    return (
+      <div className="mt-6 max-w-sm">
+        <p className="text-text-tertiary typo-footnote">
+          {userCompanies[0].email}{' '}
+          <span className="ml-1 text-accent-bun-default">In review</span>
+        </p>
+        <Alert
+          className="mt-6"
+          type={AlertType.Success}
+          flexDirection="flex-row"
+        >
+          <AlertParagraph className="!mt-0 flex-1">
+            Your work email has been verified. We’re currently reviewing your
+            company details. Your badge will be added once the review is
+            complete, and you’ll be notified when it’s live.
+          </AlertParagraph>
+        </Alert>
+      </div>
+    );
+  };
+
   return (
     <AccountContentSection
       title="Verified company badge"
@@ -122,66 +188,8 @@ export const VerifiedCompanyBadgeSection = ({
         'Verify your work email and get a verified company badge on your profile. We won’t require any ID or personal information, just a verification code to complete the process.'
       }
     >
-      {userCompanyVerified && (
-        <div className="mt-6 max-w-sm">
-          <ul>
-            {userCompanies.map((userCompany) => (
-              <li className="flex items-center gap-3" key={userCompany.email}>
-                <ProfilePicture
-                  user={{
-                    image: userCompany.company.image,
-                    id: userCompany.company.name,
-                  }}
-                  rounded="full"
-                />
-                <div className="flex-1">
-                  <Typography type={TypographyType.Callout}>
-                    {userCompany.company.name}
-                  </Typography>
-                  <Typography
-                    type={TypographyType.Footnote}
-                    color={TypographyColor.Tertiary}
-                  >
-                    {userCompany.email}
-                    <Typography
-                      className="ml-1"
-                      color={TypographyColor.StatusSuccess}
-                      tag={TypographyTag.Span}
-                    >
-                      Verified
-                    </Typography>
-                  </Typography>
-                </div>
-                <Button
-                  type="button"
-                  variant={ButtonVariant.Tertiary}
-                  onClick={() => onDeleteUserCompany(userCompany.email)}
-                  icon={<TrashIcon />}
-                />
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-      {userCompanyInReview && (
-        <div className="mt-6 max-w-sm">
-          <p className="text-text-tertiary typo-footnote">
-            {userCompanies[0].email}{' '}
-            <span className="ml-1 text-accent-bun-default">In review</span>
-          </p>
-          <Alert
-            className="mt-6"
-            type={AlertType.Success}
-            flexDirection="flex-row"
-          >
-            <AlertParagraph className="!mt-0 flex-1">
-              Your work email has been verified. We’re currently reviewing your
-              company details. Your badge will be added once the review is
-              complete, and you’ll be notified when it’s live.
-            </AlertParagraph>
-          </Alert>
-        </div>
-      )}
+      {userCompanyVerified && <UserHasVerifiedCompanies />}
+      {userCompanyInReview && <UserHasCompanyInReview />}
       {!userCompanyVerified && !userCompanyInReview && (
         <>
           <AccountTextField

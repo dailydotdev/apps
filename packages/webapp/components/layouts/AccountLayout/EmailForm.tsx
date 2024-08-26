@@ -125,7 +125,7 @@ function EmailForm({
             disabled={!email || timer > 0}
             onClick={onSubmitEmail}
           >
-            {timer === 0 ? 'Send code' : `Resend code ${timer}s`}
+            {timer === 0 ? 'Send code' : `Resend code: ${timer}s`}
           </Button>
         }
       />

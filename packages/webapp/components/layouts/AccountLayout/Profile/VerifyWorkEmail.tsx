@@ -5,7 +5,7 @@ import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import useTimer from '@dailydotdev/shared/src/hooks/useTimer';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
@@ -38,6 +38,13 @@ const VerifyWorkEmail = ({
   const [code, setCode] = useState<string>();
   const { timer, setTimer, runTimer } = useTimer(null, 0);
 
+  useEffect(() => {
+    if (workEmail) {
+      setTimer(60);
+      runTimer();
+    }
+  }, [runTimer, setTimer, workEmail]);
+
   const { mutate: onSubmitCode } = useMutation(
     () => gqlClient.request(ADD_USER_COMPANY_MUTATION, { email: workEmail }),
     {
@@ -53,7 +60,7 @@ const VerifyWorkEmail = ({
     ({ email, code: submittedCode }: { email: string; code: string }) =>
       gqlClient.request(VERIFY_USER_COMPANY_CODE_MUTATION, {
         email,
-        submittedCode,
+        code: submittedCode,
       }),
     {
       onSuccess: (data) => {
@@ -106,7 +113,7 @@ const VerifyWorkEmail = ({
               disabled={!workEmail || timer > 0}
               onClick={() => onSubmitCode()}
             >
-              {timer === 0 ? 'Send code' : `Resend code ${timer}s`}
+              {timer === 0 ? 'Send code' : `Resend code: ${timer}s`}
             </Button>
           }
         />
