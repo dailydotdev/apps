@@ -218,7 +218,6 @@ export const BootPopups = (): ReactElement => {
       type: LazyModal.RecoverStreak,
       props: {
         user,
-        streak,
       },
     });
   }, [

@@ -15,10 +15,11 @@ import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
 
 interface UseStreakRecoverProps {
+  onAfterClose?: () => void;
   onRequestClose: () => void;
 }
 
-interface UseStreakRecoverReturn {
+export interface UseStreakRecoverReturn {
   hideForever: {
     isChecked: boolean;
     toggle: () => void;
@@ -35,6 +36,7 @@ interface UseStreakRecoverReturn {
 }
 
 export const useStreakRecover = ({
+  onAfterClose,
   onRequestClose,
 }: UseStreakRecoverProps): UseStreakRecoverReturn => {
   const { isActionsFetched, completeAction, checkHasCompleted } = useActions();
@@ -72,7 +74,8 @@ export const useStreakRecover = ({
     }
 
     onRequestClose?.();
-  }, [completeAction, hideForever, logEvent, onRequestClose]);
+    onAfterClose?.();
+  }, [completeAction, hideForever, logEvent, onAfterClose, onRequestClose]);
 
   const onRecover = useCallback(async () => {
     try {
