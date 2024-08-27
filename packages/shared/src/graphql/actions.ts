@@ -26,6 +26,7 @@ export enum ActionType {
   HidePublicSquadEligibilityCard = 'hide_public_squad_eligibility_card',
   HidePublicSquadStep = 'hide_public_squad_step',
   MakeSquadPublic = 'make_squad_public',
+  HidePublicSquadAbout = 'hide_public_squad_about',
   CustomFeed = 'custom_feed',
   DisableReadingStreakMilestone = 'disable_reading_streak_milestone',
   FirstShortcutsSession = 'first_shortcuts_session',

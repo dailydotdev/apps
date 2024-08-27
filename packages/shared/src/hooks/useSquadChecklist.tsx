@@ -154,6 +154,17 @@ const useSquadChecklist = ({
       }),
     };
 
+    if (squad.public) {
+      step[ActionType.HidePublicSquadAbout] = createChecklistStep({
+        type: ActionType.HidePublicSquadAbout,
+        step: {
+          title: 'Learn about Squads',
+          description: `Learn the benefits of a public squad and how to expand your community. Good luck!`,
+        },
+        actions,
+      });
+    }
+
     if (isPushSupported) {
       step[ActionType.EnableNotification] = createChecklistStep({
         type: ActionType.EnableNotification,
