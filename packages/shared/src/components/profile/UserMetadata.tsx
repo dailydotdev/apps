@@ -69,6 +69,7 @@ export function UserMetadata({
       {!!company && (
         <div className="mt-4 flex items-center gap-1">
           <ProfilePicture
+            className="border border-border-subtlest-secondary"
             size={ProfileImageSize.Size16}
             user={{
               image: company.image,
