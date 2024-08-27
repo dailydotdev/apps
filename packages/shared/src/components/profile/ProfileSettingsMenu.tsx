@@ -29,7 +29,6 @@ import { LogoutReason } from '../../lib/user';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { usePrompt } from '../../hooks/usePrompt';
 import { ButtonColor } from '../buttons/Button';
-import { useSlack } from '../../hooks/integrations/slack/useSlack';
 
 const useMenuItems = (): NavItemProps[] => {
   const { logout } = useAuthContext();
@@ -46,7 +45,6 @@ const useMenuItems = (): NavItemProps[] => {
       logout(LogoutReason.ManualLogout);
     }
   }, [logout, showPrompt]);
-  const slack = useSlack();
 
   return useMemo(
     () =>
