@@ -37,6 +37,10 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
       permalink
       createdAt
       readmeHtml
+      companies {
+        name
+        image
+      }
     }
   }
 `;
@@ -314,6 +318,48 @@ export const UPLOAD_COVER_MUTATION = gql`
 export const GET_USERNAME_SUGGESTION = gql`
   query GenerateUniqueUsername($name: String!) {
     generateUniqueUsername(name: $name)
+  }
+`;
+
+export const GET_USER_COMPANIES = gql`
+  query Companies {
+    companies {
+      email
+      company {
+        id
+        name
+        image
+      }
+    }
+  }
+`;
+
+export const ADD_USER_COMPANY_MUTATION = gql`
+  mutation AddUserCompany($email: String!) {
+    addUserCompany(email: $email) {
+      _
+    }
+  }
+`;
+
+export const VERIFY_USER_COMPANY_CODE_MUTATION = gql`
+  mutation VerifyUserCompanyCode($email: String!, $code: String!) {
+    verifyUserCompanyCode(email: $email, code: $code) {
+      email
+      company {
+        id
+        name
+        image
+      }
+    }
+  }
+`;
+
+export const REMOVE_USER_COMPANY_MUTATION = gql`
+  mutation RemoveUserCompany($email: String!) {
+    removeUserCompany(email: $email) {
+      _
+    }
   }
 `;
 
