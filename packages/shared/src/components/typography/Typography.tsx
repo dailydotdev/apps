@@ -43,6 +43,7 @@ export enum TypographyColor {
   Quaternary = 'text-text-quaternary',
   Disabled = 'text-text-disabled',
   Link = 'text-text-link',
+  StatusSuccess = 'text-status-success',
 }
 
 type AllowedTags = keyof Pick<JSX.IntrinsicElements, TypographyTag>;
