@@ -34,7 +34,6 @@ export enum ActionType {
   BookmarkPost = 'bookmark_post',
   DigestConfig = 'digest_config',
   StreakMilestone = 'streak_milestone',
-  ShowSummary = 'show_summary',
 }
 
 export interface Action {
