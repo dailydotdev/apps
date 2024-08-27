@@ -10,10 +10,6 @@ import { gqlClient } from '../../../graphql/common';
 import { apiUrl } from '../../../lib/config';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
-import { feature } from '../../../lib/featureManagement';
-import { useConditionalFeature } from '../../useConditionalFeature';
-
-export type UseSlackProps = void;
 
 export type UseSlack = {
   connect: ({ redirectPath }: { redirectPath: string }) => void;
@@ -26,20 +22,13 @@ export type UseSlack = {
     channelId: string;
     sourceId: string;
   }) => Promise<void>;
-  isFeatureLoading: boolean;
-  isFeatureEnabled: boolean;
 };
 
 const scopes = ['channels:read', 'chat:write', 'channels:join', 'groups:read'];
 
 export const useSlack = (): UseSlack => {
-  const { user, isLoggedIn } = useAuthContext();
+  const { user } = useAuthContext();
   const { logEvent } = useLogContext();
-  const { value: slackIntegration, isLoading: isFeatureLoading } =
-    useConditionalFeature({
-      feature: feature.slackIntegration,
-      shouldEvaluate: isLoggedIn,
-    });
 
   const connect = useCallback<UseSlack['connect']>(
     async ({ redirectPath }) => {
@@ -90,7 +79,5 @@ export const useSlack = (): UseSlack => {
   return {
     connect,
     connectSource,
-    isFeatureLoading,
-    isFeatureEnabled: !isFeatureLoading && !!slackIntegration,
   };
 };

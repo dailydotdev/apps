@@ -29,7 +29,6 @@ import { LogoutReason } from '../../lib/user';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { usePrompt } from '../../hooks/usePrompt';
 import { ButtonColor } from '../buttons/Button';
-import { useSlack } from '../../hooks/integrations/slack/useSlack';
 
 const useMenuItems = (): NavItemProps[] => {
   const { logout } = useAuthContext();
@@ -46,7 +45,6 @@ const useMenuItems = (): NavItemProps[] => {
       logout(LogoutReason.ManualLogout);
     }
   }, [logout, showPrompt]);
-  const slack = useSlack();
 
   return useMemo(
     () =>
@@ -82,7 +80,7 @@ const useMenuItems = (): NavItemProps[] => {
           icon: <BellIcon />,
           href: '/account/notifications',
         },
-        slack.isFeatureEnabled && {
+        {
           label: 'Integrations',
           icon: <AppIcon />,
           href: '/account/integrations',
@@ -139,7 +137,7 @@ const useMenuItems = (): NavItemProps[] => {
           rel: anchorDefaultRel,
         },
       ].filter(Boolean),
-    [onLogout, openModal, slack.isFeatureEnabled],
+    [onLogout, openModal],
   );
 };
 
