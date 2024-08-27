@@ -35,6 +35,7 @@ export const VerifiedCompanyUserBadge = ({
       <div className="ml-1 flex items-center">
         <ProfilePicture
           size={ProfileImageSize.Size16}
+          className="border border-border-subtlest-secondary"
           user={{
             image: companies[0].image,
             id: companies[0].name,
