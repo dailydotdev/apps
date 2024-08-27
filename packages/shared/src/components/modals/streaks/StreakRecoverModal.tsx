@@ -37,10 +37,8 @@ const StreakRecoverCover = () => (
     <img
       alt="Broken reading streak"
       className="h-auto w-full object-contain"
-      height="131"
       loading="lazy"
       src={cloudinary.streak.lost}
-      width="340"
     />
   </div>
 );
