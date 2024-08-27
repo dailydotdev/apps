@@ -410,7 +410,7 @@ it('should send add bookmark mutation', async () => {
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
 
-it('should send remove bookmark mutation', async () => {
+it('should send remove bookmark mutation (feed)', async () => {
   let mutationCalled = false;
   mockCompleteAction();
   renderComponent([

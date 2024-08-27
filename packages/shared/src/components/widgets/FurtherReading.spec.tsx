@@ -169,7 +169,7 @@ it('should send add bookmark mutation', async () => {
   await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'true'));
 });
 
-it('should send remove bookmark mutation', async () => {
+it('should send remove bookmark mutation (furtherReading)', async () => {
   let mutationCalled = false;
   mockGraphQL(completeActionMock({ action: ActionType.BookmarkPromoteMobile }));
   renderComponent([
