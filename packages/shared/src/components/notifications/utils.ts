@@ -97,7 +97,7 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
   [NotificationIconType.User]: '',
   [NotificationIconType.DevCard]: '',
   [NotificationIconType.BookmarkReminder]: 'text-accent-bun-default',
-  [NotificationIconType.ReadingStreak]: '',
+  [NotificationIconType.Streak]: '',
 };
 
 export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
