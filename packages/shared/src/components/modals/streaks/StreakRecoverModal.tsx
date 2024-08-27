@@ -70,7 +70,7 @@ const StreakRecoveryCopy = ({
       rel={anchorDefaultRel}
       href={reputationHref}
       title="What are reputation points?"
-      className="text-text-link underline-offset-2 hover:underline"
+      className="text-text-link hover:underline"
     >
       reputation points
     </a>
