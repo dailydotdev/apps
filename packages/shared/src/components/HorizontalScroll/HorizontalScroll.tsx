@@ -39,12 +39,12 @@ export default function HorizontalScroll<T>({
       const element = ref.current.firstElementChild as HTMLElement;
       const elementWidth = element.offsetWidth;
       const elementMarginRight = parseFloat(
-        getComputedStyle(element).marginRight,
+        getComputedStyle(element).marginRight || '0',
       );
       const elementMarginLeft = parseFloat(
-        getComputedStyle(element).marginLeft,
+        getComputedStyle(element).marginLeft || '0',
       );
-      const containerGap = parseFloat(getComputedStyle(ref.current).gap);
+      const containerGap = parseFloat(getComputedStyle(ref.current).gap || '0');
       const elementWidthWithMarginsAndGap =
         elementWidth + elementMarginRight + elementMarginLeft + containerGap;
 
@@ -133,6 +133,8 @@ export default function HorizontalScroll<T>({
           'no-scrollbar grid auto-cols-max grid-flow-col overflow-x-scroll scroll-smooth',
           className,
         )}
+        role="region"
+        aria-label="Horizontal Scroll"
       >
         {children}
       </div>
