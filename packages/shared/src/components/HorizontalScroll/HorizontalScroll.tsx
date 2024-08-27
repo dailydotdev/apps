@@ -8,6 +8,7 @@ import React, {
   RefObject,
   MouseEventHandler,
 } from 'react';
+import classNames from 'classnames';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
 import { useScrollManagement } from './useScrollManagement';
@@ -17,6 +18,7 @@ interface HorizontalScrollProps {
   children: ReactNode;
   onScroll?: (ref: RefObject<HTMLElement>) => void;
   onClickSeeAll?: MouseEventHandler;
+  className?: string;
 }
 
 export default function HorizontalScroll<T>({
@@ -24,6 +26,7 @@ export default function HorizontalScroll<T>({
   children,
   onScroll,
   onClickSeeAll,
+  className,
 }: HorizontalScrollProps): ReactElement {
   const ref = useRef<HTMLDivElement>(null);
   const [scrollableElementWidth, setScrollableElementWidth] =
@@ -41,13 +44,16 @@ export default function HorizontalScroll<T>({
       const elementMarginLeft = parseFloat(
         getComputedStyle(element).marginLeft,
       );
-      const elementWidthWithMargins =
-        elementWidth + elementMarginRight + elementMarginLeft;
+      const containerGap = parseFloat(getComputedStyle(ref.current).gap);
+      const elementWidthWithMarginsAndGap =
+        elementWidth + elementMarginRight + elementMarginLeft + containerGap;
 
-      setScrollableElementWidth(elementWidthWithMargins);
+      setScrollableElementWidth(elementWidthWithMarginsAndGap);
 
       const mainContainerWidth = ref.current.offsetWidth;
-      setNumCards(Math.floor(mainContainerWidth / elementWidthWithMargins));
+      setNumCards(
+        Math.floor(mainContainerWidth / elementWidthWithMarginsAndGap),
+      );
     }
   }, []);
 
@@ -123,7 +129,10 @@ export default function HorizontalScroll<T>({
       <Header />
       <div
         ref={ref}
-        className="no-scrollbar flex flex-row overflow-x-scroll scroll-smooth"
+        className={classNames(
+          'no-scrollbar grid auto-cols-max grid-flow-col overflow-x-scroll scroll-smooth',
+          className,
+        )}
       >
         {children}
       </div>

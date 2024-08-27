@@ -7,11 +7,20 @@ import React, {
   useCallback,
   useState,
 } from 'react';
+import { UnfeaturedSquadGrid } from '@dailydotdev/shared/src/components/cards/squad/UnfeaturedSquadGrid';
+import {
+  SourceMemberRole,
+  SourceType,
+} from '@dailydotdev/shared/src/graphql/sources';
+import {
+  UnFeaturedSquadCardProps
+} from '@dailydotdev/shared/src/components/cards/squad/common/types';
+
 
 const ScrollableElement = ({ item, index, ...props }: {
   item: { value: string },
   index: number
-}): ReactElement => <div {...props} className="m-4 w-full max-w-40 border p-4">{item.value} {index}</div>;
+}): ReactElement => <div {...props} className="w-full max-w-40 border p-4">{item.value} <br/>{index}</div>;
 
 const meta: Meta<typeof HorizontalScroll> = {
   title: 'Components/HorizontalScroll',
@@ -38,7 +47,7 @@ export const HorizontalScrollStory: Story = {
 
     return (
       <>
-        <HorizontalScroll title={title}>
+        <HorizontalScroll title={title} className='gap-4'>
           {new Array(30).fill({value: "this is an item"}).map((item, i) => (
             /* eslint-disable react/no-array-index-key */
             <ScrollableElement
@@ -53,6 +62,51 @@ export const HorizontalScrollStory: Story = {
     );
   },
   name: 'HorizontalScroll',
+  args: { title: 'Horizontal Scroll' },
+};
+
+export const HorizontalScrollSquadStory: Story = {
+  render: ({ title,  ...props }) => {
+
+    const args: UnFeaturedSquadCardProps = {
+      title: 'Squad Title',
+      subtitle: '@handle',
+      action: {
+        text: 'View Squad',
+        type: 'link',
+        href: 'https://daily.dev',
+      },
+      source: {
+        name: 'Squad Name',
+        permalink: 'https://daily.dev',
+        id: '123',
+        active: true,
+        public: true,
+        type: SourceType.Squad,
+        membersCount: 232093,
+        description: 'Squad description',
+        memberPostingRole: SourceMemberRole.Admin,
+        memberInviteRole: SourceMemberRole.Admin,
+        image: 'https://via.placeholder.com/150',
+        handle: 'squad-handle'
+      },
+    };
+
+    return (
+      <>
+        <HorizontalScroll title={title} className='gap-8'>
+          {new Array(30).fill(null).map((item, i) => (
+            /* eslint-disable react/no-array-index-key */
+            <UnfeaturedSquadGrid
+              {...args}
+              key={`horizontal scroll item ${i}`}
+            />
+          ))}
+        </HorizontalScroll>
+      </>
+    );
+  },
+  name: 'HorizontalScrollSquadStory',
   args: { title: 'Horizontal Scroll' },
 };
 
@@ -98,6 +152,7 @@ export const HorizontalScrollInfinite: Story = {
           title={title}
           onScroll={handleScroll}
           onClickSeeAll={() => console.log("See all clicked")}
+          className='gap-4'
         >
           {data.map((item, i) => (
             /* eslint-disable react/no-array-index-key */
