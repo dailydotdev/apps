@@ -5,20 +5,26 @@ import React, {
   useEffect,
   useState,
   ReactNode,
+  RefObject,
+  MouseEventHandler,
 } from 'react';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
 import { useScrollManagement } from './useScrollManagement';
 
-interface HorizontalScrollProps<T> {
+interface HorizontalScrollProps {
   title: string | ReactElement;
   children: ReactNode;
+  onScroll?: (ref: RefObject<HTMLElement>) => void;
+  onClickSeeAll?: MouseEventHandler;
 }
 
 export default function HorizontalScroll<T>({
   title,
   children,
-}: HorizontalScrollProps<T>): ReactElement {
+  onScroll,
+  onClickSeeAll,
+}: HorizontalScrollProps): ReactElement {
   const ref = useRef<HTMLDivElement>(null);
   const [scrollableElementWidth, setScrollableElementWidth] =
     useState<number>(0);
@@ -59,16 +65,19 @@ export default function HorizontalScroll<T>({
     };
   }, [calculateVisibleCards]);
 
-  const { isAtStart, isAtEnd } = useScrollManagement(ref);
+  const { isAtStart, isAtEnd } = useScrollManagement(ref, onScroll);
 
   const onClickNext = () => {
     if (ref.current) {
+      onScroll?.(ref);
       ref.current.scrollLeft += numCards * scrollableElementWidth;
     }
   };
 
   const onClickPrevious = () => {
     if (ref.current) {
+      onScroll?.(ref);
+
       ref.current.scrollLeft = Math.max(
         0,
         ref.current.scrollLeft - numCards * scrollableElementWidth,
@@ -95,6 +104,15 @@ export default function HorizontalScroll<T>({
             onClick={onClickNext}
             aria-label="Scroll right"
           />
+          {onClickSeeAll && (
+            <Button
+              variant={ButtonVariant.Tertiary}
+              onClick={onClickSeeAll}
+              aria-label="See all"
+            >
+              See all
+            </Button>
+          )}
         </div>
       </div>
     );

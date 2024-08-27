@@ -1,12 +1,16 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { RefObject, useCallback, useEffect, useState } from 'react';
 import useDebounceFn from '../../hooks/useDebounceFn';
 
-export const useScrollManagement = (ref: React.RefObject<HTMLDivElement>) => {
+export const useScrollManagement = (
+  ref: React.RefObject<HTMLElement>,
+  onScroll: (ref: RefObject<HTMLElement>) => void,
+) => {
   const [isAtStart, setIsAtStart] = useState(true);
   const [isAtEnd, setIsAtEnd] = useState(false);
 
   const checkScrollPosition = useCallback(() => {
     if (ref.current) {
+      onScroll?.(ref);
       const { scrollLeft, scrollWidth, clientWidth } = ref.current;
 
       setIsAtStart(scrollLeft === 0);
