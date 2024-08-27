@@ -82,7 +82,7 @@ const useMenuItems = (): NavItemProps[] => {
           icon: <BellIcon />,
           href: '/account/notifications',
         },
-        slack.isFeatureEnabled && {
+        {
           label: 'Integrations',
           icon: <AppIcon />,
           href: '/account/integrations',
@@ -139,7 +139,7 @@ const useMenuItems = (): NavItemProps[] => {
           rel: anchorDefaultRel,
         },
       ].filter(Boolean),
-    [onLogout, openModal, slack.isFeatureEnabled],
+    [onLogout, openModal],
   );
 };
 
