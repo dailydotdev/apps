@@ -27,7 +27,6 @@ const feature = {
   shortcutsUI: new Feature('shortcuts_ui', ShortcutsUIExperiment.Control),
   showRoadmap: new Feature('show_roadmap', false),
   onboardingChecklist: new Feature('onboarding_checklist', false),
-  animatedUpvote: new Feature('animated_upvote', false),
   authorImage: new Feature('author_image', false),
   searchUsers: new Feature('search_users', false),
   postTitleLanguage: new Feature('post_title_language', false),

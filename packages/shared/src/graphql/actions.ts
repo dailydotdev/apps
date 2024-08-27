@@ -29,6 +29,7 @@ export enum ActionType {
   HidePublicSquadAbout = 'hide_public_squad_about',
   CustomFeed = 'custom_feed',
   DisableReadingStreakMilestone = 'disable_reading_streak_milestone',
+  DisableReadingStreakRecover = 'disable_reading_streak_recover',
   FirstShortcutsSession = 'first_shortcuts_session',
   VotePost = 'vote_post',
   BookmarkPost = 'bookmark_post',
