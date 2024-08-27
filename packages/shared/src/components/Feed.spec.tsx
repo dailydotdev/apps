@@ -412,7 +412,7 @@ it('should send add bookmark mutation', async () => {
 
 it('should send remove bookmark mutation (feed)', async () => {
   let mutationCalled = false;
-  mockCompleteAction();
+  mockGraphQL(completeActionMock({ action: ActionType.BookmarkPromoteMobile }));
   renderComponent([
     createFeedMock({
       pageInfo: defaultFeedPage.pageInfo,
@@ -436,8 +436,10 @@ it('should send remove bookmark mutation (feed)', async () => {
     completeActionMock({ action: ActionType.BookmarkPost }),
   ]);
   const [el] = await screen.findAllByLabelText('Remove bookmark');
+  await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'true'));
   el.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
+  await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'false'));
 });
 
 it('should open login modal on anonymous bookmark', async () => {
