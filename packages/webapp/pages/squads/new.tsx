@@ -15,6 +15,7 @@ import { useSquadCreate } from '@dailydotdev/shared/src/hooks/squads/useSquadCre
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { SourceIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 
@@ -28,6 +29,7 @@ const NewSquad = (): ReactElement => {
   const { isReady: isRouteReady } = useRouter();
   const { user, isAuthReady, isFetched } = useAuthContext();
   const { onCreateSquad, isLoading } = useSquadCreate();
+  const isMobile = useViewSize(ViewSize.MobileL);
 
   const onCreate = async (e: FormEvent, squadForm: SquadForm) => {
     e.preventDefault();
@@ -57,7 +59,7 @@ const NewSquad = (): ReactElement => {
         createMode
         isLoading={isLoading}
       >
-        <div className="flex flex-row bg-cover bg-center">
+        <div className="flex flex-col-reverse bg-cover bg-center tablet:flex-row">
           <div className="mx-6 my-5 flex flex-1 flex-col gap-2">
             <SquadTitle className="flex flex-row">
               <SourceIcon className="mr-0.5" size={IconSize.XLarge} />
@@ -69,8 +71,12 @@ const NewSquad = (): ReactElement => {
             </SquadSubTitle>
           </div>
           <img
-            className="h-[9.6875rem] w-[15.625rem]"
-            src={cloudinary.squads.createSquad}
+            className="w-full tablet:h-[9.6875rem] tablet:w-[15.625rem]"
+            src={
+              isMobile
+                ? cloudinary.squads.createSquad.mobile
+                : cloudinary.squads.createSquad.beyondMobile
+            }
             alt="A collection of other people's avatars"
           />
         </div>

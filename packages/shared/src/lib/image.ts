@@ -58,8 +58,12 @@ export const cloudinary = {
     },
     imageFallback:
       'https://daily-now-res.cloudinary.com/image/upload/s--LrHsyt2T--/f_auto/v1692632054/squad_placeholder_sfwkmj',
-    createSquad:
-      'https://daily-now-res.cloudinary.com/image/upload/s--POqnH7nQ--/f_auto/v1722253758/Create_new_Squad_xe4jvz',
+    createSquad: {
+      beyondMobile:
+        'https://daily-now-res.cloudinary.com/image/upload/s--POqnH7nQ--/f_auto/v1722253758/Create_new_Squad_xe4jvz',
+      mobile:
+        'https://daily-now-res.cloudinary.com/image/upload/s--m5ymoplf--/f_auto/v1722253758/Create_new_Squad_mobile_ciehql',
+    },
     tour: {
       banner0:
         'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/squad_tour0',
