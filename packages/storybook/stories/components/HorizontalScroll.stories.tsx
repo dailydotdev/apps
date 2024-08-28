@@ -94,7 +94,7 @@ export const HorizontalScrollSquadStory: Story = {
 
     return (
       <>
-        <HorizontalScroll title={title} className='gap-8'>
+        <HorizontalScroll title={title} className='gap-8 py-4'>
           {new Array(30).fill(null).map((item, i) => (
             /* eslint-disable react/no-array-index-key */
             <UnfeaturedSquadGrid
