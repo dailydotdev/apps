@@ -13,7 +13,7 @@ describe('HorizontalScroll', () => {
     expect(screen.getByText('Scrollable Area')).toBeInTheDocument();
     expect(screen.getByText('Child Content')).toBeInTheDocument();
     expect(
-      screen.getByRole('region', { name: 'Horizontal Scroll' }),
+      screen.getByRole('region', { name: 'Scrollable Area' }),
     ).toBeInTheDocument();
   });
 

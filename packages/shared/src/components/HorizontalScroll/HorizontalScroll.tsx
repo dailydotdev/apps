@@ -3,6 +3,7 @@ import React, {
   ReactNode,
   RefObject,
   MouseEventHandler,
+  useId,
 } from 'react';
 import classNames from 'classnames';
 import { useHorizontalScrollHeader } from './useHorizontalScrollHeader';
@@ -28,7 +29,8 @@ export default function HorizontalScroll({
     onClickSeeAll,
   });
 
-  const titleId = `horizontal-scroll-title-${Math.random()}`;
+  const id = useId();
+  const titleId = `horizontal-scroll-title-${id}`;
 
   return (
     <>
