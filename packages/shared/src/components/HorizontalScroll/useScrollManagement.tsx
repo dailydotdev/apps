@@ -1,10 +1,14 @@
 import React, { RefObject, useCallback, useEffect, useState } from 'react';
 import useDebounceFn from '../../hooks/useDebounceFn';
 
+interface ScrollManagementReturn {
+  isAtStart: boolean;
+  isAtEnd: boolean;
+}
 export const useScrollManagement = (
   ref: React.RefObject<HTMLElement>,
   onScroll: (ref: RefObject<HTMLElement>) => void,
-) => {
+): ScrollManagementReturn => {
   const [isAtStart, setIsAtStart] = useState(false);
   const [isAtEnd, setIsAtEnd] = useState(false);
 
@@ -23,7 +27,7 @@ export const useScrollManagement = (
   useEffect(() => {
     const element = ref.current;
     if (!element) {
-      return;
+      return null;
     }
 
     element.addEventListener('scroll', debouncedOnScroll);

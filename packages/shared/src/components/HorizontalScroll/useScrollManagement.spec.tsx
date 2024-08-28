@@ -33,8 +33,10 @@ describe('useScrollManagement', () => {
       useScrollManagement(mockRef, onScrollMock),
     );
 
-    mockRef.current!.scrollLeft = 0;
-    mockRef.current!.dispatchEvent(new Event('scroll'));
+    if (mockRef.current) {
+      mockRef.current.scrollLeft = 0;
+      mockRef.current.dispatchEvent(new Event('scroll'));
+    }
 
     expect(result.current.isAtStart).toBe(true);
     expect(result.current.isAtEnd).toBe(false);
@@ -45,9 +47,11 @@ describe('useScrollManagement', () => {
       useScrollManagement(mockRef, onScrollMock),
     );
 
-    // Simulate scrolling to the end
-    mockRef.current!.scrollLeft = 500;
-    mockRef.current!.dispatchEvent(new Event('scroll'));
+    if (mockRef.current) {
+      // Simulate scrolling to the end
+      mockRef.current.scrollLeft = 500;
+      mockRef.current.dispatchEvent(new Event('scroll'));
+    }
 
     expect(result.current.isAtEnd).toBe(true);
     expect(result.current.isAtStart).toBe(false);
@@ -67,7 +71,9 @@ describe('useScrollManagement', () => {
   it('should call onScroll when scrolled', () => {
     renderHook(() => useScrollManagement(mockRef, onScrollMock));
 
-    mockRef.current!.dispatchEvent(new Event('scroll'));
+    if (mockRef.current) {
+      mockRef.current.dispatchEvent(new Event('scroll'));
+    }
 
     expect(onScrollMock).toHaveBeenCalledWith(mockRef);
   });
@@ -78,7 +84,9 @@ describe('useScrollManagement', () => {
 
     renderHook(() => useScrollManagement(mockRef, onScrollMock));
 
-    mockRef.current!.dispatchEvent(new Event('scroll'));
+    if (mockRef.current) {
+      mockRef.current.dispatchEvent(new Event('scroll'));
+    }
 
     expect(debouncedFunction).toHaveBeenCalled();
   });
