@@ -17,6 +17,7 @@ import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { CardLink } from '../cards/Card';
 import { ReputationUserBadge } from '../ReputationUserBadge';
+import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 
 interface ClassName extends CommentClassName {
   content?: string;
@@ -103,6 +104,9 @@ export default function CommentContainer({
               author={comment.author}
               appendTooltipTo={appendTooltipTo}
             />
+            {comment.author?.companies?.length > 0 && (
+              <VerifiedCompanyUserBadge user={comment.author} />
+            )}
             <ReputationUserBadge
               key="reputation"
               className="ml-1"

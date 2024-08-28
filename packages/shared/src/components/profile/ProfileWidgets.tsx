@@ -69,6 +69,7 @@ export function ProfileWidgets({
           username={user.username}
           name={user.name}
           createdAt={user.createdAt}
+          company={user.companies?.[0]}
         />
         <UserStats stats={stats} />
         {(user.bio || isSameUser) && (

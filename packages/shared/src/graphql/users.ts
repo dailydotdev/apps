@@ -37,6 +37,10 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
       permalink
       createdAt
       readmeHtml
+      companies {
+        name
+        image
+      }
     }
   }
 `;
@@ -138,14 +142,17 @@ export type ProfileReadingData = UserReadingRankHistoryData &
   UserStreakData;
 
 export type UserReadingRankHistory = { rank: number; count: number };
+
 export interface UserReadingRankHistoryData {
   userReadingRankHistory: UserReadingRankHistory[];
 }
 
 export type UserReadHistory = { date: string; reads: number };
+
 export interface UserReadHistoryData {
   userReadHistory: UserReadHistory[];
 }
+
 export interface UserReadingTopTagsData {
   userMostReadTags: MostReadTag[];
 }
@@ -314,6 +321,48 @@ export const GET_USERNAME_SUGGESTION = gql`
   }
 `;
 
+export const GET_USER_COMPANIES = gql`
+  query Companies {
+    companies {
+      email
+      company {
+        id
+        name
+        image
+      }
+    }
+  }
+`;
+
+export const ADD_USER_COMPANY_MUTATION = gql`
+  mutation AddUserCompany($email: String!) {
+    addUserCompany(email: $email) {
+      _
+    }
+  }
+`;
+
+export const VERIFY_USER_COMPANY_CODE_MUTATION = gql`
+  mutation VerifyUserCompanyCode($email: String!, $code: String!) {
+    verifyUserCompanyCode(email: $email, code: $code) {
+      email
+      company {
+        id
+        name
+        image
+      }
+    }
+  }
+`;
+
+export const REMOVE_USER_COMPANY_MUTATION = gql`
+  mutation RemoveUserCompany($email: String!) {
+    removeUserCompany(email: $email) {
+      _
+    }
+  }
+`;
+
 // Regex taken from https://github.com/dailydotdev/daily-api/blob/234b0be53fea85954403cef5a2326fc50ce498fd/src/common/object.ts#L41
 export const handleRegex = new RegExp(/^@?[a-z0-9](\w){2,38}$/i);
 // Regex taken from https://github.com/dailydotdev/daily-api/blob/234b0be53fea85954403cef5a2326fc50ce498fd/src/common/object.ts#L40
@@ -463,6 +512,31 @@ export const getReadingStreak = async (): Promise<UserStreak> => {
 
   return res.userStreak;
 };
+
+export interface UserStreakRecoverData {
+  canRecover: boolean;
+  cost: number;
+  oldStreakLength: number;
+}
+
+export const USER_STREAK_RECOVER_QUERY = gql`
+  query UserStreakRecover {
+    streakRecover {
+      canRecover
+      cost
+      oldStreakLength
+    }
+  }
+`;
+
+export const USER_STREAK_RECOVER_MUTATION = gql`
+  mutation RecoverStreak {
+    recoverStreak {
+      current
+      lastViewAt
+    }
+  }
+`;
 
 export const DEV_CARD_QUERY = gql`
   query DevCardById($id: ID!) {

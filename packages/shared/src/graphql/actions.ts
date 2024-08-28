@@ -28,12 +28,12 @@ export enum ActionType {
   MakeSquadPublic = 'make_squad_public',
   CustomFeed = 'custom_feed',
   DisableReadingStreakMilestone = 'disable_reading_streak_milestone',
+  DisableReadingStreakRecover = 'disable_reading_streak_recover',
   FirstShortcutsSession = 'first_shortcuts_session',
   VotePost = 'vote_post',
   BookmarkPost = 'bookmark_post',
   DigestConfig = 'digest_config',
   StreakMilestone = 'streak_milestone',
-  ShowSummary = 'show_summary',
 }
 
 export interface Action {

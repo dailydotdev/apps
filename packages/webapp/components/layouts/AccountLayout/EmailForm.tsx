@@ -107,7 +107,7 @@ function EmailForm({
         />
       )}
       <TextField
-        className={{ container: 'w-full' }}
+        className={{ container: 'w-full', baseField: '!pr-1' }}
         name="code"
         type="code"
         inputId="code"
@@ -122,10 +122,11 @@ function EmailForm({
           <Button
             variant={ButtonVariant.Primary}
             type="button"
+            className="w-[10.875rem]"
             disabled={!email || timer > 0}
             onClick={onSubmitEmail}
           >
-            {timer === 0 ? 'Send code' : `Resend code ${timer}s`}
+            {timer === 0 ? 'Send code' : `Resend code: ${timer}s`}
           </Button>
         }
       />
