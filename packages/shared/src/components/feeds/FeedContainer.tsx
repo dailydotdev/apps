@@ -278,7 +278,7 @@ export const FeedContainer = ({
                 !isLaptop && (isExplorePopular || isExploreLatest) && 'mt-4',
                 isSearch && !shouldUseListFeedLayout && !isAnyExplore && 'mt-8',
                 isHorizontal &&
-                  'no-scrollbar snap-x snap-mandatory grid-flow-col overflow-x-scroll scroll-smooth',
+                  'no-scrollbar snap-x snap-mandatory grid-flow-col overflow-x-scroll scroll-smooth py-2',
                 gapClass({
                   isList,
                   isFeedLayoutList: shouldUseListFeedLayout,
