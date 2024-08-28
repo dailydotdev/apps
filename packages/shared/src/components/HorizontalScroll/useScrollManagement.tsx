@@ -23,13 +23,7 @@ export const useScrollManagement = (
     }
   }, [ref, onScroll]);
 
-  const requestAnimationFrameScrollPosition = () =>
-    window.requestAnimationFrame(checkScrollPosition);
-
-  const [debouncedOnScroll] = useDebounceFn(
-    requestAnimationFrameScrollPosition,
-    100,
-  );
+  const [debouncedOnScroll] = useDebounceFn(checkScrollPosition, 100);
 
   useEventListener(ref, 'scroll', debouncedOnScroll);
 
