@@ -4,7 +4,7 @@ import OptionsButton from '../../buttons/OptionsButton';
 import { CardHeader } from './ListCard';
 import { ReadArticleButton } from '../ReadArticleButton';
 import { getGroupedHoverContainer } from '../common';
-import { useConditionalFeature, useFeedPreviewMode } from '../../../hooks';
+import { useFeedPreviewMode } from '../../../hooks';
 import { Post, PostType } from '../../../graphql/posts';
 import { ButtonVariant } from '../../buttons/common';
 import PostMetadata, { PostMetadataProps } from './PostMetadata';
@@ -13,7 +13,6 @@ import { useReadPostButtonText } from './hooks';
 import useBookmarkProvider from '../../../hooks/useBookmarkProvider';
 import { BookmakProviderHeader } from './BookmarkProviderHeader';
 import { ProfileImageSize } from '../../ProfilePicture';
-import { feature } from '../../../lib/featureManagement';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { ProfileTooltip } from '../../profile/ProfileTooltip';
 
@@ -48,10 +47,6 @@ export const PostCardHeader = ({
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: post.bookmarked,
   });
-  const { value: shouldShowImage } = useConditionalFeature({
-    shouldEvaluate: !!post?.author,
-    feature: feature.authorImage,
-  });
 
   const isCollectionType = post.type === 'collection';
   const showCTA =
@@ -65,7 +60,7 @@ export const PostCardHeader = ({
       )}
       <CardHeader className={className}>
         {children}
-        {shouldShowImage && post.author && (
+        {!!post?.author && (
           <ProfileTooltip user={post.author}>
             <ProfileImageLink
               className="z-1 ml-2"
