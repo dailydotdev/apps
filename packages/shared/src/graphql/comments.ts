@@ -4,6 +4,7 @@ import { COMMENT_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { EmptyResponse } from './emptyResponse';
 import { UserShortProfile } from '../lib/user';
 import type { Post, UserVote } from './posts';
+import { Company } from '../lib/userCompany';
 
 export type ReportCommentReason =
   | 'HATEFUL'
@@ -22,6 +23,7 @@ export interface Author {
   bio?: string;
   createdAt?: string;
   reputation?: number;
+  companies?: Company[];
 }
 
 export type Scout = Author;

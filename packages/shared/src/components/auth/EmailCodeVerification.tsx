@@ -108,7 +108,7 @@ function EmailCodeVerification({
             onClick={onSendCode}
             disabled={resendTimer > 0}
           >
-            {resendTimer === 0 ? 'Resend' : `Resend code ${resendTimer}s`}
+            {resendTimer === 0 ? 'Resend' : `Resend code: ${resendTimer}s`}
           </Button>
         }
       />

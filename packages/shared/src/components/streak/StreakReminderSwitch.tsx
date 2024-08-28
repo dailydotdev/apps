@@ -76,7 +76,7 @@ const StreakReminderSwitch = ({
       compact={false}
       onToggle={onToggleStreakReminder}
     >
-      Notify me before my streak expires
+      Remind me to keep my streak
     </Switch>
   );
 };

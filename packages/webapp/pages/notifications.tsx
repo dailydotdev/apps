@@ -34,6 +34,7 @@ import { usePromotionModal } from '@dailydotdev/shared/src/hooks/notifications/u
 import { NotificationPreferenceMenu } from '@dailydotdev/shared/src/components/tooltips/notifications';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { useStreakRecoverModal } from '@dailydotdev/shared/src/hooks/notifications/useStreakRecoverModal';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
@@ -103,6 +104,7 @@ const Notifications = (): ReactElement => {
   }, [isFetchedAfterMount]);
 
   usePromotionModal();
+  useStreakRecoverModal();
 
   const { onMenuClick: showOptionsMenu, isOpen } = useContextMenu({
     id: contextId,
