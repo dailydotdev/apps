@@ -1,4 +1,5 @@
 import React, {
+  FunctionComponent,
   MouseEventHandler,
   ReactElement,
   RefObject,
@@ -12,7 +13,7 @@ import { Button, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
 
 interface HorizontalScrollHeaderReturn {
-  Header: React.ComponentType<React.HTMLAttributes<HTMLDivElement>>;
+  Header: FunctionComponent<{ titleId?: string }>;
   ref: React.RefObject<HTMLDivElement>;
 }
 
@@ -34,8 +35,12 @@ export const useHorizontalScrollHeader = ({
 
   // Calculate the width of elements and the number of visible cards
   const calculateVisibleCards = useCallback(() => {
-    if (ref.current && ref.current.firstElementChild) {
-      const element = ref.current.firstElementChild as HTMLElement;
+    const currentRef = ref?.current;
+    if (!(currentRef?.firstElementChild instanceof HTMLElement)) {
+      return;
+    }
+    if (currentRef && currentRef.firstElementChild) {
+      const element = currentRef.firstElementChild;
       const elementWidth = element.offsetWidth;
       const elementMarginRight = parseFloat(
         getComputedStyle(element).marginRight || '0',
@@ -43,13 +48,13 @@ export const useHorizontalScrollHeader = ({
       const elementMarginLeft = parseFloat(
         getComputedStyle(element).marginLeft || '0',
       );
-      const containerGap = parseFloat(getComputedStyle(ref.current).gap || '0');
+      const containerGap = parseFloat(getComputedStyle(currentRef).gap || '0');
       const elementWidthWithMarginsAndGap =
         elementWidth + elementMarginRight + elementMarginLeft + containerGap;
 
       setScrollableElementWidth(elementWidthWithMarginsAndGap);
 
-      const mainContainerWidth = ref.current.offsetWidth;
+      const mainContainerWidth = currentRef.offsetWidth;
       setNumCards(
         Math.floor(mainContainerWidth / elementWidthWithMarginsAndGap),
       );
@@ -90,10 +95,12 @@ export const useHorizontalScrollHeader = ({
     }
   };
 
-  const Header = () => {
+  const Header = ({ titleId }: { titleId: string }) => {
     return (
       <div className="mx-4 mb-4 flex w-auto items-center justify-between laptop:mx-0 laptop:w-full">
-        <p className="flex items-center font-bold typo-body">{title}</p>
+        <p className="flex items-center font-bold typo-body" id={titleId}>
+          {title}
+        </p>
         <div className="hidden flex-row gap-3 tablet:flex">
           <Button
             variant={ButtonVariant.Tertiary}

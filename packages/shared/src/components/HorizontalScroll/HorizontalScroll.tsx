@@ -28,17 +28,19 @@ export default function HorizontalScroll({
     onClickSeeAll,
   });
 
+  const titleId = `horizontal-scroll-title-${Math.random()}`;
+
   return (
     <>
-      <Header />
+      <Header titleId={titleId} />
       <div
         ref={ref}
         className={classNames(
-          'no-scrollbar grid auto-cols-max grid-flow-col overflow-x-scroll scroll-smooth',
+          'no-scrollbar grid auto-cols-max grid-flow-col overflow-visible overflow-x-scroll scroll-smooth',
           className,
         )}
         role="region"
-        aria-label="Horizontal Scroll"
+        aria-labelledby={titleId}
       >
         {children}
       </div>
