@@ -17,7 +17,6 @@ describe('useScrollManagement', () => {
 
     Object.defineProperty(mockRef.current, 'scrollWidth', {
       value: 1000,
-      configurable: true,
     });
     Object.defineProperty(mockRef.current, 'clientWidth', { value: 500 });
     Object.defineProperty(mockRef.current, 'scrollLeft', {
@@ -55,17 +54,6 @@ describe('useScrollManagement', () => {
 
     expect(result.current.isAtEnd).toBe(true);
     expect(result.current.isAtStart).toBe(false);
-  });
-
-  it('should set isAtEnd to true and isAtStart to true when scroll width smaller then client width', () => {
-    Object.defineProperty(mockRef.current, 'scrollWidth', { value: 400 });
-
-    const { result } = renderHook(() =>
-      useScrollManagement(mockRef, onScrollMock),
-    );
-
-    expect(result.current.isAtEnd).toBe(true);
-    expect(result.current.isAtStart).toBe(true);
   });
 
   it('should call onScroll when scrolled', () => {
