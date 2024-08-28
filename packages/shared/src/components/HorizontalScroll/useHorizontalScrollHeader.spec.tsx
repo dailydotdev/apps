@@ -8,7 +8,6 @@ import { useScrollManagement } from './useScrollManagement';
 
 jest.mock('./useScrollManagement');
 
-// Helper component to use the hook in tests
 const TestComponent = ({
   title,
   onScroll,

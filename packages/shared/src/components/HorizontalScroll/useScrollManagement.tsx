@@ -18,7 +18,6 @@ export const useScrollManagement = (
     }
   }, []);
 
-  // Debounced scroll handler using your custom hook
   const [debouncedOnScroll] = useDebounceFn(checkScrollPosition, 100);
 
   useEffect(() => {

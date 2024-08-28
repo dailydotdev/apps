@@ -1,6 +1,5 @@
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import HorizontalScroll from './HorizontalScroll';
 
 describe('HorizontalScroll', () => {
@@ -39,7 +38,7 @@ describe('HorizontalScroll', () => {
       </HorizontalScroll>,
     );
 
-    const seeAllButton = screen.getByText('See all'); // Make sure your Header includes a 'See all' button
+    const seeAllButton = screen.getByText('See all');
     fireEvent.click(seeAllButton);
     expect(mockOnClickSeeAll).toHaveBeenCalled();
   });

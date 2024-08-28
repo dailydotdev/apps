@@ -15,7 +15,7 @@ interface HorizontalScrollProps {
   className?: string;
 }
 
-export default function HorizontalScroll<T>({
+export default function HorizontalScroll({
   title,
   children,
   onScroll,
