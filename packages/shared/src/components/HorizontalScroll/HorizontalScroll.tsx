@@ -33,7 +33,7 @@ export default function HorizontalScroll({
   const titleId = `horizontal-scroll-title-${id}`;
 
   return (
-    <>
+    <div className="flex flex-col">
       <Header titleId={titleId} />
       <div
         ref={ref}
@@ -46,6 +46,6 @@ export default function HorizontalScroll({
       >
         {children}
       </div>
-    </>
+    </div>
   );
 }
