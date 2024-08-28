@@ -36,7 +36,7 @@ export default function HorizontalScroll({
       <div
         ref={ref}
         className={classNames(
-          'no-scrollbar grid auto-cols-max grid-flow-col overflow-visible overflow-x-scroll scroll-smooth',
+          'no-scrollbar grid auto-cols-max grid-flow-col overflow-x-scroll scroll-smooth',
           className,
         )}
         role="region"

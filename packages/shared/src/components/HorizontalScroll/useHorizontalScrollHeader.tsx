@@ -35,30 +35,38 @@ export const useHorizontalScrollHeader = ({
 
   // Calculate the width of elements and the number of visible cards
   const calculateVisibleCards = useCallback(() => {
-    const currentRef = ref?.current;
-    if (!(currentRef?.firstElementChild instanceof HTMLElement)) {
+    const currentRef = ref.current;
+    if (!currentRef || !currentRef.firstElementChild) {
       return;
     }
-    if (currentRef && currentRef.firstElementChild) {
-      const element = currentRef.firstElementChild;
-      const elementWidth = element.offsetWidth;
-      const elementMarginRight = parseFloat(
-        getComputedStyle(element).marginRight || '0',
-      );
-      const elementMarginLeft = parseFloat(
-        getComputedStyle(element).marginLeft || '0',
-      );
-      const containerGap = parseFloat(getComputedStyle(currentRef).gap || '0');
-      const elementWidthWithMarginsAndGap =
-        elementWidth + elementMarginRight + elementMarginLeft + containerGap;
 
-      setScrollableElementWidth(elementWidthWithMarginsAndGap);
+    window.requestAnimationFrame(() => {
+      if (!(currentRef.firstElementChild instanceof HTMLElement)) {
+        return;
+      }
+      if (currentRef && currentRef.firstElementChild) {
+        const element = currentRef.firstElementChild;
+        const elementWidth = element.offsetWidth;
+        const elementMarginRight = parseFloat(
+          getComputedStyle(element).marginRight || '0',
+        );
+        const elementMarginLeft = parseFloat(
+          getComputedStyle(element).marginLeft || '0',
+        );
+        const containerGap = parseFloat(
+          getComputedStyle(currentRef).gap || '0',
+        );
+        const elementWidthWithMarginsAndGap =
+          elementWidth + elementMarginRight + elementMarginLeft + containerGap;
 
-      const mainContainerWidth = currentRef.offsetWidth;
-      setNumCards(
-        Math.floor(mainContainerWidth / elementWidthWithMarginsAndGap),
-      );
-    }
+        setScrollableElementWidth(elementWidthWithMarginsAndGap);
+
+        const mainContainerWidth = currentRef.offsetWidth;
+        setNumCards(
+          Math.floor(mainContainerWidth / elementWidthWithMarginsAndGap),
+        );
+      }
+    });
   }, []);
 
   // Recalculate number of cards on mount and window resize
