@@ -25,6 +25,14 @@ describe('useScrollManagement', () => {
     });
 
     (useDebounceFn as jest.Mock).mockImplementation((fn) => [fn]);
+
+    // Mock requestAnimationFrame to execute the callback immediately and return a dummy ID
+    jest
+      .spyOn(window, 'requestAnimationFrame')
+      .mockImplementation((callback: FrameRequestCallback) => {
+        callback(0);
+        return 0;
+      });
   });
 
   it('should set isAtStart to true when scrolled to the start', () => {

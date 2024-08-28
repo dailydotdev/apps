@@ -11,6 +11,7 @@ import React, {
 import { useScrollManagement } from './useScrollManagement';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
+import { useEventListener } from '../../hooks';
 
 interface HorizontalScrollHeaderReturn {
   Header: FunctionComponent<{ titleId?: string }>;
@@ -69,19 +70,13 @@ export const useHorizontalScrollHeader = ({
     });
   }, []);
 
-  // Recalculate number of cards on mount and window resize
+  // Recalculate number of cards on mount
   useEffect(() => {
     calculateVisibleCards();
-
-    const handleResize = () => {
-      calculateVisibleCards();
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
   }, [calculateVisibleCards]);
+
+  // Recalculate number of cards on window resize
+  useEventListener(globalThis, 'resize', calculateVisibleCards);
 
   const { isAtStart, isAtEnd } = useScrollManagement(ref, onScroll);
 

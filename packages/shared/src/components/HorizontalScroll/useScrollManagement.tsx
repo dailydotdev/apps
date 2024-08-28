@@ -1,5 +1,6 @@
-import React, { RefObject, useCallback, useEffect, useState } from 'react';
+import React, { RefObject, useCallback, useState } from 'react';
 import useDebounceFn from '../../hooks/useDebounceFn';
+import { useEventListener } from '../../hooks';
 
 interface ScrollManagementReturn {
   isAtStart: boolean;
@@ -22,19 +23,15 @@ export const useScrollManagement = (
     }
   }, [ref, onScroll]);
 
-  const [debouncedOnScroll] = useDebounceFn(checkScrollPosition, 100);
+  const requestAnimationFrameScrollPosition = () =>
+    window.requestAnimationFrame(checkScrollPosition);
 
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) {
-      return null;
-    }
+  const [debouncedOnScroll] = useDebounceFn(
+    requestAnimationFrameScrollPosition,
+    100,
+  );
 
-    element.addEventListener('scroll', debouncedOnScroll);
-    return () => {
-      element.removeEventListener('scroll', debouncedOnScroll);
-    };
-  }, [ref, debouncedOnScroll]);
+  useEventListener(ref, 'scroll', debouncedOnScroll);
 
   return { isAtStart, isAtEnd };
 };
