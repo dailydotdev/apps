@@ -5,7 +5,7 @@ export const useScrollManagement = (
   ref: React.RefObject<HTMLElement>,
   onScroll: (ref: RefObject<HTMLElement>) => void,
 ) => {
-  const [isAtStart, setIsAtStart] = useState(true);
+  const [isAtStart, setIsAtStart] = useState(false);
   const [isAtEnd, setIsAtEnd] = useState(false);
 
   const checkScrollPosition = useCallback(() => {
@@ -16,7 +16,7 @@ export const useScrollManagement = (
       setIsAtStart(scrollLeft === 0);
       setIsAtEnd(scrollLeft + clientWidth >= scrollWidth);
     }
-  }, []);
+  }, [ref, onScroll]);
 
   const [debouncedOnScroll] = useDebounceFn(checkScrollPosition, 100);
 
@@ -30,7 +30,18 @@ export const useScrollManagement = (
     return () => {
       element.removeEventListener('scroll', debouncedOnScroll);
     };
-  }, [debouncedOnScroll]);
+  }, [ref, debouncedOnScroll]);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) {
+      return;
+    }
+
+    if (!isAtEnd && !isAtStart) {
+      checkScrollPosition();
+    }
+  }, [ref, isAtStart, isAtEnd, checkScrollPosition]);
 
   return { isAtStart, isAtEnd };
 };
