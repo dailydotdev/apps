@@ -5,7 +5,7 @@ import { IconSize } from '../../Icon';
 
 export const StatusDescription = classed(
   'p',
-  'typo-subhead text-text-tertiary',
+  'typo-callout text-text-secondary',
 );
 
 export enum SquadStatus {

@@ -21,12 +21,12 @@ import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
-import { PrivacyOption } from '@dailydotdev/shared/src/hooks/squads/useSquadPrivacyOptions';
 import {
   isNullOrUndefined,
   parseOrDefault,
 } from '@dailydotdev/shared/src/lib/func';
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import { PrivacyOption } from '@dailydotdev/shared/src/components/squads/settings/SquadPrivacySection';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 
@@ -82,6 +82,7 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
       file: form.file,
       memberPostingRole: form.memberPostingRole,
       memberInviteRole: form.memberInviteRole,
+      categoryId: form.categoryId,
       public: isNullOrUndefined(form.status)
         ? undefined
         : form.status === PrivacyOption.Public,

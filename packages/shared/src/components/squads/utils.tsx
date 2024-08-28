@@ -1,14 +1,8 @@
 import classed from '../../lib/classed';
 import { BasePageContainer, pageBorders } from '../utilities';
 
-export const SquadTitle = classed(
-  'h1',
-  'text-center typo-large-title font-bold',
-);
-export const SquadSubTitle = classed(
-  'p',
-  'text-center typo-title3 text-text-tertiary',
-);
+export const SquadTitle = classed('h1', 'typo-large-title font-bold');
+export const SquadSubTitle = classed('p', 'typo-body text-text-tertiary');
 export const SquadTitleColor = classed('span', 'text-brand-default');
 
 export const ManageSquadPageContainer = classed(

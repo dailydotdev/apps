@@ -51,24 +51,28 @@ const NewSquad = (): ReactElement => {
     <ManageSquadPageContainer>
       <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
       <SquadDetails
-        form={{ public: false }}
+        form={{}}
         onRequestClose={handleClose}
         onSubmit={onCreate}
         createMode
         isLoading={isLoading}
       >
-        <div
-          style={{
-            backgroundImage: `url(${cloudinary.squads.createSquad})`,
-          }}
-          className="mb-6 flex h-52 w-full flex-col items-center justify-center bg-cover bg-center"
-        >
-          <SourceIcon size={IconSize.XXXLarge} />
-          <SquadTitle className="mb-2">Create new Squad</SquadTitle>
-          <SquadSubTitle>
-            Create a group where you can learn and interact privately with other
-            developers around topics that matter to you
-          </SquadSubTitle>
+        <div className="flex flex-row bg-cover bg-center">
+          <div className="mx-6 my-5 flex flex-1 flex-col gap-2">
+            <SquadTitle className="flex flex-row">
+              <SourceIcon className="mr-0.5" size={IconSize.XLarge} />
+              Create new Squad
+            </SquadTitle>
+            <SquadSubTitle>
+              Create a group where you can learn and interact privately with
+              other developers around topics that matter to you
+            </SquadSubTitle>
+          </div>
+          <img
+            className="h-[9.6875rem] w-[15.625rem]"
+            src={cloudinary.squads.createSquad}
+            alt="A collection of other people's avatars"
+          />
         </div>
       </SquadDetails>
     </ManageSquadPageContainer>

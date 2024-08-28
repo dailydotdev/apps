@@ -59,7 +59,7 @@ export const cloudinary = {
     imageFallback:
       'https://daily-now-res.cloudinary.com/image/upload/s--LrHsyt2T--/f_auto/v1692632054/squad_placeholder_sfwkmj',
     createSquad:
-      'https://daily-now-res.cloudinary.com/image/upload/s--4nZR_i2V--/f_auto/v1686299591/Squads_eary_access_e3lo4u',
+      'https://daily-now-res.cloudinary.com/image/upload/s--POqnH7nQ--/f_auto/v1722253758/Create_new_Squad_xe4jvz',
     tour: {
       banner0:
         'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/squad_tour0',
