@@ -6,9 +6,9 @@ import { SquadFirstCommentChecklistStep } from '../components/checklist/SquadFir
 import { ActionType } from '../graphql/actions';
 import { SourceMemberRole, SourcePermissions, Squad } from '../graphql/sources';
 import {
+  actionsPerRoleMap,
   ChecklistStepType,
   createChecklistStep,
-  actionsPerRoleMap,
   SQUAD_CHECKLIST_VISIBLE_KEY,
 } from '../lib/checklist';
 import { useActions } from './useActions';
@@ -26,6 +26,7 @@ import {
   getPublicActions,
 } from '../components/checklist/actionUtils';
 import { PUBLIC_SQUAD_REQUEST_REQUIREMENT } from '../lib/config';
+import { PublicAboutStep } from '../components/checklist/PublicAboutStep';
 
 type UseSquadChecklistProps = {
   squad: Squad;
@@ -55,7 +56,7 @@ const useSquadChecklist = ({
       return {};
     }
 
-    const step = {
+    return {
       [ActionType.CreateSquad]: createChecklistStep({
         type: ActionType.CreateSquad,
         step: {
@@ -151,22 +152,26 @@ const useSquadChecklist = ({
           component: (props) => <GoPublicStep {...props} squad={squad} />,
         },
         actions: getPublicActions(squad),
+        condition: () => {
+          const isGoPublicDismissed =
+            isChecklistReady &&
+            checkHasCompleted(ActionType.HidePublicSquadStep);
+          return !squad.public && !isGoPublicDismissed;
+        },
       }),
-    };
-
-    if (squad.public) {
-      step[ActionType.HidePublicSquadAbout] = createChecklistStep({
+      [ActionType.HidePublicSquadAbout]: createChecklistStep({
         type: ActionType.HidePublicSquadAbout,
         step: {
           title: 'Learn about Squads',
           description: `Learn the benefits of a public squad and how to expand your community. Good luck!`,
+          component: (props) => <PublicAboutStep {...props} />,
         },
         actions,
-      });
-    }
-
-    if (isPushSupported) {
-      step[ActionType.EnableNotification] = createChecklistStep({
+        condition: () => {
+          return !!squad.public;
+        },
+      }),
+      [ActionType.EnableNotification]: createChecklistStep({
         type: ActionType.EnableNotification,
         step: {
           title: 'Subscribe for updates',
@@ -174,17 +179,17 @@ const useSquadChecklist = ({
           component: NotificationChecklistStep,
         },
         actions,
-      });
-    }
-
-    return step;
+        condition: () => isPushSupported,
+      }),
+    };
   }, [
-    squad,
-    actions,
-    showArticleOnboarding,
     isChecklistReady,
     isInitialized,
+    actions,
+    squad,
+    showArticleOnboarding,
     isPushSupported,
+    checkHasCompleted,
   ]);
 
   const steps = useMemo(() => {
@@ -192,30 +197,13 @@ const useSquadChecklist = ({
       actionsPerRoleMap[squad.currentMember?.role] ||
       actionsPerRoleMap[SourceMemberRole.Member];
 
-    const filterPublicStepIfDismissed = (step: ChecklistStepType) => {
-      const isGoPublicDismissed =
-        isChecklistReady && checkHasCompleted(ActionType.HidePublicSquadStep);
-
-      return (
-        !!squad.public ||
-        !isGoPublicDismissed ||
-        step.action.type !== ActionType.MakeSquadPublic
-      );
-    };
-
     return actionsForRole
       .map((actionType) => {
         return stepsMap[actionType];
       })
       .filter(Boolean)
-      .filter(filterPublicStepIfDismissed);
-  }, [
-    checkHasCompleted,
-    isChecklistReady,
-    squad.currentMember?.role,
-    squad.public,
-    stepsMap,
-  ]);
+      .filter((step: ChecklistStepType) => step?.condition?.(step) ?? true);
+  }, [squad.currentMember?.role, stepsMap]);
 
   const checklist = useChecklist({ steps });
 

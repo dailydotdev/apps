@@ -36,9 +36,9 @@ const PublicSquadSubmissionActions = (
   const postsCount = squad?.flags?.totalPosts ?? 0;
   const currentReputation = user?.reputation ?? 0;
   const isPostEligible = postsCount >= PUBLIC_SQUAD_REQUEST_REQUIREMENT;
-  const isAdminEligable =
+  const isAdminEligible =
     currentReputation >= PUBLIC_SQUAD_ADMIN_REPUTATION_REQUIREMENT;
-  const isEligible = isPostEligible && isAdminEligable;
+  const isEligible = isPostEligible && isAdminEligible && status !== 'approved';
 
   const onSubmit = useCallback(() => {
     if (!squad.id) {
@@ -82,7 +82,9 @@ const PublicSquadSubmissionActions = (
           onClick={onSubmit}
           type="button"
         >
-          Submit for review
+          {status === SquadStatus.Approved
+            ? 'Request approved'
+            : 'Submit for review'}
         </Button>
       )}
     </div>
