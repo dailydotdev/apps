@@ -6,7 +6,7 @@ import { useDeleteSquad } from '../../../hooks/useDeleteSquad';
 import { Squad } from '../../../graphql/sources';
 
 interface SquadDangerZoneProps {
-  squad: Partial<Squad>;
+  squad: Squad;
 }
 
 const Important = () => (
