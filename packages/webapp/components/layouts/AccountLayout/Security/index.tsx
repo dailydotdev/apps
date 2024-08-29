@@ -265,13 +265,11 @@ function AccountSecurityDefault({
           </Button>
         </form>
       </AccountContentSection>
-      <AccountContentSection title="🚨 Danger Zone">
+      <AccountContentSection title="🚨 Danger zone">
         <AccountDangerZone
           onDelete={() => deleteAccountPrompt()}
-          className="relative mt-6 overflow-hidden rounded-26 border border-status-error px-6 py-4"
-        >
-          <AlertBackground className="bg-overlay-quaternary-ketchup" />
-        </AccountDangerZone>
+          className="mt-6"
+        />
       </AccountContentSection>
     </AccountPageContainer>
   );
