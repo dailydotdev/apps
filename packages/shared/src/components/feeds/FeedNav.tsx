@@ -44,7 +44,7 @@ enum FeedNavTab {
   Bookmarks = 'Bookmarks',
   History = 'History',
   Discussions = 'Discussions',
-  NewFeed = 'New feed',
+  NewFeed = 'Custom feed',
 }
 
 const StickyNavIconWrapper = classed(

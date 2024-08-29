@@ -889,7 +889,7 @@ describe('downvote flow', () => {
     expect(allUnselected).toBeTruthy();
     const close = await screen.findByTitle('Close');
     fireEvent.click(close);
-    await screen.findByText('No topics were blocked');
+    await screen.findAllByText('No topics were blocked');
     let mutationCalled = false;
     mockGraphQL({
       request: {
@@ -901,7 +901,7 @@ describe('downvote flow', () => {
         return { data: { _: true } };
       },
     });
-    const dontAskAgain = await screen.findByText("Don't ask again");
+    const dontAskAgain = await screen.findByLabelText('Undo action');
     fireEvent.click(dontAskAgain);
     await waitFor(() => expect(mutationCalled).toBeTruthy());
   });
