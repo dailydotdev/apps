@@ -1,10 +1,9 @@
-import React, { FormEvent, ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import router, { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { SquadDetails } from '@dailydotdev/shared/src/components/squads/Details';
-import { SquadForm } from '@dailydotdev/shared/src/graphql/squads';
 import {
   ManageSquadPageContainer,
   SquadSubTitle,
@@ -31,12 +30,6 @@ const NewSquad = (): ReactElement => {
   const { onCreateSquad, isLoading } = useSquadCreate();
   const isMobile = useViewSize(ViewSize.MobileL);
 
-  const onCreate = async (e: FormEvent, squadForm: SquadForm) => {
-    e.preventDefault();
-
-    onCreateSquad(squadForm);
-  };
-
   const handleClose = async () => {
     router.push('/squads');
   };
@@ -53,10 +46,8 @@ const NewSquad = (): ReactElement => {
     <ManageSquadPageContainer>
       <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
       <SquadDetails
-        form={{}}
         onRequestClose={handleClose}
-        onSubmit={onCreate}
-        createMode
+        onSubmit={(e, form) => onCreateSquad(form)}
         isLoading={isLoading}
       >
         <div className="flex flex-col-reverse bg-cover bg-center tablet:flex-row">
