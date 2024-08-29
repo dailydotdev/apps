@@ -41,6 +41,7 @@ import {
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
+import { StaleTime } from '@dailydotdev/shared/src/lib/query';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import FeedLayout, { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -76,6 +77,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
         lastPage?.sources?.pageInfo?.hasNextPage &&
         lastPage?.sources?.pageInfo?.endCursor,
       initialData,
+      staleTime: StaleTime.Default,
     },
   );
   const hasSquad = !!squads?.length;
