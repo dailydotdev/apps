@@ -1,4 +1,3 @@
-import classNames from 'classnames';
 import React, { ReactElement, ReactNode } from 'react';
 import { DangerZone } from '../widgets/DangerZone';
 
