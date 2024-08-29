@@ -90,7 +90,6 @@ export const FreeformList = forwardRef(function SharePostCard(
           }}
         >
           <SquadHeaderPicture
-            author={post.author}
             source={post.source}
             reverse={!enableSourceHeader}
           />
