@@ -50,8 +50,8 @@ export const useSourceIntegrationQuery = ({
         const error = originalError as ApiErrorResult;
         const errorCode = error.response?.errors?.[0]?.extensions?.code;
 
-        if (errorCode === ApiError.NotFound) {
-          return null;
+        if ([ApiError.NotFound, ApiError.Forbidden].includes(errorCode)) {
+          return undefined;
         }
 
         throw originalError;
