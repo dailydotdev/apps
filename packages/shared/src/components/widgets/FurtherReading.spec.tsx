@@ -106,137 +106,145 @@ const renderComponent = (
   );
 };
 
-it('should show placeholders when loading', async () => {
-  renderComponent();
-  const elements = await screen.findAllByRole('article');
-  elements.map((el) => expect(el).toHaveAttribute('aria-busy'));
-});
-
-it('should show available articles', async () => {
-  renderComponent();
-  await waitForNock();
-  const [el] = await screen.findAllByRole('article');
-  await waitFor(() => expect(el).not.toHaveAttribute('aria-busy'));
-  expect(await screen.findAllByRole('article')).toHaveLength(5);
-});
-
-it('should show articles even when there are no trending articles', async () => {
-  renderComponent();
-  await waitForNock();
-  const [el] = await screen.findAllByRole('article');
-  await waitFor(() => expect(el).not.toHaveAttribute('aria-busy'));
-  expect(await screen.findAllByRole('article')).toHaveLength(5);
-});
-
-it('should show trending info for trending posts', async () => {
-  renderComponent();
-  expect(await screen.findByText('Hot')).toBeInTheDocument();
-  expect(
-    await screen.findByText('50 devs read it last hour'),
-  ).toBeInTheDocument();
-});
-
-it('should show number of upvotes and comments', async () => {
-  renderComponent();
-  const [element1, element2] = await screen.findAllByTestId(
-    'post-engagements-count',
-  );
-  expect(element1).toHaveTextContent('15 Comments');
-  expect(element1).toHaveTextContent('1 Upvotes');
-  expect(element2).toHaveTextContent('1 Upvotes');
-});
-
-it('should send add bookmark mutation', async () => {
-  let mutationCalled = false;
-  mockGraphQL(completeActionMock({ action: ActionType.BookmarkPromoteMobile }));
-  renderComponent([
-    createFeedMock(),
-    {
-      request: {
-        query: ADD_BOOKMARKS_MUTATION,
-        variables: { data: { postIds: ['4f354bb73009e4adfa5dbcbf9b3c4ebf'] } },
-      },
-      result: () => {
-        mutationCalled = true;
-        return { data: { _: true } };
-      },
-    },
-    completeActionMock({ action: ActionType.BookmarkPost }),
-  ]);
-  const [el] = await screen.findAllByLabelText('Bookmark');
-  el.click();
-  await waitFor(() => expect(mutationCalled).toBeTruthy());
-  await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'true'));
-});
-
-it('should send remove bookmark mutation', async () => {
-  let mutationCalled = false;
-  mockGraphQL(completeActionMock({ action: ActionType.BookmarkPromoteMobile }));
-  renderComponent([
-    createFeedMock([
-      { ...defaultFeedPage.edges[0].node, trending: 50, bookmarked: true },
-    ]),
-    {
-      request: {
-        query: REMOVE_BOOKMARK_MUTATION,
-        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
-      },
-      result: () => {
-        mutationCalled = true;
-        return { data: { _: true } };
-      },
-    },
-    completeActionMock({ action: ActionType.BookmarkPost }),
-  ]);
-  const [el] = await screen.findAllByLabelText('Remove bookmark');
-  await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'true'));
-  el.click();
-  await waitFor(() => expect(mutationCalled).toBeTruthy());
-  await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'false'));
-});
-
-it('should open login modal on anonymous bookmark', async () => {
-  renderComponent(
-    [
-      createFeedMock(
-        [{ ...defaultFeedPage.edges[0].node, trending: 50 }],
-        [
-          defaultFeedPage.edges[2].node,
-          defaultFeedPage.edges[3].node,
-          defaultFeedPage.edges[4].node,
-        ],
-        [
-          defaultFeedPage.edges[1].node,
-          defaultFeedPage.edges[5].node,
-          defaultFeedPage.edges[6].node,
-        ],
-        {
-          post: post.id,
-          loggedIn: false,
-          trendingFirst: 1,
-          similarFirst: 3,
-          discussedFirst: 4,
-          tags: post.tags,
-          withDiscussedPosts: true,
-        },
-      ),
-    ],
-    null,
-  );
-  const [el] = await screen.findAllByLabelText('Bookmark');
-  el.click();
-  expect(showLogin).toBeCalledWith({ trigger: AuthTriggers.Bookmark });
-});
-
-it('should not show table of contents when it does not exist', async () => {
-  renderComponent();
-  expect(screen.queryByText('Table of contents')).not.toBeInTheDocument();
-});
-
-it('should show table of contents when it exists', async () => {
-  renderComponent([createFeedMock()], defaultUser, {
-    ...post,
-    toc: [{ text: 'Toc Item' }],
+describe('further reading', () => {
+  it('should show placeholders when loading', async () => {
+    renderComponent();
+    const elements = await screen.findAllByRole('article');
+    elements.map((el) => expect(el).toHaveAttribute('aria-busy'));
   });
-  expect(screen.queryByText('Table of contents')).toBeInTheDocument();
+
+  it('should show available articles', async () => {
+    renderComponent();
+    await waitForNock();
+    const [el] = await screen.findAllByRole('article');
+    await waitFor(() => expect(el).not.toHaveAttribute('aria-busy'));
+    expect(await screen.findAllByRole('article')).toHaveLength(5);
+  });
+
+  it('should show articles even when there are no trending articles', async () => {
+    renderComponent();
+    await waitForNock();
+    const [el] = await screen.findAllByRole('article');
+    await waitFor(() => expect(el).not.toHaveAttribute('aria-busy'));
+    expect(await screen.findAllByRole('article')).toHaveLength(5);
+  });
+
+  it('should show trending info for trending posts', async () => {
+    renderComponent();
+    expect(await screen.findByText('Hot')).toBeInTheDocument();
+    expect(
+      await screen.findByText('50 devs read it last hour'),
+    ).toBeInTheDocument();
+  });
+
+  it('should show number of upvotes and comments', async () => {
+    renderComponent();
+    const [element1, element2] = await screen.findAllByTestId(
+      'post-engagements-count',
+    );
+    expect(element1).toHaveTextContent('15 Comments');
+    expect(element1).toHaveTextContent('1 Upvotes');
+    expect(element2).toHaveTextContent('1 Upvotes');
+  });
+
+  it('should send add bookmark mutation', async () => {
+    let mutationCalled = false;
+    mockGraphQL(
+      completeActionMock({ action: ActionType.BookmarkPromoteMobile }),
+    );
+    renderComponent([
+      createFeedMock(),
+      {
+        request: {
+          query: ADD_BOOKMARKS_MUTATION,
+          variables: {
+            data: { postIds: ['4f354bb73009e4adfa5dbcbf9b3c4ebf'] },
+          },
+        },
+        result: () => {
+          mutationCalled = true;
+          return { data: { _: true } };
+        },
+      },
+      completeActionMock({ action: ActionType.BookmarkPost }),
+    ]);
+    const [el] = await screen.findAllByLabelText('Bookmark');
+    el.click();
+    await waitFor(() => expect(mutationCalled).toBeTruthy());
+    await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'true'));
+  });
+
+  it('should send remove bookmark mutation', async () => {
+    let mutationCalled = false;
+    mockGraphQL(
+      completeActionMock({ action: ActionType.BookmarkPromoteMobile }),
+    );
+    renderComponent([
+      createFeedMock([
+        { ...defaultFeedPage.edges[0].node, trending: 50, bookmarked: true },
+      ]),
+      {
+        request: {
+          query: REMOVE_BOOKMARK_MUTATION,
+          variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
+        },
+        result: () => {
+          mutationCalled = true;
+          return { data: { _: true } };
+        },
+      },
+      completeActionMock({ action: ActionType.BookmarkPost }),
+    ]);
+    const [el] = await screen.findAllByLabelText('Remove bookmark');
+    await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'true'));
+    el.click();
+    await waitFor(() => expect(mutationCalled).toBeTruthy());
+    await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'false'));
+  });
+
+  it('should open login modal on anonymous bookmark', async () => {
+    renderComponent(
+      [
+        createFeedMock(
+          [{ ...defaultFeedPage.edges[0].node, trending: 50 }],
+          [
+            defaultFeedPage.edges[2].node,
+            defaultFeedPage.edges[3].node,
+            defaultFeedPage.edges[4].node,
+          ],
+          [
+            defaultFeedPage.edges[1].node,
+            defaultFeedPage.edges[5].node,
+            defaultFeedPage.edges[6].node,
+          ],
+          {
+            post: post.id,
+            loggedIn: false,
+            trendingFirst: 1,
+            similarFirst: 3,
+            discussedFirst: 4,
+            tags: post.tags,
+            withDiscussedPosts: true,
+          },
+        ),
+      ],
+      null,
+    );
+    const [el] = await screen.findAllByLabelText('Bookmark');
+    el.click();
+    expect(showLogin).toBeCalledWith({ trigger: AuthTriggers.Bookmark });
+  });
+
+  it('should not show table of contents when it does not exist', async () => {
+    renderComponent();
+    expect(screen.queryByText('Table of contents')).not.toBeInTheDocument();
+  });
+
+  it('should show table of contents when it exists', async () => {
+    renderComponent([createFeedMock()], defaultUser, {
+      ...post,
+      toc: [{ text: 'Toc Item' }],
+    });
+    expect(screen.queryByText('Table of contents')).toBeInTheDocument();
+  });
 });

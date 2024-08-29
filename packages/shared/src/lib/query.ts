@@ -96,6 +96,7 @@ export enum RequestKey {
   CurrentSession = 'current_session',
   ReadingStreak30Days = 'reading_streak_30_days',
   UserStreak = 'user_streak',
+  UserStreakRecover = 'user_streak_recover',
   PersonalizedDigest = 'personalizedDigest',
   Changelog = 'changelog',
   Tags = 'tags',
@@ -141,6 +142,7 @@ export enum RequestKey {
   TagFeed = 'tagFeed',
   TagsMostUpvoted = 'tagsMostUpvoted',
   TagsBestDiscussed = 'tagsBestDiscussed',
+  UserCompanies = 'user_companies',
 }
 
 export type HasConnection<

@@ -274,7 +274,7 @@ export default function Sidebar({
             <MyFeedButton
               {...defaultRenderSectionProps}
               isButton={false}
-              title="New feed"
+              title="Custom feed"
               path={`${webappUrl}feeds/new`}
               icon={
                 <div className="rounded-6 bg-background-subtle">

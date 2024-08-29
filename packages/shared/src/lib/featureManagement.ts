@@ -16,22 +16,20 @@ export class Feature<T extends JSONValue> {
 const feature = {
   feedVersion: new Feature('feed_version', 15),
   onboardingVisual: new Feature('onboarding_visual', {
-    showCompanies: true,
-    fullBackground: false,
-    image: cloudinary.onboarding.default,
+    fullBackground: {
+      mobile: cloudinary.onboarding.fullBackground.mobile,
+      desktop: cloudinary.onboarding.fullBackground.desktop,
+    },
   }),
-  feedAdSpot: new Feature('feed_ad_spot', 0),
+  feedAdSpot: new Feature('feed_ad_spot', 2),
   searchVersion: new Feature('search_version', 2),
   searchListMode: new Feature('search_list_mode', false),
   featureTheme: new Feature('feature_theme', {}),
   shortcutsUI: new Feature('shortcuts_ui', ShortcutsUIExperiment.Control),
-  showRoadmap: new Feature('show_roadmap', false),
-  onboardingChecklist: new Feature('onboarding_checklist', false),
-  animatedUpvote: new Feature('animated_upvote', false),
+  showRoadmap: new Feature('show_roadmap', true),
+  onboardingChecklist: new Feature('onboarding_checklist', true),
   authorImage: new Feature('author_image', false),
-  generateSummary: new Feature('generate_summary', false),
   searchUsers: new Feature('search_users', false),
-  slackIntegration: new Feature('slack_integration', false),
   postTitleLanguage: new Feature('post_title_language', false),
 };
 

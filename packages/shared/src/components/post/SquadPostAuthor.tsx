@@ -14,6 +14,7 @@ import { ReputationUserBadge } from '../ReputationUserBadge';
 import { TruncateText, DateFormat } from '../utilities';
 import { TimeFormatType } from '../../lib/dateFormat';
 import { ElementPlaceholder } from '../ElementPlaceholder';
+import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 
 interface SquadPostAuthorProps {
   className?: Partial<{
@@ -79,6 +80,9 @@ function SquadPostAuthor({
               {author.name}
             </TruncateText>
             <div className="flex gap-1">
+              {author?.companies?.length > 0 && (
+                <VerifiedCompanyUserBadge user={author} />
+              )}
               <ReputationUserBadge user={author} />
               {!!role && (
                 <SquadMemberBadge
