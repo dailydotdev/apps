@@ -23,7 +23,7 @@ export const UnfeaturedSquadGrid = ({
   description,
 }: UnFeaturedSquadCardProps): ReactElement => {
   return (
-    <Card className={classNames('overflow-hidden border-0 p-4')}>
+    <Card className={classNames('min-w-[19rem] overflow-hidden border-0 p-4')}>
       <CardLink
         href={source.permalink}
         rel="noopener"

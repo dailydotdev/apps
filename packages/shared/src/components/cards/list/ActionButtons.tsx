@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Post, UserVote } from '../../../graphql/posts';
 import InteractionCounter from '../../InteractionCounter';
@@ -37,7 +37,6 @@ export default function ActionButtons({
   const isFeedPreview = useFeedPreviewMode();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
-  const [userUpvoted, setUserUpvoted] = useState(false);
 
   if (isFeedPreview) {
     return null;
@@ -59,7 +58,6 @@ export default function ActionButtons({
     }
 
     onUpvoteClick?.(post);
-    setUserUpvoted(true);
   };
 
   return (
@@ -93,7 +91,6 @@ export default function ActionButtons({
               <UpvoteButtonIcon
                 secondary={post?.userState?.vote === UserVote.Up}
                 size={IconSize.Medium}
-                userClicked={userUpvoted}
               />
               {post?.numUpvotes > 0 ? (
                 <InteractionCounter

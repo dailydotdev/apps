@@ -145,6 +145,13 @@ const BookmarkReminderModal = dynamic(
     ),
 );
 
+const StreakRecoverModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "streakRecoverModal" */ './streaks/StreakRecoverModal'
+    ),
+);
+
 const SlackIntegrationModal = dynamic(
   () =>
     import(
@@ -177,6 +184,7 @@ export const modals = {
   [LazyModal.PrivilegedMembers]: PrivilegedMemberModal,
   [LazyModal.FirefoxPrivacy]: FirefoxPrivacyModal,
   [LazyModal.BookmarkReminder]: BookmarkReminderModal,
+  [LazyModal.RecoverStreak]: StreakRecoverModal,
   [LazyModal.SlackIntegration]: SlackIntegrationModal,
 };
 
