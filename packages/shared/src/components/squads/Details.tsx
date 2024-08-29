@@ -24,6 +24,9 @@ import { FormWrapper } from '../fields/form';
 import { SquadPrivacySection } from './settings/SquadPrivacySection';
 import { PermissionSection } from './settings/PermissionSection';
 import { SquadSettingsSection } from './settings';
+import { SquadStats } from './common/SquadStat';
+import { SquadPrivacyState } from './common/SquadPrivacyState';
+import { SquadDangerZone } from './settings/SquadDangerZone';
 
 const squadImageId = 'squad_image_file';
 
@@ -162,19 +165,26 @@ export function SquadDetails({
         id="squad-form"
       >
         {!createMode && (
-          <ImageInput
-            initialValue={form.image ?? form.file}
-            id={squadImageId}
-            fallbackImage={cloudinary.squads.imageFallback}
-            className={{
-              container: 'mt-4 !rounded-full border-0',
-              img: 'object-cover',
-            }}
-            hoverIcon={<CameraIcon size={IconSize.Large} />}
-            alwaysShowHover={!imageChanged}
-            onChange={() => setImageChanged(true)}
-            size="large"
-          />
+          <div className="flex flex-col items-center gap-5">
+            <ImageInput
+              initialValue={form.image ?? form.file}
+              id={squadImageId}
+              fallbackImage={cloudinary.squads.imageFallback}
+              className={{
+                container: 'mt-4 !rounded-full border-0',
+                img: 'object-cover',
+              }}
+              hoverIcon={<CameraIcon size={IconSize.Large} />}
+              alwaysShowHover={!imageChanged}
+              onChange={() => setImageChanged(true)}
+              size="medium"
+            />
+            <SquadPrivacyState
+              isPublic={form?.public}
+              isFeatured={form?.flags?.featured}
+            />
+            <SquadStats flags={form?.flags} />
+          </div>
         )}
         <SquadSettingsSection title="Squad details" className="!gap-4">
           <TextField
@@ -239,6 +249,7 @@ export function SquadDetails({
           initialMemberInviteRole={initialMemberInviteRole}
           initialMemberPostingRole={initialMemberPostingRole}
         />
+        {!createMode && <SquadDangerZone squad={form} />}
       </form>
     </FormWrapper>
   );

@@ -12,7 +12,7 @@ interface UseDeleteSquadModal {
 }
 
 type UseDeleteSquadProps = {
-  squad: Squad;
+  squad: Partial<Squad>;
   callback?: (params?: unknown) => void;
 };
 

@@ -23,7 +23,14 @@ import { PrivacyOption } from '../components/squads/settings/SquadPrivacySection
 export interface SquadForm
   extends Pick<
     Squad,
-    'id' | 'name' | 'handle' | 'description' | 'image' | 'flags' | 'category'
+    | 'id'
+    | 'name'
+    | 'handle'
+    | 'description'
+    | 'image'
+    | 'flags'
+    | 'category'
+    | 'active'
   > {
   preview?: Partial<ExternalLinkPreview>;
   file?: string;

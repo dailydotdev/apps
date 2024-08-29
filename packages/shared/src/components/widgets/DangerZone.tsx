@@ -54,6 +54,7 @@ export function DangerZone({
         variant={ButtonVariant.Primary}
         color={ButtonColor.Ketchup}
         className="mt-6 self-start"
+        type="button"
       >
         {cta}
       </Button>
