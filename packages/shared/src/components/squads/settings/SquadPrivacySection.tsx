@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import React, { ReactElement, useEffect, useMemo, useState } from 'react';
 import { gqlClient } from '../../../graphql/common';
 import {
@@ -43,11 +43,15 @@ export function SquadPrivacySection({
   );
   const isPrivate = privacy === PrivacyOption.Private;
   const [selected, setSelected] = useState(-1);
-  const { data } = useInfiniteQuery<SourceCategoryData>(
+  const { data } = useQuery<SourceCategoryData>(
     generateQueryKey(RequestKey.Source, null, 'categories'),
-    ({ pageParam }) => gqlClient.request(SOURCE_CATEGORIES_QUERY, pageParam),
+    () => gqlClient.request(SOURCE_CATEGORIES_QUERY),
+    { staleTime: Infinity },
   );
-  const list = useMemo(() => flattenInfiniteQuery(data, 'categories'), [data]);
+  const list = useMemo(
+    () => data?.categories?.edges?.map(({ node }) => node),
+    [data],
+  );
 
   useEffect(() => {
     if (!list?.length) {
