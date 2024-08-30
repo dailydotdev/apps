@@ -1,5 +1,6 @@
 import React, { ReactElement, ReactNode } from 'react';
 import { DangerZone } from '../widgets/DangerZone';
+import { anchorDefaultRel } from '../../lib/strings';
 
 interface AccountDangerZoneProps {
   onDelete: () => void;
@@ -15,7 +16,7 @@ const Important = () => (
       className="text-text-link"
       href="mailto:support@daily.dev?subject=I have a question about deleting my account"
       target="_blank"
-      rel="noopener"
+      rel={anchorDefaultRel}
     >
       support@daily.dev
     </a>{' '}
