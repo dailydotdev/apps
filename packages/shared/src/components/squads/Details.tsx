@@ -16,7 +16,6 @@ import Textarea from '../fields/Textarea';
 import ImageInput from '../fields/ImageInput';
 import { cloudinary } from '../../lib/image';
 import { formToJson } from '../../lib/form';
-import { blobToBase64 } from '../../lib/blob';
 import { checkExistingHandle, SquadForm } from '../../graphql/squads';
 import { capitalize } from '../../lib/strings';
 import { IconSize } from '../Icon';
@@ -27,16 +26,16 @@ import { SquadSettingsSection } from './settings';
 import { SquadStats } from './common/SquadStat';
 import { SquadPrivacyState } from './common/SquadPrivacyState';
 import { SquadDangerZone } from './settings/SquadDangerZone';
+import { Squad } from '../../graphql/sources';
 
 const squadImageId = 'squad_image_file';
 
 interface SquadDetailsProps {
-  onSubmit?: (e: FormEvent, formJson: SquadForm) => void;
-  form: Partial<SquadForm>;
-  createMode: boolean;
+  onSubmit: (e: FormEvent, formJson: SquadForm) => void;
   onRequestClose?: () => void;
   children?: ReactNode;
   isLoading?: boolean;
+  squad?: Squad;
 }
 
 const getFormData = async (
@@ -49,25 +48,27 @@ const getFormData = async (
 
   const input = document.getElementById(squadImageId) as HTMLInputElement;
   const file = input.files[0];
-  const base64 = await blobToBase64(file);
 
-  return { ...current, file: base64 };
+  return { ...current, file };
 };
 
 export function SquadDetails({
   onSubmit,
-  form,
-  createMode = true,
   children,
   isLoading,
+  squad,
 }: SquadDetailsProps): ReactElement {
+  const createMode = !squad;
   const {
     name,
     handle,
     description,
+    image,
+    category,
+    flags,
     memberPostingRole: initialMemberPostingRole,
     memberInviteRole: initialMemberInviteRole,
-  } = form;
+  } = squad ?? {};
   const [activeHandle, setActiveHandle] = useState(handle);
   const [imageChanged, setImageChanged] = useState(false);
   const [handleHint, setHandleHint] = useState<string>(null);
@@ -94,6 +95,7 @@ export function SquadDetails({
       return setHandleHint(unknown as string);
     },
   });
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formJson = formToJson<SquadForm>(e.currentTarget);
@@ -167,7 +169,7 @@ export function SquadDetails({
         {!createMode && (
           <div className="flex flex-col items-center gap-5">
             <ImageInput
-              initialValue={form.image ?? form.file}
+              initialValue={image}
               id={squadImageId}
               fallbackImage={cloudinary.squads.imageFallback}
               className={{
@@ -180,10 +182,10 @@ export function SquadDetails({
               size="medium"
             />
             <SquadPrivacyState
-              isPublic={form?.public}
-              isFeatured={form?.flags?.featured}
+              isPublic={squad?.public}
+              isFeatured={flags?.featured}
             />
-            <SquadStats flags={form?.flags} />
+            <SquadStats flags={flags} />
           </div>
         )}
         <SquadSettingsSection title="Squad details" className="!gap-4">
@@ -240,8 +242,8 @@ export function SquadDetails({
           )}
         </SquadSettingsSection>
         <SquadPrivacySection
-          initialCategory={form?.category?.id}
-          isPublic={form?.public}
+          initialCategory={category?.id}
+          isPublic={squad?.public}
           categoryHint={categoryHint}
           onCategoryChange={useCallback(() => setCategoryHint(''), [])}
         />
@@ -249,7 +251,7 @@ export function SquadDetails({
           initialMemberInviteRole={initialMemberInviteRole}
           initialMemberPostingRole={initialMemberPostingRole}
         />
-        {!createMode && <SquadDangerZone squad={form} />}
+        {!createMode && <SquadDangerZone squad={squad} />}
       </form>
     </FormWrapper>
   );

@@ -7,7 +7,7 @@ import { Squad } from '../../../graphql/sources';
 import { anchorDefaultRel } from '../../../lib/strings';
 
 interface SquadDangerZoneProps {
-  squad: Partial<Squad>;
+  squad: Squad;
 }
 
 const Important = () => (

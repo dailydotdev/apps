@@ -14,65 +14,38 @@ import {
   SourceType,
   Squad,
 } from './sources';
-import { Post, ExternalLinkPreview } from './posts';
-import { base64ToFile } from '../lib/base64';
+import { Post } from './posts';
 import { EmptyResponse } from './emptyResponse';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
 import { PrivacyOption } from '../components/squads/settings/SquadPrivacySection';
 
-export interface SquadForm
+interface BaseSquadForm
   extends Pick<
     Squad,
-    | 'id'
-    | 'name'
-    | 'handle'
-    | 'description'
-    | 'image'
-    | 'flags'
-    | 'category'
-    | 'active'
+    'name' | 'handle' | 'description' | 'memberInviteRole' | 'memberPostingRole'
   > {
-  preview?: Partial<ExternalLinkPreview>;
-  file?: string;
-  commentary: string;
-  buttonText?: string;
-  memberPostingRole?: SourceMemberRole;
-  memberInviteRole?: SourceMemberRole;
-  public?: boolean;
-  status?: PrivacyOption;
   categoryId?: string;
 }
 
-type SharedSquadInput = {
-  name: string;
-  handle: string;
-  description: string;
+export interface SquadForm extends BaseSquadForm {
+  status?: PrivacyOption;
+  file?: File;
+}
+
+interface SharedSquadInput extends BaseSquadForm {
   image?: File;
-  memberPostingRole?: SourceMemberRole;
-  memberInviteRole?: SourceMemberRole;
   isPrivate?: boolean;
-  categoryId?: string;
-};
+}
 
-type EditSquadInput = SharedSquadInput & {
+interface EditSquadInput extends SharedSquadInput {
   sourceId: string;
-};
+}
 
-type CreateSquadInput = SharedSquadInput;
-
-type CreateSquadOutput = {
-  createSquad: Squad;
-};
-
-type EditSquadOutput = {
-  editSquad: Squad;
-};
-
-type PostToSquadProps = {
+interface PostToSquadProps {
   id: string;
   sourceId?: string;
   commentary: string;
-};
+}
 
 export const UPDATE_MEMBER_ROLE_MUTATION = gql`
   mutation UpdateMemberRole($sourceId: ID!, $memberId: ID!, $role: String!) {
@@ -454,60 +427,36 @@ export const updateSquadPost =
   (data: PostToSquadProps): Promise<Post> =>
     requestMethod(UPDATE_SQUAD_POST_MUTATION, data);
 
-export async function createSquad(
-  form: Omit<SquadForm, 'commentary'>,
-): Promise<Squad> {
-  const inputData: CreateSquadInput = {
-    description: form?.description,
-    handle: form.handle,
-    name: form.name,
-    image: form.file ? await base64ToFile(form.file, 'image.jpg') : undefined,
-    memberPostingRole: form.memberPostingRole,
-    memberInviteRole: form.memberInviteRole,
-    categoryId: form.categoryId,
-    isPrivate: form.status === PrivacyOption.Private,
-  };
-  const data = await gqlClient.request<CreateSquadOutput>(
-    CREATE_SQUAD_MUTATION,
-    inputData,
-  );
+const formToInput = (form: SquadForm): SharedSquadInput => ({
+  description: form.description,
+  handle: form.handle,
+  name: form.name,
+  image: form.file,
+  memberPostingRole: form.memberPostingRole,
+  memberInviteRole: form.memberInviteRole,
+  categoryId: form.categoryId,
+  isPrivate: form.status === PrivacyOption.Private,
+});
+
+export async function createSquad(form: SquadForm): Promise<Squad> {
+  const inputData: SharedSquadInput = formToInput(form);
+  const data = await gqlClient.request(CREATE_SQUAD_MUTATION, inputData);
+
   return data.createSquad;
 }
 
-type EditSquadForm = Pick<
-  SquadForm,
-  | 'name'
-  | 'description'
-  | 'handle'
-  | 'file'
-  | 'public'
-  | 'categoryId'
-  | 'memberPostingRole'
-  | 'memberInviteRole'
->;
+interface EditSquadMutation {
+  id: string;
+  form: SquadForm;
+}
 
 export async function editSquad({
   id,
   form,
-}: {
-  id: string;
-  form: EditSquadForm;
-}): Promise<Squad> {
-  const inputData: EditSquadInput = {
-    sourceId: id,
-    description: form.description,
-    handle: form.handle,
-    name: form.name,
-    image: form.file ? await base64ToFile(form.file, 'image.jpg') : undefined,
-    memberPostingRole: form.memberPostingRole,
-    memberInviteRole: form.memberInviteRole,
-    categoryId: form.categoryId,
-    isPrivate: !form.public,
-  };
-  const data = await gqlClient.request<EditSquadOutput>(
-    EDIT_SQUAD_MUTATION,
-    inputData,
-  );
+}: EditSquadMutation): Promise<Squad> {
+  const inputData: EditSquadInput = { ...formToInput(form), sourceId: id };
+  const data = await gqlClient.request(EDIT_SQUAD_MUTATION, inputData);
+
   return data.editSquad;
 }
 
