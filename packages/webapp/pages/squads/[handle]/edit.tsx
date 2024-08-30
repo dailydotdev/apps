@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { SquadDetails } from '@dailydotdev/shared/src/components/squads/Details';
-import { SquadForm, editSquad } from '@dailydotdev/shared/src/graphql/squads';
+import { editSquad } from '@dailydotdev/shared/src/graphql/squads';
 import { useBoot } from '@dailydotdev/shared/src/hooks/useBoot';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
@@ -21,12 +21,8 @@ import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
-import {
-  isNullOrUndefined,
-  parseOrDefault,
-} from '@dailydotdev/shared/src/lib/func';
+import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
-import { PrivacyOption } from '@dailydotdev/shared/src/components/squads/settings/SquadPrivacySection';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 
@@ -72,24 +68,6 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
       },
     });
 
-  const onSubmit = async (e, form: SquadForm) => {
-    e.preventDefault();
-    const formJson = {
-      ...squad,
-      name: form.name,
-      description: form.description,
-      handle: form.handle,
-      file: form.file,
-      memberPostingRole: form.memberPostingRole,
-      memberInviteRole: form.memberInviteRole,
-      categoryId: form.categoryId,
-      public: isNullOrUndefined(form.status)
-        ? undefined
-        : form.status === PrivacyOption.Public,
-    };
-    onUpdateSquad({ id: squad.id, form: formJson });
-  };
-
   const isLoading =
     !isFetched || isSquadLoading || !isAuthReady || !isRouteReady;
 
@@ -108,9 +86,10 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
     <ManageSquadPageContainer>
       <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
       <SquadDetails
-        form={squad}
-        onSubmit={onSubmit}
-        createMode={false}
+        squad={squad}
+        onSubmit={(_, form) =>
+          onUpdateSquad({ id: squad.id, form: { ...squad, ...form } })
+        }
         isLoading={isUpdatingSquad}
       />
     </ManageSquadPageContainer>
