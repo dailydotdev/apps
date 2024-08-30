@@ -26,7 +26,7 @@ import {
   getPublicActions,
 } from '../components/checklist/actionUtils';
 import { PUBLIC_SQUAD_REQUEST_REQUIREMENT } from '../lib/config';
-import { PublicAboutStep } from '../components/checklist/PublicAboutStep';
+import { AboutPublicSquadStep } from '../components/checklist/AboutPublicSquadStep';
 
 type UseSquadChecklistProps = {
   squad: Squad;
@@ -159,12 +159,12 @@ const useSquadChecklist = ({
           return !squad.public && !isGoPublicDismissed;
         },
       }),
-      [ActionType.HidePublicSquadAbout]: createChecklistStep({
-        type: ActionType.HidePublicSquadAbout,
+      [ActionType.LearnAboutPublicSquad]: createChecklistStep({
+        type: ActionType.LearnAboutPublicSquad,
         step: {
           title: 'Learn about Squads',
           description: `Learn the benefits of a public squad and how to expand your community. Good luck!`,
-          component: (props) => <PublicAboutStep {...props} />,
+          component: (props) => <AboutPublicSquadStep {...props} />,
         },
         actions,
         condition: () => {

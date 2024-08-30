@@ -7,13 +7,13 @@ import { useActions } from '../../hooks';
 import { squadsPublicGuide } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 
-export const PublicAboutStep = ({
+export const AboutPublicSquadStep = ({
   ...props
 }: ChecklistStepProps): ReactElement => {
   const { completeAction } = useActions();
 
   const onDismiss = () => {
-    completeAction(ActionType.HidePublicSquadAbout);
+    completeAction(ActionType.LearnAboutPublicSquad);
   };
 
   return (
