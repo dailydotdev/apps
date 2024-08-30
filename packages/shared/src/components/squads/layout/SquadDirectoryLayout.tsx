@@ -73,7 +73,7 @@ export const SquadDirectoryLayout = (
             <NewSquadButton icon={<PlusIcon />} variant={ButtonVariant.Float} />
           </div>
         )}
-        <div className="flex max-w-full flex-row flex-nowrap items-center justify-between gap-6 py-4 laptop:gap-22">
+        <div className="flex max-w-full flex-row flex-nowrap items-center justify-between gap-6 overflow-hidden py-4 laptop:gap-22">
           <SquadDirectoryNavbar className="min-w-0 flex-1">
             {mySquadsTab.isVisible && (
               <SquadDirectoryNavbarItem

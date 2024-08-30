@@ -73,7 +73,7 @@ export const SquadDirectoryNavbar = (
     <nav
       aria-label="Squad directory navigation"
       className={classNames(
-        'relative -mx-4 border-b border-border-subtlest-tertiary px-4 laptop:mx-0 laptop:border-0 laptop:px-0',
+        'relative border-b border-border-subtlest-tertiary laptop:border-0',
         'flex-row flex-nowrap gap-2 laptop:flex',
         className,
       )}
@@ -89,7 +89,7 @@ export const SquadDirectoryNavbar = (
         />
       )}
       <ul
-        className="no-scrollbar laptop:3 relative -mx-4 flex flex-1 flex-row flex-nowrap gap-2 overflow-x-auto scroll-smooth px-4 laptop:mx-0 laptop:px-0"
+        className="no-scrollbar laptop:3 relative flex flex-1 flex-row flex-nowrap gap-2 overflow-x-auto scroll-smooth "
         ref={ref}
       >
         {children}
