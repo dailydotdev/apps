@@ -6,6 +6,9 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../buttons/Button';
+import { useHorizontalScrollHeader } from '../../HorizontalScroll/useHorizontalScrollHeader';
+import { ArrowIcon } from '../../icons';
+import { useViewSize, ViewSize } from '../../../hooks';
 
 interface SquadNavbarItemProps extends Omit<ComponentProps<'li'>, 'onClick'> {
   buttonSize: ButtonSize;
@@ -36,7 +39,8 @@ export const SquadDirectoryNavbarItem = ({
     )}
   >
     <Button
-      aria-label={`Navigate to ${label}'s squad directory`}
+      aria-current={isActive ? 'page' : undefined}
+      aria-label={`Navigate to ${label}'s directory page`}
       className="capitalize"
       href={path}
       onClick={onClick}
@@ -53,18 +57,53 @@ export const SquadDirectoryNavbar = (
   props: ComponentProps<'nav'>,
 ): ReactElement => {
   const { className, children, ...attrs } = props;
+  const {
+    ref,
+    onClickPrevious,
+    onClickNext,
+    isAtEnd,
+    isAtStart,
+    isOverflowing,
+  } = useHorizontalScrollHeader<HTMLUListElement>({
+    title: 'Squad directory navigation',
+  });
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   return (
     <nav
-      {...attrs}
+      aria-label="Squad directory navigation"
       className={classNames(
-        '-mx-4 border-b border-border-subtlest-tertiary px-4 laptop:mx-0 laptop:border-0 laptop:px-0',
+        'relative -mx-4 border-b border-border-subtlest-tertiary px-4 laptop:mx-0 laptop:border-0 laptop:px-0',
+        'flex-row flex-nowrap gap-2 laptop:flex',
         className,
       )}
+      {...attrs}
     >
-      <ul className="no-scrollbar laptop:3 -mx-4 flex flex-row flex-nowrap gap-2 overflow-x-auto px-4">
+      {!isAtStart && isOverflowing && isLaptop && (
+        <Button
+          className="absolute right-full top-1/2 -translate-y-1/2"
+          disabled={isAtStart}
+          icon={<ArrowIcon className="-rotate-90" />}
+          onClick={onClickPrevious}
+          variant={ButtonVariant.Option}
+        />
+      )}
+      <ul
+        className="no-scrollbar laptop:3 relative -mx-4 flex flex-1 flex-row flex-nowrap gap-2 overflow-x-auto scroll-smooth px-4 laptop:mx-0 laptop:px-0"
+        ref={ref}
+      >
         {children}
       </ul>
+      {!isAtEnd && isOverflowing && isLaptop && (
+        <Button
+          className="absolute left-full top-1/2 -translate-y-1/2 translate-x-2"
+          disabled={isAtEnd}
+          icon={<ArrowIcon className="rotate-90" />}
+          onClick={onClickNext}
+          size={ButtonSize.XSmall}
+          variant={ButtonVariant.Option}
+        />
+      )}
     </nav>
   );
 };

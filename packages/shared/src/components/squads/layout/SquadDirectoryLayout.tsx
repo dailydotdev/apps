@@ -65,7 +65,7 @@ export const SquadDirectoryLayout = (
   }, [id, pathname]);
 
   return (
-    <BaseFeedPage className="relative mb-4 flex-col pt-2 laptop:pt-8">
+    <BaseFeedPage className="relative mb-4 flex-col pt-2 laptop:px-18 laptop:pt-8">
       <header className="max-w-full">
         {isMobileLayout && (
           <div className="flex w-full flex-row items-center justify-between px-4 py-2 typo-body">
@@ -73,7 +73,7 @@ export const SquadDirectoryLayout = (
             <NewSquadButton icon={<PlusIcon />} variant={ButtonVariant.Float} />
           </div>
         )}
-        <div className="flex max-w-full flex-row flex-nowrap items-center justify-between gap-6 px-5 py-4">
+        <div className="flex max-w-full flex-row flex-nowrap items-center justify-between gap-6 py-4 laptop:gap-22">
           <SquadDirectoryNavbar className="min-w-0 flex-1">
             {mySquadsTab.isVisible && (
               <SquadDirectoryNavbarItem

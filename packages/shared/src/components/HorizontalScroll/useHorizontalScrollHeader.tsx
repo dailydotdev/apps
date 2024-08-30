@@ -12,10 +12,18 @@ import { useScrollManagement } from './useScrollManagement';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
 import { useEventListener } from '../../hooks';
+import { useToggle } from '../../hooks/useToggle';
 
-interface HorizontalScrollHeaderReturn {
+interface HorizontalScrollHeaderReturn<
+  El extends HTMLElement = HTMLDivElement,
+> {
   Header: FunctionComponent<{ titleId?: string }>;
-  ref: React.RefObject<HTMLDivElement>;
+  isAtEnd: boolean;
+  isAtStart: boolean;
+  isOverflowing: boolean;
+  onClickNext: MouseEventHandler;
+  onClickPrevious: MouseEventHandler;
+  ref: React.RefObject<El>;
 }
 
 export interface HorizontalScrollHeaderProps {
@@ -24,15 +32,18 @@ export interface HorizontalScrollHeaderProps {
   title: string | ReactElement;
 }
 
-export const useHorizontalScrollHeader = ({
+export const useHorizontalScrollHeader = <
+  El extends HTMLElement = HTMLDivElement,
+>({
   onScroll,
   onClickSeeAll,
   title,
-}: HorizontalScrollHeaderProps): HorizontalScrollHeaderReturn => {
-  const ref = useRef<HTMLDivElement>(null);
+}: HorizontalScrollHeaderProps): HorizontalScrollHeaderReturn<El> => {
+  const ref = useRef<El>(null);
   const [scrollableElementWidth, setScrollableElementWidth] =
     useState<number>(0);
   const [numCards, setNumCards] = useState<number>(0);
+  const [isOverflowing, setIsOverflowing] = useToggle(false);
 
   // Calculate the width of elements and the number of visible cards
   const calculateVisibleCards = useCallback(() => {
@@ -44,6 +55,8 @@ export const useHorizontalScrollHeader = ({
     ) {
       return;
     }
+
+    setIsOverflowing(currentRef.scrollWidth > currentRef.clientWidth);
 
     if (currentRef && currentRef.firstElementChild) {
       const element = currentRef.firstElementChild;
@@ -65,7 +78,7 @@ export const useHorizontalScrollHeader = ({
         Math.floor(mainContainerWidth / elementWidthWithMarginsAndGap),
       );
     }
-  }, []);
+  }, [setIsOverflowing]);
 
   // Recalculate number of cards on mount
   useEffect(() => {
@@ -130,5 +143,13 @@ export const useHorizontalScrollHeader = ({
     );
   };
 
-  return { Header, ref };
+  return {
+    Header,
+    ref,
+    isAtStart,
+    isAtEnd,
+    onClickNext,
+    onClickPrevious,
+    isOverflowing,
+  };
 };
