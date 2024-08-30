@@ -4,6 +4,7 @@ import { DangerZone } from '../../widgets/DangerZone';
 import { SquadSettingsSection } from './SquadSettingsSection';
 import { useDeleteSquad } from '../../../hooks/useDeleteSquad';
 import { Squad } from '../../../graphql/sources';
+import { anchorDefaultRel } from '../../../lib/strings';
 
 interface SquadDangerZoneProps {
   squad: Partial<Squad>;
@@ -17,7 +18,7 @@ const Important = () => (
       className="text-text-link"
       href="mailto:support@daily.dev?subject=I have a question about deleting my Squad"
       target="_blank"
-      rel="noopener"
+      rel={anchorDefaultRel}
     >
       support@daily.dev
     </a>{' '}
