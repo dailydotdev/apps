@@ -1,19 +1,12 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
-import React, { ReactElement, useEffect, useMemo, useState } from 'react';
-import { gqlClient } from '../../../graphql/common';
-import {
-  SourceCategoryData,
-  SOURCE_CATEGORIES_QUERY,
-} from '../../../graphql/sources';
-import {
-  generateQueryKey,
-  RequestKey,
-  flattenInfiniteQuery,
-} from '../../../lib/query';
-import { Dropdown } from '../../fields/Dropdown';
+import React, { ReactElement, useMemo, useState } from 'react';
 import { Radio } from '../../fields/Radio';
-import { StatusDescription } from './common';
 import { SquadSettingsSection } from './SquadSettingsSection';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../typography/Typography';
+import { SquadCategoryDropdown } from './SquadCategoryDropdown';
 
 interface CategoryDropdownProps {
   initialCategory: string;
@@ -42,26 +35,6 @@ export function SquadPrivacySection({
     isPublic ? PrivacyOption.Public : PrivacyOption.Private,
   );
   const isPrivate = privacy === PrivacyOption.Private;
-  const [selected, setSelected] = useState(-1);
-  const { data } = useInfiniteQuery<SourceCategoryData>(
-    generateQueryKey(RequestKey.Source, null, 'categories'),
-    ({ pageParam }) => gqlClient.request(SOURCE_CATEGORIES_QUERY, pageParam),
-  );
-  const list = useMemo(() => flattenInfiniteQuery(data, 'categories'), [data]);
-
-  useEffect(() => {
-    if (!list?.length) {
-      return;
-    }
-
-    const index = list.findIndex(({ id }) => id === initialCategory);
-
-    if (index === -1) {
-      return;
-    }
-
-    setSelected(index);
-  }, [initialCategory, list]);
 
   const privacyOptions = useMemo(() => {
     return [
@@ -70,37 +43,12 @@ export function SquadPrivacySection({
         value: PrivacyOption.Public,
         className: classes,
         afterElement: (
-          <div className="ml-9 flex flex-col gap-4">
-            <StatusDescription>
-              Squad is searchable, publicly listed in our squad directory, and
-              open for everyone to join. It’s ideal for building a community or
-              for content creators.
-            </StatusDescription>
-            {list && (
-              <Dropdown
-                placeholder="Select category"
-                className={{
-                  container: 'w-56',
-                  button: categoryHint && 'border border-status-error',
-                }}
-                options={list.map(({ title }) => title)}
-                selectedIndex={selected}
-                onChange={(_, index) => {
-                  setSelected(index);
-                  onCategoryChange?.(list[index].id);
-                }}
-                disabled={isPrivate}
-              />
-            )}
-            {list && !isPrivate && (
-              <input
-                type="hidden"
-                id="categoryId"
-                name="categoryId"
-                value={list[selected]?.id}
-              />
-            )}
-          </div>
+          <SquadCategoryDropdown
+            isDisabled={isPrivate}
+            initialCategory={initialCategory}
+            categoryHint={categoryHint}
+            onCategoryChange={onCategoryChange}
+          />
         ),
       },
       {
@@ -108,15 +56,19 @@ export function SquadPrivacySection({
         value: PrivacyOption.Private,
         className: classes,
         afterElement: (
-          <StatusDescription className="ml-9">
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Secondary}
+            className="ml-9"
+          >
             Squad is invite-only, hidden from the directory, and perfect for
             teams and smaller groups of people who know each other and want to
             collaborate privately.
-          </StatusDescription>
+          </Typography>
         ),
       },
     ];
-  }, [isPrivate, list, categoryHint, selected, onCategoryChange]);
+  }, [isPrivate, initialCategory, categoryHint, onCategoryChange]);
 
   return (
     <SquadSettingsSection title="Squad type" className="w-full">

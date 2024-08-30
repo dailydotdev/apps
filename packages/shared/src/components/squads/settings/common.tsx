@@ -1,12 +1,6 @@
 import React, { ReactNode } from 'react';
-import classed from '../../../lib/classed';
 import { BlockIcon, LockIcon, TimerIcon } from '../../icons';
 import { IconSize } from '../../Icon';
-
-export const StatusDescription = classed(
-  'p',
-  'typo-callout text-text-secondary',
-);
 
 export enum SquadStatus {
   InProgress = 'in-progress',

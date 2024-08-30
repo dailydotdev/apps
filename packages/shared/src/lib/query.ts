@@ -55,6 +55,7 @@ export enum StaleTime {
   Tooltip = THIRTY_MINUTES,
   OneHour = ONE_HOUR,
   Base = STALE_TIME,
+  OneDay = ONE_HOUR * 24,
 }
 
 export type AllFeedPages = SharedFeedPage | OtherFeedPage;
@@ -300,17 +301,3 @@ export const updateReadingHistoryListPost = ({
     queryClient.setQueryData(queryKey, oldData);
   };
 };
-
-export function flattenInfiniteQuery<
-  TEntity extends HasConnection<TEntity, TKey, TReturn>,
-  TKey extends keyof TEntity = keyof TEntity,
-  TReturn = TEntity[TKey]['edges'][0]['node'],
->(data: InfiniteData<TEntity>, key: TKey): TReturn[] {
-  return data?.pages.reduce((acc, p) => {
-    p?.[key]?.edges.forEach(({ node }) => {
-      acc.push(node);
-    });
-
-    return acc;
-  }, [] as TReturn[]);
-}

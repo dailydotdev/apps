@@ -34,8 +34,9 @@ export function PermissionSection({
   return (
     <div className="mt-2 flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary">
       <Typography
+        bold
         type={TypographyType.Body}
-        className="flex items-center border-b border-border-subtlest-tertiary p-4 font-bold"
+        className="flex items-center border-b border-border-subtlest-tertiary p-4"
       >
         🔒 Permissions
       </Typography>

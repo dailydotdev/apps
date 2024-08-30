@@ -1,8 +1,38 @@
+import React, { PropsWithChildren, ReactElement } from 'react';
 import classed from '../../lib/classed';
-import { BasePageContainer, pageBorders } from '../utilities';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+  TypographyType,
+} from '../typography/Typography';
+import {
+  BasePageContainer,
+  pageBorders,
+  WithClassNameProps,
+} from '../utilities';
 
-export const SquadTitle = classed('h1', 'typo-large-title font-bold');
-export const SquadSubTitle = classed('p', 'typo-body text-text-tertiary');
+export const SquadTitle = ({
+  children,
+  className,
+}: PropsWithChildren<WithClassNameProps>): ReactElement => (
+  <Typography
+    className={className}
+    tag={TypographyTag.H1}
+    type={TypographyType.LargeTitle}
+    bold
+  >
+    {children}
+  </Typography>
+);
+
+export const SquadSubTitle = ({
+  children,
+}: PropsWithChildren): ReactElement => (
+  <Typography type={TypographyType.Callout} color={TypographyColor.Tertiary}>
+    {children}
+  </Typography>
+);
 export const SquadTitleColor = classed('span', 'text-brand-default');
 
 export const ManageSquadPageContainer = classed(
