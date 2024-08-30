@@ -4,6 +4,7 @@ import { Connection, gqlClient, gqlRequest } from './common';
 import { Source, SourceType, Squad } from './sources';
 import { EmptyResponse } from './emptyResponse';
 import {
+  POST_CODE_SNIPPET_FRAGMENT,
   RELATED_POST_FRAGMENT,
   SHARED_POST_INFO_FRAGMENT,
   SOURCE_SHORT_INFO_FRAGMENT,
@@ -690,4 +691,27 @@ export const RELATED_POSTS_QUERY = gql`
     }
   }
   ${RELATED_POST_FRAGMENT}
+`;
+
+export const POST_CODE_SNIPPETS_PER_PAGE_DEFAULT = 5;
+
+export type PostCodeSnippet = {
+  content: string;
+};
+
+export const POST_CODE_SNIPPETS_QUERY = gql`
+  query postCodeSnippets($id: ID!, $after: String, $first: Int) {
+    postCodeSnippets(id: $id, after: $after, first: $first) {
+      edges {
+        node {
+          ...PostCodeSnippet
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+  ${POST_CODE_SNIPPET_FRAGMENT}
 `;
