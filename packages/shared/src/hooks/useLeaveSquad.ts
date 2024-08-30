@@ -7,7 +7,11 @@ import LogContext from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
 import { ButtonColor } from '../components/buttons/Button';
 
-type UseLeaveSquad = (forceLeave?: boolean) => Promise<boolean>;
+interface Params {
+  forceLeave?: boolean;
+}
+
+type UseLeaveSquad = (params?: Params) => Promise<boolean>;
 
 type UseLeaveSquadProps = {
   squad: Squad;
@@ -31,7 +35,7 @@ export const useLeaveSquad = ({ squad }: UseLeaveSquadProps): UseLeaveSquad => {
   }, [deleteCachedSquad, logEvent, squad.id]);
 
   const onLeaveSquad = useCallback(
-    async (forceLeave?: boolean) => {
+    async ({ forceLeave = false }: Params = {}) => {
       if (forceLeave) {
         return onUserConfirm();
       }

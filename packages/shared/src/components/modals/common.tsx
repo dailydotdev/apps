@@ -159,6 +159,13 @@ const SlackIntegrationModal = dynamic(
     ),
 );
 
+const ReportSourceModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "reportSquadModal" */ './report/ReportSourceModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -186,6 +193,7 @@ export const modals = {
   [LazyModal.BookmarkReminder]: BookmarkReminderModal,
   [LazyModal.RecoverStreak]: StreakRecoverModal,
   [LazyModal.SlackIntegration]: SlackIntegrationModal,
+  [LazyModal.ReportSource]: ReportSourceModal,
 };
 
 type GetComponentProps<T> = T extends

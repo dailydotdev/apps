@@ -44,6 +44,7 @@ interface SubmitReportProps {
 export function ReportPostModal({
   squad,
   onReported,
+  onRequestClose,
   ...props
 }: SouceReportModalProps): ReactElement {
   const { logEvent } = useLogContext();
@@ -66,10 +67,11 @@ export function ReportPostModal({
         });
 
         if (inputRef.current?.checked) {
-          onLeaveSquad(true);
+          onLeaveSquad({ forceLeave: true });
         }
 
         onReported?.();
+        onRequestClose(null);
       },
     },
   );
