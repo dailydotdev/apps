@@ -11,7 +11,7 @@ import {
   SourceCategoryData,
   SOURCE_CATEGORIES_QUERY,
 } from '../../../graphql/sources';
-import { generateQueryKey, RequestKey } from '../../../lib/query';
+import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 
 interface SquadCategoryDropdownProps {
   initialCategory: string;
@@ -30,7 +30,7 @@ export function SquadCategoryDropdown({
   const { data } = useQuery<SourceCategoryData>(
     generateQueryKey(RequestKey.Source, null, 'categories'),
     () => gqlClient.request(SOURCE_CATEGORIES_QUERY),
-    { staleTime: Infinity },
+    { staleTime: StaleTime.OneDay },
   );
   const list = useMemo(
     () => data?.categories?.edges?.map(({ node }) => node),

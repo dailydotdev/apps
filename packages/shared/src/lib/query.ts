@@ -55,6 +55,7 @@ export enum StaleTime {
   Tooltip = THIRTY_MINUTES,
   OneHour = ONE_HOUR,
   Base = STALE_TIME,
+  OneDay = ONE_HOUR * 24,
 }
 
 export type AllFeedPages = SharedFeedPage | OtherFeedPage;
