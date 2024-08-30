@@ -120,14 +120,10 @@ it('should hide read time when not available', async () => {
   expect(screen.queryByTestId('readTime')).not.toBeInTheDocument();
 });
 
-it('should show author name when available', async () => {
+it('should show author image when available', async () => {
   renderComponent();
-  const el = await screen.findByText('Ido Shamun');
+  const el = await screen.findByAltText("ido's profile");
   expect(el).toBeInTheDocument();
-  // eslint-disable-next-line testing-library/no-node-access
-  expect(el.parentElement).toHaveClass('flex');
-  // eslint-disable-next-line testing-library/no-node-access
-  expect(el.parentElement).toHaveClass(visibleOnGroupHover);
 });
 
 it('should show trending flag', async () => {

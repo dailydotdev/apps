@@ -4,8 +4,6 @@ import { Container, generateTitleClamp, PostCardProps } from '../common';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import { useSquadChecklist } from '../../../hooks/useSquadChecklist';
 import { Squad } from '../../../graphql/sources';
-import { useConditionalFeature } from '../../../hooks';
-import { feature } from '../../../lib/featureManagement';
 import { PostType } from '../../../graphql/posts';
 import { ActionType } from '../../../graphql/actions';
 import FeedItemContainer from '../FeedItemContainer';
@@ -40,10 +38,6 @@ export const FreeformGrid = forwardRef(function SharePostCard(
   const { openStep, isChecklistVisible } = useSquadChecklist({
     squad: post.source as Squad,
   });
-  const { value: shouldShowNewImage } = useConditionalFeature({
-    shouldEvaluate: !!post.author,
-    feature: feature.authorImage,
-  });
 
   const shouldShowHighlightPulse =
     postType === PostType.Welcome &&
@@ -76,7 +70,6 @@ export const FreeformGrid = forwardRef(function SharePostCard(
       <SquadPostCardHeader
         author={post.author}
         source={post.source}
-        createdAt={post.createdAt}
         enableSourceHeader={enableSourceHeader}
         bookmarked={post.bookmarked}
       />
@@ -90,7 +83,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
       >
         {post.title}
       </FreeformCardTitle>
-      {shouldShowNewImage && (
+      {!!post.author && (
         <>
           {image && <div className="flex-1" />}
           <PostMetadata
