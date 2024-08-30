@@ -75,7 +75,7 @@ const NewSquad = (): ReactElement => {
             src={
               isMobile
                 ? cloudinary.squads.createSquad.mobile
-                : cloudinary.squads.createSquad.beyondMobile
+                : cloudinary.squads.createSquad.biggerThanMobile
             }
             alt="A collection of other people's avatars"
           />
