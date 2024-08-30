@@ -1,7 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
-import { BaseFeedPage } from '@dailydotdev/shared/src/components/utilities';
 import { SQUAD_DIRECTORY_SOURCES } from '@dailydotdev/shared/src/graphql/squads';
 import InfiniteScrolling, {
   checkFetchMore,
@@ -41,6 +40,7 @@ import {
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
+import { SquadNavbarLayout } from '@dailydotdev/shared/src/components/squads/layout/SquadNavbarLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import FeedLayout, { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -87,7 +87,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
       <NextSeo {...seo} />
 
       <FeedLayout>
-        <BaseFeedPage className="relative mb-4 flex-col pt-2 laptop:pt-8">
+        <SquadNavbarLayout>
           <span
             className={classNames(
               'flex w-full flex-row items-center justify-between px-4 pb-2 typo-body laptop:hidden',
@@ -108,10 +108,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
             condition={isTabbedContainer}
             wrapper={(component) => (
               <TabContainer className={{ container: 'w-full' }}>
-                <Tab
-                  label="Your squads"
-                  className="grid grid-cols-1 gap-4 px-4 py-5"
-                >
+                <Tab label="Your squads" className="grid grid-cols-1 gap-4">
                   {squads.map((squad) => (
                     <SquadList
                       key={squad.handle}
@@ -202,7 +199,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
               </FeedContainer>
             </InfiniteScrolling>
           </ConditionalWrapper>
-        </BaseFeedPage>
+        </SquadNavbarLayout>
       </FeedLayout>
     </>
   );
