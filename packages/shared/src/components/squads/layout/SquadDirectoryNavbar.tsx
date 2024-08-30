@@ -73,7 +73,7 @@ export const SquadDirectoryNavbar = (
     <nav
       aria-label="Squad directory navigation"
       className={classNames(
-        'relative border-b border-border-subtlest-tertiary laptop:border-0',
+        'relative -mx-4 border-b border-border-subtlest-tertiary px-4 laptop:border-0',
         'flex-row flex-nowrap gap-2 laptop:flex',
         className,
       )}
