@@ -3,16 +3,11 @@ import { Radio, RadioItemProps } from '../../fields/Radio';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { Modal, ModalProps } from '../common/Modal';
 import { Justify } from '../../utilities';
-import { ReportReason } from '../../../graphql/posts';
-import { ReportCommentReason } from '../../../graphql/comments';
 import { useViewSize, ViewSize } from '../../../hooks';
+import { ReportReason } from '../../../report';
 
-interface Props extends ModalProps {
-  onReport(
-    e: React.MouseEvent,
-    reason: ReportReason | ReportCommentReason,
-    text: string,
-  ): void;
+interface Props<T extends ReportReason> extends ModalProps {
+  onReport(e: React.MouseEvent, reason: T, text: string): void;
   reasons: RadioItemProps[] | ((reason: string) => RadioItemProps[]);
   heading: string;
   title?: string;
@@ -22,7 +17,7 @@ interface Props extends ModalProps {
 
 export const OTHER_KEY = 'OTHER';
 
-export function ReportModal({
+export function ReportModal<T extends ReportReason>({
   onReport,
   reasons,
   heading,
@@ -30,7 +25,7 @@ export function ReportModal({
   footer,
   disabled,
   ...props
-}: Props): ReactElement {
+}: Props<T>): ReactElement {
   const [reason, setReason] = useState(null);
   const [note, setNote] = useState<string>();
   const isMobile = useViewSize(ViewSize.MobileL);
