@@ -167,9 +167,7 @@ const useSquadChecklist = ({
           component: (props) => <AboutPublicSquadStep {...props} />,
         },
         actions,
-        condition: () => {
-          return !!squad.public;
-        },
+        condition: () => !!squad.public,
       }),
       [ActionType.EnableNotification]: createChecklistStep({
         type: ActionType.EnableNotification,
