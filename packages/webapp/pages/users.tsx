@@ -14,6 +14,10 @@ import {
   UserLeaderboard,
   UserTopList,
 } from '@dailydotdev/shared/src/components/cards/Leaderboard';
+import {
+  CompanyLeaderboard,
+  CompanyTopList,
+} from '@dailydotdev/shared/src/components/cards/Leaderboard/CompanyTopList';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
@@ -32,6 +36,7 @@ interface PageProps {
   mostUpvoted: UserLeaderboard[];
   mostReferrals: UserLeaderboard[];
   mostReadingDays: UserLeaderboard[];
+  mostVerifiedUsers: CompanyLeaderboard[];
 }
 
 const LeaderboardPage = ({
@@ -41,6 +46,7 @@ const LeaderboardPage = ({
   mostUpvoted,
   mostReferrals,
   mostReadingDays,
+  mostVerifiedUsers,
 }: PageProps): ReactElement => {
   const { isFallback: isLoading } = useRouter();
 
@@ -88,6 +94,11 @@ const LeaderboardPage = ({
             items={mostReadingDays}
             isLoading={isLoading}
           />
+          <CompanyTopList
+            containerProps={{ title: 'Most verified employees' }}
+            items={mostVerifiedUsers}
+            isLoading={isLoading}
+          />
         </div>
       </PageWrapperLayout>
     </>
@@ -109,7 +120,7 @@ export async function getStaticProps(): Promise<
 > {
   try {
     const res = await gqlClient.request<PageProps>(LEADERBOARD_QUERY);
-
+    console.log(res);
     return {
       props: {
         highestReputation: res.highestReputation,
@@ -118,6 +129,7 @@ export async function getStaticProps(): Promise<
         mostUpvoted: res.mostUpvoted,
         mostReferrals: res.mostReferrals,
         mostReadingDays: res.mostReadingDays,
+        mostVerifiedUsers: res.mostVerifiedUsers,
       },
       revalidate: 3600,
     };
@@ -136,6 +148,7 @@ export async function getStaticProps(): Promise<
           mostUpvoted: [],
           mostReferrals: [],
           mostReadingDays: [],
+          mostVerifiedUsers: [],
         },
         revalidate: 60,
       };
