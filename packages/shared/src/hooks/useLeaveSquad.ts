@@ -23,23 +23,8 @@ export const useLeaveSquad = ({ squad }: UseLeaveSquadProps): UseLeaveSquad => {
   const { showPrompt } = usePrompt();
   const { deleteSquad: deleteCachedSquad } = useBoot();
 
-  const onUserConfirm = useCallback(async () => {
-    logEvent({
-      event_name: LogEvent.LeaveSquad,
-      extra: JSON.stringify({ squad: squad.id }),
-    });
-    await leaveSquad(squad.id);
-    deleteCachedSquad(squad.id);
-
-    return true;
-  }, [deleteCachedSquad, logEvent, squad.id]);
-
   const onLeaveSquad = useCallback(
     async ({ forceLeave = false }: Params = {}) => {
-      if (forceLeave) {
-        return onUserConfirm();
-      }
-
       const options: PromptOptions = {
         title: `Leave ${squad.name}`,
         description: `Leaving ${squad.name} means that you will lose your access to all posts that were shared in the Squad`,
@@ -48,16 +33,20 @@ export const useLeaveSquad = ({ squad }: UseLeaveSquadProps): UseLeaveSquad => {
           color: ButtonColor.Ketchup,
         },
       };
+      const left = forceLeave || (await showPrompt(options));
 
-      const left = await showPrompt(options);
-
-      if (!left) {
-        return false;
+      if (left) {
+        logEvent({
+          event_name: LogEvent.LeaveSquad,
+          extra: JSON.stringify({ squad: squad.id }),
+        });
+        await leaveSquad(squad.id);
+        deleteCachedSquad(squad.id);
       }
 
-      return onUserConfirm();
+      return left;
     },
-    [squad.name, showPrompt, onUserConfirm],
+    [deleteCachedSquad, showPrompt, squad, logEvent],
   );
 
   return onLeaveSquad;

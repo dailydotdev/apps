@@ -20,6 +20,7 @@ export enum ReportReason {
   Copyright = 'COPYRIGHT',
   Privacy = 'PRIVACY',
   Miscategorized = 'MISCATEGORIZED',
+  Misinformation = 'MISINFORMATION',
   Illegal = 'ILLEGAL',
 }
 
