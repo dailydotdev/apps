@@ -99,17 +99,12 @@ export const SQUAD_BASE_FRAGMENT = `
     }
     privilegedMembers {
       user {
-        id
-        name
-        image
-        permalink
-        username
-        bio
-        reputation
+        ...UserShortInfo
       }
       role
     }
   }
+  ${USER_SHORT_INFO_FRAGMENT}
   ${SOURCE_BASE_FRAGMENT}
 `;
 
