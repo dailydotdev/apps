@@ -6,8 +6,8 @@ import { Justify } from '../../utilities';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { ReportReason } from '../../../report';
 
-interface Props<T extends ReportReason> extends ModalProps {
-  onReport(e: React.MouseEvent, reason: T, text: string): void;
+interface Props extends ModalProps {
+  onReport(e: React.MouseEvent, reason: ReportReason, text: string): void;
   reasons: RadioItemProps[] | ((reason: string) => RadioItemProps[]);
   heading: string;
   title?: string;
@@ -17,7 +17,7 @@ interface Props<T extends ReportReason> extends ModalProps {
 
 export const OTHER_KEY = 'OTHER';
 
-export function ReportModal<T extends ReportReason>({
+export function ReportModal({
   onReport,
   reasons,
   heading,
@@ -25,7 +25,7 @@ export function ReportModal<T extends ReportReason>({
   footer,
   disabled,
   ...props
-}: Props<T>): ReactElement {
+}: Props): ReactElement {
   const [reason, setReason] = useState(null);
   const [note, setNote] = useState<string>();
   const isMobile = useViewSize(ViewSize.MobileL);

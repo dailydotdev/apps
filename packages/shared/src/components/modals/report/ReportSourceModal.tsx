@@ -4,13 +4,7 @@ import { Checkbox } from '../../fields/Checkbox';
 import { ModalProps } from '../common/Modal';
 import { useLogContext } from '../../../contexts/LogContext';
 import { ReportModal } from './ReportModal';
-import {
-  CommonReportReason,
-  ReportEntity,
-  sendReport,
-  SourceReportReason,
-  SourceReportReasonType,
-} from '../../../report';
+import { ReportReason, sendSourceReport } from '../../../report';
 import { Squad } from '../../../graphql/sources';
 import { useLeaveSquad } from '../../../hooks';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -22,22 +16,22 @@ interface SouceReportModalProps extends ModalProps {
 }
 
 const reportReasons: { value: string; label: string }[] = [
-  { value: CommonReportReason.Nsfw, label: 'NSFW or inappropriate content' },
-  { value: SourceReportReason.Spam, label: 'Spam or excessive self-promotion' },
-  { value: SourceReportReason.Bullying, label: 'Harassment and bullying' },
+  { value: ReportReason.Nsfw, label: 'NSFW or inappropriate content' },
+  { value: ReportReason.Spam, label: 'Spam or excessive self-promotion' },
+  { value: ReportReason.Harassment, label: 'Harassment and bullying' },
   {
-    value: SourceReportReason.Hateful,
+    value: ReportReason.Hateful,
     label: 'Hate speech and discrimination',
   },
-  { value: SourceReportReason.Copyright, label: 'Copyright violation' },
-  { value: SourceReportReason.Privacy, label: 'Privacy violation' },
-  { value: SourceReportReason.Miscategorized, label: 'Wrong category' },
-  { value: SourceReportReason.Illegal, label: 'Illegal activities and scams' },
-  { value: CommonReportReason.Other, label: 'Other' },
+  { value: ReportReason.Copyright, label: 'Copyright violation' },
+  { value: ReportReason.Privacy, label: 'Privacy violation' },
+  { value: ReportReason.Miscategorized, label: 'Wrong category' },
+  { value: ReportReason.Illegal, label: 'Illegal activities and scams' },
+  { value: ReportReason.Other, label: 'Other' },
 ];
 
 interface SubmitReportProps {
-  reason: SourceReportReasonType;
+  reason: ReportReason;
   comment?: string;
 }
 
@@ -53,8 +47,7 @@ export function ReportPostModal({
   const onLeaveSquad = useLeaveSquad({ squad });
   const { mutateAsync: onReport } = useMutation(
     ({ reason, comment }: SubmitReportProps) =>
-      sendReport({
-        type: ReportEntity.Source,
+      sendSourceReport({
         id: squad.id,
         reason,
         comment,
@@ -79,7 +72,7 @@ export function ReportPostModal({
   const isUserMember = squads.some((s) => s.id === squad.id);
 
   return (
-    <ReportModal<SourceReportReasonType>
+    <ReportModal
       {...props}
       isOpen
       onReport={(_, reason, comment) => onReport({ reason, comment })}

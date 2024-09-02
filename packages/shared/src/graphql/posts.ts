@@ -12,8 +12,6 @@ import {
 import { acceptedTypesList, MEGABYTE } from '../components/fields/ImageInput';
 import { Bookmark } from './bookmarks';
 
-export type ReportReason = 'BROKEN' | 'NSFW' | 'CLICKBAIT' | 'LOW';
-
 export type TocItem = { text: string; id?: string; children?: TocItem[] };
 export type Toc = TocItem[];
 

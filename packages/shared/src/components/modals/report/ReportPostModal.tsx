@@ -8,7 +8,7 @@ import React, {
   useCallback,
 } from 'react';
 import { RadioItemProps } from '../../fields/Radio';
-import { Post, ReadHistoryPost, ReportReason } from '../../../graphql/posts';
+import { Post, ReadHistoryPost } from '../../../graphql/posts';
 import { Checkbox } from '../../fields/Checkbox';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { PostBootData } from '../../../lib/boot';
@@ -19,6 +19,7 @@ import { postLogEvent } from '../../../lib/feed';
 import { Origin } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
 import { ReportModal } from './ReportModal';
+import { ReportReason } from '../../../report';
 
 interface OptionalProps {
   index?: number;
@@ -37,13 +38,13 @@ interface Props extends ModalProps {
   onReported?: ReportedCallback;
 }
 
-const reportReasons: { value: string; label: string }[] = [
-  { value: 'IRRELEVANT', label: 'The post is not about...' },
-  { value: 'BROKEN', label: 'Broken link' },
-  { value: 'CLICKBAIT', label: 'Clickbait' },
-  { value: 'LOW', label: 'Low-quality content' },
-  { value: 'NSFW', label: 'NSFW' },
-  { value: 'OTHER', label: 'Other' },
+const reportReasons: { value: ReportReason; label: string }[] = [
+  { value: ReportReason.Irrelevant, label: 'The post is not about...' },
+  { value: ReportReason.Broken, label: 'Broken link' },
+  { value: ReportReason.Clickbait, label: 'Clickbait' },
+  { value: ReportReason.Low, label: 'Low-quality content' },
+  { value: ReportReason.Nsfw, label: 'NSFW' },
+  { value: ReportReason.Other, label: 'Other' },
 ];
 
 const reportReasonsMap: Partial<

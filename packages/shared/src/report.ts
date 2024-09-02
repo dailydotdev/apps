@@ -7,35 +7,21 @@ export enum ReportEntity {
   Source = 'source',
 }
 
-export enum CommonReportReason {
+export enum ReportReason {
   Nsfw = 'NSFW',
   Other = 'OTHER',
-}
-
-export enum PostReportReason {
   Broken = 'BROKEN',
   Clickbait = 'CLICKBAIT',
   Low = 'LOW',
   Irrelevant = 'IRRELEVANT',
-}
-
-export enum SourceReportReason {
   Spam = 'SPAM',
-  Bullying = 'BULLYING',
+  Harassment = 'HARASSMENT',
   Hateful = 'HATEFUL',
   Copyright = 'COPYRIGHT',
   Privacy = 'PRIVACY',
   Miscategorized = 'MISCATEGORIZED',
   Illegal = 'ILLEGAL',
 }
-
-export type PostReportReasonType = PostReportReason | CommonReportReason;
-export type SourceReportReasonType = SourceReportReason | CommonReportReason;
-
-export type ReportReason =
-  | PostReportReason
-  | SourceReportReason
-  | CommonReportReason;
 
 export const SEND_REPORT_MUTATION = gql`
   mutation SendReport(
@@ -57,14 +43,25 @@ export const SEND_REPORT_MUTATION = gql`
   }
 `;
 
-interface SendReportProps<T extends ReportReason> {
-  type: ReportEntity;
+interface SendReportProps {
   id: string;
-  reason: T;
+  reason: ReportReason;
   comment?: string;
   tags?: string[];
 }
 
-export const sendReport = <T extends ReportReason>(
-  params: SendReportProps<T>,
-): Promise<EmptyResponse> => gqlClient.request(SEND_REPORT_MUTATION, params);
+interface SendGenericReport extends SendReportProps {
+  type: ReportEntity;
+}
+
+const sendReport = (params: SendGenericReport): Promise<EmptyResponse> =>
+  gqlClient.request(SEND_REPORT_MUTATION, params);
+
+export const sendPostReport = (
+  params: SendReportProps,
+): Promise<EmptyResponse> => sendReport({ ...params, type: ReportEntity.Post });
+
+export const sendSourceReport = (
+  params: SendReportProps,
+): Promise<EmptyResponse> =>
+  sendReport({ ...params, type: ReportEntity.Source });
