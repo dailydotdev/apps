@@ -17,7 +17,6 @@ import { ContentTypesFilter } from './ContentTypesFilter';
 import { Source } from '../../graphql/sources';
 import { webappUrl } from '../../lib/constants';
 import { ViewSize, useFeeds, useViewSize } from '../../hooks';
-import { useAuthContext } from '../../contexts/AuthContext';
 
 enum FilterMenuTitle {
   MyFeed = 'My feed',
@@ -42,7 +41,6 @@ const unBlockPromptOptions: PromptOptions = {
 };
 
 export default function FeedFilters(props: FeedFiltersProps): ReactElement {
-  const { isLoggedIn } = useAuthContext();
   const { showPrompt } = usePrompt();
   const unBlockPrompt = async ({ action, source, tag }: UnblockItem) => {
     const description = tag ? (
