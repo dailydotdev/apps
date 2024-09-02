@@ -16,20 +16,14 @@ import { UnblockSourceCopy, UnblockTagCopy } from './UnblockCopy';
 import { ContentTypesFilter } from './ContentTypesFilter';
 import { Source } from '../../graphql/sources';
 import { webappUrl } from '../../lib/constants';
-import {
-  ViewSize,
-  useConditionalFeature,
-  useFeeds,
-  useViewSize,
-} from '../../hooks';
-import { feature } from '../../lib/featureManagement';
+import { ViewSize, useFeeds, useViewSize } from '../../hooks';
 import { useAuthContext } from '../../contexts/AuthContext';
 
 enum FilterMenuTitle {
   MyFeed = 'My feed',
   Tags = 'Manage tags',
   ManageCategories = 'Manage categories',
-  ContentTypes = 'Content types',
+  ContentTypes = 'Content & Language',
   Blocked = 'Blocked items',
 }
 
@@ -66,15 +60,6 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
 
   const filtersTab = FilterMenuTitle.MyFeed;
 
-  const { value: postTitleLanguageFeature } = useConditionalFeature({
-    feature: feature.postTitleLanguage,
-    shouldEvaluate: isLoggedIn,
-  });
-
-  const contentTypesTab = postTitleLanguageFeature
-    ? 'Content & Language'
-    : FilterMenuTitle.ContentTypes;
-
   const tabs = [
     {
       title: filtersTab,
@@ -104,7 +89,7 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
       options: { icon: <FilterIcon />, group: 'Preference' },
     },
     {
-      title: contentTypesTab,
+      title: FilterMenuTitle.ContentTypes,
       options: { icon: <AppIcon />, group: 'Preference' },
     },
     {
@@ -145,7 +130,7 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
           <Modal.Body view={FilterMenuTitle.ManageCategories}>
             <AdvancedSettingsFilter />
           </Modal.Body>
-          <Modal.Body view={contentTypesTab}>
+          <Modal.Body view={FilterMenuTitle.ContentTypes}>
             <ContentTypesFilter />
           </Modal.Body>
           <Modal.Body view={FilterMenuTitle.Blocked}>

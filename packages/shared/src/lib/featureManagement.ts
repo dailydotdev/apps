@@ -29,7 +29,6 @@ const feature = {
   showRoadmap: new Feature('show_roadmap', true),
   onboardingChecklist: new Feature('onboarding_checklist', true),
   searchUsers: new Feature('search_users', false),
-  postTitleLanguage: new Feature('post_title_language', false),
 };
 
 export { feature };
