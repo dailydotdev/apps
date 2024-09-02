@@ -120,7 +120,6 @@ export async function getStaticProps(): Promise<
 > {
   try {
     const res = await gqlClient.request<PageProps>(LEADERBOARD_QUERY);
-    console.log(res);
     return {
       props: {
         highestReputation: res.highestReputation,
