@@ -114,7 +114,17 @@ export const SQUAD_DIRECTORY_SOURCES = gql`
             edges {
               node {
                 user {
-                  ...UserShortInfo
+                  id
+                  name
+                  image
+                  permalink
+                  username
+                  bio
+                  reputation
+                  companies {
+                    name
+                    image
+                  }
                 }
               }
             }
@@ -124,7 +134,6 @@ export const SQUAD_DIRECTORY_SOURCES = gql`
       }
     }
   }
-  ${USER_SHORT_INFO_FRAGMENT}
   ${SOURCE_BASE_FRAGMENT}
 `;
 
