@@ -106,6 +106,10 @@ export const SQUAD_BASE_FRAGMENT = `
         username
         bio
         reputation
+        companies {
+          name
+          image
+        }
       }
       role
     }

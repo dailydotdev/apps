@@ -114,12 +114,17 @@ export const SQUAD_DIRECTORY_SOURCES = gql`
             edges {
               node {
                 user {
-                  bio
                   id
-                  image
-                  username
-                  permalink
                   name
+                  image
+                  permalink
+                  username
+                  bio
+                  reputation
+                  companies {
+                    name
+                    image
+                  }
                 }
               }
             }
