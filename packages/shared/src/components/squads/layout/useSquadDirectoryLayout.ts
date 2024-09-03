@@ -1,5 +1,4 @@
-import { useContext } from 'react';
-import AuthContext from '../../../contexts/AuthContext';
+import { useAuthContext } from '../../../contexts/AuthContext';
 import { squadCategoriesPaths } from '../../../lib/constants';
 import { useToggle } from '../../../hooks/useToggle';
 import { useViewSize, ViewSize } from '../../../hooks';
@@ -18,7 +17,7 @@ interface SquadDirectoryLayoutReturn {
 }
 
 export const useSquadDirectoryLayout = (): SquadDirectoryLayoutReturn => {
-  const { squads } = useContext(AuthContext);
+  const { squads = [] } = useAuthContext();
   const hasSquad = !!squads?.length;
   const isLaptop = useViewSize(ViewSize.Laptop);
   const [isMySquadsActive, setIsMySquadsActive] = useToggle(false);
