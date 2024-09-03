@@ -9,6 +9,8 @@ export class GrowthBook {
   getFeatureValue = fn().mockName('featureVersion').mockReturnValue('control');
 
   setAttributes = fn().mockName('setAttributes');
+
+  getFeatures = fn().mockName('getFeatures').mockReturnValue({});
 }
 
 export const setPolyfills = fn();
