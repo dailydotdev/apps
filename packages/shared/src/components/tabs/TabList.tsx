@@ -8,6 +8,8 @@ import React, {
 } from 'react';
 import { RenderTab } from './common';
 
+export type AllowedTabTags = keyof Pick<JSX.IntrinsicElements, 'a' | 'button'>;
+
 interface ClassName {
   indicator?: string;
   item?: string;
@@ -25,6 +27,7 @@ export interface TabListProps<T extends string = string> {
   className?: ClassName;
   autoScrollActive?: boolean;
   renderTab?: RenderTab;
+  tag?: AllowedTabTags;
 }
 
 function TabList<T extends string = string>({
@@ -34,6 +37,7 @@ function TabList<T extends string = string>({
   className = {},
   autoScrollActive,
   renderTab,
+  tag: Tag = 'button',
 }: TabListProps<T>): ReactElement {
   const hasActive = items.includes(active);
   const currentActiveTab = useRef<HTMLButtonElement>(null);
@@ -113,7 +117,7 @@ function TabList<T extends string = string>({
         );
 
         return (
-          <button
+          <Tag
             key={tab}
             ref={(el) => {
               if (!el || !isActive) {
@@ -132,7 +136,7 @@ function TabList<T extends string = string>({
             role="menuitem"
           >
             {renderedTab}
-          </button>
+          </Tag>
         );
       })}
       {!!indicatorOffset && hasActive && (
