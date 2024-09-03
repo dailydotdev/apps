@@ -5,6 +5,7 @@ import { gqlClient } from './graphql/common';
 export enum ReportEntity {
   Post = 'post',
   Source = 'source',
+  Comment = 'comment',
 }
 
 export enum ReportReason {
@@ -61,6 +62,11 @@ const sendReport = (params: SendGenericReport): Promise<EmptyResponse> =>
 export const sendPostReport = (
   params: SendReportProps,
 ): Promise<EmptyResponse> => sendReport({ ...params, type: ReportEntity.Post });
+
+export const sendCommentReport = (
+  params: SendReportProps,
+): Promise<EmptyResponse> =>
+  sendReport({ ...params, type: ReportEntity.Comment });
 
 export const sendSourceReport = (
   params: SendReportProps,

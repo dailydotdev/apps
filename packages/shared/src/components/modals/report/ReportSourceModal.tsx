@@ -35,7 +35,7 @@ interface SubmitReportProps {
   comment?: string;
 }
 
-export function ReportPostModal({
+export function ReportSourceModal({
   squad,
   onReported,
   onRequestClose,
@@ -89,4 +89,4 @@ export function ReportPostModal({
   );
 }
 
-export default ReportPostModal;
+export default ReportSourceModal;

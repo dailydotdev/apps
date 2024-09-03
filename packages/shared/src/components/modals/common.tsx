@@ -162,7 +162,7 @@ const SlackIntegrationModal = dynamic(
 const ReportSourceModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "reportSquadModal" */ './report/ReportSourceModal'
+      /* webpackChunkName: "reportSourceModal" */ './report/ReportSourceModal'
     ),
 );
 
