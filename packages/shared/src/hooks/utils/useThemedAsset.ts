@@ -10,6 +10,7 @@ interface UseAsset {
   themeColor: string;
   githubShortcut: string;
   slackIntegrationHeader: string;
+  gardrError: string;
 }
 
 export const useIsLightTheme = (): boolean => {
@@ -45,5 +46,8 @@ export const useThemedAsset = (): UseAsset => {
     slackIntegrationHeader: isLight
       ? cloudinary.integrations.slack.header.light
       : cloudinary.integrations.slack.header.dark,
+    gardrError: isLight
+      ? cloudinary.generic.error.light
+      : cloudinary.generic.error.dark,
   };
 };

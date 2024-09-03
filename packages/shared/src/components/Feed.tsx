@@ -54,6 +54,10 @@ import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import { SearchResultsLayout } from './search/SearchResults/SearchResultsLayout';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
 
+const FeedErrorScreen = dynamic(
+  () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
+);
+
 export interface FeedProps<T>
   extends Pick<
       UseFeedOptionalParams<T>,
@@ -168,6 +172,7 @@ export default function Feed<T>({
     emptyFeed,
     isFetching,
     isInitialLoading,
+    isError,
   } = useFeed(
     feedQueryKey,
     pageSize ?? currentSettings.pageSize,
@@ -404,6 +409,10 @@ export default function Feed<T>({
   };
 
   const PostModal = PostModalMap[selectedPost?.type];
+
+  if (isError) {
+    return <FeedErrorScreen />;
+  }
 
   if (emptyScreen && emptyFeed && !isSearchPageLaptop) {
     return <>{emptyScreen}</>;
