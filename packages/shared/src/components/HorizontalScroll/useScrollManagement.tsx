@@ -23,7 +23,7 @@ export const useScrollManagement = (
     }
   }, [ref, onScroll]);
 
-  const [debouncedOnScroll] = useDebounceFn(checkScrollPosition, 110);
+  const [debouncedOnScroll] = useDebounceFn(checkScrollPosition, 100);
 
   useEventListener(ref, 'scroll', debouncedOnScroll);
 
