@@ -5,7 +5,6 @@ import {
   UseInfiniteQueryOptions,
   useQueryClient,
 } from '@tanstack/react-query';
-import { ClientError } from 'graphql-request';
 import {
   Ad,
   FeedData,
@@ -23,7 +22,7 @@ import {
 } from '../lib/query';
 import { MarketingCta } from '../components/marketingCta/common';
 import { FeedItemType } from '../components/cards/common';
-import { GARMR_ERROR, gqlClient } from '../graphql/common';
+import { gqlClient } from '../graphql/common';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -139,15 +138,6 @@ export default function useFeed<T>(
     {
       refetchOnMount: false,
       ...options,
-      retry: (failureCount, error) => {
-        const clientError = error as ClientError;
-        if (
-          clientError?.response?.errors?.[0]?.extensions?.code === GARMR_ERROR
-        ) {
-          return false;
-        }
-        return failureCount < 3;
-      },
       enabled: query && tokenRefreshed,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
