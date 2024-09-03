@@ -31,7 +31,7 @@ export function CompanyTopList({
       {items?.map((item, i) => (
         <LeaderboardListItem
           key={item.company.name}
-          index={i}
+          index={i + 1}
           className="flex w-full flex-row items-center rounded-8 px-2 hover:bg-accent-pepper-subtler"
         >
           <span className="pl-1">{indexToEmoji(i)}</span>
