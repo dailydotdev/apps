@@ -124,10 +124,7 @@ export default function useFeed<T>(
         first: pageSize,
         after: pageParam,
         loggedIn: !!user,
-        test: 'test',
       });
-
-      console.log('done loading???');
 
       if (
         !feedQuery?.data?.pages[0]?.page.edges.length &&
