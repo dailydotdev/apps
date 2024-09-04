@@ -114,6 +114,7 @@ export interface ApiErrorResult {
   response: ApiResponse;
 }
 
+export const GARMR_ERROR = 'GARMR_BROKEN_ERROR';
 export const DEFAULT_ERROR = 'An error occurred, please try again';
 
 export const errorMessage = {
