@@ -4,7 +4,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import type { LoggedUser } from '../../../lib/user';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
-import { Alerts } from '../../../graphql/alerts';
+import { Alerts, UPDATE_ALERTS } from '../../../graphql/alerts';
 import { BootPopups } from '../BootPopups';
 import { waitForNock } from '../../../../__tests__/helpers/utilities';
 import {
@@ -35,6 +35,7 @@ const alertsWithStreakRecovery: Alerts = {
 
 const checkHasCompleted = jest.fn();
 const completeAction = jest.fn();
+const updateAlerts = jest.fn();
 
 const queryClient = new QueryClient({});
 
@@ -45,7 +46,11 @@ const renderComponent = (props: TestProps) => {
   } = props;
 
   return render(
-    <TestBootProvider client={queryClient} auth={{ user }} alerts={{ alerts }}>
+    <TestBootProvider
+      client={queryClient}
+      auth={{ user }}
+      alerts={{ alerts, updateAlerts }}
+    >
       <BootPopups />
       <Toast autoDismissNotifications={false} />
     </TestBootProvider>,
@@ -79,6 +84,24 @@ const mockRecoveryMutation = (data: unknown, callback?: () => void) => {
       return {
         data: { recoverStreak: data },
       };
+    },
+  });
+};
+
+const mockAlertsMutation = () => {
+  mockGraphQL({
+    request: {
+      query: UPDATE_ALERTS,
+      variables: {
+        data: {
+          showRecoverStreak: false,
+        },
+      },
+    },
+    result: {
+      data: {
+        updateAlerts: {},
+      },
     },
   });
 };
@@ -147,7 +170,37 @@ it('should render and fetch initial data if logged user can recover streak', asy
   expect(popup).toBeInTheDocument();
 });
 
+it('should update alerts preferences on close', async () => {
+  mockRecoveryQuery({
+    canRecover: true,
+    cost: 25,
+    oldStreakLength: 10,
+  });
+
+  renderComponent({
+    user: {
+      ...loggedUser,
+      reputation: 50,
+    },
+  });
+  await waitForNock();
+
+  // rendered
+  const popupHeader = screen.queryByTestId('streak-recover-modal-heading');
+  expect(popupHeader).toBeInTheDocument();
+
+  const closeButton = screen.getByTitle('Close streak recover popup');
+  fireEvent.click(closeButton);
+
+  mockAlertsMutation();
+  await waitForNock();
+
+  expect(updateAlerts).toHaveBeenCalled();
+});
+
 it('Should have no cost for first time recovery', async () => {
+  window.scrollTo = jest.fn();
+
   mockRecoveryQuery({
     canRecover: true,
     cost: 0,
@@ -157,7 +210,7 @@ it('Should have no cost for first time recovery', async () => {
   renderComponent({
     user: {
       ...loggedUser,
-      reputation: 10,
+      reputation: 50,
     },
   });
 
@@ -257,6 +310,7 @@ it('Should show success message on recover', async () => {
     mutationCalled = true;
   });
 
+  mockAlertsMutation();
   await waitForNock();
 
   // expect mutation to be called
@@ -301,6 +355,7 @@ it('Should show error message on recover fail', async () => {
     },
   });
 
+  mockAlertsMutation();
   await waitForNock();
 
   // expect error message
@@ -334,6 +389,7 @@ it('Should dismiss popup on close if checked option', async () => {
   const closeButton = await screen.findByTitle('Close streak recover popup');
   fireEvent.click(closeButton);
 
+  mockAlertsMutation();
   await waitForNock();
 
   // expect popup to be dismissed
