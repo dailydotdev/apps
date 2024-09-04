@@ -13,6 +13,7 @@ import { gqlClient } from '../../graphql/common';
 import { useToastNotification } from '../useToastNotification';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
+import { useAlertsContext } from '../../contexts/AlertContext';
 
 interface UseStreakRecoverProps {
   onAfterClose?: () => void;
@@ -43,6 +44,7 @@ export const useStreakRecover = ({
   const [hideForever, toggleHideForever] = useToggle(false);
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
+  const { updateAlerts } = useAlertsContext();
 
   const { data, isLoading } = useQuery<{
     streakRecover: UserStreakRecoverData;
@@ -58,12 +60,17 @@ export const useStreakRecover = ({
         .request(USER_STREAK_RECOVER_MUTATION)
         .then((res) => res.recoverStreak),
     onSuccess: () => {
-      displayToast('Lucky you! Your streak has been restored');
       logEvent({
         event_name: LogEvent.StreakRecover,
       });
     },
   });
+
+  const hideRemoteAlert = useCallback(async () => {
+    await updateAlerts({
+      showRecoverStreak: false,
+    });
+  }, [updateAlerts]);
 
   const onClose = useCallback(async () => {
     if (hideForever) {
@@ -73,20 +80,30 @@ export const useStreakRecover = ({
       });
     }
 
+    await hideRemoteAlert();
     onRequestClose?.();
     onAfterClose?.();
-  }, [completeAction, hideForever, logEvent, onAfterClose, onRequestClose]);
+  }, [
+    completeAction,
+    hideForever,
+    hideRemoteAlert,
+    logEvent,
+    onAfterClose,
+    onRequestClose,
+  ]);
 
   const onRecover = useCallback(async () => {
     try {
       await recoverMutation.mutateAsync();
-      onRequestClose?.();
+      displayToast('Lucky you! Your streak has been restored');
     } catch (e) {
       displayToast(
         'Oops! We are unable to recover your streak. Could you try again later?',
       );
     }
-  }, [displayToast, onRequestClose, recoverMutation]);
+
+    await onClose?.();
+  }, [displayToast, onClose, recoverMutation]);
 
   const isDisabled =
     !isActionsFetched ||
