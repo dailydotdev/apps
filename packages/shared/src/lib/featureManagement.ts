@@ -23,13 +23,11 @@ const feature = {
   }),
   feedAdSpot: new Feature('feed_ad_spot', 2),
   searchVersion: new Feature('search_version', 2),
-  searchListMode: new Feature('search_list_mode', false),
   featureTheme: new Feature('feature_theme', {}),
   shortcutsUI: new Feature('shortcuts_ui', ShortcutsUIExperiment.Control),
   showRoadmap: new Feature('show_roadmap', true),
   onboardingChecklist: new Feature('onboarding_checklist', true),
   searchUsers: new Feature('search_users', false),
-  postTitleLanguage: new Feature('post_title_language', false),
 };
 
 export { feature };

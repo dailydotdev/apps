@@ -4,8 +4,6 @@ import { Dropdown, DropdownClassName } from '../fields/Dropdown';
 import { LanguageIcon } from '../icons';
 import { BaseFieldProps } from '../fields/BaseFieldContainer';
 import { ContentLanguage, contnetLanguageToLabelMap } from '../../lib/user';
-import { withExperiment } from '../withExperiment';
-import { feature } from '../../lib/featureManagement';
 import { IconProps } from '../Icon';
 
 type ClassName = {
@@ -22,7 +20,7 @@ type Props = {
 
 const defaultIcon = <LanguageIcon className="ml-0 mr-1" />;
 
-const LanguageDropdownDefault = ({
+export const LanguageDropdown = ({
   className = {},
   onChange,
   hint = '',
@@ -108,8 +106,3 @@ const LanguageDropdownDefault = ({
     </div>
   );
 };
-
-export const LanguageDropdown = withExperiment(LanguageDropdownDefault, {
-  feature: feature.postTitleLanguage,
-  value: true,
-});
