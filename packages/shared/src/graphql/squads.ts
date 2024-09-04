@@ -80,7 +80,7 @@ export const DELETE_SQUAD_MUTATION = gql`
 `;
 
 export const SQUAD_DIRECTORY_SOURCES = gql`
-  query Sources($filterOpenSquads: Boolean, $featured: Boolean) {
+  query Squads($filterOpenSquads: Boolean, $featured: Boolean) {
     sources(filterOpenSquads: $filterOpenSquads, featured: $featured) {
       pageInfo {
         endCursor
@@ -96,12 +96,17 @@ export const SQUAD_DIRECTORY_SOURCES = gql`
             edges {
               node {
                 user {
-                  bio
                   id
-                  image
-                  username
-                  permalink
                   name
+                  image
+                  permalink
+                  username
+                  bio
+                  reputation
+                  companies {
+                    name
+                    image
+                  }
                 }
               }
             }

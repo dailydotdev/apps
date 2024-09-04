@@ -6,7 +6,8 @@ import {
   QueryKey,
 } from '@tanstack/react-query';
 import cloneDeep from 'lodash.clonedeep';
-import { Connection } from '../graphql/common';
+import { ClientError } from 'graphql-request';
+import { Connection, GARMR_ERROR } from '../graphql/common';
 import { EmptyObjectLiteral } from './kratos';
 import { LoggedUser } from './user';
 import { FeedData, Post, ReadHistoryPost } from '../graphql/posts';
@@ -213,6 +214,15 @@ export const defaultQueryClientConfig: QueryClientConfig = {
   mutationCache: globalMutationCache,
   defaultOptions: {
     queries: {
+      retry: (failureCount, error) => {
+        const clientError = error as ClientError;
+        if (
+          clientError?.response?.errors?.[0]?.extensions?.code === GARMR_ERROR
+        ) {
+          return false;
+        }
+        return failureCount < 3;
+      },
       refetchOnWindowFocus: process.env.NODE_ENV !== 'development',
     },
   },
