@@ -170,34 +170,6 @@ it('should render and fetch initial data if logged user can recover streak', asy
   expect(popup).toBeInTheDocument();
 });
 
-it('should update alerts preferences on close', async () => {
-  mockRecoveryQuery({
-    canRecover: true,
-    cost: 25,
-    oldStreakLength: 10,
-  });
-
-  renderComponent({
-    user: {
-      ...loggedUser,
-      reputation: 50,
-    },
-  });
-  await waitForNock();
-
-  // rendered
-  const popupHeader = screen.queryByTestId('streak-recover-modal-heading');
-  expect(popupHeader).toBeInTheDocument();
-
-  const closeButton = screen.getByTitle('Close streak recover popup');
-  fireEvent.click(closeButton);
-
-  mockAlertsMutation();
-  await waitForNock();
-
-  expect(updateAlerts).toHaveBeenCalled();
-});
-
 it('Should have no cost for first time recovery', async () => {
   window.scrollTo = jest.fn();
 
@@ -404,4 +376,30 @@ it('Should dismiss popup on close if checked option', async () => {
   expect(completeAction).toHaveBeenCalledWith(
     ActionType.DisableReadingStreakRecover,
   );
+});
+
+it('should update alerts preferences on close', async () => {
+  window.scrollTo = jest.fn();
+
+  renderComponent({});
+  mockRecoveryQuery({
+    canRecover: true,
+    cost: 25,
+    oldStreakLength: 10,
+  });
+
+  await waitForNock();
+
+  // popup is rendered
+  const popup = screen.queryByTestId('streak-recover-modal-heading');
+  expect(popup).toBeInTheDocument();
+
+  const closeButton = screen.getByTitle('Close streak recover popup');
+  fireEvent.click(closeButton);
+
+  mockAlertsMutation();
+
+  await waitForNock();
+
+  expect(updateAlerts).toHaveBeenCalled();
 });
