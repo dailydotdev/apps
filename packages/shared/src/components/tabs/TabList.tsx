@@ -45,6 +45,7 @@ function TabList<T extends string = string>({
     offset: 0,
     indicatorOffset: 0,
   });
+  const isAnchor = Tag === 'a';
 
   const scrollIfNotInView = useCallback(() => {
     const { activeTabRect, offset } = dimensions;
@@ -130,6 +131,7 @@ function TabList<T extends string = string>({
               className.item,
               'relative p-2 py-4 text-center font-bold typo-callout',
               isActive ? '' : 'text-text-tertiary',
+              isAnchor && 'cursor-pointer',
             )}
             onClick={() => onClick(tab)}
             type="button"
