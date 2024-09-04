@@ -11,9 +11,9 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 const securityHeaders = [
   {
     key: 'X-Frame-Options',
-    value: 'DENY'
-  }
-]
+    value: 'DENY',
+  },
+];
 
 module.exports = withTM(
   withPWA({
@@ -21,7 +21,7 @@ module.exports = withTM(
       dest: 'public',
       disable: process.env.NODE_ENV === 'development',
       runtimeCaching,
-      buildExcludes: [/react-syntax-highlighter|reactSyntaxHighlighter/]
+      buildExcludes: [/react-syntax-highlighter|reactSyntaxHighlighter/],
     },
     ...withBundleAnalyzer({
       i18n: {
@@ -77,28 +77,33 @@ module.exports = withTM(
           has: [
             {
               type: 'query',
-              key: 'provider'
-            }
-          ]
+              key: 'provider',
+            },
+          ],
         },
         {
           source: '/search',
-          destination: '/search/posts'
-        }
+          destination: '/search/posts',
+        },
       ],
       redirects: () => {
         return [
           {
             source: '/posts/finder',
             destination: '/search?provider=posts',
-            permanent: false
+            permanent: false,
           },
           {
             source: '/signup',
             destination: '/onboarding',
-            permanent: false
-          }
-        ]
+            permanent: false,
+          },
+          {
+            source: '/squads',
+            destination: '/squads/discover',
+            permanent: true,
+          },
+        ];
       },
       headers: async () => {
         return [
@@ -108,11 +113,12 @@ module.exports = withTM(
               ...securityHeaders,
               {
                 key: 'X-Recruiting',
-                value: 'We are hiring! Check https://daily.dev/careers for more info!'
+                value:
+                  'We are hiring! Check https://daily.dev/careers for more info!',
               },
-            ]
-          }
-        ]
+            ],
+          },
+        ];
       },
       poweredByHeader: false,
       reactStrictMode: false,

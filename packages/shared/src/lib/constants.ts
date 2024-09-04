@@ -69,7 +69,7 @@ export const bookmarkLoops = 'https://r.daily.dev/bookmarkloops';
 export const migrateUserToStreaks = 'https://r.daily.dev/streaks';
 
 export const squadCategoriesPaths = {
-  discover: '/squads',
+  discover: '/squads/discover',
   featured: '/squads/discover/featured',
   general: '/squads/discover/general',
   web: '/squads/discover/web',

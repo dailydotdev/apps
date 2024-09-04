@@ -26,10 +26,10 @@ import { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { SquadDirectoryLayout } from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryLayout';
 import { StaleTime } from '@dailydotdev/shared/src/lib/query';
-import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
-import FeedLayout, { getLayout } from '../../components/layouts/FeedLayout';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
+import FeedLayout, { getLayout } from '../../../components/layouts/FeedLayout';
+import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
+import { getTemplatedTitle } from '../../../components/layouts/utils';
 
 export type Props = {
   initialData?: InfiniteData<{
