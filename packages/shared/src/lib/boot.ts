@@ -87,32 +87,22 @@ export async function getBootData(app: string, url?: string): Promise<Boot> {
     params.append('url', url);
   }
 
-  try {
-    const res = await fetch(`${apiUrl}/boot${appRoute}?${params}`, {
-      method: 'GET',
-      credentials: 'include',
-      headers: { app, 'Content-Type': 'application/json' },
-    });
+  const res = await fetch(`${apiUrl}/boot${appRoute}?${params}`, {
+    method: 'GET',
+    credentials: 'include',
+    headers: { app, 'Content-Type': 'application/json' },
+  });
 
-    if (res.status >= 500) {
-      throw new Error('Server error');
-    }
+  const result = await res.json();
 
-    const result = await res.json();
+  const features = await decrypt(
+    result.exp.f,
+    process.env.NEXT_PUBLIC_EXPERIMENTATION_KEY,
+    'AES-CBC',
+    128,
+  );
 
-    const features = await decrypt(
-      result.exp.f,
-      process.env.NEXT_PUBLIC_EXPERIMENTATION_KEY,
-      'AES-CBC',
-      128,
-    );
+  result.exp.features = JSON.parse(features);
 
-    result.exp.features = JSON.parse(features);
-
-    return result;
-  } catch (e) {
-    throw new Error('Server error');
-  }
-
-  return null;
+  return result;
 }
