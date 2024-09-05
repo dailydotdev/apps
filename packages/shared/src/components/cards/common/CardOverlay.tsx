@@ -2,9 +2,10 @@ import React, { ReactElement } from 'react';
 import { CardButton } from '../Card';
 import { useFeedPreviewMode } from '../../../hooks';
 import { Post } from '../../../graphql/posts';
+import { webappUrl } from '../../../lib/constants';
 
 interface CardOverlayProps {
-  post: Pick<Post, 'commentsPermalink' | 'title'>;
+  post: Pick<Post, 'commentsPermalink' | 'title' | 'id' | 'slug'>;
   onPostCardClick: () => void;
 }
 
@@ -18,7 +19,13 @@ const CardOverlay = ({
     return null;
   }
 
-  return <CardButton title={post.title} onClick={onPostCardClick} />;
+  return (
+    <CardButton
+      title={post.title}
+      onClick={onPostCardClick}
+      href={`${webappUrl}posts/${post.slug ?? post.id}`}
+    />
+  );
 };
 
 export default CardOverlay;

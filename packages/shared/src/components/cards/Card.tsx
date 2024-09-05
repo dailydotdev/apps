@@ -49,7 +49,7 @@ const clickableCardClasses = classNames(
   'focus-outline absolute inset-0 h-full w-full',
 );
 
-export const CardButton = classed('button', clickableCardClasses);
+export const CardButton = classed('a', clickableCardClasses);
 
 export const CardLink = classed('a', clickableCardClasses);
 
