@@ -1,14 +1,15 @@
-import React, { ReactElement, useMemo } from 'react';
-import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
 import { useFeeds } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
-import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
+import { NextSeo } from 'next-seo';
+import { NextSeoProps } from 'next-seo/lib/types';
+import React, { ReactElement, useMemo } from 'react';
+
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
 } from '../../../components/layouts/MainFeedPage';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
+import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 
 const FeedPage = (): ReactElement => {
   const router = useRouter();

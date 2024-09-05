@@ -1,2 +1,2 @@
-export * from './reading';
 export * from './common';
+export * from './reading';

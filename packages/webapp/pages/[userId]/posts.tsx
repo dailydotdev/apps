@@ -1,13 +1,14 @@
-import React, { ReactElement, useContext } from 'react';
-import { link } from '@dailydotdev/shared/src/lib/links';
-import { AUTHOR_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import Feed, { FeedProps } from '@dailydotdev/shared/src/components/Feed';
-import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import { MyProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/MyProfileEmptyScreen';
 import { ProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/ProfileEmptyScreen';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { AUTHOR_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import { link } from '@dailydotdev/shared/src/lib/links';
+import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import classNames from 'classnames';
+import React, { ReactElement, useContext } from 'react';
+
 import {
   getLayout as getProfileLayout,
   getStaticPaths as getProfileStaticPaths,

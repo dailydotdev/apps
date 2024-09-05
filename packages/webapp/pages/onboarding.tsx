@@ -1,63 +1,64 @@
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
-import { useOnboardingContext } from '@dailydotdev/shared/src/contexts/OnboardingContext';
-import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
-import classNames from 'classnames';
+import {
+  FooterLinks,
+  withFeaturesBoundary,
+} from '@dailydotdev/shared/src/components';
+import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import AuthOptions, {
   AuthDisplay,
   AuthProps,
 } from '@dailydotdev/shared/src/components/auth/AuthOptions';
-import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
+import {
+  logSignUp,
+  OnboardingLogs,
+} from '@dailydotdev/shared/src/components/auth/OnboardingLogs';
+import {
+  ContentTypes,
+  EditTag,
+  ReadingReminder,
+} from '@dailydotdev/shared/src/components/auth/OnboardingSteps';
+import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisclaimer';
 import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
-import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
-import { useRouter } from 'next/router';
-import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
-import {
-  OnboardingStep,
-  wrapperMaxWidth,
-} from '@dailydotdev/shared/src/components/onboarding/common';
-import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { NextSeo, NextSeoProps } from 'next-seo';
-import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
+import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
 import {
   useFeature,
   useFeaturesReadyContext,
   useGrowthBookContext,
 } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import TrustedCompanies from '@dailydotdev/shared/src/components/TrustedCompanies';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisclaimer';
+import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
 import {
-  FooterLinks,
-  withFeaturesBoundary,
-} from '@dailydotdev/shared/src/components';
-import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
-import {
-  logSignUp,
-  OnboardingLogs,
-} from '@dailydotdev/shared/src/components/auth/OnboardingLogs';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import {
-  ReadingReminder,
-  EditTag,
-  ContentTypes,
-} from '@dailydotdev/shared/src/components/auth/OnboardingSteps';
+  OnboardingStep,
+  wrapperMaxWidth,
+} from '@dailydotdev/shared/src/components/onboarding/common';
+import TrustedCompanies from '@dailydotdev/shared/src/components/TrustedCompanies';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { useOnboardingContext } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
+import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
+import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { defaultOpenGraph, defaultSeo } from '../next-seo';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
+import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
+import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import classNames from 'classnames';
+import { useRouter } from 'next/router';
+import { NextSeo, NextSeoProps } from 'next-seo';
+import React, { ReactElement, useEffect, useRef, useState } from 'react';
+
 import styles from '../components/layouts/Onboarding/index.module.css';
+import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
 type OnboardingVisual = {
   showCompanies?: boolean;

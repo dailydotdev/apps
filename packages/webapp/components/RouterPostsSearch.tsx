@@ -1,11 +1,11 @@
-import React, { ReactElement } from 'react';
 import PostsSearch, {
   PostsSearchProps,
 } from '@dailydotdev/shared/src/components/PostsSearch';
-import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { useRouter } from 'next/router';
+import React, { ReactElement } from 'react';
 
 export default function RouterPostsSearch(
   props: Omit<PostsSearchProps, 'onSubmitQuery'>,

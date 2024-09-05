@@ -1,5 +1,3 @@
-import React, { ReactElement, useRef, useState } from 'react';
-import { Drawer, DrawerRef } from '@dailydotdev/shared/src/components/drawers';
 import {
   AllowedTags,
   Button,
@@ -7,17 +5,19 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { Drawer, DrawerRef } from '@dailydotdev/shared/src/components/drawers';
 import {
   DocsIcon,
   EditIcon,
   LinkIcon,
   PlusIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import { link } from '@dailydotdev/shared/src/lib/links';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { RootPortal } from '@dailydotdev/shared/src/components/tooltips/Portal';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import { link } from '@dailydotdev/shared/src/lib/links';
+import React, { ReactElement, useRef, useState } from 'react';
 
 const ActionButton = <TagName extends AllowedTags>({
   children,

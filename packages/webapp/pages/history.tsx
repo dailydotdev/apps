@@ -1,3 +1,16 @@
+import { SearchHistory } from '@dailydotdev/shared/src/components';
+import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/common';
+import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
+import {
+  Tab,
+  TabContainer,
+} from '@dailydotdev/shared/src/components/tabs/TabContainer';
+import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
+import { useRouter } from 'next/router';
+import { NextSeo } from 'next-seo';
 import React, {
   ReactElement,
   useCallback,
@@ -5,23 +18,11 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { NextSeo } from 'next-seo';
-import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
-import { useRouter } from 'next/router';
-import {
-  Tab,
-  TabContainer,
-} from '@dailydotdev/shared/src/components/tabs/TabContainer';
-import { SearchHistory } from '@dailydotdev/shared/src/components';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
-import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/common';
-import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
+
 import { HistoryType, ReadingHistory } from '../components/history';
-import ProtectedPage from '../components/ProtectedPage';
-import { getLayout } from '../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
+import { getLayout } from '../components/layouts/MainLayout';
+import ProtectedPage from '../components/ProtectedPage';
 
 const feedOptions = [
   {

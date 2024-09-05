@@ -1,29 +1,6 @@
-import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
-import {
-  SOURCE_FEED_QUERY,
-  supportedTypesForPrivateSources,
-} from '@dailydotdev/shared/src/graphql/feed';
-import nock from 'nock';
-import React from 'react';
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-  waitFor,
-} from '@testing-library/react';
-import { QueryClient } from '@tanstack/react-query';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import { NextRouter } from 'next/router';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';
-import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
-import {
-  GraphQLResult,
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '@dailydotdev/shared/__tests__/helpers/graphql';
-import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
+import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import {
   generateForbiddenSquadResult,
   generateMembersList,
@@ -31,23 +8,47 @@ import {
   generateNotFoundSquadResult,
   generateTestSquad,
 } from '@dailydotdev/shared/__tests__/fixture/squads';
+import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
+import {
+  GraphQLResult,
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
+import {
+  ActionType,
+  COMPLETE_ACTION_MUTATION,
+} from '@dailydotdev/shared/src/graphql/actions';
+import {
+  SOURCE_FEED_QUERY,
+  supportedTypesForPrivateSources,
+} from '@dailydotdev/shared/src/graphql/feed';
+import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
+import {
+  SourceMemberRole,
+  SourcePermissions,
+  Squad,
+} from '@dailydotdev/shared/src/graphql/sources';
 import {
   SQUAD_MEMBERS_QUERY,
   SQUAD_QUERY,
   SquadData,
   SquadEdgesData,
 } from '@dailydotdev/shared/src/graphql/squads';
-import {
-  SourceMemberRole,
-  SourcePermissions,
-  Squad,
-} from '@dailydotdev/shared/src/graphql/sources';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import { QueryClient } from '@tanstack/react-query';
 import {
-  ActionType,
-  COMPLETE_ACTION_MUTATION,
-} from '@dailydotdev/shared/src/graphql/actions';
-import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/react';
+import { NextRouter } from 'next/router';
+import nock from 'nock';
+import React from 'react';
+
 import SquadPage from '../pages/squads/[handle]';
 
 const defaultSquad: Squad = {

@@ -1,4 +1,37 @@
 import '@dailydotdev/shared/src/lib/lazysizesImport';
+import 'focus-visible';
+import '@dailydotdev/shared/src/styles/globals.css';
+
+import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
+import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
+import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
+import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/OnboardingContext';
+import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
+import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
+import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
+import { useManualScrollRestoration } from '@dailydotdev/shared/src/hooks';
+import useDeviceId from '@dailydotdev/shared/src/hooks/log/useDeviceId';
+import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
+import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
+import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
+import { useError } from '@dailydotdev/shared/src/hooks/useError';
+import { useInAppNotification } from '@dailydotdev/shared/src/hooks/useInAppNotification';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
+import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
+import { BootApp } from '@dailydotdev/shared/src/lib/boot';
+import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
+import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { AppProps } from 'next/app';
+import dynamic from 'next/dynamic';
+import Head from 'next/head';
+import { DefaultSeo } from 'next-seo';
 import React, {
   ReactElement,
   ReactNode,
@@ -6,41 +39,10 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { AppProps } from 'next/app';
-import dynamic from 'next/dynamic';
-import Head from 'next/head';
-import 'focus-visible';
 import Modal from 'react-modal';
-import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
-import { DefaultSeo } from 'next-seo';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/OnboardingContext';
-import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
-import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
-import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
-import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
-import '@dailydotdev/shared/src/styles/globals.css';
-import { useInAppNotification } from '@dailydotdev/shared/src/hooks/useInAppNotification';
-import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
-import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
-import useDeviceId from '@dailydotdev/shared/src/hooks/log/useDeviceId';
-import { useError } from '@dailydotdev/shared/src/hooks/useError';
-import { BootApp } from '@dailydotdev/shared/src/lib/boot';
-import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
-import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
-import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
-import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
-import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
-import { useManualScrollRestoration } from '@dailydotdev/shared/src/hooks';
-import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
-import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
-import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
-import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
+
 import useWebappVersion from '../hooks/useWebappVersion';
+import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 
 const AuthModal = dynamic(
   () =>

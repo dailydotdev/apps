@@ -1,23 +1,24 @@
-import React, { ReactElement, useEffect } from 'react';
+import BrowsersIcon from '@dailydotdev/shared/icons/browsers.svg';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
-import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import { downloadBrowserExtension } from '@dailydotdev/shared/src/lib/constants';
-import { FlexCentered } from '@dailydotdev/shared/src/components/utilities';
-import BrowsersIcon from '@dailydotdev/shared/icons/browsers.svg';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
-import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import router from 'next/router';
+import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
+import { FlexCentered } from '@dailydotdev/shared/src/components/utilities';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { downloadBrowserExtension } from '@dailydotdev/shared/src/lib/constants';
+import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
+import router from 'next/router';
+import React, { ReactElement, useEffect } from 'react';
+
 import { DailyDevLogo, JoinPageProps } from './common';
 
 export function Referral({

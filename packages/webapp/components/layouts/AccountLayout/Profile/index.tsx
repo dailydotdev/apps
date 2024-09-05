@@ -3,13 +3,10 @@ import {
   ButtonColor,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import React, {
-  ReactElement,
-  useCallback,
-  useContext,
-  useRef,
-  useState,
-} from 'react';
+import { FormWrapper } from '@dailydotdev/shared/src/components/fields/form';
+import ImageInput from '@dailydotdev/shared/src/components/fields/ImageInput';
+import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   AtIcon,
   CameraIcon,
@@ -26,12 +23,13 @@ import {
   UserIcon,
   YoutubeIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import ImageInput from '@dailydotdev/shared/src/components/fields/ImageInput';
 import ExperienceLevelDropdown from '@dailydotdev/shared/src/components/profile/ExperienceLevelDropdown';
-import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
-import { withHttps, withPrefix } from '@dailydotdev/shared/src/lib';
-import { FormWrapper } from '@dailydotdev/shared/src/components/fields/form';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import {
+  gqlClient,
+  ResponseError,
+} from '@dailydotdev/shared/src/graphql/common';
+import { UPLOAD_COVER_MUTATION } from '@dailydotdev/shared/src/graphql/users';
 import {
   useToastNotification,
   useViewSize,
@@ -40,22 +38,24 @@ import {
 import useProfileForm, {
   UpdateProfileParameters,
 } from '@dailydotdev/shared/src/hooks/useProfileForm';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { withHttps, withPrefix } from '@dailydotdev/shared/src/lib';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
-import { useMutation } from '@tanstack/react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import {
-  gqlClient,
-  ResponseError,
-} from '@dailydotdev/shared/src/graphql/common';
-import { UPLOAD_COVER_MUTATION } from '@dailydotdev/shared/src/graphql/users';
+import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
+import React, {
+  ReactElement,
+  useCallback,
+  useContext,
+  useRef,
+  useState,
+} from 'react';
 
-import { AccountTextField } from '../common';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
-import { VerifiedCompanyBadgeSection } from './VerifiedCompanyBadge/VerifiedCompanyBadgeSection';
+import { AccountTextField } from '../common';
 import type { VerifiedCompanyBadgeSectionProps } from './VerifiedCompanyBadge/VerifiedCompanyBadgeSection';
+import { VerifiedCompanyBadgeSection } from './VerifiedCompanyBadge/VerifiedCompanyBadgeSection';
 
 const imageId = 'avatar_file';
 const coverId = 'cover_file';

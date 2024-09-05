@@ -1,10 +1,3 @@
-import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
-import {
-  Typography,
-  TypographyColor,
-  TypographyTag,
-  TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
 import {
   Button,
   ButtonSize,
@@ -15,28 +8,36 @@ import {
   MailIcon,
   TrashIcon,
 } from '@dailydotdev/shared/src/components/icons';
+import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
 import Alert, {
   AlertParagraph,
   AlertType,
 } from '@dailydotdev/shared/src/components/widgets/Alert';
-import React, { ReactElement, useContext, useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import {
   ADD_USER_COMPANY_MUTATION,
   REMOVE_USER_COMPANY_MUTATION,
 } from '@dailydotdev/shared/src/graphql/users';
-import { ClientError } from 'graphql-request';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks';
+import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { useUserCompaniesQuery } from '@dailydotdev/shared/src/hooks/userCompany';
 import { labels } from '@dailydotdev/shared/src/lib';
-import { UserCompany } from '@dailydotdev/shared/src/lib/userCompany';
 import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
-import { useUserCompaniesQuery } from '@dailydotdev/shared/src/hooks/userCompany';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks';
-import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { UserCompany } from '@dailydotdev/shared/src/lib/userCompany';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { ClientError } from 'graphql-request';
+import React, { ReactElement, useContext, useState } from 'react';
+
 import AccountContentSection from '../../AccountContentSection';
 import {
   AccountSecurityDisplay as Display,

@@ -1,7 +1,7 @@
-import React, { ReactElement, ReactNode } from 'react';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
-import { Flipped } from 'react-flip-toolkit';
 import classNames from 'classnames';
+import React, { ReactElement, ReactNode } from 'react';
+import { Flipped } from 'react-flip-toolkit';
 
 export interface FooterNavBarItemProps {
   className?: string;

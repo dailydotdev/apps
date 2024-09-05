@@ -1,7 +1,7 @@
-import classNames from 'classnames';
-import React, { ReactElement, ReactNode } from 'react';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
+import classNames from 'classnames';
 import Link from 'next/link';
+import React, { ReactElement, ReactNode } from 'react';
 
 interface SidebarNavItemProps {
   title: string;

@@ -1,22 +1,23 @@
-import React, { ReactElement, useContext } from 'react';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import {
+  KEYWORD_QUERY,
+  KeywordData,
+} from '@dailydotdev/shared/src/graphql/keywords';
+import useRequirePermissions from '@dailydotdev/shared/src/hooks/useRequirePermissions';
+import { Roles } from '@dailydotdev/shared/src/lib/user';
+import { useQuery } from '@tanstack/react-query';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import {
-  KEYWORD_QUERY,
-  KeywordData,
-} from '@dailydotdev/shared/src/graphql/keywords';
-import { useQuery } from '@tanstack/react-query';
-import useRequirePermissions from '@dailydotdev/shared/src/hooks/useRequirePermissions';
-import { Roles } from '@dailydotdev/shared/src/lib/user';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import Custom404 from '../../404';
-import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
+import React, { ReactElement, useContext } from 'react';
+
 import KeywordManagement from '../../../components/KeywordManagement';
+import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
+import Custom404 from '../../404';
 
 export type KeywordPageProps = { keyword: string };
 

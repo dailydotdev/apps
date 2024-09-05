@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { ParsedUrlQuery } from 'querystring';
+import { useEffect, useState } from 'react';
 
 const getVersion = (query: ParsedUrlQuery): string | undefined => {
   if (query.android) {

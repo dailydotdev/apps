@@ -1,21 +1,21 @@
-import React, { ReactElement, useContext, useMemo } from 'react';
-import { useRouter } from 'next/router';
+import ReadingHistoryEmptyScreen from '@dailydotdev/shared/src/components/history/ReadingHistoryEmptyScreen';
+import ReadingHistoryList from '@dailydotdev/shared/src/components/history/ReadingHistoryList';
+import ReadingHistoryPlaceholder from '@dailydotdev/shared/src/components/history/ReadingHistoryPlaceholder';
+import SearchEmptyScreen from '@dailydotdev/shared/src/components/SearchEmptyScreen';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   READING_HISTORY_QUERY,
   SEARCH_READING_HISTORY_QUERY,
 } from '@dailydotdev/shared/src/graphql/users';
-import useReadingHistory from '@dailydotdev/shared/src/hooks/useReadingHistory';
 import useInfiniteReadingHistory from '@dailydotdev/shared/src/hooks/useInfiniteReadingHistory';
-import ReadingHistoryPlaceholder from '@dailydotdev/shared/src/components/history/ReadingHistoryPlaceholder';
-import SearchEmptyScreen from '@dailydotdev/shared/src/components/SearchEmptyScreen';
-import ReadingHistoryList from '@dailydotdev/shared/src/components/history/ReadingHistoryList';
-import dynamic from 'next/dynamic';
+import useReadingHistory from '@dailydotdev/shared/src/hooks/useReadingHistory';
 import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
-import ReadingHistoryEmptyScreen from '@dailydotdev/shared/src/components/history/ReadingHistoryEmptyScreen';
+import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
+import React, { ReactElement, useContext, useMemo } from 'react';
 
 const PostsSearch = dynamic(
   () =>

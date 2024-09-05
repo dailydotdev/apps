@@ -1,22 +1,23 @@
-import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
-import classNames from 'classnames';
-import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { NextSeoProps } from 'next-seo/lib/types';
-import Head from 'next/head';
-import { NextSeo } from 'next-seo';
+import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import { ProfileSettingsMenu } from '@dailydotdev/shared/src/components/profile/ProfileSettingsMenu';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import useAuthForms from '@dailydotdev/shared/src/hooks/useAuthForms';
+import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
+import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
+import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import classNames from 'classnames';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
-import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
-import useAuthForms from '@dailydotdev/shared/src/hooks/useAuthForms';
+import { NextSeo } from 'next-seo';
+import { NextSeoProps } from 'next-seo/lib/types';
+import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
+
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getTemplatedTitle } from '../utils';
 import SidebarNav from './SidebarNav';

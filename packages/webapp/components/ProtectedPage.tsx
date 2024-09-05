@@ -1,6 +1,6 @@
-import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
-import { useRouter } from 'next/router';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useRouter } from 'next/router';
+import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
 
 export interface ProtectedPageProps {
   seo: ReactNode;

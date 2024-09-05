@@ -1,9 +1,10 @@
-import React, { ReactElement } from 'react';
-import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
+import { NextSeoProps } from 'next-seo/lib/types';
+import React, { ReactElement } from 'react';
+
 import {
-  getBookmarkFeedLayout,
   bookmarkFeedLayoutProps,
+  getBookmarkFeedLayout,
 } from '../components/layouts/BookmarkFeedPage';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 

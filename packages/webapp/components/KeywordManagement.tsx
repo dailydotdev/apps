@@ -1,29 +1,30 @@
-import React, { ReactElement, useContext, useState } from 'react';
-import {
-  ALLOW_KEYWORD_MUTATION,
-  DENY_KEYWORD_MUTATION,
-  Keyword,
-} from '@dailydotdev/shared/src/graphql/keywords';
-import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
-import {
-  FeedData,
-  KEYWORD_FEED_QUERY,
-} from '@dailydotdev/shared/src/graphql/feed';
-import { NextSeo } from 'next-seo';
-import ActivitySection from '@dailydotdev/shared/src/components/profile/ActivitySection';
-import Link from 'next/link';
-import { smallPostImage } from '@dailydotdev/shared/src/lib/image';
 import {
   Button,
   ButtonColor,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
+import ActivitySection from '@dailydotdev/shared/src/components/profile/ActivitySection';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
-import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
-import classNames from 'classnames';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import {
+  FeedData,
+  KEYWORD_FEED_QUERY,
+} from '@dailydotdev/shared/src/graphql/feed';
+import {
+  ALLOW_KEYWORD_MUTATION,
+  DENY_KEYWORD_MUTATION,
+  Keyword,
+} from '@dailydotdev/shared/src/graphql/keywords';
+import { smallPostImage } from '@dailydotdev/shared/src/lib/image';
+import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
+import classNames from 'classnames';
+import dynamic from 'next/dynamic';
+import Link from 'next/link';
+import { NextSeo } from 'next-seo';
+import React, { ReactElement, useContext, useState } from 'react';
+
 import styles from './KeywordManagement.module.css';
 
 const KeywordSynonymModal = dynamic(

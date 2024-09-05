@@ -1,42 +1,43 @@
-import React, { ReactElement, useMemo, useRef } from 'react';
+import { Separator } from '@dailydotdev/shared/src/components/cards/common';
+import { checkFetchMore } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import UserList from '@dailydotdev/shared/src/components/profile/UserList';
+import { InviteLinkInput } from '@dailydotdev/shared/src/components/referral';
+import { TruncateText } from '@dailydotdev/shared/src/components/utilities';
+import { SocialShareList } from '@dailydotdev/shared/src/components/widgets/SocialShareList';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import {
+  gqlClient,
+  ReferredUsersData,
+} from '@dailydotdev/shared/src/graphql/common';
+import { REFERRED_USERS_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import {
   ReferralCampaignKey,
   useReferralCampaign,
 } from '@dailydotdev/shared/src/hooks';
-import { link } from '@dailydotdev/shared/src/lib/links';
+import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
 import { labels } from '@dailydotdev/shared/src/lib';
-import {
-  generateQueryKey,
-  RequestKey,
-} from '@dailydotdev/shared/src/lib/query';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { REFERRED_USERS_QUERY } from '@dailydotdev/shared/src/graphql/users';
-import UserList from '@dailydotdev/shared/src/components/profile/UserList';
-import { checkFetchMore } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
-import {
-  ReferredUsersData,
-  gqlClient,
-} from '@dailydotdev/shared/src/graphql/common';
-import { SocialShareList } from '@dailydotdev/shared/src/components/widgets/SocialShareList';
-import { Separator } from '@dailydotdev/shared/src/components/cards/common';
-import { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
-import { format } from 'date-fns';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { link } from '@dailydotdev/shared/src/lib/links';
 import {
   LogEvent,
   TargetId,
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
 import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
-import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
-import { InviteLinkInput } from '@dailydotdev/shared/src/components/referral';
-import { TruncateText } from '@dailydotdev/shared/src/components/utilities';
+import { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { format } from 'date-fns';
+import React, { ReactElement, useMemo, useRef } from 'react';
+
+import { InviteIcon } from '../../../shared/src/components/icons';
+import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
-import { getAccountLayout } from '../../components/layouts/AccountLayout';
-import { InviteIcon } from '../../../shared/src/components/icons';
 
 const AccountInvitePage = (): ReactElement => {
   const { user } = useAuthContext();

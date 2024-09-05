@@ -1,7 +1,7 @@
-import type { Config } from 'tailwindcss';
 import config from '@dailydotdev/shared/tailwind.config';
-import path from 'path';
 import * as fs from 'fs';
+import path from 'path';
+import type { Config } from 'tailwindcss';
 
 export default {
   ...config,

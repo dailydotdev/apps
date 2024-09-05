@@ -1,20 +1,21 @@
-import React, { ReactElement, useMemo } from 'react';
-import { GetStaticPropsResult } from 'next';
-import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
+import { TagTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
+import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { HashtagIcon } from '@dailydotdev/shared/src/components/icons';
+import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
+import { TagLink } from '@dailydotdev/shared/src/components/TagLinks';
+import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import {
   Keyword,
   TAG_DIRECTORY_QUERY,
 } from '@dailydotdev/shared/src/graphql/keywords';
-import { TagLink } from '@dailydotdev/shared/src/components/TagLinks';
-import { HashtagIcon } from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { useRouter } from 'next/router';
-import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
-import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
-import { TagTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
+import { GetStaticPropsResult } from 'next';
+import { useRouter } from 'next/router';
+import { NextSeo } from 'next-seo';
+import { NextSeoProps } from 'next-seo/lib/types';
+import React, { ReactElement, useMemo } from 'react';
+
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../../next-seo';

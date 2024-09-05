@@ -1,11 +1,12 @@
-import React, { ReactElement, useState } from 'react';
 import TabContainer, {
   Tab,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
-import { AccountSecurityDisplay as Display } from '../../components/layouts/AccountLayout/common';
+import React, { ReactElement, useState } from 'react';
+
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
-import VerifyWorkEmail from '../../components/layouts/AccountLayout/Profile/VerifyWorkEmail';
+import { AccountSecurityDisplay as Display } from '../../components/layouts/AccountLayout/common';
 import ProfileIndex from '../../components/layouts/AccountLayout/Profile';
+import VerifyWorkEmail from '../../components/layouts/AccountLayout/Profile/VerifyWorkEmail';
 
 const AccountProfilePage = (): ReactElement => {
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);

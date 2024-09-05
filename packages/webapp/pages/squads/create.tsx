@@ -1,3 +1,39 @@
+import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
+import {
+  WriteFreeformContent,
+  WriteFreeFormSkeleton,
+  WritePageContainer,
+} from '@dailydotdev/shared/src/components/post/freeform';
+import {
+  generateDefaultSquad,
+  SquadsDropdown,
+} from '@dailydotdev/shared/src/components/post/write';
+import { ShareLink } from '@dailydotdev/shared/src/components/post/write/ShareLink';
+import TabContainer, {
+  Tab,
+} from '@dailydotdev/shared/src/components/tabs/TabContainer';
+import { WritePostContextProvider } from '@dailydotdev/shared/src/contexts';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import {
+  createPost,
+  CreatePostProps,
+} from '@dailydotdev/shared/src/graphql/posts';
+import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
+import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
+import {
+  useActions,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
+import { useDiscardPost } from '@dailydotdev/shared/src/hooks/input/useDiscardPost';
+import { useSquadCreate } from '@dailydotdev/shared/src/hooks/squads/useSquadCreate';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { formToJson } from '@dailydotdev/shared/src/lib/form';
+import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
+import { NextSeo, NextSeoProps } from 'next-seo';
 import React, {
   FormEvent,
   ReactElement,
@@ -5,42 +41,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { NextSeo, NextSeoProps } from 'next-seo';
-import { useRouter } from 'next/router';
-import {
-  WriteFreeformContent,
-  WriteFreeFormSkeleton,
-  WritePageContainer,
-} from '@dailydotdev/shared/src/components/post/freeform';
-import { useMutation } from '@tanstack/react-query';
-import {
-  createPost,
-  CreatePostProps,
-} from '@dailydotdev/shared/src/graphql/posts';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useDiscardPost } from '@dailydotdev/shared/src/hooks/input/useDiscardPost';
-import { WritePostContextProvider } from '@dailydotdev/shared/src/contexts';
-import TabContainer, {
-  Tab,
-} from '@dailydotdev/shared/src/components/tabs/TabContainer';
-import { ShareLink } from '@dailydotdev/shared/src/components/post/write/ShareLink';
-import {
-  generateDefaultSquad,
-  SquadsDropdown,
-} from '@dailydotdev/shared/src/components/post/write';
-import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
-import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
-import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
-import {
-  useActions,
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks';
-import { useSquadCreate } from '@dailydotdev/shared/src/hooks/squads/useSquadCreate';
-import { formToJson } from '@dailydotdev/shared/src/lib/form';
-import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 

@@ -1,51 +1,52 @@
-import React, { ReactElement, useContext } from 'react';
-import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
-import { BaseFeedPage } from '@dailydotdev/shared/src/components/utilities';
-import { SQUAD_DIRECTORY_SOURCES } from '@dailydotdev/shared/src/graphql/squads';
-import InfiniteScrolling, {
-  checkFetchMore,
-} from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
-import { InfiniteData, useInfiniteQuery } from '@tanstack/react-query';
-import { ClientError } from 'graphql-request';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   FeedContainer,
-  SquadGrid,
   SourceCardBorderColor,
+  SquadGrid,
   SquadsDirectoryHeader,
 } from '@dailydotdev/shared/src/components';
-import { EditIcon, PlusIcon } from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { squadsPublicSuggestion } from '@dailydotdev/shared/src/lib/constants';
-import { GetStaticPropsResult } from 'next';
-import { ApiError } from 'next/dist/server/api-utils';
-import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
-import { Connection, gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { Squad } from '@dailydotdev/shared/src/graphql/sources';
+import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import classNames from 'classnames';
+import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
 import ConditionalWrapper from '@dailydotdev/shared/src/components/ConditionalWrapper';
+import InfiniteScrolling, {
+  checkFetchMore,
+} from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { EditIcon, PlusIcon } from '@dailydotdev/shared/src/components/icons';
 import TabContainer, {
   Tab,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
+import { BaseFeedPage } from '@dailydotdev/shared/src/components/utilities';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { Connection, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { Squad } from '@dailydotdev/shared/src/graphql/sources';
+import { SQUAD_DIRECTORY_SOURCES } from '@dailydotdev/shared/src/graphql/squads';
 import {
   useSquadNavigation,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
+import { squadsPublicSuggestion } from '@dailydotdev/shared/src/lib/constants';
+import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
-import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
-import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
 import { StaleTime } from '@dailydotdev/shared/src/lib/query';
-import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
+import { InfiniteData, useInfiniteQuery } from '@tanstack/react-query';
+import classNames from 'classnames';
+import { ClientError } from 'graphql-request';
+import { GetStaticPropsResult } from 'next';
+import { ApiError } from 'next/dist/server/api-utils';
+import { NextSeo } from 'next-seo';
+import { NextSeoProps } from 'next-seo/lib/types';
+import React, { ReactElement, useContext } from 'react';
+
 import FeedLayout, { getLayout } from '../../components/layouts/FeedLayout';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getTemplatedTitle } from '../../components/layouts/utils';
+import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
 export type Props = {
   initialData?: InfiniteData<{

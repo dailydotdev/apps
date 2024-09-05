@@ -1,7 +1,27 @@
-import React from 'react';
-import nock from 'nock';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import { settingsContext } from '@dailydotdev/shared/__tests__/helpers/boot';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
+import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
+import {
+  GET_PERSONALIZED_DIGEST_SETTINGS,
+  SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+  UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+  UPDATE_USER_PROFILE_MUTATION,
+  UserPersonalizedDigestType,
+} from '@dailydotdev/shared/src/graphql/users';
+import { SendType } from '@dailydotdev/shared/src/hooks';
+import { UpdateProfileParameters } from '@dailydotdev/shared/src/hooks/useProfileForm';
+import { BootApp, Visit } from '@dailydotdev/shared/src/lib/boot';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   act,
   fireEvent,
@@ -10,28 +30,9 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '@dailydotdev/shared/__tests__/helpers/graphql';
-import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
-import { BootApp, Visit } from '@dailydotdev/shared/src/lib/boot';
-import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
-import { UpdateProfileParameters } from '@dailydotdev/shared/src/hooks/useProfileForm';
-import {
-  GET_PERSONALIZED_DIGEST_SETTINGS,
-  SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
-  UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
-  UPDATE_USER_PROFILE_MUTATION,
-  UserPersonalizedDigestType,
-} from '@dailydotdev/shared/src/graphql/users';
-import { ApiError } from '@dailydotdev/shared/src/graphql/common';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
-import { SendType } from '@dailydotdev/shared/src/hooks';
-import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { settingsContext } from '@dailydotdev/shared/__tests__/helpers/boot';
+import nock from 'nock';
+import React from 'react';
+
 import ProfileNotificationsPage from '../pages/account/notifications';
 
 jest.mock('next/router', () => ({

@@ -1,22 +1,23 @@
-import React, { FormEvent, ReactElement } from 'react';
-import { NextSeo, NextSeoProps } from 'next-seo';
-import router, { useRouter } from 'next/router';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { SourceIcon } from '@dailydotdev/shared/src/components/icons';
 import { SquadDetails } from '@dailydotdev/shared/src/components/squads/Details';
-import { SquadForm } from '@dailydotdev/shared/src/graphql/squads';
+import { MangeSquadPageSkeleton } from '@dailydotdev/shared/src/components/squads/MangeSquadPageSkeleton';
 import {
   ManageSquadPageContainer,
   SquadSubTitle,
   SquadTitle,
 } from '@dailydotdev/shared/src/components/squads/utils';
-import { MangeSquadPageSkeleton } from '@dailydotdev/shared/src/components/squads/MangeSquadPageSkeleton';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { SquadForm } from '@dailydotdev/shared/src/graphql/squads';
 import { useSquadCreate } from '@dailydotdev/shared/src/hooks/squads/useSquadCreate';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
-import { SourceIcon } from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import router, { useRouter } from 'next/router';
+import { NextSeo, NextSeoProps } from 'next-seo';
+import React, { FormEvent, ReactElement } from 'react';
+
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
+import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
 const seo: NextSeoProps = {
   title: 'Create your Squad',

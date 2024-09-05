@@ -4,10 +4,10 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import React, { ReactElement } from 'react';
-import classNames from 'classnames';
 import useAccountEmailFlow from '@dailydotdev/shared/src/hooks/useAccountEmailFlow';
 import { AuthFlow } from '@dailydotdev/shared/src/lib/kratos';
+import classNames from 'classnames';
+import React, { ReactElement } from 'react';
 
 interface EmailSentSectionProps {
   onCancel?: (e: React.MouseEvent) => void;

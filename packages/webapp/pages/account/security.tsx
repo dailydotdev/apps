@@ -1,9 +1,19 @@
 import TabContainer, {
   Tab,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import {
+  SignBackProvider,
+  useSignBack,
+} from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import usePrivilegedSession from '@dailydotdev/shared/src/hooks/usePrivilegedSession';
-import React, { ReactElement, useRef, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import {
+  getNodeValue,
+  SettingsParams,
+  ValidateChangeEmail,
+  ValidateResetPassword,
+} from '@dailydotdev/shared/src/lib/auth';
 import {
   AuthFlow,
   ContinueWithAction,
@@ -15,23 +25,14 @@ import {
   SuccessfulRegistrationData,
 } from '@dailydotdev/shared/src/lib/kratos';
 import {
-  getNodeValue,
-  SettingsParams,
-  ValidateChangeEmail,
-  ValidateResetPassword,
-} from '@dailydotdev/shared/src/lib/auth';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import {
-  SignBackProvider,
-  useSignBack,
-} from '@dailydotdev/shared/src/hooks/auth/useSignBack';
-import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { AccountSecurityDisplay as Display } from '../../components/layouts/AccountLayout/common';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import React, { ReactElement, useRef, useState } from 'react';
+
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
+import { AccountSecurityDisplay as Display } from '../../components/layouts/AccountLayout/common';
 import AccountSecurityDefault, {
   ChangePasswordParams,
   UpdateProvidersParams,

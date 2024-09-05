@@ -1,15 +1,16 @@
-import React, { ReactElement } from 'react';
-import Link from 'next/link';
-import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
-import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import classNames from 'classnames';
-import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
+import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import { useScrollTopClassName } from '@dailydotdev/shared/src/hooks/useScrollTopClassName';
+import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
+import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import classNames from 'classnames';
+import Link from 'next/link';
+import React, { ReactElement } from 'react';
+
 import styles from './NavBar.module.css';
 
 export type Tab = { path: string; title: string };

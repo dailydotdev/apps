@@ -1,9 +1,9 @@
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import {
-  LockIcon,
+  AppIcon,
   BellIcon,
   InviteIcon,
-  AppIcon,
+  LockIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import {
   ProfileImageSize,
@@ -11,8 +11,6 @@ import {
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { pageBorders } from '@dailydotdev/shared/src/components/utilities';
 import classed from '@dailydotdev/shared/src/lib/classed';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import React, { ReactNode } from 'react';
 import {
   faq,
   privacyPolicy,
@@ -20,6 +18,8 @@ import {
   requestFeature,
   termsOfService,
 } from '@dailydotdev/shared/src/lib/constants';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import React, { ReactNode } from 'react';
 
 export interface ManageSocialProvidersProps {
   type: ManageSocialProviderTypes;

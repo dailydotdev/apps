@@ -1,7 +1,38 @@
-import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
-import nock from 'nock';
+import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import { defaultTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
+import {
+  defaultSquadToken,
+  generateTestAdmin,
+  generateTestMember,
+} from '@dailydotdev/shared/__tests__/fixture/squads';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
+import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import React from 'react';
+import { BOOT_QUERY_KEY } from '@dailydotdev/shared/src/contexts/common';
+import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
+import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
+import {
+  ActionType,
+  COMPLETE_ACTION_MUTATION,
+} from '@dailydotdev/shared/src/graphql/actions';
+import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
+import {
+  SourceMember,
+  SourceMemberRole,
+} from '@dailydotdev/shared/src/graphql/sources';
+import {
+  SQUAD_INVITATION_QUERY,
+  SQUAD_JOIN_MUTATION,
+  SquadInvitation,
+} from '@dailydotdev/shared/src/graphql/squads';
+import { labels } from '@dailydotdev/shared/src/lib';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   fireEvent,
   render,
@@ -9,40 +40,10 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { defaultTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
 import { NextRouter } from 'next/router';
-import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import {
-  defaultSquadToken,
-  generateTestMember,
-  generateTestAdmin,
-} from '@dailydotdev/shared/__tests__/fixture/squads';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '@dailydotdev/shared/__tests__/helpers/graphql';
-import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import {
-  SQUAD_INVITATION_QUERY,
-  SQUAD_JOIN_MUTATION,
-  SquadInvitation,
-} from '@dailydotdev/shared/src/graphql/squads';
-import {
-  SourceMember,
-  SourceMemberRole,
-} from '@dailydotdev/shared/src/graphql/sources';
-import { BOOT_QUERY_KEY } from '@dailydotdev/shared/src/contexts/common';
-import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
-import { labels } from '@dailydotdev/shared/src/lib';
-import {
-  ActionType,
-  COMPLETE_ACTION_MUTATION,
-} from '@dailydotdev/shared/src/graphql/actions';
+import nock from 'nock';
+import React from 'react';
+
 import SquadPage, {
   SquadReferralProps,
 } from '../pages/squads/[handle]/[token]';

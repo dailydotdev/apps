@@ -10,6 +10,12 @@ import {
   TextField,
   TextFieldProps,
 } from '@dailydotdev/shared/src/components/fields/TextField';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import useAccountEmailFlow from '@dailydotdev/shared/src/hooks/useAccountEmailFlow';
+import useTimer from '@dailydotdev/shared/src/hooks/useTimer';
+import { AuthEventNames } from '@dailydotdev/shared/src/lib/auth';
+import { AuthFlow } from '@dailydotdev/shared/src/lib/kratos';
+import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import classNames from 'classnames';
 import React, {
   Dispatch,
@@ -18,12 +24,7 @@ import React, {
   useContext,
   useState,
 } from 'react';
-import useAccountEmailFlow from '@dailydotdev/shared/src/hooks/useAccountEmailFlow';
-import { AuthFlow } from '@dailydotdev/shared/src/lib/kratos';
-import useTimer from '@dailydotdev/shared/src/hooks/useTimer';
-import { AuthEventNames } from '@dailydotdev/shared/src/lib/auth';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
+
 import { CommonTextField } from './common';
 
 export interface EmailFormProps {

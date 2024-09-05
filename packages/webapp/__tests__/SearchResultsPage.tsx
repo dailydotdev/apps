@@ -1,13 +1,14 @@
-import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/react';
-import { QueryClient } from '@tanstack/react-query';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import { mocked } from 'ts-jest/utils';
-import { NextRouter, useRouter } from 'next/router';
-import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
-import * as contexts from '@dailydotdev/shared/src/contexts/ActiveFeedNameContext';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import { SharedFeedPage } from '@dailydotdev/shared/src/components/utilities';
+import * as contexts from '@dailydotdev/shared/src/contexts/ActiveFeedNameContext';
+import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
+import { QueryClient } from '@tanstack/react-query';
+import { render, RenderResult, screen } from '@testing-library/react';
+import { NextRouter, useRouter } from 'next/router';
+import React from 'react';
+import { mocked } from 'ts-jest/utils';
+
 import { TestBootProvider } from '../../shared/__tests__/helpers/boot';
 
 jest.mock('next/router', () => ({

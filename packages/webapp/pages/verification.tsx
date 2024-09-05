@@ -1,8 +1,8 @@
-import React, { ReactElement } from 'react';
-import EmailCodeVerification from '@dailydotdev/shared/src/components/auth/EmailCodeVerification';
-import { useRouter } from 'next/router';
 import AuthHeader from '@dailydotdev/shared/src/components/auth/AuthHeader';
+import EmailCodeVerification from '@dailydotdev/shared/src/components/auth/EmailCodeVerification';
 import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
+import { useRouter } from 'next/router';
+import React, { ReactElement } from 'react';
 
 const Verification = (): ReactElement => {
   const router = useRouter();

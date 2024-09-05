@@ -1,9 +1,10 @@
-import React, { ReactElement, ReactNode, useEffect, useContext } from 'react';
+import BookmarkFeedLayout from '@dailydotdev/shared/src/components/BookmarkFeedLayout';
+import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
-import BookmarkFeedLayout from '@dailydotdev/shared/src/components/BookmarkFeedLayout';
+import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
+
 import { getLayout } from './FeedLayout';
 import { MainFeedPageProps } from './MainFeedPage';
 

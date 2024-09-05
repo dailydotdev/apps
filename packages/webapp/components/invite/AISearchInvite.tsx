@@ -1,26 +1,27 @@
-import React, { ReactElement, useEffect } from 'react';
 import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import { KeyIcon } from '@dailydotdev/shared/src/components/icons';
+import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { useMutation } from '@tanstack/react-query';
-import { acceptFeatureInvitation } from '@dailydotdev/shared/src/graphql/features';
-import { useRouter } from 'next/router';
-import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import {
   ApiErrorResult,
   DEFAULT_ERROR,
 } from '@dailydotdev/shared/src/graphql/common';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { acceptFeatureInvitation } from '@dailydotdev/shared/src/graphql/features';
 import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
+import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
+import React, { ReactElement, useEffect } from 'react';
+
 import { DailyDevLogo, JoinPageProps } from './common';
 
 export function AISearchInvite({
