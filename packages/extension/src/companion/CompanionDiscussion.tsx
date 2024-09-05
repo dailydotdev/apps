@@ -1,17 +1,17 @@
-import React, { CSSProperties, ReactElement } from 'react';
-import classNames from 'classnames';
-import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { NewComment } from '@dailydotdev/shared/src/components/post/NewComment';
 import { PostComments } from '@dailydotdev/shared/src/components/post/PostComments';
-import { Origin } from '@dailydotdev/shared/src/lib/log';
-import { useShareComment } from '@dailydotdev/shared/src/hooks/useShareComment';
+import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { useBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
+import { useShareComment } from '@dailydotdev/shared/src/hooks/useShareComment';
+import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
+import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
 import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
-import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
-import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
+import classNames from 'classnames';
+import React, { CSSProperties, ReactElement } from 'react';
 
 interface CompanionDiscussionProps {
   post: PostBootData;

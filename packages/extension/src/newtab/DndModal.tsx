@@ -1,11 +1,9 @@
-import React, { ReactElement, useState } from 'react';
-import { format } from 'date-fns';
-import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
 import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
+import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import {
   Modal,
@@ -13,7 +11,10 @@ import {
 } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { Justify } from '@dailydotdev/shared/src/components/utilities';
 import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
-import { getDefaultLink, dndOption, CustomTime, TimeFormat } from './dnd';
+import { format } from 'date-fns';
+import React, { ReactElement, useState } from 'react';
+
+import { CustomTime, dndOption, getDefaultLink, TimeFormat } from './dnd';
 
 const timeFormatOptions = Object.entries(dndOption).map(([k, v]) => ({
   label: v.label,

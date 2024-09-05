@@ -1,7 +1,7 @@
-import { useContext, useEffect, useRef } from 'react';
+import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useContentScriptStatus } from '@dailydotdev/shared/src/hooks';
-import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
+import { useContext, useEffect, useRef } from 'react';
 
 export const useCompanionSettings = (): void => {
   const isOnLoad = useRef(true);

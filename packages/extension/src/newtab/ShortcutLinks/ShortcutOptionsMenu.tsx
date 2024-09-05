@@ -1,11 +1,11 @@
-import React, { ReactElement } from 'react';
-import dynamic from 'next/dynamic';
 import {
   EyeIcon,
   SettingsIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import { ContextMenu as ContextMenuIds } from '@dailydotdev/shared/src/hooks/constants';
 import { MenuIcon } from '@dailydotdev/shared/src/components/MenuIcon';
+import { ContextMenu as ContextMenuIds } from '@dailydotdev/shared/src/hooks/constants';
+import dynamic from 'next/dynamic';
+import React, { ReactElement } from 'react';
 
 const ContextMenu = dynamic(
   () =>

@@ -1,5 +1,5 @@
-import React, { ReactElement, useState } from 'react';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
+import React, { ReactElement, useState } from 'react';
 
 const limit = 8;
 const list = Array(limit).fill(0);

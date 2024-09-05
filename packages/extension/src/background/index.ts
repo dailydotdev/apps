@@ -1,15 +1,16 @@
-import browser, { Runtime, Tabs } from 'webextension-polyfill';
+import { getLocalBootData } from '@dailydotdev/shared/src/contexts/BootProvider';
+import { BOOT_LOCAL_KEY } from '@dailydotdev/shared/src/contexts/common';
+import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/settings';
+import { getOrGenerateDeviceId } from '@dailydotdev/shared/src/hooks/log/useDeviceId';
 import { getBootData } from '@dailydotdev/shared/src/lib/boot';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
-import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
-import { GraphQLClient } from 'graphql-request';
-import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/settings';
-import { getLocalBootData } from '@dailydotdev/shared/src/contexts/BootProvider';
-import { getOrGenerateDeviceId } from '@dailydotdev/shared/src/hooks/log/useDeviceId';
 import { install, uninstall } from '@dailydotdev/shared/src/lib/constants';
-import { BOOT_LOCAL_KEY } from '@dailydotdev/shared/src/contexts/common';
 import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
+import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
+import { GraphQLClient } from 'graphql-request';
+import browser, { Runtime, Tabs } from 'webextension-polyfill';
+
 import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
 
 const client = new GraphQLClient(graphqlUrl, { fetch: globalThis.fetch });

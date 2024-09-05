@@ -3,13 +3,13 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { MenuIcon } from '@dailydotdev/shared/src/components/icons';
+import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
+import { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
+import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import { combinedClicks } from '@dailydotdev/shared/src/lib/click';
 import classNames from 'classnames';
 import React, { MouseEventHandler, ReactElement } from 'react';
-import { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
-import { combinedClicks } from '@dailydotdev/shared/src/lib/click';
-import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 
 interface CustomLinksProps extends WithClassNameProps {
   links: string[];

@@ -1,9 +1,10 @@
 import '@testing-library/jest-dom';
 import 'fake-indexeddb/auto';
-import { clear } from 'idb-keyval';
-import nodeFetch from 'node-fetch';
+
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
+import { clear } from 'idb-keyval';
 import { NextRouter } from 'next/router';
+import nodeFetch from 'node-fetch';
 
 process.env.NEXT_PUBLIC_API_URL = 'http://localhost:3000';
 process.env.NEXT_PUBLIC_WEBAPP_URL = 'https://app.daily.dev/';

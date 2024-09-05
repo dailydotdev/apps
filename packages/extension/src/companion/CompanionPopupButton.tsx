@@ -1,13 +1,14 @@
-import React, { useState, ReactElement, useContext, useEffect } from 'react';
 import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { AppIcon as CompanionIcon } from '@dailydotdev/shared/src/components/icons';
+import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
-import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
 import { useContentScriptStatus } from '@dailydotdev/shared/src/hooks';
+import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
+
 import { CompanionPermission } from './CompanionPermission';
 
 export const CompanionPopupButton = (): ReactElement => {

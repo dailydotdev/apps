@@ -1,3 +1,23 @@
+import {
+  Button,
+  ButtonIconPosition,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks';
+import { ContextMenu } from '@dailydotdev/shared/src/hooks/constants';
+import useContextMenu from '@dailydotdev/shared/src/hooks/useContextMenu';
+import { useShortcuts } from '@dailydotdev/shared/src/hooks/utils';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { ShortcutsUIExperiment } from '@dailydotdev/shared/src/lib/featureValues';
+import {
+  LogEvent,
+  ShortcutsSourceType,
+  TargetType,
+} from '@dailydotdev/shared/src/lib/log';
 import React, {
   FormEvent,
   ReactElement,
@@ -6,32 +26,13 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
-import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
-import {
-  Button,
-  ButtonIconPosition,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
-import {
-  LogEvent,
-  ShortcutsSourceType,
-  TargetType,
-} from '@dailydotdev/shared/src/lib/log';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import useContextMenu from '@dailydotdev/shared/src/hooks/useContextMenu';
-import { ContextMenu } from '@dailydotdev/shared/src/hooks/constants';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { ShortcutsUIExperiment } from '@dailydotdev/shared/src/lib/featureValues';
-import { useShortcuts } from '@dailydotdev/shared/src/hooks/utils';
-import CustomLinksModal from './ShortcutLinksModal';
-import MostVisitedSitesModal from '../MostVisitedSitesModal';
+
 import { CustomLinks } from '../CustomLinks';
-import useShortcutLinks from './useShortcutLinks';
-import ShortcutOptionsMenu from './ShortcutOptionsMenu';
+import MostVisitedSitesModal from '../MostVisitedSitesModal';
 import { ShortcutLinksUIV1 } from './experiments/ShortcutLinksUIV1';
+import CustomLinksModal from './ShortcutLinksModal';
+import ShortcutOptionsMenu from './ShortcutOptionsMenu';
+import useShortcutLinks from './useShortcutLinks';
 
 interface ShortcutLinksProps {
   shouldUseListFeedLayout: boolean;

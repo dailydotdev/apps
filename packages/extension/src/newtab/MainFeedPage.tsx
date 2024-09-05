@@ -1,3 +1,20 @@
+import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
+import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
+import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
+import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
+import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
+import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import {
+  getSearchUrl,
+  SearchProviderEnum,
+} from '@dailydotdev/shared/src/graphql/search';
+import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import dynamic from 'next/dynamic';
 import React, {
   ReactElement,
   useCallback,
@@ -5,27 +22,11 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
-import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
-import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
-import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
-import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
-import dynamic from 'next/dynamic';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
-import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
-import {
-  SearchProviderEnum,
-  getSearchUrl,
-} from '@dailydotdev/shared/src/graphql/search';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
-import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
-import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
-import ShortcutLinks from './ShortcutLinks/ShortcutLinks';
-import DndBanner from './DndBanner';
+
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
 import { useCompanionSettings } from '../companion/useCompanionSettings';
+import DndBanner from './DndBanner';
+import ShortcutLinks from './ShortcutLinks/ShortcutLinks';
 
 const PostsSearch = dynamic(
   () =>

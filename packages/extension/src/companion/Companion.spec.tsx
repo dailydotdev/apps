@@ -1,18 +1,20 @@
-import React from 'react';
 import '@testing-library/jest-dom';
+
+import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import {
+  completeActionMock,
+  mockGraphQL,
+} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import {
   fireEvent,
   render,
   RenderResult,
   screen,
 } from '@testing-library/react';
-import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
-import {
-  completeActionMock,
-  mockGraphQL,
-} from '@dailydotdev/shared/__tests__/helpers/graphql';
-import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import React from 'react';
+
 import App from './App';
 
 jest.mock('content-scripts-register-polyfill', () => ({}));

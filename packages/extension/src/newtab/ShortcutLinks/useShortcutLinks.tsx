@@ -1,4 +1,10 @@
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
+import {
+  LogEvent,
+  ShortcutsSourceType,
+  TargetType,
+} from '@dailydotdev/shared/src/lib/log';
 import {
   Dispatch,
   FormEvent,
@@ -9,12 +15,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
-import {
-  LogEvent,
-  ShortcutsSourceType,
-  TargetType,
-} from '@dailydotdev/shared/src/lib/log';
+
 import useTopSites from '../useTopSites';
 
 interface UseShortcutLinks {

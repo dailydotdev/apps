@@ -1,32 +1,34 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  useEffect,
-  useRef,
-  useState,
-  LegacyRef,
-  useCallback,
-} from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import classNames from 'classnames';
-import Modal from 'react-modal';
-import { isTesting } from '@dailydotdev/shared/src/lib/constants';
-import { REQUEST_PROTOCOL_KEY } from '@dailydotdev/shared/src/graphql/common';
 import '@dailydotdev/shared/src/styles/globals.css';
-import { AccessToken, PostBootData } from '@dailydotdev/shared/src/lib/boot';
+
+import { REQUEST_PROTOCOL_KEY } from '@dailydotdev/shared/src/graphql/common';
+import { useBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
 import { usePopupSelector } from '@dailydotdev/shared/src/hooks/usePopupSelector';
-import { useBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
 import {
   getPostByIdKey,
   updatePostCache,
 } from '@dailydotdev/shared/src/hooks/usePostById';
+import { AccessToken, PostBootData } from '@dailydotdev/shared/src/lib/boot';
+import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
-import CompanionMenu from './CompanionMenu';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import classNames from 'classnames';
+import React, {
+  LegacyRef,
+  ReactElement,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import Modal from 'react-modal';
+
 import CompanionContent from './CompanionContent';
-import { companionRequest } from './companionRequest';
 import { companionFetch } from './companionFetch';
+import CompanionMenu from './CompanionMenu';
+import { companionRequest } from './companionRequest';
 
 if (!isTesting) {
   Modal.setAppElement('daily-companion-app');
