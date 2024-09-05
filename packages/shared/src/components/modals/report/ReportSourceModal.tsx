@@ -6,9 +6,10 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { ReportModal } from './ReportModal';
 import { ReportReason, sendSourceReport } from '../../../report';
 import { Squad } from '../../../graphql/sources';
-import { useLeaveSquad } from '../../../hooks';
+import { useLeaveSquad, useToastNotification } from '../../../hooks';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { LogEvent } from '../../../lib/log';
+import { labels } from '../../../lib';
 
 interface SouceReportModalProps extends ModalProps {
   squad: Squad;
@@ -42,6 +43,7 @@ export function ReportSourceModal({
   ...props
 }: SouceReportModalProps): ReactElement {
   const { logEvent } = useLogContext();
+  const { displayToast } = useToastNotification();
   const { squads } = useAuthContext();
   const inputRef = useRef<HTMLInputElement>();
   const onLeaveSquad = useLeaveSquad({ squad });
@@ -58,6 +60,8 @@ export function ReportSourceModal({
           event_name: LogEvent.ReportSquad,
           extra: JSON.stringify({ squad: squad.id }),
         });
+
+        displayToast(labels.reporting.reportFeedbackText);
 
         if (inputRef.current?.checked) {
           onLeaveSquad({ forceLeave: true });
