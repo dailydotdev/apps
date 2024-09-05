@@ -1,0 +1,7 @@
+{
+  "eslint.workingDirectories": [
+    "./packages/shared",
+    "./packages/webapp",
+    "./packages/extension",
+  ]
+}
