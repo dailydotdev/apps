@@ -112,6 +112,7 @@ const TiktokTracking = (): ReactElement => {
 
 interface LogSignUpProps {
   experienceLevel: keyof typeof UserExperienceLevel;
+  isExtension?: boolean;
 }
 
 const EXPERIENCE_TO_SENIORITY: Record<
@@ -127,12 +128,18 @@ const EXPERIENCE_TO_SENIORITY: Record<
   NOT_ENGINEER: 'not_engineer',
 };
 
-export const logSignUp = ({ experienceLevel }: LogSignUpProps): void => {
+export const logSignUp = ({
+  experienceLevel,
+  isExtension,
+}: LogSignUpProps): void => {
   const isEngineer = !!experienceLevel && experienceLevel !== 'NOT_ENGINEER';
   if (typeof globalThis.gtag === 'function') {
     globalThis.gtag('event', 'signup');
     if (isEngineer) {
       globalThis.gtag('event', 'engineer_signup');
+    }
+    if (isExtension) {
+      globalThis.gtag('event', 'extension_signup');
     }
   }
 
@@ -144,6 +151,9 @@ export const logSignUp = ({ experienceLevel }: LogSignUpProps): void => {
     }
     if (isEngineer) {
       globalThis.fbq('track', 'engineer signup');
+    }
+    if (isExtension) {
+      globalThis.gtag('event', 'extension_signup');
     }
   }
 
