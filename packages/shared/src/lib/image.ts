@@ -165,6 +165,11 @@ export const cloudinary = {
         'https://daily-now-res.cloudinary.com/image/upload/s--t81_4qLS--/f_auto/v1708330060/404-lightmode_eweviu',
       dark: 'https://daily-now-res.cloudinary.com/image/upload/s--Rxdm7vdJ--/f_auto/v1708328512/404_z4xiwg',
     },
+    error: {
+      light:
+        'https://daily-now-res.cloudinary.com/image/upload/v1725365692/lightversion_dmnj1s.gif',
+      dark: 'https://daily-now-res.cloudinary.com/image/upload/v1725365692/darkversion_bfrze7.gif',
+    },
   },
   streak: {
     splash:

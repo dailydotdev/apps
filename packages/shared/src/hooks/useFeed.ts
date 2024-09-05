@@ -5,6 +5,7 @@ import {
   UseInfiniteQueryOptions,
   useQueryClient,
 } from '@tanstack/react-query';
+import { ClientError } from 'graphql-request';
 import {
   Ad,
   FeedData,
@@ -22,7 +23,7 @@ import {
 } from '../lib/query';
 import { MarketingCta } from '../components/marketingCta/common';
 import { FeedItemType } from '../components/cards/common';
-import { gqlClient } from '../graphql/common';
+import { GARMR_ERROR, gqlClient } from '../graphql/common';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -62,6 +63,7 @@ export type FeedReturnType = {
   isLoading: boolean;
   isFetching: boolean;
   isInitialLoading: boolean;
+  isError: boolean;
 };
 
 const findIndexOfPostInData = (
@@ -145,6 +147,8 @@ export default function useFeed<T>(
         lastPage.page.pageInfo.hasNextPage && lastPage.page.pageInfo.endCursor,
     },
   );
+
+  const clientError = feedQuery?.error as ClientError;
 
   const isAdsQueryEnabled =
     query &&
@@ -273,6 +277,8 @@ export default function useFeed<T>(
     canFetchMore: feedQuery.hasNextPage,
     emptyFeed:
       !feedQuery?.data?.pages[0]?.page.edges.length && !feedQuery.isFetching,
+    isError:
+      clientError?.response?.errors?.[0]?.extensions?.code === GARMR_ERROR,
     isLoading: feedQuery.isLoading,
     isFetching: feedQuery.isFetching,
     isInitialLoading: feedQuery.isInitialLoading,
