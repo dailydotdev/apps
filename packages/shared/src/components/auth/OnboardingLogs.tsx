@@ -153,7 +153,7 @@ export const logSignUp = ({
       globalThis.fbq('track', 'engineer signup');
     }
     if (isExtension) {
-      globalThis.gtag('event', 'extension_signup');
+      globalThis.fbq('track', 'extension_signup');
     }
   }
 
