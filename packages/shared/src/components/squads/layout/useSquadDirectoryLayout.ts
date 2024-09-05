@@ -26,7 +26,7 @@ export const useSquadDirectoryLayout = (): SquadDirectoryLayoutReturn => {
     hasSquad,
     squads,
     mySquadsTab: {
-      isVisible: hasSquad && !isLaptop,
+      isVisible: hasSquad,
       isActive: isMySquadsActive,
       toggle: setIsMySquadsActive,
     },

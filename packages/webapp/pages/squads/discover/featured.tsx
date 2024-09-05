@@ -8,15 +8,7 @@ import InfiniteScrolling, {
 import { InfiniteData, useInfiniteQuery } from '@tanstack/react-query';
 import { ClientError } from 'graphql-request';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import {
-  FeedContainer,
-  SquadGrid,
-  SourceCardBorderColor,
-  SquadsDirectoryHeader,
-} from '@dailydotdev/shared/src/components';
-import { EditIcon } from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { squadsPublicSuggestion } from '@dailydotdev/shared/src/lib/constants';
+import { FeedContainer, SquadGrid } from '@dailydotdev/shared/src/components';
 import { GetStaticPropsResult } from 'next';
 import { ApiError } from 'next/dist/server/api-utils';
 import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
@@ -75,32 +67,29 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
             fetchNextPage={queryResult.fetchNextPage}
             className="w-full"
           >
-            {/* TODO: remove SquadsDirectoryHeader on MI-510 */}
-            <FeedContainer
-              header={<SquadsDirectoryHeader className="hidden laptop:flex" />}
-              footer={
-                <SquadsDirectoryHeader className="mt-5 flex laptop:hidden" />
-              }
-              className="mt-5 px-6"
-              inlineHeader
-            >
+            <FeedContainer className="mt-2" inlineHeader>
               {queryResult?.data?.pages?.length > 0 && (
                 <>
                   {queryResult.data.pages.map((page) =>
-                    page.sources.edges.reduce(
-                      (nodes, { node: { name, permalink, id, ...props } }) => {
-                        const isMember = user && props?.currentMember;
-
-                        nodes.push(
+                    page.sources.edges.map(
+                      ({ node: { name, permalink, id, ...props } }) => {
+                        return (
                           <SquadGrid
                             key={id}
                             title={name}
                             subtitle={`@${props.handle}`}
-                            action={{
-                              text: isMember ? 'View Squad' : 'Join Squad',
-                              type: isMember ? 'link' : 'action',
-                              href: isMember ? permalink : undefined,
-                            }}
+                            action={
+                              user && props?.currentMember
+                                ? {
+                                    text: 'View Squad',
+                                    type: 'link',
+                                    href: permalink,
+                                  }
+                                : {
+                                    text: 'Join Squad',
+                                    type: 'action',
+                                  }
+                            }
                             source={{
                               name,
                               permalink,
@@ -109,32 +98,11 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
                               banner: props.headerImage,
                               ...props,
                             }}
-                          />,
+                          />
                         );
-
-                        return nodes;
                       },
-                      [],
                     ),
                   )}
-                  {/* TODO: remove this on MI-510 */}
-                  <SquadGrid
-                    title="Which squads would you like to see next?"
-                    action={{
-                      type: 'link',
-                      text: 'Submit your idea',
-                      href: squadsPublicSuggestion,
-                      target: '_blank',
-                    }}
-                    icon={
-                      <EditIcon
-                        size={IconSize.XXLarge}
-                        className="text-text-tertiary"
-                      />
-                    }
-                    description="We're thrilled to see how our community has grown and evolved, thanks to your incredible support. Let your voice be heard and be part of the decision-making process."
-                    borderColor={SourceCardBorderColor.Pepper}
-                  />
                 </>
               )}
             </FeedContainer>
