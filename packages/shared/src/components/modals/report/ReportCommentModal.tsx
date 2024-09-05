@@ -2,12 +2,13 @@ import React, { ReactElement } from 'react';
 import { ModalProps } from '../common/Modal';
 import { ReportModal } from './ReportModal';
 import useReportComment from '../../../hooks/useReportComment';
-import { Comment, ReportCommentReason } from '../../../graphql/comments';
+import { Comment } from '../../../graphql/comments';
 import { useLogContext } from '../../../contexts/LogContext';
 import { postLogEvent } from '../../../lib/feed';
 import { Post } from '../../../graphql/posts';
 import { PostBootData } from '../../../lib/boot';
 import { LogEvent } from '../../../lib/log';
+import { ReportReason } from '../../../report';
 
 interface Props extends ModalProps {
   onReport: (comment: Comment) => void;
@@ -15,13 +16,16 @@ interface Props extends ModalProps {
   post: Post | PostBootData;
 }
 
-const reportReasons: { value: string; label: string }[] = [
-  { value: 'HATEFUL', label: 'Hateful or offensive content' },
-  { value: 'HARASSMENT', label: 'Harassment or bullying' },
-  { value: 'SPAM', label: 'Spam or scams' },
-  { value: 'EXPLICIT', label: 'Explicit sexual content' },
-  { value: 'MISINFORMATION', label: 'False information or misinformation' },
-  { value: 'OTHER', label: 'Other' },
+const reportReasons: { value: ReportReason; label: string }[] = [
+  { value: ReportReason.Hateful, label: 'Hateful or offensive content' },
+  { value: ReportReason.Harassment, label: 'Harassment or bullying' },
+  { value: ReportReason.Spam, label: 'Spam or scams' },
+  { value: ReportReason.Nsfw, label: 'Explicit sexual content' },
+  {
+    value: ReportReason.Misinformation,
+    label: 'False information or misinformation',
+  },
+  { value: ReportReason.Other, label: 'Other' },
 ];
 
 export function ReportCommentModal({
@@ -35,7 +39,7 @@ export function ReportCommentModal({
 
   const onReportComment = async (
     event: React.MouseEvent<HTMLButtonElement>,
-    reason: ReportCommentReason,
+    reason: ReportReason,
     note: string,
   ): Promise<void> => {
     const { successful } = await reportComment({

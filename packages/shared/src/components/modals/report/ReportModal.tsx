@@ -3,16 +3,11 @@ import { Radio, RadioItemProps } from '../../fields/Radio';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { Modal, ModalProps } from '../common/Modal';
 import { Justify } from '../../utilities';
-import { ReportReason } from '../../../graphql/posts';
-import { ReportCommentReason } from '../../../graphql/comments';
 import { useViewSize, ViewSize } from '../../../hooks';
+import { ReportReason } from '../../../report';
 
 interface Props extends ModalProps {
-  onReport(
-    e: React.MouseEvent,
-    reason: ReportReason | ReportCommentReason,
-    text: string,
-  ): void;
+  onReport(e: React.MouseEvent, reason: ReportReason, text: string): void;
   reasons: RadioItemProps[] | ((reason: string) => RadioItemProps[]);
   heading: string;
   title?: string;

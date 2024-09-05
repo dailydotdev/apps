@@ -4,22 +4,20 @@ import AuthContext from '../contexts/AuthContext';
 import { BooleanPromise } from '../components/filters/common';
 import { AuthTriggers } from '../lib/auth';
 import { useRequestProtocol } from './useRequestProtocol';
-import {
-  ReportCommentReason,
-  REPORT_COMMENT_MUTATION,
-} from '../graphql/comments';
+import { REPORT_COMMENT_MUTATION } from '../graphql/comments';
+import { ReportReason } from '../report';
 
 type UseReportCommentRet = {
   reportComment: (variables: {
     commentId: string;
-    reason: ReportCommentReason;
+    reason: ReportReason;
     note?: string;
   }) => BooleanPromise;
 };
 
 interface ReportCommentProps {
   commentId: string;
-  reason: ReportCommentReason;
+  reason: ReportReason;
   note: string;
 }
 
