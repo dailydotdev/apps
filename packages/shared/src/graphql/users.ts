@@ -532,10 +532,10 @@ export const USER_STREAK_RECOVER_QUERY = gql`
 export const USER_STREAK_RECOVER_MUTATION = gql`
   mutation RecoverStreak {
     recoverStreak {
-      current
-      lastViewAt
+      ...UserStreakFragment
     }
   }
+  ${USER_STREAK_FRAGMENT}
 `;
 
 export const DEV_CARD_QUERY = gql`
