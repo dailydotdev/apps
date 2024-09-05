@@ -136,22 +136,17 @@ export const BootDataProvider = ({
   const loggedUser = !!(user && 'providers' in user && user?.id);
   const {
     data: bootRemoteData,
+    error,
     refetch,
     isFetched,
     dataUpdatedAt,
   } = useQuery(
     BOOT_QUERY_KEY,
     async () => {
-      try {
-        const result = await getBootData(app);
+      const result = await getBootData(app);
+      preloadFeedsRef.current({ feeds: result.feeds, user: result.user });
 
-        preloadFeedsRef.current({ feeds: result.feeds, user: result.user });
-
-        return result;
-      } catch (e) {
-        setGlobalError(true);
-        return null;
-      }
+      return result;
     },
     {
       refetchOnWindowFocus: loggedUser,
@@ -159,6 +154,12 @@ export const BootDataProvider = ({
       enabled: isExtension ? !!hostGranted : true,
     },
   );
+
+  useEffect(() => {
+    if (error && !hasGlobalError) {
+      setGlobalError(true);
+    }
+  }, [error, hasGlobalError]);
 
   useEffect(() => {
     const boot = getLocalBootData();
