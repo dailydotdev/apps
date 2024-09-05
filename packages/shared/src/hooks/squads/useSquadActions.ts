@@ -1,10 +1,16 @@
-import { useContext, useMemo } from 'react';
 import {
   useInfiniteQuery,
   UseInfiniteQueryResult,
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
+import { useContext, useMemo } from 'react';
+
+import { ActiveFeedContext } from '../../contexts/ActiveFeedContext';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { gqlClient } from '../../graphql/common';
+import { updateFlagsCache } from '../../graphql/source/common';
+import { SourceMember, SourceMemberRole, Squad } from '../../graphql/sources';
 import {
   collapsePinnedPosts,
   expandPinnedPosts,
@@ -13,12 +19,7 @@ import {
   unblockSquadMember,
   updateSquadMemberRole,
 } from '../../graphql/squads';
-import { SourceMember, SourceMemberRole, Squad } from '../../graphql/sources';
 import { generateQueryKey, RequestKey } from '../../lib/query';
-import { updateFlagsCache } from '../../graphql/source/common';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { ActiveFeedContext } from '../../contexts/ActiveFeedContext';
-import { gqlClient } from '../../graphql/common';
 
 export interface UseSquadActions {
   onUnblock?: typeof unblockSquadMember;

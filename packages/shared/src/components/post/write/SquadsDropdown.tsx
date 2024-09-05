@@ -1,12 +1,13 @@
 import React, { ReactElement } from 'react';
-import { SourceAvatar, SourceShortInfo } from '../../profile/source';
-import { ArrowIcon, SquadIcon } from '../../icons';
-import { Dropdown } from '../../fields/Dropdown';
+
 import { SourceMemberRole, SourceType, Squad } from '../../../graphql/sources';
-import { ButtonSize } from '../../buttons/common';
 import { useViewSize, ViewSize } from '../../../hooks';
-import { ProfileImageSize } from '../../ProfilePicture';
 import { cloudinary } from '../../../lib/image';
+import { ButtonSize } from '../../buttons/common';
+import { Dropdown } from '../../fields/Dropdown';
+import { ArrowIcon, SquadIcon } from '../../icons';
+import { SourceAvatar, SourceShortInfo } from '../../profile/source';
+import { ProfileImageSize } from '../../ProfilePicture';
 
 interface SquadsDropdownProps {
   onSelect: (index: number) => void;

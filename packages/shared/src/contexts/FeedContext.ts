@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { Spaciness } from '../graphql/settings';
 
 export type FeedContextData = {

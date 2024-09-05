@@ -1,16 +1,16 @@
-import React, { ComponentType, useEffect } from 'react';
-import classNames from 'classnames';
 import NotificationToggleIcon from '@dailydotdev/shared/src/components/icons/NotificationToggle/primary.svg';
-import classed from '@dailydotdev/shared/src/lib/classed';
-import { postWindowMessage } from '@dailydotdev/shared/src/lib/func';
-import { ENABLE_NOTIFICATION_WINDOW_KEY } from '@dailydotdev/shared/src/hooks/useNotificationPermissionPopup';
-import { useRouter } from 'next/router';
-import { NotificationPromptSource } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { usePushNotificationMutation } from '@dailydotdev/shared/src/hooks/notifications';
-import dynamic from 'next/dynamic';
+import { ENABLE_NOTIFICATION_WINDOW_KEY } from '@dailydotdev/shared/src/hooks/useNotificationPermissionPopup';
+import classed from '@dailydotdev/shared/src/lib/classed';
 import { isChrome } from '@dailydotdev/shared/src/lib/constants';
+import { postWindowMessage } from '@dailydotdev/shared/src/lib/func';
+import { NotificationPromptSource } from '@dailydotdev/shared/src/lib/log';
+import classNames from 'classnames';
+import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
+import React, { ComponentType, useEffect } from 'react';
 
 const BrowserPermissionIcon: ComponentType<{ className: string }> = dynamic(
   () =>

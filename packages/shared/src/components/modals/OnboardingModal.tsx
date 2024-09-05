@@ -7,19 +7,20 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { FilterOnboardingStep } from '../onboarding';
-import IntroductionOnboarding from '../onboarding/IntroductionOnboarding';
-import { OnboardingStep } from '../onboarding/common';
-import { LogEvent, TargetType } from '../../lib/log';
+
 import LogContext from '../../contexts/LogContext';
 import { OnboardingMode } from '../../graphql/feed';
-import { Modal, ModalProps } from './common/Modal';
 import useAuthForms from '../../hooks/useAuthForms';
-import AuthOptions, { AuthDisplay } from '../auth/AuthOptions';
+import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { AuthEventNames, AuthTriggers } from '../../lib/auth';
 import { ExperimentWinner } from '../../lib/featureValues';
-import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
+import { LogEvent, TargetType } from '../../lib/log';
+import AuthOptions, { AuthDisplay } from '../auth/AuthOptions';
 import { ButtonColor } from '../buttons/Button';
+import { FilterOnboardingStep } from '../onboarding';
+import { OnboardingStep } from '../onboarding/common';
+import IntroductionOnboarding from '../onboarding/IntroductionOnboarding';
+import { Modal, ModalProps } from './common/Modal';
 
 interface OnboardingModalProps extends ModalProps {
   mode?: OnboardingMode;

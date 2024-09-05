@@ -1,15 +1,15 @@
-import React, { ReactElement, ReactNode, useContext, useMemo } from 'react';
-
-import browser from 'webextension-polyfill';
-import { useQueryClient } from '@tanstack/react-query';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import { ExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import { useQueryClient } from '@tanstack/react-query';
+import React, { ReactElement, ReactNode, useContext, useMemo } from 'react';
+import browser from 'webextension-polyfill';
+
 import {
-  requestContentScripts,
   getContentScriptPermission,
   getHostPermission,
   HOST_PERMISSIONS,
   promptUninstallExtension,
+  requestContentScripts,
 } from '../lib/extensionScripts';
 
 export type ExtensionContextProviderProps = {

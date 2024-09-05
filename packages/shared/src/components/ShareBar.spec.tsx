@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   fireEvent,
   render,
@@ -5,18 +6,18 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
-import nock from 'nock';
 import { useRouter } from 'next/router';
-import ShareBar from './ShareBar';
-import Post from '../../__tests__/fixture/post';
-import { AuthContextProvider } from '../contexts/AuthContext';
+import nock from 'nock';
+import React from 'react';
+
 import loggedUser from '../../__tests__/fixture/loggedUser';
+import Post from '../../__tests__/fixture/post';
 import { generateTestSquad } from '../../__tests__/fixture/squads';
+import { AuthContextProvider } from '../contexts/AuthContext';
+import { NotificationsContextProvider } from '../contexts/NotificationsContext';
 import { getFacebookShareLink } from '../lib/share';
 import { LazyModalElement } from './modals/LazyModalElement';
-import { NotificationsContextProvider } from '../contexts/NotificationsContext';
+import ShareBar from './ShareBar';
 
 const defaultPost = Post;
 Object.defineProperty(window, 'matchMedia', {

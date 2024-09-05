@@ -1,8 +1,9 @@
-import { GraphQLClient } from 'graphql-request';
 import { QueryKey, UseInfiniteQueryOptions } from '@tanstack/react-query';
+import { GraphQLClient } from 'graphql-request';
 import { GraphQLError } from 'graphql-request/dist/types';
-import type { PublicProfile, UserShortProfile } from '../lib/user';
+
 import { graphqlUrl } from '../lib/config';
+import type { PublicProfile, UserShortProfile } from '../lib/user';
 // GraphQL Relay pagination types
 
 export type ConnectionCursor = string;

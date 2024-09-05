@@ -1,8 +1,11 @@
 import React, { ReactElement } from 'react';
-import { FilterCheckbox } from '../fields/FilterCheckbox';
+
+import { useAuthContext } from '../../contexts/AuthContext';
 import { useAdvancedSettings } from '../../hooks/feed';
 import useFeedSettings from '../../hooks/useFeedSettings';
-import { getVideoSetting } from './helpers';
+import { useLanguage } from '../../hooks/useLanguage';
+import { FilterCheckbox } from '../fields/FilterCheckbox';
+import { LanguageDropdown } from '../profile/LanguageDropdown';
 import {
   Typography,
   TypographyColor,
@@ -10,9 +13,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { Divider } from '../utilities';
-import { LanguageDropdown } from '../profile/LanguageDropdown';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useLanguage } from '../../hooks/useLanguage';
+import { getVideoSetting } from './helpers';
 
 export function ContentTypesFilter(): ReactElement {
   const { advancedSettings, isLoading } = useFeedSettings();

@@ -1,13 +1,13 @@
 import React, { ReactElement, useMemo } from 'react';
-import useFeedSettings from '../../../../hooks/useFeedSettings';
 
 import { useAdvancedSettings } from '../../../../hooks';
+import useFeedSettings from '../../../../hooks/useFeedSettings';
+import { CardCheckbox } from '../../../fields/CardCheckbox';
 import {
   getContentCurationList,
   getContentSourceList,
   getVideoSetting,
 } from '../../../filters/helpers';
-import { CardCheckbox } from '../../../fields/CardCheckbox';
 
 export const ContentTypes = (): ReactElement => {
   const { advancedSettings } = useFeedSettings();

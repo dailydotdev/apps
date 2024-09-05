@@ -1,16 +1,18 @@
-import React from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '@testing-library/jest-dom';
-import { render, RenderResult, screen } from '@testing-library/react';
-import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
+
 import { ExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
 import { contentScriptKey } from '@dailydotdev/shared/src/hooks';
-import { CompanionPermission } from './CompanionPermission';
+import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render, RenderResult, screen } from '@testing-library/react';
+import React from 'react';
+
 import {
+  getContentScriptPermission,
   registerBrowserContentScripts,
   requestContentScripts,
-  getContentScriptPermission,
 } from '../lib/extensionScripts';
+import { CompanionPermission } from './CompanionPermission';
 
 let client: QueryClient;
 

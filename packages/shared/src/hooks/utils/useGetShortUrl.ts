@@ -1,12 +1,13 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
+
 import { useAuthContext } from '../../contexts/AuthContext';
+import { gqlClient } from '../../graphql/common';
 import { GET_SHORT_URL_QUERY } from '../../graphql/urlShortener';
-import { addLogQueryParams } from '../../lib/share';
-import { RequestKey, generateQueryKey } from '../../lib/query';
 import { ReferralCampaignKey } from '../../lib';
 import { disabledRefetch } from '../../lib/func';
-import { gqlClient } from '../../graphql/common';
+import { generateQueryKey, RequestKey } from '../../lib/query';
+import { addLogQueryParams } from '../../lib/share';
 
 interface LinkAsQuery {
   url: string;

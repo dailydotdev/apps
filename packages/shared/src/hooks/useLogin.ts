@@ -1,7 +1,10 @@
-import { useCallback, useContext, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { useCallback, useContext, useState } from 'react';
+
 import { LoginFormParams } from '../components/auth/LoginForm';
 import AuthContext from '../contexts/AuthContext';
+import LogContext from '../contexts/LogContext';
+import { labels } from '../lib';
 import {
   AuthEventNames,
   getNodeValue,
@@ -19,12 +22,10 @@ import {
   initializeKratosFlow,
   submitKratosFlow,
 } from '../lib/kratos';
-import LogContext from '../contexts/LogContext';
-import { useToastNotification } from './useToastNotification';
-import { SignBackProvider, useSignBack } from './auth/useSignBack';
 import { LoggedUser } from '../lib/user';
-import { labels } from '../lib';
+import { SignBackProvider, useSignBack } from './auth/useSignBack';
 import { useEventListener } from './useEventListener';
+import { useToastNotification } from './useToastNotification';
 
 const LOGIN_FLOW_NOT_AVAILABLE_TOAST =
   'An error occurred, please refresh the page.';

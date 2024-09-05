@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, {
   forwardRef,
   HTMLAttributes,
@@ -5,27 +6,26 @@ import React, {
   ReactNode,
   Ref,
 } from 'react';
-import classNames from 'classnames';
+
+import { combinedClicks } from '../../lib/click';
+import { isNullOrUndefined } from '../../lib/func';
+import { ColorName as ButtonColor } from '../../styles/colors';
 import { IconProps } from '../Icon';
 import { Loader } from '../Loader';
-import { combinedClicks } from '../../lib/click';
-
-import { ColorName as ButtonColor } from '../../styles/colors';
 import {
+  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-  ButtonIconPosition,
-  useGetIconWithSize,
   IconOnlySizeToClassName,
   SizeToClassName,
+  useGetIconWithSize,
   VariantColorToClassName,
   VariantToClassName,
 } from './common';
-import { isNullOrUndefined } from '../../lib/func';
 
 export type IconType = React.ReactElement<IconProps>;
 
-export { ButtonColor, ButtonSize, ButtonVariant, ButtonIconPosition };
+export { ButtonColor, ButtonIconPosition, ButtonSize, ButtonVariant };
 
 interface CommonButtonProps {
   size?: ButtonSize;

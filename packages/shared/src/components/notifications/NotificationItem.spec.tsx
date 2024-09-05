@@ -1,13 +1,14 @@
-import React, { ReactElement, ReactNode } from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import NotificationItem, { NotificationItemProps } from './NotificationItem';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import React, { ReactElement, ReactNode } from 'react';
+
+import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import {
   NotificationAttachmentType,
   NotificationAvatarType,
 } from '../../graphql/notifications';
-import { NotificationType, NotificationIconType } from './utils';
-import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import NotificationItem, { NotificationItemProps } from './NotificationItem';
+import { NotificationIconType, NotificationType } from './utils';
 
 const sampleNotificationTitle = 'Welcome to your new notification center!';
 const sampleNotificationDescription =

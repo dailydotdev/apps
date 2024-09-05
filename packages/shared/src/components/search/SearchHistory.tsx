@@ -1,12 +1,13 @@
 import React, { ReactElement } from 'react';
-import { SearchProviderEnum, getSearchUrl } from '../../graphql/search';
+
+import { getSearchUrl, SearchProviderEnum } from '../../graphql/search';
 import { InfiniteScrollScreenOffset } from '../../hooks/feed/useFeedInfiniteScroll';
-import { SearchEmpty } from './SearchEmpty';
+import { useSearchHistory } from '../../hooks/search';
+import { TimerIcon } from '../icons';
 import { SearchHistoryContainer } from './common';
 import { SearchBarSuggestion, SuggestionOrigin } from './SearchBarSuggestion';
+import { SearchEmpty } from './SearchEmpty';
 import { SearchSkeleton } from './SearchSkeleton';
-import { TimerIcon } from '../icons';
-import { useSearchHistory } from '../../hooks/search';
 
 interface SearchHistoryProps {
   showEmptyState?: boolean;

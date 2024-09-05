@@ -1,29 +1,29 @@
-import React, { ReactElement, useState } from 'react';
+import { Item, Menu } from '@dailydotdev/react-contexify';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   DiscussIcon as CommentIcon,
-  FlagIcon,
-  FeedbackIcon,
-  EyeIcon,
   DownvoteIcon,
+  EyeIcon,
+  FeedbackIcon,
+  FlagIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import { Item, Menu } from '@dailydotdev/react-contexify';
 import {
-  ReportPostModal,
   ReportedCallback,
+  ReportPostModal,
 } from '@dailydotdev/shared/src/components/modals';
-import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import { feedback } from '@dailydotdev/shared/src/lib/constants';
+import { Post, UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import {
   PromptOptions,
   usePrompt,
 } from '@dailydotdev/shared/src/hooks/usePrompt';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import classNames from 'classnames';
-import { Origin } from '@dailydotdev/shared/src/lib/log';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { labels } from '@dailydotdev/shared/src/lib';
-import { Post, UserVote } from '@dailydotdev/shared/src/graphql/posts';
+import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
+import { feedback } from '@dailydotdev/shared/src/lib/constants';
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
+import classNames from 'classnames';
+import React, { ReactElement, useState } from 'react';
 
 interface CompanionContextMenuProps {
   postData: PostBootData;

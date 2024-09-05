@@ -1,20 +1,21 @@
-import React, { isValidElement, ReactElement, ReactNode } from 'react';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   AiIcon,
   BellIcon,
   HomeIcon,
   SourceIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import Link from 'next/link';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import classNames from 'classnames';
-import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
-import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
+import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import classNames from 'classnames';
+import Link from 'next/link';
+import React, { isValidElement, ReactElement, ReactNode } from 'react';
+
 import { FooterNavBarContainerProps, FooterTab, getNavPath } from './common';
-import { FooterPlusButton } from './FooterPlusButton';
 import { FooterNavBarItem, FooterNavBarItemProps } from './FooterNavBarItem';
+import { FooterPlusButton } from './FooterPlusButton';
 
 const Notifications = ({ active }: { active: boolean }): JSX.Element => {
   const { unreadCount } = useNotificationContext();

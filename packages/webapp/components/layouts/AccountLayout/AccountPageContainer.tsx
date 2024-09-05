@@ -1,5 +1,3 @@
-import React, { ReactElement, ReactNode } from 'react';
-import classNames from 'classnames';
 import {
   Button,
   ButtonSize,
@@ -7,12 +5,15 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
+import classNames from 'classnames';
+import React, { ReactElement, ReactNode } from 'react';
+
+import { navigationKey } from '.';
 import {
   AccountPageContent,
   AccountPageHeading,
   AccountPageSection,
 } from './common';
-import { navigationKey } from '.';
 
 interface ClassName {
   container?: string;

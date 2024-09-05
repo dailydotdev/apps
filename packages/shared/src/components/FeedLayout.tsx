@@ -1,12 +1,13 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
-import { desktop, laptop, laptopL, laptopXL, tablet } from '../styles/media';
+
 import FeedContext, {
   defaultFeedContextData,
   FeedContextData,
 } from '../contexts/FeedContext';
-import { useMedia } from '../hooks';
 import SettingsContext from '../contexts/SettingsContext';
+import { useMedia } from '../hooks';
 import useSidebarRendered from '../hooks/useSidebarRendered';
+import { desktop, laptop, laptopL, laptopXL, tablet } from '../styles/media';
 
 export type FeedLayoutProps = { children?: ReactNode };
 

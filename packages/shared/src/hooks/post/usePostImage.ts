@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+
 import { Post } from '../../graphql/posts';
 
 export const usePostImage = (post: Post): string =>

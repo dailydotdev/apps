@@ -1,9 +1,9 @@
-import { CopyNotifyFunction, useCopyLink } from './useCopy';
 import { useLogContext } from '../contexts/LogContext';
-import { LogEvent } from '../lib/log';
-import { Squad } from '../graphql/sources';
-import { useActions } from './useActions';
 import { ActionType } from '../graphql/actions';
+import { Squad } from '../graphql/sources';
+import { LogEvent } from '../lib/log';
+import { useActions } from './useActions';
+import { CopyNotifyFunction, useCopyLink } from './useCopy';
 
 export interface UseSquadInvitationProps {
   squad: Squad;

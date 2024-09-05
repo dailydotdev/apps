@@ -1,9 +1,10 @@
-import React, { ReactElement } from 'react';
 import Link from 'next/link';
-import { Modal, ModalProps } from '../common/Modal';
+import React, { ReactElement } from 'react';
+
 import { SourceMember } from '../../../graphql/sources';
 import { UserShortInfo } from '../../profile/UserShortInfo';
 import SquadMemberBadge from '../../squads/SquadMemberBadge';
+import { Modal, ModalProps } from '../common/Modal';
 
 export interface PrivilegedMembersModalProps
   extends Omit<ModalProps, 'children'> {

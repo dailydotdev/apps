@@ -1,6 +1,6 @@
 import { AuthEvent, getKratosError } from '../lib/kratos';
-import { useToastNotification } from './useToastNotification';
 import { useEventListener } from './useEventListener';
+import { useToastNotification } from './useToastNotification';
 
 export function useAuthErrors(): void {
   const { displayToast } = useToastNotification();

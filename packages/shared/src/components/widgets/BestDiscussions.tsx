@@ -1,22 +1,23 @@
-import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import { ArrowIcon } from '../icons';
-import { Post } from '../../graphql/posts';
-import styles from '../cards/Card.module.css';
-import { CardLink } from '../cards/Card';
-import { ElementPlaceholder } from '../ElementPlaceholder';
-import classed from '../../lib/classed';
-import { postLogEvent } from '../../lib/feed';
+import React, { ReactElement, useContext } from 'react';
+
 import LogContext from '../../contexts/LogContext';
-import { WidgetContainer } from './common';
+import { Post } from '../../graphql/posts';
+import classed from '../../lib/classed';
 import { combinedClicks } from '../../lib/click';
+import { postLogEvent } from '../../lib/feed';
 import {
   Button,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
+import { CardLink } from '../cards/Card';
+import styles from '../cards/Card.module.css';
+import { ElementPlaceholder } from '../ElementPlaceholder';
+import { ArrowIcon } from '../icons';
+import { WidgetContainer } from './common';
 
 export type BestDiscussionsProps = {
   posts: Post[] | null;

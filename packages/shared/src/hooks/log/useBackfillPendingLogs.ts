@@ -1,4 +1,5 @@
 import { MutableRefObject, useEffect } from 'react';
+
 import { LogEvent } from './useLogQueue';
 
 export default function useBackfillPendingLogs(

@@ -1,31 +1,32 @@
 import classNames from 'classnames';
-import React, { ReactElement, useContext, useMemo } from 'react';
-import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import { Tab, TabContainer } from '../tabs/TabContainer';
+import { useRouter } from 'next/router';
+import React, { ReactElement, useContext, useMemo } from 'react';
+
 import { useActiveFeedNameContext } from '../../contexts';
-import useActiveNav from '../../hooks/useActiveNav';
+import { useAuthContext } from '../../contexts/AuthContext';
+import SettingsContext from '../../contexts/SettingsContext';
 import { useFeeds, useViewSize, ViewSize } from '../../hooks';
+import { useFeedName } from '../../hooks/feed/useFeedName';
+import useActiveNav from '../../hooks/useActiveNav';
 import usePersistentContext from '../../hooks/usePersistentContext';
+import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
+import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
+import classed from '../../lib/classed';
+import { webappUrl } from '../../lib/constants';
+import { ButtonSize, ButtonVariant } from '../buttons/common';
+import { Dropdown } from '../fields/Dropdown';
+import { IconSize } from '../Icon';
+import { PlusIcon, SortIcon } from '../icons';
 import {
   algorithmsList,
   DEFAULT_ALGORITHM_INDEX,
   DEFAULT_ALGORITHM_KEY,
 } from '../layout/common';
-import { MobileFeedActions } from './MobileFeedActions';
-import { useFeedName } from '../../hooks/feed/useFeedName';
-import SettingsContext from '../../contexts/SettingsContext';
-import { Dropdown } from '../fields/Dropdown';
-import { PlusIcon, SortIcon } from '../icons';
-import { IconSize } from '../Icon';
-import { ButtonSize, ButtonVariant } from '../buttons/common';
-import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
-import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
-import { webappUrl } from '../../lib/constants';
 import NotificationsBell from '../notifications/NotificationsBell';
-import classed from '../../lib/classed';
+import { Tab, TabContainer } from '../tabs/TabContainer';
 import { SharedFeedPage } from '../utilities';
-import { useAuthContext } from '../../contexts/AuthContext';
+import { MobileFeedActions } from './MobileFeedActions';
 
 const OnboardingChecklistBar = dynamic(
   () =>

@@ -1,5 +1,4 @@
-import nock from 'nock';
-import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   fireEvent,
   render,
@@ -7,14 +6,20 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import nock from 'nock';
+import React from 'react';
+
 import defaultUser from '../../../__tests__/fixture/loggedUser';
-import AuthContext from '../../contexts/AuthContext';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
-import { LoggedUser } from '../../lib/user';
+import { waitForNock } from '../../../__tests__/helpers/utilities';
+import AlertContext, {
+  ALERT_DEFAULTS,
+  AlertContextData,
+} from '../../contexts/AlertContext';
+import AuthContext from '../../contexts/AuthContext';
 import {
   AdvancedSettings,
   AdvancedSettingsGroup,
@@ -23,13 +28,9 @@ import {
   FeedSettings,
   UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION,
 } from '../../graphql/feedSettings';
-import AdvancedSettingsPage from './AdvancedSettings';
 import { getFeedSettingsQueryKey } from '../../hooks/useFeedSettings';
-import { waitForNock } from '../../../__tests__/helpers/utilities';
-import AlertContext, {
-  ALERT_DEFAULTS,
-  AlertContextData,
-} from '../../contexts/AlertContext';
+import { LoggedUser } from '../../lib/user';
+import AdvancedSettingsPage from './AdvancedSettings';
 
 const showLogin = jest.fn();
 let loggedUser: LoggedUser;

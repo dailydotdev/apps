@@ -1,21 +1,22 @@
 import classNames from 'classnames';
-import React, { ReactElement, ReactNode, useCallback } from 'react';
 import dynamic from 'next/dynamic';
+import React, { ReactElement, ReactNode, useCallback } from 'react';
+
+import { useActiveFeedNameContext } from '../../contexts';
 import { useAuthContext } from '../../contexts/AuthContext';
-import LoginButton from '../LoginButton';
-import ProfileButton from '../profile/ProfileButton';
-import HeaderLogo from './HeaderLogo';
-import { CreatePostButton } from '../post/write';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useViewSize, ViewSize } from '../../hooks';
+import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useReadingStreak } from '../../hooks/streaks';
+import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
+import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
+import FeedNav from '../feeds/FeedNav';
+import LoginButton from '../LoginButton';
 import { LogoPosition } from '../Logo';
 import NotificationsBell from '../notifications/NotificationsBell';
-import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
-import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
-import { useSettingsContext } from '../../contexts/SettingsContext';
-import { useActiveFeedNameContext } from '../../contexts';
-import { useFeedName } from '../../hooks/feed/useFeedName';
-import FeedNav from '../feeds/FeedNav';
+import { CreatePostButton } from '../post/write';
+import ProfileButton from '../profile/ProfileButton';
+import HeaderLogo from './HeaderLogo';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;

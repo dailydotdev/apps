@@ -1,19 +1,20 @@
-import React, { ReactElement, useContext } from 'react';
+import CommentFeed from '@dailydotdev/shared/src/components/CommentFeed';
+import { MyProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/MyProfileEmptyScreen';
+import { ProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/ProfileEmptyScreen';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { USER_COMMENTS_QUERY } from '@dailydotdev/shared/src/graphql/comments';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { MyProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/MyProfileEmptyScreen';
-import { ProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/ProfileEmptyScreen';
-import CommentFeed from '@dailydotdev/shared/src/components/CommentFeed';
+import React, { ReactElement, useContext } from 'react';
+
 import {
-  ProfileLayoutProps,
+  getLayout as getProfileLayout,
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
-  getLayout as getProfileLayout,
+  ProfileLayoutProps,
 } from '../../components/layouts/ProfileLayout';
 
 export const getStaticProps = getProfileStaticProps;

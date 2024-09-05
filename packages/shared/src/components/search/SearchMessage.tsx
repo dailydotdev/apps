@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
 import { RenderMarkdown, RenderMarkdownProps } from '../RenderMarkdown';
 import styles from './SearchMessage.module.css';
 

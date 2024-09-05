@@ -1,22 +1,23 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Separator } from '../../cards/common';
+import React, { ReactElement } from 'react';
+
+import { useDevCard } from '../../../hooks/profile/useDevCard';
 import { TimeFormatType } from '../../../lib/dateFormat';
-import { DateFormat, Divider } from '../../utilities';
+import { checkLowercaseEquality } from '../../../lib/strings';
+import { devcardBorder } from '../../../styles/custom';
+import { Separator } from '../../cards/common';
 import ConditionalWrapper from '../../ConditionalWrapper';
-import { DevCardStats } from './DevCardStats';
+import { DateFormat, Divider } from '../../utilities';
 import {
   devCardBoxShadow,
   DevCardTheme,
   DevCardType,
   RoundedContainer,
 } from './common';
-import { DevCardFooter } from './DevCardFooter';
 import { DevCardContainer } from './DevCardContainer';
-import { useDevCard } from '../../../hooks/profile/useDevCard';
+import { DevCardFooter } from './DevCardFooter';
+import { DevCardStats } from './DevCardStats';
 import { DevCardTwitterCover } from './DevCardTwitterCover';
-import { checkLowercaseEquality } from '../../../lib/strings';
-import { devcardBorder } from '../../../styles/custom';
 
 interface DevCardProps {
   type?: DevCardType;

@@ -1,32 +1,33 @@
-import React, { ReactElement } from 'react';
-import { NextSeo, NextSeoProps } from 'next-seo';
-import { useRouter } from 'next/router';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { SquadDetails } from '@dailydotdev/shared/src/components/squads/Details';
-import { SquadForm, editSquad } from '@dailydotdev/shared/src/graphql/squads';
+import { MangeSquadPageSkeleton } from '@dailydotdev/shared/src/components/squads/MangeSquadPageSkeleton';
+import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import { editSquad, SquadForm } from '@dailydotdev/shared/src/graphql/squads';
+import { useSquad } from '@dailydotdev/shared/src/hooks';
+import { PrivacyOption } from '@dailydotdev/shared/src/hooks/squads/useSquadPrivacyOptions';
 import { useBoot } from '@dailydotdev/shared/src/hooks/useBoot';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
-import { MangeSquadPageSkeleton } from '@dailydotdev/shared/src/components/squads/MangeSquadPageSkeleton';
+import {
+  isNullOrUndefined,
+  parseOrDefault,
+} from '@dailydotdev/shared/src/lib/func';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSquad } from '@dailydotdev/shared/src/hooks';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
+import { useRouter } from 'next/router';
+import { NextSeo, NextSeoProps } from 'next-seo';
 import { ParsedUrlQuery } from 'querystring';
-import {
-  generateQueryKey,
-  RequestKey,
-} from '@dailydotdev/shared/src/lib/query';
-import { PrivacyOption } from '@dailydotdev/shared/src/hooks/squads/useSquadPrivacyOptions';
-import {
-  isNullOrUndefined,
-  parseOrDefault,
-} from '@dailydotdev/shared/src/lib/func';
-import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import React, { ReactElement } from 'react';
+
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 

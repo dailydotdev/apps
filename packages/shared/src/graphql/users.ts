@@ -1,15 +1,16 @@
-import { gql } from 'graphql-request';
 import { subDays } from 'date-fns';
+import { gql } from 'graphql-request';
+
+import type { SendType } from '../hooks';
+import { DayOfWeek } from '../lib/date';
+import type { PublicProfile } from '../lib/user';
+import { Connection, gqlClient } from './common';
 import {
   SHARED_POST_INFO_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
   USER_STREAK_FRAGMENT,
 } from './fragments';
-import type { PublicProfile } from '../lib/user';
-import { Connection, gqlClient } from './common';
 import { SourceMember } from './sources';
-import type { SendType } from '../hooks';
-import { DayOfWeek } from '../lib/date';
 
 export const USER_BY_ID_STATIC_FIELDS_QUERY = `
   query User($id: ID!) {

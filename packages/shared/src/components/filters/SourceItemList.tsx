@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
-import { FiltersList } from './common';
+
 import { Source } from '../../graphql/sources';
+import { FiltersList } from './common';
 import SourceItemRow from './SourceItemRow';
 
 export default function SourceItemList({

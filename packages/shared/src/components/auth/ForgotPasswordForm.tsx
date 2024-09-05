@@ -1,18 +1,19 @@
 import React, { FormEvent, ReactElement, useContext, useState } from 'react';
+
+import LogContext from '../../contexts/LogContext';
+import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
+import { AuthEventNames } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
+import { AuthFlow } from '../../lib/kratos';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import { MailIcon } from '../icons';
 import { CloseModalFunc } from '../modals/common';
+import AuthForm from './AuthForm';
 import AuthHeader from './AuthHeader';
+import AuthModalFooter from './AuthModalFooter';
 import { AuthFormProps, AuthModalText } from './common';
 import TokenInput from './TokenField';
-import { AuthFlow } from '../../lib/kratos';
-import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
-import { AuthEventNames } from '../../lib/auth';
-import LogContext from '../../contexts/LogContext';
-import AuthForm from './AuthForm';
-import AuthModalFooter from './AuthModalFooter';
 
 interface ForgotPasswordFormProps extends AuthFormProps {
   initialEmail?: string;

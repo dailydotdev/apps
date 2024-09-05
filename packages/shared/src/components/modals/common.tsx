@@ -1,5 +1,6 @@
-import React from 'react';
 import dynamic from 'next/dynamic';
+import React from 'react';
+
 import { LazyModal } from './common/types';
 
 export type CloseModalFunc = (

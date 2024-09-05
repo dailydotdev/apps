@@ -1,12 +1,13 @@
-import React from 'react';
-import { createRoot } from 'react-dom/client';
-import browser from 'webextension-polyfill';
+import { setOnError } from '@dailydotdev/shared/src/components/ProfilePicture';
 import {
   applyTheme,
   themeModes,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { setOnError } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import browser from 'webextension-polyfill';
+
 import App, { CompanionData } from './App';
 
 let root: ReturnType<typeof createRoot>;

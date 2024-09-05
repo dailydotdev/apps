@@ -1,5 +1,6 @@
-import React, { forwardRef, ReactElement, ReactNode, Ref } from 'react';
 import classNames from 'classnames';
+import React, { forwardRef, ReactElement, ReactNode, Ref } from 'react';
+
 import { Image } from '../image/Image';
 import {
   ProfileImageSize,

@@ -1,5 +1,6 @@
-import { MutableRefObject, useContext, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
+import { MutableRefObject, useContext, useEffect, useRef } from 'react';
+
 import LogContext from '../../contexts/LogContext';
 
 export default function useLogPageView(): MutableRefObject<() => void> {

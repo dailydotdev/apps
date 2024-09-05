@@ -1,17 +1,17 @@
-import {
-  BAN_POST_MUTATION,
-  DELETE_POST_MUTATION,
-  banPost,
-  deletePost,
-  Post,
-  getLatestChangelogPost,
-  LATEST_CHANGELOG_POST_QUERY,
-  PostType,
-  isVideoPost,
-  getReadPostButtonText,
-} from './posts';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
 import { Connection } from './common';
+import {
+  BAN_POST_MUTATION,
+  banPost,
+  DELETE_POST_MUTATION,
+  deletePost,
+  getLatestChangelogPost,
+  getReadPostButtonText,
+  isVideoPost,
+  LATEST_CHANGELOG_POST_QUERY,
+  Post,
+  PostType,
+} from './posts';
 
 beforeEach(() => {
   jest.clearAllMocks();

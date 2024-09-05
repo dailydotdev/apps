@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
 import ConditionalWrapper from '../../ConditionalWrapper';
 import {
   ReusedCardCoverProps,

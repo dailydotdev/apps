@@ -1,11 +1,12 @@
-import React, { InputHTMLAttributes, ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { InputHTMLAttributes, ReactElement } from 'react';
+
+import { ChecklistAIcon } from '../icons';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { ChecklistAIcon } from '../icons';
 
 interface CustomCheckboxProps {
   checked: boolean;

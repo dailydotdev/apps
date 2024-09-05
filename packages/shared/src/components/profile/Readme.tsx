@@ -1,12 +1,13 @@
 import React, { FormEventHandler, ReactElement, useContext } from 'react';
-import { PublicProfile } from '../../lib/user';
+
 import AuthContext from '../../contexts/AuthContext';
-import { MyProfileEmptyScreen } from './MyProfileEmptyScreen';
-import Markdown from '../Markdown';
-import MarkdownInput from '../fields/MarkdownInput';
-import { formToJson } from '../../lib/form';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useProfileReadme } from '../../hooks/profile/useProfileReadme';
+import { formToJson } from '../../lib/form';
+import { PublicProfile } from '../../lib/user';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import MarkdownInput from '../fields/MarkdownInput';
+import Markdown from '../Markdown';
+import { MyProfileEmptyScreen } from './MyProfileEmptyScreen';
 
 export interface ReadmeProps {
   user: PublicProfile;

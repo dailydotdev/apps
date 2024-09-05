@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+
 import { SquadTitle, SquadTitleColor } from '../../squads/utils';
 
 interface ReadingHistoryTitleProps {

@@ -1,12 +1,13 @@
 import React, { ReactElement } from 'react';
-import { ChecklistStepProps } from '../../lib/checklist';
-import { ChecklistStep } from './ChecklistStep';
-import { Button, ButtonVariant } from '../buttons/Button';
+
 import BrowsersIcon from '../../../icons/browsers.svg';
-import { FlexCentered } from '../utilities';
-import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
+import { useActions } from '../../hooks/useActions';
+import { ChecklistStepProps } from '../../lib/checklist';
 import { downloadBrowserExtension } from '../../lib/constants';
+import { Button, ButtonVariant } from '../buttons/Button';
+import { FlexCentered } from '../utilities';
+import { ChecklistStep } from './ChecklistStep';
 
 const InstallExtensionChecklistStep = (
   props: ChecklistStepProps,

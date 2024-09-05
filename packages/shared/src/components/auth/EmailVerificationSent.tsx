@@ -1,18 +1,19 @@
-import React, { ReactElement, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, ButtonVariant } from '../buttons/Button';
+import React, { ReactElement, useState } from 'react';
+
 import EmailSentIcon from '../../../icons/mail_sent.svg';
 import useTimer from '../../hooks/useTimer';
-import {
-  AuthFlow,
-  initializeKratosFlow,
-  submitKratosFlow,
-} from '../../lib/kratos';
 import {
   AccountRecoveryParameters,
   getNodeByKey,
   VerificationParams,
 } from '../../lib/auth';
+import {
+  AuthFlow,
+  initializeKratosFlow,
+  submitKratosFlow,
+} from '../../lib/kratos';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { SecondaryCenteredBodyText } from '../utilities';
 
 interface EmailVerificationSentProps {

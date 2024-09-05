@@ -1,7 +1,8 @@
-import React, { MutableRefObject, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonProps, ButtonVariant } from '../../buttons/Button';
+import React, { MutableRefObject, ReactElement, ReactNode } from 'react';
+
 import classed from '../../../lib/classed';
+import { Button, ButtonProps, ButtonVariant } from '../../buttons/Button';
 
 interface Copy {
   left?: string;

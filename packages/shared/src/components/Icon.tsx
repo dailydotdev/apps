@@ -1,5 +1,5 @@
-import React, { CSSProperties, ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { CSSProperties, ReactElement } from 'react';
 
 export enum IconSize {
   XXSmall = 'xxsmall',

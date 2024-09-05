@@ -1,8 +1,9 @@
 import React, { MutableRefObject, ReactElement } from 'react';
-import { BaseTooltip } from './BaseTooltip';
-import { RecommendedMention } from '../RecommendedMention';
-import { UserShortProfile } from '../../lib/user';
+
 import { isTesting } from '../../lib/constants';
+import { UserShortProfile } from '../../lib/user';
+import { RecommendedMention } from '../RecommendedMention';
+import { BaseTooltip } from './BaseTooltip';
 
 interface RecommendedMentionTooltipProps {
   query?: string;

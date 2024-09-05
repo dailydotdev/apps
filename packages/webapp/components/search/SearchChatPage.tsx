@@ -1,20 +1,21 @@
-import React, { ReactElement, useEffect } from 'react';
-import { NextSeo, NextSeoProps } from 'next-seo';
 import {
   SearchProviderButton,
   SearchResult,
 } from '@dailydotdev/shared/src/components/search';
-import { useChat } from '@dailydotdev/shared/src/hooks';
 import { SearchContainer } from '@dailydotdev/shared/src/components/search/SearchContainer';
-import { useRouter } from 'next/router';
-import {
-  SearchProviderEnum,
-  getSearchUrl,
-} from '@dailydotdev/shared/src/graphql/search';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
-import { labels } from '@dailydotdev/shared/src/lib';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import {
+  getSearchUrl,
+  SearchProviderEnum,
+} from '@dailydotdev/shared/src/graphql/search';
+import { useChat } from '@dailydotdev/shared/src/hooks';
+import { labels } from '@dailydotdev/shared/src/lib';
+import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { useRouter } from 'next/router';
+import { NextSeo, NextSeoProps } from 'next-seo';
+import React, { ReactElement, useEffect } from 'react';
+
 import { getLayout as getMainLayout } from '../layouts/MainLayout';
 import { getTemplatedTitle } from '../layouts/utils';
 

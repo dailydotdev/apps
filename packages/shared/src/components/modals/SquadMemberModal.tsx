@@ -1,27 +1,28 @@
 import React, { ReactElement, useState } from 'react';
-import { Modal, ModalProps } from './common/Modal';
+
 import {
   SourceMember,
   SourceMemberRole,
   SourcePermissions,
   Squad,
 } from '../../graphql/sources';
-import UserListModal from './UserListModal';
-import { checkFetchMore } from '../containers/InfiniteScrolling';
+import { verifyPermission } from '../../graphql/squads';
+import { useSquadActions } from '../../hooks';
+import { ContextMenu } from '../../hooks/constants';
 import useContextMenu from '../../hooks/useContextMenu';
-import SquadMemberMenu from '../squads/SquadMemberMenu';
+import useDebounceFn from '../../hooks/useDebounceFn';
+import { useSquadInvitation } from '../../hooks/useSquadInvitation';
+import { defaultSearchDebounceMs } from '../../lib/func';
 import { Origin } from '../../lib/log';
+import { checkFetchMore } from '../containers/InfiniteScrolling';
 import { IconSize } from '../Icon';
 import { LinkIcon } from '../icons';
-import { useSquadInvitation } from '../../hooks/useSquadInvitation';
-import { FlexCentered } from '../utilities';
-import { useSquadActions } from '../../hooks';
-import SquadMemberItemAdditionalContent from '../squads/SquadMemberItemAdditionalContent';
-import { verifyPermission } from '../../graphql/squads';
-import useDebounceFn from '../../hooks/useDebounceFn';
-import { defaultSearchDebounceMs } from '../../lib/func';
 import { BlockedMembersPlaceholder } from '../squads/Members';
-import { ContextMenu } from '../../hooks/constants';
+import SquadMemberItemAdditionalContent from '../squads/SquadMemberItemAdditionalContent';
+import SquadMemberMenu from '../squads/SquadMemberMenu';
+import { FlexCentered } from '../utilities';
+import { Modal, ModalProps } from './common/Modal';
+import UserListModal from './UserListModal';
 
 enum SquadMemberTab {
   AllMembers = 'Squad members',

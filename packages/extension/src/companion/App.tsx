@@ -1,30 +1,31 @@
-import React, { ReactElement, useState } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import browser from 'webextension-polyfill';
-import { Boot, BootApp } from '@dailydotdev/shared/src/lib/boot';
-import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { useRefreshToken } from '@dailydotdev/shared/src/hooks/useRefreshToken';
-import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertContext';
-import { LogContextProvider } from '@dailydotdev/shared/src/contexts/LogContext';
+import { GrowthBookProvider } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
-import { RouterContext } from 'next/dist/shared/lib/router-context';
-import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
+import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertContext';
+import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { LogContextProvider } from '@dailydotdev/shared/src/contexts/LogContext';
+import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { useEventListener } from '@dailydotdev/shared/src/hooks';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
+import { useRefreshToken } from '@dailydotdev/shared/src/hooks/useRefreshToken';
+import { Boot, BootApp } from '@dailydotdev/shared/src/lib/boot';
 import {
   ExtensionMessageType,
   getCompanionWrapper,
 } from '@dailydotdev/shared/src/lib/extension';
+import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
-import { GrowthBookProvider } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
-import { useEventListener } from '@dailydotdev/shared/src/hooks';
-import Companion from './Companion';
-import CustomRouter from '../lib/CustomRouter';
-import { companionFetch } from './companionFetch';
+import { RouterContext } from 'next/dist/shared/lib/router-context';
+import React, { ReactElement, useState } from 'react';
+import browser from 'webextension-polyfill';
+
 import { version } from '../../package.json';
+import CustomRouter from '../lib/CustomRouter';
+import Companion from './Companion';
+import { companionFetch } from './companionFetch';
 
 const queryClient = new QueryClient(defaultQueryClientConfig);
 const router = new CustomRouter();

@@ -1,24 +1,25 @@
-import React from 'react';
-import nock from 'nock';
-import { mocked } from 'ts-jest/utils';
-import { NextRouter, useRouter } from 'next/router';
-import { LoggedUser, Roles } from '@dailydotdev/shared/src/lib/user';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import user from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '@dailydotdev/shared/__tests__/helpers/graphql';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import SettingsContext, {
+  ThemeMode,
+} from '@dailydotdev/shared/src/contexts/SettingsContext';
 import {
   Keyword,
   KEYWORD_QUERY,
   KeywordData,
 } from '@dailydotdev/shared/src/graphql/keywords';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '@dailydotdev/shared/__tests__/helpers/graphql';
-import user from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import SettingsContext, {
-  ThemeMode,
-} from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { LoggedUser, Roles } from '@dailydotdev/shared/src/lib/user';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { NextRouter, useRouter } from 'next/router';
+import nock from 'nock';
+import React from 'react';
+import { mocked } from 'ts-jest/utils';
+
 import KeywordsPage from '../pages/backoffice/keywords/[value]';
 
 jest.mock('next/router', () => ({

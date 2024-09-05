@@ -1,10 +1,11 @@
 import React, { ReactElement } from 'react';
-import { ButtonVariant } from '../../buttons/common';
+
 import { Source } from '../../../graphql/sources';
 import { useSourceActions } from '../../../hooks';
-import SourceActionsNotify from './SourceActionsNotify';
+import { ButtonVariant } from '../../buttons/common';
 import SourceActionsBlock from './SourceActionsBlock';
 import SourceActionsFollow from './SourceActionsFollow';
+import SourceActionsNotify from './SourceActionsNotify';
 
 interface SourceActionsButton {
   className?: string;

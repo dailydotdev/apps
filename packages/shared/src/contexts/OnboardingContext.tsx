@@ -1,3 +1,4 @@
+import dynamic from 'next/dynamic';
 import React, {
   Dispatch,
   ReactElement,
@@ -9,17 +10,17 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import dynamic from 'next/dynamic';
-import { LogEvent } from '../lib/log';
+
 import { OnboardingMode } from '../graphql/feed';
 import { useMyFeed } from '../hooks/useMyFeed';
 import usePersistentContext from '../hooks/usePersistentContext';
-import AuthContext from './AuthContext';
-import AlertContext from './AlertContext';
-import LogContext from './LogContext';
-import { isTesting } from '../lib/constants';
 import useSidebarRendered from '../hooks/useSidebarRendered';
+import { isTesting } from '../lib/constants';
 import { ExperimentWinner } from '../lib/featureValues';
+import { LogEvent } from '../lib/log';
+import AlertContext from './AlertContext';
+import AuthContext from './AuthContext';
+import LogContext from './LogContext';
 
 const OnboardingModal = dynamic(
   () =>

@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
 import { PostType } from '../../graphql/posts';
-import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import PostContentContainer from './PostContentContainer';
+import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 
 interface PostLoadingSkeletonProps {
   type: PostType;

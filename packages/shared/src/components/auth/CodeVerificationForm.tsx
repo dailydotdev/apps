@@ -1,16 +1,17 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import { formToJson } from '../../lib/form';
-import { Button, ButtonVariant } from '../buttons/Button';
-import { TextField } from '../fields/TextField';
-import { CloseModalFunc } from '../modals/common';
-import AuthHeader from './AuthHeader';
-import { AuthFormProps, AuthModalText } from './common';
-import { AuthFlow } from '../../lib/kratos';
+
+import LogContext from '../../contexts/LogContext';
 import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
 import { AuthEventNames } from '../../lib/auth';
-import LogContext from '../../contexts/LogContext';
-import AuthForm from './AuthForm';
+import { formToJson } from '../../lib/form';
+import { AuthFlow } from '../../lib/kratos';
+import { Button, ButtonVariant } from '../buttons/Button';
+import { TextField } from '../fields/TextField';
 import { KeyIcon } from '../icons';
+import { CloseModalFunc } from '../modals/common';
+import AuthForm from './AuthForm';
+import AuthHeader from './AuthHeader';
+import { AuthFormProps, AuthModalText } from './common';
 
 interface CodeVerificationFormProps extends AuthFormProps {
   initialEmail: string;

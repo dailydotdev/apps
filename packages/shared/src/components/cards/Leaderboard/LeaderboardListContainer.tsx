@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+
 import { LeaderboardCard, LeaderboardListContainerProps } from './common';
 
 export function LeaderboardListContainer({

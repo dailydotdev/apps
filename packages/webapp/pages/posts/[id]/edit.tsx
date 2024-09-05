@@ -1,24 +1,25 @@
-import React, { FormEvent, ReactElement } from 'react';
-import { useRouter } from 'next/router';
 import {
   WriteFreeformContent,
   WritePage,
   WritePostHeader,
 } from '@dailydotdev/shared/src/components/post/freeform';
-import { editPost, PostType } from '@dailydotdev/shared/src/graphql/posts';
-import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useMutation } from '@tanstack/react-query';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
-import { useDiscardPost } from '@dailydotdev/shared/src/hooks/input/useDiscardPost';
-import { NextSeo, NextSeoProps } from 'next-seo';
-import { WritePostContextProvider } from '@dailydotdev/shared/src/contexts';
-import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
-import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import { ShareLink } from '@dailydotdev/shared/src/components/post/write/ShareLink';
-import { useActions } from '@dailydotdev/shared/src/hooks';
+import { WritePostContextProvider } from '@dailydotdev/shared/src/contexts';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import { editPost, PostType } from '@dailydotdev/shared/src/graphql/posts';
+import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
+import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
+import { useActions } from '@dailydotdev/shared/src/hooks';
+import { useDiscardPost } from '@dailydotdev/shared/src/hooks/input/useDiscardPost';
+import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
+import { NextSeo, NextSeoProps } from 'next-seo';
+import React, { FormEvent, ReactElement } from 'react';
+
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 

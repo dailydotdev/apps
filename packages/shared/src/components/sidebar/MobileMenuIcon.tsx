@@ -1,9 +1,10 @@
-import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement, useContext } from 'react';
+
 import LogContext from '../../contexts/LogContext';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 
 interface MobileMenuIconProps {
   sidebarExpanded: boolean;

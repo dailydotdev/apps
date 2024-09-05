@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   fireEvent,
   queryByText,
@@ -6,19 +7,19 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import nock from 'nock';
-import SharedBookmarksModal from './SharedBookmarksModal';
+import React from 'react';
+
 import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
+import { waitForNock } from '../../../__tests__/helpers/utilities';
 import {
   BOOKMARK_SHARING_MUTATION,
   BOOKMARK_SHARING_QUERY,
 } from '../../graphql/bookmarksSharing';
-import { waitForNock } from '../../../__tests__/helpers/utilities';
+import SharedBookmarksModal from './SharedBookmarksModal';
 
 const onRequestClose = jest.fn();
 

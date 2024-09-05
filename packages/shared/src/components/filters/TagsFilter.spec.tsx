@@ -1,21 +1,23 @@
-import nock from 'nock';
-import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
+  findAllByRole,
+  fireEvent,
   render,
   RenderResult,
-  waitFor,
-  findAllByRole,
   screen,
-  fireEvent,
+  waitFor,
 } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import nock from 'nock';
+import React from 'react';
+
 import defaultUser from '../../../__tests__/fixture/loggedUser';
-import AuthContext from '../../contexts/AuthContext';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
-import TagsFilter from './TagsFilter';
+import { AlertContextProvider } from '../../contexts/AlertContext';
+import AuthContext from '../../contexts/AuthContext';
+import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
 import {
   ADD_FILTERS_TO_FEED_MUTATION,
   AllTagCategoriesData,
@@ -25,8 +27,7 @@ import {
   TagCategory,
 } from '../../graphql/feedSettings';
 import { getFeedSettingsQueryKey } from '../../hooks/useFeedSettings';
-import { AlertContextProvider } from '../../contexts/AlertContext';
-import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
+import TagsFilter from './TagsFilter';
 
 const showLogin = jest.fn();
 const updateAlerts = jest.fn();

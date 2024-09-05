@@ -1,13 +1,14 @@
 import React, { MouseEvent, ReactElement } from 'react';
-import { Modal, ModalProps } from './common/Modal';
-import { Button, ButtonVariant } from '../buttons/Button';
-import { ModalClose } from './common/ModalClose';
-import { useActions } from '../../hooks';
+
 import { ActionType } from '../../graphql/actions';
-import { Image } from '../image/Image';
-import { cloudinary } from '../../lib/image';
+import { useActions } from '../../hooks';
 import { reputation } from '../../lib/constants';
+import { cloudinary } from '../../lib/image';
 import { anchorDefaultRel } from '../../lib/strings';
+import { Button, ButtonVariant } from '../buttons/Button';
+import { Image } from '../image/Image';
+import { Modal, ModalProps } from './common/Modal';
+import { ModalClose } from './common/ModalClose';
 
 export const ReputationPrivilegesModal = ({
   onRequestClose,

@@ -1,5 +1,6 @@
-import React, { MeterHTMLAttributes, ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { MeterHTMLAttributes, ReactElement } from 'react';
+
 import ConditionalWrapper from '../ConditionalWrapper';
 
 interface ClassName {

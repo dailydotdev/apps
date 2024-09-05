@@ -5,18 +5,19 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Modal, ModalProps } from '../common/Modal';
+
+import AlertContext from '../../../contexts/AlertContext';
+import { useLogContext } from '../../../contexts/LogContext';
+import { ReferralCampaignKey, useReferralCampaign } from '../../../hooks';
 import { cloudinary } from '../../../lib/image';
-import { ModalSize } from '../common/types';
-import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { link } from '../../../lib/links';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
-import { ReferralCampaignKey, useReferralCampaign } from '../../../hooks';
-import ReferralSocialShareButtons from '../../widgets/ReferralSocialShareButtons';
-import { useLogContext } from '../../../contexts/LogContext';
+import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { InviteLinkInput } from '../../referral/InviteLinkInput';
+import ReferralSocialShareButtons from '../../widgets/ReferralSocialShareButtons';
+import { Modal, ModalProps } from '../common/Modal';
 import { ModalClose } from '../common/ModalClose';
-import AlertContext from '../../../contexts/AlertContext';
+import { ModalSize } from '../common/types';
 
 function GenericReferralModal({
   onRequestClose,

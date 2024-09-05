@@ -1,5 +1,5 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { HTMLAttributes, ReactElement } from 'react';
 
 export const ElementPlaceholder = ({
   className,

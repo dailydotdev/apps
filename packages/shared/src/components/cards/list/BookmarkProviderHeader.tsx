@@ -1,11 +1,12 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
-import { CardHeader } from './ListCard';
+
 import {
   bookmarkProviderIcon,
   bookmarkProviderText,
   bookmarkProviderTextClassName,
 } from '../BookmarkProviderHeader';
+import { CardHeader } from './ListCard';
 
 interface BookmakProviderHeaderProps {
   className: string;

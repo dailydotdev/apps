@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+
 import { ListCard } from '../list/ListCard';
 import { AcquisitionFormInner } from './common/AcquisitionFormInner';
 

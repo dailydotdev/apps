@@ -1,9 +1,10 @@
-import { useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
+
 import { useNotificationContext } from '../contexts/NotificationsContext';
 import {
-  NewNotification,
   NEW_NOTIFICATIONS_SUBSCRIPTION,
+  NewNotification,
 } from '../graphql/notifications';
 import useSubscription from './useSubscription';
 

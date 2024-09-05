@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import { get as getCache, set as setCache } from 'idb-keyval';
+import { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 const DEVICE_ID_KEY = 'device_id';

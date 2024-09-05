@@ -1,5 +1,5 @@
-import type { Config } from 'tailwindcss';
 import config from '@dailydotdev/shared/tailwind.config';
+import type { Config } from 'tailwindcss';
 
 module.exports = {
   ...config,

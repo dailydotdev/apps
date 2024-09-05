@@ -1,9 +1,10 @@
-import React, { KeyboardEvent, ReactElement, useState } from 'react';
-import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import classNames from 'classnames';
+import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
+import React, { KeyboardEvent, ReactElement, useState } from 'react';
+
 import commentPopupText from '../../commentPopupText';
-import { DiscussIcon as CommentIcon } from '../icons';
 import { Button, ButtonVariant } from '../buttons/Button';
+import { DiscussIcon as CommentIcon } from '../icons';
 import { ModalClose } from '../modals/common/ModalClose';
 
 const transitionDuration = 150;

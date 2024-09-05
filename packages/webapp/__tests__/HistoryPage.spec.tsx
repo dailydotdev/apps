@@ -1,18 +1,19 @@
-import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import nock from 'nock';
-import { ReadHistoryData } from '@dailydotdev/shared/src/hooks/useInfiniteReadingHistory';
-import { READING_HISTORY_QUERY } from '@dailydotdev/shared/src/graphql/users';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { mocked } from 'ts-jest/utils';
-import { NextRouter, useRouter } from 'next/router';
+import user from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
-import user from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { READING_HISTORY_QUERY } from '@dailydotdev/shared/src/graphql/users';
+import { ReadHistoryData } from '@dailydotdev/shared/src/hooks/useInfiniteReadingHistory';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { NextRouter, useRouter } from 'next/router';
+import nock from 'nock';
+import React from 'react';
+import { mocked } from 'ts-jest/utils';
+
 import HistoryPage from '../pages/history';
 
 const routerReplace = jest.fn();

@@ -1,9 +1,10 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
+import useProfileForm from '../../hooks/useProfileForm';
+import { getTimeZoneIcon, getTimeZoneOptions } from '../../lib/timezones';
 import { ButtonSize } from '../buttons/common';
 import { Dropdown } from '../fields/Dropdown';
-import { getTimeZoneIcon, getTimeZoneOptions } from '../../lib/timezones';
-import useProfileForm from '../../hooks/useProfileForm';
 
 const timeZoneOptions = getTimeZoneOptions();
 const timeZoneValues = timeZoneOptions.map((timeZone) => timeZone.label);

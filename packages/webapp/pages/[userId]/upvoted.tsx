@@ -1,17 +1,18 @@
-import React, { ReactElement, useContext } from 'react';
 import Feed, { FeedProps } from '@dailydotdev/shared/src/components/Feed';
-import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
-import { USER_UPVOTED_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import { MyProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/MyProfileEmptyScreen';
 import { ProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/ProfileEmptyScreen';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { USER_UPVOTED_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import classNames from 'classnames';
+import React, { ReactElement, useContext } from 'react';
+
 import {
-  ProfileLayoutProps,
+  getLayout as getProfileLayout,
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
-  getLayout as getProfileLayout,
+  ProfileLayoutProps,
 } from '../../components/layouts/ProfileLayout';
 
 export const getStaticProps = getProfileStaticProps;

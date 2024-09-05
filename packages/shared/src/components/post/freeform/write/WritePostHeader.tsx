@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
-import SourceButton from '../../../cards/SourceButton';
+
 import { useWritePostContext } from '../../../../contexts';
+import SourceButton from '../../../cards/SourceButton';
 
 interface WritePostHeaderProps {
   isEdit?: boolean;

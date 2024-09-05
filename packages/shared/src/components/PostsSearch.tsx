@@ -1,3 +1,6 @@
+import { useQuery } from '@tanstack/react-query';
+import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import React, {
   HTMLAttributes,
   ReactElement,
@@ -5,21 +8,19 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import dynamic from 'next/dynamic';
-import { useQuery } from '@tanstack/react-query';
-import classNames from 'classnames';
-import { SearchField } from './fields/SearchField';
+
+import { gqlClient } from '../graphql/common';
+import { SEARCH_BOOKMARKS_SUGGESTIONS } from '../graphql/feed';
+import {
+  sanitizeSearchTitleMatch,
+  SEARCH_POST_SUGGESTIONS,
+} from '../graphql/search';
+import { SEARCH_READING_HISTORY_SUGGESTIONS } from '../graphql/users';
+import { useConditionalFeature } from '../hooks';
 import { useAutoComplete } from '../hooks/useAutoComplete';
 import useDebounceFn from '../hooks/useDebounceFn';
-import {
-  SEARCH_POST_SUGGESTIONS,
-  sanitizeSearchTitleMatch,
-} from '../graphql/search';
-import { SEARCH_BOOKMARKS_SUGGESTIONS } from '../graphql/feed';
-import { SEARCH_READING_HISTORY_SUGGESTIONS } from '../graphql/users';
-import { gqlClient } from '../graphql/common';
-import { useConditionalFeature } from '../hooks';
 import { feature } from '../lib/featureManagement';
+import { SearchField } from './fields/SearchField';
 
 const AutoCompleteMenu = dynamic(
   () =>

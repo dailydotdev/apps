@@ -1,7 +1,8 @@
 import React, { ReactNode } from 'react';
+
 import classed from '../../../lib/classed';
-import { BlockIcon, LockIcon, TimerIcon } from '../../icons';
 import { IconSize } from '../../Icon';
+import { BlockIcon, LockIcon, TimerIcon } from '../../icons';
 
 export const StatusDescription = classed(
   'p',

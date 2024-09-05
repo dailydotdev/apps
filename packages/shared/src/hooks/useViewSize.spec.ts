@@ -1,4 +1,5 @@
 import { renderHook } from '@testing-library/react-hooks';
+
 import { useViewSize, ViewSize } from './index';
 
 const matchMedia = (value: string) => {

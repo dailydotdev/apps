@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+
 import { useAuthContext } from '../../contexts/AuthContext';
 import { PREVIEW_FEED_QUERY } from '../../graphql/feed';
 import useFeedSettings from '../../hooks/useFeedSettings';

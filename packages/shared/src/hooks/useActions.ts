@@ -1,5 +1,6 @@
-import { useCallback, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useMemo } from 'react';
+
 import { useAuthContext } from '../contexts/AuthContext';
 import {
   Action,
@@ -7,8 +8,8 @@ import {
   completeUserAction,
   getUserActions,
 } from '../graphql/actions';
-import { generateQueryKey, RequestKey } from '../lib/query';
 import { disabledRefetch } from '../lib/func';
+import { generateQueryKey, RequestKey } from '../lib/query';
 
 interface UseActions {
   actions: Action[];

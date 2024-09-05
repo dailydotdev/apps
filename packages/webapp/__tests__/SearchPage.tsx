@@ -1,12 +1,13 @@
-import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/react';
-import { QueryClient } from '@tanstack/react-query';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import { mocked } from 'ts-jest/utils';
+import { QueryClient } from '@tanstack/react-query';
+import { render, RenderResult, screen } from '@testing-library/react';
 import { NextRouter, useRouter } from 'next/router';
+import React from 'react';
+import { mocked } from 'ts-jest/utils';
+
 import { TestBootProvider } from '../../shared/__tests__/helpers/boot';
-import SearchPageV1 from '../pages/search/chat';
 import { getLayout } from '../components/layouts/MainLayout';
+import SearchPageV1 from '../pages/search/chat';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),

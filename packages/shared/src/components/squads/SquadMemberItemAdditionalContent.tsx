@@ -1,13 +1,14 @@
 import React, { ReactElement } from 'react';
+
+import { useAuthContext } from '../../contexts/AuthContext';
 import { SourceMember, SourceMemberRole } from '../../graphql/sources';
+import { useToastNotification } from '../../hooks';
+import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { BlockIcon, MenuIcon } from '../icons';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { useAuthContext } from '../../contexts/AuthContext';
-import SquadMemberBadge from './SquadMemberBadge';
-import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
-import { useToastNotification } from '../../hooks';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import SquadMemberBadge from './SquadMemberBadge';
 
 interface SquadMemberActionsProps {
   member: SourceMember;

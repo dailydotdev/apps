@@ -1,8 +1,8 @@
-import React, { ReactElement, ReactNode, useContext } from 'react';
-import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { Post } from '@dailydotdev/shared/src/graphql/posts';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import dynamic from 'next/dynamic';
+import React, { ReactElement, ReactNode, useContext } from 'react';
 
 const FooterNavBar = dynamic(
   () => import(/* webpackChunkName: "footerNavBar" */ '../FooterNavBar'),

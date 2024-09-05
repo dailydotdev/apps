@@ -1,11 +1,12 @@
+import classNames from 'classnames';
 import React, {
+  MouseEventHandler,
   ReactElement,
   ReactNode,
   RefObject,
-  MouseEventHandler,
   useId,
 } from 'react';
-import classNames from 'classnames';
+
 import { useHorizontalScrollHeader } from './useHorizontalScrollHeader';
 
 interface HorizontalScrollProps {

@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
 import { cloudinary } from '../../lib/image';
 
 export type ChecklistConfettiProps = {

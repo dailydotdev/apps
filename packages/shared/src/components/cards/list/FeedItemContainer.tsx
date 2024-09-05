@@ -1,3 +1,5 @@
+import classNames from 'classnames';
+import Link from 'next/link';
 import React, {
   AnchorHTMLAttributes,
   forwardRef,
@@ -7,15 +9,14 @@ import React, {
   Ref,
   useState,
 } from 'react';
-import Link from 'next/link';
-import classNames from 'classnames';
+
 import { Post } from '../../../graphql/posts';
-import { ListCard, CardLink } from './ListCard';
-import { RaisedLabel, RaisedLabelType } from './RaisedLabel';
 import { useFeedPreviewMode } from '../../../hooks';
-import { TypeLabel } from './TypeLabel';
-import { bookmarkProviderListBg } from '../../../styles/custom';
 import useBookmarkProvider from '../../../hooks/useBookmarkProvider';
+import { bookmarkProviderListBg } from '../../../styles/custom';
+import { CardLink, ListCard } from './ListCard';
+import { RaisedLabel, RaisedLabelType } from './RaisedLabel';
+import { TypeLabel } from './TypeLabel';
 
 interface FeedItemContainerProps {
   flagProps?: FlagProps;

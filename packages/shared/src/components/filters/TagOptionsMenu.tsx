@@ -1,10 +1,11 @@
-import React, { ReactElement, useMemo } from 'react';
 import dynamic from 'next/dynamic';
+import React, { ReactElement, useMemo } from 'react';
+
 import { Tag } from '../../graphql/feedSettings';
+import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
+import useContextMenu from '../../hooks/useContextMenu';
 import { getTagPageLink } from '../../lib/links';
 import { MenuItemProps } from '../fields/ContextMenu';
-import useContextMenu from '../../hooks/useContextMenu';
-import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ '../fields/ContextMenu'),

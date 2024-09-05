@@ -8,10 +8,11 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useScrollManagement } from './useScrollManagement';
+
+import { useEventListener } from '../../hooks';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
-import { useEventListener } from '../../hooks';
+import { useScrollManagement } from './useScrollManagement';
 
 interface HorizontalScrollHeaderReturn {
   Header: FunctionComponent<{ titleId?: string }>;

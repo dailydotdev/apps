@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+
 import { ReferralCampaignKey } from '../hooks';
 import { gqlClient } from './common';
 

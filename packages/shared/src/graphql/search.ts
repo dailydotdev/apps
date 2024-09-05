@@ -1,10 +1,11 @@
 import { gql } from 'graphql-request';
-import { apiUrl } from '../lib/config';
-import { isNullOrUndefined } from '../lib/func';
-import { Connection, RequestQueryParams, gqlClient } from './common';
-import { webappUrl } from '../lib/constants';
-import { Post } from './posts';
+
 import { labels } from '../lib';
+import { apiUrl } from '../lib/config';
+import { webappUrl } from '../lib/constants';
+import { isNullOrUndefined } from '../lib/func';
+import { Connection, gqlClient, RequestQueryParams } from './common';
+import { Post } from './posts';
 
 export enum SearchProviderEnum {
   Posts = 'posts',

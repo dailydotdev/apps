@@ -1,18 +1,18 @@
-import React, { ReactElement, ReactNode, useMemo, useState } from 'react';
-import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import Feed, { FeedProps } from '@dailydotdev/shared/src/components/Feed';
+import { FeedPageHeader } from '@dailydotdev/shared/src/components/utilities';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import {
+  FEED_BY_IDS_QUERY,
+  supportedTypesForPrivateSources,
+} from '@dailydotdev/shared/src/graphql/feed';
+import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import {
   generateQueryKey,
   OtherFeedPage,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
-import Feed, { FeedProps } from '@dailydotdev/shared/src/components/Feed';
-import {
-  FEED_BY_IDS_QUERY,
-  supportedTypesForPrivateSources,
-} from '@dailydotdev/shared/src/graphql/feed';
-import { FeedPageHeader } from '@dailydotdev/shared/src/components/utilities';
 import { useRouter } from 'next/router';
+import React, { ReactElement, ReactNode, useMemo, useState } from 'react';
 
 export type FeedByIdsLayoutProps = {
   children?: ReactNode;

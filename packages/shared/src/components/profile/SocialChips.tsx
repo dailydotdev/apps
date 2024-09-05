@@ -1,22 +1,23 @@
 import React, { ReactElement } from 'react';
-import {
-  GitHubIcon,
-  TwitterIcon,
-  LinkIcon,
-  LinkedInIcon,
-  YoutubeIcon,
-  StackOverflowIcon,
-  RedditIcon,
-  RoadmapIcon,
-  MastodonIcon,
-  ThreadsIcon,
-  CodePenIcon,
-} from '../icons';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { withHttps, withoutProtocol } from '../../lib/links';
+
 import { useLogContext } from '../../contexts/LogContext';
 import { combinedClicks } from '../../lib/click';
+import { withHttps, withoutProtocol } from '../../lib/links';
 import { LogEvent, TargetType } from '../../lib/log';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import {
+  CodePenIcon,
+  GitHubIcon,
+  LinkedInIcon,
+  LinkIcon,
+  MastodonIcon,
+  RedditIcon,
+  RoadmapIcon,
+  StackOverflowIcon,
+  ThreadsIcon,
+  TwitterIcon,
+  YoutubeIcon,
+} from '../icons';
 
 export interface SocialChipsProps {
   links: {

@@ -1,5 +1,5 @@
-import { useActiveFeedNameContext } from '../contexts';
 import { SharedFeedPage } from '../components/utilities';
+import { useActiveFeedNameContext } from '../contexts';
 import { UseBookmarkProviderProps, useJustBookmarked } from './bookmark';
 
 interface UseBookmarkProviderReturn {

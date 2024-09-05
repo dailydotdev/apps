@@ -1,3 +1,5 @@
+import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import React, {
   MutableRefObject,
   ReactElement,
@@ -6,15 +8,22 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import classNames from 'classnames';
-import { useRouter } from 'next/router';
+
 import AuthContext from '../../contexts/AuthContext';
-import { Tab, TabContainer } from '../tabs/TabContainer';
-import AuthDefault from './AuthDefault';
-import { AuthSignBack } from './AuthSignBack';
-import ForgotPasswordForm from './ForgotPasswordForm';
-import LoginForm from './LoginForm';
-import { RegistrationForm, RegistrationFormValues } from './RegistrationForm';
+import LogContext from '../../contexts/LogContext';
+import SettingsContext from '../../contexts/SettingsContext';
+import { useEventListener, useToastNotification } from '../../hooks';
+import {
+  SignBackProvider,
+  SIGNIN_METHOD_KEY,
+  useSignBack,
+} from '../../hooks/auth/useSignBack';
+import { CloseAuthModalFunc } from '../../hooks/useAuthForms';
+import useLogin from '../../hooks/useLogin';
+import usePersistentState from '../../hooks/usePersistentState';
+import useProfileForm from '../../hooks/useProfileForm';
+import useRegistration from '../../hooks/useRegistration';
+import { labels } from '../../lib';
 import {
   AuthEventNames,
   AuthTriggers,
@@ -22,41 +31,33 @@ import {
   getNodeValue,
   RegistrationError,
 } from '../../lib/auth';
-import useRegistration from '../../hooks/useRegistration';
-import EmailVerificationSent from './EmailVerificationSent';
-import AuthHeader from './AuthHeader';
+import { isTesting } from '../../lib/constants';
 import {
   AuthEvent,
   AuthFlow,
-  KRATOS_ERROR,
   getKratosFlow,
   getKratosProviders,
+  KRATOS_ERROR,
 } from '../../lib/kratos';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
-import { providers } from './common';
-import useLogin from '../../hooks/useLogin';
-import { SocialRegistrationForm } from './SocialRegistrationForm';
-import useProfileForm from '../../hooks/useProfileForm';
-import { CloseAuthModalFunc } from '../../hooks/useAuthForms';
-import EmailVerified from './EmailVerified';
-import LogContext from '../../contexts/LogContext';
-import SettingsContext from '../../contexts/SettingsContext';
-import { useToastNotification, useEventListener } from '../../hooks';
-import CodeVerificationForm from './CodeVerificationForm';
-import ChangePasswordForm from './ChangePasswordForm';
-import { isTesting } from '../../lib/constants';
-import {
-  SignBackProvider,
-  SIGNIN_METHOD_KEY,
-  useSignBack,
-} from '../../hooks/auth/useSignBack';
 import { AnonymousUser, LoggedUser } from '../../lib/user';
-import { labels } from '../../lib';
-import OnboardingRegistrationForm from './OnboardingRegistrationForm';
-import EmailCodeVerification from './EmailCodeVerification';
 import { ButtonProps } from '../buttons/Button';
+import { Tab, TabContainer } from '../tabs/TabContainer';
+import AuthDefault from './AuthDefault';
+import AuthHeader from './AuthHeader';
+import { AuthSignBack } from './AuthSignBack';
+import ChangePasswordForm from './ChangePasswordForm';
+import CodeVerificationForm from './CodeVerificationForm';
+import { providers } from './common';
+import EmailCodeVerification from './EmailCodeVerification';
+import EmailVerificationSent from './EmailVerificationSent';
+import EmailVerified from './EmailVerified';
+import ForgotPasswordForm from './ForgotPasswordForm';
+import LoginForm from './LoginForm';
+import OnboardingRegistrationForm from './OnboardingRegistrationForm';
 import { OnboardingRegistrationForm4d5 } from './OnboardingRegistrationForm4d5';
-import usePersistentState from '../../hooks/usePersistentState';
+import { RegistrationForm, RegistrationFormValues } from './RegistrationForm';
+import { SocialRegistrationForm } from './SocialRegistrationForm';
 
 export enum AuthDisplay {
   Default = 'default',

@@ -1,15 +1,16 @@
-import { useMemo } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import browser from 'webextension-polyfill';
+import { UPDATE_ALERTS } from '@dailydotdev/shared/src/graphql/alerts';
+import { ADD_FILTERS_TO_FEED_MUTATION } from '@dailydotdev/shared/src/graphql/feedSettings';
 import {
   ADD_BOOKMARKS_MUTATION,
   REMOVE_BOOKMARK_MUTATION,
 } from '@dailydotdev/shared/src/graphql/posts';
-import { ADD_FILTERS_TO_FEED_MUTATION } from '@dailydotdev/shared/src/graphql/feedSettings';
-import { UPDATE_ALERTS } from '@dailydotdev/shared/src/graphql/alerts';
 import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/settings';
-import { MutateFunc } from '@dailydotdev/shared/src/lib/query';
 import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
+import { MutateFunc } from '@dailydotdev/shared/src/lib/query';
+import { useMutation } from '@tanstack/react-query';
+import { useMemo } from 'react';
+import browser from 'webextension-polyfill';
+
 import { companionRequest } from './companionRequest';
 
 type UseCompanionActionsParams<T> = {

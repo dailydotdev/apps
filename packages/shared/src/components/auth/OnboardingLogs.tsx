@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
 import Script from 'next/script';
+import React, { ReactElement } from 'react';
+
 import { isProduction } from '../../lib/constants';
 import { UserExperienceLevel } from '../../lib/user';
 

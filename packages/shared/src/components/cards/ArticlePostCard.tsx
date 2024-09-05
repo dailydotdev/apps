@@ -1,25 +1,26 @@
-import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
+import React, { forwardRef, ReactElement, Ref } from 'react';
+
+import { isVideoPost } from '../../graphql/posts';
+import { usePostFeedback } from '../../hooks';
+import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
+import { Origin } from '../../lib/log';
+import { PostTagsPanel } from '../post/block/PostTagsPanel';
+import ActionButtons from './ActionsButtons/ActionButtons';
 import {
   CardSpace,
   CardTextContainer,
   CardTitle,
   getPostClassNames,
 } from './Card';
-import PostMetadata from './PostMetadata';
-import ActionButtons from './ActionsButtons/ActionButtons';
-import { PostCardHeader } from './PostCardHeader';
-import { PostCardFooter } from './PostCardFooter';
-import { Container, PostCardProps } from './common';
-import FeedItemContainer from './FeedItemContainer';
-import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
-import { PostTagsPanel } from '../post/block/PostTagsPanel';
-import { usePostFeedback } from '../../hooks';
 import styles from './Card.module.css';
-import { FeedbackCard } from './FeedbackCard';
-import { Origin } from '../../lib/log';
-import { isVideoPost } from '../../graphql/posts';
+import { Container, PostCardProps } from './common';
 import CardOverlay from './common/CardOverlay';
+import { FeedbackCard } from './FeedbackCard';
+import FeedItemContainer from './FeedItemContainer';
+import { PostCardFooter } from './PostCardFooter';
+import { PostCardHeader } from './PostCardHeader';
+import PostMetadata from './PostMetadata';
 import PostTags from './PostTags';
 
 export const ArticlePostCard = forwardRef(function PostCard(

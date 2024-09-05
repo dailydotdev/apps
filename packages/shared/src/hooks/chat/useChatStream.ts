@@ -1,6 +1,8 @@
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+
 import { useAuthContext } from '../../contexts/AuthContext';
+import LogContext from '../../contexts/LogContext';
 import {
   initializeSearchSession,
   Search,
@@ -11,6 +13,7 @@ import {
   sendSearchQuery,
   updateSearchData,
 } from '../../graphql/search';
+import { LogEvent } from '../../lib/log';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import {
   CreatePayload,
@@ -20,8 +23,6 @@ import {
   UseChatMessageType,
   UseChatStream,
 } from './types';
-import LogContext from '../../contexts/LogContext';
-import { LogEvent } from '../../lib/log';
 
 export const useChatStream = (): UseChatStream => {
   const { logEvent } = useContext(LogContext);

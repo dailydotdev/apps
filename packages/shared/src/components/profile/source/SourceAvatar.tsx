@@ -1,7 +1,8 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Image, ImageType } from '../../image/Image';
+import React, { ReactElement } from 'react';
+
 import { Source } from '../../../graphql/sources';
+import { Image, ImageType } from '../../image/Image';
 import { ProfileImageSize, sizeClasses } from '../../ProfilePicture';
 
 export type SourceAvatarProps = {

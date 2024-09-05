@@ -1,9 +1,10 @@
 import React, { ReactElement } from 'react';
+
 import { Comment } from '../../graphql/comments';
-import CommentBox, { CommentBoxProps } from './CommentBox';
-import { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
 import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
+import { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
+import CommentBox, { CommentBoxProps } from './CommentBox';
 import CommentInputOrModal from './CommentInputOrModal';
 
 export interface SubCommentProps

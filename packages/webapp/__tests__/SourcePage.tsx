@@ -1,37 +1,38 @@
-import { FeedData, PostType } from '@dailydotdev/shared/src/graphql/posts';
+import ad from '@dailydotdev/shared/__tests__/fixture/ad';
+import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
+import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
+import SettingsContext, {
+  SettingsContextData,
+} from '@dailydotdev/shared/src/contexts/SettingsContext';
 import {
   OnboardingMode,
   SOURCE_FEED_QUERY,
 } from '@dailydotdev/shared/src/graphql/feed';
-import nock from 'nock';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import { NextRouter } from 'next/router';
-import { Source, SourceType } from '@dailydotdev/shared/src/graphql/sources';
-import SettingsContext, {
-  SettingsContextData,
-} from '@dailydotdev/shared/src/contexts/SettingsContext';
 import {
   ADD_FILTERS_TO_FEED_MUTATION,
   AllTagCategoriesData,
   FeedSettings,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
+import { FeedData, PostType } from '@dailydotdev/shared/src/graphql/posts';
+import { Source, SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import { getFeedSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useFeedSettings';
-import ad from '@dailydotdev/shared/__tests__/fixture/ad';
-import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '@dailydotdev/shared/__tests__/helpers/graphql';
-import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
-import SourcePage from '../pages/sources/[source]';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { NextRouter } from 'next/router';
+import nock from 'nock';
+import React from 'react';
+
 import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
+import SourcePage from '../pages/sources/[source]';
 
 const showLogin = jest.fn();
 

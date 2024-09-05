@@ -1,9 +1,10 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
 import { CSSTransition } from 'react-transition-group';
-import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
-import LogoText from '../svg/LogoText';
+
 import LogoIcon from '../svg/LogoIcon';
+import LogoText from '../svg/LogoText';
+import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
 
 export enum LogoPosition {
   Absolute = 'absolute',

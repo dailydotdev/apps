@@ -1,18 +1,19 @@
-import React, { ReactElement, ReactNode, useContext } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement, ReactNode, useContext } from 'react';
+
 import classed from '../../../lib/classed';
-import { ModalTabs, ModalTabsProps } from './ModalTabs';
-import { ModalClose } from './ModalClose';
-import { ModalHeaderKind, ModalPropsContext } from './types';
 import {
   Button,
   ButtonProps,
   ButtonSize,
   ButtonVariant,
 } from '../../buttons/Button';
-import { ArrowIcon } from '../../icons';
-import { ModalStepsWrapper } from './ModalStepsWrapper';
 import { ProgressBar } from '../../fields/ProgressBar';
+import { ArrowIcon } from '../../icons';
+import { ModalClose } from './ModalClose';
+import { ModalStepsWrapper } from './ModalStepsWrapper';
+import { ModalTabs, ModalTabsProps } from './ModalTabs';
+import { ModalHeaderKind, ModalPropsContext } from './types';
 
 export type ModalHeaderProps = {
   kind?: ModalHeaderKind;

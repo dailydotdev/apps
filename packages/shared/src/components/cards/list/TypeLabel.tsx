@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
 import { PostType } from '../../../graphql/posts';
 
 type TypeLabelType = PostType | ReactElement | string;

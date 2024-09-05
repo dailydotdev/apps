@@ -1,3 +1,4 @@
+import { AlertBackground } from '@dailydotdev/shared/src/components/alert/common';
 import { getProviderMapClone } from '@dailydotdev/shared/src/components/auth/common';
 import {
   Button,
@@ -5,17 +6,19 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
 import { LockIcon, MailIcon } from '@dailydotdev/shared/src/components/icons';
 import AccountDangerZone from '@dailydotdev/shared/src/components/profile/AccountDangerZone';
-import { AlertBackground } from '@dailydotdev/shared/src/components/alert/common';
+import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import React, {
-  FormEvent,
-  MutableRefObject,
-  ReactElement,
-  useContext,
-  useState,
-} from 'react';
+import { BOOT_LOCAL_KEY } from '@dailydotdev/shared/src/contexts/common';
+import { useEventListener } from '@dailydotdev/shared/src/hooks';
+import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
+import {
+  PromptOptions,
+  usePrompt,
+} from '@dailydotdev/shared/src/hooks/usePrompt';
+import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import {
   AuthEvent,
   AuthFlow,
@@ -24,17 +27,15 @@ import {
   KRATOS_ERROR,
   KratosProviderData,
 } from '@dailydotdev/shared/src/lib/kratos';
-import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
-import { formToJson } from '@dailydotdev/shared/src/lib/form';
-import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import {
-  PromptOptions,
-  usePrompt,
-} from '@dailydotdev/shared/src/hooks/usePrompt';
-import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
-import { useEventListener } from '@dailydotdev/shared/src/hooks';
 import { capitalize } from '@dailydotdev/shared/src/lib/strings';
-import { BOOT_LOCAL_KEY } from '@dailydotdev/shared/src/contexts/common';
+import React, {
+  FormEvent,
+  MutableRefObject,
+  ReactElement,
+  useContext,
+  useState,
+} from 'react';
+
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
 import {

@@ -6,6 +6,12 @@ import React, {
   useEffect,
   useState,
 } from 'react';
+
+import AuthContext from '../../contexts/AuthContext';
+import LogContext from '../../contexts/LogContext';
+import { useGenerateUsername } from '../../hooks';
+import { SignBackProvider, useSignBack } from '../../hooks/auth/useSignBack';
+import { ProfileFormHint } from '../../hooks/useProfileForm';
 import {
   AuthEventNames,
   AuthTriggers,
@@ -14,24 +20,19 @@ import {
 } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant } from '../buttons/Button';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { Checkbox } from '../fields/Checkbox';
 import ImageInput from '../fields/ImageInput';
 import { TextField } from '../fields/TextField';
-import { MailIcon, UserIcon, LockIcon, AtIcon, TwitterIcon } from '../icons';
-import AuthHeader from './AuthHeader';
-import { AuthFormProps, providerMap } from './common';
-import AuthContext from '../../contexts/AuthContext';
-import { ProfileFormHint } from '../../hooks/useProfileForm';
-import { Checkbox } from '../fields/Checkbox';
-import LogContext from '../../contexts/LogContext';
-import AuthForm from './AuthForm';
-import { Modal } from '../modals/common/Modal';
 import { IconSize } from '../Icon';
-import { useGenerateUsername } from '../../hooks';
-import AuthContainer from './AuthContainer';
-import ConditionalWrapper from '../ConditionalWrapper';
-import { SignBackProvider, useSignBack } from '../../hooks/auth/useSignBack';
+import { AtIcon, LockIcon, MailIcon, TwitterIcon, UserIcon } from '../icons';
+import { Modal } from '../modals/common/Modal';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
 import { LanguageDropdown } from '../profile/LanguageDropdown';
+import AuthContainer from './AuthContainer';
+import AuthForm from './AuthForm';
+import AuthHeader from './AuthHeader';
+import { AuthFormProps, providerMap } from './common';
 
 export interface SocialRegistrationFormProps extends AuthFormProps {
   className?: string;

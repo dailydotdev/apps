@@ -1,5 +1,5 @@
-import { useEffect, useState, useMemo } from 'react';
 import createDOMPurify from 'dompurify';
+import { useEffect, useMemo, useState } from 'react';
 
 export const useDomPurify = (): DOMPurify.DOMPurifyI => {
   const [purify, setPurify] = useState<DOMPurify.DOMPurifyI>();

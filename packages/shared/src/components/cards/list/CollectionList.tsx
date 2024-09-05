@@ -1,15 +1,16 @@
-import React, { forwardRef, Ref } from 'react';
 import classNames from 'classnames';
-import { Container, generateTitleClamp, PostCardProps } from '../common';
-import FeedItemContainer from './FeedItemContainer';
-import { CardTitle, CardSpace, CardContainer, CardContent } from './ListCard';
-import ActionButtons from './ActionButtons';
-import { usePostImage } from '../../../hooks/post/usePostImage';
-import { PostCardHeader } from './PostCardHeader';
-import { CollectionPillSources } from '../../post/collection';
+import React, { forwardRef, Ref } from 'react';
+
 import { useTruncatedSummary } from '../../../hooks';
+import { usePostImage } from '../../../hooks/post/usePostImage';
+import { CollectionPillSources } from '../../post/collection';
+import { Container, generateTitleClamp, PostCardProps } from '../common';
 import PostTags from '../PostTags';
+import ActionButtons from './ActionButtons';
 import { CardCoverList } from './CardCover';
+import FeedItemContainer from './FeedItemContainer';
+import { CardContainer, CardContent, CardSpace, CardTitle } from './ListCard';
+import { PostCardHeader } from './PostCardHeader';
 
 export const CollectionList = forwardRef(function CollectionCard(
   {

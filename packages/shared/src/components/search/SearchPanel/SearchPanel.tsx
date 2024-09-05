@@ -1,3 +1,5 @@
+import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import React, {
   ReactElement,
   useContext,
@@ -6,32 +8,31 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import classNames from 'classnames';
-import { useRouter } from 'next/router';
-import { SearchPanelInput } from './SearchPanelInput';
+
+import { useLogContext } from '../../../contexts/LogContext';
+import SettingsContext from '../../../contexts/SettingsContext';
 import {
-  SearchProviderEnum,
   minSearchQueryLength,
+  SearchProviderEnum,
 } from '../../../graphql/search';
+import { useConditionalFeature, useEventListener } from '../../../hooks';
+import { useSearchProvider } from '../../../hooks/search';
+import { feature } from '../../../lib/featureManagement';
+import { ArrowKeyEnum, isExtension } from '../../../lib/func';
+import { LogEvent } from '../../../lib/log';
+import { ArrowIcon } from '../../icons';
+import { defaultSearchProvider, providerToLabelTextMap } from './common';
+import { SearchPanelAction } from './SearchPanelAction';
 import {
   SearchPanelContext,
   SearchPanelContextValue,
 } from './SearchPanelContext';
-import { SearchPanelAction } from './SearchPanelAction';
-import { SearchPanelPostSuggestions } from './SearchPanelPostSuggestions';
-import SettingsContext from '../../../contexts/SettingsContext';
-import { useConditionalFeature, useEventListener } from '../../../hooks';
-import { defaultSearchProvider, providerToLabelTextMap } from './common';
-import { ArrowKeyEnum, isExtension } from '../../../lib/func';
-import { ArrowIcon } from '../../icons';
-import { useSearchProvider } from '../../../hooks/search';
 import { SearchPanelCustomAction } from './SearchPanelCustomAction';
-import { LogEvent } from '../../../lib/log';
-import { useLogContext } from '../../../contexts/LogContext';
-import { SearchPanelTagSuggestions } from './SearchPanelTagSuggestions';
+import { SearchPanelInput } from './SearchPanelInput';
+import { SearchPanelPostSuggestions } from './SearchPanelPostSuggestions';
 import { SearchPanelSourceSuggestions } from './SearchPanelSourceSuggestions';
+import { SearchPanelTagSuggestions } from './SearchPanelTagSuggestions';
 import { SearchPanelUserSuggestions } from './SearchPanelUserSuggestions';
-import { feature } from '../../../lib/featureManagement';
 
 export type SearchPanelProps = {
   className?: SearchPanelClassName;

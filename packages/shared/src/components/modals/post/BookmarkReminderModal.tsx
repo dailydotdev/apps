@@ -1,16 +1,17 @@
-import React, { FormEventHandler, ReactElement, useState } from 'react';
 import { format } from 'date-fns';
-import { LazyModalCommonProps, Modal } from '../common/Modal';
-import { ModalHeader } from '../common/ModalHeader';
-import { ModalBody } from '../common/ModalBody';
-import { ModalSize } from '../common/types';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import React, { FormEventHandler, ReactElement, useState } from 'react';
+
+import { Post } from '../../../graphql/posts';
 import {
   getRemindAt,
   ReminderPreference,
   useBookmarkReminder,
 } from '../../../hooks/notifications';
-import { Post } from '../../../graphql/posts';
+import { Button, ButtonVariant } from '../../buttons/Button';
+import { LazyModalCommonProps, Modal } from '../common/Modal';
+import { ModalBody } from '../common/ModalBody';
+import { ModalHeader } from '../common/ModalHeader';
+import { ModalSize } from '../common/types';
 
 export interface BookmarkReminderProps extends LazyModalCommonProps {
   onReminderSet?: (reminder: string) => void;

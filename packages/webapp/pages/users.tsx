@@ -1,15 +1,3 @@
-import React, { ReactElement } from 'react';
-import { GetStaticPropsResult } from 'next';
-import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
-import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { LEADERBOARD_QUERY } from '@dailydotdev/shared/src/graphql/leaderboard';
-import { useRouter } from 'next/router';
-import { BreadCrumbs } from '@dailydotdev/shared/src/components/header';
-import { SquadIcon } from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
-import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import {
   UserLeaderboard,
   UserTopList,
@@ -18,6 +6,19 @@ import {
   CompanyLeaderboard,
   CompanyTopList,
 } from '@dailydotdev/shared/src/components/cards/Leaderboard/CompanyTopList';
+import { BreadCrumbs } from '@dailydotdev/shared/src/components/header';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { SquadIcon } from '@dailydotdev/shared/src/components/icons';
+import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
+import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { LEADERBOARD_QUERY } from '@dailydotdev/shared/src/graphql/leaderboard';
+import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
+import { GetStaticPropsResult } from 'next';
+import { useRouter } from 'next/router';
+import { NextSeo } from 'next-seo';
+import { NextSeoProps } from 'next-seo/lib/types';
+import React, { ReactElement } from 'react';
+
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';

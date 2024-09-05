@@ -1,7 +1,8 @@
 import React, { ReactElement } from 'react';
-import { Modal, ModalProps } from './common/Modal';
-import Settings from '../Settings';
+
 import { useLogModal } from '../../hooks/useLogModal';
+import Settings from '../Settings';
+import { Modal, ModalProps } from './common/Modal';
 
 export function UserSettingsModal({
   onRequestClose,

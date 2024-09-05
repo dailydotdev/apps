@@ -1,10 +1,11 @@
 import React, { ReactElement, ReactNode, useState } from 'react';
-import { Radio, RadioItemProps } from '../../fields/Radio';
-import { Button, ButtonVariant } from '../../buttons/Button';
-import { Modal, ModalProps } from '../common/Modal';
-import { Justify } from '../../utilities';
+
 import { useViewSize, ViewSize } from '../../../hooks';
 import { ReportReason } from '../../../report';
+import { Button, ButtonVariant } from '../../buttons/Button';
+import { Radio, RadioItemProps } from '../../fields/Radio';
+import { Justify } from '../../utilities';
+import { Modal, ModalProps } from '../common/Modal';
 
 interface Props extends ModalProps {
   onReport(e: React.MouseEvent, reason: ReportReason, text: string): void;

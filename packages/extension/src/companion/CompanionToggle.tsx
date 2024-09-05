@@ -1,16 +1,17 @@
-import React, { ReactElement } from 'react';
+import AlertPointer, {
+  AlertPlacement,
+} from '@dailydotdev/shared/src/components/alert/AlertPointer';
 import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
+import { BaseTooltipContainerProps } from '@dailydotdev/shared/src/components/tooltips/BaseTooltipContainer';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import classNames from 'classnames';
-import { BaseTooltipContainerProps } from '@dailydotdev/shared/src/components/tooltips/BaseTooltipContainer';
-import AlertPointer, {
-  AlertPlacement,
-} from '@dailydotdev/shared/src/components/alert/AlertPointer';
+import React, { ReactElement } from 'react';
+
 import { companionAlertMessage } from './common';
 
 interface CompanionToggleProps {

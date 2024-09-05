@@ -1,18 +1,19 @@
 import { useCallback, useContext } from 'react';
-import LogContext from '../../contexts/LogContext';
+
 import AuthContext from '../../contexts/AuthContext';
+import LogContext from '../../contexts/LogContext';
 import { Post, UserVote } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
-import { PostLogEventFnOptions, postLogEvent } from '../../lib/feed';
+import { postLogEvent, PostLogEventFnOptions } from '../../lib/feed';
+import { LogEvent } from '../../lib/log';
 import {
+  ToggleVoteProps,
   UserVoteEntity,
   UseVote,
   UseVoteProps,
-  ToggleVoteProps,
   VoteEntityPayload,
 } from './types';
 import { useVote } from './useVote';
-import { LogEvent } from '../../lib/log';
 
 const prepareVoteCommentLogsOptions = ({
   payload,

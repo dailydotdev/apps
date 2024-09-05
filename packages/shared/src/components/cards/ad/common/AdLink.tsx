@@ -1,7 +1,8 @@
 import React, { ReactElement } from 'react';
+
 import { Ad } from '../../../../graphql/posts';
-import { CardLink } from '../../Card';
 import { combinedClicks } from '../../../../lib/click';
+import { CardLink } from '../../Card';
 
 export type AdLinkProps = {
   ad: Ad;

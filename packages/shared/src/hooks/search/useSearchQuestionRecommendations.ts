@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { generateQueryKey, RequestKey } from '../../lib/query';
-import { getSearchSuggestions } from '../../graphql/search';
+import { useMemo } from 'react';
+
 import { SearchBarSuggestionListProps } from '../../components/search/SearchBarSuggestionList';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { getSearchSuggestions } from '../../graphql/search';
 import { disabledRefetch } from '../../lib/func';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 
 type UseSearchQuestionRecommendations = (data: {
   origin: SearchBarSuggestionListProps['origin'];

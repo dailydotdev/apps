@@ -1,19 +1,29 @@
-import {
-  GetStaticPathsResult,
-  GetStaticPropsContext,
-  GetStaticPropsResult,
-} from 'next';
-import { ParsedUrlQuery } from 'querystring';
-import React, { ReactElement, useContext, useMemo } from 'react';
-import { useRouter } from 'next/router';
-import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
+import { AuthenticationBanner } from '@dailydotdev/shared/src/components/auth';
+import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import Feed from '@dailydotdev/shared/src/components/Feed';
+import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import {
+  DiscussIcon,
+  UpvoteIcon,
+} from '@dailydotdev/shared/src/components/icons';
+import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
+import { RelatedSources } from '@dailydotdev/shared/src/components/RelatedSources';
+import { PageInfoHeader } from '@dailydotdev/shared/src/components/utilities';
+import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts/ActiveFeedNameContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import {
+  ApiError,
+  Connection,
+  gqlClient,
+} from '@dailydotdev/shared/src/graphql/common';
 import {
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
   SOURCE_FEED_QUERY,
 } from '@dailydotdev/shared/src/graphql/feed';
+import type { TagsData } from '@dailydotdev/shared/src/graphql/feedSettings';
+import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import {
   SIMILAR_SOURCES_QUERY,
   Source,
@@ -21,45 +31,35 @@ import {
   SOURCE_RELATED_TAGS_QUERY,
   SourceData,
 } from '@dailydotdev/shared/src/graphql/sources';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-
-import { PageInfoHeader } from '@dailydotdev/shared/src/components/utilities';
-import {
-  DiscussIcon,
-  UpvoteIcon,
-} from '@dailydotdev/shared/src/components/icons';
-import {
-  ApiError,
-  Connection,
-  gqlClient,
-} from '@dailydotdev/shared/src/graphql/common';
-import {
-  OtherFeedPage,
-  RequestKey,
-  StaleTime,
-} from '@dailydotdev/shared/src/lib/query';
-import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import {
   useFeedLayout,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
-import { useQuery } from '@tanstack/react-query';
-import type { TagsData } from '@dailydotdev/shared/src/graphql/feedSettings';
-import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
-import { RelatedSources } from '@dailydotdev/shared/src/components/RelatedSources';
-import { AuthenticationBanner } from '@dailydotdev/shared/src/components/auth';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
-import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts/ActiveFeedNameContext';
-import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
-import Custom404 from '../404';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
-import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
-import { getLayout } from '../../components/layouts/FeedLayout';
+import {
+  OtherFeedPage,
+  RequestKey,
+  StaleTime,
+} from '@dailydotdev/shared/src/lib/query';
+import { useQuery } from '@tanstack/react-query';
+import {
+  GetStaticPathsResult,
+  GetStaticPropsContext,
+  GetStaticPropsResult,
+} from 'next';
+import { useRouter } from 'next/router';
+import { NextSeo } from 'next-seo';
+import { NextSeoProps } from 'next-seo/lib/types';
+import { ParsedUrlQuery } from 'querystring';
+import React, { ReactElement, useContext, useMemo } from 'react';
+
 import { SourceActions } from '../../../shared/src/components/sources/SourceActions';
+import { getLayout } from '../../components/layouts/FeedLayout';
+import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
+import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import Custom404 from '../404';
 
 type SourcePageProps = { source?: Source };
 type SourceIdProps = { sourceId?: string };

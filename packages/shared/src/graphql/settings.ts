@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+
 import { ChecklistViewState } from '../lib/checklist';
 
 export type Spaciness = 'eco' | 'roomy' | 'cozy';

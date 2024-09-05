@@ -1,29 +1,30 @@
-import React, { ReactElement, useMemo } from 'react';
-import classNames from 'classnames';
 import {
   QueryFilters,
   useMutation,
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import useFeedSettings from '../../hooks/useFeedSettings';
-import { RequestKey, generateQueryKey } from '../../lib/query';
+import classNames from 'classnames';
+import React, { ReactElement, useMemo } from 'react';
+
+import { gqlClient } from '../../graphql/common';
 import {
   GET_ONBOARDING_TAGS_QUERY,
   GET_RECOMMENDED_TAGS_QUERY,
   TagsData,
 } from '../../graphql/feedSettings';
-import { disabledRefetch, getRandomNumber } from '../../lib/func';
-import { SearchField } from '../fields/SearchField';
-import useDebounceFn from '../../hooks/useDebounceFn';
 import { useTagSearch } from '../../hooks';
-import type { FilterOnboardingProps } from './FilterOnboarding';
+import useDebounceFn from '../../hooks/useDebounceFn';
+import useFeedSettings from '../../hooks/useFeedSettings';
 import useTagAndSource from '../../hooks/useTagAndSource';
+import { disabledRefetch, getRandomNumber } from '../../lib/func';
 import { Origin } from '../../lib/log';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 import { ElementPlaceholder } from '../ElementPlaceholder';
+import { SearchField } from '../fields/SearchField';
 import { OnSelectTagProps } from './common';
+import type { FilterOnboardingProps } from './FilterOnboarding';
 import { OnboardingTag } from './OnboardingTag';
-import { gqlClient } from '../../graphql/common';
 
 const tagsSelector = (data: TagsData) => data?.tags || [];
 

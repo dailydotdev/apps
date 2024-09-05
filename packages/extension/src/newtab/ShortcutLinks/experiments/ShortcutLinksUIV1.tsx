@@ -1,26 +1,25 @@
-import React, {
-  MouseEventHandler,
-  PropsWithChildren,
-  ReactElement,
-} from 'react';
-import {
-  ClearIcon,
-  MenuIcon,
-  PlusIcon,
-} from '@dailydotdev/shared/src/components/icons';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-
-import { useActions } from '@dailydotdev/shared/src/hooks';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import classNames from 'classnames';
-import { combinedClicks } from '@dailydotdev/shared/src/lib/click';
+import {
+  ClearIcon,
+  MenuIcon,
+  PlusIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import { useActions } from '@dailydotdev/shared/src/hooks';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
+import { combinedClicks } from '@dailydotdev/shared/src/lib/click';
+import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import classNames from 'classnames';
+import React, {
+  MouseEventHandler,
+  PropsWithChildren,
+  ReactElement,
+} from 'react';
 
 const pixelRatio = globalThis?.window.devicePixelRatio ?? 1;
 const iconSize = Math.round(24 * pixelRatio);

@@ -1,5 +1,6 @@
 import React, { ReactElement, ReactNode, useMemo } from 'react';
 import { createPortal } from 'react-dom';
+
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { getCompanionWrapper } from '../../lib/extension';
 

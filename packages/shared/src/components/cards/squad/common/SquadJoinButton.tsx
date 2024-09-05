@@ -1,10 +1,11 @@
-import React, { ReactElement } from 'react';
-import { useRouter } from 'next/router';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
+import React, { ReactElement } from 'react';
+
 import { SourceType, Squad } from '../../../../graphql/sources';
-import { SquadJoinButton } from '../../../squads/SquadJoinButton';
 import { Origin } from '../../../../lib/log';
 import { Button, ButtonVariant } from '../../../buttons/Button';
+import { SquadJoinButton } from '../../../squads/SquadJoinButton';
 import { SquadCardAction } from './types';
 
 interface SourceJoinButtonProps {

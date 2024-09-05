@@ -1,14 +1,15 @@
-import { useQuery } from '@tanstack/react-query';
 import { JSONValue, WidenPrimitives } from '@growthbook/growthbook';
+import { useQuery } from '@tanstack/react-query';
 import { useContext } from 'react';
-import { generateQueryKey, RequestKey } from '../lib/query';
-import { Feature } from '../lib/featureManagement';
-import { disabledRefetch } from '../lib/func';
-import AuthContext from '../contexts/AuthContext';
+
 import {
   useFeaturesReadyContext,
   useGrowthBookContext,
 } from '../components/GrowthBookProvider';
+import AuthContext from '../contexts/AuthContext';
+import { Feature } from '../lib/featureManagement';
+import { disabledRefetch } from '../lib/func';
+import { generateQueryKey, RequestKey } from '../lib/query';
 
 interface UseConditionalFeature<T> {
   value: WidenPrimitives<T>;

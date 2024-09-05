@@ -1,10 +1,11 @@
-import React, { ReactElement, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import {
-  SearchProviderEnum,
-  getSearchUrl,
-} from '@dailydotdev/shared/src/graphql/search';
 import { withFeaturesBoundary } from '@dailydotdev/shared/src/components';
+import {
+  getSearchUrl,
+  SearchProviderEnum,
+} from '@dailydotdev/shared/src/graphql/search';
+import { useRouter } from 'next/router';
+import React, { ReactElement, useEffect } from 'react';
+
 import SearchControlPage from '../../../components/search/SearchPostFinderPage';
 
 const SearchPostsPage = (): ReactElement => {

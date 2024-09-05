@@ -4,15 +4,16 @@ import React, {
   ReactNode,
   useEffect,
 } from 'react';
-import AuthHeader from './AuthHeader';
-import { AuthFormProps, providerMap } from './common';
-import AuthModalFooter from './AuthModalFooter';
-import AuthContainer from './AuthContainer';
+
 import { useSignBack } from '../../hooks/auth/useSignBack';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
-import { SignBackButton } from './SignBackButton';
-import LoginForm, { LoginFormProps } from './LoginForm';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import AuthContainer from './AuthContainer';
+import AuthHeader from './AuthHeader';
+import AuthModalFooter from './AuthModalFooter';
+import { AuthFormProps, providerMap } from './common';
+import LoginForm, { LoginFormProps } from './LoginForm';
+import { SignBackButton } from './SignBackButton';
 
 interface AuthSignBackProps extends AuthFormProps {
   children?: ReactNode;

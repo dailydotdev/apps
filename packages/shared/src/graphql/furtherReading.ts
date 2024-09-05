@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+
 import {
   SOURCE_SHORT_INFO_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,

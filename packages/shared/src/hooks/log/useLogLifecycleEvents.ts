@@ -1,4 +1,5 @@
 import { MutableRefObject, useEffect, useRef } from 'react';
+
 import listenToLifecycleEvents from '../../lib/lifecycle';
 import { LogContextData } from './useLogContextData';
 import { LogEvent } from './useLogQueue';

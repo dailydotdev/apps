@@ -1,10 +1,11 @@
+import { isSameDay } from 'date-fns';
+import { get as getCache, set as setCache } from 'idb-keyval';
 import React, { ReactElement, useEffect, useMemo, useState } from 'react';
 import { CSSTransition } from 'react-transition-group';
-import { get as getCache, set as setCache } from 'idb-keyval';
-import { isSameDay } from 'date-fns';
+
+import useDebounceFn from '../hooks/useDebounceFn';
 import { LoggedUser } from '../lib/user';
 import { laptopL } from '../styles/media';
-import useDebounceFn from '../hooks/useDebounceFn';
 
 type GreetingData = { text: string; emoji: string };
 

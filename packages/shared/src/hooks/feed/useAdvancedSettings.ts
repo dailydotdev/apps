@@ -1,12 +1,13 @@
 import { useCallback, useMemo } from 'react';
-import useFeedSettings, { UseFeedSettingsProps } from '../useFeedSettings';
+
 import { useAlertsContext } from '../../contexts/AlertContext';
-import { useLogContext } from '../../contexts/LogContext';
 import { useAuthContext } from '../../contexts/AuthContext';
-import useMutateFilters from '../useMutateFilters';
+import { useLogContext } from '../../contexts/LogContext';
 import { Source } from '../../graphql/sources';
-import useTagAndSource from '../useTagAndSource';
 import { Origin } from '../../lib/log';
+import useFeedSettings, { UseFeedSettingsProps } from '../useFeedSettings';
+import useMutateFilters from '../useMutateFilters';
+import useTagAndSource from '../useTagAndSource';
 
 interface UseAdvancedSettings {
   selectedSettings: Record<string, boolean>;

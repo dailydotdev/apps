@@ -1,3 +1,5 @@
+import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import React, {
   forwardRef,
   MutableRefObject,
@@ -7,24 +9,23 @@ import React, {
   useImperativeHandle,
   useState,
 } from 'react';
-import classNames from 'classnames';
-import { useRouter } from 'next/router';
+
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useLogContext } from '../../contexts/LogContext';
+import { PostType } from '../../graphql/posts';
+import { AuthTriggers } from '../../lib/auth';
+import { fallbackImages } from '../../lib/config';
+import { postLogEvent } from '../../lib/feed';
+import { LogEvent, Origin } from '../../lib/log';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import CommentInputOrModal from '../comments/CommentInputOrModal';
+import { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
+import { Image } from '../image/Image';
 import {
   getProfilePictureClasses,
   ProfileImageSize,
   ProfilePicture,
 } from '../ProfilePicture';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { Image } from '../image/Image';
-import { fallbackImages } from '../../lib/config';
-import { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useLogContext } from '../../contexts/LogContext';
-import { postLogEvent } from '../../lib/feed';
-import { LogEvent, Origin } from '../../lib/log';
-import { PostType } from '../../graphql/posts';
-import { AuthTriggers } from '../../lib/auth';
-import CommentInputOrModal from '../comments/CommentInputOrModal';
 
 interface NewCommentProps extends CommentMarkdownInputProps {
   size?: ProfileImageSize;

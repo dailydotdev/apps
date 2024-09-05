@@ -1,15 +1,16 @@
 import React, { ReactElement } from 'react';
+
+import { useAuthContext } from '../../../contexts/AuthContext';
+import { NotificationPreferenceStatus } from '../../../graphql/notifications';
+import { Post } from '../../../graphql/posts';
 import {
   checkHasStatusPreference,
   useNotificationPreference,
 } from '../../../hooks/notifications';
-import { NotificationType } from '../../notifications/utils';
-import { NotificationPreferenceStatus } from '../../../graphql/notifications';
-import { BellDisabledIcon, BellIcon } from '../../icons';
-import { Post } from '../../../graphql/posts';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { AuthTriggers } from '../../../lib/auth';
-import { useAuthContext } from '../../../contexts/AuthContext';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { BellDisabledIcon, BellIcon } from '../../icons';
+import { NotificationType } from '../../notifications/utils';
 
 export type CollectionSubscribeButtonProps = {
   post: Post;

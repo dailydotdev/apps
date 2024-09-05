@@ -1,7 +1,8 @@
-import { ReactNode } from 'react';
 import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
-import { getLayout as getMainLayout } from './MainLayout';
+import { ReactNode } from 'react';
+
 import { getLayout as getFooterNavBarLayout } from './FooterNavBarLayout';
+import { getLayout as getMainLayout } from './MainLayout';
 
 export const GetSearchLayout = (
   page: ReactNode,

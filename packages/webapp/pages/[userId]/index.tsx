@@ -1,29 +1,30 @@
-import React, { ReactElement, useContext } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { ReadingHeatmapWidget } from '@dailydotdev/shared/src/components/profile/ReadingHeatmapWidget';
+import { ReadingTagsWidget } from '@dailydotdev/shared/src/components/profile/ReadingTagsWidget';
+import { Readme } from '@dailydotdev/shared/src/components/profile/Readme';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import {
   ProfileReadingData,
   USER_READING_HISTORY_QUERY,
 } from '@dailydotdev/shared/src/graphql/users';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useJoinReferral } from '@dailydotdev/shared/src/hooks';
 import { useActivityTimeFilter } from '@dailydotdev/shared/src/hooks/profile/useActivityTimeFilter';
-import { ReadingTagsWidget } from '@dailydotdev/shared/src/components/profile/ReadingTagsWidget';
-import { ReadingHeatmapWidget } from '@dailydotdev/shared/src/components/profile/ReadingHeatmapWidget';
+import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
+import { useReadingStreak } from '@dailydotdev/shared/src/hooks/streaks';
 import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
-import { Readme } from '@dailydotdev/shared/src/components/profile/Readme';
-import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
-import { useJoinReferral } from '@dailydotdev/shared/src/hooks';
-import { useReadingStreak } from '@dailydotdev/shared/src/hooks/streaks';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { useQuery } from '@tanstack/react-query';
+import React, { ReactElement, useContext } from 'react';
+
+import { ReadingStreaksWidget } from '../../../shared/src/components/profile/ReadingStreaksWidget';
 import {
   getLayout as getProfileLayout,
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
   ProfileLayoutProps,
 } from '../../components/layouts/ProfileLayout';
-import { ReadingStreaksWidget } from '../../../shared/src/components/profile/ReadingStreaksWidget';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfilePage = ({

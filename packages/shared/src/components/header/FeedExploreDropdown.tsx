@@ -1,11 +1,12 @@
-import React, { ReactElement, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { Dropdown } from '../fields/Dropdown';
-import { ExploreTabs, tabToUrl, urlToTab } from './FeedExploreHeader';
-import { CalendarIcon } from '../icons';
-import { IconSize } from '../Icon';
-import { periodTexts } from '../layout/common';
+import React, { ReactElement, useEffect } from 'react';
+
 import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
+import { Dropdown } from '../fields/Dropdown';
+import { IconSize } from '../Icon';
+import { CalendarIcon } from '../icons';
+import { periodTexts } from '../layout/common';
+import { ExploreTabs, tabToUrl, urlToTab } from './FeedExploreHeader';
 
 const withDateRange = [ExploreTabs.MostUpvoted, ExploreTabs.BestDiscussions];
 

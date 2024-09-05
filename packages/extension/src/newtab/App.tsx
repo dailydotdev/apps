@@ -1,3 +1,39 @@
+import 'focus-visible';
+
+import ExtensionOnboarding from '@dailydotdev/shared/src/components/ExtensionOnboarding';
+import ExtensionPermissionsPrompt from '@dailydotdev/shared/src/components/ExtensionPermissionsPrompt';
+import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
+import { withFeaturesBoundary } from '@dailydotdev/shared/src/components/withFeaturesBoundary';
+import AuthContext, {
+  useAuthContext,
+} from '@dailydotdev/shared/src/contexts/AuthContext';
+import { BootDataProviderProps } from '@dailydotdev/shared/src/contexts/BootProvider';
+import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
+import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
+import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/OnboardingContext';
+import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
+import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
+import useDeviceId from '@dailydotdev/shared/src/hooks/log/useDeviceId';
+import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
+import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
+import { useError } from '@dailydotdev/shared/src/hooks/useError';
+import { useHostStatus } from '@dailydotdev/shared/src/hooks/useHostPermissionStatus';
+import { useInAppNotification } from '@dailydotdev/shared/src/hooks/useInAppNotification';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
+import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
+import { BootApp } from '@dailydotdev/shared/src/lib/boot';
+import { isTesting } from '@dailydotdev/shared/src/lib/constants';
+import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { RouterContext } from 'next/dist/shared/lib/router-context';
+import dynamic from 'next/dynamic';
 import React, {
   ReactElement,
   useCallback,
@@ -5,50 +41,16 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import dynamic from 'next/dynamic';
 import Modal from 'react-modal';
-import 'focus-visible';
-import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
-import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/OnboardingContext';
-import AuthContext, {
-  useAuthContext,
-} from '@dailydotdev/shared/src/contexts/AuthContext';
-import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import browser from 'webextension-polyfill';
-import { useInAppNotification } from '@dailydotdev/shared/src/hooks/useInAppNotification';
-import { BootDataProviderProps } from '@dailydotdev/shared/src/contexts/BootProvider';
-import { RouterContext } from 'next/dist/shared/lib/router-context';
-import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
-import useDeviceId from '@dailydotdev/shared/src/hooks/log/useDeviceId';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import { useError } from '@dailydotdev/shared/src/hooks/useError';
-import { BootApp } from '@dailydotdev/shared/src/lib/boot';
-import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
-import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
-import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
-import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { isTesting } from '@dailydotdev/shared/src/lib/constants';
-import ExtensionOnboarding from '@dailydotdev/shared/src/components/ExtensionOnboarding';
-import { withFeaturesBoundary } from '@dailydotdev/shared/src/components/withFeaturesBoundary';
-import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
-import { useHostStatus } from '@dailydotdev/shared/src/hooks/useHostPermissionStatus';
-import ExtensionPermissionsPrompt from '@dailydotdev/shared/src/components/ExtensionPermissionsPrompt';
-import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
-import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
-import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
-import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
-import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+
+import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
+import { useContentScriptStatus } from '../../../shared/src/hooks';
+import { version } from '../../package.json';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
-import { version } from '../../package.json';
-import MainFeedPage from './MainFeedPage';
-import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
-import { useContentScriptStatus } from '../../../shared/src/hooks';
+import MainFeedPage from './MainFeedPage';
 
 const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
 const DEFAULT_TAB_TITLE = 'New Tab';

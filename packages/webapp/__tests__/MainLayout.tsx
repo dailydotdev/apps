@@ -1,9 +1,10 @@
-import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/react';
-import { QueryClient } from '@tanstack/react-query';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import { QueryClient } from '@tanstack/react-query';
+import { render, RenderResult, screen } from '@testing-library/react';
+import React from 'react';
+
 import MainLayout from '../components/layouts/MainLayout';
 
 describe('MainLayout', () => {

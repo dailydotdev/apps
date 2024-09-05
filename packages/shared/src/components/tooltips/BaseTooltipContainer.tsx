@@ -1,5 +1,6 @@
-import React, { FunctionComponent, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
+import React, { FunctionComponent, ReactElement, ReactNode } from 'react';
+
 import styles from './BaseTooltip.module.css';
 
 export type TooltipPosition =

@@ -1,10 +1,19 @@
-import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
+import ad from '@dailydotdev/shared/__tests__/fixture/ad';
+import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
+import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import {
   BOOKMARKS_FEED_QUERY,
   supportedTypesForPrivateSources,
 } from '@dailydotdev/shared/src/graphql/feed';
-import nock from 'nock';
-import React, { act } from 'react';
+import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import { QueryClient } from '@tanstack/react-query';
 import {
   fireEvent,
   render,
@@ -12,19 +21,11 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { QueryClient } from '@tanstack/react-query';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { NextRouter, useRouter } from 'next/router';
+import nock from 'nock';
+import React, { act } from 'react';
 import { mocked } from 'ts-jest/utils';
-import ad from '@dailydotdev/shared/__tests__/fixture/ad';
-import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '@dailydotdev/shared/__tests__/helpers/graphql';
-import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
-import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
+
 import BookmarksPage from '../pages/bookmarks';
 
 const routerReplace = jest.fn();

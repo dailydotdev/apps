@@ -1,8 +1,9 @@
 import React, { ReactElement, useCallback, useContext } from 'react';
-import { ClickableText } from '../buttons/ClickableText';
-import { SearchChunkSource } from '../../graphql/search';
+
 import LogContext from '../../contexts/LogContext';
+import { SearchChunkSource } from '../../graphql/search';
 import { LogEvent, TargetType } from '../../lib/log';
+import { ClickableText } from '../buttons/ClickableText';
 
 interface SearchSourceItemProps {
   item: SearchChunkSource;

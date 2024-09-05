@@ -1,6 +1,3 @@
-import React, { act } from 'react';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import {
   loginVerificationMockData,
   mockApiVerificationFlow,
@@ -17,18 +14,22 @@ import {
   socialProviderRedirectMock,
   verifiedLoginData,
 } from '@dailydotdev/shared/__tests__/fixture/auth';
+import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
+import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
+import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { getNodeValue } from '@dailydotdev/shared/src/lib/auth';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   fireEvent,
   render,
   RenderResult,
   screen,
 } from '@testing-library/react';
-import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
-import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { getNodeValue } from '@dailydotdev/shared/src/lib/auth';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import nock from 'nock';
+import React, { act } from 'react';
+
 import SecurityProfilePage from '../pages/account/security';
 
 jest.mock('next/router', () => ({

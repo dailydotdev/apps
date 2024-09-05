@@ -1,13 +1,14 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
+import { useOnboardingChecklist } from '../../hooks';
+import { ChecklistViewState } from '../../lib/checklist';
 import {
   Button,
   ButtonProps,
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
-import { ChecklistViewState } from '../../lib/checklist';
-import { useOnboardingChecklist } from '../../hooks';
 
 export type OnboardingChecklistDismissButtonProps = ButtonProps<'button'>;
 

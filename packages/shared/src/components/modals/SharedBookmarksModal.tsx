@@ -1,25 +1,26 @@
-import React, { ReactElement } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import React, { ReactElement } from 'react';
+
 import {
-  CopyIcon,
-  TwitterIcon,
-  SlackIcon,
-  DiscordIcon,
-  GitHubIcon,
-} from '../icons';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { Switch } from '../fields/Switch';
-import {
-  BookmarksSharingData,
   BOOKMARK_SHARING_MUTATION,
   BOOKMARK_SHARING_QUERY,
+  BookmarksSharingData,
 } from '../../graphql/bookmarksSharing';
-import { TextField } from '../fields/TextField';
+import { gqlClient } from '../../graphql/common';
 import { useCopyLink } from '../../hooks/useCopy';
 import { sharingBookmarks } from '../../lib/constants';
-import { Modal, ModalProps } from './common/Modal';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { Switch } from '../fields/Switch';
+import { TextField } from '../fields/TextField';
 import { IconSize } from '../Icon';
-import { gqlClient } from '../../graphql/common';
+import {
+  CopyIcon,
+  DiscordIcon,
+  GitHubIcon,
+  SlackIcon,
+  TwitterIcon,
+} from '../icons';
+import { Modal, ModalProps } from './common/Modal';
 
 export default function SharedBookmarksModal({
   ...props

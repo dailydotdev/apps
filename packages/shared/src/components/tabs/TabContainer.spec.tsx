@@ -1,13 +1,14 @@
-import React from 'react';
 import {
   fireEvent,
   render,
   RenderResult,
   screen,
 } from '@testing-library/react';
-import nock from 'nock';
 import { NextRouter, useRouter } from 'next/router';
+import nock from 'nock';
+import React from 'react';
 import { mocked } from 'ts-jest/utils';
+
 import { Tab, TabContainer, TabContainerProps } from './TabContainer';
 
 beforeEach(() => {

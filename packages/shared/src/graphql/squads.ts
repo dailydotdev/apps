@@ -1,10 +1,16 @@
 import { gql } from 'graphql-request';
+
+import { PrivacyOption } from '../hooks/squads/useSquadPrivacyOptions';
+import { base64ToFile } from '../lib/base64';
+import { generateStorageKey, StorageTopic } from '../lib/storage';
+import { Connection, gqlClient } from './common';
+import { EmptyResponse } from './emptyResponse';
 import {
   SOURCE_BASE_FRAGMENT,
   SQUAD_BASE_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
-import { Connection, gqlClient } from './common';
+import { ExternalLinkPreview, Post } from './posts';
 import {
   PublicSquadRequest,
   Source,
@@ -14,11 +20,6 @@ import {
   SourceType,
   Squad,
 } from './sources';
-import { Post, ExternalLinkPreview } from './posts';
-import { base64ToFile } from '../lib/base64';
-import { EmptyResponse } from './emptyResponse';
-import { generateStorageKey, StorageTopic } from '../lib/storage';
-import { PrivacyOption } from '../hooks/squads/useSquadPrivacyOptions';
 
 export interface SquadForm
   extends Pick<

@@ -1,19 +1,20 @@
 import React, { ReactElement } from 'react';
-import { LinkIcon, ShareIcon } from './icons';
+
+import { useLogContext } from '../contexts/LogContext';
+import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
+import { UsePostContent } from '../hooks/usePostContent';
+import { useSharePost } from '../hooks/useSharePost';
+import { postLogEvent } from '../lib/feed';
+import { LogEvent, Origin } from '../lib/log';
 import {
   Button,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from './buttons/Button';
+import { LinkIcon, ShareIcon } from './icons';
 import { WidgetContainer } from './widgets/common';
-import { postLogEvent } from '../lib/feed';
-import { LogEvent, Origin } from '../lib/log';
-import { Post } from '../graphql/posts';
-import { useLogContext } from '../contexts/LogContext';
-import { useSharePost } from '../hooks/useSharePost';
-import { UsePostContent } from '../hooks/usePostContent';
 
 export interface ShareMobileProps {
   post: Post;

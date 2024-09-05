@@ -1,9 +1,9 @@
 import { ReferralCampaignKey } from './referral';
 import {
   AddLinkShareLogQueryParams,
-  ShareProvider,
   addLogQueryParams,
   getShareLink,
+  ShareProvider,
 } from './share';
 
 describe('getShareLink tests', () => {

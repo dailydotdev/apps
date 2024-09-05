@@ -1,3 +1,5 @@
+import type { Client } from 'graphql-ws';
+import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import React, {
   ReactElement,
   ReactNode,
@@ -6,10 +8,9 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import type { Client } from 'graphql-ws';
-import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
-import ProgressiveEnhancementContext from './ProgressiveEnhancementContext';
+
 import AuthContext from './AuthContext';
+import ProgressiveEnhancementContext from './ProgressiveEnhancementContext';
 
 export interface SubscriptionContextData {
   subscriptionClient: Client;

@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import React, {
   createContext,
   ReactElement,
@@ -7,11 +8,11 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useRouter } from 'next/router';
-import { AllFeedPages } from '../lib/query';
+
 import { usePrevious } from '../hooks/usePrevious';
-import { useAuthContext } from './AuthContext';
 import { getFeedName } from '../lib/feed';
+import { AllFeedPages } from '../lib/query';
+import { useAuthContext } from './AuthContext';
 
 export type ActiveFeedNameContextValue = {
   feedName?: AllFeedPages;

@@ -3,10 +3,11 @@ import {
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
-import { Post, sendViewPost } from '../../graphql/posts';
-import { generateQueryKey, RequestKey } from '../../lib/query';
+
 import { useAuthContext } from '../../contexts/AuthContext';
+import { Post, sendViewPost } from '../../graphql/posts';
 import { ReadingDay, UserStreak } from '../../graphql/users';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 
 export const useViewPost = (
   post: Post,

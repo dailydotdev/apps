@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, {
   ReactElement,
   useCallback,
@@ -5,7 +6,10 @@ import React, {
   useEffect,
   useRef,
 } from 'react';
-import classNames from 'classnames';
+
+import LogContext from '../../contexts/LogContext';
+import { SearchProviderEnum, SearchQuestion } from '../../graphql/search';
+import { LogEvent, Origin, TargetType } from '../../lib/log';
 import {
   AllowedTags,
   Button,
@@ -13,9 +17,6 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import { AiIcon } from '../icons';
-import { LogEvent, Origin, TargetType } from '../../lib/log';
-import { SearchProviderEnum, SearchQuestion } from '../../graphql/search';
-import LogContext from '../../contexts/LogContext';
 
 export type SuggestionOrigin =
   | Origin.HomePage

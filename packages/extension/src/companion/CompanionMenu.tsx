@@ -1,42 +1,44 @@
-import React, { ReactElement, useContext, useEffect } from 'react';
+import '@dailydotdev/shared/src/styles/globals.css';
+
+import { useContextMenu } from '@dailydotdev/react-contexify';
 import {
   Button,
   ButtonColor,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
-  UpvoteIcon,
+  BookmarkIcon,
   DiscussIcon as CommentIcon,
   MenuIcon,
   ShareIcon,
-  BookmarkIcon,
+  UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import Modal from 'react-modal';
-import { useContextMenu } from '@dailydotdev/react-contexify';
-import { isTesting } from '@dailydotdev/shared/src/lib/constants';
-import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
-import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
-import { postLogEvent } from '@dailydotdev/shared/src/lib/feed';
-import { useKeyboardNavigation } from '@dailydotdev/shared/src/hooks/useKeyboardNavigation';
-import { useSharePost } from '@dailydotdev/shared/src/hooks/useSharePost';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
-import { useVotePost } from '@dailydotdev/shared/src/hooks';
+import { ShareProps } from '@dailydotdev/shared/src/components/modals/post/common';
+import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
 import UpvotedPopupModal, {
   UpvotedPopupModalProps,
 } from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
+import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
+import { useVotePost } from '@dailydotdev/shared/src/hooks';
+import { useKeyboardNavigation } from '@dailydotdev/shared/src/hooks/useKeyboardNavigation';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
+import { useSharePost } from '@dailydotdev/shared/src/hooks/useSharePost';
+import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
+import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
-import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
-import { ShareProps } from '@dailydotdev/shared/src/components/modals/post/common';
+import { postLogEvent } from '@dailydotdev/shared/src/lib/feed';
+import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
+import React, { ReactElement, useContext, useEffect } from 'react';
+import Modal from 'react-modal';
+
 import CompanionContextMenu from './CompanionContextMenu';
-import '@dailydotdev/shared/src/styles/globals.css';
-import useCompanionActions from './useCompanionActions';
 import CompanionToggle from './CompanionToggle';
+import useCompanionActions from './useCompanionActions';
 
 if (!isTesting) {
   Modal.setAppElement('daily-companion-app');

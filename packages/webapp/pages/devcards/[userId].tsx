@@ -1,4 +1,3 @@
-import React, { ReactElement } from 'react';
 import {
   DevCard,
   DevCardType,
@@ -9,6 +8,7 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import { useRouter } from 'next/router';
+import React, { ReactElement } from 'react';
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
   return { paths: [], fallback: 'blocking' };

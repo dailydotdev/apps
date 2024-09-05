@@ -1,8 +1,8 @@
-import React, { ReactElement, useContext, useEffect, useRef } from 'react';
 import Custom404 from '@dailydotdev/shared/src/components/Custom404';
-import { NextSeo } from 'next-seo';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { NextSeo } from 'next-seo';
+import React, { ReactElement, useContext, useEffect, useRef } from 'react';
 
 export default function Custom404Seo(): ReactElement {
   const { logEvent } = useContext(LogContext);

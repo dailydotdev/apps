@@ -1,22 +1,23 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import classNames from 'classnames';
-import { checkKratosEmail } from '../../lib/kratos';
-import { AuthFormProps, getFormEmail, providerMap } from './common';
-import OrDivider from './OrDivider';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
+
 import LogContext from '../../contexts/LogContext';
+import { CloseAuthModalFunc } from '../../hooks/useAuthForms';
 import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
+import { checkKratosEmail } from '../../lib/kratos';
 import { Button, ButtonVariant } from '../buttons/Button';
-import AuthForm from './AuthForm';
 import { TextField } from '../fields/TextField';
-import { MailIcon } from '../icons';
 import { IconSize } from '../Icon';
-import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
-import { OnboardingHeadline } from './OnboardingHeadline';
-import AuthModalFooter from './AuthModalFooter';
+import { MailIcon } from '../icons';
 import Logo, { LogoPosition } from '../Logo';
 import { ModalClose } from '../modals/common/ModalClose';
-import { CloseAuthModalFunc } from '../../hooks/useAuthForms';
+import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
+import AuthForm from './AuthForm';
+import AuthModalFooter from './AuthModalFooter';
+import { AuthFormProps, getFormEmail, providerMap } from './common';
+import { OnboardingHeadline } from './OnboardingHeadline';
+import OrDivider from './OrDivider';
 
 const signupProviders = [providerMap.google, providerMap.github];
 

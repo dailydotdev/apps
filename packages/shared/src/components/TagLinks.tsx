@@ -1,13 +1,14 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
+import React, { ReactElement } from 'react';
+
+import { getTagPageLink } from '../lib/links';
 import {
   Button,
   ButtonProps,
   ButtonSize,
   ButtonVariant,
 } from './buttons/Button';
-import { getTagPageLink } from '../lib/links';
 
 interface TagLinkProps {
   tag: string;

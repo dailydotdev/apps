@@ -1,17 +1,18 @@
 import { UseMutateAsyncFunction, useMutation } from '@tanstack/react-query';
 import router from 'next/router';
 import { useContext } from 'react';
-import { createSquad, SquadForm } from '../../graphql/squads';
-import { LogEvent } from '../../lib/log';
-import { ActionType } from '../../graphql/actions';
+
 import LogContext from '../../contexts/LogContext';
-import { useToastNotification } from '../useToastNotification';
-import { useBoot } from '../useBoot';
-import { useActions } from '../useActions';
-import { Squad } from '../../graphql/sources';
+import { ActionType } from '../../graphql/actions';
 import { ApiErrorResult } from '../../graphql/common';
-import { parseOrDefault } from '../../lib/func';
+import { Squad } from '../../graphql/sources';
+import { createSquad, SquadForm } from '../../graphql/squads';
 import { getRandom4Digits } from '../../lib';
+import { parseOrDefault } from '../../lib/func';
+import { LogEvent } from '../../lib/log';
+import { useActions } from '../useActions';
+import { useBoot } from '../useBoot';
+import { useToastNotification } from '../useToastNotification';
 
 interface UseSquadCreateProps {
   onSuccess?: (squad: Squad) => void;

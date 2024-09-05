@@ -1,18 +1,19 @@
 import React, { ReactElement } from 'react';
+
+import { useIntegration } from '../../hooks/integrations/useIntegration';
 import { useSourceIntegrationsQuery } from '../../hooks/integrations/useSourceIntegrationsQuery';
-import { ProfileImageSize } from '../ProfilePicture';
-import { SourceAvatar } from '../profile/source';
-import {
-  Typography,
-  TypographyType,
-  TypographyColor,
-  TypographyTag,
-} from '../typography/Typography';
+import { useLazyModal } from '../../hooks/useLazyModal';
 import { Button, ButtonIconPosition, ButtonVariant } from '../buttons/Button';
 import { MiniCloseIcon } from '../icons';
-import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import { useIntegration } from '../../hooks/integrations/useIntegration';
+import { SourceAvatar } from '../profile/source';
+import { ProfileImageSize } from '../ProfilePicture';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+  TypographyType,
+} from '../typography/Typography';
 
 export type UserSourceIntegrationListProps = {
   integrationId: string;

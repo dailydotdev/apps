@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { useOnboarding } from '../../hooks/auth';
+import React, { ReactElement } from 'react';
+
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useViewSize, ViewSize } from '../../hooks';
+import { useOnboarding } from '../../hooks/auth';
 import LoginButton from '../LoginButton';
 import { authGradientBg } from './AuthenticationBanner';
 

@@ -1,28 +1,29 @@
-import React, { ReactElement, ReactNode, useContext, useState } from 'react';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
-import classNames from 'classnames';
 import { FormErrorMessage } from '@dailydotdev/shared/src/components/utilities';
-import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
-import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { labels } from '@dailydotdev/shared/src/lib';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   Automation,
   useAutomation,
 } from '@dailydotdev/shared/src/hooks/useAutomation';
-import { HttpError } from '@dailydotdev/shared/src/lib/errors';
-import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
-import { useMutation } from '@tanstack/react-query';
+import { labels } from '@dailydotdev/shared/src/lib';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { downloadUrl } from '@dailydotdev/shared/src/lib/blob';
+import { HttpError } from '@dailydotdev/shared/src/lib/errors';
+import { useMutation } from '@tanstack/react-query';
+import classNames from 'classnames';
+import { NextSeo } from 'next-seo';
+import { NextSeoProps } from 'next-seo/lib/types';
+import React, { ReactElement, ReactNode, useContext, useState } from 'react';
+
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
-import { defaultOpenGraph } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
+import { defaultOpenGraph } from '../next-seo';
 
 type RoastParams = {
   theme?: string;

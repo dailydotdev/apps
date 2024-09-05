@@ -1,6 +1,7 @@
 import React from 'react';
-import classed from '../../lib/classed';
+
 import { Tag } from '../../graphql/feedSettings';
+import classed from '../../lib/classed';
 
 export enum OnboardingStep {
   Intro = 'intro',

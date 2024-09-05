@@ -1,17 +1,18 @@
 import React, { ReactElement, useContext } from 'react';
-import { Button, ButtonVariant } from '../buttons/Button';
+
+import LogContext from '../../contexts/LogContext';
+import { labels } from '../../lib';
+import { link } from '../../lib/links';
+import { LogEvent, TargetType } from '../../lib/log';
 import {
   getFacebookShareLink,
   getTwitterShareLink,
   getWhatsappShareLink,
   ShareProvider,
 } from '../../lib/share';
-import { TwitterIcon, FacebookIcon, WhatsappIcon } from '../icons';
-import { link } from '../../lib/links';
-import { labels } from '../../lib';
+import { Button, ButtonVariant } from '../buttons/Button';
+import { FacebookIcon, TwitterIcon, WhatsappIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips';
-import { LogEvent, TargetType } from '../../lib/log';
-import LogContext from '../../contexts/LogContext';
 
 interface ReferralSocialShareButtonsProps {
   url: string;

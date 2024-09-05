@@ -1,46 +1,47 @@
-import React, { ReactElement, useEffect, useState } from 'react';
-import Feed, { FeedProps } from '@dailydotdev/shared/src/components/Feed';
-import {
-  ANONYMOUS_FEED_QUERY,
-  RankingAlgorithm,
-} from '@dailydotdev/shared/src/graphql/feed';
-import {
-  OtherFeedPage,
-  StaleTime,
-  generateQueryKey,
-} from '@dailydotdev/shared/src/lib/query';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import {
-  ViewSize,
-  useConditionalFeature,
-  useEventListener,
-  useScrollRestoration,
-  useViewSize,
-} from '@dailydotdev/shared/src/hooks';
-import { useRouter } from 'next/router';
-import {
-  isDevelopment,
-  onboardingUrl,
-  webappUrl,
-} from '@dailydotdev/shared/src/lib/constants';
-import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
+import { authGradientBg } from '@dailydotdev/shared/src/components/auth';
+import { OnboardingLogs } from '@dailydotdev/shared/src/components/auth/OnboardingLogs';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
-import classNames from 'classnames';
-import { NextSeo, NextSeoProps } from 'next-seo';
-import { authGradientBg } from '@dailydotdev/shared/src/components/auth';
-import { useQueryClient } from '@tanstack/react-query';
-import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
-import { OnboardingLogs } from '@dailydotdev/shared/src/components/auth/OnboardingLogs';
+import Feed, { FeedProps } from '@dailydotdev/shared/src/components/Feed';
 import { useFeaturesReadyContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import {
+  ANONYMOUS_FEED_QUERY,
+  RankingAlgorithm,
+} from '@dailydotdev/shared/src/graphql/feed';
+import {
+  useConditionalFeature,
+  useEventListener,
+  useScrollRestoration,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
+import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import {
+  isDevelopment,
+  onboardingUrl,
+  webappUrl,
+} from '@dailydotdev/shared/src/lib/constants';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
+import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import {
+  generateQueryKey,
+  OtherFeedPage,
+  StaleTime,
+} from '@dailydotdev/shared/src/lib/query';
+import { useQueryClient } from '@tanstack/react-query';
+import classNames from 'classnames';
+import { useRouter } from 'next/router';
+import { NextSeo, NextSeoProps } from 'next-seo';
+import React, { ReactElement, useEffect, useState } from 'react';
+
 import { getLayout } from '../../components/layouts/FeedLayout';
+import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
 
 const seo: NextSeoProps = {

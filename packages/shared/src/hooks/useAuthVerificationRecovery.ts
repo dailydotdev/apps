@@ -1,6 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { useContext } from 'react';
+
+import AuthContext from '../contexts/AuthContext';
+import { AuthTriggers } from '../lib/auth';
+import { disabledRefetch } from '../lib/func';
 import {
   AuthFlow,
   ErrorData,
@@ -8,11 +12,8 @@ import {
   InitializationData,
   KRATOS_ERROR,
 } from '../lib/kratos';
-import { useToastNotification } from './useToastNotification';
-import { disabledRefetch } from '../lib/func';
-import AuthContext from '../contexts/AuthContext';
-import { AuthTriggers } from '../lib/auth';
 import { stripLinkParameters } from '../lib/links';
+import { useToastNotification } from './useToastNotification';
 
 export function useAuthVerificationRecovery(): void {
   const router = useRouter();

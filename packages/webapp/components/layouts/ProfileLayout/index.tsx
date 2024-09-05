@@ -1,29 +1,30 @@
-import React, { ReactElement, ReactNode } from 'react';
+import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
+import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
+import { ProfileV2 } from '@dailydotdev/shared/src/graphql/users';
+import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import {
   getProfileSSR,
   getProfileV2ExtraSSR,
 } from '@dailydotdev/shared/src/lib/user';
-import dynamic from 'next/dynamic';
-import { useRouter } from 'next/router';
+import { ClientError } from 'graphql-request';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
-import { ParsedUrlQuery } from 'querystring';
-import { ClientError } from 'graphql-request';
-import { ProfileV2 } from '@dailydotdev/shared/src/graphql/users';
+import dynamic from 'next/dynamic';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
-import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
-import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
+import { ParsedUrlQuery } from 'querystring';
+import React, { ReactElement, ReactNode } from 'react';
+
+import { ProfileWidgets } from '../../../../shared/src/components/profile/ProfileWidgets';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
-import NavBar, { tabs } from './NavBar';
 import { getTemplatedTitle } from '../utils';
-import { ProfileWidgets } from '../../../../shared/src/components/profile/ProfileWidgets';
+import NavBar, { tabs } from './NavBar';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../../pages/404'),

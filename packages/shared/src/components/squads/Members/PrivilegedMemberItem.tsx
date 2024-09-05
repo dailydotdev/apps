@@ -1,9 +1,10 @@
 import React, { ReactElement } from 'react';
+
+import { SourceMember } from '../../../graphql/sources';
+import { ProfileLink } from '../../profile/ProfileLink';
+import { ProfileTooltip } from '../../profile/ProfileTooltip';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import SquadMemberBadge from '../SquadMemberBadge';
-import { SourceMember } from '../../../graphql/sources';
-import { ProfileTooltip } from '../../profile/ProfileTooltip';
-import { ProfileLink } from '../../profile/ProfileLink';
 
 interface PrivilegedMemberItemProps {
   member: SourceMember;

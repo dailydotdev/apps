@@ -1,9 +1,10 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
 import { link } from '../../lib/links';
 import { LogEvent, TargetId, TargetType } from '../../lib/log';
-import ReferralSocialShareButtons from './ReferralSocialShareButtons';
 import { InviteLinkInput } from '../referral/InviteLinkInput';
+import ReferralSocialShareButtons from './ReferralSocialShareButtons';
 
 const ReferralWidget = ({
   url,

@@ -1,7 +1,8 @@
-import React, { ReactElement } from 'react';
 import classnames from 'classnames';
-import { LoaderIcon } from '../../icons';
+import React, { ReactElement } from 'react';
+
 import { IconSize } from '../../Icon';
+import { LoaderIcon } from '../../icons';
 
 interface Props {
   className?: string;

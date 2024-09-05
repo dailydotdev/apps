@@ -1,23 +1,24 @@
 import classNames from 'classnames';
-import React, { ReactElement, useContext } from 'react';
 import { useRouter } from 'next/router';
-import { SearchIcon } from '../../icons';
-import { SearchPanelItem, SearchPanelItemProps } from './SearchPanelItem';
+import React, { ReactElement, useContext } from 'react';
+
+import LogContext from '../../../contexts/LogContext';
 import {
+  sanitizeSearchTitleMatch,
   SearchProviderEnum,
   SearchSuggestion,
-  sanitizeSearchTitleMatch,
 } from '../../../graphql/search';
 import {
   useSearchProvider,
   useSearchProviderSuggestions,
 } from '../../../hooks/search';
-import { SearchPanelContext } from './SearchPanelContext';
 import { useDomPurify } from '../../../hooks/useDomPurify';
-import { useSearchPanelAction } from './useSearchPanelAction';
 import { webappUrl } from '../../../lib/constants';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
-import LogContext from '../../../contexts/LogContext';
+import { SearchIcon } from '../../icons';
+import { SearchPanelContext } from './SearchPanelContext';
+import { SearchPanelItem, SearchPanelItemProps } from './SearchPanelItem';
+import { useSearchPanelAction } from './useSearchPanelAction';
 
 export type SearchPanelPostSuggestionsProps = {
   className?: string;

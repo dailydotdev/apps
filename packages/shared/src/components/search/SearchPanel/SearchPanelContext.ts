@@ -1,4 +1,5 @@
 import { createContext, ReactElement } from 'react';
+
 import { SearchProviderEnum } from '../../../graphql/search';
 
 export type SearchPanelContextValue = {

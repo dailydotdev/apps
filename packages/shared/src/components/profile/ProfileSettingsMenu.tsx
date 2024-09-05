@@ -1,34 +1,35 @@
 import React, { ReactElement, useCallback, useMemo } from 'react';
-import {
-  AddUserIcon,
-  BellIcon,
-  CardIcon,
-  EditIcon,
-  LockIcon,
-  DevCardIcon,
-  ExitIcon,
-  EmbedIcon,
-  DocsIcon,
-  TerminalIcon,
-  FeedbackIcon,
-  HammerIcon,
-  AppIcon,
-} from '../icons';
-import { NavDrawer } from '../drawers/NavDrawer';
+
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { usePrompt } from '../../hooks/usePrompt';
 import {
   docs,
   feedback,
   privacyPolicy,
   termsOfService,
 } from '../../lib/constants';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { LazyModal } from '../modals/common/types';
 import { anchorDefaultRel } from '../../lib/strings';
-import type { NavItemProps } from '../drawers/NavDrawerItem';
 import { LogoutReason } from '../../lib/user';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { usePrompt } from '../../hooks/usePrompt';
 import { ButtonColor } from '../buttons/Button';
+import { NavDrawer } from '../drawers/NavDrawer';
+import type { NavItemProps } from '../drawers/NavDrawerItem';
+import {
+  AddUserIcon,
+  AppIcon,
+  BellIcon,
+  CardIcon,
+  DevCardIcon,
+  DocsIcon,
+  EditIcon,
+  EmbedIcon,
+  ExitIcon,
+  FeedbackIcon,
+  HammerIcon,
+  LockIcon,
+  TerminalIcon,
+} from '../icons';
+import { LazyModal } from '../modals/common/types';
 
 const useMenuItems = (): NavItemProps[] => {
   const { logout } = useAuthContext();

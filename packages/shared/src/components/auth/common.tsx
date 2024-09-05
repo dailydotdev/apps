@@ -1,8 +1,9 @@
-import React from 'react';
 import cloneDeep from 'lodash.clonedeep';
-import { FacebookIcon, GoogleIcon, GitHubIcon, AppleIcon } from '../icons';
+import React from 'react';
+
 import classed from '../../lib/classed';
 import { IconType } from '../buttons/Button';
+import { AppleIcon, FacebookIcon, GitHubIcon, GoogleIcon } from '../icons';
 
 export interface Provider {
   icon: IconType;

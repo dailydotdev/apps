@@ -1,4 +1,54 @@
+import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
+import Feed from '@dailydotdev/shared/src/components/Feed';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import { SquadStatus } from '@dailydotdev/shared/src/components/squads/settings';
+import SquadFeedHeading from '@dailydotdev/shared/src/components/squads/SquadFeedHeading';
+import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
+import {
+  BaseFeedPage,
+  FeedPageLayoutList,
+} from '@dailydotdev/shared/src/components/utilities';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import {
+  SOURCE_FEED_QUERY,
+  supportedTypesForPrivateSources,
+} from '@dailydotdev/shared/src/graphql/feed';
+import {
+  SourceMember,
+  SourceMemberRole,
+  Squad,
+} from '@dailydotdev/shared/src/graphql/sources';
+import {
+  getSquadMembers,
+  SQUAD_STATIC_FIELDS_QUERY,
+} from '@dailydotdev/shared/src/graphql/squads';
+import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
+import {
+  useActions,
+  useFeedLayout,
+  useJoinReferral,
+  usePublicSquadRequests,
+  useSquad,
+} from '@dailydotdev/shared/src/hooks';
+import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
+import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
+import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import { useQuery } from '@tanstack/react-query';
+import classNames from 'classnames';
+import { ClientError } from 'graphql-request';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
+import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
+import { NextSeo } from 'next-seo';
 import { ParsedUrlQuery } from 'querystring';
 import React, {
   ReactElement,
@@ -7,58 +57,9 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { NextSeo } from 'next-seo';
-import Feed from '@dailydotdev/shared/src/components/Feed';
-import {
-  SOURCE_FEED_QUERY,
-  supportedTypesForPrivateSources,
-} from '@dailydotdev/shared/src/graphql/feed';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
-import SquadFeedHeading from '@dailydotdev/shared/src/components/squads/SquadFeedHeading';
-import {
-  BaseFeedPage,
-  FeedPageLayoutList,
-} from '@dailydotdev/shared/src/components/utilities';
-import {
-  getSquadMembers,
-  SQUAD_STATIC_FIELDS_QUERY,
-} from '@dailydotdev/shared/src/graphql/squads';
-import {
-  SourceMember,
-  SourceMemberRole,
-  Squad,
-} from '@dailydotdev/shared/src/graphql/sources';
-import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
-import { useQuery } from '@tanstack/react-query';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
-import dynamic from 'next/dynamic';
-import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
-import classNames from 'classnames';
-import {
-  useActions,
-  useFeedLayout,
-  useJoinReferral,
-  usePublicSquadRequests,
-  useSquad,
-} from '@dailydotdev/shared/src/hooks';
-import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
-import { ClientError } from 'graphql-request';
-import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
-import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
-import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
-import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { SquadStatus } from '@dailydotdev/shared/src/components/squads/settings';
-import { useRouter } from 'next/router';
-import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
-import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
+
 import { getLayout } from '../../../components/layouts/FeedLayout';
+import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import ProtectedPage, {
   ProtectedPageProps,
 } from '../../../components/ProtectedPage';

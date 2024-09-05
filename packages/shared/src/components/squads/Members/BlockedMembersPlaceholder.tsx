@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
-import { BlockIcon } from '../../icons';
+
 import { IconSize } from '../../Icon';
+import { BlockIcon } from '../../icons';
 
 export function BlockedMembersPlaceholder(): ReactElement {
   return (

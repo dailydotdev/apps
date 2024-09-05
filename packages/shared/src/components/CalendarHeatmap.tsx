@@ -1,5 +1,6 @@
-import React, { CSSProperties, ReactElement, ReactNode, useMemo } from 'react';
 import { addDays, differenceInDays, endOfWeek } from 'date-fns';
+import React, { CSSProperties, ReactElement, ReactNode, useMemo } from 'react';
+
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
 
 const BINS = 3;

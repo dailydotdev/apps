@@ -1,5 +1,8 @@
 import React, { ReactElement, ReactNode } from 'react';
-import { UserItemPlaceholder } from '../widgets/UserItemPlaceholder';
+
+import classed from '../../lib/classed';
+import PlaceholderCommentList from '../comments/PlaceholderCommentList';
+import { ElementPlaceholder } from '../ElementPlaceholder';
 import { PageWidgets } from '../utilities';
 import {
   PlaceholderSeparator,
@@ -7,9 +10,7 @@ import {
   WidgetContainer,
 } from '../widgets/common';
 import { ListItemPlaceholder } from '../widgets/ListItemPlaceholder';
-import PlaceholderCommentList from '../comments/PlaceholderCommentList';
-import { ElementPlaceholder } from '../ElementPlaceholder';
-import classed from '../../lib/classed';
+import { UserItemPlaceholder } from '../widgets/UserItemPlaceholder';
 
 const Container = classed('div', 'flex flex-col flex-1 p-8');
 

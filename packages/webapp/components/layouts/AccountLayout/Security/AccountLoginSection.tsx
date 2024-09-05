@@ -3,12 +3,13 @@ import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement, ReactNode } from 'react';
+
 import AccountContentSection from '../AccountContentSection';
 import {
-  ManageSocialProviderTypes,
   ManageSocialProvidersProps,
+  ManageSocialProviderTypes,
 } from '../common';
 
 interface ClassName {

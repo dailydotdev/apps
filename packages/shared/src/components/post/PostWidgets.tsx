@@ -1,13 +1,14 @@
 import React, { ReactElement, useContext } from 'react';
-import { PageWidgets } from '../utilities';
-import { ShareMobile, ShareMobileProps } from '../ShareMobile';
+
 import AuthContext from '../../contexts/AuthContext';
+import { FooterLinks } from '../footer';
 import ShareBar from '../ShareBar';
+import { ShareMobile, ShareMobileProps } from '../ShareMobile';
+import { PageWidgets } from '../utilities';
 import FurtherReading from '../widgets/FurtherReading';
 import { PostUsersHighlights } from '../widgets/PostUsersHighlights';
-import { PostHeaderActions } from './PostHeaderActions';
 import { PostHeaderActionsProps } from './common';
-import { FooterLinks } from '../footer';
+import { PostHeaderActions } from './PostHeaderActions';
 
 export type PostWidgetsProps = Omit<PostHeaderActionsProps, 'contextMenuId'> &
   Omit<ShareMobileProps, 'link'>;

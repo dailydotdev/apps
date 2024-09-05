@@ -1,11 +1,12 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonVariant } from '../buttons/Button';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { ArrowIcon } from '../icons';
-import { PostHeaderActions } from './PostHeaderActions';
+import React, { ReactElement } from 'react';
+
 import { PostPosition } from '../../hooks/usePostModalNavigation';
+import { Button, ButtonVariant } from '../buttons/Button';
+import { ArrowIcon } from '../icons';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { PostNavigationProps } from './common';
+import { PostHeaderActions } from './PostHeaderActions';
 
 function PostNavigation({
   postPosition,

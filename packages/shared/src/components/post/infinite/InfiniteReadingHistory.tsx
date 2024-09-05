@@ -1,9 +1,10 @@
-import React, { ReactElement, MouseEvent } from 'react';
+import React, { MouseEvent, ReactElement } from 'react';
+
 import { PostItem } from '../../../graphql/posts';
 import InfiniteScrolling from '../../containers/InfiniteScrolling';
-import PostItemCard from '../PostItemCard';
-import { ArrowIcon } from '../../icons';
 import { IconSize } from '../../Icon';
+import { ArrowIcon } from '../../icons';
+import PostItemCard from '../PostItemCard';
 
 interface SelectHistoryItemProps {
   onArticleClick: (e: MouseEvent<HTMLButtonElement>, post: PostItem) => void;

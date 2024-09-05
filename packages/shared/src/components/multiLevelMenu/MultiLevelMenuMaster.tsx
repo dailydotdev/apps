@@ -1,7 +1,8 @@
 import React, { ReactElement } from 'react';
-import { ArrowIcon } from '../icons';
+
 import classed from '../../lib/classed';
 import { MenuItem } from '../filters/common';
+import { ArrowIcon } from '../icons';
 
 export const menuItemClassNames = 'flex items-center py-3 px-4 w-full';
 

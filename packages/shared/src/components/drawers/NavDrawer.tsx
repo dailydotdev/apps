@@ -1,4 +1,8 @@
 import React, { ReactElement } from 'react';
+
+import classed from '../../lib/classed';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ArrowIcon } from '../icons';
 import {
   Drawer,
   DrawerPosition,
@@ -6,9 +10,6 @@ import {
   DrawerWrapperProps,
 } from './Drawer';
 import { NavDrawerItem, NavItemProps } from './NavDrawerItem';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { ArrowIcon } from '../icons';
-import classed from '../../lib/classed';
 
 interface NavDrawerProps {
   drawerProps: Omit<DrawerWrapperProps, 'children'>;

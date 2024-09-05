@@ -1,4 +1,10 @@
 import React, { ReactElement, useMemo } from 'react';
+
+import { ActionType } from '../../graphql/actions';
+import { useActions } from '../../hooks';
+import { webappUrl } from '../../lib/constants';
+import { checkIsExtension } from '../../lib/func';
+import { OtherFeedPage } from '../../lib/query';
 import {
   DiscussIcon,
   EarthIcon,
@@ -6,14 +12,9 @@ import {
   HotIcon,
   SquadIcon,
 } from '../icons';
+import { SharedFeedPage } from '../utilities';
 import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
-import { useActions } from '../../hooks';
-import { ActionType } from '../../graphql/actions';
-import { checkIsExtension } from '../../lib/func';
-import { webappUrl } from '../../lib/constants';
-import { SharedFeedPage } from '../utilities';
-import { OtherFeedPage } from '../../lib/query';
 
 interface DiscoverSectionProps extends SectionCommonProps {
   isItemsButton?: boolean;

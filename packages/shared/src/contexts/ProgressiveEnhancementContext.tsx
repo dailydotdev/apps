@@ -1,3 +1,4 @@
+import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import React, {
   ReactElement,
   ReactNode,
@@ -5,7 +6,6 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 
 export interface ProgressiveEnhancementContextData {
   windowLoaded: boolean;

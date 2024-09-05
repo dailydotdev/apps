@@ -1,27 +1,28 @@
-import React, { PropsWithChildren, ReactElement, useContext } from 'react';
-import { useRouter } from 'next/router';
 import classNames from 'classnames';
-import { PageWidgets } from '../../utilities';
+import { useRouter } from 'next/router';
+import React, { PropsWithChildren, ReactElement, useContext } from 'react';
+
+import { useLogContext } from '../../../contexts/LogContext';
+import SettingsContext from '../../../contexts/SettingsContext';
+import { SearchProviderEnum, SearchSuggestion } from '../../../graphql/search';
+import { useFeedLayout } from '../../../hooks';
+import { useSearchProviderSuggestions } from '../../../hooks/search';
+import { useSearchResultsLayout } from '../../../hooks/search/useSearchResultsLayout';
+import { webappUrl } from '../../../lib/constants';
+import { feature } from '../../../lib/featureManagement';
+import { LogEvent, Origin, TargetType } from '../../../lib/log';
+import { gapClass } from '../../feeds/FeedContainer';
+import { useFeature } from '../../GrowthBookProvider';
 import { StraightArrowIcon } from '../../icons';
+import { PageWidgets } from '../../utilities';
 import {
   providerToIconMap,
   providerToLabelTextMap,
   SearchProviderButton,
 } from '../SearchPanel';
-import { SearchProviderEnum, SearchSuggestion } from '../../../graphql/search';
-import { useSearchResultsLayout } from '../../../hooks/search/useSearchResultsLayout';
-import { LogEvent, Origin, TargetType } from '../../../lib/log';
-import { useLogContext } from '../../../contexts/LogContext';
-import { webappUrl } from '../../../lib/constants';
-import { SearchResultsTags } from './SearchResultsTags';
 import { SearchResultsSources } from './SearchResultsSources';
-import { useSearchProviderSuggestions } from '../../../hooks/search';
-import SettingsContext from '../../../contexts/SettingsContext';
-import { gapClass } from '../../feeds/FeedContainer';
-import { useFeedLayout } from '../../../hooks';
+import { SearchResultsTags } from './SearchResultsTags';
 import { SearchResultsUsers } from './SearchResultsUsers';
-import { useFeature } from '../../GrowthBookProvider';
-import { feature } from '../../../lib/featureManagement';
 
 type SearchResultsLayoutProps = PropsWithChildren;
 

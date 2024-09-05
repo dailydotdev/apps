@@ -1,13 +1,14 @@
 import { FeatureDefinition } from '@growthbook/growthbook';
-import { AnonymousUser, ContentLanguage, LoggedUser } from './user';
-import { apiUrl } from './config';
-import { Alerts } from '../graphql/alerts';
-import { RemoteSettings } from '../graphql/settings';
-import { Post } from '../graphql/posts';
-import { Squad } from '../graphql/sources';
+
 import { decrypt } from '../components/crypto';
 import { MarketingCta } from '../components/marketingCta/common';
+import { Alerts } from '../graphql/alerts';
 import { Feed } from '../graphql/feed';
+import { Post } from '../graphql/posts';
+import { RemoteSettings } from '../graphql/settings';
+import { Squad } from '../graphql/sources';
+import { apiUrl } from './config';
+import { AnonymousUser, ContentLanguage, LoggedUser } from './user';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;

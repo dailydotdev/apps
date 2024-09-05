@@ -1,6 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
 import { useCallback } from 'react';
-import { PromptOptions, usePrompt } from './usePrompt';
+
+import { ButtonColor, ButtonVariant } from '../components/buttons/Button';
+import { useAuthContext } from '../contexts/AuthContext';
 import {
   deletePost,
   Post,
@@ -9,12 +11,11 @@ import {
   UserVote,
 } from '../graphql/posts';
 import { SourcePermissions, SourceType } from '../graphql/sources';
-import { Roles } from '../lib/user';
-import { useAuthContext } from '../contexts/AuthContext';
-import { useVotePost } from './vote/useVotePost';
 import { Origin } from '../lib/log';
+import { Roles } from '../lib/user';
 import { useBlockPostPanel } from './post/useBlockPostPanel';
-import { ButtonColor, ButtonVariant } from '../components/buttons/Button';
+import { PromptOptions, usePrompt } from './usePrompt';
+import { useVotePost } from './vote/useVotePost';
 
 interface UsePostMenuActions {
   onConfirmDeletePost: () => Promise<void>;

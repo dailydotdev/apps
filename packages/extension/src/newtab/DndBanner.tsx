@@ -1,4 +1,3 @@
-import React, { ReactElement } from 'react';
 import {
   Button,
   ButtonSize,
@@ -6,6 +5,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { MiniCloseIcon as XIcon } from '@dailydotdev/shared/src/components/icons';
 import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
+import React, { ReactElement } from 'react';
 
 export default function DndBanner(): ReactElement {
   const { onDndSettings } = useDndContext();

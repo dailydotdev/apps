@@ -1,4 +1,3 @@
-import { useContext, useEffect, useMemo } from 'react';
 import {
   InfiniteData,
   useInfiniteQuery,
@@ -6,6 +5,12 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { ClientError } from 'graphql-request';
+import { useContext, useEffect, useMemo } from 'react';
+
+import { FeedItemType } from '../components/cards/common';
+import { MarketingCta } from '../components/marketingCta/common';
+import AuthContext from '../contexts/AuthContext';
+import { GARMR_ERROR, gqlClient } from '../graphql/common';
 import {
   Ad,
   FeedData,
@@ -13,17 +18,13 @@ import {
   POSTS_ENGAGED_SUBSCRIPTION,
   PostsEngaged,
 } from '../graphql/posts';
-import AuthContext from '../contexts/AuthContext';
 import { apiUrl } from '../lib/config';
-import useSubscription from './useSubscription';
 import {
   removeCachedPagePost,
   RequestKey,
   updateCachedPagePost,
 } from '../lib/query';
-import { MarketingCta } from '../components/marketingCta/common';
-import { FeedItemType } from '../components/cards/common';
-import { GARMR_ERROR, gqlClient } from '../graphql/common';
+import useSubscription from './useSubscription';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;

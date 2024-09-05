@@ -1,13 +1,14 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
-import { PlusIcon } from './icons';
+
+import LogContext from '../contexts/LogContext';
+import { LogEvent } from '../hooks/log/useLogQueue';
 import {
   Button,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from './buttons/Button';
-import LogContext from '../contexts/LogContext';
-import { LogEvent } from '../hooks/log/useLogQueue';
+import { PlusIcon } from './icons';
 
 interface CreateMyFeedButtonProps {
   action: () => unknown;

@@ -1,7 +1,8 @@
-import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
-import { VIcon } from '../icons';
+import React, { ReactElement, ReactNode } from 'react';
+
 import { IconSize } from '../Icon';
+import { VIcon } from '../icons';
 import type { SelectParams } from './common';
 
 type CustomItem = (value: string, index: number) => ReactNode;

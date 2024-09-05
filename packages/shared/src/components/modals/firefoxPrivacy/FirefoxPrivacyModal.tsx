@@ -1,10 +1,11 @@
 import React, { ReactElement } from 'react';
-import { Modal, ModalProps } from '../common/Modal';
-import { ModalSize } from '../common/types';
-import { ButtonVariant } from '../../buttons/common';
-import { Button } from '../../buttons/Button';
+
 import { privacyPolicy } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
+import { Button } from '../../buttons/Button';
+import { ButtonVariant } from '../../buttons/common';
+import { Modal, ModalProps } from '../common/Modal';
+import { ModalSize } from '../common/types';
 
 export interface FirefoxPrivacyModalProps extends ModalProps {
   onAccept: () => void;

@@ -1,5 +1,5 @@
-import { QueryKey, useQueryClient, InfiniteData } from '@tanstack/react-query';
 import { useBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
+import { InfiniteData, QueryKey, useQueryClient } from '@tanstack/react-query';
 
 export const useBackgroundPaginatedRequest = <T extends InfiniteData<unknown>>(
   queryKey: QueryKey,

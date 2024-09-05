@@ -1,11 +1,12 @@
-import { useContext, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useContext, useMemo } from 'react';
+
 import AlertContext from '../contexts/AlertContext';
+import { useAuthContext } from '../contexts/AuthContext';
 import { getLatestChangelogPost, Post } from '../graphql/posts';
+import { generateQueryKey, RequestKey } from '../lib/query';
 import useSidebarRendered from './useSidebarRendered';
 import { UseVotePost, useVotePost, voteMutationHandlers } from './vote';
-import { generateQueryKey, RequestKey } from '../lib/query';
-import { useAuthContext } from '../contexts/AuthContext';
 
 type UseChangelog = {
   isAvailable: boolean;

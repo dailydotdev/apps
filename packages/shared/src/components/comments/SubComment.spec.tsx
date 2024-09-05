@@ -1,14 +1,15 @@
-import React from 'react';
-import { screen, render, RenderResult } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render, RenderResult, screen } from '@testing-library/react';
+import React from 'react';
+
+import comment from '../../../__tests__/fixture/comment';
+import loggedUser from '../../../__tests__/fixture/loggedUser';
+import post from '../../../__tests__/fixture/post';
 import AuthContext from '../../contexts/AuthContext';
+import { useViewSize } from '../../hooks';
+import { Origin } from '../../lib/log';
 import { LoggedUser } from '../../lib/user';
 import SubComment, { SubCommentProps } from './SubComment';
-import loggedUser from '../../../__tests__/fixture/loggedUser';
-import comment from '../../../__tests__/fixture/comment';
-import { Origin } from '../../lib/log';
-import post from '../../../__tests__/fixture/post';
-import { useViewSize } from '../../hooks';
 
 const onDelete = jest.fn();
 const mockUseViewSize = useViewSize as jest.MockedFunction<typeof useViewSize>;

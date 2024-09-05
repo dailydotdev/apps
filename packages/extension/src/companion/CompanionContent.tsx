@@ -1,26 +1,28 @@
-import React, { ReactElement, useContext, useState } from 'react';
-import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
-import { CopyIcon } from '@dailydotdev/shared/src/components/icons';
-import {
-  HotLabel,
-  TLDRText,
-} from '@dailydotdev/shared/src/components/utilities';
 import '@dailydotdev/shared/src/styles/globals.css';
-import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
+
 import {
   Button,
   ButtonColor,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { CopyIcon } from '@dailydotdev/shared/src/components/icons';
+import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
+import {
+  HotLabel,
+  TLDRText,
+} from '@dailydotdev/shared/src/components/utilities';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
 import { useUpvoteQuery } from '@dailydotdev/shared/src/hooks/useUpvoteQuery';
+import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { postLogEvent } from '@dailydotdev/shared/src/lib/feed';
-import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
-import { CompanionEngagements } from './CompanionEngagements';
+import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
+import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
+import React, { ReactElement, useContext, useState } from 'react';
+
 import { CompanionDiscussion } from './CompanionDiscussion';
+import { CompanionEngagements } from './CompanionEngagements';
 import { useBackgroundPaginatedRequest } from './useBackgroundPaginatedRequest';
 
 type CompanionContentProps = {

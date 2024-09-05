@@ -1,16 +1,18 @@
 import '@dailydotdev/shared/src/lib/lazysizesImport';
-import React from 'react';
-import { createRoot } from 'react-dom/client';
 import '@dailydotdev/shared/src/styles/globals.css';
+
 import { getLocalBootData } from '@dailydotdev/shared/src/contexts/BootProvider';
-import { BootCacheData } from '@dailydotdev/shared/src/lib/boot';
+import { DndSettings } from '@dailydotdev/shared/src/contexts/DndContext';
 import {
   applyTheme,
   themeModes,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { BootCacheData } from '@dailydotdev/shared/src/lib/boot';
 import { get as getCache } from 'idb-keyval';
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 import browser from 'webextension-polyfill';
-import { DndSettings } from '@dailydotdev/shared/src/contexts/DndContext';
+
 import App from './App';
 
 declare global {

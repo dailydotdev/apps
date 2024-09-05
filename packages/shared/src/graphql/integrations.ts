@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+
 import type { Source } from './sources';
 
 export enum UserIntegrationType {

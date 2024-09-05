@@ -1,11 +1,12 @@
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import styles from './markdown.module.css';
-import { ProfileTooltip } from './profile/ProfileTooltip';
-import { useProfileTooltip } from '../hooks/useProfileTooltip';
-import { CaretOffset } from '../lib/element';
+import React, { ReactElement, useEffect, useRef, useState } from 'react';
+
 import useDebounceFn from '../hooks/useDebounceFn';
 import { useDomPurify } from '../hooks/useDomPurify';
+import { useProfileTooltip } from '../hooks/useProfileTooltip';
+import { CaretOffset } from '../lib/element';
+import styles from './markdown.module.css';
+import { ProfileTooltip } from './profile/ProfileTooltip';
 
 interface MarkdownProps {
   className?: string;

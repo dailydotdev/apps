@@ -1,14 +1,14 @@
-import React, { ReactElement } from 'react';
-import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import {
   Modal,
   ModalProps,
 } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { Justify } from '@dailydotdev/shared/src/components/utilities';
+import React, { ReactElement } from 'react';
 
 interface MostVisitedSitesModalProps extends ModalProps {
   onApprove: () => unknown;

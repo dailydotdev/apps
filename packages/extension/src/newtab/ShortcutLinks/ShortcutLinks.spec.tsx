@@ -1,6 +1,26 @@
-import React, { act } from 'react';
-import nock from 'nock';
+import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import { Alerts } from '@dailydotdev/shared/src/graphql/alerts';
+import {
+  RemoteSettings,
+  UPDATE_USER_SETTINGS_MUTATION,
+} from '@dailydotdev/shared/src/graphql/settings';
+import {
+  Boot,
+  BootApp,
+  BootCacheData,
+  getBootData,
+} from '@dailydotdev/shared/src/lib/boot';
+import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
+import {
+  LogEvent,
+  ShortcutsSourceType,
+  TargetType,
+} from '@dailydotdev/shared/src/lib/log';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   fireEvent,
   render,
@@ -8,30 +28,11 @@ import {
   screen,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
+import nock from 'nock';
+import React, { act } from 'react';
 import { mocked } from 'ts-jest/utils';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
-import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
-import {
-  Boot,
-  BootApp,
-  BootCacheData,
-  getBootData,
-} from '@dailydotdev/shared/src/lib/boot';
-import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import {
-  RemoteSettings,
-  UPDATE_USER_SETTINGS_MUTATION,
-} from '@dailydotdev/shared/src/graphql/settings';
-import { Alerts } from '@dailydotdev/shared/src/graphql/alerts';
 import browser, { TopSites } from 'webextension-polyfill';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
-import {
-  LogEvent,
-  ShortcutsSourceType,
-  TargetType,
-} from '@dailydotdev/shared/src/lib/log';
-import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
+
 import ShortcutLinks from './ShortcutLinks';
 
 jest.mock('@dailydotdev/shared/src/lib/boot', () => ({

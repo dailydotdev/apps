@@ -1,22 +1,23 @@
-import React, { ReactElement } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Button, ButtonColor, ButtonSize } from '../buttons/Button';
-import { cloudinary } from '../../lib/image';
-import { TimeFormatType } from '../../lib/dateFormat';
-import { Image } from '../image/Image';
-import { useChangelog } from '../../hooks/useChangelog';
-import { ExtensionMessageType } from '../../lib/extension';
-import { useToastNotification } from '../../hooks';
-import { updateFirefoxExtensionLink } from '../../lib/constants';
-import { DiscussIcon as CommentIcon, UpvoteIcon } from '../icons';
-import InteractionCounter from '../InteractionCounter';
-import { checkIsExtension } from '../../lib/func';
+import React, { ReactElement } from 'react';
+
 import { UserVote } from '../../graphql/posts';
-import InteractivePopup, { InteractivePopupPosition } from './InteractivePopup';
+import { useToastNotification } from '../../hooks';
+import { useChangelog } from '../../hooks/useChangelog';
+import { updateFirefoxExtensionLink } from '../../lib/constants';
+import { TimeFormatType } from '../../lib/dateFormat';
+import { ExtensionMessageType } from '../../lib/extension';
+import { checkIsExtension } from '../../lib/func';
+import { cloudinary } from '../../lib/image';
 import { Origin } from '../../lib/log';
-import { QuaternaryButton } from '../buttons/QuaternaryButton';
+import { Button, ButtonColor, ButtonSize } from '../buttons/Button';
 import { ButtonVariant } from '../buttons/common';
+import { QuaternaryButton } from '../buttons/QuaternaryButton';
+import { DiscussIcon as CommentIcon, UpvoteIcon } from '../icons';
+import { Image } from '../image/Image';
+import InteractionCounter from '../InteractionCounter';
 import { DateFormat } from '../utilities';
+import InteractivePopup, { InteractivePopupPosition } from './InteractivePopup';
 
 const toastMessageMap = {
   error: 'Something went wrong, try again later',

@@ -1,10 +1,11 @@
 import React, { ReactElement } from 'react';
+
 import {
   NotificationAttachment,
   NotificationAttachmentType,
 } from '../../graphql/notifications';
-import { IconSize } from '../Icon';
 import { CardCover } from '../cards/common/CardCover';
+import { IconSize } from '../Icon';
 
 function NotificationItemAttachment({
   image,

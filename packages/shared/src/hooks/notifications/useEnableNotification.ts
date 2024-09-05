@@ -1,10 +1,11 @@
 import { useCallback, useEffect } from 'react';
+
 import { useLogContext } from '../../contexts/LogContext';
-import usePersistentContext from '../usePersistentContext';
-import { LogEvent, NotificationPromptSource, TargetType } from '../../lib/log';
-import { usePushNotificationMutation } from './usePushNotificationMutation';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { checkIsExtension } from '../../lib/func';
+import { LogEvent, NotificationPromptSource, TargetType } from '../../lib/log';
+import usePersistentContext from '../usePersistentContext';
+import { usePushNotificationMutation } from './usePushNotificationMutation';
 
 export const DISMISS_PERMISSION_BANNER = 'DISMISS_PERMISSION_BANNER';
 

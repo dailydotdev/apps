@@ -1,3 +1,5 @@
+import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import React, {
   FormEvent,
   InputHTMLAttributes,
@@ -7,33 +9,32 @@ import React, {
   useContext,
   useRef,
 } from 'react';
-import classNames from 'classnames';
-import { useRouter } from 'next/router';
-import { BaseField, FieldInput } from '../../fields/common';
-import { LogEvent, TargetId } from '../../../lib/log';
-import { IconSize } from '../../Icon';
-import { getFieldFontColor } from '../../fields/BaseFieldContainer';
-import { AiIcon, ClearIcon } from '../../icons';
-import { useInputField } from '../../../hooks/useInputField';
-import { useLogContext } from '../../../contexts/LogContext';
+
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { useLogContext } from '../../../contexts/LogContext';
+import { minSearchQueryLength } from '../../../graphql/search';
+import { useEventListener, useViewSize, ViewSize } from '../../../hooks';
+import { useSearchProvider } from '../../../hooks/search';
+import { useInputField } from '../../../hooks/useInputField';
 import { AuthTriggers } from '../../../lib/auth';
-import { SearchPanelContext } from './SearchPanelContext';
-import { ViewSize, useEventListener, useViewSize } from '../../../hooks';
+import { webappUrl } from '../../../lib/constants';
 import {
   isAppleDevice,
   isNullOrUndefined,
   isSpecialKeyPressed,
 } from '../../../lib/func';
-import { KeyboadShortcutLabel } from '../../KeyboardShortcutLabel';
-import { SearchPanelProvider } from './SearchPanelProvider';
-import { minSearchQueryLength } from '../../../graphql/search';
-import { SearchPanelInputCursor } from './SearchPanelInputCursor';
-import { useSearchProvider } from '../../../hooks/search';
-import { defaultSearchProvider, providerToLabelTextMap } from './common';
+import { LogEvent, TargetId } from '../../../lib/log';
 import { Button, ButtonSize } from '../../buttons/Button';
+import { getFieldFontColor } from '../../fields/BaseFieldContainer';
+import { BaseField, FieldInput } from '../../fields/common';
+import { IconSize } from '../../Icon';
+import { AiIcon, ClearIcon } from '../../icons';
+import { KeyboadShortcutLabel } from '../../KeyboardShortcutLabel';
+import { defaultSearchProvider, providerToLabelTextMap } from './common';
+import { SearchPanelContext } from './SearchPanelContext';
+import { SearchPanelInputCursor } from './SearchPanelInputCursor';
+import { SearchPanelProvider } from './SearchPanelProvider';
 import { useSearchPanelAction } from './useSearchPanelAction';
-import { webappUrl } from '../../../lib/constants';
 
 export type SearchPanelInputClassName = {
   container?: string;

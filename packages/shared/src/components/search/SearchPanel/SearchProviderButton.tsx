@@ -1,13 +1,14 @@
-import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
+import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
+
 import { SearchProviderEnum } from '../../../graphql/search';
+import { useSearchProvider } from '../../../hooks/search';
 import {
   Button,
   ButtonIconPosition,
   ButtonVariant,
 } from '../../buttons/Button';
 import { providerToIconMap } from './common';
-import { useSearchProvider } from '../../../hooks/search';
 
 export type SearchProviderButtonProps = {
   className?: string;

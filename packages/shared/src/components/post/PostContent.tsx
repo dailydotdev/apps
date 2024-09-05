@@ -1,23 +1,24 @@
 import classNames from 'classnames';
 import React, { ComponentProps, ReactElement, useEffect } from 'react';
+
+import { useAuthContext } from '../../contexts/AuthContext';
 import { isVideoPost } from '../../graphql/posts';
+import { ToastSubject, useToastNotification } from '../../hooks';
+import { useViewPost } from '../../hooks/post';
+import usePostContent from '../../hooks/usePostContent';
+import { combinedClicks } from '../../lib/click';
+import { cloudinary } from '../../lib/image';
 import PostMetadata from '../cards/PostMetadata';
 import PostSummary from '../cards/PostSummary';
 import { LazyImage } from '../LazyImage';
-import { PostWidgets } from './PostWidgets';
 import { TagLinks } from '../TagLinks';
-import PostToc from '../widgets/PostToc';
-import { ToastSubject, useToastNotification } from '../../hooks';
-import PostContentContainer from './PostContentContainer';
-import usePostContent from '../../hooks/usePostContent';
-import { BasePostContent } from './BasePostContent';
-import { cloudinary } from '../../lib/image';
-import { combinedClicks } from '../../lib/click';
-import { PostContainer, PostContentProps, PostNavigationProps } from './common';
-import YoutubeVideo from '../video/YoutubeVideo';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useViewPost } from '../../hooks/post';
 import { TruncateText } from '../utilities';
+import YoutubeVideo from '../video/YoutubeVideo';
+import PostToc from '../widgets/PostToc';
+import { BasePostContent } from './BasePostContent';
+import { PostContainer, PostContentProps, PostNavigationProps } from './common';
+import PostContentContainer from './PostContentContainer';
+import { PostWidgets } from './PostWidgets';
 
 export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;

@@ -1,19 +1,20 @@
-import React, { ReactElement, ReactNode } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
+import React, { ReactElement, ReactNode } from 'react';
+
+import { CommentFeedData } from '../graphql/comments';
+import { gqlClient } from '../graphql/common';
+import { useViewSize, ViewSize } from '../hooks';
+import { useDeleteComment } from '../hooks/comments/useDeleteComment';
+import { useShareComment } from '../hooks/useShareComment';
+import { useUpvoteQuery } from '../hooks/useUpvoteQuery';
+import { Origin } from '../lib/log';
+import { CommentClassName } from './comments/common';
+import MainComment from './comments/MainComment';
+import PlaceholderCommentList from './comments/PlaceholderCommentList';
 import InfiniteScrolling, {
   checkFetchMore,
 } from './containers/InfiniteScrolling';
-import MainComment from './comments/MainComment';
-import { Origin } from '../lib/log';
-import { useShareComment } from '../hooks/useShareComment';
-import { useUpvoteQuery } from '../hooks/useUpvoteQuery';
-import { useDeleteComment } from '../hooks/comments/useDeleteComment';
-import PlaceholderCommentList from './comments/PlaceholderCommentList';
-import { CommentClassName } from './comments/common';
-import { CommentFeedData } from '../graphql/comments';
-import { useViewSize, ViewSize } from '../hooks';
-import { gqlClient } from '../graphql/common';
 
 interface CommentFeedProps<T> {
   feedQueryKey: unknown[];

@@ -1,8 +1,9 @@
 import React, { ReactElement } from 'react';
+
+import { useSquadTour } from '../../hooks/useSquadTour';
+import { ButtonSize, ButtonVariant } from '../buttons/Button';
 import SquadTour from '../squads/SquadTour';
 import { Modal, ModalProps } from './common/Modal';
-import { ButtonSize, ButtonVariant } from '../buttons/Button';
-import { useSquadTour } from '../../hooks/useSquadTour';
 import { ModalClose } from './common/ModalClose';
 
 function SquadTourModal({

@@ -1,6 +1,7 @@
+import { UseInfiniteQueryResult } from '@tanstack/react-query';
 import classNames from 'classnames';
 import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
-import { UseInfiniteQueryResult } from '@tanstack/react-query';
+
 import useFeedInfiniteScroll from '../../hooks/feed/useFeedInfiniteScroll';
 
 export interface InfiniteScrollingProps

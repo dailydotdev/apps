@@ -1,14 +1,15 @@
 import React, { ReactElement } from 'react';
+
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useThemedAsset } from '../../hooks/utils';
+import { AuthTriggers } from '../../lib/auth';
 import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import { Modal } from '../modals/common/Modal';
 import { StepComponentProps } from '../modals/common/ModalStepsWrapper';
 import { Justify } from '../utilities';
 import { OnboardingStep, OnboardingStepProps, OnboardingTitle } from './common';
-import Container from './OnboardingStep';
-import { useAuthContext } from '../../contexts/AuthContext';
 import { MemberAlready } from './MemberAlready';
-import { AuthTriggers } from '../../lib/auth';
-import { useThemedAsset } from '../../hooks/utils';
+import Container from './OnboardingStep';
 
 interface IntroductionOnboardingTitleProps {
   className?: string;

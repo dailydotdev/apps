@@ -1,48 +1,49 @@
+import {
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import SourceButton from '@dailydotdev/shared/src/components/cards/SourceButton';
+import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
+import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
+import { SimpleSquadJoinButton } from '@dailydotdev/shared/src/components/squads/SquadJoinButton';
 import { PageContainer } from '@dailydotdev/shared/src/components/utilities';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { useRouter } from 'next/router';
-import {
-  getSquadInvitation,
-  validateSourceHandle,
-} from '@dailydotdev/shared/src/graphql/squads';
-import {
-  SourceMember,
-  SourceMemberRole,
-} from '@dailydotdev/shared/src/graphql/sources';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import {
   ApiErrorMessage,
   ApiErrorResult,
   Edge,
 } from '@dailydotdev/shared/src/graphql/common';
-import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
-import classed from '@dailydotdev/shared/src/lib/classed';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import Link from 'next/link';
-import SourceButton from '@dailydotdev/shared/src/components/cards/SourceButton';
 import {
-  ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
-import { ParsedUrlQuery } from 'querystring';
+  SourceMember,
+  SourceMemberRole,
+} from '@dailydotdev/shared/src/graphql/sources';
+import {
+  getSquadInvitation,
+  validateSourceHandle,
+} from '@dailydotdev/shared/src/graphql/squads';
+import { useJoinSquad } from '@dailydotdev/shared/src/hooks';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { getPathnameWithQuery, labels } from '@dailydotdev/shared/src/lib';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import classed from '@dailydotdev/shared/src/lib/classed';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
+import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
+import { ReferralOriginKey } from '@dailydotdev/shared/src/lib/user';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
-import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import { ReferralOriginKey } from '@dailydotdev/shared/src/lib/user';
-import { useJoinSquad } from '@dailydotdev/shared/src/hooks';
-import { getPathnameWithQuery, labels } from '@dailydotdev/shared/src/lib';
-import { SimpleSquadJoinButton } from '@dailydotdev/shared/src/components/squads/SquadJoinButton';
-import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
+import { ParsedUrlQuery } from 'querystring';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
+
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { getSquadOpenGraph } from '../../../next-seo';
 

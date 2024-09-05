@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+
 import { Checkbox, CheckboxProps } from './Checkbox';
 
 interface FilterCheckboxProps extends CheckboxProps {

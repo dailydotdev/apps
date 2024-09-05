@@ -1,5 +1,5 @@
-import React from 'react';
 import { AlertPointerCopy } from '@dailydotdev/shared/src/components/alert/common';
+import React from 'react';
 
 export const companionAlertMessage = (
   <AlertPointerCopy>

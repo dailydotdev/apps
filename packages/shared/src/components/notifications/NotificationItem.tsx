@@ -1,17 +1,18 @@
-import React, { ReactElement, useMemo } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import React, { ReactElement, useMemo } from 'react';
+
 import { Notification } from '../../graphql/notifications';
 import { useObjectPurify } from '../../hooks/useDomPurify';
+import { KeyboardCommand } from '../../lib/element';
+import OptionsButton from '../buttons/OptionsButton';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { ProfilePictureGroup } from '../ProfilePictureGroup';
 import NotificationItemIcon from './NotificationIcon';
 import NotificationItemAttachment from './NotificationItemAttachment';
 import NotificationItemAvatar from './NotificationItemAvatar';
 import { NotificationType, notificationTypeTheme } from './utils';
-import OptionsButton from '../buttons/OptionsButton';
-import { KeyboardCommand } from '../../lib/element';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
-import { ProfilePictureGroup } from '../ProfilePictureGroup';
 
 export interface NotificationItemProps
   extends Pick<

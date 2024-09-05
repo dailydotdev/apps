@@ -1,8 +1,9 @@
-import React, { ReactElement, useState } from 'react';
 import dynamic from 'next/dynamic';
+import React, { ReactElement, useState } from 'react';
+
+import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { LoggedUser } from '../../lib/user';
 import Logo, { LogoPosition } from '../Logo';
-import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 
 const Greeting = dynamic(
   () => import(/* webpackChunkName: "greeting" */ '../Greeting'),

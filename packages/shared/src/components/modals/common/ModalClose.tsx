@@ -1,5 +1,6 @@
-import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
+import React, { forwardRef, ReactElement, Ref } from 'react';
+
 import { ButtonProps } from '../../buttons/Button';
 import CloseButton from '../../CloseButton';
 import { useModalContext } from './types';

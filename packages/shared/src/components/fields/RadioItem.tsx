@@ -1,7 +1,8 @@
-import React, { InputHTMLAttributes, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
-import styles from './RadioItem.module.css';
+import React, { InputHTMLAttributes, ReactElement, ReactNode } from 'react';
+
 import ConditionalWrapper from '../ConditionalWrapper';
+import styles from './RadioItem.module.css';
 
 interface ClassName {
   wrapper?: string;

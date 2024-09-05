@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query';
 import React, {
   ReactElement,
   ReactNode,
@@ -5,7 +6,8 @@ import React, {
   useEffect,
   useMemo,
 } from 'react';
-import { useMutation } from '@tanstack/react-query';
+
+import { gqlClient } from '../graphql/common';
 import {
   CampaignCtaPlacement,
   RemoteSettings,
@@ -13,13 +15,12 @@ import {
   Spaciness,
   UPDATE_USER_SETTINGS_MUTATION,
 } from '../graphql/settings';
-import AuthContext from './AuthContext';
-import { capitalize } from '../lib/strings';
-import { storageWrapper } from '../lib/storageWrapper';
-import { usePersonalizedDigest } from '../hooks/usePersonalizedDigest';
 import { UserPersonalizedDigestType } from '../graphql/users';
+import { usePersonalizedDigest } from '../hooks/usePersonalizedDigest';
 import { ChecklistViewState } from '../lib/checklist';
-import { gqlClient } from '../graphql/common';
+import { storageWrapper } from '../lib/storageWrapper';
+import { capitalize } from '../lib/strings';
+import AuthContext from './AuthContext';
 
 export enum ThemeMode {
   Dark = 'dark',

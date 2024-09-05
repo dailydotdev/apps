@@ -1,11 +1,12 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
+import { usePushNotificationMutation } from '../../hooks/notifications';
 import { cloudinary } from '../../lib/image';
+import { NotificationPromptSource } from '../../lib/log';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { Justify } from '../utilities';
 import { Modal, ModalProps } from './common/Modal';
-import { NotificationPromptSource } from '../../lib/log';
-import { usePushNotificationMutation } from '../../hooks/notifications';
 import { useModalContext } from './common/types';
 
 const DrawerImg = () => {

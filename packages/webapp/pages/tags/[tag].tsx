@@ -1,10 +1,13 @@
 import {
-  GetStaticPathsResult,
-  GetStaticPropsContext,
-  GetStaticPropsResult,
-} from 'next';
-import { ParsedUrlQuery } from 'querystring';
-import React, { ReactElement, useContext, useMemo } from 'react';
+  Button,
+  ButtonProps,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import Feed from '@dailydotdev/shared/src/components/Feed';
+import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   BlockIcon,
   DiscussIcon,
@@ -14,58 +17,56 @@ import {
   PlusIcon,
   UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
-import { useRouter } from 'next/router';
-import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
-import Feed from '@dailydotdev/shared/src/components/Feed';
+import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
+import { RelatedSources } from '@dailydotdev/shared/src/components/RelatedSources';
+import { PageInfoHeader } from '@dailydotdev/shared/src/components/utilities';
+import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { Connection, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import {
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
   TAG_FEED_QUERY,
 } from '@dailydotdev/shared/src/graphql/feed';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
-  Button,
-  ButtonProps,
-  ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
-import { PageInfoHeader } from '@dailydotdev/shared/src/components/utilities';
+  GET_RECOMMENDED_TAGS_QUERY,
+  TagsData,
+} from '@dailydotdev/shared/src/graphql/feedSettings';
+import {
+  Keyword,
+  KEYWORD_QUERY,
+} from '@dailydotdev/shared/src/graphql/keywords';
+import { PostType } from '@dailydotdev/shared/src/graphql/posts';
+import {
+  Source,
+  SOURCES_BY_TAG_QUERY,
+} from '@dailydotdev/shared/src/graphql/sources';
+import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
 import {
   OtherFeedPage,
   RequestKey,
   StaleTime,
 } from '@dailydotdev/shared/src/lib/query';
-import { Origin } from '@dailydotdev/shared/src/lib/log';
-import {
-  KEYWORD_QUERY,
-  Keyword,
-} from '@dailydotdev/shared/src/graphql/keywords';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { useQuery } from '@tanstack/react-query';
 import {
-  GET_RECOMMENDED_TAGS_QUERY,
-  TagsData,
-} from '@dailydotdev/shared/src/graphql/feedSettings';
-import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
-import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
-import {
-  SOURCES_BY_TAG_QUERY,
-  Source,
-} from '@dailydotdev/shared/src/graphql/sources';
-import { Connection, gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { RelatedSources } from '@dailydotdev/shared/src/components/RelatedSources';
-import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts';
-import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
-import { PostType } from '@dailydotdev/shared/src/graphql/posts';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+  GetStaticPathsResult,
+  GetStaticPropsContext,
+  GetStaticPropsResult,
+} from 'next';
 import Link from 'next/link';
-import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
+import { useRouter } from 'next/router';
+import { NextSeo } from 'next-seo';
+import { NextSeoProps } from 'next-seo/lib/types';
+import { ParsedUrlQuery } from 'querystring';
+import React, { ReactElement, useContext, useMemo } from 'react';
+
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';

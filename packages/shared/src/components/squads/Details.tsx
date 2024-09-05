@@ -1,31 +1,32 @@
-import React, { FormEvent, ReactElement, ReactNode, useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { ClientError } from 'graphql-request';
-import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import { ButtonColor, ButtonVariant } from '../buttons/Button';
-import { TextField } from '../fields/TextField';
-import { ArrowIcon, AtIcon, CameraIcon, SquadIcon } from '../icons';
-import Textarea from '../fields/Textarea';
-import ImageInput from '../fields/ImageInput';
-import { cloudinary } from '../../lib/image';
-import { formToJson } from '../../lib/form';
-import { blobToBase64 } from '../../lib/blob';
-import { checkExistingHandle, SquadForm } from '../../graphql/squads';
-import { capitalize } from '../../lib/strings';
-import { IconSize } from '../Icon';
+import React, { FormEvent, ReactElement, ReactNode, useState } from 'react';
+
 import { SourceMemberRole } from '../../graphql/sources';
-import { Radio } from '../fields/Radio';
-import { FormWrapper } from '../fields/form';
-import { SquadSettingsSection, SquadStatus } from './settings';
+import { checkExistingHandle, SquadForm } from '../../graphql/squads';
+import { usePublicSquadRequests } from '../../hooks';
 import {
   PrivacyOption,
   useSquadPrivacyOptions,
 } from '../../hooks/squads/useSquadPrivacyOptions';
-import Alert, { AlertType } from '../widgets/Alert';
-import { Anchor } from '../text';
-import { usePublicSquadRequests } from '../../hooks';
+import { blobToBase64 } from '../../lib/blob';
 import { PUBLIC_SQUAD_REQUEST_REQUIREMENT } from '../../lib/config';
+import { formToJson } from '../../lib/form';
+import { cloudinary } from '../../lib/image';
+import { capitalize } from '../../lib/strings';
+import { ButtonColor, ButtonVariant } from '../buttons/Button';
+import { FormWrapper } from '../fields/form';
+import ImageInput from '../fields/ImageInput';
+import { Radio } from '../fields/Radio';
+import Textarea from '../fields/Textarea';
+import { TextField } from '../fields/TextField';
+import { IconSize } from '../Icon';
+import { ArrowIcon, AtIcon, CameraIcon, SquadIcon } from '../icons';
+import { Anchor } from '../text';
+import Alert, { AlertType } from '../widgets/Alert';
+import { SquadSettingsSection, SquadStatus } from './settings';
 
 const squadImageId = 'squad_image_file';
 

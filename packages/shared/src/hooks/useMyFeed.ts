@@ -1,12 +1,13 @@
-import { useContext, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useContext, useMemo } from 'react';
+
+import { BOOT_QUERY_KEY } from '../contexts/common';
 import LogContext from '../contexts/LogContext';
 import { AllTagCategoriesData, FeedSettings } from '../graphql/feedSettings';
-import { getFeedSettingsQueryKey, getHasAnyFilter } from './useFeedSettings';
-import useMutateFilters from './useMutateFilters';
-import { BOOT_QUERY_KEY } from '../contexts/common';
 import { AuthEventNames } from '../lib/auth';
 import { LogEvent } from '../lib/log';
+import { getFeedSettingsQueryKey, getHasAnyFilter } from './useFeedSettings';
+import useMutateFilters from './useMutateFilters';
 
 interface RegisterLocalFilters {
   hasFilters: boolean;

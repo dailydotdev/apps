@@ -1,18 +1,19 @@
-import React, { ReactElement } from 'react';
-import { useRouter } from 'next/router';
 import classNames from 'classnames';
-import { BreadCrumbs } from './BreadCrumbs';
-import { CalendarIcon, HotIcon } from '../icons';
-import { IconSize } from '../Icon';
-import TabList from '../tabs/TabList';
-import { Tab, TabContainer } from '../tabs/TabContainer';
-import { checkIsExtension } from '../../lib/func';
-import { getFeedName } from '../../lib/feed';
-import { Dropdown } from '../fields/Dropdown';
-import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
-import { periodTexts } from '../layout/common';
-import { OtherFeedPage } from '../../lib/query';
+import { useRouter } from 'next/router';
+import React, { ReactElement } from 'react';
+
 import { useFeedLayout } from '../../hooks';
+import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
+import { getFeedName } from '../../lib/feed';
+import { checkIsExtension } from '../../lib/func';
+import { OtherFeedPage } from '../../lib/query';
+import { Dropdown } from '../fields/Dropdown';
+import { IconSize } from '../Icon';
+import { CalendarIcon, HotIcon } from '../icons';
+import { periodTexts } from '../layout/common';
+import { Tab, TabContainer } from '../tabs/TabContainer';
+import TabList from '../tabs/TabList';
+import { BreadCrumbs } from './BreadCrumbs';
 
 export enum ExploreTabs {
   Popular = 'Popular',

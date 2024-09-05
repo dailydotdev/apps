@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
 import { ElementPlaceholder } from '../ElementPlaceholder';
 
 export interface PlaceholderCommentProps {

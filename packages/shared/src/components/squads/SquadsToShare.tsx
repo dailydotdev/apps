@@ -1,14 +1,15 @@
-import React, { ReactElement, MouseEvent, useMemo } from 'react';
-import { verifyPermission } from '../../graphql/squads';
-import { SourcePermissions, Squad } from '../../graphql/sources';
-import SourceProfilePicture from '../profile/SourceProfilePicture';
-import { SocialShareButton } from '../widgets/SocialShareButton';
+import React, { MouseEvent, ReactElement, useMemo } from 'react';
+
 import { useAuthContext } from '../../contexts/AuthContext';
-import { Origin } from '../../lib/log';
-import { PlusIcon } from '../icons';
+import { SourcePermissions, Squad } from '../../graphql/sources';
+import { verifyPermission } from '../../graphql/squads';
 import { useSquadNavigation } from '../../hooks';
+import { Origin } from '../../lib/log';
 import { ButtonColor, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { PlusIcon } from '../icons';
+import SourceProfilePicture from '../profile/SourceProfilePicture';
 import { ProfileImageSize } from '../ProfilePicture';
+import { SocialShareButton } from '../widgets/SocialShareButton';
 
 interface SquadsToShareProps {
   isLoading?: boolean;

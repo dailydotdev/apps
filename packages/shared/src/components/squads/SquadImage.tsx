@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
 import { Squad } from '../../graphql/sources';
-import { Image } from '../image/Image';
 import { cloudinary } from '../../lib/image';
+import { Image } from '../image/Image';
 
 interface SquadImageProps extends Squad {
   className?: string;

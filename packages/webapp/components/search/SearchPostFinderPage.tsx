@@ -1,30 +1,31 @@
-import React, { CSSProperties, ReactElement, useContext, useMemo } from 'react';
-import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
-import { useRouter } from 'next/router';
 import {
-  SearchProviderButton,
   gapClass,
   getFeedGapPx,
   providerToLabelTextMap,
+  SearchProviderButton,
 } from '@dailydotdev/shared/src/components';
-import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
-import { MagicIcon } from '@dailydotdev/shared/src/components/icons';
+import styles from '@dailydotdev/shared/src/components/Feed.module.css';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import classNames from 'classnames';
+import { MagicIcon } from '@dailydotdev/shared/src/components/icons';
+import FeedContext from '@dailydotdev/shared/src/contexts/FeedContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import SettingsContext, {
   useSettingsContext,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import styles from '@dailydotdev/shared/src/components/Feed.module.css';
-import FeedContext from '@dailydotdev/shared/src/contexts/FeedContext';
-import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import classNames from 'classnames';
+import { useRouter } from 'next/router';
+import { NextSeo } from 'next-seo';
+import { NextSeoProps } from 'next-seo/lib/types';
+import React, { CSSProperties, ReactElement, useContext, useMemo } from 'react';
+
+import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
 } from '../layouts/MainFeedPage';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
 const baseSeo: NextSeoProps = {
   openGraph: { ...defaultOpenGraph },

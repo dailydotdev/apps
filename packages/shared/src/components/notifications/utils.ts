@@ -1,20 +1,21 @@
 import { ComponentType } from 'react';
+
 import classed from '../../lib/classed';
+import { NotificationPromptSource } from '../../lib/log';
 import { IconProps } from '../Icon';
 import {
   BellIcon,
+  BlockIcon,
   CommunityPicksIcon,
   DailyIcon,
+  DevCardIcon,
   DiscussIcon,
   EyeIcon,
-  UpvoteIcon,
-  BlockIcon,
-  UserIcon,
-  StarIcon,
-  DevCardIcon,
   ReadingStreakIcon,
+  StarIcon,
+  UpvoteIcon,
+  UserIcon,
 } from '../icons';
-import { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
 
 export const NotifContainer = classed(

@@ -1,13 +1,14 @@
 import React, { ReactElement, useMemo } from 'react';
-import ContextMenu from '../../fields/ContextMenu';
-import { Loader } from '../../Loader';
+
 import {
   Notification,
   NotificationPreferenceStatus,
 } from '../../../graphql/notifications';
-import { BellIcon, BellDisabledIcon } from '../../icons';
-import { notificationMutingCopy } from '../../notifications/utils';
 import { useNotificationPreference } from '../../../hooks/notifications';
+import ContextMenu from '../../fields/ContextMenu';
+import { BellDisabledIcon, BellIcon } from '../../icons';
+import { Loader } from '../../Loader';
+import { notificationMutingCopy } from '../../notifications/utils';
 
 interface NotificationPreferenceMenuProps {
   contextId: string;

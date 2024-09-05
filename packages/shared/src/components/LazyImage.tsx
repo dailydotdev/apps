@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, {
   forwardRef,
   HTMLAttributes,
@@ -7,7 +8,6 @@ import React, {
   Ref,
   SyntheticEvent,
 } from 'react';
-import classNames from 'classnames';
 
 export interface LazyImageProps extends HTMLAttributes<HTMLImageElement> {
   imgSrc: string;

@@ -1,3 +1,4 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React, {
   ReactElement,
   useContext,
@@ -5,37 +6,37 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, ButtonVariant } from '../buttons/Button';
-import { formToJson } from '../../lib/form';
+
+import AuthContext from '../../contexts/AuthContext';
+import LogContext from '../../contexts/LogContext';
+import { gqlClient } from '../../graphql/common';
+import { PostItem } from '../../graphql/posts';
+import {
+  SUBMISSION_AVAILABILITY_QUERY,
+  SubmissionAvailability,
+  SUBMIT_ARTICLE_MUTATION,
+  SubmitArticleResponse,
+} from '../../graphql/submitArticle';
+import { useToastNotification } from '../../hooks';
 import {
   communityLinksGuidelines,
   contentGuidelines,
 } from '../../lib/constants';
-import { TextField } from '../fields/TextField';
-import AuthContext from '../../contexts/AuthContext';
+import { formToJson } from '../../lib/form';
 import {
-  SubmissionAvailability,
-  SUBMISSION_AVAILABILITY_QUERY,
-  SubmitArticleResponse,
-  SUBMIT_ARTICLE_MUTATION,
-} from '../../graphql/submitArticle';
-import PostItemCard from '../post/PostItemCard';
-import { PostItem } from '../../graphql/posts';
-import LogContext from '../../contexts/LogContext';
-import { LinkIcon, LockIcon } from '../icons';
-import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
-import { Modal, ModalProps } from './common/Modal';
-import EnableNotification from '../notifications/EnableNotification';
-import {
-  LogEvent,
   FeedItemTitle,
+  LogEvent,
   NotificationPromptSource,
 } from '../../lib/log';
+import { Button, ButtonVariant } from '../buttons/Button';
+import { TextField } from '../fields/TextField';
+import { LinkIcon, LockIcon } from '../icons';
+import EnableNotification from '../notifications/EnableNotification';
+import PostItemCard from '../post/PostItemCard';
 import { Justify } from '../utilities';
+import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
+import { Modal, ModalProps } from './common/Modal';
 import { ReputationAlert } from './ReputationAlert';
-import { useToastNotification } from '../../hooks';
-import { gqlClient } from '../../graphql/common';
 
 const defaultErrorMessage = 'Something went wrong, try again';
 const formTitle = 'Community picks';

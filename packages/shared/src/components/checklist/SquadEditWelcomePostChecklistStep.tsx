@@ -1,10 +1,11 @@
 import React, { ReactElement } from 'react';
-import { ChecklistStepPropsWithSquad } from '../../lib/checklist';
-import { Button, ButtonVariant } from '../buttons/Button';
-import { ChecklistStep } from './ChecklistStep';
-import { EditIcon } from '../icons';
+
 import { useFindSquadWelcomePost } from '../../hooks/useFindSquadWelcomePost';
 import usePostById from '../../hooks/usePostById';
+import { ChecklistStepPropsWithSquad } from '../../lib/checklist';
+import { Button, ButtonVariant } from '../buttons/Button';
+import { EditIcon } from '../icons';
+import { ChecklistStep } from './ChecklistStep';
 
 const SquadEditWelcomePostChecklistStep = ({
   squad,

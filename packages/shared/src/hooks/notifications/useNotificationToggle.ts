@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+
 import { NotificationPromptSource } from '../../lib/log';
 import { useEnableNotification } from './useEnableNotification';
 

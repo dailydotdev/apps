@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import {
   useCallback,
   useContext,
@@ -6,15 +7,15 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useRouter } from 'next/router';
+
 import LogContext from '../contexts/LogContext';
 import { Post, PostType } from '../graphql/posts';
+import { isTesting } from '../lib/constants';
 import { postLogEvent } from '../lib/feed';
+import { checkIsExtension } from '../lib/func';
+import { Origin } from '../lib/log';
 import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { useKeyboardNavigation } from './useKeyboardNavigation';
-import { Origin } from '../lib/log';
-import { checkIsExtension } from '../lib/func';
-import { isTesting } from '../lib/constants';
 
 export enum PostPosition {
   First = 'first',

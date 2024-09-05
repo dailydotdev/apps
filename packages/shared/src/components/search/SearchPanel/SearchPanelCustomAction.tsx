@@ -1,7 +1,8 @@
 import React, { ReactElement, ReactNode } from 'react';
+
+import { SearchProviderEnum } from '../../../graphql/search';
 import { SearchPanelItem, SearchPanelItemProps } from './SearchPanelItem';
 import { useSearchPanelAction } from './useSearchPanelAction';
-import { SearchProviderEnum } from '../../../graphql/search';
 
 export type SearchPanelCustomActionProps = {
   provider: SearchProviderEnum;

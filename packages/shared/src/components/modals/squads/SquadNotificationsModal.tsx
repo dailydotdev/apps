@@ -1,18 +1,19 @@
-import React, { ReactElement, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Modal, ModalProps } from '../common/Modal';
+import React, { ReactElement, useMemo } from 'react';
+
+import { useAuthContext } from '../../../contexts/AuthContext';
+import { NotificationPreferenceStatus } from '../../../graphql/notifications';
+import { SourceMemberRole, Squad } from '../../../graphql/sources';
 import {
   checkHasStatusPreference,
   useNotificationPreference,
 } from '../../../hooks/notifications';
-import { SourceMemberRole, Squad } from '../../../graphql/sources';
+import { webappUrl } from '../../../lib/constants';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { Switch } from '../../fields/Switch';
 import { NotificationType } from '../../notifications/utils';
-import { generateQueryKey, RequestKey } from '../../../lib/query';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { NotificationPreferenceStatus } from '../../../graphql/notifications';
 import { Anchor } from '../../text';
-import { webappUrl } from '../../../lib/constants';
+import { Modal, ModalProps } from '../common/Modal';
 
 interface SquadNotificationsModalProps extends ModalProps {
   squad: Squad;

@@ -1,7 +1,8 @@
 import React, { ReactElement } from 'react';
-import { CardButton } from '../Card';
-import { useFeedPreviewMode } from '../../../hooks';
+
 import { Post } from '../../../graphql/posts';
+import { useFeedPreviewMode } from '../../../hooks';
+import { CardButton } from '../Card';
 
 interface CardOverlayProps {
   post: Pick<Post, 'commentsPermalink' | 'title'>;

@@ -1,19 +1,20 @@
-import React, { ReactElement, useCallback, useContext, useEffect } from 'react';
+import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
+import { isTouchDevice } from '@dailydotdev/shared/src/lib/tooltip';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
-import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { isTouchDevice } from '@dailydotdev/shared/src/lib/tooltip';
-import SidebarNavItem from './SidebarNavItem';
+import React, { ReactElement, useCallback, useContext, useEffect } from 'react';
+
 import {
   AccountPage,
   accountPage,
   accountSidebarPages,
   AccountSidebarPagesSection,
 } from './common';
+import SidebarNavItem from './SidebarNavItem';
 
 interface SidebarNavProps {
   className?: string;

@@ -1,9 +1,10 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
 import { Pill } from '../../Pill';
 import { SourceAvatar, SourceAvatarProps } from '../../profile/source';
-import { ProfilePictureGroup } from '../../ProfilePictureGroup';
 import { ProfileImageSize } from '../../ProfilePicture';
+import { ProfilePictureGroup } from '../../ProfilePictureGroup';
 
 interface CollectionPillSourcesProps {
   className?: {

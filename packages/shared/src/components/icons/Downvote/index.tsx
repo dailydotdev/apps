@@ -1,7 +1,8 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { UpvoteIcon } from '../Upvote';
+import React, { ReactElement } from 'react';
+
 import { IconProps } from '../../Icon';
+import { UpvoteIcon } from '../Upvote';
 
 export const DownvoteIcon = ({
   className,

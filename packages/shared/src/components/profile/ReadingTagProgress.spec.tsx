@@ -1,6 +1,7 @@
-import React from 'react';
-import nock from 'nock';
 import { render, screen } from '@testing-library/react';
+import nock from 'nock';
+import React from 'react';
+
 import { MostReadTag } from '../../graphql/users';
 import { ReadingTagProgress } from './ReadingTagProgress';
 

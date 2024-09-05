@@ -1,5 +1,6 @@
-import React, { MouseEventHandler, ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { MouseEventHandler, ReactElement } from 'react';
+
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 
 interface PostBlockedPanelProps {

@@ -1,22 +1,23 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import nock from 'nock';
-import NewSourceModal from './NewSourceModal';
+import React from 'react';
+
+import user from '../../../__tests__/fixture/loggedUser';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
+import { AuthContextProvider } from '../../contexts/AuthContext';
+import { NotificationsContextProvider } from '../../contexts/NotificationsContext';
 import {
   REQUEST_SOURCE_MUTATION,
   SOURCE_BY_FEED_QUERY,
   SOURCE_REQUEST_AVAILABILITY_QUERY,
 } from '../../graphql/newSource';
-import { AuthContextProvider } from '../../contexts/AuthContext';
 import { AnonymousUser, LoggedUser } from '../../lib/user';
-import user from '../../../__tests__/fixture/loggedUser';
-import { NotificationsContextProvider } from '../../contexts/NotificationsContext';
+import NewSourceModal from './NewSourceModal';
 
 const onRequestClose = jest.fn();
 

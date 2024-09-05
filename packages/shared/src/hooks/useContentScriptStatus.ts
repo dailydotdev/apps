@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { disabledRefetch } from '../lib/func';
+
 import { useExtensionContext } from '../contexts/ExtensionContext';
+import { disabledRefetch } from '../lib/func';
 
 export const contentScriptKey = ['permission_key'];
 

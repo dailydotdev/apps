@@ -1,10 +1,11 @@
 import nodeFetch from 'node-fetch';
-import { apiUrl, graphqlUrl } from './config';
+
 import {
   PROFILE_V2_EXTRA_QUERY,
   ProfileV2,
   USER_BY_ID_STATIC_FIELDS_QUERY,
 } from '../graphql/users';
+import { apiUrl, graphqlUrl } from './config';
 import type { Company } from './userCompany';
 
 export enum Roles {

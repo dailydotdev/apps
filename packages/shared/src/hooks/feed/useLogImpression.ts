@@ -1,9 +1,10 @@
-import { useInView } from 'react-intersection-observer';
 import { useContext, useEffect } from 'react';
-import { adLogEvent, feedLogExtra, postLogEvent } from '../../lib/feed';
+import { useInView } from 'react-intersection-observer';
+
 import LogContext from '../../contexts/LogContext';
-import { FeedItem } from '../useFeed';
 import { PostType } from '../../graphql/posts';
+import { adLogEvent, feedLogExtra, postLogEvent } from '../../lib/feed';
+import { FeedItem } from '../useFeed';
 
 const LOGGING = 1;
 const LOGGED = 2;

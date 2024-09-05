@@ -1,10 +1,11 @@
 import React, { CSSProperties, ReactElement } from 'react';
-import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
-import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
-import { ProfileImageLink } from '../profile/ProfileImageLink';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+
 import { Source } from '../../graphql/sources';
 import { useFeedPreviewMode } from '../../hooks';
+import { ProfileImageLink } from '../profile/ProfileImageLink';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
+import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 
 interface SourceButtonProps {
   source: Pick<Source, 'id' | 'name' | 'handle' | 'image' | 'permalink'>;

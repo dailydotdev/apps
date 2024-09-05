@@ -1,18 +1,19 @@
-import React, { ReactElement, useContext } from 'react';
-import dynamic from 'next/dynamic';
 import classNames from 'classnames';
-import { Post } from '../graphql/posts';
-import { ShareIcon, LinkIcon } from './icons';
+import dynamic from 'next/dynamic';
+import React, { ReactElement, useContext } from 'react';
+
 import LogContext from '../contexts/LogContext';
-import { postLogEvent } from '../lib/feed';
-import { MenuIcon } from './MenuIcon';
-import { Origin } from '../lib/log';
-import { ShareProvider } from '../lib/share';
-import { useCopyPostLink } from '../hooks/useCopyPostLink';
+import { Post } from '../graphql/posts';
 import { useGetShortUrl } from '../hooks';
-import { ReferralCampaignKey } from '../lib';
 import { ContextMenu as ContextMenuIds } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
+import { useCopyPostLink } from '../hooks/useCopyPostLink';
+import { ReferralCampaignKey } from '../lib';
+import { postLogEvent } from '../lib/feed';
+import { Origin } from '../lib/log';
+import { ShareProvider } from '../lib/share';
+import { LinkIcon, ShareIcon } from './icons';
+import { MenuIcon } from './MenuIcon';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),

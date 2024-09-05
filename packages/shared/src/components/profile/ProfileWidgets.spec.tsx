@@ -1,10 +1,14 @@
-import React from 'react';
-import { render, RenderResult, screen, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render, RenderResult, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { LoggedUser, PublicProfile } from '../../lib/user';
+import React from 'react';
+
+import { settingsContext } from '../../../__tests__/helpers/boot';
+import { mockGraphQL } from '../../../__tests__/helpers/graphql';
+import { waitForNock } from '../../../__tests__/helpers/utilities';
 import AuthContext from '../../contexts/AuthContext';
-import { ProfileWidgets } from './ProfileWidgets';
+import LogContext from '../../contexts/LogContext';
+import SettingsContext from '../../contexts/SettingsContext';
 import { Connection } from '../../graphql/common';
 import {
   SourceMember,
@@ -12,13 +16,10 @@ import {
   SourceType,
   Squad,
 } from '../../graphql/sources';
-import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { PUBLIC_SOURCE_MEMBERSHIPS_QUERY } from '../../graphql/users';
-import { waitForNock } from '../../../__tests__/helpers/utilities';
-import { settingsContext } from '../../../__tests__/helpers/boot';
-import SettingsContext from '../../contexts/SettingsContext';
-import LogContext from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
+import { LoggedUser, PublicProfile } from '../../lib/user';
+import { ProfileWidgets } from './ProfileWidgets';
 
 beforeEach(() => {
   jest.clearAllMocks();

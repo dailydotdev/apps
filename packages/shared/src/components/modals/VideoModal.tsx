@@ -1,9 +1,10 @@
 import React, { ReactElement } from 'react';
 import ReactModal from 'react-modal';
-import { Modal } from './common/Modal';
-import { ModalKind, ModalSize } from './common/types';
+
 import { ButtonSize } from '../buttons/Button';
+import { Modal } from './common/Modal';
 import { ModalClose } from './common/ModalClose';
+import { ModalKind, ModalSize } from './common/types';
 
 interface VideoModalProps extends ReactModal.Props {
   src: string;

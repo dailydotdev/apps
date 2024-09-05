@@ -1,4 +1,5 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
+
 import {
   Card,
   CardImage,
@@ -6,9 +7,9 @@ import {
   CardTextContainer,
   CardTitle,
 } from '../Card';
-import AdLink from './common/AdLink';
 import AdAttribution from './common/AdAttribution';
 import { AdImage } from './common/AdImage';
+import AdLink from './common/AdLink';
 import { AdPixel } from './common/AdPixel';
 import type { AdCardProps } from './common/common';
 

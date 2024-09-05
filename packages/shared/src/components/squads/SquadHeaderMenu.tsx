@@ -1,34 +1,35 @@
-import React, { ReactElement, useMemo } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { useMutation } from '@tanstack/react-query';
-import {
-  Squad,
-  SourcePermissions,
-  SourceMemberRole,
-} from '../../graphql/sources';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { LazyModal } from '../modals/common/types';
-import { useDeleteSquad } from '../../hooks/useDeleteSquad';
-import { useLeaveSquad, useSquadNavigation } from '../../hooks';
-import { ContextMenuIcon } from '../tooltips/ContextMenuItem';
-import { verifyPermission } from '../../graphql/squads';
-import {
-  SettingsIcon,
-  TrashIcon,
-  FeedbackIcon,
-  TourIcon,
-  LinkIcon,
-  ExitIcon,
-  FlagIcon,
-} from '../icons';
-import { squadFeedback } from '../../lib/constants';
-import { MenuItemProps } from '../fields/ContextMenu';
-import { useSquadInvitation } from '../../hooks/useSquadInvitation';
-import { Origin } from '../../lib/log';
+import React, { ReactElement, useMemo } from 'react';
+
 import { useAuthContext } from '../../contexts/AuthContext';
+import {
+  SourceMemberRole,
+  SourcePermissions,
+  Squad,
+} from '../../graphql/sources';
+import { verifyPermission } from '../../graphql/squads';
+import { useLeaveSquad, useSquadNavigation } from '../../hooks';
 import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 import useContextMenu from '../../hooks/useContextMenu';
+import { useDeleteSquad } from '../../hooks/useDeleteSquad';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { useSquadInvitation } from '../../hooks/useSquadInvitation';
+import { squadFeedback } from '../../lib/constants';
+import { Origin } from '../../lib/log';
+import { MenuItemProps } from '../fields/ContextMenu';
+import {
+  ExitIcon,
+  FeedbackIcon,
+  FlagIcon,
+  LinkIcon,
+  SettingsIcon,
+  TourIcon,
+  TrashIcon,
+} from '../icons';
+import { LazyModal } from '../modals/common/types';
+import { ContextMenuIcon } from '../tooltips/ContextMenuItem';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ '../fields/ContextMenu'),

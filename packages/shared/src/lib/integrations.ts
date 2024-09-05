@@ -1,10 +1,11 @@
 import { FunctionComponent } from 'react';
+
+import { ButtonColor } from '../components/buttons/Button';
 import { IconProps } from '../components/Icon';
 import { AppIcon, SlackIcon } from '../components/icons';
 import { UserIntegrationType } from '../graphql/integrations';
 import { PromptOptions } from '../hooks/usePrompt';
 import { labels } from './labels';
-import { ButtonColor } from '../components/buttons/Button';
 
 const integrationTypeToIconMap: Record<
   UserIntegrationType,

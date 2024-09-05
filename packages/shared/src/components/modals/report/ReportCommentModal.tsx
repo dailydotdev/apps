@@ -1,14 +1,15 @@
 import React, { ReactElement } from 'react';
-import { ModalProps } from '../common/Modal';
-import { ReportModal } from './ReportModal';
-import useReportComment from '../../../hooks/useReportComment';
-import { Comment } from '../../../graphql/comments';
+
 import { useLogContext } from '../../../contexts/LogContext';
-import { postLogEvent } from '../../../lib/feed';
+import { Comment } from '../../../graphql/comments';
 import { Post } from '../../../graphql/posts';
+import useReportComment from '../../../hooks/useReportComment';
 import { PostBootData } from '../../../lib/boot';
+import { postLogEvent } from '../../../lib/feed';
 import { LogEvent } from '../../../lib/log';
 import { ReportReason } from '../../../report';
+import { ModalProps } from '../common/Modal';
+import { ReportModal } from './ReportModal';
 
 interface Props extends ModalProps {
   onReport: (comment: Comment) => void;

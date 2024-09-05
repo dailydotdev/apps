@@ -1,9 +1,10 @@
-import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
+import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
+
 import classed from '../../lib/classed';
-import styles from './utilities.module.css';
 import { ArrowIcon } from '../icons';
 import { pageMainClassNames } from '../layout/PageWrapperLayout';
+import styles from './utilities.module.css';
 
 export enum Theme {
   Avocado = 'avocado',

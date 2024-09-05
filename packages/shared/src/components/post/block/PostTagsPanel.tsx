@@ -1,22 +1,23 @@
-import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
-import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
+import React, { ReactElement, useState } from 'react';
+
 import { Post } from '../../../graphql/posts';
+import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
+import useFeedSettings from '../../../hooks/useFeedSettings';
 import { isNullOrUndefined } from '../../../lib/func';
-import { PostBlockedPanel } from './PostBlockedPanel';
-import CloseButton from '../../CloseButton';
 import {
   Button,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '../../buttons/Button';
-import { SourceAvatar } from '../../profile/source';
-import useFeedSettings from '../../../hooks/useFeedSettings';
-import { BlockTagSelection, getBlockedMessage } from './common';
-import { GenericTagButton } from '../../filters/TagButton';
-import { SimpleTooltip } from '../../tooltips';
+import CloseButton from '../../CloseButton';
 import ConditionalWrapper from '../../ConditionalWrapper';
+import { GenericTagButton } from '../../filters/TagButton';
+import { SourceAvatar } from '../../profile/source';
+import { SimpleTooltip } from '../../tooltips';
+import { BlockTagSelection, getBlockedMessage } from './common';
+import { PostBlockedPanel } from './PostBlockedPanel';
 
 interface PostTagsPanelProps {
   post: Post;

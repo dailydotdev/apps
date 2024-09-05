@@ -1,15 +1,16 @@
-import React, { CSSProperties, ReactElement, useState } from 'react';
 import classNames from 'classnames';
-import { PublicProfile } from '../../lib/user';
-import { ShareIcon, SettingsIcon } from '../icons';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import React, { CSSProperties, ReactElement, useState } from 'react';
+
+import { useViewSize, ViewSize } from '../../hooks';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { largeNumberFormat, ReferralCampaignKey } from '../../lib';
-import { ProfileSettingsMenu } from './ProfileSettingsMenu';
-import { RootPortal } from '../tooltips/Portal';
+import { PublicProfile } from '../../lib/user';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { SettingsIcon, ShareIcon } from '../icons';
 import { GoBackButton } from '../post/GoBackHeaderMobile';
-import { ViewSize, useViewSize } from '../../hooks';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { RootPortal } from '../tooltips/Portal';
+import { ProfileSettingsMenu } from './ProfileSettingsMenu';
 
 export interface HeaderProps {
   user: PublicProfile;

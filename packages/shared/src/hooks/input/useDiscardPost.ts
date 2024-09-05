@@ -1,17 +1,18 @@
-import { MutableRefObject, useCallback, useRef } from 'react';
 import { del as deleteCache } from 'idb-keyval';
-import { formToJson } from '../../lib/form';
-import { EditPostProps, Post } from '../../graphql/posts';
+import { MutableRefObject, useCallback, useRef } from 'react';
+
 import {
   checkSavedProperty,
   generateWritePostKey,
 } from '../../components/post/freeform';
+import { WriteForm, WritePostProps } from '../../contexts';
+import { EditPostProps, Post } from '../../graphql/posts';
+import { formToJson } from '../../lib/form';
 import {
   UseExitConfirmation,
   useExitConfirmation,
 } from '../useExitConfirmation';
 import usePersistentContext from '../usePersistentContext';
-import { WriteForm, WritePostProps } from '../../contexts';
 
 interface UseDiscardPostProps {
   post?: Post;

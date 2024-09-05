@@ -1,43 +1,43 @@
-import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
-import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
-import React, { ReactElement, SetStateAction, useState } from 'react';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
-import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import Pointer, {
   PointerColor,
 } from '@dailydotdev/shared/src/components/alert/Pointer';
-import useProfileForm from '@dailydotdev/shared/src/hooks/useProfileForm';
+import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
+import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
+import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
+import { HourDropdown } from '@dailydotdev/shared/src/components/fields/HourDropdown';
+import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
+import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons';
+import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
+import { TimezoneDropdown } from '@dailydotdev/shared/src/components/widgets/TimezoneDropdown';
+import { ToggleWeekStart } from '@dailydotdev/shared/src/components/widgets/ToggleWeekStart';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
+import { UserPersonalizedDigestType } from '@dailydotdev/shared/src/graphql/users';
+import { SendType, usePersonalizedDigest } from '@dailydotdev/shared/src/hooks';
+import { usePushNotificationMutation } from '@dailydotdev/shared/src/hooks/notifications';
+import { useReadingStreak } from '@dailydotdev/shared/src/hooks/streaks';
+import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
+import useProfileForm from '@dailydotdev/shared/src/hooks/useProfileForm';
+import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
+import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import {
   LogEvent,
   NotificationCategory,
   NotificationChannel,
   NotificationPromptSource,
 } from '@dailydotdev/shared/src/lib/log';
-import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
-import { SendType, usePersonalizedDigest } from '@dailydotdev/shared/src/hooks';
-import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
-import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
-import { usePushNotificationMutation } from '@dailydotdev/shared/src/hooks/notifications';
-import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
-import { HourDropdown } from '@dailydotdev/shared/src/components/fields/HourDropdown';
-import { UserPersonalizedDigestType } from '@dailydotdev/shared/src/graphql/users';
-import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
-import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
-import { useReadingStreak } from '@dailydotdev/shared/src/hooks/streaks';
-import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { TimezoneDropdown } from '@dailydotdev/shared/src/components/widgets/TimezoneDropdown';
-import { ToggleWeekStart } from '@dailydotdev/shared/src/components/widgets/ToggleWeekStart';
 import { getUserInitialTimezone } from '@dailydotdev/shared/src/lib/timezones';
+import React, { ReactElement, SetStateAction, useState } from 'react';
 
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
-import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection, {
   ContentHeading,
   ContentText,
 } from '../../components/layouts/AccountLayout/AccountContentSection';
+import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 
 const ALERT_PUSH_KEY = 'alert_push_key';
 

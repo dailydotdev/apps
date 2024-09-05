@@ -1,19 +1,20 @@
+import { useMutation } from '@tanstack/react-query';
 import classNames from 'classnames';
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import shuffle from 'lodash.shuffle';
 import { useRouter } from 'next/router';
-import { useMutation } from '@tanstack/react-query';
-import { OnboardingTitleGradient } from '../../../onboarding/common';
-import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
-import { MiniCloseIcon } from '../../../icons';
-import { Radio } from '../../../fields/Radio';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
+
+import LogContext from '../../../../contexts/LogContext';
 import {
   AcquisitionChannel,
   updateUserAcquisition,
 } from '../../../../graphql/users';
-import LogContext from '../../../../contexts/LogContext';
 import { removeQueryParam } from '../../../../lib';
 import { LogEvent, UserAcquisitionEvent } from '../../../../lib/log';
+import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
+import { Radio } from '../../../fields/Radio';
+import { MiniCloseIcon } from '../../../icons';
+import { OnboardingTitleGradient } from '../../../onboarding/common';
 import { ACQUISITION_FORM_OPTIONS, acquisitionKey } from './common';
 
 interface Props {

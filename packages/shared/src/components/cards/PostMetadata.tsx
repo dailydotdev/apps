@@ -1,10 +1,11 @@
-import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
-import { TimeFormatType } from '../../lib/dateFormat';
-import { Separator } from './common';
+import React, { ReactElement, ReactNode } from 'react';
+
 import { Post } from '../../graphql/posts';
-import { formatReadTime, TruncateText, DateFormat } from '../utilities';
 import { largeNumberFormat } from '../../lib';
+import { TimeFormatType } from '../../lib/dateFormat';
+import { DateFormat, formatReadTime, TruncateText } from '../utilities';
+import { Separator } from './common';
 
 interface PostMetadataProps
   extends Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> {

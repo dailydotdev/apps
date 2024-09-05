@@ -1,11 +1,12 @@
-import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonVariant } from './buttons/Button';
+import React, { ReactElement, useContext } from 'react';
+
 import AuthContext from '../contexts/AuthContext';
 import LogContext from '../contexts/LogContext';
 import { LogEvent } from '../hooks/log/useLogQueue';
 import { AuthTriggers } from '../lib/auth';
 import { TargetType } from '../lib/log';
+import { Button, ButtonVariant } from './buttons/Button';
 
 interface ClassName {
   container?: string;

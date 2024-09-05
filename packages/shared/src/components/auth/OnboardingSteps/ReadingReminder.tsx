@@ -5,23 +5,24 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { ClickableText } from '../../buttons/ClickableText';
-import { Radio } from '../../fields/Radio';
-import Alert, { AlertParagraph, AlertType } from '../../widgets/Alert';
-import { Button, ButtonVariant } from '../../buttons/Button';
+
+import AuthContext from '../../../contexts/AuthContext';
+import LogContext from '../../../contexts/LogContext';
+import { UserPersonalizedDigestType } from '../../../graphql/users';
+import { usePersonalizedDigest } from '../../../hooks';
 import { usePushNotificationMutation } from '../../../hooks/notifications';
 import {
   LogEvent,
   NotificationPromptSource,
   TargetType,
 } from '../../../lib/log';
-import { usePersonalizedDigest } from '../../../hooks';
-import { UserPersonalizedDigestType } from '../../../graphql/users';
-import { TimezoneDropdown } from '../../widgets/TimezoneDropdown';
-import LogContext from '../../../contexts/LogContext';
-import AuthContext from '../../../contexts/AuthContext';
 import { getUserInitialTimezone } from '../../../lib/timezones';
+import { Button, ButtonVariant } from '../../buttons/Button';
+import { ClickableText } from '../../buttons/ClickableText';
 import { HourDropdown } from '../../fields/HourDropdown';
+import { Radio } from '../../fields/Radio';
+import Alert, { AlertParagraph, AlertType } from '../../widgets/Alert';
+import { TimezoneDropdown } from '../../widgets/TimezoneDropdown';
 
 const ReadingReminderOptions = [
   { label: '09:00 ☕️', value: '9' },

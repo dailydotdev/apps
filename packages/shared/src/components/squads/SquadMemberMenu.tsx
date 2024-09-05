@@ -1,21 +1,22 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
+
 import AuthContext from '../../contexts/AuthContext';
-import { reportSquadMember } from '../../lib/constants';
-import { IconSize } from '../Icon';
 import {
   SourceMember,
   SourceMemberRole,
   SourcePermissions,
   Squad,
 } from '../../graphql/sources';
-import { StarIcon, UserIcon, SquadIcon, BlockIcon, FlagIcon } from '../icons';
-import { usePrompt } from '../../hooks/usePrompt';
-import { UserShortInfo } from '../profile/UserShortInfo';
-import ContextMenu, { MenuItemProps } from '../fields/ContextMenu';
-import { UseSquadActions, useToastNotification } from '../../hooks';
 import { verifyPermission } from '../../graphql/squads';
-import { ButtonColor, ButtonVariant } from '../buttons/Button';
+import { UseSquadActions, useToastNotification } from '../../hooks';
 import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
+import { usePrompt } from '../../hooks/usePrompt';
+import { reportSquadMember } from '../../lib/constants';
+import { ButtonColor, ButtonVariant } from '../buttons/Button';
+import ContextMenu, { MenuItemProps } from '../fields/ContextMenu';
+import { IconSize } from '../Icon';
+import { BlockIcon, FlagIcon, SquadIcon, StarIcon, UserIcon } from '../icons';
+import { UserShortInfo } from '../profile/UserShortInfo';
 
 interface SquadMemberMenuProps extends Pick<UseSquadActions, 'onUpdateRole'> {
   squad: Squad;

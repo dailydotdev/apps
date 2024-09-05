@@ -1,11 +1,12 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { WidgetContainer } from '../widgets/common';
-import { FeedbackIcon, DocsIcon } from '../icons';
-import { ListCardDivider } from '../cards/Card';
+import React, { ReactElement } from 'react';
+
 import { searchDocs, searchFeedback } from '../../lib/constants';
-import { WithClassNameProps } from '../utilities';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ListCardDivider } from '../cards/Card';
+import { DocsIcon, FeedbackIcon } from '../icons';
+import { WithClassNameProps } from '../utilities';
+import { WidgetContainer } from '../widgets/common';
 
 export const SearchFeedback = ({
   className,

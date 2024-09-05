@@ -1,8 +1,9 @@
 import React, { ReactElement } from 'react';
+
 import { Source } from '../../../graphql/sources';
+import { UserHighlight, UserType } from '../../widgets/PostUsersHighlights';
 import { CommonLeaderboardProps, LeaderboardList } from './LeaderboardList';
 import { LeaderboardListItem } from './LeaderboardListItem';
-import { UserHighlight, UserType } from '../../widgets/PostUsersHighlights';
 
 export function SourceTopList({
   items,

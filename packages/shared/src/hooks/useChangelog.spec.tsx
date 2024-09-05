@@ -1,13 +1,14 @@
-import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { renderHook } from '@testing-library/react-hooks';
+import React from 'react';
+
 import Post from '../../__tests__/fixture/post';
-import { useChangelog } from './useChangelog';
 import { AlertContextProvider } from '../contexts/AlertContext';
 import { AuthContextProvider } from '../contexts/AuthContext';
 import { Alerts } from '../graphql/alerts';
-import * as hooks from './vote/useVotePost';
 import { Origin } from '../lib/log';
+import { useChangelog } from './useChangelog';
+import * as hooks from './vote/useVotePost';
 
 const client = new QueryClient();
 const defaultPost = Post;

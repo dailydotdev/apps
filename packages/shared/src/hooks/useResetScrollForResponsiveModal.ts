@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+
 import { mobileL } from '../styles/media';
 
 export const responsiveModalBreakpoint = mobileL;

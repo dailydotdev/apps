@@ -1,16 +1,17 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
+import React, { ReactElement } from 'react';
+
+import { useLogContext } from '../../contexts/LogContext';
+import { useNotificationContext } from '../../contexts/NotificationsContext';
+import { useViewSize, ViewSize } from '../../hooks';
+import { webappUrl } from '../../lib/constants';
+import { LogEvent, NotificationTarget } from '../../lib/log';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { BellIcon } from '../icons';
+import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { Bubble } from '../tooltips/utils';
 import { getUnreadText, notificationsUrl } from './utils';
-import { useNotificationContext } from '../../contexts/NotificationsContext';
-import { LogEvent, NotificationTarget } from '../../lib/log';
-import { useLogContext } from '../../contexts/LogContext';
-import { webappUrl } from '../../lib/constants';
-import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
-import { useViewSize, ViewSize } from '../../hooks';
 
 function NotificationsBell({ compact }: { compact?: boolean }): ReactElement {
   const router = useRouter();

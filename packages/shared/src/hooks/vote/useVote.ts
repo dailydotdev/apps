@@ -1,20 +1,21 @@
-import { useContext, useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import { useCallback, useContext } from 'react';
+
 import AuthContext from '../../contexts/AuthContext';
+import { ActionType } from '../../graphql/actions';
 import { UserVote } from '../../graphql/posts';
+import { VOTE_MUTATION } from '../../graphql/users';
 import { AuthTriggers } from '../../lib/auth';
+import { useActions } from '../useActions';
 import { useRequestProtocol } from '../useRequestProtocol';
 import {
-  UseVoteMutationProps,
-  VoteProps,
-  UseVote,
-  UseVoteProps,
   createVoteMutationKey,
   UserVoteEntity,
+  UseVote,
+  UseVoteMutationProps,
+  UseVoteProps,
+  VoteProps,
 } from './types';
-import { VOTE_MUTATION } from '../../graphql/users';
-import { useActions } from '../useActions';
-import { ActionType } from '../../graphql/actions';
 
 const useVote = ({ onMutate, entity, variables }: UseVoteProps): UseVote => {
   const { requestMethod } = useRequestProtocol();

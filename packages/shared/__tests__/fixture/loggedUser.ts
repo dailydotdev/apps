@@ -1,5 +1,5 @@
-import { LoggedUser } from '../../src/lib/user';
 import { Author } from '../../src/graphql/comments';
+import { LoggedUser } from '../../src/lib/user';
 
 const user: LoggedUser = {
   id: 'u1',

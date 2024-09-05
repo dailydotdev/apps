@@ -3,13 +3,13 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { PlayIcon } from '@dailydotdev/shared/src/components/icons';
+import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
 import React, { forwardRef, ReactElement, Ref } from 'react';
-import { PlayIcon } from '@dailydotdev/shared/src/components/icons';
-import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
-import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 
 const CompanionSection = classed('div', 'flex flex-col max-w-full');
 

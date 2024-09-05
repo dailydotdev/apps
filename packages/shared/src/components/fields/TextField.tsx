@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, {
   forwardRef,
   MutableRefObject,
@@ -5,9 +6,9 @@ import React, {
   ReactNode,
   SyntheticEvent,
 } from 'react';
-import classNames from 'classnames';
-import { FieldInput } from './common';
-import styles from './TextField.module.css';
+
+import useInputFieldFunctions from '../../hooks/useInputFieldFunctions';
+import { ButtonProps } from '../buttons/Button';
 import { IconProps } from '../Icon';
 import BaseFieldContainer, {
   BaseFieldProps,
@@ -15,8 +16,8 @@ import BaseFieldContainer, {
   getFieldLabelColor,
   getFieldPlaceholder,
 } from './BaseFieldContainer';
-import { ButtonProps } from '../buttons/Button';
-import useInputFieldFunctions from '../../hooks/useInputFieldFunctions';
+import { FieldInput } from './common';
+import styles from './TextField.module.css';
 
 export interface TextFieldProps extends BaseFieldProps {
   progress?: string;

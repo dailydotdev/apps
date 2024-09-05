@@ -1,17 +1,18 @@
 import {
-  useQueryClient,
-  useInfiniteQuery,
   InfiniteData,
+  useInfiniteQuery,
   UseInfiniteQueryResult,
+  useQueryClient,
 } from '@tanstack/react-query';
 import { useCallback } from 'react';
+
 import { Connection } from '../../graphql/common';
 import {
-  RelatedPost,
-  RELATED_POSTS_QUERY,
-  PostRelationType,
   PostData,
+  PostRelationType,
   RELATED_POSTS_PER_PAGE_DEFAULT,
+  RELATED_POSTS_QUERY,
+  RelatedPost,
 } from '../../graphql/posts';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { getPostByIdKey } from '../usePostById';

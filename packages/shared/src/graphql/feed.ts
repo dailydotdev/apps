@@ -1,7 +1,8 @@
 import { gql } from 'graphql-request';
+
+import { Connection } from './common';
 import { CUSTOM_FEED_FRAGMENT, SHARED_POST_INFO_FRAGMENT } from './fragments';
 import { Post, PostType } from './posts';
-import { Connection } from './common';
 
 export enum RankingAlgorithm {
   Popularity = 'POPULARITY',

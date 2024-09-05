@@ -1,10 +1,11 @@
 import classNames from 'classnames';
 import React, {
-  ReactElement,
-  ReactNode,
   forwardRef,
   MutableRefObject,
+  ReactElement,
+  ReactNode,
 } from 'react';
+
 import { BaseField, FieldType, TextInputProps } from './common';
 
 interface FieldStateProps {

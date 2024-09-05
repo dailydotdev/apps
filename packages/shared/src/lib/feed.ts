@@ -1,9 +1,9 @@
-import { FeedItem, PostItem } from '../hooks/useFeed';
+import { SharedFeedPage } from '../components/utilities';
 import { Ad, Post, ReadHistoryPost } from '../graphql/posts';
 import { LogEvent } from '../hooks/log/useLogQueue';
+import { FeedItem, PostItem } from '../hooks/useFeed';
 import { PostBootData } from './boot';
 import { Origin } from './log';
-import { SharedFeedPage } from '../components/utilities';
 import { AllFeedPages, OtherFeedPage } from './query';
 
 export function optimisticPostUpdateInFeed(

@@ -1,23 +1,24 @@
-import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
-import OptionsButton from '../buttons/OptionsButton';
-import { CardHeader } from './Card';
-import SourceButton from './SourceButton';
-import { Source } from '../../graphql/sources';
-import { ReadArticleButton } from './ReadArticleButton';
-import { getGroupedHoverContainer } from './common';
-import { useFeedPreviewMode } from '../../hooks';
+import React, { ReactElement, ReactNode } from 'react';
+
 import { getReadPostButtonText, Post } from '../../graphql/posts';
-import { ButtonVariant } from '../buttons/Button';
-import { FlagProps } from './FeedItemContainer';
+import { Source } from '../../graphql/sources';
+import { useFeedPreviewMode } from '../../hooks';
 import useBookmarkProvider from '../../hooks/useBookmarkProvider';
+import { ButtonVariant } from '../buttons/Button';
+import OptionsButton from '../buttons/OptionsButton';
+import { ProfileImageLink } from '../profile/ProfileImageLink';
+import { ProfileTooltip } from '../profile/ProfileTooltip';
+import { ProfileImageSize } from '../ProfilePicture';
 import {
   BookmakProviderHeader,
   headerHiddenClassName,
 } from './BookmarkProviderHeader';
-import { ProfileTooltip } from '../profile/ProfileTooltip';
-import { ProfileImageLink } from '../profile/ProfileImageLink';
-import { ProfileImageSize } from '../ProfilePicture';
+import { CardHeader } from './Card';
+import { getGroupedHoverContainer } from './common';
+import { FlagProps } from './FeedItemContainer';
+import { ReadArticleButton } from './ReadArticleButton';
+import SourceButton from './SourceButton';
 
 interface CardHeaderProps {
   post: Post;

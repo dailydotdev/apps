@@ -1,11 +1,12 @@
-import React, { ReactElement } from 'react';
 import dynamic from 'next/dynamic';
+import React, { ReactElement } from 'react';
+
+import { useChangelog } from '../../hooks/useChangelog';
+import { docs, feedback } from '../../lib/constants';
+import { AlertColor, AlertDot } from '../AlertDot';
 import { DocsIcon, FeedbackIcon, TerminalIcon } from '../icons';
 import { ListIcon, Nav, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
-import { docs, feedback } from '../../lib/constants';
-import { useChangelog } from '../../hooks/useChangelog';
-import { AlertColor, AlertDot } from '../AlertDot';
 
 const ChangelogTooltip = dynamic(
   () =>

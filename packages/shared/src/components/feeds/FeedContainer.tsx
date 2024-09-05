@@ -1,3 +1,5 @@
+import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import React, {
   CSSProperties,
   ReactElement,
@@ -5,27 +7,26 @@ import React, {
   useContext,
   useMemo,
 } from 'react';
-import classNames from 'classnames';
-import { useRouter } from 'next/router';
-import { Spaciness } from '../../graphql/settings';
-import SettingsContext from '../../contexts/SettingsContext';
+
+import { useActiveFeedNameContext } from '../../contexts';
 import FeedContext from '../../contexts/FeedContext';
-import styles from '../Feed.module.css';
+import SettingsContext from '../../contexts/SettingsContext';
+import { Spaciness } from '../../graphql/settings';
 import {
-  useFeedLayout,
-  ToastSubject,
-  useToastNotification,
   FeedPagesWithMobileLayoutType,
+  ToastSubject,
+  useFeedLayout,
+  useFeeds,
+  useToastNotification,
   useViewSize,
   ViewSize,
-  useFeeds,
 } from '../../hooks';
-import ConditionalWrapper from '../ConditionalWrapper';
-import { useActiveFeedNameContext } from '../../contexts';
-import { SharedFeedPage } from '../utilities';
 import { useFeedName } from '../../hooks/feed/useFeedName';
-import { OtherFeedPage } from '../../lib/query';
 import { useShortcuts } from '../../hooks/utils';
+import { OtherFeedPage } from '../../lib/query';
+import ConditionalWrapper from '../ConditionalWrapper';
+import styles from '../Feed.module.css';
+import { SharedFeedPage } from '../utilities';
 
 export interface FeedContainerProps {
   children: ReactNode;

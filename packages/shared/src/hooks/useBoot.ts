@@ -1,13 +1,14 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { BOOT_QUERY_KEY } from '../contexts/common';
-import { Squad } from '../graphql/sources';
-import { Boot } from '../lib/boot';
+
 import {
   MarketingCta,
   MarketingCtaVariant,
 } from '../components/marketingCta/common';
-import { CLEAR_MARKETING_CTA_MUTATION } from '../graphql/users';
+import { BOOT_QUERY_KEY } from '../contexts/common';
 import { gqlClient } from '../graphql/common';
+import { Squad } from '../graphql/sources';
+import { CLEAR_MARKETING_CTA_MUTATION } from '../graphql/users';
+import { Boot } from '../lib/boot';
 
 type UseBoot = {
   addSquad: (squad: Squad) => void;

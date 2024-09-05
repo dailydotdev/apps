@@ -1,18 +1,19 @@
 import { useQuery } from '@tanstack/react-query';
 import { useCallback } from 'react';
+
 import { useAuthContext } from '../../contexts/AuthContext';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import {
-  UseSearchProvider,
-  UseSearchProviderProps,
-  useSearchProvider,
-} from './useSearchProvider';
 import {
   defaultSearchSuggestionsLimit,
   minSearchQueryLength,
 } from '../../graphql/search';
-import useDebounce from '../useDebounce';
 import { defaultSearchDebounceMs } from '../../lib/func';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import useDebounce from '../useDebounce';
+import {
+  UseSearchProvider,
+  useSearchProvider,
+  UseSearchProviderProps,
+} from './useSearchProvider';
 
 export type UseSearchProviderSuggestionsProps = {
   limit?: number;

@@ -1,29 +1,29 @@
-import React, { ReactElement } from 'react';
-import { GetStaticPropsResult } from 'next';
-import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
-
 import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { SourceTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
+import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { PlusIcon, SitesIcon } from '@dailydotdev/shared/src/components/icons';
+import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import {
   Source,
   SOURCE_DIRECTORY_QUERY,
 } from '@dailydotdev/shared/src/graphql/sources';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { useRouter } from 'next/router';
-import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
-import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
-import { SourceTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
-import { getLayout } from '../../components/layouts/MainLayout';
+import { GetStaticPropsResult } from 'next';
+import { useRouter } from 'next/router';
+import { NextSeo } from 'next-seo';
+import { NextSeoProps } from 'next-seo/lib/types';
+import React, { ReactElement } from 'react';
+
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
+import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../../next-seo';
 
 const seo: NextSeoProps = {

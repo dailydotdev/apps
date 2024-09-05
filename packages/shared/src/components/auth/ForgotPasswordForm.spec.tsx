@@ -1,4 +1,4 @@
-import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   fireEvent,
   render,
@@ -7,17 +7,18 @@ import {
   waitFor,
 } from '@testing-library/react';
 import nock from 'nock';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { waitForNock } from '../../../__tests__/helpers/utilities';
+import React from 'react';
+
 import {
   emailSentRecoveryMockData,
   passwordRecoveryFlowMockData,
 } from '../../../__tests__/fixture/auth';
-import { AccountRecoveryParameters } from '../../lib/auth';
+import { waitForNock } from '../../../__tests__/helpers/utilities';
 import { AuthContextProvider } from '../../contexts/AuthContext';
+import { AccountRecoveryParameters } from '../../lib/auth';
+import { authUrl } from '../../lib/constants';
 import { formToJson } from '../../lib/form';
 import ForgotPasswordForm from './ForgotPasswordForm';
-import { authUrl } from '../../lib/constants';
 
 beforeEach(() => {
   jest.clearAllMocks();

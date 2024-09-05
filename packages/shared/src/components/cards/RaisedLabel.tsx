@@ -1,7 +1,8 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import React, { ReactElement } from 'react';
+
 import classed from '../../lib/classed';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import styles from './Card.module.css';
 
 export enum RaisedLabelType {

@@ -1,11 +1,12 @@
-import React, { ReactElement, useEffect } from 'react';
 import Link from 'next/link';
+import React, { ReactElement, useEffect } from 'react';
+
+import { useExtensionContext } from '../contexts/ExtensionContext';
+import { onboardingUrl } from '../lib/constants';
+import { cloudinary } from '../lib/image';
+import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import Logo, { LogoPosition } from './Logo';
 import { OnboardingTitleGradient } from './onboarding/common';
-import { onboardingUrl } from '../lib/constants';
-import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
-import { cloudinary } from '../lib/image';
-import { useExtensionContext } from '../contexts/ExtensionContext';
 
 const ExtensionOnboarding = (): ReactElement => {
   const { setCurrentPage } = useExtensionContext();

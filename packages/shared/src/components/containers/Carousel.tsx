@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode, useState } from 'react';
-import { useSwipeable, SwipeCallback } from 'react-swipeable';
+import { SwipeCallback, useSwipeable } from 'react-swipeable';
+
 import { isNullOrUndefined } from '../../lib/func';
 import CarouselIndicator from './CarouselIndicator';
 

@@ -1,18 +1,19 @@
 import React, { ReactElement, useMemo } from 'react';
-import { cloudinary } from '../../lib/image';
-import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
-import { FlexCentered, Justify } from '../utilities';
-import Carousel from '../containers/Carousel';
-import { ModalFooter } from '../modals/common/ModalFooter';
-import SquadTourCard from './SquadTourCard';
-import classed from '../../lib/classed';
-import { Source, SourceMemberRole } from '../../graphql/sources';
-import { StarIcon, UserIcon } from '../icons';
-import { capitalize } from '../../lib/strings';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+
 import { useAuthContext } from '../../contexts/AuthContext';
-import { IconSize } from '../Icon';
+import { Source, SourceMemberRole } from '../../graphql/sources';
+import classed from '../../lib/classed';
+import { cloudinary } from '../../lib/image';
+import { capitalize } from '../../lib/strings';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import SourceButton from '../cards/SourceButton';
+import Carousel from '../containers/Carousel';
+import { IconSize } from '../Icon';
+import { StarIcon, UserIcon } from '../icons';
+import { ModalFooter } from '../modals/common/ModalFooter';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { FlexCentered, Justify } from '../utilities';
+import SquadTourCard from './SquadTourCard';
 
 interface PromotionTourProps {
   onClose: React.EventHandler<React.MouseEvent>;

@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { UserCompany } from '../../lib/userCompany';
-import { GET_USER_COMPANIES } from '../../graphql/users';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+
 import { useAuthContext } from '../../contexts/AuthContext';
 import { gqlClient } from '../../graphql/common';
+import { GET_USER_COMPANIES } from '../../graphql/users';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import { UserCompany } from '../../lib/userCompany';
 
 interface UseUserCompaniesQuery {
   userCompanies: UserCompany[];

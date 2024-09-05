@@ -1,5 +1,5 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
 
 type SourceImageSize = 'size-24' | 'size-16' | 'size-14';
 

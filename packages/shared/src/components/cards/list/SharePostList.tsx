@@ -1,17 +1,18 @@
-import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
-import Link from 'next/link';
 import classNames from 'classnames';
-import ActionButtons from './ActionButtons';
-import { Container, PostCardProps } from '../common';
-import FeedItemContainer from './FeedItemContainer';
-import { useFeedPreviewMode, useTruncatedSummary } from '../../../hooks';
+import Link from 'next/link';
+import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
+
 import { isVideoPost } from '../../../graphql/posts';
-import { PostCardHeader } from './PostCardHeader';
-import { CardCoverList } from './CardCover';
-import { CardContent, CardTitle } from './ListCard';
+import { useFeedPreviewMode, useTruncatedSummary } from '../../../hooks';
+import { ProfileImageSize } from '../../ProfilePicture';
+import { Container, PostCardProps } from '../common';
 import PostTags from '../PostTags';
 import SourceButton from '../SourceButton';
-import { ProfileImageSize } from '../../ProfilePicture';
+import ActionButtons from './ActionButtons';
+import { CardCoverList } from './CardCover';
+import FeedItemContainer from './FeedItemContainer';
+import { CardContent, CardTitle } from './ListCard';
+import { PostCardHeader } from './PostCardHeader';
 
 export const SharePostList = forwardRef(function SharePostCard(
   {

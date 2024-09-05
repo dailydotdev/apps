@@ -1,5 +1,5 @@
-import React, { ComponentProps, ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ComponentProps, ReactElement } from 'react';
 
 interface WidgetCardProps extends ComponentProps<'section'> {
   heading?: string;

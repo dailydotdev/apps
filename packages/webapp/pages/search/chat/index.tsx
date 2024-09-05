@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
 import { withFeaturesBoundary } from '@dailydotdev/shared/src/components';
 import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
-import SearchPage from '../../../components/search/SearchChatPage';
+import React, { ReactElement } from 'react';
+
 import { GetSearchLayout } from '../../../components/layouts/SearchLayout';
+import SearchPage from '../../../components/search/SearchChatPage';
 
 const SearchChatPage = (): ReactElement => {
   return <SearchPage />;

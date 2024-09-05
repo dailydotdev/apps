@@ -1,19 +1,20 @@
-import React, { ReactElement, useEffect } from 'react';
 import classNames from 'classnames';
-import PostContentContainer from './PostContentContainer';
-import usePostContent from '../../hooks/usePostContent';
-import PostSourceInfo from './PostSourceInfo';
-import { BasePostContent } from './BasePostContent';
-import { PostType, isVideoPost } from '../../graphql/posts';
-import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
-import SquadPostAuthor from './SquadPostAuthor';
-import SharePostContent from './SharePostContent';
-import MarkdownPostContent from './MarkdownPostContent';
-import { SquadPostWidgets } from './SquadPostWidgets';
+import React, { ReactElement, useEffect } from 'react';
+
 import { useAuthContext } from '../../contexts/AuthContext';
-import { PostContentProps, PostNavigationProps } from './common';
-import ShareYouTubeContent from './ShareYouTubeContent';
+import { isVideoPost, PostType } from '../../graphql/posts';
 import { useViewPost } from '../../hooks/post';
+import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
+import usePostContent from '../../hooks/usePostContent';
+import { BasePostContent } from './BasePostContent';
+import { PostContentProps, PostNavigationProps } from './common';
+import MarkdownPostContent from './MarkdownPostContent';
+import PostContentContainer from './PostContentContainer';
+import PostSourceInfo from './PostSourceInfo';
+import SharePostContent from './SharePostContent';
+import ShareYouTubeContent from './ShareYouTubeContent';
+import SquadPostAuthor from './SquadPostAuthor';
+import { SquadPostWidgets } from './SquadPostWidgets';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,

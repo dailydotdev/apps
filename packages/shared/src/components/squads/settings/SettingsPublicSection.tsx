@@ -1,11 +1,12 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { badge, SquadStatus, StatusDescription } from './common';
-import { Anchor } from '../../text';
-import { squadsPublicGuide } from '../../../lib/constants';
-import { PublicStatusPanel } from './PublicStatusPanel';
+import React, { ReactElement } from 'react';
+
 import { PUBLIC_SQUAD_REQUEST_REQUIREMENT } from '../../../lib/config';
+import { squadsPublicGuide } from '../../../lib/constants';
+import { Anchor } from '../../text';
 import PublicSquadSubmissionActions from '../PublicSquadSubmissionActions';
+import { badge, SquadStatus, StatusDescription } from './common';
+import { PublicStatusPanel } from './PublicStatusPanel';
 
 export interface SettingsPublicSectionProps {
   totalPosts: number;

@@ -1,13 +1,14 @@
 import React, { ReactElement, useState } from 'react';
+
+import { useSquadTour } from '../../hooks/useSquadTour';
+import classed from '../../lib/classed';
 import { cloudinary } from '../../lib/image';
 import { Button, ButtonVariant } from '../buttons/Button';
-import { Justify } from '../utilities';
 import Carousel from '../containers/Carousel';
-import { ModalFooter } from '../modals/common/ModalFooter';
-import SquadTourCard from './SquadTourCard';
-import classed from '../../lib/classed';
-import { useSquadTour } from '../../hooks/useSquadTour';
 import { PopupCloseFunc } from '../drawers';
+import { ModalFooter } from '../modals/common/ModalFooter';
+import { Justify } from '../utilities';
+import SquadTourCard from './SquadTourCard';
 
 interface SquadTourProps {
   onClose: PopupCloseFunc;

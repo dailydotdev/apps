@@ -6,6 +6,10 @@ import React, {
   useEffect,
   useState,
 } from 'react';
+
+import LogContext from '../../contexts/LogContext';
+import { useGenerateUsername } from '../../hooks';
+import { onValidateHandles } from '../../hooks/useProfileForm';
 import {
   AuthEventNames,
   AuthTriggers,
@@ -15,23 +19,20 @@ import {
 } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant } from '../buttons/Button';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { Checkbox } from '../fields/Checkbox';
 import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
-import { MailIcon, UserIcon, VIcon, AtIcon, TwitterIcon } from '../icons';
+import { AtIcon, MailIcon, TwitterIcon, UserIcon, VIcon } from '../icons';
 import { CloseModalFunc } from '../modals/common';
-import AuthHeader from './AuthHeader';
-import TokenInput from './TokenField';
-import AuthForm from './AuthForm';
-import { Checkbox } from '../fields/Checkbox';
-import LogContext from '../../contexts/LogContext';
 import { Modal } from '../modals/common/Modal';
-import { useGenerateUsername } from '../../hooks';
-import { AuthFormProps } from './common';
-import ConditionalWrapper from '../ConditionalWrapper';
-import AuthContainer from './AuthContainer';
-import { onValidateHandles } from '../../hooks/useProfileForm';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
 import { LanguageDropdown } from '../profile/LanguageDropdown';
+import AuthContainer from './AuthContainer';
+import AuthForm from './AuthForm';
+import AuthHeader from './AuthHeader';
+import { AuthFormProps } from './common';
+import TokenInput from './TokenField';
 
 export interface RegistrationFormProps extends AuthFormProps {
   email: string;

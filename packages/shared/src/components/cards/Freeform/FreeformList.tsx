@@ -1,21 +1,21 @@
-import React, { forwardRef, ReactElement, Ref, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { sanitize } from 'dompurify';
+import React, { forwardRef, ReactElement, Ref, useMemo, useRef } from 'react';
 
-import { Container, generateTitleClamp, PostCardProps } from '../common';
-import { useSquadChecklist } from '../../../hooks/useSquadChecklist';
-import { Squad } from '../../../graphql/sources';
 import { ActionType } from '../../../graphql/actions';
 import { PostType } from '../../../graphql/posts';
+import { Squad } from '../../../graphql/sources';
 import { useFeedPreviewMode, useTruncatedSummary } from '../../../hooks';
 import { usePostImage } from '../../../hooks/post/usePostImage';
-import SquadHeaderPicture from '../common/SquadHeaderPicture';
+import { useSquadChecklist } from '../../../hooks/useSquadChecklist';
 import { PostContentReminder } from '../../post/common/PostContentReminder';
+import { Container, generateTitleClamp, PostCardProps } from '../common';
+import SquadHeaderPicture from '../common/SquadHeaderPicture';
+import ActionButtons from '../list/ActionButtons';
+import { CardCoverList } from '../list/CardCover';
 import FeedItemContainer from '../list/FeedItemContainer';
 import { CardContainer, CardContent, CardTitle } from '../list/ListCard';
 import { PostCardHeader } from '../list/PostCardHeader';
-import { CardCoverList } from '../list/CardCover';
-import ActionButtons from '../list/ActionButtons';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {

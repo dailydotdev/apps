@@ -1,6 +1,7 @@
 import { gql } from 'graphql-request';
-import { EmptyResponse } from './graphql/emptyResponse';
+
 import { gqlClient } from './graphql/common';
+import { EmptyResponse } from './graphql/emptyResponse';
 
 export enum ReportEntity {
   Post = 'post',

@@ -1,9 +1,10 @@
 import { useRouter } from 'next/router';
 import { useEffect, useMemo } from 'react';
+
+import { useAuthContext } from '../../contexts/AuthContext';
+import { SourceType } from '../../graphql/sources';
 import { getPathnameWithQuery } from '../../lib';
 import { webappUrl } from '../../lib/constants';
-import { SourceType } from '../../graphql/sources';
-import { useAuthContext } from '../../contexts/AuthContext';
 
 export type UsePrivateSourceJoinProps = {
   postId?: string;

@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import React, { ReactElement } from 'react';
+
+import { ButtonSize } from '../buttons/common';
 import {
   EmptyScreenButton,
   EmptyScreenDescription,
@@ -7,7 +9,6 @@ import {
   EmptyScreenTitle,
 } from '../EmptyScreen';
 import { EyeIcon } from '../icons';
-import { ButtonSize } from '../buttons/common';
 
 function ReadingHistoryEmptyScreen(): ReactElement {
   return (

@@ -1,9 +1,10 @@
-import { useContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getProfile, PublicProfile } from '../../lib/user';
+import { useContext } from 'react';
+
 import AuthContext from '../../contexts/AuthContext';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { disabledRefetch } from '../../lib/func';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import { getProfile, PublicProfile } from '../../lib/user';
 
 export function useProfile(initialUser?: PublicProfile): PublicProfile {
   const { user: loggedUser } = useContext(AuthContext);

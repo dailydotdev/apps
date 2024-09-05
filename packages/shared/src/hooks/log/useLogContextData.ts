@@ -1,7 +1,8 @@
 import { MutableRefObject, useMemo } from 'react';
-import { LogEvent, PushToQueueFunc } from './useLogQueue';
+
 import { getCurrentLifecycleState } from '../../lib/lifecycle';
 import { Origin } from '../../lib/log';
+import { LogEvent, PushToQueueFunc } from './useLogQueue';
 
 export type LogContextData = {
   logEvent: (event: LogEvent) => void;

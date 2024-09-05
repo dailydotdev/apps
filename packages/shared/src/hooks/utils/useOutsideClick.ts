@@ -1,6 +1,7 @@
 import { RefObject } from 'react';
-import { useEventListener } from '../useEventListener';
+
 import { isNullOrUndefined } from '../../lib/func';
+import { useEventListener } from '../useEventListener';
 
 export const useOutsideClick = (
   ref: RefObject<HTMLElement>,

@@ -1,9 +1,10 @@
-import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render, RenderResult, screen } from '@testing-library/react';
+import React from 'react';
+
+import { defaultSteps, updateStep } from '../../hooks/useChecklist.spec';
 import { ChecklistCardProps } from '../../lib/checklist';
 import { ChecklistCard } from './ChecklistCard';
-import { defaultSteps, updateStep } from '../../hooks/useChecklist.spec';
 
 describe('ChecklistCard component', () => {
   beforeEach(() => {

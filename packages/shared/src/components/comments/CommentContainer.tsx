@@ -1,23 +1,24 @@
 import classNames from 'classnames';
-import React, { ReactElement, ReactNode } from 'react';
 import Link from 'next/link';
+import React, { ReactElement, ReactNode } from 'react';
+
 import { Comment, getCommentHash } from '../../graphql/comments';
 import { Post } from '../../graphql/posts';
+import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
+import { CardLink } from '../cards/Card';
+import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { FeatherIcon, ScoutIcon } from '../icons';
 import Markdown from '../Markdown';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import { ProfileLink } from '../profile/ProfileLink';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
+import { ReputationUserBadge } from '../ReputationUserBadge';
 import SquadMemberBadge from '../squads/SquadMemberBadge';
 import UserBadge from '../UserBadge';
 import { FlexRow, TruncateText } from '../utilities';
+import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import CommentAuthor from './CommentAuthor';
 import { CommentPublishDate } from './CommentPublishDate';
-import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
-import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
-import { CardLink } from '../cards/Card';
-import { ReputationUserBadge } from '../ReputationUserBadge';
-import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 
 interface ClassName extends CommentClassName {
   content?: string;

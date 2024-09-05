@@ -1,5 +1,6 @@
-import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import React from 'react';
+
 import ad from '../../../../__tests__/fixture/ad';
 import { AdGrid } from './AdGrid';
 import { AdCardProps } from './common/common';

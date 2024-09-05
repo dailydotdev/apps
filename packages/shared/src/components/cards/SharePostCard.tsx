@@ -1,17 +1,18 @@
 import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
+
+import { isVideoPost } from '../../graphql/posts';
+import ActionButtons from './ActionsButtons/ActionButtons';
 import {
   CardSpace,
   CardTextContainer,
   CardTitle,
   getPostClassNames,
 } from './Card';
-import ActionButtons from './ActionsButtons/ActionButtons';
 import { Container, PostCardProps } from './common';
-import FeedItemContainer from './FeedItemContainer';
-import { isVideoPost } from '../../graphql/posts';
 import CardOverlay from './common/CardOverlay';
-import { PostCardHeader } from './PostCardHeader';
+import FeedItemContainer from './FeedItemContainer';
 import { PostCardFooter } from './PostCardFooter';
+import { PostCardHeader } from './PostCardHeader';
 import PostMetadata from './PostMetadata';
 import PostTags from './PostTags';
 

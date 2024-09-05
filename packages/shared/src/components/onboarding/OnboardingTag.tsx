@@ -1,10 +1,11 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
-import { AlertDot, AlertColor } from '../AlertDot';
+
+import { Tag } from '../../graphql/feedSettings';
+import { AlertColor, AlertDot } from '../AlertDot';
 import { Button, ButtonColor } from '../buttons/Button';
 import { ButtonVariant } from '../buttons/common';
 import { OnSelectTagProps } from './common';
-import { Tag } from '../../graphql/feedSettings';
 
 export type OnboardingTagProps = {
   tag: Tag;

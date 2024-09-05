@@ -1,22 +1,23 @@
-import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/react';
-import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
-import nock from 'nock';
-import {
-  USER_READING_HISTORY_QUERY,
-  UserReadingRankHistory,
-  MostReadTag,
-  ProfileReadingData,
-} from '@dailydotdev/shared/src/graphql/users';
-import { QueryClient } from '@tanstack/react-query';
-import { startOfTomorrow, subDays, subYears } from 'date-fns';
+import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
-import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
+import {
+  MostReadTag,
+  ProfileReadingData,
+  USER_READING_HISTORY_QUERY,
+  UserReadingRankHistory,
+} from '@dailydotdev/shared/src/graphql/users';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
+import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import { QueryClient } from '@tanstack/react-query';
+import { render, RenderResult, screen } from '@testing-library/react';
+import { startOfTomorrow, subDays, subYears } from 'date-fns';
+import nock from 'nock';
+import React from 'react';
+
 import ProfilePage from '../pages/[userId]/index';
 
 beforeEach(() => {

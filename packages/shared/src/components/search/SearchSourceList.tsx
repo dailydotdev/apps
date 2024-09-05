@@ -1,15 +1,16 @@
-import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
-import { widgetClasses } from '../widgets/common';
-import { ArrowIcon } from '../icons';
-import { PlaceholderSearchSource } from './PlaceholderSearchSource';
-import { PageWidgets } from '../utilities';
-import { SearchSourceItem } from './SearchSourceItem';
+import React, { ReactElement, useState } from 'react';
+
 import { SearchChunkSource } from '../../graphql/search';
-import { PaginationActions } from '../pagination';
-import { usePagination } from '../../hooks/utils';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
+import { usePagination } from '../../hooks/utils';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ArrowIcon } from '../icons';
+import { PaginationActions } from '../pagination';
+import { PageWidgets } from '../utilities';
+import { widgetClasses } from '../widgets/common';
+import { PlaceholderSearchSource } from './PlaceholderSearchSource';
+import { SearchSourceItem } from './SearchSourceItem';
 
 interface SearchSourceListProps {
   sources: SearchChunkSource[];

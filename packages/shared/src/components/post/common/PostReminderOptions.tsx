@@ -1,19 +1,20 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
+import { Post } from '../../../graphql/posts';
+import {
+  ReminderPreference,
+  useBookmarkReminder,
+} from '../../../hooks/notifications';
+import { useLazyModal } from '../../../hooks/useLazyModal';
+import { wrapStopPropagation } from '../../../lib/func';
 import {
   Button,
   ButtonProps,
   ButtonSize,
   ButtonVariant,
 } from '../../buttons/Button';
-import {
-  ReminderPreference,
-  useBookmarkReminder,
-} from '../../../hooks/notifications';
 import { LazyModal } from '../../modals/common/types';
-import { Post } from '../../../graphql/posts';
-import { useLazyModal } from '../../../hooks/useLazyModal';
-import { wrapStopPropagation } from '../../../lib/func';
 
 interface PostReminderOptionsProps {
   post: Post;

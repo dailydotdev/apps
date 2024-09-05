@@ -1,7 +1,9 @@
 import React, { ReactElement } from 'react';
-import { Switch } from '../fields/Switch';
-import { SendType, usePersonalizedDigest } from '../../hooks';
+
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useLogContext } from '../../contexts/LogContext';
 import { UserPersonalizedDigestType } from '../../graphql/users';
+import { SendType, usePersonalizedDigest } from '../../hooks';
 import { usePushNotificationMutation } from '../../hooks/notifications';
 import {
   LogEvent,
@@ -9,8 +11,7 @@ import {
   NotificationChannel,
   NotificationPromptSource,
 } from '../../lib/log';
-import { useLogContext } from '../../contexts/LogContext';
-import { useAuthContext } from '../../contexts/AuthContext';
+import { Switch } from '../fields/Switch';
 
 interface StreakReminderSwitchProps {
   className?: string;

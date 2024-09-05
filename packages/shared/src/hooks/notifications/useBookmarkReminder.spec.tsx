@@ -1,11 +1,12 @@
-import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import React from 'react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { addDays, addHours, nextMonday, set } from 'date-fns';
-import { ReminderPreference, useBookmarkReminder } from './useBookmarkReminder';
-import { setBookmarkReminder } from '../../graphql/bookmarks';
+import React from 'react';
+
 import post from '../../../__tests__/fixture/post';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { setBookmarkReminder } from '../../graphql/bookmarks';
+import { ReminderPreference, useBookmarkReminder } from './useBookmarkReminder';
 
 jest.mock('../../graphql/bookmarks', () => ({
   ...(jest.requireActual('../../graphql/bookmarks') as Iterable<unknown>),

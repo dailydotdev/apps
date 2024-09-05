@@ -1,40 +1,41 @@
-import React, { ReactElement, useEffect, useState } from 'react';
-import classNames from 'classnames';
-import { NextSeo } from 'next-seo';
+import InfiniteScrolling, {
+  checkFetchMore,
+} from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
+import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
+import FirstNotification from '@dailydotdev/shared/src/components/notifications/FirstNotification';
+import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
 import {
-  InfiniteData,
-  useInfiniteQuery,
-  useMutation,
-} from '@tanstack/react-query';
+  notificationMutingCopy,
+  NotificationType,
+} from '@dailydotdev/shared/src/components/notifications/utils';
+import { NotificationPreferenceMenu } from '@dailydotdev/shared/src/components/tooltips/notifications';
+import {
+  pageBorders,
+  pageContainerClassNames,
+} from '@dailydotdev/shared/src/components/utilities';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import {
   Notification,
   NOTIFICATIONS_QUERY,
   NotificationsData,
   READ_NOTIFICATIONS_MUTATION,
 } from '@dailydotdev/shared/src/graphql/notifications';
-import {
-  pageBorders,
-  pageContainerClassNames,
-} from '@dailydotdev/shared/src/components/utilities';
-import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
-import FirstNotification from '@dailydotdev/shared/src/components/notifications/FirstNotification';
-import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
-import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import { usePromotionModal } from '@dailydotdev/shared/src/hooks/notifications/usePromotionModal';
+import { useStreakRecoverModal } from '@dailydotdev/shared/src/hooks/notifications/useStreakRecoverModal';
 import useContextMenu from '@dailydotdev/shared/src/hooks/useContextMenu';
-import InfiniteScrolling, {
-  checkFetchMore,
-} from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
-import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import {
-  notificationMutingCopy,
-  NotificationType,
-} from '@dailydotdev/shared/src/components/notifications/utils';
-import { usePromotionModal } from '@dailydotdev/shared/src/hooks/notifications/usePromotionModal';
-import { NotificationPreferenceMenu } from '@dailydotdev/shared/src/components/tooltips/notifications';
-import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { useStreakRecoverModal } from '@dailydotdev/shared/src/hooks/notifications/useStreakRecoverModal';
+  InfiniteData,
+  useInfiniteQuery,
+  useMutation,
+} from '@tanstack/react-query';
+import classNames from 'classnames';
+import { NextSeo } from 'next-seo';
+import React, { ReactElement, useEffect, useState } from 'react';
+
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';

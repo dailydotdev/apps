@@ -1,6 +1,7 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Card, CardLink } from '../Card';
+import React, { ReactElement } from 'react';
+
+import { largeNumberFormat } from '../../../lib';
 import { ButtonVariant } from '../../buttons/Button';
 import {
   Typography,
@@ -8,7 +9,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
-import { largeNumberFormat } from '../../../lib';
+import { Card, CardLink } from '../Card';
 import { Separator } from '../common';
 import { SquadImage } from './common/SquadImage';
 import { SquadJoinButtonWrapper } from './common/SquadJoinButton';

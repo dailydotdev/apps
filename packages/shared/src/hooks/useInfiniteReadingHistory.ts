@@ -1,13 +1,14 @@
 import {
-  useInfiniteQuery,
   InfiniteData,
   QueryKey,
+  useInfiniteQuery,
   UseInfiniteQueryResult,
 } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { RequestDataConnection, gqlClient } from '../graphql/common';
-import useFeedInfiniteScroll from './feed/useFeedInfiniteScroll';
+
+import { gqlClient, RequestDataConnection } from '../graphql/common';
 import { PostItem } from '../graphql/posts';
+import useFeedInfiniteScroll from './feed/useFeedInfiniteScroll';
 
 export type ReadHistoryData = RequestDataConnection<PostItem, 'readHistory'>;
 

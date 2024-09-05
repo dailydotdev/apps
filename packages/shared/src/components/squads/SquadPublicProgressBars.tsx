@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
-import { SquadPostsProgressBar } from './SquadPostsProgressBar';
+
 import { SquadAdminReputationProgressBar } from './SquadAdminReputationProgressBar';
+import { SquadPostsProgressBar } from './SquadPostsProgressBar';
 
 interface Props {
   postsCount: number;

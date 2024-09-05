@@ -1,20 +1,18 @@
-import React, { ReactElement, useCallback, useState } from 'react';
-
-import { useIntegrationsQuery } from '@dailydotdev/shared/src/hooks/integrations/useIntegrationsQuery';
-
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-
 import { PlusIcon, SlackIcon } from '@dailydotdev/shared/src/components/icons';
+import { NewUserIntegration } from '@dailydotdev/shared/src/components/integrations/NewUserIntegration';
+import { UserIntegrationItem } from '@dailydotdev/shared/src/components/integrations/UserIntegrationItem';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import {
   UserIntegration,
   UserIntegrationType,
 } from '@dailydotdev/shared/src/graphql/integrations';
 import { useSlack } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlack';
+import { useIntegrationsQuery } from '@dailydotdev/shared/src/hooks/integrations/useIntegrationsQuery';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { UserIntegrationItem } from '@dailydotdev/shared/src/components/integrations/UserIntegrationItem';
-import { NewUserIntegration } from '@dailydotdev/shared/src/components/integrations/NewUserIntegration';
-import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
+import React, { ReactElement, useCallback, useState } from 'react';
+
 import { getAccountLayout } from '../../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../../components/layouts/AccountLayout/AccountPageContainer';
 

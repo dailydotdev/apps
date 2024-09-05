@@ -4,6 +4,7 @@ import React, {
   ReactElement,
   RefObject,
 } from 'react';
+
 import { SummaryContainer, TLDRText } from '../utilities';
 import ShowMoreContent from './ShowMoreContent';
 

@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { useState, useRef } from 'react';
-import { useRequestProtocol } from './useRequestProtocol';
+import { useRef, useState } from 'react';
+
 import { GET_USERNAME_SUGGESTION } from '../graphql/users';
+import { useRequestProtocol } from './useRequestProtocol';
 
 interface UseGenerateUsername {
   username?: string;

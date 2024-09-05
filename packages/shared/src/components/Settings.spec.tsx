@@ -1,5 +1,4 @@
-import React from 'react';
-import nock from 'nock';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   fireEvent,
   queryByText,
@@ -8,22 +7,24 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import nock from 'nock';
+import React from 'react';
+
+import defaultUser from '../../__tests__/fixture/loggedUser';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
+import AuthContext from '../contexts/AuthContext';
+import { BootDataProvider } from '../contexts/BootProvider';
+import { BOOT_LOCAL_KEY } from '../contexts/common';
 import { SettingsContextProvider } from '../contexts/SettingsContext';
-import Settings from './Settings';
 import {
   RemoteSettings,
   UPDATE_USER_SETTINGS_MUTATION,
 } from '../graphql/settings';
-import { LoggedUser } from '../lib/user';
-import defaultUser from '../../__tests__/fixture/loggedUser';
-import AuthContext from '../contexts/AuthContext';
-import { BootDataProvider } from '../contexts/BootProvider';
-import { apiUrl } from '../lib/config';
-import { BootApp, BootCacheData } from '../lib/boot';
-import { BOOT_LOCAL_KEY } from '../contexts/common';
 import * as hooks from '../hooks/useViewSize';
+import { BootApp, BootCacheData } from '../lib/boot';
+import { apiUrl } from '../lib/config';
+import { LoggedUser } from '../lib/user';
+import Settings from './Settings';
 
 beforeEach(() => {
   jest.restoreAllMocks();

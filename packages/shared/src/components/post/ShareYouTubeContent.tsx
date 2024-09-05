@@ -1,15 +1,16 @@
 import React, { ReactElement } from 'react';
-import PostSourceInfo from './PostSourceInfo';
+
 import { Post } from '../../graphql/posts';
-import { SharePostTitle } from './share';
-import { SharedLinkContainer } from './common/SharedLinkContainer';
-import { SharedPostLink } from './common/SharedPostLink';
-import YoutubeVideo from '../video/YoutubeVideo';
-import { formatReadTime, SelectableLink } from '../utilities';
 import { combinedClicks } from '../../lib/click';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { ProfileImageSize } from '../ProfilePicture';
+import { formatReadTime, SelectableLink } from '../utilities';
+import YoutubeVideo from '../video/YoutubeVideo';
+import { SharedLinkContainer } from './common/SharedLinkContainer';
+import { SharedPostLink } from './common/SharedPostLink';
+import PostSourceInfo from './PostSourceInfo';
+import { SharePostTitle } from './share';
 
 interface ShareYouTubeContentProps {
   post: Post;

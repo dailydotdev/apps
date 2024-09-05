@@ -1,4 +1,5 @@
 import { createContext } from 'react';
+
 import { FeedReturnType } from '../hooks/useFeed';
 
 export type ActiveFeedContextValue = {

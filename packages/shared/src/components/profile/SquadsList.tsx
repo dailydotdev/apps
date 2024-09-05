@@ -1,15 +1,15 @@
-import React, { ReactElement, useContext, useState } from 'react';
-import Link from 'next/link';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
+import React, { ReactElement, useContext, useState } from 'react';
+
+import AuthContext from '../../contexts/AuthContext';
+import { Connection, gqlClient } from '../../graphql/common';
 import { SourceMember, SourceMemberRole } from '../../graphql/sources';
-import { largeNumberFormat } from '../../lib/numberFormat';
-import { Image } from '../image/Image';
-import SquadMemberBadge from '../squads/SquadMemberBadge';
-import { CardLink } from '../cards/Card';
-import { PlusIcon } from '../icons';
-import { ButtonSize, ButtonVariant } from '../buttons/common';
-import { Button } from '../buttons/Button';
+import {
+  ProfileV2,
+  PUBLIC_SOURCE_MEMBERSHIPS_QUERY,
+} from '../../graphql/users';
 import {
   useJoinSquad,
   useToastNotification,
@@ -17,15 +17,16 @@ import {
   ViewSize,
 } from '../../hooks';
 import { labels } from '../../lib';
-import { generateQueryKey, RequestKey } from '../../lib/query';
-import AuthContext from '../../contexts/AuthContext';
-import {
-  ProfileV2,
-  PUBLIC_SOURCE_MEMBERSHIPS_QUERY,
-} from '../../graphql/users';
-import { Connection, gqlClient } from '../../graphql/common';
 import { AuthTriggers } from '../../lib/auth';
 import { webappUrl } from '../../lib/constants';
+import { largeNumberFormat } from '../../lib/numberFormat';
+import { generateQueryKey, RequestKey } from '../../lib/query';
+import { Button } from '../buttons/Button';
+import { ButtonSize, ButtonVariant } from '../buttons/common';
+import { CardLink } from '../cards/Card';
+import { PlusIcon } from '../icons';
+import { Image } from '../image/Image';
+import SquadMemberBadge from '../squads/SquadMemberBadge';
 
 export interface SquadsListProps {
   memberships?: Connection<SourceMember>;

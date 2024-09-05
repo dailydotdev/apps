@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
-import { ManageSquadPageMain, ManageSquadPageContainer } from './utils';
+
 import { ElementPlaceholder } from '../ElementPlaceholder';
+import { ManageSquadPageContainer, ManageSquadPageMain } from './utils';
 
 export const MangeSquadPageSkeleton = (): ReactElement => {
   return (

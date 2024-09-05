@@ -1,4 +1,5 @@
-import React, { useState, ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
+
 import { MenuItem } from '../filters/common';
 import MultiLevelMenuDetail from './MultiLevelMenuDetail';
 import MultiLevelMenuMaster from './MultiLevelMenuMaster';

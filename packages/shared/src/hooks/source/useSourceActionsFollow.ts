@@ -1,9 +1,10 @@
 import { useCallback, useMemo } from 'react';
+
 import { Source } from '../../graphql/sources';
 import { Origin } from '../../lib/log';
-import { useToastNotification } from '../useToastNotification';
-import useTagAndSource from '../useTagAndSource';
 import useFeedSettings from '../useFeedSettings';
+import useTagAndSource from '../useTagAndSource';
+import { useToastNotification } from '../useToastNotification';
 import { useSourceActionsNotify } from './useSourceActionsNotify';
 
 export type UseSourceActionsFollowProps = {

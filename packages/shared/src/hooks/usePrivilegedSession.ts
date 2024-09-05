@@ -1,7 +1,8 @@
 import { useCallback, useRef } from 'react';
-import { useToastNotification } from './useToastNotification';
-import { useLazyModal } from './useLazyModal';
+
 import { LazyModal } from '../components/modals/common/types';
+import { useLazyModal } from './useLazyModal';
+import { useToastNotification } from './useToastNotification';
 
 type Func = () => void | Promise<void>;
 

@@ -1,20 +1,21 @@
-import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
-import { OpenLinkIcon } from '../icons';
+import React, { ReactElement, useContext } from 'react';
+
+import SettingsContext from '../../contexts/SettingsContext';
 import {
   getReadPostButtonText,
   isInternalReadType,
   PostType,
 } from '../../graphql/posts';
+import { useViewSize, ViewSize } from '../../hooks';
 import classed from '../../lib/classed';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { Origin } from '../../lib/log';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import SettingsContext from '../../contexts/SettingsContext';
+import { OpenLinkIcon } from '../icons';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { CollectionSubscribeButton } from './collection/CollectionSubscribeButton';
 import { PostHeaderActionsProps } from './common';
 import { PostMenuOptions } from './PostMenuOptions';
-import { Origin } from '../../lib/log';
-import { CollectionSubscribeButton } from './collection/CollectionSubscribeButton';
-import { useViewSize, ViewSize } from '../../hooks';
 
 const Container = classed('div', 'flex flex-row items-center');
 

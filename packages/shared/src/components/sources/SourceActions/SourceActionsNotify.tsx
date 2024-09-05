@@ -1,8 +1,9 @@
 import React, { ReactElement } from 'react';
-import { ButtonSize, ButtonVariant } from '../../buttons/common';
-import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
+
 import { Button } from '../../buttons/Button';
+import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { BellAddIcon, BellSubscribedIcon } from '../../icons';
+import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
 
 interface SourceActionsNotifyProps {
   haveNotificationsOn: boolean;

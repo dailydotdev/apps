@@ -1,6 +1,7 @@
 import { renderHook } from '@testing-library/react-hooks';
-import { useScrollManagement } from './useScrollManagement';
+
 import useDebounceFn from '../../hooks/useDebounceFn';
+import { useScrollManagement } from './useScrollManagement';
 
 jest.mock('../../hooks/useDebounceFn');
 

@@ -1,54 +1,55 @@
+import { AuthenticationBanner } from '@dailydotdev/shared/src/components/auth';
+import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
+import { ONBOARDING_OFFSET } from '@dailydotdev/shared/src/components/post/BasePostContent';
+import { CollectionPostContent } from '@dailydotdev/shared/src/components/post/collection';
+import {
+  PostContent,
+  SCROLL_OFFSET,
+} from '@dailydotdev/shared/src/components/post/PostContent';
+import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
+import SquadPostContent from '@dailydotdev/shared/src/components/post/SquadPostContent';
+import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
+import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import {
+  POST_BY_ID_STATIC_FIELDS_QUERY,
+  PostData,
+  PostType,
+} from '@dailydotdev/shared/src/graphql/posts';
+import {
+  useJoinReferral,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
+import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth/useOnboarding';
+import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
+import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
+import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
+import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
+import classNames from 'classnames';
+import { ClientError } from 'graphql-request';
+import {
+  GetStaticPathsResult,
+  GetStaticPropsContext,
+  GetStaticPropsResult,
+} from 'next';
+import dynamic from 'next/dynamic';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
+import { NextSeo } from 'next-seo';
+import { NextSeoProps } from 'next-seo/lib/types';
+import { ParsedUrlQuery } from 'querystring';
 import React, {
   CSSProperties,
   ReactElement,
   useContext,
   useState,
 } from 'react';
-import { useRouter } from 'next/router';
-import dynamic from 'next/dynamic';
-import {
-  GetStaticPathsResult,
-  GetStaticPropsContext,
-  GetStaticPropsResult,
-} from 'next';
-import { ParsedUrlQuery } from 'querystring';
-import { NextSeo } from 'next-seo';
-import {
-  POST_BY_ID_STATIC_FIELDS_QUERY,
-  PostData,
-  PostType,
-} from '@dailydotdev/shared/src/graphql/posts';
-import { NextSeoProps } from 'next-seo/lib/types';
-import Head from 'next/head';
-import { ClientError } from 'graphql-request';
-import {
-  PostContent,
-  SCROLL_OFFSET,
-} from '@dailydotdev/shared/src/components/post/PostContent';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
-import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
-import { Origin } from '@dailydotdev/shared/src/lib/log';
-import SquadPostContent from '@dailydotdev/shared/src/components/post/SquadPostContent';
-import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
-import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
-import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { ONBOARDING_OFFSET } from '@dailydotdev/shared/src/components/post/BasePostContent';
-import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
-import classNames from 'classnames';
-import { CollectionPostContent } from '@dailydotdev/shared/src/components/post/collection';
-import { AuthenticationBanner } from '@dailydotdev/shared/src/components/auth';
-import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth/useOnboarding';
-import {
-  useJoinReferral,
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks';
-import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
-import { getTemplatedTitle } from '../../../components/layouts/utils';
-import { getLayout } from '../../../components/layouts/MainLayout';
+
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
+import { getLayout } from '../../../components/layouts/MainLayout';
+import { getTemplatedTitle } from '../../../components/layouts/utils';
 import {
   getSeoDescription,
   PostSEOSchema,

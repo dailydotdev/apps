@@ -1,7 +1,8 @@
 import React, { ReactElement } from 'react';
+
+import type { Tag } from '../graphql/feedSettings';
 import { ElementPlaceholder } from './ElementPlaceholder';
 import { TagLink } from './TagLinks';
-import type { Tag } from '../graphql/feedSettings';
 
 interface RecommendedTagsProps {
   isLoading: boolean;

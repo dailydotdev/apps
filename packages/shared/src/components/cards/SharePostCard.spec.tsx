@@ -1,11 +1,12 @@
-import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { SharePostCard } from './SharePostCard';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import React from 'react';
+
 import { sharePost } from '../../../__tests__/fixture/post';
-import { PostCardProps } from './common';
-import { PostType } from '../../graphql/posts';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { PostType } from '../../graphql/posts';
+import { PostCardProps } from './common';
+import { SharePostCard } from './SharePostCard';
 
 const post = sharePost;
 const defaultProps: PostCardProps = {

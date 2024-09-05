@@ -1,11 +1,12 @@
 import React, { ReactNode, useMemo } from 'react';
-import { Post } from '../../graphql/posts';
-import { usePostShareLoop } from '../post/usePostShareLoop';
-import { CardCoverShare } from '../../components/cards/common/CardCoverShare';
-import { CardCoverContainer } from '../../components/cards/common/CardCoverContainer';
-import { PostReminderOptions } from '../../components/post/common/PostReminderOptions';
+
 import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
+import { CardCoverContainer } from '../../components/cards/common/CardCoverContainer';
+import { CardCoverShare } from '../../components/cards/common/CardCoverShare';
+import { PostReminderOptions } from '../../components/post/common/PostReminderOptions';
+import { Post } from '../../graphql/posts';
 import { useBookmarkReminderCover } from '../bookmark/useBookmarkReminderCover';
+import { usePostShareLoop } from '../post/usePostShareLoop';
 
 interface UseCardCover {
   overlay: ReactNode;

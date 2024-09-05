@@ -1,5 +1,14 @@
-import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { useEffect, useMemo, useState } from 'react';
+
+import {
+  getErrorMessage,
+  getNodeByKey,
+  getNodeValue,
+  VerifyEmail,
+} from '../lib/auth';
+import { authUrl } from '../lib/constants';
+import { disabledRefetch } from '../lib/func';
 import {
   AuthFlow,
   getKratosFlow,
@@ -7,15 +16,7 @@ import {
   initializeKratosFlow,
   submitKratosFlow,
 } from '../lib/kratos';
-import {
-  getErrorMessage,
-  getNodeByKey,
-  getNodeValue,
-  VerifyEmail,
-} from '../lib/auth';
 import useTimer from './useTimer';
-import { disabledRefetch } from '../lib/func';
-import { authUrl } from '../lib/constants';
 
 interface UseAccountEmail {
   sendEmail: (email: string) => Promise<unknown>;

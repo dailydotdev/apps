@@ -3,11 +3,12 @@ import {
   UseQueryOptions,
   UseQueryResult,
 } from '@tanstack/react-query';
-import { UserIntegration } from '../../graphql/integrations';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import { gqlClient, Connection } from '../../graphql/common';
-import { USER_INTEGRATIONS } from '../../graphql/users';
+
 import { useAuthContext } from '../../contexts/AuthContext';
+import { Connection, gqlClient } from '../../graphql/common';
+import { UserIntegration } from '../../graphql/integrations';
+import { USER_INTEGRATIONS } from '../../graphql/users';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 
 export type UseIntegrationsQueryProps = {
   queryOptions?: UseQueryOptions<UserIntegration[]>;

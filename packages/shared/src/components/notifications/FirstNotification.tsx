@@ -1,8 +1,9 @@
 import React, { ReactElement, useEffect } from 'react';
+
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { firstNotificationLink } from '../../lib/constants';
 import NotificationItem from './NotificationItem';
-import { NotificationType, NotificationIconType } from './utils';
+import { NotificationIconType, NotificationType } from './utils';
 
 const READ_KEY = 'FIRST_NOTIFICATION_READ';
 

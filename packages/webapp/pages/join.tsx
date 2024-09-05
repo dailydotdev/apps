@@ -1,18 +1,19 @@
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
+import { useReferralConfig } from '@dailydotdev/shared/src/hooks/referral/useReferralConfig';
 import { isDevelopment } from '@dailydotdev/shared/src/lib/constants';
-import React, { FunctionComponent, ReactElement, useEffect } from 'react';
-import { GetServerSideProps } from 'next';
-import { NextSeo, NextSeoProps } from 'next-seo';
 import { setCookie } from '@dailydotdev/shared/src/lib/cookie';
 import { oneYear } from '@dailydotdev/shared/src/lib/dateFormat';
-import { useReferralConfig } from '@dailydotdev/shared/src/hooks/referral/useReferralConfig';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { defaultOpenGraph } from '../next-seo';
-import { JoinPageProps } from '../components/invite/common';
+import { GetServerSideProps } from 'next';
+import { NextSeo, NextSeoProps } from 'next-seo';
+import React, { FunctionComponent, ReactElement, useEffect } from 'react';
+
 import { AISearchInvite } from '../components/invite/AISearchInvite';
-import Custom404Seo from './404';
+import { JoinPageProps } from '../components/invite/common';
 import { Referral } from '../components/invite/Referral';
+import { defaultOpenGraph } from '../next-seo';
+import Custom404Seo from './404';
 
 type ReferralRecord<T> = Record<ReferralCampaignKey, T>;
 

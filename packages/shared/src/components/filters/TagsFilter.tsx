@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, {
   ReactElement,
   useContext,
@@ -5,24 +6,24 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import classNames from 'classnames';
-import { SearchField } from '../fields/SearchField';
-import TagCategoryDropdown, { TagCategoryLayout } from './TagCategoryDropdown';
+
+import AuthContext from '../../contexts/AuthContext';
+import { useTagSearch } from '../../hooks';
+import useDebounceFn from '../../hooks/useDebounceFn';
 import useFeedSettings from '../../hooks/useFeedSettings';
-import TagItemList from './TagItemList';
-import TagOptionsMenu from './TagOptionsMenu';
-import useTagContext from '../../hooks/useTagContext';
 import useTagAndSource, {
   TagActionArguments,
 } from '../../hooks/useTagAndSource';
-import { FilterMenuProps } from './common';
-import { MenuIcon } from '../icons';
-import AuthContext from '../../contexts/AuthContext';
+import useTagContext from '../../hooks/useTagContext';
 import classed from '../../lib/classed';
-import { HTMLElementComponent } from '../utilities';
 import { Origin } from '../../lib/log';
-import useDebounceFn from '../../hooks/useDebounceFn';
-import { useTagSearch } from '../../hooks';
+import { SearchField } from '../fields/SearchField';
+import { MenuIcon } from '../icons';
+import { HTMLElementComponent } from '../utilities';
+import { FilterMenuProps } from './common';
+import TagCategoryDropdown, { TagCategoryLayout } from './TagCategoryDropdown';
+import TagItemList from './TagItemList';
+import TagOptionsMenu from './TagOptionsMenu';
 
 const TagsContainer = classed('div', 'grid grid-cols-1 gap-4');
 

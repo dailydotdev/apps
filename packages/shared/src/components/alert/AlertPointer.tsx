@@ -1,14 +1,15 @@
-import React, { CSSProperties, ReactElement, ReactNode, useRef } from 'react';
 import classNames from 'classnames';
+import React, { CSSProperties, ReactElement, ReactNode, useRef } from 'react';
+
 import { ButtonSize } from '../buttons/Button';
+import CloseButton from '../CloseButton';
 import {
-  AlertPointerMessage,
-  AlertPointerCopy,
-  AlertPointerWrapper,
   AlertPointerContainer,
+  AlertPointerCopy,
+  AlertPointerMessage,
+  AlertPointerWrapper,
 } from './common';
 import Pointer, { PointerColor } from './Pointer';
-import CloseButton from '../CloseButton';
 
 interface ClassName {
   container?: string;

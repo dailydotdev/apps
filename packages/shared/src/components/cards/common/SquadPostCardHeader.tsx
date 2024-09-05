@@ -1,15 +1,16 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
 import { Post } from '../../../graphql/posts';
-import { ProfileImageSize } from '../../ProfilePicture';
-import SourceButton from '../SourceButton';
 import useBookmarkProvider from '../../../hooks/useBookmarkProvider';
+import { ProfileImageLink } from '../../profile/ProfileImageLink';
+import { ProfileTooltip } from '../../profile/ProfileTooltip';
+import { ProfileImageSize } from '../../ProfilePicture';
 import {
   BookmakProviderHeader,
   headerHiddenClassName,
 } from '../BookmarkProviderHeader';
-import { ProfileTooltip } from '../../profile/ProfileTooltip';
-import { ProfileImageLink } from '../../profile/ProfileImageLink';
+import SourceButton from '../SourceButton';
 
 type SquadPostCardHeaderProps = Pick<
   Post,

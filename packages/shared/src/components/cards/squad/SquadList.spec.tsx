@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   fireEvent,
   render,
@@ -5,23 +6,23 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
-import nock from 'nock';
 import { NextRouter, useRouter } from 'next/router';
+import nock from 'nock';
+import React from 'react';
 import { mocked } from 'ts-jest/utils';
-import { AuthContextProvider } from '../../../contexts/AuthContext';
+
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import {
   generateMembersList,
   generateTestAdmin,
   generateTestSquad,
 } from '../../../../__tests__/fixture/squads';
-import { LazyModalElement } from '../../modals/LazyModalElement';
 import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
-import { SQUAD_JOIN_MUTATION } from '../../../graphql/squads';
 import { waitForNock } from '../../../../__tests__/helpers/utilities';
+import { AuthContextProvider } from '../../../contexts/AuthContext';
 import { ActionType, COMPLETE_ACTION_MUTATION } from '../../../graphql/actions';
+import { SQUAD_JOIN_MUTATION } from '../../../graphql/squads';
+import { LazyModalElement } from '../../modals/LazyModalElement';
 import { SquadList } from './SquadList';
 
 const onClickTest = jest.fn();

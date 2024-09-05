@@ -1,25 +1,26 @@
-import React, { ReactElement, useMemo } from 'react';
 import classNames from 'classnames';
-import { Post } from '../../graphql/posts';
-import classed from '../../lib/classed';
-import { LazyImage } from '../LazyImage';
-import { WidgetContainer } from './common';
-import { FeatherIcon, ScoutIcon } from '../icons';
-import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
-import { ProfileLink } from '../profile/ProfileLink';
+import React, { ReactElement, useMemo } from 'react';
+
 import { Author as CommentAuthor } from '../../graphql/comments';
-import { ProfileTooltip } from '../profile/ProfileTooltip';
-import ConditionalWrapper from '../ConditionalWrapper';
-import { ReputationUserBadge } from '../ReputationUserBadge';
-import { ButtonVariant } from '../buttons/common';
-import useFeedSettings from '../../hooks/useFeedSettings';
-import EnableNotification from '../notifications/EnableNotification';
-import { NotificationPromptSource } from '../../lib/log';
-import { useSourceActionsNotify } from '../../hooks';
-import { SourceActions } from '../sources/SourceActions';
+import { Post } from '../../graphql/posts';
 import { Source as ISource } from '../../graphql/sources';
+import { useSourceActionsNotify } from '../../hooks';
+import useFeedSettings from '../../hooks/useFeedSettings';
+import classed from '../../lib/classed';
+import { NotificationPromptSource } from '../../lib/log';
+import { ButtonVariant } from '../buttons/common';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { FeatherIcon, ScoutIcon } from '../icons';
+import { LazyImage } from '../LazyImage';
+import EnableNotification from '../notifications/EnableNotification';
+import { ProfileLink } from '../profile/ProfileLink';
+import { ProfileTooltip } from '../profile/ProfileTooltip';
+import { ReputationUserBadge } from '../ReputationUserBadge';
+import { SourceActions } from '../sources/SourceActions';
+import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { TruncateText } from '../utilities';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
+import { WidgetContainer } from './common';
 
 interface PostAuthorProps {
   post: Post;

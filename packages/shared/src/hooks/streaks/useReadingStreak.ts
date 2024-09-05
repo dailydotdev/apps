@@ -5,19 +5,20 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { useContext, useRef } from 'react';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+
+import { useAuthContext } from '../../contexts/AuthContext';
+import SettingsContext from '../../contexts/SettingsContext';
+import { ActionType } from '../../graphql/actions';
+import { gqlClient, ResponseError } from '../../graphql/common';
 import {
   getReadingStreak,
   UPDATE_STREAK_COUNT_MUTATION,
   UserStreak,
 } from '../../graphql/users';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useActions } from '../useActions';
-import { ActionType } from '../../graphql/actions';
-import useDebounceFn from '../useDebounceFn';
-import SettingsContext from '../../contexts/SettingsContext';
-import { gqlClient, ResponseError } from '../../graphql/common';
 import { DayOfWeek } from '../../lib/date';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import { useActions } from '../useActions';
+import useDebounceFn from '../useDebounceFn';
 
 type UpdateReadingStreakConfig = {
   weekStart: DayOfWeek;

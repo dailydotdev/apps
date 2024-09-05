@@ -1,9 +1,10 @@
-import React, { ReactNode } from 'react';
-import { useRouter } from 'next/router';
+import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import MainLayout, {
   MainLayoutProps,
 } from '@dailydotdev/shared/src/components/MainLayout';
-import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
+import { useRouter } from 'next/router';
+import React, { ReactNode } from 'react';
+
 import { getLayout as getFooterNavBarLayout } from './FooterNavBarLayout';
 
 export default FeedLayout;

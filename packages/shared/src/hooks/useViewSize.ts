@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useMedia } from './useMedia';
+
 import {
   desktop,
   desktopL,
@@ -9,6 +9,7 @@ import {
   mobileL,
   tablet,
 } from '../styles/media';
+import { useMedia } from './useMedia';
 
 export enum ViewSize {
   MobileM = 'mobileM',

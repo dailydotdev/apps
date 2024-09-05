@@ -1,6 +1,8 @@
-import { useCallback, useContext, useState } from 'react';
 import { UseMutateFunction, useMutation } from '@tanstack/react-query';
+import { useCallback, useContext, useState } from 'react';
+
 import AuthContext from '../contexts/AuthContext';
+import { errorMessage, gqlClient, ResponseError } from '../graphql/common';
 import {
   handleRegex,
   socialHandleRegex,
@@ -8,7 +10,6 @@ import {
 } from '../graphql/users';
 import { LoggedUser, UserProfile } from '../lib/user';
 import { useToastNotification } from './useToastNotification';
-import { errorMessage, gqlClient, ResponseError } from '../graphql/common';
 
 export interface ProfileFormHint {
   portfolio?: string;

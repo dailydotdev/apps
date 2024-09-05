@@ -1,13 +1,14 @@
-import React from 'react';
 import {
   fireEvent,
   render,
   RenderResult,
   screen,
 } from '@testing-library/react';
-import { ChecklistStep } from './ChecklistStep';
-import { ChecklistStepProps } from '../../lib/checklist';
+import React from 'react';
+
 import { ActionType } from '../../graphql/actions';
+import { ChecklistStepProps } from '../../lib/checklist';
+import { ChecklistStep } from './ChecklistStep';
 
 const step = {
   title: 'Step 1',

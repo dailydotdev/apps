@@ -1,6 +1,8 @@
 import classNames from 'classnames';
 import React, { ReactElement, useContext } from 'react';
+
 import AuthContext from '../../contexts/AuthContext';
+import { AuthTriggersType } from '../../lib/auth';
 import { ClickableNavItem } from './ClickableNavItem';
 import {
   ItemInner,
@@ -10,7 +12,6 @@ import {
   NavSection,
   SidebarMenuItem,
 } from './common';
-import { AuthTriggersType } from '../../lib/auth';
 
 export interface SectionCommonProps
   extends Pick<ItemInnerProps, 'shouldShowLabel'> {

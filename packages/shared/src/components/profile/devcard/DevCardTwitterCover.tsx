@@ -1,10 +1,11 @@
 import React, { ReactElement } from 'react';
-import { DevCardContainer } from './DevCardContainer';
-import { devCardBoxShadow, DevCardType } from './common';
-import { DevCardStats } from './DevCardStats';
-import { DevCardFooter } from './DevCardFooter';
-import Logo from '../../Logo';
+
 import { UseDevCard } from '../../../hooks/profile/useDevCard';
+import Logo from '../../Logo';
+import { devCardBoxShadow, DevCardType } from './common';
+import { DevCardContainer } from './DevCardContainer';
+import { DevCardFooter } from './DevCardFooter';
+import { DevCardStats } from './DevCardStats';
 
 export function DevCardTwitterCover({
   devcard,

@@ -1,47 +1,48 @@
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
-import { NextSeo, NextSeoProps } from 'next-seo';
-import { useFeedLayout } from '@dailydotdev/shared/src/hooks/useFeedLayout';
-import classNames from 'classnames';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { ButtonColor } from '@dailydotdev/shared/src/components/buttons/Button';
-import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
-import { FilterOnboardingV4 } from '@dailydotdev/shared/src/components/onboarding/FilterOnboardingV4';
-import useFeedSettings, {
-  getFeedSettingsQueryKey,
-} from '@dailydotdev/shared/src/hooks/useFeedSettings';
-import { useExitConfirmation } from '@dailydotdev/shared/src/hooks/useExitConfirmation';
-import { useRouter } from 'next/router';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ClientError } from 'graphql-request';
-import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
-import { formToJson } from '@dailydotdev/shared/src/lib/form';
-import {
-  useActions,
-  useFeeds,
-  useProgressAnimation,
-  useToastNotification,
-} from '@dailydotdev/shared/src/hooks';
-import { labels } from '@dailydotdev/shared/src/lib';
-import { ADD_FILTERS_TO_FEED_MUTATION } from '@dailydotdev/shared/src/graphql/feedSettings';
 import {
   FeedCustomActions,
   FeedCustomPreview,
   FeedPreviewControls,
   PreparingYourFeed,
 } from '@dailydotdev/shared/src/components';
+import { ButtonColor } from '@dailydotdev/shared/src/components/buttons/Button';
+import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
+import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
+import { FilterOnboardingV4 } from '@dailydotdev/shared/src/components/onboarding/FilterOnboardingV4';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { ADD_FILTERS_TO_FEED_MUTATION } from '@dailydotdev/shared/src/graphql/feedSettings';
+import {
+  useActions,
+  useFeeds,
+  useProgressAnimation,
+  useToastNotification,
+} from '@dailydotdev/shared/src/hooks';
+import { useExitConfirmation } from '@dailydotdev/shared/src/hooks/useExitConfirmation';
+import { useFeedLayout } from '@dailydotdev/shared/src/hooks/useFeedLayout';
+import useFeedSettings, {
+  getFeedSettingsQueryKey,
+} from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
   PromptOptions,
   usePrompt,
 } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { labels } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
-import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import classNames from 'classnames';
+import { ClientError } from 'graphql-request';
+import { useRouter } from 'next/router';
+import { NextSeo, NextSeoProps } from 'next-seo';
+import React, { ReactElement, useEffect, useRef, useState } from 'react';
+
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/MainLayout';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
+import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
 type NewFeedFormProps = {
   name: string;

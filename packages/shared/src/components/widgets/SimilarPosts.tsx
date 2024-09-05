@@ -1,18 +1,12 @@
-import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import { ArrowIcon, BookmarkIcon } from '../icons';
-import { Post } from '../../graphql/posts';
-import styles from '../cards/Card.module.css';
-import { LazyImage } from '../LazyImage';
-import { CardLink } from '../cards/Card';
-import { ElementPlaceholder } from '../ElementPlaceholder';
-import classed from '../../lib/classed';
-import { postLogEvent } from '../../lib/feed';
+import React, { ReactElement, useContext } from 'react';
+
 import LogContext from '../../contexts/LogContext';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { HotLabel } from '../utilities';
+import { Post } from '../../graphql/posts';
+import classed from '../../lib/classed';
 import { combinedClicks } from '../../lib/click';
+import { postLogEvent } from '../../lib/feed';
 import {
   Button,
   ButtonColor,
@@ -20,7 +14,14 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
+import { CardLink } from '../cards/Card';
+import styles from '../cards/Card.module.css';
 import { PostEngagementCounts } from '../cards/SimilarPosts';
+import { ElementPlaceholder } from '../ElementPlaceholder';
+import { ArrowIcon, BookmarkIcon } from '../icons';
+import { LazyImage } from '../LazyImage';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { HotLabel } from '../utilities';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;

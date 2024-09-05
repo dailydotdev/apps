@@ -1,5 +1,4 @@
-import nock from 'nock';
-import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   findByRole,
   findByText,
@@ -10,11 +9,36 @@ import {
   waitFor,
   within,
 } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
+import nock from 'nock';
+import React from 'react';
 import { OperationOptions } from 'subscriptions-transport-ws';
 import { mocked } from 'ts-jest/utils';
-import { useRouter } from 'next/router';
 
+import ad from '../../__tests__/fixture/ad';
+import defaultFeedPage from '../../__tests__/fixture/feed';
+import defaultUser from '../../__tests__/fixture/loggedUser';
+import {
+  completeActionMock,
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '../../__tests__/helpers/graphql';
+import { waitForNock } from '../../__tests__/helpers/utilities';
+import AuthContext from '../contexts/AuthContext';
+import OnboardingContext from '../contexts/OnboardingContext';
+import SettingsContext, {
+  SettingsContextData,
+  ThemeMode,
+} from '../contexts/SettingsContext';
+import { ActionType, COMPLETE_ACTION_MUTATION } from '../graphql/actions';
+import { ANONYMOUS_FEED_QUERY, OnboardingMode } from '../graphql/feed';
+import {
+  ADD_FILTERS_TO_FEED_MUTATION,
+  AllTagCategoriesData,
+  FEED_SETTINGS_QUERY,
+  FeedSettings,
+  REMOVE_FILTERS_FROM_FEED_MUTATION,
+} from '../graphql/feedSettings';
 import {
   ADD_BOOKMARKS_MUTATION,
   FeedData,
@@ -23,54 +47,30 @@ import {
   POST_BY_ID_QUERY,
   PostData,
   PostsEngaged,
+  PostType,
   REMOVE_BOOKMARK_MUTATION,
   REPORT_POST_MUTATION,
-  PostType,
   UserVote,
 } from '../graphql/posts';
-import {
-  completeActionMock,
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '../../__tests__/helpers/graphql';
-import { ANONYMOUS_FEED_QUERY, OnboardingMode } from '../graphql/feed';
-import AuthContext from '../contexts/AuthContext';
-import Feed from './Feed';
-import defaultFeedPage from '../../__tests__/fixture/feed';
-import defaultUser from '../../__tests__/fixture/loggedUser';
-import ad from '../../__tests__/fixture/ad';
-import { LoggedUser } from '../lib/user';
+import { SourceType } from '../graphql/sources';
 import {
   AcquisitionChannel,
   USER_ACQUISITION_MUTATION,
   VOTE_MUTATION,
 } from '../graphql/users';
-import { SubscriptionCallbacks } from '../hooks/useSubscription';
-import SettingsContext, {
-  SettingsContextData,
-  ThemeMode,
-} from '../contexts/SettingsContext';
-import { waitForNock } from '../../__tests__/helpers/utilities';
-import {
-  ADD_FILTERS_TO_FEED_MUTATION,
-  AllTagCategoriesData,
-  FEED_SETTINGS_QUERY,
-  FeedSettings,
-  REMOVE_FILTERS_FROM_FEED_MUTATION,
-} from '../graphql/feedSettings';
-import { getFeedSettingsQueryKey } from '../hooks/useFeedSettings';
-import Toast from './notifications/Toast';
-import OnboardingContext from '../contexts/OnboardingContext';
-import { LazyModalElement } from './modals/LazyModalElement';
-import { AuthTriggers } from '../lib/auth';
-import { SourceType } from '../graphql/sources';
-import { removeQueryParam } from '../lib/links';
-import { SharedFeedPage } from './utilities';
-import { AllFeedPages } from '../lib/query';
 import { UserVoteEntity } from '../hooks';
+import { getFeedSettingsQueryKey } from '../hooks/useFeedSettings';
+import { SubscriptionCallbacks } from '../hooks/useSubscription';
 import * as hooks from '../hooks/useViewSize';
-import { ActionType, COMPLETE_ACTION_MUTATION } from '../graphql/actions';
+import { AuthTriggers } from '../lib/auth';
+import { removeQueryParam } from '../lib/links';
+import { AllFeedPages } from '../lib/query';
+import { LoggedUser } from '../lib/user';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
+import Feed from './Feed';
+import { LazyModalElement } from './modals/LazyModalElement';
+import Toast from './notifications/Toast';
+import { SharedFeedPage } from './utilities';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;

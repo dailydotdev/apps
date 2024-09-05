@@ -1,13 +1,14 @@
-import React, { ReactElement, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { providers } from './common';
-import AuthDefault from './AuthDefault';
-import { AuthTriggers } from '../../lib/auth';
-import { Modal, ModalProps } from '../modals/common/Modal';
+import React, { ReactElement, useState } from 'react';
+
+import { useAuthContext } from '../../contexts/AuthContext';
 import useLogin from '../../hooks/useLogin';
+import { AuthTriggers } from '../../lib/auth';
 import { AuthSession } from '../../lib/kratos';
 import { generateQueryKey, RequestKey } from '../../lib/query';
-import { useAuthContext } from '../../contexts/AuthContext';
+import { Modal, ModalProps } from '../modals/common/Modal';
+import AuthDefault from './AuthDefault';
+import { providers } from './common';
 
 interface VerifySessionModalProps extends ModalProps {
   userProviders?: string[];

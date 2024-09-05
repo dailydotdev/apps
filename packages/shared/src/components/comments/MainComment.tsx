@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, {
   ReactElement,
   useContext,
@@ -5,23 +6,23 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
-import classNames from 'classnames';
 import { useInView } from 'react-intersection-observer';
-import EnableNotification from '../notifications/EnableNotification';
-import CommentBox, { CommentBoxProps } from './CommentBox';
-import SubComment from './SubComment';
+
 import AuthContext from '../../contexts/AuthContext';
+import LogContext from '../../contexts/LogContext';
+import { Comment } from '../../graphql/comments';
+import { Squad } from '../../graphql/sources';
+import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
+import { useComments } from '../../hooks/post';
+import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
+import usePersistentContext from '../../hooks/usePersistentContext';
 import { LogEvent, NotificationPromptSource, TargetType } from '../../lib/log';
 import { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
-import { useComments } from '../../hooks/post';
+import EnableNotification from '../notifications/EnableNotification';
 import { SquadCommentJoinBanner } from '../squads/SquadCommentJoinBanner';
-import { Squad } from '../../graphql/sources';
-import { Comment } from '../../graphql/comments';
-import usePersistentContext from '../../hooks/usePersistentContext';
-import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
-import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
-import LogContext from '../../contexts/LogContext';
+import CommentBox, { CommentBoxProps } from './CommentBox';
 import CommentInputOrModal from './CommentInputOrModal';
+import SubComment from './SubComment';
 
 type ClassName = {
   container?: string;

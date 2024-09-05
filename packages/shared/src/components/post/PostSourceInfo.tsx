@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
+
 import { Source } from '../../graphql/sources';
 import { Separator } from '../cards/common';
 import SourceButton from '../cards/SourceButton';

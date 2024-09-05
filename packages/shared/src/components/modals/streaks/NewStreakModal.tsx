@@ -1,19 +1,20 @@
-import React, { ReactElement, useEffect, useRef } from 'react';
-import classNames from 'classnames';
 import { useQueryClient } from '@tanstack/react-query';
-import { Modal } from '../common/Modal';
-import classed from '../../../lib/classed';
-import { Checkbox } from '../../fields/Checkbox';
-import { ModalClose } from '../common/ModalClose';
-import { cloudinary } from '../../../lib/image';
-import { StreakModalProps } from './common';
+import classNames from 'classnames';
+import React, { ReactElement, useEffect, useRef } from 'react';
+
+import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
+import { ActionType } from '../../../graphql/actions';
+import { useActions } from '../../../hooks';
+import classed from '../../../lib/classed';
+import { cloudinary } from '../../../lib/image';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { useActions } from '../../../hooks';
-import { ActionType } from '../../../graphql/actions';
+import { Checkbox } from '../../fields/Checkbox';
 import StreakReminderSwitch from '../../streak/StreakReminderSwitch';
+import { Modal } from '../common/Modal';
+import { ModalClose } from '../common/ModalClose';
+import { StreakModalProps } from './common';
 
 const Paragraph = classed('p', 'text-center text-text-tertiary');
 

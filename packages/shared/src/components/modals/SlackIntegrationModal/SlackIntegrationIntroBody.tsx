@@ -1,14 +1,15 @@
 import React, { ReactElement } from 'react';
+
 import { slackIntegration } from '../../../lib/constants';
 import { Button } from '../../buttons/Button';
-import { ButtonVariant, ButtonSize } from '../../buttons/common';
+import { ButtonSize, ButtonVariant } from '../../buttons/common';
+import { Image } from '../../image/Image';
 import {
   Typography,
-  TypographyType,
   TypographyColor,
+  TypographyType,
 } from '../../typography/Typography';
 import { Modal } from '../common/Modal';
-import { Image } from '../../image/Image';
 
 export type SlackIntegrationIntroBodyProps = {
   headerImg: string;

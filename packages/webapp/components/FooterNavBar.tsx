@@ -1,3 +1,13 @@
+import { NewComment } from '@dailydotdev/shared/src/components/post/NewComment';
+import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { Post } from '@dailydotdev/shared/src/graphql/posts';
+import useActiveNav, {
+  UseActiveNav,
+} from '@dailydotdev/shared/src/hooks/useActiveNav';
+import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
+import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import React, {
   isValidElement,
   ReactElement,
@@ -5,16 +15,7 @@ import React, {
   useMemo,
 } from 'react';
 import { Flipper } from 'react-flip-toolkit';
-import classNames from 'classnames';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useRouter } from 'next/router';
-import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
-import { Post } from '@dailydotdev/shared/src/graphql/posts';
-import { NewComment } from '@dailydotdev/shared/src/components/post/NewComment';
-import useActiveNav, {
-  UseActiveNav,
-} from '@dailydotdev/shared/src/hooks/useActiveNav';
-import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
+
 import { FooterTab } from './footer/common';
 import { FooterNavBarTabs, tabs } from './footer/FooterNavBarTabs';
 

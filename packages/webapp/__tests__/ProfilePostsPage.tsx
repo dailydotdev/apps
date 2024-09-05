@@ -1,20 +1,21 @@
-import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/react';
-import { LoggedUser, PublicProfile } from '@dailydotdev/shared/src/lib/user';
-import nock from 'nock';
-import {
-  AUTHOR_FEED_QUERY,
-  FeedData,
-} from '@dailydotdev/shared/src/graphql/feed';
-import { QueryClient } from '@tanstack/react-query';
+import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
+import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
-import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
-import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
+import {
+  AUTHOR_FEED_QUERY,
+  FeedData,
+} from '@dailydotdev/shared/src/graphql/feed';
+import { LoggedUser, PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import { QueryClient } from '@tanstack/react-query';
+import { render, RenderResult, screen } from '@testing-library/react';
+import nock from 'nock';
+import React from 'react';
+
 import ProfilePage from '../pages/[userId]/posts';
 
 beforeEach(() => {

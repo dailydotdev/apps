@@ -1,7 +1,8 @@
 import React, { ReactElement } from 'react';
+
 import { Post } from '../../graphql/posts';
-import { ClickableText } from '../buttons/ClickableText';
 import { largeNumberFormat } from '../../lib';
+import { ClickableText } from '../buttons/ClickableText';
 
 interface PostUpvotesCommentsCountProps {
   post: Post;

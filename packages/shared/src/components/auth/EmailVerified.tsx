@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode } from 'react';
+
 import EmailVerifiedIcon from '../../../icons/mail_verified.svg';
 import AuthHeader from './AuthHeader';
 import { AuthFormProps } from './common';

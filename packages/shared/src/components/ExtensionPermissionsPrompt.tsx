@@ -1,10 +1,11 @@
 import React, { ReactElement, useEffect } from 'react';
-import Logo, { LogoPosition } from './Logo';
-import { OnboardingTitleGradient } from './onboarding/common';
-import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
-import { cloudinary } from '../lib/image';
+
 import { useExtensionContext } from '../contexts/ExtensionContext';
 import { useHostStatus } from '../hooks/useHostPermissionStatus';
+import { cloudinary } from '../lib/image';
+import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
+import Logo, { LogoPosition } from './Logo';
+import { OnboardingTitleGradient } from './onboarding/common';
 
 const ExtensionPermissionsPrompt = (): ReactElement => {
   const { requestHostPermissions, origins, setCurrentPage } =

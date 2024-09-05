@@ -1,15 +1,16 @@
-import React, { forwardRef, Ref } from 'react';
 import classNames from 'classnames';
-import { Container, generateTitleClamp, PostCardProps } from '../common';
-import FeedItemContainer from '../FeedItemContainer';
-import { CollectionCardHeader } from './CollectionCardHeader';
-import { getPostClassNames, FreeformCardTitle, CardSpace } from '../Card';
-import { WelcomePostCardFooter } from '../WelcomePostCardFooter';
-import ActionButtons from '../ActionsButtons/ActionButtons';
-import PostMetadata from '../PostMetadata';
+import React, { forwardRef, Ref } from 'react';
+
 import { usePostImage } from '../../../hooks/post/usePostImage';
+import ActionButtons from '../ActionsButtons/ActionButtons';
+import { CardSpace, FreeformCardTitle, getPostClassNames } from '../Card';
+import { Container, generateTitleClamp, PostCardProps } from '../common';
 import CardOverlay from '../common/CardOverlay';
+import FeedItemContainer from '../FeedItemContainer';
+import PostMetadata from '../PostMetadata';
 import PostTags from '../PostTags';
+import { WelcomePostCardFooter } from '../WelcomePostCardFooter';
+import { CollectionCardHeader } from './CollectionCardHeader';
 
 export const CollectionCard = forwardRef(function CollectionCard(
   {

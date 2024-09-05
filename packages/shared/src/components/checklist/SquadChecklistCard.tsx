@@ -1,13 +1,14 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
-import { ChecklistCard } from './ChecklistCard';
-import { useSquadChecklist } from '../../hooks/useSquadChecklist';
+
+import LogContext from '../../contexts/LogContext';
 import { Squad } from '../../graphql/sources';
+import { useChecklist } from '../../hooks/useChecklist';
+import { useSquadChecklist } from '../../hooks/useSquadChecklist';
+import { LogEvent, TargetId, TargetType } from '../../lib/log';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
-import { useChecklist } from '../../hooks/useChecklist';
-import LogContext from '../../contexts/LogContext';
-import { LogEvent, TargetId, TargetType } from '../../lib/log';
+import { ChecklistCard } from './ChecklistCard';
 
 const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
   const { steps, isChecklistVisible, setChecklistVisible, isChecklistReady } =

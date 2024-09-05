@@ -1,11 +1,12 @@
 import React, { ReactElement, ReactNode, useMemo } from 'react';
+
 import { UserReadHistory } from '../../graphql/users';
+import { CalendarHeatmap } from '../CalendarHeatmap';
 import {
   ActivityContainer,
   ActivitySectionTitle,
   ActivitySectionTitleStat,
 } from './ActivitySection';
-import { CalendarHeatmap } from '../CalendarHeatmap';
 
 const getHistoryTitle = (
   fullHistory: boolean,

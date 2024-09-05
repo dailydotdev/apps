@@ -1,8 +1,8 @@
-import browser from 'webextension-polyfill';
-import { initialDataKey } from '@dailydotdev/shared/src/lib/constants';
-import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
 import { gqlRequest } from '@dailydotdev/shared/src/graphql/common';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
+import { initialDataKey } from '@dailydotdev/shared/src/lib/constants';
+import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
+import browser from 'webextension-polyfill';
 
 const proxyRequest = {
   apply(_, __, args) {

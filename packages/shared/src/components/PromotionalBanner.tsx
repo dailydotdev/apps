@@ -1,16 +1,17 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
+import { BannerCustomTheme, BannerTheme } from '../graphql/banner';
+import { useBanner } from '../hooks/useBanner';
+import { isTesting } from '../lib/constants';
 import {
   Button,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from './buttons/Button';
-import { isTesting } from '../lib/constants';
-import { BannerCustomTheme, BannerTheme } from '../graphql/banner';
-import { Theme } from './utilities';
-import { useBanner } from '../hooks/useBanner';
 import CloseButton from './CloseButton';
+import { Theme } from './utilities';
 
 const classNamesByTheme: Record<BannerTheme, string[]> = {
   [BannerCustomTheme.CabbageOnion]: [

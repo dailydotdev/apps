@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
 import { usePrompt } from '../../hooks/usePrompt';
-import { Button, ButtonVariant } from '../buttons/Button';
 import classed from '../../lib/classed';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { Modal, ModalProps } from './common/Modal';
 
 const Title = classed('h1', 'font-bold typo-title3 text-center');

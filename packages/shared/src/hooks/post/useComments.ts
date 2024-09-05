@@ -1,11 +1,12 @@
 import { useCallback, useMemo, useState } from 'react';
+
 import { useAuthContext } from '../../contexts/AuthContext';
-import { isNullOrUndefined } from '../../lib/func';
 import { useLogContext } from '../../contexts/LogContext';
-import { postLogEvent } from '../../lib/feed';
-import { LogEvent, Origin } from '../../lib/log';
 import { Post } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
+import { postLogEvent } from '../../lib/feed';
+import { isNullOrUndefined } from '../../lib/func';
+import { LogEvent, Origin } from '../../lib/log';
 import { CommentWrite, CommentWriteProps } from './common';
 
 interface ReplyTo extends CommentWriteProps {

@@ -1,32 +1,18 @@
-import React, {
-  ReactElement,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-} from 'react';
-import Tilt from 'react-parallax-tilt';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import {
-  GitHubIcon,
-  OpenLinkIcon,
-  TwitterIcon,
-} from '@dailydotdev/shared/src/components/icons';
-import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import classNames from 'classnames';
-import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
-import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
-import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
+import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import DevCardPlaceholder from '@dailydotdev/shared/src/components/DevCardPlaceholder';
-import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { devCard } from '@dailydotdev/shared/src/lib/constants';
+import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
+import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import {
+  GitHubIcon,
+  OpenLinkIcon,
+  TwitterIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import {
   DevCard,
   DevCardTheme,
@@ -35,41 +21,56 @@ import {
   requiredPoints,
   themeToLinearGradient,
 } from '@dailydotdev/shared/src/components/profile/devcard';
+import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
+import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import { WidgetContainer } from '@dailydotdev/shared/src/components/widgets/common';
-import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
-import {
-  generateQueryKey,
-  RequestKey,
-} from '@dailydotdev/shared/src/lib/query';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import {
   useActions,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   DevCardQueryData,
   useDevCard,
 } from '@dailydotdev/shared/src/hooks/profile/useDevCard';
-import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
-import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
-import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
+import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { downloadUrl } from '@dailydotdev/shared/src/lib/blob';
+import { devCard } from '@dailydotdev/shared/src/lib/constants';
+import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
 import { checkLowercaseEquality } from '@dailydotdev/shared/src/lib/strings';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import classNames from 'classnames';
+import { NextSeo } from 'next-seo';
+import { NextSeoProps } from 'next-seo/lib/types';
+import React, {
+  ReactElement,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
+import Tilt from 'react-parallax-tilt';
+
+import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
-import { defaultOpenGraph } from '../next-seo';
-import { getTemplatedTitle } from '../components/layouts/utils';
 import styles from '../components/layouts/ProfileLayout/NavBar.module.css';
+import { getTemplatedTitle } from '../components/layouts/utils';
 import {
   DevCardMutation,
   GENERATE_DEVCARD_MUTATION,
   GenerateDevCardParams,
 } from '../graphql/devcard';
-import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
+import { defaultOpenGraph } from '../next-seo';
 
 interface Step1Props {
   onGenerateImage(url: string): void;

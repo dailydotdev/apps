@@ -1,16 +1,17 @@
-import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { waitFor } from '@testing-library/react';
-import { useConditionalFeature } from './useConditionalFeature';
-import { Feature } from '../lib/featureManagement';
+import { renderHook } from '@testing-library/react-hooks';
+import React from 'react';
+
 import loggedUser from '../../__tests__/fixture/loggedUser';
-import { AuthContextProvider } from '../contexts/AuthContext';
 import {
   FeaturesReadyContext,
   GrowthBookProvider,
 } from '../components/GrowthBookProvider';
+import { AuthContextProvider } from '../contexts/AuthContext';
 import { BootApp } from '../lib/boot';
+import { Feature } from '../lib/featureManagement';
+import { useConditionalFeature } from './useConditionalFeature';
 
 const client = new QueryClient();
 const testFeature: Feature<string> = new Feature<string>(

@@ -1,18 +1,19 @@
-import React, { act } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
+import React, { act } from 'react';
+
 import defaultUser from '../../../__tests__/fixture/loggedUser';
+import { mockGraphQL } from '../../../__tests__/helpers/graphql';
+import { GrowthBookProvider } from '../../components/GrowthBookProvider';
 import { AuthContextProvider } from '../../contexts/AuthContext';
-import { useFeeds } from './useFeeds';
 import {
   CREATE_FEED_MUTATION,
   DELETE_FEED_MUTATION,
   FEED_LIST_QUERY,
   UPDATE_FEED_MUTATION,
 } from '../../graphql/feed';
-import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { BootApp } from '../../lib/boot';
-import { GrowthBookProvider } from '../../components/GrowthBookProvider';
+import { useFeeds } from './useFeeds';
 
 const client = new QueryClient();
 const noop = jest.fn();

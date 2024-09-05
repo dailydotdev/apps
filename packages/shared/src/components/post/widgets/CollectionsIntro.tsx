@@ -1,9 +1,10 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import CloseButton from '../../CloseButton';
-import { useActions } from '../../../hooks';
+import React, { ReactElement } from 'react';
+
 import { ActionType } from '../../../graphql/actions';
+import { useActions } from '../../../hooks';
 import { ButtonSize } from '../../buttons/Button';
+import CloseButton from '../../CloseButton';
 
 export type CollectionsIntroProps = {
   className?: string;

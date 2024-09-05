@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+
 import { MostReadTag } from '../../graphql/users';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 interface ReadingTagProgressProps {
   tag: MostReadTag;

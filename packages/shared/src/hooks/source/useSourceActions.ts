@@ -1,7 +1,7 @@
 import { Source } from '../../graphql/sources';
 import { useSourceActionsBlock } from './useSourceActionsBlock';
-import { useSourceActionsNotify } from './useSourceActionsNotify';
 import { useSourceActionsFollow } from './useSourceActionsFollow';
+import { useSourceActionsNotify } from './useSourceActionsNotify';
 
 interface UseSourceActionsProps {
   source: Source;

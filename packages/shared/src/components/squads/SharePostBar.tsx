@@ -1,17 +1,18 @@
-import React, { FormEvent, ReactElement, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
-import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
+import React, { FormEvent, ReactElement, useRef, useState } from 'react';
+
 import { useAuthContext } from '../../contexts/AuthContext';
-import { LockIcon } from '../icons';
+import { ExternalLinkPreview } from '../../graphql/posts';
+import { Squad } from '../../graphql/sources';
+import { usePostToSquad, useViewSize, ViewSize } from '../../hooks';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
+import { ClickableText } from '../buttons/ClickableText';
 import { Card } from '../cards/Card';
 import { IconSize } from '../Icon';
-import { usePostToSquad, useViewSize, ViewSize } from '../../hooks';
-import { ClickableText } from '../buttons/ClickableText';
-import { useLazyModal } from '../../hooks/useLazyModal';
+import { LockIcon } from '../icons';
 import { LazyModal } from '../modals/common/types';
-import { Squad } from '../../graphql/sources';
-import { ExternalLinkPreview } from '../../graphql/posts';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 
 export interface SharePostBarProps {
   className?: string;

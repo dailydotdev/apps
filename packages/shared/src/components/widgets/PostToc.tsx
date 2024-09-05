@@ -1,12 +1,13 @@
-import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement, useContext } from 'react';
+
+import LogContext from '../../contexts/LogContext';
 import { Post, TocItem } from '../../graphql/posts';
+import { postLogEvent } from '../../lib/feed';
 import { UnreadIcon as TocIcon } from '../icons';
 import { Summary, SummaryArrow } from '../utilities';
-import LogContext from '../../contexts/LogContext';
-import { postLogEvent } from '../../lib/feed';
-import styles from './PostToc.module.css';
 import { WidgetContainer } from './common';
+import styles from './PostToc.module.css';
 
 export type PostTocProps = {
   post: Post;

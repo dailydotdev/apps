@@ -1,11 +1,12 @@
 import React, { ReactElement } from 'react';
-import { ChecklistStepPropsWithSquad } from '../../lib/checklist';
-import { ChecklistStep } from './ChecklistStep';
-import { Button, ButtonVariant } from '../buttons/Button';
-import { LinkIcon } from '../icons';
+
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
+import { ChecklistStepPropsWithSquad } from '../../lib/checklist';
 import { Origin } from '../../lib/log';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
+import { LinkIcon } from '../icons';
+import { ChecklistStep } from './ChecklistStep';
 
 const InviteMemberChecklistStep = ({
   squad,

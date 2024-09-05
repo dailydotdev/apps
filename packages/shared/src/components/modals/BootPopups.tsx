@@ -1,22 +1,23 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useActions, useBoot } from '../../hooks';
-import { ActionType } from '../../graphql/actions';
-import { LazyModal } from './common/types';
+
 import AlertContext from '../../contexts/AlertContext';
-import { MarketingCtaVariant } from '../marketingCta/common';
-import { LogEvent, TargetType } from '../../lib/log';
+import { useAuthContext } from '../../contexts/AuthContext';
 import LogContext from '../../contexts/LogContext';
-import { promotion } from './generic';
+import { ActionType } from '../../graphql/actions';
+import { useActions, useBoot } from '../../hooks';
 import { useReadingStreak } from '../../hooks/streaks';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { isNullOrUndefined } from '../../lib/func';
+import { LogEvent, TargetType } from '../../lib/log';
+import { ButtonVariant } from '../buttons/common';
+import { MarketingCtaVariant } from '../marketingCta/common';
+import { MarketingCtaPopoverSmall } from '../marketingCta/MarketingCtaPopoverSmall';
 import InteractivePopup, {
   InteractivePopupPosition,
   InteractivePopupProps,
 } from '../tooltips/InteractivePopup';
-import { MarketingCtaPopoverSmall } from '../marketingCta/MarketingCtaPopoverSmall';
-import { ButtonVariant } from '../buttons/common';
-import { isNullOrUndefined } from '../../lib/func';
+import { LazyModal } from './common/types';
+import { promotion } from './generic';
 
 const REP_TRESHOLD = 250;
 

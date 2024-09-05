@@ -1,21 +1,22 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import { getIconForIntegration } from '../../lib/integrations';
+import React, { ReactElement } from 'react';
+
 import { UserIntegration } from '../../graphql/integrations';
 import { ContextMenuIds } from '../../hooks/constants';
+import { useIntegration } from '../../hooks/integrations/useIntegration';
+import useContextMenu from '../../hooks/useContextMenu';
+import { getIconForIntegration } from '../../lib/integrations';
 import { Button } from '../buttons/Button';
 import { ButtonSize } from '../buttons/common';
 import ContextMenu from '../fields/ContextMenu';
 import { IconSize } from '../Icon';
-import { MenuIcon, TrashIcon, ArrowIcon } from '../icons';
+import { ArrowIcon, MenuIcon, TrashIcon } from '../icons';
 import {
   Typography,
-  TypographyType,
   TypographyColor,
+  TypographyType,
 } from '../typography/Typography';
-import useContextMenu from '../../hooks/useContextMenu';
-import { useIntegration } from '../../hooks/integrations/useIntegration';
 
 const UserSourceIntegrationList = dynamic(() =>
   import(

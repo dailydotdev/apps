@@ -1,9 +1,10 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { ReadingStreakIcon, TriangleArrowIcon, EditIcon } from '../../icons';
+import React, { ReactElement } from 'react';
+
 import classed from '../../../lib/classed';
-import { IconSize, iconSizeToClassName } from '../../Icon';
 import { isNullOrUndefined } from '../../../lib/func';
+import { IconSize, iconSizeToClassName } from '../../Icon';
+import { EditIcon, ReadingStreakIcon, TriangleArrowIcon } from '../../icons';
 import { SimpleTooltip } from '../../tooltips';
 
 export enum Streak {

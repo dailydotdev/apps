@@ -1,20 +1,21 @@
-import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { waitFor } from '@testing-library/react';
+import { renderHook } from '@testing-library/react-hooks';
 import nock from 'nock';
+import React from 'react';
+
+import user from '../../__tests__/fixture/loggedUser';
+import { mockGraphQL } from '../../__tests__/helpers/graphql';
+import { waitForNock } from '../../__tests__/helpers/utilities';
 import { AuthContextProvider } from '../contexts/AuthContext';
-import { usePersonalizedDigest } from './usePersonalizedDigest';
+import { ApiError } from '../graphql/common';
 import {
   GET_PERSONALIZED_DIGEST_SETTINGS,
   SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
   UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
   UserPersonalizedDigestType,
 } from '../graphql/users';
-import user from '../../__tests__/fixture/loggedUser';
-import { mockGraphQL } from '../../__tests__/helpers/graphql';
-import { waitForNock } from '../../__tests__/helpers/utilities';
-import { ApiError } from '../graphql/common';
+import { usePersonalizedDigest } from './usePersonalizedDigest';
 
 const client = new QueryClient();
 const noop = jest.fn();

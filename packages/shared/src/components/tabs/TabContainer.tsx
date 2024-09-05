@@ -1,3 +1,5 @@
+import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import React, {
   createElement,
   CSSProperties,
@@ -5,10 +7,9 @@ import React, {
   ReactNode,
   useState,
 } from 'react';
-import classNames from 'classnames';
-import { useRouter } from 'next/router';
-import TabList, { TabListProps } from './TabList';
+
 import { RenderTab } from './common';
+import TabList, { TabListProps } from './TabList';
 
 export interface TabProps<T extends string> {
   children?: ReactNode;

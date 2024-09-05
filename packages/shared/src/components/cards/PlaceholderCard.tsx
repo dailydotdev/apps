@@ -1,8 +1,9 @@
-import React, { forwardRef, HTMLAttributes, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
-import { CardSpace, CardTextContainer } from './Card';
-import { ElementPlaceholder } from '../ElementPlaceholder';
+import React, { forwardRef, HTMLAttributes, ReactElement, Ref } from 'react';
+
 import classed from '../../lib/classed';
+import { ElementPlaceholder } from '../ElementPlaceholder';
+import { CardSpace, CardTextContainer } from './Card';
 
 const Text = classed(ElementPlaceholder, 'h-3 rounded-12 my-2');
 

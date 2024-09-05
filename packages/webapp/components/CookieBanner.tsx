@@ -1,13 +1,13 @@
-import React, { ReactElement } from 'react';
-import { cookiePolicy } from '@dailydotdev/shared/src/lib/constants';
-import { CookieIcon } from '@dailydotdev/shared/src/components/icons';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { CookieIcon } from '@dailydotdev/shared/src/components/icons';
 import { ModalClose } from '@dailydotdev/shared/src/components/modals/common/ModalClose';
+import { cookiePolicy } from '@dailydotdev/shared/src/lib/constants';
+import React, { ReactElement } from 'react';
 
 export interface CookieBannerProps {
   onAccepted: () => void;

@@ -1,10 +1,11 @@
 import {
+  createContext,
   KeyboardEvent,
   MouseEvent,
-  createContext,
   ReactNode,
   useContext,
 } from 'react';
+
 import { LogEvent } from '../../../lib/log';
 
 export enum ModalHeaderKind {
