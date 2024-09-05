@@ -64,6 +64,7 @@ export interface Squad extends Source {
   referralUrl?: string;
   banner?: string;
   borderColor?: string;
+  category?: SourceCategory;
 }
 
 interface SourceFlags {
@@ -170,4 +171,31 @@ export interface PublicSquadRequest {
   status?: PublicSquadRequestStatus;
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export interface SourceCategory {
+  id: string;
+  title: string;
+  createdAt: Date;
+}
+
+export const SOURCE_CATEGORIES_QUERY = gql`
+  query SourceCategories($first: Int, $after: String) {
+    categories: sourceCategories(first: $first, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          id
+          title
+        }
+      }
+    }
+  }
+`;
+
+export interface SourceCategoryData {
+  categories: Connection<SourceCategory>;
 }
