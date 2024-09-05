@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import dynamic from 'next/dynamic';
 import { BootApp, BootCacheData, getBootData } from '../lib/boot';
 import { AuthContextProvider } from './AuthContext';
 import { AnonymousUser, ContentLanguage, LoggedUser } from '../lib/user';
@@ -27,6 +28,13 @@ import { useHostStatus } from '../hooks/useHostPermissionStatus';
 import { checkIsExtension } from '../lib/func';
 import { Feed, FeedList } from '../graphql/feed';
 import { gqlClient } from '../graphql/common';
+
+const ServerError = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "serverError" */ '../components/errors/ServerError'
+    ),
+);
 
 function filteredProps<T extends Record<string, unknown>>(
   obj: T,
@@ -94,6 +102,7 @@ export const BootDataProvider = ({
   getRedirectUri,
   getPage,
 }: BootDataProviderProps): ReactElement => {
+  const [hasGlobalError, setGlobalError] = useState<boolean>(false);
   const { hostGranted } = useHostStatus();
   const isExtension = checkIsExtension();
 
@@ -133,13 +142,19 @@ export const BootDataProvider = ({
   } = useQuery(
     BOOT_QUERY_KEY,
     async () => {
-      const result = await getBootData(app);
+      try {
+        const result = await getBootData(app);
 
-      preloadFeedsRef.current({ feeds: result.feeds, user: result.user });
+        preloadFeedsRef.current({ feeds: result.feeds, user: result.user });
 
-      return result;
+        return result;
+      } catch (e) {
+        setGlobalError(true);
+        return null;
+      }
     },
     {
+      retry: hasGlobalError ? false : 3,
       refetchOnWindowFocus: loggedUser,
       staleTime: STALE_TIME,
       enabled: isExtension ? !!hostGranted : true,
@@ -228,6 +243,14 @@ export const BootDataProvider = ({
     'content-language',
     (user as Partial<LoggedUser>)?.language || ContentLanguage.English,
   );
+
+  if (hasGlobalError) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <ServerError />
+      </div>
+    );
+  }
 
   return (
     <GrowthBookProvider

@@ -1,13 +1,13 @@
 import { FeatureDefinition } from '@growthbook/growthbook';
 import { AnonymousUser, ContentLanguage, LoggedUser } from './user';
-import { apiUrl } from './config';
 import { Alerts } from '../graphql/alerts';
 import { RemoteSettings } from '../graphql/settings';
 import { Post } from '../graphql/posts';
 import { Squad } from '../graphql/sources';
-import { decrypt } from '../components/crypto';
 import { MarketingCta } from '../components/marketingCta/common';
 import { Feed } from '../graphql/feed';
+import { apiUrl } from './config';
+import { decrypt } from '../components/crypto';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;
@@ -87,21 +87,32 @@ export async function getBootData(app: string, url?: string): Promise<Boot> {
     params.append('url', url);
   }
 
-  const res = await fetch(`${apiUrl}/boot${appRoute}?${params}`, {
-    method: 'GET',
-    credentials: 'include',
-    headers: { app, 'Content-Type': 'application/json' },
-  });
-  const result = await res.json();
+  try {
+    const res = await fetch(`${apiUrl}/boot${appRoute}?${params}`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: { app, 'Content-Type': 'application/json' },
+    });
 
-  const features = await decrypt(
-    result.exp.f,
-    process.env.NEXT_PUBLIC_EXPERIMENTATION_KEY,
-    'AES-CBC',
-    128,
-  );
+    if (res.status >= 500) {
+      throw new Error('Server error');
+    }
 
-  result.exp.features = JSON.parse(features);
+    const result = await res.json();
 
-  return result;
+    const features = await decrypt(
+      result.exp.f,
+      process.env.NEXT_PUBLIC_EXPERIMENTATION_KEY,
+      'AES-CBC',
+      128,
+    );
+
+    result.exp.features = JSON.parse(features);
+
+    return result;
+  } catch (e) {
+    throw new Error('Server error');
+  }
+
+  return null;
 }
