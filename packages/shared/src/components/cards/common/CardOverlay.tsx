@@ -3,6 +3,7 @@ import { CardButton } from '../Card';
 import { useFeedPreviewMode } from '../../../hooks';
 import { Post } from '../../../graphql/posts';
 import { webappUrl } from '../../../lib/constants';
+import { anchorDefaultRel } from '../../../lib/strings';
 
 interface CardOverlayProps {
   post: Pick<Post, 'commentsPermalink' | 'title' | 'id' | 'slug'>;
@@ -24,6 +25,7 @@ const CardOverlay = ({
       title={post.title}
       onClick={onPostCardClick}
       href={`${webappUrl}posts/${post.slug ?? post.id}`}
+      rel={anchorDefaultRel}
     />
   );
 };
