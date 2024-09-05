@@ -102,7 +102,6 @@ export const BootDataProvider = ({
   getRedirectUri,
   getPage,
 }: BootDataProviderProps): ReactElement => {
-  const [hasGlobalError, setGlobalError] = useState<boolean>(false);
   const { hostGranted } = useHostStatus();
   const isExtension = checkIsExtension();
 
@@ -154,12 +153,6 @@ export const BootDataProvider = ({
       enabled: isExtension ? !!hostGranted : true,
     },
   );
-
-  useEffect(() => {
-    if (error && !hasGlobalError) {
-      setGlobalError(true);
-    }
-  }, [error, hasGlobalError]);
 
   useEffect(() => {
     const boot = getLocalBootData();
@@ -244,7 +237,7 @@ export const BootDataProvider = ({
     (user as Partial<LoggedUser>)?.language || ContentLanguage.English,
   );
 
-  if (hasGlobalError) {
+  if (error) {
     return (
       <div className="flex h-screen items-center justify-center">
         <ServerError />
