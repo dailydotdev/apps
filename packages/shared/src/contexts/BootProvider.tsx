@@ -154,7 +154,6 @@ export const BootDataProvider = ({
       }
     },
     {
-      retry: hasGlobalError ? false : 3,
       refetchOnWindowFocus: loggedUser,
       staleTime: STALE_TIME,
       enabled: isExtension ? !!hostGranted : true,
