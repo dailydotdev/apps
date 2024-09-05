@@ -1,12 +1,13 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Image } from '../image/Image';
-import { cloudinary } from '../../lib/image';
-import { OpenLinkIcon } from '../icons';
-import { ElementPlaceholder } from '../ElementPlaceholder';
-import classed from '../../lib/classed';
-import { IconSize } from '../Icon';
+import React, { ReactElement } from 'react';
+
 import { ExternalLinkPreview } from '../../graphql/posts';
+import classed from '../../lib/classed';
+import { cloudinary } from '../../lib/image';
+import { ElementPlaceholder } from '../ElementPlaceholder';
+import { IconSize } from '../Icon';
+import { OpenLinkIcon } from '../icons';
+import { Image } from '../image/Image';
 
 interface PostPreviewProps {
   preview: Partial<ExternalLinkPreview>;

@@ -4,15 +4,16 @@ import {
   MouseEventHandler,
   ReactNode,
 } from 'react';
+
 import { Post } from '../../graphql/posts';
 import { PostOrigin } from '../../hooks/log/useLogContextData';
-import classed from '../../lib/classed';
-import { PostOptionsMenuProps } from '../PostOptionsMenu';
-import { PostPosition } from '../../hooks/usePostModalNavigation';
 import {
   UsePostContent,
   UsePostContentProps,
 } from '../../hooks/usePostContent';
+import { PostPosition } from '../../hooks/usePostModalNavigation';
+import classed from '../../lib/classed';
+import { PostOptionsMenuProps } from '../PostOptionsMenu';
 
 export interface PostContentClassName {
   container?: string;

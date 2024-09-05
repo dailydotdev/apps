@@ -3,14 +3,15 @@ import {
   UseQueryOptions,
   UseQueryResult,
 } from '@tanstack/react-query';
+
+import { useAuthContext } from '../../../contexts/AuthContext';
+import { gqlClient } from '../../../graphql/common';
 import {
   SLACK_CHANNELS_QUERY,
   SlackChannel,
 } from '../../../graphql/integrations';
-import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
-import { gqlClient } from '../../../graphql/common';
-import { useAuthContext } from '../../../contexts/AuthContext';
 import { sortAlphabeticallyByProperty } from '../../../lib/func';
+import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 
 export type UseSlackChannelsQueryProps = {
   integrationId: string;

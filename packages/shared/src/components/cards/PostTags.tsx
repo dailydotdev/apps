@@ -1,9 +1,10 @@
-import React, { ReactElement, useRef } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement, useRef } from 'react';
+
 import { Post } from '../../graphql/posts';
-import Classed from '../../lib/classed';
-import { useFeedTags } from '../../hooks/feed/useFeedTags';
 import { useFeedLayout } from '../../hooks';
+import { useFeedTags } from '../../hooks/feed/useFeedTags';
+import Classed from '../../lib/classed';
 
 type PostTagsProps = Pick<Post, 'tags'>;
 

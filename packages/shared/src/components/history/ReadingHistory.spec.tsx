@@ -1,20 +1,21 @@
-import React from 'react';
-import { subDays } from 'date-fns';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   fireEvent,
   render,
   RenderResult,
   screen,
 } from '@testing-library/react';
+import { subDays } from 'date-fns';
 import nock from 'nock';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import React from 'react';
+
+import user from '../../../__tests__/fixture/loggedUser';
+import post from '../../../__tests__/fixture/post';
+import AuthContext from '../../contexts/AuthContext';
+import { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
+import { getLabel } from '../../lib/dateFormat.spec';
 import PostItemCard, { PostItemCardProps } from '../post/PostItemCard';
 import ReadHistoryList, { ReadHistoryListProps } from './ReadingHistoryList';
-import { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
-import AuthContext from '../../contexts/AuthContext';
-import user from '../../../__tests__/fixture/loggedUser';
-import { getLabel } from '../../lib/dateFormat.spec';
-import post from '../../../__tests__/fixture/post';
 
 beforeEach(() => {
   nock.cleanAll();

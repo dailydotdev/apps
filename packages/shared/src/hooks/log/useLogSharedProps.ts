@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import {
   MutableRefObject,
   useContext,
@@ -5,10 +6,10 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useRouter } from 'next/router';
-import { LogEvent } from './useLogQueue';
-import SettingsContext from '../../contexts/SettingsContext';
+
 import AuthContext from '../../contexts/AuthContext';
+import SettingsContext from '../../contexts/SettingsContext';
+import { LogEvent } from './useLogQueue';
 
 export default function useLogSharedProps(
   app: string,

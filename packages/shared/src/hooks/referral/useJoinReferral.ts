@@ -1,12 +1,13 @@
-import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
-import { expireCookie, setCookie } from '../../lib/cookie';
-import { isDevelopment } from '../../lib/constants';
-import { GET_REFERRING_USER_QUERY } from '../../graphql/users';
-import { ApiErrorResult, gqlClient } from '../../graphql/common';
+import { useRouter } from 'next/router';
+
 import { useAuthContext } from '../../contexts/AuthContext';
-import { disabledRefetch } from '../../lib/func';
+import { ApiErrorResult, gqlClient } from '../../graphql/common';
+import { GET_REFERRING_USER_QUERY } from '../../graphql/users';
+import { isDevelopment } from '../../lib/constants';
+import { expireCookie, setCookie } from '../../lib/cookie';
 import { oneYear } from '../../lib/dateFormat';
+import { disabledRefetch } from '../../lib/func';
 
 export const useJoinReferral = (): void => {
   const { user, refetchBoot, isAuthReady } = useAuthContext();

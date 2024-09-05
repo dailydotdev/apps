@@ -1,9 +1,10 @@
 import React, { ReactElement, useMemo } from 'react';
+
+import { useLazyModal } from '../../hooks/useLazyModal';
 import { BookmarkIcon, EyeIcon, LinkIcon } from '../icons';
+import { LazyModal } from '../modals/common/types';
 import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
-import { LazyModal } from '../modals/common/types';
-import { useLazyModal } from '../../hooks/useLazyModal';
 
 interface ActivitySectionProps extends SectionCommonProps {
   isDndActive?: boolean;

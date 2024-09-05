@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
-import { UpvoteIcon } from '../../icons';
+
 import { IconProps } from '../../Icon';
+import { UpvoteIcon } from '../../icons';
 
 export const UpvoteButtonIcon = React.memo(function UpvoteButtonIconComp(
   props: IconProps,

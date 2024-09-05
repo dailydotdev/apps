@@ -1,9 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
 import { useMemo } from 'react';
+
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import {
-  useNotificationPreference,
   checkHasStatusPreference,
+  useNotificationPreference,
   UseNotificationPreferenceProps,
 } from './useNotificationPreference';
 

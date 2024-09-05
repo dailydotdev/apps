@@ -1,4 +1,5 @@
 import { useContext, useEffect } from 'react';
+
 import LogContext from '../contexts/LogContext';
 
 interface UseLogModalProps {

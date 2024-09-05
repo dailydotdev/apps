@@ -1,13 +1,14 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
-import { SocialShare } from '../widgets/SocialShare';
+
 import LogContext from '../../contexts/LogContext';
-import { postLogEvent } from '../../lib/feed';
-import { Modal, ModalProps } from './common/Modal';
-import { ExperimentWinner } from '../../lib/featureValues';
-import { ShareProps } from './post/common';
 import { Squad } from '../../graphql/sources';
 import { useViewSize, ViewSize } from '../../hooks';
+import { ExperimentWinner } from '../../lib/featureValues';
+import { postLogEvent } from '../../lib/feed';
+import { SocialShare } from '../widgets/SocialShare';
+import { Modal, ModalProps } from './common/Modal';
+import { ShareProps } from './post/common';
 
 export default function ShareModal({
   post,

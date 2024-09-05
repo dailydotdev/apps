@@ -1,10 +1,11 @@
-import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { CollectionCard } from './CollectionCard';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import React from 'react';
+
 import { sharePost as collectionPost } from '../../../../__tests__/fixture/post';
-import { PostCardProps } from '../common';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
+import { PostCardProps } from '../common';
+import { CollectionCard } from './CollectionCard';
 
 const post = collectionPost;
 const defaultProps: PostCardProps = {

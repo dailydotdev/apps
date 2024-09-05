@@ -1,11 +1,12 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { PostContentWidget } from './PostContentWidget';
+import React, { ReactElement } from 'react';
+
 import { Post } from '../../../graphql/posts';
-import { BookmarkReminderIcon } from '../../icons/Bookmark/Reminder';
-import { IconSize } from '../../Icon';
-import { PostReminderOptions } from './PostReminderOptions';
 import { useBookmarkReminderCover } from '../../../hooks/bookmark/useBookmarkReminderCover';
+import { IconSize } from '../../Icon';
+import { BookmarkReminderIcon } from '../../icons/Bookmark/Reminder';
+import { PostContentWidget } from './PostContentWidget';
+import { PostReminderOptions } from './PostReminderOptions';
 
 interface PostContentReminderProps {
   post: Post;

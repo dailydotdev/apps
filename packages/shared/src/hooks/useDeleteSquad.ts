@@ -1,11 +1,12 @@
 import { useContext, useMemo } from 'react';
-import { deleteSquad } from '../graphql/squads';
-import { Squad } from '../graphql/sources';
-import { PromptOptions, usePrompt } from './usePrompt';
-import { useBoot } from './useBoot';
-import LogContext from '../contexts/LogContext';
-import { LogEvent } from '../lib/log';
+
 import { ButtonColor } from '../components/buttons/Button';
+import LogContext from '../contexts/LogContext';
+import { Squad } from '../graphql/sources';
+import { deleteSquad } from '../graphql/squads';
+import { LogEvent } from '../lib/log';
+import { useBoot } from './useBoot';
+import { PromptOptions, usePrompt } from './usePrompt';
 
 interface UseDeleteSquadModal {
   onDeleteSquad: () => void;

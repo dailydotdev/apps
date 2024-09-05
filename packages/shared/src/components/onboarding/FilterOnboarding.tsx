@@ -1,9 +1,10 @@
-import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
-import FeedTopicCard, { ButtonEvent } from '../containers/FeedTopicCard';
-import useTagAndSource from '../../hooks/useTagAndSource';
+import React, { ReactElement, useState } from 'react';
+
 import useFeedSettings from '../../hooks/useFeedSettings';
+import useTagAndSource from '../../hooks/useTagAndSource';
 import { Origin } from '../../lib/log';
+import FeedTopicCard, { ButtonEvent } from '../containers/FeedTopicCard';
 
 export interface FilterOnboardingProps {
   onSelectedTopics?(tags: Record<string, boolean>): void;

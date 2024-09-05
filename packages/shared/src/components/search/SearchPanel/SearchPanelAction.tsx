@@ -1,18 +1,19 @@
-import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement, useContext } from 'react';
+
+import { useLogContext } from '../../../contexts/LogContext';
 import { SearchProviderEnum } from '../../../graphql/search';
-import { SearchPanelContext } from './SearchPanelContext';
-import { SearchPanelItem } from './SearchPanelItem';
 import { useSearchProvider } from '../../../hooks/search';
-import { useSearchPanelAction } from './useSearchPanelAction';
+import { LogEvent } from '../../../lib/log';
+import { IconSize } from '../../Icon';
 import {
   defaultSearchProvider,
   providerToIconMap,
   providerToLabelTextMap,
 } from './common';
-import { IconSize } from '../../Icon';
-import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent } from '../../../lib/log';
+import { SearchPanelContext } from './SearchPanelContext';
+import { SearchPanelItem } from './SearchPanelItem';
+import { useSearchPanelAction } from './useSearchPanelAction';
 
 export type SearchPanelActionProps = {
   provider: SearchProviderEnum;

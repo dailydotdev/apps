@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
-import { LoggedUser } from '../lib/user';
+
 import { setCookie } from '../lib/cookie';
+import { LoggedUser } from '../lib/user';
 
 const consentCookieName = 'ilikecookies';
 

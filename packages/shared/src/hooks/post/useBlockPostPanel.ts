@@ -1,22 +1,23 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
-import { Post, ReadHistoryPost } from '../../graphql/posts';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useActions } from '../useActions';
-import { ActionType } from '../../graphql/actions';
-import useTagAndSource from '../useTagAndSource';
-import { Origin } from '../../lib/log';
+
+import { LazyModal } from '../../components/modals/common/types';
 import {
   BlockTagSelection,
   DownvoteBlocked,
   getBlockedLength,
   getBlockedMessage,
 } from '../../components/post/block/common';
-import { useLazyModal } from '../useLazyModal';
-import { LazyModal } from '../../components/modals/common/types';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { ActionType } from '../../graphql/actions';
+import { Post, ReadHistoryPost } from '../../graphql/posts';
 import { disabledRefetch, isNullOrUndefined } from '../../lib/func';
-import { useToastNotification } from '../useToastNotification';
+import { Origin } from '../../lib/log';
 import { generateQueryKey, RequestKey } from '../../lib/query';
+import { useActions } from '../useActions';
+import { useLazyModal } from '../useLazyModal';
+import useTagAndSource from '../useTagAndSource';
+import { useToastNotification } from '../useToastNotification';
 
 interface BlockData {
   showTagsPanel?: boolean;

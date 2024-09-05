@@ -1,3 +1,4 @@
+import { QueryClient } from '@tanstack/react-query';
 import {
   fireEvent,
   render,
@@ -5,19 +6,19 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { QueryClient } from '@tanstack/react-query';
-import React from 'react';
-import nock from 'nock';
 import { useRouter } from 'next/router';
-import ShareModal from './ShareModal';
-import Post from '../../../__tests__/fixture/post';
-import { getFacebookShareLink } from '../../lib/share';
-import { Origin } from '../../lib/log';
+import nock from 'nock';
+import React from 'react';
+
 import Comment from '../../../__tests__/fixture/comment';
-import { getCommentHash } from '../../graphql/comments';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
+import Post from '../../../__tests__/fixture/post';
 import { generateTestSquad } from '../../../__tests__/fixture/squads';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { getCommentHash } from '../../graphql/comments';
+import { Origin } from '../../lib/log';
+import { getFacebookShareLink } from '../../lib/share';
+import ShareModal from './ShareModal';
 
 const defaultPost = Post;
 const defaultComment = Comment;

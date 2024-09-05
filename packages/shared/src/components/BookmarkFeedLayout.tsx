@@ -1,3 +1,5 @@
+import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import React, {
   ReactElement,
   ReactNode,
@@ -5,22 +7,21 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import dynamic from 'next/dynamic';
-import classNames from 'classnames';
+
+import AuthContext from '../contexts/AuthContext';
 import {
   BOOKMARKS_FEED_QUERY,
   SEARCH_BOOKMARKS_QUERY,
   supportedTypesForPrivateSources,
 } from '../graphql/feed';
-import AuthContext from '../contexts/AuthContext';
-import { CustomFeedHeader, FeedPageHeader } from './utilities';
-import SearchEmptyScreen from './SearchEmptyScreen';
-import Feed, { FeedProps } from './Feed';
+import { useFeedLayout } from '../hooks';
+import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import { Button, ButtonVariant } from './buttons/Button';
+import Feed, { FeedProps } from './Feed';
 import { ShareIcon } from './icons';
-import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
-import { useFeedLayout } from '../hooks';
+import SearchEmptyScreen from './SearchEmptyScreen';
+import { CustomFeedHeader, FeedPageHeader } from './utilities';
 
 export type BookmarkFeedLayoutProps = {
   searchQuery?: string;

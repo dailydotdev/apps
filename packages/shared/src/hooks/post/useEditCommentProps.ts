@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
-import { CommentWrite, CommentWriteProps } from './common';
+
 import useCommentById from '../comments/useCommentById';
+import { CommentWrite, CommentWriteProps } from './common';
 
 interface UseCommentEdit extends CommentWrite {
   onEdit: (params: CommentWriteProps) => void;

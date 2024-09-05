@@ -1,4 +1,5 @@
 import { useState } from 'react';
+
 import { useEventListener } from '../useEventListener';
 
 interface VisualViewportResult {

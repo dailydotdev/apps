@@ -1,5 +1,5 @@
-import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
+import React, { forwardRef, ReactElement, Ref } from 'react';
 
 type AvailableTags = keyof Pick<JSX.IntrinsicElements, 'a' | 'button'>;
 

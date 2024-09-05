@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Separator } from '../common';
-import { DateFormat } from '../../utilities';
+import React, { ReactElement } from 'react';
+
 import { TimeFormatType } from '../../../lib/dateFormat';
+import { DateFormat } from '../../utilities';
+import { Separator } from '../common';
 
 export interface PostMetadataProps {
   className?: string;

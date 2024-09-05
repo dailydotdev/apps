@@ -1,6 +1,7 @@
 import React, { MutableRefObject, useMemo, useRef, useState } from 'react';
-import { PromptOptions, usePrompt } from './usePrompt';
+
 import { ButtonColor } from '../components/buttons/Button';
+import { PromptOptions, usePrompt } from './usePrompt';
 
 export type CloseAuthModalFunc = (
   e: React.MouseEvent | React.KeyboardEvent | React.FormEvent,

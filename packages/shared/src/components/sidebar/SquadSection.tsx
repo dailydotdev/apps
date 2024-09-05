@@ -1,11 +1,12 @@
 import React, { ReactElement, useContext } from 'react';
+
+import AuthContext from '../../contexts/AuthContext';
+import { useSquadNavigation } from '../../hooks';
+import { Origin } from '../../lib/log';
+import { DefaultSquadIcon, NewSquadIcon, SourceIcon } from '../icons';
+import { SquadImage } from '../squads/SquadImage';
 import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
-import { NewSquadIcon, DefaultSquadIcon, SourceIcon } from '../icons';
-import { Origin } from '../../lib/log';
-import { useSquadNavigation } from '../../hooks';
-import AuthContext from '../../contexts/AuthContext';
-import { SquadImage } from '../squads/SquadImage';
 
 export function SquadSection(props: SectionCommonProps): ReactElement {
   const { squads } = useContext(AuthContext);

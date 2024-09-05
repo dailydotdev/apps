@@ -1,10 +1,11 @@
-import React, { forwardRef, ReactElement, ReactEventHandler, Ref } from 'react';
 import classNames from 'classnames';
-import { LazyImage, LazyImageProps } from './LazyImage';
-import { PublicProfile } from '../lib/user';
-import { fallbackImages } from '../lib/config';
-import { Image, ImageType } from './image/Image';
+import React, { forwardRef, ReactElement, ReactEventHandler, Ref } from 'react';
+
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
+import { fallbackImages } from '../lib/config';
+import { PublicProfile } from '../lib/user';
+import { Image, ImageType } from './image/Image';
+import { LazyImage, LazyImageProps } from './LazyImage';
 
 export enum ProfileImageSize {
   Size16 = 'size16',

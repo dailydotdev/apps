@@ -1,7 +1,8 @@
 import { utcToZonedTime } from 'date-fns-tz';
 import type { FC } from 'react';
-import { DaytimeIcon, NighttimeIcon } from '../components/icons/TimeZone';
+
 import type { IconProps } from '../components/Icon';
+import { DaytimeIcon, NighttimeIcon } from '../components/icons/TimeZone';
 
 interface TimeZoneItem {
   value: string;

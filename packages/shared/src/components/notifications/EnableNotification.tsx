@@ -1,5 +1,10 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
+import { useEnableNotification } from '../../hooks/notifications';
+import { webappUrl } from '../../lib/constants';
+import { cloudinary } from '../../lib/image';
+import { NotificationPromptSource } from '../../lib/log';
 import {
   Button,
   ButtonColor,
@@ -7,11 +12,7 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import CloseButton from '../CloseButton';
-import { cloudinary } from '../../lib/image';
-import { VIcon, BellNotifyIcon } from '../icons';
-import { webappUrl } from '../../lib/constants';
-import { NotificationPromptSource } from '../../lib/log';
-import { useEnableNotification } from '../../hooks/notifications';
+import { BellNotifyIcon, VIcon } from '../icons';
 
 type EnableNotificationProps = {
   source?: NotificationPromptSource;

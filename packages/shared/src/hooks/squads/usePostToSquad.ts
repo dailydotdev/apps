@@ -5,6 +5,15 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { BaseSyntheticEvent, useCallback, useState } from 'react';
+
+import { useAuthContext } from '../../contexts/AuthContext';
+import { ActionType } from '../../graphql/actions';
+import {
+  ApiError,
+  ApiErrorResult,
+  DEFAULT_ERROR,
+  getApiError,
+} from '../../graphql/common';
 import {
   ExternalLinkPreview,
   getExternalLinkPreview,
@@ -12,18 +21,10 @@ import {
   SubmitExternalLink,
   submitExternalLink,
 } from '../../graphql/posts';
-import {
-  ApiError,
-  ApiErrorResult,
-  DEFAULT_ERROR,
-  getApiError,
-} from '../../graphql/common';
-import { useToastNotification } from '../useToastNotification';
 import { addPostToSquad, updateSquadPost } from '../../graphql/squads';
-import { ActionType } from '../../graphql/actions';
-import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions } from '../useActions';
 import { useRequestProtocol } from '../useRequestProtocol';
+import { useToastNotification } from '../useToastNotification';
 
 interface UsePostToSquad {
   preview: ExternalLinkPreview;

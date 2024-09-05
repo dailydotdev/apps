@@ -1,19 +1,20 @@
 import { useCallback, useState } from 'react';
-import usePersistentContext, {
-  UserPersistentContextType,
-} from '../usePersistentContext';
+
+import { useAuthContext } from '../../contexts/AuthContext';
+import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { ActionType } from '../../graphql/actions';
+import { checkIsExtension } from '../../lib/func';
+import { NotificationPromptSource } from '../../lib/log';
 import { useActions } from '../useActions';
+import { useEventListener } from '../useEventListener';
 import {
   ENABLE_NOTIFICATION_WINDOW_KEY,
   PermissionEvent,
   useNotificationPermissionPopup,
 } from '../useNotificationPermissionPopup';
-import { checkIsExtension } from '../../lib/func';
-import { NotificationPromptSource } from '../../lib/log';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
-import { useEventListener } from '../useEventListener';
+import usePersistentContext, {
+  UserPersistentContextType,
+} from '../usePersistentContext';
 
 export const PERMISSION_NOTIFICATION_KEY = 'permission:notification';
 

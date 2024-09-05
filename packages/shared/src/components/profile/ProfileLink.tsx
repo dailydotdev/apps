@@ -1,11 +1,11 @@
+import classNames from 'classnames';
+import Link from 'next/link';
 import React, {
-  forwardRef,
   AnchorHTMLAttributes,
+  forwardRef,
   ReactElement,
   Ref,
 } from 'react';
-import Link from 'next/link';
-import classNames from 'classnames';
 
 export interface ProfileLinkProps
   extends AnchorHTMLAttributes<HTMLAnchorElement> {

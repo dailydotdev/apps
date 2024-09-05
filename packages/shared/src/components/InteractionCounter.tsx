@@ -1,6 +1,7 @@
-import React, { ReactElement, useEffect, useState } from 'react';
-import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import classNames from 'classnames';
+import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
+import React, { ReactElement, useEffect, useState } from 'react';
+
 import { largeNumberFormat } from '../lib';
 
 export type InteractionCounterProps = {

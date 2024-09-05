@@ -1,10 +1,11 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { cloudinary } from '../../lib/image';
-import { Button, ButtonVariant } from '../buttons/Button';
+import React, { ReactElement } from 'react';
+
 import SourceBetaIcon from '../../../icons/source_beta.svg';
-import { Origin } from '../../lib/log';
 import { useSquadNavigation } from '../../hooks';
+import { cloudinary } from '../../lib/image';
+import { Origin } from '../../lib/log';
+import { Button, ButtonVariant } from '../buttons/Button';
 
 interface SquadsDirectoryHeaderProps {
   className?: string;

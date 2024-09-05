@@ -1,23 +1,24 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
+  fireEvent,
   render,
   RenderResult,
   screen,
   waitFor,
-  fireEvent,
 } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React, { act } from 'react';
 import nock from 'nock';
+import React, { act } from 'react';
+
 import Comment from '../../../../__tests__/fixture/comment';
-import { REPORT_COMMENT_MUTATION } from '../../../graphql/comments';
-import { AuthContextProvider } from '../../../contexts/AuthContext';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
+import Post from '../../../../__tests__/fixture/post';
 import { generateTestSquad } from '../../../../__tests__/fixture/squads';
 import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
 import { waitForNock } from '../../../../__tests__/helpers/utilities';
+import { AuthContextProvider } from '../../../contexts/AuthContext';
+import { REPORT_COMMENT_MUTATION } from '../../../graphql/comments';
 import { LazyModalElement } from '../LazyModalElement';
 import { ReportCommentModal } from './ReportCommentModal';
-import Post from '../../../../__tests__/fixture/post';
 
 const defaultPost = Post;
 const defaultComment = Comment;

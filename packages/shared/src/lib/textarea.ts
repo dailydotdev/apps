@@ -1,4 +1,5 @@
 import { MutableRefObject } from 'react';
+
 import { nextTick } from './func';
 
 export const isFalsyOrSpace = (value: string): boolean =>

@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+
 import { Card } from '../Card';
 import { AcquisitionFormInner } from './common/AcquisitionFormInner';
 

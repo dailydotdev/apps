@@ -1,5 +1,5 @@
-import React from 'react';
 import classNames from 'classnames';
+import React from 'react';
 
 import { ColorName as ButtonColor } from '../../styles/colors';
 import { IconProps, IconSize } from '../Icon';

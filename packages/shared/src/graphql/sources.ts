@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+
 import type { UserShortProfile } from '../lib/user';
 import type { Connection } from './common';
 import { SOURCE_DIRECTORY_INFO_FRAGMENT } from './fragments';

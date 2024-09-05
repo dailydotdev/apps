@@ -1,13 +1,14 @@
-import React, { MouseEvent, ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { MouseEvent, ReactElement } from 'react';
+
+import { useOnboardingChecklist } from '../../hooks';
+import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
+import useContextMenu from '../../hooks/useContextMenu';
 import { ChecklistViewState } from '../../lib/checklist';
 import { Button } from '../buttons/Button';
-import { ButtonVariant, ButtonSize } from '../buttons/common';
+import { ButtonSize, ButtonVariant } from '../buttons/common';
 import ContextMenu from '../fields/ContextMenu';
-import { MenuIcon, EyeCancelIcon } from '../icons';
-import useContextMenu from '../../hooks/useContextMenu';
-import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
-import { useOnboardingChecklist } from '../../hooks';
+import { EyeCancelIcon, MenuIcon } from '../icons';
 
 export type OnboardingChecklistOptionsProps = {
   className?: string;

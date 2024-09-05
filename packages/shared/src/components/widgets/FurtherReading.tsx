@@ -1,25 +1,26 @@
-import React, { ReactElement, useContext } from 'react';
-import classNames from 'classnames';
 import { QueryClient, useQuery, useQueryClient } from '@tanstack/react-query';
+import classNames from 'classnames';
+import React, { ReactElement, useContext } from 'react';
+
 import AuthContext from '../../contexts/AuthContext';
+import { gqlClient } from '../../graphql/common';
+import { FeedData, SOURCE_FEED_QUERY } from '../../graphql/feed';
 import {
   FURTHER_READING_QUERY,
   FurtherReadingData,
 } from '../../graphql/furtherReading';
-import {
-  UseBookmarkPostRollback,
-  useBookmarkPost,
-} from '../../hooks/useBookmarkPost';
 import { Post, PostType } from '../../graphql/posts';
-import SimilarPosts, { SimilarPostsProps } from './SimilarPosts';
+import { isSourcePublicSquad } from '../../graphql/squads';
+import {
+  useBookmarkPost,
+  UseBookmarkPostRollback,
+} from '../../hooks/useBookmarkPost';
+import { disabledRefetch } from '../../lib/func';
+import { Origin } from '../../lib/log';
+import { SquadPostListItem } from '../squads/SquadPostListItem';
 import BestDiscussions from './BestDiscussions';
 import PostToc from './PostToc';
-import { Origin } from '../../lib/log';
-import { FeedData, SOURCE_FEED_QUERY } from '../../graphql/feed';
-import { isSourcePublicSquad } from '../../graphql/squads';
-import { SquadPostListItem } from '../squads/SquadPostListItem';
-import { disabledRefetch } from '../../lib/func';
-import { gqlClient } from '../../graphql/common';
+import SimilarPosts, { SimilarPostsProps } from './SimilarPosts';
 
 export type FurtherReadingProps = {
   currentPost: Post;

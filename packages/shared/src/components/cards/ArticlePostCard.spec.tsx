@@ -1,4 +1,4 @@
-import React from 'react';
+import { QueryClient } from '@tanstack/react-query';
 import {
   fireEvent,
   render,
@@ -6,12 +6,13 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { QueryClient } from '@tanstack/react-query';
-import { ArticlePostCard } from './ArticlePostCard';
+import React from 'react';
+
 import post from '../../../__tests__/fixture/post';
-import { PostCardProps, visibleOnGroupHover } from './common';
-import { PostType } from '../../graphql/posts';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { PostType } from '../../graphql/posts';
+import { ArticlePostCard } from './ArticlePostCard';
+import { PostCardProps, visibleOnGroupHover } from './common';
 
 const defaultProps: PostCardProps = {
   post,

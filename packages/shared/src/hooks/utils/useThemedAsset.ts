@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
+
 import { ThemeMode, useSettingsContext } from '../../contexts/SettingsContext';
-import colors from '../../styles/colors';
 import { cloudinary } from '../../lib/image';
+import colors from '../../styles/colors';
 
 interface UseAsset {
   onboardingIntroduction: string;

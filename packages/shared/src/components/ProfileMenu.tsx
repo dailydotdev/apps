@@ -1,19 +1,12 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
+
 import AuthContext from '../contexts/AuthContext';
-import {
-  InviteIcon,
-  UserIcon,
-  DevCardIcon,
-  SettingsIcon,
-  ReputationLightningIcon,
-  ExitIcon,
-  PlayIcon,
-  PauseIcon,
-  EditIcon,
-} from './icons';
-import InteractivePopup, {
-  InteractivePopupPosition,
-} from './tooltips/InteractivePopup';
+import { useDndContext } from '../contexts/DndContext';
+import { useLazyModal } from '../hooks/useLazyModal';
+import { reputation, webappUrl } from '../lib/constants';
+import { checkIsExtension } from '../lib/func';
+import { anchorDefaultRel } from '../lib/strings';
+import { LogoutReason } from '../lib/user';
 import {
   AllowedTags,
   Button,
@@ -21,15 +14,23 @@ import {
   ButtonSize,
   ButtonVariant,
 } from './buttons/Button';
-import { reputation, webappUrl } from '../lib/constants';
-import { UserMetadata } from './profile/UserMetadata';
-import { HeroImage } from './profile/HeroImage';
-import { anchorDefaultRel } from '../lib/strings';
-import { LogoutReason } from '../lib/user';
-import { useLazyModal } from '../hooks/useLazyModal';
-import { checkIsExtension } from '../lib/func';
-import { useDndContext } from '../contexts/DndContext';
+import {
+  DevCardIcon,
+  EditIcon,
+  ExitIcon,
+  InviteIcon,
+  PauseIcon,
+  PlayIcon,
+  ReputationLightningIcon,
+  SettingsIcon,
+  UserIcon,
+} from './icons';
 import { LazyModal } from './modals/common/types';
+import { HeroImage } from './profile/HeroImage';
+import { UserMetadata } from './profile/UserMetadata';
+import InteractivePopup, {
+  InteractivePopupPosition,
+} from './tooltips/InteractivePopup';
 
 interface ListItem {
   title: string;

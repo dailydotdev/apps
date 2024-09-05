@@ -1,21 +1,22 @@
 import type { Config } from 'tailwindcss';
-import colors from './tailwind/colors';
+
 import boxShadow from './tailwind/boxShadow';
-import caret from './tailwind/caret';
-import typography from './tailwind/typography';
 import buttons from './tailwind/buttons';
-import background from './tailwind/colors/background';
+import caret from './tailwind/caret';
+import colors from './tailwind/colors';
 import accent from './tailwind/colors/accent';
-import brand from './tailwind/colors/brand';
-import surface from './tailwind/colors/surface';
 import action from './tailwind/colors/action';
-import overlayColors from './tailwind/colors/overlay';
-import border from './tailwind/colors/border';
-import status from './tailwind/colors/status';
-import text from './tailwind/colors/text';
+import background from './tailwind/colors/background';
 import blur from './tailwind/colors/blur';
+import border from './tailwind/colors/border';
+import brand from './tailwind/colors/brand';
+import overlayColors from './tailwind/colors/overlay';
 import shadow from './tailwind/colors/shadow';
+import status from './tailwind/colors/status';
+import surface from './tailwind/colors/surface';
+import text from './tailwind/colors/text';
 import overlay from './tailwind/overlay';
+import typography from './tailwind/typography';
 
 export default {
   content: [],

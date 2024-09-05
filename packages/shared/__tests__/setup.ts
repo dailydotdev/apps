@@ -1,8 +1,10 @@
 import '@testing-library/jest-dom';
 import 'fake-indexeddb/auto';
-import nodeFetch from 'node-fetch';
-import { NextRouter } from 'next/router';
+
 import { clear } from 'idb-keyval';
+import { NextRouter } from 'next/router';
+import nodeFetch from 'node-fetch';
+
 import { storageWrapper as storage } from '../src/lib/storageWrapper';
 
 process.env.NEXT_PUBLIC_API_URL = 'http://localhost:3000';

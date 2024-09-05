@@ -1,9 +1,10 @@
 import React, { ReactElement, ReactNode } from 'react';
+
+import { webappUrl } from '../../lib/constants';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { IconSize } from '../Icon';
 import { LockIcon } from '../icons';
 import { PageContainerCentered } from '../utilities';
-import { IconSize } from '../Icon';
-import { webappUrl } from '../../lib/constants';
 
 interface UnauthorizedProps {
   children?: ReactNode;

@@ -1,12 +1,13 @@
 import classNames from 'classnames';
 import React, { Dispatch, ReactElement, SetStateAction } from 'react';
+
 import { useViewSize, ViewSize } from '../../hooks';
 import { cloudinary } from '../../lib/image';
-import Logo, { LogoPosition } from '../Logo';
-import { AuthProps, AuthDisplay } from '../auth/AuthOptions';
+import { AuthDisplay, AuthProps } from '../auth/AuthOptions';
 import { Button, ButtonVariant } from '../buttons/Button';
-import { CreateFeedButton } from './CreateFeedButton';
+import Logo, { LogoPosition } from '../Logo';
 import { OnboardingStep, wrapperMaxWidth } from './common';
+import { CreateFeedButton } from './CreateFeedButton';
 
 type OnboardingHeaderProps = {
   showOnboardingPage: boolean;

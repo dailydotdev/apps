@@ -1,15 +1,16 @@
-import React, { FormEventHandler, ReactElement, useState } from 'react';
 import classNames from 'classnames';
+import React, { FormEventHandler, ReactElement, useState } from 'react';
+
 import { ExternalLinkPreview, ReadHistoryPost } from '../../../graphql/posts';
+import { useViewSize, ViewSize } from '../../../hooks';
+import { useDebouncedUrl } from '../../../hooks/input';
+import { useLazyModal } from '../../../hooks/useLazyModal';
+import { ClickableText } from '../../buttons/ClickableText';
 import { TextField } from '../../fields/TextField';
 import { LinkIcon } from '../../icons';
-import { ClickableText } from '../../buttons/ClickableText';
 import { LazyModal } from '../../modals/common/types';
-import { useLazyModal } from '../../../hooks/useLazyModal';
-import { useViewSize, ViewSize } from '../../../hooks';
-import { WritePreviewSkeleton } from './WritePreviewSkeleton';
 import { WriteLinkPreview } from './WriteLinkPreview';
-import { useDebouncedUrl } from '../../../hooks/input';
+import { WritePreviewSkeleton } from './WritePreviewSkeleton';
 
 interface SubmitExternalLinkProps {
   preview: ExternalLinkPreview;

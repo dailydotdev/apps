@@ -1,14 +1,15 @@
 import React, { MouseEventHandler, ReactElement } from 'react';
+
+import { Post, UserVote } from '../../graphql/posts';
+import { usePostFeedback } from '../../hooks';
 import {
   Button,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
-import { DownvoteIcon, UpvoteIcon } from '../icons';
-import { Post, UserVote } from '../../graphql/posts';
-import { usePostFeedback } from '../../hooks';
 import CloseButton from '../CloseButton';
+import { DownvoteIcon, UpvoteIcon } from '../icons';
 
 interface FeedbackCardProps {
   post: Post;

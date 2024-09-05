@@ -1,7 +1,10 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
+
 import { SourceMember, Squad } from '../../graphql/sources';
 import { useLazyModal } from '../../hooks/useLazyModal';
+import useSidebarRendered from '../../hooks/useSidebarRendered';
+import { largeNumberFormat } from '../../lib';
 import { LazyModal } from '../modals/common/types';
 import {
   ProfileImageSize,
@@ -9,8 +12,6 @@ import {
   roundClasses,
 } from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import useSidebarRendered from '../../hooks/useSidebarRendered';
-import { largeNumberFormat } from '../../lib';
 
 export interface SquadMemberShortListProps {
   squad: Squad;

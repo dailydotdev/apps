@@ -1,31 +1,32 @@
-import React, { ReactElement, useEffect, useRef } from 'react';
 import classNames from 'classnames';
-import { Modal, ModalProps } from '../common/Modal';
-import { Dropdown } from '../../fields/Dropdown';
-import { ButtonSize, ButtonVariant } from '../../buttons/common';
-import { Button } from '../../buttons/Button';
-import { useViewSize, ViewSize } from '../../../hooks';
+import React, { ReactElement, useEffect, useRef } from 'react';
+
+import { useLogContext } from '../../../contexts/LogContext';
+import { UserIntegrationType } from '../../../graphql/integrations';
 import { Source } from '../../../graphql/sources';
+import { useViewSize, ViewSize } from '../../../hooks';
+import { useIntegration } from '../../../hooks/integrations/useIntegration';
+import { useThemedAsset } from '../../../hooks/utils';
+import { slackIntegration } from '../../../lib/constants';
+import { LogEvent } from '../../../lib/log';
+import { Button } from '../../buttons/Button';
+import { ButtonSize, ButtonVariant } from '../../buttons/common';
+import { Dropdown } from '../../fields/Dropdown';
+import { PlusIcon, SlackIcon } from '../../icons';
+import { Loader } from '../../Loader';
 import { SourceAvatar } from '../../profile/source';
 import { ProfileImageSize } from '../../ProfilePicture';
+import { Bubble } from '../../tooltips/utils';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
-import { PlusIcon, SlackIcon } from '../../icons';
-import { useIntegration } from '../../../hooks/integrations/useIntegration';
-import { useThemedAsset } from '../../../hooks/utils';
-import { Loader } from '../../Loader';
+import { Modal, ModalProps } from '../common/Modal';
 import { ModalClose } from '../common/ModalClose';
 import { SlackIntegrationIntroBody } from './SlackIntegrationIntroBody';
 import { useSlackIntegrationModal } from './useSlackIntegrationModal';
-import { Bubble } from '../../tooltips/utils';
-import { useLogContext } from '../../../contexts/LogContext';
-import { UserIntegrationType } from '../../../graphql/integrations';
-import { LogEvent } from '../../../lib/log';
-import { slackIntegration } from '../../../lib/constants';
 
 export type SlackIntegrationModalProps = Omit<ModalProps, 'children'> & {
   source: Pick<Source, 'id' | 'handle' | 'type' | 'image' | 'name'>;

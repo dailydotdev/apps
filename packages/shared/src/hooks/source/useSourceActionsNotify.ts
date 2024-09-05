@@ -1,10 +1,11 @@
 import { useCallback } from 'react';
+
 import { NotificationType } from '../../components/notifications/utils';
-import { useLogContext } from '../../contexts/LogContext';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useLogContext } from '../../contexts/LogContext';
 import { Source } from '../../graphql/sources';
-import { LogEvent, NotificationPromptSource, TargetType } from '../../lib/log';
 import { AuthTriggers } from '../../lib/auth';
+import { LogEvent, NotificationPromptSource, TargetType } from '../../lib/log';
 import {
   useEnableNotification,
   useNotificationPreferenceToggle,

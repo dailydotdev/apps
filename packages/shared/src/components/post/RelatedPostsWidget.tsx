@@ -1,18 +1,19 @@
-import React, { ReactElement, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { widgetClasses } from '../widgets/common';
-import { InfinitePaginationActions } from '../pagination';
-import { ElementPlaceholder } from '../ElementPlaceholder';
+import React, { ReactElement, useEffect, useState } from 'react';
+
 import {
   Post,
   PostRelationType,
   RELATED_POSTS_PER_PAGE_DEFAULT,
 } from '../../graphql/posts';
-import { SourceAvatar } from '../profile/source';
-import PostMetadata from '../cards/PostMetadata';
-import { CardLink } from '../cards/Card';
 import { useRelatedPosts } from '../../hooks/post';
+import { CardLink } from '../cards/Card';
+import PostMetadata from '../cards/PostMetadata';
+import { ElementPlaceholder } from '../ElementPlaceholder';
+import { InfinitePaginationActions } from '../pagination';
+import { SourceAvatar } from '../profile/source';
 import { ProfileImageSize } from '../ProfilePicture';
+import { widgetClasses } from '../widgets/common';
 
 export type RelatedPostsWidgetProps = {
   className?: string;

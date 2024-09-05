@@ -1,10 +1,11 @@
 import React, { ReactElement } from 'react';
-import { FlexCentered } from '../utilities';
-import { MagicIcon } from '../icons';
-import { IconSize } from '../Icon';
+
 import { Post } from '../../graphql/posts';
 import { ButtonSize } from '../buttons/Button';
+import { IconSize } from '../Icon';
+import { MagicIcon } from '../icons';
 import { TagLinks } from '../TagLinks';
+import { FlexCentered } from '../utilities';
 
 function SquadEmptyScreen({ post }: { post: Post }): ReactElement {
   return (

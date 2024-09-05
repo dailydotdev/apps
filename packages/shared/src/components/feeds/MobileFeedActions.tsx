@@ -1,17 +1,18 @@
-import React, { ReactElement } from 'react';
-import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import React, { ReactElement } from 'react';
+
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useReadingStreak } from '../../hooks/streaks';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
+import { ButtonIconPosition } from '../buttons/common';
+import MyFeedHeading from '../filters/MyFeedHeading';
 import Logo, { LogoPosition } from '../Logo';
+import { LazyModal } from '../modals/common/types';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { Divider } from '../utilities';
-import MyFeedHeading from '../filters/MyFeedHeading';
-import { LazyModal } from '../modals/common/types';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { useReadingStreak } from '../../hooks/streaks';
-import { ButtonIconPosition } from '../buttons/common';
-import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 
 export function MobileFeedActions(): ReactElement {
   const router = useRouter();

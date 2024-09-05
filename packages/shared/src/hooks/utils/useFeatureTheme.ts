@@ -1,7 +1,8 @@
-import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
-import { ThemeMode, useSettingsContext } from '../../contexts/SettingsContext';
+import { useEffect, useMemo } from 'react';
+
 import { useFeature } from '../../components/GrowthBookProvider';
+import { ThemeMode, useSettingsContext } from '../../contexts/SettingsContext';
 import { feature } from '../../lib/featureManagement';
 import { FeatureTheme, FeatureThemeVariant } from '../../lib/featureValues';
 

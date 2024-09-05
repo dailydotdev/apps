@@ -1,16 +1,17 @@
-import { useCallback, useContext } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { PromptOptions, usePrompt } from '../usePrompt';
-import { ButtonVariant } from '../../components/buttons/common';
+import { useCallback, useContext } from 'react';
+
 import { ButtonColor } from '../../components/buttons/Button';
+import { ButtonVariant } from '../../components/buttons/common';
+import LogContext from '../../contexts/LogContext';
+import { deleteComment } from '../../graphql/comments';
+import { Post } from '../../graphql/posts';
 import { postLogEvent } from '../../lib/feed';
 import { LogEvent } from '../../lib/log';
-import { deleteComment } from '../../graphql/comments';
 import { removePostComments } from '../usePostById';
-import LogContext from '../../contexts/LogContext';
-import { useToastNotification } from '../useToastNotification';
+import { PromptOptions, usePrompt } from '../usePrompt';
 import { useRequestProtocol } from '../useRequestProtocol';
-import { Post } from '../../graphql/posts';
+import { useToastNotification } from '../useToastNotification';
 
 type UseDeleteCommentRet = {
   deleteComment: (

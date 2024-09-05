@@ -1,3 +1,5 @@
+import { useMutation, useQuery } from '@tanstack/react-query';
+import classNames from 'classnames';
 import React, {
   ReactElement,
   ReactNode,
@@ -5,14 +7,10 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import classNames from 'classnames';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { Radio } from '../fields/Radio';
-import { formToJson } from '../../lib/form';
-import { apiUrl } from '../../lib/config';
-import fetchTimeout from '../../lib/fetchTimeout';
-import { contentGuidelines } from '../../lib/constants';
+
+import AuthContext from '../../contexts/AuthContext';
+import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
+import { gqlClient } from '../../graphql/common';
 import {
   REQUEST_SOURCE_MUTATION,
   SOURCE_BY_FEED_QUERY,
@@ -20,24 +18,27 @@ import {
   SourceRequestAvailability,
 } from '../../graphql/newSource';
 import { Source } from '../../graphql/sources';
-import AuthContext from '../../contexts/AuthContext';
-import { AuthTriggers } from '../../lib/auth';
-import { Modal, ModalProps } from './common/Modal';
-import PushNotificationModal from './PushNotificationModal';
-import usePersistentContext from '../../hooks/usePersistentContext';
-import Alert, { AlertType } from '../widgets/Alert';
-import SourceProfilePicture from '../profile/SourceProfilePicture';
-import { LinkIcon, LockIcon, OpenLinkIcon } from '../icons';
 import {
   DISMISS_PERMISSION_BANNER,
   usePushNotificationMutation,
 } from '../../hooks/notifications';
-import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
-import { TextField } from '../fields/TextField';
-import { ReputationAlert } from './ReputationAlert';
+import usePersistentContext from '../../hooks/usePersistentContext';
+import { AuthTriggers } from '../../lib/auth';
+import { apiUrl } from '../../lib/config';
+import { contentGuidelines } from '../../lib/constants';
+import fetchTimeout from '../../lib/fetchTimeout';
+import { formToJson } from '../../lib/form';
 import { RequestKey } from '../../lib/query';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { Radio } from '../fields/Radio';
+import { TextField } from '../fields/TextField';
+import { LinkIcon, LockIcon, OpenLinkIcon } from '../icons';
+import SourceProfilePicture from '../profile/SourceProfilePicture';
 import { ProfileImageSize } from '../ProfilePicture';
-import { gqlClient } from '../../graphql/common';
+import Alert, { AlertType } from '../widgets/Alert';
+import { Modal, ModalProps } from './common/Modal';
+import PushNotificationModal from './PushNotificationModal';
+import { ReputationAlert } from './ReputationAlert';
 
 interface RSS {
   url: string;

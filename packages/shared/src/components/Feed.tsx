@@ -1,3 +1,6 @@
+import { useQueryClient } from '@tanstack/react-query';
+import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import React, {
   ReactElement,
   ReactNode,
@@ -7,52 +10,50 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import dynamic from 'next/dynamic';
-import { useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/router';
-import useFeed, { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
-import { Ad, Post, PostType } from '../graphql/posts';
+
+import { ActiveFeedContext } from '../contexts';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
+import LogContext from '../contexts/LogContext';
 import SettingsContext from '../contexts/SettingsContext';
+import { Ad, Post, PostType } from '../graphql/posts';
+import { useBoot, useFeedLayout, useFeedVotePost } from '../hooks';
 import useCommentPopup from '../hooks/feed/useCommentPopup';
-import useFeedOnPostClick, {
-  FeedPostClick,
-} from '../hooks/feed/useFeedOnPostClick';
-import useFeedContextMenu from '../hooks/feed/useFeedContextMenu';
 import type { PostLocation } from '../hooks/feed/useFeedContextMenu';
+import useFeedContextMenu from '../hooks/feed/useFeedContextMenu';
 import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
 } from '../hooks/feed/useFeedInfiniteScroll';
-import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
-import LogContext from '../contexts/LogContext';
-import { adLogEvent, feedLogExtra, postLogEvent } from '../lib/feed';
-import PostOptionsMenu from './PostOptionsMenu';
+import useFeedOnPostClick, {
+  FeedPostClick,
+} from '../hooks/feed/useFeedOnPostClick';
+import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
+import {
+  mutateBookmarkFeedPost,
+  useBookmarkPost,
+} from '../hooks/useBookmarkPost';
+import useFeed, { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
+import { feature } from '../lib/featureManagement';
+import { adLogEvent, feedLogExtra, postLogEvent } from '../lib/feed';
+import { isNullOrUndefined } from '../lib/func';
 import { Origin } from '../lib/log';
-import ShareOptionsMenu from './ShareOptionsMenu';
-import { SharedFeedPage } from './utilities';
-import { FeedContainer, FeedContainerProps } from './feeds/FeedContainer';
-import { ActiveFeedContext } from '../contexts';
-import { useBoot, useFeedLayout, useFeedVotePost } from '../hooks';
 import {
   AllFeedPages,
   OtherFeedPage,
   RequestKey,
   updateCachedPagePost,
 } from '../lib/query';
-import {
-  mutateBookmarkFeedPost,
-  useBookmarkPost,
-} from '../hooks/useBookmarkPost';
-import { useFeature } from './GrowthBookProvider';
-import { feature } from '../lib/featureManagement';
-import { MarketingCtaVariant } from './marketingCta/common';
-import { isNullOrUndefined } from '../lib/func';
-import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
-import { SearchResultsLayout } from './search/SearchResults/SearchResultsLayout';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
+import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
+import { FeedContainer, FeedContainerProps } from './feeds/FeedContainer';
+import { useFeature } from './GrowthBookProvider';
+import { MarketingCtaVariant } from './marketingCta/common';
+import PostOptionsMenu from './PostOptionsMenu';
+import { SearchResultsLayout } from './search/SearchResults/SearchResultsLayout';
+import ShareOptionsMenu from './ShareOptionsMenu';
+import { SharedFeedPage } from './utilities';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),

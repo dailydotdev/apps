@@ -1,16 +1,17 @@
-import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
-import nock from 'nock';
-import { fireEvent, render, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import LogContext, { LogContextProvider } from './LogContext';
+import { fireEvent, render, waitFor } from '@testing-library/react';
+import nock from 'nock';
+import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
+
+import { TestBootProvider } from '../../__tests__/helpers/boot';
+import { waitForNock } from '../../__tests__/helpers/utilities';
 import { LogContextData } from '../hooks/log/useLogContextData';
-import { SettingsContextData, ThemeMode } from './SettingsContext';
-import { AuthContextData } from './AuthContext';
-import { AnonymousUser } from '../lib/user';
 import { LogEvent } from '../hooks/log/useLogQueue';
 import { BootApp, Visit } from '../lib/boot';
-import { waitForNock } from '../../__tests__/helpers/utilities';
-import { TestBootProvider } from '../../__tests__/helpers/boot';
+import { AnonymousUser } from '../lib/user';
+import { AuthContextData } from './AuthContext';
+import LogContext, { LogContextProvider } from './LogContext';
+import { SettingsContextData, ThemeMode } from './SettingsContext';
 
 let queryClient: QueryClient;
 const getPage = jest.fn();

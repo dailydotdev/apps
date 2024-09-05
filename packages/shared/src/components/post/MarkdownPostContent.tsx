@@ -1,10 +1,11 @@
-import React, { ReactElement } from 'react';
 import Link from 'next/link';
+import React, { ReactElement } from 'react';
+
 import { Post, PostType } from '../../graphql/posts';
-import Markdown from '../Markdown';
-import { LazyImage } from '../LazyImage';
 import { cloudinary } from '../../lib/image';
 import { Image } from '../image/Image';
+import { LazyImage } from '../LazyImage';
+import Markdown from '../Markdown';
 
 interface MarkdownPostContentProps {
   post: Post;

@@ -1,31 +1,32 @@
 import React, { useContext, useMemo } from 'react';
-import { InstallExtensionChecklistStep } from '../components/checklist/InstallExtensionChecklistStep';
-import { NotificationChecklistStep } from '../components/checklist/NotificationChecklistStep';
-import { SharePostChecklistStep } from '../components/checklist/SharePostChecklistStep';
-import { SquadFirstCommentChecklistStep } from '../components/checklist/SquadFirstCommentChecklistStep';
-import { ActionType } from '../graphql/actions';
-import { SourceMemberRole, SourcePermissions, Squad } from '../graphql/sources';
-import {
-  ChecklistStepType,
-  createChecklistStep,
-  actionsPerRoleMap,
-  SQUAD_CHECKLIST_VISIBLE_KEY,
-} from '../lib/checklist';
-import { useActions } from './useActions';
-import { UseChecklist, useChecklist } from './useChecklist';
-import usePersistentContext from './usePersistentContext';
-import { InviteMemberChecklistStep } from '../components/checklist/InviteMemberChecklistStep';
-import { verifyPermission } from '../graphql/squads';
-import OnboardingContext from '../contexts/OnboardingContext';
-import { SquadEditWelcomePostChecklistStep } from '../components/checklist/SquadEditWelcomePostChecklistStep';
-import { usePushNotificationContext } from '../contexts/PushNotificationContext';
-import { EditSquadStep } from '../components/checklist/EditSquadStep';
-import { GoPublicStep } from '../components/checklist/GoPublicStep';
+
 import {
   getEditActions,
   getPublicActions,
 } from '../components/checklist/actionUtils';
+import { EditSquadStep } from '../components/checklist/EditSquadStep';
+import { GoPublicStep } from '../components/checklist/GoPublicStep';
+import { InstallExtensionChecklistStep } from '../components/checklist/InstallExtensionChecklistStep';
+import { InviteMemberChecklistStep } from '../components/checklist/InviteMemberChecklistStep';
+import { NotificationChecklistStep } from '../components/checklist/NotificationChecklistStep';
+import { SharePostChecklistStep } from '../components/checklist/SharePostChecklistStep';
+import { SquadEditWelcomePostChecklistStep } from '../components/checklist/SquadEditWelcomePostChecklistStep';
+import { SquadFirstCommentChecklistStep } from '../components/checklist/SquadFirstCommentChecklistStep';
+import OnboardingContext from '../contexts/OnboardingContext';
+import { usePushNotificationContext } from '../contexts/PushNotificationContext';
+import { ActionType } from '../graphql/actions';
+import { SourceMemberRole, SourcePermissions, Squad } from '../graphql/sources';
+import { verifyPermission } from '../graphql/squads';
+import {
+  actionsPerRoleMap,
+  ChecklistStepType,
+  createChecklistStep,
+  SQUAD_CHECKLIST_VISIBLE_KEY,
+} from '../lib/checklist';
 import { PUBLIC_SQUAD_REQUEST_REQUIREMENT } from '../lib/config';
+import { useActions } from './useActions';
+import { UseChecklist, useChecklist } from './useChecklist';
+import usePersistentContext from './usePersistentContext';
 
 type UseSquadChecklistProps = {
   squad: Squad;

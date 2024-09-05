@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+
 import { ElementPlaceholder } from '../ElementPlaceholder';
 
 export interface UserShortInfoPlaceholderProps {

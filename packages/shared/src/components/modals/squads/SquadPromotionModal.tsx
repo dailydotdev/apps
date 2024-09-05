@@ -1,8 +1,9 @@
 import React, { ReactElement } from 'react';
-import { Modal, ModalProps } from '../common/Modal';
+
+import { useSquad } from '../../../hooks';
 import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import PromotionTour from '../../squads/PromotionTour';
-import { useSquad } from '../../../hooks';
+import { Modal, ModalProps } from '../common/Modal';
 import { ModalClose } from '../common/ModalClose';
 
 interface SquadPromotionModalProps extends ModalProps {

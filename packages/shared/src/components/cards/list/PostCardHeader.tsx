@@ -1,20 +1,21 @@
-import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
-import OptionsButton from '../../buttons/OptionsButton';
-import { CardHeader } from './ListCard';
-import { ReadArticleButton } from '../ReadArticleButton';
-import { getGroupedHoverContainer } from '../common';
-import { useFeedPreviewMode } from '../../../hooks';
+import React, { ReactElement, ReactNode } from 'react';
+
 import { Post, PostType } from '../../../graphql/posts';
-import { ButtonVariant } from '../../buttons/common';
-import PostMetadata, { PostMetadataProps } from './PostMetadata';
-import { MenuIcon, OpenLinkIcon } from '../../icons';
-import { useReadPostButtonText } from './hooks';
+import { useFeedPreviewMode } from '../../../hooks';
 import useBookmarkProvider from '../../../hooks/useBookmarkProvider';
-import { BookmakProviderHeader } from './BookmarkProviderHeader';
-import { ProfileImageSize } from '../../ProfilePicture';
+import { ButtonVariant } from '../../buttons/common';
+import OptionsButton from '../../buttons/OptionsButton';
+import { MenuIcon, OpenLinkIcon } from '../../icons';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { ProfileTooltip } from '../../profile/ProfileTooltip';
+import { ProfileImageSize } from '../../ProfilePicture';
+import { getGroupedHoverContainer } from '../common';
+import { ReadArticleButton } from '../ReadArticleButton';
+import { BookmakProviderHeader } from './BookmarkProviderHeader';
+import { useReadPostButtonText } from './hooks';
+import { CardHeader } from './ListCard';
+import PostMetadata, { PostMetadataProps } from './PostMetadata';
 
 interface CardHeaderProps {
   post: Post;

@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
 import { contentGuidelines, webappUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 

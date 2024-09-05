@@ -1,9 +1,10 @@
-import React, { ReactElement, useMemo } from 'react';
 import { sanitize } from 'dompurify';
-import { CardSpace } from './Card';
+import React, { ReactElement, useMemo } from 'react';
+
 import { Post } from '../../graphql/posts';
-import { CardCover } from './common/CardCover';
 import { useCardCover } from '../../hooks/feed/useCardCover';
+import { CardSpace } from './Card';
+import { CardCover } from './common/CardCover';
 
 interface WelcomePostCardFooterProps {
   post: Post;

@@ -1,10 +1,11 @@
 import React, { ReactElement } from 'react';
-import { WidgetCard } from '../../widgets/WidgetCard';
-import { UserHighlight } from '../../widgets/PostUsersHighlights';
-import { ListItemPlaceholder } from '../../widgets/ListItemPlaceholder';
-import { SearchProviderEnum, SearchSuggestion } from '../../../graphql/search';
+
 import { useLogContext } from '../../../contexts/LogContext';
+import { SearchProviderEnum, SearchSuggestion } from '../../../graphql/search';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
+import { ListItemPlaceholder } from '../../widgets/ListItemPlaceholder';
+import { UserHighlight } from '../../widgets/PostUsersHighlights';
+import { WidgetCard } from '../../widgets/WidgetCard';
 
 interface SearchResultsUsersProps {
   items: SearchSuggestion[];

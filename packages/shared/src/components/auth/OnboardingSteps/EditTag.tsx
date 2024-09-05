@@ -1,13 +1,14 @@
 import React, { ReactElement, useState } from 'react';
-import { CreateFeedButton, FilterOnboardingV4 } from '../../onboarding';
-import { FeedPreviewControls } from '../../feeds';
-import { REQUIRED_TAGS_THRESHOLD } from '../../onboarding/common';
-import { Origin } from '../../../lib/log';
-import FeedLayout from '../../FeedLayout';
-import Feed from '../../Feed';
-import { OtherFeedPage, RequestKey } from '../../../lib/query';
+
 import { PREVIEW_FEED_QUERY } from '../../../graphql/feed';
 import { FeedSettings } from '../../../graphql/feedSettings';
+import { Origin } from '../../../lib/log';
+import { OtherFeedPage, RequestKey } from '../../../lib/query';
+import Feed from '../../Feed';
+import FeedLayout from '../../FeedLayout';
+import { FeedPreviewControls } from '../../feeds';
+import { CreateFeedButton, FilterOnboardingV4 } from '../../onboarding';
+import { REQUIRED_TAGS_THRESHOLD } from '../../onboarding/common';
 
 interface EditTagProps {
   feedSettings: FeedSettings;

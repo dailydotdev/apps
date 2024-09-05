@@ -1,19 +1,20 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
+import { Author } from '../../graphql/comments';
+import { SourceMemberRole } from '../../graphql/sources';
+import { TimeFormatType } from '../../lib/dateFormat';
+import { Separator } from '../cards/common';
+import { ElementPlaceholder } from '../ElementPlaceholder';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import {
   getProfilePictureClasses,
   ProfileImageSize,
   ProfilePicture,
 } from '../ProfilePicture';
-import SquadMemberBadge from '../squads/SquadMemberBadge';
-import { Author } from '../../graphql/comments';
-import { SourceMemberRole } from '../../graphql/sources';
-import { Separator } from '../cards/common';
 import { ReputationUserBadge } from '../ReputationUserBadge';
-import { TruncateText, DateFormat } from '../utilities';
-import { TimeFormatType } from '../../lib/dateFormat';
-import { ElementPlaceholder } from '../ElementPlaceholder';
+import SquadMemberBadge from '../squads/SquadMemberBadge';
+import { DateFormat, TruncateText } from '../utilities';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 
 interface SquadPostAuthorProps {

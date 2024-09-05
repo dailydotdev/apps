@@ -1,14 +1,15 @@
 import { useCallback } from 'react';
+
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { setCookie } from '../../../lib/cookie';
+import { useLogContext } from '../../../contexts/LogContext';
+import { gqlClient } from '../../../graphql/common';
 import {
   SLACK_CONNECT_SOURCE_MUTATION,
   UserIntegrationType,
 } from '../../../graphql/integrations';
-import { isDevelopment } from '../../../lib/constants';
-import { gqlClient } from '../../../graphql/common';
 import { apiUrl } from '../../../lib/config';
-import { useLogContext } from '../../../contexts/LogContext';
+import { isDevelopment } from '../../../lib/constants';
+import { setCookie } from '../../../lib/cookie';
 import { LogEvent } from '../../../lib/log';
 
 export type UseSlack = {

@@ -1,6 +1,7 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
 import classNames from 'classnames';
-import { PlusIcon, BlockIcon } from '../icons';
+import React, { HTMLAttributes, ReactElement } from 'react';
+
+import { TagActionArguments } from '../../hooks/useTagAndSource';
 import {
   AllowedTags,
   Button,
@@ -9,7 +10,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
-import { TagActionArguments } from '../../hooks/useTagAndSource';
+import { BlockIcon, PlusIcon } from '../icons';
 
 interface GenericTagButtonProps
   extends Omit<HTMLAttributes<HTMLButtonElement>, 'color'> {

@@ -1,10 +1,11 @@
+import classNames from 'classnames';
 import React, {
   InputHTMLAttributes,
   MutableRefObject,
   ReactElement,
   ReactNode,
 } from 'react';
-import classNames from 'classnames';
+
 import styles from './Switch.module.css';
 
 export interface SwitchProps extends InputHTMLAttributes<HTMLInputElement> {

@@ -1,10 +1,11 @@
 import React, { ReactElement } from 'react';
+
 import { Source } from '../../graphql/sources';
+import { useRequestProtocol } from '../../hooks/useRequestProtocol';
+import { cloudinary } from '../../lib/image';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ProfilePicture, ProfilePictureProps } from '../ProfilePicture';
 import { ProfileLink } from './ProfileLink';
-import { cloudinary } from '../../lib/image';
-import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 
 interface SourceProfilePictureProps extends Omit<ProfilePictureProps, 'user'> {
   isLink?: boolean;

@@ -1,8 +1,9 @@
 import React, { Dispatch, useCallback, useState } from 'react';
-import useContextMenu from './useContextMenu';
+
 import { PostItem } from '../graphql/posts';
-import { QueryIndexes } from './useReadingHistory';
 import { ContextMenu } from './constants';
+import useContextMenu from './useContextMenu';
+import { QueryIndexes } from './useReadingHistory';
 
 type ReadingOptionsFunc = (
   event: React.MouseEvent,

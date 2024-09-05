@@ -1,3 +1,5 @@
+import { QueryClient, useQueryClient } from '@tanstack/react-query';
+import classNames from 'classnames';
 import React, {
   ReactElement,
   useCallback,
@@ -6,25 +8,24 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { QueryClient, useQueryClient } from '@tanstack/react-query';
-import classNames from 'classnames';
-import { Modal, LazyModalCommonProps } from '../common/Modal';
+
+import { useAuthContext } from '../../../contexts/AuthContext';
+import { WriteCommentContext } from '../../../contexts/WriteCommentContext';
+import { Comment, PostCommentsData } from '../../../graphql/comments';
+import useCommentById from '../../../hooks/comments/useCommentById';
+import { useNotificationToggle } from '../../../hooks/notifications';
+import { useMutateComment } from '../../../hooks/post/useMutateComment';
+import { useVisualViewport } from '../../../hooks/utils/useVisualViewport';
+import { NotificationPromptSource } from '../../../lib/log';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
+import CommentContainer from '../../comments/CommentContainer';
 import { FormWrapper } from '../../fields/form';
 import {
   CommentMarkdownInput,
   CommentMarkdownInputProps,
 } from '../../fields/MarkdownInput/CommentMarkdownInput';
-import { useMutateComment } from '../../../hooks/post/useMutateComment';
-import { useVisualViewport } from '../../../hooks/utils/useVisualViewport';
-import { RequestKey, generateQueryKey } from '../../../lib/query';
-import { Comment, PostCommentsData } from '../../../graphql/comments';
-import { useNotificationToggle } from '../../../hooks/notifications';
-import { NotificationPromptSource } from '../../../lib/log';
 import { Switch } from '../../fields/Switch';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import CommentContainer from '../../comments/CommentContainer';
-import { WriteCommentContext } from '../../../contexts/WriteCommentContext';
-import useCommentById from '../../../hooks/comments/useCommentById';
+import { LazyModalCommonProps, Modal } from '../common/Modal';
 
 const getCommentFromCache = ({
   client,

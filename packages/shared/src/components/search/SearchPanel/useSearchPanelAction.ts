@@ -1,7 +1,8 @@
 import { HTMLAttributes, ReactElement, useContext } from 'react';
+
 import { SearchProviderEnum } from '../../../graphql/search';
-import { SearchPanelContext } from './SearchPanelContext';
 import { providerToLabelTextMap } from './common';
+import { SearchPanelContext } from './SearchPanelContext';
 
 export type UseSearchPanelActionProps = {
   provider: SearchProviderEnum;

@@ -1,9 +1,10 @@
 import React, { ReactElement, ReactNode } from 'react';
-import classed from '../../lib/classed';
-import FixedPostNavigation from './FixedPostNavigation';
-import { PostNavigationProps } from './common';
-import ConditionalWrapper from '../ConditionalWrapper';
+
 import { useViewSize, ViewSize } from '../../hooks';
+import classed from '../../lib/classed';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { PostNavigationProps } from './common';
+import FixedPostNavigation from './FixedPostNavigation';
 
 interface PostContentContainerProps {
   hasNavigation?: boolean;

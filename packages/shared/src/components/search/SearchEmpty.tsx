@@ -1,7 +1,8 @@
 import React, { ReactElement } from 'react';
-import { SearchHistoryContainer } from './common';
-import { AiIcon } from '../icons';
+
 import { IconSize } from '../Icon';
+import { AiIcon } from '../icons';
+import { SearchHistoryContainer } from './common';
 
 export function SearchEmpty(): ReactElement {
   return (

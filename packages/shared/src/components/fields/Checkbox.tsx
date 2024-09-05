@@ -1,14 +1,15 @@
+import classNames from 'classnames';
 import React, {
   ChangeEvent,
   forwardRef,
+  InputHTMLAttributes,
   LegacyRef,
   ReactElement,
   ReactNode,
   useEffect,
   useState,
-  InputHTMLAttributes,
 } from 'react';
-import classNames from 'classnames';
+
 import { VIcon } from '../icons';
 import styles from './Checkbox.module.css';
 

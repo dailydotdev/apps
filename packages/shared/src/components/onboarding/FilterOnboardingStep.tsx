@@ -1,11 +1,12 @@
 import React, { ReactElement, useContext } from 'react';
-import Container from './OnboardingStep';
-import { Modal } from '../modals/common/Modal';
-import { Justify } from '../utilities';
+
 import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
-import { OnboardingStep } from './common';
+import { Modal } from '../modals/common/Modal';
 import { ModalPropsContext } from '../modals/common/types';
+import { Justify } from '../utilities';
+import { OnboardingStep } from './common';
 import { FilterOnboarding } from './FilterOnboarding';
+import Container from './OnboardingStep';
 
 export function FilterOnboardingStep(): ReactElement {
   const { onRequestClose } = useContext(ModalPropsContext);

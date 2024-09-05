@@ -1,18 +1,19 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
 import { PublicProfile } from '../../lib/user';
-import JoinedDate from './JoinedDate';
-import { Separator } from '../cards/common';
-import { ReputationUserBadge } from '../ReputationUserBadge';
-import { IconSize } from '../Icon';
-import { TruncateText, truncateTextClassNames } from '../utilities';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { Company } from '../../lib/userCompany';
+import { Separator } from '../cards/common';
+import { IconSize } from '../Icon';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { ReputationUserBadge } from '../ReputationUserBadge';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
+import { TruncateText, truncateTextClassNames } from '../utilities';
+import JoinedDate from './JoinedDate';
 
 export type UserMetadataProps = Pick<
   PublicProfile,

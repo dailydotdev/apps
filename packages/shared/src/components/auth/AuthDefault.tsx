@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query';
 import React, {
   ReactElement,
   ReactNode,
@@ -5,20 +6,20 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { checkKratosEmail } from '../../lib/kratos';
-import AuthModalFooter from './AuthModalFooter';
-import { AuthFormProps, Provider, getFormEmail } from './common';
-import EmailSignupForm from './EmailSignupForm';
-import LoginForm, { LoginFormParams } from './LoginForm';
+
 import LogContext from '../../contexts/LogContext';
+import { useToastNotification } from '../../hooks/useToastNotification';
 import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
+import { checkKratosEmail } from '../../lib/kratos';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import ConditionalWrapper from '../ConditionalWrapper';
 import AuthContainer from './AuthContainer';
 import AuthHeader from './AuthHeader';
-import ConditionalWrapper from '../ConditionalWrapper';
-import { useToastNotification } from '../../hooks/useToastNotification';
+import AuthModalFooter from './AuthModalFooter';
+import { AuthFormProps, getFormEmail, Provider } from './common';
+import EmailSignupForm from './EmailSignupForm';
+import LoginForm, { LoginFormParams } from './LoginForm';
 import OrDivider from './OrDivider';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 
 interface AuthDefaultProps extends AuthFormProps {
   children?: ReactNode;

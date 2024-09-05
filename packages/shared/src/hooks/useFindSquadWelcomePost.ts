@@ -1,9 +1,10 @@
-import { useContext, useMemo } from 'react';
 import { InfiniteData, useQueryClient } from '@tanstack/react-query';
-import { FeedData, Post, PostType } from '../graphql/posts';
-import { Squad } from '../graphql/sources';
+import { useContext, useMemo } from 'react';
+
 import AuthContext from '../contexts/AuthContext';
 import { supportedTypesForPrivateSources } from '../graphql/feed';
+import { FeedData, Post, PostType } from '../graphql/posts';
+import { Squad } from '../graphql/sources';
 
 const useFindSquadWelcomePost = ({
   id: squadId,

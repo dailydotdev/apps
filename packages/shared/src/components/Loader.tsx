@@ -1,5 +1,6 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { HTMLAttributes, ReactElement } from 'react';
+
 import styles from './Loader.module.css';
 
 export interface LoaderProps extends HTMLAttributes<HTMLDivElement> {

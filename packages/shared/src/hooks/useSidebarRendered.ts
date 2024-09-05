@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+
 import { useViewSize, ViewSize } from './useViewSize';
 
 export default function useSidebarRendered(): {

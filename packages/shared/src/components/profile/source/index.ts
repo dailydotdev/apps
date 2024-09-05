@@ -1,2 +1,2 @@
-export * from './SourceShortInfo';
 export * from './SourceAvatar';
+export * from './SourceShortInfo';

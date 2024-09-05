@@ -1,24 +1,25 @@
-import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import { CardContainer, CardContent, CardTitle } from './ListCard';
-import ActionButtons from './ActionButtons';
-import { PostCardHeader } from './PostCardHeader';
-import { Container, PostCardProps } from '../common';
-import FeedItemContainer from './FeedItemContainer';
+import React, { forwardRef, ReactElement, Ref } from 'react';
+
+import { isVideoPost } from '../../../graphql/posts';
 import {
   useFeedPreviewMode,
   usePostFeedback,
   useTruncatedSummary,
 } from '../../../hooks';
-import { FeedbackList } from './FeedbackList';
 import { Origin } from '../../../lib/log';
-import SourceButton from '../SourceButton';
-import { isVideoPost } from '../../../graphql/posts';
-import PostReadTime from './PostReadTime';
-import PostTags from '../PostTags';
-import { CardCoverList } from './CardCover';
 import { ProfileImageSize } from '../../ProfilePicture';
+import { Container, PostCardProps } from '../common';
+import PostTags from '../PostTags';
+import SourceButton from '../SourceButton';
+import ActionButtons from './ActionButtons';
+import { CardCoverList } from './CardCover';
+import { FeedbackList } from './FeedbackList';
+import FeedItemContainer from './FeedItemContainer';
+import { CardContainer, CardContent, CardTitle } from './ListCard';
+import { PostCardHeader } from './PostCardHeader';
+import PostReadTime from './PostReadTime';
 
 export const ArticlePostList = forwardRef(function PostCard(
   {

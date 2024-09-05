@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
+
 import { IconProps, IconSize } from './Icon';
 
 interface MenuIconProps extends IconProps {

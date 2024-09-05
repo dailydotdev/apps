@@ -1,33 +1,34 @@
-import { useCallback, useContext, useMemo } from 'react';
 import {
   MutationKey,
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
+import { useCallback, useContext, useMemo } from 'react';
+
+import { LazyModal } from '../components/modals/common/types';
+import { promotion } from '../components/modals/generic';
+import AuthContext from '../contexts/AuthContext';
+import LogContext from '../contexts/LogContext';
+import { ActionType } from '../graphql/actions';
 import {
   ADD_BOOKMARKS_MUTATION,
   Post,
-  REMOVE_BOOKMARK_MUTATION,
   ReadHistoryPost,
+  REMOVE_BOOKMARK_MUTATION,
 } from '../graphql/posts';
-import LogContext from '../contexts/LogContext';
-import { useToastNotification } from './useToastNotification';
-import { useRequestProtocol } from './useRequestProtocol';
-import AuthContext from '../contexts/AuthContext';
-import { updatePostCache } from './usePostById';
 import { AuthTriggers } from '../lib/auth';
-import { LogEvent, Origin } from '../lib/log';
 import {
-  PostLogEventFnOptions,
   optimisticPostUpdateInFeed,
   postLogEvent,
+  PostLogEventFnOptions,
 } from '../lib/feed';
-import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
-import { ActionType } from '../graphql/actions';
-import { LazyModal } from '../components/modals/common/types';
-import { promotion } from '../components/modals/generic';
-import { useLazyModal } from './useLazyModal';
+import { LogEvent, Origin } from '../lib/log';
 import { useActions } from './useActions';
+import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
+import { useLazyModal } from './useLazyModal';
+import { updatePostCache } from './usePostById';
+import { useRequestProtocol } from './useRequestProtocol';
+import { useToastNotification } from './useToastNotification';
 
 export type ToggleBookmarkProps = {
   origin: Origin;

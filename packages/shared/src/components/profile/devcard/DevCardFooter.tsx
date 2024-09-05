@@ -1,13 +1,14 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { TagLinks } from '../../TagLinks';
+import React, { ReactElement } from 'react';
+
+import { Source } from '../../../graphql/sources';
+import { checkLowercaseEquality } from '../../../lib/strings';
 import { ButtonVariant } from '../../buttons/common';
 import SourceButton from '../../cards/SourceButton';
 import Logo, { LogoPosition } from '../../Logo';
-import { DevCardTheme, DevCardType } from './common';
-import { Source } from '../../../graphql/sources';
-import { checkLowercaseEquality } from '../../../lib/strings';
 import { ProfileImageSize } from '../../ProfilePicture';
+import { TagLinks } from '../../TagLinks';
+import { DevCardTheme, DevCardType } from './common';
 
 export interface DevCardFooterProps {
   tags: string[];

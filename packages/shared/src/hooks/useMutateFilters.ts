@@ -1,24 +1,25 @@
-import { useCallback, useMemo } from 'react';
 import {
   QueryClient,
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
 import cloneDeep from 'lodash.clonedeep';
-import { LoggedUser } from '../lib/user';
+import { useCallback, useMemo } from 'react';
+
+import { gqlClient } from '../graphql/common';
 import {
-  FeedAdvancedSettings,
   ADD_FILTERS_TO_FEED_MUTATION,
+  FEED_FILTERS_FROM_REGISTRATION,
+  FeedAdvancedSettings,
   FeedSettings,
   FeedSettingsData,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
   UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION,
-  FEED_FILTERS_FROM_REGISTRATION,
 } from '../graphql/feedSettings';
 import { Source } from '../graphql/sources';
+import { generateQueryKey, RequestKey } from '../lib/query';
+import { LoggedUser } from '../lib/user';
 import { getFeedSettingsQueryKey } from './useFeedSettings';
-import { RequestKey, generateQueryKey } from '../lib/query';
-import { gqlClient } from '../graphql/common';
 
 export const getSearchTagsQueryKey = (query: string): string[] => [
   'searchTags',

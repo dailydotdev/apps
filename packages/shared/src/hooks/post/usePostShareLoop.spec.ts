@@ -1,10 +1,11 @@
-import { renderHook, act } from '@testing-library/react-hooks';
-import { usePostShareLoop } from './usePostShareLoop';
+import { act, renderHook } from '@testing-library/react-hooks';
+
 import { Post, UserVote } from '../../graphql/posts';
 import {
-  UseMutationSubscriptionProps,
   useMutationSubscription,
+  UseMutationSubscriptionProps,
 } from '../mutationSubscription';
+import { usePostShareLoop } from './usePostShareLoop';
 
 const post = { id: '1' } as Post;
 const feedName = 'testFeed';

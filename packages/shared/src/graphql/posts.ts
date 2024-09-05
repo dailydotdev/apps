@@ -1,7 +1,9 @@
 import { gql } from 'graphql-request';
+
+import { acceptedTypesList, MEGABYTE } from '../components/fields/ImageInput';
+import { Bookmark } from './bookmarks';
 import type { Author, Scout } from './comments';
 import { Connection, gqlClient, gqlRequest } from './common';
-import { Source, SourceType, Squad } from './sources';
 import { EmptyResponse } from './emptyResponse';
 import {
   RELATED_POST_FRAGMENT,
@@ -9,8 +11,7 @@ import {
   SOURCE_SHORT_INFO_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
-import { acceptedTypesList, MEGABYTE } from '../components/fields/ImageInput';
-import { Bookmark } from './bookmarks';
+import { Source, SourceType, Squad } from './sources';
 
 export type TocItem = { text: string; id?: string; children?: TocItem[] };
 export type Toc = TocItem[];

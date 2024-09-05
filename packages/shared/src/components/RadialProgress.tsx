@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, {
   CSSProperties,
   forwardRef,
@@ -6,9 +7,9 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import classNames from 'classnames';
-import styles from './RadialProgress.module.css';
+
 import classed from '../lib/classed';
+import styles from './RadialProgress.module.css';
 
 const RAD_TO_DEGREES = 180 / Math.PI;
 const TWO_PI = 2 * Math.PI;

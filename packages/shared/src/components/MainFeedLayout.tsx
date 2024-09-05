@@ -1,3 +1,6 @@
+import classNames from 'classnames';
+import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import React, {
   ReactElement,
   ReactNode,
@@ -7,13 +10,11 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import dynamic from 'next/dynamic';
-import classNames from 'classnames';
-import { useRouter } from 'next/router';
-import Feed, { FeedProps } from './Feed';
+
+import AlertContext from '../contexts/AlertContext';
 import AuthContext from '../contexts/AuthContext';
-import { LoggedUser } from '../lib/user';
-import { SharedFeedPage } from './utilities';
+import SettingsContext from '../contexts/SettingsContext';
+import { COMMENT_FEED_QUERY } from '../graphql/comments';
 import {
   ANONYMOUS_FEED_QUERY,
   CUSTOM_FEED_QUERY,
@@ -23,11 +24,27 @@ import {
   PREVIEW_FEED_QUERY,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
-import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
-import SettingsContext from '../contexts/SettingsContext';
+import {
+  useFeedLayout,
+  useScrollRestoration,
+  useViewSize,
+  ViewSize,
+} from '../hooks';
+import { useFeedName } from '../hooks/feed/useFeedName';
+import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import usePersistentContext from '../hooks/usePersistentContext';
-import AlertContext from '../contexts/AlertContext';
+import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
+import { isDevelopment } from '../lib/constants';
+import { feature } from '../lib/featureManagement';
+import { getFeedName } from '../lib/feed';
+import { Origin } from '../lib/log';
+import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
+import { LoggedUser } from '../lib/user';
+import CommentFeed from './CommentFeed';
+import Feed, { FeedProps } from './Feed';
+import { FeedContainerProps } from './feeds';
 import { useFeature, useFeaturesReadyContext } from './GrowthBookProvider';
+import { ExploreTabs, FeedExploreHeader, tabToUrl, urlToTab } from './header';
 import {
   algorithms,
   DEFAULT_ALGORITHM_INDEX,
@@ -36,24 +53,8 @@ import {
   periods,
   SearchControlHeader,
 } from './layout/common';
-import { useFeedName } from '../hooks/feed/useFeedName';
-import {
-  useFeedLayout,
-  useScrollRestoration,
-  useViewSize,
-  ViewSize,
-} from '../hooks';
-import { feature } from '../lib/featureManagement';
-import { isDevelopment } from '../lib/constants';
-import { FeedContainerProps } from './feeds';
-import { getFeedName } from '../lib/feed';
-import CommentFeed from './CommentFeed';
-import { COMMENT_FEED_QUERY } from '../graphql/comments';
 import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
-import { Origin } from '../lib/log';
-import { ExploreTabs, FeedExploreHeader, tabToUrl, urlToTab } from './header';
-import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
-import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
+import { SharedFeedPage } from './utilities';
 
 const SearchEmptyScreen = dynamic(
   () =>

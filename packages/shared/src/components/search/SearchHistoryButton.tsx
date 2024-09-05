@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import React, {
   MouseEventHandler,
   ReactElement,
@@ -5,17 +6,17 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useRouter } from 'next/router';
+
+import LogContext from '../../contexts/LogContext';
+import { getSearchUrl, SearchProviderEnum } from '../../graphql/search';
+import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
+import { useSearchHistory } from '../../hooks/search';
+import useContextMenu from '../../hooks/useContextMenu';
+import { LogEvent, Origin, TargetType } from '../../lib/log';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import ContextMenu, { MenuItemProps } from '../fields/ContextMenu';
 import { TimerIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips';
-import { useSearchHistory } from '../../hooks/search';
-import ContextMenu, { MenuItemProps } from '../fields/ContextMenu';
-import useContextMenu from '../../hooks/useContextMenu';
-import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
-import { SearchProviderEnum, getSearchUrl } from '../../graphql/search';
-import { LogEvent, Origin, TargetType } from '../../lib/log';
-import LogContext from '../../contexts/LogContext';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 
 const contextMenuId = 'search-history-input';
 

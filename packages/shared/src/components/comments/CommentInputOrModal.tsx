@@ -1,13 +1,14 @@
 import React, { ReactElement } from 'react';
+
+import { WriteCommentContext } from '../../contexts/WriteCommentContext';
+import { useViewSize, ViewSize } from '../../hooks';
+import { useMutateComment } from '../../hooks/post/useMutateComment';
 import {
   CommentMarkdownInput,
   CommentMarkdownInputProps,
 } from '../fields/MarkdownInput/CommentMarkdownInput';
-import { ViewSize, useViewSize } from '../../hooks';
 import { LazyModalCommonProps } from '../modals/common/Modal';
 import CommentModal from '../modals/post/CommentModal';
-import { WriteCommentContext } from '../../contexts/WriteCommentContext';
-import { useMutateComment } from '../../hooks/post/useMutateComment';
 
 interface CommentInputOrModalProps
   extends Partial<LazyModalCommonProps>,

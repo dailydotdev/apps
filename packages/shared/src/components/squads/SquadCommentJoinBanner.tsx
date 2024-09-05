@@ -1,18 +1,19 @@
-import React, { ReactElement, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
+import React, { ReactElement, useState } from 'react';
+
+import { Post } from '../../graphql/posts';
+import { Squad } from '../../graphql/sources';
+import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
+import { useJoinSquad, useViewSize, ViewSize } from '../../hooks';
+import usePersistentContext from '../../hooks/usePersistentContext';
+import { useToastNotification } from '../../hooks/useToastNotification';
+import { labels } from '../../lib';
 import { Origin } from '../../lib/log';
 import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
-import { SimpleSquadJoinButton } from './SquadJoinButton';
-import { Squad } from '../../graphql/sources';
-import usePersistentContext from '../../hooks/usePersistentContext';
-import { useJoinSquad, useViewSize, ViewSize } from '../../hooks';
-import { labels } from '../../lib';
-import { useToastNotification } from '../../hooks/useToastNotification';
 import SourceButton from '../cards/SourceButton';
-import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
-import { Post } from '../../graphql/posts';
 import { ProfileImageSize } from '../ProfilePicture';
+import { SimpleSquadJoinButton } from './SquadJoinButton';
 
 export type SquadCommentJoinBannerProps = {
   className?: string;

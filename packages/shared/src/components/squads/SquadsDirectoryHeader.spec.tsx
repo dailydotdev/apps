@@ -1,17 +1,18 @@
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
-import nock from 'nock';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { NextRouter, useRouter } from 'next/router';
+import nock from 'nock';
+import React from 'react';
 import { mocked } from 'ts-jest/utils';
-import { AuthContextProvider } from '../../contexts/AuthContext';
+
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../__tests__/fixture/squads';
-import { SquadsDirectoryHeader } from '.';
-import { LazyModalElement } from '../modals/LazyModalElement';
-import { Origin } from '../../lib/log';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
+import { AuthContextProvider } from '../../contexts/AuthContext';
 import { COMPLETED_USER_ACTIONS } from '../../graphql/actions';
+import { Origin } from '../../lib/log';
+import { LazyModalElement } from '../modals/LazyModalElement';
+import { SquadsDirectoryHeader } from '.';
 
 const routerReplace = jest.fn();
 

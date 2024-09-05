@@ -1,22 +1,23 @@
 import React, { MouseEvent, ReactElement } from 'react';
+
+import { Source } from '../../graphql/sources';
+import { useFeeds, useViewSize, ViewSize } from '../../hooks';
+import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
+import { webappUrl } from '../../lib/constants';
 import {
-  FilterIcon,
-  BlockIcon,
   AppIcon,
-  HomeIcon,
+  BlockIcon,
+  FilterIcon,
   HashtagIcon,
+  HomeIcon,
 } from '../icons';
-import TagsFilter from './TagsFilter';
-import { TagCategoryLayout } from './TagCategoryDropdown';
+import { Modal, ModalProps } from '../modals/common/Modal';
 import AdvancedSettingsFilter from './AdvancedSettings';
 import BlockedFilter from './BlockedFilter';
-import { Modal, ModalProps } from '../modals/common/Modal';
-import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import { UnblockSourceCopy, UnblockTagCopy } from './UnblockCopy';
 import { ContentTypesFilter } from './ContentTypesFilter';
-import { Source } from '../../graphql/sources';
-import { webappUrl } from '../../lib/constants';
-import { ViewSize, useFeeds, useViewSize } from '../../hooks';
+import { TagCategoryLayout } from './TagCategoryDropdown';
+import TagsFilter from './TagsFilter';
+import { UnblockSourceCopy, UnblockTagCopy } from './UnblockCopy';
 
 enum FilterMenuTitle {
   MyFeed = 'My feed',

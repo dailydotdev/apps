@@ -1,17 +1,25 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
-import classNames from 'classnames';
 import { useQueryClient } from '@tanstack/react-query';
+import classNames from 'classnames';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
+
 import AuthContext from '../../contexts/AuthContext';
-import {
-  UpvoteIcon,
-  DiscussIcon as CommentIcon,
-  TrashIcon,
-  EditIcon,
-  ShareIcon,
-  FlagIcon,
-  DownvoteIcon,
-} from '../icons';
 import { Comment } from '../../graphql/comments';
+import { Post, UserVote } from '../../graphql/posts';
+import { SourcePermissions } from '../../graphql/sources';
+import {
+  useVoteComment,
+  VoteEntityPayload,
+  voteMutationHandlers,
+} from '../../hooks';
+import useContextMenu from '../../hooks/useContextMenu';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { useRequestProtocol } from '../../hooks/useRequestProtocol';
+import { useToastNotification } from '../../hooks/useToastNotification';
+import { labels, largeNumberFormat } from '../../lib';
+import { AuthTriggers } from '../../lib/auth';
+import { getCompanionWrapper } from '../../lib/extension';
+import { Origin } from '../../lib/log';
+import { RequestKey } from '../../lib/query';
 import { Roles } from '../../lib/user';
 import {
   Button,
@@ -20,26 +28,19 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { Origin } from '../../lib/log';
-import { Post, UserVote } from '../../graphql/posts';
-import { AuthTriggers } from '../../lib/auth';
-import ContextMenu, { MenuItemProps } from '../fields/ContextMenu';
-import useContextMenu from '../../hooks/useContextMenu';
 import OptionsButton from '../buttons/OptionsButton';
-import { SourcePermissions } from '../../graphql/sources';
-import { LazyModal } from '../modals/common/types';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { labels, largeNumberFormat } from '../../lib';
-import { useToastNotification } from '../../hooks/useToastNotification';
+import ContextMenu, { MenuItemProps } from '../fields/ContextMenu';
 import {
-  VoteEntityPayload,
-  useVoteComment,
-  voteMutationHandlers,
-} from '../../hooks';
-import { RequestKey } from '../../lib/query';
-import { useRequestProtocol } from '../../hooks/useRequestProtocol';
-import { getCompanionWrapper } from '../../lib/extension';
+  DiscussIcon as CommentIcon,
+  DownvoteIcon,
+  EditIcon,
+  FlagIcon,
+  ShareIcon,
+  TrashIcon,
+  UpvoteIcon,
+} from '../icons';
+import { LazyModal } from '../modals/common/types';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;

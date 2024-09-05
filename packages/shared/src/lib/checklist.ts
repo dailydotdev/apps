@@ -1,7 +1,8 @@
 import { ReactElement, ReactNode } from 'react';
-import { SourceMemberRole, Squad } from '../graphql/sources';
+
 import { Action, ActionType } from '../graphql/actions';
-import { StorageTopic, generateStorageKey } from './storage';
+import { SourceMemberRole, Squad } from '../graphql/sources';
+import { generateStorageKey, StorageTopic } from './storage';
 
 export enum ChecklistCardVariant {
   Default = 'default',

@@ -1,11 +1,12 @@
 import { useCallback } from 'react';
-import { FeedItem, UpdateFeedPost } from '../useFeed';
+
 import { feedLogExtra } from '../../lib/feed';
 import { Origin } from '../../lib/log';
 import { useMutationSubscription } from '../mutationSubscription/useMutationSubscription';
+import { FeedItem, UpdateFeedPost } from '../useFeed';
 import {
-  UseVotePost,
   UseVoteMutationProps,
+  UseVotePost,
   voteMutationMatcher,
 } from './types';
 import { useVotePost } from './useVotePost';

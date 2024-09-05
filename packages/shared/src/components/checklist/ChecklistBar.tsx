@@ -1,7 +1,8 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { ChecklistBarProps } from '../../lib/checklist';
+import React, { ReactElement } from 'react';
+
 import { useChecklist } from '../../hooks/useChecklist';
+import { ChecklistBarProps } from '../../lib/checklist';
 import { ChecklistConfetti } from './ChecklistConfetti';
 
 export const ChecklistBar = ({

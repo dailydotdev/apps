@@ -1,8 +1,9 @@
 import React, { ReactElement } from 'react';
-import { CommonLeaderboardProps, LeaderboardList } from './LeaderboardList';
-import { LeaderboardListItem } from './LeaderboardListItem';
+
 import type { Company } from '../../../lib/userCompany';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
+import { CommonLeaderboardProps, LeaderboardList } from './LeaderboardList';
+import { LeaderboardListItem } from './LeaderboardListItem';
 
 export interface CompanyLeaderboard {
   score: number;

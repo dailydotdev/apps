@@ -1,5 +1,5 @@
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
-import { deleteComment, DELETE_COMMENT_MUTATION } from './comments';
+import { DELETE_COMMENT_MUTATION, deleteComment } from './comments';
 import { gqlRequest } from './common';
 
 beforeEach(() => {

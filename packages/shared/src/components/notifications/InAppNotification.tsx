@@ -1,22 +1,23 @@
-import React, { ReactElement, useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
+import React, { ReactElement, useEffect, useState } from 'react';
+
+import { useLogContext } from '../../contexts/LogContext';
+import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import {
-  InAppNotification,
   IN_APP_NOTIFICATION_KEY,
+  InAppNotification,
   useInAppNotification,
 } from '../../hooks/useInAppNotification';
 import classed from '../../lib/classed';
-import { isTouchDevice } from '../../lib/tooltip';
-import { InAppNotificationItem } from './InAppNotificationItem';
-import styles from './InAppNotification.module.css';
-import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin } from '../../lib/log';
-import { NotificationType } from './utils';
+import { isTouchDevice } from '../../lib/tooltip';
 import { ButtonSize } from '../buttons/Button';
 import { ModalClose } from '../modals/common/ModalClose';
-import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
+import styles from './InAppNotification.module.css';
+import { InAppNotificationItem } from './InAppNotificationItem';
+import { NotificationType } from './utils';
 
 const Container = classed(
   'div',

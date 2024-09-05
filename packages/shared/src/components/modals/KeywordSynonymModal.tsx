@@ -1,14 +1,15 @@
-import React, { ReactElement, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { TextField } from '../fields/TextField';
+import React, { ReactElement, useState } from 'react';
+
+import { gqlClient } from '../../graphql/common';
 import {
   SEARCH_KEYWORDS_QUERY,
   SearchKeywordData,
   SET_KEYWORD_AS_SYNONYM_MUTATION,
 } from '../../graphql/keywords';
 import { Button, ButtonVariant } from '../buttons/Button';
+import { TextField } from '../fields/TextField';
 import { Modal, ModalProps } from './common/Modal';
-import { gqlClient } from '../../graphql/common';
 
 export type KeywordSynonymModalProps = { selectedKeyword: string } & ModalProps;
 

@@ -1,9 +1,10 @@
-import React, { ReactElement } from 'react';
 import classnames from 'classnames';
-import Feed from '../Feed';
-import { OtherFeedPage } from '../../lib/query';
-import { useHorizontalScrollHeader } from '../HorizontalScroll/useHorizontalScrollHeader';
+import React, { ReactElement } from 'react';
+
 import { useFeedLayout } from '../../hooks';
+import { OtherFeedPage } from '../../lib/query';
+import Feed from '../Feed';
+import { useHorizontalScrollHeader } from '../HorizontalScroll/useHorizontalScrollHeader';
 
 interface HorizontalFeedProps<T> {
   feedName: OtherFeedPage;

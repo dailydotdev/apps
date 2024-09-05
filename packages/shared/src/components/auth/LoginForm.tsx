@@ -1,16 +1,17 @@
 import classNames from 'classnames';
 import React, { FormEvent, ReactElement, useState } from 'react';
+
+import { labels } from '../../lib';
 import { LoginPasswordParameters } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
-import { MailIcon } from '../icons';
-import AuthForm from './AuthForm';
 import { IconSize } from '../Icon';
+import { MailIcon } from '../icons';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
-import { labels } from '../../lib';
+import AuthForm from './AuthForm';
 
 export interface LoginFormProps {
   onForgotPassword?: (email: string) => unknown;

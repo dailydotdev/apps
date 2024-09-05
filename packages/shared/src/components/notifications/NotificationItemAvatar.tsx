@@ -1,11 +1,12 @@
 import React, { ReactElement } from 'react';
+
 import {
   NotificationAvatar,
   NotificationAvatarType,
 } from '../../graphql/notifications';
 import SourceButton from '../cards/SourceButton';
-import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
+import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { ProfileImageSize } from '../ProfilePicture';
 
 function NotificationItemAvatar({

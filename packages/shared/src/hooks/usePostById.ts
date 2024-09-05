@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import {
   QueryClient,
   QueryKey,
@@ -6,16 +5,18 @@ import {
   useQuery,
   UseQueryResult,
 } from '@tanstack/react-query';
+import { useMemo } from 'react';
+
 import { useAuthContext } from '../contexts/AuthContext';
+import { PostCommentsData } from '../graphql/comments';
+import { Connection, gqlClient } from '../graphql/common';
 import {
   Post,
-  PostData,
   POST_BY_ID_QUERY,
+  PostData,
   RelatedPost,
 } from '../graphql/posts';
-import { PostCommentsData } from '../graphql/comments';
 import { generateQueryKey, RequestKey } from '../lib/query';
-import { Connection, gqlClient } from '../graphql/common';
 
 interface UsePostByIdProps {
   id: string;

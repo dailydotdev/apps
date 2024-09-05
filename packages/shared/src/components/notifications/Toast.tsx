@@ -1,19 +1,20 @@
-import React, { ReactElement, useEffect, useRef } from 'react';
-import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ToastNotification, TOAST_NOTIF_KEY } from '../../hooks';
+import { useRouter } from 'next/router';
+import React, { ReactElement, useEffect, useRef } from 'react';
+
+import { TOAST_NOTIF_KEY, ToastNotification } from '../../hooks';
+import { useTimedAnimation } from '../../hooks/useTimedAnimation';
 import classed from '../../lib/classed';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import styles from './Toast.module.css';
-import { MiniCloseIcon as XIcon } from '../icons';
 import { isTouchDevice } from '../../lib/tooltip';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { MiniCloseIcon as XIcon } from '../icons';
+import styles from './Toast.module.css';
 import {
   NotifContainer,
   NotifContent,
   NotifMessage,
   NotifProgress,
 } from './utils';
-import { useTimedAnimation } from '../../hooks/useTimedAnimation';
 
 interface ToastProps {
   autoDismissNotifications?: boolean;

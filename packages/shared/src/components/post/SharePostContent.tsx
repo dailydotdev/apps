@@ -1,23 +1,24 @@
 import React, { ReactElement, useContext } from 'react';
-import PostSourceInfo from './PostSourceInfo';
-import { ReadArticleButton } from '../cards/ReadArticleButton';
-import { LazyImage } from '../LazyImage';
-import { cloudinary } from '../../lib/image';
+
+import SettingsContext from '../../contexts/SettingsContext';
 import {
-  Post,
   getReadPostButtonText,
   isInternalReadType,
   isSharedPostSquadPost,
+  Post,
 } from '../../graphql/posts';
-import SettingsContext from '../../contexts/SettingsContext';
-import { SharePostTitle } from './share';
 import { combinedClicks } from '../../lib/click';
-import { SharedLinkContainer } from './common/SharedLinkContainer';
-import { SharedPostLink } from './common/SharedPostLink';
+import { cloudinary } from '../../lib/image';
 import { ButtonVariant } from '../buttons/Button';
+import { ReadArticleButton } from '../cards/ReadArticleButton';
 import { ElementPlaceholder } from '../ElementPlaceholder';
+import { LazyImage } from '../LazyImage';
 import { ProfileImageSize } from '../ProfilePicture';
 import { TruncateText } from '../utilities';
+import { SharedLinkContainer } from './common/SharedLinkContainer';
+import { SharedPostLink } from './common/SharedPostLink';
+import PostSourceInfo from './PostSourceInfo';
+import { SharePostTitle } from './share';
 
 interface SharePostContentProps {
   post: Post;

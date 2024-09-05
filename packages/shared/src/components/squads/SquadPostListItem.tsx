@@ -1,21 +1,22 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
+
+import { Post } from '../../graphql/posts';
+import { combinedClicks } from '../../lib/click';
 import {
   Button,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
-import { BookmarkIcon } from '../icons';
-import styles from '../cards/Card.module.css';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { Post } from '../../graphql/posts';
-import { ElementPlaceholder } from '../ElementPlaceholder';
-import { TextPlaceholder } from '../widgets/common';
-import SquadPostAuthor from '../post/SquadPostAuthor';
 import { CardLink } from '../cards/Card';
-import { combinedClicks } from '../../lib/click';
+import styles from '../cards/Card.module.css';
+import { ElementPlaceholder } from '../ElementPlaceholder';
+import { BookmarkIcon } from '../icons';
+import SquadPostAuthor from '../post/SquadPostAuthor';
 import { ProfileImageSize } from '../ProfilePicture';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { TextPlaceholder } from '../widgets/common';
 
 type PostProps = {
   post: Post;

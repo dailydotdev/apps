@@ -1,13 +1,14 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
-import { joinSquadInvitation, SquadInvitationProps } from '../graphql/squads';
+
 import { useLogContext } from '../contexts/LogContext';
-import { Squad } from '../graphql/sources';
-import { LogEvent } from '../lib/log';
-import { useBoot } from './useBoot';
-import { generateQueryKey, RequestKey } from '../lib/query';
 import { ActionType } from '../graphql/actions';
+import { Squad } from '../graphql/sources';
+import { joinSquadInvitation, SquadInvitationProps } from '../graphql/squads';
+import { LogEvent } from '../lib/log';
+import { generateQueryKey, RequestKey } from '../lib/query';
 import { useActions } from './useActions';
+import { useBoot } from './useBoot';
 
 type UseJoinSquadProps = {
   squad: Pick<Squad, 'id' | 'handle'>;

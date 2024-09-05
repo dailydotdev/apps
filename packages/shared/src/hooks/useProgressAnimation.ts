@@ -1,6 +1,7 @@
-import { useCallback, useState } from 'react';
 import type Router from 'next/router';
 import { useRouter } from 'next/router';
+import { useCallback, useState } from 'react';
+
 import useDebounceFn from './useDebounceFn';
 
 interface UseProgressAnimation {

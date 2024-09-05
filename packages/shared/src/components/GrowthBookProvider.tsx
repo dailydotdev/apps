@@ -1,30 +1,31 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-  createContext,
-  useCallback,
-} from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { JSONValue, WidenPrimitives } from '@growthbook/growthbook';
 import {
   Context,
   GrowthBook,
   GrowthBookContext,
-  GrowthBookProvider as Provider,
-  useFeatureValue,
-  useFeatureIsOn as gbUseFeatureIsOn,
   GrowthBookContextValue,
+  GrowthBookProvider as Provider,
+  useFeatureIsOn as gbUseFeatureIsOn,
+  useFeatureValue,
 } from '@growthbook/growthbook-react';
-import { WidenPrimitives, JSONValue } from '@growthbook/growthbook';
-import { isGBDevMode, isProduction } from '../lib/constants';
+import { useMutation } from '@tanstack/react-query';
+import React, {
+  createContext,
+  ReactElement,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+
+import { useRequestProtocol } from '../hooks/useRequestProtocol';
+import { useViewSize, ViewSize } from '../hooks/useViewSize';
 import { BootApp, BootCacheData } from '../lib/boot';
 import { apiUrl } from '../lib/config';
-import { useRequestProtocol } from '../hooks/useRequestProtocol';
+import { isGBDevMode, isProduction } from '../lib/constants';
 import { Feature } from '../lib/featureManagement';
-import { useViewSize, ViewSize } from '../hooks/useViewSize';
 
 type GetFeatureValue = <T extends JSONValue>(
   feature: Feature<T>,

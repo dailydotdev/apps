@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, {
   HTMLAttributes,
   MutableRefObject,
@@ -7,12 +8,12 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import classNames from 'classnames';
+
 import useDebounceFn from '../../hooks/useDebounceFn';
-import ConditionalWrapper from '../ConditionalWrapper';
 import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
-import { ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
+import { ButtonVariant } from '../buttons/common';
+import ConditionalWrapper from '../ConditionalWrapper';
 import { RootPortal } from '../tooltips/Portal';
 
 export type PopupEventType =

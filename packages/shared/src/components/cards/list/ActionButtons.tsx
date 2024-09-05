@@ -1,25 +1,26 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
 import { Post, UserVote } from '../../../graphql/posts';
-import InteractionCounter from '../../InteractionCounter';
+import { useFeedPreviewMode } from '../../../hooks';
+import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
+import { combinedClicks } from '../../../lib/click';
+import { BookmarkButton } from '../../buttons';
+import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
+import ConditionalWrapper from '../../ConditionalWrapper';
+import { IconSize } from '../../Icon';
 import {
   BookmarkIcon,
-  DownvoteIcon,
   DiscussIcon as CommentIcon,
+  DownvoteIcon,
   LinkIcon,
 } from '../../icons';
-import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
-import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
-import { useFeedPreviewMode } from '../../../hooks';
-import { combinedClicks } from '../../../lib/click';
-import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
-import ConditionalWrapper from '../../ConditionalWrapper';
+import InteractionCounter from '../../InteractionCounter';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
-import { IconSize } from '../../Icon';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
+import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
 import { ActionButtonsProps } from '../ActionsButtons';
 import { UpvoteButtonIcon } from '../ActionsButtons/UpvoteButtonIcon';
-import { BookmarkButton } from '../../buttons';
 
 interface ActionButtonsPropsList extends ActionButtonsProps {
   onDownvoteClick?: (post: Post) => unknown;

@@ -1,25 +1,26 @@
-import React, { ReactElement, ReactNode, useCallback, useContext } from 'react';
 import { QueryKey, useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
-import { WidgetContainer } from '../widgets/common';
-import LogoIcon from '../../svg/LogoIcon';
-import { UpvoteIcon, DownvoteIcon, CopyIcon } from '../icons';
-import { SearchMessage, SearchMessageProps } from './SearchMessage';
+import React, { ReactElement, ReactNode, useCallback, useContext } from 'react';
+
+import LogContext from '../../contexts/LogContext';
 import {
   Search,
   SearchChunk,
   sendSearchFeedback,
   updateSearchData,
 } from '../../graphql/search';
-import { useCopyText } from '../../hooks/useCopy';
 import { useToastNotification } from '../../hooks';
+import { useCopyText } from '../../hooks/useCopy';
 import { labels } from '../../lib';
-import { Pill } from '../utilities/loaders';
-import { WithClassNameProps } from '../utilities';
 import classed from '../../lib/classed';
-import LogContext from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
+import LogoIcon from '../../svg/LogoIcon';
 import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
+import { CopyIcon, DownvoteIcon, UpvoteIcon } from '../icons';
+import { WithClassNameProps } from '../utilities';
+import { Pill } from '../utilities/loaders';
+import { WidgetContainer } from '../widgets/common';
+import { SearchMessage, SearchMessageProps } from './SearchMessage';
 
 export interface SearchResultProps {
   chunk: SearchChunk;

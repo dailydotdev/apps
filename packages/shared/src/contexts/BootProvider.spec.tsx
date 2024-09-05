@@ -1,33 +1,34 @@
-import React, { ReactNode, useContext } from 'react';
-import nock from 'nock';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   fireEvent,
   render,
   RenderResult,
   screen,
 } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import nock from 'nock';
+import React, { ReactNode, useContext } from 'react';
 import { mocked } from 'ts-jest/utils';
-import AuthContext from './AuthContext';
+
 import defaultUser from '../../__tests__/fixture/loggedUser';
-import { LoggedUser, deleteAccount, AnonymousUser } from '../lib/user';
-import SettingsContext, {
-  remoteThemes,
-  ThemeMode,
-  themeModes,
-} from './SettingsContext';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
-import AlertContext from './AlertContext';
+import { expectToHaveTestValue } from '../../__tests__/helpers/utilities';
 import { Alerts, UPDATE_ALERTS } from '../graphql/alerts';
 import {
   RemoteSettings,
   Spaciness,
   UPDATE_USER_SETTINGS_MUTATION,
 } from '../graphql/settings';
-import { BootDataProvider } from './BootProvider';
-import { getBootData, Boot, BootCacheData } from '../lib/boot';
 import { AuthTriggers, AuthTriggersType } from '../lib/auth';
-import { expectToHaveTestValue } from '../../__tests__/helpers/utilities';
+import { Boot, BootCacheData, getBootData } from '../lib/boot';
+import { AnonymousUser, deleteAccount, LoggedUser } from '../lib/user';
+import AlertContext from './AlertContext';
+import AuthContext from './AuthContext';
+import { BootDataProvider } from './BootProvider';
+import SettingsContext, {
+  remoteThemes,
+  ThemeMode,
+  themeModes,
+} from './SettingsContext';
 
 jest.mock('../lib/boot', () => ({
   ...jest.requireActual('../lib/boot'),

@@ -1,16 +1,17 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
+import React, { ReactElement } from 'react';
+
 import { useAuthContext } from '../../contexts/AuthContext';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { SettingsIcon } from '../icons';
-import { Button, ButtonVariant } from '../buttons/Button';
-import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
-import { ReputationUserBadge } from '../ReputationUserBadge';
-import { IconSize } from '../Icon';
-import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
+import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
+import { Button, ButtonVariant } from '../buttons/Button';
+import { IconSize } from '../Icon';
+import { SettingsIcon } from '../icons';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { ReputationUserBadge } from '../ReputationUserBadge';
+import { ReadingStreakButton } from '../streak/ReadingStreakButton';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 const ProfileMenu = dynamic(
   () => import(/* webpackChunkName: "profileMenu" */ '../ProfileMenu'),

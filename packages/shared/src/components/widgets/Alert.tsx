@@ -1,8 +1,9 @@
-import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
-import { AlertIcon, FeedbackIcon, VIcon as CheckIcon } from '../icons';
+import React, { ReactElement, ReactNode } from 'react';
+
 import classed from '../../lib/classed';
 import { IconSize } from '../Icon';
+import { AlertIcon, FeedbackIcon, VIcon as CheckIcon } from '../icons';
 
 type AlertPropObject<T> = Record<AlertType, T>;
 

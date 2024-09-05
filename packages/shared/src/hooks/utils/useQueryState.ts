@@ -5,6 +5,7 @@ import {
   UseQueryResult,
 } from '@tanstack/react-query';
 import { useCallback } from 'react';
+
 import { disabledRefetch } from '../../lib/func';
 
 type UseQueryState<T> = [

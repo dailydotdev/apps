@@ -1,16 +1,17 @@
-import React, { useContext } from 'react';
 import classNames from 'classnames';
-import { SearchBarSuggestion, SuggestionOrigin } from './SearchBarSuggestion';
+import React, { useContext } from 'react';
+
 import AuthContext from '../../contexts/AuthContext';
-import { AiIcon, FeedbackIcon } from '../icons';
 import {
   getSearchUrl,
   SearchProviderEnum,
   SearchQuestion,
 } from '../../graphql/search';
-import { Pill } from '../utilities/loaders';
 import { AuthTriggers } from '../../lib/auth';
 import { Button, ButtonVariant } from '../buttons/Button';
+import { AiIcon, FeedbackIcon } from '../icons';
+import { Pill } from '../utilities/loaders';
+import { SearchBarSuggestion, SuggestionOrigin } from './SearchBarSuggestion';
 
 export interface SearchBarSuggestionListProps {
   className?: string;

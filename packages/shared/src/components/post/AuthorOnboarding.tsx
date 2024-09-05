@@ -1,10 +1,11 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
 import { ownershipGuide } from '../../lib/constants';
+import { Button, ButtonVariant } from '../buttons/Button';
+import { IconSize } from '../Icon';
 import { FeatherIcon } from '../icons';
 import styles from './AuthorOnboarding.module.css';
-import { IconSize } from '../Icon';
-import { Button, ButtonVariant } from '../buttons/Button';
 
 interface AuthorOnboardingProps {
   onSignUp?: () => unknown;

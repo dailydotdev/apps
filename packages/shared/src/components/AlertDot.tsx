@@ -1,5 +1,6 @@
-import React, { CSSProperties, ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { CSSProperties, ReactElement } from 'react';
+
 import classed from '../lib/classed';
 
 const Dot = classed('div', 'absolute w-2 h-2 rounded-full');

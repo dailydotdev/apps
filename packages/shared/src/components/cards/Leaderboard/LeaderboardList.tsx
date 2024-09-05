@@ -1,8 +1,9 @@
 import React, { ReactElement, ReactNode } from 'react';
-import { LeaderboardListContainer } from './LeaderboardListContainer';
-import { LeaderboardListContainerProps } from './common';
+
 import classed from '../../../lib/classed';
 import { ElementPlaceholder } from '../../ElementPlaceholder';
+import { LeaderboardListContainerProps } from './common';
+import { LeaderboardListContainer } from './LeaderboardListContainer';
 
 export interface CommonLeaderboardProps<T extends Iterable<unknown>>
   extends Omit<LeaderboardListProps, 'children'> {

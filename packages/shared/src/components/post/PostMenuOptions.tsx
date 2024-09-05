@@ -4,16 +4,17 @@ import React, {
   ReactElement,
   useContext,
 } from 'react';
-import { MenuIcon, MiniCloseIcon as CloseIcon } from '../icons';
-import { Roles } from '../../lib/user';
+
 import AuthContext from '../../contexts/AuthContext';
 import { banPost, demotePost, Post, promotePost } from '../../graphql/posts';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import PostOptionsMenu, { PostOptionsMenuProps } from '../PostOptionsMenu';
+import useContextMenu from '../../hooks/useContextMenu';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { Origin } from '../../lib/log';
-import useContextMenu from '../../hooks/useContextMenu';
+import { Roles } from '../../lib/user';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { MenuIcon, MiniCloseIcon as CloseIcon } from '../icons';
+import PostOptionsMenu, { PostOptionsMenuProps } from '../PostOptionsMenu';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export interface PostMenuOptionsProps {
   post: Post;

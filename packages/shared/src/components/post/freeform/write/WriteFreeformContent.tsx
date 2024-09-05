@@ -4,26 +4,27 @@ import React, {
   useImperativeHandle,
   useRef,
 } from 'react';
-import ImageInput from '../../../fields/ImageInput';
-import { CameraIcon } from '../../../icons';
-import { TextField } from '../../../fields/TextField';
-import MarkdownInput from '../../../fields/MarkdownInput';
-import { WritePageMain } from './common';
+
+import { useWritePostContext, WriteForm } from '../../../../contexts';
+import { ActionType } from '../../../../graphql/actions';
 import {
   EditPostProps,
-  Post,
   imageSizeLimitMB,
+  Post,
 } from '../../../../graphql/posts';
-import { formToJson } from '../../../../lib/form';
-import useDebounceFn from '../../../../hooks/useDebounceFn';
-import AlertPointer, { AlertPlacement } from '../../../alert/AlertPointer';
 import { useActions, useViewSize, ViewSize } from '../../../../hooks';
-import { ActionType } from '../../../../graphql/actions';
+import { defaultMarkdownCommands } from '../../../../hooks/input';
+import useDebounceFn from '../../../../hooks/useDebounceFn';
 import useSidebarRendered from '../../../../hooks/useSidebarRendered';
 import { base64ToFile } from '../../../../lib/base64';
-import { useWritePostContext, WriteForm } from '../../../../contexts';
-import { defaultMarkdownCommands } from '../../../../hooks/input';
+import { formToJson } from '../../../../lib/form';
+import AlertPointer, { AlertPlacement } from '../../../alert/AlertPointer';
+import ImageInput from '../../../fields/ImageInput';
+import MarkdownInput from '../../../fields/MarkdownInput';
+import { TextField } from '../../../fields/TextField';
+import { CameraIcon } from '../../../icons';
 import { WriteFooter } from '../../write';
+import { WritePageMain } from './common';
 
 export const generateWritePostKey = (reference = 'create'): string =>
   `write:post:${reference}`;

@@ -1,10 +1,11 @@
+import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import React, { ReactElement } from 'react';
-import classNames from 'classnames';
-import PostNavigation from './PostNavigation';
-import PostEngagements from './PostEngagements';
+
 import { BasePostContentProps } from './common';
+import PostEngagements from './PostEngagements';
 import { PostHeaderActions } from './PostHeaderActions';
+import PostNavigation from './PostNavigation';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),

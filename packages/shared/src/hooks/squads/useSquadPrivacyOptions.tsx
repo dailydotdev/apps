@@ -1,14 +1,15 @@
 import React, { useMemo } from 'react';
+
 import { RadioItemProps } from '../../components/fields/RadioItem';
-import { isNullOrUndefined } from '../../lib/func';
 import {
-  StatusDescription,
   SquadStatus,
+  StatusDescription,
 } from '../../components/squads/settings';
 import {
   SettingsPublicSection,
   SettingsPublicSectionProps,
 } from '../../components/squads/settings/SettingsPublicSection';
+import { isNullOrUndefined } from '../../lib/func';
 
 type UseSquadPrivacyOptionsProps = SettingsPublicSectionProps;
 

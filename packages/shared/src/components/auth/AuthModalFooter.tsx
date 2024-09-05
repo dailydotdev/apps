@@ -1,5 +1,6 @@
-import React, { MouseEventHandler, ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { MouseEventHandler, ReactElement } from 'react';
+
 import { ClickableText } from '../buttons/ClickableText';
 import { Modal } from '../modals/common/Modal';
 import { Justify } from '../utilities';

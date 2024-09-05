@@ -4,21 +4,22 @@ import React, {
   ReactElement,
   ReactNode,
 } from 'react';
+
 import { Squad } from '../../../graphql/sources';
+import { largeNumberFormat } from '../../../lib';
+import { ButtonVariant } from '../../buttons/common';
+import { IconSize } from '../../Icon';
+import { ArrowIcon } from '../../icons';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import { Separator } from '../common';
-import { largeNumberFormat } from '../../../lib';
-import { SquadJoinButtonWrapper } from './common/SquadJoinButton';
-import { ButtonVariant } from '../../buttons/common';
-import { SquadCardAction } from './common/types';
-import { ArrowIcon } from '../../icons';
-import { IconSize } from '../../Icon';
 import { CardLink } from '../Card';
+import { Separator } from '../common';
 import { SquadImage } from './common/SquadImage';
+import { SquadJoinButtonWrapper } from './common/SquadJoinButton';
+import { SquadCardAction } from './common/types';
 
 interface SquadListBaseProps {
   squad: Squad;

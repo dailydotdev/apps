@@ -1,16 +1,17 @@
 import React, { FormEventHandler, ReactElement } from 'react';
+
+import { ExternalLinkPreview } from '../../../graphql/posts';
+import { Button, ButtonVariant } from '../../buttons/Button';
 import { TextField } from '../../fields/TextField';
 import { LinkIcon, OpenLinkIcon } from '../../icons';
-import { SourceAvatar } from '../../profile/source';
 import { Image } from '../../image/Image';
+import { SourceAvatar } from '../../profile/source';
+import { ProfileImageSize } from '../../ProfilePicture';
 import {
   previewImageClass,
   WritePreviewContainer,
   WritePreviewContent,
 } from './common';
-import { ExternalLinkPreview } from '../../../graphql/posts';
-import { Button, ButtonVariant } from '../../buttons/Button';
-import { ProfileImageSize } from '../../ProfilePicture';
 
 interface WriteLinkPreviewProps {
   link: string;

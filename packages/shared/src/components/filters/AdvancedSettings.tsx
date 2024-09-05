@@ -1,7 +1,8 @@
 import React, { ReactElement, useMemo } from 'react';
+
+import { useAdvancedSettings } from '../../hooks/feed';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { FilterSwitch } from './FilterSwitch';
-import { useAdvancedSettings } from '../../hooks/feed';
 import { getContentCurationList, getContentSourceList } from './helpers';
 
 const ADVANCED_SETTINGS_KEY = 'advancedSettings';

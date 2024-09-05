@@ -1,7 +1,8 @@
 import React, { ReactElement } from 'react';
+
 import { MostReadTag } from '../../graphql/users';
-import { ActivityContainer, ActivitySectionHeader } from './ActivitySection';
 import { weeklyGoal } from '../../lib/constants';
+import { ActivityContainer, ActivitySectionHeader } from './ActivitySection';
 import { ReadingTagProgress } from './ReadingTagProgress';
 
 export interface ReadingTagsWidgetProps {

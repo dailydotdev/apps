@@ -1,24 +1,25 @@
 import React, {
-  MouseEvent,
+  FormEvent,
   FormEventHandler,
+  MouseEvent,
   ReactElement,
   useEffect,
   useRef,
   useState,
-  FormEvent,
 } from 'react';
+
+import { cloudinary } from '../../lib/image';
+import { Button, ButtonVariant } from '../buttons/Button';
+import CloseButton from '../CloseButton';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
-import { cloudinary } from '../../lib/image';
-import CloseButton from '../CloseButton';
-import { Button, ButtonVariant } from '../buttons/Button';
-import { SearchSubmitButton } from './SearchSubmitButton';
 import {
   SearchBarSuggestionList,
   SearchBarSuggestionListProps,
 } from './SearchBarSuggestionList';
 import { SearchHistory } from './SearchHistory';
+import { SearchSubmitButton } from './SearchSubmitButton';
 
 interface MobileSearchProps {
   input: string;

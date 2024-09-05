@@ -1,11 +1,12 @@
 import React, { ReactElement } from 'react';
+
+import useFeedSettings from '../../hooks/useFeedSettings';
+import useTagAndSource from '../../hooks/useTagAndSource';
+import { Origin } from '../../lib/log';
+import { BlockIcon } from '../icons';
 import { FilterMenuProps } from './common';
 import SourceItemList from './SourceItemList';
 import TagItemList from './TagItemList';
-import useFeedSettings from '../../hooks/useFeedSettings';
-import useTagAndSource from '../../hooks/useTagAndSource';
-import { BlockIcon } from '../icons';
-import { Origin } from '../../lib/log';
 
 export default function BlockedFilter({
   onUnblockItem,

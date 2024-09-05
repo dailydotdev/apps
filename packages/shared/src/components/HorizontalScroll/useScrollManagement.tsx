@@ -1,6 +1,7 @@
 import React, { RefObject, useCallback, useState } from 'react';
-import useDebounceFn from '../../hooks/useDebounceFn';
+
 import { useEventListener } from '../../hooks';
+import useDebounceFn from '../../hooks/useDebounceFn';
 
 interface ScrollManagementReturn {
   isAtStart: boolean;

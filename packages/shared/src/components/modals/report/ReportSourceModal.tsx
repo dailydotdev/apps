@@ -1,15 +1,16 @@
-import React, { ReactElement, useRef } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Checkbox } from '../../fields/Checkbox';
-import { ModalProps } from '../common/Modal';
+import React, { ReactElement, useRef } from 'react';
+
+import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
-import { ReportModal } from './ReportModal';
-import { ReportReason, sendSourceReport } from '../../../report';
 import { Squad } from '../../../graphql/sources';
 import { useLeaveSquad, useToastNotification } from '../../../hooks';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { LogEvent } from '../../../lib/log';
 import { labels } from '../../../lib';
+import { LogEvent } from '../../../lib/log';
+import { ReportReason, sendSourceReport } from '../../../report';
+import { Checkbox } from '../../fields/Checkbox';
+import { ModalProps } from '../common/Modal';
+import { ReportModal } from './ReportModal';
 
 interface SouceReportModalProps extends ModalProps {
   squad: Squad;

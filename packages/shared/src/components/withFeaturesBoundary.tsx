@@ -4,6 +4,7 @@ import React, {
   ReactNode,
   useContext,
 } from 'react';
+
 import { FeaturesReadyContext } from './GrowthBookProvider';
 
 export type WrappedComponentType<

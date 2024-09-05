@@ -1,7 +1,8 @@
-import { useContext } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useContext } from 'react';
+
 import AuthContext from '../../contexts/AuthContext';
-import { RequestKey, generateQueryKey } from '../../lib/query';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 import { ReadHistoryInfiniteData } from '../useInfiniteReadingHistory';
 import { UseVotePost } from './types';
 import { useVotePost } from './useVotePost';

@@ -1,3 +1,6 @@
+import classNames from 'classnames';
+import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import React, {
   HTMLAttributes,
   ReactElement,
@@ -6,38 +9,36 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import classNames from 'classnames';
-import { useRouter } from 'next/router';
-import dynamic from 'next/dynamic';
-import PromotionalBanner from './PromotionalBanner';
-import Sidebar from './sidebar/Sidebar';
-import useSidebarRendered from '../hooks/useSidebarRendered';
-import LogContext from '../contexts/LogContext';
-import SettingsContext from '../contexts/SettingsContext';
-import Toast from './notifications/Toast';
-import { useAuthErrors } from '../hooks/useAuthErrors';
-import { useAuthVerificationRecovery } from '../hooks/useAuthVerificationRecovery';
-import MainLayoutHeader, {
-  MainLayoutHeaderProps,
-} from './layout/MainLayoutHeader';
-import { InAppNotificationElement } from './notifications/InAppNotification';
-import { useNotificationContext } from '../contexts/NotificationsContext';
-import { LogEvent, NotificationTarget } from '../lib/log';
-import { PromptElement } from './modals/Prompt';
-import { useNotificationParams } from '../hooks/useNotificationParams';
-import { useAuthContext } from '../contexts/AuthContext';
-import { SharedFeedPage } from './utilities';
-import { isTesting, onboardingUrl } from '../lib/constants';
-import { useBanner } from '../hooks/useBanner';
-import { useGrowthBookContext } from './GrowthBookProvider';
+
 import {
   ActiveFeedNameContextProvider,
   useActiveFeedNameContext,
 } from '../contexts';
+import { useAuthContext } from '../contexts/AuthContext';
+import LogContext from '../contexts/LogContext';
+import { useNotificationContext } from '../contexts/NotificationsContext';
+import SettingsContext from '../contexts/SettingsContext';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
-import { BootPopups } from './modals/BootPopups';
 import { useFeedName } from '../hooks/feed/useFeedName';
+import { useAuthErrors } from '../hooks/useAuthErrors';
+import { useAuthVerificationRecovery } from '../hooks/useAuthVerificationRecovery';
+import { useBanner } from '../hooks/useBanner';
+import { useNotificationParams } from '../hooks/useNotificationParams';
+import useSidebarRendered from '../hooks/useSidebarRendered';
 import { AuthTriggers } from '../lib/auth';
+import { isTesting, onboardingUrl } from '../lib/constants';
+import { LogEvent, NotificationTarget } from '../lib/log';
+import { useGrowthBookContext } from './GrowthBookProvider';
+import MainLayoutHeader, {
+  MainLayoutHeaderProps,
+} from './layout/MainLayoutHeader';
+import { BootPopups } from './modals/BootPopups';
+import { PromptElement } from './modals/Prompt';
+import { InAppNotificationElement } from './notifications/InAppNotification';
+import Toast from './notifications/Toast';
+import PromotionalBanner from './PromotionalBanner';
+import Sidebar from './sidebar/Sidebar';
+import { SharedFeedPage } from './utilities';
 
 const GoBackHeaderMobile = dynamic(
   () =>

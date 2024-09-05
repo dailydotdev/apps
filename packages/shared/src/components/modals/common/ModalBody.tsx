@@ -6,6 +6,7 @@ import React, {
   ReactNode,
   useContext,
 } from 'react';
+
 import { ModalKind, ModalPropsContext, ModalSize } from './types';
 
 export type ModalBodyProps = JSX.IntrinsicElements['section'] & {

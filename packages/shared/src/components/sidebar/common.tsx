@@ -1,14 +1,15 @@
-import React, {
-  ReactNode,
-  ReactElement,
-  HTMLAttributeAnchorTarget,
-  forwardRef,
-  MutableRefObject,
-} from 'react';
 import classNames from 'classnames';
+import React, {
+  forwardRef,
+  HTMLAttributeAnchorTarget,
+  MutableRefObject,
+  ReactElement,
+  ReactNode,
+} from 'react';
+
 import classed from '../../lib/classed';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { TooltipProps } from '../tooltips/BaseTooltip';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export interface SidebarProps {
   promotionalBannerActive?: boolean;

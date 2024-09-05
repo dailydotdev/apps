@@ -1,4 +1,5 @@
 import { QueryKey, useQueryClient } from '@tanstack/react-query';
+
 import { isQueryKeySame } from '../../graphql/common';
 import { useRawBackgroundRequest } from './useRawBackgroundRequest';
 

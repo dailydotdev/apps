@@ -1,23 +1,24 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import cloneDeep from 'lodash.clonedeep';
 import { useCallback, useMemo } from 'react';
+
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useLogContext } from '../../contexts/LogContext';
 import {
   Comment,
-  PostCommentsData,
   COMMENT_ON_COMMENT_MUTATION,
   COMMENT_ON_POST_MUTATION,
   EDIT_COMMENT_MUTATION,
+  PostCommentsData,
 } from '../../graphql/comments';
-import { LogEvent } from '../../lib/log';
+import { Edge } from '../../graphql/common';
+import { Post } from '../../graphql/posts';
 import { postLogEvent } from '../../lib/feed';
+import { LogEvent } from '../../lib/log';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useBackgroundRequest } from '../companion';
 import { updatePostCache } from '../usePostById';
-import { Edge } from '../../graphql/common';
-import { useLogContext } from '../../contexts/LogContext';
 import { useRequestProtocol } from '../useRequestProtocol';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { Post } from '../../graphql/posts';
 
 interface SubmitComment {
   id?: string;

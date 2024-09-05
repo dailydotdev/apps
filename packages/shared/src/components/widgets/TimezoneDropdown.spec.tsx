@@ -1,4 +1,4 @@
-import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   act,
   fireEvent,
@@ -6,14 +6,15 @@ import {
   RenderResult,
   screen,
 } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { TimezoneDropdown } from './TimezoneDropdown';
-import { LoggedUser } from '../../lib/user';
+import React from 'react';
+
 import loggedUser from '../../../__tests__/fixture/loggedUser';
-import { AuthContextProvider } from '../../contexts/AuthContext';
-import { getTimeZoneOptions } from '../../lib/timezones';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
+import { AuthContextProvider } from '../../contexts/AuthContext';
 import { UPDATE_USER_PROFILE_MUTATION } from '../../graphql/users';
+import { getTimeZoneOptions } from '../../lib/timezones';
+import { LoggedUser } from '../../lib/user';
+import { TimezoneDropdown } from './TimezoneDropdown';
 
 jest.mock('next/router', () => ({
   useRouter() {

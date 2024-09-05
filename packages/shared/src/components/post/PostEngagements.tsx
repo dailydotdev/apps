@@ -1,28 +1,29 @@
 import dynamic from 'next/dynamic';
 import React, { ReactElement, useEffect, useRef, useState } from 'react';
+
 import { useAuthContext } from '../../contexts/AuthContext';
-import { Post } from '../../graphql/posts';
-import { PostOrigin } from '../../hooks/log/useLogContextData';
-import { useShareComment } from '../../hooks/useShareComment';
-import { useUpvoteQuery } from '../../hooks/useUpvoteQuery';
-import { AuthTriggers } from '../../lib/auth';
-import { NewComment, NewCommentRef } from './NewComment';
-import { PostActions } from './PostActions';
-import { PostComments } from './PostComments';
-import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
+import { ActionType } from '../../graphql/actions';
 import { Comment } from '../../graphql/comments';
-import { Origin } from '../../lib/log';
+import { Post } from '../../graphql/posts';
+import { SourceType } from '../../graphql/sources';
 import {
   isSourcePublicSquad,
   SQUAD_COMMENT_JOIN_BANNER_KEY,
 } from '../../graphql/squads';
-import usePersistentContext from '../../hooks/usePersistentContext';
-import { PostContentShare } from './common/PostContentShare';
-import { SourceType } from '../../graphql/sources';
 import { useActions } from '../../hooks';
-import { ActionType } from '../../graphql/actions';
+import { PostOrigin } from '../../hooks/log/useLogContextData';
+import usePersistentContext from '../../hooks/usePersistentContext';
+import { useShareComment } from '../../hooks/useShareComment';
+import { useUpvoteQuery } from '../../hooks/useUpvoteQuery';
+import { AuthTriggers } from '../../lib/auth';
+import { Origin } from '../../lib/log';
 import { AdAsComment } from '../comments/AdAsComment';
 import { PostContentReminder } from './common/PostContentReminder';
+import { PostContentShare } from './common/PostContentShare';
+import { NewComment, NewCommentRef } from './NewComment';
+import { PostActions } from './PostActions';
+import { PostComments } from './PostComments';
+import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),

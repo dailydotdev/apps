@@ -1,5 +1,6 @@
-import React, { HTMLAttributes, ReactElement, RefAttributes } from 'react';
 import classNames from 'classnames';
+import React, { HTMLAttributes, ReactElement, RefAttributes } from 'react';
+
 import classed from '../../lib/classed';
 import { truncateTextClassNames } from '../utilities/common';
 

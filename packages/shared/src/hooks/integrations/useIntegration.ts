@@ -1,4 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useLogContext } from '../../contexts/LogContext';
+import { gqlClient } from '../../graphql/common';
 import {
   REMOVE_INTEGRATION_MUTATION,
   REMOVE_SOURCE_INTEGRATION_MUTATION,
@@ -6,16 +10,13 @@ import {
   UserIntegrationType,
   UserSourceIntegration,
 } from '../../graphql/integrations';
-import { generateQueryKey, RequestKey } from '../../lib/query';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { usePrompt } from '../usePrompt';
 import {
   deleteIntegrationPromptOptions,
   deleteSourceIntegrationPromptOptions,
 } from '../../lib/integrations';
-import { gqlClient } from '../../graphql/common';
-import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
+import { generateQueryKey, RequestKey } from '../../lib/query';
+import { usePrompt } from '../usePrompt';
 
 export type UseIntegration = {
   removeIntegration: ({

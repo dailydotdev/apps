@@ -6,21 +6,22 @@ import {
 } from '@tanstack/react-query';
 import { differenceInDays, subDays } from 'date-fns';
 import { useMemo } from 'react';
-import { useToastNotification } from '../useToastNotification';
-import {
-  getPublicSquadRequests,
-  submitSquadForReview,
-} from '../../graphql/squads';
+
+import { SquadStatus } from '../../components/squads/settings';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { ApiErrorResult, Connection } from '../../graphql/common';
-import { parseOrDefault } from '../../lib/func';
 import {
   PublicSquadRequest,
   PublicSquadRequestStatus,
 } from '../../graphql/sources';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { SquadStatus } from '../../components/squads/settings';
+import {
+  getPublicSquadRequests,
+  submitSquadForReview,
+} from '../../graphql/squads';
 import { PUBLIC_SQUAD_REQUEST_COOLDOWN } from '../../lib/config';
+import { parseOrDefault } from '../../lib/func';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import { useToastNotification } from '../useToastNotification';
 
 const DEFAULT_ERROR = "Oops! That didn't seem to work. Let's try again!";
 

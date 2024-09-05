@@ -1,9 +1,10 @@
-import React, { FunctionComponent, ReactElement, useContext } from 'react';
 import classNames from 'classnames';
+import React, { FunctionComponent, ReactElement, useContext } from 'react';
+
 import { SearchProviderEnum } from '../../../graphql/search';
 import { IconProps, IconSize } from '../../Icon';
-import { SearchPanelContext } from './SearchPanelContext';
 import { providerToIconMap } from './common';
+import { SearchPanelContext } from './SearchPanelContext';
 
 export type SearchPanelProviderProps = {
   className?: string;

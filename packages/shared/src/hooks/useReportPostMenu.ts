@@ -1,7 +1,8 @@
 import { TriggerEvent } from '@dailydotdev/react-contexify';
 import { ContextMenuParams } from '@dailydotdev/react-contexify/dist/types';
-import useContextMenu from './useContextMenu';
+
 import { ContextMenu } from './constants';
+import useContextMenu from './useContextMenu';
 
 export default function useReportPostMenu(
   id: string = ContextMenu.PostContext,

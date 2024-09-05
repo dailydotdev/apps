@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   fireEvent,
   render,
@@ -6,24 +7,24 @@ import {
   waitFor,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import nock from 'nock';
-import { AuthContextProvider } from '../../contexts/AuthContext';
-import { AnonymousUser, LoggedUser } from '../../lib/user';
+import React from 'react';
+
+import user from '../../../__tests__/fixture/loggedUser';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
+import { waitForNock } from '../../../__tests__/helpers/utilities';
+import { AuthContextProvider } from '../../contexts/AuthContext';
+import { NotificationsContextProvider } from '../../contexts/NotificationsContext';
 import {
   SUBMISSION_AVAILABILITY_QUERY,
   SUBMIT_ARTICLE_MUTATION,
 } from '../../graphql/submitArticle';
-import SubmitArticleModal from './SubmitArticleModal';
-import user from '../../../__tests__/fixture/loggedUser';
-import { NotificationsContextProvider } from '../../contexts/NotificationsContext';
-import { waitForNock } from '../../../__tests__/helpers/utilities';
+import { AnonymousUser, LoggedUser } from '../../lib/user';
 import Toast from '../notifications/Toast';
+import SubmitArticleModal from './SubmitArticleModal';
 
 const onRequestClose = jest.fn();
 

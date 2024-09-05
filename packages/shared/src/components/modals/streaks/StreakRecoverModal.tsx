@@ -1,30 +1,31 @@
 import React, { ReactElement, useId } from 'react';
-import { ModalSize } from '../common/types';
-import { ModalBody } from '../common/ModalBody';
-import { Modal, ModalProps } from '../common/Modal';
-import { LoggedUser } from '../../../lib/user';
+
 import {
-  Typography,
-  TypographyTag,
-  TypographyType,
-} from '../../typography/Typography';
+  useStreakRecover,
+  UseStreakRecoverReturn,
+} from '../../../hooks/streaks/useStreakRecover';
+import { reputation as reputationHref } from '../../../lib/constants';
+import { cloudinary } from '../../../lib/image';
+import { anchorDefaultRel } from '../../../lib/strings';
+import { LoggedUser } from '../../../lib/user';
 import {
   Button,
   ButtonProps,
   ButtonSize,
   ButtonVariant,
 } from '../../buttons/Button';
-import { anchorDefaultRel } from '../../../lib/strings';
-import { reputation as reputationHref } from '../../../lib/constants';
-import { ReputationIcon } from '../../icons';
-import { IconSize } from '../../Icon';
-import {
-  useStreakRecover,
-  UseStreakRecoverReturn,
-} from '../../../hooks/streaks/useStreakRecover';
 import { Checkbox } from '../../fields/Checkbox';
+import { IconSize } from '../../Icon';
+import { ReputationIcon } from '../../icons';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from '../../typography/Typography';
+import { Modal, ModalProps } from '../common/Modal';
+import { ModalBody } from '../common/ModalBody';
 import { ModalClose } from '../common/ModalClose';
-import { cloudinary } from '../../../lib/image';
+import { ModalSize } from '../common/types';
 
 export interface StreakRecoverModalProps
   extends Pick<ModalProps, 'isOpen' | 'onAfterClose'> {

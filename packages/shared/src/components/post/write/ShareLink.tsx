@@ -1,17 +1,18 @@
-import React, { FormEventHandler, ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import { Squad } from '../../../graphql/sources';
-import MarkdownInput from '../../fields/MarkdownInput';
-import { WriteFooter } from './WriteFooter';
-import { SubmitExternalLink } from './SubmitExternalLink';
-import { usePostToSquad } from '../../../hooks';
-import { useToastNotification } from '../../../hooks/useToastNotification';
-import { Post } from '../../../graphql/posts';
-import { WriteLinkPreview } from './WriteLinkPreview';
-import { generateDefaultSquad } from './SquadsDropdown';
-import { useSquadCreate } from '../../../hooks/squads/useSquadCreate';
+import React, { FormEventHandler, ReactElement, useState } from 'react';
+
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { Post } from '../../../graphql/posts';
+import { Squad } from '../../../graphql/sources';
+import { usePostToSquad } from '../../../hooks';
+import { useSquadCreate } from '../../../hooks/squads/useSquadCreate';
+import { useToastNotification } from '../../../hooks/useToastNotification';
+import MarkdownInput from '../../fields/MarkdownInput';
+import { generateDefaultSquad } from './SquadsDropdown';
+import { SubmitExternalLink } from './SubmitExternalLink';
+import { WriteFooter } from './WriteFooter';
+import { WriteLinkPreview } from './WriteLinkPreview';
 
 interface ShareLinkProps {
   squad: Squad;

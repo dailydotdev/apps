@@ -1,10 +1,11 @@
-import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
-import { CommonCardCoverProps } from '../common';
+import React, { ReactElement, ReactNode } from 'react';
+
+import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { ImageProps, ImageType } from '../../image/Image';
 import VideoImage, { VideoImageProps } from '../../image/VideoImage';
-import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { CardImage } from '../Card';
+import { CommonCardCoverProps } from '../common';
 
 interface RenderProps {
   overlay: ReactNode;

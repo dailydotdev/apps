@@ -1,5 +1,5 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
 
 export enum PillSize {
   Small = 'small',

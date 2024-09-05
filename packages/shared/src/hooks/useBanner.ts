@@ -1,9 +1,10 @@
-import { useCallback, useContext, useMemo } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { useCallback, useContext, useMemo } from 'react';
+
 import AlertContext from '../contexts/AlertContext';
-import { generateQueryKey, RequestKey } from '../lib/query';
 import { Banner, BANNER_QUERY } from '../graphql/banner';
 import { gqlClient } from '../graphql/common';
+import { generateQueryKey, RequestKey } from '../lib/query';
 
 type UseBanner = {
   isAvailable: boolean;

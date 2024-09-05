@@ -1,28 +1,29 @@
 import classNames from 'classnames';
-import React, { ReactElement, useEffect } from 'react';
 import Link from 'next/link';
-import { LazyImage } from '../../LazyImage';
+import React, { ReactElement, useEffect } from 'react';
+
+import { useAuthContext } from '../../../contexts/AuthContext';
 import { ToastSubject, useToastNotification } from '../../../hooks';
-import PostContentContainer from '../PostContentContainer';
+import { useViewPost } from '../../../hooks/post/useViewPost';
 import usePostContent from '../../../hooks/usePostContent';
-import { BasePostContent } from '../BasePostContent';
+import { webappUrl } from '../../../lib/constants';
+import { TimeFormatType } from '../../../lib/dateFormat';
 import { cloudinary } from '../../../lib/image';
 import { Separator } from '../../cards/common';
-import { TimeFormatType } from '../../../lib/dateFormat';
+import { LazyImage } from '../../LazyImage';
 import Markdown from '../../Markdown';
-import { CollectionPostWidgets } from './CollectionPostWidgets';
+import { Pill } from '../../Pill';
+import { TagLinks } from '../../TagLinks';
+import { DateFormat } from '../../utilities';
+import { BasePostContent } from '../BasePostContent';
 import {
   PostContainer,
   PostContentProps,
   PostNavigationProps,
 } from '../common';
-import { Pill } from '../../Pill';
+import PostContentContainer from '../PostContentContainer';
 import { CollectionsIntro } from '../widgets';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { webappUrl } from '../../../lib/constants';
-import { useViewPost } from '../../../hooks/post/useViewPost';
-import { DateFormat } from '../../utilities';
-import { TagLinks } from '../../TagLinks';
+import { CollectionPostWidgets } from './CollectionPostWidgets';
 
 export const CollectionPostContent = ({
   post,

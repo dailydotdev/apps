@@ -1,11 +1,12 @@
 import React, { ReactElement } from 'react';
-import { ChecklistStepPropsWithSquad } from '../../lib/checklist';
-import { ChecklistStep } from './ChecklistStep';
-import PublicSquadSubmissionActions from '../squads/PublicSquadSubmissionActions';
-import { SquadPublicProgressBars } from '../squads/SquadPublicProgressBars';
-import { Button } from '../buttons/Button';
+
 import { ActionType } from '../../graphql/actions';
 import { useActions } from '../../hooks';
+import { ChecklistStepPropsWithSquad } from '../../lib/checklist';
+import { Button } from '../buttons/Button';
+import PublicSquadSubmissionActions from '../squads/PublicSquadSubmissionActions';
+import { SquadPublicProgressBars } from '../squads/SquadPublicProgressBars';
+import { ChecklistStep } from './ChecklistStep';
 
 export const GoPublicStep = ({
   squad,

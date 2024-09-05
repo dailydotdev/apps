@@ -1,18 +1,19 @@
 import React, { useMemo } from 'react';
+
+import { Button } from '../components/buttons/Button';
+import { ButtonSize, ButtonVariant } from '../components/buttons/common';
+import { ChecklistStep } from '../components/checklist/ChecklistStep';
+import { LazyModal } from '../components/modals/common/types';
+import { useAuthContext } from '../contexts/AuthContext';
+import { useLogContext } from '../contexts/LogContext';
+import { useSettingsContext } from '../contexts/SettingsContext';
 import { ActionType } from '../graphql/actions';
 import { ChecklistViewState, createChecklistStep } from '../lib/checklist';
+import { webappUrl } from '../lib/constants';
+import { LogEvent, TargetId } from '../lib/log';
 import { useActions } from './useActions';
 import { UseChecklist, useChecklist } from './useChecklist';
 import { useLazyModal } from './useLazyModal';
-import { Button } from '../components/buttons/Button';
-import { ButtonVariant, ButtonSize } from '../components/buttons/common';
-import { ChecklistStep } from '../components/checklist/ChecklistStep';
-import { LazyModal } from '../components/modals/common/types';
-import { webappUrl } from '../lib/constants';
-import { useAuthContext } from '../contexts/AuthContext';
-import { useSettingsContext } from '../contexts/SettingsContext';
-import { useLogContext } from '../contexts/LogContext';
-import { LogEvent, TargetId } from '../lib/log';
 
 type UseOnboardingChecklist = UseChecklist & {
   checklistView: ChecklistViewState;

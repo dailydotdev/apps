@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useLazyModal } from '../useLazyModal';
-import { useAuthContext } from '../../contexts/AuthContext';
+import { useEffect } from 'react';
+
 import { LazyModal } from '../../components/modals/common/types';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useLazyModal } from '../useLazyModal';
 
 export const usePromotionModal = (): void => {
   const { query, replace } = useRouter();

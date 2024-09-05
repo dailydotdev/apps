@@ -1,8 +1,9 @@
-import React, { ComponentType, ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ComponentType, ReactElement } from 'react';
+
 import { Ad } from '../../../../graphql/posts';
-import { ImageProps } from '../../../image/Image';
 import { cloudinary } from '../../../../lib/image';
+import { ImageProps } from '../../../image/Image';
 
 export const AdImage = ({
   ad,

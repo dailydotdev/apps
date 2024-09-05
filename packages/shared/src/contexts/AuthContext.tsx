@@ -1,3 +1,4 @@
+import { QueryObserverResult } from '@tanstack/react-query';
 import React, {
   ReactElement,
   ReactNode,
@@ -5,7 +6,12 @@ import React, {
   useContext,
   useState,
 } from 'react';
-import { QueryObserverResult } from '@tanstack/react-query';
+
+import { Squad } from '../graphql/sources';
+import { AuthTriggers, AuthTriggersType } from '../lib/auth';
+import { AccessToken, Boot, Visit } from '../lib/boot';
+import { isCompanionActivated } from '../lib/element';
+import { checkIsExtension, isNullOrUndefined } from '../lib/func';
 import {
   AnonymousUser,
   deleteAccount,
@@ -13,11 +19,6 @@ import {
   logout as dispatchLogout,
   LogoutReason,
 } from '../lib/user';
-import { AccessToken, Boot, Visit } from '../lib/boot';
-import { isCompanionActivated } from '../lib/element';
-import { AuthTriggers, AuthTriggersType } from '../lib/auth';
-import { Squad } from '../graphql/sources';
-import { checkIsExtension, isNullOrUndefined } from '../lib/func';
 
 export interface LoginState {
   trigger: AuthTriggersType;

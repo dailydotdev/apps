@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, {
   forwardRef,
   HTMLAttributes,
@@ -5,17 +6,17 @@ import React, {
   ReactNode,
   Ref,
 } from 'react';
-import classNames from 'classnames';
+
 import { Post } from '../../graphql/posts';
+import { useFeedPreviewMode } from '../../hooks';
+import useBookmarkProvider from '../../hooks/useBookmarkProvider';
+import ConditionalWrapper from '../ConditionalWrapper';
 import { Card } from './Card';
 import {
   RaisedLabel,
   RaisedLabelContainer,
   RaisedLabelType,
 } from './RaisedLabel';
-import ConditionalWrapper from '../ConditionalWrapper';
-import { useFeedPreviewMode } from '../../hooks';
-import useBookmarkProvider from '../../hooks/useBookmarkProvider';
 
 export interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {
   listMode?: boolean;

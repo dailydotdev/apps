@@ -1,11 +1,12 @@
 import React, { ReactElement } from 'react';
+
+import { Post } from '../../../graphql/posts';
+import { useLoggedCopyPostLink } from '../../../hooks/post';
+import { wrapStopPropagation } from '../../../lib/func';
+import { ShareProvider } from '../../../lib/share';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { ShareIcon } from '../../icons';
-import { useLoggedCopyPostLink } from '../../../hooks/post';
-import { Post } from '../../../graphql/posts';
-import { ShareProvider } from '../../../lib/share';
 import { CardCoverContainer } from './CardCoverContainer';
-import { wrapStopPropagation } from '../../../lib/func';
 
 interface CardCoverShareProps {
   onShare: () => void;

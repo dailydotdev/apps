@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import useContextMenu from '../useContextMenu';
+
 import { Post } from '../../graphql/posts';
 import { ContextMenu } from '../constants';
+import useContextMenu from '../useContextMenu';
 import useReportPostMenu from '../useReportPostMenu';
 
 export type PostLocation = {

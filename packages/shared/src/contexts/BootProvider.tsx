@@ -1,3 +1,4 @@
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import React, {
   ReactElement,
   ReactNode,
@@ -6,27 +7,27 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+
+import { GrowthBookProvider } from '../components/GrowthBookProvider';
+import { gqlClient } from '../graphql/common';
+import { Feed, FeedList } from '../graphql/feed';
+import { useHostStatus } from '../hooks/useHostPermissionStatus';
+import { useRefreshToken } from '../hooks/useRefreshToken';
 import { BootApp, BootCacheData, getBootData } from '../lib/boot';
-import { AuthContextProvider } from './AuthContext';
+import { checkIsExtension } from '../lib/func';
+import { generateQueryKey, RequestKey, STALE_TIME } from '../lib/query';
+import { storageWrapper as storage } from '../lib/storageWrapper';
 import { AnonymousUser, ContentLanguage, LoggedUser } from '../lib/user';
 import { AlertContextProvider } from './AlertContext';
-import { generateQueryKey, RequestKey, STALE_TIME } from '../lib/query';
+import { AuthContextProvider } from './AuthContext';
+import { BOOT_LOCAL_KEY, BOOT_QUERY_KEY } from './common';
+import { LogContextProvider } from './LogContext';
+import { NotificationsContextProvider } from './NotificationsContext';
 import {
   applyTheme,
   SettingsContextProvider,
   themeModes,
 } from './SettingsContext';
-import { storageWrapper as storage } from '../lib/storageWrapper';
-import { useRefreshToken } from '../hooks/useRefreshToken';
-import { NotificationsContextProvider } from './NotificationsContext';
-import { BOOT_LOCAL_KEY, BOOT_QUERY_KEY } from './common';
-import { LogContextProvider } from './LogContext';
-import { GrowthBookProvider } from '../components/GrowthBookProvider';
-import { useHostStatus } from '../hooks/useHostPermissionStatus';
-import { checkIsExtension } from '../lib/func';
-import { Feed, FeedList } from '../graphql/feed';
-import { gqlClient } from '../graphql/common';
 
 function filteredProps<T extends Record<string, unknown>>(
   obj: T,

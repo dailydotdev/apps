@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { useContext } from 'react';
-import { SearchTagsData, SEARCH_TAGS_QUERY } from '../graphql/feedSettings';
-import { LogEvent, Origin } from '../lib/log';
-import { getSearchTagsQueryKey } from './useMutateFilters';
+
 import LogContext from '../contexts/LogContext';
 import { gqlClient } from '../graphql/common';
+import { SEARCH_TAGS_QUERY, SearchTagsData } from '../graphql/feedSettings';
+import { LogEvent, Origin } from '../lib/log';
+import { getSearchTagsQueryKey } from './useMutateFilters';
 
 export type UseTagSearchProps = {
   value: string;

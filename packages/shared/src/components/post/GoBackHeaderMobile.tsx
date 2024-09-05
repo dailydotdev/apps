@@ -1,14 +1,15 @@
-import React, { PropsWithChildren, ReactElement, useCallback } from 'react';
-import { useRouter } from 'next/router';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
+import React, { PropsWithChildren, ReactElement, useCallback } from 'react';
+
+import { useViewSize, ViewSize } from '../../hooks';
+import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
+import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
+import { isDevelopment } from '../../lib/constants';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
-import { WithClassNameProps } from '../utilities';
-import { isDevelopment } from '../../lib/constants';
 import Logo, { LogoPosition } from '../Logo';
-import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
-import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
-import { useViewSize, ViewSize } from '../../hooks';
+import { WithClassNameProps } from '../utilities';
 
 const checkSameSite = () => {
   const referrer = globalThis?.document?.referrer;

@@ -1,11 +1,12 @@
 import React, { ReactElement } from 'react';
-import { InviteLinkInput } from '../../referral/InviteLinkInput';
-import { Origin } from '../../../lib/log';
+
 import { Post } from '../../../graphql/posts';
+import { ReferralCampaignKey, useGetShortUrl } from '../../../hooks';
 import { usePostShareLoop } from '../../../hooks/post/usePostShareLoop';
 import { postLogEvent } from '../../../lib/feed';
+import { Origin } from '../../../lib/log';
 import { ShareProvider } from '../../../lib/share';
-import { ReferralCampaignKey, useGetShortUrl } from '../../../hooks';
+import { InviteLinkInput } from '../../referral/InviteLinkInput';
 import { PostContentWidget } from './PostContentWidget';
 
 interface PostContentShareProps {

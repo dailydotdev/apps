@@ -1,4 +1,6 @@
 import React, { CSSProperties, ReactElement, useEffect, useState } from 'react';
+
+import { useViewSize, ViewSize } from '../hooks';
 import {
   Button,
   ButtonProps,
@@ -6,7 +8,6 @@ import {
   ButtonVariant,
 } from './buttons/Button';
 import { ArrowIcon } from './icons';
-import { useViewSize, ViewSize } from '../hooks';
 
 const baseStyle: CSSProperties = {
   transition: 'transform 0.1s ease-out, opacity 0.1s ease-out',

@@ -1,25 +1,26 @@
-import React, { ReactElement, useEffect, useMemo } from 'react';
-import { addDays, isSameDay, subDays } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
-import { StreakSection } from './StreakSection';
-import { DayStreak, Streak } from './DayStreak';
-import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
+import { addDays, isSameDay, subDays } from 'date-fns';
+import React, { ReactElement, useEffect, useMemo } from 'react';
+
+import { useAuthContext } from '../../../contexts/AuthContext';
+import { ActionType } from '../../../graphql/actions';
 import {
   getReadingStreak30Days,
   ReadingDay,
   UserStreak,
 } from '../../../graphql/users';
-import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions, useViewSize, ViewSize } from '../../../hooks';
-import { ActionType } from '../../../graphql/actions';
+import { useToggle } from '../../../hooks/useToggle';
+import { DayOfWeek, isWeekend } from '../../../lib/date';
+import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { SettingsIcon } from '../../icons';
-import StreakReminderSwitch from '../StreakReminderSwitch';
-import ReadingStreakSwitch from '../ReadingStreakSwitch';
-import { useToggle } from '../../../hooks/useToggle';
 import { ToggleWeekStart } from '../../widgets/ToggleWeekStart';
-import { isWeekend, DayOfWeek } from '../../../lib/date';
+import ReadingStreakSwitch from '../ReadingStreakSwitch';
+import StreakReminderSwitch from '../StreakReminderSwitch';
+import { DayStreak, Streak } from './DayStreak';
+import { StreakSection } from './StreakSection';
 
 const getStreak = ({
   value,

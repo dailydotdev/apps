@@ -1,7 +1,8 @@
 import { render, RenderResult, screen } from '@testing-library/react';
 import React from 'react';
-import { DateFormat } from './index';
+
 import { TimeFormatType } from '../../lib/dateFormat';
+import { DateFormat } from './index';
 
 const renderComponent = ({
   date,

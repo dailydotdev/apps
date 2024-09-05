@@ -1,31 +1,32 @@
-import React, { FunctionComponent, ReactElement } from 'react';
 import dynamic from 'next/dynamic';
-import { FeedItem } from '../hooks/useFeed';
-import { ArticlePostCard } from './cards/ArticlePostCard';
-import { ArticlePostList } from './cards/list/ArticlePostList';
-import { PlaceholderCard } from './cards/PlaceholderCard';
-import { PlaceholderList } from './cards/list/PlaceholderList';
-import { Ad, Post, PostItem, PostType } from '../graphql/posts';
-import { LoggedUser } from '../lib/user';
+import React, { FunctionComponent, ReactElement } from 'react';
+
 import { CommentOnData } from '../graphql/comments';
-import useLogImpression from '../hooks/feed/useLogImpression';
-import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
-import { SharePostCard } from './cards/SharePostCard';
-import { SharePostList } from './cards/list/SharePostList';
-import { Origin } from '../lib/log';
+import { Ad, Post, PostItem, PostType } from '../graphql/posts';
 import { useFeedLayout, UseVotePost } from '../hooks';
-import { CollectionCard } from './cards/CollectionCard';
-import { CollectionList } from './cards/list/CollectionList';
-import { MarketingCtaCard } from './marketingCta';
-import { MarketingCtaList } from './marketingCta/MarketingCtaList';
-import { FeedItemType } from './cards/common';
-import { PublicSquadEligibilityCard } from './cards/PublicSquadEligibilityCard';
-import { AdGrid } from './cards/ad/AdGrid';
-import { AdList } from './cards/ad/AdList';
+import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
+import useLogImpression from '../hooks/feed/useLogImpression';
+import { FeedItem } from '../hooks/useFeed';
+import { Origin } from '../lib/log';
+import { LoggedUser } from '../lib/user';
 import { AcquisitionFormGrid } from './cards/AcquisitionForm/AcquisitionFormGrid';
 import { AcquisitionFormList } from './cards/AcquisitionForm/AcquisitionFormList';
+import { AdGrid } from './cards/ad/AdGrid';
+import { AdList } from './cards/ad/AdList';
+import { ArticlePostCard } from './cards/ArticlePostCard';
+import { CollectionCard } from './cards/CollectionCard';
+import { FeedItemType } from './cards/common';
 import { FreeformGrid } from './cards/Freeform/FreeformGrid';
 import { FreeformList } from './cards/Freeform/FreeformList';
+import { ArticlePostList } from './cards/list/ArticlePostList';
+import { CollectionList } from './cards/list/CollectionList';
+import { PlaceholderList } from './cards/list/PlaceholderList';
+import { SharePostList } from './cards/list/SharePostList';
+import { PlaceholderCard } from './cards/PlaceholderCard';
+import { PublicSquadEligibilityCard } from './cards/PublicSquadEligibilityCard';
+import { SharePostCard } from './cards/SharePostCard';
+import { MarketingCtaCard } from './marketingCta';
+import { MarketingCtaList } from './marketingCta/MarketingCtaList';
 
 const CommentPopup = dynamic(
   () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),

@@ -1,13 +1,13 @@
-import React, { ReactElement, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { LightAsync as SyntaxHighlighterAsync } from 'react-syntax-highlighter';
 import dynamic from 'next/dynamic';
-
+import React, { ReactElement, useEffect, useState } from 'react';
 import { ReactMarkdownOptions } from 'react-markdown/lib/react-markdown';
-import styles from './markdown.module.css';
+import { LightAsync as SyntaxHighlighterAsync } from 'react-syntax-highlighter';
+
+import { useCopyText } from '../hooks/useCopy';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { CopyIcon } from './icons';
-import { useCopyText } from '../hooks/useCopy';
+import styles from './markdown.module.css';
 
 const ReactMarkdown = dynamic(
   // @ts-expect-error issue with next/dynamic types

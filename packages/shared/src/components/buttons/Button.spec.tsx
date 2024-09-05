@@ -1,14 +1,15 @@
 import { render, RenderResult, screen } from '@testing-library/react';
 import React from 'react';
-import {
-  Button,
-  ButtonProps,
-  ButtonColor,
-  ButtonVariant,
-  ButtonIconPosition,
-  AllowedTags,
-} from './Button';
+
 import { UpvoteIcon } from '../icons';
+import {
+  AllowedTags,
+  Button,
+  ButtonColor,
+  ButtonIconPosition,
+  ButtonProps,
+  ButtonVariant,
+} from './Button';
 
 const renderComponent = <Tag extends AllowedTags>(
   props: Partial<ButtonProps<Tag>> = {},

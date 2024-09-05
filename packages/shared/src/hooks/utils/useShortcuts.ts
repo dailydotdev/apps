@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
+
 import { useAuthContext } from '../../contexts/AuthContext';
 import { feature } from '../../lib/featureManagement';
 import { ShortcutsUIExperiment } from '../../lib/featureValues';
-import { useConditionalFeature } from '../useConditionalFeature';
 import { isExtension } from '../../lib/func';
+import { useConditionalFeature } from '../useConditionalFeature';
 
 interface UseShortcuts {
   isShortcutsV1: boolean;

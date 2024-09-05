@@ -1,15 +1,16 @@
 import React, { ReactElement } from 'react';
-import { PageContainer } from './utilities';
+
+import { useThemedAsset } from '../hooks/utils';
+import { statusPage, twitter } from '../lib/constants';
+import { anchorDefaultRel } from '../lib/strings';
+import { Button, ButtonVariant } from './buttons/Button';
+import { TerminalIcon, TwitterIcon } from './icons';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from './typography/Typography';
-import { Button, ButtonVariant } from './buttons/Button';
-import { useThemedAsset } from '../hooks/utils';
-import { TerminalIcon, TwitterIcon } from './icons';
-import { statusPage, twitter } from '../lib/constants';
-import { anchorDefaultRel } from '../lib/strings';
+import { PageContainer } from './utilities';
 
 function FeedErrorScreen(): ReactElement {
   const { gardrError } = useThemedAsset();

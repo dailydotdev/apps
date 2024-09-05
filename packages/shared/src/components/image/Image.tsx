@@ -5,8 +5,9 @@ import React, {
   Ref,
   SyntheticEvent,
 } from 'react';
-import { cloudinary } from '../../lib/image';
+
 import { fallbackImages } from '../../lib/config';
+import { cloudinary } from '../../lib/image';
 
 export enum ImageType {
   Post = 'post',

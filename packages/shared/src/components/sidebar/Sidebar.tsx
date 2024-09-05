@@ -1,34 +1,20 @@
-import React, { ReactElement, useContext, useMemo } from 'react';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import dynamic from 'next/dynamic';
-import SettingsContext from '../../contexts/SettingsContext';
-import {
-  Nav,
-  SidebarAside,
-  SidebarBackdrop,
-  SidebarProps,
-  SidebarScrollWrapper,
-} from './common';
+import React, { ReactElement, useContext, useMemo } from 'react';
+
 import AlertContext from '../../contexts/AlertContext';
-import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
 import AuthContext from '../../contexts/AuthContext';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
-import {
-  DiscoverSection,
-  ActivitySection,
-  MobileMenuIcon,
-  MyFeedButton,
-  SidebarBottomSection,
-  SidebarUserButton,
-  SquadSection,
-} from './index';
-import { getFeedName } from '../../lib/feed';
-import { LazyModal } from '../modals/common/types';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import Logo, { LogoPosition } from '../Logo';
+import SettingsContext from '../../contexts/SettingsContext';
 import { useFeeds, useViewSize, ViewSize } from '../../hooks';
+import useActiveNav from '../../hooks/useActiveNav';
+import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
+import { webappUrl } from '../../lib/constants';
+import { getFeedName } from '../../lib/feed';
+import { AlertColor, AlertDot } from '../AlertDot';
 import {
   Button,
   ButtonIconPosition,
@@ -36,6 +22,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
+import { IconSize } from '../Icon';
 import {
   AiIcon,
   HashtagIcon,
@@ -44,12 +31,26 @@ import {
   SourceIcon,
   UserIcon,
 } from '../icons';
-import { IconSize } from '../Icon';
+import Logo, { LogoPosition } from '../Logo';
+import { LazyModal } from '../modals/common/types';
 import { CreatePostButton } from '../post/write';
-import useActiveNav from '../../hooks/useActiveNav';
-import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
-import { webappUrl } from '../../lib/constants';
-import { AlertColor, AlertDot } from '../AlertDot';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import {
+  Nav,
+  SidebarAside,
+  SidebarBackdrop,
+  SidebarProps,
+  SidebarScrollWrapper,
+} from './common';
+import {
+  ActivitySection,
+  DiscoverSection,
+  MobileMenuIcon,
+  MyFeedButton,
+  SidebarBottomSection,
+  SidebarUserButton,
+  SquadSection,
+} from './index';
 
 const SidebarOnboardingChecklistCard = dynamic(
   () =>

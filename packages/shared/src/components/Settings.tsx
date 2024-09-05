@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, {
   HTMLAttributes,
   ReactElement,
@@ -7,22 +8,22 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import classNames from 'classnames';
-import classed from '../lib/classed';
-import { Radio } from './fields/Radio';
-import { Switch } from './fields/Switch';
+
+import AuthContext from '../contexts/AuthContext';
+import { useLogContext } from '../contexts/LogContext';
 import SettingsContext, {
   ThemeMode,
   themes as layoutThemes,
 } from '../contexts/SettingsContext';
-import { CardIcon, LineIcon } from './icons';
-import { CustomSwitch } from './fields/CustomSwitch';
-import { checkIsExtension } from '../lib/func';
-import AuthContext from '../contexts/AuthContext';
-import { AuthTriggers } from '../lib/auth';
 import { useViewSize, ViewSize } from '../hooks';
+import { AuthTriggers } from '../lib/auth';
+import classed from '../lib/classed';
+import { checkIsExtension } from '../lib/func';
 import { LogEvent, TargetId, TargetType } from '../lib/log';
-import { useLogContext } from '../contexts/LogContext';
+import { CustomSwitch } from './fields/CustomSwitch';
+import { Radio } from './fields/Radio';
+import { Switch } from './fields/Switch';
+import { CardIcon, LineIcon } from './icons';
 
 const densities = [
   { label: 'Eco', value: 'eco' },

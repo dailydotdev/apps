@@ -1,10 +1,11 @@
 import { gql } from 'graphql-request';
-import { Connection, gqlClient } from './common';
-import { COMMENT_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
-import { EmptyResponse } from './emptyResponse';
+
 import { UserShortProfile } from '../lib/user';
-import type { Post, UserVote } from './posts';
 import { Company } from '../lib/userCompany';
+import { Connection, gqlClient } from './common';
+import { EmptyResponse } from './emptyResponse';
+import { COMMENT_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
+import type { Post, UserVote } from './posts';
 
 export interface Author {
   __typename?: string;

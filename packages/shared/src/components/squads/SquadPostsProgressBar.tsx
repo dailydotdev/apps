@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
-import { ProgressBar } from '../fields/ProgressBar';
+
 import { PUBLIC_SQUAD_REQUEST_REQUIREMENT } from '../../lib/config';
+import { ProgressBar } from '../fields/ProgressBar';
 
 interface Props {
   postsCount: number;

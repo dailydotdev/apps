@@ -1,20 +1,21 @@
 import React, { ReactElement } from 'react';
-import { SocialShareButton } from './SocialShareButton';
-import { getShareLink, ShareProvider } from '../../lib/share';
-import {
-  MenuIcon,
-  MailIcon,
-  TelegramIcon,
-  LinkedInIcon,
-  RedditIcon,
-  FacebookIcon,
-  WhatsappIcon,
-  CopyIcon,
-  TwitterIcon,
-} from '../icons';
-import { IconSize } from '../Icon';
-import { ButtonColor, ButtonVariant } from '../buttons/Button';
+
 import { useGetShortUrl } from '../../hooks';
+import { getShareLink, ShareProvider } from '../../lib/share';
+import { ButtonColor, ButtonVariant } from '../buttons/Button';
+import { IconSize } from '../Icon';
+import {
+  CopyIcon,
+  FacebookIcon,
+  LinkedInIcon,
+  MailIcon,
+  MenuIcon,
+  RedditIcon,
+  TelegramIcon,
+  TwitterIcon,
+  WhatsappIcon,
+} from '../icons';
+import { SocialShareButton } from './SocialShareButton';
 
 interface SocialShareListProps {
   link: string;

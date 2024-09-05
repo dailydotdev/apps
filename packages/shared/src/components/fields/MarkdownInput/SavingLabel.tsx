@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Loader } from '../../Loader';
-import { VIcon } from '../../icons';
+import React, { ReactElement } from 'react';
+
 import { IconSize } from '../../Icon';
+import { VIcon } from '../../icons';
+import { Loader } from '../../Loader';
 
 interface SavingLabelProps {
   isUptoDate?: boolean;

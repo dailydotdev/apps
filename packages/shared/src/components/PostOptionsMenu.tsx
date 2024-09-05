@@ -1,59 +1,60 @@
-import React, { ReactElement, useContext, useMemo } from 'react';
-import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/router';
 import classNames from 'classnames';
-import useFeedSettings from '../hooks/useFeedSettings';
-import useReportPost from '../hooks/useReportPost';
-import { Post, UserVote, isVideoPost } from '../graphql/posts';
-import {
-  TrashIcon,
-  HammerIcon,
-  EyeIcon,
-  BlockIcon,
-  FlagIcon,
-  PlusIcon,
-  EditIcon,
-  UpvoteIcon,
-  DownvoteIcon,
-  SendBackwardIcon,
-  BringForwardIcon,
-  PinIcon,
-  BellSubscribedIcon,
-  ShareIcon,
-  MiniCloseIcon,
-  MinusIcon,
-  BellAddIcon,
-} from './icons';
-import { ReportedCallback } from './modals';
-import useTagAndSource from '../hooks/useTagAndSource';
+import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
+import React, { ReactElement, useContext, useMemo } from 'react';
+
+import { ActiveFeedContext } from '../contexts';
+import AuthContext from '../contexts/AuthContext';
 import LogContext from '../contexts/LogContext';
-import { postLogEvent } from '../lib/feed';
-import { MenuIcon } from './MenuIcon';
+import { isVideoPost, Post, UserVote } from '../graphql/posts';
+import { SourceType } from '../graphql/sources';
 import {
   ToastSubject,
   useFeedLayout,
   useSourceActionsNotify,
   useToastNotification,
 } from '../hooks';
-import { AllFeedPages, generateQueryKey } from '../lib/query';
-import AuthContext from '../contexts/AuthContext';
-import { LogEvent, Origin } from '../lib/log';
-import { usePostMenuActions } from '../hooks/usePostMenuActions';
-import { getPostByIdKey } from '../hooks/usePostById';
-import { useLazyModal } from '../hooks/useLazyModal';
-import { LazyModal } from './modals/common/types';
-import { labels } from '../lib';
-import { MenuItemProps } from './fields/ContextMenu';
-import { ActiveFeedContext } from '../contexts';
-import { useAdvancedSettings } from '../hooks/feed';
 import { ContextMenu as ContextMenuTypes } from '../hooks/constants';
-import useContextMenu from '../hooks/useContextMenu';
-import { SourceType } from '../graphql/sources';
-import { useSharePost } from '../hooks/useSharePost';
+import { useAdvancedSettings } from '../hooks/feed';
 import { useBookmarkReminder } from '../hooks/notifications';
-import { BookmarkReminderIcon } from './icons/Bookmark/Reminder';
 import { useSourceActionsFollow } from '../hooks/source/useSourceActionsFollow';
+import useContextMenu from '../hooks/useContextMenu';
+import useFeedSettings from '../hooks/useFeedSettings';
+import { useLazyModal } from '../hooks/useLazyModal';
+import { getPostByIdKey } from '../hooks/usePostById';
+import { usePostMenuActions } from '../hooks/usePostMenuActions';
+import useReportPost from '../hooks/useReportPost';
+import { useSharePost } from '../hooks/useSharePost';
+import useTagAndSource from '../hooks/useTagAndSource';
+import { labels } from '../lib';
+import { postLogEvent } from '../lib/feed';
+import { LogEvent, Origin } from '../lib/log';
+import { AllFeedPages, generateQueryKey } from '../lib/query';
+import { MenuItemProps } from './fields/ContextMenu';
+import {
+  BellAddIcon,
+  BellSubscribedIcon,
+  BlockIcon,
+  BringForwardIcon,
+  DownvoteIcon,
+  EditIcon,
+  EyeIcon,
+  FlagIcon,
+  HammerIcon,
+  MiniCloseIcon,
+  MinusIcon,
+  PinIcon,
+  PlusIcon,
+  SendBackwardIcon,
+  ShareIcon,
+  TrashIcon,
+  UpvoteIcon,
+} from './icons';
+import { BookmarkReminderIcon } from './icons/Bookmark/Reminder';
+import { MenuIcon } from './MenuIcon';
+import { ReportedCallback } from './modals';
+import { LazyModal } from './modals/common/types';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),

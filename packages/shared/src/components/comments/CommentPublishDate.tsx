@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
 import { Comment } from '../../graphql/comments';
 import { TimeFormatType } from '../../lib/dateFormat';
 import { DateFormat } from '../utilities';

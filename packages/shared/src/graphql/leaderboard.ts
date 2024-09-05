@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+
 import { LEADERBOARD_FRAMENT } from './fragments';
 
 export const LEADERBOARD_QUERY = gql`

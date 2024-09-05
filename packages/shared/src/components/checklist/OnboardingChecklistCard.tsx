@@ -1,14 +1,15 @@
-import React, { ReactElement, useContext, useEffect, useRef } from 'react';
 import classNames from 'classnames';
-import { ChecklistCard } from './ChecklistCard';
+import React, { ReactElement, useContext, useEffect, useRef } from 'react';
+
 import LogContext from '../../contexts/LogContext';
-import { LogEvent, TargetId, TargetType } from '../../lib/log';
 import { useOnboardingChecklist } from '../../hooks';
 import {
   ChecklistCardProps,
   ChecklistCardVariant,
   ChecklistVariantClassNameMap,
 } from '../../lib/checklist';
+import { LogEvent, TargetId, TargetType } from '../../lib/log';
+import { ChecklistCard } from './ChecklistCard';
 
 export type OnboardingChecklistCardProps = Pick<
   ChecklistCardProps,

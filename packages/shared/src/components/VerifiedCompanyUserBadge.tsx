@@ -1,8 +1,9 @@
 import React, { ReactElement } from 'react';
-import type { PublicProfile } from '../lib/user';
-import { SimpleTooltip } from './tooltips';
-import { ProfileImageSize, ProfilePicture } from './ProfilePicture';
+
 import { useUserCompaniesQuery } from '../hooks/userCompany';
+import type { PublicProfile } from '../lib/user';
+import { ProfileImageSize, ProfilePicture } from './ProfilePicture';
+import { SimpleTooltip } from './tooltips';
 
 export type VerifiedCompanyUserBadgeProps = {
   user: Pick<PublicProfile, 'companies'>;

@@ -1,14 +1,15 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
+import { SourceType } from '../../../graphql/sources';
+import { cloudinary } from '../../../lib/image';
+import { ButtonVariant } from '../../buttons/common';
+import { Image } from '../../image/Image';
 import SquadMemberShortList from '../../squads/SquadMemberShortList';
 import { Card } from '../Card';
-import { SourceType } from '../../../graphql/sources';
-import { Image } from '../../image/Image';
-import { cloudinary } from '../../../lib/image';
-import { UnFeaturedSquadCardProps } from './common/types';
 import { SquadImage } from './common/SquadImage';
 import { SquadJoinButtonWrapper } from './common/SquadJoinButton';
-import { ButtonVariant } from '../../buttons/common';
+import { UnFeaturedSquadCardProps } from './common/types';
 
 interface SourceCardProps extends UnFeaturedSquadCardProps {
   borderColor?: SourceCardBorderColor;

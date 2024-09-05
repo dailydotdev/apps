@@ -1,18 +1,19 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
 import { TagCategory } from '../../graphql/feedSettings';
+import { TagActionArguments } from '../../hooks/useTagAndSource';
 import { ArrowIcon } from '../icons';
+import { HTMLElementComponent } from '../utilities';
 import CategoryButton from './CategoryButton';
-import TagButton from './TagButton';
 import {
   BaseTagCategoryDetails,
+  BaseTagCategorySummary,
   TagCategoryDetails,
   TagCategoryDetailsContent,
-  BaseTagCategorySummary,
   TagCategorySummary,
 } from './common';
-import { TagActionArguments } from '../../hooks/useTagAndSource';
-import { HTMLElementComponent } from '../utilities';
+import TagButton from './TagButton';
 
 export enum TagCategoryLayout {
   Default = 'default',

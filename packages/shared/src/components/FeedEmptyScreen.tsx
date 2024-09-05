@@ -1,5 +1,10 @@
-import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
+import React, { ReactElement } from 'react';
+
+import { useLazyModal } from '../hooks/useLazyModal';
+import { webappUrl } from '../lib/constants';
+import { getFeedName } from '../lib/feed';
+import { ButtonSize } from './buttons/common';
 import {
   EmptyScreenButton,
   EmptyScreenContainer,
@@ -8,12 +13,8 @@ import {
   EmptyScreenTitle,
 } from './EmptyScreen';
 import { FilterIcon } from './icons';
-import { PageContainer, SharedFeedPage } from './utilities';
-import { ButtonSize } from './buttons/common';
-import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
-import { getFeedName } from '../lib/feed';
-import { webappUrl } from '../lib/constants';
+import { PageContainer, SharedFeedPage } from './utilities';
 
 function FeedEmptyScreen(): ReactElement {
   const { openModal } = useLazyModal();

@@ -1,16 +1,17 @@
 import React, { MouseEventHandler, ReactElement } from 'react';
+
+import { Post, UserVote } from '../../../graphql/posts';
+import { usePostFeedback } from '../../../hooks';
 import {
   Button,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '../../buttons/Button';
-import { DownvoteIcon, UpvoteIcon } from '../../icons';
-import { Post, UserVote } from '../../../graphql/posts';
-import { usePostFeedback } from '../../../hooks';
 import CloseButton from '../../CloseButton';
-import { CardContent } from './ListCard';
+import { DownvoteIcon, UpvoteIcon } from '../../icons';
 import { CardCoverList } from './CardCover';
+import { CardContent } from './ListCard';
 
 interface FeedbackCardProps {
   post: Post;

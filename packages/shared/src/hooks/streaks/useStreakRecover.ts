@@ -1,20 +1,21 @@
-import { useCallback, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToggle } from '../useToggle';
-import { useActions } from '../useActions';
-import {
-  USER_STREAK_RECOVER_QUERY,
-  UserStreakRecoverData,
-  USER_STREAK_RECOVER_MUTATION,
-} from '../../graphql/users';
-import { generateQueryKey, RequestKey } from '../../lib/query';
-import { ActionType } from '../../graphql/actions';
-import { gqlClient } from '../../graphql/common';
-import { useToastNotification } from '../useToastNotification';
-import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent, TargetType } from '../../lib/log';
+import { useCallback, useEffect } from 'react';
+
 import { useAlertsContext } from '../../contexts/AlertContext';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useLogContext } from '../../contexts/LogContext';
+import { ActionType } from '../../graphql/actions';
+import { gqlClient } from '../../graphql/common';
+import {
+  USER_STREAK_RECOVER_MUTATION,
+  USER_STREAK_RECOVER_QUERY,
+  UserStreakRecoverData,
+} from '../../graphql/users';
+import { LogEvent, TargetType } from '../../lib/log';
+import { generateQueryKey, RequestKey } from '../../lib/query';
+import { useActions } from '../useActions';
+import { useToastNotification } from '../useToastNotification';
+import { useToggle } from '../useToggle';
 
 interface UseStreakRecoverProps {
   onAfterClose?: () => void;

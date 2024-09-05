@@ -1,11 +1,12 @@
 import React, { ReactElement, useContext } from 'react';
+
+import OnboardingContext from '../../contexts/OnboardingContext';
+import { useLazyModal } from '../../hooks/useLazyModal';
 import { ChecklistStepPropsWithSquad } from '../../lib/checklist';
 import { Button, ButtonVariant } from '../buttons/Button';
-import { ChecklistStep } from './ChecklistStep';
-import { FlexRow } from '../utilities';
-import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import OnboardingContext from '../../contexts/OnboardingContext';
+import { FlexRow } from '../utilities';
+import { ChecklistStep } from './ChecklistStep';
 
 const SharePostChecklistStep = ({
   squad,

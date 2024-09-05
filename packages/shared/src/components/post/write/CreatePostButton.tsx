@@ -1,18 +1,19 @@
-import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
-import { link } from '../../../lib/links';
+import React, { ReactElement } from 'react';
+
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { useSquad, useViewSize, ViewSize } from '../../../hooks';
-import { verifyPermission } from '../../../graphql/squads';
 import { SourcePermissions } from '../../../graphql/sources';
+import { verifyPermission } from '../../../graphql/squads';
+import { useSquad, useViewSize, ViewSize } from '../../../hooks';
+import { link } from '../../../lib/links';
 import {
   AllowedTags,
   Button,
   ButtonSize,
   ButtonVariant,
 } from '../../buttons/Button';
-import { PlusIcon } from '../../icons';
 import ConditionalWrapper from '../../ConditionalWrapper';
+import { PlusIcon } from '../../icons';
 import { SimpleTooltip } from '../../tooltips';
 
 interface CreatePostButtonProps {

@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+
 import { Post } from '../../../graphql/posts';
 import Markdown from '../../Markdown';
 

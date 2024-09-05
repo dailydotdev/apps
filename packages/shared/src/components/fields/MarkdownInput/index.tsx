@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, {
   ChangeEventHandler,
   forwardRef,
@@ -11,35 +12,35 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import classNames from 'classnames';
-import { ImageIcon, MarkdownIcon, LinkIcon, AtIcon } from '../../icons';
+
+import { useAuthContext } from '../../../contexts/AuthContext';
+import {
+  UseMarkdownInput,
+  useMarkdownInput,
+  UseMarkdownInputProps,
+} from '../../../hooks/input';
+import { usePopupSelector } from '../../../hooks/usePopupSelector';
+import useSidebarRendered from '../../../hooks/useSidebarRendered';
+import { markdownGuide } from '../../../lib/constants';
+import { isNullOrUndefined } from '../../../lib/func';
+import { focusInput } from '../../../lib/textarea';
 import {
   Button,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '../../buttons/Button';
-import { RecommendedMentionTooltip } from '../../tooltips/RecommendedMentionTooltip';
-import {
-  UseMarkdownInput,
-  useMarkdownInput,
-  UseMarkdownInputProps,
-} from '../../../hooks/input';
-import { ACCEPTED_TYPES } from '../ImageInput';
-import { MarkdownUploadLabel } from './MarkdownUploadLabel';
-import { markdownGuide } from '../../../lib/constants';
-import useSidebarRendered from '../../../hooks/useSidebarRendered';
 import ConditionalWrapper from '../../ConditionalWrapper';
-import { TabContainer, Tab } from '../../tabs/TabContainer';
-import MarkdownPreview from '../MarkdownPreview';
-import { isNullOrUndefined } from '../../../lib/func';
-import { SavingLabel } from './SavingLabel';
-import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
-import { useAuthContext } from '../../../contexts/AuthContext';
+import { AtIcon, ImageIcon, LinkIcon, MarkdownIcon } from '../../icons';
 import { Loader } from '../../Loader';
+import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
+import { Tab, TabContainer } from '../../tabs/TabContainer';
+import { RecommendedMentionTooltip } from '../../tooltips/RecommendedMentionTooltip';
 import { Divider } from '../../utilities';
-import { usePopupSelector } from '../../../hooks/usePopupSelector';
-import { focusInput } from '../../../lib/textarea';
+import { ACCEPTED_TYPES } from '../ImageInput';
+import MarkdownPreview from '../MarkdownPreview';
+import { MarkdownUploadLabel } from './MarkdownUploadLabel';
+import { SavingLabel } from './SavingLabel';
 
 interface ClassName {
   container?: string;

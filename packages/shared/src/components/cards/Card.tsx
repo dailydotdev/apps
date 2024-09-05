@@ -1,10 +1,11 @@
-import React, { HTMLAttributes, ReactNode } from 'react';
 import classNames from 'classnames';
+import React, { HTMLAttributes, ReactNode } from 'react';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
-import styles from './Card.module.css';
-import classed from '../../lib/classed';
+
 import { Post } from '../../graphql/posts';
+import classed from '../../lib/classed';
 import { Image } from '../image/Image';
+import styles from './Card.module.css';
 
 type TitleProps = HTMLAttributes<HTMLHeadingElement> & {
   lineClamp?: `line-clamp-${number}`;

@@ -5,14 +5,15 @@ import {
   QueryClientConfig,
   QueryKey,
 } from '@tanstack/react-query';
-import cloneDeep from 'lodash.clonedeep';
 import { ClientError } from 'graphql-request';
+import cloneDeep from 'lodash.clonedeep';
+
+import { SharedFeedPage } from '../components/utilities';
 import { Connection, GARMR_ERROR } from '../graphql/common';
-import { EmptyObjectLiteral } from './kratos';
-import { LoggedUser } from './user';
 import { FeedData, Post, ReadHistoryPost } from '../graphql/posts';
 import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
-import { SharedFeedPage } from '../components/utilities';
+import { EmptyObjectLiteral } from './kratos';
+import { LoggedUser } from './user';
 
 export enum OtherFeedPage {
   Tag = 'tag',

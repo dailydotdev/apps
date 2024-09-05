@@ -1,13 +1,14 @@
-import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useMemo, useState } from 'react';
+
 import { Author } from '../graphql/comments';
 import {
+  MostReadTag,
   USER_TOOLTIP_CONTENT_QUERY,
   UserReadingRank,
-  MostReadTag,
 } from '../graphql/users';
-import { useRequestProtocol } from './useRequestProtocol';
 import { StaleTime } from '../lib/query';
+import { useRequestProtocol } from './useRequestProtocol';
 
 export type UserTooltipContentData = {
   rank: UserReadingRank;

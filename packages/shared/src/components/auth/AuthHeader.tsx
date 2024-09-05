@@ -1,9 +1,10 @@
 import React, {
   FormEvent,
-  MouseEvent,
   KeyboardEvent,
+  MouseEvent,
   ReactElement,
 } from 'react';
+
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
 import { Modal } from '../modals/common/Modal';

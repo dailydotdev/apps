@@ -1,12 +1,13 @@
 import React, { ReactElement, useContext } from 'react';
-import { ProfileLink } from '../profile/ProfileLink';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+
 import AuthContext from '../../contexts/AuthContext';
-import { SidebarUserButtonProps } from './common';
+import { IconSize } from '../Icon';
 import LoginButton from '../LoginButton';
 import ProfileButton from '../profile/ProfileButton';
-import { IconSize } from '../Icon';
+import { ProfileLink } from '../profile/ProfileLink';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { ReputationUserBadge } from '../ReputationUserBadge';
+import { SidebarUserButtonProps } from './common';
 
 export function SidebarUserButton({
   sidebarRendered,

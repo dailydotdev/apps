@@ -1,21 +1,22 @@
-import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { TestBootProvider } from '../../../../__tests__/helpers/boot';
-import type { LoggedUser } from '../../../lib/user';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import React from 'react';
+
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
-import { Alerts, UPDATE_ALERTS } from '../../../graphql/alerts';
-import { BootPopups } from '../BootPopups';
+import { TestBootProvider } from '../../../../__tests__/helpers/boot';
+import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
 import { waitForNock } from '../../../../__tests__/helpers/utilities';
+import { ActionType } from '../../../graphql/actions';
+import { Alerts, UPDATE_ALERTS } from '../../../graphql/alerts';
 import {
   USER_STREAK_RECOVER_MUTATION,
   USER_STREAK_RECOVER_QUERY,
   UserStreakRecoverData,
 } from '../../../graphql/users';
-import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
 import * as actionHook from '../../../hooks/useActions';
-import { ActionType } from '../../../graphql/actions';
+import type { LoggedUser } from '../../../lib/user';
 import Toast from '../../notifications/Toast';
+import { BootPopups } from '../BootPopups';
 
 interface TestProps {
   user?: LoggedUser | null;

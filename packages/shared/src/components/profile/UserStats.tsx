@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+
 import { largeNumberFormat } from '../../lib/numberFormat';
 
 export interface UserStatsProps {

@@ -1,9 +1,10 @@
-import React, { ReactElement } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useRequestProtocol } from '../../hooks/useRequestProtocol';
+import React, { ReactElement } from 'react';
+
 import { PREVIEW_COMMENT_MUTATION } from '../../graphql/comments';
-import Markdown from '../Markdown';
 import { useBackgroundRequest } from '../../hooks/companion';
+import { useRequestProtocol } from '../../hooks/useRequestProtocol';
+import Markdown from '../Markdown';
 
 export interface MarkdownPreviewProps {
   input: string;

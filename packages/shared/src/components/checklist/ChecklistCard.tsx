@@ -1,14 +1,15 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { ChecklistCardComponent } from '../cards/Card';
-import { ChecklistStep } from './ChecklistStep';
+import React, { ReactElement } from 'react';
+
+import { useChecklist } from '../../hooks/useChecklist';
 import {
   ChecklistCardProps,
   ChecklistCardVariant,
   ChecklistVariantClassNameMap,
 } from '../../lib/checklist';
-import { useChecklist } from '../../hooks/useChecklist';
+import { ChecklistCardComponent } from '../cards/Card';
 import { ChecklistConfetti } from './ChecklistConfetti';
+import { ChecklistStep } from './ChecklistStep';
 
 const containerClassNameMap: ChecklistVariantClassNameMap = {
   [ChecklistCardVariant.Default]: 'rounded-14',

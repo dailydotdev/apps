@@ -1,23 +1,24 @@
-import React, { FormEvent, ReactElement, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { formToJson } from '../../lib/form';
-import { Button, ButtonVariant } from '../buttons/Button';
-import AuthHeader from './AuthHeader';
-import { AuthFormProps, AuthModalText } from './common';
-import {
-  AuthFlow,
-  initializeKratosFlow,
-  submitKratosFlow,
-} from '../../lib/kratos';
+import React, { FormEvent, ReactElement, useState } from 'react';
+
+import { useToastNotification } from '../../hooks/useToastNotification';
 import {
   errorsToJson,
   getNodeValue,
   RegistrationParameters,
   ValidateRegistrationParams,
 } from '../../lib/auth';
-import AuthForm from './AuthForm';
+import { formToJson } from '../../lib/form';
+import {
+  AuthFlow,
+  initializeKratosFlow,
+  submitKratosFlow,
+} from '../../lib/kratos';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { PasswordField } from '../fields/PasswordField';
-import { useToastNotification } from '../../hooks/useToastNotification';
+import AuthForm from './AuthForm';
+import AuthHeader from './AuthHeader';
+import { AuthFormProps, AuthModalText } from './common';
 
 interface ChangePasswordFormProps extends AuthFormProps {
   onSubmit: () => void;

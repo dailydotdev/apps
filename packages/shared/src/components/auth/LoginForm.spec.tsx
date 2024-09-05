@@ -1,4 +1,4 @@
-import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   fireEvent,
   render,
@@ -7,8 +7,8 @@ import {
   waitFor,
 } from '@testing-library/react';
 import nock from 'nock';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { waitForNock } from '../../../__tests__/helpers/utilities';
+import React from 'react';
+
 import {
   errorRegistrationMockData,
   mockEmailCheck,
@@ -17,15 +17,16 @@ import {
   passwordLoginFlowMockData,
   successfulRegistrationMockData,
 } from '../../../__tests__/fixture/auth';
+import { waitForNock } from '../../../__tests__/helpers/utilities';
+import { AuthContextProvider } from '../../contexts/AuthContext';
+import SettingsContext from '../../contexts/SettingsContext';
 import {
   AuthTriggers,
   getNodeByKey,
   LoginPasswordParameters,
 } from '../../lib/auth';
-import { AuthContextProvider } from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
 import AuthOptions, { AuthOptionsProps } from './AuthOptions';
-import SettingsContext from '../../contexts/SettingsContext';
 
 let user = null;
 

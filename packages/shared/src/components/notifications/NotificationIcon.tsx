@@ -1,10 +1,11 @@
 import React, { ReactElement } from 'react';
+
+import { IconSize } from '../Icon';
 import {
   notificationIcon,
   NotificationIconType,
   notificationIconTypeTheme,
 } from './utils';
-import { IconSize } from '../Icon';
 
 const noBackgroundIcons = [
   NotificationIconType.DailyDev,

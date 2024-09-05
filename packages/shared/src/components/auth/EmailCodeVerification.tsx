@@ -1,16 +1,17 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
+
+import LogContext from '../../contexts/LogContext';
+import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
+import { AuthEventNames } from '../../lib/auth';
+import { AuthFlow } from '../../lib/kratos';
+import { LogEvent, TargetType } from '../../lib/log';
 import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
-import { AuthFormProps } from './common';
-import { AuthFlow } from '../../lib/kratos';
-import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
-import AuthForm from './AuthForm';
 import { KeyIcon, MailIcon, VIcon } from '../icons';
-import { AuthEventNames } from '../../lib/auth';
-import LogContext from '../../contexts/LogContext';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
-import { LogEvent, TargetType } from '../../lib/log';
+import AuthForm from './AuthForm';
+import { AuthFormProps } from './common';
 
 interface EmailCodeVerificationProps extends AuthFormProps {
   code?: string;

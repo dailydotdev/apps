@@ -1,10 +1,11 @@
 import React, { ReactElement, useCallback, useEffect, useRef } from 'react';
+
+import { useLogContext } from '../../contexts/LogContext';
+import { useBoot } from '../../hooks';
+import { LogEvent, TargetType } from '../../lib/log';
 import { Card } from '../cards/Card';
 import { CardCover } from '../cards/common/CardCover';
 import { CTAButton, Description, Header, MarketingCta, Title } from './common';
-import { useBoot } from '../../hooks';
-import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent, TargetType } from '../../lib/log';
 
 export function MarketingCtaCard({
   marketingCta,

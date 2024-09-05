@@ -1,5 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
+
+import { useAuthContext } from '../contexts/AuthContext';
+import { ApiError, getApiError, gqlClient } from '../graphql/common';
 import {
   GET_PERSONALIZED_DIGEST_SETTINGS,
   SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
@@ -8,9 +11,7 @@ import {
   UserPersonalizedDigestSubscribe,
   UserPersonalizedDigestType,
 } from '../graphql/users';
-import { RequestKey, StaleTime, generateQueryKey } from '../lib/query';
-import { useAuthContext } from '../contexts/AuthContext';
-import { ApiError, getApiError, gqlClient } from '../graphql/common';
+import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 
 export enum SendType {
   Weekly = 'weekly',

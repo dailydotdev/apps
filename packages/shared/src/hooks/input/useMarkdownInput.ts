@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import {
   ClipboardEventHandler,
   DragEventHandler,
@@ -11,7 +12,27 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useQuery } from '@tanstack/react-query';
+
+import { useAuthContext } from '../../contexts/AuthContext';
+import {
+  RECOMMEND_MENTIONS_QUERY,
+  RecommendedMentionsData,
+} from '../../graphql/comments';
+import {
+  allowedContentImage,
+  allowedFileSize,
+  uploadNotAcceptedMessage,
+} from '../../graphql/posts';
+import { handleRegex } from '../../graphql/users';
+import {
+  ArrowKey,
+  arrowKeys,
+  getCaretOffset,
+  KeyboardCommand,
+  Y_AXIS_KEYS,
+} from '../../lib/element';
+import { isNullOrUndefined } from '../../lib/func';
+import { getLinkReplacement, getMentionReplacement } from '../../lib/markdown';
 import {
   CursorType,
   getCloseWord,
@@ -20,30 +41,10 @@ import {
   getTemporaryUploadString,
   TextareaCommand,
 } from '../../lib/textarea';
-import { useRequestProtocol } from '../useRequestProtocol';
-import { useAuthContext } from '../../contexts/AuthContext';
-import {
-  RECOMMEND_MENTIONS_QUERY,
-  RecommendedMentionsData,
-} from '../../graphql/comments';
-import { isNullOrUndefined } from '../../lib/func';
-import {
-  ArrowKey,
-  arrowKeys,
-  getCaretOffset,
-  KeyboardCommand,
-  Y_AXIS_KEYS,
-} from '../../lib/element';
 import { UserShortProfile } from '../../lib/user';
-import { getLinkReplacement, getMentionReplacement } from '../../lib/markdown';
-import { handleRegex } from '../../graphql/users';
-import { UploadState, useSyncUploader } from './useSyncUploader';
+import { useRequestProtocol } from '../useRequestProtocol';
 import { useToastNotification } from '../useToastNotification';
-import {
-  allowedContentImage,
-  allowedFileSize,
-  uploadNotAcceptedMessage,
-} from '../../graphql/posts';
+import { UploadState, useSyncUploader } from './useSyncUploader';
 
 export enum MarkdownCommand {
   Upload = 'upload',

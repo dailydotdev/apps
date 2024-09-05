@@ -1,39 +1,40 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { SourceMember, SourcePermissions, Squad } from '../../graphql/sources';
-import { SquadHeaderBar } from './SquadHeaderBar';
-import { SquadImage } from './SquadImage';
-import EnableNotification from '../notifications/EnableNotification';
-import { FlexCentered, FlexCol } from '../utilities';
-import SharePostBar from './SharePostBar';
-import { TourScreenIndex } from './SquadTour';
-import { useSquadTour } from '../../hooks/useSquadTour';
-import { verifyPermission } from '../../graphql/squads';
-import { NotificationPromptSource } from '../../lib/log';
-import { useSquadChecklist } from '../../hooks/useSquadChecklist';
+import React, { ReactElement } from 'react';
+
 import { ActionType } from '../../graphql/actions';
+import { SourceMember, SourcePermissions, Squad } from '../../graphql/sources';
+import { verifyPermission } from '../../graphql/squads';
+import { useViewSize, ViewSize } from '../../hooks';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { useSquadChecklist } from '../../hooks/useSquadChecklist';
+import { useSquadTour } from '../../hooks/useSquadTour';
+import { largeNumberFormat } from '../../lib';
+import classed from '../../lib/classed';
+import {
+  MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP,
+  MAX_VISIBLE_PRIVILEGED_MEMBERS_MOBILE,
+} from '../../lib/config';
+import { formatMonthYearOnly } from '../../lib/dateFormat';
+import { link } from '../../lib/links';
+import { NotificationPromptSource } from '../../lib/log';
 import {
   Button,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
-import classed from '../../lib/classed';
-import ConditionalWrapper from '../ConditionalWrapper';
-import { link } from '../../lib/links';
-import SquadChecklistCard from '../checklist/SquadChecklistCard';
 import { Separator } from '../cards/common';
+import SquadChecklistCard from '../checklist/SquadChecklistCard';
+import ConditionalWrapper from '../ConditionalWrapper';
 import { EarthIcon, LockIcon, SourceIcon, SparkleIcon } from '../icons';
-import { PrivilegedMemberItem } from './Members/PrivilegedMemberItem';
-import { formatMonthYearOnly } from '../../lib/dateFormat';
-import {
-  MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP,
-  MAX_VISIBLE_PRIVILEGED_MEMBERS_MOBILE,
-} from '../../lib/config';
-import { useViewSize, ViewSize } from '../../hooks';
-import { largeNumberFormat } from '../../lib';
-import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
+import EnableNotification from '../notifications/EnableNotification';
+import { FlexCentered, FlexCol } from '../utilities';
+import { PrivilegedMemberItem } from './Members/PrivilegedMemberItem';
+import SharePostBar from './SharePostBar';
+import { SquadHeaderBar } from './SquadHeaderBar';
+import { SquadImage } from './SquadImage';
+import { TourScreenIndex } from './SquadTour';
 
 interface SquadPageHeaderProps {
   squad: Squad;

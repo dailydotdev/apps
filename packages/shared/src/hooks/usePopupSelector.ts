@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect, useMemo } from 'react';
+
 import { generateStorageKey, StorageTopic } from '../lib/storage';
 
 const POPUP_SELECTOR_KEY = [generateStorageKey(StorageTopic.Popup, 'selector')];

@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
-import styles from './TextField.module.css';
+
 import useInputFieldFunctions from '../../hooks/useInputFieldFunctions';
 import BaseFieldContainer, {
   BaseFieldProps,
@@ -9,6 +9,7 @@ import BaseFieldContainer, {
   getFieldPlaceholder,
   InnerLabel,
 } from './BaseFieldContainer';
+import styles from './TextField.module.css';
 
 function Textarea({
   hint,

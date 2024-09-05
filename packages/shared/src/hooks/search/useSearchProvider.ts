@@ -1,18 +1,19 @@
 import { useRouter } from 'next/router';
 import { useCallback } from 'react';
+
+import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
 import {
-  SEARCH_POST_SUGGESTIONS,
-  SEARCH_TAG_SUGGESTIONS,
-  SearchProviderEnum,
-  SearchSuggestionResult,
   defaultSearchSuggestionsLimit,
   getSearchUrl,
+  SEARCH_POST_SUGGESTIONS,
   SEARCH_SOURCE_SUGGESTIONS,
+  SEARCH_TAG_SUGGESTIONS,
   SEARCH_USER_SUGGESTIONS,
+  SearchProviderEnum,
+  SearchSuggestionResult,
 } from '../../graphql/search';
-import { useRequestProtocol } from '../useRequestProtocol';
 import { feature } from '../../lib/featureManagement';
-import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
+import { useRequestProtocol } from '../useRequestProtocol';
 
 export type UseSearchProviderProps = {
   provider: SearchProviderEnum;

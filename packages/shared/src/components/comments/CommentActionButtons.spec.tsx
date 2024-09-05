@@ -1,24 +1,25 @@
-import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import AuthContext from '../../contexts/AuthContext';
-import { LoggedUser, Roles } from '../../lib/user';
-import CommentActionButtons, { Props } from './CommentActionButtons';
-import { Comment } from '../../graphql/comments';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import React from 'react';
+
+import comment from '../../../__tests__/fixture/comment';
+import loggedUser from '../../../__tests__/fixture/loggedUser';
+import post from '../../../__tests__/fixture/post';
 import {
   completeActionMock,
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
-import loggedUser from '../../../__tests__/fixture/loggedUser';
-import comment from '../../../__tests__/fixture/comment';
-import post from '../../../__tests__/fixture/post';
-import { Origin } from '../../lib/log';
-import { VOTE_MUTATION } from '../../graphql/users';
-import { UserVoteEntity } from '../../hooks';
-import { UserVote } from '../../graphql/posts';
+import AuthContext from '../../contexts/AuthContext';
 import LogContext from '../../contexts/LogContext';
 import { ActionType } from '../../graphql/actions';
+import { Comment } from '../../graphql/comments';
+import { UserVote } from '../../graphql/posts';
+import { VOTE_MUTATION } from '../../graphql/users';
+import { UserVoteEntity } from '../../hooks';
+import { Origin } from '../../lib/log';
+import { LoggedUser, Roles } from '../../lib/user';
+import CommentActionButtons, { Props } from './CommentActionButtons';
 
 const showLogin = jest.fn();
 const onComment = jest.fn();

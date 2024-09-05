@@ -1,10 +1,11 @@
-import React, { ReactNode } from 'react';
-import { act, renderHook } from '@testing-library/react-hooks';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { waitFor } from '@testing-library/react';
-import { useChecklist } from './useChecklist';
+import { act, renderHook } from '@testing-library/react-hooks';
+import React, { ReactNode } from 'react';
+
 import { ActionType } from '../graphql/actions';
 import { ChecklistStepType } from '../lib/checklist';
+import { useChecklist } from './useChecklist';
 
 export const updateStep = (
   steps: ChecklistStepType[],

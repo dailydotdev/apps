@@ -1,11 +1,12 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
-import UserBadge, { UserBadgeProps } from './UserBadge';
-import { ReputationIcon } from './icons';
-import { LoggedUser } from '../lib/user';
-import { SimpleTooltip } from './tooltips';
+
 import { largeNumberFormat } from '../lib';
+import { LoggedUser } from '../lib/user';
 import { IconSize } from './Icon';
+import { ReputationIcon } from './icons';
+import { SimpleTooltip } from './tooltips';
+import UserBadge, { UserBadgeProps } from './UserBadge';
 
 export type ReputationUserBadgeProps = Omit<
   UserBadgeProps,

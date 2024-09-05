@@ -1,5 +1,6 @@
 import { useCallback, useContext, useEffect } from 'react';
 import { onCLS, onFCP, onFID, onLCP, onTTFB } from 'web-vitals';
+
 import LogContext from '../contexts/LogContext';
 
 export function useWebVitals(): void {

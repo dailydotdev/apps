@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import nock from 'nock';
 import { GraphQLError } from 'graphql-request/dist/types';
+import nock from 'nock';
+
 import {
   ActionType,
   COMPLETE_ACTION_MUTATION,

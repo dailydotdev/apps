@@ -1,28 +1,29 @@
-import React, { ReactElement, useContext } from 'react';
+import { QueryClient, QueryKey, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import { QueryClient, QueryKey, useQueryClient } from '@tanstack/react-query';
-import { ReadHistoryPost } from '../graphql/posts';
-import { ShareIcon, BookmarkIcon, MiniCloseIcon as XIcon } from './icons';
-import {
-  UseBookmarkPostRollback,
-  useBookmarkPost,
-} from '../hooks/useBookmarkPost';
+import React, { ReactElement, useContext } from 'react';
+
 import AuthContext from '../contexts/AuthContext';
+import { ReadHistoryPost } from '../graphql/posts';
+import { ContextMenu as ContextMenuIds } from '../hooks/constants';
 import {
-  ReadHistoryInfiniteData,
+  useBookmarkPost,
+  UseBookmarkPostRollback,
+} from '../hooks/useBookmarkPost';
+import useContextMenu from '../hooks/useContextMenu';
+import {
   ReadHistoryData,
+  ReadHistoryInfiniteData,
 } from '../hooks/useInfiniteReadingHistory';
-import { MenuIcon } from './MenuIcon';
 import { QueryIndexes } from '../hooks/useReadingHistory';
+import { Origin } from '../lib/log';
 import {
   generateQueryKey,
   RequestKey,
   updateInfiniteCache,
 } from '../lib/query';
-import { Origin } from '../lib/log';
-import useContextMenu from '../hooks/useContextMenu';
-import { ContextMenu as ContextMenuIds } from '../hooks/constants';
+import { BookmarkIcon, MiniCloseIcon as XIcon, ShareIcon } from './icons';
+import { MenuIcon } from './MenuIcon';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),

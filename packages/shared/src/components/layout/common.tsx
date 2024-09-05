@@ -1,33 +1,34 @@
+import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import React, {
   Dispatch,
   ReactElement,
   SetStateAction,
   useContext,
 } from 'react';
-import { useRouter } from 'next/router';
-import classNames from 'classnames';
-import classed from '../../lib/classed';
-import { SharedFeedPage } from '../utilities';
-import MyFeedHeading from '../filters/MyFeedHeading';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { LazyModal } from '../modals/common/types';
-import { Dropdown, DropdownProps } from '../fields/Dropdown';
-import { ButtonSize, ButtonVariant } from '../buttons/common';
-import { CalendarIcon, SortIcon } from '../icons';
-import { IconSize } from '../Icon';
-import { RankingAlgorithm } from '../../graphql/feed';
+
 import SettingsContext from '../../contexts/SettingsContext';
-import { useFeedName } from '../../hooks/feed/useFeedName';
+import { RankingAlgorithm } from '../../graphql/feed';
 import { useConditionalFeature, useViewSize, ViewSize } from '../../hooks';
-import ConditionalWrapper from '../ConditionalWrapper';
-import { ReadingStreakButton } from '../streak/ReadingStreakButton';
+import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useReadingStreak } from '../../hooks/streaks';
-import { AllFeedPages } from '../../lib/query';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
+import classed from '../../lib/classed';
 import { webappUrl } from '../../lib/constants';
 import { feature } from '../../lib/featureManagement';
-import { checkIsExtension } from '../../lib/func';
 import { ShortcutsUIExperiment } from '../../lib/featureValues';
-import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
+import { checkIsExtension } from '../../lib/func';
+import { AllFeedPages } from '../../lib/query';
+import { ButtonSize, ButtonVariant } from '../buttons/common';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { Dropdown, DropdownProps } from '../fields/Dropdown';
+import MyFeedHeading from '../filters/MyFeedHeading';
+import { IconSize } from '../Icon';
+import { CalendarIcon, SortIcon } from '../icons';
+import { LazyModal } from '../modals/common/types';
+import { ReadingStreakButton } from '../streak/ReadingStreakButton';
+import { SharedFeedPage } from '../utilities';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 

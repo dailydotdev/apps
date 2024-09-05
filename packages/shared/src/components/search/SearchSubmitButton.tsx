@@ -1,14 +1,15 @@
 import React, { ReactElement } from 'react';
+
 import {
   AllowedTags,
   Button,
   ButtonProps,
   ButtonVariant,
 } from '../buttons/Button';
-import { SendAirplaneIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { SendAirplaneIcon } from '../icons';
 import { TooltipProps } from '../tooltips/BaseTooltip';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 interface SearchSubmitButtonProps<TagName extends AllowedTags> {
   tooltipProps: TooltipProps;

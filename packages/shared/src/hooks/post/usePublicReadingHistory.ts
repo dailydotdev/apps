@@ -1,10 +1,11 @@
-import { useContext, useMemo } from 'react';
 import { UseInfiniteQueryResult } from '@tanstack/react-query';
+import { useContext, useMemo } from 'react';
+
+import { checkFetchMore } from '../../components/containers/InfiniteScrolling';
 import AuthContext from '../../contexts/AuthContext';
 import { READING_HISTORY_QUERY } from '../../graphql/users';
-import useInfiniteReadingHistory from '../useInfiniteReadingHistory';
 import { PostItem } from '../useFeed';
-import { checkFetchMore } from '../../components/containers/InfiniteScrolling';
+import useInfiniteReadingHistory from '../useInfiniteReadingHistory';
 
 interface UseReadingHistory {
   data: PostItem[];

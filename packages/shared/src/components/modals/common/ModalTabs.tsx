@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement, useContext } from 'react';
+
 import { ModalPropsContext, ModalTabItem, modalTabTitle } from './types';
 
 export type ModalTabsProps = {

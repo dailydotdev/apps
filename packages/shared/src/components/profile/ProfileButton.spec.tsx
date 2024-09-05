@@ -1,9 +1,10 @@
-import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { waitFor, render, RenderResult, screen } from '@testing-library/react';
-import ProfileButton from './ProfileButton';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import React from 'react';
+
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import ProfileButton from './ProfileButton';
 
 const logout = jest.fn();
 

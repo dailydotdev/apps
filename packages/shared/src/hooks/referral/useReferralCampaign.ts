@@ -1,13 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { useContext } from 'react';
-import { useRequestProtocol } from '../useRequestProtocol';
-import { REFERRAL_CAMPAIGN_QUERY } from '../../graphql/users';
-import { RequestKey, generateQueryKey, STALE_TIME } from '../../lib/query';
-import AuthContext from '../../contexts/AuthContext';
-import { Feature } from '../../lib/featureManagement';
+
 import { useFeatureIsOn } from '../../components/GrowthBookProvider';
-import { isTesting } from '../../lib/constants';
+import AuthContext from '../../contexts/AuthContext';
+import { REFERRAL_CAMPAIGN_QUERY } from '../../graphql/users';
 import { ReferralCampaignKey } from '../../lib';
+import { isTesting } from '../../lib/constants';
+import { Feature } from '../../lib/featureManagement';
+import { generateQueryKey, RequestKey, STALE_TIME } from '../../lib/query';
+import { useRequestProtocol } from '../useRequestProtocol';
 
 export { ReferralCampaignKey };
 

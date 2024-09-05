@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+
 import { isSpecialKeyPressed } from '../lib/func';
 
 type Keypress = [string, (e: KeyboardEvent) => unknown];

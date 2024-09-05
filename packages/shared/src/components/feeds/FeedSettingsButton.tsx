@@ -1,15 +1,16 @@
 import React, { ReactElement } from 'react';
+
+import { useLogContext } from '../../contexts/LogContext';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LogEvent } from '../../lib/log';
 import {
   Button,
   ButtonProps,
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
-import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent } from '../../lib/log';
-import { LazyModal } from '../modals/common/types';
-import { useLazyModal } from '../../hooks/useLazyModal';
 import { FilterIcon } from '../icons';
+import { LazyModal } from '../modals/common/types';
 
 export function FeedSettingsButton({
   onClick,

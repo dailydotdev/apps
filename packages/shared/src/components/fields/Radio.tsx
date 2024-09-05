@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { RadioItem, RadioItemProps } from './RadioItem';
+import React, { ReactElement } from 'react';
+
 import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { RadioItem, RadioItemProps } from './RadioItem';
 
 export interface ClassName {
   container?: string;

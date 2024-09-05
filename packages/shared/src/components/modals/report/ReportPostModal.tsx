@@ -1,25 +1,26 @@
 import React, {
-  ReactElement,
-  MouseEvent,
-  useState,
-  useRef,
-  SetStateAction,
   Dispatch,
+  MouseEvent,
+  ReactElement,
+  SetStateAction,
   useCallback,
+  useRef,
+  useState,
 } from 'react';
-import { RadioItemProps } from '../../fields/Radio';
+
+import { useLogContext } from '../../../contexts/LogContext';
 import { Post, ReadHistoryPost } from '../../../graphql/posts';
-import { Checkbox } from '../../fields/Checkbox';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { PostBootData } from '../../../lib/boot';
-import { ModalProps } from '../common/Modal';
-import { FlexRow } from '../../utilities';
 import useReportPost from '../../../hooks/useReportPost';
+import { PostBootData } from '../../../lib/boot';
 import { postLogEvent } from '../../../lib/feed';
 import { Origin } from '../../../lib/log';
-import { useLogContext } from '../../../contexts/LogContext';
-import { ReportModal } from './ReportModal';
 import { ReportReason } from '../../../report';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { Checkbox } from '../../fields/Checkbox';
+import { RadioItemProps } from '../../fields/Radio';
+import { FlexRow } from '../../utilities';
+import { ModalProps } from '../common/Modal';
+import { ReportModal } from './ReportModal';
 
 interface OptionalProps {
   index?: number;

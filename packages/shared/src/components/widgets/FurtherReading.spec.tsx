@@ -1,30 +1,31 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import nock from 'nock';
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import AuthContext from '../../contexts/AuthContext';
-import { LoggedUser } from '../../lib/user';
-import {
-  ADD_BOOKMARKS_MUTATION,
-  Post,
-  REMOVE_BOOKMARK_MUTATION,
-} from '../../graphql/posts';
-import {
-  FURTHER_READING_QUERY,
-  FurtherReadingData,
-} from '../../graphql/furtherReading';
+
 import defaultFeedPage from '../../../__tests__/fixture/feed';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
-import FurtherReading from './FurtherReading';
+import post from '../../../__tests__/fixture/post';
 import {
   completeActionMock,
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
-import post from '../../../__tests__/fixture/post';
-import { AuthTriggers } from '../../lib/auth';
+import AuthContext from '../../contexts/AuthContext';
 import { ActionType } from '../../graphql/actions';
+import {
+  FURTHER_READING_QUERY,
+  FurtherReadingData,
+} from '../../graphql/furtherReading';
+import {
+  ADD_BOOKMARKS_MUTATION,
+  Post,
+  REMOVE_BOOKMARK_MUTATION,
+} from '../../graphql/posts';
+import { AuthTriggers } from '../../lib/auth';
+import { LoggedUser } from '../../lib/user';
+import FurtherReading from './FurtherReading';
 
 const showLogin = jest.fn();
 

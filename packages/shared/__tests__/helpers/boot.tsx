@@ -1,27 +1,28 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import React, { ReactElement, ReactNode } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { GrowthBook, GrowthBookProvider } from '@growthbook/growthbook-react';
 import { WidenPrimitives } from '@growthbook/growthbook';
-import AuthContext, { AuthContextData } from '../../src/contexts/AuthContext';
-import OnboardingContext from '../../src/contexts/OnboardingContext';
-import { OnboardingMode } from '../../src/graphql/feed';
-import {
-  NotificationsContextProvider,
-  NotificationsContextProviderProps,
-} from '../../src/contexts/NotificationsContext';
-import SettingsContext, {
-  SettingsContextData,
-  ThemeMode,
-} from '../../src/contexts/SettingsContext';
+import { GrowthBook, GrowthBookProvider } from '@growthbook/growthbook-react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import React, { ReactElement, ReactNode } from 'react';
+
+import { FeaturesReadyContext } from '../../src/components/GrowthBookProvider';
+import { LazyModalElement } from '../../src/components/modals/LazyModalElement';
 import {
   AlertContextProvider,
   AlertContextProviderProps,
 } from '../../src/contexts/AlertContext';
-import { FeaturesReadyContext } from '../../src/components/GrowthBookProvider';
-import { LazyModalElement } from '../../src/components/modals/LazyModalElement';
+import AuthContext, { AuthContextData } from '../../src/contexts/AuthContext';
 import LogContext from '../../src/contexts/LogContext';
+import {
+  NotificationsContextProvider,
+  NotificationsContextProviderProps,
+} from '../../src/contexts/NotificationsContext';
+import OnboardingContext from '../../src/contexts/OnboardingContext';
+import SettingsContext, {
+  SettingsContextData,
+  ThemeMode,
+} from '../../src/contexts/SettingsContext';
+import { OnboardingMode } from '../../src/graphql/feed';
 import { LogContextData } from '../../src/hooks/log/useLogContextData';
 import { ChecklistViewState } from '../../src/lib/checklist';
 

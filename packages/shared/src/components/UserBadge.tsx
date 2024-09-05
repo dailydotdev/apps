@@ -1,7 +1,8 @@
 import classNames from 'classnames';
 import React, { FunctionComponent, ReactElement, ReactNode } from 'react';
-import { IconProps, IconSize } from './Icon';
+
 import { useViewSize, ViewSize } from '../hooks';
+import { IconProps, IconSize } from './Icon';
 
 export type UserBadgeProps = {
   className?: string;

@@ -1,16 +1,17 @@
 import React, { ReactElement, useContext, useState } from 'react';
+
 import LogContext from '../../contexts/LogContext';
-import { LogEvent, TargetId } from '../../lib/log';
 import { useConditionalFeature, useOnboardingChecklist } from '../../hooks';
 import { ChecklistBarProps, ChecklistViewState } from '../../lib/checklist';
-import { ChecklistBar } from './ChecklistBar';
+import { feature } from '../../lib/featureManagement';
+import { LogEvent, TargetId } from '../../lib/log';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
+import { ChecklistBar } from './ChecklistBar';
 import { OnboardingChecklistCard } from './OnboardingChecklistCard';
-import { OnboardingChecklistOptions } from './OnboardingChecklistOptions';
 import { OnboardingChecklistDismissButton } from './OnboardingChecklistDismissButton';
-import { feature } from '../../lib/featureManagement';
+import { OnboardingChecklistOptions } from './OnboardingChecklistOptions';
 
 export type OnboardingChecklistBarProps = Pick<ChecklistBarProps, 'className'>;
 

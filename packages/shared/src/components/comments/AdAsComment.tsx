@@ -1,17 +1,18 @@
-import React, { ReactElement, useContext, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import React, { ReactElement, useContext, useEffect, useRef } from 'react';
+
+import AuthContext from '../../contexts/AuthContext';
+import LogContext from '../../contexts/LogContext';
 import { Ad } from '../../graphql/posts';
 import { apiUrl } from '../../lib/config';
-import { TruncateText } from '../utilities';
-import AdLink from '../cards/ad/common/AdLink';
 import { adLogEvent } from '../../lib/feed';
-import LogContext from '../../contexts/LogContext';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
-import PlaceholderCommentList from './PlaceholderCommentList';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import AuthContext from '../../contexts/AuthContext';
 import { cloudinary } from '../../lib/image';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import AdLink from '../cards/ad/common/AdLink';
 import { AdPixel } from '../cards/ad/common/AdPixel';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { TruncateText } from '../utilities';
+import PlaceholderCommentList from './PlaceholderCommentList';
 
 interface AdAsCommentProps {
   postId: string;

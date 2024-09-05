@@ -1,15 +1,16 @@
-import React, { ReactElement, MouseEvent, ReactNode } from 'react';
+import React, { MouseEvent, ReactElement, ReactNode } from 'react';
+
 import { Post } from '../../graphql/posts';
-import ContextMenu from '../fields/ContextMenu';
-import { QuaternaryButton, QuaternaryButtonProps } from './QuaternaryButton';
-import { BookmarkIcon } from '../icons';
-import { SimpleTooltip } from '../tooltips';
-import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
+import { useBookmarkReminder } from '../../hooks/notifications';
 import useContextMenu from '../../hooks/useContextMenu';
 import { useLazyModal } from '../../hooks/useLazyModal';
+import ContextMenu from '../fields/ContextMenu';
+import { BookmarkIcon } from '../icons';
+import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
 import { LazyModal } from '../modals/common/types';
-import { useBookmarkReminder } from '../../hooks/notifications';
+import { SimpleTooltip } from '../tooltips';
 import { ButtonColor, ButtonVariant } from './Button';
+import { QuaternaryButton, QuaternaryButtonProps } from './QuaternaryButton';
 
 interface BookmarkButtonProps {
   buttonProps?: QuaternaryButtonProps<'button'>;

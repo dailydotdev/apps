@@ -1,8 +1,9 @@
 import React, { ReactElement } from 'react';
+
+import { LoggedUser } from '../../../lib/user';
+import { UserHighlight } from '../../widgets/PostUsersHighlights';
 import { CommonLeaderboardProps, LeaderboardList } from './LeaderboardList';
 import { LeaderboardListItem } from './LeaderboardListItem';
-import { UserHighlight } from '../../widgets/PostUsersHighlights';
-import { LoggedUser } from '../../../lib/user';
 
 export interface UserLeaderboard {
   score: number;

@@ -1,26 +1,27 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
 import { Post, UserVote } from '../../../graphql/posts';
-import InteractionCounter from '../../InteractionCounter';
-import { QuaternaryButton } from '../../buttons/QuaternaryButton';
-import {
-  DiscussIcon as CommentIcon,
-  BookmarkIcon,
-  LinkIcon,
-  DownvoteIcon,
-} from '../../icons';
+import { useFeedPreviewMode } from '../../../hooks';
+import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
+import { BookmarkButton } from '../../buttons';
 import {
   Button,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '../../buttons/Button';
-import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
-import { useFeedPreviewMode } from '../../../hooks';
-import { UpvoteButtonIcon } from './UpvoteButtonIcon';
-import { BookmarkButton } from '../../buttons';
+import { QuaternaryButton } from '../../buttons/QuaternaryButton';
 import { IconSize } from '../../Icon';
-import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
+import {
+  BookmarkIcon,
+  DiscussIcon as CommentIcon,
+  DownvoteIcon,
+  LinkIcon,
+} from '../../icons';
+import InteractionCounter from '../../InteractionCounter';
+import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
+import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 
 export interface ActionButtonsProps {
   post: Post;

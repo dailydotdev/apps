@@ -1,13 +1,14 @@
 import React, { ReactElement } from 'react';
-import { PageWidgets } from '../../utilities';
-import { ShareMobile } from '../../ShareMobile';
-import ShareBar from '../../ShareBar';
-import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
-import { CollectionsIntro } from '../widgets';
-import { RelatedPostsWidget } from '../RelatedPostsWidget';
+
 import { PostRelationType } from '../../../graphql/posts';
-import { PostWidgetsProps } from '../PostWidgets';
 import { FooterLinks } from '../../footer';
+import ShareBar from '../../ShareBar';
+import { ShareMobile } from '../../ShareMobile';
+import { PageWidgets } from '../../utilities';
+import { PostWidgetsProps } from '../PostWidgets';
+import { RelatedPostsWidget } from '../RelatedPostsWidget';
+import { CollectionsIntro } from '../widgets';
+import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
 
 export const CollectionPostWidgets = ({
   onCopyPostLink,

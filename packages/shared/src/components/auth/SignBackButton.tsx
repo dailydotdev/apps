@@ -1,6 +1,7 @@
 import React, { MouseEventHandler, ReactElement } from 'react';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+
 import { SignBackProvider, SignedInUser } from '../../hooks/auth/useSignBack';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { providerMap } from './common';
 
 interface SignBackButtonProps {

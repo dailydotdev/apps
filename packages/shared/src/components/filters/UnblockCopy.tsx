@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+
 import { Tag } from '../../graphql/feedSettings';
 
 export type CopyProps = {

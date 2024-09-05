@@ -1,35 +1,36 @@
 import classNames from 'classnames';
 import React, { HTMLAttributes, ReactElement, useMemo } from 'react';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import SquadHeaderMenu from './SquadHeaderMenu';
-import useContextMenu from '../../hooks/useContextMenu';
-import SquadMemberShortList, {
-  SquadMemberShortListProps,
-} from './SquadMemberShortList';
-import { useSquadInvitation } from '../../hooks/useSquadInvitation';
-import { Origin } from '../../lib/log';
-import { TourScreenIndex } from './SquadTour';
-import { useSquadTour } from '../../hooks/useSquadTour';
-import { verifyPermission } from '../../graphql/squads';
+
+import { useAuthContext } from '../../contexts/AuthContext';
+import { UserIntegrationType } from '../../graphql/integrations';
 import { SourcePermissions } from '../../graphql/sources';
+import { verifyPermission } from '../../graphql/squads';
+import { ContextMenu } from '../../hooks/constants';
+import { useSourceIntegrationQuery } from '../../hooks/integrations/useSourceIntegrationQuery';
+import useContextMenu from '../../hooks/useContextMenu';
+import { useLazyModal } from '../../hooks/useLazyModal';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
+import { useSquadInvitation } from '../../hooks/useSquadInvitation';
+import { useSquadTour } from '../../hooks/useSquadTour';
 import { isTesting } from '../../lib/constants';
-import { SquadJoinButton } from './SquadJoinButton';
+import { Origin } from '../../lib/log';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import {
+  AddUserIcon,
   BellIcon,
   ChecklistBIcon,
-  AddUserIcon,
   MenuIcon,
   SlackIcon,
 } from '../icons';
-import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import { ContextMenu } from '../../hooks/constants';
-import { useSourceIntegrationQuery } from '../../hooks/integrations/useSourceIntegrationQuery';
-import { UserIntegrationType } from '../../graphql/integrations';
-import { useAuthContext } from '../../contexts/AuthContext';
 import { ProfileImageSize } from '../ProfilePicture';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import SquadHeaderMenu from './SquadHeaderMenu';
+import { SquadJoinButton } from './SquadJoinButton';
+import SquadMemberShortList, {
+  SquadMemberShortListProps,
+} from './SquadMemberShortList';
+import { TourScreenIndex } from './SquadTour';
 
 export function SquadHeaderBar({
   squad,

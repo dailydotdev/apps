@@ -1,12 +1,13 @@
 import { useCallback, useMemo, useState } from 'react';
+
 import { useActiveFeedNameContext } from '../../contexts';
+import { Post, UserVote } from '../../graphql/posts';
 import { useMutationSubscription } from '../mutationSubscription';
 import {
-  UseVoteMutationProps,
-  UserVoteEntity,
   createVoteMutationKey,
+  UserVoteEntity,
+  UseVoteMutationProps,
 } from '../vote';
-import { Post, UserVote } from '../../graphql/posts';
 
 interface UsePostShareLoop {
   shouldShowOverlay: boolean;

@@ -6,13 +6,14 @@ import React, {
   useRef,
   useState,
 } from 'react';
+
+import { useToastNotification } from '../../hooks/useToastNotification';
 import { blobToBase64 } from '../../lib/blob';
 import { fallbackImages } from '../../lib/config';
-import { EditIcon } from '../icons';
-import { IconSize } from '../Icon';
-import { useToastNotification } from '../../hooks/useToastNotification';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import CloseButton from '../CloseButton';
+import { IconSize } from '../Icon';
+import { EditIcon } from '../icons';
 
 type Size = 'medium' | 'large' | 'cover';
 

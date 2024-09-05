@@ -1,21 +1,22 @@
-import React, { ReactElement, useContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { PageWidgets } from '../utilities';
-import { ShareMobile } from '../ShareMobile';
+import React, { ReactElement, useContext } from 'react';
+
 import AuthContext, { useAuthContext } from '../../contexts/AuthContext';
+import { SourceMember, Squad } from '../../graphql/sources';
+import { getSquadMembers, isSourcePublicSquad } from '../../graphql/squads';
+import { useSquad } from '../../hooks';
+import { Origin } from '../../lib/log';
+import SourceButton from '../cards/SourceButton';
+import { FooterLinks } from '../footer';
+import { ProfileImageSize } from '../ProfilePicture';
 import ShareBar from '../ShareBar';
+import { ShareMobile } from '../ShareMobile';
+import { SquadJoinButton } from '../squads/SquadJoinButton';
+import SquadMemberShortList from '../squads/SquadMemberShortList';
+import { PageWidgets } from '../utilities';
 import FurtherReading from '../widgets/FurtherReading';
 import { PostHeaderActions } from './PostHeaderActions';
-import SourceButton from '../cards/SourceButton';
-import { SourceMember, Squad } from '../../graphql/sources';
-import { SquadJoinButton } from '../squads/SquadJoinButton';
-import { Origin } from '../../lib/log';
-import { useSquad } from '../../hooks';
-import { getSquadMembers, isSourcePublicSquad } from '../../graphql/squads';
-import SquadMemberShortList from '../squads/SquadMemberShortList';
 import { PostWidgetsProps } from './PostWidgets';
-import { ProfileImageSize } from '../ProfilePicture';
-import { FooterLinks } from '../footer';
 
 const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
   const { isFetched } = useAuthContext();

@@ -1,7 +1,8 @@
 import React, { ReactElement, useContext } from 'react';
-import { ProgressBar } from '../fields/ProgressBar';
-import { PUBLIC_SQUAD_ADMIN_REPUTATION_REQUIREMENT } from '../../lib/config';
+
 import AuthContext from '../../contexts/AuthContext';
+import { PUBLIC_SQUAD_ADMIN_REPUTATION_REQUIREMENT } from '../../lib/config';
+import { ProgressBar } from '../fields/ProgressBar';
 import { ReputationLightningIcon } from '../icons';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 

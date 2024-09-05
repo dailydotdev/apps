@@ -1,24 +1,25 @@
 import React, { FormEventHandler, ReactElement, useRef, useState } from 'react';
-import { Modal, ModalProps } from '../common/Modal';
+
 import { ExternalLinkPreview } from '../../../graphql/posts';
-import MarkdownInput, { MarkdownRef } from '../../fields/MarkdownInput';
-import { WriteLinkPreview, WritePreviewSkeleton } from '../../post/write';
+import { Squad } from '../../../graphql/sources';
 import { usePostToSquad } from '../../../hooks';
+import { useDebouncedUrl } from '../../../hooks/input';
+import { useNotificationToggle } from '../../../hooks/notifications';
+import { formToJson } from '../../../lib/form';
 import {
   Button,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '../../buttons/Button';
-import { AtIcon } from '../../icons';
-import { Divider, Justify } from '../../utilities';
 import SourceButton from '../../cards/SourceButton';
-import { Squad } from '../../../graphql/sources';
-import { formToJson } from '../../../lib/form';
-import { useDebouncedUrl } from '../../../hooks/input';
-import { useNotificationToggle } from '../../../hooks/notifications';
+import MarkdownInput, { MarkdownRef } from '../../fields/MarkdownInput';
 import { Switch } from '../../fields/Switch';
+import { AtIcon } from '../../icons';
+import { WriteLinkPreview, WritePreviewSkeleton } from '../../post/write';
 import { ProfileImageSize } from '../../ProfilePicture';
+import { Divider, Justify } from '../../utilities';
+import { Modal, ModalProps } from '../common/Modal';
 
 export interface CreateSharedPostModalProps extends ModalProps {
   preview: ExternalLinkPreview;

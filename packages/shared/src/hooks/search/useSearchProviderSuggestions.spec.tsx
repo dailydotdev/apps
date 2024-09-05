@@ -1,16 +1,17 @@
-import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook } from '@testing-library/react-hooks';
 import { waitFor } from '@testing-library/react';
+import { renderHook } from '@testing-library/react-hooks';
+import React from 'react';
+
+import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { Alerts } from '../../graphql/alerts';
 import {
+  defaultSearchSuggestionsLimit,
   SEARCH_POST_SUGGESTIONS,
   SearchProviderEnum,
-  defaultSearchSuggestionsLimit,
 } from '../../graphql/search';
-import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { useSearchProviderSuggestions } from './useSearchProviderSuggestions';
 
 const client = new QueryClient();

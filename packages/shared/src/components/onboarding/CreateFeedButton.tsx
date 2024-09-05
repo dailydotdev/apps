@@ -1,12 +1,13 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
+
+import { useAdvancedSettings, useViewSize, ViewSize } from '../../hooks';
 import useFeedSettings from '../../hooks/useFeedSettings';
+import useSidebarRendered from '../../hooks/useSidebarRendered';
+import { isTesting } from '../../lib/constants';
+import { getContentTypeNotEmpty } from '../auth/OnboardingSteps/ContentTypes/helpers';
 import { Button, ButtonElementType, ButtonVariant } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips';
-import { isTesting } from '../../lib/constants';
-import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { OnboardingStep, REQUIRED_TAGS_THRESHOLD } from './common';
-import { useAdvancedSettings, useViewSize, ViewSize } from '../../hooks';
-import { getContentTypeNotEmpty } from '../auth/OnboardingSteps/ContentTypes/helpers';
 
 export type CreateFeedButtonProps = {
   className?: string;

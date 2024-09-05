@@ -1,10 +1,18 @@
+import classNames from 'classnames';
 import React, { ReactElement, useState } from 'react';
 import ReactModal from 'react-modal';
-import classNames from 'classnames';
-import { ModalHeader } from './ModalHeader';
+
+import { useViewSize, ViewSize } from '../../../hooks';
+import classed from '../../../lib/classed';
+import { LogEvent } from '../../../lib/log';
+import ConditionalWrapper from '../../ConditionalWrapper';
+import { Drawer, DrawerOnMobileProps } from '../../drawers';
+import { FormWrapper, FormWrapperProps } from '../../fields/form';
 import { ModalBody } from './ModalBody';
 import { ModalFooter } from './ModalFooter';
+import { ModalHeader } from './ModalHeader';
 import { ModalSidebar } from './ModalSidebar';
+import { ModalStepsWrapper } from './ModalStepsWrapper';
 import {
   ModalKind,
   ModalPropsContext,
@@ -13,13 +21,6 @@ import {
   ModalTabItem,
   modalTabTitle,
 } from './types';
-import classed from '../../../lib/classed';
-import { ModalStepsWrapper } from './ModalStepsWrapper';
-import { LogEvent } from '../../../lib/log';
-import { useViewSize, ViewSize } from '../../../hooks';
-import { Drawer, DrawerOnMobileProps } from '../../drawers';
-import { FormWrapper, FormWrapperProps } from '../../fields/form';
-import ConditionalWrapper from '../../ConditionalWrapper';
 
 export interface ModalProps extends ReactModal.Props, DrawerOnMobileProps {
   children?: React.ReactNode;

@@ -1,6 +1,7 @@
 import classNames from 'classnames';
-import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
 import Link from 'next/link';
+import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
+
 import { ArrowIcon } from '../icons';
 
 export interface SidebarListItemProps

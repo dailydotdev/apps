@@ -1,7 +1,8 @@
 import React, { ReactElement } from 'react';
+
+import { ElementPlaceholder } from '../../../ElementPlaceholder';
 import { WritePageContainer, WritePageMain } from './common';
 import { WritePostHeader } from './WritePostHeader';
-import { ElementPlaceholder } from '../../../ElementPlaceholder';
 
 interface WriteFreeFormSkeletonProps {
   isEdit?: boolean;

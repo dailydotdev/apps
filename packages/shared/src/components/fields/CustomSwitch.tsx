@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, {
   ReactElement,
   ReactNode,
@@ -5,9 +6,9 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import classNames from 'classnames';
-import styles from './CustomSwitch.module.css';
+
 import classed from '../../lib/classed';
+import styles from './CustomSwitch.module.css';
 
 export interface ContentsSwitchProps {
   className?: string;

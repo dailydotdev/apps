@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ChecklistStepType } from '../lib/checklist';
+import { useCallback, useEffect, useMemo } from 'react';
+
 import { Action, ActionType } from '../graphql/actions';
+import { ChecklistStepType } from '../lib/checklist';
 import { disabledRefetch } from '../lib/func';
 
 const CHECKLIST_OPEN_STEP_KEY = ['checklistOpenStepKey'];

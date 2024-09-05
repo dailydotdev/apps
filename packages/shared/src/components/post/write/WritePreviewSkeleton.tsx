@@ -1,14 +1,15 @@
 import React, { ReactElement } from 'react';
-import { TextField } from '../../fields/TextField';
-import { Loader } from '../../Loader';
+
+import { Button, ButtonVariant } from '../../buttons/Button';
 import { ElementPlaceholder } from '../../ElementPlaceholder';
+import { TextField } from '../../fields/TextField';
 import { OpenLinkIcon } from '../../icons';
+import { Loader } from '../../Loader';
 import {
   previewImageClass,
   WritePreviewContainer,
   WritePreviewContent,
 } from './common';
-import { Button, ButtonVariant } from '../../buttons/Button';
 
 interface WritePreviewSkeletonProps {
   link: string;

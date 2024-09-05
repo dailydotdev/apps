@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+
 import { isProduction } from '../lib/constants';
 
 export function useConsoleLogo(): void {

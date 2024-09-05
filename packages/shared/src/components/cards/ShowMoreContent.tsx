@@ -1,4 +1,5 @@
 import React, { ReactElement, ReactNode, useState } from 'react';
+
 import { ClickableText } from '../buttons/ClickableText';
 
 interface ShowMoreContentProps {

@@ -1,17 +1,18 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
+import { IconSize } from './Icon';
 import {
   AmazonIcon,
   AppleIcon,
-  MicrosoftIcon,
+  DigitalOceanIcon,
   GitLabIcon,
   GoogleIcon,
   JetBrainsIcon,
-  DigitalOceanIcon,
+  MicrosoftIcon,
   RedisIcon,
   SpotifyIcon,
 } from './icons';
-import { IconSize } from './Icon';
 
 export const TRUSTES_COMPANIES_MAP = {
   apple: {

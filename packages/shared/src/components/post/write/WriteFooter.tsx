@@ -1,9 +1,10 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Switch } from '../../fields/Switch';
+import React, { ReactElement } from 'react';
+
 import { useNotificationToggle } from '../../../hooks/notifications';
 import useSidebarRendered from '../../../hooks/useSidebarRendered';
 import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
+import { Switch } from '../../fields/Switch';
 
 interface WriteFooterProps {
   isLoading?: boolean;

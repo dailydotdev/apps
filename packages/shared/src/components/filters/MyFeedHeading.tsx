@@ -1,12 +1,8 @@
-import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
-import { FilterIcon, PlusIcon } from '../icons';
-import {
-  Button,
-  ButtonIconPosition,
-  ButtonSize,
-  ButtonVariant,
-} from '../buttons/Button';
+import React, { ReactElement } from 'react';
+
+import { useSettingsContext } from '../../contexts/SettingsContext';
+import { ActionType } from '../../graphql/actions';
 import {
   useActions,
   useConditionalFeature,
@@ -14,14 +10,19 @@ import {
   useViewSize,
   ViewSize,
 } from '../../hooks';
-import { feature } from '../../lib/featureManagement';
-import { getFeedName } from '../../lib/feed';
 import { useFeedName } from '../../hooks/feed/useFeedName';
-import { checkIsExtension } from '../../lib/func';
-import { ActionType } from '../../graphql/actions';
-import { useSettingsContext } from '../../contexts/SettingsContext';
+import { feature } from '../../lib/featureManagement';
 import { ShortcutsUIExperiment } from '../../lib/featureValues';
+import { getFeedName } from '../../lib/feed';
+import { checkIsExtension } from '../../lib/func';
+import {
+  Button,
+  ButtonIconPosition,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/Button';
 import { FeedSettingsButton } from '../feeds/FeedSettingsButton';
+import { FilterIcon, PlusIcon } from '../icons';
 
 interface MyFeedHeadingProps {
   onOpenFeedFilters: () => void;

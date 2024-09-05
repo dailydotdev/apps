@@ -1,5 +1,5 @@
-import colors from '../../../styles/colors';
 import classed from '../../../lib/classed';
+import colors from '../../../styles/colors';
 
 export const RoundedContainer = classed('div', 'rounded-32');
 export const devCardBoxShadow = '1px 1px 1px rgb(0 0 0 /30%)';

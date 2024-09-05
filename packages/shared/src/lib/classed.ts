@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, {
   AnchorHTMLAttributes,
   ClassAttributes,
@@ -18,7 +19,7 @@ import React, {
   SVGAttributes,
   TimeHTMLAttributes,
 } from 'react';
-import classNames from 'classnames';
+
 import { isNullOrUndefined } from './func';
 
 const combineObjectStrings = (

@@ -1,3 +1,4 @@
+import { Item, Menu, MenuProps } from '@dailydotdev/react-contexify';
 import React, {
   AnchorHTMLAttributes,
   ComponentType,
@@ -5,15 +6,15 @@ import React, {
   ReactNode,
   useCallback,
 } from 'react';
-import { Item, Menu, MenuProps } from '@dailydotdev/react-contexify';
-import { RootPortal } from '../tooltips/Portal';
-import ConditionalWrapper from '../ConditionalWrapper';
-import useContextMenu from '../../hooks/useContextMenu';
+
 import { useViewSize, ViewSize } from '../../hooks';
+import useContextMenu from '../../hooks/useContextMenu';
+import ConditionalWrapper from '../ConditionalWrapper';
 import {
   ContextMenuDrawer,
   ContextMenuDrawerItem,
 } from '../drawers/ContextMenuDrawer';
+import { RootPortal } from '../tooltips/Portal';
 
 function PortalMenu({
   id,

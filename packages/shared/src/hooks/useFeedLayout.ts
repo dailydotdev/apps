@@ -1,6 +1,5 @@
 import { useContext } from 'react';
-import { useViewSize, ViewSize } from './useViewSize';
-import { useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
+
 import {
   CommentFeedPage,
   FeedPage,
@@ -8,10 +7,12 @@ import {
   FeedPageLayoutMobile,
   SharedFeedPage,
 } from '../components/utilities';
-import { AllFeedPages, OtherFeedPage } from '../lib/query';
+import { useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
 import SettingsContext from '../contexts/SettingsContext';
 import { isNullOrUndefined } from '../lib/func';
+import { AllFeedPages, OtherFeedPage } from '../lib/query';
 import { useSearchResultsLayout } from './search/useSearchResultsLayout';
+import { useViewSize, ViewSize } from './useViewSize';
 
 interface UseFeedLayoutReturn {
   shouldUseListFeedLayout: boolean;

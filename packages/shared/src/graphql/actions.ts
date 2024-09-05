@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+
 import { gqlClient } from './common';
 
 export enum ActionType {

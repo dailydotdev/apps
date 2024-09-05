@@ -1,5 +1,6 @@
-import React, { FunctionComponent } from 'react';
 import classNames from 'classnames';
+import React, { FunctionComponent } from 'react';
+
 import { SearchProviderEnum } from '../../../graphql/search';
 import { IconProps } from '../../Icon';
 import { GoogleIcon, MagicIcon, SearchIcon } from '../../icons';

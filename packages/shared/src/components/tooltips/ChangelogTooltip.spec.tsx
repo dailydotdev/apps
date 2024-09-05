@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   act,
   fireEvent,
@@ -5,26 +6,26 @@ import {
   RenderResult,
   screen,
 } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
 import nock from 'nock';
-import { createTestSettings } from '../../../__tests__/fixture/settings';
+import React from 'react';
+
 import Post from '../../../__tests__/fixture/post';
-import { AuthContextProvider } from '../../contexts/AuthContext';
-import ChangelogTooltip from './ChangelogTooltip';
-import { AlertColor, AlertDot } from '../AlertDot';
-import { postDateFormat } from '../../lib/dateFormat';
-import { AlertContextProvider } from '../../contexts/AlertContext';
-import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
+import { createTestSettings } from '../../../__tests__/fixture/settings';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
-import { ExtensionMessageType } from '../../lib/extension';
-import {
-  ToastNotification,
-  TOAST_NOTIF_KEY,
-} from '../../hooks/useToastNotification';
+import { AlertContextProvider } from '../../contexts/AlertContext';
+import { AuthContextProvider } from '../../contexts/AuthContext';
 import SettingsContext from '../../contexts/SettingsContext';
+import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
 import * as hooks from '../../hooks/useChangelog';
+import {
+  TOAST_NOTIF_KEY,
+  ToastNotification,
+} from '../../hooks/useToastNotification';
+import { postDateFormat } from '../../lib/dateFormat';
+import { ExtensionMessageType } from '../../lib/extension';
+import { AlertColor, AlertDot } from '../AlertDot';
+import ChangelogTooltip from './ChangelogTooltip';
 
 describe('ChangelogTooltip component', () => {
   const noop = jest.fn();

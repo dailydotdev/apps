@@ -1,13 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ContentLanguage } from '../lib/user';
-import { useAuthContext } from '../contexts/AuthContext';
-import { UPDATE_USER_PROFILE_MUTATION } from '../graphql/users';
-import { useLogContext } from '../contexts/LogContext';
+
 import { SharedFeedPage } from '../components/utilities';
+import { useAuthContext } from '../contexts/AuthContext';
+import { useLogContext } from '../contexts/LogContext';
 import { gqlClient } from '../graphql/common';
+import { UPDATE_USER_PROFILE_MUTATION } from '../graphql/users';
 import { labels } from '../lib';
 import { LogEvent, TargetType } from '../lib/log';
 import { OtherFeedPage, RequestKey } from '../lib/query';
+import { ContentLanguage } from '../lib/user';
 import { useToastNotification } from './useToastNotification';
 
 export type UseLanguage = {

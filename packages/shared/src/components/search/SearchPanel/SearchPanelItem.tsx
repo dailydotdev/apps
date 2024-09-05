@@ -1,9 +1,10 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
+
 import { IconType } from '../../buttons/Button';
 import {
-  SearchPanelItemContainerProps,
   SearchPanelItemContainer,
+  SearchPanelItemContainerProps,
 } from './SearchPanelInputContainer';
 
 export type SearchPanelItemProps = {

@@ -1,13 +1,15 @@
-import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, RenderResult, screen } from '@testing-library/react';
 import nock from 'nock';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import AuthContext from '../../contexts/AuthContext';
-import { COMMENT_UPVOTES_BY_ID_QUERY } from '../../graphql/comments';
+import React from 'react';
+
+import user from '../../../__tests__/fixture/loggedUser';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
+import AuthContext from '../../contexts/AuthContext';
+import { COMMENT_UPVOTES_BY_ID_QUERY } from '../../graphql/comments';
 import {
   DEFAULT_UPVOTES_PER_PAGE,
   RequestQuery,
@@ -15,7 +17,6 @@ import {
 } from '../../graphql/common';
 import { POST_UPVOTES_BY_ID_QUERY } from '../../graphql/posts';
 import { UpvotedPopupModal, UpvotedPopupModalProps } from './UpvotedPopupModal';
-import user from '../../../__tests__/fixture/loggedUser';
 
 beforeEach(() => {
   nock.cleanAll();

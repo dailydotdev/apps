@@ -1,8 +1,9 @@
-import React, { useState, ReactElement, Ref } from 'react';
 import Tippy, { TippyProps } from '@tippyjs/react';
-import styles from './BaseTooltip.module.css';
-import { isTouchDevice } from '../../lib/tooltip';
+import React, { ReactElement, Ref, useState } from 'react';
+
 import { isTesting } from '../../lib/constants';
+import { isTouchDevice } from '../../lib/tooltip';
+import styles from './BaseTooltip.module.css';
 import {
   BaseTooltipContainer,
   BaseTooltipContainerProps,

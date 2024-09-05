@@ -1,8 +1,9 @@
 import React, { ReactElement } from 'react';
+
 import { Keyword, Tag } from '../../../graphql/keywords';
+import { getTagPageLink } from '../../../lib';
 import { CommonLeaderboardProps, LeaderboardList } from './LeaderboardList';
 import { LeaderboardListItem } from './LeaderboardListItem';
-import { getTagPageLink } from '../../../lib';
 
 export function TagTopList({
   items,

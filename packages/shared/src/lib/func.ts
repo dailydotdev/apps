@@ -1,4 +1,5 @@
 import { MouseEvent } from 'react';
+
 import { EmptyObjectLiteral } from './kratos';
 
 export const nextTick = (): Promise<unknown> =>

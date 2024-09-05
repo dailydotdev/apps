@@ -1,10 +1,11 @@
-import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
+import React, { ReactElement } from 'react';
+
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useFindSquadWelcomePost } from '../../hooks/useFindSquadWelcomePost';
 import { ChecklistStepPropsWithSquad } from '../../lib/checklist';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ChecklistStep } from './ChecklistStep';
-import { useFindSquadWelcomePost } from '../../hooks/useFindSquadWelcomePost';
-import { useAuthContext } from '../../contexts/AuthContext';
 
 const SquadFirstCommentChecklistStep = ({
   squad,

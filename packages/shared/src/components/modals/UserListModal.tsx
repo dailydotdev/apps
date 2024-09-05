@@ -1,9 +1,10 @@
 import React, { ReactElement, ReactNode, useRef, useState } from 'react';
-import { Modal, ModalProps } from './common/Modal';
-import UserList, { UserListProps } from '../profile/UserList';
-import { InfiniteScrollingProps } from '../containers/InfiniteScrolling';
+
 import { UserShortProfile } from '../../lib/user';
+import { InfiniteScrollingProps } from '../containers/InfiniteScrolling';
 import { SearchField } from '../fields/SearchField';
+import UserList, { UserListProps } from '../profile/UserList';
+import { Modal, ModalProps } from './common/Modal';
 
 export interface UserListModalProps extends Omit<ModalProps, 'children'> {
   users: UserShortProfile[];

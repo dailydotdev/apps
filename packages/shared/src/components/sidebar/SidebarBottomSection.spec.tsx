@@ -1,14 +1,15 @@
-import { render, RenderResult, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { render, RenderResult, screen } from '@testing-library/react';
 import nock from 'nock';
+import React from 'react';
+
 import Post from '../../../__tests__/fixture/post';
-import { AuthContextProvider } from '../../contexts/AuthContext';
+import { createTestSettings } from '../../../__tests__/fixture/settings';
 import { AlertContextProvider } from '../../contexts/AlertContext';
+import { AuthContextProvider } from '../../contexts/AuthContext';
+import SettingsContext from '../../contexts/SettingsContext';
 import { Alerts } from '../../graphql/alerts';
 import { SidebarBottomSection } from './SidebarBottomSection';
-import { createTestSettings } from '../../../__tests__/fixture/settings';
-import SettingsContext from '../../contexts/SettingsContext';
 
 describe('SidebarBottomSection component', () => {
   const noop = jest.fn();

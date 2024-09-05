@@ -1,8 +1,9 @@
 import React, { ReactElement, ReactNode } from 'react';
+
 import { Source } from '../../../graphql/sources';
+import { ProfileImageSize } from '../../ProfilePicture';
 import { FlexRow } from '../../utilities';
 import { SourceAvatar } from './SourceAvatar';
-import { ProfileImageSize } from '../../ProfilePicture';
 
 interface SourceShortInfoProps {
   source: Source;

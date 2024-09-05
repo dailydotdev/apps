@@ -1,20 +1,21 @@
-import React, { ReactElement, useCallback } from 'react';
 import { useRouter } from 'next/router';
+import React, { ReactElement, useCallback } from 'react';
+
+import { ActionType } from '../../graphql/actions';
 import {
   useActions,
   useFeedLayout,
-  useSquad,
   usePublicSquadRequests,
+  useSquad,
 } from '../../hooks';
 import { Button } from '../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
-import { Card } from './Card';
-import { ListCard } from './list/ListCard';
 import { EarthIcon, MiniCloseIcon } from '../icons';
-import { ActionType } from '../../graphql/actions';
-import { PlaceholderCard } from './PlaceholderCard';
 import PublicSquadSubmissionActions from '../squads/PublicSquadSubmissionActions';
 import { SquadPublicProgressBars } from '../squads/SquadPublicProgressBars';
+import { Card } from './Card';
+import { ListCard } from './list/ListCard';
+import { PlaceholderCard } from './PlaceholderCard';
 
 export function PublicSquadEligibilityCard(): ReactElement {
   const router = useRouter();

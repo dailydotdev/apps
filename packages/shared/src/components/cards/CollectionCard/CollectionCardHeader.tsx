@@ -1,9 +1,10 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { SourceAvatarProps } from '../../profile/source';
-import { CollectionPillSources } from '../../post/collection';
-import OptionsButton from '../../buttons/OptionsButton';
+import React, { ReactElement } from 'react';
+
 import useBookmarkProvider from '../../../hooks/useBookmarkProvider';
+import OptionsButton from '../../buttons/OptionsButton';
+import { CollectionPillSources } from '../../post/collection';
+import { SourceAvatarProps } from '../../profile/source';
 import {
   BookmakProviderHeader,
   headerHiddenClassName,

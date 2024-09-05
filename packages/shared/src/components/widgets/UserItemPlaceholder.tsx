@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { TextPlaceholder } from './common';
 

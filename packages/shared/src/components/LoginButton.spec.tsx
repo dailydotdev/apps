@@ -1,15 +1,16 @@
 /* eslint-disable no-console */
-import React from 'react';
+import { QueryClient } from '@tanstack/react-query';
 import {
   fireEvent,
   render,
   RenderResult,
   screen,
 } from '@testing-library/react';
-import { QueryClient } from '@tanstack/react-query';
-import LoginButton from './LoginButton';
+import React from 'react';
+
 import { TestBootProvider } from '../../__tests__/helpers/boot';
 import { LoggedUser } from '../lib/user';
+import LoginButton from './LoginButton';
 
 describe('LoginButton', () => {
   const showLogin = jest.fn();

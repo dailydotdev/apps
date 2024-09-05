@@ -1,21 +1,12 @@
-import React, { MouseEvent, ReactElement } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
+import React, { MouseEvent, ReactElement } from 'react';
+
+import { isVideoPost, PostItem, UserVote } from '../../graphql/posts';
 import { HidePostItemCardProps } from '../../graphql/users';
-import { PostItem, UserVote, isVideoPost } from '../../graphql/posts';
-import {
-  MiniCloseIcon as XIcon,
-  MenuIcon,
-  UpvoteIcon,
-  DownvoteIcon,
-} from '../icons';
-import classed from '../../lib/classed';
-import PostMetadata from '../cards/PostMetadata';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
-import { Image } from '../image/Image';
-import ConditionalWrapper from '../ConditionalWrapper';
-import { cloudinary } from '../../lib/image';
 import { useReadHistoryVotePost } from '../../hooks';
+import classed from '../../lib/classed';
+import { cloudinary } from '../../lib/image';
 import { Origin } from '../../lib/log';
 import {
   Button,
@@ -23,6 +14,16 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
+import PostMetadata from '../cards/PostMetadata';
+import ConditionalWrapper from '../ConditionalWrapper';
+import {
+  DownvoteIcon,
+  MenuIcon,
+  MiniCloseIcon as XIcon,
+  UpvoteIcon,
+} from '../icons';
+import { Image } from '../image/Image';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 
 export interface PostItemCardProps {
   className?: string;

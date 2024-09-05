@@ -1,5 +1,5 @@
-import { Permissions } from 'webextension-polyfill';
 import React, { useContext } from 'react';
+import { Permissions } from 'webextension-polyfill';
 
 export type RequestContentScripts = (data: {
   origin: string;

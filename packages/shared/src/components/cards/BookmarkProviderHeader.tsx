@@ -1,7 +1,8 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
-import { CardHeader } from './Card';
+
 import { BookmarkIcon } from '../icons';
+import { CardHeader } from './Card';
 
 export const bookmarkProviderText = 'Revisit this post you saved earlier?';
 export const bookmarkProviderIcon = <BookmarkIcon secondary className="mx-1" />;

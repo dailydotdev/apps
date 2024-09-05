@@ -1,11 +1,12 @@
 import React, { ReactElement } from 'react';
-import { Modal, ModalProps } from '../common/Modal';
-import { InfiniteReadingHistory } from '../../post/infinite';
+
 import { PostItem } from '../../../graphql/posts';
 import { usePublicReadingHistory } from '../../../hooks/post';
-import { ReadingHistoryTitle } from './ReadingHistoryTitle';
 import ReadingHistoryPlaceholder from '../../history/ReadingHistoryPlaceholder';
+import { InfiniteReadingHistory } from '../../post/infinite';
+import { Modal, ModalProps } from '../common/Modal';
 import { ModalHeaderKind } from '../common/types';
+import { ReadingHistoryTitle } from './ReadingHistoryTitle';
 
 interface ReadingHistoryModalProps extends ModalProps {
   onArticleSelected: (post: PostItem) => void;

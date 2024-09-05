@@ -1,4 +1,3 @@
-import { useContext, useMemo, useState } from 'react';
 import {
   addDays,
   endOfYear,
@@ -7,8 +6,10 @@ import {
   subMonths,
   subYears,
 } from 'date-fns';
-import { useViewSize, ViewSize } from '../useViewSize';
+import { useContext, useMemo, useState } from 'react';
+
 import SettingsContext from '../../contexts/SettingsContext';
+import { useViewSize, ViewSize } from '../useViewSize';
 
 const BASE_YEAR = 2018;
 const currentYear = new Date().getFullYear();

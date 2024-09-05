@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
 import { isVideoPost, Post } from '../../graphql/posts';
 import { CommonCardCoverProps } from './common';
 import { CardCover } from './common/CardCover';

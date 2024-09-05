@@ -1,7 +1,8 @@
-import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import { Post } from '../../graphql/posts';
+import React from 'react';
+
 import defaultFeedPage from '../../../__tests__/fixture/feed';
+import { Post } from '../../graphql/posts';
 import SimilarPosts from './SimilarPosts';
 
 const onBookmark = jest.fn();

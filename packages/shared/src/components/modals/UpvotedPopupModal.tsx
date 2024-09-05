@@ -1,9 +1,10 @@
-import React, { ReactElement } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
+import React, { ReactElement } from 'react';
+
 import { RequestQuery, UpvotesData } from '../../graphql/common';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
-import { ModalProps } from './common/Modal';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
+import { ModalProps } from './common/Modal';
 import UserListModal from './UserListModal';
 
 export interface UpvotedPopupModalProps extends ModalProps {

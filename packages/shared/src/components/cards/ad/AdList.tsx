@@ -4,14 +4,15 @@ import React, {
   ReactElement,
   Ref,
 } from 'react';
-import { CardContent, CardImage, CardSpace, CardTitle } from '../list/ListCard';
-import AdAttribution from './common/AdAttribution';
-import FeedItemContainer from '../list/FeedItemContainer';
-import type { AdCardProps } from './common/common';
-import { AdImage } from './common/AdImage';
-import { AdPixel } from './common/AdPixel';
+
 import { Ad } from '../../../graphql/posts';
 import { combinedClicks } from '../../../lib/click';
+import FeedItemContainer from '../list/FeedItemContainer';
+import { CardContent, CardImage, CardSpace, CardTitle } from '../list/ListCard';
+import AdAttribution from './common/AdAttribution';
+import { AdImage } from './common/AdImage';
+import { AdPixel } from './common/AdPixel';
+import type { AdCardProps } from './common/common';
 
 const getLinkProps = ({
   ad,

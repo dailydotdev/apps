@@ -1,11 +1,12 @@
 import React, { ReactElement } from 'react';
-import { IconProps } from '../Icon';
+
 import { Button } from '../buttons/Button';
-import { ButtonVariant, ButtonSize } from '../buttons/common';
+import { ButtonSize, ButtonVariant } from '../buttons/common';
+import { IconProps } from '../Icon';
 import {
   Typography,
-  TypographyType,
   TypographyColor,
+  TypographyType,
 } from '../typography/Typography';
 
 export type NewUserIntegrationProps = {

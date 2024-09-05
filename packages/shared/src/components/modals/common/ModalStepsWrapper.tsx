@@ -4,9 +4,10 @@ import {
   ReactEventHandler,
   useContext,
 } from 'react';
+
+import LogContext from '../../../contexts/LogContext';
 import { isNullOrUndefined } from '../../../lib/func';
 import { ModalPropsContext } from './types';
-import LogContext from '../../../contexts/LogContext';
 
 export interface StepComponentProps<
   T extends ReactEventHandler = MouseEventHandler,

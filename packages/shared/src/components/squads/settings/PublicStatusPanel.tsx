@@ -1,4 +1,5 @@
 import React, { PropsWithChildren, ReactElement } from 'react';
+
 import { SquadPublicProgressBars } from '../SquadPublicProgressBars';
 
 interface PublicStatusPanelProps {

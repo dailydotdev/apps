@@ -1,7 +1,8 @@
 import { QueryClient } from '@tanstack/react-query';
+
 import { generateQueryKey, RequestKey } from '../../lib/query';
-import { SourceMemberFlag, Squad } from '../sources';
 import { LoggedUser } from '../../lib/user';
+import { SourceMemberFlag, Squad } from '../sources';
 
 export const updateFlagsCache = (
   client: QueryClient,

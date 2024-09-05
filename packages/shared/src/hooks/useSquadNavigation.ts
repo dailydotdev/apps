@@ -1,9 +1,10 @@
 import { useRouter } from 'next/router';
 import { useCallback, useContext, useEffect } from 'react';
-import { Origin } from '../lib/log';
-import { AuthTriggers } from '../lib/auth';
+
 import AuthContext from '../contexts/AuthContext';
+import { AuthTriggers } from '../lib/auth';
 import { webappUrl } from '../lib/constants';
+import { Origin } from '../lib/log';
 
 type OpenNewSquadProps = { origin: Origin };
 type EditSquadProps = { handle: string };

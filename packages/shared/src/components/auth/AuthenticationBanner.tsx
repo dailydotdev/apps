@@ -1,13 +1,14 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import classed from '../../lib/classed';
-import { OnboardingHeadline } from './OnboardingHeadline';
-import AuthOptions, { AuthDisplay } from './AuthOptions';
-import { AuthTriggers } from '../../lib/auth';
-import { MemberAlready } from '../onboarding/MemberAlready';
+import React, { ReactElement } from 'react';
+
 import { useAuthContext } from '../../contexts/AuthContext';
+import { AuthTriggers } from '../../lib/auth';
+import classed from '../../lib/classed';
 import { BottomBannerContainer } from '../banners';
 import { ButtonVariant } from '../buttons/common';
+import { MemberAlready } from '../onboarding/MemberAlready';
+import AuthOptions, { AuthDisplay } from './AuthOptions';
+import { OnboardingHeadline } from './OnboardingHeadline';
 
 const Section = classed('div', 'flex flex-col');
 export const authGradientBg =

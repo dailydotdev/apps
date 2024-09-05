@@ -1,11 +1,12 @@
 import { useCallback, useContext } from 'react';
-import { Post } from '../../graphql/posts';
-import { useCopyPostLink } from '../useCopyPostLink';
+
 import LogContext from '../../contexts/LogContext';
-import { ShareProvider } from '../../lib/share';
+import { Post } from '../../graphql/posts';
+import { ReferralCampaignKey } from '../../lib';
 import { postLogEvent } from '../../lib/feed';
 import { Origin } from '../../lib/log';
-import { ReferralCampaignKey } from '../../lib';
+import { ShareProvider } from '../../lib/share';
+import { useCopyPostLink } from '../useCopyPostLink';
 import { useGetShortUrl } from '../utils/useGetShortUrl';
 
 interface UseLoggedCopyPostLink {

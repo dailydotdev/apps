@@ -1,3 +1,4 @@
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import React, {
   createContext,
   ReactElement,
@@ -7,15 +8,15 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import OneSignal from 'react-onesignal';
-import { LogEvent, NotificationPromptSource } from '../lib/log';
-import { checkIsExtension, disabledRefetch } from '../lib/func';
-import { useAuthContext } from './AuthContext';
-import { generateQueryKey, RequestKey } from '../lib/query';
-import { isTesting } from '../lib/constants';
-import { useLogContext } from './LogContext';
+
 import { SubscriptionCallback } from '../components/notifications/utils';
+import { isTesting } from '../lib/constants';
+import { checkIsExtension, disabledRefetch } from '../lib/func';
+import { LogEvent, NotificationPromptSource } from '../lib/log';
+import { generateQueryKey, RequestKey } from '../lib/query';
+import { useAuthContext } from './AuthContext';
+import { useLogContext } from './LogContext';
 
 export interface PushNotificationsContextData {
   OneSignal: typeof OneSignal;

@@ -1,14 +1,15 @@
+import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import React, { ReactElement } from 'react';
-import classNames from 'classnames';
+
+import { useConditionalFeature, useOnboardingChecklist } from '../../hooks';
 import { ChecklistCardVariant, ChecklistViewState } from '../../lib/checklist';
+import { feature } from '../../lib/featureManagement';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
-import { useConditionalFeature, useOnboardingChecklist } from '../../hooks';
-import { feature } from '../../lib/featureManagement';
-import { OnboardingChecklistOptions } from './OnboardingChecklistOptions';
 import { ChecklistCard } from './ChecklistCard';
 import { OnboardingChecklistDismissButton } from './OnboardingChecklistDismissButton';
+import { OnboardingChecklistOptions } from './OnboardingChecklistOptions';
 
 const OnboardingChecklistCard = dynamic(
   () =>

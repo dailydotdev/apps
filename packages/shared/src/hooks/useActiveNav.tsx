@@ -1,7 +1,8 @@
 import { useRouter } from 'next/router';
 import { useMemo } from 'react';
-import { AllFeedPages, OtherFeedPage } from '../lib/query';
+
 import { SharedFeedPage } from '../components/utilities';
+import { AllFeedPages, OtherFeedPage } from '../lib/query';
 import { useViewSize, ViewSize } from './useViewSize';
 
 export interface UseActiveNav {

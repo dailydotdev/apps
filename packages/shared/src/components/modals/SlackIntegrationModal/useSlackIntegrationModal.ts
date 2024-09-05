@@ -1,23 +1,24 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
+
+import { useAuthContext } from '../../../contexts/AuthContext';
+import { useLogContext } from '../../../contexts/LogContext';
 import {
   SlackChannel,
   UserIntegration,
   UserIntegrationType,
 } from '../../../graphql/integrations';
 import { SourceType } from '../../../graphql/sources';
-import { useSlack } from '../../../hooks/integrations/slack/useSlack';
-import { labels } from '../../../lib';
-import { generateQueryKey, RequestKey } from '../../../lib/query';
-import { LazyModal } from '../common/types';
-import { useAuthContext } from '../../../contexts/AuthContext';
 import { useToastNotification } from '../../../hooks';
+import { useSlack } from '../../../hooks/integrations/slack/useSlack';
 import { useSlackChannelsQuery } from '../../../hooks/integrations/slack/useSlackChannelsQuery';
 import { useIntegrationsQuery } from '../../../hooks/integrations/useIntegrationsQuery';
 import { useSourceIntegrationQuery } from '../../../hooks/integrations/useSourceIntegrationQuery';
-import type { SlackIntegrationModalProps } from './SlackIntegrationModal';
-import { useLogContext } from '../../../contexts/LogContext';
+import { labels } from '../../../lib';
 import { LogEvent, Origin } from '../../../lib/log';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
+import { LazyModal } from '../common/types';
+import type { SlackIntegrationModalProps } from './SlackIntegrationModal';
 
 export type UseSlackIntegrationModalProps = Pick<
   SlackIntegrationModalProps,

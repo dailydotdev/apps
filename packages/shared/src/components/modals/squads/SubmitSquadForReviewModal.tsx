@@ -1,15 +1,16 @@
 import React, { ReactElement, useState } from 'react';
-import { Modal, ModalProps } from '../common/Modal';
-import { Button, ButtonVariant } from '../../buttons/Button';
+
 import { useSquad } from '../../../hooks';
-import { EditIcon, EarthIcon, ImageIcon, MegaphoneIcon } from '../../icons';
+import { usePublicSquadRequests } from '../../../hooks/squads';
+import classed from '../../../lib/classed';
+import { contentGuidelines } from '../../../lib/constants';
+import { Button, ButtonVariant } from '../../buttons/Button';
 import { Checkbox } from '../../fields/Checkbox';
 import { IconSize } from '../../Icon';
-import classed from '../../../lib/classed';
-import { SimpleTooltip } from '../../tooltips';
+import { EarthIcon, EditIcon, ImageIcon, MegaphoneIcon } from '../../icons';
 import { Anchor } from '../../text';
-import { usePublicSquadRequests } from '../../../hooks/squads';
-import { contentGuidelines } from '../../../lib/constants';
+import { SimpleTooltip } from '../../tooltips';
+import { Modal, ModalProps } from '../common/Modal';
 
 interface ChecklistItemProps {
   iconTag: React.ElementType;

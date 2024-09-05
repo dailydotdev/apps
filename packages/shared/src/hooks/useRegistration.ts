@@ -1,6 +1,8 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
 import { QueryKey, useMutation, useQuery } from '@tanstack/react-query';
+import { useContext, useEffect, useMemo, useState } from 'react';
+
 import AuthContext from '../contexts/AuthContext';
+import LogContext from '../contexts/LogContext';
 import {
   AuthEventNames,
   errorsToJson,
@@ -19,11 +21,10 @@ import {
   submitKratosFlow,
   SuccessfulRegistrationData,
 } from '../lib/kratos';
-import { useToastNotification } from './useToastNotification';
-import { getUserDefaultTimezone } from '../lib/timezones';
-import LogContext from '../contexts/LogContext';
 import { Origin } from '../lib/log';
+import { getUserDefaultTimezone } from '../lib/timezones';
 import { LogoutReason } from '../lib/user';
+import { useToastNotification } from './useToastNotification';
 
 type ParamKeys = keyof RegistrationParameters;
 

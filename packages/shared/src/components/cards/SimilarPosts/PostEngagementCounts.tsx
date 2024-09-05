@@ -1,7 +1,8 @@
-import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { separatorCharacter } from '../common';
+import React, { ReactElement } from 'react';
+
 import { largeNumberFormat } from '../../../lib';
+import { separatorCharacter } from '../common';
 
 interface PostEngagementCountsProps {
   upvotes: number;

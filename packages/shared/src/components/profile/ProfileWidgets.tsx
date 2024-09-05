@@ -1,19 +1,20 @@
-import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
-import { Header } from './Header';
-import { HeroImage } from './HeroImage';
-import { UserMetadata } from './UserMetadata';
-import { UserStats } from './UserStats';
-import { SocialChips } from './SocialChips';
-import { SquadsList } from './SquadsList';
-import { useDynamicHeader } from '../../useDynamicHeader';
+import React, { ReactElement, useContext } from 'react';
+
 import AuthContext from '../../contexts/AuthContext';
 import { ProfileV2 } from '../../graphql/users';
 import { ReferralCampaignKey, useReferralCampaign } from '../../hooks';
-import ReferralWidget from '../widgets/ReferralWidget';
-import { ButtonSize, ButtonVariant } from '../buttons/common';
+import { useDynamicHeader } from '../../useDynamicHeader';
 import { Button } from '../buttons/Button';
+import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { PlusIcon } from '../icons';
+import ReferralWidget from '../widgets/ReferralWidget';
+import { Header } from './Header';
+import { HeroImage } from './HeroImage';
+import { SocialChips } from './SocialChips';
+import { SquadsList } from './SquadsList';
+import { UserMetadata } from './UserMetadata';
+import { UserStats } from './UserStats';
 
 export interface ProfileWidgetsProps extends ProfileV2 {
   className?: string;

@@ -1,8 +1,9 @@
 import { useMutation } from '@tanstack/react-query';
 import { MutableRefObject, useMemo, useRef } from 'react';
+
 import { apiUrl } from '../../lib/config';
-import useDebounceFn from '../useDebounceFn';
 import { ExtensionMessageType } from '../../lib/extension';
+import useDebounceFn from '../useDebounceFn';
 
 export interface LogEvent extends Record<string, unknown> {
   visit_id?: string;

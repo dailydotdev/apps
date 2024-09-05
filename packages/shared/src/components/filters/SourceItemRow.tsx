@@ -1,10 +1,11 @@
 import React, { ReactElement } from 'react';
-import { FilterItem } from './common';
+
 import { Source } from '../../graphql/sources';
-import { LazyImage } from '../LazyImage';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { BlockIcon } from '../icons';
+import { LazyImage } from '../LazyImage';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { FilterItem } from './common';
 
 export default function SourceItemRow({
   source,

@@ -1,11 +1,12 @@
-import React, { ReactElement, ReactNode } from 'react';
 import Link from 'next/link';
-import { UserShortInfoPlaceholder } from './UserShortInfoPlaceholder';
-import { UserShortInfo, UserShortInfoProps } from './UserShortInfo';
+import React, { ReactElement, ReactNode } from 'react';
+
+import { UserShortProfile } from '../../lib/user';
 import InfiniteScrolling, {
   InfiniteScrollingProps,
 } from '../containers/InfiniteScrolling';
-import { UserShortProfile } from '../../lib/user';
+import { UserShortInfo, UserShortInfoProps } from './UserShortInfo';
+import { UserShortInfoPlaceholder } from './UserShortInfoPlaceholder';
 
 export interface UserListProps {
   scrollingProps: Omit<InfiniteScrollingProps, 'children'>;

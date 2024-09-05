@@ -1,9 +1,10 @@
-import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
-import SidebarListItem, { SidebarListItemProps } from './SidebarListItem';
+import React, { ReactElement, ReactNode } from 'react';
+
 import { Button, ButtonSize } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
 import { useModalContext } from '../modals/common/types';
+import SidebarListItem, { SidebarListItemProps } from './SidebarListItem';
 
 interface SidebarListProps {
   title: string;

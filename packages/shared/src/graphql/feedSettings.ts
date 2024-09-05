@@ -1,6 +1,7 @@
 import { gql } from 'graphql-request';
-import { Source } from './sources';
+
 import { SOURCE_SHORT_INFO_FRAGMENT } from './fragments';
+import { Source } from './sources';
 
 export enum AdvancedSettingsGroup {
   Advanced = 'advanced',

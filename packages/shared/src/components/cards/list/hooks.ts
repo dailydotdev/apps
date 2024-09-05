@@ -1,4 +1,4 @@
-import { Post, getReadPostButtonText } from '../../../graphql/posts';
+import { getReadPostButtonText, Post } from '../../../graphql/posts';
 import { useMedia } from '../../../hooks';
 import { mobileL, mobileXL } from '../../../styles/media';
 

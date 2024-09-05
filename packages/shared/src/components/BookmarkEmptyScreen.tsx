@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
 import Link from 'next/link';
-import { BookmarkIcon } from './icons';
+import React, { ReactElement } from 'react';
+
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { EmptyScreenIcon } from './EmptyScreen';
+import { BookmarkIcon } from './icons';
 
 export default function BookmarkEmptyScreen(): ReactElement {
   return (

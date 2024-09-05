@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import React, {
   FormEvent,
   MutableRefObject,
@@ -5,12 +6,12 @@ import React, {
   ReactElement,
   useContext,
 } from 'react';
-import { useRouter } from 'next/router';
+
+import ConditionalWrapper from '../components/ConditionalWrapper';
+import { FormWrapper } from '../components/fields/form';
 import { Post } from '../graphql/posts';
 import { Squad } from '../graphql/sources';
-import ConditionalWrapper from '../components/ConditionalWrapper';
 import { useViewSize, ViewSize } from '../hooks';
-import { FormWrapper } from '../components/fields/form';
 
 export interface WriteForm {
   title: string;

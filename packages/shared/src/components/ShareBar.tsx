@@ -1,21 +1,22 @@
 import React, { ReactElement, useContext } from 'react';
-import { CopyIcon, FacebookIcon, TwitterIcon, WhatsappIcon } from './icons';
-import { Post } from '../graphql/posts';
-import { useCopyPostLink } from '../hooks/useCopyPostLink';
-import { getShareLink, ShareProvider } from '../lib/share';
+
 import LogContext from '../contexts/LogContext';
-import { postLogEvent } from '../lib/feed';
-import { WidgetContainer } from './widgets/common';
-import { LogEvent, Origin } from '../lib/log';
-import { LazyModal } from './modals/common/types';
-import { useLazyModal } from '../hooks/useLazyModal';
+import { Post } from '../graphql/posts';
 import { Squad } from '../graphql/sources';
-import { SocialShareButton } from './widgets/SocialShareButton';
-import { SquadsToShare } from './squads/SquadsToShare';
-import { ButtonSize, ButtonVariant } from './buttons/common';
 import { useGetShortUrl } from '../hooks';
+import { useCopyPostLink } from '../hooks/useCopyPostLink';
+import { useLazyModal } from '../hooks/useLazyModal';
 import { ReferralCampaignKey } from '../lib';
+import { postLogEvent } from '../lib/feed';
+import { LogEvent, Origin } from '../lib/log';
+import { getShareLink, ShareProvider } from '../lib/share';
+import { ButtonSize, ButtonVariant } from './buttons/common';
+import { CopyIcon, FacebookIcon, TwitterIcon, WhatsappIcon } from './icons';
+import { LazyModal } from './modals/common/types';
 import { ProfileImageSize } from './ProfilePicture';
+import { SquadsToShare } from './squads/SquadsToShare';
+import { WidgetContainer } from './widgets/common';
+import { SocialShareButton } from './widgets/SocialShareButton';
 
 interface ShareBarProps {
   post: Post;
