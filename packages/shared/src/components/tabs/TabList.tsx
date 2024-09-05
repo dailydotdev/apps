@@ -134,8 +134,12 @@ function TabList<T extends string = string>({
               isAnchor && 'cursor-pointer',
             )}
             onClick={() => onClick(tab)}
-            type="button"
-            role="menuitem"
+            {...(isAnchor
+              ? {
+                  'aria-label': tab,
+                  title: tab,
+                }
+              : { type: 'button', role: 'menuitem' })}
           >
             {renderedTab}
           </Tag>
