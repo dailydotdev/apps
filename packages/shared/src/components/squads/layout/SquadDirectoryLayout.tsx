@@ -76,6 +76,7 @@ export const SquadDirectoryLayout = (
             {mySquadsTab.isVisible && (
               <SquadDirectoryNavbarItem
                 buttonSize={buttonSize}
+                className="block laptop:hidden"
                 id={`squad-item-my-squads-${id}`}
                 isActive={mySquadsTab.isActive}
                 label="My Squads"
@@ -86,16 +87,16 @@ export const SquadDirectoryLayout = (
               <SquadDirectoryNavbarItem
                 buttonSize={buttonSize}
                 id={`squad-item-${category}-${id}`}
+                isActive={pathname === path && !mySquadsTab.isActive}
                 key={category}
                 label={category}
-                path={path}
-                isActive={pathname === path && !mySquadsTab.isActive}
                 onClick={(e) => {
                   if (mySquadsTab.isActive) {
                     e.preventDefault();
                     mySquadsTab.toggle(false);
                   }
                 }}
+                path={path}
               />
             ))}
           </SquadDirectoryNavbar>
