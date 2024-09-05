@@ -1,7 +1,7 @@
 import { UseMutateAsyncFunction, useMutation } from '@tanstack/react-query';
 import router from 'next/router';
 import { useContext } from 'react';
-import { createSquad, SquadForm } from '../../graphql/squads';
+import { SquadForm, createSquad } from '../../graphql/squads';
 import { LogEvent } from '../../lib/log';
 import { ActionType } from '../../graphql/actions';
 import LogContext from '../../contexts/LogContext';
@@ -20,11 +20,7 @@ interface UseSquadCreateProps {
 
 interface UseSquadCreate {
   isLoading: boolean;
-  onCreateSquad: UseMutateAsyncFunction<
-    Squad,
-    unknown,
-    Omit<SquadForm, 'commentary'>
-  >;
+  onCreateSquad: UseMutateAsyncFunction<Squad, unknown, SquadForm>;
 }
 
 type CustomHook = (props?: UseSquadCreateProps) => UseSquadCreate;
