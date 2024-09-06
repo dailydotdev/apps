@@ -2,7 +2,7 @@ import React, { ReactElement, useContext } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import { BaseFeedPage } from '@dailydotdev/shared/src/components/utilities';
-import { SQUAD_DIRECTORY_SOURCES } from '@dailydotdev/shared/src/graphql/squads';
+import { SOURCES_QUERY } from '@dailydotdev/shared/src/graphql/squads';
 import InfiniteScrolling, {
   checkFetchMore,
 } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
@@ -66,7 +66,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
   const queryResult = useInfiniteQuery(
     ['sourcesFeed'],
     ({ pageParam }) =>
-      gqlClient.request(SQUAD_DIRECTORY_SOURCES, {
+      gqlClient.request(SOURCES_QUERY, {
         filterOpenSquads: true,
         featured: true,
         first: 100,
@@ -218,7 +218,7 @@ SquadsPage.layoutProps = {
 
 export async function getStaticProps(): Promise<GetStaticPropsResult<Props>> {
   try {
-    const initialData = await gqlClient.request(SQUAD_DIRECTORY_SOURCES, {
+    const initialData = await gqlClient.request(SOURCES_QUERY, {
       filterOpenSquads: true,
       featured: true,
       first: 100,

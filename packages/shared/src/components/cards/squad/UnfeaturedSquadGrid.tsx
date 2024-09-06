@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
+import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { Card, CardLink } from '../Card';
-import { ButtonVariant } from '../../buttons/Button';
 import {
   Typography,
   TypographyColor,
@@ -10,39 +10,44 @@ import {
 } from '../../typography/Typography';
 import { largeNumberFormat } from '../../../lib';
 import { Separator } from '../common';
-import { SquadImage } from './common/SquadImage';
-import { SquadJoinButtonWrapper } from './common/SquadJoinButton';
 import { UnFeaturedSquadCardProps } from './common/types';
+import { Origin } from '../../../lib/log';
+import { SquadJoinButton } from '../../squads/SquadJoinButton';
+import { ButtonVariant } from '../../buttons/common';
 
 export const UnfeaturedSquadGrid = ({
   source,
-  title,
-  subtitle,
-  icon,
-  action,
-  description,
+  className,
 }: UnFeaturedSquadCardProps): ReactElement => {
+  const router = useRouter();
+  const title = source.name;
+
   return (
-    <Card className={classNames('min-w-[19rem] overflow-hidden border-0 p-4')}>
+    <Card
+      className={classNames(
+        'w-[19rem] overflow-hidden border-0 p-4',
+        className,
+      )}
+    >
       <CardLink
         href={source.permalink}
         rel="noopener"
         title={source.description}
       />
       <div className="mb-3 flex items-center justify-between">
-        <SquadImage
-          image={source?.image}
-          icon={icon}
-          title={title}
-          size="size-16"
+        <img
+          className={classNames('size-16 rounded-full', className)}
+          src={source.image}
+          alt={`${title} source`}
         />
-        <SquadJoinButtonWrapper
-          action={action}
-          source={source}
-          variant={ButtonVariant.Float}
-          className={{
-            squadJoinButton: '!btn-tertiaryFloat',
-          }}
+        <SquadJoinButton
+          className={{ button: 'z-0' }}
+          squad={source}
+          origin={Origin.SquadDirectory}
+          onSuccess={() => router.push(source?.permalink)}
+          data-testid="squad-action"
+          showViewSquad
+          buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
         />
       </div>
       <Typography
@@ -59,21 +64,20 @@ export const UnfeaturedSquadGrid = ({
         color={TypographyColor.Tertiary}
         className="multi-truncate line-clamp-2"
       >
-        {source?.description || description}
+        {source?.description}
       </Typography>
 
-      {subtitle && (
-        <Typography
-          color={TypographyColor.Tertiary}
-          type={TypographyType.Footnote}
-          className="mt-2"
-        >
-          {subtitle} <Separator />
-          <strong data-testid="squad-members-count">
-            {largeNumberFormat(source.membersCount)}
-          </strong>
-        </Typography>
-      )}
+      <Typography
+        color={TypographyColor.Tertiary}
+        type={TypographyType.Footnote}
+        className="mt-2"
+        truncate
+      >
+        @{source.handle} <Separator />
+        <strong data-testid="squad-members-count">
+          {largeNumberFormat(source.membersCount)} members
+        </strong>
+      </Typography>
     </Card>
   );
 };

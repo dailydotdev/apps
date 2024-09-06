@@ -1,18 +1,23 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import SquadMemberShortList from '../../squads/SquadMemberShortList';
 import { Card } from '../Card';
 import { SourceType } from '../../../graphql/sources';
 import { Image } from '../../image/Image';
 import { cloudinary } from '../../../lib/image';
-import { UnFeaturedSquadCardProps } from './common/types';
+import { SquadCardAction, UnFeaturedSquadCardProps } from './common/types';
 import { SquadImage } from './common/SquadImage';
 import { SquadJoinButtonWrapper } from './common/SquadJoinButton';
 import { ButtonVariant } from '../../buttons/common';
 
-interface SourceCardProps extends UnFeaturedSquadCardProps {
+interface SourceCardProps extends Partial<UnFeaturedSquadCardProps> {
   borderColor?: SourceCardBorderColor;
   banner?: string;
+  title: string;
+  subtitle?: string;
+  icon?: ReactNode;
+  action?: SquadCardAction;
+  description?: string;
 }
 export enum SourceCardBorderColor {
   Avocado = 'avocado',

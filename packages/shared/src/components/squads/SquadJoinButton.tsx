@@ -1,6 +1,7 @@
 import React, { ReactElement, useEffect } from 'react';
 import classNames from 'classnames';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import Link from 'next/link';
 import { SourceMemberRole, Squad } from '../../graphql/sources';
 import { Button, ButtonProps, ButtonVariant } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -18,7 +19,7 @@ interface ClassName {
   button?: string;
 }
 
-type SquadJoinProps = {
+interface SquadJoinProps extends Pick<ButtonProps<'button'>, 'size'> {
   className?: ClassName;
   squad: Squad;
   joinText?: string;
@@ -27,7 +28,9 @@ type SquadJoinProps = {
   origin: Origin;
   inviterMember?: Pick<UserShortProfile, 'id'>;
   onSuccess?: () => void;
-} & Pick<ButtonProps<'button'>, 'size'>;
+  showViewSquad?: boolean;
+  buttonVariants?: ButtonVariant[];
+}
 
 export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
   className,
@@ -85,8 +88,11 @@ export const SquadJoinButton = ({
   blockedTooltipText = 'You are not allowed to join the Squad',
   origin,
   onSuccess,
+  showViewSquad,
+  buttonVariants = [ButtonVariant.Primary, ButtonVariant.Secondary],
   ...rest
 }: SquadJoinProps): ReactElement => {
+  const [joinVariant, memberVariant] = buttonVariants;
   const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
   const { user, showLogin } = useAuthContext();
@@ -154,6 +160,16 @@ export const SquadJoinButton = ({
     }
   };
 
+  if (isCurrentMember && showViewSquad) {
+    return (
+      <Link href={squad.permalink}>
+        <Button tag="a" href={squad.permalink} variant={memberVariant}>
+          View Squad
+        </Button>
+      </Link>
+    );
+  }
+
   return (
     <SimpleTooltip
       sticky
@@ -163,9 +179,7 @@ export const SquadJoinButton = ({
     >
       <SimpleSquadJoinButton
         {...rest}
-        variant={
-          isCurrentMember ? ButtonVariant.Secondary : ButtonVariant.Primary
-        }
+        variant={isCurrentMember ? memberVariant : joinVariant}
         className={className?.button}
         squad={squad}
         disabled={isMemberBlocked || isLoading}

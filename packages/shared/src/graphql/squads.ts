@@ -97,7 +97,7 @@ export const DELETE_SQUAD_MUTATION = gql`
   }
 `;
 
-export const SQUAD_DIRECTORY_SOURCES = gql`
+export const SOURCES_QUERY = gql`
   query Squads($filterOpenSquads: Boolean, $featured: Boolean) {
     sources(filterOpenSquads: $filterOpenSquads, featured: $featured) {
       pageInfo {
