@@ -14,6 +14,7 @@ export class Feature<T extends JSONValue> {
 }
 
 const feature = {
+  showError: new Feature('show_error', false),
   feedVersion: new Feature('feed_version', 15),
   onboardingVisual: new Feature('onboarding_visual', {
     fullBackground: {
