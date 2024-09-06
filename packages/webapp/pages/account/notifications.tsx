@@ -366,7 +366,7 @@ const AccountNotificationsPage = (): ReactElement => {
           name="new_activity"
           data-testid="new_activity-switch"
           checked={notificationEmail}
-          onToggle={onToggleEmailNotification}
+          onToggleCallback={onToggleEmailNotification}
         >
           Activity (mentions, replies, upvotes, etc.)
         </Checkbox>
@@ -374,7 +374,7 @@ const AccountNotificationsPage = (): ReactElement => {
           name="marketing"
           data-testid="marketing-switch"
           checked={acceptedMarketing}
-          onToggle={onToggleEmailMarketing}
+          onToggleCallback={onToggleEmailMarketing}
         >
           Community updates
         </Checkbox>
