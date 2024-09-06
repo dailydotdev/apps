@@ -12,18 +12,12 @@ import { verifyPermission } from '../../graphql/squads';
 import { NotificationPromptSource } from '../../lib/log';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { ActionType } from '../../graphql/actions';
-import {
-  Button,
-  ButtonColor,
-  ButtonSize,
-  ButtonVariant,
-} from '../buttons/Button';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import classed from '../../lib/classed';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { link } from '../../lib/links';
 import SquadChecklistCard from '../checklist/SquadChecklistCard';
 import { Separator } from '../cards/common';
-import { EarthIcon, LockIcon, SourceIcon, SparkleIcon } from '../icons';
 import { PrivilegedMemberItem } from './Members/PrivilegedMemberItem';
 import { formatMonthYearOnly } from '../../lib/dateFormat';
 import {
@@ -31,9 +25,10 @@ import {
   MAX_VISIBLE_PRIVILEGED_MEMBERS_MOBILE,
 } from '../../lib/config';
 import { useViewSize, ViewSize } from '../../hooks';
-import { largeNumberFormat } from '../../lib';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
+import { SquadStat } from './common/SquadStat';
+import { SquadPrivacyState } from './common/SquadPrivacyState';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -43,20 +38,6 @@ interface SquadPageHeaderProps {
 
 const MAX_WIDTH = 'laptopL:max-w-[38.5rem]';
 const Divider = classed('span', 'flex flex-1 h-px bg-border-subtlest-tertiary');
-
-interface SquadStatProps {
-  count: number;
-  label: string;
-}
-
-const SquadStat = ({ count, label }: SquadStatProps) => (
-  <span className="flex flex-row text-text-tertiary typo-footnote">
-    <strong className="mr-1 text-text-primary typo-subhead">
-      {largeNumberFormat(count)}
-    </strong>
-    {label}
-  </span>
-);
 
 export function SquadPageHeader({
   squad,
@@ -71,19 +52,6 @@ export function SquadPageHeader({
     tourIndex === TourScreenIndex.Post ||
     (isChecklistVisible && openStep === ActionType.SquadFirstPost);
   const isSquadMember = !!squad.currentMember;
-  const isFeatured = squad.flags?.featured;
-
-  const props = (() => {
-    if (isFeatured) {
-      return { icon: <SourceIcon secondary />, copy: 'Featured' };
-    }
-
-    if (squad.public) {
-      return { icon: <EarthIcon />, copy: 'Public' };
-    }
-
-    return { icon: <LockIcon />, copy: 'Private' };
-  })();
 
   const createdAt = squad.createdAt
     ? formatMonthYearOnly(squad.createdAt)
@@ -143,26 +111,10 @@ export function SquadPageHeader({
             )}
           </div>
           <div className="mt-4 flex flex-col items-center gap-2 tablet:flex-row">
-            <Button
-              icon={props.icon}
-              size={ButtonSize.Small}
-              variant={
-                isFeatured ? ButtonVariant.Secondary : ButtonVariant.Float
-              }
-              className={classNames(
-                'pointer-events-none',
-                isFeatured &&
-                  'relative border-overlay-primary-cabbage bg-overlay-tertiary-cabbage',
-              )}
-            >
-              {props.copy} Squad
-              {isFeatured && (
-                <>
-                  <SparkleIcon className="absolute -top-2.5 right-0 animate-scale-down-pulse delay-[625ms]" />
-                  <SparkleIcon className="absolute -bottom-2.5 left-0 animate-scale-down-pulse" />
-                </>
-              )}
-            </Button>
+            <SquadPrivacyState
+              isPublic={squad?.public}
+              isFeatured={squad?.flags?.featured}
+            />
             <ConditionalWrapper
               condition={isMobile}
               wrapper={(component) => (

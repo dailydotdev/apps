@@ -56,6 +56,7 @@ export enum StaleTime {
   Tooltip = THIRTY_MINUTES,
   OneHour = ONE_HOUR,
   Base = STALE_TIME,
+  OneDay = ONE_HOUR * 24,
 }
 
 export type AllFeedPages = SharedFeedPage | OtherFeedPage;
@@ -150,7 +151,8 @@ export enum RequestKey {
 export type HasConnection<
   TEntity,
   TKey extends keyof TEntity = keyof TEntity,
-> = Partial<Record<TKey, Connection<unknown>>>;
+  TReturn = unknown,
+> = Partial<Record<TKey, Connection<TReturn>>>;
 
 interface InfiniteCacheProps<
   TEntity extends HasConnection<TEntity>,

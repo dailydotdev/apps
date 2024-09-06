@@ -77,6 +77,10 @@ export const SOURCE_BASE_FRAGMENT = gql`
       }
       role
     }
+    category {
+      id
+      title
+    }
     currentMember {
       ...CurrentMember
     }
