@@ -19,13 +19,17 @@ import {
   GrowthBookContextValue,
 } from '@growthbook/growthbook-react';
 import { WidenPrimitives, JSONValue } from '@growthbook/growthbook';
+import dynamic from 'next/dynamic';
 import { isGBDevMode, isProduction } from '../lib/constants';
 import { BootApp, BootCacheData } from '../lib/boot';
 import { apiUrl } from '../lib/config';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
-import { Feature } from '../lib/featureManagement';
+import { feature as localFeature, Feature } from '../lib/featureManagement';
 import { useViewSize, ViewSize } from '../hooks/useViewSize';
 
+const ServerError = dynamic(
+  () => import(/* webpackChunkName: "serverError" */ './errors/ServerError'),
+);
 type GetFeatureValue = <T extends JSONValue>(
   feature: Feature<T>,
 ) => WidenPrimitives<T>;
@@ -175,6 +179,18 @@ export const GrowthBookProvider = ({
       [gb],
     ),
   };
+
+  const errorFeatureOn = gb.getFeatureValue(
+    localFeature.showError.id,
+    localFeature.showError.defaultValue,
+  );
+  if (errorFeatureOn) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <ServerError />
+      </div>
+    );
+  }
 
   return (
     <FeaturesReadyContext.Provider value={featuresReadyContext}>

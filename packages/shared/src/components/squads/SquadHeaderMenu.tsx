@@ -20,6 +20,7 @@ import {
   TourIcon,
   LinkIcon,
   ExitIcon,
+  FlagIcon,
 } from '../icons';
 import { squadFeedback } from '../../lib/constants';
 import { MenuItemProps } from '../fields/ContextMenu';
@@ -107,6 +108,13 @@ export default function SquadHeaderMenu({
       });
     }
 
+    list.push({
+      icon: <ContextMenuIcon Icon={FlagIcon} />,
+      action: () =>
+        openModal({ type: LazyModal.ReportSource, props: { squad } }),
+      label: 'Report Squad',
+    });
+
     if (canDeleteSquad) {
       list.push({
         icon: <ContextMenuIcon Icon={TrashIcon} />,
@@ -122,7 +130,7 @@ export default function SquadHeaderMenu({
       list.push({
         icon: <ContextMenuIcon Icon={ExitIcon} />,
         action: () => {
-          onLeaveSquad();
+          onLeaveSquad({});
         },
         label: 'Leave Squad',
       });
