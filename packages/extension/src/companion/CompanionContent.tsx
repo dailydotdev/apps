@@ -47,12 +47,12 @@ export default function CompanionContent({
     copyLink();
   };
 
-  const onContainerChange = async (el: HTMLElement) => {
-    if (!el) {
+  const onContainerChange = (instance: HTMLDivElement): void => {
+    if (!instance) {
       return;
     }
 
-    const { height } = el.getBoundingClientRect();
+    const { height } = instance.getBoundingClientRect();
     const px = `${height + COMPANION_TOP_OFFSET_PX}px`;
     setHeightPx(px);
   };
