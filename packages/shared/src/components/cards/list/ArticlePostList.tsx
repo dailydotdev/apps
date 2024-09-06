@@ -1,6 +1,6 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
-import Link from 'next/link';
+import Link from '../../utilities/Link';
 import { CardContainer, CardContent, CardTitle } from './ListCard';
 import ActionButtons from './ActionButtons';
 import { PostCardHeader } from './PostCardHeader';

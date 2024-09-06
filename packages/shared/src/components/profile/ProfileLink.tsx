@@ -4,8 +4,8 @@ import React, {
   ReactElement,
   Ref,
 } from 'react';
-import Link from 'next/link';
 import classNames from 'classnames';
+import Link from '../utilities/Link';
 
 export interface ProfileLinkProps
   extends AnchorHTMLAttributes<HTMLAnchorElement> {

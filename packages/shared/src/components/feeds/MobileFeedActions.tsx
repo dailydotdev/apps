@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
+import Link from '../utilities/Link';
 import Logo, { LogoPosition } from '../Logo';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { Divider } from '../utilities';

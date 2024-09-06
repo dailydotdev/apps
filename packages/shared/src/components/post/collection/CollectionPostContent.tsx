@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement, useEffect } from 'react';
-import Link from 'next/link';
+import Link from '../../utilities/Link';
 import { LazyImage } from '../../LazyImage';
 import { ToastSubject, useToastNotification } from '../../../hooks';
 import PostContentContainer from '../PostContentContainer';

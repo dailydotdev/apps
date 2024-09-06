@@ -1,5 +1,5 @@
 import React, { ReactElement, ReactNode } from 'react';
-import Link from 'next/link';
+import Link from '../utilities/Link';
 import { largeNumberFormat } from '../../../lib';
 import ConditionalWrapper from '../../ConditionalWrapper';
 

@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import React, { ReactElement, ReactNode } from 'react';
+import Link from '../../utilities/Link';
 import { Post } from '../../../graphql/posts';
 import { CombinedClicks } from '../../../lib/click';
 

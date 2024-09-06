@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode } from 'react';
-import Link from 'next/link';
+import Link from '../utilities/Link';
 import { Comment, getCommentHash } from '../../graphql/comments';
 import { Post } from '../../graphql/posts';
 import { FeatherIcon, ScoutIcon } from '../icons';

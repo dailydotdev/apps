@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import Link from 'next/link';
+import Link from '../utilities/Link';
 import { BookmarkIcon } from './icons';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { EmptyScreenIcon } from './EmptyScreen';

@@ -11,7 +11,6 @@ import {
 } from '@dailydotdev/shared/src/graphql/feed';
 import { NextSeo } from 'next-seo';
 import ActivitySection from '@dailydotdev/shared/src/components/profile/ActivitySection';
-import Link from 'next/link';
 import { smallPostImage } from '@dailydotdev/shared/src/lib/image';
 import {
   Button,
@@ -24,6 +23,7 @@ import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import classNames from 'classnames';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import styles from './KeywordManagement.module.css';
 
 const KeywordSynonymModal = dynamic(

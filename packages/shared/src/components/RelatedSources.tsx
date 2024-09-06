@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
-import Link from 'next/link';
 import classNames from 'classnames';
+import Link from './utilities/Link';
 import { Source } from '../graphql/sources';
 import { ElementPlaceholder } from './ElementPlaceholder';
 
