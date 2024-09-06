@@ -14,6 +14,7 @@ import {
 } from '../../../graphql/users';
 import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
 import * as actionHook from '../../../hooks/useActions';
+import * as toastHook from '../../../hooks/useToastNotification';
 import { ActionType } from '../../../graphql/actions';
 import Toast from '../../notifications/Toast';
 
@@ -36,26 +37,9 @@ const alertsWithStreakRecovery: Alerts = {
 const checkHasCompleted = jest.fn();
 const completeAction = jest.fn();
 const updateAlerts = jest.fn();
+const displayToast = jest.fn();
 
 const queryClient = new QueryClient({});
-
-const renderComponent = (props: TestProps) => {
-  const {
-    user = { ...loggedUser, reputation: 10 },
-    alerts = alertsWithStreakRecovery,
-  } = props;
-
-  return render(
-    <TestBootProvider
-      client={queryClient}
-      auth={{ user }}
-      alerts={{ alerts, updateAlerts }}
-    >
-      <BootPopups />
-      <Toast autoDismissNotifications={false} />
-    </TestBootProvider>,
-  );
-};
 
 const mockRecoveryQuery = (
   data: UserStreakRecoverData,
@@ -106,18 +90,44 @@ const mockAlertsMutation = () => {
   });
 };
 
+const renderComponent = (props: TestProps) => {
+  const {
+    user = { ...loggedUser, reputation: 10 },
+    alerts = alertsWithStreakRecovery,
+  } = props;
+
+  return render(
+    <TestBootProvider
+      client={queryClient}
+      auth={{ user }}
+      alerts={{ alerts, updateAlerts }}
+    >
+      <BootPopups />
+      <Toast autoDismissNotifications={false} />
+    </TestBootProvider>,
+  );
+};
+
 beforeEach(async () => {
-  // need to reset the mock on useActions
-  checkHasCompleted.mockReset();
   jest.spyOn(actionHook, 'useActions').mockReturnValue({
     completeAction,
     checkHasCompleted,
     isActionsFetched: true,
     actions: [],
   });
+  jest.spyOn(toastHook, 'useToastNotification').mockReturnValue({
+    displayToast,
+    dismissToast: jest.fn(),
+    subject: undefined,
+  });
 
   // need to reset the query cache
   queryClient.clear();
+  // need to reset the mock
+  checkHasCompleted.mockReset();
+  completeAction.mockReset();
+  updateAlerts.mockReset();
+  displayToast.mockReset();
 });
 
 it('should not render if user is not logged in', async () => {
@@ -168,6 +178,31 @@ it('should render and fetch initial data if logged user can recover streak', asy
   // and rendered
   const popup = screen.queryByTestId('streak-recover-modal-heading');
   expect(popup).toBeInTheDocument();
+});
+
+it('should update alerts preferences on close', async () => {
+  window.scrollTo = jest.fn();
+
+  mockRecoveryQuery({
+    canRecover: true,
+    cost: 25,
+    oldStreakLength: 10,
+  });
+  renderComponent({});
+
+  await waitForNock();
+
+  // popup is rendered
+  await screen.findByTestId('streak-recover-modal-heading');
+
+  mockAlertsMutation();
+
+  // trigger close
+  const closeButton = await screen.findByTitle('Close streak recover popup');
+  fireEvent.click(closeButton);
+  await waitForNock();
+
+  expect(updateAlerts).toHaveBeenCalled();
 });
 
 it('Should have no cost for first time recovery', async () => {
@@ -273,7 +308,7 @@ it('Should show success message on recover', async () => {
   expect(popupHeader).toBeInTheDocument();
 
   // button is there
-  const button = screen.getByTestId('streak-recover-button');
+  const button = await screen.findByTestId('streak-recover-button');
   expect(button).toBeInTheDocument();
   fireEvent.click(button);
 
@@ -287,13 +322,17 @@ it('Should show success message on recover', async () => {
 
   // expect mutation to be called
   expect(mutationCalled).toBeTruthy();
+  await waitForNock();
 
   // expect success message
-  const alert = await screen.findByRole('alert');
-  expect(alert).toContainHTML('Lucky you! Your streak has been restored');
+  expect(displayToast).toHaveBeenCalledWith(
+    'Lucky you! Your streak has been restored',
+  );
 });
 
-it('Should show error message on recover fail', async () => {
+it('Should dismiss popup on close if checked option', async () => {
+  // window.scrollTo = jest.fn();
+
   mockRecoveryQuery({
     canRecover: true,
     cost: 25,
@@ -310,13 +349,44 @@ it('Should show error message on recover fail', async () => {
   await waitForNock();
 
   // rendered
-  const popupHeader = screen.queryByTestId('streak-recover-modal-heading');
-  expect(popupHeader).toBeInTheDocument();
+  await screen.findByTestId('streak-recover-modal-heading');
 
-  // button is there
-  const button = screen.getByTestId('streak-recover-button');
-  expect(button).toBeInTheDocument();
-  fireEvent.click(button);
+  // check never show again
+  fireEvent.click(await screen.findByTestId('streak-recover-optout'));
+
+  mockAlertsMutation();
+
+  // close the popup
+  const closeButton = await screen.findByTitle('Close streak recover popup');
+  fireEvent.click(closeButton);
+  await waitForNock();
+
+  // expect action to be completed
+  expect(completeAction).toHaveBeenCalledWith(
+    ActionType.DisableReadingStreakRecover,
+  );
+});
+
+it('Should show error message on recover fail', async () => {
+  window.scrollTo = jest.fn();
+
+  mockRecoveryQuery({
+    canRecover: true,
+    cost: 25,
+    oldStreakLength: 102,
+  });
+
+  renderComponent({
+    user: {
+      ...loggedUser,
+      reputation: 50,
+    },
+  });
+
+  await waitForNock();
+
+  // rendered
+  await screen.findByTestId('streak-recover-modal-heading');
 
   mockGraphQL({
     request: {
@@ -328,78 +398,14 @@ it('Should show error message on recover fail', async () => {
   });
 
   mockAlertsMutation();
+
+  // button is there
+  const button = await screen.findByTestId('streak-recover-button');
+  fireEvent.click(button);
   await waitForNock();
 
   // expect error message
-  const alert = await screen.findByRole('alert');
-  expect(alert).toContainHTML(
+  expect(displayToast).toHaveBeenCalledWith(
     'Oops! We are unable to recover your streak. Could you try again later?',
   );
-});
-
-it('Should dismiss popup on close if checked option', async () => {
-  window.scrollTo = jest.fn();
-
-  renderComponent({});
-  mockRecoveryQuery({
-    canRecover: true,
-    cost: 25,
-    oldStreakLength: 10,
-  });
-
-  await waitForNock();
-
-  // popup is rendered
-  const popup = screen.queryByTestId('streak-recover-modal-heading');
-  expect(popup).toBeInTheDocument();
-
-  // check the checkbox
-  const checkbox = screen.getByLabelText('Never show this again');
-  fireEvent.click(checkbox);
-
-  // close the popup
-  const closeButton = await screen.findByTitle('Close streak recover popup');
-  fireEvent.click(closeButton);
-
-  mockAlertsMutation();
-  await waitForNock();
-
-  // expect popup to be dismissed
-  await waitFor(() => {
-    const closedPopup = screen.queryByTestId('streak-recover-modal-heading');
-    expect(closedPopup).not.toBeInTheDocument();
-  });
-
-  await waitForNock();
-
-  // expect action to be completed
-  expect(completeAction).toHaveBeenCalledWith(
-    ActionType.DisableReadingStreakRecover,
-  );
-});
-
-it('should update alerts preferences on close', async () => {
-  window.scrollTo = jest.fn();
-
-  renderComponent({});
-  mockRecoveryQuery({
-    canRecover: true,
-    cost: 25,
-    oldStreakLength: 10,
-  });
-
-  await waitForNock();
-
-  // popup is rendered
-  const popup = screen.queryByTestId('streak-recover-modal-heading');
-  expect(popup).toBeInTheDocument();
-
-  const closeButton = screen.getByTitle('Close streak recover popup');
-  fireEvent.click(closeButton);
-
-  mockAlertsMutation();
-
-  await waitForNock();
-
-  expect(updateAlerts).toHaveBeenCalled();
 });
