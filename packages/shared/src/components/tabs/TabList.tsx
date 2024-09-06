@@ -8,6 +8,8 @@ import React, {
 } from 'react';
 import { RenderTab } from './common';
 
+export type AllowedTabTags = keyof Pick<JSX.IntrinsicElements, 'a' | 'button'>;
+
 interface ClassName {
   indicator?: string;
   item?: string;
@@ -25,6 +27,7 @@ export interface TabListProps<T extends string = string> {
   className?: ClassName;
   autoScrollActive?: boolean;
   renderTab?: RenderTab;
+  tag?: AllowedTabTags;
 }
 
 function TabList<T extends string = string>({
@@ -34,6 +37,7 @@ function TabList<T extends string = string>({
   className = {},
   autoScrollActive,
   renderTab,
+  tag: Tag = 'button',
 }: TabListProps<T>): ReactElement {
   const hasActive = items.includes(active);
   const currentActiveTab = useRef<HTMLButtonElement>(null);
@@ -41,6 +45,7 @@ function TabList<T extends string = string>({
     offset: 0,
     indicatorOffset: 0,
   });
+  const isAnchor = Tag === 'a';
 
   const scrollIfNotInView = useCallback(() => {
     const { activeTabRect, offset } = dimensions;
@@ -113,7 +118,7 @@ function TabList<T extends string = string>({
         );
 
         return (
-          <button
+          <Tag
             key={tab}
             ref={(el) => {
               if (!el || !isActive) {
@@ -126,13 +131,18 @@ function TabList<T extends string = string>({
               className.item,
               'relative p-2 py-4 text-center font-bold typo-callout',
               isActive ? '' : 'text-text-tertiary',
+              isAnchor && 'cursor-pointer',
             )}
             onClick={() => onClick(tab)}
-            type="button"
-            role="menuitem"
+            {...(isAnchor
+              ? {
+                  'aria-label': tab,
+                  title: tab,
+                }
+              : { type: 'button', role: 'menuitem' })}
           >
             {renderedTab}
-          </button>
+          </Tag>
         );
       })}
       {!!indicatorOffset && hasActive && (
