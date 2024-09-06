@@ -477,7 +477,7 @@ const AccountNotificationsPage = (): ReactElement => {
               name="streakReminder"
               data-testid="reading-streak-reminder-switch"
               checked={isStreaksEnabled && !!streakReminder}
-              onToggle={onToggleStreakReminder}
+              onToggleCallback={onToggleStreakReminder}
               disabled={!isStreaksEnabled}
             >
               <SimpleTooltip
@@ -505,7 +505,7 @@ const AccountNotificationsPage = (): ReactElement => {
               name="readingReminder"
               data-testid="reading-reminder-switch"
               checked={!!readingReminder}
-              onToggle={onToggleReadingReminder}
+              onToggleCallback={onToggleReadingReminder}
             >
               Reading reminder (Mon-Fri)
             </Checkbox>
