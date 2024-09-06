@@ -15,20 +15,21 @@ interface UseSources {
   result: UseInfiniteQueryResult<SourcesQueryData>;
 }
 
-interface QueryProps {
+export interface SourcesQueryProps {
   isPublic?: boolean;
   isFeatured?: boolean;
   categoryId?: string;
+  first?: number;
 }
 
 interface UseSourcesProps {
-  query?: QueryProps;
+  query?: SourcesQueryProps;
 }
 
 export const useSources = ({
   query = {},
 }: UseSourcesProps = {}): UseSources => {
-  const { isFeatured, isPublic, categoryId } = query;
+  const { isFeatured, isPublic, categoryId, first = 100 } = query;
   const result = useInfiniteQuery(
     generateQueryKey(RequestKey.Sources),
     ({ pageParam }) =>
@@ -36,7 +37,7 @@ export const useSources = ({
         categoryId,
         featured: isFeatured,
         filterOpenSquads: isPublic,
-        first: 100,
+        first,
         after: pageParam,
       }),
     {
