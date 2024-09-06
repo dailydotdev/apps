@@ -114,12 +114,17 @@ export const SOURCES_QUERY = gql`
             edges {
               node {
                 user {
-                  bio
                   id
-                  image
-                  username
-                  permalink
                   name
+                  image
+                  permalink
+                  username
+                  bio
+                  reputation
+                  companies {
+                    name
+                    image
+                  }
                 }
               }
             }

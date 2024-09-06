@@ -154,7 +154,7 @@ export const SquadJoinButton = ({
     }
 
     if (isCurrentMember) {
-      leaveSquad();
+      leaveSquad({});
     } else {
       joinSquad();
     }

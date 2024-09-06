@@ -12,12 +12,9 @@ import {
 import { Divider } from '../utilities';
 import { LanguageDropdown } from '../profile/LanguageDropdown';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
 import { useLanguage } from '../../hooks/useLanguage';
 
 export function ContentTypesFilter(): ReactElement {
-  const postTitleLanguageFeature = useFeature(feature.postTitleLanguage);
   const { advancedSettings, isLoading } = useFeedSettings();
   const { selectedSettings, onToggleSettings } = useAdvancedSettings();
   const { user } = useAuthContext();
@@ -28,37 +25,33 @@ export function ContentTypesFilter(): ReactElement {
 
   return (
     <div className="flex flex-col gap-4">
-      {postTitleLanguageFeature && (
-        <>
-          <section className="flex flex-col gap-4" aria-busy={isLoading}>
-            <div className="flex flex-col">
-              <Typography
-                tag={TypographyTag.H3}
-                color={TypographyColor.Primary}
-                type={TypographyType.Body}
-                bold
-                className="mb-1"
-              >
-                Preferred language
-              </Typography>
-              <Typography
-                color={TypographyColor.Tertiary}
-                type={TypographyType.Callout}
-              >
-                Choose your preferred language for the post titles on the feed
-              </Typography>
-            </div>
-            <LanguageDropdown
-              className={{ container: 'w-full max-w-60' }}
-              name="language"
-              defaultValue={user.language}
-              onChange={(value) => onLanguageChange(value)}
-              icon={null}
-            />
-          </section>
-          <Divider className="bg-border-subtlest-tertiary" />
-        </>
-      )}
+      <section className="flex flex-col gap-4" aria-busy={isLoading}>
+        <div className="flex flex-col">
+          <Typography
+            tag={TypographyTag.H3}
+            color={TypographyColor.Primary}
+            type={TypographyType.Body}
+            bold
+            className="mb-1"
+          >
+            Preferred language
+          </Typography>
+          <Typography
+            color={TypographyColor.Tertiary}
+            type={TypographyType.Callout}
+          >
+            Choose your preferred language for the post titles on the feed
+          </Typography>
+        </div>
+        <LanguageDropdown
+          className={{ container: 'w-full max-w-60' }}
+          name="language"
+          defaultValue={user.language}
+          onChange={(value) => onLanguageChange(value)}
+          icon={null}
+        />
+      </section>
+      <Divider className="bg-border-subtlest-tertiary" />
       <section className="flex flex-col gap-4" aria-busy={isLoading}>
         <div className="flex flex-col">
           <Typography
