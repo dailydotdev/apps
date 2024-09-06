@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import TabList, { TabListProps } from './TabList';
+import TabList, { AllowedTabTags, TabListProps } from './TabList';
 import { RenderTab } from './common';
 
 export interface TabProps<T extends string> {
@@ -48,6 +48,7 @@ export interface TabContainerProps<T extends string = string> {
   tabListProps?: Pick<TabListProps, 'className' | 'autoScrollActive'>;
   showBorder?: boolean;
   renderTab?: RenderTab;
+  tabTag?: AllowedTabTags;
 }
 
 export function TabContainer<T extends string = string>({
@@ -61,6 +62,7 @@ export function TabContainer<T extends string = string>({
   controlledActive,
   tabListProps = {},
   renderTab,
+  tabTag,
 }: TabContainerProps<T>): ReactElement {
   const router = useRouter();
 
@@ -144,6 +146,7 @@ export function TabContainer<T extends string = string>({
           active={currentActive}
           className={tabListProps?.className}
           autoScrollActive={tabListProps?.autoScrollActive}
+          tag={tabTag}
         />
       </header>
       {render}

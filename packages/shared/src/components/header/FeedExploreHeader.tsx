@@ -106,6 +106,7 @@ export function FeedExploreHeader({
               container: className.tabBarContainer,
             }}
             shouldMountInactive
+            tabTag="a"
           >
             {Object.entries(urlToTab).map(([url, label]) => (
               <Tab key={label} label={label} url={url} />
