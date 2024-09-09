@@ -66,7 +66,7 @@ export const ChecklistCardComponent = classed(
 export const CardHeader = classed(
   'div',
   styles.header,
-  'flex items-center h-8 items-center my-1 mt-2 -mx-1.5',
+  'flex h-8 items-center my-1 mt-2 -mx-1.5',
 );
 
 export const ListCard = classed(
