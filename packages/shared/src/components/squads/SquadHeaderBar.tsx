@@ -92,18 +92,18 @@ export function SquadHeaderBar({
         className,
       )}
     >
-      {showJoinButton && (
-        <SquadJoinButton
-          squad={squad}
-          origin={Origin.SquadPage}
-          size={ButtonSize.Small}
-        />
-      )}
       <SquadMemberShortList
         squad={squad}
         members={members}
         size={ProfileImageSize.Small}
       />
+      {showJoinButton && (
+        <SquadJoinButton
+          origin={Origin.SquadPage}
+          size={ButtonSize.Small}
+          squad={squad}
+        />
+      )}
       {verifyPermission(squad, SourcePermissions.Invite) && !showJoinButton && (
         <Button
           variant={ButtonVariant.Secondary}
