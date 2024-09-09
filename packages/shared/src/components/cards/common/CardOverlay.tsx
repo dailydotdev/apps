@@ -8,11 +8,13 @@ import { anchorDefaultRel } from '../../../lib/strings';
 interface CardOverlayProps {
   post: Pick<Post, 'commentsPermalink' | 'title' | 'id' | 'slug'>;
   onPostCardClick: () => void;
+  onPostCardAuxClick: () => void;
 }
 
 const CardOverlay = ({
   post,
   onPostCardClick,
+  onPostCardAuxClick,
 }: CardOverlayProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
 
@@ -29,6 +31,7 @@ const CardOverlay = ({
         event.preventDefault();
         onPostCardClick?.();
       }}
+      onAuxClick={() => onPostCardAuxClick?.()}
     />
   );
 };
