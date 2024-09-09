@@ -18,6 +18,9 @@ import { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { SquadDirectoryLayout } from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryLayout';
 import { StaleTime } from '@dailydotdev/shared/src/lib/query';
+import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { SquadCardAction } from '@dailydotdev/shared/src/components/cards/squad/common/types';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import FeedLayout, { getLayout } from '../../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
@@ -37,6 +40,7 @@ const seo: NextSeoProps = {
 
 const SquadsPage = ({ initialData }: Props): ReactElement => {
   const { user } = useAuthContext();
+  const isTablet = useViewSize(ViewSize.Tablet);
   const queryResult = useInfiniteQuery(
     ['sourcesFeed'],
     ({ pageParam }) =>
@@ -71,37 +75,48 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
               {queryResult?.data?.pages?.length > 0 && (
                 <>
                   {queryResult.data.pages.map((page) =>
-                    page.sources.edges.map(
-                      ({ node: { name, permalink, id, ...props } }) => {
-                        return (
-                          <SquadGrid
-                            key={id}
-                            title={name}
-                            subtitle={`@${props.handle}`}
-                            action={
-                              user && props?.currentMember
-                                ? {
-                                    text: 'View Squad',
-                                    type: 'link',
-                                    href: permalink,
-                                  }
-                                : {
-                                    text: 'Join Squad',
-                                    type: 'action',
-                                  }
+                    page.sources.edges.map(({ node }) => {
+                      const { name, permalink, id, ...props } = node;
+                      const action: SquadCardAction =
+                        user && props?.currentMember
+                          ? {
+                              text: 'View Squad',
+                              type: 'link',
+                              href: permalink,
                             }
-                            source={{
-                              name,
-                              permalink,
-                              id,
-                              borderColor: props.color,
-                              banner: props.headerImage,
-                              ...props,
-                            }}
+                          : {
+                              text: 'Join Squad',
+                              type: 'action',
+                            };
+
+                      if (!isTablet) {
+                        return (
+                          <SquadList
+                            key={id}
+                            squad={node}
+                            action={action}
+                            isUserSquad
                           />
                         );
-                      },
-                    ),
+                      }
+
+                      return (
+                        <SquadGrid
+                          key={id}
+                          title={name}
+                          subtitle={`@${props.handle}`}
+                          action={action}
+                          source={{
+                            name,
+                            permalink,
+                            id,
+                            borderColor: props.color,
+                            banner: props.headerImage,
+                            ...props,
+                          }}
+                        />
+                      );
+                    }),
                   )}
                 </>
               )}
