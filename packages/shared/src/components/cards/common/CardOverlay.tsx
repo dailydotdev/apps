@@ -28,8 +28,12 @@ const CardOverlay = ({
       href={`${webappUrl}posts/${post.slug ?? post.id}`}
       rel={anchorDefaultRel}
       onClick={(event) => {
-        event.preventDefault();
-        onPostCardClick?.();
+        if (event.ctrlKey || event.metaKey) {
+          onPostCardAuxClick?.();
+        } else {
+          event.preventDefault();
+          onPostCardClick?.();
+        }
       }}
       onAuxClick={() => onPostCardAuxClick?.()}
     />

@@ -333,7 +333,7 @@ export default function Feed<T>({
     await onPostClick(post, index, row, column, {
       skipPostUpdate: true,
     });
-    if (!shouldUseListFeedLayout || isAuxClick) {
+    if (!isAuxClick && !shouldUseListFeedLayout) {
       onPostModalOpen({ index, row, column });
     }
   };
