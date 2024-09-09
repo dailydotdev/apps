@@ -53,6 +53,7 @@ export enum Origin {
 }
 
 export enum LogEvent {
+  ReportSquad = 'report squad',
   Click = 'click',
   CommentPost = 'comment post',
   StartSubmitArticle = 'start submit article',
