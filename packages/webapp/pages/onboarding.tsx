@@ -185,10 +185,8 @@ export function OnboardPage(): ReactElement {
   };
 
   const onSuccessfulRegistration = (userRefetched: LoggedUser) => {
-    const isExtension = !!router.query?.install;
     logSignUp({
       experienceLevel: userRefetched?.experienceLevel,
-      isExtension,
     });
     setActiveScreen(OnboardingStep.EditTag);
   };
