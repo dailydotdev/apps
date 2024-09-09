@@ -99,7 +99,6 @@ export function SquadHeaderBar({
       />
       {showJoinButton && (
         <SquadJoinButton
-          joinText="Join"
           origin={Origin.SquadPage}
           size={ButtonSize.Small}
           squad={squad}
