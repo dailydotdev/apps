@@ -29,6 +29,12 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { SquadStat } from './common/SquadStat';
 import { SquadPrivacyState } from './common/SquadPrivacyState';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+  TypographyType,
+} from '../typography/Typography';
 
 interface SquadPageHeaderProps {
   squad: Squad;
