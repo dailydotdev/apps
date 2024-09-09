@@ -11,6 +11,7 @@ import { largeNumberFormat } from '../../../lib';
 import { CardLink } from '../Card';
 import { SquadJoinButton } from '../../squads/SquadJoinButton';
 import { Origin } from '../../../lib/log';
+import { Image, ImageType } from '../../image/Image';
 
 interface SquadListProps {
   squad: Squad;
@@ -27,10 +28,11 @@ export const SquadList = ({
   return (
     <div className="relative flex flex-row items-center gap-4">
       <CardLink href={permalink} rel="noopener" title={name} />
-      <img
+      <Image
         className="size-14 rounded-full"
         src={image}
         alt={`${name} source`}
+        type={ImageType.Squad}
       />
       <div className="flex w-0 flex-grow flex-col">
         <Typography type={TypographyType.Callout} bold truncate>

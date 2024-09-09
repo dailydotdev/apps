@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import SquadMemberShortList from '../../squads/SquadMemberShortList';
 import { Card } from '../Card';
-import { Image } from '../../image/Image';
+import { Image, ImageType } from '../../image/Image';
 import { cloudinary } from '../../../lib/image';
 import { UnFeaturedSquadCardProps } from './common/types';
 import { SquadJoinButton } from '../../squads/SquadJoinButton';
@@ -66,10 +66,11 @@ export const SquadGrid = ({
       <div className="-mt-12 flex flex-1 flex-col rounded-t-16 bg-background-subtle p-4">
         <div className="mb-3 flex items-end justify-between">
           <a href={permalink}>
-            <img
-              className={classNames('size-24 rounded-full')}
+            <Image
+              className="size-24 rounded-full"
               src={image}
               alt={`${name} source`}
+              type={ImageType.Squad}
             />
           </a>
           {membersCount > 0 && (
