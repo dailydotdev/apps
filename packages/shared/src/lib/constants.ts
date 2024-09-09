@@ -71,6 +71,7 @@ export const migrateUserToStreaks = 'https://r.daily.dev/streaks';
 export const squadCategoriesPaths = {
   discover: '/squads',
   featured: '/squads/discover/featured',
+  // todo: remove below paths once be is implemented
   general: '/squads/discover/general',
   web: '/squads/discover/web',
   mobile: '/squads/discover/mobile',
@@ -81,4 +82,5 @@ export const squadCategoriesPaths = {
   data: '/squads/discover/data',
   fun: '/squads/discover/fun',
   devtools: '/squads/discover/devtools',
+  // -- end paths to remove
 };
