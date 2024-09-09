@@ -8,7 +8,7 @@ import { anchorDefaultRel } from '../../../lib/strings';
 interface CardOverlayProps {
   post: Pick<Post, 'commentsPermalink' | 'title' | 'id' | 'slug'>;
   onPostCardClick: () => void;
-  onPostCardAuxClick: () => void;
+  onPostCardAuxClick?: () => void;
 }
 
 const CardOverlay = ({
