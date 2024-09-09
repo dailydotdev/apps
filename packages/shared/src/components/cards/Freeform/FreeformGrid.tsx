@@ -19,6 +19,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
   {
     post,
     onPostClick,
+    onPostAuxClick,
     onUpvoteClick,
     onCommentClick,
     onMenuClick,
@@ -33,6 +34,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
 ): ReactElement {
   const { pinnedAt, type: postType, trending } = post;
   const onPostCardClick = () => onPostClick(post);
+  const onPostCardAuxClick = () => onPostAuxClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const image = usePostImage(post);
   const { openStep, isChecklistVisible } = useSquadChecklist({
@@ -61,7 +63,11 @@ export const FreeformGrid = forwardRef(function SharePostCard(
       flagProps={{ pinnedAt, trending }}
       bookmarked={post.bookmarked}
     >
-      <CardOverlay post={post} onPostCardClick={onPostCardClick} />
+      <CardOverlay
+        post={post}
+        onPostCardClick={onPostCardClick}
+        onPostCardAuxClick={onPostCardAuxClick}
+      />
       <OptionsButton
         className="absolute right-2 top-2 group-hover:flex laptop:hidden"
         onClick={(event) => onMenuClick?.(event, post)}
