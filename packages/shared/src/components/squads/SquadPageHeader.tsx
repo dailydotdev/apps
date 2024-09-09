@@ -23,7 +23,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { link } from '../../lib/links';
 import SquadChecklistCard from '../checklist/SquadChecklistCard';
 import { Separator } from '../cards/common';
-import { EarthIcon, LockIcon, SourceIcon, SparkleIcon } from '../icons';
+import { LockIcon, SourceIcon, SparkleIcon } from '../icons';
 import { PrivilegedMemberItem } from './Members/PrivilegedMemberItem';
 import { formatMonthYearOnly } from '../../lib/dateFormat';
 import {
@@ -34,6 +34,12 @@ import { useViewSize, ViewSize } from '../../hooks';
 import { largeNumberFormat } from '../../lib';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+  TypographyType,
+} from '../typography/Typography';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -67,6 +73,7 @@ export function SquadPageHeader({
   const { openModal } = useLazyModal();
   const { openStep, isChecklistVisible } = useSquadChecklist({ squad });
   const allowedToPost = verifyPermission(squad, SourcePermissions.Post);
+  const { category } = squad;
   const shouldShowHighlightPulse =
     tourIndex === TourScreenIndex.Post ||
     (isChecklistVisible && openStep === ActionType.SquadFirstPost);
@@ -79,7 +86,7 @@ export function SquadPageHeader({
     }
 
     if (squad.public) {
-      return { icon: <EarthIcon />, copy: 'Public' };
+      return { icon: <SourceIcon />, copy: 'Public' };
     }
 
     return { icon: <LockIcon />, copy: 'Private' };
@@ -115,37 +122,57 @@ export function SquadPageHeader({
             !shouldUseListMode && 'laptopL:ml-6 laptopL:mt-0',
           )}
         >
-          <h1
+          <Typography
+            tag={TypographyTag.H1}
+            bold
+            type={TypographyType.Title2}
             className={classNames(
-              'text-center font-bold typo-title2',
+              'text-center',
               !shouldUseListMode && 'laptopL:text-left',
             )}
           >
             {squad.name}
-          </h1>
+          </Typography>
           <div
             className={classNames(
-              'mt-1 flex flex-row items-center justify-center text-text-quaternary tablet:mt-2',
+              'mt-1 flex flex-row items-center justify-center text-text-quaternary typo-subhead tablet:mt-1',
               !shouldUseListMode && 'laptopL:justify-start',
             )}
           >
-            <h2
+            <Typography
+              tag={TypographyTag.H2}
+              color={TypographyColor.Tertiary}
               className={classNames(
-                'text-center text-text-tertiary typo-footnote',
+                'text-center',
                 !shouldUseListMode && 'laptopL:text-left',
               )}
             >
               @{squad.handle}
-            </h2>
-            <Separator />
+            </Typography>
             {createdAt && (
-              <span className="typo-caption2">Created {createdAt}</span>
+              <>
+                <Separator />
+                <span>Created {createdAt}</span>
+              </>
+            )}
+            {!!category && (
+              <>
+                <Separator />
+                <a
+                  aria-label={`View all squads in ${category.title}`}
+                  className="text-text-link"
+                  href={`/squads/discover/${category.id}`}
+                  title={`View all squads in ${category.title}`}
+                >
+                  {category.title}
+                </a>
+              </>
             )}
           </div>
           <div className="mt-4 flex flex-col items-center gap-2 tablet:flex-row">
             <Button
               icon={props.icon}
-              size={ButtonSize.Small}
+              size={ButtonSize.XSmall}
               variant={
                 isFeatured ? ButtonVariant.Secondary : ButtonVariant.Float
               }
@@ -155,7 +182,7 @@ export function SquadPageHeader({
                   'relative border-overlay-primary-cabbage bg-overlay-tertiary-cabbage',
               )}
             >
-              {props.copy} Squad
+              {props.copy}
               {isFeatured && (
                 <>
                   <SparkleIcon className="absolute -top-2.5 right-0 animate-scale-down-pulse delay-[625ms]" />
@@ -177,21 +204,30 @@ export function SquadPageHeader({
         </FlexCol>
       </div>
       {squad.description && (
-        <p
+        <Typography
+          tag={TypographyTag.P}
+          color={TypographyColor.Secondary}
+          type={TypographyType.Callout}
           className={classNames(
-            'mt-6 w-full text-center text-text-tertiary typo-body',
+            'mt-5 w-full text-center',
             !shouldUseListMode && 'laptopL:text-left',
             !shouldUseListMode && MAX_WIDTH,
           )}
         >
           {squad.description}
-        </p>
+        </Typography>
       )}
-      <SquadHeaderBar squad={squad} members={members} className="mt-8" />
-      <span className="mt-6 text-text-quaternary typo-footnote">
+      <SquadHeaderBar squad={squad} members={members} className="mt-5" />
+      <Typography
+        bold
+        className="mt-6"
+        color={TypographyColor.Tertiary}
+        tag={TypographyTag.Span}
+        type={TypographyType.Caption1}
+      >
         Moderated by
-      </span>
-      <div className="mt-2 flex flex-row items-center gap-3">
+      </Typography>
+      <div className="mt-2 flex flex-row items-center gap-3 laptop:mb-6">
         {squad.privilegedMembers?.slice(0, listMax).map((member) => (
           <PrivilegedMemberItem key={member.user.id} member={member} />
         ))}

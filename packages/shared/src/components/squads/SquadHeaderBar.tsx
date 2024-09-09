@@ -94,9 +94,9 @@ export function SquadHeaderBar({
     >
       {showJoinButton && (
         <SquadJoinButton
-          squad={squad}
           origin={Origin.SquadPage}
           size={ButtonSize.Small}
+          squad={squad}
         />
       )}
       <SquadMemberShortList
