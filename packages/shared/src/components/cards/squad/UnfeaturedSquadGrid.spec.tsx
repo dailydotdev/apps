@@ -116,7 +116,7 @@ it('should render the component with a join squad button', async () => {
     },
   });
 
-  const btn = await screen.findByText('Test action');
+  const btn = await screen.findByText('Join Squad');
   btn.click();
   await waitForNock();
   await waitFor(async () => {
