@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToggle } from '../useToggle';
 import { useActions } from '../useActions';
 import {
@@ -14,6 +14,7 @@ import { useToastNotification } from '../useToastNotification';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
 import { useAlertsContext } from '../../contexts/AlertContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 interface UseStreakRecoverProps {
   onAfterClose?: () => void;
@@ -36,6 +37,10 @@ export interface UseStreakRecoverReturn {
   };
 }
 
+interface StreakQueryData {
+  streakRecover: UserStreakRecoverData;
+}
+
 export const useStreakRecover = ({
   onAfterClose,
   onRequestClose,
@@ -45,10 +50,9 @@ export const useStreakRecover = ({
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
   const { updateAlerts } = useAlertsContext();
-
-  const { data, isLoading } = useQuery<{
-    streakRecover: UserStreakRecoverData;
-  }>({
+  const { user } = useAuthContext();
+  const client = useQueryClient();
+  const { data, isLoading } = useQuery<StreakQueryData>({
     queryKey: generateQueryKey(RequestKey.UserStreakRecover),
     queryFn: async () => await gqlClient.request(USER_STREAK_RECOVER_QUERY),
   });
@@ -63,6 +67,8 @@ export const useStreakRecover = ({
       logEvent({
         event_name: LogEvent.StreakRecover,
       });
+
+      client.invalidateQueries(generateQueryKey(RequestKey.UserStreak, user));
     },
   });
 
