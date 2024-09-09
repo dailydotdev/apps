@@ -114,12 +114,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
                   className="grid grid-cols-1 gap-4 px-4 py-5"
                 >
                   {squads.map((squad) => (
-                    <SquadList
-                      key={squad.handle}
-                      squad={squad}
-                      elementProps={{ href: squad.permalink }}
-                      isUserSquad
-                    />
+                    <SquadList key={squad.handle} squad={squad} isUserSquad />
                   ))}
                 </Tab>
                 <Tab label="Public squads" className="px-4">
