@@ -94,7 +94,7 @@ export const SquadGrid = ({
 
           <SquadJoinButton
             showViewSquad
-            className={{ button: 'btn-secondary z-0 w-full' }}
+            className={{ button: '!btn-secondary z-0 w-full' }}
             squad={source}
             origin={Origin.SquadDirectory}
             onSuccess={() => router.push(source.permalink)}
