@@ -316,8 +316,6 @@ it('Should show success message on recover', async () => {
   mockRecoveryMutation({}, () => {
     mutationCalled = true;
   });
-  await waitForNock();
-
   mockAlertsMutation();
   await waitForNock();
 
