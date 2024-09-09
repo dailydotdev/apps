@@ -10,17 +10,20 @@ function SquadDiscoveryPage(): ReactElement {
   const categories = data?.pages.flatMap((page) => page.categories.edges) ?? [];
 
   return (
-    <div className="flex w-full flex-col gap-6 p-5">
+    <div className="relative flex w-full flex-col gap-6 p-5">
+      <div className="absolute inset-0 h-[25rem] w-full bg-gradient-to-t from-accent-cabbage-default from-10% to-background-default" />
       <SquadHorizontalList
         key="featured"
+        className="relative"
         linkToSeeAll="/squads/discover/featured"
         title={
           <img
+            className="h-12"
             src={cloudinary.squads.directory.featured}
             alt="A text containing the word 'Featured'"
           />
         }
-        query={{ isPublic: true, isFeatured: true }}
+        query={{ isPublic: true, featured: true }}
       />
       {categories.map(({ node }) => (
         <SquadHorizontalList
@@ -30,7 +33,7 @@ function SquadDiscoveryPage(): ReactElement {
           query={{
             categoryId: node.id,
             isPublic: true,
-            isFeatured: false,
+            featured: false,
             first: 20,
           }}
         />
