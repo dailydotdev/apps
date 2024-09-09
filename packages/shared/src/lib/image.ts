@@ -53,6 +53,8 @@ export const cloudinary = {
     directory: {
       banner:
         'https://daily-now-res.cloudinary.com/image/upload/s--7QJfELWV--/f_auto/v1686299194/Squads_Background_z0uuvc',
+      featured:
+        'https://daily-now-res.cloudinary.com/image/upload/s--alJYtPQc--/f_auto/v1722254596/featured_svg_aowe1m',
       cardBannerDefault:
         'https://daily-now-res.cloudinary.com/image/upload/s--puRUea_K--/f_auto/v1690887143/cover-generic_blur_xny4yt',
     },

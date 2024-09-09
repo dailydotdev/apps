@@ -116,6 +116,7 @@ export enum RequestKey {
   Readme = 'readme',
   Host = 'host',
   Source = 'source',
+  Sources = 'sources',
   OneSignal = 'onesignal',
   ActiveUsers = 'active_users',
   PushNotification = 'push_notification',

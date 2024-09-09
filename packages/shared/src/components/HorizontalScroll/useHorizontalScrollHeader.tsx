@@ -1,17 +1,20 @@
 import React, {
   FunctionComponent,
   MouseEventHandler,
-  ReactElement,
+  ReactNode,
   RefObject,
   useCallback,
   useEffect,
   useRef,
   useState,
 } from 'react';
+import Link from 'next/link';
 import { useScrollManagement } from './useScrollManagement';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
 import { useEventListener } from '../../hooks';
+import { Typography, TypographyType } from '../typography/Typography';
+import ConditionalWrapper from '../ConditionalWrapper';
 
 interface HorizontalScrollHeaderReturn {
   Header: FunctionComponent<{ titleId?: string }>;
@@ -21,12 +24,14 @@ interface HorizontalScrollHeaderReturn {
 export interface HorizontalScrollHeaderProps {
   onScroll?: (ref: RefObject<HTMLElement>) => void;
   onClickSeeAll?: MouseEventHandler;
-  title: string | ReactElement;
+  linkToSeeAll?: string;
+  title: string | ReactNode;
 }
 
 export const useHorizontalScrollHeader = ({
   onScroll,
   onClickSeeAll,
+  linkToSeeAll,
   title,
 }: HorizontalScrollHeaderProps): HorizontalScrollHeaderReturn => {
   const ref = useRef<HTMLDivElement>(null);
@@ -98,10 +103,10 @@ export const useHorizontalScrollHeader = ({
   const Header = ({ titleId }: { titleId: string }) => {
     return (
       <div className="mx-4 mb-4 flex w-auto items-center justify-between laptop:mx-0 laptop:w-full">
-        <p className="flex items-center font-bold typo-body" id={titleId}>
+        <Typography type={TypographyType.Title2} id={titleId} bold>
           {title}
-        </p>
-        <div className="hidden flex-row gap-3 tablet:flex">
+        </Typography>
+        <div className="hidden flex-row items-center gap-3 tablet:flex">
           <Button
             variant={ButtonVariant.Tertiary}
             icon={<ArrowIcon className="-rotate-90" />}
@@ -116,14 +121,24 @@ export const useHorizontalScrollHeader = ({
             onClick={onClickNext}
             aria-label="Scroll right"
           />
-          {onClickSeeAll && (
-            <Button
-              variant={ButtonVariant.Tertiary}
-              onClick={onClickSeeAll}
-              aria-label="See all"
+          {(onClickSeeAll || linkToSeeAll) && (
+            <ConditionalWrapper
+              condition={!!linkToSeeAll}
+              wrapper={(component) => (
+                <Link href={linkToSeeAll} passHref>
+                  {component}
+                </Link>
+              )}
             >
-              See all
-            </Button>
+              <Button
+                variant={ButtonVariant.Tertiary}
+                onClick={onClickSeeAll}
+                aria-label="See all"
+                tag={linkToSeeAll ? 'a' : 'button'}
+              >
+                See all
+              </Button>
+            </ConditionalWrapper>
           )}
         </div>
       </div>

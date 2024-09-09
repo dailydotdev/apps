@@ -1,6 +1,7 @@
 import React, { ReactElement, useEffect } from 'react';
 import classNames from 'classnames';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import Link from 'next/link';
 import { SourceMemberRole, Squad } from '../../graphql/sources';
 import { Button, ButtonProps, ButtonVariant } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -18,16 +19,23 @@ interface ClassName {
   button?: string;
 }
 
-type SquadJoinProps = {
+interface Copy {
+  join: string;
+  leave: string;
+  view: string;
+  blockedTooltip: string;
+}
+
+interface SquadJoinProps extends Pick<ButtonProps<'button'>, 'size'> {
   className?: ClassName;
   squad: Squad;
-  joinText?: string;
-  leaveText?: string;
-  blockedTooltipText?: string;
+  copy?: Partial<Copy>;
   origin: Origin;
   inviterMember?: Pick<UserShortProfile, 'id'>;
   onSuccess?: () => void;
-} & Pick<ButtonProps<'button'>, 'size'>;
+  showViewSquad?: boolean;
+  buttonVariants?: ButtonVariant[];
+}
 
 export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
   className,
@@ -80,13 +88,20 @@ export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
 export const SquadJoinButton = ({
   className = {},
   squad,
-  joinText = 'Join Squad',
-  leaveText = 'Leave Squad',
-  blockedTooltipText = 'You are not allowed to join the Squad',
+  copy = {},
   origin,
   onSuccess,
+  showViewSquad,
+  buttonVariants = [ButtonVariant.Primary, ButtonVariant.Secondary],
   ...rest
 }: SquadJoinProps): ReactElement => {
+  const {
+    join = 'Join Squad',
+    view = 'View Squad',
+    leave = 'Leave Squad',
+    blockedTooltip = 'You are not allowed to join the Squad',
+  } = copy;
+  const [joinVariant, memberVariant] = buttonVariants;
   const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
   const { user, showLogin } = useAuthContext();
@@ -154,25 +169,38 @@ export const SquadJoinButton = ({
     }
   };
 
+  if (isCurrentMember && showViewSquad) {
+    return (
+      <Link href={squad.permalink}>
+        <Button
+          {...rest}
+          tag="a"
+          href={squad.permalink}
+          variant={memberVariant}
+        >
+          {view}
+        </Button>
+      </Link>
+    );
+  }
+
   return (
     <SimpleTooltip
       sticky
       placement="bottom"
       disabled={!isMemberBlocked}
-      content={blockedTooltipText}
+      content={blockedTooltip}
     >
       <SimpleSquadJoinButton
         {...rest}
-        variant={
-          isCurrentMember ? ButtonVariant.Secondary : ButtonVariant.Primary
-        }
+        variant={isCurrentMember ? memberVariant : joinVariant}
         className={className?.button}
         squad={squad}
         disabled={isMemberBlocked || isLoading}
         onClick={onLeaveSquad}
         origin={origin}
       >
-        {isCurrentMember ? leaveText : joinText}
+        {isCurrentMember ? leave : join}
       </SimpleSquadJoinButton>
     </SimpleTooltip>
   );

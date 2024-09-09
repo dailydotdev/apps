@@ -56,19 +56,19 @@ export const CardLink = classed('a', clickableCardClasses);
 export const Card = classed(
   'article',
   styles.card,
-  'snap-start relative max-h-cardLarge h-full flex flex-col p-2 rounded-16 bg-background-subtle border border-border-subtlest-tertiary hover:border-border-subtlest-secondary shadow-2',
+  'snap-start relative max-h-cardLarge h-full flex flex-col p-2 rounded-16 bg-background-subtle border border-border-subtlest-tertiary hover:border-border-subtlest-secondary',
 );
 
 export const ChecklistCardComponent = classed(
   'article',
   styles.card,
-  'tablet:max-w-[21.5rem] w-full relative max-h-fit h-full flex flex-col bg-background-subtle tablet:border border-accent-cabbage-default hover:border-accent-cabbage-default shadow-2',
+  'tablet:max-w-[21.5rem] w-full relative max-h-fit h-full flex flex-col bg-background-subtle tablet:border border-accent-cabbage-default hover:border-accent-cabbage-default',
 );
 
 export const CardHeader = classed(
   'div',
   styles.header,
-  'flex items-center h-8 items-center my-1 mt-2 -mx-1.5',
+  'flex items-center h-8 my-1 mt-2 -mx-1.5',
 );
 
 export const ListCard = classed(
