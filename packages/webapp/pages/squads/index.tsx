@@ -79,7 +79,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
   const hasSquad = !!squads?.length;
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isTabbedContainer = !isLaptop && hasSquad;
-  const flapSquads = queryResult?.data?.pages?.flatMap(
+  const flatSquads = queryResult?.data?.pages?.flatMap(
     (page) => page.sources.edges,
   );
 
@@ -144,7 +144,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
                 className="mt-5 px-6"
                 inlineHeader
               >
-                {flapSquads?.map(({ node }) => (
+                {flatSquads?.map(({ node }) => (
                   <SquadGrid key={node.id} source={node} />
                 ))}
               </FeedContainer>
