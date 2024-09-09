@@ -19,12 +19,17 @@ interface ClassName {
   button?: string;
 }
 
+interface Copy {
+  join: string;
+  leave: string;
+  view: string;
+  blockedTooltip: string;
+}
+
 interface SquadJoinProps extends Pick<ButtonProps<'button'>, 'size'> {
   className?: ClassName;
   squad: Squad;
-  joinText?: string;
-  leaveText?: string;
-  blockedTooltipText?: string;
+  copy?: Partial<Copy>;
   origin: Origin;
   inviterMember?: Pick<UserShortProfile, 'id'>;
   onSuccess?: () => void;
@@ -83,15 +88,19 @@ export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
 export const SquadJoinButton = ({
   className = {},
   squad,
-  joinText = 'Join Squad',
-  leaveText = 'Leave Squad',
-  blockedTooltipText = 'You are not allowed to join the Squad',
+  copy = {},
   origin,
   onSuccess,
   showViewSquad,
   buttonVariants = [ButtonVariant.Primary, ButtonVariant.Secondary],
   ...rest
 }: SquadJoinProps): ReactElement => {
+  const {
+    join = 'Join Squad',
+    view = 'View Squad',
+    leave = 'Leave Squad',
+    blockedTooltip = 'You are not allowed to join the Squad',
+  } = copy;
   const [joinVariant, memberVariant] = buttonVariants;
   const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
@@ -163,8 +172,13 @@ export const SquadJoinButton = ({
   if (isCurrentMember && showViewSquad) {
     return (
       <Link href={squad.permalink}>
-        <Button tag="a" href={squad.permalink} variant={memberVariant}>
-          View Squad
+        <Button
+          {...rest}
+          tag="a"
+          href={squad.permalink}
+          variant={memberVariant}
+        >
+          {view}
         </Button>
       </Link>
     );
@@ -175,7 +189,7 @@ export const SquadJoinButton = ({
       sticky
       placement="bottom"
       disabled={!isMemberBlocked}
-      content={blockedTooltipText}
+      content={blockedTooltip}
     >
       <SimpleSquadJoinButton
         {...rest}
@@ -186,7 +200,7 @@ export const SquadJoinButton = ({
         onClick={onLeaveSquad}
         origin={origin}
       >
-        {isCurrentMember ? leaveText : joinText}
+        {isCurrentMember ? leave : join}
       </SimpleSquadJoinButton>
     </SimpleTooltip>
   );

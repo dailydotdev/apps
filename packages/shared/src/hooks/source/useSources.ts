@@ -7,36 +7,44 @@ import { Connection, gqlClient } from '../../graphql/common';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { Source, Squad } from '../../graphql/sources';
 
-interface SourcesQueryData {
-  sources: Connection<Source | Squad>;
+export interface SourcesQueryData<T extends Source | Squad> {
+  sources: Connection<T>;
 }
 
-interface UseSources {
-  result: UseInfiniteQueryResult<SourcesQueryData>;
+interface UseSources<T extends Source | Squad> {
+  result: UseInfiniteQueryResult<SourcesQueryData<T>>;
 }
 
-interface QueryProps {
+export interface SourcesQueryProps {
   isPublic?: boolean;
-  isFeatured?: boolean;
+  featured?: boolean;
   categoryId?: string;
+  first?: number;
 }
 
 interface UseSourcesProps {
-  query?: QueryProps;
+  query?: SourcesQueryProps;
 }
 
-export const useSources = ({
+export const useSources = <T extends Source | Squad>({
   query = {},
-}: UseSourcesProps = {}): UseSources => {
-  const { isFeatured, isPublic, categoryId } = query;
+}: UseSourcesProps = {}): UseSources<T> => {
+  const { featured, isPublic, categoryId, first = 100 } = query;
   const result = useInfiniteQuery(
-    generateQueryKey(RequestKey.Sources),
+    generateQueryKey(
+      RequestKey.Sources,
+      null,
+      featured,
+      isPublic,
+      categoryId,
+      first,
+    ),
     ({ pageParam }) =>
       gqlClient.request(SOURCES_QUERY, {
-        categoryId,
-        featured: isFeatured,
         filterOpenSquads: isPublic,
-        first: 100,
+        categoryId,
+        featured,
+        first,
         after: pageParam,
       }),
     {

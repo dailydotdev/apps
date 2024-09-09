@@ -12,16 +12,13 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   FeedContainer,
   SquadGrid,
-  SourceCardBorderColor,
   SquadsDirectoryHeader,
 } from '@dailydotdev/shared/src/components';
-import { EditIcon, PlusIcon } from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { squadsPublicSuggestion } from '@dailydotdev/shared/src/lib/constants';
+import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
 import { GetStaticPropsResult } from 'next';
 import { ApiError } from 'next/dist/server/api-utils';
 import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
-import { Connection, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import {
   Button,
@@ -42,15 +39,14 @@ import { Origin } from '@dailydotdev/shared/src/lib/log';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
 import { StaleTime } from '@dailydotdev/shared/src/lib/query';
+import { SourcesQueryData } from '@dailydotdev/shared/src/hooks/source/useSources';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import FeedLayout, { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
 export type Props = {
-  initialData?: InfiniteData<{
-    sources: Connection<Squad>;
-  }>;
+  initialData?: InfiniteData<SourcesQueryData<Squad>>;
 };
 
 const seo: NextSeoProps = {
@@ -60,7 +56,7 @@ const seo: NextSeoProps = {
 };
 
 const SquadsPage = ({ initialData }: Props): ReactElement => {
-  const { user, squads } = useContext(AuthContext);
+  const { squads } = useContext(AuthContext);
   const { openNewSquad } = useSquadNavigation();
 
   const queryResult = useInfiniteQuery(
@@ -83,6 +79,9 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
   const hasSquad = !!squads?.length;
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isTabbedContainer = !isLaptop && hasSquad;
+  const flatSquads = queryResult?.data?.pages?.flatMap(
+    (page) => page.sources.edges,
+  );
 
   return (
     <>
@@ -118,8 +117,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
                     <SquadList
                       key={squad.handle}
                       squad={squad}
-                      elementProps={{ href: squad.permalink }}
-                      isUserSquad
+                      shouldShowCount={false}
                     />
                   ))}
                 </Tab>
@@ -146,61 +144,9 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
                 className="mt-5 px-6"
                 inlineHeader
               >
-                {queryResult?.data?.pages?.length > 0 && (
-                  <>
-                    {queryResult.data.pages.map((page) =>
-                      page.sources.edges.reduce(
-                        (
-                          nodes,
-                          { node: { name, permalink, id, ...props } },
-                        ) => {
-                          const isMember = user && props?.currentMember;
-
-                          nodes.push(
-                            <SquadGrid
-                              title={name}
-                              subtitle={`@${props.handle}`}
-                              action={{
-                                text: isMember ? 'View Squad' : 'Join Squad',
-                                type: isMember ? 'link' : 'action',
-                                href: isMember ? permalink : undefined,
-                              }}
-                              source={{
-                                name,
-                                permalink,
-                                id,
-                                borderColor: props.color,
-                                banner: props.headerImage,
-                                ...props,
-                              }}
-                            />,
-                          );
-
-                          return nodes;
-                        },
-                        [],
-                      ),
-                    )}
-                    {/* TODO: remove this on MI-510 */}
-                    <SquadGrid
-                      title="Which squads would you like to see next?"
-                      action={{
-                        type: 'link',
-                        text: 'Submit your idea',
-                        href: squadsPublicSuggestion,
-                        target: '_blank',
-                      }}
-                      icon={
-                        <EditIcon
-                          size={IconSize.XXLarge}
-                          className="text-text-tertiary"
-                        />
-                      }
-                      description="We're thrilled to see how our community has grown and evolved, thanks to your incredible support. Let your voice be heard and be part of the decision-making process."
-                      borderColor={SourceCardBorderColor.Pepper}
-                    />
-                  </>
-                )}
+                {flatSquads?.map(({ node }) => (
+                  <SquadGrid key={node.id} source={node} />
+                ))}
               </FeedContainer>
             </InfiniteScrolling>
           </ConditionalWrapper>
