@@ -8,20 +8,18 @@ import {
 } from '../../typography/Typography';
 import { Separator } from '../common';
 import { largeNumberFormat } from '../../../lib';
-import { ArrowIcon } from '../../icons';
-import { IconSize } from '../../Icon';
 import { CardLink } from '../Card';
 import { SquadJoinButton } from '../../squads/SquadJoinButton';
 import { Origin } from '../../../lib/log';
 
 interface SquadListProps {
   squad: Squad;
-  isUserSquad?: boolean;
+  shouldShowCount?: boolean;
 }
 
 export const SquadList = ({
   squad,
-  isUserSquad,
+  shouldShowCount = true,
 }: SquadListProps): ReactElement => {
   const router = useRouter();
   const { image, name, permalink } = squad;
@@ -44,30 +42,23 @@ export const SquadList = ({
           truncate
         >
           @{squad.handle}
-          {!isUserSquad && <Separator />}
-          {!isUserSquad && (
+          {shouldShowCount && <Separator />}
+          {shouldShowCount && (
             <strong data-testid="squad-members-count">
-              {largeNumberFormat(squad.membersCount)}
+              {largeNumberFormat(squad.membersCount)} members
             </strong>
           )}
         </Typography>
       </div>
-      {isUserSquad ? (
-        <ArrowIcon
-          data-testid="squad-list-arrow-icon"
-          className="ml-auto rotate-90 text-text-tertiary"
-          size={IconSize.Small}
-        />
-      ) : (
-        <SquadJoinButton
-          className={{ button: '!btn-tertiaryFloat z-0' }}
-          squad={squad}
-          origin={Origin.SquadDirectory}
-          onSuccess={() => router.push(permalink)}
-          joinText="Join"
-          data-testid="squad-action"
-        />
-      )}
+      <SquadJoinButton
+        className={{ button: '!btn-tertiaryFloat z-0' }}
+        squad={squad}
+        origin={Origin.SquadDirectory}
+        onSuccess={() => router.push(permalink)}
+        copy={{ join: 'Join', view: 'View' }}
+        data-testid="squad-action"
+        showViewSquad
+      />
     </div>
   );
 };
