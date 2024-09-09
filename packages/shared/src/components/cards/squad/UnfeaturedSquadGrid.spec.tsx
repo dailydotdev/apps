@@ -1,10 +1,4 @@
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import nock from 'nock';
@@ -24,7 +18,6 @@ import { waitForNock } from '../../../../__tests__/helpers/utilities';
 import { ActionType, COMPLETE_ACTION_MUTATION } from '../../../graphql/actions';
 import { UnfeaturedSquadGrid } from './UnfeaturedSquadGrid';
 
-const onClickTest = jest.fn();
 const routerReplace = jest.fn();
 const squads = [generateTestSquad()];
 const members = generateMembersList();
@@ -37,11 +30,7 @@ beforeEach(async () => {
   jest.clearAllMocks();
 });
 
-const renderComponent = (
-  isMember = false,
-  setSource = false,
-  setMembers = true,
-): RenderResult => {
+const renderComponent = (): RenderResult => {
   const client = new QueryClient();
 
   return render(
@@ -56,27 +45,7 @@ const renderComponent = (
         squads={squads}
       >
         <LazyModalElement />
-        <UnfeaturedSquadGrid
-          title="title"
-          subtitle="subtitle"
-          icon={<div>icon</div>}
-          action={{
-            type: isMember ? 'link' : 'action',
-            text: isMember ? 'View squad' : 'Test action',
-            onClick: isMember ? undefined : onClickTest,
-            href: isMember ? squads[0].permalink : undefined,
-          }}
-          source={
-            setSource && {
-              ...admin.source,
-              currentMember: setMembers ? admin.source.currentMember : null,
-              members: {
-                ...admin.source.members,
-                edges: setMembers ? admin.source.members.edges : [],
-              },
-            }
-          }
-        />
+        <UnfeaturedSquadGrid source={admin.source} />
       </AuthContextProvider>
     </QueryClientProvider>,
   );
@@ -85,50 +54,38 @@ const renderComponent = (
 it('should render the component with basic props', async () => {
   renderComponent();
 
-  expect(screen.getByText('title')).toBeInTheDocument();
-  expect(screen.getByText('icon')).toBeInTheDocument();
-  expect(screen.getByText('subtitle')).toBeInTheDocument();
-});
-
-it('should render the component and call the onClick function when the action button is clicked', async () => {
-  renderComponent();
-
-  const button = await screen.findByText('Test action');
-
-  fireEvent.click(button);
-  expect(onClickTest).toHaveBeenCalledTimes(1);
+  expect(screen.getByText(admin.source.name)).toBeInTheDocument();
 });
 
 it('should render the component with an image', () => {
-  renderComponent(false, true, true);
-  const img = screen.getByAltText('title source');
-  const icon = screen.queryByText('icon');
+  renderComponent();
+  const img = screen.getByAltText(`${admin.source.name} source`);
 
   expect(img).toHaveAttribute('src', admin.source.image);
-  expect(icon).not.toBeInTheDocument();
 });
 
 it('should render the component and member count when members are provided', () => {
-  renderComponent(false, true, true);
+  renderComponent();
 
   const memberCount = screen.getByTestId('squad-members-count');
+  const { length } = admin.source.members.edges;
 
   expect(memberCount).toBeInTheDocument();
-  expect(memberCount.innerHTML).toEqual(
-    admin.source.members.edges.length.toString(),
-  );
+  expect(memberCount.innerHTML).toEqual(`${length} members`);
 });
 
 it('should render the component with a view squad button', async () => {
-  renderComponent(true);
+  renderComponent();
 
   await waitFor(async () => {
-    const link = await screen.findByTestId('source-action');
-    expect(link).toHaveAttribute('href', squads[0].permalink);
+    const link = await screen.findByTestId('squad-action');
+    expect(link).toHaveAttribute('href', admin.source.permalink);
   });
 });
 
 it('should render the component with a join squad button', async () => {
+  const currentMember = { ...admin.source.currentMember };
+  delete admin.source.currentMember;
   mocked(useRouter).mockImplementation(
     () =>
       ({
@@ -136,7 +93,7 @@ it('should render the component with a join squad button', async () => {
         push: routerReplace,
       } as unknown as NextRouter),
   );
-  renderComponent(false, true, false);
+  renderComponent();
   let queryCalled = false;
   mockGraphQL({
     request: {
@@ -145,7 +102,7 @@ it('should render the component with a join squad button', async () => {
     },
     result: () => {
       queryCalled = true;
-      return { data: { source: admin.source } };
+      return { data: { source: { ...admin.source, currentMember } } };
     },
   });
 
