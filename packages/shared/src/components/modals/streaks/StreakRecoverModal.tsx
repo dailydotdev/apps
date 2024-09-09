@@ -151,6 +151,7 @@ export const StreakRecoverOptout = ({
       id={`showAgain-label-${id}`}
       tag={TypographyTag.Label}
       type={TypographyType.Footnote}
+      data-testid="streak-recover-optout"
     >
       Never show this again
     </Typography>
