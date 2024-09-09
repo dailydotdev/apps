@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { CardButton } from '../Card';
+import { CardLink } from '../Card';
 import { useFeedPreviewMode } from '../../../hooks';
 import { Post } from '../../../graphql/posts';
 import { webappUrl } from '../../../lib/constants';
@@ -21,7 +21,7 @@ const CardOverlay = ({
   }
 
   return (
-    <CardButton
+    <CardLink
       title={post.title}
       onClick={onPostCardClick}
       href={`${webappUrl}posts/${post.slug ?? post.id}`}
