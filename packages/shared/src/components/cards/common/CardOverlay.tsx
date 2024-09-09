@@ -4,7 +4,6 @@ import { useFeedPreviewMode } from '../../../hooks';
 import { Post } from '../../../graphql/posts';
 import { webappUrl } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
-import { combinedClicks } from '../../../lib/click';
 
 interface CardOverlayProps {
   post: Pick<Post, 'commentsPermalink' | 'title' | 'id' | 'slug'>;
@@ -26,7 +25,10 @@ const CardOverlay = ({
       title={post.title}
       href={`${webappUrl}posts/${post.slug ?? post.id}`}
       rel={anchorDefaultRel}
-      {...combinedClicks(onPostCardClick)}
+      onClick={(event) => {
+        event.preventDefault();
+        onPostCardClick?.();
+      }}
     />
   );
 };
