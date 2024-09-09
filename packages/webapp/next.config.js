@@ -85,6 +85,10 @@ module.exports = {
       },
       rewrites: () => [
         {
+          source: '/api/sitemaps/:path*',
+          destination: `${process.env.NEXT_PUBLIC_API_URL}/sitemaps/:path*`,
+        },
+        {
           source: '/search',
           destination: '/search/:provider',
           has: [
