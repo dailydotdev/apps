@@ -27,7 +27,7 @@ function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
     result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
 
   return (
-    <div className="mx-auto mt-5 flex w-full max-w-[99.75rem] flex-col px-5">
+    <div className="mx-auto mt-5 flex w-full flex-col px-5">
       <InfiniteScrolling
         isFetchingNextPage={result.isFetchingNextPage}
         canFetchMore={checkFetchMore(result)}
