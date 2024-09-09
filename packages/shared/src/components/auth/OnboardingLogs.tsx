@@ -128,11 +128,17 @@ const EXPERIENCE_TO_SENIORITY: Record<
 };
 
 export const logSignUp = ({ experienceLevel }: LogSignUpProps): void => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const isExtension = urlParams.get('ref') === 'install';
+
   const isEngineer = !!experienceLevel && experienceLevel !== 'NOT_ENGINEER';
   if (typeof globalThis.gtag === 'function') {
     globalThis.gtag('event', 'signup');
     if (isEngineer) {
       globalThis.gtag('event', 'engineer_signup');
+    }
+    if (isExtension) {
+      globalThis.gtag('event', 'extension_signup');
     }
   }
 
@@ -144,6 +150,9 @@ export const logSignUp = ({ experienceLevel }: LogSignUpProps): void => {
     }
     if (isEngineer) {
       globalThis.fbq('track', 'engineer signup');
+    }
+    if (isExtension) {
+      globalThis.fbq('track', 'extension_signup');
     }
   }
 

@@ -3,7 +3,6 @@ import { useMutation } from '@tanstack/react-query';
 import {
   HIDE_POST_MUTATION,
   REPORT_POST_MUTATION,
-  ReportReason,
   UNHIDE_POST_MUTATION,
 } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
@@ -11,6 +10,7 @@ import { BooleanPromise } from '../components/filters/common';
 import { AuthTriggers } from '../lib/auth';
 import { useRequestProtocol } from './useRequestProtocol';
 import { gqlClient } from '../graphql/common';
+import { ReportReason } from '../report';
 
 type UseReportPostRet = {
   reportPost: (variables: {
