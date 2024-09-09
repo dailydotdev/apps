@@ -14,6 +14,7 @@ import { UnFeaturedSquadCardProps } from './common/types';
 import { Origin } from '../../../lib/log';
 import { SquadJoinButton } from '../../squads/SquadJoinButton';
 import { ButtonVariant } from '../../buttons/common';
+import { Image, ImageType } from '../../image/Image';
 
 export const UnfeaturedSquadGrid = ({
   source,
@@ -35,10 +36,11 @@ export const UnfeaturedSquadGrid = ({
         title={source.description}
       />
       <div className="mb-3 flex items-center justify-between">
-        <img
-          className={classNames('size-16 rounded-full', className)}
+        <Image
           src={source.image}
           alt={`${title} source`}
+          className="size-16 rounded-full"
+          type={ImageType.Squad}
         />
         <SquadJoinButton
           className={{ button: 'z-0' }}
