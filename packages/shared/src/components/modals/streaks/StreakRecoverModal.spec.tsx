@@ -316,15 +316,16 @@ it('Should show success message on recover', async () => {
   mockRecoveryMutation({}, () => {
     mutationCalled = true;
   });
+  await waitForNock();
 
   mockAlertsMutation();
   await waitForNock();
 
   // expect mutation to be called
-  expect(mutationCalled).toBeTruthy();
-  await waitForNock();
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
 
   // expect success message
+  await waitForNock();
   expect(displayToast).toHaveBeenCalledWith(
     'Lucky you! Your streak has been restored',
   );
