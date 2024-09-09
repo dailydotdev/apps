@@ -199,6 +199,7 @@ export default {
       },
       width: {
         70: '17.5rem',
+        76: '18.75rem',
       },
       height: {
         logo: '1.125rem',
