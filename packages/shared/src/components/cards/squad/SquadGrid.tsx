@@ -43,6 +43,7 @@ const borderColorToClassName: Record<SourceCardBorderColor, string> = {
 
 export const SquadGrid = ({
   source,
+  className,
 }: UnFeaturedSquadCardProps): ReactElement => {
   const router = useRouter();
   const { banner, image, name, handle, description, permalink, membersCount } =
@@ -54,6 +55,7 @@ export const SquadGrid = ({
       className={classNames(
         'overflow-hidden !p-0',
         borderColorToClassName[borderColor],
+        className,
       )}
     >
       <div className="h-24 rounded-t-16 bg-accent-onion-bolder">
