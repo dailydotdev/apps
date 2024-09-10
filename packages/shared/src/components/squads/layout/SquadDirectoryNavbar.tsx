@@ -85,6 +85,7 @@ export const SquadDirectoryNavbar = (
           disabled={isAtStart}
           icon={<ArrowIcon className="-rotate-90" />}
           onClick={onClickPrevious}
+          size={ButtonSize.XSmall}
           variant={ButtonVariant.Option}
         />
       )}

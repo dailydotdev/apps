@@ -1,10 +1,12 @@
 import React, {
+  ComponentProps,
   PropsWithChildren,
   ReactElement,
   useEffect,
   useId,
 } from 'react';
 import { useRouter } from 'next/router';
+import classNames from 'classnames';
 import {
   Button,
   ButtonProps,
@@ -22,7 +24,7 @@ import { PlusIcon } from '../../icons';
 import { useSquadDirectoryLayout } from './useSquadDirectoryLayout';
 import { SquadList } from '../../cards/squad/SquadList';
 
-type SquadDirectoryLayoutProps = PropsWithChildren;
+type SquadDirectoryLayoutProps = PropsWithChildren & ComponentProps<'section'>;
 
 const NewSquadButton = (
   props: Pick<ButtonProps<'button'>, 'variant' | 'icon'>,
@@ -51,7 +53,7 @@ const NewSquadButton = (
 export const SquadDirectoryLayout = (
   props: SquadDirectoryLayoutProps,
 ): ReactElement => {
-  const { children } = props;
+  const { children, className, ...attrs } = props;
 
   const id = useId();
   const { pathname } = useRouter();
@@ -105,7 +107,7 @@ export const SquadDirectoryLayout = (
           </div>
         </div>
       </header>
-      <section className="w-full">
+      <section {...attrs} className={classNames('w-full', className)}>
         {mySquadsTab.isActive && mySquadsTab.isVisible ? (
           <div className="flex flex-col gap-4 px-4">
             {squads.map((squad) => (
