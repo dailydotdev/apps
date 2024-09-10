@@ -1,5 +1,4 @@
 import React, { ReactElement, ReactNode } from 'react';
-import classNames from 'classnames';
 import { Squad } from '../../../graphql/sources';
 import {
   SourcesQueryProps,
@@ -33,7 +32,7 @@ export function SquadHorizontalList({
 
   return (
     <HorizontalScroll
-      className={{ container: classNames('mx-16', className), scroll: 'gap-6' }}
+      className={{ container: className, scroll: 'gap-6' }}
       scrollProps={{ title, linkToSeeAll }}
     >
       {flatSources?.map(({ node }) =>
