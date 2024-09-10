@@ -279,12 +279,12 @@ describe('Feed', () => {
     expect(elements.length).toBeGreaterThan(0);
     const [latest, old] = elements;
     // eslint-disable-next-line testing-library/no-node-access
-    const latestTitle = latest.querySelector('button').getAttribute('title');
+    const latestTitle = latest.querySelector('a').getAttribute('title');
     const latestPost = defaultFeedPage.edges.find(
       (edge) => edge.node.title === latestTitle,
     ).node;
     // eslint-disable-next-line testing-library/no-node-access
-    const oldTitle = old.querySelector('button').getAttribute('title');
+    const oldTitle = old.querySelector('a').getAttribute('title');
     const oldPost = defaultFeedPage.edges.find(
       (edge) => edge.node.title === oldTitle,
     ).node;
