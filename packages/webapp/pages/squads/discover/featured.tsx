@@ -75,12 +75,12 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
               ))}
             </FeedContainer>
           ) : (
-            <>
+            <div className="flex flex-col gap-3" role="list">
               {flatSquads.map(({ node }) => {
                 const { id } = node;
                 return <SquadList key={id} squad={node} />;
               })}
-            </>
+            </div>
           )}
         </InfiniteScrolling>
       </SquadDirectoryLayout>
