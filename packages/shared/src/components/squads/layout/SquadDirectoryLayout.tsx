@@ -118,7 +118,7 @@ export const SquadDirectoryLayout = (
         className={classNames('flex w-full flex-col pt-5', className)}
       >
         {mySquadsTab.isActive && mySquadsTab.isVisible ? (
-          <div className="flex flex-col gap-4 px-4">
+          <div className="flex flex-col gap-3">
             {squads.map((squad) => (
               <SquadList key={squad.handle} squad={squad} />
             ))}
