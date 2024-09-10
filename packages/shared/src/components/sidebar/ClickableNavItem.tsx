@@ -1,6 +1,6 @@
 import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
-import Link from 'next/link';
 import classNames from 'classnames';
+import Link from '../utilities/Link';
 import { navBtnClass, SidebarMenuItem } from './common';
 
 interface ClickableNavItemProps

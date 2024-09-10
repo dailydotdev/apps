@@ -4,9 +4,9 @@ import classNames from 'classnames';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { isTouchDevice } from '@dailydotdev/shared/src/lib/tooltip';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import SidebarNavItem from './SidebarNavItem';
 import {
   AccountPage,

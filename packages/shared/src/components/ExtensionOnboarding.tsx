@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect } from 'react';
-import Link from 'next/link';
+import Link from './utilities/Link';
 import Logo, { LogoPosition } from './Logo';
 import { OnboardingTitleGradient } from './onboarding/common';
 import { onboardingUrl } from '../lib/constants';

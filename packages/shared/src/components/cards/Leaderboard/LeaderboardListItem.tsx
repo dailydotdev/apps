@@ -1,7 +1,7 @@
 import React, { ReactElement, ReactNode } from 'react';
-import Link from 'next/link';
 import { largeNumberFormat } from '../../../lib';
 import ConditionalWrapper from '../../ConditionalWrapper';
+import Link from '../../utilities/Link';
 
 interface LeaderboardListItemProps {
   href?: string;

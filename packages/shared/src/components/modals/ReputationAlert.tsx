@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import Link from 'next/link';
+import Link from '../utilities/Link';
 import Alert, { AlertProps, AlertType } from '../widgets/Alert';
 import { webappUrl } from '../../lib/constants';
 

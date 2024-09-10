@@ -1,5 +1,5 @@
 import React, { ReactElement, AnchorHTMLAttributes, ReactNode } from 'react';
-import Link, { LinkProps } from 'next/link';
+import Link, { LinkProps } from './Link';
 
 interface SelectableLinkProps {
   href: string;

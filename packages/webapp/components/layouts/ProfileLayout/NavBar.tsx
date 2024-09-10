@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import Link from 'next/link';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import {
@@ -10,6 +9,7 @@ import {
 import classNames from 'classnames';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
 import { useScrollTopClassName } from '@dailydotdev/shared/src/hooks/useScrollTopClassName';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import styles from './NavBar.module.css';
 
 export type Tab = { path: string; title: string };

@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import Link from 'next/link';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
+import Link from '../utilities/Link';
 import { SourceMember, SourceMemberRole } from '../../graphql/sources';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import { Image } from '../image/Image';
