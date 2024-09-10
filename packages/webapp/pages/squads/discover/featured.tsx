@@ -62,27 +62,27 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
       <NextSeo {...seo} />
 
       <SquadDirectoryLayout>
-        {isTablet ? (
-          <InfiniteScrolling
-            isFetchingNextPage={queryResult.isFetchingNextPage}
-            canFetchMore={checkFetchMore(queryResult)}
-            fetchNextPage={queryResult.fetchNextPage}
-            className="w-full"
-          >
+        <InfiniteScrolling
+          isFetchingNextPage={queryResult.isFetchingNextPage}
+          canFetchMore={checkFetchMore(queryResult)}
+          fetchNextPage={queryResult.fetchNextPage}
+          className="w-full"
+        >
+          {isTablet ? (
             <FeedContainer className="mt-5" inlineHeader>
               {flatSquads?.map(({ node }) => (
                 <SquadGrid key={node.id} source={node} />
               ))}
             </FeedContainer>
-          </InfiniteScrolling>
-        ) : (
-          <>
-            {flatSquads.map(({ node }) => {
-              const { id } = node;
-              return <SquadList key={id} squad={node} />;
-            })}
-          </>
-        )}
+          ) : (
+            <>
+              {flatSquads.map(({ node }) => {
+                const { id } = node;
+                return <SquadList key={id} squad={node} />;
+              })}
+            </>
+          )}
+        </InfiniteScrolling>
       </SquadDirectoryLayout>
     </>
   );
