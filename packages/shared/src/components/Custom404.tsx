@@ -1,5 +1,5 @@
 import React, { ReactElement, ReactNode } from 'react';
-import Link from 'next/link';
+import Link from './utilities/Link';
 import { PageContainer } from './utilities';
 import { Button, ButtonVariant } from './buttons/Button';
 import { useThemedAsset } from '../hooks/utils';

@@ -1,7 +1,7 @@
 import React, { ReactElement, useMemo } from 'react';
 import classNames from 'classnames';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
+import Link from '../utilities/Link';
 import { Notification } from '../../graphql/notifications';
 import { useObjectPurify } from '../../hooks/useDomPurify';
 import NotificationItemIcon from './NotificationIcon';

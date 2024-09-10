@@ -1,6 +1,6 @@
 import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
-import Link from 'next/link';
 import classNames from 'classnames';
+import Link from '../../utilities/Link';
 import ActionButtons from './ActionButtons';
 import { Container, PostCardProps } from '../common';
 import FeedItemContainer from './FeedItemContainer';

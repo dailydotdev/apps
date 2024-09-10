@@ -122,7 +122,7 @@ export default function NewStreakModal({
           name="show_streaks"
           className="mt-10"
           checked={isStreakModalDisabled}
-          onToggle={handleOptOut}
+          onToggleCallback={handleOptOut}
         >
           Never show this again
         </Checkbox>

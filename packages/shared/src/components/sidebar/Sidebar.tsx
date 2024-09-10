@@ -1,8 +1,8 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
 import classNames from 'classnames';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
+import Link from '../utilities/Link';
 import SettingsContext from '../../contexts/SettingsContext';
 import {
   Nav,

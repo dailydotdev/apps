@@ -103,7 +103,7 @@ const SubmitSquadForReviewModal = ({
           className="ml-4"
           name="meets_requirements"
           checked={meets}
-          onToggle={setMeets}
+          onToggleCallback={setMeets}
         >
           {squad.name} meets all the requirements above
         </Checkbox>
