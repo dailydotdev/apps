@@ -9,7 +9,7 @@ import { SquadImage } from '../squads/SquadImage';
 
 export function SquadSection(props: SectionCommonProps): ReactElement {
   const { squads } = useContext(AuthContext);
-  const { openNewSquad } = useSquadNavigation();
+  const { openNewSquad, newSquadUrl } = useSquadNavigation();
 
   const squadMenuItems: SidebarMenuItem[] = [
     {
@@ -40,6 +40,8 @@ export function SquadSection(props: SectionCommonProps): ReactElement {
     icon: () => <NewSquadIcon />,
     title: 'New Squad',
     action: () => openNewSquad({ origin: Origin.Sidebar }),
+    path: newSquadUrl,
+    requiresLogin: true,
   });
 
   return (

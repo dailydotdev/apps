@@ -13,7 +13,7 @@ interface SquadsDirectoryHeaderProps {
 export const SquadsDirectoryHeader = ({
   className,
 }: SquadsDirectoryHeaderProps): ReactElement => {
-  const { openNewSquad } = useSquadNavigation();
+  const { openNewSquad, newSquadUrl } = useSquadNavigation();
 
   return (
     <div
@@ -41,8 +41,13 @@ export const SquadsDirectoryHeader = ({
           className="mb-6"
           variant={ButtonVariant.Primary}
           tag="a"
-          onClick={() => openNewSquad({ origin: Origin.SquadDirectory })}
+          onClick={(event) =>
+            openNewSquad({ event, origin: Origin.SquadDirectory })
+          }
           data-testid="squad-directory-join-waitlist"
+          href={`${newSquadUrl}?origin=${Origin.SquadDirectory}`}
+          title="Create a new squad"
+          aria-label="Create a new squad"
         >
           New Squad
         </Button>
