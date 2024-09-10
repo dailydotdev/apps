@@ -1,7 +1,13 @@
-import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
+import React, {
+  HTMLAttributes,
+  ReactElement,
+  ReactNode,
+  useCallback,
+} from 'react';
 import classNames from 'classnames';
 import Link from '../utilities/Link';
 import { navBtnClass, SidebarMenuItem } from './common';
+import { combinedClicks } from '../../lib/click';
 
 interface ClickableNavItemProps
   extends HTMLAttributes<HTMLButtonElement | HTMLAnchorElement> {
@@ -18,25 +24,24 @@ export function ClickableNavItem({
   children,
   ...props
 }: ClickableNavItemProps): ReactElement {
-  if (showLogin) {
-    return (
-      <button
-        {...props}
-        type="button"
-        className={classNames(navBtnClass, props.className)}
-        onClick={showLogin}
-      >
-        {children}
-      </button>
-    );
-  }
+  const onClick = useCallback(
+    (event: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => {
+      if (showLogin) {
+        event.preventDefault();
+        showLogin();
+      } else {
+        item.action?.();
+      }
+    },
+    [showLogin, item],
+  );
 
   if (!isButton && (!item.action || item.path)) {
     return (
       <Link href={item.path} passHref prefetch={false}>
         <a
-          {...(item.action && { onClick: item.action })}
           {...props}
+          {...combinedClicks(onClick)}
           target={item?.target}
           className={classNames(navBtnClass, props.className)}
           rel="noopener noreferrer"
@@ -48,12 +53,7 @@ export function ClickableNavItem({
   }
 
   return (
-    <button
-      {...props}
-      type="button"
-      className={navBtnClass}
-      onClick={item.action}
-    >
+    <button {...props} type="button" className={navBtnClass} onClick={onClick}>
       {children}
     </button>
   );
