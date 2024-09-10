@@ -92,13 +92,13 @@ export const SquadDirectoryLayout = (
                 isActive={pathname === path && !mySquadsTab.isActive}
                 key={category}
                 label={category}
+                path={path}
                 onClick={(e) => {
                   if (mySquadsTab.isActive && pathname === path) {
                     e.preventDefault();
                     mySquadsTab.toggle(false);
                   }
                 }}
-                path={path}
               />
             ))}
           </SquadDirectoryNavbar>
