@@ -23,6 +23,7 @@ import {
 import { PlusIcon } from '../../icons';
 import { useSquadDirectoryLayout } from './useSquadDirectoryLayout';
 import { SquadList } from '../../cards/squad/SquadList';
+import { squadCategoriesPaths } from '../../../lib/constants';
 
 type SquadDirectoryLayoutProps = PropsWithChildren & ComponentProps<'section'>;
 
@@ -66,14 +67,19 @@ export const SquadDirectoryLayout = (
     element?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
   }, [id, pathname]);
 
+  const isDiscover = pathname === squadCategoriesPaths.discover;
+
   return (
     <BaseFeedPage className="relative mb-4 flex-col px-4 pt-4 laptop:px-18 laptop:pt-8">
-      <header className="w-full">
+      {isDiscover && (
+        <div className="absolute inset-0 -z-1 h-[25rem] w-full bg-gradient-to-t from-accent-cabbage-default from-10% to-background-default" />
+      )}
+      <header className="flex w-full flex-col gap-2">
         <section className="flex w-full flex-row items-center justify-between typo-body laptop:hidden">
           <strong>Squads</strong>
           <NewSquadButton icon={<PlusIcon />} variant={ButtonVariant.Float} />
         </section>
-        <div className="flex max-w-full flex-row flex-nowrap items-center justify-between gap-6 py-4 laptop:gap-22">
+        <div className="flex max-w-full flex-row flex-nowrap items-center justify-between gap-6 laptop:gap-22">
           <SquadDirectoryNavbar className="min-w-0 flex-1">
             {mySquadsTab.isVisible && (
               <SquadDirectoryNavbarItem
@@ -106,7 +112,10 @@ export const SquadDirectoryLayout = (
           </div>
         </div>
       </header>
-      <section {...attrs} className={classNames('w-full', className)}>
+      <section
+        {...attrs}
+        className={classNames('flex w-full flex-col pt-5', className)}
+      >
         {mySquadsTab.isActive && mySquadsTab.isVisible ? (
           <div className="flex flex-col gap-4 px-4">
             {squads.map((squad) => (

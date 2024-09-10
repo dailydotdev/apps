@@ -12,8 +12,11 @@ import InfiniteScrolling, {
 } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { UnfeaturedSquadGrid } from '@dailydotdev/shared/src/components/cards/squad/UnfeaturedSquadGrid';
 import { Squad } from '@dailydotdev/shared/src/graphql/sources';
+import { NextSeo } from 'next-seo';
+import { SquadDirectoryLayout } from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryLayout';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
+import { defaultSeo } from '../../../next-seo';
 
 interface SquadCategoryPageProps {
   category: SourceCategory;
@@ -26,8 +29,12 @@ function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
   const flatSources =
     result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
 
+  const title = `${category?.title} Directory`;
+  const description = `Explore the ${category?.title} Squads on daily.dev, where developers share insights, collaborate on projects, and discuss the latest trends. Join a squad that matches your interests and elevate your developer journey.`;
+
   return (
-    <div className="mx-auto mt-5 flex w-full flex-col px-5">
+    <SquadDirectoryLayout>
+      <NextSeo {...defaultSeo} title={title} description={description} />
       <InfiniteScrolling
         isFetchingNextPage={result.isFetchingNextPage}
         canFetchMore={checkFetchMore(result)}
@@ -38,7 +45,7 @@ function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
           <UnfeaturedSquadGrid key={node.id} source={node as Squad} />
         ))}
       </InfiniteScrolling>
-    </div>
+    </SquadDirectoryLayout>
   );
 }
 
