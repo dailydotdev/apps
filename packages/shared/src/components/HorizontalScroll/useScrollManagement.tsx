@@ -19,7 +19,7 @@ export const useScrollManagement = (
       const { scrollLeft, scrollWidth, clientWidth } = ref.current;
 
       setIsAtStart(scrollLeft === 0);
-      setIsAtEnd(scrollLeft + clientWidth >= scrollWidth);
+      setIsAtEnd(scrollLeft + clientWidth >= scrollWidth - 1);
     }
   }, [ref, onScroll]);
 

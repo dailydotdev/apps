@@ -1,8 +1,8 @@
 import { useRouter } from 'next/router';
-import { useCallback, useContext, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { Origin } from '../lib/log';
 import { AuthTriggers } from '../lib/auth';
-import AuthContext from '../contexts/AuthContext';
+import { useAuthContext } from '../contexts/AuthContext';
 import { webappUrl } from '../lib/constants';
 
 type OpenNewSquadProps = { origin: Origin };
@@ -13,7 +13,7 @@ interface UseSquadNavigation {
 }
 
 export const useSquadNavigation = (): UseSquadNavigation => {
-  const { user, showLogin } = useContext(AuthContext);
+  const { user, showLogin } = useAuthContext();
   const router = useRouter();
 
   const openNewSquad = useCallback(

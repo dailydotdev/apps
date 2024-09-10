@@ -4,13 +4,14 @@ import { SquadHorizontalList } from '@dailydotdev/shared/src/components/cards/sq
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
+import { SquadDirectoryLayout } from '../../../../shared/src/components/squads/layout/SquadDirectoryLayout';
 
 function SquadDiscoveryPage(): ReactElement {
   const { data } = useSquadCategories();
   const categories = data?.pages.flatMap((page) => page.categories.edges) ?? [];
 
   return (
-    <div className="relative flex w-full flex-col gap-6 p-5">
+    <SquadDirectoryLayout className="relative flex w-full flex-col gap-6 p-5">
       <div className="absolute inset-0 h-[25rem] w-full bg-gradient-to-t from-accent-cabbage-default from-10% to-background-default" />
       <SquadHorizontalList
         key="featured"
@@ -38,7 +39,7 @@ function SquadDiscoveryPage(): ReactElement {
           }}
         />
       ))}
-    </div>
+    </SquadDirectoryLayout>
   );
 }
 
