@@ -1,10 +1,4 @@
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import nock from 'nock';
@@ -18,7 +12,7 @@ import {
   generateTestAdmin,
   generateTestSquad,
 } from '../../../../__tests__/fixture/squads';
-import { SquadGrid, SourceCardBorderColor } from './SquadGrid';
+import { SquadGrid } from './SquadGrid';
 import { LazyModalElement } from '../../modals/LazyModalElement';
 import {
   MockedGraphQLResponse,
@@ -33,7 +27,6 @@ import { waitForNock } from '../../../../__tests__/helpers/utilities';
 import { cloudinary } from '../../../lib/image';
 import { ActionType, COMPLETE_ACTION_MUTATION } from '../../../graphql/actions';
 
-const onClickTest = jest.fn();
 const routerReplace = jest.fn();
 const squads = [generateTestSquad()];
 const members = generateMembersList();
@@ -66,12 +59,7 @@ beforeEach(async () => {
   jest.clearAllMocks();
 });
 
-const renderComponent = (
-  isMember = false,
-  customStyle = false,
-  setSource = false,
-  setMembers = true,
-): RenderResult => {
+const renderComponent = (): RenderResult => {
   const client = new QueryClient();
 
   return render(
@@ -86,36 +74,7 @@ const renderComponent = (
         squads={squads}
       >
         <LazyModalElement />
-        <SquadGrid
-          title="title"
-          subtitle="subtitle"
-          icon={<div>icon</div>}
-          action={{
-            type: isMember ? 'link' : 'action',
-            text: isMember ? 'View squad' : 'Test action',
-            onClick: isMember ? undefined : onClickTest,
-            href: isMember ? squads[0].permalink : undefined,
-          }}
-          banner={customStyle ? 'banner-image.jpg' : undefined}
-          borderColor={customStyle ? SourceCardBorderColor.Onion : undefined}
-          source={
-            setSource && {
-              ...admin.source,
-              currentMember: setMembers ? admin.source.currentMember : null,
-              members: {
-                ...admin.source.members,
-                edges: setMembers ? admin.source.members.edges : [],
-              },
-            }
-          }
-          // source={
-          //   hasMembers && {
-          //     ...admin.source,
-          //     image: 'test-image.jpg',
-          //     membersCount: hasMembers ? squads[0].membersCount : undefined,
-          //   }
-          // }
-        />
+        <SquadGrid source={admin.source} />
       </AuthContextProvider>
     </QueryClientProvider>,
   );
@@ -124,48 +83,37 @@ const renderComponent = (
 it('should render the component with basic props', async () => {
   renderComponent();
   const element = screen.getByRole('article');
-  const img = screen.getByAltText('Banner image for source');
+  const banner = screen.getByAltText('Banner image for source');
+  const avatar = screen.getByAltText(`${admin.source.name} source`);
 
-  expect(screen.getByText('title')).toBeInTheDocument();
-  expect(screen.getByText('icon')).toBeInTheDocument();
+  expect(screen.getByText(admin.source.name)).toBeInTheDocument();
   expect(element).toHaveClass('!border-accent-avocado-default');
-  expect(img).toHaveAttribute(
+  expect(avatar).toHaveAttribute('src', admin.source.image);
+  expect(banner).toHaveAttribute(
     'src',
     cloudinary.squads.directory.cardBannerDefault,
   );
 });
 
-it('should render the component with basic props and custom border and banner', async () => {
-  renderComponent(false, true, false);
-  const element = screen.getByRole('article');
-  const img = screen.getByAltText('Banner image for source');
-
-  expect(screen.getByText('title')).toBeInTheDocument();
-  expect(screen.getByText('icon')).toBeInTheDocument();
-  expect(element).toHaveClass('!border-accent-onion-default');
-  expect(img).toHaveAttribute('src', 'banner-image.jpg');
-});
-
-it('should render the component and call the onClick function when the action button is clicked', async () => {
+it('should render the component with basic props with border and banner', async () => {
   renderComponent();
+  admin.source.borderColor = '!border-accent-avocado-default';
+  const element = screen.getByRole('article');
 
-  const button = await screen.findByText('Test action');
-
-  fireEvent.click(button);
-  expect(onClickTest).toHaveBeenCalledTimes(1);
+  expect(screen.getByText(admin.source.name)).toBeInTheDocument();
+  expect(element).toHaveClass(admin.source.borderColor);
 });
 
 it('should render the component with an image', () => {
-  renderComponent(false, false, true);
-  const img = screen.getByAltText('title source');
-  const icon = screen.queryByText('icon');
+  renderComponent();
+  const avatar = screen.getByAltText(`${admin.source.name} source`);
 
-  expect(img).toHaveAttribute('src', admin.source.image);
-  expect(icon).not.toBeInTheDocument();
+  expect(screen.getByText(admin.source.name)).toBeInTheDocument();
+  expect(avatar).toHaveAttribute('src', admin.source.image);
 });
 
 it('should render the component and member short list when members are provided', () => {
-  renderComponent(false, false, true);
+  renderComponent();
 
   const memberCount = screen.getByLabelText('squad-members-count');
 
@@ -176,21 +124,23 @@ it('should render the component and member short list when members are provided'
 });
 
 it('should show the admin on top of the list', async () => {
-  renderComponent(false, false, true);
+  renderComponent();
   const membersList = await openedMembersModal();
   expect(membersList[0].node.user.name).toEqual('Eliz Kılıç');
 });
 
 it('should render the component with a view squad button', async () => {
-  renderComponent(true);
+  renderComponent();
 
   await waitFor(async () => {
-    const link = await screen.findByTestId('source-action');
-    expect(link).toHaveAttribute('href', squads[0].permalink);
+    const link = await screen.findByTestId('squad-action');
+    expect(link).toHaveAttribute('href', admin.source.permalink);
   });
 });
 
 it('should render the component with a join squad button', async () => {
+  const currentMember = { ...admin.source.currentMember };
+  delete admin.source.currentMember;
   mocked(useRouter).mockImplementation(
     () =>
       ({
@@ -198,7 +148,7 @@ it('should render the component with a join squad button', async () => {
         push: routerReplace,
       } as unknown as NextRouter),
   );
-  renderComponent(false, true, true, false);
+  renderComponent();
   let queryCalled = false;
   mockGraphQL({
     request: {
@@ -207,7 +157,7 @@ it('should render the component with a join squad button', async () => {
     },
     result: () => {
       queryCalled = true;
-      return { data: { source: admin.source } };
+      return { data: { source: { ...admin.source, currentMember } } };
     },
   });
 
@@ -221,7 +171,7 @@ it('should render the component with a join squad button', async () => {
     },
   });
 
-  const btn = await screen.findByText('Test action');
+  const btn = await screen.findByText('Join Squad');
   btn.click();
   await waitForNock();
   await waitFor(async () => {

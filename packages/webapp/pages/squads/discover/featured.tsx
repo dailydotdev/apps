@@ -1,35 +1,31 @@
 import React, { ReactElement } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
-import { SQUAD_DIRECTORY_SOURCES } from '@dailydotdev/shared/src/graphql/squads';
+import { SOURCES_QUERY } from '@dailydotdev/shared/src/graphql/squads';
 import InfiniteScrolling, {
   checkFetchMore,
 } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { InfiniteData, useInfiniteQuery } from '@tanstack/react-query';
 import { ClientError } from 'graphql-request';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { FeedContainer, SquadGrid } from '@dailydotdev/shared/src/components';
 import { GetStaticPropsResult } from 'next';
 import { ApiError } from 'next/dist/server/api-utils';
 import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
-import { Connection, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { Squad } from '@dailydotdev/shared/src/graphql/sources';
-
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
-import { SquadDirectoryLayout } from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryLayout';
 import { StaleTime } from '@dailydotdev/shared/src/lib/query';
-import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
+import { SourcesQueryData } from '@dailydotdev/shared/src/hooks/source/useSources';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import { SquadCardAction } from '@dailydotdev/shared/src/components/cards/squad/common/types';
-import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
-import FeedLayout, { getLayout } from '../../../components/layouts/FeedLayout';
-import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
+import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
+import { SquadDirectoryLayout } from '../../../../shared/src/components/squads/layout/SquadDirectoryLayout';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
+import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
+import { getLayout } from '../../../components/layouts/FeedLayout';
+import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 
 export type Props = {
-  initialData?: InfiniteData<{
-    sources: Connection<Squad>;
-  }>;
+  initialData?: InfiniteData<SourcesQueryData<Squad>>;
 };
 
 const seo: NextSeoProps = {
@@ -39,12 +35,10 @@ const seo: NextSeoProps = {
 };
 
 const SquadsPage = ({ initialData }: Props): ReactElement => {
-  const { user } = useAuthContext();
-  const isTablet = useViewSize(ViewSize.Tablet);
   const queryResult = useInfiniteQuery(
     ['sourcesFeed'],
     ({ pageParam }) =>
-      gqlClient.request(SQUAD_DIRECTORY_SOURCES, {
+      gqlClient.request(SOURCES_QUERY, {
         filterOpenSquads: true,
         featured: true,
         first: 100,
@@ -58,72 +52,38 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
       staleTime: StaleTime.Default,
     },
   );
+  const isTablet = useViewSize(ViewSize.Tablet);
+  const flatSquads = queryResult?.data?.pages?.flatMap(
+    (page) => page.sources.edges,
+  );
 
   return (
     <>
       <NextSeo {...seo} />
 
-      <FeedLayout>
-        <SquadDirectoryLayout>
+      <SquadDirectoryLayout>
+        {isTablet ? (
           <InfiniteScrolling
             isFetchingNextPage={queryResult.isFetchingNextPage}
             canFetchMore={checkFetchMore(queryResult)}
             fetchNextPage={queryResult.fetchNextPage}
             className="w-full"
           >
-            <FeedContainer className="mt-2" inlineHeader>
-              {queryResult?.data?.pages?.length > 0 && (
-                <>
-                  {queryResult.data.pages.map((page) =>
-                    page.sources.edges.map(({ node }) => {
-                      const { name, permalink, id, ...props } = node;
-                      const action: SquadCardAction =
-                        user && props?.currentMember
-                          ? {
-                              text: 'View Squad',
-                              type: 'link',
-                              href: permalink,
-                            }
-                          : {
-                              text: 'Join Squad',
-                              type: 'action',
-                            };
-
-                      if (!isTablet) {
-                        return (
-                          <SquadList
-                            key={id}
-                            squad={node}
-                            action={action}
-                            isUserSquad
-                          />
-                        );
-                      }
-
-                      return (
-                        <SquadGrid
-                          key={id}
-                          title={name}
-                          subtitle={`@${props.handle}`}
-                          action={action}
-                          source={{
-                            name,
-                            permalink,
-                            id,
-                            borderColor: props.color,
-                            banner: props.headerImage,
-                            ...props,
-                          }}
-                        />
-                      );
-                    }),
-                  )}
-                </>
-              )}
+            <FeedContainer className="mt-5" inlineHeader>
+              {flatSquads?.map(({ node }) => (
+                <SquadGrid key={node.id} source={node} />
+              ))}
             </FeedContainer>
           </InfiniteScrolling>
-        </SquadDirectoryLayout>
-      </FeedLayout>
+        ) : (
+          <>
+            {flatSquads.map(({ node }) => {
+              const { id } = node;
+              return <SquadList key={id} squad={node} />;
+            })}
+          </>
+        )}
+      </SquadDirectoryLayout>
     </>
   );
 };
@@ -136,7 +96,7 @@ SquadsPage.layoutProps = {
 
 export async function getStaticProps(): Promise<GetStaticPropsResult<Props>> {
   try {
-    const initialData = await gqlClient.request(SQUAD_DIRECTORY_SOURCES, {
+    const initialData = await gqlClient.request(SOURCES_QUERY, {
       filterOpenSquads: true,
       featured: true,
       first: 100,

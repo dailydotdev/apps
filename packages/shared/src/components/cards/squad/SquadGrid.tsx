@@ -1,19 +1,14 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import SquadMemberShortList from '../../squads/SquadMemberShortList';
 import { Card } from '../Card';
-import { SourceType } from '../../../graphql/sources';
-import { Image } from '../../image/Image';
+import { Image, ImageType } from '../../image/Image';
 import { cloudinary } from '../../../lib/image';
 import { UnFeaturedSquadCardProps } from './common/types';
-import { SquadImage } from './common/SquadImage';
-import { SquadJoinButtonWrapper } from './common/SquadJoinButton';
-import { ButtonVariant } from '../../buttons/common';
+import { SquadJoinButton } from '../../squads/SquadJoinButton';
+import { Origin } from '../../../lib/log';
 
-interface SourceCardProps extends UnFeaturedSquadCardProps {
-  borderColor?: SourceCardBorderColor;
-  banner?: string;
-}
 export enum SourceCardBorderColor {
   Avocado = 'avocado',
   Burger = 'burger',
@@ -48,79 +43,65 @@ const borderColorToClassName: Record<SourceCardBorderColor, string> = {
 
 export const SquadGrid = ({
   source,
-  title,
-  subtitle,
-  icon,
-  action,
-  description,
-  borderColor = SourceCardBorderColor.Avocado,
-  banner,
-}: SourceCardProps): ReactElement => {
+  className,
+}: UnFeaturedSquadCardProps): ReactElement => {
+  const router = useRouter();
+  const { banner, image, name, handle, description, permalink, membersCount } =
+    source;
+  const borderColor = source.borderColor || SourceCardBorderColor.Avocado;
+
   return (
     <Card
       className={classNames(
         'overflow-hidden !p-0',
-        borderColorToClassName[source?.borderColor || borderColor],
+        borderColorToClassName[borderColor],
+        className,
       )}
     >
       <div className="h-24 rounded-t-16 bg-accent-onion-bolder">
         <Image
           className="h-full w-full object-cover"
-          src={
-            source?.banner ||
-            banner ||
-            cloudinary.squads.directory.cardBannerDefault
-          }
+          src={banner || cloudinary.squads.directory.cardBannerDefault}
           alt="Banner image for source"
         />
       </div>
       <div className="-mt-12 flex flex-1 flex-col rounded-t-16 bg-background-subtle p-4">
         <div className="mb-3 flex items-end justify-between">
-          <a href={source?.permalink}>
-            <SquadImage
-              image={source?.image}
-              icon={icon}
-              title={title}
-              className="-mt-14"
+          <a href={permalink}>
+            <Image
+              className="size-24 rounded-full"
+              src={image}
+              alt={`${name} source`}
+              type={ImageType.Squad}
             />
           </a>
-          {source?.membersCount > 0 && (
+          {membersCount > 0 && (
             <SquadMemberShortList
-              squad={{
-                ...source,
-                type: SourceType.Squad,
-              }}
-              members={source?.members?.edges?.reduce((acc, current) => {
-                acc.push(current.node);
-                return acc;
-              }, [])}
+              squad={source}
+              members={source.members?.edges?.map(({ node }) => node)}
             />
           )}
         </div>
         <div className="flex flex-1 flex-col justify-between">
           <div className="mb-5 flex-auto">
-            <a href={source?.permalink}>
-              <div className="font-bold typo-title3">{title}</div>
-              {subtitle && (
-                <div className="text-text-secondary">{subtitle}</div>
-              )}
+            <a href={permalink}>
+              <div className="font-bold typo-title3">{name}</div>
+              {handle && <div className="text-text-secondary">{handle}</div>}
             </a>
-            {description ||
-              (source?.description && (
-                <div className="multi-truncate mt-1 line-clamp-5 text-text-secondary">
-                  {source?.description || description}
-                </div>
-              ))}
+            {description && (
+              <div className="multi-truncate mt-1 line-clamp-5 text-text-secondary">
+                {description}
+              </div>
+            )}
           </div>
 
-          <SquadJoinButtonWrapper
-            action={action}
-            source={source}
-            variant={ButtonVariant.Secondary}
-            className={{
-              squadJoinButton: '!btn-secondary w-full',
-              simpleButton: 'w-full',
-            }}
+          <SquadJoinButton
+            showViewSquad
+            className={{ button: '!btn-secondary z-0 w-full' }}
+            squad={source}
+            origin={Origin.SquadDirectory}
+            onSuccess={() => router.push(source.permalink)}
+            data-testid="squad-action"
           />
         </div>
       </div>

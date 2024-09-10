@@ -83,7 +83,7 @@ export const SquadDirectoryLayout = (
                 onClick={() => mySquadsTab.toggle(true)}
               />
             )}
-            {Object.entries(categoryPaths).map(([category, path]) => (
+            {Object.entries(categoryPaths ?? {}).map(([category, path]) => (
               <SquadDirectoryNavbarItem
                 buttonSize={buttonSize}
                 id={`squad-item-${category}-${id}`}
@@ -109,12 +109,7 @@ export const SquadDirectoryLayout = (
         {mySquadsTab.isActive && mySquadsTab.isVisible ? (
           <div className="flex flex-col gap-4 px-4">
             {squads.map((squad) => (
-              <SquadList
-                key={squad.handle}
-                squad={squad}
-                elementProps={{ href: squad.permalink }}
-                isUserSquad
-              />
+              <SquadList key={squad.handle} squad={squad} />
             ))}
           </div>
         ) : (

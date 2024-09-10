@@ -1,10 +1,4 @@
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import nock from 'nock';
@@ -23,10 +17,10 @@ import { SQUAD_JOIN_MUTATION } from '../../../graphql/squads';
 import { waitForNock } from '../../../../__tests__/helpers/utilities';
 import { ActionType, COMPLETE_ACTION_MUTATION } from '../../../graphql/actions';
 import { SquadList } from './SquadList';
+import { Squad } from '../../../graphql/sources';
 
-const onClickTest = jest.fn();
 const routerReplace = jest.fn();
-const squads = [generateTestSquad()];
+const squadsList = [generateTestSquad()];
 const members = generateMembersList();
 const admin = generateTestAdmin();
 admin.source.members.edges = members;
@@ -37,13 +31,15 @@ beforeEach(async () => {
   jest.clearAllMocks();
 });
 
-const renderComponent = (
-  isMember = false,
-  setSource = false,
-  setMembers = true,
-  setImage = false,
-  otherProps = {},
-): RenderResult => {
+interface RenderComponent {
+  shouldShowCount?: boolean;
+  squads?: Squad[];
+}
+
+const renderComponent = ({
+  shouldShowCount,
+  squads = squadsList,
+}: RenderComponent = {}): RenderResult => {
   const client = new QueryClient();
 
   return render(
@@ -58,96 +54,43 @@ const renderComponent = (
         squads={squads}
       >
         <LazyModalElement />
-        <SquadList
-          action={{
-            type: isMember ? 'link' : 'action',
-            text: isMember ? 'View squad' : 'Test action',
-            onClick: isMember ? undefined : onClickTest,
-            href: isMember ? squads[0].permalink : undefined,
-          }}
-          squad={
-            setSource && {
-              ...admin.source,
-              image: setImage ? admin.source.image : undefined,
-              currentMember: setMembers ? admin.source.currentMember : null,
-              members: {
-                ...admin.source.members,
-                edges: setMembers ? admin.source.members.edges : [],
-              },
-            }
-          }
-          icon={<div>icon</div>}
-          {...otherProps}
-        />
+        <SquadList squad={admin.source} shouldShowCount={shouldShowCount} />
       </AuthContextProvider>
     </QueryClientProvider>,
   );
 };
 
 it('should render the component with basic props', async () => {
-  renderComponent(false, true, false);
-
-  expect(screen.getByText('Test')).toBeInTheDocument();
-  expect(screen.getByText('icon')).toBeInTheDocument();
-  expect(screen.getByText('@test')).toBeInTheDocument();
-});
-
-it('should render the component and call the onClick function when the action button is clicked', async () => {
   renderComponent();
 
-  const button = await screen.findByText('Test action');
-
-  fireEvent.click(button);
-  expect(onClickTest).toHaveBeenCalledTimes(1);
+  expect(screen.getByText('Test')).toBeInTheDocument();
+  expect(screen.getByText('@test')).toBeInTheDocument();
+  const img = `${admin.source.name} source`;
+  expect(screen.getByAltText(img)).toBeInTheDocument();
 });
 
-it('should render the component with an image', () => {
-  renderComponent(false, true, true, true);
-  const img = screen.getByAltText('Test source');
-  const icon = screen.queryByText('icon');
-
-  expect(img).toHaveAttribute('src', admin.source.image);
-  expect(icon).not.toBeInTheDocument();
-});
-
-it('should render the component and member count when members are provided and is not user squad', () => {
-  renderComponent(false, true, true);
+it('should render the component and member count when members are provided', () => {
+  renderComponent();
 
   const memberCount = screen.getByTestId('squad-members-count');
+  const { length } = admin.source.members.edges;
 
   expect(memberCount).toBeInTheDocument();
-  expect(memberCount.innerHTML).toEqual(
-    admin.source.members.edges.length.toString(),
-  );
-});
-
-it('should NOT render the component and member count when members are provided and is user squad', () => {
-  renderComponent(false, true, true, true, { isUserSquad: true });
-
-  const memberCount = screen.queryByTestId('squad-members-count');
-
-  expect(memberCount).not.toBeInTheDocument();
-});
-
-it('should render the component with a arrow and no action button', async () => {
-  renderComponent(true, true, true, true, { isUserSquad: true });
-
-  const link = screen.queryByTestId('source-action');
-  const arrow = screen.queryByTestId('squad-list-arrow-icon');
-  expect(link).not.toBeInTheDocument();
-  expect(arrow).toBeInTheDocument();
+  expect(memberCount.innerHTML).toEqual(`${length} members`);
 });
 
 it('should render the component with a view squad button', async () => {
-  renderComponent(true);
+  renderComponent({ squads: squadsList.concat(admin.source) });
 
   await waitFor(async () => {
-    const link = await screen.findByTestId('source-action');
-    expect(link).toHaveAttribute('href', squads[0].permalink);
+    const link = await screen.findByTestId('squad-action');
+    expect(link).toHaveAttribute('href', admin.source.permalink);
   });
 });
 
 it('should render the component with a join squad button', async () => {
+  const currentMember = { ...admin.source.currentMember };
+  delete admin.source.currentMember;
   mocked(useRouter).mockImplementation(
     () =>
       ({
@@ -155,7 +98,7 @@ it('should render the component with a join squad button', async () => {
         push: routerReplace,
       } as unknown as NextRouter),
   );
-  renderComponent(false, true, false);
+  renderComponent({ squads: [] });
   let queryCalled = false;
   mockGraphQL({
     request: {
@@ -164,7 +107,7 @@ it('should render the component with a join squad button', async () => {
     },
     result: () => {
       queryCalled = true;
-      return { data: { source: admin.source } };
+      return { data: { source: { ...admin.source, currentMember } } };
     },
   });
 
@@ -178,7 +121,7 @@ it('should render the component with a join squad button', async () => {
     },
   });
 
-  const btn = await screen.findByText('Test action');
+  const btn = await screen.findByText('Join');
   btn.click();
   await waitForNock();
   await waitFor(async () => {

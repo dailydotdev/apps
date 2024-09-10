@@ -79,9 +79,21 @@ export const DELETE_SQUAD_MUTATION = gql`
   }
 `;
 
-export const SQUAD_DIRECTORY_SOURCES = gql`
-  query Squads($filterOpenSquads: Boolean, $featured: Boolean) {
-    sources(filterOpenSquads: $filterOpenSquads, featured: $featured) {
+export const SOURCES_QUERY = gql`
+  query Squads(
+    $filterOpenSquads: Boolean
+    $featured: Boolean
+    $after: String
+    $first: Int
+    $categoryId: String
+  ) {
+    sources(
+      filterOpenSquads: $filterOpenSquads
+      featured: $featured
+      after: $after
+      first: $first
+      categoryId: $categoryId
+    ) {
       pageInfo {
         endCursor
         hasNextPage
@@ -89,6 +101,12 @@ export const SQUAD_DIRECTORY_SOURCES = gql`
       edges {
         node {
           ...SourceBaseInfo
+          flags {
+            featured
+            totalPosts
+            totalViews
+            totalUpvotes
+          }
           headerImage
           color
           membersCount

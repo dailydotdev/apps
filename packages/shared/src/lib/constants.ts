@@ -71,14 +71,4 @@ export const migrateUserToStreaks = 'https://r.daily.dev/streaks';
 export const squadCategoriesPaths = {
   discover: '/squads/discover',
   featured: '/squads/discover/featured',
-  general: '/squads/discover/general',
-  web: '/squads/discover/web',
-  mobile: '/squads/discover/mobile',
-  games: '/squads/discover/games',
-  devOps: '/squads/discover/DevOps',
-  cloud: '/squads/discover/cloud',
-  career: '/squads/discover/career',
-  data: '/squads/discover/data',
-  fun: '/squads/discover/fun',
-  devtools: '/squads/discover/devtools',
 };
