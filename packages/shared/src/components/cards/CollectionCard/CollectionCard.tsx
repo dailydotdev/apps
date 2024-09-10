@@ -21,6 +21,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
     onMenuClick,
     onCopyLinkClick,
     onPostClick,
+    onPostAuxClick,
     onBookmarkClick,
     onDownvoteClick,
     onShare,
@@ -30,6 +31,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
   const { pinnedAt, trending } = post;
   const image = usePostImage(post);
   const onPostCardClick = () => onPostClick(post);
+  const onPostCardAuxClick = () => onPostAuxClick(post);
   return (
     <FeedItemContainer
       domProps={{
@@ -40,7 +42,11 @@ export const CollectionCard = forwardRef(function CollectionCard(
       flagProps={{ pinnedAt, trending }}
       bookmarked={post.bookmarked}
     >
-      <CardOverlay post={post} onPostCardClick={onPostCardClick} />
+      <CardOverlay
+        post={post}
+        onPostCardClick={onPostCardClick}
+        onPostCardAuxClick={onPostCardAuxClick}
+      />
       <CollectionCardHeader
         sources={post.collectionSources}
         totalSources={post.numCollectionSources}

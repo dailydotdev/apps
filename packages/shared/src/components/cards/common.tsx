@@ -36,6 +36,7 @@ export const Container = classed('div', 'relative flex flex-1 flex-col');
 export interface PostCardProps extends CommonCardCoverProps {
   post: Post;
   onPostClick?: Callback;
+  onPostAuxClick?: Callback;
   onBookmarkClick?: Callback;
   onUpvoteClick?: (post: Post, origin?: Origin) => unknown;
   onDownvoteClick?: (post: Post, origin?: Origin) => unknown;
