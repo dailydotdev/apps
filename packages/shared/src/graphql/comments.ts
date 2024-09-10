@@ -6,13 +6,6 @@ import { UserShortProfile } from '../lib/user';
 import type { Post, UserVote } from './posts';
 import { Company } from '../lib/userCompany';
 
-export type ReportCommentReason =
-  | 'HATEFUL'
-  | 'HARASSMENT'
-  | 'SPAM'
-  | 'EXPLICIT'
-  | 'MISINFORMATION'
-  | 'OTHER';
 export interface Author {
   __typename?: string;
   id: string;
