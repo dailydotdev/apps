@@ -93,7 +93,7 @@ export const SquadDirectoryLayout = (
                 path={path}
                 isActive={pathname === path && !mySquadsTab.isActive}
                 onClick={(e) => {
-                  if (mySquadsTab.isActive) {
+                  if (mySquadsTab.isActive && pathname === path) {
                     e.preventDefault();
                     mySquadsTab.toggle(false);
                   }
