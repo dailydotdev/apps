@@ -1,21 +1,17 @@
 import React, { ReactElement } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
-import { SOURCES_QUERY } from '@dailydotdev/shared/src/graphql/squads';
 import InfiniteScrolling, {
   checkFetchMore,
 } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
-import { InfiniteData, useInfiniteQuery } from '@tanstack/react-query';
-import { ClientError } from 'graphql-request';
+import { InfiniteData } from '@tanstack/react-query';
 import { FeedContainer, SquadGrid } from '@dailydotdev/shared/src/components';
-import { GetStaticPropsResult } from 'next';
-import { ApiError } from 'next/dist/server/api-utils';
-import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
-import { StaleTime } from '@dailydotdev/shared/src/lib/query';
-import { SourcesQueryData } from '@dailydotdev/shared/src/hooks/source/useSources';
+import {
+  SourcesQueryData,
+  useSources,
+} from '@dailydotdev/shared/src/hooks/source/useSources';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
 import { SquadDirectoryLayout } from '../../../../shared/src/components/squads/layout/SquadDirectoryLayout';
@@ -29,33 +25,19 @@ export type Props = {
 };
 
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Squad directory'),
+  title: getTemplatedTitle('Featured Squads'),
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
+  description: `Dive into daily.dev's Featured Squads, showcasing editor's choice and hand-picked communities that highlight the most innovative and engaging groups on the platform. Join the conversation with top developers today.`,
 };
 
-const SquadsPage = ({ initialData }: Props): ReactElement => {
-  const queryResult = useInfiniteQuery(
-    ['sourcesFeed'],
-    ({ pageParam }) =>
-      gqlClient.request(SOURCES_QUERY, {
-        filterOpenSquads: true,
-        featured: true,
-        first: 100,
-        after: pageParam,
-      }),
-    {
-      getNextPageParam: (lastPage) =>
-        lastPage?.sources?.pageInfo?.hasNextPage &&
-        lastPage?.sources?.pageInfo?.endCursor,
-      initialData,
-      staleTime: StaleTime.Default,
-    },
-  );
+const SquadsPage = (): ReactElement => {
+  const { result } = useSources<Squad>({
+    query: { featured: true, isPublic: true },
+  });
+  const flatSquads =
+    result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
   const isTablet = useViewSize(ViewSize.Tablet);
-  const flatSquads = queryResult?.data?.pages?.flatMap(
-    (page) => page.sources.edges,
-  );
 
   return (
     <>
@@ -63,9 +45,9 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
 
       <SquadDirectoryLayout>
         <InfiniteScrolling
-          isFetchingNextPage={queryResult.isFetchingNextPage}
-          canFetchMore={checkFetchMore(queryResult)}
-          fetchNextPage={queryResult.fetchNextPage}
+          isFetchingNextPage={result.isFetchingNextPage}
+          canFetchMore={checkFetchMore(result)}
+          fetchNextPage={result.fetchNextPage}
           className="w-full"
         >
           {isTablet ? (
@@ -76,10 +58,9 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
             </FeedContainer>
           ) : (
             <div className="flex flex-col gap-3" role="list">
-              {flatSquads.map(({ node }) => {
-                const { id } = node;
-                return <SquadList key={id} squad={node} />;
-              })}
+              {flatSquads.map(({ node }) => (
+                <SquadList role="listitem" key={node.id} squad={node} />
+              ))}
             </div>
           )}
         </InfiniteScrolling>
@@ -93,38 +74,5 @@ SquadsPage.layoutProps = {
   ...mainFeedLayoutProps,
   customBanner: <CustomAuthBanner />,
 };
-
-export async function getStaticProps(): Promise<GetStaticPropsResult<Props>> {
-  try {
-    const initialData = await gqlClient.request(SOURCES_QUERY, {
-      filterOpenSquads: true,
-      featured: true,
-      first: 100,
-      after: undefined,
-    });
-
-    return {
-      props: {
-        initialData: {
-          pages: [initialData],
-          pageParams: [null],
-        },
-      },
-      revalidate: oneHour,
-    };
-  } catch (err) {
-    const clientError = err as ClientError;
-    const errors = Object.values(ApiError);
-
-    if (errors.includes(clientError?.response?.errors?.[0]?.extensions?.code)) {
-      return {
-        props: {},
-        revalidate: oneHour,
-      };
-    }
-
-    throw err;
-  }
-}
 
 export default SquadsPage;
