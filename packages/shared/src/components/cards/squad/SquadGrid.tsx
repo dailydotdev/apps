@@ -46,9 +46,17 @@ export const SquadGrid = ({
   className,
 }: UnFeaturedSquadCardProps): ReactElement => {
   const router = useRouter();
-  const { banner, image, name, handle, description, permalink, membersCount } =
-    source;
-  const borderColor = source.borderColor || SourceCardBorderColor.Avocado;
+  const {
+    headerImage,
+    image,
+    color,
+    name,
+    handle,
+    description,
+    permalink,
+    membersCount,
+  } = source;
+  const borderColor = color || SourceCardBorderColor.Avocado;
 
   return (
     <Card
@@ -61,7 +69,7 @@ export const SquadGrid = ({
       <div className="h-24 rounded-t-16 bg-accent-onion-bolder">
         <Image
           className="h-full w-full object-cover"
-          src={banner || cloudinary.squads.directory.cardBannerDefault}
+          src={headerImage || cloudinary.squads.directory.cardBannerDefault}
           alt="Banner image for source"
         />
       </div>

@@ -62,8 +62,6 @@ export interface Squad extends Source {
   memberPostingRole: SourceMemberRole;
   memberInviteRole: SourceMemberRole;
   referralUrl?: string;
-  banner?: string;
-  borderColor?: string;
   category?: SourceCategory;
 }
 
