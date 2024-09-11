@@ -55,7 +55,7 @@ export const SquadList = ({
         </Typography>
       </div>
       <SquadJoinButton
-        className={{ button: '!btn-tertiaryFloat z-0' }}
+        className={{ button: 'z-0' }}
         squad={squad}
         origin={Origin.SquadDirectory}
         onSuccess={() => router.push(permalink)}
