@@ -40,32 +40,29 @@ const SquadsPage = (): ReactElement => {
   const isTablet = useViewSize(ViewSize.Tablet);
 
   return (
-    <>
+    <SquadDirectoryLayout>
       <NextSeo {...seo} />
-
-      <SquadDirectoryLayout>
-        <InfiniteScrolling
-          isFetchingNextPage={result.isFetchingNextPage}
-          canFetchMore={checkFetchMore(result)}
-          fetchNextPage={result.fetchNextPage}
-          className="w-full"
-        >
-          {isTablet ? (
-            <FeedContainer className="mt-5" inlineHeader>
-              {flatSquads?.map(({ node }) => (
-                <SquadGrid key={node.id} source={node} />
-              ))}
-            </FeedContainer>
-          ) : (
-            <div className="flex flex-col gap-3" role="list">
-              {flatSquads.map(({ node }) => (
-                <SquadList role="listitem" key={node.id} squad={node} />
-              ))}
-            </div>
-          )}
-        </InfiniteScrolling>
-      </SquadDirectoryLayout>
-    </>
+      <InfiniteScrolling
+        isFetchingNextPage={result.isFetchingNextPage}
+        canFetchMore={checkFetchMore(result)}
+        fetchNextPage={result.fetchNextPage}
+        className="w-full"
+      >
+        {isTablet ? (
+          <FeedContainer className="mt-5" inlineHeader>
+            {flatSquads?.map(({ node }) => (
+              <SquadGrid key={node.id} source={node} />
+            ))}
+          </FeedContainer>
+        ) : (
+          <div className="flex flex-col gap-3" role="list">
+            {flatSquads.map(({ node }) => (
+              <SquadList role="listitem" key={node.id} squad={node} />
+            ))}
+          </div>
+        )}
+      </InfiniteScrolling>
+    </SquadDirectoryLayout>
   );
 };
 
