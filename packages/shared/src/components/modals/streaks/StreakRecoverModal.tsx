@@ -142,7 +142,7 @@ export const StreakRecoverOptout = ({
       className="!pr-0"
       id={`showAgain-${id}`}
       name="showAgain"
-      onToggle={hideForever.toggle}
+      onToggleCallback={hideForever.toggle}
     />
     <Typography
       aria-label="Never show 'reading streak recover' popup again"
@@ -151,6 +151,7 @@ export const StreakRecoverOptout = ({
       id={`showAgain-label-${id}`}
       tag={TypographyTag.Label}
       type={TypographyType.Footnote}
+      data-testid="streak-recover-optout"
     >
       Never show this again
     </Typography>

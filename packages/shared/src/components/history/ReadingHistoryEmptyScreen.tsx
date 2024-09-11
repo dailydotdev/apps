@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import React, { ReactElement } from 'react';
+import Link from '../utilities/Link';
 import {
   EmptyScreenButton,
   EmptyScreenDescription,

@@ -8,7 +8,7 @@ import { useRefreshToken } from '@dailydotdev/shared/src/hooks/useRefreshToken';
 import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertContext';
 import { LogContextProvider } from '@dailydotdev/shared/src/contexts/LogContext';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
-import { RouterContext } from 'next/dist/shared/lib/router-context';
+import { RouterContext } from 'next/dist/shared/lib/router-context.shared-runtime';
 import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import {

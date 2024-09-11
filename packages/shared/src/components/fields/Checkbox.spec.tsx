@@ -13,7 +13,7 @@ it('should render children', async () => {
 
 it('should trigger on toggle when clicked', async () => {
   const onToggle = jest.fn();
-  renderComponent({ onToggle });
+  renderComponent({ onToggleCallback: onToggle });
   const el = await screen.findByRole('checkbox');
   el.click();
   await waitFor(() => expect(onToggle).toBeCalledWith(true));
@@ -27,7 +27,7 @@ it('should set value according to the checked property', async () => {
 
 it('should add checked class', async () => {
   const onToggle = jest.fn();
-  renderComponent({ onToggle });
+  renderComponent({ onToggleCallback: onToggle });
   const el = await screen.findByRole('checkbox');
   el.click();
   // eslint-disable-next-line testing-library/no-node-access

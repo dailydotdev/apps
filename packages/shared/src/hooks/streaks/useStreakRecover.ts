@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToggle } from '../useToggle';
 import { useActions } from '../useActions';
 import {
@@ -13,6 +13,8 @@ import { gqlClient } from '../../graphql/common';
 import { useToastNotification } from '../useToastNotification';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
+import { useAlertsContext } from '../../contexts/AlertContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 interface UseStreakRecoverProps {
   onAfterClose?: () => void;
@@ -35,6 +37,10 @@ export interface UseStreakRecoverReturn {
   };
 }
 
+interface StreakQueryData {
+  streakRecover: UserStreakRecoverData;
+}
+
 export const useStreakRecover = ({
   onAfterClose,
   onRequestClose,
@@ -43,10 +49,10 @@ export const useStreakRecover = ({
   const [hideForever, toggleHideForever] = useToggle(false);
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
-
-  const { data, isLoading } = useQuery<{
-    streakRecover: UserStreakRecoverData;
-  }>({
+  const { updateAlerts } = useAlertsContext();
+  const { user } = useAuthContext();
+  const client = useQueryClient();
+  const { data, isLoading } = useQuery<StreakQueryData>({
     queryKey: generateQueryKey(RequestKey.UserStreakRecover),
     queryFn: async () => await gqlClient.request(USER_STREAK_RECOVER_QUERY),
   });
@@ -58,12 +64,19 @@ export const useStreakRecover = ({
         .request(USER_STREAK_RECOVER_MUTATION)
         .then((res) => res.recoverStreak),
     onSuccess: () => {
-      displayToast('Lucky you! Your streak has been restored');
       logEvent({
         event_name: LogEvent.StreakRecover,
       });
+
+      client.invalidateQueries(generateQueryKey(RequestKey.UserStreak, user));
     },
   });
+
+  const hideRemoteAlert = useCallback(async () => {
+    await updateAlerts({
+      showRecoverStreak: false,
+    });
+  }, [updateAlerts]);
 
   const onClose = useCallback(async () => {
     if (hideForever) {
@@ -73,20 +86,30 @@ export const useStreakRecover = ({
       });
     }
 
+    await hideRemoteAlert();
     onRequestClose?.();
     onAfterClose?.();
-  }, [completeAction, hideForever, logEvent, onAfterClose, onRequestClose]);
+  }, [
+    completeAction,
+    hideForever,
+    hideRemoteAlert,
+    logEvent,
+    onAfterClose,
+    onRequestClose,
+  ]);
 
   const onRecover = useCallback(async () => {
     try {
       await recoverMutation.mutateAsync();
-      onRequestClose?.();
+      displayToast('Lucky you! Your streak has been restored');
     } catch (e) {
       displayToast(
         'Oops! We are unable to recover your streak. Could you try again later?',
       );
     }
-  }, [displayToast, onRequestClose, recoverMutation]);
+
+    await onClose?.();
+  }, [displayToast, onClose, recoverMutation]);
 
   const isDisabled =
     !isActionsFetched ||

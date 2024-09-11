@@ -19,7 +19,7 @@ export interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
   children?: ReactNode;
   className?: string;
   checkmarkClassName?: string;
-  onToggle?: (checked: boolean) => unknown;
+  onToggleCallback?: (checked: boolean) => unknown;
 }
 
 export const Checkbox = forwardRef(function Checkbox(
@@ -29,7 +29,7 @@ export const Checkbox = forwardRef(function Checkbox(
     children,
     className,
     checkmarkClassName,
-    onToggle,
+    onToggleCallback,
     id,
     disabled,
     ...props
@@ -44,7 +44,7 @@ export const Checkbox = forwardRef(function Checkbox(
 
   const onChange = (event: ChangeEvent<HTMLInputElement>): void => {
     setActualChecked(event.target.checked);
-    onToggle?.(event.target.checked);
+    onToggleCallback?.(event.target.checked);
   };
 
   return (

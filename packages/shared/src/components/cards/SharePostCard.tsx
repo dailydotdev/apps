@@ -19,6 +19,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
   {
     post,
     onPostClick,
+    onPostAuxClick,
     onUpvoteClick,
     onCommentClick,
     onMenuClick,
@@ -34,6 +35,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
 ): ReactElement {
   const { pinnedAt, trending } = post;
   const onPostCardClick = () => onPostClick(post);
+  const onPostCardAuxClick = () => onPostAuxClick(post);
   const containerRef = useRef<HTMLDivElement>();
 
   const isVideoType = isVideoPost(post);
@@ -57,7 +59,11 @@ export const SharePostCard = forwardRef(function SharePostCard(
       flagProps={{ pinnedAt, trending }}
       bookmarked={post.bookmarked}
     >
-      <CardOverlay post={post} onPostCardClick={onPostCardClick} />
+      <CardOverlay
+        post={post}
+        onPostCardClick={onPostCardClick}
+        onPostCardAuxClick={onPostCardAuxClick}
+      />
 
       <>
         <CardTextContainer>

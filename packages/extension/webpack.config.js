@@ -54,6 +54,11 @@ const baseConfig = {
     alias: {
       'react-onesignal': false,
     },
+    fallback: {
+      fs: false,
+      zlib: false,
+      stream: false,
+    },
   },
 
   module: {

@@ -94,7 +94,9 @@ export function FeedExploreHeader({
       >
         {isExtension ? (
           <TabList<ExploreTabs>
-            items={Object.values(ExploreTabs)}
+            items={Object.values(ExploreTabs).map((label) => ({
+              label,
+            }))}
             active={tab}
             onClick={setTab}
           />
@@ -106,6 +108,7 @@ export function FeedExploreHeader({
               container: className.tabBarContainer,
             }}
             shouldMountInactive
+            tabTag="a"
           >
             {Object.entries(urlToTab).map(([url, label]) => (
               <Tab key={label} label={label} url={url} />

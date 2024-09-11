@@ -18,7 +18,7 @@ import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/Su
 import browser from 'webextension-polyfill';
 import { useInAppNotification } from '@dailydotdev/shared/src/hooks/useInAppNotification';
 import { BootDataProviderProps } from '@dailydotdev/shared/src/contexts/BootProvider';
-import { RouterContext } from 'next/dist/shared/lib/router-context';
+import { RouterContext } from 'next/dist/shared/lib/router-context.shared-runtime';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import useDeviceId from '@dailydotdev/shared/src/hooks/log/useDeviceId';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';

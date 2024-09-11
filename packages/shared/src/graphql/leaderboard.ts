@@ -21,6 +21,13 @@ export const LEADERBOARD_QUERY = gql`
     mostReadingDays(limit: $limit) {
       ...LeaderboardFragment
     }
+    mostVerifiedUsers(limit: $limit) {
+      score
+      company {
+        name
+        image
+      }
+    }
   }
   ${LEADERBOARD_FRAMENT}
 `;

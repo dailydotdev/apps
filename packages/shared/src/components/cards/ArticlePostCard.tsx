@@ -26,6 +26,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
   {
     post,
     onPostClick,
+    onPostAuxClick,
     onUpvoteClick,
     onDownvoteClick,
     onCommentClick,
@@ -43,6 +44,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
   const { className, style } = domProps;
   const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
+  const onPostCardAuxClick = () => onPostAuxClick(post);
   const { pinnedAt, trending } = post;
   const { showFeedback } = usePostFeedback({ post });
   const isVideoType = isVideoPost(post);
@@ -72,7 +74,11 @@ export const ArticlePostCard = forwardRef(function PostCard(
       flagProps={{ pinnedAt, trending }}
       bookmarked={post.bookmarked && !showFeedback}
     >
-      <CardOverlay post={post} onPostCardClick={onPostCardClick} />
+      <CardOverlay
+        post={post}
+        onPostCardClick={onPostCardClick}
+        onPostCardAuxClick={onPostCardAuxClick}
+      />
       {showFeedback && (
         <FeedbackCard
           post={post}

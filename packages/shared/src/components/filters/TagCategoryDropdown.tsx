@@ -1,4 +1,9 @@
-import React, { ReactElement } from 'react';
+import React, {
+  ClassAttributes,
+  DetailsHTMLAttributes,
+  ForwardRefExoticComponent,
+  ReactElement,
+} from 'react';
 import classNames from 'classnames';
 import { TagCategory } from '../../graphql/feedSettings';
 import { ArrowIcon } from '../icons';
@@ -21,7 +26,16 @@ export enum TagCategoryLayout {
 
 const ComponentsByLayout: Record<
   TagCategoryLayout,
-  [HTMLElementComponent, HTMLElementComponent]
+  [
+    ForwardRefExoticComponent<
+      Omit<
+        DetailsHTMLAttributes<HTMLDetailsElement> &
+          ClassAttributes<HTMLDetailsElement>,
+        'ref'
+      >
+    >,
+    HTMLElementComponent,
+  ]
 > = {
   settings: [BaseTagCategoryDetails, BaseTagCategorySummary],
   default: [TagCategoryDetails, TagCategorySummary],
