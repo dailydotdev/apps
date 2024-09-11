@@ -13,6 +13,10 @@ export default class CustomRouter implements NextRouter {
     window.history.back();
   }
 
+  forward(): void {
+    window.history.forward();
+  }
+
   basePath = '/';
 
   beforePopState(): void {

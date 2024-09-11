@@ -140,7 +140,10 @@ export function TabContainer<T extends string = string>({
         )}
       >
         <TabList<T>
-          items={children.map((child) => child.props.label)}
+          items={children.map((child) => ({
+            label: child.props.label,
+            url: child.props?.url,
+          }))}
           renderTab={renderTab}
           onClick={onClick}
           active={currentActive}

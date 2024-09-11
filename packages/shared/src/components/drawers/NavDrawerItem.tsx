@@ -1,5 +1,5 @@
 import React, { MutableRefObject, ReactElement } from 'react';
-import Link from 'next/link';
+import Link from '../utilities/Link';
 import { Button, ButtonProps, ButtonVariant } from '../buttons/Button';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { DrawerRef } from './Drawer';

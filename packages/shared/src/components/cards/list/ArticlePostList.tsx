@@ -1,6 +1,6 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
-import Link from 'next/link';
+import Link from '../../utilities/Link';
 import { CardContainer, CardContent, CardTitle } from './ListCard';
 import ActionButtons from './ActionButtons';
 import { PostCardHeader } from './PostCardHeader';
@@ -19,6 +19,7 @@ import PostReadTime from './PostReadTime';
 import PostTags from '../PostTags';
 import { CardCoverList } from './CardCover';
 import { ProfileImageSize } from '../../ProfilePicture';
+import { combinedClicks } from '../../../lib/click';
 
 export const ArticlePostList = forwardRef(function PostCard(
   {
@@ -60,8 +61,8 @@ export const ArticlePostList = forwardRef(function PostCard(
       linkProps={
         !isFeedPreview && {
           title: post.title,
-          onClick: onPostCardClick,
           href: post.commentsPermalink,
+          ...combinedClicks(onPostCardClick),
         }
       }
       bookmarked={post.bookmarked}

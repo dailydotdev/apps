@@ -1,6 +1,6 @@
 import React, { MouseEvent, ReactElement } from 'react';
 import classNames from 'classnames';
-import Link from 'next/link';
+import Link from '../utilities/Link';
 import { HidePostItemCardProps } from '../../graphql/users';
 import { PostItem, UserVote, isVideoPost } from '../../graphql/posts';
 import {

@@ -78,7 +78,7 @@ export function ContentTypesFilter(): ReactElement {
                 selectedSettings[videoSetting.id] ??
                 videoSetting.defaultEnabledState
               }
-              onToggle={() =>
+              onToggleCallback={() =>
                 onToggleSettings(
                   videoSetting.id,
                   videoSetting.defaultEnabledState,

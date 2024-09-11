@@ -7,8 +7,8 @@ import React, {
   Ref,
   useState,
 } from 'react';
-import Link from 'next/link';
 import classNames from 'classnames';
+import Link from '../../utilities/Link';
 import { Post } from '../../../graphql/posts';
 import { ListCard, CardLink } from './ListCard';
 import { RaisedLabel, RaisedLabelType } from './RaisedLabel';

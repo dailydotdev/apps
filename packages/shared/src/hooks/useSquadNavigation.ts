@@ -5,26 +5,30 @@ import { AuthTriggers } from '../lib/auth';
 import { useAuthContext } from '../contexts/AuthContext';
 import { webappUrl } from '../lib/constants';
 
-type OpenNewSquadProps = { origin: Origin };
+type OpenNewSquadProps = { event?: React.MouseEvent; origin: Origin };
 type EditSquadProps = { handle: string };
 interface UseSquadNavigation {
   openNewSquad: (props?: OpenNewSquadProps) => void;
   editSquad: (props: EditSquadProps) => void;
+  newSquadUrl: string;
 }
 
 export const useSquadNavigation = (): UseSquadNavigation => {
   const { user, showLogin } = useAuthContext();
   const router = useRouter();
 
+  const newSquadUrl = `${webappUrl}squads/new`;
+
   const openNewSquad = useCallback(
     (props: OpenNewSquadProps) => {
       if (!user) {
+        props?.event?.preventDefault();
         showLogin({ trigger: AuthTriggers.CreateSquad });
         return;
       }
-      router.push(`${webappUrl}squads/new?origin=${props.origin}`);
+      router.push(`${newSquadUrl}?origin=${props.origin}`);
     },
-    [router, user, showLogin],
+    [user, router, newSquadUrl, showLogin],
   );
 
   const editSquad = useCallback(
@@ -48,5 +52,5 @@ export const useSquadNavigation = (): UseSquadNavigation => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.pathname]);
 
-  return { openNewSquad, editSquad };
+  return { openNewSquad, editSquad, newSquadUrl };
 };

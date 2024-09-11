@@ -1,5 +1,5 @@
 import React, { ReactElement, ReactNode } from 'react';
-import Link from 'next/link';
+import Link from '../utilities/Link';
 import { UserShortInfoPlaceholder } from './UserShortInfoPlaceholder';
 import { UserShortInfo, UserShortInfoProps } from './UserShortInfo';
 import InfiniteScrolling, {

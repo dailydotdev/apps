@@ -16,9 +16,7 @@ import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
 import SettingsContext from '../contexts/SettingsContext';
 import useCommentPopup from '../hooks/feed/useCommentPopup';
-import useFeedOnPostClick, {
-  FeedPostClick,
-} from '../hooks/feed/useFeedOnPostClick';
+import useFeedOnPostClick from '../hooks/feed/useFeedOnPostClick';
 import useFeedContextMenu from '../hooks/feed/useFeedContextMenu';
 import type { PostLocation } from '../hooks/feed/useFeedContextMenu';
 import useFeedInfiniteScroll, {
@@ -53,6 +51,7 @@ import { isNullOrUndefined } from '../lib/func';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import { SearchResultsLayout } from './search/SearchResults/SearchResultsLayout';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
+import { PostClick } from '../lib/click';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -324,11 +323,17 @@ export default function Feed<T>({
     onCloseModal(false);
   };
 
-  const onPostCardClick: FeedPostClick = async (post, index, row, column) => {
+  const onPostCardClick: PostClick = async (
+    post,
+    index,
+    row,
+    column,
+    isAuxClick,
+  ) => {
     await onPostClick(post, index, row, column, {
       skipPostUpdate: true,
     });
-    if (!shouldUseListFeedLayout) {
+    if (!isAuxClick && !shouldUseListFeedLayout) {
       onPostModalOpen({ index, row, column });
     }
   };

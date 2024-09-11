@@ -26,6 +26,7 @@ import { AcquisitionFormGrid } from './cards/AcquisitionForm/AcquisitionFormGrid
 import { AcquisitionFormList } from './cards/AcquisitionForm/AcquisitionFormList';
 import { FreeformGrid } from './cards/Freeform/FreeformGrid';
 import { FreeformList } from './cards/Freeform/FreeformList';
+import { PostClick } from '../lib/click';
 
 const CommentPopup = dynamic(
   () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
@@ -52,7 +53,7 @@ export type FeedItemComponentProps = {
   user: LoggedUser | undefined;
   feedName: string;
   ranking?: string;
-  onPostClick: FeedPostClick;
+  onPostClick: PostClick;
   onReadArticleClick: FeedPostClick;
   onShare: (post: Post, row?: number, column?: number) => void;
   onBookmark: (post: Post, row: number, column: number) => Promise<void>;
@@ -223,6 +224,7 @@ export default function FeedItemComponent({
             });
           }}
           onPostClick={(post) => onPostClick(post, index, row, column)}
+          onPostAuxClick={(post) => onPostClick(post, index, row, column, true)}
           onReadArticleClick={() =>
             onReadArticleClick(item.post, index, row, column)
           }

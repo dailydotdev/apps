@@ -10,6 +10,27 @@ export type CookieOptions = {
   secure: boolean;
 };
 
+export const getCookies = (
+  names: string[],
+): Record<string, string> | undefined => {
+  const cookies =
+    document?.cookie?.split(';')?.map((cookie) => cookie.trim()) || [];
+  if (!cookies.length) {
+    return undefined;
+  }
+
+  return names.reduce((acc, name) => {
+    const foundCookie = cookies.find((cookie) => cookie.startsWith(`${name}=`));
+    if (!foundCookie) {
+      return acc;
+    }
+    return {
+      ...acc,
+      [name]: decodeURIComponent(foundCookie.split('=')[1]),
+    };
+  }, {});
+};
+
 export const setCookie = (
   name: string,
   value: string | number | boolean,

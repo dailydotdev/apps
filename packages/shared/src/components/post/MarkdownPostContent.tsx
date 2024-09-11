@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import Link from 'next/link';
+import Link from '../utilities/Link';
 import { Post, PostType } from '../../graphql/posts';
 import Markdown from '../Markdown';
 import { LazyImage } from '../LazyImage';

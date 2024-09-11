@@ -14,7 +14,7 @@
     "@dailydotdev/shared": "*",
     "@tanstack/react-query": "^4.36.1",
     "extension": "*",
-    "next": "^12.2.2",
+    "next": "14.2.9",
     "next-router-mock": "^0.9.13",
     "react": "18.3.1",
     "react-dom": "18.3.1",

@@ -366,7 +366,7 @@ const AccountNotificationsPage = (): ReactElement => {
           name="new_activity"
           data-testid="new_activity-switch"
           checked={notificationEmail}
-          onToggle={onToggleEmailNotification}
+          onToggleCallback={onToggleEmailNotification}
         >
           Activity (mentions, replies, upvotes, etc.)
         </Checkbox>
@@ -374,7 +374,7 @@ const AccountNotificationsPage = (): ReactElement => {
           name="marketing"
           data-testid="marketing-switch"
           checked={acceptedMarketing}
-          onToggle={onToggleEmailMarketing}
+          onToggleCallback={onToggleEmailMarketing}
         >
           Community updates
         </Checkbox>
@@ -477,7 +477,7 @@ const AccountNotificationsPage = (): ReactElement => {
               name="streakReminder"
               data-testid="reading-streak-reminder-switch"
               checked={isStreaksEnabled && !!streakReminder}
-              onToggle={onToggleStreakReminder}
+              onToggleCallback={onToggleStreakReminder}
               disabled={!isStreaksEnabled}
             >
               <SimpleTooltip
@@ -505,7 +505,7 @@ const AccountNotificationsPage = (): ReactElement => {
               name="readingReminder"
               data-testid="reading-reminder-switch"
               checked={!!readingReminder}
-              onToggle={onToggleReadingReminder}
+              onToggleCallback={onToggleReadingReminder}
             >
               Reading reminder (Mon-Fri)
             </Checkbox>
