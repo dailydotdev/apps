@@ -36,9 +36,9 @@ export const SquadList = ({
         alt={`${name} source`}
         type={ImageType.Squad}
       />
-      <div className="flex w-0 flex-grow flex-col">
+      <div className="flex flex-1 flex-col">
         <Typography type={TypographyType.Callout} bold truncate>
-          {squad.name}
+          {name}
         </Typography>
         <Typography
           type={TypographyType.Callout}

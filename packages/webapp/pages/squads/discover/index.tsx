@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { useSquadCategories } from '@dailydotdev/shared/src/hooks/squads/useSquadCategories';
-import { SquadHorizontalList } from '@dailydotdev/shared/src/components/cards/squad/SquadsHorizontalList';
+import { SquadsDirectoryFeed } from '@dailydotdev/shared/src/components/cards/squad/SquadsDirectoryFeed';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { NextSeo } from 'next-seo';
 import { getLayout } from '../../../components/layouts/FeedLayout';
@@ -19,9 +19,8 @@ function SquadDiscoveryPage(): ReactElement {
         title="Squads Directory"
         description="Explore the daily.dev Squads Directory and connect with communities of developers passionate about various technologies and topics. Discover, join, and engage with like-minded professionals in your area of interest."
       />
-      <SquadHorizontalList
+      <SquadsDirectoryFeed
         key="featured"
-        className="relative"
         linkToSeeAll="/squads/discover/featured"
         title={
           <img
@@ -31,9 +30,11 @@ function SquadDiscoveryPage(): ReactElement {
           />
         }
         query={{ isPublic: true, featured: true }}
-      />
+      >
+        <div className="absolute inset-0 -z-1 flex w-full bg-gradient-to-t from-overlay-float-cabbage from-10% to-background-default tablet:hidden" />
+      </SquadsDirectoryFeed>
       {categories.map(({ node }) => (
-        <SquadHorizontalList
+        <SquadsDirectoryFeed
           key={node.id}
           title={node.title}
           linkToSeeAll={`/squads/discover/${node.id}`}
