@@ -80,7 +80,7 @@ export default function useLogSharedProps(
         utm_term: query?.utm_term,
         visit_id: visitId,
         device_id: _deviceId,
-        cookies,
+        cookies: cookies === '{}' ? undefined : cookies,
       };
       setSharedPropsSet(true);
     });
