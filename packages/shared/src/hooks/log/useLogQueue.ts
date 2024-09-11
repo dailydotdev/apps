@@ -11,6 +11,7 @@ export interface LogEvent extends Record<string, unknown> {
   event_name: string;
   extra?: string;
   device_id?: string;
+  cookies?: string;
 }
 
 export type PushToQueueFunc = (events: LogEvent[]) => void;

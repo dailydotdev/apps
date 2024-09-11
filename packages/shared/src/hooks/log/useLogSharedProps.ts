@@ -9,6 +9,9 @@ import { useRouter } from 'next/router';
 import { LogEvent } from './useLogQueue';
 import SettingsContext from '../../contexts/SettingsContext';
 import AuthContext from '../../contexts/AuthContext';
+import { getCookies } from '../../lib/cookie';
+
+const COOKIES = ['_ga', '_fbp', '_fbc'];
 
 export default function useLogSharedProps(
   app: string,
@@ -51,6 +54,7 @@ export default function useLogSharedProps(
     });
 
     const queryStr = JSON.stringify(queryObject);
+    const cookies = JSON.stringify(getCookies(COOKIES));
 
     (sharedPropsRef.current?.device_id
       ? Promise.resolve(sharedPropsRef.current.device_id)
@@ -76,6 +80,7 @@ export default function useLogSharedProps(
         utm_term: query?.utm_term,
         visit_id: visitId,
         device_id: _deviceId,
+        cookies,
       };
       setSharedPropsSet(true);
     });
