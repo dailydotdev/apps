@@ -129,7 +129,6 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
               fetchNextPage={queryResult.fetchNextPage}
               className="w-full"
             >
-              {/* TODO: remove SquadsDirectoryHeader on MI-510 */}
               <FeedContainer className="mt-5 px-6" inlineHeader>
                 {flatSquads?.map(({ node }) => (
                   <SquadGrid key={node.id} source={node} />
