@@ -12,6 +12,7 @@ import { CardLink } from '../Card';
 import { SquadJoinButton } from '../../squads/SquadJoinButton';
 import { Origin } from '../../../lib/log';
 import { Image, ImageType } from '../../image/Image';
+import { ButtonVariant } from '../../buttons/common';
 
 interface SquadListProps extends ComponentProps<'div'> {
   squad: Squad;
@@ -61,6 +62,7 @@ export const SquadList = ({
         copy={{ join: 'Join', view: 'View' }}
         data-testid="squad-action"
         showViewSquad
+        buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Secondary]}
       />
     </div>
   );
