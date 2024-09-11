@@ -27,6 +27,7 @@ import { SquadStats } from './common/SquadStat';
 import { SquadPrivacyState } from './common/SquadPrivacyState';
 import { SquadDangerZone } from './settings/SquadDangerZone';
 import { Squad } from '../../graphql/sources';
+import { useViewSize, ViewSize } from '../../hooks';
 
 const squadImageId = 'squad_image_file';
 
@@ -76,6 +77,7 @@ export function SquadDetails({
   const [categoryHint, setCategoryHint] = useState('');
   const [isDescriptionOpen, setDescriptionOpen] = useState(!createMode);
   const router = useRouter();
+  const isMobile = useViewSize(ViewSize.MobileL);
 
   const { mutateAsync: onValidateHandle } = useMutation(checkExistingHandle, {
     onError: (err) => {
@@ -143,12 +145,15 @@ export function SquadDetails({
   return (
     <FormWrapper
       form="squad-form"
-      isHeaderTitle
+      isHeaderTitle={!isMobile}
       title={createMode ? undefined : 'Squad settings'}
       className={{ container: 'flex flex-1 flex-col', title: 'typo-title3' }}
-      copy={{ right: createMode ? 'Create Squad' : 'Save', left: null }}
+      copy={{
+        right: createMode ? 'Create Squad' : 'Save',
+        left: isMobile ? 'Cancel' : null,
+      }}
       leftButtonProps={{
-        icon: <ArrowIcon className="-rotate-90" />,
+        icon: isMobile ? null : <ArrowIcon className="-rotate-90" />,
         onClick: () =>
           router.push(createMode ? '/squads' : `/squads/${handle}`),
       }}
