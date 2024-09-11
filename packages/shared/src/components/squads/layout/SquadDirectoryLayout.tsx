@@ -57,7 +57,7 @@ export const SquadDirectoryLayout = (
   const { children, className, ...attrs } = props;
 
   const id = useId();
-  const { pathname } = useRouter();
+  const { pathname, asPath } = useRouter();
   const { squads, categoryPaths, mySquadsTab, isMobileLayout } =
     useSquadDirectoryLayout();
   const buttonSize = isMobileLayout ? ButtonSize.XSmall : ButtonSize.Small;
@@ -96,7 +96,10 @@ export const SquadDirectoryLayout = (
             {Object.entries(categoryPaths ?? {}).map(([category, path]) => (
               <SquadDirectoryNavbarItem
                 buttonSize={buttonSize}
-                isActive={pathname === path && !mySquadsTab.isActive}
+                isActive={
+                  (path === pathname || path === asPath) &&
+                  !mySquadsTab.isActive
+                }
                 key={category}
                 label={category}
                 path={path}
