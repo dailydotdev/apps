@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ComponentProps, ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import { Squad } from '../../../graphql/sources';
 import {
@@ -13,7 +13,7 @@ import { SquadJoinButton } from '../../squads/SquadJoinButton';
 import { Origin } from '../../../lib/log';
 import { Image, ImageType } from '../../image/Image';
 
-interface SquadListProps {
+interface SquadListProps extends ComponentProps<'div'> {
   squad: Squad;
   shouldShowCount?: boolean;
 }
@@ -21,12 +21,13 @@ interface SquadListProps {
 export const SquadList = ({
   squad,
   shouldShowCount = true,
+  ...attrs
 }: SquadListProps): ReactElement => {
   const router = useRouter();
   const { image, name, permalink } = squad;
 
   return (
-    <div className="relative flex flex-row items-center gap-4">
+    <div {...attrs} className="relative flex flex-row items-center gap-4">
       <CardLink href={permalink} rel="noopener" title={name} />
       <Image
         className="size-14 rounded-full"

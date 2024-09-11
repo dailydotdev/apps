@@ -84,6 +84,7 @@ export const SquadDirectoryLayout = (
             {mySquadsTab.isVisible && (
               <SquadDirectoryNavbarItem
                 buttonSize={buttonSize}
+                className="block laptop:hidden"
                 id={`squad-item-my-squads-${id}`}
                 isActive={mySquadsTab.isActive}
                 label="My Squads"
@@ -94,10 +95,10 @@ export const SquadDirectoryLayout = (
               <SquadDirectoryNavbarItem
                 buttonSize={buttonSize}
                 id={`squad-item-${category}-${id}`}
+                isActive={pathname === path && !mySquadsTab.isActive}
                 key={category}
                 label={category}
                 path={path}
-                isActive={pathname === path && !mySquadsTab.isActive}
                 onClick={(e) => {
                   if (mySquadsTab.isActive && pathname === path) {
                     e.preventDefault();
@@ -117,7 +118,7 @@ export const SquadDirectoryLayout = (
         className={classNames('flex w-full flex-col pt-5', className)}
       >
         {mySquadsTab.isActive && mySquadsTab.isVisible ? (
-          <div className="flex flex-col gap-4 px-4">
+          <div className="flex flex-col gap-3">
             {squads.map((squad) => (
               <SquadList key={squad.handle} squad={squad} />
             ))}

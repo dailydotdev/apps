@@ -9,11 +9,7 @@ import InfiniteScrolling, {
 import { InfiniteData, useInfiniteQuery } from '@tanstack/react-query';
 import { ClientError } from 'graphql-request';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import {
-  FeedContainer,
-  SquadGrid,
-  SquadsDirectoryHeader,
-} from '@dailydotdev/shared/src/components';
+import { FeedContainer, SquadGrid } from '@dailydotdev/shared/src/components';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
 import { GetStaticPropsResult } from 'next';
 import { ApiError } from 'next/dist/server/api-utils';
@@ -133,17 +129,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
               fetchNextPage={queryResult.fetchNextPage}
               className="w-full"
             >
-              {/* TODO: remove SquadsDirectoryHeader on MI-510 */}
-              <FeedContainer
-                header={
-                  <SquadsDirectoryHeader className="hidden laptop:flex" />
-                }
-                footer={
-                  <SquadsDirectoryHeader className="mt-5 flex laptop:hidden" />
-                }
-                className="mt-5 px-6"
-                inlineHeader
-              >
+              <FeedContainer className="mt-5 px-6" inlineHeader>
                 {flatSquads?.map(({ node }) => (
                   <SquadGrid key={node.id} source={node} />
                 ))}
