@@ -7,8 +7,8 @@ import {
   Typography,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { SquadIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { SourceIcon } from '@dailydotdev/shared/src/components/icons';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { SquadDirectoryLayout } from '../../../../shared/src/components/squads/layout/SquadDirectoryLayout';
@@ -36,7 +36,7 @@ function SquadDiscoveryPage(): ReactElement {
             type={TypographyType.Title2}
             bold
           >
-            <SquadIcon size={IconSize.Large} />
+            <SourceIcon size={IconSize.Large} />
             Featured
           </Typography>
         }
