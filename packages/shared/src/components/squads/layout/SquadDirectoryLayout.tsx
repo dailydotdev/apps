@@ -68,12 +68,12 @@ export const SquadDirectoryLayout = (
   const isDiscover = pathname === squadCategoriesPaths.discover;
 
   return (
-    <BaseFeedPage className="relative mb-4 flex-col pt-4 laptop:px-18 laptop:pt-8">
+    <BaseFeedPage className="relative mb-4 flex-col px-4 pt-4 laptop:px-18 laptop:pt-8">
       {isDiscover && (
         <div className="absolute inset-0 -z-1 hidden h-[25rem] w-full bg-gradient-to-t from-accent-cabbage-default to-background-default tablet:flex" />
       )}
       <header className="flex w-full flex-col gap-2">
-        <section className="flex w-full flex-row items-center justify-between px-4 typo-body laptop:hidden">
+        <section className="flex w-full flex-row items-center justify-between typo-body laptop:hidden">
           <strong>Squads</strong>
           <NewSquadButton icon={<PlusIcon />} variant={ButtonVariant.Float} />
         </section>
