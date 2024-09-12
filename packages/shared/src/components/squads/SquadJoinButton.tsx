@@ -174,6 +174,7 @@ export const SquadJoinButton = ({
       <Link href={squad.permalink}>
         <Button
           {...rest}
+          className={className?.button}
           tag="a"
           href={squad.permalink}
           variant={memberVariant}
