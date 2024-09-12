@@ -72,8 +72,8 @@ export const SquadDirectoryLayout = (
       {isDiscover && (
         <div className="absolute inset-0 -z-1 hidden h-[25rem] w-full bg-gradient-to-t from-accent-cabbage-default to-background-default tablet:flex" />
       )}
-      <header className="flex w-full flex-col gap-2 px-4">
-        <section className="flex w-full flex-row items-center justify-between typo-body laptop:hidden">
+      <header className="flex w-full flex-col gap-2">
+        <section className="flex w-full flex-row items-center justify-between px-4 typo-body laptop:hidden">
           <strong>Squads</strong>
           <NewSquadButton icon={<PlusIcon />} variant={ButtonVariant.Float} />
         </section>
@@ -97,10 +97,7 @@ export const SquadDirectoryLayout = (
       </header>
       <section
         {...attrs}
-        className={classNames(
-          'flex w-full flex-col pt-5 tablet:px-4',
-          className,
-        )}
+        className={classNames('flex w-full flex-col pt-5', className)}
       >
         {children}
       </section>
