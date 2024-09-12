@@ -12,6 +12,7 @@ import { CardLink } from '../Card';
 import { SquadJoinButton } from '../../squads/SquadJoinButton';
 import { Origin } from '../../../lib/log';
 import { Image, ImageType } from '../../image/Image';
+import { ButtonVariant } from '../../buttons/common';
 
 interface SquadListProps extends ComponentProps<'div'> {
   squad: Squad;
@@ -54,13 +55,14 @@ export const SquadList = ({
         </Typography>
       </div>
       <SquadJoinButton
-        className={{ button: '!btn-tertiaryFloat z-0' }}
+        className={{ button: 'z-0' }}
         squad={squad}
         origin={Origin.SquadDirectory}
         onSuccess={() => router.push(permalink)}
         copy={{ join: 'Join', view: 'View' }}
         data-testid="squad-action"
         showViewSquad
+        buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Secondary]}
       />
     </div>
   );

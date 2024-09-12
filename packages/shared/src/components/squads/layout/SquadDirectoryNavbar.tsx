@@ -1,57 +1,11 @@
 import React, { ComponentProps, ReactElement } from 'react';
 import classNames from 'classnames';
-import {
-  Button,
-  ButtonProps,
-  ButtonSize,
-  ButtonVariant,
-} from '../../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { useHorizontalScrollHeader } from '../../HorizontalScroll/useHorizontalScrollHeader';
 import { ArrowIcon } from '../../icons';
 import { useViewSize, ViewSize } from '../../../hooks';
 
-interface SquadNavbarItemProps extends Omit<ComponentProps<'li'>, 'onClick'> {
-  buttonSize: ButtonSize;
-  isActive: boolean;
-  label: string;
-  onClick?: ButtonProps<'a'>['onClick'];
-  path?: string;
-}
-
-export const SquadDirectoryNavbarItem = ({
-  buttonSize,
-  className,
-  isActive,
-  label,
-  onClick,
-  path,
-  ...attrs
-}: SquadNavbarItemProps): ReactElement => (
-  <li
-    {...attrs}
-    className={classNames(
-      'relative py-3',
-      'after:absolute after:bottom-0 after:left-0 after:right-0 after:mx-auto after:w-14 after:border-b-2',
-      {
-        'after:hidden': !isActive,
-      },
-      className,
-    )}
-  >
-    <Button
-      aria-current={isActive ? 'page' : undefined}
-      aria-label={`Navigate to ${label}'s directory page`}
-      className="capitalize"
-      href={path}
-      onClick={onClick}
-      size={buttonSize}
-      tag={path ? 'a' : 'button'}
-      variant={isActive ? ButtonVariant.Float : ButtonVariant.Tertiary}
-    >
-      {label}
-    </Button>
-  </li>
-);
+export { SquadDirectoryNavbarItem } from './SquadDirectoryNavbarItem';
 
 export const SquadDirectoryNavbar = (
   props: ComponentProps<'nav'>,
