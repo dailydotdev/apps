@@ -8,6 +8,8 @@ import { cloudinary } from '../../../lib/image';
 import { UnFeaturedSquadCardProps } from './common/types';
 import { SquadJoinButton } from '../../squads/SquadJoinButton';
 import { Origin } from '../../../lib/log';
+import { ButtonVariant } from '../../buttons/common';
+import { useViewSize, ViewSize } from '../../../hooks';
 
 export enum SourceCardBorderColor {
   Avocado = 'avocado',
@@ -57,6 +59,7 @@ export const SquadGrid = ({
     membersCount,
   } = source;
   const borderColor = color || SourceCardBorderColor.Avocado;
+  const isMobile = useViewSize(ViewSize.MobileL);
 
   return (
     <Card
@@ -105,11 +108,15 @@ export const SquadGrid = ({
 
           <SquadJoinButton
             showViewSquad
-            className={{ button: '!btn-secondary z-0 w-full' }}
+            className={{ button: 'z-0 w-full' }}
             squad={source}
             origin={Origin.SquadDirectory}
             onSuccess={() => router.push(source.permalink)}
             data-testid="squad-action"
+            buttonVariants={[
+              ButtonVariant.Secondary,
+              isMobile ? ButtonVariant.Float : ButtonVariant.Secondary,
+            ]}
           />
         </div>
       </div>

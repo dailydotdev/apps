@@ -62,7 +62,7 @@ export const SquadList = ({
         copy={{ join: 'Join', view: 'View' }}
         data-testid="squad-action"
         showViewSquad
-        buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Secondary]}
+        buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
       />
     </div>
   );
