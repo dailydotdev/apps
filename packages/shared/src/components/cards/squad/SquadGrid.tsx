@@ -64,19 +64,17 @@ export const SquadGrid = ({
   return (
     <Card
       className={classNames(
-        'overflow-hidden !p-0',
+        'relative overflow-hidden !p-0',
         borderColorToClassName[borderColor],
         className,
       )}
     >
-      <div className="h-24 rounded-t-16 bg-accent-onion-bolder">
-        <Image
-          className="h-full w-full object-cover"
-          src={headerImage || cloudinary.squads.directory.cardBannerDefault}
-          alt="Banner image for source"
-        />
-      </div>
-      <div className="-mt-12 flex flex-1 flex-col rounded-t-16 bg-background-subtle p-4">
+      <Image
+        className="absolute left-0 right-0 top-0 h-24 w-full rounded-t-16 bg-accent-onion-bolder object-cover"
+        src={headerImage || cloudinary.squads.directory.cardBannerDefault}
+        alt="Banner image for source"
+      />
+      <div className="z-1 mt-12 flex flex-1 flex-col rounded-t-16 bg-background-subtle p-4">
         <div className="-mt-14 mb-3 flex items-end justify-between">
           <a href={permalink}>
             <Image
