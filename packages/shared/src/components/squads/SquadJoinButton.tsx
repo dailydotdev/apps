@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect } from 'react';
+import React, { ReactElement, useEffect, MouseEvent } from 'react';
 import classNames from 'classnames';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
@@ -149,7 +149,8 @@ export const SquadJoinButton = ({
 
   const isLoading = isJoiningSquad || isLeavingSquad;
 
-  const onLeaveSquad = () => {
+  const onLeaveSquad = (e: MouseEvent) => {
+    e.stopPropagation();
     if (!user) {
       showLogin({
         trigger: AuthTriggers.JoinSquad,
