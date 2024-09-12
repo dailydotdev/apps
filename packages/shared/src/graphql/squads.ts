@@ -86,6 +86,7 @@ export const SOURCES_QUERY = gql`
     $after: String
     $first: Int
     $categoryId: String
+    $sortByMembersCount: Boolean
   ) {
     sources(
       filterOpenSquads: $filterOpenSquads
@@ -93,6 +94,7 @@ export const SOURCES_QUERY = gql`
       after: $after
       first: $first
       categoryId: $categoryId
+      $sortByMembersCount: $sortByMembersCount
     ) {
       pageInfo {
         endCursor
