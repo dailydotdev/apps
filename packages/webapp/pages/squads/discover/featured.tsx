@@ -33,7 +33,7 @@ const seo: NextSeoProps = {
 
 const SquadsPage = (): ReactElement => {
   const { result } = useSources<Squad>({
-    query: { featured: true, isPublic: true },
+    query: { featured: true, isPublic: true, sortByMembersCount: true },
   });
   const flatSquads =
     result.data?.pages.flatMap((page) => page.sources.edges) ?? [];

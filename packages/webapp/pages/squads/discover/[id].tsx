@@ -24,7 +24,11 @@ interface SquadCategoryPageProps {
 
 function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
   const { result } = useSources({
-    query: { categoryId: category.id, isPublic: true },
+    query: {
+      sortByMembersCount: true,
+      categoryId: category.id,
+      isPublic: true,
+    },
   });
   const flatSources =
     result.data?.pages.flatMap((page) => page.sources.edges) ?? [];

@@ -48,6 +48,7 @@ function SquadDiscoveryPage(): ReactElement {
             isPublic: true,
             featured: false,
             first: limit,
+            sortByMembersCount: true,
           }}
         />
       ))}
