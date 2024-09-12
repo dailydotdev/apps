@@ -14,7 +14,7 @@ interface SquadNavbarItemProps extends Omit<ComponentProps<'li'>, 'onClick'> {
   buttonSize: ButtonSize;
   isActive: boolean;
   label: string;
-  onClick: ButtonProps<'a'>['onClick'];
+  onClick?: ButtonProps<'a'>['onClick'];
   path?: string;
 }
 

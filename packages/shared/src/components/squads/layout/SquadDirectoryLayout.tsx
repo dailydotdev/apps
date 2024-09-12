@@ -22,7 +22,6 @@ import {
 } from './SquadDirectoryNavbar';
 import { PlusIcon } from '../../icons';
 import { useSquadDirectoryLayout } from './useSquadDirectoryLayout';
-import { SquadList } from '../../cards/squad/SquadList';
 import { squadCategoriesPaths } from '../../../lib/constants';
 
 type SquadDirectoryLayoutProps = PropsWithChildren & ComponentProps<'section'>;
@@ -58,8 +57,7 @@ export const SquadDirectoryLayout = (
 
   const id = useId();
   const { pathname } = useRouter();
-  const { squads, categoryPaths, mySquadsTab, isMobileLayout } =
-    useSquadDirectoryLayout();
+  const { categoryPaths, isMobileLayout } = useSquadDirectoryLayout();
   const buttonSize = isMobileLayout ? ButtonSize.XSmall : ButtonSize.Small;
 
   useEffect(() => {
@@ -81,30 +79,14 @@ export const SquadDirectoryLayout = (
         </section>
         <div className="flex max-w-full flex-row flex-nowrap items-center justify-between gap-6 laptop:gap-22">
           <SquadDirectoryNavbar className="min-w-0 flex-1">
-            {mySquadsTab.isVisible && (
-              <SquadDirectoryNavbarItem
-                buttonSize={buttonSize}
-                className="block laptop:hidden"
-                id={`squad-item-my-squads-${id}`}
-                isActive={mySquadsTab.isActive}
-                label="My Squads"
-                onClick={() => mySquadsTab.toggle(true)}
-              />
-            )}
             {Object.entries(categoryPaths ?? {}).map(([category, path]) => (
               <SquadDirectoryNavbarItem
                 buttonSize={buttonSize}
                 id={`squad-item-${category}-${id}`}
-                isActive={pathname === path && !mySquadsTab.isActive}
+                isActive={pathname === path}
                 key={category}
                 label={category}
                 path={path}
-                onClick={(e) => {
-                  if (mySquadsTab.isActive && pathname === path) {
-                    e.preventDefault();
-                    mySquadsTab.toggle(false);
-                  }
-                }}
               />
             ))}
           </SquadDirectoryNavbar>
@@ -117,15 +99,7 @@ export const SquadDirectoryLayout = (
         {...attrs}
         className={classNames('flex w-full flex-col pt-5', className)}
       >
-        {mySquadsTab.isActive && mySquadsTab.isVisible ? (
-          <div className="flex flex-col gap-3">
-            {squads.map((squad) => (
-              <SquadList key={squad.handle} squad={squad} />
-            ))}
-          </div>
-        ) : (
-          children
-        )}
+        {children}
       </section>
     </BaseFeedPage>
   );
