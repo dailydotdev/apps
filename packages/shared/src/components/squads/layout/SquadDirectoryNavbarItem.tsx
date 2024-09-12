@@ -48,6 +48,7 @@ export function SquadDirectoryNavbarItem({
           onClick={onClick}
           size={buttonSize}
           tag={path ? 'a' : 'button'}
+          pressed={isActive}
           variant={isActive ? ButtonVariant.Float : ButtonVariant.Tertiary}
         >
           {label}
