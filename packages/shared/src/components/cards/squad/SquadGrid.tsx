@@ -1,8 +1,9 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import SquadMemberShortList from '../../squads/SquadMemberShortList';
-import { Card } from '../Card';
+import { Card, CardLink } from '../Card';
 import { Image, ImageType } from '../../image/Image';
 import { cloudinary } from '../../../lib/image';
 import { UnFeaturedSquadCardProps } from './common/types';
@@ -10,6 +11,7 @@ import { SquadJoinButton } from '../../squads/SquadJoinButton';
 import { Origin } from '../../../lib/log';
 import { ButtonVariant } from '../../buttons/common';
 import { useViewSize, ViewSize } from '../../../hooks';
+import { anchorDefaultRel } from '../../../lib/strings';
 
 export enum SourceCardBorderColor {
   Avocado = 'avocado',
@@ -69,6 +71,13 @@ export const SquadGrid = ({
         className,
       )}
     >
+      <Link href={permalink} legacyBehavior>
+        <CardLink
+          href={permalink}
+          rel={anchorDefaultRel}
+          title={source.description}
+        />
+      </Link>
       <Image
         className="absolute left-0 right-0 top-0 h-24 w-full rounded-t-16 bg-accent-onion-bolder object-cover"
         src={headerImage || cloudinary.squads.directory.cardBannerDefault}
@@ -76,14 +85,12 @@ export const SquadGrid = ({
       />
       <div className="z-1 mt-12 flex flex-1 flex-col rounded-t-16 bg-background-subtle p-4">
         <div className="-mt-14 mb-3 flex items-end justify-between">
-          <a href={permalink}>
-            <Image
-              className="size-24 rounded-full"
-              src={image}
-              alt={`${name} source`}
-              type={ImageType.Squad}
-            />
-          </a>
+          <Image
+            className="size-24 rounded-full"
+            src={image}
+            alt={`${name} source`}
+            type={ImageType.Squad}
+          />
           {membersCount > 0 && (
             <SquadMemberShortList
               squad={source}
@@ -93,10 +100,8 @@ export const SquadGrid = ({
         </div>
         <div className="flex flex-1 flex-col justify-between">
           <div className="mb-5 flex-auto">
-            <a href={permalink}>
-              <div className="font-bold typo-title3">{name}</div>
-              {handle && <div className="text-text-secondary">{handle}</div>}
-            </a>
+            <div className="font-bold typo-title3">{name}</div>
+            {handle && <div className="text-text-secondary">{handle}</div>}
             {description && (
               <div className="multi-truncate mt-1 line-clamp-5 text-text-secondary">
                 {description}
