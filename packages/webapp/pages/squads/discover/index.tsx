@@ -36,7 +36,7 @@ function SquadDiscoveryPage(): ReactElement {
             type={TypographyType.Title2}
             bold
           >
-            <SourceIcon size={IconSize.Large} />
+            <SourceIcon secondary size={IconSize.Large} />
             Featured
           </Typography>
         }
