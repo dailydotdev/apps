@@ -74,7 +74,7 @@ export const SquadGrid = ({
         />
       </div>
       <div className="-mt-12 flex flex-1 flex-col rounded-t-16 bg-background-subtle p-4">
-        <div className="mb-3 flex items-end justify-between">
+        <div className="-mt-14 mb-3 flex items-end justify-between">
           <a href={permalink}>
             <Image
               className="size-24 rounded-full"
