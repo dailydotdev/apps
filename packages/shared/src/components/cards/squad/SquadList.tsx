@@ -39,9 +39,9 @@ export const SquadList = ({
         alt={`${name} source`}
         type={ImageType.Squad}
       />
-      <div className="flex w-0 flex-grow flex-col">
+      <div className="flex max-w-[calc(100%-10rem)] flex-1 flex-col">
         <Typography type={TypographyType.Callout} bold truncate>
-          {squad.name}
+          {name}
         </Typography>
         <Typography
           type={TypographyType.Callout}
@@ -65,7 +65,7 @@ export const SquadList = ({
         copy={{ join: 'Join', view: 'View' }}
         data-testid="squad-action"
         showViewSquad
-        buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Secondary]}
+        buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
       />
     </div>
   );

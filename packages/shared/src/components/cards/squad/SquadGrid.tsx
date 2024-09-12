@@ -8,6 +8,8 @@ import { cloudinary } from '../../../lib/image';
 import { UnFeaturedSquadCardProps } from './common/types';
 import { SquadJoinButton } from '../../squads/SquadJoinButton';
 import { Origin } from '../../../lib/log';
+import { ButtonVariant } from '../../buttons/common';
+import { useViewSize, ViewSize } from '../../../hooks';
 
 export enum SourceCardBorderColor {
   Avocado = 'avocado',
@@ -46,27 +48,34 @@ export const SquadGrid = ({
   className,
 }: UnFeaturedSquadCardProps): ReactElement => {
   const router = useRouter();
-  const { banner, image, name, handle, description, permalink, membersCount } =
-    source;
-  const borderColor = source.borderColor || SourceCardBorderColor.Avocado;
+  const {
+    headerImage,
+    image,
+    color,
+    name,
+    handle,
+    description,
+    permalink,
+    membersCount,
+  } = source;
+  const borderColor = color || SourceCardBorderColor.Avocado;
+  const isMobile = useViewSize(ViewSize.MobileL);
 
   return (
     <Card
       className={classNames(
-        'overflow-hidden !p-0',
+        'relative overflow-hidden !p-0',
         borderColorToClassName[borderColor],
         className,
       )}
     >
-      <div className="h-24 rounded-t-16 bg-accent-onion-bolder">
-        <Image
-          className="h-full w-full object-cover"
-          src={banner || cloudinary.squads.directory.cardBannerDefault}
-          alt="Banner image for source"
-        />
-      </div>
-      <div className="-mt-12 flex flex-1 flex-col rounded-t-16 bg-background-subtle p-4">
-        <div className="mb-3 flex items-end justify-between">
+      <Image
+        className="absolute left-0 right-0 top-0 h-24 w-full rounded-t-16 bg-accent-onion-bolder object-cover"
+        src={headerImage || cloudinary.squads.directory.cardBannerDefault}
+        alt="Banner image for source"
+      />
+      <div className="z-1 mt-12 flex flex-1 flex-col rounded-t-16 bg-background-subtle p-4">
+        <div className="-mt-14 mb-3 flex items-end justify-between">
           <a href={permalink}>
             <Image
               className="size-24 rounded-full"
@@ -97,11 +106,15 @@ export const SquadGrid = ({
 
           <SquadJoinButton
             showViewSquad
-            className={{ button: '!btn-secondary z-0 w-full' }}
+            className={{ button: 'z-0 w-full' }}
             squad={source}
             origin={Origin.SquadDirectory}
             onSuccess={() => router.push(source.permalink)}
             data-testid="squad-action"
+            buttonVariants={[
+              ButtonVariant.Secondary,
+              isMobile ? ButtonVariant.Float : ButtonVariant.Secondary,
+            ]}
           />
         </div>
       </div>

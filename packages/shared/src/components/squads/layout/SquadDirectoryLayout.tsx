@@ -70,7 +70,7 @@ export const SquadDirectoryLayout = (
   return (
     <BaseFeedPage className="relative mb-4 flex-col px-4 pt-4 laptop:px-18 laptop:pt-8">
       {isDiscover && (
-        <div className="absolute inset-0 -z-1 h-[25rem] w-full bg-gradient-to-t from-accent-cabbage-default from-10% to-background-default" />
+        <div className="absolute inset-0 -z-1 hidden h-[25rem] w-full bg-gradient-to-t from-accent-cabbage-default to-background-default tablet:flex" />
       )}
       <header className="flex w-full flex-col gap-2">
         <section className="flex w-full flex-row items-center justify-between typo-body laptop:hidden">
