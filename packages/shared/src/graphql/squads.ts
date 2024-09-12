@@ -94,7 +94,7 @@ export const SOURCES_QUERY = gql`
       after: $after
       first: $first
       categoryId: $categoryId
-      $sortByMembersCount: $sortByMembersCount
+      sortByMembersCount: $sortByMembersCount
     ) {
       pageInfo {
         endCursor
