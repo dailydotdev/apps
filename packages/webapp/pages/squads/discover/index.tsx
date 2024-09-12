@@ -3,6 +3,7 @@ import { useSquadCategories } from '@dailydotdev/shared/src/hooks/squads/useSqua
 import { SquadsDirectoryFeed } from '@dailydotdev/shared/src/components/cards/squad/SquadsDirectoryFeed';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { NextSeo } from 'next-seo';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { SquadDirectoryLayout } from '../../../../shared/src/components/squads/layout/SquadDirectoryLayout';
@@ -10,7 +11,9 @@ import { defaultSeo } from '../../../next-seo';
 
 function SquadDiscoveryPage(): ReactElement {
   const { data } = useSquadCategories();
+  const isMobile = useViewSize(ViewSize.MobileL);
   const categories = data?.pages.flatMap((page) => page.categories.edges) ?? [];
+  const limit = isMobile ? 5 : 20;
 
   return (
     <SquadDirectoryLayout className="gap-6">
@@ -29,7 +32,7 @@ function SquadDiscoveryPage(): ReactElement {
             alt="A text containing the word 'Featured'"
           />
         }
-        query={{ isPublic: true, featured: true }}
+        query={{ isPublic: true, featured: true, first: limit }}
       >
         <div className="absolute inset-0 -z-1 flex w-full bg-gradient-to-t from-overlay-float-cabbage from-10% to-background-default tablet:hidden" />
       </SquadsDirectoryFeed>
@@ -42,7 +45,7 @@ function SquadDiscoveryPage(): ReactElement {
             categoryId: node.id,
             isPublic: true,
             featured: false,
-            first: 20,
+            first: limit,
           }}
         />
       ))}
