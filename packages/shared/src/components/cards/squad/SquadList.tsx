@@ -30,7 +30,7 @@ export const SquadList = ({
 
   return (
     <div {...attrs} className="relative flex flex-row items-center gap-4">
-      <Link href={permalink}>
+      <Link href={permalink} legacyBehavior>
         <CardLink href={permalink} rel="noopener" title={name} />
       </Link>
       <Image
