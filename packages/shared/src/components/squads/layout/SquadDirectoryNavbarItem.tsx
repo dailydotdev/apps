@@ -14,7 +14,7 @@ interface SquadNavbarItemProps {
   isActive: boolean;
   label: string;
   path?: string;
-  onClick: ButtonProps<'a'>['onClick'];
+  onClick?: ButtonProps<'a'>['onClick'];
   elementProps?: Omit<ComponentProps<'li'>, 'onClick'>;
 }
 
