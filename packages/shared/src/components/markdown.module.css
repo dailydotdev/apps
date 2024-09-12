@@ -31,7 +31,7 @@
     @apply typo-markdown italic pl-7 my-5 border-l border-border-subtlest-secondary;
   }
   & :where(pre) {
-    @apply typo-markdown relative bg-surface-float py-7 px-6 my-5 rounded-12 border border-border-subtlest-quaternary;
+    @apply typo-markdown relative bg-surface-float my-5 rounded-12 border border-border-subtlest-quaternary;
   }
 
   & :where(pre) > code {

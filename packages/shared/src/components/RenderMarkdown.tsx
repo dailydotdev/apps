@@ -8,14 +8,25 @@ import styles from './markdown.module.css';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { CopyIcon } from './icons';
 import { useCopyText } from '../hooks/useCopy';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+  TypographyType,
+} from './typography/Typography';
 
 const ReactMarkdown = dynamic(
   // @ts-expect-error issue with next/dynamic types
   () => import(/* webpackChunkName: "reactMarkdown" */ 'react-markdown'),
 );
 
+interface RenderMarkdownHeaderProps {
+  buttons?: ReactElement;
+}
+
 export interface RenderMarkdownProps {
   isLoading?: boolean;
+  header?: RenderMarkdownHeaderProps;
   className?: string;
   content: string;
   reactMarkdownProps?: Omit<ReactMarkdownOptions, 'children'>;
@@ -101,6 +112,7 @@ const loadPlugins = async (): Promise<unknown[]> => {
 
 const RenderMarkdown = ({
   className,
+  header,
   content,
   reactMarkdownProps,
   isLoading = false,
@@ -149,22 +161,30 @@ const RenderMarkdown = ({
           return (
             <>
               {!inline && (
-                <div className="flex items-center justify-between bg-surface-float px-5 py-2">
-                  <span className="inline leading-8 text-text-tertiary">
-                    {language || 'code'}
-                  </span>
-
-                  <Button
-                    variant={ButtonVariant.Tertiary}
-                    icon={<CopyIcon />}
-                    disabled={copying || isLoading}
-                    size={ButtonSize.XSmall}
-                    onClick={() =>
-                      copy({
-                        textToCopy: String(children),
-                      })
-                    }
-                  />
+                <div className="flex h-10 items-center justify-between bg-surface-float px-3">
+                  <Typography
+                    type={TypographyType.Callout}
+                    bold
+                    color={TypographyColor.Secondary}
+                    tag={TypographyTag.Span}
+                    className="inline leading-8"
+                  >
+                    {language || 'Code snippet'}
+                  </Typography>
+                  <div className="flex gap-2">
+                    <Button
+                      variant={ButtonVariant.Tertiary}
+                      icon={<CopyIcon />}
+                      disabled={copying || isLoading}
+                      size={ButtonSize.Small}
+                      onClick={() =>
+                        copy({
+                          textToCopy: String(children),
+                        })
+                      }
+                    />
+                    {header?.buttons ? header.buttons : null}
+                  </div>
                 </div>
               )}
 

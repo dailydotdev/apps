@@ -2,6 +2,8 @@ import React, { ReactElement, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { usePostCodeSnippetsQuery } from '../../hooks/post/usePostCodeSnippets';
 import { RenderMarkdown } from '../RenderMarkdown';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ArrowIcon } from '../icons';
 
 export type PostCodeSnippetsProps = {
   className?: string;
@@ -17,19 +19,49 @@ export const PostCodeSnippets = ({
   });
 
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
-  const [activeSnippetIndex, setActiveSnippetIndex] = useState<number>(4);
+  const [activeSnippetIndex, setActiveSnippetIndex] = useState<number>(0);
+
+  const pagesFlat = useMemo(() => {
+    return data?.pages.flatMap((page) => page.edges);
+  }, [data]);
 
   const codeSnippet = useMemo(() => {
-    const pagesFlat = data?.pages.flatMap((page) => page.edges);
-
-    return pagesFlat[activeSnippetIndex]?.node;
-  }, [data, activeSnippetIndex]);
+    return pagesFlat?.[activeSnippetIndex]?.node;
+  }, [activeSnippetIndex, pagesFlat]);
 
   if (!codeSnippet) {
     return null;
   }
 
   const markdownContent = `\`\`\`\n${codeSnippet.content}\n\`\`\``;
+
+  const prevSnippet = () => {
+    setActiveSnippetIndex((prevIndex) => prevIndex - 1);
+  };
+  const nextSnippet = () => {
+    setActiveSnippetIndex((prevIndex) => prevIndex + 1);
+  };
+
+  const NavigationButtons = (
+    <>
+      <Button
+        variant={ButtonVariant.Tertiary}
+        className="-rotate-90"
+        icon={<ArrowIcon />}
+        disabled={activeSnippetIndex === 0}
+        size={ButtonSize.Small}
+        onClick={prevSnippet}
+      />
+      <Button
+        variant={ButtonVariant.Tertiary}
+        className="rotate-90"
+        icon={<ArrowIcon />}
+        disabled={activeSnippetIndex === pagesFlat.length - 1}
+        size={ButtonSize.Small}
+        onClick={nextSnippet}
+      />
+    </>
+  );
 
   return (
     <div
@@ -39,7 +71,11 @@ export const PostCodeSnippets = ({
         isExpanded ? 'max-h-[37.5rem]' : 'max-h-60',
       )}
     >
-      <RenderMarkdown content={markdownContent} />
+      <p>Item: {`${activeSnippetIndex} / ${pagesFlat.length}`}</p>
+      <RenderMarkdown
+        content={markdownContent}
+        header={{ buttons: NavigationButtons }}
+      />
     </div>
   );
 };
