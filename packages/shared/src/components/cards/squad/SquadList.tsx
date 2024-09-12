@@ -1,5 +1,6 @@
 import React, { ComponentProps, ReactElement } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { Squad } from '../../../graphql/sources';
 import {
   Typography,
@@ -29,7 +30,9 @@ export const SquadList = ({
 
   return (
     <div {...attrs} className="relative flex flex-row items-center gap-4">
-      <CardLink href={permalink} rel="noopener" title={name} />
+      <Link href={permalink}>
+        <CardLink href={permalink} rel="noopener" title={name} />
+      </Link>
       <Image
         className="size-14 rounded-full"
         src={image}

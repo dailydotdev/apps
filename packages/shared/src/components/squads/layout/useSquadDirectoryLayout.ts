@@ -26,7 +26,7 @@ export const useSquadDirectoryLayout = (): SquadDirectoryLayoutReturn => {
     }
 
     if (isLaptop || !hasSquad) {
-      delete path.mysquads;
+      delete path['My Squads'];
     }
 
     const flatCategories =
