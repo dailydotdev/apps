@@ -13,7 +13,7 @@ function SquadDiscoveryPage(): ReactElement {
   const categories = data?.pages.flatMap((page) => page.categories.edges) ?? [];
 
   return (
-    <SquadDirectoryLayout className="gap-6 ">
+    <SquadDirectoryLayout className="gap-6">
       <NextSeo
         {...defaultSeo}
         title="Squads Directory"

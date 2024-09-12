@@ -11,7 +11,7 @@ function MySquadsPage(): ReactElement {
   const { squads } = useAuthContext();
 
   return (
-    <SquadDirectoryLayout className="gap-e">
+    <SquadDirectoryLayout className="gap-3">
       <NextSeo {...defaultSeo} title="My Squads" />
       {squads?.map((squad) => (
         <SquadList key={squad.handle} squad={squad} />
