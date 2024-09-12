@@ -87,7 +87,7 @@ function SquadPostAuthor({
               {!!role && (
                 <SquadMemberBadge
                   key="squadMemberRole"
-                  role={SourceMemberRole.Admin}
+                  role={role}
                   removeMargins
                 />
               )}
