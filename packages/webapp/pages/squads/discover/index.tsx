@@ -34,7 +34,7 @@ function SquadDiscoveryPage(): ReactElement {
         }
         query={{ isPublic: true, featured: true, first: limit }}
       >
-        <div className="absolute inset-0 -z-1 flex w-full bg-gradient-to-t from-overlay-float-cabbage from-10% to-background-default tablet:hidden" />
+        <div className="absolute inset-0 -left-4 -z-1 flex w-[calc(100%+2rem)] bg-gradient-to-t from-overlay-float-cabbage from-10% to-background-default tablet:hidden" />
       </SquadsDirectoryFeed>
       {categories.map(({ node }) => (
         <SquadsDirectoryFeed

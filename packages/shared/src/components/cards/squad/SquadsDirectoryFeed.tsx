@@ -38,7 +38,7 @@ export function SquadsDirectoryFeed({
 
   if (isMobile) {
     return (
-      <div className="relative flex flex-col gap-3 px-4 pb-6">
+      <div className="relative flex flex-col gap-3 pb-6">
         {children}
         <header className="mb-2 flex flex-row items-center justify-between">
           {title}
