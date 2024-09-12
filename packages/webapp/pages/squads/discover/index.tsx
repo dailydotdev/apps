@@ -1,9 +1,14 @@
 import React, { ReactElement } from 'react';
 import { useSquadCategories } from '@dailydotdev/shared/src/hooks/squads/useSquadCategories';
 import { SquadsDirectoryFeed } from '@dailydotdev/shared/src/components/cards/squad/SquadsDirectoryFeed';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { NextSeo } from 'next-seo';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import {
+  Typography,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import { SquadIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { SquadDirectoryLayout } from '../../../../shared/src/components/squads/layout/SquadDirectoryLayout';
@@ -26,11 +31,14 @@ function SquadDiscoveryPage(): ReactElement {
         key="featured"
         linkToSeeAll="/squads/discover/featured"
         title={
-          <img
-            className="h-12"
-            src={cloudinary.squads.directory.featured}
-            alt="A text containing the word 'Featured'"
-          />
+          <Typography
+            className="flex flex-row items-center gap-1"
+            type={TypographyType.Title2}
+            bold
+          >
+            <SquadIcon size={IconSize.Large} />
+            Featured
+          </Typography>
         }
         query={{ isPublic: true, featured: true, first: limit }}
       >
