@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { GetStaticPropsResult } from 'next';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
-import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { ApiError, gqlRequest } from '@dailydotdev/shared/src/graphql/common';
 import { LEADERBOARD_QUERY } from '@dailydotdev/shared/src/graphql/leaderboard';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header';
@@ -119,7 +119,7 @@ export async function getStaticProps(): Promise<
   GetStaticPropsResult<PageProps>
 > {
   try {
-    const res = await gqlClient.request<PageProps>(LEADERBOARD_QUERY);
+    const res = await gqlRequest<PageProps>(LEADERBOARD_QUERY);
     return {
       props: {
         highestReputation: res.highestReputation,

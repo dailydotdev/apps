@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request';
 import type { Author, Scout } from './comments';
-import { Connection, gqlClient, gqlRequest } from './common';
+import { Connection, gqlRequest } from './common';
 import { Source, SourceType, Squad } from './sources';
 import { EmptyResponse } from './emptyResponse';
 import {
@@ -380,29 +380,29 @@ export const UNHIDE_POST_MUTATION = gql`
 `;
 
 export const dismissPostFeedback = (id: string): Promise<EmptyResponse> => {
-  return gqlClient.request(DISMISS_POST_FEEDBACK_MUTATION, {
+  return gqlRequest(DISMISS_POST_FEEDBACK_MUTATION, {
     id,
   });
 };
 
 export const banPost = (id: string): Promise<EmptyResponse> => {
-  return gqlClient.request(BAN_POST_MUTATION, {
+  return gqlRequest(BAN_POST_MUTATION, {
     id,
   });
 };
 
 export const promotePost = (id: string): Promise<EmptyResponse> =>
-  gqlClient.request(PROMOTE_TO_PUBLIC_MUTATION, {
+  gqlRequest(PROMOTE_TO_PUBLIC_MUTATION, {
     id,
   });
 
 export const demotePost = (id: string): Promise<EmptyResponse> =>
-  gqlClient.request(DEMOTE_FROM_PUBLIC_MUTATION, {
+  gqlRequest(DEMOTE_FROM_PUBLIC_MUTATION, {
     id,
   });
 
 export const deletePost = (id: string): Promise<EmptyResponse> => {
-  return gqlClient.request(DELETE_POST_MUTATION, {
+  return gqlRequest(DELETE_POST_MUTATION, {
     id,
   });
 };
@@ -416,7 +416,7 @@ export const VIEW_POST_MUTATION = gql`
 `;
 
 export const sendViewPost = (id: string): Promise<void> =>
-  gqlClient.request(VIEW_POST_MUTATION, { id });
+  gqlRequest(VIEW_POST_MUTATION, { id });
 
 export const LATEST_CHANGELOG_POST_QUERY = gql`
   query LatestChangelogPost {
@@ -445,9 +445,7 @@ export const LATEST_CHANGELOG_POST_QUERY = gql`
 `;
 
 export const getLatestChangelogPost = async (): Promise<Post> => {
-  const feedData = await gqlClient.request<FeedData>(
-    LATEST_CHANGELOG_POST_QUERY,
-  );
+  const feedData = await gqlRequest<FeedData>(LATEST_CHANGELOG_POST_QUERY);
 
   return feedData?.page?.edges?.[0]?.node;
 };
@@ -553,7 +551,7 @@ export interface CreatePostProps
 export const editPost = async (
   variables: Partial<EditPostProps>,
 ): Promise<Post> => {
-  const res = await gqlClient.request(EDIT_POST_MUTATION, variables);
+  const res = await gqlRequest(EDIT_POST_MUTATION, variables);
 
   return res.editPost;
 };
@@ -573,7 +571,7 @@ interface UpdatePinnedProps {
 
 export const updatePinnedPost = async (
   variables: UpdatePinnedProps,
-): Promise<void> => gqlClient.request(PIN_POST_MUTATION, variables);
+): Promise<void> => gqlRequest(PIN_POST_MUTATION, variables);
 
 export const SWAP_PINNED_POSTS_MUTATION = gql`
   mutation SwapPinnedPosts($id: ID!, $swapWithId: ID!) {
@@ -590,7 +588,7 @@ interface SwapPinnedPostsProps {
 
 export const swapPinnedPosts = async (
   variables: SwapPinnedPostsProps,
-): Promise<void> => gqlClient.request(SWAP_PINNED_POSTS_MUTATION, variables);
+): Promise<void> => gqlRequest(SWAP_PINNED_POSTS_MUTATION, variables);
 
 export const CREATE_POST_MUTATION = gql`
   mutation CreatePost(
@@ -621,7 +619,7 @@ export const CREATE_POST_MUTATION = gql`
 export const createPost = async (
   variables: Partial<CreatePostProps>,
 ): Promise<Post> => {
-  const res = await gqlClient.request(CREATE_POST_MUTATION, variables);
+  const res = await gqlRequest(CREATE_POST_MUTATION, variables);
 
   return res.createFreeformPost;
 };
@@ -654,7 +652,7 @@ export const uploadContentImage = async (
     onProcessing(image);
   }
 
-  const res = await gqlClient.request(UPLOAD_IMAGE_MUTATION, { image });
+  const res = await gqlRequest(UPLOAD_IMAGE_MUTATION, { image });
 
   return res.uploadContentImage;
 };

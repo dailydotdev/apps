@@ -7,7 +7,7 @@ import {
   UPDATE_LAST_BOOT_POPUP,
   UPDATE_LAST_REFERRAL_REMINDER,
 } from '../graphql/alerts';
-import { gqlClient } from '../graphql/common';
+import { gqlRequest } from '../graphql/common';
 
 export const ALERT_DEFAULTS: Alerts = {
   filter: true,
@@ -62,7 +62,7 @@ export const AlertContextProvider = ({
     Alerts
   >(
     (params) =>
-      gqlClient.request(UPDATE_ALERTS, {
+      gqlRequest(UPDATE_ALERTS, {
         data: params,
       }),
     {
@@ -79,7 +79,7 @@ export const AlertContextProvider = ({
   );
 
   const { mutateAsync: updateLastReferralReminder } = useMutation(
-    () => gqlClient.request(UPDATE_LAST_REFERRAL_REMINDER),
+    () => gqlRequest(UPDATE_LAST_REFERRAL_REMINDER),
     {
       onMutate: () =>
         updateAlerts({
@@ -96,7 +96,7 @@ export const AlertContextProvider = ({
   );
 
   const { mutateAsync: updateLastBootPopup } = useMutation(
-    () => gqlClient.request(UPDATE_LAST_BOOT_POPUP),
+    () => gqlRequest(UPDATE_LAST_BOOT_POPUP),
     {
       onMutate: () =>
         updateAlerts({

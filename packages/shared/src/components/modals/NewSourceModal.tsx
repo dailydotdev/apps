@@ -37,7 +37,7 @@ import { TextField } from '../fields/TextField';
 import { ReputationAlert } from './ReputationAlert';
 import { RequestKey } from '../../lib/query';
 import { ProfileImageSize } from '../ProfilePicture';
-import { gqlClient } from '../../graphql/common';
+import { gqlRequest } from '../../graphql/common';
 
 interface RSS {
   url: string;
@@ -100,7 +100,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
   );
   const { data: sourceRequestAvailability, isLoading: isLoadingAccess } =
     useQuery([RequestKey.SourceRequestAvailability, user?.id], async () => {
-      const result = await gqlClient.request<{
+      const result = await gqlRequest<{
         sourceRequestAvailability: SourceRequestAvailability;
       }>(SOURCE_REQUEST_AVAILABILITY_QUERY);
 
@@ -116,7 +116,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
 
   const { mutateAsync: checkIfSourceExists, isLoading: checkingIfExists } =
     useMutation<{ source: Source }, unknown, string>((feed: string) =>
-      gqlClient.request(SOURCE_BY_FEED_QUERY, {
+      gqlRequest(SOURCE_BY_FEED_QUERY, {
         feed,
       }),
     );
@@ -167,7 +167,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
   const { mutateAsync: requestSource, isLoading: requestingSource } =
     useMutation<unknown, unknown, string>(
       (feed: string) =>
-        gqlClient.request(REQUEST_SOURCE_MUTATION, {
+        gqlRequest(REQUEST_SOURCE_MUTATION, {
           data: { sourceUrl: feed },
         }),
       {

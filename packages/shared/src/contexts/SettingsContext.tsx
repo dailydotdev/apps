@@ -19,7 +19,7 @@ import { storageWrapper } from '../lib/storageWrapper';
 import { usePersonalizedDigest } from '../hooks/usePersonalizedDigest';
 import { UserPersonalizedDigestType } from '../graphql/users';
 import { ChecklistViewState } from '../lib/checklist';
-import { gqlClient } from '../graphql/common';
+import { gqlRequest } from '../graphql/common';
 
 export enum ThemeMode {
   Dark = 'dark',
@@ -141,7 +141,7 @@ export const SettingsContextProvider = ({
     RemoteSettings
   >(
     (params) =>
-      gqlClient.request(UPDATE_USER_SETTINGS_MUTATION, {
+      gqlRequest(UPDATE_USER_SETTINGS_MUTATION, {
         data: params,
       }),
     {

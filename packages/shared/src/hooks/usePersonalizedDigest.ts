@@ -10,7 +10,7 @@ import {
 } from '../graphql/users';
 import { RequestKey, StaleTime, generateQueryKey } from '../lib/query';
 import { useAuthContext } from '../contexts/AuthContext';
-import { ApiError, getApiError, gqlClient } from '../graphql/common';
+import { ApiError, getApiError, gqlRequest } from '../graphql/common';
 
 export enum SendType {
   Weekly = 'weekly',
@@ -41,7 +41,7 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
     queryKey,
     async () => {
       try {
-        const result = await gqlClient.request<{
+        const result = await gqlRequest<{
           personalizedDigest: UserPersonalizedDigest[];
         }>(GET_PERSONALIZED_DIGEST_SETTINGS, {});
 
@@ -86,7 +86,7 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
         type = UserPersonalizedDigestType.Digest,
         sendType,
       } = params || {};
-      const result = await gqlClient.request<
+      const result = await gqlRequest<
         {
           subscribePersonalizedDigest: UserPersonalizedDigest;
         },
@@ -135,7 +135,7 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
   const { mutateAsync: unsubscribePersonalizedDigest } = useMutation(
     async (params: { type?: UserPersonalizedDigestType }) => {
       const { type = UserPersonalizedDigestType.Digest } = params || {};
-      await gqlClient.request(UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION, {
+      await gqlRequest(UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION, {
         type,
       });
 

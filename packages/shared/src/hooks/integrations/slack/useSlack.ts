@@ -6,7 +6,7 @@ import {
   UserIntegrationType,
 } from '../../../graphql/integrations';
 import { isDevelopment } from '../../../lib/constants';
-import { gqlClient } from '../../../graphql/common';
+import { gqlRequest } from '../../../graphql/common';
 import { apiUrl } from '../../../lib/config';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
@@ -67,7 +67,7 @@ export const useSlack = (): UseSlack => {
         }),
       });
 
-      await gqlClient.request(SLACK_CONNECT_SOURCE_MUTATION, {
+      await gqlRequest(SLACK_CONNECT_SOURCE_MUTATION, {
         integrationId,
         channelId,
         sourceId,

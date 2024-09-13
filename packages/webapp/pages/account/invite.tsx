@@ -15,7 +15,7 @@ import UserList from '@dailydotdev/shared/src/components/profile/UserList';
 import { checkFetchMore } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import {
   ReferredUsersData,
-  gqlClient,
+  gqlRequest,
 } from '@dailydotdev/shared/src/graphql/common';
 import { SocialShareList } from '@dailydotdev/shared/src/components/widgets/SocialShareList';
 import { Separator } from '@dailydotdev/shared/src/components/cards/common';
@@ -58,7 +58,7 @@ const AccountInvitePage = (): ReactElement => {
   const usersResult = useInfiniteQuery<ReferredUsersData>(
     referredKey,
     ({ pageParam }) =>
-      gqlClient.request(REFERRED_USERS_QUERY, {
+      gqlRequest(REFERRED_USERS_QUERY, {
         after: typeof pageParam === 'string' ? pageParam : undefined,
       }),
     {

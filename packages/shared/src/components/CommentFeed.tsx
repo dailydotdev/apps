@@ -13,7 +13,7 @@ import PlaceholderCommentList from './comments/PlaceholderCommentList';
 import { CommentClassName } from './comments/common';
 import { CommentFeedData } from '../graphql/comments';
 import { useViewSize, ViewSize } from '../hooks';
-import { gqlClient } from '../graphql/common';
+import { gqlRequest } from '../graphql/common';
 
 interface CommentFeedProps<T> {
   feedQueryKey: unknown[];
@@ -42,7 +42,7 @@ export default function CommentFeed<T>({
   const queryResult = useInfiniteQuery<CommentFeedData>(
     feedQueryKey,
     ({ pageParam }) =>
-      gqlClient.request(query, {
+      gqlRequest(query, {
         ...variables,
         first: 20,
         after: pageParam,

@@ -8,7 +8,7 @@ import {
 } from '../graphql/users';
 import { LoggedUser, UserProfile } from '../lib/user';
 import { useToastNotification } from './useToastNotification';
-import { errorMessage, gqlClient, ResponseError } from '../graphql/common';
+import { errorMessage, gqlRequest, ResponseError } from '../graphql/common';
 
 export interface ProfileFormHint {
   portfolio?: string;
@@ -122,7 +122,7 @@ const useProfileForm = ({
     UpdateProfileParameters
   >(
     ({ image, onUpdateSuccess, ...data }) =>
-      gqlClient.request(UPDATE_USER_PROFILE_MUTATION, {
+      gqlRequest(UPDATE_USER_PROFILE_MUTATION, {
         data,
         upload: image,
       }),

@@ -56,7 +56,7 @@ import {
   SOURCES_BY_TAG_QUERY,
   Source,
 } from '@dailydotdev/shared/src/graphql/sources';
-import { Connection, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { Connection, gqlRequest } from '@dailydotdev/shared/src/graphql/common';
 import { RelatedSources } from '@dailydotdev/shared/src/components/RelatedSources';
 import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts';
 import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
@@ -76,7 +76,7 @@ const TagRecommendedTags = ({ tag, blockedTags }): ReactElement => {
   const { data: recommendedTags, isLoading } = useQuery(
     [RequestKey.RecommendedTags, null, tag],
     async () =>
-      await gqlClient.request<{
+      await gqlRequest<{
         recommendedTags: TagsData;
       }>(GET_RECOMMENDED_TAGS_QUERY, {
         tags: [tag],
@@ -101,7 +101,7 @@ const TagTopSources = ({ tag }: { tag: string }) => {
   const { data: topSources, isLoading } = useQuery(
     [RequestKey.SourceByTag, null, tag],
     async () =>
-      await gqlClient.request<{ sourcesByTag: Connection<Source> }>(
+      await gqlRequest<{ sourcesByTag: Connection<Source> }>(
         SOURCES_BY_TAG_QUERY,
         {
           tag,
@@ -373,12 +373,9 @@ export async function getStaticProps({
   let initialData: Keyword | null = null;
 
   try {
-    const result = await gqlClient.request<{ keyword: Keyword }>(
-      KEYWORD_QUERY,
-      {
-        value: params.tag,
-      },
-    );
+    const result = await gqlRequest<{ keyword: Keyword }>(KEYWORD_QUERY, {
+      value: params.tag,
+    });
 
     if (result.keyword) {
       initialData = result.keyword;

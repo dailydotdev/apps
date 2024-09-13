@@ -3,7 +3,7 @@ import {
   NotificationIconType,
   NotificationType,
 } from '../components/notifications/utils';
-import { Connection, gqlClient } from './common';
+import { Connection, gqlRequest } from './common';
 import { EmptyResponse } from './emptyResponse';
 import { WithClassNameProps } from '../components/utilities';
 
@@ -212,7 +212,7 @@ type FetchParams = Pick<
 export const getNotificationPreferences = async (
   params: FetchParams[],
 ): Promise<NotificationPreference[]> => {
-  const res = await gqlClient.request(NOTIFICATION_PREFERENCES_QUERY, {
+  const res = await gqlRequest(NOTIFICATION_PREFERENCES_QUERY, {
     data: params,
   });
 
@@ -234,7 +234,7 @@ export const notificationPreferenceMap: Partial<
 export const muteNotification = async (
   params: NotificationPreferenceParams,
 ): Promise<EmptyResponse> => {
-  const res = await gqlClient.request(MUTE_NOTIFICATION_MUTATION, params);
+  const res = await gqlRequest(MUTE_NOTIFICATION_MUTATION, params);
 
   return res.muteNotificationPreference;
 };
@@ -242,7 +242,7 @@ export const muteNotification = async (
 export const clearNotificationPreference = async (
   params: NotificationPreferenceParams,
 ): Promise<EmptyResponse> => {
-  const res = await gqlClient.request(
+  const res = await gqlRequest(
     CLEAR_NOTIFICATION_PREFERENCE_MUTATION,
     params,
   );
@@ -253,7 +253,7 @@ export const clearNotificationPreference = async (
 export const hideSourceFeedPosts = async (
   sourceId: string,
 ): Promise<EmptyResponse> => {
-  const res = await gqlClient.request(HIDE_SOURCE_ON_FEED_MUTATION, {
+  const res = await gqlRequest(HIDE_SOURCE_ON_FEED_MUTATION, {
     sourceId,
   });
 
@@ -263,7 +263,7 @@ export const hideSourceFeedPosts = async (
 export const showSourceFeedPosts = async (
   sourceId: string,
 ): Promise<EmptyResponse> => {
-  const res = await gqlClient.request(SHOW_SOURCE_ON_FEED_MUTATION, {
+  const res = await gqlRequest(SHOW_SOURCE_ON_FEED_MUTATION, {
     sourceId,
   });
 
@@ -273,7 +273,7 @@ export const showSourceFeedPosts = async (
 export const subscribeNotification = async (
   params: NotificationPreferenceParams,
 ): Promise<EmptyResponse> => {
-  const res = await gqlClient.request(SUBSCRIBE_NOTIFICATION_MUTATION, params);
+  const res = await gqlRequest(SUBSCRIBE_NOTIFICATION_MUTATION, params);
 
   return res.subscribeNotificationPreference;
 };

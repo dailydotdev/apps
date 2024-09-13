@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request';
 import { EmptyResponse } from './graphql/emptyResponse';
-import { gqlClient } from './graphql/common';
+import { gqlRequest } from './graphql/common';
 
 export enum ReportEntity {
   Post = 'post',
@@ -57,7 +57,7 @@ interface SendGenericReport extends SendReportProps {
 }
 
 const sendReport = (params: SendGenericReport): Promise<EmptyResponse> =>
-  gqlClient.request(SEND_REPORT_MUTATION, params);
+  gqlRequest(SEND_REPORT_MUTATION, params);
 
 export const sendPostReport = (
   params: SendReportProps,

@@ -45,7 +45,7 @@ import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import { useMutation } from '@tanstack/react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import {
-  gqlClient,
+  gqlRequest,
   ResponseError,
 } from '@dailydotdev/shared/src/graphql/common';
 import { UPLOAD_COVER_MUTATION } from '@dailydotdev/shared/src/graphql/users';
@@ -108,7 +108,7 @@ const ProfileIndex = ({
     { image: File }
   >(
     ({ image }) =>
-      gqlClient.request(UPLOAD_COVER_MUTATION, {
+      gqlRequest(UPLOAD_COVER_MUTATION, {
         upload: image,
       }),
     {

@@ -9,7 +9,7 @@ import {
 } from '../../graphql/users';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { ActionType } from '../../graphql/actions';
-import { gqlClient } from '../../graphql/common';
+import { gqlRequest } from '../../graphql/common';
 import { useToastNotification } from '../useToastNotification';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
@@ -54,15 +54,15 @@ export const useStreakRecover = ({
   const client = useQueryClient();
   const { data, isLoading } = useQuery<StreakQueryData>({
     queryKey: generateQueryKey(RequestKey.UserStreakRecover),
-    queryFn: async () => await gqlClient.request(USER_STREAK_RECOVER_QUERY),
+    queryFn: async () => await gqlRequest(USER_STREAK_RECOVER_QUERY),
   });
 
   const recoverMutation = useMutation({
     mutationKey: generateQueryKey(RequestKey.UserStreakRecover),
     mutationFn: async () =>
-      await gqlClient
-        .request(USER_STREAK_RECOVER_MUTATION)
-        .then((res) => res.recoverStreak),
+      await gqlRequest(USER_STREAK_RECOVER_MUTATION).then(
+        (res) => res.recoverStreak,
+      ),
     onSuccess: () => {
       logEvent({
         event_name: LogEvent.StreakRecover,

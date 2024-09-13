@@ -7,7 +7,7 @@ import {
 import LogContext from '../../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../../lib/feed';
 import { Post } from '../../graphql/posts';
-import { gqlClient } from '../../graphql/common';
+import { gqlRequest } from '../../graphql/common';
 
 export default function useCommentPopup(
   feedName: string,
@@ -39,7 +39,7 @@ export default function useCommentPopup(
     }
   >(
     ({ post, content }) =>
-      gqlClient.request(COMMENT_ON_POST_MUTATION, {
+      gqlRequest(COMMENT_ON_POST_MUTATION, {
         id: post.id,
         content,
       }),

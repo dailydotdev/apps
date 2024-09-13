@@ -22,7 +22,7 @@ import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/util
 import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import classNames from 'classnames';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { gqlRequest } from '@dailydotdev/shared/src/graphql/common';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import styles from './KeywordManagement.module.css';
 
@@ -56,7 +56,7 @@ export default function KeywordManagement({
 
   const { mutateAsync: allowKeyword } = useMutation(
     () =>
-      gqlClient.request(ALLOW_KEYWORD_MUTATION, {
+      gqlRequest(ALLOW_KEYWORD_MUTATION, {
         keyword: keyword.value,
       }),
     {
@@ -66,7 +66,7 @@ export default function KeywordManagement({
 
   const { mutateAsync: denyKeyword } = useMutation(
     () =>
-      gqlClient.request(DENY_KEYWORD_MUTATION, {
+      gqlRequest(DENY_KEYWORD_MUTATION, {
         keyword: keyword.value,
       }),
     {
@@ -77,7 +77,7 @@ export default function KeywordManagement({
   const posts = useInfiniteQuery<FeedData>(
     ['keyword_post', keyword.value],
     ({ pageParam }) =>
-      gqlClient.request(KEYWORD_FEED_QUERY, {
+      gqlRequest(KEYWORD_FEED_QUERY, {
         keyword: keyword.value,
         first: 4,
         after: pageParam,

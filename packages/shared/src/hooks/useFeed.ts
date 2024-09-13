@@ -23,7 +23,7 @@ import {
 } from '../lib/query';
 import { MarketingCta } from '../components/marketingCta/common';
 import { FeedItemType } from '../components/cards/common';
-import { GARMR_ERROR, gqlClient } from '../graphql/common';
+import { GARMR_ERROR, gqlRequest } from '../graphql/common';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -120,7 +120,7 @@ export default function useFeed<T>(
   const feedQuery = useInfiniteQuery<FeedData>(
     feedQueryKey,
     async ({ pageParam }) => {
-      const res = await gqlClient.request(query, {
+      const res = await gqlRequest(query, {
         ...variables,
         first: pageSize,
         after: pageParam,

@@ -18,7 +18,7 @@ import { generateQueryKey, RequestKey } from '../../lib/query';
 import { updateFlagsCache } from '../../graphql/source/common';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ActiveFeedContext } from '../../contexts/ActiveFeedContext';
-import { gqlClient } from '../../graphql/common';
+import { gqlRequest } from '../../graphql/common';
 
 export interface UseSquadActions {
   onUnblock?: typeof unblockSquadMember;
@@ -85,7 +85,7 @@ export const useSquadActions = ({
   const membersQueryResult = useInfiniteQuery<SquadEdgesData>(
     membersQueryKey,
     ({ pageParam }) =>
-      gqlClient.request(SQUAD_MEMBERS_QUERY, {
+      gqlRequest(SQUAD_MEMBERS_QUERY, {
         id: squad?.id,
         after: typeof pageParam === 'string' ? pageParam : undefined,
         query,

@@ -17,7 +17,7 @@ import {
 } from '../graphql/search';
 import { SEARCH_BOOKMARKS_SUGGESTIONS } from '../graphql/feed';
 import { SEARCH_READING_HISTORY_SUGGESTIONS } from '../graphql/users';
-import { gqlClient } from '../graphql/common';
+import { gqlRequest } from '../graphql/common';
 import { useConditionalFeature } from '../hooks';
 import { feature } from '../lib/featureManagement';
 
@@ -74,7 +74,7 @@ export default function PostsSearch({
     [suggestionType: string]: { hits: { title: string }[] };
   }>(
     [suggestionType, query],
-    () => gqlClient.request(SEARCH_URL, { query, version: searchVersion }),
+    () => gqlRequest(SEARCH_URL, { query, version: searchVersion }),
     {
       enabled: !!query,
     },

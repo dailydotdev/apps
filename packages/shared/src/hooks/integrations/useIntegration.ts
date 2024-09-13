@@ -13,7 +13,7 @@ import {
   deleteIntegrationPromptOptions,
   deleteSourceIntegrationPromptOptions,
 } from '../../lib/integrations';
-import { gqlClient } from '../../graphql/common';
+import { gqlRequest } from '../../graphql/common';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 
@@ -59,7 +59,7 @@ export const useIntegration = (): UseIntegration => {
         target_id: integrationType,
       });
 
-      await gqlClient.request(REMOVE_INTEGRATION_MUTATION, {
+      await gqlRequest(REMOVE_INTEGRATION_MUTATION, {
         integrationId,
       });
     },
@@ -103,7 +103,7 @@ export const useIntegration = (): UseIntegration => {
         }),
       });
 
-      await gqlClient.request(REMOVE_SOURCE_INTEGRATION_MUTATION, {
+      await gqlRequest(REMOVE_SOURCE_INTEGRATION_MUTATION, {
         sourceId,
         integrationId,
       });

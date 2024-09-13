@@ -9,7 +9,7 @@ import {
 import { TagLink } from '@dailydotdev/shared/src/components/TagLinks';
 import { HashtagIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { ApiError, gqlRequest } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
@@ -151,7 +151,7 @@ export async function getStaticProps(): Promise<
   GetStaticPropsResult<TagsPageProps>
 > {
   try {
-    const res = await gqlClient.request<TagsPageProps>(TAG_DIRECTORY_QUERY);
+    const res = await gqlRequest<TagsPageProps>(TAG_DIRECTORY_QUERY);
     return {
       props: {
         tags: res.tags,

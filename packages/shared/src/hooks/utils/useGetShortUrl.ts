@@ -6,7 +6,7 @@ import { addLogQueryParams } from '../../lib/share';
 import { RequestKey, generateQueryKey } from '../../lib/query';
 import { ReferralCampaignKey } from '../../lib';
 import { disabledRefetch } from '../../lib/func';
-import { gqlClient } from '../../graphql/common';
+import { gqlRequest } from '../../graphql/common';
 
 interface LinkAsQuery {
   url: string;
@@ -43,7 +43,7 @@ export const useGetShortUrl = ({
   );
 
   const queryShortUrl = async (url: string) => {
-    const res = await gqlClient.request(GET_SHORT_URL_QUERY, { url });
+    const res = await gqlRequest(GET_SHORT_URL_QUERY, { url });
     return res.getShortUrl;
   };
 

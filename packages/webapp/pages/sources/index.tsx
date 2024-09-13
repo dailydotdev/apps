@@ -16,7 +16,7 @@ import {
   SOURCE_DIRECTORY_QUERY,
 } from '@dailydotdev/shared/src/graphql/sources';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { ApiError, gqlRequest } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
@@ -111,9 +111,7 @@ export async function getStaticProps(): Promise<
   GetStaticPropsResult<SourcesPageProps>
 > {
   try {
-    const res = await gqlClient.request<SourcesPageProps>(
-      SOURCE_DIRECTORY_QUERY,
-    );
+    const res = await gqlRequest<SourcesPageProps>(SOURCE_DIRECTORY_QUERY);
 
     return {
       props: {

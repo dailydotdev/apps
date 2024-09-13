@@ -9,7 +9,7 @@ import {
   UserSourceIntegration,
 } from '../../graphql/integrations';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import { Connection, gqlClient } from '../../graphql/common';
+import { Connection, gqlRequest } from '../../graphql/common';
 import { useAuthContext } from '../../contexts/AuthContext';
 
 export type UseSourceIntegrationsQueryProps = {
@@ -38,7 +38,7 @@ export const useSourceIntegrationsQuery = ({
         unknown,
         { sourceId: string; userIntegrationType: UserIntegrationType },
       ];
-      const result = await gqlClient.request<{
+      const result = await gqlRequest<{
         sourceIntegrations: Connection<UserSourceIntegration>;
       }>(SOURCE_INTEGRATIONS_QUERY, queryVariables);
 

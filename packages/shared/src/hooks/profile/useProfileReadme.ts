@@ -5,7 +5,7 @@ import { generateQueryKey, RequestKey } from '../../lib/query';
 import { UPDATE_README_MUTATION, USER_README_QUERY } from '../../graphql/users';
 import { PublicProfile } from '../../lib/user';
 import { useToastNotification } from '../useToastNotification';
-import { gqlClient } from '../../graphql/common';
+import { gqlRequest } from '../../graphql/common';
 
 export type UseProfileReadmeRet = {
   readme?: string;
@@ -27,7 +27,7 @@ export function useProfileReadme(user: PublicProfile): UseProfileReadmeRet {
   }>(
     queryKey,
     () =>
-      gqlClient.request(USER_README_QUERY, {
+      gqlRequest(USER_README_QUERY, {
         id: user.id,
       }),
     {
@@ -42,7 +42,7 @@ export function useProfileReadme(user: PublicProfile): UseProfileReadmeRet {
     { updateReadme: { readmeHtml: string } },
     unknown,
     string
-  >((content) => gqlClient.request(UPDATE_README_MUTATION, { content }), {
+  >((content) => gqlRequest(UPDATE_README_MUTATION, { content }), {
     onSuccess: async () => {
       setEditMode(false);
       await client.invalidateQueries(queryKey);

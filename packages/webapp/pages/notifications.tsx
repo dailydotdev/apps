@@ -33,7 +33,7 @@ import {
 import { usePromotionModal } from '@dailydotdev/shared/src/hooks/notifications/usePromotionModal';
 import { NotificationPreferenceMenu } from '@dailydotdev/shared/src/components/tooltips/notifications';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { gqlRequest } from '@dailydotdev/shared/src/graphql/common';
 import { useStreakRecoverModal } from '@dailydotdev/shared/src/hooks/notifications/useStreakRecoverModal';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
@@ -60,13 +60,13 @@ const Notifications = (): ReactElement => {
   const { isSubscribed } = usePushNotificationContext();
 
   const { mutateAsync: readNotifications } = useMutation(
-    () => gqlClient.request(READ_NOTIFICATIONS_MUTATION),
+    () => gqlRequest(READ_NOTIFICATIONS_MUTATION),
     { onSuccess: clearUnreadCount },
   );
   const queryResult = useInfiniteQuery<NotificationsData>(
     ['notifications'],
     ({ pageParam }) =>
-      gqlClient.request(NOTIFICATIONS_QUERY, {
+      gqlRequest(NOTIFICATIONS_QUERY, {
         first: 100,
         after: pageParam,
       }),

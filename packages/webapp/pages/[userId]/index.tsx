@@ -16,7 +16,7 @@ import { Readme } from '@dailydotdev/shared/src/components/profile/Readme';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import { useJoinReferral } from '@dailydotdev/shared/src/hooks';
 import { useReadingStreak } from '@dailydotdev/shared/src/hooks/streaks';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { gqlRequest } from '@dailydotdev/shared/src/graphql/common';
 import {
   getLayout as getProfileLayout,
   getStaticPaths as getProfileStaticPaths,
@@ -41,7 +41,7 @@ const ProfilePage = ({
   const { data: readingHistory, isLoading } = useQuery<ProfileReadingData>(
     generateQueryKey(RequestKey.ReadingStats, user, selectedHistoryYear),
     () =>
-      gqlClient.request(USER_READING_HISTORY_QUERY, {
+      gqlRequest(USER_READING_HISTORY_QUERY, {
         id: user?.id,
         before,
         after,

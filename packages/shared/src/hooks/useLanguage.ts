@@ -4,7 +4,7 @@ import { useAuthContext } from '../contexts/AuthContext';
 import { UPDATE_USER_PROFILE_MUTATION } from '../graphql/users';
 import { useLogContext } from '../contexts/LogContext';
 import { SharedFeedPage } from '../components/utilities';
-import { gqlClient } from '../graphql/common';
+import { gqlRequest } from '../graphql/common';
 import { labels } from '../lib';
 import { LogEvent, TargetType } from '../lib/log';
 import { OtherFeedPage, RequestKey } from '../lib/query';
@@ -27,7 +27,7 @@ export const useLanguage = (): UseLanguage => {
         language: value,
       });
 
-      await gqlClient.request(UPDATE_USER_PROFILE_MUTATION, {
+      await gqlRequest(UPDATE_USER_PROFILE_MUTATION, {
         data: {
           language: value,
         },

@@ -31,7 +31,7 @@ import { Origin } from '@dailydotdev/shared/src/lib/log';
 import SquadPostContent from '@dailydotdev/shared/src/components/post/SquadPostContent';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
-import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { ApiError, gqlRequest } from '@dailydotdev/shared/src/graphql/common';
 import { ONBOARDING_OFFSET } from '@dailydotdev/shared/src/components/post/BasePostContent';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
 import classNames from 'classnames';
@@ -190,7 +190,7 @@ export async function getStaticProps({
 }: GetStaticPropsContext<PostParams>): Promise<GetStaticPropsResult<Props>> {
   const { id } = params;
   try {
-    const initialData = await gqlClient.request<PostData>(
+    const initialData = await gqlRequest<PostData>(
       POST_BY_ID_STATIC_FIELDS_QUERY,
       { id },
     );

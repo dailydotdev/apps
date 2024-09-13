@@ -7,7 +7,7 @@ import { NextSeo, NextSeoProps } from 'next-seo';
 import { setCookie } from '@dailydotdev/shared/src/lib/cookie';
 import { oneYear } from '@dailydotdev/shared/src/lib/dateFormat';
 import { useReferralConfig } from '@dailydotdev/shared/src/hooks/referral/useReferralConfig';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { gqlRequest } from '@dailydotdev/shared/src/graphql/common';
 import { defaultOpenGraph } from '../next-seo';
 import { JoinPageProps } from '../components/invite/common';
 import { AISearchInvite } from '../components/invite/AISearchInvite';
@@ -109,7 +109,7 @@ export const getServerSideProps: GetServerSideProps<JoinPageProps> = async ({
     };
   }
 
-  const result = await gqlClient.request<{
+  const result = await gqlRequest<{
     user: JoinPageProps['referringUser'];
   }>(GET_REFERRING_USER_QUERY, {
     id: userId,

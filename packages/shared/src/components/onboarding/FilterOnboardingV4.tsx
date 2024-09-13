@@ -23,7 +23,7 @@ import { Origin } from '../../lib/log';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { OnSelectTagProps } from './common';
 import { OnboardingTag } from './OnboardingTag';
-import { gqlClient } from '../../graphql/common';
+import { gqlRequest } from '../../graphql/common';
 
 const tagsSelector = (data: TagsData) => data?.tags || [];
 
@@ -90,7 +90,7 @@ export function FilterOnboardingV4({
   const { data: onboardingTags, isLoading } = useQuery(
     onboardingTagsQueryKey,
     async () => {
-      const result = await gqlClient.request<{
+      const result = await gqlRequest<{
         onboardingTags: TagsData;
       }>(GET_ONBOARDING_TAGS_QUERY, {});
 
@@ -121,7 +121,7 @@ export function FilterOnboardingV4({
 
   const { mutate: recommendTags, data: recommendedTags } = useMutation(
     async ({ tag }: Pick<OnSelectTagProps, 'tag'>) => {
-      const result = await gqlClient.request<{
+      const result = await gqlRequest<{
         recommendedTags: TagsData;
       }>(GET_RECOMMENDED_TAGS_QUERY, {
         tags: [tag.name],

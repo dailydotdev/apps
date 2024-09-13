@@ -4,7 +4,7 @@ import { SearchTagsData, SEARCH_TAGS_QUERY } from '../graphql/feedSettings';
 import { LogEvent, Origin } from '../lib/log';
 import { getSearchTagsQueryKey } from './useMutateFilters';
 import LogContext from '../contexts/LogContext';
-import { gqlClient } from '../graphql/common';
+import { gqlRequest } from '../graphql/common';
 
 export type UseTagSearchProps = {
   value: string;
@@ -27,7 +27,7 @@ export const useTagSearch = ({
   const { data, isLoading } = useQuery(
     getSearchTagsQueryKey(value),
     async () => {
-      const result = await gqlClient.request<SearchTagsData>(
+      const result = await gqlRequest<SearchTagsData>(
         SEARCH_TAGS_QUERY,
         { query: value },
       );

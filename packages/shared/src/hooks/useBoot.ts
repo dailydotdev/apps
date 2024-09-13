@@ -7,7 +7,7 @@ import {
   MarketingCtaVariant,
 } from '../components/marketingCta/common';
 import { CLEAR_MARKETING_CTA_MUTATION } from '../graphql/users';
-import { gqlClient } from '../graphql/common';
+import { gqlRequest } from '../graphql/common';
 
 type UseBoot = {
   addSquad: (squad: Squad) => void;
@@ -73,7 +73,7 @@ export const useBoot = (): UseBoot => {
 
   const clearMarketingCta = (campaignId: string) => {
     const bootData = getBootData();
-    gqlClient.request(CLEAR_MARKETING_CTA_MUTATION, {
+    gqlRequest(CLEAR_MARKETING_CTA_MUTATION, {
       campaignId,
     });
 

@@ -3,7 +3,7 @@ import { UserCompany } from '../../lib/userCompany';
 import { GET_USER_COMPANIES } from '../../graphql/users';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { gqlClient } from '../../graphql/common';
+import { gqlRequest } from '../../graphql/common';
 
 interface UseUserCompaniesQuery {
   userCompanies: UserCompany[];
@@ -17,7 +17,7 @@ export const useUserCompaniesQuery = (): UseUserCompaniesQuery => {
   const { data, isLoading } = useQuery(
     queryKey,
     async (): Promise<UserCompany[]> => {
-      const res = await gqlClient.request(GET_USER_COMPANIES);
+      const res = await gqlRequest(GET_USER_COMPANIES);
 
       return res.companies;
     },

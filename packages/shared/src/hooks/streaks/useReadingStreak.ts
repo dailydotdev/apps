@@ -16,7 +16,7 @@ import { useActions } from '../useActions';
 import { ActionType } from '../../graphql/actions';
 import useDebounceFn from '../useDebounceFn';
 import SettingsContext from '../../contexts/SettingsContext';
-import { gqlClient, ResponseError } from '../../graphql/common';
+import { gqlRequest, ResponseError } from '../../graphql/common';
 import { DayOfWeek } from '../../lib/date';
 
 type UpdateReadingStreakConfig = {
@@ -51,7 +51,7 @@ export const useReadingStreak = (): UserReadingStreak => {
     UserStreak,
     ResponseError,
     UpdateReadingStreakConfig
-  >((params) => gqlClient.request(UPDATE_STREAK_COUNT_MUTATION, params), {
+  >((params) => gqlRequest(UPDATE_STREAK_COUNT_MUTATION, params), {
     onMutate: ({ weekStart }) => {
       queryClient.cancelQueries(queryKey);
 

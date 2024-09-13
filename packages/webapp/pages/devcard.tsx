@@ -59,7 +59,7 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { downloadUrl } from '@dailydotdev/shared/src/lib/blob';
 import { checkLowercaseEquality } from '@dailydotdev/shared/src/lib/strings';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { gqlRequest } from '@dailydotdev/shared/src/graphql/common';
 import { getLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
@@ -78,7 +78,7 @@ interface Step1Props {
 const Step1 = ({ onGenerateImage }: Step1Props): ReactElement => {
   const { user, showLogin, loadingUser } = useContext(AuthContext);
   const { mutateAsync: onGenerate, isLoading } = useMutation(
-    () => gqlClient.request<DevCardMutation>(GENERATE_DEVCARD_MUTATION),
+    () => gqlRequest<DevCardMutation>(GENERATE_DEVCARD_MUTATION),
     {
       onSuccess: (data) => {
         const url = data?.devCard?.imageUrl;
@@ -172,7 +172,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
 
   const { mutateAsync: onGenerate, isLoading } = useMutation(
     (params: Partial<GenerateDevCardParams> = {}) => {
-      return gqlClient.request(GENERATE_DEVCARD_MUTATION, {
+      return gqlRequest(GENERATE_DEVCARD_MUTATION, {
         ...params,
         theme: params?.theme?.toLocaleUpperCase() ?? 'DEFAULT',
         type: params?.type ?? 'DEFAULT',

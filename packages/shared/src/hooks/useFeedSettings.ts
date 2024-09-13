@@ -11,7 +11,7 @@ import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
 import { disabledRefetch } from '../lib/func';
 import { RequestKey, StaleTime } from '../lib/query';
-import { gqlClient } from '../graphql/common';
+import { gqlRequest } from '../graphql/common';
 
 export const getFeedSettingsQueryKey = (
   user?: LoggedUser,
@@ -47,7 +47,7 @@ export default function useFeedSettings({
   const { data: feedQuery = {}, isLoading } = useQuery<AllTagCategoriesData>(
     filtersKey,
     () =>
-      gqlClient.request(
+      gqlRequest(
         FEED_SETTINGS_QUERY,
         feedId
           ? {

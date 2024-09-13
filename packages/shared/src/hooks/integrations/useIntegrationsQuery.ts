@@ -5,7 +5,7 @@ import {
 } from '@tanstack/react-query';
 import { UserIntegration } from '../../graphql/integrations';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import { gqlClient, Connection } from '../../graphql/common';
+import { gqlRequest, Connection } from '../../graphql/common';
 import { USER_INTEGRATIONS } from '../../graphql/users';
 import { useAuthContext } from '../../contexts/AuthContext';
 
@@ -24,7 +24,7 @@ export const useIntegrationsQuery = ({
   const queryResult = useQuery(
     generateQueryKey(RequestKey.UserIntegrations, user),
     async () => {
-      const result = await gqlClient.request<{
+      const result = await gqlRequest<{
         userIntegrations: Connection<UserIntegration>;
       }>(USER_INTEGRATIONS);
 

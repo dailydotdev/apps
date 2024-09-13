@@ -21,7 +21,7 @@ import { squadsPublicSuggestion } from '@dailydotdev/shared/src/lib/constants';
 import { GetStaticPropsResult } from 'next';
 import { ApiError } from 'next/dist/server/api-utils';
 import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
-import { Connection, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { Connection, gqlRequest } from '@dailydotdev/shared/src/graphql/common';
 import { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import {
   Button,
@@ -66,7 +66,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
   const queryResult = useInfiniteQuery(
     ['sourcesFeed'],
     ({ pageParam }) =>
-      gqlClient.request(SQUAD_DIRECTORY_SOURCES, {
+      gqlRequest(SQUAD_DIRECTORY_SOURCES, {
         filterOpenSquads: true,
         featured: true,
         first: 100,
@@ -218,7 +218,7 @@ SquadsPage.layoutProps = {
 
 export async function getStaticProps(): Promise<GetStaticPropsResult<Props>> {
   try {
-    const initialData = await gqlClient.request(SQUAD_DIRECTORY_SOURCES, {
+    const initialData = await gqlRequest(SQUAD_DIRECTORY_SOURCES, {
       filterOpenSquads: true,
       featured: true,
       first: 100,

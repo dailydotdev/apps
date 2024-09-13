@@ -31,7 +31,7 @@ import {
 import {
   ApiError,
   Connection,
-  gqlClient,
+  gqlRequest,
 } from '@dailydotdev/shared/src/graphql/common';
 import {
   OtherFeedPage,
@@ -68,7 +68,7 @@ const SourceRelatedTags = ({ sourceId }: SourceIdProps): ReactElement => {
   const { data: relatedTags, isLoading } = useQuery(
     [RequestKey.SourceRelatedTags, null, sourceId],
     async () =>
-      await gqlClient.request<{
+      await gqlRequest<{
         relatedTags: TagsData;
       }>(SOURCE_RELATED_TAGS_QUERY, {
         sourceId,
@@ -92,7 +92,7 @@ const SimilarSources = ({ sourceId }: SourceIdProps) => {
   const { data: similarSources, isLoading } = useQuery(
     [RequestKey.SimilarSources, null, sourceId],
     async () =>
-      await gqlClient.request<{ similarSources: Connection<Source> }>(
+      await gqlRequest<{ similarSources: Connection<Source> }>(
         SIMILAR_SOURCES_QUERY,
         {
           sourceId,
@@ -279,7 +279,7 @@ export async function getStaticProps({
   GetStaticPropsResult<SourcePageProps>
 > {
   try {
-    const res = await gqlClient.request<SourceData>(SOURCE_QUERY, {
+    const res = await gqlRequest<SourceData>(SOURCE_QUERY, {
       id: params?.source,
     });
 

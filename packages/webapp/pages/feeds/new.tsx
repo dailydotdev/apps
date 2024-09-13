@@ -37,7 +37,7 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { gqlRequest } from '@dailydotdev/shared/src/graphql/common';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -92,7 +92,7 @@ const NewFeedPage = (): ReactElement => {
     async ({ name }: NewFeedFormProps) => {
       const result = await createFeed({ name });
 
-      await gqlClient.request(ADD_FILTERS_TO_FEED_MUTATION, {
+      await gqlRequest(ADD_FILTERS_TO_FEED_MUTATION, {
         feedId: result.id,
         filters: {
           includeTags: feedSettings?.includeTags || [],

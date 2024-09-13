@@ -41,7 +41,7 @@ import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { generateQueryKey } from '@dailydotdev/shared/src/lib/query';
 import { SharedFeedPage } from '@dailydotdev/shared/src/components/utilities';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { gqlRequest } from '@dailydotdev/shared/src/graphql/common';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
@@ -100,7 +100,7 @@ const EditFeedPage = (): ReactElement => {
     async ({ name }: EditFeedFormProps) => {
       const result = await updateFeed({ feedId, name });
       const tagPromises = [
-        gqlClient.request(ADD_FILTERS_TO_FEED_MUTATION, {
+        gqlRequest(ADD_FILTERS_TO_FEED_MUTATION, {
           feedId: result.id,
           filters: {
             includeTags: feedSettings?.includeTags || [],
@@ -112,7 +112,7 @@ const EditFeedPage = (): ReactElement => {
 
       if (removedTags.length > 0) {
         tagPromises.push(
-          gqlClient.request(REMOVE_FILTERS_FROM_FEED_MUTATION, {
+          gqlRequest(REMOVE_FILTERS_FROM_FEED_MUTATION, {
             feedId: result.id,
             filters: {
               includeTags: removedTags,

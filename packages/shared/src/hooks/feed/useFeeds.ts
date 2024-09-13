@@ -11,7 +11,7 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { labels } from '../../lib';
 import { useToastNotification } from '../useToastNotification';
-import { gqlClient } from '../../graphql/common';
+import { gqlRequest } from '../../graphql/common';
 
 export type CreateFeedProps = {
   name: string;
@@ -37,7 +37,7 @@ export const useFeeds = (): UseFeeds => {
   const { data: feeds } = useQuery(
     queryKey,
     async () => {
-      const result = await gqlClient.request<FeedList>(FEED_LIST_QUERY);
+      const result = await gqlRequest<FeedList>(FEED_LIST_QUERY);
 
       return result.feedList;
     },
@@ -49,7 +49,7 @@ export const useFeeds = (): UseFeeds => {
 
   const { mutateAsync: createFeed } = useMutation(
     async ({ name }: CreateFeedProps) => {
-      const result = await gqlClient.request<{ createFeed: Feed }>(
+      const result = await gqlRequest<{ createFeed: Feed }>(
         CREATE_FEED_MUTATION,
         {
           name,
@@ -80,7 +80,7 @@ export const useFeeds = (): UseFeeds => {
 
   const { mutateAsync: updateFeed } = useMutation(
     async ({ feedId, name }: UpdateFeedProps) => {
-      const result = await gqlClient.request<{ updateFeed: Feed }>(
+      const result = await gqlRequest<{ updateFeed: Feed }>(
         UPDATE_FEED_MUTATION,
         {
           feedId,
@@ -113,7 +113,7 @@ export const useFeeds = (): UseFeeds => {
 
   const { mutateAsync: deleteFeed } = useMutation(
     async ({ feedId }: DeleteFeedProps): Promise<Pick<Feed, 'id'>> => {
-      await gqlClient.request(DELETE_FEED_MUTATION, {
+      await gqlRequest(DELETE_FEED_MUTATION, {
         feedId,
       });
 

@@ -6,7 +6,7 @@ import {
   USER_STREAK_FRAGMENT,
 } from './fragments';
 import type { PublicProfile } from '../lib/user';
-import { Connection, gqlClient } from './common';
+import { Connection, gqlRequest } from './common';
 import { SourceMember } from './sources';
 import type { SendType } from '../hooks';
 import { DayOfWeek } from '../lib/date';
@@ -481,7 +481,7 @@ export const getReadingStreak30Days = async (
   start: Date = subDays(new Date(), 30),
 ): Promise<ReadingDay[]> => {
   const today = new Date();
-  const res = await gqlClient.request(USER_STREAK_HISTORY, {
+  const res = await gqlRequest(USER_STREAK_HISTORY, {
     after: start.toISOString(),
     before: today.toISOString(),
     id,
@@ -508,7 +508,7 @@ export interface UserStreak {
 }
 
 export const getReadingStreak = async (): Promise<UserStreak> => {
-  const res = await gqlClient.request(USER_STREAK_QUERY);
+  const res = await gqlRequest(USER_STREAK_QUERY);
 
   return res.userStreak;
 };
@@ -587,7 +587,7 @@ export const USER_ACQUISITION_MUTATION = gql`
 export const updateUserAcquisition = (
   acquisitionChannel: AcquisitionChannel,
 ): Promise<void> =>
-  gqlClient.request(USER_ACQUISITION_MUTATION, { acquisitionChannel });
+  gqlRequest(USER_ACQUISITION_MUTATION, { acquisitionChannel });
 
 export const CLEAR_MARKETING_CTA_MUTATION = gql`
   mutation ClearUserMarketingCta($campaignId: String!) {

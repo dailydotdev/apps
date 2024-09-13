@@ -8,7 +8,7 @@ import {
 } from '../../graphql/keywords';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { Modal, ModalProps } from './common/Modal';
-import { gqlClient } from '../../graphql/common';
+import { gqlRequest } from '../../graphql/common';
 
 export type KeywordSynonymModalProps = { selectedKeyword: string } & ModalProps;
 
@@ -21,12 +21,12 @@ export default function KeywordSynonymModal({
 
   const { data: searchResults, isLoading: isSearching } =
     useQuery<SearchKeywordData>(['searchKeywords', query], () =>
-      gqlClient.request(SEARCH_KEYWORDS_QUERY, { query }),
+      gqlRequest(SEARCH_KEYWORDS_QUERY, { query }),
     );
 
   const { mutateAsync: setSynonym } = useMutation(
     (originalKeyword: string) =>
-      gqlClient.request(SET_KEYWORD_AS_SYNONYM_MUTATION, {
+      gqlRequest(SET_KEYWORD_AS_SYNONYM_MUTATION, {
         originalKeyword,
         keywordToUpdate: selectedKeyword.toLowerCase(),
       }),

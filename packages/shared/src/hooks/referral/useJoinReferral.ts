@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { expireCookie, setCookie } from '../../lib/cookie';
 import { isDevelopment } from '../../lib/constants';
 import { GET_REFERRING_USER_QUERY } from '../../graphql/users';
-import { ApiErrorResult, gqlClient } from '../../graphql/common';
+import { ApiErrorResult, gqlRequest } from '../../graphql/common';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { disabledRefetch } from '../../lib/func';
 import { oneYear } from '../../lib/dateFormat';
@@ -28,7 +28,7 @@ export const useJoinReferral = (): void => {
       });
 
       try {
-        await gqlClient.request<boolean>(GET_REFERRING_USER_QUERY, {
+        await gqlRequest<boolean>(GET_REFERRING_USER_QUERY, {
           id: referringUserId,
         });
 

@@ -4,7 +4,7 @@ import {
   HIDE_READING_HISTORY_MUTATION,
 } from '../graphql/users';
 import { ReadHistoryInfiniteData } from './useInfiniteReadingHistory';
-import { gqlClient } from '../graphql/common';
+import { gqlRequest } from '../graphql/common';
 
 export type QueryIndexes = { page: number; edge: number };
 
@@ -25,7 +25,7 @@ function useReadingHistory(key: QueryKey): UseReadingHistoryReturn {
     () => void
   >(
     ({ postId, timestamp }: HidePostItemCardProps) =>
-      gqlClient.request(HIDE_READING_HISTORY_MUTATION, {
+      gqlRequest(HIDE_READING_HISTORY_MUTATION, {
         postId,
         timestamp,
       }),

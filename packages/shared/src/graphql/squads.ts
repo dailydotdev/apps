@@ -4,7 +4,7 @@ import {
   SQUAD_BASE_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
-import { Connection, gqlClient } from './common';
+import { Connection, gqlRequest } from './common';
 import {
   PublicSquadRequest,
   Source,
@@ -361,31 +361,31 @@ interface UpdateSquadMemberRoleProps extends SquadMemberMutationProps {
 export const updateSquadMemberRole = (
   args: UpdateSquadMemberRoleProps,
 ): Promise<EmptyResponse> =>
-  gqlClient.request(UPDATE_MEMBER_ROLE_MUTATION, args);
+  gqlRequest(UPDATE_MEMBER_ROLE_MUTATION, args);
 
 export const unblockSquadMember = (
   args: SquadMemberMutationProps,
-): Promise<EmptyResponse> => gqlClient.request(UNBLOCK_MEMBER_MUTATION, args);
+): Promise<EmptyResponse> => gqlRequest(UNBLOCK_MEMBER_MUTATION, args);
 
 export const leaveSquad = (sourceId: string): Promise<void> =>
-  gqlClient.request(LEAVE_SQUAD_MUTATION, {
+  gqlRequest(LEAVE_SQUAD_MUTATION, {
     sourceId,
   });
 
 export const deleteSquad = (sourceId: string): Promise<void> =>
-  gqlClient.request(DELETE_SQUAD_MUTATION, {
+  gqlRequest(DELETE_SQUAD_MUTATION, {
     sourceId,
   });
 
 export async function getSquad(handle: string): Promise<Squad> {
-  const res = await gqlClient.request<SquadData>(SQUAD_QUERY, {
+  const res = await gqlRequest<SquadData>(SQUAD_QUERY, {
     handle: handle.toLowerCase(),
   });
   return res.source;
 }
 
 export async function getSquadMembers(id: string): Promise<SourceMember[]> {
-  const res = await gqlClient.request<SquadEdgesData>(SQUAD_MEMBERS_QUERY, {
+  const res = await gqlRequest<SquadEdgesData>(SQUAD_MEMBERS_QUERY, {
     id,
     first: 5,
   });
@@ -405,7 +405,7 @@ export const getSquadInvitation = async (
   token: string,
 ): Promise<SourceMember> => {
   try {
-    const res = await gqlClient.request<SquadInvitation>(
+    const res = await gqlRequest<SquadInvitation>(
       SQUAD_INVITATION_QUERY,
       {
         token,
@@ -421,13 +421,13 @@ export const getSquadInvitation = async (
 export const joinSquadInvitation = async (
   params: SquadInvitationProps,
 ): Promise<Squad> => {
-  const res = await gqlClient.request<SquadData>(SQUAD_JOIN_MUTATION, params);
+  const res = await gqlRequest<SquadData>(SQUAD_JOIN_MUTATION, params);
 
   return res.source;
 };
 
 export const checkExistingHandle = async (handle: string): Promise<boolean> => {
-  const req = await gqlClient.request(SQUAD_HANDE_AVAILABILITY_QUERY, {
+  const req = await gqlRequest(SQUAD_HANDE_AVAILABILITY_QUERY, {
     handle: handle.toLocaleLowerCase(),
   });
 
@@ -435,12 +435,12 @@ export const checkExistingHandle = async (handle: string): Promise<boolean> => {
 };
 
 export const addPostToSquad =
-  (requestMethod: typeof gqlClient.request) =>
+  (requestMethod: typeof gqlRequest) =>
   (data: PostToSquadProps): Promise<Post> =>
     requestMethod(ADD_POST_TO_SQUAD_MUTATION, data);
 
 export const updateSquadPost =
-  (requestMethod: typeof gqlClient.request) =>
+  (requestMethod: typeof gqlRequest) =>
   (data: PostToSquadProps): Promise<Post> =>
     requestMethod(UPDATE_SQUAD_POST_MUTATION, data);
 
@@ -455,7 +455,7 @@ export async function createSquad(
     memberPostingRole: form.memberPostingRole,
     memberInviteRole: form.memberInviteRole,
   };
-  const data = await gqlClient.request<CreateSquadOutput>(
+  const data = await gqlRequest<CreateSquadOutput>(
     CREATE_SQUAD_MUTATION,
     inputData,
   );
@@ -487,7 +487,7 @@ export async function editSquad({
     memberInviteRole: form.memberInviteRole,
     isPrivate: !form.public,
   };
-  const data = await gqlClient.request<EditSquadOutput>(
+  const data = await gqlRequest<EditSquadOutput>(
     EDIT_SQUAD_MUTATION,
     inputData,
   );
@@ -497,7 +497,7 @@ export async function editSquad({
 export const collapsePinnedPosts = async (
   sourceId: string,
 ): Promise<EmptyResponse> => {
-  const res = await gqlClient.request(COLLAPSE_PINNED_POSTS_MUTATION, {
+  const res = await gqlRequest(COLLAPSE_PINNED_POSTS_MUTATION, {
     sourceId,
   });
 
@@ -507,7 +507,7 @@ export const collapsePinnedPosts = async (
 export const expandPinnedPosts = async (
   sourceId: string,
 ): Promise<EmptyResponse> => {
-  const res = await gqlClient.request(EXPAND_PINNED_POSTS_MUTATION, {
+  const res = await gqlRequest(EXPAND_PINNED_POSTS_MUTATION, {
     sourceId,
   });
 
@@ -542,7 +542,7 @@ interface SubmitSquadForReviewOutput {
 export async function submitSquadForReview(
   sourceId: string,
 ): Promise<PublicSquadRequest> {
-  const data = await gqlClient.request<SubmitSquadForReviewOutput>(
+  const data = await gqlRequest<SubmitSquadForReviewOutput>(
     SUBMIT_SQUAD_FOR_REVIEW_MUTATION,
     { sourceId },
   );
@@ -557,7 +557,7 @@ interface GetPublicSquadRequestsProps {
 export const getPublicSquadRequests = async (
   params: GetPublicSquadRequestsProps,
 ): Promise<Connection<PublicSquadRequest>> => {
-  const res = await gqlClient.request<{
+  const res = await gqlRequest<{
     requests: Connection<PublicSquadRequest>;
   }>(PUBLIC_SQUAD_REQUESTS, params);
 

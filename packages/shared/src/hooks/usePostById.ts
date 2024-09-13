@@ -15,7 +15,7 @@ import {
 } from '../graphql/posts';
 import { PostCommentsData } from '../graphql/comments';
 import { generateQueryKey, RequestKey } from '../lib/query';
-import { Connection, gqlClient } from '../graphql/common';
+import { Connection, gqlRequest } from '../graphql/common';
 
 interface UsePostByIdProps {
   id: string;
@@ -107,7 +107,7 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
     isLoading,
   } = useQuery<PostData>(
     key,
-    () => gqlClient.request(POST_BY_ID_QUERY, { id }),
+    () => gqlRequest(POST_BY_ID_QUERY, { id }),
     {
       ...options,
       enabled: !!id && tokenRefreshed,

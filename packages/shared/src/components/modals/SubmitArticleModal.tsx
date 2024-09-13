@@ -35,7 +35,7 @@ import {
 import { Justify } from '../utilities';
 import { ReputationAlert } from './ReputationAlert';
 import { useToastNotification } from '../../hooks';
-import { gqlClient } from '../../graphql/common';
+import { gqlRequest } from '../../graphql/common';
 
 const defaultErrorMessage = 'Something went wrong, try again';
 const formTitle = 'Community picks';
@@ -56,7 +56,7 @@ export default function SubmitArticleModal({
   const availabilityKey = ['submission_availability', user?.id];
   const { data: access, isFetched } = useQuery<{
     submissionAvailability: SubmissionAvailability;
-  }>(availabilityKey, () => gqlClient.request(SUBMISSION_AVAILABILITY_QUERY));
+  }>(availabilityKey, () => gqlRequest(SUBMISSION_AVAILABILITY_QUERY));
   const { submissionAvailability } = access || {};
   const dailyLimit = submissionAvailability?.limit ?? 3;
   const isEnabled = submissionAvailability?.hasAccess;
@@ -65,7 +65,7 @@ export default function SubmitArticleModal({
     unknown,
     string
   >((articleUrl: string) =>
-    gqlClient.request(SUBMIT_ARTICLE_MUTATION, {
+    gqlRequest(SUBMIT_ARTICLE_MUTATION, {
       url: articleUrl,
     }),
   );

@@ -8,7 +8,7 @@ import {
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import useTimer from '@dailydotdev/shared/src/hooks/useTimer';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { gqlRequest } from '@dailydotdev/shared/src/graphql/common';
 import {
   ADD_USER_COMPANY_MUTATION,
   VERIFY_USER_COMPANY_CODE_MUTATION,
@@ -46,7 +46,7 @@ const VerifyWorkEmail = ({
   }, [runTimer, setTimer, workEmail]);
 
   const { mutate: onSubmitCode } = useMutation(
-    () => gqlClient.request(ADD_USER_COMPANY_MUTATION, { email: workEmail }),
+    () => gqlRequest(ADD_USER_COMPANY_MUTATION, { email: workEmail }),
     {
       onSuccess: () => {
         setTimer(60);
@@ -58,7 +58,7 @@ const VerifyWorkEmail = ({
 
   const { mutate: verifyUserCompanyCode } = useMutation(
     ({ email, code: submittedCode }: { email: string; code: string }) =>
-      gqlClient.request(VERIFY_USER_COMPANY_CODE_MUTATION, {
+      gqlRequest(VERIFY_USER_COMPANY_CODE_MUTATION, {
         email,
         code: submittedCode,
       }),

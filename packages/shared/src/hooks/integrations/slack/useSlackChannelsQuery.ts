@@ -8,7 +8,7 @@ import {
   SlackChannel,
 } from '../../../graphql/integrations';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
-import { gqlClient } from '../../../graphql/common';
+import { gqlRequest } from '../../../graphql/common';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { sortAlphabeticallyByProperty } from '../../../lib/func';
 
@@ -36,7 +36,7 @@ export const useSlackChannelsQuery = ({
         unknown,
         { integrationId: string },
       ];
-      const result = await gqlClient.request<{
+      const result = await gqlRequest<{
         slackChannels: {
           data: SlackChannel[];
         };

@@ -5,7 +5,7 @@ import {
   UseInfiniteQueryResult,
 } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { RequestDataConnection, gqlClient } from '../graphql/common';
+import { RequestDataConnection, gqlRequest } from '../graphql/common';
 import useFeedInfiniteScroll from './feed/useFeedInfiniteScroll';
 import { PostItem } from '../graphql/posts';
 
@@ -35,7 +35,7 @@ function useInfiniteReadingHistory({
   const queryResult = useInfiniteQuery<ReadHistoryData>(
     key,
     ({ pageParam }) =>
-      gqlClient.request(query, {
+      gqlRequest(query, {
         ...variables,
         after: pageParam,
       }),

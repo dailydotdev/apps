@@ -9,7 +9,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/keywords';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import useRequirePermissions from '@dailydotdev/shared/src/hooks/useRequirePermissions';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { gqlRequest } from '@dailydotdev/shared/src/graphql/common';
 import KeywordManagement from '../../components/KeywordManagement';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 
@@ -23,7 +23,7 @@ const PendingKeywords = (): ReactElement => {
     isLoading: isLoadingCurrentKeyword,
   } = useQuery<KeywordData & CountPendingKeywordsData>(
     ['randomPendingKeyword'],
-    () => gqlClient.request(RANDOM_PENDING_KEYWORD_QUERY),
+    () => gqlRequest(RANDOM_PENDING_KEYWORD_QUERY),
     {
       enabled: tokenRefreshed,
       refetchOnMount: false,

@@ -21,7 +21,7 @@ import Alert, {
 } from '@dailydotdev/shared/src/components/widgets/Alert';
 import React, { ReactElement, useContext, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { gqlRequest } from '@dailydotdev/shared/src/graphql/common';
 import {
   ADD_USER_COMPANY_MUTATION,
   REMOVE_USER_COMPANY_MUTATION,
@@ -65,7 +65,7 @@ export const VerifiedCompanyBadgeSection = ({
   const [submitWorkEmailHint, setSubmitWorkEmailHint] = useState<string>();
 
   const { mutate: onSubmitWorkEmail, isLoading } = useMutation(
-    (email: string) => gqlClient.request(ADD_USER_COMPANY_MUTATION, { email }),
+    (email: string) => gqlRequest(ADD_USER_COMPANY_MUTATION, { email }),
     {
       onSuccess: () => {
         onSwitchDisplay(Display.ChangeEmail);
@@ -83,8 +83,7 @@ export const VerifiedCompanyBadgeSection = ({
   );
 
   const { mutate: removeUserCompany } = useMutation(
-    (email: string) =>
-      gqlClient.request(REMOVE_USER_COMPANY_MUTATION, { email }),
+    (email: string) => gqlRequest(REMOVE_USER_COMPANY_MUTATION, { email }),
     {
       onSuccess: (_, email) => {
         queryClient.setQueryData<UserCompany[]>(

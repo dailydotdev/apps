@@ -9,7 +9,7 @@ import {
   UserSourceIntegration,
 } from '../../graphql/integrations';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import { ApiError, ApiErrorResult, gqlClient } from '../../graphql/common';
+import { ApiError, ApiErrorResult, gqlRequest } from '../../graphql/common';
 import { useAuthContext } from '../../contexts/AuthContext';
 
 export type UseSourceIntegrationQueryProps = {
@@ -41,7 +41,7 @@ export const useSourceIntegrationQuery = ({
       ];
 
       try {
-        const result = await gqlClient.request<{
+        const result = await gqlRequest<{
           sourceIntegration: UserSourceIntegration;
         }>(SOURCE_INTEGRATION_QUERY, queryVariables);
 

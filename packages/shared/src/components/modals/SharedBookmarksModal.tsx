@@ -19,7 +19,7 @@ import { useCopyLink } from '../../hooks/useCopy';
 import { sharingBookmarks } from '../../lib/constants';
 import { Modal, ModalProps } from './common/Modal';
 import { IconSize } from '../Icon';
-import { gqlClient } from '../../graphql/common';
+import { gqlRequest } from '../../graphql/common';
 
 export default function SharedBookmarksModal({
   ...props
@@ -28,7 +28,7 @@ export default function SharedBookmarksModal({
 
   const { data: bookmarksSharingData, isFetched } =
     useQuery<BookmarksSharingData>(['bookmarksSharing'], () =>
-      gqlClient.request(BOOKMARK_SHARING_QUERY),
+      gqlRequest(BOOKMARK_SHARING_QUERY),
     );
 
   const { mutateAsync: updateBookmarksSharing } = useMutation<{
@@ -36,7 +36,7 @@ export default function SharedBookmarksModal({
   }>(
     () => {
       const updatedValue = !bookmarksSharingData?.bookmarksSharing?.enabled;
-      return gqlClient.request(BOOKMARK_SHARING_MUTATION, {
+      return gqlRequest(BOOKMARK_SHARING_MUTATION, {
         enabled: updatedValue,
       });
     },

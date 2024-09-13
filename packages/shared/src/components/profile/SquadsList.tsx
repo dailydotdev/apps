@@ -23,7 +23,7 @@ import {
   ProfileV2,
   PUBLIC_SOURCE_MEMBERSHIPS_QUERY,
 } from '../../graphql/users';
-import { Connection, gqlClient } from '../../graphql/common';
+import { Connection, gqlRequest } from '../../graphql/common';
 import { AuthTriggers } from '../../lib/auth';
 import { webappUrl } from '../../lib/constants';
 
@@ -149,7 +149,7 @@ export function SquadsList({
     sources: ProfileV2['sources'];
   }>(
     generateQueryKey(RequestKey.PublicSourceMemberships, loggedUser, userId),
-    () => gqlClient.request(PUBLIC_SOURCE_MEMBERSHIPS_QUERY, { id: userId }),
+    () => gqlRequest(PUBLIC_SOURCE_MEMBERSHIPS_QUERY, { id: userId }),
     {
       enabled: !!tokenRefreshed,
       refetchOnWindowFocus: false,

@@ -3,7 +3,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import AlertContext from '../contexts/AlertContext';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { Banner, BANNER_QUERY } from '../graphql/banner';
-import { gqlClient } from '../graphql/common';
+import { gqlRequest } from '../graphql/common';
 
 type UseBanner = {
   isAvailable: boolean;
@@ -16,7 +16,7 @@ export function useBanner(): UseBanner {
 
   const { data: latestBanner } = useQuery(
     generateQueryKey(RequestKey.Banner, null),
-    () => gqlClient.request(BANNER_QUERY, { lastSeen: alerts.lastBanner }),
+    () => gqlRequest(BANNER_QUERY, { lastSeen: alerts.lastBanner }),
     {
       enabled: !!alerts.banner,
     },
