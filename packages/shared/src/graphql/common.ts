@@ -1,4 +1,3 @@
-import nodeCrypto from 'crypto';
 import { GraphQLClient } from 'graphql-request';
 import { QueryKey, UseInfiniteQueryOptions } from '@tanstack/react-query';
 import { GraphQLError } from 'graphql-request/dist/types';
@@ -144,41 +143,9 @@ export const gqlClient = new GraphQLClient(graphqlUrl, {
   credentials: 'include',
 });
 
-function getRandomValues(buf) {
-  if (typeof window !== 'undefined') {
-    if (window.crypto && window.crypto.getRandomValues) {
-      return window.crypto.getRandomValues(buf);
-    }
-  }
-  if (nodeCrypto.randomBytes) {
-    if (!(buf instanceof Uint8Array)) {
-      throw new TypeError('expected Uint8Array');
-    }
-    if (buf.length > 65536) {
-      const e = new Error();
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
-      e.code = 22;
-      e.message =
-        `${
-          "Failed to execute 'getRandomValues' on 'Crypto': The " +
-          "ArrayBufferView's byte length ("
-        }${buf.length}) exceeds the ` +
-        `number of bytes of entropy available via this API (65536).`;
-      e.name = 'QuotaExceededError';
-      throw e;
-    }
-    const bytes = nodeCrypto.randomBytes(buf.length);
-    buf.set(bytes);
-    return buf;
-  }
-
-  throw new Error('No secure random number generator available.');
-}
-
 function generateRandomString(length) {
   const array = new Uint8Array(length);
-  getRandomValues(array);
+  window.crypto.getRandomValues(array);
   return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join(
     '',
   );
@@ -189,8 +156,17 @@ export const gqlRequest: typeof gqlClient.request = (
   variables,
   headers = {},
 ) => {
+  const extraHeaders =
+    typeof window !== 'undefined'
+      ? {
+          traceparent: `00-${generateRandomString(16)}-${generateRandomString(
+            8,
+          )}-01`,
+        }
+      : {};
+
   return gqlClient.request(document, variables, {
     ...headers,
-    traceparent: `00-${generateRandomString(16)}-${generateRandomString(8)}-01`,
+    ...extraHeaders,
   });
 };
