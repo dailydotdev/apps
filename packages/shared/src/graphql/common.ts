@@ -145,8 +145,10 @@ export const gqlClient = new GraphQLClient(graphqlUrl, {
 });
 
 function getRandomValues(buf) {
-  if (window.crypto && window.crypto.getRandomValues) {
-    return window.crypto.getRandomValues(buf);
+  if (typeof window !== 'undefined') {
+    if (window.crypto && window.crypto.getRandomValues) {
+      return window.crypto.getRandomValues(buf);
+    }
   }
   if (nodeCrypto.randomBytes) {
     if (!(buf instanceof Uint8Array)) {
