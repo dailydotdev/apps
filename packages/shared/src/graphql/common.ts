@@ -143,5 +143,20 @@ export const gqlClient = new GraphQLClient(graphqlUrl, {
   credentials: 'include',
 });
 
-export const gqlRequest: typeof gqlClient.request = (...args) =>
-  gqlClient.request(...args);
+function generateRandomString(length) {
+  const array = new Uint8Array(length);
+  crypto.getRandomValues(array);
+  return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join(
+    '',
+  );
+}
+
+export const gqlRequest: typeof gqlClient.request = (
+  document,
+  variables,
+  headers = {},
+) =>
+  gqlClient.request(document, variables, {
+    ...headers,
+    traceparent: `00-${generateRandomString(16)}-${generateRandomString(8)}-01`,
+  });
