@@ -25,7 +25,7 @@ import { AdAsComment } from '../comments/AdAsComment';
 import { PostContentReminder } from './common/PostContentReminder';
 import { Typography, TypographyType } from '../typography/Typography';
 import { Button, ButtonIconPosition, ButtonSize } from '../buttons/Button';
-import { SortIcon } from '../icons';
+import { TimeSortIcon } from '../icons/Sort/Time';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -105,13 +105,17 @@ function PostEngagements({
       />
       <PostContentReminder post={post} />
       <PostContentShare post={post} />
-      <span className="flex flex-row items-center">
+      <span className="mt-6 flex flex-row items-center">
         <Typography type={TypographyType.Callout}>Sort:</Typography>
         <Button
-          className="ml-1"
+          className="ml-1 !px-0"
           iconPosition={ButtonIconPosition.Right}
           size={ButtonSize.Small}
-          icon={<SortIcon />}
+          icon={
+            <TimeSortIcon
+              className={sortBy === SortCommentsBy.OldestFirst && 'rotate-180'}
+            />
+          }
           onClick={() =>
             setSortBy(
               sortBy === SortCommentsBy.NewestFirst

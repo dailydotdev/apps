@@ -54,12 +54,10 @@ export function PostComments({
   const container = useRef<HTMLDivElement>();
   const { tokenRefreshed } = useContext(AuthContext);
   const { requestMethod } = useRequestProtocol();
-  const queryKey = generateQueryKey(
-    RequestKey.PostComments,
-    null,
+  const queryKey = generateQueryKey(RequestKey.PostComments, null, {
+    sortBy,
     id,
-    String(sortBy),
-  );
+  });
   const { data: comments, isLoading: isLoadingComments } =
     useQuery<PostCommentsData>(
       queryKey,
