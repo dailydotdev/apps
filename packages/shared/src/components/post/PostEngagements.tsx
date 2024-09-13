@@ -113,6 +113,7 @@ function PostEngagements({
           size={ButtonSize.Small}
           icon={
             <TimeSortIcon
+              secondary
               className={sortBy === SortCommentsBy.OldestFirst && 'rotate-180'}
             />
           }
