@@ -139,6 +139,7 @@ function PostEngagements({
       <AdAsComment postId={post.id} />
       <PostComments
         post={post}
+        sortBy={sortBy}
         origin={logOrigin}
         onShare={(comment) => openShareComment(comment, post)}
         onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}
