@@ -11,6 +11,7 @@ import {
   Comment,
   POST_COMMENTS_QUERY,
   PostCommentsData,
+  SortCommentsBy,
 } from '../../graphql/comments';
 import { Post } from '../../graphql/posts';
 import MainComment, { MainCommentProps } from '../comments/MainComment';
@@ -27,6 +28,7 @@ import { isNullOrUndefined } from '../../lib/func';
 interface PostCommentsProps {
   post: Post;
   origin: Origin;
+  sortBy?: SortCommentsBy;
   permissionNotificationCommentId?: string;
   joinNotificationCommentId?: string;
   modalParentSelector?: () => HTMLElement;
@@ -39,6 +41,7 @@ interface PostCommentsProps {
 export function PostComments({
   post,
   origin,
+  sortBy,
   onShare,
   onClickUpvote,
   modalParentSelector,
@@ -51,14 +54,17 @@ export function PostComments({
   const container = useRef<HTMLDivElement>();
   const { tokenRefreshed } = useContext(AuthContext);
   const { requestMethod } = useRequestProtocol();
-  const queryKey = generateQueryKey(RequestKey.PostComments, null, id);
+  const queryKey = generateQueryKey(RequestKey.PostComments, null, {
+    sortBy,
+    id,
+  });
   const { data: comments, isLoading: isLoadingComments } =
     useQuery<PostCommentsData>(
       queryKey,
       () =>
         requestMethod(
           POST_COMMENTS_QUERY,
-          { postId: id, [initialDataKey]: comments, first: 500 },
+          { postId: id, [initialDataKey]: comments, first: 500, sortBy },
           { requestKey: JSON.stringify(queryKey) },
         ),
       {
