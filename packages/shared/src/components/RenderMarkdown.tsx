@@ -1,12 +1,17 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { createRef, ReactElement, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { LightAsync as SyntaxHighlighterAsync } from 'react-syntax-highlighter';
 import dynamic from 'next/dynamic';
 
 import { ReactMarkdownOptions } from 'react-markdown/lib/react-markdown';
 import styles from './markdown.module.css';
-import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
-import { CopyIcon } from './icons';
+import {
+  Button,
+  ButtonIconPosition,
+  ButtonSize,
+  ButtonVariant,
+} from './buttons/Button';
+import { ArrowIcon, CopyIcon } from './icons';
 import { useCopyText } from '../hooks/useCopy';
 import {
   Typography,
@@ -30,6 +35,7 @@ export interface RenderMarkdownProps {
   className?: string;
   content: string;
   reactMarkdownProps?: Omit<ReactMarkdownOptions, 'children'>;
+  isExpandable?: boolean;
 }
 
 const replaceNewLineRegex = /\n$/;
@@ -116,9 +122,25 @@ const RenderMarkdown = ({
   content,
   reactMarkdownProps,
   isLoading = false,
+  isExpandable = false,
 }: RenderMarkdownProps): ReactElement => {
+  const contentRef = createRef<HTMLDivElement>();
+  const [canExpand, setCanExpand] = useState<boolean>(false);
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [plugins, setPlugins] = useState([]);
   const [copying, copy] = useCopyText();
+
+  useEffect(() => {
+    setCanExpand(false);
+  }, [content]);
+
+  useEffect(() => {
+    if (isExpandable && contentRef.current && !canExpand) {
+      setCanExpand(
+        contentRef.current.scrollHeight > contentRef.current.clientHeight,
+      );
+    }
+  }, [canExpand, contentRef, isExpandable]);
 
   useEffect(() => {
     let mounted = true;
@@ -146,11 +168,12 @@ const RenderMarkdown = ({
         code({
           node,
           inline,
-          className: codeClassName,
+          className: rawCodeClassName,
           children,
           style,
           ...props
         }) {
+          const codeClassName = classNames(rawCodeClassName, 'min-h-[7.25rem]');
           const match = /language-(\w+)/.exec(codeClassName || '');
           const language = match?.[1];
 
@@ -189,7 +212,15 @@ const RenderMarkdown = ({
               )}
 
               {!inline ? (
-                <div className="px-5 py-3">
+                <div
+                  className={classNames(
+                    'px-5 py-3',
+                    isExpanded || !isExpandable
+                      ? undefined
+                      : 'line-clamp-6 max-h-[9.5rem] break-words',
+                  )}
+                  ref={contentRef}
+                >
                   <SyntaxHighlighterAsync
                     {...props}
                     customStyle={containerReset}
@@ -204,10 +235,30 @@ const RenderMarkdown = ({
                   </SyntaxHighlighterAsync>
                 </div>
               ) : (
-                <code {...props} className={codeClassName}>
+                <code
+                  {...props}
+                  className={classNames(codeClassName, 'min-h-[9.5rem]')}
+                >
                   {children}
                 </code>
               )}
+              {canExpand ? (
+                <div className="relative z-1 flex h-12 items-center justify-center bg-surface-float">
+                  <Button
+                    onClick={() => setIsExpanded((prev) => !prev)}
+                    variant={ButtonVariant.Tertiary}
+                    size={ButtonSize.Small}
+                    icon={
+                      <ArrowIcon
+                        className={isExpanded ? undefined : 'rotate-180'}
+                      />
+                    }
+                    iconPosition={ButtonIconPosition.Right}
+                  >
+                    {isExpanded ? 'Minimize' : 'Expand'}
+                  </Button>
+                </div>
+              ) : undefined}
             </>
           );
         },

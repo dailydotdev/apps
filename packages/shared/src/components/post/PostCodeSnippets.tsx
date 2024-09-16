@@ -18,7 +18,6 @@ export const PostCodeSnippets = ({
     postId,
   });
 
-  const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [activeSnippetIndex, setActiveSnippetIndex] = useState<number>(0);
 
   const pagesFlat = useMemo(() => {
@@ -64,15 +63,9 @@ export const PostCodeSnippets = ({
   );
 
   return (
-    <div
-      className={classNames(
-        className,
-        'min-h-44 overflow-hidden rounded-12',
-        isExpanded ? 'max-h-[37.5rem]' : 'max-h-60',
-      )}
-    >
-      <p>Item: {`${activeSnippetIndex} / ${pagesFlat.length}`}</p>
+    <div className={classNames(className, 'overflow-hidden rounded-12')}>
       <RenderMarkdown
+        isExpandable
         content={markdownContent}
         header={{ buttons: NavigationButtons }}
       />

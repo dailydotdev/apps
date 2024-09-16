@@ -31,7 +31,7 @@
     @apply typo-markdown italic pl-7 my-5 border-l border-border-subtlest-secondary;
   }
   & :where(pre) {
-    @apply typo-markdown relative bg-surface-float my-5 rounded-12 border border-border-subtlest-quaternary;
+    @apply typo-markdown relative bg-surface-float my-5 rounded-12;
   }
 
   & :where(pre) > code {
@@ -39,7 +39,7 @@
     color: var(--theme-highlight-label);
   }
   & :not(pre) > code {
-    @apply bg-surface-float typo-footnote border border-border-subtlest-quaternary px-1 rounded-6 box-decoration-clone;
+    @apply bg-surface-float typo-footnote px-1 rounded-6 box-decoration-clone;
   }
   & :where(ul) {
     @apply list-disc my-5 pl-7;
