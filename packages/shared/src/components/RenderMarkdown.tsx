@@ -40,6 +40,8 @@ export interface RenderMarkdownProps {
 
 const replaceNewLineRegex = /\n$/;
 
+const MIN_CONTENT_HEIGHT = 152;
+
 const containerReset = {
   backgroundColor: 'transparent',
   border: 'none',
@@ -136,9 +138,7 @@ const RenderMarkdown = ({
 
   useEffect(() => {
     if (isExpandable && contentRef.current && !canExpand) {
-      setCanExpand(
-        contentRef.current.scrollHeight > contentRef.current.clientHeight,
-      );
+      setCanExpand(contentRef.current.scrollHeight > MIN_CONTENT_HEIGHT);
     }
   }, [canExpand, contentRef, isExpandable]);
 
