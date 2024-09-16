@@ -110,7 +110,7 @@ export const SquadGrid = ({
           </div>
 
           <SquadJoinButton
-            showViewSquad
+            showViewSquadIfMember
             className={{ button: 'z-0 w-full' }}
             squad={source}
             origin={Origin.SquadDirectory}

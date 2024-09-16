@@ -64,7 +64,7 @@ export const SquadList = ({
         onSuccess={() => router.push(permalink)}
         copy={{ join: 'Join', view: 'View' }}
         data-testid="squad-action"
-        showViewSquad
+        showViewSquadIfMember
         buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
       />
     </div>

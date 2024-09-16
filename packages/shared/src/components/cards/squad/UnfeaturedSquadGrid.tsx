@@ -48,7 +48,7 @@ export const UnfeaturedSquadGrid = ({
           origin={Origin.SquadDirectory}
           onSuccess={() => router.push(source?.permalink)}
           data-testid="squad-action"
-          showViewSquad
+          showViewSquadIfMember
           buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
         />
       </div>
