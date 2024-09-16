@@ -12,15 +12,23 @@ import {
   SourceMemberRole,
   SourceType,
 } from '@dailydotdev/shared/src/graphql/sources';
-import {
-  UnFeaturedSquadCardProps
-} from '@dailydotdev/shared/src/components/cards/squad/common/types';
+import { UnFeaturedSquadCardProps } from '@dailydotdev/shared/src/components/cards/squad/common/types';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { QueryClientProvider } from '../extension/_providers';
 
-
-const ScrollableElement = ({ item, index, ...props }: {
-  item: { value: string },
-  index: number
-}): ReactElement => <div {...props} className="w-full max-w-40 border p-4">{item.value} <br/>{index}</div>;
+const ScrollableElement = ({
+  item,
+  index,
+  ...props
+}: {
+  item: { value: string };
+  index: number;
+}): ReactElement => (
+  <div {...props} className="w-full max-w-40 border p-4">
+    {item.value} <br />
+    {index}
+  </div>
+);
 
 const meta: Meta<typeof HorizontalScroll> = {
   title: 'Components/HorizontalScroll',
@@ -31,9 +39,9 @@ const meta: Meta<typeof HorizontalScroll> = {
     },
   },
   argTypes: {
-    title: {
-      control: { type: "text" },
-      description: 'When this property is not null, a title bar will be rendered with this value',
+    scrollProps: {
+      control: { type: 'object' },
+      description: 'Additional props to be passed to the scroll container',
     },
   },
 };
@@ -43,39 +51,31 @@ export default meta;
 type Story = StoryObj<typeof HorizontalScroll>;
 
 export const HorizontalScrollStory: Story = {
-  render: ({ title,  ...props }) => {
-
+  render: ({ scrollProps, ...props }) => {
     return (
-      <>
-        <HorizontalScroll title={title} className='gap-4'>
-          {new Array(30).fill({value: "this is an item"}).map((item, i) => (
-            /* eslint-disable react/no-array-index-key */
-            <ScrollableElement
-              {...props}
-              item={item}
-              index={i}
-              key={`horizontal scroll item ${i}`}
-            />
-          ))}
-        </HorizontalScroll>
-      </>
+      <HorizontalScroll
+        scrollProps={scrollProps}
+        className={{ scroll: 'gap-4' }}
+      >
+        {new Array(30).fill({ value: 'this is an item' }).map((item, i) => (
+          /* eslint-disable react/no-array-index-key */
+          <ScrollableElement
+            {...props}
+            item={item}
+            index={i}
+            key={`horizontal scroll item ${i}`}
+          />
+        ))}
+      </HorizontalScroll>
     );
   },
   name: 'HorizontalScroll',
-  args: { title: 'Horizontal Scroll' },
+  args: { scrollProps: { title: 'Horizontal Scroll' } },
 };
 
 export const HorizontalScrollSquadStory: Story = {
-  render: ({ title,  ...props }) => {
-
+  render: ({ scrollProps }) => {
     const args: UnFeaturedSquadCardProps = {
-      title: 'Squad Title',
-      subtitle: '@handle',
-      action: {
-        text: 'View Squad',
-        type: 'link',
-        href: 'https://daily.dev',
-      },
       source: {
         name: 'Squad Name',
         permalink: 'https://daily.dev',
@@ -88,33 +88,37 @@ export const HorizontalScrollSquadStory: Story = {
         memberPostingRole: SourceMemberRole.Admin,
         memberInviteRole: SourceMemberRole.Admin,
         image: 'https://via.placeholder.com/150',
-        handle: 'squad-handle'
+        handle: 'squad-handle',
       },
     };
 
     return (
-      <>
-        <HorizontalScroll title={title} className='gap-8 py-4'>
-          {new Array(30).fill(null).map((item, i) => (
-            /* eslint-disable react/no-array-index-key */
-            <UnfeaturedSquadGrid
-              {...args}
-              key={`horizontal scroll item ${i}`}
-            />
-          ))}
-        </HorizontalScroll>
-      </>
+      <QueryClientProvider>
+        <AuthContext.Provider value={{}}>
+          <HorizontalScroll
+            scrollProps={scrollProps}
+            className={{ scroll: 'gap-8 py-4' }}
+          >
+            {new Array(30).fill(null).map((item, i) => (
+              /* eslint-disable react/no-array-index-key */
+              <UnfeaturedSquadGrid
+                {...args}
+                key={`horizontal scroll item ${i}`}
+              />
+            ))}
+          </HorizontalScroll>
+        </AuthContext.Provider>
+      </QueryClientProvider>
     );
   },
   name: 'HorizontalScrollSquadStory',
-  args: { title: 'Horizontal Scroll' },
+  args: { scrollProps: { title: 'Horizontal Scroll' } },
 };
 
 export const HorizontalScrollInfinite: Story = {
-  render: ({ title,  ...props }) => {
-
+  render: ({ scrollProps, ...props }) => {
     const [data, setData] = useState<Array<{ value: string }>>(
-      new Array(30).fill({ value: 'this is an item' })
+      new Array(30).fill({ value: 'this is an item' }),
     );
 
     const loadMoreData = useCallback(() => {
@@ -136,37 +140,36 @@ export const HorizontalScrollInfinite: Story = {
     // Event handler for scroll to near the end
     const handleScroll = (scrollingRef: RefObject<HTMLElement>) => {
       const element = scrollingRef?.current;
-      if(element) {
+      if (element) {
         const threshold = element.scrollWidth * 0.8; // Load more data when 80% of the scroll is reached
 
         if (element.scrollLeft + element.clientWidth >= threshold) {
           loadMoreData();
         }
       }
-
     };
 
     return (
-      <>
-        <HorizontalScroll
-          title={title}
-          onScroll={handleScroll}
-          onClickSeeAll={() => console.log("See all clicked")}
-          className='gap-4'
-        >
-          {data.map((item, i) => (
-            /* eslint-disable react/no-array-index-key */
-            <ScrollableElement
-              {...props}
-              item={item}
-              index={i}
-              key={`horizontal scroll item ${i}`}
-            />
-          ))}
-        </HorizontalScroll>
-      </>
+      <HorizontalScroll
+        scrollProps={{
+          title: scrollProps?.title,
+          onScroll: handleScroll,
+          onClickSeeAll: () => console.log('See all clicked'),
+        }}
+        className={{ scroll: 'gap-4' }}
+      >
+        {data.map((item, i) => (
+          /* eslint-disable react/no-array-index-key */
+          <ScrollableElement
+            {...props}
+            item={item}
+            index={i}
+            key={`horizontal scroll item ${i}`}
+          />
+        ))}
+      </HorizontalScroll>
     );
   },
   name: 'HorizontalScrollInfinite',
-  args: { title: 'Horizontal Scroll Infinite' },
+  args: { scrollProps: { title: 'Horizontal Scroll' } },
 };
