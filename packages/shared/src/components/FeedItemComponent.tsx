@@ -19,7 +19,6 @@ import { CollectionList } from './cards/list/CollectionList';
 import { MarketingCtaCard } from './marketingCta';
 import { MarketingCtaList } from './marketingCta/MarketingCtaList';
 import { FeedItemType } from './cards/common';
-import { PublicSquadEligibilityCard } from './cards/PublicSquadEligibilityCard';
 import { AdGrid } from './cards/ad/AdGrid';
 import { AdList } from './cards/ad/AdList';
 import { AcquisitionFormGrid } from './cards/AcquisitionForm/AcquisitionFormGrid';
@@ -261,8 +260,6 @@ export default function FeedItemComponent({
       );
     case FeedItemType.UserAcquisition:
       return <AcquisitionFormTag key="user-acquisition-card" />;
-    case FeedItemType.PublicSquadEligibility:
-      return <PublicSquadEligibilityCard />;
     case FeedItemType.MarketingCta:
       return (
         <MarketingCtaTag
