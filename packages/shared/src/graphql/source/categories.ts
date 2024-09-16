@@ -1,7 +1,7 @@
 import { gqlClient } from '../common';
 
 export const SOURCE_CATEGORY_QUERY = `
-  query SourceCategory($id: ID!) {
+  query SourceCategory($id: String!) {
     sourceCategory(id: $id) {
       id
       title

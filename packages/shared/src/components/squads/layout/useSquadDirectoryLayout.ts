@@ -35,7 +35,7 @@ export const useSquadDirectoryLayout = (): SquadDirectoryLayoutReturn => {
     return flatCategories.reduce(
       (result, { node }) => ({
         ...result,
-        [node.title]: `/squads/discover/${node.id}`,
+        [node.title]: `/squads/discover/${node.title.toLowerCase()}`,
       }),
       path,
     );
