@@ -118,9 +118,24 @@ export const COMMENT_FEED_QUERY = gql`
   ${COMMENT_WITH_PARENT_FRAGMENT}
 `;
 
+export enum SortCommentsBy {
+  NewestFirst = 'newest',
+  OldestFirst = 'oldest',
+}
+
 export const POST_COMMENTS_QUERY = gql`
-  query PostComments($postId: ID!, $after: String, $first: Int) {
-    postComments(postId: $postId, after: $after, first: $first) {
+  query PostComments(
+    $postId: ID!
+    $after: String
+    $first: Int
+    $sortBy: SortCommentsBy
+  ) {
+    postComments(
+      postId: $postId
+      after: $after
+      first: $first
+      sortBy: $sortBy
+    ) {
       edges {
         node {
           ...CommentWithChildrenFragment
