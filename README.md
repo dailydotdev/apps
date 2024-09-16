@@ -26,8 +26,8 @@ The decision was made to allow faster iterations and to keep features parity in 
 
 ## Technology
 
-* Node v18.16.0 (a `.nvmrc` is presented for [nvm](https://github.com/nvm-sh/nvm) users).
-* [pnpm](https://pnpm.io/workspaces) for managing the monorepo and dependencies.
+- Node v20.12.0 (a `.nvmrc` is presented for [nvm](https://github.com/nvm-sh/nvm) users).
+- [pnpm](https://pnpm.io/workspaces) for managing the monorepo and dependencies.
 
 ## Projects
 
@@ -75,7 +75,9 @@ pnpm install
 ```
 
 ### Run Extension Locally
+
 Example for Chrome:
+
 - Run `pnpm --filter extension dev:chrome` in the root directory
 - Open Chrome and go to `chrome://extensions/`
 - Enable `Developer mode` in the top right corner
