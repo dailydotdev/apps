@@ -1,12 +1,13 @@
 import { gqlClient } from '../common';
+import { SOURCE_CATEGORY_FRAGMENT } from '../fragments';
 
 export const SOURCE_CATEGORY_QUERY = `
-  query SourceCategory($id: ID!) {
+  query SourceCategory($id: String!) {
     sourceCategory(id: $id) {
-      id
-      title
+      ...SourceCategoryFragment
     }
   }
+  ${SOURCE_CATEGORY_FRAGMENT}
 `;
 
 export interface SourceCategory {
