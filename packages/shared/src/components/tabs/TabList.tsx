@@ -135,7 +135,12 @@ function TabList<T extends string = string>({
               isActive ? '' : 'text-text-tertiary',
               isAnchor && 'cursor-pointer',
             )}
-            onClick={() => onClick(label)}
+            onClick={(event) => {
+              if (isAnchor) {
+                event.preventDefault();
+              }
+              onClick(label);
+            }}
             {...(isAnchor
               ? {
                   'aria-label': label,
