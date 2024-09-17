@@ -236,3 +236,12 @@ export const USER_STREAK_FRAGMENT = gql`
     weekStart
   }
 `;
+
+export const SOURCE_CATEGORY_FRAGMENT = gql`
+  fragment SourceCategoryFragment on SourceCategory {
+    id
+    slug
+    title
+    createdAt
+  }
+`;
