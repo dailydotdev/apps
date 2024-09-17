@@ -26,5 +26,5 @@ export const useStreakRecoverModal = (): void => {
         onAfterClose: () => replace(pathname),
       },
     });
-  }, [openModal, pathname, replace, streakRestore, user]);
+  }, [closeModal, openModal, pathname, replace, streakRestore, user]);
 };
