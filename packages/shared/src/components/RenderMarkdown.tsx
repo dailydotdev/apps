@@ -1,6 +1,8 @@
 import React, { createRef, ReactElement, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { LightAsync as SyntaxHighlighterAsync } from 'react-syntax-highlighter';
+import SyntaxHighlighter, {
+  LightAsync as SyntaxHighlighterAsync,
+} from 'react-syntax-highlighter';
 import dynamic from 'next/dynamic';
 import { ReactMarkdownOptions } from 'react-markdown/lib/react-markdown';
 import styles from './markdown.module.css';
@@ -174,7 +176,7 @@ const RenderMarkdown = ({
         }) {
           const match = /language-(\w+)/.exec(codeClassName || '');
           const language = match?.[1];
-
+          const Wrapper = language ? SyntaxHighlighterAsync : SyntaxHighlighter;
           if (language) {
             loadLanguages();
           }
@@ -219,8 +221,7 @@ const RenderMarkdown = ({
                   )}
                   ref={contentRef}
                 >
-                  <SyntaxHighlighterAsync
-                    {...props}
+                  <Wrapper
                     customStyle={containerReset}
                     language={language}
                     useInlineStyles={false}
@@ -230,7 +231,7 @@ const RenderMarkdown = ({
                     }}
                   >
                     {String(children).replace(replaceNewLineRegex, '')}
-                  </SyntaxHighlighterAsync>
+                  </Wrapper>
                 </div>
               ) : (
                 <code
