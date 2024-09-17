@@ -29,7 +29,7 @@ const feature = {
   showRoadmap: new Feature('show_roadmap', true),
   onboardingChecklist: new Feature('onboarding_checklist', true),
   searchUsers: new Feature('search_users', false),
-  showCodeSnippets: new Feature('show_code_snippets', true),
+  showCodeSnippets: new Feature('show_code_snippets', false),
 };
 
 export { feature };
