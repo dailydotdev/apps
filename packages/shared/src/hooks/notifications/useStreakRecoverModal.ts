@@ -15,7 +15,6 @@ export const useStreakRecoverModal = (): void => {
 
   useEffect(() => {
     if (!user || !streakRestore) {
-      closeModal();
       return;
     }
 

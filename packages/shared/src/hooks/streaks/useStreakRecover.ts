@@ -58,6 +58,8 @@ export const useStreakRecover = ({
       const res = await gqlClient.request(USER_STREAK_RECOVER_QUERY);
       if (!res?.streakRecover?.canRecover) {
         displayToast('Oops, you are no longer eligible to restore your streak');
+        onRequestClose?.();
+        onAfterClose?.();
       }
       return res;
     },
