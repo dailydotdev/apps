@@ -1,4 +1,4 @@
-import React, { createRef, ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { LightAsync as SyntaxHighlighterAsync } from 'react-syntax-highlighter';
 import dynamic from 'next/dynamic';
@@ -131,7 +131,6 @@ const RenderMarkdown = ({
   isLoading = false,
   isExpandable = false,
 }: RenderMarkdownProps): ReactElement => {
-  const contentRef = createRef<HTMLDivElement>();
   const [canExpand, setCanExpand] = useState<boolean>(false);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [plugins, setPlugins] = useState([]);
@@ -140,12 +139,6 @@ const RenderMarkdown = ({
   useEffect(() => {
     setCanExpand(false);
   }, [content]);
-
-  useEffect(() => {
-    if (isExpandable && contentRef.current && !canExpand) {
-      setCanExpand(contentRef.current.scrollHeight > MIN_CONTENT_HEIGHT);
-    }
-  }, [canExpand, contentRef, isExpandable]);
 
   useEffect(() => {
     let mounted = true;
@@ -223,7 +216,11 @@ const RenderMarkdown = ({
                       ? undefined
                       : 'line-clamp-6 max-h-[9.5rem] break-words',
                   )}
-                  ref={contentRef}
+                  ref={(element) => {
+                    if (isExpandable && element && !canExpand) {
+                      setCanExpand(element.scrollHeight > MIN_CONTENT_HEIGHT);
+                    }
+                  }}
                 >
                   <Wrapper
                     customStyle={containerReset}
@@ -238,10 +235,7 @@ const RenderMarkdown = ({
                   </Wrapper>
                 </div>
               ) : (
-                <code
-                  {...props}
-                  className={classNames(codeClassName, 'min-h-[9.5rem]')}
-                >
+                <code {...props} className={codeClassName}>
                   {children}
                 </code>
               )}
