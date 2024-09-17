@@ -57,6 +57,8 @@ export enum LazyModal {
   BookmarkReminder = 'bookmarkReminder',
   SlackIntegration = 'slackIntegration',
   ReportSource = 'reportSource',
+  UserFollowersModal = 'userFollowersModal',
+  UserFollowingModal = 'userFollowingModal',
 }
 
 export type ModalTabItem = {

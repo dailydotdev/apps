@@ -33,6 +33,22 @@ export interface Upvote {
   user: UserShortProfile;
 }
 
+interface ContentPreference {
+  referenceId: string;
+  user: UserShortProfile;
+  type: string;
+  createdAt: Date;
+  status: string;
+}
+
+export interface FollowingData {
+  userFollowing: Connection<ContentPreference>;
+}
+
+export interface FollowersData {
+  userFollowers: Connection<ContentPreference>;
+}
+
 export interface UpvotesData {
   upvotes: Connection<Upvote>;
 }
