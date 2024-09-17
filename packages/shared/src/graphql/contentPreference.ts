@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+import { CONTENT_PREFERENCE_FRAMENT, USER_FOLLOW_FRAGMENT } from './fragments';
 
 export enum ContentPreferenceType {
   User = 'user',
@@ -18,42 +19,26 @@ export type ContentPreference = {
 export const CONTENT_PREFERENCE_STATUS_QUERY = gql`
   query ContentPreferenceStatus($id: ID!, $entity: ContentPreferenceType!) {
     contentPreferenceStatus(id: $id, entity: $entity) {
-      referenceId
-      type
-      createdAt
-      status
+      ...ContentPreferenceFragment
     }
   }
+  ${CONTENT_PREFERENCE_FRAMENT}
 `;
 
 export const USER_FOLLOWING_QUERY = gql`
   query UserFollowing($id: ID!, $entity: ContentPreferenceType!) {
     userFollowing(userId: $id, entity: $entity) {
-      edges {
-        node {
-          user {
-            id
-          }
-          referenceId
-          status
-        }
-      }
+      ...UserFollow
     }
   }
+  ${USER_FOLLOW_FRAGMENT}
 `;
 
 export const USER_FOLLOWERS_QUERY = gql`
   query UserFollowers($id: ID!, $entity: ContentPreferenceType!) {
     userFollowers(userId: $id, entity: $entity) {
-      edges {
-        node {
-          user {
-            id
-          }
-          referenceId
-          status
-        }
-      }
+      ...UserFollow
     }
   }
+  ${USER_FOLLOW_FRAGMENT}
 `;

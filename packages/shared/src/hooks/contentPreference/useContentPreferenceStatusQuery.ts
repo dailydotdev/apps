@@ -25,8 +25,8 @@ export const useContentPreferenceStatusQuery = ({
   entity,
   queryOptions,
 }: UseContentPreferenceStatusQueryProps): UseContentPreferenceStatusQuery => {
-  const { user } = useAuthContext();
-  const enabled = !!(id && entity);
+  const { user, isLoggedIn } = useAuthContext();
+  const enabled = !!(isLoggedIn && id && entity);
 
   const queryResult = useQuery(
     generateQueryKey(RequestKey.ContentPreference, user, {
