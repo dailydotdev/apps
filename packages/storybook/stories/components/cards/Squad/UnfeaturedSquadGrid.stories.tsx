@@ -4,18 +4,13 @@ import {
   SourceType,
 } from '@dailydotdev/shared/src/graphql/sources';
 import { UnfeaturedSquadGrid } from '@dailydotdev/shared/src/components/cards/squad/UnfeaturedSquadGrid';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { QueryClientProvider } from '../../../extension/_providers';
 
 const meta: Meta<typeof UnfeaturedSquadGrid> = {
   title: 'Components/Cards/Squad/UnfeaturedSquadGrid',
   component: UnfeaturedSquadGrid,
   args: {
-    title: 'Squad Title',
-    subtitle: '@handle',
-    action: {
-      text: 'View Squad',
-      type: 'link',
-      href: 'https://daily.dev',
-    },
     source: {
       name: 'Squad Name',
       permalink: 'https://daily.dev',
@@ -28,16 +23,20 @@ const meta: Meta<typeof UnfeaturedSquadGrid> = {
       memberPostingRole: SourceMemberRole.Admin,
       memberInviteRole: SourceMemberRole.Admin,
       image: 'https://via.placeholder.com/150',
-      handle: 'squad-handle'
+      handle: 'squad-handle',
     },
   },
   decorators: [
     (Story) => (
-        <div className='grid grid-cols-4 gap-8'>
-          <Story />
-        </div>
+      <QueryClientProvider>
+        <AuthContext.Provider value={{}}>
+          <div className="grid grid-cols-4 gap-8">
+            <Story />
+          </div>
+        </AuthContext.Provider>
+      </QueryClientProvider>
     ),
-  ]
+  ],
 };
 
 export default meta;

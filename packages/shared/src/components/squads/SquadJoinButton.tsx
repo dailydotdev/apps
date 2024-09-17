@@ -33,7 +33,7 @@ interface SquadJoinProps extends Pick<ButtonProps<'button'>, 'size'> {
   origin: Origin;
   inviterMember?: Pick<UserShortProfile, 'id'>;
   onSuccess?: () => void;
-  showViewSquad?: boolean;
+  showViewSquadIfMember?: boolean;
   buttonVariants?: ButtonVariant[];
 }
 
@@ -91,7 +91,7 @@ export const SquadJoinButton = ({
   copy = {},
   origin,
   onSuccess,
-  showViewSquad,
+  showViewSquadIfMember,
   buttonVariants = [ButtonVariant.Primary, ButtonVariant.Secondary],
   ...rest
 }: SquadJoinProps): ReactElement => {
@@ -170,7 +170,7 @@ export const SquadJoinButton = ({
     }
   };
 
-  if (isCurrentMember && showViewSquad) {
+  if (isCurrentMember && showViewSquadIfMember) {
     return (
       <Link href={squad.permalink}>
         <Button

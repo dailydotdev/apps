@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
 import {
-  HorizontalScrollHeaderProps,
+  UseHorizontalScrollHeaderProps,
   useHorizontalScrollHeader,
 } from './useHorizontalScrollHeader';
 import { useScrollManagement } from './useScrollManagement';
@@ -12,7 +12,7 @@ const TestComponent = ({
   title,
   onScroll,
   onClickSeeAll,
-}: HorizontalScrollHeaderProps) => {
+}: UseHorizontalScrollHeaderProps) => {
   const { Header, ref } = useHorizontalScrollHeader({
     title,
     onScroll,
