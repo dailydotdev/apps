@@ -14,10 +14,12 @@ import {
   HorizontalScrollHeaderProps,
 } from './HorizontalScrollHeader';
 
+type HeaderProps = Pick<HorizontalScrollHeaderProps, 'titleId' | 'titleType'>;
+
 interface HorizontalScrollHeaderReturn<
   El extends HTMLElement = HTMLDivElement,
 > {
-  Header: FunctionComponent<{ titleId?: string }>;
+  Header: FunctionComponent<HeaderProps>;
   isAtEnd: boolean;
   isAtStart: boolean;
   isOverflowing: boolean;
@@ -25,8 +27,6 @@ interface HorizontalScrollHeaderReturn<
   onClickPrevious: MouseEventHandler;
   ref: React.RefObject<El>;
 }
-
-type HeaderProps = Pick<HorizontalScrollHeaderProps, 'titleId' | 'titleType'>;
 
 export interface UseHorizontalScrollHeaderProps {
   onScroll?: (ref: RefObject<HTMLElement>) => void;
