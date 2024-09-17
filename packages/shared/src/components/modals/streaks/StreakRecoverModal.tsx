@@ -147,11 +147,11 @@ export const StreakRecoverOptout = ({
     <Typography
       aria-label="Never show 'reading streak recover' popup again"
       className="cursor-pointer py-2.5 text-text-tertiary"
+      data-testid="streak-recover-optout"
       htmlFor={`showAgain-${id}`}
       id={`showAgain-label-${id}`}
       tag={TypographyTag.Label}
       type={TypographyType.Footnote}
-      data-testid="streak-recover-optout"
     >
       Never show this again
     </Typography>

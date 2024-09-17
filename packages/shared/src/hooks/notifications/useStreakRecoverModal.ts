@@ -6,7 +6,7 @@ import { LazyModal } from '../../components/modals/common/types';
 
 export const useStreakRecoverModal = (): void => {
   const { user } = useAuthContext();
-  const { openModal } = useLazyModal();
+  const { openModal, closeModal } = useLazyModal();
   const {
     query: { streak_restore: streakRestore },
     replace,
@@ -15,8 +15,10 @@ export const useStreakRecoverModal = (): void => {
 
   useEffect(() => {
     if (!user || !streakRestore) {
+      closeModal();
       return;
     }
+
     openModal({
       type: LazyModal.RecoverStreak,
       props: {
