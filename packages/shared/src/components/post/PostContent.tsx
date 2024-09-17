@@ -19,6 +19,8 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useViewPost } from '../../hooks/post';
 import { TruncateText } from '../utilities';
 import { PostCodeSnippets } from './PostCodeSnippets';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
 
 export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;
@@ -49,7 +51,7 @@ export function PostContent({
   });
   const { onCopyPostLink, onReadArticle } = engagementActions;
   const onSendViewPost = useViewPost(post);
-
+  const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);
   const containerClass = classNames(
@@ -190,7 +192,9 @@ export function PostContent({
               className="mb-4 mt-2 flex laptop:hidden"
             />
           )}
-          <PostCodeSnippets className="mb-6" postId={post.id} />
+          {showCodeSnippets && (
+            <PostCodeSnippets className="mb-6" postId={post.id} />
+          )}
         </BasePostContent>
       </PostContainer>
       <PostWidgets

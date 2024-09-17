@@ -2,7 +2,6 @@ import React, { createRef, ReactElement, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { LightAsync as SyntaxHighlighterAsync } from 'react-syntax-highlighter';
 import dynamic from 'next/dynamic';
-
 import { ReactMarkdownOptions } from 'react-markdown/lib/react-markdown';
 import styles from './markdown.module.css';
 import {
