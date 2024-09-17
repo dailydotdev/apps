@@ -1,8 +1,6 @@
 import React, { createRef, ReactElement, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import SyntaxHighlighter, {
-  LightAsync as SyntaxHighlighterAsync,
-} from 'react-syntax-highlighter';
+import { LightAsync as SyntaxHighlighterAsync } from 'react-syntax-highlighter';
 import dynamic from 'next/dynamic';
 import { ReactMarkdownOptions } from 'react-markdown/lib/react-markdown';
 import styles from './markdown.module.css';
@@ -24,6 +22,13 @@ import {
 const ReactMarkdown = dynamic(
   // @ts-expect-error issue with next/dynamic types
   () => import(/* webpackChunkName: "reactMarkdown" */ 'react-markdown'),
+);
+
+const SyntaxHighlighter = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "reactSyntaxHighlighter" */ 'react-syntax-highlighter'
+    ),
 );
 
 interface RenderMarkdownHeaderProps {

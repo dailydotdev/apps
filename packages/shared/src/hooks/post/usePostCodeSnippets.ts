@@ -49,7 +49,7 @@ export const usePostCodeSnippetsQuery = ({
       return result.postCodeSnippets;
     },
     {
-      staleTime: StaleTime.Default,
+      staleTime: StaleTime.OneHour,
       ...queryOptions,
       enabled:
         typeof queryOptions?.enabled !== 'undefined'

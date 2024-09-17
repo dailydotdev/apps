@@ -32,7 +32,7 @@ export const PostCodeSnippets = ({
     return null;
   }
 
-  const markdownContent = `\`\`\`\n${codeSnippet.content}\n\`\`\``;
+  const markdownContent = `~~~\n${codeSnippet.content}\n~~~`;
 
   const prevSnippet = () => {
     setActiveSnippetIndex((prevIndex) => prevIndex - 1);
