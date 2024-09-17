@@ -6,7 +6,7 @@ import { LazyModal } from '../../components/modals/common/types';
 
 export const useStreakRecoverModal = (): void => {
   const { user } = useAuthContext();
-  const { openModal, closeModal } = useLazyModal();
+  const { openModal } = useLazyModal();
   const {
     query: { streak_restore: streakRestore },
     replace,
@@ -25,5 +25,5 @@ export const useStreakRecoverModal = (): void => {
         onAfterClose: () => replace(pathname),
       },
     });
-  }, [closeModal, openModal, pathname, replace, streakRestore, user]);
+  }, [openModal, pathname, replace, streakRestore, user]);
 };
