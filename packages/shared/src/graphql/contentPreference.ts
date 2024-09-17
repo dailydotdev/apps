@@ -26,8 +26,13 @@ export const CONTENT_PREFERENCE_STATUS_QUERY = gql`
 `;
 
 export const USER_FOLLOWING_QUERY = gql`
-  query UserFollowing($id: ID!, $entity: ContentPreferenceType!) {
-    userFollowing(userId: $id, entity: $entity) {
+  query UserFollowing(
+    $id: ID!
+    $entity: ContentPreferenceType!
+    $first: Int
+    $after: String
+  ) {
+    userFollowing(userId: $id, entity: $entity, first: $first, after: $after) {
       ...UserFollow
     }
   }
@@ -35,10 +40,17 @@ export const USER_FOLLOWING_QUERY = gql`
 `;
 
 export const USER_FOLLOWERS_QUERY = gql`
-  query UserFollowers($id: ID!, $entity: ContentPreferenceType!) {
-    userFollowers(userId: $id, entity: $entity) {
+  query UserFollowers(
+    $id: ID!
+    $entity: ContentPreferenceType!
+    $first: Int
+    $after: String
+  ) {
+    userFollowers(userId: $id, entity: $entity, first: $first, after: $after) {
       ...UserFollow
     }
   }
   ${USER_FOLLOW_FRAGMENT}
 `;
+
+export const DEFAULT_FOLLOW_LIMIT = 20;

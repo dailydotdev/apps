@@ -6,6 +6,7 @@ import {
 import {
   ContentPreference,
   ContentPreferenceType,
+  DEFAULT_FOLLOW_LIMIT,
   USER_FOLLOWERS_QUERY,
 } from '../../graphql/contentPreference';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
@@ -15,6 +16,7 @@ import { Connection, gqlClient } from '../../graphql/common';
 export type UseFollowersQueryProps = {
   id: string;
   entity: ContentPreferenceType;
+  limit?: number;
   queryOptions?: UseInfiniteQueryOptions<Connection<ContentPreference>>;
 };
 
@@ -25,6 +27,7 @@ export type UseFollowersQuery = UseInfiniteQueryResult<
 export const useFollowersQuery = ({
   id,
   entity,
+  limit = DEFAULT_FOLLOW_LIMIT,
   queryOptions,
 }: UseFollowersQueryProps): UseFollowersQuery => {
   const { user } = useAuthContext();
@@ -38,9 +41,10 @@ export const useFollowersQuery = ({
       {
         id,
         entity,
+        first: limit,
       },
     ),
-    async ({ queryKey }) => {
+    async ({ queryKey, pageParam }) => {
       const [, , , queryVariables] = queryKey as [
         unknown,
         unknown,
@@ -49,12 +53,17 @@ export const useFollowersQuery = ({
       ];
       const result = await gqlClient.request<{
         userFollowers: Connection<ContentPreference>;
-      }>(USER_FOLLOWERS_QUERY, queryVariables);
+      }>(USER_FOLLOWERS_QUERY, {
+        ...queryVariables,
+        after: pageParam,
+      });
 
       return result.userFollowers;
     },
     {
       staleTime: StaleTime.Default,
+      getNextPageParam: (lastPage) =>
+        lastPage?.pageInfo?.hasNextPage && lastPage?.pageInfo?.endCursor,
       ...queryOptions,
       enabled:
         typeof queryOptions?.enabled !== 'undefined'
