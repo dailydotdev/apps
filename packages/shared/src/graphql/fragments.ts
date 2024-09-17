@@ -242,6 +242,5 @@ export const SOURCE_CATEGORY_FRAGMENT = gql`
     id
     slug
     title
-    createdAt
   }
 `;
