@@ -48,8 +48,7 @@ export type FeedItem =
   | AdItem
   | MarketingCtaItem
   | FeedItemBase<FeedItemType.Placeholder>
-  | FeedItemBase<FeedItemType.UserAcquisition>
-  | FeedItemBase<FeedItemType.PublicSquadEligibility>;
+  | FeedItemBase<FeedItemType.UserAcquisition>;
 
 export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
 
@@ -94,7 +93,6 @@ export interface UseFeedOptionalParams<T> {
   variables?: T;
   options?: UseInfiniteQueryOptions<FeedData>;
   settings?: UseFeedSettingParams;
-  showPublicSquadsEligibility?: boolean;
   onEmptyFeed?: () => void;
 }
 
@@ -105,14 +103,7 @@ export default function useFeed<T>(
   placeholdersPerPage: number,
   params: UseFeedOptionalParams<T> = {},
 ): FeedReturnType {
-  const {
-    query,
-    variables,
-    options = {},
-    settings,
-    showPublicSquadsEligibility,
-    onEmptyFeed,
-  } = params;
+  const { query, variables, options = {}, settings, onEmptyFeed } = params;
   const { user, tokenRefreshed } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
@@ -206,10 +197,6 @@ export default function useFeed<T>(
             });
           } else if (withFirstIndex(settings.showAcquisitionForm)) {
             posts.splice(adSpot, 0, { type: FeedItemType.UserAcquisition });
-          } else if (withFirstIndex(showPublicSquadsEligibility)) {
-            posts.splice(adSpot, 0, {
-              type: FeedItemType.PublicSquadEligibility,
-            });
           } else if (isAdsQueryEnabled) {
             if (adsQuery.data?.pages[pageIndex]) {
               posts.splice(adSpot, 0, {
@@ -236,7 +223,6 @@ export default function useFeed<T>(
     feedQuery.isFetching,
     settings.marketingCta,
     settings.showAcquisitionForm,
-    showPublicSquadsEligibility,
     isAdsQueryEnabled,
     adSpot,
     adsQuery.data?.pages,
