@@ -14,7 +14,7 @@ export const PostCodeSnippets = ({
   className,
   postId,
 }: PostCodeSnippetsProps): ReactElement => {
-  const { data } = usePostCodeSnippetsQuery({
+  const { data, fetchNextPage } = usePostCodeSnippetsQuery({
     postId,
   });
 
@@ -38,6 +38,12 @@ export const PostCodeSnippets = ({
     setActiveSnippetIndex((prevIndex) => prevIndex - 1);
   };
   const nextSnippet = () => {
+    if (
+      activeSnippetIndex === pagesFlat.length - 3 &&
+      data.pages[data.pages.length - 1].pageInfo.hasNextPage
+    ) {
+      fetchNextPage();
+    }
     setActiveSnippetIndex((prevIndex) => prevIndex + 1);
   };
 

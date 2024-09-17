@@ -168,12 +168,11 @@ const RenderMarkdown = ({
         code({
           node,
           inline,
-          className: rawCodeClassName,
+          className: codeClassName,
           children,
           style,
           ...props
         }) {
-          const codeClassName = classNames(rawCodeClassName, 'min-h-[7.25rem]');
           const match = /language-(\w+)/.exec(codeClassName || '');
           const language = match?.[1];
 
