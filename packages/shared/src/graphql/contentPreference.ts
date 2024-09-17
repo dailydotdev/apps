@@ -1,5 +1,6 @@
 import { gql } from 'graphql-request';
 import { CONTENT_PREFERENCE_FRAMENT, USER_FOLLOW_FRAGMENT } from './fragments';
+import { UserShortProfile } from '../lib/user';
 
 export enum ContentPreferenceType {
   User = 'user',
@@ -11,9 +12,11 @@ export enum ContentPreferenceStatus {
 }
 
 export type ContentPreference = {
-  userId: string;
   referenceId: string;
-  status: ContentPreferenceStatus;
+  user: UserShortProfile;
+  type: string;
+  createdAt: Date;
+  status: string;
 };
 
 export const CONTENT_PREFERENCE_STATUS_QUERY = gql`
