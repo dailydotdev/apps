@@ -45,7 +45,7 @@ export interface RenderMarkdownProps {
 
 const replaceNewLineRegex = /\n$/;
 
-const MIN_CONTENT_HEIGHT = 152;
+const MIN_CONTENT_HEIGHT = 135;
 
 const containerReset = {
   backgroundColor: 'transparent',
@@ -214,7 +214,7 @@ const RenderMarkdown = ({
                     'px-5 py-3',
                     isExpanded || !isExpandable
                       ? undefined
-                      : 'line-clamp-6 max-h-[9.5rem] break-words',
+                      : 'max-h-[8.4375rem]',
                   )}
                   ref={(element) => {
                     if (isExpandable && element && !canExpand) {
@@ -240,7 +240,7 @@ const RenderMarkdown = ({
                 </code>
               )}
               {canExpand ? (
-                <div className="relative z-1 flex h-12 items-center justify-center bg-surface-float">
+                <div className="relative z-1 flex h-12 items-center justify-center bg-background-subtle">
                   <Button
                     onClick={() => setIsExpanded((prev) => !prev)}
                     variant={ButtonVariant.Tertiary}
