@@ -100,8 +100,8 @@ importers:
         specifier: 1.0.0
         version: 1.0.0(date-fns@2.28.0)
       dompurify:
-        specifier: ^2.3.6
-        version: 2.3.6
+        specifier: ^2.5.4
+        version: 2.5.4
       focus-visible:
         specifier: ^5.2.0
         version: 5.2.0
@@ -545,8 +545,8 @@ importers:
         specifier: 1.0.0
         version: 1.0.0(date-fns@2.28.0)
       dompurify:
-        specifier: ^2.3.3
-        version: 2.3.6
+        specifier: ^2.5.4
+        version: 2.5.4
       eslint:
         specifier: ^7.32.0
         version: 7.32.0
@@ -840,8 +840,8 @@ importers:
         specifier: 1.0.0
         version: 1.0.0(date-fns@2.28.0)
       dompurify:
-        specifier: ^2.3.6
-        version: 2.3.6
+        specifier: ^2.5.4
+        version: 2.5.4
       focus-visible:
         specifier: ^5.2.0
         version: 5.2.0
@@ -9931,8 +9931,8 @@ packages:
       domelementtype: 2.3.0
     dev: true
 
-  /dompurify@2.3.6:
-    resolution: {integrity: sha512-OFP2u/3T1R5CEgWCEONuJ1a5+MFKnOYpkywpUSxv/dj1LeBT1erK+JwM7zK0ROy2BRhqVCf0LRw/kHqKuMkVGg==}
+  /dompurify@2.5.4:
+    resolution: {integrity: sha512-l5NNozANzaLPPe0XaAwvg3uZcHtDBnziX/HjsY1UcDj1MxTK8Dd0Kv096jyPK5HRzs/XM5IMj20dW8Fk+HnbUA==}
 
   /domutils@1.7.0:
     resolution: {integrity: sha512-Lgd2XcJ/NjEw+7tFvfKxOzCYKZsdct5lczQ2ZaQY8Djz7pfAD3Gbp8ySJWtreII/vDlMVmxwa6pHmdxIYgttDg==}
