@@ -24,11 +24,10 @@ const ReactMarkdown = dynamic(
   () => import(/* webpackChunkName: "reactMarkdown" */ 'react-markdown'),
 );
 
-const SyntaxHighlighter = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "reactSyntaxHighlighter" */ 'react-syntax-highlighter'
-    ),
+const SyntaxHighlighter = dynamic(() =>
+  import(
+    /* webpackChunkName: "reactSyntaxHighlighter" */ 'react-syntax-highlighter'
+  ).then((mod) => mod.Light),
 );
 
 interface RenderMarkdownHeaderProps {
