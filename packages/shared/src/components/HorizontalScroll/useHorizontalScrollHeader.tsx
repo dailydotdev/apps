@@ -7,13 +7,12 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
-import Link from 'next/link';
 import { useScrollManagement } from './useScrollManagement';
-import { Button, ButtonVariant } from '../buttons/Button';
-import { ArrowIcon } from '../icons';
-import { Typography, TypographyType } from '../typography/Typography';
-import ConditionalWrapper from '../ConditionalWrapper';
 import { useCalculateVisibleElements } from './useCalculateVisibleElements';
+import {
+  HorizontalScrollHeader,
+  HorizontalScrollHeaderProps,
+} from './HorizontalScrollHeader';
 
 interface HorizontalScrollHeaderReturn<
   El extends HTMLElement = HTMLDivElement,
@@ -27,11 +26,13 @@ interface HorizontalScrollHeaderReturn<
   ref: React.RefObject<El>;
 }
 
-export interface HorizontalScrollHeaderProps {
+type HeaderProps = Pick<HorizontalScrollHeaderProps, 'titleId' | 'titleType'>;
+
+export interface UseHorizontalScrollHeaderProps {
   onScroll?: (ref: RefObject<HTMLElement>) => void;
   onClickSeeAll?: MouseEventHandler;
   linkToSeeAll?: string;
-  title: string | ReactNode;
+  title: ReactNode;
 }
 
 export const useHorizontalScrollHeader = <
@@ -41,7 +42,7 @@ export const useHorizontalScrollHeader = <
   onClickSeeAll,
   linkToSeeAll,
   title,
-}: HorizontalScrollHeaderProps): HorizontalScrollHeaderReturn<El> => {
+}: UseHorizontalScrollHeaderProps): HorizontalScrollHeaderReturn<El> => {
   const ref = useRef<El>(null);
   // Calculate the width of elements and the number of visible cards
   const {
@@ -73,55 +74,19 @@ export const useHorizontalScrollHeader = <
   const Header = useMemo(
     () =>
       // eslint-disable-next-line react/display-name
-      ({ titleId }: { titleId: string }) => {
-        return (
-          <div className="mx-4 mb-4 flex w-auto flex-row items-center justify-between laptop:mx-0 laptop:w-full">
-            <Typography
-              className="flex flex-row items-center"
-              type={TypographyType.Title2}
-              id={titleId}
-              bold
-            >
-              {title}
-            </Typography>
-            <div className="hidden flex-row items-center gap-3 tablet:flex">
-              <Button
-                variant={ButtonVariant.Tertiary}
-                icon={<ArrowIcon className="-rotate-90" />}
-                disabled={isAtStart}
-                onClick={onClickPrevious}
-                aria-label="Scroll left"
-              />
-              <Button
-                variant={ButtonVariant.Tertiary}
-                icon={<ArrowIcon className="rotate-90" />}
-                disabled={isAtEnd}
-                onClick={onClickNext}
-                aria-label="Scroll right"
-              />
-              {(onClickSeeAll || linkToSeeAll) && (
-                <ConditionalWrapper
-                  condition={!!linkToSeeAll}
-                  wrapper={(component) => (
-                    <Link href={linkToSeeAll} passHref>
-                      {component}
-                    </Link>
-                  )}
-                >
-                  <Button
-                    variant={ButtonVariant.Tertiary}
-                    onClick={onClickSeeAll}
-                    aria-label="See all"
-                    tag={linkToSeeAll ? 'a' : 'button'}
-                  >
-                    See all
-                  </Button>
-                </ConditionalWrapper>
-              )}
-            </div>
-          </div>
-        );
-      },
+      (props: HeaderProps = {}) =>
+        (
+          <HorizontalScrollHeader
+            {...props}
+            title={title}
+            isAtEnd={isAtEnd}
+            isAtStart={isAtStart}
+            onClickNext={onClickNext}
+            onClickPrevious={onClickPrevious}
+            onClickSeeAll={onClickSeeAll}
+            linkToSeeAll={linkToSeeAll}
+          />
+        ),
     [
       isAtEnd,
       isAtStart,
