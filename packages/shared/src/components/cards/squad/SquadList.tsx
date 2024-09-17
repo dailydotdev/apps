@@ -10,7 +10,7 @@ import {
 import { Separator } from '../common';
 import { largeNumberFormat } from '../../../lib';
 import { CardLink } from '../Card';
-import { SquadJoinButton } from '../../squads/SquadJoinButton';
+import { SquadActionButton } from '../../squads/SquadActionButton';
 import { Origin } from '../../../lib/log';
 import { Image, ImageType } from '../../image/Image';
 import { ButtonVariant } from '../../buttons/common';
@@ -57,7 +57,7 @@ export const SquadList = ({
           )}
         </Typography>
       </div>
-      <SquadJoinButton
+      <SquadActionButton
         className={{ button: 'z-0' }}
         squad={squad}
         origin={Origin.SquadDirectory}

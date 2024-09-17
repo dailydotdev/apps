@@ -12,7 +12,7 @@ import { largeNumberFormat } from '../../../lib';
 import { Separator } from '../common';
 import { UnFeaturedSquadCardProps } from './common/types';
 import { Origin } from '../../../lib/log';
-import { SquadJoinButton } from '../../squads/SquadJoinButton';
+import { SquadActionButton } from '../../squads/SquadActionButton';
 import { ButtonVariant } from '../../buttons/common';
 import { Image, ImageType } from '../../image/Image';
 
@@ -42,7 +42,7 @@ export const UnfeaturedSquadGrid = ({
           className="size-16 rounded-full"
           type={ImageType.Squad}
         />
-        <SquadJoinButton
+        <SquadActionButton
           className={{ button: 'z-0' }}
           squad={source}
           origin={Origin.SquadDirectory}

@@ -26,7 +26,7 @@ interface Copy {
   blockedTooltip: string;
 }
 
-interface SquadJoinProps extends Pick<ButtonProps<'button'>, 'size'> {
+interface SquadActionButtonProps extends Pick<ButtonProps<'button'>, 'size'> {
   className?: ClassName;
   squad: Squad;
   copy?: Partial<Copy>;
@@ -45,7 +45,7 @@ export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
   origin,
   inviterMember,
   ...buttonProps
-}: SquadJoinProps & ButtonProps<T>): ReactElement => {
+}: SquadActionButtonProps & ButtonProps<T>): ReactElement => {
   const { logEvent } = useLogContext();
 
   useEffect(() => {
@@ -85,7 +85,7 @@ export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
   );
 };
 
-export const SquadJoinButton = ({
+export const SquadActionButton = ({
   className = {},
   squad,
   copy = {},
@@ -94,7 +94,7 @@ export const SquadJoinButton = ({
   showViewSquadIfMember,
   buttonVariants = [ButtonVariant.Primary, ButtonVariant.Secondary],
   ...rest
-}: SquadJoinProps): ReactElement => {
+}: SquadActionButtonProps): ReactElement => {
   const {
     join = 'Join Squad',
     view = 'View Squad',

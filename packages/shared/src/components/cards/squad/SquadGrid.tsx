@@ -7,7 +7,7 @@ import { Card, CardLink } from '../Card';
 import { Image, ImageType } from '../../image/Image';
 import { cloudinary } from '../../../lib/image';
 import { UnFeaturedSquadCardProps } from './common/types';
-import { SquadJoinButton } from '../../squads/SquadJoinButton';
+import { SquadActionButton } from '../../squads/SquadActionButton';
 import { Origin } from '../../../lib/log';
 import { ButtonVariant } from '../../buttons/common';
 import { useViewSize, ViewSize } from '../../../hooks';
@@ -109,7 +109,7 @@ export const SquadGrid = ({
             )}
           </div>
 
-          <SquadJoinButton
+          <SquadActionButton
             showViewSquadIfMember
             className={{ button: 'z-0 w-full' }}
             squad={source}
