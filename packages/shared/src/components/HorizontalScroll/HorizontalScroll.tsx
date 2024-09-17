@@ -1,7 +1,7 @@
 import React, { ReactElement, ReactNode, useId } from 'react';
 import classNames from 'classnames';
 import {
-  HorizontalScrollHeaderProps,
+  UseHorizontalScrollHeaderProps,
   useHorizontalScrollHeader,
 } from './useHorizontalScrollHeader';
 
@@ -13,7 +13,7 @@ interface ClassName {
 interface HorizontalScrollProps {
   children: ReactNode;
   className?: ClassName;
-  scrollProps: HorizontalScrollHeaderProps;
+  scrollProps: UseHorizontalScrollHeaderProps;
 }
 
 export default function HorizontalScroll({

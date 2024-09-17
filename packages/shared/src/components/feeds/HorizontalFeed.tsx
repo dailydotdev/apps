@@ -4,6 +4,7 @@ import Feed from '../Feed';
 import { OtherFeedPage } from '../../lib/query';
 import { useHorizontalScrollHeader } from '../HorizontalScroll/useHorizontalScrollHeader';
 import { useFeedLayout } from '../../hooks';
+import { TypographyType } from '../typography/Typography';
 
 interface HorizontalFeedProps<T> {
   feedName: OtherFeedPage;
@@ -26,7 +27,7 @@ export default function HorizontalFeed<T>({
   return (
     <Feed
       {...props}
-      header={<Header />}
+      header={<Header titleType={TypographyType.Body} />}
       disableAds
       allowFetchMore={false}
       pageSize={10}
