@@ -75,7 +75,7 @@ export const useHorizontalScrollHeader = <
       // eslint-disable-next-line react/display-name
       ({ titleId }: { titleId: string }) => {
         return (
-          <div className="mx-4 mb-4 flex w-auto items-center justify-between laptop:mx-0 laptop:w-full">
+          <div className="mx-4 mb-4 flex w-auto flex-row items-center justify-between laptop:mx-0 laptop:w-full">
             <Typography type={TypographyType.Title2} id={titleId} bold>
               {title}
             </Typography>
