@@ -144,6 +144,9 @@ export enum RequestKey {
   TagsMostUpvoted = 'tagsMostUpvoted',
   TagsBestDiscussed = 'tagsBestDiscussed',
   UserCompanies = 'user_companies',
+  ContentPreference = 'content_preference',
+  UserFollowers = 'user_followers',
+  UserFollowing = 'user_following',
 }
 
 export type HasConnection<
