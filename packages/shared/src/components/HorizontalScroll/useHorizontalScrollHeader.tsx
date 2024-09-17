@@ -76,7 +76,12 @@ export const useHorizontalScrollHeader = <
       ({ titleId }: { titleId: string }) => {
         return (
           <div className="mx-4 mb-4 flex w-auto flex-row items-center justify-between laptop:mx-0 laptop:w-full">
-            <Typography type={TypographyType.Title2} id={titleId} bold>
+            <Typography
+              className="flex flex-row items-center"
+              type={TypographyType.Title2}
+              id={titleId}
+              bold
+            >
               {title}
             </Typography>
             <div className="hidden flex-row items-center gap-3 tablet:flex">
