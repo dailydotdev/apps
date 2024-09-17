@@ -53,7 +53,6 @@ export const actionsPerRoleMap: Partial<
     ActionType.EditSquad,
     ActionType.EditWelcomePost,
     ActionType.SquadInvite,
-    ActionType.MakeSquadPublic,
     ActionType.LearnAboutPublicSquad,
   ],
   [SourceMemberRole.Member]: [
