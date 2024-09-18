@@ -17,7 +17,6 @@ export const useStreakRecoverModal = (): void => {
     if (!user || !streakRestore) {
       return;
     }
-
     openModal({
       type: LazyModal.RecoverStreak,
       props: {
