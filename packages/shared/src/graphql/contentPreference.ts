@@ -14,9 +14,9 @@ export enum ContentPreferenceStatus {
 export type ContentPreference = {
   referenceId: string;
   user: UserShortProfile;
-  type: string;
+  type: ContentPreferenceType;
   createdAt: Date;
-  status: string;
+  status: ContentPreferenceStatus;
 };
 
 export const CONTENT_PREFERENCE_STATUS_QUERY = gql`
