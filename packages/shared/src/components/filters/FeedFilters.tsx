@@ -5,6 +5,7 @@ import {
   AppIcon,
   HomeIcon,
   HashtagIcon,
+  AddUserIcon,
 } from '../icons';
 import TagsFilter from './TagsFilter';
 import { TagCategoryLayout } from './TagCategoryDropdown';
@@ -17,6 +18,7 @@ import { ContentTypesFilter } from './ContentTypesFilter';
 import { Source } from '../../graphql/sources';
 import { webappUrl } from '../../lib/constants';
 import { ViewSize, useFeeds, useViewSize } from '../../hooks';
+import { FollowingFilter } from './FollowingFilter';
 
 enum FilterMenuTitle {
   MyFeed = 'My feed',
@@ -24,6 +26,7 @@ enum FilterMenuTitle {
   ManageCategories = 'Manage categories',
   ContentTypes = 'Content & Language',
   Blocked = 'Blocked items',
+  Following = 'Following',
 }
 
 type FeedFiltersProps = ModalProps;
@@ -91,6 +94,10 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
       options: { icon: <AppIcon />, group: 'Preference' },
     },
     {
+      title: FilterMenuTitle.Following,
+      options: { icon: <AddUserIcon />, group: 'Preference' },
+    },
+    {
       title: FilterMenuTitle.Blocked,
       options: { icon: <BlockIcon />, group: 'Preference' },
     },
@@ -133,6 +140,9 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
           </Modal.Body>
           <Modal.Body view={FilterMenuTitle.Blocked}>
             <BlockedFilter onUnblockItem={unBlockPrompt} />
+          </Modal.Body>
+          <Modal.Body view={FilterMenuTitle.Following}>
+            <FollowingFilter />
           </Modal.Body>
         </Modal.Sidebar.Inner>
       </Modal.Sidebar>
