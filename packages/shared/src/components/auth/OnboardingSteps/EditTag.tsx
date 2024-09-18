@@ -1,7 +1,10 @@
 import React, { ReactElement, useState } from 'react';
 import { CreateFeedButton, FilterOnboardingV4 } from '../../onboarding';
 import { FeedPreviewControls } from '../../feeds';
-import { REQUIRED_TAGS_THRESHOLD } from '../../onboarding/common';
+import {
+  OnboardingStep,
+  REQUIRED_TAGS_THRESHOLD,
+} from '../../onboarding/common';
 import { Origin } from '../../../lib/log';
 import FeedLayout from '../../FeedLayout';
 import Feed from '../../Feed';
@@ -13,11 +16,15 @@ interface EditTagProps {
   feedSettings: FeedSettings;
   userId: string;
   onClick: () => void;
+  customActionName?: string;
+  activeScreen?: OnboardingStep;
 }
 export const EditTag = ({
   feedSettings,
   userId,
   onClick,
+  customActionName,
+  activeScreen,
 }: EditTagProps): ReactElement => {
   const [isPreviewVisible, setPreviewVisible] = useState(false);
   const tagsCount = feedSettings?.includeTags?.length || 0;
@@ -51,7 +58,12 @@ export const EditTag = ({
             options={{ refetchOnMount: true }}
             allowPin
           />
-          <CreateFeedButton className="mt-20" onClick={onClick} />
+          <CreateFeedButton
+            className="mt-20"
+            onClick={onClick}
+            customActionName={customActionName}
+            activeScreen={activeScreen}
+          />
         </FeedLayout>
       )}
     </>
