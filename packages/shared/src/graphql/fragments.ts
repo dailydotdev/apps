@@ -253,3 +253,31 @@ export const USER_STREAK_FRAGMENT = gql`
     weekStart
   }
 `;
+
+export const CONTENT_PREFERENCE_FRAMENT = gql`
+  fragment ContentPreferenceFragment on ContentPreference {
+    referenceId
+    user {
+      ...UserShortInfo
+    }
+    type
+    createdAt
+    status
+  }
+  ${USER_SHORT_INFO_FRAGMENT}
+`;
+
+export const USER_FOLLOW_FRAGMENT = gql`
+  fragment UserFollow on ContentPreferenceConnection {
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    edges {
+      node {
+        ...ContentPreferenceFragment
+      }
+    }
+  }
+  ${CONTENT_PREFERENCE_FRAMENT}
+`;

@@ -41,6 +41,9 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
         name
         image
       }
+      contentPreference {
+        status
+      }
     }
   }
 `;
