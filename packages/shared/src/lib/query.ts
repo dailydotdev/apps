@@ -147,6 +147,10 @@ export enum RequestKey {
   ContentPreference = 'content_preference',
   UserFollowers = 'user_followers',
   UserFollowing = 'user_following',
+  ContentPreferenceFollow = 'content_preference_follow',
+  ContentPreferenceUnfollow = 'content_preference_unfollow',
+  ContentPreferenceSubscribe = 'content_preference_subscribe',
+  ContentPreferenceUnsubscribe = 'content_preference_unsubscribe',
 }
 
 export type HasConnection<

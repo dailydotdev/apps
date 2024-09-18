@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
+import classNames from 'classnames';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Button } from '../../buttons/Button';
 
@@ -12,15 +13,32 @@ interface SourceActionsFollowProps {
 
 const SourceActionsFollow = (props: SourceActionsFollowProps): ReactElement => {
   const { className, isSubscribed, isFetching, onClick, variant } = props;
-  const label = isSubscribed ? 'Unfollow' : 'Follow';
+  const [isHovered, setIsHovered] = useState(false);
+
+  let label = isSubscribed ? 'Following' : 'Follow';
+
+  if (isHovered && isSubscribed) {
+    label = 'Unfollow';
+  }
+
   return (
     <Button
       aria-label={label}
-      className={className}
+      className={classNames(
+        isSubscribed &&
+          'min-w-24 hover:bg-overlay-float-ketchup hover:text-accent-ketchup-default',
+        className,
+      )}
       disabled={isFetching}
       onClick={onClick}
       size={ButtonSize.Small}
-      variant={isSubscribed ? ButtonVariant.Tertiary : variant}
+      variant={isSubscribed ? ButtonVariant.Subtle : variant}
+      onMouseEnter={() => {
+        setIsHovered(true);
+      }}
+      onMouseOut={() => {
+        setIsHovered(false);
+      }}
     >
       {label}
     </Button>

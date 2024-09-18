@@ -1,8 +1,5 @@
 import { gql } from 'graphql-request';
-import {
-  SOURCE_SHORT_INFO_FRAGMENT,
-  USER_SHORT_INFO_FRAGMENT,
-} from './fragments';
+import { SOURCE_SHORT_INFO_FRAGMENT, USER_AUTHOR_FRAGMENT } from './fragments';
 import { Post } from './posts';
 
 export type FurtherReadingData = {
@@ -29,11 +26,11 @@ const FURTHER_READING_FRAGMENT = gql`
       ...UserShortInfo
     }
     author {
-      ...UserShortInfo
+      ...UserAuthor
     }
   }
   ${SOURCE_SHORT_INFO_FRAGMENT}
-  ${USER_SHORT_INFO_FRAGMENT}
+  ${USER_AUTHOR_FRAGMENT}
 `;
 
 export const FURTHER_READING_QUERY = gql`
