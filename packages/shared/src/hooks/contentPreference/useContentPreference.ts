@@ -3,23 +3,13 @@ import {
   CONTENT_PREFERENCE_FOLLOW_MUTATION,
   CONTENT_PREFERENCE_UNFOLLOW_MUTATION,
   ContentPreferenceStatus,
-  ContentPreferenceType,
 } from '../../graphql/contentPreference';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { gqlClient } from '../../graphql/common';
 import { PropsParameters } from '../../types';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useToastNotification } from '../useToastNotification';
-
-type ContentPreferenceMutation = ({
-  id,
-  entity,
-  entityName,
-}: {
-  id: string;
-  entity: ContentPreferenceType;
-  entityName: string;
-}) => Promise<void>;
+import { ContentPreferenceMutation } from './types';
 
 export type UseContentPreference = {
   follow: ContentPreferenceMutation;
