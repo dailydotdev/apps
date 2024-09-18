@@ -253,6 +253,11 @@ export function OnboardPage(): ReactElement {
     );
   };
 
+  const customActionName =
+    activeScreen === OnboardingStep.EditTag && enableContentTypeStep.current
+      ? 'Continue'
+      : undefined;
+
   const getContent = (): ReactElement => {
     if (isAuthenticating && activeScreen === OnboardingStep.Intro) {
       return getAuthOptions();
@@ -277,7 +282,9 @@ export function OnboardPage(): ReactElement {
           <EditTag
             feedSettings={feedSettings}
             userId={user?.id}
+            customActionName={customActionName}
             onClick={onClickCreateFeed}
+            activeScreen={activeScreen}
           />
         )}
         {activeScreen === OnboardingStep.ContentTypes && <ContentTypes />}
@@ -362,12 +369,7 @@ export function OnboardPage(): ReactElement {
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}
         setAuth={setAuth}
-        customActionName={
-          activeScreen === OnboardingStep.EditTag &&
-          enableContentTypeStep.current
-            ? 'Continue'
-            : undefined
-        }
+        customActionName={customActionName}
         onClickCreateFeed={onClickCreateFeed}
         activeScreen={activeScreen}
       />
