@@ -5,8 +5,6 @@ import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 
-const DEFAULT_USERS_PER_PAGE = 50;
-
 export interface UserStatsProps {
   stats: {
     reputation: number;
