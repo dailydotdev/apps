@@ -7,6 +7,7 @@ import {
   COMMENT_ON_COMMENT_MUTATION,
   COMMENT_ON_POST_MUTATION,
   EDIT_COMMENT_MUTATION,
+  getAllCommentsQuery,
 } from '../../graphql/comments';
 import { LogEvent } from '../../lib/log';
 import { postLogEvent } from '../../lib/feed';
@@ -81,8 +82,7 @@ export const useMutateComment = ({
       return;
     }
 
-    const comments = generateQueryKey(RequestKey.PostComments, null, postId);
-    client.setQueryData<PostCommentsData>(comments, (data) => {
+    const updateQueryData = (data: PostCommentsData) => {
       if (!data) {
         return data;
       }
@@ -92,7 +92,7 @@ export const useMutateComment = ({
         const edge = generateCommentEdge(comment);
 
         if (!parentCommentId) {
-          copy.postComments.edges.push(edge);
+          copy.postComments.edges.unshift(edge);
           return copy;
         }
 
@@ -126,6 +126,10 @@ export const useMutateComment = ({
         children: parent.node.children,
       };
       return copy;
+    };
+
+    getAllCommentsQuery(postId).forEach((queryKey) => {
+      client.setQueryData<PostCommentsData>(queryKey, updateQueryData);
     });
 
     if (!editCommentId) {

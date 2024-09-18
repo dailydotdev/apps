@@ -9,6 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import {
   Comment,
+  generateCommentsQueryKey,
   POST_COMMENTS_QUERY,
   PostCommentsData,
   SortCommentsBy,
@@ -20,7 +21,6 @@ import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { initialDataKey } from '../../lib/constants';
 import { Origin } from '../../lib/log';
 import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
-import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useDeleteComment } from '../../hooks/comments/useDeleteComment';
 import { lazyCommentThreshold } from '../utilities';
 import { isNullOrUndefined } from '../../lib/func';
@@ -54,10 +54,7 @@ export function PostComments({
   const container = useRef<HTMLDivElement>();
   const { tokenRefreshed } = useContext(AuthContext);
   const { requestMethod } = useRequestProtocol();
-  const queryKey = generateQueryKey(RequestKey.PostComments, null, {
-    sortBy,
-    id,
-  });
+  const queryKey = generateCommentsQueryKey({ postId: id, sortBy });
   const { data: comments, isLoading: isLoadingComments } =
     useQuery<PostCommentsData>(
       queryKey,

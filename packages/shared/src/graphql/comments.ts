@@ -5,6 +5,7 @@ import { EmptyResponse } from './emptyResponse';
 import { UserShortProfile } from '../lib/user';
 import type { Post, UserVote } from './posts';
 import { Company } from '../lib/userCompany';
+import { generateQueryKey, RequestKey } from '../lib/query';
 
 export interface Author {
   __typename?: string;
@@ -264,4 +265,25 @@ export const COMMENT_BY_ID_QUERY = gql`
 
 export type CommentFeedData = {
   page: Connection<Comment>;
+};
+
+type QueryKeyReturnType = ReturnType<typeof generateQueryKey>;
+
+interface GenerateCommentsQueryKeyProps {
+  postId: string;
+  sortBy: SortCommentsBy;
+}
+
+export const generateCommentsQueryKey = ({
+  postId,
+  sortBy,
+}: GenerateCommentsQueryKeyProps): QueryKeyReturnType =>
+  generateQueryKey(RequestKey.PostComments, null, { postId, sortBy });
+
+export const getAllCommentsQuery = (postId: string): QueryKeyReturnType[] => {
+  const sorting = Object.values(SortCommentsBy).map((sortBy) =>
+    generateCommentsQueryKey({ postId, sortBy }),
+  );
+
+  return sorting;
 };
