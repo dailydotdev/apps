@@ -54,15 +54,7 @@ export const useStreakRecover = ({
   const client = useQueryClient();
   const { data, isLoading } = useQuery<StreakQueryData>({
     queryKey: generateQueryKey(RequestKey.UserStreakRecover),
-    queryFn: async () => {
-      const res = await gqlClient.request(USER_STREAK_RECOVER_QUERY);
-      if (!res?.streakRecover?.canRecover) {
-        displayToast('Oops, you are no longer eligible to restore your streak');
-        onRequestClose?.();
-        onAfterClose?.();
-      }
-      return res;
-    },
+    queryFn: async () => await gqlClient.request(USER_STREAK_RECOVER_QUERY),
   });
 
   const recoverMutation = useMutation({
