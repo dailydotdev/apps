@@ -25,7 +25,7 @@ const Item = ({
   onClick?: () => void;
   className?: string;
 }) => (
-  <ItemWrapper {...props}>
+  <ItemWrapper {...props} data-testid={stat?.title}>
     <b className="text-text-primary typo-subhead">
       {largeNumberFormat(stat?.amount || 0)}
     </b>
