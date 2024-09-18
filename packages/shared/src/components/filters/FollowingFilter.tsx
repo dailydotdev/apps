@@ -3,11 +3,9 @@ import { IconSize } from '../Icon';
 import { OpenLinkIcon } from '../icons';
 import { useAuthContext } from '../../contexts/AuthContext';
 import Link from '../utilities/Link';
-// import { useLazyModal } from '../../hooks/useLazyModal';
 
 export const FollowingFilter = (): JSX.Element => {
   const { user } = useAuthContext();
-  // const { closeModal } = useLazyModal();
   return (
     <div className="flex flex-col items-center gap-4 px-6 py-10 text-center text-text-secondary">
       <OpenLinkIcon
@@ -22,11 +20,7 @@ export const FollowingFilter = (): JSX.Element => {
       <p className="typo-body">
         To manage everything you follow,{' '}
         <Link href={user.permalink}>
-          <a
-            href={user.permalink}
-            // onClick={() => closeModal()}
-            className="text-text-link"
-          >
+          <a href={user.permalink} className="text-text-link">
             head to your profile
           </a>
         </Link>{' '}
