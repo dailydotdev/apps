@@ -52,10 +52,6 @@ export const useStreakRecover = ({
   const { updateAlerts } = useAlertsContext();
   const { user } = useAuthContext();
   const client = useQueryClient();
-  const { data, isLoading } = useQuery<StreakQueryData>({
-    queryKey: generateQueryKey(RequestKey.UserStreakRecover),
-    queryFn: async () => await gqlClient.request(USER_STREAK_RECOVER_QUERY),
-  });
 
   const recoverMutation = useMutation({
     mutationKey: generateQueryKey(RequestKey.UserStreakRecover),
@@ -77,6 +73,22 @@ export const useStreakRecover = ({
       showRecoverStreak: false,
     });
   }, [updateAlerts]);
+
+  const { data, isLoading } = useQuery<StreakQueryData>({
+    queryKey: generateQueryKey(RequestKey.UserStreakRecover),
+    queryFn: async () => {
+      const res = await gqlClient.request(USER_STREAK_RECOVER_QUERY);
+
+      if (!res?.streakRecover?.canRecover) {
+        await hideRemoteAlert();
+        displayToast('Oops, you are no longer eligible to restore your streak');
+        onRequestClose?.();
+        onAfterClose?.();
+      }
+
+      return res;
+    },
+  });
 
   const onClose = useCallback(async () => {
     if (hideForever) {
