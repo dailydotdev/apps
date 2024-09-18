@@ -180,7 +180,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
       remindAt
     }
     scout {
-      ...UserShortInfo
+      ...UserAuthor
     }
     author {
       ...UserAuthor

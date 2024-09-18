@@ -23,7 +23,7 @@ const FURTHER_READING_FRAGMENT = gql`
       ...SourceShortInfo
     }
     scout {
-      ...UserShortInfo
+      ...UserAuthor
     }
     author {
       ...UserAuthor
