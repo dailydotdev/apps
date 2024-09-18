@@ -1,49 +1,35 @@
 import React, { ReactElement } from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { FollowingData, RequestQuery } from '../../graphql/common';
-import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { ModalProps } from './common/Modal';
-import { checkFetchMore } from '../containers/InfiniteScrolling';
 import UserListModal from './UserListModal';
+import {
+  useFollowingQuery,
+  UseFollowingQueryProps,
+} from '../../hooks/contentPreference/useFollowingQuery';
+import { checkFetchMore } from '../containers/InfiniteScrolling';
 
 export interface UserFollowingModalProps extends ModalProps {
-  requestQuery: RequestQuery<FollowingData>;
+  queryProps: UseFollowingQueryProps;
 }
 
 export function UserFollowingModal({
-  requestQuery: { queryKey, query, params, options = {} },
+  queryProps,
   children,
   ...props
 }: UserFollowingModalProps): ReactElement {
-  const { requestMethod } = useRequestProtocol();
-  const queryResult = useInfiniteQuery<FollowingData>(
-    queryKey,
-    ({ pageParam }) =>
-      requestMethod(
-        query,
-        { ...params, after: pageParam },
-        { requestKey: JSON.stringify(queryKey) },
-      ),
-    {
-      ...options,
-      getNextPageParam: (lastPage) =>
-        lastPage?.userFollowing?.pageInfo?.hasNextPage &&
-        lastPage?.userFollowing?.pageInfo?.endCursor,
-    },
-  );
+  const queryResult = useFollowingQuery(queryProps);
+  const { data, isFetchingNextPage, fetchNextPage } = queryResult;
 
   return (
     <UserListModal
       {...props}
-      data-testid={`List of ${queryKey[0]} with ID ${queryKey[1]}`}
       title="Following"
       scrollingProps={{
-        isFetchingNextPage: queryResult.isFetchingNextPage,
+        isFetchingNextPage,
         canFetchMore: checkFetchMore(queryResult),
-        fetchNextPage: queryResult.fetchNextPage,
+        fetchNextPage,
       }}
-      users={queryResult.data?.pages.reduce((acc, p) => {
-        p?.userFollowing.edges.forEach(({ node }) => {
+      users={data?.pages.reduce((acc, p) => {
+        p?.edges.forEach(({ node }) => {
           acc.push(node.user);
         });
 

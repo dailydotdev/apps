@@ -3,12 +3,7 @@ import { largeNumberFormat } from '../../lib/numberFormat';
 import classed from '../../lib/classed';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import {
-  ContentPreferenceType,
-  USER_FOLLOWERS_QUERY,
-  USER_FOLLOWING_QUERY,
-} from '../../graphql/contentPreference';
-import { RequestKey } from '../../lib/query';
+import { ContentPreferenceType } from '../../graphql/contentPreference';
 
 const DEFAULT_USERS_PER_PAGE = 50;
 
@@ -45,11 +40,12 @@ export function UserStats({ stats, userId }: UserStatsProps): ReactElement {
     LazyModal.UserFollowersModal | LazyModal.UserFollowingModal
   >();
 
-  const defaultModalParams = {
-    params: {
-      userId,
-      entity: ContentPreferenceType.User,
-      first: DEFAULT_USERS_PER_PAGE,
+  const defaultModalProps = {
+    props: {
+      queryProps: {
+        id: userId,
+        entity: ContentPreferenceType.User,
+      },
     },
   };
 
@@ -63,13 +59,7 @@ export function UserStats({ stats, userId }: UserStatsProps): ReactElement {
             onClick={() =>
               openModal({
                 type: LazyModal.UserFollowersModal,
-                props: {
-                  requestQuery: {
-                    queryKey: [RequestKey.UserFollowers, userId],
-                    query: USER_FOLLOWERS_QUERY,
-                    ...defaultModalParams,
-                  },
-                },
+                ...defaultModalProps,
               })
             }
           />
@@ -79,13 +69,7 @@ export function UserStats({ stats, userId }: UserStatsProps): ReactElement {
             onClick={() =>
               openModal({
                 type: LazyModal.UserFollowingModal,
-                props: {
-                  requestQuery: {
-                    queryKey: [RequestKey.UserFollowing, userId],
-                    query: USER_FOLLOWING_QUERY,
-                    ...defaultModalParams,
-                  },
-                },
+                ...defaultModalProps,
               })
             }
           />
