@@ -7,6 +7,7 @@ import {
   useFollowersQuery,
   UseFollowersQueryProps,
 } from '../../hooks/contentPreference/useFollowersQuery';
+import { FlexCentered } from '../utilities';
 
 export interface FollowersModalProps extends ModalProps {
   queryProps: UseFollowersQueryProps;
@@ -36,6 +37,13 @@ export function UserFollowersModal({
 
         return acc;
       }, [])}
+      userListProps={{
+        emptyPlaceholder: (
+          <FlexCentered className="p-10 text-text-tertiary typo-callout">
+            No followers found
+          </FlexCentered>
+        ),
+      }}
     />
   );
 }
