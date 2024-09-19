@@ -44,7 +44,6 @@ export const CONTENT_PREFERENCE_FRAMENT = gql`
     type
     status
   }
-  ${USER_SHORT_INFO_FRAGMENT}
 `;
 
 export const USER_FOLLOW_FRAGMENT = gql`
@@ -70,6 +69,7 @@ export const USER_AUTHOR_FRAGMENT = gql`
     }
   }
   ${CONTENT_PREFERENCE_FRAMENT}
+  ${USER_SHORT_INFO_FRAGMENT}
 `;
 
 export const SOURCE_DIRECTORY_INFO_FRAGMENT = gql`
