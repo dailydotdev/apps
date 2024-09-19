@@ -14,6 +14,7 @@ import {
 } from '@dailydotdev/shared/src/hooks/source/useSources';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
+import { PlaceholderSquadGrid } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadGrid';
 import { SquadDirectoryLayout } from '../../../../shared/src/components/squads/layout/SquadDirectoryLayout';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
@@ -35,6 +36,7 @@ const SquadsPage = (): ReactElement => {
   const { result } = useSources<Squad>({
     query: { featured: true, isPublic: true, sortByMembersCount: true },
   });
+  const { isInitialLoading } = result;
   const flatSquads =
     result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
   const isTablet = useViewSize(ViewSize.Tablet);
@@ -62,6 +64,13 @@ const SquadsPage = (): ReactElement => {
           </div>
         )}
       </InfiniteScrolling>
+      {isInitialLoading && (
+        <>
+          <PlaceholderSquadGrid className="max-w-80" isFeatured />
+          <PlaceholderSquadGrid className="max-w-80" isFeatured />
+          <PlaceholderSquadGrid className="max-w-80" isFeatured />
+        </>
+      )}
     </SquadDirectoryLayout>
   );
 };
