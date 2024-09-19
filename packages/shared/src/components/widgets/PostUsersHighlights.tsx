@@ -20,6 +20,8 @@ import { SourceActions } from '../sources/SourceActions';
 import { Source as ISource } from '../../graphql/sources';
 import { TruncateText } from '../utilities';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
+import { FollowButton } from '../contentPreference/FollowButton';
+import { ContentPreferenceType } from '../../graphql/contentPreference';
 
 interface PostAuthorProps {
   post: Post;
@@ -106,6 +108,8 @@ const Image = (props: ImageProps) => {
   );
 };
 
+const userTypes = [UserType.Author, UserType.Scout];
+
 export const UserHighlight = (props: UserHighlightProps): ReactElement => {
   const { userType, ...user } = props;
   const {
@@ -124,6 +128,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
 
   const Icon = getUserIcon(userType);
   const isUserTypeSource = userType === UserType.Source && 'handle' in user;
+  const isUserType = userTypes.includes(userType);
   const { feedSettings } = useFeedSettings();
 
   const isSourceBlocked = useMemo(() => {
@@ -217,6 +222,14 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
           }}
           hideBlock
           source={user}
+        />
+      )}
+      {isUserType && (
+        <FollowButton
+          userId={id}
+          type={ContentPreferenceType.User}
+          status={(user as CommentAuthor).contentPreference?.status}
+          entityName={`@${handleOrUsernameOrId}`}
         />
       )}
     </div>

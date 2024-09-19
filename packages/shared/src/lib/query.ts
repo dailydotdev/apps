@@ -13,6 +13,11 @@ import { LoggedUser } from './user';
 import { FeedData, Post, ReadHistoryPost } from '../graphql/posts';
 import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
 import { SharedFeedPage } from '../components/utilities';
+import { Author as UserAuthor } from '../graphql/comments';
+import {
+  ContentPreferenceStatus,
+  ContentPreferenceType,
+} from '../graphql/contentPreference';
 
 export enum OtherFeedPage {
   Tag = 'tag',
@@ -147,6 +152,10 @@ export enum RequestKey {
   ContentPreference = 'content_preference',
   UserFollowers = 'user_followers',
   UserFollowing = 'user_following',
+  ContentPreferenceFollow = 'content_preference_follow',
+  ContentPreferenceUnfollow = 'content_preference_unfollow',
+  ContentPreferenceSubscribe = 'content_preference_subscribe',
+  ContentPreferenceUnsubscribe = 'content_preference_unsubscribe',
 }
 
 export type HasConnection<
@@ -311,4 +320,37 @@ export const updateReadingHistoryListPost = ({
   return () => {
     queryClient.setQueryData(queryKey, oldData);
   };
+};
+
+export const updateAuthorContentPreference = ({
+  data,
+  status,
+  entity,
+}: {
+  data: UserAuthor;
+  status: ContentPreferenceStatus | null;
+  entity: ContentPreferenceType;
+}): UserAuthor => {
+  const newData = structuredClone(data);
+
+  if (!status) {
+    delete newData.contentPreference;
+
+    return newData;
+  }
+
+  newData.contentPreference = {
+    status,
+    type: entity,
+    referenceId: newData.id,
+    createdAt: new Date(),
+    user: {
+      id: newData.id,
+      name: newData.name,
+      image: newData.image,
+      username: newData.username,
+    },
+  };
+
+  return newData;
 };

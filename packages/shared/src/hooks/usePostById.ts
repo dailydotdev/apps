@@ -14,8 +14,19 @@ import {
   RelatedPost,
 } from '../graphql/posts';
 import { PostCommentsData } from '../graphql/comments';
-import { generateQueryKey, RequestKey } from '../lib/query';
+import {
+  generateQueryKey,
+  RequestKey,
+  updateAuthorContentPreference,
+} from '../lib/query';
 import { Connection, gqlClient } from '../graphql/common';
+import { useMutationSubscription } from './mutationSubscription/useMutationSubscription';
+import {
+  ContentPreferenceMutation,
+  contentPreferenceMutationMatcher,
+  mutationKeyToContentPreferenceStatusMap,
+} from './contentPreference/types';
+import { PropsParameters } from '../types';
 
 interface UsePostByIdProps {
   id: string;
@@ -114,6 +125,52 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
     },
   );
   const post = postById || (options?.initialData as PostData);
+
+  useMutationSubscription({
+    matcher: contentPreferenceMutationMatcher,
+    callback: ({ mutation, variables: mutationVariables, queryClient }) => {
+      const currentData = queryClient.getQueryData(key);
+      const [requestKey] = mutation.options.mutationKey as [
+        RequestKey,
+        ...unknown[],
+      ];
+
+      if (!currentData) {
+        return;
+      }
+
+      queryClient.setQueryData<PostData>(key, (data) => {
+        const { id: entityId, entity } =
+          mutationVariables as PropsParameters<ContentPreferenceMutation>;
+
+        const nextStatus = mutationKeyToContentPreferenceStatusMap[requestKey];
+
+        if (typeof nextStatus === 'undefined') {
+          return data;
+        }
+
+        const newData = structuredClone(data);
+
+        if (newData.post?.author?.id === entityId) {
+          newData.post.author = updateAuthorContentPreference({
+            data: newData.post.author,
+            status: nextStatus,
+            entity,
+          });
+        }
+
+        if (newData.post?.scout?.id === entityId) {
+          newData.post.scout = updateAuthorContentPreference({
+            data: newData.post.scout,
+            status: nextStatus,
+            entity,
+          });
+        }
+
+        return newData;
+      });
+    },
+  });
 
   return useMemo(
     () => ({
