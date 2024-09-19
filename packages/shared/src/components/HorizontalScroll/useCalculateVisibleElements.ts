@@ -31,9 +31,15 @@ export const useCalculateVisibleElements = <El extends HTMLElement>({
       return;
     }
 
+    const isOverflowingContent =
+      currentRef.scrollWidth > currentRef.clientWidth;
+
+    setIsOverflowing(isOverflowingContent);
+
     setTimeout(() => {
-      setIsOverflowing(currentRef.scrollWidth > currentRef.clientWidth);
-    }, 500);
+      // Check if the container is overflowing after a short delay in case the content is still loading
+      setIsOverflowing(isOverflowingContent);
+    }, 1000);
 
     if (currentRef && currentRef.firstElementChild) {
       const element = currentRef.firstElementChild;
