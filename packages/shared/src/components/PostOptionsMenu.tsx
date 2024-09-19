@@ -25,6 +25,7 @@ import {
   MinusIcon,
   BellAddIcon,
   AddUserIcon,
+  RemoveUserIcon,
 } from './icons';
 import { ReportedCallback } from './modals';
 import useTagAndSource from '../hooks/useTagAndSource';
@@ -382,7 +383,7 @@ export default function PostOptionsMenu({
     const isFollowingUser = isFollowingContent(post.author?.contentPreference);
 
     postOptions.push({
-      icon: <MenuIcon Icon={AddUserIcon} />,
+      icon: <MenuIcon Icon={isFollowingUser ? RemoveUserIcon : AddUserIcon} />,
       label: `${isFollowingUser ? 'Unfollow' : 'Follow'} ${authorName}`,
       action: () => {
         if (!isFollowingUser) {
