@@ -27,12 +27,13 @@ export function SquadsDirectoryFeed({
   children,
 }: SquadHorizontalListProps): ReactElement {
   const { result } = useSources<Squad>({ query });
+  const { isInitialLoading } = result;
   const isMobile = useViewSize(ViewSize.MobileL);
 
   const flatSources =
     result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
 
-  if (flatSources.length === 0) {
+  if (flatSources.length === 0 && !isInitialLoading) {
     return null;
   }
 
