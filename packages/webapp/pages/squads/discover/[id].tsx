@@ -51,7 +51,7 @@ function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
           <UnfeaturedSquadGrid key={node.id} source={node as Squad} />
         ))}
       </InfiniteScrolling>
-      {!isInitialLoading && (
+      {isInitialLoading && (
         <div className="flex w-full flex-row flex-wrap gap-6">
           <PlaceholderSquadGrid className="max-w-80" />
           <PlaceholderSquadGrid className="max-w-80" />
