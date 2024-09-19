@@ -14,7 +14,7 @@ import { UnfeaturedSquadGrid } from '@dailydotdev/shared/src/components/cards/sq
 import { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import { NextSeo } from 'next-seo';
 import { SquadDirectoryLayout } from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryLayout';
-import { PlaceholderSquadGrid } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadGrid';
+import { PlaceholderSquadGridList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadGrid';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { defaultSeo } from '../../../next-seo';
@@ -53,9 +53,7 @@ function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
       </InfiniteScrolling>
       {isInitialLoading && (
         <div className="flex w-full flex-row flex-wrap gap-6">
-          <PlaceholderSquadGrid className="max-w-80" />
-          <PlaceholderSquadGrid className="max-w-80" />
-          <PlaceholderSquadGrid className="max-w-80" />
+          <PlaceholderSquadGridList className="max-w-80" />
         </div>
       )}
     </SquadDirectoryLayout>

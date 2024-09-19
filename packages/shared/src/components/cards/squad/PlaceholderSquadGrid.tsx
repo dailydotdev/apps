@@ -68,3 +68,16 @@ export const PlaceholderSquadGrid = ({
     </div>
   );
 };
+
+export const PlaceholderSquadGridList = (props: PlaceholderSquadGridProps) => {
+  return (
+    <>
+      <PlaceholderSquadGrid {...props} />
+      <PlaceholderSquadGrid {...props} />
+      <PlaceholderSquadGrid {...props} />
+      <PlaceholderSquadGrid {...props} />
+      <PlaceholderSquadGrid {...props} />
+      <PlaceholderSquadGrid {...props} />
+    </>
+  );
+};
