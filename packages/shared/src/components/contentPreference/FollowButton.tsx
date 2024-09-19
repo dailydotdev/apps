@@ -65,22 +65,25 @@ export const FollowButton = ({
   };
 
   return (
-    <div
-      className={classNames('inline-flex gap-2', className)}
-      onClick={(e) => e.preventDefault()}
-    >
+    <div className={classNames('inline-flex gap-2', className)}>
       <SourceActionsFollow
         isSubscribed={!!currentStatus}
         isFetching={false}
         variant={ButtonVariant.Secondary}
-        onClick={onButtonClick}
+        onClick={(e) => {
+          e.preventDefault();
+          onButtonClick();
+        }}
       />
       {!!currentStatus && (
         <SourceActionsNotify
           haveNotificationsOn={
             currentStatus === ContentPreferenceStatus.Subscribed
           }
-          onClick={onNotifyClick}
+          onClick={(e) => {
+            e.preventDefault();
+            onNotifyClick();
+          }}
         />
       )}
     </div>

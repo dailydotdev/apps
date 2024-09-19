@@ -6,7 +6,7 @@ import { BellAddIcon, BellSubscribedIcon } from '../../icons';
 
 interface SourceActionsNotifyProps {
   haveNotificationsOn: boolean;
-  onClick: () => void;
+  onClick: (e) => void;
 }
 
 const SourceActionsNotify = (props: SourceActionsNotifyProps): ReactElement => {
