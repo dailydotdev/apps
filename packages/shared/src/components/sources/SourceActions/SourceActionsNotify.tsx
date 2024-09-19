@@ -15,7 +15,7 @@ const SourceActionsNotify = (props: SourceActionsNotifyProps): ReactElement => {
   const icon = haveNotificationsOn ? <BellSubscribedIcon /> : <BellAddIcon />;
   const label = `${haveNotificationsOn ? 'Disable' : 'Enable'} notifications`;
   const variant = haveNotificationsOn
-    ? ButtonVariant.Tertiary
+    ? ButtonVariant.Subtle
     : ButtonVariant.Secondary;
 
   return (

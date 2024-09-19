@@ -13,7 +13,7 @@ export enum ContentPreferenceStatus {
 
 export type ContentPreference = {
   referenceId: string;
-  user: UserShortProfile;
+  user: Pick<UserShortProfile, 'id' | 'name' | 'image' | 'username'>;
   type: ContentPreferenceType;
   createdAt: Date;
   status: ContentPreferenceStatus;
@@ -57,3 +57,23 @@ export const USER_FOLLOWERS_QUERY = gql`
 `;
 
 export const DEFAULT_FOLLOW_LIMIT = 20;
+
+export const CONTENT_PREFERENCE_FOLLOW_MUTATION = gql`
+  mutation Follow(
+    $id: ID!
+    $entity: ContentPreferenceType!
+    $status: FollowStatus!
+  ) {
+    follow(id: $id, entity: $entity, status: $status) {
+      _
+    }
+  }
+`;
+
+export const CONTENT_PREFERENCE_UNFOLLOW_MUTATION = gql`
+  mutation Unfollow($id: ID!, $entity: ContentPreferenceType!) {
+    unfollow(id: $id, entity: $entity) {
+      _
+    }
+  }
+`;
