@@ -1,8 +1,18 @@
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
 import HorizontalScroll from './HorizontalScroll';
+import { useCalculateVisibleElements } from './useCalculateVisibleElements';
+
+jest.mock('./useCalculateVisibleElements');
 
 describe('HorizontalScroll', () => {
+  beforeEach(() => {
+    (useCalculateVisibleElements as jest.Mock).mockReturnValue({
+      scrollableElementWidth: 100,
+      isOverflowing: true,
+      elementsCount: 5,
+    });
+  });
   it('renders correctly with the given title and children', () => {
     render(
       <HorizontalScroll scrollProps={{ title: 'Scrollable Area' }}>

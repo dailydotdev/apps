@@ -31,29 +31,48 @@ export const useCalculateVisibleElements = <El extends HTMLElement>({
       return;
     }
 
-    setIsOverflowing(currentRef.scrollWidth > currentRef.clientWidth);
+    const element = currentRef.firstElementChild as HTMLElement;
+    const elementStyle = getComputedStyle(element);
+    const containerStyle = getComputedStyle(currentRef);
 
-    if (currentRef && currentRef.firstElementChild) {
-      const element = currentRef.firstElementChild;
-      const elementWidth = element.offsetWidth;
-      const elementMarginRight = parseFloat(
-        getComputedStyle(element).marginRight || '0',
-      );
-      const elementMarginLeft = parseFloat(
-        getComputedStyle(element).marginLeft || '0',
-      );
-      const containerGap = parseFloat(getComputedStyle(currentRef).gap || '0');
-      const elementWidthWithMarginsAndGap =
-        elementWidth + elementMarginRight + elementMarginLeft + containerGap;
+    const elementWidth = element.offsetWidth;
+    const elementMarginRight = parseFloat(elementStyle.marginRight || '0');
+    const elementMarginLeft = parseFloat(elementStyle.marginLeft || '0');
+    const containerGap = parseFloat(containerStyle.gap || '0');
+    const elementWidthWithMarginsAndGap =
+      elementWidth + elementMarginRight + elementMarginLeft + containerGap;
 
+    const mainContainerWidth = currentRef.offsetWidth;
+
+    requestAnimationFrame(() => {
+      const isOverflowingContent =
+        currentRef.scrollWidth > currentRef.clientWidth;
+
+      setIsOverflowing(isOverflowingContent);
       setScrollableElementWidth(elementWidthWithMarginsAndGap);
-
-      const mainContainerWidth = currentRef.offsetWidth;
       setElementsCount(
         Math.floor(mainContainerWidth / elementWidthWithMarginsAndGap),
       );
-    }
+    });
   }, [ref, setIsOverflowing]);
+
+  // Use ResizeObserver to detect any changes to the scrollable container or its children
+  useEffect(() => {
+    const currentRef = ref.current;
+    if (!currentRef) {
+      return undefined;
+    }
+
+    const resizeObserver = new ResizeObserver(() => {
+      calculateVisibleCards();
+    });
+
+    resizeObserver.observe(currentRef);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [ref, calculateVisibleCards]);
 
   // Recalculate number of cards on mount
   useEffect(() => {
