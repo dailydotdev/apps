@@ -54,6 +54,11 @@ export const FollowingFilter = (): ReactElement => {
         canFetchMore: checkFetchMore(queryResult),
         fetchNextPage,
       }}
+      userInfoProps={{
+        onClick: () => {
+          closeModal();
+        },
+      }}
     />
   );
 };
