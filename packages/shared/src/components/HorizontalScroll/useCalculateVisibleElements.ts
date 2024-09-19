@@ -31,29 +31,25 @@ export const useCalculateVisibleElements = <El extends HTMLElement>({
       return;
     }
 
+    const element = currentRef.firstElementChild as HTMLElement;
+    const elementStyle = getComputedStyle(element);
+    const containerStyle = getComputedStyle(currentRef);
+
+    const elementWidth = element.offsetWidth;
+    const elementMarginRight = parseFloat(elementStyle.marginRight || '0');
+    const elementMarginLeft = parseFloat(elementStyle.marginLeft || '0');
+    const containerGap = parseFloat(containerStyle.gap || '0');
+    const elementWidthWithMarginsAndGap =
+      elementWidth + elementMarginRight + elementMarginLeft + containerGap;
+
+    const mainContainerWidth = currentRef.offsetWidth;
+
     requestAnimationFrame(() => {
-      // Get scrollWidth and clientWidth after rendering
       const isOverflowingContent =
         currentRef.scrollWidth > currentRef.clientWidth;
+
       setIsOverflowing(isOverflowingContent);
-
-      // Calculate width with margins, gaps, and paddings
-      const element = currentRef.firstElementChild as HTMLElement;
-      const elementWidth = element.offsetWidth;
-      const elementMarginRight = parseFloat(
-        getComputedStyle(element).marginRight || '0',
-      );
-      const elementMarginLeft = parseFloat(
-        getComputedStyle(element).marginLeft || '0',
-      );
-      const containerGap = parseFloat(getComputedStyle(currentRef).gap || '0');
-
-      const elementWidthWithMarginsAndGap =
-        elementWidth + elementMarginRight + elementMarginLeft + containerGap;
-
       setScrollableElementWidth(elementWidthWithMarginsAndGap);
-
-      const mainContainerWidth = currentRef.offsetWidth;
       setElementsCount(
         Math.floor(mainContainerWidth / elementWidthWithMarginsAndGap),
       );
@@ -64,7 +60,7 @@ export const useCalculateVisibleElements = <El extends HTMLElement>({
   useEffect(() => {
     const currentRef = ref.current;
     if (!currentRef) {
-      return null;
+      return undefined;
     }
 
     const resizeObserver = new ResizeObserver(() => {
