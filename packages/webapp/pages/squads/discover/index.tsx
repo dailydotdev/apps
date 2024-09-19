@@ -54,7 +54,6 @@ function SquadDiscoveryPage(): ReactElement {
           query={{
             categoryId: node.id,
             isPublic: true,
-            featured: false,
             first: limit,
             sortByMembersCount: true,
           }}
