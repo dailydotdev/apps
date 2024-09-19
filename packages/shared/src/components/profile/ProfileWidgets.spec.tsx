@@ -141,7 +141,12 @@ const renderComponent = (
             <ProfileWidgets
               user={{ ...defaultProfile, ...profile }}
               sources={memberships}
-              userStats={{ upvotes: 5_000, views: 83_000 }}
+              userStats={{
+                upvotes: 5_000,
+                views: 83_000,
+                numFollowers: 23_000,
+                numFollowing: 3_000,
+              }}
             />
           </SettingsContext.Provider>
         </LogContext.Provider>
@@ -180,14 +185,20 @@ it('should show join date', () => {
 
 it('should show user stats in a proper format', () => {
   renderComponent();
-  let el = screen.getByTestId('reputation');
-  expect(el).toHaveTextContent('20reputation');
+  let el = screen.getByTestId('Reputation');
+  expect(el).toHaveTextContent('20Reputation');
 
-  el = screen.getByTestId('upvotes');
-  expect(el).toHaveTextContent('5Kupvotes');
+  el = screen.getByTestId('Followers');
+  expect(el).toHaveTextContent('23KFollowers');
 
-  el = screen.getByTestId('views');
-  expect(el).toHaveTextContent('83Kviews');
+  el = screen.getByTestId('Following');
+  expect(el).toHaveTextContent('3KFollowing');
+
+  el = screen.getByTestId('Upvotes');
+  expect(el).toHaveTextContent('5KUpvotes');
+
+  el = screen.getByTestId('Views');
+  expect(el).toHaveTextContent('83KViews');
 });
 
 it('should show bio', () => {
