@@ -5,8 +5,10 @@ import {
   useHorizontalScrollHeader,
 } from './useHorizontalScrollHeader';
 import { useScrollManagement } from './useScrollManagement';
+import { useCalculateVisibleElements } from './useCalculateVisibleElements';
 
 jest.mock('./useScrollManagement');
+jest.mock('./useCalculateVisibleElements');
 
 const TestComponent = ({
   title,
@@ -30,6 +32,12 @@ describe('useHorizontalScrollHeader', () => {
     (useScrollManagement as jest.Mock).mockReturnValue({
       isAtStart: true,
       isAtEnd: false,
+    });
+
+    (useCalculateVisibleElements as jest.Mock).mockReturnValue({
+      scrollableElementWidth: 100,
+      isOverflowing: true,
+      elementsCount: 5,
     });
   });
 
@@ -81,5 +89,18 @@ describe('useHorizontalScrollHeader', () => {
     });
     render(<TestComponent title="Test Title" />);
     expect(screen.getByLabelText('Scroll right')).toBeDisabled();
+  });
+
+  it('removes arrows and see all if there are not enough scrollable elements', () => {
+    (useCalculateVisibleElements as jest.Mock).mockReturnValue({
+      scrollableElementWidth: 100,
+      isOverflowing: false,
+      elementsCount: 5,
+    });
+    render(<TestComponent title="Test Title" />);
+
+    expect(screen.queryByLabelText('Scroll right')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Scroll left')).not.toBeInTheDocument();
+    expect(screen.queryByText('See all')).not.toBeInTheDocument();
   });
 });

@@ -81,6 +81,7 @@ export const useHorizontalScrollHeader = <
             title={title}
             isAtEnd={isAtEnd}
             isAtStart={isAtStart}
+            canScroll={isOverflowing}
             onClickNext={onClickNext}
             onClickPrevious={onClickPrevious}
             onClickSeeAll={onClickSeeAll}
@@ -95,6 +96,7 @@ export const useHorizontalScrollHeader = <
       onClickPrevious,
       onClickSeeAll,
       title,
+      isOverflowing,
     ],
   );
 
