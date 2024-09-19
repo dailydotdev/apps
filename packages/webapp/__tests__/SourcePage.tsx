@@ -205,7 +205,7 @@ it('should show notify button if following', async () => {
     }),
   ]);
   await waitForNock();
-  const unfollowButton = await screen.findByText('Unfollow');
+  const unfollowButton = await screen.findByText('Following');
   expect(unfollowButton).toBeInTheDocument();
   const notifyButton = await screen.findByLabelText('Enable notifications');
   expect(notifyButton).toBeInTheDocument();
