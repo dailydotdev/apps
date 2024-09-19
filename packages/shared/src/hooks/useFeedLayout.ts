@@ -133,7 +133,7 @@ export const useFeedLayout = ({
       shouldUseListMode
     : isListMode || !isLaptop;
 
-  const shouldUseCommentFeedLayout = feedName === SharedFeedPage.Discussed;
+  const shouldUseCommentFeedLayout = feedName === OtherFeedPage.Discussed;
 
   const FeedPageLayoutComponent = getFeedPageLayoutComponent({
     shouldUseListMode,

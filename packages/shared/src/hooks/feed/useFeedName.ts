@@ -46,7 +46,7 @@ export const useFeedName = ({ feedName }: UseFeedNameProps): UseFeedName => {
     isExploreLatest: feedName === OtherFeedPage.ExploreLatest,
     isExploreUpvoted: feedName === OtherFeedPage.ExploreUpvoted,
     isExploreDiscussed: feedName === OtherFeedPage.ExploreDiscussed,
-    isDiscussed: feedName === SharedFeedPage.Discussed,
+    isDiscussed: feedName === OtherFeedPage.Discussed,
     isCustomFeed: customFeeds.includes(feedName),
     isSortableFeed: sortableFeeds.includes(feedName),
   };
