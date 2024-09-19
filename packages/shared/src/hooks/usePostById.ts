@@ -17,7 +17,7 @@ import { PostCommentsData } from '../graphql/comments';
 import {
   generateQueryKey,
   RequestKey,
-  updateAuthorContentPreference,
+  updatePostContentPreference,
 } from '../lib/query';
 import { Connection, gqlClient } from '../graphql/common';
 import { useMutationSubscription } from './mutationSubscription/useMutationSubscription';
@@ -139,35 +139,23 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
         return;
       }
 
+      const nextStatus = mutationKeyToContentPreferenceStatusMap[requestKey];
+
+      const { id: entityId, entity } =
+        mutationVariables as PropsParameters<ContentPreferenceMutation>;
+
       queryClient.setQueryData<PostData>(key, (data) => {
-        const { id: entityId, entity } =
-          mutationVariables as PropsParameters<ContentPreferenceMutation>;
+        const newPostData = updatePostContentPreference({
+          data: data.post,
+          status: nextStatus,
+          entityId,
+          entity,
+        });
 
-        const nextStatus = mutationKeyToContentPreferenceStatusMap[requestKey];
-
-        if (typeof nextStatus === 'undefined') {
-          return data;
-        }
-
-        const newData = structuredClone(data);
-
-        if (newData.post?.author?.id === entityId) {
-          newData.post.author = updateAuthorContentPreference({
-            data: newData.post.author,
-            status: nextStatus,
-            entity,
-          });
-        }
-
-        if (newData.post?.scout?.id === entityId) {
-          newData.post.scout = updateAuthorContentPreference({
-            data: newData.post.scout,
-            status: nextStatus,
-            entity,
-          });
-        }
-
-        return newData;
+        return {
+          ...data,
+          post: newPostData,
+        };
       });
     },
   });

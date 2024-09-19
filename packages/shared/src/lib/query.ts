@@ -354,3 +354,39 @@ export const updateAuthorContentPreference = ({
 
   return newData;
 };
+
+export const updatePostContentPreference = ({
+  data,
+  status,
+  entity,
+  entityId,
+}: {
+  data: Post;
+  status: ContentPreferenceStatus | null;
+  entityId: string;
+  entity: ContentPreferenceType;
+}): Post => {
+  if (typeof status === 'undefined') {
+    return data;
+  }
+
+  const newData = structuredClone(data);
+
+  if (newData.author?.id === entityId) {
+    newData.author = updateAuthorContentPreference({
+      data: newData.author,
+      status,
+      entity,
+    });
+  }
+
+  if (newData.scout?.id === entityId) {
+    newData.scout = updateAuthorContentPreference({
+      data: newData.scout,
+      status,
+      entity,
+    });
+  }
+
+  return newData;
+};
