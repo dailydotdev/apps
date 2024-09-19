@@ -42,6 +42,7 @@ export function MobileFeedActions(): ReactElement {
           onOpenFeedFilters={() =>
             openModal({
               type: LazyModal.FeedFilters,
+              persistOnRouteChange: true,
             })
           }
         />

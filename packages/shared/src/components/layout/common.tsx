@@ -82,7 +82,8 @@ export const SearchControlHeader = ({
     return null;
   }
 
-  const openFeedFilters = () => openModal({ type: LazyModal.FeedFilters });
+  const openFeedFilters = () =>
+    openModal({ type: LazyModal.FeedFilters, persistOnRouteChange: true });
 
   const dropdownProps: Partial<DropdownProps> = {
     className: { label: 'hidden', chevron: 'hidden', button: '!px-1' },
