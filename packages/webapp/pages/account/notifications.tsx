@@ -405,7 +405,7 @@ const AccountNotificationsPage = (): ReactElement => {
           checked={followingEmail}
           onToggleCallback={onToggleFollowingEmail}
         >
-          Updates from followed sources, squads and users
+          Updates from followed users
         </Checkbox>
         <div className="my-2 gap-1">
           <h3 className="font-bold typo-callout">Personalized digest</h3>
@@ -544,7 +544,7 @@ const AccountNotificationsPage = (): ReactElement => {
               checked={followNotifications}
               onToggleCallback={onToggleFollowingNotifications}
             >
-              Updates from followed sources, squads and users
+              Updates from followed users
             </Checkbox>
             {!!readingReminder && (
               <>
