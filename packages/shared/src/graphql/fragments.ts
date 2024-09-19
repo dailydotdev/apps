@@ -83,34 +83,6 @@ export const SOURCE_DIRECTORY_INFO_FRAGMENT = gql`
   }
 `;
 
-export const CONTENT_PREFERENCE_FRAMENT = gql`
-  fragment ContentPreferenceFragment on ContentPreference {
-    referenceId
-    user {
-      ...UserShortInfo
-    }
-    type
-    createdAt
-    status
-  }
-  ${USER_SHORT_INFO_FRAGMENT}
-`;
-
-export const USER_FOLLOW_FRAGMENT = gql`
-  fragment UserFollow on ContentPreferenceConnection {
-    pageInfo {
-      endCursor
-      hasNextPage
-    }
-    edges {
-      node {
-        ...ContentPreferenceFragment
-      }
-    }
-  }
-  ${CONTENT_PREFERENCE_FRAMENT}
-`;
-
 export const SOURCE_SHORT_INFO_FRAGMENT = gql`
   fragment SourceShortInfo on Source {
     id
