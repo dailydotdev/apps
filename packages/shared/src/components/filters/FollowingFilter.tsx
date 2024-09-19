@@ -1,39 +1,39 @@
 import React, { type ReactElement } from 'react';
-import { IconSize } from '../Icon';
-import { OpenLinkIcon } from '../icons';
 import { useAuthContext } from '../../contexts/AuthContext';
-import Link from '../utilities/Link';
-import { useLazyModal } from '../../hooks/useLazyModal';
+import UserList from '../profile/UserList';
+import { useFollowingQuery } from '../../hooks/contentPreference/useFollowingQuery';
+import { ContentPreferenceType } from '../../graphql/contentPreference';
+import { FlexCentered } from '../utilities';
+import { checkFetchMore } from '../containers/InfiniteScrolling';
 
 export const FollowingFilter = (): ReactElement => {
   const { user } = useAuthContext();
-  const { closeModal } = useLazyModal();
-  return (
-    <div className="flex flex-col items-center gap-4 px-6 py-10 text-center text-text-secondary">
-      <OpenLinkIcon
-        size={IconSize.XXXLarge}
-        className="text-text-disabled"
-        secondary
-      />
-      <p className="font-bold typo-title2">
-        Your following lists are on your profile
-      </p>
+  const queryResult = useFollowingQuery({
+    id: user.id,
+    entity: ContentPreferenceType.User,
+  });
+  const { data, isFetchingNextPage, fetchNextPage } = queryResult;
+  const users = data?.pages.reduce((acc, p) => {
+    p?.edges.forEach(({ node }) => {
+      acc.push(node.referenceUser);
+    });
 
-      <p className="typo-body">
-        To manage everything you follow,{' '}
-        <Link
-          href={user.permalink}
-          onClick={(e) => {
-            e.preventDefault();
-            closeModal();
-          }}
-        >
-          <a href={user.permalink} className="text-text-link">
-            head to your profile
-          </a>
-        </Link>{' '}
-        and press the following button below your profile image.
-      </p>
-    </div>
+    return acc;
+  }, []);
+
+  return (
+    <UserList
+      users={users}
+      emptyPlaceholder={
+        <FlexCentered className="p-10 text-text-tertiary typo-callout">
+          No following found
+        </FlexCentered>
+      }
+      scrollingProps={{
+        isFetchingNextPage,
+        canFetchMore: checkFetchMore(queryResult),
+        fetchNextPage,
+      }}
+    />
   );
 };
