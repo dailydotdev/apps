@@ -24,6 +24,7 @@ import {
   MiniCloseIcon,
   MinusIcon,
   BellAddIcon,
+  AddUserIcon,
 } from './icons';
 import { ReportedCallback } from './modals';
 import useTagAndSource from '../hooks/useTagAndSource';
@@ -54,6 +55,11 @@ import { useSharePost } from '../hooks/useSharePost';
 import { useBookmarkReminder } from '../hooks/notifications';
 import { BookmarkReminderIcon } from './icons/Bookmark/Reminder';
 import { useSourceActionsFollow } from '../hooks/source/useSourceActionsFollow';
+import { useContentPreference } from '../hooks/contentPreference/useContentPreference';
+import {
+  ContentPreferenceStatus,
+  ContentPreferenceType,
+} from '../graphql/contentPreference';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -105,6 +111,7 @@ export default function PostOptionsMenu({
   const { logEvent } = useContext(LogContext);
   const { hidePost, unhidePost } = useReportPost();
   const { openSharePost } = useSharePost(origin);
+  const { follow, unfollow } = useContentPreference();
 
   const { openModal } = useLazyModal();
   const { queryKey: feedQueryKey, logOpts } = useContext(ActiveFeedContext);
@@ -370,6 +377,34 @@ export default function PostOptionsMenu({
         action: onNotifyToggle,
       });
     }
+  }
+
+  if (isLoggedIn && post?.author) {
+    const authorName = post.author.name || post.author.username;
+    const isFollowingUser = [
+      ContentPreferenceStatus.Follow,
+      ContentPreferenceStatus.Subscribed,
+    ].includes(post.author.contentPreference?.status);
+
+    postOptions.push({
+      icon: <MenuIcon Icon={AddUserIcon} />,
+      label: `${isFollowingUser ? 'Unfollow' : 'Follow'} ${authorName}`,
+      action: () => {
+        if (!isFollowingUser) {
+          follow({
+            id: post.author.id,
+            entity: ContentPreferenceType.User,
+            entityName: authorName,
+          });
+        } else {
+          unfollow({
+            id: post.author.id,
+            entity: ContentPreferenceType.User,
+            entityName: authorName,
+          });
+        }
+      },
+    });
   }
 
   postOptions.push({
