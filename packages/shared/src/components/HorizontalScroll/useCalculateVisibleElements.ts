@@ -31,18 +31,14 @@ export const useCalculateVisibleElements = <El extends HTMLElement>({
       return;
     }
 
-    const isOverflowingContent =
-      currentRef.scrollWidth > currentRef.clientWidth;
-
-    setIsOverflowing(isOverflowingContent);
-
-    setTimeout(() => {
-      // Check if the container is overflowing after a short delay in case the content is still loading
+    requestAnimationFrame(() => {
+      // Get scrollWidth and clientWidth after rendering
+      const isOverflowingContent =
+        currentRef.scrollWidth > currentRef.clientWidth;
       setIsOverflowing(isOverflowingContent);
-    }, 1000);
 
-    if (currentRef && currentRef.firstElementChild) {
-      const element = currentRef.firstElementChild;
+      // Calculate width with margins, gaps, and paddings
+      const element = currentRef.firstElementChild as HTMLElement;
       const elementWidth = element.offsetWidth;
       const elementMarginRight = parseFloat(
         getComputedStyle(element).marginRight || '0',
@@ -51,6 +47,7 @@ export const useCalculateVisibleElements = <El extends HTMLElement>({
         getComputedStyle(element).marginLeft || '0',
       );
       const containerGap = parseFloat(getComputedStyle(currentRef).gap || '0');
+
       const elementWidthWithMarginsAndGap =
         elementWidth + elementMarginRight + elementMarginLeft + containerGap;
 
@@ -60,8 +57,26 @@ export const useCalculateVisibleElements = <El extends HTMLElement>({
       setElementsCount(
         Math.floor(mainContainerWidth / elementWidthWithMarginsAndGap),
       );
-    }
+    });
   }, [ref, setIsOverflowing]);
+
+  // Use ResizeObserver to detect any changes to the scrollable container or its children
+  useEffect(() => {
+    const currentRef = ref.current;
+    if (!currentRef) {
+      return null;
+    }
+
+    const resizeObserver = new ResizeObserver(() => {
+      calculateVisibleCards();
+    });
+
+    resizeObserver.observe(currentRef);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [ref, calculateVisibleCards]);
 
   // Recalculate number of cards on mount
   useEffect(() => {
