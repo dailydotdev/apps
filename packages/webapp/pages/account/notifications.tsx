@@ -448,7 +448,7 @@ const AccountNotificationsPage = (): ReactElement => {
           </>
         )}
       </div>
-      {true && (
+      {isPushSupported && (
         <>
           <div className="my-4 border-t border-border-subtlest-tertiary" />
           <div className="flex flex-row">
