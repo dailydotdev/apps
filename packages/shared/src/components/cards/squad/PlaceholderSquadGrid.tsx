@@ -30,7 +30,7 @@ export const PlaceholderSquadGrid = ({
       {...attrs}
       aria-busy
       className={classNames(
-        'overflow-hidden rounded-16 border-0 bg-background-subtle p-4',
+        'w-80 overflow-hidden rounded-16 border-0 bg-background-subtle p-4',
         className,
       )}
     >
