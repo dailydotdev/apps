@@ -59,13 +59,9 @@ export function SquadsDirectoryFeed({
       {children}
       {flatSources?.map(({ node }) =>
         node.flags?.featured && linkToSeeAll.includes('featured') ? (
-          <SquadGrid key={node.id} source={node} className="max-w-80" />
+          <SquadGrid key={node.id} source={node} className="w-80" />
         ) : (
-          <UnfeaturedSquadGrid
-            key={node.id}
-            source={node}
-            className="max-w-80"
-          />
+          <UnfeaturedSquadGrid key={node.id} source={node} className="w-80" />
         ),
       )}
     </HorizontalScroll>
