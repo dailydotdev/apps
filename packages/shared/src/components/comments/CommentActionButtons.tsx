@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useQueryClient } from '@tanstack/react-query';
-import AuthContext from '../../contexts/AuthContext';
+import AuthContext, { useAuthContext } from '../../contexts/AuthContext';
 import {
   UpvoteIcon,
   DiscussIcon as CommentIcon,
@@ -10,6 +10,7 @@ import {
   ShareIcon,
   FlagIcon,
   DownvoteIcon,
+  AddUserIcon,
 } from '../icons';
 import { Comment } from '../../graphql/comments';
 import { Roles } from '../../lib/user';
@@ -40,6 +41,9 @@ import {
 import { RequestKey } from '../../lib/query';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { getCompanionWrapper } from '../../lib/extension';
+import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
+import { ContentPreferenceType } from '../../graphql/contentPreference';
+import { isFollowingContent } from '../../hooks/contentPreference/types';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -69,6 +73,7 @@ export default function CommentActionButtons({
   onEdit,
   onShowUpvotes,
 }: Props): ReactElement {
+  const { isLoggedIn } = useAuthContext();
   const { isCompanion } = useRequestProtocol();
   const client = useQueryClient();
   const id = `comment-actions-menu-${comment.id}`;
@@ -83,6 +88,7 @@ export default function CommentActionButtons({
       userState: comment.userState,
     };
   });
+  const { follow, unfollow } = useContentPreference();
 
   useEffect(() => {
     setVoteState({
@@ -164,6 +170,33 @@ export default function CommentActionButtons({
       label: 'Delete comment',
       action: () => onDelete(comment, parentId),
       icon: <TrashIcon />,
+    });
+  }
+
+  if (isLoggedIn && comment?.author) {
+    const authorName = comment.author.name || `@${comment.author.username}`;
+    const isFollowingUser = isFollowingContent(
+      comment.author?.contentPreference,
+    );
+
+    commentOptions.push({
+      icon: <AddUserIcon />,
+      label: `${isFollowingUser ? 'Unfollow' : 'Follow'} ${authorName}`,
+      action: () => {
+        if (!isFollowingUser) {
+          follow({
+            id: comment.author.id,
+            entity: ContentPreferenceType.User,
+            entityName: authorName,
+          });
+        } else {
+          unfollow({
+            id: comment.author.id,
+            entity: ContentPreferenceType.User,
+            entityName: authorName,
+          });
+        }
+      },
     });
   }
 
