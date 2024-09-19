@@ -89,7 +89,7 @@ export function DiscoverSection({
         action: isExtension ? locationPush('/users') : undefined,
       },
     ];
-  }, [completeAction, onNavTabClick]);
+  }, [completeAction, user, onNavTabClick]);
 
   return (
     <Section
