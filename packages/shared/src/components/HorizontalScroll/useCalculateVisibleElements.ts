@@ -33,7 +33,7 @@ export const useCalculateVisibleElements = <El extends HTMLElement>({
 
     setTimeout(() => {
       setIsOverflowing(currentRef.scrollWidth > currentRef.clientWidth);
-    }, 1000);
+    }, 500);
 
     if (currentRef && currentRef.firstElementChild) {
       const element = currentRef.firstElementChild;
