@@ -10,6 +10,7 @@ import { SquadGrid } from './SquadGrid';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { SquadList } from './SquadList';
 import { Button, ButtonVariant } from '../../buttons/Button';
+import { PlaceholderSquadGrid } from './PlaceholderSquadGrid';
 
 interface SquadHorizontalListProps {
   title: ReactNode;
@@ -68,6 +69,22 @@ export function SquadsDirectoryFeed({
             className="max-w-76"
           />
         ),
+      )}
+      {isInitialLoading && !flatSources.length && (
+        <>
+          <PlaceholderSquadGrid
+            className="max-w-80"
+            isFeatured={query.featured}
+          />
+          <PlaceholderSquadGrid
+            className="max-w-80"
+            isFeatured={query.featured}
+          />
+          <PlaceholderSquadGrid
+            className="max-w-80"
+            isFeatured={query.featured}
+          />
+        </>
       )}
     </HorizontalScroll>
   );
