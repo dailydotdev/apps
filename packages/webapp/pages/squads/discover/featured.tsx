@@ -64,7 +64,7 @@ const SquadsPage = (): ReactElement => {
           </div>
         )}
       </InfiniteScrolling>
-      {isInitialLoading && (
+      {!isInitialLoading && (
         <div className="flex w-full flex-row flex-wrap gap-6">
           <PlaceholderSquadGrid className="max-w-80" isFeatured />
           <PlaceholderSquadGrid className="max-w-80" isFeatured />
