@@ -41,6 +41,7 @@ export interface RenderMarkdownProps {
   content: string;
   reactMarkdownProps?: Omit<ReactMarkdownOptions, 'children'>;
   isExpandable?: boolean;
+  onCopy?: () => void;
 }
 
 const replaceNewLineRegex = /\n$/;
@@ -130,6 +131,7 @@ const RenderMarkdown = ({
   reactMarkdownProps,
   isLoading = false,
   isExpandable = false,
+  onCopy,
 }: RenderMarkdownProps): ReactElement => {
   const [canExpand, setCanExpand] = useState<boolean>(false);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
@@ -197,11 +199,14 @@ const RenderMarkdown = ({
                       icon={<CopyIcon />}
                       disabled={copying || isLoading}
                       size={ButtonSize.Small}
-                      onClick={() =>
+                      onClick={() => {
+                        if (onCopy) {
+                          onCopy();
+                        }
                         copy({
                           textToCopy: String(children),
-                        })
-                      }
+                        });
+                      }}
                     />
                     {header?.buttons ? header.buttons : null}
                   </div>
