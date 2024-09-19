@@ -10,6 +10,7 @@ import { useSources } from '@dailydotdev/shared/src/hooks/source/useSources';
 import InfiniteScrolling, {
   checkFetchMore,
 } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
+import { FeedContainer } from '@dailydotdev/shared/src/components';
 import { UnfeaturedSquadGrid } from '@dailydotdev/shared/src/components/cards/squad/UnfeaturedSquadGrid';
 import { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import { NextSeo } from 'next-seo';
@@ -47,9 +48,11 @@ function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
         fetchNextPage={result.fetchNextPage}
         className="flex w-full !flex-row flex-wrap gap-6"
       >
-        {flatSources?.map(({ node }) => (
-          <UnfeaturedSquadGrid key={node.id} source={node as Squad} />
-        ))}
+        <FeedContainer className="mt-5" inlineHeader>
+          {flatSources?.map(({ node }) => (
+            <UnfeaturedSquadGrid key={node.id} source={node as Squad} />
+          ))}
+        </FeedContainer>
       </InfiniteScrolling>
       {isInitialLoading && (
         <div className="flex w-full flex-row flex-wrap gap-6">

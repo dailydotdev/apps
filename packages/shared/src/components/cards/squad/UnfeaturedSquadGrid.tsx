@@ -24,12 +24,7 @@ export const UnfeaturedSquadGrid = ({
   const title = source.name;
 
   return (
-    <Card
-      className={classNames(
-        'w-[19rem] overflow-hidden border-0 p-4',
-        className,
-      )}
-    >
+    <Card className={classNames('overflow-hidden border-0 p-4', className)}>
       <CardLink
         href={source.permalink}
         rel="noopener"
