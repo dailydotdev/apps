@@ -1,4 +1,5 @@
 import {
+  ContentPreference,
   ContentPreferenceStatus,
   ContentPreferenceType,
 } from '../../graphql/contentPreference';
@@ -41,4 +42,13 @@ export const mutationKeyToContentPreferenceStatusMap: Partial<
   [RequestKey.ContentPreferenceUnfollow]: null,
   [RequestKey.ContentPreferenceSubscribe]: ContentPreferenceStatus.Subscribed,
   [RequestKey.ContentPreferenceUnsubscribe]: ContentPreferenceStatus.Follow,
+};
+
+export const isFollowingContent = (
+  contentPreference: ContentPreference | undefined,
+): boolean => {
+  return [
+    ContentPreferenceStatus.Follow,
+    ContentPreferenceStatus.Subscribed,
+  ].includes(contentPreference?.status);
 };

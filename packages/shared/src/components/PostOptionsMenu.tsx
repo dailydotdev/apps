@@ -56,10 +56,8 @@ import { useBookmarkReminder } from '../hooks/notifications';
 import { BookmarkReminderIcon } from './icons/Bookmark/Reminder';
 import { useSourceActionsFollow } from '../hooks/source/useSourceActionsFollow';
 import { useContentPreference } from '../hooks/contentPreference/useContentPreference';
-import {
-  ContentPreferenceStatus,
-  ContentPreferenceType,
-} from '../graphql/contentPreference';
+import { ContentPreferenceType } from '../graphql/contentPreference';
+import { isFollowingContent } from '../hooks/contentPreference/types';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -381,10 +379,7 @@ export default function PostOptionsMenu({
 
   if (isLoggedIn && post?.author) {
     const authorName = post.author.name || post.author.username;
-    const isFollowingUser = [
-      ContentPreferenceStatus.Follow,
-      ContentPreferenceStatus.Subscribed,
-    ].includes(post.author.contentPreference?.status);
+    const isFollowingUser = isFollowingContent(post.author?.contentPreference);
 
     postOptions.push({
       icon: <MenuIcon Icon={AddUserIcon} />,
