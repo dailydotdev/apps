@@ -42,7 +42,7 @@ export function HorizontalScrollHeader({
         {title}
       </Typography>
       {canScroll && (
-        <div className="hidden flex-row items-center gap-3 tablet:flex">
+        <div className="hidden h-10 flex-row items-center gap-3 tablet:flex">
           <Button
             variant={ButtonVariant.Tertiary}
             icon={<ArrowIcon className="-rotate-90" />}
