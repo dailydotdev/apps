@@ -58,7 +58,7 @@ export function SquadsDirectoryFeed({
     >
       {children}
       {flatSources?.map(({ node }) =>
-        node.flags?.featured ? (
+        node.flags?.featured && linkToSeeAll.includes('featured') ? (
           <SquadGrid key={node.id} source={node} className="max-w-80" />
         ) : (
           <UnfeaturedSquadGrid
