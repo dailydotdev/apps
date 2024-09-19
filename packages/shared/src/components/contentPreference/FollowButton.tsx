@@ -32,8 +32,6 @@ export const FollowButton = ({
     return null;
   }
 
-  console.log('status', currentStatus);
-
   const onButtonClick = async () => {
     if (!currentStatus) {
       await follow({
