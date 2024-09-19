@@ -183,8 +183,8 @@ it('should show follow button', async () => {
     createSourcesSettingsMock({ excludeSources: [] }),
   ]);
   await waitForNock();
-  const button = await screen.findByText('Follow');
-  expect(button).toBeInTheDocument();
+  const button = await screen.findAllByText('Follow');
+  expect(button[0]).toBeInTheDocument();
 });
 
 it('should show notify button if following', async () => {
@@ -205,7 +205,7 @@ it('should show notify button if following', async () => {
     }),
   ]);
   await waitForNock();
-  const unfollowButton = await screen.findByText('Following');
+  const unfollowButton = await screen.findByText('Unfollow');
   expect(unfollowButton).toBeInTheDocument();
   const notifyButton = await screen.findByLabelText('Enable notifications');
   expect(notifyButton).toBeInTheDocument();
