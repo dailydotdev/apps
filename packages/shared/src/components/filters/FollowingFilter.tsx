@@ -2,6 +2,7 @@ import React, { type ReactElement } from 'react';
 import { IconSize } from '../Icon';
 import { OpenLinkIcon } from '../icons';
 import { useAuthContext } from '../../contexts/AuthContext';
+import Link from '../utilities/Link';
 import { useLazyModal } from '../../hooks/useLazyModal';
 
 export const FollowingFilter = (): ReactElement => {
@@ -20,16 +21,17 @@ export const FollowingFilter = (): ReactElement => {
 
       <p className="typo-body">
         To manage everything you follow,{' '}
-        <a
+        <Link
           href={user.permalink}
           onClick={(e) => {
             e.preventDefault();
             closeModal();
           }}
-          className="text-text-link"
         >
-          head to your profile
-        </a>{' '}
+          <a href={user.permalink} className="text-text-link">
+            head to your profile
+          </a>
+        </Link>{' '}
         and press the following button below your profile image.
       </p>
     </div>
