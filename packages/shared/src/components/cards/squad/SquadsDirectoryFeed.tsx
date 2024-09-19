@@ -70,7 +70,7 @@ export function SquadsDirectoryFeed({
           />
         ),
       )}
-      {isInitialLoading && !flatSources.length && (
+      {!isInitialLoading && flatSources.length && (
         <>
           <PlaceholderSquadGrid
             className="max-w-80"

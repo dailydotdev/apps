@@ -54,7 +54,9 @@ export const PlaceholderSquadGrid = ({
         </section>
         <div className="mt-2 flex flex-row gap-2">
           {isFeatured ? (
-            <Text className="mt-5 min-h-10 w-full" />
+            <div className="mt-2.5 w-full">
+              <Text className="mt-5 min-h-10 w-full pt-2.5" />
+            </div>
           ) : (
             <>
               <Text className="mb-0 w-1/3" />
