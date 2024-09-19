@@ -4,7 +4,7 @@ import { OpenLinkIcon } from '../icons';
 import { useAuthContext } from '../../contexts/AuthContext';
 import Link from '../utilities/Link';
 
-export const FollowingFilter = (): JSX.Element => {
+export const FollowingFilter = (): ReactElement=> {
   const { user } = useAuthContext();
   return (
     <div className="flex flex-col items-center gap-4 px-6 py-10 text-center text-text-secondary">
