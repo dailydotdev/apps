@@ -4,9 +4,11 @@ import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { TooltipProps } from '../tooltips/BaseTooltip';
 import { TruncateText } from '../utilities';
 import { ProfileTooltip } from './ProfileTooltip';
-import { UserShortProfile } from '../../lib/user';
+import { LoggedUser, UserShortProfile } from '../../lib/user';
 import { ReputationUserBadge } from '../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
+import { ContentPreferenceType } from '../../graphql/contentPreference';
+import { FollowButton } from '../contentPreference/FollowButton';
 
 type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? JSX.IntrinsicElements[Tag]
@@ -67,7 +69,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
       ref={ref}
       {...props}
       className={classNames(
-        'flex flex-row',
+        'flex flex-row items-center',
         className.container ?? defaultClassName.container,
       )}
     >
@@ -107,6 +109,12 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
         </div>
       </ProfileTooltip>
       {children}
+      <FollowButton
+        userId={user.id}
+        type={ContentPreferenceType.User}
+        status={(user as LoggedUser).contentPreference?.status}
+        entityName={`@${user.name}`}
+      />
     </Element>
   );
 };

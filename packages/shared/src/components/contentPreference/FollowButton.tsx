@@ -8,6 +8,7 @@ import { ButtonVariant } from '../buttons/Button';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
 import SourceActionsNotify from '../sources/SourceActions/SourceActionsNotify';
 import SourceActionsFollow from '../sources/SourceActions/SourceActionsFollow';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 export type FollowButtonProps = {
   className?: string;
@@ -24,7 +25,14 @@ export const FollowButton = ({
   status: currentStatus,
   type,
 }: FollowButtonProps): ReactElement => {
+  const { user } = useAuthContext();
   const { follow, unfollow, subscribe, unsubscribe } = useContentPreference();
+
+  if (user.id === userId) {
+    return null;
+  }
+
+  console.log('status', currentStatus);
 
   const onButtonClick = async () => {
     if (!currentStatus) {
@@ -59,7 +67,10 @@ export const FollowButton = ({
   };
 
   return (
-    <div className={classNames('inline-flex gap-2', className)}>
+    <div
+      className={classNames('inline-flex gap-2', className)}
+      onClick={(e) => e.preventDefault()}
+    >
       <SourceActionsFollow
         isSubscribed={!!currentStatus}
         isFetching={false}

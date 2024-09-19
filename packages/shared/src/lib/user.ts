@@ -6,6 +6,7 @@ import {
   USER_BY_ID_STATIC_FIELDS_QUERY,
 } from '../graphql/users';
 import type { Company } from './userCompany';
+import type { ContentPreference } from '../graphql/contentPreference';
 
 export enum Roles {
   Moderator = 'moderator',
@@ -114,6 +115,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   experienceLevel?: keyof typeof UserExperienceLevel;
   isTeamMember?: boolean;
   companies?: Company[];
+  contentPreference?: ContentPreference;
 }
 
 interface BaseError {

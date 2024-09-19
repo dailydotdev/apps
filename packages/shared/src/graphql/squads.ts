@@ -2,6 +2,7 @@ import { gql } from 'graphql-request';
 import {
   SOURCE_BASE_FRAGMENT,
   SQUAD_BASE_FRAGMENT,
+  USER_AUTHOR_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
 import { Connection, gqlClient } from './common';
@@ -263,13 +264,13 @@ export const SQUAD_MEMBERS_QUERY = gql`
         node {
           role
           user {
-            ...UserShortInfo
+            ...UserAuthor
           }
         }
       }
     }
   }
-  ${USER_SHORT_INFO_FRAGMENT}
+  ${USER_AUTHOR_FRAGMENT}
 `;
 
 export const SQUAD_INVITATION_QUERY = gql`

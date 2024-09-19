@@ -46,21 +46,6 @@ export const CONTENT_PREFERENCE_FRAMENT = gql`
   }
 `;
 
-export const USER_FOLLOW_FRAGMENT = gql`
-  fragment UserFollow on ContentPreferenceConnection {
-    pageInfo {
-      endCursor
-      hasNextPage
-    }
-    edges {
-      node {
-        ...ContentPreferenceFragment
-      }
-    }
-  }
-  ${CONTENT_PREFERENCE_FRAMENT}
-`;
-
 export const USER_AUTHOR_FRAGMENT = gql`
   fragment UserAuthor on User {
     ...UserShortInfo
