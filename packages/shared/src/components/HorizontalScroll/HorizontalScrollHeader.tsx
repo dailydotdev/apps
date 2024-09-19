@@ -16,6 +16,7 @@ export interface HorizontalScrollHeaderProps {
   onClickPrevious: MouseEventHandler;
   onClickSeeAll?: MouseEventHandler;
   linkToSeeAll?: string;
+  canScroll: boolean;
 }
 
 export function HorizontalScrollHeader({
@@ -28,9 +29,10 @@ export function HorizontalScrollHeader({
   onClickPrevious,
   onClickSeeAll,
   linkToSeeAll,
+  canScroll,
 }: HorizontalScrollHeaderProps): ReactElement {
   return (
-    <div className="mx-4 mb-4 flex w-auto flex-row items-center justify-between laptop:mx-0 laptop:w-full">
+    <div className="mx-4 mb-4 flex min-h-10 w-auto flex-row items-center justify-between laptop:mx-0 laptop:w-full">
       <Typography
         className="flex flex-row items-center"
         type={titleType}
@@ -39,41 +41,43 @@ export function HorizontalScrollHeader({
       >
         {title}
       </Typography>
-      <div className="hidden flex-row items-center gap-3 tablet:flex">
-        <Button
-          variant={ButtonVariant.Tertiary}
-          icon={<ArrowIcon className="-rotate-90" />}
-          disabled={isAtStart}
-          onClick={onClickPrevious}
-          aria-label="Scroll left"
-        />
-        <Button
-          variant={ButtonVariant.Tertiary}
-          icon={<ArrowIcon className="rotate-90" />}
-          disabled={isAtEnd}
-          onClick={onClickNext}
-          aria-label="Scroll right"
-        />
-        {(onClickSeeAll || linkToSeeAll) && (
-          <ConditionalWrapper
-            condition={!!linkToSeeAll}
-            wrapper={(component) => (
-              <Link href={linkToSeeAll} passHref>
-                {component}
-              </Link>
-            )}
-          >
-            <Button
-              variant={ButtonVariant.Tertiary}
-              onClick={onClickSeeAll}
-              aria-label="See all"
-              tag={linkToSeeAll ? 'a' : 'button'}
+      {canScroll && (
+        <div className="hidden flex-row items-center gap-3 tablet:flex">
+          <Button
+            variant={ButtonVariant.Tertiary}
+            icon={<ArrowIcon className="-rotate-90" />}
+            disabled={isAtStart}
+            onClick={onClickPrevious}
+            aria-label="Scroll left"
+          />
+          <Button
+            variant={ButtonVariant.Tertiary}
+            icon={<ArrowIcon className="rotate-90" />}
+            disabled={isAtEnd}
+            onClick={onClickNext}
+            aria-label="Scroll right"
+          />
+          {(onClickSeeAll || linkToSeeAll) && (
+            <ConditionalWrapper
+              condition={!!linkToSeeAll}
+              wrapper={(component) => (
+                <Link href={linkToSeeAll} passHref>
+                  {component}
+                </Link>
+              )}
             >
-              See all
-            </Button>
-          </ConditionalWrapper>
-        )}
-      </div>
+              <Button
+                variant={ButtonVariant.Tertiary}
+                onClick={onClickSeeAll}
+                aria-label="See all"
+                tag={linkToSeeAll ? 'a' : 'button'}
+              >
+                See all
+              </Button>
+            </ConditionalWrapper>
+          )}
+        </div>
+      )}
     </div>
   );
 }
