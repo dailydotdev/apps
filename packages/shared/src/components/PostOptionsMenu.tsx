@@ -378,7 +378,7 @@ export default function PostOptionsMenu({
   }
 
   if (isLoggedIn && post?.author) {
-    const authorName = post.author.name || post.author.username;
+    const authorName = post.author.name || `@${post.author.username}`;
     const isFollowingUser = isFollowingContent(post.author?.contentPreference);
 
     postOptions.push({
