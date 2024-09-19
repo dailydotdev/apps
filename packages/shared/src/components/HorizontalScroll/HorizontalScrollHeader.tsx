@@ -32,7 +32,7 @@ export function HorizontalScrollHeader({
   canScroll,
 }: HorizontalScrollHeaderProps): ReactElement {
   return (
-    <div className="mx-4 mb-4 flex w-auto flex-row items-center justify-between laptop:mx-0 laptop:w-full">
+    <div className="mx-4 mb-4 flex min-h-10 w-auto flex-row items-center justify-between laptop:mx-0 laptop:w-full">
       <Typography
         className="flex flex-row items-center"
         type={titleType}
@@ -42,7 +42,7 @@ export function HorizontalScrollHeader({
         {title}
       </Typography>
       {canScroll && (
-        <div className="hidden h-10 flex-row items-center gap-3 tablet:flex">
+        <div className="hidden flex-row items-center gap-3 tablet:flex">
           <Button
             variant={ButtonVariant.Tertiary}
             icon={<ArrowIcon className="-rotate-90" />}
