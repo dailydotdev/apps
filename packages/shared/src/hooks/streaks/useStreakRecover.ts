@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import { useToggle } from '../useToggle';
 import { useActions } from '../useActions';
 import {
@@ -52,6 +53,9 @@ export const useStreakRecover = ({
   const { updateAlerts } = useAlertsContext();
   const { user } = useAuthContext();
   const client = useQueryClient();
+  const {
+    query: { streak_restore: streakRestore },
+  } = useRouter();
 
   const recoverMutation = useMutation({
     mutationKey: generateQueryKey(RequestKey.UserStreakRecover),
@@ -79,7 +83,7 @@ export const useStreakRecover = ({
     queryFn: async () => {
       const res = await gqlClient.request(USER_STREAK_RECOVER_QUERY);
 
-      if (!res?.streakRecover?.canRecover) {
+      if (!res?.streakRecover?.canRecover && !!streakRestore) {
         await hideRemoteAlert();
         displayToast('Oops, you are no longer eligible to restore your streak');
         onRequestClose?.();
