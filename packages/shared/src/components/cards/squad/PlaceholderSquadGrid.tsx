@@ -47,6 +47,7 @@ export const PlaceholderSquadGrid = ({
 
         <section>
           <Text className="mb-2 h-4 w-1/2" />
+          {isFeatured && <Text className="mb-2 h-4 w-1/3" />}
           {textLines.map((i) => (
             <Text key={`text-${i}`} className="my-1.5 w-full" />
           ))}
