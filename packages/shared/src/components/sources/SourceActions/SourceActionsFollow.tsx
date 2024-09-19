@@ -7,7 +7,7 @@ interface SourceActionsFollowProps {
   className?: string;
   isFetching: boolean;
   isSubscribed: boolean;
-  onClick: () => void;
+  onClick: (e) => void;
   variant: ButtonVariant;
 }
 

@@ -8,6 +8,7 @@ import { ButtonVariant } from '../buttons/Button';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
 import SourceActionsNotify from '../sources/SourceActions/SourceActionsNotify';
 import SourceActionsFollow from '../sources/SourceActions/SourceActionsFollow';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 export type FollowButtonProps = {
   className?: string;
@@ -24,7 +25,12 @@ export const FollowButton = ({
   status: currentStatus,
   type,
 }: FollowButtonProps): ReactElement => {
+  const { user } = useAuthContext();
   const { follow, unfollow, subscribe, unsubscribe } = useContentPreference();
+
+  if (user.id === userId) {
+    return null;
+  }
 
   const onButtonClick = async () => {
     if (!currentStatus) {
@@ -64,14 +70,20 @@ export const FollowButton = ({
         isSubscribed={!!currentStatus}
         isFetching={false}
         variant={ButtonVariant.Secondary}
-        onClick={onButtonClick}
+        onClick={(e) => {
+          e.preventDefault();
+          onButtonClick();
+        }}
       />
       {!!currentStatus && (
         <SourceActionsNotify
           haveNotificationsOn={
             currentStatus === ContentPreferenceStatus.Subscribed
           }
-          onClick={onNotifyClick}
+          onClick={(e) => {
+            e.preventDefault();
+            onNotifyClick();
+          }}
         />
       )}
     </div>

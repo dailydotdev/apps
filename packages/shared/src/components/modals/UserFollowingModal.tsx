@@ -31,7 +31,7 @@ export function UserFollowingModal({
       }}
       users={data?.pages.reduce((acc, p) => {
         p?.edges.forEach(({ node }) => {
-          acc.push(node.user);
+          acc.push(node.referenceUser);
         });
 
         return acc;

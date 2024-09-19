@@ -1,5 +1,8 @@
 import { gql } from 'graphql-request';
-import { CONTENT_PREFERENCE_FRAMENT, USER_FOLLOW_FRAGMENT } from './fragments';
+import {
+  CONTENT_PREFERENCE_FRAMENT,
+  USER_SHORT_INFO_FRAGMENT,
+} from './fragments';
 import { UserShortProfile } from '../lib/user';
 
 export enum ContentPreferenceType {
@@ -13,7 +16,8 @@ export enum ContentPreferenceStatus {
 
 export type ContentPreference = {
   referenceId: string;
-  user: Pick<UserShortProfile, 'id' | 'name' | 'image' | 'username'>;
+  user?: Pick<UserShortProfile, 'id' | 'name' | 'image' | 'username'>;
+  referenceUser?: Pick<UserShortProfile, 'id' | 'name' | 'image' | 'username'>;
   type: ContentPreferenceType;
   createdAt: Date;
   status: ContentPreferenceStatus;
@@ -36,10 +40,26 @@ export const USER_FOLLOWING_QUERY = gql`
     $after: String
   ) {
     userFollowing(userId: $id, entity: $entity, first: $first, after: $after) {
-      ...UserFollow
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          referenceId
+          referenceUser {
+            ...UserShortInfo
+            contentPreference {
+              status
+            }
+          }
+          type
+          status
+        }
+      }
     }
   }
-  ${USER_FOLLOW_FRAGMENT}
+  ${USER_SHORT_INFO_FRAGMENT}
 `;
 
 export const USER_FOLLOWERS_QUERY = gql`
@@ -50,10 +70,26 @@ export const USER_FOLLOWERS_QUERY = gql`
     $after: String
   ) {
     userFollowers(userId: $id, entity: $entity, first: $first, after: $after) {
-      ...UserFollow
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          referenceId
+          user {
+            ...UserShortInfo
+            contentPreference {
+              status
+            }
+          }
+          type
+          status
+        }
+      }
     }
   }
-  ${USER_FOLLOW_FRAGMENT}
+  ${USER_SHORT_INFO_FRAGMENT}
 `;
 
 export const DEFAULT_FOLLOW_LIMIT = 20;
