@@ -14,6 +14,7 @@ import { UnfeaturedSquadGrid } from '@dailydotdev/shared/src/components/cards/sq
 import { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import { NextSeo } from 'next-seo';
 import { SquadDirectoryLayout } from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryLayout';
+import { PlaceholderSquadGrid } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadGrid';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { defaultSeo } from '../../../next-seo';
@@ -30,6 +31,7 @@ function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
       isPublic: true,
     },
   });
+  const { isInitialLoading } = result;
   const flatSources =
     result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
 
@@ -49,6 +51,13 @@ function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
           <UnfeaturedSquadGrid key={node.id} source={node as Squad} />
         ))}
       </InfiniteScrolling>
+      {isInitialLoading && (
+        <>
+          <PlaceholderSquadGrid className="max-w-80" isFeatured />
+          <PlaceholderSquadGrid className="max-w-80" isFeatured />
+          <PlaceholderSquadGrid className="max-w-80" isFeatured />
+        </>
+      )}
     </SquadDirectoryLayout>
   );
 }
