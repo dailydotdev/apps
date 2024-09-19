@@ -93,7 +93,7 @@ export const useContentPreference = (): UseContentPreference => {
         status: ContentPreferenceStatus.Follow,
       });
 
-      displayToast(`✅ You are no longer subscribed to ${entityName}`);
+      displayToast(`⛔️ You are no longer subscribed to ${entityName}`);
     },
     {
       mutationKey: generateQueryKey(
