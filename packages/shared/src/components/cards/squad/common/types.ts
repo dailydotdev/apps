@@ -1,4 +1,3 @@
-import { ReactNode } from 'react';
 import { Squad } from '../../../../graphql/sources';
 
 type SquadCardActionType = 'link' | 'action';
@@ -11,10 +10,6 @@ export interface SquadCardAction {
 }
 
 export interface UnFeaturedSquadCardProps {
-  title: string;
-  subtitle?: string;
-  icon?: ReactNode;
-  action?: SquadCardAction;
-  description?: string;
-  source?: Squad;
+  source: Squad;
+  className?: string;
 }

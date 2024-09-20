@@ -67,3 +67,9 @@ export const heimdallUrl = isDevelopment
 
 export const bookmarkLoops = 'https://r.daily.dev/bookmarkloops';
 export const migrateUserToStreaks = 'https://r.daily.dev/streaks';
+
+export const squadCategoriesPaths = {
+  'My Squads': '/squads/discover/my',
+  discover: '/squads/discover',
+  featured: '/squads/discover/featured',
+};

@@ -1,7 +1,10 @@
 import { gql } from 'graphql-request';
 import type { UserShortProfile } from '../lib/user';
 import type { Connection } from './common';
-import { SOURCE_DIRECTORY_INFO_FRAGMENT } from './fragments';
+import {
+  SOURCE_CATEGORY_FRAGMENT,
+  SOURCE_DIRECTORY_INFO_FRAGMENT,
+} from './fragments';
 
 export enum SourceMemberRole {
   Member = 'member',
@@ -62,8 +65,6 @@ export interface Squad extends Source {
   memberPostingRole: SourceMemberRole;
   memberInviteRole: SourceMemberRole;
   referralUrl?: string;
-  banner?: string;
-  borderColor?: string;
   category?: SourceCategory;
 }
 
@@ -175,6 +176,28 @@ export interface PublicSquadRequest {
 
 export interface SourceCategory {
   id: string;
+  slug: string;
   title: string;
   createdAt: Date;
+}
+
+export const SOURCE_CATEGORIES_QUERY = gql`
+  query SourceCategories($first: Int, $after: String) {
+    categories: sourceCategories(first: $first, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          ...SourceCategoryFragment
+        }
+      }
+    }
+  }
+  ${SOURCE_CATEGORY_FRAGMENT}
+`;
+
+export interface SourceCategoryData {
+  categories: Connection<SourceCategory>;
 }
