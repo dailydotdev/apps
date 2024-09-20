@@ -8,13 +8,8 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { gqlClient } from '../../graphql/common';
 import { PropsParameters } from '../../types';
 import { generateQueryKey, RequestKey } from '../../lib/query';
-import {
-  NotifyOptionalProps,
-  useToastNotification,
-} from '../useToastNotification';
+import { useToastNotification } from '../useToastNotification';
 import { ContentPreferenceMutation } from './types';
-import { useLazyModal } from '../useLazyModal';
-import { LazyModal } from '../../components/modals/common/types';
 
 export type UseContentPreference = {
   follow: ContentPreferenceMutation;
@@ -26,15 +21,6 @@ export type UseContentPreference = {
 export const useContentPreference = (): UseContentPreference => {
   const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
-  const { openModal } = useLazyModal();
-
-  const toastOptions: NotifyOptionalProps = {
-    undoCopy: 'Manage',
-    onUndo: () => {
-      // TODO AS-534 this should open "Following" tab somehow inside the modal
-      openModal({ type: LazyModal.FeedFilters });
-    },
-  };
 
   const { mutateAsync: follow } = useMutation(
     async ({
@@ -48,7 +34,7 @@ export const useContentPreference = (): UseContentPreference => {
         status: ContentPreferenceStatus.Follow,
       });
 
-      displayToast(`✅ You are now following ${entityName}`, toastOptions);
+      displayToast(`✅ You are now following ${entityName}`);
     },
     {
       mutationKey: generateQueryKey(RequestKey.ContentPreferenceFollow, user),
@@ -66,10 +52,7 @@ export const useContentPreference = (): UseContentPreference => {
         entity,
       });
 
-      displayToast(
-        `⛔️ You are no longer following ${entityName}`,
-        toastOptions,
-      );
+      displayToast(`⛔️ You are no longer following ${entityName}`);
     },
     {
       mutationKey: generateQueryKey(RequestKey.ContentPreferenceUnfollow, user),
@@ -88,7 +71,7 @@ export const useContentPreference = (): UseContentPreference => {
         status: ContentPreferenceStatus.Subscribed,
       });
 
-      displayToast(`✅ You are now subscribed to ${entityName}`, toastOptions);
+      displayToast(`✅ You are now subscribed to ${entityName}`);
     },
     {
       mutationKey: generateQueryKey(
@@ -110,10 +93,7 @@ export const useContentPreference = (): UseContentPreference => {
         status: ContentPreferenceStatus.Follow,
       });
 
-      displayToast(
-        `⛔️ You are no longer subscribed to ${entityName}`,
-        toastOptions,
-      );
+      displayToast(`⛔️ You are no longer subscribed to ${entityName}`);
     },
     {
       mutationKey: generateQueryKey(
