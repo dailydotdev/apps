@@ -47,6 +47,7 @@ export enum OtherFeedPage {
   ExploreUpvoted = 'postsupvoted',
   FeedByIds = 'feed-by-ids',
   Welcome = 'welcome',
+  Discussed = 'discussed',
 }
 
 const ONE_MINUTE = 60 * 1000;
@@ -149,6 +150,7 @@ export enum RequestKey {
   TagsMostUpvoted = 'tagsMostUpvoted',
   TagsBestDiscussed = 'tagsBestDiscussed',
   UserCompanies = 'user_companies',
+  PostCodeSnippets = 'post_code_snippets',
   ContentPreference = 'content_preference',
   UserFollowers = 'user_followers',
   UserFollowing = 'user_following',
