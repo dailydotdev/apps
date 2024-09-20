@@ -38,8 +38,8 @@ export function SquadDangerZone({ squad }: SquadDangerZoneProps): ReactElement {
       <DangerZone
         onClick={onDeleteSquad}
         className="mt-4"
-        cta="Delete account"
-        title="Deleting your account will:"
+        cta="Delete squad"
+        title="Deleting your squad will:"
         notes={[
           'Permanently delete your Squad.',
           'Permanently delete all Squad’s content, including your posts and others, comments, upvotes, etc',
