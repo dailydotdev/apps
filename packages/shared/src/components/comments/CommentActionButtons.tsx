@@ -44,6 +44,7 @@ import { getCompanionWrapper } from '../../lib/extension';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { isFollowingContent } from '../../hooks/contentPreference/types';
+import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -173,7 +174,13 @@ export default function CommentActionButtons({
     });
   }
 
-  if (isLoggedIn && comment?.author && !isCompanion) {
+  const shouldShowFollow =
+    !useIsSpecialUser({ userId: comment?.author?.id }) &&
+    isLoggedIn &&
+    comment?.author &&
+    !isCompanion;
+
+  if (shouldShowFollow) {
     const authorName = comment.author.name || `@${comment.author.username}`;
     const isFollowingUser = isFollowingContent(
       comment.author?.contentPreference,
