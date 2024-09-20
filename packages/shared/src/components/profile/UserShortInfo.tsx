@@ -34,6 +34,7 @@ export interface UserShortInfoProps<
   children?: ReactNode;
   showDescription?: boolean;
   transformUsername?(user: UserShortProfile): ReactNode;
+  onClick?: () => void;
 }
 
 const defaultClassName = {
