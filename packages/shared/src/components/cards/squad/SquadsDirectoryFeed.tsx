@@ -68,7 +68,7 @@ export function SquadsDirectoryFeed({
       )}
       {isInitialLoading && !flatSources.length && (
         <PlaceholderSquadGridList
-          className="max-w-80"
+          className="w-80"
           isFeatured={query.featured}
         />
       )}
