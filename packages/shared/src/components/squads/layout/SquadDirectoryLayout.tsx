@@ -82,7 +82,7 @@ export const SquadDirectoryLayout = (
             <NewSquadButton icon={<PlusIcon />} variant={ButtonVariant.Float} />
           </section>
           <div className="flex max-w-full flex-row flex-nowrap items-center justify-between gap-6 laptop:gap-22">
-            <SquadDirectoryNavbar className="min-w-0 flex-1">
+            <SquadDirectoryNavbar className="min-h-14 min-w-0 flex-1">
               {Object.entries(categoryPaths ?? {}).map(([category, path]) => (
                 <SquadDirectoryNavbarItem
                   buttonSize={buttonSize}
