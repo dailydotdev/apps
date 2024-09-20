@@ -38,6 +38,7 @@ export const useSearchProviderSuggestions = ({
       provider,
       debouncedQuery,
       limit,
+      includeContentPreference,
     }),
     async () => {
       return getSuggestions({

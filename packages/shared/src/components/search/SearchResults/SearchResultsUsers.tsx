@@ -65,7 +65,7 @@ export const SearchResultsUsers = ({
                 className="ml-auto"
                 userId={user.id}
                 type={ContentPreferenceType.User}
-                entityName={user.name}
+                entityName={`@${user.username}`}
                 status={(user as LoggedUser).contentPreference?.status}
               />
             </li>
