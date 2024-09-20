@@ -16,6 +16,8 @@ import { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import { NextSeo } from 'next-seo';
 import { SquadDirectoryLayout } from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryLayout';
 import { PlaceholderSquadGridList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadGrid';
+import { PlaceholderSquadListList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadList';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { defaultSeo } from '../../../next-seo';
@@ -33,6 +35,7 @@ function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
     },
   });
   const { isInitialLoading } = result;
+  const isTablet = useViewSize(ViewSize.Tablet);
   const flatSources =
     result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
 
@@ -56,9 +59,13 @@ function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
       </InfiniteScrolling>
       {isInitialLoading && (
         <div className="flex w-full flex-row flex-wrap gap-6">
-          <FeedContainer>
-            <PlaceholderSquadGridList />
-          </FeedContainer>
+          {isTablet ? (
+            <FeedContainer>
+              <PlaceholderSquadGridList isFeatured />
+            </FeedContainer>
+          ) : (
+            <PlaceholderSquadListList />
+          )}
         </div>
       )}
     </SquadDirectoryLayout>
