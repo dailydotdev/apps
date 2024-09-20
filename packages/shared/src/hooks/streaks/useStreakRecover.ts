@@ -16,6 +16,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
 import { useAlertsContext } from '../../contexts/AlertContext';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useReadingStreak } from './useReadingStreak';
 
 interface UseStreakRecoverProps {
   onAfterClose?: () => void;
@@ -52,6 +53,7 @@ export const useStreakRecover = ({
   const { logEvent } = useLogContext();
   const { updateAlerts } = useAlertsContext();
   const { user } = useAuthContext();
+  const { isStreaksEnabled } = useReadingStreak();
   const client = useQueryClient();
   const {
     query: { streak_restore: streakRestore },
@@ -83,7 +85,9 @@ export const useStreakRecover = ({
     queryFn: async () => {
       const res = await gqlClient.request(USER_STREAK_RECOVER_QUERY);
 
-      if (!res?.streakRecover?.canRecover && !!streakRestore) {
+      const userCantRecoverInNotificationCenter =
+        !res?.streakRecover?.canRecover && !!streakRestore;
+      if (userCantRecoverInNotificationCenter) {
         await hideRemoteAlert();
         displayToast('Oops, you are no longer eligible to restore your streak');
         onRequestClose?.();
@@ -92,6 +96,7 @@ export const useStreakRecover = ({
 
       return res;
     },
+    enabled: !!user && isStreaksEnabled && !hideForever,
   });
 
   const onClose = useCallback(async () => {
