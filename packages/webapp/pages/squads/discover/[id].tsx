@@ -28,7 +28,7 @@ interface SquadCategoryPageProps {
 const Skeleton = (): ReactElement => (
   <>
     <FeedContainer className="!hidden tablet:!flex">
-      <PlaceholderSquadGridList isFeatured />
+      <PlaceholderSquadGridList />
     </FeedContainer>
     <div className="flex flex-col gap-3 tablet:!hidden" role="list">
       <PlaceholderSquadListList />
