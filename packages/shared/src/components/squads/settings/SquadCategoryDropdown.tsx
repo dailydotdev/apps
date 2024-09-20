@@ -1,17 +1,12 @@
 import React, { ReactElement, useEffect, useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
 import { Dropdown } from '../../fields/Dropdown';
-import { gqlClient } from '../../../graphql/common';
-import {
-  SourceCategoryData,
-  SOURCE_CATEGORIES_QUERY,
-} from '../../../graphql/sources';
-import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
+
+import { useSquadCategories } from '../../../hooks/squads/useSquadCategories';
 
 interface SquadCategoryDropdownProps {
   initialCategory: string;
@@ -27,14 +22,13 @@ export function SquadCategoryDropdown({
   onCategoryChange,
 }: SquadCategoryDropdownProps): ReactElement {
   const [selected, setSelected] = useState(-1);
-  const { data } = useQuery<SourceCategoryData>(
-    generateQueryKey(RequestKey.Source, null, 'categories'),
-    () => gqlClient.request(SOURCE_CATEGORIES_QUERY),
-    { staleTime: StaleTime.OneDay },
-  );
+  const { data: categories } = useSquadCategories();
   const list = useMemo(
-    () => data?.categories?.edges?.map(({ node }) => node),
-    [data],
+    () =>
+      categories?.pages
+        .flatMap((page) => page.categories.edges)
+        .map(({ node }) => node) ?? [],
+    [categories],
   );
 
   useEffect(() => {
