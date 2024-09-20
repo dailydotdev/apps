@@ -13,7 +13,10 @@ import { LoggedUser } from './user';
 import { FeedData, Post, ReadHistoryPost } from '../graphql/posts';
 import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
 import { SharedFeedPage } from '../components/utilities';
-import { Author as UserAuthor } from '../graphql/comments';
+import {
+  Comment as PostComment,
+  Author as UserAuthor,
+} from '../graphql/comments';
 import {
   ContentPreferenceStatus,
   ContentPreferenceType,
@@ -385,6 +388,34 @@ export const updatePostContentPreference = ({
   if (newData.scout?.id === entityId) {
     newData.scout = updateAuthorContentPreference({
       data: newData.scout,
+      status,
+      entity,
+    });
+  }
+
+  return newData;
+};
+
+export const updateCommentContentPreference = ({
+  data,
+  status,
+  entity,
+  entityId,
+}: {
+  data: PostComment;
+  status: ContentPreferenceStatus | null;
+  entityId: string;
+  entity: ContentPreferenceType;
+}): PostComment => {
+  if (typeof status === 'undefined') {
+    return data;
+  }
+
+  const newData = structuredClone(data);
+
+  if (newData.author?.id === entityId) {
+    newData.author = updateAuthorContentPreference({
+      data: newData.author,
       status,
       entity,
     });
