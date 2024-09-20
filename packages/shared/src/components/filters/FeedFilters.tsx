@@ -141,7 +141,7 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
           <Modal.Body view={FilterMenuTitle.Blocked}>
             <BlockedFilter onUnblockItem={unBlockPrompt} />
           </Modal.Body>
-          <Modal.Body view={FilterMenuTitle.Following}>
+          <Modal.Body className="!p-0" view={FilterMenuTitle.Following}>
             <FollowingFilter />
           </Modal.Body>
         </Modal.Sidebar.Inner>
