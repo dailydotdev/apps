@@ -16,12 +16,13 @@ import { LinkIcon } from '../icons';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { FlexCentered } from '../utilities';
 import { useSquadActions } from '../../hooks';
-import SquadMemberItemAdditionalContent from '../squads/SquadMemberItemAdditionalContent';
+import SquadMemberItemRole from '../squads/SquadMemberItemRole';
 import { verifyPermission } from '../../graphql/squads';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { defaultSearchDebounceMs } from '../../lib/func';
 import { BlockedMembersPlaceholder } from '../squads/Members';
 import { ContextMenu } from '../../hooks/constants';
+import SquadMemberItemOptionsButton from '../squads/SquadMemberItemOptionsButton';
 
 enum SquadMemberTab {
   AllMembers = 'Squad members',
@@ -122,8 +123,13 @@ export function SquadMemberModal({
           onScroll: hideMenu,
         }}
         userListProps={{
-          additionalContent: (user, index) => (
-            <SquadMemberItemAdditionalContent
+          additionalContent: (user, index) => [
+            <SquadMemberItemRole
+              member={members[index]}
+              key={`squad_role_${user.id}`}
+            />,
+            <SquadMemberItemOptionsButton
+              key={`squad_option_${user.id}`}
               member={members[index]}
               onUnblock={() =>
                 onUnblock({ sourceId: squad.id, memberId: user.id })
@@ -132,8 +138,8 @@ export function SquadMemberModal({
                 e.preventDefault();
                 onOptionsClick(e, members[index]);
               }}
-            />
-          ),
+            />,
+          ],
           emptyPlaceholder: query ? (
             <FlexCentered className="p-10 text-text-tertiary typo-callout">
               No user found
