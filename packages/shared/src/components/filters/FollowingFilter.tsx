@@ -1,4 +1,4 @@
-import React, { type ReactElement } from 'react';
+import React, { useMemo, type ReactElement } from 'react';
 import Link from 'next/link';
 import { useAuthContext } from '../../contexts/AuthContext';
 import UserList from '../profile/UserList';
@@ -16,14 +16,21 @@ export const FollowingFilter = (): ReactElement => {
     id: user.id,
     entity: ContentPreferenceType.User,
   });
-  const { data, isFetchingNextPage, fetchNextPage } = queryResult;
-  const users = data?.pages.reduce((acc, p) => {
-    p?.edges.forEach(({ node }) => {
-      acc.push(node.referenceUser);
-    });
 
-    return acc;
-  }, []);
+  const { data, isFetchingNextPage, fetchNextPage } = queryResult;
+  const users = useMemo(() => {
+    return data?.pages.reduce((acc, p) => {
+      p?.edges.forEach(({ node }) => {
+        acc.push(node.referenceUser);
+      });
+
+      return acc;
+    }, []);
+  }, [data]);
+
+  if (queryResult.isLoading) {
+    return null;
+  }
 
   return (
     <UserList
