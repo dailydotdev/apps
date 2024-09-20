@@ -65,6 +65,7 @@ export const SearchResultsLayout = (
       query: `${query}`,
       provider: SearchProviderEnum.Users,
       limit: 10,
+      includeContentPreference: true,
     });
   const users = suggestedUsers?.hits ?? [];
 

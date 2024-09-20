@@ -5,6 +5,9 @@ import { ListItemPlaceholder } from '../../widgets/ListItemPlaceholder';
 import { SearchProviderEnum, SearchSuggestion } from '../../../graphql/search';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
+import { FollowButton } from '../../contentPreference/FollowButton';
+import { ContentPreferenceType } from '../../../graphql/contentPreference';
+import { LoggedUser } from '../../../lib/user';
 
 interface SearchResultsUsersProps {
   items: SearchSuggestion[];
@@ -16,12 +19,13 @@ export const SearchResultsUsers = ({
   isLoading,
 }: SearchResultsUsersProps): ReactElement => {
   const { logEvent } = useLogContext();
-  const users = items.map(({ id, subtitle, image, title }) => ({
+  const users = items.map(({ id, subtitle, image, title, ...rest }) => ({
     id,
     name: title,
     image,
     username: subtitle,
     permalink: `/${subtitle}`,
+    ...rest,
   }));
 
   if (!isLoading && !items.length) {
@@ -35,6 +39,7 @@ export const SearchResultsUsers = ({
           {users.map((user) => (
             <li
               key={user.id}
+              className="flex gap-2"
               onClickCapture={() => {
                 logEvent({
                   event_name: LogEvent.Click,
@@ -53,8 +58,15 @@ export const SearchResultsUsers = ({
                 showReputation={false}
                 allowSubscribe={false}
                 className={{
-                  wrapper: 'px-0 py-0',
+                  wrapper: 'flex-1 truncate px-0 py-0',
                 }}
+              />
+              <FollowButton
+                className="ml-auto"
+                userId={user.id}
+                type={ContentPreferenceType.User}
+                entityName={`@${user.username}`}
+                status={(user as LoggedUser).contentPreference?.status}
               />
             </li>
           ))}

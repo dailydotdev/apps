@@ -18,6 +18,7 @@ export type UseSearchProviderProps = {
   provider: SearchProviderEnum;
   query: string;
   limit?: number;
+  includeContentPreference?: boolean;
 };
 
 export type UseSearchProvider = {
@@ -61,7 +62,12 @@ export const useSearchProvider = (): UseSearchProvider => {
       [router],
     ),
     getSuggestions: useCallback(
-      async ({ provider, query, limit = defaultSearchSuggestionsLimit }) => {
+      async ({
+        provider,
+        query,
+        limit = defaultSearchSuggestionsLimit,
+        includeContentPreference,
+      }) => {
         const graphqlQuery = searchProviderSuggestionsQueryMap[provider];
         const resultExtractor = searchProviderExtractResultMap[provider];
 
@@ -77,6 +83,7 @@ export const useSearchProvider = (): UseSearchProvider => {
           query,
           version: searchVersion,
           limit,
+          includeContentPreference,
         });
 
         return resultExtractor(result);
