@@ -199,7 +199,7 @@ export function PostContent({
             />
           )}
           {showCodeSnippets && (
-            <PostCodeSnippets className="mb-6" postId={post.id} />
+            <PostCodeSnippets className="mb-6" post={post} />
           )}
         </BasePostContent>
       </PostContainer>
