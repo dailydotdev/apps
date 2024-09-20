@@ -48,7 +48,7 @@ function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
         fetchNextPage={result.fetchNextPage}
         className="flex w-full !flex-row flex-wrap gap-6"
       >
-        <FeedContainer className="mt-5" inlineHeader>
+        <FeedContainer>
           {flatSources?.map(({ node }) => (
             <UnfeaturedSquadGrid key={node.id} source={node as Squad} />
           ))}
@@ -56,7 +56,7 @@ function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
       </InfiniteScrolling>
       {isInitialLoading && (
         <div className="flex w-full flex-row flex-wrap gap-6">
-          <FeedContainer className="mt-5" inlineHeader>
+          <FeedContainer>
             <PlaceholderSquadGridList />
           </FeedContainer>
         </div>

@@ -51,7 +51,7 @@ const SquadsPage = (): ReactElement => {
         className="w-full"
       >
         {isTablet ? (
-          <FeedContainer className="mt-5" inlineHeader>
+          <FeedContainer>
             {flatSquads?.map(({ node }) => (
               <SquadGrid key={node.id} source={node} />
             ))}
@@ -66,7 +66,7 @@ const SquadsPage = (): ReactElement => {
       </InfiniteScrolling>
       {isInitialLoading && (
         <div className="flex w-full flex-row flex-wrap gap-6">
-          <FeedContainer className="mt-5" inlineHeader>
+          <FeedContainer>
             <PlaceholderSquadGridList isFeatured />
           </FeedContainer>
         </div>
