@@ -66,7 +66,9 @@ const SquadsPage = (): ReactElement => {
       </InfiniteScrolling>
       {isInitialLoading && (
         <div className="flex w-full flex-row flex-wrap gap-6">
-          <PlaceholderSquadGridList className="max-w-80" isFeatured />
+          <FeedContainer className="mt-5" inlineHeader>
+            <PlaceholderSquadGridList isFeatured />
+          </FeedContainer>
         </div>
       )}
     </SquadDirectoryLayout>
