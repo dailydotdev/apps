@@ -14,6 +14,25 @@ import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { SquadDirectoryLayout } from '../../../../shared/src/components/squads/layout/SquadDirectoryLayout';
 import { defaultSeo } from '../../../next-seo';
 
+interface SquadDirectoryTitleProps {
+  icon?: boolean;
+  title: string;
+}
+
+const SquadDirectoryTitle = ({
+  icon,
+  title,
+}: SquadDirectoryTitleProps): ReactElement => (
+  <Typography
+    className="flex flex-row items-center gap-1"
+    type={TypographyType.Title2}
+    bold
+  >
+    {icon && <SourceIcon secondary size={IconSize.Large} />}
+    {title}
+  </Typography>
+);
+
 function SquadDiscoveryPage(): ReactElement {
   const { data } = useSquadCategories();
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -30,16 +49,7 @@ function SquadDiscoveryPage(): ReactElement {
       <SquadsDirectoryFeed
         key="featured"
         linkToSeeAll="/squads/discover/featured"
-        title={
-          <Typography
-            className="flex flex-row items-center gap-1"
-            type={TypographyType.Title2}
-            bold
-          >
-            <SourceIcon secondary size={IconSize.Large} />
-            Featured
-          </Typography>
-        }
+        title={<SquadDirectoryTitle title="Featured" icon />}
         query={{ isPublic: true, featured: true, first: limit }}
       >
         {isMobile && (
@@ -49,7 +59,7 @@ function SquadDiscoveryPage(): ReactElement {
       {categories.map(({ node }) => (
         <SquadsDirectoryFeed
           key={node.id}
-          title={node.title}
+          title={<SquadDirectoryTitle title={node.title} />}
           linkToSeeAll={`/squads/discover/${node.id}`}
           query={{
             categoryId: node.id,
