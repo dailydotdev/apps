@@ -1,5 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import { useMutation } from '@tanstack/react-query';
 import {
   ContentPreferenceStatus,
   ContentPreferenceType,
@@ -28,47 +29,53 @@ export const FollowButton = ({
   const { user } = useAuthContext();
   const { follow, unfollow, subscribe, unsubscribe } = useContentPreference();
 
+  const { mutate: onButtonClick, isLoading: isLoadingFollow } = useMutation(
+    async () => {
+      if (!currentStatus) {
+        await follow({
+          id: userId,
+          entity: type,
+          entityName,
+        });
+      } else {
+        await unfollow({
+          id: userId,
+          entity: type,
+          entityName,
+        });
+      }
+    },
+  );
+
+  const { mutate: onNotifyClick, isLoading: isLoadingNotify } = useMutation(
+    async () => {
+      if (currentStatus !== ContentPreferenceStatus.Subscribed) {
+        await subscribe({
+          id: userId,
+          entity: type,
+          entityName,
+        });
+      } else {
+        await unsubscribe({
+          id: userId,
+          entity: type,
+          entityName,
+        });
+      }
+    },
+  );
+
+  const isLoading = isLoadingFollow || isLoadingNotify;
+
   if (user.id === userId) {
     return null;
   }
-
-  const onButtonClick = async () => {
-    if (!currentStatus) {
-      await follow({
-        id: userId,
-        entity: type,
-        entityName,
-      });
-    } else {
-      await unfollow({
-        id: userId,
-        entity: type,
-        entityName,
-      });
-    }
-  };
-
-  const onNotifyClick = async () => {
-    if (currentStatus !== ContentPreferenceStatus.Subscribed) {
-      await subscribe({
-        id: userId,
-        entity: type,
-        entityName,
-      });
-    } else {
-      await unsubscribe({
-        id: userId,
-        entity: type,
-        entityName,
-      });
-    }
-  };
 
   return (
     <div className={classNames('inline-flex gap-2', className)}>
       <SourceActionsFollow
         isSubscribed={!!currentStatus}
-        isFetching={false}
+        isFetching={isLoading}
         variant={ButtonVariant.Secondary}
         onClick={(e) => {
           e.preventDefault();
@@ -84,6 +91,7 @@ export const FollowButton = ({
             e.preventDefault();
             onNotifyClick();
           }}
+          disabled={isLoading}
         />
       )}
     </div>
