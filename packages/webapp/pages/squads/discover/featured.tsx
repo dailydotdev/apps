@@ -14,6 +14,8 @@ import {
 } from '@dailydotdev/shared/src/hooks/source/useSources';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
+import { PlaceholderSquadGridList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadGrid';
+import { PlaceholderSquadListList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadList';
 import { SquadDirectoryLayout } from '../../../../shared/src/components/squads/layout/SquadDirectoryLayout';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
@@ -31,10 +33,22 @@ const seo: NextSeoProps = {
   description: `Dive into daily.dev's Featured Squads, showcasing editor's choice and hand-picked communities that highlight the most innovative and engaging groups on the platform. Join the conversation with top developers today.`,
 };
 
+const Skeleton = (): ReactElement => (
+  <>
+    <FeedContainer className="!hidden tablet:!flex">
+      <PlaceholderSquadGridList isFeatured />
+    </FeedContainer>
+    <div className="flex flex-col gap-3 tablet:!hidden" role="list">
+      <PlaceholderSquadListList />
+    </div>
+  </>
+);
+
 const SquadsPage = (): ReactElement => {
   const { result } = useSources<Squad>({
     query: { featured: true, isPublic: true, sortByMembersCount: true },
   });
+  const { isInitialLoading } = result;
   const flatSquads =
     result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
   const isTablet = useViewSize(ViewSize.Tablet);
@@ -49,7 +63,7 @@ const SquadsPage = (): ReactElement => {
         className="w-full"
       >
         {isTablet ? (
-          <FeedContainer className="mt-5" inlineHeader>
+          <FeedContainer>
             {flatSquads?.map(({ node }) => (
               <SquadGrid key={node.id} source={node} />
             ))}
@@ -62,6 +76,7 @@ const SquadsPage = (): ReactElement => {
           </div>
         )}
       </InfiniteScrolling>
+      {isInitialLoading && <Skeleton />}
     </SquadDirectoryLayout>
   );
 };

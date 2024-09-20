@@ -15,6 +15,8 @@ import { UnfeaturedSquadGrid } from '@dailydotdev/shared/src/components/cards/sq
 import { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import { NextSeo } from 'next-seo';
 import { SquadDirectoryLayout } from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryLayout';
+import { PlaceholderSquadGridList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadGrid';
+import { PlaceholderSquadListList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadList';
 import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { getLayout } from '../../../components/layouts/FeedLayout';
@@ -25,6 +27,17 @@ interface SquadCategoryPageProps {
   category: SourceCategory;
 }
 
+const Skeleton = (): ReactElement => (
+  <>
+    <FeedContainer className="!hidden tablet:!flex">
+      <PlaceholderSquadGridList />
+    </FeedContainer>
+    <div className="flex flex-col gap-3 tablet:!hidden" role="list">
+      <PlaceholderSquadListList />
+    </div>
+  </>
+);
+
 function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
   const { result } = useSources({
     query: {
@@ -33,6 +46,7 @@ function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
       isPublic: true,
     },
   });
+  const { isInitialLoading } = result;
   const flatSources =
     result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
   const isTablet = useViewSize(ViewSize.Tablet);
@@ -50,7 +64,7 @@ function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
         className="flex w-full !flex-row flex-wrap gap-6"
       >
         {isTablet ? (
-          <FeedContainer className="mt-5" inlineHeader>
+          <FeedContainer>
             {flatSources?.map(({ node }) => (
               <UnfeaturedSquadGrid key={node.id} source={node as Squad} />
             ))}
@@ -63,6 +77,7 @@ function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
           </div>
         )}
       </InfiniteScrolling>
+      {isInitialLoading && <Skeleton />}
     </SquadDirectoryLayout>
   );
 }

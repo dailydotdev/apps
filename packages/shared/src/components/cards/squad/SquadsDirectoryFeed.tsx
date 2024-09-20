@@ -10,6 +10,8 @@ import { SquadGrid } from './SquadGrid';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { SquadList } from './SquadList';
 import { Button, ButtonVariant } from '../../buttons/Button';
+import { PlaceholderSquadGridList } from './PlaceholderSquadGrid';
+import { PlaceholderSquadListList } from './PlaceholderSquadList';
 
 interface SquadHorizontalListProps {
   title: ReactNode;
@@ -19,6 +21,18 @@ interface SquadHorizontalListProps {
   children?: ReactNode;
 }
 
+const Skeleton = ({ isFeatured }: { isFeatured?: boolean }): ReactElement => (
+  <>
+    <PlaceholderSquadGridList
+      className="!hidden tablet:!flex laptop:w-80"
+      isFeatured={isFeatured}
+    />
+    <div className="tablet:!hidden">
+      <PlaceholderSquadListList />
+    </div>
+  </>
+);
+
 export function SquadsDirectoryFeed({
   query,
   title,
@@ -27,12 +41,13 @@ export function SquadsDirectoryFeed({
   children,
 }: SquadHorizontalListProps): ReactElement {
   const { result } = useSources<Squad>({ query });
+  const { isInitialLoading } = result;
   const isMobile = useViewSize(ViewSize.MobileL);
 
   const flatSources =
     result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
 
-  if (flatSources.length === 0) {
+  if (flatSources.length === 0 && !isInitialLoading) {
     return null;
   }
 
@@ -47,6 +62,7 @@ export function SquadsDirectoryFeed({
         {flatSources?.map(({ node }) => (
           <SquadList key={node.id} squad={node} />
         ))}
+        {isInitialLoading && <Skeleton />}
       </div>
     );
   }
@@ -64,6 +80,7 @@ export function SquadsDirectoryFeed({
           <UnfeaturedSquadGrid key={node.id} source={node} className="w-80" />
         ),
       )}
+      {isInitialLoading && <Skeleton isFeatured={query.featured} />}
     </HorizontalScroll>
   );
 }
