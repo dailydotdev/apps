@@ -27,6 +27,7 @@ export const useSearchProviderSuggestions = ({
   provider,
   query,
   limit = defaultSearchSuggestionsLimit,
+  includeContentPreference,
 }: UseSearchProviderSuggestionsProps): UseSearchProviderSuggestions => {
   const { user } = useAuthContext();
   const { getSuggestions } = useSearchProvider();
@@ -37,9 +38,15 @@ export const useSearchProviderSuggestions = ({
       provider,
       debouncedQuery,
       limit,
+      includeContentPreference,
     }),
     async () => {
-      return getSuggestions({ provider, query: debouncedQuery, limit });
+      return getSuggestions({
+        provider,
+        query: debouncedQuery,
+        limit,
+        includeContentPreference,
+      });
     },
     {
       enabled: query?.length >= minSearchQueryLength,

@@ -114,7 +114,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
         userId={user.id}
         type={ContentPreferenceType.User}
         status={(user as LoggedUser).contentPreference?.status}
-        entityName={`@${user.name}`}
+        entityName={`@${user.username}`}
       />
     </Element>
   );

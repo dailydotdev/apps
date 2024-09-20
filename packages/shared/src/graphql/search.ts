@@ -177,13 +177,26 @@ export const SEARCH_SOURCE_SUGGESTIONS = gql`
 `;
 
 export const SEARCH_USER_SUGGESTIONS = gql`
-  query SearchUserSuggestions($query: String!, $version: Int, $limit: Int) {
-    searchUserSuggestions(query: $query, version: $version, limit: $limit) {
+  query SearchUserSuggestions(
+    $query: String!
+    $version: Int
+    $limit: Int
+    $includeContentPreference: Boolean
+  ) {
+    searchUserSuggestions(
+      query: $query
+      version: $version
+      limit: $limit
+      includeContentPreference: $includeContentPreference
+    ) {
       hits {
         id
         title
         subtitle
         image
+        contentPreference {
+          status
+        }
       }
     }
   }
