@@ -149,7 +149,7 @@ export const notificationMutingCopy: Partial<
   },
   [NotificationType.UserPostAdded]: {
     mute: 'Mute notifications',
-    unmute: 'Mute notifications',
+    unmute: 'Unmute notifications',
   },
 };
 
