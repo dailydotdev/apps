@@ -21,6 +21,16 @@ interface SquadHorizontalListProps {
   children?: ReactNode;
 }
 
+const Skeleton = ({ isFeatured }: { isFeatured?: boolean }): ReactElement => (
+  <>
+    <PlaceholderSquadGridList
+      className="!hidden tablet:!flex laptop:w-80"
+      isFeatured={isFeatured}
+    />
+    <PlaceholderSquadListList className="tablet:!hidden" />
+  </>
+);
+
 export function SquadsDirectoryFeed({
   query,
   title,
@@ -50,9 +60,7 @@ export function SquadsDirectoryFeed({
         {flatSources?.map(({ node }) => (
           <SquadList key={node.id} squad={node} />
         ))}
-        {isInitialLoading && !flatSources.length && (
-          <PlaceholderSquadListList />
-        )}
+        {isInitialLoading && <Skeleton />}
       </div>
     );
   }
@@ -70,12 +78,7 @@ export function SquadsDirectoryFeed({
           <UnfeaturedSquadGrid key={node.id} source={node} className="w-80" />
         ),
       )}
-      {isInitialLoading && !flatSources.length && (
-        <PlaceholderSquadGridList
-          className="laptop:w-80"
-          isFeatured={query.featured}
-        />
-      )}
+      {isInitialLoading && <Skeleton isFeatured={query.featured} />}
     </HorizontalScroll>
   );
 }

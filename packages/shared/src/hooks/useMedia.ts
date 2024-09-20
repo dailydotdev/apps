@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function useMedia<T>(
   queries: string[],
@@ -18,7 +18,7 @@ export default function useMedia<T>(
     typeof window !== 'undefined' ? getValue(getMedia()) : ssrValue,
   );
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const mediaQueryLists = getMedia();
     const handler = () => setValue(getValue(mediaQueryLists));
     handler();

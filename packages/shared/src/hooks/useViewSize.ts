@@ -42,6 +42,10 @@ const useViewSize = (size: ViewSize): boolean => {
     null,
   );
 
+  if (size === 'laptop') {
+    console.log({ check, size });
+  }
+
   return useMemo(() => {
     return reversedEvaluatedSizes.includes(size) ? !check : check;
   }, [check, size]);

@@ -33,6 +33,17 @@ const seo: NextSeoProps = {
   description: `Dive into daily.dev's Featured Squads, showcasing editor's choice and hand-picked communities that highlight the most innovative and engaging groups on the platform. Join the conversation with top developers today.`,
 };
 
+const Skeleton = (): ReactElement => (
+  <>
+    <FeedContainer className="!hidden tablet:!flex">
+      <PlaceholderSquadGridList isFeatured />
+    </FeedContainer>
+    <div className="flex flex-col gap-3" role="list">
+      <PlaceholderSquadListList className="tablet:!hidden" />
+    </div>
+  </>
+);
+
 const SquadsPage = (): ReactElement => {
   const { result } = useSources<Squad>({
     query: { featured: true, isPublic: true, sortByMembersCount: true },
@@ -65,17 +76,7 @@ const SquadsPage = (): ReactElement => {
           </div>
         )}
       </InfiniteScrolling>
-      {isInitialLoading && (
-        <div className="flex w-full flex-row flex-wrap gap-6">
-          {isTablet ? (
-            <FeedContainer>
-              <PlaceholderSquadGridList isFeatured />
-            </FeedContainer>
-          ) : (
-            <PlaceholderSquadListList />
-          )}
-        </div>
-      )}
+      {isInitialLoading && <Skeleton />}
     </SquadDirectoryLayout>
   );
 };
