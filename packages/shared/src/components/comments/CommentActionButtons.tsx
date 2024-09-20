@@ -173,7 +173,7 @@ export default function CommentActionButtons({
     });
   }
 
-  if (isLoggedIn && comment?.author) {
+  if (isLoggedIn && comment?.author && !isCompanion) {
     const authorName = comment.author.name || `@${comment.author.username}`;
     const isFollowingUser = isFollowingContent(
       comment.author?.contentPreference,
