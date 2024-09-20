@@ -30,8 +30,8 @@ const Skeleton = (): ReactElement => (
     <FeedContainer className="!hidden tablet:!flex">
       <PlaceholderSquadGridList isFeatured />
     </FeedContainer>
-    <div className="flex flex-col gap-3" role="list">
-      <PlaceholderSquadListList className="tablet:!hidden" />
+    <div className="flex flex-col gap-3 tablet:!hidden" role="list">
+      <PlaceholderSquadListList />
     </div>
   </>
 );

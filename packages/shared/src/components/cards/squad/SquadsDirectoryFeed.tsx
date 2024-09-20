@@ -27,7 +27,9 @@ const Skeleton = ({ isFeatured }: { isFeatured?: boolean }): ReactElement => (
       className="!hidden tablet:!flex laptop:w-80"
       isFeatured={isFeatured}
     />
-    <PlaceholderSquadListList className="tablet:!hidden" />
+    <div className="tablet:!hidden">
+      <PlaceholderSquadListList />
+    </div>
   </>
 );
 
