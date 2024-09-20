@@ -8,11 +8,10 @@ import { FlexCentered } from '../utilities';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
 import { AddUserIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { useLazyModal } from '../../hooks/useLazyModal';
 
 export const FollowingFilter = (): ReactElement => {
   const { user } = useAuthContext();
-  const { closeModal } = useLazyModal();
+
   const queryResult = useFollowingQuery({
     id: user.id,
     entity: ContentPreferenceType.User,
@@ -38,9 +37,6 @@ export const FollowingFilter = (): ReactElement => {
             <Link
               href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}users`}
               passHref
-              onClick={() => {
-                closeModal();
-              }}
               className="text-text-link"
             >
               Leaderboards
@@ -53,11 +49,6 @@ export const FollowingFilter = (): ReactElement => {
         isFetchingNextPage,
         canFetchMore: checkFetchMore(queryResult),
         fetchNextPage,
-      }}
-      userInfoProps={{
-        onClick: () => {
-          closeModal();
-        },
       }}
     />
   );
