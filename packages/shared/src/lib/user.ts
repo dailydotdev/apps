@@ -244,3 +244,13 @@ export const contnetLanguageToLabelMap = {
   [ContentLanguage.Japanese]: 'Japanese',
   [ContentLanguage.Korean]: 'Korean',
 };
+
+export const isSpecialUser = ({
+  userId,
+  loggedUserId,
+}: {
+  userId: string;
+  loggedUserId: string | null;
+}): boolean => {
+  return !!userId && ['404', loggedUserId].includes(userId);
+};
