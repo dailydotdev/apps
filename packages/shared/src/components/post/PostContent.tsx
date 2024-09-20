@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React, { ComponentProps, ReactElement, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { isVideoPost } from '../../graphql/posts';
 import PostMetadata from '../cards/PostMetadata';
 import PostSummary from '../cards/PostSummary';
@@ -18,9 +19,17 @@ import YoutubeVideo from '../video/YoutubeVideo';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useViewPost } from '../../hooks/post';
 import { TruncateText } from '../utilities';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
 
 export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;
+
+const PostCodeSnippets = dynamic(() =>
+  import(/* webpackChunkName: "postCodeSnippets" */ './PostCodeSnippets').then(
+    (mod) => mod.PostCodeSnippets,
+  ),
+);
 
 export function PostContent({
   post,
@@ -48,7 +57,7 @@ export function PostContent({
   });
   const { onCopyPostLink, onReadArticle } = engagementActions;
   const onSendViewPost = useViewPost(post);
-
+  const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);
   const containerClass = classNames(
@@ -188,6 +197,9 @@ export function PostContent({
               collapsible
               className="mb-4 mt-2 flex laptop:hidden"
             />
+          )}
+          {showCodeSnippets && (
+            <PostCodeSnippets className="mb-6" post={post} />
           )}
         </BasePostContent>
       </PostContainer>

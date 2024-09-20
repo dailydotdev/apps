@@ -24,8 +24,8 @@ import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
-import { SharedFeedPage } from '../utilities';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { OtherFeedPage } from '../../lib/query';
 
 const OnboardingChecklistBar = dynamic(
   () =>
@@ -90,7 +90,7 @@ function FeedNav(): ReactElement {
 
     return {
       ...urls,
-      [`${webappUrl}${SharedFeedPage.Discussed}`]: FeedNavTab.Discussions,
+      [`${webappUrl}${OtherFeedPage.Discussed}`]: FeedNavTab.Discussions,
       [`${webappUrl}tags`]: FeedNavTab.Tags,
       [`${webappUrl}sources`]: FeedNavTab.Sources,
       [`${webappUrl}users`]: FeedNavTab.Leaderboard,

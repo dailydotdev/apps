@@ -257,3 +257,9 @@ export const USER_STREAK_FRAGMENT = gql`
     weekStart
   }
 `;
+
+export const POST_CODE_SNIPPET_FRAGMENT = gql`
+  fragment PostCodeSnippet on PostCodeSnippet {
+    content
+  }
+`;
