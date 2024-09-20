@@ -51,7 +51,10 @@ export const useUseSearchSuggestionsContentPreferenceMutationSubscription = ({
                 return {
                   ...hit,
                   contentPreference: nextStatus
-                    ? { status: nextStatus }
+                    ? {
+                        ...hit.contentPreference,
+                        status: nextStatus,
+                      }
                     : undefined,
                 };
               }

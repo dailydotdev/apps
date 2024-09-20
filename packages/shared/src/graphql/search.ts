@@ -364,7 +364,7 @@ export type SearchSuggestion = {
   title: string;
   subtitle?: string;
   image?: string;
-  contentPreference?: Pick<ContentPreference, 'status'>;
+  contentPreference?: ContentPreference;
 };
 
 export type SearchSuggestionResult = {
