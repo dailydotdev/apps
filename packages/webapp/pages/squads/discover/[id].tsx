@@ -15,6 +15,8 @@ import { UnfeaturedSquadGrid } from '@dailydotdev/shared/src/components/cards/sq
 import { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import { NextSeo } from 'next-seo';
 import { SquadDirectoryLayout } from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryLayout';
+import { PlaceholderSquadGridList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadGrid';
+import { PlaceholderSquadListList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadList';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { defaultSeo } from '../../../next-seo';
@@ -22,6 +24,17 @@ import { defaultSeo } from '../../../next-seo';
 interface SquadCategoryPageProps {
   category: SourceCategory;
 }
+
+const Skeleton = (): ReactElement => (
+  <>
+    <FeedContainer className="!hidden tablet:!flex">
+      <PlaceholderSquadGridList />
+    </FeedContainer>
+    <div className="flex flex-col gap-3 tablet:!hidden" role="list">
+      <PlaceholderSquadListList />
+    </div>
+  </>
+);
 
 function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
   const { result } = useSources({
@@ -31,6 +44,7 @@ function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
       isPublic: true,
     },
   });
+  const { isInitialLoading } = result;
   const flatSources =
     result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
 
@@ -46,12 +60,13 @@ function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
         fetchNextPage={result.fetchNextPage}
         className="flex w-full !flex-row flex-wrap gap-6"
       >
-        <FeedContainer className="mt-5" inlineHeader>
+        <FeedContainer>
           {flatSources?.map(({ node }) => (
             <UnfeaturedSquadGrid key={node.id} source={node as Squad} />
           ))}
         </FeedContainer>
       </InfiniteScrolling>
+      {isInitialLoading && <Skeleton />}
     </SquadDirectoryLayout>
   );
 }
