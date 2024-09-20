@@ -50,6 +50,7 @@ export enum NotificationType {
   CollectionUpdated = 'collection_updated',
   SourcePostAdded = 'source_post_added',
   SquadPublicApproved = 'squad_public_approved',
+  UserPostAdded = 'user_post_added',
 }
 
 export enum NotificationIconType {
@@ -145,6 +146,10 @@ export const notificationMutingCopy: Partial<
   [NotificationType.SquadReply]: {
     mute: 'Mute this thread',
     unmute: 'Unmute this thread',
+  },
+  [NotificationType.UserPostAdded]: {
+    mute: 'Mute notifications',
+    unmute: 'Unmute notifications',
   },
 };
 
