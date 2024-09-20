@@ -244,3 +244,9 @@ export const SOURCE_CATEGORY_FRAGMENT = gql`
     title
   }
 `;
+
+export const POST_CODE_SNIPPET_FRAGMENT = gql`
+  fragment PostCodeSnippet on PostCodeSnippet {
+    content
+  }
+`;

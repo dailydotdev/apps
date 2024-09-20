@@ -22,7 +22,7 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
       SharedFeedPage.MyFeed,
       SharedFeedPage.Popular,
       SharedFeedPage.Upvoted,
-      SharedFeedPage.Discussed,
+      OtherFeedPage.Discussed,
       OtherFeedPage.History,
       SharedFeedPage.Custom,
       SharedFeedPage.CustomForm,
