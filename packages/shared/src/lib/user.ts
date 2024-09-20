@@ -86,6 +86,8 @@ export interface UserProfile {
   cover?: string;
   experienceLevel?: keyof typeof UserExperienceLevel;
   language?: ContentLanguage;
+  followingEmail?: boolean;
+  followNotifications?: boolean;
 }
 
 export interface UserShortProfile
