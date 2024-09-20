@@ -7,10 +7,16 @@ export class GrowthBook {
   }
 
   getFeatureValue = fn().mockName('featureVersion').mockReturnValue('control');
+
+  setAttributes = fn().mockName('setAttributes');
+
+  getFeatures = fn().mockName('getFeatures').mockReturnValue({});
 }
 
-export function setPolyfills() {}
+export const setPolyfills = fn();
 
-export function configureCache() {}
+export const configureCache = fn();
 
-export function clearCache() {}
+export const clearCache = fn();
+
+export const setAttributes = fn();

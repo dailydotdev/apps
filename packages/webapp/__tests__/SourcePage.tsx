@@ -46,9 +46,21 @@ jest.mock('next/router', () => ({
 }));
 
 beforeEach(() => {
+  global.ResizeObserver = jest.fn(() => {
+    return {
+      observe: jest.fn(),
+      unobserve: jest.fn(),
+      disconnect: jest.fn(),
+      trigger: jest.fn(),
+    };
+  });
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
+});
+
+afterEach(() => {
+  jest.clearAllMocks();
 });
 
 const createFeedMock = (

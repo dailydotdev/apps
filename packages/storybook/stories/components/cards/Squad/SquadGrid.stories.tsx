@@ -1,20 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { QueryClientProvider } from '../../../extension/_providers';
 import { SquadGrid } from '@dailydotdev/shared/src/components/cards/squad/SquadGrid';
-import { SourceMemberRole, SourceType } from '@dailydotdev/shared/src/graphql/sources';
+import {
+  SourceMemberRole,
+  SourceType,
+} from '@dailydotdev/shared/src/graphql/sources';
 import { defaultSquadToken } from '@dailydotdev/shared/__tests__/fixture/squads';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 
 const meta: Meta<typeof SquadGrid> = {
   title: 'Components/Cards/Squad/SquadGrid',
   component: SquadGrid,
   args: {
-    title: 'Squad Title',
-    subtitle: '@handle',
-    action: {
-      text: 'View Squad',
-      type: 'link',
-      href: 'https://daily.dev',
-    },
     source: {
       name: 'Squad Name',
       permalink: 'https://daily.dev',
@@ -82,12 +79,14 @@ const meta: Meta<typeof SquadGrid> = {
   decorators: [
     (Story) => (
       <QueryClientProvider>
-        <div className='grid grid-cols-3 gap-4'>
-          <Story />
-        </div>
+        <AuthContext.Provider value={{}}>
+          <div className="grid grid-cols-3 gap-4">
+            <Story />
+          </div>
+        </AuthContext.Provider>
       </QueryClientProvider>
     ),
-  ]
+  ],
 };
 
 export default meta;

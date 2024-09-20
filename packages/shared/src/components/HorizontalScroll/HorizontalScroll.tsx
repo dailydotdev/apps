@@ -1,45 +1,39 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  RefObject,
-  MouseEventHandler,
-  useId,
-} from 'react';
+import React, { ReactElement, ReactNode, useId } from 'react';
 import classNames from 'classnames';
-import { useHorizontalScrollHeader } from './useHorizontalScrollHeader';
+import {
+  UseHorizontalScrollHeaderProps,
+  useHorizontalScrollHeader,
+} from './useHorizontalScrollHeader';
+
+interface ClassName {
+  container?: string;
+  scroll?: string;
+}
 
 interface HorizontalScrollProps {
-  title: string | ReactElement;
   children: ReactNode;
-  onScroll?: (ref: RefObject<HTMLElement>) => void;
-  onClickSeeAll?: MouseEventHandler;
-  className?: string;
+  className?: ClassName;
+  scrollProps: UseHorizontalScrollHeaderProps;
 }
 
 export default function HorizontalScroll({
-  title,
   children,
-  onScroll,
-  onClickSeeAll,
   className,
+  scrollProps,
 }: HorizontalScrollProps): ReactElement {
-  const { ref, Header } = useHorizontalScrollHeader({
-    title,
-    onScroll,
-    onClickSeeAll,
-  });
+  const { ref, Header } = useHorizontalScrollHeader(scrollProps);
 
   const id = useId();
   const titleId = `horizontal-scroll-title-${id}`;
 
   return (
-    <div className="flex flex-col">
+    <div className={classNames('flex flex-col', className?.container)}>
       <Header titleId={titleId} />
       <div
         ref={ref}
         className={classNames(
           'no-scrollbar grid auto-cols-max grid-flow-col overflow-x-scroll scroll-smooth',
-          className,
+          className?.scroll,
         )}
         role="region"
         aria-labelledby={titleId}

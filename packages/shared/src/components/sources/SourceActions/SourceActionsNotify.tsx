@@ -7,10 +7,11 @@ import { BellAddIcon, BellSubscribedIcon } from '../../icons';
 interface SourceActionsNotifyProps {
   haveNotificationsOn: boolean;
   onClick: (e) => void;
+  disabled?: boolean;
 }
 
 const SourceActionsNotify = (props: SourceActionsNotifyProps): ReactElement => {
-  const { haveNotificationsOn, onClick } = props;
+  const { haveNotificationsOn, onClick, disabled } = props;
 
   const icon = haveNotificationsOn ? <BellSubscribedIcon /> : <BellAddIcon />;
   const label = `${haveNotificationsOn ? 'Disable' : 'Enable'} notifications`;
@@ -27,6 +28,7 @@ const SourceActionsNotify = (props: SourceActionsNotifyProps): ReactElement => {
         size={ButtonSize.Small}
         title={label}
         variant={variant}
+        disabled={disabled}
       />
     </SimpleTooltip>
   );
