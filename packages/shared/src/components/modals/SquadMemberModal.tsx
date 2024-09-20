@@ -23,6 +23,7 @@ import { defaultSearchDebounceMs } from '../../lib/func';
 import { BlockedMembersPlaceholder } from '../squads/Members';
 import { ContextMenu } from '../../hooks/constants';
 import SquadMemberItemOptionsButton from '../squads/SquadMemberItemOptionsButton';
+import { useSquadMembersContentPreferenceMutationSubscription } from './squads/useSquadMembersContentPreferenceMutationSubscription';
 
 enum SquadMemberTab {
   AllMembers = 'Squad members',
@@ -84,6 +85,7 @@ export function SquadMemberModal({
     membersQueryResult: queryResult,
     onUnblock,
     onUpdateRole,
+    membersQueryKey,
   } = useSquadActions({
     squad,
     query: query?.trim?.()?.length ? query : undefined,
@@ -95,6 +97,10 @@ export function SquadMemberModal({
     setMember(clickedMember);
     onMenuClick(e);
   };
+
+  useSquadMembersContentPreferenceMutationSubscription({
+    queryKey: membersQueryKey,
+  });
 
   return (
     <>
