@@ -13,7 +13,11 @@ export interface UserListModalProps extends Omit<ModalProps, 'children'> {
   scrollingProps: Omit<InfiniteScrollingProps, 'children'>;
   userListProps?: Pick<
     UserListProps,
-    'additionalContent' | 'initialItem' | 'isLoading' | 'emptyPlaceholder'
+    | 'additionalContent'
+    | 'afterContent'
+    | 'initialItem'
+    | 'isLoading'
+    | 'emptyPlaceholder'
   >;
   onSearch?(query: string): void;
 }

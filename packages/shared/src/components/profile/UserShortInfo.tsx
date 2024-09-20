@@ -32,7 +32,7 @@ export interface UserShortInfoProps<
   scrollingContainer?: HTMLElement;
   appendTooltipTo?: HTMLElement;
   children?: ReactNode;
-  endChildren?: ReactNode;
+  afterContent?: ReactNode;
   showDescription?: boolean;
   transformUsername?(user: UserShortProfile): ReactNode;
   onClick?: () => void;
@@ -53,7 +53,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
     scrollingContainer,
     appendTooltipTo,
     children,
-    endChildren,
+    afterContent,
     showDescription = true,
     transformUsername,
     ...props
@@ -118,7 +118,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
         status={(user as LoggedUser).contentPreference?.status}
         entityName={`@${user.username}`}
       />
-      {endChildren}
+      {afterContent}
     </Element>
   );
 };

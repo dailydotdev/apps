@@ -11,10 +11,8 @@ export interface UserListProps {
   scrollingProps: Omit<InfiniteScrollingProps, 'children'>;
   users: UserShortProfile[];
   placeholderAmount?: number;
-  additionalContent?: (
-    user: UserShortProfile,
-    index: number,
-  ) => [ReactNode, ReactNode?];
+  additionalContent?: (user: UserShortProfile, index: number) => ReactNode;
+  afterContent?: (user: UserShortProfile, index: number) => ReactNode;
   initialItem?: ReactElement;
   isLoading?: boolean;
   emptyPlaceholder?: JSX.Element;
@@ -29,6 +27,7 @@ function UserList({
   scrollingProps,
   users,
   additionalContent,
+  afterContent,
   initialItem,
   isLoading,
   emptyPlaceholder,
@@ -53,9 +52,9 @@ function UserList({
               tag="a"
               href={user.permalink}
               user={user}
-              endChildren={additionalContent?.(user, i)[1]}
+              afterContent={afterContent?.(user, i)}
             >
-              {additionalContent?.(user, i)[0]}
+              {additionalContent?.(user, i)}
             </UserShortInfo>
           </Link>
         ))}

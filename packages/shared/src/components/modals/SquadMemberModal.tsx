@@ -129,11 +129,13 @@ export function SquadMemberModal({
           onScroll: hideMenu,
         }}
         userListProps={{
-          additionalContent: (user, index) => [
+          additionalContent: (user, index) => (
             <SquadMemberItemRole
               member={members[index]}
               key={`squad_role_${user.id}`}
-            />,
+            />
+          ),
+          afterContent: (user, index) => (
             <SquadMemberItemOptionsButton
               key={`squad_option_${user.id}`}
               member={members[index]}
@@ -144,8 +146,8 @@ export function SquadMemberModal({
                 e.preventDefault();
                 onOptionsClick(e, members[index]);
               }}
-            />,
-          ],
+            />
+          ),
           emptyPlaceholder: query ? (
             <FlexCentered className="p-10 text-text-tertiary typo-callout">
               No user found
