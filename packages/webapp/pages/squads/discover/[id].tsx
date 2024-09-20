@@ -61,7 +61,7 @@ function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
         isFetchingNextPage={result.isFetchingNextPage}
         canFetchMore={checkFetchMore(result)}
         fetchNextPage={result.fetchNextPage}
-        className="flex w-full !flex-row flex-wrap gap-6"
+        className="w-full"
       >
         {isTablet ? (
           <FeedContainer>
