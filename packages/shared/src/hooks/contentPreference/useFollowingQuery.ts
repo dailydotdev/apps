@@ -12,6 +12,7 @@ import {
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Connection, gqlClient } from '../../graphql/common';
+import { useFollowContentPreferenceMutationSubscription } from './useFollowContentPreferenceMutationSubscription';
 
 export type UseFollowingQueryProps = {
   id: string;
@@ -32,20 +33,21 @@ export const useFollowingQuery = ({
 }: UseFollowingQueryProps): UseFollowingQuery => {
   const { user } = useAuthContext();
   const enabled = !!(id && entity);
+  const queryKey = generateQueryKey(
+    RequestKey.ContentPreference,
+    user,
+    RequestKey.UserFollowing,
+    {
+      id,
+      entity,
+      first: limit,
+    },
+  );
 
   const queryResult = useInfiniteQuery(
-    generateQueryKey(
-      RequestKey.ContentPreference,
-      user,
-      RequestKey.UserFollowing,
-      {
-        id,
-        entity,
-        first: limit,
-      },
-    ),
-    async ({ queryKey, pageParam }) => {
-      const [, , , queryVariables] = queryKey as [
+    queryKey,
+    async ({ queryKey: queryKeyArg, pageParam }) => {
+      const [, , , queryVariables] = queryKeyArg as [
         unknown,
         unknown,
         unknown,
@@ -71,6 +73,8 @@ export const useFollowingQuery = ({
           : enabled,
     },
   );
+
+  useFollowContentPreferenceMutationSubscription({ queryKey });
 
   return queryResult;
 };

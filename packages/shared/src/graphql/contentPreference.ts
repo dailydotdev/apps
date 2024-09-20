@@ -14,10 +14,17 @@ export enum ContentPreferenceStatus {
   Subscribed = 'subscribed',
 }
 
+type ContentPreferenceUser = Pick<
+  UserShortProfile,
+  'id' | 'name' | 'image' | 'username'
+> & {
+  contentPreference?: Pick<ContentPreference, 'status'>;
+};
+
 export type ContentPreference = {
   referenceId: string;
-  user?: Pick<UserShortProfile, 'id' | 'name' | 'image' | 'username'>;
-  referenceUser?: Pick<UserShortProfile, 'id' | 'name' | 'image' | 'username'>;
+  user?: ContentPreferenceUser;
+  referenceUser?: ContentPreferenceUser;
   type: ContentPreferenceType;
   createdAt: Date;
   status: ContentPreferenceStatus;
