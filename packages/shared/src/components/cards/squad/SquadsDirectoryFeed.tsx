@@ -11,6 +11,7 @@ import { useViewSize, ViewSize } from '../../../hooks';
 import { SquadList } from './SquadList';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { PlaceholderSquadGridList } from './PlaceholderSquadGrid';
+import { PlaceholderSquadListList } from './PlaceholderSquadList';
 
 interface SquadHorizontalListProps {
   title: ReactNode;
@@ -49,6 +50,9 @@ export function SquadsDirectoryFeed({
         {flatSources?.map(({ node }) => (
           <SquadList key={node.id} squad={node} />
         ))}
+        {isInitialLoading && !flatSources.length && (
+          <PlaceholderSquadListList />
+        )}
       </div>
     );
   }
@@ -68,7 +72,7 @@ export function SquadsDirectoryFeed({
       )}
       {isInitialLoading && !flatSources.length && (
         <PlaceholderSquadGridList
-          className="w-80"
+          className="laptop:w-80"
           isFeatured={query.featured}
         />
       )}

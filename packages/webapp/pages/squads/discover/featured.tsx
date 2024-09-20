@@ -15,6 +15,7 @@ import {
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
 import { PlaceholderSquadGridList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadGrid';
+import { PlaceholderSquadListList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadList';
 import { SquadDirectoryLayout } from '../../../../shared/src/components/squads/layout/SquadDirectoryLayout';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
@@ -66,9 +67,13 @@ const SquadsPage = (): ReactElement => {
       </InfiniteScrolling>
       {isInitialLoading && (
         <div className="flex w-full flex-row flex-wrap gap-6">
-          <FeedContainer>
-            <PlaceholderSquadGridList isFeatured />
-          </FeedContainer>
+          {isTablet ? (
+            <FeedContainer>
+              <PlaceholderSquadGridList isFeatured />
+            </FeedContainer>
+          ) : (
+            <PlaceholderSquadListList />
+          )}
         </div>
       )}
     </SquadDirectoryLayout>
