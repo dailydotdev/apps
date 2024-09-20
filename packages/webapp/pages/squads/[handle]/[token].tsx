@@ -39,7 +39,7 @@ import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNoti
 import { ReferralOriginKey } from '@dailydotdev/shared/src/lib/user';
 import { useJoinSquad } from '@dailydotdev/shared/src/hooks';
 import { getPathnameWithQuery, labels } from '@dailydotdev/shared/src/lib';
-import { SimpleSquadJoinButton } from '@dailydotdev/shared/src/components/squads/SquadJoinButton';
+import { SimpleSquadJoinButton } from '@dailydotdev/shared/src/components/squads/SquadActionButton';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';

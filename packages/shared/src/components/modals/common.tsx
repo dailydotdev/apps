@@ -125,13 +125,6 @@ const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ './ShareModal'),
 );
 
-const SubmitSquadForReviewModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "submitSquadForReviewModal" */ './squads/SubmitSquadForReviewModal'
-    ),
-);
-
 const PrivilegedMemberModal = dynamic(
   () =>
     import(
@@ -195,7 +188,6 @@ export const modals = {
   [LazyModal.MarketingCta]: MarketingCtaModal,
   [LazyModal.UserSettings]: UserSettingsModal,
   [LazyModal.Share]: ShareModal,
-  [LazyModal.SubmitSquadForReview]: SubmitSquadForReviewModal,
   [LazyModal.PrivilegedMembers]: PrivilegedMemberModal,
   [LazyModal.FirefoxPrivacy]: FirefoxPrivacyModal,
   [LazyModal.BookmarkReminder]: BookmarkReminderModal,

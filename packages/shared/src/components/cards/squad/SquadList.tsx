@@ -1,9 +1,6 @@
-import React, {
-  AnchorHTMLAttributes,
-  HTMLAttributes,
-  ReactElement,
-  ReactNode,
-} from 'react';
+import React, { ComponentProps, ReactElement } from 'react';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { Squad } from '../../../graphql/sources';
 import {
   Typography,
@@ -12,53 +9,39 @@ import {
 } from '../../typography/Typography';
 import { Separator } from '../common';
 import { largeNumberFormat } from '../../../lib';
-import { SquadJoinButtonWrapper } from './common/SquadJoinButton';
-import { ButtonVariant } from '../../buttons/common';
-import { SquadCardAction } from './common/types';
-import { ArrowIcon } from '../../icons';
-import { IconSize } from '../../Icon';
 import { CardLink } from '../Card';
-import { SquadImage } from './common/SquadImage';
+import { SquadActionButton } from '../../squads/SquadActionButton';
+import { Origin } from '../../../lib/log';
+import { Image, ImageType } from '../../image/Image';
+import { ButtonVariant } from '../../buttons/common';
 
-interface SquadListBaseProps {
+interface SquadListProps extends ComponentProps<'div'> {
   squad: Squad;
-  isUserSquad?: boolean;
-  elementProps?:
-    | HTMLAttributes<HTMLSpanElement>
-    | AnchorHTMLAttributes<HTMLAnchorElement>;
-  icon?: ReactNode;
+  shouldShowCount?: boolean;
 }
-
-interface UserSquadProps extends SquadListBaseProps {
-  isUserSquad: true;
-  action?: never; // action is not allowed when isUserSquad is true
-}
-
-interface NonUserSquadProps extends SquadListBaseProps {
-  isUserSquad?: false;
-  action: SquadCardAction; // action is required when isUserSquad is false
-}
-
-type SquadListProps = UserSquadProps | NonUserSquadProps;
 
 export const SquadList = ({
   squad,
-  action,
-  isUserSquad,
-  icon,
+  shouldShowCount = true,
+  ...attrs
 }: SquadListProps): ReactElement => {
+  const router = useRouter();
+  const { image, name, permalink } = squad;
+
   return (
-    <div className="relative flex flex-row items-center gap-4">
-      <CardLink href={squad.permalink} rel="noopener" title={squad.name} />
-      <SquadImage
-        image={squad?.image}
-        icon={icon}
-        title={squad.name}
-        size="size-14"
+    <div {...attrs} className="relative flex flex-row items-center gap-4">
+      <Link href={permalink} legacyBehavior>
+        <CardLink href={permalink} rel="noopener" title={name} />
+      </Link>
+      <Image
+        className="size-14 rounded-full"
+        src={image}
+        alt={`${name} source`}
+        type={ImageType.Squad}
       />
-      <div className="flex w-0 flex-grow flex-col">
+      <div className="flex max-w-[calc(100%-10rem)] flex-1 flex-col">
         <Typography type={TypographyType.Callout} bold truncate>
-          {squad.name}
+          {name}
         </Typography>
         <Typography
           type={TypographyType.Callout}
@@ -66,30 +49,24 @@ export const SquadList = ({
           truncate
         >
           @{squad.handle}
-          {!isUserSquad && <Separator />}
-          {!isUserSquad && (
+          {shouldShowCount && <Separator />}
+          {shouldShowCount && (
             <strong data-testid="squad-members-count">
-              {largeNumberFormat(squad.membersCount)}
+              {largeNumberFormat(squad.membersCount)} members
             </strong>
           )}
         </Typography>
       </div>
-      {isUserSquad ? (
-        <ArrowIcon
-          data-testid="squad-list-arrow-icon"
-          className="ml-auto rotate-90 text-text-tertiary"
-          size={IconSize.Small}
-        />
-      ) : (
-        <SquadJoinButtonWrapper
-          action={action}
-          source={squad}
-          variant={ButtonVariant.Float}
-          className={{
-            squadJoinButton: '!btn-tertiaryFloat',
-          }}
-        />
-      )}
+      <SquadActionButton
+        className={{ button: 'z-0' }}
+        squad={squad}
+        origin={Origin.SquadDirectory}
+        onSuccess={() => router.push(permalink)}
+        copy={{ join: 'Join', view: 'View' }}
+        data-testid="squad-action"
+        showViewSquadIfMember
+        buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
+      />
     </div>
   );
 };

@@ -51,7 +51,6 @@ export enum LazyModal {
   MarketingCta = 'marketingCta',
   UserSettings = 'userSettings',
   Share = 'share',
-  SubmitSquadForReview = 'submitSquadForReview',
   PrivilegedMembers = 'privilegedMembers',
   FirefoxPrivacy = 'firefoxPrivacy',
   BookmarkReminder = 'bookmarkReminder',

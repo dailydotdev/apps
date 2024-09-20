@@ -8,7 +8,7 @@ import FurtherReading from '../widgets/FurtherReading';
 import { PostHeaderActions } from './PostHeaderActions';
 import SourceButton from '../cards/SourceButton';
 import { SourceMember, Squad } from '../../graphql/sources';
-import { SquadJoinButton } from '../squads/SquadJoinButton';
+import { SquadActionButton } from '../squads/SquadActionButton';
 import { Origin } from '../../lib/log';
 import { useSquad } from '../../hooks';
 import { getSquadMembers, isSourcePublicSquad } from '../../graphql/squads';
@@ -49,7 +49,7 @@ const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
           {squad.description}
         </p>
       )}
-      <SquadJoinButton
+      <SquadActionButton
         className={{ button: 'mt-3 w-full' }}
         squad={squad}
         origin={Origin.ArticleModal}

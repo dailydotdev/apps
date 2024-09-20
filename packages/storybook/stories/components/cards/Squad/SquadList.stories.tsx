@@ -1,19 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { QueryClientProvider } from '../../../extension/_providers';
 import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
-import { SourceMemberRole, SourceType } from '@dailydotdev/shared/src/graphql/sources';
-import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  SourceMemberRole,
+  SourceType,
+} from '@dailydotdev/shared/src/graphql/sources';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 
 const meta: Meta<typeof SquadList> = {
   title: 'Components/Cards/Squad/SquadList',
   component: SquadList,
   args: {
-    icon: <PlusIcon/>,
-    isUserSquad: false,
-    action: {
-      text: 'View Squad',
-      type: 'link',
-      href: 'https://daily.dev',
-    },
+    shouldShowCount: false,
     squad: {
       name: 'Squad Name',
       permalink: 'https://daily.dev',
@@ -31,9 +29,15 @@ const meta: Meta<typeof SquadList> = {
   },
   decorators: [
     (Story) => (
-        <Story />
+      <QueryClientProvider>
+        <AuthContext.Provider value={{}}>
+          <div className="w-96 p-4 border border-border-subtlest-primary rounded-16">
+            <Story />
+          </div>
+        </AuthContext.Provider>
+      </QueryClientProvider>
     ),
-  ]
+  ],
 };
 
 export default meta;

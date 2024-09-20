@@ -53,6 +53,7 @@ export interface DropdownProps {
   drawerProps?: Omit<DrawerProps, 'children' | 'onClose'>;
   openFullScreen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  disabled?: boolean;
 }
 
 export function Dropdown({
@@ -72,6 +73,7 @@ export function Dropdown({
   iconOnly,
   drawerProps,
   openFullScreen,
+  disabled,
   ...props
 }: DropdownProps): ReactElement {
   const id = useId();
@@ -134,7 +136,11 @@ export function Dropdown({
 
   return (
     <div
-      className={classNames(styles.dropdown, className.container)}
+      className={classNames(
+        styles.dropdown,
+        className.container,
+        disabled && 'cursor-not-allowed',
+      )}
       {...props}
     >
       <Button
@@ -142,6 +148,7 @@ export function Dropdown({
         ref={triggerRef}
         variant={buttonVariant}
         size={buttonSize}
+        disabled={disabled}
         className={classNames(
           'group flex w-full items-center px-3 font-normal text-text-tertiary typo-body hover:bg-surface-hover hover:text-text-primary',
           className?.button,
