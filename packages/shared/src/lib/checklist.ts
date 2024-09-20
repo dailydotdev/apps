@@ -1,7 +1,7 @@
 import { ReactElement, ReactNode } from 'react';
 import { SourceMemberRole, Squad } from '../graphql/sources';
 import { Action, ActionType } from '../graphql/actions';
-import { StorageTopic, generateStorageKey } from './storage';
+import { generateStorageKey, StorageTopic } from './storage';
 
 export enum ChecklistCardVariant {
   Default = 'default',
@@ -23,6 +23,7 @@ export type ChecklistStepType = {
   title: string;
   description: string;
   component?: (props: ChecklistStepProps) => ReactElement;
+  condition?: (step: ChecklistStepType) => boolean;
 };
 
 export interface ChecklistStepProps {
@@ -52,7 +53,7 @@ export const actionsPerRoleMap: Partial<
     ActionType.EditSquad,
     ActionType.EditWelcomePost,
     ActionType.SquadInvite,
-    ActionType.MakeSquadPublic,
+    ActionType.LearnAboutPublicSquad,
   ],
   [SourceMemberRole.Member]: [
     ActionType.JoinSquad,
@@ -68,12 +69,14 @@ export type CreateChecklistStepProps = {
   step: Omit<ChecklistStepType, 'action'>;
   actions: Action[] | undefined;
   type: ActionType;
+  condition?: (step: ChecklistStepType) => boolean;
 };
 
 export const createChecklistStep = ({
   step,
   actions,
   type,
+  condition,
 }: CreateChecklistStepProps): ChecklistStepType => {
   const action = actions?.find((item) => item.type === type) || {
     type,
@@ -82,6 +85,7 @@ export const createChecklistStep = ({
 
   return {
     action,
+    condition,
     ...step,
   };
 };

@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { Origin } from '../../lib/log';
 import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
-import { SimpleSquadJoinButton } from './SquadJoinButton';
+import { SimpleSquadJoinButton } from './SquadActionButton';
 import { Squad } from '../../graphql/sources';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { useJoinSquad, useViewSize, ViewSize } from '../../hooks';

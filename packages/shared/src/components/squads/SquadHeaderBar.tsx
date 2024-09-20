@@ -15,7 +15,7 @@ import { verifyPermission } from '../../graphql/squads';
 import { SourcePermissions } from '../../graphql/sources';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { isTesting } from '../../lib/constants';
-import { SquadJoinButton } from './SquadJoinButton';
+import { SquadActionButton } from './SquadActionButton';
 import {
   BellIcon,
   ChecklistBIcon,
@@ -93,7 +93,7 @@ export function SquadHeaderBar({
       )}
     >
       {showJoinButton && (
-        <SquadJoinButton
+        <SquadActionButton
           origin={Origin.SquadPage}
           size={ButtonSize.Small}
           squad={squad}

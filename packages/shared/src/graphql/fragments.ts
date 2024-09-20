@@ -77,6 +77,10 @@ export const SOURCE_BASE_FRAGMENT = gql`
       }
       role
     }
+    category {
+      id
+      title
+    }
     currentMember {
       ...CurrentMember
     }
@@ -230,6 +234,14 @@ export const USER_STREAK_FRAGMENT = gql`
     current
     lastViewAt
     weekStart
+  }
+`;
+
+export const SOURCE_CATEGORY_FRAGMENT = gql`
+  fragment SourceCategoryFragment on SourceCategory {
+    id
+    slug
+    title
   }
 `;
 
