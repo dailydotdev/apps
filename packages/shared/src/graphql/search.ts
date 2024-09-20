@@ -5,6 +5,7 @@ import { Connection, RequestQueryParams, gqlClient } from './common';
 import { webappUrl } from '../lib/constants';
 import { Post } from './posts';
 import { labels } from '../lib';
+import { ContentPreference } from './contentPreference';
 
 export enum SearchProviderEnum {
   Posts = 'posts',
@@ -363,6 +364,7 @@ export type SearchSuggestion = {
   title: string;
   subtitle?: string;
   image?: string;
+  contentPreference?: Pick<ContentPreference, 'status'>;
 };
 
 export type SearchSuggestionResult = {

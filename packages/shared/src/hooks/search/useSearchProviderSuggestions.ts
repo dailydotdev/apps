@@ -21,6 +21,8 @@ export type UseSearchProviderSuggestionsProps = {
 export type UseSearchProviderSuggestions = {
   isLoading: boolean;
   suggestions: Awaited<ReturnType<UseSearchProvider['getSuggestions']>>;
+} & {
+  queryKey: unknown[];
 };
 
 export const useSearchProviderSuggestions = ({
@@ -32,14 +34,15 @@ export const useSearchProviderSuggestions = ({
   const { user } = useAuthContext();
   const { getSuggestions } = useSearchProvider();
   const debouncedQuery = useDebounce(query, defaultSearchDebounceMs);
+  const queryKey = generateQueryKey(RequestKey.Search, user, 'suggestions', {
+    provider,
+    debouncedQuery,
+    limit,
+    includeContentPreference,
+  });
 
   const { data, isLoading } = useQuery(
-    generateQueryKey(RequestKey.Search, user, 'suggestions', {
-      provider,
-      debouncedQuery,
-      limit,
-      includeContentPreference,
-    }),
+    queryKey,
     async () => {
       return getSuggestions({
         provider,
@@ -70,5 +73,6 @@ export const useSearchProviderSuggestions = ({
   return {
     isLoading,
     suggestions: data,
+    queryKey,
   };
 };
