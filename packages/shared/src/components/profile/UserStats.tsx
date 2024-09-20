@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import classed from '../../lib/classed';
 import { LazyModal } from '../modals/common/types';
@@ -53,23 +54,31 @@ export function UserStats({ stats, userId }: UserStatsProps): ReactElement {
         <div className="flex flex-row gap-2">
           <Item
             stat={{ title: 'Followers', amount: stats.numFollowers }}
-            className="cursor-pointer"
-            onClick={() =>
+            className={classNames(stats.numFollowers && 'cursor-pointer')}
+            onClick={() => {
+              if (!stats.numFollowers) {
+                return;
+              }
+
               openModal({
                 type: LazyModal.UserFollowersModal,
                 ...defaultModalProps,
-              })
-            }
+              });
+            }}
           />
           <Item
             stat={{ title: 'Following', amount: stats.numFollowing }}
-            className="cursor-pointer"
-            onClick={() =>
+            className={classNames(stats.numFollowing && 'cursor-pointer')}
+            onClick={() => {
+              if (!stats.numFollowing) {
+                return;
+              }
+
               openModal({
                 type: LazyModal.UserFollowingModal,
                 ...defaultModalProps,
-              })
-            }
+              });
+            }}
           />
         </div>
         <div className="flex flex-row gap-2">

@@ -188,6 +188,11 @@ export enum LogEvent {
   RemoveIntegration = 'remove integration',
   RevokeIntegrationAccess = 'revoke integration access',
   // End integrations
+  // Post snippets
+  CopySnippet = 'copy snippet',
+  NextSnippet = 'next snippet',
+  PreviousSnippet = 'previous snippet',
+  // End post snippets
 }
 
 export enum FeedItemTitle {
@@ -258,6 +263,7 @@ export enum NotificationCategory {
   Digest = 'digest',
   ReadingReminder = 'reading reminder',
   StreakReminder = 'streak reminder',
+  Following = 'following',
 }
 
 export enum NotificationTarget {

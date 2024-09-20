@@ -170,7 +170,6 @@ export enum SharedFeedPage {
   Popular = 'popular',
   Search = 'search',
   Upvoted = 'upvoted',
-  Discussed = 'discussed',
   Custom = 'custom',
   CustomForm = 'custom-form',
 }
