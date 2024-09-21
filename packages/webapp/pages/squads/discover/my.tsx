@@ -14,7 +14,7 @@ function MySquadsPage(): ReactElement {
     <SquadDirectoryLayout className="gap-3">
       <NextSeo {...defaultSeo} title="My Squads" />
       {squads?.map((squad) => (
-        <SquadList key={squad.handle} squad={squad} />
+        <SquadList key={squad.handle} squad={squad} shouldShowCount={false} />
       ))}
     </SquadDirectoryLayout>
   );

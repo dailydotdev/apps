@@ -1,4 +1,6 @@
 import React, { ReactElement, ReactNode } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { Squad } from '../../../graphql/sources';
 import {
   SourcesQueryProps,
@@ -43,6 +45,7 @@ export function SquadsDirectoryFeed({
   const { result } = useSources<Squad>({ query });
   const { isInitialLoading } = result;
   const isMobile = useViewSize(ViewSize.MobileL);
+  const router = useRouter();
 
   const flatSources =
     result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
@@ -57,7 +60,16 @@ export function SquadsDirectoryFeed({
         {children}
         <header className="mb-2 flex flex-row items-center justify-between">
           {title}
-          <Button variant={ButtonVariant.Tertiary}>See all</Button>
+          <Link href={linkToSeeAll} passHref>
+            <Button
+              variant={ButtonVariant.Tertiary}
+              onClick={() => router.push(linkToSeeAll)}
+              aria-label="See all"
+              tag="a"
+            >
+              See all
+            </Button>
+          </Link>
         </header>
         {flatSources?.map(({ node }) => (
           <SquadList key={node.id} squad={node} />
