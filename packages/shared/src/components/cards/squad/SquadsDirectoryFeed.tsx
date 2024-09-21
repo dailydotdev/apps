@@ -1,6 +1,4 @@
 import React, { ReactElement, ReactNode } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
 import { Squad } from '../../../graphql/sources';
 import {
   SourcesQueryProps,
@@ -14,6 +12,7 @@ import { SquadList } from './SquadList';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { PlaceholderSquadGridList } from './PlaceholderSquadGrid';
 import { PlaceholderSquadListList } from './PlaceholderSquadList';
+import Link from '../../utilities/Link';
 
 interface SquadHorizontalListProps {
   title: ReactNode;
@@ -45,7 +44,6 @@ export function SquadsDirectoryFeed({
   const { result } = useSources<Squad>({ query });
   const { isInitialLoading } = result;
   const isMobile = useViewSize(ViewSize.MobileL);
-  const router = useRouter();
 
   const flatSources =
     result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
@@ -63,7 +61,6 @@ export function SquadsDirectoryFeed({
           <Link href={linkToSeeAll} passHref>
             <Button
               variant={ButtonVariant.Tertiary}
-              onClick={() => router.push(linkToSeeAll)}
               aria-label="See all"
               tag="a"
             >
