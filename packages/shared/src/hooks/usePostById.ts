@@ -66,7 +66,7 @@ export const removePostComments = (
   parentId: string,
 ): void => {
   const keys = getAllCommentsQuery(post.id);
-  const removeCachnedComment = (data: PostCommentsData) => {
+  const removeCachedComment = (data: PostCommentsData) => {
     if (!data) {
       return data;
     }
@@ -97,7 +97,7 @@ export const removePostComments = (
   };
 
   keys.forEach((key) => {
-    client.setQueryData(key, removeCachnedComment);
+    client.setQueryData(key, removeCachedComment);
   });
 };
 
