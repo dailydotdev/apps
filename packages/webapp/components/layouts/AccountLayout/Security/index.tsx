@@ -7,7 +7,6 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { LockIcon, MailIcon } from '@dailydotdev/shared/src/components/icons';
 import AccountDangerZone from '@dailydotdev/shared/src/components/profile/AccountDangerZone';
-import { AlertBackground } from '@dailydotdev/shared/src/components/alert/common';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React, {
   FormEvent,
@@ -265,13 +264,11 @@ function AccountSecurityDefault({
           </Button>
         </form>
       </AccountContentSection>
-      <AccountContentSection title="🚨 Danger Zone">
+      <AccountContentSection title="🚨 Danger zone">
         <AccountDangerZone
           onDelete={() => deleteAccountPrompt()}
-          className="relative mt-6 overflow-hidden rounded-26 border border-status-error px-6 py-4"
-        >
-          <AlertBackground className="bg-overlay-quaternary-ketchup" />
-        </AccountDangerZone>
+          className="mt-6"
+        />
       </AccountContentSection>
     </AccountPageContainer>
   );

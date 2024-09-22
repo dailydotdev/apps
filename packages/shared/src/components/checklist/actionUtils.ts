@@ -12,10 +12,3 @@ export const getEditActions = (squad: Squad): Action[] => {
     ? [{ type: ActionType.EditSquad, completedAt: new Date() }]
     : [];
 };
-
-export const getPublicActions = (squad: Squad): Action[] => {
-  const isComplete = squad.public;
-  return isComplete
-    ? [{ type: ActionType.MakeSquadPublic, completedAt: new Date() }]
-    : [];
-};

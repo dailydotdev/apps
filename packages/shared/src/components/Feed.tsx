@@ -58,10 +58,7 @@ const FeedErrorScreen = dynamic(
 );
 
 export interface FeedProps<T>
-  extends Pick<
-      UseFeedOptionalParams<T>,
-      'options' | 'showPublicSquadsEligibility'
-    >,
+  extends Pick<UseFeedOptionalParams<T>, 'options'>,
     Pick<FeedContainerProps, 'shortcuts'> {
   feedName: AllFeedPages;
   feedQueryKey: unknown[];
@@ -137,7 +134,6 @@ export default function Feed<T>({
   pageSize,
   isHorizontal = false,
   feedContainerRef,
-  showPublicSquadsEligibility,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { logEvent } = useContext(LogContext);
@@ -182,7 +178,6 @@ export default function Feed<T>({
       query,
       variables,
       options,
-      showPublicSquadsEligibility,
       settings: {
         disableAds,
         adPostLength: isSquadFeed ? 2 : undefined,

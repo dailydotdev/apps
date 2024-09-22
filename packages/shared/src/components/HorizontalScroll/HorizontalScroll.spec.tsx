@@ -1,11 +1,21 @@
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
 import HorizontalScroll from './HorizontalScroll';
+import { useCalculateVisibleElements } from './useCalculateVisibleElements';
+
+jest.mock('./useCalculateVisibleElements');
 
 describe('HorizontalScroll', () => {
+  beforeEach(() => {
+    (useCalculateVisibleElements as jest.Mock).mockReturnValue({
+      scrollableElementWidth: 100,
+      isOverflowing: true,
+      elementsCount: 5,
+    });
+  });
   it('renders correctly with the given title and children', () => {
     render(
-      <HorizontalScroll title="Scrollable Area">
+      <HorizontalScroll scrollProps={{ title: 'Scrollable Area' }}>
         <div>Child Content</div>
       </HorizontalScroll>,
     );
@@ -19,7 +29,10 @@ describe('HorizontalScroll', () => {
 
   it('applies custom className correctly', () => {
     render(
-      <HorizontalScroll className="custom-class" title="Scrollable Area">
+      <HorizontalScroll
+        scrollProps={{ title: 'Scrollable Area' }}
+        className={{ scroll: 'custom-class' }}
+      >
         <div>Child Content</div>
       </HorizontalScroll>,
     );
@@ -31,8 +44,7 @@ describe('HorizontalScroll', () => {
     const mockOnClickSeeAll = jest.fn();
     render(
       <HorizontalScroll
-        title="Scrollable Area"
-        onClickSeeAll={mockOnClickSeeAll}
+        scrollProps={{ onClickSeeAll: mockOnClickSeeAll, title: 'Scrollable ' }}
       >
         <div>Child Content</div>
       </HorizontalScroll>,

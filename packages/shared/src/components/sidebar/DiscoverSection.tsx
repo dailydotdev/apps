@@ -9,11 +9,11 @@ import {
 import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
 import { useActions } from '../../hooks';
-import { ActionType } from '../../graphql/actions';
 import { checkIsExtension } from '../../lib/func';
 import { webappUrl } from '../../lib/constants';
-import { SharedFeedPage } from '../utilities';
 import { OtherFeedPage } from '../../lib/query';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { ActionType } from '../../graphql/actions';
 
 interface DiscoverSectionProps extends SectionCommonProps {
   isItemsButton?: boolean;
@@ -30,10 +30,11 @@ export function DiscoverSection({
   enableSearch,
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement {
+  const { user } = useAuthContext();
   const { completeAction } = useActions();
 
   const discoverMenuItems: SidebarMenuItem[] = useMemo(() => {
-    const pushToDiscussed = locationPush(SharedFeedPage.Discussed);
+    const pushToDiscussed = locationPush(OtherFeedPage.Discussed);
     const isExtension = checkIsExtension();
     const feeds = {
       icon: (active: boolean) => (
@@ -51,7 +52,9 @@ export function DiscoverSection({
       title: 'Discussions',
       path: '/discussed',
       action: () => {
-        completeAction(ActionType.CommentFeed);
+        if (user) {
+          completeAction(ActionType.CommentFeed);
+        }
         if (isExtension) {
           pushToDiscussed();
         }
@@ -86,7 +89,7 @@ export function DiscoverSection({
         action: isExtension ? locationPush('/users') : undefined,
       },
     ];
-  }, [completeAction, onNavTabClick]);
+  }, [completeAction, user, onNavTabClick]);
 
   return (
     <Section
