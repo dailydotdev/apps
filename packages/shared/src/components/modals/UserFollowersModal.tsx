@@ -8,6 +8,7 @@ import {
   UseFollowersQueryProps,
 } from '../../hooks/contentPreference/useFollowersQuery';
 import { FlexCentered } from '../utilities';
+import { Origin } from '../../lib/log';
 
 export interface FollowersModalProps extends ModalProps {
   queryProps: UseFollowersQueryProps;
@@ -44,6 +45,7 @@ export function UserFollowersModal({
           </FlexCentered>
         ),
       }}
+      origin={Origin.UserFollowersList}
     />
   );
 }

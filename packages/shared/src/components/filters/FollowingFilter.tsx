@@ -8,6 +8,7 @@ import { FlexCentered } from '../utilities';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
 import { AddUserIcon } from '../icons';
 import { IconSize } from '../Icon';
+import { Origin } from '../../lib/log';
 
 export const FollowingFilter = (): ReactElement => {
   const { user } = useAuthContext();
@@ -56,6 +57,9 @@ export const FollowingFilter = (): ReactElement => {
         isFetchingNextPage,
         canFetchMore: checkFetchMore(queryResult),
         fetchNextPage,
+      }}
+      userInfoProps={{
+        origin: Origin.FollowFilter,
       }}
     />
   );

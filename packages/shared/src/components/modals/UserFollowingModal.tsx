@@ -7,6 +7,7 @@ import {
 } from '../../hooks/contentPreference/useFollowingQuery';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
 import { FlexCentered } from '../utilities';
+import { Origin } from '../../lib/log';
 
 export interface UserFollowingModalProps extends ModalProps {
   queryProps: UseFollowingQueryProps;
@@ -43,6 +44,7 @@ export function UserFollowingModal({
           </FlexCentered>
         ),
       }}
+      origin={Origin.UserFollowingList}
     />
   );
 }

@@ -4,6 +4,7 @@ import { Modal, ModalProps } from '../common/Modal';
 import { SourceMember } from '../../../graphql/sources';
 import { UserShortInfo } from '../../profile/UserShortInfo';
 import SquadMemberBadge from '../../squads/SquadMemberBadge';
+import { Origin } from '../../../lib/log';
 
 export interface PrivilegedMembersModalProps
   extends Omit<ModalProps, 'children'> {
@@ -20,8 +21,14 @@ function PrivilegedMembersModal({
       <Modal.Body className="!p-0">
         {members.map(({ user, role }) => (
           <Link key={user.username} href={user.permalink}>
-            <UserShortInfo tag="a" href={user.permalink} user={user} showFollow>
-              <SquadMemberBadge role={role} />
+            <UserShortInfo
+              tag="a"
+              href={user.permalink}
+              user={user}
+              showFollow
+              origin={Origin.SquadMembersList}
+            >
+              <SquadMemberBadge className="mr-2" role={role} />
             </UserShortInfo>
           </Link>
         ))}

@@ -57,7 +57,7 @@ type UserHighlightProps = SourceAuthorProps & {
     reputation?: string;
     handle?: string;
   };
-  origin: Origin;
+  origin?: Origin;
 };
 
 type ImageProps = SourceAuthorProps & {

@@ -50,6 +50,10 @@ export enum Origin {
   CollectionModal = 'collection modal',
   Settings = 'settings',
   WorkspaceDropdown = 'workspace dropdown',
+  UserFollowingList = 'user following list',
+  UserFollowersList = 'user followers list',
+  UserUpvotesList = 'user upvotes list',
+  FollowFilter = 'follow filter',
 }
 
 export enum LogEvent {

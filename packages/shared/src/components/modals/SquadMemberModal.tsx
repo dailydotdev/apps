@@ -164,6 +164,7 @@ export function SquadMemberModal({
         }}
         users={members?.map(({ user }) => user)}
         onSearch={handleSearchDebounce}
+        origin={Origin.SquadMembersList}
       />
       <SquadMemberMenu
         squad={squad}
