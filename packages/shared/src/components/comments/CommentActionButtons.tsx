@@ -190,17 +190,26 @@ export default function CommentActionButtons({
       icon: <AddUserIcon />,
       label: `${isFollowingUser ? 'Unfollow' : 'Follow'} ${authorName}`,
       action: () => {
+        const opts = {
+          extra: {
+            origin: Origin.PostCommentContextMenu,
+            post_id: comment.post?.id,
+          },
+        };
+
         if (!isFollowingUser) {
           follow({
             id: comment.author.id,
             entity: ContentPreferenceType.User,
             entityName: authorName,
+            opts,
           });
         } else {
           unfollow({
             id: comment.author.id,
             entity: ContentPreferenceType.User,
             entityName: authorName,
+            opts,
           });
         }
       },

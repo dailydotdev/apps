@@ -386,17 +386,26 @@ export default function PostOptionsMenu({
       icon: <MenuIcon Icon={isFollowingUser ? RemoveUserIcon : AddUserIcon} />,
       label: `${isFollowingUser ? 'Unfollow' : 'Follow'} ${authorName}`,
       action: () => {
+        const opts = {
+          extra: {
+            origin: Origin.PostContextMenu,
+            post_id: post.id,
+          },
+        };
+
         if (!isFollowingUser) {
           follow({
             id: post.author.id,
             entity: ContentPreferenceType.User,
             entityName: authorName,
+            opts,
           });
         } else {
           unfollow({
             id: post.author.id,
             entity: ContentPreferenceType.User,
             entityName: authorName,
+            opts,
           });
         }
       },

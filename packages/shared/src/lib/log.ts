@@ -154,14 +154,14 @@ export enum LogEvent {
   DismissStreakRecover = 'dimiss streaks milestone',
   // 404 page
   View404Page = '404 page',
-  // Source Actions - start
-  FollowSource = 'follow',
-  UnfollowSource = 'unfollow',
-  BlockSource = 'block',
-  UnblockSource = 'unblock',
-  SubscribeSource = 'subscribe',
-  UnsubscribeSource = 'unsubscribe',
-  // Source Actions - end
+  // Follow Actions - start
+  Follow = 'follow',
+  Unfollow = 'unfollow',
+  Block = 'block',
+  Unblock = 'unblock',
+  Subscribe = 'subscribe',
+  Unsubscribe = 'unsubscribe',
+  // Follow Actions - end
   // Tags - start
   BlockTag = 'block',
   UnblockTag = 'unblock',

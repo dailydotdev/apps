@@ -55,8 +55,8 @@ export const useSourceActionsNotify = ({
 
     logEvent({
       event_name: notifications.isSubscribed
-        ? LogEvent.SubscribeSource
-        : LogEvent.UnsubscribeSource,
+        ? LogEvent.Subscribe
+        : LogEvent.Unsubscribe,
       target_id: source.id,
       target_type: TargetType.Source,
     });

@@ -20,7 +20,7 @@ function PrivilegedMembersModal({
       <Modal.Body className="!p-0">
         {members.map(({ user, role }) => (
           <Link key={user.username} href={user.permalink}>
-            <UserShortInfo tag="a" href={user.permalink} user={user}>
+            <UserShortInfo tag="a" href={user.permalink} user={user} showFollow>
               <SquadMemberBadge role={role} />
             </UserShortInfo>
           </Link>

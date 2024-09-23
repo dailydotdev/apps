@@ -36,6 +36,7 @@ export interface UserShortInfoProps<
   showDescription?: boolean;
   transformUsername?(user: UserShortProfile): ReactNode;
   onClick?: () => void;
+  showFollow?: boolean;
 }
 
 const defaultClassName = {
@@ -56,6 +57,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
     afterContent,
     showDescription = true,
     transformUsername,
+    showFollow,
     ...props
   }: UserShortInfoProps<Tag> & Omit<PropsOf<Tag>, 'className'>,
   ref?: Ref<Tag>,
@@ -112,12 +114,14 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
         </div>
       </ProfileTooltip>
       {children}
-      <FollowButton
-        userId={user.id}
-        type={ContentPreferenceType.User}
-        status={(user as LoggedUser).contentPreference?.status}
-        entityName={`@${user.username}`}
-      />
+      {!!showFollow && (
+        <FollowButton
+          userId={user.id}
+          type={ContentPreferenceType.User}
+          status={(user as LoggedUser).contentPreference?.status}
+          entityName={`@${user.username}`}
+        />
+      )}
       {afterContent}
     </Element>
   );

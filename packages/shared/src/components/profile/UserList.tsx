@@ -53,6 +53,7 @@ function UserList({
               href={user.permalink}
               user={user}
               afterContent={afterContent?.(user, i)}
+              showFollow
             >
               {additionalContent?.(user, i)}
             </UserShortInfo>
