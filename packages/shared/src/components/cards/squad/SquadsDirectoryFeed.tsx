@@ -12,6 +12,7 @@ import { SquadList } from './SquadList';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { PlaceholderSquadGridList } from './PlaceholderSquadGrid';
 import { PlaceholderSquadListList } from './PlaceholderSquadList';
+import Link from '../../utilities/Link';
 
 interface SquadHorizontalListProps {
   title: ReactNode;
@@ -57,7 +58,15 @@ export function SquadsDirectoryFeed({
         {children}
         <header className="mb-2 flex flex-row items-center justify-between">
           {title}
-          <Button variant={ButtonVariant.Tertiary}>See all</Button>
+          <Link href={linkToSeeAll} passHref>
+            <Button
+              variant={ButtonVariant.Tertiary}
+              aria-label="See all"
+              tag="a"
+            >
+              See all
+            </Button>
+          </Link>
         </header>
         {flatSources?.map(({ node }) => (
           <SquadList key={node.id} squad={node} />
