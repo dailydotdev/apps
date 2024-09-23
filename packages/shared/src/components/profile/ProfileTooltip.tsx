@@ -63,6 +63,7 @@ export function ProfileTooltip({
     interactive: true,
     onShow,
     onHide,
+    appendTo: tooltip?.appendTo || globalThis?.document?.body,
     container: { bgClassName: null },
     content: <DevCard data={data} type={DevCardType.Compact} />,
     ...tooltip,
