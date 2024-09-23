@@ -342,7 +342,7 @@ export const updateAuthorContentPreference = ({
   const newData = structuredClone(data);
 
   if (!status) {
-    delete newData.contentPreference;
+    newData.contentPreference = undefined;
 
     return newData;
   }
