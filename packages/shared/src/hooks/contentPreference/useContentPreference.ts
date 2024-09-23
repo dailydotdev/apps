@@ -36,7 +36,7 @@ export const useContentPreference = (): UseContentPreference => {
         event_name: LogEvent.Follow,
         target_id: id,
         target_type: entityName,
-        extra: opts.extra ? JSON.stringify(opts.extra) : undefined,
+        extra: opts?.extra ? JSON.stringify(opts.extra) : undefined,
       });
 
       await gqlClient.request(CONTENT_PREFERENCE_FOLLOW_MUTATION, {
@@ -63,7 +63,7 @@ export const useContentPreference = (): UseContentPreference => {
         event_name: LogEvent.Unfollow,
         target_id: id,
         target_type: entityName,
-        extra: opts.extra ? JSON.stringify(opts.extra) : undefined,
+        extra: opts?.extra ? JSON.stringify(opts.extra) : undefined,
       });
 
       await gqlClient.request(CONTENT_PREFERENCE_UNFOLLOW_MUTATION, {
@@ -89,7 +89,7 @@ export const useContentPreference = (): UseContentPreference => {
         event_name: LogEvent.Subscribe,
         target_id: id,
         target_type: entityName,
-        extra: opts.extra ? JSON.stringify(opts.extra) : undefined,
+        extra: opts?.extra ? JSON.stringify(opts.extra) : undefined,
       });
 
       await gqlClient.request(CONTENT_PREFERENCE_FOLLOW_MUTATION, {
@@ -119,7 +119,7 @@ export const useContentPreference = (): UseContentPreference => {
         event_name: LogEvent.Unsubscribe,
         target_id: id,
         target_type: entityName,
-        extra: opts.extra ? JSON.stringify(opts.extra) : undefined,
+        extra: opts?.extra ? JSON.stringify(opts.extra) : undefined,
       });
 
       await gqlClient.request(CONTENT_PREFERENCE_FOLLOW_MUTATION, {

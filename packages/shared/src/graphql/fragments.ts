@@ -139,6 +139,9 @@ export const SQUAD_BASE_FRAGMENT = `
           name
           image
         }
+        contentPreference {
+          status
+        }
       }
       role
     }

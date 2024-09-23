@@ -97,6 +97,7 @@ export interface UserShortProfile
   > {
   username: string;
   permalink: string;
+  contentPreference?: ContentPreference;
 }
 
 export interface LoggedUser extends UserProfile, AnonymousUser {

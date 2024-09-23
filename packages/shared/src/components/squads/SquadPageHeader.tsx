@@ -190,7 +190,7 @@ export function SquadPageHeader({
             onClick={() =>
               openModal({
                 type: LazyModal.PrivilegedMembers,
-                props: { members: squad.privilegedMembers },
+                props: { source: squad },
               })
             }
           >
