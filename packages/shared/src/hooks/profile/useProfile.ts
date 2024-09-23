@@ -1,24 +1,29 @@
-import { useContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { getProfile, PublicProfile } from '../../lib/user';
-import AuthContext from '../../contexts/AuthContext';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { disabledRefetch } from '../../lib/func';
 
-export function useProfile(initialUser?: PublicProfile): PublicProfile {
-  const { user: loggedUser } = useContext(AuthContext);
-  const isSameUser = loggedUser?.id === initialUser?.id;
-
+export function useProfile(initialUser?: PublicProfile): {
+  user: PublicProfile;
+  userQueryKey: unknown[];
+} {
+  const userQueryKey = generateQueryKey(RequestKey.Profile, initialUser);
   const { data: user } = useQuery(
-    generateQueryKey(RequestKey.Profile, initialUser),
+    userQueryKey,
     () => getProfile(initialUser?.id),
     {
       ...disabledRefetch,
       cacheTime: StaleTime.OneHour,
       initialData: initialUser,
-      enabled: !!initialUser && isSameUser,
     },
   );
 
-  return user;
+  return useMemo(
+    () => ({
+      user,
+      userQueryKey,
+    }),
+    [user, userQueryKey],
+  );
 }

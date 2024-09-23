@@ -1,7 +1,7 @@
 import React, { CSSProperties, ReactElement, useState } from 'react';
 import classNames from 'classnames';
-import { PublicProfile } from '../../lib/user';
-import { ShareIcon, SettingsIcon } from '../icons';
+import { LoggedUser, PublicProfile } from '../../lib/user';
+import { SettingsIcon, ShareIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
@@ -9,7 +9,9 @@ import { largeNumberFormat, ReferralCampaignKey } from '../../lib';
 import { ProfileSettingsMenu } from './ProfileSettingsMenu';
 import { RootPortal } from '../tooltips/Portal';
 import { GoBackButton } from '../post/GoBackHeaderMobile';
-import { ViewSize, useViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks';
+import { FollowButton } from '../contentPreference/FollowButton';
+import { ContentPreferenceType } from '../../graphql/contentPreference';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -34,7 +36,7 @@ export function Header({
   });
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+  console.log(user);
   return (
     <header
       className={classNames('flex h-12 items-center px-4', className)}
@@ -80,6 +82,15 @@ export function Header({
         icon={<ShareIcon />}
         onClick={() => onShareOrCopyLink()}
       />
+      {!isSameUser && (
+        <FollowButton
+          userId={user.id}
+          type={ContentPreferenceType.User}
+          status={(user as LoggedUser).contentPreference?.status}
+          entityName={`@${user.username}`}
+          className="ml-2"
+        />
+      )}
       {isSameUser && (
         <>
           <Button
