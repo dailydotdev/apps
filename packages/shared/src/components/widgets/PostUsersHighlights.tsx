@@ -146,7 +146,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
       <ConditionalWrapper
         condition={!isUserTypeSource}
         wrapper={(children) => (
-          <ProfileTooltip user={{ id }}>
+          <ProfileTooltip userId={id}>
             {children as ReactElement}
           </ProfileTooltip>
         )}
@@ -169,7 +169,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
       <ConditionalWrapper
         condition={!isUserTypeSource}
         wrapper={(children) => (
-          <ProfileTooltip user={{ id }}>
+          <ProfileTooltip userId={id}>
             {children as ReactElement}
           </ProfileTooltip>
         )}

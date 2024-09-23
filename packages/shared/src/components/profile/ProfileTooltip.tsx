@@ -9,6 +9,7 @@ import {
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { DevCard, DevCardType } from './devcard';
 import { UserTooltipContentData } from '../../hooks/useProfileTooltip';
+import { useDevCard } from '../../hooks/profile/useDevCard';
 
 export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   children: ReactElement;
@@ -19,7 +20,7 @@ export interface ProfileTooltipProps extends ProfileTooltipContentProps {
 }
 
 export interface ProfileTooltipContentProps {
-  user: Author;
+  userId: Author['id'];
   data?: UserTooltipContentData;
   onMouseEnter?: () => unknown;
   onMouseLeave?: () => unknown;
@@ -27,15 +28,18 @@ export interface ProfileTooltipContentProps {
 
 export function ProfileTooltip({
   children,
-  user,
+  userId,
   link,
   scrollingContainer,
   tooltip = {},
-}: Omit<ProfileTooltipProps, 'user'> & {
-  user?: Partial<Author>;
-}): ReactElement {
+}: Omit<ProfileTooltipProps, 'user'>): ReactElement {
   const query = useQueryClient();
   const handler = useRef<() => void>();
+  const data = useDevCard(userId);
+
+  if (!data || !userId) {
+    return null;
+  }
 
   const onShow = () => {
     if (!scrollingContainer) {
@@ -43,24 +47,24 @@ export function ProfileTooltip({
     }
 
     scrollingContainer.removeEventListener('scroll', handler.current);
-    handler.current = () => query.setQueryData(['readingRank', user.id], {});
+    handler.current = () => query.setQueryData(['readingRank', userId], {});
     scrollingContainer.addEventListener('scroll', handler.current);
   };
+
   const onHide = () => {
     if (!scrollingContainer) {
       return;
     }
     scrollingContainer.removeEventListener('scroll', handler.current);
   };
+
   const props: TooltipProps = {
     showArrow: false,
     interactive: true,
     onShow,
     onHide,
     container: { bgClassName: null },
-    content: user ? (
-      <DevCard userId={user?.id} type={DevCardType.Compact} />
-    ) : null,
+    content: <DevCard data={data} type={DevCardType.Compact} />,
     ...tooltip,
   };
 
