@@ -36,7 +36,6 @@ export function Header({
   });
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  console.log(user);
   return (
     <header
       className={classNames('flex h-12 items-center px-4', className)}
