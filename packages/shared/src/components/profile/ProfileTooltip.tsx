@@ -38,10 +38,6 @@ export function ProfileTooltip({
   const handler = useRef<() => void>();
   const data = useDevCard(id);
 
-  if (!userId) {
-    return null;
-  }
-
   const onShow = () => {
     if (!scrollingContainer) {
       return;
