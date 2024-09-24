@@ -24,6 +24,12 @@ export function LinksForm({
     setValidInputs((state) => ({ ...state, [i]: isValid }));
   };
 
+  const handleInputChange = (i: number, value: string) => {
+    // Prepend "http://" if the value does not start with "http://" or "https://"
+    const updatedValue = value.startsWith('http://') || value.startsWith('https://') ? value : `http://${value}`;
+    links[i] = updatedValue;
+  };
+
   return (
     <div className="flex flex-col gap-4">
       {list.map((_, i) => (
@@ -42,6 +48,7 @@ export function LinksForm({
           readOnly={isFormReadonly}
           validityChanged={(isValid) => onChange(i, isValid)}
           placeholder="http://example.com"
+          onChange={(e) => handleInputChange(i, e.target.value)}
         />
       ))}
     </div>
