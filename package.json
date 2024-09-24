@@ -3,7 +3,7 @@
   "private": true,
   "dependencies": {
     "@babel/runtime": "^7.17.9",
-    "postcss-rem-to-responsive-pixel": "^5.1.1"
+    "postcss-rem-to-responsive-pixel": "^6.0.2"
   },
   "scripts": {
     "prepare": "corepack enable || true",
