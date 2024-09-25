@@ -114,6 +114,7 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.CollectionUpdated]: 'text-brand-default',
     [NotificationType.SourcePostAdded]: 'text-brand-default',
     [NotificationType.SquadPublicApproved]: 'text-brand-default',
+    [NotificationType.UserPostAdded]: 'text-brand-default',
   };
 
 export const notificationsUrl = `/notifications`;
