@@ -1,19 +1,15 @@
 import React, { ReactElement } from 'react';
 import Link from '../../utilities/Link';
 import { Modal, ModalProps } from '../common/Modal';
-import { Source, Squad } from '../../../graphql/sources';
+import { Source } from '../../../graphql/sources';
 import { UserShortInfo } from '../../profile/UserShortInfo';
 import SquadMemberBadge from '../../squads/SquadMemberBadge';
 import { Origin } from '../../../lib/log';
-import { useMutationSubscription, useSquad } from '../../../hooks';
-import {
-  ContentPreferenceMutation,
-  contentPreferenceMutationMatcher,
-  mutationKeyToContentPreferenceStatusMap,
-} from '../../../hooks/contentPreference/types';
+import { useSquad } from '../../../hooks';
+
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { PropsParameters } from '../../../types';
+import { useSourceContentPreferenceMutationSubscription } from '../../../hooks/contentPreference/useSourceContentPreferenceMutationSubscription';
 
 export interface PrivilegedMembersModalProps
   extends Omit<ModalProps, 'children'> {
@@ -27,52 +23,8 @@ function PrivilegedMembersModal({
   const { user: loggedUser } = useAuthContext();
   const { squad } = useSquad({ handle: source.handle });
 
-  useMutationSubscription({
-    matcher: contentPreferenceMutationMatcher,
-    callback: ({
-      mutation,
-      variables: mutationVariables,
-      queryClient: mutationQueryClient,
-    }) => {
-      const queryKey = generateQueryKey(
-        RequestKey.Squad,
-        loggedUser,
-        source.handle,
-      );
-      const currentData = mutationQueryClient.getQueryData(queryKey);
-      const [requestKey] = mutation.options.mutationKey as [
-        RequestKey,
-        ...unknown[],
-      ];
-
-      if (!currentData) {
-        return;
-      }
-
-      const nextStatus = mutationKeyToContentPreferenceStatusMap[requestKey];
-
-      const { id: entityId } =
-        mutationVariables as PropsParameters<ContentPreferenceMutation>;
-
-      mutationQueryClient.setQueryData<Squad>(queryKey, (data) => {
-        const newData = structuredClone(data);
-
-        const followedMember = newData.privilegedMembers?.find(
-          (item) => item.user.id === entityId,
-        );
-
-        if (followedMember?.user) {
-          followedMember.user.contentPreference = nextStatus
-            ? {
-                ...followedMember.user.contentPreference,
-                status: nextStatus,
-              }
-            : undefined;
-        }
-
-        return newData;
-      });
-    },
+  useSourceContentPreferenceMutationSubscription({
+    queryKey: generateQueryKey(RequestKey.Squad, loggedUser, source.handle),
   });
 
   return (
