@@ -21,6 +21,9 @@ export function SignBackButton({
       className="btn-signback btn-primary"
       type="button"
       onClick={onClick}
+      aria-label={`Continue as ${
+        signBack.name || signBack.email
+      } from ${provider}`}
     >
       <ProfilePicture user={signBack} size={ProfileImageSize.Large} />
       <div className="ml-2 flex flex-col items-start text-surface-invert">

@@ -4,6 +4,7 @@ import React, {
   ReactElement,
   useContext,
   useEffect,
+  useId,
   useState,
 } from 'react';
 import {
@@ -154,17 +155,25 @@ export const RegistrationForm = ({
     !isSubmitted || !hints?.['traits.experienceLevel'];
   const isLanguageValid = !isSubmitted || !hints?.['traits.language'];
 
+  const headingId = useId();
+
   return (
     <>
-      <AuthHeader simplified={simplified} title="Sign up" onBack={onBack} />
+      <AuthHeader
+        id={headingId}
+        simplified={simplified}
+        title="Sign up"
+        onBack={onBack}
+      />
       <AuthForm
+        aria-labelledby={headingId}
         className={classNames(
           'mt-6 w-full flex-1 place-items-center gap-2 self-center overflow-y-auto px-6 pb-2 tablet:px-[3.75rem]',
         )}
-        ref={formRef}
-        onSubmit={onSubmit}
-        id="auth-form"
         data-testid="registration_form"
+        id="auth-form"
+        onSubmit={onSubmit}
+        ref={formRef}
       >
         <TokenInput token={token} />
         <TextField
@@ -177,7 +186,13 @@ export const RegistrationForm = ({
           type="email"
           value={email}
           readOnly
-          rightIcon={<VIcon className="text-accent-avocado-default" />}
+          rightIcon={
+            <VIcon
+              aria-hidden
+              role="presentation"
+              className="text-accent-avocado-default"
+            />
+          }
         />
         <TextField
           saveHintSpace
@@ -195,7 +210,13 @@ export const RegistrationForm = ({
             onUpdateHints({ ...hints, 'traits.name': '' })
           }
           rightIcon={
-            isNameValid && <VIcon className="text-accent-avocado-default" />
+            isNameValid && (
+              <VIcon
+                aria-hidden
+                role="presentation"
+                className="text-accent-avocado-default"
+              />
+            )
           }
         />
         <PasswordField

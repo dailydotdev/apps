@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactElement } from 'react';
+import React, { ComponentProps, ReactElement } from 'react';
 import classNames from 'classnames';
 
 export enum IconSize {
@@ -27,11 +27,9 @@ export const iconSizeToClassName: Record<IconSize, string> = {
 
 type ItemType = React.ComponentType<{ className }>;
 
-export interface IconProps {
+export interface IconProps extends ComponentProps<'svg'> {
   secondary?: boolean;
   size?: IconSize;
-  className?: string;
-  style?: CSSProperties;
 }
 
 type Props = IconProps & {

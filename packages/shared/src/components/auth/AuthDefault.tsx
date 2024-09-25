@@ -147,11 +147,16 @@ const AuthDefault = ({
         </p>
       )}
       <AuthContainer className={disableRegistration && 'mb-6'}>
-        <div className="flex flex-col gap-4">
+        <div
+          role="list"
+          aria-label="Social login buttons"
+          className="flex flex-col gap-4"
+        >
           {providers.map(({ label, value, icon }) => (
             <Button
-              key={label}
+              aria-label={`Login using ${label}`}
               icon={icon}
+              key={label}
               variant={ButtonVariant.Primary}
               size={ButtonSize.Large}
               onClick={() => onSocialClick(value)}
