@@ -49,6 +49,7 @@ export interface PublicProfile {
   readmeHtml?: string;
   readme?: string;
   companies?: Company[];
+  contentPreference?: ContentPreference;
 }
 
 export enum UserExperienceLevel {
