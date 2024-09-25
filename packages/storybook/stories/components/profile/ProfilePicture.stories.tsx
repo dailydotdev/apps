@@ -30,4 +30,5 @@ export const Default: Story = {
   args: {
     rounded: 'full',
   },
+  name: 'ProfilePicture',
 };
