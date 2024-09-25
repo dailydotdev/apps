@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { useMemo } from 'react';
 import { getProfile, PublicProfile } from '../../lib/user';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { disabledRefetch } from '../../lib/func';
