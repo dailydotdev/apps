@@ -23,11 +23,8 @@ export function useProfile(initialUser?: PublicProfile): {
     },
   );
 
-  return useMemo(
-    () => ({
-      user,
-      userQueryKey,
-    }),
-    [user, userQueryKey],
-  );
+  return {
+    user,
+    userQueryKey,
+  };
 }

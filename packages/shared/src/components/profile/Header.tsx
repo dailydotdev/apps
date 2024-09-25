@@ -81,15 +81,13 @@ export function Header({
         icon={<ShareIcon />}
         onClick={() => onShareOrCopyLink()}
       />
-      {!isSameUser && (
-        <FollowButton
-          userId={user.id}
-          type={ContentPreferenceType.User}
-          status={(user as LoggedUser).contentPreference?.status}
-          entityName={`@${user.username}`}
-          className="ml-2"
-        />
-      )}
+      <FollowButton
+        userId={user.id}
+        type={ContentPreferenceType.User}
+        status={(user as LoggedUser).contentPreference?.status}
+        entityName={`@${user.username}`}
+        className="ml-2"
+      />
       {isSameUser && (
         <>
           <Button
