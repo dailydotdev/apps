@@ -1,9 +1,9 @@
 import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { Meta, StoryObj } from '@storybook/react';
-import { QueryClientProvider } from '../../extension/_providers';
+import { QueryClientProvider } from '../extension/_providers';
 
 const meta: Meta<typeof ProfilePicture> = {
-  title: 'Components/Profile/ProfilePicture',
+  title: 'Atoms/ProfilePicture',
   component: ProfilePicture,
   args: {
     user: {
