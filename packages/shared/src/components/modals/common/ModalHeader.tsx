@@ -70,7 +70,7 @@ export function ModalHeader({
           className="mr-2 flex -rotate-90 tablet:hidden"
           icon={<ArrowIcon />}
           onClick={(event) => {
-            if (isMobile && tabs && activeView) {
+            if (isMobile && tabs) {
               setActiveView(undefined);
             } else {
               onRequestClose(event);
