@@ -66,6 +66,7 @@ function SquadDiscoveryPage(): ReactElement {
             isPublic: true,
             first: limit,
             sortByMembersCount: true,
+            publicThreshold: true,
           }}
         />
       ))}

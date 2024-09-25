@@ -73,6 +73,7 @@ interface SourceFlags {
   totalPosts: number;
   totalViews: number;
   totalUpvotes: number;
+  publicThreshold: boolean;
 }
 
 export interface Source {

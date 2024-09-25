@@ -44,6 +44,7 @@ function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
       sortByMembersCount: true,
       categoryId: category.id,
       isPublic: true,
+      publicThreshold: true,
     },
   });
   const { isInitialLoading } = result;

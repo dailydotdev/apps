@@ -20,6 +20,7 @@ export interface SourcesQueryProps {
   featured?: boolean;
   categoryId?: string;
   sortByMembersCount?: boolean;
+  publicThreshold?: boolean;
   first?: number;
 }
 
