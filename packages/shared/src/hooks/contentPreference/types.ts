@@ -11,10 +11,14 @@ export type ContentPreferenceMutation = ({
   id,
   entity,
   entityName,
+  opts,
 }: {
   id: string;
   entity: ContentPreferenceType;
   entityName: string;
+  opts?: Partial<{
+    extra: Record<string, unknown>;
+  }>;
 }) => Promise<void>;
 
 export const contentPreferenceMutationMatcher: UseMutationMatcher<

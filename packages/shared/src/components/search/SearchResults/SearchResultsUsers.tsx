@@ -60,6 +60,7 @@ export const SearchResultsUsers = ({
                 className={{
                   wrapper: 'flex-1 truncate px-0 py-0',
                 }}
+                origin={Origin.SearchPage}
               />
               <FollowButton
                 className="ml-auto"
@@ -67,6 +68,7 @@ export const SearchResultsUsers = ({
                 type={ContentPreferenceType.User}
                 entityName={`@${user.username}`}
                 status={(user as LoggedUser).contentPreference?.status}
+                origin={Origin.SearchPage}
               />
             </li>
           ))}

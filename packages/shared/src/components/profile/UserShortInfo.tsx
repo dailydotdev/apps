@@ -9,6 +9,7 @@ import { ReputationUserBadge } from '../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { FollowButton } from '../contentPreference/FollowButton';
+import { Origin } from '../../lib/log';
 
 type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? JSX.IntrinsicElements[Tag]
@@ -36,6 +37,8 @@ export interface UserShortInfoProps<
   showDescription?: boolean;
   transformUsername?(user: UserShortProfile): ReactNode;
   onClick?: () => void;
+  showFollow?: boolean;
+  origin?: Origin;
 }
 
 const defaultClassName = {
@@ -56,6 +59,8 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
     afterContent,
     showDescription = true,
     transformUsername,
+    showFollow,
+    origin,
     ...props
   }: UserShortInfoProps<Tag> & Omit<PropsOf<Tag>, 'className'>,
   ref?: Ref<Tag>,
@@ -112,12 +117,15 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
         </div>
       </ProfileTooltip>
       {children}
-      <FollowButton
-        userId={user.id}
-        type={ContentPreferenceType.User}
-        status={(user as LoggedUser).contentPreference?.status}
-        entityName={`@${user.username}`}
-      />
+      {!!showFollow && (
+        <FollowButton
+          userId={user.id}
+          type={ContentPreferenceType.User}
+          status={(user as LoggedUser).contentPreference?.status}
+          entityName={`@${user.username}`}
+          origin={origin}
+        />
+      )}
       {afterContent}
     </Element>
   );

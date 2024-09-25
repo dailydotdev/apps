@@ -10,6 +10,7 @@ import { useContentPreference } from '../../hooks/contentPreference/useContentPr
 import SourceActionsNotify from '../sources/SourceActions/SourceActionsNotify';
 import SourceActionsFollow from '../sources/SourceActions/SourceActionsFollow';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { Origin } from '../../lib/log';
 
 export type FollowButtonProps = {
   className?: string;
@@ -17,6 +18,7 @@ export type FollowButtonProps = {
   status?: ContentPreferenceStatus;
   type: ContentPreferenceType;
   entityName: string;
+  origin?: Origin;
 };
 
 export const FollowButton = ({
@@ -25,23 +27,34 @@ export const FollowButton = ({
   entityName,
   status: currentStatus,
   type,
+  origin,
 }: FollowButtonProps): ReactElement => {
   const { user } = useAuthContext();
   const { follow, unfollow, subscribe, unsubscribe } = useContentPreference();
 
   const { mutate: onButtonClick, isLoading: isLoadingFollow } = useMutation(
     async () => {
+      const opts = origin
+        ? {
+            extra: {
+              origin,
+            },
+          }
+        : undefined;
+
       if (!currentStatus) {
         await follow({
           id: userId,
           entity: type,
           entityName,
+          opts,
         });
       } else {
         await unfollow({
           id: userId,
           entity: type,
           entityName,
+          opts,
         });
       }
     },
