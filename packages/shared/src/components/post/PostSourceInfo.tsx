@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
+import Link from 'next/link';
 import { Source } from '../../graphql/sources';
 import { Separator } from '../cards/common';
 import SourceButton from '../cards/SourceButton';
@@ -29,7 +30,9 @@ function PostSourceInfo({
       {!isUnknown && (
         <>
           <SourceButton source={source} size={size} />
-          <h3 className="ml-3">{source.handle}</h3>
+          <Link href={source.permalink} className="ml-2 typo-callout">
+            {source.handle}
+          </Link>
         </>
       )}
       {!!date && (
