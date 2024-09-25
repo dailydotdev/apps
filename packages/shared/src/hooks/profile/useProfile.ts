@@ -19,6 +19,7 @@ export function useProfile(initialUser?: PublicProfile): {
       ...disabledRefetch,
       cacheTime: StaleTime.OneHour,
       initialData: initialUser,
+      enabled: !!initialUser?.id,
     },
   );
 
