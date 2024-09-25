@@ -102,15 +102,21 @@ export function SquadMemberModal({
     queryKey: membersQueryKey,
   });
 
+  const hasPermission = verifyPermission(
+    squad,
+    SourcePermissions.ViewBlockedMembers,
+  );
+
   return (
     <>
       <UserListModal
         {...props}
         kind={Modal.Kind.FixedCenter}
         title="Squad members"
-        tabs={Object.values(SquadMemberTab)}
+        tabs={hasPermission ? Object.values(SquadMemberTab) : undefined}
+        defaultView={hasPermission ? SquadMemberTab.AllMembers : undefined}
         header={
-          verifyPermission(squad, SourcePermissions.ViewBlockedMembers) ? (
+          hasPermission ? (
             <Modal.Header.Tabs
               onTabClick={(tab) =>
                 setRoleFilter(
