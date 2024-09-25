@@ -60,6 +60,8 @@ interface LogoProps {
   linkDisabled?: boolean;
 }
 
+const homeHref = process.env.NEXT_PUBLIC_WEBAPP_URL;
+
 export default function Logo({
   className,
   logoClassName = { container: 'h-logo' },
@@ -73,12 +75,11 @@ export default function Logo({
 }: LogoProps): ReactElement {
   return (
     <LinkWithTooltip
-      href={process.env.NEXT_PUBLIC_WEBAPP_URL}
+      href={homeHref}
       passHref
       prefetch={false}
       tooltip={{ placement: 'right', content: 'Home' }}
     >
-      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
       <a
         aria-disabled={linkDisabled}
         className={classNames(
@@ -87,6 +88,7 @@ export default function Logo({
           className,
           linkDisabled && 'pointer-events-none',
         )}
+        href={homeHref}
         onClick={onLogoClick}
       >
         <LogoSvgElem
