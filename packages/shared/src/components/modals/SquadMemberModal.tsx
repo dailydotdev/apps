@@ -102,6 +102,7 @@ export function SquadMemberModal({
         kind={Modal.Kind.FixedCenter}
         title="Squad members"
         tabs={Object.values(SquadMemberTab)}
+        defaultView={SquadMemberTab.AllMembers}
         header={
           verifyPermission(squad, SourcePermissions.ViewBlockedMembers) ? (
             <Modal.Header.Tabs
