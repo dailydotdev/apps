@@ -35,12 +35,6 @@ export const USER_SHORT_INFO_FRAGMENT = gql`
 export const CONTENT_PREFERENCE_FRAMENT = gql`
   fragment ContentPreferenceFragment on ContentPreference {
     referenceId
-    user {
-      id
-      name
-      image
-      username
-    }
     type
     status
   }
