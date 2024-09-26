@@ -86,7 +86,7 @@ export function Header({
         type={ContentPreferenceType.User}
         status={(user as LoggedUser).contentPreference?.status}
         entityName={`@${user.username}`}
-        className="ml-2"
+        className="ml-2 flex-row-reverse"
       />
       {isSameUser && (
         <>
