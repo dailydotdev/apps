@@ -5,6 +5,7 @@ import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { ModalProps } from './common/Modal';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
 import UserListModal from './UserListModal';
+import { Origin } from '../../lib/log';
 
 export interface UpvotedPopupModalProps extends ModalProps {
   placeholderAmount: number;
@@ -50,6 +51,7 @@ export function UpvotedPopupModal({
 
         return acc;
       }, [])}
+      origin={Origin.UserUpvotesList}
     />
   );
 }
