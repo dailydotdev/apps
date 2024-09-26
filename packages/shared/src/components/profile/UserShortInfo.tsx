@@ -82,14 +82,14 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
       )}
     >
       <ProfileTooltip
-        user={user}
+        userId={user?.id}
         tooltip={tooltipProps}
         scrollingContainer={scrollingContainer}
       >
         <ProfilePicture user={user} size={imageSize} nativeLazyLoading />
       </ProfileTooltip>
       <ProfileTooltip
-        user={user}
+        userId={user?.id}
         tooltip={tooltipProps}
         scrollingContainer={scrollingContainer}
       >
