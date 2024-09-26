@@ -71,7 +71,7 @@ export function ProfileWidgets({
           createdAt={user.createdAt}
           company={user.companies?.[0]}
         />
-        <UserStats stats={stats} />
+        <UserStats stats={stats} userId={user.id} />
         {(user.bio || isSameUser) && (
           <div className="text-text-tertiary typo-callout">
             {user.bio || (

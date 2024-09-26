@@ -5,6 +5,7 @@ import { EmptyResponse } from './emptyResponse';
 import { UserShortProfile } from '../lib/user';
 import type { Post, UserVote } from './posts';
 import { Company } from '../lib/userCompany';
+import { ContentPreference } from './contentPreference';
 
 export interface Author {
   __typename?: string;
@@ -17,6 +18,7 @@ export interface Author {
   createdAt?: string;
   reputation?: number;
   companies?: Company[];
+  contentPreference?: ContentPreference;
 }
 
 export type Scout = Author;

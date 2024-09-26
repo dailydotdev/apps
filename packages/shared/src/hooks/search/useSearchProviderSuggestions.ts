@@ -21,25 +21,35 @@ export type UseSearchProviderSuggestionsProps = {
 export type UseSearchProviderSuggestions = {
   isLoading: boolean;
   suggestions: Awaited<ReturnType<UseSearchProvider['getSuggestions']>>;
+} & {
+  queryKey: unknown[];
 };
 
 export const useSearchProviderSuggestions = ({
   provider,
   query,
   limit = defaultSearchSuggestionsLimit,
+  includeContentPreference,
 }: UseSearchProviderSuggestionsProps): UseSearchProviderSuggestions => {
   const { user } = useAuthContext();
   const { getSuggestions } = useSearchProvider();
   const debouncedQuery = useDebounce(query, defaultSearchDebounceMs);
+  const queryKey = generateQueryKey(RequestKey.Search, user, 'suggestions', {
+    provider,
+    debouncedQuery,
+    limit,
+    includeContentPreference,
+  });
 
   const { data, isLoading } = useQuery(
-    generateQueryKey(RequestKey.Search, user, 'suggestions', {
-      provider,
-      debouncedQuery,
-      limit,
-    }),
+    queryKey,
     async () => {
-      return getSuggestions({ provider, query: debouncedQuery, limit });
+      return getSuggestions({
+        provider,
+        query: debouncedQuery,
+        limit,
+        includeContentPreference,
+      });
     },
     {
       enabled: query?.length >= minSearchQueryLength,
@@ -63,5 +73,6 @@ export const useSearchProviderSuggestions = ({
   return {
     isLoading,
     suggestions: data,
+    queryKey,
   };
 };

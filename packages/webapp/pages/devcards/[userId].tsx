@@ -1,14 +1,12 @@
 import React, { ReactElement } from 'react';
-import {
-  DevCard,
-  DevCardType,
-} from '@dailydotdev/shared/src/components/profile/devcard';
+import { DevCardType } from '@dailydotdev/shared/src/components/profile/devcard';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
 import { useRouter } from 'next/router';
+import { DevCardFetchWrapper } from '@dailydotdev/shared/src/components/profile/devcard/DevCardFetchWrapper';
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
   return { paths: [], fallback: 'blocking' };
@@ -50,7 +48,7 @@ const DevCardPage = ({ userId }: DevCardPageProps): ReactElement => {
 
   return (
     <div id="screenshot_wrapper" className="w-fit">
-      <DevCard userId={userId} type={type} />
+      <DevCardFetchWrapper userId={userId} type={type} />
     </div>
   );
 };
