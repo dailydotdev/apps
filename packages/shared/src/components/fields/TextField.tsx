@@ -4,6 +4,7 @@ import React, {
   ReactElement,
   ReactNode,
   SyntheticEvent,
+  useId,
 } from 'react';
 import classNames from 'classnames';
 import { FieldInput } from './common';
@@ -75,6 +76,7 @@ function TextFieldComponent(
   const isTertiaryField = fieldType === 'tertiary';
   const invalid = validInput === false || (required && inputLength === 0);
   const hasValue = hasInput || !!inputRef?.current?.value?.length;
+  const id = useId();
 
   return (
     <BaseFieldContainer
@@ -140,7 +142,7 @@ function TextFieldComponent(
                 isPrimaryField: true,
               }),
             )}
-            htmlFor={inputId}
+            htmlFor={inputId.concat(id)}
           >
             {label}
           </label>
@@ -154,7 +156,7 @@ function TextFieldComponent(
             isSecondaryField,
           })}
           name={name}
-          id={inputId}
+          id={inputId.concat(id)}
           ref={inputRef}
           onFocus={onFocus}
           onBlur={(e) => {
