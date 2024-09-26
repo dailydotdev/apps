@@ -7,6 +7,7 @@ import React, {
   useEffect,
   useState,
   InputHTMLAttributes,
+  useId,
 } from 'react';
 import classNames from 'classnames';
 import { VIcon } from '../icons';
@@ -30,13 +31,14 @@ export const Checkbox = forwardRef(function Checkbox(
     className,
     checkmarkClassName,
     onToggleCallback,
-    id,
+    id = '',
     disabled,
     ...props
   }: CheckboxProps,
   ref: LegacyRef<HTMLInputElement>,
 ): ReactElement {
   const [actualChecked, setActualChecked] = useState(checked);
+  const checkId = useId();
 
   useEffect(() => {
     setActualChecked(checked);
@@ -57,12 +59,13 @@ export const Checkbox = forwardRef(function Checkbox(
         { checked: actualChecked, disabled },
       )}
       style={{ transition: 'color 0.1s linear' }}
-      htmlFor={id}
+      htmlFor={id.concat(checkId)}
     >
       <input
         {...props}
+        aria-labelledby={`label-span-${checkId}`}
         disabled={disabled}
-        id={id}
+        id={id.concat(checkId)}
         type="checkbox"
         className="absolute h-0 w-0 opacity-0"
         name={name}
@@ -71,18 +74,25 @@ export const Checkbox = forwardRef(function Checkbox(
         ref={ref}
       />
       <div
+        aria-checked={checked}
+        aria-labelledby={`label-${checkId}`}
         className={classNames(
           'relative z-1 mr-3 flex h-5 w-5 items-center justify-center rounded-6 border-2 border-border-subtlest-primary',
           styles.checkmark,
           checkmarkClassName,
         )}
+        role="checkbox"
       >
         <VIcon
+          aria-hidden
           className="icon h-full w-full text-text-primary opacity-0"
+          role="presentation"
           style={{ transition: 'opacity 0.1s linear' }}
         />
       </div>
-      {children}
+      <span className="min-w-0 flex-1" id={`label-span-${checkId}`}>
+        {children}
+      </span>
     </label>
   );
 });
