@@ -19,6 +19,7 @@ interface EmailCodeVerificationProps extends AuthFormProps {
   onSubmit?: () => void;
   className?: string;
 }
+
 function EmailCodeVerification({
   code: codeProp,
   email: emailProp,
@@ -90,17 +91,18 @@ function EmailCodeVerification({
         rightIcon={<VIcon className="text-accent-avocado-default" />}
       />
       <TextField
+        autoFocus
         className={{ container: 'w-full' }}
-        name="code"
-        type="code"
+        defaultValue={code}
+        hint={hint}
         inputId="code"
         label="Code"
-        hint={hint}
-        defaultValue={code}
+        leftIcon={<KeyIcon aria-hidden role="presentation" />}
+        name="code"
+        onChange={() => hint && setHint('')}
+        type="code"
         valid={!hint}
         valueChanged={setCode}
-        onChange={() => hint && setHint('')}
-        leftIcon={<KeyIcon />}
         actionButton={
           <Button
             className="btn-primary"

@@ -483,8 +483,8 @@ function AuthOptions({
         <Tab label={AuthDisplay.SignBack}>
           <AuthSignBack
             onRegister={() => {
-              if (isLoginFlow && onAuthStateUpdate) {
-                onAuthStateUpdate({ isLoginFlow: false });
+              if (isLoginFlow) {
+                onAuthStateUpdate?.({ isLoginFlow: false });
               }
               setIsConnected(false);
               onSetActiveDisplay(AuthDisplay.Default);

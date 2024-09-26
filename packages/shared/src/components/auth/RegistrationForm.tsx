@@ -25,7 +25,6 @@ import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
 import { Checkbox } from '../fields/Checkbox';
 import LogContext from '../../contexts/LogContext';
-import { Modal } from '../modals/common/Modal';
 import { useGenerateUsername } from '../../hooks';
 import { AuthFormProps } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -292,14 +291,14 @@ export const RegistrationForm = ({
         <Checkbox name="optOutMarketing">
           I don’t want to receive updates and promotions via email
         </Checkbox>
-      </AuthForm>
-      <ConditionalWrapper
-        condition={simplified}
-        wrapper={(component) => (
-          <AuthContainer className="!mt-0">{component}</AuthContainer>
-        )}
-      >
-        <Modal.Footer>
+        <ConditionalWrapper
+          condition={simplified}
+          wrapper={(component) => (
+            <AuthContainer className="!mt-0 border-t border-border-subtlest-tertiary p-3 !px-3 pb-1">
+              {component}
+            </AuthContainer>
+          )}
+        >
           <Button
             form="auth-form"
             type="submit"
@@ -308,8 +307,8 @@ export const RegistrationForm = ({
           >
             Sign up
           </Button>
-        </Modal.Footer>
-      </ConditionalWrapper>
+        </ConditionalWrapper>
+      </AuthForm>
     </>
   );
 };

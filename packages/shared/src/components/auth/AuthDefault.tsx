@@ -3,6 +3,7 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
@@ -92,6 +93,10 @@ const AuthDefault = ({
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldLogin]);
+
+  useLayoutEffect(() => {
+    focusFirstSocialLink();
+  }, []);
 
   const onEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();

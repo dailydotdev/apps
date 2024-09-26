@@ -192,6 +192,7 @@ export function FilterOnboardingV4({
         placeholder="javascript, php, git, etc…"
         className="mb-10 w-full tablet:max-w-xs"
         valueChanged={onSearch}
+        autoFocus
       />
       <div className="flex flex-row flex-wrap justify-center gap-4">
         {isLoading &&
