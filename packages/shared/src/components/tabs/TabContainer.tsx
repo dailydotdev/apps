@@ -90,7 +90,6 @@ export function TabContainer<T extends string = string>({
     onActiveChange?.(label);
 
     setTimeout(() => {
-      console.log({ shouldFocusTabOnChange, current: containerRef.current });
       if (shouldFocusTabOnChange && containerRef?.current) {
         const [firstChild] = containerRef.current.children;
         if (firstChild instanceof HTMLElement) {
