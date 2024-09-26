@@ -79,7 +79,9 @@ const ExperienceLevelDropdown = ({
         }}
         onOpenChange={setOpen}
         placeholder="Experience level"
-        icon={<TerminalIcon className="ml-0 mr-1" />}
+        icon={
+          <TerminalIcon aria-hidden role="presentation" className="ml-0 mr-1" />
+        }
       />
       {name && selectedIndex > -1 && (
         <input
