@@ -25,8 +25,8 @@ export function LinksForm({
   };
 
   const handleInputChange = (i: number, value: string) => {
-    // Prepend "http://" if the value does not start with "http://" or "https://"
-    const updatedValue = value.startsWith('http://') || value.startsWith('https://') ? value : `http://${value}`;
+    // Prepend "https://" if the value does not start with "http://" or "https://"
+    const updatedValue = value.startsWith('http://') || value.startsWith('https://') ? value : `https://${value}`;
     links[i] = updatedValue;
   };
 
