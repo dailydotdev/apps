@@ -32,6 +32,25 @@ export const USER_SHORT_INFO_FRAGMENT = gql`
   }
 `;
 
+export const CONTENT_PREFERENCE_FRAMENT = gql`
+  fragment ContentPreferenceFragment on ContentPreference {
+    referenceId
+    type
+    status
+  }
+`;
+
+export const USER_AUTHOR_FRAGMENT = gql`
+  fragment UserAuthor on User {
+    ...UserShortInfo
+    contentPreference {
+      ...ContentPreferenceFragment
+    }
+  }
+  ${CONTENT_PREFERENCE_FRAMENT}
+  ${USER_SHORT_INFO_FRAGMENT}
+`;
+
 export const SOURCE_DIRECTORY_INFO_FRAGMENT = gql`
   fragment SourceDirectoryInfo on Source {
     id
@@ -114,6 +133,9 @@ export const SQUAD_BASE_FRAGMENT = `
           name
           image
         }
+        contentPreference {
+          status
+        }
       }
       role
     }
@@ -144,10 +166,10 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
       remindAt
     }
     scout {
-      ...UserShortInfo
+      ...UserAuthor
     }
     author {
-      ...UserShortInfo
+      ...UserAuthor
     }
     type
     tags
@@ -168,7 +190,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     domain
   }
   ${SOURCE_BASE_FRAGMENT}
-  ${USER_SHORT_INFO_FRAGMENT}
+  ${USER_AUTHOR_FRAGMENT}
 `;
 
 export const COMMENT_FRAGMENT = gql`
@@ -180,13 +202,13 @@ export const COMMENT_FRAGMENT = gql`
     permalink
     numUpvotes
     author {
-      ...UserShortInfo
+      ...UserAuthor
     }
     userState {
       vote
     }
   }
-  ${USER_SHORT_INFO_FRAGMENT}
+  ${USER_AUTHOR_FRAGMENT}
 `;
 
 export const RELATED_POST_FRAGMENT = gql`

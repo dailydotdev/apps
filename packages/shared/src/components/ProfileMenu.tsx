@@ -1,5 +1,5 @@
-import React, { ReactElement, useContext, useMemo } from 'react';
-import AuthContext from '../contexts/AuthContext';
+import React, { ReactElement, useMemo } from 'react';
+import { useAuthContext } from '../contexts/AuthContext';
 import {
   InviteIcon,
   UserIcon,
@@ -45,7 +45,7 @@ export default function ProfileMenu({
   onClose,
 }: ProfileMenuProps): ReactElement {
   const { openModal } = useLazyModal();
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout } = useAuthContext();
   const { isActive: isDndActive, setShowDnd } = useDndContext();
 
   const items: ListItem[] = useMemo(() => {

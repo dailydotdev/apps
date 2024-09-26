@@ -4,9 +4,12 @@ import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { TooltipProps } from '../tooltips/BaseTooltip';
 import { TruncateText } from '../utilities';
 import { ProfileTooltip } from './ProfileTooltip';
-import { UserShortProfile } from '../../lib/user';
+import { LoggedUser, UserShortProfile } from '../../lib/user';
 import { ReputationUserBadge } from '../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
+import { ContentPreferenceType } from '../../graphql/contentPreference';
+import { FollowButton } from '../contentPreference/FollowButton';
+import { Origin } from '../../lib/log';
 
 type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? JSX.IntrinsicElements[Tag]
@@ -30,8 +33,12 @@ export interface UserShortInfoProps<
   scrollingContainer?: HTMLElement;
   appendTooltipTo?: HTMLElement;
   children?: ReactNode;
+  afterContent?: ReactNode;
   showDescription?: boolean;
   transformUsername?(user: UserShortProfile): ReactNode;
+  onClick?: () => void;
+  showFollow?: boolean;
+  origin?: Origin;
 }
 
 const defaultClassName = {
@@ -49,8 +56,11 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
     scrollingContainer,
     appendTooltipTo,
     children,
+    afterContent,
     showDescription = true,
     transformUsername,
+    showFollow,
+    origin,
     ...props
   }: UserShortInfoProps<Tag> & Omit<PropsOf<Tag>, 'className'>,
   ref?: Ref<Tag>,
@@ -67,7 +77,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
       ref={ref}
       {...props}
       className={classNames(
-        'flex flex-row',
+        'flex flex-row items-center',
         className.container ?? defaultClassName.container,
       )}
     >
@@ -107,6 +117,16 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
         </div>
       </ProfileTooltip>
       {children}
+      {!!showFollow && (
+        <FollowButton
+          userId={user.id}
+          type={ContentPreferenceType.User}
+          status={(user as LoggedUser).contentPreference?.status}
+          entityName={`@${user.username}`}
+          origin={origin}
+        />
+      )}
+      {afterContent}
     </Element>
   );
 };
