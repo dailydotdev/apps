@@ -177,9 +177,10 @@ export const RegistrationForm = ({
       >
         <TokenInput token={token} />
         <TextField
+          autoComplete="email"
           saveHintSpace
           className={{ container: 'w-full' }}
-          leftIcon={<MailIcon />}
+          leftIcon={<MailIcon aria-hidden role="presentation" />}
           name="traits.email"
           inputId="email"
           label="Email"
@@ -195,10 +196,12 @@ export const RegistrationForm = ({
           }
         />
         <TextField
+          autoFocus
+          autoComplete="name"
           saveHintSpace
           className={{ container: 'w-full' }}
           valid={isNameValid}
-          leftIcon={<UserIcon />}
+          leftIcon={<UserIcon aria-hidden role="presentation" />}
           name="traits.name"
           inputId="traits.name"
           label="Name"
@@ -227,12 +230,14 @@ export const RegistrationForm = ({
           name="password"
           inputId="password"
           label="Create a password"
+          autoComplete="new-password"
         />
         <TextField
+          autoComplete="user"
           saveHintSpace
           className={{ container: 'w-full' }}
           valid={isUsernameValid}
-          leftIcon={<AtIcon secondary />}
+          leftIcon={<AtIcon aria-hidden role="presentation" secondary />}
           name="traits.username"
           inputId="traits.username"
           label="Enter a username"
@@ -251,7 +256,7 @@ export const RegistrationForm = ({
           <TextField
             saveHintSpace
             className={{ container: 'w-full' }}
-            leftIcon={<TwitterIcon />}
+            leftIcon={<TwitterIcon aria-hidden role="presentation" />}
             name="traits.twitter"
             inputId="traits.twitter"
             label="X"

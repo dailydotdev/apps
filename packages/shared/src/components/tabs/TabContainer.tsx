@@ -89,14 +89,15 @@ export function TabContainer<T extends string = string>({
     setActive(label);
     onActiveChange?.(label);
 
-    if (shouldFocusTabOnChange && containerRef?.current) {
-      setTimeout(() => {
+    setTimeout(() => {
+      console.log({ shouldFocusTabOnChange, current: containerRef.current });
+      if (shouldFocusTabOnChange && containerRef?.current) {
         const [firstChild] = containerRef.current.children;
         if (firstChild instanceof HTMLElement) {
           firstChild.focus();
         }
-      }, 0);
-    }
+      }
+    }, 0);
 
     if (child?.props?.url) {
       router.push(child.props.url);
@@ -142,6 +143,7 @@ export function TabContainer<T extends string = string>({
   return (
     <div
       className={classNames('flex flex-col', className?.container)}
+      ref={containerRef}
       style={style}
     >
       <header

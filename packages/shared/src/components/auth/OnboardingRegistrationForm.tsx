@@ -157,7 +157,6 @@ const OnboardingRegistrationForm = ({
         label="Or sign up with"
         aria-hidden
       />
-
       <div
         aria-label="Social login buttons"
         className={classNames(
