@@ -25,7 +25,7 @@ export function PermissionSection({
   initialMemberPostingRole,
 }: PermissionSectionProps): ReactElement {
   const [memberPostingRole, setMemberPostingRole] = useState(
-    () => initialMemberPostingRole || SourceMemberRole.Member,
+    () => initialMemberPostingRole || SourceMemberRole.Moderator,
   );
   const [memberInviteRole, setMemberInviteRole] = useState(
     () => initialMemberInviteRole || SourceMemberRole.Member,
