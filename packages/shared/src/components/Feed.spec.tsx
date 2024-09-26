@@ -854,7 +854,7 @@ describe('Feed', () => {
     const secondTitle = await screen.findByTestId('post-modal-title');
     expect(secondTitle).toHaveTextContent(secondPost.node.title);
 
-    await screen.findByRole('navigation');
+    await screen.findAllByRole('navigation');
     const previous = await screen.findByLabelText('Previous');
     mockGraphQL(createPostMock({ id: firstPost.node.id }));
     fireEvent.click(previous);
