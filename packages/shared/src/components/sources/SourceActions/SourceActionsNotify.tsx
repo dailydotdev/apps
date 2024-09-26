@@ -6,16 +6,17 @@ import { BellAddIcon, BellSubscribedIcon } from '../../icons';
 
 interface SourceActionsNotifyProps {
   haveNotificationsOn: boolean;
-  onClick: () => void;
+  onClick: (e) => void;
+  disabled?: boolean;
 }
 
 const SourceActionsNotify = (props: SourceActionsNotifyProps): ReactElement => {
-  const { haveNotificationsOn, onClick } = props;
+  const { haveNotificationsOn, onClick, disabled } = props;
 
   const icon = haveNotificationsOn ? <BellSubscribedIcon /> : <BellAddIcon />;
   const label = `${haveNotificationsOn ? 'Disable' : 'Enable'} notifications`;
   const variant = haveNotificationsOn
-    ? ButtonVariant.Tertiary
+    ? ButtonVariant.Subtle
     : ButtonVariant.Secondary;
 
   return (
@@ -27,6 +28,7 @@ const SourceActionsNotify = (props: SourceActionsNotifyProps): ReactElement => {
         size={ButtonSize.Small}
         title={label}
         variant={variant}
+        disabled={disabled}
       />
     </SimpleTooltip>
   );

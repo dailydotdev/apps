@@ -53,6 +53,8 @@ import { SearchResultsLayout } from './search/SearchResults/SearchResultsLayout'
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
 import { PostClick } from '../lib/click';
 
+import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedContentPreferenceMutationSubscription';
+
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
 );
@@ -243,6 +245,8 @@ export default function Feed<T>({
     items,
     updatePost,
   });
+
+  useFeedContentPreferenceMutationSubscription({ feedQueryKey });
 
   const { toggleBookmark: onBookmark } = useBookmarkPost({
     mutationKey: feedQueryKey,

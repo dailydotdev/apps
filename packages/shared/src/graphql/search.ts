@@ -5,6 +5,7 @@ import { Connection, RequestQueryParams, gqlClient } from './common';
 import { webappUrl } from '../lib/constants';
 import { Post } from './posts';
 import { labels } from '../lib';
+import { ContentPreference } from './contentPreference';
 
 export enum SearchProviderEnum {
   Posts = 'posts',
@@ -177,13 +178,26 @@ export const SEARCH_SOURCE_SUGGESTIONS = gql`
 `;
 
 export const SEARCH_USER_SUGGESTIONS = gql`
-  query SearchUserSuggestions($query: String!, $version: Int, $limit: Int) {
-    searchUserSuggestions(query: $query, version: $version, limit: $limit) {
+  query SearchUserSuggestions(
+    $query: String!
+    $version: Int
+    $limit: Int
+    $includeContentPreference: Boolean
+  ) {
+    searchUserSuggestions(
+      query: $query
+      version: $version
+      limit: $limit
+      includeContentPreference: $includeContentPreference
+    ) {
       hits {
         id
         title
         subtitle
         image
+        contentPreference {
+          status
+        }
       }
     }
   }
@@ -350,6 +364,7 @@ export type SearchSuggestion = {
   title: string;
   subtitle?: string;
   image?: string;
+  contentPreference?: ContentPreference;
 };
 
 export type SearchSuggestionResult = {
