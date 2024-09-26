@@ -6,6 +6,7 @@ import {
   USER_BY_ID_STATIC_FIELDS_QUERY,
 } from '../graphql/users';
 import type { Company } from './userCompany';
+import type { ContentPreference } from '../graphql/contentPreference';
 
 export enum Roles {
   Moderator = 'moderator',
@@ -48,6 +49,7 @@ export interface PublicProfile {
   readmeHtml?: string;
   readme?: string;
   companies?: Company[];
+  contentPreference?: ContentPreference;
 }
 
 export enum UserExperienceLevel {
@@ -85,6 +87,8 @@ export interface UserProfile {
   cover?: string;
   experienceLevel?: keyof typeof UserExperienceLevel;
   language?: ContentLanguage;
+  followingEmail?: boolean;
+  followNotifications?: boolean;
 }
 
 export interface UserShortProfile
@@ -94,6 +98,7 @@ export interface UserShortProfile
   > {
   username: string;
   permalink: string;
+  contentPreference?: ContentPreference;
 }
 
 export interface LoggedUser extends UserProfile, AnonymousUser {
@@ -114,6 +119,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   experienceLevel?: keyof typeof UserExperienceLevel;
   isTeamMember?: boolean;
   companies?: Company[];
+  contentPreference?: ContentPreference;
 }
 
 interface BaseError {
@@ -239,4 +245,14 @@ export const contnetLanguageToLabelMap = {
   [ContentLanguage.PortuguesePortugal]: 'Portuguese (Portugal)',
   [ContentLanguage.Japanese]: 'Japanese',
   [ContentLanguage.Korean]: 'Korean',
+};
+
+export const isSpecialUser = ({
+  userId,
+  loggedUserId,
+}: {
+  userId: string;
+  loggedUserId: string | null;
+}): boolean => {
+  return !!userId && ['404', loggedUserId].includes(userId);
 };

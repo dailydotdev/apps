@@ -8,7 +8,7 @@ import {
   RELATED_POST_FRAGMENT,
   SHARED_POST_INFO_FRAGMENT,
   SOURCE_SHORT_INFO_FRAGMENT,
-  USER_SHORT_INFO_FRAGMENT,
+  USER_AUTHOR_FRAGMENT,
 } from './fragments';
 import { acceptedTypesList, MEGABYTE } from '../components/fields/ImageInput';
 import { Bookmark } from './bookmarks';
@@ -225,7 +225,7 @@ export const POST_BY_ID_QUERY = gql`
 `;
 
 export const POST_UPVOTES_BY_ID_QUERY = gql`
-  ${USER_SHORT_INFO_FRAGMENT}
+  ${USER_AUTHOR_FRAGMENT}
   query PostUpvotes($id: String!, $after: String, $first: Int) {
     upvotes: postUpvotes(id: $id, after: $after, first: $first) {
       pageInfo {
@@ -235,7 +235,7 @@ export const POST_UPVOTES_BY_ID_QUERY = gql`
       edges {
         node {
           user {
-            ...UserShortInfo
+            ...UserAuthor
           }
         }
       }

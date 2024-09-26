@@ -13,6 +13,14 @@ const UpvotedPopupModal = dynamic(
   () =>
     import(/* webpackChunkName: "upvotedPopupModal" */ './UpvotedPopupModal'),
 );
+const UserFollowersModal = dynamic(
+  () =>
+    import(/* webpackChunkName: "userFollowersModal" */ './UserFollowersModal'),
+);
+const UserFollowingModal = dynamic(
+  () =>
+    import(/* webpackChunkName: "userFollowingModal" */ './UserFollowingModal'),
+);
 const SquadTourModal = dynamic(
   () => import(/* webpackChunkName: "squadTourModal" */ './SquadTourModal'),
 );
@@ -186,6 +194,8 @@ export const modals = {
   [LazyModal.RecoverStreak]: StreakRecoverModal,
   [LazyModal.SlackIntegration]: SlackIntegrationModal,
   [LazyModal.ReportSource]: ReportSourceModal,
+  [LazyModal.UserFollowersModal]: UserFollowersModal,
+  [LazyModal.UserFollowingModal]: UserFollowingModal,
 };
 
 type GetComponentProps<T> = T extends

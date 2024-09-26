@@ -28,13 +28,13 @@ import DevCardPlaceholder from '@dailydotdev/shared/src/components/DevCardPlaceh
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { devCard } from '@dailydotdev/shared/src/lib/constants';
 import {
-  DevCard,
   DevCardTheme,
   DevCardType,
   devcardTypeToEventFormat,
   requiredPoints,
   themeToLinearGradient,
 } from '@dailydotdev/shared/src/components/profile/devcard';
+import { DevCardFetchWrapper } from '@dailydotdev/shared/src/components/profile/devcard/DevCardFetchWrapper';
 import { WidgetContainer } from '@dailydotdev/shared/src/components/widgets/common';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import {
@@ -278,7 +278,11 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                 trackOnWindow
                 style={{ transformStyle: 'preserve-3d' }}
               >
-                <DevCard userId={user.id} type={type} isInteractive={false} />
+                <DevCardFetchWrapper
+                  userId={user.id}
+                  type={type}
+                  isInteractive={false}
+                />
               </Tilt>
             )}
           </div>
