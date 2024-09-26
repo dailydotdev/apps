@@ -4,6 +4,7 @@ import UserList, { UserListProps } from '../profile/UserList';
 import { InfiniteScrollingProps } from '../containers/InfiniteScrolling';
 import { UserShortProfile } from '../../lib/user';
 import { SearchField } from '../fields/SearchField';
+import { Origin } from '../../lib/log';
 
 export interface UserListModalProps extends Omit<ModalProps, 'children'> {
   users: UserShortProfile[];
@@ -13,9 +14,14 @@ export interface UserListModalProps extends Omit<ModalProps, 'children'> {
   scrollingProps: Omit<InfiniteScrollingProps, 'children'>;
   userListProps?: Pick<
     UserListProps,
-    'additionalContent' | 'initialItem' | 'isLoading' | 'emptyPlaceholder'
+    | 'additionalContent'
+    | 'afterContent'
+    | 'initialItem'
+    | 'isLoading'
+    | 'emptyPlaceholder'
   >;
   onSearch?(query: string): void;
+  origin?: Origin;
 }
 
 function UserListModal({
@@ -27,6 +33,7 @@ function UserListModal({
   size = Modal.Size.Medium,
   userListProps,
   onSearch,
+  origin,
   ...props
 }: UserListModalProps): ReactElement {
   const container = useRef<HTMLElement>();
@@ -58,6 +65,7 @@ function UserListModal({
           userInfoProps={{
             scrollingContainer: container.current,
             appendTooltipTo: modalRef,
+            origin,
           }}
         />
       </Modal.Body>
