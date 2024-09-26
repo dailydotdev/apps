@@ -29,7 +29,7 @@ export const generateDefaultSquad = (username: string): Squad => ({
   ...defaultSquad,
   id: username,
   handle: username,
-  name: `${username}'s private squad`,
+  name: `${username}'s public Squad`,
   type: SourceType.Squad,
 });
 
