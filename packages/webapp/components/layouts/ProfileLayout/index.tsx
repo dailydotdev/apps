@@ -43,7 +43,7 @@ export default function ProfileLayout({
 }: ProfileLayoutProps): ReactElement {
   const router = useRouter();
   const { isFallback } = router;
-  const user = useProfile(initialUser);
+  const { user } = useProfile(initialUser);
 
   if (!isFallback && !user) {
     return <Custom404 />;

@@ -13,7 +13,7 @@ export function PrivilegedMemberItem({
   member: { user, role },
 }: PrivilegedMemberItemProps): ReactElement {
   return (
-    <ProfileTooltip user={user} tooltip={{ placement: 'bottom' }}>
+    <ProfileTooltip userId={user.id} tooltip={{ placement: 'bottom' }}>
       <ProfileLink
         href={user.permalink}
         className="flex flex-row items-center rounded-10 border border-border-subtlest-tertiary p-2"

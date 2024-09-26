@@ -22,6 +22,7 @@ import { useFeedLayout } from '../../../hooks';
 import { SearchResultsUsers } from './SearchResultsUsers';
 import { useFeature } from '../../GrowthBookProvider';
 import { feature } from '../../../lib/featureManagement';
+import { useUseSearchSuggestionsContentPreferenceMutationSubscription } from '../../../hooks/contentPreference/useSearchSuggestionsContentPreferenceMutationSubscription';
 
 type SearchResultsLayoutProps = PropsWithChildren;
 
@@ -60,12 +61,21 @@ export const SearchResultsLayout = (
     });
   const sources = suggestedSources?.hits ?? [];
 
-  const { isLoading: isUsersLoading, suggestions: suggestedUsers } =
-    useSearchProviderSuggestions({
-      query: `${query}`,
-      provider: SearchProviderEnum.Users,
-      limit: 10,
-    });
+  const {
+    isLoading: isUsersLoading,
+    suggestions: suggestedUsers,
+    queryKey: usersQueryKey,
+  } = useSearchProviderSuggestions({
+    query: `${query}`,
+    provider: SearchProviderEnum.Users,
+    limit: 10,
+    includeContentPreference: true,
+  });
+
+  useUseSearchSuggestionsContentPreferenceMutationSubscription({
+    queryKey: usersQueryKey,
+  });
+
   const users = suggestedUsers?.hits ?? [];
 
   const onTagClick = (suggestion: SearchSuggestion) => {

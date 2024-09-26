@@ -64,7 +64,7 @@ export const PostCardHeader = ({
       >
         <SourceButton source={source} />
         {!!post?.author && (
-          <ProfileTooltip user={post.author}>
+          <ProfileTooltip userId={post.author.id}>
             <ProfileImageLink
               picture={{ size: ProfileImageSize.Medium }}
               user={post.author}

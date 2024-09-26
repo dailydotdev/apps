@@ -33,6 +33,7 @@ export interface ModalProps extends ReactModal.Props, DrawerOnMobileProps {
   onLogPrev?: LogEvent;
   isDrawerOnMobile?: boolean;
   formProps?: Omit<FormWrapperProps, 'children'>;
+  placeholderAmount?: number;
 }
 
 export type LazyModalCommonProps = Pick<

@@ -31,7 +31,7 @@ export function PostWidgets({
         className="hidden pt-6 laptop:flex"
         contextMenuId="post-widgets-context"
       />
-      <PostUsersHighlights post={post} />
+      <PostUsersHighlights post={post} origin={origin} />
       <ShareBar post={post} />
       <ShareMobile
         post={post}
