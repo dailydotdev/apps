@@ -63,6 +63,10 @@ export function UserStats({ stats, userId }: UserStatsProps): ReactElement {
               openModal({
                 type: LazyModal.UserFollowersModal,
                 ...defaultModalProps,
+                props: {
+                  ...defaultModalProps.props,
+                  placeholderAmount: stats.numFollowers,
+                },
               });
             }}
           />
@@ -77,6 +81,10 @@ export function UserStats({ stats, userId }: UserStatsProps): ReactElement {
               openModal({
                 type: LazyModal.UserFollowingModal,
                 ...defaultModalProps,
+                props: {
+                  ...defaultModalProps.props,
+                  placeholderAmount: stats.numFollowing,
+                },
               });
             }}
           />
