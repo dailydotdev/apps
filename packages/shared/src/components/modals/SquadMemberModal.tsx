@@ -16,12 +16,14 @@ import { LinkIcon } from '../icons';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { FlexCentered } from '../utilities';
 import { useSquadActions } from '../../hooks';
-import SquadMemberItemAdditionalContent from '../squads/SquadMemberItemAdditionalContent';
+import SquadMemberItemRole from '../squads/SquadMemberItemRole';
 import { verifyPermission } from '../../graphql/squads';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { defaultSearchDebounceMs } from '../../lib/func';
 import { BlockedMembersPlaceholder } from '../squads/Members';
 import { ContextMenu } from '../../hooks/constants';
+import SquadMemberItemOptionsButton from '../squads/SquadMemberItemOptionsButton';
+import { useSquadMembersContentPreferenceMutationSubscription } from './squads/useSquadMembersContentPreferenceMutationSubscription';
 
 enum SquadMemberTab {
   AllMembers = 'Squad members',
@@ -83,6 +85,7 @@ export function SquadMemberModal({
     membersQueryResult: queryResult,
     onUnblock,
     onUpdateRole,
+    membersQueryKey,
   } = useSquadActions({
     squad,
     query: query?.trim?.()?.length ? query : undefined,
@@ -94,6 +97,10 @@ export function SquadMemberModal({
     setMember(clickedMember);
     onMenuClick(e);
   };
+
+  useSquadMembersContentPreferenceMutationSubscription({
+    queryKey: membersQueryKey,
+  });
 
   const hasPermission = verifyPermission(
     squad,
@@ -129,7 +136,14 @@ export function SquadMemberModal({
         }}
         userListProps={{
           additionalContent: (user, index) => (
-            <SquadMemberItemAdditionalContent
+            <SquadMemberItemRole
+              member={members[index]}
+              key={`squad_role_${user.id}`}
+            />
+          ),
+          afterContent: (user, index) => (
+            <SquadMemberItemOptionsButton
+              key={`squad_option_${user.id}`}
               member={members[index]}
               onUnblock={() =>
                 onUnblock({ sourceId: squad.id, memberId: user.id })
@@ -156,6 +170,7 @@ export function SquadMemberModal({
         }}
         users={members?.map(({ user }) => user)}
         onSearch={handleSearchDebounce}
+        origin={Origin.SquadMembersList}
       />
       <SquadMemberMenu
         squad={squad}

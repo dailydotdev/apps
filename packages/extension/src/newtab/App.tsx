@@ -42,6 +42,7 @@ import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
@@ -49,6 +50,8 @@ import MainFeedPage from './MainFeedPage';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
 import { useContentScriptStatus } from '../../../shared/src/hooks';
+
+structuredCloneJsonPolyfill();
 
 const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
 const DEFAULT_TAB_TITLE = 'New Tab';

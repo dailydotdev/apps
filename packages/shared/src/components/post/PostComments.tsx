@@ -23,6 +23,7 @@ import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useDeleteComment } from '../../hooks/comments/useDeleteComment';
 import { lazyCommentThreshold } from '../utilities';
 import { isNullOrUndefined } from '../../lib/func';
+import { useCommentContentPreferenceMutationSubscription } from './useCommentContentPreferenceMutationSubscription';
 
 interface PostCommentsProps {
   post: Post;
@@ -67,6 +68,9 @@ export function PostComments({
         refetchOnWindowFocus: false,
       },
     );
+
+  useCommentContentPreferenceMutationSubscription({ queryKey });
+
   const { hash: commentHash } = globalThis?.window?.location || {};
   const commentsCount = comments?.postComments?.edges?.length || 0;
   const commentRef = useRef<HTMLElement>(null);

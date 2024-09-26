@@ -14,15 +14,18 @@ import { ReputationUserBadge } from '../ReputationUserBadge';
 import { ButtonVariant } from '../buttons/common';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import EnableNotification from '../notifications/EnableNotification';
-import { NotificationPromptSource } from '../../lib/log';
+import { NotificationPromptSource, Origin } from '../../lib/log';
 import { useSourceActionsNotify } from '../../hooks';
 import { SourceActions } from '../sources/SourceActions';
 import { Source as ISource } from '../../graphql/sources';
 import { TruncateText } from '../utilities';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
+import { FollowButton } from '../contentPreference/FollowButton';
+import { ContentPreferenceType } from '../../graphql/contentPreference';
 
 interface PostAuthorProps {
   post: Post;
+  origin: Origin;
 }
 
 export enum UserType {
@@ -54,6 +57,7 @@ type UserHighlightProps = SourceAuthorProps & {
     reputation?: string;
     handle?: string;
   };
+  origin?: Origin;
 };
 
 type ImageProps = SourceAuthorProps & {
@@ -106,8 +110,10 @@ const Image = (props: ImageProps) => {
   );
 };
 
+const userTypes = [UserType.Author, UserType.Scout];
+
 export const UserHighlight = (props: UserHighlightProps): ReactElement => {
-  const { userType, ...user } = props;
+  const { userType, origin, ...user } = props;
   const {
     id,
     name,
@@ -124,6 +130,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
 
   const Icon = getUserIcon(userType);
   const isUserTypeSource = userType === UserType.Source && 'handle' in user;
+  const isUserType = userTypes.includes(userType);
   const { feedSettings } = useFeedSettings();
 
   const isSourceBlocked = useMemo(() => {
@@ -146,7 +153,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
       <ConditionalWrapper
         condition={!isUserTypeSource}
         wrapper={(children) => (
-          <ProfileTooltip user={{ id }}>
+          <ProfileTooltip userId={id}>
             {children as ReactElement}
           </ProfileTooltip>
         )}
@@ -169,7 +176,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
       <ConditionalWrapper
         condition={!isUserTypeSource}
         wrapper={(children) => (
-          <ProfileTooltip user={{ id }}>
+          <ProfileTooltip userId={id}>
             {children as ReactElement}
           </ProfileTooltip>
         )}
@@ -219,6 +226,15 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
           source={user}
         />
       )}
+      {isUserType && (
+        <FollowButton
+          userId={id}
+          type={ContentPreferenceType.User}
+          status={(user as CommentAuthor).contentPreference?.status}
+          entityName={`@${handleOrUsernameOrId}`}
+          origin={origin}
+        />
+      )}
     </div>
   );
 };
@@ -242,15 +258,22 @@ const EnableNotificationSourceSubscribe = ({
   );
 };
 
-export function PostUsersHighlights({ post }: PostAuthorProps): ReactElement {
+export function PostUsersHighlights({
+  post,
+  origin,
+}: PostAuthorProps): ReactElement {
   const { author, scout, source } = post;
 
   return (
     <WidgetContainer className="flex flex-col">
-      <UserHighlight {...source} userType={UserType.Source} />
+      <UserHighlight {...source} userType={UserType.Source} origin={origin} />
       <EnableNotificationSourceSubscribe source={source} />
-      {author && <UserHighlight {...author} userType={UserType.Author} />}
-      {scout && <UserHighlight {...scout} userType={UserType.Scout} />}
+      {author && (
+        <UserHighlight {...author} userType={UserType.Author} origin={origin} />
+      )}
+      {scout && (
+        <UserHighlight {...scout} userType={UserType.Scout} origin={origin} />
+      )}
     </WidgetContainer>
   );
 }

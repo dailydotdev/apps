@@ -95,7 +95,7 @@ export default function Markdown({
 
   return (
     <ProfileTooltip
-      user={{ id: userId }}
+      userId={userId}
       tooltip={{
         placement: 'top-start',
         offset,
