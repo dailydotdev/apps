@@ -29,6 +29,7 @@ export interface SearchFieldProps
     | 'autoFocus'
     | 'onBlur'
     | 'onFocus'
+    | 'aria-label'
     | 'aria-haspopup'
     | 'aria-expanded'
     | 'onKeyDown'
@@ -74,6 +75,7 @@ export const SearchField = forwardRef(function SearchField(
     disabled,
     rightButtonProps = { type: 'button' },
     'aria-describedby': describedBy,
+    'aria-label': ariaLabel,
     onBlur: externalOnBlur,
     onFocus: externalOnFocus,
     showIcon = true,
@@ -144,6 +146,7 @@ export const SearchField = forwardRef(function SearchField(
           />
         ))}
       <FieldInput
+        aria-label={ariaLabel}
         disabled={disabled}
         placeholder={placeholder}
         name={name}
