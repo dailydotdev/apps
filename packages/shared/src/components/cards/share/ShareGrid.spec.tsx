@@ -19,7 +19,7 @@ const defaultProps: PostCardProps = {
   onReadArticleClick: jest.fn(),
 };
 
-jest.mock('../../hooks/useBookmarkProvider', () => ({
+jest.mock('../../../hooks/useBookmarkProvider', () => ({
   __esModule: true,
   default: jest
     .fn()
