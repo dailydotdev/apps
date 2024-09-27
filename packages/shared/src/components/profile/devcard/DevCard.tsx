@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Separator } from '../../cards/common';
+import { Separator } from '../../cards/common/common';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import { DateFormat, Divider } from '../../utilities';
 import ConditionalWrapper from '../../ConditionalWrapper';

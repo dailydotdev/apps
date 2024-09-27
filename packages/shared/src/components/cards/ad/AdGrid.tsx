@@ -5,7 +5,7 @@ import {
   CardSpace,
   CardTextContainer,
   CardTitle,
-} from '../Card';
+} from '../common/Card';
 import AdLink from './common/AdLink';
 import AdAttribution from './common/AdAttribution';
 import { AdImage } from './common/AdImage';

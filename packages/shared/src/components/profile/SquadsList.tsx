@@ -6,7 +6,7 @@ import { SourceMember, SourceMemberRole } from '../../graphql/sources';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import { Image } from '../image/Image';
 import SquadMemberBadge from '../squads/SquadMemberBadge';
-import { CardLink } from '../cards/Card';
+import { CardLink } from '../cards/common/Card';
 import { PlusIcon } from '../icons';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';

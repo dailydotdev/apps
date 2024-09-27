@@ -17,7 +17,7 @@ import {
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import SourceButton from '@dailydotdev/shared/src/components/cards/SourceButton';
+import SourceButton from '@dailydotdev/shared/src/components/cards/common/SourceButton';
 import {
   ButtonSize,
   ButtonVariant,

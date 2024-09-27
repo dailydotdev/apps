@@ -1,18 +1,18 @@
 import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
 import classNames from 'classnames';
-import { Container, generateTitleClamp, PostCardProps } from '../common';
+import { Container, generateTitleClamp, PostCardProps } from '../common/common';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import { useSquadChecklist } from '../../../hooks/useSquadChecklist';
 import { Squad } from '../../../graphql/sources';
 import { PostType } from '../../../graphql/posts';
 import { ActionType } from '../../../graphql/actions';
-import FeedItemContainer from '../FeedItemContainer';
-import { FreeformCardTitle, getPostClassNames } from '../Card';
+import FeedItemContainer from '../common/FeedItemContainer';
+import { FreeformCardTitle, getPostClassNames } from '../common/Card';
 import CardOverlay from '../common/CardOverlay';
 import OptionsButton from '../../buttons/OptionsButton';
 import { SquadPostCardHeader } from '../common/SquadPostCardHeader';
-import PostMetadata from '../PostMetadata';
-import { WelcomePostCardFooter } from '../WelcomePostCardFooter';
+import PostMetadata from '../common/PostMetadata';
+import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
 import ActionButtons from '../ActionsButtons/ActionButtons';
 
 export const FreeformGrid = forwardRef(function SharePostCard(

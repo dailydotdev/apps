@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { ChecklistCardComponent } from '../cards/Card';
+import { ChecklistCardComponent } from '../cards/common/Card';
 import { ChecklistStep } from './ChecklistStep';
 import {
   ChecklistCardProps,

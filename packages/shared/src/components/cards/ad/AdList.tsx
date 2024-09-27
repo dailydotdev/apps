@@ -4,9 +4,14 @@ import React, {
   ReactElement,
   Ref,
 } from 'react';
-import { CardContent, CardImage, CardSpace, CardTitle } from '../list/ListCard';
+import {
+  CardContent,
+  CardImage,
+  CardSpace,
+  CardTitle,
+} from '../common/list/ListCard';
 import AdAttribution from './common/AdAttribution';
-import FeedItemContainer from '../list/FeedItemContainer';
+import FeedItemContainer from '../common/list/FeedItemContainer';
 import type { AdCardProps } from './common/common';
 import { AdImage } from './common/AdImage';
 import { AdPixel } from './common/AdPixel';

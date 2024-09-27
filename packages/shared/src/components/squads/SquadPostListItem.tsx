@@ -7,13 +7,13 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import { BookmarkIcon } from '../icons';
-import styles from '../cards/Card.module.css';
+import styles from '../cards/common/Card.module.css';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { Post } from '../../graphql/posts';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { TextPlaceholder } from '../widgets/common';
 import SquadPostAuthor from '../post/SquadPostAuthor';
-import { CardLink } from '../cards/Card';
+import { CardLink } from '../cards/common/Card';
 import { combinedClicks } from '../../lib/click';
 import { ProfileImageSize } from '../ProfilePicture';
 

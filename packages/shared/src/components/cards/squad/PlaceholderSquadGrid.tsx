@@ -1,6 +1,6 @@
 import React, { ComponentProps, ReactElement } from 'react';
 import classNames from 'classnames';
-import { CardTextContainer } from '../Card';
+import { CardTextContainer } from '../common/Card';
 import { ElementPlaceholder } from '../../ElementPlaceholder';
 
 interface PlaceholderSquadGridProps extends ComponentProps<'div'> {
