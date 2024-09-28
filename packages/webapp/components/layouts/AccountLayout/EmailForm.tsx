@@ -63,8 +63,7 @@ function EmailForm({
     },
   });
 
-  const onCodeVerification = async (e) => {
-    e.preventDefault();
+  const onCodeVerification = async () => {
     logEvent({
       event_name: LogEvent.Click,
       target_type: TargetType.VerifyEmail,
@@ -83,8 +82,21 @@ function EmailForm({
     runTimer();
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const submitType = e.nativeEvent.submitter.name;
+    if (submitType === 'getCode') {
+      onSubmitEmail();
+    } else {
+      onCodeVerification();
+    }
+  };
+
   return (
-    <form className={classNames('flex flex-col gap-3', className)}>
+    <form
+      className={classNames('flex flex-col gap-3', className)}
+      onSubmit={handleSubmit}
+    >
       <CommonTextField
         type="email"
         inputId="new_email"
@@ -121,10 +133,9 @@ function EmailForm({
         actionButton={
           <Button
             variant={ButtonVariant.Primary}
-            type="button"
+            name="getCode"
             className="w-[10.875rem]"
             disabled={!email || timer > 0}
-            onClick={onSubmitEmail}
           >
             {timer === 0 ? 'Send code' : `Resend code: ${timer}s`}
           </Button>
@@ -133,9 +144,9 @@ function EmailForm({
       <Button
         data-testid="change_email_btn"
         className="mt-3 w-fit"
+        name="changeEmail"
         disabled={!code}
         variant={ButtonVariant.Primary}
-        onClick={onCodeVerification}
       >
         Change email
       </Button>
