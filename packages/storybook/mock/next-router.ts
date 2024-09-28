@@ -1,7 +1,8 @@
 import { fn } from '@storybook/test';
 
-export const useRouter = fn().mockReturnValue({
+export const useRouter = () => ({
   replace: fn(),
   push: fn(),
   pathname: '/',
+  query: {},
 });

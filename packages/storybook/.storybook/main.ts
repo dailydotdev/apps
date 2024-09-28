@@ -47,6 +47,11 @@ const config: StorybookConfig = {
           './GrowthBookProvider': GrowthBookMockPath,
           '../../GrowthBookProvider': GrowthBookMockPath,
           '../../../../hooks': path.resolve(__dirname, '../mock/hooks.ts'),
+          '@dailydotdev/shared/src/lib/boot': path.resolve(
+            __dirname,
+            '../mock/boot.ts',
+          ),
+          '../lib/boot': path.resolve(__dirname, '../mock/boot.ts'),
         },
       },
       define: {
