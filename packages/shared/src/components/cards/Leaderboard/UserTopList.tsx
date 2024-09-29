@@ -34,7 +34,7 @@ export function UserTopList({
           index={item.score}
           href={item.user.permalink}
         >
-          <span className="pl-1">{indexToEmoji(i)}</span>
+          <span className="min-w-8 pl-1">{indexToEmoji(i)}</span>
           <UserHighlight
             {...item.user}
             showReputation

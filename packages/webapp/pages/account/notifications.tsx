@@ -96,7 +96,12 @@ const AccountNotificationsPage = (): ReactElement => {
   const personalizedDigestType =
     personalizedDigest?.flags?.sendType || (!isLoading ? SendType.Off : null);
 
-  const { acceptedMarketing, notificationEmail } = user ?? {};
+  const {
+    acceptedMarketing,
+    notificationEmail,
+    followingEmail,
+    followNotifications,
+  } = user ?? {};
   const emailNotification =
     acceptedMarketing || notificationEmail || !!personalizedDigest;
 
@@ -239,6 +244,22 @@ const AccountNotificationsPage = (): ReactElement => {
     updateUserProfile({ acceptedMarketing: value });
   };
 
+  const onToggleFollowingEmail = () => {
+    const value = !followingEmail;
+    onLogToggle(
+      value,
+      NotificationChannel.Email,
+      NotificationCategory.Following,
+    );
+    updateUserProfile({ followingEmail: value });
+  };
+
+  const onToggleFollowingNotifications = () => {
+    const value = !followNotifications;
+    onLogToggle(value, NotificationChannel.Web, NotificationCategory.Following);
+    updateUserProfile({ followNotifications: value });
+  };
+
   const setPersonalizedDigestType = (sendType: SendType): void => {
     onLogToggle(
       sendType !== SendType.Off,
@@ -378,6 +399,14 @@ const AccountNotificationsPage = (): ReactElement => {
         >
           Community updates
         </Checkbox>
+        <Checkbox
+          name="following"
+          data-testid="following-switch"
+          checked={followingEmail}
+          onToggleCallback={onToggleFollowingEmail}
+        >
+          Updates from followed users
+        </Checkbox>
         <div className="my-2 gap-1">
           <h3 className="font-bold typo-callout">Personalized digest</h3>
           <p className="text-text-tertiary typo-footnote">
@@ -508,6 +537,14 @@ const AccountNotificationsPage = (): ReactElement => {
               onToggleCallback={onToggleReadingReminder}
             >
               Reading reminder (Mon-Fri)
+            </Checkbox>
+            <Checkbox
+              name="followingPush"
+              data-testid="following-push-switch"
+              checked={followNotifications}
+              onToggleCallback={onToggleFollowingNotifications}
+            >
+              Updates from followed users
             </Checkbox>
             {!!readingReminder && (
               <>

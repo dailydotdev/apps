@@ -93,7 +93,7 @@ export default function CommentContainer({
       )}
       <header className="z-1 flex w-full flex-row self-start">
         <ProfileTooltip
-          user={comment.author}
+          userId={comment.author.id}
           tooltip={{ appendTo: appendTooltipTo }}
         >
           <ProfileImageLink user={comment.author} />

@@ -33,7 +33,7 @@ function NotificationItemAvatar({
 
   if (type === NotificationAvatarType.User) {
     return (
-      <ProfileTooltip link={{ href: targetUrl }} user={{ id: referenceId }}>
+      <ProfileTooltip link={{ href: targetUrl }} userId={referenceId}>
         <ProfileImageLink
           className={className}
           picture={{ size: ProfileImageSize.Medium }}

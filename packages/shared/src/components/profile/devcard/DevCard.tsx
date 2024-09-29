@@ -13,23 +13,22 @@ import {
 } from './common';
 import { DevCardFooter } from './DevCardFooter';
 import { DevCardContainer } from './DevCardContainer';
-import { useDevCard } from '../../../hooks/profile/useDevCard';
+import { UseDevCard } from '../../../hooks/profile/useDevCard';
 import { DevCardTwitterCover } from './DevCardTwitterCover';
 import { checkLowercaseEquality } from '../../../lib/strings';
 import { devcardBorder } from '../../../styles/custom';
 
-interface DevCardProps {
+export interface DevCardProps {
   type?: DevCardType;
-  userId: string;
+  data: UseDevCard;
   isInteractive?: boolean;
 }
 
 export function DevCard({
   type = DevCardType.Vertical,
-  userId,
+  data,
   isInteractive = true,
 }: DevCardProps): ReactElement {
-  const data = useDevCard(userId);
   const { devcard, isLoading, coverImage } = data ?? {};
 
   if (isLoading || !devcard) {

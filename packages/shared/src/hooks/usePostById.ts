@@ -14,7 +14,20 @@ import {
   RelatedPost,
 } from '../graphql/posts';
 import { getAllCommentsQuery, PostCommentsData } from '../graphql/comments';
+import { PostCommentsData } from '../graphql/comments';
+import {
+  generateQueryKey,
+  RequestKey,
+  updatePostContentPreference,
+} from '../lib/query';
 import { Connection, gqlClient } from '../graphql/common';
+import { useMutationSubscription } from './mutationSubscription/useMutationSubscription';
+import {
+  ContentPreferenceMutation,
+  contentPreferenceMutationMatcher,
+  mutationKeyToContentPreferenceStatusMap,
+} from './contentPreference/types';
+import { PropsParameters } from '../types';
 
 interface UsePostByIdProps {
   id: string;
@@ -117,6 +130,40 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
     },
   );
   const post = postById || (options?.initialData as PostData);
+
+  useMutationSubscription({
+    matcher: contentPreferenceMutationMatcher,
+    callback: ({ mutation, variables: mutationVariables, queryClient }) => {
+      const currentData = queryClient.getQueryData(key);
+      const [requestKey] = mutation.options.mutationKey as [
+        RequestKey,
+        ...unknown[],
+      ];
+
+      if (!currentData) {
+        return;
+      }
+
+      const nextStatus = mutationKeyToContentPreferenceStatusMap[requestKey];
+
+      const { id: entityId, entity } =
+        mutationVariables as PropsParameters<ContentPreferenceMutation>;
+
+      queryClient.setQueryData<PostData>(key, (data) => {
+        const newPostData = updatePostContentPreference({
+          data: data.post,
+          status: nextStatus,
+          entityId,
+          entity,
+        });
+
+        return {
+          ...data,
+          post: newPostData,
+        };
+      });
+    },
+  });
 
   return useMemo(
     () => ({
