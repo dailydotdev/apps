@@ -14,12 +14,7 @@ import {
   RelatedPost,
 } from '../graphql/posts';
 import { getAllCommentsQuery, PostCommentsData } from '../graphql/comments';
-import { PostCommentsData } from '../graphql/comments';
-import {
-  generateQueryKey,
-  RequestKey,
-  updatePostContentPreference,
-} from '../lib/query';
+import { RequestKey, updatePostContentPreference } from '../lib/query';
 import { Connection, gqlClient } from '../graphql/common';
 import { useMutationSubscription } from './mutationSubscription/useMutationSubscription';
 import {
