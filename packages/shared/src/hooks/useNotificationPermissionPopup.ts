@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { webappUrl } from '../lib/constants';
+import { BROADCAST_CHANNEL, webappUrl } from '../lib/constants';
 import { NotificationPromptSource } from '../lib/log';
 import { useEventListener, MessageEventData } from './useEventListener';
 
@@ -29,7 +29,7 @@ export const useNotificationPermissionPopup = ({
     );
   }, []);
 
-  useEventListener(globalThis, 'message', (e) => {
+  useEventListener(BROADCAST_CHANNEL, 'message', (e) => {
     if (e.data?.eventKey !== ENABLE_NOTIFICATION_WINDOW_KEY) {
       return;
     }

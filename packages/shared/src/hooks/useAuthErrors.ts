@@ -1,11 +1,12 @@
 import { AuthEvent, getKratosError } from '../lib/kratos';
 import { useToastNotification } from './useToastNotification';
 import { useEventListener } from './useEventListener';
+import { BROADCAST_CHANNEL } from '../lib/constants';
 
 export function useAuthErrors(): void {
   const { displayToast } = useToastNotification();
 
-  useEventListener(globalThis, 'message', async (e) => {
+  useEventListener(BROADCAST_CHANNEL, 'message', async (e) => {
     if (e.data?.eventKey !== AuthEvent.Error) {
       return;
     }

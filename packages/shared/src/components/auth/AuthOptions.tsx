@@ -44,7 +44,7 @@ import SettingsContext from '../../contexts/SettingsContext';
 import { useToastNotification, useEventListener } from '../../hooks';
 import CodeVerificationForm from './CodeVerificationForm';
 import ChangePasswordForm from './ChangePasswordForm';
-import { isTesting } from '../../lib/constants';
+import { BROADCAST_CHANNEL, isTesting } from '../../lib/constants';
 import {
   SignBackProvider,
   SIGNIN_METHOD_KEY,
@@ -296,7 +296,7 @@ function AuthOptions({
     onSetActiveDisplay(AuthDisplay.CodeVerification);
   };
 
-  useEventListener(globalThis, 'message', async (e) => {
+  useEventListener(BROADCAST_CHANNEL, 'message', async (e) => {
     if (e.data?.eventKey !== AuthEvent.SocialRegistration || ignoreMessages) {
       return undefined;
     }

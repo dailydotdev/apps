@@ -43,6 +43,7 @@ import {
 } from '../common';
 import EmailSentSection from '../EmailSentSection';
 import AccountLoginSection from './AccountLoginSection';
+import { BROADCAST_CHANNEL } from '@dailydotdev/shared/src/lib/constants';
 
 const socialProvider = getProviderMapClone();
 const providers = Object.values(socialProvider);
@@ -146,7 +147,7 @@ function AccountSecurityDefault({
     }
   };
 
-  useEventListener(globalThis, 'message', async (e) => {
+  useEventListener(BROADCAST_CHANNEL, 'message', async (e) => {
     if (e.data?.eventKey !== AuthEvent.SocialRegistration) {
       return;
     }

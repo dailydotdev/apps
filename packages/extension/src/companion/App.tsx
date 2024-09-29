@@ -22,6 +22,7 @@ import { GrowthBookProvider } from '@dailydotdev/shared/src/components/GrowthBoo
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { useEventListener } from '@dailydotdev/shared/src/hooks';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
+import { BROADCAST_CHANNEL } from '@dailydotdev/shared/src/lib/constants';
 import Companion from './Companion';
 import CustomRouter from '../lib/CustomRouter';
 import { companionFetch } from './companionFetch';
@@ -76,11 +77,11 @@ export default function App({
 
   useRefreshToken(token, refetchData);
 
-  useEventListener(globalThis, 'message', async (e) => {
+  useEventListener(BROADCAST_CHANNEL, 'message', async (e) => {
     if (e.data?.eventKey === AuthEvent.Login) {
       await refetchData();
     }
-  });
+  })
 
   if (isOptOutCompanion) {
     return <></>;

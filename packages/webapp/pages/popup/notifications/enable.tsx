@@ -2,7 +2,7 @@ import React, { ComponentType, useEffect } from 'react';
 import classNames from 'classnames';
 import NotificationToggleIcon from '@dailydotdev/shared/src/components/icons/NotificationToggle/primary.svg';
 import classed from '@dailydotdev/shared/src/lib/classed';
-import { postWindowMessage } from '@dailydotdev/shared/src/lib/func';
+import { broadcastMessage } from '@dailydotdev/shared/src/lib/func';
 import { ENABLE_NOTIFICATION_WINDOW_KEY } from '@dailydotdev/shared/src/hooks/useNotificationPermissionPopup';
 import { useRouter } from 'next/router';
 import { NotificationPromptSource } from '@dailydotdev/shared/src/lib/log';
@@ -56,9 +56,7 @@ function Enable(): React.ReactElement {
       };
 
       if (isSubscribed) {
-        postWindowMessage(ENABLE_NOTIFICATION_WINDOW_KEY, {
-          permission: 'granted',
-        });
+        broadcastMessage({ eventKey: ENABLE_NOTIFICATION_WINDOW_KEY, permission: 'granted' });
         logPermissionGranted(source as NotificationPromptSource);
         closeWindow();
         return;
@@ -66,7 +64,7 @@ function Enable(): React.ReactElement {
 
       const isGranted = await onEnablePush(source as NotificationPromptSource);
       const permission = isGranted ? 'granted' : 'denied';
-      postWindowMessage(ENABLE_NOTIFICATION_WINDOW_KEY, { permission });
+      broadcastMessage({ eventKey: ENABLE_NOTIFICATION_WINDOW_KEY, permission });
 
       if (isGranted) {
         setTimeout(closeWindow, 1000);

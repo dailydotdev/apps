@@ -14,6 +14,7 @@ import { NotificationPromptSource } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { useEventListener } from '../useEventListener';
+import { BROADCAST_CHANNEL } from '../../lib/constants';
 
 export const PERMISSION_NOTIFICATION_KEY = 'permission:notification';
 
@@ -122,7 +123,7 @@ export const usePushNotificationMutation = ({
     [OneSignal, isSubscribed, onEnablePush, onSourceChange],
   );
 
-  useEventListener(globalThis, 'message', async (e) => {
+  useEventListener(BROADCAST_CHANNEL, 'message', async (e) => {
     const { permission }: PermissionEvent = e?.data ?? {};
     const earlyReturnChecks = [
       e.data?.eventKey !== ENABLE_NOTIFICATION_WINDOW_KEY,

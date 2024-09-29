@@ -62,6 +62,16 @@ jest.mock('next/router', () => ({
   ),
 }));
 
+Object.defineProperty(global, 'BroadcastChannel', {
+  writable: true,
+  value: jest.fn().mockImplementation(() => ({
+    close: jest.fn(),
+    postMessage: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+  })),
+});
+
 beforeEach(() => {
   clear();
   storage.clear();

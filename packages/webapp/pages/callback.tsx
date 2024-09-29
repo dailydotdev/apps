@@ -1,7 +1,7 @@
-import { postWindowMessage } from '@dailydotdev/shared/src/lib/func';
 import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import { ReactElement, useContext, useEffect } from 'react';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import { broadcastMessage } from '@dailydotdev/shared/src/lib/func';
 
 function CallbackPage(): ReactElement {
   const { logEvent } = useContext(LogContext);
@@ -21,7 +21,7 @@ function CallbackPage(): ReactElement {
         window.location.replace(`/reset-password?${search}`);
         return;
       }
-      postWindowMessage(eventKey, params);
+      broadcastMessage({ eventKey, params });
       window.close();
     } catch (err) {
       const url = `${process.env.NEXT_PUBLIC_WEBAPP_URL}?${search}`;
