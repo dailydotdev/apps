@@ -99,7 +99,7 @@ export default {
       2: '2',
       3: '3',
       rank: '30',
-      header: '75',
+      header: '10000',
       postNavigation: '76',
       sidebar: '70',
       sidebarOverlay: '77',
