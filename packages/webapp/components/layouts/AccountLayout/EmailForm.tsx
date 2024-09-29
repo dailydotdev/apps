@@ -84,7 +84,7 @@ function EmailForm({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const submitType = e.nativeEvent.submitter.name;
+    const submitType = e.nativeEvent.submitter?.name;
     if (submitType === 'getCode') {
       onSubmitEmail();
     } else {
