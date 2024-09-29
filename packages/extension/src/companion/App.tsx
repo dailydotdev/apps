@@ -81,7 +81,7 @@ export default function App({
     if (e.data?.eventKey === AuthEvent.Login) {
       await refetchData();
     }
-  })
+  });
 
   if (isOptOutCompanion) {
     return <></>;

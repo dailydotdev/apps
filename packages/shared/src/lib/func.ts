@@ -2,9 +2,9 @@ import { MouseEvent } from 'react';
 import { EmptyObjectLiteral } from './kratos';
 import { BROADCAST_CHANNEL_NAME } from './constants';
 
-interface broadCastMessage {
+interface BroadcastMessage {
   eventKey: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export const nextTick = (): Promise<unknown> =>
@@ -37,9 +37,9 @@ export const postWindowMessage = (
 ): void => window.opener?.postMessage?.({ ...params, eventKey }, attributes);
 
 export const broadcastMessage = (
-  message: broadCastMessage,
+  message: BroadcastMessage,
   channelName: string = BROADCAST_CHANNEL_NAME,
-) => {
+): void => {
   const channel = new BroadcastChannel(channelName);
   channel.postMessage(message);
   channel.close();

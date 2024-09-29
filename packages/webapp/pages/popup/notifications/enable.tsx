@@ -56,7 +56,10 @@ function Enable(): React.ReactElement {
       };
 
       if (isSubscribed) {
-        broadcastMessage({ eventKey: ENABLE_NOTIFICATION_WINDOW_KEY, permission: 'granted' });
+        broadcastMessage({
+          eventKey: ENABLE_NOTIFICATION_WINDOW_KEY,
+          permission: 'granted',
+        });
         logPermissionGranted(source as NotificationPromptSource);
         closeWindow();
         return;
@@ -64,7 +67,10 @@ function Enable(): React.ReactElement {
 
       const isGranted = await onEnablePush(source as NotificationPromptSource);
       const permission = isGranted ? 'granted' : 'denied';
-      broadcastMessage({ eventKey: ENABLE_NOTIFICATION_WINDOW_KEY, permission });
+      broadcastMessage({
+        eventKey: ENABLE_NOTIFICATION_WINDOW_KEY,
+        permission,
+      });
 
       if (isGranted) {
         setTimeout(closeWindow, 1000);
