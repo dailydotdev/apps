@@ -95,7 +95,7 @@ const ActionButtons = ({
           <Button
             className={classNames(
               'pointer-events-auto',
-              post.numUpvotes ? '!pl-1 !pr-3' : '!px-1',
+              post.numUpvotes ? '!pl-1 !pr-3' : 'w-8',
             )}
             id={`post-${post.id}-upvote-btn`}
             color={ButtonColor.Avocado}
