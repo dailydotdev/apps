@@ -158,8 +158,17 @@ it('should allow changing of email', async () => {
   };
   mockWhoAmIFlow(email);
   mockSettingsValidation(params);
-  const submitChanges = await screen.findByText('Send code');
-  fireEvent.click(submitChanges);
+
+  const firstSubmitButton = await screen.findByText('Send code');
+  const mockFirstSubmit = new Event('submit', {
+    bubbles: true,
+    cancelable: true,
+  });
+  Object.defineProperty(mockFirstSubmit, 'submitter', {
+    value: firstSubmitButton,
+  });
+  await act(() => firstSubmitButton.dispatchEvent(mockFirstSubmit));
+
   const codeField = await screen.findByPlaceholderText('Enter 6-digit code');
   fireEvent.input(codeField, {
     target: { value: '123456' },
@@ -199,8 +208,17 @@ it('should allow changing of email but require verification', async () => {
   };
   mockSettingsValidation(params, requireVerificationSettingsMock, 403);
   mockLoginReverifyFlow();
-  const submitChanges = await screen.findByText('Send code');
-  fireEvent.click(submitChanges);
+
+  const firstSubmitButton = await screen.findByText('Send code');
+  const mockFirstSubmit = new Event('submit', {
+    bubbles: true,
+    cancelable: true,
+  });
+  Object.defineProperty(mockFirstSubmit, 'submitter', {
+    value: firstSubmitButton,
+  });
+  await act(() => firstSubmitButton.dispatchEvent(mockFirstSubmit));
+
   const codeField = await screen.findByPlaceholderText('Enter 6-digit code');
   fireEvent.input(codeField, {
     target: { value: '123456' },
