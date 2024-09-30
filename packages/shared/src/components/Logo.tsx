@@ -4,6 +4,7 @@ import { CSSTransition } from 'react-transition-group';
 import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
 import LogoText from '../svg/LogoText';
 import LogoIcon from '../svg/LogoIcon';
+import { webappUrl } from '../lib/constants';
 
 export enum LogoPosition {
   Absolute = 'absolute',
@@ -60,8 +61,6 @@ interface LogoProps {
   linkDisabled?: boolean;
 }
 
-const homeHref = process.env.NEXT_PUBLIC_WEBAPP_URL;
-
 export default function Logo({
   className,
   logoClassName = { container: 'h-logo' },
@@ -75,7 +74,7 @@ export default function Logo({
 }: LogoProps): ReactElement {
   return (
     <LinkWithTooltip
-      href={homeHref}
+      href={webappUrl}
       passHref
       prefetch={false}
       tooltip={{ placement: 'right', content: 'Home' }}
@@ -88,7 +87,7 @@ export default function Logo({
           className,
           linkDisabled && 'pointer-events-none',
         )}
-        href={homeHref}
+        href={webappUrl}
         onClick={onLogoClick}
       >
         <LogoSvgElem
