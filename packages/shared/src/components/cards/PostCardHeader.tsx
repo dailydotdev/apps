@@ -58,9 +58,11 @@ export const PostCardHeader = ({
 
   const shouldUseInternalLink =
     isSharedPostSquadPost(post) || isInternalReadType(post.sharedPost);
-  const sharedArticleLink = shouldUseInternalLink
-    ? post.sharedPost.commentsPermalink
-    : post.sharedPost.permalink;
+  const sharedArticleLink =
+    shouldUseInternalLink &&
+    (shouldUseInternalLink
+      ? post.sharedPost?.commentsPermalink
+      : post.sharedPost?.permalink);
   const articleLink = post.sharedPost ? sharedArticleLink : postLink;
 
   return (
