@@ -191,7 +191,7 @@ const RenderMarkdown = ({
                     tag={TypographyTag.Span}
                     className="inline leading-8"
                   >
-                    {language || 'Code snippet'}
+                    {language || 'Code snippets'}
                   </Typography>
                   <div className="flex gap-2">
                     <Button
