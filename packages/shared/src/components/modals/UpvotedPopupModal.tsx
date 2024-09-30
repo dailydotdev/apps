@@ -6,6 +6,7 @@ import { ModalProps } from './common/Modal';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
 import UserListModal from './UserListModal';
 import { Origin } from '../../lib/log';
+import { useUsersContentPreferenceMutationSubscription } from '../../hooks/contentPreference/useUsersContentPreferenceMutationSubscription';
 
 export interface UpvotedPopupModalProps extends ModalProps {
   placeholderAmount: number;
@@ -33,6 +34,11 @@ export function UpvotedPopupModal({
         lastPage?.upvotes?.pageInfo?.endCursor,
     },
   );
+
+  useUsersContentPreferenceMutationSubscription({
+    queryKey,
+    queryProp: 'upvotes',
+  });
 
   return (
     <UserListModal

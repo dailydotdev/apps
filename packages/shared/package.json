@@ -98,7 +98,7 @@
     "react-dom": "18.3.1",
     "react-intersection-observer": "^8.32.2",
     "react-modal": "^3.14.3",
-    "react-swipeable": "^6.2.0",
+    "react-swipeable": "^7.0.1",
     "react-transition-group": "^4.4.2",
     "react-virtual": "^2.8.2",
     "tailwindcss": "^3.4.0",
