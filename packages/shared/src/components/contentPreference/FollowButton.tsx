@@ -80,7 +80,7 @@ export const FollowButton = ({
 
   const isLoading = isLoadingFollow || isLoadingNotify;
 
-  if (!user || user.id === userId) {
+  if (user?.id === userId) {
     return null;
   }
 
