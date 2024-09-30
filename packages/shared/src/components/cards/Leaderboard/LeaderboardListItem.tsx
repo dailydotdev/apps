@@ -28,7 +28,7 @@ export function LeaderboardListItem({
           </Link>
         )}
       >
-        <span className="inline-flex min-w-4 text-text-quaternary">
+        <span className="inline-flex min-w-14 justify-center text-text-quaternary">
           {largeNumberFormat(index)}
         </span>
         {children}
