@@ -36,7 +36,7 @@ export const useContentPreference = (): UseContentPreference => {
       if (!user) {
         showLogin({ trigger: AuthTriggers.Follow });
 
-        return;
+        throw new Error('not logged in');
       }
 
       logEvent({
@@ -69,7 +69,7 @@ export const useContentPreference = (): UseContentPreference => {
       if (!user) {
         showLogin({ trigger: AuthTriggers.Follow });
 
-        return;
+        throw new Error('not logged in');
       }
 
       logEvent({
@@ -101,7 +101,7 @@ export const useContentPreference = (): UseContentPreference => {
       if (!user) {
         showLogin({ trigger: AuthTriggers.Follow });
 
-        return;
+        throw new Error('not logged in');
       }
 
       logEvent({
@@ -137,7 +137,7 @@ export const useContentPreference = (): UseContentPreference => {
       if (!user) {
         showLogin({ trigger: AuthTriggers.Follow });
 
-        return;
+        throw new Error('not logged in');
       }
 
       logEvent({
