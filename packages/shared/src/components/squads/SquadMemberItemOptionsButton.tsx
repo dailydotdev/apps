@@ -4,7 +4,6 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { BlockIcon, MenuIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { useAuthContext } from '../../contexts/AuthContext';
-import SquadMemberBadge from './SquadMemberBadge';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
 import { useToastNotification } from '../../hooks';
@@ -15,7 +14,7 @@ interface SquadMemberActionsProps {
   onOptionsClick: React.MouseEventHandler;
 }
 
-function SquadMemberItemAdditionalContent({
+function SquadMemberItemOptionsButton({
   member,
   onUnblock,
   onOptionsClick,
@@ -58,7 +57,7 @@ function SquadMemberItemAdditionalContent({
     return (
       <SimpleTooltip content="Unblock">
         <Button
-          className="my-auto"
+          className="my-auto ml-2"
           variant={ButtonVariant.Tertiary}
           icon={<BlockIcon />}
           onClick={onConfirmUnblock}
@@ -72,7 +71,7 @@ function SquadMemberItemAdditionalContent({
       <Button
         size={ButtonSize.Small}
         variant={ButtonVariant.Tertiary}
-        className="m-auto mr-0"
+        className="m-auto ml-2 mr-0"
         onClick={onOptionsClick}
         icon={<MenuIcon />}
       />
@@ -82,19 +81,7 @@ function SquadMemberItemAdditionalContent({
   const sameUser = loggedUser && loggedUser.id === user.id;
   const hideOption = sameUser || !loggedUser;
 
-  if (role !== SourceMemberRole.Member) {
-    return (
-      <>
-        <SquadMemberBadge
-          className={sameUser ? 'mr-10' : 'mr-2'}
-          role={member.role}
-        />
-        {hideOption ? null : option}
-      </>
-    );
-  }
-
   return hideOption ? null : option;
 }
 
-export default SquadMemberItemAdditionalContent;
+export default SquadMemberItemOptionsButton;

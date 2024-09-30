@@ -56,7 +56,7 @@ export const SquadPostCardHeader = ({
             }
           />
           {author && (
-            <ProfileTooltip user={author}>
+            <ProfileTooltip userId={author.id}>
               <ProfileImageLink
                 picture={{ size: ProfileImageSize.Medium }}
                 user={author}

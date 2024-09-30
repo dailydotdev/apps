@@ -27,6 +27,7 @@ export interface UseSquadActions {
   expandSquadPinnedPosts?: typeof expandPinnedPosts;
   membersQueryResult?: UseInfiniteQueryResult<SquadEdgesData>;
   members?: SourceMember[];
+  membersQueryKey: unknown[];
 }
 
 interface MembersQueryParams {
@@ -110,6 +111,7 @@ export const useSquadActions = ({
         membersQueryResult.data?.pages
           .map((page) => page.sourceMembers.edges.map(({ node }) => node))
           .flat() ?? [],
+      membersQueryKey,
     }),
     [
       onUnblock,
@@ -117,6 +119,7 @@ export const useSquadActions = ({
       collapseSquadPinnedPosts,
       expandSquadPinnedPosts,
       membersQueryResult,
+      membersQueryKey,
     ],
   );
 };

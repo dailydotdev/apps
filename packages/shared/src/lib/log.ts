@@ -50,6 +50,10 @@ export enum Origin {
   CollectionModal = 'collection modal',
   Settings = 'settings',
   WorkspaceDropdown = 'workspace dropdown',
+  UserFollowingList = 'user following list',
+  UserFollowersList = 'user followers list',
+  UserUpvotesList = 'user upvotes list',
+  FollowFilter = 'follow filter',
 }
 
 export enum LogEvent {
@@ -154,14 +158,14 @@ export enum LogEvent {
   DismissStreakRecover = 'dimiss streaks milestone',
   // 404 page
   View404Page = '404 page',
-  // Source Actions - start
-  FollowSource = 'follow',
-  UnfollowSource = 'unfollow',
-  BlockSource = 'block',
-  UnblockSource = 'unblock',
-  SubscribeSource = 'subscribe',
-  UnsubscribeSource = 'unsubscribe',
-  // Source Actions - end
+  // Follow Actions - start
+  Follow = 'follow',
+  Unfollow = 'unfollow',
+  Block = 'block',
+  Unblock = 'unblock',
+  Subscribe = 'subscribe',
+  Unsubscribe = 'unsubscribe',
+  // Follow Actions - end
   // Tags - start
   BlockTag = 'block',
   UnblockTag = 'unblock',
@@ -263,6 +267,7 @@ export enum NotificationCategory {
   Digest = 'digest',
   ReadingReminder = 'reading reminder',
   StreakReminder = 'streak reminder',
+  Following = 'following',
 }
 
 export enum NotificationTarget {

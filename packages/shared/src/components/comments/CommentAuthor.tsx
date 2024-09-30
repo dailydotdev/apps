@@ -17,7 +17,7 @@ export default function CommentAuthor({
   appendTooltipTo,
 }: CommentAuthorProps): ReactElement {
   return (
-    <ProfileTooltip user={author} tooltip={{ appendTo: appendTooltipTo }}>
+    <ProfileTooltip userId={author.id} tooltip={{ appendTo: appendTooltipTo }}>
       <ProfileLink
         href={author.permalink}
         className={classNames(

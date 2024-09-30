@@ -210,7 +210,7 @@ export default function useTagAndSource({
         return { successful: false };
       }
       logEvent({
-        event_name: LogEvent.UnblockSource,
+        event_name: LogEvent.Unblock,
         target_type: 'source',
         target_id: source?.id,
         extra: JSON.stringify({ origin, post_id: postId }),
@@ -241,7 +241,7 @@ export default function useTagAndSource({
       }
 
       logEvent({
-        event_name: LogEvent.BlockSource,
+        event_name: LogEvent.Block,
         target_type: 'source',
         target_id: source?.id,
         extra: JSON.stringify({ origin, post_id: postId }),
@@ -271,7 +271,7 @@ export default function useTagAndSource({
       }
 
       logEvent({
-        event_name: LogEvent.FollowSource,
+        event_name: LogEvent.Follow,
         target_type: 'source',
         target_id: source?.id,
         extra: JSON.stringify({ origin, post_id: postId }),
@@ -302,7 +302,7 @@ export default function useTagAndSource({
       }
 
       logEvent({
-        event_name: LogEvent.UnfollowSource,
+        event_name: LogEvent.Unfollow,
         target_type: 'source',
         target_id: source?.id,
         extra: JSON.stringify({ origin, post_id: postId }),
