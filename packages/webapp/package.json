@@ -34,7 +34,7 @@
     "react-intersection-observer": "^8.34.0",
     "react-modal": "^3.15.1",
     "react-parallax-tilt": "^1.7.10",
-    "react-swipeable": "^6.2.2",
+    "react-swipeable": "^7.0.1",
     "react-transition-group": "^4.4.2",
     "react-virtual": "^2.10.4"
   },
