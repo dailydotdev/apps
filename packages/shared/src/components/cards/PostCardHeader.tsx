@@ -7,7 +7,12 @@ import { Source } from '../../graphql/sources';
 import { ReadArticleButton } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
 import { useFeedPreviewMode } from '../../hooks';
-import { getReadPostButtonText, Post } from '../../graphql/posts';
+import {
+  getReadPostButtonText,
+  isInternalReadType,
+  isSharedPostSquadPost,
+  Post,
+} from '../../graphql/posts';
 import { ButtonVariant } from '../buttons/Button';
 import { FlagProps } from './FeedItemContainer';
 import useBookmarkProvider from '../../hooks/useBookmarkProvider';
@@ -51,6 +56,13 @@ export const PostCardHeader = ({
     bookmarked: post.bookmarked && !showFeedback,
   });
 
+  const shouldUseInternalLink =
+    isSharedPostSquadPost(post) || isInternalReadType(post.sharedPost);
+  const sharedArticleLink = shouldUseInternalLink
+    ? post.sharedPost.commentsPermalink
+    : post.sharedPost.permalink;
+  const articleLink = post.sharedPost ? sharedArticleLink : postLink;
+
   return (
     <>
       {highlightBookmarkedPost && (
@@ -82,7 +94,7 @@ export const PostCardHeader = ({
                 content={getReadPostButtonText(post)}
                 className="mr-2"
                 variant={ButtonVariant.Primary}
-                href={postLink}
+                href={articleLink}
                 onClick={onReadArticleClick}
                 openNewTab={openNewTab}
               />
