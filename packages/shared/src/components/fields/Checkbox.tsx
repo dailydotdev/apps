@@ -39,6 +39,7 @@ export const Checkbox = forwardRef(function Checkbox(
 ): ReactElement {
   const [actualChecked, setActualChecked] = useState(checked);
   const checkId = useId();
+  const inputId = id.concat(checkId);
 
   useEffect(() => {
     setActualChecked(checked);
@@ -59,13 +60,13 @@ export const Checkbox = forwardRef(function Checkbox(
         { checked: actualChecked, disabled },
       )}
       style={{ transition: 'color 0.1s linear' }}
-      htmlFor={id.concat(checkId)}
+      htmlFor={inputId}
     >
       <input
         {...props}
         aria-labelledby={`label-span-${checkId}`}
         disabled={disabled}
-        id={id.concat(checkId)}
+        id={inputId}
         type="checkbox"
         className="absolute h-0 w-0 opacity-0"
         name={name}
