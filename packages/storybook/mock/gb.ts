@@ -6,7 +6,12 @@ export class GrowthBook {
     return this;
   }
 
-  getFeatureValue = fn().mockName('featureVersion').mockReturnValue('control');
+  getFeatureValue = (name: string, value: any) => {
+    if (name === 'show_error') {
+      return false;
+    }
+    return value || 'control';
+  };
 
   setAttributes = fn().mockName('setAttributes');
 
