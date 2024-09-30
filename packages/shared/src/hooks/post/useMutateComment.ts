@@ -128,8 +128,21 @@ export const useMutateComment = ({
       return copy;
     };
 
+    const forInvalidation = [];
+
     getAllCommentsQuery(postId).forEach((queryKey) => {
-      client.setQueryData<PostCommentsData>(queryKey, updateQueryData);
+      client.setQueryData<PostCommentsData>(queryKey, (data) => {
+        if (!data) {
+          forInvalidation.push(queryKey);
+          return null;
+        }
+
+        return updateQueryData(data);
+      });
+    });
+
+    forInvalidation.forEach(async (queryKey) => {
+      await client.invalidateQueries(queryKey);
     });
 
     if (!editCommentId) {
