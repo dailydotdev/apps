@@ -1,25 +1,26 @@
-import { InfiniteData } from '@tanstack/react-query';
-import { useMutationSubscription } from '../../../hooks';
+import { InfiniteData, QueryKey } from '@tanstack/react-query';
+import { useMutationSubscription } from '../mutationSubscription/useMutationSubscription';
+import { RequestKey, updateAuthorContentPreference } from '../../lib/query';
+import { PropsParameters } from '../../types';
 import {
   contentPreferenceMutationMatcher,
   mutationKeyToContentPreferenceStatusMap,
   ContentPreferenceMutation,
-} from '../../../hooks/contentPreference/types';
-import { RequestKey, updateAuthorContentPreference } from '../../../lib/query';
-import { PropsParameters } from '../../../types';
-import { SquadEdgesData } from '../../../graphql/squads';
+} from './types';
 
-type UseSquadMembersContentPreferenceMutationSubscriptionProps = {
-  queryKey: unknown[];
+type UseUsersContentPreferenceMutationSubscriptionProps = {
+  queryKey: QueryKey;
+  queryProp: string;
 };
 
-type UseSquadMembersContentPreferenceMutationSubscription = ReturnType<
+type UseUsersContentPreferenceMutationSubscription = ReturnType<
   typeof useMutationSubscription
 >;
 
-export const useSquadMembersContentPreferenceMutationSubscription = ({
+export const useUsersContentPreferenceMutationSubscription = ({
   queryKey,
-}: UseSquadMembersContentPreferenceMutationSubscriptionProps): UseSquadMembersContentPreferenceMutationSubscription => {
+  queryProp,
+}: UseUsersContentPreferenceMutationSubscriptionProps): UseUsersContentPreferenceMutationSubscription => {
   return useMutationSubscription({
     matcher: contentPreferenceMutationMatcher,
     callback: ({
@@ -42,16 +43,16 @@ export const useSquadMembersContentPreferenceMutationSubscription = ({
       const { id: entityId, entity } =
         mutationVariables as PropsParameters<ContentPreferenceMutation>;
 
-      mutationQueryClient.setQueryData<InfiniteData<SquadEdgesData>>(
+      mutationQueryClient.setQueryData<InfiniteData<unknown>>(
         queryKey,
         (data) => {
           const newData = {
             ...data,
             pages: data.pages?.map((page) => {
               return {
-                sourceMembers: {
-                  ...page.sourceMembers,
-                  edges: page.sourceMembers.edges?.map((edge) => {
+                [queryProp]: {
+                  ...page[queryProp],
+                  edges: page[queryProp].edges?.map((edge) => {
                     if (edge.node.user?.id === entityId) {
                       return {
                         ...edge,
