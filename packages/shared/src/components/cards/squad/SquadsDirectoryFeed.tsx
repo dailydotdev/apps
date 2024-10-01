@@ -46,14 +46,14 @@ export function SquadsDirectoryFeed({
     triggerOnce: true,
   });
   const { result } = useSources<Squad>({ query, isEnabled: inView });
-  const { isInitialLoading } = result;
+  const { isFetched } = result;
   const isMobile = useViewSize(ViewSize.MobileL);
-  const isLoading = isInitialLoading || (!inView && !result.data);
+  const isLoading = !isFetched || (!inView && !result.data);
 
   const flatSources =
     result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
 
-  if (flatSources.length === 0 && !isInitialLoading) {
+  if (flatSources.length === 0 && isFetched) {
     return null;
   }
 
