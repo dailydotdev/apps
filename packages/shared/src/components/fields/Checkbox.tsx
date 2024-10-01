@@ -65,6 +65,7 @@ export const Checkbox = forwardRef(function Checkbox(
       <input
         {...props}
         aria-labelledby={`label-span-${checkId}`}
+        data-testid="checkbox-input"
         disabled={disabled}
         id={inputId}
         type="checkbox"
