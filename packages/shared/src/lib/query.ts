@@ -16,6 +16,7 @@ import { SharedFeedPage } from '../components/utilities';
 import {
   Comment as PostComment,
   Author as UserAuthor,
+  SortCommentsBy,
 } from '../graphql/comments';
 import {
   ContentPreferenceStatus,
@@ -425,4 +426,25 @@ export const updateCommentContentPreference = ({
   }
 
   return newData;
+};
+
+type QueryKeyReturnType = ReturnType<typeof generateQueryKey>;
+
+interface GenerateCommentsQueryKeyProps {
+  postId: string;
+  sortBy: SortCommentsBy;
+}
+
+export const generateCommentsQueryKey = ({
+  postId,
+  sortBy,
+}: GenerateCommentsQueryKeyProps): QueryKeyReturnType =>
+  generateQueryKey(RequestKey.PostComments, null, { postId, sortBy });
+
+export const getAllCommentsQuery = (postId: string): QueryKeyReturnType[] => {
+  const sorting = Object.values(SortCommentsBy).map((sortBy) =>
+    generateCommentsQueryKey({ postId, sortBy }),
+  );
+
+  return sorting;
 };

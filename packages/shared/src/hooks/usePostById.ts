@@ -15,7 +15,7 @@ import {
 } from '../graphql/posts';
 import { PostCommentsData } from '../graphql/comments';
 import {
-  generateQueryKey,
+  getAllCommentsQuery,
   RequestKey,
   updatePostContentPreference,
 } from '../lib/query';
@@ -77,8 +77,8 @@ export const removePostComments = (
   commentId: string,
   parentId: string,
 ): void => {
-  const key = generateQueryKey(RequestKey.PostComments, null, post.id);
-  client.setQueryData<PostCommentsData>(key, (data) => {
+  const keys = getAllCommentsQuery(post.id);
+  const removeCachedComment = (data: PostCommentsData) => {
     if (!data) {
       return data;
     }
@@ -106,6 +106,10 @@ export const removePostComments = (
     );
 
     return data;
+  };
+
+  keys.forEach((key) => {
+    client.setQueryData(key, removeCachedComment);
   });
 };
 
