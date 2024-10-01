@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement, ReactNode, useMemo } from 'react';
 import classNames from 'classnames';
 import OptionsButton from '../../buttons/OptionsButton';
 import { CardHeader } from './Card';
@@ -7,7 +7,12 @@ import { Source } from '../../../graphql/sources';
 import { ReadArticleButton } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
 import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
-import { getReadPostButtonText, Post } from '../../../graphql/posts';
+import {
+  getReadPostButtonText,
+  isInternalReadType,
+  isSharedPostSquadPost,
+  Post,
+} from '../../../graphql/posts';
 import { ButtonVariant } from '../../buttons/Button';
 import { FlagProps } from './FeedItemContainer';
 import {
@@ -50,6 +55,19 @@ export const PostCardHeader = ({
     bookmarked: post.bookmarked && !showFeedback,
   });
 
+  const articleLink = useMemo(() => {
+    if (post.sharedPost) {
+      const shouldUseInternalLink =
+        isSharedPostSquadPost(post) || isInternalReadType(post.sharedPost);
+
+      return shouldUseInternalLink
+        ? post.sharedPost?.commentsPermalink
+        : post.sharedPost?.permalink;
+    }
+
+    return postLink;
+  }, [post, postLink]);
+
   return (
     <>
       {highlightBookmarkedPost && (
@@ -81,7 +99,7 @@ export const PostCardHeader = ({
                 content={getReadPostButtonText(post)}
                 className="mr-2"
                 variant={ButtonVariant.Primary}
-                href={postLink}
+                href={articleLink}
                 onClick={onReadArticleClick}
                 openNewTab={openNewTab}
               />
