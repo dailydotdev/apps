@@ -58,12 +58,18 @@ export const PostCardHeader = ({
 
   const shouldUseInternalLink =
     isSharedPostSquadPost(post) || isInternalReadType(post.sharedPost);
-  const sharedArticleLink =
-    shouldUseInternalLink &&
-    (shouldUseInternalLink
-      ? post.sharedPost?.commentsPermalink
-      : post.sharedPost?.permalink);
-  const articleLink = post.sharedPost ? sharedArticleLink : postLink;
+  const articleLink = useMemo(() => {
+    if (post.sharedPost) {
+      const shouldUseInternalLink =
+        isSharedPostSquadPost(post) || isInternalReadType(post.sharedPost);
+
+      return shouldUseInternalLink
+        ? post.sharedPost?.commentsPermalink
+        : post.sharedPost?.permalink;
+    }
+
+    return postLink;
+  }, [post, postLink]);
 
   return (
     <>
