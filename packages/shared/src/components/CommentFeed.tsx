@@ -52,9 +52,9 @@ export default function CommentFeed<T>({
         lastPage.page.pageInfo.hasNextPage && lastPage.page.pageInfo.endCursor,
     },
   );
-  const length = queryResult?.data?.pages?.length ?? 0;
+  const length = queryResult?.data?.pages?.length;
   const showEmptyScreen =
-    length > 0 && queryResult?.data.pages[0].page.edges.length === 0;
+    length > 0 && queryResult.data.pages[0].page.edges.length === 0;
 
   if (queryResult.isLoading) {
     return (
