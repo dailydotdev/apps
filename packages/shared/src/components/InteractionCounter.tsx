@@ -16,7 +16,9 @@ export default function InteractionCounter({
   const [shownValue, setShownValue] = useState(value);
   const [animate, setAnimate] = useState(false);
   useEffect(() => {
-    if (value !== shownValue) {
+    const formattedValue = largeNumberFormat(value);
+    const formattedShownValue = largeNumberFormat(shownValue);
+    if (formattedValue !== formattedShownValue) {
       if (value < shownValue) {
         setShownValue(value);
       } else {
