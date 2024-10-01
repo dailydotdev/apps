@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { Ad } from '../../../../graphql/posts';
-import { CardLink } from '../../Card';
+import { CardLink } from '../../common/Card';
 import { combinedClicks } from '../../../../lib/click';
 
 export type AdLinkProps = {

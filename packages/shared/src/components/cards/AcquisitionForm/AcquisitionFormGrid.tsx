@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { Card } from '../Card';
+import { Card } from '../common/Card';
 import { AcquisitionFormInner } from './common/AcquisitionFormInner';
 
 export function AcquisitionFormGrid(): ReactElement {

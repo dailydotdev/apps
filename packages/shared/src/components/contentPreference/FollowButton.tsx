@@ -9,8 +9,8 @@ import { ButtonVariant } from '../buttons/Button';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
 import SourceActionsNotify from '../sources/SourceActions/SourceActionsNotify';
 import SourceActionsFollow from '../sources/SourceActions/SourceActionsFollow';
-import { useAuthContext } from '../../contexts/AuthContext';
 import { Origin } from '../../lib/log';
+import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
 
 export type FollowButtonProps = {
   className?: string;
@@ -29,7 +29,6 @@ export const FollowButton = ({
   type,
   origin,
 }: FollowButtonProps): ReactElement => {
-  const { user } = useAuthContext();
   const { follow, unfollow, subscribe, unsubscribe } = useContentPreference();
 
   const { mutate: onButtonClick, isLoading: isLoadingFollow } = useMutation(
@@ -80,7 +79,7 @@ export const FollowButton = ({
 
   const isLoading = isLoadingFollow || isLoadingNotify;
 
-  if (!user || user.id === userId) {
+  if (useIsSpecialUser({ userId })) {
     return null;
   }
 

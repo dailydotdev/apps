@@ -10,7 +10,7 @@ import {
   DownvoteIcon,
 } from '../icons';
 import classed from '../../lib/classed';
-import PostMetadata from '../cards/PostMetadata';
+import PostMetadata from '../cards/common/PostMetadata';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { Image } from '../image/Image';
 import ConditionalWrapper from '../ConditionalWrapper';

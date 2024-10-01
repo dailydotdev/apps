@@ -9,7 +9,7 @@ import {
 import SquadMemberBadge from '../squads/SquadMemberBadge';
 import { Author } from '../../graphql/comments';
 import { SourceMemberRole } from '../../graphql/sources';
-import { Separator } from '../cards/common';
+import { Separator } from '../cards/common/common';
 import { ReputationUserBadge } from '../ReputationUserBadge';
 import { TruncateText, DateFormat } from '../utilities';
 import { TimeFormatType } from '../../lib/dateFormat';

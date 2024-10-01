@@ -15,7 +15,7 @@ import CommentAuthor from './CommentAuthor';
 import { CommentPublishDate } from './CommentPublishDate';
 import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
-import { CardLink } from '../cards/Card';
+import { CardLink } from '../cards/common/Card';
 import { ReputationUserBadge } from '../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 

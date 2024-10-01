@@ -2,14 +2,14 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Post } from '../../../graphql/posts';
 import { ProfileImageSize } from '../../ProfilePicture';
-import SourceButton from '../SourceButton';
-import useBookmarkProvider from '../../../hooks/useBookmarkProvider';
+import SourceButton from './SourceButton';
 import {
   BookmakProviderHeader,
   headerHiddenClassName,
-} from '../BookmarkProviderHeader';
+} from './BookmarkProviderHeader';
 import { ProfileTooltip } from '../../profile/ProfileTooltip';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
+import { useBookmarkProvider } from '../../../hooks';
 
 type SquadPostCardHeaderProps = Pick<
   Post,

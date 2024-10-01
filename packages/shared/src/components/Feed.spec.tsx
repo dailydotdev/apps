@@ -75,14 +75,28 @@ import { acquisitionKey } from './cards/AcquisitionForm/common/common';
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
 
-jest.mock('../hooks/useBookmarkProvider', () => ({
-  __esModule: true,
-  default: jest
-    .fn()
-    .mockImplementation((): { highlightBookmarkedPost: boolean } => ({
+jest.mock('../hooks', () => {
+  const originalModule = jest.requireActual('../hooks');
+  return {
+    __esModule: true,
+    ...originalModule,
+    useBookmarkProvider: (): { highlightBookmarkedPost: boolean } => ({
       highlightBookmarkedPost: false,
-    })),
-}));
+    }),
+    useSubscription: {
+      default: jest
+        .fn()
+        .mockImplementation(
+          (
+            request: () => OperationOptions,
+            { next }: SubscriptionCallbacks<PostsEngaged>,
+          ): void => {
+            nextCallback = next;
+          },
+        ),
+    },
+  };
+});
 
 jest.mock('../hooks/useSubscription', () => ({
   __esModule: true,
@@ -108,6 +122,7 @@ beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
+  jest.clearAllMocks();
   variables = defaultVariables;
 });
 

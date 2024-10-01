@@ -10,7 +10,7 @@ import { NewComment, NewCommentRef } from './NewComment';
 import { PostActions } from './PostActions';
 import { PostComments } from './PostComments';
 import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
-import { Comment } from '../../graphql/comments';
+import { Comment, SortCommentsBy } from '../../graphql/comments';
 import { Origin } from '../../lib/log';
 import {
   isSourcePublicSquad,
@@ -23,6 +23,9 @@ import { useActions } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { AdAsComment } from '../comments/AdAsComment';
 import { PostContentReminder } from './common/PostContentReminder';
+import { Typography, TypographyType } from '../typography/Typography';
+import { Button, ButtonIconPosition, ButtonSize } from '../buttons/Button';
+import { TimeSortIcon } from '../icons/Sort/Time';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -43,6 +46,7 @@ function PostEngagements({
 }: PostEngagementsProps): ReactElement {
   const { completeAction } = useActions();
   const postQueryKey = ['post', post.id];
+  const [sortBy, setSortBy] = useState(SortCommentsBy.OldestFirst);
   const { user, showLogin } = useAuthContext();
   const commentRef = useRef<NewCommentRef>();
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
@@ -101,6 +105,31 @@ function PostEngagements({
       />
       <PostContentReminder post={post} />
       <PostContentShare post={post} />
+      <span className="mt-6 flex flex-row items-center">
+        <Typography type={TypographyType.Callout}>Sort:</Typography>
+        <Button
+          className="ml-1 !px-0"
+          iconPosition={ButtonIconPosition.Right}
+          size={ButtonSize.Small}
+          icon={
+            <TimeSortIcon
+              secondary
+              className={sortBy === SortCommentsBy.OldestFirst && 'rotate-180'}
+            />
+          }
+          onClick={() =>
+            setSortBy(
+              sortBy === SortCommentsBy.NewestFirst
+                ? SortCommentsBy.OldestFirst
+                : SortCommentsBy.NewestFirst,
+            )
+          }
+        >
+          {sortBy === SortCommentsBy.NewestFirst
+            ? 'Newest first'
+            : 'Oldest first'}
+        </Button>
+      </span>
       <NewComment
         className={{ container: 'mt-6 hidden tablet:flex' }}
         post={post}
@@ -110,6 +139,7 @@ function PostEngagements({
       <AdAsComment postId={post.id} />
       <PostComments
         post={post}
+        sortBy={sortBy}
         origin={logOrigin}
         onShare={(comment) => openShareComment(comment, post)}
         onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}

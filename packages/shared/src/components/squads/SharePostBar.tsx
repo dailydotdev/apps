@@ -4,7 +4,7 @@ import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { LockIcon } from '../icons';
-import { Card } from '../cards/Card';
+import { Card } from '../cards/common/Card';
 import { IconSize } from '../Icon';
 import { usePostToSquad, useViewSize, ViewSize } from '../../hooks';
 import { ClickableText } from '../buttons/ClickableText';

@@ -12,7 +12,7 @@ import {
 } from '../../buttons/Button';
 import { AtIcon } from '../../icons';
 import { Divider, Justify } from '../../utilities';
-import SourceButton from '../../cards/SourceButton';
+import SourceButton from '../../cards/common/SourceButton';
 import { Squad } from '../../../graphql/sources';
 import { formToJson } from '../../../lib/form';
 import { useDebouncedUrl } from '../../../hooks/input';

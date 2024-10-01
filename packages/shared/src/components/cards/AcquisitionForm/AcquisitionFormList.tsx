@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { ListCard } from '../list/ListCard';
+import { ListCard } from '../common/list/ListCard';
 import { AcquisitionFormInner } from './common/AcquisitionFormInner';
 
 export function AcquisitionFormList(): ReactElement {

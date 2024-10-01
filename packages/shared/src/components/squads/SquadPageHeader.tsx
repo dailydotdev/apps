@@ -17,7 +17,7 @@ import classed from '../../lib/classed';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { link } from '../../lib/links';
 import SquadChecklistCard from '../checklist/SquadChecklistCard';
-import { Separator } from '../cards/common';
+import { Separator } from '../cards/common/common';
 import { PrivilegedMemberItem } from './Members/PrivilegedMemberItem';
 import { formatMonthYearOnly } from '../../lib/dateFormat';
 import {

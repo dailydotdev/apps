@@ -3,7 +3,7 @@ import {
   NotificationAvatar,
   NotificationAvatarType,
 } from '../../graphql/notifications';
-import SourceButton from '../cards/SourceButton';
+import SourceButton from '../cards/common/SourceButton';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import { ProfileImageSize } from '../ProfilePicture';
