@@ -1,6 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
+import { subDays } from 'date-fns';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import type { LoggedUser } from '../../../lib/user';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
@@ -15,8 +16,10 @@ import {
 import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
 import * as actionHook from '../../../hooks/useActions';
 import * as toastHook from '../../../hooks/useToastNotification';
+import * as streakHook from '../../../hooks/streaks/useReadingStreak';
 import { ActionType } from '../../../graphql/actions';
 import Toast from '../../notifications/Toast';
+import { DayOfWeek } from '../../../lib/date';
 
 interface TestProps {
   user?: LoggedUser | null;
@@ -32,6 +35,7 @@ const defaultAlerts: Alerts = {
 const alertsWithStreakRecovery: Alerts = {
   ...defaultAlerts,
   showRecoverStreak: true,
+  showStreakMilestone: true,
 };
 
 const checkHasCompleted = jest.fn();
@@ -90,7 +94,7 @@ const mockAlertsMutation = () => {
   });
 };
 
-const renderComponent = (props: TestProps) => {
+const renderComponent = (props: TestProps = {}) => {
   const {
     user = { ...loggedUser, reputation: 10 },
     alerts = alertsWithStreakRecovery,
@@ -101,6 +105,10 @@ const renderComponent = (props: TestProps) => {
       client={queryClient}
       auth={{ user }}
       alerts={{ alerts, updateAlerts }}
+      settings={{
+        loadedSettings: true,
+        optOutReadingStreak: false,
+      }}
     >
       <BootPopups />
       <Toast autoDismissNotifications={false} />
@@ -119,6 +127,21 @@ beforeEach(async () => {
     displayToast,
     dismissToast: jest.fn(),
     subject: undefined,
+  });
+
+  jest.spyOn(streakHook, 'useReadingStreak').mockReturnValue({
+    isLoading: false,
+    isStreaksEnabled: true,
+    streak: {
+      current: 10,
+      max: 10,
+      total: 12,
+      weekStart: DayOfWeek.Monday,
+      lastViewAt: subDays(new Date(), 2),
+    },
+    updateStreakConfig: jest.fn(),
+    checkReadingStreak: jest.fn(),
+    shouldShowPopup: false,
   });
 
   // need to reset the query cache
@@ -168,7 +191,7 @@ it('should render and fetch initial data if logged user can recover streak', asy
     },
   );
 
-  renderComponent({});
+  renderComponent();
 
   await waitForNock();
 

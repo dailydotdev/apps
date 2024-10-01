@@ -207,11 +207,18 @@ export const BootPopups = (): ReactElement => {
    * Streak recovery modal
    */
   useEffect(() => {
+    const shouldNotShowStreakUpdates =
+      !isStreaksEnabled || !isActionsFetched || isDisabledMilestone;
     const hasMarkedAction = checkHasCompleted(
       ActionType.DisableReadingStreakRecover,
     );
 
-    if (!alerts.showRecoverStreak || !user || hasMarkedAction) {
+    if (
+      shouldNotShowStreakUpdates ||
+      !alerts.showRecoverStreak ||
+      !user ||
+      hasMarkedAction
+    ) {
       return;
     }
     addBootPopup({
@@ -224,6 +231,9 @@ export const BootPopups = (): ReactElement => {
     alerts,
     checkHasCompleted,
     isActionsFetched,
+    isDisabledMilestone,
+    isStreaksEnabled,
+    shouldHideStreaksModal,
     streak,
     updateAlerts,
     updateLastBootPopup,

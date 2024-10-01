@@ -1,11 +1,13 @@
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
-import { QueryClient, QueryClientProvider as TanStackQueryClientProvider } from '@tanstack/react-query';
-import { BootApp } from '@dailydotdev/shared/src/lib/boot';
+import {
+  QueryClient,
+  QueryClientProvider as TanStackQueryClientProvider,
+} from '@tanstack/react-query';
 import { Browser } from 'webextension-polyfill';
 import type { FC, PropsWithChildren } from 'react';
 
-const app = BootApp.Extension;
+const app = 'extension';
 const queryClient = new QueryClient();
 
 declare global {
@@ -15,8 +17,12 @@ declare global {
 }
 
 export const QueryClientProvider: FC<PropsWithChildren> = ({ children }) => {
-  return <TanStackQueryClientProvider client={queryClient}>{children}</TanStackQueryClientProvider>;
-}
+  return (
+    <TanStackQueryClientProvider client={queryClient}>
+      {children}
+    </TanStackQueryClientProvider>
+  );
+};
 
 export const ExtensionProviders: FC<PropsWithChildren> = ({ children }) => {
   return (
