@@ -9,7 +9,6 @@ import { useQuery } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import {
   Comment,
-  generateCommentsQueryKey,
   POST_COMMENTS_QUERY,
   PostCommentsData,
   SortCommentsBy,
@@ -25,6 +24,7 @@ import { useDeleteComment } from '../../hooks/comments/useDeleteComment';
 import { lazyCommentThreshold } from '../utilities';
 import { isNullOrUndefined } from '../../lib/func';
 import { useCommentContentPreferenceMutationSubscription } from './useCommentContentPreferenceMutationSubscription';
+import { generateCommentsQueryKey } from '../../lib/query';
 
 interface PostCommentsProps {
   post: Post;
