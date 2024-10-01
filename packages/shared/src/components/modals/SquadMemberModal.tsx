@@ -23,7 +23,7 @@ import { defaultSearchDebounceMs } from '../../lib/func';
 import { BlockedMembersPlaceholder } from '../squads/Members';
 import { ContextMenu } from '../../hooks/constants';
 import SquadMemberItemOptionsButton from '../squads/SquadMemberItemOptionsButton';
-import { useSquadMembersContentPreferenceMutationSubscription } from './squads/useSquadMembersContentPreferenceMutationSubscription';
+import { useUsersContentPreferenceMutationSubscription } from '../../hooks/contentPreference/useUsersContentPreferenceMutationSubscription';
 
 enum SquadMemberTab {
   AllMembers = 'Squad members',
@@ -98,8 +98,9 @@ export function SquadMemberModal({
     onMenuClick(e);
   };
 
-  useSquadMembersContentPreferenceMutationSubscription({
+  useUsersContentPreferenceMutationSubscription({
     queryKey: membersQueryKey,
+    queryProp: 'sourceMembers',
   });
 
   const hasPermission = verifyPermission(

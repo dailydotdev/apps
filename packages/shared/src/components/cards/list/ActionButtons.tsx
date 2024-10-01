@@ -80,7 +80,7 @@ export default function ActionButtons({
             <Button
               className={classNames(
                 'pointer-events-auto',
-                post?.numUpvotes > 0 ? '!pl-1 !pr-3' : '!px-1',
+                post?.numUpvotes > 0 ? '!pl-1 !pr-3' : 'w-10',
               )}
               id={`post-${post.id}-upvote-btn`}
               color={ButtonColor.Avocado}
@@ -131,7 +131,7 @@ export default function ActionButtons({
             id={`post-${post.id}-comment-btn`}
             className={classNames(
               'pointer-events-auto ml-2',
-              post?.numComments > 0 ? '!pl-3' : '!px-1',
+              post?.numComments > 0 ? '!pl-3' : 'w-10',
             )}
             color={ButtonColor.BlueCheese}
             tag="a"

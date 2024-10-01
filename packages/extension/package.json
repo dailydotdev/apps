@@ -1,6 +1,6 @@
 {
   "name": "extension",
-  "version": "3.34.2",
+  "version": "3.34.3",
   "scripts": {
     "dev:chrome": "cross-env NODE_ENV=development cross-env TARGET_BROWSER=chrome webpack --watch",
     "dev:firefox": "cross-env NODE_ENV=development cross-env TARGET_BROWSER=firefox webpack --watch",
@@ -34,7 +34,7 @@
     "react-dom": "18.3.1",
     "react-intersection-observer": "^8.34.0",
     "react-modal": "^3.15.1",
-    "react-swipeable": "^6.2.2",
+    "react-swipeable": "^7.0.1",
     "react-tooltip": "^4.2.21",
     "react-transition-group": "^4.4.2",
     "react-virtual": "^2.10.4",

@@ -25,6 +25,7 @@ import {
 import { Checkbox } from '../../fields/Checkbox';
 import { ModalClose } from '../common/ModalClose';
 import { cloudinary } from '../../../lib/image';
+import { useReadingStreak } from '../../../hooks/streaks';
 
 export interface StreakRecoverModalProps
   extends Pick<ModalProps, 'isOpen' | 'onAfterClose'> {
@@ -162,6 +163,7 @@ export const StreakRecoverModal = (
   props: StreakRecoverModalProps,
 ): ReactElement => {
   const { isOpen, onRequestClose, onAfterClose, user } = props;
+  const { isStreaksEnabled } = useReadingStreak();
 
   const id = useId();
   const { recover, hideForever, onClose, onRecover } = useStreakRecover({
@@ -169,7 +171,13 @@ export const StreakRecoverModal = (
     onRequestClose,
   });
 
-  if (!user || !recover.canRecover || recover.isLoading || recover.isDisabled) {
+  if (
+    !user ||
+    !isStreaksEnabled ||
+    !recover.canRecover ||
+    recover.isLoading ||
+    recover.isDisabled
+  ) {
     return null;
   }
 
