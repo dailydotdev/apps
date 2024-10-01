@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useRef } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { Squad } from '../../../graphql/sources';
 import {
@@ -42,8 +42,7 @@ export function SquadsDirectoryFeed({
   className,
   children,
 }: SquadHorizontalListProps): ReactElement {
-  const ref = useRef<HTMLDivElement>();
-  const { inView } = useInView({
+  const { ref, inView } = useInView({
     triggerOnce: true,
   });
   const { result } = useSources<Squad>({ query, isEnabled: inView });
