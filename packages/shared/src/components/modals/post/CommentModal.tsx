@@ -16,11 +16,7 @@ import {
 } from '../../fields/MarkdownInput/CommentMarkdownInput';
 import { useMutateComment } from '../../../hooks/post/useMutateComment';
 import { useVisualViewport } from '../../../hooks/utils/useVisualViewport';
-import {
-  Comment,
-  getAllCommentsQuery,
-  PostCommentsData,
-} from '../../../graphql/comments';
+import { Comment, PostCommentsData } from '../../../graphql/comments';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import { NotificationPromptSource } from '../../../lib/log';
 import { Switch } from '../../fields/Switch';
@@ -28,6 +24,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import CommentContainer from '../../comments/CommentContainer';
 import { WriteCommentContext } from '../../../contexts/WriteCommentContext';
 import useCommentById from '../../../hooks/comments/useCommentById';
+import { getAllCommentsQuery } from '../../../lib/query';
 
 const getComment = (data: PostCommentsData, commentId: string) => {
   // eslint-disable-next-line no-restricted-syntax

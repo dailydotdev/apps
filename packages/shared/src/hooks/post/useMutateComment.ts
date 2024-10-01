@@ -7,11 +7,14 @@ import {
   COMMENT_ON_COMMENT_MUTATION,
   COMMENT_ON_POST_MUTATION,
   EDIT_COMMENT_MUTATION,
-  getAllCommentsQuery,
 } from '../../graphql/comments';
 import { LogEvent } from '../../lib/log';
 import { postLogEvent } from '../../lib/feed';
-import { generateQueryKey, RequestKey } from '../../lib/query';
+import {
+  generateQueryKey,
+  getAllCommentsQuery,
+  RequestKey,
+} from '../../lib/query';
 import { useBackgroundRequest } from '../companion';
 import { updatePostCache } from '../usePostById';
 import { Edge } from '../../graphql/common';

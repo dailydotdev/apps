@@ -13,8 +13,12 @@ import {
   POST_BY_ID_QUERY,
   RelatedPost,
 } from '../graphql/posts';
-import { getAllCommentsQuery, PostCommentsData } from '../graphql/comments';
-import { RequestKey, updatePostContentPreference } from '../lib/query';
+import { PostCommentsData } from '../graphql/comments';
+import {
+  getAllCommentsQuery,
+  RequestKey,
+  updatePostContentPreference,
+} from '../lib/query';
 import { Connection, gqlClient } from '../graphql/common';
 import { useMutationSubscription } from './mutationSubscription/useMutationSubscription';
 import {
