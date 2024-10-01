@@ -141,6 +141,7 @@ export const StreakRecoverOptout = ({
       aria-labelledby={`showAgain-label-${id}`}
       checked={hideForever.isChecked}
       className="!pr-0"
+      data-testid="streak-recover-optout"
       id={`showAgain-${id}`}
       name="showAgain"
       onToggleCallback={hideForever.toggle}
@@ -152,7 +153,6 @@ export const StreakRecoverOptout = ({
       id={`showAgain-label-${id}`}
       tag={TypographyTag.Label}
       type={TypographyType.Footnote}
-      data-testid="streak-recover-optout"
     >
       Never show this again
     </Typography>
