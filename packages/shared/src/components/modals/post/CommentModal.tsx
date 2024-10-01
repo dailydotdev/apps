@@ -27,6 +27,10 @@ import useCommentById from '../../../hooks/comments/useCommentById';
 import { getAllCommentsQuery } from '../../../lib/query';
 
 const getComment = (data: PostCommentsData, commentId: string) => {
+  if (!data?.postComments?.edges) {
+    return undefined;
+  }
+
   // eslint-disable-next-line no-restricted-syntax
   for (const item of data?.postComments?.edges) {
     if (item.node.id === commentId) {
