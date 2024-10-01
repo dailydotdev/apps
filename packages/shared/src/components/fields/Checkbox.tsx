@@ -63,17 +63,17 @@ export const Checkbox = forwardRef(function Checkbox(
       htmlFor={inputId}
     >
       <input
-        {...props}
         aria-labelledby={`label-span-${checkId}`}
+        checked={checked}
+        className="absolute h-0 w-0 opacity-0"
         data-testid="checkbox-input"
         disabled={disabled}
         id={inputId}
-        type="checkbox"
-        className="absolute h-0 w-0 opacity-0"
         name={name}
-        checked={checked}
         onChange={onChange}
         ref={ref}
+        type="checkbox"
+        {...props}
       />
       <div
         aria-checked={checked}
