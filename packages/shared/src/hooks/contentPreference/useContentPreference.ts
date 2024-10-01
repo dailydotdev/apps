@@ -12,6 +12,7 @@ import { useToastNotification } from '../useToastNotification';
 import { ContentPreferenceMutation } from './types';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
+import { AuthTriggers } from '../../lib/auth';
 
 export type UseContentPreference = {
   follow: ContentPreferenceMutation;
@@ -21,7 +22,7 @@ export type UseContentPreference = {
 };
 
 export const useContentPreference = (): UseContentPreference => {
-  const { user } = useAuthContext();
+  const { user, showLogin } = useAuthContext();
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
 
@@ -32,6 +33,12 @@ export const useContentPreference = (): UseContentPreference => {
       entityName,
       opts,
     }: PropsParameters<UseContentPreference['follow']>) => {
+      if (!user) {
+        showLogin({ trigger: AuthTriggers.Follow });
+
+        throw new Error('not logged in');
+      }
+
       logEvent({
         event_name: LogEvent.Follow,
         target_id: id,
@@ -59,6 +66,12 @@ export const useContentPreference = (): UseContentPreference => {
       entityName,
       opts,
     }: PropsParameters<UseContentPreference['unfollow']>) => {
+      if (!user) {
+        showLogin({ trigger: AuthTriggers.Follow });
+
+        throw new Error('not logged in');
+      }
+
       logEvent({
         event_name: LogEvent.Unfollow,
         target_id: id,
@@ -85,6 +98,12 @@ export const useContentPreference = (): UseContentPreference => {
       entityName,
       opts,
     }: PropsParameters<UseContentPreference['subscribe']>) => {
+      if (!user) {
+        showLogin({ trigger: AuthTriggers.Follow });
+
+        throw new Error('not logged in');
+      }
+
       logEvent({
         event_name: LogEvent.Subscribe,
         target_id: id,
@@ -115,6 +134,12 @@ export const useContentPreference = (): UseContentPreference => {
       entityName,
       opts,
     }: PropsParameters<UseContentPreference['subscribe']>) => {
+      if (!user) {
+        showLogin({ trigger: AuthTriggers.Follow });
+
+        throw new Error('not logged in');
+      }
+
       logEvent({
         event_name: LogEvent.Unsubscribe,
         target_id: id,
