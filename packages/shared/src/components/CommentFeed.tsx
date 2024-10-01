@@ -54,7 +54,7 @@ export default function CommentFeed<T>({
   );
   const length = queryResult?.data?.pages?.length ?? 0;
   const showEmptyScreen =
-    length > 0 && queryResult.data.pages[0].page.edges.length === 0;
+    length > 0 && queryResult?.data.pages[0].page.edges.length === 0;
 
   if (queryResult.isLoading) {
     return (
