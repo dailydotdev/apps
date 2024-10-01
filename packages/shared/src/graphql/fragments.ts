@@ -138,27 +138,10 @@ export const SQUAD_BASE_FRAGMENT = `
       id
       title
     }
-    privilegedMembers {
-      user {
-        id
-        name
-        image
-        permalink
-        username
-        bio
-        reputation
-        companies {
-          name
-          image
-        }
-        contentPreference {
-          status
-        }
-      }
-      role
-    }
+    ...PrivilegedMembers
   }
   ${SOURCE_BASE_FRAGMENT}
+  ${PRIVILEGED_MEMBERS_FRAGMENT}
 `;
 
 export const SHARED_POST_INFO_FRAGMENT = gql`
