@@ -7,6 +7,7 @@ import React, {
   useEffect,
   useState,
   InputHTMLAttributes,
+  useId,
 } from 'react';
 import classNames from 'classnames';
 import { VIcon } from '../icons';
@@ -30,13 +31,15 @@ export const Checkbox = forwardRef(function Checkbox(
     className,
     checkmarkClassName,
     onToggleCallback,
-    id,
+    id = '',
     disabled,
     ...props
   }: CheckboxProps,
   ref: LegacyRef<HTMLInputElement>,
 ): ReactElement {
   const [actualChecked, setActualChecked] = useState(checked);
+  const checkId = useId();
+  const inputId = id.concat(checkId);
 
   useEffect(() => {
     setActualChecked(checked);
@@ -57,32 +60,41 @@ export const Checkbox = forwardRef(function Checkbox(
         { checked: actualChecked, disabled },
       )}
       style={{ transition: 'color 0.1s linear' }}
-      htmlFor={id}
+      htmlFor={inputId}
     >
       <input
-        {...props}
-        disabled={disabled}
-        id={id}
-        type="checkbox"
-        className="absolute h-0 w-0 opacity-0"
-        name={name}
+        aria-labelledby={`label-span-${checkId}`}
         checked={checked}
+        className="absolute h-0 w-0 opacity-0"
+        data-testid="checkbox-input"
+        disabled={disabled}
+        id={inputId}
+        name={name}
         onChange={onChange}
         ref={ref}
+        type="checkbox"
+        {...props}
       />
       <div
+        aria-checked={checked}
+        aria-labelledby={`label-${checkId}`}
         className={classNames(
           'relative z-1 mr-3 flex h-5 w-5 items-center justify-center rounded-6 border-2 border-border-subtlest-primary',
           styles.checkmark,
           checkmarkClassName,
         )}
+        role="checkbox"
       >
         <VIcon
+          aria-hidden
           className="icon h-full w-full text-text-primary opacity-0"
+          role="presentation"
           style={{ transition: 'opacity 0.1s linear' }}
         />
       </div>
-      {children}
+      <span className="min-w-0 flex-1" id={`label-span-${checkId}`}>
+        {children}
+      </span>
     </label>
   );
 });

@@ -4,6 +4,7 @@ import { CSSTransition } from 'react-transition-group';
 import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
 import LogoText from '../svg/LogoText';
 import LogoIcon from '../svg/LogoIcon';
+import { webappUrl } from '../lib/constants';
 
 export enum LogoPosition {
   Absolute = 'absolute',
@@ -19,6 +20,7 @@ const logoPositionToClassName: Record<LogoPosition, string> = {
   [LogoPosition.Relative]: classNames('relative mt-0.5', 'laptop:mt-0'),
   [LogoPosition.Initial]: '',
 };
+
 interface LogoSvgElemProps {
   className?: {
     container?: string;
@@ -72,19 +74,20 @@ export default function Logo({
 }: LogoProps): ReactElement {
   return (
     <LinkWithTooltip
-      href={process.env.NEXT_PUBLIC_WEBAPP_URL}
+      href={webappUrl}
       passHref
       prefetch={false}
       tooltip={{ placement: 'right', content: 'Home' }}
     >
-      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
       <a
+        aria-disabled={linkDisabled}
         className={classNames(
           'flex items-center',
           logoPositionToClassName[position],
           className,
           linkDisabled && 'pointer-events-none',
         )}
+        href={webappUrl}
         onClick={onLogoClick}
       >
         <LogoSvgElem

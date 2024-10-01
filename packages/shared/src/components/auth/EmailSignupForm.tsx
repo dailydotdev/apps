@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useId, useState } from 'react';
 import SignupDisclaimer from './SignupDisclaimer';
 import AuthForm from './AuthForm';
 import { TextField } from '../fields/TextField';
@@ -18,26 +18,44 @@ function EmailSignupForm({
   showDisclaimer = true,
 }: EmailSignupFormProps): ReactElement {
   const [email, setEmail] = useState(null);
+  const inputId = useId();
+  const isSubmitDisabled = !email || !isReady;
 
   return (
-    <AuthForm className="gap-2" onSubmit={onSubmit}>
+    <AuthForm
+      aria-label="Signup using email"
+      className="gap-2"
+      onSubmit={onSubmit}
+    >
       <TextField
-        leftIcon={<MailIcon size={IconSize.Small} />}
-        inputId="email"
-        label="Email"
-        type="email"
-        name="email"
-        valueChanged={(value) => setEmail(value)}
         actionButton={
           <Button
+            aria-label="Submit and sign me up, accepting terms and conditions"
             size={ButtonSize.Small}
             variant={ButtonVariant.Primary}
-            icon={<ArrowIcon className="rotate-90" />}
+            icon={
+              <ArrowIcon
+                aria-hidden
+                className="rotate-90"
+                role="presentation"
+              />
+            }
             type="submit"
             data-testid="email_signup_submit"
-            disabled={!email || !isReady}
+            disabled={isSubmitDisabled}
           />
         }
+        aria-label="Enter your email"
+        aria-disabled={isSubmitDisabled}
+        inputId={inputId}
+        label="Email"
+        leftIcon={
+          <MailIcon aria-hidden role="presentation" size={IconSize.Small} />
+        }
+        name="email"
+        required
+        type="email"
+        valueChanged={(value) => setEmail(value)}
       />
       {showDisclaimer && <SignupDisclaimer />}
     </AuthForm>

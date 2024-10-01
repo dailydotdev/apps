@@ -353,7 +353,7 @@ it('Should show success message on recover', async () => {
 });
 
 it('Should dismiss popup on close if checked option', async () => {
-  // window.scrollTo = jest.fn();
+  window.scrollTo = jest.fn();
 
   mockRecoveryQuery({
     canRecover: true,
@@ -374,7 +374,11 @@ it('Should dismiss popup on close if checked option', async () => {
   await screen.findByTestId('streak-recover-modal-heading');
 
   // check never show again
-  fireEvent.click(await screen.findByTestId('streak-recover-optout'));
+  const neverShowAgain = await screen.findByTestId<HTMLInputElement>(
+    'streak-recover-optout',
+  );
+  fireEvent.click(neverShowAgain);
+  expect(neverShowAgain).toBeChecked();
 
   mockAlertsMutation();
 

@@ -20,7 +20,7 @@ export enum ProfileImageSize {
 
 type ProfileImageRoundSize = ProfileImageSize | 'full';
 type UserImageProps = Pick<PublicProfile, 'image'> &
-  Partial<Pick<PublicProfile, 'id' | 'username'>>;
+  Partial<Pick<PublicProfile, 'id' | 'username' | 'name'>>;
 
 export interface ProfilePictureProps
   extends Omit<LazyImageProps, 'imgSrc' | 'imgAlt'> {
@@ -101,13 +101,15 @@ function ProfilePictureComponent(
     return null;
   }
 
+  const imageAlt = `${user.username || user.name || user.id}'s profile`;
+
   if (nativeLazyLoading) {
     return (
       <Image
         {...props}
         ref={ref}
         src={user.image}
-        alt={`${user.username || user.id}'s profile`}
+        alt={imageAlt}
         onError={onError}
         className={classes}
         loading={eager || isCompanion ? 'eager' : 'lazy'}
@@ -122,9 +124,10 @@ function ProfilePictureComponent(
       {...props}
       ref={ref}
       imgSrc={user.image}
-      imgAlt={`${user.username || user.id}'s profile`}
+      imgAlt={imageAlt}
       className={classes}
       fallbackSrc={fallbackSrc ?? fallbackImages.avatar}
+      role="presentation"
     />
   );
 }

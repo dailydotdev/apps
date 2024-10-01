@@ -16,6 +16,7 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import { getFieldFontColor } from './BaseFieldContainer';
+import { IconProps } from '../Icon';
 
 export interface SearchFieldProps
   extends Pick<
@@ -28,6 +29,7 @@ export interface SearchFieldProps
     | 'autoFocus'
     | 'onBlur'
     | 'onFocus'
+    | 'aria-label'
     | 'aria-haspopup'
     | 'aria-expanded'
     | 'onKeyDown'
@@ -45,8 +47,17 @@ export interface SearchFieldProps
   rightButtonProps?: ButtonProps<'button'> | false;
 }
 
-const ButtonIcon = ({ isPrimary }: { isPrimary: boolean }) =>
-  isPrimary ? <CloseIcon /> : <ArrowIcon className="rotate-90" />;
+const ButtonIcon = ({
+  isPrimary,
+  ...attrs
+}: IconProps & {
+  isPrimary: boolean;
+}) =>
+  isPrimary ? (
+    <CloseIcon {...attrs} />
+  ) : (
+    <ArrowIcon {...attrs} className="rotate-90" />
+  );
 
 export const SearchField = forwardRef(function SearchField(
   {
@@ -64,6 +75,7 @@ export const SearchField = forwardRef(function SearchField(
     disabled,
     rightButtonProps = { type: 'button' },
     'aria-describedby': describedBy,
+    'aria-label': ariaLabel,
     onBlur: externalOnBlur,
     onFocus: externalOnFocus,
     showIcon = true,
@@ -108,6 +120,7 @@ export const SearchField = forwardRef(function SearchField(
       {!!showIcon &&
         (isSecondary && hasInput ? (
           <Button
+            aria-label="Clear input text"
             className="mr-2"
             size={ButtonSize.XSmall}
             variant={ButtonVariant.Tertiary}
@@ -120,8 +133,10 @@ export const SearchField = forwardRef(function SearchField(
           />
         ) : (
           <SearchIcon
-            secondary={focused}
+            aria-hidden
             className="icon mr-2 text-2xl"
+            role="presentation"
+            secondary={focused}
             style={{
               color:
                 focused || hasInput
@@ -131,6 +146,7 @@ export const SearchField = forwardRef(function SearchField(
           />
         ))}
       <FieldInput
+        aria-label={ariaLabel}
         disabled={disabled}
         placeholder={placeholder}
         name={name}
@@ -167,7 +183,9 @@ export const SearchField = forwardRef(function SearchField(
               ? onClearClick
               : rightButtonProps.onClick
           }
-          icon={<ButtonIcon isPrimary={isPrimary} />}
+          icon={
+            <ButtonIcon aria-hidden role="presentation" isPrimary={isPrimary} />
+          }
           disabled={rightButtonProps?.disabled || !hasInput}
         />
       )}

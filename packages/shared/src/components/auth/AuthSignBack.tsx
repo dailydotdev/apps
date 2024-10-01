@@ -73,7 +73,7 @@ export const AuthSignBack = ({
         <ConditionalWrapper
           condition={provider !== 'password'}
           wrapper={(component) => (
-            <div className="relative">
+            <div className="relative" aria-hidden>
               {component}
               <span className="absolute bottom-0 right-0 rounded-8 bg-white p-1 text-surface-invert">
                 {providerItem.icon}

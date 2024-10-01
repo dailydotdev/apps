@@ -51,6 +51,7 @@ function ForgotPasswordForm({
         onBack={onBack}
       />
       <AuthForm
+        aria-label="Forgot password"
         className="flex flex-col items-end px-14 py-8"
         onSubmit={onSendEmail}
         data-testid="recovery_form"
@@ -70,7 +71,8 @@ function ForgotPasswordForm({
           hint={hint as string}
           valid={!hint}
           onChange={() => hint && setHint('')}
-          leftIcon={<MailIcon />}
+          leftIcon={<MailIcon aria-hidden role="presentation" />}
+          autoFocus
         />
         <Button
           className="mt-6"

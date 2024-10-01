@@ -3,6 +3,7 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import { useMutation } from '@tanstack/react-query';
@@ -64,9 +65,21 @@ const AuthDefault = ({
   const title = shouldLogin ? logInTitle : signUpTitle;
   const { displayToast } = useToastNotification();
   const [registerEmail, setRegisterEmail] = useState<string>(null);
+  const socialLoginListRef = useRef<HTMLDivElement>(null);
   const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
     checkKratosEmail(emailParam),
   );
+
+  const focusFirstSocialLink = () => {
+    if (!socialLoginListRef.current) {
+      return;
+    }
+    const firstChild = socialLoginListRef.current.children[0];
+    if (!(firstChild instanceof HTMLElement)) {
+      return;
+    }
+    firstChild.focus();
+  };
 
   useEffect(() => {
     logEvent({
@@ -147,15 +160,22 @@ const AuthDefault = ({
         </p>
       )}
       <AuthContainer className={disableRegistration && 'mb-6'}>
-        <div className="flex flex-col gap-4">
-          {providers.map(({ label, value, icon }) => (
+        <div
+          aria-label="Social login buttons"
+          className="flex flex-col gap-4"
+          ref={socialLoginListRef}
+          role="list"
+        >
+          {providers.map(({ label, value, icon }, index) => (
             <Button
-              key={label}
+              aria-label={`${shouldLogin ? 'Login' : 'Signup'} using ${label}`}
+              autoFocus={index === 0}
               icon={icon}
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Large}
-              onClick={() => onSocialClick(value)}
+              key={label}
               loading={!isReady}
+              onClick={() => onSocialClick(value)}
+              size={ButtonSize.Large}
+              variant={ButtonVariant.Primary}
             >
               {label}
             </Button>
@@ -179,6 +199,7 @@ const AuthDefault = ({
               button: shouldLogin ? 'Sign up' : 'Log in',
             }}
             onClick={() => {
+              focusFirstSocialLink();
               if (!shouldLogin) {
                 setRegisterEmail(null);
               }
