@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { CardLink } from '../Card';
+import { CardLink } from './Card';
 import { useFeedPreviewMode } from '../../../hooks';
 import { Post } from '../../../graphql/posts';
 import { webappUrl } from '../../../lib/constants';

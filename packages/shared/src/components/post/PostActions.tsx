@@ -12,7 +12,7 @@ import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import { PostOrigin } from '../../hooks/log/useLogContextData';
 import { useVotePost } from '../../hooks';
 import { Origin } from '../../lib/log';
-import { Card } from '../cards/Card';
+import { Card } from '../cards/common/Card';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { PostTagsPanel } from './block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';

@@ -22,7 +22,7 @@ import {
   updateCachedPagePost,
 } from '../lib/query';
 import { MarketingCta } from '../components/marketingCta/common';
-import { FeedItemType } from '../components/cards/common';
+import { FeedItemType } from '../components/cards/common/common';
 import { GARMR_ERROR, gqlClient } from '../graphql/common';
 
 interface FeedItemBase<T extends FeedItemType> {

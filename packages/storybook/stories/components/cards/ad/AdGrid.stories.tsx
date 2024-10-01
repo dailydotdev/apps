@@ -1,7 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { AdGrid } from '@dailydotdev/shared/src/components/cards/ad/AdGrid';
-import YoutubeVideo
-  from '@dailydotdev/shared/src/components/video/YoutubeVideo';
 
 const meta: Meta<typeof AdGrid> = {
   title: 'Components/Cards/Ads/AdGrid',

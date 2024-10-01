@@ -1,10 +1,10 @@
 import React, { ReactElement, useCallback, useEffect, useRef } from 'react';
-import { ListCard } from '../cards/list/ListCard';
+import { ListCard } from '../cards/common/list/ListCard';
 import { useBoot } from '../../hooks';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
 import { CTAButton, Description, Header, MarketingCta, Title } from './common';
-import { CardCoverList } from '../cards/list/CardCover';
+import { CardCoverList } from '../cards/common/list/CardCover';
 
 export function MarketingCtaList({
   marketingCta,

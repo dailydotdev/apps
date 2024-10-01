@@ -1,4 +1,4 @@
-import { useActiveFeedNameContext } from '../contexts';
+import { useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
 import { SharedFeedPage } from '../components/utilities';
 import { UseBookmarkProviderProps, useJustBookmarked } from './bookmark';
 
@@ -6,7 +6,7 @@ interface UseBookmarkProviderReturn {
   highlightBookmarkedPost: boolean;
 }
 
-const useBookmarkProvider = ({
+export const useBookmarkProvider = ({
   bookmarked = false,
 }: UseBookmarkProviderProps): UseBookmarkProviderReturn => {
   const { feedName } = useActiveFeedNameContext();
@@ -20,5 +20,3 @@ const useBookmarkProvider = ({
     highlightBookmarkedPost,
   };
 };
-
-export default useBookmarkProvider;

@@ -9,7 +9,7 @@ import usePersistentContext from '../../hooks/usePersistentContext';
 import { useJoinSquad, useViewSize, ViewSize } from '../../hooks';
 import { labels } from '../../lib';
 import { useToastNotification } from '../../hooks/useToastNotification';
-import SourceButton from '../cards/SourceButton';
+import SourceButton from '../cards/common/SourceButton';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { Post } from '../../graphql/posts';
 import { ProfileImageSize } from '../ProfilePicture';
