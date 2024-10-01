@@ -3,7 +3,6 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
@@ -94,10 +93,6 @@ const AuthDefault = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldLogin]);
 
-  useLayoutEffect(() => {
-    focusFirstSocialLink();
-  }, []);
-
   const onEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -171,15 +166,16 @@ const AuthDefault = ({
           ref={socialLoginListRef}
           role="list"
         >
-          {providers.map(({ label, value, icon }) => (
+          {providers.map(({ label, value, icon }, index) => (
             <Button
               aria-label={`${shouldLogin ? 'Login' : 'Signup'} using ${label}`}
+              autoFocus={index === 0}
               icon={icon}
               key={label}
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Large}
-              onClick={() => onSocialClick(value)}
               loading={!isReady}
+              onClick={() => onSocialClick(value)}
+              size={ButtonSize.Large}
+              variant={ButtonVariant.Primary}
             >
               {label}
             </Button>
