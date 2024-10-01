@@ -12,10 +12,9 @@ import Link from '../../../utilities/Link';
 import { Post } from '../../../../graphql/posts';
 import { ListCard, CardLink } from './ListCard';
 import { RaisedLabel, RaisedLabelType } from './RaisedLabel';
-import { useFeedPreviewMode } from '../../../../hooks';
+import { useFeedPreviewMode, useBookmarkProvider } from '../../../../hooks';
 import { TypeLabel } from './TypeLabel';
 import { bookmarkProviderListBg } from '../../../../styles/custom';
-import useBookmarkProvider from '../../../../hooks/useBookmarkProvider';
 
 interface FeedItemContainerProps {
   flagProps?: FlagProps;
