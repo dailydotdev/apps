@@ -6,11 +6,10 @@ import SourceButton from './SourceButton';
 import { Source } from '../../../graphql/sources';
 import { ReadArticleButton } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
-import { useFeedPreviewMode } from '../../../hooks';
+import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
 import { getReadPostButtonText, Post } from '../../../graphql/posts';
 import { ButtonVariant } from '../../buttons/Button';
 import { FlagProps } from './FeedItemContainer';
-import useBookmarkProvider from '../../../hooks/useBookmarkProvider';
 import {
   BookmakProviderHeader,
   headerHiddenClassName,
