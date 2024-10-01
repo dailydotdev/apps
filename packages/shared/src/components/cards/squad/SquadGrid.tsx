@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import SquadMemberShortList from '../../squads/SquadMemberShortList';
-import { Card, CardLink } from '../Card';
+import { Card, CardLink } from '../common/Card';
 import { Image, ImageType } from '../../image/Image';
 import { cloudinary } from '../../../lib/image';
 import { UnFeaturedSquadCardProps } from './common/types';

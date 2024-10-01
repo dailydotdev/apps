@@ -11,6 +11,7 @@ import {
   Comment,
   POST_COMMENTS_QUERY,
   PostCommentsData,
+  SortCommentsBy,
 } from '../../graphql/comments';
 import { Post } from '../../graphql/posts';
 import MainComment, { MainCommentProps } from '../comments/MainComment';
@@ -19,15 +20,16 @@ import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { initialDataKey } from '../../lib/constants';
 import { Origin } from '../../lib/log';
 import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
-import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useDeleteComment } from '../../hooks/comments/useDeleteComment';
 import { lazyCommentThreshold } from '../utilities';
 import { isNullOrUndefined } from '../../lib/func';
 import { useCommentContentPreferenceMutationSubscription } from './useCommentContentPreferenceMutationSubscription';
+import { generateCommentsQueryKey } from '../../lib/query';
 
 interface PostCommentsProps {
   post: Post;
   origin: Origin;
+  sortBy?: SortCommentsBy;
   permissionNotificationCommentId?: string;
   joinNotificationCommentId?: string;
   modalParentSelector?: () => HTMLElement;
@@ -40,6 +42,7 @@ interface PostCommentsProps {
 export function PostComments({
   post,
   origin,
+  sortBy,
   onShare,
   onClickUpvote,
   modalParentSelector,
@@ -52,14 +55,14 @@ export function PostComments({
   const container = useRef<HTMLDivElement>();
   const { tokenRefreshed } = useContext(AuthContext);
   const { requestMethod } = useRequestProtocol();
-  const queryKey = generateQueryKey(RequestKey.PostComments, null, id);
+  const queryKey = generateCommentsQueryKey({ postId: id, sortBy });
   const { data: comments, isLoading: isLoadingComments } =
     useQuery<PostCommentsData>(
       queryKey,
       () =>
         requestMethod(
           POST_COMMENTS_QUERY,
-          { postId: id, [initialDataKey]: comments, first: 500 },
+          { postId: id, [initialDataKey]: comments, first: 500, sortBy },
           { requestKey: JSON.stringify(queryKey) },
         ),
       {

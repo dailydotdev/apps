@@ -2,8 +2,8 @@ import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import { Source } from '../../graphql/sources';
-import { Separator } from '../cards/common';
-import SourceButton from '../cards/SourceButton';
+import { Separator } from '../cards/common/common';
+import SourceButton from '../cards/common/SourceButton';
 import { ProfileImageSize } from '../ProfilePicture';
 
 interface SourceInfoProps {

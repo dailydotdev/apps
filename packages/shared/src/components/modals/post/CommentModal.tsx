@@ -16,7 +16,6 @@ import {
 } from '../../fields/MarkdownInput/CommentMarkdownInput';
 import { useMutateComment } from '../../../hooks/post/useMutateComment';
 import { useVisualViewport } from '../../../hooks/utils/useVisualViewport';
-import { RequestKey, generateQueryKey } from '../../../lib/query';
 import { Comment, PostCommentsData } from '../../../graphql/comments';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import { NotificationPromptSource } from '../../../lib/log';
@@ -25,28 +24,9 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import CommentContainer from '../../comments/CommentContainer';
 import { WriteCommentContext } from '../../../contexts/WriteCommentContext';
 import useCommentById from '../../../hooks/comments/useCommentById';
+import { getAllCommentsQuery } from '../../../lib/query';
 
-const getCommentFromCache = ({
-  client,
-  postId,
-  commentId,
-}: {
-  client: QueryClient;
-  postId: string;
-  commentId?: string;
-}): Comment | undefined => {
-  if (!commentId) {
-    return undefined;
-  }
-
-  const queryKey = generateQueryKey(RequestKey.PostComments, null, postId);
-
-  const data = client.getQueryData<PostCommentsData>(queryKey);
-
-  if (!data) {
-    return undefined;
-  }
-
+const getComment = (data: PostCommentsData, commentId: string) => {
   // eslint-disable-next-line no-restricted-syntax
   for (const item of data?.postComments?.edges) {
     if (item.node.id === commentId) {
@@ -59,6 +39,37 @@ const getCommentFromCache = ({
           return child.node;
         }
       }
+    }
+  }
+
+  return undefined;
+};
+
+interface GetCommentFromCacheProps {
+  client: QueryClient;
+  postId: string;
+  commentId?: string;
+}
+
+const getCommentFromCache = ({
+  client,
+  postId,
+  commentId,
+}: GetCommentFromCacheProps): Comment | undefined => {
+  if (!commentId) {
+    return undefined;
+  }
+
+  const keys = getAllCommentsQuery(postId);
+  // eslint-disable-next-line no-restricted-syntax
+  for (const key of keys) {
+    const comment = getComment(
+      client.getQueryData<PostCommentsData>(key),
+      commentId,
+    );
+
+    if (comment) {
+      return comment;
     }
   }
 

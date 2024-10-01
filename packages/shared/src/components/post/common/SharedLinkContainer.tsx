@@ -1,6 +1,6 @@
 import React, { ReactElement, ReactNode, useState } from 'react';
 import classNames from 'classnames';
-import PostSummary from '../../cards/PostSummary';
+import PostSummary from '../../cards/common/PostSummary';
 import { ArrowIcon } from '../../icons';
 
 interface SharedLinkContainerProps {

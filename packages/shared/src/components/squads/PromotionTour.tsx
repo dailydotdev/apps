@@ -12,7 +12,7 @@ import { capitalize } from '../../lib/strings';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { IconSize } from '../Icon';
-import SourceButton from '../cards/SourceButton';
+import SourceButton from '../cards/common/SourceButton';
 
 interface PromotionTourProps {
   onClose: React.EventHandler<React.MouseEvent>;

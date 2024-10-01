@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { MiniCloseIcon } from '../icons';
-import { CardTitle } from '../cards/Card';
+import { CardTitle } from '../cards/common/Card';
 import classed from '../../lib/classed';
 import { anchorDefaultRel } from '../../lib/strings';
 import { Pill, PillSize } from '../Pill';

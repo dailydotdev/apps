@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { PlayIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { ImageProps, ImageType } from './Image';
-import { CardImage } from '../cards/Card';
+import { CardImage } from '../cards/common/Card';
 
 export interface VideoImageProps {
   size?: IconSize;

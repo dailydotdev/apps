@@ -10,7 +10,11 @@ import {
 } from '../../graphql/comments';
 import { LogEvent } from '../../lib/log';
 import { postLogEvent } from '../../lib/feed';
-import { generateQueryKey, RequestKey } from '../../lib/query';
+import {
+  generateQueryKey,
+  getAllCommentsQuery,
+  RequestKey,
+} from '../../lib/query';
 import { useBackgroundRequest } from '../companion';
 import { updatePostCache } from '../usePostById';
 import { Edge } from '../../graphql/common';
@@ -81,8 +85,7 @@ export const useMutateComment = ({
       return;
     }
 
-    const comments = generateQueryKey(RequestKey.PostComments, null, postId);
-    client.setQueryData<PostCommentsData>(comments, (data) => {
+    const updateQueryData = (data: PostCommentsData) => {
       if (!data) {
         return data;
       }
@@ -92,7 +95,7 @@ export const useMutateComment = ({
         const edge = generateCommentEdge(comment);
 
         if (!parentCommentId) {
-          copy.postComments.edges.push(edge);
+          copy.postComments.edges.unshift(edge);
           return copy;
         }
 
@@ -126,6 +129,23 @@ export const useMutateComment = ({
         children: parent.node.children,
       };
       return copy;
+    };
+
+    const forInvalidation = [];
+
+    getAllCommentsQuery(postId).forEach((queryKey) => {
+      client.setQueryData<PostCommentsData>(queryKey, (data) => {
+        if (!data) {
+          forInvalidation.push(queryKey);
+          return null;
+        }
+
+        return updateQueryData(data);
+      });
+    });
+
+    forInvalidation.forEach(async (queryKey) => {
+      await client.invalidateQueries(queryKey);
     });
 
     if (!editCommentId) {
