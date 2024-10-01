@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { ReusedCardCoverProps, SharedCardCover } from './SharedCardCover';
-import { CardImage } from '../Card';
+import { CardImage } from './Card';
 
 export function CardCover(props: ReusedCardCoverProps): ReactElement {
   return (

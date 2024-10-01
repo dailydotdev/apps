@@ -18,7 +18,7 @@ import {
   gqlClient,
 } from '@dailydotdev/shared/src/graphql/common';
 import { SocialShareList } from '@dailydotdev/shared/src/components/widgets/SocialShareList';
-import { Separator } from '@dailydotdev/shared/src/components/cards/common';
+import { Separator } from '@dailydotdev/shared/src/components/cards/common/common';
 import { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import { format } from 'date-fns';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';

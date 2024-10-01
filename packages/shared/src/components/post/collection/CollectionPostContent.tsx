@@ -7,7 +7,7 @@ import PostContentContainer from '../PostContentContainer';
 import usePostContent from '../../../hooks/usePostContent';
 import { BasePostContent } from '../BasePostContent';
 import { cloudinary } from '../../../lib/image';
-import { Separator } from '../../cards/common';
+import { Separator } from '../../cards/common/common';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import Markdown from '../../Markdown';
 import { CollectionPostWidgets } from './CollectionPostWidgets';

@@ -1,5 +1,5 @@
 import React, { ReactElement, useCallback, useEffect, useRef } from 'react';
-import { Card } from '../cards/Card';
+import { Card } from '../cards/common/Card';
 import { CardCover } from '../cards/common/CardCover';
 import { CTAButton, Description, Header, MarketingCta, Title } from './common';
 import { useBoot } from '../../hooks';

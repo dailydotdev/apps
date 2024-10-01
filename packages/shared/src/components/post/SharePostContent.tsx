@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import PostSourceInfo from './PostSourceInfo';
-import { ReadArticleButton } from '../cards/ReadArticleButton';
+import { ReadArticleButton } from '../cards/common/ReadArticleButton';
 import { LazyImage } from '../LazyImage';
 import { cloudinary } from '../../lib/image';
 import {

@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { separatorCharacter } from '../common';
+import { separatorCharacter } from '../common/common';
 import { largeNumberFormat } from '../../../lib';
 
 interface PostEngagementCountsProps {

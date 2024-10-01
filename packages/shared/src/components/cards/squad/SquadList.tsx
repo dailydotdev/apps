@@ -7,9 +7,9 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import { Separator } from '../common';
+import { Separator } from '../common/common';
 import { largeNumberFormat } from '../../../lib';
-import { CardLink } from '../Card';
+import { CardLink } from '../common/Card';
 import { SquadActionButton } from '../../squads/SquadActionButton';
 import { Origin } from '../../../lib/log';
 import { Image, ImageType } from '../../image/Image';

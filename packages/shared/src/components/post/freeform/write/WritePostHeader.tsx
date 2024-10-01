@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import SourceButton from '../../../cards/SourceButton';
+import SourceButton from '../../../cards/common/SourceButton';
 import { useWritePostContext } from '../../../../contexts';
 
 interface WritePostHeaderProps {

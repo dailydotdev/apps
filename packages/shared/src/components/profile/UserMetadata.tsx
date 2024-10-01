@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { PublicProfile } from '../../lib/user';
 import JoinedDate from './JoinedDate';
-import { Separator } from '../cards/common';
+import { Separator } from '../cards/common/common';
 import { ReputationUserBadge } from '../ReputationUserBadge';
 import { IconSize } from '../Icon';
 import { TruncateText, truncateTextClassNames } from '../utilities';

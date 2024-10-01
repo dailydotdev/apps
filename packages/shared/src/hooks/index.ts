@@ -28,3 +28,4 @@ export * from './useConditionalFeature';
 export * from './useProgressAnimation';
 export * from './feed';
 export * from './useOnboardingChecklist';
+export * from './useBookmarkProvider';

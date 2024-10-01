@@ -1,24 +1,19 @@
 import React, { FunctionComponent, ReactElement } from 'react';
 import dynamic from 'next/dynamic';
 import { FeedItem } from '../hooks/useFeed';
-import { ArticlePostCard } from './cards/ArticlePostCard';
-import { ArticlePostList } from './cards/list/ArticlePostList';
-import { PlaceholderCard } from './cards/PlaceholderCard';
-import { PlaceholderList } from './cards/list/PlaceholderList';
+import { PlaceholderGrid } from './cards/placeholder/PlaceholderGrid';
+import { PlaceholderList } from './cards/placeholder/PlaceholderList';
 import { Ad, Post, PostItem, PostType } from '../graphql/posts';
 import { LoggedUser } from '../lib/user';
 import { CommentOnData } from '../graphql/comments';
 import useLogImpression from '../hooks/feed/useLogImpression';
 import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
-import { SharePostCard } from './cards/SharePostCard';
-import { SharePostList } from './cards/list/SharePostList';
 import { Origin } from '../lib/log';
 import { useFeedLayout, UseVotePost } from '../hooks';
-import { CollectionCard } from './cards/CollectionCard';
-import { CollectionList } from './cards/list/CollectionList';
+import { CollectionList } from './cards/collection/CollectionList';
 import { MarketingCtaCard } from './marketingCta';
 import { MarketingCtaList } from './marketingCta/MarketingCtaList';
-import { FeedItemType } from './cards/common';
+import { FeedItemType } from './cards/common/common';
 import { AdGrid } from './cards/ad/AdGrid';
 import { AdList } from './cards/ad/AdList';
 import { AcquisitionFormGrid } from './cards/AcquisitionForm/AcquisitionFormGrid';
@@ -26,9 +21,17 @@ import { AcquisitionFormList } from './cards/AcquisitionForm/AcquisitionFormList
 import { FreeformGrid } from './cards/Freeform/FreeformGrid';
 import { FreeformList } from './cards/Freeform/FreeformList';
 import { PostClick } from '../lib/click';
+import { ArticleList } from './cards/article/ArticleList';
+import { ArticleGrid } from './cards/article/ArticleGrid';
+import { ShareGrid } from './cards/share/ShareGrid';
+import { ShareList } from './cards/share/ShareList';
+import { CollectionGrid } from './cards/collection';
 
 const CommentPopup = dynamic(
-  () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
+  () =>
+    import(
+      /* webpackChunkName: "commentPopup" */ './cards/common/CommentPopup'
+    ),
 );
 
 export type FeedItemComponentProps = {
@@ -90,20 +93,20 @@ export function getFeedItemKey(item: FeedItem, index: number): string {
 }
 
 const PostTypeToTagCard: Record<PostType, FunctionComponent> = {
-  [PostType.Article]: ArticlePostCard,
-  [PostType.Share]: SharePostCard,
+  [PostType.Article]: ArticleGrid,
+  [PostType.Share]: ShareGrid,
   [PostType.Welcome]: FreeformGrid,
   [PostType.Freeform]: FreeformGrid,
-  [PostType.VideoYouTube]: ArticlePostCard,
-  [PostType.Collection]: CollectionCard,
+  [PostType.VideoYouTube]: ArticleGrid,
+  [PostType.Collection]: CollectionGrid,
 };
 
 const PostTypeToTagList: Record<PostType, FunctionComponent> = {
-  [PostType.Article]: ArticlePostList,
-  [PostType.Share]: SharePostList,
+  [PostType.Article]: ArticleList,
+  [PostType.Share]: ShareList,
   [PostType.Welcome]: FreeformList,
   [PostType.Freeform]: FreeformList,
-  [PostType.VideoYouTube]: ArticlePostList,
+  [PostType.VideoYouTube]: ArticleList,
   [PostType.Collection]: CollectionList,
 };
 
@@ -121,10 +124,10 @@ const getTags = ({
   const useListCards = isListFeedLayout || shouldUseListMode;
   return {
     PostTag: useListCards
-      ? PostTypeToTagList[postType] ?? ArticlePostList
-      : PostTypeToTagCard[postType] ?? ArticlePostCard,
+      ? PostTypeToTagList[postType] ?? ArticleList
+      : PostTypeToTagCard[postType] ?? ArticleGrid,
     AdTag: useListCards ? AdList : AdGrid,
-    PlaceholderTag: useListCards ? PlaceholderList : PlaceholderCard,
+    PlaceholderTag: useListCards ? PlaceholderList : PlaceholderGrid,
     MarketingCtaTag: useListCards ? MarketingCtaList : MarketingCtaCard,
     AcquisitionFormTag: useListCards
       ? AcquisitionFormList
