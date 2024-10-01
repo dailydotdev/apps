@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement, ReactNode, useMemo } from 'react';
 import classNames from 'classnames';
 import OptionsButton from '../buttons/OptionsButton';
 import { CardHeader } from './Card';
@@ -56,8 +56,6 @@ export const PostCardHeader = ({
     bookmarked: post.bookmarked && !showFeedback,
   });
 
-  const shouldUseInternalLink =
-    isSharedPostSquadPost(post) || isInternalReadType(post.sharedPost);
   const articleLink = useMemo(() => {
     if (post.sharedPost) {
       const shouldUseInternalLink =
