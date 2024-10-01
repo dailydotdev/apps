@@ -76,6 +76,30 @@ export const SOURCE_SHORT_INFO_FRAGMENT = gql`
   }
 `;
 
+export const PRIVILEGED_MEMBERS_FRAGMENT = gql`
+  fragment PrivilegedMembers on Source {
+    privilegedMembers {
+      user {
+        id
+        name
+        image
+        permalink
+        username
+        bio
+        reputation
+        companies {
+          name
+          image
+        }
+        contentPreference {
+          status
+        }
+      }
+      role
+    }
+  }
+`;
+
 // this query should use UserShortInfo fragment once the createdAt issue is fixed.
 // for the mean time, we should not include the said property on privilegedMembers.
 export const SOURCE_BASE_FRAGMENT = gql`
@@ -90,16 +114,6 @@ export const SOURCE_BASE_FRAGMENT = gql`
     description
     image
     membersCount
-    privilegedMembers {
-      user {
-        id
-      }
-      role
-    }
-    category {
-      id
-      title
-    }
     currentMember {
       ...CurrentMember
     }
@@ -119,6 +133,10 @@ export const SQUAD_BASE_FRAGMENT = `
       totalPosts
       totalViews
       totalUpvotes
+    }
+    category {
+      id
+      title
     }
     privilegedMembers {
       user {
@@ -175,6 +193,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     tags
     source {
       ...SourceBaseInfo
+      ...PrivilegedMembers
     }
     downvoted
     flags {
@@ -189,6 +208,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     slug
     domain
   }
+  ${PRIVILEGED_MEMBERS_FRAGMENT}
   ${SOURCE_BASE_FRAGMENT}
   ${USER_AUTHOR_FRAGMENT}
 `;
