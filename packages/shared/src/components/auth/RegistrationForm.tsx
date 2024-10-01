@@ -4,6 +4,7 @@ import React, {
   ReactElement,
   useContext,
   useEffect,
+  useId,
   useState,
 } from 'react';
 import {
@@ -24,7 +25,6 @@ import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
 import { Checkbox } from '../fields/Checkbox';
 import LogContext from '../../contexts/LogContext';
-import { Modal } from '../modals/common/Modal';
 import { useGenerateUsername } from '../../hooks';
 import { AuthFormProps } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -154,36 +154,53 @@ export const RegistrationForm = ({
     !isSubmitted || !hints?.['traits.experienceLevel'];
   const isLanguageValid = !isSubmitted || !hints?.['traits.language'];
 
+  const headingId = useId();
+
   return (
     <>
-      <AuthHeader simplified={simplified} title="Sign up" onBack={onBack} />
+      <AuthHeader
+        id={headingId}
+        simplified={simplified}
+        title="Sign up"
+        onBack={onBack}
+      />
       <AuthForm
+        aria-labelledby={headingId}
         className={classNames(
           'mt-6 w-full flex-1 place-items-center gap-2 self-center overflow-y-auto px-6 pb-2 tablet:px-[3.75rem]',
         )}
-        ref={formRef}
-        onSubmit={onSubmit}
-        id="auth-form"
         data-testid="registration_form"
+        id="auth-form"
+        onSubmit={onSubmit}
+        ref={formRef}
       >
         <TokenInput token={token} />
         <TextField
+          autoComplete="email"
           saveHintSpace
           className={{ container: 'w-full' }}
-          leftIcon={<MailIcon />}
+          leftIcon={<MailIcon aria-hidden role="presentation" />}
           name="traits.email"
           inputId="email"
           label="Email"
           type="email"
           value={email}
           readOnly
-          rightIcon={<VIcon className="text-accent-avocado-default" />}
+          rightIcon={
+            <VIcon
+              aria-hidden
+              role="presentation"
+              className="text-accent-avocado-default"
+            />
+          }
         />
         <TextField
+          autoFocus
+          autoComplete="name"
           saveHintSpace
           className={{ container: 'w-full' }}
           valid={isNameValid}
-          leftIcon={<UserIcon />}
+          leftIcon={<UserIcon aria-hidden role="presentation" />}
           name="traits.name"
           inputId="traits.name"
           label="Name"
@@ -195,7 +212,13 @@ export const RegistrationForm = ({
             onUpdateHints({ ...hints, 'traits.name': '' })
           }
           rightIcon={
-            isNameValid && <VIcon className="text-accent-avocado-default" />
+            isNameValid && (
+              <VIcon
+                aria-hidden
+                role="presentation"
+                className="text-accent-avocado-default"
+              />
+            )
           }
         />
         <PasswordField
@@ -206,12 +229,14 @@ export const RegistrationForm = ({
           name="password"
           inputId="password"
           label="Create a password"
+          autoComplete="new-password"
         />
         <TextField
+          autoComplete="user"
           saveHintSpace
           className={{ container: 'w-full' }}
           valid={isUsernameValid}
-          leftIcon={<AtIcon secondary />}
+          leftIcon={<AtIcon aria-hidden role="presentation" secondary />}
           name="traits.username"
           inputId="traits.username"
           label="Enter a username"
@@ -230,7 +255,7 @@ export const RegistrationForm = ({
           <TextField
             saveHintSpace
             className={{ container: 'w-full' }}
-            leftIcon={<TwitterIcon />}
+            leftIcon={<TwitterIcon aria-hidden role="presentation" />}
             name="traits.twitter"
             inputId="traits.twitter"
             label="X"
@@ -266,14 +291,14 @@ export const RegistrationForm = ({
         <Checkbox name="optOutMarketing">
           I don’t want to receive updates and promotions via email
         </Checkbox>
-      </AuthForm>
-      <ConditionalWrapper
-        condition={simplified}
-        wrapper={(component) => (
-          <AuthContainer className="!mt-0">{component}</AuthContainer>
-        )}
-      >
-        <Modal.Footer>
+        <ConditionalWrapper
+          condition={simplified}
+          wrapper={(component) => (
+            <AuthContainer className="!mt-0 border-t border-border-subtlest-tertiary p-3 !px-3 pb-1">
+              {component}
+            </AuthContainer>
+          )}
+        >
           <Button
             form="auth-form"
             type="submit"
@@ -282,8 +307,8 @@ export const RegistrationForm = ({
           >
             Sign up
           </Button>
-        </Modal.Footer>
-      </ConditionalWrapper>
+        </ConditionalWrapper>
+      </AuthForm>
     </>
   );
 };

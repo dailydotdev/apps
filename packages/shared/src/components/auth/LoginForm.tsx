@@ -52,6 +52,7 @@ function LoginForm({
 
   return (
     <AuthForm
+      aria-label="Login using email and password"
       className={classNames('gap-2', className)}
       onSubmit={onLogin}
       data-testid="login_form"
@@ -69,7 +70,9 @@ function LoginForm({
       }}
     >
       <TextField
-        leftIcon={<MailIcon size={IconSize.Small} />}
+        leftIcon={
+          <MailIcon role="presentation" aria-hidden size={IconSize.Small} />
+        }
         inputId="identifier"
         name="identifier"
         label="Email"

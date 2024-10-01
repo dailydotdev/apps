@@ -77,6 +77,7 @@ function CodeVerificationForm({
           We just sent the verification code to {initialEmail}
         </AuthModalText>
         <TextField
+          aria-label="Verification code for password recovery"
           className={{ container: 'mt-6 w-full' }}
           name="code"
           type="code"
@@ -85,7 +86,8 @@ function CodeVerificationForm({
           hint={hint}
           valid={!hint}
           onChange={() => hint && setHint('')}
-          leftIcon={<KeyIcon />}
+          leftIcon={<KeyIcon aria-hidden role="presentation" />}
+          autoFocus
         />
         <Button className="mt-6" variant={ButtonVariant.Primary} type="submit">
           Verify

@@ -111,9 +111,12 @@ const OnboardingRegistrationForm = ({
       <AuthForm
         className={classNames('mb-8 gap-8', className?.onboardingForm)}
         onSubmit={onEmailSignup}
+        aria-label={shouldLogin ? 'Login form' : 'Signup form'}
       >
         <TextField
-          leftIcon={<MailIcon size={IconSize.Small} />}
+          leftIcon={
+            <MailIcon aria-hidden role="presentation" size={IconSize.Small} />
+          }
           required
           inputId="email"
           label="Email"
@@ -142,9 +145,9 @@ const OnboardingRegistrationForm = ({
 
         <Button
           className="w-full"
-          variant={ButtonVariant.Primary}
-          type="submit"
           loading={!isReady || isLoading}
+          type="submit"
+          variant={ButtonVariant.Primary}
         >
           Sign up - Free forever ➔
         </Button>
@@ -152,18 +155,23 @@ const OnboardingRegistrationForm = ({
       <OrDivider
         className={classNames('mb-8', className?.onboardingDivider)}
         label="Or sign up with"
+        aria-hidden
       />
-
       <div
+        aria-label="Social login buttons"
         className={classNames(
           'flex flex-col gap-8 pb-8',
           className.onboardingSignup,
         )}
+        role="list"
       >
         {signupProviders.map((provider) => (
           <Button
-            key={provider.value}
+            aria-label={`${shouldLogin ? 'Login' : 'Signup'} using ${
+              provider.label
+            }`}
             icon={provider.icon}
+            key={provider.value}
             loading={!isReady}
             onClick={() => onSocialClick(provider.value)}
             {...onboardingSignupButtonProps}

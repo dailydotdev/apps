@@ -1,8 +1,13 @@
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { TextField } from './TextField';
-import { TextFieldProps } from './common';
+import { TextField, TextFieldProps } from './TextField';
 
 const renderComponent = (props: Partial<TextFieldProps> = {}): RenderResult => {
   const defaultProps: TextFieldProps = {
@@ -28,7 +33,7 @@ it('should show label when focused', async () => {
   renderComponent();
   expect(screen.queryByText('Name')).not.toBeInTheDocument();
   const input = getInput();
-  input.focus();
+  fireEvent.focus(input);
   await waitFor(() => expect(input.placeholder).toEqual(''));
   await waitFor(() => expect(getLabel()).not.toHaveClass('hidden'));
 });
@@ -71,6 +76,6 @@ it('should show label and placeholder based in its state in tertiary mode', asyn
   });
   const input = getInput();
   await waitFor(() => expect(input.placeholder).toEqual('Label'));
-  input.focus();
+  fireEvent.focus(input);
   await waitFor(() => expect(input.placeholder).toEqual('Placeholder'));
 });

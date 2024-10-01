@@ -41,13 +41,14 @@ export function PasswordField({
   const [useType, setUseType] = useState(type);
   const [passwordStrengthLevel, setPasswordStrengthLevel] = useState<number>(0);
   const [isValid, setIsValid] = useState<boolean>(!props.hint);
+  const isPasswordVisible = useType === 'text';
   const hasUserAction = isValid !== null;
   const userActionHint = !isValid
     ? `Password needs a minimum length of ${props.minLength}`
     : passwordStrengthStates[passwordStrengthLevel].label;
   const hint = !hasUserAction ? null : userActionHint;
   const shouldShowStrength = !!value && showStrength && hasUserAction;
-  const Icon = useType === 'password' ? EyeIcon : EyeCancelIcon;
+  const Icon = !isPasswordVisible ? EyeIcon : EyeCancelIcon;
 
   const onChange = (input: string) => {
     setPasswordStrengthLevel(passwordStrength(input).id);
@@ -60,7 +61,9 @@ export function PasswordField({
       autoComplete="off"
       type={useType}
       valueChanged={onChange}
-      leftIcon={<LockIcon size={IconSize.Small} />}
+      leftIcon={
+        <LockIcon aria-hidden role="presentation" size={IconSize.Small} />
+      }
       hint={!!value && showStrength ? hint : props.hint}
       validityChanged={(validityCheck) =>
         !props.hint && setIsValid(validityCheck)
@@ -85,7 +88,9 @@ export function PasswordField({
             e.preventDefault();
             setUseType((_type) => (_type === 'password' ? 'text' : 'password'));
           }}
-          aria-label="Set password"
+          aria-label={`Toggle password visibility, current is ${
+            isPasswordVisible ? 'visible' : 'hidden'
+          }`}
         >
           <Icon className="text-text-secondary" />
         </button>

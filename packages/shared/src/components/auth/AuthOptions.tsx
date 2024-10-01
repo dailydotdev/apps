@@ -403,23 +403,24 @@ function AuthOptions({
       )}
     >
       <TabContainer<AuthDisplay>
-        onActiveChange={(active) => onSetActiveDisplay(active)}
         controlledActive={forceDefaultDisplay ? defaultDisplay : activeDisplay}
+        onActiveChange={(active) => onSetActiveDisplay(active)}
         showHeader={false}
+        shouldFocusTabOnChange
       >
         <Tab label={AuthDisplay.Default}>
           <AuthDefault
-            providers={providers}
-            onSignup={onEmailRegistration}
-            onProviderClick={onProviderClick}
-            onForgotPassword={onForgotPassword}
-            onPasswordLogin={onPasswordLogin}
-            loginHint={loginHint}
             isLoading={isPasswordLoginLoading}
             isLoginFlow={isForgotPasswordReturn || isLoginFlow || isLogin}
-            trigger={trigger}
             isReady={isReady}
+            loginHint={loginHint}
+            onForgotPassword={onForgotPassword}
+            onPasswordLogin={onPasswordLogin}
+            onProviderClick={onProviderClick}
+            onSignup={onEmailRegistration}
+            providers={providers}
             simplified={simplified}
+            trigger={trigger}
           />
         </Tab>
         <Tab label={AuthDisplay.SocialRegistration}>
@@ -482,8 +483,8 @@ function AuthOptions({
         <Tab label={AuthDisplay.SignBack}>
           <AuthSignBack
             onRegister={() => {
-              if (isLoginFlow && onAuthStateUpdate) {
-                onAuthStateUpdate({ isLoginFlow: false });
+              if (isLoginFlow) {
+                onAuthStateUpdate?.({ isLoginFlow: false });
               }
               setIsConnected(false);
               onSetActiveDisplay(AuthDisplay.Default);

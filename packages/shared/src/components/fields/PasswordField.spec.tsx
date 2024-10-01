@@ -1,7 +1,13 @@
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { PasswordField } from './PasswordField';
-import { TextFieldProps } from './common';
+import { TextFieldProps } from './TextField';
 
 const renderComponent = (props: Partial<TextFieldProps> = {}): RenderResult => {
   const defaultProps: TextFieldProps = {
@@ -37,7 +43,7 @@ it('should show password strength on input', async () => {
   });
   const input = getInput();
   input.value = 'a';
-  input.dispatchEvent(new Event('input', { bubbles: true }));
+  fireEvent.input(input, { bubbles: true });
   const el = await screen.findByText('Risky');
   await waitFor(() => expect(el).toHaveClass('text-status-error'));
 });
@@ -52,7 +58,7 @@ it('should show medium password strength on input', async () => {
   });
   const input = getInput();
   input.value = 'asAS12!@';
-  input.dispatchEvent(new Event('input', { bubbles: true }));
+  fireEvent.input(input, { bubbles: true });
   const el = await screen.findByText(`You're almost there`);
   await waitFor(() => expect(el).toHaveClass('text-status-warning'));
 });
@@ -67,7 +73,7 @@ it('should show strong password strength on input', async () => {
   });
   const input = getInput();
   input.value = 'asAS12!@as';
-  input.dispatchEvent(new Event('input', { bubbles: true }));
+  fireEvent.input(input, { bubbles: true });
   const el = await screen.findByText('Strong as it gets');
   await waitFor(() => expect(el).toHaveClass('text-status-success'));
 });
@@ -81,7 +87,7 @@ it('should show the password plain text on icon click', async () => {
     role: 'textbox',
   });
   const button = screen.getByRole('button');
-  await button.click();
+  fireEvent.click(button);
   const input = getInput();
   await waitFor(() => expect(input.type).toEqual('text'));
 });

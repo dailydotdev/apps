@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { SearchField, SearchFieldProps } from './SearchField';
 
 const renderComponent = (
@@ -31,6 +37,6 @@ it('should show clear button when input is filled', async () => {
 it('should clear input when clicking', async () => {
   renderComponent({ value: 'search' });
   expect(getInput().value).toEqual('search');
-  getClearButton().click();
+  fireEvent.click(getClearButton());
   expect(getInput().value).toEqual('');
 });

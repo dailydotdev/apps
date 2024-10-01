@@ -163,6 +163,8 @@ export function Dropdown({
         icon={
           icon &&
           React.cloneElement(icon as ReactElement<IconProps>, {
+            'aria-hidden': true,
+            role: 'presentation',
             secondary:
               (icon as ReactElement<IconProps>).props.secondary ?? isVisible,
           })

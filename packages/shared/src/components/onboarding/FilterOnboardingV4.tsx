@@ -188,12 +188,18 @@ export function FilterOnboardingV4({
   return (
     <div className={classNames(className, 'flex w-full flex-col items-center')}>
       <SearchField
+        aria-label="Pick tags that are relevant to you"
+        autoFocus
+        className="mb-10 w-full tablet:max-w-xs"
         inputId="search-filters"
         placeholder="javascript, php, git, etc…"
-        className="mb-10 w-full tablet:max-w-xs"
         valueChanged={onSearch}
       />
-      <div className="flex flex-row flex-wrap justify-center gap-4">
+      <div
+        role="list"
+        aria-busy={isLoading}
+        className="flex flex-row flex-wrap justify-center gap-4"
+      >
         {isLoading &&
           placeholderTags.map((item) => (
             <ElementPlaceholder

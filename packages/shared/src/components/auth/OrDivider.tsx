@@ -9,10 +9,12 @@ interface OrDividerProps {
 function OrDivider({ className, label = 'or' }: OrDividerProps): ReactElement {
   return (
     <div
+      aria-hidden
       className={classNames(
         'flex items-center justify-center text-text-quaternary typo-callout',
         className,
       )}
+      role="separator"
     >
       <div className="h-px flex-1 bg-border-subtlest-tertiary" />
       {label && <span className="px-3">{label}</span>}

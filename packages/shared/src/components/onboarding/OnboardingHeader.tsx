@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { Dispatch, ReactElement, SetStateAction } from 'react';
+import React, { Dispatch, ReactElement, SetStateAction, useId } from 'react';
 import { useViewSize, ViewSize } from '../../hooks';
 import { cloudinary } from '../../lib/image';
 import Logo, { LogoPosition } from '../Logo';
@@ -25,6 +25,7 @@ export const OnboardingHeader = ({
 }: OnboardingHeaderProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const id = useId();
 
   const getImage = () => {
     if (isMobile) {
@@ -85,17 +86,25 @@ export const OnboardingHeader = ({
         linkDisabled
       />
       <span className={classNames('flex items-center', 'text-text-tertiary')}>
-        <span className="hidden tablet:block">Already using daily.dev?</span>
+        <span
+          className="hidden tablet:block"
+          id={`login-label-${id}`}
+          aria-hidden
+        >
+          Already using daily.dev?
+        </span>
         <Button
+          aria-label="Already using daily.dev? Login now"
           className="ml-3"
-          variant={ButtonVariant.Secondary}
-          onClick={() => {
+          onClick={(e) => {
+            e.preventDefault();
             setAuth({
               isAuthenticating: true,
               isLoginFlow: true,
               defaultDisplay: AuthDisplay.Default,
             });
           }}
+          variant={ButtonVariant.Secondary}
         >
           Log in
         </Button>

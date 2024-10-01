@@ -3,6 +3,7 @@ import React, {
   CSSProperties,
   ReactElement,
   ReactNode,
+  useRef,
   useState,
 } from 'react';
 import classNames from 'classnames';
@@ -39,32 +40,35 @@ interface ClassName {
 
 export interface TabContainerProps<T extends string = string> {
   children?: ReactElement<TabProps<T>>[];
-  shouldMountInactive?: boolean;
-  onActiveChange?: (active: T) => unknown;
   className?: ClassName;
-  style?: CSSProperties;
-  showHeader?: boolean;
   controlledActive?: T;
-  tabListProps?: Pick<TabListProps, 'className' | 'autoScrollActive'>;
-  showBorder?: boolean;
+  onActiveChange?: (active: T) => unknown;
   renderTab?: RenderTab;
+  shouldFocusTabOnChange?: boolean;
+  shouldMountInactive?: boolean;
+  showBorder?: boolean;
+  showHeader?: boolean;
+  style?: CSSProperties;
+  tabListProps?: Pick<TabListProps, 'className' | 'autoScrollActive'>;
   tabTag?: AllowedTabTags;
 }
 
 export function TabContainer<T extends string = string>({
   children,
-  shouldMountInactive = false,
-  onActiveChange,
   className = {},
-  style,
-  showHeader = true,
-  showBorder = true,
   controlledActive,
-  tabListProps = {},
+  onActiveChange,
   renderTab,
+  shouldFocusTabOnChange = false,
+  shouldMountInactive = false,
+  showBorder = true,
+  showHeader = true,
+  style,
+  tabListProps = {},
   tabTag,
 }: TabContainerProps<T>): ReactElement {
   const router = useRouter();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const [active, setActive] = useState(() => {
     const defaultLabel = children[0].props.label;
@@ -84,6 +88,15 @@ export function TabContainer<T extends string = string>({
     const child = children.find((c) => c.props.label === label);
     setActive(label);
     onActiveChange?.(label);
+
+    setTimeout(() => {
+      if (shouldFocusTabOnChange && containerRef?.current) {
+        const [firstChild] = containerRef.current.children;
+        if (firstChild instanceof HTMLElement) {
+          firstChild.focus();
+        }
+      }
+    }, 0);
 
     if (child?.props?.url) {
       router.push(child.props.url);
@@ -129,6 +142,7 @@ export function TabContainer<T extends string = string>({
   return (
     <div
       className={classNames('flex flex-col', className?.container)}
+      ref={containerRef}
       style={style}
     >
       <header
