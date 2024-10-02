@@ -69,46 +69,45 @@ export const SquadDirectoryLayout = (
 
   const isDiscover = pathname === squadCategoriesPaths.discover;
 
-  return (
-    loadedSettings && (
-      <BaseFeedPage className="relative mb-4 flex-col px-4 pt-4 laptop:px-18 laptop:pt-8">
-        {isDiscover && (
-          <div className="absolute inset-0 -z-1 hidden h-[25rem] w-full bg-gradient-to-t from-accent-cabbage-default to-background-default tablet:flex" />
-        )}
+  if (!loadedSettings) {
+    return null;
+  }
 
-        <header className="flex w-full flex-col gap-2">
-          <section className="flex w-full flex-row items-center justify-between typo-body laptop:hidden">
-            <strong>Squads</strong>
-            <NewSquadButton
-              icon={<PlusIcon />}
-              variant={ButtonVariant.Primary}
-            />
-          </section>
-          <div className="flex max-w-full flex-row flex-nowrap items-center justify-between gap-6 laptop:gap-22">
-            <SquadDirectoryNavbar className="min-h-14 min-w-0 flex-1">
-              {Object.entries(categoryPaths ?? {}).map(([category, path]) => (
-                <SquadDirectoryNavbarItem
-                  buttonSize={buttonSize}
-                  elementProps={{ id: `squad-item-${category}-${id}` }}
-                  isActive={path === pathname || path === asPath}
-                  key={category}
-                  label={category}
-                  path={path}
-                />
-              ))}
-            </SquadDirectoryNavbar>
-            <div className="hidden laptop:block">
-              <NewSquadButton />
-            </div>
-          </div>
-        </header>
-        <section
-          {...attrs}
-          className={classNames('flex w-full flex-col pt-5', className)}
-        >
-          {children}
+  return (
+    <BaseFeedPage className="relative mb-4 flex-col px-4 pt-4 laptop:px-18 laptop:pt-8">
+      {isDiscover && (
+        <div className="absolute inset-0 -z-1 hidden h-[25rem] w-full bg-gradient-to-t from-accent-cabbage-default to-background-default tablet:flex" />
+      )}
+
+      <header className="flex w-full flex-col gap-2">
+        <section className="flex w-full flex-row items-center justify-between typo-body laptop:hidden">
+          <strong>Squads</strong>
+          <NewSquadButton icon={<PlusIcon />} variant={ButtonVariant.Primary} />
         </section>
-      </BaseFeedPage>
-    )
+        <div className="flex max-w-full flex-row flex-nowrap items-center justify-between gap-6 laptop:gap-22">
+          <SquadDirectoryNavbar className="min-h-14 min-w-0 flex-1">
+            {Object.entries(categoryPaths ?? {}).map(([category, path]) => (
+              <SquadDirectoryNavbarItem
+                buttonSize={buttonSize}
+                elementProps={{ id: `squad-item-${category}-${id}` }}
+                isActive={path === pathname || path === asPath}
+                key={category}
+                label={category}
+                path={path}
+              />
+            ))}
+          </SquadDirectoryNavbar>
+          <div className="hidden laptop:block">
+            <NewSquadButton />
+          </div>
+        </div>
+      </header>
+      <section
+        {...attrs}
+        className={classNames('flex w-full flex-col pt-5', className)}
+      >
+        {children}
+      </section>
+    </BaseFeedPage>
   );
 };
