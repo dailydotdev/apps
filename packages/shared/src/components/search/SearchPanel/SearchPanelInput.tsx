@@ -34,6 +34,8 @@ import { defaultSearchProvider, providerToLabelTextMap } from './common';
 import { Button, ButtonSize } from '../../buttons/Button';
 import { useSearchPanelAction } from './useSearchPanelAction';
 import { webappUrl } from '../../../lib/constants';
+import { useFeature } from '../../GrowthBookProvider';
+import { feature } from '../../../lib/featureManagement';
 
 export type SearchPanelInputClassName = {
   container?: string;
@@ -44,7 +46,7 @@ export type SearchPanelInputClassName = {
 export type SearchPanelInputProps = {
   className?: SearchPanelInputClassName;
   valueChanged?: (value: string) => void;
-  inputProps?: InputHTMLAttributes<HTMLInputElement>;
+  inputProps?: Omit<InputHTMLAttributes<HTMLInputElement>, 'placeholder'>;
   children?: ReactNode;
 };
 
@@ -68,14 +70,12 @@ export const SearchPanelInput = ({
     onFocus: externalOnFocus,
     onBlur: externalOnBlur,
     onClick: externalOnClick,
-    placeholder = searchPanel.isActive
-      ? 'Search posts or ask a question...'
-      : 'Search',
   } = inputProps || {};
   const { inputRef, focused, hasInput, onFocus, onBlur, onInput, setInput } =
     useInputField(value, valueChanged);
   const { isLoggedIn, showLogin } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const searchText = useFeature(feature.searchText);
 
   const onInputClick = () => {
     if (!isLoggedIn) {
@@ -190,7 +190,7 @@ export const SearchPanelInput = ({
           <FieldInput
             {...inputProps}
             data-search-panel-item="true"
-            placeholder={placeholder}
+            placeholder={searchText.placeholder}
             ref={inputRef}
             onFocus={(event) => {
               onFocus();
