@@ -31,7 +31,7 @@ export function SquadDirectoryNavbarItem({
       {...elementProps}
       className={classNames(
         'relative py-3',
-        'after:absolute after:bottom-0 after:left-0 after:right-0 after:mx-auto after:w-14 after:border-b-2',
+        'after:absolute after:bottom-0 after:left-0 after:right-0 after:mx-auto after:w-1/2 after:border-b-2',
         { 'after:hidden': !isActive },
         elementProps?.className,
       )}
