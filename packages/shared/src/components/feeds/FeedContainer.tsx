@@ -109,29 +109,14 @@ const getStyle = (isList: boolean, space: Spaciness): CSSProperties => {
 };
 
 const feedNameToHeading: Record<
-  Exclude<
+  Extract<
     FeedPagesWithMobileLayoutType,
-    | 'user-upvoted'
-    | 'user-posts'
-    | 'squads[handle]'
-    | 'tags[tag]'
-    | 'sources[source]'
-    | 'search-bookmarks'
-    | 'sources[source]/most-upvoted'
-    | 'sources[source]/best-discussed'
-    | 'tags[tag]/most-upvoted'
-    | 'tags[tag]/best-discussed'
-    | SharedFeedPage.Custom
-    | SharedFeedPage.CustomForm
-    | OtherFeedPage.Explore
-    | OtherFeedPage.ExploreLatest
-    | OtherFeedPage.ExploreUpvoted
-    | OtherFeedPage.ExploreDiscussed
-    | OtherFeedPage.Tags
-    | OtherFeedPage.Sources
-    | OtherFeedPage.Leaderboard
-    | OtherFeedPage.FeedByIds
-    | OtherFeedPage.Welcome
+    | SharedFeedPage.Search
+    | SharedFeedPage.MyFeed
+    | SharedFeedPage.Popular
+    | SharedFeedPage.Upvoted
+    | OtherFeedPage.Discussed
+    | OtherFeedPage.Bookmarks
   >,
   string
 > = {
