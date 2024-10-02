@@ -75,7 +75,7 @@ export const SearchPanelInput = ({
     useInputField(value, valueChanged);
   const { isLoggedIn, showLogin } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const searchText = useFeature(feature.searchText);
+  const placeholder = useFeature(feature.searchPlaceholder);
 
   const onInputClick = () => {
     if (!isLoggedIn) {
@@ -193,7 +193,7 @@ export const SearchPanelInput = ({
             placeholder={
               searchPanel.isActive
                 ? 'Search posts or ask a question...'
-                : searchText.placeholder
+                : placeholder
             }
             ref={inputRef}
             onFocus={(event) => {
