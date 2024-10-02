@@ -6,10 +6,19 @@ import { Tab, TabContainer } from '../tabs/TabContainer';
 import { useActiveFeedNameContext } from '../../contexts';
 import useActiveNav from '../../hooks/useActiveNav';
 import { useFeeds, useViewSize, ViewSize } from '../../hooks';
+import usePersistentContext from '../../hooks/usePersistentContext';
+import {
+  algorithmsList,
+  DEFAULT_ALGORITHM_INDEX,
+  DEFAULT_ALGORITHM_KEY,
+} from '../layout/common';
 import { MobileFeedActions } from './MobileFeedActions';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import SettingsContext from '../../contexts/SettingsContext';
-import { PlusIcon } from '../icons';
+import { Dropdown } from '../fields/Dropdown';
+import { PlusIcon, SortIcon } from '../icons';
+import { IconSize } from '../Icon';
+import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
@@ -51,6 +60,12 @@ function FeedNav(): ReactElement {
   const { isSortableFeed } = useFeedName({ feedName });
   const { home: shouldRenderNav } = useActiveNav(feedName);
   const isMobile = useViewSize(ViewSize.MobileL);
+  const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
+    DEFAULT_ALGORITHM_KEY,
+    DEFAULT_ALGORITHM_INDEX,
+    [0, 1],
+    DEFAULT_ALGORITHM_INDEX,
+  );
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const { feeds } = useFeeds();
@@ -137,6 +152,27 @@ function FeedNav(): ReactElement {
             <Tab key={label} label={label} url={url} />
           ))}
         </TabContainer>
+
+        {isMobile && sortingEnabled && isSortableFeed && (
+          <StickyNavIconWrapper className="translate-x-[calc(100vw-100%)]">
+            <Dropdown
+              className={{
+                label: 'hidden',
+                chevron: 'hidden',
+                button: '!px-1',
+              }}
+              dynamicMenuWidth
+              shouldIndicateSelected
+              buttonSize={ButtonSize.Small}
+              buttonVariant={ButtonVariant.Tertiary}
+              icon={<SortIcon size={IconSize.Medium} />}
+              selectedIndex={selectedAlgo}
+              options={algorithmsList}
+              onChange={(_, index) => setSelectedAlgo(index)}
+              drawerProps={{ displayCloseButton: true }}
+            />
+          </StickyNavIconWrapper>
+        )}
         <StickyNavIconWrapper className="hidden translate-x-[calc(100vw-180%)] tablet:flex laptop:hidden">
           <NotificationsBell compact />
         </StickyNavIconWrapper>
