@@ -76,50 +76,8 @@ export const SOURCE_SHORT_INFO_FRAGMENT = gql`
   }
 `;
 
-// this query should use UserShortInfo fragment once the createdAt issue is fixed.
-// for the mean time, we should not include the said property on privilegedMembers.
-export const SOURCE_BASE_FRAGMENT = gql`
-  fragment SourceBaseInfo on Source {
-    id
-    active
-    handle
-    name
-    permalink
-    public
-    type
-    description
-    image
-    membersCount
-    privilegedMembers {
-      user {
-        id
-      }
-      role
-    }
-    category {
-      id
-      title
-    }
-    currentMember {
-      ...CurrentMember
-    }
-    memberPostingRole
-    memberInviteRole
-  }
-  ${CURRENT_MEMBER_FRAGMENT}
-`;
-
-export const SQUAD_BASE_FRAGMENT = `
-  fragment SquadBaseInfo on Source {
-    ...SourceBaseInfo
-    referralUrl
-    createdAt
-    flags {
-      featured
-      totalPosts
-      totalViews
-      totalUpvotes
-    }
+export const PRIVILEGED_MEMBERS_FRAGMENT = gql`
+  fragment PrivilegedMembers on Source {
     privilegedMembers {
       user {
         id
@@ -140,7 +98,50 @@ export const SQUAD_BASE_FRAGMENT = `
       role
     }
   }
+`;
+
+// this query should use UserShortInfo fragment once the createdAt issue is fixed.
+// for the mean time, we should not include the said property on privilegedMembers.
+export const SOURCE_BASE_FRAGMENT = gql`
+  fragment SourceBaseInfo on Source {
+    id
+    active
+    handle
+    name
+    permalink
+    public
+    type
+    description
+    image
+    membersCount
+    currentMember {
+      ...CurrentMember
+    }
+    memberPostingRole
+    memberInviteRole
+  }
+  ${CURRENT_MEMBER_FRAGMENT}
+`;
+
+export const SQUAD_BASE_FRAGMENT = `
+  fragment SquadBaseInfo on Source {
+    ...SourceBaseInfo
+    referralUrl
+    createdAt
+    flags {
+      featured
+      totalPosts
+      totalViews
+      totalUpvotes
+    }
+    category {
+      id
+      title
+    }
+    ...PrivilegedMembers
+  }
   ${SOURCE_BASE_FRAGMENT}
+  ${PRIVILEGED_MEMBERS_FRAGMENT}
 `;
 
 export const SHARED_POST_INFO_FRAGMENT = gql`
@@ -175,6 +176,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     tags
     source {
       ...SourceBaseInfo
+      ...PrivilegedMembers
     }
     downvoted
     flags {
@@ -189,6 +191,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     slug
     domain
   }
+  ${PRIVILEGED_MEMBERS_FRAGMENT}
   ${SOURCE_BASE_FRAGMENT}
   ${USER_AUTHOR_FRAGMENT}
 `;

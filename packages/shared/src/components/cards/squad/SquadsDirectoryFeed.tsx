@@ -1,4 +1,5 @@
 import React, { ReactElement, ReactNode } from 'react';
+import { useInView } from 'react-intersection-observer';
 import { Squad } from '../../../graphql/sources';
 import {
   SourcesQueryProps,
@@ -41,20 +42,24 @@ export function SquadsDirectoryFeed({
   className,
   children,
 }: SquadHorizontalListProps): ReactElement {
-  const { result } = useSources<Squad>({ query });
-  const { isInitialLoading } = result;
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+  });
+  const { result } = useSources<Squad>({ query, isEnabled: inView });
+  const { isFetched } = result;
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isLoading = !isFetched || (!inView && !result.data);
 
   const flatSources =
     result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
 
-  if (flatSources.length === 0 && !isInitialLoading) {
+  if (flatSources.length === 0 && isFetched) {
     return null;
   }
 
   if (isMobile) {
     return (
-      <div className="relative flex flex-col gap-3 pb-6">
+      <div ref={ref} className="relative flex flex-col gap-3 pb-6">
         {children}
         <header className="mb-2 flex flex-row items-center justify-between">
           {title}
@@ -71,13 +76,14 @@ export function SquadsDirectoryFeed({
         {flatSources?.map(({ node }) => (
           <SquadList key={node.id} squad={node} />
         ))}
-        {isInitialLoading && <Skeleton />}
+        {isLoading && <Skeleton />}
       </div>
     );
   }
 
   return (
     <HorizontalScroll
+      ref={ref}
       className={{ container: className, scroll: 'gap-6' }}
       scrollProps={{ title, linkToSeeAll }}
     >
@@ -89,7 +95,7 @@ export function SquadsDirectoryFeed({
           <UnfeaturedSquadGrid key={node.id} source={node} className="w-80" />
         ),
       )}
-      {isInitialLoading && <Skeleton isFeatured={query.featured} />}
+      {isLoading && <Skeleton isFeatured={query.featured} />}
     </HorizontalScroll>
   );
 }

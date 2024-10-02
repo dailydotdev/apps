@@ -1,4 +1,10 @@
-import React, { ReactElement, ReactNode, useId } from 'react';
+import React, {
+  forwardRef,
+  MutableRefObject,
+  ReactElement,
+  ReactNode,
+  useId,
+} from 'react';
 import classNames from 'classnames';
 import {
   UseHorizontalScrollHeaderProps,
@@ -16,18 +22,20 @@ interface HorizontalScrollProps {
   scrollProps: UseHorizontalScrollHeaderProps;
 }
 
-export default function HorizontalScroll({
-  children,
-  className,
-  scrollProps,
-}: HorizontalScrollProps): ReactElement {
+function HorizontalScrollComponent(
+  { children, className, scrollProps }: HorizontalScrollProps,
+  propRef: MutableRefObject<HTMLDivElement>,
+): ReactElement {
   const { ref, Header } = useHorizontalScrollHeader(scrollProps);
 
   const id = useId();
   const titleId = `horizontal-scroll-title-${id}`;
 
   return (
-    <div className={classNames('flex flex-col', className?.container)}>
+    <div
+      className={classNames('flex flex-col', className?.container)}
+      ref={propRef}
+    >
       <Header titleId={titleId} />
       <div
         ref={ref}
@@ -43,3 +51,7 @@ export default function HorizontalScroll({
     </div>
   );
 }
+
+const HorizontalScroll = forwardRef(HorizontalScrollComponent);
+
+export default HorizontalScroll;
