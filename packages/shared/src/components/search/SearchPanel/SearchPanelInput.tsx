@@ -191,7 +191,9 @@ export const SearchPanelInput = ({
             {...inputProps}
             data-search-panel-item="true"
             placeholder={
-              searchPanel.isActive ? searchText.placeholder : 'Search'
+              searchPanel.isActive
+                ? 'Search posts or ask a question...'
+                : searchText.placeholder
             }
             ref={inputRef}
             onFocus={(event) => {
