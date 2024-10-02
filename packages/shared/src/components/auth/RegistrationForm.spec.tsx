@@ -96,11 +96,11 @@ const renderRegistration = async (
     },
   });
   await screen.findByTestId('registration_form');
-  const nameInput = screen.getByPlaceholderText('Name');
+  const nameInput = screen.getByLabelText('Name');
   fireEvent.input(screen.getByPlaceholderText('Enter a username'), {
     target: { value: username },
   });
-  fireEvent.input(screen.getByPlaceholderText('Name'), {
+  fireEvent.input(screen.getByLabelText('Name'), {
     target: { value: name },
   });
   simulateTextboxInput(nameInput as HTMLTextAreaElement, name);

@@ -86,7 +86,7 @@ it('should post sending email recovery including token', async () => {
   const email = 'sshanzel@yahoo.com';
   renderComponent();
   await waitForNock();
-  fireEvent.input(screen.getByPlaceholderText('Email'), {
+  fireEvent.input(screen.getByLabelText('Email'), {
     target: { value: email },
   });
   const form = await screen.findByTestId('recovery_form');
