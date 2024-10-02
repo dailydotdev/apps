@@ -73,7 +73,7 @@ export default function Sidebar({
   onLogoClick,
 }: SidebarProps): ReactElement {
   const router = useRouter();
-  const { user, isLoggedIn } = useContext(AuthContext);
+  const { user, isLoggedIn, squads } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
   const { toggleSidebarExpanded, sidebarExpanded, loadedSettings } =
     useContext(SettingsContext);
@@ -86,6 +86,10 @@ export default function Sidebar({
     hasUser: !!user,
     hasFiltered: !alerts?.filter,
   });
+  const hasSquads = squads?.length > 0;
+  const squadsUrl = hasSquads
+    ? `${webappUrl}squads/discover/my`
+    : `${webappUrl}squads`;
 
   const activeNav = useActiveNav(feedName);
   const activePage = router.asPath || router.pathname;
@@ -164,7 +168,7 @@ export default function Sidebar({
           </Button>
         </Link>
 
-        <Link href={`${webappUrl}squads/discover/my`} prefetch={false} passHref>
+        <Link href={squadsUrl} prefetch={false} passHref>
           <Button
             {...buttonProps}
             tag="a"
