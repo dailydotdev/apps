@@ -25,10 +25,12 @@ export interface SourcesQueryProps {
 
 interface UseSourcesProps {
   query?: SourcesQueryProps;
+  isEnabled?: boolean;
 }
 
 export const useSources = <T extends Source | Squad>({
   query = {},
+  isEnabled = true,
 }: UseSourcesProps = {}): UseSources<T> => {
   const {
     featured,
@@ -60,6 +62,7 @@ export const useSources = <T extends Source | Squad>({
         lastPage?.sources?.pageInfo?.hasNextPage &&
         lastPage?.sources?.pageInfo?.endCursor,
       staleTime: StaleTime.Default,
+      enabled: isEnabled,
     },
   );
 
