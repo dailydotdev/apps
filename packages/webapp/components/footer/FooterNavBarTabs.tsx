@@ -12,9 +12,7 @@ import { useNotificationContext } from '@dailydotdev/shared/src/contexts/Notific
 import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import { squadCategoriesPaths } from '@dailydotdev/shared/src/lib/constants';
-import { FooterNavBarContainerProps, FooterTab } from './common';
+import { FooterNavBarContainerProps, FooterTab, getNavPath } from './common';
 import { FooterPlusButton } from './FooterPlusButton';
 import { FooterNavBarItem, FooterNavBarItemProps } from './FooterNavBarItem';
 
@@ -58,10 +56,7 @@ export const tabs: (FooterTab | ReactNode)[] = [
     icon: (active: boolean) => <Notifications active={active} />,
   },
   {
-    path: ({ isLaptop }) =>
-      isLaptop
-        ? squadCategoriesPaths.discover
-        : squadCategoriesPaths['My Squads'],
+    path: '/squads',
     title: 'Squads',
     icon: (active: boolean) => (
       <SourceIcon secondary={active} size={IconSize.Medium} />
@@ -74,16 +69,7 @@ interface TabProps extends Pick<FooterNavBarItemProps, 'isActive'> {
 }
 
 const Tab = ({ tab, isActive }: TabProps) => {
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const { user } = useAuthContext();
-
-  const getPath = () => {
-    if (typeof tab.path === 'string') {
-      return tab.path;
-    }
-
-    return tab.path({ user, isLaptop });
-  };
 
   return (
     <FooterNavBarItem
@@ -91,7 +77,11 @@ const Tab = ({ tab, isActive }: TabProps) => {
       className="flex h-full flex-col items-center justify-center py-2"
     >
       <Link
-        href={!user && tab.requiresLogin ? '/onboarding' : getPath()}
+        href={
+          !user && tab.requiresLogin
+            ? '/onboarding'
+            : getNavPath(tab.path, user)
+        }
         passHref
       >
         <a

@@ -1,13 +1,8 @@
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { ReactElement } from 'react';
 
-interface TabPathProps {
-  user: LoggedUser;
-  isLaptop?: boolean;
-}
-
 export interface FooterTab {
-  path?: string | ((props: TabPathProps) => string);
+  path?: string | ((user: LoggedUser) => string);
   title: string;
   icon?: (active: boolean, unread?: number) => ReactElement;
   requiresLogin?: boolean;
@@ -18,3 +13,10 @@ export interface FooterTab {
 export interface FooterNavBarContainerProps {
   activeTab: string;
 }
+
+export const getNavPath = (
+  path: FooterTab['path'],
+  user: LoggedUser,
+): string => {
+  return typeof path === 'string' ? path : path(user);
+};
