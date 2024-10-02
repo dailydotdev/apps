@@ -132,6 +132,7 @@ const feedNameToHeading: Record<
     | OtherFeedPage.Leaderboard
     | OtherFeedPage.FeedByIds
     | OtherFeedPage.Welcome
+    | OtherFeedPage.Squads
   >,
   string
 > = {
