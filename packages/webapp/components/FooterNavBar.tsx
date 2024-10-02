@@ -74,38 +74,41 @@ export default function FooterNavBar({
     ? squadCategoriesPaths['My Squads']
     : squadCategoriesPaths.discover;
 
-  const tabs: (FooterTab | ReactNode)[] = [
-    {
-      requiresLogin: true,
-      path: '/',
-      title: 'Home',
-      icon: (active: boolean) => (
-        <HomeIcon secondary={active} size={IconSize.Medium} />
-      ),
-    },
-    {
-      requiresLogin: false,
-      path: '/posts',
-      title: 'Explore',
-      icon: (active: boolean) => (
-        <AiIcon secondary={active} size={IconSize.Medium} />
-      ),
-    },
-    <FooterPlusButton key="write-action" />,
-    {
-      requiresLogin: true,
-      path: '/notifications',
-      title: 'Activity',
-      icon: (active: boolean) => <Notifications active={active} />,
-    },
-    {
-      path: squadsUrl,
-      title: 'Squads',
-      icon: (active: boolean) => (
-        <SourceIcon secondary={active} size={IconSize.Medium} />
-      ),
-    },
-  ];
+  const tabs: (FooterTab | ReactNode)[] = useMemo(
+    () => [
+      {
+        requiresLogin: true,
+        path: '/',
+        title: 'Home',
+        icon: (active: boolean) => (
+          <HomeIcon secondary={active} size={IconSize.Medium} />
+        ),
+      },
+      {
+        requiresLogin: false,
+        path: '/posts',
+        title: 'Explore',
+        icon: (active: boolean) => (
+          <AiIcon secondary={active} size={IconSize.Medium} />
+        ),
+      },
+      <FooterPlusButton key="write-action" />,
+      {
+        requiresLogin: true,
+        path: '/notifications',
+        title: 'Activity',
+        icon: (active: boolean) => <Notifications active={active} />,
+      },
+      {
+        path: squadsUrl,
+        title: 'Squads',
+        icon: (active: boolean) => (
+          <SourceIcon secondary={active} size={IconSize.Medium} />
+        ),
+      },
+    ],
+    [squadsUrl],
+  );
 
   const activeTab = useMemo(() => {
     const activeKey = Object.keys(activeNav).find((key) => activeNav[key]);
