@@ -16,6 +16,7 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useActiveFeedNameContext } from '../../contexts';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import FeedNav from '../feeds/FeedNav';
+import { ExploreHeader } from '../header/ExploreHeader';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -100,11 +101,7 @@ function MainLayoutHeader({
       return (
         <div className="sticky top-0 z-header w-full bg-background-default tablet:pl-16">
           <RenderSearchPanel />
-          {!isSearch && (
-            <h3 className="mx-4 flex h-12 items-center font-bold typo-body">
-              Explore
-            </h3>
-          )}
+          {!isSearch && <ExploreHeader path={feedName as string} />}
         </div>
       );
     }

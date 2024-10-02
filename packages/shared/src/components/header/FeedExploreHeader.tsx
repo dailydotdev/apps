@@ -2,15 +2,12 @@ import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { BreadCrumbs } from './BreadCrumbs';
-import { CalendarIcon, HotIcon } from '../icons';
+import { HotIcon } from '../icons';
 import { IconSize } from '../Icon';
 import TabList from '../tabs/TabList';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { checkIsExtension } from '../../lib/func';
 import { getFeedName } from '../../lib/feed';
-import { Dropdown } from '../fields/Dropdown';
-import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
-import { periodTexts } from '../layout/common';
 import { OtherFeedPage } from '../../lib/query';
 import { useFeedLayout } from '../../hooks';
 
@@ -53,25 +50,15 @@ interface FeedExploreHeaderProps {
   showDropdown?: boolean;
 }
 
-const withDateRange = [
-  OtherFeedPage.ExploreUpvoted,
-  OtherFeedPage.ExploreDiscussed,
-];
-
 export function FeedExploreHeader({
   tab,
   setTab,
   className,
   showBreadcrumbs = true,
-  showDropdown = true,
 }: FeedExploreHeaderProps): ReactElement {
   const isExtension = checkIsExtension();
   const router = useRouter();
   const path = getFeedName(router.pathname);
-  const [period, setPeriod] = useQueryState({
-    key: [QueryStateKeys.FeedPeriod],
-    defaultValue: 0,
-  });
   const { isListMode } = useFeedLayout();
 
   return (
@@ -114,21 +101,6 @@ export function FeedExploreHeader({
               <Tab key={label} label={label} url={url} />
             ))}
           </TabContainer>
-        )}
-        {showDropdown && (
-          <span className="ml-auto">
-            {withDateRange.includes(path as OtherFeedPage) && (
-              <Dropdown
-                iconOnly
-                dynamicMenuWidth
-                shouldIndicateSelected
-                icon={<CalendarIcon size={IconSize.Medium} />}
-                selectedIndex={period}
-                options={periodTexts}
-                onChange={(_, index) => setPeriod(index)}
-              />
-            )}
-          </span>
         )}
       </div>
     </div>
