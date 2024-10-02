@@ -26,8 +26,8 @@ import {
 export enum OtherFeedPage {
   Tag = 'tag',
   Tags = 'tags',
-  Squad = 'squads',
-  SquadPage = 'squads[handle]',
+  Squad = 'squadsdiscover',
+  SquadPage = 'squadsdiscover[id]',
   Source = 'source',
   Sources = 'sources',
   Leaderboard = 'users',

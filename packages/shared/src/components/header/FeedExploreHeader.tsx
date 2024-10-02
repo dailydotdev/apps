@@ -56,6 +56,8 @@ interface FeedExploreHeaderProps {
 const withDateRange = [
   OtherFeedPage.ExploreUpvoted,
   OtherFeedPage.ExploreDiscussed,
+  ExploreTabs.MostUpvoted,
+  ExploreTabs.BestDiscussions,
 ];
 
 export function FeedExploreHeader({
@@ -73,6 +75,9 @@ export function FeedExploreHeader({
     defaultValue: 0,
   });
   const { isListMode } = useFeedLayout();
+  const shouldShowDropdown =
+    withDateRange.includes(path as OtherFeedPage) ||
+    withDateRange.includes(tab);
 
   return (
     <div className={classNames('flex w-full flex-col', className.container)}>
@@ -117,7 +122,7 @@ export function FeedExploreHeader({
         )}
         {showDropdown && (
           <span className="ml-auto">
-            {withDateRange.includes(path as OtherFeedPage) && (
+            {shouldShowDropdown && (
               <Dropdown
                 iconOnly
                 dynamicMenuWidth
