@@ -16,7 +16,7 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useActiveFeedNameContext } from '../../contexts';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import FeedNav from '../feeds/FeedNav';
-import { MobileExploreHeader } from '../header/ExploreHeader';
+import { MobileExploreHeader } from '../header/MobileExploreHeader';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
