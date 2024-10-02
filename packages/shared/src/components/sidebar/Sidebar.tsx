@@ -164,7 +164,7 @@ export default function Sidebar({
           </Button>
         </Link>
 
-        <Link href={`${webappUrl}squads`} prefetch={false} passHref>
+        <Link href={`${webappUrl}squads/discover/my`} prefetch={false} passHref>
           <Button
             {...buttonProps}
             tag="a"

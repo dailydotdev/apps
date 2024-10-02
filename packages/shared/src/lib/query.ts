@@ -27,6 +27,7 @@ export enum OtherFeedPage {
   Tag = 'tag',
   Tags = 'tags',
   Squad = 'squads',
+  Squads = 'squadsdiscover',
   SquadPage = 'squads[handle]',
   Source = 'source',
   Sources = 'sources',

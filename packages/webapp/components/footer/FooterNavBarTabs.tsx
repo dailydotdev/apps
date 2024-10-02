@@ -12,6 +12,7 @@ import { useNotificationContext } from '@dailydotdev/shared/src/contexts/Notific
 import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { squadCategoriesPaths } from '@dailydotdev/shared/src/lib/constants';
 import { FooterNavBarContainerProps, FooterTab, getNavPath } from './common';
 import { FooterPlusButton } from './FooterPlusButton';
 import { FooterNavBarItem, FooterNavBarItemProps } from './FooterNavBarItem';
@@ -56,7 +57,7 @@ export const tabs: (FooterTab | ReactNode)[] = [
     icon: (active: boolean) => <Notifications active={active} />,
   },
   {
-    path: '/squads',
+    path: squadCategoriesPaths['My Squads'],
     title: 'Squads',
     icon: (active: boolean) => (
       <SourceIcon secondary={active} size={IconSize.Medium} />
