@@ -48,7 +48,7 @@ import { IconSize } from '../Icon';
 import { CreatePostButton } from '../post/write';
 import useActiveNav from '../../hooks/useActiveNav';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
-import { webappUrl } from '../../lib/constants';
+import { squadCategoriesPaths, webappUrl } from '../../lib/constants';
 import { AlertColor, AlertDot } from '../AlertDot';
 
 const SidebarOnboardingChecklistCard = dynamic(
@@ -164,7 +164,15 @@ export default function Sidebar({
           </Button>
         </Link>
 
-        <Link href={`${webappUrl}squads`} prefetch={false} passHref>
+        <Link
+          href={
+            isLaptop
+              ? squadCategoriesPaths.discover
+              : squadCategoriesPaths['My Squads']
+          }
+          prefetch={false}
+          passHref
+        >
           <Button
             {...buttonProps}
             tag="a"
