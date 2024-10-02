@@ -119,7 +119,7 @@ export default function FooterNavBar({
     ).find((tab) => tab.path === router?.pathname);
 
     return active?.title;
-  }, [activeNav, router?.pathname]);
+  }, [activeNav, router?.pathname, tabs]);
 
   const blurClasses = 'bg-blur-baseline backdrop-blur-[2.5rem]';
   const activeClasses = classNames(
