@@ -116,7 +116,7 @@ const renderLogin = async (email: string) => {
 it('should post login including token', async () => {
   const email = 'sshanzel@yahoo.com';
   await renderLogin(email);
-  fireEvent.input(screen.getByLabelText('Password'), {
+  fireEvent.input(screen.getByTestId('login_password'), {
     target: { value: '#123xAbc' },
   });
   const form = await screen.findByTestId('login_form');
@@ -134,7 +134,7 @@ it('should display error messages', async () => {
   user = null;
   await renderLogin(email);
 
-  fireEvent.input(screen.getByLabelText('Password'), {
+  fireEvent.input(screen.getByTestId('login_password'), {
     target: { value: '#123xAbc' },
   });
   const form = await screen.findByTestId('login_form');
