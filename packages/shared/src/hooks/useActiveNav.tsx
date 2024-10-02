@@ -57,7 +57,7 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
   const isExploreActive = explorePages.includes(activeFeed);
   const isBookmarksActive = activeFeed === OtherFeedPage.Bookmarks;
   const isNotificationsActive = activeFeed === OtherFeedPage.Notifications;
-  const isSquadsActive = activeFeed.includes(OtherFeedPage.Squads);
+  const isSquadsActive = activeFeed.includes(OtherFeedPage.Squad);
 
   return {
     home: isHomeActive,

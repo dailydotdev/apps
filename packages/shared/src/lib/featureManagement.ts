@@ -30,6 +30,7 @@ const feature = {
   onboardingChecklist: new Feature('onboarding_checklist', true),
   searchUsers: new Feature('search_users', false),
   showCodeSnippets: new Feature('show_code_snippets', false),
+  searchPlaceholder: new Feature('search_placeholder', 'Search'),
 };
 
 export { feature };
