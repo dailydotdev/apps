@@ -16,7 +16,9 @@ interface ExploreHeaderProps {
   path: string;
 }
 
-export function ExploreHeader({ path }: ExploreHeaderProps): ReactElement {
+export function MobileExploreHeader({
+  path,
+}: ExploreHeaderProps): ReactElement {
   const [period, setPeriod] = useQueryState({
     key: [QueryStateKeys.FeedPeriod],
     defaultValue: 0,
