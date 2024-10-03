@@ -42,6 +42,7 @@ import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext'
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
+import { get as getCache } from 'idb-keyval';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
@@ -49,6 +50,8 @@ import MainFeedPage from './MainFeedPage';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
 import { useContentScriptStatus } from '../../../shared/src/hooks';
+import { KeepItOverlay } from './KeepItOverlay';
+import { INSTALLATION_STORAGE_KEY } from '../lib/common';
 
 structuredCloneJsonPolyfill();
 
@@ -98,6 +101,7 @@ function InternalApp(): ReactElement {
     }
   }, [analyticsConsent, analyticsConsentPrompt]);
 
+  const [shouldShowOverlay, setShouldShowOverlay] = useState(false);
   const { unreadCount } = useNotificationContext();
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useContentScriptStatus();
@@ -135,6 +139,18 @@ function InternalApp(): ReactElement {
   }, [contentScriptGranted]);
 
   useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    getCache(INSTALLATION_STORAGE_KEY).then((value) => {
+      if (value) {
+        setShouldShowOverlay(true);
+      }
+    });
+  }, [user]);
+
+  useEffect(() => {
     document.title = unreadCount
       ? `(${unreadCount}) ${DEFAULT_TAB_TITLE}`
       : DEFAULT_TAB_TITLE;
@@ -150,6 +166,9 @@ function InternalApp(): ReactElement {
 
   return (
     <DndContextProvider>
+      {shouldShowOverlay && (
+        <KeepItOverlay onClose={() => setShouldShowOverlay(false)} />
+      )}
       <MainFeedPage onPageChanged={onPageChanged} />
       {shouldShowLogin && (
         <AuthModal
