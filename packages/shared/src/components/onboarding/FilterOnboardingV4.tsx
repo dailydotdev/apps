@@ -131,6 +131,7 @@ export function FilterOnboardingV4({
       }>(GET_RECOMMENDED_TAGS_QUERY, {
         tags: [tag.name],
         excludedTags,
+        shuffle: shouldShuffleTags,
       });
 
       const recommendedTagsSet = new Set(

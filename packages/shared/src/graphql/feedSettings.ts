@@ -175,8 +175,16 @@ export const GET_ONBOARDING_TAGS_QUERY = gql`
 `;
 
 export const GET_RECOMMENDED_TAGS_QUERY = gql`
-  query RecommendedTags($tags: [String]!, $excludedTags: [String]!) {
-    recommendedTags(tags: $tags, excludedTags: $excludedTags) {
+  query RecommendedTags(
+    $tags: [String]!
+    $excludedTags: [String]!
+    $shuffle: Boolean
+  ) {
+    recommendedTags(
+      tags: $tags
+      excludedTags: $excludedTags
+      shuffle: $shuffle
+    ) {
       tags: hits {
         name
       }
