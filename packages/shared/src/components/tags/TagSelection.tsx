@@ -89,14 +89,12 @@ export function TagSelection({
     feedId,
   );
 
-  const { data: onboardingTags, isLoading } = useQuery(
+  const { data: onboardingTagsRaw, isLoading } = useQuery(
     onboardingTagsQueryKey,
     async () => {
       const result = await gqlClient.request<{
         onboardingTags: TagsData;
-      }>(GET_ONBOARDING_TAGS_QUERY, {
-        shuffle: shouldShuffleTags,
-      });
+      }>(GET_ONBOARDING_TAGS_QUERY, {});
 
       return result.onboardingTags;
     },
@@ -106,6 +104,15 @@ export function TagSelection({
       select: tagsSelector,
     },
   );
+
+  const onboardingTags = useMemo(() => {
+    if (!shouldShuffleTags) {
+      return onboardingTagsRaw;
+    }
+
+    return onboardingTagsRaw?.sort(() => Math.random() - 0.5);
+  }, [shouldShuffleTags, onboardingTagsRaw]);
+
   const excludedTags = useMemo(() => {
     if (!onboardingTags) {
       return [];
@@ -130,7 +137,6 @@ export function TagSelection({
       }>(GET_RECOMMENDED_TAGS_QUERY, {
         tags: [tag.name],
         excludedTags,
-        shuffle: shouldShuffleTags,
       });
 
       const recommendedTagsSet = new Set(

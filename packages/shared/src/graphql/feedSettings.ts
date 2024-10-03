@@ -166,8 +166,8 @@ export const UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION = gql`
 `;
 
 export const GET_ONBOARDING_TAGS_QUERY = gql`
-  query OnboardingTags($shuffle: Boolean) {
-    onboardingTags(shuffle: $shuffle) {
+  query OnboardingTags {
+    onboardingTags {
       tags: hits {
         name
       }
@@ -176,16 +176,8 @@ export const GET_ONBOARDING_TAGS_QUERY = gql`
 `;
 
 export const GET_RECOMMENDED_TAGS_QUERY = gql`
-  query RecommendedTags(
-    $tags: [String]!
-    $excludedTags: [String]!
-    $shuffle: Boolean
-  ) {
-    recommendedTags(
-      tags: $tags
-      excludedTags: $excludedTags
-      shuffle: $shuffle
-    ) {
+  query RecommendedTags($tags: [String]!, $excludedTags: [String]!) {
+    recommendedTags(tags: $tags, excludedTags: $excludedTags) {
       tags: hits {
         name
       }
