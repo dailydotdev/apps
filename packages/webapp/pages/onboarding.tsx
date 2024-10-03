@@ -80,6 +80,7 @@ export function OnboardPage(): ReactElement {
   const router = useRouter();
   const { getFeatureValue } = useFeaturesReadyContext();
   const { setSettings } = useSettingsContext();
+  const isLogged = useRef(false);
   const { user, isAuthReady, anonymous } = useAuthContext();
   const shouldVerify = anonymous?.shouldVerify;
   const { growthbook } = useGrowthBookContext();
@@ -186,14 +187,16 @@ export function OnboardPage(): ReactElement {
   };
 
   useEffect(() => {
-    if (!isPageReady) {
+    if (!isPageReady || isLogged.current) {
       return;
     }
 
     if (user) {
       router.replace(getPathnameWithQuery(webappUrl, window.location.search));
+      return;
     }
 
+    isLogged.current = true;
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [logEvent, isPageReady, user]);
