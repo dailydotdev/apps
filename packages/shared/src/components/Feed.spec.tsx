@@ -430,9 +430,6 @@ describe('Feed', () => {
 
   it('should send remove bookmark mutation', async () => {
     let mutationCalled = false;
-    mockGraphQL(
-      completeActionMock({ action: ActionType.BookmarkPromoteMobile }),
-    );
     renderComponent([
       createFeedMock({
         pageInfo: defaultFeedPage.pageInfo,

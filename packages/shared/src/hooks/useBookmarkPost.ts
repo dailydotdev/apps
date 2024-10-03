@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useContext } from 'react';
 import {
   MutationKey,
   useMutation,
@@ -24,9 +24,6 @@ import {
 } from '../lib/feed';
 import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { ActionType } from '../graphql/actions';
-import { LazyModal } from '../components/modals/common/types';
-import { promotion } from '../components/modals/generic';
-import { useLazyModal } from './useLazyModal';
 import { useActions } from './useActions';
 
 export type ToggleBookmarkProps = {
@@ -81,13 +78,7 @@ const useBookmarkPost = ({
   const { displayToast } = useToastNotification();
   const { user, showLogin } = useContext(AuthContext);
   const { logEvent } = useContext(LogContext);
-  const { openModal } = useLazyModal();
-  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
-  const seenBookmarkPromotion = useMemo(
-    () =>
-      isActionsFetched && checkHasCompleted(ActionType.BookmarkPromoteMobile),
-    [checkHasCompleted, isActionsFetched],
-  );
+  const { completeAction } = useActions();
 
   const defaultOnMutate = ({ id }) => {
     updatePostCache(client, id, (post) => ({ bookmarked: !post.bookmarked }));
@@ -164,26 +155,8 @@ const useBookmarkPost = ({
 
       await addBookmark({ id: post.id });
       displayToast('Post was added to your bookmarks');
-
-      if (!seenBookmarkPromotion) {
-        completeAction(ActionType.BookmarkPromoteMobile);
-        openModal({
-          type: LazyModal.MarketingCta,
-          props: { marketingCta: promotion.bookmarkPromoteMobile },
-        });
-      }
     },
-    [
-      addBookmark,
-      completeAction,
-      displayToast,
-      openModal,
-      removeBookmark,
-      seenBookmarkPromotion,
-      showLogin,
-      logEvent,
-      user,
-    ],
+    [addBookmark, displayToast, removeBookmark, showLogin, logEvent, user],
   );
 
   return { toggleBookmark };
