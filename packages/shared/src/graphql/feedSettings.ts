@@ -7,6 +7,7 @@ export enum AdvancedSettingsGroup {
   ContentTypes = 'content_types',
   ContentCuration = 'content_curation',
   ContentSource = 'content_source',
+  SourceTypes = 'source_types',
 }
 
 export interface AdvancedSettings {
