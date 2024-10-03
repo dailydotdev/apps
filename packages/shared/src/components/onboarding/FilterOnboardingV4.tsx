@@ -24,6 +24,8 @@ import { ElementPlaceholder } from '../ElementPlaceholder';
 import { OnSelectTagProps } from './common';
 import { OnboardingTag } from './OnboardingTag';
 import { gqlClient } from '../../graphql/common';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
 
 const tagsSelector = (data: TagsData) => data?.tags || [];
 
@@ -63,6 +65,7 @@ export function FilterOnboardingV4({
     feedId,
     shouldFilterLocally,
   });
+  const shouldShuffleTags = useFeature(feature.onboardingShuffleTags);
 
   const [refetchFeed] = useDebounceFn(() => {
     const feedQueryKey = [RequestKey.FeedPreview];
@@ -92,7 +95,9 @@ export function FilterOnboardingV4({
     async () => {
       const result = await gqlClient.request<{
         onboardingTags: TagsData;
-      }>(GET_ONBOARDING_TAGS_QUERY, {});
+      }>(GET_ONBOARDING_TAGS_QUERY, {
+        shuffle: shouldShuffleTags,
+      });
 
       return result.onboardingTags;
     },

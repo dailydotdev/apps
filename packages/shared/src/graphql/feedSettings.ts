@@ -165,8 +165,8 @@ export const UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION = gql`
 `;
 
 export const GET_ONBOARDING_TAGS_QUERY = gql`
-  query OnboardingTags {
-    onboardingTags {
+  query OnboardingTags($shuffle: Boolean) {
+    onboardingTags(shuffle: $shuffle) {
       tags: hits {
         name
       }
