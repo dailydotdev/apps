@@ -1,6 +1,7 @@
 import React, {
   isValidElement,
   ReactElement,
+  ReactNode,
   useContext,
   useMemo,
 } from 'react';
@@ -15,13 +16,40 @@ import useActiveNav, {
   UseActiveNav,
 } from '@dailydotdev/shared/src/hooks/useActiveNav';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
+import {
+  AiIcon,
+  BellIcon,
+  HomeIcon,
+  SourceIcon,
+} from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { squadCategoriesPaths } from '@dailydotdev/shared/src/lib/constants';
+import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
+import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import { FooterTab } from './footer/common';
-import { FooterNavBarTabs, tabs } from './footer/FooterNavBarTabs';
+import { FooterNavBarTabs } from './footer/FooterNavBarTabs';
+import { FooterPlusButton } from './footer/FooterPlusButton';
 
 interface FooterNavBarProps {
   showNav?: boolean;
   post?: Post;
 }
+
+const Notifications = ({ active }: { active: boolean }): JSX.Element => {
+  const { unreadCount } = useNotificationContext();
+
+  return (
+    <div className="relative">
+      <BellIcon secondary={active} size={IconSize.Medium} />
+      {!!unreadCount && (
+        <Bubble className="-right-1.5 -top-1.5 cursor-pointer px-1">
+          {getUnreadText(unreadCount)}
+        </Bubble>
+      )}
+    </div>
+  );
+};
 
 const selectedMapToTitle: Record<keyof UseActiveNav, string> = {
   home: 'Home',
@@ -37,9 +65,51 @@ export default function FooterNavBar({
   post,
 }: FooterNavBarProps): ReactElement {
   const router = useRouter();
-  const { user } = useContext(AuthContext);
+  const { user, squads } = useContext(AuthContext);
   const feedName = getFeedName(router.pathname, { hasUser: !!user });
   const activeNav = useActiveNav(feedName);
+
+  const hasSquads = squads?.length > 0;
+  const squadsUrl = hasSquads
+    ? squadCategoriesPaths['My Squads']
+    : squadCategoriesPaths.discover;
+
+  const tabs: (FooterTab | ReactNode)[] = useMemo(
+    () => [
+      {
+        requiresLogin: true,
+        path: '/',
+        title: 'Home',
+        icon: (active: boolean) => (
+          <HomeIcon secondary={active} size={IconSize.Medium} />
+        ),
+      },
+      {
+        requiresLogin: false,
+        path: '/posts',
+        title: 'Explore',
+        icon: (active: boolean) => (
+          <AiIcon secondary={active} size={IconSize.Medium} />
+        ),
+      },
+      <FooterPlusButton key="write-action" />,
+      {
+        requiresLogin: true,
+        path: '/notifications',
+        title: 'Activity',
+        icon: (active: boolean) => <Notifications active={active} />,
+      },
+      {
+        path: squadsUrl,
+        title: 'Squads',
+        icon: (active: boolean) => (
+          <SourceIcon secondary={active} size={IconSize.Medium} />
+        ),
+      },
+    ],
+    [squadsUrl],
+  );
+
   const activeTab = useMemo(() => {
     const activeKey = Object.keys(activeNav).find((key) => activeNav[key]);
 
@@ -52,7 +122,7 @@ export default function FooterNavBar({
     ).find((tab) => tab.path === router?.pathname);
 
     return active?.title;
-  }, [activeNav, router?.pathname]);
+  }, [activeNav, router?.pathname, tabs]);
 
   const blurClasses = 'bg-blur-baseline backdrop-blur-[2.5rem]';
   const activeClasses = classNames(
@@ -94,7 +164,7 @@ export default function FooterNavBar({
             !post && 'border-t border-border-subtlest-tertiary',
           )}
         >
-          <FooterNavBarTabs activeTab={activeTab} />
+          <FooterNavBarTabs activeTab={activeTab} tabs={tabs} />
         </Flipper>
       )}
     </div>

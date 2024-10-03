@@ -1,68 +1,9 @@
-import React, { isValidElement, ReactElement, ReactNode } from 'react';
-import {
-  AiIcon,
-  BellIcon,
-  HomeIcon,
-  SourceIcon,
-} from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import React, { isValidElement, ReactElement } from 'react';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import classNames from 'classnames';
-import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
-import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
-import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { FooterNavBarContainerProps, FooterTab, getNavPath } from './common';
-import { FooterPlusButton } from './FooterPlusButton';
 import { FooterNavBarItem, FooterNavBarItemProps } from './FooterNavBarItem';
-
-const Notifications = ({ active }: { active: boolean }): JSX.Element => {
-  const { unreadCount } = useNotificationContext();
-
-  return (
-    <div className="relative">
-      <BellIcon secondary={active} size={IconSize.Medium} />
-      {!!unreadCount && (
-        <Bubble className="-right-1.5 -top-1.5 cursor-pointer px-1">
-          {getUnreadText(unreadCount)}
-        </Bubble>
-      )}
-    </div>
-  );
-};
-
-export const tabs: (FooterTab | ReactNode)[] = [
-  {
-    requiresLogin: true,
-    path: '/',
-    title: 'Home',
-    icon: (active: boolean) => (
-      <HomeIcon secondary={active} size={IconSize.Medium} />
-    ),
-  },
-  {
-    requiresLogin: false,
-    path: '/posts',
-    title: 'Explore',
-    icon: (active: boolean) => (
-      <AiIcon secondary={active} size={IconSize.Medium} />
-    ),
-  },
-  <FooterPlusButton key="write-action" />,
-  {
-    requiresLogin: true,
-    path: '/notifications',
-    title: 'Activity',
-    icon: (active: boolean) => <Notifications active={active} />,
-  },
-  {
-    path: '/squads',
-    title: 'Squads',
-    icon: (active: boolean) => (
-      <SourceIcon secondary={active} size={IconSize.Medium} />
-    ),
-  },
-];
 
 interface TabProps extends Pick<FooterNavBarItemProps, 'isActive'> {
   tab: FooterTab;
@@ -100,6 +41,7 @@ const Tab = ({ tab, isActive }: TabProps) => {
 
 export function FooterNavBarTabs({
   activeTab,
+  tabs,
 }: FooterNavBarContainerProps): ReactElement {
   return (
     <>
