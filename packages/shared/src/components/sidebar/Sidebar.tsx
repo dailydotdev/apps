@@ -48,7 +48,7 @@ import { IconSize } from '../Icon';
 import { CreatePostButton } from '../post/write';
 import useActiveNav from '../../hooks/useActiveNav';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
-import { webappUrl } from '../../lib/constants';
+import { squadCategoriesPaths, webappUrl } from '../../lib/constants';
 import { AlertColor, AlertDot } from '../AlertDot';
 
 const SidebarOnboardingChecklistCard = dynamic(
@@ -73,7 +73,7 @@ export default function Sidebar({
   onLogoClick,
 }: SidebarProps): ReactElement {
   const router = useRouter();
-  const { user, isLoggedIn } = useContext(AuthContext);
+  const { user, isLoggedIn, squads } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
   const { toggleSidebarExpanded, sidebarExpanded, loadedSettings } =
     useContext(SettingsContext);
@@ -86,6 +86,10 @@ export default function Sidebar({
     hasUser: !!user,
     hasFiltered: !alerts?.filter,
   });
+  const hasSquads = squads?.length > 0;
+  const squadsUrl = hasSquads
+    ? squadCategoriesPaths['My Squads']
+    : squadCategoriesPaths.discover;
 
   const activeNav = useActiveNav(feedName);
   const activePage = router.asPath || router.pathname;
@@ -164,7 +168,7 @@ export default function Sidebar({
           </Button>
         </Link>
 
-        <Link href={`${webappUrl}squads`} prefetch={false} passHref>
+        <Link href={squadsUrl} prefetch={false} passHref>
           <Button
             {...buttonProps}
             tag="a"
