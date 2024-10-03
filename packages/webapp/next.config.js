@@ -83,26 +83,38 @@ module.exports = {
       env: {
         CURRENT_VERSION: version,
       },
-      rewrites: () => [
-        {
-          source: '/api/sitemaps/:path*',
-          destination: `${process.env.NEXT_PUBLIC_API_URL}/sitemaps/:path*`,
-        },
-        {
-          source: '/search',
-          destination: '/search/:provider',
-          has: [
-            {
-              type: 'query',
-              key: 'provider'
-            }
-          ]
-        },
-        {
-          source: '/search',
-          destination: '/search/posts'
+      rewrites: () => {
+        const rewrites = [
+          {
+            source: '/api/sitemaps/:path*',
+            destination: `${process.env.NEXT_PUBLIC_API_URL}/sitemaps/:path*`,
+          },
+          {
+            source: '/search',
+            destination: '/search/:provider',
+            has: [
+              {
+                type: 'query',
+                key: 'provider'
+              }
+            ]
+          },
+          {
+            source: '/search',
+            destination: '/search/posts'
+          }
+        ];
+
+        // to support GitPod environment and avoid CORS issues, we need to proxy the API requests
+        if (process.env.NEXT_PUBLIC_DOMAIN === 'localhost') {
+          rewrites.unshift({
+            source: '/api/:path*',
+            destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
+          });
         }
-      ],
+
+        return rewrites;
+      },
       redirects: () => {
         return [
           {
