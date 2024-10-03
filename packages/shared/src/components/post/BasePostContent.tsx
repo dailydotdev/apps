@@ -16,8 +16,6 @@ const GoBackHeaderMobile = dynamic(
   { ssr: false },
 );
 
-export const ONBOARDING_OFFSET = 120;
-
 export function BasePostContent({
   post,
   isFallback,
