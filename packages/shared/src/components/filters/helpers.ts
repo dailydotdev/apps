@@ -5,19 +5,22 @@ import {
 
 export const getContentFromGroup = (
   advancedSettings: AdvancedSettings[],
-  groupProp: AdvancedSettingsGroup,
+  groupProp: AdvancedSettingsGroup[],
 ): AdvancedSettings[] =>
-  advancedSettings?.filter(({ group }) => group === groupProp) ?? [];
+  advancedSettings?.filter(({ group }) => groupProp.includes(group)) ?? [];
 
 export const getContentSourceList = (
   advancedSettings: AdvancedSettings[],
 ): AdvancedSettings[] =>
-  getContentFromGroup(advancedSettings, AdvancedSettingsGroup.ContentSource);
+  getContentFromGroup(advancedSettings, [AdvancedSettingsGroup.ContentSource]);
 
 export const getContentCurationList = (
   advancedSettings: AdvancedSettings[],
 ): AdvancedSettings[] =>
-  getContentFromGroup(advancedSettings, AdvancedSettingsGroup.ContentCuration);
+  getContentFromGroup(advancedSettings, [
+    AdvancedSettingsGroup.ContentCuration,
+    AdvancedSettingsGroup.SourceTypes,
+  ]);
 
 /*
  * At the moment, we are only referencing the Video entity, but it should be based from the group that it is in.
