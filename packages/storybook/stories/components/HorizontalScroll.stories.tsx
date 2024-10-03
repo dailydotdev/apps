@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import HorizontalScroll from '@dailydotdev/shared/src/components/HorizontalScroll/HorizontalScroll';
 import React, {
   ReactElement,
+  Ref,
   RefObject,
   useCallback,
   useState,

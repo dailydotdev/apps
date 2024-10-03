@@ -1,9 +1,11 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { Modal, ModalProps } from './common/Modal';
 import BasePostModal from './BasePostModal';
 import { NotificationPromptSource, Origin } from '../../lib/log';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import SquadPostContent from '../post/SquadPostContent';
+import OnboardingContext from '../../contexts/OnboardingContext';
+import { ONBOARDING_OFFSET } from '../post/BasePostContent';
 import { PassedPostNavigationProps } from '../post/common';
 import { Post, PostType } from '../../graphql/posts';
 import EnableNotification from '../notifications/EnableNotification';
@@ -24,9 +26,10 @@ export default function PostModal({
   onRemovePost,
   ...props
 }: PostModalProps): ReactElement {
+  const { showArticleOnboarding } = useContext(OnboardingContext);
   const { position, onLoad } = usePostNavigationPosition({
     isDisplayed: props.isOpen,
-    offset: 0,
+    offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
   });
 
   return (

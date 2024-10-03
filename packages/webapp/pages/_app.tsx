@@ -15,6 +15,7 @@ import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import { DefaultSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
@@ -213,7 +214,9 @@ export default function App(props: AppProps): ReactElement {
         >
           <PushNotificationContextProvider>
             <SubscriptionContextProvider>
-              <InternalApp {...props} />
+              <OnboardingContextProvider>
+                <InternalApp {...props} />
+              </OnboardingContextProvider>
             </SubscriptionContextProvider>
           </PushNotificationContextProvider>
         </BootDataProvider>

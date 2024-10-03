@@ -10,6 +10,7 @@ import dynamic from 'next/dynamic';
 import Modal from 'react-modal';
 import 'focus-visible';
 import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
+import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import AuthContext, {
   useAuthContext,
 } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -189,8 +190,10 @@ export default function App({
               deviceId={deviceId}
             >
               <SubscriptionContextProvider>
-                <LazyModalElement />
-                <InternalAppWithFeaturesBoundary />
+                <OnboardingContextProvider>
+                  <LazyModalElement />
+                  <InternalAppWithFeaturesBoundary />
+                </OnboardingContextProvider>
               </SubscriptionContextProvider>
             </BootDataProvider>
           </ExtensionContextProvider>
