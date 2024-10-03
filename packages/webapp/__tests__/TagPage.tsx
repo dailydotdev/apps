@@ -1,5 +1,8 @@
 import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
-import { TAG_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import {
+  OnboardingMode,
+  TAG_FEED_QUERY,
+} from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
@@ -26,6 +29,7 @@ import {
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertContext';
+import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import TagPage from '../pages/tags/[tag]';
 import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
@@ -137,7 +141,17 @@ const renderComponent = (
       >
         <AlertContextProvider alerts={{}} updateAlerts={jest.fn()} loadedAlerts>
           <SettingsContext.Provider value={settingsContext}>
-            <TagPage tag="react" initialData={initialData} />
+            <OnboardingContext.Provider
+              value={{
+                myFeedMode: OnboardingMode.Manual,
+                isOnboardingOpen: false,
+                onCloseOnboardingModal: jest.fn(),
+                onInitializeOnboarding: jest.fn(),
+                onShouldUpdateFilters: jest.fn(),
+              }}
+            >
+              <TagPage tag="react" initialData={initialData} />
+            </OnboardingContext.Provider>
           </SettingsContext.Provider>
         </AlertContextProvider>
       </AuthContext.Provider>

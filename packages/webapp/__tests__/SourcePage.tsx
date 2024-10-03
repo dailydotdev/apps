@@ -1,5 +1,8 @@
 import { FeedData, PostType } from '@dailydotdev/shared/src/graphql/posts';
-import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import {
+  OnboardingMode,
+  SOURCE_FEED_QUERY,
+} from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
@@ -26,6 +29,7 @@ import {
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
+import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import SourcePage from '../pages/sources/[source]';
 import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
 
@@ -153,7 +157,17 @@ const renderComponent = (
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
-          <SourcePage source={source} />
+          <OnboardingContext.Provider
+            value={{
+              myFeedMode: OnboardingMode.Manual,
+              isOnboardingOpen: false,
+              onCloseOnboardingModal: jest.fn(),
+              onInitializeOnboarding: jest.fn(),
+              onShouldUpdateFilters: jest.fn(),
+            }}
+          >
+            <SourcePage source={source} />
+          </OnboardingContext.Provider>
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,

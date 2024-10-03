@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GrowthBook, GrowthBookProvider } from '@growthbook/growthbook-react';
 import { WidenPrimitives } from '@growthbook/growthbook';
 import AuthContext, { AuthContextData } from '../../src/contexts/AuthContext';
+import OnboardingContext from '../../src/contexts/OnboardingContext';
+import { OnboardingMode } from '../../src/graphql/feed';
 import {
   NotificationsContextProvider,
   NotificationsContextProviderProps,
@@ -117,10 +119,22 @@ export const TestBootProvider = ({
                 <LogContext.Provider
                   value={{ ...defaultLogContextData, ...log }}
                 >
-                  <NotificationsContextProvider {...notification}>
-                    {children}
-                    <LazyModalElement />
-                  </NotificationsContextProvider>
+                  <OnboardingContext.Provider
+                    value={{
+                      myFeedMode: OnboardingMode.Manual,
+                      isOnboardingOpen: false,
+                      onCloseOnboardingModal: jest.fn(),
+                      onInitializeOnboarding: jest.fn(),
+                      onShouldUpdateFilters: jest.fn(),
+                      onStartArticleOnboarding: jest.fn(),
+                      shouldSkipIntro: false,
+                    }}
+                  >
+                    <NotificationsContextProvider {...notification}>
+                      {children}
+                      <LazyModalElement />
+                    </NotificationsContextProvider>
+                  </OnboardingContext.Provider>
                 </LogContext.Provider>
               </SettingsContext.Provider>
             </FeaturesReadyContext.Provider>
