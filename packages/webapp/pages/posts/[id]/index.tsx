@@ -1,9 +1,4 @@
-import React, {
-  CSSProperties,
-  ReactElement,
-  useContext,
-  useState,
-} from 'react';
+import React, { CSSProperties, ReactElement, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import {
@@ -25,14 +20,12 @@ import {
   PostContent,
   SCROLL_OFFSET,
 } from '@dailydotdev/shared/src/components/post/PostContent';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import SquadPostContent from '@dailydotdev/shared/src/components/post/SquadPostContent';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { ONBOARDING_OFFSET } from '@dailydotdev/shared/src/components/post/BasePostContent';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
 import classNames from 'classnames';
 import { CollectionPostContent } from '@dailydotdev/shared/src/components/post/collection';
@@ -78,7 +71,6 @@ interface PostParams extends ParsedUrlQuery {
 
 const PostPage = ({ id, initialData }: Props): ReactElement => {
   useJoinReferral();
-  const { showArticleOnboarding } = useContext(OnboardingContext);
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   const router = useRouter();
@@ -120,7 +112,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   useScrollTopOffset(() => globalThis.window, {
     onOverOffset: () => position !== 'fixed' && setPosition('fixed'),
     onUnderOffset: () => position !== 'relative' && setPosition('relative'),
-    offset: SCROLL_OFFSET + (showArticleOnboarding ? ONBOARDING_OFFSET : 0),
+    offset: SCROLL_OFFSET,
     scrollProperty: 'scrollY',
   });
 

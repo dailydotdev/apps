@@ -1,4 +1,3 @@
-import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
@@ -25,7 +24,6 @@ import {
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
   SQUAD_INVITATION_QUERY,
@@ -106,18 +104,8 @@ const renderComponent = (
         }}
       >
         <SettingsContext.Provider value={defaultTestSettings}>
-          <OnboardingContext.Provider
-            value={{
-              myFeedMode: OnboardingMode.Manual,
-              isOnboardingOpen: false,
-              onCloseOnboardingModal: jest.fn(),
-              onInitializeOnboarding: jest.fn(),
-              onShouldUpdateFilters: jest.fn(),
-            }}
-          >
-            <Toast autoDismissNotifications={false} />
-            <SquadPage {...props} />
-          </OnboardingContext.Provider>
+          <Toast autoDismissNotifications={false} />
+          <SquadPage {...props} />
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,

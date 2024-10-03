@@ -1,5 +1,4 @@
 import React, { ReactElement, useEffect, useRef, useState } from 'react';
-import { useOnboardingContext } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
 import classNames from 'classnames';
 import AuthOptions, {
@@ -85,7 +84,6 @@ export function OnboardPage(): ReactElement {
   const isLogged = useRef(false);
   const { user, isAuthReady, anonymous } = useAuthContext();
   const shouldVerify = anonymous?.shouldVerify;
-  const { onShouldUpdateFilters } = useOnboardingContext();
   const { growthbook } = useGrowthBookContext();
   const { logEvent } = useLogContext();
   const [hasSelectTopics, setHasSelectTopics] = useState(false);
@@ -144,8 +142,6 @@ export function OnboardPage(): ReactElement {
       logEvent({
         event_name: LogEvent.OnboardingSkip,
       });
-
-      onShouldUpdateFilters(true);
     } else {
       logEvent({
         event_name: LogEvent.CreateFeed,

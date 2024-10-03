@@ -1,10 +1,9 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import { Modal, ModalProps, modalSizeToClassName } from './common/Modal';
-import { ONBOARDING_OFFSET, PostContent } from '../post/PostContent';
+import { PostContent } from '../post/PostContent';
 import { Origin } from '../../lib/log';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import BasePostModal from './BasePostModal';
-import OnboardingContext from '../../contexts/OnboardingContext';
 import { Post, PostType } from '../../graphql/posts';
 import { PassedPostNavigationProps } from '../post/common';
 
@@ -24,11 +23,11 @@ export default function ArticlePostModal({
   onRemovePost,
   ...props
 }: ArticlePostModalProps): ReactElement {
-  const { showArticleOnboarding } = useContext(OnboardingContext);
   const { position, onLoad } = usePostNavigationPosition({
     isDisplayed: props.isOpen,
-    offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
+    offset: 0,
   });
+  console.log('position', position);
 
   return (
     <BasePostModal
