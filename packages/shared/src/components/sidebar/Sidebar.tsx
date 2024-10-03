@@ -88,8 +88,8 @@ export default function Sidebar({
   });
   const hasSquads = squads?.length > 0;
   const squadsUrl = hasSquads
-    ? squadCategoriesPaths['My Squads']
-    : squadCategoriesPaths.discover;
+    ? `${webappUrl}${squadCategoriesPaths['My Squads'].substring(1)}`
+    : `${webappUrl}${squadCategoriesPaths.discover.substring(1)}`;
 
   const activeNav = useActiveNav(feedName);
   const activePage = router.asPath || router.pathname;
