@@ -48,7 +48,7 @@ import { IconSize } from '../Icon';
 import { CreatePostButton } from '../post/write';
 import useActiveNav from '../../hooks/useActiveNav';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
-import { webappUrl } from '../../lib/constants';
+import { squadCategoriesPaths, webappUrl } from '../../lib/constants';
 import { AlertColor, AlertDot } from '../AlertDot';
 
 const SidebarOnboardingChecklistCard = dynamic(
@@ -88,8 +88,8 @@ export default function Sidebar({
   });
   const hasSquads = squads?.length > 0;
   const squadsUrl = hasSquads
-    ? `${webappUrl}squads/discover/my`
-    : `${webappUrl}squads/discover`;
+    ? `${webappUrl}${squadCategoriesPaths['My Squads'].substring(1)}`
+    : `${webappUrl}${squadCategoriesPaths.discover.substring(1)}`;
 
   const activeNav = useActiveNav(feedName);
   const activePage = router.asPath || router.pathname;
