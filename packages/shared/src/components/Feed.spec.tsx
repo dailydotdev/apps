@@ -33,7 +33,7 @@ import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../__tests__/helpers/graphql';
-import { ANONYMOUS_FEED_QUERY, OnboardingMode } from '../graphql/feed';
+import { ANONYMOUS_FEED_QUERY } from '../graphql/feed';
 import AuthContext from '../contexts/AuthContext';
 import Feed from './Feed';
 import defaultFeedPage from '../../__tests__/fixture/feed';
@@ -60,7 +60,6 @@ import {
 } from '../graphql/feedSettings';
 import { getFeedSettingsQueryKey } from '../hooks/useFeedSettings';
 import Toast from './notifications/Toast';
-import OnboardingContext from '../contexts/OnboardingContext';
 import { LazyModalElement } from './modals/LazyModalElement';
 import { AuthTriggers } from '../lib/auth';
 import { SourceType } from '../graphql/sources';
@@ -232,23 +231,13 @@ const renderComponent = (
       >
         <LazyModalElement />
         <SettingsContext.Provider value={settingsContext}>
-          <OnboardingContext.Provider
-            value={{
-              myFeedMode: OnboardingMode.Manual,
-              isOnboardingOpen: false,
-              onCloseOnboardingModal: jest.fn(),
-              onInitializeOnboarding: jest.fn(),
-              onShouldUpdateFilters: jest.fn(),
-            }}
-          >
-            <Toast autoDismissNotifications={false} />
-            <Feed
-              feedQueryKey={['feed']}
-              feedName={feedName}
-              query={ANONYMOUS_FEED_QUERY}
-              variables={variables}
-            />
-          </OnboardingContext.Provider>
+          <Toast autoDismissNotifications={false} />
+          <Feed
+            feedQueryKey={['feed']}
+            feedName={feedName}
+            query={ANONYMOUS_FEED_QUERY}
+            variables={variables}
+          />
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
@@ -430,9 +419,6 @@ describe('Feed', () => {
 
   it('should send remove bookmark mutation', async () => {
     let mutationCalled = false;
-    mockGraphQL(
-      completeActionMock({ action: ActionType.BookmarkPromoteMobile }),
-    );
     renderComponent([
       createFeedMock({
         pageInfo: defaultFeedPage.pageInfo,

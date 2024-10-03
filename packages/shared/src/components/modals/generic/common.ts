@@ -1,5 +1,5 @@
 import { cloudinary } from '../../../lib/image';
-import { bookmarkLoops, migrateUserToStreaks } from '../../../lib/constants';
+import { migrateUserToStreaks } from '../../../lib/constants';
 import { MarketingCta, MarketingCtaVariant } from '../../marketingCta/common';
 
 export const promotion: Record<string, MarketingCta> = {
@@ -16,21 +16,6 @@ export const promotion: Record<string, MarketingCta> = {
       ctaUrl: migrateUserToStreaks,
       tagColor: 'avocado',
       tagText: 'New Release',
-    },
-  },
-  bookmarkPromoteMobile: {
-    campaignId: 'bookmarks on mobile',
-    createdAt: new Date(2024, 3, 19),
-    variant: MarketingCtaVariant.Popover,
-    flags: {
-      title: 'Get back to your bookmarks on the go',
-      description:
-        'Your saved posts are waiting for you on daily.dev mobile. Perfect for reading anytime, anywhere.',
-      image: cloudinary.promotions.bookmarkLoops,
-      ctaText: 'Install the app',
-      ctaUrl: bookmarkLoops,
-      tagColor: 'cabbage',
-      tagText: 'Mobile version',
     },
   },
 };

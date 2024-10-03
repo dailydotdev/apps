@@ -1,5 +1,4 @@
 export * from './FilterOnboarding';
-export * from './FilterOnboardingStep';
 export * from '../tags/TagSelection';
 export * from './CreateFeedButton';
 export * from './OnboardingHeader';
