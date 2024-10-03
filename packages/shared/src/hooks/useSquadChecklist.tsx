@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { InstallExtensionChecklistStep } from '../components/checklist/InstallExtensionChecklistStep';
 import { NotificationChecklistStep } from '../components/checklist/NotificationChecklistStep';
 import { SharePostChecklistStep } from '../components/checklist/SharePostChecklistStep';
@@ -16,7 +16,6 @@ import { UseChecklist, useChecklist } from './useChecklist';
 import usePersistentContext from './usePersistentContext';
 import { InviteMemberChecklistStep } from '../components/checklist/InviteMemberChecklistStep';
 import { verifyPermission } from '../graphql/squads';
-import OnboardingContext from '../contexts/OnboardingContext';
 import { SquadEditWelcomePostChecklistStep } from '../components/checklist/SquadEditWelcomePostChecklistStep';
 import { usePushNotificationContext } from '../contexts/PushNotificationContext';
 import { EditSquadStep } from '../components/checklist/EditSquadStep';
@@ -37,7 +36,6 @@ const useSquadChecklist = ({
   squad,
 }: UseSquadChecklistProps): UseSquadChecklist => {
   const { actions, isActionsFetched: isChecklistReady } = useActions();
-  const { showArticleOnboarding } = useContext(OnboardingContext);
   const { isInitialized, isPushSupported } = usePushNotificationContext();
 
   const stepsMap = useMemo<
@@ -94,9 +92,8 @@ const useSquadChecklist = ({
           type: ActionType.SquadFirstPost,
           step: {
             title: 'Share your first post',
-            description: showArticleOnboarding
-              ? 'Share your first post to help other Squad members discover content you found interesting. New here? Click explore.'
-              : 'Share your first post to help other Squad members discover content you found interesting.',
+            description:
+              'Share your first post to help other Squad members discover content you found interesting.',
             component: (props) => (
               <SharePostChecklistStep {...props} squad={squad} />
             ),
@@ -155,14 +152,7 @@ const useSquadChecklist = ({
         condition: () => isPushSupported,
       }),
     };
-  }, [
-    isChecklistReady,
-    isInitialized,
-    actions,
-    squad,
-    showArticleOnboarding,
-    isPushSupported,
-  ]);
+  }, [isChecklistReady, isInitialized, actions, squad, isPushSupported]);
 
   const steps = useMemo(() => {
     const actionsForRole =
