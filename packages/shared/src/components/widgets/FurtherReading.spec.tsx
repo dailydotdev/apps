@@ -151,9 +151,6 @@ describe('further reading', () => {
 
   it('should send add bookmark mutation', async () => {
     let mutationCalled = false;
-    mockGraphQL(
-      completeActionMock({ action: ActionType.BookmarkPromoteMobile }),
-    );
     renderComponent([
       createFeedMock(),
       {
@@ -178,9 +175,6 @@ describe('further reading', () => {
 
   it('should send remove bookmark mutation', async () => {
     let mutationCalled = false;
-    mockGraphQL(
-      completeActionMock({ action: ActionType.BookmarkPromoteMobile }),
-    );
     renderComponent([
       createFeedMock([
         { ...defaultFeedPage.edges[0].node, trending: 50, bookmarked: true },
