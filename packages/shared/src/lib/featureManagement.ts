@@ -35,7 +35,7 @@ const feature = {
   onboardingShuffleTags: new Feature('onboarding_shuffle_tags', false),
   searchStyleVersion: new Feature(
     'search_style_version',
-    SearchStyleVersion.AlwaysFocus,
+    SearchStyleVersion.Default,
   ),
 };
 
