@@ -68,10 +68,7 @@ export function SquadModerationSettingsSection({
         >
           <SimpleTooltip
             placement="top-start"
-            content="
-                Only admins and moderators can post; their posts are
-                auto-published.
-             "
+            content="Only admins and moderators can post; their posts are auto-published."
             container={{ className: 'max-w-[188px] p-2 text-center' }}
             show={memberPostingRole === SourceMemberRole.Moderator}
           >
