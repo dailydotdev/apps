@@ -470,7 +470,10 @@ const formToInput = (form: SquadForm): SharedSquadInput => ({
   memberPostingRole: form.memberPostingRole,
   memberInviteRole: form.memberInviteRole,
   categoryId: form.categoryId,
-  moderationRequired: form.moderationRequired,
+  moderationRequired:
+    form.memberPostingRole === SourceMemberRole.Moderator
+      ? false
+      : form.moderationRequired,
   isPrivate: form.status === PrivacyOption.Private,
 });
 

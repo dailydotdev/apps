@@ -5,8 +5,7 @@ import { SourceMemberRole } from '../../../graphql/sources';
 import { Switch } from '../../fields/Switch';
 import { WidgetCard } from '../../widgets/WidgetCard';
 import { SimpleTooltip } from '../../tooltips';
-import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
-import { MiniCloseIcon } from '../../icons';
+import { useToggle } from '../../../hooks/useToggle';
 
 interface PermissionSectionProps {
   initialMemberPostingRole?: SourceMemberRole;
@@ -30,24 +29,16 @@ export function SquadModerationSettingsSection({
   initialMemberPostingRole,
   initialModerationRequired,
 }: PermissionSectionProps): ReactElement {
-  const [tooltipDismissed, setTooltipDismissed] = useState(false);
-  const isMobile = useViewSize(ViewSize.MobileL);
+  const [isHoveringSwitch, setIsHoveringSwitch] = useState(false);
   const [memberPostingRole, setMemberPostingRole] = useState(
     () => initialMemberPostingRole || SourceMemberRole.Moderator,
   );
   const [memberInviteRole, setMemberInviteRole] = useState(
     () => initialMemberInviteRole || SourceMemberRole.Member,
   );
-  const [moderationRequired, setModerationRequired] = useState(
+  const [moderationRequired, setModerationRequired] = useToggle(
     initialModerationRequired,
   );
-
-  const handleSetMemberPostingRole = (value: SourceMemberRole) => {
-    setMemberPostingRole(value);
-    if (value === SourceMemberRole.Moderator) {
-      setModerationRequired(false);
-    }
-  };
 
   return (
     <WidgetCard heading="🔒 Moderation Settings">
@@ -61,7 +52,7 @@ export function SquadModerationSettingsSection({
             name="memberPostingRole"
             options={memberRoleOptions}
             value={memberPostingRole}
-            onChange={handleSetMemberPostingRole}
+            onChange={(value) => setMemberPostingRole(value)}
           />
         </SquadSettingsSection>
         <SquadSettingsSection
@@ -69,35 +60,34 @@ export function SquadModerationSettingsSection({
           description="Turn this on to have admins or moderators approve every new post before it's published."
         >
           <SimpleTooltip
-            placement={isMobile ? 'bottom' : 'right'}
-            interactive
+            placement="top-start"
             content={
-              <button
-                className="flex cursor-pointer"
-                type="button"
-                onClick={() => setTooltipDismissed(true)}
-              >
-                <span className="mr-1">
-                  Cannot be enabled in moderator only mode
-                </span>
-                <MiniCloseIcon />
-              </button>
+              <span className="p- max-w-[188px] p-2 text-center">
+                Only admins and moderators can post; their posts are
+                auto-published.
+              </span>
             }
             visible={
-              !tooltipDismissed &&
+              isHoveringSwitch &&
               memberPostingRole === SourceMemberRole.Moderator
             }
           >
-            <Switch
-              className="max-w-min"
-              name="moderationRequired"
-              inputId="moderationRequired"
-              disabled={memberPostingRole === SourceMemberRole.Moderator}
-              checked={moderationRequired}
-              onToggle={() => setModerationRequired(!moderationRequired)}
+            <span
+              className="max-w-fit cursor-pointer"
+              onMouseEnter={() => setIsHoveringSwitch(true)}
+              onMouseLeave={() => setIsHoveringSwitch(false)}
             >
-              <span>{moderationRequired ? 'On' : 'Off'}</span>
-            </Switch>
+              <Switch
+                className="max-w-min cursor-pointer"
+                name="moderationRequired"
+                inputId="moderationRequired"
+                disabled={memberPostingRole === SourceMemberRole.Moderator}
+                checked={moderationRequired}
+                onToggle={() => setModerationRequired(!moderationRequired)}
+              >
+                <span>{moderationRequired ? 'On' : 'Off'}</span>
+              </Switch>
+            </span>
           </SimpleTooltip>
         </SquadSettingsSection>
         <SquadSettingsSection
