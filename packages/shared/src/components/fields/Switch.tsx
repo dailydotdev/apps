@@ -40,9 +40,8 @@ function SwitchComponent(
       className={classNames(
         className,
         'group relative flex items-center',
-        disabled
-          ? 'pointer-events-none cursor-not-allowed opacity-16'
-          : 'cursor-pointer',
+        disabled ? 'pointer-events-none cursor-not-allowed' : 'cursor-pointer',
+        disabled && checked ? 'opacity-16' : '',
         styles.switch,
       )}
       htmlFor={inputId}
