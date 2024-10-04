@@ -5,6 +5,8 @@ import { SourceMemberRole } from '../../../graphql/sources';
 import { Switch } from '../../fields/Switch';
 import { WidgetCard } from '../../widgets/WidgetCard';
 import { SimpleTooltip } from '../../tooltips';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
+import { MiniCloseIcon } from '../../icons';
 
 interface PermissionSectionProps {
   initialMemberPostingRole?: SourceMemberRole;
@@ -28,6 +30,8 @@ export function SquadModerationSettingsSection({
   initialMemberPostingRole,
   initialModerationRequired,
 }: PermissionSectionProps): ReactElement {
+  const [tooltipDismissed, setTooltipDismissed] = useState(false);
+  const isMobile = useViewSize(ViewSize.MobileL);
   const [memberPostingRole, setMemberPostingRole] = useState(
     () => initialMemberPostingRole || SourceMemberRole.Moderator,
   );
@@ -65,9 +69,24 @@ export function SquadModerationSettingsSection({
           description="Turn this on to have admins or moderators approve every new post before it's published."
         >
           <SimpleTooltip
-            placement="right"
-            content="Cannot be enabled in moderator only mode"
-            visible={memberPostingRole === SourceMemberRole.Moderator}
+            placement={isMobile ? 'bottom' : 'right'}
+            interactive
+            content={
+              <button
+                className="flex cursor-pointer"
+                type="button"
+                onClick={() => setTooltipDismissed(true)}
+              >
+                <span className="mr-1">
+                  Cannot be enabled in moderator only mode
+                </span>
+                <MiniCloseIcon />
+              </button>
+            }
+            visible={
+              !tooltipDismissed &&
+              memberPostingRole === SourceMemberRole.Moderator
+            }
           >
             <Switch
               className="max-w-min"
@@ -82,7 +101,7 @@ export function SquadModerationSettingsSection({
           </SimpleTooltip>
         </SquadSettingsSection>
         <SquadSettingsSection
-          title="Invitation others"
+          title="Invite others"
           description="Choose who is allowed to invite new members to this Squad."
         >
           <Radio
