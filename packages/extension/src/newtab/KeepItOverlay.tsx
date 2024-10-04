@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useEffect } from 'react';
+import React, { ReactElement, useCallback, useEffect, useRef } from 'react';
 import {
   DailyIcon,
   StraightArrowIcon,
@@ -23,11 +23,16 @@ interface KeepItOverlayProps {
 }
 
 export function KeepItOverlay({ onClose }: KeepItOverlayProps): ReactElement {
+  const timeoutRef = useRef<ReturnType<typeof window.setTimeout>>();
   const onDelete = useCallback(() => del(INSTALLATION_STORAGE_KEY), []);
-  const onClick = async () => {
+  const onClick = useCallback(async () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
     await onDelete();
     onClose();
-  };
+  }, [onDelete, onClose]);
 
   // when this overlay is opened, there is nothing the user can do, clicking anywhere should close it.
   useEventListener(globalThis?.document, 'click', onClick);
@@ -35,6 +40,12 @@ export function KeepItOverlay({ onClose }: KeepItOverlayProps): ReactElement {
   useEffect(() => {
     onDelete();
   }, [onDelete]);
+
+  useEffect(() => {
+    timeoutRef.current = setTimeout(() => {
+      onClick();
+    }, 5000);
+  }, [onClick]);
 
   return (
     <div className="fixed inset-0 z-max flex flex-col items-center justify-center bg-overlay-dark-dark3">

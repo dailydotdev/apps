@@ -156,6 +156,8 @@ function InternalApp(): ReactElement {
       : DEFAULT_TAB_TITLE;
   }, [unreadCount]);
 
+  const onClose = useCallback(() => setShouldShowOverlay(false), []);
+
   if (!hostGranted) {
     return isCheckingHostPermissions ? null : <ExtensionPermissionsPrompt />;
   }
@@ -166,9 +168,7 @@ function InternalApp(): ReactElement {
 
   return (
     <DndContextProvider>
-      {shouldShowOverlay && (
-        <KeepItOverlay onClose={() => setShouldShowOverlay(false)} />
-      )}
+      {shouldShowOverlay && <KeepItOverlay onClose={onClose} />}
       <MainFeedPage onPageChanged={onPageChanged} />
       {shouldShowLogin && (
         <AuthModal
