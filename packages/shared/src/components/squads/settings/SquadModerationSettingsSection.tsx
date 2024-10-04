@@ -7,7 +7,7 @@ import { WidgetCard } from '../../widgets/WidgetCard';
 import { SimpleTooltip } from '../../tooltips';
 import { useToggle } from '../../../hooks/useToggle';
 
-interface PermissionSectionProps {
+interface SquadModerationSettingsSectionProps {
   initialMemberPostingRole?: SourceMemberRole;
   initialMemberInviteRole?: SourceMemberRole;
   initialModerationRequired?: boolean;
@@ -28,7 +28,7 @@ export function SquadModerationSettingsSection({
   initialMemberInviteRole,
   initialMemberPostingRole,
   initialModerationRequired,
-}: PermissionSectionProps): ReactElement {
+}: SquadModerationSettingsSectionProps): ReactElement {
   const [isHoveringSwitch, setIsHoveringSwitch] = useState(false);
   const [memberPostingRole, setMemberPostingRole] = useState(
     () => initialMemberPostingRole || SourceMemberRole.Moderator,
