@@ -18,6 +18,11 @@ import {
 import { getFieldFontColor } from './BaseFieldContainer';
 import { IconProps } from '../Icon';
 
+export enum SearchStyleVersion {
+  Default = 'default',
+  AlwaysFocus = 'always_focus',
+}
+
 export interface SearchFieldProps
   extends Pick<
     InputHTMLAttributes<HTMLInputElement>,
@@ -45,6 +50,7 @@ export interface SearchFieldProps
   showIcon?: boolean;
   fieldType?: 'primary' | 'secondary';
   rightButtonProps?: ButtonProps<'button'> | false;
+  styleVersion?: SearchStyleVersion;
 }
 
 const ButtonIcon = ({
@@ -79,6 +85,7 @@ export const SearchField = forwardRef(function SearchField(
     onBlur: externalOnBlur,
     onFocus: externalOnFocus,
     showIcon = true,
+    styleVersion = SearchStyleVersion.Default,
     ...props
   }: SearchFieldProps,
   ref: ForwardedRef<HTMLDivElement>,
@@ -99,6 +106,7 @@ export const SearchField = forwardRef(function SearchField(
     setInput(null);
   };
 
+  const isFocusVersion = styleVersion === SearchStyleVersion.AlwaysFocus;
   const isPrimary = fieldType === 'primary';
   const isSecondary = fieldType === 'secondary';
   const sizeClass =
@@ -108,7 +116,10 @@ export const SearchField = forwardRef(function SearchField(
     <BaseField
       {...props}
       className={classNames(
-        'items-center !border !border-border-subtlest-tertiary !bg-background-default',
+        'items-center !border !bg-background-default',
+        isFocusVersion
+          ? '!tablet:max-w-[26.25rem] !border-accent-salt-baseline font-bold text-white'
+          : '!border-border-subtlest-tertiary',
         sizeClass,
         className,
         { focused },
@@ -136,10 +147,10 @@ export const SearchField = forwardRef(function SearchField(
             aria-hidden
             className="icon mr-2 text-2xl"
             role="presentation"
-            secondary={focused}
+            secondary={focused || isFocusVersion}
             style={{
               color:
-                focused || hasInput
+                focused || hasInput || isFocusVersion
                   ? 'var(--theme-text-primary)'
                   : 'var(--field-placeholder-color)',
             }}
@@ -167,6 +178,7 @@ export const SearchField = forwardRef(function SearchField(
         autoComplete="off"
         className={classNames(
           'flex-1',
+          isFocusVersion ? '!placeholder-white' : undefined,
           sizeClass,
           getFieldFontColor({ readOnly, disabled, hasInput, focused }),
         )}

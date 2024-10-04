@@ -14,7 +14,7 @@ import {
   TagsData,
 } from '../../graphql/feedSettings';
 import { disabledRefetch, getRandomNumber } from '../../lib/func';
-import { SearchField } from '../fields/SearchField';
+import { SearchField, SearchStyleVersion } from '../fields/SearchField';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { useTagSearch } from '../../hooks';
 import type { FilterOnboardingProps } from '../onboarding/FilterOnboarding';
@@ -40,6 +40,7 @@ export type TagSelectionProps = {
   onClickTag?: ({ tag, action }: OnSelectTagProps) => void;
   origin?: Origin;
   searchOrigin?: Origin;
+  searchStyleVersion?: SearchStyleVersion;
   shouldShuffleTags?: boolean;
 } & Omit<FilterOnboardingProps, 'onSelectedTopics'>;
 
@@ -52,6 +53,7 @@ export function TagSelection({
   origin = Origin.Onboarding,
   searchOrigin = Origin.EditTag,
   shouldShuffleTags = false,
+  searchStyleVersion,
 }: TagSelectionProps): ReactElement {
   const queryClient = useQueryClient();
 
@@ -203,8 +205,9 @@ export function TagSelection({
         autoFocus
         className="mb-10 w-full tablet:max-w-xs"
         inputId="search-filters"
-        placeholder="javascript, php, git, etc…"
+        placeholder="Search javascript, php, git, etc…"
         valueChanged={onSearch}
+        styleVersion={searchStyleVersion}
       />
       <div
         role="list"
