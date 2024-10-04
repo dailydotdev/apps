@@ -19,7 +19,7 @@ const memberRoleOptions = [
     value: SourceMemberRole.Member,
   },
   {
-    label: 'Only Moderators',
+    label: 'Only moderators',
     value: SourceMemberRole.Moderator,
   },
 ];
