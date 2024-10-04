@@ -442,3 +442,45 @@ it('should change hour for personalized digest subscription', async () => {
     extra: JSON.stringify({ hour: 0, frequency: 'weekly' }),
   });
 });
+
+it('should subscribe to user email following subscription', async () => {
+  renderComponent();
+  const data = { followingEmail: true };
+  mockGraphQL(updateProfileMock(data));
+  const subscription = await screen.findByTestId('following-switch');
+  expect(subscription).not.toBeChecked();
+  subscription.click();
+  await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
+  await waitForNock();
+  expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
+
+  expect(logEvent).toHaveBeenCalledTimes(1);
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: 'enable notification',
+    extra: JSON.stringify({
+      channel: 'email',
+      category: 'following',
+    }),
+  });
+});
+
+it('should unsubscribe to user email following subscription', async () => {
+  renderComponent({ ...defaultLoggedUser, followingEmail: true });
+  const data = { followingEmail: false };
+  mockGraphQL(updateProfileMock(data));
+  const subscription = await screen.findByTestId('following-switch');
+  expect(subscription).toBeChecked();
+  subscription.click();
+  await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
+  await waitForNock();
+  expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
+
+  expect(logEvent).toHaveBeenCalledTimes(1);
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: 'disable notification',
+    extra: JSON.stringify({
+      channel: 'email',
+      category: 'following',
+    }),
+  });
+});
