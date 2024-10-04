@@ -91,7 +91,7 @@ export function SquadModerationSettingsSection({
           </SimpleTooltip>
         </SquadSettingsSection>
         <SquadSettingsSection
-          title="Invite others"
+          title="Invitation permissions"
           description="Choose who is allowed to invite new members to this Squad."
         >
           <Radio
