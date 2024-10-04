@@ -23,7 +23,7 @@ const memberRoleOptions = [
   },
 ];
 
-export function PermissionSection({
+export function SquadModerationSettingsSection({
   initialMemberInviteRole,
   initialMemberPostingRole,
   initialModerationRequired,

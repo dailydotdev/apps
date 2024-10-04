@@ -21,7 +21,7 @@ import { capitalize } from '../../lib/strings';
 import { IconSize } from '../Icon';
 import { FormWrapper } from '../fields/form';
 import { SquadPrivacySection } from './settings/SquadPrivacySection';
-import { PermissionSection } from './settings/PermissionSection';
+import { SquadModerationSettingsSection } from './settings/SquadModerationSettingsSection';
 import { SquadSettingsSection } from './settings';
 import { SquadStats } from './common/SquadStat';
 import { SquadPrivacyState } from './common/SquadPrivacyState';
@@ -253,7 +253,7 @@ export function SquadDetails({
           categoryHint={categoryHint}
           onCategoryChange={useCallback(() => setCategoryHint(''), [])}
         />
-        <PermissionSection
+        <SquadModerationSettingsSection
           initialMemberInviteRole={initialMemberInviteRole}
           initialMemberPostingRole={initialMemberPostingRole}
           initialModerationRequired={initialModerationRequired}
