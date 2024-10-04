@@ -3,8 +3,8 @@ import React, { ReactElement } from 'react';
 import { AlertDot, AlertColor } from '../AlertDot';
 import { Button, ButtonColor } from '../buttons/Button';
 import { ButtonVariant } from '../buttons/common';
-import { OnSelectTagProps } from './common';
 import { Tag } from '../../graphql/feedSettings';
+import { OnSelectTagProps } from './common';
 
 export type OnboardingTagProps = {
   tag: Tag;
@@ -13,7 +13,7 @@ export type OnboardingTagProps = {
   isHighlighted?: boolean;
 };
 
-export const OnboardingTag = ({
+export const TagElement = ({
   tag,
   onClick,
   isSelected = false,

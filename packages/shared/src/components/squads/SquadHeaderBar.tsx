@@ -9,8 +9,6 @@ import SquadMemberShortList, {
 } from './SquadMemberShortList';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { Origin } from '../../lib/log';
-import { TourScreenIndex } from './SquadTour';
-import { useSquadTour } from '../../hooks/useSquadTour';
 import { verifyPermission } from '../../graphql/squads';
 import { SourcePermissions } from '../../graphql/sources';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
@@ -38,7 +36,6 @@ export function SquadHeaderBar({
   ...props
 }: SquadMemberShortListProps & HTMLAttributes<HTMLDivElement>): ReactElement {
   const { user } = useAuthContext();
-  const { tourIndex } = useSquadTour();
   const { copying, logAndCopyLink } = useSquadInvitation({
     squad,
     origin: Origin.SquadPage,
@@ -108,9 +105,6 @@ export function SquadHeaderBar({
         <Button
           variant={ButtonVariant.Secondary}
           size={ButtonSize.Small}
-          className={classNames(
-            tourIndex === TourScreenIndex.CopyInvitation && 'highlight-pulse',
-          )}
           onClick={() => {
             logAndCopyLink();
           }}

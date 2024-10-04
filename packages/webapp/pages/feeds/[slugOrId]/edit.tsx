@@ -11,7 +11,7 @@ import classNames from 'classnames';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { ButtonColor } from '@dailydotdev/shared/src/components/buttons/Button';
 import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
-import { FilterOnboardingV4 } from '@dailydotdev/shared/src/components/onboarding/FilterOnboardingV4';
+import { TagSelection } from '@dailydotdev/shared/src/components/tags/TagSelection';
 import useFeedSettings, {
   getFeedSettingsQueryKey,
 } from '@dailydotdev/shared/src/hooks/useFeedSettings';
@@ -274,7 +274,7 @@ const EditFeedPage = (): ReactElement => {
           </form>
 
           <div className="flex w-full max-w-full flex-col">
-            <FilterOnboardingV4
+            <TagSelection
               className="mt-10 px-4 pt-0 tablet:px-10"
               shouldUpdateAlerts={false}
               shouldFilterLocally
