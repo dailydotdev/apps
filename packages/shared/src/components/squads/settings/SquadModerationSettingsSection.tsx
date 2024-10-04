@@ -29,12 +29,11 @@ export function SquadModerationSettingsSection({
   initialMemberPostingRole,
   initialModerationRequired,
 }: SquadModerationSettingsSectionProps): ReactElement {
-  const [isHoveringSwitch, setIsHoveringSwitch] = useState(false);
   const [memberPostingRole, setMemberPostingRole] = useState(
-    () => initialMemberPostingRole || SourceMemberRole.Moderator,
+    initialMemberPostingRole || SourceMemberRole.Moderator,
   );
   const [memberInviteRole, setMemberInviteRole] = useState(
-    () => initialMemberInviteRole || SourceMemberRole.Member,
+    initialMemberInviteRole || SourceMemberRole.Member,
   );
   const [moderationRequired, setModerationRequired] = useToggle(
     initialModerationRequired,
