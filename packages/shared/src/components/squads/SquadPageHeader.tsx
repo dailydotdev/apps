@@ -6,12 +6,9 @@ import { SquadImage } from './SquadImage';
 import EnableNotification from '../notifications/EnableNotification';
 import { FlexCentered, FlexCol } from '../utilities';
 import SharePostBar from './SharePostBar';
-import { TourScreenIndex } from './SquadTour';
-import { useSquadTour } from '../../hooks/useSquadTour';
 import { verifyPermission } from '../../graphql/squads';
 import { NotificationPromptSource } from '../../lib/log';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
-import { ActionType } from '../../graphql/actions';
 import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import classed from '../../lib/classed';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -50,14 +47,10 @@ export function SquadPageHeader({
   members,
   shouldUseListMode,
 }: SquadPageHeaderProps): ReactElement {
-  const { tourIndex } = useSquadTour();
   const { openModal } = useLazyModal();
-  const { openStep, isChecklistVisible } = useSquadChecklist({ squad });
+  const { isChecklistVisible } = useSquadChecklist({ squad });
   const allowedToPost = verifyPermission(squad, SourcePermissions.Post);
   const { category } = squad;
-  const shouldShowHighlightPulse =
-    tourIndex === TourScreenIndex.Post ||
-    (isChecklistVisible && openStep === ActionType.SquadFirstPost);
   const isSquadMember = !!squad.currentMember;
 
   const createdAt = squad.createdAt
@@ -207,7 +200,6 @@ export function SquadPageHeader({
         className={classNames(
           'relative bottom-0 flex w-full flex-col bg-background-default pt-8 tablet:absolute tablet:translate-y-1/2 tablet:flex-row tablet:p-0',
           !shouldUseListMode && 'laptopL:px-0',
-          shouldShowHighlightPulse && 'highlight-pulse',
           allowedToPost && 'items-center justify-center',
           allowedToPost && !shouldUseListMode && 'laptop:max-w-[41.5rem]',
           !allowedToPost && !shouldUseListMode && 'laptop:max-w-[38.25rem]',

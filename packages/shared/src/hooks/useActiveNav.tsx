@@ -57,7 +57,7 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
   const isExploreActive = explorePages.includes(activeFeed);
   const isBookmarksActive = activeFeed === OtherFeedPage.Bookmarks;
   const isNotificationsActive = activeFeed === OtherFeedPage.Notifications;
-  const isSquadActive = activeFeed === OtherFeedPage.Squad;
+  const isSquadsActive = activeFeed.includes(OtherFeedPage.Squad);
 
   return {
     home: isHomeActive,
@@ -65,6 +65,6 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
     bookmarks: isBookmarksActive,
     notifications: isNotificationsActive,
     explore: isExploreActive,
-    squads: isSquadActive,
+    squads: isSquadsActive,
   };
 }

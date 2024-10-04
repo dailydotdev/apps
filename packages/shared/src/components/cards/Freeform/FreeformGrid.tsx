@@ -2,10 +2,6 @@ import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
 import classNames from 'classnames';
 import { Container, generateTitleClamp, PostCardProps } from '../common/common';
 import { usePostImage } from '../../../hooks/post/usePostImage';
-import { useSquadChecklist } from '../../../hooks/useSquadChecklist';
-import { Squad } from '../../../graphql/sources';
-import { PostType } from '../../../graphql/posts';
-import { ActionType } from '../../../graphql/actions';
 import FeedItemContainer from '../common/FeedItemContainer';
 import { FreeformCardTitle, getPostClassNames } from '../common/Card';
 import CardOverlay from '../common/CardOverlay';
@@ -32,32 +28,17 @@ export const FreeformGrid = forwardRef(function SharePostCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const { pinnedAt, type: postType, trending } = post;
+  const { pinnedAt, trending } = post;
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const image = usePostImage(post);
-  const { openStep, isChecklistVisible } = useSquadChecklist({
-    squad: post.source as Squad,
-  });
-
-  const shouldShowHighlightPulse =
-    postType === PostType.Welcome &&
-    isChecklistVisible &&
-    [ActionType.SquadFirstComment, ActionType.EditWelcomePost].includes(
-      openStep,
-    );
 
   return (
     <FeedItemContainer
       domProps={{
         ...domProps,
-        className: getPostClassNames(
-          post,
-          domProps.className,
-          'min-h-card',
-          shouldShowHighlightPulse && 'highlight-pulse',
-        ),
+        className: getPostClassNames(post, domProps.className, 'min-h-card'),
       }}
       ref={ref}
       flagProps={{ pinnedAt, trending }}

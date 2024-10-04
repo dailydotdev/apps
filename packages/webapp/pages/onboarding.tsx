@@ -1,5 +1,4 @@
 import React, { ReactElement, useEffect, useRef, useState } from 'react';
-import { useOnboardingContext } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
 import classNames from 'classnames';
 import AuthOptions, {
@@ -7,7 +6,12 @@ import AuthOptions, {
   AuthProps,
 } from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
+import {
+  ContentTypes,
+  EditTag,
+  OnboardingHeader,
+  ReadingReminder,
+} from '@dailydotdev/shared/src/components/onboarding';
 import {
   ButtonSize,
   ButtonVariant,
@@ -16,12 +20,11 @@ import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import {
   OnboardingStep,
   wrapperMaxWidth,
 } from '@dailydotdev/shared/src/components/onboarding/common';
-import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
@@ -45,11 +48,6 @@ import {
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import {
-  ReadingReminder,
-  EditTag,
-  ContentTypes,
-} from '@dailydotdev/shared/src/components/auth/OnboardingSteps';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -85,7 +83,6 @@ export function OnboardPage(): ReactElement {
   const isLogged = useRef(false);
   const { user, isAuthReady, anonymous } = useAuthContext();
   const shouldVerify = anonymous?.shouldVerify;
-  const { onShouldUpdateFilters } = useOnboardingContext();
   const { growthbook } = useGrowthBookContext();
   const { logEvent } = useLogContext();
   const [hasSelectTopics, setHasSelectTopics] = useState(false);
@@ -144,8 +141,6 @@ export function OnboardPage(): ReactElement {
       logEvent({
         event_name: LogEvent.OnboardingSkip,
       });
-
-      onShouldUpdateFilters(true);
     } else {
       logEvent({
         event_name: LogEvent.CreateFeed,
@@ -201,20 +196,10 @@ export function OnboardPage(): ReactElement {
       return;
     }
 
-    logEvent({
-      event_name: LogEvent.Impression,
-      target_type: TargetType.MyFeedModal,
-      target_id: targetId,
-      extra: JSON.stringify({
-        origin: OnboardingMode.Wall,
-        steps: [OnboardingStep.Topics],
-        mandating_categories: 0,
-      }),
-    });
     isLogged.current = true;
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [logEvent, isPageReady, user, targetId]);
+  }, [logEvent, isPageReady, user]);
 
   useEffect(() => {
     setHasSelectTopics(!!feedSettings?.includeTags?.length);

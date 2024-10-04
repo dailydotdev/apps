@@ -1,10 +1,10 @@
-import { AdvancedSettings } from '../../../../graphql/feedSettings';
+import { AdvancedSettings } from '../../../graphql/feedSettings';
 import {
   getContentCurationList,
   getContentSourceList,
   getVideoSetting,
-} from '../../../filters/helpers';
-import { Source } from '../../../../graphql/sources';
+} from '../../filters/helpers';
+import { Source } from '../../../graphql/sources';
 
 interface GetContentTypeNotEmptyProps {
   advancedSettings: AdvancedSettings[];
