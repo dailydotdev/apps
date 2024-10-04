@@ -16,6 +16,8 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { del } from 'idb-keyval';
 import { useEventListener } from '@dailydotdev/shared/src/hooks';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { INSTALLATION_STORAGE_KEY } from '../lib/common';
 
 interface KeepItOverlayProps {
@@ -23,16 +25,19 @@ interface KeepItOverlayProps {
 }
 
 export function KeepItOverlay({ onClose }: KeepItOverlayProps): ReactElement {
+  const { logEvent } = useLogContext();
   const timeoutRef = useRef<ReturnType<typeof window.setTimeout>>();
   const onDelete = useCallback(() => del(INSTALLATION_STORAGE_KEY), []);
+
   const onClick = useCallback(async () => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
 
+    logEvent({ event_name: LogEvent.DismissNewTabPermission });
     await onDelete();
     onClose();
-  }, [onDelete, onClose]);
+  }, [onDelete, onClose, logEvent]);
 
   // when this overlay is opened, there is nothing the user can do, clicking anywhere should close it.
   useEventListener(globalThis?.document, 'click', onClick);
