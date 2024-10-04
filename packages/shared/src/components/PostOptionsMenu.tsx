@@ -59,6 +59,7 @@ import { useSourceActionsFollow } from '../hooks/source/useSourceActionsFollow';
 import { useContentPreference } from '../hooks/contentPreference/useContentPreference';
 import { ContentPreferenceType } from '../graphql/contentPreference';
 import { isFollowingContent } from '../hooks/contentPreference/types';
+import { useIsSpecialUser } from '../hooks/auth/useIsSpecialUser';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -378,7 +379,12 @@ export default function PostOptionsMenu({
     }
   }
 
-  if (isLoggedIn && post?.author) {
+  const shouldShowFollow =
+    !useIsSpecialUser({ userId: post?.author?.id }) &&
+    post?.author &&
+    isLoggedIn;
+
+  if (shouldShowFollow) {
     const authorName = post.author.name || `@${post.author.username}`;
     const isFollowingUser = isFollowingContent(post.author?.contentPreference);
 
