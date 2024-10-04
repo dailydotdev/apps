@@ -17,13 +17,13 @@ import { disabledRefetch, getRandomNumber } from '../../lib/func';
 import { SearchField } from '../fields/SearchField';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { useTagSearch } from '../../hooks';
-import type { FilterOnboardingProps } from './FilterOnboarding';
+import type { FilterOnboardingProps } from '../onboarding/FilterOnboarding';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import { Origin } from '../../lib/log';
 import { ElementPlaceholder } from '../ElementPlaceholder';
-import { OnSelectTagProps } from './common';
-import { OnboardingTag } from './OnboardingTag';
+import { TagElement } from './TagElement';
 import { gqlClient } from '../../graphql/common';
+import { OnSelectTagProps } from './common';
 
 const tagsSelector = (data: TagsData) => data?.tags || [];
 
@@ -36,13 +36,14 @@ const placeholderTags = new Array(24)
       index,
   );
 
-export type FilterOnboardingV4Props = {
+export type TagSelectionProps = {
   onClickTag?: ({ tag, action }: OnSelectTagProps) => void;
   origin?: Origin;
   searchOrigin?: Origin;
+  shouldShuffleTags?: boolean;
 } & Omit<FilterOnboardingProps, 'onSelectedTopics'>;
 
-export function FilterOnboardingV4({
+export function TagSelection({
   shouldUpdateAlerts = true,
   className,
   shouldFilterLocally,
@@ -50,7 +51,8 @@ export function FilterOnboardingV4({
   onClickTag,
   origin = Origin.Onboarding,
   searchOrigin = Origin.EditTag,
-}: FilterOnboardingV4Props): ReactElement {
+  shouldShuffleTags = false,
+}: TagSelectionProps): ReactElement {
   const queryClient = useQueryClient();
 
   const { feedSettings } = useFeedSettings({ feedId });
@@ -87,7 +89,7 @@ export function FilterOnboardingV4({
     feedId,
   );
 
-  const { data: onboardingTags, isLoading } = useQuery(
+  const { data: onboardingTagsRaw, isLoading } = useQuery(
     onboardingTagsQueryKey,
     async () => {
       const result = await gqlClient.request<{
@@ -102,6 +104,15 @@ export function FilterOnboardingV4({
       select: tagsSelector,
     },
   );
+
+  const onboardingTags = useMemo(() => {
+    if (!shouldShuffleTags) {
+      return onboardingTagsRaw;
+    }
+
+    return onboardingTagsRaw?.sort(() => Math.random() - 0.5);
+  }, [shouldShuffleTags, onboardingTagsRaw]);
+
   const excludedTags = useMemo(() => {
     if (!onboardingTags) {
       return [];
@@ -215,7 +226,7 @@ export function FilterOnboardingV4({
             renderedTags[tag.name] = true;
 
             return (
-              <OnboardingTag
+              <TagElement
                 key={`tag-${tag.name}`}
                 tag={tag}
                 onClick={handleClickTag}
@@ -233,7 +244,7 @@ export function FilterOnboardingV4({
             }
 
             return (
-              <OnboardingTag
+              <TagElement
                 key={`feed-settings-${tag}`}
                 tag={{ name: tag }}
                 onClick={handleClickTag}

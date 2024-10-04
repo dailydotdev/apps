@@ -6,7 +6,7 @@ import { isTesting } from '../../lib/constants';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { OnboardingStep, REQUIRED_TAGS_THRESHOLD } from './common';
 import { useAdvancedSettings, useViewSize, ViewSize } from '../../hooks';
-import { getContentTypeNotEmpty } from '../auth/OnboardingSteps/ContentTypes/helpers';
+import { getContentTypeNotEmpty } from './ContentTypes/helpers';
 
 export type CreateFeedButtonProps = {
   className?: string;

@@ -3,10 +3,6 @@ import classNames from 'classnames';
 import { sanitize } from 'dompurify';
 
 import { Container, generateTitleClamp, PostCardProps } from '../common/common';
-import { useSquadChecklist } from '../../../hooks/useSquadChecklist';
-import { Squad } from '../../../graphql/sources';
-import { ActionType } from '../../../graphql/actions';
-import { PostType } from '../../../graphql/posts';
 import { useFeedPreviewMode, useTruncatedSummary } from '../../../hooks';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import SquadHeaderPicture from '../common/SquadHeaderPicture';
@@ -39,16 +35,6 @@ export const FreeformList = forwardRef(function SharePostCard(
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
   const image = usePostImage(post);
-  const { openStep, isChecklistVisible } = useSquadChecklist({
-    squad: post.source as Squad,
-  });
-
-  const shouldShowHighlightPulse =
-    postType === PostType.Welcome &&
-    isChecklistVisible &&
-    [ActionType.SquadFirstComment, ActionType.EditWelcomePost].includes(
-      openStep,
-    );
 
   const content = useMemo(
     () =>
@@ -62,10 +48,7 @@ export const FreeformList = forwardRef(function SharePostCard(
     <FeedItemContainer
       domProps={{
         ...domProps,
-        className: classNames(
-          domProps.className,
-          shouldShowHighlightPulse && 'highlight-pulse',
-        ),
+        className: classNames(domProps.className),
       }}
       ref={ref}
       flagProps={{ pinnedAt, type: postType }}
