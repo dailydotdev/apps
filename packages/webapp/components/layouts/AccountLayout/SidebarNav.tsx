@@ -59,7 +59,7 @@ function SidebarNav({
   return (
     <div
       className={classNames(
-        'flex flex-col transition-transform ease-in-out tablet:translate-x-[unset] tablet:items-center tablet:px-6 tablet:pt-6 min-h-screen',
+        'flex flex-col transition-transform ease-in-out tablet:translate-x-[unset] tablet:items-center tablet:px-6 tablet:pt-6',
         isOpen ? 'translate-x-0' : ' -translate-x-full',
         className,
       )}
