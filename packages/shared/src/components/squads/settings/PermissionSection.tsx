@@ -2,11 +2,14 @@ import React, { ReactElement, useState } from 'react';
 import { SquadSettingsSection } from './SquadSettingsSection';
 import { Radio } from '../../fields/Radio';
 import { SourceMemberRole } from '../../../graphql/sources';
-import { Typography, TypographyType } from '../../typography/Typography';
+import { Switch } from '../../fields/Switch';
+import { WidgetCard } from '../../widgets/WidgetCard';
+import { SimpleTooltip } from '../../tooltips';
 
 interface PermissionSectionProps {
   initialMemberPostingRole?: SourceMemberRole;
   initialMemberInviteRole?: SourceMemberRole;
+  initialModerationRequired?: boolean;
 }
 
 const memberRoleOptions = [
@@ -23,6 +26,7 @@ const memberRoleOptions = [
 export function PermissionSection({
   initialMemberInviteRole,
   initialMemberPostingRole,
+  initialModerationRequired,
 }: PermissionSectionProps): ReactElement {
   const [memberPostingRole, setMemberPostingRole] = useState(
     () => initialMemberPostingRole || SourceMemberRole.Moderator,
@@ -30,17 +34,20 @@ export function PermissionSection({
   const [memberInviteRole, setMemberInviteRole] = useState(
     () => initialMemberInviteRole || SourceMemberRole.Member,
   );
+  const [moderationRequired, setModerationRequired] = useState(
+    initialModerationRequired,
+  );
+
+  const handleSetMemberPostingRole = (value: SourceMemberRole) => {
+    setMemberPostingRole(value);
+    if (value === SourceMemberRole.Moderator) {
+      setModerationRequired(false);
+    }
+  };
 
   return (
-    <div className="mt-2 flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary">
-      <Typography
-        bold
-        type={TypographyType.Body}
-        className="flex items-center border-b border-border-subtlest-tertiary p-4"
-      >
-        🔒 Permissions
-      </Typography>
-      <span className="flex flex-col gap-6 px-4 py-2 tablet:flex-row">
+    <WidgetCard heading="🔒 Moderation Settings">
+      <div className="flex flex-col gap-6 px-4 py-2">
         <SquadSettingsSection
           title="Post content"
           description="Choose who is allowed to post new content in this Squad."
@@ -50,10 +57,29 @@ export function PermissionSection({
             name="memberPostingRole"
             options={memberRoleOptions}
             value={memberPostingRole}
-            onChange={(value) =>
-              setMemberPostingRole(value as SourceMemberRole)
-            }
+            onChange={handleSetMemberPostingRole}
           />
+        </SquadSettingsSection>
+        <SquadSettingsSection
+          title="Require post approval"
+          description="Turn this on to have admins or moderators approve every new post before it's published."
+        >
+          <SimpleTooltip
+            placement="right"
+            content="Cannot be enabled in moderator only mode"
+            visible={memberPostingRole === SourceMemberRole.Moderator}
+          >
+            <Switch
+              className="max-w-min"
+              name="moderationRequired"
+              inputId="moderationRequired"
+              disabled={memberPostingRole === SourceMemberRole.Moderator}
+              checked={moderationRequired}
+              onToggle={() => setModerationRequired(!moderationRequired)}
+            >
+              <span>{moderationRequired ? 'On' : 'Off'}</span>
+            </Switch>
+          </SimpleTooltip>
         </SquadSettingsSection>
         <SquadSettingsSection
           title="Invitation others"
@@ -66,7 +92,7 @@ export function PermissionSection({
             onChange={(value) => setMemberInviteRole(value as SourceMemberRole)}
           />
         </SquadSettingsSection>
-      </span>
-    </div>
+      </div>
+    </WidgetCard>
   );
 }

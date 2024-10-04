@@ -69,6 +69,7 @@ export function SquadDetails({
     flags,
     memberPostingRole: initialMemberPostingRole,
     memberInviteRole: initialMemberInviteRole,
+    moderationRequired: initialModerationRequired,
   } = squad ?? {};
   const [activeHandle, setActiveHandle] = useState(handle);
   const [imageChanged, setImageChanged] = useState(false);
@@ -255,6 +256,7 @@ export function SquadDetails({
         <PermissionSection
           initialMemberInviteRole={initialMemberInviteRole}
           initialMemberPostingRole={initialMemberPostingRole}
+          initialModerationRequired={initialModerationRequired}
         />
         {!createMode && <SquadDangerZone squad={squad} />}
       </form>
