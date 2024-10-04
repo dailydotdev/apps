@@ -1,6 +1,5 @@
 import React from 'react';
 import classed from '../../lib/classed';
-import { Tag } from '../../graphql/feedSettings';
 
 export enum OnboardingStep {
   Intro = 'intro',
@@ -28,8 +27,3 @@ export interface OnboardingStepProps {
 export const REQUIRED_TAGS_THRESHOLD = 5;
 
 export const wrapperMaxWidth = 'max-w-[75rem] laptopXL:max-w-[90rem]';
-
-export type OnSelectTagProps = {
-  tag: Tag;
-  action: 'follow' | 'unfollow';
-};

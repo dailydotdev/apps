@@ -6,7 +6,12 @@ import AuthOptions, {
   AuthProps,
 } from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
+import {
+  ContentTypes,
+  EditTag,
+  OnboardingHeader,
+  ReadingReminder,
+} from '@dailydotdev/shared/src/components/onboarding';
 import {
   ButtonSize,
   ButtonVariant,
@@ -43,11 +48,6 @@ import {
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import {
-  ReadingReminder,
-  EditTag,
-  ContentTypes,
-} from '@dailydotdev/shared/src/components/auth/OnboardingSteps';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
