@@ -40,6 +40,13 @@ export function SquadModerationSettingsSection({
     initialModerationRequired,
   );
 
+  const handleMemberPostingRole = (value: SourceMemberRole) => {
+    setMemberPostingRole(value);
+    if (value === SourceMemberRole.Moderator) {
+      setModerationRequired(false);
+    }
+  };
+
   return (
     <WidgetCard heading="🔒 Moderation Settings">
       <div className="flex flex-col gap-6 px-4 py-2">
@@ -52,7 +59,7 @@ export function SquadModerationSettingsSection({
             name="memberPostingRole"
             options={memberRoleOptions}
             value={memberPostingRole}
-            onChange={(value) => setMemberPostingRole(value)}
+            onChange={handleMemberPostingRole}
           />
         </SquadSettingsSection>
         <SquadSettingsSection
@@ -61,22 +68,14 @@ export function SquadModerationSettingsSection({
         >
           <SimpleTooltip
             placement="top-start"
-            content={
-              <span className="p- max-w-[188px] p-2 text-center">
+            content="
                 Only admins and moderators can post; their posts are
                 auto-published.
-              </span>
-            }
-            visible={
-              isHoveringSwitch &&
-              memberPostingRole === SourceMemberRole.Moderator
-            }
+             "
+            container={{ className: 'max-w-[188px] p-2 text-center' }}
+            show={memberPostingRole === SourceMemberRole.Moderator}
           >
-            <span
-              className="max-w-fit cursor-pointer"
-              onMouseEnter={() => setIsHoveringSwitch(true)}
-              onMouseLeave={() => setIsHoveringSwitch(false)}
-            >
+            <span className="max-w-fit cursor-pointer">
               <Switch
                 className="max-w-min cursor-pointer"
                 name="moderationRequired"
