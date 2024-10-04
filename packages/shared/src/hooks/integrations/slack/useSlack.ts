@@ -7,7 +7,6 @@ import {
 } from '../../../graphql/integrations';
 import { isDevelopment } from '../../../lib/constants';
 import { gqlClient } from '../../../graphql/common';
-import { apiUrl } from '../../../lib/config';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 
@@ -34,7 +33,9 @@ export const useSlack = (): UseSlack => {
     async ({ redirectPath }) => {
       const url = new URL('https://slack.com/oauth/v2/authorize');
 
-      const redirectUrl = new URL(`${apiUrl}/integrations/slack/auth/callback`);
+      const redirectUrl = new URL(
+        `https://api.local.com/integrations/slack/auth/callback`,
+      );
       url.searchParams.append('redirect_uri', redirectUrl.toString());
 
       url.searchParams.append('state', user.id);

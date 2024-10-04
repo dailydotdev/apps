@@ -37,6 +37,7 @@ interface SquadDetailsProps {
   children?: ReactNode;
   isLoading?: boolean;
   squad?: Squad;
+  initialData?: Partial<Squad>;
 }
 
 const getFormData = async (
@@ -58,6 +59,7 @@ export function SquadDetails({
   children,
   isLoading,
   squad,
+  initialData,
 }: SquadDetailsProps): ReactElement {
   const createMode = !squad;
   const {
@@ -69,7 +71,8 @@ export function SquadDetails({
     flags,
     memberPostingRole: initialMemberPostingRole,
     memberInviteRole: initialMemberInviteRole,
-  } = squad ?? {};
+  } = squad ?? { ...initialData };
+  console.log('name', name, 'handle', handle);
   const [activeHandle, setActiveHandle] = useState(handle);
   const [imageChanged, setImageChanged] = useState(false);
   const [handleHint, setHandleHint] = useState<string>(null);

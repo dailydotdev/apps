@@ -15,6 +15,7 @@ import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { SourceIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useIntegrationsQuery } from '@dailydotdev/shared/src/hooks/integrations/useIntegrationsQuery';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 
@@ -25,16 +26,26 @@ const seo: NextSeoProps = {
 };
 
 const NewSquad = (): ReactElement => {
-  const { isReady: isRouteReady } = useRouter();
+  const { isReady: isRouteReady, query } = useRouter();
   const { user, isAuthReady, isFetched } = useAuthContext();
   const { onCreateSquad, isLoading } = useSquadCreate();
   const isMobile = useViewSize(ViewSize.MobileL);
+
+  const shouldLoadIntegration = query?.fs;
+  const { data, isLoading: isIntegrationLoading } = useIntegrationsQuery({
+    queryOptions: { enabled: !!shouldLoadIntegration },
+  });
 
   const handleClose = async () => {
     router.push('/squads');
   };
 
-  if (!isFetched || !isAuthReady || !isRouteReady) {
+  if (
+    !isFetched ||
+    !isAuthReady ||
+    !isRouteReady ||
+    (isIntegrationLoading && !!shouldLoadIntegration)
+  ) {
     return <MangeSquadPageSkeleton />;
   }
 
@@ -49,6 +60,10 @@ const NewSquad = (): ReactElement => {
         onRequestClose={handleClose}
         onSubmit={(e, form) => onCreateSquad(form)}
         isLoading={isLoading}
+        initialData={{
+          name: data?.[0].name,
+          handle: data?.[0].name.toLowerCase().replace(/[^a-zA-Z0-9]/g, ''),
+        }}
       >
         <div className="flex flex-col-reverse bg-cover bg-center tablet:flex-row">
           <div className="mx-6 my-5 flex flex-1 flex-col gap-2">

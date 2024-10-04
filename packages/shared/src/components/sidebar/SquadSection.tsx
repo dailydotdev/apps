@@ -40,7 +40,6 @@ export function SquadSection(props: SectionCommonProps): ReactElement {
     icon: () => <NewSquadIcon />,
     title: 'New Squad',
     action: () => openNewSquad({ origin: Origin.Sidebar }),
-    path: newSquadUrl,
     requiresLogin: true,
   });
 

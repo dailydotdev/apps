@@ -4,6 +4,8 @@ import { Origin } from '../lib/log';
 import { AuthTriggers } from '../lib/auth';
 import { useAuthContext } from '../contexts/AuthContext';
 import { webappUrl } from '../lib/constants';
+import { useLazyModal } from './useLazyModal';
+import { LazyModal } from '../components/modals/common/types';
 
 type OpenNewSquadProps = { event?: React.MouseEvent; origin: Origin };
 type EditSquadProps = { handle: string };
@@ -16,6 +18,7 @@ interface UseSquadNavigation {
 export const useSquadNavigation = (): UseSquadNavigation => {
   const { user, showLogin } = useAuthContext();
   const router = useRouter();
+  const { openModal } = useLazyModal();
 
   const newSquadUrl = `${webappUrl}squads/new`;
 
@@ -26,6 +29,10 @@ export const useSquadNavigation = (): UseSquadNavigation => {
         showLogin({ trigger: AuthTriggers.CreateSquad });
         return;
       }
+
+      props?.event?.preventDefault();
+      openModal({ type: LazyModal.NewSquad });
+      return;
       router.push(`${newSquadUrl}?origin=${props.origin}`);
     },
     [user, router, newSquadUrl, showLogin],
