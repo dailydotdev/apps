@@ -4,10 +4,14 @@ import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { SquadDetails } from '@dailydotdev/shared/src/components/squads/Details';
+import { DefaultSquadHeader } from '@dailydotdev/shared/src/components/layout/DefaultSquadHeader';
 import { editSquad } from '@dailydotdev/shared/src/graphql/squads';
 import { useBoot } from '@dailydotdev/shared/src/hooks/useBoot';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
+import {
+  ManageSquadPageContainer,
+  SquadSettingsProps,
+} from '@dailydotdev/shared/src/components/squads/utils';
 import { MangeSquadPageSkeleton } from '@dailydotdev/shared/src/components/squads/MangeSquadPageSkeleton';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSquad } from '@dailydotdev/shared/src/hooks';
@@ -23,10 +27,12 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import {
+  SquadTab,
+  SquadTabs,
+} from '@dailydotdev/shared/src/components/squads/SquadTabs';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
-
-type EditSquadPageProps = { handle: string };
 
 const pageTitle = 'Squad settings';
 
@@ -38,7 +44,7 @@ const seo: NextSeoProps = {
 
 const DEFAULT_ERROR = "Oops! That didn't seem to work. Let's try again!";
 
-const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
+const EditSquad = ({ handle }: SquadSettingsProps): ReactElement => {
   const { isReady: isRouteReady } = useRouter();
   const { squads, user, isAuthReady, isFetched } = useAuthContext();
   const {
@@ -72,7 +78,12 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
     !isFetched || isSquadLoading || !isAuthReady || !isRouteReady;
 
   if (isLoading) {
-    return <MangeSquadPageSkeleton />;
+    return (
+      <MangeSquadPageSkeleton>
+        <DefaultSquadHeader className="border-b-0" />
+        <SquadTabs active={SquadTab.Settings} handle={handle} />
+      </MangeSquadPageSkeleton>
+    );
   }
 
   const isUnauthorized =
@@ -91,7 +102,9 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
           onUpdateSquad({ id: squad.id, form: { ...squad, ...form } })
         }
         isLoading={isUpdatingSquad}
-      />
+      >
+        <SquadTabs active={SquadTab.Settings} handle={handle} />
+      </SquadDetails>
     </ManageSquadPageContainer>
   );
 };
@@ -108,7 +121,7 @@ interface SquadPageParams extends ParsedUrlQuery {
 
 export function getStaticProps({
   params,
-}: GetStaticPropsContext<SquadPageParams>): GetStaticPropsResult<EditSquadPageProps> {
+}: GetStaticPropsContext<SquadPageParams>): GetStaticPropsResult<SquadSettingsProps> {
   return {
     props: {
       handle: params.handle,

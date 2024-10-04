@@ -163,3 +163,10 @@ export const SearchControlHeader = ({
     </ConditionalWrapper>
   );
 };
+
+export const PageHeader = classed(
+  'div',
+  'flex flex-row items-center border-b border-border-subtlest-tertiary px-4 py-2',
+);
+
+export const PageHeaderTitle = classed('h2', 'px-4 font-bold');
