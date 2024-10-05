@@ -555,3 +555,50 @@ export const getPublicSquadRequests = async (
 
   return res.requests;
 };
+
+export enum SourcePostModerationStatus {
+  Approved = 'approved',
+  Rejected = 'rejected',
+  Pending = 'pending',
+}
+
+export interface SourcePostModeration {
+  sourceId: string;
+  post: Post;
+  status: SourcePostModerationStatus;
+  postId: string;
+  moderatorId: string;
+  createdAt: Date;
+}
+
+export enum PostModerationReason {
+  OffTopic = 'OFF_TOPIC',
+  Violation = 'VIOLATION',
+  Promotional = 'PROMOTIONAL',
+  Duplicate = 'DUPLICATE',
+  LowQuality = 'LOW_QUALITY',
+  NSFW = 'NSFW',
+  Spam = 'SPAM',
+  Misinformation = 'MISINFORMATION',
+  Copyright = 'COPYRIGHT',
+  Other = 'OTHER',
+}
+
+export interface SquadPostModerationProps {
+  moderatedById: string;
+  postId: string;
+}
+
+export interface SquadPostRejectionProps extends SquadPostModerationProps {
+  reason: string;
+  note?: string;
+}
+
+export const squadApproveMutation = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _: SquadPostModerationProps,
+): Promise<void> => Promise.resolve();
+export const squadRejectMutation = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _: SquadPostRejectionProps,
+): Promise<void> => Promise.resolve();

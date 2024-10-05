@@ -7,6 +7,7 @@ import {
   SquadTab,
   SquadTabs,
 } from '@dailydotdev/shared/src/components/squads/SquadTabs';
+import { SquadModerationList } from '@dailydotdev/shared/src/components/squads/moderation/SquadModerationList';
 import {
   PageHeader,
   PageHeaderTitle,
@@ -16,6 +17,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
+import { sharePost } from '@dailydotdev/shared/__tests__/fixture/post';
 
 import {
   GetStaticPathsResult,
@@ -23,11 +25,27 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
+import {
+  SourcePostModeration,
+  SourcePostModerationStatus,
+} from '@dailydotdev/shared/src/graphql/squads';
+
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
 export default function ModerateSquadPage({
   handle,
 }: SquadSettingsProps): ReactElement {
+  const [data]: SourcePostModeration[] = [
+    {
+      postId: '1',
+      moderatorId: null,
+      sourceId: 'a',
+      status: SourcePostModerationStatus.Pending,
+      createdAt: new Date(),
+      post: sharePost,
+    },
+  ];
+
   return (
     <ManageSquadPageContainer>
       <PageHeader className="border-b-0">
@@ -40,6 +58,9 @@ export default function ModerateSquadPage({
         </PageHeaderTitle>
       </PageHeader>
       <SquadTabs active={SquadTab.PendingPosts} handle={handle} />
+      <div className="flex flex-col">
+        <SquadModerationList data={data} />
+      </div>
     </ManageSquadPageContainer>
   );
 }
