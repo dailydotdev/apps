@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React, {
   ChangeEvent,
+  DragEvent,
   ReactElement,
   ReactNode,
   useRef,
@@ -102,6 +103,32 @@ function ImageInput({
     onChange?.(base64, file);
   };
 
+  const onDragOver = (event: DragEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+  };
+
+  const onDrop = async (event: DragEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const file = event.dataTransfer.files[0];
+    if (!file) {
+      onChange?.(null);
+      return;
+    }
+    if (file.size > fileSizeLimitMB * MEGABYTE) {
+      toast.displayToast(`Maximum image size is ${fileSizeLimitMB} MB`);
+      return;
+    }
+    if (!acceptedTypesList.includes(file.type)) {
+      toast.displayToast(`File type is not allowed`);
+      return;
+    }
+
+    const base64 = await blobToBase64(file);
+    setImage(base64);
+    onChange?.(base64, file);
+  };
+
   const onClose = () => {
     setImage(null);
     onChange?.(null, null);
@@ -115,6 +142,8 @@ function ImageInput({
       <button
         type="button"
         onClick={onClick}
+        onDragOver={onDragOver}
+        onDrop={onDrop}
         className={classNames(
           'group relative flex items-center justify-center overflow-hidden border border-border-subtlest-primary',
           componentSize[size],
