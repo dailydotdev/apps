@@ -72,7 +72,7 @@ const TrustedCompanies = ({
       )}
     >
       <p className="relative z-3 max-w-[15rem] text-center text-text-quaternary typo-callout tablet:max-w-full tablet:flex-1">
-        Trusted by 500K+ developers from the world&apos;s leading companies
+        Trusted by 1M+ developers from the world&apos;s leading companies
       </p>
 
       <div className="talet:flex-1 relative z-3 flex flex-wrap items-start justify-center gap-2 laptop:gap-6">
