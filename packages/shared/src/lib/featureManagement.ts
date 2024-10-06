@@ -31,7 +31,7 @@ const feature = {
   searchUsers: new Feature('search_users', false),
   showCodeSnippets: new Feature('show_code_snippets', false),
   searchPlaceholder: new Feature('search_placeholder', 'Search'),
-  onboardingShuffleTags: new Feature('onboarding_shuffle_tags', false),
+  onboardingShuffleTags: new Feature('onboarding_shuffle_tags', true),
 };
 
 export { feature };
