@@ -43,7 +43,10 @@ export function KeepItOverlay({ onClose }: KeepItOverlayProps): ReactElement {
   useEventListener(globalThis?.document, 'click', onClick);
 
   useEffect(() => {
+    logEvent({ event_name: LogEvent.ShowNewTabPermission });
     onDelete();
+    // logEvent is unstable
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onDelete]);
 
   useEffect(() => {

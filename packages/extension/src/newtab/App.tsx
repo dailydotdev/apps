@@ -46,8 +46,6 @@ import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { get as getCache } from 'idb-keyval';
-import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
@@ -108,7 +106,6 @@ function InternalApp(): ReactElement {
   }, [analyticsConsent, analyticsConsentPrompt]);
 
   const [shouldShowOverlay, setShouldShowOverlay] = useState(false);
-  const { logEvent } = useLogContext();
   const { unreadCount } = useNotificationContext();
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useContentScriptStatus();
@@ -153,12 +150,9 @@ function InternalApp(): ReactElement {
 
     getCache(INSTALLATION_STORAGE_KEY).then((value) => {
       if (value) {
-        logEvent({ event_name: LogEvent.ShowNewTabPermission });
         setShouldShowOverlay(true);
       }
     });
-    // logEvent is unstable
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldShowLogin]);
 
   useEffect(() => {
