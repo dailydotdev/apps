@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import {
   QueryFilters,
@@ -53,6 +53,7 @@ export function TagSelection({
   searchOrigin = Origin.EditTag,
   shouldShuffleTags = false,
 }: TagSelectionProps): ReactElement {
+  const [isShuffled, setIsShuffled] = useState(false);
   const queryClient = useQueryClient();
 
   const { feedSettings } = useFeedSettings({ feedId });
@@ -106,12 +107,13 @@ export function TagSelection({
   );
 
   const onboardingTags = useMemo(() => {
-    if (!shouldShuffleTags) {
+    if (!shouldShuffleTags || isShuffled || !onboardingTagsRaw) {
       return onboardingTagsRaw;
     }
 
+    setIsShuffled(true);
     return onboardingTagsRaw?.sort(() => Math.random() - 0.5);
-  }, [shouldShuffleTags, onboardingTagsRaw]);
+  }, [shouldShuffleTags, isShuffled, onboardingTagsRaw]);
 
   const excludedTags = useMemo(() => {
     if (!onboardingTags) {
