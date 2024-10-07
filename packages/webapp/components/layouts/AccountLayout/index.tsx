@@ -103,7 +103,7 @@ export default function AccountLayout({
         ) : (
           <SidebarNav
             className={classNames(
-              'absolute z-3 ml-auto h-full w-full border-l border-border-subtlest-tertiary bg-background-default tablet:relative tablet:w-[unset]',
+              'absolute z-3 ml-auto min-h-full w-full border-l border-border-subtlest-tertiary bg-background-default tablet:relative tablet:w-[unset]',
               featureTheme ? 'bg-transparent' : 'bg-background-default',
             )}
             basePath="account"
