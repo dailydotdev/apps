@@ -7,17 +7,16 @@ import {
   SquadTab,
   SquadTabs,
 } from '@dailydotdev/shared/src/components/squads/SquadTabs';
-import { SquadModerationItem } from '@dailydotdev/shared/src/components/squads/moderation/SquadModerationItem';
+import { SquadModerationList } from '@dailydotdev/shared/src/components/squads/moderation/SquadModerationList';
 import {
   PageHeader,
   PageHeaderTitle,
 } from '@dailydotdev/shared/src/components/layout/common';
 import {
   Button,
-  ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { ArrowIcon, VIcon } from '@dailydotdev/shared/src/components/icons';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 
 import {
   GetStaticPathsResult,
@@ -25,18 +24,12 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import { useSquadPendingPosts } from '@dailydotdev/shared/src/hooks/squads/useSquadPendingPosts';
-import { useSquadPostModeration } from '@dailydotdev/shared/src/hooks/squads/useSquadPostModeration';
 
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
 export default function ModerateSquadPage({
   handle,
 }: SquadSettingsProps): ReactElement {
-  const { onApprove, onReject, isLoading } = useSquadPostModeration();
-  const { data } = useSquadPendingPosts();
-  const [value] = data;
-
   return (
     <ManageSquadPageContainer>
       <PageHeader className="border-b-0">
@@ -49,25 +42,7 @@ export default function ModerateSquadPage({
         </PageHeaderTitle>
       </PageHeader>
       <SquadTabs active={SquadTab.PendingPosts} handle={handle} />
-      <div className="flex flex-col">
-        {data?.length > 1 && (
-          <span className="flex w-full flex-row justify-end border-b border-border-subtlest-tertiary px-4 py-3">
-            <Button
-              icon={<VIcon secondary />}
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Small}
-            >
-              Approve all {data.length} posts
-            </Button>
-          </span>
-        )}
-        <SquadModerationItem
-          data={value}
-          isLoading={isLoading}
-          onReject={onReject}
-          onApprove={(id) => onApprove([id])}
-        />
-      </div>
+      <SquadModerationList />
     </ManageSquadPageContainer>
   );
 }
