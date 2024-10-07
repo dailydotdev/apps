@@ -25,11 +25,14 @@ import {
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 
+import { useSquad } from '@dailydotdev/shared/src/hooks';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
 export default function ModerateSquadPage({
   handle,
 }: SquadSettingsProps): ReactElement {
+  const { squad } = useSquad({ handle });
+
   return (
     <ManageSquadPageContainer>
       <PageHeader className="border-b-0">
@@ -41,7 +44,11 @@ export default function ModerateSquadPage({
           Squad settings
         </PageHeaderTitle>
       </PageHeader>
-      <SquadTabs active={SquadTab.PendingPosts} handle={handle} />
+      <SquadTabs
+        active={SquadTab.PendingPosts}
+        handle={handle}
+        pendingCount={squad?.moderationPostCount}
+      />
       <SquadModerationList />
     </ManageSquadPageContainer>
   );

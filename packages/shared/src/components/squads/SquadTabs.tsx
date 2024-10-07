@@ -10,17 +10,25 @@ export enum SquadTab {
 interface SquadTabsProps {
   active: SquadTab;
   handle: string;
+  pendingCount?: number;
 }
 
-export function SquadTabs({ active, handle }: SquadTabsProps): ReactElement {
+export function SquadTabs({
+  active,
+  handle,
+  pendingCount,
+}: SquadTabsProps): ReactElement {
   const links = useMemo(() => {
     const host = `${webappUrl}squads/${handle}`;
+    const title = pendingCount
+      ? `${SquadTab.PendingPosts} (${pendingCount})`
+      : SquadTab.PendingPosts;
 
     return {
       [SquadTab.Settings]: `${host}/edit`,
-      [SquadTab.PendingPosts]: `${host}/moderate`,
+      [title]: `${host}/moderate`,
     };
-  }, [handle]);
+  }, [handle, pendingCount]);
 
   return (
     <TabContainer shouldMountInactive controlledActive={active}>
