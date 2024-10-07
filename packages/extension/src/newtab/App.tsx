@@ -142,7 +142,7 @@ function InternalApp(): ReactElement {
   }, [contentScriptGranted]);
 
   useEffect(() => {
-    if (!user || shouldShowLogin) {
+    if (shouldShowLogin) {
       return;
     }
 
@@ -154,7 +154,7 @@ function InternalApp(): ReactElement {
     });
     // logEvent is unstable
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, shouldShowLogin]);
+  }, [shouldShowLogin]);
 
   useEffect(() => {
     document.title = unreadCount
