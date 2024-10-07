@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { MouseEvent, ReactElement } from 'react';
 import {
   Typography,
   TypographyTag,
@@ -25,9 +25,19 @@ export function SquadModerationItem({
   isLoading,
 }: SquadModerationListProps): ReactElement {
   const { post } = data;
+  const onClick = (e: MouseEvent) => {
+    e.stopPropagation();
+    // MI-575: should open the modal
+  };
 
   return (
-    <div className="flex flex-col gap-4 p-6">
+    <div className="relative flex flex-col gap-4 p-6 hover:bg-surface-hover">
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label="Open the request"
+        className="absolute inset-0"
+      />
       <div className="flex flex-row gap-4">
         <ProfilePicture user={post.author} size={ProfileImageSize.Large} />
         <div className="flex flex-col gap-1">
