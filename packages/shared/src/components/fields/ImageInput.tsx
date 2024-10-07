@@ -103,7 +103,7 @@ function ImageInput({
   const onFileChange = (event: ChangeEvent) => {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
-    handleFile(file)
+    handleFile(file);
   };
 
   const onDragOver = (event: DragEvent<HTMLButtonElement>) => {
@@ -114,7 +114,7 @@ function ImageInput({
     event.preventDefault();
     event.stopPropagation();
     const file = event.dataTransfer.files?.[0];
-    handleFile(file)
+    handleFile(file);
   };
 
   const onClose = () => {
