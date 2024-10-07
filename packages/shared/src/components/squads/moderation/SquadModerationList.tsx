@@ -3,21 +3,23 @@ import { Button } from '../../buttons/Button';
 import { ButtonVariant, ButtonSize } from '../../buttons/common';
 import { VIcon } from '../../icons';
 import { useSquadPostModeration } from '../../../hooks/squads/useSquadPostModeration';
-import { IconSize } from '../../Icon';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '../../typography/Typography';
 import { useSquadPendingPosts } from '../../../hooks/squads/useSquadPendingPosts';
 import { SquadModerationItem } from './SquadModerationItem';
+import { SourceMemberRole, Squad } from '../../../graphql/sources';
+import { SquadEmptyScreen } from './SquadEmptyScreen';
 
-export function SquadModerationList(): ReactElement {
+interface SquadModerationListProps {
+  squad: Squad;
+}
+
+export function SquadModerationList({
+  squad,
+}: SquadModerationListProps): ReactElement {
   const { onApprove, onReject, isLoading } = useSquadPostModeration();
-  const { data, isFetched } = useSquadPendingPosts();
+  const { data, isFetched } = useSquadPendingPosts(squad?.id);
 
   if (!data?.length) {
-    if (!isFetched) {
+    if (!isFetched || !squad) {
       return (
         <div className="flex flex-col gap-4 p-6">
           <span className="typo-title3">Loading...</span>
@@ -25,23 +27,22 @@ export function SquadModerationList(): ReactElement {
       );
     }
 
-    return (
-      <div className="flex w-full flex-col items-center gap-4 p-6 py-10">
-        <VIcon
-          secondary
-          size={IconSize.XXXLarge}
-          className={TypographyColor.Disabled}
+    if (squad.currentMember.role === SourceMemberRole.Member) {
+      return (
+        <SquadEmptyScreen
+          Icon={VIcon}
+          title="All done!"
+          description="All caught up! No posts are pending" // check with product what to show here
         />
-        <Typography type={TypographyType.Title2} bold>
-          All done!
-        </Typography>
-        <Typography
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          All caught up! There are no posts waiting for your review right now.
-        </Typography>
-      </div>
+      );
+    }
+
+    return (
+      <SquadEmptyScreen
+        Icon={VIcon}
+        title="All done!"
+        description="All caught up! There are no posts waiting for your review right now."
+      />
     );
   }
 

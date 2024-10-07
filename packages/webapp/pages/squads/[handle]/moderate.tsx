@@ -61,7 +61,7 @@ export default function ModerateSquadPage({
         handle={handle}
         pendingCount={squad?.moderationPostCount}
       />
-      <SquadModerationList />
+      <SquadModerationList squad={squad} />
     </ManageSquadPageContainer>
   );
 }
