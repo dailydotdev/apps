@@ -576,7 +576,7 @@ export interface SourcePostModeration {
   sourceId: string;
   post: Post;
   status: SourcePostModerationStatus;
-  reason: PostModerationReason;
+  reason?: PostModerationReason;
   postId: string;
   moderatorId: string;
   createdAt: Date;
