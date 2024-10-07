@@ -78,10 +78,7 @@ function ImageInput({
     inputRef.current.click();
   };
 
-  const onFileChange = async (event: ChangeEvent) => {
-    const input = event.target as HTMLInputElement;
-    const file = input.files[0];
-
+  const handleFile = async (file: File) => {
     if (!file) {
       onChange?.(null);
       return;
@@ -103,30 +100,21 @@ function ImageInput({
     onChange?.(base64, file);
   };
 
+  const onFileChange = (event: ChangeEvent) => {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    handleFile(file)
+  };
+
   const onDragOver = (event: DragEvent<HTMLButtonElement>) => {
     event.preventDefault();
   };
 
-  const onDrop = async (event: DragEvent<HTMLButtonElement>) => {
+  const onDrop = (event: DragEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    const file = event.dataTransfer.files[0];
-    if (!file) {
-      onChange?.(null);
-      return;
-    }
-    if (file.size > fileSizeLimitMB * MEGABYTE) {
-      toast.displayToast(`Maximum image size is ${fileSizeLimitMB} MB`);
-      return;
-    }
-    if (!acceptedTypesList.includes(file.type)) {
-      toast.displayToast(`File type is not allowed`);
-      return;
-    }
-
-    const base64 = await blobToBase64(file);
-    setImage(base64);
-    onChange?.(base64, file);
+    const file = event.dataTransfer.files?.[0];
+    handleFile(file)
   };
 
   const onClose = () => {
