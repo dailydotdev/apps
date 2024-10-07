@@ -63,6 +63,7 @@ export function SquadModerationList({
       {data?.map((request) => (
         <SquadModerationItem
           key={request.post.id}
+          squad={squad}
           data={request}
           isLoading={isLoading}
           onReject={onReject}
