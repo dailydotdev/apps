@@ -103,7 +103,9 @@ const EditSquad = ({ handle }: SquadSettingsProps): ReactElement => {
         }
         isLoading={isUpdatingSquad}
       >
-        <SquadTabs active={SquadTab.Settings} handle={handle} />
+        {squad?.moderationRequired && (
+          <SquadTabs active={SquadTab.Settings} handle={handle} />
+        )}
       </SquadDetails>
     </ManageSquadPageContainer>
   );

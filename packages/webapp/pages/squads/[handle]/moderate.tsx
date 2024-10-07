@@ -44,11 +44,13 @@ export default function ModerateSquadPage({
           Squad settings
         </PageHeaderTitle>
       </PageHeader>
-      <SquadTabs
-        active={SquadTab.PendingPosts}
-        handle={handle}
-        pendingCount={squad?.moderationPostCount}
-      />
+      {squad?.moderationRequired && (
+        <SquadTabs
+          active={SquadTab.PendingPosts}
+          handle={handle}
+          pendingCount={squad?.moderationPostCount}
+        />
+      )}
       <SquadModerationList />
     </ManageSquadPageContainer>
   );
