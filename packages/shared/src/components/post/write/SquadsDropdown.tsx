@@ -33,6 +33,7 @@ export const generateDefaultSquad = (username: string): Squad => ({
   type: SourceType.Squad,
   memberPostingRole: SourceMemberRole.Moderator,
   memberInviteRole: SourceMemberRole.Member,
+  moderationRequired: false,
 });
 
 export function SquadsDropdown({
