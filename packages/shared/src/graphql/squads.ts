@@ -584,19 +584,15 @@ export enum PostModerationReason {
   Other = 'OTHER',
 }
 
-export interface SquadPostModerationProps {
-  moderatedById: string;
+export interface SquadPostRejectionProps {
   postId: string;
-}
-
-export interface SquadPostRejectionProps extends SquadPostModerationProps {
   reason: string;
   note?: string;
 }
 
 export const squadApproveMutation = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _: SquadPostModerationProps,
+  _: string[],
 ): Promise<void> => Promise.resolve();
 export const squadRejectMutation = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -10,13 +10,17 @@ import { SourcePostModeration } from '../../../graphql/squads';
 import { SquadModerationActions } from './SquadModerationActions';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import PostMetadata from '../../cards/common/PostMetadata';
+import { CommonModerationProps } from './common';
 
-interface SquadModerationListProps {
+interface SquadModerationListProps extends CommonModerationProps {
   data: SourcePostModeration;
 }
 
-export function SquadModerationList({
+export function SquadModerationItem({
   data,
+  onReject,
+  onApprove,
+  isLoading,
 }: SquadModerationListProps): ReactElement {
   const { post } = data;
 
@@ -43,7 +47,11 @@ export function SquadModerationList({
         </div>
         <CardImage src={post.sharedPost?.image || post.image} />
       </div>
-      <SquadModerationActions postId={post.id} />
+      <SquadModerationActions
+        onApprove={() => onApprove(post.id)}
+        onReject={() => onReject(post.id)}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

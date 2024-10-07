@@ -7,17 +7,17 @@ import {
   SquadTab,
   SquadTabs,
 } from '@dailydotdev/shared/src/components/squads/SquadTabs';
-import { SquadModerationList } from '@dailydotdev/shared/src/components/squads/moderation/SquadModerationList';
+import { SquadModerationItem } from '@dailydotdev/shared/src/components/squads/moderation/SquadModerationItem';
 import {
   PageHeader,
   PageHeaderTitle,
 } from '@dailydotdev/shared/src/components/layout/common';
 import {
   Button,
+  ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
-import { sharePost } from '@dailydotdev/shared/__tests__/fixture/post';
+import { ArrowIcon, VIcon } from '@dailydotdev/shared/src/components/icons';
 
 import {
   GetStaticPathsResult,
@@ -25,26 +25,17 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import {
-  SourcePostModeration,
-  SourcePostModerationStatus,
-} from '@dailydotdev/shared/src/graphql/squads';
+import { useSquadPendingPosts } from '@dailydotdev/shared/src/hooks/squads/useSquadPendingPosts';
+import { useSquadPostModeration } from '@dailydotdev/shared/src/hooks/squads/useSquadPostModeration';
 
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
 export default function ModerateSquadPage({
   handle,
 }: SquadSettingsProps): ReactElement {
-  const [data]: SourcePostModeration[] = [
-    {
-      postId: '1',
-      moderatorId: null,
-      sourceId: 'a',
-      status: SourcePostModerationStatus.Pending,
-      createdAt: new Date(),
-      post: sharePost,
-    },
-  ];
+  const { onApprove, onReject, isLoading } = useSquadPostModeration();
+  const { data } = useSquadPendingPosts();
+  const [value] = data;
 
   return (
     <ManageSquadPageContainer>
@@ -59,7 +50,23 @@ export default function ModerateSquadPage({
       </PageHeader>
       <SquadTabs active={SquadTab.PendingPosts} handle={handle} />
       <div className="flex flex-col">
-        <SquadModerationList data={data} />
+        {data?.length > 1 && (
+          <span className="flex w-full flex-row justify-end border-b border-border-subtlest-tertiary px-4 py-3">
+            <Button
+              icon={<VIcon secondary />}
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+            >
+              Approve all {data.length} posts
+            </Button>
+          </span>
+        )}
+        <SquadModerationItem
+          data={value}
+          isLoading={isLoading}
+          onReject={onReject}
+          onApprove={(id) => onApprove([id])}
+        />
       </div>
     </ManageSquadPageContainer>
   );
