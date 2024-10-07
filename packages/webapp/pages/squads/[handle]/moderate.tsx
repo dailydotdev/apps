@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import {
   ManageSquadPageContainer,
   SquadSettingsProps,
@@ -17,21 +17,33 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
-
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-
 import { useSquad } from '@dailydotdev/shared/src/hooks';
+import { useRouter } from 'next/router';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
 export default function ModerateSquadPage({
   handle,
 }: SquadSettingsProps): ReactElement {
-  const { squad } = useSquad({ handle });
+  const { squad, isFetched } = useSquad({ handle });
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isFetched) {
+      return;
+    }
+
+    if (squad?.moderationRequired) {
+      return;
+    }
+
+    router.push(squad ? squad.permalink : '/404');
+  }, [squad, isFetched, router]);
 
   return (
     <ManageSquadPageContainer>
@@ -44,13 +56,11 @@ export default function ModerateSquadPage({
           Squad settings
         </PageHeaderTitle>
       </PageHeader>
-      {squad?.moderationRequired && (
-        <SquadTabs
-          active={SquadTab.PendingPosts}
-          handle={handle}
-          pendingCount={squad?.moderationPostCount}
-        />
-      )}
+      <SquadTabs
+        active={SquadTab.PendingPosts}
+        handle={handle}
+        pendingCount={squad?.moderationPostCount}
+      />
       <SquadModerationList />
     </ManageSquadPageContainer>
   );
