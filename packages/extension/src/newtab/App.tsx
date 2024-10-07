@@ -29,7 +29,10 @@ import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
-import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import {
+  useFeature,
+  useGrowthBookContext,
+} from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import ExtensionOnboarding from '@dailydotdev/shared/src/components/ExtensionOnboarding';
 import { withFeaturesBoundary } from '@dailydotdev/shared/src/components/withFeaturesBoundary';
@@ -45,6 +48,7 @@ import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structu
 import { get as getCache } from 'idb-keyval';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
@@ -113,6 +117,7 @@ function InternalApp(): ReactElement {
   const routeChangedCallbackRef = useLogPageView();
   useConsoleLogo();
 
+  const extensionOverlay = useFeature(feature.extensionOverlay);
   const { user, isAuthReady } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
   const isPageReady =
@@ -174,7 +179,9 @@ function InternalApp(): ReactElement {
 
   return (
     <DndContextProvider>
-      {shouldShowOverlay && <KeepItOverlay onClose={onClose} />}
+      {shouldShowOverlay && extensionOverlay && (
+        <KeepItOverlay onClose={onClose} />
+      )}
       <MainFeedPage onPageChanged={onPageChanged} />
       {shouldShowLogin && (
         <AuthModal
