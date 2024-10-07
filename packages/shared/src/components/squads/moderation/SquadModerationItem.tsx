@@ -10,10 +10,12 @@ import { SourcePostModeration } from '../../../graphql/squads';
 import { SquadModerationActions } from './SquadModerationActions';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import PostMetadata from '../../cards/common/PostMetadata';
-import { CommonModerationProps } from './common';
 
-interface SquadModerationListProps extends CommonModerationProps {
+interface SquadModerationListProps {
   data: SourcePostModeration;
+  onApprove: (id: string) => void;
+  onReject: (id: string) => void;
+  isLoading: boolean;
 }
 
 export function SquadModerationItem({
