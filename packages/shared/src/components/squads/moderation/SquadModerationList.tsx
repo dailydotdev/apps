@@ -2,14 +2,48 @@ import React, { ReactElement } from 'react';
 import { Button } from '../../buttons/Button';
 import { ButtonVariant, ButtonSize } from '../../buttons/common';
 import { VIcon } from '../../icons';
-import { SquadModerationItem } from './SquadModerationItem';
-import { useSquadPendingPosts } from '../../../hooks/squads/useSquadPendingPosts';
 import { useSquadPostModeration } from '../../../hooks/squads/useSquadPostModeration';
+import { IconSize } from '../../Icon';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../typography/Typography';
+import { useSquadPendingPosts } from '../../../hooks/squads/useSquadPendingPosts';
+import { SquadModerationItem } from './SquadModerationItem';
 
 export function SquadModerationList(): ReactElement {
   const { onApprove, onReject, isLoading } = useSquadPostModeration();
-  const { data } = useSquadPendingPosts();
-  const [value] = data;
+  const { data, isFetched } = useSquadPendingPosts();
+
+  if (!data?.length) {
+    if (!isFetched) {
+      return (
+        <div className="flex flex-col gap-4 p-6">
+          <span className="typo-title3">Loading...</span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex w-full flex-col items-center gap-4 p-6 py-10">
+        <VIcon
+          secondary
+          size={IconSize.XXXLarge}
+          className={TypographyColor.Disabled}
+        />
+        <Typography type={TypographyType.Title2} bold>
+          All done!
+        </Typography>
+        <Typography
+          type={TypographyType.Body}
+          color={TypographyColor.Secondary}
+        >
+          All caught up! There are no posts waiting for your review right now.
+        </Typography>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col">
@@ -25,12 +59,15 @@ export function SquadModerationList(): ReactElement {
           </Button>
         </span>
       )}
-      <SquadModerationItem
-        data={value}
-        isLoading={isLoading}
-        onReject={onReject}
-        onApprove={(id) => onApprove([id])}
-      />
+      {data?.map((request) => (
+        <SquadModerationItem
+          key={request.post.id}
+          data={request}
+          isLoading={isLoading}
+          onReject={onReject}
+          onApprove={(id) => onApprove([id])}
+        />
+      ))}
     </div>
   );
 }

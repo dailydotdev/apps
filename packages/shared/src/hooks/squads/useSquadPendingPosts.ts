@@ -6,10 +6,12 @@ import {
 
 interface UseSquadPendingPosts {
   data: SourcePostModeration[];
+  isFetched: boolean;
 }
 
 export const useSquadPendingPosts = (): UseSquadPendingPosts => {
   return {
+    isFetched: true,
     data: [
       {
         postId: '1',
