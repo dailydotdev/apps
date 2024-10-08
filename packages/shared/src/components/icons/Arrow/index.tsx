@@ -7,5 +7,6 @@ export const ArrowIcon = (props: IconProps): ReactElement => (
   <Icon {...props} IconPrimary={OutlinedIcon} IconSecondary={FilledIcon} />
 );
 
+export * from './Long';
 export * from './Straight';
 export * from './Triangle';

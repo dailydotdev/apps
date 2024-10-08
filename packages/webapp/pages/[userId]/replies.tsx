@@ -9,12 +9,16 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { MyProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/MyProfileEmptyScreen';
 import { ProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/ProfileEmptyScreen';
 import CommentFeed from '@dailydotdev/shared/src/components/CommentFeed';
+import { NextSeoProps } from 'next-seo/lib/types';
+import { NextSeo } from 'next-seo';
 import {
   ProfileLayoutProps,
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
   getLayout as getProfileLayout,
+  getProfileSeoDefaults,
 } from '../../components/layouts/ProfileLayout';
+import { getTemplatedTitle } from '../../components/layouts/utils';
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
@@ -27,7 +31,10 @@ const commentClassName = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ProfileCommentsPage = ({ user }: ProfileLayoutProps): ReactElement => {
+const ProfileCommentsPage = ({
+  user,
+  noindex,
+}: ProfileLayoutProps): ReactElement => {
   const { user: loggedUser } = useContext(AuthContext);
   const isSameUser = user && loggedUser?.id === user.id;
   const userId = user?.id;
@@ -46,15 +53,30 @@ const ProfileCommentsPage = ({ user }: ProfileLayoutProps): ReactElement => {
     />
   );
 
+  const seo: NextSeoProps = {
+    ...getProfileSeoDefaults(
+      user,
+      {
+        title: getTemplatedTitle(
+          `Posts with replies by ${user.name} (@${user.username})`,
+        ),
+      },
+      noindex,
+    ),
+  };
+
   return (
-    <CommentFeed
-      feedQueryKey={generateQueryKey(RequestKey.UserComments, null, userId)}
-      query={USER_COMMENTS_QUERY}
-      logOrigin={Origin.Profile}
-      variables={{ userId }}
-      emptyScreen={emptyScreen}
-      commentClassName={commentClassName}
-    />
+    <>
+      <NextSeo {...seo} />
+      <CommentFeed
+        feedQueryKey={generateQueryKey(RequestKey.UserComments, null, userId)}
+        query={USER_COMMENTS_QUERY}
+        logOrigin={Origin.Profile}
+        variables={{ userId }}
+        emptyScreen={emptyScreen}
+        commentClassName={commentClassName}
+      />
+    </>
   );
 };
 

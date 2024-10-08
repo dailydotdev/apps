@@ -5,12 +5,14 @@ import {
   getMainFeedLayout,
   mainFeedLayoutProps,
 } from '../../components/layouts/MainFeedPage';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { defaultOpenGraph } from '../../next-seo';
+import { getTemplatedTitle } from '../../components/layouts/utils';
 
 const seo: NextSeoProps = {
-  title: 'Latest posts on daily.dev',
+  title: getTemplatedTitle('Latest developer posts across all topics'),
   openGraph: { ...defaultOpenGraph },
-  ...defaultSeo,
+  description:
+    'Explore the latest posts from developers worldwide. Stay current with fresh content on coding, dev tools, tech trends, and more on daily.dev.',
 };
 
 const PostsLatest = (): ReactElement => {
