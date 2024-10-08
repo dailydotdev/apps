@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React, {
   ChangeEvent,
+  DragEvent,
   ReactElement,
   ReactNode,
   useRef,
@@ -77,10 +78,7 @@ function ImageInput({
     inputRef.current.click();
   };
 
-  const onFileChange = async (event: ChangeEvent) => {
-    const input = event.target as HTMLInputElement;
-    const file = input.files[0];
-
+  const handleFile = async (file: File) => {
     if (!file) {
       onChange?.(null);
       return;
@@ -102,6 +100,23 @@ function ImageInput({
     onChange?.(base64, file);
   };
 
+  const onFileChange = (event: ChangeEvent) => {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    handleFile(file);
+  };
+
+  const onDragOver = (event: DragEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+  };
+
+  const onDrop = (event: DragEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const file = event.dataTransfer.files?.[0];
+    handleFile(file);
+  };
+
   const onClose = () => {
     setImage(null);
     onChange?.(null, null);
@@ -115,6 +130,8 @@ function ImageInput({
       <button
         type="button"
         onClick={onClick}
+        onDragOver={onDragOver}
+        onDrop={onDrop}
         className={classNames(
           'group relative flex items-center justify-center overflow-hidden border border-border-subtlest-primary',
           componentSize[size],
