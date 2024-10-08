@@ -53,7 +53,7 @@ function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
 
   const seo = {
     title: getTemplatedTitle(`Explore ${category?.title} Squads`),
-    description: `Find the best squads in the ${category?.title} category on daily.dev. Connect with like-minded developers and collaborate on the latest technologies.`,
+    description: `Find the best Squads in the ${category?.title} category on daily.dev. Connect with like-minded developers and collaborate on the latest technologies.`,
   };
 
   return (

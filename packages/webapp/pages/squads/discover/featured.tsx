@@ -29,7 +29,7 @@ export type Props = {
 const seo: NextSeoProps = {
   title: getTemplatedTitle('Explore the featured Squads'),
   openGraph: { ...defaultOpenGraph },
-  description: `Explore daily.dev’s featured squads, handpicked by our editors. Join the best developer communities and engage in top discussions today.`,
+  description: `Explore daily.dev’s featured Squads, handpicked by our editors. Join the best developer communities and engage in top discussions today.`,
 };
 
 const Skeleton = (): ReactElement => (

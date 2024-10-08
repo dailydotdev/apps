@@ -25,7 +25,7 @@ const seo: NextSeoProps = {
   title: getTemplatedTitle('Explore all Squads'),
   openGraph: { ...defaultOpenGraph },
   description:
-    'Browse and join squads on daily.dev. Connect with fellow developers, share knowledge, and dive into specific topics of interest in your favorite squads.',
+    'Browse and join Squads on daily.dev. Connect with fellow developers, share knowledge, and dive into specific topics of interest in your favorite Squads.',
 };
 
 const SquadDirectoryTitle = ({
