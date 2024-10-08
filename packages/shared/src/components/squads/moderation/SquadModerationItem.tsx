@@ -18,8 +18,7 @@ import { SourceMemberRole, Squad } from '../../../graphql/sources';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { capitalize } from '../../../lib/strings';
 import OptionsButton from '../../buttons/OptionsButton';
-import { TimerIcon } from '../../icons';
-import { WarningIcon } from '../../icons/Warning';
+import { TimerIcon, WarningIcon } from '../../icons';
 import { AlertColor } from '../../AlertDot';
 
 interface SquadModerationListProps {
