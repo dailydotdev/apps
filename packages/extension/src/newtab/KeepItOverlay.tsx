@@ -52,7 +52,7 @@ export function KeepItOverlay({ onClose }: KeepItOverlayProps): ReactElement {
   useEffect(() => {
     timeoutRef.current = setTimeout(() => {
       onClick();
-    }, 5000);
+    }, 10000);
   }, [onClick]);
 
   return (
