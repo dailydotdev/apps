@@ -62,8 +62,27 @@ export default function ProfileLayout({
   ogImageUrl.searchParams.set('type', 'wide');
   ogImageUrl.searchParams.set('r', Math.random().toString(36).substring(2, 5));
 
+  const getSeoTitle = () => {
+    if (router.pathname.includes('/posts')) {
+      return getTemplatedTitle(
+        `Recent posts by ${user.name} (@${user.username})`,
+      );
+    }
+    if (router.pathname.includes('/replies')) {
+      return getTemplatedTitle(
+        `Posts with replies by ${user.name} (@${user.username})`,
+      );
+    }
+    if (router.pathname.includes('/upvoted')) {
+      return getTemplatedTitle(
+        `Posts upvoted by ${user.name} (@${user.username})`,
+      );
+    }
+    return getTemplatedTitle(`${user.name} (@${user.username})`);
+  };
+
   const Seo: NextSeoProps = {
-    title: getTemplatedTitle(user.name),
+    title: getSeoTitle(),
     description: user.bio ? user.bio : `Check out ${user.name}'s profile`,
     openGraph: {
       images: [{ url: ogImageUrl.toString() }],
