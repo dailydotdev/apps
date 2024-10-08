@@ -24,6 +24,8 @@ interface KeepItOverlayProps {
   onClose: () => void;
 }
 
+const TEN_SECONDS = 10000;
+
 export function KeepItOverlay({ onClose }: KeepItOverlayProps): ReactElement {
   const { logEvent } = useLogContext();
   const timeoutRef = useRef<ReturnType<typeof window.setTimeout>>();
@@ -52,7 +54,7 @@ export function KeepItOverlay({ onClose }: KeepItOverlayProps): ReactElement {
   useEffect(() => {
     timeoutRef.current = setTimeout(() => {
       onClick();
-    }, 10000);
+    }, TEN_SECONDS);
   }, [onClick]);
 
   return (
