@@ -142,6 +142,7 @@ it('should change user all email subscription', async () => {
   const data: UpdateProfileParameters = {
     acceptedMarketing: true,
     notificationEmail: true,
+    followingEmail: true,
   };
   mockGraphQL(updateProfileMock(data));
   let personalizedDigestMutationCalled = false;
@@ -191,11 +192,13 @@ it('should unsubscribe from all email campaigns', async () => {
     ...defaultLoggedUser,
     acceptedMarketing: true,
     notificationEmail: true,
+    followingEmail: true,
   });
 
   const data: UpdateProfileParameters = {
     acceptedMarketing: false,
     notificationEmail: false,
+    followingEmail: false,
   };
   mockGraphQL(updateProfileMock(data));
 
@@ -437,5 +440,47 @@ it('should change hour for personalized digest subscription', async () => {
   expect(logEvent).toHaveBeenCalledWith({
     event_name: 'schedule digest',
     extra: JSON.stringify({ hour: 0, frequency: 'weekly' }),
+  });
+});
+
+it('should subscribe to user email following subscription', async () => {
+  renderComponent();
+  const data = { followingEmail: true };
+  mockGraphQL(updateProfileMock(data));
+  const subscription = await screen.findByTestId('following-switch');
+  expect(subscription).not.toBeChecked();
+  subscription.click();
+  await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
+  await waitForNock();
+  expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
+
+  expect(logEvent).toHaveBeenCalledTimes(1);
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: 'enable notification',
+    extra: JSON.stringify({
+      channel: 'email',
+      category: 'following',
+    }),
+  });
+});
+
+it('should unsubscribe to user email following subscription', async () => {
+  renderComponent({ ...defaultLoggedUser, followingEmail: true });
+  const data = { followingEmail: false };
+  mockGraphQL(updateProfileMock(data));
+  const subscription = await screen.findByTestId('following-switch');
+  expect(subscription).toBeChecked();
+  subscription.click();
+  await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
+  await waitForNock();
+  expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
+
+  expect(logEvent).toHaveBeenCalledTimes(1);
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: 'disable notification',
+    extra: JSON.stringify({
+      channel: 'email',
+      category: 'following',
+    }),
   });
 });
