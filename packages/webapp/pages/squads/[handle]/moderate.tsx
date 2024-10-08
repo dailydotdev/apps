@@ -25,6 +25,7 @@ import {
 import { ParsedUrlQuery } from 'querystring';
 import { useSquad } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
+import { SourceMemberRole } from '@dailydotdev/shared/src/graphql/sources';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
 export default function ModerateSquadPage({
@@ -38,11 +39,19 @@ export default function ModerateSquadPage({
       return;
     }
 
+    if (!squad) {
+      router.push('/404');
+      return;
+    }
+
     if (squad?.moderationRequired) {
       return;
     }
 
-    router.push(squad ? squad.permalink : '/404');
+    const isAdmin = squad.currentMember?.role === SourceMemberRole.Admin;
+    const settingsPage = `${squad.permalink}/settings`;
+
+    router.push(isAdmin ? settingsPage : squad.permalink);
   }, [squad, isFetched, router]);
 
   return (
