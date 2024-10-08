@@ -18,8 +18,6 @@ import { MailIcon } from '../icons';
 import { IconSize } from '../Icon';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 
-const signupProviders = [providerMap.google, providerMap.github];
-
 interface ClassName {
   onboardingSignup?: string;
   onboardingForm?: string;
@@ -39,6 +37,27 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   className?: ClassName;
   onboardingSignupButton?: ButtonProps<'button'>;
 }
+
+const isWebView = () => {
+  const { userAgent } = navigator;
+  // Common patterns in various in-app browsers' User-Agent strings
+  const inAppBrowserPatterns = [
+    /FBAN|FBAV/i, // Facebook
+    /Instagram/i, // Instagram
+    /Twitter/i, // Twitter
+    /Line/i, // LINE Messenger
+    /LinkedIn/i, // LinkedIn
+    /Snapchat/i, // Snapchat
+    /WhatsApp/i, // WhatsApp
+    /WeChat/i, // WeChat
+    /Messenger/i, // Facebook Messenger
+    /QQ/i, // QQ Browser
+    /Reddit/i, // Reddit
+    /Puffin/i, // Puffin Browser (a special case browser)
+  ];
+
+  return inAppBrowserPatterns.some((pattern) => pattern.test(userAgent));
+};
 
 const OnboardingRegistrationForm = ({
   onSignup,
@@ -60,6 +79,13 @@ const OnboardingRegistrationForm = ({
     size: ButtonSize.Large,
     variant: ButtonVariant.Primary,
     ...onboardingSignupButton,
+  };
+
+  const getSignupProviders = () => {
+    if (isWebView()) {
+      return [providerMap.github];
+    }
+    return [providerMap.google, providerMap.github];
   };
 
   useEffect(() => {
@@ -165,7 +191,7 @@ const OnboardingRegistrationForm = ({
         )}
         role="list"
       >
-        {signupProviders.map((provider) => (
+        {getSignupProviders().map((provider) => (
           <Button
             aria-label={`${shouldLogin ? 'Login' : 'Signup'} using ${
               provider.label
