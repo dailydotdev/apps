@@ -69,10 +69,12 @@ export function KeepItOverlay({ onClose }: KeepItOverlayProps): ReactElement {
         ALREADY DID THAT!
       </Button>
       <div className="absolute ml-16 mt-8 flex translate-y-full flex-col">
-        <StraightArrowIcon
-          size={IconSize.XXXLarge}
-          className="z-3 rotate-180 text-brand-subtler"
-        />
+        <div className="z-3 rotate-180">
+          <StraightArrowIcon
+            size={IconSize.XXXLarge}
+            className="animate-bounce text-brand-subtler"
+          />
+        </div>
         <span className="absolute right-0 top-[80%] flex min-w-[21.25rem] flex-row items-center gap-2 rounded-12 bg-surface-primary p-3">
           <span className="rounded-full bg-surface-invert">
             <DailyIcon secondary className="w-full" size={IconSize.XLarge} />
