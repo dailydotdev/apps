@@ -162,20 +162,24 @@ function InternalApp(): ReactElement {
   }, [unreadCount]);
 
   const onClose = useCallback(() => setShouldShowOverlay(false), []);
+  const overlay =
+    shouldShowOverlay && extensionOverlay ? (
+      <KeepItOverlay onClose={onClose} />
+    ) : null;
 
   if (!hostGranted) {
-    return isCheckingHostPermissions ? null : <ExtensionPermissionsPrompt />;
+    return isCheckingHostPermissions ? null : (
+      <ExtensionPermissionsPrompt>{overlay}</ExtensionPermissionsPrompt>
+    );
   }
 
   if (shouldRedirectOnboarding) {
-    return <ExtensionOnboarding />;
+    return <ExtensionOnboarding>{overlay}</ExtensionOnboarding>;
   }
 
   return (
     <DndContextProvider>
-      {shouldShowOverlay && extensionOverlay && (
-        <KeepItOverlay onClose={onClose} />
-      )}
+      {overlay}
       <MainFeedPage onPageChanged={onPageChanged} />
       {shouldShowLogin && (
         <AuthModal
