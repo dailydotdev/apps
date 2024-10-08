@@ -1,7 +1,7 @@
 import React, { ReactElement, useCallback, useEffect, useRef } from 'react';
 import {
   DailyIcon,
-  StraightArrowIcon,
+  LongArrowIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
@@ -23,6 +23,8 @@ import { INSTALLATION_STORAGE_KEY } from '../lib/common';
 interface KeepItOverlayProps {
   onClose: () => void;
 }
+
+const TEN_SECONDS = 10000;
 
 export function KeepItOverlay({ onClose }: KeepItOverlayProps): ReactElement {
   const { logEvent } = useLogContext();
@@ -52,7 +54,7 @@ export function KeepItOverlay({ onClose }: KeepItOverlayProps): ReactElement {
   useEffect(() => {
     timeoutRef.current = setTimeout(() => {
       onClick();
-    }, 5000);
+    }, TEN_SECONDS);
   }, [onClick]);
 
   return (
@@ -69,13 +71,13 @@ export function KeepItOverlay({ onClose }: KeepItOverlayProps): ReactElement {
         ALREADY DID THAT!
       </Button>
       <div className="absolute ml-16 mt-8 flex translate-y-full flex-col">
-        <StraightArrowIcon
+        <LongArrowIcon
           size={IconSize.XXXLarge}
-          className="z-3 rotate-180 text-brand-subtler"
+          className="z-3 h-[7rem] animate-bounce"
         />
-        <span className="absolute right-0 top-[80%] flex min-w-[20rem] flex-row items-center gap-2 rounded-12 bg-surface-primary p-3">
-          <span className="rounded-full bg-surface-invert p-1">
-            <DailyIcon />
+        <span className="absolute right-0 top-[80%] flex min-w-[21.25rem] flex-row items-center gap-2 rounded-12 bg-surface-primary p-3">
+          <span className="rounded-full bg-surface-invert">
+            <DailyIcon secondary className="w-full" size={IconSize.XLarge} />
           </span>
           <span className="ml-1 flex flex-col text-surface-invert">
             <Typography type={TypographyType.Footnote}>
