@@ -18,8 +18,6 @@ import { MailIcon } from '../icons';
 import { IconSize } from '../Icon';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 
-const signupProviders = [providerMap.google, providerMap.github];
-
 interface ClassName {
   onboardingSignup?: string;
   onboardingForm?: string;
@@ -39,6 +37,11 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   className?: ClassName;
   onboardingSignupButton?: ButtonProps<'button'>;
 }
+
+const isWebView = () => {
+  const { userAgent } = navigator;
+  return /FBAN|FBAV|Instagram/.test(userAgent); // Checks for Facebook/Instagram in-app browser
+};
 
 const OnboardingRegistrationForm = ({
   onSignup,
@@ -60,6 +63,13 @@ const OnboardingRegistrationForm = ({
     size: ButtonSize.Large,
     variant: ButtonVariant.Primary,
     ...onboardingSignupButton,
+  };
+
+  const getSignupProviders = () => {
+    if (isWebView()) {
+      return [providerMap.github];
+    }
+    return [providerMap.google, providerMap.github];
   };
 
   useEffect(() => {
@@ -165,7 +175,7 @@ const OnboardingRegistrationForm = ({
         )}
         role="list"
       >
-        {signupProviders.map((provider) => (
+        {getSignupProviders().map((provider) => (
           <Button
             aria-label={`${shouldLogin ? 'Login' : 'Signup'} using ${
               provider.label
