@@ -14,9 +14,9 @@ import {
   TagsData,
 } from '../../graphql/feedSettings';
 import { disabledRefetch, getRandomNumber } from '../../lib/func';
-import { SearchField } from '../fields/SearchField';
+import { SearchField, SearchStyleVersion } from '../fields/SearchField';
 import useDebounceFn from '../../hooks/useDebounceFn';
-import { useTagSearch } from '../../hooks';
+import { useTagSearch, useViewSize, ViewSize } from '../../hooks';
 import type { FilterOnboardingProps } from '../onboarding/FilterOnboarding';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import { Origin } from '../../lib/log';
@@ -40,6 +40,7 @@ export type TagSelectionProps = {
   onClickTag?: ({ tag, action }: OnSelectTagProps) => void;
   origin?: Origin;
   searchOrigin?: Origin;
+  searchStyleVersion?: SearchStyleVersion;
   shouldShuffleTags?: boolean;
 } & Omit<FilterOnboardingProps, 'onSelectedTopics'>;
 
@@ -52,10 +53,11 @@ export function TagSelection({
   origin = Origin.Onboarding,
   searchOrigin = Origin.EditTag,
   shouldShuffleTags = false,
+  searchStyleVersion,
 }: TagSelectionProps): ReactElement {
   const [isShuffled, setIsShuffled] = useState(false);
   const queryClient = useQueryClient();
-
+  const isMobile = useViewSize(ViewSize.MobileL);
   const { feedSettings } = useFeedSettings({ feedId });
   const selectedTags = useMemo(() => {
     return new Set(feedSettings?.includeTags || []);
@@ -202,11 +204,12 @@ export function TagSelection({
     <div className={classNames(className, 'flex w-full flex-col items-center')}>
       <SearchField
         aria-label="Pick tags that are relevant to you"
-        autoFocus
+        autoFocus={!isMobile}
         className="mb-10 w-full tablet:max-w-xs"
         inputId="search-filters"
-        placeholder="javascript, php, git, etc…"
+        placeholder="Search javascript, php, git, etc…"
         valueChanged={onSearch}
+        styleVersion={searchStyleVersion}
       />
       <div
         role="list"
