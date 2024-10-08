@@ -18,7 +18,7 @@ import { PlaceholderSquadGridList } from '@dailydotdev/shared/src/components/car
 import { PlaceholderSquadListList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadList';
 import { SquadDirectoryLayout } from '../../../../shared/src/components/squads/layout/SquadDirectoryLayout';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
-import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
+import { defaultOpenGraph } from '../../../next-seo';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 
@@ -27,10 +27,9 @@ export type Props = {
 };
 
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Featured Squads'),
+  title: getTemplatedTitle('Explore the featured Squads'),
   openGraph: { ...defaultOpenGraph },
-  ...defaultSeo,
-  description: `Dive into daily.dev's Featured Squads, showcasing editor's choice and hand-picked communities that highlight the most innovative and engaging groups on the platform. Join the conversation with top developers today.`,
+  description: `Explore daily.dev’s featured Squads, handpicked by our editors. Join the best developer communities and engage in top discussions today.`,
 };
 
 const Skeleton = (): ReactElement => (
