@@ -5,14 +5,12 @@ import {
   getMainFeedLayout,
   mainFeedLayoutProps,
 } from '../../components/layouts/MainFeedPage';
-import { defaultOpenGraph } from '../../next-seo';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Most upvoted posts for developers'),
+  title: 'Most upvoted posts on daily.dev',
   openGraph: { ...defaultOpenGraph },
-  description:
-    'Find the most upvoted developer posts on daily.dev. Explore top-rated content in coding, tutorials, and tech news from the largest developer network in the world.',
+  ...defaultSeo,
 };
 
 const PostsUpvoted = (): ReactElement => {
