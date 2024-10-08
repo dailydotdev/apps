@@ -16,7 +16,7 @@ import {
 import { disabledRefetch, getRandomNumber } from '../../lib/func';
 import { SearchField, SearchStyleVersion } from '../fields/SearchField';
 import useDebounceFn from '../../hooks/useDebounceFn';
-import { useTagSearch } from '../../hooks';
+import { useTagSearch, useViewSize, ViewSize } from '../../hooks';
 import type { FilterOnboardingProps } from '../onboarding/FilterOnboarding';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import { Origin } from '../../lib/log';
@@ -56,7 +56,7 @@ export function TagSelection({
   searchStyleVersion,
 }: TagSelectionProps): ReactElement {
   const queryClient = useQueryClient();
-
+  const isMobile = useViewSize(ViewSize.MobileL);
   const { feedSettings } = useFeedSettings({ feedId });
   const selectedTags = useMemo(() => {
     return new Set(feedSettings?.includeTags || []);
@@ -202,7 +202,7 @@ export function TagSelection({
     <div className={classNames(className, 'flex w-full flex-col items-center')}>
       <SearchField
         aria-label="Pick tags that are relevant to you"
-        autoFocus
+        autoFocus={!isMobile}
         className="mb-10 w-full tablet:max-w-xs"
         inputId="search-filters"
         placeholder="Search javascript, php, git, etc…"

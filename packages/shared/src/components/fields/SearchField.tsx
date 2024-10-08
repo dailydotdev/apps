@@ -116,13 +116,16 @@ export const SearchField = forwardRef(function SearchField(
     <BaseField
       {...props}
       className={classNames(
-        'items-center !border !bg-background-default',
+        'items-center !border has-[:focus]:!border-2 has-[:focus]:!border-surface-focus',
+        isFocusVersion && hasInput
+          ? '!bg-surface-float font-bold'
+          : '!bg-background-default',
         isFocusVersion
-          ? '!tablet:max-w-[26.25rem] !border-accent-salt-baseline font-bold text-white'
-          : '!border-border-subtlest-tertiary',
+          ? '!tablet:max-w-[26.25rem] !border-accent-salt-baseline text-white hover:!bg-surface-hover has-[:focus]:!bg-surface-hover'
+          : '!border-border-subtlest-tertiary !bg-background-default',
         sizeClass,
         className,
-        { focused },
+        { focused: isFocusVersion ? false : focused },
       )}
       onClick={focusInput}
       data-testid="searchField"
@@ -178,7 +181,7 @@ export const SearchField = forwardRef(function SearchField(
         autoComplete="off"
         className={classNames(
           'flex-1',
-          isFocusVersion ? '!placeholder-white' : undefined,
+          isFocusVersion ? '!placeholder-text-secondary' : undefined,
           sizeClass,
           getFieldFontColor({ readOnly, disabled, hasInput, focused }),
         )}
