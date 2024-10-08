@@ -14,11 +14,11 @@ import { useToastNotification } from '../useToastNotification';
 export const rejectReasons: { value: PostModerationReason; label: string }[] = [
   {
     value: PostModerationReason.OffTopic,
-    label: 'Off-topic post unrelated to the squad’s purpose',
+    label: 'Off-topic post unrelated to the Squad’s purpose',
   },
   {
     value: PostModerationReason.Violation,
-    label: 'Violates the squad’s code of conduct',
+    label: 'Violates the Squad’s code of conduct',
   },
   {
     value: PostModerationReason.Promotional,
