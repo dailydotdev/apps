@@ -73,11 +73,23 @@ const isWebView = () => {
     !Object.prototype.hasOwnProperty.call(window, 'sessionStorage') ||
     !Object.prototype.hasOwnProperty.call(navigator, 'serviceWorker');
 
+  // Advanced in-app detection (WebView or missing Safari)
+  const advancedInAppDetection = () => {
+    const rules = [
+      'WebView', // Generic WebView detection
+      '(iPhone|iPod|iPad)(?!.*Safari/)', // iOS WebView without Safari
+      'Android.*(wv)', // Android WebView
+      '(AppleWebKit)(?!.*Safari)', // iOS Safari WebView (missing Safari in UA)
+    ];
+    const regex = new RegExp(`(${rules.join('|')})`, 'ig');
+    return Boolean(userAgent.match(regex));
+  };
+
   const isInAppBrowser = inAppBrowserPatterns.some((pattern) =>
     pattern.test(userAgent),
   );
 
-  return isInAppBrowser || hasLimitedFeatures;
+  return isInAppBrowser || advancedInAppDetection || hasLimitedFeatures;
 };
 
 const OnboardingRegistrationForm = ({
