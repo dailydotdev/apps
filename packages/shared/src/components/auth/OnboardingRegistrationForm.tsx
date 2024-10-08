@@ -40,7 +40,23 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
 
 const isWebView = () => {
   const { userAgent } = navigator;
-  return /FBAN|FBAV|Instagram/.test(userAgent); // Checks for Facebook/Instagram in-app browser
+  // Common patterns in various in-app browsers' User-Agent strings
+  const inAppBrowserPatterns = [
+    /FBAN|FBAV/i, // Facebook
+    /Instagram/i, // Instagram
+    /Twitter/i, // Twitter
+    /Line/i, // LINE Messenger
+    /LinkedIn/i, // LinkedIn
+    /Snapchat/i, // Snapchat
+    /WhatsApp/i, // WhatsApp
+    /WeChat/i, // WeChat
+    /Messenger/i, // Facebook Messenger
+    /QQ/i, // QQ Browser
+    /Reddit/i, // Reddit
+    /Puffin/i, // Puffin Browser (a special case browser)
+  ];
+
+  return inAppBrowserPatterns.some((pattern) => pattern.test(userAgent));
 };
 
 const OnboardingRegistrationForm = ({
