@@ -15,7 +15,7 @@ import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { SourceIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import { useIntegrationsQuery } from '@dailydotdev/shared/src/hooks/integrations/useIntegrationsQuery';
+import { useIntegrationQuery } from '@dailydotdev/shared/src/hooks/integrations/useIntegrationQuery';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 
@@ -32,9 +32,12 @@ const NewSquad = (): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
 
   const shouldLoadIntegration = query?.fs;
-  const { data, isLoading: isIntegrationLoading } = useIntegrationsQuery({
-    queryOptions: { enabled: !!shouldLoadIntegration },
+  const integrationId = query?.iid as string;
+  const { data, isLoading: isIntegrationLoading } = useIntegrationQuery({
+    id: integrationId,
+    queryOptions: { enabled: !!shouldLoadIntegration && !!integrationId },
   });
+  console.log('d', data);
 
   const handleClose = async () => {
     router.push('/squads');
@@ -61,8 +64,8 @@ const NewSquad = (): ReactElement => {
         onSubmit={(e, form) => onCreateSquad(form)}
         isLoading={isLoading}
         initialData={{
-          name: data?.[0].name,
-          handle: data?.[0].name.toLowerCase().replace(/[^a-zA-Z0-9]/g, ''),
+          name: data?.name,
+          handle: data?.name.toLowerCase().replace(/[^a-zA-Z0-9]/g, ''),
         }}
       >
         <div className="flex flex-col-reverse bg-cover bg-center tablet:flex-row">
