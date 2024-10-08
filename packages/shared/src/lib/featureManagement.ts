@@ -1,6 +1,7 @@
 import { JSONValue } from '@growthbook/growthbook';
 import { ShortcutsUIExperiment } from './featureValues';
 import { cloudinary } from './image';
+import { SearchStyleVersion } from '../components/fields/SearchField';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -32,6 +33,11 @@ const feature = {
   showCodeSnippets: new Feature('show_code_snippets', false),
   searchPlaceholder: new Feature('search_placeholder', 'Search'),
   onboardingShuffleTags: new Feature('onboarding_shuffle_tags', false),
+  searchStyleVersion: new Feature(
+    'search_style_version',
+    SearchStyleVersion.Default,
+  ),
+  extensionOverlay: new Feature('extension_overlay', false),
 };
 
 export { feature };
