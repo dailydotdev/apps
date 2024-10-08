@@ -18,6 +18,8 @@ import { MailIcon } from '../icons';
 import { IconSize } from '../Icon';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 
+const signupProviders = [providerMap.google, providerMap.github];
+
 interface ClassName {
   onboardingSignup?: string;
   onboardingForm?: string;
