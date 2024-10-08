@@ -14,6 +14,7 @@ interface UseSquadPendingPosts {
 
 export const useSquadPendingPosts = (squadId: string): UseSquadPendingPosts => {
   const { user } = useAuthContext();
+  // TODO:: MI-596
   const { data } = useQuery(
     generateQueryKey(RequestKey.SquadPostRequests, user, squadId),
     () =>

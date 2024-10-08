@@ -601,6 +601,7 @@ export interface SquadPostRejectionProps {
   note?: string;
 }
 
+// TODO:: MI-596
 export const squadApproveMutation = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _: string[],
