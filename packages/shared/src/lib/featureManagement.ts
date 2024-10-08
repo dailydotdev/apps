@@ -32,6 +32,7 @@ const feature = {
   showCodeSnippets: new Feature('show_code_snippets', false),
   searchPlaceholder: new Feature('search_placeholder', 'Search'),
   onboardingShuffleTags: new Feature('onboarding_shuffle_tags', false),
+  extensionOverlay: new Feature('extension_overlay', false),
 };
 
 export { feature };
