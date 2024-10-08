@@ -73,9 +73,9 @@ export function KeepItOverlay({ onClose }: KeepItOverlayProps): ReactElement {
           size={IconSize.XXXLarge}
           className="z-3 rotate-180 text-brand-subtler"
         />
-        <span className="absolute right-0 top-[80%] flex min-w-[20rem] flex-row items-center gap-2 rounded-12 bg-surface-primary p-3">
-          <span className="rounded-full bg-surface-invert p-1">
-            <DailyIcon />
+        <span className="absolute right-0 top-[80%] flex min-w-[21.25rem] flex-row items-center gap-2 rounded-12 bg-surface-primary p-3">
+          <span className="rounded-full bg-surface-invert">
+            <DailyIcon secondary className="w-full" size={IconSize.XLarge} />
           </span>
           <span className="ml-1 flex flex-col text-surface-invert">
             <Typography type={TypographyType.Footnote}>
