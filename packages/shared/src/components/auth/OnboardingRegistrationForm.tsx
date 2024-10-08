@@ -40,7 +40,8 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
 
 const isWebView = () => {
   const { userAgent } = navigator;
-  // Common patterns in various in-app browsers' User-Agent strings
+
+  // Define patterns for detecting in-app browsers and devices
   const inAppBrowserPatterns = [
     /FBAN|FBAV/i, // Facebook
     /Instagram/i, // Instagram
@@ -53,10 +54,30 @@ const isWebView = () => {
     /Messenger/i, // Facebook Messenger
     /QQ/i, // QQ Browser
     /Reddit/i, // Reddit
-    /Puffin/i, // Puffin Browser (a special case browser)
+    /Puffin/i, // Puffin Browser
+    /TikTok/i, // TikTok
+    /musical.ly/i, // TikTok (older)
+    /YouTube/i, // YouTube
+    /Pinterest/i, // Pinterest
+    /Discord/i, // Discord
+    /Telegram/i, // Telegram
+    /Viber/i, // Viber
+    /Slack/i, // Slack
+    /Signal/i, // Signal,
+    /KakaoTalk/i, // KakaoTalk (Popular in South Korea)
+    /Baidu/i, // Baidu (Popular in China)
   ];
 
-  return inAppBrowserPatterns.some((pattern) => pattern.test(userAgent));
+  const hasLimitedFeatures =
+    !Object.prototype.hasOwnProperty.call(window, 'localStorage') ||
+    !Object.prototype.hasOwnProperty.call(window, 'sessionStorage') ||
+    !Object.prototype.hasOwnProperty.call(navigator, 'serviceWorker');
+
+  const isInAppBrowser = inAppBrowserPatterns.some((pattern) =>
+    pattern.test(userAgent),
+  );
+
+  return isInAppBrowser || hasLimitedFeatures;
 };
 
 const OnboardingRegistrationForm = ({
