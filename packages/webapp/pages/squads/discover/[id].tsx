@@ -21,7 +21,7 @@ import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadL
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
-import { defaultSeo } from '../../../next-seo';
+import { getTemplatedTitle } from '../../../components/layouts/utils';
 
 interface SquadCategoryPageProps {
   category: SourceCategory;
@@ -51,12 +51,14 @@ function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
     result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
   const isTablet = useViewSize(ViewSize.Tablet);
 
-  const title = `${category?.title} Directory`;
-  const description = `Explore the ${category?.title} Squads on daily.dev, where developers share insights, collaborate on projects, and discuss the latest trends. Join a squad that matches your interests and elevate your developer journey.`;
+  const seo = {
+    title: getTemplatedTitle(`Explore ${category?.title} Squads`),
+    description: `Find the best Squads in the ${category?.title} category on daily.dev. Connect with like-minded developers and collaborate on the latest technologies.`,
+  };
 
   return (
     <SquadDirectoryLayout>
-      <NextSeo {...defaultSeo} title={title} description={description} />
+      <NextSeo {...seo} />
       <InfiniteScrolling
         isFetchingNextPage={result.isFetchingNextPage}
         canFetchMore={checkFetchMore(result)}
