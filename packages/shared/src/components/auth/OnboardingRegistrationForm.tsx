@@ -68,11 +68,6 @@ const isWebView = () => {
     /Baidu/i, // Baidu (Popular in China)
   ];
 
-  const hasLimitedFeatures =
-    !Object.prototype.hasOwnProperty.call(window, 'localStorage') ||
-    !Object.prototype.hasOwnProperty.call(window, 'sessionStorage') ||
-    !Object.prototype.hasOwnProperty.call(navigator, 'serviceWorker');
-
   // Advanced in-app detection (WebView or missing Safari)
   const advancedInAppDetection = () => {
     const rules = [
@@ -82,14 +77,14 @@ const isWebView = () => {
       '(AppleWebKit)(?!.*Safari)', // iOS Safari WebView (missing Safari in UA)
     ];
     const regex = new RegExp(`(${rules.join('|')})`, 'ig');
-    return Boolean(userAgent.match(regex));
+    return !!userAgent.match(regex);
   };
 
   const isInAppBrowser = inAppBrowserPatterns.some((pattern) =>
     pattern.test(userAgent),
   );
 
-  return isInAppBrowser || advancedInAppDetection || hasLimitedFeatures;
+  return isInAppBrowser || advancedInAppDetection();
 };
 
 const OnboardingRegistrationForm = ({
