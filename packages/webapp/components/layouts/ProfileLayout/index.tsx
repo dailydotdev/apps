@@ -34,7 +34,7 @@ export interface ProfileLayoutProps extends Partial<ProfileV2> {
   children?: ReactNode;
 }
 
-export const getOGImageUrl = (userId: string) => {
+export const getOGImageUrl = (userId: string): string => {
   const ogImageUrl = new URL(
     `/devcards/v2/${userId}.png`,
     process.env.NEXT_PUBLIC_API_URL,
