@@ -29,10 +29,7 @@ import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
-import {
-  useFeature,
-  useGrowthBookContext,
-} from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import ExtensionOnboarding from '@dailydotdev/shared/src/components/ExtensionOnboarding';
 import { withFeaturesBoundary } from '@dailydotdev/shared/src/components/withFeaturesBoundary';
@@ -53,7 +50,10 @@ import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
-import { useContentScriptStatus } from '../../../shared/src/hooks';
+import {
+  useConditionalFeature,
+  useContentScriptStatus,
+} from '../../../shared/src/hooks';
 import { KeepItOverlay } from './KeepItOverlay';
 import { INSTALLATION_STORAGE_KEY } from '../lib/common';
 
@@ -114,7 +114,10 @@ function InternalApp(): ReactElement {
   const routeChangedCallbackRef = useLogPageView();
   useConsoleLogo();
 
-  const extensionOverlay = useFeature(feature.extensionOverlay);
+  const { value: extensionOverlay } = useConditionalFeature({
+    feature: feature.extensionOverlay,
+    shouldEvaluate: shouldShowOverlay,
+  });
   const { user, isAuthReady } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
   const isPageReady =
