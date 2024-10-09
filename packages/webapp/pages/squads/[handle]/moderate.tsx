@@ -1,8 +1,5 @@
-import React, { ReactElement, useEffect } from 'react';
-import {
-  ManageSquadPageContainer,
-  SquadSettingsProps,
-} from '@dailydotdev/shared/src/components/squads/utils';
+import React, { ReactElement } from 'react';
+import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
 import {
   SquadTab,
   SquadTabs,
@@ -18,41 +15,27 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import {
+  GetServerSidePropsContext,
+  GetServerSidePropsResult,
   GetStaticPathsResult,
-  GetStaticPropsContext,
-  GetStaticPropsResult,
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
+import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
+import {
+  getSquadStaticFields,
+  SquadStaticData,
+} from '@dailydotdev/shared/src/graphql/squads';
 import { useSquad } from '@dailydotdev/shared/src/hooks';
-import { useRouter } from 'next/router';
-import { SourceMemberRole } from '@dailydotdev/shared/src/graphql/sources';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
+interface ModerateSquadPageProps {
+  squad: SquadStaticData;
+}
+
 export default function ModerateSquadPage({
-  handle,
-}: SquadSettingsProps): ReactElement {
-  const { squad, isFetched } = useSquad({ handle });
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isFetched) {
-      return;
-    }
-
-    if (!squad) {
-      router.push('/404');
-      return;
-    }
-
-    if (squad?.moderationRequired) {
-      return;
-    }
-
-    const isAdmin = squad.currentMember?.role === SourceMemberRole.Admin;
-    const settingsPage = `${squad.permalink}/settings`;
-
-    router.push(isAdmin ? settingsPage : squad.permalink);
-  }, [squad, isFetched, router]);
+  squad: squadProps,
+}: ModerateSquadPageProps): ReactElement {
+  const { squad } = useSquad({ handle: squadProps.handle });
 
   return (
     <ManageSquadPageContainer>
@@ -67,7 +50,7 @@ export default function ModerateSquadPage({
       </PageHeader>
       <SquadTabs
         active={SquadTab.PendingPosts}
-        handle={handle}
+        handle={squadProps.handle}
         pendingCount={squad?.moderationPostCount}
       />
       <SquadModerationList squad={squad} />
@@ -83,14 +66,36 @@ interface SquadPageParams extends ParsedUrlQuery {
   handle: string;
 }
 
-export function getStaticProps({
+export async function getServerSideProps({
   params,
-}: GetStaticPropsContext<SquadPageParams>): GetStaticPropsResult<SquadSettingsProps> {
-  return {
-    props: {
-      handle: params.handle,
-    },
+  res,
+}: GetServerSidePropsContext<SquadPageParams>): Promise<
+  GetServerSidePropsResult<ModerateSquadPageProps>
+> {
+  const setCacheHeader = () => {
+    res.setHeader(
+      'Cache-Control',
+      `public, max-age=0, must-revalidate, s-maxage=${oneHour}, stale-while-revalidate=${oneHour}`,
+    );
   };
+
+  try {
+    const squad = await getSquadStaticFields(params.handle);
+
+    setCacheHeader();
+
+    if (!squad) {
+      return { redirect: { destination: '/404', permanent: false } };
+    }
+
+    if (!squad.moderationRequired) {
+      return { redirect: { destination: squad.permalink, permanent: false } };
+    }
+
+    return { props: { squad } };
+  } catch (err) {
+    return { redirect: { destination: '/404', permanent: false } };
+  }
 }
 
 ModerateSquadPage.getLayout = getMainLayout;
