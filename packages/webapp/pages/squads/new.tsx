@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import router, { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -28,7 +28,7 @@ const seo: NextSeoProps = {
 };
 
 const NewSquad = (): ReactElement => {
-  const [selectedChannel, setSelectedChannel] = React.useState<string | null>();
+  const [selectedChannel, setSelectedChannel] = useState<string | null>();
   const { isReady: isRouteReady, query } = useRouter();
   const { user, isAuthReady, isFetched } = useAuthContext();
   const { onSave } = useSlackConnectSourceMutation();
@@ -54,6 +54,8 @@ const NewSquad = (): ReactElement => {
     id: integrationId,
     queryOptions: { enabled: !!shouldLoadIntegration && !!integrationId },
   });
+
+  const initialHandle = data?.name.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
 
   const handleClose = async () => {
     router.push('/squads');
@@ -84,7 +86,7 @@ const NewSquad = (): ReactElement => {
         isLoading={isLoading}
         initialData={{
           name: data?.name,
-          handle: data?.name.toLowerCase().replace(/[^a-zA-Z0-9]/g, ''),
+          handle: initialHandle,
         }}
         integrationId={integrationId}
       >
