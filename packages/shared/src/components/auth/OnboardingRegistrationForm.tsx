@@ -18,8 +18,6 @@ import { MailIcon } from '../icons';
 import { IconSize } from '../Icon';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 
-const signupProviders = [providerMap.google, providerMap.github];
-
 interface ClassName {
   onboardingSignup?: string;
   onboardingForm?: string;
@@ -39,6 +37,55 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   className?: ClassName;
   onboardingSignupButton?: ButtonProps<'button'>;
 }
+
+const isWebView = () => {
+  const { userAgent } = navigator;
+
+  // Define patterns for detecting in-app browsers and devices
+  const inAppBrowserPatterns = [
+    /FBAN|FBAV/i, // Facebook
+    /Instagram/i, // Instagram
+    /Twitter/i, // Twitter
+    /Line/i, // LINE Messenger
+    /LinkedIn/i, // LinkedIn
+    /Snapchat/i, // Snapchat
+    /WhatsApp/i, // WhatsApp
+    /WeChat/i, // WeChat
+    /Messenger/i, // Facebook Messenger
+    /QQ/i, // QQ Browser
+    /Reddit/i, // Reddit
+    /Puffin/i, // Puffin Browser
+    /TikTok/i, // TikTok
+    /musical.ly/i, // TikTok (older)
+    /YouTube/i, // YouTube
+    /Pinterest/i, // Pinterest
+    /Discord/i, // Discord
+    /Telegram/i, // Telegram
+    /Viber/i, // Viber
+    /Slack/i, // Slack
+    /Signal/i, // Signal,
+    /KakaoTalk/i, // KakaoTalk (Popular in South Korea)
+    /Baidu/i, // Baidu (Popular in China)
+  ];
+
+  // Advanced in-app detection (WebView or missing Safari)
+  const advancedInAppDetection = () => {
+    const rules = [
+      'WebView', // Generic WebView detection
+      '(iPhone|iPod|iPad)(?!.*Safari/)', // iOS WebView without Safari
+      'Android.*(wv)', // Android WebView
+      '(AppleWebKit)(?!.*Safari)', // iOS Safari WebView (missing Safari in UA)
+    ];
+    const regex = new RegExp(`(${rules.join('|')})`, 'ig');
+    return !!userAgent.match(regex);
+  };
+
+  const isInAppBrowser = inAppBrowserPatterns.some((pattern) =>
+    pattern.test(userAgent),
+  );
+
+  return isInAppBrowser || advancedInAppDetection();
+};
 
 const OnboardingRegistrationForm = ({
   onSignup,
@@ -60,6 +107,13 @@ const OnboardingRegistrationForm = ({
     size: ButtonSize.Large,
     variant: ButtonVariant.Primary,
     ...onboardingSignupButton,
+  };
+
+  const getSignupProviders = () => {
+    if (isWebView()) {
+      return [providerMap.github];
+    }
+    return [providerMap.google, providerMap.github];
   };
 
   useEffect(() => {
@@ -165,7 +219,7 @@ const OnboardingRegistrationForm = ({
         )}
         role="list"
       >
-        {signupProviders.map((provider) => (
+        {getSignupProviders().map((provider) => (
           <Button
             aria-label={`${shouldLogin ? 'Login' : 'Signup'} using ${
               provider.label
