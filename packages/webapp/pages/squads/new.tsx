@@ -32,7 +32,7 @@ const NewSquad = (): ReactElement => {
   const { isReady: isRouteReady, query } = useRouter();
   const { user, isAuthReady, isFetched } = useAuthContext();
   const { onSave } = useSlackConnectSourceMutation();
-  const shouldLoadIntegration = query?.fs;
+  const shouldLoadIntegration = query?.fs && !query?.error;
   const integrationId = query?.iid as string;
 
   const { onCreateSquad, isLoading } = useSquadCreate({
