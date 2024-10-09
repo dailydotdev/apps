@@ -14,11 +14,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
-import {
-  GetServerSidePropsContext,
-  GetServerSidePropsResult,
-  GetStaticPathsResult,
-} from 'next';
+import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
 import {
@@ -56,10 +52,6 @@ export default function ModerateSquadPage({
       <SquadModerationList squad={squad} />
     </ManageSquadPageContainer>
   );
-}
-
-export async function getStaticPaths(): Promise<GetStaticPathsResult> {
-  return { paths: [], fallback: true };
 }
 
 interface SquadPageParams extends ParsedUrlQuery {
