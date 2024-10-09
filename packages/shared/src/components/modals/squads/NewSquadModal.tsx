@@ -1,5 +1,4 @@
 import React, { ReactElement, useCallback } from 'react';
-import classNames from 'classnames';
 import { Modal, ModalProps } from '../common/Modal';
 import { ModalSize } from '../common/types';
 import { Button, ButtonVariant } from '../../buttons/Button';
@@ -21,10 +20,7 @@ import { UserIntegrationType } from '../../../graphql/integrations';
 import { useLogContext } from '../../../contexts/LogContext';
 
 export default function NewSquadModal(props: ModalProps): ReactElement {
-  const modalProps: ModalProps = {
-    ...props,
-  };
-
+  const { onRequestClose } = props;
   const slack = useSlack();
   const { logEvent } = useLogContext();
 
@@ -44,11 +40,11 @@ export default function NewSquadModal(props: ModalProps): ReactElement {
   }, [logEvent, slack]);
 
   return (
-    <Modal {...modalProps} size={ModalSize.Small} isDrawerOnMobile>
+    <Modal {...props} size={ModalSize.Small} isDrawerOnMobile>
       <Modal.Body className="flex flex-col items-center justify-center gap-4 text-center">
         <ModalClose
-          className={classNames('right-8 top-8')}
-          onClick={modalProps.onRequestClose}
+          className="right-8 top-8"
+          onClick={onRequestClose}
           variant={ButtonVariant.Primary}
         />
         <Image

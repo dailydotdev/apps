@@ -68,7 +68,7 @@ export function SquadDetails({
   children,
   isLoading,
   squad,
-  initialData,
+  initialData = {},
   integrationId,
 }: SquadDetailsProps): ReactElement {
   const createMode = !squad;
