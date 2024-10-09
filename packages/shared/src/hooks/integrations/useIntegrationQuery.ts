@@ -10,8 +10,8 @@ import { USER_INTEGRATION_BY_ID } from '../../graphql/users';
 import { useAuthContext } from '../../contexts/AuthContext';
 
 export type UseIntegrationQueryProps = {
-  id: string;
-  queryOptions?: UseQueryOptions<UserIntegration[]>;
+  id?: string;
+  queryOptions?: UseQueryOptions<UserIntegration>;
 };
 
 export type UseIntegrationQuery = UseQueryResult<UserIntegration>;
@@ -21,7 +21,7 @@ export const useIntegrationQuery = ({
   queryOptions,
 }: UseIntegrationQueryProps = {}): UseIntegrationQuery => {
   const { user } = useAuthContext();
-  const enabled = !!user;
+  const enabled = !!user && !!id;
 
   const queryResult = useQuery(
     generateQueryKey(RequestKey.UserIntegration, user),

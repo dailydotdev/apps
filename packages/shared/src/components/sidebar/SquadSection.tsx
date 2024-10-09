@@ -9,7 +9,7 @@ import { SquadImage } from '../squads/SquadImage';
 
 export function SquadSection(props: SectionCommonProps): ReactElement {
   const { squads } = useContext(AuthContext);
-  const { openNewSquad, newSquadUrl } = useSquadNavigation();
+  const { openNewSquad } = useSquadNavigation();
 
   const squadMenuItems: SidebarMenuItem[] = [
     {

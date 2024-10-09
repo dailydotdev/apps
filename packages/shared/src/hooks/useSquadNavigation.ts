@@ -32,10 +32,8 @@ export const useSquadNavigation = (): UseSquadNavigation => {
 
       props?.event?.preventDefault();
       openModal({ type: LazyModal.NewSquad });
-      return;
-      router.push(`${newSquadUrl}?origin=${props.origin}`);
     },
-    [user, router, newSquadUrl, showLogin],
+    [user, openModal, showLogin],
   );
 
   const editSquad = useCallback(
