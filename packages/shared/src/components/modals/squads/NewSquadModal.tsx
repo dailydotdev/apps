@@ -16,6 +16,9 @@ import {
 import { SlackIcon } from '../../icons';
 import OrDivider from '../../auth/OrDivider';
 import { ModalClose } from '../common/ModalClose';
+import { LogEvent, Origin } from '../../../lib/log';
+import { UserIntegrationType } from '../../../graphql/integrations';
+import { useLogContext } from '../../../contexts/LogContext';
 
 export default function NewSquadModal(props: ModalProps): ReactElement {
   const modalProps: ModalProps = {
@@ -23,9 +26,18 @@ export default function NewSquadModal(props: ModalProps): ReactElement {
   };
 
   const slack = useSlack();
+  const { logEvent } = useLogContext();
 
   const { newSquadUrl } = useSquadNavigation();
   const onConnectSlack = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.StartAddingWorkspace,
+      target_id: UserIntegrationType.Slack,
+      extra: JSON.stringify({
+        origin: Origin.NewSquadModal,
+      }),
+    });
+
     slack.connect({
       redirectPath: `${webappUrl}squads/new?fs=true`,
     });

@@ -7,7 +7,11 @@ import { webappUrl } from '../lib/constants';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
 
-type OpenNewSquadProps = { event?: React.MouseEvent; origin: Origin };
+type OpenNewSquadProps = {
+  event?: React.MouseEvent;
+  origin: Origin;
+  pageRedirect?: boolean;
+};
 type EditSquadProps = { handle: string };
 interface UseSquadNavigation {
   openNewSquad: (props?: OpenNewSquadProps) => void;
@@ -31,9 +35,15 @@ export const useSquadNavigation = (): UseSquadNavigation => {
       }
 
       props?.event?.preventDefault();
+
+      if (props?.pageRedirect) {
+        router.push(`${newSquadUrl}?origin=${props.origin}`);
+        return;
+      }
+
       openModal({ type: LazyModal.NewSquad });
     },
-    [user, openModal, showLogin],
+    [user, openModal, showLogin, router, newSquadUrl],
   );
 
   const editSquad = useCallback(
