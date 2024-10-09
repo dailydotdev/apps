@@ -76,13 +76,13 @@ export default function NewSquadModal(props: ModalProps): ReactElement {
           icon={<SlackIcon />}
           className="w-full"
         >
-          Create with Slack
+          Quick start with Slack
         </Button>
         <Typography
           type={TypographyType.Footnote}
           color={TypographyColor.Quaternary}
         >
-          Get instant updates and keep the conversation going!
+          Keep your team updated with the latest posts
         </Typography>
         <OrDivider
           className="w-full"
