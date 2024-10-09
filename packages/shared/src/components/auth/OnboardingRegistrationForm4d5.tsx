@@ -153,7 +153,7 @@ export const OnboardingRegistrationForm4d5 = ({
           </Button>
         </AuthForm>
 
-        <OrDivider className="mb-8" label="Or sign up with" />
+        <OrDivider className={{ container: 'mb-8' }} label="Or sign up with" />
 
         <div className="flex gap-8">
           {signupProviders.map((provider) => (

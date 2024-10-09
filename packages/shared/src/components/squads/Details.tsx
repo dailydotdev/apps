@@ -3,15 +3,16 @@ import React, {
   ReactElement,
   ReactNode,
   useCallback,
+  useMemo,
   useState,
 } from 'react';
 import classNames from 'classnames';
 import { ClientError } from 'graphql-request';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import { ButtonColor, ButtonVariant } from '../buttons/Button';
+import { ButtonColor, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
-import { ArrowIcon, AtIcon, CameraIcon, SquadIcon } from '../icons';
+import { ArrowIcon, AtIcon, CameraIcon, SlackIcon, SquadIcon } from '../icons';
 import Textarea from '../fields/Textarea';
 import ImageInput from '../fields/ImageInput';
 import { cloudinary } from '../../lib/image';
@@ -28,15 +29,24 @@ import { SquadPrivacyState } from './common/SquadPrivacyState';
 import { SquadDangerZone } from './settings/SquadDangerZone';
 import { Squad } from '../../graphql/sources';
 import { useViewSize, ViewSize } from '../../hooks';
+import { useSlackChannelsQuery } from '../../hooks/integrations/slack/useSlackChannelsQuery';
+import { Dropdown } from '../fields/Dropdown';
+import { Typography, TypographyType } from '../typography/Typography';
 
 const squadImageId = 'squad_image_file';
 
 interface SquadDetailsProps {
-  onSubmit: (e: FormEvent, formJson: SquadForm) => void;
+  onSubmit: (
+    e: FormEvent,
+    formJson: SquadForm,
+    selectedChannel?: string,
+  ) => void;
   onRequestClose?: () => void;
   children?: ReactNode;
   isLoading?: boolean;
   squad?: Squad;
+  initialData?: Partial<Squad>;
+  integrationId?: string;
 }
 
 const getFormData = async (
@@ -58,6 +68,8 @@ export function SquadDetails({
   children,
   isLoading,
   squad,
+  initialData = {},
+  integrationId,
 }: SquadDetailsProps): ReactElement {
   const createMode = !squad;
   const {
@@ -69,15 +81,25 @@ export function SquadDetails({
     flags,
     memberPostingRole: initialMemberPostingRole,
     memberInviteRole: initialMemberInviteRole,
-  } = squad ?? {};
+  } = squad ?? { ...initialData };
   const [activeHandle, setActiveHandle] = useState(handle);
   const [imageChanged, setImageChanged] = useState(false);
   const [handleHint, setHandleHint] = useState<string>(null);
   const [canSubmit, setCanSubmit] = useState(!!name && !!activeHandle);
   const [categoryHint, setCategoryHint] = useState('');
   const [isDescriptionOpen, setDescriptionOpen] = useState(!createMode);
+  const [selectedChannel, setSelectedChannel] = useState<string>(null);
   const router = useRouter();
   const isMobile = useViewSize(ViewSize.MobileL);
+
+  const { data: channels } = useSlackChannelsQuery({
+    integrationId,
+    queryOptions: { enabled: createMode },
+  });
+
+  const selectedChannelIndex = useMemo(() => {
+    return channels?.findIndex((item) => item.id === selectedChannel) || 0;
+  }, [channels, selectedChannel]);
 
   const { mutateAsync: onValidateHandle } = useMutation(checkExistingHandle, {
     onError: (err) => {
@@ -114,14 +136,14 @@ export function SquadDetails({
     const data = await getFormData(formJson, imageChanged);
 
     if (!createMode) {
-      return onSubmit(e, data);
+      return onSubmit(e, data, channels?.[selectedChannelIndex]?.id);
     }
 
     const handleExists = await onValidateHandle(formJson.handle);
     setHandleHint(handleExists ? 'The handle already exists' : null);
 
     if (!handleExists) {
-      return onSubmit(e, data);
+      return onSubmit(e, data, channels?.[selectedChannelIndex]?.id);
     }
 
     return null;
@@ -246,6 +268,31 @@ export function SquadDetails({
             />
           )}
         </SquadSettingsSection>
+        {integrationId ? (
+          <SquadSettingsSection title="Integrations" className="!gap-4">
+            <div className="flex h-10 items-center gap-2 rounded-14 bg-surface-float px-2">
+              <SlackIcon />{' '}
+              <Typography type={TypographyType.Body}>
+                {initialData.name}
+              </Typography>
+            </div>
+            {!!channels?.length && (
+              <Dropdown
+                placeholder="Select channel"
+                shouldIndicateSelected
+                buttonSize={ButtonSize.Medium}
+                iconOnly={false}
+                selectedIndex={selectedChannelIndex}
+                renderItem={(_, index) => (
+                  <span className="typo-callout">{`#${channels[index].name}`}</span>
+                )}
+                options={channels?.map((item) => `#${item.name}`)}
+                onChange={(_, index) => setSelectedChannel(channels[index].id)}
+                scrollable
+              />
+            )}
+          </SquadSettingsSection>
+        ) : undefined}
         <SquadPrivacySection
           initialCategory={category?.id}
           isPublic={squad?.public}
