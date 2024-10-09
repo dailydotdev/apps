@@ -24,7 +24,7 @@ export const useIntegrationQuery = ({
   const enabled = !!user && !!id;
 
   const queryResult = useQuery(
-    generateQueryKey(RequestKey.UserIntegration, user),
+    generateQueryKey(RequestKey.UserIntegrations, user, id),
     async () => {
       const result = await gqlClient.request<{
         userIntegration: UserIntegration;
