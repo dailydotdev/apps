@@ -130,7 +130,7 @@ export const useSlackIntegrationModal = ({
     channels,
     onSaveMutation,
     selectedChannelIndex,
-    selectedIntegration.id,
+    selectedIntegration?.id,
     source.id,
   ]);
 
