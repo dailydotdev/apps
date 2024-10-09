@@ -42,13 +42,21 @@ import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext'
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
+import { get as getCache } from 'idb-keyval';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { checkIsChromeOnly } from '@dailydotdev/shared/src/lib/func';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
-import { useContentScriptStatus } from '../../../shared/src/hooks';
+import {
+  useConditionalFeature,
+  useContentScriptStatus,
+} from '../../../shared/src/hooks';
+import { KeepItOverlay } from './KeepItOverlay';
+import { INSTALLATION_STORAGE_KEY } from '../lib/common';
 
 structuredCloneJsonPolyfill();
 
@@ -98,6 +106,7 @@ function InternalApp(): ReactElement {
     }
   }, [analyticsConsent, analyticsConsentPrompt]);
 
+  const [shouldShowOverlay, setShouldShowOverlay] = useState(false);
   const { unreadCount } = useNotificationContext();
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useContentScriptStatus();
@@ -106,6 +115,10 @@ function InternalApp(): ReactElement {
   const routeChangedCallbackRef = useLogPageView();
   useConsoleLogo();
 
+  const { value: extensionOverlay } = useConditionalFeature({
+    feature: feature.extensionOverlay,
+    shouldEvaluate: shouldShowOverlay,
+  });
   const { user, isAuthReady } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
   const isPageReady =
@@ -135,21 +148,42 @@ function InternalApp(): ReactElement {
   }, [contentScriptGranted]);
 
   useEffect(() => {
+    if (shouldShowLogin || !checkIsChromeOnly()) {
+      return;
+    }
+
+    getCache(INSTALLATION_STORAGE_KEY).then((value) => {
+      if (value) {
+        setShouldShowOverlay(true);
+      }
+    });
+  }, [shouldShowLogin]);
+
+  useEffect(() => {
     document.title = unreadCount
       ? `(${unreadCount}) ${DEFAULT_TAB_TITLE}`
       : DEFAULT_TAB_TITLE;
   }, [unreadCount]);
 
+  const onClose = useCallback(() => setShouldShowOverlay(false), []);
+  const overlay =
+    shouldShowOverlay && extensionOverlay ? (
+      <KeepItOverlay onClose={onClose} />
+    ) : null;
+
   if (!hostGranted) {
-    return isCheckingHostPermissions ? null : <ExtensionPermissionsPrompt />;
+    return isCheckingHostPermissions ? null : (
+      <ExtensionPermissionsPrompt>{overlay}</ExtensionPermissionsPrompt>
+    );
   }
 
   if (shouldRedirectOnboarding) {
-    return <ExtensionOnboarding />;
+    return <ExtensionOnboarding>{overlay}</ExtensionOnboarding>;
   }
 
   return (
     <DndContextProvider>
+      {overlay}
       <MainFeedPage onPageChanged={onPageChanged} />
       {shouldShowLogin && (
         <AuthModal

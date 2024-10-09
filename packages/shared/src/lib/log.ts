@@ -19,6 +19,7 @@ export enum Origin {
   TagPage = 'tag page',
   Profile = 'profile',
   // squads - start
+  NewSquadModal = 'new squad modal',
   SquadDirectory = 'squad directory',
   SquadCreation = 'squad creation',
   SquadPage = 'squad page',
@@ -57,6 +58,8 @@ export enum Origin {
 }
 
 export enum LogEvent {
+  ShowNewTabPermission = 'show new tab permission',
+  DismissNewTabPermission = 'dismiss new tab permission',
   ReportSquad = 'report squad',
   Click = 'click',
   CommentPost = 'comment post',

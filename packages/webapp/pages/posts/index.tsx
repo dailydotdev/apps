@@ -6,12 +6,13 @@ import {
   mainFeedLayoutProps,
 } from '../../components/layouts/MainFeedPage';
 import { defaultOpenGraph } from '../../next-seo';
+import { getTemplatedTitle } from '../../components/layouts/utils';
 
 const seo: NextSeoProps = {
-  title: 'Explore | daily.dev',
+  title: getTemplatedTitle('Explore trending developer posts'),
   openGraph: { ...defaultOpenGraph },
   description:
-    'Discover the most popular posts and discussions on daily.dev. Explore trending topics and join conversations with fellow developers to stay ahead in the tech world.',
+    'Discover the latest trending developer posts from across the web. Stay updated with popular discussions, curated content, and more on daily.dev.',
 };
 
 const Posts = (): ReactElement => {
