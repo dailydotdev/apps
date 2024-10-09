@@ -1,7 +1,10 @@
 import browser, { Runtime, Tabs } from 'webextension-polyfill';
 import { getBootData } from '@dailydotdev/shared/src/lib/boot';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
-import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
+import {
+  checkIsChromeOnly,
+  parseOrDefault,
+} from '@dailydotdev/shared/src/lib/func';
 import { GraphQLClient } from 'graphql-request';
 import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/settings';
 import { getLocalBootData } from '@dailydotdev/shared/src/contexts/BootProvider';
@@ -171,7 +174,9 @@ browser.runtime.onInstalled.addListener(async (details) => {
   }
 
   if (details.reason === 'install') {
-    setCache(INSTALLATION_STORAGE_KEY, true);
+    if (checkIsChromeOnly()) {
+      setCache(INSTALLATION_STORAGE_KEY, true);
+    }
     browser.tabs.create({ url: install, active: true });
   }
 });
