@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { Button } from '../../buttons/Button';
-import { ButtonVariant } from '../../buttons/common';
+import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { BlockIcon, VIcon } from '../../icons';
 
 interface SquadModerationActionsProps {
@@ -17,6 +17,7 @@ export function SquadModerationActions({
   return (
     <div className="flex w-full flex-row gap-4">
       <Button
+        size={ButtonSize.Small}
         className="flex-1"
         disabled={isLoading}
         variant={ButtonVariant.Float}
@@ -26,6 +27,7 @@ export function SquadModerationActions({
         Decline
       </Button>
       <Button
+        size={ButtonSize.Small}
         className="flex-1"
         disabled={isLoading}
         variant={ButtonVariant.Primary}
