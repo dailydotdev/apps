@@ -23,7 +23,12 @@ import { PrivacyOption } from '../components/squads/settings/SquadPrivacySection
 interface BaseSquadForm
   extends Pick<
     Squad,
-    'name' | 'handle' | 'description' | 'memberInviteRole' | 'memberPostingRole'
+    | 'name'
+    | 'handle'
+    | 'description'
+    | 'memberInviteRole'
+    | 'memberPostingRole'
+    | 'moderationRequired'
   > {
   categoryId?: string;
 }
@@ -148,6 +153,7 @@ export const CREATE_SQUAD_MUTATION = gql`
     $image: Upload
     $memberPostingRole: String
     $memberInviteRole: String
+    $moderationRequired: Boolean
     $isPrivate: Boolean
     $categoryId: ID
   ) {
@@ -158,6 +164,7 @@ export const CREATE_SQUAD_MUTATION = gql`
       image: $image
       memberPostingRole: $memberPostingRole
       memberInviteRole: $memberInviteRole
+      moderationRequired: $moderationRequired
       isPrivate: $isPrivate
       categoryId: $categoryId
     ) {
@@ -183,6 +190,7 @@ export const EDIT_SQUAD_MUTATION = gql`
     $image: Upload
     $memberPostingRole: String
     $memberInviteRole: String
+    $moderationRequired: Boolean
     $isPrivate: Boolean
     $categoryId: ID
   ) {
@@ -194,6 +202,7 @@ export const EDIT_SQUAD_MUTATION = gql`
       image: $image
       memberPostingRole: $memberPostingRole
       memberInviteRole: $memberInviteRole
+      moderationRequired: $moderationRequired
       isPrivate: $isPrivate
       categoryId: $categoryId
     ) {
@@ -461,6 +470,7 @@ const formToInput = (form: SquadForm): SharedSquadInput => ({
   memberPostingRole: form.memberPostingRole,
   memberInviteRole: form.memberInviteRole,
   categoryId: form.categoryId,
+  moderationRequired: form.moderationRequired,
   isPrivate: form.status === PrivacyOption.Private,
 });
 
