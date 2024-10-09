@@ -207,7 +207,9 @@ const OnboardingRegistrationForm = ({
         </Button>
       </AuthForm>
       <OrDivider
-        className={classNames('mb-8', className?.onboardingDivider)}
+        className={{
+          container: classNames('mb-8', className?.onboardingDivider),
+        }}
         label="Or sign up with"
         aria-hidden
       />

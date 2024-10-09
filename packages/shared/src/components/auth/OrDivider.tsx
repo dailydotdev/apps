@@ -1,26 +1,29 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 
+interface ClassName {
+  container?: string;
+  text?: string;
+  border?: string;
+}
+
 interface OrDividerProps {
-  className?: string;
-  textColor?: string;
-  borderColor?: string;
+  className?: ClassName;
   label?: string;
 }
 
 function OrDivider({
-  className,
+  className = {},
   label = 'or',
-  textColor = 'text-text-quarternary',
-  borderColor = 'bg-border-subtlest-tertiary',
 }: OrDividerProps): ReactElement {
+  const borderColor = className?.border || 'bg-border-subtlest-tertiary';
   return (
     <div
       aria-hidden
       className={classNames(
         'flex items-center justify-center typo-callout',
-        className,
-        textColor,
+        className?.container,
+        className?.text || 'text-text-quarternary',
       )}
       role="separator"
     >

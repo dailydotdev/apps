@@ -81,9 +81,11 @@ export default function NewSquadModal(props: ModalProps): ReactElement {
           Keep your team updated with the latest posts
         </Typography>
         <OrDivider
-          className="w-full"
-          textColor="text-text-secondary"
-          borderColor="bg-border-subtlest-secondary"
+          className={{
+            container: 'w-full',
+            text: 'text-text-secondary',
+            border: 'bg-border-subtlest-secondary',
+          }}
         />
         <Button
           tag="a"
