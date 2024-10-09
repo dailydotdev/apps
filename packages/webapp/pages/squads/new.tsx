@@ -16,8 +16,10 @@ import { SourceIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useIntegrationQuery } from '@dailydotdev/shared/src/hooks/integrations/useIntegrationQuery';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+
+import { useSlackConnectSourceMutation } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackConnectSourceMutation';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
+import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
 const seo: NextSeoProps = {
   title: 'Create your Squad',
@@ -26,18 +28,32 @@ const seo: NextSeoProps = {
 };
 
 const NewSquad = (): ReactElement => {
+  const [selectedChannel, setSelectedChannel] = React.useState<string | null>();
   const { isReady: isRouteReady, query } = useRouter();
   const { user, isAuthReady, isFetched } = useAuthContext();
-  const { onCreateSquad, isLoading } = useSquadCreate();
-  const isMobile = useViewSize(ViewSize.MobileL);
-
+  const { onSave } = useSlackConnectSourceMutation();
   const shouldLoadIntegration = query?.fs;
   const integrationId = query?.iid as string;
+
+  const { onCreateSquad, isLoading } = useSquadCreate({
+    onSuccess: async (squad) => {
+      if (selectedChannel) {
+        await onSave({
+          channelId: selectedChannel,
+          integrationId,
+          sourceId: squad.id,
+        });
+      }
+
+      router.push(squad.permalink);
+    },
+  });
+  const isMobile = useViewSize(ViewSize.MobileL);
+
   const { data, isLoading: isIntegrationLoading } = useIntegrationQuery({
     id: integrationId,
     queryOptions: { enabled: !!shouldLoadIntegration && !!integrationId },
   });
-  console.log('d', data);
 
   const handleClose = async () => {
     router.push('/squads');
@@ -61,12 +77,16 @@ const NewSquad = (): ReactElement => {
       <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
       <SquadDetails
         onRequestClose={handleClose}
-        onSubmit={(e, form) => onCreateSquad(form)}
+        onSubmit={(e, form, channelId) => {
+          setSelectedChannel(channelId);
+          onCreateSquad(form);
+        }}
         isLoading={isLoading}
         initialData={{
           name: data?.name,
           handle: data?.name.toLowerCase().replace(/[^a-zA-Z0-9]/g, ''),
         }}
+        integrationId={integrationId}
       >
         <div className="flex flex-col-reverse bg-cover bg-center tablet:flex-row">
           <div className="mx-6 my-5 flex flex-1 flex-col gap-2">

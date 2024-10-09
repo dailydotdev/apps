@@ -1,10 +1,21 @@
 import React, { ReactElement, useCallback } from 'react';
+import classNames from 'classnames';
 import { Modal, ModalProps } from '../common/Modal';
 import { ModalSize } from '../common/types';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { useSquadNavigation } from '../../../hooks';
 import { webappUrl } from '../../../lib/constants';
 import { useSlack } from '../../../hooks/integrations/slack/useSlack';
+import { Image } from '../../image/Image';
+import { cloudinary } from '../../../lib/image';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../typography/Typography';
+import { SlackIcon } from '../../icons';
+import OrDivider from '../../auth/OrDivider';
+import { ModalClose } from '../common/ModalClose';
 
 export default function NewSquadModal(props: ModalProps): ReactElement {
   const modalProps: ModalProps = {
@@ -22,17 +33,57 @@ export default function NewSquadModal(props: ModalProps): ReactElement {
 
   return (
     <Modal {...modalProps} size={ModalSize.Small} isDrawerOnMobile>
-      <Modal.Header title="Create new Squad" />
-      <Modal.Body className="gap-4">
-        <Modal.Text>
-          Have an idea for a new source? Insert its link below to add it to the
-          feed.
-        </Modal.Text>
-        <Button variant={ButtonVariant.Primary} onClick={onConnectSlack}>
+      <Modal.Body className="flex flex-col items-center justify-center gap-4 text-center">
+        <ModalClose
+          className={classNames('right-8 top-8')}
+          onClick={modalProps.onRequestClose}
+          variant={ButtonVariant.Primary}
+        />
+        <Image
+          className="rounded-16"
+          src={cloudinary.squads.createSquad.biggerThanMobile}
+          alt="Slack integration"
+        />
+        <Typography
+          type={TypographyType.Title1}
+          bold
+          color={TypographyColor.Primary}
+        >
+          Create new Squad
+        </Typography>
+        <Typography
+          type={TypographyType.Body}
+          color={TypographyColor.Secondary}
+        >
+          Create a group where you can learn and interact with other developers
+          around topics that matter
+        </Typography>
+        <Button
+          variant={ButtonVariant.Primary}
+          onClick={onConnectSlack}
+          icon={<SlackIcon />}
+          className="w-full"
+        >
           Create with Slack
         </Button>
-        <Button tag="a" href={newSquadUrl} variant={ButtonVariant.Primary}>
-          Create Manually
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Quaternary}
+        >
+          Get instant updates and keep the conversation going!
+        </Typography>
+        <OrDivider
+          className="w-full"
+          textColor="text-text-secondary"
+          borderColor="bg-border-subtlest-secondary"
+        />
+        <Button
+          tag="a"
+          href={newSquadUrl}
+          variant={ButtonVariant.Primary}
+          className="w-full"
+        >
+          Create manually
         </Button>
       </Modal.Body>
     </Modal>
