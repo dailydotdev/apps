@@ -5,7 +5,7 @@ import styles from './fields.module.css';
 
 export const FieldInput = classed(
   'input',
-  'min-w-0  bg-transparent typo-body caret-text-link focus:outline-none',
+  'min-w-0 bg-transparent typo-body caret-text-link focus:outline-none',
 );
 
 export const BaseField = classed(

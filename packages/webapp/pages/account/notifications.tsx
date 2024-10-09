@@ -103,7 +103,10 @@ const AccountNotificationsPage = (): ReactElement => {
     followNotifications,
   } = user ?? {};
   const emailNotification =
-    acceptedMarketing || notificationEmail || !!personalizedDigest;
+    acceptedMarketing ||
+    notificationEmail ||
+    !!personalizedDigest ||
+    followingEmail;
 
   const onToggleEmailSettings = () => {
     const value = !emailNotification;
@@ -134,6 +137,7 @@ const AccountNotificationsPage = (): ReactElement => {
     updateUserProfile({
       acceptedMarketing: value,
       notificationEmail: value,
+      followingEmail: value,
     });
 
     if (value) {
