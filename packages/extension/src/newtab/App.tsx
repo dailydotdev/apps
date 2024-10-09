@@ -44,6 +44,7 @@ import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/type
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { get as getCache } from 'idb-keyval';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { checkIsChromeOnly } from '@dailydotdev/shared/src/lib/func';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
@@ -147,7 +148,7 @@ function InternalApp(): ReactElement {
   }, [contentScriptGranted]);
 
   useEffect(() => {
-    if (shouldShowLogin) {
+    if (shouldShowLogin || !checkIsChromeOnly()) {
       return;
     }
 
