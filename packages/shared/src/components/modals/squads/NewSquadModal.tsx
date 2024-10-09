@@ -41,7 +41,7 @@ export default function NewSquadModal(props: ModalProps): ReactElement {
     slack.connect({
       redirectPath: `${webappUrl}squads/new?fs=true`,
     });
-  }, [slack]);
+  }, [logEvent, slack]);
 
   return (
     <Modal {...modalProps} size={ModalSize.Small} isDrawerOnMobile>
