@@ -199,7 +199,6 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
               style={{ maxHeight: '450px', overflowY: 'auto' }}
             >
               <div className="flex flex-1 flex-col">
-                
                 <SearchPanelAction provider={SearchProviderEnum.Posts} />
                 <SearchPanelAction provider={SearchProviderEnum.Chat} />
                 {isExtension && (
