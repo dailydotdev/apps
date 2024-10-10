@@ -244,13 +244,37 @@ export const SQUAD_STATIC_FIELDS_QUERY = gql`
     source(id: $handle) {
       id
       name
+      handle
       public
       description
       image
       type
+      permalink
+      moderationRequired
     }
   }
 `;
+
+export type SquadStaticData = Pick<
+  Squad,
+  | 'id'
+  | 'name'
+  | 'handle'
+  | 'public'
+  | 'description'
+  | 'image'
+  | 'type'
+  | 'moderationRequired'
+  | 'permalink'
+>;
+
+export const getSquadStaticFields = async (
+  handle: string,
+): Promise<SquadStaticData> => {
+  const res = await gqlClient.request(SQUAD_STATIC_FIELDS_QUERY, { handle });
+
+  return res.source;
+};
 
 export const SQUAD_HANDE_AVAILABILITY_QUERY = gql`
   query SourceHandleExists($handle: String!) {
@@ -565,3 +589,48 @@ export const getPublicSquadRequests = async (
 
   return res.requests;
 };
+
+export enum SourcePostModerationStatus {
+  Approved = 'approved',
+  Rejected = 'rejected',
+  Pending = 'pending',
+}
+
+export interface SourcePostModeration {
+  sourceId: string;
+  post: Post;
+  status: SourcePostModerationStatus;
+  reason?: PostModerationReason;
+  postId: string;
+  moderatorId: string;
+  createdAt: Date;
+}
+
+export enum PostModerationReason {
+  OffTopic = 'OFF_TOPIC',
+  Violation = 'VIOLATION',
+  Promotional = 'PROMOTIONAL',
+  Duplicate = 'DUPLICATE',
+  LowQuality = 'LOW_QUALITY',
+  NSFW = 'NSFW',
+  Spam = 'SPAM',
+  Misinformation = 'MISINFORMATION',
+  Copyright = 'COPYRIGHT',
+  Other = 'OTHER',
+}
+
+export interface SquadPostRejectionProps {
+  postId: string;
+  reason: string;
+  note?: string;
+}
+
+// TODO:: MI-596
+export const squadApproveMutation = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _: string[],
+): Promise<void> => Promise.resolve();
+export const squadRejectMutation = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _: SquadPostRejectionProps,
+): Promise<void> => Promise.resolve();
