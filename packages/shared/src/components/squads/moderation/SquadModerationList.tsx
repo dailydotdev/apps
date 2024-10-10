@@ -63,7 +63,7 @@ export function SquadModerationList({
         <SquadEmptyScreen
           Icon={VIcon}
           title="All done!"
-          description="All caught up! No posts are pending" // check with product what to show here
+          description="All caught up! No posts are pending" // TODO:: MI-597 - check with product what to show here
         />
       );
     }
