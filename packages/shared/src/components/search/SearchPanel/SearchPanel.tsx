@@ -165,7 +165,8 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
         <SearchPanelInput
           className={{
             container: classNames(
-              'w-full laptop:w-[26.25rem] laptop:max-w-[29.5rem] laptopL:w-full laptopL:max-w-[35rem]'),
+              'w-full laptop:w-[26.25rem] laptop:max-w-[29.5rem] laptopL:w-full laptopL:max-w-[35rem]',
+            ),
             field: className?.field,
           }}
           valueChanged={(newValue) => {
@@ -192,7 +193,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
           {showDropdown && (
             <div
               className={classNames(
-                'absolute w-full items-center rounded-b-16 border-0 border-border-subtlest-tertiary bg-background-default px-3 py-2 laptop:h-auto laptop:border-x laptop:border-b laptop:bg-background-subtle laptop:shadow-2 overflow-y-auto max-h-[30rem]'
+                'absolute w-full items-center rounded-b-16 border-0 border-border-subtlest-tertiary bg-background-default px-3 py-2 laptop:h-auto laptop:border-x laptop:border-b laptop:bg-background-subtle laptop:shadow-2 overflow-y-auto max-h-[30rem]',
               )}
             >
               <div className="flex flex-1 flex-col">
