@@ -1,12 +1,12 @@
-import React, { ReactElement } from 'react';
+import React, { MouseEventHandler, ReactElement } from 'react';
 import { Button } from '../../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { BlockIcon, VIcon } from '../../icons';
 
 interface SquadModerationActionsProps {
-  onApprove(): void;
-  onReject(): void;
-  isLoading: boolean;
+  onApprove: MouseEventHandler;
+  onReject: MouseEventHandler;
+  isLoading?: boolean;
 }
 
 export function SquadModerationActions({
