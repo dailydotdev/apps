@@ -34,6 +34,7 @@ import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import { useEventListener } from '@dailydotdev/shared/src/hooks';
 import { capitalize } from '@dailydotdev/shared/src/lib/strings';
 import { BOOT_LOCAL_KEY } from '@dailydotdev/shared/src/contexts/common';
+import { BROADCAST_CHANNEL } from '@dailydotdev/shared/src/lib/constants';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
 import {
@@ -146,7 +147,7 @@ function AccountSecurityDefault({
     }
   };
 
-  useEventListener(globalThis, 'message', async (e) => {
+  useEventListener(BROADCAST_CHANNEL, 'message', async (e) => {
     if (e.data?.eventKey !== AuthEvent.SocialRegistration) {
       return;
     }
