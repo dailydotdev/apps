@@ -86,4 +86,4 @@ export function SearchBarSuggestionList({
       ))}
     </div>
   );
-}   
+}
