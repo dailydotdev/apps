@@ -137,6 +137,7 @@ export const SQUAD_BASE_FRAGMENT = `
     category {
       id
       title
+      slug
     }
     ...PrivilegedMembers
   }
