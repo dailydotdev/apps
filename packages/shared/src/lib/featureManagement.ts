@@ -37,7 +37,7 @@ const feature = {
     'search_style_version',
     SearchStyleVersion.Default,
   ),
-  extensionOverlay: new Feature('extension_overlay', false),
+  extensionOverlay: new Feature('onboarding_extension_overlay', false),
 };
 
 export { feature };
