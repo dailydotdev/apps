@@ -1,4 +1,11 @@
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
 import classNames from 'classnames';
 import AuthOptions, {
@@ -42,18 +49,24 @@ import {
 } from '@dailydotdev/shared/src/components';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
+  EXPERIENCE_TO_SENIORITY,
   logSignUp,
   OnboardingLogs,
 } from '@dailydotdev/shared/src/components/auth/OnboardingLogs';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import {
+  useConditionalFeature,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import useMutateFilters from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -110,7 +123,14 @@ export function OnboardPage(): ReactElement {
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
-  const enableContentTypeStep = useRef(false);
+  const { updateAdvancedSettings } = useMutateFilters(user);
+  const isSeniorUser =
+    EXPERIENCE_TO_SENIORITY[user?.experienceLevel] === 'senior' ||
+    user?.experienceLevel === 'MORE_THAN_4_YEARS';
+  const { value: seniorContentOnboarding } = useConditionalFeature({
+    feature: feature.seniorContentOnboarding,
+    shouldEvaluate: isSeniorUser,
+  });
 
   const onClickNext = () => {
     logEvent({
@@ -122,18 +142,11 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.EditTag);
     }
 
-    if (
-      activeScreen === OnboardingStep.EditTag &&
-      enableContentTypeStep.current
-    ) {
+    if (activeScreen === OnboardingStep.EditTag) {
       return setActiveScreen(OnboardingStep.ContentTypes);
     }
 
-    if (
-      (activeScreen === OnboardingStep.EditTag ||
-        activeScreen === OnboardingStep.ContentTypes) &&
-      isMobile
-    ) {
+    if (activeScreen === OnboardingStep.ContentTypes && isMobile) {
       return setActiveScreen(OnboardingStep.ReadingReminder);
     }
 
@@ -156,10 +169,7 @@ export function OnboardPage(): ReactElement {
   };
 
   const onClickCreateFeed = () => {
-    if (
-      activeScreen === OnboardingStep.EditTag &&
-      enableContentTypeStep.current
-    ) {
+    if (activeScreen === OnboardingStep.EditTag) {
       return onClickNext();
     }
 
@@ -179,12 +189,32 @@ export function OnboardPage(): ReactElement {
     router.replace(getPathnameWithQuery(webappUrl, window.location.search));
   };
 
+  const isFeedSettingsDefined = useMemo(() => !!feedSettings, [feedSettings]);
+
+  const updateSettingsBasedOnExperience = useCallback(() => {
+    if (isSeniorUser && isFeedSettingsDefined) {
+      updateAdvancedSettings({
+        advancedSettings: [
+          { id: 5, enabled: false },
+          { id: 10, enabled: false },
+        ],
+      });
+    }
+  }, [isSeniorUser, isFeedSettingsDefined, updateAdvancedSettings]);
+
   const onSuccessfulRegistration = (userRefetched: LoggedUser) => {
     logSignUp({
       experienceLevel: userRefetched?.experienceLevel,
     });
     setActiveScreen(OnboardingStep.EditTag);
   };
+
+  useEffect(() => {
+    if (!seniorContentOnboarding) {
+      return;
+    }
+    updateSettingsBasedOnExperience();
+  }, [seniorContentOnboarding, updateSettingsBasedOnExperience]);
 
   useEffect(() => {
     if (!isPageReady || isLogged.current) {
@@ -239,9 +269,7 @@ export function OnboardPage(): ReactElement {
   };
 
   const customActionName =
-    activeScreen === OnboardingStep.EditTag && enableContentTypeStep.current
-      ? 'Continue'
-      : undefined;
+    activeScreen === OnboardingStep.EditTag ? 'Continue' : undefined;
 
   const getContent = (): ReactElement => {
     if (isAuthenticating && activeScreen === OnboardingStep.Intro) {
@@ -320,13 +348,6 @@ export function OnboardPage(): ReactElement {
 
   const instanceId = router.query?.aiid?.toString();
   const userId = user?.id || anonymous?.id;
-
-  const shouldCheckForContentTypeStep =
-    activeScreen === OnboardingStep.EditTag && !enableContentTypeStep.current;
-
-  if (shouldCheckForContentTypeStep) {
-    enableContentTypeStep.current = true;
-  }
 
   return (
     <div
