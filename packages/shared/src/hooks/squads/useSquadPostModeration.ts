@@ -94,7 +94,7 @@ export const useSquadPostModeration = (): UseSquadPostModeration => {
   const onRejectPost = useCallback(
     (postId: string) => {
       openModal({
-        type: LazyModal.Report,
+        type: LazyModal.ReasonSelection,
         props: {
           onReport: (_, reason, note) => onReject({ postId, reason, note }),
           reasons: rejectReasons,
