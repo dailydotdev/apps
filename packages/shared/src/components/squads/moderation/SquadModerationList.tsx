@@ -85,7 +85,7 @@ export function SquadModerationList({
             icon={<VIcon secondary />}
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
-            onClick={() => onApprove(data.map((request) => request.post.id))}
+            onClick={() => onApprove(data.map((request) => request.id))}
           >
             Approve all {data.length} posts
           </Button>
@@ -93,7 +93,7 @@ export function SquadModerationList({
       )}
       {data?.map((request) => (
         <SquadModerationItem
-          key={request.post.id}
+          key={request.id}
           squad={squad}
           data={request}
           isLoading={isLoading}

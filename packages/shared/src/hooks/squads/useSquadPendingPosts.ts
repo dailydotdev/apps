@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { sharePost } from '../../../__tests__/fixture/post';
 import {
   SourcePostModeration,
   SourcePostModerationStatus,
@@ -17,17 +16,17 @@ export const useSquadPendingPosts = (squadId: string): UseSquadPendingPosts => {
   // TODO:: MI-596
   const { data } = useQuery(
     generateQueryKey(RequestKey.SquadPostRequests, user, squadId),
-    () =>
-      Promise.resolve([
-        {
-          postId: '1',
-          moderatorId: null,
-          sourceId: 'a',
-          status: SourcePostModerationStatus.Pending,
-          createdAt: new Date(),
-          post: sharePost,
-        },
-      ]),
+    () => {
+      const dummy: SourcePostModeration = {
+        id: 'random id',
+        status: SourcePostModerationStatus.Pending,
+        createdBy: user,
+        createdAt: new Date().toISOString(),
+        title: 'dummy title',
+      };
+
+      return Promise.resolve([dummy]);
+    },
     { enabled: !!squadId },
   );
 
