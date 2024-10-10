@@ -60,6 +60,7 @@ export const FollowingFilter = (): ReactElement => {
       }}
       userInfoProps={{
         origin: Origin.FollowFilter,
+        showFollow: true,
       }}
     />
   );

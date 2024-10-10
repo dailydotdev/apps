@@ -161,11 +161,12 @@ export const MOST_DISCUSSED_FEED_QUERY = gql`
     $loggedIn: Boolean! = false
     $first: Int
     $after: String
+    $period: Int
     ${SUPPORTED_TYPES}
     $source: ID
     $tag: String
   ) {
-    page: mostDiscussedFeed(first: $first, after: $after, supportedTypes: $supportedTypes, source: $source, tag: $tag) {
+    page: mostDiscussedFeed(first: $first, after: $after, period: $period, supportedTypes: $supportedTypes, source: $source, tag: $tag) {
       ...FeedPostConnection
     }
   }
