@@ -191,7 +191,7 @@ function CreatePost(): ReactElement {
         <TabContainer<WriteFormTab>
           onActiveChange={(active) => setDisplay(active)}
           controlledActive={display}
-          shouldMountInactive={true}
+          shouldMountInactive
           className={{ header: 'px-1' }}
           showHeader={isTablet}
         >
