@@ -120,6 +120,7 @@ export const SOURCE_BASE_FRAGMENT = gql`
     memberPostingRole
     memberInviteRole
     moderationRequired
+    moderationPostCount
   }
   ${CURRENT_MEMBER_FRAGMENT}
 `;

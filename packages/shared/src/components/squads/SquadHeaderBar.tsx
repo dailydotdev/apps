@@ -171,21 +171,24 @@ const SquadUserNotifications = ({
 };
 
 const SquadModerationButton = ({ squad }: SquadBarButtonProps<'a'>) => {
-  const isModerator = verifyPermission(squad, SourcePermissions.PostDelete);
-
-  if (!isModerator) {
+  if (!squad.moderationRequired || !squad.moderationPostCount) {
     return null;
   }
 
+  const count = squad.moderationPostCount;
+  const postLabel = count === 1 ? 'post' : 'posts';
+
   return (
     <Button
+      aria-label={`Go to post moderation page and check ${count} ${postLabel}`}
       href={`/squads/${squad.handle}/moderate`}
       icon={<TimerIcon aria-hidden role="presentation" />}
       size={ButtonSize.Small}
       tag="a"
+      title="Go to post moderation page"
       variant={ButtonVariant.Float}
     >
-      1 Pending posts
+      {count} Pending {postLabel}
     </Button>
   );
 };
