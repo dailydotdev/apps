@@ -124,6 +124,7 @@ export function OnboardPage(): ReactElement {
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
   const { updateAdvancedSettings } = useMutateFilters(user);
+  const shouldUpdateAdvancedSettings = useRef(true);
   const isSeniorUser =
     EXPERIENCE_TO_SENIORITY[user?.experienceLevel] === 'senior' ||
     user?.experienceLevel === 'MORE_THAN_4_YEARS';
@@ -193,6 +194,7 @@ export function OnboardPage(): ReactElement {
 
   const updateSettingsBasedOnExperience = useCallback(() => {
     if (isSeniorUser && isFeedSettingsDefined) {
+      shouldUpdateAdvancedSettings.current = false;
       updateAdvancedSettings({
         advancedSettings: [
           { id: 5, enabled: false },
@@ -210,11 +212,15 @@ export function OnboardPage(): ReactElement {
   };
 
   useEffect(() => {
-    if (!seniorContentOnboarding) {
+    if (!shouldUpdateAdvancedSettings.current || !seniorContentOnboarding) {
       return;
     }
     updateSettingsBasedOnExperience();
-  }, [seniorContentOnboarding, updateSettingsBasedOnExperience]);
+  }, [
+    seniorContentOnboarding,
+    updateSettingsBasedOnExperience,
+    shouldUpdateAdvancedSettings,
+  ]);
 
   useEffect(() => {
     if (!isPageReady || isLogged.current) {
