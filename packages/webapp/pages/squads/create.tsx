@@ -154,7 +154,6 @@ function CreatePost(): ReactElement {
   }, [shareParam]);
 
   const onClickSubmit = async (e: FormEvent<HTMLFormElement>, params) => {
-    console.log('submit', e);
     if (isPosting || isSuccess || isLoading) {
       return null;
     }
