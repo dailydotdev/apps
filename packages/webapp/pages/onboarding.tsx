@@ -124,7 +124,6 @@ export function OnboardPage(): ReactElement {
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
   const { updateAdvancedSettings } = useMutateFilters(user);
-  const shouldUpdateAdvancedSettings = useRef(true);
   const isSeniorUser =
     EXPERIENCE_TO_SENIORITY[user?.experienceLevel] === 'senior' ||
     user?.experienceLevel === 'MORE_THAN_4_YEARS';
@@ -132,6 +131,22 @@ export function OnboardPage(): ReactElement {
     feature: feature.seniorContentOnboarding,
     shouldEvaluate: isSeniorUser,
   });
+
+  const isFeedSettingsDefined = useMemo(() => !!feedSettings, [feedSettings]);
+
+  const updateSettingsBasedOnExperience = useCallback(() => {
+    const LISTICLE_ADVANCED_SETTINGS_ID = 10;
+    const MEMES_ADVANCED_SETTINGS_ID = 5;
+
+    if (isSeniorUser && isFeedSettingsDefined) {
+      updateAdvancedSettings({
+        advancedSettings: [
+          { id: MEMES_ADVANCED_SETTINGS_ID, enabled: false },
+          { id: LISTICLE_ADVANCED_SETTINGS_ID, enabled: false },
+        ],
+      });
+    }
+  }, [isSeniorUser, isFeedSettingsDefined, updateAdvancedSettings]);
 
   const onClickNext = () => {
     logEvent({
@@ -144,6 +159,10 @@ export function OnboardPage(): ReactElement {
     }
 
     if (activeScreen === OnboardingStep.EditTag) {
+      if (seniorContentOnboarding) {
+        updateSettingsBasedOnExperience();
+      }
+
       return setActiveScreen(OnboardingStep.ContentTypes);
     }
 
@@ -170,10 +189,6 @@ export function OnboardPage(): ReactElement {
   };
 
   const onClickCreateFeed = () => {
-    if (activeScreen === OnboardingStep.EditTag) {
-      return onClickNext();
-    }
-
     const onboardingChecklist = getFeatureValue(feature.onboardingChecklist);
 
     if (onboardingChecklist) {
@@ -190,40 +205,12 @@ export function OnboardPage(): ReactElement {
     router.replace(getPathnameWithQuery(webappUrl, window.location.search));
   };
 
-  const isFeedSettingsDefined = useMemo(() => !!feedSettings, [feedSettings]);
-
-  const updateSettingsBasedOnExperience = useCallback(() => {
-    const LISTICLE_ADVANCED_SETTINGS_ID = 10;
-    const MEMES_ADVANCED_SETTINGS_ID = 5;
-
-    if (isSeniorUser && isFeedSettingsDefined) {
-      shouldUpdateAdvancedSettings.current = false;
-      updateAdvancedSettings({
-        advancedSettings: [
-          { id: MEMES_ADVANCED_SETTINGS_ID, enabled: false },
-          { id: LISTICLE_ADVANCED_SETTINGS_ID, enabled: false },
-        ],
-      });
-    }
-  }, [isSeniorUser, isFeedSettingsDefined, updateAdvancedSettings]);
-
   const onSuccessfulRegistration = (userRefetched: LoggedUser) => {
     logSignUp({
       experienceLevel: userRefetched?.experienceLevel,
     });
     setActiveScreen(OnboardingStep.EditTag);
   };
-
-  useEffect(() => {
-    if (!shouldUpdateAdvancedSettings.current || !seniorContentOnboarding) {
-      return;
-    }
-    updateSettingsBasedOnExperience();
-  }, [
-    seniorContentOnboarding,
-    updateSettingsBasedOnExperience,
-    shouldUpdateAdvancedSettings,
-  ]);
 
   useEffect(() => {
     if (!isPageReady || isLogged.current) {
@@ -305,7 +292,7 @@ export function OnboardPage(): ReactElement {
             feedSettings={feedSettings}
             userId={user?.id}
             customActionName={customActionName}
-            onClick={onClickCreateFeed}
+            onClick={onClickNext}
             activeScreen={activeScreen}
           />
         )}
