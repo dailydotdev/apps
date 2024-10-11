@@ -1,4 +1,3 @@
-import React from 'react';
 import classed from '../../lib/classed';
 
 export enum OnboardingStep {
@@ -18,11 +17,6 @@ export const OnboardingTitle = classed(
 export const OnboardingGradientClasses =
   'font-bold text-transparent bg-clip-text bg-gradient-to-r from-accent-bacon-default to-accent-cabbage-default';
 export const OnboardingTitleGradient = classed('h1', OnboardingGradientClasses);
-
-export interface OnboardingStepProps {
-  onClose?: (e: React.MouseEvent | React.KeyboardEvent) => void;
-  isModal?: boolean;
-}
 
 export const REQUIRED_TAGS_THRESHOLD = 5;
 

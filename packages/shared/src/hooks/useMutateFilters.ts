@@ -192,16 +192,19 @@ export default function useMutateFilters(
       onMutateAdvancedSettings(
         advancedSettings,
         queryClient,
-        (feedSettings, [feedAdvancedSettings]) => {
+        (feedSettings, feedAdvancedSettings) => {
           const newData = cloneDeep(feedSettings);
-          const index = newData.advancedSettings.findIndex(
-            (settings) => settings.id === feedAdvancedSettings.id,
-          );
-          if (index === -1) {
-            newData.advancedSettings.push(feedAdvancedSettings);
-          } else {
-            newData.advancedSettings[index] = feedAdvancedSettings;
-          }
+          feedAdvancedSettings.forEach((feedAdvancedSetting) => {
+            const index = newData.advancedSettings.findIndex(
+              (settings) => settings.id === feedAdvancedSetting.id,
+            );
+            if (index === -1) {
+              newData.advancedSettings.push(feedAdvancedSetting);
+            } else {
+              newData.advancedSettings[index] = feedAdvancedSetting;
+            }
+          });
+
           return newData;
         },
         user,

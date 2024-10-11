@@ -114,7 +114,7 @@ interface LogSignUpProps {
   experienceLevel: keyof typeof UserExperienceLevel;
 }
 
-const EXPERIENCE_TO_SENIORITY: Record<
+export const EXPERIENCE_TO_SENIORITY: Record<
   keyof typeof UserExperienceLevel,
   string
 > = {
