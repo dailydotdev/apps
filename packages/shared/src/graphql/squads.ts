@@ -7,7 +7,6 @@ import {
 } from './fragments';
 import { Connection, gqlClient } from './common';
 import {
-  PublicSquadRequest,
   Source,
   SourceMember,
   SourceMemberRole,
@@ -518,40 +517,3 @@ export const SQUAD_COMMENT_JOIN_BANNER_KEY = generateStorageKey(
   StorageTopic.Squad,
   'comment_join_banner',
 );
-
-export const SUBMIT_SQUAD_FOR_REVIEW_MUTATION = gql`
-  mutation SubmitSquadForReview($sourceId: ID!) {
-    submitSquadForReview(sourceId: $sourceId) {
-      status
-    }
-  }
-`;
-
-interface SubmitSquadForReviewOutput {
-  submitSquadForReview: PublicSquadRequest;
-}
-
-export async function submitSquadForReview(
-  sourceId: string,
-): Promise<PublicSquadRequest> {
-  const data = await gqlClient.request<SubmitSquadForReviewOutput>(
-    SUBMIT_SQUAD_FOR_REVIEW_MUTATION,
-    { sourceId },
-  );
-  return data.submitSquadForReview;
-}
-
-interface GetPublicSquadRequestsProps {
-  sourceId: string;
-  first?: number;
-}
-
-export const getPublicSquadRequests = async (
-  params: GetPublicSquadRequestsProps,
-): Promise<Connection<PublicSquadRequest>> => {
-  const res = await gqlClient.request<{
-    requests: Connection<PublicSquadRequest>;
-  }>(PUBLIC_SQUAD_REQUESTS, params);
-
-  return res.requests;
-};
