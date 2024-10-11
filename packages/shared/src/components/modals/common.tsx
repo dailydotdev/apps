@@ -167,13 +167,13 @@ const ReportSourceModal = dynamic(
     ),
 );
 
+const ReportModal = dynamic(
+  () => import(/* webpackChunkName: "reportModal" */ './report/ReportModal'),
+);
+
 const NewSquadModal = dynamic(
   () =>
     import(/* webpackChunkName: "newSquadModal" */ './squads/NewSquadModal'),
-);
-
-const ReportModal = dynamic(
-  () => import(/* webpackChunkName: "reportModal" */ './report/ReportModal'),
 );
 
 export const modals = {
