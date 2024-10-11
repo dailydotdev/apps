@@ -66,6 +66,7 @@ function UserListModal({
             scrollingContainer: container.current,
             appendTooltipTo: modalRef,
             origin,
+            showFollow: true,
           }}
         />
       </Modal.Body>
