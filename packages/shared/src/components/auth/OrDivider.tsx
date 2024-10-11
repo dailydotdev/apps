@@ -1,24 +1,35 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 
+interface ClassName {
+  container?: string;
+  text?: string;
+  border?: string;
+}
+
 interface OrDividerProps {
-  className?: string;
+  className?: ClassName;
   label?: string;
 }
 
-function OrDivider({ className, label = 'or' }: OrDividerProps): ReactElement {
+function OrDivider({
+  className = {},
+  label = 'or',
+}: OrDividerProps): ReactElement {
+  const borderColor = className?.border || 'bg-border-subtlest-tertiary';
   return (
     <div
       aria-hidden
       className={classNames(
-        'flex items-center justify-center text-text-quaternary typo-callout',
-        className,
+        'flex items-center justify-center typo-callout',
+        className?.container,
+        className?.text || 'text-text-quarternary',
       )}
       role="separator"
     >
-      <div className="h-px flex-1 bg-border-subtlest-tertiary" />
+      <div className={classNames('h-px flex-1', borderColor)} />
       {label && <span className="px-3">{label}</span>}
-      <div className="h-px flex-1 bg-border-subtlest-tertiary" />
+      <div className={classNames('h-px flex-1', borderColor)} />
     </div>
   );
 }

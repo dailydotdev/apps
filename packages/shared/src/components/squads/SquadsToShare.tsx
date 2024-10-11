@@ -58,6 +58,7 @@ export function SquadsToShare({
       onClick={() =>
         openNewSquad({
           origin: Origin.Share,
+          pageRedirect: true,
         })
       }
       icon={<PlusIcon className="text-surface-invert" />}

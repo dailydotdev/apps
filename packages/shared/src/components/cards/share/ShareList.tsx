@@ -25,6 +25,8 @@ export const ShareList = forwardRef(function ShareList(
     onShare,
     onBookmarkClick,
     children,
+    openNewTab,
+    onReadArticleClick,
     enableSourceHeader = false,
     domProps = {},
   }: PostCardProps,
@@ -62,6 +64,8 @@ export const ShareList = forwardRef(function ShareList(
           ...post,
           type: post.sharedPost.type,
         }}
+        openNewTab={openNewTab}
+        onReadArticleClick={onReadArticleClick}
         onMenuClick={(event) => onMenuClick?.(event, post)}
         metadata={{
           topLabel: enableSourceHeader ? (

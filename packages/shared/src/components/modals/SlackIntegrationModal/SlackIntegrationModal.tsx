@@ -198,7 +198,7 @@ const SlackIntegrationModal = ({
               type={TypographyType.Body}
               color={TypographyColor.Tertiary}
             >
-              Select channels
+              Select channel
               {!!channels?.length && (
                 <Bubble className="relative ml-1 bg-surface-float px-1">
                   {channels.length}

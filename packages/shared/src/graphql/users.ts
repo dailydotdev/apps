@@ -641,3 +641,13 @@ export const USER_INTEGRATIONS = gql`
     }
   }
 `;
+
+export const USER_INTEGRATION_BY_ID = gql`
+  query UserIntegrationById($id: ID!) {
+    userIntegration(id: $id) {
+      id
+      type
+      name
+    }
+  }
+`;
