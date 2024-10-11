@@ -172,6 +172,10 @@ const NewSquadModal = dynamic(
     import(/* webpackChunkName: "newSquadModal" */ './squads/NewSquadModal'),
 );
 
+const ReportModal = dynamic(
+  () => import(/* webpackChunkName: "reportModal" */ './report/ReportModal'),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -201,6 +205,7 @@ export const modals = {
   [LazyModal.ReportSource]: ReportSourceModal,
   [LazyModal.UserFollowersModal]: UserFollowersModal,
   [LazyModal.UserFollowingModal]: UserFollowingModal,
+  [LazyModal.Report]: ReportModal,
   [LazyModal.NewSquad]: NewSquadModal,
 };
 
