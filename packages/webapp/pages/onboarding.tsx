@@ -55,11 +55,7 @@ import {
 } from '@dailydotdev/shared/src/components/auth/OnboardingLogs';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
-import {
-  useConditionalFeature,
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -127,10 +123,6 @@ export function OnboardPage(): ReactElement {
   const isSeniorUser =
     EXPERIENCE_TO_SENIORITY[user?.experienceLevel] === 'senior' ||
     user?.experienceLevel === 'MORE_THAN_4_YEARS';
-  const { value: seniorContentOnboarding } = useConditionalFeature({
-    feature: feature.seniorContentOnboarding,
-    shouldEvaluate: isSeniorUser,
-  });
 
   const isFeedSettingsDefined = useMemo(() => !!feedSettings, [feedSettings]);
 
@@ -159,8 +151,13 @@ export function OnboardPage(): ReactElement {
     }
 
     if (activeScreen === OnboardingStep.EditTag) {
-      if (seniorContentOnboarding) {
-        updateSettingsBasedOnExperience();
+      if (isSeniorUser) {
+        const seniorContentOnboarding = getFeatureValue(
+          feature.seniorContentOnboarding,
+        );
+        if (seniorContentOnboarding) {
+          updateSettingsBasedOnExperience();
+        }
       }
 
       return setActiveScreen(OnboardingStep.ContentTypes);
