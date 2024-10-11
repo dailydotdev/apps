@@ -1,4 +1,11 @@
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
 import classNames from 'classnames';
 import AuthOptions, {
@@ -42,6 +49,7 @@ import {
 } from '@dailydotdev/shared/src/components';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
+  EXPERIENCE_TO_SENIORITY,
   logSignUp,
   OnboardingLogs,
 } from '@dailydotdev/shared/src/components/auth/OnboardingLogs';
@@ -54,6 +62,7 @@ import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsCon
 import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import useMutateFilters from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -110,7 +119,26 @@ export function OnboardPage(): ReactElement {
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
-  const enableContentTypeStep = useRef(false);
+  const { updateAdvancedSettings } = useMutateFilters(user);
+  const isSeniorUser =
+    EXPERIENCE_TO_SENIORITY[user?.experienceLevel] === 'senior' ||
+    user?.experienceLevel === 'MORE_THAN_4_YEARS';
+
+  const isFeedSettingsDefined = useMemo(() => !!feedSettings, [feedSettings]);
+
+  const updateSettingsBasedOnExperience = useCallback(() => {
+    const LISTICLE_ADVANCED_SETTINGS_ID = 10;
+    const MEMES_ADVANCED_SETTINGS_ID = 5;
+
+    if (isSeniorUser && isFeedSettingsDefined) {
+      updateAdvancedSettings({
+        advancedSettings: [
+          { id: MEMES_ADVANCED_SETTINGS_ID, enabled: false },
+          { id: LISTICLE_ADVANCED_SETTINGS_ID, enabled: false },
+        ],
+      });
+    }
+  }, [isSeniorUser, isFeedSettingsDefined, updateAdvancedSettings]);
 
   const onClickNext = () => {
     logEvent({
@@ -122,18 +150,20 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.EditTag);
     }
 
-    if (
-      activeScreen === OnboardingStep.EditTag &&
-      enableContentTypeStep.current
-    ) {
+    if (activeScreen === OnboardingStep.EditTag) {
+      if (isSeniorUser) {
+        const seniorContentOnboarding = getFeatureValue(
+          feature.seniorContentOnboarding,
+        );
+        if (seniorContentOnboarding) {
+          updateSettingsBasedOnExperience();
+        }
+      }
+
       return setActiveScreen(OnboardingStep.ContentTypes);
     }
 
-    if (
-      (activeScreen === OnboardingStep.EditTag ||
-        activeScreen === OnboardingStep.ContentTypes) &&
-      isMobile
-    ) {
+    if (activeScreen === OnboardingStep.ContentTypes && isMobile) {
       return setActiveScreen(OnboardingStep.ReadingReminder);
     }
 
@@ -156,13 +186,6 @@ export function OnboardPage(): ReactElement {
   };
 
   const onClickCreateFeed = () => {
-    if (
-      activeScreen === OnboardingStep.EditTag &&
-      enableContentTypeStep.current
-    ) {
-      return onClickNext();
-    }
-
     const onboardingChecklist = getFeatureValue(feature.onboardingChecklist);
 
     if (onboardingChecklist) {
@@ -239,9 +262,7 @@ export function OnboardPage(): ReactElement {
   };
 
   const customActionName =
-    activeScreen === OnboardingStep.EditTag && enableContentTypeStep.current
-      ? 'Continue'
-      : undefined;
+    activeScreen === OnboardingStep.EditTag ? 'Continue' : undefined;
 
   const getContent = (): ReactElement => {
     if (isAuthenticating && activeScreen === OnboardingStep.Intro) {
@@ -268,7 +289,7 @@ export function OnboardPage(): ReactElement {
             feedSettings={feedSettings}
             userId={user?.id}
             customActionName={customActionName}
-            onClick={onClickCreateFeed}
+            onClick={onClickNext}
             activeScreen={activeScreen}
           />
         )}
@@ -320,13 +341,6 @@ export function OnboardPage(): ReactElement {
 
   const instanceId = router.query?.aiid?.toString();
   const userId = user?.id || anonymous?.id;
-
-  const shouldCheckForContentTypeStep =
-    activeScreen === OnboardingStep.EditTag && !enableContentTypeStep.current;
-
-  if (shouldCheckForContentTypeStep) {
-    enableContentTypeStep.current = true;
-  }
 
   return (
     <div
