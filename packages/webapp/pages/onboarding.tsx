@@ -193,12 +193,15 @@ export function OnboardPage(): ReactElement {
   const isFeedSettingsDefined = useMemo(() => !!feedSettings, [feedSettings]);
 
   const updateSettingsBasedOnExperience = useCallback(() => {
+    const LISTICLE_ADVANCED_SETTINGS_ID = 10;
+    const MEMES_ADVANCED_SETTINGS_ID = 5;
+
     if (isSeniorUser && isFeedSettingsDefined) {
       shouldUpdateAdvancedSettings.current = false;
       updateAdvancedSettings({
         advancedSettings: [
-          { id: 5, enabled: false },
-          { id: 10, enabled: false },
+          { id: MEMES_ADVANCED_SETTINGS_ID, enabled: false },
+          { id: LISTICLE_ADVANCED_SETTINGS_ID, enabled: false },
         ],
       });
     }
