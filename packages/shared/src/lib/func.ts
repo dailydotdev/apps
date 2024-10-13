@@ -1,6 +1,9 @@
 import { MouseEvent } from 'react';
 import { EmptyObjectLiteral } from './kratos';
 
+export type EmptyFunction = () => void;
+export type EmptyPromise = () => Promise<void>;
+
 export const nextTick = (): Promise<unknown> =>
   new Promise((resolve) => setTimeout(resolve));
 
@@ -86,3 +89,14 @@ export const sortAlphabeticallyByProperty =
 
     return 0;
   };
+
+export enum UserAgent {
+  Chrome = 'Chrome',
+  Edge = 'Edg', // intended to be Edg, not Edge
+}
+
+export const checkIsBrowser = (agent: UserAgent): boolean =>
+  globalThis?.navigator?.userAgent?.includes(agent);
+
+export const checkIsChromeOnly = (): boolean =>
+  checkIsBrowser(UserAgent.Chrome) && !checkIsBrowser(UserAgent.Edge);

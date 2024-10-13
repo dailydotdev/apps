@@ -19,6 +19,7 @@ export enum Origin {
   TagPage = 'tag page',
   Profile = 'profile',
   // squads - start
+  NewSquadModal = 'new squad modal',
   SquadDirectory = 'squad directory',
   SquadCreation = 'squad creation',
   SquadPage = 'squad page',

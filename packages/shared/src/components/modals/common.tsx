@@ -174,6 +174,17 @@ const ReasonSelectionModal = dynamic(
     ),
 );
 
+const PostModerationModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "postModerationModal" */ './squads/PostModerationModal'
+    ),
+);
+const NewSquadModal = dynamic(
+  () =>
+    import(/* webpackChunkName: "newSquadModal" */ './squads/NewSquadModal'),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -204,6 +215,8 @@ export const modals = {
   [LazyModal.UserFollowersModal]: UserFollowersModal,
   [LazyModal.UserFollowingModal]: UserFollowingModal,
   [LazyModal.ReasonSelection]: ReasonSelectionModal,
+  [LazyModal.PostModeration]: PostModerationModal,
+  [LazyModal.NewSquad]: NewSquadModal,
 };
 
 type GetComponentProps<T> = T extends

@@ -59,6 +59,8 @@ export enum LazyModal {
   ReportSource = 'reportSource',
   UserFollowersModal = 'userFollowersModal',
   UserFollowingModal = 'userFollowingModal',
+  PostModeration = 'postModeration',
+  NewSquad = 'newSquad',
 }
 
 export type ModalTabItem = {

@@ -1,4 +1,3 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 import {
   SlackChannel,
@@ -7,17 +6,14 @@ import {
 } from '../../../graphql/integrations';
 import { SourceType } from '../../../graphql/sources';
 import { useSlack } from '../../../hooks/integrations/slack/useSlack';
-import { labels } from '../../../lib';
-import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { LazyModal } from '../common/types';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { useToastNotification } from '../../../hooks';
 import { useSlackChannelsQuery } from '../../../hooks/integrations/slack/useSlackChannelsQuery';
 import { useIntegrationsQuery } from '../../../hooks/integrations/useIntegrationsQuery';
 import { useSourceIntegrationQuery } from '../../../hooks/integrations/useSourceIntegrationQuery';
 import type { SlackIntegrationModalProps } from './SlackIntegrationModal';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, Origin } from '../../../lib/log';
+import { useSlackConnectSourceMutation } from '../../../hooks/integrations/slack/useSlackConnectSourceMutation';
 
 export type UseSlackIntegrationModalProps = Pick<
   SlackIntegrationModalProps,
@@ -46,10 +42,8 @@ export type UseSlackIntegrationModal = {
 export const useSlackIntegrationModal = ({
   source,
 }: UseSlackIntegrationModalProps): UseSlackIntegrationModal => {
-  const queryClient = useQueryClient();
-  const { user } = useAuthContext();
-  const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
+  const { onSave: onSaveMutation, isSaving } = useSlackConnectSourceMutation();
 
   const [state, setState] = useState<{
     userIntegration?: UserIntegration;
@@ -126,27 +120,19 @@ export const useSlackIntegrationModal = ({
     });
   }, [slack, source, logEvent, hasIntegrations]);
 
-  const { mutateAsync: onSave, isLoading: isSaving } = useMutation(
-    async () => {
-      await slack.connectSource({
-        channelId: channels[selectedChannelIndex].id,
-        integrationId: selectedIntegration.id,
-        sourceId: source.id,
-      });
-    },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(
-          generateQueryKey(RequestKey.UserSourceIntegrations, user),
-        );
-
-        displayToast(labels.integrations.success.integrationSaved);
-      },
-      onError: () => {
-        displayToast(labels.error.generic);
-      },
-    },
-  );
+  const onSave = useCallback(async () => {
+    await onSaveMutation({
+      channelId: channels[selectedChannelIndex].id,
+      integrationId: selectedIntegration.id,
+      sourceId: source.id,
+    });
+  }, [
+    channels,
+    onSaveMutation,
+    selectedChannelIndex,
+    selectedIntegration?.id,
+    source.id,
+  ]);
 
   const onWorkspaceChange = useCallback<
     UseSlackIntegrationModal['onWorkspaceChange']
