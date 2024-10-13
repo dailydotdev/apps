@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import router, { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -15,8 +15,11 @@ import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { SourceIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { useIntegrationQuery } from '@dailydotdev/shared/src/hooks/integrations/useIntegrationQuery';
+
+import { useSlackConnectSourceMutation } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackConnectSourceMutation';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
+import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
 const seo: NextSeoProps = {
   title: 'Create your Squad',
@@ -25,16 +28,45 @@ const seo: NextSeoProps = {
 };
 
 const NewSquad = (): ReactElement => {
-  const { isReady: isRouteReady } = useRouter();
+  const [selectedChannel, setSelectedChannel] = useState<string | null>();
+  const { isReady: isRouteReady, query } = useRouter();
   const { user, isAuthReady, isFetched } = useAuthContext();
-  const { onCreateSquad, isLoading } = useSquadCreate();
+  const { onSave } = useSlackConnectSourceMutation();
+  const shouldLoadIntegration = query?.fs && !query?.error;
+  const integrationId = query?.iid as string;
+
+  const { onCreateSquad, isLoading } = useSquadCreate({
+    onSuccess: async (squad) => {
+      if (selectedChannel) {
+        await onSave({
+          channelId: selectedChannel,
+          integrationId,
+          sourceId: squad.id,
+        });
+      }
+
+      router.push(squad.permalink);
+    },
+  });
   const isMobile = useViewSize(ViewSize.MobileL);
+
+  const { data, isLoading: isIntegrationLoading } = useIntegrationQuery({
+    id: integrationId,
+    queryOptions: { enabled: !!shouldLoadIntegration && !!integrationId },
+  });
+
+  const initialHandle = data?.name.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
 
   const handleClose = async () => {
     router.push('/squads');
   };
 
-  if (!isFetched || !isAuthReady || !isRouteReady) {
+  if (
+    !isFetched ||
+    !isAuthReady ||
+    !isRouteReady ||
+    (isIntegrationLoading && !!shouldLoadIntegration)
+  ) {
     return <MangeSquadPageSkeleton />;
   }
 
@@ -47,8 +79,16 @@ const NewSquad = (): ReactElement => {
       <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
       <SquadDetails
         onRequestClose={handleClose}
-        onSubmit={(e, form) => onCreateSquad(form)}
+        onSubmit={(e, form, channelId) => {
+          setSelectedChannel(channelId);
+          onCreateSquad(form);
+        }}
         isLoading={isLoading}
+        initialData={{
+          name: data?.name,
+          handle: initialHandle,
+        }}
+        integrationId={integrationId}
       >
         <div className="flex flex-col-reverse bg-cover bg-center tablet:flex-row">
           <div className="mx-6 my-5 flex flex-1 flex-col gap-2">

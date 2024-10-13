@@ -122,7 +122,7 @@ export function SquadPageHeader({
                 <a
                   aria-label={`View all squads in ${category.title}`}
                   className="text-text-link"
-                  href={`/squads/discover/${category.id}`}
+                  href={`/squads/discover/${category.slug}`}
                   title={`View all squads in ${category.title}`}
                 >
                   {category.title}

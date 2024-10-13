@@ -7,9 +7,9 @@ import {
 } from '../../../graphql/integrations';
 import { isDevelopment } from '../../../lib/constants';
 import { gqlClient } from '../../../graphql/common';
-import { apiUrl } from '../../../lib/config';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
+import { apiUrl } from '../../../lib/config';
 
 export type UseSlack = {
   connect: ({ redirectPath }: { redirectPath: string }) => void;
