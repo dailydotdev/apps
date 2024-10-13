@@ -79,7 +79,6 @@ export function SquadModerationItem({
             {createdBy.name}
           </Typography>
           <PostMetadata readTime={post?.readTime} createdAt={createdAt} />
-
         </div>
         {squad?.currentMember.role === SourceMemberRole.Member && (
           <span className="ml-auto flex flex-row gap-2">
