@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { MouseEventHandler, useCallback, useRef } from 'react';
 import {
   PostModerationReason,
   SquadPostRejectionProps,
@@ -46,16 +46,24 @@ export const rejectReasons: { value: PostModerationReason; label: string }[] = [
 ];
 
 interface UseSquadPostModeration {
-  onApprove: (ids: string[]) => Promise<void>;
-  onReject: (id: string) => void;
+  onApprove: (ids: string[], onSuccess?: MouseEventHandler) => Promise<void>;
+  onReject: (id: string, onSuccess?: MouseEventHandler) => void;
   isLoading: boolean;
   isSuccess: boolean;
 }
 
 export const useSquadPostModeration = (): UseSquadPostModeration => {
+  const onSuccessRef = useRef<MouseEventHandler>();
   const { openModal } = useLazyModal();
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
+  const onSuccessWrapper = () => {
+    if (onSuccessRef.current) {
+      onSuccessRef.current(null);
+      onSuccessRef.current = undefined;
+    }
+  };
+
   const {
     mutateAsync: onApprove,
     isLoading: isLoadingApprove,
@@ -63,11 +71,14 @@ export const useSquadPostModeration = (): UseSquadPostModeration => {
   } = useMutation((ids: string[]) => squadApproveMutation(ids), {
     onSuccess: () => {
       displayToast('Post(s) approved successfully');
+      onSuccessWrapper();
     },
   });
 
-  const onApprovePost = useCallback(
-    async (ids: string[]) => {
+  const onApprovePost: UseSquadPostModeration['onApprove'] = useCallback(
+    async (ids, onSuccess) => {
+      onSuccessRef.current = onSuccess;
+
       if (ids.length === 1) {
         onApprove(ids);
       }
@@ -87,12 +98,15 @@ export const useSquadPostModeration = (): UseSquadPostModeration => {
     mutateAsync: onReject,
     isLoading: isLoadingReject,
     isSuccess: isSuccessReject,
-  } = useMutation((props: SquadPostRejectionProps) =>
-    squadRejectMutation(props),
+  } = useMutation(
+    (props: SquadPostRejectionProps) => squadRejectMutation(props),
+    { onSuccess: onSuccessWrapper },
   );
 
-  const onRejectPost = useCallback(
-    (postId: string) => {
+  const onRejectPost: UseSquadPostModeration['onReject'] = useCallback(
+    (postId, onSuccess) => {
+      onSuccessRef.current = onSuccess;
+
       openModal({
         type: LazyModal.Report,
         props: {

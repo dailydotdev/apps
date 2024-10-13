@@ -171,6 +171,12 @@ const ReportModal = dynamic(
   () => import(/* webpackChunkName: "reportModal" */ './report/ReportModal'),
 );
 
+const PostModerationModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "postModerationModal" */ './squads/PostModerationModal'
+    ),
+);
 const NewSquadModal = dynamic(
   () =>
     import(/* webpackChunkName: "newSquadModal" */ './squads/NewSquadModal'),
@@ -206,6 +212,7 @@ export const modals = {
   [LazyModal.UserFollowersModal]: UserFollowersModal,
   [LazyModal.UserFollowingModal]: UserFollowingModal,
   [LazyModal.Report]: ReportModal,
+  [LazyModal.PostModeration]: PostModerationModal,
   [LazyModal.NewSquad]: NewSquadModal,
 };
 

@@ -1,4 +1,4 @@
-import React, { MouseEvent, ReactElement } from 'react';
+import React, { MouseEvent, MouseEventHandler, ReactElement } from 'react';
 import {
   Typography,
   TypographyTag,
@@ -20,11 +20,13 @@ import { capitalize } from '../../../lib/strings';
 import OptionsButton from '../../buttons/OptionsButton';
 import { TimerIcon, WarningIcon } from '../../icons';
 import { AlertColor } from '../../AlertDot';
+import { useLazyModal } from '../../../hooks/useLazyModal';
+import { LazyModal } from '../../modals/common/types';
 
 interface SquadModerationListProps {
   data: SourcePostModeration;
   onApprove: (id: string) => void;
-  onReject: (id: string) => void;
+  onReject: (id: string, onSuccess?: MouseEventHandler) => void;
   isLoading: boolean;
   squad: Squad;
 }
@@ -36,10 +38,23 @@ export function SquadModerationItem({
   onApprove,
   isLoading,
 }: SquadModerationListProps): ReactElement {
-  const { post, status, reason } = data;
+  const { openModal } = useLazyModal();
+  const {
+    post,
+    status,
+    reason,
+    createdBy,
+    createdAt,
+    title,
+    image,
+    sharedPost,
+  } = data;
   const onClick = (e: MouseEvent) => {
     e.stopPropagation();
-    // MI-575: should open the modal
+    openModal({
+      type: LazyModal.PostModeration,
+      props: { data, squad, onApprove, onReject },
+    });
   };
 
   const icon =
@@ -58,12 +73,12 @@ export function SquadModerationItem({
         className="absolute inset-0"
       />
       <div className="flex flex-row gap-4">
-        <ProfilePicture user={post.author} size={ProfileImageSize.Large} />
+        <ProfilePicture user={createdBy} size={ProfileImageSize.Large} />
         <div className="flex flex-col gap-1">
           <Typography bold type={TypographyType.Footnote}>
-            {post.author.name}
+            {createdBy.name}
           </Typography>
-          <PostMetadata readTime={post.readTime} createdAt={post.createdAt} />
+          <PostMetadata readTime={post?.readTime} createdAt={createdAt} />
         </div>
         {squad?.currentMember.role === SourceMemberRole.Member && (
           <span className="ml-auto flex flex-row gap-2">
@@ -79,17 +94,14 @@ export function SquadModerationItem({
           </span>
         )}
       </div>
-      <div className="flex flex-row gap-4">
+      <div className="flex flex-col gap-4 tablet:flex-row">
         <div className="flex flex-1 flex-col gap-4">
           <Typography tag={TypographyTag.H2} type={TypographyType.Title3} bold>
-            {post.sharedPost?.title || post.title}
+            {title}
           </Typography>
-          <PostTags
-            className="!mx-0"
-            tags={post.sharedPost?.tags || post.tags}
-          />
+          <PostTags className="!mx-0" tags={sharedPost?.tags || post?.tags} />
         </div>
-        <CardImage src={post.sharedPost?.image || post.image} />
+        <CardImage src={image || sharedPost?.image || post?.image} />
       </div>
       {status === SourcePostModerationStatus.Rejected ? (
         <AlertPointerMessage color={AlertColor.Bun}>
