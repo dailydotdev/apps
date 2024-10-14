@@ -1,5 +1,13 @@
 /* eslint-disable global-require, import/no-extraneous-dependencies, @typescript-eslint/no-var-requires */
 
+const cssnano = [
+  'cssnano',
+  {
+    preset: 'advanced',
+    discardComments: { removeAll: true },
+  },
+];
+
 module.exports = {
   plugins: [
     'postcss-import',
@@ -31,5 +39,6 @@ module.exports = {
         })
       : ['postcss-rem-to-responsive-pixel', { rootValue: 16, propList: ['*'] }],
     'autoprefixer',
+    ...(process.env.NODE_ENV === 'production' ? [cssnano] : []),
   ],
 };
