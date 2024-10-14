@@ -39,7 +39,7 @@ const LogoSvgElem = ({
     return (
       <img
         loading="eager"
-        fetchPriority="high"
+        fetchpriority="high"
         src={src}
         className={className?.container}
         alt="daily.dev logo"
