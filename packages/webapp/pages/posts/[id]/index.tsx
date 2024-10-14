@@ -121,8 +121,6 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     },
   };
 
-  const seoComponent = <NextSeo {...seo} />;
-
   useScrollTopOffset(() => globalThis.window, {
     onOverOffset: () => position !== 'fixed' && setPosition('fixed'),
     onUnderOffset: () => position !== 'relative' && setPosition('relative'),
@@ -136,7 +134,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     return (
       <>
         <PostSEOSchema post={post} />
-        {post?.title?.length && seoComponent}
+        {post?.title?.length && <NextSeo {...seo} />}
         <PostLoadingSkeleton className={containerClass} type={post?.type} />
       </>
     );
@@ -153,7 +151,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
       <Head>
         <link rel="preload" as="image" href={post?.image} />
       </Head>
-      {seoComponent}
+      <NextSeo {...seo} />
       <PostSEOSchema post={post} />
       <Content
         position={position}

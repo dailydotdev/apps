@@ -37,6 +37,6 @@ const renderComponent = (layout = getLayout): RenderResult => {
 
 it('should render the search page', async () => {
   renderComponent(undefined);
-  const text = screen.queryByTestId('search-panel');
+  const text = await screen.findByTestId('search-panel');
   expect(text).toBeInTheDocument();
 });
