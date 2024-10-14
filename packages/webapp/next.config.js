@@ -10,9 +10,9 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 const securityHeaders = [
   {
     key: 'X-Frame-Options',
-    value: 'DENY',
-  },
-];
+    value: 'DENY'
+  }
+]
 
 module.exports = {
   transpilePackages: ['@dailydotdev/shared'],
@@ -21,7 +21,7 @@ module.exports = {
       dest: 'public',
       disable: process.env.NODE_ENV === 'development',
       runtimeCaching,
-      buildExcludes: [/react-syntax-highlighter|reactSyntaxHighlighter/],
+      buildExcludes: [/react-syntax-highlighter|reactSyntaxHighlighter/]
     },
     ...withBundleAnalyzer({
       i18n: {
@@ -35,7 +35,7 @@ module.exports = {
         // Grab the existing rule that handles SVG imports
         const fileLoaderRule = config.module.rules.find((rule) =>
           rule.test?.test?.('.svg'),
-        );
+        )
 
         config.module.rules.push(
           // Reapply the existing rule, but only for svg imports ending in ?url
@@ -48,9 +48,7 @@ module.exports = {
           {
             test: /\.svg$/i,
             issuer: fileLoaderRule.issuer,
-            resourceQuery: {
-              not: [...fileLoaderRule.resourceQuery.not, /url/],
-            }, // exclude if *.svg?url
+            resourceQuery: { not: [...fileLoaderRule.resourceQuery.not, /url/] }, // exclude if *.svg?url
             use: [
               {
                 loader: '@svgr/webpack',
@@ -69,10 +67,10 @@ module.exports = {
               },
             ],
           },
-        );
+        )
 
         // Modify the file loader rule to ignore *.svg, since we have it handled now.
-        fileLoaderRule.exclude = /\.svg$/i;
+        fileLoaderRule.exclude = /\.svg$/i
         config.module.rules.push({
           test: /\.m?js/,
           resolve: {
@@ -97,14 +95,14 @@ module.exports = {
             has: [
               {
                 type: 'query',
-                key: 'provider',
-              },
-            ],
+                key: 'provider'
+              }
+            ]
           },
           {
             source: '/search',
-            destination: '/search/posts',
-          },
+            destination: '/search/posts'
+          }
         ];
 
         // to support GitPod environment and avoid CORS issues, we need to proxy the API requests
@@ -122,14 +120,14 @@ module.exports = {
           {
             source: '/posts/finder',
             destination: '/search?provider=posts',
-            permanent: false,
+            permanent: false
           },
           {
             source: '/signup',
             destination: '/onboarding',
-            permanent: false,
-          },
-        ];
+            permanent: false
+          }
+        ]
       },
       headers: async () => {
         return [
@@ -139,12 +137,11 @@ module.exports = {
               ...securityHeaders,
               {
                 key: 'X-Recruiting',
-                value:
-                  'We are hiring! Check https://daily.dev/careers for more info!',
+                value: 'We are hiring! Check https://daily.dev/careers for more info!'
               },
-            ],
-          },
-        ];
+            ]
+          }
+        ]
       },
       poweredByHeader: false,
       reactStrictMode: false,

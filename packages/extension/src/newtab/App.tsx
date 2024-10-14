@@ -15,7 +15,6 @@ import AuthContext, {
 } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import browser from 'webextension-polyfill';
-import { useInAppNotification } from '@dailydotdev/shared/src/hooks/useInAppNotification';
 import { BootDataProviderProps } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { RouterContext } from 'next/dist/shared/lib/router-context.shared-runtime';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
@@ -77,7 +76,6 @@ Modal.defaultStyles = {};
 const getRedirectUri = () => browser.runtime.getURL('index.html');
 function InternalApp(): ReactElement {
   useError();
-  useInAppNotification();
   useLazyModal();
   usePrompt();
   useWebVitals();
