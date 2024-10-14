@@ -119,7 +119,7 @@ export const DEFAULT_ERROR = 'An error occurred, please try again';
 
 export const errorMessage = {
   profile: {
-    invalidUsername: 'Invalid characters found in username!',
+    invalidUsername: 'Username can only contain Alphanumeric (A-z, a-z, 1234..)',
     invalidHandle: 'Invalid character(s) found in social handle',
     invalidSocialLinks:
       'Please follow the appropriate format to add your links',
