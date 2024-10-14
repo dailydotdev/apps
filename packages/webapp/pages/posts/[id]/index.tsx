@@ -9,6 +9,7 @@ import {
 import { ParsedUrlQuery } from 'querystring';
 import { NextSeo } from 'next-seo';
 import {
+  Post,
   POST_BY_ID_STATIC_FIELDS_QUERY,
   PostData,
   PostType,
@@ -83,6 +84,14 @@ interface PostParams extends ParsedUrlQuery {
   id: string;
 }
 
+const seoTitle = (post: Post) => {
+  if (post?.type === PostType.Share && post?.title === null) {
+    return `Shared post at ${post?.source?.name}`;
+  }
+
+  return post?.title;
+};
+
 const PostPage = ({ id, initialData }: Props): ReactElement => {
   useJoinReferral();
   const [position, setPosition] =
@@ -101,16 +110,10 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     [PostType.Share, PostType.Welcome, PostType.Freeform].includes(post?.type),
     featureTheme && 'bg-transparent',
   );
-  const seoTitle = () => {
-    if (post?.type === PostType.Share && post?.title === null) {
-      return `Shared post at ${post?.source?.name}`;
-    }
 
-    return post?.title;
-  };
   const seo: NextSeoProps = {
     canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
-    title: getTemplatedTitle(seoTitle()),
+    title: getTemplatedTitle(seoTitle(post)),
     description: getSeoDescription(post),
     openGraph: {
       images: [{ url: `https://og.daily.dev/api/posts/${post?.id}` }],
