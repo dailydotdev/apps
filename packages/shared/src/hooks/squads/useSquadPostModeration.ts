@@ -108,7 +108,7 @@ export const useSquadPostModeration = (): UseSquadPostModeration => {
       onSuccessRef.current = onSuccess;
 
       openModal({
-        type: LazyModal.Report,
+        type: LazyModal.ReasonSelection,
         props: {
           onReport: (_, reason, note) => onReject({ postId, reason, note }),
           reasons: rejectReasons,
