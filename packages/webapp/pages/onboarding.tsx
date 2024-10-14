@@ -351,7 +351,7 @@ export function OnboardPage(): ReactElement {
           fetchPriority="high"
           loading="eager"
           role="presentation"
-          src={onboardingVisual.fullBackground.mobile}
+          src={onboardingVisual.fullBackground.desktop}
           srcSet={`${onboardingVisual.fullBackground.mobile} 450w, ${onboardingVisual.fullBackground.desktop} 1024w`}
           sizes="(max-width: 655px) 450px, 1024px"
         />
