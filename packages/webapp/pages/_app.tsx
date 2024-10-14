@@ -166,7 +166,11 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           }}
         />
 
+        <link rel="preconnect" href="https://api.daily.dev" />
+        <link rel="preconnect" href="https://sso.daily.dev" />
+        <link rel="preconnect" href="https://sso.daily.dev" />
         <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="preconnect" href="https://daily-now-res.cloudinary.com" />
       </Head>
       <DefaultSeo
         {...Seo}
