@@ -24,20 +24,21 @@ import { FeedbackGrid } from './feedback/FeedbackGrid';
 
 export const ArticleGrid = forwardRef(function ArticleGrid(
   {
-    post,
-    onPostClick,
-    onPostAuxClick,
-    onUpvoteClick,
-    onDownvoteClick,
-    onCommentClick,
-    onMenuClick,
-    onBookmarkClick,
-    onShare,
-    onCopyLinkClick,
-    openNewTab,
     children,
-    onReadArticleClick,
     domProps = {},
+    eagerLoadImage = false,
+    onBookmarkClick,
+    onCommentClick,
+    onCopyLinkClick,
+    onDownvoteClick,
+    onMenuClick,
+    onPostAuxClick,
+    onPostClick,
+    onReadArticleClick,
+    onShare,
+    onUpvoteClick,
+    openNewTab,
+    post,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
@@ -131,6 +132,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             className={{
               image: classNames(showFeedback && 'mb-0'),
             }}
+            eagerLoadImage={eagerLoadImage}
           />
 
           {!showFeedback && (

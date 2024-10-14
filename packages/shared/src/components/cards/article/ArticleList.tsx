@@ -23,19 +23,20 @@ import { FeedbackList } from './feedback/FeedbackList';
 
 export const ArticleList = forwardRef(function ArticleList(
   {
-    post,
-    onPostClick,
-    onUpvoteClick,
-    onDownvoteClick,
-    onCommentClick,
-    onMenuClick,
-    onBookmarkClick,
-    onCopyLinkClick,
-    openNewTab,
     children,
-    onReadArticleClick,
     domProps = {},
+    eagerLoadImage = false,
+    onBookmarkClick,
+    onCommentClick,
+    onCopyLinkClick,
+    onDownvoteClick,
+    onMenuClick,
+    onPostClick,
+    onReadArticleClick,
     onShare,
+    onUpvoteClick,
+    openNewTab,
+    post,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
@@ -124,7 +125,8 @@ export const ArticleList = forwardRef(function ArticleList(
                 onShare={onShare}
                 post={post}
                 imageProps={{
-                  loading: 'lazy',
+                  loading: eagerLoadImage ? 'eager' : 'lazy',
+                  fetchPriority: eagerLoadImage ? 'high' : 'auto',
                   alt: 'Post Cover image',
                   src: post.image,
                   className: classNames(
