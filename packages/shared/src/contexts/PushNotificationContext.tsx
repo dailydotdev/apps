@@ -8,7 +8,7 @@ import React, {
   useState,
 } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import OneSignal from 'react-onesignal';
+import type OneSignal from 'react-onesignal';
 import { LogEvent, NotificationPromptSource } from '../lib/log';
 import { checkIsExtension, disabledRefetch } from '../lib/func';
 import { useAuthContext } from './AuthContext';
@@ -43,6 +43,10 @@ export const PushNotificationsContext =
 interface PushNotificationContextProviderProps {
   children: ReactElement;
 }
+
+type ChangeEventHandler = Parameters<
+  typeof OneSignal.User.PushSubscription.addEventListener
+>[1];
 
 /**
  * This context provider should only be used in the webapp
@@ -94,24 +98,26 @@ export function PushNotificationContextProvider({
         return osr;
       }
 
-      await OneSignal.init({
+      const OneSingalImport = (await import('react-onesignal')).default;
+
+      await OneSingalImport.init({
         appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
         serviceWorkerParam: { scope: '/push/onesignal/' },
         serviceWorkerPath: '/push/onesignal/OneSignalSDKWorker.js',
       });
 
-      await OneSignal.login(user.id);
+      await OneSingalImport.login(user.id);
 
-      setIsSubscribed(OneSignal.User.PushSubscription.optedIn);
+      setIsSubscribed(OneSingalImport.User.PushSubscription.optedIn);
 
-      return OneSignal;
+      return OneSingalImport;
     },
     { enabled: isEnabled, ...disabledRefetch },
   );
 
   const isPushSupported =
     !!globalThis.window?.Notification &&
-    OneSignal.Notifications.isPushSupported();
+    OneSignalCache?.Notifications.isPushSupported();
 
   const logPermissionGranted = useCallback(
     (source) => subscriptionCallbackRef.current?.(true, source, true),
@@ -123,16 +129,17 @@ export function PushNotificationContextProvider({
       return undefined;
     }
 
-    const onChange: Parameters<
-      typeof OneSignal.User.PushSubscription.addEventListener
-    >[1] = ({ current }) => {
+    const onChange: ChangeEventHandler = ({ current }) => {
       setIsSubscribed(() => current.optedIn);
       subscriptionCallbackRef.current?.(current.optedIn);
     };
 
-    OneSignal.User.PushSubscription.addEventListener('change', onChange);
+    OneSignalCache.User.PushSubscription.addEventListener('change', onChange);
     return () => {
-      OneSignal.User.PushSubscription.removeEventListener('change', onChange);
+      OneSignalCache.User.PushSubscription.removeEventListener(
+        'change',
+        onChange,
+      );
     };
   }, [OneSignalCache]);
 
