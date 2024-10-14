@@ -146,9 +146,8 @@ module.exports = {
       poweredByHeader: false,
       reactStrictMode: false,
       productionBrowserSourceMaps: process.env.SOURCE_MAPS === 'true',
+      experimental: {
+        optimizeCss: true
+      }
     }),
-  }),
-  experimental: {
-    optimizeCss: true
-  }
-};
+  })};
