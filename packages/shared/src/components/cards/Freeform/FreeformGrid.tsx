@@ -13,18 +13,18 @@ import ActionButtons from '../ActionsButtons/ActionButtons';
 
 export const FreeformGrid = forwardRef(function SharePostCard(
   {
-    post,
-    onPostClick,
-    onPostAuxClick,
-    onUpvoteClick,
-    onCommentClick,
-    onMenuClick,
-    onCopyLinkClick,
-    onBookmarkClick,
     children,
-    enableSourceHeader = false,
     domProps = {},
+    enableSourceHeader = false,
+    onBookmarkClick,
+    onCommentClick,
+    onCopyLinkClick,
     onDownvoteClick,
+    onMenuClick,
+    onPostAuxClick,
+    onPostClick,
+    onUpvoteClick,
+    post,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {

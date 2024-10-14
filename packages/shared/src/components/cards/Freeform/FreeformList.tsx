@@ -15,18 +15,19 @@ import ActionButtons from '../common/list/ActionButtons';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
-    post,
-    onPostClick,
-    onUpvoteClick,
-    onDownvoteClick,
-    onCommentClick,
-    onMenuClick,
-    onCopyLinkClick,
-    onBookmarkClick,
-    onShare,
     children,
-    enableSourceHeader = false,
     domProps = {},
+    eagerLoadImage = false,
+    enableSourceHeader = false,
+    onBookmarkClick,
+    onCommentClick,
+    onCopyLinkClick,
+    onDownvoteClick,
+    onMenuClick,
+    onPostClick,
+    onShare,
+    onUpvoteClick,
+    post,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
@@ -98,9 +99,11 @@ export const FreeformList = forwardRef(function SharePostCard(
               onShare={onShare}
               post={post}
               imageProps={{
-                src: image,
-                className: 'my-2 mobileXXL:self-start w-full',
                 alt: 'Post Cover image',
+                className: 'my-2 mobileXXL:self-start w-full',
+                fetchPriority: eagerLoadImage ? 'high' : 'auto',
+                loading: eagerLoadImage ? 'eager' : 'lazy',
+                src: image,
               }}
             />
           )}

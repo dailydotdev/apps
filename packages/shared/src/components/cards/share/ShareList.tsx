@@ -15,20 +15,21 @@ import ActionButtons from '../common/list/ActionButtons';
 
 export const ShareList = forwardRef(function ShareList(
   {
-    post,
-    onPostClick,
-    onUpvoteClick,
-    onDownvoteClick,
-    onCommentClick,
-    onMenuClick,
-    onCopyLinkClick,
-    onShare,
-    onBookmarkClick,
     children,
-    openNewTab,
-    onReadArticleClick,
-    enableSourceHeader = false,
     domProps = {},
+    eagerLoadImage = false,
+    enableSourceHeader = false,
+    onBookmarkClick,
+    onCommentClick,
+    onCopyLinkClick,
+    onDownvoteClick,
+    onMenuClick,
+    onPostClick,
+    onReadArticleClick,
+    onShare,
+    onUpvoteClick,
+    openNewTab,
+    post,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
@@ -107,13 +108,14 @@ export const ShareList = forwardRef(function ShareList(
           onShare={onShare}
           post={post}
           imageProps={{
-            loading: 'lazy',
             alt: 'Post Cover image',
-            src: post.sharedPost.image,
             className: classNames(
               'mobileXXL:self-start',
               !isVideoType && 'mt-4',
             ),
+            fetchPriority: eagerLoadImage ? 'high' : 'auto',
+            loading: eagerLoadImage ? 'eager' : 'lazy',
+            src: post.sharedPost.image,
           }}
           videoProps={{
             className: 'mt-4 mobileXL:w-40 mobileXXL:w-56 !h-fit',

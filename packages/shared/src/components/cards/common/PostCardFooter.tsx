@@ -35,12 +35,12 @@ export const PostCardFooter = ({
         imageProps={{
           ...imageLoadingProps,
           alt: 'Post Cover image',
-          src: post.image,
           className: classNames(
             'w-full',
             className.image,
             !isVideoType && 'my-2',
           ),
+          src: post.image,
         }}
         videoProps={{ className: 'my-2' }}
       />

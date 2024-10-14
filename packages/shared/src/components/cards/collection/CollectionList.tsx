@@ -19,16 +19,17 @@ import { CardCoverList } from '../common/list/CardCover';
 export const CollectionList = forwardRef(function CollectionCard(
   {
     children,
-    post,
     domProps = {},
-    onUpvoteClick,
-    onDownvoteClick,
-    onCommentClick,
-    onMenuClick,
-    onCopyLinkClick,
-    onPostClick,
+    eagerLoadImage = false,
     onBookmarkClick,
+    onCommentClick,
+    onCopyLinkClick,
+    onDownvoteClick,
+    onMenuClick,
+    onPostClick,
     onShare,
+    onUpvoteClick,
+    post,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
@@ -87,10 +88,11 @@ export const CollectionList = forwardRef(function CollectionCard(
               post={post}
               onShare={onShare}
               imageProps={{
-                src: image,
-                className: 'my-2 w-full mobileXXL:self-start',
-                loading: 'lazy',
                 alt: 'Post Cover image',
+                className: 'my-2 w-full mobileXXL:self-start',
+                fetchPriority: eagerLoadImage ? 'high' : 'auto',
+                loading: eagerLoadImage ? 'eager' : 'lazy',
+                src: image,
               }}
             />
           )}
