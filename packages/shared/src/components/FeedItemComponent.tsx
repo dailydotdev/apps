@@ -240,7 +240,7 @@ export default function FeedItemComponent({
           }
           menuOpened={postMenuIndex === index}
           onCommentClick={(post) => onCommentClick(post, index, row, column)}
-          eagerLoadImage={row === 0 && column < 2}
+          eagerLoadImage={row === 0}
         >
           {showCommentPopupId === item.post.id && (
             <CommentPopup
