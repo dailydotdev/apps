@@ -348,7 +348,8 @@ export function OnboardPage(): ReactElement {
         <img
           alt="Onboarding background"
           className="pointer-events-none absolute inset-0 -z-1 h-full w-full object-cover tablet:object-center"
-          fetchPriority="high"
+          // @ts-expect-error - Not supported by react yet
+          fetchpriority="high"
           loading="eager"
           role="presentation"
           src={onboardingVisual.fullBackground.mobile}
