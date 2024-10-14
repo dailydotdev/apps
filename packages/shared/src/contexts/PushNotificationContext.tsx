@@ -81,7 +81,7 @@ export function PushNotificationContextProvider({
   const subscriptionCallbackRef =
     useRef<SubscriptionCallback>(subscriptionCallback);
   subscriptionCallbackRef.current = subscriptionCallback;
-  const isEnabled = !!user && !isTesting;
+  const isEnabled = !!user && !isTesting && !isExtension;
   const key = generateQueryKey(RequestKey.OneSignal, user);
   const client = useQueryClient();
   const {
