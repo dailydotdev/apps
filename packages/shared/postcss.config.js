@@ -40,5 +40,13 @@ module.exports = {
       : ['postcss-rem-to-responsive-pixel', { rootValue: 16, propList: ['*'] }],
     'autoprefixer',
     ...(process.env.NODE_ENV === 'production' ? [cssnano] : []),
+    [
+      '@fullhuman/postcss-purgecss',
+      {
+        content: ['./src/components/**/*.{js,jsx,ts,tsx}'],
+        defaultExtractor: (content) => content.match(/[\w-/:]+(?<!:)/g) || [],
+        safelist: ['html', 'body'],
+      },
+    ],
   ],
 };
