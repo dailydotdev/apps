@@ -343,24 +343,19 @@ export function OnboardPage(): ReactElement {
   const userId = user?.id || anonymous?.id;
 
   return (
-    <div
-      className={classNames(
-        'z-3 flex h-full max-h-screen min-h-screen w-full flex-1 flex-col items-center overflow-x-hidden',
-        showOnboardingPage &&
-          onboardingVisual.fullBackground &&
-          'bg-cover tablet:bg-center',
+    <div className="z-3 flex h-full max-h-screen min-h-screen w-full flex-1 flex-col items-center overflow-x-hidden">
+      {onboardingVisual.fullBackground && showOnboardingPage && (
+        <img
+          alt="Onboarding background"
+          className="pointer-events-none absolute inset-0 -z-1 h-full w-full object-cover tablet:object-center"
+          fetchPriority="high"
+          loading="eager"
+          role="presentation"
+          src={onboardingVisual.fullBackground.mobile}
+          srcSet={`${onboardingVisual.fullBackground.mobile} 450w, ${onboardingVisual.fullBackground.desktop} 1024w`}
+          sizes="(max-width: 655px) 450px, 1024px"
+        />
       )}
-      style={{
-        ...(showOnboardingPage &&
-          onboardingVisual.fullBackground && {
-            backgroundImage: `url(${
-              isMobile
-                ? onboardingVisual.fullBackground.mobile
-                : onboardingVisual.fullBackground.desktop
-            })`,
-          }),
-      }}
-    >
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
       <OnboardingLogs userId={userId} instanceId={instanceId} />
       {getProgressBar()}
