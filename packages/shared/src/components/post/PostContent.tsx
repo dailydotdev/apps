@@ -4,7 +4,6 @@ import dynamic from 'next/dynamic';
 import { isVideoPost } from '../../graphql/posts';
 import PostMetadata from '../cards/common/PostMetadata';
 import PostSummary from '../cards/common/PostSummary';
-import { LazyImage } from '../LazyImage';
 import { PostWidgets } from './PostWidgets';
 import { TagLinks } from '../TagLinks';
 import PostToc from '../widgets/PostToc';
@@ -21,6 +20,7 @@ import { useViewPost } from '../../hooks/post';
 import { TruncateText } from '../utilities';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
+import { Image } from '../image/Image';
 
 export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;
@@ -182,11 +182,13 @@ export function PostContent({
               className="mb-10 block cursor-pointer overflow-hidden rounded-16"
               style={{ maxWidth: '25.625rem' }}
             >
-              <LazyImage
-                imgSrc={post.image}
-                imgAlt="Post cover image"
-                ratio="49%"
-                eager
+              <Image
+                src={post.image}
+                alt="Post cover image"
+                width={410}
+                height={201}
+                loading="eager"
+                fetchpriority="high"
                 fallbackSrc={cloudinary.post.imageCoverPlaceholder}
               />
             </ArticleLink>
