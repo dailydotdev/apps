@@ -186,8 +186,8 @@ export function PostContent({
                 imgSrc={post.image}
                 imgAlt="Post cover image"
                 ratio="49%"
-                fallbackSrc={cloudinary.post.imageCoverPlaceholder}
                 eager
+                fallbackSrc={cloudinary.post.imageCoverPlaceholder}
                 fetchpriority="high"
               />
             </ArticleLink>

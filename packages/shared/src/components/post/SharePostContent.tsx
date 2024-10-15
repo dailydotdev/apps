@@ -17,6 +17,7 @@ import { ElementPlaceholder } from '../ElementPlaceholder';
 import { ProfileImageSize } from '../ProfilePicture';
 import { TruncateText } from '../utilities';
 import { LazyImage } from '../LazyImage';
+import { cloudinary } from '../../lib/image';
 
 interface SharePostContentProps {
   post: Post;
@@ -105,8 +106,8 @@ function SharePostContent({
               imgSrc={post.sharedPost.image}
               imgAlt="Post cover image"
               ratio="52%"
-              fallbackSrc={cloudinary.post.imageCoverPlaceholder}
               eager
+              fallbackSrc={cloudinary.post.imageCoverPlaceholder}
               fetchpriority="high"
             />
           </SharedPostLink>
