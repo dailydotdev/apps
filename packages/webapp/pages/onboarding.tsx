@@ -55,7 +55,6 @@ import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import useMutateFilters from '@dailydotdev/shared/src/hooks/useMutateFilters';
-import { OnboardingFooter } from '@dailydotdev/shared/src/components/onboarding/OnboardingFooter';
 import dynamic from 'next/dynamic';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
@@ -74,11 +73,10 @@ const ReadingReminder = dynamic(() =>
     /* webpackChunkName: "readingReminder" */ '@dailydotdev/shared/src/components/onboarding/ReadingReminder'
   ).then((mod) => mod.ReadingReminder),
 );
-const TrustedCompanies = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "trustedCompanies" */ '@dailydotdev/shared/src/components/TrustedCompanies'
-    ),
+const OnboardingFooter = dynamic(() =>
+  import(
+    /* webpackChunkName: "readingReminder" */ '@dailydotdev/shared/src/components/onboarding/OnboardingFooter'
+  ).then((mod) => mod.OnboardingFooter),
 );
 
 type OnboardingVisual = {
