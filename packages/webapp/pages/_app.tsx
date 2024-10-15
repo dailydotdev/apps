@@ -20,7 +20,6 @@ import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/c
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
 import '@dailydotdev/shared/src/styles/globals.css';
-import { useInAppNotification } from '@dailydotdev/shared/src/hooks/useInAppNotification';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import useDeviceId from '@dailydotdev/shared/src/hooks/log/useDeviceId';
@@ -29,7 +28,6 @@ import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
@@ -80,9 +78,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
   useWebVitals();
   useLogPageView();
-  useInAppNotification();
   const { modal, closeModal } = useLazyModal();
-  usePrompt();
   useConsoleLogo();
 
   useEffect(() => {
