@@ -12,12 +12,7 @@ import AuthOptions, {
   AuthProps,
 } from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import {
-  ContentTypes,
-  EditTag,
-  OnboardingHeader,
-  ReadingReminder,
-} from '@dailydotdev/shared/src/components/onboarding';
+import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
 import {
   ButtonSize,
   ButtonVariant,
@@ -61,19 +56,38 @@ import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import useMutateFilters from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import { OnboardingFooter } from '@dailydotdev/shared/src/components/onboarding/OnboardingFooter';
-import TrustedCompanies from '@dailydotdev/shared/src/components/TrustedCompanies';
+import dynamic from 'next/dynamic';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
-import styles from '../components/layouts/Onboarding/index.module.css';
+
+const ContentTypes = dynamic(() =>
+  import(
+    /* webpackChunkName: "contentTypes" */ '@dailydotdev/shared/src/components/onboarding/ContentTypes/ContentTypes'
+  ).then((mod) => mod.ContentTypes),
+);
+const EditTag = dynamic(() =>
+  import(
+    /* webpackChunkName: "editTag" */ '@dailydotdev/shared/src/components/onboarding/EditTag'
+  ).then((mod) => mod.EditTag),
+);
+const ReadingReminder = dynamic(() =>
+  import(
+    /* webpackChunkName: "readingReminder" */ '@dailydotdev/shared/src/components/onboarding/ReadingReminder'
+  ).then((mod) => mod.ReadingReminder),
+);
+const TrustedCompanies = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "trustedCompanies" */ '@dailydotdev/shared/src/components/TrustedCompanies'
+    ),
+);
 
 type OnboardingVisual = {
-  showCompanies?: boolean;
   fullBackground?:
     | {
         mobile?: string;
         desktop?: string;
       }
     | false;
-  image?: string;
 };
 
 const maxAuthWidth = 'tablet:max-w-[30rem]';
@@ -306,12 +320,7 @@ export function OnboardPage(): ReactElement {
         )}
       >
         {showOnboardingPage && (
-          <div
-            className={classNames(
-              'mt-5 flex flex-1 flex-col tablet:mt-0 laptop:mr-8 laptop:max-w-[27.5rem]',
-              onboardingVisual.fullBackground && 'flex-grow-0 tablet:flex-grow',
-            )}
-          >
+          <div className="mt-5 flex flex-1 flex-grow-0 flex-col tablet:mt-0 tablet:flex-grow laptop:mr-8 laptop:max-w-[27.5rem]">
             <OnboardingHeadline
               className={{
                 title: 'tablet:typo-mega-1 typo-large-title',
@@ -331,31 +340,10 @@ export function OnboardPage(): ReactElement {
             className={classNames(
               'flex tablet:flex-1',
               activeScreen === OnboardingStep.Intro
-                ? 'tablet:ml-auto laptop:max-w-[37.5rem]'
+                ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
                 : 'mb-10 ml-0 flex w-full flex-col items-center justify-start',
-              activeScreen === OnboardingStep.Intro &&
-                onboardingVisual.fullBackground &&
-                'flex-1',
             )}
           >
-            {activeScreen === OnboardingStep.Intro &&
-              !onboardingVisual.fullBackground && (
-                <div className="block flex-1">
-                  <div className="tablet:min-h-[800px]:pt-[100%] relative overflow-y-clip tablet:overflow-y-visible tablet:pt-[80%]">
-                    <img
-                      src={onboardingVisual.image}
-                      alt="Onboarding cover"
-                      className={classNames(
-                        'relative tablet:absolute tablet:left-0 tablet:top-0 tablet:-z-1',
-                        styles.image,
-                      )}
-                    />
-                  </div>
-                  {onboardingVisual.showCompanies && (
-                    <TrustedCompanies className="hidden tablet:block" />
-                  )}
-                </div>
-              )}
             {activeScreen === OnboardingStep.ReadingReminder && (
               <ReadingReminder onClickNext={onClickNext} />
             )}
