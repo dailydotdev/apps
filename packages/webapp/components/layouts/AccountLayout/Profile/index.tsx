@@ -281,6 +281,7 @@ const ProfileIndex = ({
           hint={hint.portfolio}
           valid={!hint.portfolio}
           name="portfolio"
+          type="url"
           value={user?.portfolio}
           placeholder="example.com"
         />
@@ -351,6 +352,7 @@ const ProfileIndex = ({
           hint={hint.mastodon}
           valid={!hint.mastodon}
           name="mastodon"
+          type="url"
           value={user?.mastodon}
           placeholder="mastodon.social/@username"
         />
