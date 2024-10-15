@@ -76,7 +76,11 @@ const socials: Array<keyof Handles> = [
   'linkedin',
   'mastodon',
 ];
-
+const errormessage = {
+  profile: {
+    invalidUsername: "Username must only contain alphanumeric characters.", // Updated message
+  },
+};
 export const onValidateHandles = (
   before: Partial<Handles>,
   after: Partial<Handles>,
@@ -85,10 +89,10 @@ export const onValidateHandles = (
     const isValid = handleRegex.test(after.username);
 
     if (!isValid) {
-      return { username: errorMessage.profile.invalidUsername };
+      return { username: errormessage.profile.invalidUsername };
     }
   } else if ('username' in after && !after.username) {
-    return { username: errorMessage.profile.invalidUsername };
+    return { username: errormessage.profile.invalidUsername };
   }
 
   return socials.reduce((obj, social) => {
