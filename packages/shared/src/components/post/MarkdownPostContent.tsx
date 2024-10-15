@@ -20,6 +20,8 @@ function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
         <Link href={post.image}>
           <a target="_blank" rel="noopener noreferrer">
             <Image
+              fetchpriority="high"
+              loading="eager"
               src={post.image}
               alt="Post cover image"
               className="mb-10 h-auto max-h-[62.5rem] w-full rounded-12 object-cover"

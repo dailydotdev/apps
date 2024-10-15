@@ -78,7 +78,14 @@ function LazyImageComponent(
       ref={ref}
     >
       {ratio && <div style={{ paddingTop: ratio, zIndex: -1 }} />}
-      <img {...imageProps} alt={imgAlt} key={src} onError={onError} />
+      <img
+        {...imageProps}
+        alt={imgAlt}
+        key={src}
+        onError={onError}
+        width={280}
+        height={146}
+      />
       {children}
     </div>
   );
