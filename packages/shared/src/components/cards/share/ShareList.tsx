@@ -114,7 +114,7 @@ export const ShareList = forwardRef(function ShareList(
               !isVideoType && 'mt-4',
             ),
             fetchPriority: eagerLoadImage ? 'high' : 'auto',
-            loading: eagerLoadImage ? 'eager' : 'lazy',
+            loading: eagerLoadImage ? null : 'lazy',
             src: post.sharedPost.image,
           }}
           videoProps={{

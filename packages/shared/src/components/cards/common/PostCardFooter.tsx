@@ -23,7 +23,7 @@ export const PostCardFooter = ({
 }: PostCardFooterProps): ReactElement => {
   const isVideoType = isVideoPost(post);
   const imageLoadingProps: ComponentProps<'img'> = {
-    loading: eagerLoadImage ? 'eager' : 'lazy',
+    loading: eagerLoadImage ? null : 'lazy',
     fetchPriority: eagerLoadImage ? 'high' : 'auto',
   };
   return (

@@ -125,7 +125,7 @@ export const ArticleList = forwardRef(function ArticleList(
                 onShare={onShare}
                 post={post}
                 imageProps={{
-                  loading: eagerLoadImage ? 'eager' : 'lazy',
+                  loading: eagerLoadImage ? null : 'lazy',
                   fetchPriority: eagerLoadImage ? 'high' : 'auto',
                   alt: 'Post Cover image',
                   src: post.image,

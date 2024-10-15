@@ -102,7 +102,7 @@ export const FreeformList = forwardRef(function SharePostCard(
                 alt: 'Post Cover image',
                 className: 'my-2 mobileXXL:self-start w-full',
                 fetchPriority: eagerLoadImage ? 'high' : 'auto',
-                loading: eagerLoadImage ? 'eager' : 'lazy',
+                loading: eagerLoadImage ? null : 'lazy',
                 src: image,
               }}
             />
