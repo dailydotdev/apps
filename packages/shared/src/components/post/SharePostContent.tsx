@@ -105,6 +105,7 @@ function SharePostContent({
               imgSrc={post.sharedPost.image}
               imgAlt="Post cover image"
               ratio="52%"
+              fallbackSrc={cloudinary.post.imageCoverPlaceholder}
               eager
               fetchpriority="high"
             />
