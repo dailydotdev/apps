@@ -318,18 +318,18 @@ export function OnboardPage(): ReactElement {
         )}
       >
         {showOnboardingPage && (
-          <div className="mt-5 flex flex-1 flex-grow-0 flex-col tablet:mt-0 tablet:flex-grow laptop:mr-8 laptop:max-w-[27.5rem]">
-            <OnboardingHeadline
-              className={{
-                title: 'tablet:typo-mega-1 typo-large-title',
-                description: 'typo-body tablet:typo-title2',
-              }}
-            />
-            <AuthOptionsRender />
-          </div>
-        )}
-        {showOnboardingPage && (
-          <SignupDisclaimer className="mb-0 tablet:mb-10 tablet:hidden" />
+          <>
+            <div className="mt-5 flex flex-1 flex-grow-0 flex-col tablet:mt-0 tablet:flex-grow laptop:mr-8 laptop:max-w-[27.5rem]">
+              <OnboardingHeadline
+                className={{
+                  title: 'tablet:typo-mega-1 typo-large-title',
+                  description: 'typo-body tablet:typo-title2',
+                }}
+              />
+              <AuthOptionsRender />
+            </div>
+            <SignupDisclaimer className="mb-0 tablet:mb-10 tablet:hidden" />
+          </>
         )}
         {isAuthenticating && activeScreen === OnboardingStep.Intro ? (
           <AuthOptionsRender />

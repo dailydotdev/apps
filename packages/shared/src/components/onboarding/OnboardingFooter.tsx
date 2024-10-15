@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { wrapperMaxWidth } from './common';
 import SignupDisclaimer from '../auth/SignupDisclaimer';
 import TrustedCompanies from '../TrustedCompanies';
 import { IconSize } from '../Icon';
 
-export const OnboardingFooter = () => (
+export const OnboardingFooter = (): ReactElement => (
   <footer
     className={classNames(
       'flex h-full max-h-[10rem] w-full px-4 tablet:px-6',
