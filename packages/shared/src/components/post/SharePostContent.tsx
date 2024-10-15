@@ -1,7 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import PostSourceInfo from './PostSourceInfo';
 import { ReadArticleButton } from '../cards/common/ReadArticleButton';
-import { cloudinary } from '../../lib/image';
 import {
   Post,
   getReadPostButtonText,
@@ -17,7 +16,7 @@ import { ButtonVariant } from '../buttons/Button';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { ProfileImageSize } from '../ProfilePicture';
 import { TruncateText } from '../utilities';
-import { Image } from '../image/Image';
+import { LazyImage } from '../LazyImage';
 
 interface SharePostContentProps {
   post: Post;
@@ -102,14 +101,12 @@ function SharePostContent({
             onGoToLinkProps={combinedClicks(openArticle)}
             className="ml-2 block h-fit w-70 cursor-pointer overflow-hidden rounded-16"
           >
-            <Image
-              src={post.sharedPost.image}
-              alt="Post cover image"
-              height={147}
-              width={280}
-              loading="eager"
+            <LazyImage
+              imgSrc={post.sharedPost.image}
+              imgAlt="Post cover image"
+              ratio="52%"
+              eager
               fetchpriority="high"
-              fallbackSrc={cloudinary.post.imageCoverPlaceholder}
             />
           </SharedPostLink>
         </div>

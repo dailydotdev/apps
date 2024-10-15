@@ -11,7 +11,6 @@ import { ToastSubject, useToastNotification } from '../../hooks';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
 import { BasePostContent } from './BasePostContent';
-import { cloudinary } from '../../lib/image';
 import { combinedClicks } from '../../lib/click';
 import { PostContainer, PostContentProps, PostNavigationProps } from './common';
 import YoutubeVideo from '../video/YoutubeVideo';
@@ -20,7 +19,7 @@ import { useViewPost } from '../../hooks/post';
 import { TruncateText } from '../utilities';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
-import { Image } from '../image/Image';
+import { LazyImage } from '../LazyImage';
 
 export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;
@@ -182,14 +181,14 @@ export function PostContent({
               className="mb-10 block cursor-pointer overflow-hidden rounded-16"
               style={{ maxWidth: '25.625rem' }}
             >
-              <Image
-                src={post.image}
-                alt="Post cover image"
+              <LazyImage
+                imgSrc={post.image}
+                imgAlt="Post cover image"
+                ratio="49%"
+                eager
+                fetchpriority="high"
                 width={410}
                 height={201}
-                loading="eager"
-                fetchpriority="high"
-                fallbackSrc={cloudinary.post.imageCoverPlaceholder}
               />
             </ArticleLink>
           )}
