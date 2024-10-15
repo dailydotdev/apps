@@ -59,7 +59,7 @@ export interface AuthContextData {
   visit?: Visit;
   firstVisit?: string;
   deleteAccount?: () => Promise<void>;
-  refetchBoot?: () => Promise<QueryObserverResult<Boot>>;
+  refetchBoot?: () => Promise<QueryObserverResult<Partial<Boot>>>;
   accessToken?: AccessToken;
   squads?: Squad[];
   isAuthReady?: boolean;
@@ -102,7 +102,6 @@ export type AuthContextProviderProps = {
   user?: LoggedUser | AnonymousUser;
   isFetched?: boolean;
   isLegacyLogout?: boolean;
-  refetchBoot?: () => Promise<QueryObserverResult<Boot>>;
   children?: ReactNode;
 } & Pick<
   AuthContextData,
@@ -114,6 +113,7 @@ export type AuthContextProviderProps = {
   | 'visit'
   | 'accessToken'
   | 'squads'
+  | 'refetchBoot'
 >;
 
 export const AuthContextProvider = ({

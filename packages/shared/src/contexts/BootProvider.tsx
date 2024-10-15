@@ -2,12 +2,12 @@ import React, {
   ReactElement,
   ReactNode,
   useCallback,
+  useMemo,
   useRef,
-  useState,
 } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
-import { BootApp, BootCacheData, getBootData } from '../lib/boot';
+import { Boot, BootApp, BootCacheData, getBootData } from '../lib/boot';
 import { AuthContextProvider } from './AuthContext';
 import { AnonymousUser, ContentLanguage, LoggedUser } from '../lib/user';
 import { AlertContextProvider } from './AlertContext';
@@ -122,54 +122,29 @@ export const BootDataProvider = ({
     );
   };
 
-  const [cachedBootData, setCachedBootData] = useState<Partial<BootCacheData>>(
-    () => {
-      if (localBootData) {
-        return localBootData;
-      }
-
-      const boot = getLocalBootData();
-
-      if (boot) {
-        if (boot?.settings?.theme) {
-          applyTheme(themeModes[boot.settings.theme]);
-        }
-
-        preloadFeedsRef.current({ feeds: boot.feeds, user: boot.user });
-      }
-
-      return boot;
-    },
-  );
-  const [lastAppliedChange, setLastAppliedChange] =
-    useState<Partial<BootCacheData>>();
-  const loadedFromCache = !!cachedBootData;
-  const logged = cachedBootData?.user as LoggedUser;
-  const shouldRefetch =
-    !!cachedBootData?.user && !!logged?.providers && !!logged?.id;
-
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const setBootData = (
-    updatedBootData: Partial<BootCacheData>,
-    update = true,
-  ) => {
-    const cachedData = JSON.parse(storage.getItem(BOOT_LOCAL_KEY));
-    let updatedData = { ...updatedBootData };
-    if (update) {
-      if (lastAppliedChange) {
-        updatedData = { ...lastAppliedChange, ...updatedData };
-      }
-      setLastAppliedChange(updatedData);
-    } else {
-      if (cachedData?.lastModifier !== 'companion' && lastAppliedChange) {
-        updatedData = { ...updatedData, ...lastAppliedChange };
-      }
-      setLastAppliedChange(null);
+  const initialData = useMemo(() => {
+    if (localBootData) {
+      return localBootData;
     }
-    const updated = updateLocalBootData(cachedData, updatedData);
-    setCachedBootData(updated);
-  };
+
+    const boot = getLocalBootData();
+
+    if (!boot) {
+      return null;
+    }
+
+    if (boot?.settings?.theme) {
+      applyTheme(themeModes[boot.settings.theme]);
+    }
+
+    preloadFeedsRef.current({ feeds: boot.feeds, user: boot.user });
+
+    return boot;
+  }, [localBootData]);
+
+  const logged = initialData?.user as LoggedUser;
+  const shouldRefetch = !!logged?.providers && !!logged?.id;
+  const lastAppliedChangeRef = useRef<Partial<BootCacheData>>();
 
   const {
     data: bootRemoteData,
@@ -177,52 +152,77 @@ export const BootDataProvider = ({
     refetch,
     isFetched,
     dataUpdatedAt,
-  } = useQuery(
+  } = useQuery<Partial<Boot>>(
     BOOT_QUERY_KEY,
     async () => {
       const result = await getBootData(app);
       preloadFeedsRef.current({ feeds: result.feeds, user: result.user });
-      setBootData(result, false);
+      updateLocalBootData(bootRemoteData, result);
 
       return result;
     },
     {
       refetchOnWindowFocus: shouldRefetch,
       staleTime: STALE_TIME,
-      enabled: isExtension ? !!hostGranted : true,
+      enabled: !isExtension || !!hostGranted,
+      placeholderData: initialData,
     },
   );
 
+  const loadedFromCache = !!bootRemoteData;
   const { user, settings, alerts, notifications, squads } =
-    bootRemoteData || cachedBootData || {};
+    bootRemoteData || {};
 
   useRefreshToken(bootRemoteData?.accessToken, refetch);
   const updatedAtActive = user ? dataUpdatedAt : null;
+  const updateQueryCache = useCallback(
+    (updatedBootData: Partial<BootCacheData>, update = true) => {
+      const cachedData = JSON.parse(storage.getItem(BOOT_LOCAL_KEY));
+      const lastAppliedChange = lastAppliedChangeRef.current;
+      let updatedData = { ...updatedBootData };
+      if (update) {
+        if (lastAppliedChange) {
+          updatedData = { ...lastAppliedChange, ...updatedData };
+        }
+        lastAppliedChangeRef.current = updatedData;
+      } else {
+        if (cachedData?.lastModifier !== 'companion' && lastAppliedChange) {
+          updatedData = { ...updatedData, ...lastAppliedChange };
+        }
+        lastAppliedChangeRef.current = null;
+      }
+      const updated = updateLocalBootData(cachedData, updatedData);
+      queryClient.setQueryData(BOOT_QUERY_KEY, updated);
+    },
+    [queryClient],
+  );
 
   const updateUser = useCallback(
     async (newUser: LoggedUser | AnonymousUser) => {
-      const updated = updateLocalBootData(cachedBootData, { user: newUser });
-      setCachedBootData(updated);
+      updateQueryCache({ user: newUser });
       await queryClient.invalidateQueries(
         generateQueryKey(RequestKey.Profile, newUser),
       );
     },
-    [queryClient, cachedBootData],
+    [updateQueryCache, queryClient],
   );
 
   const updateSettings = useCallback(
-    (updatedSettings) => setBootData({ settings: updatedSettings }),
-    [setBootData],
+    (updatedSettings) => updateQueryCache({ settings: updatedSettings }),
+    [updateQueryCache],
   );
 
   const updateAlerts = useCallback(
-    (updatedAlerts) => setBootData({ alerts: updatedAlerts }),
-    [setBootData],
+    (updatedAlerts) => updateQueryCache({ alerts: updatedAlerts }),
+    [updateQueryCache],
   );
 
-  const updateExperimentation = useCallback((exp: BootCacheData['exp']) => {
-    setCachedBootData((cachedData) => updateLocalBootData(cachedData, { exp }));
-  }, []);
+  const updateExperimentation = useCallback(
+    (exp: BootCacheData['exp']) => {
+      updateLocalBootData(bootRemoteData, { exp });
+    },
+    [bootRemoteData],
+  );
 
   gqlClient.setHeader(
     'content-language',
@@ -242,7 +242,7 @@ export const BootDataProvider = ({
       app={app}
       user={user}
       deviceId={deviceId}
-      experimentation={cachedBootData?.exp}
+      experimentation={bootRemoteData?.exp}
       updateExperimentation={updateExperimentation}
     >
       <AuthContextProvider
