@@ -26,7 +26,7 @@ const fallbackSrcByType: Record<ImageType, string> = {
 };
 
 const ImageComponent = (
-  { fallbackSrc, src, alt, ...props }: ImageProps,
+  { fallbackSrc, src, alt, fetchPriority = undefined, ...props }: ImageProps,
   ref?: Ref<HTMLImageElement>,
 ): ReactElement => {
   const finalFallbackSrc =
@@ -46,6 +46,8 @@ const ImageComponent = (
       alt={alt}
       src={src ?? finalFallbackSrc}
       onError={onError}
+      // @ts-expect-error - Not supported by React
+      fetchpriority={fetchPriority}
     />
   );
 };

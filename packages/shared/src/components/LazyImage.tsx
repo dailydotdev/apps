@@ -1,6 +1,6 @@
 import React, {
+  ComponentPropsWithoutRef,
   forwardRef,
-  HTMLAttributes,
   ImgHTMLAttributes,
   ReactElement,
   ReactNode,
@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 
-export interface LazyImageProps extends HTMLAttributes<HTMLImageElement> {
+export interface LazyImageProps extends ComponentPropsWithoutRef<'img'> {
   imgSrc: string;
   imgAlt: string;
   background?: string;
@@ -20,9 +20,9 @@ export interface LazyImageProps extends HTMLAttributes<HTMLImageElement> {
   absolute?: boolean;
   fit?: 'cover' | 'contain';
   ref?: Ref<HTMLImageElement>;
+  width?: number;
+  height?: number;
 }
-
-const asyncImageSupport = true;
 
 function LazyImageComponent(
   {
@@ -50,13 +50,8 @@ function LazyImageComponent(
   };
   if (eager) {
     imageProps = { src, className: baseImageClass };
-  } else if (asyncImageSupport) {
-    imageProps = { src, loading: 'lazy', className: baseImageClass };
   } else {
-    imageProps = {
-      className: `lazyload ${baseImageClass}`,
-      'data-src': src,
-    };
+    imageProps = { src, loading: 'lazy', className: baseImageClass };
   }
 
   const onError = (event: SyntheticEvent<HTMLImageElement>): void => {
@@ -67,7 +62,7 @@ function LazyImageComponent(
   };
 
   return (
-    <div
+    <figure
       {...props}
       className={classNames(
         className,
@@ -80,7 +75,7 @@ function LazyImageComponent(
       {ratio && <div style={{ paddingTop: ratio, zIndex: -1 }} />}
       <img {...imageProps} alt={imgAlt} key={src} onError={onError} />
       {children}
-    </div>
+    </figure>
   );
 }
 

@@ -102,19 +102,20 @@ function ProfilePictureComponent(
   }
 
   const imageAlt = `${user.username || user.name || user.id}'s profile`;
+  const imageSrc = user.image;
 
   if (nativeLazyLoading) {
     return (
       <Image
         {...props}
         ref={ref}
-        src={user.image}
         alt={imageAlt}
-        onError={onError}
         className={classes}
-        loading={eager || isCompanion ? 'eager' : 'lazy'}
-        type={ImageType.Avatar}
         fallbackSrc={fallbackSrc}
+        loading={eager || isCompanion ? 'eager' : 'lazy'}
+        onError={onError}
+        src={imageSrc}
+        type={ImageType.Avatar}
       />
     );
   }
@@ -123,7 +124,7 @@ function ProfilePictureComponent(
     <LazyImage
       {...props}
       ref={ref}
-      imgSrc={user.image}
+      imgSrc={imageSrc}
       imgAlt={imageAlt}
       className={classes}
       fallbackSrc={fallbackSrc ?? fallbackImages.avatar}
