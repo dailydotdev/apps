@@ -28,7 +28,6 @@ import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
@@ -80,7 +79,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   useWebVitals();
   useLogPageView();
   const { modal, closeModal } = useLazyModal();
-  usePrompt();
   useConsoleLogo();
 
   useEffect(() => {
