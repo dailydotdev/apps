@@ -4,8 +4,9 @@ import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/Prog
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { Post } from '@dailydotdev/shared/src/graphql/posts';
 
-const FooterNavBar = dynamic(
-  () => import(/* webpackChunkName: "footerNavBar" */ '../FooterNavBar'),
+const FooterWrapper = dynamic(
+  () =>
+    import(/* webpackChunkName: "footerWrapper" */ '../footer/FooterWrapper'),
 );
 
 interface FooterNavBarLayoutProps {
@@ -26,7 +27,7 @@ export default function FooterNavBarLayout({
     <>
       {children}
       {showNav && <div className={post ? 'h-40' : 'h-28'} />}
-      <FooterNavBar showNav={showNav} post={post} />
+      <FooterWrapper showNav={showNav} post={post} />
     </>
   );
 }

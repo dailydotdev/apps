@@ -21,3 +21,5 @@ export const getNavPath = (
 ): string => {
   return typeof path === 'string' ? path : path(user);
 };
+
+export const blurClasses = 'bg-blur-baseline backdrop-blur-[2.5rem]';
