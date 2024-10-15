@@ -6,7 +6,6 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
 import classNames from 'classnames';
 import AuthOptions, {
   AuthDisplay,
@@ -40,8 +39,6 @@ import {
   useFeaturesReadyContext,
   useGrowthBookContext,
 } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import TrustedCompanies from '@dailydotdev/shared/src/components/TrustedCompanies';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisclaimer';
 import {
   FooterLinks,
@@ -63,6 +60,8 @@ import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import useMutateFilters from '@dailydotdev/shared/src/hooks/useMutateFilters';
+import { OnboardingFooter } from '@dailydotdev/shared/src/components/onboarding/OnboardingFooter';
+import TrustedCompanies from '@dailydotdev/shared/src/components/TrustedCompanies';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -120,9 +119,12 @@ export function OnboardPage(): ReactElement {
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
   const { updateAdvancedSettings } = useMutateFilters(user);
-  const isSeniorUser =
-    EXPERIENCE_TO_SENIORITY[user?.experienceLevel] === 'senior' ||
-    user?.experienceLevel === 'MORE_THAN_4_YEARS';
+  const isSeniorUser = useMemo(() => {
+    return (
+      EXPERIENCE_TO_SENIORITY[user?.experienceLevel] === 'senior' ||
+      user?.experienceLevel === 'MORE_THAN_4_YEARS'
+    );
+  }, [user?.experienceLevel]);
 
   const isFeedSettingsDefined = useMemo(() => !!feedSettings, [feedSettings]);
 
@@ -139,6 +141,29 @@ export function OnboardPage(): ReactElement {
       });
     }
   }, [isSeniorUser, isFeedSettingsDefined, updateAdvancedSettings]);
+
+  useEffect(() => {
+    if (!isPageReady || isLogged.current) {
+      return;
+    }
+
+    if (user) {
+      router.replace(getPathnameWithQuery(webappUrl, window.location.search));
+      return;
+    }
+
+    isLogged.current = true;
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPageReady, user]);
+
+  useEffect(() => {
+    setHasSelectTopics(!!feedSettings?.includeTags?.length);
+  }, [feedSettings?.includeTags?.length]);
+
+  if (!isPageReady) {
+    return null;
+  }
 
   const onClickNext = () => {
     logEvent({
@@ -186,14 +211,10 @@ export function OnboardPage(): ReactElement {
   };
 
   const onClickCreateFeed = () => {
-    const onboardingChecklist = getFeatureValue(feature.onboardingChecklist);
-
-    if (onboardingChecklist) {
-      setSettings({
-        sidebarExpanded: true,
-        onboardingChecklistView: ChecklistViewState.Open,
-      });
-    }
+    setSettings({
+      sidebarExpanded: true,
+      onboardingChecklistView: ChecklistViewState.Open,
+    });
 
     return onClickNext();
   };
@@ -209,125 +230,8 @@ export function OnboardPage(): ReactElement {
     setActiveScreen(OnboardingStep.EditTag);
   };
 
-  useEffect(() => {
-    if (!isPageReady || isLogged.current) {
-      return;
-    }
-
-    if (user) {
-      router.replace(getPathnameWithQuery(webappUrl, window.location.search));
-      return;
-    }
-
-    isLogged.current = true;
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [logEvent, isPageReady, user]);
-
-  useEffect(() => {
-    setHasSelectTopics(!!feedSettings?.includeTags?.length);
-  }, [feedSettings?.includeTags?.length]);
-
-  const getAuthOptions = () => {
-    return (
-      <AuthOptions
-        simplified
-        className={{
-          container: classNames(
-            'w-full rounded-none',
-            maxAuthWidth,
-            isAuthenticating && 'h-full',
-            !isAuthenticating && 'max-w-full',
-          ),
-          onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
-        }}
-        trigger={AuthTriggers.Onboarding}
-        formRef={formRef}
-        defaultDisplay={defaultDisplay}
-        forceDefaultDisplay={!isAuthenticating}
-        initialEmail={email}
-        isLoginFlow={isLoginFlow}
-        targetId={targetId}
-        onSuccessfulLogin={onSuccessfulLogin}
-        onSuccessfulRegistration={onSuccessfulRegistration}
-        onAuthStateUpdate={(props: AuthProps) =>
-          setAuth({ isAuthenticating: true, ...props })
-        }
-        onboardingSignupButton={{
-          size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
-          variant: ButtonVariant.Primary,
-        }}
-      />
-    );
-  };
-
   const customActionName =
     activeScreen === OnboardingStep.EditTag ? 'Continue' : undefined;
-
-  const getContent = (): ReactElement => {
-    if (isAuthenticating && activeScreen === OnboardingStep.Intro) {
-      return getAuthOptions();
-    }
-
-    return (
-      <div
-        className={classNames(
-          'flex tablet:flex-1',
-          activeScreen === OnboardingStep.Intro
-            ? 'tablet:ml-auto laptop:max-w-[37.5rem]'
-            : 'mb-10 ml-0 flex w-full flex-col items-center justify-start',
-          activeScreen === OnboardingStep.Intro &&
-            onboardingVisual.fullBackground &&
-            'flex-1',
-        )}
-      >
-        {activeScreen === OnboardingStep.ReadingReminder && (
-          <ReadingReminder onClickNext={onClickNext} />
-        )}
-        {activeScreen === OnboardingStep.EditTag && (
-          <EditTag
-            feedSettings={feedSettings}
-            userId={user?.id}
-            customActionName={customActionName}
-            onClick={onClickNext}
-            activeScreen={activeScreen}
-          />
-        )}
-        {activeScreen === OnboardingStep.ContentTypes && <ContentTypes />}
-        {activeScreen === OnboardingStep.Intro &&
-          !onboardingVisual.fullBackground && (
-            <div className="block flex-1">
-              <div className="tablet:min-h-[800px]:pt-[100%] relative overflow-y-clip tablet:overflow-y-visible tablet:pt-[80%]">
-                <img
-                  src={onboardingVisual.image}
-                  alt="Onboarding cover"
-                  className={classNames(
-                    'relative tablet:absolute tablet:left-0 tablet:top-0 tablet:-z-1',
-                    styles.image,
-                  )}
-                />
-              </div>
-              {onboardingVisual.showCompanies && (
-                <TrustedCompanies className="hidden tablet:block" />
-              )}
-            </div>
-          )}
-      </div>
-    );
-  };
-  const getProgressBar = () => {
-    if (activeScreen !== OnboardingStep.Intro) {
-      return null;
-    }
-
-    const percentage = 50;
-    return (
-      <ProgressBar
-        className={{ bar: 'absolute left-1 h-1' }}
-        percentage={isAuthenticating ? percentage : 0}
-      />
-    );
-  };
 
   const showOnboardingPage =
     !isAuthenticating && activeScreen === OnboardingStep.Intro && !shouldVerify;
@@ -335,12 +239,39 @@ export function OnboardPage(): ReactElement {
   const showGenerigLoader =
     isAuthenticating && isAuthLoading && activeScreen === OnboardingStep.Intro;
 
-  if (!isPageReady) {
-    return null;
-  }
-
   const instanceId = router.query?.aiid?.toString();
   const userId = user?.id || anonymous?.id;
+
+  const AuthOptionsRender = () => (
+    <AuthOptions
+      simplified
+      className={{
+        container: classNames(
+          'w-full rounded-none',
+          maxAuthWidth,
+          isAuthenticating && 'h-full',
+          !isAuthenticating && 'max-w-full',
+        ),
+        onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
+      }}
+      trigger={AuthTriggers.Onboarding}
+      formRef={formRef}
+      defaultDisplay={defaultDisplay}
+      forceDefaultDisplay={!isAuthenticating}
+      initialEmail={email}
+      isLoginFlow={isLoginFlow}
+      targetId={targetId}
+      onSuccessfulLogin={onSuccessfulLogin}
+      onSuccessfulRegistration={onSuccessfulRegistration}
+      onAuthStateUpdate={(props: AuthProps) =>
+        setAuth({ isAuthenticating: true, ...props })
+      }
+      onboardingSignupButton={{
+        size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
+        variant: ButtonVariant.Primary,
+      }}
+    />
+  );
 
   return (
     <div
@@ -363,7 +294,6 @@ export function OnboardPage(): ReactElement {
     >
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
       <OnboardingLogs userId={userId} instanceId={instanceId} />
-      {getProgressBar()}
       {showGenerigLoader && <GenericLoader />}
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}
@@ -392,33 +322,61 @@ export function OnboardPage(): ReactElement {
                 description: 'typo-body tablet:typo-title2',
               }}
             />
-            {getAuthOptions()}
+            <AuthOptionsRender />
           </div>
         )}
         {showOnboardingPage && (
           <SignupDisclaimer className="mb-0 tablet:mb-10 tablet:hidden" />
         )}
-        {getContent()}
-      </div>
-      {showOnboardingPage && (
-        <footer
-          className={classNames(
-            'flex h-full max-h-[10rem] w-full px-4 tablet:px-6',
-            wrapperMaxWidth,
-          )}
-        >
-          <div className="relative flex flex-1 flex-col gap-6 pb-6 tablet:mt-auto laptop:mr-8 laptop:max-w-[27.5rem]">
-            <SignupDisclaimer className="mb-0 hidden tablet:mb-10 tablet:block" />
-
-            <TrustedCompanies
-              iconSize={IconSize.Small}
-              reverse
-              className=" mt-5 block tablet:hidden"
-            />
+        {isAuthenticating && activeScreen === OnboardingStep.Intro ? (
+          <AuthOptionsRender />
+        ) : (
+          <div
+            className={classNames(
+              'flex tablet:flex-1',
+              activeScreen === OnboardingStep.Intro
+                ? 'tablet:ml-auto laptop:max-w-[37.5rem]'
+                : 'mb-10 ml-0 flex w-full flex-col items-center justify-start',
+              activeScreen === OnboardingStep.Intro &&
+                onboardingVisual.fullBackground &&
+                'flex-1',
+            )}
+          >
+            {activeScreen === OnboardingStep.Intro &&
+              !onboardingVisual.fullBackground && (
+                <div className="block flex-1">
+                  <div className="tablet:min-h-[800px]:pt-[100%] relative overflow-y-clip tablet:overflow-y-visible tablet:pt-[80%]">
+                    <img
+                      src={onboardingVisual.image}
+                      alt="Onboarding cover"
+                      className={classNames(
+                        'relative tablet:absolute tablet:left-0 tablet:top-0 tablet:-z-1',
+                        styles.image,
+                      )}
+                    />
+                  </div>
+                  {onboardingVisual.showCompanies && (
+                    <TrustedCompanies className="hidden tablet:block" />
+                  )}
+                </div>
+              )}
+            {activeScreen === OnboardingStep.ReadingReminder && (
+              <ReadingReminder onClickNext={onClickNext} />
+            )}
+            {activeScreen === OnboardingStep.EditTag && (
+              <EditTag
+                feedSettings={feedSettings}
+                userId={user?.id}
+                customActionName={customActionName}
+                onClick={onClickNext}
+                activeScreen={activeScreen}
+              />
+            )}
+            {activeScreen === OnboardingStep.ContentTypes && <ContentTypes />}
           </div>
-          <div className="hidden flex-1 tablet:block" />
-        </footer>
-      )}
+        )}
+      </div>
+      {showOnboardingPage && <OnboardingFooter />}
       <FooterLinks className="mx-auto pb-6" />
     </div>
   );
