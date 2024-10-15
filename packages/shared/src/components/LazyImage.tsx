@@ -18,8 +18,6 @@ export interface LazyImageProps extends HTMLAttributes<HTMLImageElement> {
   fallbackSrc?: string;
   children?: ReactNode;
   absolute?: boolean;
-  width?: number;
-  height?: number;
   fit?: 'cover' | 'contain';
   fetchpriority?: 'high' | 'low' | 'auto';
   ref?: Ref<HTMLImageElement>;
@@ -36,8 +34,6 @@ function LazyImageComponent(
     ratio,
     background,
     fallbackSrc,
-    width,
-    height,
     children,
     absolute = false,
     fit = 'cover',
@@ -84,8 +80,6 @@ function LazyImageComponent(
         alt={imgAlt}
         key={src}
         onError={onError}
-        width={width}
-        height={height}
         // @ts-expect-error - Not supported by react yet
         fetchpriority={fetchpriority}
       />

@@ -187,8 +187,6 @@ export function PostContent({
                 ratio="49%"
                 eager
                 fetchpriority="high"
-                width={410}
-                height={201}
               />
             </ArticleLink>
           )}
