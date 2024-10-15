@@ -147,7 +147,7 @@ export const BootDataProvider = ({
   const lastAppliedChangeRef = useRef<Partial<BootCacheData>>();
 
   const {
-    data: bootRemoteData,
+    data: bootData,
     error,
     refetch,
     isFetched,
@@ -157,7 +157,7 @@ export const BootDataProvider = ({
     async () => {
       const result = await getBootData(app);
       preloadFeedsRef.current({ feeds: result.feeds, user: result.user });
-      updateLocalBootData(bootRemoteData, result);
+      updateLocalBootData(bootData, result);
 
       return result;
     },
@@ -169,11 +169,10 @@ export const BootDataProvider = ({
     },
   );
 
-  const loadedFromCache = !!bootRemoteData;
-  const { user, settings, alerts, notifications, squads } =
-    bootRemoteData || {};
+  const loadedFromCache = !!bootData;
+  const { user, settings, alerts, notifications, squads } = bootData || {};
 
-  useRefreshToken(bootRemoteData?.accessToken, refetch);
+  useRefreshToken(bootData?.accessToken, refetch);
   const updatedAtActive = user ? dataUpdatedAt : null;
   const updateQueryCache = useCallback(
     (updatedBootData: Partial<BootCacheData>, update = true) => {
@@ -219,9 +218,9 @@ export const BootDataProvider = ({
 
   const updateExperimentation = useCallback(
     (exp: BootCacheData['exp']) => {
-      updateLocalBootData(bootRemoteData, { exp });
+      updateLocalBootData(bootData, { exp });
     },
-    [bootRemoteData],
+    [bootData],
   );
 
   gqlClient.setHeader(
@@ -242,7 +241,7 @@ export const BootDataProvider = ({
       app={app}
       user={user}
       deviceId={deviceId}
-      experimentation={bootRemoteData?.exp}
+      experimentation={bootData?.exp}
       updateExperimentation={updateExperimentation}
     >
       <AuthContextProvider
@@ -252,11 +251,11 @@ export const BootDataProvider = ({
         getRedirectUri={getRedirectUri}
         loadingUser={!dataUpdatedAt || !user}
         loadedUserFromCache={loadedFromCache}
-        visit={bootRemoteData?.visit}
+        visit={bootData?.visit}
         refetchBoot={refetch}
         isFetched={isFetched}
-        isLegacyLogout={bootRemoteData?.isLegacyLogout}
-        accessToken={bootRemoteData?.accessToken}
+        isLegacyLogout={bootData?.isLegacyLogout}
+        accessToken={bootData?.accessToken}
         squads={squads}
       >
         <SettingsContextProvider
