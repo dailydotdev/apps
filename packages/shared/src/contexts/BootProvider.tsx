@@ -101,7 +101,6 @@ export const BootDataProvider = ({
   getRedirectUri,
   getPage,
 }: BootDataProviderProps): ReactElement => {
-  console.log('BootProvider');
   const { hostGranted } = useHostStatus();
   const isExtension = checkIsExtension();
   const queryClient = useQueryClient();
