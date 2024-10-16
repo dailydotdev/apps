@@ -81,12 +81,10 @@ const OnboardingFooter = dynamic(() =>
 );
 
 type OnboardingVisual = {
-  fullBackground?:
-    | {
-        mobile?: string;
-        desktop?: string;
-      }
-    | false;
+  fullBackground?: {
+    mobile?: string;
+    desktop?: string;
+  };
 };
 
 const seo: NextSeoProps = {
@@ -291,7 +289,7 @@ export function OnboardPage(): ReactElement {
 
   return (
     <div className="z-3 flex h-full max-h-screen min-h-screen w-full flex-1 flex-col items-center overflow-x-hidden">
-      {onboardingVisual.fullBackground && showOnboardingPage && (
+      {showOnboardingPage && (
         <img
           alt="Onboarding background"
           className="pointer-events-none absolute inset-0 -z-1 h-full w-full object-cover tablet:object-center"
