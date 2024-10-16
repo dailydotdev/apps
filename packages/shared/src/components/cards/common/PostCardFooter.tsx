@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ComponentProps, ReactElement } from 'react';
 import classNames from 'classnames';
 import { isVideoPost, Post } from '../../../graphql/posts';
 import { CommonCardCoverProps } from './common';
@@ -12,14 +12,20 @@ interface PostCardFooterProps extends CommonCardCoverProps {
   openNewTab: boolean;
   post: Post;
   className: PostCardFooterClassName;
+  eagerLoadImage?: boolean;
 }
 
 export const PostCardFooter = ({
-  post,
   className,
+  eagerLoadImage = false,
   onShare,
+  post,
 }: PostCardFooterProps): ReactElement => {
   const isVideoType = isVideoPost(post);
+  const imageLoadingProps: ComponentProps<'img'> = {
+    loading: eagerLoadImage ? null : 'lazy',
+    fetchPriority: eagerLoadImage ? 'high' : 'auto',
+  };
   return (
     <>
       <CardCover
@@ -27,14 +33,14 @@ export const PostCardFooter = ({
         onShare={onShare}
         post={post}
         imageProps={{
-          loading: 'lazy',
+          ...imageLoadingProps,
           alt: 'Post Cover image',
-          src: post.image,
           className: classNames(
             'w-full',
             className.image,
             !isVideoType && 'my-2',
           ),
+          src: post.image,
         }}
         videoProps={{ className: 'my-2' }}
       />

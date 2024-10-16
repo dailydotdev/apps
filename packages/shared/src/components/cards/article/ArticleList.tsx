@@ -36,6 +36,7 @@ export const ArticleList = forwardRef(function ArticleList(
     onReadArticleClick,
     domProps = {},
     onShare,
+    eagerLoadImage = false,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
@@ -124,7 +125,8 @@ export const ArticleList = forwardRef(function ArticleList(
                 onShare={onShare}
                 post={post}
                 imageProps={{
-                  loading: 'lazy',
+                  loading: eagerLoadImage ? null : 'lazy',
+                  fetchPriority: eagerLoadImage ? 'high' : 'auto',
                   alt: 'Post Cover image',
                   src: post.image,
                   className: classNames(

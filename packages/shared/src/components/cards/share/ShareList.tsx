@@ -29,6 +29,7 @@ export const ShareList = forwardRef(function ShareList(
     onReadArticleClick,
     enableSourceHeader = false,
     domProps = {},
+    eagerLoadImage = false,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
@@ -107,13 +108,14 @@ export const ShareList = forwardRef(function ShareList(
           onShare={onShare}
           post={post}
           imageProps={{
-            loading: 'lazy',
             alt: 'Post Cover image',
-            src: post.sharedPost.image,
             className: classNames(
               'mobileXXL:self-start',
               !isVideoType && 'mt-4',
             ),
+            fetchPriority: eagerLoadImage ? 'high' : 'auto',
+            loading: eagerLoadImage ? null : 'lazy',
+            src: post.sharedPost.image,
           }}
           videoProps={{
             className: 'mt-4 mobileXL:w-40 mobileXXL:w-56 !h-fit',

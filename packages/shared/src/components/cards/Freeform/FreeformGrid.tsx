@@ -25,6 +25,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
     enableSourceHeader = false,
     domProps = {},
     onDownvoteClick,
+    eagerLoadImage = false,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {

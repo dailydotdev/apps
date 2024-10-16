@@ -29,6 +29,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
     onBookmarkClick,
     onDownvoteClick,
     onShare,
+    eagerLoadImage = false,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {

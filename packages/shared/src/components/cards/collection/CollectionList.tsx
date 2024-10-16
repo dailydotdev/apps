@@ -29,6 +29,7 @@ export const CollectionList = forwardRef(function CollectionCard(
     onPostClick,
     onBookmarkClick,
     onShare,
+    eagerLoadImage = false,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
@@ -87,10 +88,11 @@ export const CollectionList = forwardRef(function CollectionCard(
               post={post}
               onShare={onShare}
               imageProps={{
-                src: image,
-                className: 'my-2 w-full mobileXXL:self-start',
-                loading: 'lazy',
                 alt: 'Post Cover image',
+                className: 'my-2 w-full mobileXXL:self-start',
+                fetchPriority: eagerLoadImage ? 'high' : 'auto',
+                loading: eagerLoadImage ? null : 'lazy',
+                src: image,
               }}
             />
           )}
