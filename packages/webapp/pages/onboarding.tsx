@@ -76,7 +76,7 @@ const ReadingReminder = dynamic(() =>
 );
 const OnboardingFooter = dynamic(() =>
   import(
-    /* webpackChunkName: "readingReminder" */ '@dailydotdev/shared/src/components/onboarding/OnboardingFooter'
+    /* webpackChunkName: "onboardingFooter" */ '@dailydotdev/shared/src/components/onboarding/OnboardingFooter'
   ).then((mod) => mod.OnboardingFooter),
 );
 
@@ -102,7 +102,6 @@ export function OnboardPage(): ReactElement {
   const shouldVerify = anonymous?.shouldVerify;
   const { growthbook } = useGrowthBookContext();
   const { logEvent } = useLogContext();
-  const [hasSelectTopics, setHasSelectTopics] = useState(false);
   const [auth, setAuth] = useState<AuthProps>({
     isAuthenticating: !!storage.getItem(SIGNIN_METHOD_KEY) || shouldVerify,
     isLoginFlow: false,
@@ -133,6 +132,7 @@ export function OnboardPage(): ReactElement {
     user?.experienceLevel === 'MORE_THAN_4_YEARS';
 
   const isFeedSettingsDefined = useMemo(() => !!feedSettings, [feedSettings]);
+  const hasSelectTopics = !!feedSettings?.includeTags?.length;
 
   const updateSettingsBasedOnExperience = useCallback(() => {
     const LISTICLE_ADVANCED_SETTINGS_ID = 10;
@@ -162,10 +162,6 @@ export function OnboardPage(): ReactElement {
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPageReady, user]);
-
-  useEffect(() => {
-    setHasSelectTopics(!!feedSettings?.includeTags?.length);
-  }, [feedSettings?.includeTags?.length]);
 
   const onClickNext = () => {
     logEvent({
