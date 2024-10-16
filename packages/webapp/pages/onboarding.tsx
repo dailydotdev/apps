@@ -119,7 +119,6 @@ export function OnboardPage(): ReactElement {
     defaultDisplay,
     isLoading: isAuthLoading,
   } = auth;
-  console.log('re-render', auth);
   const isPageReady = growthbook?.ready && isAuthReady;
   const { feedSettings } = useFeedSettings();
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -151,7 +150,6 @@ export function OnboardPage(): ReactElement {
   }, [isSeniorUser, isFeedSettingsDefined, updateAdvancedSettings]);
 
   useEffect(() => {
-    console.log('ue', isLogged.current, user);
     if (!isPageReady || isLogged.current) {
       return;
     }
@@ -169,10 +167,6 @@ export function OnboardPage(): ReactElement {
   useEffect(() => {
     setHasSelectTopics(!!feedSettings?.includeTags?.length);
   }, [feedSettings?.includeTags?.length]);
-
-  if (!isPageReady) {
-    return null;
-  }
 
   const onClickNext = () => {
     logEvent({
@@ -239,6 +233,38 @@ export function OnboardPage(): ReactElement {
     setActiveScreen(OnboardingStep.EditTag);
   };
 
+  const getAuthOptions = () => {
+    return (
+      <AuthOptions
+        simplified
+        className={{
+          container: classNames(
+            'w-full rounded-none tablet:max-w-[30rem]',
+            isAuthenticating && 'h-full',
+            !isAuthenticating && 'max-w-full',
+          ),
+          onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
+        }}
+        trigger={AuthTriggers.Onboarding}
+        formRef={formRef}
+        defaultDisplay={defaultDisplay}
+        forceDefaultDisplay={!isAuthenticating}
+        initialEmail={email}
+        isLoginFlow={isLoginFlow}
+        targetId={targetId}
+        onSuccessfulLogin={onSuccessfulLogin}
+        onSuccessfulRegistration={onSuccessfulRegistration}
+        onAuthStateUpdate={(props: AuthProps) =>
+          setAuth({ isAuthenticating: true, ...props })
+        }
+        onboardingSignupButton={{
+          size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
+          variant: ButtonVariant.Primary,
+        }}
+      />
+    );
+  };
+
   const customActionName =
     activeScreen === OnboardingStep.EditTag ? 'Continue' : undefined;
 
@@ -248,38 +274,12 @@ export function OnboardPage(): ReactElement {
   const showGenerigLoader =
     isAuthenticating && isAuthLoading && activeScreen === OnboardingStep.Intro;
 
+  if (!isPageReady) {
+    return null;
+  }
+
   const instanceId = router.query?.aiid?.toString();
   const userId = user?.id || anonymous?.id;
-
-  const AuthOptionsRender = () => (
-    <AuthOptions
-      simplified
-      className={{
-        container: classNames(
-          'w-full rounded-none tablet:max-w-[30rem]',
-          isAuthenticating && 'h-full',
-          !isAuthenticating && 'max-w-full',
-        ),
-        onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
-      }}
-      trigger={AuthTriggers.Onboarding}
-      formRef={formRef}
-      defaultDisplay={defaultDisplay}
-      forceDefaultDisplay={!isAuthenticating}
-      initialEmail={email}
-      isLoginFlow={isLoginFlow}
-      targetId={targetId}
-      onSuccessfulLogin={onSuccessfulLogin}
-      onSuccessfulRegistration={onSuccessfulRegistration}
-      onAuthStateUpdate={(props: AuthProps) =>
-        setAuth({ isAuthenticating: true, ...props })
-      }
-      onboardingSignupButton={{
-        size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
-        variant: ButtonVariant.Primary,
-      }}
-    />
-  );
 
   return (
     <div className="z-3 flex h-full max-h-screen min-h-screen w-full flex-1 flex-col items-center overflow-x-hidden">
@@ -322,13 +322,13 @@ export function OnboardPage(): ReactElement {
                   description: 'typo-body tablet:typo-title2',
                 }}
               />
-              <AuthOptionsRender />
+              {getAuthOptions()}
             </div>
             <SignupDisclaimer className="mb-0 tablet:mb-10 tablet:hidden" />
           </>
         )}
         {isAuthenticating && activeScreen === OnboardingStep.Intro ? (
-          <AuthOptionsRender />
+          getAuthOptions()
         ) : (
           <div
             className={classNames(
