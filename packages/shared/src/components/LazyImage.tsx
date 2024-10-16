@@ -20,8 +20,6 @@ export interface LazyImageProps extends ComponentPropsWithoutRef<'img'> {
   absolute?: boolean;
   fit?: 'cover' | 'contain';
   ref?: Ref<HTMLImageElement>;
-  width?: number;
-  height?: number;
 }
 
 function LazyImageComponent(
