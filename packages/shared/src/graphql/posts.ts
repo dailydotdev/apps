@@ -272,9 +272,16 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       numCollectionSources
       slug
       domain
+      author {
+        ...UserAuthor
+      }
+      sharedPost {
+        ...SharedPostInfo
+      }
     }
   }
   ${SOURCE_SHORT_INFO_FRAGMENT}
+  ${SHARED_POST_INFO_FRAGMENT}
 `;
 
 export const DISMISS_POST_FEEDBACK_MUTATION = gql`

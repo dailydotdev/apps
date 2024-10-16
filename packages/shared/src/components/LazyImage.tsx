@@ -19,6 +19,7 @@ export interface LazyImageProps extends HTMLAttributes<HTMLImageElement> {
   children?: ReactNode;
   absolute?: boolean;
   fit?: 'cover' | 'contain';
+  fetchPriority?: 'high' | 'low' | 'auto';
   ref?: Ref<HTMLImageElement>;
 }
 
@@ -36,6 +37,7 @@ function LazyImageComponent(
     children,
     absolute = false,
     fit = 'cover',
+    fetchPriority = 'auto',
     ...props
   }: LazyImageProps,
   ref?: Ref<HTMLImageElement>,
@@ -52,11 +54,6 @@ function LazyImageComponent(
     imageProps = { src, className: baseImageClass };
   } else if (asyncImageSupport) {
     imageProps = { src, loading: 'lazy', className: baseImageClass };
-  } else {
-    imageProps = {
-      className: `lazyload ${baseImageClass}`,
-      'data-src': src,
-    };
   }
 
   const onError = (event: SyntheticEvent<HTMLImageElement>): void => {
@@ -78,7 +75,14 @@ function LazyImageComponent(
       ref={ref}
     >
       {ratio && <div style={{ paddingTop: ratio, zIndex: -1 }} />}
-      <img {...imageProps} alt={imgAlt} key={src} onError={onError} />
+      <img
+        {...imageProps}
+        alt={imgAlt}
+        key={src}
+        onError={onError}
+        // @ts-expect-error - Not supported by react yet
+        fetchpriority={fetchPriority}
+      />
       {children}
     </div>
   );
