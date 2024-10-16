@@ -128,7 +128,6 @@ export enum AuthDisplay {
   VerifiedEmail = 'VerifiedEmail',
   OnboardingSignup = 'onboarding_signup',
   EmailVerification = 'email_verification',
-  OnboardingSignupV4d5 = 'onboarding_signup_v4.5',
 }
 
 export interface AuthProps {
@@ -216,7 +215,6 @@ function AuthOptions({
     null,
   );
   const [isRegistration, setIsRegistration] = useState(false);
-  const [isLogin] = useState(false);
   const windowPopup = useRef<Window>(null);
   const onLoginCheck = (shouldVerify?: boolean) => {
     if (shouldVerify) {
@@ -469,7 +467,7 @@ function AuthOptions({
         <Tab label={AuthDisplay.Default}>
           <AuthDefault
             isLoading={isPasswordLoginLoading}
-            isLoginFlow={isForgotPasswordReturn || isLoginFlow || isLogin}
+            isLoginFlow={isForgotPasswordReturn || isLoginFlow}
             isReady={isReady}
             loginHint={loginHint}
             onForgotPassword={onForgotPassword}
