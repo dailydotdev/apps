@@ -9,6 +9,7 @@ import React, {
 import classNames from 'classnames';
 import AuthOptions, {
   AuthDisplay,
+  AuthOptionsProps,
   AuthProps,
 } from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
@@ -222,9 +223,11 @@ export function OnboardPage(): ReactElement {
     return onClickNext();
   };
 
-  const onSuccessfulLogin = () => {
+  const onSuccessfulLogin = useCallback(() => {
     router.replace(getPathnameWithQuery(webappUrl, window.location.search));
-  };
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onSuccessfulRegistration = (userRefetched: LoggedUser) => {
     logSignUp({
@@ -233,37 +236,42 @@ export function OnboardPage(): ReactElement {
     setActiveScreen(OnboardingStep.EditTag);
   };
 
-  const getAuthOptions = () => {
-    return (
-      <AuthOptions
-        simplified
-        className={{
-          container: classNames(
-            'w-full rounded-none tablet:max-w-[30rem]',
-            isAuthenticating && 'h-full',
-            !isAuthenticating && 'max-w-full',
-          ),
-          onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
-        }}
-        trigger={AuthTriggers.Onboarding}
-        formRef={formRef}
-        defaultDisplay={defaultDisplay}
-        forceDefaultDisplay={!isAuthenticating}
-        initialEmail={email}
-        isLoginFlow={isLoginFlow}
-        targetId={targetId}
-        onSuccessfulLogin={onSuccessfulLogin}
-        onSuccessfulRegistration={onSuccessfulRegistration}
-        onAuthStateUpdate={(props: AuthProps) =>
-          setAuth({ isAuthenticating: true, ...props })
-        }
-        onboardingSignupButton={{
-          size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
-          variant: ButtonVariant.Primary,
-        }}
-      />
-    );
-  };
+  const authOptionProps: AuthOptionsProps = useMemo(() => {
+    return {
+      simplified: true,
+      className: {
+        container: classNames(
+          'w-full rounded-none tablet:max-w-[30rem]',
+          isAuthenticating && 'h-full',
+          !isAuthenticating && 'max-w-full',
+        ),
+        onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
+      },
+      trigger: AuthTriggers.Onboarding,
+      formRef,
+      defaultDisplay,
+      forceDefaultDisplay: !isAuthenticating,
+      initialEmail: email,
+      isLoginFlow,
+      targetId,
+      onSuccessfulLogin,
+      onSuccessfulRegistration,
+      onAuthStateUpdate: (props: AuthProps) =>
+        setAuth({ isAuthenticating: true, ...props }),
+      onboardingSignupButton: {
+        size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
+        variant: ButtonVariant.Primary,
+      },
+    };
+  }, [
+    defaultDisplay,
+    email,
+    isAuthenticating,
+    isLoginFlow,
+    isMobile,
+    onSuccessfulLogin,
+    targetId,
+  ]);
 
   const customActionName =
     activeScreen === OnboardingStep.EditTag ? 'Continue' : undefined;
@@ -322,13 +330,13 @@ export function OnboardPage(): ReactElement {
                   description: 'typo-body tablet:typo-title2',
                 }}
               />
-              {getAuthOptions()}
+              <AuthOptions {...authOptionProps} />
             </div>
             <SignupDisclaimer className="mb-0 tablet:mb-10 tablet:hidden" />
           </>
         )}
         {isAuthenticating && activeScreen === OnboardingStep.Intro ? (
-          getAuthOptions()
+          <AuthOptions {...authOptionProps} />
         ) : (
           <div
             className={classNames(
