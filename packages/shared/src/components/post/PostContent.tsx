@@ -4,7 +4,6 @@ import dynamic from 'next/dynamic';
 import { isVideoPost } from '../../graphql/posts';
 import PostMetadata from '../cards/common/PostMetadata';
 import PostSummary from '../cards/common/PostSummary';
-import { LazyImage } from '../LazyImage';
 import { PostWidgets } from './PostWidgets';
 import { TagLinks } from '../TagLinks';
 import PostToc from '../widgets/PostToc';
@@ -12,7 +11,6 @@ import { ToastSubject, useToastNotification } from '../../hooks';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
 import { BasePostContent } from './BasePostContent';
-import { cloudinary } from '../../lib/image';
 import { combinedClicks } from '../../lib/click';
 import { PostContainer, PostContentProps, PostNavigationProps } from './common';
 import YoutubeVideo from '../video/YoutubeVideo';
@@ -21,6 +19,8 @@ import { useViewPost } from '../../hooks/post';
 import { TruncateText } from '../utilities';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
+import { LazyImage } from '../LazyImage';
+import { cloudinary } from '../../lib/image';
 
 export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;
@@ -188,6 +188,7 @@ export function PostContent({
                 ratio="49%"
                 eager
                 fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+                fetchPriority="high"
               />
             </ArticleLink>
           )}
