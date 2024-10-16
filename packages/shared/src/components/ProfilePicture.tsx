@@ -5,6 +5,7 @@ import { PublicProfile } from '../lib/user';
 import { fallbackImages } from '../lib/config';
 import { Image, ImageType } from './image/Image';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
+import { SocialProvider } from './auth/common';
 
 export enum ProfileImageSize {
   Size16 = 'size16',
@@ -78,6 +79,38 @@ export function setOnError(
   onError = newOnError;
 }
 
+const resizeSrcReplaceRule: Record<string, (src: string) => string> = {
+  [SocialProvider.Google]: (src) => src.replace(/s96-c$/, 's64-c'),
+  [SocialProvider.GitHub]: (src) => {
+    const search = new URLSearchParams(src);
+    search.set('s', '64');
+    return src.replace(/\?.+$/, `?${search.toString()}`);
+  },
+};
+
+const getSocialProviderFromSrc = (src: string): SocialProvider | null => {
+  const { host } = new URL(src);
+  if (host.includes('googleusercontent.')) {
+    return SocialProvider.Google;
+  }
+
+  if (host.includes('githubusercontent.')) {
+    return SocialProvider.GitHub;
+  }
+
+  return null;
+};
+
+const getResizedSrc = (src: string) => {
+  const provider = getSocialProviderFromSrc(src);
+  if (!provider) {
+    return src;
+  }
+
+  const getReplacedSrc = resizeSrcReplaceRule[provider];
+  return getReplacedSrc?.(src) ?? src;
+};
+
 function ProfilePictureComponent(
   {
     user,
@@ -101,8 +134,18 @@ function ProfilePictureComponent(
     return null;
   }
 
+  const isImageResizable =
+    user.image &&
+    [
+      ProfileImageSize.XLarge,
+      ProfileImageSize.Large,
+      ProfileImageSize.Medium,
+      ProfileImageSize.Small,
+      ProfileImageSize.XSmall,
+    ].includes(size);
+
   const imageAlt = `${user.username || user.name || user.id}'s profile`;
-  const imageSrc = user.image;
+  const imageSrc = isImageResizable ? getResizedSrc(user.image) : user.image;
 
   if (nativeLazyLoading) {
     return (
