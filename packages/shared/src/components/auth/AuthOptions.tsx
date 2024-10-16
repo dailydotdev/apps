@@ -156,7 +156,6 @@ function AuthOptions({
     null,
   );
   const [isRegistration, setIsRegistration] = useState(false);
-  const [isLogin, setIsLogin] = useState(false);
   const windowPopup = useRef<Window>(null);
   const onLoginCheck = (shouldVerify?: boolean) => {
     if (shouldVerify) {
@@ -409,7 +408,7 @@ function AuthOptions({
         <Tab label={AuthDisplay.Default}>
           <AuthDefault
             isLoading={isPasswordLoginLoading}
-            isLoginFlow={isForgotPasswordReturn || isLoginFlow || isLogin}
+            isLoginFlow={isForgotPasswordReturn || isLoginFlow}
             isReady={isReady}
             loginHint={loginHint}
             onForgotPassword={onForgotPassword}
