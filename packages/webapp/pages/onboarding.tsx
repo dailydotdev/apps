@@ -219,9 +219,7 @@ export function OnboardPage(): ReactElement {
 
   const onSuccessfulLogin = useCallback(() => {
     router.replace(getPathnameWithQuery(webappUrl, window.location.search));
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [router]);
 
   const onSuccessfulRegistration = (userRefetched: LoggedUser) => {
     logSignUp({
