@@ -157,7 +157,7 @@ export const BootDataProvider = ({
     async () => {
       const result = await getBootData(app);
       preloadFeedsRef.current({ feeds: result.feeds, user: result.user });
-      updateLocalBootData(bootData, result);
+      updateLocalBootData(bootData || {}, result);
 
       return result;
     },
