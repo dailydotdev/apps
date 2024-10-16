@@ -1,4 +1,5 @@
 import React, { FormEvent, ReactElement, useContext, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
@@ -12,7 +13,10 @@ import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
 import { AuthEventNames } from '../../lib/auth';
 import LogContext from '../../contexts/LogContext';
 import AuthForm from './AuthForm';
-import AuthModalFooter from './AuthModalFooter';
+
+const AuthModalFooter = dynamic(
+  () => import(/* webpackChunkName: "authModalFooter" */ './AuthModalFooter'),
+);
 
 interface ForgotPasswordFormProps extends AuthFormProps {
   initialEmail?: string;

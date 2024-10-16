@@ -5,9 +5,10 @@ import {
 } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { ViewSize, useViewSize } from '../../hooks';
 import { LazyModalCommonProps } from '../modals/common/Modal';
-import CommentModal from '../modals/post/CommentModal';
 import { WriteCommentContext } from '../../contexts/WriteCommentContext';
 import { useMutateComment } from '../../hooks/post/useMutateComment';
+import { LazyModal } from '../modals/common/types';
+import { useLazyModal } from '../../hooks/useLazyModal';
 
 interface CommentInputOrModalProps
   extends Partial<LazyModalCommonProps>,
@@ -26,6 +27,7 @@ export default function CommentInputOrModal({
   ...props
 }: CommentInputOrModalProps): ReactElement {
   const isModal = !useViewSize(ViewSize.Tablet);
+  const { openModal } = useLazyModal();
 
   const mutateCommentResult = useMutateComment({
     post: props.post,
@@ -35,7 +37,15 @@ export default function CommentInputOrModal({
   });
 
   if (isModal) {
-    return <CommentModal {...props} isOpen onRequestClose={onClose} />;
+    openModal({
+      type: LazyModal.Comment,
+      props: {
+        ...props,
+        className: className.input,
+      },
+    });
+
+    return <></>;
   }
 
   return (
