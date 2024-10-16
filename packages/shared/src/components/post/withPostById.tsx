@@ -13,7 +13,7 @@ export const withPostById = (WrappedComponent) => {
 
     const { post: loadedPost, isLoading } = usePostById({
       id: post.id,
-      options: { initialData: { post }, retry: false },
+      options: { initialData: { post } },
     });
     console.log('loaded', loadedPost, isLoading);
     if (isLoading) {

@@ -21,6 +21,7 @@ import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { LazyImage } from '../LazyImage';
 import { cloudinary } from '../../lib/image';
+import { withPostById } from './withPostById';
 
 export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;
@@ -31,7 +32,7 @@ const PostCodeSnippets = dynamic(() =>
   ),
 );
 
-export function PostContent({
+export function PostContentRaw({
   post,
   className = {},
   shouldOnboardAuthor,
@@ -215,3 +216,5 @@ export function PostContent({
     </PostContentContainer>
   );
 }
+
+export const PostContent = withPostById(PostContentRaw);
