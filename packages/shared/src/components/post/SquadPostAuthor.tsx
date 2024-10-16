@@ -62,7 +62,13 @@ function SquadPostAuthor({
       className={classNames('flex flex-row items-center', className?.container)}
     >
       <ProfileTooltip userId={author.id} link={{ href: author.permalink }}>
-        <ProfilePicture user={author} size={size} nativeLazyLoading />
+        <ProfilePicture
+          user={author}
+          size={size}
+          nativeLazyLoading
+          eager
+          fetchpriority="high"
+        />
       </ProfileTooltip>
       <ProfileTooltip userId={author.id} link={{ href: author.permalink }}>
         <a

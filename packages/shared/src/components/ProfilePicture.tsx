@@ -87,6 +87,7 @@ function ProfilePictureComponent(
     nativeLazyLoading,
     eager,
     fallbackSrc,
+    fetchpriority = 'auto',
     ...props
   }: ProfilePictureProps,
   ref?: Ref<HTMLImageElement>,
@@ -115,6 +116,7 @@ function ProfilePictureComponent(
         loading={eager || isCompanion ? 'eager' : 'lazy'}
         type={ImageType.Avatar}
         fallbackSrc={fallbackSrc}
+        fetchpriority={fetchpriority}
       />
     );
   }
