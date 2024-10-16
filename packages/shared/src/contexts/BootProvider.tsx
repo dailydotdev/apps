@@ -84,6 +84,14 @@ const updateLocalBootData = (
   return result;
 };
 
+const getCachedOrNull = () => {
+  try {
+    return JSON.parse(storage.getItem(BOOT_LOCAL_KEY));
+  } catch (err) {
+    return null;
+  }
+};
+
 export type PreloadFeeds = ({
   feeds,
   user,
@@ -180,7 +188,7 @@ export const BootDataProvider = ({
   const updatedAtActive = user ? dataUpdatedAt : null;
   const updateQueryCache = useCallback(
     (updatedBootData: Partial<BootCacheData>, update = true) => {
-      const cachedData = JSON.parse(storage.getItem(BOOT_LOCAL_KEY));
+      const cachedData = getCachedOrNull() || {};
       const lastAppliedChange = lastAppliedChangeRef.current;
       let updatedData = { ...updatedBootData };
       if (update) {
