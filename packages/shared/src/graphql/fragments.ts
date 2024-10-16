@@ -159,6 +159,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     views
     numUpvotes
     numComments
+    summary
     bookmark {
       remindAt
     }
