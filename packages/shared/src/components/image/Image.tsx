@@ -17,6 +17,7 @@ export enum ImageType {
 export interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   fallbackSrc?: string;
   type?: ImageType;
+  fetchPriority?: 'high' | 'low' | 'auto';
 }
 
 const fallbackSrcByType: Record<ImageType, string> = {
@@ -26,7 +27,7 @@ const fallbackSrcByType: Record<ImageType, string> = {
 };
 
 const ImageComponent = (
-  { fallbackSrc, src, alt, fetchPriority = undefined, ...props }: ImageProps,
+  { fallbackSrc, src, alt, fetchPriority = 'auto', ...props }: ImageProps,
   ref?: Ref<HTMLImageElement>,
 ): ReactElement => {
   const finalFallbackSrc =
@@ -42,12 +43,12 @@ const ImageComponent = (
   return (
     <img
       {...props}
+      // @ts-expect-error - Not supported by react yet
+      fetchpriority={fetchPriority}
       ref={ref}
       alt={alt}
       src={src ?? finalFallbackSrc}
       onError={onError}
-      // @ts-expect-error - Not supported by React
-      fetchpriority={fetchPriority}
     />
   );
 };

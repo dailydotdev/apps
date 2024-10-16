@@ -34,6 +34,7 @@ function LazyImageComponent(
     children,
     absolute = false,
     fit = 'cover',
+    fetchPriority = 'auto',
     ...props
   }: LazyImageProps,
   ref?: Ref<HTMLImageElement>,
@@ -71,7 +72,14 @@ function LazyImageComponent(
       ref={ref}
     >
       {ratio && <div style={{ paddingTop: ratio, zIndex: -1 }} />}
-      <img {...imageProps} alt={imgAlt} key={src} onError={onError} />
+      <img
+        {...imageProps}
+        alt={imgAlt}
+        key={src}
+        onError={onError}
+        // @ts-expect-error - Not supported by react yet
+        fetchpriority={fetchPriority}
+      />
       {children}
     </figure>
   );
