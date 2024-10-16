@@ -108,7 +108,7 @@ function SharePostContent({
               ratio="52%"
               eager
               fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-              fetchpriority="high"
+              fetchPriority="high"
             />
           </SharedPostLink>
         </div>

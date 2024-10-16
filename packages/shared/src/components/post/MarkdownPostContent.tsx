@@ -20,7 +20,7 @@ function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
         <Link href={post.image}>
           <a target="_blank" rel="noopener noreferrer">
             <Image
-              fetchpriority="high"
+              fetchPriority="high"
               loading="eager"
               src={post.image}
               alt="Post cover image"

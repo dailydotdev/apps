@@ -153,7 +153,7 @@ export const CollectionPostContent = ({
                   ratio="52%"
                   fallbackSrc={cloudinary.post.imageCoverPlaceholder}
                   eager
-                  fetchpriority="high"
+                  fetchPriority="high"
                 />
               </div>
             )}

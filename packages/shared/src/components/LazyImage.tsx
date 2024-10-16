@@ -19,7 +19,7 @@ export interface LazyImageProps extends HTMLAttributes<HTMLImageElement> {
   children?: ReactNode;
   absolute?: boolean;
   fit?: 'cover' | 'contain';
-  fetchpriority?: 'high' | 'low' | 'auto';
+  fetchPriority?: 'high' | 'low' | 'auto';
   ref?: Ref<HTMLImageElement>;
 }
 
@@ -37,7 +37,7 @@ function LazyImageComponent(
     children,
     absolute = false,
     fit = 'cover',
-    fetchpriority = 'auto',
+    fetchPriority = 'auto',
     ...props
   }: LazyImageProps,
   ref?: Ref<HTMLImageElement>,
@@ -81,7 +81,7 @@ function LazyImageComponent(
         key={src}
         onError={onError}
         // @ts-expect-error - Not supported by react yet
-        fetchpriority={fetchpriority}
+        fetchpriority={fetchPriority}
       />
       {children}
     </div>

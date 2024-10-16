@@ -67,7 +67,7 @@ function SquadPostAuthor({
           size={size}
           nativeLazyLoading
           eager
-          fetchpriority="high"
+          fetchPriority="high"
         />
       </ProfileTooltip>
       <ProfileTooltip userId={author.id} link={{ href: author.permalink }}>

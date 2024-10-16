@@ -188,7 +188,7 @@ export function PostContent({
                 ratio="49%"
                 eager
                 fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-                fetchpriority="high"
+                fetchPriority="high"
               />
             </ArticleLink>
           )}
