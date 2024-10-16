@@ -147,4 +147,5 @@ module.exports = {
       reactStrictMode: false,
       productionBrowserSourceMaps: process.env.SOURCE_MAPS === 'true',
     }),
-  })};
+  }),
+};
