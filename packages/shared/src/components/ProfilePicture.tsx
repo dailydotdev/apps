@@ -87,7 +87,7 @@ function ProfilePictureComponent(
     nativeLazyLoading,
     eager,
     fallbackSrc,
-    fetchpriority = 'auto',
+    fetchpriority,
     ...props
   }: ProfilePictureProps,
   ref?: Ref<HTMLImageElement>,
