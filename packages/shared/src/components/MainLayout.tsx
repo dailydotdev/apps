@@ -37,17 +37,13 @@ import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BootPopups } from './modals/BootPopups';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { AuthTriggers } from '../lib/auth';
+import Sidebar from './sidebar/Sidebar';
 
 const GoBackHeaderMobile = dynamic(
   () =>
     import(
       /* webpackChunkName: "goBackHeaderMobile" */ './post/GoBackHeaderMobile'
     ),
-  { ssr: false },
-);
-
-const Sidebar = dynamic(
-  () => import(/* webpackChunkName: "sidebar" */ './sidebar/Sidebar'),
   { ssr: false },
 );
 
@@ -180,7 +176,8 @@ function MainLayoutComponent({
 
   if (
     (!isPageReady && isPageApplicableForOnboarding) ||
-    shouldRedirectOnboarding
+    shouldRedirectOnboarding ||
+    !isAuthReady
   ) {
     return null;
   }
