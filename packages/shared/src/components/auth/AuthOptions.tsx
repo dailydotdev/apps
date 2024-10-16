@@ -56,10 +56,8 @@ const SocialRegistrationForm = dynamic(() =>
   ).then((mod) => mod.SocialRegistrationForm),
 );
 
-const RegistrationForm = dynamic(() =>
-  import(/* webpackChunkName: "registrationForm" */ './RegistrationForm').then(
-    (mod) => mod.RegistrationForm,
-  ),
+const RegistrationForm = dynamic(
+  () => import(/* webpackChunkName: "registrationForm" */ './RegistrationForm'),
 );
 
 const OnboardingRegistrationForm = dynamic(
