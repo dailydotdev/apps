@@ -36,6 +36,7 @@ export default function CollectionPostModal({
       onAfterOpen={onLoad}
       onRequestClose={onRequestClose}
       postType={PostType.Collection}
+      post={post}
       source={post.source}
       loadingClassName="!pb-2 laptop:pb-0"
     >

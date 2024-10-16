@@ -1,11 +1,12 @@
 import React, { ReactElement } from 'react';
 import { Modal, ModalProps, modalSizeToClassName } from './common/Modal';
 import { PostContent } from '../post/PostContent';
-import { Origin } from '../../lib/log';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import BasePostModal from './BasePostModal';
 import { Post, PostType } from '../../graphql/posts';
 import { PassedPostNavigationProps } from '../post/common';
+import { Origin } from '../../lib/log';
+import { withPostById } from '../post/withPostById';
 
 interface ArticlePostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
@@ -28,6 +29,8 @@ export default function ArticlePostModal({
     offset: 0,
   });
 
+  const ContentWithPostById = withPostById(PostContent);
+
   return (
     <BasePostModal
       {...props}
@@ -37,7 +40,7 @@ export default function ArticlePostModal({
       source={post.source}
       loadingClassName="!pb-2 tablet:pb-0"
     >
-      <PostContent
+      <ContentWithPostById
         position={position}
         post={post}
         postPosition={postPosition}

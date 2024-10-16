@@ -43,22 +43,24 @@ export default function PostModal({
         source={NotificationPromptSource.SquadPostModal}
         label={post?.source?.handle}
       />
-      <SquadPostContent
-        position={position}
-        post={post}
-        onPreviousPost={onPreviousPost}
-        onNextPost={onNextPost}
-        postPosition={postPosition}
-        inlineActions
-        onClose={onRequestClose}
-        origin={Origin.ArticleModal}
-        onRemovePost={onRemovePost}
-        className={{
-          fixedNavigation: { container: '!w-[inherit]', actions: 'ml-auto' },
-          navigation: { actions: 'ml-auto tablet:hidden' },
-          onboarding: 'mb-0 mt-8',
-        }}
-      />
+      <PostById>
+        <SquadPostContent
+          position={position}
+          post={post}
+          onPreviousPost={onPreviousPost}
+          onNextPost={onNextPost}
+          postPosition={postPosition}
+          inlineActions
+          onClose={onRequestClose}
+          origin={Origin.ArticleModal}
+          onRemovePost={onRemovePost}
+          className={{
+            fixedNavigation: { container: '!w-[inherit]', actions: 'ml-auto' },
+            navigation: { actions: 'ml-auto tablet:hidden' },
+            onboarding: 'mb-0 mt-8',
+          }}
+        />
+      </PostById>
     </BasePostModal>
   );
 }
