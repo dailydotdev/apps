@@ -152,6 +152,7 @@ export const BootDataProvider = ({
     error,
     refetch,
     isFetched,
+    isError,
     dataUpdatedAt,
   } = useQuery<Partial<Boot>>(
     BOOT_QUERY_KEY,
@@ -171,6 +172,7 @@ export const BootDataProvider = ({
     },
   );
 
+  const isBootReady = isFetched && !isError;
   const loadedFromCache = !!bootData;
   const { user, settings, alerts, notifications, squads } = bootData || {};
 
@@ -255,7 +257,7 @@ export const BootDataProvider = ({
         loadedUserFromCache={loadedFromCache}
         visit={bootData?.visit}
         refetchBoot={refetch}
-        isFetched={isFetched}
+        isFetched={isBootReady}
         isLegacyLogout={bootData?.isLegacyLogout}
         accessToken={bootData?.accessToken}
         isRegistering={isInitialFetch.current}
@@ -268,7 +270,7 @@ export const BootDataProvider = ({
         >
           <AlertContextProvider
             alerts={alerts}
-            isFetched={isFetched}
+            isFetched={isBootReady}
             updateAlerts={updateAlerts}
             loadedAlerts={loadedFromCache}
           >
@@ -279,7 +281,7 @@ export const BootDataProvider = ({
               deviceId={deviceId}
             >
               <NotificationsContextProvider
-                isNotificationsReady={isFetched}
+                isNotificationsReady={isBootReady}
                 unreadCount={notifications?.unreadNotificationsCount}
               >
                 {children}
