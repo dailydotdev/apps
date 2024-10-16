@@ -19,7 +19,8 @@ function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
         <Link href={post.image}>
           <a target="_blank" rel="noopener noreferrer">
             <LazyImage
-              eager={false}
+              eager
+              fetchPriority="high"
               ratio="52%"
               imgSrc={post.image}
               imgAlt="Post cover image"
