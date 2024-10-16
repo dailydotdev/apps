@@ -88,8 +88,6 @@ type OnboardingVisual = {
     | false;
 };
 
-const maxAuthWidth = 'tablet:max-w-[30rem]';
-
 const seo: NextSeoProps = {
   title: 'Get started',
   openGraph: { ...defaultOpenGraph },
@@ -121,6 +119,7 @@ export function OnboardPage(): ReactElement {
     defaultDisplay,
     isLoading: isAuthLoading,
   } = auth;
+  console.log('re-render', auth);
   const isPageReady = growthbook?.ready && isAuthReady;
   const { feedSettings } = useFeedSettings();
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -131,12 +130,9 @@ export function OnboardPage(): ReactElement {
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
   const { updateAdvancedSettings } = useMutateFilters(user);
-  const isSeniorUser = useMemo(() => {
-    return (
-      EXPERIENCE_TO_SENIORITY[user?.experienceLevel] === 'senior' ||
-      user?.experienceLevel === 'MORE_THAN_4_YEARS'
-    );
-  }, [user?.experienceLevel]);
+  const isSeniorUser =
+    EXPERIENCE_TO_SENIORITY[user?.experienceLevel] === 'senior' ||
+    user?.experienceLevel === 'MORE_THAN_4_YEARS';
 
   const isFeedSettingsDefined = useMemo(() => !!feedSettings, [feedSettings]);
 
@@ -155,6 +151,7 @@ export function OnboardPage(): ReactElement {
   }, [isSeniorUser, isFeedSettingsDefined, updateAdvancedSettings]);
 
   useEffect(() => {
+    console.log('ue', isLogged.current, user);
     if (!isPageReady || isLogged.current) {
       return;
     }
@@ -259,8 +256,7 @@ export function OnboardPage(): ReactElement {
       simplified
       className={{
         container: classNames(
-          'w-full rounded-none',
-          maxAuthWidth,
+          'w-full rounded-none tablet:max-w-[30rem]',
           isAuthenticating && 'h-full',
           !isAuthenticating && 'max-w-full',
         ),
@@ -339,7 +335,7 @@ export function OnboardPage(): ReactElement {
               'flex tablet:flex-1',
               activeScreen === OnboardingStep.Intro
                 ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
-                : 'mb-10 ml-0 flex w-full flex-col items-center justify-start',
+                : 'mb-10 ml-0 w-full flex-col items-center justify-start',
             )}
           >
             {activeScreen === OnboardingStep.ReadingReminder && (
