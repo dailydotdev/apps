@@ -55,7 +55,6 @@ import { labels } from '../../lib';
 import OnboardingRegistrationForm from './OnboardingRegistrationForm';
 import EmailCodeVerification from './EmailCodeVerification';
 import { ButtonProps } from '../buttons/Button';
-import { OnboardingRegistrationForm4d5 } from './OnboardingRegistrationForm4d5';
 import usePersistentState from '../../hooks/usePersistentState';
 
 export enum AuthDisplay {
@@ -70,7 +69,6 @@ export enum AuthDisplay {
   VerifiedEmail = 'VerifiedEmail',
   OnboardingSignup = 'onboarding_signup',
   EmailVerification = 'email_verification',
-  OnboardingSignupV4d5 = 'onboarding_signup_v4.5',
 }
 
 export interface AuthProps {
@@ -566,30 +564,6 @@ function AuthOptions({
               />
             )}
           </EmailVerified>
-        </Tab>
-        <Tab label={AuthDisplay.OnboardingSignupV4d5}>
-          <OnboardingRegistrationForm4d5
-            onSignup={(signupEmail) => {
-              setEmail(signupEmail);
-              setActiveDisplay(AuthDisplay.Registration);
-            }}
-            onExistingEmail={(existingEmail) => {
-              setEmail(existingEmail);
-              setIsLogin(true);
-              setActiveDisplay(AuthDisplay.Default);
-            }}
-            onProviderClick={onProviderClick}
-            onShowLoginOptions={() => {
-              setIsLogin(true);
-              setActiveDisplay(AuthDisplay.Default);
-            }}
-            trigger={trigger}
-            isReady={isReady}
-            simplified={simplified}
-            targetId={targetId}
-            className={className?.onboardingSignup}
-            onClose={onClose}
-          />
         </Tab>
       </TabContainer>
     </div>
