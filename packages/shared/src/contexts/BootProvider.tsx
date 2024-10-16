@@ -145,6 +145,7 @@ export const BootDataProvider = ({
   const logged = initialData?.user as LoggedUser;
   const shouldRefetch = !!logged?.providers && !!logged?.id;
   const lastAppliedChangeRef = useRef<Partial<BootCacheData>>();
+  const isInitialFetch = useRef<boolean>();
 
   const {
     data: bootData,
@@ -158,6 +159,7 @@ export const BootDataProvider = ({
       const result = await getBootData(app);
       preloadFeedsRef.current({ feeds: result.feeds, user: result.user });
       updateLocalBootData(bootData || {}, result);
+      isInitialFetch.current = isInitialFetch.current === undefined;
 
       return result;
     },
@@ -256,6 +258,7 @@ export const BootDataProvider = ({
         isFetched={isFetched}
         isLegacyLogout={bootData?.isLegacyLogout}
         accessToken={bootData?.accessToken}
+        isRegistering={isInitialFetch.current}
         squads={squads}
       >
         <SettingsContextProvider
