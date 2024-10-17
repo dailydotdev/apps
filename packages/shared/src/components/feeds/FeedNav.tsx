@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { ReactElement, useContext, useMemo } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { Tab, TabContainer } from '../tabs/TabContainer';
@@ -14,7 +14,7 @@ import {
 } from '../layout/common';
 import { MobileFeedActions } from './MobileFeedActions';
 import { useFeedName } from '../../hooks/feed/useFeedName';
-import SettingsContext from '../../contexts/SettingsContext';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 import { Dropdown } from '../fields/Dropdown';
 import { PlusIcon, SortIcon } from '../icons';
 import { IconSize } from '../Icon';
@@ -26,6 +26,7 @@ import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { OtherFeedPage } from '../../lib/query';
+import { ChecklistViewState } from '../../lib/checklist';
 
 const OnboardingChecklistBar = dynamic(
   () =>
@@ -56,7 +57,7 @@ function FeedNav(): ReactElement {
   const router = useRouter();
   const { isLoggedIn } = useAuthContext();
   const { feedName } = useActiveFeedNameContext();
-  const { sortingEnabled } = useContext(SettingsContext);
+  const { sortingEnabled, onboardingChecklistView } = useSettingsContext();
   const { isSortableFeed } = useFeedName({ feedName });
   const { home: shouldRenderNav } = useActiveNav(feedName);
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -69,6 +70,9 @@ function FeedNav(): ReactElement {
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const { feeds } = useFeeds();
+
+  const isHiddenOnboardingChecklistView =
+    onboardingChecklistView === ChecklistViewState.Hidden;
 
   const urlToTab: Record<string, FeedNavTab> = useMemo(() => {
     const customFeeds = feeds?.edges?.reduce((acc, { node: feed }) => {
@@ -103,7 +107,10 @@ function FeedNav(): ReactElement {
     return null;
   }
 
-  const checklistBarElement = isLoggedIn ? <OnboardingChecklistBar /> : null;
+  const checklistBarElement =
+    isLoggedIn && !isHiddenOnboardingChecklistView ? (
+      <OnboardingChecklistBar />
+    ) : null;
 
   return (
     <div

@@ -182,6 +182,7 @@ describe('testing username auto generation', () => {
     const username = 'johndoe';
 
     await renderRegistration(email, false, name, username);
+
     const usernameEl = screen.getByPlaceholderText('Enter a username');
     expect(usernameEl).toBeInTheDocument();
     expect(usernameEl).toHaveValue(username);

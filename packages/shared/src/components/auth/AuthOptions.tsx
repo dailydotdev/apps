@@ -8,13 +8,10 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 import AuthContext from '../../contexts/AuthContext';
 import { Tab, TabContainer } from '../tabs/TabContainer';
-import AuthDefault from './AuthDefault';
-import { AuthSignBack } from './AuthSignBack';
-import ForgotPasswordForm from './ForgotPasswordForm';
-import LoginForm from './LoginForm';
-import { RegistrationForm, RegistrationFormValues } from './RegistrationForm';
+import { RegistrationFormValues } from './RegistrationForm';
 import {
   AuthEventNames,
   AuthTriggers,
@@ -23,8 +20,6 @@ import {
   RegistrationError,
 } from '../../lib/auth';
 import useRegistration from '../../hooks/useRegistration';
-import EmailVerificationSent from './EmailVerificationSent';
-import AuthHeader from './AuthHeader';
 import {
   AuthEvent,
   AuthFlow,
@@ -35,15 +30,11 @@ import {
 import { storageWrapper as storage } from '../../lib/storageWrapper';
 import { providers } from './common';
 import useLogin from '../../hooks/useLogin';
-import { SocialRegistrationForm } from './SocialRegistrationForm';
 import useProfileForm from '../../hooks/useProfileForm';
 import { CloseAuthModalFunc } from '../../hooks/useAuthForms';
-import EmailVerified from './EmailVerified';
 import LogContext from '../../contexts/LogContext';
 import SettingsContext from '../../contexts/SettingsContext';
 import { useToastNotification, useEventListener } from '../../hooks';
-import CodeVerificationForm from './CodeVerificationForm';
-import ChangePasswordForm from './ChangePasswordForm';
 import { isTesting } from '../../lib/constants';
 import {
   SignBackProvider,
@@ -52,10 +43,78 @@ import {
 } from '../../hooks/auth/useSignBack';
 import { AnonymousUser, LoggedUser } from '../../lib/user';
 import { labels } from '../../lib';
-import OnboardingRegistrationForm from './OnboardingRegistrationForm';
-import EmailCodeVerification from './EmailCodeVerification';
 import { ButtonProps } from '../buttons/Button';
 import usePersistentState from '../../hooks/usePersistentState';
+
+const AuthDefault = dynamic(
+  () => import(/* webpackChunkName: "authDefault" */ './AuthDefault'),
+);
+
+const SocialRegistrationForm = dynamic(() =>
+  import(
+    /* webpackChunkName: "socialRegistrationForm" */ './SocialRegistrationForm'
+  ).then((mod) => mod.SocialRegistrationForm),
+);
+
+const RegistrationForm = dynamic(
+  () => import(/* webpackChunkName: "registrationForm" */ './RegistrationForm'),
+);
+
+const OnboardingRegistrationForm = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "onboardingRegistrationForm" */ './OnboardingRegistrationForm'
+    ),
+);
+
+const AuthSignBack = dynamic(() =>
+  import(/* webpackChunkName: "authSignBack" */ './AuthSignBack').then(
+    (mod) => mod.AuthSignBack,
+  ),
+);
+
+const ForgotPasswordForm = dynamic(
+  () =>
+    import(/* webpackChunkName: "forgotPasswordForm" */ './ForgotPasswordForm'),
+);
+
+const CodeVerificationForm = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "codeVerificationForm" */ './CodeVerificationForm'
+    ),
+);
+
+const ChangePasswordForm = dynamic(
+  () =>
+    import(/* webpackChunkName: "changePasswordForm" */ './ChangePasswordForm'),
+);
+
+const AuthHeader = dynamic(
+  () => import(/* webpackChunkName: "authHeader" */ './AuthHeader'),
+);
+
+const EmailVerificationSent = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "emailVerificationSent" */ './EmailVerificationSent'
+    ),
+);
+
+const EmailCodeVerification = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "emailCodeVerification" */ './EmailCodeVerification'
+    ),
+);
+
+const EmailVerified = dynamic(
+  () => import(/* webpackChunkName: "emailVerified" */ './EmailVerified'),
+);
+
+const LoginForm = dynamic(
+  () => import(/* webpackChunkName: "loginForm" */ './LoginForm'),
+);
 
 export enum AuthDisplay {
   Default = 'default',
