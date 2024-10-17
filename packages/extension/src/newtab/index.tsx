@@ -1,4 +1,3 @@
-import '@dailydotdev/shared/src/lib/lazysizesImport';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import '@dailydotdev/shared/src/styles/globals.css';

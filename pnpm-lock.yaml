@@ -408,9 +408,6 @@ importers:
       graphql-ws:
         specifier: ^5.5.5
         version: 5.5.5(graphql@15.8.0)
-      lazysizes:
-        specifier: ^5.3.2
-        version: 5.3.2
       linkifyjs:
         specifier: ^2.1.9
         version: 2.1.9(jquery@3.7.1)(react-dom@18.3.1)(react@18.3.1)
@@ -13413,10 +13410,6 @@ packages:
     dependencies:
       package-json: 6.5.0
     dev: true
-
-  /lazysizes@5.3.2:
-    resolution: {integrity: sha512-22UzWP+Vedi/sMeOr8O7FWimRVtiNJV2HCa+V8+peZOw6QbswN9k58VUhd7i6iK5bw5QkYrF01LJbeJe0PV8jg==}
-    dev: false
 
   /lazystream@1.0.1:
     resolution: {integrity: sha512-b94GiNHQNy6JNTrt5w6zNyffMrNkXZb3KTkCZJb2V1xaEGCk093vkZ2jk3tpaeP33/OiXC+WvK9AxUebnf5nbw==}

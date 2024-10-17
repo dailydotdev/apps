@@ -1,4 +1,3 @@
-import '@dailydotdev/shared/src/lib/lazysizesImport';
 import React, {
   ReactElement,
   ReactNode,
