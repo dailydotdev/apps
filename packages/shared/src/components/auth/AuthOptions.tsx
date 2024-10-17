@@ -244,6 +244,7 @@ function AuthOptions({
     },
   });
   const onProfileSuccess = async (options: { redirect?: string } = {}) => {
+    setIsRegistration(true);
     const { redirect } = options;
     const { data } = await refetchBoot();
 

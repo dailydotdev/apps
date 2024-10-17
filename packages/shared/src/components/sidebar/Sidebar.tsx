@@ -73,7 +73,7 @@ export default function Sidebar({
   onLogoClick,
 }: SidebarProps): ReactElement {
   const router = useRouter();
-  const { user, isLoggedIn, squads } = useContext(AuthContext);
+  const { user, isLoggedIn, squads, isAuthReady } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
   const { toggleSidebarExpanded, sidebarExpanded, loadedSettings } =
     useContext(SettingsContext);
@@ -111,7 +111,7 @@ export default function Sidebar({
 
   const { feeds } = useFeeds();
 
-  if (!loadedSettings) {
+  if (!loadedSettings || !isAuthReady) {
     return <></>;
   }
 
