@@ -3,10 +3,10 @@ import { Modal, ModalProps } from './common/Modal';
 import BasePostModal from './BasePostModal';
 import { NotificationPromptSource, Origin } from '../../lib/log';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
-import SquadPostContent from '../post/SquadPostContent';
 import { PassedPostNavigationProps } from '../post/common';
 import { Post, PostType } from '../../graphql/posts';
 import EnableNotification from '../notifications/EnableNotification';
+import { SquadPostContent } from '../post/SquadPostContent';
 
 interface PostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;

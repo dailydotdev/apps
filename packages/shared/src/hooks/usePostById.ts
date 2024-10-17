@@ -17,6 +17,7 @@ import { PostCommentsData } from '../graphql/comments';
 import {
   getAllCommentsQuery,
   RequestKey,
+  StaleTime,
   updatePostContentPreference,
 } from '../lib/query';
 import { Connection, gqlClient } from '../graphql/common';
@@ -125,6 +126,7 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
     () => gqlClient.request(POST_BY_ID_QUERY, { id }),
     {
       ...options,
+      staleTime: StaleTime.Default,
       enabled: !!id && tokenRefreshed,
     },
   );

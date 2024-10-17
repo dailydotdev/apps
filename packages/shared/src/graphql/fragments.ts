@@ -145,6 +145,51 @@ export const SQUAD_BASE_FRAGMENT = `
   ${PRIVILEGED_MEMBERS_FRAGMENT}
 `;
 
+export const FEED_POST_INFO_FRAGMENT = gql`
+  fragment FeedPostInfo on Post {
+    id
+    title
+    image
+    readTime
+    permalink
+    commentsPermalink
+    createdAt
+    commented
+    bookmarked
+    views
+    numUpvotes
+    numComments
+    summary
+    bookmark {
+      remindAt
+    }
+    author {
+      id
+      name
+      image
+      username
+      permalink
+    }
+    type
+    tags
+    source {
+      id
+      handle
+      name
+      permalink
+      image
+      type
+    }
+    userState {
+      vote
+      flags {
+        feedbackDismiss
+      }
+    }
+    slug
+  }
+`;
+
 export const SHARED_POST_INFO_FRAGMENT = gql`
   fragment SharedPostInfo on Post {
     id
