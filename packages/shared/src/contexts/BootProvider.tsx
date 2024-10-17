@@ -268,7 +268,7 @@ export const BootDataProvider = ({
         isFetched={isBootReady}
         isLegacyLogout={bootData?.isLegacyLogout}
         accessToken={bootData?.accessToken}
-        isRegistering={isInitialFetch.current}
+        isPastRegistration={isInitialFetch.current}
         squads={squads}
       >
         <SettingsContextProvider

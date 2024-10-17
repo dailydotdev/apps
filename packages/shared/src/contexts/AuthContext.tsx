@@ -101,7 +101,7 @@ const logout = async (reason: string): Promise<void> => {
 export type AuthContextProviderProps = {
   user?: LoggedUser | AnonymousUser;
   isFetched?: boolean;
-  isRegistering?: boolean;
+  isPastRegistration?: boolean;
   isLegacyLogout?: boolean;
   children?: ReactNode;
 } & Pick<
@@ -122,7 +122,7 @@ export const AuthContextProvider = ({
   user,
   updateUser,
   isFetched,
-  isRegistering,
+  isPastRegistration,
   loadingUser,
   tokenRefreshed,
   loadedUserFromCache,
@@ -138,7 +138,7 @@ export const AuthContextProvider = ({
   const referral = user?.referralId || user?.referrer;
   const referralOrigin = user?.referralOrigin;
 
-  if (isRegistering && endUser && !endUser?.infoConfirmed) {
+  if (isPastRegistration && endUser && !endUser?.infoConfirmed) {
     logout(LogoutReason.IncomleteOnboarding);
   }
 
