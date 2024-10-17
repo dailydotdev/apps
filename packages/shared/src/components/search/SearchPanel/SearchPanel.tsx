@@ -8,30 +8,24 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 import { SearchPanelInput } from './SearchPanelInput';
-import {
-  SearchProviderEnum,
-  minSearchQueryLength,
-} from '../../../graphql/search';
+import { minSearchQueryLength } from '../../../graphql/search';
 import {
   SearchPanelContext,
   SearchPanelContextValue,
 } from './SearchPanelContext';
-import { SearchPanelAction } from './SearchPanelAction';
-import { SearchPanelPostSuggestions } from './SearchPanelPostSuggestions';
 import SettingsContext from '../../../contexts/SettingsContext';
-import { useConditionalFeature, useEventListener } from '../../../hooks';
+import { useEventListener } from '../../../hooks';
 import { defaultSearchProvider, providerToLabelTextMap } from './common';
-import { ArrowKeyEnum, isExtension } from '../../../lib/func';
-import { ArrowIcon } from '../../icons';
-import { useSearchProvider } from '../../../hooks/search';
-import { SearchPanelCustomAction } from './SearchPanelCustomAction';
-import { LogEvent } from '../../../lib/log';
-import { useLogContext } from '../../../contexts/LogContext';
-import { SearchPanelTagSuggestions } from './SearchPanelTagSuggestions';
-import { SearchPanelSourceSuggestions } from './SearchPanelSourceSuggestions';
-import { SearchPanelUserSuggestions } from './SearchPanelUserSuggestions';
-import { feature } from '../../../lib/featureManagement';
+import { ArrowKeyEnum } from '../../../lib/func';
+
+const SearchPanelDropdown = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "lazySearchPanelDropdown" */ './SearchPanelDropdown'
+    ),
+);
 
 export type SearchPanelProps = {
   className?: SearchPanelClassName;
@@ -44,9 +38,7 @@ export type SearchPanelClassName = {
 
 export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
   useContext(SettingsContext);
-  const { search } = useSearchProvider();
   const { query } = useRouter();
-  const { logEvent } = useLogContext();
 
   const [state, setState] = useState(() => {
     return {
@@ -150,11 +142,6 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
   const showDropdown =
     state.isActive && state.query.length >= minSearchQueryLength;
 
-  const { value: isUserSearchEnabled } = useConditionalFeature({
-    feature: feature.searchUsers,
-    shouldEvaluate: showDropdown,
-  });
-
   return (
     <SearchPanelContext.Provider value={searchPanel}>
       <div
@@ -190,44 +177,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
             },
           }}
         >
-          {showDropdown && (
-            <div className="absolute w-full items-center overflow-y-auto rounded-b-16 border-0 border-border-subtlest-tertiary bg-background-default px-3 py-2 laptop:h-auto laptop:max-h-[30rem] laptop:border-x laptop:border-b laptop:bg-background-subtle laptop:shadow-2">
-              <div className="flex flex-1 flex-col">
-                <SearchPanelAction provider={SearchProviderEnum.Posts} />
-                <SearchPanelAction provider={SearchProviderEnum.Chat} />
-                {isExtension && (
-                  <SearchPanelAction provider={SearchProviderEnum.Google} />
-                )}
-                <SearchPanelTagSuggestions title="Tags" />
-                <SearchPanelPostSuggestions title="Posts on daily.dev" />
-                <SearchPanelSourceSuggestions title="Sources" />
-                {isUserSearchEnabled && (
-                  <SearchPanelUserSuggestions title="Users" />
-                )}
-                <SearchPanelCustomAction
-                  provider={SearchProviderEnum.Posts}
-                  onClick={() => {
-                    logEvent({
-                      event_name: LogEvent.SubmitSearch,
-                      extra: JSON.stringify({
-                        query: state.query,
-                        provider: SearchProviderEnum.Posts,
-                      }),
-                    });
-
-                    search({
-                      provider: SearchProviderEnum.Posts,
-                      query: state.query,
-                    });
-                  }}
-                >
-                  <div className="flex items-center justify-center text-text-tertiary typo-subhead">
-                    See more posts <ArrowIcon className="!size-4 rotate-90" />
-                  </div>
-                </SearchPanelCustomAction>
-              </div>
-            </div>
-          )}
+          {showDropdown && <SearchPanelDropdown query={state.query} />}
         </SearchPanelInput>
       </div>
     </SearchPanelContext.Provider>
