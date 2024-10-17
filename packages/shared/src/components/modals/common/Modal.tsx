@@ -20,6 +20,7 @@ import { useViewSize, ViewSize } from '../../../hooks';
 import { Drawer, DrawerOnMobileProps } from '../../drawers';
 import { FormWrapper, FormWrapperProps } from '../../fields/form';
 import ConditionalWrapper from '../../ConditionalWrapper';
+import { initReactModal, isExtension } from '../../../lib/func';
 
 export interface ModalProps extends ReactModal.Props, DrawerOnMobileProps {
   children?: React.ReactNode;
@@ -99,6 +100,13 @@ export function Modal({
   formProps,
   ...props
 }: ModalProps): ReactElement {
+  if (!isExtension) {
+    initReactModal({
+      modalObject: ReactModal,
+      appElement: '#__next',
+    });
+  }
+
   const stepTitle = steps ? steps?.[0].key : undefined;
   const tabTitle = tabs ? modalTabTitle(tabs[0]) : undefined;
   const isMobile = useViewSize(ViewSize.MobileL);
