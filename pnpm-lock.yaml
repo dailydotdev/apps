@@ -411,9 +411,6 @@ importers:
       linkifyjs:
         specifier: ^2.1.9
         version: 2.1.9(jquery@3.7.1)(react-dom@18.3.1)(react@18.3.1)
-      lodash.shuffle:
-        specifier: ^4.2.0
-        version: 4.2.0
       node-fetch:
         specifier: ^2.6.6
         version: 2.6.7
@@ -13533,10 +13530,6 @@ packages:
   /lodash.set@4.3.2:
     resolution: {integrity: sha512-4hNPN5jlm/N/HLMCO43v8BXKq9Z7QdAGc/VGrRD61w8gN9g/6jF9A4L1pbUgBLCffi0w9VsXfTOij5x8iTyFvg==}
     dev: true
-
-  /lodash.shuffle@4.2.0:
-    resolution: {integrity: sha512-V/rTAABKLFjoecTZjKSv+A1ZomG8hZg8hlgeG6wwQVD9AGv+10zqqSf6mFq2tVA703Zd5R0YhSuSlXA+E/Ei+Q==}
-    dev: false
 
   /lodash.sortby@4.7.0:
     resolution: {integrity: sha512-HDWXG8isMntAyRF5vZ7xKuEvOhT4AhlRt/3czTSjvGUxjYCBVRQY48ViDHyfYz9VIoBkW4TMGQNapx+l3RUwdA==}

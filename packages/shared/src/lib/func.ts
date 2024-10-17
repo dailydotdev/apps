@@ -97,3 +97,18 @@ export const checkIsBrowser = (agent: UserAgent): boolean =>
 
 export const checkIsChromeOnly = (): boolean =>
   checkIsBrowser(UserAgent.Chrome) && !checkIsBrowser(UserAgent.Edge);
+
+export const shuffleArray = <T>(array: T[]): T[] => {
+  const newArray = array.slice();
+
+  // fisher-yates
+  for (let i = newArray.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+
+    const temp = newArray[i];
+    newArray[i] = newArray[j];
+    newArray[j] = temp;
+  }
+
+  return newArray;
+};

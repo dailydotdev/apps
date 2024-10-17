@@ -112,7 +112,6 @@
     "check-password-strength": "^2.0.7",
     "graphql-ws": "^5.5.5",
     "linkifyjs": "^2.1.9",
-    "lodash.shuffle": "^4.2.0",
     "node-fetch": "^2.6.6",
     "react-markdown": "^8.0.7",
     "react-onesignal": "^3.0.1",
