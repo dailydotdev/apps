@@ -2,14 +2,10 @@ import classNames from 'classnames';
 import React, { ReactElement, ReactNode, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { useAuthContext } from '../../contexts/AuthContext';
-import LoginButton from '../LoginButton';
-import ProfileButton from '../profile/ProfileButton';
 import HeaderLogo from './HeaderLogo';
-import { CreatePostButton } from '../post/write';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useReadingStreak } from '../../hooks/streaks';
 import { LogoPosition } from '../Logo';
-import NotificationsBell from '../notifications/NotificationsBell';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useSettingsContext } from '../../contexts/SettingsContext';
@@ -32,13 +28,18 @@ const SearchPanel = dynamic(
     ),
 );
 
+const HeaderButtons = dynamic(
+  () => import(/* webpackChunkName: "headerButtons" */ './HeaderButtons'),
+  { ssr: false },
+);
+
 function MainLayoutHeader({
   hasBanner,
   sidebarRendered,
   additionalButtons,
   onLogoClick,
 }: MainLayoutHeaderProps): ReactElement {
-  const { user, isLoggedIn } = useAuthContext();
+  const { user } = useAuthContext();
   const { loadedSettings } = useSettingsContext();
   const { streak, isStreaksEnabled } = useReadingStreak();
   const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
@@ -50,32 +51,6 @@ function MainLayoutHeader({
   const isSearchPage = isSearch || isAnyExplore;
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
-
-  const RenderButtons = useCallback(() => {
-    return (
-      <div className="ml-auto flex justify-end gap-3">
-        {loadedSettings && (
-          <>
-            <CreatePostButton />
-            {additionalButtons}
-            {isLoggedIn ? (
-              <>
-                <NotificationsBell />
-                <ProfileButton className="hidden laptop:flex" />
-              </>
-            ) : (
-              <LoginButton
-                className={{
-                  container: 'gap-4',
-                  button: 'hidden laptop:block',
-                }}
-              />
-            )}
-          </>
-        )}
-      </div>
-    );
-  }, [additionalButtons, isLoggedIn, loadedSettings]);
 
   const RenderSearchPanel = useCallback(
     () =>
@@ -146,7 +121,7 @@ function MainLayoutHeader({
             />
           </div>
           <RenderSearchPanel />
-          <RenderButtons />
+          <HeaderButtons additionalButtons={additionalButtons} />
         </>
       )}
     </header>
