@@ -23,7 +23,7 @@ import { ArrowKeyEnum } from '../../../lib/func';
 const SearchPanelDropdown = dynamic(
   () =>
     import(
-      /* webpackChunkName: "lazySearchPanelDropdown" */ './SearchPanelDropdown'
+      /* webpackChunkName: "searchPanelDropdown" */ './SearchPanelDropdown'
     ),
 );
 
