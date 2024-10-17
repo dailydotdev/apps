@@ -69,3 +69,13 @@ Object.defineProperty(global, 'open', {
   writable: true,
   value: jest.fn(),
 });
+
+Object.defineProperty(global, 'BroadcastChannel', {
+  writable: true,
+  value: jest.fn().mockImplementation(() => ({
+    close: jest.fn(),
+    postMessage: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+  })),
+});

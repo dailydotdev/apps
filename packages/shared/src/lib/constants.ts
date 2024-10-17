@@ -73,3 +73,5 @@ export const squadCategoriesPaths = {
   discover: '/squads/discover',
   featured: '/squads/discover/featured',
 };
+export const BROADCAST_CHANNEL_NAME = 'broadcast';
+export const BROADCAST_CHANNEL = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
