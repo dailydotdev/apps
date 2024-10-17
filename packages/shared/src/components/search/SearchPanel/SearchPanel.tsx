@@ -21,6 +21,7 @@ const SearchPanelDropdown = dynamic(
     import(
       /* webpackChunkName: "searchPanelDropdown" */ './SearchPanelDropdown'
     ),
+  { ssr: false },
 );
 
 export type SearchPanelProps = {
