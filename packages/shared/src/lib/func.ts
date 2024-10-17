@@ -1,4 +1,5 @@
 import { MouseEvent } from 'react';
+import type ReactModal from 'react-modal';
 import { EmptyObjectLiteral } from './kratos';
 
 export const nextTick = (): Promise<unknown> =>
@@ -111,4 +112,27 @@ export const shuffleArray = <T>(array: T[]): T[] => {
   }
 
   return newArray;
+};
+
+export const initReactModal = ({
+  modalObject,
+  appElement,
+  defaultStyles,
+}: {
+  modalObject: {
+    setAppElement: (element: string | HTMLElement) => void;
+    defaultStyles: ReactModal.Styles;
+  };
+  appElement: string | HTMLElement;
+  defaultStyles?: ReactModal.Styles;
+}): void => {
+  if (globalThis.reactModalInit) {
+    return;
+  }
+
+  modalObject.setAppElement(appElement);
+  // eslint-disable-next-line no-param-reassign
+  modalObject.defaultStyles = defaultStyles || {};
+
+  globalThis.reactModalInit = true;
 };
