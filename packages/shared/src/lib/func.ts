@@ -1,6 +1,7 @@
 import { MouseEvent } from 'react';
 import type ReactModal from 'react-modal';
 import { EmptyObjectLiteral } from './kratos';
+import { isTesting } from './constants';
 
 export const nextTick = (): Promise<unknown> =>
   new Promise((resolve) => setTimeout(resolve));
@@ -126,6 +127,10 @@ export const initReactModal = ({
   appElement: string | HTMLElement;
   defaultStyles?: ReactModal.Styles;
 }): void => {
+  if (isTesting) {
+    return;
+  }
+
   if (globalThis.reactModalInit) {
     return;
   }
