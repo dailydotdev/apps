@@ -78,6 +78,8 @@ module.exports = {
           },
         });
 
+        config.resolve.alias['cross-fetch'] = false
+
         return config;
       },
       env: {
