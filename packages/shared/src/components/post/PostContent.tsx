@@ -168,7 +168,7 @@ export function PostContentRaw({
             )}
             domain={
               !isVideoType &&
-              post.domain.length > 0 && (
+              post.domain?.length > 0 && (
                 <TruncateText>
                   From{' '}
                   <ArticleLink title={post.domain} className="hover:underline">

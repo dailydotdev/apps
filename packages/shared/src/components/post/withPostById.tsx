@@ -15,7 +15,7 @@ export const withPostById = (WrappedComponent) => {
       id: post.id,
       options: { initialData: { post } },
     });
-    console.log('loaded', loadedPost, isLoading);
+
     if (isLoading) {
       return null;
     }

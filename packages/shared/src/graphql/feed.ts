@@ -58,7 +58,10 @@ export const FEED_POST_FRAGMENT = gql`
       type
       tags
       source {
+        id
         handle
+        permalink
+        image
       }
       slug
     }
