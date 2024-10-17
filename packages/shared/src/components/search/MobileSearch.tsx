@@ -10,7 +10,7 @@ import React, {
 import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
-import { cloudinary } from '../../lib/image';
+import { cloudinaryFeedBgMobile } from '../../lib/image';
 import CloseButton from '../CloseButton';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { SearchSubmitButton } from './SearchSubmitButton';
@@ -60,7 +60,7 @@ export function MobileSearch({
     >
       <img
         className="absolute left-0 top-0 -z-1 w-full"
-        src={cloudinary.feed.bg.mobile}
+        src={cloudinaryFeedBgMobile}
         alt="Gradient background"
       />
       <form className="flex flex-col" onSubmit={onSubmitForm}>

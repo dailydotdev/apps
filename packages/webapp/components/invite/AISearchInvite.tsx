@@ -12,7 +12,11 @@ import { acceptFeatureInvitation } from '@dailydotdev/shared/src/graphql/feature
 import { useRouter } from 'next/router';
 import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import {
+  cloudinaryReferralCampaignSearchBg,
+  cloudinaryReferralCampaignSearchBgPopupMobile,
+  cloudinaryReferralCampaignSearchBgMobile,
+} from '@dailydotdev/shared/src/lib/image';
 import {
   ApiErrorResult,
   DEFAULT_ERROR,
@@ -115,17 +119,17 @@ export function AISearchInvite({
         </Button>
       </div>
       <img
-        src={cloudinary.referralCampaign.search.bg}
+        src={cloudinaryReferralCampaignSearchBg}
         alt="search input depicting our new AI search feature"
         className="absolute right-0 z-0 hidden tablet:w-1/2 laptop:block"
       />
       <img
-        src={cloudinary.referralCampaign.search.bgPopupMobile}
+        src={cloudinaryReferralCampaignSearchBgPopupMobile}
         alt="search input depicting our new AI search feature"
         className="hidden max-w-[27.5rem] tablet:block laptop:hidden"
       />
       <img
-        src={cloudinary.referralCampaign.search.bgMobile}
+        src={cloudinaryReferralCampaignSearchBgMobile}
         alt="search input depicting our new AI search feature"
         className="absolute inset-0 top-[unset] z-0 block w-full translate-y-1/2 tablet:hidden"
       />

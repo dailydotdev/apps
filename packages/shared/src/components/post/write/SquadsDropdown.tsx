@@ -6,7 +6,7 @@ import { SourceMemberRole, SourceType, Squad } from '../../../graphql/sources';
 import { ButtonSize } from '../../buttons/common';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { ProfileImageSize } from '../../ProfilePicture';
-import { cloudinary } from '../../../lib/image';
+import { cloudinarySquadsImageFallback } from '../../../lib/image';
 
 interface SquadsDropdownProps {
   onSelect: (index: number) => void;
@@ -15,7 +15,7 @@ interface SquadsDropdownProps {
 }
 
 const defaultSquad = {
-  image: cloudinary.squads.imageFallback,
+  image: cloudinarySquadsImageFallback,
   permalink: null,
   active: true,
   public: false,

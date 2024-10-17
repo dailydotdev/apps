@@ -63,7 +63,7 @@ import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalF
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import { cloudinarySourceRoadmap } from '@dailydotdev/shared/src/lib/image';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getLayout } from '../../components/layouts/FeedLayout';
@@ -269,7 +269,7 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
               className="mr-auto flex w-auto cursor-pointer items-center rounded-12 border border-border-subtlest-tertiary p-4"
             >
               <img
-                src={cloudinary.source.roadmap}
+                src={cloudinarySourceRoadmap}
                 alt="roadmap.sh logo"
                 className="size-10 rounded-full"
               />

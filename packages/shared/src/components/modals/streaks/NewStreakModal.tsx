@@ -5,7 +5,10 @@ import { Modal } from '../common/Modal';
 import classed from '../../../lib/classed';
 import { Checkbox } from '../../fields/Checkbox';
 import { ModalClose } from '../common/ModalClose';
-import { cloudinary } from '../../../lib/image';
+import {
+  cloudinaryStreakSplash,
+  cloudinaryStreakFire,
+} from '../../../lib/image';
 import { StreakModalProps } from './common';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
@@ -79,9 +82,7 @@ export default function NewStreakModal({
         <span className="relative flex flex-col items-center justify-center">
           <img
             src={
-              shouldShowSplash
-                ? cloudinary.streak.splash
-                : cloudinary.streak.fire
+              shouldShowSplash ? cloudinaryStreakSplash : cloudinaryStreakFire
             }
             alt={
               shouldShowSplash

@@ -6,7 +6,10 @@ import React, {
   useState,
 } from 'react';
 import { Modal, ModalProps } from '../common/Modal';
-import { cloudinary } from '../../../lib/image';
+import {
+  cloudinaryReferralCampaignGenericHappy,
+  cloudinaryReferralCampaignGenericSad,
+} from '../../../lib/image';
 import { ModalSize } from '../common/types';
 import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { link } from '../../../lib/links';
@@ -61,7 +64,9 @@ function GenericReferralModal({
         </div>
         <img
           src={
-            cloudinary.referralCampaign.generic[!shareState ? 'sad' : 'happy']
+            shareState
+              ? cloudinaryReferralCampaignGenericHappy
+              : cloudinaryReferralCampaignGenericSad
           }
           alt={!shareState ? 'CTO Ido looking sad' : 'CTO Ido looking happy'}
           className="absolute left-0 top-0 z-0 aspect-square w-full object-cover"

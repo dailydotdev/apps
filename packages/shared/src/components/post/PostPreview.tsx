@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Image } from '../image/Image';
-import { cloudinary } from '../../lib/image';
+import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { OpenLinkIcon } from '../icons';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import classed from '../../lib/classed';
@@ -58,7 +58,7 @@ function PostPreview({
           src={image}
           className={classNames('object-cover', imageClassName)}
           loading="lazy"
-          fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+          fallbackSrc={cloudinaryPostImageCoverPlaceholder}
         />
       )}
       <a

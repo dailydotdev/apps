@@ -6,7 +6,7 @@ import { useSquadNavigation } from '../../../hooks';
 import { webappUrl } from '../../../lib/constants';
 import { useSlack } from '../../../hooks/integrations/slack/useSlack';
 import { Image } from '../../image/Image';
-import { cloudinary } from '../../../lib/image';
+import { cloudinarySquadsCreateSquadBiggerThanMobile } from '../../../lib/image';
 import {
   Typography,
   TypographyColor,
@@ -49,7 +49,7 @@ export default function NewSquadModal(props: ModalProps): ReactElement {
         />
         <Image
           className="rounded-16"
-          src={cloudinary.squads.createSquad.biggerThanMobile}
+          src={cloudinarySquadsCreateSquadBiggerThanMobile}
           alt="Slack integration"
         />
         <Typography

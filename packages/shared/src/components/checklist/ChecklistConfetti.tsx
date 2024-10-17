@@ -1,10 +1,18 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { cloudinary } from '../../lib/image';
+import {
+  cloudinaryConfettiChecklist,
+  cloudinaryConfettiChecklistBar,
+} from '../../lib/image';
+
+const cloudinaryConfetti = {
+  checklist: cloudinaryConfettiChecklist,
+  checklistBar: cloudinaryConfettiChecklistBar,
+};
 
 export type ChecklistConfettiProps = {
   className?: string;
-  variant: keyof typeof cloudinary.confetti;
+  variant: keyof typeof cloudinaryConfetti;
 };
 
 export const ChecklistConfetti = ({
@@ -13,7 +21,7 @@ export const ChecklistConfetti = ({
 }: ChecklistConfettiProps): ReactElement => {
   return (
     <div className={classNames(className, 'pointer-events-none absolute')}>
-      <img src={cloudinary.confetti[variant]} alt="Confetti" />
+      <img src={cloudinaryConfetti[variant]} alt="Confetti" />
     </div>
   );
 };
