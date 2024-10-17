@@ -1,6 +1,5 @@
 import React, {
   ReactElement,
-  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -15,7 +14,6 @@ import {
   SearchPanelContext,
   SearchPanelContextValue,
 } from './SearchPanelContext';
-import SettingsContext from '../../../contexts/SettingsContext';
 import { useEventListener } from '../../../hooks';
 import { defaultSearchProvider, providerToLabelTextMap } from './common';
 import { ArrowKeyEnum } from '../../../lib/func';
@@ -37,7 +35,6 @@ export type SearchPanelClassName = {
 };
 
 export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
-  useContext(SettingsContext);
   const { query } = useRouter();
 
   const [state, setState] = useState(() => {
