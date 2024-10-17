@@ -85,7 +85,7 @@ describe('ShareModal Test Suite:', () => {
 
   it('should render the component without logged in user', async () => {
     renderComponent(false, false);
-    expect(screen.getByText('Share with your squad')).toBeInTheDocument();
+    await screen.findByText('Share with your squad');
   });
 
   it('should render the component with logged user but no squads and open new squad page', async () => {
