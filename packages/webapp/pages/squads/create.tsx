@@ -41,6 +41,10 @@ import {
 import { useSquadCreate } from '@dailydotdev/shared/src/hooks/squads/useSquadCreate';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import {
+  WriteFormTab,
+  WriteFormTabToFormID,
+} from '@dailydotdev/shared/src/components/fields/form/common';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
@@ -48,16 +52,6 @@ const seo: NextSeoProps = {
   title: 'Create post',
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
-};
-
-enum WriteFormTab {
-  Share = 'Share a link',
-  NewPost = 'New post',
-}
-
-const WriteFormTabToFormID = {
-  [WriteFormTab.Share]: 'write-post-link',
-  [WriteFormTab.NewPost]: 'write-post-freeform',
 };
 
 function CreatePost(): ReactElement {
