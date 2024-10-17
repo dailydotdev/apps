@@ -5,6 +5,7 @@ import { PublicProfile } from '../lib/user';
 import { fallbackImages } from '../lib/config';
 import { Image, ImageType } from './image/Image';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
+import { SocialProvider } from './auth/common';
 
 export enum ProfileImageSize {
   Size16 = 'size16',
@@ -78,6 +79,39 @@ export function setOnError(
   onError = newOnError;
 }
 
+const resizeSrcReplaceRule: Record<string, (src: string) => string> = {
+  [SocialProvider.Google]: (src) => src.replace(/s96-c$/, 's64-c'),
+  [SocialProvider.GitHub]: (src) => {
+    return src;
+    const search = new URLSearchParams(src);
+    search.set('s', '64');
+    return src.replace(/\?.+$/, `?${search.toString()}`);
+  },
+};
+
+const getSocialProviderFromSrc = (src: string): SocialProvider | null => {
+  if (src.includes('googleusercontent.')) {
+    return SocialProvider.Google;
+  }
+
+  if (src.includes('githubusercontent.')) {
+    return SocialProvider.GitHub;
+  }
+
+  return null;
+};
+
+const getResizedSrc = (src: string) => {
+  const provider = getSocialProviderFromSrc(src);
+  if (!provider) {
+    return src;
+  }
+
+  console.log({ src, provider });
+  const getReplacedSrc = resizeSrcReplaceRule[provider];
+  return getReplacedSrc?.(src) ?? src;
+};
+
 function ProfilePictureComponent(
   {
     user,
@@ -87,7 +121,6 @@ function ProfilePictureComponent(
     nativeLazyLoading,
     eager,
     fallbackSrc,
-    fetchPriority,
     ...props
   }: ProfilePictureProps,
   ref?: Ref<HTMLImageElement>,
@@ -102,21 +135,33 @@ function ProfilePictureComponent(
     return null;
   }
 
+  const isImageResizable =
+    user.image &&
+    [
+      ProfileImageSize.XLarge,
+      ProfileImageSize.Large,
+      ProfileImageSize.Medium,
+      ProfileImageSize.Small,
+      ProfileImageSize.XSmall,
+    ].includes(size);
+
+  console.log({ user });
+
   const imageAlt = `${user.username || user.name || user.id}'s profile`;
+  const imageSrc = isImageResizable ? getResizedSrc(user.image) : user.image;
 
   if (nativeLazyLoading) {
     return (
       <Image
         {...props}
         ref={ref}
-        src={user.image}
         alt={imageAlt}
-        onError={onError}
         className={classes}
-        loading={eager || isCompanion ? 'eager' : 'lazy'}
-        type={ImageType.Avatar}
         fallbackSrc={fallbackSrc}
-        fetchPriority={fetchPriority}
+        loading={eager || isCompanion ? 'eager' : 'lazy'}
+        onError={onError}
+        src={imageSrc}
+        type={ImageType.Avatar}
       />
     );
   }
@@ -125,7 +170,7 @@ function ProfilePictureComponent(
     <LazyImage
       {...props}
       ref={ref}
-      imgSrc={user.image}
+      imgSrc={imageSrc}
       imgAlt={imageAlt}
       className={classes}
       fallbackSrc={fallbackSrc ?? fallbackImages.avatar}

@@ -1,6 +1,6 @@
 import React, {
+  ComponentPropsWithoutRef,
   forwardRef,
-  HTMLAttributes,
   ImgHTMLAttributes,
   ReactElement,
   ReactNode,
@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 
-export interface LazyImageProps extends HTMLAttributes<HTMLImageElement> {
+export interface LazyImageProps extends ComponentPropsWithoutRef<'img'> {
   imgSrc: string;
   imgAlt: string;
   background?: string;
@@ -19,11 +19,8 @@ export interface LazyImageProps extends HTMLAttributes<HTMLImageElement> {
   children?: ReactNode;
   absolute?: boolean;
   fit?: 'cover' | 'contain';
-  fetchPriority?: 'high' | 'low' | 'auto';
   ref?: Ref<HTMLImageElement>;
 }
-
-const asyncImageSupport = true;
 
 function LazyImageComponent(
   {
@@ -52,7 +49,7 @@ function LazyImageComponent(
   };
   if (eager) {
     imageProps = { src, className: baseImageClass };
-  } else if (asyncImageSupport) {
+  } else {
     imageProps = { src, loading: 'lazy', className: baseImageClass };
   }
 
@@ -64,7 +61,7 @@ function LazyImageComponent(
   };
 
   return (
-    <div
+    <figure
       {...props}
       className={classNames(
         className,
@@ -84,7 +81,7 @@ function LazyImageComponent(
         fetchpriority={fetchPriority}
       />
       {children}
-    </div>
+    </figure>
   );
 }
 
