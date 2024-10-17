@@ -411,9 +411,6 @@ importers:
       linkifyjs:
         specifier: ^2.1.9
         version: 2.1.9(jquery@3.7.1)(react-dom@18.3.1)(react@18.3.1)
-      lodash.clonedeep:
-        specifier: ^4.5.0
-        version: 4.5.0
       lodash.shuffle:
         specifier: ^4.2.0
         version: 4.2.0
@@ -496,9 +493,6 @@ importers:
       '@types/linkifyjs':
         specifier: ^2.1.4
         version: 2.1.4
-      '@types/lodash.clonedeep':
-        specifier: ^4.5.6
-        version: 4.5.6
       '@types/react':
         specifier: ^18.3.3
         version: 18.3.3
@@ -7053,12 +7047,6 @@ packages:
       '@types/react': 18.3.3
     dev: true
 
-  /@types/lodash.clonedeep@4.5.6:
-    resolution: {integrity: sha512-cE1jYr2dEg1wBImvXlNtp0xDoS79rfEdGozQVgliDZj1uERH4k+rmEMTudP9b4VQ8O6nRb5gPqft0QzEQGMQgA==}
-    dependencies:
-      '@types/lodash': 4.14.195
-    dev: true
-
   /@types/lodash@4.14.195:
     resolution: {integrity: sha512-Hwx9EUgdwf2GLarOjQp5ZH8ZmblzcbTBC2wtQWNKARBSxM9ezRIAUpeDTgoQRAFB0+8CNWXVA9+MaSOzOF3nPg==}
     dev: true
@@ -13515,10 +13503,6 @@ packages:
     dependencies:
       p-locate: 5.0.0
     dev: true
-
-  /lodash.clonedeep@4.5.0:
-    resolution: {integrity: sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==}
-    dev: false
 
   /lodash.debounce@4.0.8:
     resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
