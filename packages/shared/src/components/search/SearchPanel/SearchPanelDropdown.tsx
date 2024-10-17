@@ -1,7 +1,7 @@
-import { ReactElement } from 'react';
+import { MutableRefObject, ReactElement } from 'react';
 import React from 'react-syntax-highlighter/dist/cjs/languages/hljs/1c';
 import { SearchProviderEnum } from '../../../graphql/search';
-import { isExtension } from '../../../lib/func';
+import { ArrowKeyEnum, isExtension } from '../../../lib/func';
 import { LogEvent } from '../../../lib/log';
 import { ArrowIcon } from '../../icons';
 import { SearchPanelAction } from './SearchPanelAction';
@@ -11,21 +11,65 @@ import { SearchPanelSourceSuggestions } from './SearchPanelSourceSuggestions';
 import { SearchPanelTagSuggestions } from './SearchPanelTagSuggestions';
 import { SearchPanelUserSuggestions } from './SearchPanelUserSuggestions';
 import { feature } from '../../../lib/featureManagement';
-import { useConditionalFeature } from '../../../hooks';
+import { useConditionalFeature, useEventListener } from '../../../hooks';
 import { useSearchProvider } from '../../../hooks/search';
 import { useLogContext } from '../../../contexts/LogContext';
 
 type Props = {
+  anchor: MutableRefObject<HTMLElement>;
   query?: string;
 };
 
-const SearchPanelDropdown = ({ query = '' }: Props): ReactElement => {
+const SearchPanelDropdown = ({ query = '', anchor }: Props): ReactElement => {
   const { search } = useSearchProvider();
   const { logEvent } = useLogContext();
 
   const { value: isUserSearchEnabled } = useConditionalFeature({
     feature: feature.searchUsers,
     shouldEvaluate: true,
+  });
+
+  useEventListener(anchor, 'keydown', (event) => {
+    const navigableElements = [
+      ...anchor.current.querySelectorAll<HTMLElement>(
+        '[data-search-panel-item="true"]',
+      ),
+    ];
+    let activeElementIndex = navigableElements.findIndex(
+      (element) => element.getAttribute('data-search-panel-active') === 'true',
+    );
+
+    if (activeElementIndex === -1) {
+      activeElementIndex = 0;
+    }
+
+    const keyToIndexModifier: Partial<Record<ArrowKeyEnum, number>> = {
+      [ArrowKeyEnum.Up]: -1,
+      [ArrowKeyEnum.Down]: 1,
+    };
+
+    if (activeElementIndex !== 0) {
+      keyToIndexModifier[ArrowKeyEnum.Left] = -1;
+      keyToIndexModifier[ArrowKeyEnum.Right] = 1;
+    }
+
+    const supportedKeys = Object.keys(keyToIndexModifier);
+
+    const pressedKey = supportedKeys.find((key) => key === event.key);
+
+    if (!pressedKey) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const indexModifier = keyToIndexModifier[pressedKey];
+
+    const nextElement = navigableElements[activeElementIndex + indexModifier];
+
+    if (nextElement) {
+      nextElement.focus();
+    }
   });
 
   return (

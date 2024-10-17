@@ -14,9 +14,7 @@ import {
   SearchPanelContext,
   SearchPanelContextValue,
 } from './SearchPanelContext';
-import { useEventListener } from '../../../hooks';
 import { defaultSearchProvider, providerToLabelTextMap } from './common';
-import { ArrowKeyEnum } from '../../../lib/func';
 
 const SearchPanelDropdown = dynamic(
   () =>
@@ -89,53 +87,6 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
     };
   }, [state]);
 
-  useEventListener(searchPanelRef, 'keydown', (event) => {
-    if (!state.isActive || !searchPanelRef.current) {
-      return;
-    }
-
-    const navigableElements = [
-      ...searchPanelRef.current.querySelectorAll<HTMLElement>(
-        '[data-search-panel-item="true"]',
-      ),
-    ];
-    let activeElementIndex = navigableElements.findIndex(
-      (element) => element.getAttribute('data-search-panel-active') === 'true',
-    );
-
-    if (activeElementIndex === -1) {
-      activeElementIndex = 0;
-    }
-
-    const keyToIndexModifier: Partial<Record<ArrowKeyEnum, number>> = {
-      [ArrowKeyEnum.Up]: -1,
-      [ArrowKeyEnum.Down]: 1,
-    };
-
-    if (activeElementIndex !== 0) {
-      keyToIndexModifier[ArrowKeyEnum.Left] = -1;
-      keyToIndexModifier[ArrowKeyEnum.Right] = 1;
-    }
-
-    const supportedKeys = Object.keys(keyToIndexModifier);
-
-    const pressedKey = supportedKeys.find((key) => key === event.key);
-
-    if (!pressedKey) {
-      return;
-    }
-
-    event.preventDefault();
-
-    const indexModifier = keyToIndexModifier[pressedKey];
-
-    const nextElement = navigableElements[activeElementIndex + indexModifier];
-
-    if (nextElement) {
-      nextElement.focus();
-    }
-  });
-
   const showDropdown =
     state.isActive && state.query.length >= minSearchQueryLength;
 
@@ -174,7 +125,9 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
             },
           }}
         >
-          {showDropdown && <SearchPanelDropdown query={state.query} />}
+          {showDropdown && (
+            <SearchPanelDropdown query={state.query} anchor={searchPanelRef} />
+          )}
         </SearchPanelInput>
       </div>
     </SearchPanelContext.Provider>
