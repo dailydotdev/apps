@@ -32,7 +32,7 @@ export const withPostById = <Props, LayoutProps = unknown>(
     return <WrappedComponent {...props} post={loadedPost} />;
   };
 
-  WithPostById.displayName = 'WithFeaturesBoundary';
+  WithPostById.displayName = 'WithPostById';
 
   if (WrappedComponent.getLayout) {
     WithPostById.getLayout = WrappedComponent.getLayout;
