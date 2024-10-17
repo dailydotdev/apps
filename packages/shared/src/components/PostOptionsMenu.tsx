@@ -503,7 +503,6 @@ export default function PostOptionsMenu({
   }
 
   if (allowPin && onPinPost) {
-    console.log('pin', post?.pinnedAt);
     postOptions.unshift({
       icon: <MenuIcon Icon={PinIcon} secondary={!!post.pinnedAt} />,
       label: post.pinnedAt ? 'Unpin from top' : 'Pin to top',
