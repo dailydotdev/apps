@@ -49,11 +49,6 @@ const renderComponent = (
       client={client}
       auth={{
         user: loggedIn ? loggedUser : null,
-        updateUser: jest.fn(),
-        tokenRefreshed: true,
-        getRedirectUri: jest.fn(),
-        loadingUser: false,
-        loadedUserFromCache: true,
         squads: hasSquads ? squads : [],
       }}
     >
@@ -113,7 +108,7 @@ describe('ShareModal Test Suite:', () => {
   });
 
   it('should render the Facebook button and navigate to the correct link', async () => {
-    renderComponent();
+    renderComponent(false);
     const btn = await screen.findByTestId(`social-share-Facebook`);
 
     fireEvent.click(btn);
@@ -145,7 +140,7 @@ describe('ShareModal Test Suite:', () => {
   });
 
   it('should render the copy link button and copy link to clipboard', async () => {
-    renderComponent();
+    renderComponent(false);
     const btn = await screen.findByTestId('social-share-Copy link');
 
     btn.click();
