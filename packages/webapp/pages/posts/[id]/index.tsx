@@ -53,11 +53,10 @@ const PostContent = dynamic(() =>
   ).then((module) => module.PostContent),
 );
 
-const SquadPostContent = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "lazySquadPostContent" */ '@dailydotdev/shared/src/components/post/SquadPostContent'
-    ),
+const SquadPostContent = dynamic(() =>
+  import(
+    /* webpackChunkName: "lazySquadPostContent" */ '@dailydotdev/shared/src/components/post/SquadPostContent'
+  ).then((module) => module.SquadPostContent),
 );
 
 const CollectionPostContent = dynamic(() =>
