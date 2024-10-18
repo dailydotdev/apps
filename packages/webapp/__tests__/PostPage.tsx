@@ -984,40 +984,9 @@ describe('collection', () => {
 });
 
 describe('article', () => {
-  let viewPostMutationCalled = false;
   it('should log page view on initial load', async () => {
-    renderPost(
-      {},
-      [
-        createPostMock({
-          type: PostType.Collection,
-        }),
-        createCommentsMock(),
-        {
-          request: {
-            query: VIEW_POST_MUTATION,
-            variables: {
-              id: '0e4005b2d3cf191f8c44c2718a457a1e',
-            },
-          },
-          result: () => {
-            viewPostMutationCalled = true;
-
-            return {
-              data: {
-                viewPost: {
-                  _: true,
-                },
-              },
-            };
-          },
-        },
-      ],
-      defaultUser,
-    );
-    await waitFor(() => {
-      expect(viewPostMutationCalled).toBe(true);
-    });
+    renderPost();
+    await screen.findByText('Towards Data Science');
     expect(logEvent).toBeCalledTimes(1);
     expect(logEvent).toBeCalledWith(
       expect.objectContaining({
