@@ -43,13 +43,6 @@ export const useFeedBookmarkPost = ({
 
   const { toggleBookmark } = useBookmarkPost({
     mutationKey: feedQueryKey,
-    onMutate: ({ id }) => {
-      return mutateBookmarkFeedPost({
-        id,
-        items,
-        updatePost,
-      });
-    },
   });
 
   return {

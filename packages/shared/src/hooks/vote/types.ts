@@ -92,8 +92,9 @@ export const voteMutationMatcher: UseMutationMatcher<
 
   return (
     status === 'success' &&
-    mutation?.options?.mutationKey?.toString() ===
-      createVoteMutationKey({ entity }).toString()
+    mutation?.options?.mutationKey
+      ?.toString()
+      .includes(createVoteMutationKey({ entity }).toString())
   );
 };
 

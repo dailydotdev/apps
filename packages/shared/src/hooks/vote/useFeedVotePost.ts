@@ -43,14 +43,6 @@ export const useFeedVotePost = ({
 
   const { toggleUpvote, toggleDownvote, ...restVotePost } = useVotePost({
     variables: { feedName },
-    onMutate: ({ id, vote }) => {
-      return mutateVoteFeedPost({
-        id,
-        vote,
-        items,
-        updatePost,
-      });
-    },
   });
 
   return {
