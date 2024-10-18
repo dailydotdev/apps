@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Button, ButtonColor, ButtonSize } from '../buttons/Button';
-import { cloudinary } from '../../lib/image';
+import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { TimeFormatType } from '../../lib/dateFormat';
 import { Image } from '../image/Image';
 import { useChangelog } from '../../hooks/useChangelog';
@@ -104,7 +104,7 @@ function ChangelogTooltip(): ReactElement {
             className="h-[108px] w-[207px] rounded-8 object-cover"
             alt="Post cover image"
             src={post.image}
-            fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+            fallbackSrc={cloudinaryPostImageCoverPlaceholder}
             loading="lazy"
             data-testid="changelogImage"
           />

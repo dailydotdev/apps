@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { cloudinary } from '../../lib/image';
+import { cloudinaryNotificationsBig } from '../../lib/image';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { Justify } from '../utilities';
 import { Modal, ModalProps } from './common/Modal';
@@ -16,10 +16,7 @@ const DrawerImg = () => {
   }
 
   return (
-    <img
-      src={cloudinary.notifications.big}
-      alt="A sample browser notification"
-    />
+    <img src={cloudinaryNotificationsBig} alt="A sample browser notification" />
   );
 };
 
@@ -33,7 +30,7 @@ const ModalImg = () => {
   return (
     <img
       className="mx-auto my-14"
-      src={cloudinary.notifications.big}
+      src={cloudinaryNotificationsBig}
       alt="A sample browser notification"
     />
   );

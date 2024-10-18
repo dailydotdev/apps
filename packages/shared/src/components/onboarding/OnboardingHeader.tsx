@@ -1,7 +1,11 @@
 import classNames from 'classnames';
 import React, { Dispatch, ReactElement, SetStateAction, useId } from 'react';
 import { useViewSize, ViewSize } from '../../hooks';
-import { cloudinary } from '../../lib/image';
+import {
+  cloudinaryFeedBgMobile,
+  cloudinaryFeedBgLaptop,
+  cloudinaryFeedBgTablet,
+} from '../../lib/image';
 import Logo, { LogoPosition } from '../Logo';
 import { AuthProps, AuthDisplay } from '../auth/AuthOptions';
 import { Button, ButtonVariant } from '../buttons/Button';
@@ -29,10 +33,10 @@ export const OnboardingHeader = ({
 
   const getImage = () => {
     if (isMobile) {
-      return cloudinary.feed.bg.mobile;
+      return cloudinaryFeedBgMobile;
     }
 
-    return isLaptop ? cloudinary.feed.bg.laptop : cloudinary.feed.bg.tablet;
+    return isLaptop ? cloudinaryFeedBgLaptop : cloudinaryFeedBgTablet;
   };
 
   if (activeScreen !== OnboardingStep.Intro) {

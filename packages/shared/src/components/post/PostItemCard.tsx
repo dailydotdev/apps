@@ -14,7 +14,7 @@ import PostMetadata from '../cards/common/PostMetadata';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { Image } from '../image/Image';
 import ConditionalWrapper from '../ConditionalWrapper';
-import { cloudinary } from '../../lib/image';
+import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { useReadHistoryVotePost } from '../../hooks';
 import { Origin } from '../../lib/log';
 import {
@@ -85,7 +85,7 @@ export default function PostItemCard({
             alt={post.title}
             className="h-16 w-16 rounded-16 object-cover laptop:w-24"
             loading="lazy"
-            fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+            fallbackSrc={cloudinaryPostImageCoverPlaceholder}
           />
           <SourceShadow className={showVoteActions && 'top-8'} />
           <ProfilePicture

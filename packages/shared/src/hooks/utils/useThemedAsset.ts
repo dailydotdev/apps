@@ -1,7 +1,20 @@
 import { useMemo } from 'react';
 import { ThemeMode, useSettingsContext } from '../../contexts/SettingsContext';
 import colors from '../../styles/colors';
-import { cloudinary } from '../../lib/image';
+import {
+  cloudinaryFeedFiltersYourFeedLight,
+  cloudinaryFeedFiltersYourFeedDark,
+  cloudinaryFeedFiltersScrollLight,
+  cloudinaryFeedFiltersScrollDark,
+  cloudinaryGenericNotFoundLight,
+  cloudinaryGenericNotFoundDark,
+  cloudinaryShortcutsIconsGithubLight,
+  cloudinaryShortcutsIconsGithubDark,
+  cloudinaryIntegrationsSlackHeaderLight,
+  cloudinaryIntegrationsSlackHeaderDark,
+  cloudinaryGenericErrorLight,
+  cloudinaryGenericErrorDark,
+} from '../../lib/image';
 
 interface UseAsset {
   onboardingIntroduction: string;
@@ -31,23 +44,23 @@ export const useThemedAsset = (): UseAsset => {
 
   return {
     onboardingIntroduction: isLight
-      ? cloudinary.feedFilters.yourFeed.light
-      : cloudinary.feedFilters.yourFeed.dark,
+      ? cloudinaryFeedFiltersYourFeedLight
+      : cloudinaryFeedFiltersYourFeedDark,
     scrollBlock: isLight
-      ? cloudinary.feedFilters.scroll.light
-      : cloudinary.feedFilters.scroll.dark,
+      ? cloudinaryFeedFiltersScrollLight
+      : cloudinaryFeedFiltersScrollDark,
     notFound: isLight
-      ? cloudinary.generic.notFound.light
-      : cloudinary.generic.notFound.dark,
+      ? cloudinaryGenericNotFoundLight
+      : cloudinaryGenericNotFoundDark,
     themeColor: isLight ? colors.salt['0'] : colors.pepper['90'],
     githubShortcut: isLight
-      ? cloudinary.shortcuts.icons.github.light
-      : cloudinary.shortcuts.icons.github.dark,
+      ? cloudinaryShortcutsIconsGithubLight
+      : cloudinaryShortcutsIconsGithubDark,
     slackIntegrationHeader: isLight
-      ? cloudinary.integrations.slack.header.light
-      : cloudinary.integrations.slack.header.dark,
+      ? cloudinaryIntegrationsSlackHeaderLight
+      : cloudinaryIntegrationsSlackHeaderDark,
     gardrError: isLight
-      ? cloudinary.generic.error.light
-      : cloudinary.generic.error.dark,
+      ? cloudinaryGenericErrorLight
+      : cloudinaryGenericErrorDark,
   };
 };

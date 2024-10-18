@@ -1,4 +1,4 @@
-import { cloudinary } from '../../../lib/image';
+import { cloudinaryStreakMigrate } from '../../../lib/image';
 import { migrateUserToStreaks } from '../../../lib/constants';
 import { MarketingCta, MarketingCtaVariant } from '../../marketingCta/common';
 
@@ -11,7 +11,7 @@ export const promotion: Record<string, MarketingCta> = {
       title: 'Goodbye weekly goals,\nWelcome reading streaks!',
       description:
         'Unlock the magic of consistently learning with our new reading streaks system',
-      image: cloudinary.streak.migrate,
+      image: cloudinaryStreakMigrate,
       ctaText: 'Tell me more',
       ctaUrl: migrateUserToStreaks,
       tagColor: 'avocado',

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import SquadMemberShortList from '../../squads/SquadMemberShortList';
 import { Card, CardLink } from '../common/Card';
 import { Image, ImageType } from '../../image/Image';
-import { cloudinary } from '../../../lib/image';
+import { cloudinarySquadsDirectoryCardBannerDefault } from '../../../lib/image';
 import { UnFeaturedSquadCardProps } from './common/types';
 import { SquadActionButton } from '../../squads/SquadActionButton';
 import { Origin } from '../../../lib/log';
@@ -80,7 +80,7 @@ export const SquadGrid = ({
       </Link>
       <Image
         className="absolute left-0 right-0 top-0 h-24 w-full rounded-t-16 bg-accent-onion-bolder object-cover"
-        src={headerImage || cloudinary.squads.directory.cardBannerDefault}
+        src={headerImage || cloudinarySquadsDirectoryCardBannerDefault}
         alt="Banner image for source"
       />
       <div className="z-1 mt-12 flex flex-1 flex-col rounded-t-16 bg-background-subtle p-4">

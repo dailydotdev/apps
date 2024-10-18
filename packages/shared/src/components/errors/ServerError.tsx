@@ -9,7 +9,7 @@ import { TerminalIcon, TwitterIcon } from '../icons';
 import { statusPage, twitter } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import { useThemedAsset } from '../../hooks/utils';
-import { cloudinary } from '../../lib/image';
+import { cloudinaryGenericErrorDark } from '../../lib/image';
 
 const ThemedImage = () => {
   const { gardrError } = useThemedAsset();
@@ -26,10 +26,7 @@ function ServerError({
       {themedImage ? (
         <ThemedImage />
       ) : (
-        <img
-          src={cloudinary.generic.error.dark}
-          alt="Production is down (FML)"
-        />
+        <img src={cloudinaryGenericErrorDark} alt="Production is down (FML)" />
       )}
       <Typography type={TypographyType.LargeTitle} bold>
         Production is down

@@ -7,7 +7,7 @@ import {
   SourceType,
 } from '../../src/graphql/sources';
 import { Squad, SquadData, SquadEdgesData } from '../../src/graphql/squads';
-import { cloudinary } from '../../src/lib/image';
+import { cloudinarySquadsImageFallback } from '../../src/lib/image';
 
 export const defaultSquadToken = 'ki3YLcxvSZ2Q6KgMBZvMbly1gnrZ6JnIrhTpUML-Hua';
 
@@ -30,7 +30,7 @@ export const generateTestAdmin = (
     permalink: 'http://webapp.local.com:5002/squads/test',
     public: true,
     type: SourceType.Squad,
-    image: cloudinary.squads.imageFallback,
+    image: cloudinarySquadsImageFallback,
     membersCount: 4,
     members: {
       edges: [

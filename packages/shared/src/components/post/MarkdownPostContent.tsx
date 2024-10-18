@@ -3,7 +3,7 @@ import Link from '../utilities/Link';
 import { Post, PostType } from '../../graphql/posts';
 import Markdown from '../Markdown';
 import { LazyImage } from '../LazyImage';
-import { cloudinary } from '../../lib/image';
+import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { Image } from '../image/Image';
 
 interface MarkdownPostContentProps {
@@ -25,7 +25,7 @@ function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
               src={post.image}
               alt="Post cover image"
               className="mb-10 h-auto max-h-[62.5rem] w-full rounded-12 object-cover"
-              fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+              fallbackSrc={cloudinaryPostImageCoverPlaceholder}
             />
           </a>
         </Link>
@@ -41,7 +41,7 @@ function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
             imgAlt="Post cover image"
             ratio="52%"
             eager
-            fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+            fallbackSrc={cloudinaryPostImageCoverPlaceholder}
           />
         </div>
       )}

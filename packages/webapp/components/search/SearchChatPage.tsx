@@ -11,7 +11,7 @@ import {
   SearchProviderEnum,
   getSearchUrl,
 } from '@dailydotdev/shared/src/graphql/search';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import { cloudinarySearchOg } from '@dailydotdev/shared/src/lib/image';
 import { labels } from '@dailydotdev/shared/src/lib';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -65,7 +65,7 @@ const SearchPage = (): ReactElement => {
     openGraph: {
       images: [
         {
-          url: cloudinary.search.og,
+          url: cloudinarySearchOg,
         },
       ],
     },
