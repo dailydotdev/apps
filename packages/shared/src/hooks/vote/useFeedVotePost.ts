@@ -8,7 +8,6 @@ import {
   UseVotePost,
   UseVoteMutationProps,
   voteMutationMatcher,
-  feedVoteMutationMatcher,
   voteMutationHandlers,
 } from './types';
 import { useVotePost } from './useVotePost';
@@ -30,20 +29,7 @@ export const useFeedVotePost = ({
   items,
   updatePost,
 }: UseFeedVotePostProps): UseFeedVotePost => {
-  const client = useQueryClient();
-  useMutationSubscription({
-    matcher: feedVoteMutationMatcher,
-    callback: ({ variables: mutationVariables }) => {
-      if (!mutationVariables || !items) {
-        return;
-      }
-
-      const { vote, id } = mutationVariables as UseVoteMutationProps;
-
-      const mutationHandler = voteMutationHandlers[vote];
-      updatePostCache(client, id, mutationHandler);
-    },
-  });
+  const queryClient = useQueryClient();
 
   useMutationSubscription({
     matcher: voteMutationMatcher,
@@ -63,6 +49,8 @@ export const useFeedVotePost = ({
   const { toggleUpvote, toggleDownvote, ...restVotePost } = useVotePost({
     variables: { feedName },
     onMutate: ({ id, vote }) => {
+      const mutationHandler = voteMutationHandlers[vote];
+      updatePostCache(queryClient, id, mutationHandler);
       return mutateVoteFeedPost({
         id,
         vote,

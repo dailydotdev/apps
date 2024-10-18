@@ -10,6 +10,4 @@ export const bookmarkMutationMatcher: UseMutationMatcher<
   Partial<UseBookmarkMutationProps>
 > = ({ status, mutation }) =>
   status === 'success' &&
-  mutation?.options?.mutationKey
-    ?.toString()
-    .includes(bookmarkMutationKey.toString());
+  mutation?.options?.mutationKey?.toString() === bookmarkMutationKey.toString();

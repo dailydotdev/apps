@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { MutationKey } from '@tanstack/react-query';
+import { MutationKey, useQueryClient } from '@tanstack/react-query';
 import { FeedItem, UpdateFeedPost } from '../useFeed';
 import { feedLogExtra } from '../../lib/feed';
 import { Origin } from '../../lib/log';
@@ -10,6 +10,7 @@ import {
   useBookmarkPost,
 } from '../useBookmarkPost';
 import { bookmarkMutationMatcher, UseBookmarkMutationProps } from './types';
+import { updatePostCache } from '../usePostById';
 
 export type UseFeedBookmarkPost = {
   feedName: string;
@@ -26,6 +27,8 @@ export const useFeedBookmarkPost = ({
   items,
   updatePost,
 }: UseFeedBookmarkPost): UseBookmarkPost => {
+  const queryClient = useQueryClient();
+
   useMutationSubscription({
     matcher: bookmarkMutationMatcher,
     callback: ({ variables: mutationVariables }) => {
@@ -43,6 +46,16 @@ export const useFeedBookmarkPost = ({
 
   const { toggleBookmark } = useBookmarkPost({
     mutationKey: feedQueryKey,
+    onMutate: ({ id }) => {
+      updatePostCache(queryClient, id, (post) => ({
+        bookmarked: !post.bookmarked,
+      }));
+      return mutateBookmarkFeedPost({
+        id,
+        items,
+        updatePost,
+      });
+    },
   });
 
   return {
