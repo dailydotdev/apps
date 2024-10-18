@@ -1,6 +1,5 @@
 import classNames from 'classnames';
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
-import shuffle from 'lodash.shuffle';
 import { useRouter } from 'next/router';
 import { useMutation } from '@tanstack/react-query';
 import { OnboardingTitleGradient } from '../../../onboarding/common';
@@ -15,6 +14,7 @@ import LogContext from '../../../../contexts/LogContext';
 import { removeQueryParam } from '../../../../lib';
 import { LogEvent, UserAcquisitionEvent } from '../../../../lib/log';
 import { ACQUISITION_FORM_OPTIONS, acquisitionKey } from './common';
+import { shuffleArray } from '../../../../lib/func';
 
 interface Props {
   className?: {
@@ -24,7 +24,9 @@ interface Props {
 export const AcquisitionFormInner = ({ className }: Props): ReactElement => {
   const { logEvent } = useContext(LogContext);
   const [value, setValue] = useState<AcquisitionChannel>();
-  const [shuffledOptions] = useState(() => shuffle(ACQUISITION_FORM_OPTIONS));
+  const [shuffledOptions] = useState(() =>
+    shuffleArray(ACQUISITION_FORM_OPTIONS),
+  );
   const router = useRouter();
   const onRemoveQueryParams = () => {
     const updatedUrl = removeQueryParam(window.location.href, acquisitionKey);

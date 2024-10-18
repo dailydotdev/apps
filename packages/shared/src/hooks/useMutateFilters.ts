@@ -4,7 +4,6 @@ import {
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
-import cloneDeep from 'lodash.clonedeep';
 import { LoggedUser } from '../lib/user';
 import {
   FeedAdvancedSettings,
@@ -71,7 +70,7 @@ async function updateQueryData(
         if (!cachedData) {
           return cachedData;
         }
-        const newData = cloneDeep(cachedData);
+        const newData = structuredClone(cachedData);
         newData.feedSettings = newSettings;
         return newData;
       });
@@ -193,7 +192,7 @@ export default function useMutateFilters(
         advancedSettings,
         queryClient,
         (feedSettings, feedAdvancedSettings) => {
-          const newData = cloneDeep(feedSettings);
+          const newData = structuredClone(feedSettings);
           feedAdvancedSettings.forEach((feedAdvancedSetting) => {
             const index = newData.advancedSettings.findIndex(
               (settings) => settings.id === feedAdvancedSetting.id,
@@ -235,7 +234,7 @@ export default function useMutateFilters(
         tags,
         queryClient,
         (feedSettings, manipulateTags) => {
-          const newData = cloneDeep(feedSettings);
+          const newData = structuredClone(feedSettings);
           newData.includeTags = newData.includeTags.concat(manipulateTags);
           return newData;
         },
@@ -269,7 +268,7 @@ export default function useMutateFilters(
         tags,
         queryClient,
         (feedSettings, manipulateTags) => {
-          const newData = cloneDeep(feedSettings);
+          const newData = structuredClone(feedSettings);
           newData.blockedTags = [
             ...Array.from(new Set(newData.blockedTags.concat(manipulateTags))),
           ];
@@ -309,7 +308,7 @@ export default function useMutateFilters(
         tags,
         queryClient,
         (feedSettings, manipulateTags) => {
-          const newData = cloneDeep(feedSettings);
+          const newData = structuredClone(feedSettings);
           newData.includeTags = newData.includeTags.filter(
             (value) => manipulateTags.indexOf(value) < 0,
           );
@@ -345,7 +344,7 @@ export default function useMutateFilters(
         tags,
         queryClient,
         (feedSettings, manipulateTags) => {
-          const newData = cloneDeep(feedSettings);
+          const newData = structuredClone(feedSettings);
           newData.blockedTags = newData.blockedTags.filter(
             (value) => manipulateTags.indexOf(value) < 0,
           );
@@ -381,7 +380,7 @@ export default function useMutateFilters(
         source,
         queryClient,
         (feedSettings, manipulateSource) => {
-          const newData = cloneDeep(feedSettings);
+          const newData = structuredClone(feedSettings);
           const index = newData.excludeSources.findIndex(
             (s) => s.id === manipulateSource.id,
           );
@@ -418,7 +417,7 @@ export default function useMutateFilters(
         source,
         queryClient,
         (feedSettings, manipulateSource) => {
-          const newData = cloneDeep(feedSettings);
+          const newData = structuredClone(feedSettings);
           newData.includeSources.push(manipulateSource);
           return newData;
         },
@@ -450,7 +449,7 @@ export default function useMutateFilters(
         source,
         queryClient,
         (feedSettings, manipulateSource) => {
-          const newData = cloneDeep(feedSettings);
+          const newData = structuredClone(feedSettings);
           newData.includeSources = newData.includeSources.filter(
             (s) => s.id !== manipulateSource?.id,
           );
@@ -484,7 +483,7 @@ export default function useMutateFilters(
         source,
         queryClient,
         (feedSettings, manipulateSource) => {
-          const newData = cloneDeep(feedSettings);
+          const newData = structuredClone(feedSettings);
           newData.excludeSources.push(manipulateSource);
           return newData;
         },

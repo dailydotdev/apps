@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import 'fake-indexeddb/auto';
 import nodeFetch from 'node-fetch';
 import { NextRouter } from 'next/router';
+import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 
 process.env.NEXT_PUBLIC_API_URL = 'http://localhost:3000';
 process.env.NEXT_PUBLIC_WEBAPP_URL = '/';
@@ -45,3 +46,5 @@ jest.mock('next/router', () => ({
       } as unknown as NextRouter),
   ),
 }));
+
+structuredCloneJsonPolyfill();
