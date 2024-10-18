@@ -25,14 +25,13 @@ import {
 import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { ActionType } from '../graphql/actions';
 import { useActions } from './useActions';
+import { bookmarkMutationKey } from './bookmark/types';
 
 export type ToggleBookmarkProps = {
   origin: Origin;
   post: Post | ReadHistoryPost;
   opts?: PostLogEventFnOptions;
 };
-
-export const bookmarkMutationKey = ['post', 'mutation', 'bookmark'];
 
 export type UseBookmarkPostMutationProps = {
   id?: string;

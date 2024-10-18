@@ -1,5 +1,5 @@
-import React, { ReactElement, useContext } from 'react';
-import { QueryKey, useQueryClient } from '@tanstack/react-query';
+import React, { ReactElement } from 'react';
+import { QueryKey } from '@tanstack/react-query';
 import classNames from 'classnames';
 import {
   UpvoteIcon,
@@ -16,13 +16,7 @@ import { Card } from '../cards/common/Card';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { PostTagsPanel } from './block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
-import { ActiveFeedContext } from '../../contexts';
-import { mutateVoteFeedPost } from '../../hooks/vote/utils';
-import { updateCachedPagePost } from '../../lib/query';
-import {
-  mutateBookmarkFeedPost,
-  useBookmarkPost,
-} from '../../hooks/useBookmarkPost';
+import { useBookmarkPost } from '../../hooks/useBookmarkPost';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';
 import { BookmarkButton } from '../buttons';
 
@@ -44,35 +38,10 @@ export function PostActions({
 }: PostActionsProps): ReactElement {
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
-  const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
-  const queryClient = useQueryClient();
 
-  const { toggleUpvote, toggleDownvote } = useVotePost({
-    variables: { feedName: feedQueryKey },
-    onMutate: feedQueryKey
-      ? ({ id, vote }) => {
-          const updatePost = updateCachedPagePost(feedQueryKey, queryClient);
+  const { toggleUpvote, toggleDownvote } = useVotePost();
 
-          return mutateVoteFeedPost({
-            id,
-            vote,
-            items,
-            updatePost,
-          });
-        }
-      : undefined,
-  });
-
-  const { toggleBookmark } = useBookmarkPost({
-    mutationKey: feedQueryKey,
-    onMutate: feedQueryKey
-      ? ({ id }) => {
-          const updatePost = updateCachedPagePost(feedQueryKey, queryClient);
-
-          return mutateBookmarkFeedPost({ id, items, updatePost });
-        }
-      : undefined,
-  });
+  const { toggleBookmark } = useBookmarkPost();
 
   const onToggleBookmark = async () => {
     await toggleBookmark({ post, origin });

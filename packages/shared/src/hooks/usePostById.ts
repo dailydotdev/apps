@@ -17,6 +17,7 @@ import { PostCommentsData } from '../graphql/comments';
 import {
   getAllCommentsQuery,
   RequestKey,
+  StaleTime,
   updatePostContentPreference,
 } from '../lib/query';
 import { Connection, gqlClient } from '../graphql/common';
@@ -114,6 +115,7 @@ export const removePostComments = (
 };
 
 const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
+  const { initialData, ...restOptions } = options;
   const { tokenRefreshed } = useAuthContext();
   const key = getPostByIdKey(id);
   const {
@@ -124,7 +126,8 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
     key,
     () => gqlClient.request(POST_BY_ID_QUERY, { id }),
     {
-      ...options,
+      ...restOptions,
+      staleTime: StaleTime.Default,
       enabled: !!id && tokenRefreshed,
     },
   );
@@ -169,9 +172,9 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
       post: post?.post,
       relatedCollectionPosts: post?.relatedCollectionPosts,
       isError,
-      isLoading,
+      isLoading: !post?.post || isLoading,
     }),
-    [post, isError, isLoading],
+    [post?.post, post?.relatedCollectionPosts, isError, isLoading],
   );
 };
 
