@@ -30,7 +30,7 @@ export const withPostById = <Props, LayoutProps = unknown>(
       options: { initialData: useCallback(() => ({ post }), [post]) },
     });
 
-    if (!post.id || isLoading) {
+    if (!post?.id || isLoading) {
       return null;
     }
 

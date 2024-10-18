@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useContext, useMemo } from 'react';
+import React, { ReactElement, useContext, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
@@ -107,9 +107,6 @@ export default function PostOptionsMenu({
     });
   const { post: loadedPost } = usePostById({
     id: initialPost?.id,
-    options: {
-      initialData: useCallback(() => ({ post: initialPost }), [initialPost]),
-    },
   });
   const post = loadedPost ?? initialPost;
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =

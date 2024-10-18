@@ -172,7 +172,7 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
       post: post?.post,
       relatedCollectionPosts: post?.relatedCollectionPosts,
       isError,
-      isLoading: !post?.post ?? isLoading,
+      isLoading: !post?.post || isLoading,
     }),
     [post?.post, post?.relatedCollectionPosts, isError, isLoading],
   );
