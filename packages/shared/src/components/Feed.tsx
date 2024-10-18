@@ -373,7 +373,6 @@ export default function Feed<T>({
     );
   };
 
-
   const post = (items[postMenuIndex] as PostItem)?.post;
   const commonMenuItems = {
     onShare: () =>
