@@ -373,17 +373,6 @@ export default function Feed<T>({
     );
   };
 
-  // const onCardBookmark = (post: Post, row: number, column: number) =>
-  //   onBookmark({
-  //     post,
-  //     origin,
-  //     opts: {
-  //       row,
-  //       column,
-  //       columns: virtualizedNumCards,
-  //       ...feedLogExtra(feedName, ranking),
-  //     },
-  //   });
 
   const post = (items[postMenuIndex] as PostItem)?.post;
   const commonMenuItems = {
