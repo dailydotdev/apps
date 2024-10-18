@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { FeedItem, UpdateFeedPost } from '../useFeed';
 import { feedLogExtra } from '../../lib/feed';
 import { Origin } from '../../lib/log';
@@ -7,9 +8,12 @@ import {
   UseVotePost,
   UseVoteMutationProps,
   voteMutationMatcher,
+  feedVoteMutationMatcher,
+  voteMutationHandlers,
 } from './types';
 import { useVotePost } from './useVotePost';
 import { mutateVoteFeedPost } from './utils';
+import { updatePostCache } from '../usePostById';
 
 export type UseFeedVotePostProps = {
   feedName: string;
@@ -26,6 +30,21 @@ export const useFeedVotePost = ({
   items,
   updatePost,
 }: UseFeedVotePostProps): UseFeedVotePost => {
+  const client = useQueryClient();
+  useMutationSubscription({
+    matcher: feedVoteMutationMatcher,
+    callback: ({ variables: mutationVariables }) => {
+      if (!mutationVariables || !items) {
+        return;
+      }
+
+      const { vote, id } = mutationVariables as UseVoteMutationProps;
+
+      const mutationHandler = voteMutationHandlers[vote];
+      updatePostCache(client, id, mutationHandler);
+    },
+  });
+
   useMutationSubscription({
     matcher: voteMutationMatcher,
     callback: ({ variables: mutationVariables }) => {
@@ -43,6 +62,14 @@ export const useFeedVotePost = ({
 
   const { toggleUpvote, toggleDownvote, ...restVotePost } = useVotePost({
     variables: { feedName },
+    onMutate: ({ id, vote }) => {
+      return mutateVoteFeedPost({
+        id,
+        vote,
+        items,
+        updatePost,
+      });
+    },
   });
 
   return {
