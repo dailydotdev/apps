@@ -84,7 +84,6 @@ function MainLayoutHeader({
     return (
       <>
         <FeedNav />
-        <RenderSearchPanel />
       </>
     );
   }
