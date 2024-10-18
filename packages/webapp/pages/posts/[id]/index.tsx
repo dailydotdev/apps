@@ -101,7 +101,10 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { post, isError, isLoading } = usePostById({
     id,
-    options: { placeholderData: initialData, retry: false },
+    options: {
+      initialData,
+      retry: false,
+    },
   });
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
