@@ -1,4 +1,9 @@
-import React, { ComponentType, ReactElement, ReactNode } from 'react';
+import React, {
+  ComponentType,
+  ReactElement,
+  ReactNode,
+  useCallback,
+} from 'react';
 import usePostById from '../../hooks/usePostById';
 import { Post } from '../../graphql/posts';
 
@@ -22,7 +27,7 @@ export const withPostById = <Props, LayoutProps = unknown>(
 
     const { post: loadedPost, isLoading } = usePostById({
       id: post?.id,
-      options: { initialData: { post } },
+      options: { initialData: useCallback(() => ({ post }), [post]) },
     });
 
     if (!post.id || isLoading) {

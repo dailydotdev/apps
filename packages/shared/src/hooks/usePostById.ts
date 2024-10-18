@@ -174,7 +174,7 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
       isError,
       isLoading: !post?.post ?? isLoading,
     }),
-    [post, isError, isLoading],
+    [postById, isError, isLoading],
   );
 };
 
