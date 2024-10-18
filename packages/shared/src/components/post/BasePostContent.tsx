@@ -16,7 +16,7 @@ const GoBackHeaderMobile = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-8 border-b border-border-subtlest-tertiary py-2" />
+      <div className="mb-6 h-8 border-b border-border-subtlest-tertiary py-2" />
     ),
   },
 );
