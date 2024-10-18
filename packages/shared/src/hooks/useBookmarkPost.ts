@@ -128,7 +128,6 @@ const useBookmarkPost = ({
 
   const toggleBookmark = useCallback(
     async ({ post, origin, opts }: ToggleBookmarkProps) => {
-      console.log('made it here??', post, origin, opts);
       if (!post) {
         return;
       }
