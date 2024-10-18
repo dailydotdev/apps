@@ -57,7 +57,6 @@ export type GrowthBookProviderProps = {
   experimentation?: BootCacheData['exp'];
   updateExperimentation?: (exp: BootCacheData['exp']) => unknown;
   children?: ReactNode;
-  firstLoad?: boolean;
 };
 
 export const GrowthBookProvider = ({
