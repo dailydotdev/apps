@@ -13,7 +13,12 @@ const Custom404 = dynamic(
 const GoBackHeaderMobile = dynamic(
   () =>
     import(/* webpackChunkName: "goBackHeaderMobile" */ './GoBackHeaderMobile'),
-  { ssr: false },
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-8 border-b border-border-subtlest-tertiary py-2" />
+    ),
+  },
 );
 
 export function BasePostContent({
