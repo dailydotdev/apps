@@ -74,7 +74,7 @@ export default function Sidebar({
   onLogoClick,
 }: SidebarProps): ReactElement {
   const router = useRouter();
-  const { user, isLoggedIn, squads } = useAuthContext();
+  const { user, isLoggedIn, squads, isAuthReady } = useAuthContext();
   const { alerts } = useAlertsContext();
   const {
     toggleSidebarExpanded,
@@ -119,7 +119,7 @@ export default function Sidebar({
   const isHiddenOnboardingChecklistView =
     onboardingChecklistView === ChecklistViewState.Hidden;
 
-  if (!loadedSettings) {
+  if (!loadedSettings || !isAuthReady) {
     return <></>;
   }
 
