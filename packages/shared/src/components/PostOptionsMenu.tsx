@@ -105,12 +105,13 @@ export default function PostOptionsMenu({
     useContextMenu({
       id: contextId,
     });
-  const { post } = usePostById({
+  const { post: loadedPost } = usePostById({
     id: initialPost?.id,
     options: {
       initialData: useCallback(() => ({ post: initialPost }), [initialPost]),
     },
   });
+  const post = loadedPost ?? initialPost;
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({ enabled: isPostOptionsOpen });
   const { onUpdateSettings } = useAdvancedSettings({ enabled: false });
