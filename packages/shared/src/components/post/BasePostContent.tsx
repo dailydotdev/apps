@@ -5,6 +5,7 @@ import PostEngagements from './PostEngagements';
 import { BasePostContentProps } from './common';
 import { PostHeaderActions } from './PostHeaderActions';
 import PostNavigation from './PostNavigation';
+import { useViewSize, ViewSize } from '../../hooks';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
@@ -16,7 +17,7 @@ const GoBackHeaderMobile = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="-mx-4 h-8 border-b border-border-subtlest-tertiary" />
+      <div className="-mx-4 h-12 border-b border-border-subtlest-tertiary" />
     ),
   },
 );
@@ -34,6 +35,7 @@ export function BasePostContent({
 }: BasePostContentProps): ReactElement {
   const { id } = post ?? {};
   const { onCopyPostLink } = engagementProps;
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   if (!id && !isFallback) {
     return <Custom404 />;
@@ -41,7 +43,7 @@ export function BasePostContent({
 
   return (
     <>
-      {isPostPage ? (
+      {!isLaptop && isPostPage ? (
         <GoBackHeaderMobile className={classNames(className.header, '-mx-4')}>
           <PostHeaderActions
             post={post}
