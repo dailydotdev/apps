@@ -22,7 +22,7 @@ export const withPostById = <Props, LayoutProps = unknown>(
 
     const { post: loadedPost, isLoading } = usePostById({
       id: post?.id,
-      options: { placeholderData: { post } },
+      options: { initialData: { post } },
     });
 
     if (!post.id || isLoading) {

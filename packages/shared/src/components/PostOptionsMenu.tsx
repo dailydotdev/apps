@@ -107,7 +107,7 @@ export default function PostOptionsMenu({
     });
   const { post } = usePostById({
     id: initialPost?.id,
-    options: { placeholderData: { post: initialPost } },
+    options: { initialData: { post: initialPost } },
   });
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({ enabled: isPostOptionsOpen });

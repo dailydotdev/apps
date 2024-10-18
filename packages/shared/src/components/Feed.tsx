@@ -8,7 +8,6 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
-import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import useFeed, { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import { Ad, Post, PostType } from '../graphql/posts';
@@ -34,16 +33,8 @@ import { SharedFeedPage } from './utilities';
 import { FeedContainer, FeedContainerProps } from './feeds/FeedContainer';
 import { ActiveFeedContext } from '../contexts';
 import { useBoot, useFeedLayout, useFeedVotePost } from '../hooks';
-import {
-  AllFeedPages,
-  OtherFeedPage,
-  RequestKey,
-  updateCachedPagePost,
-} from '../lib/query';
-import {
-  mutateBookmarkFeedPost,
-  useBookmarkPost,
-} from '../hooks/useBookmarkPost';
+import { AllFeedPages, OtherFeedPage, RequestKey } from '../lib/query';
+
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { MarketingCtaVariant } from './marketingCta/common';
@@ -54,6 +45,7 @@ import { acquisitionKey } from './cards/AcquisitionForm/common/common';
 import { PostClick } from '../lib/click';
 
 import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedContentPreferenceMutationSubscription';
+import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -142,8 +134,6 @@ export default function Feed<T>({
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
   const { isFallback, query: routerQuery } = useRouter();
-
-  const queryClient = useQueryClient();
   const { openNewTab, spaciness, loadedSettings } = useContext(SettingsContext);
   const { isListMode } = useFeedLayout();
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
@@ -246,18 +236,15 @@ export default function Feed<T>({
     updatePost,
   });
 
-  useFeedContentPreferenceMutationSubscription({ feedQueryKey });
-
-  const { toggleBookmark: onBookmark } = useBookmarkPost({
-    mutationKey: feedQueryKey,
-    onMutate: ({ id }) => {
-      return mutateBookmarkFeedPost({
-        id,
-        items,
-        updatePost: updateCachedPagePost(feedQueryKey, queryClient),
-      });
-    },
+  const { toggleBookmark } = useFeedBookmarkPost({
+    feedName,
+    feedQueryKey,
+    ranking,
+    items,
+    updatePost,
   });
+
+  useFeedContentPreferenceMutationSubscription({ feedQueryKey });
 
   const onPostClick = useFeedOnPostClick(
     items,
@@ -386,17 +373,17 @@ export default function Feed<T>({
     );
   };
 
-  const onCardBookmark = (post: Post, row: number, column: number) =>
-    onBookmark({
-      post,
-      origin,
-      opts: {
-        row,
-        column,
-        columns: virtualizedNumCards,
-        ...feedLogExtra(feedName, ranking),
-      },
-    });
+  // const onCardBookmark = (post: Post, row: number, column: number) =>
+  //   onBookmark({
+  //     post,
+  //     origin,
+  //     opts: {
+  //       row,
+  //       column,
+  //       columns: virtualizedNumCards,
+  //       ...feedLogExtra(feedName, ranking),
+  //     },
+  //   });
 
   const post = (items[postMenuIndex] as PostItem)?.post;
   const commonMenuItems = {
@@ -466,7 +453,7 @@ export default function Feed<T>({
                 user={user}
                 feedName={feedName}
                 ranking={ranking}
-                onBookmark={onCardBookmark}
+                toggleBookmark={toggleBookmark}
                 toggleUpvote={toggleUpvote}
                 toggleDownvote={toggleDownvote}
                 onPostClick={onPostCardClick}

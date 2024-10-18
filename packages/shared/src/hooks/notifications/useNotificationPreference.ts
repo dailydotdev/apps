@@ -11,7 +11,7 @@ import {
   showSourceFeedPosts,
   subscribeNotification,
 } from '../../graphql/notifications';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { NotificationType } from '../../components/notifications/utils';
 import { Squad } from '../../graphql/sources';
@@ -55,8 +55,7 @@ export const useNotificationPreference = ({
     () => getNotificationPreferences(params),
     {
       enabled: isLoggedIn && params?.length > 0,
-      placeholderData: [],
-      staleTime: StaleTime.Default,
+      initialData: () => [],
     },
   );
   const { mutateAsync: muteNotificationAsync } = useMutation(muteNotification, {
