@@ -92,8 +92,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       'serviceWorker' in navigator &&
       window.serwist !== undefined
     ) {
-      // eslint-disable-next-line no-console
-      console.log('registering sw');
       didRegisterSwRef.current = true;
       window.serwist.register();
     }
