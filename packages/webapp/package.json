@@ -15,6 +15,7 @@
   "dependencies": {
     "@dailydotdev/react-contexify": "^5.0.2",
     "@dailydotdev/shared": "*",
+    "@serwist/next": "^9.0.9",
     "@tanstack/react-query": "^4.36.1",
     "@tanstack/react-query-devtools": "^4.35.3",
     "classnames": "^2.3.2",
@@ -91,6 +92,7 @@
     "postcss-rem-to-responsive-pixel": "^6.0.2",
     "postcss-simple-vars": "^7.0.1",
     "prettier": "^2.6.2",
+    "serwist": "^9.0.9",
     "subscriptions-transport-ws": "^0.9.19",
     "tailwindcss": "^3.4.0",
     "ts-jest": "^26.5.4",

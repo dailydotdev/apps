@@ -2,5 +2,5 @@ pages/demo.tsx
 next-env.d.ts
 *.development
 # sw files that are generated on build
-sw.js
+public/sw.js
 workbox-*.js
