@@ -83,6 +83,13 @@ export default {
           },
         });
 
+        // we don't need cross-fetch in our bundle since we are using the native fetch
+        // cross-fetch is here due to graphql-request dependency
+        // it was removedi n graphql-request@7.x but due to a lot of breaking changes
+        // for now we apply https://github.com/graffle-js/graffle/pull/296
+        // as patch graphql-request manually through pnpm
+        config.resolve.alias['cross-fetch'] = false
+
         return config;
       },
       env: {
