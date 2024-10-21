@@ -31,7 +31,6 @@ interface UseRegistrationProps {
   key: QueryKey;
   onRedirect?: (redirect: string) => void;
   onRedirectFail?: () => void;
-  onValidRegistration?: (params: ValidateRegistrationParams) => void;
   onInvalidRegistration?: (errors: RegistrationError) => void;
   onInitializeVerification?: () => void;
 }
@@ -54,7 +53,6 @@ const useRegistration = ({
   key,
   onRedirect,
   onRedirectFail,
-  onValidRegistration,
   onInvalidRegistration,
   onInitializeVerification,
 }: UseRegistrationProps): UseRegistration => {
@@ -122,7 +120,7 @@ const useRegistration = ({
   } = useMutation(
     (params: ValidateRegistrationParams) => submitKratosFlow(params),
     {
-      onSuccess: ({ data, error, redirect }, params) => {
+      onSuccess: ({ data, error, redirect }) => {
         const successfulData = data as SuccessfulRegistrationData;
 
         if (successfulData?.continue_with?.length) {
@@ -134,10 +132,6 @@ const useRegistration = ({
             setVerificationId(continueWith.flow.id);
             return onInitializeVerification?.();
           }
-        }
-
-        if (successfulData) {
-          return onValidRegistration?.(params);
         }
 
         if (redirect) {
