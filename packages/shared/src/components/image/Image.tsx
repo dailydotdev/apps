@@ -20,13 +20,20 @@ export enum ImageType {
 export interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   fallbackSrc?: string;
   type?: ImageType;
-  fetchPriority?: 'high' | 'low' | 'auto';
 }
 
 const fallbackSrcByType: Record<ImageType, string> = {
   post: cloudinaryPostImageCoverPlaceholder,
   avatar: fallbackImages.avatar,
   squad: cloudinarySquadsImageFallback,
+};
+
+export const HIGH_PRIORITY_IMAGE_PROPS: Pick<
+  ImageProps,
+  'fetchPriority' | 'loading'
+> = {
+  fetchPriority: 'high',
+  loading: 'eager',
 };
 
 const ImageComponent = (

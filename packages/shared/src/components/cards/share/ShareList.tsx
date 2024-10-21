@@ -12,6 +12,7 @@ import { CardContent, CardTitle } from '../common/list/ListCard';
 import PostTags from '../common/PostTags';
 import { CardCoverList } from '../common/list/CardCover';
 import ActionButtons from '../common/list/ActionButtons';
+import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 
 export const ShareList = forwardRef(function ShareList(
   {
@@ -29,6 +30,7 @@ export const ShareList = forwardRef(function ShareList(
     onReadArticleClick,
     enableSourceHeader = false,
     domProps = {},
+    eagerLoadImage = false,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
@@ -107,13 +109,15 @@ export const ShareList = forwardRef(function ShareList(
           onShare={onShare}
           post={post}
           imageProps={{
-            loading: 'lazy',
             alt: 'Post Cover image',
-            src: post.sharedPost.image,
             className: classNames(
               'mobileXXL:self-start',
               !isVideoType && 'mt-4',
             ),
+            ...(eagerLoadImage
+              ? HIGH_PRIORITY_IMAGE_PROPS
+              : { loading: 'lazy' }),
+            src: post.sharedPost.image,
           }}
           videoProps={{
             className: 'mt-4 mobileXL:w-40 mobileXXL:w-56 !h-fit',
