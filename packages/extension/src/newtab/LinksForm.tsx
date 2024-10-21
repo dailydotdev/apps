@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 
 const limit = 8;
@@ -14,14 +14,34 @@ export function LinksForm({
   links,
   isFormReadonly,
 }: LinksFormProps): ReactElement {
-  const [validInputs, setValidInputs] = useState({});
+  const [validInputs, setValidInputs] = useState<Record<number, boolean>>({});
+  const validationTimeoutRef = useRef<{ [key: number]: NodeJS.Timeout }>({});
 
-  const onChange = (i: number, isValid: boolean) => {
-    if (validInputs[i] === isValid) {
-      return;
+  useEffect(() => {
+    return () => {
+      Object.values(validationTimeoutRef.current).forEach((timeout) => {
+        clearTimeout(timeout);
+      });
+    };
+  }, []);
+
+  const validateUrl = (url: string): boolean => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
     }
+  };
 
-    setValidInputs((state) => ({ ...state, [i]: isValid }));
+  const onChange = (i: number, value: string) => {
+    if (validationTimeoutRef.current[i]) {
+      clearTimeout(validationTimeoutRef.current[i]);
+    }
+    validationTimeoutRef.current[i] = setTimeout(() => {
+      const isValid = value === '' || validateUrl(value);
+      setValidInputs((state) => ({ ...state, [i]: isValid }));
+    }, 300);
   };
 
   return (
@@ -40,7 +60,7 @@ export function LinksForm({
           valid={validInputs[i] !== false}
           hint={validInputs[i] === false && 'Must be a valid HTTP/S link'}
           readOnly={isFormReadonly}
-          validityChanged={(isValid) => onChange(i, isValid)}
+          onChange={(e) => onChange(i, e.target.value)}
           placeholder="http://example.com"
         />
       ))}
