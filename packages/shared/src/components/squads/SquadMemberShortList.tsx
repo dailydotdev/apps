@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
-import { SourceMember, Squad } from '../../graphql/sources';
+import { BasicSourceMember, Squad } from '../../graphql/sources';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import {
@@ -14,7 +14,7 @@ import { largeNumberFormat } from '../../lib';
 
 export interface SquadMemberShortListProps {
   squad: Squad;
-  members: SourceMember[];
+  members: BasicSourceMember[];
   className?: string;
   size?: ProfileImageSize;
 }

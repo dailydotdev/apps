@@ -372,7 +372,11 @@ export type SquadData = {
 };
 
 export interface SquadEdgesData {
-  sourceMembers: Connection<SourceMember | BasicSourceMember>;
+  sourceMembers: Connection<SourceMember>;
+}
+
+export interface BasicSourceMembersData {
+  sourceMembers: Connection<BasicSourceMember>;
 }
 
 interface SquadMemberMutationProps {

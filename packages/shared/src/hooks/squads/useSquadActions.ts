@@ -13,12 +13,7 @@ import {
   unblockSquadMember,
   updateSquadMemberRole,
 } from '../../graphql/squads';
-import {
-  BasicSourceMember,
-  SourceMember,
-  SourceMemberRole,
-  Squad,
-} from '../../graphql/sources';
+import { SourceMember, SourceMemberRole, Squad } from '../../graphql/sources';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { updateFlagsCache } from '../../graphql/source/common';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -31,7 +26,7 @@ export interface UseSquadActions {
   collapseSquadPinnedPosts?: typeof collapsePinnedPosts;
   expandSquadPinnedPosts?: typeof expandPinnedPosts;
   membersQueryResult?: UseInfiniteQueryResult<SquadEdgesData>;
-  members?: SourceMember[] | BasicSourceMember[];
+  members?: SourceMember[];
   membersQueryKey: unknown[];
 }
 
