@@ -2,7 +2,7 @@ import React, { ComponentType, ReactElement } from 'react';
 import classNames from 'classnames';
 import { Ad } from '../../../../graphql/posts';
 import { ImageProps } from '../../../image/Image';
-import { cloudinary } from '../../../../lib/image';
+import { cloudinaryPostImageCoverPlaceholder } from '../../../../lib/image';
 
 export const AdImage = ({
   ad,
@@ -30,14 +30,14 @@ export const AdImage = ({
           showBlurredImage && 'absolute inset-0 m-auto',
         )}
         style={{ objectFit: showBlurredImage ? 'contain' : 'cover' }}
-        fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+        fallbackSrc={cloudinaryPostImageCoverPlaceholder}
       />
       {showBlurredImage && (
         <ImageComponent
           alt="Ad image background"
           src={ad.image}
           className="-z-1 w-full blur-20"
-          fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+          fallbackSrc={cloudinaryPostImageCoverPlaceholder}
         />
       )}
     </div>

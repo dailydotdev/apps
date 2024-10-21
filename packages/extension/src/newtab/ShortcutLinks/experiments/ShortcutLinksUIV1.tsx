@@ -19,7 +19,12 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import classNames from 'classnames';
 import { combinedClicks } from '@dailydotdev/shared/src/lib/click';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import {
+  cloudinaryShortcutsIconsGmail,
+  cloudinaryShortcutsIconsReddit,
+  cloudinaryShortcutsIconsOpenai,
+  cloudinaryShortcutsIconsStackoverflow,
+} from '@dailydotdev/shared/src/lib/image';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 
 const pixelRatio = globalThis?.window.devicePixelRatio ?? 1;
@@ -139,11 +144,11 @@ export function ShortcutLinksUIV1(props: ShortcutLinksV1Props): ReactElement {
     !checkHasCompleted(ActionType.FirstShortcutsSession)
   ) {
     const placeholderShortcutLinks = [
-      cloudinary.shortcuts.icons.gmail,
+      cloudinaryShortcutsIconsGmail,
       githubShortcut,
-      cloudinary.shortcuts.icons.reddit,
-      cloudinary.shortcuts.icons.openai,
-      cloudinary.shortcuts.icons.stackoverflow,
+      cloudinaryShortcutsIconsReddit,
+      cloudinaryShortcutsIconsOpenai,
+      cloudinaryShortcutsIconsStackoverflow,
     ];
 
     return (

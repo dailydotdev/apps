@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Squad } from '../../graphql/sources';
 import { Image } from '../image/Image';
-import { cloudinary } from '../../lib/image';
+import { cloudinarySquadsImageFallback } from '../../lib/image';
 
 interface SquadImageProps extends Squad {
   className?: string;
@@ -16,9 +16,9 @@ export const SquadImage = ({
 }: SquadImageProps): ReactElement => (
   <Image
     title={name}
-    src={image ?? cloudinary.squads.imageFallback}
+    src={image ?? cloudinarySquadsImageFallback}
     alt={`${handle}'s logo`}
-    fallbackSrc={cloudinary.squads.imageFallback}
+    fallbackSrc={cloudinarySquadsImageFallback}
     className={classNames('rounded-full object-cover', className)}
     loading="lazy"
   />
