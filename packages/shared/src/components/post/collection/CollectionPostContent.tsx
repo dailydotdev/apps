@@ -6,7 +6,7 @@ import { ToastSubject, useToastNotification } from '../../../hooks';
 import PostContentContainer from '../PostContentContainer';
 import usePostContent from '../../../hooks/usePostContent';
 import { BasePostContent } from '../BasePostContent';
-import { cloudinary } from '../../../lib/image';
+import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { Separator } from '../../cards/common/common';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import Markdown from '../../Markdown';
@@ -152,7 +152,7 @@ const CollectionPostContentRaw = ({
                   imgSrc={image}
                   imgAlt="Post cover image"
                   ratio="52%"
-                  fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+                  fallbackSrc={cloudinaryPostImageCoverPlaceholder}
                   eager
                   fetchPriority="high"
                 />

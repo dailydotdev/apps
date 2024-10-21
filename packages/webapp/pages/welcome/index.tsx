@@ -30,7 +30,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import { cloudinaryWelcomePageHeaderMainImage } from '@dailydotdev/shared/src/lib/image';
 import classNames from 'classnames';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { authGradientBg } from '@dailydotdev/shared/src/components/auth';
@@ -129,7 +129,7 @@ const DemoPage = (): ReactElement => {
       </div>
       <div
         style={{
-          backgroundImage: `url(${cloudinary.welcomePage.header.mainImage})`,
+          backgroundImage: `url(${cloudinaryWelcomePageHeaderMainImage})`,
           backgroundPosition: 'center',
           backgroundSize: 'cover',
         }}

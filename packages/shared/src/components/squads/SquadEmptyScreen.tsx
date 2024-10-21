@@ -1,7 +1,10 @@
 import React, { ReactElement, useContext } from 'react';
 import SettingsContext, { ThemeMode } from '../../contexts/SettingsContext';
 import { useViewSize, ViewSize } from '../../hooks';
-import { cloudinary } from '../../lib/image';
+import {
+  cloudinarySquadsEmptySquadLight,
+  cloudinarySquadsEmptySquad,
+} from '../../lib/image';
 import { Image } from '../image/Image';
 import { FlexCentered } from '../utilities';
 
@@ -17,8 +20,8 @@ function SquadEmptyScreen(): ReactElement {
         height={isMobile ? 91 : 152}
         src={
           settings.themeMode === ThemeMode.Light
-            ? cloudinary.squads.emptySquadLight
-            : cloudinary.squads.emptySquad
+            ? cloudinarySquadsEmptySquadLight
+            : cloudinarySquadsEmptySquad
         }
       />
       <span className="max-w-lg text-text-primary typo-body tablet:typo-title1">

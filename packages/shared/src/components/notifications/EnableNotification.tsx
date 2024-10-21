@@ -7,7 +7,10 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import CloseButton from '../CloseButton';
-import { cloudinary } from '../../lib/image';
+import {
+  cloudinaryNotificationsBrowserEnabled,
+  cloudinaryNotificationsBrowser,
+} from '../../lib/image';
 import { VIcon, BellNotifyIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
 import { NotificationPromptSource } from '../../lib/log';
@@ -163,8 +166,8 @@ function EnableNotification({
           )}
           src={
             acceptedJustNow
-              ? cloudinary.notifications.browser_enabled
-              : cloudinary.notifications.browser
+              ? cloudinaryNotificationsBrowserEnabled
+              : cloudinaryNotificationsBrowser
           }
           alt="A sample browser notification"
         />
