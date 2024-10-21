@@ -20,6 +20,7 @@ import PostTags from '../common/PostTags';
 import { CardCoverList } from '../common/list/CardCover';
 import ActionButtons from '../common/list/ActionButtons';
 import { FeedbackList } from './feedback/FeedbackList';
+import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 
 export const ArticleList = forwardRef(function ArticleList(
   {
@@ -125,14 +126,14 @@ export const ArticleList = forwardRef(function ArticleList(
                 onShare={onShare}
                 post={post}
                 imageProps={{
-                  loading: eagerLoadImage ? null : 'lazy',
-                  fetchPriority: eagerLoadImage ? 'high' : 'auto',
                   alt: 'Post Cover image',
-                  src: post.image,
                   className: classNames(
                     'mobileXXL:self-start',
                     !isVideoType && 'mt-4',
                   ),
+                  loading: 'lazy',
+                  ...(eagerLoadImage && HIGH_PRIORITY_IMAGE_PROPS),
+                  src: post.image,
                 }}
                 videoProps={{
                   className: 'mt-4 mobileXL:w-40 mobileXXL:w-56 !h-fit',

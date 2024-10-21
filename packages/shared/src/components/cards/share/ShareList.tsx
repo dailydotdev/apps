@@ -12,6 +12,7 @@ import { CardContent, CardTitle } from '../common/list/ListCard';
 import PostTags from '../common/PostTags';
 import { CardCoverList } from '../common/list/CardCover';
 import ActionButtons from '../common/list/ActionButtons';
+import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 
 export const ShareList = forwardRef(function ShareList(
   {
@@ -113,8 +114,8 @@ export const ShareList = forwardRef(function ShareList(
               'mobileXXL:self-start',
               !isVideoType && 'mt-4',
             ),
-            fetchPriority: eagerLoadImage ? 'high' : 'auto',
-            loading: eagerLoadImage ? null : 'lazy',
+            loading: 'lazy',
+            ...(eagerLoadImage && HIGH_PRIORITY_IMAGE_PROPS),
             src: post.sharedPost.image,
           }}
           videoProps={{

@@ -15,6 +15,7 @@ import { CollectionPillSources } from '../../post/collection';
 import { useTruncatedSummary } from '../../../hooks';
 import PostTags from '../common/PostTags';
 import { CardCoverList } from '../common/list/CardCover';
+import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 
 export const CollectionList = forwardRef(function CollectionCard(
   {
@@ -90,8 +91,7 @@ export const CollectionList = forwardRef(function CollectionCard(
               imageProps={{
                 alt: 'Post Cover image',
                 className: 'my-2 w-full mobileXXL:self-start',
-                fetchPriority: eagerLoadImage ? 'high' : 'auto',
-                loading: eagerLoadImage ? null : 'lazy',
+                ...(eagerLoadImage && HIGH_PRIORITY_IMAGE_PROPS),
                 src: image,
               }}
             />

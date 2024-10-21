@@ -25,6 +25,14 @@ const fallbackSrcByType: Record<ImageType, string> = {
   squad: cloudinary.squads.imageFallback,
 };
 
+export const HIGH_PRIORITY_IMAGE_PROPS: Pick<
+  ImageProps,
+  'fetchPriority' | 'loading'
+> = {
+  fetchPriority: 'high',
+  loading: 'eager',
+};
+
 const ImageComponent = (
   { fallbackSrc, src, alt, fetchPriority = 'auto', ...props }: ImageProps,
   ref?: Ref<HTMLImageElement>,

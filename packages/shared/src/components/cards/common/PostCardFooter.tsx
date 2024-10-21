@@ -1,8 +1,9 @@
-import React, { ComponentProps, ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { isVideoPost, Post } from '../../../graphql/posts';
 import { CommonCardCoverProps } from './common';
 import { CardCover } from './CardCover';
+import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 
 interface PostCardFooterClassName {
   image?: string;
@@ -22,10 +23,7 @@ export const PostCardFooter = ({
   post,
 }: PostCardFooterProps): ReactElement => {
   const isVideoType = isVideoPost(post);
-  const imageLoadingProps: ComponentProps<'img'> = {
-    loading: eagerLoadImage ? null : 'lazy',
-    fetchPriority: eagerLoadImage ? 'high' : 'auto',
-  };
+
   return (
     <>
       <CardCover
@@ -33,13 +31,14 @@ export const PostCardFooter = ({
         onShare={onShare}
         post={post}
         imageProps={{
-          ...imageLoadingProps,
           alt: 'Post Cover image',
           className: classNames(
             'w-full',
             className.image,
             !isVideoType && 'my-2',
           ),
+          loading: 'lazy',
+          ...(eagerLoadImage && HIGH_PRIORITY_IMAGE_PROPS),
           src: post.image,
         }}
         videoProps={{ className: 'my-2' }}

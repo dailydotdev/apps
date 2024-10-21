@@ -12,6 +12,7 @@ import { CardContainer, CardContent, CardTitle } from '../common/list/ListCard';
 import { PostCardHeader } from '../common/list/PostCardHeader';
 import { CardCoverList } from '../common/list/CardCover';
 import ActionButtons from '../common/list/ActionButtons';
+import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
@@ -101,8 +102,7 @@ export const FreeformList = forwardRef(function SharePostCard(
               imageProps={{
                 alt: 'Post Cover image',
                 className: 'my-2 mobileXXL:self-start w-full',
-                fetchPriority: eagerLoadImage ? 'high' : 'auto',
-                loading: eagerLoadImage ? null : 'lazy',
+                ...(eagerLoadImage && HIGH_PRIORITY_IMAGE_PROPS),
                 src: image,
               }}
             />
