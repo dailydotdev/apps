@@ -57,7 +57,7 @@ function SquadMemberShortList({
           <ProfilePicture
             className="-ml-2"
             size={size}
-            key={user.username}
+            key={user.id}
             user={user}
           />
         ))}
