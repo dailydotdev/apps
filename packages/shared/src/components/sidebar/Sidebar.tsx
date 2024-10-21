@@ -1,9 +1,9 @@
-import React, { ReactElement, useContext, useMemo } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import Link from '../utilities/Link';
-import SettingsContext from '../../contexts/SettingsContext';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 import {
   Nav,
   SidebarAside,
@@ -11,9 +11,9 @@ import {
   SidebarProps,
   SidebarScrollWrapper,
 } from './common';
-import AlertContext from '../../contexts/AlertContext';
+import { useAlertsContext } from '../../contexts/AlertContext';
 import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
-import AuthContext from '../../contexts/AuthContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import {
   DiscoverSection,
@@ -50,6 +50,7 @@ import useActiveNav from '../../hooks/useActiveNav';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { squadCategoriesPaths, webappUrl } from '../../lib/constants';
 import { AlertColor, AlertDot } from '../AlertDot';
+import { ChecklistViewState } from '../../lib/checklist';
 
 const SidebarOnboardingChecklistCard = dynamic(
   () =>
@@ -73,10 +74,14 @@ export default function Sidebar({
   onLogoClick,
 }: SidebarProps): ReactElement {
   const router = useRouter();
-  const { user, isLoggedIn, squads } = useContext(AuthContext);
-  const { alerts } = useContext(AlertContext);
-  const { toggleSidebarExpanded, sidebarExpanded, loadedSettings } =
-    useContext(SettingsContext);
+  const { user, isLoggedIn, squads, isAuthReady } = useAuthContext();
+  const { alerts } = useAlertsContext();
+  const {
+    toggleSidebarExpanded,
+    sidebarExpanded,
+    loadedSettings,
+    onboardingChecklistView,
+  } = useSettingsContext();
   const { modal, openModal } = useLazyModal();
   const showSettings = modal?.type === LazyModal.UserSettings;
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -111,7 +116,10 @@ export default function Sidebar({
 
   const { feeds } = useFeeds();
 
-  if (!loadedSettings) {
+  const isHiddenOnboardingChecklistView =
+    onboardingChecklistView === ChecklistViewState.Hidden;
+
+  if (!loadedSettings || !isAuthReady) {
     return <></>;
   }
 
@@ -307,7 +315,11 @@ export default function Sidebar({
             {...defaultRenderSectionProps}
             showSettings={showSettings}
           />
-          {isLoggedIn && sidebarExpanded && <SidebarOnboardingChecklistCard />}
+          {isLoggedIn &&
+            sidebarExpanded &&
+            !isHiddenOnboardingChecklistView && (
+              <SidebarOnboardingChecklistCard />
+            )}
         </SidebarScrollWrapper>
       </SidebarAside>
     </>

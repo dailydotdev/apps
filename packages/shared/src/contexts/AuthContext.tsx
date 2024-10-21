@@ -17,7 +17,7 @@ import { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import { AuthTriggers, AuthTriggersType } from '../lib/auth';
 import { Squad } from '../graphql/sources';
-import { checkIsExtension, isNullOrUndefined } from '../lib/func';
+import { checkIsExtension } from '../lib/func';
 
 export interface LoginState {
   trigger: AuthTriggersType;
@@ -59,7 +59,7 @@ export interface AuthContextData {
   visit?: Visit;
   firstVisit?: string;
   deleteAccount?: () => Promise<void>;
-  refetchBoot?: () => Promise<QueryObserverResult<Boot>>;
+  refetchBoot?: () => Promise<QueryObserverResult<Partial<Boot>>>;
   accessToken?: AccessToken;
   squads?: Squad[];
   isAuthReady?: boolean;
@@ -101,9 +101,8 @@ const logout = async (reason: string): Promise<void> => {
 export type AuthContextProviderProps = {
   user?: LoggedUser | AnonymousUser;
   isFetched?: boolean;
+  isPastRegistration?: boolean;
   isLegacyLogout?: boolean;
-  firstLoad?: boolean;
-  refetchBoot?: () => Promise<QueryObserverResult<Boot>>;
   children?: ReactNode;
 } & Pick<
   AuthContextData,
@@ -115,6 +114,7 @@ export type AuthContextProviderProps = {
   | 'visit'
   | 'accessToken'
   | 'squads'
+  | 'refetchBoot'
 >;
 
 export const AuthContextProvider = ({
@@ -122,6 +122,7 @@ export const AuthContextProvider = ({
   user,
   updateUser,
   isFetched,
+  isPastRegistration,
   loadingUser,
   tokenRefreshed,
   loadedUserFromCache,
@@ -129,7 +130,6 @@ export const AuthContextProvider = ({
   refetchBoot,
   visit,
   isLegacyLogout,
-  firstLoad,
   accessToken,
   squads,
 }: AuthContextProviderProps): ReactElement => {
@@ -138,7 +138,7 @@ export const AuthContextProvider = ({
   const referral = user?.referralId || user?.referrer;
   const referralOrigin = user?.referralOrigin;
 
-  if (firstLoad === true && endUser && !endUser?.infoConfirmed) {
+  if (isPastRegistration && endUser && !endUser?.infoConfirmed) {
     logout(LogoutReason.IncomleteOnboarding);
   }
 
@@ -149,7 +149,7 @@ export const AuthContextProvider = ({
   return (
     <AuthContext.Provider
       value={{
-        isAuthReady: !isNullOrUndefined(firstLoad),
+        isAuthReady: isFetched,
         user: endUser,
         isLoggedIn: !!endUser?.id,
         referral: loginState?.referral ?? referral,

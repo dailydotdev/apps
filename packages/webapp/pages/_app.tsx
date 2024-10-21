@@ -3,6 +3,7 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import { AppProps } from 'next/app';
@@ -66,6 +67,7 @@ const getRedirectUri = () =>
 const getPage = () => window.location.pathname;
 
 function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
+  const didRegisterSwRef = useRef(false);
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
   const { user, closeLogin, shouldShowLogin, loginState } =
@@ -78,6 +80,16 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   useEffect(() => {
     updateCookieBanner(user);
+
+    if (
+      user &&
+      !didRegisterSwRef.current &&
+      'serviceWorker' in navigator &&
+      window.serwist !== undefined
+    ) {
+      didRegisterSwRef.current = true;
+      window.serwist.register();
+    }
   }, [updateCookieBanner, user]);
 
   useEffect(() => {
