@@ -11,7 +11,10 @@ import {
 } from '@dailydotdev/shared/src/components/squads/utils';
 import { MangeSquadPageSkeleton } from '@dailydotdev/shared/src/components/squads/MangeSquadPageSkeleton';
 import { useSquadCreate } from '@dailydotdev/shared/src/hooks/squads/useSquadCreate';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import {
+  cloudinarySquadsCreateSquadMobile,
+  cloudinarySquadsCreateSquadBiggerThanMobile,
+} from '@dailydotdev/shared/src/lib/image';
 import { SourceIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
@@ -105,8 +108,8 @@ const NewSquad = (): ReactElement => {
             className="w-full tablet:h-[9.6875rem] tablet:w-[15.625rem]"
             src={
               isMobile
-                ? cloudinary.squads.createSquad.mobile
-                : cloudinary.squads.createSquad.biggerThanMobile
+                ? cloudinarySquadsCreateSquadMobile
+                : cloudinarySquadsCreateSquadBiggerThanMobile
             }
             alt="A collection of other people's avatars"
           />

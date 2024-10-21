@@ -24,7 +24,7 @@ import {
   SquadEdgesData,
 } from '../../../graphql/squads';
 import { waitForNock } from '../../../../__tests__/helpers/utilities';
-import { cloudinary } from '../../../lib/image';
+import { cloudinarySquadsDirectoryCardBannerDefault } from '../../../lib/image';
 import { ActionType, COMPLETE_ACTION_MUTATION } from '../../../graphql/actions';
 
 const routerReplace = jest.fn();
@@ -91,7 +91,7 @@ it('should render the component with basic props', async () => {
   expect(avatar).toHaveAttribute('src', admin.source.image);
   expect(banner).toHaveAttribute(
     'src',
-    cloudinary.squads.directory.cardBannerDefault,
+    cloudinarySquadsDirectoryCardBannerDefault,
   );
 });
 

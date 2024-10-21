@@ -1,5 +1,5 @@
 import { Source } from '@dailydotdev/shared/src/graphql/sources';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import { cloudinarySquadsImageFallback } from '@dailydotdev/shared/src/lib/image';
 import { DefaultSeoProps, NextSeoProps, OpenGraph } from 'next-seo/lib/types';
 
 const config: DefaultSeoProps = {
@@ -34,7 +34,7 @@ export const getSquadOpenGraph = ({
   squad?: Pick<Source, 'image'>;
 }): Partial<OpenGraph> => ({
   images:
-    squad?.image && squad.image !== cloudinary.squads.imageFallback
+    squad?.image && squad.image !== cloudinarySquadsImageFallback
       ? [{ url: squad.image }]
       : defaultOpenGraph.images,
 });

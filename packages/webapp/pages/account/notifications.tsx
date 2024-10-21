@@ -1,7 +1,7 @@
 import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import React, { ReactElement, SetStateAction, useState } from 'react';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import { cloudinaryNotificationsBrowser } from '@dailydotdev/shared/src/lib/image';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import Pointer, {
   PointerColor,
@@ -491,7 +491,7 @@ const AccountNotificationsPage = (): ReactElement => {
                 </p>
                 <img
                   className="absolute right-14 top-4 hidden laptopL:flex"
-                  src={cloudinary.notifications.browser}
+                  src={cloudinaryNotificationsBrowser}
                   alt="A sample browser notification"
                 />
                 <CloseButton

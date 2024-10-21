@@ -5,7 +5,10 @@ import React, {
   Ref,
   SyntheticEvent,
 } from 'react';
-import { cloudinary } from '../../lib/image';
+import {
+  cloudinaryPostImageCoverPlaceholder,
+  cloudinarySquadsImageFallback,
+} from '../../lib/image';
 import { fallbackImages } from '../../lib/config';
 
 export enum ImageType {
@@ -20,9 +23,9 @@ export interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
 }
 
 const fallbackSrcByType: Record<ImageType, string> = {
-  post: cloudinary.post.imageCoverPlaceholder,
+  post: cloudinaryPostImageCoverPlaceholder,
   avatar: fallbackImages.avatar,
-  squad: cloudinary.squads.imageFallback,
+  squad: cloudinarySquadsImageFallback,
 };
 
 export const HIGH_PRIORITY_IMAGE_PROPS: Pick<
