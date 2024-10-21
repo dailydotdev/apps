@@ -1,10 +1,10 @@
 import dynamic from 'next/dynamic';
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import PostNavigation from './PostNavigation';
 import PostEngagements from './PostEngagements';
 import { BasePostContentProps } from './common';
 import { PostHeaderActions } from './PostHeaderActions';
+import PostNavigation from './PostNavigation';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
@@ -13,7 +13,12 @@ const Custom404 = dynamic(
 const GoBackHeaderMobile = dynamic(
   () =>
     import(/* webpackChunkName: "goBackHeaderMobile" */ './GoBackHeaderMobile'),
-  { ssr: false },
+  {
+    ssr: false,
+    loading: () => (
+      <div className="-mx-4 h-12 border-b border-border-subtlest-tertiary laptop:hidden" />
+    ),
+  },
 );
 
 export function BasePostContent({
