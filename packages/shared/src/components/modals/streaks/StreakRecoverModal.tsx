@@ -24,7 +24,7 @@ import {
 } from '../../../hooks/streaks/useStreakRecover';
 import { Checkbox } from '../../fields/Checkbox';
 import { ModalClose } from '../common/ModalClose';
-import { cloudinary } from '../../../lib/image';
+import { cloudinaryStreakLost } from '../../../lib/image';
 import { useReadingStreak } from '../../../hooks/streaks';
 
 export interface StreakRecoverModalProps
@@ -39,7 +39,7 @@ const StreakRecoverCover = () => (
       alt="Broken reading streak"
       className="h-auto w-full object-contain"
       loading="lazy"
-      src={cloudinary.streak.lost}
+      src={cloudinaryStreakLost}
     />
   </div>
 );

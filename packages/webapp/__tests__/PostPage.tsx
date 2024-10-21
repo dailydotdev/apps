@@ -985,11 +985,8 @@ describe('collection', () => {
 
 describe('article', () => {
   it('should log page view on initial load', async () => {
-    renderPost({
-      initialData: {
-        post: defaultPost as Post,
-      },
-    });
+    renderPost();
+    await screen.findByText('Towards Data Science');
     expect(logEvent).toBeCalledTimes(1);
     expect(logEvent).toBeCalledWith(
       expect.objectContaining({

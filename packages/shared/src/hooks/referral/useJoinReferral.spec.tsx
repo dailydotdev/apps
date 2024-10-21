@@ -20,7 +20,7 @@ describe('useJoinReferral hook', () => {
           getRedirectUri={jest.fn()}
           updateUser={jest.fn()}
           tokenRefreshed={false}
-          firstLoad={false}
+          isFetched
         >
           {children}
         </AuthContextProvider>

@@ -4,6 +4,7 @@ import { clear } from 'idb-keyval';
 import nodeFetch from 'node-fetch';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import { NextRouter } from 'next/router';
+import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 
 process.env.NEXT_PUBLIC_API_URL = 'http://localhost:3000';
 process.env.NEXT_PUBLIC_WEBAPP_URL = 'https://app.daily.dev/';
@@ -69,3 +70,5 @@ Object.defineProperty(global, 'open', {
   writable: true,
   value: jest.fn(),
 });
+
+structuredCloneJsonPolyfill();
