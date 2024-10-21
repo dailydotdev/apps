@@ -10,6 +10,15 @@ interface LinksFormProps {
   errors?: Record<string | number, string>;
 }
 
+const validateUrl = (url: string): boolean => {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export function LinksForm({
   links,
   isFormReadonly,
@@ -18,21 +27,13 @@ export function LinksForm({
   const validationTimeoutRef = useRef<{ [key: number]: NodeJS.Timeout }>({});
 
   useEffect(() => {
+    const timeoutRefs = validationTimeoutRef.current;
     return () => {
-      Object.values(validationTimeoutRef.current).forEach((timeout) => {
+      Object.values(timeoutRefs).forEach((timeout) => {
         clearTimeout(timeout);
       });
     };
   }, []);
-
-  const validateUrl = (url: string): boolean => {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  };
 
   const onChange = (i: number, value: string) => {
     if (validationTimeoutRef.current[i]) {
