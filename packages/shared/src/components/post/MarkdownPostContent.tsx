@@ -1,14 +1,35 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import Link from '../utilities/Link';
 import { Post, PostType } from '../../graphql/posts';
 import Markdown from '../Markdown';
-import { LazyImage } from '../LazyImage';
+import { LazyImage, LazyImageProps } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { Image } from '../image/Image';
 
 interface MarkdownPostContentProps {
   post: Post;
 }
+
+export const MarkdownPostImage = ({
+  imgSrc,
+  className,
+}: Pick<LazyImageProps, 'imgSrc' | 'className'>): ReactElement => (
+  <div
+    className={classNames(
+      'block h-fit max-w-sm cursor-pointer overflow-hidden rounded-16',
+      className,
+    )}
+  >
+    <LazyImage
+      imgSrc={imgSrc}
+      imgAlt="Post cover image"
+      ratio="52%"
+      eager
+      fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+    />
+  </div>
+);
 
 function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
   return (
@@ -35,15 +56,7 @@ function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
         className={post.type !== PostType.Welcome && 'mb-5'}
       />
       {post.type === PostType.Welcome && post.image && (
-        <div className="mb-5 mt-8 block h-fit max-w-sm cursor-pointer overflow-hidden rounded-16">
-          <LazyImage
-            imgSrc={post.image}
-            imgAlt="Post cover image"
-            ratio="52%"
-            eager
-            fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-          />
-        </div>
+        <MarkdownPostImage imgSrc={post.image} className="mb-5 mt-8" />
       )}
     </>
   );
