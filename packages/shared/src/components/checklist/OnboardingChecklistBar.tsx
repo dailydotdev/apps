@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext, useState } from 'react';
+import dynamic from 'next/dynamic';
 import LogContext from '../../contexts/LogContext';
 import { LogEvent, TargetId } from '../../lib/log';
 import { useConditionalFeature, useOnboardingChecklist } from '../../hooks';
@@ -7,12 +8,18 @@ import { ChecklistBar } from './ChecklistBar';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
-import { OnboardingChecklistCard } from './OnboardingChecklistCard';
 import { OnboardingChecklistOptions } from './OnboardingChecklistOptions';
 import { OnboardingChecklistDismissButton } from './OnboardingChecklistDismissButton';
 import { feature } from '../../lib/featureManagement';
 
 export type OnboardingChecklistBarProps = Pick<ChecklistBarProps, 'className'>;
+
+const OnboardingChecklistCard = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "onboardingChecklistCard" */ './OnboardingChecklistCard'
+    ),
+);
 
 export const OnboardingChecklistBar = ({
   className,

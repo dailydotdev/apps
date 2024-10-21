@@ -42,7 +42,7 @@ import { AllFeedPages, generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { LogEvent, Origin } from '../lib/log';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
-import { getPostByIdKey } from '../hooks/usePostById';
+import usePostById, { getPostByIdKey } from '../hooks/usePostById';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { labels } from '../lib';
@@ -85,7 +85,7 @@ export interface PostOptionsMenuProps {
 
 export default function PostOptionsMenu({
   postIndex,
-  post,
+  post: initialPost,
   prevPost,
   nextPost,
   feedName,
@@ -105,6 +105,10 @@ export default function PostOptionsMenu({
     useContextMenu({
       id: contextId,
     });
+  const { post: loadedPost } = usePostById({
+    id: initialPost?.id,
+  });
+  const post = loadedPost ?? initialPost;
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({ enabled: isPostOptionsOpen });
   const { onUpdateSettings } = useAdvancedSettings({ enabled: false });

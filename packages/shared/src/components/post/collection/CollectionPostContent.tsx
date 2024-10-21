@@ -23,8 +23,9 @@ import { webappUrl } from '../../../lib/constants';
 import { useViewPost } from '../../../hooks/post/useViewPost';
 import { DateFormat } from '../../utilities';
 import { TagLinks } from '../../TagLinks';
+import { withPostById } from '../withPostById';
 
-export const CollectionPostContent = ({
+const CollectionPostContentRaw = ({
   post,
   className = {},
   shouldOnboardAuthor,
@@ -151,8 +152,9 @@ export const CollectionPostContent = ({
                   imgSrc={image}
                   imgAlt="Post cover image"
                   ratio="52%"
-                  eager
                   fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+                  eager
+                  fetchPriority="high"
                 />
               </div>
             )}
@@ -170,3 +172,5 @@ export const CollectionPostContent = ({
     </PostContentContainer>
   );
 };
+
+export const CollectionPostContent = withPostById(CollectionPostContentRaw);

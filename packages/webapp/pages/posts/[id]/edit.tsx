@@ -19,6 +19,10 @@ import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import { ShareLink } from '@dailydotdev/shared/src/components/post/write/ShareLink';
 import { useActions } from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import {
+  WriteFormTab,
+  WriteFormTabToFormID,
+} from '@dailydotdev/shared/src/components/fields/form/common';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 
@@ -27,6 +31,10 @@ function EditPost(): ReactElement {
   const { query, isReady, push } = useRouter();
   const { post, isLoading } = usePostById({ id: query.id as string });
   const { squads, user } = useAuthContext();
+  const formId =
+    post?.type === PostType.Share
+      ? WriteFormTabToFormID[WriteFormTab.Share]
+      : WriteFormTabToFormID[WriteFormTab.NewPost];
   const squad = squads?.find(({ id, handle }) =>
     [id, handle].includes(post?.source?.id),
   );
@@ -104,6 +112,7 @@ function EditPost(): ReactElement {
       isPosting={isPosting || isSuccess}
       updateDraft={updateDraft}
       onSubmitForm={onClickSubmit}
+      formId={formId}
       enableUpload
     >
       <NextSeo {...seo} noindex nofollow />

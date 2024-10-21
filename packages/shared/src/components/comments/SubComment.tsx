@@ -1,10 +1,17 @@
 import React, { ReactElement } from 'react';
+import dynamic from 'next/dynamic';
 import { Comment } from '../../graphql/comments';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 import { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
 import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
-import CommentInputOrModal from './CommentInputOrModal';
+
+const CommentInputOrModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "commentInputOrModal" */ './CommentInputOrModal'
+    ),
+);
 
 export interface SubCommentProps
   extends Omit<CommentBoxProps, 'onEdit' | 'onComment'> {

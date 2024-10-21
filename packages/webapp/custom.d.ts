@@ -1,3 +1,5 @@
+import '@serwist/next/typings';
+
 type SvgrComponent = React.FC<React.SVGAttributes<SVGElement>>;
 
 declare module '*.svg' {
