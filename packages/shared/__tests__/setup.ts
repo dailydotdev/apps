@@ -4,6 +4,7 @@ import nodeFetch from 'node-fetch';
 import { NextRouter } from 'next/router';
 import { clear } from 'idb-keyval';
 import { storageWrapper as storage } from '../src/lib/storageWrapper';
+import { structuredCloneJsonPolyfill } from '../src/lib/structuredClone';
 
 process.env.NEXT_PUBLIC_API_URL = 'http://localhost:3000';
 process.env.NEXT_PUBLIC_WEBAPP_URL = '/';
@@ -66,3 +67,5 @@ beforeEach(() => {
   clear();
   storage.clear();
 });
+
+structuredCloneJsonPolyfill();

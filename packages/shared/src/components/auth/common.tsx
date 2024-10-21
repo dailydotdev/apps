@@ -1,5 +1,4 @@
 import React from 'react';
-import cloneDeep from 'lodash.clonedeep';
 import { FacebookIcon, GoogleIcon, GitHubIcon, AppleIcon } from '../icons';
 import classed from '../../lib/classed';
 import { IconType } from '../buttons/Button';
@@ -47,10 +46,6 @@ export const providerMap: ProviderMap = {
     value: 'apple',
   },
 };
-
-export const getProviderMapClone = (
-  map: ProviderMap = providerMap,
-): ProviderMap => cloneDeep(map);
 
 export const providers: Provider[] = Object.values(providerMap);
 
