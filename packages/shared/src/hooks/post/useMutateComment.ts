@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import cloneDeep from 'lodash.clonedeep';
 import { useCallback, useMemo } from 'react';
 import {
   Comment,
@@ -89,7 +88,7 @@ export const useMutateComment = ({
       if (!data) {
         return data;
       }
-      const copy = cloneDeep(data);
+      const copy = structuredClone(data);
 
       if (!editCommentId) {
         const edge = generateCommentEdge(comment);

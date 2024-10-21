@@ -20,7 +20,8 @@ import { TruncateText } from '../utilities';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { LazyImage } from '../LazyImage';
-import { cloudinary } from '../../lib/image';
+import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
+import { withPostById } from './withPostById';
 
 export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;
@@ -31,7 +32,7 @@ const PostCodeSnippets = dynamic(() =>
   ),
 );
 
-export function PostContent({
+export function PostContentRaw({
   post,
   className = {},
   shouldOnboardAuthor,
@@ -167,7 +168,7 @@ export function PostContent({
             )}
             domain={
               !isVideoType &&
-              post.domain.length > 0 && (
+              post.domain?.length > 0 && (
                 <TruncateText>
                   From{' '}
                   <ArticleLink title={post.domain} className="hover:underline">
@@ -187,7 +188,7 @@ export function PostContent({
                 imgAlt="Post cover image"
                 ratio="49%"
                 eager
-                fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+                fallbackSrc={cloudinaryPostImageCoverPlaceholder}
                 fetchPriority="high"
               />
             </ArticleLink>
@@ -215,3 +216,5 @@ export function PostContent({
     </PostContentContainer>
   );
 }
+
+export const PostContent = withPostById(PostContentRaw);

@@ -1,30 +1,23 @@
 import React, {
   MutableRefObject,
   ReactElement,
-  useContext,
   useEffect,
   useRef,
   useState,
 } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import AuthContext from '../../contexts/AuthContext';
+import dynamic from 'next/dynamic';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { Tab, TabContainer } from '../tabs/TabContainer';
-import AuthDefault from './AuthDefault';
-import { AuthSignBack } from './AuthSignBack';
-import ForgotPasswordForm from './ForgotPasswordForm';
-import LoginForm from './LoginForm';
-import { RegistrationForm, RegistrationFormValues } from './RegistrationForm';
+import { RegistrationFormValues } from './RegistrationForm';
 import {
   AuthEventNames,
-  AuthTriggers,
   AuthTriggersType,
   getNodeValue,
   RegistrationError,
 } from '../../lib/auth';
 import useRegistration from '../../hooks/useRegistration';
-import EmailVerificationSent from './EmailVerificationSent';
-import AuthHeader from './AuthHeader';
 import {
   AuthEvent,
   AuthFlow,
@@ -35,15 +28,11 @@ import {
 import { storageWrapper as storage } from '../../lib/storageWrapper';
 import { providers } from './common';
 import useLogin from '../../hooks/useLogin';
-import { SocialRegistrationForm } from './SocialRegistrationForm';
 import useProfileForm from '../../hooks/useProfileForm';
 import { CloseAuthModalFunc } from '../../hooks/useAuthForms';
-import EmailVerified from './EmailVerified';
-import LogContext from '../../contexts/LogContext';
-import SettingsContext from '../../contexts/SettingsContext';
+import { useLogContext } from '../../contexts/LogContext';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useToastNotification, useEventListener } from '../../hooks';
-import CodeVerificationForm from './CodeVerificationForm';
-import ChangePasswordForm from './ChangePasswordForm';
 import { isTesting } from '../../lib/constants';
 import {
   SignBackProvider,
@@ -52,10 +41,63 @@ import {
 } from '../../hooks/auth/useSignBack';
 import { AnonymousUser, LoggedUser } from '../../lib/user';
 import { labels } from '../../lib';
-import OnboardingRegistrationForm from './OnboardingRegistrationForm';
-import EmailCodeVerification from './EmailCodeVerification';
 import { ButtonProps } from '../buttons/Button';
 import usePersistentState from '../../hooks/usePersistentState';
+
+const AuthDefault = dynamic(
+  () => import(/* webpackChunkName: "authDefault" */ './AuthDefault'),
+);
+
+const SocialRegistrationForm = dynamic(() =>
+  import(
+    /* webpackChunkName: "socialRegistrationForm" */ './SocialRegistrationForm'
+  ).then((mod) => mod.SocialRegistrationForm),
+);
+
+const RegistrationForm = dynamic(
+  () => import(/* webpackChunkName: "registrationForm" */ './RegistrationForm'),
+);
+
+const OnboardingRegistrationForm = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "onboardingRegistrationForm" */ './OnboardingRegistrationForm'
+    ),
+);
+
+const AuthSignBack = dynamic(() =>
+  import(/* webpackChunkName: "authSignBack" */ './AuthSignBack').then(
+    (mod) => mod.AuthSignBack,
+  ),
+);
+
+const ForgotPasswordForm = dynamic(
+  () =>
+    import(/* webpackChunkName: "forgotPasswordForm" */ './ForgotPasswordForm'),
+);
+
+const CodeVerificationForm = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "codeVerificationForm" */ './CodeVerificationForm'
+    ),
+);
+
+const ChangePasswordForm = dynamic(
+  () =>
+    import(/* webpackChunkName: "changePasswordForm" */ './ChangePasswordForm'),
+);
+
+const AuthHeader = dynamic(
+  () => import(/* webpackChunkName: "authHeader" */ './AuthHeader'),
+);
+
+const EmailCodeVerification = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "emailCodeVerification" */ './EmailCodeVerification'
+    ),
+);
 
 export enum AuthDisplay {
   Default = 'default',
@@ -65,8 +107,6 @@ export enum AuthDisplay {
   ForgotPassword = 'forgot_password',
   CodeVerification = 'code_verification',
   ChangePassword = 'change_password',
-  EmailSent = 'email_sent',
-  VerifiedEmail = 'VerifiedEmail',
   OnboardingSignup = 'onboarding_signup',
   EmailVerification = 'email_verification',
 }
@@ -126,13 +166,13 @@ function AuthOptions({
   onboardingSignupButton,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
-  const { syncSettings } = useContext(SettingsContext);
-  const { logEvent } = useContext(LogContext);
+  const { syncSettings } = useSettingsContext();
+  const { logEvent } = useLogContext();
   const [isConnected, setIsConnected] = useState(false);
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
   );
-  const { refetchBoot, user, loginState } = useContext(AuthContext);
+  const { refetchBoot, user } = useAuthContext();
   const router = useRouter();
   const [email, setEmail] = useState(initialEmail);
   const [flow, setFlow] = useState('');
@@ -148,7 +188,6 @@ function AuthOptions({
     setActiveDisplay(display);
   };
 
-  const isVerified = loginState?.trigger === AuthTriggers.Verification;
   const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
   const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
   const [chosenProvider, setChosenProvider] = usePersistentState(
@@ -163,10 +202,6 @@ function AuthOptions({
       return;
     }
     if (isRegistration) {
-      return;
-    }
-    if (isVerified) {
-      onSetActiveDisplay(AuthDisplay.VerifiedEmail);
       return;
     }
 
@@ -203,21 +238,6 @@ function AuthOptions({
     key: ['registration_form'],
     onInitializeVerification: () => {
       onSetActiveDisplay(AuthDisplay.EmailVerification);
-    },
-    onValidRegistration: async () => {
-      setIsRegistration(true);
-      const { data } = await refetchBoot();
-
-      if (data.user) {
-        const provider = chosenProvider || 'password';
-        onSignBackLogin(data.user as LoggedUser, provider as SignBackProvider);
-      }
-      await syncSettings(data?.user?.id);
-      onSetActiveDisplay(AuthDisplay.EmailSent);
-      logEvent({
-        event_name: AuthEventNames.SignupSuccessfully,
-      });
-      onSuccessfulRegistration?.(data?.user);
     },
     onInvalidRegistration: setRegistrationHints,
     onRedirectFail: () => {
@@ -533,13 +553,6 @@ function AuthOptions({
             simplified={simplified}
           />
         </Tab>
-        <Tab label={AuthDisplay.EmailSent}>
-          <AuthHeader
-            simplified={simplified}
-            title="Verify your email address"
-          />
-          <EmailVerificationSent email={email} />
-        </Tab>
         <Tab label={AuthDisplay.EmailVerification}>
           <AuthHeader simplified={simplified} title="Verify your email" />
           <EmailCodeVerification
@@ -547,23 +560,6 @@ function AuthOptions({
             flowId={verificationFlowId}
             onSubmit={onProfileSuccess}
           />
-        </Tab>
-        <Tab label={AuthDisplay.VerifiedEmail}>
-          <EmailVerified hasUser={!!user} simplified={simplified}>
-            {!user && (
-              <LoginForm
-                isReady={isReady}
-                className="mx-4 mt-8 tablet:mx-12"
-                loginHint={loginHint}
-                onPasswordLogin={onPasswordLogin}
-                onForgotPassword={() =>
-                  onSetActiveDisplay(AuthDisplay.ForgotPassword)
-                }
-                isLoading={isPasswordLoginLoading}
-                onSignup={onForgotPasswordBack}
-              />
-            )}
-          </EmailVerified>
         </Tab>
       </TabContainer>
     </div>

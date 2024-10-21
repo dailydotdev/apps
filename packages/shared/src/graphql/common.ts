@@ -141,6 +141,7 @@ export interface ResponseError {
 
 export const gqlClient = new GraphQLClient(graphqlUrl, {
   credentials: 'include',
+  fetch: globalThis.fetch,
 });
 
 export const gqlRequest: typeof gqlClient.request = (...args) =>

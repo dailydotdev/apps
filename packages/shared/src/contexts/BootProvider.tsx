@@ -202,8 +202,16 @@ export const BootDataProvider = ({
         }
         lastAppliedChangeRef.current = null;
       }
+
       const updated = updateLocalBootData(cachedData, updatedData);
-      queryClient.setQueryData(BOOT_QUERY_KEY, updated);
+
+      queryClient.setQueryData<Partial<Boot>>(BOOT_QUERY_KEY, (previous) => {
+        if (!previous) {
+          return updated;
+        }
+
+        return { ...previous, ...updated };
+      });
     },
     [queryClient],
   );
