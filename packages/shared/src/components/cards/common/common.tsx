@@ -34,24 +34,23 @@ export type Callback = (post: Post) => unknown;
 export const Container = classed('div', 'relative flex flex-1 flex-col');
 
 export interface PostCardProps extends CommonCardCoverProps {
-  children?: ReactNode;
-  domProps?: HTMLAttributes<HTMLDivElement>;
-  eagerLoadImage?: boolean;
-  enableMenu?: boolean;
-  enableSourceHeader?: boolean;
-  menuOpened?: boolean;
-  onBookmarkClick?: Callback;
-  onCommentClick?: Callback;
-  onCopyLinkClick?: (event: React.MouseEvent, post: Post) => unknown;
-  onDownvoteClick?: (post: Post, origin?: Origin) => unknown;
-  onMenuClick?: (event: React.MouseEvent, post: Post) => unknown;
-  onPostAuxClick?: Callback;
+  post: Post;
   onPostClick?: Callback;
+  onPostAuxClick?: Callback;
+  onBookmarkClick?: Callback;
+  onUpvoteClick?: (post: Post, origin?: Origin) => unknown;
+  onDownvoteClick?: (post: Post, origin?: Origin) => unknown;
+  onCommentClick?: Callback;
+  onMenuClick?: (event: React.MouseEvent, post: Post) => unknown;
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
   onShare?: Callback;
-  onUpvoteClick?: (post: Post, origin?: Origin) => unknown;
+  onCopyLinkClick?: (event: React.MouseEvent, post: Post) => unknown;
   openNewTab?: boolean;
-  post: Post;
+  enableMenu?: boolean;
+  menuOpened?: boolean;
+  enableSourceHeader?: boolean;
+  children?: ReactNode;
+  domProps?: HTMLAttributes<HTMLDivElement>;
 }
 
 interface GenerateTitleClampProps {
