@@ -1,16 +1,15 @@
-import '@dailydotdev/shared/src/lib/lazysizesImport';
 import React, {
   ReactElement,
   ReactNode,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import 'focus-visible';
-import Modal from 'react-modal';
 import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import { DefaultSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -53,9 +52,6 @@ const CookieBanner = dynamic(
     import(/* webpackChunkName: "cookieBanner" */ '../components/CookieBanner'),
 );
 
-Modal.setAppElement('#__next');
-Modal.defaultStyles = {};
-
 interface ComponentGetLayout {
   getLayout?: (
     page: ReactNode,
@@ -71,6 +67,7 @@ const getRedirectUri = () =>
 const getPage = () => window.location.pathname;
 
 function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
+  const didRegisterSwRef = useRef(false);
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
   const { user, closeLogin, shouldShowLogin, loginState } =
@@ -83,6 +80,16 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   useEffect(() => {
     updateCookieBanner(user);
+
+    if (
+      user &&
+      !didRegisterSwRef.current &&
+      'serviceWorker' in navigator &&
+      window.serwist !== undefined
+    ) {
+      didRegisterSwRef.current = true;
+      window.serwist.register();
+    }
   }, [updateCookieBanner, user]);
 
   useEffect(() => {

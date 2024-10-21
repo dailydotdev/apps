@@ -23,8 +23,9 @@ import { webappUrl } from '../../../lib/constants';
 import { useViewPost } from '../../../hooks/post/useViewPost';
 import { DateFormat } from '../../utilities';
 import { TagLinks } from '../../TagLinks';
+import { withPostById } from '../withPostById';
 
-export const CollectionPostContent = ({
+const CollectionPostContentRaw = ({
   post,
   className = {},
   shouldOnboardAuthor,
@@ -171,3 +172,5 @@ export const CollectionPostContent = ({
     </PostContentContainer>
   );
 };
+
+export const CollectionPostContent = withPostById(CollectionPostContentRaw);

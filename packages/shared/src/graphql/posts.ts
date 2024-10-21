@@ -189,6 +189,7 @@ export const POST_BY_ID_QUERY = gql`
       trending
       content
       contentHtml
+      pinnedAt
       sharedPost {
         ...SharedPostInfo
       }
