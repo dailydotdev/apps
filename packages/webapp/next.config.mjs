@@ -1,28 +1,33 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const withPWA = require('next-pwa');
-const { version } = require('../extension/package.json');
-const runtimeCaching = require('./cache');
+import withSerwistInit from '@serwist/next';
+import withBundleAnalyzerInit from '@next/bundle-analyzer';
+import { readFileSync } from 'fs';
 
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
+const { version } = JSON.parse(readFileSync('../extension/package.json', 'utf8'));
+
+const withBundleAnalyzer = withBundleAnalyzerInit({
   enabled: process.env.ANALYZE === 'true',
 });
 
 const securityHeaders = [
   {
     key: 'X-Frame-Options',
-    value: 'DENY'
-  }
-]
+    value: 'DENY',
+  },
+];
 
-module.exports = {
+const withSerwist = withSerwistInit({
+  swSrc: './sw.ts',
+  swDest: 'public/sw.js',
+  disable: process.env.NODE_ENV === 'development',
+  exclude: [/syntax/i],
+  register: false,
+  maximumFileSizeToCacheInBytes: 1024 * 1024,
+});
+
+
+export default {
   transpilePackages: ['@dailydotdev/shared'],
-  ...withPWA({
-    pwa: {
-      dest: 'public',
-      disable: process.env.NODE_ENV === 'development',
-      runtimeCaching,
-      buildExcludes: [/react-syntax-highlighter|reactSyntaxHighlighter/]
-    },
+  ...withSerwist({
     ...withBundleAnalyzer({
       i18n: {
         locales: ['en'],
@@ -35,7 +40,7 @@ module.exports = {
         // Grab the existing rule that handles SVG imports
         const fileLoaderRule = config.module.rules.find((rule) =>
           rule.test?.test?.('.svg'),
-        )
+        );
 
         config.module.rules.push(
           // Reapply the existing rule, but only for svg imports ending in ?url
@@ -67,10 +72,10 @@ module.exports = {
               },
             ],
           },
-        )
+        );
 
         // Modify the file loader rule to ignore *.svg, since we have it handled now.
-        fileLoaderRule.exclude = /\.svg$/i
+        fileLoaderRule.exclude = /\.svg$/i;
         config.module.rules.push({
           test: /\.m?js/,
           resolve: {
@@ -95,14 +100,14 @@ module.exports = {
             has: [
               {
                 type: 'query',
-                key: 'provider'
-              }
-            ]
+                key: 'provider',
+              },
+            ],
           },
           {
             source: '/search',
-            destination: '/search/posts'
-          }
+            destination: '/search/posts',
+          },
         ];
 
         // to support GitPod environment and avoid CORS issues, we need to proxy the API requests
@@ -120,14 +125,14 @@ module.exports = {
           {
             source: '/posts/finder',
             destination: '/search?provider=posts',
-            permanent: false
+            permanent: false,
           },
           {
             source: '/signup',
             destination: '/onboarding',
-            permanent: false
-          }
-        ]
+            permanent: false,
+          },
+        ];
       },
       headers: async () => {
         return [
@@ -137,14 +142,15 @@ module.exports = {
               ...securityHeaders,
               {
                 key: 'X-Recruiting',
-                value: 'We are hiring! Check https://daily.dev/careers for more info!'
+                value: 'We are hiring! Check https://daily.dev/careers for more info!',
               },
-            ]
-          }
-        ]
+            ],
+          },
+        ];
       },
       poweredByHeader: false,
       reactStrictMode: false,
       productionBrowserSourceMaps: process.env.SOURCE_MAPS === 'true',
     }),
-  })};
+  }),
+};
