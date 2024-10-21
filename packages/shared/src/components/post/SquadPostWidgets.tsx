@@ -45,7 +45,7 @@ const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
       <h3 className="mt-3 text-text-primary typo-title2">{squad.name}</h3>
       <h4 className="text-text-tertiary typo-callout">{`@${squad.handle}`}</h4>
       {squad.description && (
-        <p className="mt-1 text-text-tertiary typo-callout">
+        <p className="mt-1 overflow-hidden text-ellipsis text-text-tertiary typo-callout">
           {squad.description}
         </p>
       )}
