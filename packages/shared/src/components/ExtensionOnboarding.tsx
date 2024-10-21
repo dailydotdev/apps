@@ -4,7 +4,7 @@ import Logo, { LogoPosition } from './Logo';
 import { OnboardingTitleGradient } from './onboarding/common';
 import { onboardingUrl } from '../lib/constants';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
-import { cloudinary } from '../lib/image';
+import { cloudinaryOnboardingGlow } from '../lib/image';
 import { useExtensionContext } from '../contexts/ExtensionContext';
 
 const ExtensionOnboarding = ({ children }: PropsWithChildren): ReactElement => {
@@ -49,7 +49,7 @@ const ExtensionOnboarding = ({ children }: PropsWithChildren): ReactElement => {
 
       <img
         className="absolute bottom-0 z-0 w-[33rem]"
-        src={cloudinary.onboarding.glow}
+        src={cloudinaryOnboardingGlow}
         alt="Gradient background"
       />
       {children}

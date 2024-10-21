@@ -51,6 +51,7 @@ export interface PostCardProps extends CommonCardCoverProps {
   enableSourceHeader?: boolean;
   children?: ReactNode;
   domProps?: HTMLAttributes<HTMLDivElement>;
+  eagerLoadImage?: boolean;
 }
 
 interface GenerateTitleClampProps {

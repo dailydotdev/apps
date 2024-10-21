@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import ReactModal from 'react-modal';
+import type ReactModal from 'react-modal';
 import { Modal } from './common/Modal';
 import { ModalKind, ModalSize } from './common/types';
 import { ButtonSize } from '../buttons/Button';

@@ -1,4 +1,3 @@
-import '@dailydotdev/shared/src/lib/lazysizesImport';
 import React, {
   ReactElement,
   ReactNode,
@@ -11,7 +10,6 @@ import { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import 'focus-visible';
-import Modal from 'react-modal';
 import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import { DefaultSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -53,9 +51,6 @@ const CookieBanner = dynamic(
   () =>
     import(/* webpackChunkName: "cookieBanner" */ '../components/CookieBanner'),
 );
-
-Modal.setAppElement('#__next');
-Modal.defaultStyles = {};
 
 interface ComponentGetLayout {
   getLayout?: (
