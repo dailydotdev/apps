@@ -97,7 +97,7 @@ export function WriteFreeformContent({
       className={className}
       onSubmit={handleSubmit}
       ref={formRef}
-      id="write-post"
+      id="write-post-freeform"
     >
       <ImageInput
         size={isLaptop ? 'medium' : 'large'}

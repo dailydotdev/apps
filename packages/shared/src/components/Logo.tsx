@@ -37,7 +37,14 @@ const LogoSvgElem = ({
 }: LogoSvgElemProps): ReactElement => {
   if (src) {
     return (
-      <img src={src} className={className?.container} alt="daily.dev logo" />
+      <img
+        loading="eager"
+        // @ts-expect-error - Not supported by react yet
+        fetchpriority="high"
+        src={src}
+        className={className?.container}
+        alt="daily.dev logo"
+      />
     );
   }
   return <FallbackElem className={className} />;

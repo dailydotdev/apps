@@ -19,7 +19,7 @@ interface Props<T extends ReportReason | PostModerationReason>
 
 export const OTHER_KEY = 'OTHER';
 
-export function ReportModal<
+export function ReasonSelectionModal<
   T extends ReportReason | PostModerationReason = ReportReason,
 >({
   onReport,
@@ -89,4 +89,4 @@ export function ReportModal<
   );
 }
 
-export default ReportModal;
+export default ReasonSelectionModal;

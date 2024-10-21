@@ -55,6 +55,11 @@ enum WriteFormTab {
   NewPost = 'New post',
 }
 
+const WriteFormTabToFormID = {
+  [WriteFormTab.Share]: 'write-post-link',
+  [WriteFormTab.NewPost]: 'write-post-freeform',
+};
+
 function CreatePost(): ReactElement {
   const { completeAction } = useActions();
   const { push, isReady: isRouteReady, query } = useRouter();
@@ -184,6 +189,7 @@ function CreatePost(): ReactElement {
       isPosting={isPosting || isSuccess || isLoading}
       updateDraft={updateDraft}
       onSubmitForm={onClickSubmit}
+      formId={WriteFormTabToFormID[display]}
       enableUpload
     >
       <WritePageContainer>

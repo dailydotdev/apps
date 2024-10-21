@@ -18,6 +18,7 @@ import { Post } from './posts';
 import { EmptyResponse } from './emptyResponse';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
 import { PrivacyOption } from '../components/squads/settings/SquadPrivacySection';
+import { Author } from './comments';
 
 interface BaseSquadForm
   extends Pick<
@@ -557,14 +558,29 @@ export enum SourcePostModerationStatus {
   Pending = 'pending',
 }
 
-export interface SourcePostModeration {
-  sourceId: string;
-  post: Post;
+type PostRequestContentProps = Pick<
+  Post,
+  | 'title'
+  | 'titleHtml'
+  | 'content'
+  | 'contentHtml'
+  | 'image'
+  | 'source'
+  | 'sharedPost'
+  | 'createdAt'
+>;
+
+interface PostRequestContent extends PostRequestContentProps {
+  createdById: string;
+  createdBy: Author;
+}
+
+export interface SourcePostModeration extends Partial<PostRequestContent> {
+  id: string;
+  post?: Post;
   status: SourcePostModerationStatus;
   reason?: PostModerationReason;
-  postId: string;
-  moderatorId: string;
-  createdAt: Date;
+  moderatorMessage?: string;
 }
 
 export enum PostModerationReason {

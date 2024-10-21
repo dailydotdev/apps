@@ -1,6 +1,9 @@
 import { MouseEvent } from 'react';
 import { EmptyObjectLiteral } from './kratos';
 
+export type EmptyFunction = () => void;
+export type EmptyPromise = () => Promise<void>;
+
 export const nextTick = (): Promise<unknown> =>
   new Promise((resolve) => setTimeout(resolve));
 

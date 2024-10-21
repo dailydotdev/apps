@@ -36,7 +36,7 @@ export enum LazyModal {
   ReadingHistory = 'readingHistory',
   SquadPromotion = 'squadPromotion',
   CreateSharedPost = 'createSharedPost',
-  Report = 'report',
+  ReasonSelection = 'reasonSelection',
   ReportPost = 'reportPost',
   ReportComment = 'reportComment',
   SquadNotifications = 'squadNotifications',
@@ -59,6 +59,7 @@ export enum LazyModal {
   ReportSource = 'reportSource',
   UserFollowersModal = 'userFollowersModal',
   UserFollowingModal = 'userFollowingModal',
+  PostModeration = 'postModeration',
   NewSquad = 'newSquad',
 }
 
