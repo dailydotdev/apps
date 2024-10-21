@@ -42,3 +42,7 @@ export const ManageSquadPageContainer = classed(
 );
 
 export const ManageSquadPageMain = classed('div', 'flex flex-1 flex-col');
+
+export interface SquadSettingsProps {
+  handle: string;
+}

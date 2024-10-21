@@ -9,6 +9,7 @@ export enum AlertColor {
   Fill = 'bg-status-info',
   Success = 'bg-status-success',
   Cabbage = 'bg-accent-cabbage-default',
+  Bun = 'bg-accent-bun-default',
 }
 
 interface AlertDotProps {

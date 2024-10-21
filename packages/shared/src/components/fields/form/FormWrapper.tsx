@@ -1,7 +1,7 @@
 import React, { MutableRefObject, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonProps, ButtonVariant } from '../../buttons/Button';
-import classed from '../../../lib/classed';
+import { PageHeader, PageHeaderTitle } from '../../layout/common';
 
 interface Copy {
   left?: string;
@@ -24,8 +24,6 @@ export interface FormWrapperProps {
   headerRef?: MutableRefObject<HTMLDivElement>;
 }
 
-const Title = classed('h2', 'px-4 font-bold');
-
 export function FormWrapper({
   children,
   className,
@@ -39,19 +37,19 @@ export function FormWrapper({
 }: FormWrapperProps): ReactElement {
   const { left = 'Cancel', right = 'Submit' } = copy;
   const titleElement = (
-    <Title
+    <PageHeaderTitle
       className={classNames(
         !isHeaderTitle && 'mt-5',
         className?.title ?? 'typo-body',
       )}
     >
       {title}
-    </Title>
+    </PageHeaderTitle>
   );
 
   return (
     <div className={classNames('flex w-full flex-col', className?.container)}>
-      <div
+      <PageHeader
         className={classNames(
           'flex flex-row items-center border-b border-border-subtlest-tertiary px-4 py-2',
           className?.header,
@@ -70,7 +68,7 @@ export function FormWrapper({
         >
           {right}
         </Button>
-      </div>
+      </PageHeader>
       {!isHeaderTitle && title && titleElement}
       {children}
     </div>

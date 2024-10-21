@@ -19,11 +19,17 @@ import { Post } from './posts';
 import { EmptyResponse } from './emptyResponse';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
 import { PrivacyOption } from '../components/squads/settings/SquadPrivacySection';
+import { Author } from './comments';
 
 interface BaseSquadForm
   extends Pick<
     Squad,
-    'name' | 'handle' | 'description' | 'memberInviteRole' | 'memberPostingRole'
+    | 'name'
+    | 'handle'
+    | 'description'
+    | 'memberInviteRole'
+    | 'memberPostingRole'
+    | 'moderationRequired'
   > {
   categoryId?: string;
 }
@@ -148,6 +154,7 @@ export const CREATE_SQUAD_MUTATION = gql`
     $image: Upload
     $memberPostingRole: String
     $memberInviteRole: String
+    $moderationRequired: Boolean
     $isPrivate: Boolean
     $categoryId: ID
   ) {
@@ -158,6 +165,7 @@ export const CREATE_SQUAD_MUTATION = gql`
       image: $image
       memberPostingRole: $memberPostingRole
       memberInviteRole: $memberInviteRole
+      moderationRequired: $moderationRequired
       isPrivate: $isPrivate
       categoryId: $categoryId
     ) {
@@ -183,6 +191,7 @@ export const EDIT_SQUAD_MUTATION = gql`
     $image: Upload
     $memberPostingRole: String
     $memberInviteRole: String
+    $moderationRequired: Boolean
     $isPrivate: Boolean
     $categoryId: ID
   ) {
@@ -194,6 +203,7 @@ export const EDIT_SQUAD_MUTATION = gql`
       image: $image
       memberPostingRole: $memberPostingRole
       memberInviteRole: $memberInviteRole
+      moderationRequired: $moderationRequired
       isPrivate: $isPrivate
       categoryId: $categoryId
     ) {
@@ -235,13 +245,37 @@ export const SQUAD_STATIC_FIELDS_QUERY = gql`
     source(id: $handle) {
       id
       name
+      handle
       public
       description
       image
       type
+      permalink
+      moderationRequired
     }
   }
 `;
+
+export type SquadStaticData = Pick<
+  Squad,
+  | 'id'
+  | 'name'
+  | 'handle'
+  | 'public'
+  | 'description'
+  | 'image'
+  | 'type'
+  | 'moderationRequired'
+  | 'permalink'
+>;
+
+export const getSquadStaticFields = async (
+  handle: string,
+): Promise<SquadStaticData> => {
+  const res = await gqlClient.request(SQUAD_STATIC_FIELDS_QUERY, { handle });
+
+  return res.source;
+};
 
 export const SQUAD_HANDE_AVAILABILITY_QUERY = gql`
   query SourceHandleExists($handle: String!) {
@@ -461,6 +495,7 @@ const formToInput = (form: SquadForm): SharedSquadInput => ({
   memberPostingRole: form.memberPostingRole,
   memberInviteRole: form.memberInviteRole,
   categoryId: form.categoryId,
+  moderationRequired: form.moderationRequired,
   isPrivate: form.status === PrivacyOption.Private,
 });
 
@@ -555,3 +590,63 @@ export const getPublicSquadRequests = async (
 
   return res.requests;
 };
+
+export enum SourcePostModerationStatus {
+  Approved = 'approved',
+  Rejected = 'rejected',
+  Pending = 'pending',
+}
+
+type PostRequestContentProps = Pick<
+  Post,
+  | 'title'
+  | 'titleHtml'
+  | 'content'
+  | 'contentHtml'
+  | 'image'
+  | 'source'
+  | 'sharedPost'
+  | 'createdAt'
+>;
+
+interface PostRequestContent extends PostRequestContentProps {
+  createdById: string;
+  createdBy: Author;
+}
+
+export interface SourcePostModeration extends Partial<PostRequestContent> {
+  id: string;
+  post?: Post;
+  status: SourcePostModerationStatus;
+  reason?: PostModerationReason;
+  moderatorMessage?: string;
+}
+
+export enum PostModerationReason {
+  OffTopic = 'OFF_TOPIC',
+  Violation = 'VIOLATION',
+  Promotional = 'PROMOTIONAL',
+  Duplicate = 'DUPLICATE',
+  LowQuality = 'LOW_QUALITY',
+  NSFW = 'NSFW',
+  Spam = 'SPAM',
+  Misinformation = 'MISINFORMATION',
+  Copyright = 'COPYRIGHT',
+  Other = 'OTHER',
+}
+
+export interface SquadPostRejectionProps {
+  postId: string;
+  reason: string;
+  note?: string;
+}
+
+// TODO:: MI-596
+export const squadApproveMutation = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _: string[],
+): Promise<void> => Promise.resolve();
+export const squadRejectMutation = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _: SquadPostRejectionProps,
+): Promise<void> => Promise.resolve();

@@ -41,8 +41,9 @@ export const internalReadTypes: PostType[] = [
 export const isInternalReadType = (post: Post): boolean =>
   internalReadTypes.includes(post?.type);
 
-export const isSharedPostSquadPost = (post: Post): boolean =>
-  post.sharedPost?.source.type === SourceType.Squad;
+export const isSharedPostSquadPost = (
+  post: Pick<Post, 'sharedPost'>,
+): boolean => post.sharedPost?.source.type === SourceType.Squad;
 
 export const isVideoPost = (post: Post | ReadHistoryPost): boolean =>
   post?.type === PostType.VideoYouTube ||

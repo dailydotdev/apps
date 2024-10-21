@@ -1,33 +1,35 @@
 import React, { ReactElement, ReactNode } from 'react';
 import Link from '../../utilities/Link';
-import { Post } from '../../../graphql/posts';
+import { Post, SharedPost } from '../../../graphql/posts';
 import { CombinedClicks } from '../../../lib/click';
 
 interface SharedPostTitleProps {
-  post: Post;
+  sharedPost: SharedPost;
+  mainSource: Post['source'];
   children: ReactNode;
   className?: string;
   onGoToLinkProps?: CombinedClicks;
 }
 
 export const SharedPostLink = ({
-  post,
+  sharedPost,
+  mainSource,
   className,
   children,
   onGoToLinkProps,
 }: SharedPostTitleProps): ReactElement => {
-  const isUnknownSource = post.sharedPost.source.id === 'unknown';
+  const isUnknownSource = sharedPost.source.id === 'unknown';
   const { href, as, ...props } = isUnknownSource
     ? {
-        href: post.sharedPost.permalink,
+        href: sharedPost.permalink,
         target: '_blank',
         rel: 'noopener',
         as: undefined,
         ...onGoToLinkProps,
       }
     : {
-        href: `${post.sharedPost.commentsPermalink}?squad=${post.source.handle}&n=${post.source.name}`,
-        as: post.sharedPost.commentsPermalink,
+        href: `${sharedPost.commentsPermalink}?squad=${mainSource.handle}&n=${mainSource.name}`,
+        as: sharedPost.commentsPermalink,
       };
 
   return (
