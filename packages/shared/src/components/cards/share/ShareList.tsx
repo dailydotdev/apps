@@ -114,8 +114,9 @@ export const ShareList = forwardRef(function ShareList(
               'mobileXXL:self-start',
               !isVideoType && 'mt-4',
             ),
-            loading: 'lazy',
-            ...(eagerLoadImage && HIGH_PRIORITY_IMAGE_PROPS),
+            ...(eagerLoadImage
+              ? HIGH_PRIORITY_IMAGE_PROPS
+              : { loading: 'lazy' }),
             src: post.sharedPost.image,
           }}
           videoProps={{

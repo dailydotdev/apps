@@ -37,8 +37,7 @@ export const PostCardFooter = ({
             className.image,
             !isVideoType && 'my-2',
           ),
-          loading: 'lazy',
-          ...(eagerLoadImage && HIGH_PRIORITY_IMAGE_PROPS),
+          ...(eagerLoadImage ? HIGH_PRIORITY_IMAGE_PROPS : { loading: 'lazy' }),
           src: post.image,
         }}
         videoProps={{ className: 'my-2' }}
