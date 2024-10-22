@@ -41,7 +41,9 @@ function useInputFieldFunctions<
   const [validInput, setValidInput] = useState<boolean>(undefined);
 
   const checkValidity = useCallback(() => {
-    if (!inputRef.current) return;
+    if (!inputRef.current) {
+      return;
+    }
     const isValid = inputRef.current.checkValidity();
     if (validInput !== isValid) {
       setValidInput(isValid);
