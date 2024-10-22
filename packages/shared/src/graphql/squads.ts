@@ -284,7 +284,7 @@ export const SQUAD_MEMBERS_QUERY = gql`
 `;
 
 export const BASIC_SQUAD_MEMBERS_QUERY = gql`
-  query SourceMembers($id: ID!, $first: Int) {
+  query BasicSourceMembers($id: ID!, $first: Int) {
     sourceMembers(sourceId: $id, first: $first) {
       edges {
         node {
@@ -414,8 +414,10 @@ export async function getSquad(handle: string): Promise<Squad> {
   return res.source;
 }
 
-export async function getSquadMembers(id: string): Promise<SourceMember[]> {
-  const res = await gqlClient.request<SquadEdgesData>(
+export async function getSquadMembers(
+  id: string,
+): Promise<BasicSourceMember[]> {
+  const res = await gqlClient.request<BasicSourceMembersData>(
     BASIC_SQUAD_MEMBERS_QUERY,
     {
       id,
