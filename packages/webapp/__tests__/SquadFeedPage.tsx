@@ -148,7 +148,6 @@ const renderComponent = (
   handle = defaultSquad.handle,
   mocks: MockedGraphQLResponse[] = [
     createSourceMock(handle),
-    createSourceMembersMock(),
     createFeedMock(),
     createBasicSourceMembersMock(),
   ],
