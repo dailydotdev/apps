@@ -34,6 +34,7 @@ import {
 } from '@dailydotdev/shared/__tests__/fixture/squads';
 import {
   BASIC_SQUAD_MEMBERS_QUERY,
+  BasicSourceMembersData,
   SQUAD_MEMBERS_QUERY,
   SQUAD_QUERY,
   SquadData,
@@ -136,7 +137,7 @@ const createSourceMembersMock = (
 const createBasicSourceMembersMock = (
   result = generateBasicMembersResult(),
   variables: unknown = { id: defaultSquad.id, first: 5 },
-): MockedGraphQLResponse<SquadEdgesData> => ({
+): MockedGraphQLResponse<BasicSourceMembersData> => ({
   request: { query: BASIC_SQUAD_MEMBERS_QUERY, variables },
   result: { data: result },
 });
