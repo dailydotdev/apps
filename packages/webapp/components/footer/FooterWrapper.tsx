@@ -7,7 +7,9 @@ import { blurClasses } from './common';
 const NewComment = dynamic(() =>
   import(
     /* webpackChunkName: "newComment" */ '@dailydotdev/shared/src/components/post/NewComment'
-  ).then((mod) => mod.NewComment),
+  ).then((mod) => ({
+    default: mod.NewComment,
+  })),
 );
 
 const ScrollToTopButton = dynamic(
