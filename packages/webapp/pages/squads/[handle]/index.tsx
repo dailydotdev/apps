@@ -24,7 +24,10 @@ import {
   getSquadMembers,
   SQUAD_STATIC_FIELDS_QUERY,
 } from '@dailydotdev/shared/src/graphql/squads';
-import { SourceMember, Squad } from '@dailydotdev/shared/src/graphql/sources';
+import {
+  BasicSourceMember,
+  Squad,
+} from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { useQuery } from '@tanstack/react-query';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
@@ -131,7 +134,7 @@ const SquadPage = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [squadId, loggedImpression]);
 
-  const { data: squadMembers } = useQuery<SourceMember[]>(
+  const { data: squadMembers } = useQuery<BasicSourceMember[]>(
     ['squadMembersInitial', handle],
     () => getSquadMembers(squadId),
     { enabled: isBootFetched && !!squadId },
