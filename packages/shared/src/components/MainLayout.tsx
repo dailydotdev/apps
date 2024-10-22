@@ -94,7 +94,7 @@ const Main = ({
         isBannerAvailable && 'laptop:pt-8',
       )}
     >
-      {render({ hydrated })};
+      {render({ hydrated })}
     </main>
   );
 };
