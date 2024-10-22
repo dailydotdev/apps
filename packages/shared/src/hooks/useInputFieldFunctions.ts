@@ -1,5 +1,4 @@
-import { SyntheticEvent, useEffect, useState } from 'react';
-import useDebounceFn from './useDebounceFn';
+import { SyntheticEvent, useEffect, useState, useCallback } from 'react';
 import {
   UseInputField,
   useInputField,
@@ -37,46 +36,25 @@ function useInputFieldFunctions<
     focusInput,
     setInput,
   } = useInputField<T>(value, valueChanged);
+
   const [inputLength, setInputLength] = useState<number>(undefined);
   const [validInput, setValidInput] = useState<boolean>(undefined);
-  const [idleTimeout, clearIdleTimeout] = useDebounceFn(() => {
-    setValidInput(inputRef.current.checkValidity());
-  }, 1500);
+
+  const checkValidity = useCallback(() => {
+    if (!inputRef.current) return;
+    const isValid = inputRef.current.checkValidity();
+    if (validInput !== isValid) {
+      setValidInput(isValid);
+      validityChanged?.(isValid);
+    }
+  }, [inputRef, validInput, validityChanged]);
 
   useEffect(() => {
     if (inputRef.current?.value) {
       setInputLength(inputRef.current.value.length);
-      const inputValidity = inputRef.current.checkValidity();
-      if (inputValidity) {
-        setValidInput(true);
-      }
+      checkValidity();
     }
-  }, [inputRef]);
-
-  const onInput = (event: SyntheticEvent<T, InputEvent>): void => {
-    clearIdleTimeout();
-    baseOnInput(event);
-    if (valueChanged) {
-      valueChanged(event.currentTarget.value);
-    }
-    const len = event.currentTarget.value.length;
-    setInputLength(len);
-    const inputValidity = inputRef.current.checkValidity();
-
-    if (inputValidity) {
-      setValidInput(true);
-    } else {
-      idleTimeout();
-    }
-  };
-
-  useEffect(() => {
-    if (validInput !== undefined) {
-      validityChanged?.(validInput);
-    }
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [validInput]);
+  }, [inputRef, checkValidity]);
 
   useEffect(() => {
     if (validInput !== undefined && valid !== undefined) {
@@ -84,11 +62,20 @@ function useInputFieldFunctions<
     }
   }, [valid, validInput]);
 
+  const onInput = (event: SyntheticEvent<T, InputEvent>): void => {
+    baseOnInput(event);
+    if (valueChanged) {
+      valueChanged(event.currentTarget.value);
+    }
+    const len = event.currentTarget.value.length;
+    setInputLength(len);
+    checkValidity();
+  };
+
   const onBlur = () => {
-    clearIdleTimeout();
     baseOnBlur();
     if (inputRef.current) {
-      setValidInput(inputRef.current.checkValidity());
+      checkValidity();
     }
   };
 

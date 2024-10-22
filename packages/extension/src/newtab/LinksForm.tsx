@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 
 const limit = 8;
@@ -10,45 +10,18 @@ interface LinksFormProps {
   errors?: Record<string | number, string>;
 }
 
-const validateUrl = (input: string): boolean => {
-  const validator = document.createElement('input');
-  validator.type = 'url';
-  validator.value = input;
-
-  return input === '' || validator.checkValidity();
-};
-
 export function LinksForm({
   links,
   isFormReadonly,
 }: LinksFormProps): ReactElement {
-  const [validInputs, setValidInputs] = useState<Record<number, boolean>>({});
-  const validationTimeoutRef = useRef<{
-    [key: number]: ReturnType<typeof setTimeout>;
-  }>({});
+  const [validInputs, setValidInputs] = useState({});
 
-  useEffect(() => {
-    const timeoutRefs = validationTimeoutRef.current;
-    return () => {
-      Object.values(timeoutRefs).forEach((timeout) => {
-        clearTimeout(timeout);
-      });
-    };
-  }, []);
-
-  const onChange = (i: number, value: string) => {
-    if (validationTimeoutRef.current[i]) {
-      clearTimeout(validationTimeoutRef.current[i]);
+  const onChange = (i: number, isValid: boolean) => {
+    if (validInputs[i] === isValid) {
+      return;
     }
-    validationTimeoutRef.current[i] = setTimeout(() => {
-      const isValid = validateUrl(value);
-      setValidInputs((state) => {
-        if (state[i] === isValid) {
-          return state;
-        }
-        return { ...state, [i]: isValid };
-      });
-    }, 300);
+
+    setValidInputs((state) => ({ ...state, [i]: isValid }));
   };
 
   return (
@@ -65,9 +38,9 @@ export function LinksForm({
           label="Add shortcuts"
           value={links[i]}
           valid={validInputs[i] !== false}
-          hint={validInputs[i] === false ? 'Must be a valid HTTP/S link' : ''}
+          hint={validInputs[i] === false && 'Must be a valid HTTP/S link'}
           readOnly={isFormReadonly}
-          onChange={(e) => onChange(i, e.target.value)}
+          validityChanged={(isValid) => onChange(i, isValid)}
           placeholder="http://example.com"
         />
       ))}
