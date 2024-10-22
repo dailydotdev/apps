@@ -18,11 +18,8 @@ import { useJoinReferral } from '@dailydotdev/shared/src/hooks';
 import { useReadingStreak } from '@dailydotdev/shared/src/hooks/streaks';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useProfileContentPreferenceMutationSubscription } from '@dailydotdev/shared/src/hooks/profile/useProfileContentPreferenceMutationSubscription';
-import { NextSeo } from 'next-seo';
-import { NextSeoProps } from 'next-seo/lib/types';
 import {
   getLayout as getProfileLayout,
-  getProfileSeoDefaults,
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
   ProfileLayoutProps,
@@ -32,7 +29,6 @@ import { ReadingStreaksWidget } from '../../../shared/src/components/profile/Rea
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfilePage = ({
   user: initialUser,
-  noindex,
 }: ProfileLayoutProps): ReactElement => {
   useJoinReferral();
   const { tokenRefreshed } = useContext(AuthContext);
@@ -64,38 +60,29 @@ const ProfilePage = ({
     },
   );
 
-  const seo: NextSeoProps = {
-    ...getProfileSeoDefaults(user, {}, noindex),
-  };
-
   return (
-    <>
-      <NextSeo {...seo} />
-      <div className="flex flex-col gap-6 px-4 py-6 tablet:px-6">
-        <Readme user={user} />
-        {isStreaksEnabled && readingHistory?.userStreakProfile && (
-          <ReadingStreaksWidget
-            streak={readingHistory?.userStreakProfile}
-            isLoading={isLoading}
+    <div className="flex flex-col gap-6 px-4 py-6 tablet:px-6">
+      <Readme user={user} />
+      {isStreaksEnabled && readingHistory?.userStreakProfile && (
+        <ReadingStreaksWidget
+          streak={readingHistory?.userStreakProfile}
+          isLoading={isLoading}
+        />
+      )}
+      {readingHistory?.userReadingRankHistory && (
+        <>
+          <ReadingTagsWidget mostReadTags={readingHistory?.userMostReadTags} />
+          <ReadingHeatmapWidget
+            fullHistory={fullHistory}
+            selectedHistoryYear={selectedHistoryYear}
+            readHistory={readingHistory?.userReadHistory}
+            before={before}
+            after={after}
+            yearOptions={yearOptions}
           />
-        )}
-        {readingHistory?.userReadingRankHistory && (
-          <>
-            <ReadingTagsWidget
-              mostReadTags={readingHistory?.userMostReadTags}
-            />
-            <ReadingHeatmapWidget
-              fullHistory={fullHistory}
-              selectedHistoryYear={selectedHistoryYear}
-              readHistory={readingHistory?.userReadHistory}
-              before={before}
-              after={after}
-              yearOptions={yearOptions}
-            />
-          </>
-        )}
-      </div>
-    </>
+        </>
+      )}
+    </div>
   );
 };
 

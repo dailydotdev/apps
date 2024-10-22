@@ -55,7 +55,6 @@ import ProtectedPage, {
   ProtectedPageProps,
 } from '../../../components/ProtectedPage';
 import { getSquadOpenGraph } from '../../../next-seo';
-import { getTemplatedTitle } from '../../../components/layouts/utils';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
@@ -164,7 +163,7 @@ const SquadPage = ({
       title={
         referringUser
           ? `${referringUser.name} invited you to ${seoData.name}`
-          : getTemplatedTitle(`${seoData.name} Squad`)
+          : `${seoData.name} posts on daily.dev`
       }
       description={seoData.description}
       openGraph={getSquadOpenGraph({ squad: seoData })}

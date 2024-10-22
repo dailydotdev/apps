@@ -8,25 +8,18 @@ import { ProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/P
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import classNames from 'classnames';
-import { NextSeo } from 'next-seo';
-import { NextSeoProps } from 'next-seo/lib/types';
 import {
   getLayout as getProfileLayout,
-  getProfileSeoDefaults,
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
   ProfileLayoutProps,
 } from '../../components/layouts/ProfileLayout';
-import { getTemplatedTitle } from '../../components/layouts/utils';
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ProfilePostsPage = ({
-  user,
-  noindex,
-}: ProfileLayoutProps): ReactElement => {
+const ProfilePostsPage = ({ user }: ProfileLayoutProps): ReactElement => {
   const { user: loggedUser } = useContext(AuthContext);
   const { shouldUseListFeedLayout } = useFeedLayout();
   const isSameUser = user && loggedUser?.id === user.id;
@@ -55,26 +48,11 @@ const ProfilePostsPage = ({
     ),
   };
 
-  const seo: NextSeoProps = {
-    ...getProfileSeoDefaults(
-      user,
-      {
-        title: getTemplatedTitle(
-          `Recent posts by ${user.name} (@${user.username})`,
-        ),
-      },
-      noindex,
-    ),
-  };
-
   return (
-    <>
-      <NextSeo {...seo} />
-      <Feed
-        {...feedProps}
-        className={classNames('py-6', !shouldUseListFeedLayout && 'px-4')}
-      />
-    </>
+    <Feed
+      {...feedProps}
+      className={classNames('py-6', !shouldUseListFeedLayout && 'px-4')}
+    />
   );
 };
 

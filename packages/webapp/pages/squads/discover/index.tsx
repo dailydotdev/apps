@@ -9,24 +9,15 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { SourceIcon } from '@dailydotdev/shared/src/components/icons';
-import { NextSeoProps } from 'next-seo/lib/types';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { SquadDirectoryLayout } from '../../../../shared/src/components/squads/layout/SquadDirectoryLayout';
-import { defaultOpenGraph } from '../../../next-seo';
-import { getTemplatedTitle } from '../../../components/layouts/utils';
+import { defaultSeo } from '../../../next-seo';
 
 interface SquadDirectoryTitleProps {
   icon?: boolean;
   title: string;
 }
-
-const seo: NextSeoProps = {
-  title: getTemplatedTitle('Explore all Squads'),
-  openGraph: { ...defaultOpenGraph },
-  description:
-    'Browse and join Squads on daily.dev. Connect with fellow developers, share knowledge, and dive into specific topics of interest in your favorite Squads.',
-};
 
 const SquadDirectoryTitle = ({
   icon,
@@ -50,7 +41,11 @@ function SquadDiscoveryPage(): ReactElement {
 
   return (
     <SquadDirectoryLayout className="gap-6">
-      <NextSeo {...seo} />
+      <NextSeo
+        {...defaultSeo}
+        title="Squads Directory"
+        description="Explore the daily.dev Squads Directory and connect with communities of developers passionate about various technologies and topics. Discover, join, and engage with like-minded professionals in your area of interest."
+      />
       <SquadsDirectoryFeed
         key="featured"
         linkToSeeAll="/squads/discover/featured"

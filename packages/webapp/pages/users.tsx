@@ -21,13 +21,12 @@ import {
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
-import { getTemplatedTitle } from '../components/layouts/utils';
 
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('The official developer leaderboard'),
+  title: 'Leaderboard | daily.dev',
   openGraph: { ...defaultOpenGraph },
   description:
-    'Check out the top developer leaderboards on daily.dev. See the best performers, longest streaks, top referrers, and community leaders.',
+    'Check out the daily.dev Leaderboard to see the top-performing developers based on various criteria.',
 };
 
 interface PageProps {

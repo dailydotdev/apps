@@ -18,13 +18,12 @@ import { TagTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../../next-seo';
-import { getTemplatedTitle } from '../../components/layouts/utils';
 
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Explore trending tags for developers'),
+  title: 'Tags directory | daily.dev',
   openGraph: { ...defaultOpenGraph },
   description:
-    'Discover trending, popular, and new tags on daily.dev. Browse topics that matter to developers and find relevant content quickly.',
+    'Dive into the tags directory on daily.dev to find and follow topics that interest you. Discover a wide range of developer-related tags to enhance your learning and engagement.',
 };
 
 interface TagsPageProps {

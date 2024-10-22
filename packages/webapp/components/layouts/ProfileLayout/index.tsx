@@ -2,7 +2,6 @@ import React, { ReactElement, ReactNode } from 'react';
 import {
   getProfileSSR,
   getProfileV2ExtraSSR,
-  PublicProfile,
 } from '@dailydotdev/shared/src/lib/user';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -15,7 +14,8 @@ import { ParsedUrlQuery } from 'querystring';
 import { ClientError } from 'graphql-request';
 import { ProfileV2 } from '@dailydotdev/shared/src/graphql/users';
 import Head from 'next/head';
-import { NextSeoProps } from 'next-seo';
+import { NextSeo } from 'next-seo';
+import { NextSeoProps } from 'next-seo/lib/types';
 import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
@@ -34,40 +34,11 @@ export interface ProfileLayoutProps extends Partial<ProfileV2> {
   children?: ReactNode;
 }
 
-export const getOGImageUrl = (userId: string): string => {
-  const ogImageUrl = new URL(
-    `/devcards/v2/${userId}.png`,
-    process.env.NEXT_PUBLIC_API_URL,
-  );
-  ogImageUrl.searchParams.set('type', 'wide');
-  ogImageUrl.searchParams.set('r', Math.random().toString(36).substring(2, 5));
-  return ogImageUrl.toString();
-};
-
-export const getProfileSeoDefaults = (
-  user: PublicProfile,
-  seoOverrides: NextSeoProps,
-  noindex: boolean,
-): NextSeoProps => {
-  return {
-    title: getTemplatedTitle(`${user.name} (@${user.username})`),
-    description: user.bio ? user.bio : `Check out ${user.name}'s profile`,
-    openGraph: {
-      images: [{ url: getOGImageUrl(user.id) }],
-    },
-    twitter: {
-      handle: user.twitter,
-    },
-    noindex,
-    nofollow: noindex,
-    ...seoOverrides,
-  };
-};
-
 export default function ProfileLayout({
   user: initialUser,
   userStats,
   sources,
+  noindex,
   children,
 }: ProfileLayoutProps): ReactElement {
   const router = useRouter();
@@ -84,11 +55,32 @@ export default function ProfileLayout({
 
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
 
+  const ogImageUrl = new URL(
+    `/devcards/v2/${user.id}.png`,
+    process.env.NEXT_PUBLIC_API_URL,
+  );
+  ogImageUrl.searchParams.set('type', 'wide');
+  ogImageUrl.searchParams.set('r', Math.random().toString(36).substring(2, 5));
+
+  const Seo: NextSeoProps = {
+    title: getTemplatedTitle(user.name),
+    description: user.bio ? user.bio : `Check out ${user.name}'s profile`,
+    openGraph: {
+      images: [{ url: ogImageUrl.toString() }],
+    },
+    twitter: {
+      handle: user.twitter,
+    },
+    noindex,
+    nofollow: noindex,
+  };
+
   return (
     <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:border-l laptop:border-r laptop:border-border-subtlest-tertiary laptop:pb-6 laptopL:pb-0">
       <Head>
         <link rel="preload" as="image" href={user.image} />
       </Head>
+      <NextSeo {...Seo} />
       <main className="relative flex flex-1 flex-col tablet:border-r tablet:border-border-subtlest-tertiary">
         <ProfileWidgets
           user={user}
