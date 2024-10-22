@@ -1,8 +1,13 @@
 import withSerwistInit from '@serwist/next';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import withBundleAnalyzerInit from '@next/bundle-analyzer';
 import { readFileSync } from 'fs';
+import { NextConfig } from 'next';
+import { Rewrite } from 'next/dist/lib/load-custom-routes';
 
-const { version } = JSON.parse(readFileSync('../extension/package.json', 'utf8'));
+const { version } = JSON.parse(
+  readFileSync('../extension/package.json', 'utf8'),
+);
 
 const withBundleAnalyzer = withBundleAnalyzerInit({
   enabled: process.env.ANALYZE === 'true',
@@ -24,8 +29,7 @@ const withSerwist = withSerwistInit({
   maximumFileSizeToCacheInBytes: 1024 * 1024,
 });
 
-
-export default {
+const nextConfig: NextConfig = {
   transpilePackages: ['@dailydotdev/shared'],
   ...withSerwist({
     ...withBundleAnalyzer({
@@ -36,7 +40,7 @@ export default {
       compiler: {
         reactRemoveProperties: { properties: ['^data-testid$'] },
       },
-      webpack: (config, { dev, isServer }) => {
+      webpack: (config) => {
         // Grab the existing rule that handles SVG imports
         const fileLoaderRule = config.module.rules.find((rule) =>
           rule.test?.test?.('.svg'),
@@ -53,7 +57,9 @@ export default {
           {
             test: /\.svg$/i,
             issuer: fileLoaderRule.issuer,
-            resourceQuery: { not: [...fileLoaderRule.resourceQuery.not, /url/] }, // exclude if *.svg?url
+            resourceQuery: {
+              not: [...fileLoaderRule.resourceQuery.not, /url/],
+            }, // exclude if *.svg?url
             use: [
               {
                 loader: '@svgr/webpack',
@@ -88,15 +94,16 @@ export default {
         // it was removedi n graphql-request@7.x but due to a lot of breaking changes
         // for now we apply https://github.com/graffle-js/graffle/pull/296
         // as patch graphql-request manually through pnpm
-        config.resolve.alias['cross-fetch'] = false
+        // eslint-disable-next-line no-param-reassign
+        config.resolve.alias['cross-fetch'] = false;
 
         return config;
       },
       env: {
         CURRENT_VERSION: version,
       },
-      rewrites: () => {
-        const rewrites = [
+      rewrites: async () => {
+        const rewrites: Rewrite[] = [
           {
             source: '/api/sitemaps/:path*',
             destination: `${process.env.NEXT_PUBLIC_API_URL}/sitemaps/:path*`,
@@ -127,7 +134,7 @@ export default {
 
         return rewrites;
       },
-      redirects: () => {
+      redirects: async () => {
         return [
           {
             source: '/posts/finder',
@@ -149,7 +156,8 @@ export default {
               ...securityHeaders,
               {
                 key: 'X-Recruiting',
-                value: 'We are hiring! Check https://daily.dev/careers for more info!',
+                value:
+                  'We are hiring! Check https://daily.dev/careers for more info!',
               },
             ],
           },
@@ -161,3 +169,5 @@ export default {
     }),
   }),
 };
+
+export default nextConfig;
