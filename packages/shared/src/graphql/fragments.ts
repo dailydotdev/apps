@@ -85,20 +85,6 @@ export const SOURCE_SHORT_INFO_FRAGMENT = gql`
   }
 `;
 
-export const BASIC_PRIVILEGED_MEMBERS_FRAGMENT = gql`
-  fragment BasicPrivilegedMembers on Source {
-    privilegedMembers {
-      user {
-        id
-        name
-        image
-        permalink
-      }
-      role
-    }
-  }
-`;
-
 export const PRIVILEGED_MEMBERS_FRAGMENT = gql`
   fragment PrivilegedMembers on Source {
     privilegedMembers {
@@ -162,10 +148,10 @@ export const SQUAD_BASE_FRAGMENT = `
       title
       slug
     }
-    ...BasicPrivilegedMembers
+    ...PrivilegedMembers
   }
   ${SOURCE_BASE_FRAGMENT}
-  ${BASIC_PRIVILEGED_MEMBERS_FRAGMENT}
+  ${PRIVILEGED_MEMBERS_FRAGMENT}
 `;
 
 export const FEED_POST_INFO_FRAGMENT = gql`
