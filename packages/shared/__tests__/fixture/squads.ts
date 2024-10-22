@@ -7,7 +7,12 @@ import {
   SourcePermissions,
   SourceType,
 } from '../../src/graphql/sources';
-import { Squad, SquadData, SquadEdgesData } from '../../src/graphql/squads';
+import {
+  BasicSourceMembersData,
+  Squad,
+  SquadData,
+  SquadEdgesData,
+} from '../../src/graphql/squads';
 import { cloudinarySquadsImageFallback } from '../../src/lib/image';
 
 export const defaultSquadToken = 'ki3YLcxvSZ2Q6KgMBZvMbly1gnrZ6JnIrhTpUML-Hua';
@@ -132,9 +137,9 @@ export const generateBasicMembersResult = (
       },
     },
   ],
-): SquadEdgesData => ({
+): BasicSourceMembersData => ({
   sourceMembers: {
-    pageInfo: { endCursor: 'dGltZToxNjc1MjYyMTM0NTY4', hasNextPage: true },
+    pageInfo: { endCursor: 'dGltZToxNjc1MjYyMTM0NZA4', hasNextPage: true },
     edges: members,
   },
 });
