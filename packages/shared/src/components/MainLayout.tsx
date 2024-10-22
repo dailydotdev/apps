@@ -174,6 +174,12 @@ function MainLayoutComponent({
     });
   }, [shouldShowLogin, showLogin]);
 
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
   if (
     (!isPageReady && isPageApplicableForOnboarding) ||
     shouldRedirectOnboarding
@@ -202,11 +208,11 @@ function MainLayoutComponent({
         className={classNames(
           'flex flex-col tablet:pl-16 laptop:pl-11',
           className,
-          !isScreenCentered && sidebarExpanded && 'laptop:!pl-60',
+          hydrated && !isScreenCentered && sidebarExpanded && 'laptop:!pl-60',
           isBannerAvailable && 'laptop:pt-8',
         )}
       >
-        {showSidebar && (
+        {hydrated && showSidebar && (
           <Sidebar
             promotionalBannerActive={isBannerAvailable}
             sidebarRendered={sidebarRendered}
