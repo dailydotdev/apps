@@ -19,7 +19,7 @@ const MainFeedLayout = dynamic(
     import(
       /* webpackChunkName: "mainFeedLayout" */ '@dailydotdev/shared/src/components/MainFeedLayout'
     ),
-  { ssr: false },
+  { ssr: true },
 );
 
 export type MainFeedPageProps = {
