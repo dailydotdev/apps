@@ -5,7 +5,7 @@ import { DEV_CARD_QUERY } from '../../graphql/users';
 import { useRequestProtocol } from '../useRequestProtocol';
 import { PublicProfile } from '../../lib/user';
 import { Source } from '../../graphql/sources';
-import { cloudinary } from '../../lib/image';
+import { cloudinaryDevcardDefaultCoverImage } from '../../lib/image';
 
 export interface DevCardData {
   id: string;
@@ -55,7 +55,7 @@ export const useDevCard = (userId: string): UseDevCard => {
   const { isProfileCover, user } = devCard ?? {};
   const coverImage =
     (isProfileCover ? user.cover : undefined) ??
-    cloudinary.devcard.defaultCoverImage;
+    cloudinaryDevcardDefaultCoverImage;
 
   return {
     devcard: {
