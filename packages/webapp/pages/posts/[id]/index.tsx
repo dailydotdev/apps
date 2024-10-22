@@ -50,25 +50,19 @@ const Custom404 = dynamic(
 const PostContent = dynamic(() =>
   import(
     /* webpackChunkName: "lazyPostContent" */ '@dailydotdev/shared/src/components/post/PostContent'
-  ).then((module) => ({
-    default: module.PostContent,
-  })),
+  ).then((module) => module.PostContent),
 );
 
 const SquadPostContent = dynamic(() =>
   import(
     /* webpackChunkName: "lazySquadPostContent" */ '@dailydotdev/shared/src/components/post/SquadPostContent'
-  ).then((module) => ({
-    default: module.SquadPostContent,
-  })),
+  ).then((module) => module.SquadPostContent),
 );
 
 const CollectionPostContent = dynamic(() =>
   import(
     /* webpackChunkName: "lazyCollectionPostContent" */ '@dailydotdev/shared/src/components/post/collection'
-  ).then((module) => ({
-    default: module.CollectionPostContent,
-  })),
+  ).then((module) => module.CollectionPostContent),
 );
 
 export interface Props {

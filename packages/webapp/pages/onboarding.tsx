@@ -62,30 +62,22 @@ import { defaultOpenGraph, defaultSeo } from '../next-seo';
 const ContentTypes = dynamic(() =>
   import(
     /* webpackChunkName: "contentTypes" */ '@dailydotdev/shared/src/components/onboarding/ContentTypes/ContentTypes'
-  ).then((mod) => ({
-    default: mod.ContentTypes,
-  })),
+  ).then((mod) => mod.ContentTypes),
 );
 const EditTag = dynamic(() =>
   import(
     /* webpackChunkName: "editTag" */ '@dailydotdev/shared/src/components/onboarding/EditTag'
-  ).then((mod) => ({
-    default: mod.EditTag,
-  })),
+  ).then((mod) => mod.EditTag),
 );
 const ReadingReminder = dynamic(() =>
   import(
     /* webpackChunkName: "readingReminder" */ '@dailydotdev/shared/src/components/onboarding/ReadingReminder'
-  ).then((mod) => ({
-    default: mod.ReadingReminder,
-  })),
+  ).then((mod) => mod.ReadingReminder),
 );
 const OnboardingFooter = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingFooter" */ '@dailydotdev/shared/src/components/onboarding/OnboardingFooter'
-  ).then((mod) => ({
-    default: mod.OnboardingFooter,
-  })),
+  ).then((mod) => mod.OnboardingFooter),
 );
 
 type OnboardingVisual = {
