@@ -10,13 +10,12 @@ interface LinksFormProps {
   errors?: Record<string | number, string>;
 }
 
-const validateUrl = (url: string): boolean => {
-  try {
-    new URL(url);
-    return true;
-  } catch {
-    return false;
-  }
+const validateUrl = (input: string): boolean => {
+  const validator = document.createElement('input');
+  validator.type = 'url';
+  validator.value = input;
+
+  return input === '' || validator.checkValidity();
 };
 
 export function LinksForm({
@@ -24,7 +23,9 @@ export function LinksForm({
   isFormReadonly,
 }: LinksFormProps): ReactElement {
   const [validInputs, setValidInputs] = useState<Record<number, boolean>>({});
-  const validationTimeoutRef = useRef<{ [key: number]: NodeJS.Timeout }>({});
+  const validationTimeoutRef = useRef<{
+    [key: number]: ReturnType<typeof setTimeout>;
+  }>({});
 
   useEffect(() => {
     const timeoutRefs = validationTimeoutRef.current;
@@ -40,8 +41,13 @@ export function LinksForm({
       clearTimeout(validationTimeoutRef.current[i]);
     }
     validationTimeoutRef.current[i] = setTimeout(() => {
-      const isValid = value === '' || validateUrl(value);
-      setValidInputs((state) => ({ ...state, [i]: isValid }));
+      const isValid = validateUrl(value);
+      setValidInputs((state) => {
+        if (state[i] === isValid) {
+          return state;
+        }
+        return { ...state, [i]: isValid };
+      });
     }, 300);
   };
 
@@ -59,7 +65,7 @@ export function LinksForm({
           label="Add shortcuts"
           value={links[i]}
           valid={validInputs[i] !== false}
-          hint={validInputs[i] === false && 'Must be a valid HTTP/S link'}
+          hint={validInputs[i] === false ? 'Must be a valid HTTP/S link' : ''}
           readOnly={isFormReadonly}
           onChange={(e) => onChange(i, e.target.value)}
           placeholder="http://example.com"
