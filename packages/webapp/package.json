@@ -43,7 +43,7 @@
     "@dailydotdev/eslint-config": "*",
     "@dailydotdev/eslint-plugin-daily-dev-eslint-rules": "*",
     "@dailydotdev/prettier-config": "*",
-    "@next/bundle-analyzer": "15.0.1-canary.1",
+    "@next/bundle-analyzer": "15.0.1",
     "@svgr/cli": "^5.5.0",
     "@svgr/webpack": "^5.5.0",
     "@testing-library/jest-dom": "^5.16.1",
