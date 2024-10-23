@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode, useCallback } from 'react';
 import dynamic from 'next/dynamic';
-import { useAuthContext } from '../../contexts/AuthContext';
 import HeaderLogo from './HeaderLogo';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useReadingStreak } from '../../hooks/streaks';
@@ -39,7 +38,6 @@ function MainLayoutHeader({
   additionalButtons,
   onLogoClick,
 }: MainLayoutHeaderProps): ReactElement {
-  const { user } = useAuthContext();
   const { loadedSettings } = useSettingsContext();
   const { streak, isStreaksEnabled } = useReadingStreak();
   const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
