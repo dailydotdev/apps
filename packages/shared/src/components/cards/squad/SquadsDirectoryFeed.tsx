@@ -14,6 +14,7 @@ import { Button, ButtonVariant } from '../../buttons/Button';
 import { PlaceholderSquadGridList } from './PlaceholderSquadGrid';
 import { PlaceholderSquadListList } from './PlaceholderSquadList';
 import Link from '../../utilities/Link';
+import { useIsHydrated } from '../../../hooks/utils/useIsHydrated';
 
 interface SquadHorizontalListProps {
   title: ReactNode;
@@ -42,6 +43,7 @@ export function SquadsDirectoryFeed({
   className,
   children,
 }: SquadHorizontalListProps): ReactElement {
+  const isHydrated = useIsHydrated();
   const { ref, inView } = useInView({
     triggerOnce: true,
   });
@@ -57,7 +59,7 @@ export function SquadsDirectoryFeed({
     return null;
   }
 
-  if (isMobile) {
+  if (isMobile && isHydrated) {
     return (
       <div ref={ref} className="relative flex flex-col gap-3 pb-6">
         {children}
