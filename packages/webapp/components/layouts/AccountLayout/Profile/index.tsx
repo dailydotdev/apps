@@ -7,6 +7,7 @@ import React, {
   ReactElement,
   useCallback,
   useContext,
+  useEffect,
   useRef,
   useState,
 } from 'react';
@@ -50,7 +51,6 @@ import {
 } from '@dailydotdev/shared/src/graphql/common';
 import { UPLOAD_COVER_MUTATION } from '@dailydotdev/shared/src/graphql/users';
 import { useRouter } from 'next/router';
-
 import { AccountTextField } from '../common';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
@@ -63,6 +63,7 @@ const coverId = 'cover_file';
 const ProfileIndex = ({
   ...props
 }: VerifiedCompanyBadgeSectionProps): ReactElement => {
+  const [hydrated, setHydrated] = useState(false);
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>();
   const { displayToast } = useToastNotification();
@@ -370,7 +371,11 @@ const ProfileIndex = ({
     </form>
   );
 
-  if (isMobile) {
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  if (isMobile && hydrated) {
     return (
       <FormWrapper
         className={{ container: 'relative max-w-[100vw]' }}
@@ -403,7 +408,7 @@ const ProfileIndex = ({
         </Button>
       }
     >
-      {form}
+      {hydrated && form}
     </AccountPageContainer>
   );
 };

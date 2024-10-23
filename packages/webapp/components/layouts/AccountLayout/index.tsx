@@ -5,7 +5,6 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
-import { ProfileSettingsMenu } from '@dailydotdev/shared/src/components/profile/ProfileSettingsMenu';
 import {
   generateQueryKey,
   RequestKey,
@@ -17,9 +16,22 @@ import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureT
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import useAuthForms from '@dailydotdev/shared/src/hooks/useAuthForms';
+import dynamic from 'next/dynamic';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getTemplatedTitle } from '../utils';
-import SidebarNav from './SidebarNav';
+
+const ProfileSettingsMenu = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "profileSettingsMenu" */ '@dailydotdev/shared/src/components/profile/ProfileSettingsMenu'
+    ),
+  { ssr: false },
+);
+
+const SidebarNav = dynamic(
+  () => import(/* webpackChunkName: "sidebarNav" */ './SidebarNav'),
+  { ssr: false },
+);
 
 export interface AccountLayoutProps {
   profile: PublicProfile;
@@ -68,10 +80,6 @@ export default function AccountLayout({
     );
   }
 
-  if (!profile || !Object.keys(profile).length) {
-    return null;
-  }
-
   const Seo: NextSeoProps = profile
     ? {
         title: getTemplatedTitle(profile.name),
@@ -90,10 +98,10 @@ export default function AccountLayout({
   return (
     <>
       <Head>
-        <link rel="preload" as="image" href={profile.image} />
+        <link rel="preload" as="image" href={profile?.image} />
       </Head>
       <NextSeo {...Seo} noindex nofollow />
-      <main className="relative mx-auto flex w-full flex-1 flex-row items-stretch pt-0 laptop:max-w-[calc(100vw-17.5rem)]">
+      <div className="relative mx-auto flex w-full flex-1 flex-row items-stretch pt-0 laptop:max-w-[calc(100vw-17.5rem)]">
         {isMobile ? (
           <ProfileSettingsMenu
             shouldKeepOpen
@@ -110,7 +118,7 @@ export default function AccountLayout({
           />
         )}
         {children}
-      </main>
+      </div>
     </>
   );
 }

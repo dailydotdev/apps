@@ -37,13 +37,17 @@ import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BootPopups } from './modals/BootPopups';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { AuthTriggers } from '../lib/auth';
-import Sidebar from './sidebar/Sidebar';
 
 const GoBackHeaderMobile = dynamic(
   () =>
     import(
       /* webpackChunkName: "goBackHeaderMobile" */ './post/GoBackHeaderMobile'
     ),
+  { ssr: false },
+);
+
+const Sidebar = dynamic(
+  () => import(/* webpackChunkName: "sidebar" */ './sidebar/Sidebar'),
   { ssr: false },
 );
 
@@ -65,39 +69,6 @@ export interface MainLayoutProps
 }
 
 const feeds = Object.values(SharedFeedPage);
-
-const Main = ({
-  className,
-  isScreenCentered,
-  sidebarExpanded,
-  isBannerAvailable,
-  children: render,
-}: {
-  className?: string;
-  isScreenCentered: boolean;
-  sidebarExpanded: boolean;
-  isBannerAvailable: boolean;
-  children: ({ hydrated }: { hydrated: boolean }) => ReactNode;
-}) => {
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    setHydrated(true);
-  }, []);
-
-  return (
-    <main
-      className={classNames(
-        'flex flex-col tablet:pl-16 laptop:pl-11',
-        className,
-        hydrated && !isScreenCentered && sidebarExpanded && 'laptop:!pl-60',
-        isBannerAvailable && 'laptop:pt-8',
-      )}
-    >
-      {render({ hydrated })}
-    </main>
-  );
-};
 
 function MainLayoutComponent({
   children,
@@ -213,6 +184,7 @@ function MainLayoutComponent({
   ) {
     return null;
   }
+
   const isScreenCentered =
     isLaptopXL && screenCenteredOnMobileLayout ? true : screenCentered;
 
@@ -231,36 +203,32 @@ function MainLayoutComponent({
         additionalButtons={additionalButtons}
         onLogoClick={onLogoClick}
       />
-      <Main
-        className={className}
-        isScreenCentered={isScreenCentered}
-        sidebarExpanded={sidebarExpanded}
-        isBannerAvailable={isBannerAvailable}
+      <main
+        className={classNames(
+          'flex flex-col tablet:pl-16 laptop:pl-11',
+          className,
+          !isScreenCentered && sidebarExpanded && 'laptop:!pl-60',
+          isBannerAvailable && 'laptop:pt-8',
+        )}
       >
-        {({ hydrated }) => {
-          return (
-            <>
-              {hydrated && showSidebar && (
-                <Sidebar
-                  promotionalBannerActive={isBannerAvailable}
-                  sidebarRendered={sidebarRendered}
-                  openMobileSidebar={openMobileSidebar}
-                  onNavTabClick={onNavTabClick}
-                  enableSearch={enableSearch}
-                  activePage={activePage}
-                  showDnd={showDnd}
-                  dndActive={dndActive}
-                  isNavButtons={isNavItemsButton}
-                  onShowDndClick={onShowDndClick}
-                  onLogoClick={onLogoClick}
-                  setOpenMobileSidebar={() => onMobileSidebarToggle(false)}
-                />
-              )}
-              {children}
-            </>
-          );
-        }}
-      </Main>
+        {showSidebar && (
+          <Sidebar
+            promotionalBannerActive={isBannerAvailable}
+            sidebarRendered={sidebarRendered}
+            openMobileSidebar={openMobileSidebar}
+            onNavTabClick={onNavTabClick}
+            enableSearch={enableSearch}
+            activePage={activePage}
+            showDnd={showDnd}
+            dndActive={dndActive}
+            isNavButtons={isNavItemsButton}
+            onShowDndClick={onShowDndClick}
+            onLogoClick={onLogoClick}
+            setOpenMobileSidebar={() => onMobileSidebarToggle(false)}
+          />
+        )}
+        {children}
+      </main>
     </div>
   );
 }

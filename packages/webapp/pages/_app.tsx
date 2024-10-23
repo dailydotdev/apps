@@ -223,7 +223,6 @@ export default function App(props: AppProps): ReactElement {
             </SubscriptionContextProvider>
           </PushNotificationContextProvider>
         </BootDataProvider>
-
         <ReactQueryDevtools />
       </QueryClientProvider>
     </ProgressiveEnhancementContextProvider>
