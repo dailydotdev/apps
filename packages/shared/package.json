@@ -107,6 +107,8 @@
   "dependencies": {
     "@growthbook/growthbook": "https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?b8f31f9e80879fe2bcc42b275087b50e1357f1cb",
     "@growthbook/growthbook-react": "^0.17.0",
+    "@tanstack/query-sync-storage-persister": "4.36.1",
+    "@tanstack/react-query-persist-client": "4.36.1",
     "@tippyjs/react": "^4.2.5",
     "balloon-css": "^1.2.0",
     "check-password-strength": "^2.0.7",

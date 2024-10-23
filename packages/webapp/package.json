@@ -18,6 +18,7 @@
     "@serwist/next": "^9.0.9",
     "@tanstack/react-query": "^4.36.1",
     "@tanstack/react-query-devtools": "^4.35.3",
+    "@tanstack/react-query-persist-client": "4.36.1",
     "classnames": "^2.3.2",
     "date-fns": "^2.28.0",
     "date-fns-tz": "1.0.0",

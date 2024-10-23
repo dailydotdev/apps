@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
 import { NewSquadIcon, DefaultSquadIcon, SourceIcon } from '../icons';
@@ -6,10 +7,20 @@ import { Origin } from '../../lib/log';
 import { useSquadNavigation } from '../../hooks';
 import AuthContext from '../../contexts/AuthContext';
 import { SquadImage } from '../squads/SquadImage';
+import { getSquads } from '../../graphql/squads';
 
 export function SquadSection(props: SectionCommonProps): ReactElement {
-  const { squads } = useContext(AuthContext);
+  // const { squads } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
+
+  const { data: squads, isLoading } = useQuery(['squads'], () =>
+    getSquads(user?.id),
+  );
   const { openNewSquad } = useSquadNavigation();
+
+  if (isLoading) {
+    return <span>loading</span>;
+  }
 
   const squadMenuItems: SidebarMenuItem[] = [
     {
