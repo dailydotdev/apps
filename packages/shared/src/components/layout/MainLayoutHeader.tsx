@@ -114,9 +114,7 @@ function MainLayoutHeader({
                   ? LogoPosition.Relative
                   : LogoPosition.Absolute
               }
-              user={user}
               onLogoClick={onLogoClick}
-              greeting={false}
             />
           </div>
           <RenderSearchPanel />
