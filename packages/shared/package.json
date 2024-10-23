@@ -31,9 +31,9 @@
     "react-virtual": "^2.8.0"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.16.0",
-    "@babel/preset-react": "^7.16.0",
-    "@babel/preset-typescript": "^7.16.0",
+    "@babel/preset-env": "^7.25.9",
+    "@babel/preset-react": "^7.25.9",
+    "@babel/preset-typescript": "^7.25.9",
     "@dailydotdev/eslint-config": "*",
     "@dailydotdev/eslint-plugin-daily-dev-eslint-rules": "*",
     "@dailydotdev/prettier-config": "*",
