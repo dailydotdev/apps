@@ -37,7 +37,6 @@
     "react-swipeable": "^7.0.1",
     "react-tooltip": "^4.2.21",
     "react-transition-group": "^4.4.5",
-    "react-virtual": "^2.10.4",
     "webextension-polyfill": "^0.10.0"
   },
   "devDependencies": {

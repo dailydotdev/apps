@@ -35,8 +35,7 @@
     "react-modal": "^3.15.1",
     "react-parallax-tilt": "^1.7.248",
     "react-swipeable": "^7.0.1",
-    "react-transition-group": "^4.4.5",
-    "react-virtual": "^2.10.4"
+    "react-transition-group": "^4.4.5"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.16.5",
