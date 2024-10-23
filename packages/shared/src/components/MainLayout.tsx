@@ -239,27 +239,29 @@ function MainLayoutComponent({
         sidebarExpanded={sidebarExpanded}
         isBannerAvailable={isBannerAvailable}
       >
-        {({ isHydrated }) => (
-          <>
-            {isHydrated && showSidebar && (
-              <Sidebar
-                promotionalBannerActive={isBannerAvailable}
-                sidebarRendered={sidebarRendered}
-                openMobileSidebar={openMobileSidebar}
-                onNavTabClick={onNavTabClick}
-                enableSearch={enableSearch}
-                activePage={activePage}
-                showDnd={showDnd}
-                dndActive={dndActive}
-                isNavButtons={isNavItemsButton}
-                onShowDndClick={onShowDndClick}
-                onLogoClick={onLogoClick}
-                setOpenMobileSidebar={() => onMobileSidebarToggle(false)}
-              />
-            )}
-            {children}
-          </>
-        )}
+        {({ isHydrated }) => {
+          return (
+            <>
+              {isHydrated && showSidebar && (
+                <Sidebar
+                  promotionalBannerActive={isBannerAvailable}
+                  sidebarRendered={sidebarRendered}
+                  openMobileSidebar={openMobileSidebar}
+                  onNavTabClick={onNavTabClick}
+                  enableSearch={enableSearch}
+                  activePage={activePage}
+                  showDnd={showDnd}
+                  dndActive={dndActive}
+                  isNavButtons={isNavItemsButton}
+                  onShowDndClick={onShowDndClick}
+                  onLogoClick={onLogoClick}
+                  setOpenMobileSidebar={() => onMobileSidebarToggle(false)}
+                />
+              )}
+              {children}
+            </>
+          );
+        }}
       </Main>
     </div>
   );
