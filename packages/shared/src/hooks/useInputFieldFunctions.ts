@@ -40,9 +40,7 @@ function useInputFieldFunctions<
   const [inputLength, setInputLength] = useState<number>(undefined);
   const [validInput, setValidInput] = useState<boolean>(undefined);
   const [idleTimeout, clearIdleTimeout] = useDebounceFn(() => {
-    if (inputRef.current) {
-      setValidInput(inputRef.current.checkValidity());
-    }
+    setValidInput(inputRef.current.checkValidity());
   }, 500);
 
   useEffect(() => {
@@ -63,7 +61,7 @@ function useInputFieldFunctions<
     }
     const len = event.currentTarget.value.length;
     setInputLength(len);
-    const inputValidity = event.currentTarget.checkValidity();
+    const inputValidity = inputRef.current.checkValidity();
 
     if (inputValidity) {
       setValidInput(true);
@@ -78,7 +76,7 @@ function useInputFieldFunctions<
     }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [validInput, validityChanged]);
+  }, [validInput]);
 
   useEffect(() => {
     if (valid !== undefined) {
