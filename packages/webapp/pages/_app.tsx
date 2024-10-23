@@ -84,7 +84,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     if (
       user &&
       !didRegisterSwRef.current &&
-      'serviceWorker' in navigator &&
+      'serviceWorker' in globalThis?.navigator &&
       window.serwist !== undefined
     ) {
       didRegisterSwRef.current = true;
