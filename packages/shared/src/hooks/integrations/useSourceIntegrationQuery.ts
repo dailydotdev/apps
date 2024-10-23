@@ -51,7 +51,7 @@ export const useSourceIntegrationQuery = ({
         const errorCode = error.response?.errors?.[0]?.extensions?.code;
 
         if ([ApiError.NotFound, ApiError.Forbidden].includes(errorCode)) {
-          return undefined;
+          return null;
         }
 
         throw originalError;
