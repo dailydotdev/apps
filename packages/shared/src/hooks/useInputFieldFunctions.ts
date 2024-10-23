@@ -1,4 +1,5 @@
-import { SyntheticEvent, useEffect, useState, useCallback } from 'react';
+import { SyntheticEvent, useEffect, useState } from 'react';
+import useDebounceFn from './useDebounceFn';
 import {
   UseInputField,
   useInputField,
@@ -36,48 +37,60 @@ function useInputFieldFunctions<
     focusInput,
     setInput,
   } = useInputField<T>(value, valueChanged);
-
   const [inputLength, setInputLength] = useState<number>(undefined);
   const [validInput, setValidInput] = useState<boolean>(undefined);
-
-  const checkValidity = useCallback(() => {
-    if (!inputRef.current) {
-      return;
+  const [idleTimeout, clearIdleTimeout] = useDebounceFn(() => {
+    if (inputRef.current) {
+      setValidInput(inputRef.current.checkValidity());
     }
-    const isValid = inputRef.current.checkValidity();
-    if (validInput !== isValid) {
-      setValidInput(isValid);
-      validityChanged?.(isValid);
-    }
-  }, [inputRef, validInput, validityChanged]);
+  }, 500);
 
   useEffect(() => {
     if (inputRef.current?.value) {
       setInputLength(inputRef.current.value.length);
-      checkValidity();
+      const inputValidity = inputRef.current.checkValidity();
+      if (inputValidity) {
+        setValidInput(true);
+      }
     }
-  }, [inputRef, checkValidity]);
-
-  useEffect(() => {
-    if (validInput !== undefined && valid !== undefined) {
-      setValidInput(valid);
-    }
-  }, [valid, validInput]);
+  }, [inputRef]);
 
   const onInput = (event: SyntheticEvent<T, InputEvent>): void => {
+    clearIdleTimeout();
     baseOnInput(event);
     if (valueChanged) {
       valueChanged(event.currentTarget.value);
     }
     const len = event.currentTarget.value.length;
     setInputLength(len);
-    checkValidity();
+    const inputValidity = event.currentTarget.checkValidity();
+
+    if (inputValidity) {
+      setValidInput(true);
+    } else {
+      idleTimeout();
+    }
   };
 
+  useEffect(() => {
+    if (validInput !== undefined) {
+      validityChanged?.(validInput);
+    }
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [validInput, validityChanged]);
+
+  useEffect(() => {
+    if (valid !== undefined) {
+      setValidInput(valid);
+    }
+  }, [valid]);
+
   const onBlur = () => {
+    clearIdleTimeout();
     baseOnBlur();
     if (inputRef.current) {
-      checkValidity();
+      setValidInput(inputRef.current.checkValidity());
     }
   };
 
