@@ -66,6 +66,39 @@ export interface MainLayoutProps
 
 const feeds = Object.values(SharedFeedPage);
 
+const Main = ({
+  className,
+  isScreenCentered,
+  sidebarExpanded,
+  isBannerAvailable,
+  children: render,
+}: {
+  className?: string;
+  isScreenCentered: boolean;
+  sidebarExpanded: boolean;
+  isBannerAvailable: boolean;
+  children: ({ hydrated }: { hydrated: boolean }) => ReactNode;
+}) => {
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  return (
+    <main
+      className={classNames(
+        'flex flex-col tablet:pl-16 laptop:pl-11',
+        className,
+        hydrated && !isScreenCentered && sidebarExpanded && 'laptop:!pl-60',
+        isBannerAvailable && 'laptop:pt-8',
+      )}
+    >
+      {render({ hydrated })}
+    </main>
+  );
+};
+
 function MainLayoutComponent({
   children,
   activePage,
@@ -176,8 +209,7 @@ function MainLayoutComponent({
 
   if (
     (!isPageReady && isPageApplicableForOnboarding) ||
-    shouldRedirectOnboarding ||
-    !isAuthReady
+    shouldRedirectOnboarding
   ) {
     return null;
   }
@@ -199,32 +231,36 @@ function MainLayoutComponent({
         additionalButtons={additionalButtons}
         onLogoClick={onLogoClick}
       />
-      <main
-        className={classNames(
-          'flex flex-col tablet:pl-16 laptop:pl-11',
-          className,
-          !isScreenCentered && sidebarExpanded && 'laptop:!pl-60',
-          isBannerAvailable && 'laptop:pt-8',
-        )}
+      <Main
+        className={className}
+        isScreenCentered={isScreenCentered}
+        sidebarExpanded={sidebarExpanded}
+        isBannerAvailable={isBannerAvailable}
       >
-        {showSidebar && (
-          <Sidebar
-            promotionalBannerActive={isBannerAvailable}
-            sidebarRendered={sidebarRendered}
-            openMobileSidebar={openMobileSidebar}
-            onNavTabClick={onNavTabClick}
-            enableSearch={enableSearch}
-            activePage={activePage}
-            showDnd={showDnd}
-            dndActive={dndActive}
-            isNavButtons={isNavItemsButton}
-            onShowDndClick={onShowDndClick}
-            onLogoClick={onLogoClick}
-            setOpenMobileSidebar={() => onMobileSidebarToggle(false)}
-          />
-        )}
-        {children}
-      </main>
+        {({ hydrated }) => {
+          return (
+            <>
+              {hydrated && showSidebar && (
+                <Sidebar
+                  promotionalBannerActive={isBannerAvailable}
+                  sidebarRendered={sidebarRendered}
+                  openMobileSidebar={openMobileSidebar}
+                  onNavTabClick={onNavTabClick}
+                  enableSearch={enableSearch}
+                  activePage={activePage}
+                  showDnd={showDnd}
+                  dndActive={dndActive}
+                  isNavButtons={isNavItemsButton}
+                  onShowDndClick={onShowDndClick}
+                  onLogoClick={onLogoClick}
+                  setOpenMobileSidebar={() => onMobileSidebarToggle(false)}
+                />
+              )}
+              {children}
+            </>
+          );
+        }}
+      </Main>
     </div>
   );
 }

@@ -3,11 +3,6 @@ html, #daily-companion-wrapper {
   color: var(--theme-text-primary);
   height: stretch;
 }
-:root {
-  --balloon-border-radius: 0.625rem;
-  --balloon-color: var(--theme-text-primary);
-  --balloon-text-color: var(--theme-surface-invert);
-}
 body {
   min-width: 20rem;
   overflow-y: scroll;
