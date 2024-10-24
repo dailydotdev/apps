@@ -29,9 +29,9 @@
     "react-swipeable": "^6.2.0"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.16.0",
-    "@babel/preset-react": "^7.16.0",
-    "@babel/preset-typescript": "^7.16.0",
+    "@babel/preset-env": "^7.25.9",
+    "@babel/preset-react": "^7.25.9",
+    "@babel/preset-typescript": "^7.25.9",
     "@dailydotdev/eslint-config": "*",
     "@dailydotdev/eslint-plugin-daily-dev-eslint-rules": "*",
     "@dailydotdev/prettier-config": "*",
@@ -73,7 +73,7 @@
     "eslint-plugin-testing-library": "^4.12.4",
     "fake-indexeddb": "^3.1.7",
     "glob": "^7.2.0",
-    "graphql": "^15.7.2",
+    "graphql": "^16.9.0",
     "graphql-request": "^3.6.1",
     "idb-keyval": "^5.1.5",
     "identity-obj-proxy": "^3.0.0",

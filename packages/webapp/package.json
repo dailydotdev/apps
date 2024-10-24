@@ -23,7 +23,7 @@
     "date-fns-tz": "1.0.0",
     "dompurify": "^2.5.4",
     "focus-visible": "^5.2.1",
-    "graphql": "^15.8.0",
+    "graphql": "^16.9.0",
     "graphql-request": "^3.7.0",
     "idb-keyval": "^5.1.5",
     "next": "15.0.1",
@@ -37,7 +37,7 @@
     "react-swipeable": "^7.0.1"
   },
   "devDependencies": {
-    "@babel/preset-typescript": "^7.16.5",
+    "@babel/preset-typescript": "^7.25.9",
     "@dailydotdev/eslint-config": "*",
     "@dailydotdev/eslint-plugin-daily-dev-eslint-rules": "*",
     "@dailydotdev/prettier-config": "*",

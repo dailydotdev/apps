@@ -26,7 +26,7 @@
     "date-fns-tz": "1.0.0",
     "dompurify": "^2.5.4",
     "focus-visible": "^5.2.1",
-    "graphql": "^15.7.2",
+    "graphql": "^16.9.0",
     "graphql-request": "^3.6.1",
     "idb-keyval": "^5.1.5",
     "next": "15.0.1",
@@ -39,9 +39,9 @@
     "webextension-polyfill": "^0.10.0"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.16.0",
-    "@babel/preset-react": "^7.16.0",
-    "@babel/preset-typescript": "^7.16.0",
+    "@babel/preset-env": "^7.25.9",
+    "@babel/preset-react": "^7.25.9",
+    "@babel/preset-typescript": "^7.25.9",
     "@dailydotdev/eslint-config": "*",
     "@dailydotdev/eslint-plugin-daily-dev-eslint-rules": "*",
     "@dailydotdev/prettier-config": "*",
