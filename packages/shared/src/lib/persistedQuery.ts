@@ -7,6 +7,7 @@ export const persistedQueryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: StaleTime.OneHour,
+      // TODO: When upgrading to version 5, this needs to be renamed to gcTime
       cacheTime: StaleTime.OneDay,
     },
   },
