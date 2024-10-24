@@ -38,14 +38,12 @@ const useCommentById = ({
     data: commentById,
     isError,
     isLoading,
-  } = useQuery<CommentOnData>(
-    generateQueryKey(RequestKey.Comment, user, id),
-    () => requestMethod(query, { id: `${id}` }),
-    {
-      ...options,
-      enabled: !!id && options.enabled,
-    },
-  );
+  } = useQuery<CommentOnData>({
+    queryKey: generateQueryKey(RequestKey.Comment, user, id),
+    queryFn: () => requestMethod(query, { id: `${id}` }),
+    ...options,
+    enabled: !!id && options.enabled,
+  });
   const comment = commentById || (options?.initialData as CommentOnData);
 
   const invalidate = useCallback(() => {

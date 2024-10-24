@@ -3,8 +3,8 @@ import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import {
-  InAppNotification,
   IN_APP_NOTIFICATION_KEY,
+  InAppNotification,
   useInAppNotification,
 } from '../../hooks/useInAppNotification';
 import classed from '../../lib/classed';
@@ -48,18 +48,16 @@ export function InAppNotificationElement(): ReactElement {
     stopTimer();
     timeoutId = setTimeout(closeNotification, timer);
   };
-  const { data: payload } = useQuery<InAppNotification>(
-    IN_APP_NOTIFICATION_KEY,
-    () => client.getQueryData(IN_APP_NOTIFICATION_KEY),
-    {
-      onSuccess: (data) => {
-        if (!data) {
-          return;
-        }
-        startTimer(data.timer);
-      },
+  const { data: payload } = useQuery<InAppNotification>({
+    queryKey: IN_APP_NOTIFICATION_KEY,
+    queryFn: () => client.getQueryData(IN_APP_NOTIFICATION_KEY),
+    onSuccess: (data) => {
+      if (!data) {
+        return;
+      }
+      startTimer(data.timer);
     },
-  );
+  });
 
   useEffect(() => {
     const handler = () => {

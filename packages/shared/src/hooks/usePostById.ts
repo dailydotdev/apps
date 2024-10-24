@@ -122,15 +122,13 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
     data: postById,
     isError,
     isLoading,
-  } = useQuery<PostData>(
-    key,
-    () => gqlClient.request(POST_BY_ID_QUERY, { id }),
-    {
-      ...restOptions,
-      staleTime: StaleTime.Default,
-      enabled: !!id && tokenRefreshed,
-    },
-  );
+  } = useQuery<PostData>({
+    queryKey: key,
+    queryFn: () => gqlClient.request(POST_BY_ID_QUERY, { id }),
+    ...restOptions,
+    staleTime: StaleTime.Default,
+    enabled: !!id && tokenRefreshed,
+  });
   const post = postById || (options?.initialData as PostData);
 
   useMutationSubscription({

@@ -51,22 +51,20 @@ export function useAuthVerificationRecovery(): void {
     displayErrorMessage(error.text);
   };
 
-  useQuery(
-    [{ type: 'recovery', flow: router?.query.flow as string }],
-    ({ queryKey: [{ flow }] }) => getKratosFlow(AuthFlow.Recovery, flow),
-    {
-      enabled: !!router?.query.recovery && !!router?.query.flow,
-      onSuccess: checkErrorMessage,
-    },
-  );
+  useQuery({
+    queryKey: [{ type: 'recovery', flow: router?.query.flow as string }],
+    queryFn: ({ queryKey: [{ flow }] }) =>
+      getKratosFlow(AuthFlow.Recovery, flow),
+    enabled: !!router?.query.recovery && !!router?.query.flow,
+    onSuccess: checkErrorMessage,
+  });
 
-  useQuery(
-    [{ type: 'verification', flow: router?.query.flow as string }],
-    ({ queryKey: [{ flow }] }) => getKratosFlow(AuthFlow.Verification, flow),
-    {
-      ...disabledRefetch,
-      enabled: !!router?.query.flow && !router?.query.recovery,
-      onSuccess: (data) => checkErrorMessage(data, AuthFlow.Verification),
-    },
-  );
+  useQuery({
+    queryKey: [{ type: 'verification', flow: router?.query.flow as string }],
+    queryFn: ({ queryKey: [{ flow }] }) =>
+      getKratosFlow(AuthFlow.Verification, flow),
+    ...disabledRefetch,
+    enabled: !!router?.query.flow && !router?.query.recovery,
+    onSuccess: (data) => checkErrorMessage(data, AuthFlow.Verification),
+  });
 }

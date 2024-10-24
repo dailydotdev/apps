@@ -33,9 +33,9 @@ export const useProfileTooltip = ({
   const { requestMethod } = useRequestProtocol();
   const [shouldFetch, setShouldFetch] = useState(false);
   const key = ['readingRank', userId];
-  const { data, isLoading } = useQuery<UserTooltipContentData>(
-    key,
-    () =>
+  const { data, isLoading } = useQuery<UserTooltipContentData>({
+    queryKey: key,
+    queryFn: () =>
       requestMethod(
         USER_TOOLTIP_CONTENT_QUERY,
         {
@@ -45,13 +45,12 @@ export const useProfileTooltip = ({
         },
         { requestKey: JSON.stringify(key) },
       ),
-    {
-      staleTime: StaleTime.Tooltip,
-      refetchOnWindowFocus: false,
-      enabled: shouldFetch && !!userId,
-      onSettled: () => setShouldFetch(false),
-    },
-  );
+
+    staleTime: StaleTime.Tooltip,
+    refetchOnWindowFocus: false,
+    enabled: shouldFetch && !!userId,
+    onSettled: () => setShouldFetch(false),
+  });
 
   return useMemo(
     () => ({

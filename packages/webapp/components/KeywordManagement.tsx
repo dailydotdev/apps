@@ -54,39 +54,36 @@ export default function KeywordManagement({
     setCurrentAction(null);
   };
 
-  const { mutateAsync: allowKeyword } = useMutation(
-    () =>
+  const { mutateAsync: allowKeyword } = useMutation({
+    mutationFn: () =>
       gqlClient.request(ALLOW_KEYWORD_MUTATION, {
         keyword: keyword.value,
       }),
-    {
-      onSuccess: () => nextKeyword(),
-    },
-  );
 
-  const { mutateAsync: denyKeyword } = useMutation(
-    () =>
+    onSuccess: () => nextKeyword(),
+  });
+
+  const { mutateAsync: denyKeyword } = useMutation({
+    mutationFn: () =>
       gqlClient.request(DENY_KEYWORD_MUTATION, {
         keyword: keyword.value,
       }),
-    {
-      onSuccess: () => nextKeyword(),
-    },
-  );
 
-  const posts = useInfiniteQuery<FeedData>(
-    ['keyword_post', keyword.value],
-    ({ pageParam }) =>
+    onSuccess: () => nextKeyword(),
+  });
+
+  const posts = useInfiniteQuery<FeedData>({
+    queryKey: ['keyword_post', keyword.value],
+    queryFn: ({ pageParam }) =>
       gqlClient.request(KEYWORD_FEED_QUERY, {
         keyword: keyword.value,
         first: 4,
         after: pageParam,
       }),
-    {
-      getNextPageParam: (lastPage) =>
-        lastPage.page.pageInfo.hasNextPage && lastPage.page.pageInfo.endCursor,
-    },
-  );
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) =>
+      lastPage.page.pageInfo.hasNextPage && lastPage.page.pageInfo.endCursor,
+  });
 
   const onAllow = () => {
     setCurrentAction('allow');

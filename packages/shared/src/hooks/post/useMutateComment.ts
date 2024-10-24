@@ -167,34 +167,34 @@ export const useMutateComment = ({
     : COMMENT_ON_POST_MUTATION;
   const {
     mutateAsync: onComment,
-    isLoading: isCommenting,
+    isPending: isCommenting,
     isSuccess,
-  } = useMutation<MutateCommentResult, unknown, SubmitComment>(
-    (variables) =>
+  } = useMutation<MutateCommentResult, unknown, SubmitComment>({
+    mutationFn: (variables) =>
       requestMethod(mutation, variables, {
         requestKey: JSON.stringify(key),
       }),
-    {
-      onSuccess: (data) => onSuccess(data?.comment),
-    },
-  );
+
+    onSuccess: (data) => onSuccess(data?.comment),
+  });
 
   useBackgroundRequest(key, {
     enabled: isCompanion,
     callback: ({ res }) => onSuccess(res?.comment),
   });
 
-  const { mutateAsync: editComment, isLoading: isEditing } = useMutation<
+  const { mutateAsync: editComment, isPending: isEditing } = useMutation<
     MutateCommentResult,
     unknown,
     SubmitComment
-  >(
-    (variables) =>
+  >({
+    mutationFn: (variables) =>
       requestMethod(EDIT_COMMENT_MUTATION, variables, {
         requestKey: JSON.stringify(key),
       }),
-    { onSuccess: (data) => onSuccess(data?.comment) },
-  );
+
+    onSuccess: (data) => onSuccess(data?.comment),
+  });
 
   const onSubmit = useCallback(
     (content: string) => {

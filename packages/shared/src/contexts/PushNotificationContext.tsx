@@ -89,9 +89,10 @@ export function PushNotificationContextProvider({
     isFetched,
     isLoading,
     isSuccess,
-  } = useQuery<typeof OneSignal>(
-    key,
-    async () => {
+  } = useQuery<typeof OneSignal>({
+    queryKey: key,
+
+    queryFn: async () => {
       const osr = client.getQueryData<typeof OneSignal>(key);
 
       if (osr) {
@@ -112,8 +113,9 @@ export function PushNotificationContextProvider({
 
       return OneSingalImport;
     },
-    { enabled: isEnabled, ...disabledRefetch },
-  );
+    enabled: isEnabled,
+    ...disabledRefetch,
+  });
 
   const isPushSupported =
     !!globalThis.window?.Notification &&

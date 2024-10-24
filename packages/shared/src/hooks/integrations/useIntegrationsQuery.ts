@@ -21,24 +21,23 @@ export const useIntegrationsQuery = ({
   const { user } = useAuthContext();
   const enabled = !!user;
 
-  const queryResult = useQuery(
-    generateQueryKey(RequestKey.UserIntegrations, user),
-    async () => {
+  const queryResult = useQuery({
+    queryKey: generateQueryKey(RequestKey.UserIntegrations, user),
+
+    queryFn: async () => {
       const result = await gqlClient.request<{
         userIntegrations: Connection<UserIntegration>;
       }>(USER_INTEGRATIONS);
 
       return result.userIntegrations.edges.map((edge) => edge.node);
     },
-    {
-      staleTime: StaleTime.Default,
-      ...queryOptions,
-      enabled:
-        typeof queryOptions?.enabled !== 'undefined'
-          ? queryOptions.enabled && enabled
-          : enabled,
-    },
-  );
+    staleTime: StaleTime.Default,
+    ...queryOptions,
+    enabled:
+      typeof queryOptions?.enabled !== 'undefined'
+        ? queryOptions.enabled && enabled
+        : enabled,
+  });
 
   return queryResult;
 };

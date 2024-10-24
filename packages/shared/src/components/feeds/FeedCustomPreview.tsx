@@ -27,7 +27,7 @@ export const FeedCustomPreview = ({
     ],
     query: PREVIEW_FEED_QUERY,
     showSearch: false,
-    options: { refetchOnMount: true, cacheTime: 10, keepPreviousData: true },
+    options: { refetchOnMount: true, gcTime: 10, keepPreviousData: true },
     variables: {
       filters: previewFilters,
     },

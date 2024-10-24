@@ -59,28 +59,27 @@ const Notifications = (): ReactElement => {
   const { clearUnreadCount } = useNotificationContext();
   const { isSubscribed } = usePushNotificationContext();
 
-  const { mutateAsync: readNotifications } = useMutation(
-    () => gqlClient.request(READ_NOTIFICATIONS_MUTATION),
-    { onSuccess: clearUnreadCount },
-  );
-  const queryResult = useInfiniteQuery<NotificationsData>(
-    ['notifications'],
-    ({ pageParam }) =>
+  const { mutateAsync: readNotifications } = useMutation({
+    mutationFn: () => gqlClient.request(READ_NOTIFICATIONS_MUTATION),
+    onSuccess: clearUnreadCount,
+  });
+  const queryResult = useInfiniteQuery<NotificationsData>({
+    queryKey: ['notifications'],
+    queryFn: ({ pageParam }) =>
       gqlClient.request(NOTIFICATIONS_QUERY, {
         first: 100,
         after: pageParam,
       }),
-    {
-      getNextPageParam: (lastPage) =>
-        lastPage?.notifications?.pageInfo?.hasNextPage &&
-        lastPage?.notifications?.pageInfo?.endCursor,
-      onSuccess: (data) => {
-        if (hasUnread(data)) {
-          readNotifications();
-        }
-      },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) =>
+      lastPage?.notifications?.pageInfo?.hasNextPage &&
+      lastPage?.notifications?.pageInfo?.endCursor,
+    onSuccess: (data) => {
+      if (hasUnread(data)) {
+        readNotifications();
+      }
     },
-  );
+  });
   const { isFetchedAfterMount, isFetched, hasNextPage } = queryResult ?? {};
 
   const length = queryResult?.data?.pages?.length ?? 0;

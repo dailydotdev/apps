@@ -1,5 +1,5 @@
 import { PageContainer } from '@dailydotdev/shared/src/components/utilities';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, keepPreviousData } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import {
   getSquadInvitation,
@@ -99,46 +99,44 @@ const SquadReferral = ({
   const { displayToast } = useToastNotification();
   const { showLogin, user: loggedUser } = useAuthContext();
   const [loggedImpression, setLoggedImpression] = useState(false);
-  const { data: member, isFetched } = useQuery(
-    ['squad_referral', token, loggedUser?.id],
-    () => getSquadInvitation(token),
-    {
-      ...disabledRefetch,
-      keepPreviousData: true,
-      initialData,
-      retry: false,
-      enabled: !!token,
-      onSuccess: (response) => {
-        if (!loggedUser) {
-          return null;
-        }
-
-        if (!response?.source?.id) {
-          return router.replace(webappUrl);
-        }
-
-        const squadsUrl = getJoinRedirectUrl({
-          pathname: `/squads/${handle}`,
-          query: router.query,
-        });
-        const isValid = validateSourceHandle(handle, response.source);
-
-        if (!isValid) {
-          return router.replace(webappUrl);
-        }
-
-        const { currentMember } = response.source;
-        if (currentMember) {
-          const { role } = currentMember;
-          if (role !== SourceMemberRole.Blocked) {
-            return router.replace(squadsUrl);
-          }
-        }
-
+  const { data: member, isFetched } = useQuery({
+    queryKey: ['squad_referral', token, loggedUser?.id],
+    queryFn: () => getSquadInvitation(token),
+    ...disabledRefetch,
+    placeholderData: keepPreviousData,
+    initialData,
+    retry: false,
+    enabled: !!token,
+    onSuccess: (response) => {
+      if (!loggedUser) {
         return null;
-      },
+      }
+
+      if (!response?.source?.id) {
+        return router.replace(webappUrl);
+      }
+
+      const squadsUrl = getJoinRedirectUrl({
+        pathname: `/squads/${handle}`,
+        query: router.query,
+      });
+      const isValid = validateSourceHandle(handle, response.source);
+
+      if (!isValid) {
+        return router.replace(webappUrl);
+      }
+
+      const { currentMember } = response.source;
+      if (currentMember) {
+        const { role } = currentMember;
+        if (role !== SourceMemberRole.Blocked) {
+          return router.replace(squadsUrl);
+        }
+      }
+
+      return null;
     },
-  );
+  });
 
   const joinSquadLogExtra = () => {
     return JSON.stringify({

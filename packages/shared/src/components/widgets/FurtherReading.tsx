@@ -68,9 +68,9 @@ export default function FurtherReading({
   const { user, isLoggedIn } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const max = 3;
-  const { data: posts, isLoading } = useQuery<FurtherReadingData>(
+  const { data: posts, isLoading } = useQuery<FurtherReadingData>({
     queryKey,
-    async () => {
+    queryFn: async () => {
       const squad = currentPost.source;
 
       if (isPublicSquad) {
@@ -110,8 +110,9 @@ export default function FurtherReading({
         tags,
       });
     },
-    { ...disabledRefetch },
-  );
+
+    ...disabledRefetch,
+  });
 
   const { toggleBookmark } = useBookmarkPost({
     onMutate: ({ id }) => {

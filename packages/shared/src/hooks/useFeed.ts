@@ -108,9 +108,9 @@ export default function useFeed<T>(
   const queryClient = useQueryClient();
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
 
-  const feedQuery = useInfiniteQuery<FeedData>(
-    feedQueryKey,
-    async ({ pageParam }) => {
+  const feedQuery = useInfiniteQuery<FeedData>({
+    queryKey: feedQueryKey,
+    queryFn: async ({ pageParam }) => {
       const res = await gqlClient.request(query, {
         ...variables,
         first: pageSize,
@@ -128,16 +128,15 @@ export default function useFeed<T>(
 
       return res;
     },
-    {
-      refetchOnMount: false,
-      ...options,
-      enabled: query && tokenRefreshed,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      getNextPageParam: (lastPage) =>
-        lastPage.page.pageInfo.hasNextPage && lastPage.page.pageInfo.endCursor,
-    },
-  );
+    refetchOnMount: false,
+    ...options,
+    enabled: query && tokenRefreshed,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) =>
+      lastPage.page.pageInfo.hasNextPage && lastPage.page.pageInfo.endCursor,
+  });
 
   const clientError = feedQuery?.error as ClientError;
 
@@ -148,21 +147,20 @@ export default function useFeed<T>(
     (!settings?.adPostLength ||
       feedQuery.data?.pages[0]?.page.edges.length > settings?.adPostLength) &&
     !settings?.disableAds;
-  const adsQuery = useInfiniteQuery<Ad>(
-    ['ads', ...feedQueryKey],
-    async ({ pageParam }) => {
+  const adsQuery = useInfiniteQuery<Ad>({
+    queryKey: ['ads', ...feedQueryKey],
+    queryFn: async ({ pageParam }) => {
       const res = await fetch(`${apiUrl}/v1/a?active=${!!pageParam}`);
       const ads: Ad[] = await res.json();
       return ads[0];
     },
-    {
-      getNextPageParam: () => Date.now(),
-      enabled: isAdsQueryEnabled,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-    },
-  );
+    initialPageParam: 0,
+    getNextPageParam: () => Date.now(),
+    enabled: isAdsQueryEnabled,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+  });
 
   useEffect(() => {
     if (

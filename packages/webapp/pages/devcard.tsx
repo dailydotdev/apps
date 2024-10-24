@@ -77,18 +77,17 @@ interface Step1Props {
 
 const Step1 = ({ onGenerateImage }: Step1Props): ReactElement => {
   const { user, showLogin, loadingUser } = useContext(AuthContext);
-  const { mutateAsync: onGenerate, isLoading } = useMutation(
-    () => gqlClient.request<DevCardMutation>(GENERATE_DEVCARD_MUTATION),
-    {
-      onSuccess: (data) => {
-        const url = data?.devCard?.imageUrl;
+  const { mutateAsync: onGenerate, isPending: isLoading } = useMutation({
+    mutationFn: () =>
+      gqlClient.request<DevCardMutation>(GENERATE_DEVCARD_MUTATION),
+    onSuccess: (data) => {
+      const url = data?.devCard?.imageUrl;
 
-        if (data?.devCard?.imageUrl) {
-          onGenerateImage(url);
-        }
-      },
+      if (data?.devCard?.imageUrl) {
+        onGenerateImage(url);
+      }
     },
-  );
+  });
 
   return (
     <>
@@ -170,24 +169,23 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     await onDownloadUrl({ url: finalUrl, filename: `${user.username}.png` });
   };
 
-  const { mutateAsync: onGenerate, isLoading } = useMutation(
-    (params: Partial<GenerateDevCardParams> = {}) => {
+  const { mutateAsync: onGenerate, isLoading } = useMutation({
+    mutationFn: (params: Partial<GenerateDevCardParams> = {}) => {
       return gqlClient.request(GENERATE_DEVCARD_MUTATION, {
         ...params,
         theme: params?.theme?.toLocaleUpperCase() ?? 'DEFAULT',
         type: params?.type ?? 'DEFAULT',
       });
     },
-    {
-      onSuccess: (data, vars) => {
-        if (!data?.devCard?.imageUrl || vars.type === DevCardType.Twitter) {
-          return;
-        }
 
-        setDevCardSrc(data.devCard.imageUrl);
-      },
+    onSuccess: (data, vars) => {
+      if (!data?.devCard?.imageUrl || vars.type === DevCardType.Twitter) {
+        return;
+      }
+
+      setDevCardSrc(data.devCard.imageUrl);
     },
-  );
+  });
 
   const onUpdatePreference = useCallback(
     (props: Partial<Omit<GenerateDevCardParams, 'type'>>) => {
