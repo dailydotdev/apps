@@ -66,6 +66,7 @@ export interface MainLayoutProps
   onNavTabClick?: (tab: string) => void;
   onShowDndClick?: () => unknown;
   canGoBack?: string;
+  seo?: Record<string, unknown>;
 }
 
 const feeds = Object.values(SharedFeedPage);

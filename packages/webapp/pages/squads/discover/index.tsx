@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
 import { useSquadCategories } from '@dailydotdev/shared/src/hooks/squads/useSquadCategories';
 import { SquadsDirectoryFeed } from '@dailydotdev/shared/src/components/cards/squad/SquadsDirectoryFeed';
-import { NextSeo } from 'next-seo';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -30,7 +29,6 @@ function SquadDiscoveryPage(): ReactElement {
 
   return (
     <SquadDirectoryLayout className="gap-6">
-      <NextSeo {...seo} />
       <SquadsDirectoryFeed
         key="featured"
         linkToSeeAll="/squads/discover/featured"
@@ -59,6 +57,6 @@ function SquadDiscoveryPage(): ReactElement {
 }
 
 SquadDiscoveryPage.getLayout = getLayout;
-SquadDiscoveryPage.layoutProps = mainFeedLayoutProps;
+SquadDiscoveryPage.layoutProps = { ...mainFeedLayoutProps, seo };
 
 export default SquadDiscoveryPage;

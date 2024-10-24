@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 
 export interface ProtectedPageProps {
-  seo: ReactNode;
+  seo?: ReactNode;
   children: ReactNode;
   fallback?: ReactNode;
   shouldFallback?: boolean;

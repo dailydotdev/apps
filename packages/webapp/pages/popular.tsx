@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
@@ -13,15 +12,9 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
-const Popular = (): ReactElement => {
-  return (
-    <>
-      <NextSeo {...seo} />
-    </>
-  );
-};
+const Popular = (): ReactElement => <></>;
 
 Popular.getLayout = getMainFeedLayout;
-Popular.layoutProps = mainFeedLayoutProps;
+Popular.layoutProps = { ...mainFeedLayoutProps, seo };
 
 export default Popular;

@@ -32,7 +32,7 @@ import {
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { cloudinaryWelcomePageHeaderMainImage } from '@dailydotdev/shared/src/lib/image';
 import classNames from 'classnames';
-import { NextSeo, NextSeoProps } from 'next-seo';
+import { NextSeoProps } from 'next-seo';
 import { authGradientBg } from '@dailydotdev/shared/src/components/auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
@@ -110,7 +110,6 @@ const DemoPage = (): ReactElement => {
 
   return (
     <>
-      <NextSeo {...seo} />
       <OnboardingLogs userId={userId} instanceId={instanceId} />
       <div
         className={classNames(
@@ -168,6 +167,7 @@ const getPageLayout: typeof getLayout = (...props) =>
 DemoPage.getLayout = getPageLayout;
 DemoPage.layoutProps = {
   screenCentered: false,
+  seo,
 };
 
 export default DemoPage;

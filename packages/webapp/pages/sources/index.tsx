@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
 import { GetStaticPropsResult } from 'next';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
 
 import {
   Button,
@@ -56,46 +55,43 @@ const SourcesPage = ({
   }
 
   return (
-    <>
-      <NextSeo {...seo} />
-      <PageWrapperLayout className="py-6">
-        <div className="flex justify-between">
-          <BreadCrumbs>
-            <SitesIcon size={IconSize.XSmall} secondary /> Sources
-          </BreadCrumbs>
-          <Button
-            icon={<PlusIcon />}
-            variant={isLaptop ? ButtonVariant.Secondary : ButtonVariant.Float}
-            className="mb-6 ml-4 tablet:ml-0 laptop:float-right"
-            onClick={() => openModal({ type: LazyModal.NewSource })}
-          >
-            Suggest new source
-          </Button>
-        </div>
-        <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-4">
-          <SourceTopList
-            containerProps={{ title: 'Trending sources' }}
-            items={trendingSources}
-            isLoading={isLoading}
-          />
-          <SourceTopList
-            containerProps={{ title: 'Popular sources' }}
-            items={popularSources}
-            isLoading={isLoading}
-          />
-          <SourceTopList
-            containerProps={{ title: 'Recently added sources' }}
-            items={mostRecentSources}
-            isLoading={isLoading}
-          />
-          <SourceTopList
-            containerProps={{ title: 'Top video sources' }}
-            items={topVideoSources}
-            isLoading={isLoading}
-          />
-        </div>
-      </PageWrapperLayout>
-    </>
+    <PageWrapperLayout className="py-6">
+      <div className="flex justify-between">
+        <BreadCrumbs>
+          <SitesIcon size={IconSize.XSmall} secondary /> Sources
+        </BreadCrumbs>
+        <Button
+          icon={<PlusIcon />}
+          variant={isLaptop ? ButtonVariant.Secondary : ButtonVariant.Float}
+          className="mb-6 ml-4 tablet:ml-0 laptop:float-right"
+          onClick={() => openModal({ type: LazyModal.NewSource })}
+        >
+          Suggest new source
+        </Button>
+      </div>
+      <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-4">
+        <SourceTopList
+          containerProps={{ title: 'Trending sources' }}
+          items={trendingSources}
+          isLoading={isLoading}
+        />
+        <SourceTopList
+          containerProps={{ title: 'Popular sources' }}
+          items={popularSources}
+          isLoading={isLoading}
+        />
+        <SourceTopList
+          containerProps={{ title: 'Recently added sources' }}
+          items={mostRecentSources}
+          isLoading={isLoading}
+        />
+        <SourceTopList
+          containerProps={{ title: 'Top video sources' }}
+          items={topVideoSources}
+          isLoading={isLoading}
+        />
+      </div>
+    </PageWrapperLayout>
   );
 };
 
@@ -105,6 +101,7 @@ const getSourcesPageLayout: typeof getLayout = (...props) =>
 SourcesPage.getLayout = getSourcesPageLayout;
 SourcesPage.layoutProps = {
   screenCentered: false,
+  seo,
 };
 export default SourcesPage;
 

@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import {
   feedbyIdsLayoutProps,
@@ -13,15 +12,9 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
-const FeedByIds = (): ReactElement => {
-  return (
-    <>
-      <NextSeo {...seo} />
-    </>
-  );
-};
+const FeedByIds = (): ReactElement => <></>;
 
 FeedByIds.getLayout = getFeedByIdsLayout;
-FeedByIds.layoutProps = feedbyIdsLayoutProps;
+FeedByIds.layoutProps = { ...feedbyIdsLayoutProps, seo };
 
 export default FeedByIds;
