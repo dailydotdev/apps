@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from 'react';
-import { NextSeo, NextSeoProps } from 'next-seo';
+import { NextSeoProps } from 'next-seo';
 import router, { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
@@ -27,6 +27,8 @@ import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 const seo: NextSeoProps = {
   title: 'Create your Squad',
   openGraph: { ...defaultOpenGraph },
+  nofollow: true,
+  noindex: true,
   ...defaultSeo,
 };
 
@@ -79,7 +81,6 @@ const NewSquad = (): ReactElement => {
 
   return (
     <ManageSquadPageContainer>
-      <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
       <SquadDetails
         onRequestClose={handleClose}
         onSubmit={(e, form, channelId) => {
@@ -120,5 +121,6 @@ const NewSquad = (): ReactElement => {
 };
 
 NewSquad.getLayout = getMainLayout;
+NewSquad.layoutProps = { seo };
 
 export default NewSquad;

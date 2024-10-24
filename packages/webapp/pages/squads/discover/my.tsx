@@ -29,6 +29,6 @@ function MySquadsPage(): ReactElement {
 }
 
 MySquadsPage.getLayout = getLayout;
-MySquadsPage.layoutProps = mainFeedLayoutProps;
+MySquadsPage.layoutProps = { ...mainFeedLayoutProps, seo };
 
 export default MySquadsPage;

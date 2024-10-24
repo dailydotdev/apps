@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { NextSeo, NextSeoProps } from 'next-seo';
+import { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
@@ -33,6 +33,8 @@ const pageTitle = 'Squad settings';
 const seo: NextSeoProps = {
   title: pageTitle,
   openGraph: { ...defaultOpenGraph },
+  nofollow: true,
+  noindex: true,
   ...defaultSeo,
 };
 
@@ -84,7 +86,6 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
 
   return (
     <ManageSquadPageContainer>
-      <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
       <SquadDetails
         squad={squad}
         onSubmit={(_, form) =>
@@ -97,6 +98,7 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
 };
 
 EditSquad.getLayout = getMainLayout;
+EditSquad.layoutProps = { seo };
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
   return { paths: [], fallback: true };
