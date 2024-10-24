@@ -20,21 +20,20 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
   const { logEvent } = useContext(LogContext);
   const { user } = useContext(AuthContext);
   const isImpressionTracked = useRef(false);
-  const ad = useQuery<Ad>(
-    generateQueryKey(RequestKey.Ads, user, postId),
-    async () => {
+  const ad = useQuery({
+    queryKey: generateQueryKey(RequestKey.Ads, user, postId),
+
+    queryFn: async () => {
       const res = await fetch(`${apiUrl}/v1/a/post`);
       const ads: Ad[] = await res.json();
       return ads[0];
     },
-    {
-      enabled: true,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      staleTime: StaleTime.OneHour,
-    },
-  );
+    enabled: true,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+    staleTime: StaleTime.OneHour,
+  });
 
   const { isLoading, data, isError } = ad || {};
   const { providerId, source, image, description, pixel, company, tagLine } =

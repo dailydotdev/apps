@@ -70,9 +70,9 @@ const AuthDefault = ({
   const { displayToast } = useToastNotification();
   const [registerEmail, setRegisterEmail] = useState<string>(null);
   const socialLoginListRef = useRef<HTMLDivElement>(null);
-  const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
-    checkKratosEmail(emailParam),
-  );
+  const { mutateAsync: checkEmail } = useMutation({
+    mutationFn: (emailParam: string) => checkKratosEmail(emailParam),
+  });
 
   const focusFirstSocialLink = () => {
     if (!socialLoginListRef.current) {

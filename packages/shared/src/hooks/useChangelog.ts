@@ -25,13 +25,11 @@ export function useChangelog(): UseChangelog {
     'latest-post',
   );
 
-  const { data: latestPost } = useQuery(
-    changelogQueryKey,
-    getLatestChangelogPost,
-    {
-      enabled: sidebarRendered && !!alerts.changelog,
-    },
-  );
+  const { data: latestPost } = useQuery({
+    queryKey: changelogQueryKey,
+    queryFn: getLatestChangelogPost,
+    enabled: sidebarRendered && !!alerts.changelog,
+  });
 
   const updateLatestChangelogPostCache = (mutationHandler) => {
     return client.setQueryData(changelogQueryKey, (old: Post) => {
@@ -81,16 +79,18 @@ export function useChangelog(): UseChangelog {
     return lastPostDate > lastChangelogDate;
   }, [alerts.lastChangelog, latestPost?.createdAt, sidebarRendered]);
 
-  const dismissMutation = useMutation(() => {
-    const currentDate = new Date();
+  const dismissMutation = useMutation({
+    mutationFn: () => {
+      const currentDate = new Date();
 
-    return updateAlerts({
-      lastChangelog: currentDate.toISOString(),
-    });
+      return updateAlerts({
+        lastChangelog: currentDate.toISOString(),
+      });
+    },
   });
 
   const dismiss = async () => {
-    if (dismissMutation.isLoading) {
+    if (dismissMutation.isPending) {
       return;
     }
 

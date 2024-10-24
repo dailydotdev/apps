@@ -17,7 +17,6 @@ import AuthContext from '../../contexts/AuthContext';
 import {
   SubmissionAvailability,
   SUBMISSION_AVAILABILITY_QUERY,
-  SubmitArticleResponse,
   SUBMIT_ARTICLE_MUTATION,
 } from '../../graphql/submitArticle';
 import PostItemCard from '../post/PostItemCard';
@@ -56,19 +55,19 @@ export default function SubmitArticleModal({
   const availabilityKey = ['submission_availability', user?.id];
   const { data: access, isFetched } = useQuery<{
     submissionAvailability: SubmissionAvailability;
-  }>(availabilityKey, () => gqlClient.request(SUBMISSION_AVAILABILITY_QUERY));
+  }>({
+    queryKey: availabilityKey,
+    queryFn: () => gqlClient.request(SUBMISSION_AVAILABILITY_QUERY),
+  });
   const { submissionAvailability } = access || {};
   const dailyLimit = submissionAvailability?.limit ?? 3;
   const isEnabled = submissionAvailability?.hasAccess;
-  const { mutateAsync: submitArticle } = useMutation<
-    { submitArticle: SubmitArticleResponse },
-    unknown,
-    string
-  >((articleUrl: string) =>
-    gqlClient.request(SUBMIT_ARTICLE_MUTATION, {
-      url: articleUrl,
-    }),
-  );
+  const { mutateAsync: submitArticle } = useMutation({
+    mutationFn: (articleUrl: string) =>
+      gqlClient.request(SUBMIT_ARTICLE_MUTATION, {
+        url: articleUrl,
+      }),
+  });
 
   const submitArticleFailEvent = (reason: string): void => {
     logEvent({

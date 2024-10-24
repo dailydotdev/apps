@@ -20,20 +20,21 @@ export default function KeywordSynonymModal({
   const [query, setQuery] = useState(selectedKeyword);
 
   const { data: searchResults, isLoading: isSearching } =
-    useQuery<SearchKeywordData>(['searchKeywords', query], () =>
-      gqlClient.request(SEARCH_KEYWORDS_QUERY, { query }),
-    );
+    useQuery<SearchKeywordData>({
+      queryKey: ['searchKeywords', query],
 
-  const { mutateAsync: setSynonym } = useMutation(
-    (originalKeyword: string) =>
+      queryFn: () => gqlClient.request(SEARCH_KEYWORDS_QUERY, { query }),
+    });
+
+  const { mutateAsync: setSynonym } = useMutation({
+    mutationFn: (originalKeyword: string) =>
       gqlClient.request(SET_KEYWORD_AS_SYNONYM_MUTATION, {
         originalKeyword,
         keywordToUpdate: selectedKeyword.toLowerCase(),
       }),
-    {
-      onSuccess: () => props.onRequestClose(null),
-    },
-  );
+
+    onSuccess: () => props.onRequestClose(null),
+  });
 
   const emptyResults =
     !isSearching && !searchResults?.searchKeywords.hits.length;

@@ -37,17 +37,19 @@ export const AcquisitionFormInner = ({ className }: Props): ReactElement => {
     onRemoveQueryParams();
   };
 
-  const { mutateAsync, isLoading, isSuccess } = useMutation(
-    updateUserAcquisition,
-    {
-      onSuccess: () => {
-        logEvent({
-          event_name: UserAcquisitionEvent.Submit,
-          target_id: value,
-        });
-      },
+  const {
+    mutateAsync,
+    isPending: isLoading,
+    isSuccess,
+  } = useMutation({
+    mutationFn: updateUserAcquisition,
+    onSuccess: () => {
+      logEvent({
+        event_name: UserAcquisitionEvent.Submit,
+        target_id: value,
+      });
     },
-  );
+  });
 
   useEffect(() => {
     logEvent({

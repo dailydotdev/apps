@@ -24,16 +24,18 @@ function MarkdownPreview({
 }: MarkdownPreviewProps): ReactElement {
   const { requestMethod, isCompanion } = useRequestProtocol();
   const query = ['markdown_preview', input];
-  const { data: previewContent } = useQuery<QueryResult>(
-    query,
-    () =>
+  const { data: previewContent } = useQuery<QueryResult>({
+    queryKey: query,
+
+    queryFn: () =>
       requestMethod(
         PREVIEW_COMMENT_MUTATION,
         { content: input, sourceId },
         { requestKey: isCompanion ? JSON.stringify(query) : undefined },
       ),
-    { enabled: input?.length > 0 && enabled },
-  );
+
+    enabled: input?.length > 0 && enabled,
+  });
 
   useBackgroundRequest(query, { enabled: input?.length > 0 && enabled });
 

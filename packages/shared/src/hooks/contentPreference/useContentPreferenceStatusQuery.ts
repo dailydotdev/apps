@@ -28,12 +28,12 @@ export const useContentPreferenceStatusQuery = ({
   const { user, isLoggedIn } = useAuthContext();
   const enabled = !!(isLoggedIn && id && entity);
 
-  const queryResult = useQuery(
-    generateQueryKey(RequestKey.ContentPreference, user, {
+  const queryResult = useQuery({
+    queryKey: generateQueryKey(RequestKey.ContentPreference, user, {
       id,
       entity,
     }),
-    async ({ queryKey }) => {
+    queryFn: async ({ queryKey }) => {
       const [, , queryVariables] = queryKey as [
         unknown,
         unknown,
@@ -57,15 +57,13 @@ export const useContentPreferenceStatusQuery = ({
         throw originalError;
       }
     },
-    {
-      staleTime: StaleTime.Default,
-      ...queryOptions,
-      enabled:
-        typeof queryOptions?.enabled !== 'undefined'
-          ? queryOptions.enabled && enabled
-          : enabled,
-    },
-  );
+    staleTime: StaleTime.Default,
+    ...queryOptions,
+    enabled:
+      typeof queryOptions?.enabled !== 'undefined'
+        ? queryOptions.enabled && enabled
+        : enabled,
+  });
 
   return queryResult;
 };

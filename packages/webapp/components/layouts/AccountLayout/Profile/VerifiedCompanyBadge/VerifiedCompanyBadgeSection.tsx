@@ -64,41 +64,40 @@ export const VerifiedCompanyBadgeSection = ({
   const userCompanyInReview = !userCompanyVerified && userCompanies?.length > 0;
   const [submitWorkEmailHint, setSubmitWorkEmailHint] = useState<string>();
 
-  const { mutate: onSubmitWorkEmail, isLoading } = useMutation(
-    (email: string) => gqlClient.request(ADD_USER_COMPANY_MUTATION, { email }),
-    {
-      onSuccess: () => {
-        onSwitchDisplay(Display.ChangeEmail);
-      },
-      onError: (err) => {
-        const clientError = err as ClientError;
-        const message = clientError?.response?.errors?.[0]?.message;
-        if (message) {
-          setSubmitWorkEmailHint(message);
-        } else {
-          displayToast(labels.error.generic);
-        }
-      },
+  const { mutate: onSubmitWorkEmail, isPending: isLoading } = useMutation({
+    mutationFn: (email: string) =>
+      gqlClient.request(ADD_USER_COMPANY_MUTATION, { email }),
+    onSuccess: () => {
+      onSwitchDisplay(Display.ChangeEmail);
     },
-  );
 
-  const { mutate: removeUserCompany } = useMutation(
-    (email: string) =>
-      gqlClient.request(REMOVE_USER_COMPANY_MUTATION, { email }),
-    {
-      onSuccess: (_, email) => {
-        queryClient.setQueryData<UserCompany[]>(
-          generateQueryKey(RequestKey.UserCompanies, user),
-          (currentUserCompanies) => {
-            return currentUserCompanies?.filter(
-              (userCompany) => userCompany.email !== email,
-            );
-          },
-        );
-      },
-      onError: () => displayToast(labels.error.generic),
+    onError: (err) => {
+      const clientError = err as ClientError;
+      const message = clientError?.response?.errors?.[0]?.message;
+      if (message) {
+        setSubmitWorkEmailHint(message);
+      } else {
+        displayToast(labels.error.generic);
+      }
     },
-  );
+  });
+
+  const { mutate: removeUserCompany } = useMutation({
+    mutationFn: (email: string) =>
+      gqlClient.request(REMOVE_USER_COMPANY_MUTATION, { email }),
+
+    onSuccess: (_, email) => {
+      queryClient.setQueryData<UserCompany[]>(
+        generateQueryKey(RequestKey.UserCompanies, user),
+        (currentUserCompanies) => {
+          return currentUserCompanies?.filter(
+            (userCompany) => userCompany.email !== email,
+          );
+        },
+      );
+    },
+    onError: () => displayToast(labels.error.generic),
+  });
 
   const onDeleteUserCompany = async (email) => {
     if (

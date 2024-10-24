@@ -15,17 +15,18 @@ export const useChatSession = ({
     () => generateQueryKey(RequestKey.Search, user, id),
     [user, id],
   );
-  const { data, isLoading } = useQuery(
+  const { data, isLoading } = useQuery({
     queryKey,
-    () => {
+
+    queryFn: () => {
       if (streamId && streamId === id) {
         return client.getQueryData<Search>(queryKey);
       }
 
       return getSearchSession(id);
     },
-    { enabled: !!id },
-  );
+    enabled: !!id,
+  });
 
   return {
     queryKey,

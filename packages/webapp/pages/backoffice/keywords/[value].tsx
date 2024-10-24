@@ -5,10 +5,7 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import {
-  KEYWORD_QUERY,
-  KeywordData,
-} from '@dailydotdev/shared/src/graphql/keywords';
+import { KEYWORD_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
 import { useQuery } from '@tanstack/react-query';
 import useRequirePermissions from '@dailydotdev/shared/src/hooks/useRequirePermissions';
 import { Roles } from '@dailydotdev/shared/src/lib/user';
@@ -26,14 +23,11 @@ const KeywordPage = ({
   useRequirePermissions(Roles.Moderator);
   const { tokenRefreshed } = useContext(AuthContext);
 
-  const { data: keywordData, isLoading: isLoadingKeyword } =
-    useQuery<KeywordData>(
-      ['keyword', keywordValue],
-      () => gqlClient.request(KEYWORD_QUERY, { value: keywordValue }),
-      {
-        enabled: tokenRefreshed && !!keywordValue,
-      },
-    );
+  const { data: keywordData, isLoading: isLoadingKeyword } = useQuery({
+    queryKey: ['keyword', keywordValue],
+    queryFn: () => gqlClient.request(KEYWORD_QUERY, { value: keywordValue }),
+    enabled: tokenRefreshed && !!keywordValue,
+  });
 
   if (isLoadingKeyword || !keywordData) {
     return <></>;

@@ -73,20 +73,19 @@ import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 type TagPageProps = { tag: string; initialData: Keyword };
 
 const TagRecommendedTags = ({ tag, blockedTags }): ReactElement => {
-  const { data: recommendedTags, isLoading } = useQuery(
-    [RequestKey.RecommendedTags, null, tag],
-    async () =>
+  const { data: recommendedTags, isLoading } = useQuery({
+    queryKey: [RequestKey.RecommendedTags, null, tag],
+
+    queryFn: async () =>
       await gqlClient.request<{
         recommendedTags: TagsData;
       }>(GET_RECOMMENDED_TAGS_QUERY, {
         tags: [tag],
         excludedTags: blockedTags || [],
       }),
-    {
-      enabled: !!tag,
-      staleTime: StaleTime.OneHour,
-    },
-  );
+    enabled: !!tag,
+    staleTime: StaleTime.OneHour,
+  });
 
   return (
     <RecommendedTags
@@ -98,9 +97,10 @@ const TagRecommendedTags = ({ tag, blockedTags }): ReactElement => {
 
 const TagTopSources = ({ tag }: { tag: string }) => {
   const { shouldUseListFeedLayout } = useFeedLayout();
-  const { data: topSources, isLoading } = useQuery(
-    [RequestKey.SourceByTag, null, tag],
-    async () =>
+  const { data: topSources, isLoading } = useQuery({
+    queryKey: [RequestKey.SourceByTag, null, tag],
+
+    queryFn: async () =>
       await gqlClient.request<{ sourcesByTag: Connection<Source> }>(
         SOURCES_BY_TAG_QUERY,
         {
@@ -108,11 +108,10 @@ const TagTopSources = ({ tag }: { tag: string }) => {
           first: 6,
         },
       ),
-    {
-      enabled: !!tag,
-      staleTime: StaleTime.OneHour,
-    },
-  );
+
+    enabled: !!tag,
+    staleTime: StaleTime.OneHour,
+  });
 
   const sources = topSources?.sourcesByTag?.edges?.map((edge) => edge.node);
   if (!sources || sources.length === 0) {

@@ -39,11 +39,12 @@ const queue: NewNotification[] = [];
 export const useInAppNotification = (): UseInAppNotification => {
   const client = useQueryClient();
   const { incrementUnreadCount } = useNotificationContext();
-  const { data: notification } = useQuery<InAppNotification>(
-    IN_APP_NOTIFICATION_KEY,
-    () =>
+  const { data: notification } = useQuery<InAppNotification>({
+    queryKey: IN_APP_NOTIFICATION_KEY,
+
+    queryFn: () =>
       client.getQueryData<InAppNotification>(IN_APP_NOTIFICATION_KEY) || null,
-  );
+  });
   const hasNotification = (): boolean =>
     !!client.getQueryData(IN_APP_NOTIFICATION_KEY);
   const setInAppNotification = (data: InAppNotification) =>

@@ -139,22 +139,21 @@ export const SettingsContextProvider = ({
     unknown,
     unknown,
     RemoteSettings
-  >(
-    (params) =>
+  >({
+    mutationFn: (params) =>
       gqlClient.request(UPDATE_USER_SETTINGS_MUTATION, {
         data: params,
       }),
-    {
-      onError: (_, params) => {
-        const rollback = Object.keys(params).reduce(
-          (values, key) => ({ ...values, [key]: settings[key] }),
-          {},
-        );
 
-        updateSettings({ ...settings, ...rollback });
-      },
+    onError: (_, params) => {
+      const rollback = Object.keys(params).reduce(
+        (values, key) => ({ ...values, [key]: settings[key] }),
+        {},
+      );
+
+      updateSettings({ ...settings, ...rollback });
     },
-  );
+  });
 
   useEffect(() => {
     const lightMode = storageWrapper.getItem(deprecatedLightModeStorageKey);

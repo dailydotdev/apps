@@ -97,29 +97,30 @@ export const useBookmarkReminder = ({
     }
   };
 
-  const { mutateAsync: onUndoReminder } = useMutation(setBookmarkReminder, {
+  const { mutateAsync: onUndoReminder } = useMutation({
+    mutationFn: setBookmarkReminder,
     onSuccess: (_, { postId, remindAt }) => {
       onUpdateCache(postId, remindAt);
     },
   });
-  const { mutateAsync: onSetBookmarkReminder } = useMutation(
-    ({ postId, remindAt }: MutateBookmarkProps) =>
+  const { mutateAsync: onSetBookmarkReminder } = useMutation({
+    mutationFn: ({ postId, remindAt }: MutateBookmarkProps) =>
       setBookmarkReminder({ postId, remindAt }),
-    {
-      onSuccess: (_, { postId, existingReminder, preference, remindAt }) => {
-        onUpdateCache(postId, remindAt);
 
-        displayToast(`Reminder set for ${preference.toLowerCase()}`, {
-          onUndo: () => onUndoReminder({ postId, remindAt: existingReminder }),
-        });
+    onSuccess: (_, { postId, existingReminder, preference, remindAt }) => {
+      onUpdateCache(postId, remindAt);
 
-        if (isPushSupported && !isSubscribed) {
-          onEnablePush(NotificationPromptSource.BookmarkReminder);
-        }
-      },
-      onError: () => displayToast('Failed to set reminder'),
+      displayToast(`Reminder set for ${preference.toLowerCase()}`, {
+        onUndo: () => onUndoReminder({ postId, remindAt: existingReminder }),
+      });
+
+      if (isPushSupported && !isSubscribed) {
+        onEnablePush(NotificationPromptSource.BookmarkReminder);
+      }
     },
-  );
+
+    onError: () => displayToast('Failed to set reminder'),
+  });
 
   const onBookmarkReminder = useCallback(
     (props: BookmarkReminderProps) => {

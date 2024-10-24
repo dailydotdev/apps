@@ -61,10 +61,10 @@ export const usePostMenuActions = ({
 }: UsePostMenuActionsProps): UsePostMenuActions => {
   const { user } = useAuthContext();
   const { showPrompt } = usePrompt();
-  const { mutateAsync: onDeletePost } = useMutation(
-    ({ id }: DeletePostProps) => deletePost(id),
-    { onSuccess: (_, vars) => onPostDeleted(vars) },
-  );
+  const { mutateAsync: onDeletePost } = useMutation({
+    mutationFn: ({ id }: DeletePostProps) => deletePost(id),
+    onSuccess: (_, vars) => onPostDeleted(vars),
+  });
   const deletePostPrompt = useCallback(async () => {
     const param = { id: post.id, index: postIndex, post };
 
@@ -89,16 +89,17 @@ export const usePostMenuActions = ({
 
   const canSwap = canPin && post?.pinnedAt;
 
-  const { mutateAsync: onPinPost } = useMutation(
-    () => updatePinnedPost({ id: post.id, pinned: !post.pinnedAt }),
-    { onSuccess: onPinSuccessful },
-  );
+  const { mutateAsync: onPinPost } = useMutation({
+    mutationFn: () => updatePinnedPost({ id: post.id, pinned: !post.pinnedAt }),
+    onSuccess: onPinSuccessful,
+  });
 
-  const { mutateAsync: onSwapPinnedPost } = useMutation(
-    ({ swapWithId }: { swapWithId: Post['id'] }) =>
+  const { mutateAsync: onSwapPinnedPost } = useMutation({
+    mutationFn: ({ swapWithId }: { swapWithId: Post['id'] }) =>
       swapPinnedPosts({ id: post.id, swapWithId }),
-    { onSuccess: onSwapPostSuccessful },
-  );
+
+    onSuccess: onSwapPostSuccessful,
+  });
 
   const { onClose, onShowPanel } = useBlockPostPanel(post);
   const { toggleDownvote } = useVotePost();

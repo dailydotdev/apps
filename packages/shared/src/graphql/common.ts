@@ -46,7 +46,7 @@ export interface RequestQuery<T> {
   queryKey: QueryKey;
   query: string;
   params?: RequestQueryParams;
-  options?: UseInfiniteQueryOptions<T>;
+  options?: Omit<Partial<UseInfiniteQueryOptions<T>>, 'select'>;
 }
 
 export type RequestDataConnection<TEntity, TKey extends string> = Record<

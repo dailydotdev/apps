@@ -1,10 +1,10 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import {
-  InAppNotification,
   IN_APP_NOTIFICATION_KEY,
+  InAppNotification,
   useInAppNotification,
 } from '../../hooks/useInAppNotification';
 import classed from '../../lib/classed';
@@ -36,30 +36,31 @@ export function InAppNotificationElement(): ReactElement {
   const { clearNotifications, dismissNotification } = useInAppNotification();
   const { isSubscribed } = usePushNotificationContext();
   const [isExit, setIsExit] = useState(false);
-  const closeNotification = () => {
+  const closeNotification = useCallback(() => {
     setIsExit(true);
     setTimeout(() => {
       setIsExit(false);
       dismissNotification();
     }, 150);
-  };
+  }, [dismissNotification]);
   const stopTimer = () => clearTimeout(timeoutId);
-  const startTimer = (timer: number) => {
-    stopTimer();
-    timeoutId = setTimeout(closeNotification, timer);
-  };
-  const { data: payload } = useQuery<InAppNotification>(
-    IN_APP_NOTIFICATION_KEY,
-    () => client.getQueryData(IN_APP_NOTIFICATION_KEY),
-    {
-      onSuccess: (data) => {
-        if (!data) {
-          return;
-        }
-        startTimer(data.timer);
-      },
+  const startTimer = useCallback(
+    (timer: number) => {
+      stopTimer();
+      timeoutId = setTimeout(closeNotification, timer);
     },
+    [closeNotification],
   );
+  const { data: payload } = useQuery<InAppNotification>({
+    queryKey: IN_APP_NOTIFICATION_KEY,
+    queryFn: () => client.getQueryData(IN_APP_NOTIFICATION_KEY),
+  });
+
+  useEffect(() => {
+    if (payload) {
+      startTimer(payload.timer);
+    }
+  }, [payload, startTimer]);
 
   useEffect(() => {
     const handler = () => {

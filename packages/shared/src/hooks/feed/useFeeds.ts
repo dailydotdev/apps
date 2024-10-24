@@ -34,21 +34,20 @@ export const useFeeds = (): UseFeeds => {
   const { user } = useAuthContext();
   const queryKey = generateQueryKey(RequestKey.Feeds, user);
 
-  const { data: feeds } = useQuery(
+  const { data: feeds } = useQuery({
     queryKey,
-    async () => {
+
+    queryFn: async () => {
       const result = await gqlClient.request<FeedList>(FEED_LIST_QUERY);
 
       return result.feedList;
     },
-    {
-      enabled: !!user,
-      staleTime: StaleTime.OneHour,
-    },
-  );
+    enabled: !!user,
+    staleTime: StaleTime.OneHour,
+  });
 
-  const { mutateAsync: createFeed } = useMutation(
-    async ({ name }: CreateFeedProps) => {
+  const { mutateAsync: createFeed } = useMutation({
+    mutationFn: async ({ name }: CreateFeedProps) => {
       const result = await gqlClient.request<{ createFeed: Feed }>(
         CREATE_FEED_MUTATION,
         {
@@ -58,28 +57,28 @@ export const useFeeds = (): UseFeeds => {
 
       return result.createFeed;
     },
-    {
-      onSuccess: (data) => {
-        queryClient.setQueryData<FeedList['feedList']>(queryKey, (current) => {
-          return {
-            ...current,
-            edges: [
-              ...(current?.edges || []),
-              {
-                node: data,
-              },
-            ],
-          };
-        });
-      },
-      onError: () => {
-        displayToast(labels.error.generic);
-      },
-    },
-  );
 
-  const { mutateAsync: updateFeed } = useMutation(
-    async ({ feedId, name }: UpdateFeedProps) => {
+    onSuccess: (data) => {
+      queryClient.setQueryData<FeedList['feedList']>(queryKey, (current) => {
+        return {
+          ...current,
+          edges: [
+            ...(current?.edges || []),
+            {
+              node: data,
+            },
+          ],
+        };
+      });
+    },
+
+    onError: () => {
+      displayToast(labels.error.generic);
+    },
+  });
+
+  const { mutateAsync: updateFeed } = useMutation({
+    mutationFn: async ({ feedId, name }: UpdateFeedProps) => {
       const result = await gqlClient.request<{ updateFeed: Feed }>(
         UPDATE_FEED_MUTATION,
         {
@@ -90,48 +89,49 @@ export const useFeeds = (): UseFeeds => {
 
       return result.updateFeed;
     },
-    {
-      onSuccess: (data) => {
-        queryClient.setQueryData<FeedList['feedList']>(queryKey, (current) => {
-          return {
-            ...current,
-            edges: (current?.edges || []).map((edge) => {
-              if (edge.node.id === data.id) {
-                return { node: data };
-              }
 
-              return edge;
-            }),
-          };
-        });
-      },
-      onError: () => {
-        displayToast(labels.error.generic);
-      },
+    onSuccess: (data) => {
+      queryClient.setQueryData<FeedList['feedList']>(queryKey, (current) => {
+        return {
+          ...current,
+          edges: (current?.edges || []).map((edge) => {
+            if (edge.node.id === data.id) {
+              return { node: data };
+            }
+
+            return edge;
+          }),
+        };
+      });
     },
-  );
 
-  const { mutateAsync: deleteFeed } = useMutation(
-    async ({ feedId }: DeleteFeedProps): Promise<Pick<Feed, 'id'>> => {
+    onError: () => {
+      displayToast(labels.error.generic);
+    },
+  });
+
+  const { mutateAsync: deleteFeed } = useMutation({
+    mutationFn: async ({
+      feedId,
+    }: DeleteFeedProps): Promise<Pick<Feed, 'id'>> => {
       await gqlClient.request(DELETE_FEED_MUTATION, {
         feedId,
       });
 
       return { id: feedId };
     },
-    {
-      onSuccess: (data) => {
-        queryClient.setQueryData<FeedList['feedList']>(queryKey, (current) => {
-          return {
-            ...current,
-            edges: (current?.edges || []).filter(
-              (edge) => edge.node.id !== data.id,
-            ),
-          };
-        });
-      },
+
+    onSuccess: (data) => {
+      queryClient.setQueryData<FeedList['feedList']>(queryKey, (current) => {
+        return {
+          ...current,
+          edges: (current?.edges || []).filter(
+            (edge) => edge.node.id !== data.id,
+          ),
+        };
+      });
     },
-  );
+  });
 
   return {
     feeds,

@@ -116,46 +116,43 @@ const useProfileForm = ({
   const { user, updateUser } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
   const [hint, setHint] = useState<ProfileFormHint>({});
-  const { isLoading, mutate: updateUserProfile } = useMutation<
+  const { isPending: isLoading, mutate: updateUserProfile } = useMutation<
     LoggedUser,
     ResponseError,
     UpdateProfileParameters
-  >(
-    ({ image, onUpdateSuccess, ...data }) =>
+  >({
+    mutationFn: ({ image, onUpdateSuccess, ...data }) =>
       gqlClient.request(UPDATE_USER_PROFILE_MUTATION, {
         data,
         upload: image,
       }),
-    {
-      onSuccess: async (_, { image, onUpdateSuccess, ...vars }) => {
-        setHint({});
-        await updateUser({ ...user, ...vars });
-        onUpdateSuccess?.();
-        onSuccess?.();
-      },
-      onError: (err) => {
-        onError?.(err);
 
-        if (!err?.response?.errors?.length) {
-          return;
-        }
-
-        const data: ProfileFormHint = JSON.parse(
-          err.response.errors[0].message,
-        );
-
-        if (
-          Object.values(data).some((errorHint) =>
-            socials.some((social) => errorHint.includes(social)),
-          )
-        ) {
-          displayToast(errorMessage.profile.invalidSocialLinks);
-        }
-
-        setHint(data);
-      },
+    onSuccess: async (_, { image, onUpdateSuccess, ...vars }) => {
+      setHint({});
+      await updateUser({ ...user, ...vars });
+      onUpdateSuccess?.();
+      onSuccess?.();
     },
-  );
+    onError: (err) => {
+      onError?.(err);
+
+      if (!err?.response?.errors?.length) {
+        return;
+      }
+
+      const data: ProfileFormHint = JSON.parse(err.response.errors[0].message);
+
+      if (
+        Object.values(data).some((errorHint) =>
+          socials.some((social) => errorHint.includes(social)),
+        )
+      ) {
+        displayToast(errorMessage.profile.invalidSocialLinks);
+      }
+
+      setHint(data);
+    },
+  });
 
   const handleUpdate: typeof updateUserProfile = useCallback(
     (values) => {

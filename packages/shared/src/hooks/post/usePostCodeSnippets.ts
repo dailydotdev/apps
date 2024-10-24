@@ -1,4 +1,5 @@
 import {
+  InfiniteData,
   useInfiniteQuery,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
@@ -9,7 +10,12 @@ import {
   POST_CODE_SNIPPETS_QUERY,
   PostCodeSnippet,
 } from '../../graphql/posts';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import {
+  generateQueryKey,
+  getNextPageParam,
+  RequestKey,
+  StaleTime,
+} from '../../lib/query';
 import { Connection, gqlClient } from '../../graphql/common';
 
 type UsePostCodeSnippetsData = Connection<PostCodeSnippet>;
@@ -23,8 +29,9 @@ export type UsePostCodeSnippetsQueryProps = {
   >;
 };
 
-export type UsePostCodeSnippetsQuery =
-  UseInfiniteQueryResult<UsePostCodeSnippetsData>;
+export type UsePostCodeSnippetsQuery = UseInfiniteQueryResult<
+  InfiniteData<UsePostCodeSnippetsData>
+>;
 
 export const usePostCodeSnippetsQuery = ({
   postId,
@@ -33,11 +40,11 @@ export const usePostCodeSnippetsQuery = ({
 }: UsePostCodeSnippetsQueryProps): UsePostCodeSnippetsQuery => {
   const enabled = !!postId;
 
-  const queryResult = useInfiniteQuery(
-    generateQueryKey(RequestKey.PostCodeSnippets, null, {
+  const queryResult = useInfiniteQuery({
+    queryKey: generateQueryKey(RequestKey.PostCodeSnippets, null, {
       id: postId,
     }),
-    async ({ pageParam }) => {
+    queryFn: async ({ pageParam }) => {
       const result = await gqlClient.request<{
         postCodeSnippets: UsePostCodeSnippetsData;
       }>(POST_CODE_SNIPPETS_QUERY, {
@@ -48,28 +55,26 @@ export const usePostCodeSnippetsQuery = ({
 
       return result.postCodeSnippets;
     },
-    {
-      staleTime: StaleTime.OneHour,
-      ...queryOptions,
-      enabled:
-        typeof queryOptions?.enabled !== 'undefined'
-          ? queryOptions.enabled && enabled
-          : enabled,
-      getNextPageParam: (lastPage) =>
-        lastPage?.pageInfo?.hasNextPage && lastPage?.pageInfo?.endCursor,
-      select: useCallback((data) => {
-        if (!data) {
-          return undefined;
-        }
+    initialPageParam: '',
+    staleTime: StaleTime.OneHour,
+    ...queryOptions,
+    enabled:
+      typeof queryOptions?.enabled !== 'undefined'
+        ? queryOptions.enabled && enabled
+        : enabled,
+    getNextPageParam: (lastPage) => getNextPageParam(lastPage?.pageInfo),
+    select: useCallback((data) => {
+      if (!data) {
+        return undefined;
+      }
 
-        return {
-          ...data,
-          // filter out last page with no edges returned by api paginator
-          pages: data.pages.filter((pageItem) => !!pageItem?.edges.length),
-        };
-      }, []),
-    },
-  );
+      return {
+        ...data,
+        // filter out last page with no edges returned by api paginator
+        pages: data.pages.filter((pageItem) => !!pageItem?.edges.length),
+      };
+    }, []),
+  });
 
   return queryResult;
 };

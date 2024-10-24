@@ -17,18 +17,18 @@ export const useGenerateUsername = (
   const usernameQueryKey = ['generateUsername', name];
   const { data } = useQuery<{
     generateUniqueUsername: string;
-  }>(
-    usernameQueryKey,
-    () =>
+  }>({
+    queryKey: usernameQueryKey,
+
+    queryFn: () =>
       requestMethod(
         GET_USERNAME_SUGGESTION,
         { name },
         { requestKey: JSON.stringify(usernameQueryKey) },
       ),
-    {
-      enabled: !!name?.length && usernameRef.current !== true,
-    },
-  );
+
+    enabled: !!name?.length && usernameRef.current !== true,
+  });
 
   if (data?.generateUniqueUsername && !usernameRef.current) {
     usernameRef.current = true;

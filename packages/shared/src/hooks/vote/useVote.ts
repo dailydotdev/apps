@@ -22,20 +22,19 @@ const useVote = ({ onMutate, entity, variables }: UseVoteProps): UseVote => {
   const mutationKey = createVoteMutationKey({ entity, variables });
   const { completeAction } = useActions();
 
-  const { mutateAsync: onVoteEntity, isLoading } = useMutation(
-    (mutationProps: UseVoteMutationProps) => {
+  const { mutateAsync: onVoteEntity, isPending: isLoading } = useMutation({
+    mutationKey,
+    mutationFn: (mutationProps: UseVoteMutationProps) => {
       if (mutationProps.entity === UserVoteEntity.Post) {
         completeAction(ActionType.VotePost);
       }
 
       return requestMethod(VOTE_MUTATION, mutationProps);
     },
-    {
-      mutationKey,
-      onMutate,
-      onError: (err, _, rollback?: () => void) => rollback?.(),
-    },
-  );
+
+    onMutate,
+    onError: (err, _, rollback?: () => void) => rollback?.(),
+  });
 
   const voteEntity: typeof onVoteEntity = useCallback(
     (props) => {

@@ -28,11 +28,11 @@ export const useSourceIntegrationsQuery = ({
   const { user } = useAuthContext();
   const enabled = !!integrationId;
 
-  const queryResult = useQuery(
-    generateQueryKey(RequestKey.UserSourceIntegrations, user, {
+  const queryResult = useQuery({
+    queryKey: generateQueryKey(RequestKey.UserSourceIntegrations, user, {
       integrationId,
     }),
-    async ({ queryKey }) => {
+    queryFn: async ({ queryKey }) => {
       const [, , queryVariables] = queryKey as [
         unknown,
         unknown,
@@ -44,15 +44,13 @@ export const useSourceIntegrationsQuery = ({
 
       return result.sourceIntegrations.edges.map((edge) => edge.node);
     },
-    {
-      staleTime: StaleTime.Default,
-      ...queryOptions,
-      enabled:
-        typeof queryOptions?.enabled !== 'undefined'
-          ? queryOptions.enabled && enabled
-          : enabled,
-    },
-  );
+    staleTime: StaleTime.Default,
+    ...queryOptions,
+    enabled:
+      typeof queryOptions?.enabled !== 'undefined'
+        ? queryOptions.enabled && enabled
+        : enabled,
+  });
 
   return queryResult;
 };

@@ -72,13 +72,12 @@ export default function PostsSearch({
 
   const { data: searchResults, isLoading } = useQuery<{
     [suggestionType: string]: { hits: { title: string }[] };
-  }>(
-    [suggestionType, query],
-    () => gqlClient.request(SEARCH_URL, { query, version: searchVersion }),
-    {
-      enabled: !!query,
-    },
-  );
+  }>({
+    queryKey: [suggestionType, query],
+    queryFn: () =>
+      gqlClient.request(SEARCH_URL, { query, version: searchVersion }),
+    enabled: !!query,
+  });
 
   useEffect(() => {
     if (!initialQuery) {

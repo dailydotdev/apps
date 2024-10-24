@@ -63,15 +63,13 @@ function useAccountEmailFlow({
 
   const existingEnabled = flow === AuthFlow.Verification && !flowId;
 
-  const { data: existingFlow, isLoading: existingFlowLoading } = useQuery(
-    ['existing_flow'],
-    getVerificationSession,
-    {
-      ...disabledRefetch,
-      enabled: existingEnabled,
-      retry: false,
-    },
-  );
+  const { data: existingFlow, isLoading: existingFlowLoading } = useQuery({
+    queryKey: ['existing_flow'],
+    queryFn: getVerificationSession,
+    ...disabledRefetch,
+    enabled: existingEnabled,
+    retry: false,
+  });
 
   useEffect(() => {
     if (existingFlow?.result?.flow_id && !activeFlow) {
@@ -85,15 +83,14 @@ function useAccountEmailFlow({
       : !existingFlowLoading && !activeFlow && !autoResend;
   }, [flow, existingFlowLoading, activeFlow, autoResend]);
 
-  const { data: emailFlow } = useQuery(
-    [{ type: flow }],
-    ({ queryKey: [{ type }] }) =>
+  const { data: emailFlow } = useQuery({
+    queryKey: [{ type: flow }],
+    queryFn: ({ queryKey: [{ type }] }) =>
       flowId ? getKratosFlow(flow, flowId) : initializeKratosFlow(type),
-    {
-      ...disabledRefetch,
-      enabled,
-    },
-  );
+
+    ...disabledRefetch,
+    enabled,
+  });
 
   useEffect(() => {
     if (emailFlow?.id && !activeFlow) {
@@ -102,8 +99,8 @@ function useAccountEmailFlow({
     }
   }, [activeFlow, emailFlow?.id]);
 
-  const { mutateAsync: sendEmail, isLoading } = useMutation(
-    (email: string) =>
+  const { mutateAsync: sendEmail, isPending: isLoading } = useMutation({
+    mutationFn: (email: string) =>
       submitKratosFlow({
         action: emailFlow.ui.action,
         params: {
@@ -112,27 +109,26 @@ function useAccountEmailFlow({
           csrf_token: getNodeValue('csrf_token', emailFlow.ui.nodes),
         },
       }),
-    {
-      onSuccess: ({ error }, variables) => {
-        if (error) {
-          const requestError = getErrorMessage(error.ui.messages);
-          const emailError = getNodeByKey('email', error.ui.nodes);
-          const formError = getErrorMessage(emailError?.messages);
-          const message = requestError || formError;
-          return onError?.(message);
-        }
 
-        setActiveFlow(emailFlow.id);
-        setAutoResend(false);
-        setTimer(60);
-        runTimer();
-        return onSuccess?.(variables, emailFlow.id);
-      },
+    onSuccess: ({ error }, variables) => {
+      if (error) {
+        const requestError = getErrorMessage(error.ui.messages);
+        const emailError = getNodeByKey('email', error.ui.nodes);
+        const formError = getErrorMessage(emailError?.messages);
+        const message = requestError || formError;
+        return onError?.(message);
+      }
+
+      setActiveFlow(emailFlow.id);
+      setAutoResend(false);
+      setTimer(60);
+      runTimer();
+      return onSuccess?.(variables, emailFlow.id);
     },
-  );
+  });
 
-  const { mutateAsync: verifyCode } = useMutation(
-    ({ code, altFlowId }: { code: string; altFlowId?: string }) =>
+  const { mutateAsync: verifyCode } = useMutation({
+    mutationFn: ({ code, altFlowId }: { code: string; altFlowId?: string }) =>
       submitKratosFlow({
         action: FlowActionURLs[flow] + (altFlowId ?? activeFlow),
         params: {
@@ -143,19 +139,18 @@ function useAccountEmailFlow({
           }),
         },
       } as VerifyEmail),
-    {
-      onSuccess: ({ error }) => {
-        if (error) {
-          const requestError = getErrorMessage(error.ui.messages);
-          if (requestError) {
-            return onError?.(requestError);
-          }
-        }
 
-        return onVerifyCodeSuccess?.();
-      },
+    onSuccess: ({ error }) => {
+      if (error) {
+        const requestError = getErrorMessage(error.ui.messages);
+        if (requestError) {
+          return onError?.(requestError);
+        }
+      }
+
+      return onVerifyCodeSuccess?.();
     },
-  );
+  });
 
   return useMemo(
     () => ({

@@ -1,15 +1,21 @@
 import {
+  InfiniteData,
   useInfiniteQuery,
   UseInfiniteQueryOptions,
-  UseInfiniteQueryResult,
 } from '@tanstack/react-query';
+import { UseInfiniteQueryResult } from '@tanstack/react-query/build/legacy/types';
 import {
   ContentPreference,
   ContentPreferenceType,
   DEFAULT_FOLLOW_LIMIT,
   USER_FOLLOWERS_QUERY,
 } from '../../graphql/contentPreference';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import {
+  generateQueryKey,
+  getNextPageParam,
+  RequestKey,
+  StaleTime,
+} from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Connection, gqlClient } from '../../graphql/common';
 import { useFollowContentPreferenceMutationSubscription } from './useFollowContentPreferenceMutationSubscription';
@@ -18,11 +24,14 @@ export type UseFollowersQueryProps = {
   id: string;
   entity: ContentPreferenceType;
   limit?: number;
-  queryOptions?: UseInfiniteQueryOptions<Connection<ContentPreference>>;
+  queryOptions?: Omit<
+    UseInfiniteQueryOptions<Connection<ContentPreference>>,
+    'select'
+  >;
 };
 
 export type UseFollowersQuery = UseInfiniteQueryResult<
-  Connection<ContentPreference>
+  InfiniteData<Connection<ContentPreference>>
 >;
 
 export const useFollowersQuery = ({
@@ -44,9 +53,9 @@ export const useFollowersQuery = ({
     },
   );
 
-  const queryResult = useInfiniteQuery(
+  const queryResult = useInfiniteQuery({
     queryKey,
-    async ({ queryKey: queryKeyArg, pageParam }) => {
+    queryFn: async ({ queryKey: queryKeyArg, pageParam }) => {
       const [, , , queryVariables] = queryKeyArg as [
         unknown,
         unknown,
@@ -62,17 +71,15 @@ export const useFollowersQuery = ({
 
       return result.userFollowers;
     },
-    {
-      staleTime: StaleTime.Default,
-      getNextPageParam: (lastPage) =>
-        lastPage?.pageInfo?.hasNextPage && lastPage?.pageInfo?.endCursor,
-      ...queryOptions,
-      enabled:
-        typeof queryOptions?.enabled !== 'undefined'
-          ? queryOptions.enabled && enabled
-          : enabled,
-    },
-  );
+    initialPageParam: '',
+    staleTime: StaleTime.Default,
+    getNextPageParam: ({ pageInfo }) => getNextPageParam(pageInfo),
+    ...queryOptions,
+    enabled:
+      typeof queryOptions?.enabled !== 'undefined'
+        ? queryOptions.enabled && enabled
+        : enabled,
+  });
 
   useFollowContentPreferenceMutationSubscription({ queryKey });
 

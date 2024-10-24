@@ -64,16 +64,14 @@ const useLogin = ({
   const { refetchBoot } = useContext(AuthContext);
   const hintState = useState('Enter your password to login');
   const [, setHint] = hintState;
-  const { data: login } = useQuery(
-    [AuthEvent.Login, { ...queryParams }],
-    () => initializeKratosFlow(AuthFlow.Login, queryParams),
-    {
-      enabled: queryEnabled,
-      refetchOnWindowFocus: false,
-    },
-  );
-  const { mutateAsync: onPasswordLogin, isLoading } = useMutation(
-    (params: ValidateLoginParams) => {
+  const { data: login } = useQuery({
+    queryKey: [AuthEvent.Login, { ...queryParams }],
+    queryFn: () => initializeKratosFlow(AuthFlow.Login, queryParams),
+    enabled: queryEnabled,
+    refetchOnWindowFocus: false,
+  });
+  const { mutateAsync: onPasswordLogin, isPending: isLoading } = useMutation({
+    mutationFn: (params: ValidateLoginParams) => {
       logEvent({
         event_name: 'click',
         target_type: AuthEventNames.LoginProvider,
@@ -82,53 +80,51 @@ const useLogin = ({
       });
       return submitKratosFlow(params);
     },
-    {
-      onSuccess: async ({ error }) => {
-        if (error) {
-          logEvent({
-            event_name: AuthEventNames.LoginError,
-            extra: JSON.stringify({
-              error: labels.auth.error.invalidEmailOrPassword,
-            }),
-          });
-          setHint(labels.auth.error.invalidEmailOrPassword);
-          if (onLoginError) {
-            onLoginError(error);
-          }
-          return;
+
+    onSuccess: async ({ error }) => {
+      if (error) {
+        logEvent({
+          event_name: AuthEventNames.LoginError,
+          extra: JSON.stringify({
+            error: labels.auth.error.invalidEmailOrPassword,
+          }),
+        });
+        setHint(labels.auth.error.invalidEmailOrPassword);
+        if (onLoginError) {
+          onLoginError(error);
         }
+        return;
+      }
 
-        const { data: boot } = await refetchBoot();
+      const { data: boot } = await refetchBoot();
 
-        if (boot.user && !boot.user.shouldVerify) {
-          onUpdateSignBack(boot.user as LoggedUser, 'password');
-        }
+      if (boot.user && !boot.user.shouldVerify) {
+        onUpdateSignBack(boot.user as LoggedUser, 'password');
+      }
 
-        onSuccessfulLogin?.(boot?.user?.shouldVerify);
-      },
+      onSuccessfulLogin?.(boot?.user?.shouldVerify);
     },
-  );
-  const { mutateAsync: onSocialLogin } = useMutation(
-    (params: ValidateLoginParams) => submitKratosFlow(params),
-    {
-      onSuccess: async (res) => {
-        const { error, redirect } = res;
-        if (error) {
-          logEvent({
-            event_name: AuthEventNames.LoginError,
-            extra: JSON.stringify({
-              error: labels.auth.error.invalidEmailOrPassword,
-            }),
-          });
-          setHint(labels.auth.error.invalidEmailOrPassword);
-        }
+  });
+  const { mutateAsync: onSocialLogin } = useMutation({
+    mutationFn: (params: ValidateLoginParams) => submitKratosFlow(params),
 
-        if (redirect) {
-          window.open(redirect);
-        }
-      },
+    onSuccess: async (res) => {
+      const { error, redirect } = res;
+      if (error) {
+        logEvent({
+          event_name: AuthEventNames.LoginError,
+          extra: JSON.stringify({
+            error: labels.auth.error.invalidEmailOrPassword,
+          }),
+        });
+        setHint(labels.auth.error.invalidEmailOrPassword);
+      }
+
+      if (redirect) {
+        window.open(redirect);
+      }
     },
-  );
+  });
 
   const onSubmitSocialLogin = useCallback(
     (provider: string) => {

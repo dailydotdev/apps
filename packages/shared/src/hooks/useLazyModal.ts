@@ -17,13 +17,11 @@ export function useLazyModal<
   T extends LazyModalType<K> = LazyModalType<K>,
 >(): UseLazyModal<K, T> {
   const client = useQueryClient();
-  const { data: modal } = useQuery<T>(
-    MODAL_KEY,
-    () => client.getQueryData<T>(MODAL_KEY),
-    {
-      enabled: false,
-    },
-  );
+  const { data: modal } = useQuery({
+    queryKey: MODAL_KEY,
+    queryFn: () => client.getQueryData<T>(MODAL_KEY),
+    enabled: false,
+  });
   const openModal = useCallback(
     (data: T) => {
       scrollPosition = window.scrollY;

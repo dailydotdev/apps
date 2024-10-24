@@ -1,10 +1,16 @@
 import {
+  InfiniteData,
   useInfiniteQuery,
   UseInfiniteQueryResult,
 } from '@tanstack/react-query';
 import { SOURCES_QUERY } from '../../graphql/squads';
 import { Connection, gqlClient } from '../../graphql/common';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import {
+  generateQueryKey,
+  getNextPageParam,
+  RequestKey,
+  StaleTime,
+} from '../../lib/query';
 import { Source, Squad } from '../../graphql/sources';
 
 export interface SourcesQueryData<T extends Source | Squad> {
@@ -12,7 +18,7 @@ export interface SourcesQueryData<T extends Source | Squad> {
 }
 
 interface UseSources<T extends Source | Squad> {
-  result: UseInfiniteQueryResult<SourcesQueryData<T>>;
+  result: UseInfiniteQueryResult<InfiniteData<SourcesQueryData<T>>>;
 }
 
 export interface SourcesQueryProps {
@@ -39,8 +45,8 @@ export const useSources = <T extends Source | Squad>({
     first = 100,
     sortByMembersCount,
   } = query;
-  const result = useInfiniteQuery(
-    generateQueryKey(
+  const result = useInfiniteQuery({
+    queryKey: generateQueryKey(
       RequestKey.Sources,
       null,
       featured,
@@ -48,7 +54,7 @@ export const useSources = <T extends Source | Squad>({
       categoryId,
       first,
     ),
-    ({ pageParam }) =>
+    queryFn: ({ pageParam }) =>
       gqlClient.request(SOURCES_QUERY, {
         filterOpenSquads: isPublic,
         categoryId,
@@ -57,14 +63,11 @@ export const useSources = <T extends Source | Squad>({
         after: pageParam,
         sortByMembersCount,
       }),
-    {
-      getNextPageParam: (lastPage) =>
-        lastPage?.sources?.pageInfo?.hasNextPage &&
-        lastPage?.sources?.pageInfo?.endCursor,
-      staleTime: StaleTime.Default,
-      enabled: isEnabled,
-    },
-  );
+    initialPageParam: '',
+    getNextPageParam: ({ sources }) => getNextPageParam(sources?.pageInfo),
+    staleTime: StaleTime.Default,
+    enabled: isEnabled,
+  });
 
   return { result };
 };

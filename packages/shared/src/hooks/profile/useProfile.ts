@@ -12,16 +12,14 @@ export function useProfile(initialUser?: PublicProfile): {
   const userQueryKey = generateQueryKey(RequestKey.Profile, initialUser, {
     id: loggedUser?.id,
   });
-  const { data: user } = useQuery(
-    userQueryKey,
-    () => getProfile(initialUser?.id),
-    {
-      ...disabledRefetch,
-      cacheTime: StaleTime.OneHour,
-      initialData: initialUser,
-      enabled: !!initialUser?.id,
-    },
-  );
+  const { data: user } = useQuery({
+    queryKey: userQueryKey,
+    queryFn: () => getProfile(initialUser?.id),
+    ...disabledRefetch,
+    staleTime: StaleTime.OneHour,
+    initialData: initialUser,
+    enabled: !!initialUser?.id,
+  });
 
   return {
     user,

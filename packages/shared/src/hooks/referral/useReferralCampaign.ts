@@ -49,9 +49,9 @@ const useReferralCampaign = ({
   const queryKey = generateQueryKey(RequestKey.ReferralCampaigns, user, {
     referralOrigin: campaignKey,
   });
-  const { data, isSuccess, fetchStatus } = useQuery(
+  const { data, isSuccess, fetchStatus } = useQuery({
     queryKey,
-    async () => {
+    queryFn: async () => {
       const result = await requestMethod<{
         referralCampaign: ReferralCampaign;
       }>(
@@ -62,11 +62,9 @@ const useReferralCampaign = ({
 
       return result.referralCampaign;
     },
-    {
-      enabled: !!user?.id && !!isCampaignEnabled,
-      staleTime: STALE_TIME,
-    },
-  );
+    enabled: !!user?.id && !!isCampaignEnabled,
+    staleTime: STALE_TIME,
+  });
   const {
     referralCountLimit = 0,
     referredUsersCount = 0,

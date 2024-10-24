@@ -47,14 +47,15 @@ const updateFurtherReadingPost =
     update: (oldPost: Post) => Partial<Post>,
   ): ((args: { id: string }) => Promise<UseBookmarkPostRollback>) =>
   async ({ id }) => {
-    await queryClient.cancelQueries(queryKey);
+    await queryClient.cancelQueries({ queryKey });
     const previousData = queryClient.getQueryData<FurtherReadingData>(queryKey);
     queryClient.setQueryData(queryKey, {
       ...previousData,
       trendingPosts: transformPosts(previousData.trendingPosts, id, update),
       similarPosts: transformPosts(previousData.similarPosts, id, update),
     });
-    return () => queryClient.setQueryData(queryKey, previousData);
+    return () =>
+      queryClient.setQueryData<FurtherReadingData>(queryKey, previousData);
   };
 
 export default function FurtherReading({
@@ -68,9 +69,9 @@ export default function FurtherReading({
   const { user, isLoggedIn } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const max = 3;
-  const { data: posts, isLoading } = useQuery<FurtherReadingData>(
+  const { data: posts, isLoading } = useQuery<FurtherReadingData>({
     queryKey,
-    async () => {
+    queryFn: async () => {
       const squad = currentPost.source;
 
       if (isPublicSquad) {
@@ -110,8 +111,9 @@ export default function FurtherReading({
         tags,
       });
     },
-    { ...disabledRefetch },
-  );
+
+    ...disabledRefetch,
+  });
 
   const { toggleBookmark } = useBookmarkPost({
     onMutate: ({ id }) => {

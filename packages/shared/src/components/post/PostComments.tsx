@@ -57,20 +57,19 @@ export function PostComments({
   const { requestMethod } = useRequestProtocol();
   const queryKey = generateCommentsQueryKey({ postId: id, sortBy });
   const { data: comments, isLoading: isLoadingComments } =
-    useQuery<PostCommentsData>(
+    useQuery<PostCommentsData>({
       queryKey,
-      () =>
+
+      queryFn: () =>
         requestMethod(
           POST_COMMENTS_QUERY,
           { postId: id, [initialDataKey]: comments, first: 500, sortBy },
           { requestKey: JSON.stringify(queryKey) },
         ),
-      {
-        enabled: !!id && tokenRefreshed,
-        refetchInterval: 60 * 1000,
-        refetchOnWindowFocus: false,
-      },
-    );
+      enabled: !!id && tokenRefreshed,
+      refetchInterval: 60 * 1000,
+      refetchOnWindowFocus: false,
+    });
 
   useCommentContentPreferenceMutationSubscription({ queryKey });
 

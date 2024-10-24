@@ -2,13 +2,13 @@ import React, { ReactElement, useCallback } from 'react';
 import { HideReadHistory } from '../../hooks/useReadingHistory';
 import { isDateOnlyEqual, TimeFormatType } from '../../lib/dateFormat';
 import PostItemCard from '../post/PostItemCard';
-import { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
 import { InfiniteScrollScreenOffset } from '../../hooks/feed/useFeedInfiniteScroll';
 import PostOptionsReadingHistoryMenu from '../PostOptionsReadingHistoryMenu';
 import useReadingHistoryContextMenu from '../../hooks/useReadingHistoryContextMenu';
 import { useSharePost } from '../../hooks/useSharePost';
 import { Origin } from '../../lib/log';
 import { DateFormat } from '../utilities';
+import { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
 
 export interface ReadHistoryListProps {
   data: ReadHistoryInfiniteData;

@@ -88,11 +88,11 @@ export function ReadingStreakPopup({
   const isMobile = useViewSize(ViewSize.MobileL);
   const { user } = useAuthContext();
   const { completeAction } = useActions();
-  const { data: history } = useQuery<ReadingDay[]>(
-    generateQueryKey(RequestKey.ReadingStreak30Days, user),
-    () => getReadingStreak30Days(user.id),
-    { staleTime: StaleTime.Default },
-  );
+  const { data: history } = useQuery<ReadingDay[]>({
+    queryKey: generateQueryKey(RequestKey.ReadingStreak30Days, user),
+    queryFn: () => getReadingStreak30Days(user.id),
+    staleTime: StaleTime.Default,
+  });
   const [showStreakConfig, toggleShowStreakConfig] = useToggle(false);
 
   const dateToday = new Date().getDate();

@@ -100,9 +100,9 @@ const OnboardingRegistrationForm = ({
   const { logEvent } = useContext(LogContext);
   const [shouldLogin, setShouldLogin] = useState(false);
   const [registerEmail, setRegisterEmail] = useState<string>(null);
-  const { mutateAsync: checkEmail, isLoading } = useMutation(
-    (emailParam: string) => checkKratosEmail(emailParam),
-  );
+  const { mutateAsync: checkEmail, isPending: isLoading } = useMutation({
+    mutationFn: (emailParam: string) => checkKratosEmail(emailParam),
+  });
   const onboardingSignupButtonProps = {
     size: ButtonSize.Large,
     variant: ButtonVariant.Primary,

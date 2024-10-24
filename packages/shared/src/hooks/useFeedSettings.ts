@@ -2,10 +2,10 @@ import { useCallback, useContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   AdvancedSettings,
-  AllTagCategoriesData,
   FeedSettings,
   FEED_SETTINGS_QUERY,
   TagCategory,
+  AllTagCategoriesData,
 } from '../graphql/feedSettings';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
@@ -44,9 +44,9 @@ export default function useFeedSettings({
 }: UseFeedSettingsProps = {}): FeedSettingsReturnType {
   const { user } = useContext(AuthContext);
   const filtersKey = getFeedSettingsQueryKey(user, feedId);
-  const { data: feedQuery = {}, isLoading } = useQuery<AllTagCategoriesData>(
-    filtersKey,
-    () =>
+  const { data: feedQuery = {}, isLoading } = useQuery<AllTagCategoriesData>({
+    queryKey: filtersKey,
+    queryFn: () =>
       gqlClient.request(
         FEED_SETTINGS_QUERY,
         feedId
@@ -55,12 +55,10 @@ export default function useFeedSettings({
             }
           : undefined,
       ),
-    {
-      ...disabledRefetch,
-      enabled: enabled && !!user,
-      staleTime: StaleTime.FeedSettings,
-    },
-  );
+    ...disabledRefetch,
+    enabled: enabled && !!user,
+    staleTime: StaleTime.FeedSettings,
+  });
 
   const { tagsCategories, feedSettings, advancedSettings } = feedQuery;
   const checkSettingsEnabledState = useCallback(

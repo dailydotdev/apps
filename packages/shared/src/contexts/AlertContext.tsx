@@ -60,59 +60,58 @@ export const AlertContextProvider = ({
     unknown,
     unknown,
     Alerts
-  >(
-    (params) =>
+  >({
+    mutationFn: (params) =>
       gqlClient.request(UPDATE_ALERTS, {
         data: params,
       }),
-    {
-      onMutate: (params) => updateAlerts({ ...alerts, ...params }),
-      onError: (_, params) => {
-        const rollback = Object.keys(params).reduce(
-          (values, key) => ({ ...values, [key]: alerts[key] }),
-          {},
-        );
+    onMutate: (params) => updateAlerts({ ...alerts, ...params }),
 
-        updateAlerts({ ...alerts, ...rollback });
-      },
-    },
-  );
+    onError: (_, params) => {
+      const rollback = Object.keys(params).reduce(
+        (values, key) => ({ ...values, [key]: alerts[key] }),
+        {},
+      );
 
-  const { mutateAsync: updateLastReferralReminder } = useMutation(
-    () => gqlClient.request(UPDATE_LAST_REFERRAL_REMINDER),
-    {
-      onMutate: () =>
-        updateAlerts({
-          ...alerts,
-          showGenericReferral: false,
-        }),
-      onError: () => {
-        updateAlerts({
-          ...alerts,
-          showGenericReferral: true,
-        });
-      },
+      updateAlerts({ ...alerts, ...rollback });
     },
-  );
+  });
 
-  const { mutateAsync: updateLastBootPopup } = useMutation(
-    () => gqlClient.request(UPDATE_LAST_BOOT_POPUP),
-    {
-      onMutate: () =>
-        updateAlerts({
-          ...alerts,
-          lastBootPopup: new Date(),
-          bootPopup: false,
-        }),
-      onError: () => {
-        updateAlerts({
-          ...alerts,
-          lastBootPopup: null,
-          bootPopup: true,
-        });
-      },
+  const { mutateAsync: updateLastReferralReminder } = useMutation({
+    mutationFn: () => gqlClient.request(UPDATE_LAST_REFERRAL_REMINDER),
+
+    onMutate: () =>
+      updateAlerts({
+        ...alerts,
+        showGenericReferral: false,
+      }),
+
+    onError: () => {
+      updateAlerts({
+        ...alerts,
+        showGenericReferral: true,
+      });
     },
-  );
+  });
+
+  const { mutateAsync: updateLastBootPopup } = useMutation({
+    mutationFn: () => gqlClient.request(UPDATE_LAST_BOOT_POPUP),
+
+    onMutate: () =>
+      updateAlerts({
+        ...alerts,
+        lastBootPopup: new Date(),
+        bootPopup: false,
+      }),
+
+    onError: () => {
+      updateAlerts({
+        ...alerts,
+        lastBootPopup: null,
+        bootPopup: true,
+      });
+    },
+  });
 
   const alertContextData = useMemo<AlertContextData>(
     () => ({

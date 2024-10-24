@@ -96,8 +96,8 @@ const EditFeedPage = (): ReactElement => {
     onValidateAction,
   });
 
-  const { mutateAsync: onSubmit, isLoading } = useMutation(
-    async ({ name }: EditFeedFormProps) => {
+  const { mutateAsync: onSubmit, isPending: isLoading } = useMutation({
+    mutationFn: async ({ name }: EditFeedFormProps) => {
       const result = await updateFeed({ feedId, name });
       const tagPromises = [
         gqlClient.request(ADD_FILTERS_TO_FEED_MUTATION, {
@@ -125,41 +125,43 @@ const EditFeedPage = (): ReactElement => {
 
       return result;
     },
-    {
-      onSuccess: (data) => {
-        logEvent({
-          event_name: LogEvent.UpdateCustomFeed,
-          target_id: data.id,
-        });
 
-        queryClient.removeQueries(getFeedSettingsQueryKey(user, feedId));
-        queryClient.removeQueries(
-          generateQueryKey(SharedFeedPage.Custom, user),
-        );
+    onSuccess: (data) => {
+      logEvent({
+        event_name: LogEvent.UpdateCustomFeed,
+        target_id: data.id,
+      });
 
-        onAskConfirmation(false);
-        router.replace(`${webappUrl}feeds/${data.id}`);
-      },
-      onError: (error) => {
-        const clientErrors = (error as ClientError)?.response?.errors || [];
+      queryClient.removeQueries({
+        queryKey: getFeedSettingsQueryKey(user, feedId),
+      });
+      queryClient.removeQueries({
+        queryKey: generateQueryKey(SharedFeedPage.Custom, user),
+      });
 
-        if (
-          clientErrors.some(
-            (item) => item.message === labels.feed.error.feedNameInvalid.api,
-          )
-        ) {
-          displayToast(labels.feed.error.feedNameInvalid.api);
-
-          return;
-        }
-
-        displayToast(labels.error.generic);
-      },
+      onAskConfirmation(false);
+      router.replace(`${webappUrl}feeds/${data.id}`);
     },
-  );
 
-  const { mutateAsync: onDelete, status: deleteStatus } = useMutation(
-    async () => {
+    onError: (error) => {
+      const clientErrors = (error as ClientError)?.response?.errors || [];
+
+      if (
+        clientErrors.some(
+          (item) => item.message === labels.feed.error.feedNameInvalid.api,
+        )
+      ) {
+        displayToast(labels.feed.error.feedNameInvalid.api);
+
+        return;
+      }
+
+      displayToast(labels.error.generic);
+    },
+  });
+
+  const { mutateAsync: onDelete, status: deleteStatus } = useMutation({
+    mutationFn: async () => {
       const shouldDelete = await showPrompt({
         title: `Delete ${feed?.flags?.name || 'feed'}?`,
         description: labels.feed.prompt.delete.description,
@@ -177,20 +179,21 @@ const EditFeedPage = (): ReactElement => {
 
       return result;
     },
-    {
-      onSuccess: (data) => {
-        logEvent({
-          event_name: LogEvent.DeleteCustomFeed,
-          target_id: data.id,
-        });
 
-        queryClient.removeQueries(getFeedSettingsQueryKey(user, feedId));
+    onSuccess: (data) => {
+      logEvent({
+        event_name: LogEvent.DeleteCustomFeed,
+        target_id: data.id,
+      });
 
-        onAskConfirmation(false);
-        router.replace(webappUrl);
-      },
+      queryClient.removeQueries({
+        queryKey: getFeedSettingsQueryKey(user, feedId),
+      });
+
+      onAskConfirmation(false);
+      router.replace(webappUrl);
     },
-  );
+  });
 
   const shouldRedirectToNewFeed =
     feeds && feedSlugOrId && deleteStatus === 'idle';
@@ -207,7 +210,9 @@ const EditFeedPage = (): ReactElement => {
 
   const cleanupRef = useRef<() => void>();
   cleanupRef.current = () => {
-    queryClient.removeQueries(getFeedSettingsQueryKey(user, feedId));
+    queryClient.removeQueries({
+      queryKey: getFeedSettingsQueryKey(user, feedId),
+    });
   };
 
   useEffect(() => {

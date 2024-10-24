@@ -47,31 +47,30 @@ export function ReportSourceModal({
   const { squads } = useAuthContext();
   const inputRef = useRef<HTMLInputElement>();
   const onLeaveSquad = useLeaveSquad({ squad });
-  const { mutateAsync: onReport } = useMutation(
-    ({ reason, comment }: SubmitReportProps) =>
+  const { mutateAsync: onReport } = useMutation({
+    mutationFn: ({ reason, comment }: SubmitReportProps) =>
       sendSourceReport({
         id: squad.id,
         reason,
         comment,
       }),
-    {
-      onSuccess: () => {
-        logEvent({
-          event_name: LogEvent.ReportSquad,
-          extra: JSON.stringify({ squad: squad.id }),
-        });
 
-        displayToast(labels.reporting.reportFeedbackText);
+    onSuccess: () => {
+      logEvent({
+        event_name: LogEvent.ReportSquad,
+        extra: JSON.stringify({ squad: squad.id }),
+      });
 
-        if (inputRef.current?.checked) {
-          onLeaveSquad({ forceLeave: true });
-        }
+      displayToast(labels.reporting.reportFeedbackText);
 
-        onReported?.();
-        onRequestClose(null);
-      },
+      if (inputRef.current?.checked) {
+        onLeaveSquad({ forceLeave: true });
+      }
+
+      onReported?.();
+      onRequestClose(null);
     },
-  );
+  });
 
   const isUserMember = squads.some((s) => s.id === squad.id);
 

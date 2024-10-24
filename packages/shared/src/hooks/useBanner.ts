@@ -14,13 +14,12 @@ type UseBanner = {
 export function useBanner(): UseBanner {
   const { alerts, updateAlerts } = useContext(AlertContext);
 
-  const { data: latestBanner } = useQuery(
-    generateQueryKey(RequestKey.Banner, null),
-    () => gqlClient.request(BANNER_QUERY, { lastSeen: alerts.lastBanner }),
-    {
-      enabled: !!alerts.banner,
-    },
-  );
+  const { data: latestBanner } = useQuery({
+    queryKey: generateQueryKey(RequestKey.Banner, null),
+    queryFn: () =>
+      gqlClient.request(BANNER_QUERY, { lastSeen: alerts.lastBanner }),
+    enabled: !!alerts.banner,
+  });
 
   const isAvailable = useMemo(() => {
     const lastSeenBannerDate = Date.parse(alerts?.lastBanner);
@@ -33,16 +32,18 @@ export function useBanner(): UseBanner {
     return latestBannerDate > lastSeenBannerDate;
   }, [alerts.lastBanner, latestBanner?.banner?.timestamp]);
 
-  const dismissMutation = useMutation(() => {
-    const currentDate = new Date();
+  const dismissMutation = useMutation({
+    mutationFn: () => {
+      const currentDate = new Date();
 
-    return updateAlerts({
-      lastBanner: currentDate.toISOString(),
-    });
+      return updateAlerts({
+        lastBanner: currentDate.toISOString(),
+      });
+    },
   });
 
   const dismiss = useCallback(async () => {
-    if (dismissMutation.isLoading) {
+    if (dismissMutation.isPending) {
       return;
     }
 

@@ -43,100 +43,98 @@ export default function useCompanionActions<
     unknown,
     T,
     (() => void) | undefined
-  >(({ id }) =>
-    companionRequest(ADD_FILTERS_TO_FEED_MUTATION, {
-      filters: {
-        excludeSources: [id],
-      },
-    }),
-  );
+  >({
+    mutationFn: ({ id }) =>
+      companionRequest(ADD_FILTERS_TO_FEED_MUTATION, {
+        filters: {
+          excludeSources: [id],
+        },
+      }),
+  });
 
   const { mutateAsync: disableCompanion } = useMutation<
     void,
     unknown,
     T,
     (() => void) | undefined
-  >(() =>
-    browser.runtime.sendMessage({
-      type: ExtensionMessageType.DisableCompanion,
-    }),
-  );
+  >({
+    mutationFn: () =>
+      browser.runtime.sendMessage({
+        type: ExtensionMessageType.DisableCompanion,
+      }),
+  });
 
   const { mutateAsync: bookmark } = useMutation<
     void,
     unknown,
     T,
     (() => void) | undefined
-  >(
-    ({ id }) =>
+  >({
+    mutationFn: ({ id }) =>
       companionRequest(ADD_BOOKMARKS_MUTATION, {
         data: { postIds: [id] },
       }),
-    {
-      onMutate: onBookmarkMutate,
-      onError: (_, __, rollback) => {
-        rollback?.();
-      },
+
+    onMutate: onBookmarkMutate,
+    onError: (_, __, rollback) => {
+      rollback?.();
     },
-  );
+  });
 
   const { mutateAsync: removeBookmark } = useMutation<
     void,
     unknown,
     T,
     (() => void) | undefined
-  >(
-    ({ id }) =>
+  >({
+    mutationFn: ({ id }) =>
       companionRequest(REMOVE_BOOKMARK_MUTATION, {
         id,
       }),
-    {
-      onMutate: onRemoveBookmarkMutate,
-      onError: (_, __, rollback) => {
-        rollback?.();
-      },
+
+    onMutate: onRemoveBookmarkMutate,
+    onError: (_, __, rollback) => {
+      rollback?.();
     },
-  );
+  });
 
   const { mutateAsync: removeCompanionHelper } = useMutation<
     void,
     unknown,
     T,
     (() => void) | undefined
-  >(
-    () =>
+  >({
+    mutationFn: () =>
       companionRequest(UPDATE_ALERTS, {
         data: {
           companionHelper: false,
         },
       }),
-    {
-      onMutate: () => undefined,
-      onError: (_, __, rollback) => {
-        rollback?.();
-      },
+
+    onMutate: () => undefined,
+    onError: (_, __, rollback) => {
+      rollback?.();
     },
-  );
+  });
 
   const { mutateAsync: toggleCompanionExpanded } = useMutation<
     void,
     unknown,
     T,
     (() => void) | undefined
-  >(
-    ({ companionExpandedValue }) =>
+  >({
+    mutationFn: ({ companionExpandedValue }) =>
       companionRequest(UPDATE_USER_SETTINGS_MUTATION, {
         data: {
           companionExpanded: companionExpandedValue,
         },
       }),
-    {
-      onMutate: () => undefined,
-      onError: (_, __, rollback) => {
-        rollback?.();
-      },
+
+    onMutate: () => undefined,
+    onError: (_, __, rollback) => {
+      rollback?.();
     },
-  );
+  });
 
   return useMemo(
     () => ({

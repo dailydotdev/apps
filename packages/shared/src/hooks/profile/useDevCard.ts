@@ -38,17 +38,16 @@ export interface UseDevCard {
 
 export const useDevCard = (userId: string): UseDevCard => {
   const { requestMethod } = useRequestProtocol();
-  const { data, isLoading } = useQuery<DevCardQueryData>(
-    generateQueryKey(RequestKey.DevCard, { id: userId }),
-    async () => {
-      const res = await requestMethod(DEV_CARD_QUERY, {
-        id: userId,
-      });
+  const { data, isLoading } = useQuery<DevCardQueryData>({
+    queryKey: generateQueryKey(RequestKey.DevCard, { id: userId }),
 
-      return res;
-    },
-    { staleTime: StaleTime.Default, enabled: !!userId },
-  );
+    queryFn: async () =>
+      await requestMethod(DEV_CARD_QUERY, {
+        id: userId,
+      }),
+    staleTime: StaleTime.Default,
+    enabled: !!userId,
+  });
 
   const { devCard, userStreakProfile } = data || {};
 

@@ -91,7 +91,9 @@ const Step1 = ({ onGenerateImage, error }: StepProps): ReactElement => {
 
 const Step2 = ({ roast, error }: StepProps): ReactElement => {
   const { user } = useContext(AuthContext);
-  const { mutateAsync: onDownloadUrl, isLoading } = useMutation(downloadUrl);
+  const { mutateAsync: onDownloadUrl, isPending: isLoading } = useMutation({
+    mutationFn: downloadUrl,
+  });
 
   const downloadImage = async (): Promise<void> => {
     await onDownloadUrl({ url: roast.image, filename: `${user.username}.png` });

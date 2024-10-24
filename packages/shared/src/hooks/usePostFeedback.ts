@@ -30,52 +30,51 @@ export const usePostFeedback = ({
     return feedQueryKey?.some((item) => item === SharedFeedPage.MyFeed);
   }, [feedQueryKey]);
 
-  const dismissFeedbackMutation = useMutation(
-    () => dismissPostFeedback(post.id),
-    {
-      onMutate: () => {
-        if (!post) {
+  const dismissFeedbackMutation = useMutation({
+    mutationFn: () => dismissPostFeedback(post.id),
+
+    onMutate: () => {
+      if (!post) {
+        return;
+      }
+
+      logEvent({
+        event_name: LogEvent.ClickDismissFeedback,
+      });
+
+      const mutationHandler = (postItem: Post) => {
+        return {
+          userState: {
+            ...postItem.userState,
+            flags: {
+              ...postItem.userState?.flags,
+              feedbackDismiss: true,
+            },
+          },
+        };
+      };
+
+      if (feedQueryKey) {
+        const updateFeedPost = updateCachedPagePost(feedQueryKey, client);
+        const updateFeedPostCache = optimisticPostUpdateInFeed(
+          items,
+          updateFeedPost,
+          mutationHandler,
+        );
+        const postIndex = items.findIndex(
+          (item) => item.type === 'post' && item.post.id === post.id,
+        );
+
+        if (postIndex === -1) {
           return;
         }
 
-        logEvent({
-          event_name: LogEvent.ClickDismissFeedback,
-        });
+        updateFeedPostCache({ index: postIndex });
+      }
 
-        const mutationHandler = (postItem: Post) => {
-          return {
-            userState: {
-              ...postItem.userState,
-              flags: {
-                ...postItem.userState?.flags,
-                feedbackDismiss: true,
-              },
-            },
-          };
-        };
-
-        if (feedQueryKey) {
-          const updateFeedPost = updateCachedPagePost(feedQueryKey, client);
-          const updateFeedPostCache = optimisticPostUpdateInFeed(
-            items,
-            updateFeedPost,
-            mutationHandler,
-          );
-          const postIndex = items.findIndex(
-            (item) => item.type === 'post' && item.post.id === post.id,
-          );
-
-          if (postIndex === -1) {
-            return;
-          }
-
-          updateFeedPostCache({ index: postIndex });
-        }
-
-        updatePostCache(client, post.id, mutationHandler(post as Post));
-      },
+      updatePostCache(client, post.id, mutationHandler(post as Post));
     },
-  );
+  });
 
   const shouldShowFeedback =
     isMyFeed && !!post?.read && post?.userState?.vote === UserVote.None;

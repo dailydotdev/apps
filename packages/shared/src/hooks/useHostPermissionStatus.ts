@@ -20,17 +20,17 @@ export const useHostStatus = (): UseHostStatus => {
     isFetched,
     refetch,
     isFetching,
-  } = useQuery(
-    hostKey,
-    async () => {
+  } = useQuery({
+    queryKey: hostKey,
+    queryFn: async () => {
       if (typeof getHostPermission === 'function') {
         return await getHostPermission();
       }
 
       return false;
     },
-    { ...disabledRefetch },
-  );
+    ...disabledRefetch,
+  });
 
   return { hostGranted, isFetched, isFetching, refetch };
 };

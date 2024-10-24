@@ -109,43 +109,42 @@ export const SquadActionButton = ({
     squad.currentMember?.role === SourceMemberRole.Blocked;
   const isCurrentMember = !!squad.currentMember && !isMemberBlocked;
 
-  const { mutateAsync: joinSquad, isLoading: isJoiningSquad } = useMutation(
-    useJoinSquad({ squad }),
-    {
-      onError: () => {
-        displayToast(labels.error.generic);
-      },
-      onSuccess,
+  const { mutateAsync: joinSquad, isPending: isJoiningSquad } = useMutation({
+    mutationFn: useJoinSquad({ squad }),
+
+    onError: () => {
+      displayToast(labels.error.generic);
     },
-  );
+    onSuccess,
+  });
 
-  const { mutateAsync: leaveSquad, isLoading: isLeavingSquad } = useMutation(
-    useLeaveSquad({ squad }),
-    {
-      onSuccess: (left) => {
-        if (!left) {
-          return;
-        }
+  const { mutateAsync: leaveSquad, isPending: isLeavingSquad } = useMutation({
+    mutationFn: useLeaveSquad({ squad }),
+    onSuccess: (left) => {
+      if (!left) {
+        return;
+      }
 
-        displayToast('👋 You have left the Squad.');
+      displayToast('👋 You have left the Squad.');
 
-        const queryKey = generateQueryKey(RequestKey.Squad, user, squad.handle);
-        const currenSquad = queryClient.getQueryData<Squad>(queryKey);
+      const queryKey = generateQueryKey(RequestKey.Squad, user, squad.handle);
+      const currenSquad = queryClient.getQueryData<Squad>(queryKey);
 
-        if (currenSquad) {
-          queryClient.setQueryData(queryKey, {
-            ...currenSquad,
-            currentMember: null,
-            membersCount: currenSquad.membersCount - 1,
-          });
-        }
-        queryClient.invalidateQueries(['squadMembersInitial', squad.handle]);
-      },
-      onError: () => {
-        displayToast(labels.error.generic);
-      },
+      if (currenSquad) {
+        queryClient.setQueryData(queryKey, {
+          ...currenSquad,
+          currentMember: null,
+          membersCount: currenSquad.membersCount - 1,
+        });
+      }
+      queryClient.invalidateQueries({
+        queryKey: ['squadMembersInitial', squad.handle],
+      });
     },
-  );
+    onError: () => {
+      displayToast(labels.error.generic);
+    },
+  });
 
   const isLoading = isJoiningSquad || isLeavingSquad;
 

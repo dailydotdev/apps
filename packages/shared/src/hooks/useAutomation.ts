@@ -22,8 +22,8 @@ export function useAutomation<
   name: Automation,
   options?: MutationOptions<TData, TError, TVariables>,
 ): UseAutomationRet<TData, TError, TVariables> {
-  const { mutateAsync, isLoading } = useMutation<TData, TError, TVariables>(
-    async (vars) => {
+  const { mutateAsync, isPending: isLoading } = useMutation({
+    mutationFn: async (vars) => {
       // Vercel proxy is limited to 30 seconds 🙈
       const url = `${process.env.NEXT_PUBLIC_API_URL}/auto/${name}`;
       const res = await fetch(url, {
@@ -38,8 +38,9 @@ export function useAutomation<
       }
       throw new HttpError(url, res.status, await res.text());
     },
-    options,
-  );
+
+    ...options,
+  });
 
   return {
     run: mutateAsync,

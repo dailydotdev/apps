@@ -1,10 +1,15 @@
 import {
+  InfiniteData,
   useInfiniteQuery,
   UseInfiniteQueryResult,
 } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { getSearchHistory, SearchHistoryData } from '../../graphql/search';
-import { generateQueryKey, RequestKey } from '../../lib/query';
+import {
+  generateQueryKey,
+  getNextPageParam,
+  RequestKey,
+} from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import useFeedInfiniteScroll from '../feed/useFeedInfiniteScroll';
 
@@ -15,23 +20,25 @@ interface UseSearchHistoryProps {
 interface UseSearchHistory {
   nodes: SearchHistoryData['history']['edges'];
   infiniteScrollRef(node: Element): void;
-  result: UseInfiniteQueryResult<SearchHistoryData>;
+  result: UseInfiniteQueryResult<InfiniteData<SearchHistoryData>>;
 }
 
 export const useSearchHistory = ({
   limit = 30,
 }: UseSearchHistoryProps = {}): UseSearchHistory => {
   const { user } = useAuthContext();
-  const result = useInfiniteQuery<SearchHistoryData>(
-    generateQueryKey(RequestKey.SearchHistory, user, `limit:${limit}`),
-    ({ pageParam }) => getSearchHistory({ after: pageParam, first: limit }),
-    {
-      enabled: !!user,
-      getNextPageParam: (lastPage) =>
-        lastPage?.history?.pageInfo.hasNextPage &&
-        lastPage?.history?.pageInfo.endCursor,
-    },
-  );
+  const result = useInfiniteQuery<SearchHistoryData>({
+    queryKey: generateQueryKey(
+      RequestKey.SearchHistory,
+      user,
+      `limit:${limit}`,
+    ),
+    queryFn: ({ pageParam }) =>
+      getSearchHistory({ after: pageParam, first: limit }),
+    initialPageParam: '',
+    enabled: !!user,
+    getNextPageParam: ({ history }) => getNextPageParam(history?.pageInfo),
+  });
 
   const { data, isLoading, fetchNextPage, isFetchingNextPage, hasNextPage } =
     result;

@@ -70,8 +70,8 @@ export const GrowthBookProvider = ({
 }: GrowthBookProviderProps): ReactElement => {
   const { fetchMethod } = useRequestProtocol();
   const [ready, setReady] = useState(false);
-  const { mutateAsync: sendAllocation } = useMutation(
-    async (data: { experimentId: string; variationId: string }) => {
+  const { mutateAsync: sendAllocation } = useMutation({
+    mutationFn: async (data: { experimentId: string; variationId: string }) => {
       const res = await fetchMethod(`${apiUrl}/e/x`, {
         method: 'POST',
         body: JSON.stringify({
@@ -88,10 +88,8 @@ export const GrowthBookProvider = ({
       });
       await res?.text();
     },
-    {
-      retry: 3,
-    },
-  );
+    retry: 3,
+  });
   const isMobile = useViewSize(ViewSize.MobileL);
 
   const callback = useRef<Context['trackingCallback']>();

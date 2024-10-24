@@ -7,12 +7,12 @@ import {
 import { useAuthContext } from '../../contexts/AuthContext';
 import { gqlClient } from '../../graphql/common';
 import { PropsParameters } from '../../types';
-import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useToastNotification } from '../useToastNotification';
 import { ContentPreferenceMutation } from './types';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { AuthTriggers } from '../../lib/auth';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 
 export type UseContentPreference = {
   follow: ContentPreferenceMutation;
@@ -26,8 +26,9 @@ export const useContentPreference = (): UseContentPreference => {
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
 
-  const { mutateAsync: follow } = useMutation(
-    async ({
+  const { mutateAsync: follow } = useMutation({
+    mutationKey: generateQueryKey(RequestKey.ContentPreferenceFollow, user),
+    mutationFn: async ({
       id,
       entity,
       entityName,
@@ -54,13 +55,11 @@ export const useContentPreference = (): UseContentPreference => {
 
       displayToast(`✅ You are now following ${entityName}`);
     },
-    {
-      mutationKey: generateQueryKey(RequestKey.ContentPreferenceFollow, user),
-    },
-  );
+  });
 
-  const { mutateAsync: unfollow } = useMutation(
-    async ({
+  const { mutateAsync: unfollow } = useMutation({
+    mutationKey: generateQueryKey(RequestKey.ContentPreferenceUnfollow, user),
+    mutationFn: async ({
       id,
       entity,
       entityName,
@@ -86,13 +85,11 @@ export const useContentPreference = (): UseContentPreference => {
 
       displayToast(`⛔️ You are no longer following ${entityName}`);
     },
-    {
-      mutationKey: generateQueryKey(RequestKey.ContentPreferenceUnfollow, user),
-    },
-  );
+  });
 
-  const { mutateAsync: subscribe } = useMutation(
-    async ({
+  const { mutateAsync: subscribe } = useMutation({
+    mutationKey: generateQueryKey(RequestKey.ContentPreferenceSubscribe, user),
+    mutationFn: async ({
       id,
       entity,
       entityName,
@@ -119,16 +116,14 @@ export const useContentPreference = (): UseContentPreference => {
 
       displayToast(`✅ You are now subscribed to ${entityName}`);
     },
-    {
-      mutationKey: generateQueryKey(
-        RequestKey.ContentPreferenceSubscribe,
-        user,
-      ),
-    },
-  );
+  });
 
-  const { mutateAsync: unsubscribe } = useMutation(
-    async ({
+  const { mutateAsync: unsubscribe } = useMutation({
+    mutationKey: generateQueryKey(
+      RequestKey.ContentPreferenceUnsubscribe,
+      user,
+    ),
+    mutationFn: async ({
       id,
       entity,
       entityName,
@@ -155,13 +150,7 @@ export const useContentPreference = (): UseContentPreference => {
 
       displayToast(`⛔️ You are no longer subscribed to ${entityName}`);
     },
-    {
-      mutationKey: generateQueryKey(
-        RequestKey.ContentPreferenceUnsubscribe,
-        user,
-      ),
-    },
-  );
+  });
 
   return {
     follow,

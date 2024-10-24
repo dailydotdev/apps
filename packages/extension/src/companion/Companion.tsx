@@ -84,17 +84,15 @@ export default function Companion({
   const [assetsLoaded, setAssetsLoaded] = useState(isTesting);
   usePopupSelector({ parentSelector: getCompanionWrapper });
   const client = useQueryClient();
-  const { data: post } = useQuery(
-    getPostByIdKey(postData.id),
-    () => ({ post: postData }),
-    {
-      select: useCallback((data) => {
-        return data.post;
-      }, []),
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data: post } = useQuery({
+    queryKey: getPostByIdKey(postData.id),
+    queryFn: () => ({ post: postData }),
+    select: useCallback((data: { post: PostBootData }) => {
+      return data.post;
+    }, []),
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+  });
   const setPost = useCallback(
     (newPostData: PostBootData) => {
       updatePostCache(client, newPostData.id, newPostData);
@@ -103,11 +101,14 @@ export default function Companion({
   );
   const [companionState, setCompanionState] =
     useState<boolean>(companionExpanded);
-  useQuery(REQUEST_PROTOCOL_KEY, () => ({
-    requestMethod: companionRequest,
-    fetchMethod: companionFetch,
-    isCompanion: true,
-  }));
+  useQuery({
+    queryKey: REQUEST_PROTOCOL_KEY,
+    queryFn: () => ({
+      requestMethod: companionRequest,
+      fetchMethod: companionFetch,
+      isCompanion: true,
+    }),
+  });
   const [assetsLoadedDebounce] = useDebounceFn(() => setAssetsLoaded(true), 10);
   const routeChangedCallbackRef = useLogPageView();
 
