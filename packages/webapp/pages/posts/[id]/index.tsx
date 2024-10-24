@@ -41,6 +41,7 @@ import {
   getSeoDescription,
   PostSEOSchema,
 } from '../../../components/PostSEOSchema';
+import { DynamicSeoProps } from '../../../components/common';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
@@ -64,10 +65,9 @@ const CollectionPostContent = dynamic(() =>
   ).then((module) => module.CollectionPostContent),
 );
 
-export interface Props {
+export interface Props extends DynamicSeoProps {
   id: string;
   initialData?: PostData;
-  seo?: NextSeoProps;
 }
 
 const CONTENT_MAP: Record<PostType, typeof PostContent> = {
