@@ -37,7 +37,6 @@ import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BootPopups } from './modals/BootPopups';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { AuthTriggers } from '../lib/auth';
-import { useIsHydrated } from '../hooks/utils/useIsHydrated';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -70,35 +69,6 @@ export interface MainLayoutProps
 }
 
 const feeds = Object.values(SharedFeedPage);
-
-const Main = ({
-  className,
-  isScreenCentered,
-  sidebarExpanded,
-  isBannerAvailable,
-  children: render,
-}: {
-  className?: string;
-  isScreenCentered: boolean;
-  sidebarExpanded: boolean;
-  isBannerAvailable: boolean;
-  children: ({ isHydrated }: { isHydrated: boolean }) => ReactNode;
-}) => {
-  const isHydrated = useIsHydrated();
-
-  return (
-    <main
-      className={classNames(
-        'flex flex-col tablet:pl-16 laptop:pl-11',
-        className,
-        isHydrated && !isScreenCentered && sidebarExpanded && 'laptop:!pl-60',
-        isBannerAvailable && 'laptop:pt-8',
-      )}
-    >
-      {render({ isHydrated })}
-    </main>
-  );
-};
 
 function MainLayoutComponent({
   children,
@@ -210,7 +180,8 @@ function MainLayoutComponent({
 
   if (
     (!isPageReady && isPageApplicableForOnboarding) ||
-    shouldRedirectOnboarding
+    shouldRedirectOnboarding ||
+    !isAuthReady
   ) {
     return null;
   }
@@ -233,36 +204,32 @@ function MainLayoutComponent({
         additionalButtons={additionalButtons}
         onLogoClick={onLogoClick}
       />
-      <Main
-        className={className}
-        isScreenCentered={isScreenCentered}
-        sidebarExpanded={sidebarExpanded}
-        isBannerAvailable={isBannerAvailable}
+      <main
+        className={classNames(
+          'flex flex-col tablet:pl-16 laptop:pl-11',
+          className,
+          !isScreenCentered && sidebarExpanded && 'laptop:!pl-60',
+          isBannerAvailable && 'laptop:pt-8',
+        )}
       >
-        {({ isHydrated }) => {
-          return (
-            <>
-              {isHydrated && showSidebar && (
-                <Sidebar
-                  promotionalBannerActive={isBannerAvailable}
-                  sidebarRendered={sidebarRendered}
-                  openMobileSidebar={openMobileSidebar}
-                  onNavTabClick={onNavTabClick}
-                  enableSearch={enableSearch}
-                  activePage={activePage}
-                  showDnd={showDnd}
-                  dndActive={dndActive}
-                  isNavButtons={isNavItemsButton}
-                  onShowDndClick={onShowDndClick}
-                  onLogoClick={onLogoClick}
-                  setOpenMobileSidebar={() => onMobileSidebarToggle(false)}
-                />
-              )}
-              {children}
-            </>
-          );
-        }}
-      </Main>
+        {showSidebar && (
+          <Sidebar
+            promotionalBannerActive={isBannerAvailable}
+            sidebarRendered={sidebarRendered}
+            openMobileSidebar={openMobileSidebar}
+            onNavTabClick={onNavTabClick}
+            enableSearch={enableSearch}
+            activePage={activePage}
+            showDnd={showDnd}
+            dndActive={dndActive}
+            isNavButtons={isNavItemsButton}
+            onShowDndClick={onShowDndClick}
+            onLogoClick={onLogoClick}
+            setOpenMobileSidebar={() => onMobileSidebarToggle(false)}
+          />
+        )}
+        {children}
+      </main>
     </div>
   );
 }
