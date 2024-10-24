@@ -11,13 +11,11 @@ function HeaderLogo({ onLogoClick, position }: HeaderLogoProps): ReactElement {
   const featureTheme = useFeatureTheme();
 
   return (
-    <>
-      <Logo
-        position={position}
-        onLogoClick={onLogoClick}
-        featureTheme={featureTheme}
-      />
-    </>
+    <Logo
+      position={position}
+      onLogoClick={onLogoClick}
+      featureTheme={featureTheme}
+    />
   );
 }
 
