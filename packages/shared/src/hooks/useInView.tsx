@@ -9,7 +9,7 @@ interface UseInViewProps {
 }
 
 interface UseInViewReturn {
-  ref: (node: HTMLDivElement | null) => void; // Always return a callback ref
+  ref: (node: HTMLDivElement | null) => void;
   inView: boolean;
   entry: IntersectionObserverEntry | null;
 }
