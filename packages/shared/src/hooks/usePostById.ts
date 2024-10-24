@@ -31,7 +31,7 @@ import { PropsParameters } from '../types';
 
 interface UsePostByIdProps {
   id: string;
-  options?: QueryObserverOptions<PostData>;
+  options?: Partial<QueryObserverOptions<PostData>>;
 }
 
 interface UsePostById extends Pick<UseQueryResult, 'isError' | 'isLoading'> {

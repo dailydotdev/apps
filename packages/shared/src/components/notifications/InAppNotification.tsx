@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
@@ -44,20 +44,23 @@ export function InAppNotificationElement(): ReactElement {
     }, 150);
   };
   const stopTimer = () => clearTimeout(timeoutId);
-  const startTimer = (timer: number) => {
-    stopTimer();
-    timeoutId = setTimeout(closeNotification, timer);
-  };
+  const startTimer = useCallback(
+    (timer: number) => {
+      stopTimer();
+      timeoutId = setTimeout(closeNotification, timer);
+    },
+    [closeNotification],
+  );
   const { data: payload } = useQuery<InAppNotification>({
     queryKey: IN_APP_NOTIFICATION_KEY,
     queryFn: () => client.getQueryData(IN_APP_NOTIFICATION_KEY),
-    onSuccess: (data) => {
-      if (!data) {
-        return;
-      }
-      startTimer(data.timer);
-    },
   });
+
+  useEffect(() => {
+    if (payload) {
+      startTimer(payload.timer);
+    }
+  }, [payload, startTimer]);
 
   useEffect(() => {
     const handler = () => {

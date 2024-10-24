@@ -24,6 +24,9 @@ import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/Prog
 import classNames from 'classnames';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { Post } from '@dailydotdev/shared/src/graphql/posts';
+import { GraphQLError } from 'graphql/error';
+import { getNextPageParam } from '@dailydotdev/shared/src/lib/query';
 import styles from './KeywordManagement.module.css';
 
 const KeywordSynonymModal = dynamic(
@@ -80,9 +83,8 @@ export default function KeywordManagement({
         first: 4,
         after: pageParam,
       }),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage) =>
-      lastPage.page.pageInfo.hasNextPage && lastPage.page.pageInfo.endCursor,
+    initialPageParam: '',
+    getNextPageParam: ({ page }) => getNextPageParam(page?.pageInfo),
   });
 
   const onAllow = () => {
@@ -107,7 +109,7 @@ export default function KeywordManagement({
         <span>Occurrences: {keyword.occurrences}</span>
         <span>{subtitle}</span>
       </div>
-      <ActivitySection
+      <ActivitySection<Post, GraphQLError>
         title="Keyword Posts"
         query={posts}
         emptyScreen={
@@ -115,7 +117,7 @@ export default function KeywordManagement({
             No posts
           </div>
         }
-        elementToNode={(post) => (
+        elementToNode={(post: Post) => (
           <Link
             href={post.commentsPermalink}
             passHref

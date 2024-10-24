@@ -47,14 +47,15 @@ const updateFurtherReadingPost =
     update: (oldPost: Post) => Partial<Post>,
   ): ((args: { id: string }) => Promise<UseBookmarkPostRollback>) =>
   async ({ id }) => {
-    await queryClient.cancelQueries(queryKey);
+    await queryClient.cancelQueries({ queryKey });
     const previousData = queryClient.getQueryData<FurtherReadingData>(queryKey);
     queryClient.setQueryData(queryKey, {
       ...previousData,
       trendingPosts: transformPosts(previousData.trendingPosts, id, update),
       similarPosts: transformPosts(previousData.similarPosts, id, update),
     });
-    return () => queryClient.setQueryData(queryKey, previousData);
+    return () =>
+      queryClient.setQueryData<FurtherReadingData>(queryKey, previousData);
   };
 
 export default function FurtherReading({

@@ -11,7 +11,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 
 export type UseIntegrationQueryProps = {
   id?: string;
-  queryOptions?: UseQueryOptions<UserIntegration>;
+  queryOptions?: Omit<UseQueryOptions<UserIntegration>, 'select' | 'queryKey'>;
 };
 
 export type UseIntegrationQuery = UseQueryResult<UserIntegration>;

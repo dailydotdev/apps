@@ -1,9 +1,11 @@
 import React, { Fragment, ReactElement, ReactNode } from 'react';
-import { InfiniteQueryObserverBaseResult } from '@tanstack/react-query';
-import { Connection } from '../../graphql/common';
+import { UseInfiniteQueryResult } from '@tanstack/react-query/build/legacy/types';
+import { InfiniteData } from '@tanstack/react-query';
 import classed from '../../lib/classed';
 import { ClickableText } from '../buttons/ClickableText';
 import { IconSize } from '../Icon';
+import { FeedData } from '../../graphql/feed';
+import { Post } from '../../graphql/posts';
 
 export const ActivityContainer = classed('section', 'flex flex-col');
 
@@ -75,12 +77,9 @@ export const LoadMore = classed(
 export interface ActivitySectionProps<TElement, TError> {
   title: string;
   count?: number;
-  query: InfiniteQueryObserverBaseResult<
-    { page: Connection<TElement> },
-    TError
-  >;
+  query: UseInfiniteQueryResult<InfiniteData<FeedData>>;
   emptyScreen: ReactNode;
-  elementToNode: (element: TElement) => ReactNode;
+  elementToNode: (element: Post) => ReactNode;
 }
 
 export default function ActivitySection<TElement, TError>({

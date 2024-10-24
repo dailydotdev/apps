@@ -107,36 +107,35 @@ const SquadReferral = ({
     initialData,
     retry: false,
     enabled: !!token,
-    onSuccess: (response) => {
-      if (!loggedUser) {
-        return null;
-      }
+  });
 
-      if (!response?.source?.id) {
-        return router.replace(webappUrl);
+  useEffect(() => {
+    if (member && loggedUser) {
+      if (!member?.source?.id) {
+        router.replace(webappUrl);
+        return;
       }
 
       const squadsUrl = getJoinRedirectUrl({
         pathname: `/squads/${handle}`,
         query: router.query,
       });
-      const isValid = validateSourceHandle(handle, response.source);
+      const isValid = validateSourceHandle(handle, member.source);
 
       if (!isValid) {
-        return router.replace(webappUrl);
+        router.replace(webappUrl);
+        return;
       }
 
-      const { currentMember } = response.source;
+      const { currentMember } = member.source;
       if (currentMember) {
         const { role } = currentMember;
         if (role !== SourceMemberRole.Blocked) {
-          return router.replace(squadsUrl);
+          router.replace(squadsUrl);
         }
       }
-
-      return null;
-    },
-  });
+    }
+  }, [member, loggedUser, handle, router]);
 
   const joinSquadLogExtra = () => {
     return JSON.stringify({
@@ -160,31 +159,29 @@ const SquadReferral = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [member, loggedImpression]);
 
-  const { mutateAsync: onJoinSquad } = useMutation(
-    useJoinSquad({
+  const { mutateAsync: onJoinSquad } = useMutation({
+    mutationFn: useJoinSquad({
       squad: { handle, id: member?.source?.id },
       referralToken: token,
     }),
-    {
-      onSuccess: (data) => {
-        router.replace(
-          getJoinRedirectUrl({
-            pathname: data.permalink,
-            query: router.query,
-          }),
-        );
-      },
-      onError: (error: ApiErrorResult) => {
-        const errorMessage = error?.response?.errors?.[0]?.message;
-
-        if (errorMessage === ApiErrorMessage.SourcePermissionInviteInvalid) {
-          displayToast(labels.squads.invalidInvitation);
-        } else {
-          displayToast(labels.error.generic);
-        }
-      },
+    onSuccess: (data) => {
+      router.replace(
+        getJoinRedirectUrl({
+          pathname: data.permalink,
+          query: router.query,
+        }),
+      );
     },
-  );
+    onError: (error: ApiErrorResult) => {
+      const errorMessage = error?.response?.errors?.[0]?.message;
+
+      if (errorMessage === ApiErrorMessage.SourcePermissionInviteInvalid) {
+        displayToast(labels.squads.invalidInvitation);
+      } else {
+        displayToast(labels.error.generic);
+      }
+    },
+  });
 
   const onJoinClick = async () => {
     if (member.source?.currentMember?.role === SourceMemberRole.Blocked) {

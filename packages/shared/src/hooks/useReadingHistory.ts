@@ -32,19 +32,25 @@ function useReadingHistory(key: QueryKey): UseReadingHistoryReturn {
     onMutate: ({ page, edge }: HidePostItemCardProps & QueryIndexes) => {
       const current = client.getQueryData<ReadHistoryInfiniteData>(key);
       const [history] = current.pages[page].readHistory.edges.splice(edge, 1);
-      client.setQueryData(key, (result: ReadHistoryInfiniteData) => ({
-        pages: current.pages,
-        pageParams: result.pageParams,
-      }));
+      client.setQueryData<ReadHistoryInfiniteData>(
+        key,
+        (result: ReadHistoryInfiniteData) => ({
+          pages: current.pages,
+          pageParams: result.pageParams,
+        }),
+      );
 
       return () =>
-        client.setQueryData(key, (result: ReadHistoryInfiniteData) => {
-          result.pages[page].readHistory.edges.push(history);
-          return {
-            pages: result.pages,
-            pageParams: result.pageParams,
-          };
-        });
+        client.setQueryData<ReadHistoryInfiniteData>(
+          key,
+          (result: ReadHistoryInfiniteData) => {
+            result.pages[page].readHistory.edges.push(history);
+            return {
+              pages: result.pages,
+              pageParams: result.pageParams,
+            };
+          },
+        );
     },
     onError: (_, __, rollback) => rollback(),
   });

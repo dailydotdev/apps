@@ -144,7 +144,7 @@ export const useMutateComment = ({
     });
 
     forInvalidation.forEach(async (queryKey) => {
-      await client.invalidateQueries(queryKey);
+      await client.invalidateQueries({ queryKey });
     });
 
     if (!editCommentId) {

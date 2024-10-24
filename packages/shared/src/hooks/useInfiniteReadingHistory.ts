@@ -8,6 +8,7 @@ import { useMemo } from 'react';
 import { RequestDataConnection, gqlClient } from '../graphql/common';
 import useFeedInfiniteScroll from './feed/useFeedInfiniteScroll';
 import { PostItem } from '../graphql/posts';
+import { getNextPageParam } from '../lib/query';
 
 export type ReadHistoryData = RequestDataConnection<PostItem, 'readHistory'>;
 
@@ -19,7 +20,7 @@ export interface UseInfiniteReadingHistory {
   isInitialLoading: boolean;
   isLoading: boolean;
   infiniteScrollRef: (node?: Element | null) => void;
-  queryResult: UseInfiniteQueryResult;
+  queryResult: UseInfiniteQueryResult<ReadHistoryInfiniteData>;
 }
 
 interface UseInfiniteReadingHistoryProps {
@@ -32,19 +33,17 @@ function useInfiniteReadingHistory({
   query,
   variables,
 }: UseInfiniteReadingHistoryProps): UseInfiniteReadingHistory {
-  const queryResult = useInfiniteQuery<ReadHistoryData>(
-    key,
-    ({ pageParam }) =>
-      gqlClient.request(query, {
+  const queryResult = useInfiniteQuery({
+    queryKey: key,
+    queryFn: ({ pageParam }) =>
+      gqlClient.request<ReadHistoryData>(query, {
         ...variables,
         after: pageParam,
       }),
-    {
-      getNextPageParam: (lastPage) =>
-        lastPage?.readHistory?.pageInfo.hasNextPage &&
-        lastPage?.readHistory?.pageInfo.endCursor,
-    },
-  );
+    initialPageParam: '',
+    getNextPageParam: ({ readHistory }) =>
+      getNextPageParam(readHistory?.pageInfo),
+  });
   const { isLoading, isFetchingNextPage, hasNextPage, data, fetchNextPage } =
     queryResult;
 

@@ -161,15 +161,16 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
   );
   const [copyingEmbed, copyEmbed] = useCopyLink(() => embedCode);
   const [selectedTab, setSelectedTab] = useState(0);
-  const { mutateAsync: onDownloadUrl, isLoading: downloading } =
-    useMutation(downloadUrl);
+  const { mutateAsync: onDownloadUrl, isPending: downloading } = useMutation({
+    mutationFn: downloadUrl,
+  });
 
   const downloadImage = async (url?: string): Promise<void> => {
     const finalUrl = url ?? devCardSrc;
     await onDownloadUrl({ url: finalUrl, filename: `${user.username}.png` });
   };
 
-  const { mutateAsync: onGenerate, isLoading } = useMutation({
+  const { mutateAsync: onGenerate, isPending: isLoading } = useMutation({
     mutationFn: (params: Partial<GenerateDevCardParams> = {}) => {
       return gqlClient.request(GENERATE_DEVCARD_MUTATION, {
         ...params,

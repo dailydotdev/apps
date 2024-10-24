@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Author } from '../graphql/comments';
 import {
@@ -33,7 +33,7 @@ export const useProfileTooltip = ({
   const { requestMethod } = useRequestProtocol();
   const [shouldFetch, setShouldFetch] = useState(false);
   const key = ['readingRank', userId];
-  const { data, isLoading } = useQuery<UserTooltipContentData>({
+  const { data, isLoading, error } = useQuery<UserTooltipContentData>({
     queryKey: key,
     queryFn: () =>
       requestMethod(
@@ -49,8 +49,13 @@ export const useProfileTooltip = ({
     staleTime: StaleTime.Tooltip,
     refetchOnWindowFocus: false,
     enabled: shouldFetch && !!userId,
-    onSettled: () => setShouldFetch(false),
   });
+
+  useEffect(() => {
+    if (data || error) {
+      setShouldFetch(false);
+    }
+  }, [data, error]);
 
   return useMemo(
     () => ({

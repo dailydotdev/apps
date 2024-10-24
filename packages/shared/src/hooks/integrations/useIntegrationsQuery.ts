@@ -10,7 +10,7 @@ import { USER_INTEGRATIONS } from '../../graphql/users';
 import { useAuthContext } from '../../contexts/AuthContext';
 
 export type UseIntegrationsQueryProps = {
-  queryOptions?: UseQueryOptions<UserIntegration[]>;
+  queryOptions?: Partial<UseQueryOptions<UserIntegration[]>>;
 };
 
 export type UseIntegrationsQuery = UseQueryResult<UserIntegration[]>;

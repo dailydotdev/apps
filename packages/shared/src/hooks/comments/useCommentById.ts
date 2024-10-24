@@ -17,7 +17,7 @@ import { useRequestProtocol } from '../useRequestProtocol';
 interface UseCommentByIdProps {
   id: string;
   query?: string;
-  options?: QueryObserverOptions<CommentOnData>;
+  options?: Partial<QueryObserverOptions<CommentOnData>>;
 }
 
 interface UseCommentByIdResult

@@ -17,6 +17,7 @@ import AuthContext from '../contexts/AuthContext';
 import { apiUrl } from '../lib/config';
 import useSubscription from './useSubscription';
 import {
+  getNextPageParam,
   removeCachedPagePost,
   RequestKey,
   updateCachedPagePost,
@@ -91,7 +92,10 @@ type UseFeedSettingParams = {
 export interface UseFeedOptionalParams<T> {
   query?: string;
   variables?: T;
-  options?: UseInfiniteQueryOptions<FeedData>;
+  options?: Pick<
+    UseInfiniteQueryOptions<FeedData>,
+    'refetchOnMount' | 'gcTime' | 'placeholderData' | 'staleTime'
+  >;
   settings?: UseFeedSettingParams;
   onEmptyFeed?: () => void;
 }
@@ -133,9 +137,8 @@ export default function useFeed<T>(
     enabled: query && tokenRefreshed,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
-    initialPageParam: 0,
-    getNextPageParam: (lastPage) =>
-      lastPage.page.pageInfo.hasNextPage && lastPage.page.pageInfo.endCursor,
+    initialPageParam: '',
+    getNextPageParam: ({ page }) => getNextPageParam(page?.pageInfo),
   });
 
   const clientError = feedQuery?.error as ClientError;
@@ -154,7 +157,7 @@ export default function useFeed<T>(
       const ads: Ad[] = await res.json();
       return ads[0];
     },
-    initialPageParam: 0,
+    initialPageParam: '',
     getNextPageParam: () => Date.now(),
     enabled: isAdsQueryEnabled,
     refetchOnMount: false,

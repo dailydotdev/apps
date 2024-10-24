@@ -6,7 +6,8 @@ import {
   QueryKey,
 } from '@tanstack/react-query';
 import { ClientError } from 'graphql-request';
-import { Connection, GARMR_ERROR } from '../graphql/common';
+
+import { Connection, GARMR_ERROR, PageInfo } from '../graphql/common';
 import { EmptyObjectLiteral } from './kratos';
 import { LoggedUser } from './user';
 import { FeedData, Post, ReadHistoryPost } from '../graphql/posts';
@@ -71,6 +72,13 @@ export enum StaleTime {
 export type AllFeedPages = SharedFeedPage | OtherFeedPage;
 
 export type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
+
+export const getNextPageParam = (pageInfo: PageInfo): null | string => {
+  if (!pageInfo?.hasNextPage) {
+    return null;
+  }
+  return pageInfo?.hasNextPage && pageInfo?.endCursor;
+};
 
 export const generateQueryKey = (
   name: RequestKey | AllFeedPages,

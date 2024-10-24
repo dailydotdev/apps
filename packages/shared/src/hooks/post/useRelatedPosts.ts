@@ -13,7 +13,12 @@ import {
   PostData,
   RELATED_POSTS_PER_PAGE_DEFAULT,
 } from '../../graphql/posts';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import {
+  generateQueryKey,
+  getNextPageParam,
+  RequestKey,
+  StaleTime,
+} from '../../lib/query';
 import { getPostByIdKey } from '../usePostById';
 import { useRequestProtocol } from '../useRequestProtocol';
 
@@ -29,7 +34,7 @@ export type UseRelatedPosts = {
   relatedPosts: InfiniteData<RelatedPostsQueryData>;
   isLoading: boolean;
   hasNextPage: boolean;
-  fetchNextPage: UseInfiniteQueryResult<RelatedPostsQueryData>['fetchNextPage'];
+  fetchNextPage: UseInfiniteQueryResult['fetchNextPage'];
   isFetchingNextPage: boolean;
 };
 
@@ -47,12 +52,12 @@ export const useRelatedPosts = ({
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery(
-    generateQueryKey(RequestKey.RelatedPosts, null, {
+  } = useInfiniteQuery({
+    queryKey: generateQueryKey(RequestKey.RelatedPosts, null, {
       id: postId,
       type: relationType,
     }),
-    async ({ pageParam }) => {
+    queryFn: async ({ pageParam }) => {
       const result = await requestMethod<{
         relatedPosts: RelatedPostsQueryData;
       }>(RELATED_POSTS_QUERY, {
@@ -64,40 +69,38 @@ export const useRelatedPosts = ({
 
       return result.relatedPosts;
     },
-    {
-      enabled: !!postId,
-      getNextPageParam: (lastPage) =>
-        lastPage?.pageInfo?.hasNextPage && lastPage?.pageInfo?.endCursor,
-      select: useCallback((data) => {
-        if (!data) {
-          return undefined;
-        }
-
-        return {
-          ...data,
-          // filter out last page with no edges returned by api paginator
-          pages: data.pages.filter((pageItem) => !!pageItem?.edges.length),
-        };
-      }, []),
-      staleTime: StaleTime.Default,
-      initialData: () => {
-        if (relationType === PostRelationType.Collection) {
-          const postQueryData = queryClient.getQueryData<PostData>(
-            getPostByIdKey(postId),
-          );
-
-          if (postQueryData?.relatedCollectionPosts) {
-            return {
-              pages: [postQueryData.relatedCollectionPosts],
-              pageParams: [null],
-            };
-          }
-        }
-
+    initialPageParam: '',
+    enabled: !!postId,
+    getNextPageParam: (lastPage) => getNextPageParam(lastPage?.pageInfo),
+    select: useCallback((data) => {
+      if (!data) {
         return undefined;
-      },
+      }
+
+      return {
+        ...data,
+        // filter out last page with no edges returned by api paginator
+        pages: data.pages.filter((pageItem) => !!pageItem?.edges.length),
+      };
+    }, []),
+    staleTime: StaleTime.Default,
+    initialData: () => {
+      if (relationType === PostRelationType.Collection) {
+        const postQueryData = queryClient.getQueryData<PostData>(
+          getPostByIdKey(postId),
+        );
+
+        if (postQueryData?.relatedCollectionPosts) {
+          return {
+            pages: [postQueryData.relatedCollectionPosts],
+            pageParams: [null],
+          };
+        }
+      }
+
+      return undefined;
     },
-  );
+  });
 
   return {
     relatedPosts,

@@ -14,7 +14,7 @@ import { sortAlphabeticallyByProperty } from '../../../lib/func';
 
 export type UseSlackChannelsQueryProps = {
   integrationId: string;
-  queryOptions?: UseQueryOptions<SlackChannel[]>;
+  queryOptions?: Partial<UseQueryOptions<SlackChannel[]>>;
 };
 
 export type UseSlackChannelsQuery = UseQueryResult<SlackChannel[]>;

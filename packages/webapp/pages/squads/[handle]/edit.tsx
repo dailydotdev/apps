@@ -49,11 +49,12 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
   const queryClient = useQueryClient();
   const { updateSquad } = useBoot();
   const { displayToast } = useToastNotification();
-  const { mutateAsync: onUpdateSquad, isLoading: isUpdatingSquad } =
-    useMutation(editSquad, {
+  const { mutateAsync: onUpdateSquad, isPending: isUpdatingSquad } =
+    useMutation({
+      mutationFn: editSquad,
       onSuccess: async (data) => {
         const queryKey = generateQueryKey(RequestKey.Squad, user, data.handle);
-        await queryClient.invalidateQueries(queryKey);
+        await queryClient.invalidateQueries({ queryKey });
         updateSquad(data);
         displayToast('The Squad has been updated');
       },

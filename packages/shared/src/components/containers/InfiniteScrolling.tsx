@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
-import { UseInfiniteQueryResult } from '@tanstack/react-query';
+import { InfiniteData, UseInfiniteQueryResult } from '@tanstack/react-query';
 import useFeedInfiniteScroll from '../../hooks/feed/useFeedInfiniteScroll';
 
 export interface InfiniteScrollingProps
@@ -13,7 +13,9 @@ export interface InfiniteScrollingProps
   fetchNextPage: () => Promise<unknown>;
 }
 
-export const checkFetchMore = (queryResult: UseInfiniteQueryResult): boolean =>
+export const checkFetchMore = (
+  queryResult: UseInfiniteQueryResult<InfiniteData<any>>,
+): boolean =>
   !queryResult.isLoading &&
   !queryResult.isFetchingNextPage &&
   queryResult.hasNextPage &&
