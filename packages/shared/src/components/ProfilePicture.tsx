@@ -82,7 +82,6 @@ export function setOnError(
 const resizeSrcReplaceRule: Record<string, (src: string) => string> = {
   [SocialProvider.Google]: (src) => src.replace(/s96-c$/, 's64-c'),
   [SocialProvider.GitHub]: (src) => {
-    return src;
     const search = new URLSearchParams(src);
     search.set('s', '64');
     return src.replace(/\?.+$/, `?${search.toString()}`);
@@ -107,7 +106,6 @@ const getResizedSrc = (src: string) => {
     return src;
   }
 
-  console.log({ src, provider });
   const getReplacedSrc = resizeSrcReplaceRule[provider];
   return getReplacedSrc?.(src) ?? src;
 };
@@ -144,9 +142,6 @@ function ProfilePictureComponent(
       ProfileImageSize.Small,
       ProfileImageSize.XSmall,
     ].includes(size);
-
-  console.log({ user });
-
   const imageAlt = `${user.username || user.name || user.id}'s profile`;
   const imageSrc = isImageResizable ? getResizedSrc(user.image) : user.image;
 
