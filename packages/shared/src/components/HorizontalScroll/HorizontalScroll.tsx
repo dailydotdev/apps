@@ -4,7 +4,6 @@ import React, {
   ReactElement,
   ReactNode,
   useId,
-  useMemo,
 } from 'react';
 import classNames from 'classnames';
 import {
@@ -29,11 +28,10 @@ function HorizontalScrollComponent(
 ): ReactElement {
   const id = useId();
   const titleId = `horizontal-scroll-title-${id}`;
-  const props = useMemo(
-    () => ({ ...scrollProps, title: { ...scrollProps?.title, id: titleId } }),
-    [scrollProps, titleId],
-  );
-  const { ref, header } = useHorizontalScrollHeader(props);
+  const { ref, header } = useHorizontalScrollHeader({
+    ...scrollProps,
+    title: { ...scrollProps?.title, id: titleId },
+  });
 
   return (
     <div

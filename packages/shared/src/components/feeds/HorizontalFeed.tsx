@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement } from 'react';
 import classnames from 'classnames';
 import Feed from '../Feed';
 import { OtherFeedPage } from '../../lib/query';
@@ -20,11 +20,9 @@ export default function HorizontalFeed<T>({
   title,
   ...props
 }: HorizontalFeedProps<T>): ReactElement {
-  const memoizedTitle = useMemo(
-    () => ({ ...title, type: TypographyType.Body }),
-    [title],
-  );
-  const { ref, header } = useHorizontalScrollHeader({ title: memoizedTitle });
+  const { ref, header } = useHorizontalScrollHeader({
+    title: { ...title, type: TypographyType.Body },
+  });
   const { isListMode } = useFeedLayout();
 
   return (
