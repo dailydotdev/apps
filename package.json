@@ -2,7 +2,7 @@
   "name": "daily-apps",
   "private": true,
   "dependencies": {
-    "@babel/runtime": "^7.17.9",
+    "@babel/runtime": "^7.25.9",
     "postcss-rem-to-responsive-pixel": "^6.0.2"
   },
   "scripts": {
