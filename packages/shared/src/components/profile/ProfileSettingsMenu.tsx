@@ -164,3 +164,5 @@ export function ProfileSettingsMenu({
     />
   );
 }
+
+export default ProfileSettingsMenu;

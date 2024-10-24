@@ -5,13 +5,14 @@ import { OtherFeedPage } from '../../lib/query';
 import { useHorizontalScrollHeader } from '../HorizontalScroll/useHorizontalScrollHeader';
 import { useFeedLayout } from '../../hooks';
 import { TypographyType } from '../typography/Typography';
+import { HorizontalScrollTitleProps } from '../HorizontalScroll/HorizontalScrollHeader';
 
 interface HorizontalFeedProps<T> {
   feedName: OtherFeedPage;
   feedQueryKey: unknown[];
   query: string;
   variables: T;
-  title: ReactElement;
+  title: HorizontalScrollTitleProps;
   emptyScreen: ReactElement;
 }
 
@@ -19,15 +20,15 @@ export default function HorizontalFeed<T>({
   title,
   ...props
 }: HorizontalFeedProps<T>): ReactElement {
-  const { ref, Header } = useHorizontalScrollHeader({
-    title,
+  const { ref, header } = useHorizontalScrollHeader({
+    title: { ...title, type: TypographyType.Body },
   });
   const { isListMode } = useFeedLayout();
 
   return (
     <Feed
       {...props}
-      header={<Header titleType={TypographyType.Body} />}
+      header={header}
       disableAds
       allowFetchMore={false}
       pageSize={10}

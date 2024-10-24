@@ -7,7 +7,6 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import { NextSeo } from 'next-seo';
 import {
   Post,
   POST_BY_ID_STATIC_FIELDS_QUERY,
@@ -42,6 +41,7 @@ import {
   getSeoDescription,
   PostSEOSchema,
 } from '../../../components/PostSEOSchema';
+import { DynamicSeoProps } from '../../../components/common';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
@@ -65,7 +65,7 @@ const CollectionPostContent = dynamic(() =>
   ).then((module) => module.CollectionPostContent),
 );
 
-export interface Props {
+export interface Props extends DynamicSeoProps {
   id: string;
   initialData?: PostData;
 }
@@ -113,19 +113,6 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     featureTheme && 'bg-transparent',
   );
 
-  const seo: NextSeoProps = {
-    canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
-    title: getTemplatedTitle(seoTitle(post)),
-    description: getSeoDescription(post),
-    openGraph: {
-      images: [{ url: `https://og.daily.dev/api/posts/${post?.id}` }],
-      article: {
-        publishedTime: post?.createdAt,
-        tags: post?.tags,
-      },
-    },
-  };
-
   useScrollTopOffset(() => globalThis.window, {
     onOverOffset: () => position !== 'fixed' && setPosition('fixed'),
     onUnderOffset: () => position !== 'relative' && setPosition('relative'),
@@ -139,7 +126,6 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     return (
       <>
         <PostSEOSchema post={post} />
-        {post?.title?.length && <NextSeo {...seo} />}
         <PostLoadingSkeleton className={containerClass} type={post?.type} />
       </>
     );
@@ -156,7 +142,6 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
       <Head>
         <link rel="preload" as="image" href={post?.image} />
       </Head>
-      <NextSeo {...seo} />
       <PostSEOSchema post={post} />
       <Content
         position={position}
@@ -203,10 +188,26 @@ export async function getStaticProps({
       POST_BY_ID_STATIC_FIELDS_QUERY,
       { id },
     );
+
+    const post = initialData.post as Post;
+    const seo: NextSeoProps = {
+      canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
+      title: getTemplatedTitle(seoTitle(post)),
+      description: getSeoDescription(post),
+      openGraph: {
+        images: [{ url: `https://og.daily.dev/api/posts/${post?.id}` }],
+        article: {
+          publishedTime: post?.createdAt,
+          tags: post?.tags,
+        },
+      },
+    };
+
     return {
       props: {
         id: initialData.post.id,
         initialData,
+        seo,
       },
       revalidate: 60,
     };

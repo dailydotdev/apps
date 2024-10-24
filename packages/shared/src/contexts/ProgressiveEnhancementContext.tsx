@@ -41,7 +41,7 @@ export const ProgressiveEnhancementContextProvider = ({
   useEffect(() => {
     const callback = () => {
       setWindowLoaded(true);
-      setNativeShareSupport('share' in navigator);
+      setNativeShareSupport('share' in globalThis?.navigator);
     };
 
     if ('windowLoaded' in window) {

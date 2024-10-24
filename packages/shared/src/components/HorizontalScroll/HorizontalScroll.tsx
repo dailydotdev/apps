@@ -26,17 +26,19 @@ function HorizontalScrollComponent(
   { children, className, scrollProps }: HorizontalScrollProps,
   propRef: MutableRefObject<HTMLDivElement>,
 ): ReactElement {
-  const { ref, Header } = useHorizontalScrollHeader(scrollProps);
-
   const id = useId();
   const titleId = `horizontal-scroll-title-${id}`;
+  const { ref, header } = useHorizontalScrollHeader({
+    ...scrollProps,
+    title: { ...scrollProps?.title, id: titleId },
+  });
 
   return (
     <div
       className={classNames('flex flex-col', className?.container)}
       ref={propRef}
     >
-      <Header titleId={titleId} />
+      {header}
       <div
         ref={ref}
         className={classNames(

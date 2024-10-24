@@ -20,6 +20,6 @@ const Posts = (): ReactElement => {
 };
 
 Posts.getLayout = getMainFeedLayout;
-Posts.layoutProps = mainFeedLayoutProps;
+Posts.layoutProps = { ...mainFeedLayoutProps, seo };
 
 export default Posts;

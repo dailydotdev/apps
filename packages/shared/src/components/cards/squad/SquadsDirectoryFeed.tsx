@@ -14,9 +14,13 @@ import { Button, ButtonVariant } from '../../buttons/Button';
 import { PlaceholderSquadGridList } from './PlaceholderSquadGrid';
 import { PlaceholderSquadListList } from './PlaceholderSquadList';
 import Link from '../../utilities/Link';
+import {
+  HorizontalScrollTitle,
+  HorizontalScrollTitleProps,
+} from '../../HorizontalScroll/HorizontalScrollHeader';
 
 interface SquadHorizontalListProps {
-  title: ReactNode;
+  title: HorizontalScrollTitleProps;
   query: SourcesQueryProps;
   linkToSeeAll: string;
   className?: string;
@@ -57,12 +61,12 @@ export function SquadsDirectoryFeed({
     return null;
   }
 
-  if (isMobile) {
+  if (isMobile && isFetched) {
     return (
       <div ref={ref} className="relative flex flex-col gap-3 pb-6">
         {children}
         <header className="mb-2 flex flex-row items-center justify-between">
-          {title}
+          <HorizontalScrollTitle {...title} />
           <Link href={linkToSeeAll} passHref>
             <Button
               variant={ButtonVariant.Tertiary}

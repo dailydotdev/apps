@@ -38,7 +38,11 @@ export function SquadDirectoryNavbarItem({
     >
       <ConditionalWrapper
         condition={!!path}
-        wrapper={(component) => <Link href={path}>{component}</Link>}
+        wrapper={(component) => (
+          <Link href={path} legacyBehavior>
+            {component}
+          </Link>
+        )}
       >
         <Button
           aria-current={isActive ? 'page' : undefined}

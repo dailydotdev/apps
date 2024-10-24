@@ -18,6 +18,6 @@ const PostsUpvoted = (): ReactElement => {
 };
 
 PostsUpvoted.getLayout = getMainFeedLayout;
-PostsUpvoted.layoutProps = mainFeedLayoutProps;
+PostsUpvoted.layoutProps = { ...mainFeedLayoutProps, seo };
 
 export default PostsUpvoted;

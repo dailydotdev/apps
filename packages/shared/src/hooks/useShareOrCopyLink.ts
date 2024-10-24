@@ -26,7 +26,7 @@ export function useShareOrCopyLink({
   const onShareOrCopy: CopyNotifyFunction = async () => {
     const shortLink = cid ? await getShortUrl(link, cid) : link;
 
-    if ('share' in navigator) {
+    if ('share' in globalThis?.navigator) {
       try {
         await navigator.share({
           text: `${text}\n${shortLink}`,

@@ -208,12 +208,10 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
           ]}
           query={MOST_UPVOTED_FEED_QUERY}
           variables={mostUpvotedQueryVariables}
-          title={
-            <>
-              <UpvoteIcon size={IconSize.Medium} className="mr-1.5" /> Most
-              upvoted posts
-            </>
-          }
+          title={{
+            copy: 'Most upvoted posts',
+            icon: <UpvoteIcon size={IconSize.Medium} className="mr-1.5" />,
+          }}
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
@@ -229,12 +227,10 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
           ]}
           query={MOST_DISCUSSED_FEED_QUERY}
           variables={bestDiscussedQueryVariables}
-          title={
-            <>
-              <DiscussIcon size={IconSize.Medium} className="mr-1.5" /> Best
-              discussed posts
-            </>
-          }
+          title={{
+            copy: 'Best discussed posts',
+            icon: <DiscussIcon size={IconSize.Medium} className="mr-1.5" />,
+          }}
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
