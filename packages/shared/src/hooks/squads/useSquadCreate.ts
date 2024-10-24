@@ -6,12 +6,13 @@ import { LogEvent } from '../../lib/log';
 import { ActionType } from '../../graphql/actions';
 import LogContext from '../../contexts/LogContext';
 import { useToastNotification } from '../useToastNotification';
-import { useBoot } from '../useBoot';
 import { useActions } from '../useActions';
 import { Squad } from '../../graphql/sources';
 import { ApiErrorResult } from '../../graphql/common';
 import { parseOrDefault } from '../../lib/func';
 import { getRandom4Digits } from '../../lib';
+import { persistedQueryClient } from '../../lib/persistedQuery';
+import { RequestKey } from '../../lib/query';
 
 interface UseSquadCreateProps {
   onSuccess?: (squad: Squad) => void;
@@ -32,7 +33,6 @@ export const useSquadCreate: CustomHook = ({
   onSuccess,
   retryWithRandomizedHandle,
 } = {}) => {
-  const { addSquad } = useBoot();
   const { logEvent } = useContext(LogContext);
   const { displayToast } = useToastNotification();
   const { completeAction } = useActions();
@@ -43,11 +43,13 @@ export const useSquadCreate: CustomHook = ({
         event_name: LogEvent.CompleteSquadCreation,
       });
 
-      addSquad(squad);
       completeAction(ActionType.CreateSquad);
 
       if (onSuccess) {
         onSuccess(squad);
+        persistedQueryClient.invalidateQueries({
+          queryKey: [RequestKey.Squads],
+        });
       } else {
         router.replace(squad.permalink);
       }

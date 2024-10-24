@@ -1,13 +1,13 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { joinSquadInvitation, SquadInvitationProps } from '../graphql/squads';
 import { useLogContext } from '../contexts/LogContext';
 import { Squad } from '../graphql/sources';
 import { LogEvent } from '../lib/log';
-import { useBoot } from './useBoot';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { ActionType } from '../graphql/actions';
 import { useActions } from './useActions';
+import { persistedQueryClient } from '../lib/persistedQuery';
 
 type UseJoinSquadProps = {
   squad: Pick<Squad, 'id' | 'handle'>;
@@ -21,9 +21,17 @@ export const useJoinSquad = ({
   referralToken,
 }: UseJoinSquadProps): UseJoinSquad => {
   const queryClient = useQueryClient();
-  const { addSquad } = useBoot();
   const { logEvent } = useLogContext();
   const { completeAction } = useActions();
+  const { mutateAsync: addSquad } = useMutation(
+    [squad.id],
+    joinSquadInvitation,
+    {
+      onSuccess: () => {
+        persistedQueryClient.invalidateQueries([RequestKey.Squads]);
+      },
+    },
+  );
 
   const joinSquad = useCallback(async () => {
     const payload: SquadInvitationProps = {
@@ -44,8 +52,6 @@ export const useJoinSquad = ({
       }),
     });
 
-    addSquad(result);
-
     const queryKey = generateQueryKey(
       RequestKey.Squad,
       result.currentMember.user,
@@ -61,7 +67,6 @@ export const useJoinSquad = ({
     squad.handle,
     referralToken,
     logEvent,
-    addSquad,
     completeAction,
     queryClient,
   ]);

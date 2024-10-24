@@ -230,6 +230,27 @@ export const SQUAD_QUERY = gql`
   ${SQUAD_BASE_FRAGMENT}
 `;
 
+export const SQUAD_MEMBERSHIPS_QUERY = gql`
+  query SourceMemberships {
+    mySourceMemberships {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          source {
+            id
+            name
+            image
+            permalink
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const SQUAD_STATIC_FIELDS_QUERY = gql`
   query Source($handle: ID!) {
     source(id: $handle) {
@@ -358,6 +379,10 @@ export interface SquadEdgesData {
   sourceMembers: Connection<SourceMember>;
 }
 
+export type SourceMembershipsData = {
+  mySourceMemberships: Connection<SourceMember>;
+};
+
 interface SquadMemberMutationProps {
   sourceId: string;
   memberId: string;
@@ -391,6 +416,16 @@ export async function getSquad(handle: string): Promise<Squad> {
     handle: handle.toLowerCase(),
   });
   return res.source;
+}
+
+export async function getSquads(userId: string): Promise<Squad[]> {
+  const res = await gqlClient.request<SourceMembershipsData>(
+    SQUAD_MEMBERSHIPS_QUERY,
+    {
+      id: userId,
+    },
+  );
+  return res.mySourceMemberships.edges.map((edge) => edge.node.source);
 }
 
 export async function getSquadMembers(id: string): Promise<SourceMember[]> {

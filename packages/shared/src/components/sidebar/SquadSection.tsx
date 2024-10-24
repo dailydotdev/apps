@@ -1,14 +1,14 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
 import { NewSquadIcon, DefaultSquadIcon, SourceIcon } from '../icons';
 import { Origin } from '../../lib/log';
-import { useSquadNavigation } from '../../hooks';
-import AuthContext from '../../contexts/AuthContext';
+import { useSquadNavigation, useSquads } from '../../hooks';
 import { SquadImage } from '../squads/SquadImage';
 
 export function SquadSection(props: SectionCommonProps): ReactElement {
-  const { squads } = useContext(AuthContext);
+  const { squads, isLoading } = useSquads();
+
   const { openNewSquad } = useSquadNavigation();
 
   const squadMenuItems: SidebarMenuItem[] = [
@@ -49,6 +49,7 @@ export function SquadSection(props: SectionCommonProps): ReactElement {
       items={squadMenuItems}
       {...props}
       isItemsButton={false}
+      isLoading={isLoading}
     />
   );
 }

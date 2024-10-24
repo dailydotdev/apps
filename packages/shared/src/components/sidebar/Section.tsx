@@ -11,6 +11,7 @@ import {
   SidebarMenuItem,
 } from './common';
 import { AuthTriggersType } from '../../lib/auth';
+import { TextPlaceholder } from '../widgets/common';
 
 export interface SectionCommonProps
   extends Pick<ItemInnerProps, 'shouldShowLabel'> {
@@ -24,6 +25,7 @@ interface SectionProps extends SectionCommonProps {
   title?: string;
   items: SidebarMenuItem[];
   isItemsButton: boolean;
+  isLoading?: boolean
 }
 
 export function Section({
@@ -35,6 +37,7 @@ export function Section({
   activePage,
   isItemsButton,
   className,
+  isLoading
 }: SectionProps): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
 
@@ -57,6 +60,7 @@ export function Section({
           {title}
         </NavHeader>
       )}
+      {isLoading && <ItemsSkeleton />}
       {items.filter(mobileItemsFilter).map((item) => (
         <NavItem
           key={`${item.title}-${item.path}`}
@@ -83,4 +87,27 @@ export function Section({
       ))}
     </NavSection>
   );
+}
+
+const ItemsSkeleton = () => {
+  return (
+    <>
+      <div className="flex items-center">
+        <TextPlaceholder className="w-5 h-5 rounded-full m-3" />
+        <TextPlaceholder className="w-[40%]" />
+      </div>
+      <div className="flex items-center">
+        <TextPlaceholder className="w-5 h-5 rounded-full m-3" />
+        <TextPlaceholder className="w-[40%]" />
+      </div>
+      <div className="flex items-center">
+        <TextPlaceholder className="w-5 h-5 rounded-full m-3" />
+        <TextPlaceholder className="w-[40%]" />
+      </div>
+      <div className="flex items-center">
+        <TextPlaceholder className="w-5 h-5 rounded-full m-3" />
+        <TextPlaceholder className="w-[40%]" />
+      </div>
+    </>
+  )
 }

@@ -20,6 +20,7 @@
     "@dailydotdev/shared": "*",
     "@tanstack/react-query": "^4.36.1",
     "@tanstack/react-query-devtools": "^4.35.3",
+    "@tanstack/react-query-persist-client": "^4.36.1",
     "classnames": "^2.5.1",
     "date-fns": "^2.25.0",
     "date-fns-tz": "1.0.0",
