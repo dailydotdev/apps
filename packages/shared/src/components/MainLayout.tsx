@@ -179,9 +179,8 @@ function MainLayoutComponent({
   }, [shouldShowLogin, showLogin]);
 
   if (
-    (!isPageReady && isPageApplicableForOnboarding) ||
-    shouldRedirectOnboarding ||
-    !isAuthReady
+    ((!isPageReady || !isAuthReady) && isPageApplicableForOnboarding) ||
+    shouldRedirectOnboarding
   ) {
     return null;
   }
