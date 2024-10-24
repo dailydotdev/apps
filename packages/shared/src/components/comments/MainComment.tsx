@@ -6,7 +6,6 @@ import React, {
   useRef,
 } from 'react';
 import classNames from 'classnames';
-import { useInView } from 'react-intersection-observer';
 import dynamic from 'next/dynamic';
 import EnableNotification from '../notifications/EnableNotification';
 import CommentBox, { CommentBoxProps } from './CommentBox';
@@ -22,6 +21,7 @@ import usePersistentContext from '../../hooks/usePersistentContext';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
 import LogContext from '../../contexts/LogContext';
+import { useInView } from '../../hooks/useInView';
 
 const CommentInputOrModal = dynamic(
   () =>
