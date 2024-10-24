@@ -3,6 +3,9 @@ import type ReactModal from 'react-modal';
 import { EmptyObjectLiteral } from './kratos';
 import { isTesting } from './constants';
 
+export type EmptyFunction = () => void;
+export type EmptyPromise = () => Promise<void>;
+
 export const nextTick = (): Promise<unknown> =>
   new Promise((resolve) => setTimeout(resolve));
 

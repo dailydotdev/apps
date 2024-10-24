@@ -22,7 +22,8 @@ import {
 } from '@dailydotdev/shared/src/components/utilities';
 import {
   getSquadMembers,
-  SQUAD_STATIC_FIELDS_QUERY,
+  getSquadStaticFields,
+  SquadStaticData,
 } from '@dailydotdev/shared/src/graphql/squads';
 import { SourceMember, Squad } from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
@@ -78,7 +79,7 @@ const SquadLoading = dynamic(
 
 type SourcePageProps = {
   handle: string;
-  initialData?: Pick<Squad, 'id' | 'name' | 'public' | 'description' | 'image'>;
+  initialData?: SquadStaticData;
   referringUser?: Pick<PublicProfile, 'id' | 'name' | 'image'>;
 };
 
@@ -302,13 +303,7 @@ export async function getServerSideProps({
   try {
     const promises = [];
 
-    promises.push(
-      gqlClient.request<{
-        source: SourcePageProps['initialData'];
-      }>(SQUAD_STATIC_FIELDS_QUERY, {
-        handle,
-      }),
-    );
+    promises.push(getSquadStaticFields(handle));
 
     if (userId && campaign) {
       promises.push(
@@ -323,7 +318,7 @@ export async function getServerSideProps({
       );
     }
 
-    const [{ source: squad }, referringUser] = await Promise.all(promises);
+    const [squad, referringUser] = await Promise.all(promises);
 
     if (squad?.type === 'machine') {
       return {

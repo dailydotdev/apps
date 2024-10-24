@@ -167,6 +167,19 @@ const ReportSourceModal = dynamic(
     ),
 );
 
+const ReasonSelectionModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "reasonSelectionModal" */ './report/ReasonSelectionModal'
+    ),
+);
+
+const PostModerationModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "postModerationModal" */ './squads/PostModerationModal'
+    ),
+);
 const NewSquadModal = dynamic(
   () =>
     import(/* webpackChunkName: "newSquadModal" */ './squads/NewSquadModal'),
@@ -201,6 +214,8 @@ export const modals = {
   [LazyModal.ReportSource]: ReportSourceModal,
   [LazyModal.UserFollowersModal]: UserFollowersModal,
   [LazyModal.UserFollowingModal]: UserFollowingModal,
+  [LazyModal.ReasonSelection]: ReasonSelectionModal,
+  [LazyModal.PostModeration]: PostModerationModal,
   [LazyModal.NewSquad]: NewSquadModal,
 };
 
