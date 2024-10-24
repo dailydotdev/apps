@@ -11,7 +11,7 @@ import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import 'focus-visible';
 import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
-import { DefaultSeo } from 'next-seo';
+import { DefaultSeo, NextSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
@@ -115,6 +115,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { layoutProps } = Component as ComponentGetLayout;
 
   const { themeColor } = useThemedAsset();
+  const seo = layoutProps?.seo as Record<string, unknown>;
 
   return (
     <>
@@ -181,6 +182,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         canonical={canonicalFromRouter(router)}
         titleTemplate={unreadCount ? `(${unreadText}) %s` : '%s'}
       />
+      {seo && <NextSeo {...seo} />}
       <LazyModalElement />
       <DndContextProvider>
         {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
