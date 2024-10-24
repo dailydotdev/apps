@@ -11,7 +11,6 @@ import {
   within,
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { OperationOptions } from 'subscriptions-transport-ws';
 import { mocked } from 'ts-jest/utils';
 import { useRouter } from 'next/router';
 
@@ -86,7 +85,7 @@ jest.mock('../hooks', () => {
         .fn()
         .mockImplementation(
           (
-            request: () => OperationOptions,
+            request: () => null,
             { next }: SubscriptionCallbacks<PostsEngaged>,
           ): void => {
             nextCallback = next;
@@ -102,7 +101,7 @@ jest.mock('../hooks/useSubscription', () => ({
     .fn()
     .mockImplementation(
       (
-        request: () => OperationOptions,
+        request: () => null,
         { next }: SubscriptionCallbacks<PostsEngaged>,
       ): void => {
         nextCallback = next;
