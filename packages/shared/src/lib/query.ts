@@ -7,11 +7,12 @@ import {
 } from '@tanstack/react-query';
 import { ClientError } from 'graphql-request';
 
-import { Connection, GARMR_ERROR, PageInfo } from '../graphql/common';
+import { Connection, GARMR_ERROR } from '../graphql/common';
+import type { PageInfo } from '../graphql/common';
 import { EmptyObjectLiteral } from './kratos';
 import { LoggedUser } from './user';
 import { FeedData, Post, ReadHistoryPost } from '../graphql/posts';
-import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
+import type { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
 import { SharedFeedPage } from '../components/utilities';
 import {
   Comment as PostComment,

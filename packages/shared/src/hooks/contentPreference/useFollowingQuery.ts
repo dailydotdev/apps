@@ -1,6 +1,8 @@
 import {
+  InfiniteData,
   useInfiniteQuery,
   UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
 } from '@tanstack/react-query';
 import {
   ContentPreference,
@@ -28,12 +30,16 @@ export type UseFollowingQueryProps = {
   >;
 };
 
+export type UseFollowingQuery = UseInfiniteQueryResult<
+  InfiniteData<Connection<ContentPreference>>
+>;
+
 export const useFollowingQuery = ({
   id,
   entity,
   limit = DEFAULT_FOLLOW_LIMIT,
   queryOptions,
-}: UseFollowingQueryProps) => {
+}: UseFollowingQueryProps): UseFollowingQuery => {
   const { user } = useAuthContext();
   const enabled = !!(id && entity);
   const queryKey = generateQueryKey(

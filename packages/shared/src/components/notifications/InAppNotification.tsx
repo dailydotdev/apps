@@ -36,13 +36,13 @@ export function InAppNotificationElement(): ReactElement {
   const { clearNotifications, dismissNotification } = useInAppNotification();
   const { isSubscribed } = usePushNotificationContext();
   const [isExit, setIsExit] = useState(false);
-  const closeNotification = () => {
+  const closeNotification = useCallback(() => {
     setIsExit(true);
     setTimeout(() => {
       setIsExit(false);
       dismissNotification();
     }, 150);
-  };
+  }, [dismissNotification]);
   const stopTimer = () => clearTimeout(timeoutId);
   const startTimer = useCallback(
     (timer: number) => {

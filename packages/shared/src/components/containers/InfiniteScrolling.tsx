@@ -14,6 +14,8 @@ export interface InfiniteScrollingProps
 }
 
 export const checkFetchMore = (
+  // (Specific since we don't know inferred type)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   queryResult: UseInfiniteQueryResult<InfiniteData<any>>,
 ): boolean =>
   !queryResult.isLoading &&

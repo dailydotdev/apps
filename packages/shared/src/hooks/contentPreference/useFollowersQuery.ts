@@ -1,7 +1,9 @@
 import {
+  InfiniteData,
   useInfiniteQuery,
   UseInfiniteQueryOptions,
 } from '@tanstack/react-query';
+import { UseInfiniteQueryResult } from '@tanstack/react-query/build/legacy/types';
 import {
   ContentPreference,
   ContentPreferenceType,
@@ -28,12 +30,16 @@ export type UseFollowersQueryProps = {
   >;
 };
 
+export type UseFollowersQuery = UseInfiniteQueryResult<
+  InfiniteData<Connection<ContentPreference>>
+>;
+
 export const useFollowersQuery = ({
   id,
   entity,
   limit = DEFAULT_FOLLOW_LIMIT,
   queryOptions,
-}: UseFollowersQueryProps) => {
+}: UseFollowersQueryProps): UseFollowersQuery => {
   const { user } = useAuthContext();
   const enabled = !!(id && entity);
   const queryKey = generateQueryKey(
@@ -56,7 +62,9 @@ export const useFollowersQuery = ({
         unknown,
         { id: string; entity: ContentPreferenceType },
       ];
-      const result = await gqlClient.request(USER_FOLLOWERS_QUERY, {
+      const result = await gqlClient.request<{
+        userFollowers: Connection<ContentPreference>;
+      }>(USER_FOLLOWERS_QUERY, {
         ...queryVariables,
         after: pageParam,
       });

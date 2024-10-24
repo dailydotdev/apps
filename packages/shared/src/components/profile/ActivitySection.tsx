@@ -74,6 +74,7 @@ export const LoadMore = classed(
   'mt-3 self-start p-0 bg-none border-none text-text-link cursor-pointer typo-callout font-outline',
 );
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface ActivitySectionProps<TElement, TError> {
   title: string;
   count?: number;
