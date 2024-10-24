@@ -13,6 +13,7 @@ function SquadFeedHeading({ squad }: SquadFeedHeadingProps): ReactElement {
   const { items } = useContext(ActiveFeedContext);
   const { collapseSquadPinnedPosts, expandSquadPinnedPosts } = useSquadActions({
     squad,
+    membersQueryEnabled: false,
   });
   const collapsePinnedPosts = squad?.currentMember?.flags?.collapsePinnedPosts;
   const isSquadMember = !!squad.currentMember;

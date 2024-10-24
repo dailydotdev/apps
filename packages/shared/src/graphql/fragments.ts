@@ -51,6 +51,15 @@ export const USER_AUTHOR_FRAGMENT = gql`
   ${USER_SHORT_INFO_FRAGMENT}
 `;
 
+export const USER_BASIC_INFO = gql`
+  fragment UserBasicInfo on User {
+    id
+    name
+    image
+    permalink
+  }
+`;
+
 export const SOURCE_DIRECTORY_INFO_FRAGMENT = gql`
   fragment SourceDirectoryInfo on Source {
     id
