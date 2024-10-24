@@ -1,11 +1,13 @@
 import { useCallback, useContext } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { leaveSquad } from '../graphql/squads';
 import { Squad } from '../graphql/sources';
 import { PromptOptions, usePrompt } from './usePrompt';
-import { useBoot } from './useBoot';
 import LogContext from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
 import { ButtonColor } from '../components/buttons/Button';
+import { persistedQueryClient } from '../lib/persistedQuery';
+import { RequestKey } from '../lib/query';
 
 interface Params {
   forceLeave?: boolean;
@@ -21,7 +23,11 @@ type UseLeaveSquadProps = {
 export const useLeaveSquad = ({ squad }: UseLeaveSquadProps): UseLeaveSquad => {
   const { logEvent } = useContext(LogContext);
   const { showPrompt } = usePrompt();
-  const { deleteSquad: deleteCachedSquad } = useBoot();
+  const { mutate } = useMutation(leaveSquad, {
+    onSuccess: () => {
+      persistedQueryClient.invalidateQueries({ queryKey: [RequestKey.Squads] });
+    },
+  });
 
   const onLeaveSquad = useCallback(
     async ({ forceLeave = false }: Params = {}) => {
@@ -40,13 +46,12 @@ export const useLeaveSquad = ({ squad }: UseLeaveSquadProps): UseLeaveSquad => {
           event_name: LogEvent.LeaveSquad,
           extra: JSON.stringify({ squad: squad.id }),
         });
-        await leaveSquad(squad.id);
-        deleteCachedSquad(squad.id);
+        mutate(squad.id);
       }
 
       return left;
     },
-    [deleteCachedSquad, showPrompt, squad, logEvent],
+    [showPrompt, squad, logEvent],
   );
 
   return onLeaveSquad;

@@ -1,11 +1,13 @@
 import { useContext, useMemo } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { deleteSquad } from '../graphql/squads';
 import { Squad } from '../graphql/sources';
 import { PromptOptions, usePrompt } from './usePrompt';
-import { useBoot } from './useBoot';
 import LogContext from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
 import { ButtonColor } from '../components/buttons/Button';
+import { persistedQueryClient } from '../lib/persistedQuery';
+import { RequestKey } from '../lib/query';
 
 interface UseDeleteSquadModal {
   onDeleteSquad: () => void;
@@ -22,7 +24,12 @@ export const useDeleteSquad = ({
 }: UseDeleteSquadProps): UseDeleteSquadModal => {
   const { logEvent } = useContext(LogContext);
   const { showPrompt } = usePrompt();
-  const { deleteSquad: deleteCachedSquad } = useBoot();
+  // const { deleteSquad: deleteCachedSquad } = useBoot();
+  const { mutate } = useMutation([squad.id], deleteSquad, {
+    onSuccess: () => {
+      persistedQueryClient.invalidateQueries([RequestKey.Squads]);
+    },
+  });
 
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -42,8 +49,7 @@ export const useDeleteSquad = ({
         event_name: LogEvent.DeleteSquad,
         extra: JSON.stringify({ squad: squad.id }),
       });
-      await deleteSquad(squad.id);
-      deleteCachedSquad(squad.id);
+      await mutate(squad.id);
       await callback?.();
     }
   };

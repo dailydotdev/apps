@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ClientError } from 'graphql-request';
 import { useContext } from 'react';
 import { Squad } from '../../graphql/sources';
-import { getSquad } from '../../graphql/squads';
+import { getSquad, getSquads } from '../../graphql/squads';
 import { ApiError, ApiErrorResult, getApiError } from '../../graphql/common';
 import AuthContext from '../../contexts/AuthContext';
 import { isNullOrUndefined } from '../../lib/func';
@@ -41,3 +41,18 @@ export const useSquad = ({ handle }: UseSquadProps): UseSquad => {
       : !!getApiError(error as ApiErrorResult, ApiError.Forbidden),
   };
 };
+
+export const useSquads = () => {
+  const { isFetched: isBootFetched, user } = useContext(AuthContext);
+  // const queryKey = generateQueryKey(RequestKey.Squads);
+
+  const { data: squads, isLoading, isFetched } = useQuery([RequestKey.Squads], () =>
+    getSquads(user?.id), 
+  );
+console.log("squads",squads)
+  return {
+    squads,
+    isLoading,
+    isFetched,
+  }
+}

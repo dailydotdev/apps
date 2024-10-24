@@ -1,7 +1,7 @@
 import { QueryClient } from '@tanstack/react-query';
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 import { PersistQueryClientOptions } from '@tanstack/react-query-persist-client';
-import { StaleTime } from './query';
+import { RequestKey, StaleTime } from './query';
 
 export const persistedQueryClient = new QueryClient({
   defaultOptions: {
@@ -24,7 +24,9 @@ export const persistedQueryClientOptions: Omit<
   persister: queryClientPersister,
   dehydrateOptions: {
     shouldDehydrateQuery: ({ queryKey }) => {
-      return queryKey[0] === 'squads';
+      console.log('queryKey', queryKey);
+      // TODO: Figure out how to check on both first and second key.
+      return queryKey[0] === RequestKey.Squads;
     },
   },
 };
