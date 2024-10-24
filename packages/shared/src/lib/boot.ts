@@ -4,7 +4,6 @@ import { apiUrl } from './config';
 import { Alerts } from '../graphql/alerts';
 import { RemoteSettings } from '../graphql/settings';
 import { Post } from '../graphql/posts';
-import { Squad } from '../graphql/sources';
 import { decrypt } from '../components/crypto';
 import { MarketingCta } from '../components/marketingCta/common';
 import { Feed } from '../graphql/feed';
@@ -53,7 +52,6 @@ export type Boot = {
   visit: Visit;
   notifications: NotificationsBootData;
   settings: RemoteSettings;
-  squads: Squad[];
   postData?: PostBootData;
   isLegacyLogout?: boolean;
   exp?: {
@@ -74,7 +72,6 @@ export type BootCacheData = Pick<
   | 'settings'
   | 'postData'
   | 'notifications'
-  | 'squads'
   | 'exp'
   | 'feeds'
 > & { lastModifier?: string };
