@@ -74,12 +74,12 @@ function CreatePost(): ReactElement {
     }
 
     return [
+      ...filtered,
       {
         ...generateDefaultSquad(user.username),
         name: 'Create new Squad',
         handle: null,
       },
-      ...filtered,
     ];
   }, [squads, user]);
   const squad = activeSquads?.[selected];
@@ -120,6 +120,7 @@ function CreatePost(): ReactElement {
     onSuccess: (newSquad) => {
       const form = formToJson<CreatePostProps>(formRef.current);
 
+      setSelected(selected + 1);
       return onCreatePost({ ...form, sourceId: newSquad.id });
     },
     retryWithRandomizedHandle: true,
