@@ -13,7 +13,6 @@ import {
   HorizontalScrollHeader,
   HorizontalScrollHeaderProps,
 } from './HorizontalScrollHeader';
-import { useIsHydrated } from '../../hooks/utils/useIsHydrated';
 
 type HeaderProps = Pick<HorizontalScrollHeaderProps, 'titleId' | 'titleType'>;
 
@@ -44,7 +43,6 @@ export const useHorizontalScrollHeader = <
   linkToSeeAll,
   title,
 }: UseHorizontalScrollHeaderProps): HorizontalScrollHeaderReturn<El> => {
-  const isHydrated = useIsHydrated();
   const ref = useRef<El>(null);
   // Calculate the width of elements and the number of visible cards
   const {
@@ -77,7 +75,7 @@ export const useHorizontalScrollHeader = <
     () =>
       // eslint-disable-next-line react/display-name
       (props: HeaderProps = {}) =>
-        isHydrated && (
+        (
           <HorizontalScrollHeader
             {...props}
             title={title}
@@ -99,7 +97,6 @@ export const useHorizontalScrollHeader = <
       onClickSeeAll,
       title,
       isOverflowing,
-      isHydrated,
     ],
   );
 

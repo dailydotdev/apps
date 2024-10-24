@@ -10,7 +10,6 @@ import {
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { SourceIcon } from '@dailydotdev/shared/src/components/icons';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { useIsHydrated } from '@dailydotdev/shared/src/hooks/utils/useIsHydrated';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { SquadDirectoryLayout } from '../../../../shared/src/components/squads/layout/SquadDirectoryLayout';
@@ -44,7 +43,6 @@ const SquadDirectoryTitle = ({
 );
 
 function SquadDiscoveryPage(): ReactElement {
-  const isHydrated = useIsHydrated();
   const { data } = useSquadCategories();
   const isMobile = useViewSize(ViewSize.MobileL);
   const categories = data?.pages.flatMap((page) => page.categories.edges) ?? [];
@@ -59,7 +57,7 @@ function SquadDiscoveryPage(): ReactElement {
         title={<SquadDirectoryTitle title="Featured" icon />}
         query={{ isPublic: true, featured: true, first: limit }}
       >
-        {isHydrated && isMobile && (
+        {isMobile && (
           <div className="absolute inset-0 -left-4 -z-1 flex w-[calc(100%+2rem)] bg-gradient-to-t from-overlay-float-cabbage from-10% to-background-default tablet:hidden" />
         )}
       </SquadsDirectoryFeed>

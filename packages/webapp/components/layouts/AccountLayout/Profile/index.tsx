@@ -50,7 +50,6 @@ import {
 } from '@dailydotdev/shared/src/graphql/common';
 import { UPLOAD_COVER_MUTATION } from '@dailydotdev/shared/src/graphql/users';
 import { useRouter } from 'next/router';
-import { useIsHydrated } from '@dailydotdev/shared/src/hooks/utils/useIsHydrated';
 import { AccountTextField } from '../common';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
@@ -63,7 +62,6 @@ const coverId = 'cover_file';
 const ProfileIndex = ({
   ...props
 }: VerifiedCompanyBadgeSectionProps): ReactElement => {
-  const isHydrated = useIsHydrated();
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>();
   const { displayToast } = useToastNotification();
@@ -371,7 +369,7 @@ const ProfileIndex = ({
     </form>
   );
 
-  if (isMobile && isHydrated) {
+  if (isMobile) {
     return (
       <FormWrapper
         className={{ container: 'relative max-w-[100vw]' }}
@@ -404,7 +402,7 @@ const ProfileIndex = ({
         </Button>
       }
     >
-      {isHydrated && form}
+      {form}
     </AccountPageContainer>
   );
 };
