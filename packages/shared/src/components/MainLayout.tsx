@@ -87,10 +87,8 @@ function MainLayoutComponent({
   enableSearch,
   onShowDndClick,
   canGoBack,
-  seo,
 }: MainLayoutProps): ReactElement {
   const router = useRouter();
-  const withStaticSeo = !!seo;
   const { logEvent } = useContext(LogContext);
   const { user, isAuthReady, showLogin } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
@@ -183,8 +181,7 @@ function MainLayoutComponent({
 
   if (
     (!isPageReady && isPageApplicableForOnboarding) ||
-    shouldRedirectOnboarding ||
-    (!isAuthReady && withStaticSeo)
+    shouldRedirectOnboarding
   ) {
     return null;
   }
