@@ -32,14 +32,12 @@ const SquadDirectoryTitle = ({
   icon,
   title,
 }: SquadDirectoryTitleProps): ReactElement => (
-  <Typography
-    className="flex flex-row items-center gap-1"
-    type={TypographyType.Title2}
-    bold
-  >
+  <span className="flex flex-row items-center gap-1">
     {icon && <SourceIcon secondary size={IconSize.Large} />}
-    {title}
-  </Typography>
+    <Typography type={TypographyType.Title2} bold>
+      {title}
+    </Typography>
+  </span>
 );
 
 function SquadDiscoveryPage(): ReactElement {
