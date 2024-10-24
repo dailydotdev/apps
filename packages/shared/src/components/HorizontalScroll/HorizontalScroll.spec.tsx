@@ -15,7 +15,7 @@ describe('HorizontalScroll', () => {
   });
   it('renders correctly with the given title and children', () => {
     render(
-      <HorizontalScroll scrollProps={{ title: 'Scrollable Area' }}>
+      <HorizontalScroll scrollProps={{ title: { copy: 'Scrollable Area' } }}>
         <div>Child Content</div>
       </HorizontalScroll>,
     );
@@ -30,7 +30,7 @@ describe('HorizontalScroll', () => {
   it('applies custom className correctly', () => {
     render(
       <HorizontalScroll
-        scrollProps={{ title: 'Scrollable Area' }}
+        scrollProps={{ title: { copy: 'Scrollable Area' } }}
         className={{ scroll: 'custom-class' }}
       >
         <div>Child Content</div>
@@ -44,7 +44,10 @@ describe('HorizontalScroll', () => {
     const mockOnClickSeeAll = jest.fn();
     render(
       <HorizontalScroll
-        scrollProps={{ onClickSeeAll: mockOnClickSeeAll, title: 'Scrollable ' }}
+        scrollProps={{
+          onClickSeeAll: mockOnClickSeeAll,
+          title: { copy: 'Scrollable ' },
+        }}
       >
         <div>Child Content</div>
       </HorizontalScroll>,
