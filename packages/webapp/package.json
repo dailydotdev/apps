@@ -38,7 +38,7 @@
     "react-transition-group": "^4.4.5"
   },
   "devDependencies": {
-    "@babel/preset-typescript": "^7.16.5",
+    "@babel/preset-typescript": "^7.25.9",
     "@dailydotdev/eslint-config": "*",
     "@dailydotdev/eslint-plugin-daily-dev-eslint-rules": "*",
     "@dailydotdev/prettier-config": "*",
