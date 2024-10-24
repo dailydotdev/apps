@@ -12,7 +12,6 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
 import { getFeedName as getFeedNameLib } from '@dailydotdev/shared/src/lib/feed';
 import dynamic from 'next/dynamic';
-import { NextSeo, NextSeoProps } from 'next-seo';
 import { getLayout } from './FeedLayout';
 
 const MainFeedLayout = dynamic(
@@ -26,7 +25,6 @@ const MainFeedLayout = dynamic(
 export type MainFeedPageProps = {
   children?: ReactNode;
   isFinder?: boolean;
-  seo?: NextSeoProps;
 } & Pick<MainFeedLayoutProps, 'searchChildren'>;
 
 const getFeedName = (path: string): string => {
@@ -97,13 +95,10 @@ export default function MainFeedPage({
 export function getMainFeedLayout(
   page: ReactNode,
   pageProps: Record<string, unknown>,
-  { seo, ...layoutProps }: MainLayoutProps & MainFeedPageProps,
+  layoutProps: MainLayoutProps & MainFeedPageProps,
 ): ReactNode {
   return getLayout(
-    <>
-      {seo && <NextSeo {...seo} />}
-      <MainFeedPage {...layoutProps}>{page}</MainFeedPage>
-    </>,
+    <MainFeedPage {...layoutProps}>{page}</MainFeedPage>,
     pageProps,
     layoutProps,
   );
