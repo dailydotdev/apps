@@ -42,17 +42,24 @@ export const useSquad = ({ handle }: UseSquadProps): UseSquad => {
   };
 };
 
-export const useSquads = () => {
+type UseSquads = {
+  squads: Squad[];
+  isLoading: boolean;
+};
+
+export const useSquads = (): UseSquads => {
   const { isFetched: isBootFetched, user } = useContext(AuthContext);
   // const queryKey = generateQueryKey(RequestKey.Squads);
 
-  const { data: squads, isLoading, isFetched } = useQuery([RequestKey.Squads], () =>
-    getSquads(user?.id), 
+  const { data: squads, isLoading } = useQuery(
+    [RequestKey.Squads],
+    () => getSquads(user?.id),
+    {
+      enabled: isBootFetched && !!user,
+    },
   );
-console.log("squads",squads)
   return {
     squads,
     isLoading,
-    isFetched,
-  }
-}
+  };
+};

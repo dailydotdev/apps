@@ -24,7 +24,6 @@ export const persistedQueryClientOptions: Omit<
   persister: queryClientPersister,
   dehydrateOptions: {
     shouldDehydrateQuery: ({ queryKey }) => {
-      console.log('queryKey', queryKey);
       // TODO: Figure out how to check on both first and second key.
       return queryKey[0] === RequestKey.Squads;
     },
