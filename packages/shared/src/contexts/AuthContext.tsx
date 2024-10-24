@@ -18,6 +18,10 @@ import { isCompanionActivated } from '../lib/element';
 import { AuthTriggers, AuthTriggersType } from '../lib/auth';
 import { Squad } from '../graphql/sources';
 import { checkIsExtension } from '../lib/func';
+import {
+  persistedQueryClient,
+  queryClientPersister,
+} from '../lib/persistedQuery';
 
 export interface LoginState {
   trigger: AuthTriggersType;
@@ -84,6 +88,11 @@ export const REGISTRATION_PATH = '/register';
 
 const logout = async (reason: string): Promise<void> => {
   await dispatchLogout(reason);
+  // Removes the in memory cache
+  persistedQueryClient.clear();
+  // Removes the persisted cache, which is localStorage in our case.
+  queryClientPersister.removeClient();
+
   const params = getQueryParams();
   if (params.redirect_uri) {
     window.location.replace(params.redirect_uri);

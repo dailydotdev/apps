@@ -1,5 +1,4 @@
 import React, { ReactElement, useState } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import browser from 'webextension-polyfill';
 import { Boot, BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -15,13 +14,17 @@ import {
   ExtensionMessageType,
   getCompanionWrapper,
 } from '@dailydotdev/shared/src/lib/extension';
-import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
 import { GrowthBookProvider } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { useEventListener } from '@dailydotdev/shared/src/hooks';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
+import {
+  persistedQueryClient,
+  persistedQueryClientOptions,
+} from '@dailydotdev/shared/src/lib/persistedQuery';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import Companion from './Companion';
 import CustomRouter from '../lib/CustomRouter';
 import { companionFetch } from './companionFetch';
@@ -29,7 +32,6 @@ import { version } from '../../package.json';
 
 structuredCloneJsonPolyfill();
 
-const queryClient = new QueryClient(defaultQueryClientConfig);
 const router = new CustomRouter();
 
 export type CompanionData = { url: string; deviceId: string } & Pick<
@@ -84,7 +86,10 @@ export default function App({
         @import &quot;{browser.runtime.getURL('css/companion.css')}&quot;;
       </style>
       <RouterContext.Provider value={router}>
-        <QueryClientProvider client={queryClient}>
+        <PersistQueryClientProvider
+          client={persistedQueryClient}
+          persistOptions={persistedQueryClientOptions}
+        >
           <GrowthBookProvider
             app={app}
             user={user}
@@ -132,7 +137,7 @@ export default function App({
             </AuthContextProvider>
           </GrowthBookProvider>
           <ReactQueryDevtools />
-        </QueryClientProvider>
+        </PersistQueryClientProvider>
       </RouterContext.Provider>
     </div>
   );
