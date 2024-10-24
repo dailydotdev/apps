@@ -51,9 +51,19 @@ import CommentFeed from './CommentFeed';
 import { COMMENT_FEED_QUERY } from '../graphql/comments';
 import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
 import { Origin } from '../lib/log';
-import { ExploreTabs, FeedExploreHeader, tabToUrl, urlToTab } from './header';
+import { ExploreTabs, tabToUrl, urlToTab } from './header';
 import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
+
+const FeedExploreHeader = dynamic(
+  () =>
+    import(/* webpackChunkName: "feedExploreHeader" */ './header').then(
+      (mod) => mod.FeedExploreHeader,
+    ),
+  {
+    ssr: false,
+  },
+);
 
 const SearchEmptyScreen = dynamic(
   () =>
