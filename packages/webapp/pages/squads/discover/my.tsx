@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import { NextSeo } from 'next-seo';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
 import { useRouter } from 'next/router';
@@ -20,7 +19,6 @@ function MySquadsPage(): ReactElement {
 
   return (
     <SquadDirectoryLayout className="gap-3">
-      <NextSeo {...defaultSeo} title="My Squads" />
       {squads?.map((squad) => (
         <SquadList key={squad.handle} squad={squad} shouldShowCount={false} />
       ))}
@@ -29,6 +27,6 @@ function MySquadsPage(): ReactElement {
 }
 
 MySquadsPage.getLayout = getLayout;
-MySquadsPage.layoutProps = { ...mainFeedLayoutProps, seo };
+MySquadsPage.layoutProps = { ...mainFeedLayoutProps, seo: defaultSeo };
 
 export default MySquadsPage;
