@@ -41,7 +41,7 @@ function useInputFieldFunctions<
   const [validInput, setValidInput] = useState<boolean>(undefined);
   const [idleTimeout, clearIdleTimeout] = useDebounceFn(() => {
     setValidInput(inputRef.current.checkValidity());
-  }, 1500);
+  }, 500);
 
   useEffect(() => {
     if (inputRef.current?.value) {
@@ -79,10 +79,10 @@ function useInputFieldFunctions<
   }, [validInput]);
 
   useEffect(() => {
-    if (validInput !== undefined && valid !== undefined) {
+    if (valid !== undefined) {
       setValidInput(valid);
     }
-  }, [valid, validInput]);
+  }, [valid]);
 
   const onBlur = () => {
     clearIdleTimeout();
