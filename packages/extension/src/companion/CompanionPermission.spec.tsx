@@ -14,8 +14,6 @@ import {
 
 let client: QueryClient;
 
-jest.mock('content-scripts-register-polyfill', () => ({}));
-
 jest.mock('webextension-polyfill', () => {
   return {
     contentScripts: {
