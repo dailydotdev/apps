@@ -74,7 +74,7 @@
     "eslint-plugin-testing-library": "^4.12.4",
     "fake-indexeddb": "^3.1.7",
     "glob": "^7.2.0",
-    "graphql": "^15.7.2",
+    "graphql": "^16.9.0",
     "graphql-request": "^3.6.1",
     "idb-keyval": "^5.1.5",
     "identity-obj-proxy": "^3.0.0",
