@@ -143,9 +143,6 @@ importers:
       react-transition-group:
         specifier: ^4.4.5
         version: 4.4.5(react-dom@18.3.1)(react@18.3.1)
-      react-virtual:
-        specifier: ^2.10.4
-        version: 2.10.4(react@18.3.1)
       webextension-polyfill:
         specifier: ^0.10.0
         version: 0.10.0
@@ -651,9 +648,6 @@ importers:
       react-transition-group:
         specifier: ^4.4.5
         version: 4.4.5(react-dom@18.3.1)(react@18.3.1)
-      react-virtual:
-        specifier: ^2.8.2
-        version: 2.10.4(react@18.3.1)
       tailwindcss:
         specifier: ^3.4.14
         version: 3.4.14
@@ -880,9 +874,6 @@ importers:
       react-transition-group:
         specifier: ^4.4.5
         version: 4.4.5(react-dom@18.3.1)(react@18.3.1)
-      react-virtual:
-        specifier: ^2.10.4
-        version: 2.10.4(react@18.3.1)
     devDependencies:
       '@babel/preset-typescript':
         specifier: ^7.25.9
@@ -5077,9 +5068,6 @@ packages:
   /@popperjs/core@2.11.8:
     resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
     dev: false
-
-  /@reach/observe-rect@1.2.0:
-    resolution: {integrity: sha512-Ba7HmkFgfQxZqqaeIWWkNK0rEhpxVQHIoVyW1YDSkGsGIXzcaW4deC8B0pZrNSSyLTdIk7y+5olKt5+g0GmFIQ==}
 
   /@rollup/pluginutils@4.2.1:
     resolution: {integrity: sha512-iKnFXr7NkdZAIHiIWE+BX5ULi/ucVFYWD6TbAV+rZctiRTY2PL6tsIKhoIOaoskiWAkgu+VsbXgUVDNLHf+InQ==}
@@ -15385,14 +15373,6 @@ packages:
       prop-types: 15.8.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-
-  /react-virtual@2.10.4(react@18.3.1):
-    resolution: {integrity: sha512-Ir6+oPQZTVHfa6+JL9M7cvMILstFZH/H3jqeYeKI4MSUX+rIruVwFC6nGVXw9wqAw8L0Kg2KvfXxI85OvYQdpQ==}
-    peerDependencies:
-      react: ^16.6.3 || ^17.0.0
-    dependencies:
-      '@reach/observe-rect': 1.2.0
-      react: 18.3.1
 
   /react@18.3.1:
     resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
