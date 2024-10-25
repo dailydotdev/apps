@@ -6,6 +6,7 @@ import { fallbackImages } from '../lib/config';
 import { Image, ImageType } from './image/Image';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
 import { SocialProvider } from './auth/common';
+import { setQueryParams } from '../lib';
 
 export enum ProfileImageSize {
   Size16 = 'size16',
@@ -81,11 +82,7 @@ export function setOnError(
 
 const resizeSrcReplaceRule: Record<string, (src: string) => string> = {
   [SocialProvider.Google]: (src) => src.replace(/s96-c$/, 's64-c'),
-  [SocialProvider.GitHub]: (src) => {
-    const search = new URLSearchParams(src);
-    search.set('s', '64');
-    return src.replace(/\?.+$/, `?${search.toString()}`);
-  },
+  [SocialProvider.GitHub]: (src) => setQueryParams(src, { s: '64' }),
 };
 
 const getSocialProviderFromSrc = (src: string): SocialProvider | null => {
