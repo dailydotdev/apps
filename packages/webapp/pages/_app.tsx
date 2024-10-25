@@ -116,6 +116,8 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   const { themeColor } = useThemedAsset();
   const seo = (pageProps?.seo || layoutProps?.seo) as Record<string, unknown>;
+  const count = unreadCount ? `(${unreadText})` : '';
+  const defaultTemplate = `${count}%s ${defaultSeoTitle}`;
 
   return (
     <>
@@ -180,7 +182,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         {...defaultSeo}
         title={defaultSeoTitle}
         canonical={canonicalFromRouter(router)}
-        titleTemplate={unreadCount ? `(${unreadText}) %s` : '%s'}
+        titleTemplate={defaultTemplate}
       />
       {seo && <NextSeo {...seo} />}
       <LazyModalElement />
