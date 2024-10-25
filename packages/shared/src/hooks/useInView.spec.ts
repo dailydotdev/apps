@@ -6,9 +6,14 @@ jest.mock('./useIntersectionObserver');
 
 describe('useInView hook', () => {
   const mockIntersectionObserver = useIntersectionObserver as jest.Mock;
+  const mockCallback = jest.fn();
+  mockIntersectionObserver.mockImplementation((_, callback) => {
+    mockCallback.mockImplementation(callback);
+  });
 
   beforeEach(() => {
     mockIntersectionObserver.mockClear();
+    mockCallback.mockClear();
   });
 
   it('should call useIntersectionObserver with the correct parameters and function', () => {
@@ -35,7 +40,6 @@ describe('useInView hook', () => {
   });
 
   it('should set ref correctly and trigger observer on ref change', () => {
-    const mockCallback = jest.fn();
     mockIntersectionObserver.mockImplementation((ref, callback) => {
       mockCallback.mockImplementation(callback);
     });
@@ -54,8 +58,77 @@ describe('useInView hook', () => {
     );
   });
 
-  it('should set inView to true immediately on mount if initialInView is true', () => {
+  it('should immediately set inView to true if element is already intersecting on ref assignment', () => {
     const { result } = renderHook(() => useInView({ initialInView: true }));
+    const div = document.createElement('div');
+
+    act(() => {
+      result.current.ref(div);
+    });
+
+    expect(result.current.inView).toBe(true);
+  });
+
+  it('should avoid redundant updates for inView and entry', () => {
+    const { result } = renderHook(() => useInView());
+    const div = document.createElement('div');
+
+    // Initial ref assignment
+    act(() => {
+      result.current.ref(div);
+    });
+
+    // First call with intersecting entry
+    act(() => {
+      mockCallback(
+        [{ isIntersecting: true, target: div }],
+        new IntersectionObserver(mockCallback),
+      );
+    });
+    expect(result.current.inView).toBe(true);
+
+    // Second call with same intersecting entry (no state change expected)
+    act(() => {
+      mockCallback(
+        [{ isIntersecting: true, target: div }],
+        new IntersectionObserver(mockCallback),
+      );
+    });
+    expect(result.current.inView).toBe(true); // Ensure `inView` remains true
+
+    // Call with non-intersecting entry
+    act(() => {
+      mockCallback(
+        [{ isIntersecting: false, target: div }],
+        new IntersectionObserver(mockCallback),
+      );
+    });
+    expect(result.current.inView).toBe(false); // `inView` should update to false on change
+
+    // Final call to ensure no redundant updates
+    act(() => {
+      mockCallback(
+        [{ isIntersecting: false, target: div }],
+        new IntersectionObserver(mockCallback),
+      );
+    });
+    expect(result.current.inView).toBe(false); // `inView` should still be false
+  });
+
+  it('should handle array threshold and update inView state at each threshold', () => {
+    const { result } = renderHook(() => useInView({ threshold: [0, 0.5, 1] }));
+    const div = document.createElement('div');
+
+    act(() => {
+      result.current.ref(div);
+    });
+
+    act(() => {
+      mockCallback(
+        [{ isIntersecting: true, intersectionRatio: 0.5, target: div }],
+        new IntersectionObserver(mockCallback),
+      );
+    });
 
     expect(result.current.inView).toBe(true);
   });
@@ -83,11 +156,6 @@ describe('useInView hook', () => {
   });
 
   it('should update inView state when callback is triggered with intersecting entry', () => {
-    const mockCallback = jest.fn();
-    mockIntersectionObserver.mockImplementation((_, callback) => {
-      mockCallback.mockImplementation(callback);
-    });
-
     const { result } = renderHook(() => useInView());
     const div = document.createElement('div');
 
@@ -106,11 +174,6 @@ describe('useInView hook', () => {
   });
 
   it('should not observe again if triggerOnce is true and element has been viewed', () => {
-    const mockCallback = jest.fn();
-    mockIntersectionObserver.mockImplementation((_, callback) => {
-      mockCallback.mockImplementation(callback);
-    });
-
     const { result } = renderHook(() =>
       useInView({ triggerOnce: true, initialInView: true }),
     );
@@ -132,11 +195,6 @@ describe('useInView hook', () => {
   });
 
   it('should clean up observer on component unmount', () => {
-    const mockCallback = jest.fn();
-    mockIntersectionObserver.mockImplementation((_, callback) => {
-      mockCallback.mockImplementation(callback);
-    });
-
     const { result, unmount } = renderHook(() => useInView());
     const div = document.createElement('div');
 
