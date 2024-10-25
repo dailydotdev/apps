@@ -22,7 +22,13 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { ParsedUrlQuery } from 'querystring';
 import {
   GetStaticPathsResult,
@@ -99,7 +105,7 @@ const SquadReferral = ({
   const { displayToast } = useToastNotification();
   const { showLogin, user: loggedUser } = useAuthContext();
   const [loggedImpression, setLoggedImpression] = useState(false);
-  const [justJoined, setJustJoined] = useState(false);
+  const justJoined = useRef(false);
   const { data: member, isFetched } = useQuery({
     queryKey: ['squad_referral', token, loggedUser?.id],
     queryFn: () => getSquadInvitation(token),
@@ -111,7 +117,7 @@ const SquadReferral = ({
   });
 
   useEffect(() => {
-    if (!loggedUser || justJoined) {
+    if (!loggedUser || justJoined.current) {
       return;
     }
 
@@ -168,7 +174,7 @@ const SquadReferral = ({
       referralToken: token,
     }),
     onSuccess: (data) => {
-      setJustJoined(true);
+      justJoined.current = true;
       router.replace(
         getJoinRedirectUrl({
           pathname: data.permalink,
@@ -177,7 +183,7 @@ const SquadReferral = ({
       );
     },
     onError: (error: ApiErrorResult) => {
-      setJustJoined(false);
+      justJoined.current = false;
       const errorMessage = error?.response?.errors?.[0]?.message;
 
       if (errorMessage === ApiErrorMessage.SourcePermissionInviteInvalid) {
@@ -194,7 +200,7 @@ const SquadReferral = ({
       return null;
     }
 
-    setJustJoined(true);
+    justJoined.current = true;
 
     if (loggedUser) {
       return onJoinSquad();
