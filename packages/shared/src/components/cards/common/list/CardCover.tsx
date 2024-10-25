@@ -21,7 +21,7 @@ export function CardCoverList({
     return {
       ...imageProps,
       ...(!isLaptop && {
-        src: src.replace('/f_auto,q_auto/', '/t_mobile_feed,f_auto/'),
+        src: src.replace('/f_auto,q_auto/', '/t_mobile_feed/'),
       }),
     };
   }, [imageProps, isLaptop]);
