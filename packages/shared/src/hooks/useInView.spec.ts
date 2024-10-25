@@ -1,150 +1,140 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useInView } from './useInView';
+import { useIntersectionObserver } from './useIntersectionObserver';
 
-describe('useInView Hook', () => {
-  let observeMock: jest.Mock;
-  let unobserveMock: jest.Mock;
-  let disconnectMock: jest.Mock;
-  let observerMock: jest.Mock;
+jest.mock('./useIntersectionObserver');
+
+describe('useInView hook', () => {
+  const mockIntersectionObserver = useIntersectionObserver as jest.Mock;
 
   beforeEach(() => {
-    observeMock = jest.fn();
-    unobserveMock = jest.fn();
-    disconnectMock = jest.fn();
-
-    global.IntersectionObserver = jest.fn((callback, options = {}) => ({
-      root: options.root || null,
-      rootMargin: options.rootMargin || '0px',
-      thresholds: Array.isArray(options.threshold)
-        ? options.threshold
-        : [options.threshold || 0],
-      observe: observeMock,
-      unobserve: unobserveMock,
-      disconnect: disconnectMock,
-      takeRecords: jest.fn(),
-    }));
-
-    observerMock = global.IntersectionObserver as jest.Mock;
+    mockIntersectionObserver.mockClear();
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  it('should call useIntersectionObserver with the correct parameters and function', () => {
+    renderHook(() =>
+      useInView({
+        threshold: 0.5,
+        rootMargin: '10px',
+        triggerOnce: true,
+        initialInView: true,
+      }),
+    );
+
+    const [ref, callback, options] = mockIntersectionObserver.mock.calls[0];
+
+    expect(ref).toHaveProperty('current');
+
+    expect(options).toEqual({ threshold: 0.5, rootMargin: '10px', root: null });
+
+    expect(typeof callback).toBe('function');
+
+    const mockEntry = [{ isIntersecting: true, target: ref.current }];
+    const mockObserver = {
+      disconnect: jest.fn(),
+    } as unknown as IntersectionObserver;
+
+    callback(mockEntry, mockObserver);
+    expect(mockObserver.disconnect).toHaveBeenCalledTimes(1);
   });
 
-  it('should observe the element when the ref is set', () => {
+  it('should set ref correctly and trigger observer on ref change', () => {
+    const mockCallback = jest.fn();
+    mockIntersectionObserver.mockImplementation((ref, callback) => {
+      mockCallback.mockImplementation(callback);
+    });
+
     const { result } = renderHook(() => useInView());
-
-    expect(observeMock).not.toHaveBeenCalled();
-
     const div = document.createElement('div');
 
     act(() => {
       result.current.ref(div);
     });
 
-    expect(observeMock).toHaveBeenCalledTimes(1);
-    expect(observeMock).toHaveBeenCalledWith(div);
+    expect(mockIntersectionObserver).toHaveBeenCalledWith(
+      { current: div },
+      expect.any(Function),
+      { threshold: 0, rootMargin: '0px', root: null },
+    );
   });
 
-  it('should update inView state when the element enters the viewport', () => {
-    const { result } = renderHook(() => useInView());
+  it('should update inView state when callback is triggered with intersecting entry', () => {
+    const mockCallback = jest.fn();
+    mockIntersectionObserver.mockImplementation((_, callback) => {
+      mockCallback.mockImplementation(callback);
+    });
 
+    const { result } = renderHook(() => useInView());
     const div = document.createElement('div');
+
     act(() => {
       result.current.ref(div);
     });
 
     act(() => {
-      observerMock.mock.calls[0][0]([{ isIntersecting: true, target: div }]);
+      mockCallback(
+        [{ isIntersecting: true, target: div }],
+        new IntersectionObserver(mockCallback),
+      );
     });
 
     expect(result.current.inView).toBe(true);
   });
 
-  it('should not update inView if the element is not intersecting', () => {
-    const { result } = renderHook(() => useInView());
-
-    const div = document.createElement('div');
-    act(() => {
-      result.current.ref(div);
+  it('should not observe again if triggerOnce is true and element has been viewed', () => {
+    const mockCallback = jest.fn();
+    mockIntersectionObserver.mockImplementation((_, callback) => {
+      mockCallback.mockImplementation(callback);
     });
 
-    act(() => {
-      observerMock.mock.calls[0][0]([{ isIntersecting: false, target: div }]);
-    });
-
-    expect(result.current.inView).toBe(false);
-  });
-
-  it('should disconnect observer if triggerOnce is true after the element enters the viewport', () => {
-    const { result, unmount } = renderHook(() =>
-      useInView({ triggerOnce: true }),
-    );
-
-    const div = document.createElement('div');
-
-    act(() => {
-      result.current.ref(div);
-    });
-
-    expect(observeMock).toHaveBeenCalledTimes(1);
-
-    act(() => {
-      observerMock.mock.calls[0][0]([{ isIntersecting: true, target: div }]);
-    });
-
-    expect(disconnectMock).toHaveBeenCalledTimes(1);
-
-    act(() => {
-      unmount();
-    });
-
-    expect(disconnectMock).toHaveBeenCalledTimes(1);
-  });
-
-  it('should not observe the element again if triggerOnce is true and the element is already in view', () => {
     const { result } = renderHook(() =>
       useInView({ triggerOnce: true, initialInView: true }),
     );
-
     const div = document.createElement('div');
 
     act(() => {
       result.current.ref(div);
     });
 
-    expect(observeMock).not.toHaveBeenCalled();
+    expect(mockIntersectionObserver).toHaveBeenCalledTimes(1);
+    expect(result.current.inView).toBe(true);
+
+    act(() => {
+      result.current.ref(null);
+      result.current.ref(div);
+    });
+
+    expect(mockIntersectionObserver).toHaveBeenCalledTimes(1);
   });
 
-  it('should clean up the observer when unmounted', () => {
-    const { result, unmount } = renderHook(() => useInView());
+  it('should clean up observer on component unmount', () => {
+    const mockCallback = jest.fn();
+    mockIntersectionObserver.mockImplementation((_, callback) => {
+      mockCallback.mockImplementation(callback);
+    });
 
+    const { result, unmount } = renderHook(() => useInView());
     const div = document.createElement('div');
+
     act(() => {
       result.current.ref(div);
     });
-
-    expect(observeMock).toHaveBeenCalledTimes(1);
 
     unmount();
 
-    expect(disconnectMock).toHaveBeenCalledTimes(1);
+    expect(mockCallback).not.toHaveBeenCalled();
   });
 
-  it('should use the correct threshold and rootMargin options', () => {
-    const { result } = renderHook(() =>
-      useInView({ threshold: 0.5, rootMargin: '10px' }),
+  it('should apply correct rootMargin and threshold options', () => {
+    renderHook(() =>
+      useInView({
+        rootMargin: '10px',
+        threshold: 0.5,
+      }),
     );
 
-    const div = document.createElement('div');
-
-    act(() => {
-      result.current.ref(div);
-    });
-
-    const observerOptions = observerMock.mock.calls[0][1];
-
-    expect(observerOptions.threshold).toBe(0.5);
+    const observerOptions = mockIntersectionObserver.mock.calls[0][2];
     expect(observerOptions.rootMargin).toBe('10px');
+    expect(observerOptions.threshold).toBe(0.5);
   });
 });

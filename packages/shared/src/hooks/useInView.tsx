@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
+import { useIntersectionObserver } from './useIntersectionObserver';
 
 interface UseInViewProps {
   threshold?: number | number[];
@@ -23,62 +24,37 @@ export const useInView = ({
 }: UseInViewProps = {}): UseInViewReturn => {
   const [inView, setInView] = useState(initialInView);
   const [entry, setEntry] = useState<IntersectionObserverEntry | null>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
+  // const observerRef = useRef<IntersectionObserver | null>(null);
+  const hasDisconnectedRef = useRef(initialInView && triggerOnce); // Track if the observer has disconnected
+  const elementRef = useRef<HTMLDivElement | null>(null);
 
-  // Track if the observer has already triggered and been disconnected (for triggerOnce)
-  const hasDisconnectedRef = useRef(initialInView && triggerOnce); // Initialize based on initialInView and triggerOnce
-
-  // Use a callback ref to keep track of the element
   const setRef = useCallback(
     (node: HTMLDivElement | null) => {
-      // If the observer was disconnected and `triggerOnce` is true, do not re-observe
       if (hasDisconnectedRef.current && triggerOnce) {
         return;
       }
 
-      // Disconnect the previous observer if the node changes
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-
       if (node) {
-        // Create a new observer if the node is defined
-        const observer = new IntersectionObserver(
-          ([intersectionEntry]) => {
-            const { isIntersecting } = intersectionEntry;
-            setInView(isIntersecting);
-            setEntry(intersectionEntry);
-
-            // Disconnect observer if the condition is met (triggerOnce and isIntersecting)
-            if (isIntersecting && triggerOnce && observerRef.current) {
-              observer.disconnect();
-              observerRef.current = null;
-              hasDisconnectedRef.current = true; // Mark as disconnected
-            }
-          },
-          {
-            root,
-            rootMargin,
-            threshold,
-          },
-        );
-
-        observer.observe(node);
-        observerRef.current = observer;
+        elementRef.current = node;
       }
     },
-    [root, rootMargin, threshold, triggerOnce],
+    [triggerOnce],
   );
 
-  // Cleanup the observer on unmount
-  useEffect(() => {
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-        observerRef.current = null;
+  useIntersectionObserver(
+    elementRef,
+    ([intersectionEntry], observer) => {
+      const { isIntersecting } = intersectionEntry;
+      setInView(isIntersecting);
+      setEntry(intersectionEntry);
+
+      if (isIntersecting && triggerOnce) {
+        observer.disconnect();
+        hasDisconnectedRef.current = true;
       }
-    };
-  }, []);
+    },
+    { root, rootMargin, threshold },
+  );
 
   return { ref: setRef, inView, entry };
 };
