@@ -205,7 +205,7 @@ function MainLayoutComponent({
       />
       <main
         className={classNames(
-          'flex flex-col transition-[padding] duration-300 ease-in-out tablet:pl-16 laptop:pl-11',
+          'flex flex-col tablet:pl-16 laptop:pl-11',
           className,
           isAuthReady &&
             !isScreenCentered &&
