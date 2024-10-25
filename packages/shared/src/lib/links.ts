@@ -34,6 +34,17 @@ export const removeQueryParam = (url: string, param: string): string => {
   return link.toString();
 };
 
+export const setQueryParams = (
+  url: string,
+  params: Record<string, string>,
+): string => {
+  const link = new URL(url);
+  Object.entries(params).forEach(([param, value]) => {
+    link.searchParams.set(param, value);
+  });
+  return link.toString();
+};
+
 export const link = {
   post: {
     create: `${webappUrl}squads/create`,
