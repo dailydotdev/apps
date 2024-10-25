@@ -1,4 +1,10 @@
-import React, { forwardRef, ReactElement, ReactEventHandler, Ref } from 'react';
+import React, {
+  forwardRef,
+  ReactElement,
+  ReactEventHandler,
+  Ref,
+  useMemo,
+} from 'react';
 import classNames from 'classnames';
 import { LazyImage, LazyImageProps } from './LazyImage';
 import { PublicProfile } from '../lib/user';
@@ -126,21 +132,31 @@ function ProfilePictureComponent(
     className,
   );
 
+  const imageSrc = useMemo(() => {
+    if (!user) {
+      return '';
+    }
+
+    const { image: src } = user;
+
+    const isImageResizable =
+      src &&
+      [
+        ProfileImageSize.XLarge,
+        ProfileImageSize.Large,
+        ProfileImageSize.Medium,
+        ProfileImageSize.Small,
+        ProfileImageSize.XSmall,
+      ].includes(size);
+
+    return isImageResizable ? getResizedSrc(src) : src;
+  }, [user, size]);
+
   if (!user) {
     return null;
   }
 
-  const isImageResizable =
-    user.image &&
-    [
-      ProfileImageSize.XLarge,
-      ProfileImageSize.Large,
-      ProfileImageSize.Medium,
-      ProfileImageSize.Small,
-      ProfileImageSize.XSmall,
-    ].includes(size);
   const imageAlt = `${user.username || user.name || user.id}'s profile`;
-  const imageSrc = isImageResizable ? getResizedSrc(user.image) : user.image;
 
   if (nativeLazyLoading) {
     return (
