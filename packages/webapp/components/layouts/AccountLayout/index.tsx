@@ -43,7 +43,7 @@ export default function AccountLayout({
   children,
 }: AccountLayoutProps): ReactElement {
   const router = useRouter();
-  const { user: profile, isFetched } = useContext(AuthContext);
+  const { user: profile, isAuthReady } = useContext(AuthContext);
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isOpen, setIsOpen] = useQueryState({
     key: navigationKey,
@@ -63,7 +63,7 @@ export default function AccountLayout({
 
   const { formRef } = useAuthForms();
 
-  if (!isFetched) {
+  if (!isAuthReady) {
     return null;
   }
 

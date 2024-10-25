@@ -67,7 +67,7 @@ const ProfileIndex = ({
   const { displayToast } = useToastNotification();
   const onSuccess = () => displayToast('Profile updated');
   const { updateUserProfile, isLoading, hint } = useProfileForm({ onSuccess });
-  const { user, updateUser, isAuthReady } = useContext(AuthContext);
+  const { user, updateUser } = useContext(AuthContext);
   const [coverImage, setCoverImage] = useState(user?.cover);
   const currentCoverImage = coverImage || user?.cover;
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -368,10 +368,6 @@ const ProfileIndex = ({
       </AccountContentSection>
     </form>
   );
-
-  if (!isAuthReady) {
-    return null;
-  }
 
   if (isMobile) {
     return (
