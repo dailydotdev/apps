@@ -116,13 +116,11 @@ function useIntersectionObserver<T extends Element>(
     const element = getTargetElement(target);
 
     if (!element || !observerItemReference.current?.observer) {
-      console.log('No element to observe or observer not ready'); // Add this log
       return undefined;
     }
 
     const observerItem = observerItemReference.current?.observer;
 
-    console.log('Observing element: ', element); // Add this log
     observerItem.observe(element);
 
     return () => {
