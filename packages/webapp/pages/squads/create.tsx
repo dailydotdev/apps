@@ -47,9 +47,10 @@ import {
 } from '@dailydotdev/shared/src/components/fields/form/common';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { getTemplatedTitle } from '../../components/layouts/utils';
 
 const seo: NextSeoProps = {
-  title: 'Create post',
+  title: getTemplatedTitle('Create post'),
   openGraph: { ...defaultOpenGraph },
   nofollow: true,
   noindex: true,

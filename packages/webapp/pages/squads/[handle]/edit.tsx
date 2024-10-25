@@ -25,13 +25,12 @@ import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
+import { getTemplatedTitle } from '../../../components/layouts/utils';
 
 type EditSquadPageProps = { handle: string };
 
-const pageTitle = 'Squad settings';
-
 const seo: NextSeoProps = {
-  title: pageTitle,
+  title: getTemplatedTitle('Squad settings'),
   openGraph: { ...defaultOpenGraph },
   nofollow: true,
   noindex: true,

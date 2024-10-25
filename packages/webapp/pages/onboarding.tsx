@@ -58,6 +58,7 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import useMutateFilters from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import dynamic from 'next/dynamic';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
+import { getTemplatedTitle } from '../components/layouts/utils';
 
 const ContentTypes = dynamic(() =>
   import(
@@ -88,7 +89,7 @@ type OnboardingVisual = {
 };
 
 const seo: NextSeoProps = {
-  title: 'Get started',
+  title: getTemplatedTitle('Get started'),
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
 };
