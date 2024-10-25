@@ -182,7 +182,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         canonical={canonicalFromRouter(router)}
         titleTemplate={unreadCount ? `(${unreadText}) %s` : '%s'}
       />
-      {seo && <NextSeo {...seo} />}
+      {!!seo && <NextSeo {...seo} />}
       <LazyModalElement />
       <DndContextProvider>
         {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
