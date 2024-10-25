@@ -37,6 +37,7 @@ const createFeedMock = (
   query: string = MOST_UPVOTED_FEED_QUERY,
   variables: unknown = {
     first: 7,
+    after: '',
     loggedIn: true,
   },
 ): MockedGraphQLResponse<FeedData> => ({
