@@ -75,7 +75,7 @@ export type AllFeedPages = SharedFeedPage | OtherFeedPage;
 export type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
 
 export const getNextPageParam = (pageInfo: PageInfo): null | string => {
-  if (!pageInfo?.hasNextPage) {
+  if (!pageInfo?.hasNextPage || !pageInfo?.endCursor) {
     return null;
   }
   return pageInfo?.hasNextPage && pageInfo?.endCursor;

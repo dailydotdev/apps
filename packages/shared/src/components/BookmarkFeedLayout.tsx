@@ -49,7 +49,10 @@ export default function BookmarkFeedLayout({
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showEmptyScreen, setShowEmptyScreen] = useState(false);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
-  const defaultKey = generateQueryKey(RequestKey.Bookmarks, user);
+  const defaultKey = useMemo(
+    () => generateQueryKey(RequestKey.Bookmarks, user),
+    [user],
+  );
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (searchQuery) {
       return {
