@@ -146,6 +146,12 @@ function NewCommentComponent(
             pictureClasses,
             getProfilePictureClasses(ProfileImageSize.Large),
           )}
+          aria-hidden
+          fetchPriority="low"
+          height={40}
+          loading="lazy"
+          role="presentation"
+          width={40}
         />
       )}
       <span className="text-text-tertiary">Share your thoughts</span>
