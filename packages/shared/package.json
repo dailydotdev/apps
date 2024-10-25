@@ -40,7 +40,6 @@
     "@tanstack/react-query-devtools": "^5.59.16",
     "@testing-library/jest-dom": "^5.15.0",
     "@testing-library/react": "^16.0.1",
-    "@testing-library/react-hooks": "^8.0.1",
     "@testing-library/user-event": "^13.5.0",
     "@types/dompurify": "^2.3.1",
     "@types/jest": "^26.0.24",

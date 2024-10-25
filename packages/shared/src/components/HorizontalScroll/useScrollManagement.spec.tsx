@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { useScrollManagement } from './useScrollManagement';
 import useDebounceFn from '../../hooks/useDebounceFn';
 

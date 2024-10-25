@@ -1,5 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
-import { waitFor } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import useDebounceFn from './useDebounceFn';
 
 it('should call the callback only once', async () => {

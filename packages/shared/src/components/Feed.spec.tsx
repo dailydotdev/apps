@@ -117,7 +117,10 @@ const defaultVariables = {
   after: '',
 };
 
+let queryClient: QueryClient;
+
 beforeEach(() => {
+  queryClient?.clear();
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
@@ -177,8 +180,6 @@ const createFeedMock = (
     },
   },
 });
-
-let queryClient: QueryClient;
 
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
