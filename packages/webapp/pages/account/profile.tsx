@@ -8,8 +8,12 @@ import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import VerifyWorkEmail from '../../components/layouts/AccountLayout/Profile/VerifyWorkEmail';
 import ProfileIndex from '../../components/layouts/AccountLayout/Profile';
 import { defaultSeo } from '../../next-seo';
+import { getTemplatedTitle } from '../../components/layouts/utils';
 
-const seo: NextSeoProps = { ...defaultSeo, title: 'Manage account profile' };
+const seo: NextSeoProps = {
+  ...defaultSeo,
+  title: getTemplatedTitle('Manage account profile'),
+};
 
 const AccountProfilePage = (): ReactElement => {
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);

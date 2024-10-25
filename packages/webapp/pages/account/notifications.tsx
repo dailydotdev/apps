@@ -40,10 +40,11 @@ import AccountContentSection, {
   ContentText,
 } from '../../components/layouts/AccountLayout/AccountContentSection';
 import { defaultSeo } from '../../next-seo';
+import { getTemplatedTitle } from '../../components/layouts/utils';
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  title: 'Manage account notifications',
+  title: getTemplatedTitle('Manage account notifications'),
 };
 
 const ALERT_PUSH_KEY = 'alert_push_key';

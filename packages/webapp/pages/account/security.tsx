@@ -39,8 +39,12 @@ import AccountSecurityDefault, {
 } from '../../components/layouts/AccountLayout/Security';
 import EmailFormPage from '../../components/layouts/AccountLayout/Security/EmailFormPage';
 import { defaultSeo } from '../../next-seo';
+import { getTemplatedTitle } from '../../components/layouts/utils';
 
-const seo: NextSeoProps = { ...defaultSeo, title: 'Manage account security' };
+const seo: NextSeoProps = {
+  ...defaultSeo,
+  title: getTemplatedTitle('Manage account security'),
+};
 
 const AccountSecurityPage = (): ReactElement => {
   const updatePasswordRef = useRef<HTMLFormElement>();

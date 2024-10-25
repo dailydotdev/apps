@@ -39,8 +39,9 @@ import { AccountPageContainer } from '../../components/layouts/AccountLayout/Acc
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { InviteIcon } from '../../../shared/src/components/icons';
 import { defaultSeo } from '../../next-seo';
+import { getTemplatedTitle } from '../../components/layouts/utils';
 
-const seo: NextSeoProps = { ...defaultSeo, title: 'Invite' };
+const seo: NextSeoProps = { ...defaultSeo, title: getTemplatedTitle('Invite') };
 
 const AccountInvitePage = (): ReactElement => {
   const { user } = useAuthContext();
