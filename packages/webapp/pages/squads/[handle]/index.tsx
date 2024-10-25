@@ -45,7 +45,7 @@ import { ClientError } from 'graphql-request';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
-import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
+import { OtherFeedPage, StaleTime } from '@dailydotdev/shared/src/lib/query';
 import { useRouter } from 'next/router';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
@@ -137,7 +137,7 @@ const SquadPage = ({
   const { data: squadMembers } = useQuery<BasicSourceMember[]>(
     ['squadMembersInitial', handle],
     () => getSquadMembers(squadId),
-    { enabled: isBootFetched && !!squadId },
+    { enabled: isBootFetched && !!squadId, staleTime: StaleTime.OneHour },
   );
 
   // Must be memoized to prevent refreshing the feed

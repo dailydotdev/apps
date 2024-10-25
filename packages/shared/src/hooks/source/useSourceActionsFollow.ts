@@ -20,7 +20,7 @@ export function useSourceActionsFollow({
 }: UseSourceActionsFollowProps): UseSourceActionsFollow {
   const { displayToast } = useToastNotification();
 
-  const { feedSettings } = useFeedSettings({ enabled: !!source?.id })
+  const { feedSettings } = useFeedSettings({ enabled: !!source?.id });
   const isFollowing = useMemo(() => {
     return !!feedSettings?.includeSources?.find(({ id }) => source?.id === id);
   }, [feedSettings, source]);
