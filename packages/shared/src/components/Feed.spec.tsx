@@ -68,6 +68,7 @@ import { UserVoteEntity } from '../hooks';
 import * as hooks from '../hooks/useViewSize';
 import { ActionType, COMPLETE_ACTION_MUTATION } from '../graphql/actions';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
+import { defaultQueryClientTestingConfig } from '../../__tests__/helpers/tanstack-query';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -113,13 +114,13 @@ let variables: unknown;
 const defaultVariables = {
   first: 7,
   loggedIn: true,
+  after: '',
 };
 
 beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
-  jest.clearAllMocks();
   variables = defaultVariables;
 });
 
@@ -184,7 +185,7 @@ const renderComponent = (
   user: LoggedUser = defaultUser,
   feedName: AllFeedPages = SharedFeedPage.MyFeed,
 ): RenderResult => {
-  queryClient = new QueryClient();
+  queryClient = new QueryClient(defaultQueryClientTestingConfig);
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
@@ -373,6 +374,7 @@ describe('Feed', () => {
           {
             first: 7,
             loggedIn: false,
+            after: '',
           },
         ),
       ],
@@ -459,6 +461,7 @@ describe('Feed', () => {
           {
             first: 7,
             loggedIn: false,
+            after: '',
           },
         ),
       ],
