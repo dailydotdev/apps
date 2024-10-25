@@ -39,6 +39,7 @@ export function SquadDirectoryNavbarItem({
       <ConditionalWrapper
         condition={!!path}
         wrapper={(component) => (
+          // TODO: WT-2239 - Remove legacyBehavior prop once all SquadDirectoryNavbarItem components are updated
           <Link href={path} legacyBehavior>
             {component}
           </Link>
