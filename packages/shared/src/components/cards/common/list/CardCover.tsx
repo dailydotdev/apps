@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import classNames from 'classnames';
 import ConditionalWrapper from '../../../ConditionalWrapper';
 import { ReusedCardCoverProps, SharedCardCover } from '../SharedCardCover';
 import { CardImage } from './ListCard';
+import { useViewSize, ViewSize } from '../../../../hooks';
 
 interface CardCoverProps extends ReusedCardCoverProps {
   className?: string;
@@ -13,11 +14,23 @@ export function CardCoverList({
   imageProps,
   ...props
 }: CardCoverProps): ReactElement {
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const optimizedImageProps = useMemo(() => {
+    const { src } = imageProps;
+
+    return {
+      ...imageProps,
+      ...(!isLaptop && {
+        src: src.replace('/f_auto,q_auto/', '/t_mobile_feed,f_auto/'),
+      }),
+    };
+  }, [imageProps, isLaptop]);
+
   return (
     <SharedCardCover
       {...props}
       imageProps={{
-        ...imageProps,
+        ...optimizedImageProps,
         className: classNames(imageProps.className, 'w-full mobileXL:w-60'),
       }}
       CardImageComponent={CardImage}
