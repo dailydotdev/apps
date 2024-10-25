@@ -45,6 +45,7 @@ import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePict
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { getSquadOpenGraph } from '../../../next-seo';
+import { DynamicSeoProps } from '../../../components/common';
 
 const getOthers = (others: Edge<SourceMember>[], total: number) => {
   const { length } = others;
@@ -63,7 +64,7 @@ const getOthers = (others: Edge<SourceMember>[], total: number) => {
 const BodyParagraph = classed('p', 'typo-body text-text-tertiary');
 const HighlightedText = classed('span', 'font-bold text-text-primary');
 
-export interface SquadReferralProps {
+export interface SquadReferralProps extends DynamicSeoProps {
   token: string;
   handle: string;
   initialData: SourceMember;
@@ -309,11 +310,26 @@ export async function getStaticProps({
 > {
   const { handle, token } = params;
   const initialData = await getSquadInvitation(token);
+  const { user, source } = initialData;
+
+  if (!source || !user) {
+    return {
+      props: { handle, token, initialData: null },
+    };
+  }
+
+  const seo: NextSeoProps = {
+    title: `${user.name} invited you to ${source.name}`,
+    description: source.description,
+    openGraph: getSquadOpenGraph({ squad: source }),
+  };
+
   return {
     props: {
       handle,
       token,
       initialData,
+      seo,
     },
     revalidate: 60,
   };
