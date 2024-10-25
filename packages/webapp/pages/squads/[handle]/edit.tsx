@@ -5,12 +5,11 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { SquadDetails } from '@dailydotdev/shared/src/components/squads/Details';
 import { editSquad } from '@dailydotdev/shared/src/graphql/squads';
-import { useBoot } from '@dailydotdev/shared/src/hooks/useBoot';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
 import { MangeSquadPageSkeleton } from '@dailydotdev/shared/src/components/squads/MangeSquadPageSkeleton';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSquad } from '@dailydotdev/shared/src/hooks';
+import { useSquad, useSquads } from '@dailydotdev/shared/src/hooks';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -23,6 +22,7 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import { persistedQueryClient } from '@dailydotdev/shared/src/lib/persistedQuery';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 
@@ -40,21 +40,21 @@ const DEFAULT_ERROR = "Oops! That didn't seem to work. Let's try again!";
 
 const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
   const { isReady: isRouteReady } = useRouter();
-  const { squads, user, isAuthReady, isFetched } = useAuthContext();
+  const { user, isAuthReady, isFetched } = useAuthContext();
+  const { squads } = useSquads();
   const {
     squad,
     isLoading: isSquadLoading,
     isForbidden,
   } = useSquad({ handle });
   const queryClient = useQueryClient();
-  const { updateSquad } = useBoot();
   const { displayToast } = useToastNotification();
   const { mutateAsync: onUpdateSquad, isLoading: isUpdatingSquad } =
     useMutation(editSquad, {
       onSuccess: async (data) => {
         const queryKey = generateQueryKey(RequestKey.Squad, user, data.handle);
         await queryClient.invalidateQueries(queryKey);
-        updateSquad(data);
+        await persistedQueryClient.invalidateQueries([RequestKey.Squads]);
         displayToast('The Squad has been updated');
       },
       onError: (error: ApiErrorResult) => {

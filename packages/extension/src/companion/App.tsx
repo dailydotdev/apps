@@ -1,5 +1,4 @@
 import React, { ReactElement, useState } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import browser from 'webextension-polyfill';
 import { Boot, BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -15,13 +14,14 @@ import {
   ExtensionMessageType,
   getCompanionWrapper,
 } from '@dailydotdev/shared/src/lib/extension';
-import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
 import { GrowthBookProvider } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { useEventListener } from '@dailydotdev/shared/src/hooks';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import Companion from './Companion';
 import CustomRouter from '../lib/CustomRouter';
 import { companionFetch } from './companionFetch';
@@ -34,14 +34,7 @@ const router = new CustomRouter();
 
 export type CompanionData = { url: string; deviceId: string } & Pick<
   Boot,
-  | 'postData'
-  | 'settings'
-  | 'alerts'
-  | 'user'
-  | 'visit'
-  | 'accessToken'
-  | 'squads'
-  | 'exp'
+  'postData' | 'settings' | 'alerts' | 'user' | 'visit' | 'accessToken' | 'exp'
 >;
 
 const app = BootApp.Companion;
@@ -55,7 +48,6 @@ export default function App({
   alerts,
   visit,
   accessToken,
-  squads,
   exp,
 }: CompanionData): ReactElement {
   useError();
@@ -105,7 +97,6 @@ export default function App({
               tokenRefreshed
               getRedirectUri={() => browser.runtime.getURL('index.html')}
               updateUser={() => null}
-              squads={squads}
             >
               <SettingsContextProvider settings={settings}>
                 <AlertContextProvider alerts={alerts}>

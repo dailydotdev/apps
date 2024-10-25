@@ -74,7 +74,6 @@ const updateLocalBootData = (
     'notifications',
     'user',
     'lastModifier',
-    'squads',
     'exp',
     'feeds',
   ]);
@@ -182,7 +181,7 @@ export const BootDataProvider = ({
 
   const isBootReady = isFetched && !isError;
   const loadedFromCache = !!bootData;
-  const { user, settings, alerts, notifications, squads } = bootData || {};
+  const { user, settings, alerts, notifications } = bootData || {};
 
   useRefreshToken(bootData?.accessToken, refetch);
   const updatedAtActive = user ? dataUpdatedAt : null;
@@ -277,7 +276,6 @@ export const BootDataProvider = ({
         isLegacyLogout={bootData?.isLegacyLogout}
         accessToken={bootData?.accessToken}
         isPastRegistration={isInitialFetch.current}
-        squads={squads}
       >
         <SettingsContextProvider
           settings={settings}

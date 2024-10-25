@@ -28,7 +28,7 @@ import { getFeedName } from '../../lib/feed';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import Logo, { LogoPosition } from '../Logo';
-import { useFeeds, useViewSize, ViewSize } from '../../hooks';
+import { useFeeds, useSquads, useViewSize, ViewSize } from '../../hooks';
 import {
   Button,
   ButtonIconPosition,
@@ -74,7 +74,8 @@ export default function Sidebar({
   onLogoClick,
 }: SidebarProps): ReactElement {
   const router = useRouter();
-  const { user, isLoggedIn, squads, isAuthReady } = useAuthContext();
+  const { user, isLoggedIn, isAuthReady } = useAuthContext();
+  const { squads } = useSquads();
   const { alerts } = useAlertsContext();
   const {
     toggleSidebarExpanded,

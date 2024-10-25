@@ -11,6 +11,7 @@ import {
   SidebarMenuItem,
 } from './common';
 import { AuthTriggersType } from '../../lib/auth';
+import { TextPlaceholder } from '../widgets/common';
 
 export interface SectionCommonProps
   extends Pick<ItemInnerProps, 'shouldShowLabel'> {
@@ -24,7 +25,31 @@ interface SectionProps extends SectionCommonProps {
   title?: string;
   items: SidebarMenuItem[];
   isItemsButton: boolean;
+  isLoading?: boolean;
 }
+
+const ItemsSkeleton = () => {
+  return (
+    <>
+      <div className="flex items-center">
+        <TextPlaceholder className="m-3 h-5 w-5 rounded-full" />
+        <TextPlaceholder className="w-[40%]" />
+      </div>
+      <div className="flex items-center">
+        <TextPlaceholder className="m-3 h-5 w-5 rounded-full" />
+        <TextPlaceholder className="w-[40%]" />
+      </div>
+      <div className="flex items-center">
+        <TextPlaceholder className="m-3 h-5 w-5 rounded-full" />
+        <TextPlaceholder className="w-[40%]" />
+      </div>
+      <div className="flex items-center">
+        <TextPlaceholder className="m-3 h-5 w-5 rounded-full" />
+        <TextPlaceholder className="w-[40%]" />
+      </div>
+    </>
+  );
+};
 
 export function Section({
   title,
@@ -35,6 +60,7 @@ export function Section({
   activePage,
   isItemsButton,
   className,
+  isLoading,
 }: SectionProps): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
 
@@ -57,6 +83,7 @@ export function Section({
           {title}
         </NavHeader>
       )}
+      {isLoading && <ItemsSkeleton />}
       {items.filter(mobileItemsFilter).map((item) => (
         <NavItem
           key={`${item.title}-${item.path}`}

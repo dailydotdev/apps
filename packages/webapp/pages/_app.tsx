@@ -4,7 +4,6 @@ import React, {
   useContext,
   useEffect,
   useRef,
-  useState,
 } from 'react';
 import { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
@@ -12,7 +11,6 @@ import Head from 'next/head';
 import 'focus-visible';
 import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import { DefaultSeo } from 'next-seo';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
@@ -28,7 +26,6 @@ import { useNotificationContext } from '@dailydotdev/shared/src/contexts/Notific
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import { useManualScrollRestoration } from '@dailydotdev/shared/src/hooks';
@@ -36,6 +33,11 @@ import { PushNotificationContextProvider } from '@dailydotdev/shared/src/context
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import {
+  persistedQueryClient,
+  persistedQueryClientOptions,
+} from '@dailydotdev/shared/src/lib/persistedQuery';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -199,9 +201,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 }
 
 export default function App(props: AppProps): ReactElement {
-  const [queryClient] = useState(
-    () => new QueryClient(defaultQueryClientConfig),
-  );
   const version = useWebappVersion();
   const deviceId = useDeviceId();
   useError();
@@ -209,7 +208,10 @@ export default function App(props: AppProps): ReactElement {
 
   return (
     <ProgressiveEnhancementContextProvider>
-      <QueryClientProvider client={queryClient}>
+      <PersistQueryClientProvider
+        client={persistedQueryClient}
+        persistOptions={persistedQueryClientOptions}
+      >
         <BootDataProvider
           app={BootApp.Webapp}
           getRedirectUri={getRedirectUri}
@@ -225,7 +227,7 @@ export default function App(props: AppProps): ReactElement {
         </BootDataProvider>
 
         <ReactQueryDevtools />
-      </QueryClientProvider>
+      </PersistQueryClientProvider>
     </ProgressiveEnhancementContextProvider>
   );
 }
