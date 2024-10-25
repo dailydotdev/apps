@@ -4,6 +4,7 @@ import ConditionalWrapper from '../../../ConditionalWrapper';
 import { ReusedCardCoverProps, SharedCardCover } from '../SharedCardCover';
 import { CardImage } from './ListCard';
 import { useViewSize, ViewSize } from '../../../../hooks';
+import { ImageProps } from '../../../image/Image';
 
 interface CardCoverProps extends ReusedCardCoverProps {
   className?: string;
@@ -15,7 +16,7 @@ export function CardCoverList({
   ...props
 }: CardCoverProps): ReactElement {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const optimizedImageProps = useMemo(() => {
+  const optimizedImageProps: ImageProps = useMemo(() => {
     const { src } = imageProps;
     const mobileSrc = src.replace('/f_auto,q_auto/', '/t_mobile_feed/');
 

@@ -1,6 +1,6 @@
 import React, {
+  ComponentPropsWithoutRef,
   forwardRef,
-  ImgHTMLAttributes,
   ReactElement,
   Ref,
   SyntheticEvent,
@@ -17,7 +17,7 @@ export enum ImageType {
   Squad = 'squad',
 }
 
-export interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
+export interface ImageProps extends ComponentPropsWithoutRef<'img'> {
   fallbackSrc?: string;
   type?: ImageType;
 }
