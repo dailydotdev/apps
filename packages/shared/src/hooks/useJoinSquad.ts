@@ -65,6 +65,7 @@ export const useJoinSquad = ({
     logEvent,
     completeAction,
     queryClient,
+    mutateAsync,
   ]);
 
   return joinSquad;
