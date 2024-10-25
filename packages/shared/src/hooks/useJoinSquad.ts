@@ -23,15 +23,11 @@ export const useJoinSquad = ({
   const queryClient = useQueryClient();
   const { logEvent } = useLogContext();
   const { completeAction } = useActions();
-  const { mutateAsync: addSquad } = useMutation(
-    [squad.id],
-    joinSquadInvitation,
-    {
-      onSuccess: () => {
-        persistedQueryClient.invalidateQueries([RequestKey.Squads]);
-      },
+  const { mutateAsync } = useMutation([squad.id], joinSquadInvitation, {
+    onSuccess: () => {
+      persistedQueryClient.invalidateQueries([RequestKey.Squads]);
     },
-  );
+  });
 
   const joinSquad = useCallback(async () => {
     const payload: SquadInvitationProps = {
@@ -42,7 +38,7 @@ export const useJoinSquad = ({
       payload.token = referralToken;
     }
 
-    const result = await joinSquadInvitation(payload);
+    const result = await mutateAsync(payload);
 
     logEvent({
       event_name: LogEvent.CompleteJoiningSquad,

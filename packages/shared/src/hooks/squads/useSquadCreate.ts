@@ -47,9 +47,7 @@ export const useSquadCreate: CustomHook = ({
 
       if (onSuccess) {
         onSuccess(squad);
-        persistedQueryClient.invalidateQueries({
-          queryKey: [RequestKey.Squads],
-        });
+        persistedQueryClient.invalidateQueries([RequestKey.Squads]);
       } else {
         router.replace(squad.permalink);
       }

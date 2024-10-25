@@ -5,6 +5,8 @@ import { ClientError } from 'graphql-request';
 import { globalMutationCache, RequestKey, StaleTime } from './query';
 import { GARMR_ERROR } from '../graphql/common';
 
+const persistedKeys = [RequestKey.Squads];
+
 export const persistedQueryClient = new QueryClient({
   mutationCache: globalMutationCache,
   defaultOptions: {
@@ -37,7 +39,7 @@ export const persistedQueryClientOptions: Omit<
   persister: queryClientPersister,
   dehydrateOptions: {
     shouldDehydrateQuery: ({ queryKey }) => {
-      return queryKey[0] === RequestKey.Squads;
+      return persistedKeys.includes(queryKey[0] as RequestKey);
     },
   },
 };
