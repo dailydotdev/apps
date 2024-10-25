@@ -22,18 +22,14 @@ describe('useInView hook', () => {
     );
 
     const [ref, callback, options] = mockIntersectionObserver.mock.calls[0];
-
     expect(ref).toHaveProperty('current');
-
     expect(options).toEqual({ threshold: 0.5, rootMargin: '10px', root: null });
-
     expect(typeof callback).toBe('function');
 
     const mockEntry = [{ isIntersecting: true, target: ref.current }];
     const mockObserver = {
       disconnect: jest.fn(),
     } as unknown as IntersectionObserver;
-
     callback(mockEntry, mockObserver);
     expect(mockObserver.disconnect).toHaveBeenCalledTimes(1);
   });
@@ -55,6 +51,34 @@ describe('useInView hook', () => {
       { current: div },
       expect.any(Function),
       { threshold: 0, rootMargin: '0px', root: null },
+    );
+  });
+
+  it('should set inView to true immediately on mount if initialInView is true', () => {
+    const { result } = renderHook(() => useInView({ initialInView: true }));
+
+    expect(result.current.inView).toBe(true);
+  });
+
+  it('should re-call useIntersectionObserver with updated threshold and rootMargin', () => {
+    const { rerender } = renderHook(
+      ({ threshold, rootMargin }) => useInView({ threshold, rootMargin }),
+      { initialProps: { threshold: 0.5, rootMargin: '10px' } },
+    );
+
+    expect(mockIntersectionObserver).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.any(Function),
+      { threshold: 0.5, rootMargin: '10px', root: null },
+    );
+
+    // Update the options
+    rerender({ threshold: 0.8, rootMargin: '20px' });
+
+    expect(mockIntersectionObserver).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.any(Function),
+      { threshold: 0.8, rootMargin: '20px', root: null },
     );
   });
 

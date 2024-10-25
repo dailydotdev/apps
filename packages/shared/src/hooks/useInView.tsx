@@ -24,8 +24,7 @@ export const useInView = ({
 }: UseInViewProps = {}): UseInViewReturn => {
   const [inView, setInView] = useState(initialInView);
   const [entry, setEntry] = useState<IntersectionObserverEntry | null>(null);
-  // const observerRef = useRef<IntersectionObserver | null>(null);
-  const hasDisconnectedRef = useRef(initialInView && triggerOnce); // Track if the observer has disconnected
+  const hasDisconnectedRef = useRef(initialInView && triggerOnce);
   const elementRef = useRef<HTMLDivElement | null>(null);
 
   const setRef = useCallback(
@@ -33,20 +32,28 @@ export const useInView = ({
       if (hasDisconnectedRef.current && triggerOnce) {
         return;
       }
+      elementRef.current = node;
 
       if (node) {
-        elementRef.current = node;
+        const observerEntry = {
+          isIntersecting: inView,
+        } as IntersectionObserverEntry;
+        setInView(observerEntry.isIntersecting);
+        setEntry(observerEntry);
       }
     },
-    [triggerOnce],
+    [triggerOnce, inView],
   );
 
   useIntersectionObserver(
     elementRef,
     ([intersectionEntry], observer) => {
       const { isIntersecting } = intersectionEntry;
-      setInView(isIntersecting);
-      setEntry(intersectionEntry);
+
+      if (inView !== isIntersecting) {
+        setInView(isIntersecting);
+        setEntry(intersectionEntry);
+      }
 
       if (isIntersecting && triggerOnce) {
         observer.disconnect();
