@@ -22,8 +22,9 @@ import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
+import { DynamicSeoProps } from '../../../components/common';
 
-interface SquadCategoryPageProps {
+interface SquadCategoryPageProps extends DynamicSeoProps {
   category: SourceCategory;
 }
 
@@ -118,7 +119,12 @@ export async function getServerSideProps({
 
     setCacheHeader();
 
-    return { props: { category } };
+    const seo = {
+      title: getTemplatedTitle(`Explore ${category?.title} Squads`),
+      description: `Find the best Squads in the ${category?.title} category on daily.dev. Connect with like-minded developers and collaborate on the latest technologies.`,
+    };
+
+    return { props: { category, seo } };
   } catch (err) {
     return { redirect };
   }
