@@ -29,4 +29,3 @@ export * from './useProgressAnimation';
 export * from './feed';
 export * from './useOnboardingChecklist';
 export * from './useBookmarkProvider';
-export * from './useInView';

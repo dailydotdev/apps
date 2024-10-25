@@ -7,7 +7,8 @@ import {
 import HorizontalScroll from '../../HorizontalScroll/HorizontalScroll';
 import { UnfeaturedSquadGrid } from './UnfeaturedSquadGrid';
 import { SquadGrid } from './SquadGrid';
-import { useViewSize, ViewSize, useInView } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks';
+import { useInView } from '../../../hooks/useInView';
 import { SquadList } from './SquadList';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { PlaceholderSquadGridList } from './PlaceholderSquadGrid';
