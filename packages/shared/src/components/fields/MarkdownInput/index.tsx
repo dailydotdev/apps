@@ -226,6 +226,7 @@ function MarkdownInput(
                   className={classNames('ml-3 mt-3', className?.profile)}
                   user={user}
                   nativeLazyLoading
+                  fetchPriority="low"
                 />
                 {component}
               </span>

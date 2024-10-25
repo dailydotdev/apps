@@ -38,6 +38,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
     children,
     onReadArticleClick,
     domProps = {},
+    eagerLoadImage = false,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
@@ -131,6 +132,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             className={{
               image: classNames(showFeedback && 'mb-0'),
             }}
+            eagerLoadImage={eagerLoadImage}
           />
 
           {!showFeedback && (

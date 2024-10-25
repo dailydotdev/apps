@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 import {
   getProfilePictureClasses,
   ProfileImageSize,
@@ -24,7 +25,13 @@ import { postLogEvent } from '../../lib/feed';
 import { LogEvent, Origin } from '../../lib/log';
 import { PostType } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
-import CommentInputOrModal from '../comments/CommentInputOrModal';
+
+const CommentInputOrModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "commentInputOrModal" */ '../comments/CommentInputOrModal'
+    ),
+);
 
 interface NewCommentProps extends CommentMarkdownInputProps {
   size?: ProfileImageSize;
@@ -139,6 +146,12 @@ function NewCommentComponent(
             pictureClasses,
             getProfilePictureClasses(ProfileImageSize.Large),
           )}
+          aria-hidden
+          fetchPriority="low"
+          height={40}
+          loading="lazy"
+          role="presentation"
+          width={40}
         />
       )}
       <span className="text-text-tertiary">Share your thoughts</span>

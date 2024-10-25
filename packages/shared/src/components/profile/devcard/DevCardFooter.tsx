@@ -69,7 +69,6 @@ export function DevCardFooter({
           )}
         >
           <Logo
-            showGreeting={false}
             position={LogoPosition.Relative}
             logoClassName={{
               group: 'fill-raw-salt-0',

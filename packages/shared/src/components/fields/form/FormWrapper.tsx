@@ -48,7 +48,7 @@ export function FormWrapper({
   );
 
   return (
-    <div className={classNames('flex flex-col', className?.container)}>
+    <div className={classNames('flex w-full flex-col', className?.container)}>
       <PageHeader
         className={classNames(
           'flex flex-row items-center border-b border-border-subtlest-tertiary px-4 py-2',

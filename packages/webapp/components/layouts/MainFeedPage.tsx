@@ -17,9 +17,9 @@ import { getLayout } from './FeedLayout';
 const MainFeedLayout = dynamic(
   () =>
     import(
-      /* webpackChunkName: "goBackHeaderMobile" */ '@dailydotdev/shared/src/components/MainFeedLayout'
+      /* webpackChunkName: "mainFeedLayout" */ '@dailydotdev/shared/src/components/MainFeedLayout'
     ),
-  { ssr: false },
+  { ssr: true },
 );
 
 export type MainFeedPageProps = {

@@ -53,11 +53,10 @@ const PostContent = dynamic(() =>
   ).then((module) => module.PostContent),
 );
 
-const SquadPostContent = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "lazySquadPostContent" */ '@dailydotdev/shared/src/components/post/SquadPostContent'
-    ),
+const SquadPostContent = dynamic(() =>
+  import(
+    /* webpackChunkName: "lazySquadPostContent" */ '@dailydotdev/shared/src/components/post/SquadPostContent'
+  ).then((module) => module.SquadPostContent),
 );
 
 const CollectionPostContent = dynamic(() =>
@@ -102,7 +101,10 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { post, isError, isLoading } = usePostById({
     id,
-    options: { initialData, retry: false },
+    options: {
+      initialData,
+      retry: false,
+    },
   });
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(

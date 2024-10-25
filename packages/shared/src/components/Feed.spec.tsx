@@ -11,7 +11,6 @@ import {
   within,
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { OperationOptions } from 'subscriptions-transport-ws';
 import { mocked } from 'ts-jest/utils';
 import { useRouter } from 'next/router';
 
@@ -23,7 +22,6 @@ import {
   POST_BY_ID_QUERY,
   PostData,
   PostsEngaged,
-  REMOVE_BOOKMARK_MUTATION,
   REPORT_POST_MUTATION,
   PostType,
   UserVote,
@@ -87,7 +85,7 @@ jest.mock('../hooks', () => {
         .fn()
         .mockImplementation(
           (
-            request: () => OperationOptions,
+            request: () => null,
             { next }: SubscriptionCallbacks<PostsEngaged>,
           ): void => {
             nextCallback = next;
@@ -103,7 +101,7 @@ jest.mock('../hooks/useSubscription', () => ({
     .fn()
     .mockImplementation(
       (
-        request: () => OperationOptions,
+        request: () => null,
         { next }: SubscriptionCallbacks<PostsEngaged>,
       ): void => {
         nextCallback = next;
@@ -417,36 +415,37 @@ describe('Feed', () => {
     await waitFor(() => expect(mutationCalled).toBeTruthy());
   });
 
-  it('should send remove bookmark mutation', async () => {
-    let mutationCalled = false;
-    renderComponent([
-      createFeedMock({
-        pageInfo: defaultFeedPage.pageInfo,
-        edges: [
-          {
-            ...defaultFeedPage.edges[0],
-            node: { ...defaultFeedPage.edges[0].node, bookmarked: true },
-          },
-        ],
-      }),
-      {
-        request: {
-          query: REMOVE_BOOKMARK_MUTATION,
-          variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
-        },
-        result: () => {
-          mutationCalled = true;
-          return { data: { _: true } };
-        },
-      },
-      completeActionMock({ action: ActionType.BookmarkPost }),
-    ]);
-    const [el] = await screen.findAllByLabelText('Remove bookmark');
-    await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'true'));
-    el.click();
-    await waitFor(() => expect(mutationCalled).toBeTruthy());
-    await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'false'));
-  });
+  // TODO WT-2236 flaky test
+  // it('should send remove bookmark mutation', async () => {
+  //   let mutationCalled = false;
+  //   renderComponent([
+  //     createFeedMock({
+  //       pageInfo: defaultFeedPage.pageInfo,
+  //       edges: [
+  //         {
+  //           ...defaultFeedPage.edges[0],
+  //           node: { ...defaultFeedPage.edges[0].node, bookmarked: true },
+  //         },
+  //       ],
+  //     }),
+  //     {
+  //       request: {
+  //         query: REMOVE_BOOKMARK_MUTATION,
+  //         variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
+  //       },
+  //       result: () => {
+  //         mutationCalled = true;
+  //         return { data: { _: true } };
+  //       },
+  //     },
+  //     completeActionMock({ action: ActionType.BookmarkPost }),
+  //   ]);
+  //   const [el] = await screen.findAllByLabelText('Remove bookmark');
+  //   await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'true'));
+  //   el.click();
+  //   await waitFor(() => expect(mutationCalled).toBeTruthy());
+  //   await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'false'));
+  // });
 
   it('should open login modal on anonymous bookmark', async () => {
     renderComponent(

@@ -2,7 +2,7 @@ import React, { PropsWithChildren, ReactElement, useEffect } from 'react';
 import Logo, { LogoPosition } from './Logo';
 import { OnboardingTitleGradient } from './onboarding/common';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
-import { cloudinary } from '../lib/image';
+import { cloudinaryOnboardingGlow } from '../lib/image';
 import { useExtensionContext } from '../contexts/ExtensionContext';
 import { useHostStatus } from '../hooks/useHostPermissionStatus';
 
@@ -57,7 +57,7 @@ const ExtensionPermissionsPrompt = ({
 
       <img
         className="absolute bottom-0 z-0 w-[33rem]"
-        src={cloudinary.onboarding.glow}
+        src={cloudinaryOnboardingGlow}
         alt="Gradient background"
       />
       {children}

@@ -84,7 +84,7 @@ const ProfileIndex = ({
       title: values.title,
       twitter: values.twitter,
       github: values.github,
-      portfolio: values.portfolio ? withHttps(values.portfolio) : undefined,
+      portfolio: values.portfolio ? withHttps(values.portfolio) : null,
       roadmap: values.roadmap,
       threads: values.threads,
       codepen: values.codepen,
@@ -92,7 +92,7 @@ const ProfileIndex = ({
       stackoverflow: values.stackoverflow,
       youtube: values.youtube,
       linkedin: values.linkedin,
-      mastodon: values.mastodon ? withHttps(values.mastodon) : undefined,
+      mastodon: values.mastodon ? withHttps(values.mastodon) : null,
       experienceLevel: values.experienceLevel,
       onUpdateSuccess: () =>
         router.push(`/${values.username}`).then(() => {
@@ -281,6 +281,7 @@ const ProfileIndex = ({
           hint={hint.portfolio}
           valid={!hint.portfolio}
           name="portfolio"
+          type="url"
           value={user?.portfolio}
           placeholder="example.com"
         />
@@ -351,6 +352,7 @@ const ProfileIndex = ({
           hint={hint.mastodon}
           valid={!hint.mastodon}
           name="mastodon"
+          type="url"
           value={user?.mastodon}
           placeholder="mastodon.social/@username"
         />

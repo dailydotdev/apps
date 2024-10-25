@@ -1,7 +1,6 @@
 import React, {
+  ComponentPropsWithoutRef,
   forwardRef,
-  HTMLAttributes,
-  ImgHTMLAttributes,
   ReactElement,
   ReactNode,
   Ref,
@@ -9,7 +8,7 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 
-export interface LazyImageProps extends HTMLAttributes<HTMLImageElement> {
+export interface LazyImageProps extends ComponentPropsWithoutRef<'img'> {
   imgSrc: string;
   imgAlt: string;
   background?: string;
@@ -21,8 +20,6 @@ export interface LazyImageProps extends HTMLAttributes<HTMLImageElement> {
   fit?: 'cover' | 'contain';
   ref?: Ref<HTMLImageElement>;
 }
-
-const asyncImageSupport = true;
 
 function LazyImageComponent(
   {
@@ -36,29 +33,12 @@ function LazyImageComponent(
     children,
     absolute = false,
     fit = 'cover',
+    fetchPriority = 'auto',
     ...props
   }: LazyImageProps,
   ref?: Ref<HTMLImageElement>,
 ): ReactElement {
   const src = imgSrc || fallbackSrc;
-
-  const baseImageClass = `absolute block inset-0 w-full h-full m-auto ${
-    fit === 'cover' ? 'object-cover' : 'object-contain'
-  }`;
-  let imageProps: ImgHTMLAttributes<HTMLImageElement> & {
-    'data-src'?: string;
-  };
-  if (eager) {
-    imageProps = { src, className: baseImageClass };
-  } else if (asyncImageSupport) {
-    imageProps = { src, loading: 'lazy', className: baseImageClass };
-  } else {
-    imageProps = {
-      className: `lazyload ${baseImageClass}`,
-      'data-src': src,
-    };
-  }
-
   const onError = (event: SyntheticEvent<HTMLImageElement>): void => {
     if (fallbackSrc && fallbackSrc !== event.currentTarget.src) {
       // eslint-disable-next-line no-param-reassign
@@ -67,7 +47,7 @@ function LazyImageComponent(
   };
 
   return (
-    <div
+    <figure
       {...props}
       className={classNames(
         className,
@@ -78,9 +58,21 @@ function LazyImageComponent(
       ref={ref}
     >
       {ratio && <div style={{ paddingTop: ratio, zIndex: -1 }} />}
-      <img {...imageProps} alt={imgAlt} key={src} onError={onError} />
+      <img
+        alt={imgAlt}
+        className={classNames(
+          'absolute inset-0 m-auto block h-full w-full',
+          fit === 'cover' ? 'object-cover' : 'object-contain',
+        )}
+        key={src}
+        loading={eager ? 'eager' : 'lazy'}
+        src={src}
+        onError={onError}
+        // @ts-expect-error - Not supported by react yet
+        fetchpriority={fetchPriority}
+      />
       {children}
-    </div>
+    </figure>
   );
 }
 

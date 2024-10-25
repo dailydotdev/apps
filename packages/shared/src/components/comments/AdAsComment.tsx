@@ -10,7 +10,7 @@ import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import PlaceholderCommentList from './PlaceholderCommentList';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import AuthContext from '../../contexts/AuthContext';
-import { cloudinary } from '../../lib/image';
+import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { AdPixel } from '../cards/ad/common/AdPixel';
 
 interface AdAsCommentProps {
@@ -81,7 +81,7 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
         className="!inline-block"
         size={ProfileImageSize.Large}
         user={{ id: providerId, username: source, image }}
-        fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+        fallbackSrc={cloudinaryPostImageCoverPlaceholder}
         style={{ backgroundColor: data?.backgroundColor }}
       />
       <div className="ml-3 inline-block flex-col">
