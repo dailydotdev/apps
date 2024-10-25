@@ -20,11 +20,8 @@ import { GrowthBookProvider } from '@dailydotdev/shared/src/components/GrowthBoo
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { useEventListener } from '@dailydotdev/shared/src/hooks';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
-import {
-  persistedQueryClient,
-  persistedQueryClientOptions,
-} from '@dailydotdev/shared/src/lib/persistedQuery';
-import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import Companion from './Companion';
 import CustomRouter from '../lib/CustomRouter';
 import { companionFetch } from './companionFetch';
@@ -32,6 +29,7 @@ import { version } from '../../package.json';
 
 structuredCloneJsonPolyfill();
 
+const queryClient = new QueryClient(defaultQueryClientConfig);
 const router = new CustomRouter();
 
 export type CompanionData = { url: string; deviceId: string } & Pick<
@@ -86,10 +84,7 @@ export default function App({
         @import &quot;{browser.runtime.getURL('css/companion.css')}&quot;;
       </style>
       <RouterContext.Provider value={router}>
-        <PersistQueryClientProvider
-          client={persistedQueryClient}
-          persistOptions={persistedQueryClientOptions}
-        >
+        <QueryClientProvider client={queryClient}>
           <GrowthBookProvider
             app={app}
             user={user}
@@ -137,7 +132,7 @@ export default function App({
             </AuthContextProvider>
           </GrowthBookProvider>
           <ReactQueryDevtools />
-        </PersistQueryClientProvider>
+        </QueryClientProvider>
       </RouterContext.Provider>
     </div>
   );
