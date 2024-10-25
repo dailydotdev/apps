@@ -2,10 +2,14 @@ import React, { ReactElement, useState } from 'react';
 import TabContainer, {
   Tab,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
+import { NextSeoProps } from 'next-seo';
 import { AccountSecurityDisplay as Display } from '../../components/layouts/AccountLayout/common';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import VerifyWorkEmail from '../../components/layouts/AccountLayout/Profile/VerifyWorkEmail';
 import ProfileIndex from '../../components/layouts/AccountLayout/Profile';
+import { defaultSeo } from '../../next-seo';
+
+const seo: NextSeoProps = { ...defaultSeo, title: 'Manage account profile' };
 
 const AccountProfilePage = (): ReactElement => {
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);
@@ -31,5 +35,6 @@ const AccountProfilePage = (): ReactElement => {
 };
 
 AccountProfilePage.getLayout = getAccountLayout;
+AccountProfilePage.layoutProps = { seo };
 
 export default AccountProfilePage;
