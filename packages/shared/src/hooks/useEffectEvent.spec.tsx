@@ -19,7 +19,7 @@ describe('useEffectEvent', () => {
   it('should call the latest handler provided', () => {
     const initialHandler = jest.fn();
     const { result, rerender } = renderHook(
-      ({ handler }) => useEffectEvent(handler),
+      (props) => useEffectEvent(props.handler),
       { initialProps: { handler: initialHandler } },
     );
 
@@ -46,7 +46,7 @@ describe('useEffectEvent', () => {
   it('should pass arguments correctly to the latest handler', () => {
     const handler = jest.fn();
     const { result, rerender } = renderHook(
-      ({ handler }) => useEffectEvent(handler),
+      (props) => useEffectEvent(props.handler),
       { initialProps: { handler } },
     );
 

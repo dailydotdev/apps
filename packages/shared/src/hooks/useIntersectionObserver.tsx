@@ -11,7 +11,7 @@ type TObserverPoolItem = {
 const observerPool: TObserverPoolItem[] = [];
 
 const isRefObject = <T extends unknown>(
-  target: any,
+  target: unknown,
 ): target is RefObject<T> => {
   return target && typeof target === 'object' && 'current' in target;
 };
@@ -67,7 +67,7 @@ function useIntersectionObserver<T extends Element>(
       [
         item.observer.root === root,
         item.observer.rootMargin === rootMargin,
-        item.observer.thresholds.toString() === thresholds.toString(),
+        item.observer.thresholds?.toString() === thresholds.toString(),
       ].every(Boolean),
     );
 
@@ -84,9 +84,9 @@ function useIntersectionObserver<T extends Element>(
           observer: IntersectionObserver,
         ): void => {
           if (partialObserverItem.callbacks) {
-            for (const callbackItem of partialObserverItem.callbacks) {
+            partialObserverItem.callbacks.forEach((callbackItem) => {
               callbackItem(entries, observer);
-            }
+            });
           }
         },
         { root, rootMargin, threshold },

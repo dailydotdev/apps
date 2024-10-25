@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef } from 'react';
 
-const useEffectEvent = <T extends (...args: any[]) => void>(handler: T): T => {
+const useEffectEvent = <T extends (...args: unknown[]) => void>(
+  handler: T,
+): T => {
   const handlerRef = useRef<T>(handler);
 
   useEffect(() => {
