@@ -83,22 +83,13 @@ interface SourcePageProps extends DynamicSeoProps {
 }
 
 const PageComponent = (props: ProtectedPageProps & { squad: Squad }) => {
-  const { squad, seo, children, ...restProtectedPageProps } = props;
+  const { squad, children, ...restProtectedPageProps } = props;
 
   if (squad.public) {
-    return (
-      <>
-        {seo}
-        {children}
-      </>
-    );
+    return <>{children}</>;
   }
 
-  return (
-    <ProtectedPage {...restProtectedPageProps} seo={seo}>
-      {children}
-    </ProtectedPage>
-  );
+  return <ProtectedPage {...restProtectedPageProps}>{children}</ProtectedPage>;
 };
 
 const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
