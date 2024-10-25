@@ -1,7 +1,6 @@
 import React, {
   ComponentPropsWithoutRef,
   forwardRef,
-  ImgHTMLAttributes,
   ReactElement,
   ReactNode,
   Ref,
@@ -40,19 +39,6 @@ function LazyImageComponent(
   ref?: Ref<HTMLImageElement>,
 ): ReactElement {
   const src = imgSrc || fallbackSrc;
-
-  const baseImageClass = `absolute block inset-0 w-full h-full m-auto ${
-    fit === 'cover' ? 'object-cover' : 'object-contain'
-  }`;
-  let imageProps: ImgHTMLAttributes<HTMLImageElement> & {
-    'data-src'?: string;
-  };
-  if (eager) {
-    imageProps = { src, className: baseImageClass };
-  } else {
-    imageProps = { src, loading: 'lazy', className: baseImageClass };
-  }
-
   const onError = (event: SyntheticEvent<HTMLImageElement>): void => {
     if (fallbackSrc && fallbackSrc !== event.currentTarget.src) {
       // eslint-disable-next-line no-param-reassign
@@ -73,9 +59,14 @@ function LazyImageComponent(
     >
       {ratio && <div style={{ paddingTop: ratio, zIndex: -1 }} />}
       <img
-        {...imageProps}
         alt={imgAlt}
+        className={classNames(
+          'absolute inset-0 m-auto block h-full w-full',
+          fit === 'cover' ? 'object-cover' : 'object-contain',
+        )}
         key={src}
+        loading={eager ? 'eager' : 'lazy'}
+        src={src}
         onError={onError}
         // @ts-expect-error - Not supported by react yet
         fetchpriority={fetchPriority}
