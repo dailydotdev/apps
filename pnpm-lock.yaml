@@ -569,7 +569,7 @@ importers:
         version: 12.3.0
       next:
         specifier: 15.0.1
-        version: 15.0.1(@babel/core@7.25.9)(react-dom@18.3.1)(react@18.3.1)
+        version: 15.0.1(@babel/core@7.25.9)(react-dom@18.3.1)(react@18.3.1)(sass@1.53.0)
       nock:
         specifier: ^13.3.1
         version: 13.3.1
@@ -813,7 +813,7 @@ importers:
         version: 5.1.5
       next:
         specifier: 15.0.1
-        version: 15.0.1(@babel/core@7.25.9)(react-dom@18.3.1)(react@18.3.1)
+        version: 15.0.1(@babel/core@7.25.9)(react-dom@18.3.1)(react@18.3.1)(sass@1.53.0)
       next-seo:
         specifier: ^5.4.0
         version: 5.4.0(next@15.0.1)(react-dom@18.3.1)(react@18.3.1)
@@ -5206,7 +5206,7 @@ packages:
       '@serwist/window': 9.0.9(typescript@4.9.5)
       chalk: 5.3.0
       glob: 10.4.5
-      next: 15.0.1(@babel/core@7.25.9)(react-dom@18.3.1)(react@18.3.1)
+      next: 15.0.1(@babel/core@7.25.9)(react-dom@18.3.1)(react@18.3.1)(sass@1.53.0)
       serwist: 9.0.9(typescript@4.9.5)
       typescript: 4.9.5
       zod: 3.23.8
@@ -13550,7 +13550,7 @@ packages:
       react: '>=16.0.0'
       react-dom: '>=16.0.0'
     dependencies:
-      next: 15.0.1(@babel/core@7.25.9)(react-dom@18.3.1)(react@18.3.1)
+      next: 15.0.1(@babel/core@7.25.9)(react-dom@18.3.1)(react@18.3.1)(sass@1.53.0)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
     dev: false
@@ -13611,50 +13611,6 @@ packages:
       - babel-plugin-macros
     dev: false
 
-  /next@15.0.1(@babel/core@7.25.9)(react-dom@18.3.1)(react@18.3.1):
-    resolution: {integrity: sha512-PSkFkr/w7UnFWm+EP8y/QpHrJXMqpZzAXpergB/EqLPOh4SGPJXv1wj4mslr2hUZBAS9pX7/9YLIdxTv6fwytw==}
-    engines: {node: '>=18.18.0'}
-    hasBin: true
-    peerDependencies:
-      '@opentelemetry/api': ^1.1.0
-      '@playwright/test': ^1.41.2
-      babel-plugin-react-compiler: '*'
-      react: ^18.2.0 || 19.0.0-rc-69d4b800-20241021
-      react-dom: ^18.2.0 || 19.0.0-rc-69d4b800-20241021
-      sass: ^1.3.0
-    peerDependenciesMeta:
-      '@opentelemetry/api':
-        optional: true
-      '@playwright/test':
-        optional: true
-      babel-plugin-react-compiler:
-        optional: true
-      sass:
-        optional: true
-    dependencies:
-      '@next/env': 15.0.1
-      '@swc/counter': 0.1.3
-      '@swc/helpers': 0.5.13
-      busboy: 1.6.0
-      caniuse-lite: 1.0.30001669
-      postcss: 8.4.31
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      styled-jsx: 5.1.6(@babel/core@7.25.9)(react@18.3.1)
-    optionalDependencies:
-      '@next/swc-darwin-arm64': 15.0.1
-      '@next/swc-darwin-x64': 15.0.1
-      '@next/swc-linux-arm64-gnu': 15.0.1
-      '@next/swc-linux-arm64-musl': 15.0.1
-      '@next/swc-linux-x64-gnu': 15.0.1
-      '@next/swc-linux-x64-musl': 15.0.1
-      '@next/swc-win32-arm64-msvc': 15.0.1
-      '@next/swc-win32-x64-msvc': 15.0.1
-      sharp: 0.33.5
-    transitivePeerDependencies:
-      - '@babel/core'
-      - babel-plugin-macros
-
   /next@15.0.1(@babel/core@7.25.9)(react-dom@18.3.1)(react@18.3.1)(sass@1.53.0):
     resolution: {integrity: sha512-PSkFkr/w7UnFWm+EP8y/QpHrJXMqpZzAXpergB/EqLPOh4SGPJXv1wj4mslr2hUZBAS9pX7/9YLIdxTv6fwytw==}
     engines: {node: '>=18.18.0'}
@@ -13699,7 +13655,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
-    dev: false
 
   /nice-try@1.0.5:
     resolution: {integrity: sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ==}
@@ -15963,7 +15918,6 @@ packages:
     resolution: {integrity: sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==}
     engines: {node: '>=10'}
     hasBin: true
-    requiresBuild: true
 
   /send@0.18.0:
     resolution: {integrity: sha512-qqWzuOjSFOuqPjFe4NOsMLafToQQwBSOEpS+FwEt3A2V3vKubTquT3vmLTQpFgMXp8AlFWFuP1qKaJZOtPpVXg==}
