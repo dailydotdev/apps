@@ -9,7 +9,7 @@ import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNoti
 import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
 import { MangeSquadPageSkeleton } from '@dailydotdev/shared/src/components/squads/MangeSquadPageSkeleton';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSquad } from '@dailydotdev/shared/src/hooks';
+import { useSquad, useSquads } from '@dailydotdev/shared/src/hooks';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -40,7 +40,8 @@ const DEFAULT_ERROR = "Oops! That didn't seem to work. Let's try again!";
 
 const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
   const { isReady: isRouteReady } = useRouter();
-  const { squads, user, isAuthReady, isFetched } = useAuthContext();
+  const { user, isAuthReady, isFetched } = useAuthContext();
+  const { squads } = useSquads();
   const {
     squad,
     isLoading: isSquadLoading,
