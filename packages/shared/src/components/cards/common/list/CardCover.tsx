@@ -17,11 +17,13 @@ export function CardCoverList({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const optimizedImageProps = useMemo(() => {
     const { src } = imageProps;
+    const mobileSrc = src.replace('/f_auto,q_auto/', '/t_mobile_feed/');
 
     return {
       ...imageProps,
       ...(!isLaptop && {
-        src: src.replace('/f_auto,q_auto/', '/t_mobile_feed/'),
+        src: mobileSrc,
+        srcSet: `${mobileSrc} 1x, ${src} 2x`,
       }),
     };
   }, [imageProps, isLaptop]);
