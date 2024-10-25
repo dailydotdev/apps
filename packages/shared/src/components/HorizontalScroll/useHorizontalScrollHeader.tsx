@@ -1,26 +1,21 @@
 import React, {
-  FunctionComponent,
   MouseEventHandler,
   ReactNode,
   RefObject,
   useCallback,
-  useMemo,
   useRef,
 } from 'react';
 import { useScrollManagement } from './useScrollManagement';
 import { useCalculateVisibleElements } from './useCalculateVisibleElements';
 import {
   HorizontalScrollHeader,
-  HorizontalScrollHeaderProps,
+  HorizontalScrollTitleProps,
 } from './HorizontalScrollHeader';
-import { useIsHydrated } from '../../hooks/utils/useIsHydrated';
-
-type HeaderProps = Pick<HorizontalScrollHeaderProps, 'titleId' | 'titleType'>;
 
 interface HorizontalScrollHeaderReturn<
   El extends HTMLElement = HTMLDivElement,
 > {
-  Header: FunctionComponent<HeaderProps>;
+  header: ReactNode;
   isAtEnd: boolean;
   isAtStart: boolean;
   isOverflowing: boolean;
@@ -33,7 +28,7 @@ export interface UseHorizontalScrollHeaderProps {
   onScroll?: (ref: RefObject<HTMLElement>) => void;
   onClickSeeAll?: MouseEventHandler;
   linkToSeeAll?: string;
-  title: ReactNode;
+  title: HorizontalScrollTitleProps;
 }
 
 export const useHorizontalScrollHeader = <
@@ -44,7 +39,6 @@ export const useHorizontalScrollHeader = <
   linkToSeeAll,
   title,
 }: UseHorizontalScrollHeaderProps): HorizontalScrollHeaderReturn<El> => {
-  const isHydrated = useIsHydrated();
   const ref = useRef<El>(null);
   // Calculate the width of elements and the number of visible cards
   const {
@@ -73,38 +67,21 @@ export const useHorizontalScrollHeader = <
     }
   }, [numCards, scrollableElementWidth, onScroll]);
 
-  const Header = useMemo(
-    () =>
-      // eslint-disable-next-line react/display-name
-      (props: HeaderProps = {}) =>
-        isHydrated && (
-          <HorizontalScrollHeader
-            {...props}
-            title={title}
-            isAtEnd={isAtEnd}
-            isAtStart={isAtStart}
-            canScroll={isOverflowing}
-            onClickNext={onClickNext}
-            onClickPrevious={onClickPrevious}
-            onClickSeeAll={onClickSeeAll}
-            linkToSeeAll={linkToSeeAll}
-          />
-        ),
-    [
-      isAtEnd,
-      isAtStart,
-      linkToSeeAll,
-      onClickNext,
-      onClickPrevious,
-      onClickSeeAll,
-      title,
-      isOverflowing,
-      isHydrated,
-    ],
+  const header = (
+    <HorizontalScrollHeader
+      title={title}
+      isAtEnd={isAtEnd}
+      isAtStart={isAtStart}
+      canScroll={isOverflowing}
+      onClickNext={onClickNext}
+      onClickPrevious={onClickPrevious}
+      onClickSeeAll={onClickSeeAll}
+      linkToSeeAll={linkToSeeAll}
+    />
   );
 
   return {
-    Header,
+    header,
     ref,
     isAtStart,
     isAtEnd,

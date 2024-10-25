@@ -33,10 +33,15 @@ import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
 import { InviteLinkInput } from '@dailydotdev/shared/src/components/referral';
 import { TruncateText } from '@dailydotdev/shared/src/components/utilities';
+import { NextSeoProps } from 'next-seo';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { InviteIcon } from '../../../shared/src/components/icons';
+import { defaultSeo } from '../../next-seo';
+import { getTemplatedTitle } from '../../components/layouts/utils';
+
+const seo: NextSeoProps = { ...defaultSeo, title: getTemplatedTitle('Invite') };
 
 const AccountInvitePage = (): ReactElement => {
   const { user } = useAuthContext();
@@ -155,5 +160,6 @@ const AccountInvitePage = (): ReactElement => {
 };
 
 AccountInvitePage.getLayout = getAccountLayout;
+AccountInvitePage.layoutProps = { seo };
 
 export default AccountInvitePage;

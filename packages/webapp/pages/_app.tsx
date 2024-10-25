@@ -115,7 +115,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { layoutProps } = Component as ComponentGetLayout;
 
   const { themeColor } = useThemedAsset();
-  const seo = layoutProps?.seo as Record<string, unknown>;
+  const seo = (pageProps?.seo || layoutProps?.seo) as Record<string, unknown>;
 
   return (
     <>

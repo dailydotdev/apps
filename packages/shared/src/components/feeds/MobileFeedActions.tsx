@@ -23,7 +23,6 @@ export function MobileFeedActions(): ReactElement {
   return (
     <div className="flex flex-row justify-between px-4 py-1">
       <Logo
-        showGreeting={false}
         position={LogoPosition.Relative}
         onLogoClick={() => router.push('/')}
         featureTheme={featureTheme}
