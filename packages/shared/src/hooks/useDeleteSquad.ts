@@ -24,7 +24,6 @@ export const useDeleteSquad = ({
 }: UseDeleteSquadProps): UseDeleteSquadModal => {
   const { logEvent } = useContext(LogContext);
   const { showPrompt } = usePrompt();
-  // const { deleteSquad: deleteCachedSquad } = useBoot();
   const { mutate } = useMutation([squad.id], deleteSquad, {
     onSuccess: () => {
       persistedQueryClient.invalidateQueries([RequestKey.Squads]);
@@ -49,8 +48,8 @@ export const useDeleteSquad = ({
         event_name: LogEvent.DeleteSquad,
         extra: JSON.stringify({ squad: squad.id }),
       });
-      await mutate(squad.id);
-      await callback?.();
+      mutate(squad.id);
+      callback?.();
     }
   };
 

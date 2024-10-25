@@ -425,7 +425,9 @@ export async function getSquads(userId: string): Promise<Squad[]> {
       id: userId,
     },
   );
-  return res.mySourceMemberships.edges.map((edge) => edge.node.source);
+  const squads = res.mySourceMemberships.edges.map((edge) => edge.node.source);
+  const sortedByName = squads.sort((a, b) => a.name.localeCompare(b.name));
+  return sortedByName;
 }
 
 export async function getSquadMembers(id: string): Promise<SourceMember[]> {

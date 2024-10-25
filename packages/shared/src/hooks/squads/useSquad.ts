@@ -49,7 +49,6 @@ type UseSquads = {
 
 export const useSquads = (): UseSquads => {
   const { isFetched: isBootFetched, user } = useContext(AuthContext);
-  // const queryKey = generateQueryKey(RequestKey.Squads);
 
   const { data: squads, isLoading } = useQuery(
     [RequestKey.Squads],
