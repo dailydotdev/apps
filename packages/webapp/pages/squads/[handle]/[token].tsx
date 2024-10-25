@@ -99,6 +99,7 @@ const SquadReferral = ({
   const { displayToast } = useToastNotification();
   const { showLogin, user: loggedUser } = useAuthContext();
   const [loggedImpression, setLoggedImpression] = useState(false);
+  const [justJoined, setJustJoined] = useState(false);
   const { data: member, isFetched } = useQuery({
     queryKey: ['squad_referral', token, loggedUser?.id],
     queryFn: () => getSquadInvitation(token),
@@ -110,7 +111,7 @@ const SquadReferral = ({
   });
 
   useEffect(() => {
-    if (!loggedUser) {
+    if (!loggedUser || justJoined) {
       return;
     }
 
@@ -137,7 +138,7 @@ const SquadReferral = ({
         router.replace(squadsUrl);
       }
     }
-  }, [handle, loggedUser, member, router]);
+  }, [justJoined, handle, loggedUser, member, router]);
 
   const joinSquadLogExtra = () => {
     return JSON.stringify({
@@ -167,6 +168,7 @@ const SquadReferral = ({
       referralToken: token,
     }),
     onSuccess: (data) => {
+      setJustJoined(true);
       router.replace(
         getJoinRedirectUrl({
           pathname: data.permalink,
@@ -175,6 +177,7 @@ const SquadReferral = ({
       );
     },
     onError: (error: ApiErrorResult) => {
+      setJustJoined(false);
       const errorMessage = error?.response?.errors?.[0]?.message;
 
       if (errorMessage === ApiErrorMessage.SourcePermissionInviteInvalid) {
@@ -190,6 +193,8 @@ const SquadReferral = ({
       displayToast(labels.squads.forbidden);
       return null;
     }
+
+    setJustJoined(true);
 
     if (loggedUser) {
       return onJoinSquad();

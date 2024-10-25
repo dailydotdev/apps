@@ -1,5 +1,5 @@
 import { useContext, useMemo } from 'react';
-import { UseInfiniteQueryResult } from '@tanstack/react-query/build/legacy/types';
+import { UseInfiniteQueryResult } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import { READING_HISTORY_QUERY } from '../../graphql/users';
 import useInfiniteReadingHistory from '../useInfiniteReadingHistory';
