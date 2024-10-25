@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { useScrollManagement } from './useScrollManagement';
 import useDebounceFn from '../../hooks/useDebounceFn';
 
@@ -46,11 +46,13 @@ describe('useScrollManagement', () => {
       useScrollManagement(mockRef, onScrollMock),
     );
 
-    if (mockRef.current) {
-      // Simulate scrolling to the end
-      mockRef.current.scrollLeft = 500;
-      mockRef.current.dispatchEvent(new Event('scroll'));
-    }
+    act(() => {
+      if (mockRef.current) {
+        // Simulate scrolling to the end
+        mockRef.current.scrollLeft = 500;
+        mockRef.current.dispatchEvent(new Event('scroll'));
+      }
+    });
 
     expect(result.current.isAtEnd).toBe(true);
     expect(result.current.isAtStart).toBe(false);
