@@ -25,8 +25,31 @@ interface SectionProps extends SectionCommonProps {
   title?: string;
   items: SidebarMenuItem[];
   isItemsButton: boolean;
-  isLoading?: boolean
+  isLoading?: boolean;
 }
+
+const ItemsSkeleton = () => {
+  return (
+    <>
+      <div className="flex items-center">
+        <TextPlaceholder className="m-3 h-5 w-5 rounded-full" />
+        <TextPlaceholder className="w-[40%]" />
+      </div>
+      <div className="flex items-center">
+        <TextPlaceholder className="m-3 h-5 w-5 rounded-full" />
+        <TextPlaceholder className="w-[40%]" />
+      </div>
+      <div className="flex items-center">
+        <TextPlaceholder className="m-3 h-5 w-5 rounded-full" />
+        <TextPlaceholder className="w-[40%]" />
+      </div>
+      <div className="flex items-center">
+        <TextPlaceholder className="m-3 h-5 w-5 rounded-full" />
+        <TextPlaceholder className="w-[40%]" />
+      </div>
+    </>
+  );
+};
 
 export function Section({
   title,
@@ -37,7 +60,7 @@ export function Section({
   activePage,
   isItemsButton,
   className,
-  isLoading
+  isLoading,
 }: SectionProps): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
 
@@ -87,27 +110,4 @@ export function Section({
       ))}
     </NavSection>
   );
-}
-
-const ItemsSkeleton = () => {
-  return (
-    <>
-      <div className="flex items-center">
-        <TextPlaceholder className="w-5 h-5 rounded-full m-3" />
-        <TextPlaceholder className="w-[40%]" />
-      </div>
-      <div className="flex items-center">
-        <TextPlaceholder className="w-5 h-5 rounded-full m-3" />
-        <TextPlaceholder className="w-[40%]" />
-      </div>
-      <div className="flex items-center">
-        <TextPlaceholder className="w-5 h-5 rounded-full m-3" />
-        <TextPlaceholder className="w-[40%]" />
-      </div>
-      <div className="flex items-center">
-        <TextPlaceholder className="w-5 h-5 rounded-full m-3" />
-        <TextPlaceholder className="w-[40%]" />
-      </div>
-    </>
-  )
 }

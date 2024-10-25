@@ -51,7 +51,7 @@ export const useLeaveSquad = ({ squad }: UseLeaveSquadProps): UseLeaveSquad => {
 
       return left;
     },
-    [showPrompt, squad, logEvent],
+    [showPrompt, squad, logEvent, mutate],
   );
 
   return onLeaveSquad;
