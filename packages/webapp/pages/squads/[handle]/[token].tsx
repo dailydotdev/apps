@@ -110,32 +110,34 @@ const SquadReferral = ({
   });
 
   useEffect(() => {
-    if (member && loggedUser) {
-      if (!member?.source?.id) {
-        router.replace(webappUrl);
-        return;
-      }
+    if (!loggedUser) {
+      return;
+    }
 
-      const squadsUrl = getJoinRedirectUrl({
-        pathname: `/squads/${handle}`,
-        query: router.query,
-      });
-      const isValid = validateSourceHandle(handle, member.source);
+    if (!member?.source?.id) {
+      router.replace(webappUrl);
+      return;
+    }
 
-      if (!isValid) {
-        router.replace(webappUrl);
-        return;
-      }
+    const squadsUrl = getJoinRedirectUrl({
+      pathname: `/squads/${handle}`,
+      query: router.query,
+    });
+    const isValid = validateSourceHandle(handle, member.source);
 
-      const { currentMember } = member.source;
-      if (currentMember) {
-        const { role } = currentMember;
-        if (role !== SourceMemberRole.Blocked) {
-          router.replace(squadsUrl);
-        }
+    if (!isValid) {
+      router.replace(webappUrl);
+      return;
+    }
+
+    const { currentMember } = member.source;
+    if (currentMember) {
+      const { role } = currentMember;
+      if (role !== SourceMemberRole.Blocked) {
+        router.replace(squadsUrl);
       }
     }
-  }, [member, loggedUser, handle, router]);
+  }, [handle, loggedUser, member, router]);
 
   const joinSquadLogExtra = () => {
     return JSON.stringify({

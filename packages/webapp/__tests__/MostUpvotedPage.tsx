@@ -72,6 +72,7 @@ it('should request most upvoted feed when logged-in', async () => {
   renderComponent([
     createFeedMock(defaultFeedPage, MOST_UPVOTED_FEED_QUERY, {
       first: 7,
+      after: '',
       loggedIn: true,
       period: 7,
       version: 15,
@@ -88,6 +89,7 @@ it('should request most upvoted feed when not', async () => {
     [
       createFeedMock(defaultFeedPage, MOST_UPVOTED_FEED_QUERY, {
         first: 7,
+        after: '',
         loggedIn: false,
         period: 7,
         version: 15,
