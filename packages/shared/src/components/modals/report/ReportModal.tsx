@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useState } from 'react';
+import React, { ReactElement, ReactNode, useState, useCallback } from 'react';
 import { Radio, RadioItemProps } from '../../fields/Radio';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { Modal, ModalProps } from '../common/Modal';
@@ -34,6 +34,12 @@ export function ReportModal({
     onClick: (e) => onReport(e, reason, note),
   };
 
+  const onFocus = useCallback(() => {
+    if (!reason) {
+      setReason(ReportReason.Other);
+    }
+  }, [reason]);
+
   return (
     <Modal
       isOpen
@@ -63,6 +69,7 @@ export function ReportModal({
         </p>
         <textarea
           onInput={(event) => setNote(event.currentTarget.value)}
+          onFocus={onFocus}
           className="mb-1 h-20 w-full resize-none self-stretch rounded-10 bg-surface-float p-2 typo-body"
           data-testid="report_comment"
         />
