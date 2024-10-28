@@ -17,11 +17,12 @@ type UseSearchQuestionRecommendations = (data: {
 export const useSearchQuestionRecommendations: UseSearchQuestionRecommendations =
   ({ disabled, ...args }) => {
     const { user } = useAuthContext();
-    const { data, isLoading } = useQuery(
-      generateQueryKey(RequestKey.SearchHistory, user),
-      getSearchSuggestions,
-      { ...disabledRefetch, enabled: !disabled && !!user },
-    );
+    const { data, isLoading } = useQuery({
+      queryKey: generateQueryKey(RequestKey.SearchHistory, user),
+      queryFn: getSearchSuggestions,
+      ...disabledRefetch,
+      enabled: !disabled && !!user,
+    });
 
     const suggestions = useMemo(
       () =>

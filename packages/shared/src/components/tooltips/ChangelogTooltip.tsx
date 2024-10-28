@@ -36,9 +36,9 @@ function ChangelogTooltip(): ReactElement {
   } = useChangelog();
   const toast = useToastNotification();
 
-  const { mutateAsync: updateExtension, isLoading: isExtensionUpdating } =
-    useMutation(
-      async () => {
+  const { mutateAsync: updateExtension, isPending: isExtensionUpdating } =
+    useMutation({
+      mutationFn: async () => {
         if (isFirefoxExtension) {
           return;
         }
@@ -64,12 +64,11 @@ function ChangelogTooltip(): ReactElement {
           toast.displayToast(toastMessage);
         }
       },
-      {
-        onError: () => {
-          toast.displayToast(toastMessageMap.error);
-        },
+
+      onError: () => {
+        toast.displayToast(toastMessageMap.error);
       },
-    );
+    });
 
   const onExtensionUpdateClick = async () => {
     await updateExtension();

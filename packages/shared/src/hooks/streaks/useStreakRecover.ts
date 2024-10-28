@@ -70,7 +70,9 @@ export const useStreakRecover = ({
         event_name: LogEvent.StreakRecover,
       });
 
-      client.invalidateQueries(generateQueryKey(RequestKey.UserStreak, user));
+      client.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.UserStreak, user),
+      });
     },
   });
 

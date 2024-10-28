@@ -20,8 +20,8 @@ export const useLanguage = (): UseLanguage => {
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
 
-  const { mutate: onLanguageChange } = useMutation(
-    async (value?: ContentLanguage) => {
+  const { mutate: onLanguageChange } = useMutation({
+    mutationFn: async (value?: ContentLanguage) => {
       await updateUser({
         ...user,
         language: value,
@@ -33,50 +33,51 @@ export const useLanguage = (): UseLanguage => {
         },
       });
     },
-    {
-      onMutate: (value) => {
-        logEvent({
-          event_name: LogEvent.ChangeSettings,
-          target_type: TargetType.Language,
-          target_id: value,
-        });
-      },
-      onSuccess: async () => {
-        const requestKeys = [
-          ...Object.values(SharedFeedPage),
-          OtherFeedPage.Preview,
-          RequestKey.Squad,
-          RequestKey.FeedPreview,
-          RequestKey.FeedPreviewCustom,
-          RequestKey.PostKey,
-          RequestKey.Bookmarks,
-          RequestKey.ReadingHistory,
-          RequestKey.RelatedPosts,
-          RequestKey.SourceFeed,
-          RequestKey.SourceMostUpvoted,
-          RequestKey.SourceBestDiscussed,
-          RequestKey.TagFeed,
-          RequestKey.TagsMostUpvoted,
-          RequestKey.TagsBestDiscussed,
-        ];
 
-        await Promise.all(
-          requestKeys.map((requestKey) => {
-            const queryKey = [requestKey];
-
-            return queryClient.invalidateQueries({
-              queryKey,
-              exact: false,
-              type: 'all',
-            });
-          }),
-        );
-      },
-      onError: () => {
-        displayToast(labels.error.generic);
-      },
+    onMutate: (value) => {
+      logEvent({
+        event_name: LogEvent.ChangeSettings,
+        target_type: TargetType.Language,
+        target_id: value,
+      });
     },
-  );
+
+    onSuccess: async () => {
+      const requestKeys = [
+        ...Object.values(SharedFeedPage),
+        OtherFeedPage.Preview,
+        RequestKey.Squad,
+        RequestKey.FeedPreview,
+        RequestKey.FeedPreviewCustom,
+        RequestKey.PostKey,
+        RequestKey.Bookmarks,
+        RequestKey.ReadingHistory,
+        RequestKey.RelatedPosts,
+        RequestKey.SourceFeed,
+        RequestKey.SourceMostUpvoted,
+        RequestKey.SourceBestDiscussed,
+        RequestKey.TagFeed,
+        RequestKey.TagsMostUpvoted,
+        RequestKey.TagsBestDiscussed,
+      ];
+
+      await Promise.all(
+        requestKeys.map((requestKey) => {
+          const queryKey = [requestKey];
+
+          return queryClient.invalidateQueries({
+            queryKey,
+            exact: false,
+            type: 'all',
+          });
+        }),
+      );
+    },
+
+    onError: () => {
+      displayToast(labels.error.generic);
+    },
+  });
 
   return {
     onLanguageChange,

@@ -27,9 +27,9 @@ export const useActions = (): UseActions => {
   const { user } = useAuthContext();
   const actionsKey = generateQueryKey(RequestKey.Actions, user);
 
-  const { data, isLoading } = useQuery(
-    actionsKey,
-    async () => {
+  const { data, isLoading } = useQuery({
+    queryKey: actionsKey,
+    queryFn: async () => {
       const serverData = await getUserActions();
       const current = client.getQueryData<ActionQueryData>(actionsKey);
 
@@ -43,13 +43,15 @@ export const useActions = (): UseActions => {
 
       return { actions: [...current, ...filtered], serverLoaded: true };
     },
-    { enabled: !!user, ...disabledRefetch },
-  );
+    enabled: !!user,
+    ...disabledRefetch,
+  });
 
   const actions = data?.actions;
   const isActionsFetched = !isLoading && !!data?.serverLoaded;
 
-  const { mutateAsync: completeAction } = useMutation(completeUserAction, {
+  const { mutateAsync: completeAction } = useMutation({
+    mutationFn: completeUserAction,
     onMutate: (type) => {
       if (!user?.id) {
         return () => undefined;

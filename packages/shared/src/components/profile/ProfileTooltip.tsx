@@ -44,7 +44,8 @@ export function ProfileTooltip({
     }
 
     scrollingContainer.removeEventListener('scroll', handler.current);
-    handler.current = () => query.setQueryData(['readingRank', userId], {});
+    handler.current = () =>
+      query.setQueryData(['readingRank', userId], () => {});
     scrollingContainer.addEventListener('scroll', handler.current);
   };
 

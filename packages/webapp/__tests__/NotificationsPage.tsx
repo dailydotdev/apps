@@ -63,7 +63,7 @@ const sampleNotificationData = {
 
 const fetchNotificationsMock = (
   data: NotificationsData = sampleNotificationData,
-  variables = { first: 100, after: undefined },
+  variables = { first: 100, after: '' },
 ): MockedGraphQLResponse<NotificationsData> => ({
   request: { query: NOTIFICATIONS_QUERY, variables },
   result: { data },

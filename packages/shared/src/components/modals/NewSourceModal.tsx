@@ -99,12 +99,16 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
     false,
   );
   const { data: sourceRequestAvailability, isLoading: isLoadingAccess } =
-    useQuery([RequestKey.SourceRequestAvailability, user?.id], async () => {
-      const result = await gqlClient.request<{
-        sourceRequestAvailability: SourceRequestAvailability;
-      }>(SOURCE_REQUEST_AVAILABILITY_QUERY);
+    useQuery({
+      queryKey: [RequestKey.SourceRequestAvailability, user?.id],
 
-      return result.sourceRequestAvailability;
+      queryFn: async () => {
+        const result = await gqlClient.request<{
+          sourceRequestAvailability: SourceRequestAvailability;
+        }>(SOURCE_REQUEST_AVAILABILITY_QUERY);
+
+        return result.sourceRequestAvailability;
+      },
     });
 
   const failedToScrape = () => {
@@ -114,19 +118,20 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
     );
   };
 
-  const { mutateAsync: checkIfSourceExists, isLoading: checkingIfExists } =
-    useMutation<{ source: Source }, unknown, string>((feed: string) =>
-      gqlClient.request(SOURCE_BY_FEED_QUERY, {
-        feed,
-      }),
-    );
+  const { mutateAsync: checkIfSourceExists, isPending: checkingIfExists } =
+    useMutation<{ source: Source }, unknown, string>({
+      mutationFn: (feed: string) =>
+        gqlClient.request(SOURCE_BY_FEED_QUERY, {
+          feed,
+        }),
+    });
 
-  const { mutateAsync: scrapeSource, isLoading: isScraping } = useMutation<
+  const { mutateAsync: scrapeSource, isPending: isScraping } = useMutation<
     ScrapeSourceResponse,
     unknown,
     string
-  >(
-    async (url) => {
+  >({
+    mutationFn: async (url) => {
       const res = await fetchTimeout(
         `${apiUrl}/scrape/source?url=${url}`,
         20000,
@@ -136,50 +141,50 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
       );
       return res.json();
     },
-    {
-      onMutate: () => {
-        setScrapeError(null);
-        setShowContact(false);
-        setFeeds(null);
-        setSelectedFeed(null);
-        setExistingSource(null);
-      },
-      onSuccess: (data) => {
-        if (data.type !== 'website') {
-          return failedToScrape();
-        }
 
-        if (!data.rss.length) {
-          return setScrapeError('Could not find RSS feed');
-        }
-
-        return setFeeds(
-          data.rss.map((feed) => ({
-            label: getFeedLabel(feed.title, feed.url),
-            value: feed.url,
-          })),
-        );
-      },
-      onError: failedToScrape,
+    onMutate: () => {
+      setScrapeError(null);
+      setShowContact(false);
+      setFeeds(null);
+      setSelectedFeed(null);
+      setExistingSource(null);
     },
-  );
 
-  const { mutateAsync: requestSource, isLoading: requestingSource } =
-    useMutation<unknown, unknown, string>(
-      (feed: string) =>
+    onSuccess: (data) => {
+      if (data.type !== 'website') {
+        return failedToScrape();
+      }
+
+      if (!data.rss.length) {
+        return setScrapeError('Could not find RSS feed');
+      }
+
+      return setFeeds(
+        data.rss.map((feed) => ({
+          label: getFeedLabel(feed.title, feed.url),
+          value: feed.url,
+        })),
+      );
+    },
+
+    onError: failedToScrape,
+  });
+
+  const { mutateAsync: requestSource, isPending: requestingSource } =
+    useMutation<unknown, unknown, string>({
+      mutationFn: (feed: string) =>
         gqlClient.request(REQUEST_SOURCE_MUTATION, {
           data: { sourceUrl: feed },
         }),
-      {
-        onSuccess: () => {
-          if (hasPermissionCache || !isPushSupported || isDismissed) {
-            onRequestClose?.(null);
-            return;
-          }
-          setShowNotification(true);
-        },
+
+      onSuccess: () => {
+        if (hasPermissionCache || !isPushSupported || isDismissed) {
+          onRequestClose?.(null);
+          return;
+        }
+        setShowNotification(true);
       },
-    );
+    });
 
   const onUrlChanged = () => {
     if (scrapeFormRef.current) {

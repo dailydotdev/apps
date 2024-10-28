@@ -87,11 +87,11 @@ importers:
         specifier: '*'
         version: link:../shared
       '@tanstack/react-query':
-        specifier: ^4.36.1
-        version: 4.36.1(react-dom@18.3.1)(react@18.3.1)
+        specifier: ^5.59.16
+        version: 5.59.16(react@18.3.1)
       '@tanstack/react-query-devtools':
-        specifier: ^4.35.3
-        version: 4.35.3(@tanstack/react-query@4.36.1)(react-dom@18.3.1)(react@18.3.1)
+        specifier: ^5.59.16
+        version: 5.59.16(@tanstack/react-query@5.59.16)(react@18.3.1)
       classnames:
         specifier: ^2.5.1
         version: 2.5.1
@@ -445,20 +445,17 @@ importers:
         specifier: ^5.0.0
         version: 5.0.2
       '@tanstack/react-query':
-        specifier: ^4.36.1
-        version: 4.36.1(react-dom@18.3.1)(react@18.3.1)
+        specifier: ^5.59.16
+        version: 5.59.16(react@18.3.1)
       '@tanstack/react-query-devtools':
-        specifier: ^4.35.3
-        version: 4.35.3(@tanstack/react-query@4.36.1)(react-dom@18.3.1)(react@18.3.1)
+        specifier: ^5.59.16
+        version: 5.59.16(@tanstack/react-query@5.59.16)(react@18.3.1)
       '@testing-library/jest-dom':
         specifier: ^5.15.0
         version: 5.16.1
       '@testing-library/react':
         specifier: ^16.0.1
         version: 16.0.1(@testing-library/dom@10.4.0)(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1)(react@18.3.1)
-      '@testing-library/react-hooks':
-        specifier: ^8.0.1
-        version: 8.0.1(@types/react@18.3.12)(react-dom@18.3.1)(react@18.3.1)
       '@testing-library/user-event':
         specifier: ^13.5.0
         version: 13.5.0(@testing-library/dom@10.4.0)
@@ -637,8 +634,8 @@ importers:
         specifier: '*'
         version: link:../shared
       '@tanstack/react-query':
-        specifier: ^4.36.1
-        version: 4.36.1(react-dom@18.3.1)(react@18.3.1)
+        specifier: ^5.59.16
+        version: 5.59.16(react@18.3.1)
       extension:
         specifier: '*'
         version: link:../extension
@@ -788,11 +785,11 @@ importers:
         specifier: ^9.0.9
         version: 9.0.9(next@15.0.1)(typescript@4.9.5)
       '@tanstack/react-query':
-        specifier: ^4.36.1
-        version: 4.36.1(react-dom@18.3.1)(react@18.3.1)
+        specifier: ^5.59.16
+        version: 5.59.16(react@18.3.1)
       '@tanstack/react-query-devtools':
-        specifier: ^4.35.3
-        version: 4.35.3(@tanstack/react-query@4.36.1)(react-dom@18.3.1)(react@18.3.1)
+        specifier: ^5.59.16
+        version: 5.59.16(@tanstack/react-query@5.59.16)(react@18.3.1)
       classnames:
         specifier: ^2.5.1
         version: 2.5.1
@@ -5997,45 +5994,29 @@ packages:
       defer-to-connect: 1.1.3
     dev: true
 
-  /@tanstack/match-sorter-utils@8.8.4:
-    resolution: {integrity: sha512-rKH8LjZiszWEvmi01NR72QWZ8m4xmXre0OOwlRGnjU01Eqz/QnN+cqpty2PJ0efHblq09+KilvyR7lsbzmXVEw==}
-    engines: {node: '>=12'}
-    dependencies:
-      remove-accents: 0.4.2
+  /@tanstack/query-core@5.59.16:
+    resolution: {integrity: sha512-crHn+G3ltqb5JG0oUv6q+PMz1m1YkjpASrXTU+sYWW9pLk0t2GybUHNRqYPZWhxgjPaVGC4yp92gSFEJgYEsPw==}
 
-  /@tanstack/query-core@4.36.1:
-    resolution: {integrity: sha512-DJSilV5+ytBP1FbFcEJovv4rnnm/CokuVvrBEtW/Va9DvuJ3HksbXUJEpI0aV1KtuL4ZoO9AVE6PyNLzF7tLeA==}
+  /@tanstack/query-devtools@5.58.0:
+    resolution: {integrity: sha512-iFdQEFXaYYxqgrv63ots+65FGI+tNp5ZS5PdMU1DWisxk3fez5HG3FyVlbUva+RdYS5hSLbxZ9aw3yEs97GNTw==}
 
-  /@tanstack/react-query-devtools@4.35.3(@tanstack/react-query@4.36.1)(react-dom@18.3.1)(react@18.3.1):
-    resolution: {integrity: sha512-UvLT7qPzCuCZ3NfjwsOqDUVN84JvSOuW6ukrjZmSqgjPqVxD6ra/HUp1CEOatQY2TRvKCp8y1lTVu+trXM30fg==}
+  /@tanstack/react-query-devtools@5.59.16(@tanstack/react-query@5.59.16)(react@18.3.1):
+    resolution: {integrity: sha512-Dejo39QBXmDqXZ3vdrk7vHDvs7TvL573/AX2NveMBmRAufAPYuE3oWSKP/gGqkDfEqyr4CmldOj+v9cKskUchQ==}
     peerDependencies:
-      '@tanstack/react-query': ^4.35.3
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+      '@tanstack/react-query': ^5.59.16
+      react: ^18 || ^19
     dependencies:
-      '@tanstack/match-sorter-utils': 8.8.4
-      '@tanstack/react-query': 4.36.1(react-dom@18.3.1)(react@18.3.1)
+      '@tanstack/query-devtools': 5.58.0
+      '@tanstack/react-query': 5.59.16(react@18.3.1)
       react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      superjson: 1.13.3
-      use-sync-external-store: 1.2.0(react@18.3.1)
 
-  /@tanstack/react-query@4.36.1(react-dom@18.3.1)(react@18.3.1):
-    resolution: {integrity: sha512-y7ySVHFyyQblPl3J3eQBWpXZkliroki3ARnBKsdJchlgt7yJLRDUcf4B8soufgiYt3pEQIkBWBx1N9/ZPIeUWw==}
+  /@tanstack/react-query@5.59.16(react@18.3.1):
+    resolution: {integrity: sha512-MuyWheG47h6ERd4PKQ6V8gDyBu3ThNG22e1fRVwvq6ap3EqsFhyuxCAwhNP/03m/mLg+DAb0upgbPaX6VB+CkQ==}
     peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-native: '*'
-    peerDependenciesMeta:
-      react-dom:
-        optional: true
-      react-native:
-        optional: true
+      react: ^18 || ^19
     dependencies:
-      '@tanstack/query-core': 4.36.1
+      '@tanstack/query-core': 5.59.16
       react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      use-sync-external-store: 1.2.0(react@18.3.1)
 
   /@testing-library/dom@10.4.0:
     resolution: {integrity: sha512-pemlzrSESWbdAloYml3bAJMEfNh1Z7EduzqPKprCH5S341frlpYnUEW0H72dLxa6IsYr+mPno20GiSm+h9dEdQ==}
@@ -6090,29 +6071,6 @@ packages:
       dom-accessibility-api: 0.6.3
       lodash: 4.17.21
       redent: 3.0.0
-    dev: true
-
-  /@testing-library/react-hooks@8.0.1(@types/react@18.3.12)(react-dom@18.3.1)(react@18.3.1):
-    resolution: {integrity: sha512-Aqhl2IVmLt8IovEVarNDFuJDVWVvhnr9/GCU6UUnrYXwgDFF9h2L2o2P9KBni1AST5sT6riAyoukFLyjQUgD/g==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      '@types/react': ^16.9.0 || ^17.0.0
-      react: ^16.9.0 || ^17.0.0
-      react-dom: ^16.9.0 || ^17.0.0
-      react-test-renderer: ^16.9.0 || ^17.0.0
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-      react-dom:
-        optional: true
-      react-test-renderer:
-        optional: true
-    dependencies:
-      '@babel/runtime': 7.25.9
-      '@types/react': 18.3.12
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      react-error-boundary: 3.1.4(react@18.3.1)
     dev: true
 
   /@testing-library/react@16.0.1(@testing-library/dom@10.4.0)(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1)(react@18.3.1):
@@ -8641,12 +8599,6 @@ packages:
     resolution: {integrity: sha512-U71cyTamuh1CRNCfpGY6to28lxvNwPG4Guz/EVjgf3Jmzv0vlDp1atT9eS5dDjMYHucpHbWns6Lwf3BKz6svdw==}
     engines: {node: '>= 0.6'}
     dev: true
-
-  /copy-anything@3.0.5:
-    resolution: {integrity: sha512-yCEafptTtb4bk7GLEQoM8KVJpxAfdBJYaXyzQEgQQQgYrZiDp8SJmGKlYza6CYjEDNstAdNdKA3UuoULlEbS6w==}
-    engines: {node: '>=12.13'}
-    dependencies:
-      is-what: 4.1.16
 
   /copy-descriptor@0.1.1:
     resolution: {integrity: sha512-XgZ0pFcakEUlbwQEVNg3+QAis1FyTL3Qel9FYy8pSkQqoG3PNoT0bOCQtOXcOkur21r2Eq2kI+IE+gsmAEVlYw==}
@@ -11771,10 +11723,6 @@ packages:
     dependencies:
       call-bind: 1.0.7
     dev: true
-
-  /is-what@4.1.16:
-    resolution: {integrity: sha512-ZhMwEosbFJkA0YhFnNDgTM4ZxDRsS6HqTo7qsZM08fehyRYIYa0yHu5R6mgo1n/8MgaPBXiPimPD77baVFYg+A==}
-    engines: {node: '>=12.13'}
 
   /is-windows@1.0.2:
     resolution: {integrity: sha512-eXK1UInq2bPmjyX6e3VHIzMLobc4J94i4AWn+Hpq3OU5KkrRC96OAcR3PRJ/pGu6m8TRnBHP9dkXQVsT/COVIA==}
@@ -15114,16 +15062,6 @@ packages:
       react-is: 18.1.0
     dev: true
 
-  /react-error-boundary@3.1.4(react@18.3.1):
-    resolution: {integrity: sha512-uM9uPzZJTF6wRQORmSrvOIgt4lJ9MC1sNgEOj2XGsDTRE4kmpWxg7ENK9EWNKJRMAOY9z0MuF4yIfl6gp4sotA==}
-    engines: {node: '>=10', npm: '>=6'}
-    peerDependencies:
-      react: '>=16.13.1'
-    dependencies:
-      '@babel/runtime': 7.25.9
-      react: 18.3.1
-    dev: true
-
   /react-flip-toolkit@7.1.0(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-KJ2IecKpYOJWgtXY9myyJzzC96FJaE9/8pFSAKgIoG54tiUAZ64ksDpmB+QmMofqFTa06RK7xWb9Rfavf8qz4Q==}
     engines: {node: '>=8', npm: '>=5'}
@@ -15537,9 +15475,6 @@ packages:
   /rematrix@0.2.2:
     resolution: {integrity: sha512-agFFS3RzrLXJl5LY5xg/xYyXvUuVAnkhgKO7RaO9J1Ssth6yvbO+PIiV67V59MB5NCdAK2flvGvNT4mdKVniFA==}
     dev: false
-
-  /remove-accents@0.4.2:
-    resolution: {integrity: sha512-7pXIJqJOq5tFgG1A2Zxti3Ht8jJF337m4sowbuHsW30ZnkQFnDzy9qBNhgzX8ZLW4+UBcXiiR7SwR6pokHsxiA==}
 
   /remove-trailing-separator@1.1.0:
     resolution: {integrity: sha512-/hS+Y0u3aOfIETiaiirUFwDBDzmXPvO+jAfKTitUngIPzdKc6Z0LoFjM/CK5PL4C+eKwHohlHAb6H0VFfmmUsw==}
@@ -16592,12 +16527,6 @@ packages:
       postcss: 8.4.47
     dev: true
 
-  /superjson@1.13.3:
-    resolution: {integrity: sha512-mJiVjfd2vokfDxsQPOwJ/PtanO87LhpYY88ubI5dUB1Ab58Txbyje3+jpm+/83R/fevaq/107NNhtYBLuoTrFg==}
-    engines: {node: '>=10'}
-    dependencies:
-      copy-anything: 3.0.5
-
   /supports-color@5.5.0:
     resolution: {integrity: sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==}
     engines: {node: '>=4'}
@@ -17456,13 +17385,6 @@ packages:
       querystringify: 2.2.0
       requires-port: 1.0.0
     dev: true
-
-  /use-sync-external-store@1.2.0(react@18.3.1):
-    resolution: {integrity: sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-    dependencies:
-      react: 18.3.1
 
   /use@3.1.1:
     resolution: {integrity: sha512-cwESVXlO3url9YWlFW/TA9cshCEhtu7IKJ/p5soJ/gGpj7vbvFrAY/eIioQ6Dw23KjZhYgiIo8HOs1nQ2vr/oQ==}

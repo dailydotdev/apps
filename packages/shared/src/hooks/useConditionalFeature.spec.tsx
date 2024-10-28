@@ -1,7 +1,6 @@
 import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { waitFor } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { useConditionalFeature } from './useConditionalFeature';
 import { Feature } from '../lib/featureManagement';
 import loggedUser from '../../__tests__/fixture/loggedUser';
@@ -61,7 +60,7 @@ describe('useConditionalFeature hook', () => {
     client.clear();
   });
 
-  it('should return default value and isLoading if not ready', async () => {
+  it('should return default value if not ready', async () => {
     const { result } = renderHook(
       () =>
         useConditionalFeature({ feature: testFeature, shouldEvaluate: false }),
@@ -70,7 +69,6 @@ describe('useConditionalFeature hook', () => {
       },
     );
 
-    await waitFor(() => expect(result.current.isLoading).toBeTruthy());
     expect(result.current.value).toBe('default_value');
   });
 
