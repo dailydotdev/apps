@@ -193,7 +193,11 @@ describe('useFeeds hook', () => {
 
     await waitFor(() => expect(queryCalled).toBe(true));
 
-    const feed = await result.current.createFeed({ name: 'New feed' });
+    let feed;
+
+    await act(async () => {
+      feed = await result.current.createFeed({ name: 'New feed' });
+    });
     rerender();
 
     expect(feed).toBeTruthy();
@@ -210,9 +214,12 @@ describe('useFeeds hook', () => {
 
     await waitFor(() => expect(queryCalled).toBe(true));
 
-    const feed = await result.current.updateFeed({
-      feedId: 'cf1',
-      name: 'Updated feed',
+    let feed;
+    await act(async () => {
+      feed = await result.current.updateFeed({
+        feedId: 'cf1',
+        name: 'Updated feed',
+      });
     });
     rerender();
 

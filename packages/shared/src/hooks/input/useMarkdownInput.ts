@@ -163,20 +163,19 @@ export const useMarkdownInput = ({
   }, [setCommand, textareaRef]);
 
   const { data = { recommendedMentions: [] } } =
-    useQuery<RecommendedMentionsData>(
-      key,
-      () =>
+    useQuery<RecommendedMentionsData>({
+      queryKey: key,
+      queryFn: () =>
         requestMethod(
           RECOMMEND_MENTIONS_QUERY,
           { postId, query, sourceId },
           { requestKey: JSON.stringify(key) },
         ),
-      {
-        enabled: !!user && typeof query !== 'undefined',
-        refetchOnWindowFocus: false,
-        refetchOnMount: false,
-      },
-    );
+
+      enabled: !!user && typeof query !== 'undefined',
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+    });
   const mentions = data?.recommendedMentions;
 
   const updateQuery = (value: string) => {

@@ -45,8 +45,13 @@ export interface SourceMember {
   flags?: SourceMemberFlag;
 }
 
-export interface SourceMemberSimple {
-  image: string;
+export interface BasicSourceMember {
+  user: {
+    id: string;
+    name: string;
+    image: string;
+    permalink: string;
+  };
 }
 
 export enum SourceType {

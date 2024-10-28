@@ -52,7 +52,9 @@ export const useJoinSquad = ({
       result.handle,
     );
     queryClient.setQueryData(queryKey, result);
-    queryClient.invalidateQueries(['squadMembersInitial', squad.handle]);
+    queryClient.invalidateQueries({
+      queryKey: ['squadMembersInitial', squad.handle],
+    });
     completeAction(ActionType.JoinSquad);
 
     return result;

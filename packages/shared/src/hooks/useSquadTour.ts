@@ -15,11 +15,11 @@ interface UseSquadTour extends SquadTourData {
 
 export const useSquadTour = (): UseSquadTour => {
   const client = useQueryClient();
-  const { data } = useQuery<SquadTourData>(
-    SQUAD_TOUR_KEY,
-    () => client.getQueryData(SQUAD_TOUR_KEY),
-    { initialData: { tourIndex: -1 } },
-  );
+  const { data } = useQuery<SquadTourData>({
+    queryKey: SQUAD_TOUR_KEY,
+    queryFn: () => client.getQueryData(SQUAD_TOUR_KEY),
+    initialData: { tourIndex: -1 },
+  });
 
   const onTourIndexChange = useCallback(
     (tourIndex: number) => {

@@ -3,10 +3,13 @@ import {
   SOURCE_BASE_FRAGMENT,
   SQUAD_BASE_FRAGMENT,
   USER_AUTHOR_FRAGMENT,
+  USER_BASIC_INFO,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
 import { Connection, gqlClient } from './common';
 import {
+  BasicSourceMember,
+  PublicSquadRequest,
   Source,
   SourceMember,
   SourceMemberRole,
@@ -314,6 +317,21 @@ export const SQUAD_MEMBERS_QUERY = gql`
   ${USER_AUTHOR_FRAGMENT}
 `;
 
+export const BASIC_SQUAD_MEMBERS_QUERY = gql`
+  query BasicSourceMembers($id: ID!, $first: Int) {
+    sourceMembers(sourceId: $id, first: $first) {
+      edges {
+        node {
+          user {
+            ...UserBasicInfo
+          }
+        }
+      }
+    }
+  }
+  ${USER_BASIC_INFO}
+`;
+
 export const SQUAD_INVITATION_QUERY = gql`
   query SourceInvitationQuery($token: String!) {
     member: sourceMemberByToken(token: $token) {
@@ -391,6 +409,10 @@ export interface SquadEdgesData {
   sourceMembers: Connection<SourceMember>;
 }
 
+export interface BasicSourceMembersData {
+  sourceMembers: Connection<BasicSourceMember>;
+}
+
 interface SquadMemberMutationProps {
   sourceId: string;
   memberId: string;
@@ -426,11 +448,16 @@ export async function getSquad(handle: string): Promise<Squad> {
   return res.source;
 }
 
-export async function getSquadMembers(id: string): Promise<SourceMember[]> {
-  const res = await gqlClient.request<SquadEdgesData>(SQUAD_MEMBERS_QUERY, {
-    id,
-    first: 5,
-  });
+export async function getSquadMembers(
+  id: string,
+): Promise<BasicSourceMember[]> {
+  const res = await gqlClient.request<BasicSourceMembersData>(
+    BASIC_SQUAD_MEMBERS_QUERY,
+    {
+      id,
+      first: 5,
+    },
+  );
   return res.sourceMembers.edges?.map((edge) => edge.node);
 }
 

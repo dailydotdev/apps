@@ -26,15 +26,18 @@ const useChecklist = ({ steps }: UseChecklistProps): UseChecklist => {
     () => steps.find((item) => !item.action.completedAt)?.action.type,
     [steps],
   );
-  const { data: openStep } = useQuery<ActionType>(
-    CHECKLIST_OPEN_STEP_KEY,
-    () => client.getQueryData(CHECKLIST_OPEN_STEP_KEY) || null,
-    { initialData: null, ...disabledRefetch },
-  );
+  const { data: openStep } = useQuery<ActionType>({
+    queryKey: CHECKLIST_OPEN_STEP_KEY,
+    queryFn: () => client.getQueryData(CHECKLIST_OPEN_STEP_KEY) || null,
+    initialData: null,
+    ...disabledRefetch,
+  });
   const setOpenStep = useCallback(
     (step: ActionType) => {
       client.setQueryData<ActionType>(CHECKLIST_OPEN_STEP_KEY, () => step);
-      client.invalidateQueries(CHECKLIST_OPEN_STEP_KEY);
+      client.invalidateQueries({
+        queryKey: CHECKLIST_OPEN_STEP_KEY,
+      });
     },
     [client],
   );
