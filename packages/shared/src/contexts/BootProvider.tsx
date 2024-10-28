@@ -84,12 +84,8 @@ const updateLocalBootData = (
   return result;
 };
 
-const getCachedOrNull = () => {
-  try {
-    return JSON.parse(storage.getItem(BOOT_LOCAL_KEY));
-  } catch (err) {
-    return null;
-  }
+const getCachedBootOrNull = () => {
+  return JSON.parse(storage.getItem(BOOT_LOCAL_KEY) ?? 'null');
 };
 
 export type PreloadFeeds = ({
@@ -153,7 +149,6 @@ export const BootDataProvider = ({
   const logged = initialData?.user as LoggedUser;
   const shouldRefetch = !!logged?.providers && !!logged?.id;
   const lastAppliedChangeRef = useRef<Partial<BootCacheData>>();
-  const isInitialFetch = useRef<boolean>();
 
   const {
     data: bootData,
@@ -168,8 +163,6 @@ export const BootDataProvider = ({
       const result = await getBootData(app);
       preloadFeedsRef.current({ feeds: result.feeds, user: result.user });
       updateLocalBootData(bootData || {}, result);
-      isInitialFetch.current = isInitialFetch.current === undefined;
-
       return result;
     },
     refetchOnWindowFocus: shouldRefetch,
@@ -178,6 +171,7 @@ export const BootDataProvider = ({
     placeholderData: initialData,
   });
 
+  const isInitialFetch = !isFetched;
   const isBootReady = isFetched && !isError;
   const loadedFromCache = !!bootData;
   const { user, settings, alerts, notifications, squads } = bootData || {};
@@ -186,7 +180,7 @@ export const BootDataProvider = ({
   const updatedAtActive = user ? dataUpdatedAt : null;
   const updateQueryCache = useCallback(
     (updatedBootData: Partial<BootCacheData>, update = true) => {
-      const cachedData = getCachedOrNull() || {};
+      const cachedData = getCachedBootOrNull() ?? {};
       const lastAppliedChange = lastAppliedChangeRef.current;
       let updatedData = { ...updatedBootData };
       if (update) {
@@ -225,12 +219,14 @@ export const BootDataProvider = ({
   );
 
   const updateSettings = useCallback(
-    (updatedSettings) => updateQueryCache({ settings: updatedSettings }),
+    (updatedSettings: Boot['settings']) =>
+      updateQueryCache({ settings: updatedSettings }),
     [updateQueryCache],
   );
 
   const updateAlerts = useCallback(
-    (updatedAlerts) => updateQueryCache({ alerts: updatedAlerts }),
+    (updatedAlerts: Boot['alerts']) =>
+      updateQueryCache({ alerts: updatedAlerts }),
     [updateQueryCache],
   );
 
@@ -274,7 +270,7 @@ export const BootDataProvider = ({
         isFetched={isBootReady}
         isLegacyLogout={bootData?.isLegacyLogout}
         accessToken={bootData?.accessToken}
-        isPastRegistration={isInitialFetch.current}
+        isPastRegistration={isInitialFetch}
         squads={squads}
       >
         <SettingsContextProvider
