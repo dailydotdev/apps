@@ -7,6 +7,7 @@ import { link } from '@dailydotdev/shared/src/lib/links';
 import { labels } from '@dailydotdev/shared/src/lib';
 import {
   generateQueryKey,
+  getNextPageParam,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -55,18 +56,16 @@ const AccountInvitePage = (): ReactElement => {
       target_id: TargetId.InviteFriendsPage,
     }),
   });
-  const usersResult = useInfiniteQuery<ReferredUsersData>(
-    referredKey,
-    ({ pageParam }) =>
+  const usersResult = useInfiniteQuery<ReferredUsersData>({
+    queryKey: referredKey,
+    queryFn: ({ pageParam }) =>
       gqlClient.request(REFERRED_USERS_QUERY, {
         after: typeof pageParam === 'string' ? pageParam : undefined,
       }),
-    {
-      getNextPageParam: (lastPage) =>
-        lastPage?.referredUsers?.pageInfo?.hasNextPage &&
-        lastPage?.referredUsers?.pageInfo?.endCursor,
-    },
-  );
+    initialPageParam: '',
+    getNextPageParam: ({ referredUsers }) =>
+      getNextPageParam(referredUsers?.pageInfo),
+  });
   const users: UserShortProfile[] = useMemo(() => {
     const list = [];
     usersResult.data?.pages.forEach((page) => {

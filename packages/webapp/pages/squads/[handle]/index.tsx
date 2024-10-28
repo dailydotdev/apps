@@ -131,11 +131,11 @@ const SquadPage = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [squadId, loggedImpression]);
 
-  const { data: squadMembers } = useQuery<SourceMember[]>(
-    ['squadMembersInitial', handle],
-    () => getSquadMembers(squadId),
-    { enabled: isBootFetched && !!squadId },
-  );
+  const { data: squadMembers } = useQuery<SourceMember[]>({
+    queryKey: ['squadMembersInitial', handle],
+    queryFn: () => getSquadMembers(squadId),
+    enabled: isBootFetched && !!squadId,
+  });
 
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(

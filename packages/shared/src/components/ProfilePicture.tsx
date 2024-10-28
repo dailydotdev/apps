@@ -1,10 +1,18 @@
-import React, { forwardRef, ReactElement, ReactEventHandler, Ref } from 'react';
+import React, {
+  forwardRef,
+  ReactElement,
+  ReactEventHandler,
+  Ref,
+  useMemo,
+} from 'react';
 import classNames from 'classnames';
 import { LazyImage, LazyImageProps } from './LazyImage';
 import { PublicProfile } from '../lib/user';
 import { fallbackImages } from '../lib/config';
 import { Image, ImageType } from './image/Image';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
+import { SocialProvider } from './auth/common';
+import { setQueryParams } from '../lib';
 
 export enum ProfileImageSize {
   Size16 = 'size16',
@@ -78,6 +86,33 @@ export function setOnError(
   onError = newOnError;
 }
 
+const resizeSrcReplaceRule: Record<string, (src: string) => string> = {
+  [SocialProvider.Google]: (src) => src.replace(/s96-c$/, 's64-c'),
+  [SocialProvider.GitHub]: (src) => setQueryParams(src, { s: '64' }),
+};
+
+const getSocialProviderFromSrc = (src: string): SocialProvider | null => {
+  if (src.includes('googleusercontent.')) {
+    return SocialProvider.Google;
+  }
+
+  if (src.includes('githubusercontent.')) {
+    return SocialProvider.GitHub;
+  }
+
+  return null;
+};
+
+const getResizedSrc = (src: string) => {
+  const provider = getSocialProviderFromSrc(src);
+  if (!provider) {
+    return src;
+  }
+
+  const getReplacedSrc = resizeSrcReplaceRule[provider];
+  return getReplacedSrc?.(src) ?? src;
+};
+
 function ProfilePictureComponent(
   {
     user,
@@ -87,7 +122,6 @@ function ProfilePictureComponent(
     nativeLazyLoading,
     eager,
     fallbackSrc,
-    fetchPriority,
     ...props
   }: ProfilePictureProps,
   ref?: Ref<HTMLImageElement>,
@@ -97,6 +131,26 @@ function ProfilePictureComponent(
     getProfilePictureClasses(size, rounded),
     className,
   );
+
+  const imageSrc = useMemo(() => {
+    if (!user) {
+      return '';
+    }
+
+    const { image: src } = user;
+
+    const isImageResizable =
+      src &&
+      [
+        ProfileImageSize.XLarge,
+        ProfileImageSize.Large,
+        ProfileImageSize.Medium,
+        ProfileImageSize.Small,
+        ProfileImageSize.XSmall,
+      ].includes(size);
+
+    return isImageResizable ? getResizedSrc(src) : src;
+  }, [user, size]);
 
   if (!user) {
     return null;
@@ -109,14 +163,13 @@ function ProfilePictureComponent(
       <Image
         {...props}
         ref={ref}
-        src={user.image}
         alt={imageAlt}
-        onError={onError}
         className={classes}
-        loading={eager || isCompanion ? 'eager' : 'lazy'}
-        type={ImageType.Avatar}
         fallbackSrc={fallbackSrc}
-        fetchPriority={fetchPriority}
+        loading={eager || isCompanion ? 'eager' : 'lazy'}
+        onError={onError}
+        src={imageSrc}
+        type={ImageType.Avatar}
       />
     );
   }
@@ -125,7 +178,7 @@ function ProfilePictureComponent(
     <LazyImage
       {...props}
       ref={ref}
-      imgSrc={user.image}
+      imgSrc={imageSrc}
       imgAlt={imageAlt}
       className={classes}
       fallbackSrc={fallbackSrc ?? fallbackImages.avatar}

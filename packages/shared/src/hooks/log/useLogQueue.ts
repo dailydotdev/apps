@@ -32,8 +32,8 @@ export default function useLogQueue({
   sendBeacon: () => void;
 } {
   const enabledRef = useRef(false);
-  const { mutateAsync: sendEvents } = useMutation(
-    async (events: LogEvent[]) => {
+  const { mutateAsync: sendEvents } = useMutation({
+    mutationFn: async (events: LogEvent[]) => {
       const res = await fetchMethod(LOG_ENDPOINT, {
         method: 'POST',
         body: JSON.stringify({ events }),
@@ -44,10 +44,8 @@ export default function useLogQueue({
       });
       await res?.text();
     },
-    {
-      retry: 3,
-    },
-  );
+    retry: 3,
+  });
 
   const queueRef = useRef<LogEvent[]>([]);
   const [debouncedSendEvents] = useDebounceFn(() => {

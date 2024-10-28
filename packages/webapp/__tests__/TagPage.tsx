@@ -65,6 +65,7 @@ const createFeedMock = (
   query: string = TAG_FEED_QUERY,
   variables: unknown = {
     first: 7,
+    after: '',
     loggedIn: true,
     tag: 'react',
     ranking: 'TIME',
@@ -180,6 +181,7 @@ it('should show follow and block buttons when logged-out', async () => {
     [
       createFeedMock(defaultFeedPage, TAG_FEED_QUERY, {
         first: 7,
+        after: '',
         loggedIn: false,
         tag: 'react',
         ranking: 'TIME',
@@ -199,6 +201,7 @@ it('should show login popup when logged-out on follow click', async () => {
     [
       createFeedMock(defaultFeedPage, TAG_FEED_QUERY, {
         first: 7,
+        after: '',
         loggedIn: false,
         tag: 'react',
         ranking: 'TIME',
@@ -217,6 +220,7 @@ it('should show login popup when logged-out on block click', async () => {
     [
       createFeedMock(defaultFeedPage, TAG_FEED_QUERY, {
         first: 7,
+        after: '',
         loggedIn: false,
         tag: 'react',
         ranking: 'TIME',
