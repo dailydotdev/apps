@@ -15,9 +15,10 @@ export const useViewPost = (
   const { user } = useAuthContext();
   const streakKey = generateQueryKey(RequestKey.UserStreak, user);
   const readKey = generateQueryKey(RequestKey.ReadingStreak30Days, user);
-  const { mutateAsync: onSendViewPost } = useMutation(sendViewPost, {
+  const { mutateAsync: onSendViewPost } = useMutation({
+    mutationFn: sendViewPost,
     onSuccess: async () => {
-      await client.invalidateQueries(streakKey);
+      await client.invalidateQueries({ queryKey: streakKey });
       if (!post.read) {
         client.setQueryData<UserStreak>(streakKey, (data) => {
           const streak = { ...data };
@@ -41,7 +42,7 @@ export const useViewPost = (
 
       if (reading) {
         // just mark the query as stale
-        await client.invalidateQueries(readKey);
+        await client.invalidateQueries({ queryKey: readKey });
       }
 
       return null;

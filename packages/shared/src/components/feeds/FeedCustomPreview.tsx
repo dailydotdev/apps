@@ -1,3 +1,4 @@
+import { keepPreviousData } from '@tanstack/react-query';
 import React, { ReactElement } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { PREVIEW_FEED_QUERY } from '../../graphql/feed';
@@ -27,7 +28,11 @@ export const FeedCustomPreview = ({
     ],
     query: PREVIEW_FEED_QUERY,
     showSearch: false,
-    options: { refetchOnMount: true, cacheTime: 10, keepPreviousData: true },
+    options: {
+      refetchOnMount: true,
+      gcTime: 10,
+      placeholderData: keepPreviousData,
+    },
     variables: {
       filters: previewFilters,
     },

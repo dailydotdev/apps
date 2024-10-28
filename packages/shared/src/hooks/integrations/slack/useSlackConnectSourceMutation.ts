@@ -24,27 +24,31 @@ export const useSlackConnectSourceMutation =
     const slack = useSlack();
     const { displayToast } = useToastNotification();
 
-    const { mutateAsync: onSave, isLoading: isSaving } = useMutation(
-      async ({ channelId, integrationId, sourceId }: MutationProps) => {
+    const { mutateAsync: onSave, isPending: isSaving } = useMutation({
+      mutationFn: async ({
+        channelId,
+        integrationId,
+        sourceId,
+      }: MutationProps) => {
         await slack.connectSource({
           channelId,
           integrationId,
           sourceId,
         });
       },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries(
-            generateQueryKey(RequestKey.UserSourceIntegrations, user),
-          );
 
-          displayToast(labels.integrations.success.integrationSaved);
-        },
-        onError: () => {
-          displayToast(labels.error.generic);
-        },
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: generateQueryKey(RequestKey.UserSourceIntegrations, user),
+        });
+
+        displayToast(labels.integrations.success.integrationSaved);
       },
-    );
+
+      onError: () => {
+        displayToast(labels.error.generic);
+      },
+    });
 
     return {
       onSave,

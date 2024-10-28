@@ -7,7 +7,7 @@ export const graphqlUrl = `${apiUrl}/graphql`;
 
 export const fallbackImages = {
   avatar:
-    'https://res.cloudinary.com/daily-now/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
+    'https://res.cloudinary.com/daily-now/image/upload/s--qsFuKGv_--/t_logo,f_auto/public/noProfile',
 };
 
 export const MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP = 3;

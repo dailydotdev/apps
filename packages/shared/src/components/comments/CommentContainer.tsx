@@ -96,7 +96,10 @@ export default function CommentContainer({
           userId={comment.author.id}
           tooltip={{ appendTo: appendTooltipTo }}
         >
-          <ProfileImageLink user={comment.author} />
+          <ProfileImageLink
+            user={comment.author}
+            picture={{ width: 48, height: 48, fetchPriority: 'low' }}
+          />
         </ProfileTooltip>
         <div className="ml-3 flex min-w-0 flex-1 flex-col typo-callout">
           <FlexRow>

@@ -27,7 +27,7 @@ export default function useCommentPopup(
   const [showCommentPopupId, setShowCommentPopupId] = useState<string>();
   const { logEvent } = useContext(LogContext);
 
-  const { mutateAsync: comment, isLoading: isSendingComment } = useMutation<
+  const { mutateAsync: comment, isPending: isSendingComment } = useMutation<
     CommentOnData,
     unknown,
     {
@@ -37,28 +37,27 @@ export default function useCommentPopup(
       column: number;
       columns: number;
     }
-  >(
-    ({ post, content }) =>
+  >({
+    mutationFn: ({ post, content }) =>
       gqlClient.request(COMMENT_ON_POST_MUTATION, {
         id: post.id,
         content,
       }),
-    {
-      onSuccess: async (data, { post, row, column, columns }) => {
-        logEvent(
-          postLogEvent('comment post', post, {
-            columns,
-            column,
-            row,
-            ...feedLogExtra(feedName, ranking),
-          }),
-        );
-        const link = `${data.comment.permalink}?new=true`;
-        setShowCommentPopupId(null);
-        window.open(link, '_blank');
-      },
+
+    onSuccess: async (data, { post, row, column, columns }) => {
+      logEvent(
+        postLogEvent('comment post', post, {
+          columns,
+          column,
+          row,
+          ...feedLogExtra(feedName, ranking),
+        }),
+      );
+      const link = `${data.comment.permalink}?new=true`;
+      setShowCommentPopupId(null);
+      window.open(link, '_blank');
     },
-  );
+  });
 
   return {
     showCommentPopupId,

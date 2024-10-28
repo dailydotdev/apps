@@ -76,7 +76,9 @@ export const useBlockPostPanel = (
   const { user } = useAuthContext();
   const { checkHasCompleted, completeAction } = useActions();
   const key = generateQueryKey(RequestKey.PostKey, user, `block:${post?.id}`);
-  const { data } = useQuery<BlockData>(key, () => client.getQueryData(key), {
+  const { data } = useQuery<BlockData>({
+    queryKey: key,
+    queryFn: () => client.getQueryData(key),
     initialData: {},
     ...disabledRefetch,
   });

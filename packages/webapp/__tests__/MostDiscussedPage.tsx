@@ -42,6 +42,7 @@ const createFeedMock = (
   query: string = MOST_DISCUSSED_FEED_QUERY,
   variables: unknown = {
     first: 7,
+    after: '',
     loggedIn: true,
   },
 ): MockedGraphQLResponse<FeedData> => ({
@@ -61,6 +62,7 @@ const createCommentFeedMock = (
   query: string = COMMENT_FEED_QUERY,
   variables: unknown = {
     first: 20,
+    after: '',
   },
 ): MockedGraphQLResponse<CommentFeedData> => ({
   request: {

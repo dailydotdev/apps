@@ -24,32 +24,34 @@ export function useProfileReadme(user: PublicProfile): UseProfileReadmeRet {
   const queryKey = generateQueryKey(RequestKey.Readme, user);
   const { data: remoteReadme, isLoading } = useQuery<{
     user: { readme: string };
-  }>(
+  }>({
     queryKey,
-    () =>
+    queryFn: () =>
       gqlClient.request(USER_README_QUERY, {
         id: user.id,
       }),
-    {
-      enabled: editMode,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-      refetchOnMount: false,
-    },
-  );
+    enabled: editMode,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
+  });
 
-  const { mutateAsync: updateReadme, isLoading: submitting } = useMutation<
+  const { mutateAsync: updateReadme, isPending: submitting } = useMutation<
     { updateReadme: { readmeHtml: string } },
     unknown,
     string
-  >((content) => gqlClient.request(UPDATE_README_MUTATION, { content }), {
+  >({
+    mutationFn: (content) =>
+      gqlClient.request(UPDATE_README_MUTATION, { content }),
+
     onSuccess: async () => {
       setEditMode(false);
-      await client.invalidateQueries(queryKey);
-      await client.invalidateQueries(
-        generateQueryKey(RequestKey.Profile, user),
-      );
+      await client.invalidateQueries({ queryKey });
+      await client.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.Profile, user),
+      });
     },
+
     onError: (err) => {
       const clientError = err as ClientError;
       const message = clientError?.response?.errors?.[0]?.message;

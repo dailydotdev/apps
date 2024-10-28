@@ -40,8 +40,8 @@ export const useIntegration = (): UseIntegration => {
   const { showPrompt } = usePrompt();
   const { logEvent } = useLogContext();
 
-  const { mutateAsync: removeIntegration } = useMutation(
-    async ({
+  const { mutateAsync: removeIntegration } = useMutation({
+    mutationFn: async ({
       integrationId,
       integrationType,
     }: {
@@ -63,22 +63,21 @@ export const useIntegration = (): UseIntegration => {
         integrationId,
       });
     },
-    {
-      onSuccess: async (data, { integrationId }) => {
-        queryClient.setQueryData<UserIntegration[]>(
-          generateQueryKey(RequestKey.UserIntegrations, user),
-          (currentIntegrations) => {
-            return currentIntegrations?.filter(
-              (integration) => integration.id !== integrationId,
-            );
-          },
-        );
-      },
-    },
-  );
 
-  const { mutateAsync: removeSourceIntegration } = useMutation(
-    async ({
+    onSuccess: async (data, { integrationId }) => {
+      queryClient.setQueryData<UserIntegration[]>(
+        generateQueryKey(RequestKey.UserIntegrations, user),
+        (currentIntegrations) => {
+          return currentIntegrations?.filter(
+            (integration) => integration.id !== integrationId,
+          );
+        },
+      );
+    },
+  });
+
+  const { mutateAsync: removeSourceIntegration } = useMutation({
+    mutationFn: async ({
       sourceId,
       integrationId,
       integrationType,
@@ -108,28 +107,27 @@ export const useIntegration = (): UseIntegration => {
         integrationId,
       });
     },
-    {
-      onSuccess: async (data, { sourceId, integrationId }) => {
-        queryClient.setQueryData<UserSourceIntegration[]>(
-          generateQueryKey(RequestKey.UserSourceIntegrations, user, {
-            integrationId,
-          }),
-          (currentIntegrations) => {
-            return currentIntegrations?.filter(
-              (integration) =>
-                (integration.userIntegration.id === integrationId &&
-                  integration.source.id === sourceId) === false,
-            );
-          },
-        );
-        queryClient.removeQueries(
-          generateQueryKey(RequestKey.UserSourceIntegrations, user, {
-            sourceId,
-          }),
-        );
-      },
+
+    onSuccess: async (data, { sourceId, integrationId }) => {
+      queryClient.setQueryData<UserSourceIntegration[]>(
+        generateQueryKey(RequestKey.UserSourceIntegrations, user, {
+          integrationId,
+        }),
+        (currentIntegrations) => {
+          return currentIntegrations?.filter(
+            (integration) =>
+              (integration.userIntegration.id === integrationId &&
+                integration.source.id === sourceId) === false,
+          );
+        },
+      );
+      queryClient.removeQueries({
+        queryKey: generateQueryKey(RequestKey.UserSourceIntegrations, user, {
+          sourceId,
+        }),
+      });
     },
-  );
+  });
 
   return {
     removeIntegration,
