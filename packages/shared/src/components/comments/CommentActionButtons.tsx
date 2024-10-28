@@ -101,7 +101,9 @@ export default function CommentActionButtons({
 
   const { toggleUpvote, toggleDownvote } = useVoteComment({
     onMutate: (voteProps) => {
-      client.cancelQueries([RequestKey.PostComments]);
+      client.cancelQueries({
+        queryKey: [RequestKey.PostComments],
+      });
 
       const mutationHandler = voteMutationHandlers[voteProps.vote];
 

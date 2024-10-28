@@ -12,17 +12,19 @@ export type UseContentScriptStatus = {
 export const useContentScriptStatus = (): UseContentScriptStatus => {
   const { getContentScriptPermission } = useExtensionContext();
 
-  const { data: contentScriptGranted, isFetched } = useQuery(
-    contentScriptKey,
-    () => {
+  const { data: contentScriptGranted, isFetched } = useQuery({
+    queryKey: contentScriptKey,
+    queryFn: () => {
       if (typeof getContentScriptPermission === 'function') {
         return getContentScriptPermission();
       }
 
       return false;
     },
-    { ...disabledRefetch, enabled: !!getContentScriptPermission },
-  );
+
+    ...disabledRefetch,
+    enabled: !!getContentScriptPermission,
+  });
 
   return { contentScriptGranted, isFetched };
 };

@@ -31,8 +31,8 @@ export const FollowButton = ({
 }: FollowButtonProps): ReactElement => {
   const { follow, unfollow, subscribe, unsubscribe } = useContentPreference();
 
-  const { mutate: onButtonClick, isLoading: isLoadingFollow } = useMutation(
-    async () => {
+  const { mutate: onButtonClick, isPending: isLoadingFollow } = useMutation({
+    mutationFn: async () => {
       const opts = origin
         ? {
             extra: {
@@ -57,10 +57,10 @@ export const FollowButton = ({
         });
       }
     },
-  );
+  });
 
-  const { mutate: onNotifyClick, isLoading: isLoadingNotify } = useMutation(
-    async () => {
+  const { mutate: onNotifyClick, isPending: isLoadingNotify } = useMutation({
+    mutationFn: async () => {
       if (currentStatus !== ContentPreferenceStatus.Subscribed) {
         await subscribe({
           id: userId,
@@ -75,7 +75,7 @@ export const FollowButton = ({
         });
       }
     },
-  );
+  });
 
   const isLoading = isLoadingFollow || isLoadingNotify;
 

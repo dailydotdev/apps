@@ -60,7 +60,7 @@ const getDefaultHistory = (edges = [edge]): ReadHistoryData => ({
 const createReadingHistoryMock = (
   history = getDefaultHistory(),
 ): MockedGraphQLResponse<ReadHistoryData> => ({
-  request: { query: READING_HISTORY_QUERY, variables: { after: undefined } },
+  request: { query: READING_HISTORY_QUERY, variables: { after: '' } },
   result: { data: history },
 });
 

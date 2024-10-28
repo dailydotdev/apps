@@ -1,5 +1,6 @@
 import { useContext, useMemo } from 'react';
 import {
+  InfiniteData,
   useInfiniteQuery,
   UseInfiniteQueryResult,
   useMutation,
@@ -14,7 +15,11 @@ import {
   updateSquadMemberRole,
 } from '../../graphql/squads';
 import { SourceMember, SourceMemberRole, Squad } from '../../graphql/sources';
-import { generateQueryKey, RequestKey } from '../../lib/query';
+import {
+  generateQueryKey,
+  getNextPageParam,
+  RequestKey,
+} from '../../lib/query';
 import { updateFlagsCache } from '../../graphql/source/common';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ActiveFeedContext } from '../../contexts/ActiveFeedContext';
@@ -25,7 +30,7 @@ export interface UseSquadActions {
   onUpdateRole?: typeof updateSquadMemberRole;
   collapseSquadPinnedPosts?: typeof collapsePinnedPosts;
   expandSquadPinnedPosts?: typeof expandPinnedPosts;
-  membersQueryResult?: UseInfiniteQueryResult<SquadEdgesData>;
+  membersQueryResult?: UseInfiniteQueryResult<InfiniteData<SquadEdgesData>>;
   members?: SourceMember[];
   membersQueryKey: unknown[];
 }
@@ -57,48 +62,44 @@ export const useSquadActions = ({
     squad?.id,
     query,
   );
-  const { mutateAsync: onUpdateRole } = useMutation(updateSquadMemberRole, {
-    onSuccess: () => client.invalidateQueries(membersQueryKey),
+  const { mutateAsync: onUpdateRole } = useMutation({
+    mutationFn: updateSquadMemberRole,
+    onSuccess: () => client.invalidateQueries({ queryKey: membersQueryKey }),
   });
-  const { mutateAsync: onUnblock } = useMutation(unblockSquadMember, {
-    onSuccess: () => client.invalidateQueries(membersQueryKey),
+  const { mutateAsync: onUnblock } = useMutation({
+    mutationFn: unblockSquadMember,
+    onSuccess: () => client.invalidateQueries({ queryKey: membersQueryKey }),
   });
 
-  const { mutateAsync: collapseSquadPinnedPosts } = useMutation(
-    collapsePinnedPosts,
-    {
-      onSuccess: () => {
-        client.invalidateQueries(feedQueryKey);
-        updateFlagsCache(client, squad, user, { collapsePinnedPosts: true });
-      },
+  const { mutateAsync: collapseSquadPinnedPosts } = useMutation({
+    mutationFn: collapsePinnedPosts,
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: feedQueryKey });
+      updateFlagsCache(client, squad, user, { collapsePinnedPosts: true });
     },
-  );
+  });
 
-  const { mutateAsync: expandSquadPinnedPosts } = useMutation(
-    expandPinnedPosts,
-    {
-      onSuccess: () => {
-        client.invalidateQueries(feedQueryKey);
-        updateFlagsCache(client, squad, user, { collapsePinnedPosts: false });
-      },
+  const { mutateAsync: expandSquadPinnedPosts } = useMutation({
+    mutationFn: expandPinnedPosts,
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: feedQueryKey });
+      updateFlagsCache(client, squad, user, { collapsePinnedPosts: false });
     },
-  );
-  const membersQueryResult = useInfiniteQuery<SquadEdgesData>(
-    membersQueryKey,
-    ({ pageParam }) =>
-      gqlClient.request(SQUAD_MEMBERS_QUERY, {
+  });
+  const membersQueryResult = useInfiniteQuery({
+    queryKey: membersQueryKey,
+    queryFn: ({ pageParam }) =>
+      gqlClient.request<SquadEdgesData>(SQUAD_MEMBERS_QUERY, {
         id: squad?.id,
         after: typeof pageParam === 'string' ? pageParam : undefined,
         query,
         ...membersQueryParams,
       }),
-    {
-      enabled: !!squad?.id && membersQueryEnabled,
-      getNextPageParam: (lastPage) =>
-        lastPage?.sourceMembers?.pageInfo?.hasNextPage &&
-        lastPage?.sourceMembers?.pageInfo?.endCursor,
-    },
-  );
+    initialPageParam: '',
+    enabled: !!squad?.id && membersQueryEnabled,
+    getNextPageParam: ({ sourceMembers }) =>
+      getNextPageParam(sourceMembers?.pageInfo),
+  });
 
   return useMemo(
     () => ({

@@ -1,7 +1,7 @@
 import React, { ReactElement, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ToastNotification, TOAST_NOTIF_KEY } from '../../hooks';
+import { TOAST_NOTIF_KEY, ToastNotification } from '../../hooks';
 import classed from '../../lib/classed';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import styles from './Toast.module.css';
@@ -33,13 +33,11 @@ const Toast = ({
       autoEndAnimation: autoDismissNotifications,
       onAnimationEnd: () => client.setQueryData(TOAST_NOTIF_KEY, null),
     });
-  const { data: toast } = useQuery<ToastNotification>(
-    TOAST_NOTIF_KEY,
-    () => client.getQueryData(TOAST_NOTIF_KEY),
-    {
-      enabled: false,
-    },
-  );
+  const { data: toast } = useQuery<ToastNotification>({
+    queryKey: TOAST_NOTIF_KEY,
+    queryFn: () => client.getQueryData(TOAST_NOTIF_KEY),
+    enabled: false,
+  });
 
   if (!toastRef.current && toast?.message) {
     toastRef.current = toast;
