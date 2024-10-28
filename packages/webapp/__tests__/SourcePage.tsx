@@ -64,6 +64,7 @@ const createFeedMock = (
   query: string = SOURCE_FEED_QUERY,
   variables: unknown = {
     first: 7,
+    after: '',
     loggedIn: true,
     source: 'react',
     ranking: 'TIME',
@@ -224,6 +225,7 @@ it('should show login popup when logged-out on add to feed click', async () => {
     [
       createFeedMock(defaultFeedPage, SOURCE_FEED_QUERY, {
         first: 7,
+        after: '',
         loggedIn: false,
         source: 'react',
         ranking: 'TIME',

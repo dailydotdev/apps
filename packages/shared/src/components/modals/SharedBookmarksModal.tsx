@@ -10,9 +10,9 @@ import {
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Switch } from '../fields/Switch';
 import {
-  BookmarksSharingData,
   BOOKMARK_SHARING_MUTATION,
   BOOKMARK_SHARING_QUERY,
+  BookmarksSharingData,
 } from '../../graphql/bookmarksSharing';
 import { TextField } from '../fields/TextField';
 import { useCopyLink } from '../../hooks/useCopy';
@@ -27,25 +27,24 @@ export default function SharedBookmarksModal({
   const queryClient = useQueryClient();
 
   const { data: bookmarksSharingData, isFetched } =
-    useQuery<BookmarksSharingData>(['bookmarksSharing'], () =>
-      gqlClient.request(BOOKMARK_SHARING_QUERY),
-    );
+    useQuery<BookmarksSharingData>({
+      queryKey: ['bookmarksSharing'],
 
-  const { mutateAsync: updateBookmarksSharing } = useMutation<{
-    enabled: boolean;
-  }>(
-    () => {
+      queryFn: () => gqlClient.request(BOOKMARK_SHARING_QUERY),
+    });
+
+  const { mutateAsync: updateBookmarksSharing } = useMutation({
+    mutationFn: () => {
       const updatedValue = !bookmarksSharingData?.bookmarksSharing?.enabled;
       return gqlClient.request(BOOKMARK_SHARING_MUTATION, {
         enabled: updatedValue,
       });
     },
-    {
-      onSuccess: (data) => {
-        queryClient.setQueryData(['bookmarksSharing'], data);
-      },
+
+    onSuccess: (data) => {
+      queryClient.setQueryData(['bookmarksSharing'], data);
     },
-  );
+  });
 
   const [, copyRssUrl] = useCopyLink(
     () => bookmarksSharingData?.bookmarksSharing?.rssUrl,

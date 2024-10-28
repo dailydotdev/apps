@@ -71,6 +71,7 @@ const createCommentsMock = (
     variables: {
       userId: 'u2',
       first: 20,
+      after: '',
     },
   },
   result: {

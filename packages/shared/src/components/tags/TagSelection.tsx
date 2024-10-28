@@ -92,21 +92,20 @@ export function TagSelection({
     feedId,
   );
 
-  const { data: onboardingTagsRaw, isLoading } = useQuery(
-    onboardingTagsQueryKey,
-    async () => {
+  const { data: onboardingTagsRaw, isLoading } = useQuery({
+    queryKey: onboardingTagsQueryKey,
+
+    queryFn: async () => {
       const result = await gqlClient.request<{
         onboardingTags: TagsData;
       }>(GET_ONBOARDING_TAGS_QUERY, {});
 
       return result.onboardingTags;
     },
-    {
-      ...disabledRefetch,
-      staleTime: Infinity,
-      select: tagsSelector,
-    },
-  );
+    ...disabledRefetch,
+    staleTime: Infinity,
+    select: tagsSelector,
+  });
 
   const onboardingTags = useMemo(() => {
     if (!shouldShuffleTags || isShuffled || !onboardingTagsRaw) {
@@ -134,8 +133,8 @@ export function TagSelection({
   });
   const searchTags = searchResult?.searchTags.tags || [];
 
-  const { mutate: recommendTags, data: recommendedTags } = useMutation(
-    async ({ tag }: Pick<OnSelectTagProps, 'tag'>) => {
+  const { mutate: recommendTags, data: recommendedTags } = useMutation({
+    mutationFn: async ({ tag }: Pick<OnSelectTagProps, 'tag'>) => {
       const result = await gqlClient.request<{
         recommendedTags: TagsData;
       }>(GET_RECOMMENDED_TAGS_QUERY, {
@@ -160,7 +159,7 @@ export function TagSelection({
 
       return recommendedTagsSet;
     },
-  );
+  });
 
   const handleClickTag = async ({ tag }: Pick<OnSelectTagProps, 'tag'>) => {
     const isSearchMode = !!searchQuery;
