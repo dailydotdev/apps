@@ -22,11 +22,11 @@ const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
   const { id: squadId, handle } = squadSource;
   const { squad } = useSquad({ handle });
 
-  const { data: squadMembers } = useQuery<BasicSourceMember[]>(
-    ['squadMembersInitial', handle],
-    () => getSquadMembers(squadId),
-    { enabled: isFetched && !!squadId },
-  );
+  const { data: squadMembers } = useQuery<BasicSourceMember[]>({
+    queryKey: ['squadMembersInitial', handle],
+    queryFn: () => getSquadMembers(squadId),
+    enabled: isFetched && !!squadId,
+  });
 
   if (!squad) {
     return null;

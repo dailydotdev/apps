@@ -87,22 +87,20 @@ const useBookmarkPost = ({
     };
   };
 
-  const { mutateAsync: bookmarkPost } = useMutation(
-    ({ mutation, payload }: UseBookmarkPostMutationProps) =>
+  const { mutateAsync: bookmarkPost } = useMutation({
+    mutationKey: mutationKey
+      ? [...bookmarkMutationKey, ...mutationKey]
+      : bookmarkMutationKey,
+    mutationFn: ({ mutation, payload }: UseBookmarkPostMutationProps) =>
       requestMethod(mutation, {
         ...payload,
       }),
-    {
-      mutationKey: mutationKey
-        ? [...bookmarkMutationKey, ...mutationKey]
-        : bookmarkMutationKey,
-      onMutate: onMutate || defaultOnMutate,
-      onSuccess: () => {
-        completeAction(ActionType.BookmarkPost);
-      },
-      onError: (err, _, rollback?: () => void) => rollback?.(),
+    onMutate: onMutate || defaultOnMutate,
+    onSuccess: () => {
+      completeAction(ActionType.BookmarkPost);
     },
-  );
+    onError: (err, _, rollback?: () => void) => rollback?.(),
+  });
 
   const addBookmark = useCallback(
     ({ id }: BookmarkProps) => {

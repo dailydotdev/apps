@@ -81,6 +81,7 @@ const createFeedMock = (
   query: string = SOURCE_FEED_QUERY,
   variables: unknown = {
     first: 7,
+    after: '',
     loggedIn: true,
     source: defaultSquad.id,
     ranking: 'TIME',
@@ -389,7 +390,11 @@ describe('squad members modal', () => {
     renderComponent();
     const result = generateMembersResult(members);
     mockGraphQL(
-      createSourceMembersMock(result, { id: defaultSquad.id, role: null }),
+      createSourceMembersMock(result, {
+        id: defaultSquad.id,
+        role: null,
+        after: '',
+      }),
     );
     const trigger = await screen.findByLabelText('Members list');
     trigger.click();
@@ -438,7 +443,9 @@ describe('squad members modal', () => {
       member.node.role = role;
     });
     const result = generateMembersResult(members);
-    mockGraphQL(createSourceMembersMock(result, { id: defaultSquad.id, role }));
+    mockGraphQL(
+      createSourceMembersMock(result, { id: defaultSquad.id, role, after: '' }),
+    );
     const blocked = await screen.findByText('Blocked members');
     blocked.click();
     const unblocks = await screen.findAllByLabelText('Unblock');

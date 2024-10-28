@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { ClientError } from 'graphql-request';
 import { useContext } from 'react';
+import { ClientError } from 'graphql-request';
 import { Squad } from '../../graphql/sources';
 import { getSquad } from '../../graphql/squads';
 import { ApiError, ApiErrorResult, getApiError } from '../../graphql/common';
@@ -27,7 +27,9 @@ export const useSquad = ({ handle }: UseSquadProps): UseSquad => {
     isLoading,
     isFetched,
     error,
-  } = useQuery<Squad, ClientError>(queryKey, () => getSquad(handle), {
+  } = useQuery<Squad, ClientError>({
+    queryKey,
+    queryFn: () => getSquad(handle),
     enabled: isBootFetched && !!handle,
     retry: false,
   });

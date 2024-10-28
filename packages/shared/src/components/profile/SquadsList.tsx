@@ -45,15 +45,13 @@ function SquadItem({
   const showJoin = !squad.currentMember?.role && !loading;
   const { displayToast } = useToastNotification();
 
-  const { mutateAsync: joinSquad, isLoading } = useMutation(
-    useJoinSquad({ squad }),
-    {
-      onError: () => {
-        displayToast(labels.error.generic);
-      },
-      onSuccess: () => router.push(squad?.permalink),
+  const { mutateAsync: joinSquad, isPending: isLoading } = useMutation({
+    mutationFn: useJoinSquad({ squad }),
+    onError: () => {
+      displayToast(labels.error.generic);
     },
-  );
+    onSuccess: () => router.push(squad?.permalink),
+  });
 
   const onJoin = async () => {
     if (!user) {
@@ -147,16 +145,19 @@ export function SquadsList({
   const { user: loggedUser, tokenRefreshed } = useContext(AuthContext);
   const { data: remoteMemberships } = useQuery<{
     sources: ProfileV2['sources'];
-  }>(
-    generateQueryKey(RequestKey.PublicSourceMemberships, loggedUser, userId),
-    () => gqlClient.request(PUBLIC_SOURCE_MEMBERSHIPS_QUERY, { id: userId }),
-    {
-      enabled: !!tokenRefreshed,
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-    },
-  );
+  }>({
+    queryKey: generateQueryKey(
+      RequestKey.PublicSourceMemberships,
+      loggedUser,
+      userId,
+    ),
+    queryFn: () =>
+      gqlClient.request(PUBLIC_SOURCE_MEMBERSHIPS_QUERY, { id: userId }),
+    enabled: !!tokenRefreshed,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
   const [showMore, setShowMore] = useState(false);
   const memberships = remoteMemberships?.sources || initialMembership;
   const loading = !remoteMemberships;

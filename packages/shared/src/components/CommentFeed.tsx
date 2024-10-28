@@ -14,6 +14,7 @@ import { CommentClassName } from './comments/common';
 import { CommentFeedData } from '../graphql/comments';
 import { useViewSize, ViewSize } from '../hooks';
 import { gqlClient } from '../graphql/common';
+import { getNextPageParam } from '../lib/query';
 
 interface CommentFeedProps<T> {
   feedQueryKey: unknown[];
@@ -39,19 +40,17 @@ export default function CommentFeed<T>({
   const { deleteComment } = useDeleteComment();
   const isLaptop = useViewSize(ViewSize.Laptop);
 
-  const queryResult = useInfiniteQuery<CommentFeedData>(
-    feedQueryKey,
-    ({ pageParam }) =>
+  const queryResult = useInfiniteQuery<CommentFeedData>({
+    queryKey: feedQueryKey,
+    queryFn: ({ pageParam }) =>
       gqlClient.request(query, {
         ...variables,
         first: 20,
         after: pageParam,
       }),
-    {
-      getNextPageParam: (lastPage) =>
-        lastPage.page.pageInfo.hasNextPage && lastPage.page.pageInfo.endCursor,
-    },
-  );
+    initialPageParam: '',
+    getNextPageParam: ({ page }) => getNextPageParam(page?.pageInfo),
+  });
   const length = queryResult?.data?.pages?.length;
   const showEmptyScreen =
     length > 0 && queryResult.data.pages[0].page.edges.length === 0;

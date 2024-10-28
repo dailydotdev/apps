@@ -76,9 +76,9 @@ export default function useTagAndSource({
       return;
     }
 
-    queryClient.invalidateQueries(
-      generateQueryKey(SharedFeedPage.MyFeed, user),
-    );
+    queryClient.invalidateQueries({
+      queryKey: generateQueryKey(SharedFeedPage.MyFeed, user),
+    });
   }, 100);
 
   const onFollowTags = useCallback(

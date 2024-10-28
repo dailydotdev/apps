@@ -30,28 +30,29 @@ function ChangePasswordForm({
   const [hint, setHint] = useState('');
   const { displayToast } = useToastNotification();
 
-  const { data: settings } = useQuery(['settings'], () =>
-    initializeKratosFlow(AuthFlow.Settings),
-  );
+  const { data: settings } = useQuery({
+    queryKey: ['settings'],
+    queryFn: () => initializeKratosFlow(AuthFlow.Settings),
+  });
 
-  const { mutateAsync: reset, isLoading } = useMutation(
-    (params: ValidateRegistrationParams) => submitKratosFlow(params),
-    {
-      onSuccess: ({ error, data: success }) => {
-        if (success) {
-          displayToast('Password changed successfully!');
-          return onSubmit();
-        }
+  const { mutateAsync: reset, isPending: isLoading } = useMutation({
+    mutationFn: (params: ValidateRegistrationParams) =>
+      submitKratosFlow(params),
 
-        if (!error?.ui) {
-          return setHint('Session might have expired!');
-        }
+    onSuccess: ({ error, data: success }) => {
+      if (success) {
+        displayToast('Password changed successfully!');
+        return onSubmit();
+      }
 
-        const json = errorsToJson<keyof RegistrationParameters>(error);
-        return setHint(json?.password);
-      },
+      if (!error?.ui) {
+        return setHint('Session might have expired!');
+      }
+
+      const json = errorsToJson<keyof RegistrationParameters>(error);
+      return setHint(json?.password);
     },
-  );
+  });
 
   const onChangePasswordSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

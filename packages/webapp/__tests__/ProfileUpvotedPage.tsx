@@ -30,6 +30,7 @@ const createFeedMock = (
     variables: {
       userId: 'u2',
       first: 7,
+      after: '',
       loggedIn: true,
     },
   },

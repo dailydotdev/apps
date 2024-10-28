@@ -39,9 +39,10 @@ export function AISearchInvite({
   const { user, refetchBoot, showLogin } = useAuthContext();
   const {
     mutateAsync: onAcceptMutation,
-    isLoading,
+    isPending: isLoading,
     isSuccess,
-  } = useMutation(acceptFeatureInvitation, {
+  } = useMutation({
+    mutationFn: acceptFeatureInvitation,
     onSuccess: async () => {
       await Promise.all([
         completeAction(ActionType.AcceptedSearch),

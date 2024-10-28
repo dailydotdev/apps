@@ -58,6 +58,7 @@ const createFeedMock = (
     variables: {
       keyword: defaultKeyword.value,
       first: 4,
+      after: '',
     },
   },
   result: {
