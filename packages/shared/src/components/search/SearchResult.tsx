@@ -54,36 +54,38 @@ export function SearchResult({
   const client = useQueryClient();
   const { displayToast } = useToastNotification();
   const [isCopying, copyContent] = useCopyText(chunk.response);
-  const { mutateAsync: sendFeedback } = useMutation(
-    (value: number) => sendSearchFeedback({ chunkId: chunk.id, value }),
-    {
-      onMutate: (value) => {
-        const previousValue = chunk.feedback;
-        const eventNames = {
-          1: LogEvent.UpvoteSearch,
-          [-1]: LogEvent.DownvoteSearch,
-        };
+  const { mutateAsync: sendFeedback } = useMutation({
+    mutationFn: (value: number) =>
+      sendSearchFeedback({ chunkId: chunk.id, value }),
 
+    onMutate: (value) => {
+      const previousValue = chunk.feedback;
+      const eventNames = {
+        1: LogEvent.UpvoteSearch,
+        [-1]: LogEvent.DownvoteSearch,
+      };
+
+      client.setQueryData<Search>(queryKey, (search) =>
+        updateSearchData(search, { feedback: value }),
+      );
+
+      logEvent({
+        event_name: eventNames[chunk.feedback],
+        target_id: chunk.id,
+      });
+
+      return () =>
         client.setQueryData<Search>(queryKey, (search) =>
-          updateSearchData(search, { feedback: value }),
+          updateSearchData(search, { feedback: previousValue }),
         );
-
-        logEvent({
-          event_name: eventNames[chunk.feedback],
-          target_id: chunk.id,
-        });
-
-        return () =>
-          client.setQueryData<Search>(queryKey, (search) =>
-            updateSearchData(search, { feedback: previousValue }),
-          );
-      },
-      onSuccess: () => {
-        displayToast(labels.search.feedbackText);
-      },
-      onError: (_, __, rollback: () => void) => rollback?.(),
     },
-  );
+
+    onSuccess: () => {
+      displayToast(labels.search.feedbackText);
+    },
+
+    onError: (_, __, rollback: () => void) => rollback?.(),
+  });
 
   const handleCopy = useCallback(() => {
     if (!isCopying && chunk?.id) {

@@ -162,9 +162,9 @@ export const BootDataProvider = ({
     isFetched,
     isError,
     dataUpdatedAt,
-  } = useQuery<Partial<Boot>>(
-    BOOT_QUERY_KEY,
-    async () => {
+  } = useQuery<Partial<Boot>>({
+    queryKey: BOOT_QUERY_KEY,
+    queryFn: async () => {
       const result = await getBootData(app);
       preloadFeedsRef.current({ feeds: result.feeds, user: result.user });
       updateLocalBootData(bootData || {}, result);
@@ -172,13 +172,11 @@ export const BootDataProvider = ({
 
       return result;
     },
-    {
-      refetchOnWindowFocus: shouldRefetch,
-      staleTime: STALE_TIME,
-      enabled: !isExtension || !!hostGranted,
-      placeholderData: initialData,
-    },
-  );
+    refetchOnWindowFocus: shouldRefetch,
+    staleTime: STALE_TIME,
+    enabled: !isExtension || !!hostGranted,
+    placeholderData: initialData,
+  });
 
   const isBootReady = isFetched && !isError;
   const loadedFromCache = !!bootData;
@@ -219,9 +217,9 @@ export const BootDataProvider = ({
   const updateUser = useCallback(
     async (newUser: LoggedUser | AnonymousUser) => {
       updateQueryCache({ user: newUser });
-      await queryClient.invalidateQueries(
-        generateQueryKey(RequestKey.Profile, newUser),
-      );
+      await queryClient.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.Profile, newUser),
+      });
     },
     [updateQueryCache, queryClient],
   );

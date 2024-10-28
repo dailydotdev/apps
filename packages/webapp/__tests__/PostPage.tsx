@@ -154,6 +154,7 @@ const createCommentsMock = (): MockedGraphQLResponse<PostCommentsData> => ({
     query: POST_COMMENTS_QUERY,
     variables: {
       postId: '0e4005b2d3cf191f8c44c2718a457a1e',
+      after: '',
     },
   },
   result: {
@@ -220,7 +221,9 @@ it('should show source image', async () => {
 
 it('should show domain', async () => {
   renderPost();
-  const el = await screen.findByText('medium.com');
+  const title = await screen.findByAltText('Towards Data Science');
+  expect(title).toBeInTheDocument();
+  const el = screen.getByRole('link', { name: /medium\.com/i });
   expect(el).toBeInTheDocument();
 });
 
@@ -265,10 +268,9 @@ it('should display the "read post" link on mobile resolutions', async () => {
   });
 
   renderPost();
-
+  await screen.findByText('Learn SQL');
   const container = await screen.findByTestId('postContainer');
   const el = await within(container).findByTestId('postActionsRead');
-
   expect(el).toBeInTheDocument();
 });
 

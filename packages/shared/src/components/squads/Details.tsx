@@ -102,7 +102,8 @@ export function SquadDetails({
     return channels?.findIndex((item) => item.id === selectedChannel) || 0;
   }, [channels, selectedChannel]);
 
-  const { mutateAsync: onValidateHandle } = useMutation(checkExistingHandle, {
+  const { mutateAsync: onValidateHandle } = useMutation({
+    mutationFn: checkExistingHandle,
     onError: (err) => {
       const clientError = err as ClientError;
       const message = clientError?.response?.errors?.[0]?.message;

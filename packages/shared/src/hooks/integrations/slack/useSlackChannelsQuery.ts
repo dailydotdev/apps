@@ -14,7 +14,7 @@ import { sortAlphabeticallyByProperty } from '../../../lib/func';
 
 export type UseSlackChannelsQueryProps = {
   integrationId: string;
-  queryOptions?: UseQueryOptions<SlackChannel[]>;
+  queryOptions?: Partial<UseQueryOptions<SlackChannel[]>>;
 };
 
 export type UseSlackChannelsQuery = UseQueryResult<SlackChannel[]>;
@@ -26,11 +26,11 @@ export const useSlackChannelsQuery = ({
   const { user } = useAuthContext();
   const enabled = !!integrationId;
 
-  const queryResult = useQuery(
-    generateQueryKey(RequestKey.SlackChannels, user, {
+  const queryResult = useQuery({
+    queryKey: generateQueryKey(RequestKey.SlackChannels, user, {
       integrationId,
     }),
-    async ({ queryKey }) => {
+    queryFn: async ({ queryKey }) => {
       const [, , queryVariables] = queryKey as [
         unknown,
         unknown,
@@ -46,15 +46,13 @@ export const useSlackChannelsQuery = ({
         sortAlphabeticallyByProperty('name'),
       );
     },
-    {
-      staleTime: StaleTime.Default,
-      ...queryOptions,
-      enabled:
-        typeof queryOptions?.enabled !== 'undefined'
-          ? queryOptions.enabled && enabled
-          : enabled,
-    },
-  );
+    staleTime: StaleTime.Default,
+    ...queryOptions,
+    enabled:
+      typeof queryOptions?.enabled !== 'undefined'
+        ? queryOptions.enabled && enabled
+        : enabled,
+  });
 
   return queryResult;
 };
