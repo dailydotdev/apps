@@ -5,7 +5,7 @@ import {
   USER_SHORT_INFO_FRAGMENT,
   USER_STREAK_FRAGMENT,
 } from './fragments';
-import type { PublicProfile, UserShortProfile } from '../lib/user';
+import type { PublicProfile } from '../lib/user';
 import { Connection, gqlClient } from './common';
 import { SourceMember } from './sources';
 import type { SendType } from '../hooks';
@@ -397,18 +397,6 @@ export const GET_REFERRING_USER_QUERY = gql`
   }
   ${USER_SHORT_INFO_FRAGMENT}
 `;
-
-export const getReferringUser = async (
-  id: string,
-): Promise<UserShortProfile> => {
-  try {
-    const res = await gqlClient.request(GET_REFERRING_USER_QUERY, { id });
-
-    return res.user;
-  } catch (err) {
-    return undefined;
-  }
-};
 
 export enum UserPersonalizedDigestType {
   Digest = 'digest',
