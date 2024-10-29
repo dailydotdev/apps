@@ -21,6 +21,8 @@ export class ErrorBoundary extends Component<
   // eslint-disable-next-line react/static-property-placement
   context!: React.ContextType<typeof LogContext>;
 
+  static getDerivedStateFromError(): void {}
+
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     const { logEvent } = this.context;
 
