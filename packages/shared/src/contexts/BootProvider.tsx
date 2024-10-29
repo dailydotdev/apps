@@ -150,7 +150,6 @@ export const BootDataProvider = ({
   });
   const { hostGranted } = useHostStatus();
   const isExtension = checkIsExtension();
-
   const logged = cachedBootData?.user as LoggedUser;
   const shouldRefetch = !!logged?.providers && !!logged?.id;
   const lastAppliedChangeRef = useRef<Partial<BootCacheData>>();
@@ -274,6 +273,7 @@ export const BootDataProvider = ({
         isLegacyLogout={remoteData?.isLegacyLogout}
         accessToken={remoteData?.accessToken}
         squads={squads}
+        firstLoad={initialLoad}
       >
         <SettingsContextProvider
           settings={settings}
