@@ -179,7 +179,7 @@ export const BootDataProvider = ({
   const { user, settings, alerts, notifications, squads } =
     cachedBootData || {};
 
-  useRefreshToken(cachedBootData?.accessToken, refetch);
+  useRefreshToken(remoteData?.accessToken, refetch);
   const updatedAtActive = user ? dataUpdatedAt : null;
   const updateBootData = useCallback(
     (updatedBootData: Partial<BootCacheData>, update = true) => {
