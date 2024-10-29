@@ -187,6 +187,7 @@ const SquadModerationButton = ({ squad }: SquadBarButtonProps<'a'>) => {
       tag="a"
       title="Go to post moderation page"
       variant={ButtonVariant.Float}
+      data-testid="squad-moderation-button"
     >
       {count} Pending {postLabel}
     </Button>
@@ -215,6 +216,7 @@ export function SquadHeaderBar({
         'flex h-fit w-full flex-row flex-wrap justify-center gap-3 tablet:w-auto',
         className,
       )}
+      data-testid="squad-header-bar"
     >
       {userCanJoin && (
         <SquadActionButton
