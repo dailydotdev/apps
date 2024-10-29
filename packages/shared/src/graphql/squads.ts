@@ -9,7 +9,6 @@ import {
 import { Connection, gqlClient } from './common';
 import {
   BasicSourceMember,
-  PublicSquadRequest,
   Source,
   SourceMember,
   SourceMemberRole,
@@ -579,6 +578,7 @@ export const SQUAD_COMMENT_JOIN_BANNER_KEY = generateStorageKey(
   StorageTopic.Squad,
   'comment_join_banner',
 );
+
 export enum SourcePostModerationStatus {
   Approved = 'approved',
   Rejected = 'rejected',
