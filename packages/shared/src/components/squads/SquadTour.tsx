@@ -21,11 +21,6 @@ interface SquadTourProps {
 
 const FooterButton = classed(Button, 'w-22');
 
-export enum TourScreenIndex {
-  Post = 0,
-  CopyInvitation = 3,
-}
-
 function SquadTour({ onClose }: SquadTourProps): ReactElement {
   const [shouldShowCarousel, setShouldShowCarousel] = useState(false);
   const { onTourIndexChange } = useSquadTour();

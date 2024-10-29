@@ -1,6 +1,10 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { SourceMember, SourcePermissions, Squad } from '../../graphql/sources';
+import {
+  BasicSourceMember,
+  SourcePermissions,
+  Squad,
+} from '../../graphql/sources';
 import { SquadHeaderBar } from './SquadHeaderBar';
 import { SquadImage } from './SquadImage';
 import EnableNotification from '../notifications/EnableNotification';
@@ -35,7 +39,7 @@ import {
 
 interface SquadPageHeaderProps {
   squad: Squad;
-  members: SourceMember[];
+  members: BasicSourceMember[];
   shouldUseListMode: boolean;
 }
 
