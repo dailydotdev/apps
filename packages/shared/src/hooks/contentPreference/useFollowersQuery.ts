@@ -49,7 +49,7 @@ export const useFollowersQuery = ({
     {
       id,
       entity,
-      first: 2,
+      first: limit,
     },
   );
 
