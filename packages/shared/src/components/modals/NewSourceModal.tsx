@@ -98,7 +98,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
     DISMISS_PERMISSION_BANNER,
     false,
   );
-  const { data: sourceRequestAvailability, isLoading: isLoadingAccess } =
+  const { data: sourceRequestAvailability, isPending: isLoadingAccess } =
     useQuery({
       queryKey: [RequestKey.SourceRequestAvailability, user?.id],
 

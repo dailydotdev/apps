@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { ForwardRefExoticComponent, useContext } from 'react';
 import { useViewSize, ViewSize } from './useViewSize';
 import { useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
 import {
@@ -15,9 +15,7 @@ import { useSearchResultsLayout } from './search/useSearchResultsLayout';
 
 interface UseFeedLayoutReturn {
   shouldUseListFeedLayout: boolean;
-  FeedPageLayoutComponent: React.ComponentType<
-    React.HTMLAttributes<HTMLDivElement>
-  >;
+  FeedPageLayoutComponent: ForwardRefExoticComponent<any>;
   screenCenteredOnMobileLayout?: boolean;
   shouldUseCommentFeedLayout: boolean;
   isListMode: boolean;

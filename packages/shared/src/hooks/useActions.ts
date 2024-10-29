@@ -27,7 +27,7 @@ export const useActions = (): UseActions => {
   const { user } = useAuthContext();
   const actionsKey = generateQueryKey(RequestKey.Actions, user);
 
-  const { data, isLoading } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: actionsKey,
     queryFn: async () => {
       const serverData = await getUserActions();
@@ -48,7 +48,7 @@ export const useActions = (): UseActions => {
   });
 
   const actions = data?.actions;
-  const isActionsFetched = !isLoading && !!data?.serverLoaded;
+  const isActionsFetched = !isPending && !!data?.serverLoaded;
 
   const { mutateAsync: completeAction } = useMutation({
     mutationFn: completeUserAction,
