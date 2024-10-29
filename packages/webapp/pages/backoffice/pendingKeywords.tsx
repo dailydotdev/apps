@@ -16,7 +16,7 @@ const PendingKeywords = (): ReactElement => {
   const {
     data: currentKeywordData,
     refetch: refetchCurrentKeyword,
-    isLoading: isLoadingCurrentKeyword,
+    isPending: isLoadingCurrentKeyword,
   } = useQuery({
     queryKey: ['randomPendingKeyword'],
     queryFn: () => gqlClient.request(RANDOM_PENDING_KEYWORD_QUERY),

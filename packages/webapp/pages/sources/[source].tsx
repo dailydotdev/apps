@@ -65,7 +65,7 @@ type SourcePageProps = { source?: Source };
 type SourceIdProps = { sourceId?: string };
 
 const SourceRelatedTags = ({ sourceId }: SourceIdProps): ReactElement => {
-  const { data: relatedTags, isLoading } = useQuery({
+  const { data: relatedTags, isPending } = useQuery({
     queryKey: [RequestKey.SourceRelatedTags, null, sourceId],
 
     queryFn: async () =>
@@ -80,7 +80,7 @@ const SourceRelatedTags = ({ sourceId }: SourceIdProps): ReactElement => {
 
   return (
     <RecommendedTags
-      isLoading={isLoading}
+      isLoading={isPending}
       tags={relatedTags?.relatedTags?.tags ?? []}
     />
   );
@@ -88,7 +88,7 @@ const SourceRelatedTags = ({ sourceId }: SourceIdProps): ReactElement => {
 
 const SimilarSources = ({ sourceId }: SourceIdProps) => {
   const { shouldUseListFeedLayout } = useFeedLayout();
-  const { data: similarSources, isLoading } = useQuery({
+  const { data: similarSources, isPending } = useQuery({
     queryKey: [RequestKey.SimilarSources, null, sourceId],
 
     queryFn: async () =>
@@ -110,7 +110,7 @@ const SimilarSources = ({ sourceId }: SourceIdProps) => {
 
   return (
     <RelatedSources
-      isLoading={isLoading}
+      isLoading={isPending}
       sources={sources}
       title="Similar sources"
       className={shouldUseListFeedLayout ? 'mx-4' : undefined}

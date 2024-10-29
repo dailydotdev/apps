@@ -15,7 +15,7 @@ export const useChatSession = ({
     () => generateQueryKey(RequestKey.Search, user, id),
     [user, id],
   );
-  const { data, isLoading } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey,
 
     queryFn: () => {
@@ -30,7 +30,7 @@ export const useChatSession = ({
 
   return {
     queryKey,
-    isLoading,
+    isLoading: isPending,
     data,
   };
 };

@@ -33,7 +33,7 @@ export const useProfileTooltip = ({
   const { requestMethod } = useRequestProtocol();
   const [shouldFetch, setShouldFetch] = useState(false);
   const key = ['readingRank', userId];
-  const { data, isLoading, error } = useQuery<UserTooltipContentData>({
+  const { data, isPending, error } = useQuery<UserTooltipContentData>({
     queryKey: key,
     queryFn: () =>
       requestMethod(
@@ -60,9 +60,9 @@ export const useProfileTooltip = ({
   return useMemo(
     () => ({
       data,
-      isLoading,
+      isLoading: isPending,
       fetchInfo: () => setShouldFetch(true),
     }),
-    [data, isLoading, setShouldFetch],
+    [data, isPending, setShouldFetch],
   );
 };
