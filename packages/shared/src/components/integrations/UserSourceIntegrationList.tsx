@@ -21,13 +21,13 @@ export type UserSourceIntegrationListProps = {
 export const UserSourceIntegrationList = ({
   integrationId,
 }: UserSourceIntegrationListProps): ReactElement => {
-  const { data: sourceIntegrations, isLoading } = useSourceIntegrationsQuery({
+  const { data: sourceIntegrations, isPending } = useSourceIntegrationsQuery({
     integrationId,
   });
   const { openModal } = useLazyModal();
   const { removeSourceIntegration } = useIntegration();
 
-  if (!sourceIntegrations?.length && !isLoading) {
+  if (!sourceIntegrations?.length && !isPending) {
     return (
       <Typography className="px-2" type={TypographyType.Body} bold>
         No connected sources, go to your squad page to connect.

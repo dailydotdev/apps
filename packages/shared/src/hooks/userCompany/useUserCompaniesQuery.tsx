@@ -14,7 +14,7 @@ export const useUserCompaniesQuery = (): UseUserCompaniesQuery => {
   const { user, isLoggedIn } = useAuthContext();
   const queryKey = generateQueryKey(RequestKey.UserCompanies, user);
 
-  const { data, isLoading } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey,
     queryFn: async (): Promise<UserCompany[]> => {
       const res = await gqlClient.request(GET_USER_COMPANIES);
@@ -27,7 +27,7 @@ export const useUserCompaniesQuery = (): UseUserCompaniesQuery => {
 
   return {
     userCompanies: data,
-    isVerified: !isLoading && !!data?.[0]?.company,
-    isLoading,
+    isVerified: !isPending && !!data?.[0]?.company,
+    isLoading: isPending,
   };
 };

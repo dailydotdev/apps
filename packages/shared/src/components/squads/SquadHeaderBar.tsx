@@ -47,7 +47,7 @@ const SquadSlackButton = <T extends AllowedTags>({
   ...props
 }: SquadBarButtonProps<T>) => {
   const { user } = useAuthContext();
-  const { data: sourceIntegration, isLoading } = useSourceIntegrationQuery({
+  const { data: sourceIntegration, isPending } = useSourceIntegrationQuery({
     sourceId: squad.id,
     userIntegrationType: UserIntegrationType.Slack,
   });
@@ -57,7 +57,7 @@ const SquadSlackButton = <T extends AllowedTags>({
       return null;
     }
 
-    if (isLoading && !sourceIntegration) {
+    if (isPending && !sourceIntegration) {
       return null;
     }
 
@@ -70,7 +70,7 @@ const SquadSlackButton = <T extends AllowedTags>({
     }
 
     return null;
-  }, [sourceIntegration, user, squad, isLoading]);
+  }, [sourceIntegration, user, squad, isPending]);
 
   if (!slackButtonLabel) {
     return null;

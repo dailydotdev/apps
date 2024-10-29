@@ -48,7 +48,7 @@ export const rejectReasons: { value: PostModerationReason; label: string }[] = [
 interface UseSquadPostModeration {
   onApprove: (ids: string[], onSuccess?: MouseEventHandler) => Promise<void>;
   onReject: (id: string, onSuccess?: MouseEventHandler) => void;
-  isLoading: boolean;
+  isPending: boolean;
   isSuccess: boolean;
 }
 
@@ -66,9 +66,10 @@ export const useSquadPostModeration = (): UseSquadPostModeration => {
 
   const {
     mutateAsync: onApprove,
-    isLoading: isLoadingApprove,
+    isPending: isPendingApprove,
     isSuccess: isSuccessApprove,
-  } = useMutation((ids: string[]) => squadApproveMutation(ids), {
+  } = useMutation({
+    mutationFn: (ids: string[]) => squadApproveMutation(ids),
     onSuccess: () => {
       displayToast('Post(s) approved successfully');
       onSuccessWrapper();
@@ -96,12 +97,12 @@ export const useSquadPostModeration = (): UseSquadPostModeration => {
 
   const {
     mutateAsync: onReject,
-    isLoading: isLoadingReject,
+    isPending: isPendingReject,
     isSuccess: isSuccessReject,
-  } = useMutation(
-    (props: SquadPostRejectionProps) => squadRejectMutation(props),
-    { onSuccess: onSuccessWrapper },
-  );
+  } = useMutation({
+    mutationFn: (props: SquadPostRejectionProps) => squadRejectMutation(props),
+    onSuccess: onSuccessWrapper,
+  });
 
   const onRejectPost: UseSquadPostModeration['onReject'] = useCallback(
     (postId, onSuccess) => {
@@ -121,7 +122,7 @@ export const useSquadPostModeration = (): UseSquadPostModeration => {
 
   return {
     isSuccess: isSuccessApprove || isSuccessReject,
-    isLoading: isLoadingApprove || isLoadingReject,
+    isPending: isPendingApprove || isPendingReject,
     onApprove: onApprovePost,
     onReject: onRejectPost,
   };

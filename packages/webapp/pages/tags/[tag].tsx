@@ -73,7 +73,7 @@ import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 type TagPageProps = { tag: string; initialData: Keyword };
 
 const TagRecommendedTags = ({ tag, blockedTags }): ReactElement => {
-  const { data: recommendedTags, isLoading } = useQuery({
+  const { data: recommendedTags, isPending } = useQuery({
     queryKey: [RequestKey.RecommendedTags, null, tag],
 
     queryFn: async () =>
@@ -89,7 +89,7 @@ const TagRecommendedTags = ({ tag, blockedTags }): ReactElement => {
 
   return (
     <RecommendedTags
-      isLoading={isLoading}
+      isLoading={isPending}
       tags={recommendedTags?.recommendedTags?.tags}
     />
   );
@@ -97,7 +97,7 @@ const TagRecommendedTags = ({ tag, blockedTags }): ReactElement => {
 
 const TagTopSources = ({ tag }: { tag: string }) => {
   const { shouldUseListFeedLayout } = useFeedLayout();
-  const { data: topSources, isLoading } = useQuery({
+  const { data: topSources, isPending } = useQuery({
     queryKey: [RequestKey.SourceByTag, null, tag],
 
     queryFn: async () =>
@@ -120,7 +120,7 @@ const TagTopSources = ({ tag }: { tag: string }) => {
 
   return (
     <RelatedSources
-      isLoading={isLoading}
+      isLoading={isPending}
       sources={sources}
       title="🔔 Top sources covering it"
       className={shouldUseListFeedLayout && 'mx-4'}

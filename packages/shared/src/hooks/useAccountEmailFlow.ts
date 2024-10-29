@@ -63,7 +63,7 @@ function useAccountEmailFlow({
 
   const existingEnabled = flow === AuthFlow.Verification && !flowId;
 
-  const { data: existingFlow, isLoading: existingFlowLoading } = useQuery({
+  const { data: existingFlow, isPending: existingFlowLoading } = useQuery({
     queryKey: ['existing_flow'],
     queryFn: getVerificationSession,
     ...disabledRefetch,
