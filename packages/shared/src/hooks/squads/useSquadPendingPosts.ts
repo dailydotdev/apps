@@ -14,9 +14,9 @@ interface UseSquadPendingPosts {
 export const useSquadPendingPosts = (squadId: string): UseSquadPendingPosts => {
   const { user } = useAuthContext();
   // TODO:: MI-596
-  const { data } = useQuery(
-    generateQueryKey(RequestKey.SquadPostRequests, user, squadId),
-    () => {
+  const { data } = useQuery({
+    queryKey: generateQueryKey(RequestKey.SquadPostRequests, user, squadId),
+    queryFn: () => {
       const dummy: SourcePostModeration = {
         id: 'random id',
         status: SourcePostModerationStatus.Pending,
@@ -24,11 +24,10 @@ export const useSquadPendingPosts = (squadId: string): UseSquadPendingPosts => {
         createdAt: new Date().toISOString(),
         title: 'dummy title',
       };
-
       return Promise.resolve([dummy]);
     },
-    { enabled: !!squadId },
-  );
+    enabled: !!squadId,
+  });
 
   return { isFetched: true, data };
 };

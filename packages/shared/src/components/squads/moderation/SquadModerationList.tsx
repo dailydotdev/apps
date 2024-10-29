@@ -45,7 +45,7 @@ interface SquadModerationListProps {
 export function SquadModerationList({
   squad,
 }: SquadModerationListProps): ReactElement {
-  const { onApprove, onReject, isLoading } = useSquadPostModeration();
+  const { onApprove, onReject, isPending } = useSquadPostModeration();
   const { data, isFetched } = useSquadPendingPosts(squad?.id);
 
   if (!data?.length) {
@@ -96,7 +96,7 @@ export function SquadModerationList({
           key={request.id}
           squad={squad}
           data={request}
-          isLoading={isLoading}
+          isLoading={isPending}
           onReject={onReject}
           onApprove={(id) => onApprove([id])}
         />
