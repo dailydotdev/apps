@@ -44,11 +44,11 @@ function useInfiniteReadingHistory({
     getNextPageParam: ({ readHistory }) =>
       getNextPageParam(readHistory?.pageInfo),
   });
-  const { isLoading, isFetchingNextPage, hasNextPage, data, fetchNextPage } =
+  const { isPending, isFetchingNextPage, hasNextPage, data, fetchNextPage } =
     queryResult;
 
   const canFetchMore =
-    !isLoading && !isFetchingNextPage && hasNextPage && data.pages.length > 0;
+    !isPending && !isFetchingNextPage && hasNextPage && data.pages.length > 0;
 
   const infiniteScrollRef = useFeedInfiniteScroll({
     fetchPage: fetchNextPage,
@@ -63,12 +63,12 @@ function useInfiniteReadingHistory({
     () => ({
       queryResult,
       hasData,
-      isLoading,
+      isLoading: isPending,
       data,
-      isInitialLoading: !hasData && isLoading,
+      isInitialLoading: !hasData && isPending,
       infiniteScrollRef,
     }),
-    [hasData, queryResult, isLoading, data, infiniteScrollRef],
+    [hasData, queryResult, isPending, data, infiniteScrollRef],
   );
 }
 

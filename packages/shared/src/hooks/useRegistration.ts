@@ -64,7 +64,7 @@ const useRegistration = ({
   const timezone = getUserDefaultTimezone();
   const {
     data: registration,
-    isLoading: isQueryLoading,
+    isPending: isQueryLoading,
     error: registrationError,
   } = useQuery({
     queryKey: key,

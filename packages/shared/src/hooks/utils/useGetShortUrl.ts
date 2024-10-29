@@ -80,7 +80,7 @@ export const useGetShortUrl = ({
   const { queryKey, trackedUrl } = query
     ? getProps(query.url, query.cid)
     : { queryKey: [], trackedUrl: '' };
-  const { data: shareLink, isLoading } = useQuery({
+  const { data: shareLink, isPending } = useQuery({
     queryKey,
     queryFn: () => queryShortUrl(trackedUrl),
     ...disabledRefetch,
@@ -88,5 +88,5 @@ export const useGetShortUrl = ({
     enabled: !!query?.url && isEnabled && !!user,
   });
 
-  return { getShortUrl, getTrackedUrl, shareLink, isLoading };
+  return { getShortUrl, getTrackedUrl, shareLink, isLoading: isPending };
 };

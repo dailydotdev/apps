@@ -56,7 +56,7 @@ const NewSquad = (): ReactElement => {
   });
   const isMobile = useViewSize(ViewSize.MobileL);
 
-  const { data, isLoading: isIntegrationLoading } = useIntegrationQuery({
+  const { data, isPending: isIntegrationLoading } = useIntegrationQuery({
     id: integrationId,
     queryOptions: { enabled: !!shouldLoadIntegration && !!integrationId },
   });
