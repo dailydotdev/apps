@@ -110,7 +110,24 @@ export const BootDataProvider = ({
   getRedirectUri,
   getPage,
 }: BootDataProviderProps): ReactElement => {
+  const queryClient = useQueryClient();
   const preloadFeedsRef = useRef<PreloadFeeds>();
+  preloadFeedsRef.current = ({ feeds, user }) => {
+    if (!feeds || !user) {
+      return;
+    }
+
+    queryClient.setQueryData<FeedList['feedList']>(
+      generateQueryKey(RequestKey.Feeds, user),
+      {
+        edges: feeds.map((item) => ({ node: item })),
+        pageInfo: {
+          hasNextPage: false,
+        },
+      },
+    );
+  };
+
   const [initialLoad, setInitialLoad] = useState<boolean>(null);
   const [cachedBootData, setCachedBootData] = useState<Partial<Boot>>(() => {
     if (localBootData) {
@@ -133,23 +150,6 @@ export const BootDataProvider = ({
   });
   const { hostGranted } = useHostStatus();
   const isExtension = checkIsExtension();
-  const queryClient = useQueryClient();
-
-  preloadFeedsRef.current = ({ feeds, user }) => {
-    if (!feeds || !user) {
-      return;
-    }
-
-    queryClient.setQueryData<FeedList['feedList']>(
-      generateQueryKey(RequestKey.Feeds, user),
-      {
-        edges: feeds.map((item) => ({ node: item })),
-        pageInfo: {
-          hasNextPage: false,
-        },
-      },
-    );
-  };
 
   const logged = cachedBootData?.user as LoggedUser;
   const shouldRefetch = !!logged?.providers && !!logged?.id;
