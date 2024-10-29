@@ -1,11 +1,11 @@
 import { QueryClient } from '@tanstack/react-query';
 import { render, RenderResult, screen } from '@testing-library/react';
 import React from 'react';
+import { SquadHeaderBar } from './SquadHeaderBar';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
-import { SquadHeaderBar } from './SquadHeaderBar';
 import {
   generateMembersList,
   generateTestSquad,

@@ -48,7 +48,7 @@ const openedMembersModal = async () => {
   mockGraphQL(
     createSourceMembersMock(result, { id: defaultSquad.id, role: null }),
   );
-  const trigger = await screen.findByLabelText('Members list');
+  const trigger = await screen.findByTestId('squad-member-short-list');
   trigger.click();
   await screen.findByText('Squad members');
   return members;
@@ -112,13 +112,11 @@ it('should render the component with an image', () => {
   expect(avatar).toHaveAttribute('src', admin.source.image);
 });
 
-it('should render the component and member short list when members are provided', () => {
+it('should render the component and member short list when members are provided', async () => {
   renderComponent();
 
-  const memberCount = screen.getByLabelText('squad-members-count');
-
-  expect(memberCount).toBeInTheDocument();
-  expect(memberCount.innerHTML).toEqual(
+  const memberCount = await screen.findByTestId('squad-member-short-list');
+  expect(memberCount).toHaveTextContent(
     admin.source.members.edges.length.toString(),
   );
 });
