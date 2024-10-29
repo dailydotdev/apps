@@ -27,7 +27,7 @@ import { useHostStatus } from '../hooks/useHostPermissionStatus';
 import { checkIsExtension } from '../lib/func';
 import { Feed, FeedList } from '../graphql/feed';
 import { gqlClient } from '../graphql/common';
-import { ErrorBoundary } from '../ErrorBoundary';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 import { LogContextProvider } from './LogContext';
 
 const ServerError = dynamic(

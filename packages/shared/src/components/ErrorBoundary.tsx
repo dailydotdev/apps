@@ -1,7 +1,8 @@
-import { Component, ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 
-import LogContext from './contexts/LogContext';
-import { LogEvent } from './lib/log';
+import NextError from 'next/error';
+import LogContext from '../contexts/LogContext';
+import { LogEvent } from '../lib/log';
 
 type ErrorBoundaryProps = {
   children: ReactNode;
@@ -21,7 +22,15 @@ export class ErrorBoundary extends Component<
   // eslint-disable-next-line react/static-property-placement
   context!: React.ContextType<typeof LogContext>;
 
-  static getDerivedStateFromError(): void {}
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(): ErrorBoundaryState {
+    return { hasError: true };
+  }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     const { logEvent } = this.context;
@@ -43,7 +52,12 @@ export class ErrorBoundary extends Component<
   }
 
   render(): ReactNode {
+    const { hasError } = this.state;
     const { children } = this.props;
+
+    if (hasError) {
+      return <NextError statusCode={0} />;
+    }
 
     return children;
   }
