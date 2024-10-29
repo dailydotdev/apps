@@ -48,10 +48,6 @@ export default function MainFeedPage({
   isFinder,
   searchChildren,
 }: MainFeedPageProps): ReactElement {
-  if (typeof window !== 'undefined') {
-    throw new Error('debug');
-  }
-
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const isFinderPage = router?.pathname === '/search/posts' || isFinder;
