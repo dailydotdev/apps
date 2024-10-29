@@ -7,8 +7,8 @@ import React, {
   useState,
 } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import dynamic from 'next/dynamic';
 import { checkKratosEmail } from '../../lib/kratos';
-import AuthModalFooter from './AuthModalFooter';
 import { AuthFormProps, Provider, getFormEmail } from './common';
 import EmailSignupForm from './EmailSignupForm';
 import LoginForm, { LoginFormParams } from './LoginForm';
@@ -20,6 +20,10 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import OrDivider from './OrDivider';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+
+const AuthModalFooter = dynamic(
+  () => import(/* webpackChunkName: "authModalFooter" */ './AuthModalFooter'),
+);
 
 interface AuthDefaultProps extends AuthFormProps {
   children?: ReactNode;
@@ -66,9 +70,9 @@ const AuthDefault = ({
   const { displayToast } = useToastNotification();
   const [registerEmail, setRegisterEmail] = useState<string>(null);
   const socialLoginListRef = useRef<HTMLDivElement>(null);
-  const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
-    checkKratosEmail(emailParam),
-  );
+  const { mutateAsync: checkEmail } = useMutation({
+    mutationFn: (emailParam: string) => checkKratosEmail(emailParam),
+  });
 
   const focusFirstSocialLink = () => {
     if (!socialLoginListRef.current) {

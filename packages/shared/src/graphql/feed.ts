@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request';
-import { CUSTOM_FEED_FRAGMENT, SHARED_POST_INFO_FRAGMENT } from './fragments';
+import { CUSTOM_FEED_FRAGMENT, FEED_POST_INFO_FRAGMENT } from './fragments';
 import { Post, PostType } from './posts';
 import { Connection } from './common';
 
@@ -46,9 +46,24 @@ export type FeedList = {
 
 export const FEED_POST_FRAGMENT = gql`
   fragment FeedPost on Post {
-    ...SharedPostInfo
+    ...FeedPostInfo
     sharedPost {
-      ...SharedPostInfo
+      id
+      title
+      image
+      readTime
+      permalink
+      commentsPermalink
+      createdAt
+      type
+      tags
+      source {
+        id
+        handle
+        permalink
+        image
+      }
+      slug
     }
     trending
     feedMeta
@@ -60,7 +75,7 @@ export const FEED_POST_FRAGMENT = gql`
     updatedAt
     slug
   }
-  ${SHARED_POST_INFO_FRAGMENT}
+  ${FEED_POST_INFO_FRAGMENT}
 `;
 
 export const USER_POST_FRAGMENT = gql`
@@ -118,7 +133,6 @@ export const ANONYMOUS_FEED_QUERY = gql`
 export const FEED_QUERY = gql`
   query Feed(
     $loggedIn: Boolean! = false
-    $refresh: Boolean = false
     $first: Int
     $after: String
     $ranking: Ranking
@@ -131,7 +145,6 @@ export const FEED_QUERY = gql`
       ranking: $ranking
       version: $version
       supportedTypes: $supportedTypes
-      refresh: $refresh
     ) {
       ...FeedPostConnection
     }
@@ -161,11 +174,12 @@ export const MOST_DISCUSSED_FEED_QUERY = gql`
     $loggedIn: Boolean! = false
     $first: Int
     $after: String
+    $period: Int
     ${SUPPORTED_TYPES}
     $source: ID
     $tag: String
   ) {
-    page: mostDiscussedFeed(first: $first, after: $after, supportedTypes: $supportedTypes, source: $source, tag: $tag) {
+    page: mostDiscussedFeed(first: $first, after: $after, period: $period, supportedTypes: $supportedTypes, source: $source, tag: $tag) {
       ...FeedPostConnection
     }
   }

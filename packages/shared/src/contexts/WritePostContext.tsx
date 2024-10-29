@@ -32,6 +32,7 @@ export interface WritePostProps {
   draft?: Partial<WriteForm>;
   updateDraft?: (props: Partial<WriteForm>) => Promise<void>;
   isUpdatingDraft?: boolean;
+  formId?: string;
 }
 
 export const WritePostContext = React.createContext<WritePostProps>({
@@ -43,6 +44,7 @@ export const WritePostContext = React.createContext<WritePostProps>({
   formRef: null,
   draft: {},
   updateDraft: null,
+  formId: null,
 });
 
 export const useWritePostContext = (): WritePostProps =>
@@ -50,6 +52,7 @@ export const useWritePostContext = (): WritePostProps =>
 
 export const WritePostContextProvider = ({
   children,
+  formId,
   ...props
 }: PropsWithChildren<WritePostProps>): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -65,7 +68,7 @@ export const WritePostContextProvider = ({
             copy={{ right: 'Post' }}
             rightButtonProps={{ disabled: props.isPosting }}
             leftButtonProps={{ onClick: () => router.back() }}
-            form="write-post"
+            form={formId}
           >
             {component}
           </FormWrapper>

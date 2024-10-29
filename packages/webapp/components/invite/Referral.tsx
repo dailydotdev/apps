@@ -5,7 +5,12 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import {
+  cloudinaryReferralCampaignGenericReferralBackgroundDark,
+  cloudinaryReferralCampaignGenericReferralPurpleEdgeGlowTablet,
+  cloudinaryReferralCampaignGenericReferralAppScreenshot,
+  cloudinaryReferralCampaignGenericReferralPlayButton,
+} from '@dailydotdev/shared/src/lib/image';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
@@ -45,7 +50,7 @@ export function Referral({
   return (
     <div
       style={{
-        backgroundImage: `url(${cloudinary.referralCampaign.genericReferral.backgroundDark})`,
+        backgroundImage: `url(${cloudinaryReferralCampaignGenericReferralBackgroundDark})`,
       }}
       className="relative flex h-screen flex-auto flex-col items-center overflow-hidden bg-cover p-2 laptop:flex-row laptop:p-6"
     >
@@ -98,19 +103,17 @@ export function Referral({
       <div className="laptop:initial fixed -bottom-1/2 flex h-full w-full flex-auto laptop:bottom-[unset]">
         <div className="relative z-1 m-auto mx-2 flex w-fit justify-center self-center laptop:absolute laptop:right-[-7.5rem] laptop:w-[initial] laptopL:-right-24">
           <img
-            src={
-              cloudinary.referralCampaign.genericReferral.purpleEdgeGlowTablet
-            }
+            src={cloudinaryReferralCampaignGenericReferralPurpleEdgeGlowTablet}
             alt="Purple glow right edge"
             className="fixed -bottom-4 z-1 w-full laptop:bottom-[unset] laptop:top-0 laptop:h-full laptop:w-auto laptop:-rotate-90"
           />
           <img
-            src={cloudinary.referralCampaign.genericReferral.appScreenshot}
+            src={cloudinaryReferralCampaignGenericReferralAppScreenshot}
             alt="Daily.dev app screenshot of my feed page"
             className="z-0 h-auto w-full object-contain laptop:h-full laptop:max-h-[25.35rem] laptop:w-auto laptopXL:max-h-[39.5rem]"
           />
           <img
-            src={cloudinary.referralCampaign.genericReferral.playButton}
+            src={cloudinaryReferralCampaignGenericReferralPlayButton}
             alt="Play daily.dev introduction video"
             className="absolute z-2 h-[7.5rem] tablet:-mt-6 tablet:h-[14.5rem] laptop:mr-[8.5rem] laptop:mt-2 laptop:h-32 laptop:self-center laptopL:m-auto laptopXL:h-auto"
           />

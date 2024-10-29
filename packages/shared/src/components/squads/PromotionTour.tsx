@@ -1,5 +1,12 @@
 import React, { ReactElement, useMemo } from 'react';
-import { cloudinary } from '../../lib/image';
+import {
+  cloudinarySquadsPromotionRemove,
+  cloudinarySquadsPromotionPromote,
+  cloudinarySquadsPromotionBanner,
+  cloudinarySquadsPromotionDelete,
+  cloudinarySquadsPromotionSettings,
+  cloudinarySquadsPromotionInvite,
+} from '../../lib/image';
 import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import { FlexCentered, Justify } from '../utilities';
 import Carousel from '../containers/Carousel';
@@ -38,7 +45,7 @@ const firstStep = {
       key="step1"
       bannerAsBg
       className={{ banner: bannerClass }}
-      banner={cloudinary.squads.promotion.remove}
+      banner={cloudinarySquadsPromotionRemove}
       title="Manage Squad members"
       description="Maintain a harmonious Squad by overseeing membership and removing those no longer contributing positively."
     />
@@ -48,7 +55,7 @@ const firstStep = {
       key="step1"
       bannerAsBg
       className={{ banner: bannerClass }}
-      banner={cloudinary.squads.promotion.promote}
+      banner={cloudinarySquadsPromotionPromote}
       title="Manage roles and permissions"
       description="Take charge of your Squad by promoting or demoting members and moderators according to their engagement and contributions."
     />
@@ -67,7 +74,7 @@ function PromotionTour({ onClose, source }: PromotionTourProps): ReactElement {
         key="intro"
         bannerAsBg
         className={{ container: 'relative', banner: bannerClass }}
-        banner={cloudinary.squads.promotion.banner}
+        banner={cloudinarySquadsPromotionBanner}
         title="You have been promoted"
         description={roleDescription[role]}
       >
@@ -93,7 +100,7 @@ function PromotionTour({ onClose, source }: PromotionTourProps): ReactElement {
         key="step2"
         bannerAsBg
         className={{ banner: bannerClass }}
-        banner={cloudinary.squads.promotion.delete}
+        banner={cloudinarySquadsPromotionDelete}
         title="Remove posts and comments"
         description="Uphold your squad’s standards by removing off-topic or inappropriate content."
       />,
@@ -105,7 +112,7 @@ function PromotionTour({ onClose, source }: PromotionTourProps): ReactElement {
           key="step2"
           bannerAsBg
           className={{ banner: bannerClass }}
-          banner={cloudinary.squads.promotion.settings}
+          banner={cloudinarySquadsPromotionSettings}
           title="Customize Squad settings"
           description="Tailor your community experience by managing posting rights, member invitation privileges, and editing Squad details."
         />,
@@ -117,7 +124,7 @@ function PromotionTour({ onClose, source }: PromotionTourProps): ReactElement {
         key="step2"
         bannerAsBg
         className={{ banner: bannerClass }}
-        banner={cloudinary.squads.promotion.invite}
+        banner={cloudinarySquadsPromotionInvite}
         title="Grow your Squad"
         description="Strengthen your Squad's network by bringing in new members to collaborate and exchange insights."
       />,

@@ -1,16 +1,15 @@
-import '@dailydotdev/shared/src/lib/lazysizesImport';
 import React, {
   ReactElement,
   ReactNode,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import 'focus-visible';
-import Modal from 'react-modal';
 import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import { DefaultSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -20,7 +19,6 @@ import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/c
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
 import '@dailydotdev/shared/src/styles/globals.css';
-import { useInAppNotification } from '@dailydotdev/shared/src/hooks/useInAppNotification';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import useDeviceId from '@dailydotdev/shared/src/hooks/log/useDeviceId';
@@ -29,7 +27,6 @@ import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
@@ -55,9 +52,6 @@ const CookieBanner = dynamic(
     import(/* webpackChunkName: "cookieBanner" */ '../components/CookieBanner'),
 );
 
-Modal.setAppElement('#__next');
-Modal.defaultStyles = {};
-
 interface ComponentGetLayout {
   getLayout?: (
     page: ReactNode,
@@ -73,6 +67,7 @@ const getRedirectUri = () =>
 const getPage = () => window.location.pathname;
 
 function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
+  const didRegisterSwRef = useRef(false);
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
   const { user, closeLogin, shouldShowLogin, loginState } =
@@ -80,13 +75,21 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
   useWebVitals();
   useLogPageView();
-  useInAppNotification();
   const { modal, closeModal } = useLazyModal();
-  usePrompt();
   useConsoleLogo();
 
   useEffect(() => {
     updateCookieBanner(user);
+
+    if (
+      user &&
+      !didRegisterSwRef.current &&
+      'serviceWorker' in navigator &&
+      window.serwist !== undefined
+    ) {
+      didRegisterSwRef.current = true;
+      window.serwist.register();
+    }
   }, [updateCookieBanner, user]);
 
   useEffect(() => {
@@ -166,7 +169,10 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           }}
         />
 
+        <link rel="preconnect" href="https://api.daily.dev" />
+        <link rel="preconnect" href="https://sso.daily.dev" />
         <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="preconnect" href="https://daily-now-res.cloudinary.com" />
       </Head>
       <DefaultSeo
         {...Seo}

@@ -2,12 +2,17 @@
   "name": "daily-apps",
   "private": true,
   "dependencies": {
-    "@babel/runtime": "^7.17.9",
+    "@babel/runtime": "^7.25.9",
     "postcss-rem-to-responsive-pixel": "^6.0.2"
   },
   "scripts": {
     "prepare": "corepack enable || true",
     "pnpm-version": "pnpm -v"
   },
-  "packageManager": "pnpm@8.15.7+sha256.50783dd0fa303852de2dd1557cd4b9f07cb5b018154a6e76d0f40635d6cee019"
+  "packageManager": "pnpm@8.15.7+sha256.50783dd0fa303852de2dd1557cd4b9f07cb5b018154a6e76d0f40635d6cee019",
+  "pnpm": {
+    "patchedDependencies": {
+      "graphql-request@3.7.0": "patches/graphql-request@3.7.0.patch"
+    }
+  }
 }

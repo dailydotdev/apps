@@ -45,37 +45,42 @@ const VerifyWorkEmail = ({
     }
   }, [runTimer, setTimer, workEmail]);
 
-  const { mutate: onSubmitCode } = useMutation(
-    () => gqlClient.request(ADD_USER_COMPANY_MUTATION, { email: workEmail }),
-    {
-      onSuccess: () => {
-        setTimer(60);
-        runTimer();
-      },
-      onError: () => displayToast(labels.error.generic),
-    },
-  );
+  const { mutate: onSubmitCode } = useMutation({
+    mutationFn: () =>
+      gqlClient.request(ADD_USER_COMPANY_MUTATION, { email: workEmail }),
 
-  const { mutate: verifyUserCompanyCode } = useMutation(
-    ({ email, code: submittedCode }: { email: string; code: string }) =>
+    onSuccess: () => {
+      setTimer(60);
+      runTimer();
+    },
+    onError: () => displayToast(labels.error.generic),
+  });
+
+  const { mutate: verifyUserCompanyCode } = useMutation({
+    mutationFn: ({
+      email,
+      code: submittedCode,
+    }: {
+      email: string;
+      code: string;
+    }) =>
       gqlClient.request(VERIFY_USER_COMPANY_CODE_MUTATION, {
         email,
         code: submittedCode,
       }),
-    {
-      onSuccess: (data) => {
-        queryClient.setQueryData<UserCompany[]>(
-          generateQueryKey(RequestKey.UserCompanies, user),
-          (currentUserCompanies) => {
-            currentUserCompanies.push(data.verifyUserCompanyCode);
-            return currentUserCompanies;
-          },
-        );
-        onSwitchDisplay(Display.Default);
-      },
-      onError: () => displayToast(labels.error.generic),
+
+    onSuccess: (data) => {
+      queryClient.setQueryData<UserCompany[]>(
+        generateQueryKey(RequestKey.UserCompanies, user),
+        (currentUserCompanies) => {
+          currentUserCompanies.push(data.verifyUserCompanyCode);
+          return currentUserCompanies;
+        },
+      );
+      onSwitchDisplay(Display.Default);
     },
-  );
+    onError: () => displayToast(labels.error.generic),
+  });
 
   return (
     <AccountPageContainer

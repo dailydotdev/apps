@@ -1,7 +1,6 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook } from '@testing-library/react-hooks';
-import { waitFor } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { Alerts } from '../../graphql/alerts';

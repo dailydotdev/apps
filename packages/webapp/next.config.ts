@@ -1,28 +1,37 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const withPWA = require('next-pwa');
-const { version } = require('../extension/package.json');
-const runtimeCaching = require('./cache');
+import withSerwistInit from '@serwist/next';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import withBundleAnalyzerInit from '@next/bundle-analyzer';
+import { readFileSync } from 'fs';
+import { NextConfig } from 'next';
+import { Rewrite } from 'next/dist/lib/load-custom-routes';
 
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
+const { version } = JSON.parse(
+  readFileSync('../extension/package.json', 'utf8'),
+);
+
+const withBundleAnalyzer = withBundleAnalyzerInit({
   enabled: process.env.ANALYZE === 'true',
 });
 
 const securityHeaders = [
   {
     key: 'X-Frame-Options',
-    value: 'DENY'
-  }
-]
+    value: 'DENY',
+  },
+];
 
-module.exports = {
+const withSerwist = withSerwistInit({
+  swSrc: './sw.ts',
+  swDest: 'public/sw.js',
+  disable: process.env.NODE_ENV === 'development',
+  exclude: [/syntax/i],
+  register: false,
+  maximumFileSizeToCacheInBytes: 1024 * 1024,
+});
+
+const nextConfig: NextConfig = {
   transpilePackages: ['@dailydotdev/shared'],
-  ...withPWA({
-    pwa: {
-      dest: 'public',
-      disable: process.env.NODE_ENV === 'development',
-      runtimeCaching,
-      buildExcludes: [/react-syntax-highlighter|reactSyntaxHighlighter/]
-    },
+  ...withSerwist({
     ...withBundleAnalyzer({
       i18n: {
         locales: ['en'],
@@ -31,11 +40,11 @@ module.exports = {
       compiler: {
         reactRemoveProperties: { properties: ['^data-testid$'] },
       },
-      webpack: (config, { dev, isServer }) => {
+      webpack: (config) => {
         // Grab the existing rule that handles SVG imports
         const fileLoaderRule = config.module.rules.find((rule) =>
           rule.test?.test?.('.svg'),
-        )
+        );
 
         config.module.rules.push(
           // Reapply the existing rule, but only for svg imports ending in ?url
@@ -48,7 +57,9 @@ module.exports = {
           {
             test: /\.svg$/i,
             issuer: fileLoaderRule.issuer,
-            resourceQuery: { not: [...fileLoaderRule.resourceQuery.not, /url/] }, // exclude if *.svg?url
+            resourceQuery: {
+              not: [...fileLoaderRule.resourceQuery.not, /url/],
+            }, // exclude if *.svg?url
             use: [
               {
                 loader: '@svgr/webpack',
@@ -67,10 +78,10 @@ module.exports = {
               },
             ],
           },
-        )
+        );
 
         // Modify the file loader rule to ignore *.svg, since we have it handled now.
-        fileLoaderRule.exclude = /\.svg$/i
+        fileLoaderRule.exclude = /\.svg$/i;
         config.module.rules.push({
           test: /\.m?js/,
           resolve: {
@@ -78,13 +89,21 @@ module.exports = {
           },
         });
 
+        // we don't need cross-fetch in our bundle since we are using the native fetch
+        // cross-fetch is here due to graphql-request dependency
+        // it was removedi n graphql-request@7.x but due to a lot of breaking changes
+        // for now we apply https://github.com/graffle-js/graffle/pull/296
+        // as patch graphql-request manually through pnpm
+        // eslint-disable-next-line no-param-reassign
+        config.resolve.alias['cross-fetch'] = false;
+
         return config;
       },
       env: {
         CURRENT_VERSION: version,
       },
-      rewrites: () => {
-        const rewrites = [
+      rewrites: async () => {
+        const rewrites: Rewrite[] = [
           {
             source: '/api/sitemaps/:path*',
             destination: `${process.env.NEXT_PUBLIC_API_URL}/sitemaps/:path*`,
@@ -95,14 +114,14 @@ module.exports = {
             has: [
               {
                 type: 'query',
-                key: 'provider'
-              }
-            ]
+                key: 'provider',
+              },
+            ],
           },
           {
             source: '/search',
-            destination: '/search/posts'
-          }
+            destination: '/search/posts',
+          },
         ];
 
         // to support GitPod environment and avoid CORS issues, we need to proxy the API requests
@@ -115,19 +134,19 @@ module.exports = {
 
         return rewrites;
       },
-      redirects: () => {
+      redirects: async () => {
         return [
           {
             source: '/posts/finder',
             destination: '/search?provider=posts',
-            permanent: false
+            permanent: false,
           },
           {
             source: '/signup',
             destination: '/onboarding',
-            permanent: false
-          }
-        ]
+            permanent: false,
+          },
+        ];
       },
       headers: async () => {
         return [
@@ -137,14 +156,18 @@ module.exports = {
               ...securityHeaders,
               {
                 key: 'X-Recruiting',
-                value: 'We are hiring! Check https://daily.dev/careers for more info!'
+                value:
+                  'We are hiring! Check https://daily.dev/careers for more info!',
               },
-            ]
-          }
-        ]
+            ],
+          },
+        ];
       },
       poweredByHeader: false,
       reactStrictMode: false,
       productionBrowserSourceMaps: process.env.SOURCE_MAPS === 'true',
     }),
-  })};
+  }),
+};
+
+export default nextConfig;

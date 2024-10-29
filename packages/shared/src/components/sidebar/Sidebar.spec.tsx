@@ -74,6 +74,8 @@ const renderComponent = (
         <AuthContext.Provider
           value={{
             user,
+            isAuthReady: true,
+            isFetched: true,
             isLoggedIn: !!user?.id,
             shouldShowLogin: false,
             showLogin: jest.fn(),

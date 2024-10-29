@@ -31,7 +31,6 @@ interface UseRegistrationProps {
   key: QueryKey;
   onRedirect?: (redirect: string) => void;
   onRedirectFail?: () => void;
-  onValidRegistration?: (params: ValidateRegistrationParams) => void;
   onInvalidRegistration?: (errors: RegistrationError) => void;
   onInitializeVerification?: () => void;
 }
@@ -54,7 +53,6 @@ const useRegistration = ({
   key,
   onRedirect,
   onRedirectFail,
-  onValidRegistration,
   onInvalidRegistration,
   onInitializeVerification,
 }: UseRegistrationProps): UseRegistration => {
@@ -68,7 +66,9 @@ const useRegistration = ({
     data: registration,
     isLoading: isQueryLoading,
     error: registrationError,
-  } = useQuery(key, () => initializeKratosFlow(AuthFlow.Registration), {
+  } = useQuery({
+    queryKey: key,
+    queryFn: () => initializeKratosFlow(AuthFlow.Registration),
     refetchOnWindowFocus: false,
   });
 
@@ -118,61 +118,57 @@ const useRegistration = ({
   const {
     mutateAsync: validate,
     status,
-    isLoading: isMutationLoading,
-  } = useMutation(
-    (params: ValidateRegistrationParams) => submitKratosFlow(params),
-    {
-      onSuccess: ({ data, error, redirect }, params) => {
-        const successfulData = data as SuccessfulRegistrationData;
+    isPending: isMutationLoading,
+  } = useMutation({
+    mutationFn: (params: ValidateRegistrationParams) =>
+      submitKratosFlow(params),
 
-        if (successfulData?.continue_with?.length) {
-          const continueWith = successfulData.continue_with.find(
-            ({ action }) => action === ContinueWithAction.ShowVerification,
-          );
+    onSuccess: ({ data, error, redirect }) => {
+      const successfulData = data as SuccessfulRegistrationData;
 
-          if (continueWith) {
-            setVerificationId(continueWith.flow.id);
-            return onInitializeVerification?.();
-          }
-        }
-
-        if (successfulData) {
-          return onValidRegistration?.(params);
-        }
-
-        if (redirect) {
-          return onRedirect(redirect);
-        }
-
-        // probably csrf token issue and definitely not related to forms data
-        if (!error.ui) {
-          logEvent({
-            event_name: AuthEventNames.RegistrationError,
-            extra: JSON.stringify({
-              error: {
-                flowId: error?.id,
-                messages: error?.ui?.messages,
-              },
-              origin: 'validate registration flow',
-            }),
-          });
-          return displayToast('An error occurred, please refresh the page.');
-        }
-
-        const emailExists = error?.ui?.messages?.find(
-          (message) => message.id === EMAIL_EXISTS_ERROR_ID,
+      if (successfulData?.continue_with?.length) {
+        const continueWith = successfulData.continue_with.find(
+          ({ action }) => action === ContinueWithAction.ShowVerification,
         );
-        if (emailExists) {
-          return onInvalidRegistration?.({
-            'traits.email': 'Email is already taken!',
-          });
-        }
 
-        const json = errorsToJson<ParamKeys>(error);
-        return onInvalidRegistration?.(json);
-      },
+        if (continueWith) {
+          setVerificationId(continueWith.flow.id);
+          return onInitializeVerification?.();
+        }
+      }
+
+      if (redirect) {
+        return onRedirect(redirect);
+      }
+
+      // probably csrf token issue and definitely not related to forms data
+      if (!error.ui) {
+        logEvent({
+          event_name: AuthEventNames.RegistrationError,
+          extra: JSON.stringify({
+            error: {
+              flowId: error?.id,
+              messages: error?.ui?.messages,
+            },
+            origin: 'validate registration flow',
+          }),
+        });
+        return displayToast('An error occurred, please refresh the page.');
+      }
+
+      const emailExists = error?.ui?.messages?.find(
+        (message) => message.id === EMAIL_EXISTS_ERROR_ID,
+      );
+      if (emailExists) {
+        return onInvalidRegistration?.({
+          'traits.email': 'Email is already taken!',
+        });
+      }
+
+      const json = errorsToJson<ParamKeys>(error);
+      return onInvalidRegistration?.(json);
     },
-  );
+  });
 
   const onValidateRegistration = async (values: RegistrationParameters) => {
     const { nodes, action } = registration.ui;

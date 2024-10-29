@@ -25,14 +25,13 @@ import {
 import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { ActionType } from '../graphql/actions';
 import { useActions } from './useActions';
+import { bookmarkMutationKey } from './bookmark/types';
 
 export type ToggleBookmarkProps = {
   origin: Origin;
   post: Post | ReadHistoryPost;
   opts?: PostLogEventFnOptions;
 };
-
-export const bookmarkMutationKey = ['post', 'mutation', 'bookmark'];
 
 export type UseBookmarkPostMutationProps = {
   id?: string;
@@ -88,22 +87,20 @@ const useBookmarkPost = ({
     };
   };
 
-  const { mutateAsync: bookmarkPost } = useMutation(
-    ({ mutation, payload }: UseBookmarkPostMutationProps) =>
+  const { mutateAsync: bookmarkPost } = useMutation({
+    mutationKey: mutationKey
+      ? [...bookmarkMutationKey, ...mutationKey]
+      : bookmarkMutationKey,
+    mutationFn: ({ mutation, payload }: UseBookmarkPostMutationProps) =>
       requestMethod(mutation, {
         ...payload,
       }),
-    {
-      mutationKey: mutationKey
-        ? [...bookmarkMutationKey, ...mutationKey]
-        : bookmarkMutationKey,
-      onMutate: onMutate || defaultOnMutate,
-      onSuccess: () => {
-        completeAction(ActionType.BookmarkPost);
-      },
-      onError: (err, _, rollback?: () => void) => rollback?.(),
+    onMutate: onMutate || defaultOnMutate,
+    onSuccess: () => {
+      completeAction(ActionType.BookmarkPost);
     },
-  );
+    onError: (err, _, rollback?: () => void) => rollback?.(),
+  });
 
   const addBookmark = useCallback(
     ({ id }: BookmarkProps) => {

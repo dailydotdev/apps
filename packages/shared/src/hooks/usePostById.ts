@@ -17,6 +17,7 @@ import { PostCommentsData } from '../graphql/comments';
 import {
   getAllCommentsQuery,
   RequestKey,
+  StaleTime,
   updatePostContentPreference,
 } from '../lib/query';
 import { Connection, gqlClient } from '../graphql/common';
@@ -30,7 +31,7 @@ import { PropsParameters } from '../types';
 
 interface UsePostByIdProps {
   id: string;
-  options?: QueryObserverOptions<PostData>;
+  options?: Partial<QueryObserverOptions<PostData>>;
 }
 
 interface UsePostById extends Pick<UseQueryResult, 'isError' | 'isLoading'> {
@@ -114,20 +115,20 @@ export const removePostComments = (
 };
 
 const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
+  const { initialData, ...restOptions } = options;
   const { tokenRefreshed } = useAuthContext();
   const key = getPostByIdKey(id);
   const {
     data: postById,
     isError,
     isLoading,
-  } = useQuery<PostData>(
-    key,
-    () => gqlClient.request(POST_BY_ID_QUERY, { id }),
-    {
-      ...options,
-      enabled: !!id && tokenRefreshed,
-    },
-  );
+  } = useQuery<PostData>({
+    queryKey: key,
+    queryFn: () => gqlClient.request(POST_BY_ID_QUERY, { id }),
+    ...restOptions,
+    staleTime: StaleTime.Default,
+    enabled: !!id && tokenRefreshed,
+  });
   const post = postById || (options?.initialData as PostData);
 
   useMutationSubscription({
@@ -169,9 +170,9 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
       post: post?.post,
       relatedCollectionPosts: post?.relatedCollectionPosts,
       isError,
-      isLoading,
+      isLoading: !post?.post && isLoading,
     }),
-    [post, isError, isLoading],
+    [post?.post, post?.relatedCollectionPosts, isError, isLoading],
   );
 };
 

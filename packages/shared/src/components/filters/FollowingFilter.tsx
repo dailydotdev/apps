@@ -1,4 +1,4 @@
-import React, { useMemo, type ReactElement } from 'react';
+import React, { type ReactElement, useMemo } from 'react';
 import Link from 'next/link';
 import { useAuthContext } from '../../contexts/AuthContext';
 import UserList from '../profile/UserList';
@@ -60,6 +60,7 @@ export const FollowingFilter = (): ReactElement => {
       }}
       userInfoProps={{
         origin: Origin.FollowFilter,
+        showFollow: true,
       }}
     />
   );

@@ -7,7 +7,7 @@ import ShareBar from '../ShareBar';
 import FurtherReading from '../widgets/FurtherReading';
 import { PostHeaderActions } from './PostHeaderActions';
 import SourceButton from '../cards/common/SourceButton';
-import { SourceMember, Squad } from '../../graphql/sources';
+import { Squad } from '../../graphql/sources';
 import { SquadActionButton } from '../squads/SquadActionButton';
 import { Origin } from '../../lib/log';
 import { useSquad } from '../../hooks';
@@ -22,11 +22,11 @@ const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
   const { id: squadId, handle } = squadSource;
   const { squad } = useSquad({ handle });
 
-  const { data: squadMembers } = useQuery<SourceMember[]>(
-    ['squadMembersInitial', handle],
-    () => getSquadMembers(squadId),
-    { enabled: isFetched && !!squadId },
-  );
+  const { data: squadMembers } = useQuery({
+    queryKey: ['squadMembersInitial', handle],
+    queryFn: () => getSquadMembers(squadId),
+    enabled: isFetched && !!squadId,
+  });
 
   if (!squad) {
     return null;
@@ -45,7 +45,7 @@ const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
       <h3 className="mt-3 text-text-primary typo-title2">{squad.name}</h3>
       <h4 className="text-text-tertiary typo-callout">{`@${squad.handle}`}</h4>
       {squad.description && (
-        <p className="mt-1 text-text-tertiary typo-callout">
+        <p className="mt-1 overflow-hidden text-ellipsis text-text-tertiary typo-callout">
           {squad.description}
         </p>
       )}

@@ -1,7 +1,10 @@
 import { JSONValue } from '@growthbook/growthbook';
 import { ShortcutsUIExperiment } from './featureValues';
-import { cloudinary } from './image';
 import { SearchStyleVersion } from '../components/fields/SearchField';
+import {
+  cloudinaryOnboardingFullBackgroundDesktop,
+  cloudinaryOnboardingFullBackgroundMobile,
+} from './image';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -19,8 +22,8 @@ const feature = {
   feedVersion: new Feature('feed_version', 15),
   onboardingVisual: new Feature('onboarding_visual', {
     fullBackground: {
-      mobile: cloudinary.onboarding.fullBackground.mobile,
-      desktop: cloudinary.onboarding.fullBackground.desktop,
+      mobile: cloudinaryOnboardingFullBackgroundMobile,
+      desktop: cloudinaryOnboardingFullBackgroundDesktop,
     },
   }),
   feedAdSpot: new Feature('feed_ad_spot', 2),
@@ -38,6 +41,7 @@ const feature = {
     SearchStyleVersion.Default,
   ),
   extensionOverlay: new Feature('onboarding_extension_overlay', false),
+  seniorContentOnboarding: new Feature('senior_content_onboarding', false),
 };
 
 export { feature };

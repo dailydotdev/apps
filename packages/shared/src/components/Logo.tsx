@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { CSSTransition } from 'react-transition-group';
 import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
 import LogoText from '../svg/LogoText';
 import LogoIcon from '../svg/LogoIcon';
@@ -37,7 +36,14 @@ const LogoSvgElem = ({
 }: LogoSvgElemProps): ReactElement => {
   if (src) {
     return (
-      <img src={src} className={className?.container} alt="daily.dev logo" />
+      <img
+        loading="eager"
+        // @ts-expect-error - Not supported by react yet
+        fetchpriority="high"
+        src={src}
+        className={className?.container}
+        alt="daily.dev logo"
+      />
     );
   }
   return <FallbackElem className={className} />;
@@ -49,7 +55,6 @@ interface LogoProps {
     container?: string;
     group?: string;
   };
-  showGreeting?: boolean;
   onLogoClick?: (e: React.MouseEvent) => unknown;
   hideTextMobile?: boolean;
   compact?: boolean;
@@ -64,7 +69,6 @@ interface LogoProps {
 export default function Logo({
   className,
   logoClassName = { container: 'h-logo' },
-  showGreeting,
   onLogoClick,
   hideTextMobile = false,
   compact = false,
@@ -96,25 +100,18 @@ export default function Logo({
           fallback={LogoIcon}
         />
         {!compact && (
-          <CSSTransition
-            in={!showGreeting}
-            timeout={500}
-            classNames="fade"
-            unmountOnExit
-          >
-            <LogoSvgElem
-              className={{
-                container: classNames(
-                  'ml-1',
-                  logoClassName?.container,
-                  hideTextMobile && 'hidden laptop:block',
-                ),
-                group: logoClassName?.group,
-              }}
-              src={featureTheme?.logoText}
-              fallback={LogoText}
-            />
-          </CSSTransition>
+          <LogoSvgElem
+            className={{
+              container: classNames(
+                'ml-1',
+                logoClassName?.container,
+                hideTextMobile && 'hidden laptop:block',
+              ),
+              group: logoClassName?.group,
+            }}
+            src={featureTheme?.logoText}
+            fallback={LogoText}
+          />
         )}
       </a>
     </LinkWithTooltip>

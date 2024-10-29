@@ -10,7 +10,7 @@ import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import PlaceholderCommentList from './PlaceholderCommentList';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import AuthContext from '../../contexts/AuthContext';
-import { cloudinary } from '../../lib/image';
+import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { AdPixel } from '../cards/ad/common/AdPixel';
 
 interface AdAsCommentProps {
@@ -20,21 +20,20 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
   const { logEvent } = useContext(LogContext);
   const { user } = useContext(AuthContext);
   const isImpressionTracked = useRef(false);
-  const ad = useQuery<Ad>(
-    generateQueryKey(RequestKey.Ads, user, postId),
-    async () => {
+  const ad = useQuery({
+    queryKey: generateQueryKey(RequestKey.Ads, user, postId),
+
+    queryFn: async () => {
       const res = await fetch(`${apiUrl}/v1/a/post`);
       const ads: Ad[] = await res.json();
       return ads[0];
     },
-    {
-      enabled: true,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      staleTime: StaleTime.OneHour,
-    },
-  );
+    enabled: true,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+    staleTime: StaleTime.OneHour,
+  });
 
   const { isLoading, data, isError } = ad || {};
   const { providerId, source, image, description, pixel, company, tagLine } =
@@ -81,7 +80,7 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
         className="!inline-block"
         size={ProfileImageSize.Large}
         user={{ id: providerId, username: source, image }}
-        fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+        fallbackSrc={cloudinaryPostImageCoverPlaceholder}
         style={{ backgroundColor: data?.backgroundColor }}
       />
       <div className="ml-3 inline-block flex-col">
