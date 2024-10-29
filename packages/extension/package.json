@@ -107,7 +107,7 @@
     "tailwindcss": "^3.4.14",
     "terser-webpack-plugin": "^4.2.3",
     "ts-jest": "^26.5.4",
-    "typescript": "4.9.5",
+    "typescript": "5.6.3",
     "webpack": "^5.72.0",
     "webpack-cli": "^4.9.2",
     "webpack-ext-reloader": "^1.1.13",
