@@ -85,7 +85,11 @@ const updateLocalBootData = (
 };
 
 const getCachedBootOrNull = () => {
-  return JSON.parse(storage.getItem(BOOT_LOCAL_KEY) ?? 'null');
+  try {
+    return JSON.parse(storage.getItem(BOOT_LOCAL_KEY));
+  } catch (err) {
+    return null;
+  }
 };
 
 export type PreloadFeeds = ({
