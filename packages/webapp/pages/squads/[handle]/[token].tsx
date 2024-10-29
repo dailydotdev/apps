@@ -30,7 +30,6 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { NextSeo } from 'next-seo';
 import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
@@ -45,6 +44,7 @@ import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePict
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { getSquadOpenGraph } from '../../../next-seo';
+import { DynamicSeoProps } from '../../../components/common';
 
 const getOthers = (others: Edge<SourceMember>[], total: number) => {
   const { length } = others;
@@ -63,7 +63,7 @@ const getOthers = (others: Edge<SourceMember>[], total: number) => {
 const BodyParagraph = classed('p', 'typo-body text-text-tertiary');
 const HighlightedText = classed('span', 'font-bold text-text-primary');
 
-export interface SquadReferralProps {
+export interface SquadReferralProps extends DynamicSeoProps {
   token: string;
   handle: string;
   initialData: SourceMember;
@@ -222,19 +222,12 @@ const SquadReferral = ({
     source.membersCount,
   );
 
-  const seo: NextSeoProps = {
-    title: `${user.name} invited you to ${source.name}`,
-    description: source.description,
-    openGraph: getSquadOpenGraph({ squad: source }),
-  };
-
   if (!initialData && (isFallback || !isFetched)) {
     return <></>;
   }
 
   return (
     <PageContainer className="relative items-center pt-10 tablet:pt-20">
-      <NextSeo {...seo} />
       <div className="squad-background-fade absolute -top-4 left-0 right-0 h-40 max-w-[100vw] rounded-26 tablet:-left-20 tablet:-right-20" />
       <h1 className="typo-title1">You are invited to join {source.name}</h1>
       <BodyParagraph className="mt-6">
@@ -309,11 +302,26 @@ export async function getStaticProps({
 > {
   const { handle, token } = params;
   const initialData = await getSquadInvitation(token);
+  const { user, source } = initialData;
+
+  if (!source || !user) {
+    return {
+      props: { handle, token, initialData: null },
+    };
+  }
+
+  const seo: NextSeoProps = {
+    title: `${user.name} invited you to ${source.name}`,
+    description: source.description,
+    openGraph: getSquadOpenGraph({ squad: source }),
+  };
+
   return {
     props: {
       handle,
       token,
       initialData,
+      seo,
     },
     revalidate: 60,
   };

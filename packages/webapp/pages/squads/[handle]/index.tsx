@@ -7,7 +7,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { NextSeo } from 'next-seo';
+import { NextSeoProps } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import {
   SOURCE_FEED_QUERY,
@@ -22,7 +22,8 @@ import {
 } from '@dailydotdev/shared/src/components/utilities';
 import {
   getSquadMembers,
-  SQUAD_STATIC_FIELDS_QUERY,
+  getSquadStaticData,
+  SquadStaticData,
 } from '@dailydotdev/shared/src/graphql/squads';
 import { SourceMember, Squad } from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
@@ -39,9 +40,8 @@ import {
 } from '@dailydotdev/shared/src/hooks';
 import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
 import { ClientError } from 'graphql-request';
-import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
-import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
+import { getReferringUser } from '@dailydotdev/shared/src/graphql/users';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import { useRouter } from 'next/router';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
@@ -56,6 +56,7 @@ import ProtectedPage, {
 } from '../../../components/ProtectedPage';
 import { getSquadOpenGraph } from '../../../next-seo';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
+import { DynamicSeoProps } from '../../../components/common';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
@@ -76,36 +77,22 @@ const SquadLoading = dynamic(
   { ssr: false },
 );
 
-type SourcePageProps = {
+interface SourcePageProps extends DynamicSeoProps {
   handle: string;
-  initialData?: Pick<Squad, 'id' | 'name' | 'public' | 'description' | 'image'>;
-  referringUser?: Pick<PublicProfile, 'id' | 'name' | 'image'>;
-};
+  initialData?: SquadStaticData;
+}
 
 const PageComponent = (props: ProtectedPageProps & { squad: Squad }) => {
-  const { squad, seo, children, ...restProtectedPageProps } = props;
+  const { squad, children, ...restProtectedPageProps } = props;
 
   if (squad.public) {
-    return (
-      <>
-        {seo}
-        {children}
-      </>
-    );
+    return <>{children}</>;
   }
 
-  return (
-    <ProtectedPage {...restProtectedPageProps} seo={seo}>
-      {children}
-    </ProtectedPage>
-  );
+  return <ProtectedPage {...restProtectedPageProps}>{children}</ProtectedPage>;
 };
 
-const SquadPage = ({
-  handle,
-  initialData,
-  referringUser,
-}: SourcePageProps): ReactElement => {
+const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
   const router = useRouter();
   const { openModal } = useLazyModal();
   useJoinReferral();
@@ -158,21 +145,6 @@ const SquadPage = ({
     });
   }, [isForbidden, squadId, handle, logEvent]);
 
-  const seoData = squad || initialData;
-  const seo = !!seoData && (
-    <NextSeo
-      title={
-        referringUser
-          ? `${referringUser.name} invited you to ${seoData.name}`
-          : getTemplatedTitle(`${seoData.name} Squad`)
-      }
-      description={seoData.description}
-      openGraph={getSquadOpenGraph({ squad: seoData })}
-      nofollow={!seoData.public}
-      noindex={!seoData.public}
-    />
-  );
-
   const shouldManageSlack = router.query?.lzym === LazyModal.SlackIntegration;
 
   useEffect(() => {
@@ -202,15 +174,15 @@ const SquadPage = ({
 
   if ((isLoading && !isFetched) || privateSourceJoin.isActive) {
     return (
-      <>
-        {seo}
-        <SquadLoading squad={seoData} sidebarRendered={sidebarRendered} />
-      </>
+      <SquadLoading
+        squad={squad || initialData}
+        sidebarRendered={sidebarRendered}
+      />
     );
   }
 
   if (!isFetched) {
-    return <>{seo}</>;
+    return <></>;
   }
 
   if (isForbidden) {
@@ -226,12 +198,7 @@ const SquadPage = ({
     : BaseFeedPage;
 
   return (
-    <PageComponent
-      squad={squad}
-      seo={seo}
-      fallback={<></>}
-      shouldFallback={!user}
-    >
+    <PageComponent squad={squad} fallback={<></>} shouldFallback={!user}>
       <FeedPageComponent
         className={classNames('relative mb-4 pt-2 laptop:pt-8')}
       >
@@ -302,25 +269,10 @@ export async function getServerSideProps({
   try {
     const promises = [];
 
-    promises.push(
-      gqlClient.request<{
-        source: SourcePageProps['initialData'];
-      }>(SQUAD_STATIC_FIELDS_QUERY, {
-        handle,
-      }),
-    );
+    promises.push(getSquadStaticData(handle));
 
     if (userId && campaign) {
-      promises.push(
-        gqlClient
-          .request<{ user: SourcePageProps['referringUser'] }>(
-            GET_REFERRING_USER_QUERY,
-            {
-              id: userId,
-            },
-          )
-          .catch(() => undefined),
-      );
+      promises.push(getReferringUser(userId as string));
     }
 
     const [{ source: squad }, referringUser] = await Promise.all(promises);
@@ -336,11 +288,21 @@ export async function getServerSideProps({
 
     setCacheHeader();
 
+    const seo: NextSeoProps = {
+      title: referringUser
+        ? `${referringUser.name} invited you to ${squad.name}`
+        : getTemplatedTitle(`${squad.name} Squad`),
+      description: squad.description,
+      openGraph: getSquadOpenGraph({ squad }),
+      nofollow: !squad.public,
+      noindex: !squad.public,
+    };
+
     return {
       props: {
+        seo,
         handle,
         initialData: squad,
-        referringUser: referringUser?.user || null,
       },
     };
   } catch (err) {

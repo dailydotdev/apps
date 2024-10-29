@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
@@ -15,15 +14,9 @@ const seo: NextSeoProps = {
     'Stay on top of real-time developer discussions on daily.dev. Join conversations happening now and engage with the most active community members.',
 };
 
-const Discussed = (): ReactElement => {
-  return (
-    <>
-      <NextSeo {...seo} />
-    </>
-  );
-};
+const Discussed = (): ReactElement => <></>;
 
 Discussed.getLayout = getMainFeedLayout;
-Discussed.layoutProps = mainFeedLayoutProps;
+Discussed.layoutProps = { ...mainFeedLayoutProps, seo };
 
 export default Discussed;

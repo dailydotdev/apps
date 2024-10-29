@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { NextSeo } from 'next-seo';
+import { NextSeoProps } from 'next-seo';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import { useRouter } from 'next/router';
 import {
@@ -35,7 +35,6 @@ const feedOptions = [
 const History = (): ReactElement => {
   const { logEvent } = useContext(LogContext);
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const seo = <NextSeo title="History" nofollow noindex />;
   const router = useRouter();
   const tabQuery = router.query?.t?.toString() as HistoryType;
   const [page, setPage] = useState(HistoryType.Reading);
@@ -62,11 +61,11 @@ const History = (): ReactElement => {
   }, [tabQuery]);
 
   if (!router.isReady) {
-    return seo;
+    return null;
   }
 
   return (
-    <ProtectedPage seo={seo}>
+    <ProtectedPage>
       {isLaptop && (
         <div className="absolute left-0 top-[6.75rem] flex h-px w-full bg-border-subtlest-tertiary laptop:hidden" />
       )}
@@ -124,6 +123,9 @@ const History = (): ReactElement => {
 const geHistoryLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
+const seo: NextSeoProps = { title: 'History', nofollow: true, noindex: true };
+
 History.getLayout = geHistoryLayout;
+History.layoutProps = { seo };
 
 export default History;
