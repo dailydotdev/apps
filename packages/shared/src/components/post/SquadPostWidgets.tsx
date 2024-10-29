@@ -7,7 +7,7 @@ import ShareBar from '../ShareBar';
 import FurtherReading from '../widgets/FurtherReading';
 import { PostHeaderActions } from './PostHeaderActions';
 import SourceButton from '../cards/common/SourceButton';
-import { Squad } from '../../graphql/sources';
+import { BasicSourceMember, Squad } from '../../graphql/sources';
 import { SquadActionButton } from '../squads/SquadActionButton';
 import { Origin } from '../../lib/log';
 import { useSquad } from '../../hooks';
@@ -22,7 +22,7 @@ const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
   const { id: squadId, handle } = squadSource;
   const { squad } = useSquad({ handle });
 
-  const { data: squadMembers } = useQuery({
+  const { data: squadMembers } = useQuery<BasicSourceMember[]>({
     queryKey: ['squadMembersInitial', handle],
     queryFn: () => getSquadMembers(squadId),
     enabled: isFetched && !!squadId,
