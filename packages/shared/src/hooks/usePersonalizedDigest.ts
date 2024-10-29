@@ -37,7 +37,7 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
   const queryClient = useQueryClient();
   const queryKey = generateQueryKey(RequestKey.PersonalizedDigest, user);
 
-  const { data, isLoading } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey,
     queryFn: async () => {
       try {
@@ -160,7 +160,7 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
 
   return {
     getPersonalizedDigest,
-    isLoading,
+    isLoading: isPending,
     subscribePersonalizedDigest,
     unsubscribePersonalizedDigest,
   };
