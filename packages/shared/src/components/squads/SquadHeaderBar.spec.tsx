@@ -42,38 +42,42 @@ it('should render the squad header bar', async () => {
   await screen.findByTestId('squad-header-bar');
 });
 
-it('should render the squad header bar with the correct number of members', async () => {
-  renderComponent();
-  const { membersCount } = mock.squad;
-  const countEl = await screen.findByTestId('squad-member-short-list');
-  expect(countEl).toHaveTextContent(membersCount.toString());
+describe('Member list', () => {
+  it('should render the squad header bar with the correct number of members', async () => {
+    renderComponent();
+    const { membersCount } = mock.squad;
+    const countEl = await screen.findByTestId('squad-member-short-list');
+    expect(countEl).toHaveTextContent(membersCount.toString());
+  });
 });
 
-it('should not render button with pending posts moderation is disabled', async () => {
-  const squad = generateTestSquad({
-    moderationRequired: false,
-    moderationPostCount: 10,
+describe('Moderation button', () => {
+  it('should not render button with pending posts moderation is disabled', async () => {
+    const squad = generateTestSquad({
+      moderationRequired: false,
+      moderationPostCount: 10,
+    });
+    renderComponent({ props: { squad } });
+    const buttonEl = screen.queryByTestId('squad-moderation-button');
+    expect(buttonEl).not.toBeInTheDocument();
   });
-  renderComponent({ props: { squad } });
-  const buttonEl = screen.queryByTestId('squad-moderation-button');
-  expect(buttonEl).not.toBeInTheDocument();
-});
 
-it('should not render button with pending posts if none', async () => {
-  const squad = generateTestSquad({
-    moderationRequired: true,
-    moderationPostCount: 0,
+  it('should not render button with pending posts if none', async () => {
+    const squad = generateTestSquad({
+      moderationRequired: true,
+      moderationPostCount: 0,
+    });
+    renderComponent({ props: { squad } });
+    const buttonEl = screen.queryByTestId('squad-moderation-button');
+    expect(buttonEl).not.toBeInTheDocument();
   });
-  renderComponent({ props: { squad } });
-  const buttonEl = screen.queryByTestId('squad-moderation-button');
-  expect(buttonEl).not.toBeInTheDocument();
-});
 
-it('should render button with pending posts if any', async () => {
-  const squad = generateTestSquad({
-    moderationRequired: true,
-    moderationPostCount: 1,
+  it('should render button with pending posts if any', async () => {
+    const squad = generateTestSquad({
+      moderationRequired: true,
+      moderationPostCount: 1,
+    });
+    renderComponent({ props: { squad } });
+    await screen.findByText('1 Pending post');
   });
-  renderComponent({ props: { squad } });
-  await screen.findByText('1 Pending post');
 });
