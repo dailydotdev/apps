@@ -67,19 +67,18 @@ interface SourcePageProps extends DynamicSeoProps {
 type SourceIdProps = { sourceId?: string };
 
 const SourceRelatedTags = ({ sourceId }: SourceIdProps): ReactElement => {
-  const { data: relatedTags, isLoading } = useQuery(
-    [RequestKey.SourceRelatedTags, null, sourceId],
-    async () =>
+  const { data: relatedTags, isLoading } = useQuery({
+    queryKey: [RequestKey.SourceRelatedTags, null, sourceId],
+
+    queryFn: async () =>
       await gqlClient.request<{
         relatedTags: TagsData;
       }>(SOURCE_RELATED_TAGS_QUERY, {
         sourceId,
       }),
-    {
-      enabled: !!sourceId,
-      staleTime: StaleTime.OneHour,
-    },
-  );
+    enabled: !!sourceId,
+    staleTime: StaleTime.OneHour,
+  });
 
   return (
     <RecommendedTags
@@ -91,9 +90,10 @@ const SourceRelatedTags = ({ sourceId }: SourceIdProps): ReactElement => {
 
 const SimilarSources = ({ sourceId }: SourceIdProps) => {
   const { shouldUseListFeedLayout } = useFeedLayout();
-  const { data: similarSources, isLoading } = useQuery(
-    [RequestKey.SimilarSources, null, sourceId],
-    async () =>
+  const { data: similarSources, isLoading } = useQuery({
+    queryKey: [RequestKey.SimilarSources, null, sourceId],
+
+    queryFn: async () =>
       await gqlClient.request<{ similarSources: Connection<Source> }>(
         SIMILAR_SOURCES_QUERY,
         {
@@ -101,11 +101,10 @@ const SimilarSources = ({ sourceId }: SourceIdProps) => {
           first: 6,
         },
       ),
-    {
-      enabled: !!sourceId,
-      staleTime: StaleTime.OneHour,
-    },
-  );
+
+    enabled: !!sourceId,
+    staleTime: StaleTime.OneHour,
+  });
 
   const sources = similarSources?.similarSources?.edges?.map(
     (edge) => edge.node,

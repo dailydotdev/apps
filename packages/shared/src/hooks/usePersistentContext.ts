@@ -33,25 +33,25 @@ export default function usePersistentContext<T>(
   const queryKey = [key, valueWhenCacheEmpty];
   const queryClient = useQueryClient();
 
-  const { data, isFetched } = useQuery(
+  const { data, isFetched } = useQuery({
     queryKey,
-    () =>
+    queryFn: () =>
       getAsyncCache<T>(key, valueWhenCacheEmpty || null, validValues) || null,
-  );
+  });
 
-  const { mutateAsync: updateValue, isLoading } = useMutation(
-    (value: T) => setCache(key, value),
-    {
-      onMutate: (mutatedData) => {
-        const current = data;
-        queryClient.setQueryData(queryKey, mutatedData);
-        return current;
-      },
-      onError: (_, __, rollback) => {
-        queryClient.setQueryData(queryKey, rollback);
-      },
+  const { mutateAsync: updateValue, isPending: isLoading } = useMutation({
+    mutationFn: (value: T) => setCache(key, value),
+
+    onMutate: (mutatedData) => {
+      const current = data;
+      queryClient.setQueryData(queryKey, mutatedData);
+      return current;
     },
-  );
+
+    onError: (_, __, rollback) => {
+      queryClient.setQueryData(queryKey, rollback);
+    },
+  });
 
   return [data ?? fallbackValue, updateValue, isFetched, isLoading];
 }

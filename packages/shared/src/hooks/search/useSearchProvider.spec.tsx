@@ -1,6 +1,6 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { NextRouter, useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
 import { AlertContextProvider } from '../../contexts/AlertContext';

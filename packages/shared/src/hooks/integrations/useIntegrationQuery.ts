@@ -11,7 +11,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 
 export type UseIntegrationQueryProps = {
   id?: string;
-  queryOptions?: UseQueryOptions<UserIntegration>;
+  queryOptions?: Omit<UseQueryOptions<UserIntegration>, 'select' | 'queryKey'>;
 };
 
 export type UseIntegrationQuery = UseQueryResult<UserIntegration>;
@@ -23,24 +23,23 @@ export const useIntegrationQuery = ({
   const { user } = useAuthContext();
   const enabled = !!user && !!id;
 
-  const queryResult = useQuery(
-    generateQueryKey(RequestKey.UserIntegrations, user, id),
-    async () => {
+  const queryResult = useQuery({
+    queryKey: generateQueryKey(RequestKey.UserIntegrations, user, id),
+
+    queryFn: async () => {
       const result = await gqlClient.request<{
         userIntegration: UserIntegration;
       }>(USER_INTEGRATION_BY_ID, { id });
 
       return result.userIntegration;
     },
-    {
-      staleTime: StaleTime.Default,
-      ...queryOptions,
-      enabled:
-        typeof queryOptions?.enabled !== 'undefined'
-          ? queryOptions.enabled && enabled
-          : enabled,
-    },
-  );
+    staleTime: StaleTime.Default,
+    ...queryOptions,
+    enabled:
+      typeof queryOptions?.enabled !== 'undefined'
+        ? queryOptions.enabled && enabled
+        : enabled,
+  });
 
   return queryResult;
 };

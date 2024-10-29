@@ -100,9 +100,10 @@ function CreatePost(): ReactElement {
   } = useDiscardPost({ draftIdentifier: squad?.id });
   const {
     mutateAsync: onCreatePost,
-    isLoading: isPosting,
+    isPending: isPosting,
     isSuccess,
-  } = useMutation(createPost, {
+  } = useMutation({
+    mutationFn: createPost,
     onMutate: () => {
       onAskConfirmation(false);
     },

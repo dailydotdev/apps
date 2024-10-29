@@ -93,9 +93,9 @@ const NewFeedPage = (): ReactElement => {
   const {
     mutateAsync: onSubmit,
     data: newFeed,
-    isLoading,
-  } = useMutation(
-    async ({ name }: NewFeedFormProps) => {
+    isPending: isLoading,
+  } = useMutation({
+    mutationFn: async ({ name }: NewFeedFormProps) => {
       const result = await createFeed({ name });
 
       await gqlClient.request(ADD_FILTERS_TO_FEED_MUTATION, {
@@ -107,46 +107,48 @@ const NewFeedPage = (): ReactElement => {
 
       return result;
     },
-    {
-      onSuccess: (data) => {
-        logEvent({
-          event_name: LogEvent.CreateCustomFeed,
-          target_id: data.id,
-        });
 
-        queryClient.removeQueries(getFeedSettingsQueryKey(user, newFeedId));
+    onSuccess: (data) => {
+      logEvent({
+        event_name: LogEvent.CreateCustomFeed,
+        target_id: data.id,
+      });
 
-        onAskConfirmation(false);
-        onFinished();
-        delayedRedirect(`${webappUrl}feeds/${data.id}`);
-      },
-      onError: (error) => {
-        const clientErrors = (error as ClientError)?.response?.errors || [];
+      queryClient.removeQueries({
+        queryKey: getFeedSettingsQueryKey(user, newFeedId),
+      });
 
-        if (
-          clientErrors.some(
-            (item) => item.message === labels.feed.error.feedLimit.api,
-          )
-        ) {
-          displayToast(labels.feed.error.feedLimit.client);
-
-          return;
-        }
-
-        if (
-          clientErrors.some(
-            (item) => item.message === labels.feed.error.feedNameInvalid.api,
-          )
-        ) {
-          displayToast(labels.feed.error.feedNameInvalid.api);
-
-          return;
-        }
-
-        displayToast(labels.error.generic);
-      },
+      onAskConfirmation(false);
+      onFinished();
+      delayedRedirect(`${webappUrl}feeds/${data.id}`);
     },
-  );
+
+    onError: (error) => {
+      const clientErrors = (error as ClientError)?.response?.errors || [];
+
+      if (
+        clientErrors.some(
+          (item) => item.message === labels.feed.error.feedLimit.api,
+        )
+      ) {
+        displayToast(labels.feed.error.feedLimit.client);
+
+        return;
+      }
+
+      if (
+        clientErrors.some(
+          (item) => item.message === labels.feed.error.feedNameInvalid.api,
+        )
+      ) {
+        displayToast(labels.feed.error.feedNameInvalid.api);
+
+        return;
+      }
+
+      displayToast(labels.error.generic);
+    },
+  });
 
   useEffect(() => {
     if (!user) {

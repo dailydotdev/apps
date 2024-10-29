@@ -32,7 +32,9 @@ function SidebarNav({
     () => client.setQueryData(['account_nav_open'], false),
     [client],
   );
-  const { data: isOpen } = useQuery(['account_nav_open'], () => false, {
+  const { data: isOpen } = useQuery({
+    queryKey: ['account_nav_open'],
+    queryFn: () => false,
     ...disabledRefetch,
   });
   const { user } = useContext(AuthContext);

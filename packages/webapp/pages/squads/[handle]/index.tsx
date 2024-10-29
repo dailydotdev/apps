@@ -25,7 +25,10 @@ import {
   getSquadStaticData,
   SquadStaticData,
 } from '@dailydotdev/shared/src/graphql/squads';
-import { SourceMember, Squad } from '@dailydotdev/shared/src/graphql/sources';
+import {
+  BasicSourceMember,
+  Squad,
+} from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { useQuery } from '@tanstack/react-query';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
@@ -42,7 +45,7 @@ import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
 import { ClientError } from 'graphql-request';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { getReferringUser } from '@dailydotdev/shared/src/graphql/users';
-import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
+import { OtherFeedPage, StaleTime } from '@dailydotdev/shared/src/lib/query';
 import { useRouter } from 'next/router';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
@@ -118,11 +121,12 @@ const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [squadId, loggedImpression]);
 
-  const { data: squadMembers } = useQuery<SourceMember[]>(
-    ['squadMembersInitial', handle],
-    () => getSquadMembers(squadId),
-    { enabled: isBootFetched && !!squadId },
-  );
+  const { data: squadMembers } = useQuery<BasicSourceMember[]>({
+    queryKey: ['squadMembersInitial', handle],
+    queryFn: () => getSquadMembers(squadId),
+    enabled: isBootFetched && !!squadId,
+    staleTime: StaleTime.OneHour,
+  });
 
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(

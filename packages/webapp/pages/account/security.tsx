@@ -55,12 +55,16 @@ const AccountSecurityPage = (): ReactElement => {
   const [hint, setHint] = useState<string>();
   const { onUpdateSignBack, signBack, provider } = useSignBack();
   const providersKey = generateQueryKey(RequestKey.Providers, user);
-  const { data: userProviders } = useQuery(providersKey, () =>
-    getKratosProviders(),
-  );
-  const { data: settings } = useQuery(['settings'], () =>
-    initializeKratosFlow(AuthFlow.Settings),
-  );
+  const { data: userProviders } = useQuery({
+    queryKey: providersKey,
+
+    queryFn: () => getKratosProviders(),
+  });
+  const { data: settings } = useQuery({
+    queryKey: ['settings'],
+
+    queryFn: () => initializeKratosFlow(AuthFlow.Settings),
+  });
 
   const onSetPassword = () => {
     displayToast('Password changed successfully!');
@@ -70,23 +74,22 @@ const AccountSecurityPage = (): ReactElement => {
   const { initializePrivilegedSession } = usePrivilegedSession({
     providers: userProviders?.result,
   });
-  const { mutateAsync: resetPassword } = useMutation(
-    (params: ValidateResetPassword) => submitKratosFlow(params),
-    {
-      onSuccess: ({ redirect, error, code }, params) => {
-        if (redirect && code === 403) {
-          const onVerified = () => resetPassword(params);
-          return initializePrivilegedSession?.(redirect, onVerified);
-        }
+  const { mutateAsync: resetPassword } = useMutation({
+    mutationFn: (params: ValidateResetPassword) => submitKratosFlow(params),
 
-        if (error) {
-          return null;
-        }
+    onSuccess: ({ redirect, error, code }, params) => {
+      if (redirect && code === 403) {
+        const onVerified = () => resetPassword(params);
+        return initializePrivilegedSession?.(redirect, onVerified);
+      }
 
-        return onSetPassword();
-      },
+      if (error) {
+        return null;
+      }
+
+      return onSetPassword();
     },
-  );
+  });
 
   const onUpdatePassword = ({ password }: ChangePasswordParams) => {
     const { action, nodes } = settings.ui;
@@ -99,41 +102,43 @@ const AccountSecurityPage = (): ReactElement => {
 
   const client = useQueryClient();
   const sessionKey = generateQueryKey(RequestKey.CurrentSession, user);
-  const { mutateAsync: changeEmail } = useMutation(
-    (params: ValidateChangeEmail) => {
+  const { mutateAsync: changeEmail } = useMutation({
+    mutationFn: (params: ValidateChangeEmail) => {
       setHint(undefined);
       return submitKratosFlow(params);
     },
-    {
-      onSuccess: async ({ data, redirect, error, code }, params) => {
-        if (redirect && code === 403) {
-          const onVerified = () => changeEmail(params);
-          initializePrivilegedSession?.(redirect, onVerified);
-          return;
+
+    onSuccess: async ({ data, redirect, error, code }, params) => {
+      if (redirect && code === 403) {
+        const onVerified = () => changeEmail(params);
+        initializePrivilegedSession?.(redirect, onVerified);
+        return;
+      }
+
+      if (error) {
+        if (error?.ui?.messages?.[0]?.id === KRATOS_ERROR.EXISTING_USER) {
+          setHint('This email address is already in use');
         }
+      }
 
-        if (error) {
-          if (error?.ui?.messages?.[0]?.id === KRATOS_ERROR.EXISTING_USER) {
-            setHint('This email address is already in use');
-          }
+      const successfulData = data as SuccessfulRegistrationData;
+
+      if (successfulData?.continue_with?.length) {
+        const continueWith = successfulData.continue_with.find(
+          ({ action }) => action === ContinueWithAction.ShowVerification,
+        );
+
+        if (continueWith) {
+          setVerificationId(continueWith.flow.id);
         }
-
-        const successfulData = data as SuccessfulRegistrationData;
-
-        if (successfulData?.continue_with?.length) {
-          const continueWith = successfulData.continue_with.find(
-            ({ action }) => action === ContinueWithAction.ShowVerification,
-          );
-
-          if (continueWith) {
-            setVerificationId(continueWith.flow.id);
-          }
-        }
-      },
+      }
     },
-  );
+  });
 
-  const { data: kratos } = useQuery(sessionKey, getKratosSession);
+  const { data: kratos } = useQuery({
+    queryKey: sessionKey,
+    queryFn: getKratosSession,
+  });
   const { session } = kratos ?? {};
   const onChangeEmail = async (email: string) => {
     if (!email) {
@@ -159,44 +164,43 @@ const AccountSecurityPage = (): ReactElement => {
   const onVerifySuccess = async (): Promise<void> => {
     displayToast('Your email address has been updated.');
     setActiveDisplay(Display.Default);
-    await client.invalidateQueries(sessionKey);
+    await client.invalidateQueries({ queryKey: sessionKey });
   };
 
-  const { mutateAsync: updateSettings } = useMutation(
-    (params: SettingsParams) => submitKratosFlow(params),
-    {
-      onSuccess: ({ redirect, error, code }, vars) => {
-        if (redirect) {
-          if (code === 403) {
-            initializePrivilegedSession?.(redirect, () => updateSettings(vars));
-            return;
-          }
+  const { mutateAsync: updateSettings } = useMutation({
+    mutationFn: (params: SettingsParams) => submitKratosFlow(params),
 
-          window.open(redirect);
+    onSuccess: ({ redirect, error, code }, vars) => {
+      if (redirect) {
+        if (code === 403) {
+          initializePrivilegedSession?.(redirect, () => updateSettings(vars));
           return;
         }
 
-        if (error) {
-          if (error.ui?.messages?.[0].id === KRATOS_ERROR.SINGLE_OIDC) {
-            displayToast('You must have at least one provider');
-          }
-          return;
-        }
+        window.open(redirect);
+        return;
+      }
 
-        const { params } = vars;
-        if ('link' in params || 'unlink' in params) {
-          client.invalidateQueries(providersKey);
-
-          if ('unlink' in params && params.unlink === provider) {
-            const validProvider = userProviders?.result?.find(
-              (userProvider) => userProvider !== provider,
-            );
-            onUpdateSignBack(signBack, validProvider as SignBackProvider);
-          }
+      if (error) {
+        if (error.ui?.messages?.[0].id === KRATOS_ERROR.SINGLE_OIDC) {
+          displayToast('You must have at least one provider');
         }
-      },
+        return;
+      }
+
+      const { params } = vars;
+      if ('link' in params || 'unlink' in params) {
+        client.invalidateQueries({ queryKey: providersKey });
+
+        if ('unlink' in params && params.unlink === provider) {
+          const validProvider = userProviders?.result?.find(
+            (userProvider) => userProvider !== provider,
+          );
+          onUpdateSignBack(signBack, validProvider as SignBackProvider);
+        }
+      }
     },
-  );
+  });
 
   const updateSocialProviders = (postData: UpdateProvidersParams) => {
     const { action, nodes } = settings.ui;
