@@ -35,8 +35,6 @@ import { getLayout as getMainLayout } from '../../../components/layouts/MainLayo
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 
-type EditSquadPageProps = { handle: string };
-
 const seo: NextSeoProps = {
   title: getTemplatedTitle('Squad settings'),
   openGraph: { ...defaultOpenGraph },
