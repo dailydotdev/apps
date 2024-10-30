@@ -396,7 +396,7 @@ describe('squad members modal', () => {
         after: '',
       }),
     );
-    const trigger = await screen.findByLabelText('Members list');
+    const trigger = await screen.findByTestId('squad-member-short-list');
     trigger.click();
     await screen.findByText('Squad members');
     return members;

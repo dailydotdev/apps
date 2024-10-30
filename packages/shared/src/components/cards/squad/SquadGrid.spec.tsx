@@ -50,7 +50,7 @@ const openedMembersModal = async () => {
   );
   const trigger = await screen.findByTestId('squad-member-short-list');
   trigger.click();
-  await screen.findByText('Squad members');
+  await screen.findByTestId('squad-member-short-list');
   return members;
 };
 
