@@ -63,20 +63,22 @@ const BadgeIcon = ({
 );
 
 export const TopReaderBadge = ({
-  user,
   topReader,
 }: {
-  user: LoggedUser;
   topReader: {
-    issuedAt: string;
-    keyword: Pick<Keyword, 'flags'>;
+    id: string;
+    user: LoggedUser;
+    issuedAt: Date;
+    keyword: Pick<Keyword, 'value' | 'flags'>;
+    image: string;
   };
 }): ReactElement => {
-  const date = new Date(topReader.issuedAt);
+  const date = new Date(topReader?.issuedAt);
   const issuedAt = date.toLocaleString('en-US', {
     year: 'numeric',
     month: 'long',
   });
+
   return (
     <div
       className="flex h-80 w-80 rounded-24 p-1 text-center text-text-primary"
@@ -87,13 +89,13 @@ export const TopReaderBadge = ({
       {/* @TODO: use correct image */}
       <div className="flex max-w-full flex-1 flex-col items-center rounded-20 bg-background-default bg-[url('https://i.bratteng.com/1730314661865_xhfx89.png')] bg-cover px-3 py-5">
         <div className="flex justify-center pb-1">
-          <BadgeIcon imageUrl={user.image} />
+          <BadgeIcon imageUrl={topReader?.user?.image} />
         </div>
 
-        <p className="font-bold typo-footnote">{user.name}</p>
+        <p className="font-bold typo-footnote">{topReader?.user?.name}</p>
 
         <p className="pb-1 text-text-secondary typo-caption1">
-          @{user.username}
+          @{topReader?.user?.username}
         </p>
 
         <h1 className="pb-1 font-bold typo-title2">Top reader</h1>
@@ -108,7 +110,7 @@ export const TopReaderBadge = ({
         >
           <div className="relative overflow-hidden rounded-8 px-2 py-0.5">
             <span className="relative z-1 font-bold text-black typo-title2">
-              {topReader.keyword.flags?.title}
+              {topReader?.keyword?.flags?.title}
             </span>
             <div
               className="absolute left-0 top-0 z-0 h-full w-full -scale-x-100"

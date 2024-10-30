@@ -8,12 +8,12 @@ const meta: Meta<typeof TopReaderBadge> = {
   title: 'components/TopReaderBadge',
   component: TopReaderBadge,
   args: {
-    user: {
-      ...user,
-      image: 'https://res.cloudinary.com/daily-now/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
-    },
     topReader: {
       date: '2023-02-09T03:35:33.898Z',
+      user: {
+        ...user,
+        image: 'https://res.cloudinary.com/daily-now/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
+      },
       keyword: {
         flags: {
           title: 'Machine Learning'
@@ -25,7 +25,7 @@ const meta: Meta<typeof TopReaderBadge> = {
     return (
       <ExtensionProviders>
         <div className={'py-20 grid place-items-center invert'}>
-          <TopReaderBadge user={props.user} topReader={props.topReader} />
+          <TopReaderBadge topReader={props.topReader} />
         </div>
       </ExtensionProviders>
     );
