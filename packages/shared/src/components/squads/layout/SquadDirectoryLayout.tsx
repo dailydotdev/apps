@@ -2,7 +2,6 @@ import React, {
   ComponentProps,
   PropsWithChildren,
   ReactElement,
-  useContext,
   useEffect,
   useId,
 } from 'react';
@@ -24,7 +23,6 @@ import {
 import { PlusIcon } from '../../icons';
 import { useSquadDirectoryLayout } from './useSquadDirectoryLayout';
 import { squadCategoriesPaths } from '../../../lib/constants';
-import SettingsContext from '../../../contexts/SettingsContext';
 
 type SquadDirectoryLayoutProps = PropsWithChildren & ComponentProps<'section'>;
 
@@ -56,7 +54,6 @@ export const SquadDirectoryLayout = (
   props: SquadDirectoryLayoutProps,
 ): ReactElement => {
   const { children, className, ...attrs } = props;
-  const { loadedSettings } = useContext(SettingsContext);
   const id = useId();
   const { pathname, asPath } = useRouter();
   const { categoryPaths, isMobileLayout } = useSquadDirectoryLayout();
@@ -68,10 +65,6 @@ export const SquadDirectoryLayout = (
   }, [id, pathname]);
 
   const isDiscover = pathname === squadCategoriesPaths.discover;
-
-  if (!loadedSettings) {
-    return null;
-  }
 
   return (
     <BaseFeedPage className="relative mb-4 flex-col px-4 pt-4 laptop:px-18 laptop:pt-8">

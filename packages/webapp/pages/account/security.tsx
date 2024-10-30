@@ -30,6 +30,7 @@ import {
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { NextSeoProps } from 'next-seo';
 import { AccountSecurityDisplay as Display } from '../../components/layouts/AccountLayout/common';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import AccountSecurityDefault, {
@@ -37,6 +38,13 @@ import AccountSecurityDefault, {
   UpdateProvidersParams,
 } from '../../components/layouts/AccountLayout/Security';
 import EmailFormPage from '../../components/layouts/AccountLayout/Security/EmailFormPage';
+import { defaultSeo } from '../../next-seo';
+import { getTemplatedTitle } from '../../components/layouts/utils';
+
+const seo: NextSeoProps = {
+  ...defaultSeo,
+  title: getTemplatedTitle('Manage account security'),
+};
 
 const AccountSecurityPage = (): ReactElement => {
   const updatePasswordRef = useRef<HTMLFormElement>();
@@ -230,5 +238,6 @@ const AccountSecurityPage = (): ReactElement => {
 };
 
 AccountSecurityPage.getLayout = getAccountLayout;
+AccountSecurityPage.layoutProps = { seo };
 
 export default AccountSecurityPage;

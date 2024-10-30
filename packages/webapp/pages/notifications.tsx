@@ -1,6 +1,6 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { NextSeo } from 'next-seo';
+import { NextSeoProps } from 'next-seo';
 import {
   InfiniteData,
   useInfiniteQuery,
@@ -46,14 +46,11 @@ const hasUnread = (data: InfiniteData<NotificationsData>) =>
   );
 
 const contextId = 'notifications-context-menu';
-const seo = (
-  <NextSeo
-    title="Notifications"
-    nofollow
-    noindex
-    titleTemplate="%s | daily.dev"
-  />
-);
+const seo: NextSeoProps = {
+  title: 'Notifications',
+  noindex: true,
+  nofollow: true,
+};
 
 const Notifications = (): ReactElement => {
   const { logEvent } = useLogContext();
@@ -128,7 +125,7 @@ const Notifications = (): ReactElement => {
   };
 
   return (
-    <ProtectedPage seo={seo}>
+    <ProtectedPage>
       <main
         className={classNames(pageBorders, pageContainerClassNames, 'pb-12')}
       >
@@ -191,5 +188,6 @@ const getNotificationsLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 Notifications.getLayout = getNotificationsLayout;
+Notifications.layoutProps = { seo };
 
 export default Notifications;
