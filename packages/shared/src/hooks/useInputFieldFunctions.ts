@@ -1,4 +1,4 @@
-import { SyntheticEvent, useEffect, useState } from 'react';
+import { SyntheticEvent, useEffect, useRef, useState } from 'react';
 import useDebounceFn from './useDebounceFn';
 import {
   UseInputField,
@@ -39,6 +39,7 @@ function useInputFieldFunctions<
   } = useInputField<T>(value, valueChanged);
   const [inputLength, setInputLength] = useState<number>(undefined);
   const [validInput, setValidInput] = useState<boolean>(undefined);
+  const validInputRef = useRef<boolean>(undefined);
   const [idleTimeout, clearIdleTimeout] = useDebounceFn(() => {
     setValidInput(inputRef.current.checkValidity());
   }, 500);
@@ -73,13 +74,14 @@ function useInputFieldFunctions<
   useEffect(() => {
     if (validInput !== undefined) {
       validityChanged?.(validInput);
+      validInputRef.current = validInput;
     }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [validInput]);
 
   useEffect(() => {
-    if (valid !== undefined) {
+    if (validInputRef.current !== undefined && valid !== undefined) {
       setValidInput(valid);
     }
   }, [valid]);
