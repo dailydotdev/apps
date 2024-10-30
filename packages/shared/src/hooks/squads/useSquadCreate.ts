@@ -37,7 +37,8 @@ export const useSquadCreate: CustomHook = ({
   const { displayToast } = useToastNotification();
   const { completeAction } = useActions();
 
-  const { mutateAsync: onCreateSquad, isLoading } = useMutation(createSquad, {
+  const { mutateAsync: onCreateSquad, isPending: isLoading } = useMutation({
+    mutationFn: createSquad,
     onSuccess: (squad) => {
       logEvent({
         event_name: LogEvent.CompleteSquadCreation,

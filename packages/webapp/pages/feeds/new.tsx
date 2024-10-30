@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect, useRef, useState } from 'react';
-import { NextSeo, NextSeoProps } from 'next-seo';
+import { NextSeoProps } from 'next-seo';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks/useFeedLayout';
 import classNames from 'classnames';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -56,6 +56,12 @@ const discardPrompt: PromptOptions = {
   },
 };
 
+const seo: NextSeoProps = {
+  title: getTemplatedTitle('Create feed'),
+  openGraph: { ...defaultOpenGraph },
+  ...defaultSeo,
+};
+
 const NewFeedPage = (): ReactElement => {
   const [newFeedId] = useState(() => Date.now().toString());
   const queryClient = useQueryClient();
@@ -87,9 +93,9 @@ const NewFeedPage = (): ReactElement => {
   const {
     mutateAsync: onSubmit,
     data: newFeed,
-    isLoading,
-  } = useMutation(
-    async ({ name }: NewFeedFormProps) => {
+    isPending: isLoading,
+  } = useMutation({
+    mutationFn: async ({ name }: NewFeedFormProps) => {
       const result = await createFeed({ name });
 
       await gqlClient.request(ADD_FILTERS_TO_FEED_MUTATION, {
@@ -101,46 +107,48 @@ const NewFeedPage = (): ReactElement => {
 
       return result;
     },
-    {
-      onSuccess: (data) => {
-        logEvent({
-          event_name: LogEvent.CreateCustomFeed,
-          target_id: data.id,
-        });
 
-        queryClient.removeQueries(getFeedSettingsQueryKey(user, newFeedId));
+    onSuccess: (data) => {
+      logEvent({
+        event_name: LogEvent.CreateCustomFeed,
+        target_id: data.id,
+      });
 
-        onAskConfirmation(false);
-        onFinished();
-        delayedRedirect(`${webappUrl}feeds/${data.id}`);
-      },
-      onError: (error) => {
-        const clientErrors = (error as ClientError)?.response?.errors || [];
+      queryClient.removeQueries({
+        queryKey: getFeedSettingsQueryKey(user, newFeedId),
+      });
 
-        if (
-          clientErrors.some(
-            (item) => item.message === labels.feed.error.feedLimit.api,
-          )
-        ) {
-          displayToast(labels.feed.error.feedLimit.client);
-
-          return;
-        }
-
-        if (
-          clientErrors.some(
-            (item) => item.message === labels.feed.error.feedNameInvalid.api,
-          )
-        ) {
-          displayToast(labels.feed.error.feedNameInvalid.api);
-
-          return;
-        }
-
-        displayToast(labels.error.generic);
-      },
+      onAskConfirmation(false);
+      onFinished();
+      delayedRedirect(`${webappUrl}feeds/${data.id}`);
     },
-  );
+
+    onError: (error) => {
+      const clientErrors = (error as ClientError)?.response?.errors || [];
+
+      if (
+        clientErrors.some(
+          (item) => item.message === labels.feed.error.feedLimit.api,
+        )
+      ) {
+        displayToast(labels.feed.error.feedLimit.client);
+
+        return;
+      }
+
+      if (
+        clientErrors.some(
+          (item) => item.message === labels.feed.error.feedNameInvalid.api,
+        )
+      ) {
+        displayToast(labels.feed.error.feedNameInvalid.api);
+
+        return;
+      }
+
+      displayToast(labels.error.generic);
+    },
+  });
 
   useEffect(() => {
     if (!user) {
@@ -173,85 +181,76 @@ const NewFeedPage = (): ReactElement => {
     );
   }
 
-  const seo: NextSeoProps = {
-    title: getTemplatedTitle('Create feed'),
-    openGraph: { ...defaultOpenGraph },
-    ...defaultSeo,
-  };
-
   return (
-    <>
-      <NextSeo {...seo} />
-      <FeedPageLayoutComponent className={classNames('!p-0')}>
-        <LayoutHeader className="flex-col overflow-x-visible">
-          <form
-            className="flex w-full flex-col justify-center bg-gradient-to-b from-surface-invert via-surface-invert"
-            onSubmit={(e) => {
-              e.preventDefault();
+    <FeedPageLayoutComponent className={classNames('!p-0')}>
+      <LayoutHeader className="flex-col overflow-x-visible">
+        <form
+          className="flex w-full flex-col justify-center bg-gradient-to-b from-surface-invert via-surface-invert"
+          onSubmit={(e) => {
+            e.preventDefault();
 
-              const { name } = formToJson<NewFeedFormProps>(e.currentTarget);
+            const { name } = formToJson<NewFeedFormProps>(e.currentTarget);
 
-              onSubmit({ name });
+            onSubmit({ name });
+          }}
+        >
+          <FeedCustomActions
+            isDisabled={!isPreviewFeedEnabled}
+            isLoading={isLoading}
+            onDiscard={async () => {
+              const shouldDiscard =
+                onValidateAction() || (await showPrompt(discardPrompt));
+
+              if (shouldDiscard) {
+                onAskConfirmation(false);
+
+                router.push('/');
+              }
             }}
           >
-            <FeedCustomActions
-              isDisabled={!isPreviewFeedEnabled}
-              isLoading={isLoading}
-              onDiscard={async () => {
-                const shouldDiscard =
-                  onValidateAction() || (await showPrompt(discardPrompt));
+            <p className="font-bold typo-title3">
+              Pick the tags you want to include
+            </p>
+          </FeedCustomActions>
+          <TextField
+            className={{
+              container: 'mx-auto mt-10 w-full px-4 tablet:max-w-96',
+            }}
+            name="name"
+            type="text"
+            inputId="feedName"
+            label="Enter feed name"
+            required
+            maxLength={50}
+          />
+        </form>
 
-                if (shouldDiscard) {
-                  onAskConfirmation(false);
-
-                  router.push('/');
-                }
-              }}
-            >
-              <p className="font-bold typo-title3">
-                Pick the tags you want to include
-              </p>
-            </FeedCustomActions>
-            <TextField
-              className={{
-                container: 'mx-auto mt-10 w-full px-4 tablet:max-w-96',
-              }}
-              name="name"
-              type="text"
-              inputId="feedName"
-              label="Enter feed name"
-              required
-              maxLength={50}
-            />
-          </form>
-
-          <div className="flex w-full max-w-full flex-col">
-            <TagSelection
-              className="mt-10 px-4 pt-0 tablet:px-10"
-              shouldUpdateAlerts={false}
-              shouldFilterLocally
-              feedId={newFeedId}
-              origin={Origin.CustomFeed}
-              searchOrigin={Origin.CustomFeed}
-            />
-            <FeedPreviewControls
-              isOpen={isPreviewFeedVisible}
-              isDisabled={!isPreviewFeedEnabled}
-              textDisabled="Select tags to show feed preview"
-              origin={Origin.CustomFeed}
-              onClick={setPreviewFeedVisible}
-            />
-          </div>
-        </LayoutHeader>
-        {isPreviewFeedEnabled && isPreviewFeedVisible && (
-          <FeedCustomPreview feedId={newFeedId} />
-        )}
-      </FeedPageLayoutComponent>
-    </>
+        <div className="flex w-full max-w-full flex-col">
+          <TagSelection
+            className="mt-10 px-4 pt-0 tablet:px-10"
+            shouldUpdateAlerts={false}
+            shouldFilterLocally
+            feedId={newFeedId}
+            origin={Origin.CustomFeed}
+            searchOrigin={Origin.CustomFeed}
+          />
+          <FeedPreviewControls
+            isOpen={isPreviewFeedVisible}
+            isDisabled={!isPreviewFeedEnabled}
+            textDisabled="Select tags to show feed preview"
+            origin={Origin.CustomFeed}
+            onClick={setPreviewFeedVisible}
+          />
+        </div>
+      </LayoutHeader>
+      {isPreviewFeedEnabled && isPreviewFeedVisible && (
+        <FeedCustomPreview feedId={newFeedId} />
+      )}
+    </FeedPageLayoutComponent>
   );
 };
 
 NewFeedPage.getLayout = getLayout;
-NewFeedPage.layoutProps = mainFeedLayoutProps;
+NewFeedPage.layoutProps = { ...mainFeedLayoutProps, seo };
 
 export default NewFeedPage;

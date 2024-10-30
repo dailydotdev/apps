@@ -1,5 +1,5 @@
 import { PageContainer } from '@dailydotdev/shared/src/components/utilities';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, keepPreviousData } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import {
   getSquadInvitation,
@@ -22,7 +22,13 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { ParsedUrlQuery } from 'querystring';
 import {
   GetStaticPathsResult,
@@ -30,7 +36,6 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { NextSeo } from 'next-seo';
 import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
@@ -45,6 +50,7 @@ import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePict
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { getSquadOpenGraph } from '../../../next-seo';
+import { DynamicSeoProps } from '../../../components/common';
 
 const getOthers = (others: Edge<SourceMember>[], total: number) => {
   const { length } = others;
@@ -63,7 +69,7 @@ const getOthers = (others: Edge<SourceMember>[], total: number) => {
 const BodyParagraph = classed('p', 'typo-body text-text-tertiary');
 const HighlightedText = classed('span', 'font-bold text-text-primary');
 
-export interface SquadReferralProps {
+export interface SquadReferralProps extends DynamicSeoProps {
   token: string;
   handle: string;
   initialData: SourceMember;
@@ -99,46 +105,46 @@ const SquadReferral = ({
   const { displayToast } = useToastNotification();
   const { showLogin, user: loggedUser } = useAuthContext();
   const [loggedImpression, setLoggedImpression] = useState(false);
-  const { data: member, isFetched } = useQuery(
-    ['squad_referral', token, loggedUser?.id],
-    () => getSquadInvitation(token),
-    {
-      ...disabledRefetch,
-      keepPreviousData: true,
-      initialData,
-      retry: false,
-      enabled: !!token,
-      onSuccess: (response) => {
-        if (!loggedUser) {
-          return null;
-        }
+  const justJoined = useRef(false);
+  const { data: member, isFetched } = useQuery({
+    queryKey: ['squad_referral', token, loggedUser?.id],
+    queryFn: () => getSquadInvitation(token),
+    ...disabledRefetch,
+    placeholderData: keepPreviousData,
+    initialData,
+    retry: false,
+    enabled: !!token,
+  });
 
-        if (!response?.source?.id) {
-          return router.replace(webappUrl);
-        }
+  useEffect(() => {
+    if (!loggedUser || justJoined.current) {
+      return;
+    }
 
-        const squadsUrl = getJoinRedirectUrl({
-          pathname: `/squads/${handle}`,
-          query: router.query,
-        });
-        const isValid = validateSourceHandle(handle, response.source);
+    if (!member?.source?.id) {
+      router.replace(webappUrl);
+      return;
+    }
 
-        if (!isValid) {
-          return router.replace(webappUrl);
-        }
+    const squadsUrl = getJoinRedirectUrl({
+      pathname: `/squads/${handle}`,
+      query: router.query,
+    });
+    const isValid = validateSourceHandle(handle, member.source);
 
-        const { currentMember } = response.source;
-        if (currentMember) {
-          const { role } = currentMember;
-          if (role !== SourceMemberRole.Blocked) {
-            return router.replace(squadsUrl);
-          }
-        }
+    if (!isValid) {
+      router.replace(webappUrl);
+      return;
+    }
 
-        return null;
-      },
-    },
-  );
+    const { currentMember } = member.source;
+    if (currentMember) {
+      const { role } = currentMember;
+      if (role !== SourceMemberRole.Blocked) {
+        router.replace(squadsUrl);
+      }
+    }
+  }, [justJoined, handle, loggedUser, member, router]);
 
   const joinSquadLogExtra = () => {
     return JSON.stringify({
@@ -162,37 +168,39 @@ const SquadReferral = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [member, loggedImpression]);
 
-  const { mutateAsync: onJoinSquad } = useMutation(
-    useJoinSquad({
+  const { mutateAsync: onJoinSquad } = useMutation({
+    mutationFn: useJoinSquad({
       squad: { handle, id: member?.source?.id },
       referralToken: token,
     }),
-    {
-      onSuccess: (data) => {
-        router.replace(
-          getJoinRedirectUrl({
-            pathname: data.permalink,
-            query: router.query,
-          }),
-        );
-      },
-      onError: (error: ApiErrorResult) => {
-        const errorMessage = error?.response?.errors?.[0]?.message;
-
-        if (errorMessage === ApiErrorMessage.SourcePermissionInviteInvalid) {
-          displayToast(labels.squads.invalidInvitation);
-        } else {
-          displayToast(labels.error.generic);
-        }
-      },
+    onSuccess: (data) => {
+      justJoined.current = true;
+      router.replace(
+        getJoinRedirectUrl({
+          pathname: data.permalink,
+          query: router.query,
+        }),
+      );
     },
-  );
+    onError: (error: ApiErrorResult) => {
+      justJoined.current = false;
+      const errorMessage = error?.response?.errors?.[0]?.message;
+
+      if (errorMessage === ApiErrorMessage.SourcePermissionInviteInvalid) {
+        displayToast(labels.squads.invalidInvitation);
+      } else {
+        displayToast(labels.error.generic);
+      }
+    },
+  });
 
   const onJoinClick = async () => {
     if (member.source?.currentMember?.role === SourceMemberRole.Blocked) {
       displayToast(labels.squads.forbidden);
       return null;
     }
+
+    justJoined.current = true;
 
     if (loggedUser) {
       return onJoinSquad();
@@ -222,19 +230,12 @@ const SquadReferral = ({
     source.membersCount,
   );
 
-  const seo: NextSeoProps = {
-    title: `${user.name} invited you to ${source.name}`,
-    description: source.description,
-    openGraph: getSquadOpenGraph({ squad: source }),
-  };
-
   if (!initialData && (isFallback || !isFetched)) {
     return <></>;
   }
 
   return (
     <PageContainer className="relative items-center pt-10 tablet:pt-20">
-      <NextSeo {...seo} />
       <div className="squad-background-fade absolute -top-4 left-0 right-0 h-40 max-w-[100vw] rounded-26 tablet:-left-20 tablet:-right-20" />
       <h1 className="typo-title1">You are invited to join {source.name}</h1>
       <BodyParagraph className="mt-6">
@@ -309,11 +310,26 @@ export async function getStaticProps({
 > {
   const { handle, token } = params;
   const initialData = await getSquadInvitation(token);
+  const { user, source } = initialData;
+
+  if (!source || !user) {
+    return {
+      props: { handle, token, initialData: null },
+    };
+  }
+
+  const seo: NextSeoProps = {
+    title: `${user.name} invited you to ${source.name}`,
+    description: source.description,
+    openGraph: getSquadOpenGraph({ squad: source }),
+  };
+
   return {
     props: {
       handle,
       token,
       initialData,
+      seo,
     },
     revalidate: 60,
   };

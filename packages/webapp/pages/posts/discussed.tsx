@@ -20,6 +20,6 @@ const PostsDiscussed = (): ReactElement => {
 };
 
 PostsDiscussed.getLayout = getMainFeedLayout;
-PostsDiscussed.layoutProps = mainFeedLayoutProps;
+PostsDiscussed.layoutProps = { ...mainFeedLayoutProps, seo };
 
 export default PostsDiscussed;

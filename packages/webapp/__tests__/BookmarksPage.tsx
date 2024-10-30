@@ -53,6 +53,7 @@ const createFeedMock = (
   query: string = BOOKMARKS_FEED_QUERY,
   variables: unknown = {
     first: 7,
+    after: '',
     loggedIn: true,
     supportedTypes: supportedTypesForPrivateSources,
   },

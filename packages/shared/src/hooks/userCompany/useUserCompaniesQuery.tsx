@@ -14,22 +14,20 @@ export const useUserCompaniesQuery = (): UseUserCompaniesQuery => {
   const { user, isLoggedIn } = useAuthContext();
   const queryKey = generateQueryKey(RequestKey.UserCompanies, user);
 
-  const { data, isLoading } = useQuery(
+  const { data, isPending } = useQuery({
     queryKey,
-    async (): Promise<UserCompany[]> => {
+    queryFn: async (): Promise<UserCompany[]> => {
       const res = await gqlClient.request(GET_USER_COMPANIES);
 
       return res.companies;
     },
-    {
-      staleTime: StaleTime.Default,
-      enabled: isLoggedIn,
-    },
-  );
+    staleTime: StaleTime.Default,
+    enabled: isLoggedIn,
+  });
 
   return {
     userCompanies: data,
-    isVerified: !isLoading && !!data?.[0]?.company,
-    isLoading,
+    isVerified: !isPending && !!data?.[0]?.company,
+    isLoading: isPending,
   };
 };

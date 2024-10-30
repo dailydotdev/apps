@@ -10,6 +10,7 @@ import {
 import {
   defaultSearchSuggestionsLimit,
   minSearchQueryLength,
+  SearchSuggestionResult,
 } from '../../graphql/search';
 import useDebounce from '../useDebounce';
 import { defaultSearchDebounceMs } from '../../lib/func';
@@ -41,9 +42,9 @@ export const useSearchProviderSuggestions = ({
     includeContentPreference,
   });
 
-  const { data, isLoading } = useQuery(
+  const { data, isPending } = useQuery({
     queryKey,
-    async () => {
+    queryFn: async () => {
       return getSuggestions({
         provider,
         query: debouncedQuery,
@@ -51,27 +52,25 @@ export const useSearchProviderSuggestions = ({
         includeContentPreference,
       });
     },
-    {
-      enabled: query?.length >= minSearchQueryLength,
-      staleTime: StaleTime.Default,
-      select: useCallback(
-        (currentData) => {
-          if (!currentData) {
-            return currentData;
-          }
+    enabled: query?.length >= minSearchQueryLength,
+    staleTime: StaleTime.Default,
+    select: useCallback(
+      (currentData: SearchSuggestionResult) => {
+        if (!currentData) {
+          return currentData;
+        }
 
-          return {
-            ...currentData,
-            hits: currentData?.hits?.slice(0, limit) || [],
-          };
-        },
-        [limit],
-      ),
-    },
-  );
+        return {
+          ...currentData,
+          hits: currentData?.hits?.slice(0, limit) || [],
+        };
+      },
+      [limit],
+    ),
+  });
 
   return {
-    isLoading,
+    isLoading: isPending,
     suggestions: data,
     queryKey,
   };

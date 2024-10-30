@@ -1,4 +1,4 @@
-import React, { useMemo, type ReactElement } from 'react';
+import React, { type ReactElement, useMemo } from 'react';
 import Link from 'next/link';
 import { useAuthContext } from '../../contexts/AuthContext';
 import UserList from '../profile/UserList';
@@ -29,7 +29,7 @@ export const FollowingFilter = (): ReactElement => {
     }, []);
   }, [data]);
 
-  if (queryResult.isLoading) {
+  if (queryResult.isPending) {
     return null;
   }
 

@@ -51,9 +51,10 @@ function EditPost(): ReactElement {
   } = useDiscardPost({ post });
   const {
     mutateAsync: onUpdatePost,
-    isLoading: isPosting,
+    isPending: isPosting,
     isSuccess,
-  } = useMutation(editPost, {
+  } = useMutation({
+    mutationFn: editPost,
     onMutate: () => {
       onAskConfirmation(false);
     },

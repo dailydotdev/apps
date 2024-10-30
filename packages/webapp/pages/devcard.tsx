@@ -23,7 +23,6 @@ import classNames from 'classnames';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
 import DevCardPlaceholder from '@dailydotdev/shared/src/components/DevCardPlaceholder';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { devCard } from '@dailydotdev/shared/src/lib/constants';
@@ -77,18 +76,17 @@ interface Step1Props {
 
 const Step1 = ({ onGenerateImage }: Step1Props): ReactElement => {
   const { user, showLogin, loadingUser } = useContext(AuthContext);
-  const { mutateAsync: onGenerate, isLoading } = useMutation(
-    () => gqlClient.request<DevCardMutation>(GENERATE_DEVCARD_MUTATION),
-    {
-      onSuccess: (data) => {
-        const url = data?.devCard?.imageUrl;
+  const { mutateAsync: onGenerate, isPending: isLoading } = useMutation({
+    mutationFn: () =>
+      gqlClient.request<DevCardMutation>(GENERATE_DEVCARD_MUTATION),
+    onSuccess: (data) => {
+      const url = data?.devCard?.imageUrl;
 
-        if (data?.devCard?.imageUrl) {
-          onGenerateImage(url);
-        }
-      },
+      if (data?.devCard?.imageUrl) {
+        onGenerateImage(url);
+      }
     },
-  );
+  });
 
   return (
     <>
@@ -162,32 +160,32 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
   );
   const [copyingEmbed, copyEmbed] = useCopyLink(() => embedCode);
   const [selectedTab, setSelectedTab] = useState(0);
-  const { mutateAsync: onDownloadUrl, isLoading: downloading } =
-    useMutation(downloadUrl);
+  const { mutateAsync: onDownloadUrl, isPending: downloading } = useMutation({
+    mutationFn: downloadUrl,
+  });
 
   const downloadImage = async (url?: string): Promise<void> => {
     const finalUrl = url ?? devCardSrc;
     await onDownloadUrl({ url: finalUrl, filename: `${user.username}.png` });
   };
 
-  const { mutateAsync: onGenerate, isLoading } = useMutation(
-    (params: Partial<GenerateDevCardParams> = {}) => {
+  const { mutateAsync: onGenerate, isPending: isLoading } = useMutation({
+    mutationFn: (params: Partial<GenerateDevCardParams> = {}) => {
       return gqlClient.request(GENERATE_DEVCARD_MUTATION, {
         ...params,
         theme: params?.theme?.toLocaleUpperCase() ?? 'DEFAULT',
         type: params?.type ?? 'DEFAULT',
       });
     },
-    {
-      onSuccess: (data, vars) => {
-        if (!data?.devCard?.imageUrl || vars.type === DevCardType.Twitter) {
-          return;
-        }
 
-        setDevCardSrc(data.devCard.imageUrl);
-      },
+    onSuccess: (data, vars) => {
+      if (!data?.devCard?.imageUrl || vars.type === DevCardType.Twitter) {
+        return;
+      }
+
+      setDevCardSrc(data.devCard.imageUrl);
     },
-  );
+  });
 
   const onUpdatePreference = useCallback(
     (props: Partial<Omit<GenerateDevCardParams, 'type'>>) => {
@@ -565,7 +563,6 @@ const DevCardPage = (): ReactElement => {
         isDevCardGenerated && 'laptop:flex-row laptop:gap-20',
       )}
     >
-      <NextSeo {...seo} />
       {isDevCardGenerated ? (
         <Step2 initialDevCardSrc={devCardSrc} />
       ) : (
@@ -579,6 +576,6 @@ const getDevCardLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 DevCardPage.getLayout = getDevCardLayout;
-DevCardPage.layoutProps = { screenCentered: false, canGoBack: true };
+DevCardPage.layoutProps = { screenCentered: false, canGoBack: true, seo };
 
 export default DevCardPage;
