@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useState, useCallback } from 'react';
+import React, { ReactElement, ReactNode, useState } from 'react';
 import { Radio, RadioItemProps } from '../../fields/Radio';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { Modal, ModalProps } from '../common/Modal';
