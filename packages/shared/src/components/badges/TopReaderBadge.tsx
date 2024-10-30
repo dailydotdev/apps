@@ -106,8 +106,8 @@ export const TopReaderBadge = ({
             backgroundImage: themeToLinearGradient[DevCardTheme.Gold],
           }}
         >
-          <div className="relative overflow-hidden rounded-8">
-            <span className="relative z-1 px-2 py-1 font-bold text-black typo-title2">
+          <div className="relative overflow-hidden rounded-8 px-2 py-0.5">
+            <span className="relative z-1 font-bold text-black typo-title2">
               {topReader.keyword.flags?.title}
             </span>
             <div
