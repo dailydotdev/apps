@@ -8,7 +8,8 @@ export const ToggleWeekStart = ({
 }: {
   className?: RadioClassName;
 }): ReactElement => {
-  const { streak, isLoading, updateStreakConfig } = useReadingStreak();
+  const { streak, isLoading, updateStreakConfig, isUpdatingConfig } =
+    useReadingStreak();
 
   const toggleWeekStart = (weekStart: string) => {
     updateStreakConfig({ weekStart: parseInt(weekStart, 10) });
@@ -22,6 +23,7 @@ export const ToggleWeekStart = ({
     <Radio
       name="freeze-days"
       value={getDefaultStartOfWeek(streak.weekStart)}
+      disabled={isUpdatingConfig}
       options={[
         {
           label: 'Friday to Saturday',

@@ -128,7 +128,7 @@ export default function useOnPostClick({
         }
 
         if (!post.read) {
-          await checkReadingStreak();
+          checkReadingStreak();
         }
 
         if (eventName === 'go to link') {

@@ -4,7 +4,8 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import { useContext, useRef } from 'react';
+import { useContext } from 'react';
+import { getDay } from 'date-fns';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import {
   getReadingStreak,
@@ -26,8 +27,9 @@ type UpdateReadingStreakConfig = {
 interface UserReadingStreak {
   streak: UserStreak;
   isLoading: boolean;
+  isUpdatingConfig: boolean;
   shouldShowPopup: boolean;
-  checkReadingStreak: () => Promise<void>;
+  checkReadingStreak: () => void;
   isStreaksEnabled: boolean;
   updateStreakConfig: UseMutateFunction<
     UserStreak,
@@ -39,48 +41,35 @@ interface UserReadingStreak {
 export const useReadingStreak = (): UserReadingStreak => {
   const { user, isLoggedIn } = useAuthContext();
   const { optOutReadingStreak, loadedSettings } = useContext(SettingsContext);
+  const { checkHasCompleted } = useActions();
   const queryClient = useQueryClient();
   const queryKey = generateQueryKey(RequestKey.UserStreak, user);
 
-  const { data: streak, isPending } = useQuery({
+  const { data: streak, isPending: isPendingQuery } = useQuery({
     queryKey,
     queryFn: getReadingStreak,
     staleTime: StaleTime.Default,
     enabled: isLoggedIn,
   });
 
-  const { mutate: updateStreakConfig } = useMutation<
-    UserStreak,
-    ResponseError,
-    UpdateReadingStreakConfig
-  >({
-    mutationFn: (params) =>
-      gqlClient.request(UPDATE_STREAK_COUNT_MUTATION, params),
+  const { mutate: updateStreakConfig, isPending: isPendingMutation } =
+    useMutation<UserStreak, ResponseError, UpdateReadingStreakConfig>({
+      mutationKey: generateQueryKey(RequestKey.UserStreak, user, 'config'),
+      mutationFn: async (params) =>
+        await gqlClient.request(UPDATE_STREAK_COUNT_MUTATION, params),
+      onSuccess: async () => {
+        await queryClient.refetchQueries({ queryKey });
+      },
+    });
 
-    onMutate: ({ weekStart }) => {
-      queryClient.cancelQueries({ queryKey });
-
-      const currentStreak = queryClient.getQueryData<UserStreak>(queryKey);
-
-      queryClient.setQueryData(queryKey, (prev: UserStreak) => ({
-        ...prev,
-        weekStart,
-      }));
-
-      return () => {
-        queryClient.setQueryData(queryKey, currentStreak);
-      };
-    },
-  });
-  const { checkHasCompleted } = useActions();
   const hasReadToday =
-    new Date(streak?.lastViewAt).getDate() === new Date().getDate();
-  const userStreakQueryKeyRef = useRef<unknown[]>();
+    streak?.lastViewAt &&
+    getDay(new Date(streak?.lastViewAt)) === getDay(new Date());
 
   const [clearQueries] = useDebounceFn(async () => {
-    if (!hasReadToday && userStreakQueryKeyRef.current?.length > 0) {
+    if (!hasReadToday) {
       await queryClient.invalidateQueries({
-        queryKey: userStreakQueryKeyRef.current,
+        queryKey,
       });
     }
   }, 100);
@@ -89,15 +78,11 @@ export const useReadingStreak = (): UserReadingStreak => {
 
   return {
     streak,
-    isLoading: isPending,
+    isLoading: isPendingQuery,
+    isUpdatingConfig: isPendingMutation,
     isStreaksEnabled,
     updateStreakConfig,
-    checkReadingStreak: async () => {
-      const userStreakQueryKey = queryKey;
-      userStreakQueryKeyRef.current = userStreakQueryKey;
-
-      clearQueries(hasReadToday ?? true);
-    },
+    checkReadingStreak: clearQueries,
     shouldShowPopup:
       isStreaksEnabled &&
       user?.createdAt < '2024-03-14T00:00:00.000Z' &&
