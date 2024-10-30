@@ -6,7 +6,7 @@ import { ActionType } from '../../graphql/actions';
 import { LazyModal } from './common/types';
 import AlertContext from '../../contexts/AlertContext';
 import { MarketingCtaVariant } from '../marketingCta/common';
-import { LogEvent, TargetType } from '../../lib/log';
+import { LogEvent, TargetId, TargetType } from '../../lib/log';
 import LogContext from '../../contexts/LogContext';
 import { promotion } from './generic';
 import { useReadingStreak } from '../../hooks/streaks';
@@ -239,6 +239,27 @@ export const BootPopups = (): ReactElement => {
     updateLastBootPopup,
     user,
   ]);
+
+  useEffect(() => {
+    // @TODO: only render when alert for top reader badge is enabled
+    openModal({
+      type: LazyModal.TopReaderBadge,
+      props: {
+        onAfterClose: () => updateLastBootPopup(),
+        onAfterOpen: () => {
+          logEvent({
+            event_name: LogEvent.Impression,
+            target_type: TargetType.Badge,
+            target_id: TargetId.TopReader,
+            extra: JSON.stringify({
+              // @TODO: check value of this
+              tag: 'Top reader tag',
+            }),
+          });
+        },
+      },
+    });
+  }, [logEvent, openModal, updateLastBootPopup]);
 
   /**
    * Actual rendering of the boot popup that's first in line

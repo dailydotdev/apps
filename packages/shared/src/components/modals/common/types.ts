@@ -59,7 +59,7 @@ export enum LazyModal {
   UserFollowersModal = 'userFollowersModal',
   UserFollowingModal = 'userFollowingModal',
   NewSquad = 'newSquad',
-  TopReadeerBadge = 'topReaderBadge',
+  TopReaderBadge = 'topReaderBadge',
 }
 
 export type ModalTabItem = {

@@ -208,7 +208,7 @@ export const modals = {
   [LazyModal.UserFollowersModal]: UserFollowersModal,
   [LazyModal.UserFollowingModal]: UserFollowingModal,
   [LazyModal.NewSquad]: NewSquadModal,
-  [LazyModal.TopReadeerBadge]: TopReaderBadgeModal,
+  [LazyModal.TopReaderBadge]: TopReaderBadgeModal,
 };
 
 type GetComponentProps<T> = T extends
