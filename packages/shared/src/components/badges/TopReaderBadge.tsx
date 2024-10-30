@@ -67,7 +67,7 @@ export const TopReaderBadge = ({
 }: {
   topReader: {
     id: string;
-    user: LoggedUser;
+    user?: LoggedUser;
     issuedAt: Date;
     keyword: Pick<Keyword, 'value' | 'flags'>;
     image: string;
