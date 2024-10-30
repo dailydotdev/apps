@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { NextSeo, NextSeoProps } from 'next-seo';
+import { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
@@ -33,12 +33,15 @@ import {
 } from '@dailydotdev/shared/src/components/squads/SquadTabs';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
+import { getTemplatedTitle } from '../../../components/layouts/utils';
 
-const pageTitle = 'Squad settings';
+type EditSquadPageProps = { handle: string };
 
 const seo: NextSeoProps = {
-  title: pageTitle,
+  title: getTemplatedTitle('Squad settings'),
   openGraph: { ...defaultOpenGraph },
+  nofollow: true,
+  noindex: true,
   ...defaultSeo,
 };
 
@@ -96,7 +99,6 @@ const EditSquad = ({ handle }: SquadSettingsProps): ReactElement => {
 
   return (
     <ManageSquadPageContainer>
-      <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
       <SquadDetails
         squad={squad}
         onSubmit={(_, form) =>
@@ -113,6 +115,7 @@ const EditSquad = ({ handle }: SquadSettingsProps): ReactElement => {
 };
 
 EditSquad.getLayout = getMainLayout;
+EditSquad.layoutProps = { seo };
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
   return { paths: [], fallback: true };

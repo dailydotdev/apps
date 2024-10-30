@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { NextSeo, NextSeoProps } from 'next-seo';
+import { NextSeoProps } from 'next-seo';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks/useFeedLayout';
 import classNames from 'classnames';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -58,6 +58,12 @@ const discardPrompt: PromptOptions = {
     title: labels.feed.prompt.discard.okButton,
     color: ButtonColor.Ketchup,
   },
+};
+
+const seo: NextSeoProps = {
+  title: getTemplatedTitle('Edit feed'),
+  openGraph: { ...defaultOpenGraph },
+  ...defaultSeo,
 };
 
 const EditFeedPage = (): ReactElement => {
@@ -226,101 +232,92 @@ const EditFeedPage = (): ReactElement => {
     return null;
   }
 
-  const seo: NextSeoProps = {
-    title: getTemplatedTitle('Edit feed'),
-    openGraph: { ...defaultOpenGraph },
-    ...defaultSeo,
-  };
-
   return (
-    <>
-      <NextSeo {...seo} />
-      <FeedPageLayoutComponent className={classNames('!p-0')}>
-        <LayoutHeader className="flex-col overflow-x-visible">
-          <form
-            className="flex w-full flex-col justify-center bg-gradient-to-b from-surface-invert via-surface-invert"
-            onSubmit={(e) => {
-              e.preventDefault();
+    <FeedPageLayoutComponent className={classNames('!p-0')}>
+      <LayoutHeader className="flex-col overflow-x-visible">
+        <form
+          className="flex w-full flex-col justify-center bg-gradient-to-b from-surface-invert via-surface-invert"
+          onSubmit={(e) => {
+            e.preventDefault();
 
-              const { name } = formToJson<EditFeedFormProps>(e.currentTarget);
+            const { name } = formToJson<EditFeedFormProps>(e.currentTarget);
 
-              onSubmit({ name });
+            onSubmit({ name });
+          }}
+        >
+          <FeedCustomActions
+            isDisabled={!isPreviewFeedEnabled}
+            isLoading={isLoading}
+            onDiscard={async () => {
+              const shouldDiscard =
+                onValidateAction() || (await showPrompt(discardPrompt));
+
+              if (shouldDiscard) {
+                onAskConfirmation(false);
+
+                router.push(`${webappUrl}feeds/${feedId}`);
+              }
             }}
+            onDelete={onDelete}
           >
-            <FeedCustomActions
-              isDisabled={!isPreviewFeedEnabled}
-              isLoading={isLoading}
-              onDiscard={async () => {
-                const shouldDiscard =
-                  onValidateAction() || (await showPrompt(discardPrompt));
+            <p className="font-bold typo-title3">Edit tags</p>
+          </FeedCustomActions>
+          <TextField
+            className={{
+              container: 'mx-auto mt-10 w-full px-4 tablet:max-w-96',
+            }}
+            defaultValue={feed.flags?.name}
+            name="name"
+            type="text"
+            inputId="feedName"
+            label="Enter feed name"
+            required
+            maxLength={50}
+          />
+        </form>
 
-                if (shouldDiscard) {
-                  onAskConfirmation(false);
+        <div className="flex w-full max-w-full flex-col">
+          <TagSelection
+            className="mt-10 px-4 pt-0 tablet:px-10"
+            shouldUpdateAlerts={false}
+            shouldFilterLocally
+            feedId={feedId}
+            onClickTag={({ tag, action }) => {
+              setDirty(true);
 
-                  router.push(`${webappUrl}feeds/${feedId}`);
-                }
-              }}
-              onDelete={onDelete}
-            >
-              <p className="font-bold typo-title3">Edit tags</p>
-            </FeedCustomActions>
-            <TextField
-              className={{
-                container: 'mx-auto mt-10 w-full px-4 tablet:max-w-96',
-              }}
-              defaultValue={feed.flags?.name}
-              name="name"
-              type="text"
-              inputId="feedName"
-              label="Enter feed name"
-              required
-              maxLength={50}
-            />
-          </form>
+              if (action === 'follow') {
+                setTagsToRemove((current) => {
+                  const newTags = { ...current };
+                  delete newTags[tag.name];
 
-          <div className="flex w-full max-w-full flex-col">
-            <TagSelection
-              className="mt-10 px-4 pt-0 tablet:px-10"
-              shouldUpdateAlerts={false}
-              shouldFilterLocally
-              feedId={feedId}
-              onClickTag={({ tag, action }) => {
-                setDirty(true);
-
-                if (action === 'follow') {
-                  setTagsToRemove((current) => {
-                    const newTags = { ...current };
-                    delete newTags[tag.name];
-
-                    return newTags;
-                  });
-                } else {
-                  setTagsToRemove((current) => {
-                    return { ...current, [tag.name]: true };
-                  });
-                }
-              }}
-              origin={Origin.CustomFeed}
-              searchOrigin={Origin.CustomFeed}
-            />
-            <FeedPreviewControls
-              isOpen={isPreviewFeedVisible}
-              isDisabled={!isPreviewFeedEnabled}
-              textDisabled="Select tags to show feed preview"
-              origin={Origin.CustomFeed}
-              onClick={setPreviewFeedVisible}
-            />
-          </div>
-        </LayoutHeader>
-        {isPreviewFeedEnabled && isPreviewFeedVisible && (
-          <FeedCustomPreview feedId={feedId} />
-        )}
-      </FeedPageLayoutComponent>
-    </>
+                  return newTags;
+                });
+              } else {
+                setTagsToRemove((current) => {
+                  return { ...current, [tag.name]: true };
+                });
+              }
+            }}
+            origin={Origin.CustomFeed}
+            searchOrigin={Origin.CustomFeed}
+          />
+          <FeedPreviewControls
+            isOpen={isPreviewFeedVisible}
+            isDisabled={!isPreviewFeedEnabled}
+            textDisabled="Select tags to show feed preview"
+            origin={Origin.CustomFeed}
+            onClick={setPreviewFeedVisible}
+          />
+        </div>
+      </LayoutHeader>
+      {isPreviewFeedEnabled && isPreviewFeedVisible && (
+        <FeedCustomPreview feedId={feedId} />
+      )}
+    </FeedPageLayoutComponent>
   );
 };
 
 EditFeedPage.getLayout = getLayout;
-EditFeedPage.layoutProps = mainFeedLayoutProps;
+EditFeedPage.layoutProps = { ...mainFeedLayoutProps, seo };
 
 export default EditFeedPage;
