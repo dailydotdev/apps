@@ -256,7 +256,7 @@ describe('squad header bar', () => {
       5,
     );
     renderComponent();
-    const list = await screen.findByLabelText('Members list');
+    const list = await screen.findByTestId('squad-member-short-list');
     const result = await Promise.all(
       members.map(async ({ node: { user } }) => {
         const elements = await screen.findAllByAltText(
@@ -284,7 +284,7 @@ describe('squad header bar', () => {
       3,
     );
     renderComponent();
-    await screen.findByLabelText('Members list');
+    await screen.findByTestId('squad-member-short-list');
     const result = await Promise.all(
       members.map(({ node: { user } }) =>
         screen.findByAltText(`${user.name}'s profile`),
@@ -292,13 +292,13 @@ describe('squad header bar', () => {
     );
     const COUNTER_ELEMENT = 1;
     expect(result.length).toEqual(3);
-    const list = await screen.findByLabelText('Members list');
+    const list = await screen.findByTestId('squad-member-short-list');
     expect(list.childNodes.length).toEqual(result.length + COUNTER_ELEMENT);
   });
 
   it('should show total members count', async () => {
     renderComponent();
-    const count = await screen.findByLabelText('squad-members-count');
+    const count = await screen.findByTestId('squad-member-short-list');
     expect(count).toHaveTextContent(defaultSquad.membersCount.toString());
   });
 
