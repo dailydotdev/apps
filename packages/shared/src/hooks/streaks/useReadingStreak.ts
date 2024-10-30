@@ -42,7 +42,9 @@ export const useReadingStreak = (): UserReadingStreak => {
   const queryClient = useQueryClient();
   const queryKey = generateQueryKey(RequestKey.UserStreak, user);
 
-  const { data: streak, isLoading } = useQuery(queryKey, getReadingStreak, {
+  const { data: streak, isPending } = useQuery({
+    queryKey,
+    queryFn: getReadingStreak,
     staleTime: StaleTime.Default,
     enabled: isLoggedIn,
   });
@@ -51,9 +53,12 @@ export const useReadingStreak = (): UserReadingStreak => {
     UserStreak,
     ResponseError,
     UpdateReadingStreakConfig
-  >((params) => gqlClient.request(UPDATE_STREAK_COUNT_MUTATION, params), {
+  >({
+    mutationFn: (params) =>
+      gqlClient.request(UPDATE_STREAK_COUNT_MUTATION, params),
+
     onMutate: ({ weekStart }) => {
-      queryClient.cancelQueries(queryKey);
+      queryClient.cancelQueries({ queryKey });
 
       const currentStreak = queryClient.getQueryData<UserStreak>(queryKey);
 
@@ -74,7 +79,9 @@ export const useReadingStreak = (): UserReadingStreak => {
 
   const [clearQueries] = useDebounceFn(async () => {
     if (!hasReadToday && userStreakQueryKeyRef.current?.length > 0) {
-      await queryClient.invalidateQueries(userStreakQueryKeyRef.current);
+      await queryClient.invalidateQueries({
+        queryKey: userStreakQueryKeyRef.current,
+      });
     }
   }, 100);
 
@@ -82,7 +89,7 @@ export const useReadingStreak = (): UserReadingStreak => {
 
   return {
     streak,
-    isLoading,
+    isLoading: isPending,
     isStreaksEnabled,
     updateStreakConfig,
     checkReadingStreak: async () => {

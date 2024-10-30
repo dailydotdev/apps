@@ -8,6 +8,7 @@ import { useMemo } from 'react';
 import { RequestDataConnection, gqlClient } from '../graphql/common';
 import useFeedInfiniteScroll from './feed/useFeedInfiniteScroll';
 import { PostItem } from '../graphql/posts';
+import { getNextPageParam } from '../lib/query';
 
 export type ReadHistoryData = RequestDataConnection<PostItem, 'readHistory'>;
 
@@ -19,7 +20,7 @@ export interface UseInfiniteReadingHistory {
   isInitialLoading: boolean;
   isLoading: boolean;
   infiniteScrollRef: (node?: Element | null) => void;
-  queryResult: UseInfiniteQueryResult;
+  queryResult: UseInfiniteQueryResult<ReadHistoryInfiniteData>;
 }
 
 interface UseInfiniteReadingHistoryProps {
@@ -32,24 +33,22 @@ function useInfiniteReadingHistory({
   query,
   variables,
 }: UseInfiniteReadingHistoryProps): UseInfiniteReadingHistory {
-  const queryResult = useInfiniteQuery<ReadHistoryData>(
-    key,
-    ({ pageParam }) =>
-      gqlClient.request(query, {
+  const queryResult = useInfiniteQuery({
+    queryKey: key,
+    queryFn: ({ pageParam }) =>
+      gqlClient.request<ReadHistoryData>(query, {
         ...variables,
         after: pageParam,
       }),
-    {
-      getNextPageParam: (lastPage) =>
-        lastPage?.readHistory?.pageInfo.hasNextPage &&
-        lastPage?.readHistory?.pageInfo.endCursor,
-    },
-  );
-  const { isLoading, isFetchingNextPage, hasNextPage, data, fetchNextPage } =
+    initialPageParam: '',
+    getNextPageParam: ({ readHistory }) =>
+      getNextPageParam(readHistory?.pageInfo),
+  });
+  const { isPending, isFetchingNextPage, hasNextPage, data, fetchNextPage } =
     queryResult;
 
   const canFetchMore =
-    !isLoading && !isFetchingNextPage && hasNextPage && data.pages.length > 0;
+    !isPending && !isFetchingNextPage && hasNextPage && data.pages.length > 0;
 
   const infiniteScrollRef = useFeedInfiniteScroll({
     fetchPage: fetchNextPage,
@@ -64,12 +63,12 @@ function useInfiniteReadingHistory({
     () => ({
       queryResult,
       hasData,
-      isLoading,
+      isLoading: isPending,
       data,
-      isInitialLoading: !hasData && isLoading,
+      isInitialLoading: !hasData && isPending,
       infiniteScrollRef,
     }),
-    [hasData, queryResult, isLoading, data, infiniteScrollRef],
+    [hasData, queryResult, isPending, data, infiniteScrollRef],
   );
 }
 

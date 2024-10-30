@@ -24,9 +24,9 @@ export const useTagSearch = ({
 }: UseTagSearchProps): UseTagSearch => {
   const { logEvent } = useContext(LogContext);
 
-  const { data, isLoading } = useQuery(
-    getSearchTagsQueryKey(value),
-    async () => {
+  const { data, isPending } = useQuery({
+    queryKey: getSearchTagsQueryKey(value),
+    queryFn: async () => {
       const result = await gqlClient.request<SearchTagsData>(
         SEARCH_TAGS_QUERY,
         { query: value },
@@ -45,11 +45,11 @@ export const useTagSearch = ({
 
       return result;
     },
-    { enabled: value?.length >= MIN_SEARCH_QUERY_LENGTH },
-  );
+    enabled: value?.length >= MIN_SEARCH_QUERY_LENGTH,
+  });
 
   return {
     data,
-    isLoading,
+    isLoading: isPending,
   };
 };

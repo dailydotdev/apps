@@ -50,7 +50,6 @@ import {
 } from '@dailydotdev/shared/src/graphql/common';
 import { UPLOAD_COVER_MUTATION } from '@dailydotdev/shared/src/graphql/users';
 import { useRouter } from 'next/router';
-
 import { AccountTextField } from '../common';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
@@ -106,24 +105,24 @@ const ProfileIndex = ({
     { user: LoggedUser },
     ResponseError,
     { image: File }
-  >(
-    ({ image }) =>
+  >({
+    mutationFn: ({ image }) =>
       gqlClient.request(UPLOAD_COVER_MUTATION, {
         upload: image,
       }),
-    {
-      onSuccess: async (res) => {
-        await updateUser({ ...user, cover: res.user.cover } as LoggedUser);
-        displayToast('Cover image updated');
-      },
-      onError: (err) => {
-        if (!err?.response?.errors?.length) {
-          return;
-        }
-        displayToast(err.response.errors[0].message);
-      },
+
+    onSuccess: async (res) => {
+      await updateUser({ ...user, cover: res.user.cover } as LoggedUser);
+      displayToast('Cover image updated');
     },
-  );
+
+    onError: (err) => {
+      if (!err?.response?.errors?.length) {
+        return;
+      }
+      displayToast(err.response.errors[0].message);
+    },
+  });
 
   const onImageInputChange = useCallback(
     (file?: File, fileName?: string, isCover = false) => {

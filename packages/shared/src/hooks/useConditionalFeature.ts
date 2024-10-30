@@ -31,9 +31,9 @@ export const useConditionalFeature = <T extends JSONValue>({
     shouldEvaluate,
   );
 
-  const { data: featureValue, isLoading } = useQuery(
+  const { data: featureValue, isPending } = useQuery({
     queryKey,
-    () => {
+    queryFn: () => {
       if (!shouldEvaluate) {
         return feature.defaultValue as WidenPrimitives<T>;
       }
@@ -41,14 +41,12 @@ export const useConditionalFeature = <T extends JSONValue>({
         ? growthbook.getFeatureValue(feature.id, feature.defaultValue)
         : (feature.defaultValue as WidenPrimitives<T>);
     },
-    {
-      enabled: shouldEvaluate && ready,
-      ...disabledRefetch,
-    },
-  );
+    enabled: shouldEvaluate && ready,
+    ...disabledRefetch,
+  });
 
   return {
     value: featureValue ?? (feature.defaultValue as WidenPrimitives<T>),
-    isLoading,
+    isLoading: isPending,
   };
 };

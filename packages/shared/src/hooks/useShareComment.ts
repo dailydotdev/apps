@@ -20,7 +20,7 @@ export function useShareComment(origin: Origin): UseShareComment {
 
   const openShareComment = useCallback(
     async (comment, post) => {
-      if ('share' in navigator) {
+      if ('share' in globalThis?.navigator) {
         try {
           const shortUrl = await getShortUrl(
             `${post.commentsPermalink}${getCommentHash(comment.id)}`,

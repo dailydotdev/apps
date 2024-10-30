@@ -46,9 +46,14 @@ const ProfilePage = ({
     queryKey: userQueryKey,
   });
 
-  const { data: readingHistory, isLoading } = useQuery<ProfileReadingData>(
-    generateQueryKey(RequestKey.ReadingStats, user, selectedHistoryYear),
-    () =>
+  const { data: readingHistory, isLoading } = useQuery<ProfileReadingData>({
+    queryKey: generateQueryKey(
+      RequestKey.ReadingStats,
+      user,
+      selectedHistoryYear,
+    ),
+
+    queryFn: () =>
       gqlClient.request(USER_READING_HISTORY_QUERY, {
         id: user?.id,
         before,
@@ -56,13 +61,11 @@ const ProfilePage = ({
         version: 2,
         limit: 6,
       }),
-    {
-      enabled: !!user && tokenRefreshed && !!before && !!after,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-      refetchOnMount: false,
-    },
-  );
+    enabled: !!user && tokenRefreshed && !!before && !!after,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
+  });
 
   const seo: NextSeoProps = {
     ...getProfileSeoDefaults(user, {}, noindex),

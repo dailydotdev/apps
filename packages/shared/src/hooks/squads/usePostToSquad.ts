@@ -67,8 +67,9 @@ export const usePostToSquad = ({
   const { completeAction } = useActions();
   const [preview, setPreview] = useState(initialPreview);
   const { requestMethod } = useRequestProtocol();
-  const { mutateAsync: getLinkPreview, isLoading: isLoadingPreview } =
-    useMutation((url: string) => getExternalLinkPreview(url, requestMethod), {
+  const { mutateAsync: getLinkPreview, isPending: isLoadingPreview } =
+    useMutation({
+      mutationFn: (url: string) => getExternalLinkPreview(url, requestMethod),
       onSuccess: (...params) => {
         const [result, url] = params;
         setPreview({ ...result, url });
@@ -91,15 +92,18 @@ export const usePostToSquad = ({
         ? 'The post has been updated'
         : 'This post has been shared to your squad',
     );
-    await client.invalidateQueries(['sourceFeed', user.id]);
+    await client.invalidateQueries({
+      queryKey: ['sourceFeed', user.id],
+    });
     completeAction(ActionType.SquadFirstPost);
   };
 
   const {
     mutateAsync: onPost,
-    isLoading: isPostLoading,
+    isPending: isPostLoading,
     isSuccess: isPostSuccess,
-  } = useMutation(addPostToSquad(requestMethod), {
+  } = useMutation({
+    mutationFn: addPostToSquad(requestMethod),
     onSuccess: (data) => {
       onSharedPostSuccessfully();
       if (onPostSuccess) {
@@ -110,9 +114,10 @@ export const usePostToSquad = ({
 
   const {
     mutateAsync: updatePost,
-    isLoading: isUpdatePostLoading,
+    isPending: isUpdatePostLoading,
     isSuccess: isUpdatePostSuccess,
-  } = useMutation(updateSquadPost(requestMethod), {
+  } = useMutation({
+    mutationFn: updateSquadPost(requestMethod),
     onSuccess: (data) => {
       onSharedPostSuccessfully(true);
       if (onPostSuccess) {
@@ -123,19 +128,18 @@ export const usePostToSquad = ({
 
   const {
     mutateAsync: onSubmitLink,
-    isLoading: isLinkLoading,
+    isPending: isLinkLoading,
     isSuccess: isLinkSuccess,
-  } = useMutation(
-    (params: SubmitExternalLink) => submitExternalLink(params, requestMethod),
-    {
-      onSuccess: (_, { url }) => {
-        onSharedPostSuccessfully();
-        if (onPostSuccess) {
-          onPostSuccess(null, url);
-        }
-      },
+  } = useMutation({
+    mutationFn: (params: SubmitExternalLink) =>
+      submitExternalLink(params, requestMethod),
+    onSuccess: (_, { url }) => {
+      onSharedPostSuccessfully();
+      if (onPostSuccess) {
+        onPostSuccess(null, url);
+      }
     },
-  );
+  });
 
   const isPosting =
     isPostLoading || isLinkLoading || isPostSuccess || isLinkSuccess;

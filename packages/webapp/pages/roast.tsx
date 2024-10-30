@@ -9,7 +9,6 @@ import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import classNames from 'classnames';
 import { FormErrorMessage } from '@dailydotdev/shared/src/components/utilities';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { labels } from '@dailydotdev/shared/src/lib';
 import {
@@ -91,7 +90,9 @@ const Step1 = ({ onGenerateImage, error }: StepProps): ReactElement => {
 
 const Step2 = ({ roast, error }: StepProps): ReactElement => {
   const { user } = useContext(AuthContext);
-  const { mutateAsync: onDownloadUrl, isLoading } = useMutation(downloadUrl);
+  const { mutateAsync: onDownloadUrl, isPending: isLoading } = useMutation({
+    mutationFn: downloadUrl,
+  });
 
   const downloadImage = async (): Promise<void> => {
     await onDownloadUrl({ url: roast.image, filename: `${user.username}.png` });
@@ -244,13 +245,12 @@ const RoastPage = (): ReactElement => {
         step === 1 && 'laptop:flex-row laptop:gap-20',
       )}
     >
-      <NextSeo {...seo} />
       {child}
     </div>
   );
 };
 
 RoastPage.getLayout = getMainLayout;
-RoastPage.layoutProps = { screenCentered: false };
+RoastPage.layoutProps = { screenCentered: false, seo };
 
 export default RoastPage;

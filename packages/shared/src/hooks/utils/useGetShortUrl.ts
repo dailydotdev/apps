@@ -56,13 +56,11 @@ export const useGetShortUrl = ({
       const { trackedUrl, queryKey } = getProps(url, cid);
 
       try {
-        return queryClient.fetchQuery(
+        return queryClient.fetchQuery({
           queryKey,
-          () => queryShortUrl(trackedUrl),
-          {
-            staleTime: Infinity,
-          },
-        );
+          queryFn: () => queryShortUrl(trackedUrl),
+          staleTime: Infinity,
+        });
       } catch (err) {
         return trackedUrl;
       }
@@ -82,15 +80,13 @@ export const useGetShortUrl = ({
   const { queryKey, trackedUrl } = query
     ? getProps(query.url, query.cid)
     : { queryKey: [], trackedUrl: '' };
-  const { data: shareLink, isLoading } = useQuery(
+  const { data: shareLink, isPending } = useQuery({
     queryKey,
-    () => queryShortUrl(trackedUrl),
-    {
-      ...disabledRefetch,
-      staleTime: Infinity,
-      enabled: !!query?.url && isEnabled && !!user,
-    },
-  );
+    queryFn: () => queryShortUrl(trackedUrl),
+    ...disabledRefetch,
+    staleTime: Infinity,
+    enabled: !!query?.url && isEnabled && !!user,
+  });
 
-  return { getShortUrl, getTrackedUrl, shareLink, isLoading };
+  return { getShortUrl, getTrackedUrl, shareLink, isLoading: isPending };
 };

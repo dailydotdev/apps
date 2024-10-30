@@ -48,7 +48,7 @@ export type UserProfileFeedType = Extract<
   'user-upvoted' | 'user-posts'
 >;
 
-export const FeedLayoutMobileFeedPages = new Set([
+export const FeedLayoutMobileFeedPages = new Set<AllFeedPages>([
   ...Object.values(SharedFeedPage).filter(
     (item) => item !== SharedFeedPage.CustomForm,
   ),
@@ -117,9 +117,7 @@ export const useFeedLayout = ({
     feedName as UserProfileFeedType,
   );
 
-  const isFeedIncludedInListLayout = FeedLayoutMobileFeedPages.has(
-    feedName as FeedPagesWithMobileLayoutType,
-  );
+  const isFeedIncludedInListLayout = FeedLayoutMobileFeedPages.has(feedName);
 
   const shouldUseListFeedLayoutOnMobileTablet =
     !isLaptop && isFeedIncludedInListLayout;

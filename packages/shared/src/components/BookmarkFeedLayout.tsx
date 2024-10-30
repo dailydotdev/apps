@@ -49,7 +49,10 @@ export default function BookmarkFeedLayout({
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showEmptyScreen, setShowEmptyScreen] = useState(false);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
-  const defaultKey = generateQueryKey(RequestKey.Bookmarks, user);
+  const defaultKey = useMemo(
+    () => generateQueryKey(RequestKey.Bookmarks, user),
+    [user],
+  );
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (searchQuery) {
       return {
@@ -73,9 +76,7 @@ export default function BookmarkFeedLayout({
       onEmptyFeed: () => setShowEmptyScreen(true),
       options: { refetchOnMount: true },
     };
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery, user]);
+  }, [defaultKey, searchQuery]);
 
   if (showEmptyScreen) {
     return <BookmarkEmptyScreen />;
