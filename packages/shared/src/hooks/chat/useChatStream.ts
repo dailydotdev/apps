@@ -48,7 +48,7 @@ export const useChatStream = (): UseChatStream => {
         null,
       );
       let streamId: string = null;
-      client.removeQueries(queryKey);
+      client.removeQueries({ queryKey });
 
       const initSession = (payload: Pick<CreatePayload, 'id'>) => {
         queryKey = generateQueryKey(RequestKey.Search, user, payload.id);

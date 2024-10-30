@@ -7,6 +7,7 @@ import { link } from '@dailydotdev/shared/src/lib/links';
 import { labels } from '@dailydotdev/shared/src/lib';
 import {
   generateQueryKey,
+  getNextPageParam,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -33,10 +34,15 @@ import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
 import { InviteLinkInput } from '@dailydotdev/shared/src/components/referral';
 import { TruncateText } from '@dailydotdev/shared/src/components/utilities';
+import { NextSeoProps } from 'next-seo';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { InviteIcon } from '../../../shared/src/components/icons';
+import { defaultSeo } from '../../next-seo';
+import { getTemplatedTitle } from '../../components/layouts/utils';
+
+const seo: NextSeoProps = { ...defaultSeo, title: getTemplatedTitle('Invite') };
 
 const AccountInvitePage = (): ReactElement => {
   const { user } = useAuthContext();
@@ -55,18 +61,16 @@ const AccountInvitePage = (): ReactElement => {
       target_id: TargetId.InviteFriendsPage,
     }),
   });
-  const usersResult = useInfiniteQuery<ReferredUsersData>(
-    referredKey,
-    ({ pageParam }) =>
+  const usersResult = useInfiniteQuery<ReferredUsersData>({
+    queryKey: referredKey,
+    queryFn: ({ pageParam }) =>
       gqlClient.request(REFERRED_USERS_QUERY, {
         after: typeof pageParam === 'string' ? pageParam : undefined,
       }),
-    {
-      getNextPageParam: (lastPage) =>
-        lastPage?.referredUsers?.pageInfo?.hasNextPage &&
-        lastPage?.referredUsers?.pageInfo?.endCursor,
-    },
-  );
+    initialPageParam: '',
+    getNextPageParam: ({ referredUsers }) =>
+      getNextPageParam(referredUsers?.pageInfo),
+  });
   const users: UserShortProfile[] = useMemo(() => {
     const list = [];
     usersResult.data?.pages.forEach((page) => {
@@ -155,5 +159,6 @@ const AccountInvitePage = (): ReactElement => {
 };
 
 AccountInvitePage.getLayout = getAccountLayout;
+AccountInvitePage.layoutProps = { seo };
 
 export default AccountInvitePage;

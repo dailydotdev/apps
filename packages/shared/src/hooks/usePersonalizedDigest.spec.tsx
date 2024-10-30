@@ -1,7 +1,6 @@
 import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { waitFor } from '@testing-library/react';
 import nock from 'nock';
 import { AuthContextProvider } from '../contexts/AuthContext';
 import { usePersonalizedDigest } from './usePersonalizedDigest';

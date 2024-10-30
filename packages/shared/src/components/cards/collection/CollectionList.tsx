@@ -15,6 +15,7 @@ import { CollectionPillSources } from '../../post/collection';
 import { useTruncatedSummary } from '../../../hooks';
 import PostTags from '../common/PostTags';
 import { CardCoverList } from '../common/list/CardCover';
+import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 
 export const CollectionList = forwardRef(function CollectionCard(
   {
@@ -29,6 +30,7 @@ export const CollectionList = forwardRef(function CollectionCard(
     onPostClick,
     onBookmarkClick,
     onShare,
+    eagerLoadImage = false,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
@@ -87,10 +89,10 @@ export const CollectionList = forwardRef(function CollectionCard(
               post={post}
               onShare={onShare}
               imageProps={{
-                src: image,
-                className: 'my-2 w-full mobileXXL:self-start',
-                loading: 'lazy',
                 alt: 'Post Cover image',
+                className: 'my-2 w-full mobileXXL:self-start',
+                ...(eagerLoadImage && HIGH_PRIORITY_IMAGE_PROPS),
+                src: image,
               }}
             />
           )}

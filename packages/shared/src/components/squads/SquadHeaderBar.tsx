@@ -56,7 +56,7 @@ export function SquadHeaderBar({
   const checklistTooltipText = `${completedStepsCount}/${totalStepsCount}`;
   const showJoinButton = squad.public && !squad.currentMember;
 
-  const { data: sourceIntegration, isLoading } = useSourceIntegrationQuery({
+  const { data: sourceIntegration, isPending } = useSourceIntegrationQuery({
     sourceId: squad.id,
     userIntegrationType: UserIntegrationType.Slack,
   });
@@ -66,7 +66,7 @@ export function SquadHeaderBar({
       return null;
     }
 
-    if (isLoading && !sourceIntegration) {
+    if (isPending && !sourceIntegration) {
       return null;
     }
 
@@ -79,7 +79,7 @@ export function SquadHeaderBar({
     }
 
     return null;
-  }, [sourceIntegration, user, squad, isLoading]);
+  }, [sourceIntegration, user, squad, isPending]);
 
   return (
     <div

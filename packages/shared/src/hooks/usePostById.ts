@@ -31,7 +31,7 @@ import { PropsParameters } from '../types';
 
 interface UsePostByIdProps {
   id: string;
-  options?: QueryObserverOptions<PostData>;
+  options?: Partial<QueryObserverOptions<PostData>>;
 }
 
 interface UsePostById extends Pick<UseQueryResult, 'isError' | 'isLoading'> {
@@ -121,16 +121,14 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
   const {
     data: postById,
     isError,
-    isLoading,
-  } = useQuery<PostData>(
-    key,
-    () => gqlClient.request(POST_BY_ID_QUERY, { id }),
-    {
-      ...restOptions,
-      staleTime: StaleTime.Default,
-      enabled: !!id && tokenRefreshed,
-    },
-  );
+    isPending,
+  } = useQuery<PostData>({
+    queryKey: key,
+    queryFn: () => gqlClient.request(POST_BY_ID_QUERY, { id }),
+    ...restOptions,
+    staleTime: StaleTime.Default,
+    enabled: !!id && tokenRefreshed,
+  });
   const post = postById || (options?.initialData as PostData);
 
   useMutationSubscription({
@@ -172,9 +170,9 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
       post: post?.post,
       relatedCollectionPosts: post?.relatedCollectionPosts,
       isError,
-      isLoading: !post?.post || isLoading,
+      isLoading: !post?.post && isPending,
     }),
-    [post?.post, post?.relatedCollectionPosts, isError, isLoading],
+    [post?.post, post?.relatedCollectionPosts, isError, isPending],
   );
 };
 

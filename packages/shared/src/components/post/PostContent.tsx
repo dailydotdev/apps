@@ -20,7 +20,7 @@ import { TruncateText } from '../utilities';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { LazyImage } from '../LazyImage';
-import { cloudinary } from '../../lib/image';
+import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { withPostById } from './withPostById';
 
 export const SCROLL_OFFSET = 80;
@@ -188,7 +188,7 @@ export function PostContentRaw({
                 imgAlt="Post cover image"
                 ratio="49%"
                 eager
-                fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+                fallbackSrc={cloudinaryPostImageCoverPlaceholder}
                 fetchPriority="high"
               />
             </ArticleLink>

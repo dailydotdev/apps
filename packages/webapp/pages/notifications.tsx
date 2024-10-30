@@ -1,6 +1,6 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { NextSeo } from 'next-seo';
+import { NextSeoProps } from 'next-seo';
 import {
   InfiniteData,
   useInfiniteQuery,
@@ -35,6 +35,7 @@ import { NotificationPreferenceMenu } from '@dailydotdev/shared/src/components/t
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useStreakRecoverModal } from '@dailydotdev/shared/src/hooks/notifications/useStreakRecoverModal';
+import { getNextPageParam } from '@dailydotdev/shared/src/lib/query';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
@@ -45,42 +46,39 @@ const hasUnread = (data: InfiniteData<NotificationsData>) =>
   );
 
 const contextId = 'notifications-context-menu';
-const seo = (
-  <NextSeo
-    title="Notifications"
-    nofollow
-    noindex
-    titleTemplate="%s | daily.dev"
-  />
-);
+const seo: NextSeoProps = {
+  title: 'Notifications',
+  noindex: true,
+  nofollow: true,
+};
 
 const Notifications = (): ReactElement => {
   const { logEvent } = useLogContext();
   const { clearUnreadCount } = useNotificationContext();
   const { isSubscribed } = usePushNotificationContext();
 
-  const { mutateAsync: readNotifications } = useMutation(
-    () => gqlClient.request(READ_NOTIFICATIONS_MUTATION),
-    { onSuccess: clearUnreadCount },
-  );
-  const queryResult = useInfiniteQuery<NotificationsData>(
-    ['notifications'],
-    ({ pageParam }) =>
+  const { mutateAsync: readNotifications } = useMutation({
+    mutationFn: () => gqlClient.request(READ_NOTIFICATIONS_MUTATION),
+    onSuccess: clearUnreadCount,
+  });
+  const queryResult = useInfiniteQuery<NotificationsData>({
+    queryKey: ['notifications'],
+    queryFn: ({ pageParam }) =>
       gqlClient.request(NOTIFICATIONS_QUERY, {
         first: 100,
         after: pageParam,
       }),
-    {
-      getNextPageParam: (lastPage) =>
-        lastPage?.notifications?.pageInfo?.hasNextPage &&
-        lastPage?.notifications?.pageInfo?.endCursor,
-      onSuccess: (data) => {
-        if (hasUnread(data)) {
-          readNotifications();
-        }
-      },
-    },
-  );
+    initialPageParam: '',
+    getNextPageParam: ({ notifications }) =>
+      getNextPageParam(notifications?.pageInfo),
+  });
+
+  useEffect(() => {
+    if (queryResult.data && hasUnread(queryResult.data)) {
+      readNotifications();
+    }
+  }, [queryResult.data, readNotifications]);
+
   const { isFetchedAfterMount, isFetched, hasNextPage } = queryResult ?? {};
 
   const length = queryResult?.data?.pages?.length ?? 0;
@@ -127,7 +125,7 @@ const Notifications = (): ReactElement => {
   };
 
   return (
-    <ProtectedPage seo={seo}>
+    <ProtectedPage>
       <main
         className={classNames(pageBorders, pageContainerClassNames, 'pb-12')}
       >
@@ -190,5 +188,6 @@ const getNotificationsLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 Notifications.getLayout = getNotificationsLayout;
+Notifications.layoutProps = { seo };
 
 export default Notifications;

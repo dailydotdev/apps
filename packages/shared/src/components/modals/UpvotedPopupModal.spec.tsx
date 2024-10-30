@@ -28,7 +28,7 @@ const upvotedPostQueryAsDefault: UpvotedPopupModalProps = {
   requestQuery: {
     queryKey: ['postUpvotes', postId],
     query: POST_UPVOTES_BY_ID_QUERY,
-    params: { id: postId, first: DEFAULT_UPVOTES_PER_PAGE },
+    params: { id: postId, first: DEFAULT_UPVOTES_PER_PAGE, after: '' },
   },
 };
 const commentId = 'c1';
@@ -38,7 +38,7 @@ const upvotedCommentQuery: UpvotedPopupModalProps = {
   requestQuery: {
     queryKey: ['commentUpvotes', commentId],
     query: COMMENT_UPVOTES_BY_ID_QUERY,
-    params: { id: commentId, first: DEFAULT_UPVOTES_PER_PAGE },
+    params: { id: commentId, first: DEFAULT_UPVOTES_PER_PAGE, after: '' },
   },
 };
 

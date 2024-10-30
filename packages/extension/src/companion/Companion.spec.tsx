@@ -15,8 +15,6 @@ import {
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import App from './App';
 
-jest.mock('content-scripts-register-polyfill', () => ({}));
-
 jest.mock('webextension-polyfill', () => {
   return {
     contentScripts: {

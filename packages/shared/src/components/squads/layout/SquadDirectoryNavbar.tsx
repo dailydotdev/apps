@@ -19,7 +19,7 @@ export const SquadDirectoryNavbar = (
     isAtStart,
     isOverflowing,
   } = useHorizontalScrollHeader<HTMLUListElement>({
-    title: 'Squad directory navigation',
+    title: { copy: 'Squad directory navigation' },
   });
   const isLaptop = useViewSize(ViewSize.Laptop);
 

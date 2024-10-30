@@ -1,9 +1,8 @@
 import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook, waitFor } from '@testing-library/react';
 import { NextRouter, useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
 import nock from 'nock';
-import { waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useJoinReferral } from './useJoinReferral';
 import { AuthContextProvider } from '../../contexts/AuthContext';
@@ -21,6 +20,7 @@ describe('useJoinReferral hook', () => {
           updateUser={jest.fn()}
           tokenRefreshed={false}
           isFetched
+          firstLoad={false}
         >
           {children}
         </AuthContextProvider>

@@ -21,7 +21,6 @@ export function UserFollowersModal({
 }: FollowersModalProps): ReactElement {
   const queryResult = useFollowersQuery(queryProps);
   const { data, isFetchingNextPage, fetchNextPage } = queryResult;
-
   return (
     <UserListModal
       {...props}

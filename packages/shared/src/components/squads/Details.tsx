@@ -15,7 +15,7 @@ import { TextField } from '../fields/TextField';
 import { ArrowIcon, AtIcon, CameraIcon, SlackIcon, SquadIcon } from '../icons';
 import Textarea from '../fields/Textarea';
 import ImageInput from '../fields/ImageInput';
-import { cloudinary } from '../../lib/image';
+import { cloudinarySquadsImageFallback } from '../../lib/image';
 import { formToJson } from '../../lib/form';
 import { checkExistingHandle, SquadForm } from '../../graphql/squads';
 import { capitalize } from '../../lib/strings';
@@ -101,7 +101,8 @@ export function SquadDetails({
     return channels?.findIndex((item) => item.id === selectedChannel) || 0;
   }, [channels, selectedChannel]);
 
-  const { mutateAsync: onValidateHandle } = useMutation(checkExistingHandle, {
+  const { mutateAsync: onValidateHandle } = useMutation({
+    mutationFn: checkExistingHandle,
     onError: (err) => {
       const clientError = err as ClientError;
       const message = clientError?.response?.errors?.[0]?.message;
@@ -198,7 +199,7 @@ export function SquadDetails({
             <ImageInput
               initialValue={image}
               id={squadImageId}
-              fallbackImage={cloudinary.squads.imageFallback}
+              fallbackImage={cloudinarySquadsImageFallback}
               className={{
                 container: 'mt-4 !rounded-full border-0',
                 img: 'object-cover',

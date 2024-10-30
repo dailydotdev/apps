@@ -20,7 +20,6 @@ import {
 } from './typography/Typography';
 
 const ReactMarkdown = dynamic(
-  // @ts-expect-error issue with next/dynamic types
   () => import(/* webpackChunkName: "reactMarkdown" */ 'react-markdown'),
 );
 

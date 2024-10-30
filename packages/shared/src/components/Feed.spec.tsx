@@ -11,7 +11,6 @@ import {
   within,
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { OperationOptions } from 'subscriptions-transport-ws';
 import { mocked } from 'ts-jest/utils';
 import { useRouter } from 'next/router';
 
@@ -69,6 +68,7 @@ import { UserVoteEntity } from '../hooks';
 import * as hooks from '../hooks/useViewSize';
 import { ActionType, COMPLETE_ACTION_MUTATION } from '../graphql/actions';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
+import { defaultQueryClientTestingConfig } from '../../__tests__/helpers/tanstack-query';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -86,7 +86,7 @@ jest.mock('../hooks', () => {
         .fn()
         .mockImplementation(
           (
-            request: () => OperationOptions,
+            request: () => null,
             { next }: SubscriptionCallbacks<PostsEngaged>,
           ): void => {
             nextCallback = next;
@@ -102,7 +102,7 @@ jest.mock('../hooks/useSubscription', () => ({
     .fn()
     .mockImplementation(
       (
-        request: () => OperationOptions,
+        request: () => null,
         { next }: SubscriptionCallbacks<PostsEngaged>,
       ): void => {
         nextCallback = next;
@@ -114,13 +114,16 @@ let variables: unknown;
 const defaultVariables = {
   first: 7,
   loggedIn: true,
+  after: '',
 };
 
+let queryClient: QueryClient;
+
 beforeEach(() => {
+  queryClient?.clear();
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
-  jest.clearAllMocks();
   variables = defaultVariables;
 });
 
@@ -178,14 +181,12 @@ const createFeedMock = (
   },
 });
 
-let queryClient: QueryClient;
-
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
   user: LoggedUser = defaultUser,
   feedName: AllFeedPages = SharedFeedPage.MyFeed,
 ): RenderResult => {
-  queryClient = new QueryClient();
+  queryClient = new QueryClient(defaultQueryClientTestingConfig);
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
@@ -374,6 +375,7 @@ describe('Feed', () => {
           {
             first: 7,
             loggedIn: false,
+            after: '',
           },
         ),
       ],
@@ -460,6 +462,7 @@ describe('Feed', () => {
           {
             first: 7,
             loggedIn: false,
+            after: '',
           },
         ),
       ],

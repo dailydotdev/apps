@@ -65,7 +65,7 @@ async function updateQueryData(
 ): Promise<void> {
   await Promise.all(
     keys.map(async (key) => {
-      await queryClient.cancelQueries(key);
+      await queryClient.cancelQueries({ queryKey: key });
       queryClient.setQueryData<FeedSettingsData>(key, (cachedData) => {
         if (!cachedData) {
           return cachedData;
@@ -217,16 +217,14 @@ export default function useMutateFilters(
     unknown,
     AdvancedSettingsMutationProps,
     () => Promise<void>
-  >(
-    ({ advancedSettings: settings }) =>
+  >({
+    mutationFn: ({ advancedSettings: settings }) =>
       gqlClient.request(UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION, {
         settings,
       }),
-    {
-      onMutate: onAdvancedSettingsUpdate,
-      onError: (err, _, rollback) => rollback(),
-    },
-  );
+    onMutate: onAdvancedSettingsUpdate,
+    onError: (err, _, rollback) => rollback(),
+  });
 
   const onFollowTags = useCallback(
     ({ tags }: TagsMutationProps) =>
@@ -249,18 +247,17 @@ export default function useMutateFilters(
     unknown,
     TagsMutationProps,
     () => Promise<void>
-  >(
-    ({ tags }) =>
+  >({
+    mutationFn: ({ tags }) =>
       gqlClient.request(ADD_FILTERS_TO_FEED_MUTATION, {
         filters: {
           includeTags: tags,
         },
       }),
-    {
-      onMutate: onFollowTags,
-      onError: (err, _, rollback) => rollback(),
-    },
-  );
+
+    onMutate: onFollowTags,
+    onError: (err, _, rollback) => rollback(),
+  });
 
   const onBlockTags = useCallback(
     ({ tags }: TagsMutationProps) =>
@@ -289,18 +286,17 @@ export default function useMutateFilters(
     unknown,
     TagsMutationProps,
     () => Promise<void>
-  >(
-    ({ tags }) =>
+  >({
+    mutationFn: ({ tags }) =>
       gqlClient.request(ADD_FILTERS_TO_FEED_MUTATION, {
         filters: {
           blockedTags: tags,
         },
       }),
-    {
-      onMutate: onBlockTags,
-      onError: (err, _, rollback) => rollback(),
-    },
-  );
+
+    onMutate: onBlockTags,
+    onError: (err, _, rollback) => rollback(),
+  });
 
   const onUnfollowTags = useCallback(
     ({ tags }: TagsMutationProps) =>
@@ -325,18 +321,17 @@ export default function useMutateFilters(
     unknown,
     TagsMutationProps,
     () => void
-  >(
-    ({ tags }) =>
+  >({
+    mutationFn: ({ tags }) =>
       gqlClient.request(REMOVE_FILTERS_FROM_FEED_MUTATION, {
         filters: {
           includeTags: tags,
         },
       }),
-    {
-      onMutate: onUnfollowTags,
-      onError: (err, _, rollback) => rollback(),
-    },
-  );
+
+    onMutate: onUnfollowTags,
+    onError: (err, _, rollback) => rollback(),
+  });
 
   const onUnblockTags = useCallback(
     ({ tags }: TagsMutationProps) =>
@@ -361,18 +356,17 @@ export default function useMutateFilters(
     unknown,
     TagsMutationProps,
     () => void
-  >(
-    ({ tags }) =>
+  >({
+    mutationFn: ({ tags }) =>
       gqlClient.request(REMOVE_FILTERS_FROM_FEED_MUTATION, {
         filters: {
           blockedTags: tags,
         },
       }),
-    {
-      onMutate: onUnblockTags,
-      onError: (err, _, rollback) => rollback(),
-    },
-  );
+
+    onMutate: onUnblockTags,
+    onError: (err, _, rollback) => rollback(),
+  });
 
   const onUnblockSource = useCallback(
     ({ source }: SourceMutationProps) =>

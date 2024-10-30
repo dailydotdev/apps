@@ -36,15 +36,17 @@ export default function useReportPost(): UseReportPostRet {
     void,
     unknown,
     ReportPostProps
-  >((variables) => requestMethod(REPORT_POST_MUTATION, variables));
+  >({
+    mutationFn: (variables) => requestMethod(REPORT_POST_MUTATION, variables),
+  });
 
-  const { mutateAsync: hidePostAsync } = useMutation<void, unknown, string>(
-    (id) => gqlClient.request(HIDE_POST_MUTATION, { id }),
-  );
+  const { mutateAsync: hidePostAsync } = useMutation<void, unknown, string>({
+    mutationFn: (id) => gqlClient.request(HIDE_POST_MUTATION, { id }),
+  });
 
-  const { mutateAsync: unhidePostAsync } = useMutation<void, unknown, string>(
-    (id) => gqlClient.request(UNHIDE_POST_MUTATION, { id }),
-  );
+  const { mutateAsync: unhidePostAsync } = useMutation<void, unknown, string>({
+    mutationFn: (id) => gqlClient.request(UNHIDE_POST_MUTATION, { id }),
+  });
 
   const reportPost = async (params: ReportPostProps) => {
     if (!user) {

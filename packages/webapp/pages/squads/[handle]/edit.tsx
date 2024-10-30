@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { NextSeo, NextSeoProps } from 'next-seo';
+import { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
@@ -25,14 +25,15 @@ import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
+import { getTemplatedTitle } from '../../../components/layouts/utils';
 
 type EditSquadPageProps = { handle: string };
 
-const pageTitle = 'Squad settings';
-
 const seo: NextSeoProps = {
-  title: pageTitle,
+  title: getTemplatedTitle('Squad settings'),
   openGraph: { ...defaultOpenGraph },
+  nofollow: true,
+  noindex: true,
   ...defaultSeo,
 };
 
@@ -49,11 +50,12 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
   const queryClient = useQueryClient();
   const { updateSquad } = useBoot();
   const { displayToast } = useToastNotification();
-  const { mutateAsync: onUpdateSquad, isLoading: isUpdatingSquad } =
-    useMutation(editSquad, {
+  const { mutateAsync: onUpdateSquad, isPending: isUpdatingSquad } =
+    useMutation({
+      mutationFn: editSquad,
       onSuccess: async (data) => {
         const queryKey = generateQueryKey(RequestKey.Squad, user, data.handle);
-        await queryClient.invalidateQueries(queryKey);
+        await queryClient.invalidateQueries({ queryKey });
         updateSquad(data);
         displayToast('The Squad has been updated');
       },
@@ -84,7 +86,6 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
 
   return (
     <ManageSquadPageContainer>
-      <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
       <SquadDetails
         squad={squad}
         onSubmit={(_, form) =>
@@ -97,6 +98,7 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
 };
 
 EditSquad.getLayout = getMainLayout;
+EditSquad.layoutProps = { seo };
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
   return { paths: [], fallback: true };

@@ -1,13 +1,19 @@
 import { GraphQLResult } from '../helpers/graphql';
 import { Edge } from '../../src/graphql/common';
 import {
+  BasicSourceMember,
   SourceMember,
   SourceMemberRole,
   SourcePermissions,
   SourceType,
 } from '../../src/graphql/sources';
-import { Squad, SquadData, SquadEdgesData } from '../../src/graphql/squads';
-import { cloudinary } from '../../src/lib/image';
+import {
+  BasicSourceMembersData,
+  Squad,
+  SquadData,
+  SquadEdgesData,
+} from '../../src/graphql/squads';
+import { cloudinarySquadsImageFallback } from '../../src/lib/image';
 
 export const defaultSquadToken = 'ki3YLcxvSZ2Q6KgMBZvMbly1gnrZ6JnIrhTpUML-Hua';
 
@@ -30,7 +36,7 @@ export const generateTestAdmin = (
     permalink: 'http://webapp.local.com:5002/squads/test',
     public: true,
     type: SourceType.Squad,
-    image: cloudinary.squads.imageFallback,
+    image: cloudinarySquadsImageFallback,
     membersCount: 4,
     members: {
       edges: [
@@ -71,6 +77,71 @@ export const generateTestAdmin = (
   },
   referralToken: defaultSquadToken,
   role: SourceMemberRole.Admin,
+});
+
+export const generateBasicMembersResult = (
+  members: Edge<BasicSourceMember>[] = [
+    {
+      node: {
+        user: {
+          id: 'usr1',
+          name: 'Eliz Kılıç',
+          image:
+            'https://daily-now-res.cloudinary.com/image/upload/v1672320685/avatars/avatar_F8G694HAObSoebZRzeKKa.jpg',
+          permalink: 'https://app.daily.dev/elizdev',
+        },
+      },
+    },
+    {
+      node: {
+        user: {
+          id: 'usr2',
+          name: 'Ante Barić',
+          image:
+            'https://lh3.googleusercontent.com/a/AEdFTp54JgZtTJ9UHLkv8W2uSzfzRWzH95XrJ_1n8N5t=s96-c',
+          permalink: 'https://app.daily.dev/capJavert',
+        },
+      },
+    },
+    {
+      node: {
+        user: {
+          id: 'usr3',
+          name: 'Francesco Ciulla',
+          image:
+            'https://res.cloudinary.com/daily-now/image/upload/f_auto/v1635325588/avatars/QgTYreBqt',
+          permalink: 'https://app.daily.dev/Francesco',
+        },
+      },
+    },
+    {
+      node: {
+        user: {
+          id: 'usr4',
+          name: 'Vas N',
+          image:
+            'https://lh3.googleusercontent.com/a-/AOh14GhZpI6rlti8BFP-fzWGDxrFlAmSfb72Vd6u7XS5=s100',
+          permalink: 'https://app.daily.dev/vasn',
+        },
+      },
+    },
+    {
+      node: {
+        user: {
+          id: 'usr5',
+          name: 'Hanzel',
+          image:
+            'https://lh3.googleusercontent.com/a/AEdFTp53MKS-pbc1yrQZViMysf8UJKlG1ou1WKsnU2to=s96-c',
+          permalink: 'https://app.daily.dev/lee1995',
+        },
+      },
+    },
+  ],
+): BasicSourceMembersData => ({
+  sourceMembers: {
+    pageInfo: { endCursor: 'dGltZToxNjc1MjYyMTM0NZA4', hasNextPage: true },
+    edges: members,
+  },
 });
 
 export const generateMembersResult = (

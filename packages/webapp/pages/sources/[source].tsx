@@ -7,7 +7,6 @@ import { ParsedUrlQuery } from 'querystring';
 import React, { ReactElement, useContext, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import {
   MOST_DISCUSSED_FEED_QUERY,
@@ -60,28 +59,30 @@ import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { SourceActions } from '../../../shared/src/components/sources/SourceActions';
+import { DynamicSeoProps } from '../../components/common';
 
-type SourcePageProps = { source?: Source };
+interface SourcePageProps extends DynamicSeoProps {
+  source?: Source;
+}
 type SourceIdProps = { sourceId?: string };
 
 const SourceRelatedTags = ({ sourceId }: SourceIdProps): ReactElement => {
-  const { data: relatedTags, isLoading } = useQuery(
-    [RequestKey.SourceRelatedTags, null, sourceId],
-    async () =>
+  const { data: relatedTags, isPending } = useQuery({
+    queryKey: [RequestKey.SourceRelatedTags, null, sourceId],
+
+    queryFn: async () =>
       await gqlClient.request<{
         relatedTags: TagsData;
       }>(SOURCE_RELATED_TAGS_QUERY, {
         sourceId,
       }),
-    {
-      enabled: !!sourceId,
-      staleTime: StaleTime.OneHour,
-    },
-  );
+    enabled: !!sourceId,
+    staleTime: StaleTime.OneHour,
+  });
 
   return (
     <RecommendedTags
-      isLoading={isLoading}
+      isLoading={isPending}
       tags={relatedTags?.relatedTags?.tags ?? []}
     />
   );
@@ -89,9 +90,10 @@ const SourceRelatedTags = ({ sourceId }: SourceIdProps): ReactElement => {
 
 const SimilarSources = ({ sourceId }: SourceIdProps) => {
   const { shouldUseListFeedLayout } = useFeedLayout();
-  const { data: similarSources, isLoading } = useQuery(
-    [RequestKey.SimilarSources, null, sourceId],
-    async () =>
+  const { data: similarSources, isPending } = useQuery({
+    queryKey: [RequestKey.SimilarSources, null, sourceId],
+
+    queryFn: async () =>
       await gqlClient.request<{ similarSources: Connection<Source> }>(
         SIMILAR_SOURCES_QUERY,
         {
@@ -99,11 +101,10 @@ const SimilarSources = ({ sourceId }: SourceIdProps) => {
           first: 6,
         },
       ),
-    {
-      enabled: !!sourceId,
-      staleTime: StaleTime.OneHour,
-    },
-  );
+
+    enabled: !!sourceId,
+    staleTime: StaleTime.OneHour,
+  });
 
   const sources = similarSources?.similarSources?.edges?.map(
     (edge) => edge.node,
@@ -111,7 +112,7 @@ const SimilarSources = ({ sourceId }: SourceIdProps) => {
 
   return (
     <RelatedSources
-      isLoading={isLoading}
+      isLoading={isPending}
       sources={sources}
       title="Similar sources"
       className={shouldUseListFeedLayout ? 'mx-4' : undefined}
@@ -166,16 +167,8 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     return <></>;
   }
 
-  const seo: NextSeoProps = {
-    title: `${source.name} posts on daily.dev`,
-    openGraph: { ...defaultOpenGraph },
-    ...defaultSeo,
-    description: source?.description || defaultSeo.description,
-  };
-
   return (
     <FeedPageLayoutComponent className="overflow-x-hidden">
-      <NextSeo {...seo} />
       <PageInfoHeader
         className={shouldUseListFeedLayout ? 'mx-4 !w-auto' : undefined}
       >
@@ -208,12 +201,10 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
           ]}
           query={MOST_UPVOTED_FEED_QUERY}
           variables={mostUpvotedQueryVariables}
-          title={
-            <>
-              <UpvoteIcon size={IconSize.Medium} className="mr-1.5" /> Most
-              upvoted posts
-            </>
-          }
+          title={{
+            copy: 'Most upvoted posts',
+            icon: <UpvoteIcon size={IconSize.Medium} className="mr-1.5" />,
+          }}
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
@@ -229,12 +220,10 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
           ]}
           query={MOST_DISCUSSED_FEED_QUERY}
           variables={bestDiscussedQueryVariables}
-          title={
-            <>
-              <DiscussIcon size={IconSize.Medium} className="mr-1.5" /> Best
-              discussed posts
-            </>
-          }
+          title={{
+            copy: 'Best discussed posts',
+            icon: <DiscussIcon size={IconSize.Medium} className="mr-1.5" />,
+          }}
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
@@ -292,9 +281,18 @@ export async function getStaticProps({
       };
     }
 
+    const { source } = res;
+    const seo: NextSeoProps = {
+      title: `${source.name} posts on daily.dev`,
+      openGraph: { ...defaultOpenGraph },
+      ...defaultSeo,
+      description: source?.description || defaultSeo.description,
+    };
+
     return {
       props: {
         source: res.source,
+        seo,
       },
       revalidate: 60,
     };

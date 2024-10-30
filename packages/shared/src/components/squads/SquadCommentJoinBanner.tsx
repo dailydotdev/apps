@@ -34,24 +34,24 @@ export const SquadCommentJoinBanner = ({
   const [isJoinSquadBannerDismissed, setJoinSquadBannerDismissed] =
     usePersistentContext(SQUAD_COMMENT_JOIN_BANNER_KEY, false);
 
-  const { mutateAsync: onJoinSquad, isLoading } = useMutation(
-    useJoinSquad({
+  const { mutateAsync: onJoinSquad, isPending: isLoading } = useMutation({
+    mutationFn: useJoinSquad({
       squad,
       referralToken: squad?.currentMember?.referralToken,
     }),
-    {
-      onSuccess: () => {
-        displayToast(`🙌 You joined the Squad ${squad.name}`);
-        setIsSquadMember(true);
-        if (post?.id) {
-          queryClient.invalidateQueries(['post', post.id]);
-        }
-      },
-      onError: () => {
-        displayToast(labels.error.generic);
-      },
+    onSuccess: () => {
+      displayToast(`🙌 You joined the Squad ${squad.name}`);
+      setIsSquadMember(true);
+      if (post?.id) {
+        queryClient.invalidateQueries({
+          queryKey: ['post', post.id],
+        });
+      }
     },
-  );
+    onError: () => {
+      displayToast(labels.error.generic);
+    },
+  });
 
   if (!squad || isJoinSquadBannerDismissed || isSquadMember) {
     return null;
