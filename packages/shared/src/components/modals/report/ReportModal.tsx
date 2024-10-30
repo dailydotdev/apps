@@ -34,11 +34,11 @@ export function ReportModal({
     onClick: (e) => onReport(e, reason, note),
   };
 
-  const onFocus = useCallback(() => {
+  const onFocus = () => {
     if (!reason) {
       setReason(ReportReason.Other);
     }
-  }, [reason]);
+  };
 
   return (
     <Modal
