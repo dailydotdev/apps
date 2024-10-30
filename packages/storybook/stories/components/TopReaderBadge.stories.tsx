@@ -24,7 +24,7 @@ const meta: Meta<typeof TopReaderBadge> = {
   render: (props) => {
     return (
       <ExtensionProviders>
-        <div className={'py-20 grid place-items-center'}>
+        <div className={'py-20 grid place-items-center invert'}>
           <TopReaderBadge user={props.user} topReader={props.topReader} />
         </div>
       </ExtensionProviders>
