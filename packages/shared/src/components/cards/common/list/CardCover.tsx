@@ -18,14 +18,15 @@ export function CardCoverList({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const optimizedImageProps: ImageProps = useMemo(() => {
     const { src } = imageProps;
-    const mobileSrc = src.replace('/f_auto,q_auto/', '/t_mobile_feed/');
+    const mobileSrc = src?.replace('/f_auto,q_auto/', '/t_mobile_feed/');
 
     return {
       ...imageProps,
-      ...(!isLaptop && {
-        src: mobileSrc,
-        srcSet: `${mobileSrc} 1x, ${src} 2x`,
-      }),
+      ...(!isLaptop &&
+        mobileSrc && {
+          src: mobileSrc,
+          srcSet: `${mobileSrc} 1x, ${src} 2x`,
+        }),
     };
   }, [imageProps, isLaptop]);
 

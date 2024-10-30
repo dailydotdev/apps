@@ -16,8 +16,7 @@ import {
 } from '@dailydotdev/shared/src/components/icons';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import { useRouter } from 'next/router';
-import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
+import { NextSeoProps } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import {
   MOST_DISCUSSED_FEED_QUERY,
@@ -68,9 +67,13 @@ import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
+import { DynamicSeoProps } from '../../components/common';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
-type TagPageProps = { tag: string; initialData: Keyword };
+interface TagPageProps extends DynamicSeoProps {
+  tag: string;
+  initialData: Keyword;
+}
 
 const TagRecommendedTags = ({ tag, blockedTags }): ReactElement => {
   const { data: recommendedTags, isPending } = useQuery({
@@ -182,15 +185,6 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
     return <></>;
   }
 
-  const seo: NextSeoProps = {
-    title: `${title} posts on daily.dev`,
-    openGraph: { ...defaultOpenGraph },
-    ...defaultSeo,
-    description:
-      initialData?.flags?.description ||
-      `Find all the recent posts, videos, updates and discussions about ${title}`,
-  };
-
   const followButtonProps: ButtonProps<'button'> = {
     size: ButtonSize.Small,
     icon: tagStatus === 'followed' ? <XIcon /> : <PlusIcon />,
@@ -225,7 +219,6 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
 
   return (
     <FeedPageLayoutComponent>
-      <NextSeo {...seo} />
       <PageInfoHeader className={shouldUseListFeedLayout && 'mx-4 !w-auto'}>
         <div className="flex items-center font-bold">
           <HashtagIcon size={IconSize.XXLarge} />
@@ -302,12 +295,10 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
           ]}
           query={MOST_UPVOTED_FEED_QUERY}
           variables={mostUpvotedQueryVariables}
-          title={
-            <>
-              <UpvoteIcon size={IconSize.Medium} className="mr-1.5" /> Most
-              upvoted posts
-            </>
-          }
+          title={{
+            copy: 'Most upvoted posts',
+            icon: <UpvoteIcon size={IconSize.Medium} className="mr-1.5" />,
+          }}
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
@@ -323,12 +314,10 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
           ]}
           query={MOST_DISCUSSED_FEED_QUERY}
           variables={bestDiscussedQueryVariables}
-          title={
-            <>
-              <DiscussIcon size={IconSize.Medium} className="mr-1.5" /> Best
-              discussed posts
-            </>
-          }
+          title={{
+            copy: 'Best discussed posts',
+            icon: <DiscussIcon size={IconSize.Medium} className="mr-1.5" />,
+          }}
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
@@ -364,33 +353,56 @@ interface TagPageParams extends ParsedUrlQuery {
   tag: string;
 }
 
+const getSeoData = (
+  title: string,
+  description = `Find all the recent posts, videos, updates and discussions about ${title}`,
+): NextSeoProps => ({
+  title: `${title} posts on daily.dev`,
+  openGraph: { ...defaultOpenGraph },
+  ...defaultSeo,
+  description,
+});
+
 export async function getStaticProps({
   params,
 }: GetStaticPropsContext<TagPageParams>): Promise<
   GetStaticPropsResult<TagPageProps>
 > {
-  let initialData: Keyword | null = null;
+  const notFoundResponse = {
+    revalidate: 3600,
+    props: {
+      tag: params.tag,
+      initialData: null,
+      seo: getSeoData(params.tag),
+    },
+  };
 
   try {
     const result = await gqlClient.request<{ keyword: Keyword }>(
       KEYWORD_QUERY,
-      {
-        value: params.tag,
-      },
+      { value: params.tag },
     );
 
-    if (result.keyword) {
-      initialData = result.keyword;
+    if (!result?.keyword) {
+      return notFoundResponse;
     }
+
+    const initialData = result.keyword;
+    const seo = getSeoData(
+      initialData.flags?.title || params.tag,
+      initialData.flags?.description,
+    );
+
+    return {
+      props: {
+        seo,
+        initialData,
+        tag: params.tag,
+      },
+      revalidate: 3600,
+    };
   } catch (error) {
     // keyword not found, ignoring for now
+    return notFoundResponse;
   }
-
-  return {
-    props: {
-      tag: params.tag,
-      initialData,
-    },
-    revalidate: 3600,
-  };
 }
