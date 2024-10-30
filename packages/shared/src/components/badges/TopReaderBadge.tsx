@@ -68,11 +68,11 @@ export const TopReaderBadge = ({
 }: {
   user: LoggedUser;
   topReader: {
-    date: string;
+    issuedAt: string;
     keyword: Pick<Keyword, 'flags'>;
   };
 }): ReactElement => {
-  const date = new Date(topReader.date);
+  const date = new Date(topReader.issuedAt);
   const issuedAt = date.toLocaleString('en-US', {
     year: 'numeric',
     month: 'long',
