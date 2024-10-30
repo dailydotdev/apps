@@ -21,8 +21,8 @@ import {
   FeedPageLayoutList,
 } from '@dailydotdev/shared/src/components/utilities';
 import {
-  getSquadMembers, getSquadStaticFields,
-  SQUAD_STATIC_FIELDS_QUERY,
+  getSquadMembers,
+  getSquadStaticFields,
   SquadStaticData,
 } from '@dailydotdev/shared/src/graphql/squads';
 import {
