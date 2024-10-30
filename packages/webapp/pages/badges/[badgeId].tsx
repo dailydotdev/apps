@@ -19,7 +19,7 @@ interface PageProps {
     id: string;
     user: LoggedUser;
     issuedAt: Date;
-    keyword: Keyword;
+    keyword: Pick<Keyword, 'value' | 'flags'>;
     image: string;
   };
 }
