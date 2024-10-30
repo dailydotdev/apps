@@ -5,7 +5,7 @@ import LogoText from '../../svg/LogoText';
 import type { LoggedUser } from '../../lib/user';
 import type { Keyword } from '../../graphql/keywords';
 import colors from '../../styles/colors';
-import type { WithClassNameProps } from '../utilities';
+import { TruncateText, type WithClassNameProps } from '../utilities';
 
 const BadgeIcon = ({
   imageUrl,
@@ -92,11 +92,13 @@ export const TopReaderBadge = ({
           <BadgeIcon imageUrl={topReader?.user?.image} />
         </div>
 
-        <p className="font-bold typo-footnote">{topReader?.user?.name}</p>
+        <TruncateText className="font-bold typo-footnote">
+          {topReader?.user?.name}
+        </TruncateText>
 
-        <p className="pb-1 text-text-secondary typo-caption1">
+        <TruncateText className="pb-1 text-text-secondary typo-caption1">
           @{topReader?.user?.username}
-        </p>
+        </TruncateText>
 
         <h1 className="pb-1 font-bold typo-title2">Top reader</h1>
 
