@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { DevCardTheme, themeToLinearGradient } from '../profile/devcard';
 import LogoIcon from '../../svg/LogoIcon';
 import LogoText from '../../svg/LogoText';
@@ -12,7 +12,7 @@ const BadgeIcon = ({
   ...rest
 }: {
   imageUrl: string;
-} & WithClassNameProps) => (
+} & WithClassNameProps): ReactElement => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="72"
@@ -71,7 +71,7 @@ export const TopReaderBadge = ({
     date: string;
     keyword: Pick<Keyword, 'flags'>;
   };
-}): JSX.Element => {
+}): ReactElement => {
   const date = new Date(topReader.date);
   const issuedAt = date.toLocaleString('en-US', {
     year: 'numeric',
