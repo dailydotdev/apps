@@ -163,7 +163,7 @@ const ProfileIndex = ({
         your comments and contributions easily!"
       >
         <div className="relative mt-6 flex">
-          <div className="absolute w-full max-w-[19.25rem] left-0 top-0 flex">
+          <div className="absolute left-0 top-0 flex w-full max-w-[19.25rem]">
             <ImageInput
               id={coverId}
               className={{
