@@ -10,6 +10,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { BadgeIcon } from './BadgeIcon';
+import { cloudinaryTopReaderBadgeBackground } from '../../lib/image';
 
 export const TopReaderBadge = ({
   user,
@@ -28,12 +29,12 @@ export const TopReaderBadge = ({
 
   return (
     <div
-      className="flex h-80 w-80 rounded-24 p-1 text-center text-text-primary"
+      className="relative flex h-80 w-80 rounded-24 p-1 text-center text-text-primary"
       style={{
         backgroundImage: themeToLinearGradient[DevCardTheme.Gold],
       }}
     >
-      <div className="flex max-w-full flex-1 flex-col items-center rounded-20 bg-background-default bg-[url('https://daily-now-res.cloudinary.com/image/upload/s--hQ68GsbF--/f_auto,q_auto/v1730356819/webapp/image_7')] bg-cover px-3 py-5">
+      <div className="z-1 flex max-w-full flex-1 flex-col items-center rounded-20 px-3 py-5">
         <div className="flex justify-center pb-1">
           <BadgeIcon imageUrl={image} />
         </div>
@@ -88,6 +89,13 @@ export const TopReaderBadge = ({
           <LogoIcon className={{ container: 'h-logo' }} />
           <LogoText className={{ container: 'ml-1 h-logo' }} />
         </div>
+      </div>
+      <div className="absolute left-0 top-0 z-0 h-full w-full p-1">
+        <img
+          src={cloudinaryTopReaderBadgeBackground}
+          alt="Badge background"
+          className="left-0 top-0 h-full w-full rounded-20 bg-background-default"
+        />
       </div>
     </div>
   );
