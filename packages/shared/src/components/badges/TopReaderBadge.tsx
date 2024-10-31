@@ -89,8 +89,7 @@ export const TopReaderBadge = ({
         backgroundImage: themeToLinearGradient[DevCardTheme.Gold],
       }}
     >
-      {/* @TODO: use correct image */}
-      <div className="flex max-w-full flex-1 flex-col items-center rounded-20 bg-background-default bg-[url('https://i.bratteng.com/1730314661865_xhfx89.png')] bg-cover px-3 py-5">
+      <div className="flex max-w-full flex-1 flex-col items-center rounded-20 bg-background-default bg-[url('https://daily-now-res.cloudinary.com/image/upload/s--hQ68GsbF--/f_auto,q_auto/v1730356819/webapp/image_7')] bg-cover px-3 py-5">
         <div className="flex justify-center pb-1">
           <BadgeIcon imageUrl={image} />
         </div>
