@@ -14,14 +14,13 @@ import {
   ShortcutsSourceType,
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import useContextMenu from '@dailydotdev/shared/src/hooks/useContextMenu';
 import { ContextMenu } from '@dailydotdev/shared/src/hooks/constants';
 import CustomLinksModal from './ShortcutLinksModal';
 import MostVisitedSitesModal from '../MostVisitedSitesModal';
 import useShortcutLinks from './useShortcutLinks';
 import ShortcutOptionsMenu from './ShortcutOptionsMenu';
-import { ShortcutLinksUIV1 } from './experiments/ShortcutLinksUIV1';
+import { ShortcutLinksUI } from './ShortcutLinksUI';
 
 interface ShortcutLinksProps {
   shouldUseListFeedLayout: boolean;
@@ -33,7 +32,6 @@ export default function ShortcutLinks({
   const { showTopSites, toggleShowTopSites } = useContext(SettingsContext);
   const [showModal, setShowModal] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
-  const { displayToast } = useToastNotification();
   const { logEvent } = useContext(LogContext);
   const {
     askTopSitesPermission,
@@ -60,10 +58,7 @@ export default function ShortcutLinks({
     id: ContextMenu.ShortcutContext,
   });
 
-  const isNewUser = true;
-
   useEffect(() => {
-    // TODO: CHECK THE CONDITION
     if (!showTopSites || !hasCheckedPermission) {
       if (!loggedInitialRef.current) {
         loggedInitialRef.current = true;
@@ -71,9 +66,7 @@ export default function ShortcutLinks({
           event_name: LogEvent.Impression,
           target_type: TargetType.Shortcuts,
           extra: JSON.stringify({
-            source: isNewUser
-              ? ShortcutsSourceType.Placeholder
-              : ShortcutsSourceType.Button,
+            source: ShortcutsSourceType.Placeholder,
           }),
         });
       }
@@ -101,16 +94,6 @@ export default function ShortcutLinks({
       event_name: LogEvent.OpenShortcutConfig,
       target_type: TargetType.Shortcuts,
     });
-  };
-
-  const onV1Hide = () => {
-    if (!isShortcutsUIV1) {
-      displayToast(
-        'Get your shortcuts back by turning it on from the customize options on the sidebar',
-      );
-    }
-
-    toggleShowTopSites();
   };
 
   if (!showTopSites) {
@@ -145,12 +128,11 @@ export default function ShortcutLinks({
 
   return (
     <>
-      <ShortcutLinksUIV1
+      <ShortcutLinksUI
         {...{
           onLinkClick,
           onMenuClick,
           onOptionsOpen,
-          onV1Hide,
           shortcutLinks,
           shouldUseListFeedLayout,
           showTopSites,
@@ -194,7 +176,7 @@ export default function ShortcutLinks({
       )}
       <ShortcutOptionsMenu
         isOpen={isOpen}
-        onHide={onV1Hide}
+        onHide={toggleShowTopSites}
         onManage={onOptionsOpen}
       />
     </>

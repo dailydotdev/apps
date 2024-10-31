@@ -34,7 +34,6 @@ type ShortcutLinksV1Props = {
   onLinkClick: () => void;
   onMenuClick: MouseEventHandler<Element>;
   onOptionsOpen: () => void;
-  onV1Hide: () => void;
   shortcutLinks: string[];
   shouldUseListFeedLayout: boolean;
   showTopSites: boolean;
@@ -75,7 +74,7 @@ function ShortCutV1Placeholder({
   );
 }
 
-function ShortcutV1Item({
+function ShortcutItem({
   url,
   onLinkClick,
 }: {
@@ -117,16 +116,15 @@ function ShortcutUIItemPlaceholder({ children }: PropsWithChildren) {
   );
 }
 
-export function ShortcutLinksUIV1(props: ShortcutLinksV1Props): ReactElement {
+export function ShortcutLinksUI(props: ShortcutLinksV1Props): ReactElement {
   const {
     onLinkClick,
     onMenuClick,
     onOptionsOpen,
-    onV1Hide,
+    toggleShowTopSites,
     shortcutLinks,
     shouldUseListFeedLayout,
     showTopSites,
-    toggleShowTopSites,
     hasCheckedPermission,
   } = props;
 
@@ -203,7 +201,7 @@ export function ShortcutLinksUIV1(props: ShortcutLinksV1Props): ReactElement {
       {shortcutLinks?.length ? (
         <>
           {shortcutLinks.map((url) => (
-            <ShortcutV1Item key={url} url={url} onLinkClick={onLinkClick} />
+            <ShortcutItem key={url} url={url} onLinkClick={onLinkClick} />
           ))}
           <Button
             variant={ButtonVariant.Tertiary}
@@ -222,7 +220,7 @@ export function ShortcutLinksUIV1(props: ShortcutLinksV1Props): ReactElement {
           ))}
           <Button
             variant={ButtonVariant.Tertiary}
-            onClick={onV1Hide}
+            onClick={toggleShowTopSites}
             size={ButtonSize.Small}
             icon={<ClearIcon secondary />}
             className="mt-2"
