@@ -1,4 +1,5 @@
 import React, { ReactElement, ReactNode } from 'react';
+import { useInView } from 'react-intersection-observer';
 import { Squad } from '../../../graphql/sources';
 import {
   SourcesQueryProps,
@@ -8,7 +9,6 @@ import HorizontalScroll from '../../HorizontalScroll/HorizontalScroll';
 import { UnfeaturedSquadGrid } from './UnfeaturedSquadGrid';
 import { SquadGrid } from './SquadGrid';
 import { useViewSize, ViewSize } from '../../../hooks';
-import { useInView } from '../../../hooks/useInView';
 import { SquadList } from './SquadList';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { PlaceholderSquadGridList } from './PlaceholderSquadGrid';

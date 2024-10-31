@@ -125,6 +125,9 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+      react-intersection-observer:
+        specifier: ^8.34.0
+        version: 8.34.0(react@18.3.1)
       react-modal:
         specifier: ^3.15.1
         version: 3.15.1(react-dom@18.3.1)(react@18.3.1)
@@ -603,6 +606,9 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+      react-intersection-observer:
+        specifier: ^8.32.2
+        version: 8.34.0(react@18.3.1)
       react-modal:
         specifier: ^3.14.3
         version: 3.15.1(react-dom@18.3.1)(react@18.3.1)
@@ -814,6 +820,9 @@ importers:
       react-flip-toolkit:
         specifier: ^7.1.0
         version: 7.1.0(react-dom@18.3.1)(react@18.3.1)
+      react-intersection-observer:
+        specifier: ^8.34.0
+        version: 8.34.0(react@18.3.1)
       react-modal:
         specifier: ^3.15.1
         version: 3.15.1(react-dom@18.3.1)(react@18.3.1)
@@ -15040,6 +15049,13 @@ packages:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
     dev: false
+
+  /react-intersection-observer@8.34.0(react@18.3.1):
+    resolution: {integrity: sha512-TYKh52Zc0Uptp5/b4N91XydfSGKubEhgZRtcg1rhTKABXijc4Sdr1uTp5lJ8TN27jwUsdXxjHXtHa0kPj704sw==}
+    peerDependencies:
+      react: ^15.0.0 || ^16.0.0 || ^17.0.0|| ^18.0.0
+    dependencies:
+      react: 18.3.1
 
   /react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
