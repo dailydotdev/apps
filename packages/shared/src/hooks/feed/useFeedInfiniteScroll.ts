@@ -1,5 +1,5 @@
-import { useInView } from 'react-intersection-observer';
 import { useEffect } from 'react';
+import { useInView } from '../useInView';
 import classed from '../../lib/classed';
 
 export interface UseFeedInfiniteScrollProps {
