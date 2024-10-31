@@ -9,12 +9,14 @@ const meta: Meta<typeof TopReaderBadge> = {
   component: TopReaderBadge,
   args: {
     topReader: {
-      date: '2023-02-09T03:35:33.898Z',
+      id: 'someId',
+      issuedAt: new Date(),
       user: {
         ...user,
         image: 'https://res.cloudinary.com/daily-now/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
       keyword: {
+        value: 'machine-learning',
         flags: {
           title: 'Machine Learning'
         }

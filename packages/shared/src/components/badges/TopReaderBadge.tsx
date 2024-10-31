@@ -67,10 +67,10 @@ export const TopReaderBadge = ({
 }: {
   topReader: {
     id: string;
-    user?: LoggedUser;
+    user?: Pick<LoggedUser, 'name' | 'image' | 'username'>;
     issuedAt: Date;
     keyword: Pick<Keyword, 'value' | 'flags'>;
-    image: string;
+    image?: string | null;
   };
 }): ReactElement => {
   const date = new Date(topReader?.issuedAt);
