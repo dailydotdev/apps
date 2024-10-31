@@ -5,7 +5,12 @@ import LogoText from '../../svg/LogoText';
 import type { LoggedUser } from '../../lib/user';
 import type { Keyword } from '../../graphql/keywords';
 import colors from '../../styles/colors';
-import { TruncateText, type WithClassNameProps } from '../utilities';
+import { type WithClassNameProps } from '../utilities';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
 
 const BadgeIcon = ({
   imageUrl,
@@ -92,17 +97,29 @@ export const TopReaderBadge = ({
           <BadgeIcon imageUrl={topReader?.user?.image} />
         </div>
 
-        <TruncateText className="font-bold typo-footnote">
+        <Typography type={TypographyType.Footnote} truncate bold>
           {topReader?.user?.name}
-        </TruncateText>
+        </Typography>
 
-        <TruncateText className="pb-1 text-text-secondary typo-caption1">
+        <Typography
+          type={TypographyType.Caption1}
+          color={TypographyColor.Secondary}
+          truncate
+          className="pb-1"
+        >
           @{topReader?.user?.username}
-        </TruncateText>
+        </Typography>
 
-        <h1 className="pb-1 font-bold typo-title2">Top reader</h1>
+        <Typography type={TypographyType.Title2} bold className="pb-1">
+          Top reader
+        </Typography>
 
-        <p className="text-text-quaternary typo-caption1">{issuedAt}</p>
+        <Typography
+          type={TypographyType.Caption1}
+          color={TypographyColor.Quaternary}
+        >
+          {issuedAt}
+        </Typography>
 
         <div
           className="relative my-5 max-w-max rounded-12 p-1"
@@ -111,9 +128,13 @@ export const TopReaderBadge = ({
           }}
         >
           <div className="relative overflow-hidden rounded-8 px-2 py-0.5">
-            <span className="relative z-1 font-bold text-black typo-title2">
+            <Typography
+              type={TypographyType.Title2}
+              bold
+              className="relative z-1 text-black"
+            >
               {topReader?.keyword?.flags?.title}
-            </span>
+            </Typography>
             <div
               className="absolute left-0 top-0 z-0 h-full w-full -scale-x-100"
               style={{
