@@ -18,7 +18,7 @@ interface PageProps {
   topReaderBadge: {
     id: string;
     user: LoggedUser;
-    issuedAt: Date;
+    issuedAt: string;
     keyword: Pick<Keyword, 'value' | 'flags'>;
     image: string;
   };
@@ -57,9 +57,10 @@ export async function getStaticProps({
 }
 
 const BadgePage = ({ topReaderBadge }: PageProps): ReactElement => {
+  const { user, keyword, issuedAt } = topReaderBadge;
   return (
     <div id="screenshot_wrapper" className="w-fit">
-      <TopReaderBadge topReader={topReaderBadge} />
+      <TopReaderBadge user={user} keyword={keyword} issuedAt={issuedAt} />
     </div>
   );
 };
