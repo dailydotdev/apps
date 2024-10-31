@@ -14,6 +14,7 @@ import { BookmakProviderHeader } from './BookmarkProviderHeader';
 import { ProfileImageSize } from '../../../ProfilePicture';
 import { ProfileImageLink } from '../../../profile/ProfileImageLink';
 import { ProfileTooltip } from '../../../profile/ProfileTooltip';
+import { combinedClicks } from '../../../../lib/click';
 
 interface CardHeaderProps {
   post: Post;
@@ -90,8 +91,8 @@ export const PostCardHeader = ({
                   variant={ButtonVariant.Tertiary}
                   icon={<OpenLinkIcon />}
                   href={postLink}
-                  onClick={onReadArticleClick}
                   openNewTab={openNewTab}
+                  {...combinedClicks(onReadArticleClick)}
                 />
               )}
               <OptionsButton

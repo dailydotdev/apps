@@ -50,7 +50,8 @@ export const useReadingStreak = (): UserReadingStreak => {
     queryFn: getReadingStreak,
     staleTime: StaleTime.Default,
     enabled: isLoggedIn,
-    refetchOnWindowFocus: isLoggedIn,
+    refetchOnWindowFocus: true,
+    refetchIntervalInBackground: true,
   });
 
   const { mutate: updateStreakConfig, isPending: isPendingMutation } =

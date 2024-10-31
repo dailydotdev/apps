@@ -153,7 +153,7 @@ export default function useOnPostClick({
               return;
             }
 
-            updateFeedPostCache({ index: postIndex });
+            await updateFeedPostCache({ index: postIndex });
           } else if (!feedName && shouldUseListFeedLayout) {
             const trySetPostRead = (queryKey: QueryKey, id: string) => {
               const updateFeedPost = updateCachedPagePost(
