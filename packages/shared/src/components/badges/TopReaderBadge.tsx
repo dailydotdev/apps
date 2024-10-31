@@ -102,7 +102,7 @@ export const TopReaderBadge = ({
 
         <h1 className="pb-1 font-bold typo-title2">Top reader</h1>
 
-        <p className="text-text-secondary typo-caption1">{issuedAt}</p>
+        <p className="text-text-quaternary typo-caption1">{issuedAt}</p>
 
         <div
           className="relative my-5 max-w-max rounded-12 p-1"
