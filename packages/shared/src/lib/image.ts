@@ -256,6 +256,9 @@ export const cloudinaryIntegrationsSlackHeaderLight =
 export const cloudinaryIntegrationsSlackHeaderDark =
   'https://res.cloudinary.com/daily-now/image/upload/s--zzudPNtR--/f_auto,q_auto/v1721634746/public/Connection%20image%20-%20Dark';
 
+export const cloudinaryTopReaderBadgeBackground =
+  'https://daily-now-res.cloudinary.com/image/upload/s--hQ68GsbF--/f_auto,q_auto/v1730356819/webapp/image_7';
+
 export const smallPostImage = (url: string): string => {
   if (!url) {
     return cloudinaryPostImageCoverPlaceholder;
