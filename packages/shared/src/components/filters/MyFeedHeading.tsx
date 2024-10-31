@@ -7,20 +7,12 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
-import {
-  useActions,
-  useConditionalFeature,
-  useFeedLayout,
-  useViewSize,
-  ViewSize,
-} from '../../hooks';
-import { feature } from '../../lib/featureManagement';
+import { useActions, useFeedLayout, useViewSize, ViewSize } from '../../hooks';
 import { getFeedName } from '../../lib/feed';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { checkIsExtension } from '../../lib/func';
 import { ActionType } from '../../graphql/actions';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import { ShortcutsUIExperiment } from '../../lib/featureValues';
 import { FeedSettingsButton } from '../feeds/FeedSettingsButton';
 
 interface MyFeedHeadingProps {
@@ -39,11 +31,6 @@ function MyFeedHeading({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const feedName = getFeedName(router.pathname);
   const { isCustomFeed } = useFeedName({ feedName });
-  const { value: shortcutsUIFeature } = useConditionalFeature({
-    feature: feature.shortcutsUI,
-    shouldEvaluate: isExtension,
-  });
-  const isShortcutsUIV1 = shortcutsUIFeature === ShortcutsUIExperiment.V1;
   let feedFiltersLabel = 'Feed settings';
 
   if (isCustomFeed) {
@@ -66,8 +53,7 @@ function MyFeedHeading({
       </FeedSettingsButton>
       {isExtension &&
         checkHasCompleted(ActionType.FirstShortcutsSession) &&
-        !showTopSites &&
-        isShortcutsUIV1 && (
+        !showTopSites && (
           <Button
             size={ButtonSize.Medium}
             variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}

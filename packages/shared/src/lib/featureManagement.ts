@@ -29,7 +29,7 @@ const feature = {
   feedAdSpot: new Feature('feed_ad_spot', 2),
   searchVersion: new Feature('search_version', 2),
   featureTheme: new Feature('feature_theme', {}),
-  shortcutsUI: new Feature('shortcuts_ui', ShortcutsUIExperiment.Control),
+  shortcutsUI: new Feature('shortcuts_ui', ShortcutsUIExperiment.V1),
   showRoadmap: new Feature('show_roadmap', true),
   onboardingChecklist: new Feature('onboarding_checklist', true),
   searchUsers: new Feature('search_users', false),
