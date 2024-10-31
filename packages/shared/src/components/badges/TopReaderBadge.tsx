@@ -68,18 +68,16 @@ const BadgeIcon = ({
 );
 
 export const TopReaderBadge = ({
-  topReader,
+  user,
+  issuedAt,
+  keyword,
 }: {
-  topReader: {
-    id: string;
-    user?: Pick<LoggedUser, 'name' | 'image' | 'username'>;
-    issuedAt: Date;
-    keyword: Pick<Keyword, 'value' | 'flags'>;
-    image?: string | null;
-  };
+  user: Pick<LoggedUser, 'name' | 'image' | 'username'>;
+  issuedAt: Date;
+  keyword: Pick<Keyword, 'value' | 'flags'>;
 }): ReactElement => {
-  const date = new Date(topReader?.issuedAt);
-  const issuedAt = date.toLocaleString('en-US', {
+  const { name, username, image } = user;
+  const formattedDate = new Date(issuedAt).toLocaleString('en-US', {
     year: 'numeric',
     month: 'long',
   });
@@ -94,11 +92,11 @@ export const TopReaderBadge = ({
       {/* @TODO: use correct image */}
       <div className="flex max-w-full flex-1 flex-col items-center rounded-20 bg-background-default bg-[url('https://i.bratteng.com/1730314661865_xhfx89.png')] bg-cover px-3 py-5">
         <div className="flex justify-center pb-1">
-          <BadgeIcon imageUrl={topReader?.user?.image} />
+          <BadgeIcon imageUrl={image} />
         </div>
 
         <Typography type={TypographyType.Footnote} truncate bold>
-          {topReader?.user?.name}
+          {name}
         </Typography>
 
         <Typography
@@ -107,7 +105,7 @@ export const TopReaderBadge = ({
           truncate
           className="pb-1"
         >
-          @{topReader?.user?.username}
+          @{username}
         </Typography>
 
         <Typography type={TypographyType.Title2} bold className="pb-1">
@@ -118,7 +116,7 @@ export const TopReaderBadge = ({
           type={TypographyType.Caption1}
           color={TypographyColor.Quaternary}
         >
-          {issuedAt}
+          {formattedDate}
         </Typography>
 
         <div
@@ -133,7 +131,7 @@ export const TopReaderBadge = ({
               bold
               className="relative z-1 text-black"
             >
-              {topReader?.keyword?.flags?.title}
+              {keyword.flags?.title}
             </Typography>
             <div
               className="absolute left-0 top-0 z-0 h-full w-full -scale-x-100"
