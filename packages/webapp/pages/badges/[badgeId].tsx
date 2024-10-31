@@ -65,7 +65,7 @@ export async function getStaticProps({
   };
 }
 
-const DevCardPage = ({ topReaderBadge }: PageProps): ReactElement => {
+const BadgePage = ({ topReaderBadge }: PageProps): ReactElement => {
   return (
     <div id="screenshot_wrapper" className="w-fit">
       <TopReaderBadge topReader={topReaderBadge} />
@@ -73,4 +73,4 @@ const DevCardPage = ({ topReaderBadge }: PageProps): ReactElement => {
   );
 };
 
-export default DevCardPage;
+export default BadgePage;
