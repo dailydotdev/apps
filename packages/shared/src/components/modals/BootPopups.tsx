@@ -253,14 +253,13 @@ export const BootPopups = (): ReactElement => {
           updateAlerts({ topReaderBadge: null });
           updateLastBootPopup();
         },
-        onAfterOpen: () => {
+        onAfterOpen: (keywordValue: string) => {
           logEvent({
             event_name: LogEvent.Impression,
             target_type: TargetType.Badge,
             target_id: TargetId.TopReader,
             extra: JSON.stringify({
-              // @TODO: check value of this
-              tag: 'Top reader tag',
+              tag: keywordValue,
             }),
           });
         },

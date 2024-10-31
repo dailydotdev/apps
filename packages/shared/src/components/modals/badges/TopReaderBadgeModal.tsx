@@ -16,9 +16,10 @@ import { disabledRefetch } from '../../../lib/func';
 const TopReaderBadgeModal = (
   props: ModalProps & {
     badgeId: string;
+    onAfterOpen: (keywordValue: string) => void;
   },
 ): ReactElement => {
-  const { onRequestClose, badgeId } = props;
+  const { onRequestClose, badgeId, onAfterOpen } = props;
 
   const { user } = useAuthContext();
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -36,7 +37,12 @@ const TopReaderBadgeModal = (
   const { issuedAt, keyword } = data.topReaderBadge;
 
   return (
-    <Modal {...props} size={ModalSize.Small} isDrawerOnMobile>
+    <Modal
+      {...props}
+      size={ModalSize.Small}
+      isDrawerOnMobile
+      onAfterOpen={() => onAfterOpen(keyword.value)}
+    >
       <Modal.Body className="flex flex-col items-center justify-center gap-4 text-center">
         <h1 className="font-bold typo-title1">
           You&apos;ve earned the top reader badge!
