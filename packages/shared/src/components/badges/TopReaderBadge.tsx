@@ -18,7 +18,7 @@ export const TopReaderBadge = ({
   keyword,
 }: {
   user: Pick<LoggedUser, 'name' | 'image' | 'username'>;
-  issuedAt: Date;
+  issuedAt: Date | string;
   keyword: Pick<Keyword, 'value' | 'flags'>;
 }): ReactElement => {
   const { name, username, image } = user;

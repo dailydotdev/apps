@@ -330,3 +330,17 @@ export const POST_CODE_SNIPPET_FRAGMENT = gql`
     content
   }
 `;
+
+export const TOP_READER_BADGE_FRAGMENT = gql`
+  fragment TopReader on UserTopReader {
+    id
+    issuedAt
+    image
+    keyword {
+      value
+      flags {
+        title
+      }
+    }
+  }
+`;
