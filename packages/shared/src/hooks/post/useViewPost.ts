@@ -26,7 +26,6 @@ export const useViewPost = (): UseMutateAsyncFunction<
       const isFirstViewToday =
         getDay(new Date(streak?.lastViewAt)) !== getDay(new Date());
 
-      console.log({ res, isNewStreak, isFirstViewToday });
       if (isNewStreak || isFirstViewToday) {
         await client.refetchQueries({ queryKey: streakKey });
       }
