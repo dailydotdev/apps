@@ -4,11 +4,11 @@ import {
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
-import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { TopReaderBadge } from '@dailydotdev/shared/src/components/badges/TopReaderBadge';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import { TOP_READER_BADGE_BY_ID } from '@dailydotdev/shared/src/graphql/users';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
   return { paths: [], fallback: 'blocking' };
@@ -36,23 +36,14 @@ export async function getStaticProps({
     };
   }
 
-  const badgeRes = await fetch(graphqlUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
+  const { topReaderBadge } = await gqlClient.request<PageProps>(
+    TOP_READER_BADGE_BY_ID,
+    {
+      id: badgeId,
     },
-    body: JSON.stringify({
-      query: TOP_READER_BADGE_BY_ID,
-      variables: {
-        id: badgeId,
-      },
-    }),
-    credentials: 'include',
-  });
+  );
 
-  const response = await badgeRes.json();
-
-  if (!response?.data?.topReaderBadge) {
+  if (!topReaderBadge) {
     return {
       notFound: true,
       revalidate: false,
@@ -60,7 +51,7 @@ export async function getStaticProps({
   }
 
   return {
-    props: { topReaderBadge: response.data.topReaderBadge },
+    props: { topReaderBadge },
     revalidate: 60,
   };
 }
