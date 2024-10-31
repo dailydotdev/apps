@@ -50,23 +50,27 @@ export const useReadingStreak = (): UserReadingStreak => {
     queryFn: getReadingStreak,
     staleTime: StaleTime.Default,
     enabled: isLoggedIn,
+    refetchOnWindowFocus: isLoggedIn,
   });
 
   const { mutate: updateStreakConfig, isPending: isPendingMutation } =
     useMutation<UserStreak, ResponseError, UpdateReadingStreakConfig>({
       mutationKey: generateQueryKey(RequestKey.UserStreak, user, 'config'),
-      mutationFn: async (params) =>
-        await gqlClient.request(UPDATE_STREAK_COUNT_MUTATION, params),
-      onSuccess: async () => {
-        await queryClient.refetchQueries({ queryKey });
-      },
+      mutationFn: (params) =>
+        gqlClient
+          .request<{
+            updateStreakConfig: UserStreak;
+          }>(UPDATE_STREAK_COUNT_MUTATION, params)
+          .then((res) =>
+            queryClient.setQueryData(queryKey, res.updateStreakConfig),
+          ),
     });
 
-  const hasReadToday =
-    streak?.lastViewAt &&
-    getDay(new Date(streak?.lastViewAt)) === getDay(new Date());
-
   const [clearQueries] = useDebounceFn(async () => {
+    const hasReadToday =
+      streak?.lastViewAt &&
+      getDay(new Date(streak?.lastViewAt)) === getDay(new Date());
+
     if (!hasReadToday) {
       await queryClient.invalidateQueries({
         queryKey,

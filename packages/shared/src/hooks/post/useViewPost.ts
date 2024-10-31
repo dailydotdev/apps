@@ -20,14 +20,15 @@ export const useViewPost = (): UseMutateAsyncFunction<
   const readKey = generateQueryKey(RequestKey.ReadingStreak30Days, user);
   const { mutateAsync: onSendViewPost } = useMutation({
     mutationFn: sendViewPost,
-    onSuccess: async () => {
+    onSuccess: async (res) => {
       const streak = client.getQueryData<UserStreak>(streakKey);
       const isNewStreak = !streak?.lastViewAt;
       const isFirstViewToday =
         getDay(new Date(streak?.lastViewAt)) !== getDay(new Date());
 
+      console.log({ res, isNewStreak, isFirstViewToday });
       if (isNewStreak || isFirstViewToday) {
-        await client.invalidateQueries({ queryKey: streakKey });
+        await client.refetchQueries({ queryKey: streakKey });
       }
 
       const reading = client.getQueryData<ReadingDay[]>(readKey);
