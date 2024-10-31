@@ -18,6 +18,7 @@ export type Alerts = {
   lastBootPopup?: Date;
   bootPopup?: boolean;
   showRecoverStreak?: boolean;
+  topReaderBadge?: string | null;
 };
 
 export type AlertsUpdate = Omit<Alerts, 'changelog' | 'banner'>;
@@ -33,6 +34,7 @@ export const UPDATE_ALERTS = gql`
       lastChangelog
       lastBanner
       showStreakMilestone
+      topReaderBadge
     }
   }
 `;

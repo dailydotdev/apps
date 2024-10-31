@@ -12,15 +12,17 @@ import {
 import { BadgeIcon } from './BadgeIcon';
 import { cloudinaryTopReaderBadgeBackground } from '../../lib/image';
 
+export type TopReader = {
+  user: Pick<LoggedUser, 'name' | 'image' | 'username'>;
+  issuedAt: Date | string;
+  keyword: Pick<Keyword, 'value' | 'flags'>;
+};
+
 export const TopReaderBadge = ({
   user,
   issuedAt,
   keyword,
-}: {
-  user: Pick<LoggedUser, 'name' | 'image' | 'username'>;
-  issuedAt: Date | string;
-  keyword: Pick<Keyword, 'value' | 'flags'>;
-}): ReactElement => {
+}: TopReader): ReactElement => {
   const { name, username, image } = user;
   const formattedDate = new Date(issuedAt).toLocaleString('en-US', {
     year: 'numeric',

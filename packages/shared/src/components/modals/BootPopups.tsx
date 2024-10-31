@@ -241,11 +241,18 @@ export const BootPopups = (): ReactElement => {
   ]);
 
   useEffect(() => {
-    // @TODO: only render when alert for top reader badge is enabled
-    openModal({
+    if (!alerts?.topReaderBadge) {
+      return;
+    }
+
+    addBootPopup({
       type: LazyModal.TopReaderBadge,
       props: {
-        onAfterClose: () => updateLastBootPopup(),
+        badgeId: alerts.topReaderBadge,
+        onAfterClose: () => {
+          updateAlerts({ topReaderBadge: null });
+          updateLastBootPopup();
+        },
         onAfterOpen: () => {
           logEvent({
             event_name: LogEvent.Impression,
@@ -259,7 +266,7 @@ export const BootPopups = (): ReactElement => {
         },
       },
     });
-  }, [logEvent, openModal, updateLastBootPopup]);
+  }, [alerts.topReaderBadge, logEvent, updateAlerts, updateLastBootPopup]);
 
   /**
    * Actual rendering of the boot popup that's first in line
