@@ -162,7 +162,7 @@ export function SquadMemberModal({
           ) : (
             <BlockedMembersPlaceholder />
           ),
-          isLoading: queryResult.isLoading,
+          isLoading: queryResult.isPending,
           initialItem:
             roleFilter === SourceMemberRole.Blocked ||
             query?.length ? undefined : (

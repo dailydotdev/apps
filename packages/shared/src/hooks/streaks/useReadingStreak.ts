@@ -42,7 +42,7 @@ export const useReadingStreak = (): UserReadingStreak => {
   const queryClient = useQueryClient();
   const queryKey = generateQueryKey(RequestKey.UserStreak, user);
 
-  const { data: streak, isLoading } = useQuery({
+  const { data: streak, isPending } = useQuery({
     queryKey,
     queryFn: getReadingStreak,
     staleTime: StaleTime.Default,
@@ -89,7 +89,7 @@ export const useReadingStreak = (): UserReadingStreak => {
 
   return {
     streak,
-    isLoading,
+    isLoading: isPending,
     isStreaksEnabled,
     updateStreakConfig,
     checkReadingStreak: async () => {

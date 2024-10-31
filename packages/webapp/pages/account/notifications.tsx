@@ -32,12 +32,20 @@ import { TimezoneDropdown } from '@dailydotdev/shared/src/components/widgets/Tim
 import { ToggleWeekStart } from '@dailydotdev/shared/src/components/widgets/ToggleWeekStart';
 import { getUserInitialTimezone } from '@dailydotdev/shared/src/lib/timezones';
 
+import { NextSeoProps } from 'next-seo';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection, {
   ContentHeading,
   ContentText,
 } from '../../components/layouts/AccountLayout/AccountContentSection';
+import { defaultSeo } from '../../next-seo';
+import { getTemplatedTitle } from '../../components/layouts/utils';
+
+const seo: NextSeoProps = {
+  ...defaultSeo,
+  title: getTemplatedTitle('Manage account notifications'),
+};
 
 const ALERT_PUSH_KEY = 'alert_push_key';
 
@@ -585,5 +593,6 @@ const AccountNotificationsPage = (): ReactElement => {
 };
 
 AccountNotificationsPage.getLayout = getAccountLayout;
+AccountNotificationsPage.layoutProps = { seo };
 
 export default AccountNotificationsPage;

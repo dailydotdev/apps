@@ -53,7 +53,7 @@ export const useNotificationPreference = ({
   const {
     data = [],
     isFetched,
-    isLoading,
+    isPending,
   } = useQuery({
     queryKey: key,
     queryFn: () => getNotificationPreferences(params),
@@ -136,7 +136,7 @@ export const useNotificationPreference = ({
       () => showSourceFeedPostsAsync(squad?.id),
       [showSourceFeedPostsAsync, squad?.id],
     ),
-    isFetching: isLoading,
+    isFetching: isPending,
     preferences: data,
     muteNotification: muteNotificationAsync,
     subscribeNotification: subscribeNotificationAsync,

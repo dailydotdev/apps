@@ -29,7 +29,7 @@ export const FollowingFilter = (): ReactElement => {
     }, []);
   }, [data]);
 
-  if (queryResult.isLoading) {
+  if (queryResult.isPending) {
     return null;
   }
 

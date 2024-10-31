@@ -6,10 +6,15 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { ArrowIcon } from '../icons';
 import { Typography, TypographyType } from '../typography/Typography';
 
+export interface HorizontalScrollTitleProps {
+  copy: string;
+  id?: string;
+  icon?: ReactNode;
+  type?: TypographyType;
+}
+
 export interface HorizontalScrollHeaderProps {
-  title: ReactNode;
-  titleId?: string;
-  titleType?: TypographyType;
+  title: HorizontalScrollTitleProps;
   isAtEnd: boolean;
   isAtStart: boolean;
   onClickNext: MouseEventHandler;
@@ -19,10 +24,24 @@ export interface HorizontalScrollHeaderProps {
   canScroll: boolean;
 }
 
+export const HorizontalScrollTitle = ({
+  id,
+  copy,
+  icon,
+  type = TypographyType.Title2,
+}: HorizontalScrollTitleProps): ReactElement => {
+  return (
+    <span className="flex flex-row items-center">
+      {icon}
+      <Typography type={type} id={id} bold>
+        {copy}
+      </Typography>
+    </span>
+  );
+};
+
 export function HorizontalScrollHeader({
   title,
-  titleId,
-  titleType = TypographyType.Title2,
   isAtEnd,
   isAtStart,
   onClickNext,
@@ -33,14 +52,7 @@ export function HorizontalScrollHeader({
 }: HorizontalScrollHeaderProps): ReactElement {
   return (
     <div className="mx-4 mb-4 flex min-h-10 w-auto flex-row items-center justify-between laptop:mx-0 laptop:w-full">
-      <Typography
-        className="flex flex-row items-center"
-        type={titleType}
-        id={titleId}
-        bold
-      >
-        {title}
-      </Typography>
+      <HorizontalScrollTitle {...title} />
       {canScroll && (
         <div className="hidden flex-row items-center gap-3 tablet:flex">
           <Button
@@ -61,7 +73,7 @@ export function HorizontalScrollHeader({
             <ConditionalWrapper
               condition={!!linkToSeeAll}
               wrapper={(component) => (
-                <Link href={linkToSeeAll} passHref>
+                <Link href={linkToSeeAll} passHref legacyBehavior>
                   {component}
                 </Link>
               )}
