@@ -21,9 +21,12 @@ export const ToggleWeekStart = ({
 
   return (
     <Radio
-      name="freeze-days"
-      value={getDefaultStartOfWeek(streak.weekStart)}
+      aria-busy={isUpdatingConfig}
+      className={className}
       disabled={isUpdatingConfig}
+      name="freeze-days"
+      onChange={toggleWeekStart}
+      value={getDefaultStartOfWeek(streak.weekStart)}
       options={[
         {
           label: 'Friday to Saturday',
@@ -34,8 +37,6 @@ export const ToggleWeekStart = ({
           value: DayOfWeek.Monday.toString(),
         },
       ]}
-      onChange={toggleWeekStart}
-      className={className}
     />
   );
 };
