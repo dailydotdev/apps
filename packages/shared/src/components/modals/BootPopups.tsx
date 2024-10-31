@@ -241,16 +241,15 @@ export const BootPopups = (): ReactElement => {
   ]);
 
   useEffect(() => {
-    if (!alerts?.topReaderBadge) {
+    if (!alerts?.showTopReader) {
       return;
     }
 
     addBootPopup({
       type: LazyModal.TopReaderBadge,
       props: {
-        badgeId: alerts.topReaderBadge,
         onAfterClose: () => {
-          updateAlerts({ topReaderBadge: null });
+          updateAlerts({ showTopReader: false });
           updateLastBootPopup();
         },
         onAfterOpen: (keywordValue: string) => {
@@ -265,7 +264,7 @@ export const BootPopups = (): ReactElement => {
         },
       },
     });
-  }, [alerts.topReaderBadge, logEvent, updateAlerts, updateLastBootPopup]);
+  }, [alerts.showTopReader, logEvent, updateAlerts, updateLastBootPopup]);
 
   /**
    * Actual rendering of the boot popup that's first in line

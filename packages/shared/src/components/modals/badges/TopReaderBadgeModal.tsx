@@ -9,24 +9,23 @@ import { Button, ButtonVariant } from '../../buttons/Button';
 import { DownloadIcon } from '../../icons/Download';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { gqlClient } from '../../../graphql/common';
-import { TOP_READER_BADGE_BY_ID } from '../../../graphql/users';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { disabledRefetch } from '../../../lib/func';
+import { TOP_READER_BADGE } from '../../../graphql/users';
 
 const TopReaderBadgeModal = (
   props: ModalProps & {
-    badgeId: string;
     onAfterOpen: (keywordValue: string) => void;
   },
 ): ReactElement => {
-  const { onRequestClose, badgeId, onAfterOpen } = props;
+  const { onRequestClose, onAfterOpen } = props;
 
   const { user } = useAuthContext();
   const isMobile = useViewSize(ViewSize.MobileL);
 
-  const { data } = useQuery<{ topReaderBadge: TopReader }>({
+  const { data } = useQuery<{ topReaderBadge: TopReader[] }>({
     queryKey: generateQueryKey(RequestKey.TopReaderBadge),
-    queryFn: () => gqlClient.request(TOP_READER_BADGE_BY_ID, { id: badgeId }),
+    queryFn: () => gqlClient.request(TOP_READER_BADGE, { limit: 1 }),
     ...disabledRefetch,
   });
 
@@ -34,7 +33,7 @@ const TopReaderBadgeModal = (
     return null;
   }
 
-  const { issuedAt, keyword } = data.topReaderBadge;
+  const { issuedAt, keyword } = data.topReaderBadge[0];
 
   return (
     <Modal
