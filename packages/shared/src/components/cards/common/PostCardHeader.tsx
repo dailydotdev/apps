@@ -22,7 +22,6 @@ import {
 import { ProfileTooltip } from '../../profile/ProfileTooltip';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { ProfileImageSize } from '../../ProfilePicture';
-import { combinedClicks } from '../../../lib/click';
 
 interface CardHeaderProps {
   post: Post;
@@ -101,8 +100,8 @@ export const PostCardHeader = ({
                 className="mr-2"
                 variant={ButtonVariant.Primary}
                 href={articleLink}
+                onClick={onReadArticleClick}
                 openNewTab={openNewTab}
-                {...combinedClicks(onReadArticleClick)}
               />
               <OptionsButton onClick={onMenuClick} tooltipPlacement="top" />
             </>
