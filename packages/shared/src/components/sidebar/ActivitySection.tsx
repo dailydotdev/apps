@@ -31,7 +31,6 @@ export function ActivitySection({
         ),
         title: 'Bookmarks',
         path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}bookmarks`,
-        hideOnMobile: true,
         requiresLogin: true,
       },
       {

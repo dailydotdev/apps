@@ -47,7 +47,7 @@ const GoBackHeaderMobile = dynamic(
 );
 
 const Sidebar = dynamic(
-  () => import(/* webpackChunkName: "sidebar" */ './sidebar/Sidebar'),
+  () => import(/* webpackChunkName: "sidebar" */ './sidebar/SidebarV2'),
   { ssr: false },
 );
 
@@ -57,14 +57,10 @@ export interface MainLayoutProps
   mainPage?: boolean;
   activePage?: string;
   isNavItemsButton?: boolean;
-  showDnd?: boolean;
-  dndActive?: boolean;
   screenCentered?: boolean;
   customBanner?: ReactNode;
   showSidebar?: boolean;
-  enableSearch?: () => void;
   onNavTabClick?: (tab: string) => void;
-  onShowDndClick?: () => unknown;
   canGoBack?: string;
 }
 
@@ -74,8 +70,6 @@ function MainLayoutComponent({
   children,
   activePage,
   isNavItemsButton,
-  showDnd,
-  dndActive,
   customBanner,
   additionalButtons,
   screenCentered = true,
@@ -83,8 +77,6 @@ function MainLayoutComponent({
   className,
   onLogoClick,
   onNavTabClick,
-  enableSearch,
-  onShowDndClick,
   canGoBack,
 }: MainLayoutProps): ReactElement {
   const router = useRouter();
@@ -93,7 +85,6 @@ function MainLayoutComponent({
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
-  const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
   const { sidebarExpanded, autoDismissNotifications } =
     useContext(SettingsContext);
   const [hasLoggedImpression, setHasLoggedImpression] = useState(false);
@@ -106,13 +97,6 @@ function MainLayoutComponent({
   useAuthErrors();
   useAuthVerificationRecovery();
   useNotificationParams();
-
-  const onMobileSidebarToggle = (state: boolean) => {
-    logEvent({
-      event_name: `${state ? 'open' : 'close'} sidebar`,
-    });
-    setOpenMobileSidebar(state);
-  };
 
   useEffect(() => {
     if (!isNotificationsReady || unreadCount === 0 || hasLoggedImpression) {
@@ -216,18 +200,10 @@ function MainLayoutComponent({
       >
         {isAuthReady && showSidebar && (
           <Sidebar
-            promotionalBannerActive={isBannerAvailable}
-            sidebarRendered={sidebarRendered}
-            openMobileSidebar={openMobileSidebar}
-            onNavTabClick={onNavTabClick}
-            enableSearch={enableSearch}
-            activePage={activePage}
-            showDnd={showDnd}
-            dndActive={dndActive}
             isNavButtons={isNavItemsButton}
-            onShowDndClick={onShowDndClick}
+            onNavTabClick={onNavTabClick}
             onLogoClick={onLogoClick}
-            setOpenMobileSidebar={() => onMobileSidebarToggle(false)}
+            activePage={activePage}
           />
         )}
         {children}

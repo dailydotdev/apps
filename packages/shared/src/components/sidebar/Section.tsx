@@ -1,23 +1,24 @@
 import classNames from 'classnames';
-import React, { ReactElement, useContext } from 'react';
-import AuthContext from '../../contexts/AuthContext';
-import { ClickableNavItem } from './ClickableNavItem';
+import React, { ReactElement, useRef } from 'react';
 import {
-  ItemInner,
   ItemInnerProps,
   NavHeader,
-  NavItem,
   NavSection,
   SidebarMenuItem,
 } from './common';
-import { AuthTriggersType } from '../../lib/auth';
+import { SidebarItem } from './SidebarItem';
+import { Button, ButtonSize } from '../buttons/Button';
+import { ArrowIcon } from '../icons';
+import { SettingsFlags } from '../../graphql/settings';
+import { useSettingsContext } from '../../contexts/SettingsContext';
+import { isNullOrUndefined } from '../../lib/func';
 
 export interface SectionCommonProps
   extends Pick<ItemInnerProps, 'shouldShowLabel'> {
   sidebarExpanded: boolean;
-  sidebarRendered: boolean;
   activePage: string;
   className?: string;
+  flag?: keyof SettingsFlags;
 }
 
 interface SectionProps extends SectionCommonProps {
@@ -30,19 +31,18 @@ export function Section({
   title,
   items,
   sidebarExpanded,
-  sidebarRendered,
   shouldShowLabel,
   activePage,
   isItemsButton,
   className,
+  flag,
 }: SectionProps): ReactElement {
-  const { user, showLogin } = useContext(AuthContext);
+  const { flags, updateFlag } = useSettingsContext();
 
-  const mobileItemsFilter = (item: SidebarMenuItem) =>
-    (sidebarRendered === false && !item.hideOnMobile) || sidebarRendered;
-
-  const isActive = (item: SidebarMenuItem) => {
-    return item.active || item.path === activePage;
+  const isVisible = useRef(isNullOrUndefined(flags[flag]) ? true : flags[flag]);
+  const toggleFlag = () => {
+    updateFlag(flag, !isVisible.current);
+    isVisible.current = !isVisible.current;
   };
 
   return (
@@ -50,37 +50,32 @@ export function Section({
       {title && (
         <NavHeader
           className={classNames(
-            'hidden laptop:flex',
+            'hidden justify-between laptop:flex',
             sidebarExpanded ? 'px-3 opacity-100' : 'px-0 opacity-0',
           )}
         >
           {title}
+          <Button
+            onClick={toggleFlag}
+            size={ButtonSize.XSmall}
+            icon={
+              <ArrowIcon
+                className={isVisible.current ? 'rotate-360' : 'rotate-180'}
+              />
+            }
+          />
         </NavHeader>
       )}
-      {items.filter(mobileItemsFilter).map((item) => (
-        <NavItem
-          key={`${item.title}-${item.path}`}
-          active={isActive(item)}
-          ref={item.navItemRef}
-        >
-          <ClickableNavItem
+      {isVisible.current &&
+        items.map((item) => (
+          <SidebarItem
+            key={`${item.title}-${item.path}`}
             item={item}
-            showLogin={
-              item.requiresLogin && !user
-                ? () => showLogin({ trigger: item.title as AuthTriggersType })
-                : null
-            }
-            isButton={isItemsButton && !item?.isForcedLink}
-            className="truncate"
-          >
-            <ItemInner
-              item={item}
-              shouldShowLabel={shouldShowLabel}
-              active={isActive(item)}
-            />
-          </ClickableNavItem>
-        </NavItem>
-      ))}
+            activePage={activePage}
+            isItemsButton={isItemsButton}
+            shouldShowLabel={shouldShowLabel}
+          />
+        ))}
     </NavSection>
   );
 }
