@@ -31,6 +31,7 @@ import {
   NotificationType,
 } from '@dailydotdev/shared/src/components/notifications/utils';
 import { usePromotionModal } from '@dailydotdev/shared/src/hooks/notifications/usePromotionModal';
+import { useTopReaderModal } from '@dailydotdev/shared/src/hooks/modals/useTopReaderModal';
 import { NotificationPreferenceMenu } from '@dailydotdev/shared/src/components/tooltips/notifications';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
@@ -103,6 +104,7 @@ const Notifications = (): ReactElement => {
 
   usePromotionModal();
   useStreakRecoverModal();
+  useTopReaderModal();
 
   const { onMenuClick: showOptionsMenu, isOpen } = useContextMenu({
     id: contextId,
