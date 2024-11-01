@@ -9,6 +9,7 @@ import { ProfileImageLink } from '../profile/ProfileImageLink';
 import { ProfileImageSize } from '../ProfilePicture';
 import { MedalBadgeIcon } from '../icons/MedalBadge';
 import { IconSize } from '../Icon';
+import { BadgeIconGoldGradient } from '../badges/BadgeIcon';
 
 function NotificationItemAvatar({
   type,
@@ -58,6 +59,7 @@ function NotificationItemAvatar({
           size={IconSize.Small}
           fill="url(#goldGradient)"
         />
+        <BadgeIconGoldGradient />
       </span>
     );
   }
