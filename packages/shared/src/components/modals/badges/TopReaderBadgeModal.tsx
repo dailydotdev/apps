@@ -86,6 +86,9 @@ const TopReaderBadgeModal = (
       isDrawerOnMobile
       onAfterClose={() => onAfterClose(topReaderBadge.keyword.value)}
       onAfterOpen={() => onAfterOpen(topReaderBadge.keyword.value)}
+      drawerProps={{
+        displayCloseButton: false,
+      }}
     >
       <Modal.Body className="flex flex-col items-center justify-center gap-4 text-center">
         <h1 className="font-bold typo-title1">
@@ -108,15 +111,13 @@ const TopReaderBadgeModal = (
           Download badge
         </Button>
 
-        {!isMobile && (
-          <Button
-            className="w-full max-w-80"
-            variant={ButtonVariant.Float}
-            onClick={onRequestClose}
-          >
-            Close
-          </Button>
-        )}
+        <Button
+          className={classNames('w-full', !isMobile && 'max-w-80')}
+          variant={ButtonVariant.Float}
+          onClick={onRequestClose}
+        >
+          Close
+        </Button>
       </Modal.Body>
     </Modal>
   );
