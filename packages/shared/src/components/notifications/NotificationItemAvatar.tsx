@@ -7,7 +7,7 @@ import SourceButton from '../cards/common/SourceButton';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import { ProfileImageSize } from '../ProfilePicture';
-import { MedalBadgeIcon } from '../icons/MedalBadge';
+import { MedalBadgeIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { BadgeIconGoldGradient } from '../badges/BadgeIcon';
 

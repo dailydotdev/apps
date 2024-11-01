@@ -6,7 +6,7 @@ import { ModalSize } from '../common/types';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { TopReaderBadge } from '../../badges/TopReaderBadge';
 import { Button, ButtonVariant } from '../../buttons/Button';
-import { DownloadIcon } from '../../icons/Download';
+import { DownloadIcon } from '../../icons';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { disabledRefetch } from '../../../lib/func';
