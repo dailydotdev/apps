@@ -200,6 +200,8 @@ export enum LogEvent {
   NextSnippet = 'next snippet',
   PreviousSnippet = 'previous snippet',
   // End post snippets
+  TopReaderModalClose = 'close badge',
+  TopReaderBadgeDownload = 'download badge',
 }
 
 export enum FeedItemTitle {
@@ -240,6 +242,7 @@ export enum TargetType {
   Language = 'language',
   // End settings
   SocialLink = 'social link',
+  Badge = 'badge',
 }
 
 export enum TargetId {
@@ -257,6 +260,7 @@ export enum TargetId {
   Cards = 'cards',
   List = 'list',
   // End settings
+  TopReader = 'top reader',
 }
 
 export enum NotificationChannel {

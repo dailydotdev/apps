@@ -653,9 +653,19 @@ export const USER_INTEGRATION_BY_ID = gql`
   }
 `;
 
+export const TOP_READER_BADGE = gql`
+  query TopReaderBadge($limit: Int!) {
+    topReaderBadge(limit: $limit) {
+      ...TopReader
+    }
+  }
+
+  ${TOP_READER_BADGE_FRAGMENT}
+`;
+
 export const TOP_READER_BADGE_BY_ID = gql`
   query TopReaderBadgeById($id: ID!) {
-    topReaderBadge(id: $id) {
+    topReaderBadgeById(id: $id) {
       ...TopReader
       user {
         name
