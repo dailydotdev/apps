@@ -60,7 +60,7 @@ const TopReaderBadgeModal = (
         }),
       });
     },
-    [logEvent, topReader.keyword.value],
+    [logEvent, topReader?.keyword?.value],
   );
 
   const onClickDownload = useCallback(async () => {
