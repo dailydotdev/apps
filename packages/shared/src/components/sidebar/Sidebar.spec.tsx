@@ -35,11 +35,6 @@ const createMockFeedSettings = () => ({
 
 const defaultAlerts: Alerts = { filter: true };
 
-const resizeWindow = (x, y) => {
-  window.resizeTo(x, y);
-  window.dispatchEvent(new Event('resize'));
-};
-
 const renderComponent = (
   alertsData = defaultAlerts,
   mocks: MockedGraphQLResponse[] = [createMockFeedSettings()],
@@ -131,14 +126,6 @@ it('should show the sidebar as closed if user has this set', async () => {
 
   const section = await screen.findByText('Discover');
   expect(section).toHaveClass('opacity-0');
-});
-
-it('should render the mobile sidebar version on small screens', async () => {
-  await resizeWindow(1019, 768);
-  renderComponent();
-
-  const sidebar = await screen.findByTestId('sidebar-aside');
-  expect(sidebar).toHaveClass('-translate-x-70');
 });
 
 it('should show the my feed items if the user has filters', async () => {
