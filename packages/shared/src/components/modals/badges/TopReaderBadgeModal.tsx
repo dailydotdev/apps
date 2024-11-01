@@ -4,40 +4,43 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Modal, type ModalProps } from '../common/Modal';
 import { ModalSize } from '../common/types';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { TopReaderBadge, type TopReader } from '../../badges/TopReaderBadge';
+import { TopReaderBadge } from '../../badges/TopReaderBadge';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { DownloadIcon } from '../../icons/Download';
 import { useViewSize, ViewSize } from '../../../hooks';
-import { gqlClient } from '../../../graphql/common';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { disabledRefetch } from '../../../lib/func';
-import { TOP_READER_BADGE } from '../../../graphql/users';
 import { downloadUrl } from '../../../lib/blob';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 import { formatDate, TimeFormatType } from '../../../lib/dateFormat';
+import { fetchTopReaderById, fetchTopReaders } from '../../../lib/topReader';
+
+type TopReaderBadgeModalProps = {
+  badgeId?: string;
+};
 
 const TopReaderBadgeModal = (
-  props: ModalProps & {
-  },
+  props: ModalProps & TopReaderBadgeModalProps,
 ): ReactElement => {
-  const { onRequestClose, onAfterOpen, onAfterClose } = props;
+  const { onRequestClose, onAfterOpen, onAfterClose, badgeId } = props;
 
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
   const isMobile = useViewSize(ViewSize.MobileL);
 
-  const { data: topReaderBadge } = useQuery({
-    queryKey: generateQueryKey(RequestKey.TopReaderBadge),
+  const { data: topReader } = useQuery({
+    queryKey: generateQueryKey(
+      RequestKey.TopReaderBadge,
+      user,
+      badgeId ?? 'latest',
+    ),
     queryFn: async () => {
-      return (
-        await gqlClient.request<{ topReaderBadge: TopReader[] }>(
-          TOP_READER_BADGE,
-          {
-            limit: 1,
-          },
-        )
-      ).topReaderBadge[0];
+      if (badgeId) {
+        return fetchTopReaderById(badgeId);
+      }
+
+      return (await fetchTopReaders())[0];
     },
     ...disabledRefetch,
   });
@@ -47,7 +50,7 @@ const TopReaderBadgeModal = (
   });
 
   const onClickDownload = useCallback(async () => {
-    if (!topReaderBadge) {
+    if (!topReader) {
       return;
     }
 
@@ -57,8 +60,8 @@ const TopReaderBadgeModal = (
     });
 
     await onDownloadUrl({
-      url: topReaderBadge.image,
-      filename: `${formattedDate} Top Reader in ${topReaderBadge.keyword.flags.title}.png`,
+      url: topReader.image,
+      filename: `${formattedDate} Top Reader in ${topReader.keyword.flags.title}.png`,
     });
 
     logEvent({
@@ -66,12 +69,12 @@ const TopReaderBadgeModal = (
       target_type: TargetType.Badge,
       target_id: TargetId.TopReader,
       extra: JSON.stringify({
-        tag: topReaderBadge.keyword.value,
+        tag: topReader.keyword.value,
       }),
     });
-  }, [logEvent, onDownloadUrl, topReaderBadge]);
+  }, [logEvent, onDownloadUrl, topReader]);
 
-  if (!topReaderBadge) {
+  if (!topReader) {
     return null;
   }
 
@@ -114,15 +117,15 @@ const TopReaderBadgeModal = (
         </h1>
         <TopReaderBadge
           user={user}
-          keyword={topReaderBadge.keyword}
-          issuedAt={topReaderBadge.issuedAt}
+          keyword={topReader.keyword}
+          issuedAt={topReader.issuedAt}
         />
 
         <Button
           className={classNames('w-full', !isMobile && 'max-w-80')}
           variant={ButtonVariant.Primary}
           icon={<DownloadIcon secondary />}
-          disabled={!topReaderBadge.image}
+          disabled={!topReader.image}
           loading={downloading}
           onClick={() => onClickDownload()}
         >
