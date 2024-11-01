@@ -13,7 +13,7 @@ export const ResourceSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const changelog = useChangelog();
-  const discoverMenuItems: SidebarMenuItem[] = useMemo(() => {
+  const menuItems: SidebarMenuItem[] = useMemo(() => {
     return [
       {
         icon: () => <ListIcon Icon={() => <DocsIcon />} />,
@@ -42,7 +42,7 @@ export const ResourceSection = ({
   return (
     <Section
       {...defaultRenderSectionProps}
-      items={discoverMenuItems}
+      items={menuItems}
       isItemsButton={isItemsButton}
       flag={SidebarSettingsFlags.ResourcesExpanded}
     />

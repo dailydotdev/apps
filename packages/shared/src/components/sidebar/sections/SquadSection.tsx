@@ -16,20 +16,21 @@ export const SquadSection = ({
 }: SidebarSectionProps): ReactElement => {
   const { squads } = useAuthContext();
   const { openNewSquad } = useSquadNavigation();
-  const discoverMenuItems: SidebarMenuItem[] = useMemo(() => {
-    const squadItems = squads.map((squad) => {
-      const { permalink, name, image } = squad;
-      return {
-        icon: () =>
-          image ? (
-            <SquadImage className="h-5 w-5" {...squad} />
-          ) : (
-            <DefaultSquadIcon />
-          ),
-        title: name,
-        path: permalink,
-      };
-    });
+  const menuItems: SidebarMenuItem[] = useMemo(() => {
+    const squadItems =
+      squads?.map((squad) => {
+        const { permalink, name, image } = squad;
+        return {
+          icon: () =>
+            image ? (
+              <SquadImage className="h-5 w-5" {...squad} />
+            ) : (
+              <DefaultSquadIcon />
+            ),
+          title: name,
+          path: permalink,
+        };
+      }) ?? [];
 
     return [
       {
@@ -53,7 +54,7 @@ export const SquadSection = ({
   return (
     <Section
       {...defaultRenderSectionProps}
-      items={discoverMenuItems}
+      items={menuItems}
       isItemsButton={isItemsButton}
       flag={SidebarSettingsFlags.SquadExpanded}
     />

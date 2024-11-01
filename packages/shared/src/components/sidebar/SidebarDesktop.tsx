@@ -91,7 +91,10 @@ export const SidebarDesktop = ({
           />
         </Nav>
         {isLoggedIn && sidebarExpanded && !isHiddenOnboardingChecklistView && (
-          <SidebarOnboardingChecklistCard />
+          <>
+            <div className="flex-1" />
+            <SidebarOnboardingChecklistCard />
+          </>
         )}
       </SidebarScrollWrapper>
     </SidebarAside>

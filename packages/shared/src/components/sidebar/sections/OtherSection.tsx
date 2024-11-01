@@ -20,7 +20,7 @@ export const OtherSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const { modal, openModal } = useLazyModal();
-  const discoverMenuItems: SidebarMenuItem[] = useMemo(() => {
+  const menuItems: SidebarMenuItem[] = useMemo(() => {
     return [
       {
         icon: (active: boolean) => (
@@ -68,7 +68,7 @@ export const OtherSection = ({
   return (
     <Section
       {...defaultRenderSectionProps}
-      items={discoverMenuItems}
+      items={menuItems}
       isItemsButton={isItemsButton}
       flag={SidebarSettingsFlags.OtherExpanded}
     />

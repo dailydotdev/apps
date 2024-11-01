@@ -39,7 +39,9 @@ export function Section({
 }: SectionProps): ReactElement {
   const { flags, updateFlag } = useSettingsContext();
 
-  const isVisible = useRef(isNullOrUndefined(flags[flag]) ? true : flags[flag]);
+  const isVisible = useRef(
+    isNullOrUndefined(flags?.[flag]) ? true : flags[flag],
+  );
   const toggleFlag = () => {
     updateFlag(flag, !isVisible.current);
     isVisible.current = !isVisible.current;

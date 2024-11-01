@@ -13,19 +13,20 @@ export const CustomFeedSection = ({
 }: SidebarSectionProps): ReactElement => {
   const { feeds } = useFeeds();
 
-  const discoverMenuItems: SidebarMenuItem[] = useMemo(() => {
-    const customFeeds = feeds?.edges?.map((feed) => {
-      const feedPath = `${webappUrl}feeds/${feed.node.id}`;
-      return {
-        title: feed.node.flags.name || `Feed ${feed.node.id}`,
-        path: feedPath,
-        icon: (
-          <HashtagIcon
-            secondary={defaultRenderSectionProps.activePage === feedPath}
-          />
-        ),
-      };
-    });
+  const menuItems: SidebarMenuItem[] = useMemo(() => {
+    const customFeeds =
+      feeds?.edges?.map((feed) => {
+        const feedPath = `${webappUrl}feeds/${feed.node.id}`;
+        return {
+          title: feed.node.flags.name || `Feed ${feed.node.id}`,
+          path: feedPath,
+          icon: (
+            <HashtagIcon
+              secondary={defaultRenderSectionProps.activePage === feedPath}
+            />
+          ),
+        };
+      }) ?? [];
 
     return [
       ...customFeeds,
@@ -45,7 +46,7 @@ export const CustomFeedSection = ({
   return (
     <Section
       {...defaultRenderSectionProps}
-      items={discoverMenuItems}
+      items={menuItems}
       isItemsButton={isItemsButton}
       flag={SidebarSettingsFlags.CustomFeedsExpanded}
     />

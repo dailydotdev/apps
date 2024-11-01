@@ -19,7 +19,7 @@ export const MainSection = ({
   const { completeAction } = useActions();
   const { user, isLoggedIn } = useAuthContext();
 
-  const discoverMenuItems: SidebarMenuItem[] = useMemo(() => {
+  const menuItems: SidebarMenuItem[] = useMemo(() => {
     const myFeed = isLoggedIn
       ? {
           title: 'My feed',
@@ -68,7 +68,7 @@ export const MainSection = ({
   return (
     <Section
       {...defaultRenderSectionProps}
-      items={discoverMenuItems}
+      items={menuItems}
       isItemsButton={isItemsButton}
     />
   );
