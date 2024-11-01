@@ -67,7 +67,7 @@ import { SharedFeedPage } from './utilities';
 import { AllFeedPages } from '../lib/query';
 import { UserVoteEntity } from '../hooks';
 import * as hooks from '../hooks/useViewSize';
-import { ActionType, COMPLETE_ACTION_MUTATION } from '../graphql/actions';
+import { ActionType } from '../graphql/actions';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
 import { defaultQueryClientTestingConfig } from '../../__tests__/helpers/tanstack-query';
 
@@ -154,17 +154,6 @@ const createTagsSettingsMock = (
     },
   },
 });
-
-const mockCompleteAction = () =>
-  mockGraphQL({
-    request: {
-      query: COMPLETE_ACTION_MUTATION,
-      variables: { type: 'bookmark_promote_mobile' },
-    },
-    result: () => {
-      return { data: {} };
-    },
-  });
 
 const createFeedMock = (
   page = defaultFeedPage,
