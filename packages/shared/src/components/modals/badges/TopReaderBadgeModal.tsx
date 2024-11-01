@@ -34,7 +34,7 @@ const TopReaderBadgeModal = (
     return null;
   }
 
-  const { issuedAt, keyword } = data.topReaderBadge[0];
+  const { issuedAt, keyword, image } = data.topReaderBadge[0];
 
   return (
     <Modal
@@ -54,6 +54,7 @@ const TopReaderBadgeModal = (
           className={classNames('w-full', !isMobile && 'max-w-80')}
           variant={ButtonVariant.Primary}
           icon={<DownloadIcon secondary />}
+          disabled={!image}
         >
           Download badge
         </Button>

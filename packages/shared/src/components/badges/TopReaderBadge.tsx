@@ -16,6 +16,7 @@ export type TopReader = {
   user: Pick<LoggedUser, 'name' | 'image' | 'username'>;
   issuedAt: Date | string;
   keyword: Pick<Keyword, 'value' | 'flags'>;
+  image?: string;
 };
 
 export const TopReaderBadge = ({
