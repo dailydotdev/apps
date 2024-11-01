@@ -84,8 +84,8 @@ const TopReaderBadgeModal = (
       {...props}
       size={ModalSize.Small}
       isDrawerOnMobile
-      onAfterClose={() => onAfterClose('keyword.value')}
-      onAfterOpen={() => onAfterOpen('keyword.value')}
+      onAfterClose={() => onAfterClose(topReaderBadge.keyword.value)}
+      onAfterOpen={() => onAfterOpen(topReaderBadge.keyword.value)}
     >
       <Modal.Body className="flex flex-col items-center justify-center gap-4 text-center">
         <h1 className="font-bold typo-title1">
