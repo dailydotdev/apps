@@ -1,44 +1,46 @@
-import React, { ReactElement, useCallback, useContext } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import classNames from 'classnames';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Modal, type ModalProps } from '../common/Modal';
 import { ModalSize } from '../common/types';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { TopReaderBadge, type TopReader } from '../../badges/TopReaderBadge';
+import { TopReaderBadge } from '../../badges/TopReaderBadge';
 import { Button, ButtonVariant } from '../../buttons/Button';
-import { DownloadIcon } from '../../icons/Download';
+import { DownloadIcon } from '../../icons';
 import { useViewSize, ViewSize } from '../../../hooks';
-import { gqlClient } from '../../../graphql/common';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { disabledRefetch } from '../../../lib/func';
-import { TOP_READER_BADGE } from '../../../graphql/users';
 import { downloadUrl } from '../../../lib/blob';
-import LogContext from '../../../contexts/LogContext';
+import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
+import { formatDate, TimeFormatType } from '../../../lib/dateFormat';
+import { fetchTopReaderById, fetchTopReaders } from '../../../lib/topReader';
+
+type TopReaderBadgeModalProps = {
+  badgeId?: string;
+};
 
 const TopReaderBadgeModal = (
-  props: ModalProps & {
-    onAfterClose: (keywordValue: string) => void;
-    onAfterOpen: (keywordValue: string) => void;
-  },
+  props: ModalProps & TopReaderBadgeModalProps,
 ): ReactElement => {
-  const { onRequestClose, onAfterOpen, onAfterClose } = props;
+  const { onRequestClose, onAfterOpen, onAfterClose, badgeId } = props;
 
   const { user } = useAuthContext();
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const isMobile = useViewSize(ViewSize.MobileL);
 
-  const { data: topReaderBadge } = useQuery({
-    queryKey: generateQueryKey(RequestKey.TopReaderBadge),
+  const { data: topReader } = useQuery({
+    queryKey: generateQueryKey(
+      RequestKey.TopReaderBadge,
+      user,
+      badgeId ?? 'latest',
+    ),
     queryFn: async () => {
-      return (
-        await gqlClient.request<{ topReaderBadge: TopReader[] }>(
-          TOP_READER_BADGE,
-          {
-            limit: 1,
-          },
-        )
-      ).topReaderBadge[0];
+      if (badgeId) {
+        return fetchTopReaderById(badgeId);
+      }
+
+      return (await fetchTopReaders())[0];
     },
     ...disabledRefetch,
   });
@@ -48,21 +50,18 @@ const TopReaderBadgeModal = (
   });
 
   const onClickDownload = useCallback(async () => {
-    if (!topReaderBadge) {
+    if (!topReader) {
       return;
     }
 
-    const formattedDate = new Date(topReaderBadge.issuedAt).toLocaleString(
-      'en-US',
-      {
-        year: 'numeric',
-        month: 'long',
-      },
-    );
+    const formattedDate = formatDate({
+      value: topReader.issuedAt,
+      type: TimeFormatType.TopReaderBadge,
+    });
 
     await onDownloadUrl({
-      url: topReaderBadge.image,
-      filename: `${formattedDate} Top Reader in ${topReaderBadge.keyword.flags.title}.png`,
+      url: topReader.image,
+      filename: `${formattedDate} Top Reader in ${topReader.keyword.flags.title}.png`,
     });
 
     logEvent({
@@ -70,12 +69,12 @@ const TopReaderBadgeModal = (
       target_type: TargetType.Badge,
       target_id: TargetId.TopReader,
       extra: JSON.stringify({
-        tag: topReaderBadge.keyword.value,
+        tag: topReader.keyword.value,
       }),
     });
-  }, [logEvent, onDownloadUrl, topReaderBadge]);
+  }, [logEvent, onDownloadUrl, topReader]);
 
-  if (!topReaderBadge) {
+  if (!topReader) {
     return null;
   }
 
@@ -84,8 +83,30 @@ const TopReaderBadgeModal = (
       {...props}
       size={ModalSize.Small}
       isDrawerOnMobile
-      onAfterClose={() => onAfterClose(topReaderBadge.keyword.value)}
-      onAfterOpen={() => onAfterOpen(topReaderBadge.keyword.value)}
+      onAfterClose={() => {
+        logEvent({
+          event_name: LogEvent.TopReaderModalClose,
+          target_type: TargetType.Badge,
+          target_id: TargetId.TopReader,
+          extra: JSON.stringify({
+            tag: topReader.keyword.value,
+          }),
+        });
+
+        onAfterClose?.();
+      }}
+      onAfterOpen={() => {
+        logEvent({
+          event_name: LogEvent.Impression,
+          target_type: TargetType.Badge,
+          target_id: TargetId.TopReader,
+          extra: JSON.stringify({
+            tag: topReader.keyword.value,
+          }),
+        });
+
+        onAfterOpen?.();
+      }}
       drawerProps={{
         displayCloseButton: false,
       }}
@@ -96,15 +117,15 @@ const TopReaderBadgeModal = (
         </h1>
         <TopReaderBadge
           user={user}
-          keyword={topReaderBadge.keyword}
-          issuedAt={topReaderBadge.issuedAt}
+          keyword={topReader.keyword}
+          issuedAt={topReader.issuedAt}
         />
 
         <Button
           className={classNames('w-full', !isMobile && 'max-w-80')}
           variant={ButtonVariant.Primary}
           icon={<DownloadIcon secondary />}
-          disabled={!topReaderBadge.image}
+          disabled={!topReader.image}
           loading={downloading}
           onClick={() => onClickDownload()}
         >
