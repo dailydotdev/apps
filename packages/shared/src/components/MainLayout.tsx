@@ -47,8 +47,8 @@ const GoBackHeaderMobile = dynamic(
 );
 
 const Sidebar = dynamic(() =>
-  import(/* webpackChunkName: "sidebar" */ './sidebar/SidebarV2').then(
-    (mod) => mod.SidebarV2,
+  import(/* webpackChunkName: "sidebar" */ './sidebar/Sidebar').then(
+    (mod) => mod.Sidebar,
   ),
 );
 
