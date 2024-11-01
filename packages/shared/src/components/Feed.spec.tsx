@@ -25,6 +25,7 @@ import {
   REPORT_POST_MUTATION,
   PostType,
   UserVote,
+  REMOVE_BOOKMARK_MUTATION,
 } from '../graphql/posts';
 import {
   completeActionMock,
@@ -244,7 +245,7 @@ const renderComponent = (
   );
 };
 
-describe('Feed', () => {
+describe('Feed logged in', () => {
   it('should add one placeholder when loading', async () => {
     renderComponent();
     expect(await screen.findByRole('article')).toHaveAttribute('aria-busy');
@@ -363,32 +364,8 @@ describe('Feed', () => {
     await waitFor(() => expect(mutationCalled).toBeTruthy());
   });
 
-  it('should open login modal on anonymous upvote', async () => {
-    renderComponent(
-      [
-        createFeedMock(
-          {
-            pageInfo: defaultFeedPage.pageInfo,
-            edges: [defaultFeedPage.edges[0]],
-          },
-          ANONYMOUS_FEED_QUERY,
-          {
-            first: 7,
-            loggedIn: false,
-            after: '',
-          },
-        ),
-      ],
-      null,
-    );
-    const [el] = await screen.findAllByLabelText('Upvote');
-    el.click();
-    expect(showLogin).toBeCalledWith({ trigger: AuthTriggers.Upvote });
-  });
-
   it('should send add bookmark mutation', async () => {
     let mutationCalled = false;
-    mockCompleteAction();
     renderComponent([
       createFeedMock({
         pageInfo: defaultFeedPage.pageInfo,
@@ -414,65 +391,41 @@ describe('Feed', () => {
       completeActionMock({ action: ActionType.BookmarkPost }),
     ]);
     const [el] = await screen.findAllByLabelText('Bookmark');
-    el.click();
+    fireEvent.click(el);
+    await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'true'));
+    await waitForNock();
     await waitFor(() => expect(mutationCalled).toBeTruthy());
   });
 
-  // TODO WT-2236 flaky test
-  // it('should send remove bookmark mutation', async () => {
-  //   let mutationCalled = false;
-  //   renderComponent([
-  //     createFeedMock({
-  //       pageInfo: defaultFeedPage.pageInfo,
-  //       edges: [
-  //         {
-  //           ...defaultFeedPage.edges[0],
-  //           node: { ...defaultFeedPage.edges[0].node, bookmarked: true },
-  //         },
-  //       ],
-  //     }),
-  //     {
-  //       request: {
-  //         query: REMOVE_BOOKMARK_MUTATION,
-  //         variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
-  //       },
-  //       result: () => {
-  //         mutationCalled = true;
-  //         return { data: { _: true } };
-  //       },
-  //     },
-  //     completeActionMock({ action: ActionType.BookmarkPost }),
-  //   ]);
-  //   const [el] = await screen.findAllByLabelText('Remove bookmark');
-  //   await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'true'));
-  //   el.click();
-  //   await waitFor(() => expect(mutationCalled).toBeTruthy());
-  //   await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'false'));
-  // });
-
-  it('should open login modal on anonymous bookmark', async () => {
-    renderComponent(
-      [
-        createFeedMock(
+  it('should send remove bookmark mutation', async () => {
+    let mutationCalled = false;
+    renderComponent([
+      createFeedMock({
+        pageInfo: defaultFeedPage.pageInfo,
+        edges: [
           {
-            pageInfo: defaultFeedPage.pageInfo,
-            edges: [defaultFeedPage.edges[0]],
+            ...defaultFeedPage.edges[0],
+            node: { ...defaultFeedPage.edges[0].node, bookmarked: true },
           },
-          ANONYMOUS_FEED_QUERY,
-          {
-            first: 7,
-            loggedIn: false,
-            after: '',
-          },
-        ),
-      ],
-      null,
-    );
-    const [el] = await screen.findAllByLabelText('Bookmark');
-    el.click();
-    await waitFor(() =>
-      expect(showLogin).toBeCalledWith({ trigger: AuthTriggers.Bookmark }),
-    );
+        ],
+      }),
+      {
+        request: {
+          query: REMOVE_BOOKMARK_MUTATION,
+          variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
+        },
+        result: () => {
+          mutationCalled = true;
+          return { data: { _: true } };
+        },
+      },
+      completeActionMock({ action: ActionType.BookmarkPost }),
+    ]);
+    const [el] = await screen.findAllByLabelText('Remove bookmark');
+    fireEvent.click(el);
+    await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'true'));
+    await waitForNock();
+    await waitFor(() => expect(mutationCalled).toBeTruthy());
   });
 
   it('should update feed item on subscription message', async () => {
@@ -1031,5 +984,55 @@ describe('Feed', () => {
       const card = screen.queryByTestId('acquisitionFormCard');
       expect(card).not.toBeInTheDocument();
     });
+  });
+});
+
+describe('Feed annonymous', () => {
+  it('should open login modal on anonymous upvote', async () => {
+    renderComponent(
+      [
+        createFeedMock(
+          {
+            pageInfo: defaultFeedPage.pageInfo,
+            edges: [defaultFeedPage.edges[0]],
+          },
+          ANONYMOUS_FEED_QUERY,
+          {
+            first: 7,
+            loggedIn: false,
+            after: '',
+          },
+        ),
+      ],
+      null,
+    );
+    const [el] = await screen.findAllByLabelText('Upvote');
+    el.click();
+    expect(showLogin).toBeCalledWith({ trigger: AuthTriggers.Upvote });
+  });
+
+  it('should open login modal on anonymous bookmark', async () => {
+    renderComponent(
+      [
+        createFeedMock(
+          {
+            pageInfo: defaultFeedPage.pageInfo,
+            edges: [defaultFeedPage.edges[0]],
+          },
+          ANONYMOUS_FEED_QUERY,
+          {
+            first: 7,
+            loggedIn: false,
+            after: '',
+          },
+        ),
+      ],
+      null,
+    );
+    const [el] = await screen.findAllByLabelText('Bookmark');
+    el.click();
+    await waitFor(() =>
+      expect(showLogin).toBeCalledWith({ trigger: AuthTriggers.Bookmark }),
+    );
   });
 });
