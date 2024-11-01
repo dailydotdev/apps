@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useContext } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import classNames from 'classnames';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Modal, type ModalProps } from '../common/Modal';
@@ -13,20 +13,18 @@ import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { disabledRefetch } from '../../../lib/func';
 import { TOP_READER_BADGE } from '../../../graphql/users';
 import { downloadUrl } from '../../../lib/blob';
-import LogContext from '../../../contexts/LogContext';
+import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 import { formatDate, TimeFormatType } from '../../../lib/dateFormat';
 
 const TopReaderBadgeModal = (
   props: ModalProps & {
-    onAfterClose: (keywordValue: string) => void;
-    onAfterOpen: (keywordValue: string) => void;
   },
 ): ReactElement => {
   const { onRequestClose, onAfterOpen, onAfterClose } = props;
 
   const { user } = useAuthContext();
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const isMobile = useViewSize(ViewSize.MobileL);
 
   const { data: topReaderBadge } = useQuery({
@@ -82,8 +80,30 @@ const TopReaderBadgeModal = (
       {...props}
       size={ModalSize.Small}
       isDrawerOnMobile
-      onAfterClose={() => onAfterClose(topReaderBadge.keyword.value)}
-      onAfterOpen={() => onAfterOpen(topReaderBadge.keyword.value)}
+      onAfterClose={() => {
+        logEvent({
+          event_name: LogEvent.TopReaderModalClose,
+          target_type: TargetType.Badge,
+          target_id: TargetId.TopReader,
+          extra: JSON.stringify({
+            tag: topReader.keyword.value,
+          }),
+        });
+
+        onAfterClose?.();
+      }}
+      onAfterOpen={() => {
+        logEvent({
+          event_name: LogEvent.Impression,
+          target_type: TargetType.Badge,
+          target_id: TargetId.TopReader,
+          extra: JSON.stringify({
+            tag: topReader.keyword.value,
+          }),
+        });
+
+        onAfterOpen?.();
+      }}
       drawerProps={{
         displayCloseButton: false,
       }}

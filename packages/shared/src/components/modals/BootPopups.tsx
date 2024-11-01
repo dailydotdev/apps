@@ -6,7 +6,7 @@ import { ActionType } from '../../graphql/actions';
 import { LazyModal } from './common/types';
 import AlertContext from '../../contexts/AlertContext';
 import { MarketingCtaVariant } from '../marketingCta/common';
-import { LogEvent, TargetId, TargetType } from '../../lib/log';
+import { LogEvent, TargetType } from '../../lib/log';
 import LogContext from '../../contexts/LogContext';
 import { promotion } from './generic';
 import { useReadingStreak } from '../../hooks/streaks';
@@ -248,28 +248,9 @@ export const BootPopups = (): ReactElement => {
     addBootPopup({
       type: LazyModal.TopReaderBadge,
       props: {
-        onAfterClose: (keywordValue: string) => {
+        onAfterClose: () => {
           updateAlerts({ showTopReader: false });
           updateLastBootPopup();
-
-          logEvent({
-            event_name: LogEvent.TopReaderModalClose,
-            target_type: TargetType.Badge,
-            target_id: TargetId.TopReader,
-            extra: JSON.stringify({
-              tag: keywordValue,
-            }),
-          });
-        },
-        onAfterOpen: (keywordValue: string) => {
-          logEvent({
-            event_name: LogEvent.Impression,
-            target_type: TargetType.Badge,
-            target_id: TargetId.TopReader,
-            extra: JSON.stringify({
-              tag: keywordValue,
-            }),
-          });
         },
       },
     });
