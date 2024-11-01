@@ -25,8 +25,11 @@ export const SidebarTablet = ({
   onLogoClick,
 }: {
   activePage: string;
-  featureTheme?: boolean;
-  onLogoClick: () => void;
+  featureTheme?: {
+    logo?: string;
+    logoText?: string;
+  };
+  onLogoClick?: (e: React.MouseEvent) => unknown;
 }): ReactElement => {
   const { alerts } = useAlertsContext();
   const { user, isLoggedIn, squads } = useAuthContext();

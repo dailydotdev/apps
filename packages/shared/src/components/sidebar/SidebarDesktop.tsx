@@ -15,7 +15,10 @@ import { OtherSection } from './sections/OtherSection';
 import { ResourceSection } from './sections/ResourceSection';
 
 type SidebarDesktopProps = {
-  featureTheme?: boolean;
+  featureTheme?: {
+    logo?: string;
+    logoText?: string;
+  };
   isNavButtons?: boolean;
   onNavTabClick?: (tab: string) => void;
 };

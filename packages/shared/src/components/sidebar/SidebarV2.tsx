@@ -18,7 +18,7 @@ interface SidebarProps {
   activePage: string;
   isNavButtons?: boolean;
   onNavTabClick?: (tab: string) => void;
-  onLogoClick?: () => void;
+  onLogoClick?: (e: React.MouseEvent) => unknown;
 }
 
 export const SidebarV2 = ({

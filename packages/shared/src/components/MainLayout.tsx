@@ -46,9 +46,10 @@ const GoBackHeaderMobile = dynamic(
   { ssr: false },
 );
 
-const Sidebar = dynamic(
-  () => import(/* webpackChunkName: "sidebar" */ './sidebar/SidebarV2'),
-  { ssr: false },
+const Sidebar = dynamic(() =>
+  import(/* webpackChunkName: "sidebar" */ './sidebar/SidebarV2').then(
+    (mod) => mod.SidebarV2,
+  ),
 );
 
 export interface MainLayoutProps
