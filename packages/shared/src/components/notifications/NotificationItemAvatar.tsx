@@ -7,6 +7,8 @@ import SourceButton from '../cards/common/SourceButton';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import { ProfileImageSize } from '../ProfilePicture';
+import { MedalBadgeIcon } from '../icons/MedalBadge';
+import { IconSize } from '../Icon';
 
 function NotificationItemAvatar({
   type,
@@ -45,6 +47,18 @@ function NotificationItemAvatar({
           }}
         />
       </ProfileTooltip>
+    );
+  }
+
+  if (type === NotificationAvatarType.TopReaderBadge) {
+    return (
+      <span className="rounded-8 bg-surface-float p-1">
+        <MedalBadgeIcon
+          secondary
+          size={IconSize.Small}
+          fill="url(#goldGradient)"
+        />
+      </span>
     );
   }
 
