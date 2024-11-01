@@ -4,24 +4,18 @@ import {
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
-import { TopReaderBadge } from '@dailydotdev/shared/src/components/badges/TopReaderBadge';
-import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
-import { TOP_READER_BADGE_BY_ID } from '@dailydotdev/shared/src/graphql/users';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import {
+  TopReaderBadge,
+  type TopReader,
+} from '@dailydotdev/shared/src/components/badges/TopReaderBadge';
+import { fetchTopReaderById } from '@dailydotdev/shared/src/lib/topReader';
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
   return { paths: [], fallback: 'blocking' };
 }
 
 interface PageProps {
-  topReaderBadge: {
-    id: string;
-    user: LoggedUser;
-    issuedAt: string;
-    keyword: Pick<Keyword, 'value' | 'flags'>;
-    image: string;
-  };
+  topReaderBadge: TopReader;
 }
 
 export async function getStaticProps({
@@ -36,12 +30,7 @@ export async function getStaticProps({
     };
   }
 
-  const { topReaderBadge } = await gqlClient.request<PageProps>(
-    TOP_READER_BADGE_BY_ID,
-    {
-      id: badgeId,
-    },
-  );
+  const topReaderBadge = await fetchTopReaderById(badgeId as string);
 
   if (!topReaderBadge) {
     return {
