@@ -7,7 +7,7 @@ import {
   SidebarMenuItem,
 } from './common';
 import { SidebarItem } from './SidebarItem';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
 import { SettingsFlags } from '../../graphql/settings';
 import { useSettingsContext } from '../../contexts/SettingsContext';
@@ -58,6 +58,7 @@ export function Section({
         >
           {title}
           <Button
+            variant={ButtonVariant.Tertiary}
             onClick={toggleFlag}
             size={ButtonSize.XSmall}
             icon={
