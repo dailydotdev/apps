@@ -11,6 +11,7 @@ import {
 } from '../typography/Typography';
 import { BadgeIcon } from './BadgeIcon';
 import { cloudinaryTopReaderBadgeBackground } from '../../lib/image';
+import { formatDate, TimeFormatType } from '../../lib/dateFormat';
 
 export type TopReader = {
   user: Pick<LoggedUser, 'name' | 'image' | 'username'>;
@@ -25,9 +26,9 @@ export const TopReaderBadge = ({
   keyword,
 }: TopReader): ReactElement => {
   const { name, username, image } = user;
-  const formattedDate = new Date(issuedAt).toLocaleString('en-US', {
-    year: 'numeric',
-    month: 'long',
+  const formattedDate = formatDate({
+    value: issuedAt,
+    type: TimeFormatType.TopReaderBadge,
   });
 
   return (
