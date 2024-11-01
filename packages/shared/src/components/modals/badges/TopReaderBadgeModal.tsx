@@ -15,6 +15,7 @@ import { TOP_READER_BADGE } from '../../../graphql/users';
 import { downloadUrl } from '../../../lib/blob';
 import LogContext from '../../../contexts/LogContext';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
+import { formatDate, TimeFormatType } from '../../../lib/dateFormat';
 
 const TopReaderBadgeModal = (
   props: ModalProps & {
@@ -52,13 +53,10 @@ const TopReaderBadgeModal = (
       return;
     }
 
-    const formattedDate = new Date(topReaderBadge.issuedAt).toLocaleString(
-      'en-US',
-      {
-        year: 'numeric',
-        month: 'long',
-      },
-    );
+    const formattedDate = formatDate({
+      value: topReader.issuedAt,
+      type: TimeFormatType.TopReaderBadge,
+    });
 
     await onDownloadUrl({
       url: topReaderBadge.image,
