@@ -10,7 +10,7 @@ import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { webappUrl } from '../../../lib/constants';
 import { SidebarSectionProps } from './common';
 
-export const SquadSection = ({
+export const NetworkSection = ({
   isItemsButton,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
@@ -37,7 +37,7 @@ export const SquadSection = ({
         icon: (active: boolean) => (
           <ListIcon Icon={() => <SourceIcon secondary={active} />} />
         ),
-        title: 'Squads directory',
+        title: 'Find Squads',
         path: `${webappUrl}squads`,
         isForcedLink: true,
       },

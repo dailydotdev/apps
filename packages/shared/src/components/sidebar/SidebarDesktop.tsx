@@ -9,9 +9,9 @@ import { SidebarOnboardingChecklistCard } from '../checklist/SidebarOnboardingCh
 import { ChecklistViewState } from '../../lib/checklist';
 import { MobileMenuIcon } from './MobileMenuIcon';
 import { MainSection } from './sections/MainSection';
-import { SquadSection as SquadSectionV1 } from './sections/SquadSection';
+import { NetworkSection } from './sections/NetworkSection';
 import { CustomFeedSection } from './sections/CustomFeedSection';
-import { OtherSection } from './sections/OtherSection';
+import { DiscoverSection } from './sections/DiscoverSection';
 import { ResourceSection } from './sections/ResourceSection';
 
 type SidebarDesktopProps = {
@@ -69,9 +69,9 @@ export const SidebarDesktop = ({
             onNavTabClick={onNavTabClick}
             isItemsButton={isNavButtons}
           />
-          <SquadSectionV1
+          <NetworkSection
             {...defaultRenderSectionProps}
-            title="Squads"
+            title="Network"
             isItemsButton={isNavButtons}
           />
           <CustomFeedSection
@@ -79,9 +79,9 @@ export const SidebarDesktop = ({
             title="Custom feeds"
             isItemsButton={false}
           />
-          <OtherSection
+          <DiscoverSection
             {...defaultRenderSectionProps}
-            title="Other"
+            title="Discover"
             isItemsButton={isNavButtons}
           />
           <ResourceSection

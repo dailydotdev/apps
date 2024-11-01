@@ -23,7 +23,7 @@ export const ResourceSection = ({
       },
       {
         icon: () => <ListIcon Icon={() => <TerminalIcon />} />,
-        title: `What's new`,
+        title: 'Changelog',
         path: `${webappUrl}sources/daily_updates`,
         rightIcon: () =>
           changelog.isAvailable && (
