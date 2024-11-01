@@ -15,10 +15,11 @@ import { TOP_READER_BADGE } from '../../../graphql/users';
 
 const TopReaderBadgeModal = (
   props: ModalProps & {
+    onAfterClose: (keywordValue: string) => void;
     onAfterOpen: (keywordValue: string) => void;
   },
 ): ReactElement => {
-  const { onRequestClose, onAfterOpen } = props;
+  const { onRequestClose, onAfterOpen, onAfterClose } = props;
 
   const { user } = useAuthContext();
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -40,6 +41,7 @@ const TopReaderBadgeModal = (
       {...props}
       size={ModalSize.Small}
       isDrawerOnMobile
+      onAfterClose={() => onAfterClose(keyword.value)}
       onAfterOpen={() => onAfterOpen(keyword.value)}
     >
       <Modal.Body className="flex flex-col items-center justify-center gap-4 text-center">

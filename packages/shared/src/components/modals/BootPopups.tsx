@@ -248,9 +248,18 @@ export const BootPopups = (): ReactElement => {
     addBootPopup({
       type: LazyModal.TopReaderBadge,
       props: {
-        onAfterClose: () => {
+        onAfterClose: (keywordValue: string) => {
           updateAlerts({ showTopReader: false });
           updateLastBootPopup();
+
+          logEvent({
+            event_name: LogEvent.TopReaderModalClose,
+            target_type: TargetType.Badge,
+            target_id: TargetId.TopReader,
+            extra: JSON.stringify({
+              tag: keywordValue,
+            }),
+          });
         },
         onAfterOpen: (keywordValue: string) => {
           logEvent({

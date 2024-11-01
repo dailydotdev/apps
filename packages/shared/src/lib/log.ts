@@ -200,6 +200,7 @@ export enum LogEvent {
   NextSnippet = 'next snippet',
   PreviousSnippet = 'previous snippet',
   // End post snippets
+  TopReaderModalClose = 'close badge',
 }
 
 export enum FeedItemTitle {
