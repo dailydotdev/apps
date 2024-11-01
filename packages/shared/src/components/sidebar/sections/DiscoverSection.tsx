@@ -8,15 +8,14 @@ import {
   SquadIcon,
 } from '../../icons';
 import { Section } from '../Section';
-import { isExtension } from '../../../lib/func';
-import { locationPush, SidebarSectionProps } from './common';
+import { SidebarSectionProps } from './common';
 import { LazyModal } from '../../modals/common/types';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
-import { ActionType } from '../../../graphql/actions';
-import { OtherFeedPage } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions } from '../../../hooks';
+import { ActionType } from '../../../graphql/actions';
+import { webappUrl } from '../../../lib/constants';
 
 export const DiscoverSection = ({
   isItemsButton,
@@ -32,37 +31,31 @@ export const DiscoverSection = ({
           <ListIcon Icon={() => <HashtagIcon secondary={active} />} />
         ),
         title: 'Tags',
-        path: '/tags',
-        action: isExtension ? locationPush('/tags') : undefined,
+        path: `${webappUrl}tags`,
       },
       {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <EarthIcon secondary={active} />} />
         ),
         title: 'Sources',
-        path: '/sources',
-        action: isExtension ? locationPush('/sources') : undefined,
+        path: `${webappUrl}sources`,
       },
       {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <SquadIcon secondary={active} />} />
         ),
         title: 'Leaderboard',
-        path: '/users',
-        action: isExtension ? locationPush('/users') : undefined,
+        path: `${webappUrl}users`,
       },
       {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <DiscussIcon secondary={active} />} />
         ),
         title: 'Discussions',
-        path: '/discussed',
+        path: `${webappUrl}discussed`,
         action: () => {
           if (user) {
             completeAction(ActionType.CommentFeed);
-          }
-          if (isExtension) {
-            locationPush(OtherFeedPage.Discussed);
           }
         },
       },
@@ -81,7 +74,7 @@ export const DiscoverSection = ({
     <Section
       {...defaultRenderSectionProps}
       items={menuItems}
-      isItemsButton={isItemsButton}
+      isItemsButton={false}
       flag={SidebarSettingsFlags.OtherExpanded}
     />
   );

@@ -50,7 +50,6 @@ export const SidebarDesktop = ({
     <SidebarAside
       data-testid="sidebar-aside"
       className={classNames(
-        '-translate-x-70',
         sidebarExpanded ? 'laptop:w-60' : 'laptop:w-11',
         isBannerAvailable
           ? 'laptop:top-24 laptop:h-[calc(100vh-theme(space.24))]'

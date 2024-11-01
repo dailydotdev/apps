@@ -55,7 +55,7 @@ export const NetworkSection = ({
     <Section
       {...defaultRenderSectionProps}
       items={menuItems}
-      isItemsButton={isItemsButton}
+      isItemsButton={false}
       flag={SidebarSettingsFlags.SquadExpanded}
     />
   );

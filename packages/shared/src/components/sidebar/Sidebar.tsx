@@ -41,11 +41,15 @@ export const Sidebar = ({
     );
   }
 
-  return (
-    <SidebarDesktop
-      featureTheme={featureTheme}
-      isNavButtons={isNavButtons}
-      onNavTabClick={onNavTabClick}
-    />
-  );
+  if (isLaptop) {
+    return (
+      <SidebarDesktop
+        featureTheme={featureTheme}
+        isNavButtons={isNavButtons}
+        onNavTabClick={onNavTabClick}
+      />
+    );
+  }
+
+  return null;
 };

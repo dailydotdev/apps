@@ -41,6 +41,7 @@ export const MainSection = ({
         ),
         title: 'Bookmarks',
         path: `${webappUrl}bookmarks`,
+        isForcedLink: true,
         requiresLogin: true,
       },
       {
@@ -49,6 +50,7 @@ export const MainSection = ({
         ),
         title: 'History',
         path: `${webappUrl}history`,
+        isForcedLink: true,
         requiresLogin: true,
       },
     ].filter(Boolean);
