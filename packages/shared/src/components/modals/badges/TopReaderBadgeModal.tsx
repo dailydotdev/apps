@@ -49,6 +49,20 @@ const TopReaderBadgeModal = (
     mutationFn: downloadUrl,
   });
 
+  const logModalEvent = useCallback(
+    (event_name: LogEvent) => {
+      logEvent({
+        event_name,
+        target_type: TargetType.Badge,
+        target_id: TargetId.TopReader,
+        extra: JSON.stringify({
+          tag: topReader.keyword.value,
+        }),
+      });
+    },
+    [logEvent, topReader.keyword.value],
+  );
+
   const onClickDownload = useCallback(async () => {
     if (!topReader) {
       return;
@@ -64,15 +78,8 @@ const TopReaderBadgeModal = (
       filename: `${formattedDate} Top Reader in ${topReader.keyword.flags.title}.png`,
     });
 
-    logEvent({
-      event_name: LogEvent.TopReaderBadgeDownload,
-      target_type: TargetType.Badge,
-      target_id: TargetId.TopReader,
-      extra: JSON.stringify({
-        tag: topReader.keyword.value,
-      }),
-    });
-  }, [logEvent, onDownloadUrl, topReader]);
+    logModalEvent(LogEvent.TopReaderBadgeDownload);
+  }, [logModalEvent, onDownloadUrl, topReader]);
 
   if (!topReader) {
     return null;
@@ -84,26 +91,12 @@ const TopReaderBadgeModal = (
       size={ModalSize.Small}
       isDrawerOnMobile
       onAfterClose={() => {
-        logEvent({
-          event_name: LogEvent.TopReaderModalClose,
-          target_type: TargetType.Badge,
-          target_id: TargetId.TopReader,
-          extra: JSON.stringify({
-            tag: topReader.keyword.value,
-          }),
-        });
+        logModalEvent(LogEvent.TopReaderModalClose);
 
         onAfterClose?.();
       }}
       onAfterOpen={() => {
-        logEvent({
-          event_name: LogEvent.Impression,
-          target_type: TargetType.Badge,
-          target_id: TargetId.TopReader,
-          extra: JSON.stringify({
-            tag: topReader.keyword.value,
-          }),
-        });
+        logModalEvent(LogEvent.Impression);
 
         onAfterOpen?.();
       }}
