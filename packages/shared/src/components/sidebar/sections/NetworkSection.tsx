@@ -19,7 +19,7 @@ export const NetworkSection = ({
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     const squadItems =
       squads?.map((squad) => {
-        const { permalink, name, image } = squad;
+        const { name, image, handle } = squad;
         return {
           icon: () =>
             image ? (
@@ -28,7 +28,7 @@ export const NetworkSection = ({
               <DefaultSquadIcon />
             ),
           title: name,
-          path: permalink,
+          path: `${webappUrl}squads/${handle}`,
         };
       }) ?? [];
 
