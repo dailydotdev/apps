@@ -66,7 +66,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
   ref?: Ref<Tag>,
 ): ReactElement => {
   const Element = (tag || 'a') as React.ElementType;
-  const { name, username, bio, companies } = user;
+  const { name, username, bio, companies, topReader } = user;
   const tooltipProps: TooltipProps = {
     appendTo: appendTooltipTo || globalThis?.document?.body || 'parent',
     visible: disableTooltip ? false : undefined,
@@ -108,13 +108,17 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
             )}
             <ReputationUserBadge user={user} />
           </div>
-          <div className="flex">
-            <TruncateText
-              className="text-text-secondary"
-              title={`@${username}`}
-            >
+          <div className="flex text-text-secondary">
+            <TruncateText title={`@${username}`}>
               {transformUsername ? transformUsername(user) : `@${username}`}
             </TruncateText>
+
+            {topReader && (
+              <>
+                <div className="mx-2 h-0.5 w-0.5 self-center bg-text-quaternary" />
+                <div>Top reader in {topReader?.keyword?.flags?.title}</div>
+              </>
+            )}
           </div>
           {bio && showDescription && (
             <span className="mt-1 text-text-tertiary">{bio}</span>
