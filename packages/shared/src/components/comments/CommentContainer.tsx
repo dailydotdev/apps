@@ -18,6 +18,9 @@ import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { CardLink } from '../cards/common/Card';
 import { ReputationUserBadge } from '../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
+import { SimpleTooltip } from '../tooltips';
+import { formatDate, TimeFormatType } from '../../lib/dateFormat';
+import classed from '../../lib/classed';
 
 interface ClassName extends CommentClassName {
   content?: string;
@@ -39,6 +42,8 @@ export interface CommentContainerProps {
   onClick?: () => void;
 }
 
+const Divider = classed('div', 'mx-2 h-0.5 w-0.5 bg-text-quaternary');
+
 export default function CommentContainer({
   post,
   comment,
@@ -59,6 +64,8 @@ export default function CommentContainer({
     source: post.source,
     user: comment.author,
   });
+
+  const topReader = comment.author?.topReader;
 
   return (
     <article
@@ -145,8 +152,21 @@ export default function CommentContainer({
                 @{comment.author.username}
               </TruncateText>
             </ProfileLink>
-            <div className="mx-2 h-0.5 w-0.5 bg-text-quaternary" />
+            <Divider />
             <CommentPublishDate comment={comment} />
+            {topReader && (
+              <>
+                <Divider />
+                <SimpleTooltip
+                  content={formatDate({
+                    value: topReader.issuedAt,
+                    type: TimeFormatType.TopReaderBadge,
+                  })}
+                >
+                  <div>Top reader in {topReader?.keyword?.flags?.title}</div>
+                </SimpleTooltip>
+              </>
+            )}
           </FlexRow>
         </div>
       </header>

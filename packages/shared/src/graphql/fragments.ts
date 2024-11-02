@@ -40,15 +40,30 @@ export const CONTENT_PREFERENCE_FRAMENT = gql`
   }
 `;
 
+export const USER_SHORT_INFO_TOP_READER_FRAGMENT = gql`
+  fragment UserShortInfoTopReaderFragment on User {
+    topReader {
+      issuedAt
+      keyword {
+        flags {
+          title
+        }
+      }
+    }
+  }
+`;
+
 export const USER_AUTHOR_FRAGMENT = gql`
   fragment UserAuthor on User {
     ...UserShortInfo
     contentPreference {
       ...ContentPreferenceFragment
     }
+    ...UserShortInfoTopReaderFragment
   }
   ${CONTENT_PREFERENCE_FRAMENT}
   ${USER_SHORT_INFO_FRAGMENT}
+  ${USER_SHORT_INFO_TOP_READER_FRAGMENT}
 `;
 
 export const USER_BASIC_INFO = gql`
