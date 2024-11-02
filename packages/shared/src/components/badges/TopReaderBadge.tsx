@@ -26,7 +26,7 @@ export const TopReaderBadge = ({
   user,
   issuedAt,
   keyword,
-}: TopReader): ReactElement => {
+}: Pick<TopReader, 'user' | 'issuedAt' | 'keyword'>): ReactElement => {
   const { name, username, image } = user;
   const formattedDate = formatDate({
     value: issuedAt,
