@@ -10,6 +10,7 @@ import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { FollowButton } from '../contentPreference/FollowButton';
 import { Origin } from '../../lib/log';
+import { Separator } from '../cards/common/common';
 
 type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? JSX.IntrinsicElements[Tag]
@@ -115,7 +116,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
 
             {topReader && (
               <>
-                <div className="mx-2 h-0.5 w-0.5 self-center bg-text-quaternary" />
+                <Separator />
                 <TruncateText>
                   Top reader in {topReader?.keyword?.flags?.title}
                 </TruncateText>

@@ -20,7 +20,7 @@ import { ReputationUserBadge } from '../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { SimpleTooltip } from '../tooltips';
 import { formatDate, TimeFormatType } from '../../lib/dateFormat';
-import classed from '../../lib/classed';
+import { Separator } from '../cards/common/common';
 
 interface ClassName extends CommentClassName {
   content?: string;
@@ -41,8 +41,6 @@ export interface CommentContainerProps {
   actions?: ReactNode;
   onClick?: () => void;
 }
-
-const Divider = classed('div', 'mx-2 h-0.5 w-0.5 bg-text-quaternary');
 
 export default function CommentContainer({
   post,
@@ -152,11 +150,11 @@ export default function CommentContainer({
                 @{comment.author.username}
               </TruncateText>
             </ProfileLink>
-            <Divider />
+            <Separator />
             <CommentPublishDate comment={comment} />
             {topReader && (
               <>
-                <Divider />
+                <Separator />
                 <SimpleTooltip
                   content={formatDate({
                     value: topReader.issuedAt,
