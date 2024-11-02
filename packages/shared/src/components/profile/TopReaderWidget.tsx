@@ -4,7 +4,7 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { fetchTopReaders } from '../../lib/topReader';
 import { disabledRefetch } from '../../lib/func';
 import { ActivityContainer, ActivitySectionHeader } from './ActivitySection';
-import { docs } from '../../lib/constants';
+import { topReaderBadgeDocs } from '../../lib/constants';
 import { MedalBadgeIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { BadgeIconGoldGradient } from '../badges/BadgeIcon';
@@ -40,8 +40,7 @@ export const TopReaderWidget = ({
         title="Badges"
         subtitle="Understand more how this is computed in"
         clickableTitle="daily.dev docs"
-        // TODO: add link to specific page in docs
-        link={docs}
+        link={topReaderBadgeDocs}
       />
 
       {/* TODO: add a null state when the user has no badges */}
