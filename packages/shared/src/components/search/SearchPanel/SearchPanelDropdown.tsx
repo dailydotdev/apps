@@ -1,5 +1,4 @@
-import { MutableRefObject, ReactElement } from 'react';
-import React from 'react-syntax-highlighter/dist/cjs/languages/hljs/1c';
+import React, { MutableRefObject, ReactElement } from 'react';
 import { SearchProviderEnum } from '../../../graphql/search';
 import { ArrowKeyEnum, isExtension } from '../../../lib/func';
 import { LogEvent } from '../../../lib/log';
