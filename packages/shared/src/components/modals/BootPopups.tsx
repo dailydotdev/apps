@@ -6,7 +6,7 @@ import { ActionType } from '../../graphql/actions';
 import { LazyModal } from './common/types';
 import AlertContext from '../../contexts/AlertContext';
 import { MarketingCtaVariant } from '../marketingCta/common';
-import { LogEvent, TargetType } from '../../lib/log';
+import { LogEvent, Origin, TargetType } from '../../lib/log';
 import LogContext from '../../contexts/LogContext';
 import { promotion } from './generic';
 import { useReadingStreak } from '../../hooks/streaks';
@@ -248,6 +248,7 @@ export const BootPopups = (): ReactElement => {
     addBootPopup({
       type: LazyModal.TopReaderBadge,
       props: {
+        origin: Origin.Boot,
         onAfterClose: () => {
           updateAlerts({ showTopReader: false });
           updateLastBootPopup();

@@ -12,18 +12,19 @@ import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { disabledRefetch } from '../../../lib/func';
 import { downloadUrl } from '../../../lib/blob';
 import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent, TargetId, TargetType } from '../../../lib/log';
+import { LogEvent, TargetId, TargetType, type Origin } from '../../../lib/log';
 import { formatDate, TimeFormatType } from '../../../lib/dateFormat';
 import { fetchTopReaderById, fetchTopReaders } from '../../../lib/topReader';
 
 type TopReaderBadgeModalProps = {
   badgeId?: string;
+  origin?: Origin;
 };
 
 const TopReaderBadgeModal = (
   props: ModalProps & TopReaderBadgeModalProps,
 ): ReactElement => {
-  const { onRequestClose, onAfterOpen, onAfterClose, badgeId } = props;
+  const { onRequestClose, onAfterOpen, onAfterClose, badgeId, origin } = props;
 
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -57,10 +58,11 @@ const TopReaderBadgeModal = (
         target_id: TargetId.TopReader,
         extra: JSON.stringify({
           tag: topReader.keyword.value,
+          origin,
         }),
       });
     },
-    [logEvent, topReader?.keyword?.value],
+    [logEvent, origin, topReader.keyword.value],
   );
 
   const onClickDownload = useCallback(async () => {
