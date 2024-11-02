@@ -107,6 +107,14 @@ function SquadPostAuthor({
             </TruncateText>
             {!!date && <Separator />}
             {!!date && <DateFormat date={date} type={TimeFormatType.Post} />}
+            {author?.topReader && (
+              <>
+                <Separator />
+                <TruncateText>
+                  Top reader in {author.topReader?.keyword?.flags?.title}
+                </TruncateText>
+              </>
+            )}
           </div>
         </a>
       </ProfileTooltip>
