@@ -163,7 +163,9 @@ export default function CommentContainer({
                     type: TimeFormatType.TopReaderBadge,
                   })}
                 >
-                  <div>Top reader in {topReader?.keyword?.flags?.title}</div>
+                  <TruncateText>
+                    Top reader in {topReader?.keyword?.flags?.title}
+                  </TruncateText>
                 </SimpleTooltip>
               </>
             )}

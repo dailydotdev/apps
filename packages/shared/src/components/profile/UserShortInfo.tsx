@@ -116,7 +116,9 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
             {topReader && (
               <>
                 <div className="mx-2 h-0.5 w-0.5 self-center bg-text-quaternary" />
-                <div>Top reader in {topReader?.keyword?.flags?.title}</div>
+                <TruncateText>
+                  Top reader in {topReader?.keyword?.flags?.title}
+                </TruncateText>
               </>
             )}
           </div>
