@@ -30,7 +30,7 @@ export const TopReaderWidget = ({
     ...disabledRefetch,
   });
 
-  if (isTopReaderLoading) {
+  if (isTopReaderLoading || topReader.length === 0) {
     return null;
   }
 
