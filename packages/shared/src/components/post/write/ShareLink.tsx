@@ -7,11 +7,14 @@ import { WriteFooter } from './WriteFooter';
 import { SubmitExternalLink } from './SubmitExternalLink';
 import { usePostToSquad } from '../../../hooks';
 import { useToastNotification } from '../../../hooks/useToastNotification';
-import { Post } from '../../../graphql/posts';
+import { Post, PostType } from '../../../graphql/posts';
 import { WriteLinkPreview } from './WriteLinkPreview';
 import { generateDefaultSquad } from './SquadsDropdown';
 import { useSquadCreate } from '../../../hooks/squads/useSquadCreate';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import useSourcePostModeration from '../../../hooks/source/useSourcePostModeration';
+import { DEFAULT_ERROR } from '../../../graphql/common';
+import { isPrivilegedMember } from '../../squads/utils';
 
 interface ShareLinkProps {
   squad: Squad;
@@ -29,7 +32,15 @@ export function ShareLink({
   const { displayToast } = useToastNotification();
   const [commentary, setCommentary] = useState(post?.title ?? '');
   const { squads, user } = useAuthContext();
-
+  const { onCreatePostModeration, isSuccess: isCreatingPostModeration } =
+    useSourcePostModeration({
+      onSuccess: () => {
+        // TODO: Will implement moderation modal popup in MI-583
+      },
+      onError: () => {
+        displayToast(DEFAULT_ERROR);
+      },
+    });
   const {
     getLinkPreview,
     isLoadingPreview,
@@ -52,7 +63,7 @@ export function ShareLink({
   const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
 
-    if (isPosting || isLoading) {
+    if (isPosting || isLoading || isCreatingPostModeration) {
       return null;
     }
 
@@ -68,6 +79,17 @@ export function ShareLink({
     }
 
     if (squads.some(({ id }) => squad.id === id)) {
+      if (squad.moderationRequired && !isPrivilegedMember(squad)) {
+        return onCreatePostModeration({
+          title: preview.title || '',
+          type: preview?.id ? PostType.Share : PostType.Article,
+          imageUrl: preview.image,
+          sourceId: squad.id,
+          sharedPostId: preview.id,
+          url: preview?.url,
+          commentary,
+        });
+      }
       onSubmitPost(e, squad.id, commentary);
       return push(squad.permalink);
     }

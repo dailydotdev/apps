@@ -11,6 +11,7 @@ import {
   pageBorders,
   WithClassNameProps,
 } from '../utilities';
+import { SourcePermissions, Squad } from '../../graphql/sources';
 
 export const SquadTitle = ({
   children,
@@ -42,3 +43,6 @@ export const ManageSquadPageContainer = classed(
 );
 
 export const ManageSquadPageMain = classed('div', 'flex flex-1 flex-col');
+
+export const isPrivilegedMember = (squad: Squad): boolean =>
+  squad.currentMember?.permissions?.includes(SourcePermissions.Moderate);

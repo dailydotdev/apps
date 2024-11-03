@@ -1,6 +1,6 @@
 import React, { FormEventHandler, ReactElement, useRef, useState } from 'react';
 import { Modal, ModalProps } from '../common/Modal';
-import { ExternalLinkPreview } from '../../../graphql/posts';
+import { ExternalLinkPreview, PostType } from '../../../graphql/posts';
 import MarkdownInput, { MarkdownRef } from '../../fields/MarkdownInput';
 import { WriteLinkPreview, WritePreviewSkeleton } from '../../post/write';
 import { usePostToSquad } from '../../../hooks';
@@ -19,6 +19,8 @@ import { useDebouncedUrl } from '../../../hooks/input';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import { Switch } from '../../fields/Switch';
 import { ProfileImageSize } from '../../ProfilePicture';
+import useSourcePostModeration from '../../../hooks/source/useSourcePostModeration';
+import { isPrivilegedMember } from '../../squads/utils';
 
 export interface CreateSharedPostModalProps extends ModalProps {
   preview: ExternalLinkPreview;
@@ -33,6 +35,12 @@ export function CreateSharedPostModal({
   onRequestClose,
   ...props
 }: CreateSharedPostModalProps): ReactElement {
+  const { onCreatePostModeration, isSuccess: isCreatingPostModeration } =
+    useSourcePostModeration({
+      onSuccess: () => {
+        // TODO: Will implement moderation modal popup in MI-583
+      },
+    });
   const markdownRef = useRef<MarkdownRef>();
   const [link, setLink] = useState(preview?.permalink ?? preview?.url ?? '');
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
@@ -57,7 +65,16 @@ export function CreateSharedPostModal({
     e.preventDefault();
 
     const { commentary } = formToJson<{ commentary: string }>(e.currentTarget);
-
+    if (squad.moderationRequired && !isPrivilegedMember(squad)) {
+      return onCreatePostModeration({
+        title: updatedPreview.title,
+        type: PostType.Share,
+        imageUrl: updatedPreview?.image,
+        sourceId: squad.id,
+        sharedPostId: updatedPreview.id,
+        commentary,
+      });
+    }
     return onSubmitPost(e, squad.id, commentary);
   };
 
@@ -92,8 +109,8 @@ export function CreateSharedPostModal({
   const submitProps = {
     color: ButtonColor.Cabbage,
     variant: ButtonVariant.Primary,
-    disabled: isPosting,
-    loading: isPosting,
+    disabled: isPosting || isCreatingPostModeration,
+    loading: isPosting || isCreatingPostModeration,
   };
 
   return (
