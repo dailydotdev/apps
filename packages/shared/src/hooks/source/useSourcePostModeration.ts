@@ -2,13 +2,15 @@ import { useMutation } from '@tanstack/react-query';
 import {
   CreatePostModerationProps,
   createSourcePostModeration,
-  Post,
+  SourcePostModeration,
 } from '../../graphql/posts';
 
 type UseSourcePostModeration = {
   isPending: boolean;
   isSuccess: boolean;
-  onCreatePostModeration: (post: CreatePostModerationProps) => Promise<Post>;
+  onCreatePostModeration: (
+    post: CreatePostModerationProps,
+  ) => Promise<SourcePostModeration>;
 };
 
 type UseSquadModerationProps = {

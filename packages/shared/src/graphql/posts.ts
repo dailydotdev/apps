@@ -571,6 +571,19 @@ export type CreatePostModerationProps = {
   url?: string;
 };
 
+export type SourcePostModeration = {
+  id: string;
+  title: string;
+  titleHtml?: string;
+  image: string;
+  content?: string;
+  contentHtml?: string;
+  type: string;
+  sourceId: string;
+  sharedPostId?: string;
+  url?: string;
+};
+
 export const editPost = async (
   variables: Partial<EditPostProps>,
 ): Promise<Post> => {
@@ -636,11 +649,12 @@ export const CREATE_SOURCE_POST_MODERATION_MUTATION = gql`
       imageUrl: $imageUrl
       url: $url
     ) {
-      content
-      contentHtml
-      sourceId
+      id
       title
       image
+      content
+      type
+      sourceId
     }
   }
 `;
@@ -681,7 +695,7 @@ export const createPost = async (
 
 export const createSourcePostModeration = async (
   variables: Partial<CreatePostModerationProps>,
-): Promise<Post> => {
+): Promise<SourcePostModeration> => {
   const res = await gqlClient.request(
     CREATE_SOURCE_POST_MODERATION_MUTATION,
     variables,
