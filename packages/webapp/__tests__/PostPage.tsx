@@ -75,6 +75,11 @@ const showLogin = jest.fn();
 //     ),
 // }));
 
+const resizeWindow = (x, y) => {
+  window = Object.assign(window, { innerWidth: x, innerHeight: y });
+  fireEvent(window, new Event('resize'));
+};
+
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));
@@ -258,17 +263,9 @@ it('should set href to the post permalink', async () => {
 });
 
 it('should display the "read post" link on mobile resolutions', async () => {
-  Object.defineProperty(global, 'matchMedia', {
-    writable: true,
-    value: jest.fn().mockImplementation((query) => ({
-      matches: query.includes('420'),
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-    })),
-  });
-
+  await resizeWindow(420, 768);
   renderPost();
-  await screen.findByText('Learn SQL');
+  expect(await screen.findByText('Learn SQL')).toBeVisible();
   const container = await screen.findByTestId('postContainer');
   const el = await within(container).findByTestId('postActionsRead');
   expect(el).toBeInTheDocument();
@@ -276,7 +273,7 @@ it('should display the "read post" link on mobile resolutions', async () => {
 
 it('should show post title as heading', async () => {
   renderPost();
-  await screen.findByText('Learn SQL');
+  expect(await screen.findByText('Learn SQL')).toBeVisible();
 });
 
 it('should show post tags', async () => {
