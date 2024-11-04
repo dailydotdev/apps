@@ -37,6 +37,7 @@ const useSquadChecklist = ({
 }: UseSquadChecklistProps): UseSquadChecklist => {
   const { actions, isActionsFetched: isChecklistReady } = useActions();
   const { isInitialized, isPushSupported } = usePushNotificationContext();
+  console.log('is supported', isPushSupported);
 
   const stepsMap = useMemo<
     Partial<Record<ActionType, ChecklistStepType>>
@@ -149,7 +150,7 @@ const useSquadChecklist = ({
           component: NotificationChecklistStep,
         },
         actions,
-        condition: () => isPushSupported,
+        condition: () => !!isPushSupported,
       }),
     };
   }, [isChecklistReady, isInitialized, actions, squad, isPushSupported]);
