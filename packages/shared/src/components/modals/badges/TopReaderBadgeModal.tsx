@@ -1,6 +1,6 @@
 import React, { ReactElement, useCallback } from 'react';
 import classNames from 'classnames';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { Modal, type ModalProps } from '../common/Modal';
 import { ModalSize } from '../common/types';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -8,13 +8,11 @@ import { TopReaderBadge } from '../../badges/TopReaderBadge';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { DownloadIcon } from '../../icons';
 import { useViewSize, ViewSize } from '../../../hooks';
-import { generateQueryKey, RequestKey } from '../../../lib/query';
-import { disabledRefetch } from '../../../lib/func';
 import { downloadUrl } from '../../../lib/blob';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId, TargetType, type Origin } from '../../../lib/log';
 import { formatDate, TimeFormatType } from '../../../lib/dateFormat';
-import { fetchTopReaderById, fetchTopReaders } from '../../../lib/topReader';
+import { useTopReader } from '../../../hooks/useTopReader';
 
 type TopReaderBadgeModalProps = {
   badgeId?: string;
@@ -30,21 +28,8 @@ const TopReaderBadgeModal = (
   const { logEvent } = useLogContext();
   const isMobile = useViewSize(ViewSize.MobileL);
 
-  const { data: topReader } = useQuery({
-    queryKey: generateQueryKey(
-      RequestKey.TopReaderBadge,
-      user,
-      badgeId ?? 'latest',
-    ),
-    queryFn: async () => {
-      if (badgeId) {
-        return fetchTopReaderById(badgeId);
-      }
-
-      return (await fetchTopReaders())[0];
-    },
-    ...disabledRefetch,
-  });
+  const { data: topReaders } = useTopReader({ user, limit: 1, badgeId });
+  const topReader = topReaders && topReaders[0];
 
   const { mutateAsync: onDownloadUrl, isPending: downloading } = useMutation({
     mutationFn: downloadUrl,
@@ -62,7 +47,7 @@ const TopReaderBadgeModal = (
         }),
       });
     },
-    [logEvent, origin, topReader.keyword.value],
+    [logEvent, origin, topReader?.keyword?.value],
   );
 
   const onClickDownload = useCallback(async () => {

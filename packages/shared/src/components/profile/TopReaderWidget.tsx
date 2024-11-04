@@ -1,8 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
 import React, { ReactElement } from 'react';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import { fetchTopReaders } from '../../lib/topReader';
-import { disabledRefetch } from '../../lib/func';
 import {
   ActivityContainer,
   ActivitySectionHeader,
@@ -20,22 +16,27 @@ import {
 import { formatDate, TimeFormatType } from '../../lib/dateFormat';
 import type { PublicProfile } from '../../lib/user';
 import { ClickableText } from '../buttons/ClickableText';
+import { useTopReader } from '../../hooks/useTopReader';
 
 export const TopReaderWidget = ({
   user,
 }: {
   user: PublicProfile;
 }): ReactElement => {
-  const { data: topReader, isLoading: isTopReaderLoading } = useQuery({
-    queryKey: generateQueryKey(RequestKey.TopReaderBadge, user, 'latest'),
-    queryFn: async () => {
-      return await fetchTopReaders(5, user.id);
-    },
-    staleTime: StaleTime.OneHour,
-    ...disabledRefetch,
+  const { data: topReaders, isLoading: isTopReaderLoading } = useTopReader({
+    user,
+    limit: 5,
   });
+  // const { data: topReader, isLoading: isTopReaderLoading } = useQuery({
+  //   queryKey: generateQueryKey(RequestKey.TopReaderBadge, user, 'latest'),
+  //   queryFn: async () => {
+  //     return await fetchTopReaders(5, user.id);
+  //   },
+  //   staleTime: StaleTime.OneHour,
+  //   ...disabledRefetch,
+  // });
 
-  if (isTopReaderLoading || topReader.length === 0) {
+  if (isTopReaderLoading || topReaders?.length === 0) {
     return null;
   }
 
@@ -69,7 +70,7 @@ export const TopReaderWidget = ({
               color={TypographyColor.Primary}
               bold
             >
-              X{topReader[0]?.total ?? 0}
+              X{topReaders[0]?.total ?? 0}
             </Typography>
             <Typography
               type={TypographyType.Footnote}
@@ -80,9 +81,9 @@ export const TopReaderWidget = ({
           </div>
         </div>
 
-        {topReader.length > 0 && (
+        {topReaders.length > 0 && (
           <div className="mt-3 flex flex-col gap-3">
-            {topReader.map((badge) => {
+            {topReaders.map((badge) => {
               return (
                 <div className="flex justify-between" key={`badge-${badge.id}`}>
                   <Typography

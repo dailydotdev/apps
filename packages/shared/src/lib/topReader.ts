@@ -4,7 +4,7 @@ import { TOP_READER_BADGE, TOP_READER_BADGE_BY_ID } from '../graphql/users';
 
 export const fetchTopReaders = async (
   limit = 5,
-  userId?: string,
+  userId: string,
 ): Promise<TopReader[]> => {
   const { topReaderBadge } = await gqlClient.request<{
     topReaderBadge: TopReader[];
