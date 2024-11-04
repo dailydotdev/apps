@@ -33,7 +33,7 @@ export const TopReaderBadge = ({
 
   return (
     <div
-      className="relative flex h-80 w-80 rounded-24 p-1 text-center text-text-primary"
+      className="relative flex size-80 rounded-24 p-1 text-center text-text-primary"
       style={{
         backgroundImage: themeToLinearGradient[DevCardTheme.Gold],
       }}
