@@ -16,6 +16,8 @@ import { generateQueryKey, RequestKey } from '../lib/query';
 import { isTesting } from '../lib/constants';
 import { useLogContext } from './LogContext';
 import { SubscriptionCallback } from '../components/notifications/utils';
+import { useActions } from '../hooks';
+import { ActionType } from '../graphql/actions';
 
 export interface PushNotificationsContextData {
   OneSignal: typeof OneSignal;
@@ -125,6 +127,22 @@ export function PushNotificationContextProvider({
     (source) => subscriptionCallbackRef.current?.(true, source, true),
     [],
   );
+
+  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
+  const isPushEnabled =
+    isPushSupported && isSuccess && isEnabled && isActionsFetched;
+  const hasCompletedAction =
+    isPushEnabled &&
+    isSubscribed &&
+    checkHasCompleted(ActionType.EnableNotification);
+
+  useEffect(() => {
+    if (!hasCompletedAction) {
+      return;
+    }
+
+    completeAction(ActionType.EnableNotification);
+  }, [hasCompletedAction, completeAction]);
 
   useEffect(() => {
     if (!OneSignalCache) {
