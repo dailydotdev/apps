@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from 'react';
-import { NextSeo, NextSeoProps } from 'next-seo';
+import { NextSeoProps } from 'next-seo';
 import router, { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
@@ -23,10 +23,13 @@ import { useIntegrationQuery } from '@dailydotdev/shared/src/hooks/integrations/
 import { useSlackConnectSourceMutation } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackConnectSourceMutation';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { getTemplatedTitle } from '../../components/layouts/utils';
 
 const seo: NextSeoProps = {
-  title: 'Create your Squad',
+  title: getTemplatedTitle('Create your Squad'),
   openGraph: { ...defaultOpenGraph },
+  nofollow: true,
+  noindex: true,
   ...defaultSeo,
 };
 
@@ -53,7 +56,7 @@ const NewSquad = (): ReactElement => {
   });
   const isMobile = useViewSize(ViewSize.MobileL);
 
-  const { data, isLoading: isIntegrationLoading } = useIntegrationQuery({
+  const { data, isPending: isIntegrationLoading } = useIntegrationQuery({
     id: integrationId,
     queryOptions: { enabled: !!shouldLoadIntegration && !!integrationId },
   });
@@ -79,7 +82,6 @@ const NewSquad = (): ReactElement => {
 
   return (
     <ManageSquadPageContainer>
-      <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
       <SquadDetails
         onRequestClose={handleClose}
         onSubmit={(e, form, channelId) => {
@@ -120,5 +122,6 @@ const NewSquad = (): ReactElement => {
 };
 
 NewSquad.getLayout = getMainLayout;
+NewSquad.layoutProps = { seo };
 
 export default NewSquad;

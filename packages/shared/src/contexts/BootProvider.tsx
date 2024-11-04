@@ -21,12 +21,13 @@ import { storageWrapper as storage } from '../lib/storageWrapper';
 import { useRefreshToken } from '../hooks/useRefreshToken';
 import { NotificationsContextProvider } from './NotificationsContext';
 import { BOOT_LOCAL_KEY, BOOT_QUERY_KEY } from './common';
-import { LogContextProvider } from './LogContext';
 import { GrowthBookProvider } from '../components/GrowthBookProvider';
 import { useHostStatus } from '../hooks/useHostPermissionStatus';
 import { checkIsExtension } from '../lib/func';
 import { Feed, FeedList } from '../graphql/feed';
 import { gqlClient } from '../graphql/common';
+import { ErrorBoundary } from '../components/ErrorBoundary';
+import { LogContextProvider } from './LogContext';
 
 const ServerError = dynamic(
   () =>
@@ -112,7 +113,6 @@ export const BootDataProvider = ({
   const { hostGranted } = useHostStatus();
   const isExtension = checkIsExtension();
   const queryClient = useQueryClient();
-
   const preloadFeedsRef = useRef<PreloadFeeds>();
   preloadFeedsRef.current = ({ feeds, user }) => {
     if (!feeds || !user) {
@@ -167,6 +167,7 @@ export const BootDataProvider = ({
       const result = await getBootData(app);
       preloadFeedsRef.current({ feeds: result.feeds, user: result.user });
       updateLocalBootData(bootData || {}, result);
+
       return result;
     },
     refetchOnWindowFocus: shouldRefetch,
@@ -274,8 +275,8 @@ export const BootDataProvider = ({
         isFetched={isBootReady}
         isLegacyLogout={bootData?.isLegacyLogout}
         accessToken={bootData?.accessToken}
-        isPastRegistration={isInitialFetch}
         squads={squads}
+        firstLoad={isInitialFetch}
       >
         <SettingsContextProvider
           settings={settings}
@@ -294,12 +295,14 @@ export const BootDataProvider = ({
               getPage={getPage}
               deviceId={deviceId}
             >
-              <NotificationsContextProvider
-                isNotificationsReady={isBootReady}
-                unreadCount={notifications?.unreadNotificationsCount}
-              >
-                {children}
-              </NotificationsContextProvider>
+              <ErrorBoundary>
+                <NotificationsContextProvider
+                  isNotificationsReady={isBootReady}
+                  unreadCount={notifications?.unreadNotificationsCount}
+                >
+                  {children}
+                </NotificationsContextProvider>
+              </ErrorBoundary>
             </LogContextProvider>
           </AlertContextProvider>
         </SettingsContextProvider>

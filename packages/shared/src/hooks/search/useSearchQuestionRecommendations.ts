@@ -17,7 +17,7 @@ type UseSearchQuestionRecommendations = (data: {
 export const useSearchQuestionRecommendations: UseSearchQuestionRecommendations =
   ({ disabled, ...args }) => {
     const { user } = useAuthContext();
-    const { data, isLoading } = useQuery({
+    const { data, isPending } = useQuery({
       queryKey: generateQueryKey(RequestKey.SearchHistory, user),
       queryFn: getSearchSuggestions,
       ...disabledRefetch,
@@ -33,5 +33,5 @@ export const useSearchQuestionRecommendations: UseSearchQuestionRecommendations 
       [data],
     );
 
-    return { isLoading, suggestions, ...args };
+    return { isLoading: isPending, suggestions, ...args };
   };

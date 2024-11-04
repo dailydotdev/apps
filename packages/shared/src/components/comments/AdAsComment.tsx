@@ -35,12 +35,12 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
     staleTime: StaleTime.OneHour,
   });
 
-  const { isLoading, data, isError } = ad || {};
+  const { isPending, data, isError } = ad || {};
   const { providerId, source, image, description, pixel, company, tagLine } =
     data || {};
 
   useEffect(() => {
-    if (isImpressionTracked.current || isLoading || isError) {
+    if (isImpressionTracked.current || isPending || isError) {
       return;
     }
 
@@ -53,12 +53,12 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
     );
 
     isImpressionTracked.current = true;
-  }, [isLoading, isError, isImpressionTracked, logEvent, data]);
+  }, [isPending, isError, isImpressionTracked, logEvent, data]);
 
   if (isError) {
     return null;
   }
-  if (isLoading) {
+  if (isPending) {
     return <PlaceholderCommentList placeholderAmount={1} />;
   }
 

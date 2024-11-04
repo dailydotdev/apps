@@ -3,14 +3,12 @@ import { useRouter } from 'next/router';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 
 export interface ProtectedPageProps {
-  seo: ReactNode;
   children: ReactNode;
   fallback?: ReactNode;
   shouldFallback?: boolean;
 }
 
 function ProtectedPage({
-  seo,
   children,
   fallback,
   shouldFallback,
@@ -26,12 +24,7 @@ function ProtectedPage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokenRefreshed, user]);
 
-  return (
-    <>
-      {seo}
-      {shouldFallback ? fallback : children}
-    </>
-  );
+  return <>{shouldFallback ? fallback : children}</>;
 }
 
 export default ProtectedPage;

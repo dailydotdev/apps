@@ -23,7 +23,6 @@ import classNames from 'classnames';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
 import DevCardPlaceholder from '@dailydotdev/shared/src/components/DevCardPlaceholder';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { devCard } from '@dailydotdev/shared/src/lib/constants';
@@ -564,7 +563,6 @@ const DevCardPage = (): ReactElement => {
         isDevCardGenerated && 'laptop:flex-row laptop:gap-20',
       )}
     >
-      <NextSeo {...seo} />
       {isDevCardGenerated ? (
         <Step2 initialDevCardSrc={devCardSrc} />
       ) : (
@@ -578,6 +576,6 @@ const getDevCardLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 DevCardPage.getLayout = getDevCardLayout;
-DevCardPage.layoutProps = { screenCentered: false, canGoBack: true };
+DevCardPage.layoutProps = { screenCentered: false, canGoBack: true, seo };
 
 export default DevCardPage;

@@ -24,7 +24,7 @@ export const useTagSearch = ({
 }: UseTagSearchProps): UseTagSearch => {
   const { logEvent } = useContext(LogContext);
 
-  const { data, isLoading } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: getSearchTagsQueryKey(value),
     queryFn: async () => {
       const result = await gqlClient.request<SearchTagsData>(
@@ -50,6 +50,6 @@ export const useTagSearch = ({
 
   return {
     data,
-    isLoading,
+    isLoading: isPending,
   };
 };

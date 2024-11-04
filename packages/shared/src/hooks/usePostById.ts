@@ -121,7 +121,7 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
   const {
     data: postById,
     isError,
-    isLoading,
+    isPending,
   } = useQuery<PostData>({
     queryKey: key,
     queryFn: () => gqlClient.request(POST_BY_ID_QUERY, { id }),
@@ -170,9 +170,9 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
       post: post?.post,
       relatedCollectionPosts: post?.relatedCollectionPosts,
       isError,
-      isLoading: !post?.post && isLoading,
+      isLoading: !post?.post && isPending,
     }),
-    [post?.post, post?.relatedCollectionPosts, isError, isLoading],
+    [post?.post, post?.relatedCollectionPosts, isError, isPending],
   );
 };
 

@@ -55,7 +55,7 @@ export default function CommentFeed<T>({
   const showEmptyScreen =
     length > 0 && queryResult.data.pages[0].page.edges.length === 0;
 
-  if (queryResult.isLoading) {
+  if (queryResult.isPending) {
     return (
       <PlaceholderCommentList
         placeholderAmount={5}

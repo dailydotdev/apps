@@ -245,6 +245,11 @@ export const SQUAD_STATIC_FIELDS_QUERY = gql`
   }
 `;
 
+export type SquadStaticData = Pick<
+  Squad,
+  'id' | 'name' | 'public' | 'description' | 'image'
+>;
+
 export const SQUAD_HANDE_AVAILABILITY_QUERY = gql`
   query SourceHandleExists($handle: String!) {
     sourceHandleExists(handle: $handle)

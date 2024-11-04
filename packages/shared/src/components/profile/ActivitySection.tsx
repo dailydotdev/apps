@@ -2,7 +2,6 @@ import React, { Fragment, ReactElement, ReactNode } from 'react';
 import { UseInfiniteQueryResult } from '@tanstack/react-query/build/legacy/types';
 import { InfiniteData } from '@tanstack/react-query';
 import classed from '../../lib/classed';
-import { ClickableText } from '../buttons/ClickableText';
 import { IconSize } from '../Icon';
 import { FeedData } from '../../graphql/feed';
 import { Post } from '../../graphql/posts';
@@ -26,18 +25,12 @@ export const ActivitySectionTitleStat = classed(
 
 interface ActivitySectionHeaderProps {
   title: string;
-  subtitle?: string;
-  clickableTitle?: string;
-  link?: string;
   children?: ReactNode;
   Icon?: React.ElementType;
 }
 
 export const ActivitySectionHeader = ({
   title,
-  subtitle,
-  clickableTitle,
-  link,
   children,
   Icon,
 }: ActivitySectionHeaderProps): ReactElement => {
@@ -48,21 +41,6 @@ export const ActivitySectionHeader = ({
           {Icon && <Icon size={IconSize.Small} secondary className="mr-2" />}
           {title}
         </span>
-        {subtitle && (
-          <ActivitySectionSubTitle>
-            {subtitle}
-            {clickableTitle && (
-              <ClickableText
-                tag="a"
-                target="_blank"
-                className="ml-1"
-                href={link}
-              >
-                {clickableTitle}
-              </ClickableText>
-            )}
-          </ActivitySectionSubTitle>
-        )}
       </span>
       {children}
     </ActivitySectionTitle>
