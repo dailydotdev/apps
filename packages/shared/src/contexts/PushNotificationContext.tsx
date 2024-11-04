@@ -129,9 +129,9 @@ export function PushNotificationContextProvider({
   );
 
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
-  const isPushEnabled =
-    isPushSupported && isSuccess && isEnabled && isActionsFetched;
+  const isPushEnabled = isPushSupported && isSuccess && isEnabled;
   const hasCompletedAction =
+    isActionsFetched &&
     isPushEnabled &&
     isSubscribed &&
     checkHasCompleted(ActionType.EnableNotification);
