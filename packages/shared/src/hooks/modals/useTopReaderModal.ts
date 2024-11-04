@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useLazyModal } from '../useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
+import { Origin } from '../../lib/log';
 
 export const useTopReaderModal = (): void => {
   const { query, replace } = useRouter();
@@ -15,11 +16,12 @@ export const useTopReaderModal = (): void => {
     openModal({
       type: LazyModal.TopReaderBadge,
       props: {
+        badgeId: query.badgeId as string,
+        origin: Origin.NotificationsPage,
         onAfterClose: () => {
           const { origin, pathname } = window.location;
           replace(origin + pathname);
         },
-        badgeId: query.badgeId as string,
       },
     });
   }, [openModal, query, replace]);

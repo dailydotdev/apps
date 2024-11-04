@@ -27,6 +27,8 @@ export enum Origin {
   Sidebar = 'sidebar',
   Share = 'share',
   Notification = 'notification',
+  NotificationsPage = 'notifications page',
+  Boot = 'boot',
   SquadMembersList = 'squad members list',
   SquadChecklist = 'squad checklist',
   SquadInvitation = 'squad invitation',
