@@ -128,13 +128,6 @@ const ProfileIndex = ({
     (file?: File, fileName?: string, isCover = false) => {
       if (isCover) {
         setCoverImage(fileName);
-      }
-
-      if (!file) {
-        return;
-      }
-
-      if (isCover) {
         uploadCoverImage({
           image: file,
         });
@@ -188,9 +181,11 @@ const ProfileIndex = ({
             id={imageId}
             className={{
               img: 'object-cover',
-              container: 'border-4 !border-background-default',
+              container:
+                'border-4 !border-background-default bg-background-subtle hover:bg-accent-pepper-subtlest',
             }}
             initialValue={user?.image}
+            alwaysShowHover={!user?.image}
             hoverIcon={<CameraIcon size={IconSize.Large} />}
             onChange={(_, file) => onImageInputChange(file)}
             closeable
