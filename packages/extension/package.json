@@ -8,7 +8,7 @@
     "build:chrome": "cross-env NODE_ENV=production cross-env TARGET_BROWSER=chrome webpack",
     "build:firefox": "cross-env NODE_ENV=production cross-env TARGET_BROWSER=firefox webpack",
     "build:opera": "cross-env NODE_ENV=production cross-env TARGET_BROWSER=opera webpack",
-    "build": "npm run build:chrome && npm run build:firefox && npm run build:opera",
+    "build": "npm run build:chrome",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0 --fix",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "pretest": "npm run lint",
