@@ -110,11 +110,13 @@ export default function Companion({
     }),
   });
   const [assetsLoadedDebounce] = useDebounceFn(() => setAssetsLoaded(true), 10);
-  const routeChangedCallback = useLogPageView();
+  const routeChangedCallbackRef = useLogPageView();
 
   useEffect(() => {
-    routeChangedCallback?.();
-  }, [routeChangedCallback]);
+    if (routeChangedCallbackRef.current) {
+      routeChangedCallbackRef.current();
+    }
+  }, [routeChangedCallbackRef]);
 
   const [checkAssets, clearCheckAssets] = useDebounceFn(() => {
     if (containerRef?.current?.offsetLeft === 0) {
@@ -131,7 +133,7 @@ export default function Companion({
     }
 
     checkAssets();
-    routeChangedCallback?.();
+    routeChangedCallbackRef.current();
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [containerRef]);

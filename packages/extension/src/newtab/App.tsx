@@ -108,7 +108,7 @@ function InternalApp(): ReactElement {
   const { contentScriptGranted } = useContentScriptStatus();
   const { hostGranted, isFetching: isCheckingHostPermissions } =
     useHostStatus();
-  const routeChangedCallback = useLogPageView();
+  const routeChangedCallbackRef = useLogPageView();
   useConsoleLogo();
 
   const { value: extensionOverlay } = useConditionalFeature({
@@ -122,10 +122,10 @@ function InternalApp(): ReactElement {
   const shouldRedirectOnboarding = !user && isPageReady && !isTesting;
 
   useEffect(() => {
-    if (isPageReady && currentPage) {
-      routeChangedCallback?.();
+    if (routeChangedCallbackRef.current && isPageReady) {
+      routeChangedCallbackRef.current();
     }
-  }, [isPageReady, routeChangedCallback, currentPage]);
+  }, [isPageReady, routeChangedCallbackRef, currentPage]);
 
   const { dismissToast } = useToastNotification();
 
