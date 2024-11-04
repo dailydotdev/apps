@@ -43,8 +43,6 @@ export const TopReaderWidget = ({
         link={topReaderBadgeDocs}
       />
 
-      {/* TODO: add a null state when the user has no badges */}
-
       <div className="w-60 rounded-10 border border-border-subtlest-tertiary p-3">
         <div className="flex">
           <MedalBadgeIcon
