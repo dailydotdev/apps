@@ -81,32 +81,30 @@ export const TopReaderWidget = ({
           </div>
         </div>
 
-        {topReaders.length > 0 && (
-          <div className="mt-3 flex flex-col gap-3">
-            {topReaders.map((badge) => {
-              return (
-                <div className="flex justify-between" key={`badge-${badge.id}`}>
-                  <Typography
-                    type={TypographyType.Caption1}
-                    color={TypographyColor.Primary}
-                    className="rounded-6 border border-border-subtlest-tertiary px-2.5 py-0.5"
-                  >
-                    {badge.keyword.flags.title}
-                  </Typography>
-                  <Typography
-                    type={TypographyType.Caption2}
-                    color={TypographyColor.Quaternary}
-                  >
-                    {formatDate({
-                      value: badge.issuedAt,
-                      type: TimeFormatType.TopReaderBadge,
-                    })}
-                  </Typography>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <div className="mt-3 flex flex-col gap-3">
+          {topReaders.map((badge) => {
+            return (
+              <div className="flex justify-between" key={`badge-${badge.id}`}>
+                <Typography
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Primary}
+                  className="rounded-6 border border-border-subtlest-tertiary px-2.5 py-0.5"
+                >
+                  {badge.keyword.flags.title}
+                </Typography>
+                <Typography
+                  type={TypographyType.Caption2}
+                  color={TypographyColor.Quaternary}
+                >
+                  {formatDate({
+                    value: badge.issuedAt,
+                    type: TimeFormatType.TopReaderBadge,
+                  })}
+                </Typography>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </ActivityContainer>
   );
