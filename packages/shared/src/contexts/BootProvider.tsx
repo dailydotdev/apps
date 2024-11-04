@@ -2,9 +2,8 @@ import React, {
   ReactElement,
   ReactNode,
   useCallback,
-  useEffect,
+  useMemo,
   useRef,
-  useState,
 } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
@@ -86,7 +85,7 @@ const updateLocalBootData = (
   return result;
 };
 
-const getCachedOrNull = () => {
+const getCachedBootOrNull = () => {
   try {
     return JSON.parse(storage.getItem(BOOT_LOCAL_KEY));
   } catch (err) {
@@ -111,6 +110,8 @@ export const BootDataProvider = ({
   getRedirectUri,
   getPage,
 }: BootDataProviderProps): ReactElement => {
+  const { hostGranted } = useHostStatus();
+  const isExtension = checkIsExtension();
   const queryClient = useQueryClient();
   const preloadFeedsRef = useRef<PreloadFeeds>();
   preloadFeedsRef.current = ({ feeds, user }) => {
@@ -129,8 +130,7 @@ export const BootDataProvider = ({
     );
   };
 
-  const [initialLoad, setInitialLoad] = useState<boolean>(null);
-  const [cachedBootData, setCachedBootData] = useState<Partial<Boot>>(() => {
+  const initialData = useMemo(() => {
     if (localBootData) {
       return localBootData;
     }
@@ -148,15 +148,14 @@ export const BootDataProvider = ({
     preloadFeedsRef.current({ feeds: boot.feeds, user: boot.user });
 
     return boot;
-  });
-  const { hostGranted } = useHostStatus();
-  const isExtension = checkIsExtension();
-  const logged = cachedBootData?.user as LoggedUser;
+  }, [localBootData]);
+
+  const logged = initialData?.user as LoggedUser;
   const shouldRefetch = !!logged?.providers && !!logged?.id;
   const lastAppliedChangeRef = useRef<Partial<BootCacheData>>();
 
   const {
-    data: remoteData,
+    data: bootData,
     error,
     refetch,
     isFetched,
@@ -167,24 +166,26 @@ export const BootDataProvider = ({
     queryFn: async () => {
       const result = await getBootData(app);
       preloadFeedsRef.current({ feeds: result.feeds, user: result.user });
+      updateLocalBootData(bootData || {}, result);
 
       return result;
     },
     refetchOnWindowFocus: shouldRefetch,
     staleTime: STALE_TIME,
     enabled: !isExtension || !!hostGranted,
+    placeholderData: initialData,
   });
 
+  const isInitialFetch = !isFetched;
   const isBootReady = isFetched && !isError;
-  const loadedFromCache = !!cachedBootData;
-  const { user, settings, alerts, notifications, squads } =
-    cachedBootData || {};
+  const loadedFromCache = !!bootData;
+  const { user, settings, alerts, notifications, squads } = bootData || {};
 
-  useRefreshToken(remoteData?.accessToken, refetch);
+  useRefreshToken(bootData?.accessToken, refetch);
   const updatedAtActive = user ? dataUpdatedAt : null;
-  const updateBootData = useCallback(
+  const updateQueryCache = useCallback(
     (updatedBootData: Partial<BootCacheData>, update = true) => {
-      const cachedData = getCachedOrNull() || {};
+      const cachedData = getCachedBootOrNull() ?? {};
       const lastAppliedChange = lastAppliedChangeRef.current;
       let updatedData = { ...updatedBootData };
       if (update) {
@@ -200,50 +201,51 @@ export const BootDataProvider = ({
       }
 
       const updated = updateLocalBootData(cachedData, updatedData);
-      setCachedBootData(updated);
+
+      queryClient.setQueryData<Partial<Boot>>(BOOT_QUERY_KEY, (previous) => {
+        if (!previous) {
+          return updated;
+        }
+
+        return { ...previous, ...updated };
+      });
     },
-    [],
+    [queryClient],
   );
 
   const updateUser = useCallback(
     async (newUser: LoggedUser | AnonymousUser) => {
-      updateBootData({ user: newUser });
+      updateQueryCache({ user: newUser });
       await queryClient.invalidateQueries({
         queryKey: generateQueryKey(RequestKey.Profile, newUser),
       });
     },
-    [updateBootData, queryClient],
+    [updateQueryCache, queryClient],
   );
 
   const updateSettings = useCallback(
-    (updatedSettings) => updateBootData({ settings: updatedSettings }),
-    [updateBootData],
+    (updatedSettings: Boot['settings']) =>
+      updateQueryCache({ settings: updatedSettings }),
+    [updateQueryCache],
   );
 
   const updateAlerts = useCallback(
-    (updatedAlerts) => updateBootData({ alerts: updatedAlerts }),
-    [updateBootData],
+    (updatedAlerts: Boot['alerts']) =>
+      updateQueryCache({ alerts: updatedAlerts }),
+    [updateQueryCache],
   );
 
   const updateExperimentation = useCallback(
     (exp: BootCacheData['exp']) => {
-      updateLocalBootData(cachedBootData, { exp });
+      updateLocalBootData(bootData, { exp });
     },
-    [cachedBootData],
+    [bootData],
   );
 
   gqlClient.setHeader(
     'content-language',
     (user as Partial<LoggedUser>)?.language || ContentLanguage.English,
   );
-
-  useEffect(() => {
-    if (remoteData) {
-      setInitialLoad(initialLoad === null);
-      updateBootData(remoteData);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [remoteData]);
 
   if (error) {
     return (
@@ -258,7 +260,7 @@ export const BootDataProvider = ({
       app={app}
       user={user}
       deviceId={deviceId}
-      experimentation={cachedBootData?.exp}
+      experimentation={bootData?.exp}
       updateExperimentation={updateExperimentation}
     >
       <AuthContextProvider
@@ -268,13 +270,13 @@ export const BootDataProvider = ({
         getRedirectUri={getRedirectUri}
         loadingUser={!dataUpdatedAt || !user}
         loadedUserFromCache={loadedFromCache}
-        visit={remoteData?.visit}
+        visit={bootData?.visit}
         refetchBoot={refetch}
         isFetched={isBootReady}
-        isLegacyLogout={remoteData?.isLegacyLogout}
-        accessToken={remoteData?.accessToken}
+        isLegacyLogout={bootData?.isLegacyLogout}
+        accessToken={bootData?.accessToken}
         squads={squads}
-        firstLoad={initialLoad}
+        firstLoad={isInitialFetch}
       >
         <SettingsContextProvider
           settings={settings}
