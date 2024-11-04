@@ -176,8 +176,7 @@ export const BootDataProvider = ({
     placeholderData: initialData,
   });
 
-  const isInitialFetch = !isFetched;
-  const isBootReady = isFetched && !isError;
+  const isBootReady = isFetched && !isError && !!bootData;
   const loadedFromCache = !!bootData;
   const { user, settings, alerts, notifications, squads } = bootData || {};
 
@@ -276,7 +275,7 @@ export const BootDataProvider = ({
         isLegacyLogout={bootData?.isLegacyLogout}
         accessToken={bootData?.accessToken}
         squads={squads}
-        firstLoad={isInitialFetch}
+        isAuthReady={isBootReady}
       >
         <SettingsContextProvider
           settings={settings}
