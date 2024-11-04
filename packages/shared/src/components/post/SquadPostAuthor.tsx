@@ -110,9 +110,7 @@ function SquadPostAuthor({
             {author?.topReader && (
               <>
                 <Separator />
-                <TruncateText>
-                  Top reader in {author.topReader?.keyword?.flags?.title}
-                </TruncateText>
+                <TopReaderIn topReader={author.topReader} />
               </>
             )}
           </div>
