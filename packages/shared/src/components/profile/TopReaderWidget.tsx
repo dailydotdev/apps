@@ -3,7 +3,11 @@ import React, { ReactElement } from 'react';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { fetchTopReaders } from '../../lib/topReader';
 import { disabledRefetch } from '../../lib/func';
-import { ActivityContainer, ActivitySectionHeader } from './ActivitySection';
+import {
+  ActivityContainer,
+  ActivitySectionHeader,
+  ActivitySectionSubTitle,
+} from './ActivitySection';
 import { topReaderBadgeDocs } from '../../lib/constants';
 import { MedalBadgeIcon } from '../icons';
 import { IconSize } from '../Icon';
@@ -15,6 +19,7 @@ import {
 } from '../typography/Typography';
 import { formatDate, TimeFormatType } from '../../lib/dateFormat';
 import type { PublicProfile } from '../../lib/user';
+import { ClickableText } from '../buttons/ClickableText';
 
 export const TopReaderWidget = ({
   user,
@@ -36,12 +41,19 @@ export const TopReaderWidget = ({
 
   return (
     <ActivityContainer>
-      <ActivitySectionHeader
-        title="Badges"
-        subtitle="Understand more how this is computed in"
-        clickableTitle="daily.dev docs"
-        link={topReaderBadgeDocs}
-      />
+      <ActivitySectionHeader className="flex-wrap" title="Badges">
+        <ActivitySectionSubTitle className="w-full">
+          Understand more how this is computed in
+          <ClickableText
+            tag="a"
+            target="_blank"
+            className="ml-1"
+            href={topReaderBadgeDocs}
+          >
+            daily.dev docs
+          </ClickableText>
+        </ActivitySectionSubTitle>
+      </ActivitySectionHeader>
 
       <div className="w-60 rounded-10 border border-border-subtlest-tertiary p-3">
         <div className="flex">
