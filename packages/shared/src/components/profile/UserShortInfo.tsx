@@ -11,6 +11,7 @@ import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { FollowButton } from '../contentPreference/FollowButton';
 import { Origin } from '../../lib/log';
 import { Separator } from '../cards/common/common';
+import { TopReaderIn } from '../TopReaderIn';
 
 type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? JSX.IntrinsicElements[Tag]
@@ -117,9 +118,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
             {topReader && (
               <>
                 <Separator />
-                <TruncateText>
-                  Top reader in {topReader?.keyword?.flags?.title}
-                </TruncateText>
+                <TopReaderIn topReader={topReader} />
               </>
             )}
           </div>

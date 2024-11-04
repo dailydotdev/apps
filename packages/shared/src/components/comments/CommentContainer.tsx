@@ -18,9 +18,8 @@ import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { CardLink } from '../cards/common/Card';
 import { ReputationUserBadge } from '../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
-import { SimpleTooltip } from '../tooltips';
-import { formatDate, TimeFormatType } from '../../lib/dateFormat';
 import { Separator } from '../cards/common/common';
+import { TopReaderIn } from '../TopReaderIn';
 
 interface ClassName extends CommentClassName {
   content?: string;
@@ -155,16 +154,7 @@ export default function CommentContainer({
             {topReader && (
               <>
                 <Separator />
-                <SimpleTooltip
-                  content={formatDate({
-                    value: topReader.issuedAt,
-                    type: TimeFormatType.TopReaderBadge,
-                  })}
-                >
-                  <TruncateText>
-                    Top reader in {topReader?.keyword?.flags?.title}
-                  </TruncateText>
-                </SimpleTooltip>
+                <TopReaderIn topReader={topReader} tooltip />
               </>
             )}
           </FlexRow>
