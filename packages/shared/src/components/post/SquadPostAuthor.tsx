@@ -15,6 +15,7 @@ import { TruncateText, DateFormat } from '../utilities';
 import { TimeFormatType } from '../../lib/dateFormat';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
+import { TopReaderIn } from '../TopReaderIn';
 
 interface SquadPostAuthorProps {
   className?: Partial<{
