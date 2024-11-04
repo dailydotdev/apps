@@ -149,7 +149,7 @@ const useSquadChecklist = ({
           component: NotificationChecklistStep,
         },
         actions,
-        condition: () => isPushSupported,
+        condition: () => !!isPushSupported,
       }),
     };
   }, [isChecklistReady, isInitialized, actions, squad, isPushSupported]);

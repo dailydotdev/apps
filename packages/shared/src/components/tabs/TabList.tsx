@@ -57,7 +57,12 @@ function TabList<T extends string = string>({
       }
 
       const scrollableParent =
-        currentActiveTab.current.parentElement.parentElement;
+        currentActiveTab.current.parentElement?.parentElement;
+
+      if (!scrollableParent) {
+        return;
+      }
+
       const scrollableParentRect = scrollableParent.getBoundingClientRect();
 
       if (
