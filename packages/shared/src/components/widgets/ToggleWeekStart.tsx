@@ -8,7 +8,8 @@ export const ToggleWeekStart = ({
 }: {
   className?: RadioClassName;
 }): ReactElement => {
-  const { streak, isLoading, updateStreakConfig } = useReadingStreak();
+  const { streak, isLoading, updateStreakConfig, isUpdatingConfig } =
+    useReadingStreak();
 
   const toggleWeekStart = (weekStart: string) => {
     updateStreakConfig({ weekStart: parseInt(weekStart, 10) });
@@ -20,7 +21,11 @@ export const ToggleWeekStart = ({
 
   return (
     <Radio
+      aria-busy={isUpdatingConfig}
+      className={className}
+      disabled={isUpdatingConfig}
       name="freeze-days"
+      onChange={toggleWeekStart}
       value={getDefaultStartOfWeek(streak.weekStart)}
       options={[
         {
@@ -32,8 +37,6 @@ export const ToggleWeekStart = ({
           value: DayOfWeek.Monday.toString(),
         },
       ]}
-      onChange={toggleWeekStart}
-      className={className}
     />
   );
 };
