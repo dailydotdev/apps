@@ -10,6 +10,7 @@ import {
   CampaignCtaPlacement,
   RemoteSettings,
   RemoteTheme,
+  type SettingsFlags,
   Spaciness,
   UPDATE_USER_SETTINGS_MUTATION,
 } from '../graphql/settings';
@@ -51,6 +52,7 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   toggleAutoDismissNotifications: () => Promise<void>;
   loadedSettings: boolean;
   updateCustomLinks: (links: string[]) => Promise<unknown>;
+  updateFlag: (flag: keyof SettingsFlags, value: boolean) => Promise<unknown>;
   syncSettings: (bootUserId?: string) => Promise<unknown>;
   onToggleHeaderPlacement(): Promise<unknown>;
   setOnboardingChecklistView: (value: ChecklistViewState) => Promise<unknown>;
@@ -115,6 +117,12 @@ const defaultSettings: RemoteSettings = {
   theme: remoteThemes[ThemeMode.Dark],
   campaignCtaPlacement: CampaignCtaPlacement.Header,
   onboardingChecklistView: ChecklistViewState.Hidden,
+  flags: {
+    sidebarSquadExpanded: true,
+    sidebarCustomFeedsExpanded: true,
+    sidebarOtherExpanded: true,
+    sidebarResourcesExpanded: true,
+  },
 };
 
 export const SettingsContextProvider = ({
@@ -238,6 +246,14 @@ export const SettingsContextProvider = ({
         setSettings({
           ...settings,
           onboardingChecklistView: value,
+        }),
+      updateFlag: (flag: keyof SettingsFlags, value: boolean) =>
+        setSettings({
+          ...settings,
+          flags: {
+            ...settings.flags,
+            [flag]: value,
+          },
         }),
       setSettings,
     }),

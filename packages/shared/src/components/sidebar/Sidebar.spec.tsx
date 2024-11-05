@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { LoggedUser } from '../../lib/user';
-import Sidebar from './Sidebar';
 import SettingsContext, {
   SettingsContextData,
   ThemeMode,
@@ -19,6 +18,7 @@ import { AlertContextProvider } from '../../contexts/AlertContext';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import { Alerts } from '../../graphql/alerts';
+import { SidebarDesktop } from './SidebarDesktop';
 
 let client: QueryClient;
 const updateAlerts = jest.fn();
@@ -34,11 +34,6 @@ const createMockFeedSettings = () => ({
 });
 
 const defaultAlerts: Alerts = { filter: true };
-
-const resizeWindow = (x, y) => {
-  window.resizeTo(x, y);
-  window.dispatchEvent(new Event('resize'));
-};
 
 const renderComponent = (
   alertsData = defaultAlerts,
@@ -94,7 +89,13 @@ const renderComponent = (
             }}
           >
             <SettingsContext.Provider value={settingsContext}>
-              <Sidebar sidebarRendered />
+              <SidebarDesktop
+                sidebarRendered
+                activePage="my-feed"
+                onLogoClick={jest.fn()}
+                onNavTabClick={jest.fn()}
+                isNavButtons={false}
+              />
             </SettingsContext.Provider>
           </ProgressiveEnhancementContext.Provider>
         </AuthContext.Provider>
@@ -103,17 +104,11 @@ const renderComponent = (
   );
 };
 
-it('should not render create my feed button if user has alerts.filter as false', async () => {
-  renderComponent({ filter: false });
-  const createMyFeed = screen.queryByText('Create my feed');
-  expect(createMyFeed).not.toBeInTheDocument();
-});
-
 it('should render the sidebar as open by default', async () => {
   renderComponent();
   const section = await screen.findByText('Discover');
   expect(section).toBeInTheDocument();
-  const sectionTwo = await screen.findByText('Activity');
+  const sectionTwo = await screen.findByText('Resources');
   expect(sectionTwo).toBeInTheDocument();
 });
 
@@ -131,14 +126,6 @@ it('should show the sidebar as closed if user has this set', async () => {
 
   const section = await screen.findByText('Discover');
   expect(section).toHaveClass('opacity-0');
-});
-
-it('should render the mobile sidebar version on small screens', async () => {
-  await resizeWindow(1019, 768);
-  renderComponent();
-
-  const sidebar = await screen.findByTestId('sidebar-aside');
-  expect(sidebar).toHaveClass('-translate-x-70');
 });
 
 it('should show the my feed items if the user has filters', async () => {
