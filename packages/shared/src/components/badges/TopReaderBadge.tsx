@@ -14,6 +14,8 @@ import { cloudinaryTopReaderBadgeBackground } from '../../lib/image';
 import { formatDate, TimeFormatType } from '../../lib/dateFormat';
 
 export type TopReader = {
+  id: string;
+  total: number;
   user: Pick<LoggedUser, 'name' | 'image' | 'username'>;
   issuedAt: Date | string;
   keyword: Pick<Keyword, 'value' | 'flags'>;
@@ -24,7 +26,7 @@ export const TopReaderBadge = ({
   user,
   issuedAt,
   keyword,
-}: TopReader): ReactElement => {
+}: Pick<TopReader, 'user' | 'issuedAt' | 'keyword'>): ReactElement => {
   const { name, username, image } = user;
   const formattedDate = formatDate({
     value: issuedAt,

@@ -654,8 +654,8 @@ export const USER_INTEGRATION_BY_ID = gql`
 `;
 
 export const TOP_READER_BADGE = gql`
-  query TopReaderBadge($limit: Int!) {
-    topReaderBadge(limit: $limit) {
+  query TopReaderBadge($userId: ID!, $limit: Int) {
+    topReaderBadge(limit: $limit, userId: $userId) {
       ...TopReader
     }
   }

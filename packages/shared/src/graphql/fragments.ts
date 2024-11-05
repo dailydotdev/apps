@@ -351,6 +351,7 @@ export const TOP_READER_BADGE_FRAGMENT = gql`
     id
     issuedAt
     image
+    total
     keyword {
       value
       flags {
