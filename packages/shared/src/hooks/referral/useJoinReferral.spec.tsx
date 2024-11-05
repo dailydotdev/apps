@@ -20,7 +20,7 @@ describe('useJoinReferral hook', () => {
           updateUser={jest.fn()}
           tokenRefreshed={false}
           isFetched
-          isAuthReady={false}
+          isAuthReady
         >
           {children}
         </AuthContextProvider>
