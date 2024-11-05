@@ -1,4 +1,9 @@
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import React, {
+  MouseEventHandler,
+  ReactElement,
+  useEffect,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import styles from './markdown.module.css';
 import { ProfileTooltip } from './profile/ProfileTooltip';
@@ -16,12 +21,19 @@ interface MarkdownProps {
 const TOOLTIP_SPACING = 8;
 const TOOLTIP_HALF_WIDTH = 140;
 
+function isMentionLink(
+  element: Element | EventTarget,
+): element is HTMLAnchorElement {
+  return (
+    element instanceof HTMLAnchorElement && !!element.dataset.mentionId?.length
+  );
+}
+
 export default function Markdown({
   className,
   content,
   appendTooltipTo,
 }: MarkdownProps): ReactElement {
-  const ref = useRef<HTMLDivElement>();
   const purify = useDomPurify();
   const [userId, setUserId] = useState('');
   const [offset, setOffset] = useState<CaretOffset>([0, 0]);
@@ -35,56 +47,6 @@ export default function Markdown({
   );
 
   useEffect(() => {
-    if (!content || !ref?.current) {
-      return;
-    }
-
-    const elements = Array.from(ref.current.getElementsByTagName('a')).filter(
-      (element) => !!element.getAttribute('data-mention-id'),
-    );
-
-    if (elements.length === 0) {
-      return;
-    }
-
-    const onHover = (e: MouseEvent & { target: HTMLElement }) => {
-      const element = e.target;
-      const id = element.getAttribute('data-mention-id');
-
-      if (!!id && id === userId) {
-        return;
-      }
-
-      const topOffset = element.parentElement.offsetTop + element.offsetTop;
-      const leftSpacing =
-        TOOLTIP_HALF_WIDTH - element.getBoundingClientRect().width / 2;
-      const result: CaretOffset = [
-        element.offsetLeft - leftSpacing,
-        topOffset * -1 + TOOLTIP_SPACING,
-      ];
-
-      cancelUserClearing();
-      setOffset(result);
-      setUserId(id);
-    };
-
-    elements.forEach((element) => {
-      element.addEventListener('mouseenter', onHover);
-      element.addEventListener('mouseleave', clearUser);
-    });
-
-    // eslint-disable-next-line consistent-return
-    return () => {
-      elements.forEach((element) => {
-        element.removeEventListener('mouseenter', onHover);
-        element.removeEventListener('mouseleave', clearUser);
-      });
-    };
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content, userId]);
-
-  useEffect(() => {
     if (data || !userId) {
       return;
     }
@@ -92,6 +54,35 @@ export default function Markdown({
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
+
+  const onHover: MouseEventHandler<HTMLDivElement> = (e) => {
+    const element = e.target;
+    if (!isMentionLink(element)) {
+      if (userId) {
+        clearUser();
+      }
+      return;
+    }
+
+    const id = element.dataset.mentionId;
+    const isSameUser = !!id && id === userId;
+
+    if (isSameUser) {
+      return;
+    }
+
+    const topOffset = element.parentElement.offsetTop + element.offsetTop;
+    const leftSpacing =
+      TOOLTIP_HALF_WIDTH - element.getBoundingClientRect().width / 2;
+    const result: CaretOffset = [
+      element.offsetLeft - leftSpacing,
+      topOffset * -1 + TOOLTIP_SPACING,
+    ];
+
+    cancelUserClearing();
+    setOffset(result);
+    setUserId(id);
+  };
 
   return (
     <ProfileTooltip
@@ -101,17 +92,16 @@ export default function Markdown({
         offset,
         visible: !!userId,
         onShow: cancelUserClearing,
+        onHide: clearUser,
         appendTo: appendTooltipTo || globalThis?.document?.body || 'parent',
       }}
-      onMouseEnter={cancelUserClearing}
-      onMouseLeave={clearUser}
     >
       <div
-        ref={ref}
         className={classNames(styles.markdown, className)}
         dangerouslySetInnerHTML={{
           __html: purify?.sanitize?.(content, { ADD_ATTR: ['target'] }),
         }}
+        onMouseOverCapture={onHover}
       />
     </ProfileTooltip>
   );
