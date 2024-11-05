@@ -38,9 +38,8 @@ export interface UseDevCard {
 
 export const useDevCard = (userId: string): UseDevCard => {
   const { requestMethod } = useRequestProtocol();
-  const queryKey = generateQueryKey(RequestKey.DevCard, { id: userId });
   const { data, isLoading } = useQuery<DevCardQueryData>({
-    queryKey,
+    queryKey: generateQueryKey(RequestKey.DevCard, { id: userId }),
 
     queryFn: async () =>
       await requestMethod(DEV_CARD_QUERY, {
@@ -49,8 +48,6 @@ export const useDevCard = (userId: string): UseDevCard => {
     staleTime: StaleTime.Default,
     enabled: !!userId,
   });
-
-  console.log({ queryKey, data });
 
   const { devCard, userStreakProfile } = data || {};
 
