@@ -23,7 +23,7 @@ export const TopReaderWidget = ({
 }: {
   user: PublicProfile;
 }): ReactElement => {
-  const { data: topReaders, isLoading: isTopReaderLoading } = useTopReader({
+  const { data: topReaders, isPending: isTopReaderLoading } = useTopReader({
     user,
     limit: 5,
   });
