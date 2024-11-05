@@ -17,6 +17,7 @@ import { UseDevCard } from '../../../hooks/profile/useDevCard';
 import { DevCardTwitterCover } from './DevCardTwitterCover';
 import { checkLowercaseEquality } from '../../../lib/strings';
 import { devcardBorder } from '../../../styles/custom';
+import { fallbackImages } from '../../../lib/config';
 
 export interface DevCardProps {
   type?: DevCardType;
@@ -55,6 +56,10 @@ export function DevCard({
       elementsClickable={isInteractive}
     />
   );
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <DevCardContainer
@@ -97,7 +102,7 @@ export function DevCard({
               style={{ borderColor: devcardBorder }}
             />
             <img
-              src={user.image}
+              src={user?.image ?? fallbackImages.avatar}
               alt={`avatar of ${user.name}`}
               className={classNames(
                 '-rotate-3 border-white object-cover',
