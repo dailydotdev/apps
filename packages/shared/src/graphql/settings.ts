@@ -9,6 +9,20 @@ export enum CampaignCtaPlacement {
   ProfileMenu = 'profileMenu',
 }
 
+export type SettingsFlags = {
+  sidebarSquadExpanded: boolean;
+  sidebarCustomFeedsExpanded: boolean;
+  sidebarOtherExpanded: boolean;
+  sidebarResourcesExpanded: boolean;
+};
+
+export enum SidebarSettingsFlags {
+  SquadExpanded = 'sidebarSquadExpanded',
+  CustomFeedsExpanded = 'sidebarCustomFeedsExpanded',
+  OtherExpanded = 'sidebarOtherExpanded',
+  ResourcesExpanded = 'sidebarResourcesExpanded',
+}
+
 export type RemoteSettings = {
   openNewTab: boolean;
   theme: RemoteTheme;
@@ -24,6 +38,7 @@ export type RemoteSettings = {
   customLinks?: string[];
   campaignCtaPlacement?: CampaignCtaPlacement;
   onboardingChecklistView: ChecklistViewState;
+  flags?: SettingsFlags;
 };
 
 export const UPDATE_USER_SETTINGS_MUTATION = gql`

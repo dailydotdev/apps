@@ -14,10 +14,7 @@ import dynamic from 'next/dynamic';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
-import {
-  SearchProviderEnum,
-  getSearchUrl,
-} from '@dailydotdev/shared/src/graphql/search';
+import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
@@ -54,11 +51,6 @@ export default function MainFeedPage({
   const { shouldUseListFeedLayout } = useFeedLayout({ feedRelated: false });
   useCompanionSettings();
   const { isActive: isDndActive, showDnd, setShowDnd } = useDndContext();
-  const enableSearch = () => {
-    window.location.assign(
-      getSearchUrl({ provider: SearchProviderEnum.Posts }),
-    );
-  };
 
   const onNavTabClick = useCallback(
     (tab: string): void => {
@@ -99,8 +91,6 @@ export default function MainFeedPage({
     setSearchQuery(undefined);
   };
 
-  const onShowDndClick = useCallback(() => setShowDnd(true), [setShowDnd]);
-
   return (
     <>
       <div className="fixed bottom-0 left-0 z-2 w-full">
@@ -111,10 +101,6 @@ export default function MainFeedPage({
         isNavItemsButton
         activePage={activePage}
         onLogoClick={onLogoClick}
-        showDnd={showDnd}
-        dndActive={isDndActive}
-        onShowDndClick={onShowDndClick}
-        enableSearch={enableSearch}
         onNavTabClick={onNavTabClick}
         screenCentered={false}
         customBanner={isDndActive && <DndBanner />}
