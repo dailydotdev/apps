@@ -27,14 +27,6 @@ export const TopReaderWidget = ({
     user,
     limit: 5,
   });
-  // const { data: topReader, isLoading: isTopReaderLoading } = useQuery({
-  //   queryKey: generateQueryKey(RequestKey.TopReaderBadge, user, 'latest'),
-  //   queryFn: async () => {
-  //     return await fetchTopReaders(5, user.id);
-  //   },
-  //   staleTime: StaleTime.OneHour,
-  //   ...disabledRefetch,
-  // });
 
   if (isTopReaderLoading || topReaders?.length === 0) {
     return null;
