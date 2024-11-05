@@ -128,7 +128,7 @@ export default function useOnPostClick({
         }
 
         if (!post.read) {
-          await checkReadingStreak();
+          checkReadingStreak();
         }
 
         if (eventName === 'go to link') {
@@ -153,7 +153,7 @@ export default function useOnPostClick({
               return;
             }
 
-            updateFeedPostCache({ index: postIndex });
+            await updateFeedPostCache({ index: postIndex });
           } else if (!feedName && shouldUseListFeedLayout) {
             const trySetPostRead = (queryKey: QueryKey, id: string) => {
               const updateFeedPost = updateCachedPagePost(
