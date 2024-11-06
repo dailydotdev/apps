@@ -47,7 +47,6 @@ export interface SidebarMenuItem {
     text?: string;
   };
   navItemRef?: MutableRefObject<HTMLElement>;
-  showActiveAsH1?: boolean;
 }
 
 interface ListIconProps {
@@ -67,7 +66,7 @@ interface NavItemProps {
 }
 
 export const navBtnClass =
-  'flex flex-1 items-center pl-2 laptop:pl-0 pr-5 laptop:pr-3 h-10 laptop:h-7';
+  'flex flex-1 items-center pl-2 laptop:pl-0 pr-5 laptop:pr-3 h-10 laptop:h-8';
 export const SidebarBackdrop = classed(
   'div',
   'fixed w-full h-full bg-overlay-quaternary-onion z-3 cursor-pointer inset-0',
@@ -80,11 +79,11 @@ export const SidebarScrollWrapper = classed(
   'div',
   'flex overflow-x-hidden overflow-y-auto flex-col h-full no-scrollbar',
 );
-export const Nav = classed('nav', 'my-4 mt-10 laptop:mt-8');
+export const Nav = classed('nav', 'my-4 mt-10 laptop:mt-4');
 export const NavSection = classed('ul', 'mt-0 laptop:mt-4');
 export const NavHeader = classed(
   'li',
-  'typo-footnote text-text-quaternary h-7 flex items-center font-bold  transition-opacity',
+  'typo-callout text-text-quaternary h-8 flex items-center font-bold  transition-opacity',
 );
 
 const RawNavItem = classed(
@@ -139,12 +138,11 @@ export const ItemInner = ({
   active,
 }: ItemInnerProps): ReactElement => {
   const Icon = shouldShowLabel ? ItemInnerIcon : ItemInnerIconTooltip;
-  const Tag = item.showActiveAsH1 && active ? 'h1' : 'span';
 
   return (
     <>
       <Icon {...item} active={active} />
-      <Tag
+      <span
         className={classNames(
           'flex-1 truncate text-left transition-opacity',
           shouldShowLabel ? 'opacity-100 delay-150' : 'opacity-0',
@@ -153,7 +151,7 @@ export const ItemInner = ({
         title={item.title}
       >
         {item.title}
-      </Tag>
+      </span>
       {item.rightIcon && (
         <ItemInnerIcon
           {...item}
