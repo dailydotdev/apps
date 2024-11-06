@@ -10,6 +10,7 @@ import React, { MouseEventHandler, ReactElement } from 'react';
 import { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
 import { combinedClicks } from '@dailydotdev/shared/src/lib/click';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import { SiteImage } from './ShortcutLinks/SiteImage';
 
 interface CustomLinksProps extends WithClassNameProps {
   links: string[];
@@ -50,13 +51,7 @@ export function CustomLinks({
           key={url}
           {...combinedClicks(onLinkClick)}
         >
-          <img
-            src={`https://api.daily.dev/icon?url=${encodeURIComponent(
-              url,
-            )}&size=${iconSize}`}
-            alt={url}
-            className="h-full w-full"
-          />
+          <SiteImage url={url} className="size-full" iconSize={iconSize} />
         </a>
       ))}
       <SimpleTooltip placement="left" content="Edit shortcuts">

@@ -26,6 +26,7 @@ import {
   cloudinaryShortcutsIconsStackoverflow,
 } from '@dailydotdev/shared/src/lib/image';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
+import { SiteImage } from '../SiteImage';
 
 const pixelRatio = globalThis?.window.devicePixelRatio ?? 1;
 const iconSize = Math.round(24 * pixelRatio);
@@ -91,13 +92,7 @@ function ShortcutV1Item({
       className="group mr-4 flex flex-col items-center"
     >
       <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
-        <img
-          src={`https://api.daily.dev/icon?url=${encodeURIComponent(
-            url,
-          )}&size=${iconSize}`}
-          alt={url}
-          className="size-6"
-        />
+        <SiteImage url={url} iconSize={iconSize} className="size-6" />
       </div>
       <span className="max-w-12 truncate text-text-tertiary typo-caption2">
         {cleanUrl}
