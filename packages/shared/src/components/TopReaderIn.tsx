@@ -23,6 +23,7 @@ export const TopReaderIn = ({
     value: topReader.issuedAt,
     type: TimeFormatType.TopReaderBadge,
   });
+  const text = `Top reader in ${topReader.keyword?.flags?.title}`;
 
   return (
     <ConditionalWrapper
@@ -31,15 +32,14 @@ export const TopReaderIn = ({
         return (
           <SimpleTooltip
             content={<time dateTime={dateTime}>{formattedDate}</time>}
+            ariaLabel={`${formattedDate} ${text}`}
           >
             {child as ReactElement}
           </SimpleTooltip>
         );
       }}
     >
-      <TruncateText>
-        Top reader in {topReader.keyword?.flags?.title}
-      </TruncateText>
+      <TruncateText>{text}</TruncateText>
     </ConditionalWrapper>
   );
 };
