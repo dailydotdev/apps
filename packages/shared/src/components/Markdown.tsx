@@ -1,6 +1,7 @@
 import React, {
   MouseEventHandler,
   ReactElement,
+  useCallback,
   useEffect,
   useState,
 } from 'react';
@@ -29,6 +30,13 @@ function isMentionLink(
   );
 }
 
+function getTooltipOffset(element: HTMLAnchorElement): CaretOffset {
+  const topOffset = element.parentElement.offsetTop + element.offsetTop;
+  const leftSpacing =
+    TOOLTIP_HALF_WIDTH - element.getBoundingClientRect().width / 2;
+  return [element.offsetLeft - leftSpacing, topOffset * -1 + TOOLTIP_SPACING];
+}
+
 export default function Markdown({
   className,
   content,
@@ -37,7 +45,7 @@ export default function Markdown({
   const purify = useDomPurify();
   const [userId, setUserId] = useState('');
   const [offset, setOffset] = useState<CaretOffset>([0, 0]);
-  const { fetchInfo, data } = useProfileTooltip({
+  const { enableFetchInfo, data } = useProfileTooltip({
     userId,
     requestUserInfo: true,
   });
@@ -50,37 +58,33 @@ export default function Markdown({
     if (data || !userId) {
       return;
     }
-    fetchInfo();
-  }, [data, fetchInfo, userId]);
+    enableFetchInfo();
+  }, [data, enableFetchInfo, userId]);
 
-  const onHover: MouseEventHandler<HTMLDivElement> = (e) => {
-    const element = e.target;
-    if (!isMentionLink(element)) {
-      if (userId) {
-        clearUser();
+  const onHoverHandler: MouseEventHandler<HTMLDivElement> = useCallback(
+    (e) => {
+      const element = e.target;
+
+      if (!isMentionLink(element)) {
+        if (userId) {
+          clearUser();
+        }
+        return;
       }
-      return;
-    }
 
-    const id = element.dataset.mentionId;
-    const isSameUser = !!id && id === userId;
+      const { mentionId } = element.dataset;
+      const isSameUser = mentionId === userId;
 
-    if (isSameUser) {
-      return;
-    }
+      if (isSameUser) {
+        return;
+      }
 
-    const topOffset = element.parentElement.offsetTop + element.offsetTop;
-    const leftSpacing =
-      TOOLTIP_HALF_WIDTH - element.getBoundingClientRect().width / 2;
-    const result: CaretOffset = [
-      element.offsetLeft - leftSpacing,
-      topOffset * -1 + TOOLTIP_SPACING,
-    ];
-
-    cancelUserClearing();
-    setOffset(result);
-    setUserId(id);
-  };
+      cancelUserClearing();
+      setOffset(getTooltipOffset(element));
+      setUserId(mentionId);
+    },
+    [cancelUserClearing, clearUser, userId],
+  );
 
   return (
     <ProfileTooltip
@@ -99,7 +103,7 @@ export default function Markdown({
         dangerouslySetInnerHTML={{
           __html: purify?.sanitize?.(content, { ADD_ATTR: ['target'] }),
         }}
-        onMouseOverCapture={onHover}
+        onMouseOverCapture={onHoverHandler}
         onMouseLeave={clearUser}
       />
     </ProfileTooltip>
