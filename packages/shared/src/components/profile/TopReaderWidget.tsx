@@ -37,11 +37,11 @@ export const TopReaderWidget = ({
     <ActivityContainer>
       <ActivitySectionHeader className="flex-wrap" title="Badges">
         <ActivitySectionSubTitle className="w-full">
-          Understand more how this is computed in
+          Understand more how this is computed in&nbsp;
           <ClickableText
+            className="!inline"
             tag="a"
             target="_blank"
-            className="ml-1"
             href={topReaderBadgeDocs}
           >
             daily.dev docs

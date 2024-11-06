@@ -16,7 +16,7 @@ export const ActivitySectionTitle = classed(
 
 export const ActivitySectionSubTitle = classed(
   'span',
-  'flex flex-row mt-1 text-text-tertiary typo-callout font-normal',
+  'mt-1 text-text-tertiary typo-callout font-normal',
 );
 
 export const ActivitySectionTitleStat = classed(
