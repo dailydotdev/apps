@@ -7,6 +7,7 @@ import type { Keyword } from '../../graphql/keywords';
 import {
   Typography,
   TypographyColor,
+  TypographyTag,
   TypographyType,
 } from '../typography/Typography';
 import { BadgeIcon } from './BadgeIcon';
@@ -63,6 +64,7 @@ export const TopReaderBadge = ({
         </Typography>
 
         <Typography
+          tag={TypographyTag.Time}
           type={TypographyType.Caption1}
           color={TypographyColor.Quaternary}
         >

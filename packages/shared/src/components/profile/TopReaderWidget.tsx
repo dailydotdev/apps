@@ -11,6 +11,7 @@ import { BadgeIconGoldGradient } from '../badges/BadgeIcon';
 import {
   Typography,
   TypographyColor,
+  TypographyTag,
   TypographyType,
 } from '../typography/Typography';
 import { formatDate, TimeFormatType } from '../../lib/dateFormat';
@@ -85,6 +86,7 @@ export const TopReaderWidget = ({
                   {badge.keyword.flags.title}
                 </Typography>
                 <Typography
+                  tag={TypographyTag.Time}
                   type={TypographyType.Caption2}
                   color={TypographyColor.Quaternary}
                 >
