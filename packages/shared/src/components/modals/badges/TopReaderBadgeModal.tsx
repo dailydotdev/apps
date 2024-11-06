@@ -29,7 +29,7 @@ const TopReaderBadgeModal = (
   const isMobile = useViewSize(ViewSize.MobileL);
 
   const { data: topReaders } = useTopReader({ user, limit: 1, badgeId });
-  const topReader = topReaders && topReaders[0];
+  const topReader = topReaders?.[0];
 
   const { mutateAsync: onDownloadUrl, isPending: downloading } = useMutation({
     mutationFn: downloadUrl,
