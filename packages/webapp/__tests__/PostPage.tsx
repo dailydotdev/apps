@@ -74,10 +74,10 @@ const showLogin = jest.fn();
 //     ),
 // }));
 
-const resizeWindow = (x, y) => {
-  window = Object.assign(window, { innerWidth: x, innerHeight: y });
-  fireEvent(window, new Event('resize'));
-};
+// const resizeWindow = (x, y) => {
+//   window = Object.assign(window, { innerWidth: x, innerHeight: y });
+//   fireEvent(window, new Event('resize'));
+// };
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
