@@ -54,7 +54,7 @@ function LazyImageComponent(
         absolute ? 'absolute' : 'relative',
         'overflow-hidden',
       )}
-      style={{ background, ...(props?.style ? { ...props.style } : undefined) }}
+      style={{ background, ...props?.style }}
       ref={ref}
     >
       {ratio && <div style={{ paddingTop: ratio, zIndex: -1 }} />}
