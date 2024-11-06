@@ -103,6 +103,7 @@ export const TopReaderBadge = ({
           src={cloudinaryTopReaderBadgeBackground}
           alt="Badge background"
           className="left-0 top-0 h-full w-full rounded-20 bg-background-default"
+          aria-hidden
         />
       </div>
     </div>
