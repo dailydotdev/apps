@@ -51,9 +51,7 @@ export default function Markdown({
       return;
     }
     fetchInfo();
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId]);
+  }, [data, fetchInfo, userId]);
 
   const onHover: MouseEventHandler<HTMLDivElement> = (e) => {
     const element = e.target;
@@ -102,6 +100,7 @@ export default function Markdown({
           __html: purify?.sanitize?.(content, { ADD_ATTR: ['target'] }),
         }}
         onMouseOverCapture={onHover}
+        onMouseLeave={clearUser}
       />
     </ProfileTooltip>
   );
