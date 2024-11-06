@@ -18,16 +18,19 @@ export const TopReaderIn = ({
     return null;
   }
 
+  const dateTime = new Date(topReader.issuedAt).toISOString();
+  const formattedDate = formatDate({
+    value: topReader.issuedAt,
+    type: TimeFormatType.TopReaderBadge,
+  });
+
   return (
     <ConditionalWrapper
       condition={tooltip}
       wrapper={(child) => {
         return (
           <SimpleTooltip
-            content={formatDate({
-              value: topReader.issuedAt,
-              type: TimeFormatType.TopReaderBadge,
-            })}
+            content={<time dateTime={dateTime}>{formattedDate}</time>}
           >
             {child as ReactElement}
           </SimpleTooltip>

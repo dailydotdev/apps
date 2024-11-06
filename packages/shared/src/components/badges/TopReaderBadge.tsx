@@ -67,6 +67,7 @@ export const TopReaderBadge = ({
           tag={TypographyTag.Time}
           type={TypographyType.Caption1}
           color={TypographyColor.Quaternary}
+          dateTime={new Date(issuedAt).toISOString()}
         >
           {formattedDate}
         </Typography>

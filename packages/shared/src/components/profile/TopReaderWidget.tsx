@@ -89,6 +89,7 @@ export const TopReaderWidget = ({
                   tag={TypographyTag.Time}
                   type={TypographyType.Caption2}
                   color={TypographyColor.Quaternary}
+                  dateTime={new Date(badge.issuedAt).toISOString()}
                 >
                   {formatDate({
                     value: badge.issuedAt,
