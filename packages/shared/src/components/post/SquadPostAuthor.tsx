@@ -15,6 +15,7 @@ import { TruncateText, DateFormat } from '../utilities';
 import { TimeFormatType } from '../../lib/dateFormat';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
+import { TopReaderIn } from '../TopReaderIn';
 
 interface SquadPostAuthorProps {
   className?: Partial<{
@@ -107,6 +108,12 @@ function SquadPostAuthor({
             </TruncateText>
             {!!date && <Separator />}
             {!!date && <DateFormat date={date} type={TimeFormatType.Post} />}
+            {author?.topReader && (
+              <>
+                <Separator />
+                <TopReaderIn topReader={author.topReader} />
+              </>
+            )}
           </div>
         </a>
       </ProfileTooltip>

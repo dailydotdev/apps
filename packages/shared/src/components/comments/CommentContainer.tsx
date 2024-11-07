@@ -18,6 +18,8 @@ import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { CardLink } from '../cards/common/Card';
 import { ReputationUserBadge } from '../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
+import { Separator } from '../cards/common/common';
+import { TopReaderIn } from '../TopReaderIn';
 
 interface ClassName extends CommentClassName {
   content?: string;
@@ -59,6 +61,8 @@ export default function CommentContainer({
     source: post.source,
     user: comment.author,
   });
+
+  const topReader = comment.author?.topReader;
 
   return (
     <article
@@ -145,8 +149,14 @@ export default function CommentContainer({
                 @{comment.author.username}
               </TruncateText>
             </ProfileLink>
-            <div className="mx-2 h-0.5 w-0.5 bg-text-quaternary" />
+            <Separator />
             <CommentPublishDate comment={comment} />
+            {topReader && (
+              <>
+                <Separator />
+                <TopReaderIn topReader={topReader} tooltip />
+              </>
+            )}
           </FlexRow>
         </div>
       </header>

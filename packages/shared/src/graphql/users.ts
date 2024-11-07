@@ -2,6 +2,7 @@ import { gql } from 'graphql-request';
 import { subDays } from 'date-fns';
 import {
   SHARED_POST_INFO_FRAGMENT,
+  TOP_READER_BADGE_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
   USER_STREAK_FRAGMENT,
 } from './fragments';
@@ -650,4 +651,29 @@ export const USER_INTEGRATION_BY_ID = gql`
       name
     }
   }
+`;
+
+export const TOP_READER_BADGE = gql`
+  query TopReaderBadge($userId: ID!, $limit: Int) {
+    topReaderBadge(limit: $limit, userId: $userId) {
+      ...TopReader
+    }
+  }
+
+  ${TOP_READER_BADGE_FRAGMENT}
+`;
+
+export const TOP_READER_BADGE_BY_ID = gql`
+  query TopReaderBadgeById($id: ID!) {
+    topReaderBadgeById(id: $id) {
+      ...TopReader
+      user {
+        name
+        username
+        image
+      }
+    }
+  }
+
+  ${TOP_READER_BADGE_FRAGMENT}
 `;
