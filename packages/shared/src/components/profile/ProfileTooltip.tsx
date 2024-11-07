@@ -22,8 +22,6 @@ export interface ProfileTooltipProps extends ProfileTooltipContentProps {
 export interface ProfileTooltipContentProps {
   userId: Author['id'];
   data?: UserTooltipContentData;
-  onMouseEnter?: () => unknown;
-  onMouseLeave?: () => unknown;
 }
 
 export function ProfileTooltip({
@@ -33,9 +31,9 @@ export function ProfileTooltip({
   scrollingContainer,
   tooltip = {},
 }: Omit<ProfileTooltipProps, 'user'>): ReactElement {
-  const [id, setId] = useState<string>();
   const query = useQueryClient();
   const handler = useRef<() => void>();
+  const [id, setId] = useState('');
   const data = useDevCard(id);
 
   const onShow = () => {
@@ -59,9 +57,12 @@ export function ProfileTooltip({
   const props: TooltipProps = {
     showArrow: false,
     interactive: true,
-    onShow,
     onHide,
-    onTrigger: () => setId(userId),
+    onShow,
+    onTrigger: () => {
+      console.log('onTrigger');
+      setId(userId);
+    },
     appendTo: tooltip?.appendTo || globalThis?.document?.body,
     container: { bgClassName: null },
     content: data ? <DevCard data={data} type={DevCardType.Compact} /> : null,
