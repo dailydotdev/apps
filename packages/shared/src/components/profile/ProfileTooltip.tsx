@@ -1,4 +1,4 @@
-import React, { ReactElement, useRef } from 'react';
+import React, { ReactElement, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Author } from '../../graphql/comments';
 import { TooltipProps } from '../tooltips/BaseTooltip';
@@ -22,6 +22,8 @@ export interface ProfileTooltipProps extends ProfileTooltipContentProps {
 export interface ProfileTooltipContentProps {
   userId: Author['id'];
   data?: UserTooltipContentData;
+  onMouseEnter?: () => unknown;
+  onMouseLeave?: () => unknown;
 }
 
 export function ProfileTooltip({
@@ -31,9 +33,10 @@ export function ProfileTooltip({
   scrollingContainer,
   tooltip = {},
 }: Omit<ProfileTooltipProps, 'user'>): ReactElement {
+  const [id, setId] = useState<string>();
   const query = useQueryClient();
   const handler = useRef<() => void>();
-  const data = useDevCard(userId);
+  const data = useDevCard(id);
 
   const onShow = () => {
     if (!scrollingContainer) {
@@ -58,6 +61,7 @@ export function ProfileTooltip({
     interactive: true,
     onShow,
     onHide,
+    onTrigger: () => setId(userId),
     appendTo: tooltip?.appendTo || globalThis?.document?.body,
     container: { bgClassName: null },
     content: data ? <DevCard data={data} type={DevCardType.Compact} /> : null,

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Author } from '../graphql/comments';
 import {
@@ -16,7 +16,7 @@ export type UserTooltipContentData = {
 };
 
 interface UseProfileTooltip {
-  enableFetchInfo: () => unknown;
+  fetchInfo: () => unknown;
   data?: UserTooltipContentData;
   isLoading: boolean;
 }
@@ -57,9 +57,12 @@ export const useProfileTooltip = ({
     }
   }, [data, error]);
 
-  return {
-    data,
-    isLoading: isPending,
-    enableFetchInfo: () => setShouldFetch(true),
-  };
+  return useMemo(
+    () => ({
+      data,
+      isLoading: isPending,
+      fetchInfo: () => setShouldFetch(true),
+    }),
+    [data, isPending, setShouldFetch],
+  );
 };
