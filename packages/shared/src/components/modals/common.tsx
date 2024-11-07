@@ -184,6 +184,12 @@ const NewSquadModal = dynamic(
   () =>
     import(/* webpackChunkName: "newSquadModal" */ './squads/NewSquadModal'),
 );
+const TopReaderBadgeModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "topReaderBadgeModal" */ './badges/TopReaderBadgeModal'
+    ),
+);
 
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
@@ -217,6 +223,7 @@ export const modals = {
   [LazyModal.ReasonSelection]: ReasonSelectionModal,
   [LazyModal.PostModeration]: PostModerationModal,
   [LazyModal.NewSquad]: NewSquadModal,
+  [LazyModal.TopReaderBadge]: TopReaderBadgeModal,
 };
 
 type GetComponentProps<T> = T extends

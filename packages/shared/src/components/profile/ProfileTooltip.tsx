@@ -1,4 +1,4 @@
-import React, { ReactElement, useRef } from 'react';
+import React, { ReactElement, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Author } from '../../graphql/comments';
 import { TooltipProps } from '../tooltips/BaseTooltip';
@@ -8,8 +8,8 @@ import {
 } from '../tooltips/LinkWithTooltip';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { DevCard, DevCardType } from './devcard';
-import { UserTooltipContentData } from '../../hooks/useProfileTooltip';
 import { useDevCard } from '../../hooks/profile/useDevCard';
+import { MostReadTag, UserReadingRank } from '../../graphql/users';
 
 export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   children: ReactElement;
@@ -18,6 +18,12 @@ export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   nativeLazyLoading?: boolean;
   scrollingContainer?: HTMLElement;
 }
+
+export type UserTooltipContentData = {
+  rank: UserReadingRank;
+  tags: MostReadTag[];
+  user?: Author;
+};
 
 export interface ProfileTooltipContentProps {
   userId: Author['id'];
@@ -33,7 +39,8 @@ export function ProfileTooltip({
 }: Omit<ProfileTooltipProps, 'user'>): ReactElement {
   const query = useQueryClient();
   const handler = useRef<() => void>();
-  const data = useDevCard(userId);
+  const [id, setId] = useState('');
+  const data = useDevCard(id);
 
   const onShow = () => {
     if (!scrollingContainer) {
@@ -56,12 +63,21 @@ export function ProfileTooltip({
   const props: TooltipProps = {
     showArrow: false,
     interactive: true,
-    onShow,
     onHide,
     appendTo: tooltip?.appendTo || globalThis?.document?.body,
     container: { bgClassName: null },
     content: data ? <DevCard data={data} type={DevCardType.Compact} /> : null,
     ...tooltip,
+    onShow: (instance) => {
+      if (id !== userId) {
+        setId(userId);
+      }
+      if (typeof tooltip.onShow === 'function') {
+        tooltip.onShow(instance);
+        return;
+      }
+      onShow();
+    },
   };
 
   if (link) {

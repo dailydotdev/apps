@@ -2,13 +2,11 @@ import React, {
   MouseEventHandler,
   ReactElement,
   useCallback,
-  useEffect,
   useState,
 } from 'react';
 import classNames from 'classnames';
 import styles from './markdown.module.css';
 import { ProfileTooltip } from './profile/ProfileTooltip';
-import { useProfileTooltip } from '../hooks/useProfileTooltip';
 import { CaretOffset } from '../lib/element';
 import useDebounceFn from '../hooks/useDebounceFn';
 import { useDomPurify } from '../hooks/useDomPurify';
@@ -45,21 +43,10 @@ export default function Markdown({
   const purify = useDomPurify();
   const [userId, setUserId] = useState('');
   const [offset, setOffset] = useState<CaretOffset>([0, 0]);
-  const { enableFetchInfo, data } = useProfileTooltip({
-    userId,
-    requestUserInfo: true,
-  });
   const [clearUser, cancelUserClearing] = useDebounceFn(
     () => setUserId(''),
     200,
   );
-
-  useEffect(() => {
-    if (data || !userId) {
-      return;
-    }
-    enableFetchInfo();
-  }, [data, enableFetchInfo, userId]);
 
   const onHoverHandler: MouseEventHandler<HTMLDivElement> = useCallback(
     (e) => {
