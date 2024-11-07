@@ -75,7 +75,7 @@ function SquadPostAuthor({
         <a
           href={author.permalink}
           className={classNames(
-            'ml-4 flex flex-col overflow-hidden',
+            'ml-4 flex shrink flex-col overflow-hidden',
             className?.details,
           )}
         >
