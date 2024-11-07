@@ -47,7 +47,7 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement {
       {...props}
     >
       <Modal.Body>
-        <div className="mx-auto mb-2">{icon}</div>
+        {icon && <div className="mx-auto mb-2">{icon}</div>}
         <Title className={className.title}>{title}</Title>
         {!!description && (
           <Description className={className.description}>
