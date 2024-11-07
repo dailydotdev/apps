@@ -87,7 +87,7 @@ export const TopReaderWidget = ({
                     tag={TypographyTag.Link}
                     type={TypographyType.Caption1}
                     color={TypographyColor.Primary}
-                    className="rounded-6 border border-border-subtlest-tertiary px-2.5 py-0.5"
+                    className="rounded-6 border border-border-subtlest-tertiary px-2.5 py-0.5 transition duration-200 hover:bg-background-popover"
                   >
                     {badge.keyword.flags.title}
                   </Typography>
