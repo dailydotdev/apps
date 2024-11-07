@@ -560,15 +560,15 @@ export interface CreatePostProps
 }
 
 export type CreatePostModerationProps = {
-  sourceId: string;
   title?: string;
   content?: string;
+  sourceId: string;
+  type: PostType;
+  sharedPostId?: string;
+  externalLink?: string;
   imageUrl?: string;
   image?: File;
-  sharedPostId?: string;
   commentary?: string;
-  type: PostType;
-  url?: string;
 };
 
 export type SourcePostModeration = {
@@ -629,25 +629,25 @@ export const swapPinnedPosts = async (
 export const CREATE_SOURCE_POST_MODERATION_MUTATION = gql`
   mutation CreateSourcePostModeration(
     $sourceId: ID!
-    $title: String!
     $type: String!
+    $title: String
     $content: String
     $commentary: String
     $sharedPostId: ID
     $image: Upload
     $imageUrl: String
-    $url: String
+    $externalLink: String
   ) {
     createSourcePostModeration(
       sourceId: $sourceId
-      title: $title
       type: $type
+      title: $title
       content: $content
       sharedPostId: $sharedPostId
       commentary: $commentary
       image: $image
       imageUrl: $imageUrl
-      url: $url
+      externalLink: $externalLink
     ) {
       id
       title
@@ -655,6 +655,7 @@ export const CREATE_SOURCE_POST_MODERATION_MUTATION = gql`
       content
       type
       sourceId
+      externalLink
     }
   }
 `;

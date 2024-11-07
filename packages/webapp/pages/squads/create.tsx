@@ -47,7 +47,7 @@ import {
   WriteFormTabToFormID,
 } from '@dailydotdev/shared/src/components/fields/form/common';
 import useSourcePostModeration from '@dailydotdev/shared/src/hooks/source/useSourcePostModeration';
-import { isPrivilegedMember } from '@dailydotdev/shared/src/components/squads/utils';
+import { moderationRequired } from '@dailydotdev/shared/src/components/squads/utils';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
@@ -172,7 +172,7 @@ function CreatePost(): ReactElement {
     }
 
     if (squads.some(({ id }) => squad.id === id)) {
-      if (squad.moderationRequired && !isPrivilegedMember(squad)) {
+      if (moderationRequired(squad)) {
         return onCreatePostModeration({
           ...params,
           sourceId: squad.id,

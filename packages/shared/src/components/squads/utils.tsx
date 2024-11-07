@@ -45,4 +45,7 @@ export const ManageSquadPageContainer = classed(
 export const ManageSquadPageMain = classed('div', 'flex flex-1 flex-col');
 
 export const isPrivilegedMember = (squad: Squad): boolean =>
-  squad.currentMember?.permissions?.includes(SourcePermissions.Moderate);
+  squad?.currentMember?.permissions?.includes(SourcePermissions.ModeratePost);
+
+export const moderationRequired = (squad: Squad): boolean =>
+  squad?.moderationRequired && !isPrivilegedMember(squad);

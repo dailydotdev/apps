@@ -29,7 +29,7 @@ export enum SourcePermissions {
   Edit = 'edit',
   WelcomePostEdit = 'welcome_post_edit',
   ConnectSlack = 'connect_slack',
-  Moderate = 'moderate',
+  ModeratePost = 'moderate_post',
 }
 
 export type SourceMemberFlag = Partial<{

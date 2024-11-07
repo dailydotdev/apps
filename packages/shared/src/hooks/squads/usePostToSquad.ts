@@ -9,6 +9,7 @@ import {
   ExternalLinkPreview,
   getExternalLinkPreview,
   Post,
+  PostType,
   SubmitExternalLink,
   submitExternalLink,
 } from '../../graphql/posts';
@@ -24,6 +25,9 @@ import { ActionType } from '../../graphql/actions';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions } from '../useActions';
 import { useRequestProtocol } from '../useRequestProtocol';
+import useSourcePostModeration from '../source/useSourcePostModeration';
+import { Squad } from '../../graphql/sources';
+import { moderationRequired } from '../../components/squads/utils';
 
 interface UsePostToSquad {
   preview: ExternalLinkPreview;
@@ -37,7 +41,7 @@ interface UsePostToSquad {
   >;
   onSubmitPost: (
     e: BaseSyntheticEvent,
-    sourceId: string,
+    squad: Squad,
     commentary: string,
   ) => Promise<unknown>;
   onUpdatePost: (
@@ -83,6 +87,15 @@ export const usePostToSquad = ({
         const message = rateLimited?.message ?? DEFAULT_ERROR;
         displayToast(message);
         callback?.onError?.(err, link, ...params);
+      },
+    });
+  const { onCreatePostModeration, isSuccess: isCreatingPostModeration } =
+    useSourcePostModeration({
+      onSuccess: () => {
+        // TODO: Will implement moderation modal popup in MI-583
+      },
+      onError: () => {
+        displayToast(DEFAULT_ERROR);
       },
     });
 
@@ -142,24 +155,35 @@ export const usePostToSquad = ({
   });
 
   const isPosting =
-    isPostLoading || isLinkLoading || isPostSuccess || isLinkSuccess;
+    isPostLoading ||
+    isLinkLoading ||
+    isPostSuccess ||
+    isLinkSuccess ||
+    isCreatingPostModeration;
 
   const isUpdating = isUpdatePostSuccess || isUpdatePostLoading;
 
   const onSubmitPost = useCallback<UsePostToSquad['onSubmitPost']>(
-    (e, sourceId, commentary) => {
+    (e, squad, commentary) => {
       e?.preventDefault();
-
       if (isPosting) {
         return null;
       }
 
       if (preview.id) {
-        return onPost({
-          id: preview.id,
-          sourceId,
-          commentary,
-        });
+        return moderationRequired(squad)
+          ? onCreatePostModeration({
+              type: PostType.Share,
+              sourceId: squad.id,
+              sharedPostId: preview.id,
+              externalLink: preview?.url,
+              commentary,
+            })
+          : onPost({
+              id: preview.id,
+              sourceId: squad.id,
+              commentary,
+            });
       }
 
       const { title, image, url } = preview;
@@ -169,15 +193,31 @@ export const usePostToSquad = ({
         return null;
       }
 
-      return onSubmitLink({
-        url,
-        title,
-        image,
-        sourceId,
-        commentary,
-      });
+      return moderationRequired(squad)
+        ? onCreatePostModeration({
+            externalLink: url,
+            title,
+            imageUrl: image,
+            type: PostType.Share,
+            sourceId: squad.id,
+            commentary,
+          })
+        : onSubmitLink({
+            url,
+            title,
+            image,
+            sourceId: squad.id,
+            commentary,
+          });
     },
-    [preview, displayToast, onSubmitLink, onPost, isPosting],
+    [
+      preview,
+      displayToast,
+      onSubmitLink,
+      onPost,
+      isPosting,
+      onCreatePostModeration,
+    ],
   );
 
   const onUpdatePost = useCallback<UsePostToSquad['onUpdatePost']>(
