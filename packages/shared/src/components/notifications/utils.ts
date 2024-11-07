@@ -13,6 +13,7 @@ import {
   StarIcon,
   DevCardIcon,
   ReadingStreakIcon,
+  TimerIcon,
 } from '../icons';
 import { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
@@ -68,6 +69,7 @@ export enum NotificationIconType {
   BookmarkReminder = 'BookmarkReminder',
   Streak = 'Streak',
   TopReaderBadge = 'TopReaderBadge',
+  Timer = 'Timer',
 }
 
 export const notificationIcon: Record<
@@ -87,6 +89,7 @@ export const notificationIcon: Record<
   [NotificationIconType.BookmarkReminder]: BookmarkReminderIcon,
   [NotificationIconType.Streak]: ReadingStreakIcon,
   [NotificationIconType.TopReaderBadge]: BellIcon,
+  [NotificationIconType.Timer]: TimerIcon,
 };
 
 export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
@@ -103,6 +106,7 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
   [NotificationIconType.BookmarkReminder]: 'text-accent-bun-default',
   [NotificationIconType.Streak]: '',
   [NotificationIconType.TopReaderBadge]: 'text-brand-default',
+  [NotificationIconType.Timer]: 'text-brand-default',
 };
 
 export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
