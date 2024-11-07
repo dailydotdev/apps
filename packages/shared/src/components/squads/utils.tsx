@@ -13,9 +13,9 @@ import {
 } from '../utilities';
 import { SourcePermissions, Squad } from '../../graphql/sources';
 import { TimerIcon } from '../icons';
-import { Modal } from '../modals/common/Modal';
 import { IconSize } from '../Icon';
 import { PromptOptions } from '../../hooks/usePrompt';
+import { ModalSize } from '../modals/common/types';
 
 export const SquadTitle = ({
   children,
@@ -63,6 +63,6 @@ export const createModerationPromptProps: PromptOptions = {
     className: 'tablet:w-full',
   },
   cancelButton: null,
-  promptSize: Modal.Size.XSmall,
+  promptSize: ModalSize.XSmall,
   icon: <TimerIcon size={IconSize.XXXLarge} />,
 };
