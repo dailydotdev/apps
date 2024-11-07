@@ -58,15 +58,20 @@ export function ProfileTooltip({
     showArrow: false,
     interactive: true,
     onHide,
-    onShow,
-    onTrigger: () => {
-      console.log('onTrigger');
-      setId(userId);
-    },
     appendTo: tooltip?.appendTo || globalThis?.document?.body,
     container: { bgClassName: null },
     content: data ? <DevCard data={data} type={DevCardType.Compact} /> : null,
     ...tooltip,
+    onShow: (instance) => {
+      if (id !== userId) {
+        setId(userId);
+      }
+      if (typeof tooltip.onShow === 'function') {
+        tooltip.onShow(instance);
+        return;
+      }
+      onShow();
+    },
   };
 
   if (link) {
