@@ -116,3 +116,5 @@ export * from './Youtube';
 export * from './CodePen';
 export * from './Language';
 export * from './RemoveUser';
+export * from './MedalBadge';
+export * from './Download';

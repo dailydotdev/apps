@@ -10,6 +10,8 @@ import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { FollowButton } from '../contentPreference/FollowButton';
 import { Origin } from '../../lib/log';
+import { Separator } from '../cards/common/common';
+import { TopReaderIn } from '../TopReaderIn';
 
 type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? JSX.IntrinsicElements[Tag]
@@ -66,7 +68,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
   ref?: Ref<Tag>,
 ): ReactElement => {
   const Element = (tag || 'a') as React.ElementType;
-  const { name, username, bio, companies } = user;
+  const { name, username, bio, companies, topReader } = user;
   const tooltipProps: TooltipProps = {
     appendTo: appendTooltipTo || globalThis?.document?.body || 'parent',
     visible: disableTooltip ? false : undefined,
@@ -108,9 +110,18 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
             )}
             <ReputationUserBadge user={user} />
           </div>
-          <TruncateText className="text-text-secondary" title={`@${username}`}>
-            {transformUsername ? transformUsername(user) : `@${username}`}
-          </TruncateText>
+          <div className="flex text-text-secondary">
+            <TruncateText title={`@${username}`}>
+              {transformUsername ? transformUsername(user) : `@${username}`}
+            </TruncateText>
+
+            {topReader && (
+              <>
+                <Separator />
+                <TopReaderIn topReader={topReader} />
+              </>
+            )}
+          </div>
           {bio && showDescription && (
             <span className="mt-1 text-text-tertiary">{bio}</span>
           )}

@@ -43,6 +43,7 @@ export interface TooltipProps
     'placement' | 'children' | 'showArrow'
   >;
   forceLoad?: boolean;
+  ariaLabel?: string;
 }
 
 export interface BaseTooltipProps extends Omit<TippyProps, 'arrow'> {

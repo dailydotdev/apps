@@ -19,6 +19,7 @@ export function SimpleTooltip({
   onTrigger,
   onShow,
   forceLoad,
+  ariaLabel,
   ...props
 }: TooltipProps & { show?: boolean }): ReactElement {
   /**
@@ -29,7 +30,9 @@ export function SimpleTooltip({
   let shouldShow = true;
   const component = useMemo(() => {
     const tooltipProps = {};
-    if (typeof content === 'string') {
+    if (ariaLabel) {
+      tooltipProps['aria-label'] = ariaLabel;
+    } else if (typeof content === 'string') {
       tooltipProps['aria-label'] = content;
     }
 
