@@ -102,7 +102,7 @@ function CreatePost(): ReactElement {
     useSourcePostModeration({
       onSuccess: async () => {
         clearDraft();
-        // TODO: Will implement moderation modal popup in MI-583
+        push(squad.permalink);
       },
     });
   const {

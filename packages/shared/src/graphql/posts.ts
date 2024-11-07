@@ -581,7 +581,7 @@ export type SourcePostModeration = {
   type: string;
   sourceId: string;
   sharedPostId?: string;
-  url?: string;
+  externalLink?: string;
 };
 
 export const editPost = async (

@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ReactNode, useCallback } from 'react';
+import { ReactElement, ReactNode, useCallback } from 'react';
 import { ButtonProps } from '../components/buttons/Button';
 import { ModalSize } from '../components/modals/common/types';
 import { generateQueryKey, RequestKey } from '../lib/query';
@@ -12,6 +12,7 @@ export type PromptButtonProps = Omit<ButtonProps<'button'>, 'onClick'> & {
 
 export type PromptOptions = {
   title: string;
+  icon?: ReactElement;
   description?: string | ReactNode;
   okButton?: PromptButtonProps;
   cancelButton?: PromptButtonProps;

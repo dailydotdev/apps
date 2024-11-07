@@ -31,6 +31,7 @@ import { moderationRequired } from '../../components/squads/utils';
 
 interface UsePostToSquad {
   preview: ExternalLinkPreview;
+  isSuccess: boolean;
   isPosting: boolean;
   isLoadingPreview: boolean;
   onUpdatePreview: (preview: ExternalLinkPreview) => void;
@@ -89,15 +90,16 @@ export const usePostToSquad = ({
         callback?.onError?.(err, link, ...params);
       },
     });
-  const { onCreatePostModeration, isSuccess: isCreatingPostModeration } =
-    useSourcePostModeration({
-      onSuccess: () => {
-        // TODO: Will implement moderation modal popup in MI-583
-      },
-      onError: () => {
-        displayToast(DEFAULT_ERROR);
-      },
-    });
+
+  const {
+    onCreatePostModeration,
+    isSuccess: didCreatePostModeration,
+    isPending: isPostModerationLoading,
+  } = useSourcePostModeration({
+    onError: () => {
+      displayToast(DEFAULT_ERROR);
+    },
+  });
 
   const onSharedPostSuccessfully = async (update = false) => {
     displayToast(
@@ -154,14 +156,12 @@ export const usePostToSquad = ({
     },
   });
 
-  const isPosting =
-    isPostLoading ||
-    isLinkLoading ||
-    isPostSuccess ||
-    isLinkSuccess ||
-    isCreatingPostModeration;
+  const isPosting = isPostLoading || isLinkLoading || isPostModerationLoading;
 
-  const isUpdating = isUpdatePostSuccess || isUpdatePostLoading;
+  const isUpdating =
+    isUpdatePostSuccess || isUpdatePostLoading || isPostModerationLoading;
+
+  const isSuccess = didCreatePostModeration || isPostSuccess || isLinkSuccess;
 
   const onSubmitPost = useCallback<UsePostToSquad['onSubmitPost']>(
     (e, squad, commentary) => {
@@ -243,6 +243,7 @@ export const usePostToSquad = ({
     onUpdatePost,
     isPosting,
     preview,
+    isSuccess,
     onUpdatePreview: setPreview,
   };
 };

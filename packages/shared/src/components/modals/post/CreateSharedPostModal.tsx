@@ -1,4 +1,10 @@
-import React, { FormEventHandler, ReactElement, useRef, useState } from 'react';
+import React, {
+  FormEventHandler,
+  ReactElement,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { Modal, ModalProps } from '../common/Modal';
 import { ExternalLinkPreview } from '../../../graphql/posts';
 import MarkdownInput, { MarkdownRef } from '../../fields/MarkdownInput';
@@ -41,6 +47,7 @@ export function CreateSharedPostModal({
     getLinkPreview,
     isLoadingPreview,
     preview: updatedPreview,
+    isSuccess,
     isPosting,
     onSubmitPost,
   } = usePostToSquad({
@@ -53,6 +60,13 @@ export function CreateSharedPostModal({
       onRequestClose(null);
     },
   });
+
+  useEffect(() => {
+    if (isSuccess) {
+      onRequestClose(null);
+    }
+  }, [isSuccess, onRequestClose]);
+
   const onFormSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
 

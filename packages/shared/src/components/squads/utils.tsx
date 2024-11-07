@@ -12,6 +12,10 @@ import {
   WithClassNameProps,
 } from '../utilities';
 import { SourcePermissions, Squad } from '../../graphql/sources';
+import { TimerIcon } from '../icons';
+import { Modal } from '../modals/common/Modal';
+import { IconSize } from '../Icon';
+import { PromptOptions } from '../../hooks/usePrompt';
 
 export const SquadTitle = ({
   children,
@@ -49,3 +53,16 @@ export const isPrivilegedMember = (squad: Squad): boolean =>
 
 export const moderationRequired = (squad: Squad): boolean =>
   squad?.moderationRequired && !isPrivilegedMember(squad);
+
+export const createModerationPromptProps: PromptOptions = {
+  title: 'Your post has been submitted for review',
+  description:
+    "Your post is now waiting for the admin's approval. We'll notify you once it's been reviewed.",
+  okButton: {
+    title: 'Got it',
+    className: 'tablet:w-full',
+  },
+  cancelButton: null,
+  promptSize: Modal.Size.XSmall,
+  icon: <TimerIcon size={IconSize.XXXLarge} />,
+};
