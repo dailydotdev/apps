@@ -8,8 +8,8 @@ import {
 } from '../tooltips/LinkWithTooltip';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { DevCard, DevCardType } from './devcard';
-import { UserTooltipContentData } from '../../hooks/useProfileTooltip';
 import { useDevCard } from '../../hooks/profile/useDevCard';
+import { MostReadTag, UserReadingRank } from '../../graphql/users';
 
 export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   children: ReactElement;
@@ -18,6 +18,12 @@ export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   nativeLazyLoading?: boolean;
   scrollingContainer?: HTMLElement;
 }
+
+export type UserTooltipContentData = {
+  rank: UserReadingRank;
+  tags: MostReadTag[];
+  user?: Author;
+};
 
 export interface ProfileTooltipContentProps {
   userId: Author['id'];
