@@ -10,6 +10,7 @@ import React, { MouseEventHandler, ReactElement } from 'react';
 import { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
 import { combinedClicks } from '@dailydotdev/shared/src/lib/click';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 
 interface CustomLinksProps extends WithClassNameProps {
   links: string[];
@@ -51,7 +52,7 @@ export function CustomLinks({
           {...combinedClicks(onLinkClick)}
         >
           <img
-            src={`https://api.daily.dev/icon?url=${encodeURIComponent(
+            src={`${apiUrl}/icon?url=${encodeURIComponent(
               url,
             )}&size=${iconSize}`}
             alt={url}
