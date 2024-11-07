@@ -4,7 +4,7 @@ import {
   ActivitySectionHeader,
   ActivitySectionSubTitle,
 } from './ActivitySection';
-import { topReaderBadgeDocs } from '../../lib/constants';
+import { topReaderBadgeDocs, webappUrl } from '../../lib/constants';
 import { MedalBadgeIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { BadgeIconGoldGradient } from '../badges/BadgeIcon';
@@ -18,6 +18,7 @@ import { formatDate, TimeFormatType } from '../../lib/dateFormat';
 import type { PublicProfile } from '../../lib/user';
 import { ClickableText } from '../buttons/ClickableText';
 import { useTopReader } from '../../hooks/useTopReader';
+import Link from '../utilities/Link';
 
 export const TopReaderWidget = ({
   user,
@@ -78,13 +79,19 @@ export const TopReaderWidget = ({
           {topReaders.map((badge) => {
             return (
               <div className="flex justify-between" key={`badge-${badge.id}`}>
-                <Typography
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Primary}
-                  className="rounded-6 border border-border-subtlest-tertiary px-2.5 py-0.5"
+                <Link
+                  href={`${webappUrl}/tags/${badge.keyword.value}`}
+                  passHref
                 >
-                  {badge.keyword.flags.title}
-                </Typography>
+                  <Typography
+                    tag={TypographyTag.Link}
+                    type={TypographyType.Caption1}
+                    color={TypographyColor.Primary}
+                    className="rounded-6 border border-border-subtlest-tertiary px-2.5 py-0.5"
+                  >
+                    {badge.keyword.flags.title}
+                  </Typography>
+                </Link>
                 <Typography
                   tag={TypographyTag.Time}
                   type={TypographyType.Caption2}
