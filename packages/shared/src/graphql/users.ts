@@ -122,25 +122,6 @@ export type MostReadTag = {
   total?: number;
 };
 
-export const USER_TOOLTIP_CONTENT_QUERY = gql`
-  query UserTooltipContent(
-    $id: ID!
-    $version: Int
-    $requestUserInfo: Boolean!
-  ) {
-    rank: userReadingRank(id: $id, version: $version) {
-      currentRank
-    }
-    tags: userMostReadTags(id: $id) {
-      value
-    }
-    user(id: $id) @include(if: $requestUserInfo) {
-      ...UserShortInfo
-    }
-  }
-  ${USER_SHORT_INFO_FRAGMENT}
-`;
-
 export type Tag = {
   tag: string;
   readingDays: number;
