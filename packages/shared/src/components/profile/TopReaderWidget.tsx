@@ -4,7 +4,7 @@ import {
   ActivitySectionHeader,
   ActivitySectionSubTitle,
 } from './ActivitySection';
-import { topReaderBadgeDocs, webappUrl } from '../../lib/constants';
+import { topReaderBadgeDocs } from '../../lib/constants';
 import { MedalBadgeIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { BadgeIconGoldGradient } from '../badges/BadgeIcon';
@@ -19,6 +19,7 @@ import type { PublicProfile } from '../../lib/user';
 import { ClickableText } from '../buttons/ClickableText';
 import { useTopReader } from '../../hooks/useTopReader';
 import Link from '../utilities/Link';
+import { getTagPageLink } from '../../lib';
 
 export const TopReaderWidget = ({
   user,
@@ -80,8 +81,9 @@ export const TopReaderWidget = ({
             return (
               <div className="flex justify-between" key={`badge-${badge.id}`}>
                 <Link
-                  href={`${webappUrl}/tags/${badge.keyword.value}`}
+                  href={getTagPageLink(badge.keyword.value)}
                   passHref
+                  prefetch={false}
                 >
                   <Typography
                     tag={TypographyTag.Link}
