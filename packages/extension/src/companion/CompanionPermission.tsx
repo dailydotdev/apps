@@ -56,7 +56,7 @@ const CompanionPermissionComponent = (
           className="relative flex items-center justify-center"
         >
           <img
-            src="https://daily-now-res.cloudinary.com/image/upload/v1655218347/public/companion_preview_v2.png"
+            src="https://media.daily.dev/image/upload/v1655218347/public/companion_preview_v2.png"
             alt="Companion video preview"
             className="h-[6.875] w-[11.25rem] rounded-10"
           />
