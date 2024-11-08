@@ -61,7 +61,7 @@ describe('useBookmarkReminder hook', () => {
       feed_item_grid_column: undefined,
       feed_item_grid_row: undefined,
       feed_item_image:
-        'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
+        'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
       feed_item_meta: undefined,
       feed_item_target_url:
         'https://api.daily.dev/r/e3fd75b62cadd02073a31ee3444975cc',
@@ -109,7 +109,7 @@ describe('useBookmarkReminder hook', () => {
       feed_item_grid_column: undefined,
       feed_item_grid_row: undefined,
       feed_item_image:
-        'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
+        'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
       feed_item_meta: undefined,
       feed_item_target_url:
         'https://api.daily.dev/r/e3fd75b62cadd02073a31ee3444975cc',
@@ -181,7 +181,7 @@ describe('useBookmarkReminder hook', () => {
       feed_item_grid_column: undefined,
       feed_item_grid_row: undefined,
       feed_item_image:
-        'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
+        'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
       feed_item_meta: undefined,
       feed_item_target_url:
         'https://api.daily.dev/r/e3fd75b62cadd02073a31ee3444975cc',
@@ -234,7 +234,7 @@ describe('useBookmarkReminder hook', () => {
       feed_item_grid_column: undefined,
       feed_item_grid_row: undefined,
       feed_item_image:
-        'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
+        'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
       feed_item_meta: undefined,
       feed_item_target_url:
         'https://api.daily.dev/r/e3fd75b62cadd02073a31ee3444975cc',
@@ -291,7 +291,7 @@ describe('useBookmarkReminder hook', () => {
       feed_item_grid_column: undefined,
       feed_item_grid_row: undefined,
       feed_item_image:
-        'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
+        'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
       feed_item_meta: undefined,
       feed_item_target_url:
         'https://api.daily.dev/r/e3fd75b62cadd02073a31ee3444975cc',
@@ -335,7 +335,7 @@ describe('useBookmarkReminder hook', () => {
       feed_item_grid_column: undefined,
       feed_item_grid_row: undefined,
       feed_item_image:
-        'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
+        'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
       feed_item_meta: undefined,
       feed_item_target_url:
         'https://api.daily.dev/r/e3fd75b62cadd02073a31ee3444975cc',
