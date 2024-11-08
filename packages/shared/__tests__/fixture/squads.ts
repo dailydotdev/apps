@@ -300,8 +300,8 @@ export const generateNotFoundSquadResult = (): GraphQLResult<SquadData> => ({
 });
 
 export const generateMembersList = (
-  members: Edge<SourceMember>[] = [],
-): Edge<SourceMember>[] => [
+  members: Edge<BasicSourceMember>[] = [],
+): Edge<BasicSourceMember>[] => [
   {
     node: {
       role: SourceMemberRole.Admin,
