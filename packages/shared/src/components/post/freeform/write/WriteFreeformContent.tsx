@@ -38,6 +38,10 @@ export const checkSavedProperty = (
 
 const defaultFilename = 'thumbnail.png';
 
+// Shared constants - remember to update them in daily-api
+const MAX_TITLE_LENGTH = 250;
+const MAX_CONTENT_LENGTH = 10_000;
+
 interface WriteFreeformContentProps {
   className?: string;
 }
@@ -155,7 +159,7 @@ export function WriteFreeformContent({
           required
           defaultValue={draft?.title ?? post?.title}
           onInput={onFormUpdate}
-          maxLength={250}
+          maxLength={MAX_TITLE_LENGTH}
         />
       </AlertPointer>
       <MarkdownInput
@@ -166,6 +170,7 @@ export function WriteFreeformContent({
         textareaProps={{ name: 'content' }}
         enabledCommand={{ ...defaultMarkdownCommands, upload: true }}
         isUpdatingDraft={isUpdatingDraft}
+        maxInputLength={MAX_CONTENT_LENGTH}
       />
       <WriteFooter isLoading={isPosting} className="mt-5" />
     </WritePageMain>
