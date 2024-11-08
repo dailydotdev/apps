@@ -251,12 +251,12 @@ describe('squad header bar', () => {
         removeListener: jest.fn(),
       })),
     });
-    const members = generateBasicMembersResult().sourceMembers.edges.slice(
-      0,
-      5,
-    );
+    const source = generateBasicMembersResult();
+    const members = source.sourceMembers.edges.slice(0, 5);
     renderComponent();
-    const list = await screen.findByTestId('squad-member-short-list');
+    const list = await screen.findByLabelText(
+      `View ${defaultSquad.membersCount} squad members`,
+    );
     const result = await Promise.all(
       members.map(async ({ node: { user } }) => {
         const elements = await screen.findAllByAltText(
@@ -284,7 +284,6 @@ describe('squad header bar', () => {
       3,
     );
     renderComponent();
-    await screen.findByTestId('squad-member-short-list');
     const result = await Promise.all(
       members.map(({ node: { user } }) =>
         screen.findByAltText(`${user.name}'s profile`),
@@ -292,13 +291,18 @@ describe('squad header bar', () => {
     );
     const COUNTER_ELEMENT = 1;
     expect(result.length).toEqual(3);
-    const list = await screen.findByTestId('squad-member-short-list');
+    const list = await screen.findByLabelText(
+      `View ${defaultSquad.membersCount} squad members`,
+    );
     expect(list.childNodes.length).toEqual(result.length + COUNTER_ELEMENT);
   });
 
   it('should show total members count', async () => {
     renderComponent();
-    const count = await screen.findByTestId('squad-member-short-list');
+    const membersCount = defaultSquad.membersCount.toString();
+    const count = await screen.findByLabelText(
+      `View ${membersCount} squad members`,
+    );
     expect(count).toHaveTextContent(defaultSquad.membersCount.toString());
   });
 
@@ -396,7 +400,9 @@ describe('squad members modal', () => {
         after: '',
       }),
     );
-    const trigger = await screen.findByTestId('squad-member-short-list');
+    const trigger = await screen.findByLabelText(
+      `View ${defaultSquad.membersCount} squad members`,
+    );
     trigger.click();
     await screen.findByText('Squad members');
     return members;

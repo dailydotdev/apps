@@ -34,12 +34,10 @@ describe('Member list', () => {
   it('should render the squad header bar with the correct number of members', async () => {
     renderComponent();
     const { membersCount } = mock.squad;
-    const countEl = await screen.findByTestId('squad-member-short-list');
-    expect(countEl).toHaveTextContent(membersCount.toString());
-    expect(countEl).toHaveAttribute(
-      'aria-label',
+    const countEl = await screen.findByLabelText(
       `View ${membersCount} squad members`,
     );
+    expect(countEl).toHaveTextContent(membersCount.toString());
   });
 });
 

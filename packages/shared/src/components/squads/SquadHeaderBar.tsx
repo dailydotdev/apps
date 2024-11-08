@@ -171,23 +171,18 @@ const SquadUserNotifications = ({
 };
 
 const SquadModerationButton = ({ squad }: SquadBarButtonProps<'a'>) => {
-  if (!squad.moderationRequired || !squad.moderationPostCount) {
-    return null;
-  }
-
   const count = squad.moderationPostCount;
   const postLabel = count === 1 ? 'post' : 'posts';
 
   return (
     <Button
-      aria-label={`Go to post moderation page and check ${count} ${postLabel}`}
+      aria-label={`Check ${count} pending ${postLabel}`}
       href={`/squads/${squad.handle}/moderate`}
       icon={<TimerIcon aria-hidden role="presentation" />}
       size={ButtonSize.Small}
       tag="a"
       title="Go to post moderation page"
       variant={ButtonVariant.Float}
-      data-testid="squad-moderation-button"
     >
       {count} Pending {postLabel}
     </Button>
@@ -208,6 +203,8 @@ export function SquadHeaderBar({
   const { onMenuClick } = useContextMenu({ id: ContextMenu.SquadMenuContext });
   const isMember = !!squad.currentMember;
   const userCanJoin = squad.public && !isMember;
+  const showPendingCount =
+    squad.moderationRequired && squad.moderationPostCount;
 
   return (
     <div
@@ -239,7 +236,7 @@ export function SquadHeaderBar({
           disabled={copying}
         />
       )}
-      <SquadModerationButton squad={squad} />
+      {showPendingCount && <SquadModerationButton squad={squad} />}
       <SquadSlackButton
         squad={squad}
         disabled={copying}
