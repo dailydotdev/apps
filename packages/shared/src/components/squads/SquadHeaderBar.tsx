@@ -203,8 +203,9 @@ export function SquadHeaderBar({
   const { onMenuClick } = useContextMenu({ id: ContextMenu.SquadMenuContext });
   const isMember = !!squad.currentMember;
   const userCanJoin = squad.public && !isMember;
-  const showPendingCount =
-    squad.moderationRequired && squad.moderationPostCount;
+  const showPendingCount = !!(
+    squad.moderationRequired && squad.moderationPostCount
+  );
 
   return (
     <div
