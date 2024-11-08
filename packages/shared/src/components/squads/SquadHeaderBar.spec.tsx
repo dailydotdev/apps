@@ -2,10 +2,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { render, RenderResult, screen } from '@testing-library/react';
 import React from 'react';
 import { SquadHeaderBar } from './SquadHeaderBar';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '../../../__tests__/helpers/graphql';
+
 import {
   generateMembersList,
   generateTestSquad,
@@ -19,11 +16,9 @@ const mock = {
 } as const;
 
 const renderComponent = (options?: {
-  mocks?: MockedGraphQLResponse[];
   props?: Partial<typeof mock>;
 }): RenderResult => {
-  const { props = {}, mocks = [] } = options ?? {};
-  mocks.forEach(mockGraphQL);
+  const { props = {} } = options ?? {};
 
   return render(
     <TestBootProvider client={client}>
@@ -34,8 +29,6 @@ const renderComponent = (options?: {
     </TestBootProvider>,
   );
 };
-
-beforeEach(async () => {});
 
 describe('Member list', () => {
   it('should render the squad header bar with the correct number of members', async () => {
