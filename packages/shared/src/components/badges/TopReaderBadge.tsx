@@ -84,7 +84,7 @@ export const TopReaderBadge = ({
               bold
               className="relative z-1 text-black"
             >
-              {keyword.flags?.title}
+              {keyword.flags?.title || keyword.value}
             </Typography>
             <div
               className="absolute left-0 top-0 z-0 h-full w-full -scale-x-100"
