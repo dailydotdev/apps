@@ -224,6 +224,7 @@ const RegistrationForm = ({
         <PasswordField
           required
           minLength={6}
+          maxLength={72}
           saveHintSpace
           className={{ container: 'w-full' }}
           name="password"
