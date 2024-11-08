@@ -60,9 +60,11 @@ const TopReaderBadgeModal = (
       type: TimeFormatType.TopReaderBadge,
     });
 
+    const keyword = topReader.keyword.flags?.title || topReader.keyword.value;
+
     await onDownloadUrl({
       url: topReader.image,
-      filename: `${formattedDate} Top Reader in ${topReader.keyword.flags.title}.png`,
+      filename: `${formattedDate} Top Reader in ${keyword}.png`,
     });
 
     logModalEvent(LogEvent.TopReaderBadgeDownload);

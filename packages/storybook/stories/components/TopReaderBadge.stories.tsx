@@ -11,7 +11,7 @@ const meta: Meta<typeof TopReaderBadge> = {
     issuedAt: new Date(),
     user: {
       ...user,
-      image: 'https://res.cloudinary.com/daily-now/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
+      image: 'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
     },
     keyword: {
       value: 'machine-learning',

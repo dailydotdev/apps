@@ -140,7 +140,7 @@ it('should send upvote mutation', async () => {
     event_name: 'upvote comment',
     extra: JSON.stringify({ origin: 'feed', commentId: 'c1' }),
     feed_item_image:
-      'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
+      'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
     feed_item_target_url:
       'https://api.daily.dev/r/e3fd75b62cadd02073a31ee3444975cc',
     feed_item_title: 'The Prosecutor’s Fallacy',
@@ -191,7 +191,7 @@ it('should send cancel upvote mutation', async () => {
     event_name: 'remove comment upvote',
     extra: JSON.stringify({ origin: 'feed', commentId: 'c1' }),
     feed_item_image:
-      'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
+      'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
     feed_item_target_url:
       'https://api.daily.dev/r/e3fd75b62cadd02073a31ee3444975cc',
     feed_item_title: 'The Prosecutor’s Fallacy',
@@ -299,7 +299,7 @@ it('should send downvote mutation', async () => {
     event_name: 'downvote comment',
     extra: JSON.stringify({ origin: 'feed', commentId: 'c1' }),
     feed_item_image:
-      'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
+      'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
     feed_item_target_url:
       'https://api.daily.dev/r/e3fd75b62cadd02073a31ee3444975cc',
     feed_item_title: 'The Prosecutor’s Fallacy',
@@ -349,7 +349,7 @@ it('should send cancel downvote mutation', async () => {
     event_name: 'remove comment downvote',
     extra: JSON.stringify({ origin: 'feed', commentId: 'c1' }),
     feed_item_image:
-      'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
+      'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
     feed_item_target_url:
       'https://api.daily.dev/r/e3fd75b62cadd02073a31ee3444975cc',
     feed_item_title: 'The Prosecutor’s Fallacy',
