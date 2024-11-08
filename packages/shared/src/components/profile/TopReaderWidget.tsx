@@ -19,6 +19,7 @@ import type { PublicProfile } from '../../lib/user';
 import { ClickableText } from '../buttons/ClickableText';
 import { useTopReader } from '../../hooks/useTopReader';
 import Link from '../utilities/Link';
+import { getTagPageLink } from '../../lib';
 
 export const TopReaderWidget = ({
   user,
