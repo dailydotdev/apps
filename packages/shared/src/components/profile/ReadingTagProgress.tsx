@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { MostReadTag } from '../../graphql/users';
 import Link from '../utilities/Link';
-import { webappUrl } from '../../lib/constants';
+import { getTagPageLink } from '../../lib';
 
 interface ReadingTagProgressProps {
   tag: MostReadTag;
@@ -19,7 +19,7 @@ export function ReadingTagProgress({
         key={tag}
         className="relative flex flex-row overflow-hidden rounded-10 border border-background-subtle p-1 px-3 pb-2 font-bold text-text-tertiary typo-callout"
       >
-        <Link href={`${webappUrl}/tags/${tag}`} passHref prefetch={false}>
+        <Link href={getTagPageLink(tag)} passHref prefetch={false}>
           <a>#{tag}</a>
         </Link>
         <span className="ml-auto text-text-primary">{value}</span>
