@@ -143,6 +143,7 @@ export const SOURCE_BASE_FRAGMENT = gql`
     }
     memberPostingRole
     memberInviteRole
+    moderationRequired
   }
   ${CURRENT_MEMBER_FRAGMENT}
 `;
