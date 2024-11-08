@@ -13,6 +13,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId, TargetType, type Origin } from '../../../lib/log';
 import { formatDate, TimeFormatType } from '../../../lib/dateFormat';
 import { useTopReader } from '../../../hooks/useTopReader';
+import { ModalClose } from '../common/ModalClose';
 
 type TopReaderBadgeModalProps = {
   badgeId?: string;
@@ -91,6 +92,8 @@ const TopReaderBadgeModal = (
       }}
     >
       <Modal.Body className="flex flex-col items-center justify-center gap-4 text-center">
+        <ModalClose top="2" onClick={onRequestClose} />
+
         <h1 className="font-bold typo-title1">
           You&apos;ve earned the top reader badge!
         </h1>
@@ -110,16 +113,6 @@ const TopReaderBadgeModal = (
         >
           Download badge
         </Button>
-
-        {!isMobile && (
-          <Button
-            className="w-full max-w-80"
-            variant={ButtonVariant.Float}
-            onClick={onRequestClose}
-          >
-            Close
-          </Button>
-        )}
       </Modal.Body>
     </Modal>
   );
