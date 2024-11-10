@@ -16,6 +16,7 @@ import { TimerIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { PromptOptions } from '../../hooks/usePrompt';
 import { ModalSize } from '../modals/common/types';
+import { verifyPermission } from '../../graphql/squads';
 
 export const SquadTitle = ({
   children,
@@ -48,11 +49,9 @@ export const ManageSquadPageContainer = classed(
 
 export const ManageSquadPageMain = classed('div', 'flex flex-1 flex-col');
 
-export const isPrivilegedMember = (squad: Squad): boolean =>
-  squad?.currentMember?.permissions?.includes(SourcePermissions.ModeratePost);
-
 export const moderationRequired = (squad: Squad): boolean =>
-  squad?.moderationRequired && !isPrivilegedMember(squad);
+  squad?.moderationRequired &&
+  !verifyPermission(squad, SourcePermissions.ModeratePost);
 
 export const createModerationPromptProps: PromptOptions = {
   title: 'Your post has been submitted for review',

@@ -578,7 +578,7 @@ export type SourcePostModeration = {
   image: string;
   content?: string;
   contentHtml?: string;
-  type: string;
+  type: PostType;
   sourceId: string;
   sharedPostId?: string;
   externalLink?: string;
