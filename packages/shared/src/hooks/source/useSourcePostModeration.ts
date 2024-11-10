@@ -38,9 +38,7 @@ const useSourcePostModeration = ({
       onError?.();
     },
     onSettled: () => {
-      if (isSuccess) {
-        showPrompt(createModerationPromptProps);
-      }
+      showPrompt(createModerationPromptProps);
     },
   });
 
