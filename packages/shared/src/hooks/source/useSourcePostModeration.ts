@@ -18,11 +18,13 @@ type UseSourcePostModeration = {
 type UseSquadModerationProps = {
   onSuccess?: () => void;
   onError?: () => void;
+  onSettled?: () => void;
 };
 
 const useSourcePostModeration = ({
   onSuccess,
   onError,
+  onSettled,
 }: UseSquadModerationProps = {}): UseSourcePostModeration => {
   const { showPrompt } = usePrompt();
   const {
@@ -38,6 +40,7 @@ const useSourcePostModeration = ({
       onError?.();
     },
     onSettled: () => {
+      onSettled?.();
       showPrompt(createModerationPromptProps);
     },
   });

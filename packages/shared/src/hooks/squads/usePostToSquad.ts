@@ -59,10 +59,12 @@ interface UsePostToSquadProps {
   >;
   onPostSuccess?: (post: Post, url: string) => void;
   initialPreview?: ExternalLinkPreview;
+  onSettled?: () => void;
 }
 
 export const usePostToSquad = ({
   callback,
+  onSettled,
   onPostSuccess,
   initialPreview,
 }: UsePostToSquadProps = {}): UsePostToSquad => {
@@ -99,6 +101,7 @@ export const usePostToSquad = ({
     onError: () => {
       displayToast(DEFAULT_ERROR);
     },
+    onSettled,
   });
 
   const onSharedPostSuccessfully = async (update = false) => {
@@ -125,6 +128,7 @@ export const usePostToSquad = ({
         onPostSuccess(data, data?.permalink);
       }
     },
+    onSettled,
   });
 
   const {
