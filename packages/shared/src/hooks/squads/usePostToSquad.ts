@@ -180,7 +180,6 @@ export const usePostToSquad = ({
               type: PostType.Share,
               sourceId: squad.id,
               sharedPostId: preview.id,
-              externalLink: preview?.url,
               commentary,
             })
           : onPost({
