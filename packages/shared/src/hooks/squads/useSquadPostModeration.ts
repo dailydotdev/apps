@@ -100,7 +100,6 @@ export const useSquadPostModeration = ({
     onSuccess: () => {
       displayToast('Post(s) approved successfully');
       invalidateQueries();
-      closeModal();
     },
     onError: (_, variables) => {
       if (variables.postIds.length > 50) {
@@ -142,7 +141,6 @@ export const useSquadPostModeration = ({
     onSuccess: () => {
       displayToast('Post(s) declined successfully');
       invalidateQueries();
-      closeModal();
     },
   });
 
@@ -157,13 +155,13 @@ export const useSquadPostModeration = ({
               sourceId,
               reason,
               note,
-            }),
+            }).then(closeModal),
           reasons: rejectReasons,
           heading: 'Select a reason for declining',
         },
       });
     },
-    [onReject, openModal],
+    [closeModal, onReject, openModal],
   );
 
   return {

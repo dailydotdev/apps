@@ -26,7 +26,7 @@ import { LazyModal } from '../../modals/common/types';
 
 interface SquadModerationListProps {
   data: SourcePostModeration;
-  onApprove: () => void;
+  onApprove: () => Promise<void>;
   onReject: () => void;
   isPending: boolean;
   squad: Squad;
@@ -39,7 +39,7 @@ export function SquadModerationItem({
   onApprove,
   isPending,
 }: SquadModerationListProps): ReactElement {
-  const { openModal } = useLazyModal();
+  const { openModal, closeModal } = useLazyModal();
   const {
     status,
     reason,
@@ -54,7 +54,12 @@ export function SquadModerationItem({
   const onClick = () => {
     openModal({
       type: LazyModal.PostModeration,
-      props: { data, squad, onApprove, onReject },
+      props: {
+        data,
+        squad,
+        onApprove: () => onApprove().then(closeModal),
+        onReject,
+      },
     });
   };
 
