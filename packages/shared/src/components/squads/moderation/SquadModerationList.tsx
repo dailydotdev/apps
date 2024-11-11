@@ -81,7 +81,9 @@ const EmptyModerationList = ({
 export function SquadModerationList({
   squad,
 }: SquadModerationListProps): ReactElement {
-  const moderate = useSquadPostModeration();
+  const moderate = useSquadPostModeration({
+    squad,
+  });
   const { data, isFetched, fetchNextPage, hasNextPage, isPending } =
     useSquadPendingPosts(squad?.id);
 
@@ -105,7 +107,10 @@ export function SquadModerationList({
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
             onClick={() =>
-              moderate.onApprove(list.map((request) => request.id))
+              moderate.onApprove(
+                list.map((request) => request.id),
+                squad.id,
+              )
             }
           >
             Approve all {list.length} posts
@@ -122,9 +127,9 @@ export function SquadModerationList({
             key={item.id}
             squad={squad}
             data={item}
-            isLoading={isPending}
-            onReject={moderate.onReject}
-            onApprove={(id) => moderate.onApprove([id])}
+            isPending={isPending}
+            onReject={() => moderate.onReject(item.id, squad.id)}
+            onApprove={() => moderate.onApprove([item.id], squad.id)}
           />
         ))}
       </InfiniteScrolling>

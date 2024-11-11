@@ -24,7 +24,7 @@ type UseSquadPendingPosts = UseInfiniteQueryResult<
 export const useSquadPendingPosts = (squadId: string): UseSquadPendingPosts => {
   const { user } = useAuthContext();
 
-  const query = useInfiniteQuery<Connection<SourcePostModeration[]>>({
+  return useInfiniteQuery<Connection<SourcePostModeration[]>>({
     queryKey: generateQueryKey(RequestKey.SquadPostRequests, user, squadId),
     queryFn: async () => {
       return gqlClient
@@ -51,6 +51,4 @@ export const useSquadPendingPosts = (squadId: string): UseSquadPendingPosts => {
       };
     }, []),
   });
-
-  return query;
 };

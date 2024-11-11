@@ -17,7 +17,7 @@ import { SharePostTitle } from '../../post/share';
 import Markdown from '../../Markdown';
 import { MarkdownPostImage } from '../../post/MarkdownPostContent';
 
-type ActionHandler = (id: string, onSuccess?: MouseEventHandler) => void;
+type ActionHandler = (ids: string[], onSuccess?: MouseEventHandler) => void;
 
 interface PostModerationModalProps extends ModalProps {
   onApprove: ActionHandler;
@@ -51,7 +51,7 @@ function PostModerationModal({
   });
 
   const closeWrapper = (callback: ActionHandler): MouseEventHandler => {
-    return () => callback(id, modalProps.onRequestClose);
+    return () => callback([id], modalProps.onRequestClose);
   };
 
   return (
@@ -62,8 +62,8 @@ function PostModerationModal({
     >
       <Modal.Body className="gap-6">
         <SquadModerationActions
-          onReject={closeWrapper(() => onReject(id))}
-          onApprove={closeWrapper(() => onApprove(id))}
+          onReject={closeWrapper(() => onReject([id]))}
+          onApprove={closeWrapper(() => onApprove([id]))}
         />
         <Typography type={TypographyType.Title3} tag={TypographyTag.H3} bold>
           Post preview

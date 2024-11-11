@@ -593,7 +593,6 @@ type PostRequestContentProps = Pick<
   | 'content'
   | 'contentHtml'
   | 'image'
-  | 'source'
   | 'sharedPost'
   | 'createdAt'
 >;
@@ -609,37 +608,8 @@ export interface SourcePostModeration extends Partial<PostRequestContent> {
   status: SourcePostModerationStatus;
   reason?: PostModerationReason;
   moderatorMessage?: string;
+  sourceId: Source['id'];
 }
-
-export enum PostModerationReason {
-  OffTopic = 'OFF_TOPIC',
-  Violation = 'VIOLATION',
-  Promotional = 'PROMOTIONAL',
-  Duplicate = 'DUPLICATE',
-  LowQuality = 'LOW_QUALITY',
-  NSFW = 'NSFW',
-  Spam = 'SPAM',
-  Misinformation = 'MISINFORMATION',
-  Copyright = 'COPYRIGHT',
-  Other = 'OTHER',
-}
-
-export interface SquadPostRejectionProps {
-  postId: string;
-  reason: string;
-  note?: string;
-}
-
-// TODO:: MI-596
-export const squadApproveMutation = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _: string[],
-): Promise<void> => Promise.resolve();
-
-export const squadRejectMutation = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _: SquadPostRejectionProps,
-): Promise<void> => Promise.resolve();
 
 const SOURCE_POST_MODERATION_FRAGMENT = gql`
   fragment SourcePostModerationFragment on SourcePostModeration {
@@ -656,11 +626,9 @@ const SOURCE_POST_MODERATION_FRAGMENT = gql`
     contentHtml
     image
     createdAt
-    createdById
     createdBy {
       ...UserAuthor
     }
-    moderatedById
     moderatedBy {
       ...UserAuthor
     }
@@ -684,3 +652,76 @@ export const SQUAD_PENDING_POSTS_QUERY = gql`
   }
   ${SOURCE_POST_MODERATION_FRAGMENT}
 `;
+
+export const SQUAD_MODERATE_POST_MUTATION = gql`
+  mutation ModerateSourcePost(
+    $postIds: [ID]!
+    $status: String
+    $sourceId: ID!
+    $rejectionReason: String
+    $moderatorMessage: String
+  ) {
+    moderateSourcePosts(
+      postIds: $postIds
+      status: $status
+      sourceId: $sourceId
+      rejectionReason: $rejectionReason
+      moderatorMessage: $moderatorMessage
+    ) {
+      ...SourcePostModerationFragment
+    }
+  }
+  ${SOURCE_POST_MODERATION_FRAGMENT}
+`;
+
+export enum PostModerationReason {
+  OffTopic = 'OFF_TOPIC',
+  Violation = 'VIOLATION',
+  Promotional = 'PROMOTIONAL',
+  Duplicate = 'DUPLICATE',
+  LowQuality = 'LOW_QUALITY',
+  NSFW = 'NSFW',
+  Spam = 'SPAM',
+  Misinformation = 'MISINFORMATION',
+  Copyright = 'COPYRIGHT',
+  Other = 'OTHER',
+}
+
+export interface SquadPostModerationProps {
+  postIds: string[];
+  sourceId: Source['id'];
+}
+
+export interface SquadPostRejectionProps extends SquadPostModerationProps {
+  reason: PostModerationReason;
+  note?: string;
+}
+
+export const squadApproveMutation = ({
+  postIds,
+  sourceId,
+}: {
+  postIds: string[];
+  sourceId: Source['id'];
+}): Promise<SourcePostModeration[]> => {
+  return gqlClient.request(SQUAD_MODERATE_POST_MUTATION, {
+    postIds,
+    sourceId,
+    status: SourcePostModerationStatus.Approved,
+  });
+};
+
+export const squadRejectMutation = ({
+  postIds,
+  sourceId,
+  reason,
+  note,
+}: SquadPostRejectionProps): Promise<SourcePostModeration[]> => {
+  return gqlClient.request(SQUAD_MODERATE_POST_MUTATION, {
+    postIds,
+    sourceId,
+    status: SourcePostModerationStatus.Rejected,
+    rejectionReason: reason,
+    moderatorMessage: note,
+  });
+};
