@@ -22,6 +22,7 @@ import {
   SquadStaticData,
 } from '@dailydotdev/shared/src/graphql/squads';
 import { useSquad } from '@dailydotdev/shared/src/hooks';
+import { SourceMemberRole } from '@dailydotdev/shared/src/graphql/sources';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
 interface ModerateSquadPageProps {
@@ -31,23 +32,32 @@ interface ModerateSquadPageProps {
 export default function ModerateSquadPage({
   squad: squadProps,
 }: ModerateSquadPageProps): ReactElement {
-  const { squad } = useSquad({ handle: squadProps.handle });
+  const { squad, isLoading } = useSquad({ handle: squadProps.handle });
+  const isModerator = [
+    SourceMemberRole.Moderator,
+    SourceMemberRole.Admin,
+  ].includes(squad?.currentMember?.role);
+
+  if (isLoading || !squad) {
+    return null;
+  }
 
   return (
     <ManageSquadPageContainer>
       <PageHeader className="border-b-0">
         <Button
-          variant={ButtonVariant.Tertiary}
+          href={`/squads/${squad.handle}`}
           icon={<ArrowIcon className="-rotate-90" />}
+          tag="a"
+          variant={ButtonVariant.Tertiary}
         />
-        <PageHeaderTitle className="typo-title3">
-          Squad settings
-        </PageHeaderTitle>
+        <PageHeaderTitle className="typo-title3">Squad</PageHeaderTitle>
       </PageHeader>
       <SquadTabs
         active={SquadTab.PendingPosts}
         handle={squadProps.handle}
         pendingCount={squad?.moderationPostCount}
+        showSettings={isModerator}
       />
       <SquadModerationList squad={squad} />
     </ManageSquadPageContainer>

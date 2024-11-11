@@ -11,12 +11,14 @@ interface SquadTabsProps {
   active: SquadTab;
   handle: string;
   pendingCount?: number;
+  showSettings?: boolean;
 }
 
 export function SquadTabs({
   active,
   handle,
   pendingCount,
+  showSettings = false,
 }: SquadTabsProps): ReactElement {
   const links = useMemo(() => {
     const host = `${webappUrl}squads/${handle}`;
@@ -25,10 +27,10 @@ export function SquadTabs({
       : SquadTab.PendingPosts;
 
     return {
-      [SquadTab.Settings]: `${host}/edit`,
+      ...(showSettings && { [SquadTab.Settings]: `${host}/edit` }),
       [title]: `${host}/moderate`,
     };
-  }, [handle, pendingCount]);
+  }, [handle, pendingCount, showSettings]);
 
   return (
     <TabContainer shouldMountInactive controlledActive={active}>
