@@ -157,7 +157,7 @@ export function PushNotificationContextProvider({
         isInitialized: !isEnabled || isFetched || !isSuccess,
         isLoading,
         isSubscribed,
-        isPushSupported: isPushSupported && isSuccess && isEnabled,
+        isPushSupported: !!(isPushSupported && isSuccess && isEnabled),
         onSourceChange,
         logPermissionGranted,
         shouldOpenPopup: false,
