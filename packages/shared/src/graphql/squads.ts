@@ -635,7 +635,52 @@ export const squadApproveMutation = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _: string[],
 ): Promise<void> => Promise.resolve();
+
 export const squadRejectMutation = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _: SquadPostRejectionProps,
 ): Promise<void> => Promise.resolve();
+
+const SOURCE_POST_MODERATION_FRAGMENT = gql`
+  fragment SourcePostModerationFragment on SourcePostModeration {
+    id
+    title
+    sourceId
+    status
+    rejectionReason
+    moderatorMessage
+    type
+    title
+    titleHtml
+    content
+    contentHtml
+    image
+    createdAt
+    createdById
+    createdBy {
+      ...UserAuthor
+    }
+    moderatedById
+    moderatedBy {
+      ...UserAuthor
+    }
+  }
+  ${USER_AUTHOR_FRAGMENT}
+`;
+
+export const SQUAD_PENDING_POSTS_QUERY = gql`
+  query sourcePostModerations($sourceId: ID!, $status: [String]) {
+    sourcePostModerations(sourceId: $sourceId, status: $status) {
+      edges {
+        node {
+          ...SourcePostModerationFragment
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+  ${SOURCE_POST_MODERATION_FRAGMENT}
+`;
