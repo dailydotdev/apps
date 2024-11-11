@@ -3,6 +3,7 @@ import React, {
   MutableRefObject,
   ReactElement,
   ReactNode,
+  useEffect,
   useImperativeHandle,
   useRef,
   useState,
@@ -40,7 +41,8 @@ interface ClassName {
 }
 
 export interface DrawerProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'title'> {
+  extends Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'title'>,
+    Pick<ReactModal.Props, 'onAfterOpen' | 'onAfterClose'> {
   children: ReactNode;
   className?: ClassName;
   position?: DrawerPosition;
@@ -82,6 +84,8 @@ function BaseDrawer({
   title,
   onClose,
   displayCloseButton,
+  onAfterOpen,
+  onAfterClose,
   ...props
 }: DrawerProps): ReactElement {
   const container = useRef<HTMLDivElement>();
@@ -90,6 +94,13 @@ function BaseDrawer({
   const classes = className?.drawer ?? 'px-4 py-3';
   useOutsideClick(container, onClose, closeOnOutsideClick && hasAnimated);
   const isAnimating = !hasAnimated || isClosing;
+
+  useEffect(() => {
+    onAfterOpen?.();
+    return () => {
+      onAfterClose?.();
+    };
+  }, [onAfterClose, onAfterOpen]);
 
   return (
     <div
