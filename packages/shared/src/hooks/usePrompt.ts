@@ -12,7 +12,7 @@ export type PromptButtonProps = Omit<ButtonProps<'button'>, 'onClick'> & {
 
 export type PromptOptions = {
   title: string;
-  icon?: ReactElement;
+  icon?: ReactNode;
   description?: string | ReactNode;
   okButton?: PromptButtonProps;
   cancelButton?: PromptButtonProps;
