@@ -20,9 +20,10 @@ import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
 import {
   getSquadStaticFields,
   SquadStaticData,
+  verifyPermission,
 } from '@dailydotdev/shared/src/graphql/squads';
 import { useSquad } from '@dailydotdev/shared/src/hooks';
-import { SourceMemberRole } from '@dailydotdev/shared/src/graphql/sources';
+import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
 interface ModerateSquadPageProps {
@@ -33,10 +34,7 @@ export default function ModerateSquadPage({
   squad: squadProps,
 }: ModerateSquadPageProps): ReactElement {
   const { squad, isLoading } = useSquad({ handle: squadProps.handle });
-  const isModerator = [
-    SourceMemberRole.Moderator,
-    SourceMemberRole.Admin,
-  ].includes(squad?.currentMember?.role);
+  const isModerator = verifyPermission(squad, SourcePermissions.ModeratePost);
 
   if (isLoading || !squad) {
     return null;
