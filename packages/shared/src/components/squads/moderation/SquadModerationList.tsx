@@ -91,7 +91,6 @@ export function SquadModerationList({
       [],
     [data],
   );
-  console.log({ data, list });
 
   if (!data?.pages.length) {
     return <EmptyModerationList squad={squad} isFetched={isFetched} />;
