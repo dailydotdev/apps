@@ -33,12 +33,8 @@ const useSourcePostModeration = ({
     isSuccess,
   } = useMutation({
     mutationFn: createSourcePostModeration,
-    onSuccess: () => {
-      onSuccess?.();
-    },
-    onError: () => {
-      onError?.();
-    },
+    onSuccess,
+    onError,
     onSettled: () => {
       onSettled?.();
       showPrompt(createModerationPromptProps);
