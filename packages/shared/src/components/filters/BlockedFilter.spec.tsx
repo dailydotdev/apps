@@ -34,7 +34,7 @@ const createAllBlockedTagsAndSourcesMock = (
       {
         id: 'newstack',
         image:
-          'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/newstack',
+          'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/newstack',
         name: 'The New Stack',
       },
     ],

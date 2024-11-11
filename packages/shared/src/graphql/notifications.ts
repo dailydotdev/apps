@@ -10,6 +10,7 @@ import { WithClassNameProps } from '../components/utilities';
 export enum NotificationAvatarType {
   User = 'user',
   Source = 'source',
+  TopReaderBadge = 'top_reader_badge',
 }
 
 export interface NotificationAvatar extends WithClassNameProps {

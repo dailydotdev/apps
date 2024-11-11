@@ -6,6 +6,7 @@ import { UserShortProfile } from '../lib/user';
 import type { Post, UserVote } from './posts';
 import { Company } from '../lib/userCompany';
 import { ContentPreference } from './contentPreference';
+import type { TopReader } from '../components/badges/TopReaderBadge';
 
 export interface Author {
   __typename?: string;
@@ -19,6 +20,7 @@ export interface Author {
   reputation?: number;
   companies?: Company[];
   contentPreference?: ContentPreference;
+  topReader?: Partial<TopReader>;
 }
 
 export type Scout = Author;

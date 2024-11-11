@@ -56,7 +56,7 @@ const Step1 = ({ onGenerateImage, error }: StepProps): ReactElement => {
   return (
     <>
       <LazyImage
-        imgSrc="https://daily-now-res.cloudinary.com/image/upload/s--bLTH_SfU--/f_auto/v1707242870/public/Roast-emoji.png.png"
+        imgSrc="https://media.daily.dev/image/upload/s--bLTH_SfU--/f_auto/v1707242870/public/Roast-emoji.png.png"
         imgAlt="Devil emoji"
         ratio="80%"
         className="-mb-12 w-[21.25rem]"
@@ -142,7 +142,7 @@ const Loading = (): ReactElement => {
     <>
       <div className="relative -mb-12">
         <LazyImage
-          imgSrc="https://daily-now-res.cloudinary.com/image/upload/s--a3Z3K5Tg--/v1707244220/public/Blurry%20colors.png.png"
+          imgSrc="https://media.daily.dev/image/upload/s--a3Z3K5Tg--/v1707244220/public/Blurry%20colors.png.png"
           imgAlt="Gradient"
           ratio="80%"
           className="w-[21.25rem]"
