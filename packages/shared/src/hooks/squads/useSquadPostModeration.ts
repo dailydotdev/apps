@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { MouseEventHandler, useCallback, useRef } from 'react';
+import { MouseEventHandler, useCallback } from 'react';
 import {
   PostModerationReason,
   SquadPostRejectionProps,
@@ -68,7 +68,6 @@ export const useSquadPostModeration = ({
 }: {
   squad: Squad;
 }): UseSquadPostModeration => {
-  const onSuccessRef = useRef<MouseEventHandler>();
   const { openModal, closeModal } = useLazyModal();
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
@@ -80,12 +79,6 @@ export const useSquadPostModeration = ({
     squad.id,
   );
   const squadQueryKey = generateQueryKey(RequestKey.Squad, user, squad.handle);
-  const onSuccessWrapper = () => {
-    if (onSuccessRef.current) {
-      onSuccessRef.current(null);
-      onSuccessRef.current = undefined;
-    }
-  };
 
   const invalidateQueries = () => {
     Promise.all([
@@ -106,8 +99,8 @@ export const useSquadPostModeration = ({
       }),
     onSuccess: () => {
       displayToast('Post(s) approved successfully');
-      onSuccessWrapper();
       invalidateQueries();
+      closeModal();
     },
     onError: (_, variables) => {
       if (variables.postIds.length > 50) {
@@ -122,9 +115,7 @@ export const useSquadPostModeration = ({
   });
 
   const onApprovePost: UseSquadPostModeration['onApprove'] = useCallback(
-    async (postIds, sourceId, onSuccess) => {
-      onSuccessRef.current = onSuccess;
-
+    async (postIds, sourceId) => {
       if (postIds.length === 1) {
         await onApprove({ postIds, sourceId });
         return;
@@ -150,15 +141,13 @@ export const useSquadPostModeration = ({
     mutationFn: (props: SquadPostRejectionProps) => squadRejectMutation(props),
     onSuccess: () => {
       displayToast('Post(s) declined successfully');
-      onSuccessWrapper();
       invalidateQueries();
+      closeModal();
     },
   });
 
   const onRejectPost: UseSquadPostModeration['onReject'] = useCallback(
-    (postId, sourceId, onSuccess) => {
-      onSuccessRef.current = onSuccess;
-
+    (postId, sourceId) => {
       openModal({
         type: LazyModal.ReasonSelection,
         props: {
@@ -168,13 +157,13 @@ export const useSquadPostModeration = ({
               sourceId,
               reason,
               note,
-            }).then(() => closeModal()),
+            }),
           reasons: rejectReasons,
           heading: 'Select a reason for declining',
         },
       });
     },
-    [closeModal, onReject, openModal],
+    [onReject, openModal],
   );
 
   return {

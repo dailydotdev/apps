@@ -1,4 +1,4 @@
-import React, { MouseEvent, ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 import {
   Typography,
   TypographyTag,
@@ -51,8 +51,7 @@ export function SquadModerationItem({
     post,
   } = data;
   const isModerator = verifyPermission(squad, SourcePermissions.ModeratePost);
-  const onClick = (e: MouseEvent) => {
-    e.stopPropagation();
+  const onClick = () => {
     openModal({
       type: LazyModal.PostModeration,
       props: { data, squad, onApprove, onReject },

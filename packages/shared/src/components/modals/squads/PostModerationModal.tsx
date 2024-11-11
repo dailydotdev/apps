@@ -1,4 +1,4 @@
-import React, { MouseEventHandler, ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 import { Modal, ModalProps } from '../common/Modal';
 import {
   Typography,
@@ -17,7 +17,7 @@ import { SharePostTitle } from '../../post/share';
 import Markdown from '../../Markdown';
 import { MarkdownPostImage } from '../../post/MarkdownPostContent';
 
-type ActionHandler = (ids: string[], onSuccess?: MouseEventHandler) => void;
+type ActionHandler = (ids: string[], sourceId: string) => void;
 
 interface PostModerationModalProps extends ModalProps {
   onApprove: ActionHandler;
@@ -44,15 +44,12 @@ function PostModerationModal({
     content,
     contentHtml,
     sharedPost,
+    sourceId,
   } = data;
   const onReadArticle = useReadArticle({
     origin: Origin.ArticleModal,
     post: sharedPost,
   });
-
-  const closeWrapper = (callback: ActionHandler): MouseEventHandler => {
-    return () => callback([id], modalProps.onRequestClose);
-  };
 
   return (
     <Modal
@@ -62,8 +59,8 @@ function PostModerationModal({
     >
       <Modal.Body className="gap-6">
         <SquadModerationActions
-          onReject={closeWrapper(() => onReject([id]))}
-          onApprove={closeWrapper(() => onApprove([id]))}
+          onReject={() => onReject([id], sourceId)}
+          onApprove={() => onApprove([id], sourceId)}
         />
         <Typography type={TypographyType.Title3} tag={TypographyTag.H3} bold>
           Post preview
