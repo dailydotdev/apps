@@ -21,7 +21,7 @@ export const PlusUserBadge = ({
   user,
   tooltip = true,
 }: Props): ReactElement => {
-  const { user: myself } = useAuthContext();
+  const { user: myself, isLoggedIn } = useAuthContext();
   const { isPlus } = user;
 
   if (!isPlus) {
@@ -37,7 +37,7 @@ export const PlusUserBadge = ({
           content={
             <>
               <span>Plus member since</span>
-              {!myself.isPlus && (
+              {isLoggedIn && !myself?.isPlus && (
                 <Link passHref href={plusUrl}>
                   <Typography
                     tag={TypographyTag.Link}
