@@ -1,11 +1,17 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
 import LogoText from '../svg/LogoText';
 import LogoIcon from '../svg/LogoIcon';
 import { webappUrl } from '../lib/constants';
-import { DevPlusIcon } from './icons';
 import { IconSize } from './Icon';
+
+const DevPlusIcon = dynamic(() =>
+  import(/* webpackChunkName: "devPlusIcon" */ './icons/DevPlus').then(
+    (mod) => mod.DevPlusIcon,
+  ),
+);
 
 export enum LogoPosition {
   Absolute = 'absolute',
