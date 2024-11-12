@@ -20,20 +20,23 @@ export function SquadTabs({
   pendingCount,
   showSettings = false,
 }: SquadTabsProps): ReactElement {
+  const pendingTitle = pendingCount
+    ? `${SquadTab.PendingPosts} (${pendingCount})`
+    : SquadTab.PendingPosts;
+
   const links = useMemo(() => {
     const host = `${webappUrl}squads/${handle}`;
-    const title = pendingCount
-      ? `${SquadTab.PendingPosts} (${pendingCount})`
-      : SquadTab.PendingPosts;
-
     return {
       ...(showSettings && { [SquadTab.Settings]: `${host}/edit` }),
-      [title]: `${host}/moderate`,
+      [pendingTitle]: `${host}/moderate`,
     };
-  }, [handle, pendingCount, showSettings]);
+  }, [handle, pendingTitle, showSettings]);
+
+  const controlledActive =
+    active === SquadTab.PendingPosts ? pendingTitle : active;
 
   return (
-    <TabContainer shouldMountInactive controlledActive={active}>
+    <TabContainer shouldMountInactive controlledActive={controlledActive}>
       {Object.entries(links).map(([label, url]) => (
         <Tab key={label} label={label} url={url} />
       ))}
