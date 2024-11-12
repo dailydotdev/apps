@@ -1,5 +1,6 @@
 import { gql } from 'graphql-request';
 import {
+  SHARED_POST_INFO_FRAGMENT,
   SOURCE_BASE_FRAGMENT,
   SQUAD_BASE_FRAGMENT,
   USER_AUTHOR_FRAGMENT,
@@ -632,8 +633,14 @@ const SOURCE_POST_MODERATION_FRAGMENT = gql`
     moderatedBy {
       ...UserAuthor
     }
+    sharedPost {
+      ...SharedPostInfo
+    }
+    post {
+      ...SharedPostInfo
+    }
   }
-  ${USER_AUTHOR_FRAGMENT}
+  ${SHARED_POST_INFO_FRAGMENT}
 `;
 
 export const SQUAD_PENDING_POSTS_QUERY = gql`
