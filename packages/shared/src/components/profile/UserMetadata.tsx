@@ -75,7 +75,7 @@ export function UserMetadata({
           bold
         >
           <DevPlusIcon secondary size={IconSize.Size16} />
-          Plus
+          <span className="pl-0.5">Plus</span>
         </Typography>
       )}
       {!!company && (
