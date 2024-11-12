@@ -85,10 +85,14 @@ export const useContentPreferenceStatusQuery = ({
         ...unknown[],
       ];
 
-      const nextStatus = mutationKeyToContentPreferenceStatusMap[requestKey];
-
       const { id: entityId, entity: entityType } =
         mutationVariables as PropsParameters<ContentPreferenceMutation>;
+
+      if (entityId !== id || entityType !== entity) {
+        return;
+      }
+
+      const nextStatus = mutationKeyToContentPreferenceStatusMap[requestKey];
 
       if (!nextStatus) {
         mutationQueryClient.setQueryData<ContentPreference>(queryKey, null);
