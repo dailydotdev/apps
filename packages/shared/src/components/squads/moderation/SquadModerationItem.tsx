@@ -23,6 +23,7 @@ import { TimerIcon, WarningIcon } from '../../icons';
 import { AlertColor } from '../../AlertDot';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
+import { useTruncatedSummary } from '../../../hooks';
 
 interface SquadModerationListProps {
   data: SourcePostModeration;
@@ -39,18 +40,16 @@ export function SquadModerationItem({
   onApprove,
   isPending,
 }: SquadModerationListProps): ReactElement {
-  const { openModal, closeModal } = useLazyModal();
-  const {
-    status,
-    reason,
-    createdBy,
-    createdAt,
-    title,
-    image,
-    sharedPost,
-    post,
-  } = data;
+  const { status, reason, createdBy, createdAt, image } = data;
+  const post = data.sharedPost || data.post;
+  const { title } = useTruncatedSummary({
+    ...data,
+    ...post,
+    ...(!post?.title && !data.title && { title: post?.sharedPost?.title }),
+  });
   const isModerator = verifyPermission(squad, SourcePermissions.ModeratePost);
+
+  const { openModal, closeModal } = useLazyModal();
   const onClick = () => {
     openModal({
       type: LazyModal.PostModeration,
@@ -63,20 +62,16 @@ export function SquadModerationItem({
     });
   };
 
-  const icon =
-    status === SourcePostModerationStatus.Rejected ? (
-      <WarningIcon />
-    ) : (
-      <TimerIcon />
-    );
+  const IconComponent =
+    status === SourcePostModerationStatus.Rejected ? WarningIcon : TimerIcon;
 
   return (
     <div className="relative flex flex-col gap-4 p-6 hover:bg-surface-hover">
       <button
-        type="button"
-        onClick={onClick}
         aria-label={`Review ${title}`}
         className="absolute inset-0"
+        onClick={onClick}
+        type="button"
       />
       <div className="flex flex-row gap-4">
         <ProfilePicture user={createdBy} size={ProfileImageSize.Large} />
@@ -89,7 +84,7 @@ export function SquadModerationItem({
         {!isModerator && (
           <span className="ml-auto flex flex-row gap-2">
             <Button
-              icon={icon}
+              icon={<IconComponent aria-hidden role="presentation" />}
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               disabled
@@ -105,9 +100,9 @@ export function SquadModerationItem({
           <Typography tag={TypographyTag.H2} type={TypographyType.Title3} bold>
             {title}
           </Typography>
-          <PostTags className="!mx-0" tags={sharedPost?.tags || post?.tags} />
+          <PostTags className="!mx-0" tags={post?.tags} />
         </div>
-        <CardImage src={image || sharedPost?.image || post?.image} />
+        <CardImage src={image || post?.image} />
       </div>
       {status === SourcePostModerationStatus.Rejected && !isModerator && (
         <AlertPointerMessage color={AlertColor.Bun}>
