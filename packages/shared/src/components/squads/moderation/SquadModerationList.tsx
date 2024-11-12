@@ -1,15 +1,21 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import { Button } from '../../buttons/Button';
 import { ButtonVariant, ButtonSize } from '../../buttons/common';
 import { VIcon } from '../../icons';
 import { useSquadPostModeration } from '../../../hooks/squads/useSquadPostModeration';
 import { useSquadPendingPosts } from '../../../hooks/squads/useSquadPendingPosts';
 import { SquadModerationItem } from './SquadModerationItem';
-import { SourceMemberRole, Squad } from '../../../graphql/sources';
+import {
+  SourceMemberRole,
+  SourcePermissions,
+  Squad,
+} from '../../../graphql/sources';
 import { SquadEmptyScreen } from './SquadEmptyScreen';
 import { ElementPlaceholder } from '../../ElementPlaceholder';
+import InfiniteScrolling from '../../containers/InfiniteScrolling';
+import { verifyPermission } from '../../../graphql/squads';
 
-const placeholder = (
+const ItemSkeleton = () => (
   <div className="flex w-full flex-col gap-4 p-6">
     <span className="flex flex-row">
       <ElementPlaceholder className="h-10 w-10 rounded-full" />
@@ -42,65 +48,97 @@ interface SquadModerationListProps {
   squad: Squad;
 }
 
-export function SquadModerationList({
+const EmptyModerationList = ({
   squad,
-}: SquadModerationListProps): ReactElement {
-  const { onApprove, onReject, isPending } = useSquadPostModeration();
-  const { data, isFetched } = useSquadPendingPosts(squad?.id);
+  isFetched,
+}: {
+  squad: Squad;
+  isFetched: boolean;
+}) => {
+  if (!isFetched || !squad) {
+    return (
+      <div className="flex flex-col gap-4">
+        <ItemSkeleton />
+        <ItemSkeleton />
+      </div>
+    );
+  }
 
-  if (!data?.length) {
-    if (!isFetched || !squad) {
-      return (
-        <div className="flex flex-col gap-4">
-          {placeholder}
-          {placeholder}
-        </div>
-      );
-    }
-
-    if (squad.currentMember.role === SourceMemberRole.Member) {
-      return (
-        <SquadEmptyScreen
-          Icon={VIcon}
-          title="All done!"
-          description="All caught up! No posts are pending" // TODO:: MI-597 - check with product what to show here
-        />
-      );
-    }
-
+  if (squad.currentMember.role === SourceMemberRole.Member) {
     return (
       <SquadEmptyScreen
         Icon={VIcon}
         title="All done!"
-        description="All caught up! There are no posts waiting for your review right now."
+        description="All caught up! No posts are pending"
       />
     );
   }
 
   return (
+    <SquadEmptyScreen
+      Icon={VIcon}
+      title="All done!"
+      description="All caught up! There are no posts waiting for your review right now."
+    />
+  );
+};
+
+export function SquadModerationList({
+  squad,
+}: SquadModerationListProps): ReactElement {
+  const moderate = useSquadPostModeration({
+    squad,
+  });
+  const { data, isFetched, fetchNextPage, hasNextPage, isPending } =
+    useSquadPendingPosts(squad?.id);
+  const isModerator = verifyPermission(squad, SourcePermissions.ModeratePost);
+
+  const list = useMemo(
+    () =>
+      data?.pages.flatMap((page) => page.edges).flatMap(({ node }) => node) ??
+      [],
+    [data],
+  );
+
+  if (!data?.pages.length) {
+    return <EmptyModerationList squad={squad} isFetched={isFetched} />;
+  }
+
+  return (
     <div className="flex flex-col">
-      {data?.length > 1 && (
+      {list.length > 1 && isModerator && (
         <span className="flex w-full flex-row justify-end border-b border-border-subtlest-tertiary px-4 py-3">
           <Button
             icon={<VIcon secondary />}
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
-            onClick={() => onApprove(data.map((request) => request.id))}
+            onClick={() =>
+              moderate.onApprove(
+                list.map((request) => request.id),
+                squad.id,
+              )
+            }
           >
-            Approve all {data.length} posts
+            Approve all {list.length} posts
           </Button>
         </span>
       )}
-      {data?.map((request) => (
-        <SquadModerationItem
-          key={request.id}
-          squad={squad}
-          data={request}
-          isLoading={isPending}
-          onReject={onReject}
-          onApprove={(id) => onApprove([id])}
-        />
-      ))}
+      <InfiniteScrolling
+        canFetchMore={hasNextPage}
+        isFetchingNextPage={isPending}
+        fetchNextPage={fetchNextPage}
+      >
+        {list?.map((item) => (
+          <SquadModerationItem
+            key={item.id}
+            squad={squad}
+            data={item}
+            isPending={isPending}
+            onReject={() => moderate.onReject(item.id, squad.id)}
+            onApprove={() => moderate.onApprove([item.id], squad.id)}
+          />
+        ))}
+      </InfiniteScrolling>
     </div>
   );
 }
