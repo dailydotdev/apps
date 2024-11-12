@@ -100,7 +100,7 @@ export function SquadModerationItem({
           <Typography tag={TypographyTag.H2} type={TypographyType.Title3} bold>
             {title}
           </Typography>
-          <PostTags className="!mx-0" tags={post?.tags} />
+          <PostTags className="!mx-0 min-w-full" tags={post?.tags} />
         </div>
         <CardImage src={image || post?.image} />
       </div>
