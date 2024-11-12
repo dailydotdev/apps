@@ -17,7 +17,6 @@ import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import { useJoinReferral } from '@dailydotdev/shared/src/hooks';
 import { useReadingStreak } from '@dailydotdev/shared/src/hooks/streaks';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { useProfileContentPreferenceMutationSubscription } from '@dailydotdev/shared/src/hooks/profile/useProfileContentPreferenceMutationSubscription';
 import { NextSeo } from 'next-seo';
 import { NextSeoProps } from 'next-seo/lib/types';
 import {
@@ -42,10 +41,7 @@ const ProfilePage = ({
   const { selectedHistoryYear, before, after, yearOptions, fullHistory } =
     useActivityTimeFilter();
 
-  const { user, userQueryKey } = useProfile(initialUser);
-  useProfileContentPreferenceMutationSubscription({
-    queryKey: userQueryKey,
-  });
+  const { user } = useProfile(initialUser);
 
   const { data: readingHistory, isLoading } = useQuery<ProfileReadingData>({
     queryKey: generateQueryKey(
