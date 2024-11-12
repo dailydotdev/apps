@@ -120,6 +120,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   acquisitionChannel?: string;
   experienceLevel?: keyof typeof UserExperienceLevel;
   isTeamMember?: boolean;
+  isPlus?: boolean;
   companies?: Company[];
   contentPreference?: ContentPreference;
 }
