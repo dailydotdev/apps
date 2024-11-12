@@ -1,13 +1,15 @@
 import React from 'react';
 import type { ReactElement } from 'react';
+import classNames from 'classnames';
 import { Typography, TypographyType } from './typography/Typography';
 import { DevPlusIcon } from './icons';
 import { IconSize } from './Icon';
+import type { WithClassNameProps } from './utilities';
 
-export const PlusUser = (): ReactElement => {
+export const PlusUser = ({ className }: WithClassNameProps): ReactElement => {
   return (
     <Typography
-      className="flex text-accent-bacon-default"
+      className={classNames('flex text-accent-bacon-default', className)}
       type={TypographyType.Caption1}
       bold
     >
