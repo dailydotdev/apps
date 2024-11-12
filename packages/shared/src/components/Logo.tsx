@@ -26,14 +26,14 @@ interface LogoSvgElemProps {
     group?: string;
   };
   src?: string;
-  isPlus?: Date;
+  isPlus?: boolean;
   fallback: typeof LogoText | typeof LogoIcon;
 }
 
 const LogoSvgElem = ({
   className,
   src,
-  isPlus = false,
+  isPlus,
   fallback: FallbackElem,
 }: LogoSvgElemProps): ReactElement => {
   if (src) {
@@ -48,7 +48,7 @@ const LogoSvgElem = ({
       />
     );
   }
-  return <FallbackElem isPlus={isPlus} className={className} />;
+  return <FallbackElem isPlus={!!isPlus} className={className} />;
 };
 
 interface LogoProps {
@@ -66,7 +66,7 @@ interface LogoProps {
     logoText?: string;
   };
   linkDisabled?: boolean;
-  isPlus?: Date;
+  isPlus?: boolean;
 }
 
 export default function Logo({
