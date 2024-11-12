@@ -6,7 +6,14 @@ import { DevPlusIcon } from './icons';
 import { IconSize } from './Icon';
 import type { WithClassNameProps } from './utilities';
 
-export const PlusUser = ({ className }: WithClassNameProps): ReactElement => {
+type Props = {
+  withText: boolean;
+} & WithClassNameProps;
+
+export const PlusUser = ({
+  className,
+  withText = true,
+}: Props): ReactElement => {
   return (
     <Typography
       className={classNames('flex text-accent-bacon-default', className)}
@@ -14,7 +21,7 @@ export const PlusUser = ({ className }: WithClassNameProps): ReactElement => {
       bold
     >
       <DevPlusIcon secondary size={IconSize.Size16} />
-      <span className="pl-0.5">Plus</span>
+      {withText && <span className="pl-0.5">Plus</span>}
     </Typography>
   );
 };

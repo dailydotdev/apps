@@ -20,6 +20,7 @@ import { ReputationUserBadge } from '../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { Separator } from '../cards/common/common';
 import { TopReaderIn } from '../TopReaderIn';
+import { PlusUserBadge } from '../PlusUserBadge';
 
 interface ClassName extends CommentClassName {
   content?: string;
@@ -111,6 +112,7 @@ export default function CommentContainer({
               author={comment.author}
               appendTooltipTo={appendTooltipTo}
             />
+            {comment.author?.isPlus && <PlusUserBadge user={comment.author} />}
             {comment.author?.companies?.length > 0 && (
               <VerifiedCompanyUserBadge user={comment.author} />
             )}
