@@ -112,7 +112,9 @@ export default function CommentContainer({
               author={comment.author}
               appendTooltipTo={appendTooltipTo}
             />
-            {comment.author?.isPlus && <PlusUserBadge user={comment.author} />}
+            {!!comment.author?.isPlus && (
+              <PlusUserBadge user={comment.author} />
+            )}
             {comment.author?.companies?.length > 0 && (
               <VerifiedCompanyUserBadge user={comment.author} />
             )}

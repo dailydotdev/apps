@@ -56,7 +56,7 @@ const useMenuItems = (): NavItemProps[] => {
           isHeader: true,
         },
         { label: 'Edit profile', icon: <EditIcon />, href: '/account/profile' },
-        ...(!user.isPlus
+        ...(!user?.isPlus
           ? [
               {
                 label: 'Upgrade to plus',

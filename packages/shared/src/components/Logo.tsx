@@ -26,7 +26,7 @@ interface LogoSvgElemProps {
     group?: string;
   };
   src?: string;
-  isPlus?: boolean;
+  isPlus?: Date;
   fallback: typeof LogoText | typeof LogoIcon;
 }
 
@@ -66,7 +66,7 @@ interface LogoProps {
     logoText?: string;
   };
   linkDisabled?: boolean;
-  isPlus?: boolean;
+  isPlus?: Date;
 }
 
 export default function Logo({

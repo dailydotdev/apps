@@ -7,7 +7,7 @@ import { IconSize } from './Icon';
 import type { WithClassNameProps } from './utilities';
 
 type Props = {
-  withText: boolean;
+  withText?: boolean;
 } & WithClassNameProps;
 
 export const PlusUser = ({

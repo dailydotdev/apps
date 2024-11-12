@@ -20,7 +20,7 @@ export interface HeaderProps {
   sticky?: boolean;
   className?: string;
   style?: CSSProperties;
-  isPlus?: boolean;
+  isPlus?: Date;
 }
 
 export function Header({

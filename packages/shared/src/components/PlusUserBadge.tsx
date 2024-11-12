@@ -11,6 +11,8 @@ import {
   TypographyTag,
 } from './typography/Typography';
 import ConditionalWrapper from './ConditionalWrapper';
+import { DateFormat } from './utilities';
+import { TimeFormatType } from '../lib/dateFormat';
 
 export type Props = {
   user: Pick<PublicProfile, 'isPlus'>;
@@ -36,7 +38,11 @@ export const PlusUserBadge = ({
           interactive
           content={
             <>
-              <span>Plus member since</span>
+              <DateFormat
+                prefix="Plus member since "
+                date={isPlus}
+                type={TimeFormatType.PlusMember}
+              />
               {isLoggedIn && !myself?.isPlus && (
                 <Link passHref href={plusUrl}>
                   <Typography

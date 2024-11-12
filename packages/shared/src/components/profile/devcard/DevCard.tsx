@@ -173,7 +173,7 @@ export function DevCard({
                   !isIron && !isDefault && 'text-raw-pepper-90',
                 )}
               />
-              {user?.isPlus && <PlusUser className="pl-1" />}
+              {!!user?.isPlus && <PlusUser className="pl-1" />}
             </div>
             {isHorizontal && (
               <Divider

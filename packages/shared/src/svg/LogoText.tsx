@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 
 interface LogoTextProps {
-  isPlus?: boolean;
+  isPlus?: Date;
   className?: {
     container?: string;
     group?: string;

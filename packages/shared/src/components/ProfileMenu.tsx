@@ -60,7 +60,7 @@ export default function ProfileMenu({
           icon: <UserIcon />,
         },
       },
-      ...(!user.isPlus
+      ...(!user?.isPlus
         ? [
             {
               title: 'Upgrade to plus',
@@ -137,7 +137,14 @@ export default function ProfileMenu({
     });
 
     return list;
-  }, [isDndActive, logout, openModal, setShowDnd, user.isPlus, user.permalink]);
+  }, [
+    isDndActive,
+    logout,
+    openModal,
+    setShowDnd,
+    user?.isPlus,
+    user.permalink,
+  ]);
 
   if (!user) {
     return <></>;
@@ -170,7 +177,7 @@ export default function ProfileMenu({
         name={user.name}
         createdAt={user.createdAt}
         reputation={user.reputation}
-        isPlus={user.isPlus}
+        isPlus={user?.isPlus}
         className="gap-2 p-4"
       />
       <div className="flex flex-col border-t border-border-subtlest-tertiary py-2">
