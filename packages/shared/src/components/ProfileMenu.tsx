@@ -155,7 +155,8 @@ export default function ProfileMenu({
         name={user.name}
         createdAt={user.createdAt}
         reputation={user.reputation}
-        className="gap-3 p-4"
+        isPlus={user.isPlus}
+        className="gap-2 p-4"
       />
       <div className="flex flex-col border-t border-border-subtlest-tertiary py-2">
         {items.map(({ title, buttonProps, rightEmoji }) => (
