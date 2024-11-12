@@ -4,6 +4,8 @@ import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
 import LogoText from '../svg/LogoText';
 import LogoIcon from '../svg/LogoIcon';
 import { webappUrl } from '../lib/constants';
+import { DevPlusIcon } from './icons';
+import { IconSize } from './Icon';
 
 export enum LogoPosition {
   Absolute = 'absolute',
@@ -64,6 +66,7 @@ interface LogoProps {
     logoText?: string;
   };
   linkDisabled?: boolean;
+  plus?: boolean;
 }
 
 export default function Logo({
@@ -75,6 +78,7 @@ export default function Logo({
   position = LogoPosition.Absolute,
   featureTheme,
   linkDisabled,
+  plus = false,
 }: LogoProps): ReactElement {
   return (
     <LinkWithTooltip
@@ -86,7 +90,7 @@ export default function Logo({
       <a
         aria-disabled={linkDisabled}
         className={classNames(
-          'flex items-center',
+          'relative flex items-center',
           logoPositionToClassName[position],
           className,
           linkDisabled && 'pointer-events-none',
@@ -111,6 +115,12 @@ export default function Logo({
             }}
             src={featureTheme?.logoText}
             fallback={LogoText}
+          />
+        )}
+        {plus && (
+          <DevPlusIcon
+            size={IconSize.XXSmall}
+            className="absolute right-0 top-0 -translate-y-1/3 text-accent-bacon-default"
           />
         )}
       </a>
