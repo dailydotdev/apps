@@ -15,7 +15,7 @@ import { ElementPlaceholder } from '../../ElementPlaceholder';
 import InfiniteScrolling from '../../containers/InfiniteScrolling';
 import { verifyPermission } from '../../../graphql/squads';
 
-const placeholder = (
+const ItemSkeleton = () => (
   <div className="flex w-full flex-col gap-4 p-6">
     <span className="flex flex-row">
       <ElementPlaceholder className="h-10 w-10 rounded-full" />
@@ -58,8 +58,8 @@ const EmptyModerationList = ({
   if (!isFetched || !squad) {
     return (
       <div className="flex flex-col gap-4">
-        {placeholder}
-        {placeholder}
+        <ItemSkeleton />
+        <ItemSkeleton />
       </div>
     );
   }
