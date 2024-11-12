@@ -71,7 +71,9 @@ function PostModerationModal({
           title={title || editPost?.title}
           titleHtml={titleHtml || editPost?.titleHtml}
         />
-        <MarkdownPostImage imgSrc={image || editPost?.image} />
+        {!sharedPost && (image || editPost?.image) && (
+          <MarkdownPostImage imgSrc={image || editPost?.image} />
+        )}
         {contentHtml ? (
           <Markdown content={contentHtml} />
         ) : (
