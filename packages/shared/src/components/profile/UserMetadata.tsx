@@ -13,7 +13,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { DevPlusIcon } from '../icons';
+import { PlusUser } from '../PlusUser';
 
 export type UserMetadataProps = Pick<
   PublicProfile,
@@ -68,16 +68,7 @@ export function UserMetadata({
           date={new Date(createdAt)}
         />
       </div>
-      {isPlus && (
-        <Typography
-          className="flex text-accent-bacon-default"
-          type={TypographyType.Caption1}
-          bold
-        >
-          <DevPlusIcon secondary size={IconSize.Size16} />
-          <span className="pl-0.5">Plus</span>
-        </Typography>
-      )}
+      {isPlus && <PlusUser />}
       {!!company && (
         <div className="flex items-center gap-1">
           <ProfilePicture
