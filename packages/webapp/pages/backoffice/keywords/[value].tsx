@@ -23,7 +23,7 @@ const KeywordPage = ({
   useRequirePermissions(Roles.Moderator);
   const { tokenRefreshed } = useContext(AuthContext);
 
-  const { data: keywordData, isLoading: isLoadingKeyword } = useQuery({
+  const { data: keywordData, isPending: isLoadingKeyword } = useQuery({
     queryKey: ['keyword', keywordValue],
     queryFn: () => gqlClient.request(KEYWORD_QUERY, { value: keywordValue }),
     enabled: tokenRefreshed && !!keywordValue,

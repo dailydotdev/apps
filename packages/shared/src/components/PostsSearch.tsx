@@ -70,7 +70,7 @@ export default function PostsSearch({
   });
   const SEARCH_URL = SEARCH_TYPES[suggestionType];
 
-  const { data: searchResults, isLoading } = useQuery<{
+  const { data: searchResults, isPending } = useQuery<{
     [suggestionType: string]: { hits: { title: string }[] };
   }>({
     queryKey: [suggestionType, query],
@@ -99,7 +99,7 @@ export default function PostsSearch({
   };
 
   useEffect(() => {
-    if (!isLoading) {
+    if (!isPending) {
       if (!items?.length && searchResults?.[suggestionType]?.hits.length) {
         showSuggestions();
       }
@@ -109,7 +109,7 @@ export default function PostsSearch({
     }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchResults, isLoading]);
+  }, [searchResults, isPending]);
 
   const submitQuery = async (item?: string) => {
     const itemQuery = item?.replace?.(sanitizeSearchTitleMatch, '');

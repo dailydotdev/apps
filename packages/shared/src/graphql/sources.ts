@@ -46,8 +46,13 @@ export interface SourceMember {
   flags?: SourceMemberFlag;
 }
 
-export interface SourceMemberSimple {
-  image: string;
+export interface BasicSourceMember {
+  user: {
+    id: string;
+    name: string;
+    image: string;
+    permalink: string;
+  };
 }
 
 export enum SourceType {
@@ -68,6 +73,7 @@ export interface Squad extends Source {
   moderationRequired: boolean;
   referralUrl?: string;
   category?: SourceCategory;
+  moderationPostCount: number;
 }
 
 interface SourceFlags {

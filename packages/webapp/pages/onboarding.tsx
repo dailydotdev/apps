@@ -28,7 +28,7 @@ import {
   wrapperMaxWidth,
 } from '@dailydotdev/shared/src/components/onboarding/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { NextSeo, NextSeoProps } from 'next-seo';
+import { NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import {
   useFeature,
@@ -57,7 +57,9 @@ import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import useMutateFilters from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import dynamic from 'next/dynamic';
+import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
+import { getTemplatedTitle } from '../components/layouts/utils';
 
 const ContentTypes = dynamic(() =>
   import(
@@ -88,7 +90,7 @@ type OnboardingVisual = {
 };
 
 const seo: NextSeoProps = {
-  title: 'Get started',
+  title: getTemplatedTitle('Get started'),
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
 };
@@ -123,6 +125,7 @@ export function OnboardPage(): ReactElement {
   const onboardingVisual: OnboardingVisual = useFeature(
     feature.onboardingVisual,
   );
+  const { isPushSupported } = usePushNotificationContext();
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
@@ -186,7 +189,11 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.ContentTypes);
     }
 
-    if (activeScreen === OnboardingStep.ContentTypes && isMobile) {
+    if (
+      activeScreen === OnboardingStep.ContentTypes &&
+      isMobile &&
+      isPushSupported
+    ) {
       return setActiveScreen(OnboardingStep.ReadingReminder);
     }
 
@@ -296,7 +303,6 @@ export function OnboardPage(): ReactElement {
           sizes="(max-width: 655px) 450px, 1024px"
         />
       )}
-      <NextSeo {...seo} titleTemplate="%s | daily.dev" />
       <OnboardingLogs userId={userId} instanceId={instanceId} />
       {showGenerigLoader && <GenericLoader />}
       <OnboardingHeader
@@ -359,5 +365,7 @@ export function OnboardPage(): ReactElement {
     </div>
   );
 }
+
+OnboardPage.layoutProps = { seo };
 
 export default withFeaturesBoundary(OnboardPage);

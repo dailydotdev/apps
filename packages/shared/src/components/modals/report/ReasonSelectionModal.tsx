@@ -5,9 +5,11 @@ import { Modal, ModalProps } from '../common/Modal';
 import { Justify } from '../../utilities';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { ReportReason } from '../../../report';
+import { PostModerationReason } from '../../../graphql/squads';
 
-interface Props extends ModalProps {
-  onReport(e: React.MouseEvent, reason: ReportReason, text: string): void;
+interface Props<T extends ReportReason | PostModerationReason>
+  extends ModalProps {
+  onReport(e: React.MouseEvent, reason: T, text: string): void;
   reasons: RadioItemProps[] | ((reason: string) => RadioItemProps[]);
   heading: string;
   title?: string;
@@ -17,7 +19,9 @@ interface Props extends ModalProps {
 
 export const OTHER_KEY = 'OTHER';
 
-export function ReportModal({
+export function ReasonSelectionModal<
+  T extends ReportReason | PostModerationReason = ReportReason,
+>({
   onReport,
   reasons,
   heading,
@@ -25,13 +29,19 @@ export function ReportModal({
   footer,
   disabled,
   ...props
-}: Props): ReactElement {
+}: Props<T>): ReactElement {
   const [reason, setReason] = useState(null);
   const [note, setNote] = useState<string>();
   const isMobile = useViewSize(ViewSize.MobileL);
   const submitButtonProps = {
     disabled: !reason || (reason === OTHER_KEY && !note) || disabled,
     onClick: (e) => onReport(e, reason, note),
+  };
+
+  const onFocus = () => {
+    if (!reason) {
+      setReason(ReportReason.Other);
+    }
   };
 
   return (
@@ -63,6 +73,7 @@ export function ReportModal({
         </p>
         <textarea
           onInput={(event) => setNote(event.currentTarget.value)}
+          onFocus={onFocus}
           className="mb-1 h-20 w-full resize-none self-stretch rounded-10 bg-surface-float p-2 typo-body"
           data-testid="report_comment"
         />
@@ -83,3 +94,5 @@ export function ReportModal({
     </Modal>
   );
 }
+
+export default ReasonSelectionModal;

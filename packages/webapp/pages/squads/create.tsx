@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { NextSeo, NextSeoProps } from 'next-seo';
+import { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import {
   WriteFreeformContent,
@@ -50,10 +50,13 @@ import useSourcePostModeration from '@dailydotdev/shared/src/hooks/source/useSou
 import { moderationRequired } from '@dailydotdev/shared/src/components/squads/utils';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { getTemplatedTitle } from '../../components/layouts/utils';
 
 const seo: NextSeoProps = {
-  title: 'Create post',
+  title: getTemplatedTitle('Create post'),
   openGraph: { ...defaultOpenGraph },
+  nofollow: true,
+  noindex: true,
   ...defaultSeo,
 };
 
@@ -210,7 +213,6 @@ function CreatePost(): ReactElement {
       enableUpload
     >
       <WritePageContainer>
-        <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
         <TabContainer<WriteFormTab>
           onActiveChange={(active) => setDisplay(active)}
           controlledActive={display}
@@ -253,5 +255,6 @@ function CreatePost(): ReactElement {
 }
 
 CreatePost.getLayout = getMainLayout;
+CreatePost.layoutProps = { seo };
 
 export default CreatePost;

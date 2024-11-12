@@ -3,11 +3,12 @@ import {
   SOURCE_BASE_FRAGMENT,
   SQUAD_BASE_FRAGMENT,
   USER_AUTHOR_FRAGMENT,
+  USER_BASIC_INFO,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
 import { Connection, gqlClient } from './common';
 import {
-  PublicSquadRequest,
+  BasicSourceMember,
   Source,
   SourceMember,
   SourceMemberRole,
@@ -19,6 +20,7 @@ import { Post } from './posts';
 import { EmptyResponse } from './emptyResponse';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
 import { PrivacyOption } from '../components/squads/settings/SquadPrivacySection';
+import { Author } from './comments';
 
 interface BaseSquadForm
   extends Pick<
@@ -234,6 +236,7 @@ export const SQUAD_QUERY = gql`
   query Source($handle: ID!) {
     source(id: $handle) {
       ...SquadBaseInfo
+      moderationPostCount
     }
   }
   ${SQUAD_BASE_FRAGMENT}
@@ -244,13 +247,37 @@ export const SQUAD_STATIC_FIELDS_QUERY = gql`
     source(id: $handle) {
       id
       name
+      handle
       public
       description
       image
       type
+      permalink
+      moderationRequired
     }
   }
 `;
+
+export type SquadStaticData = Pick<
+  Squad,
+  | 'id'
+  | 'name'
+  | 'handle'
+  | 'public'
+  | 'description'
+  | 'image'
+  | 'type'
+  | 'moderationRequired'
+  | 'permalink'
+>;
+
+export const getSquadStaticFields = async (
+  handle: string,
+): Promise<SquadStaticData> => {
+  const res = await gqlClient.request(SQUAD_STATIC_FIELDS_QUERY, { handle });
+
+  return res.source;
+};
 
 export const SQUAD_HANDE_AVAILABILITY_QUERY = gql`
   query SourceHandleExists($handle: String!) {
@@ -288,6 +315,21 @@ export const SQUAD_MEMBERS_QUERY = gql`
     }
   }
   ${USER_AUTHOR_FRAGMENT}
+`;
+
+export const BASIC_SQUAD_MEMBERS_QUERY = gql`
+  query BasicSourceMembers($id: ID!, $first: Int) {
+    sourceMembers(sourceId: $id, first: $first) {
+      edges {
+        node {
+          user {
+            ...UserBasicInfo
+          }
+        }
+      }
+    }
+  }
+  ${USER_BASIC_INFO}
 `;
 
 export const SQUAD_INVITATION_QUERY = gql`
@@ -367,6 +409,10 @@ export interface SquadEdgesData {
   sourceMembers: Connection<SourceMember>;
 }
 
+export interface BasicSourceMembersData {
+  sourceMembers: Connection<BasicSourceMember>;
+}
+
 interface SquadMemberMutationProps {
   sourceId: string;
   memberId: string;
@@ -402,11 +448,16 @@ export async function getSquad(handle: string): Promise<Squad> {
   return res.source;
 }
 
-export async function getSquadMembers(id: string): Promise<SourceMember[]> {
-  const res = await gqlClient.request<SquadEdgesData>(SQUAD_MEMBERS_QUERY, {
-    id,
-    first: 5,
-  });
+export async function getSquadMembers(
+  id: string,
+): Promise<BasicSourceMember[]> {
+  const res = await gqlClient.request<BasicSourceMembersData>(
+    BASIC_SQUAD_MEMBERS_QUERY,
+    {
+      id,
+      first: 5,
+    },
+  );
   return res.sourceMembers.edges?.map((edge) => edge.node);
 }
 
@@ -529,39 +580,62 @@ export const SQUAD_COMMENT_JOIN_BANNER_KEY = generateStorageKey(
   'comment_join_banner',
 );
 
-export const SUBMIT_SQUAD_FOR_REVIEW_MUTATION = gql`
-  mutation SubmitSquadForReview($sourceId: ID!) {
-    submitSquadForReview(sourceId: $sourceId) {
-      status
-    }
-  }
-`;
-
-interface SubmitSquadForReviewOutput {
-  submitSquadForReview: PublicSquadRequest;
+export enum SourcePostModerationStatus {
+  Approved = 'approved',
+  Rejected = 'rejected',
+  Pending = 'pending',
 }
 
-export async function submitSquadForReview(
-  sourceId: string,
-): Promise<PublicSquadRequest> {
-  const data = await gqlClient.request<SubmitSquadForReviewOutput>(
-    SUBMIT_SQUAD_FOR_REVIEW_MUTATION,
-    { sourceId },
-  );
-  return data.submitSquadForReview;
+type PostRequestContentProps = Pick<
+  Post,
+  | 'title'
+  | 'titleHtml'
+  | 'content'
+  | 'contentHtml'
+  | 'image'
+  | 'source'
+  | 'sharedPost'
+  | 'createdAt'
+>;
+
+interface PostRequestContent extends PostRequestContentProps {
+  createdById: string;
+  createdBy: Author;
 }
 
-interface GetPublicSquadRequestsProps {
-  sourceId: string;
-  first?: number;
+export interface SourcePostModeration extends Partial<PostRequestContent> {
+  id: string;
+  post?: Post;
+  status: SourcePostModerationStatus;
+  reason?: PostModerationReason;
+  moderatorMessage?: string;
 }
 
-export const getPublicSquadRequests = async (
-  params: GetPublicSquadRequestsProps,
-): Promise<Connection<PublicSquadRequest>> => {
-  const res = await gqlClient.request<{
-    requests: Connection<PublicSquadRequest>;
-  }>(PUBLIC_SQUAD_REQUESTS, params);
+export enum PostModerationReason {
+  OffTopic = 'OFF_TOPIC',
+  Violation = 'VIOLATION',
+  Promotional = 'PROMOTIONAL',
+  Duplicate = 'DUPLICATE',
+  LowQuality = 'LOW_QUALITY',
+  NSFW = 'NSFW',
+  Spam = 'SPAM',
+  Misinformation = 'MISINFORMATION',
+  Copyright = 'COPYRIGHT',
+  Other = 'OTHER',
+}
 
-  return res.requests;
-};
+export interface SquadPostRejectionProps {
+  postId: string;
+  reason: string;
+  note?: string;
+}
+
+// TODO:: MI-596
+export const squadApproveMutation = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _: string[],
+): Promise<void> => Promise.resolve();
+export const squadRejectMutation = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _: SquadPostRejectionProps,
+): Promise<void> => Promise.resolve();

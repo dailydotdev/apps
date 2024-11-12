@@ -92,7 +92,7 @@ export function TagSelection({
     feedId,
   );
 
-  const { data: onboardingTagsRaw, isLoading } = useQuery({
+  const { data: onboardingTagsRaw, isPending } = useQuery({
     queryKey: onboardingTagsQueryKey,
 
     queryFn: async () => {
@@ -212,10 +212,10 @@ export function TagSelection({
       />
       <div
         role="list"
-        aria-busy={isLoading}
+        aria-busy={isPending}
         className="flex flex-row flex-wrap justify-center gap-4"
       >
-        {isLoading &&
+        {isPending &&
           placeholderTags.map((item) => (
             <ElementPlaceholder
               key={item}
@@ -224,7 +224,7 @@ export function TagSelection({
               <span className="invisible">{item}</span>
             </ElementPlaceholder>
           ))}
-        {!isLoading &&
+        {!isPending &&
           tags?.map((tag) => {
             const isSelected = selectedTags.has(tag.name);
             renderedTags[tag.name] = true;
@@ -240,7 +240,7 @@ export function TagSelection({
             );
           })}
         {/* render leftover tags not rendered in initial recommendations but selected */}
-        {!isLoading &&
+        {!isPending &&
           !searchQuery &&
           feedSettings?.includeTags?.map((tag) => {
             if (renderedTags[tag]) {

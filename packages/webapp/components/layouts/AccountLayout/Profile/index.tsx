@@ -50,7 +50,6 @@ import {
 } from '@dailydotdev/shared/src/graphql/common';
 import { UPLOAD_COVER_MUTATION } from '@dailydotdev/shared/src/graphql/users';
 import { useRouter } from 'next/router';
-
 import { AccountTextField } from '../common';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';

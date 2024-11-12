@@ -3,12 +3,12 @@ import PostSourceInfo from './PostSourceInfo';
 import { ReadArticleButton } from '../cards/common/ReadArticleButton';
 import {
   Post,
+  SharedPost,
   getReadPostButtonText,
   isInternalReadType,
   isSharedPostSquadPost,
 } from '../../graphql/posts';
 import SettingsContext from '../../contexts/SettingsContext';
-import { SharePostTitle } from './share';
 import { combinedClicks } from '../../lib/click';
 import { SharedLinkContainer } from './common/SharedLinkContainer';
 import { SharedPostLink } from './common/SharedPostLink';
@@ -18,9 +18,11 @@ import { ProfileImageSize } from '../ProfilePicture';
 import { TruncateText } from '../utilities';
 import { LazyImage } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
+import { SharePostTitle } from './share/SharePostTitle';
 
-interface SharePostContentProps {
-  post: Post;
+export interface CommonSharePostContentProps {
+  sharedPost: SharedPost;
+  mainSource: Post['source'];
   onReadArticle: () => Promise<void>;
 }
 
@@ -39,82 +41,98 @@ const SharePostContentSkeleton = () => (
   </>
 );
 
-function SharePostContent({
-  post,
+export function CommonSharePostContent({
+  sharedPost,
+  mainSource,
   onReadArticle,
-}: SharePostContentProps): ReactElement {
+}: CommonSharePostContentProps): ReactElement {
   const { openNewTab } = useContext(SettingsContext);
   const openArticle = (e: React.MouseEvent) => {
     e.stopPropagation();
     onReadArticle();
   };
 
-  if (!post.sharedPost) {
+  if (!sharedPost) {
     return <SharePostContentSkeleton />;
   }
 
   const shouldUseInternalLink =
-    isSharedPostSquadPost(post) || isInternalReadType(post.sharedPost);
+    isSharedPostSquadPost({ sharedPost }) || isInternalReadType(sharedPost);
 
   return (
-    <>
-      <SharePostTitle post={post} />
-      <SharedLinkContainer
-        summary={post.sharedPost?.summary}
-        className="mb-5 mt-8"
-      >
-        <div className="flex max-w-full flex-col p-4 pt-5 laptop:flex-row">
-          <div className="mb-5 flex max-w-full flex-1 flex-col truncate laptop:mb-0">
-            <SharedPostLink
-              post={post}
-              onGoToLinkProps={combinedClicks(openArticle)}
-              className="mb-4 mt-0 flex flex-wrap font-bold typo-body"
-            >
-              <TruncateText>{post.sharedPost.title}</TruncateText>
-            </SharedPostLink>
-            <PostSourceInfo
-              date={
-                post.sharedPost.readTime
-                  ? `${post.sharedPost.readTime}m read time`
-                  : undefined
-              }
-              source={post.sharedPost.source}
-              size={ProfileImageSize.Small}
-            />
-            <ReadArticleButton
-              content={getReadPostButtonText(post)}
-              className="mt-5 w-fit"
-              variant={ButtonVariant.Secondary}
-              href={
-                shouldUseInternalLink
-                  ? post.sharedPost.commentsPermalink
-                  : post.sharedPost.permalink
-              }
-              openNewTab={shouldUseInternalLink ? false : openNewTab}
-              title="Go to post"
-              rel="noopener"
-              {...combinedClicks(openArticle)}
-            />
-          </div>
-
+    <SharedLinkContainer summary={sharedPost.summary} className="mb-5 mt-8">
+      <div className="flex max-w-full flex-col p-4 pt-5 laptop:flex-row">
+        <div className="mb-5 flex max-w-full flex-1 flex-col truncate laptop:mb-0">
           <SharedPostLink
-            post={post}
+            mainSource={mainSource}
+            sharedPost={sharedPost}
             onGoToLinkProps={combinedClicks(openArticle)}
-            className="ml-2 block h-fit w-70 cursor-pointer overflow-hidden rounded-16"
+            className="mb-4 mt-0 flex flex-wrap font-bold typo-body"
           >
-            <LazyImage
-              imgSrc={post.sharedPost.image}
-              imgAlt="Post cover image"
-              ratio="52%"
-              eager
-              fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-              fetchPriority="high"
-            />
+            <TruncateText>{sharedPost.title}</TruncateText>
           </SharedPostLink>
+          <PostSourceInfo
+            date={
+              sharedPost.readTime
+                ? `${sharedPost.readTime}m read time`
+                : undefined
+            }
+            source={sharedPost.source}
+            size={ProfileImageSize.Small}
+          />
+          <ReadArticleButton
+            content={getReadPostButtonText(sharedPost)}
+            className="mt-5 w-fit"
+            variant={ButtonVariant.Secondary}
+            href={
+              shouldUseInternalLink
+                ? sharedPost.commentsPermalink
+                : sharedPost.permalink
+            }
+            openNewTab={shouldUseInternalLink ? false : openNewTab}
+            title="Go to post"
+            rel="noopener"
+            {...combinedClicks(openArticle)}
+          />
         </div>
-      </SharedLinkContainer>
-    </>
+
+        <SharedPostLink
+          mainSource={mainSource}
+          sharedPost={sharedPost}
+          onGoToLinkProps={combinedClicks(openArticle)}
+          className="ml-2 block h-fit w-70 cursor-pointer overflow-hidden rounded-16"
+        >
+          <LazyImage
+            imgSrc={sharedPost.image}
+            imgAlt="Post cover image"
+            ratio="52%"
+            eager
+            fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+            fetchPriority="high"
+          />
+        </SharedPostLink>
+      </div>
+    </SharedLinkContainer>
   );
 }
+
+interface SharePostContentProps {
+  post: Post;
+  onReadArticle: () => Promise<void>;
+}
+
+const SharePostContent = ({
+  post,
+  onReadArticle,
+}: SharePostContentProps): ReactElement => (
+  <>
+    <SharePostTitle title={post?.title} titleHtml={post?.titleHtml} />
+    <CommonSharePostContent
+      onReadArticle={onReadArticle}
+      mainSource={post.source}
+      sharedPost={post.sharedPost}
+    />
+  </>
+);
 
 export default SharePostContent;

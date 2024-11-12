@@ -142,7 +142,7 @@ it('should feedback existing article', async () => {
                 'https://www.theverge.com/2021/5/15/22434809/internet-broadband-high-speed-access-verge-stories-infrastructure',
               title: 'Test article title',
               image:
-                'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/99193389438bf365e5b3739d316d4499',
+                'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/99193389438bf365e5b3739d316d4499',
               ratio: 1.91082802547771,
               placeholder:
                 'data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAFAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAMG/8QAHhAAAgICAgMAAAAAAAAAAAAAAQQCAwAREiEFMUH/xAAVAQEBAAAAAAAAAAAAAAAAAAAFB//EAB0RAAEEAgMAAAAAAAAAAAAAAAEAAgMRBDEFIVH/2gAMAwEAAhEDEQA/AMzWky15yFyz00KpLwtNKsOETMniSe/uhsDQ6y7UqQ1cCvEkTOz633jGJyuJoHwKrcFAyPMyWs6AOrNbK//Z',

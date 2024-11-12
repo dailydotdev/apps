@@ -103,6 +103,7 @@ export enum RequestKey {
   PostCommentsMutations = 'post_comments_mutations',
   Actions = 'actions',
   Squad = 'squad',
+  SquadPostRequests = 'squad_post_requests',
   SquadMembers = 'squad_members',
   Search = 'search',
   SearchHistory = 'searchHistory',
@@ -172,6 +173,7 @@ export enum RequestKey {
   ContentPreferenceUnfollow = 'content_preference_unfollow',
   ContentPreferenceSubscribe = 'content_preference_subscribe',
   ContentPreferenceUnsubscribe = 'content_preference_unsubscribe',
+  TopReaderBadge = 'top_reader_badge',
 }
 
 export type HasConnection<

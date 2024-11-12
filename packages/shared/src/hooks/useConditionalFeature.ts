@@ -31,7 +31,7 @@ export const useConditionalFeature = <T extends JSONValue>({
     shouldEvaluate,
   );
 
-  const { data: featureValue, isLoading } = useQuery({
+  const { data: featureValue, isPending } = useQuery({
     queryKey,
     queryFn: () => {
       if (!shouldEvaluate) {
@@ -47,6 +47,6 @@ export const useConditionalFeature = <T extends JSONValue>({
 
   return {
     value: featureValue ?? (feature.defaultValue as WidenPrimitives<T>),
-    isLoading,
+    isLoading: isPending,
   };
 };

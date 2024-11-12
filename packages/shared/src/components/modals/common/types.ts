@@ -36,6 +36,7 @@ export enum LazyModal {
   ReadingHistory = 'readingHistory',
   SquadPromotion = 'squadPromotion',
   CreateSharedPost = 'createSharedPost',
+  ReasonSelection = 'reasonSelection',
   ReportPost = 'reportPost',
   ReportComment = 'reportComment',
   SquadNotifications = 'squadNotifications',
@@ -58,7 +59,9 @@ export enum LazyModal {
   ReportSource = 'reportSource',
   UserFollowersModal = 'userFollowersModal',
   UserFollowingModal = 'userFollowingModal',
+  PostModeration = 'postModeration',
   NewSquad = 'newSquad',
+  TopReaderBadge = 'topReaderBadge',
 }
 
 export type ModalTabItem = {

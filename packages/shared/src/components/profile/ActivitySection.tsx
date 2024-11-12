@@ -2,10 +2,10 @@ import React, { Fragment, ReactElement, ReactNode } from 'react';
 import { UseInfiniteQueryResult } from '@tanstack/react-query/build/legacy/types';
 import { InfiniteData } from '@tanstack/react-query';
 import classed from '../../lib/classed';
-import { ClickableText } from '../buttons/ClickableText';
 import { IconSize } from '../Icon';
 import { FeedData } from '../../graphql/feed';
 import { Post } from '../../graphql/posts';
+import type { WithClassNameProps } from '../utilities';
 
 export const ActivityContainer = classed('section', 'flex flex-col');
 
@@ -16,7 +16,7 @@ export const ActivitySectionTitle = classed(
 
 export const ActivitySectionSubTitle = classed(
   'span',
-  'flex flex-row mt-1 text-text-tertiary typo-callout font-normal',
+  'mt-1 text-text-tertiary typo-callout font-normal',
 );
 
 export const ActivitySectionTitleStat = classed(
@@ -26,43 +26,21 @@ export const ActivitySectionTitleStat = classed(
 
 interface ActivitySectionHeaderProps {
   title: string;
-  subtitle?: string;
-  clickableTitle?: string;
-  link?: string;
   children?: ReactNode;
   Icon?: React.ElementType;
 }
 
 export const ActivitySectionHeader = ({
   title,
-  subtitle,
-  clickableTitle,
-  link,
   children,
   Icon,
-}: ActivitySectionHeaderProps): ReactElement => {
+  className,
+}: ActivitySectionHeaderProps & WithClassNameProps): ReactElement => {
   return (
-    <ActivitySectionTitle>
-      <span className="flex flex-col">
-        <span className="flex align-middle">
-          {Icon && <Icon size={IconSize.Small} secondary className="mr-2" />}
-          {title}
-        </span>
-        {subtitle && (
-          <ActivitySectionSubTitle>
-            {subtitle}
-            {clickableTitle && (
-              <ClickableText
-                tag="a"
-                target="_blank"
-                className="ml-1"
-                href={link}
-              >
-                {clickableTitle}
-              </ClickableText>
-            )}
-          </ActivitySectionSubTitle>
-        )}
+    <ActivitySectionTitle className={className}>
+      <span className="flex align-middle">
+        {Icon && <Icon size={IconSize.Small} secondary className="mr-2" />}
+        {title}
       </span>
       {children}
     </ActivitySectionTitle>

@@ -42,7 +42,7 @@ export const useSearchProviderSuggestions = ({
     includeContentPreference,
   });
 
-  const { data, isLoading } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey,
     queryFn: async () => {
       return getSuggestions({
@@ -70,7 +70,7 @@ export const useSearchProviderSuggestions = ({
   });
 
   return {
-    isLoading,
+    isLoading: isPending,
     suggestions: data,
     queryKey,
   };

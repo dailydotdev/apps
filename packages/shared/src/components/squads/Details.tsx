@@ -171,7 +171,11 @@ export function SquadDetails({
       form="squad-form"
       isHeaderTitle={!isMobile}
       title={createMode ? undefined : 'Squad settings'}
-      className={{ container: 'flex flex-1 flex-col', title: 'typo-title3' }}
+      className={{
+        container: 'flex flex-1 flex-col',
+        title: 'typo-title3',
+        header: 'border-b-0',
+      }}
       copy={{
         right: createMode ? 'Create Squad' : 'Save',
         left: isMobile ? 'Cancel' : null,

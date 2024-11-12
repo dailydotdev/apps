@@ -44,7 +44,7 @@ export default function useFeedSettings({
 }: UseFeedSettingsProps = {}): FeedSettingsReturnType {
   const { user } = useContext(AuthContext);
   const filtersKey = getFeedSettingsQueryKey(user, feedId);
-  const { data: feedQuery = {}, isLoading } = useQuery<AllTagCategoriesData>({
+  const { data: feedQuery = {}, isPending } = useQuery<AllTagCategoriesData>({
     queryKey: filtersKey,
     queryFn: () =>
       gqlClient.request(
@@ -81,7 +81,7 @@ export default function useFeedSettings({
   return {
     tagsCategories,
     feedSettings,
-    isLoading,
+    isLoading: isPending,
     advancedSettings,
     hasAnyFilter: getHasAnyFilter(feedSettings),
     checkSettingsEnabledState,

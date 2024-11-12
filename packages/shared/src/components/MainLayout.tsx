@@ -37,7 +37,6 @@ import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BootPopups } from './modals/BootPopups';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { AuthTriggers } from '../lib/auth';
-import Sidebar from './sidebar/Sidebar';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -47,64 +46,31 @@ const GoBackHeaderMobile = dynamic(
   { ssr: false },
 );
 
+const Sidebar = dynamic(() =>
+  import(/* webpackChunkName: "sidebar" */ './sidebar/Sidebar').then(
+    (mod) => mod.Sidebar,
+  ),
+);
+
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
     HTMLAttributes<HTMLDivElement> {
   mainPage?: boolean;
   activePage?: string;
   isNavItemsButton?: boolean;
-  showDnd?: boolean;
-  dndActive?: boolean;
   screenCentered?: boolean;
   customBanner?: ReactNode;
   showSidebar?: boolean;
-  enableSearch?: () => void;
   onNavTabClick?: (tab: string) => void;
-  onShowDndClick?: () => unknown;
   canGoBack?: string;
 }
 
 const feeds = Object.values(SharedFeedPage);
 
-const Main = ({
-  className,
-  isScreenCentered,
-  sidebarExpanded,
-  isBannerAvailable,
-  children: render,
-}: {
-  className?: string;
-  isScreenCentered: boolean;
-  sidebarExpanded: boolean;
-  isBannerAvailable: boolean;
-  children: ({ hydrated }: { hydrated: boolean }) => ReactNode;
-}) => {
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    setHydrated(true);
-  }, []);
-
-  return (
-    <main
-      className={classNames(
-        'flex flex-col tablet:pl-16 laptop:pl-11',
-        className,
-        hydrated && !isScreenCentered && sidebarExpanded && 'laptop:!pl-60',
-        isBannerAvailable && 'laptop:pt-8',
-      )}
-    >
-      {render({ hydrated })}
-    </main>
-  );
-};
-
 function MainLayoutComponent({
   children,
   activePage,
   isNavItemsButton,
-  showDnd,
-  dndActive,
   customBanner,
   additionalButtons,
   screenCentered = true,
@@ -112,8 +78,6 @@ function MainLayoutComponent({
   className,
   onLogoClick,
   onNavTabClick,
-  enableSearch,
-  onShowDndClick,
   canGoBack,
 }: MainLayoutProps): ReactElement {
   const router = useRouter();
@@ -122,7 +86,6 @@ function MainLayoutComponent({
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
-  const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
   const { sidebarExpanded, autoDismissNotifications } =
     useContext(SettingsContext);
   const [hasLoggedImpression, setHasLoggedImpression] = useState(false);
@@ -135,13 +98,6 @@ function MainLayoutComponent({
   useAuthErrors();
   useAuthVerificationRecovery();
   useNotificationParams();
-
-  const onMobileSidebarToggle = (state: boolean) => {
-    logEvent({
-      event_name: `${state ? 'open' : 'close'} sidebar`,
-    });
-    setOpenMobileSidebar(state);
-  };
 
   useEffect(() => {
     if (!isNotificationsReady || unreadCount === 0 || hasLoggedImpression) {
@@ -213,6 +169,7 @@ function MainLayoutComponent({
   ) {
     return null;
   }
+
   const isScreenCentered =
     isLaptopXL && screenCenteredOnMobileLayout ? true : screenCentered;
 
@@ -231,36 +188,27 @@ function MainLayoutComponent({
         additionalButtons={additionalButtons}
         onLogoClick={onLogoClick}
       />
-      <Main
-        className={className}
-        isScreenCentered={isScreenCentered}
-        sidebarExpanded={sidebarExpanded}
-        isBannerAvailable={isBannerAvailable}
+      <main
+        className={classNames(
+          'flex flex-col tablet:pl-16 laptop:pl-11',
+          className,
+          isAuthReady &&
+            !isScreenCentered &&
+            sidebarExpanded &&
+            'laptop:!pl-60',
+          isBannerAvailable && 'laptop:pt-8',
+        )}
       >
-        {({ hydrated }) => {
-          return (
-            <>
-              {hydrated && showSidebar && (
-                <Sidebar
-                  promotionalBannerActive={isBannerAvailable}
-                  sidebarRendered={sidebarRendered}
-                  openMobileSidebar={openMobileSidebar}
-                  onNavTabClick={onNavTabClick}
-                  enableSearch={enableSearch}
-                  activePage={activePage}
-                  showDnd={showDnd}
-                  dndActive={dndActive}
-                  isNavButtons={isNavItemsButton}
-                  onShowDndClick={onShowDndClick}
-                  onLogoClick={onLogoClick}
-                  setOpenMobileSidebar={() => onMobileSidebarToggle(false)}
-                />
-              )}
-              {children}
-            </>
-          );
-        }}
-      </Main>
+        {isAuthReady && showSidebar && (
+          <Sidebar
+            isNavButtons={isNavItemsButton}
+            onNavTabClick={onNavTabClick}
+            onLogoClick={onLogoClick}
+            activePage={activePage}
+          />
+        )}
+        {children}
+      </main>
     </div>
   );
 }
