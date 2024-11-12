@@ -20,6 +20,7 @@ export interface HeaderProps {
   sticky?: boolean;
   className?: string;
   style?: CSSProperties;
+  isPlus?: boolean;
 }
 
 export function Header({
@@ -28,6 +29,7 @@ export function Header({
   sticky,
   className,
   style,
+  isPlus,
 }: HeaderProps): ReactElement {
   const [, onShareOrCopyLink] = useShareOrCopyLink({
     text: `Check out ${user.name}'s profile on daily.dev`,
@@ -75,7 +77,7 @@ export function Header({
           Edit profile
         </Button>
       )}
-      {isSameUser && !user.isPlus && (
+      {isSameUser && !isPlus && (
         <UpgradeToPlus
           className="ml-auto mr-2 max-w-fit laptop:hidden"
           size={ButtonSize.Small}
@@ -85,7 +87,7 @@ export function Header({
         className={classNames(
           'ml-auto',
           isSameUser && 'laptop:ml-0',
-          isSameUser && !user.isPlus && '!ml-0',
+          isSameUser && !isPlus && '!ml-0',
         )}
         variant={ButtonVariant.Float}
         size={ButtonSize.Small}

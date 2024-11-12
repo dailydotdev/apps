@@ -44,11 +44,17 @@ export function ProfileWidgets({
     <div
       className={classNames('my-4 flex flex-col gap-6 laptop:my-0', className)}
     >
-      <Header user={user} isSameUser={isSameUser} className="-mb-2" />
+      <Header
+        user={user}
+        isSameUser={isSameUser}
+        isPlus={loggedUser?.isPlus}
+        className="-mb-2"
+      />
       {!hideSticky && (
         <Header
           user={user}
           isSameUser={isSameUser}
+          isPlus={loggedUser?.isPlus}
           sticky
           className="fixed left-0 top-0 z-3 w-full bg-background-default transition-transform duration-75 tablet:pl-20"
           style={{ transform: `translateY(${(stickyProgress - 1) * 100}%)` }}
