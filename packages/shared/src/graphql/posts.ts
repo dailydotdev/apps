@@ -703,7 +703,7 @@ export const createSourcePostModeration = async (
     variables,
   );
 
-  return res.createPostModeration;
+  return res.createSourcePostModeration;
 };
 
 export const UPLOAD_IMAGE_MUTATION = gql`
