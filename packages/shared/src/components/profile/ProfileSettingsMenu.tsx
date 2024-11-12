@@ -13,11 +13,13 @@ import {
   FeedbackIcon,
   HammerIcon,
   AppIcon,
+  DevPlusIcon,
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
 import {
   docs,
   feedback,
+  plusUrl,
   privacyPolicy,
   termsOfService,
 } from '../../lib/constants';
@@ -31,7 +33,7 @@ import { usePrompt } from '../../hooks/usePrompt';
 import { ButtonColor } from '../buttons/Button';
 
 const useMenuItems = (): NavItemProps[] => {
-  const { logout } = useAuthContext();
+  const { user, logout } = useAuthContext();
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
   const onLogout = useCallback(async () => {
@@ -54,6 +56,16 @@ const useMenuItems = (): NavItemProps[] => {
           isHeader: true,
         },
         { label: 'Edit profile', icon: <EditIcon />, href: '/account/profile' },
+        ...(!user.isPlus
+          ? [
+              {
+                label: 'Upgrade to plus',
+                icon: <DevPlusIcon />,
+                href: plusUrl,
+                className: 'text-accent-bacon-default',
+              },
+            ]
+          : []),
         {
           label: 'Invite friends',
           icon: <AddUserIcon />,

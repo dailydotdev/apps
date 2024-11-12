@@ -12,6 +12,7 @@ import { GoBackButton } from '../post/GoBackHeaderMobile';
 import { useViewSize, ViewSize } from '../../hooks';
 import { FollowButton } from '../contentPreference/FollowButton';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
+import { UpgradeToPlus } from '../UpgradeToPlus';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -74,8 +75,18 @@ export function Header({
           Edit profile
         </Button>
       )}
+      {isSameUser && !user.isPlus && (
+        <UpgradeToPlus
+          className="ml-auto mr-2 max-w-fit laptop:hidden"
+          size={ButtonSize.Small}
+        />
+      )}
       <Button
-        className={classNames('ml-auto', isSameUser && 'laptop:ml-0')}
+        className={classNames(
+          'ml-auto',
+          isSameUser && 'laptop:ml-0',
+          isSameUser && !user.isPlus && '!ml-0',
+        )}
         variant={ButtonVariant.Float}
         size={ButtonSize.Small}
         icon={<ShareIcon />}

@@ -1,4 +1,5 @@
 import React, { ReactElement, useMemo } from 'react';
+import classNames from 'classnames';
 import { useAuthContext } from '../contexts/AuthContext';
 import {
   InviteIcon,
@@ -10,6 +11,7 @@ import {
   PlayIcon,
   PauseIcon,
   EditIcon,
+  DevPlusIcon,
 } from './icons';
 import InteractivePopup, {
   InteractivePopupPosition,
@@ -21,7 +23,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from './buttons/Button';
-import { reputation, webappUrl } from '../lib/constants';
+import { plusUrl, reputation, webappUrl } from '../lib/constants';
 import { UserMetadata } from './profile/UserMetadata';
 import { HeroImage } from './profile/HeroImage';
 import { anchorDefaultRel } from '../lib/strings';
@@ -58,6 +60,19 @@ export default function ProfileMenu({
           icon: <UserIcon />,
         },
       },
+      ...(!user.isPlus
+        ? [
+            {
+              title: 'Upgrade to plus',
+              buttonProps: {
+                tag: 'a',
+                icon: <DevPlusIcon />,
+                href: plusUrl,
+                className: 'text-accent-bacon-default',
+              },
+            } as ListItem,
+          ]
+        : []),
       {
         title: 'Account details',
         buttonProps: {
@@ -122,7 +137,7 @@ export default function ProfileMenu({
     });
 
     return list;
-  }, [isDndActive, logout, openModal, setShowDnd, user.permalink]);
+  }, [isDndActive, logout, openModal, setShowDnd, user.isPlus, user.permalink]);
 
   if (!user) {
     return <></>;
@@ -163,7 +178,10 @@ export default function ProfileMenu({
           <Button
             key={title}
             {...buttonProps}
-            className="btn-tertiary w-full !justify-start !px-5 font-normal"
+            className={classNames(
+              'btn-tertiary w-full !justify-start !px-5 font-normal',
+              buttonProps?.className,
+            )}
           >
             {title}
 
