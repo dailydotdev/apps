@@ -29,7 +29,6 @@ export function ShareLink({
   const { displayToast } = useToastNotification();
   const [commentary, setCommentary] = useState(post?.title ?? '');
   const { squads, user } = useAuthContext();
-
   const {
     getLinkPreview,
     isLoadingPreview,
@@ -43,7 +42,7 @@ export function ShareLink({
 
   const { onCreateSquad, isLoading } = useSquadCreate({
     onSuccess: (newSquad) => {
-      onSubmitPost(null, newSquad.id, commentary);
+      onSubmitPost(null, newSquad, commentary);
       return push(newSquad.permalink);
     },
     retryWithRandomizedHandle: true,
@@ -68,7 +67,7 @@ export function ShareLink({
     }
 
     if (squads.some(({ id }) => squad.id === id)) {
-      onSubmitPost(e, squad.id, commentary);
+      onSubmitPost(e, squad, commentary);
       return push(squad.permalink);
     }
 

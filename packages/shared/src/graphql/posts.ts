@@ -560,6 +560,31 @@ export interface CreatePostProps
   sourceId: string;
 }
 
+export type CreatePostModerationProps = {
+  title?: string;
+  content?: string;
+  sourceId: string;
+  type: PostType;
+  sharedPostId?: string;
+  externalLink?: string;
+  imageUrl?: string;
+  image?: File;
+  commentary?: string;
+};
+
+export type SourcePostModeration = {
+  id: string;
+  title: string;
+  titleHtml?: string;
+  image: string;
+  content?: string;
+  contentHtml?: string;
+  type: PostType;
+  sourceId: string;
+  sharedPostId?: string;
+  externalLink?: string;
+};
+
 export const editPost = async (
   variables: Partial<EditPostProps>,
 ): Promise<Post> => {
@@ -602,6 +627,40 @@ export const swapPinnedPosts = async (
   variables: SwapPinnedPostsProps,
 ): Promise<void> => gqlClient.request(SWAP_PINNED_POSTS_MUTATION, variables);
 
+export const CREATE_SOURCE_POST_MODERATION_MUTATION = gql`
+  mutation CreateSourcePostModeration(
+    $sourceId: ID!
+    $type: String!
+    $title: String
+    $content: String
+    $commentary: String
+    $sharedPostId: ID
+    $image: Upload
+    $imageUrl: String
+    $externalLink: String
+  ) {
+    createSourcePostModeration(
+      sourceId: $sourceId
+      type: $type
+      title: $title
+      content: $content
+      sharedPostId: $sharedPostId
+      commentary: $commentary
+      image: $image
+      imageUrl: $imageUrl
+      externalLink: $externalLink
+    ) {
+      id
+      title
+      image
+      content
+      type
+      sourceId
+      externalLink
+    }
+  }
+`;
+
 export const CREATE_POST_MUTATION = gql`
   mutation CreatePost(
     $sourceId: ID!
@@ -634,6 +693,17 @@ export const createPost = async (
   const res = await gqlClient.request(CREATE_POST_MUTATION, variables);
 
   return res.createFreeformPost;
+};
+
+export const createSourcePostModeration = async (
+  variables: Partial<CreatePostModerationProps>,
+): Promise<SourcePostModeration> => {
+  const res = await gqlClient.request(
+    CREATE_SOURCE_POST_MODERATION_MUTATION,
+    variables,
+  );
+
+  return res.createSourcePostModeration;
 };
 
 export const UPLOAD_IMAGE_MUTATION = gql`

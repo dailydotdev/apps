@@ -9,6 +9,7 @@ import {
   ExternalLinkPreview,
   getExternalLinkPreview,
   Post,
+  PostType,
   SubmitExternalLink,
   submitExternalLink,
 } from '../../graphql/posts';
@@ -24,9 +25,13 @@ import { ActionType } from '../../graphql/actions';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions } from '../useActions';
 import { useRequestProtocol } from '../useRequestProtocol';
+import useSourcePostModeration from '../source/useSourcePostModeration';
+import { Squad } from '../../graphql/sources';
+import { moderationRequired } from '../../components/squads/utils';
 
 interface UsePostToSquad {
   preview: ExternalLinkPreview;
+  isSuccess: boolean;
   isPosting: boolean;
   isLoadingPreview: boolean;
   onUpdatePreview: (preview: ExternalLinkPreview) => void;
@@ -37,7 +42,7 @@ interface UsePostToSquad {
   >;
   onSubmitPost: (
     e: BaseSyntheticEvent,
-    sourceId: string,
+    squad: Squad,
     commentary: string,
   ) => Promise<unknown>;
   onUpdatePost: (
@@ -54,10 +59,12 @@ interface UsePostToSquadProps {
   >;
   onPostSuccess?: (post: Post, url: string) => void;
   initialPreview?: ExternalLinkPreview;
+  onSettled?: () => void;
 }
 
 export const usePostToSquad = ({
   callback,
+  onSettled,
   onPostSuccess,
   initialPreview,
 }: UsePostToSquadProps = {}): UsePostToSquad => {
@@ -86,6 +93,17 @@ export const usePostToSquad = ({
       },
     });
 
+  const {
+    onCreatePostModeration,
+    isSuccess: didCreatePostModeration,
+    isPending: isPostModerationLoading,
+  } = useSourcePostModeration({
+    onError: () => {
+      displayToast(DEFAULT_ERROR);
+    },
+    onSettled,
+  });
+
   const onSharedPostSuccessfully = async (update = false) => {
     displayToast(
       update
@@ -110,6 +128,7 @@ export const usePostToSquad = ({
         onPostSuccess(data, data?.permalink);
       }
     },
+    onSettled,
   });
 
   const {
@@ -141,25 +160,33 @@ export const usePostToSquad = ({
     },
   });
 
-  const isPosting =
-    isPostLoading || isLinkLoading || isPostSuccess || isLinkSuccess;
+  const isPosting = isPostLoading || isLinkLoading || isPostModerationLoading;
 
-  const isUpdating = isUpdatePostSuccess || isUpdatePostLoading;
+  const isUpdating =
+    isUpdatePostSuccess || isUpdatePostLoading || isPostModerationLoading;
+
+  const isSuccess = didCreatePostModeration || isPostSuccess || isLinkSuccess;
 
   const onSubmitPost = useCallback<UsePostToSquad['onSubmitPost']>(
-    (e, sourceId, commentary) => {
+    (e, squad, commentary) => {
       e?.preventDefault();
-
       if (isPosting) {
         return null;
       }
 
       if (preview.id) {
-        return onPost({
-          id: preview.id,
-          sourceId,
-          commentary,
-        });
+        return moderationRequired(squad)
+          ? onCreatePostModeration({
+              type: PostType.Share,
+              sourceId: squad.id,
+              sharedPostId: preview.id,
+              commentary,
+            })
+          : onPost({
+              id: preview.id,
+              sourceId: squad.id,
+              commentary,
+            });
       }
 
       const { title, image, url } = preview;
@@ -169,15 +196,31 @@ export const usePostToSquad = ({
         return null;
       }
 
-      return onSubmitLink({
-        url,
-        title,
-        image,
-        sourceId,
-        commentary,
-      });
+      return moderationRequired(squad)
+        ? onCreatePostModeration({
+            externalLink: url,
+            title,
+            imageUrl: image,
+            type: PostType.Share,
+            sourceId: squad.id,
+            commentary,
+          })
+        : onSubmitLink({
+            url,
+            title,
+            image,
+            sourceId: squad.id,
+            commentary,
+          });
     },
-    [preview, displayToast, onSubmitLink, onPost, isPosting],
+    [
+      preview,
+      displayToast,
+      onSubmitLink,
+      onPost,
+      isPosting,
+      onCreatePostModeration,
+    ],
   );
 
   const onUpdatePost = useCallback<UsePostToSquad['onUpdatePost']>(
@@ -203,6 +246,7 @@ export const usePostToSquad = ({
     onUpdatePost,
     isPosting,
     preview,
+    isSuccess,
     onUpdatePreview: setPreview,
   };
 };

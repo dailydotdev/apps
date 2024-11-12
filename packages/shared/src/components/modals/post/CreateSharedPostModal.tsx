@@ -45,20 +45,18 @@ export function CreateSharedPostModal({
     onSubmitPost,
   } = usePostToSquad({
     initialPreview: preview,
-    onPostSuccess: () => {
-      if (onSharedSuccessfully) {
-        onSharedSuccessfully();
-      }
+    onSettled: () => {
+      onSharedSuccessfully?.();
       onSubmitted();
       onRequestClose(null);
     },
   });
+
   const onFormSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
 
     const { commentary } = formToJson<{ commentary: string }>(e.currentTarget);
-
-    return onSubmitPost(e, squad.id, commentary);
+    return onSubmitPost(e, squad, commentary);
   };
 
   const links = [updatedPreview?.url, updatedPreview?.permalink];

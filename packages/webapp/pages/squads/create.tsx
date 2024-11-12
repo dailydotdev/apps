@@ -16,6 +16,7 @@ import { useMutation } from '@tanstack/react-query';
 import {
   createPost,
   CreatePostProps,
+  PostType,
 } from '@dailydotdev/shared/src/graphql/posts';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
@@ -45,6 +46,8 @@ import {
   WriteFormTab,
   WriteFormTabToFormID,
 } from '@dailydotdev/shared/src/components/fields/form/common';
+import useSourcePostModeration from '@dailydotdev/shared/src/hooks/source/useSourcePostModeration';
+import { moderationRequired } from '@dailydotdev/shared/src/components/squads/utils';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -98,6 +101,13 @@ function CreatePost(): ReactElement {
     clearDraft,
     isUpdatingDraft,
   } = useDiscardPost({ draftIdentifier: squad?.id });
+  const { onCreatePostModeration, isPending: isCreatingPostModeration } =
+    useSourcePostModeration({
+      onSuccess: async () => {
+        clearDraft();
+        push(squad.permalink);
+      },
+    });
   const {
     mutateAsync: onCreatePost,
     isPending: isPosting,
@@ -132,6 +142,8 @@ function CreatePost(): ReactElement {
   const param = isRouteReady && activeSquads?.length && (query.sid as string);
   const shareParam = query.share as string;
 
+  const isHandlingPosting = isPosting || isCreatingPostModeration;
+
   useEffect(() => {
     if (!param) {
       return;
@@ -152,7 +164,8 @@ function CreatePost(): ReactElement {
   }, [shareParam]);
 
   const onClickSubmit = async (e: FormEvent<HTMLFormElement>, params) => {
-    if (isPosting || isSuccess || isLoading) {
+    e.preventDefault();
+    if (isHandlingPosting || isSuccess || isLoading) {
       return null;
     }
 
@@ -162,6 +175,13 @@ function CreatePost(): ReactElement {
     }
 
     if (squads.some(({ id }) => squad.id === id)) {
+      if (moderationRequired(squad)) {
+        return onCreatePostModeration({
+          ...params,
+          sourceId: squad.id,
+          type: PostType.Freeform,
+        });
+      }
       return onCreatePost({ ...params, sourceId: squad.id });
     }
 
@@ -184,7 +204,9 @@ function CreatePost(): ReactElement {
       squad={squad}
       formRef={formRef}
       isUpdatingDraft={isUpdatingDraft}
-      isPosting={isPosting || isSuccess || isLoading}
+      isPosting={
+        isPosting || isCreatingPostModeration || isSuccess || isLoading
+      }
       updateDraft={updateDraft}
       onSubmitForm={onClickSubmit}
       formId={WriteFormTabToFormID[display]}
