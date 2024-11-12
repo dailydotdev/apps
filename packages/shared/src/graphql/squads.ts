@@ -1,5 +1,6 @@
 import { gql } from 'graphql-request';
 import {
+  SHARED_POST_INFO_FRAGMENT,
   SOURCE_BASE_FRAGMENT,
   SQUAD_BASE_FRAGMENT,
   USER_AUTHOR_FRAGMENT,
@@ -593,7 +594,6 @@ type PostRequestContentProps = Pick<
   | 'content'
   | 'contentHtml'
   | 'image'
-  | 'source'
   | 'sharedPost'
   | 'createdAt'
 >;
@@ -609,7 +609,77 @@ export interface SourcePostModeration extends Partial<PostRequestContent> {
   status: SourcePostModerationStatus;
   reason?: PostModerationReason;
   moderatorMessage?: string;
+  sourceId: Source['id'];
 }
+
+const SOURCE_POST_MODERATION_FRAGMENT = gql`
+  fragment SourcePostModerationFragment on SourcePostModeration {
+    id
+    title
+    sourceId
+    status
+    rejectionReason
+    moderatorMessage
+    type
+    title
+    titleHtml
+    content
+    contentHtml
+    image
+    createdAt
+    createdBy {
+      ...UserAuthor
+    }
+    moderatedBy {
+      ...UserAuthor
+    }
+    sharedPost {
+      ...SharedPostInfo
+    }
+    post {
+      ...SharedPostInfo
+    }
+  }
+  ${SHARED_POST_INFO_FRAGMENT}
+`;
+
+export const SQUAD_PENDING_POSTS_QUERY = gql`
+  query sourcePostModerations($sourceId: ID!, $status: [String]) {
+    sourcePostModerations(sourceId: $sourceId, status: $status) {
+      edges {
+        node {
+          ...SourcePostModerationFragment
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+  ${SOURCE_POST_MODERATION_FRAGMENT}
+`;
+
+export const SQUAD_MODERATE_POST_MUTATION = gql`
+  mutation ModerateSourcePost(
+    $postIds: [ID]!
+    $status: String
+    $sourceId: ID!
+    $rejectionReason: String
+    $moderatorMessage: String
+  ) {
+    moderateSourcePosts(
+      postIds: $postIds
+      status: $status
+      sourceId: $sourceId
+      rejectionReason: $rejectionReason
+      moderatorMessage: $moderatorMessage
+    ) {
+      ...SourcePostModerationFragment
+    }
+  }
+  ${SOURCE_POST_MODERATION_FRAGMENT}
+`;
 
 export enum PostModerationReason {
   OffTopic = 'OFF_TOPIC',
@@ -624,18 +694,38 @@ export enum PostModerationReason {
   Other = 'OTHER',
 }
 
-export interface SquadPostRejectionProps {
-  postId: string;
-  reason: string;
+export interface SquadPostModerationProps {
+  postIds: string[];
+  sourceId: Source['id'];
+}
+
+export interface SquadPostRejectionProps extends SquadPostModerationProps {
+  reason: PostModerationReason;
   note?: string;
 }
 
-// TODO:: MI-596
-export const squadApproveMutation = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _: string[],
-): Promise<void> => Promise.resolve();
-export const squadRejectMutation = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _: SquadPostRejectionProps,
-): Promise<void> => Promise.resolve();
+export const squadApproveMutation = ({
+  postIds,
+  sourceId,
+}: SquadPostModerationProps): Promise<SourcePostModeration[]> => {
+  return gqlClient.request(SQUAD_MODERATE_POST_MUTATION, {
+    postIds,
+    sourceId,
+    status: SourcePostModerationStatus.Approved,
+  });
+};
+
+export const squadRejectMutation = ({
+  postIds,
+  sourceId,
+  reason,
+  note,
+}: SquadPostRejectionProps): Promise<SourcePostModeration[]> => {
+  return gqlClient.request(SQUAD_MODERATE_POST_MUTATION, {
+    postIds,
+    sourceId,
+    status: SourcePostModerationStatus.Rejected,
+    rejectionReason: reason,
+    moderatorMessage: note,
+  });
+};

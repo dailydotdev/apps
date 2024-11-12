@@ -1,6 +1,6 @@
 import React, { CSSProperties, ReactElement, useState } from 'react';
 import classNames from 'classnames';
-import { LoggedUser, PublicProfile } from '../../lib/user';
+import { PublicProfile } from '../../lib/user';
 import { SettingsIcon, ShareIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
@@ -12,6 +12,7 @@ import { GoBackButton } from '../post/GoBackHeaderMobile';
 import { useViewSize, ViewSize } from '../../hooks';
 import { FollowButton } from '../contentPreference/FollowButton';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
+import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -36,6 +37,12 @@ export function Header({
   });
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const { data: contentPreference } = useContentPreferenceStatusQuery({
+    id: user?.id,
+    entity: ContentPreferenceType.User,
+  });
+
   return (
     <header
       className={classNames('flex h-12 items-center px-4', className)}
@@ -84,7 +91,7 @@ export function Header({
       <FollowButton
         userId={user.id}
         type={ContentPreferenceType.User}
-        status={(user as LoggedUser).contentPreference?.status}
+        status={contentPreference?.status}
         entityName={`@${user.username}`}
         className="ml-2 flex-row-reverse"
       />
