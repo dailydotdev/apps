@@ -65,3 +65,7 @@ export const createModerationPromptProps: PromptOptions = {
   promptSize: ModalSize.XSmall,
   icon: <TimerIcon size={IconSize.XXXLarge} />,
 };
+
+export interface SquadSettingsProps {
+  handle: string;
+}
