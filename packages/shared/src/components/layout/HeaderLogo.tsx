@@ -2,6 +2,7 @@ import React, { ReactElement } from 'react';
 import Logo, { LogoPosition } from '../Logo';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { withNoSSR } from '../../lib/withNoSSR';
 
 interface HeaderLogoProps {
   onLogoClick?: (e: React.MouseEvent) => unknown;
@@ -17,9 +18,9 @@ function HeaderLogo({ onLogoClick, position }: HeaderLogoProps): ReactElement {
       position={position}
       onLogoClick={onLogoClick}
       featureTheme={featureTheme}
-      plus={user?.isPlus}
+      isPlus={user?.isPlus}
     />
   );
 }
 
-export default HeaderLogo;
+export default withNoSSR(HeaderLogo);

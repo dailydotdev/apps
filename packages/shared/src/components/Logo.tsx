@@ -1,17 +1,9 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
 import LogoText from '../svg/LogoText';
 import LogoIcon from '../svg/LogoIcon';
 import { webappUrl } from '../lib/constants';
-import { IconSize } from './Icon';
-
-const DevPlusIcon = dynamic(() =>
-  import(/* webpackChunkName: "devPlusIcon" */ './icons/DevPlus').then(
-    (mod) => mod.DevPlusIcon,
-  ),
-);
 
 export enum LogoPosition {
   Absolute = 'absolute',
@@ -34,12 +26,14 @@ interface LogoSvgElemProps {
     group?: string;
   };
   src?: string;
+  isPlus?: boolean;
   fallback: typeof LogoText | typeof LogoIcon;
 }
 
 const LogoSvgElem = ({
   className,
   src,
+  isPlus = false,
   fallback: FallbackElem,
 }: LogoSvgElemProps): ReactElement => {
   if (src) {
@@ -54,7 +48,7 @@ const LogoSvgElem = ({
       />
     );
   }
-  return <FallbackElem className={className} />;
+  return <FallbackElem isPlus={isPlus} className={className} />;
 };
 
 interface LogoProps {
@@ -72,7 +66,7 @@ interface LogoProps {
     logoText?: string;
   };
   linkDisabled?: boolean;
-  plus?: boolean;
+  isPlus?: boolean;
 }
 
 export default function Logo({
@@ -84,7 +78,7 @@ export default function Logo({
   position = LogoPosition.Absolute,
   featureTheme,
   linkDisabled,
-  plus = false,
+  isPlus = false,
 }: LogoProps): ReactElement {
   return (
     <LinkWithTooltip
@@ -120,13 +114,8 @@ export default function Logo({
               group: logoClassName?.group,
             }}
             src={featureTheme?.logoText}
+            isPlus={isPlus}
             fallback={LogoText}
-          />
-        )}
-        {plus && (
-          <DevPlusIcon
-            size={IconSize.XXSmall}
-            className="absolute right-0 top-0 -translate-y-1/3 text-accent-bacon-default"
           />
         )}
       </a>
