@@ -17,7 +17,7 @@ export const SquadModerationItemContextMenu = ({
 }: SquadModerationItemContextMenuProps): ReactElement => {
   const contextMenuId = useId();
   const { isOpen, onMenuClick } = useContextMenu({ id: contextMenuId });
-  const { showPrompt, prompt } = usePrompt();
+  const { showPrompt } = usePrompt();
 
   const handleDelete = async () => {
     const confirm = await showPrompt({

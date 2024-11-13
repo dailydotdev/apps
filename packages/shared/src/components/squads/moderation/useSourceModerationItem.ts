@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { MouseEventHandler, useId } from 'react';
 import {
   SourcePostModeration,
   verifyPermission,
@@ -17,12 +17,28 @@ export interface SquadModerationItemProps {
   squad: Squad;
 }
 
+interface UseSourceModerationItem {
+  context: {
+    id: string;
+    isOpen: boolean;
+    onMenuClick: MouseEventHandler;
+    onDelete: (id: string) => void;
+  };
+  modal: {
+    open: () => void;
+    close: () => void;
+  };
+  user: {
+    isModerator: boolean;
+  };
+}
+
 export const useSourceModerationItem = ({
   data,
   squad,
   onApprove,
   onReject,
-}: SquadModerationItemProps) => {
+}: SquadModerationItemProps): UseSourceModerationItem => {
   const contextMenuId = useId();
   const { isOpen, onMenuClick } = useContextMenu({ id: contextMenuId });
 
