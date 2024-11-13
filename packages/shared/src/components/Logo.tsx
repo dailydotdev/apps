@@ -26,12 +26,14 @@ interface LogoSvgElemProps {
     group?: string;
   };
   src?: string;
+  isPlus?: boolean;
   fallback: typeof LogoText | typeof LogoIcon;
 }
 
 const LogoSvgElem = ({
   className,
   src,
+  isPlus,
   fallback: FallbackElem,
 }: LogoSvgElemProps): ReactElement => {
   if (src) {
@@ -46,7 +48,7 @@ const LogoSvgElem = ({
       />
     );
   }
-  return <FallbackElem className={className} />;
+  return <FallbackElem isPlus={!!isPlus} className={className} />;
 };
 
 interface LogoProps {
@@ -64,6 +66,7 @@ interface LogoProps {
     logoText?: string;
   };
   linkDisabled?: boolean;
+  isPlus?: boolean;
 }
 
 export default function Logo({
@@ -75,6 +78,7 @@ export default function Logo({
   position = LogoPosition.Absolute,
   featureTheme,
   linkDisabled,
+  isPlus = false,
 }: LogoProps): ReactElement {
   return (
     <LinkWithTooltip
@@ -86,7 +90,7 @@ export default function Logo({
       <a
         aria-disabled={linkDisabled}
         className={classNames(
-          'flex items-center',
+          'relative flex items-center',
           logoPositionToClassName[position],
           className,
           linkDisabled && 'pointer-events-none',
@@ -110,6 +114,7 @@ export default function Logo({
               group: logoClassName?.group,
             }}
             src={featureTheme?.logoText}
+            isPlus={isPlus}
             fallback={LogoText}
           />
         )}

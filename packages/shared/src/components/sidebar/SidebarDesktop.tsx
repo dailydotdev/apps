@@ -13,6 +13,7 @@ import { NetworkSection } from './sections/NetworkSection';
 import { CustomFeedSection } from './sections/CustomFeedSection';
 import { DiscoverSection } from './sections/DiscoverSection';
 import { ResourceSection } from './sections/ResourceSection';
+import { UpgradeToPlus } from '../UpgradeToPlus';
 
 type SidebarDesktopProps = {
   featureTheme?: {
@@ -31,7 +32,7 @@ export const SidebarDesktop = ({
   const { sidebarExpanded, onboardingChecklistView, toggleSidebarExpanded } =
     useSettingsContext();
   const { isAvailable: isBannerAvailable } = useBanner();
-  const { isLoggedIn } = useAuthContext();
+  const { user, isLoggedIn } = useAuthContext();
   const activePage = router.asPath || router.pathname;
 
   const defaultRenderSectionProps = useMemo(
@@ -63,6 +64,11 @@ export const SidebarDesktop = ({
       />
       <SidebarScrollWrapper>
         <Nav>
+          {isLoggedIn && !user?.isPlus && (
+            <div className="flex px-3">
+              <UpgradeToPlus />
+            </div>
+          )}
           <MainSection
             {...defaultRenderSectionProps}
             onNavTabClick={onNavTabClick}

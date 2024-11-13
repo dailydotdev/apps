@@ -12,6 +12,7 @@ import { GoBackButton } from '../post/GoBackHeaderMobile';
 import { useViewSize, ViewSize } from '../../hooks';
 import { FollowButton } from '../contentPreference/FollowButton';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
+import { UpgradeToPlus } from '../UpgradeToPlus';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -19,6 +20,7 @@ export interface HeaderProps {
   sticky?: boolean;
   className?: string;
   style?: CSSProperties;
+  isPlus?: Date;
 }
 
 export function Header({
@@ -27,6 +29,7 @@ export function Header({
   sticky,
   className,
   style,
+  isPlus,
 }: HeaderProps): ReactElement {
   const [, onShareOrCopyLink] = useShareOrCopyLink({
     text: `Check out ${user.name}'s profile on daily.dev`,
@@ -74,8 +77,18 @@ export function Header({
           Edit profile
         </Button>
       )}
+      {isSameUser && !isPlus && (
+        <UpgradeToPlus
+          className="ml-auto mr-2 max-w-fit laptop:hidden"
+          size={ButtonSize.Small}
+        />
+      )}
       <Button
-        className={classNames('ml-auto', isSameUser && 'laptop:ml-0')}
+        className={classNames(
+          'ml-auto',
+          isSameUser && 'laptop:ml-0',
+          isSameUser && !isPlus && '!ml-0',
+        )}
         variant={ButtonVariant.Float}
         size={ButtonSize.Small}
         icon={<ShareIcon />}
