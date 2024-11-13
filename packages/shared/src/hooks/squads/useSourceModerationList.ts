@@ -6,6 +6,7 @@ import {
   squadApproveMutation,
   squadRejectMutation,
   SquadPostModerationProps,
+  deletePendingPostMutation,
 } from '../../graphql/squads';
 import { useLazyModal } from '../useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
@@ -59,11 +60,12 @@ export interface UseSquadPostModeration {
     sourceId: string,
     onSuccess?: MouseEventHandler,
   ) => void;
+  onDelete: (postId: string) => Promise<void>;
   isPending: boolean;
   isSuccess: boolean;
 }
 
-export const useSquadPostModeration = ({
+export const useSourceModerationList = ({
   squad,
 }: {
   squad: Squad;
@@ -164,10 +166,19 @@ export const useSquadPostModeration = ({
     [closeModal, onReject, openModal],
   );
 
+  const { mutateAsync: onDelete } = useMutation({
+    mutationFn: (postId: string) => deletePendingPostMutation(postId),
+    onSuccess: () => {
+      displayToast('Post deleted successfully');
+      invalidateQueries();
+    },
+  });
+
   return {
     isSuccess: isSuccessApprove || isSuccessReject,
     isPending: isPendingApprove || isPendingReject,
     onApprove: onApprovePost,
     onReject: onRejectPost,
+    onDelete,
   };
 };
