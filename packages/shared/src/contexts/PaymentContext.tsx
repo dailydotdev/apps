@@ -14,8 +14,9 @@ import {
   PricePreviewResponse,
 } from '@paddle/paddle-js';
 import { useQuery } from '@tanstack/react-query';
-import { planTypes } from '../lib/paddle';
 import { useAuthContext } from './AuthContext';
+import { generateQueryKey } from '../lib/query';
+import { getPricingIds } from '../graphql/paddle';
 
 export interface PaymentContextData {
   openCheckout?: ({ priceId }: { priceId: string }) => void;
@@ -68,26 +69,31 @@ export const PaymentContextProvider = ({
         },
       });
     },
-    [paddle?.Checkout, user?.id],
+    [paddle?.Checkout, user],
   );
+
+  const { data: planTypes } = useQuery({
+    queryKey: generateQueryKey('planTypes'),
+    queryFn: getPricingIds,
+  });
 
   const getPrices = useCallback(() => {
     return paddle
       ?.PricePreview({
-        items: Object.values(planTypes).map((priceId) => ({
+        items: Object.keys(planTypes).map((priceId) => ({
           priceId,
           quantity: 1,
         })),
       })
       .then((response) => response);
-  }, [paddle]);
+  }, [paddle, planTypes]);
 
   const { data: productPrices } = useQuery({
     queryKey: ['productPrices'],
     queryFn: async () => {
       return getPrices();
     },
-    enabled: !!paddle,
+    enabled: !!paddle && !!planTypes,
   });
 
   const contextData = useMemo<PaymentContextData>(
