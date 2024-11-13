@@ -70,11 +70,11 @@ const PlusPage = (): ReactElement => {
         </Typography>
         <div className="rounded-10 border border-border-subtlest-tertiary ">
           {productOptions.map((option) => {
-            const { name, value } = option;
+            const { label, value } = option;
             const checked = selectedOption === value;
             return (
               <div
-                key={option.id}
+                key={label}
                 className={classNames(
                   'flex h-12 items-center justify-between rounded-10 p-2',
                   checked
@@ -84,11 +84,11 @@ const PlusPage = (): ReactElement => {
               >
                 <div className="flex items-center">
                   <RadioItem
-                    name={name}
-                    id={`${name}-${option.id || option.value}`}
-                    value={option.value}
+                    name={label}
+                    id={`${label}-${value}`}
+                    value={value}
                     checked={checked}
-                    onChange={() => toggleCheckoutOption(option.value)}
+                    onChange={() => toggleCheckoutOption(value)}
                     className={{
                       content: 'truncate',
                     }}
@@ -96,7 +96,7 @@ const PlusPage = (): ReactElement => {
                     <Typography
                       tag={TypographyTag.Span}
                       type={TypographyType.Callout}
-                      colo={TypographyColor.Primary}
+                      color={TypographyColor.Primary}
                     >
                       {option.label}
                     </Typography>

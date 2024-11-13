@@ -17,7 +17,7 @@ import { planTypes } from '../lib/paddle';
 import { useAuthContext } from './AuthContext';
 
 export interface PaymentContextData {
-  openCheckout?: ({ priceId: string }) => void;
+  openCheckout?: ({ priceId }: { priceId: string }) => void;
   productPrices?: PricePreviewResponse;
 }
 
