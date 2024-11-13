@@ -52,6 +52,7 @@ export interface PublicProfile {
   companies?: Company[];
   contentPreference?: ContentPreference;
   isPlus?: boolean;
+  plusMemberSince?: Date;
 }
 
 export enum UserExperienceLevel {
@@ -104,6 +105,7 @@ export interface UserShortProfile
     | 'reputation'
     | 'companies'
     | 'isPlus'
+    | 'plusMemberSince'
   > {
   username: string;
   permalink: string;

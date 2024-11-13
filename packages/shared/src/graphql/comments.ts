@@ -22,6 +22,7 @@ export interface Author {
   contentPreference?: ContentPreference;
   topReader?: Partial<TopReader>;
   isPlus?: boolean;
+  plusMemberSince?: Date;
 }
 
 export type Scout = Author;
