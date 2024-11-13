@@ -50,6 +50,9 @@ export const PaymentContextProvider = ({
     ({ priceId }: { priceId: string }) => {
       paddle?.Checkout.open({
         items: [{ priceId, quantity: 1 }],
+        customer: {
+          email: user?.email,
+        },
         customData: {
           user_id: user?.id,
         },

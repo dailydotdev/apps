@@ -17,11 +17,13 @@ const PlusPage = (): ReactElement => {
   const { openCheckout, productPrices } = usePaymentContext();
 
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-
   const productOptions =
     productPrices?.data?.details?.lineItems?.map((item) => ({
       label: item.price.description,
       value: item.price.id,
+      price: item.formattedTotals.total,
+      currencyCode: productPrices?.data.currencyCode,
+      extraLabel: item.price.customData?.label,
     })) ?? [];
 
   if (productOptions?.[0]?.value && !selectedOption) {
@@ -54,7 +56,6 @@ const PlusPage = (): ReactElement => {
           type={TypographyType.Title3}
           color={TypographyColor.Secondary}
           className="mb-6"
-          bold
         >
           Upgrade to daily.dev Plus for an enhanced, ad-free experience with
           exclusive features and perks to level up your game.
@@ -70,7 +71,7 @@ const PlusPage = (): ReactElement => {
         </Typography>
         <div className="rounded-10 border border-border-subtlest-tertiary ">
           {productOptions.map((option) => {
-            const { label, value } = option;
+            const { label, value, price, currencyCode, extraLabel } = option;
             const checked = selectedOption === value;
             return (
               <div
@@ -101,14 +102,17 @@ const PlusPage = (): ReactElement => {
                       {option.label}
                     </Typography>
                   </RadioItem>
-                  <Typography
-                    tag={TypographyTag.Span}
-                    type={TypographyType.Caption1}
-                    color={TypographyColor.Tertiary}
-                    bold
-                  >
-                    SAVE 20%
-                  </Typography>
+                  {extraLabel ? (
+                    <Typography
+                      tag={TypographyTag.Span}
+                      type={TypographyType.Caption1}
+                      color={TypographyColor.Plus}
+                      className="bg-action-plus-float rounded-10 px-2 py-1"
+                      bold
+                    >
+                      {extraLabel}
+                    </Typography>
+                  ) : undefined}
                 </div>
                 <div className="mr-1 flex items-center gap-1">
                   <Typography
@@ -117,14 +121,14 @@ const PlusPage = (): ReactElement => {
                     color={TypographyColor.Primary}
                     bold
                   >
-                    $39.95
+                    {price}
                   </Typography>
                   <Typography
                     tag={TypographyTag.Span}
                     type={TypographyType.Body}
                     color={TypographyColor.Secondary}
                   >
-                    USD
+                    {currencyCode}
                   </Typography>
                 </div>
               </div>
