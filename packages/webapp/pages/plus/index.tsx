@@ -9,6 +9,8 @@ import {
 import { PlusList } from '@dailydotdev/shared/src/components/plus/PlusList';
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
 import classNames from 'classnames';
+import { plusInfo } from '@dailydotdev/shared/src/lib/constants';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 
 const PlusPage = (): ReactElement => {
@@ -135,7 +137,15 @@ const PlusPage = (): ReactElement => {
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
         >
-          Still on the fence? See what’s inside!
+          Still on the fence?{' '}
+          <a
+            className="text-text-link hover:underline"
+            href={plusInfo}
+            target="_blank"
+            rel={anchorDefaultRel}
+          >
+            See what’s inside!
+          </a>
         </Typography>
       </div>
       <div className="checkout-container mr-6 min-h-40 w-[28.5rem] rounded-16 bg-background-default p-5" />
