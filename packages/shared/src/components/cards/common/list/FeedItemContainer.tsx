@@ -41,7 +41,7 @@ function FeedItemContainer(
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked,
   });
-  const { adAttribution, pinnedAt, trending, type } = flagProps;
+  const { adAttribution, pinnedAt, trending, type } = flagProps ?? {};
   const raisedLabelType = pinnedAt
     ? RaisedLabelType.Pinned
     : RaisedLabelType.Hot;
