@@ -63,7 +63,7 @@ export default function ProfileMenu({
         tag: 'a',
         icon: <DevPlusIcon />,
         href: isPlus ? managePlusUrl : plusUrl,
-        className: isPlus ? undefined : 'text-accent-bacon-default',
+        className: isPlus ? undefined : 'text-action-plus-default',
       },
     };
 

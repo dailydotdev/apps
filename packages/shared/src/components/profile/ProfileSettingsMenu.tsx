@@ -55,7 +55,7 @@ const useMenuItems = (): NavItemProps[] => {
       label: isPlus ? 'Manage plus' : 'Upgrade to plus',
       icon: <DevPlusIcon />,
       href: isPlus ? managePlusUrl : plusUrl,
-      className: isPlus ? undefined : 'text-accent-bacon-default',
+      className: isPlus ? undefined : 'text-action-plus-default',
     };
 
     return [
