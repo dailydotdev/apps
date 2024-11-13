@@ -18,6 +18,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import useActiveNav from '../../hooks/useActiveNav';
 import { getFeedName } from '../../lib/feed';
 import { useAlertsContext } from '../../contexts/AlertContext';
+import { UpgradeToPlus } from '../UpgradeToPlus';
 
 export const SidebarTablet = ({
   activePage,
@@ -64,6 +65,7 @@ export const SidebarTablet = ({
         className={classNames('h-10 pt-4')}
         featureTheme={featureTheme}
       />
+      {!user?.isPlus && <UpgradeToPlus iconOnly />}
       <Link href={`${webappUrl}`} prefetch={false} passHref>
         <Button
           {...buttonProps}
