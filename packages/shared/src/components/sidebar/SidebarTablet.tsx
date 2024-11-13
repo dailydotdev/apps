@@ -8,7 +8,7 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import { SidebarAside } from './common';
-import Logo, { LogoPosition } from '../Logo';
+import { LogoPosition } from '../Logo';
 import Link from '../utilities/Link';
 import { squadCategoriesPaths, webappUrl } from '../../lib/constants';
 import { AiIcon, HomeIcon, SourceIcon, UserIcon } from '../icons';
@@ -19,6 +19,7 @@ import useActiveNav from '../../hooks/useActiveNav';
 import { getFeedName } from '../../lib/feed';
 import { useAlertsContext } from '../../contexts/AlertContext';
 import { UpgradeToPlus } from '../UpgradeToPlus';
+import HeaderLogo from '../layout/HeaderLogo';
 
 export const SidebarTablet = ({
   activePage,
@@ -58,12 +59,11 @@ export const SidebarTablet = ({
         featureTheme && 'bg-transparent',
       )}
     >
-      <Logo
+      <HeaderLogo
         compact
         position={LogoPosition.Relative}
         onLogoClick={onLogoClick}
         className={classNames('h-10 pt-4')}
-        featureTheme={featureTheme}
       />
       {!user?.isPlus && <UpgradeToPlus iconOnly />}
       <Link href={`${webappUrl}`} prefetch={false} passHref>
