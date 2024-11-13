@@ -8,19 +8,23 @@ import type { WithClassNameProps } from './utilities';
 
 type Props = {
   withText?: boolean;
+  typographyType?: TypographyType;
+  iconSize?: IconSize;
 } & WithClassNameProps;
 
 export const PlusUser = ({
   className,
+  iconSize = IconSize.Size16,
+  typographyType = TypographyType.Caption1,
   withText = true,
 }: Props): ReactElement => {
   return (
     <Typography
       className={classNames('flex text-accent-bacon-default', className)}
-      type={TypographyType.Caption1}
+      type={typographyType}
       bold
     >
-      <DevPlusIcon secondary size={IconSize.Size16} />
+      <DevPlusIcon secondary size={iconSize} />
       {withText && <span className="pl-0.5">Plus</span>}
     </Typography>
   );

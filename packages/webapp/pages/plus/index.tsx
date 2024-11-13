@@ -11,6 +11,8 @@ import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
 import classNames from 'classnames';
 import { plusInfo } from '@dailydotdev/shared/src/lib/constants';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
+import { PlusUser } from '@dailydotdev/shared/src/components/PlusUser';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 
 const PlusPage = (): ReactElement => {
@@ -42,6 +44,10 @@ const PlusPage = (): ReactElement => {
   return (
     <div className="flex flex-1 items-center justify-center gap-20">
       <div className="ml-6 flex w-[28.5rem] flex-col">
+        <PlusUser
+          iconSize={IconSize.Large}
+          typographyType={TypographyType.Title1}
+        />
         <Typography
           tag={TypographyTag.H1}
           type={TypographyType.Mega2}
