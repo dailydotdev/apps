@@ -21,7 +21,7 @@ export const UpgradeToPlus = ({ className, size }: Props): ReactElement => {
         tag="a"
         variant={ButtonVariant.Secondary}
         className={classNames(
-          'flex-1 border-accent-bacon-default text-accent-bacon-default',
+          'border-action-plus-default text-action-plus-default flex-1',
           className,
         )}
         icon={<DevPlusIcon />}
