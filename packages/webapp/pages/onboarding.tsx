@@ -57,6 +57,7 @@ import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import useMutateFilters from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import dynamic from 'next/dynamic';
+import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -124,6 +125,7 @@ export function OnboardPage(): ReactElement {
   const onboardingVisual: OnboardingVisual = useFeature(
     feature.onboardingVisual,
   );
+  const { isPushSupported } = usePushNotificationContext();
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
@@ -187,7 +189,11 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.ContentTypes);
     }
 
-    if (activeScreen === OnboardingStep.ContentTypes && isMobile) {
+    if (
+      activeScreen === OnboardingStep.ContentTypes &&
+      isMobile &&
+      isPushSupported
+    ) {
       return setActiveScreen(OnboardingStep.ReadingReminder);
     }
 
