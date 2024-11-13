@@ -8,6 +8,7 @@ import React, {
   useState,
 } from 'react';
 import {
+  Environments,
   initializePaddle,
   Paddle,
   PricePreviewResponse,
@@ -37,7 +38,9 @@ export const PaymentContextProvider = ({
   // Download and initialize Paddle instance from CDN
   useEffect(() => {
     initializePaddle({
-      environment: 'sandbox',
+      environment:
+        (process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT as Environments) ||
+        'production',
       token: process.env.NEXT_PUBLIC_PADDLE_TOKEN,
     }).then((paddleInstance: Paddle | undefined) => {
       if (paddleInstance) {
