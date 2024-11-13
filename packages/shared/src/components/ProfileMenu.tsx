@@ -23,7 +23,12 @@ import {
   ButtonSize,
   ButtonVariant,
 } from './buttons/Button';
-import { plusUrl, reputation, webappUrl } from '../lib/constants';
+import {
+  managePlusUrl,
+  plusUrl,
+  reputation,
+  webappUrl,
+} from '../lib/constants';
 import { UserMetadata } from './profile/UserMetadata';
 import { HeroImage } from './profile/HeroImage';
 import { anchorDefaultRel } from '../lib/strings';
@@ -51,6 +56,17 @@ export default function ProfileMenu({
   const { isActive: isDndActive, setShowDnd } = useDndContext();
 
   const items: ListItem[] = useMemo(() => {
+    const isPlus = !!user?.isPlus;
+    const plusItem: ListItem = {
+      title: isPlus ? 'Manage plus' : 'Upgrade to plus',
+      buttonProps: {
+        tag: 'a',
+        icon: <DevPlusIcon />,
+        href: isPlus ? managePlusUrl : plusUrl,
+        className: isPlus ? undefined : 'text-accent-bacon-default',
+      },
+    };
+
     const list: ListItem[] = [
       {
         title: 'Profile',
@@ -60,19 +76,7 @@ export default function ProfileMenu({
           icon: <UserIcon />,
         },
       },
-      ...(!user?.isPlus
-        ? [
-            {
-              title: 'Upgrade to plus',
-              buttonProps: {
-                tag: 'a',
-                icon: <DevPlusIcon />,
-                href: plusUrl,
-                className: 'text-accent-bacon-default',
-              },
-            } as ListItem,
-          ]
-        : []),
+      plusItem,
       {
         title: 'Account details',
         buttonProps: {
