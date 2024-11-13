@@ -6,7 +6,7 @@ import React, {
   useContext,
 } from 'react';
 import { useRouter } from 'next/router';
-import { Post, SourcePostModeration } from '../graphql/posts';
+import { Post } from '../graphql/posts';
 import { Squad } from '../graphql/sources';
 import ConditionalWrapper from '../components/ConditionalWrapper';
 import { useViewSize, ViewSize } from '../hooks';
@@ -20,10 +20,7 @@ export interface WriteForm {
 }
 
 export interface WritePostProps {
-  onSubmitForm: (
-    e: FormEvent<HTMLFormElement>,
-    prop: WriteForm,
-  ) => Promise<Post | SourcePostModeration>;
+  onSubmitForm: (e: FormEvent<HTMLFormElement>, prop: WriteForm) => void;
   isPosting: boolean;
   squad: Squad;
   post?: Post;

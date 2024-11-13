@@ -5,10 +5,9 @@ import {
   WritePage,
   WritePostHeader,
 } from '@dailydotdev/shared/src/components/post/freeform';
-import { editPost, PostType } from '@dailydotdev/shared/src/graphql/posts';
+import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useMutation } from '@tanstack/react-query';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { useDiscardPost } from '@dailydotdev/shared/src/hooks/input/useDiscardPost';
@@ -17,7 +16,7 @@ import { WritePostContextProvider } from '@dailydotdev/shared/src/contexts';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import { ShareLink } from '@dailydotdev/shared/src/components/post/write/ShareLink';
-import { useActions } from '@dailydotdev/shared/src/hooks';
+import { useActions, usePostToSquad } from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import {
   WriteFormTab,
@@ -49,22 +48,21 @@ function EditPost(): ReactElement {
     formRef,
     clearDraft,
   } = useDiscardPost({ post });
-  const {
-    mutateAsync: onUpdatePost,
-    isPending: isPosting,
-    isSuccess,
-  } = useMutation({
-    mutationFn: editPost,
+  const { onEditPost, isPosting, isSuccess } = usePostToSquad({
     onMutate: () => {
       onAskConfirmation(false);
     },
-    onSuccess: async (data) => {
+    onPostSuccess: async (data) => {
       clearDraft();
       await push(data.commentsPermalink);
 
       if (data.type === PostType.Welcome) {
         completeAction(ActionType.EditWelcomePost);
       }
+    },
+    onSourcePostModerationSuccess: async (data) => {
+      clearDraft();
+      await push(data.source.permalink);
     },
     onError: (data: ApiErrorResult) => {
       if (data?.response?.errors?.[0]) {
@@ -75,11 +73,7 @@ function EditPost(): ReactElement {
   });
 
   const onClickSubmit = (e: FormEvent<HTMLFormElement>, params) => {
-    if (isPosting || isSuccess) {
-      return null;
-    }
-
-    return onUpdatePost({ ...params, id: post.id });
+    return onEditPost({ ...params, id: post.id, type: post.type }, squad);
   };
 
   const seo: NextSeoProps = {

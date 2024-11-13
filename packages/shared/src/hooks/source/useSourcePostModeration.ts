@@ -5,26 +5,26 @@ import {
   SourcePostModeration,
 } from '../../graphql/posts';
 import { usePrompt } from '../usePrompt';
-import { createModerationPromptProps } from '../../components/squads/utils';
+import {
+  createModerationPromptProps,
+  editModerationPromptProps,
+} from '../../components/squads/utils';
+import { ApiErrorResult } from '../../graphql/common';
 
 type UseSourcePostModeration = {
   isPending: boolean;
   isSuccess: boolean;
-  onCreatePostModeration: (
-    post: CreatePostModerationProps,
-  ) => Promise<SourcePostModeration>;
+  onCreatePostModeration: (post: CreatePostModerationProps) => Promise<unknown>;
 };
 
 type UseSquadModerationProps = {
-  onSuccess?: () => void;
-  onError?: () => void;
-  onSettled?: () => void;
+  onSuccess?: (data: SourcePostModeration) => void;
+  onError?: (error: ApiErrorResult) => void;
 };
 
 const useSourcePostModeration = ({
   onSuccess,
   onError,
-  onSettled,
 }: UseSquadModerationProps = {}): UseSourcePostModeration => {
   const { showPrompt } = usePrompt();
   const {
@@ -33,12 +33,15 @@ const useSourcePostModeration = ({
     isSuccess,
   } = useMutation({
     mutationFn: createSourcePostModeration,
-    onSuccess: async () => {
-      await showPrompt(createModerationPromptProps);
-      onSuccess?.();
+    onSuccess: async (moderatedPost) => {
+      await showPrompt(
+        moderatedPost.post
+          ? createModerationPromptProps
+          : editModerationPromptProps,
+      );
+      onSuccess?.(moderatedPost);
     },
     onError,
-    onSettled,
   });
 
   return {

@@ -1,15 +1,19 @@
 import {
   UseMutateAsyncFunction,
   useMutation,
-  UseMutationOptions,
   useQueryClient,
 } from '@tanstack/react-query';
 import { BaseSyntheticEvent, useCallback, useState } from 'react';
 import {
+  createPost,
+  CreatePostProps,
+  editPost,
+  EditPostProps,
   ExternalLinkPreview,
   getExternalLinkPreview,
   Post,
   PostType,
+  SourcePostModeration,
   SubmitExternalLink,
   submitExternalLink,
 } from '../../graphql/posts';
@@ -40,32 +44,37 @@ interface UsePostToSquad {
     ApiErrorResult,
     string
   >;
+  onEditPost: (editedPost: EditPostProps, squad: Squad) => Promise<void>;
   onSubmitPost: (
     e: BaseSyntheticEvent,
     squad: Squad,
     commentary: string,
   ) => Promise<unknown>;
+  onSubmitFreeformPost: (post: CreatePostProps, squad: Squad) => Promise<void>;
   onUpdatePost: (
     e: BaseSyntheticEvent,
     postId: Post['id'],
     commentary: string,
+    squad: Squad,
   ) => Promise<unknown>;
 }
 
 interface UsePostToSquadProps {
-  callback?: Pick<
-    UseMutationOptions<ExternalLinkPreview, ApiErrorResult, string>,
-    'onSuccess' | 'onError'
-  >;
   onPostSuccess?: (post: Post, url: string) => void;
+  onSourcePostModerationSuccess?: (data: SourcePostModeration) => void;
+  onExternalLinkSuccess?: (data: ExternalLinkPreview, url: string) => void;
   initialPreview?: ExternalLinkPreview;
-  onSettled?: () => void;
+  onMutate?: (data) => void;
+  onError?: (error: ApiErrorResult) => void;
 }
 
 export const usePostToSquad = ({
-  callback,
-  onSettled,
   onPostSuccess,
+  onMutate,
+  onError,
+  onExternalLinkSuccess,
+  onSourcePostModerationSuccess,
+
   initialPreview,
 }: UsePostToSquadProps = {}): UsePostToSquad => {
   const { displayToast } = useToastNotification();
@@ -74,35 +83,72 @@ export const usePostToSquad = ({
   const { completeAction } = useActions();
   const [preview, setPreview] = useState(initialPreview);
   const { requestMethod } = useRequestProtocol();
+
+  const {
+    mutateAsync: onCreatePost,
+    isPending: isLoadingFreeform,
+    isSuccess: isFreeformPostSuccess,
+  } = useMutation({
+    mutationFn: createPost,
+    onMutate,
+    onError,
+    onSuccess: onPostSuccess,
+  });
+  const {
+    mutateAsync: editPostMutation,
+    isPending: isEditLoading,
+    isSuccess: isEditPostSuccess,
+  } = useMutation({
+    mutationFn: editPost,
+    onMutate,
+    onSuccess: onPostSuccess,
+    onError,
+  });
+
   const { mutateAsync: getLinkPreview, isPending: isLoadingPreview } =
     useMutation({
       mutationFn: (url: string) => getExternalLinkPreview(url, requestMethod),
-      onSuccess: (...params) => {
-        const [result, url] = params;
-        setPreview({ ...result, url });
-
-        if (callback?.onSuccess) {
-          callback.onSuccess(...params);
-        }
+      onSuccess: (data, url) => {
+        setPreview({ ...data, url });
+        onExternalLinkSuccess?.(data, url);
       },
-      onError: (err: ApiErrorResult, link, ...params) => {
+      onError: (err: ApiErrorResult) => {
         const rateLimited = getApiError(err, ApiError.RateLimited);
         const message = rateLimited?.message ?? DEFAULT_ERROR;
         displayToast(message);
-        callback?.onError?.(err, link, ...params);
+        onError?.(err);
       },
     });
 
   const {
     onCreatePostModeration,
-    isSuccess: didCreatePostModeration,
+    isSuccess: isPostModerationSuccess,
     isPending: isPostModerationLoading,
   } = useSourcePostModeration({
+    onSuccess: onSourcePostModerationSuccess,
     onError: () => {
       displayToast(DEFAULT_ERROR);
     },
-    onSettled,
   });
+
+  const onEditPost = async (
+    editedPost: EditPostProps,
+    squad: Squad,
+  ): Promise<void> => {
+    if (isEditLoading || isEditPostSuccess) {
+      return null;
+    }
+    if (moderationRequired(squad)) {
+      onCreatePostModeration({
+        ...editedPost,
+        postId: editedPost.id,
+        sourceId: squad.id,
+      });
+    } else {
+      editPostMutation(editedPost);
+    }
+    return null;
+  };
 
   const onSharedPostSuccessfully = async (update = false) => {
     displayToast(
@@ -128,7 +174,6 @@ export const usePostToSquad = ({
         onPostSuccess(data, data?.permalink);
       }
     },
-    onSettled,
   });
 
   const {
@@ -160,12 +205,22 @@ export const usePostToSquad = ({
     },
   });
 
-  const isPosting = isPostLoading || isLinkLoading || isPostModerationLoading;
+  const isPosting =
+    isPostLoading ||
+    isLinkLoading ||
+    isPostModerationLoading ||
+    isEditLoading ||
+    isLoadingFreeform;
 
   const isUpdating =
     isUpdatePostSuccess || isUpdatePostLoading || isPostModerationLoading;
 
-  const isSuccess = didCreatePostModeration || isPostSuccess || isLinkSuccess;
+  const isSuccess =
+    isPostModerationSuccess ||
+    isPostSuccess ||
+    isLinkSuccess ||
+    isFreeformPostSuccess ||
+    isEditPostSuccess;
 
   const onSubmitPost = useCallback<UsePostToSquad['onSubmitPost']>(
     (e, squad, commentary) => {
@@ -224,20 +279,40 @@ export const usePostToSquad = ({
   );
 
   const onUpdatePost = useCallback<UsePostToSquad['onUpdatePost']>(
-    (e, postId, commentary) => {
+    (e, postId, commentary, squad) => {
       e.preventDefault();
 
       if (isUpdating) {
         return null;
       }
 
-      return updatePost({
-        id: postId,
-        commentary,
-      });
+      return moderationRequired(squad)
+        ? onCreatePostModeration({
+            postId,
+            type: PostType.Share,
+            sourceId: squad.id,
+            title: commentary,
+          })
+        : updatePost({
+            id: postId,
+            commentary,
+          });
     },
-    [updatePost, isUpdating],
+    [updatePost, isUpdating, onCreatePostModeration],
   );
+
+  const onSubmitFreeformPost = (post: CreatePostProps, squad: Squad) => {
+    if (moderationRequired(squad)) {
+      onCreatePostModeration({
+        ...post,
+        sourceId: squad.id,
+        type: PostType.Freeform,
+      });
+    } else {
+      onCreatePost({ ...post, sourceId: squad.id });
+    }
+    return null;
+  };
 
   return {
     isLoadingPreview,
@@ -245,8 +320,10 @@ export const usePostToSquad = ({
     onSubmitPost,
     onUpdatePost,
     isPosting,
+    onEditPost,
     preview,
     isSuccess,
+    onSubmitFreeformPost,
     onUpdatePreview: setPreview,
   };
 };

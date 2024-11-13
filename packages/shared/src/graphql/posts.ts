@@ -553,6 +553,7 @@ export interface EditPostProps {
   title: string;
   content: string;
   image: File;
+  type: PostType;
 }
 
 export interface CreatePostProps
@@ -560,17 +561,20 @@ export interface CreatePostProps
   sourceId: string;
 }
 
-export type CreatePostModerationProps = {
-  title?: string;
-  content?: string;
-  sourceId: string;
-  type: PostType;
-  sharedPostId?: string;
-  externalLink?: string;
-  imageUrl?: string;
-  image?: File;
-  commentary?: string;
-};
+export type CreatePostModerationProps =
+  | {
+      title?: string;
+      content?: string;
+      sourceId: string;
+      type: PostType;
+      sharedPostId?: string;
+      externalLink?: string;
+      imageUrl?: string;
+      image?: File;
+      commentary?: string;
+      postId?: string;
+    }
+  | { postId: string; type?: PostType; image: File };
 
 export type SourcePostModeration = {
   id: string;
@@ -583,6 +587,8 @@ export type SourcePostModeration = {
   sourceId: string;
   sharedPostId?: string;
   externalLink?: string;
+  post?: Post;
+  source: Source;
 };
 
 export const editPost = async (
@@ -638,6 +644,7 @@ export const CREATE_SOURCE_POST_MODERATION_MUTATION = gql`
     $image: Upload
     $imageUrl: String
     $externalLink: String
+    $postId: ID
   ) {
     createSourcePostModeration(
       sourceId: $sourceId
@@ -649,6 +656,7 @@ export const CREATE_SOURCE_POST_MODERATION_MUTATION = gql`
       image: $image
       imageUrl: $imageUrl
       externalLink: $externalLink
+      postId: $postId
     ) {
       id
       title
@@ -657,6 +665,10 @@ export const CREATE_SOURCE_POST_MODERATION_MUTATION = gql`
       type
       sourceId
       externalLink
+      source {
+        handle
+        permalink
+      }
     }
   }
 `;

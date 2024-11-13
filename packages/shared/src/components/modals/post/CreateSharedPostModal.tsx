@@ -45,9 +45,12 @@ export function CreateSharedPostModal({
     onSubmitPost,
   } = usePostToSquad({
     initialPreview: preview,
-    onSettled: () => {
+    onPostSuccess: () => {
       onSharedSuccessfully?.();
       onSubmitted();
+      onRequestClose(null);
+    },
+    onSourcePostModerationSuccess: () => {
       onRequestClose(null);
     },
   });

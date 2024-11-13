@@ -12,12 +12,7 @@ import {
   WriteFreeFormSkeleton,
   WritePageContainer,
 } from '@dailydotdev/shared/src/components/post/freeform';
-import { useMutation } from '@tanstack/react-query';
-import {
-  createPost,
-  CreatePostProps,
-  PostType,
-} from '@dailydotdev/shared/src/graphql/posts';
+import { CreatePostProps } from '@dailydotdev/shared/src/graphql/posts';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -36,6 +31,7 @@ import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import {
   useActions,
+  usePostToSquad,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
@@ -46,8 +42,6 @@ import {
   WriteFormTab,
   WriteFormTabToFormID,
 } from '@dailydotdev/shared/src/components/fields/form/common';
-import useSourcePostModeration from '@dailydotdev/shared/src/hooks/source/useSourcePostModeration';
-import { moderationRequired } from '@dailydotdev/shared/src/components/squads/utils';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -101,27 +95,19 @@ function CreatePost(): ReactElement {
     clearDraft,
     isUpdatingDraft,
   } = useDiscardPost({ draftIdentifier: squad?.id });
-  const { onCreatePostModeration, isPending: isCreatingPostModeration } =
-    useSourcePostModeration({
-      onSuccess: async () => {
-        clearDraft();
-        push(squad.permalink);
-      },
-    });
-  const {
-    mutateAsync: onCreatePost,
-    isPending: isPosting,
-    isSuccess,
-  } = useMutation({
-    mutationFn: createPost,
+  const { onSubmitFreeformPost, isPosting, isSuccess } = usePostToSquad({
     onMutate: () => {
       onAskConfirmation(false);
     },
-    onSuccess: async (post) => {
+    onPostSuccess: async (data) => {
       clearDraft();
-      await push(post.commentsPermalink);
+      await push(data.commentsPermalink);
 
       completeAction(ActionType.SquadFirstPost);
+    },
+    onSourcePostModerationSuccess: async (data) => {
+      clearDraft();
+      await push(data.source.permalink);
     },
     onError: (data: ApiErrorResult) => {
       if (data?.response?.errors?.[0]) {
@@ -134,15 +120,13 @@ function CreatePost(): ReactElement {
     onSuccess: (newSquad) => {
       const form = formToJson<CreatePostProps>(formRef.current);
 
-      return onCreatePost({ ...form, sourceId: newSquad.id });
+      return onSubmitFreeformPost(form, newSquad);
     },
     retryWithRandomizedHandle: true,
   });
 
   const param = isRouteReady && activeSquads?.length && (query.sid as string);
   const shareParam = query.share as string;
-
-  const isHandlingPosting = isPosting || isCreatingPostModeration;
 
   useEffect(() => {
     if (!param) {
@@ -165,7 +149,7 @@ function CreatePost(): ReactElement {
 
   const onClickSubmit = async (e: FormEvent<HTMLFormElement>, params) => {
     e.preventDefault();
-    if (isHandlingPosting || isSuccess || isLoading) {
+    if (isPosting || isSuccess || isLoading) {
       return null;
     }
 
@@ -175,14 +159,7 @@ function CreatePost(): ReactElement {
     }
 
     if (squads.some(({ id }) => squad.id === id)) {
-      if (moderationRequired(squad)) {
-        return onCreatePostModeration({
-          ...params,
-          sourceId: squad.id,
-          type: PostType.Freeform,
-        });
-      }
-      return onCreatePost({ ...params, sourceId: squad.id });
+      return onSubmitFreeformPost(params, squad);
     }
 
     await onCreateSquad(generateDefaultSquad(user.username));
@@ -204,9 +181,7 @@ function CreatePost(): ReactElement {
       squad={squad}
       formRef={formRef}
       isUpdatingDraft={isUpdatingDraft}
-      isPosting={
-        isPosting || isCreatingPostModeration || isSuccess || isLoading
-      }
+      isPosting={isPosting || isSuccess || isLoading}
       updateDraft={updateDraft}
       onSubmitForm={onClickSubmit}
       formId={WriteFormTabToFormID[display]}

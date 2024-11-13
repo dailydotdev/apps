@@ -61,7 +61,7 @@ export function ShareLink({
 
     if (post?.id) {
       if (commentary !== post?.title) {
-        onUpdatePost(e, post.id, commentary);
+        onUpdatePost(e, post.id, commentary, squad);
       }
       return push(squad.permalink);
     }
