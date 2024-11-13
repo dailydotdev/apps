@@ -51,7 +51,7 @@ export const PaymentContextProvider = ({
       paddle?.Checkout.open({
         items: [{ priceId, quantity: 1 }],
         customData: {
-          user_id: user.id,
+          user_id: user?.id,
         },
         settings: {
           displayMode: 'inline',
@@ -62,7 +62,7 @@ export const PaymentContextProvider = ({
         },
       });
     },
-    [paddle?.Checkout, user.id],
+    [paddle?.Checkout, user?.id],
   );
 
   const getPrices = useCallback(() => {
