@@ -47,7 +47,7 @@ export const AdList = forwardRef(function AdCard(
       data-testid="adItem"
       linkProps={getLinkProps({ ad, onLinkClick })}
     >
-      <CardContent className="">
+      <CardContent>
         <CardTitle className="!mt-0 mr-4 line-clamp-4 flex-1 font-bold typo-title3">
           {ad.description}
         </CardTitle>
