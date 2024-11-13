@@ -2,7 +2,7 @@ import React, { ReactElement, useMemo } from 'react';
 import { Button } from '../../buttons/Button';
 import { ButtonVariant, ButtonSize } from '../../buttons/common';
 import { VIcon } from '../../icons';
-import { useSquadPostModeration } from '../../../hooks/squads/useSquadPostModeration';
+import { useSourceModerationList } from '../../../hooks/squads/useSourceModerationList';
 import { useSquadPendingPosts } from '../../../hooks/squads/useSquadPendingPosts';
 import { SquadModerationItem } from './SquadModerationItem';
 import {
@@ -86,7 +86,7 @@ const EmptyModerationList = ({
 export function SquadModerationList({
   squad,
 }: SquadModerationListProps): ReactElement {
-  const moderate = useSquadPostModeration({
+  const moderate = useSourceModerationList({
     squad,
   });
   const { data, isFetched, fetchNextPage, hasNextPage, isPending } =

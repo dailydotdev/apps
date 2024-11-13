@@ -729,3 +729,17 @@ export const squadRejectMutation = ({
     moderatorMessage: note,
   });
 };
+
+const DELETE_PENDING_POST_MUTATION = gql`
+  mutation DeleteSourcePostModeration($postId: ID!) {
+    deleteSourcePostModeration(postId: $postId) {
+      _
+    }
+  }
+`;
+
+export const deletePendingPostMutation = async (
+  postId: string,
+): Promise<void> => {
+  return gqlClient.request(DELETE_PENDING_POST_MUTATION, { postId });
+};

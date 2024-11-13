@@ -6,71 +6,45 @@ import {
 } from '../../typography/Typography';
 import { CardImage } from '../../cards/common/Card';
 import PostTags from '../../cards/common/PostTags';
-import {
-  SourcePostModeration,
-  SourcePostModerationStatus,
-  verifyPermission,
-} from '../../../graphql/squads';
+import { SourcePostModerationStatus } from '../../../graphql/squads';
 import { SquadModerationActions } from './SquadModerationActions';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import PostMetadata from '../../cards/common/PostMetadata';
 import { AlertPointerMessage } from '../../alert/common';
-import { SourcePermissions, Squad } from '../../../graphql/sources';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { capitalize } from '../../../lib/strings';
-import OptionsButton from '../../buttons/OptionsButton';
 import { TimerIcon, WarningIcon } from '../../icons';
 import { AlertColor } from '../../AlertDot';
-import { useLazyModal } from '../../../hooks/useLazyModal';
-import { LazyModal } from '../../modals/common/types';
 import { useTruncatedSummary } from '../../../hooks';
+import {
+  SquadModerationItemProps,
+  useSourceModerationItem,
+} from './useSourceModerationItem';
+import { SquadModerationItemContextMenu } from './SquadModerationItemContextMenu';
 
-interface SquadModerationListProps {
-  data: SourcePostModeration;
-  onApprove: () => Promise<void>;
-  onReject: () => void;
-  isPending: boolean;
-  squad: Squad;
-}
+export function SquadModerationItem(
+  props: SquadModerationItemProps,
+): ReactElement {
+  const { context, modal, user } = useSourceModerationItem(props);
+  const { data, squad, onApprove, onReject, isPending } = props;
+  const { reason, createdBy, createdAt, image, status } = data;
 
-export function SquadModerationItem({
-  data,
-  squad,
-  onReject,
-  onApprove,
-  isPending,
-}: SquadModerationListProps): ReactElement {
-  const { status, reason, createdBy, createdAt, image } = data;
+  const IconComponent =
+    status === SourcePostModerationStatus.Rejected ? WarningIcon : TimerIcon;
+
   const post = data.sharedPost || data.post;
   const { title } = useTruncatedSummary({
     ...data,
     ...post,
     ...(!post?.title && !data.title && { title: post?.sharedPost?.title }),
   });
-  const isModerator = verifyPermission(squad, SourcePermissions.ModeratePost);
-
-  const { openModal, closeModal } = useLazyModal();
-  const onClick = () => {
-    openModal({
-      type: LazyModal.PostModeration,
-      props: {
-        data,
-        squad,
-        onApprove: () => onApprove().then(closeModal),
-        onReject,
-      },
-    });
-  };
-
-  const IconComponent =
-    status === SourcePostModerationStatus.Rejected ? WarningIcon : TimerIcon;
 
   return (
     <div className="relative flex flex-col gap-4 p-6 hover:bg-surface-hover">
       <button
         aria-label={`Review ${title}`}
         className="absolute inset-0"
-        onClick={onClick}
+        onClick={modal.open}
         type="button"
       />
       <div className="flex flex-row gap-4">
@@ -81,7 +55,7 @@ export function SquadModerationItem({
           </Typography>
           <PostMetadata readTime={post?.readTime} createdAt={createdAt} />
         </div>
-        {!isModerator && (
+        {!user.isModerator && (
           <span className="ml-auto flex flex-row gap-2">
             <Button
               icon={<IconComponent aria-hidden role="presentation" />}
@@ -91,7 +65,10 @@ export function SquadModerationItem({
             >
               {capitalize(status)}
             </Button>
-            <OptionsButton className="z-1 !my-0" tooltipPlacement="right" />
+            <SquadModerationItemContextMenu
+              id={data.id}
+              onDelete={context.onDelete}
+            />
           </span>
         )}
       </div>
@@ -104,14 +81,14 @@ export function SquadModerationItem({
         </div>
         <CardImage src={image || post?.image} />
       </div>
-      {status === SourcePostModerationStatus.Rejected && !isModerator && (
+      {status === SourcePostModerationStatus.Rejected && !user.isModerator && (
         <AlertPointerMessage color={AlertColor.Bun}>
           Your post in {squad.name} was not approved for the following reason:
           {reason}. Please review the feedback and consider making changes
           before resubmitting.
         </AlertPointerMessage>
       )}
-      {isModerator && (
+      {user.isModerator && (
         <div className="relative z-1">
           <SquadModerationActions
             onApprove={onApprove}
