@@ -180,7 +180,7 @@ export const usePostToSquad = ({
               type: PostType.Share,
               sourceId: squad.id,
               sharedPostId: preview.id,
-              commentary,
+              title: commentary,
             })
           : onPost({
               id: preview.id,
@@ -203,7 +203,7 @@ export const usePostToSquad = ({
             imageUrl: image,
             type: PostType.Share,
             sourceId: squad.id,
-            commentary,
+            content: commentary,
           })
         : onSubmitLink({
             url,
