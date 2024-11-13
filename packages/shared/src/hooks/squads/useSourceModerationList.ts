@@ -49,7 +49,7 @@ export const rejectReasons: { value: PostModerationReason; label: string }[] = [
   { value: PostModerationReason.Other, label: 'Other' },
 ];
 
-export interface UseSquadPostModeration {
+export interface UseSourceModerationList {
   onApprove: (
     ids: string[],
     sourceId: string,
@@ -69,7 +69,7 @@ export const useSourceModerationList = ({
   squad,
 }: {
   squad: Squad;
-}): UseSquadPostModeration => {
+}): UseSourceModerationList => {
   const { openModal, closeModal } = useLazyModal();
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
@@ -115,7 +115,7 @@ export const useSourceModerationList = ({
     },
   });
 
-  const onApprovePost: UseSquadPostModeration['onApprove'] = useCallback(
+  const onApprovePost: UseSourceModerationList['onApprove'] = useCallback(
     async (postIds, sourceId) => {
       if (postIds.length === 1) {
         await onApprove({ postIds, sourceId });
@@ -146,7 +146,7 @@ export const useSourceModerationList = ({
     },
   });
 
-  const onRejectPost: UseSquadPostModeration['onReject'] = useCallback(
+  const onRejectPost: UseSourceModerationList['onReject'] = useCallback(
     (postId, sourceId) => {
       openModal({
         type: LazyModal.ReasonSelection,
