@@ -23,7 +23,7 @@ const PlusPage = (): ReactElement => {
       value: item.price.id,
       price: item.formattedTotals.total,
       currencyCode: productPrices?.data.currencyCode,
-      extraLabel: item.price.customData?.label,
+      extraLabel: item.price.customData?.label as string,
     })) ?? [];
 
   if (productOptions?.[0]?.value && !selectedOption) {
