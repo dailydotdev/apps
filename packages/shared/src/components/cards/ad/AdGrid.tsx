@@ -11,6 +11,14 @@ import AdAttribution from './common/AdAttribution';
 import { AdImage } from './common/AdImage';
 import { AdPixel } from './common/AdPixel';
 import type { AdCardProps } from './common/common';
+import Link from '../../utilities/Link';
+import { plusUrl } from '../../../lib/constants';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../../buttons/Button';
 
 export const AdGrid = forwardRef(function AdGrid(
   { ad, onLinkClick, domProps }: AdCardProps,
@@ -27,7 +35,20 @@ export const AdGrid = forwardRef(function AdGrid(
       <CardSpace />
       <AdImage ad={ad} ImageComponent={CardImage} />
       <CardTextContainer>
-        <AdAttribution ad={ad} className={{ main: 'mb-2 mt-4' }} />
+        <div className="flex items-center pt-2">
+          <AdAttribution ad={ad} />
+          <Link passHref href={plusUrl}>
+            <Button
+              tag="a"
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              color={ButtonColor.Bacon}
+              className="ml-auto"
+            >
+              Remove
+            </Button>
+          </Link>
+        </div>
       </CardTextContainer>
       <AdPixel pixel={ad.pixel} />
     </Card>
