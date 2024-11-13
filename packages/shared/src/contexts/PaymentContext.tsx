@@ -15,7 +15,7 @@ import {
 } from '@paddle/paddle-js';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from './AuthContext';
-import { generateQueryKey } from '../lib/query';
+import { generateQueryKey, RequestKey } from '../lib/query';
 import { getPricingIds } from '../graphql/paddle';
 
 export interface PaymentContextData {
@@ -73,7 +73,7 @@ export const PaymentContextProvider = ({
   );
 
   const { data: planTypes } = useQuery({
-    queryKey: generateQueryKey('planTypes'),
+    queryKey: generateQueryKey(RequestKey.PlanTypes),
     queryFn: getPricingIds,
   });
 
