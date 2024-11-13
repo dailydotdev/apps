@@ -21,7 +21,7 @@ export interface HeaderProps {
   sticky?: boolean;
   className?: string;
   style?: CSSProperties;
-  isPlus?: Date;
+  isPlus?: boolean;
 }
 
 export function Header({

@@ -48,7 +48,7 @@ const LogoSvgElem = ({
       />
     );
   }
-  return <FallbackElem isPlus={!!isPlus} className={className} />;
+  return <FallbackElem isPlus={isPlus} className={className} />;
 };
 
 interface LogoProps {

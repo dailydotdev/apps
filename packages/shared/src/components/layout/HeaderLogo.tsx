@@ -18,7 +18,7 @@ function HeaderLogo({ onLogoClick, position }: HeaderLogoProps): ReactElement {
       position={position}
       onLogoClick={onLogoClick}
       featureTheme={featureTheme}
-      isPlus={!!user?.isPlus}
+      isPlus={user?.isPlus}
     />
   );
 }

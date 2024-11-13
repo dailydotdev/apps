@@ -50,7 +50,7 @@ const useMenuItems = (): NavItemProps[] => {
   }, [logout, showPrompt]);
 
   return useMemo(() => {
-    const isPlus = !!user?.isPlus;
+    const isPlus = user?.isPlus;
     const plusItem = {
       label: isPlus ? 'Manage plus' : 'Upgrade to plus',
       icon: <DevPlusIcon />,

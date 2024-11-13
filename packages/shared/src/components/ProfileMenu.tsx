@@ -56,7 +56,7 @@ export default function ProfileMenu({
   const { isActive: isDndActive, setShowDnd } = useDndContext();
 
   const items: ListItem[] = useMemo(() => {
-    const isPlus = !!user?.isPlus;
+    const isPlus = user?.isPlus;
     const plusItem: ListItem = {
       title: isPlus ? 'Manage plus' : 'Upgrade to plus',
       buttonProps: {
