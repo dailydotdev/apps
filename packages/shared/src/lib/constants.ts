@@ -58,6 +58,7 @@ export const isChrome = (): boolean =>
 
 export const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL;
 export const onboardingUrl = `${webappUrl}onboarding`;
+export const plusUrl = `${webappUrl}plus`;
 
 export const authUrl =
   process.env.NEXT_PUBLIC_AUTH_URL || 'http://127.0.0.1:4433';
