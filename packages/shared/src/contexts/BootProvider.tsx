@@ -29,6 +29,7 @@ import { Feed, FeedList } from '../graphql/feed';
 import { gqlClient } from '../graphql/common';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { LogContextProvider } from './LogContext';
+import { PaymentContextProvider } from './PaymentContext';
 
 const ServerError = dynamic(
   () =>
@@ -298,7 +299,7 @@ export const BootDataProvider = ({
                   isNotificationsReady={isBootReady}
                   unreadCount={notifications?.unreadNotificationsCount}
                 >
-                  {children}
+                  <PaymentContextProvider>{children}</PaymentContextProvider>
                 </NotificationsContextProvider>
               </ErrorBoundary>
             </LogContextProvider>
