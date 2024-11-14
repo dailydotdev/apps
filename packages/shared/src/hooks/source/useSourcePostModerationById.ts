@@ -11,16 +11,18 @@ interface UseSourcePostModerationById {
 
 interface UseSourcePostModerationByIdProps {
   id: string | null;
+  enabled?: boolean;
 }
 
 export const useSourcePostModerationById = ({
   id,
+  enabled = true,
 }: UseSourcePostModerationByIdProps): UseSourcePostModerationById => {
   const { user } = useAuthContext();
   const { data, isLoading } = useQuery({
     queryKey: generateQueryKey(RequestKey.SourcePostModeration, user, id),
     queryFn: () => getSourcePostModeration({ id }),
-    enabled: !!id,
+    enabled: !!id && enabled,
   });
 
   return {

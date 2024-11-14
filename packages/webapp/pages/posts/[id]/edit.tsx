@@ -32,9 +32,13 @@ function EditPost(): ReactElement {
   const { completeAction } = useActions();
   const { query, isReady, push } = useRouter();
   const idQuery = query.id as string;
-  const { post, isLoading } = usePostById({ id: idQuery });
+  const isModeration = query.moderation === 'true';
+  const { post, isLoading } = usePostById({
+    id: idQuery,
+    options: { enabled: !isModeration },
+  });
   const { moderated, isLoading: isModerationLoading } =
-    useSourcePostModerationById({ id: idQuery });
+    useSourcePostModerationById({ id: idQuery, enabled: isModeration });
   const { squads, user } = useAuthContext();
   const formId =
     post?.type === PostType.Share

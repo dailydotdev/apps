@@ -43,7 +43,7 @@ export const SquadModerationItemContextMenu = ({
         options={[
           {
             label: 'Edit post',
-            action: () => router.push(`/posts/${id}/edit`),
+            action: () => router.push(`/posts/${id}/edit?moderation=true`),
             icon: <EditIcon aria-hidden />,
           },
           {
