@@ -57,7 +57,7 @@ interface UsePostToSquad {
     commentary: string,
   ) => Promise<unknown>;
   onSubmitFreeformPost: (post: CreatePostProps, squad: Squad) => Promise<void>;
-  onUpdatePost: (
+  onUpdateSharePost: (
     e: BaseSyntheticEvent,
     postId: Post['id'],
     commentary: string,
@@ -294,7 +294,7 @@ export const usePostToSquad = ({
     ],
   );
 
-  const onUpdatePost = useCallback<UsePostToSquad['onUpdatePost']>(
+  const onUpdateSharePost = useCallback<UsePostToSquad['onUpdateSharePost']>(
     (e, postId, commentary, squad) => {
       e.preventDefault();
 
@@ -339,7 +339,7 @@ export const usePostToSquad = ({
     isLoadingPreview,
     getLinkPreview,
     onSubmitPost,
-    onUpdatePost,
+    onUpdateSharePost,
     isPosting,
     onEditFreeformPost,
     preview,
