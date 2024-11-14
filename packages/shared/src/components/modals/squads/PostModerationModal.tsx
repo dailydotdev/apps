@@ -102,7 +102,9 @@ function PostModerationModal({
         {!sharedPost && (image || editPost?.image) && (
           <MarkdownPostImage imgSrc={image || editPost?.image} />
         )}
-        {!!contentHtml?.length && <Markdown content={contentHtml} />}
+        {!!contentHtml?.length && (
+          <Markdown className="!mt-0" content={contentHtml} />
+        )}
         {!contentHtml?.length && !!content?.length && (
           <Typography type={TypographyType.Body}>{content}</Typography>
         )}
