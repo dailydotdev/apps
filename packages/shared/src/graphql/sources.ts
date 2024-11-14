@@ -18,6 +18,7 @@ export enum SourcePermissions {
   View = 'view',
   ViewBlockedMembers = 'view_blocked_members',
   Post = 'post',
+  PostRequest = 'post_request',
   PostLimit = 'post_limit',
   PostPin = 'post_pin',
   PostDelete = 'post_delete',

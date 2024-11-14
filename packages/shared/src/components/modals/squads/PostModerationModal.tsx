@@ -50,7 +50,7 @@ function PostModerationModal({
     content,
     contentHtml,
     sharedPost,
-    sourceId,
+    source,
   } = data;
   const onReadArticle = useReadArticle({
     origin: Origin.ArticleModal,
@@ -70,8 +70,8 @@ function PostModerationModal({
       <Modal.Body className="gap-6">
         {isModerator && (
           <SquadModerationActions
-            onReject={() => onReject([id], sourceId)}
-            onApprove={() => onApprove([id], sourceId)}
+            onReject={() => onReject([id], source.id)}
+            onApprove={() => onApprove([id], source.id)}
           />
         )}
         <div className="flex flex-row items-center justify-between">
