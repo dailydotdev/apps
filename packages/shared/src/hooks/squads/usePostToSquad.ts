@@ -131,24 +131,29 @@ export const usePostToSquad = ({
     },
   });
 
-  const onEditPost = async (
-    editedPost: EditPostProps,
-    squad: Squad,
-  ): Promise<void> => {
-    if (isEditLoading || isEditPostSuccess) {
+  const onEditPost = useCallback<UsePostToSquad['onEditPost']>(
+    async (editedPost: EditPostProps, squad: Squad): Promise<void> => {
+      if (isEditLoading || isEditPostSuccess) {
+        return null;
+      }
+      if (moderationRequired(squad)) {
+        onCreatePostModeration({
+          ...editedPost,
+          postId: editedPost.id,
+          sourceId: squad.id,
+        });
+      } else {
+        editPostMutation(editedPost);
+      }
       return null;
-    }
-    if (moderationRequired(squad)) {
-      onCreatePostModeration({
-        ...editedPost,
-        postId: editedPost.id,
-        sourceId: squad.id,
-      });
-    } else {
-      editPostMutation(editedPost);
-    }
-    return null;
-  };
+    },
+    [
+      editPostMutation,
+      onCreatePostModeration,
+      isEditLoading,
+      isEditPostSuccess,
+    ],
+  );
 
   const onSharedPostSuccessfully = async (update = false) => {
     displayToast(
@@ -301,18 +306,23 @@ export const usePostToSquad = ({
     [updatePost, isUpdating, onCreatePostModeration],
   );
 
-  const onSubmitFreeformPost = (post: CreatePostProps, squad: Squad) => {
-    if (moderationRequired(squad)) {
-      onCreatePostModeration({
-        ...post,
-        sourceId: squad.id,
-        type: PostType.Freeform,
-      });
-    } else {
-      onCreatePost({ ...post, sourceId: squad.id });
-    }
-    return null;
-  };
+  const onSubmitFreeformPost = useCallback<
+    UsePostToSquad['onSubmitFreeformPost']
+  >(
+    (post: CreatePostProps, squad: Squad) => {
+      if (moderationRequired(squad)) {
+        onCreatePostModeration({
+          ...post,
+          sourceId: squad.id,
+          type: PostType.Freeform,
+        });
+      } else {
+        onCreatePost({ ...post, sourceId: squad.id });
+      }
+      return null;
+    },
+    [onCreatePost, onCreatePostModeration],
+  );
 
   return {
     isLoadingPreview,
