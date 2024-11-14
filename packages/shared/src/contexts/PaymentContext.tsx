@@ -77,15 +77,13 @@ export const PaymentContextProvider = ({
     queryFn: getPricingIds,
   });
 
-  const getPrices = useCallback(() => {
-    return paddle
-      ?.PricePreview({
-        items: Object.keys(planTypes).map((priceId) => ({
-          priceId,
-          quantity: 1,
-        })),
-      })
-      .then((response) => response);
+  const getPrices = useCallback(async () => {
+    return paddle?.PricePreview({
+      items: Object.keys(planTypes).map((priceId) => ({
+        priceId,
+        quantity: 1,
+      })),
+    });
   }, [paddle, planTypes]);
 
   const { data: productPrices } = useQuery({
