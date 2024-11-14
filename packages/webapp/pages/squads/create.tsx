@@ -95,12 +95,12 @@ function CreatePost(): ReactElement {
     clearDraft,
     isUpdatingDraft,
   } = useDiscardPost({ draftIdentifier: squad?.id });
-  const onPostSuccess = (link: string) => {
+  const onPostSuccess = async (link: string) => {
     onAskConfirmation(false);
     clearDraft();
-    await push(data.source.permalink);
     completeAction(ActionType.SquadFirstPost);
-  }
+    await push(link);
+  };
   const { onSubmitFreeformPost, isPosting, isSuccess } = usePostToSquad({
     onPostSuccess: async (data) => {
       onPostSuccess(data.commentsPermalink);
