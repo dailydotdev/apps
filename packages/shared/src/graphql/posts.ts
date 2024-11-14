@@ -570,7 +570,6 @@ export type CreatePostModerationProps = {
   externalLink?: string;
   imageUrl?: string;
   image?: File;
-  commentary?: string;
   postId?: string;
 };
 
@@ -637,7 +636,6 @@ export const CREATE_SOURCE_POST_MODERATION_MUTATION = gql`
     $type: String!
     $title: String
     $content: String
-    $commentary: String
     $sharedPostId: ID
     $image: Upload
     $imageUrl: String
@@ -650,7 +648,6 @@ export const CREATE_SOURCE_POST_MODERATION_MUTATION = gql`
       title: $title
       content: $content
       sharedPostId: $sharedPostId
-      commentary: $commentary
       image: $image
       imageUrl: $imageUrl
       externalLink: $externalLink

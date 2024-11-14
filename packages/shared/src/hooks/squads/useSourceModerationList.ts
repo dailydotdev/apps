@@ -6,6 +6,7 @@ import {
   squadApproveMutation,
   squadRejectMutation,
   SquadPostModerationProps,
+  deletePendingPostMutation,
 } from '../../graphql/squads';
 import { useLazyModal } from '../useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
@@ -48,7 +49,7 @@ export const rejectReasons: { value: PostModerationReason; label: string }[] = [
   { value: PostModerationReason.Other, label: 'Other' },
 ];
 
-export interface UseSquadPostModeration {
+export interface UseSourceModerationList {
   onApprove: (
     ids: string[],
     sourceId: string,
@@ -59,15 +60,16 @@ export interface UseSquadPostModeration {
     sourceId: string,
     onSuccess?: MouseEventHandler,
   ) => void;
+  onDelete: (postId: string) => Promise<void>;
   isPending: boolean;
   isSuccess: boolean;
 }
 
-export const useSquadPostModeration = ({
+export const useSourceModerationList = ({
   squad,
 }: {
   squad: Squad;
-}): UseSquadPostModeration => {
+}): UseSourceModerationList => {
   const { openModal, closeModal } = useLazyModal();
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
@@ -113,7 +115,7 @@ export const useSquadPostModeration = ({
     },
   });
 
-  const onApprovePost: UseSquadPostModeration['onApprove'] = useCallback(
+  const onApprovePost: UseSourceModerationList['onApprove'] = useCallback(
     async (postIds, sourceId) => {
       if (postIds.length === 1) {
         await onApprove({ postIds, sourceId });
@@ -144,7 +146,7 @@ export const useSquadPostModeration = ({
     },
   });
 
-  const onRejectPost: UseSquadPostModeration['onReject'] = useCallback(
+  const onRejectPost: UseSourceModerationList['onReject'] = useCallback(
     (postId, sourceId) => {
       openModal({
         type: LazyModal.ReasonSelection,
@@ -164,10 +166,19 @@ export const useSquadPostModeration = ({
     [closeModal, onReject, openModal],
   );
 
+  const { mutateAsync: onDelete } = useMutation({
+    mutationFn: (postId: string) => deletePendingPostMutation(postId),
+    onSuccess: () => {
+      displayToast('Post deleted successfully');
+      invalidateQueries();
+    },
+  });
+
   return {
     isSuccess: isSuccessApprove || isSuccessReject,
     isPending: isPendingApprove || isPendingReject,
     onApprove: onApprovePost,
     onReject: onRejectPost,
+    onDelete,
   };
 };
