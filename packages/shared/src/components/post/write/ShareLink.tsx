@@ -40,7 +40,7 @@ export function ShareLink({
     preview,
     isPosting,
     onSubmitPost,
-    onUpdatePost,
+    onUpdateSharePost,
     onUpdatePreview,
   } = usePostToSquad({
     onPostSuccess,
@@ -96,7 +96,7 @@ export function ShareLink({
         });
       }
 
-      return onUpdatePost(e, fetchedPost.id, commentary);
+      return onUpdateSharePost(e, fetchedPost.id, commentary, squad);
     }
 
     if (squads.some(({ id }) => squad.id === id)) {

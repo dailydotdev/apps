@@ -570,6 +570,7 @@ export interface CreatePostModerationProps {
   externalLink?: string;
   imageUrl?: string;
   image?: File;
+  postId?: string;
 }
 
 export interface UpdatePostModerationProps extends CreatePostModerationProps {
@@ -628,6 +629,7 @@ export const CREATE_SOURCE_POST_MODERATION_MUTATION = gql`
     $image: Upload
     $imageUrl: String
     $externalLink: String
+    $postId: ID
   ) {
     createSourcePostModeration(
       sourceId: $sourceId
@@ -638,6 +640,7 @@ export const CREATE_SOURCE_POST_MODERATION_MUTATION = gql`
       image: $image
       imageUrl: $imageUrl
       externalLink: $externalLink
+      postId: $postId
     ) {
       id
       title
@@ -645,6 +648,13 @@ export const CREATE_SOURCE_POST_MODERATION_MUTATION = gql`
       content
       type
       externalLink
+      source {
+        handle
+        permalink
+      }
+      post {
+        id
+      }
     }
   }
 `;

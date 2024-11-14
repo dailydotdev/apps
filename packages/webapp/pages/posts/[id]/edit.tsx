@@ -5,10 +5,9 @@ import {
   WritePage,
   WritePostHeader,
 } from '@dailydotdev/shared/src/components/post/freeform';
-import { editPost, PostType } from '@dailydotdev/shared/src/graphql/posts';
+import { EditPostProps, PostType } from '@dailydotdev/shared/src/graphql/posts';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useMutation } from '@tanstack/react-query';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { useDiscardPost } from '@dailydotdev/shared/src/hooks/input/useDiscardPost';
@@ -17,7 +16,7 @@ import { WritePostContextProvider } from '@dailydotdev/shared/src/contexts';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import { ShareLink } from '@dailydotdev/shared/src/components/post/write/ShareLink';
-import { useActions } from '@dailydotdev/shared/src/hooks';
+import { useActions, usePostToSquad } from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import {
   WriteFormTab,
@@ -59,28 +58,19 @@ function EditPost(): ReactElement {
     formRef,
     clearDraft,
   } = useDiscardPost({ post: fetchedPost });
-  const onMutate = () => onAskConfirmation(false);
-  const { onUpdatePostModeration, isPending } = useSourcePostModeration({
-    onSuccess: async () => {
-      clearDraft();
-      push(squad.permalink);
-    },
-    onMutate,
-  });
-  const {
-    mutateAsync: onUpdatePost,
-    isPending: isPosting,
-    isSuccess,
-  } = useMutation({
-    mutationFn: editPost,
-    onMutate,
-    onSuccess: async (data) => {
+  const { onEditFreeformPost, isPosting, isSuccess } = usePostToSquad({
+    onPostSuccess: async (data) => {
+      onAskConfirmation(false);
       clearDraft();
       await push(data.commentsPermalink);
 
       if (data.type === PostType.Welcome) {
         completeAction(ActionType.EditWelcomePost);
       }
+    },
+    onSourcePostModerationSuccess: async (data) => {
+      clearDraft();
+      await push(data.source.permalink);
     },
     onError: (data: ApiErrorResult) => {
       if (data?.response?.errors?.[0]) {
@@ -90,7 +80,17 @@ function EditPost(): ReactElement {
     },
   });
 
-  const onClickSubmit = (e: FormEvent<HTMLFormElement>, params) => {
+  const { onUpdatePostModeration, isPending } = useSourcePostModeration({
+    onSuccess: async () => {
+      onAskConfirmation(false);
+      clearDraft();
+      push(squad.permalink);
+    },
+  });
+  const onClickSubmit = (
+    e: FormEvent<HTMLFormElement>,
+    params: Omit<EditPostProps, 'id'>,
+  ) => {
     if (isPosting || isPending || isSuccess) {
       return null;
     }
@@ -107,7 +107,7 @@ function EditPost(): ReactElement {
       });
     }
 
-    return onUpdatePost({ ...params, id: post.id });
+    return onEditFreeformPost({ ...params, id: post.id }, squad);
   };
 
   const seo: NextSeoProps = {
