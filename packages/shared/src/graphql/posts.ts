@@ -669,6 +669,9 @@ export const CREATE_SOURCE_POST_MODERATION_MUTATION = gql`
         handle
         permalink
       }
+      post {
+        id
+      }
     }
   }
 `;
