@@ -183,7 +183,7 @@ export const GrowthBookProvider = ({
   );
   if (errorFeatureOn) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="mx-2 flex h-screen items-center justify-center">
         <ServerError />
       </div>
     );
