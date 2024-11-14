@@ -13,7 +13,6 @@ import {
   getExternalLinkPreview,
   Post,
   PostType,
-  SourcePostModeration,
   SubmitExternalLink,
   submitExternalLink,
 } from '../../graphql/posts';
@@ -24,7 +23,11 @@ import {
   getApiError,
 } from '../../graphql/common';
 import { useToastNotification } from '../useToastNotification';
-import { addPostToSquad, updateSquadPost } from '../../graphql/squads';
+import {
+  addPostToSquad,
+  SourcePostModeration,
+  updateSquadPost,
+} from '../../graphql/squads';
 import { ActionType } from '../../graphql/actions';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions } from '../useActions';
@@ -126,8 +129,8 @@ export const usePostToSquad = ({
     isPending: isPostModerationLoading,
   } = useSourcePostModeration({
     onSuccess: (data) => {
+      onSourcePostModerationSuccess(data);
       completeAction(ActionType.SquadFirstPost);
-      onSourcePostModerationSuccess
     },
     onError: () => {
       displayToast(DEFAULT_ERROR);

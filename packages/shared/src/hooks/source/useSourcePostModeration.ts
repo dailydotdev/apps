@@ -16,13 +16,13 @@ import { SourcePostModeration } from '../../graphql/squads';
 interface UseSourcePostModeration {
   isPending: boolean;
   isSuccess: boolean;
-onCreatePostModeration: (
+  onCreatePostModeration: (
     post: CreatePostModerationProps,
   ) => Promise<SourcePostModeration>;
   onUpdatePostModeration: (
     post: UpdatePostModerationProps,
   ) => Promise<SourcePostModeration>;
-};
+}
 
 interface UseSquadModerationProps {
   onSuccess?: (data: SourcePostModeration) => void;
@@ -63,9 +63,9 @@ const useSourcePostModeration = ({
     isSuccess: isUpdateSuccess,
   } = useMutation({
     mutationFn: updateSourcePostModeration,
-    onSuccess: async () => {
+    onSuccess: async (data) => {
       await showPrompt(editModerationPromptProps);
-      onSuccess?.();
+      onSuccess?.(data);
     },
     onError,
     onSettled,
