@@ -1,5 +1,4 @@
 import { gql } from 'graphql-request';
-import { EmptyResponse } from './emptyResponse';
 import { gqlClient } from './common';
 
 export const PADDLE_PRICING_IDS_QUERY = gql`
@@ -10,7 +9,7 @@ export const PADDLE_PRICING_IDS_QUERY = gql`
   }
 `;
 
-export const getPricingIds = async (): Promise<EmptyResponse> => {
+export const getPricingIds = async (): Promise<{ value: string }> => {
   const res = await gqlClient.request(PADDLE_PRICING_IDS_QUERY);
 
   return JSON.parse(res.pricingIds?.value);
