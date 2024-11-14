@@ -89,7 +89,7 @@ function EditPost(): ReactElement {
   });
   const onClickSubmit = (
     e: FormEvent<HTMLFormElement>,
-    params: EditPostProps,
+    params: Omit<EditPostProps, 'id'>,
   ) => {
     if (isPosting || isPending || isSuccess) {
       return null;
