@@ -114,7 +114,7 @@ export default function Logo({
           />
           {isPlus && compact && (
             <DevPlusIcon
-              className="text-action-plus-default absolute right-0 top-0 -translate-y-2/3 translate-x-2/3"
+              className="absolute right-0 top-0 -translate-y-2/3 translate-x-2/3 text-action-plus-default"
               size={IconSize.XXSmall}
             />
           )}
