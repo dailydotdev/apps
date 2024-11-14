@@ -3,22 +3,31 @@ import Logo, { LogoPosition } from '../Logo';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { withNoSSR } from '../../lib/withNoSSR';
+import type { WithClassNameProps } from '../utilities';
 
-interface HeaderLogoProps {
+interface HeaderLogoProps extends WithClassNameProps {
   onLogoClick?: (e: React.MouseEvent) => unknown;
   position?: LogoPosition;
+  compact?: boolean;
 }
 
-function HeaderLogo({ onLogoClick, position }: HeaderLogoProps): ReactElement {
+function HeaderLogo({
+  onLogoClick,
+  position,
+  compact = false,
+  className,
+}: HeaderLogoProps): ReactElement {
   const featureTheme = useFeatureTheme();
   const { user } = useAuthContext();
 
   return (
     <Logo
+      compact={compact}
       position={position}
       onLogoClick={onLogoClick}
       featureTheme={featureTheme}
       isPlus={user?.isPlus}
+      className={className}
     />
   );
 }
