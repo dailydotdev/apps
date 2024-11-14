@@ -23,7 +23,7 @@ export const UpgradeToPlus = ({
   const isMobile = useViewSize(ViewSize.MobileL);
   const showPlusSubscription = useFeature(feature.plusSubscription);
 
-  const content = isMobile ? 'Plus' : 'Upgrade to plus';
+  const content = isMobile ? 'Upgrade' : 'Upgrade to plus';
 
   if (!showPlusSubscription) {
     return null;
