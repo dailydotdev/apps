@@ -17,7 +17,6 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
-
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { useSquad } from '@dailydotdev/shared/src/hooks';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
