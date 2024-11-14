@@ -104,6 +104,7 @@ function CreatePost(): ReactElement {
   const { onCreatePostModeration, isPending: isCreatingPostModeration } =
     useSourcePostModeration({
       onSuccess: async () => {
+        onAskConfirmation(false);
         clearDraft();
         push(squad.permalink);
       },
@@ -114,10 +115,8 @@ function CreatePost(): ReactElement {
     isSuccess,
   } = useMutation({
     mutationFn: createPost,
-    onMutate: () => {
-      onAskConfirmation(false);
-    },
     onSuccess: async (post) => {
+      onAskConfirmation(false);
       clearDraft();
       await push(post.commentsPermalink);
 
