@@ -89,8 +89,9 @@ function PostModerationModal({
             <SquadModerationItemContextMenu id={id} onDelete={onDeleteClick} />
           )}
           <ModalClose
-            className="relative !right-0"
             onClick={modalProps.onRequestClose}
+            position="relative"
+            right="0"
           />
         </div>
         <PostSourceInfo source={squad} size={ProfileImageSize.Small} />
