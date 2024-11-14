@@ -22,6 +22,7 @@ import { TruncateText } from '../utilities';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { FollowButton } from '../contentPreference/FollowButton';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
+import { PlusUserBadge } from '../PlusUserBadge';
 
 interface PostAuthorProps {
   post: Post;
@@ -127,6 +128,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
     ('handle' in user ? user.handle : user.username) || id;
   const reputation = 'reputation' in user ? user.reputation : NaN;
   const companies = 'companies' in user ? user.companies : [];
+  const isPlus = 'isPlus' in user ? user.isPlus : false;
 
   const Icon = getUserIcon(userType);
   const isUserTypeSource = userType === UserType.Source && 'handle' in user;
@@ -194,6 +196,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
             >
               <TruncateText>{name}</TruncateText>
             </ProfileLink>
+            {isPlus && <PlusUserBadge user={{ isPlus }} tooltip={false} />}
             {companies?.length > 0 && (
               <VerifiedCompanyUserBadge user={{ companies }} />
             )}

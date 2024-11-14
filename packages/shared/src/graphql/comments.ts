@@ -21,7 +21,8 @@ export interface Author {
   companies?: Company[];
   contentPreference?: ContentPreference;
   topReader?: Partial<TopReader>;
-  isPlus?: Date;
+  isPlus?: boolean;
+  plusMemberSince?: Date;
 }
 
 export type Scout = Author;

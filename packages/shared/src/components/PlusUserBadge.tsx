@@ -15,7 +15,7 @@ import { DateFormat } from './utilities';
 import { TimeFormatType } from '../lib/dateFormat';
 
 export type Props = {
-  user: Pick<PublicProfile, 'isPlus'>;
+  user: Pick<PublicProfile, 'isPlus' | 'plusMemberSince'>;
   tooltip?: boolean;
 };
 
@@ -24,7 +24,7 @@ export const PlusUserBadge = ({
   tooltip = true,
 }: Props): ReactElement => {
   const { user: myself, isLoggedIn } = useAuthContext();
-  const { isPlus } = user;
+  const { isPlus, plusMemberSince } = user;
 
   if (!isPlus) {
     return null;
@@ -40,7 +40,7 @@ export const PlusUserBadge = ({
             <>
               <DateFormat
                 prefix="Plus member since "
-                date={isPlus}
+                date={plusMemberSince}
                 type={TimeFormatType.PlusMember}
               />
               {isLoggedIn && !myself?.isPlus && (

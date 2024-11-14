@@ -51,7 +51,8 @@ export interface PublicProfile {
   readme?: string;
   companies?: Company[];
   contentPreference?: ContentPreference;
-  isPlus?: Date;
+  isPlus?: boolean;
+  plusMemberSince?: Date;
 }
 
 export enum UserExperienceLevel {
@@ -104,6 +105,7 @@ export interface UserShortProfile
     | 'reputation'
     | 'companies'
     | 'isPlus'
+    | 'plusMemberSince'
   > {
   username: string;
   permalink: string;
@@ -128,7 +130,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   acquisitionChannel?: string;
   experienceLevel?: keyof typeof UserExperienceLevel;
   isTeamMember?: boolean;
-  isPlus?: Date;
+  isPlus?: boolean;
   companies?: Company[];
   contentPreference?: ContentPreference;
 }
