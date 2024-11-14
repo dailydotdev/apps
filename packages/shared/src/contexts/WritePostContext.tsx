@@ -30,7 +30,7 @@ export interface MergedWriteObject
 export interface WritePostProps {
   onSubmitForm: (
     e: FormEvent<HTMLFormElement>,
-    prop: WriteForm & EditPostProps,
+    prop: WriteForm & Omit<EditPostProps, 'id'>,
   ) => void;
   isPosting: boolean;
   squad: Squad;
