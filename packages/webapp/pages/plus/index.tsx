@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { ReactElement, useCallback, useMemo, useState } from 'react';
 import { usePaymentContext } from '@dailydotdev/shared/src/contexts/PaymentContext';
 import {
   Typography,
@@ -22,7 +16,6 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 
 const PlusPage = (): ReactElement => {
-  const iframeContainer = useRef();
   const { openCheckout, productPrices } = usePaymentContext();
 
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
