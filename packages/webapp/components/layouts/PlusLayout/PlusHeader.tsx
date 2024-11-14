@@ -12,6 +12,8 @@ export const PlusHeader = (): ReactElement => {
   const { back, replace } = useRouter();
 
   const onBackClick = useCallback(() => {
+    console.log({ referrer: document.referrer }, 'referrer');
+    return;
     if (window.history?.length > 1) {
       back();
     } else {
