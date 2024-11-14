@@ -79,8 +79,8 @@ function EditPost(): ReactElement {
       onAskConfirmation(true);
     },
   });
-      
-const { onUpdatePostModeration, isPending } = useSourcePostModeration({
+
+  const { onUpdatePostModeration, isPending } = useSourcePostModeration({
     onSuccess: async () => {
       onAskConfirmation(false);
       clearDraft();
