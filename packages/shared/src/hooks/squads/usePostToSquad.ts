@@ -47,7 +47,10 @@ interface UsePostToSquad {
     ApiErrorResult,
     string
   >;
-  onEditPost: (editedPost: EditPostProps, squad: Squad) => Promise<void>;
+  onEditFreeformPost: (
+    editedPost: EditPostProps,
+    squad: Squad,
+  ) => Promise<void>;
   onSubmitPost: (
     e: BaseSyntheticEvent,
     squad: Squad,
@@ -137,14 +140,16 @@ export const usePostToSquad = ({
     },
   });
 
-  const onEditPost = useCallback<UsePostToSquad['onEditPost']>(
+  const onEditFreeformPost = useCallback<UsePostToSquad['onEditFreeformPost']>(
     async (editedPost: EditPostProps, squad: Squad): Promise<void> => {
       if (isEditLoading || isEditPostSuccess) {
         return null;
       }
+
       if (moderationRequired(squad)) {
         onCreatePostModeration({
           ...editedPost,
+          type: PostType.Freeform,
           postId: editedPost.id,
           sourceId: squad.id,
         });
@@ -336,7 +341,7 @@ export const usePostToSquad = ({
     onSubmitPost,
     onUpdatePost,
     isPosting,
-    onEditPost,
+    onEditFreeformPost,
     preview,
     isSuccess,
     onSubmitFreeformPost,

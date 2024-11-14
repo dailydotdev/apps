@@ -58,7 +58,7 @@ function EditPost(): ReactElement {
     formRef,
     clearDraft,
   } = useDiscardPost({ post: fetchedPost });
-  const { onEditPost, isPosting, isSuccess } = usePostToSquad({
+  const { onEditFreeformPost, isPosting, isSuccess } = usePostToSquad({
     onPostSuccess: async (data) => {
       onAskConfirmation(false);
       clearDraft();
@@ -104,7 +104,7 @@ function EditPost(): ReactElement {
       });
     }
 
-    return onEditPost({ ...params, id: post.id }, squad);
+    return onEditFreeformPost({ ...params, id: post.id }, squad);
   };
 
   const seo: NextSeoProps = {
