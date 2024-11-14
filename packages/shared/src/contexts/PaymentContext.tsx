@@ -51,8 +51,6 @@ export const PaymentContextProvider = ({
     });
   }, []);
 
-  console.log('url', plusSuccessUrl);
-
   const openCheckout = useCallback(
     ({ priceId }: { priceId: string }) => {
       paddle?.Checkout.open({
