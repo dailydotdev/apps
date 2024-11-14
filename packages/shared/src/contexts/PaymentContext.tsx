@@ -66,6 +66,7 @@ export const PaymentContextProvider = ({
           frameInitialHeight: 450,
           frameStyle:
             'width: 100%; background-color: transparent; border: none;',
+          theme: 'dark',
         },
       });
     },
