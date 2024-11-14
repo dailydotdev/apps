@@ -98,6 +98,9 @@ export const usePostToSquad = ({
     isSuccess: didCreatePostModeration,
     isPending: isPostModerationLoading,
   } = useSourcePostModeration({
+    onSuccess: () => {
+      completeAction(ActionType.SquadFirstPost);
+    },
     onError: () => {
       displayToast(DEFAULT_ERROR);
     },
