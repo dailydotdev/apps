@@ -32,14 +32,17 @@ import { LogoutReason } from '../../lib/user';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { usePrompt } from '../../hooks/usePrompt';
 import { ButtonColor } from '../buttons/Button';
-import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
+import { useConditionalFeature } from '../../hooks';
 
-const useMenuItems = (): NavItemProps[] => {
+const useMenuItems = (isOpen = false): NavItemProps[] => {
   const { user, logout } = useAuthContext();
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
-  const showPlusSubscription = useFeature(feature.plusSubscription);
+  const { value: showPlusSubscription } = useConditionalFeature({
+    feature: feature.plusSubscription,
+    shouldEvaluate: isOpen,
+  });
   const onLogout = useCallback(async () => {
     const shouldLogout = await showPrompt({
       title: 'Are you sure?',
@@ -175,7 +178,7 @@ export function ProfileSettingsMenu({
         isOpen,
         onClose,
       }}
-      items={useMenuItems()}
+      items={useMenuItems(isOpen)}
     />
   );
 }
