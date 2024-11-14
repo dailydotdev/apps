@@ -53,11 +53,12 @@ export function ShareLink({
       }),
   });
   const { push } = useRouter();
-  const { onUpdatePostModeration, isPending } = useSourcePostModeration({
-    onSuccess: async () => push(squad.permalink),
-  });
+  const { onUpdatePostModeration, isPending: isPostingModeration } =
+    useSourcePostModeration({
+      onSuccess: async () => push(squad.permalink),
+    });
 
-  const { onCreateSquad, isLoading } = useSquadCreate({
+  const { onCreateSquad, isLoading: isCreatingSquad } = useSquadCreate({
     onSuccess: (newSquad) => {
       onSubmitPost(null, newSquad, commentary);
       return push(newSquad.permalink);
@@ -68,7 +69,7 @@ export function ShareLink({
   const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
 
-    if (isPosting || isPending || isLoading) {
+    if (isPosting || isPostingModeration || isCreatingSquad) {
       return null;
     }
 
