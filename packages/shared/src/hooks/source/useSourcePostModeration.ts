@@ -36,8 +36,8 @@ const useSourcePostModeration = ({
     onSuccess: async (moderatedPost) => {
       await showPrompt(
         moderatedPost.post
-          ? createModerationPromptProps
-          : editModerationPromptProps,
+          ? editModerationPromptProps
+          : createModerationPromptProps,
       );
       onSuccess?.(moderatedPost);
     },
