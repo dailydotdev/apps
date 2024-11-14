@@ -47,6 +47,7 @@ const PlusPage = (): ReactElement => {
         <PlusUser
           iconSize={IconSize.Large}
           typographyType={TypographyType.Title1}
+          className="mb-6"
         />
         <Typography
           tag={TypographyTag.H1}
@@ -75,7 +76,7 @@ const PlusPage = (): ReactElement => {
         >
           Billing cycle
         </Typography>
-        <div className="rounded-10 border border-border-subtlest-tertiary ">
+        <div className="min-h-[6.125rem] rounded-10 border border-border-subtlest-tertiary">
           {productOptions.map((option) => {
             const { label, value, price, currencyCode, extraLabel } = option;
             const checked = selectedOption === value;
@@ -112,8 +113,8 @@ const PlusPage = (): ReactElement => {
                     <Typography
                       tag={TypographyTag.Span}
                       type={TypographyType.Caption1}
-                      color={TypographyColor.Plus}
-                      className="rounded-10 bg-action-plus-float px-2 py-1"
+                      color={TypographyColor.StatusSuccess}
+                      className="rounded-10 bg-action-upvote-float px-2 py-1"
                       bold
                     >
                       {extraLabel}

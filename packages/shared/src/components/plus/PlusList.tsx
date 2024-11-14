@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { ChecklistBIcon } from '../icons';
+import { ChecklistAIcon } from '../icons';
 import {
   Typography,
   TypographyColor,
@@ -11,7 +11,7 @@ import { IconSize } from '../Icon';
 const PlusItem = ({ title }: { title: string }) => {
   return (
     <li className="flex gap-2">
-      <ChecklistBIcon className="text-text-tertiary" size={IconSize.Small} />
+      <ChecklistAIcon className="text-text-quaternary" size={IconSize.Small} />
       <Typography
         tag={TypographyTag.P}
         type={TypographyType.Body}
@@ -26,7 +26,6 @@ const PlusItem = ({ title }: { title: string }) => {
 export const PlusList = (): ReactElement => {
   return (
     <ul className="flex flex-col gap-2 py-6">
-      <PlusItem title="Ads-free browsing" />
       <PlusItem title="Exclusive Plus badge" />
       <PlusItem title="Private squad for Plus members" />
       <PlusItem title="Support the team and make us smile" />
