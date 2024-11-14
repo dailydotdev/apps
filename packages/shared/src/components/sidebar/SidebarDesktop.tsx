@@ -14,6 +14,7 @@ import { CustomFeedSection } from './sections/CustomFeedSection';
 import { DiscoverSection } from './sections/DiscoverSection';
 import { ResourceSection } from './sections/ResourceSection';
 import { UpgradeToPlus } from '../UpgradeToPlus';
+import { ButtonSize } from '../buttons/Button';
 
 type SidebarDesktopProps = {
   featureTheme?: {
@@ -66,7 +67,10 @@ export const SidebarDesktop = ({
         <Nav>
           {isLoggedIn && !user?.isPlus && (
             <div className="flex px-3">
-              <UpgradeToPlus />
+              <UpgradeToPlus
+                iconOnly={!sidebarExpanded}
+                size={sidebarExpanded ? ButtonSize.Medium : ButtonSize.XSmall}
+              />
             </div>
           )}
           <MainSection

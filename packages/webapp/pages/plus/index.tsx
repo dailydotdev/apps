@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useState } from 'react';
+import React, { ReactElement, useCallback, useMemo, useState } from 'react';
 import { usePaymentContext } from '@dailydotdev/shared/src/contexts/PaymentContext';
 import {
   Typography,
@@ -19,19 +19,17 @@ const PlusPage = (): ReactElement => {
   const { openCheckout, productPrices } = usePaymentContext();
 
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const productOptions =
-    productPrices?.data?.details?.lineItems?.map((item) => ({
-      label: item.price.description,
-      value: item.price.id,
-      price: item.formattedTotals.total,
-      currencyCode: productPrices?.data.currencyCode,
-      extraLabel: item.price.customData?.label as string,
-    })) ?? [];
-
-  if (productOptions?.[0]?.value && !selectedOption) {
-    setSelectedOption(productOptions?.[0]?.value);
-    openCheckout({ priceId: productOptions?.[0]?.value });
-  }
+  const productOptions = useMemo(
+    () =>
+      productPrices?.data?.details?.lineItems?.map((item) => ({
+        label: item.price.description,
+        value: item.price.id,
+        price: item.formattedTotals.total,
+        currencyCode: productPrices?.data.currencyCode,
+        extraLabel: item.price.customData?.label as string,
+      })) ?? [],
+    [productPrices?.data.currencyCode, productPrices?.data?.details?.lineItems],
+  );
 
   const toggleCheckoutOption = useCallback(
     (priceId) => {
@@ -159,7 +157,19 @@ const PlusPage = (): ReactElement => {
           </a>
         </Typography>
       </div>
-      <div className="checkout-container mr-6 min-h-40 w-[28.5rem] rounded-16 bg-background-default p-5" />
+      <div
+        ref={(element) => {
+          if (!element) {
+            return;
+          }
+
+          if (productOptions?.[0]?.value && !selectedOption) {
+            setSelectedOption(productOptions?.[0]?.value);
+            openCheckout({ priceId: productOptions?.[0]?.value });
+          }
+        }}
+        className="checkout-container mr-6 min-h-40 w-[28.5rem] rounded-16 bg-background-default p-5"
+      />
     </div>
   );
 };
