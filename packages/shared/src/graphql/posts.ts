@@ -561,20 +561,18 @@ export interface CreatePostProps
   sourceId: string;
 }
 
-export type CreatePostModerationProps =
-  | {
-      title?: string;
-      content?: string;
-      sourceId: string;
-      type: PostType;
-      sharedPostId?: string;
-      externalLink?: string;
-      imageUrl?: string;
-      image?: File;
-      commentary?: string;
-      postId?: string;
-    }
-  | { postId: string; type?: PostType; image: File };
+export type CreatePostModerationProps = {
+  title?: string;
+  content?: string;
+  sourceId: string;
+  type: PostType;
+  sharedPostId?: string;
+  externalLink?: string;
+  imageUrl?: string;
+  image?: File;
+  commentary?: string;
+  postId?: string;
+};
 
 export type SourcePostModeration = {
   id: string;
