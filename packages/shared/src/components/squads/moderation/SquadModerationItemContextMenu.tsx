@@ -1,10 +1,11 @@
 import React, { ReactElement, useId } from 'react';
-import { SourcePostModeration } from '../../../graphql/posts';
+import { useRouter } from 'next/router';
 import OptionsButton from '../../buttons/OptionsButton';
 import ContextMenu from '../../fields/ContextMenu';
-import { TrashIcon } from '../../icons';
+import { EditIcon, TrashIcon } from '../../icons';
 import useContextMenu from '../../../hooks/useContextMenu';
 import { usePrompt } from '../../../hooks/usePrompt';
+import { SourcePostModeration } from '../../../graphql/squads';
 
 interface SquadModerationItemContextMenuProps
   extends Pick<SourcePostModeration, 'id'> {
@@ -18,6 +19,7 @@ export const SquadModerationItemContextMenu = ({
   const contextMenuId = useId();
   const { isOpen, onMenuClick } = useContextMenu({ id: contextMenuId });
   const { showPrompt } = usePrompt();
+  const router = useRouter();
 
   const handleDelete = async () => {
     const confirm = await showPrompt({
@@ -39,11 +41,11 @@ export const SquadModerationItemContextMenu = ({
       />
       <ContextMenu
         options={[
-          // {
-          //   label: 'Edit post',
-          //   action: () => console.log('Edit'), // todo: implement after SourcePostModeration edit page is created
-          //   icon: <EditIcon aria-hidden />,
-          // },
+          {
+            label: 'Edit post',
+            action: () => router.push(`/posts/${id}/edit?moderation=true`),
+            icon: <EditIcon aria-hidden />,
+          },
           {
             label: 'Delete post',
             action: handleDelete,

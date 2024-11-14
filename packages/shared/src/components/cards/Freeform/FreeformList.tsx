@@ -44,7 +44,7 @@ export const FreeformList = forwardRef(function SharePostCard(
     [post.contentHtml],
   );
 
-  const { title } = useTruncatedSummary(post, content);
+  const { title } = useTruncatedSummary(post?.title, content);
 
   return (
     <FeedItemContainer
