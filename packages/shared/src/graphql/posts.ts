@@ -554,7 +554,6 @@ export interface EditPostProps {
   title: string;
   content: string;
   image: File;
-  type: PostType;
 }
 
 export interface CreatePostProps

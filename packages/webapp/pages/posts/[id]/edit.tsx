@@ -5,7 +5,7 @@ import {
   WritePage,
   WritePostHeader,
 } from '@dailydotdev/shared/src/components/post/freeform';
-import { PostType } from '@dailydotdev/shared/src/graphql/posts';
+import { EditPostProps, PostType } from '@dailydotdev/shared/src/graphql/posts';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
@@ -87,7 +87,10 @@ function EditPost(): ReactElement {
       push(squad.permalink);
     },
   });
-  const onClickSubmit = (e: FormEvent<HTMLFormElement>, params) => {
+  const onClickSubmit = (
+    e: FormEvent<HTMLFormElement>,
+    params: EditPostProps,
+  ) => {
     if (isPosting || isPending || isSuccess) {
       return null;
     }
