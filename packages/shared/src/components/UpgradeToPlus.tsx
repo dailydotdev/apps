@@ -20,7 +20,7 @@ export const UpgradeToPlus = ({
 }: Props): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
 
-  const content = isMobile ? 'Plus' : 'Upgrade to plus';
+  const content = isMobile ? 'Upgrade' : 'Upgrade to plus';
 
   return (
     <Link passHref href={plusUrl}>
