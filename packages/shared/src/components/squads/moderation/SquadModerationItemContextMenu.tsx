@@ -5,6 +5,7 @@ import ContextMenu from '../../fields/ContextMenu';
 import { TrashIcon } from '../../icons';
 import useContextMenu from '../../../hooks/useContextMenu';
 import { usePrompt } from '../../../hooks/usePrompt';
+import { ButtonSize } from '../../buttons/common';
 
 interface SquadModerationItemContextMenuProps
   extends Pick<SourcePostModeration, 'id'> {
@@ -36,6 +37,7 @@ export const SquadModerationItemContextMenu = ({
         onClick={onMenuClick}
         className="z-1 !my-0"
         tooltipPlacement="right"
+        size={ButtonSize.Medium}
       />
       <ContextMenu
         options={[
