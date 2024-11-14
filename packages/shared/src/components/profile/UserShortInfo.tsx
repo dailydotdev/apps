@@ -106,7 +106,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
             <TruncateText className="font-bold" title={name}>
               {name}
             </TruncateText>
-            {!!isPlus && <PlusUserBadge user={{ isPlus }} tooltip={false} />}
+            {isPlus && <PlusUserBadge user={{ isPlus }} tooltip={false} />}
             {companies?.length > 0 && (
               <VerifiedCompanyUserBadge user={{ companies }} />
             )}

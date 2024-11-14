@@ -30,6 +30,7 @@ export const USER_SHORT_INFO_FRAGMENT = gql`
       image
     }
     isPlus
+    plusMemberSince
   }
 `;
 

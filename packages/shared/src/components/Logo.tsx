@@ -1,9 +1,17 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
 import LogoText from '../svg/LogoText';
 import LogoIcon from '../svg/LogoIcon';
 import { webappUrl } from '../lib/constants';
+import { IconSize } from './Icon';
+
+const DevPlusIcon = dynamic(() =>
+  import(/* webpackChunkName: "devPlusIcon" */ './icons').then(
+    (mod) => mod.DevPlusIcon,
+  ),
+);
 
 export enum LogoPosition {
   Absolute = 'absolute',
@@ -48,7 +56,7 @@ const LogoSvgElem = ({
       />
     );
   }
-  return <FallbackElem isPlus={!!isPlus} className={className} />;
+  return <FallbackElem isPlus={isPlus} className={className} />;
 };
 
 interface LogoProps {
@@ -98,11 +106,19 @@ export default function Logo({
         href={webappUrl}
         onClick={onLogoClick}
       >
-        <LogoSvgElem
-          className={logoClassName}
-          src={featureTheme?.logo}
-          fallback={LogoIcon}
-        />
+        <div className="relative">
+          <LogoSvgElem
+            className={logoClassName}
+            src={featureTheme?.logo}
+            fallback={LogoIcon}
+          />
+          {isPlus && compact && (
+            <DevPlusIcon
+              className="text-action-plus-default absolute right-0 top-0 -translate-y-2/3 translate-x-2/3"
+              size={IconSize.XXSmall}
+            />
+          )}
+        </div>
         {!compact && (
           <LogoSvgElem
             className={{

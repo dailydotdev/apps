@@ -10,10 +10,17 @@ import { useViewSize, ViewSize } from '../hooks';
 
 type Props = {
   size?: ButtonSize;
+  iconOnly?: boolean;
 } & WithClassNameProps;
 
-export const UpgradeToPlus = ({ className, size }: Props): ReactElement => {
+export const UpgradeToPlus = ({
+  className,
+  size,
+  iconOnly = false,
+}: Props): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
+
+  const content = isMobile ? 'Plus' : 'Upgrade to plus';
 
   return (
     <Link passHref href={plusUrl}>
@@ -21,13 +28,14 @@ export const UpgradeToPlus = ({ className, size }: Props): ReactElement => {
         tag="a"
         variant={ButtonVariant.Secondary}
         className={classNames(
-          'flex-1 border-action-plus-default text-action-plus-default',
+          'border-action-plus-default text-action-plus-default',
+          !iconOnly && 'flex-1',
           className,
         )}
         icon={<DevPlusIcon />}
         size={size}
       >
-        {isMobile ? 'Plus' : 'Upgrade to plus'}
+        {iconOnly ? null : content}
       </Button>
     </Link>
   );
