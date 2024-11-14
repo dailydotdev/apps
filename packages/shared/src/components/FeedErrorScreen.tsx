@@ -4,9 +4,11 @@ import ServerError from './errors/ServerError';
 
 function FeedErrorScreen(): ReactElement {
   return (
-    <PageContainer className="mx-auto !ml-0 !min-h-[calc(100vh-228px)] items-center justify-center tablet:!min-h-[calc(100vh-104px)]">
-      <ServerError themedImage />
-    </PageContainer>
+    <div className="flex h-full w-full">
+      <PageContainer className="mx-auto !min-h-[calc(100vh-228px)] items-center justify-center tablet:!min-h-[calc(100vh-104px)]">
+        <ServerError themedImage />
+      </PageContainer>
+    </div>
   );
 }
 
