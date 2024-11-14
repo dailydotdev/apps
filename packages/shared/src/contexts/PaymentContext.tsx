@@ -88,9 +88,7 @@ export const PaymentContextProvider = ({
 
   const { data: productPrices } = useQuery({
     queryKey: ['productPrices'],
-    queryFn: async () => {
-      return getPrices();
-    },
+    queryFn: async () => getPrices(),
     enabled: !!paddle && !!planTypes,
   });
 
