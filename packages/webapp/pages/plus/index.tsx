@@ -113,7 +113,7 @@ const PlusPage = (): ReactElement => {
                       tag={TypographyTag.Span}
                       type={TypographyType.Caption1}
                       color={TypographyColor.Plus}
-                      className="bg-action-plus-float rounded-10 px-2 py-1"
+                      className="rounded-10 bg-action-plus-float px-2 py-1"
                       bold
                     >
                       {extraLabel}
