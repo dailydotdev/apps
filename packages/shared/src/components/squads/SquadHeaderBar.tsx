@@ -182,7 +182,7 @@ const SquadModerationButton = ({ squad }: SquadBarButtonProps<'a'>) => {
       size={ButtonSize.Small}
       tag="a"
       title="Go to post moderation page"
-      variant={ButtonVariant.Float}
+      variant={ButtonVariant.Subtle}
     >
       {count} Pending {postLabel}
     </Button>
