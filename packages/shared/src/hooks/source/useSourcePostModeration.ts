@@ -2,35 +2,45 @@ import { useMutation } from '@tanstack/react-query';
 import {
   CreatePostModerationProps,
   createSourcePostModeration,
-  SourcePostModeration,
+  UpdatePostModerationProps,
+  updateSourcePostModeration,
 } from '../../graphql/posts';
 import { usePrompt } from '../usePrompt';
-import { createModerationPromptProps } from '../../components/squads/utils';
+import {
+  createModerationPromptProps,
+  editModerationPromptProps,
+} from '../../components/squads/utils';
+import { SourcePostModeration } from '../../graphql/squads';
 
-type UseSourcePostModeration = {
+interface UseSourcePostModeration {
   isPending: boolean;
   isSuccess: boolean;
   onCreatePostModeration: (
     post: CreatePostModerationProps,
   ) => Promise<SourcePostModeration>;
-};
+  onUpdatePostModeration: (
+    post: UpdatePostModerationProps,
+  ) => Promise<SourcePostModeration>;
+}
 
-type UseSquadModerationProps = {
+interface UseSquadModerationProps {
   onSuccess?: () => void;
   onError?: () => void;
   onSettled?: () => void;
-};
+  onMutate?: () => void;
+}
 
 const useSourcePostModeration = ({
   onSuccess,
   onError,
   onSettled,
+  onMutate,
 }: UseSquadModerationProps = {}): UseSourcePostModeration => {
   const { showPrompt } = usePrompt();
   const {
     mutateAsync: onCreatePostModeration,
-    isPending,
-    isSuccess,
+    isPending: isCreatePending,
+    isSuccess: isCreateSuccess,
   } = useMutation({
     mutationFn: createSourcePostModeration,
     onSuccess: async () => {
@@ -39,12 +49,29 @@ const useSourcePostModeration = ({
     },
     onError,
     onSettled,
+    onMutate,
+  });
+
+  const {
+    mutateAsync: onUpdatePostModeration,
+    isPending: isUpdatePending,
+    isSuccess: isUpdateSuccess,
+  } = useMutation({
+    mutationFn: updateSourcePostModeration,
+    onSuccess: async () => {
+      await showPrompt(editModerationPromptProps);
+      onSuccess?.();
+    },
+    onError,
+    onSettled,
+    onMutate,
   });
 
   return {
     onCreatePostModeration,
-    isPending,
-    isSuccess,
+    onUpdatePostModeration,
+    isPending: isCreatePending || isUpdatePending,
+    isSuccess: isCreateSuccess || isUpdateSuccess,
   };
 };
 

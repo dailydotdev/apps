@@ -17,7 +17,7 @@ import {
   SourceType,
   Squad,
 } from './sources';
-import { Post } from './posts';
+import type { Post } from './posts';
 import { EmptyResponse } from './emptyResponse';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
 import { PrivacyOption } from '../components/squads/settings/SquadPrivacySection';
@@ -357,23 +357,6 @@ export const SQUAD_INVITATION_QUERY = gql`
   ${USER_SHORT_INFO_FRAGMENT}
 `;
 
-export const PUBLIC_SQUAD_REQUESTS = gql`
-  query PublicSquadRequests($sourceId: String!, $first: Int) {
-    requests: publicSquadRequests(sourceId: $sourceId, first: $first) {
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
-      edges {
-        node {
-          requestorId
-          status
-        }
-      }
-    }
-  }
-`;
-
 export const SQUAD_JOIN_MUTATION = gql`
   mutation JoinSquad($sourceId: ID!, $token: String) {
     source: joinSource(sourceId: $sourceId, token: $token) {
@@ -589,6 +572,7 @@ export enum SourcePostModerationStatus {
 
 type PostRequestContentProps = Pick<
   Post,
+  | 'type'
   | 'title'
   | 'titleHtml'
   | 'content'
@@ -599,7 +583,6 @@ type PostRequestContentProps = Pick<
 >;
 
 interface PostRequestContent extends PostRequestContentProps {
-  createdById: string;
   createdBy: Author;
 }
 
@@ -609,14 +592,14 @@ export interface SourcePostModeration extends Partial<PostRequestContent> {
   status: SourcePostModerationStatus;
   reason?: PostModerationReason;
   moderatorMessage?: string;
-  sourceId: Source['id'];
+  source?: Source;
+  externalLink?: string;
 }
 
 const SOURCE_POST_MODERATION_FRAGMENT = gql`
   fragment SourcePostModerationFragment on SourcePostModeration {
     id
     title
-    sourceId
     status
     rejectionReason
     moderatorMessage

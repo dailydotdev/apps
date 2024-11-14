@@ -35,7 +35,7 @@ export const CollectionList = forwardRef(function CollectionCard(
   ref: Ref<HTMLElement>,
 ) {
   const image = usePostImage(post);
-  const { title } = useTruncatedSummary(post);
+  const { title } = useTruncatedSummary(post?.title);
 
   return (
     <FeedItemContainer

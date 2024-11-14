@@ -33,11 +33,9 @@ export function SquadModerationItem(
     status === SourcePostModerationStatus.Rejected ? WarningIcon : TimerIcon;
 
   const post = data.sharedPost || data.post;
-  const { title } = useTruncatedSummary({
-    ...data,
-    ...post,
-    ...(!post?.title && !data.title && { title: post?.sharedPost?.title }),
-  });
+  const { title } = useTruncatedSummary(
+    data?.title || data.sharedPost?.title || data.post?.title,
+  );
 
   return (
     <div className="relative flex flex-col gap-4 p-6 hover:bg-surface-hover">
