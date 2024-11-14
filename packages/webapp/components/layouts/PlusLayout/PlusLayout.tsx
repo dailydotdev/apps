@@ -7,7 +7,7 @@ export default function PlusLayout({
   children,
 }: MainFeedPageProps): ReactElement {
   return (
-    <main className="relative flex h-screen flex-col bg-blur-glass">
+    <main className="relative flex h-screen flex-col">
       <img
         src={cloudinaryPlusBackground}
         alt="Plus background"
