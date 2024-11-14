@@ -1,4 +1,11 @@
-import React, { ReactElement, useCallback, useState } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { usePaymentContext } from '@dailydotdev/shared/src/contexts/PaymentContext';
 import {
   Typography,
@@ -16,22 +23,33 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 
 const PlusPage = (): ReactElement => {
+  const iframeContainer = useRef();
   const { openCheckout, productPrices } = usePaymentContext();
 
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const productOptions =
-    productPrices?.data?.details?.lineItems?.map((item) => ({
-      label: item.price.description,
-      value: item.price.id,
-      price: item.formattedTotals.total,
-      currencyCode: productPrices?.data.currencyCode,
-      extraLabel: item.price.customData?.label as string,
-    })) ?? [];
+  const productOptions = useMemo(
+    () =>
+      productPrices?.data?.details?.lineItems?.map((item) => ({
+        label: item.price.description,
+        value: item.price.id,
+        price: item.formattedTotals.total,
+        currencyCode: productPrices?.data.currencyCode,
+        extraLabel: item.price.customData?.label as string,
+      })) ?? [],
+    [productPrices?.data.currencyCode, productPrices?.data?.details?.lineItems],
+  );
 
-  if (productOptions?.[0]?.value && !selectedOption) {
-    setSelectedOption(productOptions?.[0]?.value);
-    openCheckout({ priceId: productOptions?.[0]?.value });
-  }
+  // We need to wait for the iframe container to be available before we can open the checkout
+  useEffect(() => {
+    if (!iframeContainer.current) {
+      return;
+    }
+
+    if (productOptions?.[0]?.value && !selectedOption) {
+      setSelectedOption(productOptions?.[0]?.value);
+      openCheckout({ priceId: productOptions?.[0]?.value });
+    }
+  }, [openCheckout, productOptions, selectedOption]);
 
   const toggleCheckoutOption = useCallback(
     (priceId) => {
@@ -158,7 +176,10 @@ const PlusPage = (): ReactElement => {
           </a>
         </Typography>
       </div>
-      <div className="checkout-container mr-6 min-h-40 w-[28.5rem] rounded-16 bg-background-default p-5" />
+      <div
+        ref={iframeContainer}
+        className="checkout-container mr-6 min-h-40 w-[28.5rem] rounded-16 bg-background-default p-5"
+      />
     </div>
   );
 };
