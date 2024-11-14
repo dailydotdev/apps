@@ -168,7 +168,7 @@ const PlusPage = (): ReactElement => {
             openCheckout({ priceId: productOptions?.[0]?.value });
           }
         }}
-        className="checkout-container mr-6 min-h-40 w-[28.5rem] rounded-16 bg-background-default p-5"
+        className="checkout-container mr-6 min-h-40 w-[28.5rem] rounded-16 border border-border-subtlest-tertiary bg-background-default p-52"
       />
     </div>
   );
