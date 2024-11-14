@@ -4,8 +4,6 @@ import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { withNoSSR } from '../../lib/withNoSSR';
 import type { WithClassNameProps } from '../utilities';
-import { feature } from '../../lib/featureManagement';
-import { useFeature } from '../GrowthBookProvider';
 
 interface HeaderLogoProps extends WithClassNameProps {
   onLogoClick?: (e: React.MouseEvent) => unknown;
@@ -21,7 +19,6 @@ function HeaderLogo({
 }: HeaderLogoProps): ReactElement {
   const featureTheme = useFeatureTheme();
   const { user } = useAuthContext();
-  const showPlusSubscription = useFeature(feature.plusSubscription);
 
   return (
     <Logo
@@ -29,7 +26,7 @@ function HeaderLogo({
       position={position}
       onLogoClick={onLogoClick}
       featureTheme={featureTheme}
-      isPlus={showPlusSubscription && user?.isPlus}
+      isPlus={user?.isPlus}
       className={className}
     />
   );
