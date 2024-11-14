@@ -1,7 +1,6 @@
 import React, {
   ReactElement,
   useCallback,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -38,18 +37,6 @@ const PlusPage = (): ReactElement => {
       })) ?? [],
     [productPrices?.data.currencyCode, productPrices?.data?.details?.lineItems],
   );
-
-  // We need to wait for the iframe container to be available before we can open the checkout
-  useEffect(() => {
-    if (!iframeContainer.current) {
-      return;
-    }
-
-    if (productOptions?.[0]?.value && !selectedOption) {
-      setSelectedOption(productOptions?.[0]?.value);
-      openCheckout({ priceId: productOptions?.[0]?.value });
-    }
-  }, [openCheckout, productOptions, selectedOption]);
 
   const toggleCheckoutOption = useCallback(
     (priceId) => {
@@ -177,7 +164,16 @@ const PlusPage = (): ReactElement => {
         </Typography>
       </div>
       <div
-        ref={iframeContainer}
+        ref={(element) => {
+          if (!element) {
+            return;
+          }
+
+          if (productOptions?.[0]?.value && !selectedOption) {
+            setSelectedOption(productOptions?.[0]?.value);
+            openCheckout({ priceId: productOptions?.[0]?.value });
+          }
+        }}
         className="checkout-container mr-6 min-h-40 w-[28.5rem] rounded-16 bg-background-default p-5"
       />
     </div>
