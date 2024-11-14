@@ -70,7 +70,7 @@ export const editModerationPromptProps: PromptOptions = {
   ...createModerationPromptProps,
   title: 'Your edit has been submitted for review',
   description:
-    "Your edit is now waiting for the admin's approval. We'll notify you once it's been reviewed.",
+    'Your edit is now waiting for the admin’s approval. We’ll notify you once it’s been reviewed.',
 };
 
 export interface SquadSettingsProps {

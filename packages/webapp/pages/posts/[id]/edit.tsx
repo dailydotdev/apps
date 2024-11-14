@@ -22,21 +22,31 @@ import {
   WriteFormTab,
   WriteFormTabToFormID,
 } from '@dailydotdev/shared/src/components/fields/form/common';
+import { useSourcePostModerationById } from '@dailydotdev/shared/src/hooks/source/useSourcePostModerationById';
+import useSourcePostModeration from '@dailydotdev/shared/src/hooks/source/useSourcePostModeration';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 
 function EditPost(): ReactElement {
   const { completeAction } = useActions();
   const { query, isReady, push } = useRouter();
-  const { post, isLoading } = usePostById({ id: query.id as string });
+  const idQuery = query.id as string;
+  const isModeration = query.moderation === 'true';
+  const { post, isLoading } = usePostById({
+    id: idQuery,
+    options: { enabled: !isModeration },
+  });
+  const { moderated, isLoading: isModerationLoading } =
+    useSourcePostModerationById({ id: idQuery, enabled: isModeration });
   const { squads, user } = useAuthContext();
   const formId =
     post?.type === PostType.Share
       ? WriteFormTabToFormID[WriteFormTab.Share]
       : WriteFormTabToFormID[WriteFormTab.NewPost];
   const squad = squads?.find(({ id, handle }) =>
-    [id, handle].includes(post?.source?.id),
+    [id, handle].includes((post || moderated)?.source?.id),
   );
+  const fetchedPost = post || moderated;
   const isVerified = verifyPermission(squad, SourcePermissions.Post);
   const { displayToast } = useToastNotification();
   const {
@@ -47,12 +57,10 @@ function EditPost(): ReactElement {
     isUpdatingDraft,
     formRef,
     clearDraft,
-  } = useDiscardPost({ post });
+  } = useDiscardPost({ post: fetchedPost });
   const { onEditPost, isPosting, isSuccess } = usePostToSquad({
-    onMutate: () => {
-      onAskConfirmation(false);
-    },
     onPostSuccess: async (data) => {
+      onAskConfirmation(false);
       clearDraft();
       await push(data.commentsPermalink);
 
@@ -71,9 +79,32 @@ function EditPost(): ReactElement {
       onAskConfirmation(true);
     },
   });
-
+      
+const { onUpdatePostModeration, isPending } = useSourcePostModeration({
+    onSuccess: async () => {
+      onAskConfirmation(false);
+      clearDraft();
+      push(squad.permalink);
+    },
+  });
   const onClickSubmit = (e: FormEvent<HTMLFormElement>, params) => {
-    return onEditPost({ ...params, id: post.id, type: post.type }, squad);
+    if (isPosting || isPending || isSuccess) {
+      return null;
+    }
+
+    if (moderated) {
+      const { title, content, image } = params;
+      return onUpdatePostModeration({
+        type: PostType.Freeform,
+        title,
+        content,
+        image,
+        id: moderated.id,
+        sourceId: squad.id,
+      });
+    }
+
+    return onEditPost({ ...params, id: post.id }, squad);
   };
 
   const seo: NextSeoProps = {
@@ -83,7 +114,8 @@ function EditPost(): ReactElement {
     ...defaultSeo,
   };
 
-  const isAuthor = post?.author.id === user?.id;
+  const isAuthor =
+    post?.author.id === user?.id || moderated?.createdBy?.id === user?.id;
 
   const canEdit = (() => {
     if (isAuthor) {
@@ -97,11 +129,17 @@ function EditPost(): ReactElement {
     return verifyPermission(squad, SourcePermissions.WelcomePostEdit);
   })();
 
+  const isLoadingPage =
+    !fetchedPost &&
+    (!isReady || isLoading || isModerationLoading || !isDraftReady);
+
   return (
     <WritePostContextProvider
       post={post}
+      moderated={moderated}
       draft={draft}
       squad={squad}
+      fetchedPost={fetchedPost}
       formRef={formRef}
       isUpdatingDraft={isUpdatingDraft}
       isPosting={isPosting || isSuccess}
@@ -113,14 +151,14 @@ function EditPost(): ReactElement {
       <NextSeo {...seo} noindex nofollow />
       <WritePage
         isEdit
-        isLoading={!isReady || isLoading || !isDraftReady}
+        isLoading={isLoadingPage}
         isForbidden={!isVerified || !squad || !canEdit}
       >
         <WritePostHeader isEdit />
-
-        {post?.type === PostType.Share ? (
+        {fetchedPost?.type === PostType.Share ? (
           <ShareLink
             post={post}
+            moderated={moderated}
             squad={squad}
             className="px-4 py-6"
             onPostSuccess={() => {

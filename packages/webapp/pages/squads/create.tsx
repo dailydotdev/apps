@@ -95,19 +95,18 @@ function CreatePost(): ReactElement {
     clearDraft,
     isUpdatingDraft,
   } = useDiscardPost({ draftIdentifier: squad?.id });
+  const onPostSuccess = (link: string) => {
+    onAskConfirmation(false);
+    clearDraft();
+    await push(data.source.permalink);
+    completeAction(ActionType.SquadFirstPost);
+  }
   const { onSubmitFreeformPost, isPosting, isSuccess } = usePostToSquad({
-    onMutate: () => {
-      onAskConfirmation(false);
-    },
     onPostSuccess: async (data) => {
-      clearDraft();
-      await push(data.commentsPermalink);
-
-      completeAction(ActionType.SquadFirstPost);
+      onPostSuccess(data.commentsPermalink);
     },
     onSourcePostModerationSuccess: async (data) => {
-      clearDraft();
-      await push(data.source.permalink);
+      onPostSuccess(data.source.permalink);
     },
     onError: (data: ApiErrorResult) => {
       if (data?.response?.errors?.[0]) {

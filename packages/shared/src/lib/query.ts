@@ -101,6 +101,7 @@ export enum RequestKey {
   Bookmarks = 'bookmarks',
   PostComments = 'post_comments',
   PostCommentsMutations = 'post_comments_mutations',
+  SourcePostModeration = 'source_post_moderation',
   Actions = 'actions',
   Squad = 'squad',
   SquadPostRequests = 'squad_post_requests',

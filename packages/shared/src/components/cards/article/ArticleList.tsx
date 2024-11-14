@@ -49,7 +49,7 @@ export const ArticleList = forwardRef(function ArticleList(
 
   const { showFeedback } = usePostFeedback({ post });
   const isFeedPreview = useFeedPreviewMode();
-  const { title } = useTruncatedSummary(post);
+  const { title } = useTruncatedSummary(post?.title);
 
   return (
     <FeedItemContainer

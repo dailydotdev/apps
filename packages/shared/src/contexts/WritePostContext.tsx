@@ -6,11 +6,12 @@ import React, {
   useContext,
 } from 'react';
 import { useRouter } from 'next/router';
-import { Post } from '../graphql/posts';
+import { Post, SharedPost } from '../graphql/posts';
 import { Squad } from '../graphql/sources';
 import ConditionalWrapper from '../components/ConditionalWrapper';
 import { useViewSize, ViewSize } from '../hooks';
 import { FormWrapper } from '../components/fields/form';
+import { SourcePostModeration } from '../graphql/squads';
 
 export interface WriteForm {
   title: string;
@@ -19,11 +20,20 @@ export interface WriteForm {
   filename?: string;
 }
 
+export interface MergedWriteObject
+  extends Partial<Pick<WriteForm, 'title' | 'content' | 'image'>> {
+  id?: string;
+  type?: string;
+  sharedPost?: SharedPost;
+}
+
 export interface WritePostProps {
   onSubmitForm: (e: FormEvent<HTMLFormElement>, prop: WriteForm) => void;
   isPosting: boolean;
   squad: Squad;
   post?: Post;
+  moderated?: SourcePostModeration;
+  fetchedPost?: MergedWriteObject;
   enableUpload: boolean;
   formRef?: MutableRefObject<HTMLFormElement>;
   draft?: Partial<WriteForm>;

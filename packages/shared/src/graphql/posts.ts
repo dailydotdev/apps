@@ -12,6 +12,7 @@ import {
 } from './fragments';
 import { acceptedTypesList, MEGABYTE } from '../components/fields/ImageInput';
 import { Bookmark } from './bookmarks';
+import { SourcePostModeration } from './squads';
 
 export type TocItem = { text: string; id?: string; children?: TocItem[] };
 export type Toc = TocItem[];
@@ -561,7 +562,7 @@ export interface CreatePostProps
   sourceId: string;
 }
 
-export type CreatePostModerationProps = {
+export interface CreatePostModerationProps {
   title?: string;
   content?: string;
   sourceId: string;
@@ -571,22 +572,11 @@ export type CreatePostModerationProps = {
   imageUrl?: string;
   image?: File;
   postId?: string;
-};
+}
 
-export type SourcePostModeration = {
+export interface UpdatePostModerationProps extends CreatePostModerationProps {
   id: string;
-  title: string;
-  titleHtml?: string;
-  image: string;
-  content?: string;
-  contentHtml?: string;
-  type: PostType;
-  sourceId: string;
-  sharedPostId?: string;
-  externalLink?: string;
-  post?: Post;
-  source: Source;
-};
+}
 
 export const editPost = async (
   variables: Partial<EditPostProps>,
@@ -658,7 +648,6 @@ export const CREATE_SOURCE_POST_MODERATION_MUTATION = gql`
       image
       content
       type
-      sourceId
       externalLink
       source {
         handle
@@ -705,15 +694,41 @@ export const createPost = async (
   return res.createFreeformPost;
 };
 
-export const createSourcePostModeration = async (
-  variables: Partial<CreatePostModerationProps>,
-): Promise<SourcePostModeration> => {
-  const res = await gqlClient.request(
-    CREATE_SOURCE_POST_MODERATION_MUTATION,
-    variables,
-  );
+export const SOURCE_POST_MODERATION_QUERY = gql`
+  query SourcePostModeration($id: ID!) {
+    sourcePostModeration(id: $id) {
+      id
+      type
+      title
+      content
+      externalLink
+      image
+      createdBy {
+        id
+      }
+      source {
+        id
+      }
+      sharedPost {
+        id
+        title
+        image
+        permalink
+      }
+    }
+  }
+`;
 
-  return res.createSourcePostModeration;
+interface GetSourcePostModerationProps {
+  id: string;
+}
+
+export const getSourcePostModeration = async ({
+  id,
+}: GetSourcePostModerationProps): Promise<SourcePostModeration> => {
+  const res = await gqlClient.request(SOURCE_POST_MODERATION_QUERY, { id });
+
+  return res.sourcePostModeration;
 };
 
 export const UPLOAD_IMAGE_MUTATION = gql`
@@ -802,3 +817,58 @@ export const POST_CODE_SNIPPETS_QUERY = gql`
   }
   ${POST_CODE_SNIPPET_FRAGMENT}
 `;
+
+export const createSourcePostModeration = async (
+  variables: Partial<CreatePostModerationProps>,
+): Promise<SourcePostModeration> => {
+  const res = await gqlClient.request(
+    CREATE_SOURCE_POST_MODERATION_MUTATION,
+    variables,
+  );
+
+  return res.createSourcePostModeration;
+};
+
+export const UPDATE_SOURCE_POST_MODERATION_MUTATION = gql`
+  mutation EditSourcePostModeration(
+    $id: ID!
+    $sourceId: ID!
+    $type: String!
+    $title: String
+    $content: String
+    $sharedPostId: ID
+    $image: Upload
+    $imageUrl: String
+    $externalLink: String
+  ) {
+    editSourcePostModeration(
+      id: $id
+      sourceId: $sourceId
+      type: $type
+      title: $title
+      content: $content
+      sharedPostId: $sharedPostId
+      image: $image
+      imageUrl: $imageUrl
+      externalLink: $externalLink
+    ) {
+      id
+      title
+      image
+      content
+      type
+      externalLink
+    }
+  }
+`;
+
+export const updateSourcePostModeration = async (
+  variables: Partial<UpdatePostModerationProps>,
+): Promise<SourcePostModeration> => {
+  const res = await gqlClient.request(
+    UPDATE_SOURCE_POST_MODERATION_MUTATION,
+    variables,
+  );
+
+  return res.updateSourcePostModeration;
+};
