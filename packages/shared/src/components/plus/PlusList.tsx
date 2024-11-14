@@ -11,7 +11,7 @@ import { IconSize } from '../Icon';
 const PlusItem = ({ title }: { title: string }) => {
   return (
     <li className="flex gap-2">
-      <ChecklistBIcon className="text-text-tertiary" size={IconSize.Small} />{' '}
+      <ChecklistBIcon className="text-text-tertiary" size={IconSize.Small} />
       <Typography
         tag={TypographyTag.P}
         type={TypographyType.Body}
