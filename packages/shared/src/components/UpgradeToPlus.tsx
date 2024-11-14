@@ -28,7 +28,7 @@ export const UpgradeToPlus = ({
         tag="a"
         variant={ButtonVariant.Secondary}
         className={classNames(
-          'border-accent-bacon-default text-accent-bacon-default',
+          'border-action-plus-default text-action-plus-default',
           !iconOnly && 'flex-1',
           className,
         )}
