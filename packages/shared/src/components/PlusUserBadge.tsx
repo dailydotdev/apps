@@ -13,6 +13,8 @@ import {
 import ConditionalWrapper from './ConditionalWrapper';
 import { DateFormat } from './utilities';
 import { TimeFormatType } from '../lib/dateFormat';
+import { useFeature } from './GrowthBookProvider';
+import { feature } from '../lib/featureManagement';
 
 export type Props = {
   user: Pick<PublicProfile, 'isPlus' | 'plusMemberSince'>;
@@ -25,8 +27,9 @@ export const PlusUserBadge = ({
 }: Props): ReactElement => {
   const { user: myself, isLoggedIn } = useAuthContext();
   const { isPlus, plusMemberSince } = user;
+  const showPlusSubscription = useFeature(feature.plusSubscription);
 
-  if (!isPlus) {
+  if (!isPlus || !showPlusSubscription) {
     return null;
   }
 

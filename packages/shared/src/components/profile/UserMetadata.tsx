@@ -14,6 +14,8 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { PlusUser } from '../PlusUser';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
 
 export type UserMetadataProps = Pick<
   PublicProfile,
@@ -33,6 +35,7 @@ export function UserMetadata({
   company,
   isPlus,
 }: UserMetadataProps): ReactElement {
+  const showPlusSubscription = useFeature(feature.plusSubscription);
   return (
     <div
       className={classNames(
@@ -68,7 +71,7 @@ export function UserMetadata({
           date={new Date(createdAt)}
         />
       </div>
-      {isPlus && <PlusUser />}
+      {isPlus && showPlusSubscription && <PlusUser />}
       {!!company && (
         <div className="flex items-center gap-1">
           <ProfilePicture

@@ -14,6 +14,8 @@ import { FollowButton } from '../contentPreference/FollowButton';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { UpgradeToPlus } from '../UpgradeToPlus';
 import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -39,6 +41,7 @@ export function Header({
     logObject: () => ({ event_name: 'share profile', target_id: user.id }),
   });
   const isMobile = useViewSize(ViewSize.MobileL);
+  const showPlusSubscription = useFeature(feature.plusSubscription);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const { data: contentPreference } = useContentPreferenceStatusQuery({
@@ -94,7 +97,7 @@ export function Header({
         className={classNames(
           'ml-auto',
           isSameUser && 'laptop:ml-0',
-          isSameUser && !isPlus && '!ml-0',
+          isSameUser && !isPlus && showPlusSubscription && '!ml-0',
         )}
         variant={ButtonVariant.Float}
         size={ButtonSize.Small}
