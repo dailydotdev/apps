@@ -37,6 +37,11 @@ export function CreateSharedPostModal({
   const [link, setLink] = useState(preview?.permalink ?? preview?.url ?? '');
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
+  const onSuccess = () => {
+    onSharedSuccessfully?.();
+    onSubmitted();
+    onRequestClose(null);
+  };
   const {
     getLinkPreview,
     isLoadingPreview,
@@ -45,14 +50,8 @@ export function CreateSharedPostModal({
     onSubmitPost,
   } = usePostToSquad({
     initialPreview: preview,
-    onPostSuccess: () => {
-      onSharedSuccessfully?.();
-      onSubmitted();
-      onRequestClose(null);
-    },
-    onSourcePostModerationSuccess: () => {
-      onRequestClose(null);
-    },
+    onPostSuccess: onSuccess,
+    onSourcePostModerationSuccess: onSuccess,
   });
 
   const onFormSubmit: FormEventHandler<HTMLFormElement> = (e) => {

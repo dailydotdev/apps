@@ -80,7 +80,6 @@ export const usePostToSquad = ({
   onError,
   onExternalLinkSuccess,
   onSourcePostModerationSuccess,
-
   initialPreview,
 }: UsePostToSquadProps = {}): UsePostToSquad => {
   const { displayToast } = useToastNotification();
