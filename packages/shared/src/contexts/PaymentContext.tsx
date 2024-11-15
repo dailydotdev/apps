@@ -46,8 +46,7 @@ export const PaymentContextProvider = ({
 }: PaymentContextProviderProps): ReactElement => {
   const { user } = useAuthContext();
   const [paddle, setPaddle] = useState<Paddle>();
-  const { showPlusSubscription, isPlus, logSubscriptionEvent } =
-    usePlusSubscription();
+  const { logSubscriptionEvent } = usePlusSubscription();
 
   // Download and initialize Paddle instance from CDN
   useEffect(() => {
