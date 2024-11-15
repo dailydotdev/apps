@@ -17,6 +17,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from './AuthContext';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { getPricingIds } from '../graphql/paddle';
+import { usePlusSubscription } from '../hooks/usePlusSubscription';
 import { plusSuccessUrl } from '../lib/constants';
 
 export interface PaymentContextData {
@@ -36,6 +37,7 @@ export const PaymentContextProvider = ({
 }: PaymentContextProviderProps): ReactElement => {
   const { user } = useAuthContext();
   const [paddle, setPaddle] = useState<Paddle>();
+  const { showPlusSubscription, isPlus } = usePlusSubscription();
 
   // Download and initialize Paddle instance from CDN
   useEffect(() => {
@@ -78,6 +80,7 @@ export const PaymentContextProvider = ({
   const { data: planTypes } = useQuery({
     queryKey: generateQueryKey(RequestKey.PlanTypes),
     queryFn: getPricingIds,
+    enabled: showPlusSubscription && !isPlus,
   });
 
   const getPrices = useCallback(async () => {

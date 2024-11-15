@@ -42,6 +42,7 @@ const feature = {
   ),
   extensionOverlay: new Feature('onboarding_extension_overlay', false),
   seniorContentOnboarding: new Feature('senior_content_onboarding', false),
+  plusSubscription: new Feature('plus_subscription', false),
 };
 
 export { feature };

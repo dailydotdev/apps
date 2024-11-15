@@ -13,6 +13,7 @@ import {
 import ConditionalWrapper from './ConditionalWrapper';
 import { DateFormat } from './utilities';
 import { TimeFormatType } from '../lib/dateFormat';
+import { usePlusSubscription } from '../hooks/usePlusSubscription';
 
 export type Props = {
   user: Pick<PublicProfile, 'isPlus' | 'plusMemberSince'>;
@@ -23,10 +24,10 @@ export const PlusUserBadge = ({
   user,
   tooltip = true,
 }: Props): ReactElement => {
-  const { user: myself, isLoggedIn } = useAuthContext();
-  const { isPlus, plusMemberSince } = user;
+  const { isLoggedIn } = useAuthContext();
+  const { showPlusSubscription, isPlus } = usePlusSubscription();
 
-  if (!isPlus) {
+  if (!user.isPlus || !showPlusSubscription) {
     return null;
   }
 
@@ -40,10 +41,10 @@ export const PlusUserBadge = ({
             <>
               <DateFormat
                 prefix="Plus member since "
-                date={plusMemberSince}
+                date={user.plusMemberSince}
                 type={TimeFormatType.PlusMember}
               />
-              {isLoggedIn && !myself?.isPlus && (
+              {isLoggedIn && !isPlus && (
                 <Link passHref href={plusUrl}>
                   <Typography
                     tag={TypographyTag.Link}

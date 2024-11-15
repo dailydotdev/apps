@@ -37,6 +37,7 @@ import { useLazyModal } from '../hooks/useLazyModal';
 import { checkIsExtension } from '../lib/func';
 import { useDndContext } from '../contexts/DndContext';
 import { LazyModal } from './modals/common/types';
+import { usePlusSubscription } from '../hooks/usePlusSubscription';
 
 interface ListItem {
   title: string;
@@ -54,18 +55,20 @@ export default function ProfileMenu({
   const { openModal } = useLazyModal();
   const { user, logout } = useAuthContext();
   const { isActive: isDndActive, setShowDnd } = useDndContext();
+  const { showPlusSubscription, isPlus } = usePlusSubscription();
 
   const items: ListItem[] = useMemo(() => {
-    const isPlus = user?.isPlus;
-    const plusItem: ListItem = {
-      title: isPlus ? 'Manage plus' : 'Upgrade to plus',
-      buttonProps: {
-        tag: 'a',
-        icon: <DevPlusIcon />,
-        href: isPlus ? managePlusUrl : plusUrl,
-        className: isPlus ? undefined : 'text-action-plus-default',
-      },
-    };
+    const plusItem: ListItem = showPlusSubscription
+      ? {
+          title: isPlus ? 'Manage plus' : 'Upgrade to plus',
+          buttonProps: {
+            tag: 'a',
+            icon: <DevPlusIcon />,
+            href: isPlus ? managePlusUrl : plusUrl,
+            className: isPlus ? undefined : 'text-action-plus-default',
+          },
+        }
+      : undefined;
 
     const list: ListItem[] = [
       {
@@ -140,13 +143,14 @@ export default function ProfileMenu({
       },
     });
 
-    return list;
+    return list.filter(Boolean);
   }, [
     isDndActive,
+    isPlus,
     logout,
     openModal,
     setShowDnd,
-    user?.isPlus,
+    showPlusSubscription,
     user.permalink,
   ]);
 
@@ -181,7 +185,7 @@ export default function ProfileMenu({
         name={user.name}
         createdAt={user.createdAt}
         reputation={user.reputation}
-        isPlus={user?.isPlus}
+        isPlus={isPlus}
         className="gap-2 p-4"
       />
       <div className="flex flex-col border-t border-border-subtlest-tertiary py-2">

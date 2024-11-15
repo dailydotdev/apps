@@ -32,11 +32,13 @@ import { LogoutReason } from '../../lib/user';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { usePrompt } from '../../hooks/usePrompt';
 import { ButtonColor } from '../buttons/Button';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 
 const useMenuItems = (): NavItemProps[] => {
-  const { user, logout } = useAuthContext();
+  const { logout } = useAuthContext();
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
+  const { showPlusSubscription, isPlus } = usePlusSubscription();
   const onLogout = useCallback(async () => {
     const shouldLogout = await showPrompt({
       title: 'Are you sure?',
@@ -50,13 +52,14 @@ const useMenuItems = (): NavItemProps[] => {
   }, [logout, showPrompt]);
 
   return useMemo(() => {
-    const isPlus = user?.isPlus;
-    const plusItem = {
-      label: isPlus ? 'Manage plus' : 'Upgrade to plus',
-      icon: <DevPlusIcon />,
-      href: isPlus ? managePlusUrl : plusUrl,
-      className: isPlus ? undefined : 'text-action-plus-default',
-    };
+    const plusItem = showPlusSubscription
+      ? {
+          label: isPlus ? 'Manage plus' : 'Upgrade to plus',
+          icon: <DevPlusIcon />,
+          href: isPlus ? managePlusUrl : plusUrl,
+          className: isPlus ? undefined : 'text-action-plus-default',
+        }
+      : undefined;
 
     return [
       {
@@ -148,7 +151,7 @@ const useMenuItems = (): NavItemProps[] => {
         rel: anchorDefaultRel,
       },
     ].filter(Boolean);
-  }, [onLogout, openModal, user?.isPlus]);
+  }, [isPlus, onLogout, openModal, showPlusSubscription]);
 };
 
 interface ProfileSettingsMenuProps {

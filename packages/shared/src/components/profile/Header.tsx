@@ -14,6 +14,7 @@ import { FollowButton } from '../contentPreference/FollowButton';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { UpgradeToPlus } from '../UpgradeToPlus';
 import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -30,7 +31,6 @@ export function Header({
   sticky,
   className,
   style,
-  isPlus,
 }: HeaderProps): ReactElement {
   const [, onShareOrCopyLink] = useShareOrCopyLink({
     text: `Check out ${user.name}'s profile on daily.dev`,
@@ -40,6 +40,7 @@ export function Header({
   });
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isPlus } = usePlusSubscription();
 
   const { data: contentPreference } = useContentPreferenceStatusQuery({
     id: user?.id,
@@ -62,7 +63,7 @@ export function Header({
               nativeLazyLoading
               size={ProfileImageSize.Medium}
             />
-            <div className="ml-2 flex flex-col typo-footnote">
+            <div className="ml-2 mr-auto flex flex-col typo-footnote">
               <p className="font-bold">{user.name}</p>
               <p className="text-text-tertiary">
                 {largeNumberFormat(user.reputation)} Reputation
@@ -70,12 +71,12 @@ export function Header({
             </div>
           </>
         ) : (
-          <h2 className="font-bold typo-body">Profile</h2>
+          <h2 className="mr-auto font-bold typo-body">Profile</h2>
         )}
       </>
       {isSameUser && (
         <Button
-          className="ml-auto mr-2 hidden laptop:flex"
+          className="mr-2 hidden laptop:flex"
           variant={ButtonVariant.Float}
           size={ButtonSize.Small}
           tag="a"
@@ -86,16 +87,11 @@ export function Header({
       )}
       {isSameUser && !isPlus && (
         <UpgradeToPlus
-          className="ml-auto mr-2 max-w-fit laptop:hidden"
+          className="mr-2 max-w-fit laptop:hidden"
           size={ButtonSize.Small}
         />
       )}
       <Button
-        className={classNames(
-          'ml-auto',
-          isSameUser && 'laptop:ml-0',
-          isSameUser && !isPlus && '!ml-0',
-        )}
         variant={ButtonVariant.Float}
         size={ButtonSize.Small}
         icon={<ShareIcon />}
