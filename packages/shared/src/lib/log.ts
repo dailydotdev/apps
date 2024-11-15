@@ -204,6 +204,8 @@ export enum LogEvent {
   // End post snippets
   TopReaderModalClose = 'close badge',
   TopReaderBadgeDownload = 'download badge',
+  // Plug subscription
+  UpgradeSubscription = 'upgrade subscription',
 }
 
 export enum FeedItemTitle {
@@ -245,6 +247,7 @@ export enum TargetType {
   // End settings
   SocialLink = 'social link',
   Badge = 'badge',
+  Plus = 'plus',
 }
 
 export enum TargetId {
@@ -263,6 +266,10 @@ export enum TargetId {
   List = 'list',
   // End settings
   TopReader = 'top reader',
+  Sidebar = 'sidebar',
+  ProfileDropdown = 'profile dropdown',
+  Ads = 'ads',
+  MyProfile = 'my profile',
 }
 
 export enum NotificationChannel {

@@ -20,6 +20,7 @@ import { getFeedName } from '../../lib/feed';
 import { useAlertsContext } from '../../contexts/AlertContext';
 import { UpgradeToPlus } from '../UpgradeToPlus';
 import HeaderLogo from '../layout/HeaderLogo';
+import { TargetId } from '../../lib/log';
 
 export const SidebarTablet = ({
   activePage,
@@ -65,7 +66,7 @@ export const SidebarTablet = ({
         onLogoClick={onLogoClick}
         className={classNames('h-10 pt-4')}
       />
-      {!user?.isPlus && <UpgradeToPlus iconOnly />}
+      {!user?.isPlus && <UpgradeToPlus iconOnly target={TargetId.Sidebar} />}
       <Link href={`${webappUrl}`} prefetch={false} passHref>
         <Button
           {...buttonProps}

@@ -15,6 +15,7 @@ import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { UpgradeToPlus } from '../UpgradeToPlus';
 import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { TargetId } from '../../lib/log';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -89,6 +90,7 @@ export function Header({
         <UpgradeToPlus
           className="mr-2 max-w-fit laptop:hidden"
           size={ButtonSize.Small}
+          target={TargetId.MyProfile}
         />
       )}
       <Button
