@@ -206,6 +206,7 @@ export enum LogEvent {
   TopReaderBadgeDownload = 'download badge',
   // Plug subscription
   UpgradeSubscription = 'upgrade subscription',
+  ManageSubscription = 'manage subscription',
 }
 
 export enum FeedItemTitle {
