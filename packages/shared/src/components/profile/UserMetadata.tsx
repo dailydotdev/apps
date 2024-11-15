@@ -14,8 +14,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { PlusUser } from '../PlusUser';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 
 export type UserMetadataProps = Pick<
   PublicProfile,
@@ -35,7 +34,7 @@ export function UserMetadata({
   company,
   isPlus,
 }: UserMetadataProps): ReactElement {
-  const showPlusSubscription = useFeature(feature.plusSubscription);
+  const { showPlusSubscription } = usePlusSubscription();
   return (
     <div
       className={classNames(

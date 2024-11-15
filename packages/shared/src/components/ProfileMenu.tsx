@@ -37,8 +37,7 @@ import { useLazyModal } from '../hooks/useLazyModal';
 import { checkIsExtension } from '../lib/func';
 import { useDndContext } from '../contexts/DndContext';
 import { LazyModal } from './modals/common/types';
-import { useFeature } from './GrowthBookProvider';
-import { feature } from '../lib/featureManagement';
+import { usePlusSubscription } from '../hooks/usePlusSubscription';
 
 interface ListItem {
   title: string;
@@ -56,10 +55,9 @@ export default function ProfileMenu({
   const { openModal } = useLazyModal();
   const { user, logout } = useAuthContext();
   const { isActive: isDndActive, setShowDnd } = useDndContext();
-  const showPlusSubscription = useFeature(feature.plusSubscription);
+  const { showPlusSubscription, isPlus } = usePlusSubscription();
 
   const items: ListItem[] = useMemo(() => {
-    const isPlus = user?.isPlus;
     const plusItem: ListItem = showPlusSubscription
       ? {
           title: isPlus ? 'Manage plus' : 'Upgrade to plus',
@@ -148,11 +146,11 @@ export default function ProfileMenu({
     return list.filter(Boolean);
   }, [
     isDndActive,
+    isPlus,
     logout,
     openModal,
     setShowDnd,
     showPlusSubscription,
-    user?.isPlus,
     user.permalink,
   ]);
 
@@ -187,7 +185,7 @@ export default function ProfileMenu({
         name={user.name}
         createdAt={user.createdAt}
         reputation={user.reputation}
-        isPlus={user?.isPlus}
+        isPlus={isPlus}
         className="gap-2 p-4"
       />
       <div className="flex flex-col border-t border-border-subtlest-tertiary py-2">

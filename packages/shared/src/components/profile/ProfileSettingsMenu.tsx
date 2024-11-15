@@ -32,17 +32,13 @@ import { LogoutReason } from '../../lib/user';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { usePrompt } from '../../hooks/usePrompt';
 import { ButtonColor } from '../buttons/Button';
-import { feature } from '../../lib/featureManagement';
-import { useConditionalFeature } from '../../hooks';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 
-const useMenuItems = (isOpen = false): NavItemProps[] => {
+const useMenuItems = (): NavItemProps[] => {
   const { user, logout } = useAuthContext();
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
-  const { value: showPlusSubscription } = useConditionalFeature({
-    feature: feature.plusSubscription,
-    shouldEvaluate: isOpen,
-  });
+  const { showPlusSubscription, isPlus } = usePlusSubscription();
   const onLogout = useCallback(async () => {
     const shouldLogout = await showPrompt({
       title: 'Are you sure?',
@@ -56,7 +52,6 @@ const useMenuItems = (isOpen = false): NavItemProps[] => {
   }, [logout, showPrompt]);
 
   return useMemo(() => {
-    const isPlus = user?.isPlus;
     const plusItem = showPlusSubscription
       ? {
           label: isPlus ? 'Manage plus' : 'Upgrade to plus',
@@ -178,7 +173,7 @@ export function ProfileSettingsMenu({
         isOpen,
         onClose,
       }}
-      items={useMenuItems(isOpen)}
+      items={useMenuItems()}
     />
   );
 }

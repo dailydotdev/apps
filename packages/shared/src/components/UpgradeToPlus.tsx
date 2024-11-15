@@ -7,8 +7,7 @@ import Link from './utilities/Link';
 import { plusUrl } from '../lib/constants';
 import type { WithClassNameProps } from './utilities';
 import { useViewSize, ViewSize } from '../hooks';
-import { useFeature } from './GrowthBookProvider';
-import { feature } from '../lib/featureManagement';
+import { usePlusSubscription } from '../hooks/usePlusSubscription';
 
 type Props = {
   size?: ButtonSize;
@@ -21,11 +20,11 @@ export const UpgradeToPlus = ({
   iconOnly = false,
 }: Props): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const showPlusSubscription = useFeature(feature.plusSubscription);
+  const { showPlusSubscription, isPlus } = usePlusSubscription();
 
   const content = isMobile ? 'Upgrade' : 'Upgrade to plus';
 
-  if (!showPlusSubscription) {
+  if (!showPlusSubscription || isPlus) {
     return null;
   }
 
