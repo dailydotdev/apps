@@ -1,5 +1,6 @@
 import React, { ReactElement, ReactNode } from 'react';
 import { cloudinaryPlusBackground } from '@dailydotdev/shared/src/lib/image';
+import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/PaymentContext';
 import { MainFeedPageProps } from '../MainFeedPage';
 import { PlusHeader } from './PlusHeader';
 
@@ -21,5 +22,9 @@ export default function PlusLayout({
 }
 
 export function getPlusLayout(page: ReactNode): ReactNode {
-  return <PlusLayout>{page}</PlusLayout>;
+  return (
+    <PaymentContextProvider>
+      <PlusLayout>{page}</PlusLayout>
+    </PaymentContextProvider>
+  );
 }
