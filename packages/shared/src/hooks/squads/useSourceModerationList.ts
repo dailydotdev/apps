@@ -16,6 +16,8 @@ import { generateQueryKey, RequestKey } from '../../lib/query';
 import { Squad } from '../../graphql/sources';
 import { LogEvent } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
+import { postLogEvent } from '../../lib/feed';
+import { Post } from '../../graphql/posts';
 
 export const rejectReasons: { value: PostModerationReason; label: string }[] = [
   {
@@ -102,11 +104,20 @@ export const useSourceModerationList = ({
         postIds,
         sourceId,
       }),
-    onSuccess: () => {
+    onSuccess: (data) => {
       displayToast('Post(s) approved successfully');
-      logEvent({
-        event_name: LogEvent.ApprovePost,
+
+      data.forEach((item) => {
+        const post: Post = {
+          id: item.id,
+          source: item.source,
+          type: item.type,
+          image: item.image,
+          commentsPermalink: '',
+        };
+        logEvent(postLogEvent(LogEvent.ApprovePost, post));
       });
+
       invalidateQueries();
     },
     onError: (_, variables) => {
