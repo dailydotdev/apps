@@ -35,7 +35,7 @@ import { ButtonColor } from '../buttons/Button';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 
 const useMenuItems = (): NavItemProps[] => {
-  const { user, logout } = useAuthContext();
+  const { logout } = useAuthContext();
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
   const { showPlusSubscription, isPlus } = usePlusSubscription();
