@@ -172,7 +172,7 @@ export const SearchControlHeader = ({
 
 export const PageHeader = classed(
   'div',
-  'flex flex-row items-center border-b border-border-subtlest-tertiary px-4 py-2',
+  'flex flex-row items-center border-b border-border-subtlest-tertiary px-4 py-2 gap-1',
 );
 
 export const PageHeaderTitle = ({
