@@ -10,6 +10,7 @@ import {
   createModerationPromptProps,
   editModerationPromptProps,
 } from '../../components/squads/utils';
+import { ApiErrorResult } from '../../graphql/common';
 import { SourcePostModeration } from '../../graphql/squads';
 
 interface UseSourcePostModeration {
@@ -24,8 +25,8 @@ interface UseSourcePostModeration {
 }
 
 interface UseSquadModerationProps {
-  onSuccess?: () => void;
-  onError?: () => void;
+  onSuccess?: (data: SourcePostModeration) => void;
+  onError?: (error: ApiErrorResult) => void;
   onSettled?: () => void;
   onMutate?: () => void;
 }
@@ -43,9 +44,13 @@ const useSourcePostModeration = ({
     isSuccess: isCreateSuccess,
   } = useMutation({
     mutationFn: createSourcePostModeration,
-    onSuccess: async () => {
-      await showPrompt(createModerationPromptProps);
-      onSuccess?.();
+    onSuccess: async (moderatedPost) => {
+      await showPrompt(
+        moderatedPost.post
+          ? editModerationPromptProps
+          : createModerationPromptProps,
+      );
+      onSuccess?.(moderatedPost);
     },
     onError,
     onSettled,
@@ -58,9 +63,9 @@ const useSourcePostModeration = ({
     isSuccess: isUpdateSuccess,
   } = useMutation({
     mutationFn: updateSourcePostModeration,
-    onSuccess: async () => {
+    onSuccess: async (data) => {
       await showPrompt(editModerationPromptProps);
-      onSuccess?.();
+      onSuccess?.(data);
     },
     onError,
     onSettled,

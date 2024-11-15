@@ -33,16 +33,21 @@ export default function ModerateSquadPage({
   handle,
 }: SquadSettingsProps): ReactElement {
   const router = useRouter();
-  const { squad, isLoading } = useSquad({ handle });
+  const { squad, isLoading, isFetched } = useSquad({ handle });
   const isModerator = verifyPermission(squad, SourcePermissions.ModeratePost);
 
   useEffect(() => {
-    if (!isLoading && squad && !squad.moderationRequired) {
-      router.push(`/squads/${handle}`);
+    if (isLoading || !isFetched) {
+      return;
     }
 
-    if (!isLoading && !squad) {
+    if (!squad) {
       router.push(`/404`);
+      return;
+    }
+
+    if (!squad.moderationRequired) {
+      router.push(`/squads/${handle}`);
     }
   }, [handle, isLoading, router, squad]);
 
