@@ -112,7 +112,7 @@ function PostModerationModal({
         {sharedPost && (
           <div className="-mt-8">
             <CommonSharePostContent
-              mainSource={squad}
+              source={squad}
               sharedPost={sharedPost}
               onReadArticle={onReadArticle}
             />

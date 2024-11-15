@@ -48,7 +48,7 @@ function ShareYouTubeContent({
           >
             <SharedPostLink
               sharedPost={post?.sharedPost}
-              mainSource={post?.source}
+              source={post?.source}
               onGoToLinkProps={combinedClicks(onReadArticle)}
               className="m-4 flex flex-wrap font-bold typo-body"
             >
