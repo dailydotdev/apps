@@ -9,8 +9,8 @@ export const usePlusSubscription = (): {
   showPlusSubscription: boolean;
   isPlus: boolean;
   logSubscriptionEvent: (
-    event_name: LogEvent,
-    target_id: TargetId,
+    event_name: LogEvent | string,
+    target_id: TargetId | string,
     extra?: Record<string, unknown>,
   ) => void;
 } => {

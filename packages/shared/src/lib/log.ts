@@ -207,6 +207,7 @@ export enum LogEvent {
   // Plug subscription
   UpgradeSubscription = 'upgrade subscription',
   ManageSubscription = 'manage subscription',
+  SelectBillingCycle = 'select billing cycle',
 }
 
 export enum FeedItemTitle {
