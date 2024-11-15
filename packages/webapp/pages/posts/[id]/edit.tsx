@@ -58,20 +58,20 @@ function EditPost(): ReactElement {
     formRef,
     clearDraft,
   } = useDiscardPost({ post: fetchedPost });
+  const onSuccess = async (link: string) => {
+    onAskConfirmation(false);
+    clearDraft();
+    await push(link);
+  };
   const { onEditFreeformPost, isPosting, isSuccess } = usePostToSquad({
     onPostSuccess: async (data) => {
-      onAskConfirmation(false);
-      clearDraft();
-      await push(data.commentsPermalink);
-
       if (data.type === PostType.Welcome) {
         completeAction(ActionType.EditWelcomePost);
       }
+
+      onSuccess(data.commentsPermalink);
     },
-    onSourcePostModerationSuccess: async (data) => {
-      clearDraft();
-      await push(data.source.permalink);
-    },
+    onSourcePostModerationSuccess: (data) => onSuccess(data.source.permalink),
     onError: (data: ApiErrorResult) => {
       if (data?.response?.errors?.[0]) {
         displayToast(data?.response?.errors?.[0].message);
@@ -81,11 +81,7 @@ function EditPost(): ReactElement {
   });
 
   const { onUpdatePostModeration, isPending } = useSourcePostModeration({
-    onSuccess: async () => {
-      onAskConfirmation(false);
-      clearDraft();
-      push(squad.permalink);
-    },
+    onSuccess: () => onSuccess(squad.permalink),
   });
   const onClickSubmit = (
     e: FormEvent<HTMLFormElement>,

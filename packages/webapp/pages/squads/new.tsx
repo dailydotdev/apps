@@ -21,6 +21,7 @@ import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useIntegrationQuery } from '@dailydotdev/shared/src/hooks/integrations/useIntegrationQuery';
 
 import { useSlackConnectSourceMutation } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackConnectSourceMutation';
+import { SourceMemberRole } from '@dailydotdev/shared/src/graphql/sources';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -92,6 +93,8 @@ const NewSquad = (): ReactElement => {
         initialData={{
           name: data?.name,
           handle: initialHandle,
+          memberPostingRole: SourceMemberRole.Member,
+          moderationRequired: true,
         }}
         integrationId={integrationId}
       >

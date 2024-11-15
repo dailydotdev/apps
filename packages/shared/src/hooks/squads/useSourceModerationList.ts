@@ -142,6 +142,9 @@ export const useSourceModerationList = ({
       const confirmed = await showPrompt({
         title: `Approve all ${postIds.length} posts?`,
         description: 'This action cannot be undone.',
+        okButton: {
+          title: 'Yes, Approve all',
+        },
       });
 
       if (confirmed) {

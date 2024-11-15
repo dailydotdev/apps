@@ -590,7 +590,7 @@ export interface SourcePostModeration extends Partial<PostRequestContent> {
   id: string;
   post?: Post;
   status: SourcePostModerationStatus;
-  reason?: PostModerationReason;
+  rejectionReason?: PostModerationReason;
   moderatorMessage?: string;
   source?: Source;
   externalLink?: string;
@@ -610,6 +610,9 @@ const SOURCE_POST_MODERATION_FRAGMENT = gql`
     contentHtml
     image
     createdAt
+    source {
+      ...SourceBaseInfo
+    }
     createdBy {
       ...UserAuthor
     }
