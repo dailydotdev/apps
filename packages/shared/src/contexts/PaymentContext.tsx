@@ -7,21 +7,23 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import {
-  Environments,
-  initializePaddle,
-  Paddle,
-  PricePreviewResponse,
-} from '@paddle/paddle-js';
+import { Environments, initializePaddle, Paddle } from '@paddle/paddle-js';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from './AuthContext';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { getPricingIds } from '../graphql/paddle';
 import { plusSuccessUrl } from '../lib/constants';
 
+export type ProductOption = {
+  label: string;
+  value: string;
+  price: string;
+  currencyCode: string;
+  extraLabel: string;
+};
 export interface PaymentContextData {
   openCheckout?: ({ priceId }: { priceId: string }) => void;
-  productPrices?: PricePreviewResponse;
+  productOptions?: ProductOption[];
 }
 
 const PaymentContext = React.createContext<PaymentContextData>({});
@@ -64,7 +66,7 @@ export const PaymentContextProvider = ({
         settings: {
           displayMode: 'inline',
           frameTarget: 'checkout-container',
-          frameInitialHeight: 450,
+          frameInitialHeight: 500,
           frameStyle:
             'width: 100%; background-color: transparent; border: none;',
           theme: 'dark',
@@ -95,12 +97,24 @@ export const PaymentContextProvider = ({
     enabled: !!paddle && !!planTypes,
   });
 
+  const productOptions = useMemo(
+    () =>
+      productPrices?.data?.details?.lineItems?.map((item) => ({
+        label: item.price.description,
+        value: item.price.id,
+        price: item.formattedTotals.total,
+        currencyCode: productPrices?.data.currencyCode as string,
+        extraLabel: item.price.customData?.label as string,
+      })) ?? [],
+    [productPrices?.data.currencyCode, productPrices?.data?.details?.lineItems],
+  );
+
   const contextData = useMemo<PaymentContextData>(
     () => ({
       openCheckout,
-      productPrices,
+      productOptions,
     }),
-    [openCheckout, productPrices],
+    [openCheckout, productOptions],
   );
 
   return (
