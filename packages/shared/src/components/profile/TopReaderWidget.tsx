@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import {
   ActivityContainer,
   ActivitySectionHeader,
@@ -20,6 +21,7 @@ import { ClickableText } from '../buttons/ClickableText';
 import { useTopReader } from '../../hooks/useTopReader';
 import Link from '../utilities/Link';
 import { getTagPageLink } from '../../lib';
+import { truncateTextClassNames } from '../utilities';
 
 export const TopReaderWidget = ({
   user,
@@ -89,7 +91,10 @@ export const TopReaderWidget = ({
                     tag={TypographyTag.Link}
                     type={TypographyType.Caption1}
                     color={TypographyColor.Primary}
-                    className="mr-8 rounded-6 border border-border-subtlest-tertiary px-2.5 py-0.5 transition duration-200 hover:bg-background-popover"
+                    className={classNames(
+                      'max-w-[32ch] rounded-6 border border-border-subtlest-tertiary px-2.5 py-0.5 transition duration-200 hover:bg-background-popover',
+                      truncateTextClassNames,
+                    )}
                   >
                     {badge.keyword.flags?.title || badge.keyword.value}
                   </Typography>
@@ -99,7 +104,7 @@ export const TopReaderWidget = ({
                   type={TypographyType.Caption2}
                   color={TypographyColor.Quaternary}
                   dateTime={new Date(badge.issuedAt).toISOString()}
-                  className="self-center"
+                  className="ml-8 self-center"
                 >
                   {formatDate({
                     value: badge.issuedAt,
