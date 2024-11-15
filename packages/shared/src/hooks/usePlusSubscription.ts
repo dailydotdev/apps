@@ -12,11 +12,13 @@ export const usePlusSubscription = (): {
 
   const plusSubscriptionFeature = useFeature(feature.plusSubscription);
 
-  return useMemo(
-    () => ({
-      showPlusSubscription: isPlus ? true : plusSubscriptionFeature,
-      isPlus,
-    }),
+  const showPlusSubscription = useMemo(
+    () => (isPlus ? true : plusSubscriptionFeature),
     [isPlus, plusSubscriptionFeature],
   );
+
+  return {
+    showPlusSubscription,
+    isPlus,
+  };
 };
