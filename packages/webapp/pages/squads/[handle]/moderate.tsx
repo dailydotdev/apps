@@ -17,9 +17,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
-import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { useSquad } from '@dailydotdev/shared/src/hooks';
-import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import { useRouter } from 'next/router';
 import {
   GetStaticPathsResult,
@@ -34,7 +32,6 @@ export default function ModerateSquadPage({
 }: SquadSettingsProps): ReactElement {
   const router = useRouter();
   const { squad, isLoading, isFetched } = useSquad({ handle });
-  const isModerator = verifyPermission(squad, SourcePermissions.ModeratePost);
 
   useEffect(() => {
     if (isLoading || !isFetched) {
@@ -66,12 +63,7 @@ export default function ModerateSquadPage({
         />
         <PageHeaderTitle className="typo-title3">Squad</PageHeaderTitle>
       </PageHeader>
-      <SquadTabs
-        active={SquadTab.PendingPosts}
-        handle={handle}
-        pendingCount={squad?.moderationPostCount}
-        showSettings={isModerator}
-      />
+      <SquadTabs active={SquadTab.PendingPosts} squad={squad} />
       <SquadModerationList squad={squad} />
     </ManageSquadPageContainer>
   );

@@ -83,7 +83,6 @@ const EditSquad = ({ handle }: SquadSettingsProps): ReactElement => {
     return (
       <MangeSquadPageSkeleton>
         <DefaultSquadHeader className="border-b-0" />
-        <SquadTabs active={SquadTab.Settings} handle={handle} showSettings />
       </MangeSquadPageSkeleton>
     );
   }
@@ -105,7 +104,7 @@ const EditSquad = ({ handle }: SquadSettingsProps): ReactElement => {
         isLoading={isUpdatingSquad}
       >
         {squad?.moderationRequired && (
-          <SquadTabs active={SquadTab.Settings} handle={handle} showSettings />
+          <SquadTabs active={SquadTab.Settings} squad={squad} />
         )}
       </SquadDetails>
     </ManageSquadPageContainer>
