@@ -49,7 +49,7 @@ export default function ModerateSquadPage({
     if (!squad.moderationRequired) {
       router.push(`/squads/${handle}`);
     }
-  }, [handle, isLoading, router, squad]);
+  }, [handle, isFetched, isLoading, router, squad]);
 
   if (isLoading || !squad) {
     return null;
