@@ -22,7 +22,7 @@ import { SharePostTitle } from './share/SharePostTitle';
 
 export interface CommonSharePostContentProps {
   sharedPost: SharedPost;
-  mainSource: Post['source'];
+  source: Post['source'];
   onReadArticle: () => Promise<void>;
 }
 
@@ -43,7 +43,7 @@ const SharePostContentSkeleton = () => (
 
 export function CommonSharePostContent({
   sharedPost,
-  mainSource,
+  source,
   onReadArticle,
 }: CommonSharePostContentProps): ReactElement {
   const { openNewTab } = useContext(SettingsContext);
@@ -64,7 +64,7 @@ export function CommonSharePostContent({
       <div className="flex max-w-full flex-col p-4 pt-5 laptop:flex-row">
         <div className="mb-5 flex max-w-full flex-1 flex-col truncate laptop:mb-0">
           <SharedPostLink
-            mainSource={mainSource}
+            source={source}
             sharedPost={sharedPost}
             onGoToLinkProps={combinedClicks(openArticle)}
             className="mb-4 mt-0 flex flex-wrap font-bold typo-body"
@@ -97,7 +97,7 @@ export function CommonSharePostContent({
         </div>
 
         <SharedPostLink
-          mainSource={mainSource}
+          source={source}
           sharedPost={sharedPost}
           onGoToLinkProps={combinedClicks(openArticle)}
           className="ml-2 block h-fit w-70 cursor-pointer overflow-hidden rounded-16"
@@ -129,7 +129,7 @@ const SharePostContent = ({
     <SharePostTitle title={post?.title} titleHtml={post?.titleHtml} />
     <CommonSharePostContent
       onReadArticle={onReadArticle}
-      mainSource={post.source}
+      source={post.source}
       sharedPost={post.sharedPost}
     />
   </>

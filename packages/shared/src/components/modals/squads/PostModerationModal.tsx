@@ -110,7 +110,7 @@ function PostModerationModal({
         )}
         {sharedPost && (
           <CommonSharePostContent
-            mainSource={squad}
+            source={squad}
             sharedPost={sharedPost}
             onReadArticle={onReadArticle}
           />
