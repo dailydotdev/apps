@@ -1,6 +1,8 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement } from 'react';
 import { TabContainer, Tab } from '../tabs/TabContainer';
 import { webappUrl } from '../../lib/constants';
+import { SourcePermissions, Squad } from '../../graphql/sources';
+import { verifyPermission } from '../../graphql/squads';
 
 export enum SquadTab {
   Settings = 'Settings',
@@ -9,35 +11,33 @@ export enum SquadTab {
 
 interface SquadTabsProps {
   active: SquadTab;
-  handle: string;
-  pendingCount?: number;
-  showSettings?: boolean;
+  squad: Squad;
 }
 
-export function SquadTabs({
-  active,
-  handle,
-  pendingCount,
-  showSettings = false,
-}: SquadTabsProps): ReactElement {
-  const pendingTitle = pendingCount
-    ? `${SquadTab.PendingPosts} (${pendingCount})`
+export function SquadTabs({ active, squad }: SquadTabsProps): ReactElement {
+  const { handle, moderationPostCount } = squad;
+  const isModerator = verifyPermission(squad, SourcePermissions.ModeratePost);
+  const squadLink = `${webappUrl}squads/${handle}`;
+  const pendingTabLabel = moderationPostCount
+    ? `${SquadTab.PendingPosts} (${moderationPostCount})`
     : SquadTab.PendingPosts;
 
-  const links = useMemo(() => {
-    const host = `${webappUrl}squads/${handle}`;
-    return {
-      ...(showSettings && { [SquadTab.Settings]: `${host}/edit` }),
-      [pendingTitle]: `${host}/moderate`,
-    };
-  }, [handle, pendingTitle, showSettings]);
+  const links = [
+    ...(isModerator && [
+      {
+        label: SquadTab.Settings,
+        url: `${squadLink}/edit`,
+      },
+    ]),
+    { label: pendingTabLabel, url: `${squadLink}/moderate` },
+  ];
 
   const controlledActive =
-    active === SquadTab.PendingPosts ? pendingTitle : active;
+    active === SquadTab.PendingPosts ? pendingTabLabel : active;
 
   return (
     <TabContainer shouldMountInactive controlledActive={controlledActive}>
-      {Object.entries(links).map(([label, url]) => (
+      {links.map(({ label, url }) => (
         <Tab key={label} label={label} url={url} />
       ))}
     </TabContainer>
