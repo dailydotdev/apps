@@ -3,6 +3,7 @@ import { usePaymentContext } from '@dailydotdev/shared/src/contexts/PaymentConte
 
 import { useRouter } from 'next/router';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 
 const PlusPaymentPage = (): ReactElement => {
