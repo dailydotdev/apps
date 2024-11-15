@@ -23,6 +23,7 @@ import { plusSuccessUrl } from '../lib/constants';
 export interface PaymentContextData {
   openCheckout?: ({ priceId }: { priceId: string }) => void;
   productPrices?: PricePreviewResponse;
+  refetchPlanTypes?: () => void;
 }
 
 const PaymentContext = React.createContext<PaymentContextData>({});
@@ -77,7 +78,7 @@ export const PaymentContextProvider = ({
     [paddle?.Checkout, user],
   );
 
-  const { data: planTypes } = useQuery({
+  const { data: planTypes, refetch: refetchPlanTypes } = useQuery({
     queryKey: generateQueryKey(RequestKey.PlanTypes),
     queryFn: getPricingIds,
     enabled: showPlusSubscription && !isPlus,
@@ -102,8 +103,9 @@ export const PaymentContextProvider = ({
     () => ({
       openCheckout,
       productPrices,
+      refetchPlanTypes,
     }),
-    [openCheckout, productPrices],
+    [openCheckout, productPrices, refetchPlanTypes],
   );
 
   return (
