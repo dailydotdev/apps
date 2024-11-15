@@ -18,6 +18,7 @@ import { useAuthContext } from './AuthContext';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { getPricingIds } from '../graphql/paddle';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
+import { plusSuccessUrl } from '../lib/constants';
 
 export interface PaymentContextData {
   openCheckout?: ({ priceId }: { priceId: string }) => void;
@@ -69,6 +70,7 @@ export const PaymentContextProvider = ({
           frameStyle:
             'width: 100%; background-color: transparent; border: none;',
           theme: 'dark',
+          successUrl: plusSuccessUrl,
         },
       });
     },

@@ -11,7 +11,7 @@ export default function PlusLayout({
       <img
         src={cloudinaryPlusBackground}
         alt="Plus background"
-        className="absolute inset-0 -z-1 h-full w-full"
+        className="absolute inset-0 -z-1 h-full w-full object-cover"
         aria-hidden
       />
       <PlusHeader />
