@@ -7,13 +7,14 @@ import {
   squadRejectMutation,
   SquadPostModerationProps,
   deletePendingPostMutation,
+  SourcePostModeration,
 } from '../../graphql/squads';
 import { useLazyModal } from '../useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
 import { usePrompt } from '../usePrompt';
 import { useToastNotification } from '../useToastNotification';
 import { generateQueryKey, RequestKey } from '../../lib/query';
-import { SourceType, Squad } from '../../graphql/sources';
+import { Squad } from '../../graphql/sources';
 import { LogEvent } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
@@ -69,6 +70,18 @@ export interface UseSourceModerationList {
   isSuccess: boolean;
 }
 
+const getLogPostsFromModerationArray = (data: SourcePostModeration[]) => {
+  return data.map<Post>((item) => ({
+    id: item.id,
+    source: item.source,
+    type: item.type,
+    image: item.image,
+    commentsPermalink: '',
+    author: item.createdBy,
+    createdAt: item.createdAt,
+  }));
+};
+
 export const useSourceModerationList = ({
   squad,
 }: {
@@ -106,20 +119,9 @@ export const useSourceModerationList = ({
       }),
     onSuccess: (data) => {
       displayToast('Post(s) approved successfully');
-
-      data.forEach((item) => {
-        const post: Post = {
-          id: item.id,
-          source: item.source,
-          type: item.type,
-          image: item.image,
-          commentsPermalink: '',
-          author: item.createdBy,
-          createdAt: item.createdAt,
-        };
+      getLogPostsFromModerationArray(data).forEach((post) => {
         logEvent(postLogEvent(LogEvent.ApprovePost, post));
       });
-
       invalidateQueries();
     },
     onError: (_, variables) => {
@@ -162,20 +164,13 @@ export const useSourceModerationList = ({
     isSuccess: isSuccessReject,
   } = useMutation({
     mutationFn: (props: SquadPostRejectionProps) => {
-      return squadRejectMutation(props).then(() => {
-        const { postIds, sourceId } = props;
-        const [postId] = postIds;
-        logEvent({
-          event_name: LogEvent.RejectPost,
-          post_source_id: sourceId,
-          post_source_type: SourceType.Squad,
-          target_id: postId,
-          target_type: 'post',
-        });
-      });
+      return squadRejectMutation(props);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       displayToast('Post(s) declined successfully');
+      getLogPostsFromModerationArray(data).forEach((post) => {
+        logEvent(postLogEvent(LogEvent.RejectPost, post));
+      });
       invalidateQueries();
     },
   });
