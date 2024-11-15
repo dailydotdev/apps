@@ -590,7 +590,7 @@ export interface SourcePostModeration extends Partial<PostRequestContent> {
   id: string;
   post?: Post;
   status: SourcePostModerationStatus;
-  reason?: PostModerationReason;
+  rejectionReason?: PostModerationReason;
   moderatorMessage?: string;
   source?: Source;
   externalLink?: string;

@@ -27,7 +27,7 @@ export function SquadModerationItem(
 ): ReactElement {
   const { context, modal, user } = useSourceModerationItem(props);
   const { data, squad, onApprove, onReject, isPending } = props;
-  const { reason, createdBy, createdAt, image, status } = data;
+  const { rejectionReason, createdBy, createdAt, image, status } = data;
 
   const IconComponent =
     status === SourcePostModerationStatus.Rejected ? WarningIcon : TimerIcon;
@@ -82,8 +82,8 @@ export function SquadModerationItem(
       {status === SourcePostModerationStatus.Rejected && !user.isModerator && (
         <AlertPointerMessage color={AlertColor.Bun}>
           Your post in {squad.name} was not approved for the following reason:
-          {reason}. Please review the feedback and consider making changes
-          before resubmitting.
+          {rejectionReason}. Please review the feedback and consider making
+          changes before resubmitting.
         </AlertPointerMessage>
       )}
       {user.isModerator && (
