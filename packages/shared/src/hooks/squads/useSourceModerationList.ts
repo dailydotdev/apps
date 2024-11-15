@@ -14,6 +14,8 @@ import { usePrompt } from '../usePrompt';
 import { useToastNotification } from '../useToastNotification';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { Squad } from '../../graphql/sources';
+import { LogEvent } from '../../lib/log';
+import { useLogContext } from '../../contexts/LogContext';
 
 export const rejectReasons: { value: PostModerationReason; label: string }[] = [
   {
@@ -73,6 +75,7 @@ export const useSourceModerationList = ({
   const { openModal, closeModal } = useLazyModal();
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
+  const { logEvent } = useLogContext();
   const { user } = squad.currentMember;
   const queryClient = useQueryClient();
   const listQueryKey = generateQueryKey(
@@ -101,6 +104,9 @@ export const useSourceModerationList = ({
       }),
     onSuccess: () => {
       displayToast('Post(s) approved successfully');
+      logEvent({
+        event_name: LogEvent.ApprovePost,
+      });
       invalidateQueries();
     },
     onError: (_, variables) => {
@@ -142,6 +148,9 @@ export const useSourceModerationList = ({
     mutationFn: (props: SquadPostRejectionProps) => squadRejectMutation(props),
     onSuccess: () => {
       displayToast('Post(s) declined successfully');
+      logEvent({
+        event_name: LogEvent.RejectPost,
+      });
       invalidateQueries();
     },
   });

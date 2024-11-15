@@ -115,6 +115,10 @@ export enum LogEvent {
   DownvoteComment = 'downvote comment',
   RemoveCommentDownvote = 'remove comment downvote',
   // vote - end
+  // moderation - start
+  ApprovePost = 'approve post',
+  RejectPost = 'reject post',
+  // moderation - end
   // bookmark - start
   BookmarkPost = 'bookmark post',
   RemovePostBookmark = 'remove post bookmark',
