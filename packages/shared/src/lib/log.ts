@@ -208,6 +208,12 @@ export enum LogEvent {
   UpgradeSubscription = 'upgrade subscription',
   ManageSubscription = 'manage subscription',
   SelectBillingCycle = 'select billing cycle',
+  SelectCheckoutPayment = 'select checkout payment',
+  CompleteCheckout = 'complete checkout',
+  WarningCheckout = 'warning checkout',
+  ErrorCheckout = 'error checkout',
+  CancelSubscription = 'cancel subscription',
+  ReceivePayment = 'receive payment',
 }
 
 export enum FeedItemTitle {

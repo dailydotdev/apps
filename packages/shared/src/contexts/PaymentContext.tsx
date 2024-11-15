@@ -7,12 +7,20 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { Environments, initializePaddle, Paddle } from '@paddle/paddle-js';
+import {
+  CheckoutEventNames,
+  Environments,
+  initializePaddle,
+  Paddle,
+  type PaddleEventData,
+} from '@paddle/paddle-js';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from './AuthContext';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { getPricingIds } from '../graphql/paddle';
 import { plusSuccessUrl } from '../lib/constants';
+import { LogEvent } from '../lib/log';
+import { usePlusSubscription } from '../hooks/usePlusSubscription';
 
 export type ProductOption = {
   label: string;
@@ -38,6 +46,8 @@ export const PaymentContextProvider = ({
 }: PaymentContextProviderProps): ReactElement => {
   const { user } = useAuthContext();
   const [paddle, setPaddle] = useState<Paddle>();
+  const { showPlusSubscription, isPlus, logSubscriptionEvent } =
+    usePlusSubscription();
 
   // Download and initialize Paddle instance from CDN
   useEffect(() => {
@@ -46,6 +56,40 @@ export const PaymentContextProvider = ({
         (process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT as Environments) ||
         'production',
       token: process.env.NEXT_PUBLIC_PADDLE_TOKEN,
+      eventCallback: (event: PaddleEventData) => {
+        switch (event.name) {
+          case CheckoutEventNames.CHECKOUT_PAYMENT_SELECTED:
+            logSubscriptionEvent(
+              LogEvent.SelectCheckoutPayment,
+              event.data.payment.method_details.type,
+            );
+            break;
+          case CheckoutEventNames.CHECKOUT_COMPLETED:
+            logSubscriptionEvent(LogEvent.CompleteCheckout, '', {
+              cycle: 'event.data.checkout.cycle',
+              cost: event.data.totals.total,
+              payment: event.data.payment.method_details.type,
+            });
+            break;
+          // This doesn't exist in the original code
+          case 'checkout.warning' as CheckoutEventNames:
+            logSubscriptionEvent(LogEvent.WarningCheckout, '', {
+              cycle: 'event.data.checkout.cycle',
+              cost: event.data.totals.total,
+              payment: event.data.payment.method_details.type,
+            });
+            break;
+          case CheckoutEventNames.CHECKOUT_ERROR:
+            logSubscriptionEvent(LogEvent.ErrorCheckout, '', {
+              cycle: 'event.data.checkout.cycle',
+              cost: event.data.totals.total,
+              payment: event.data.payment.method_details.type,
+            });
+            break;
+          default:
+            break;
+        }
+      },
     }).then((paddleInstance: Paddle | undefined) => {
       if (paddleInstance) {
         setPaddle(paddleInstance);
