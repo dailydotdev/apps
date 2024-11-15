@@ -5,7 +5,7 @@ import { CombinedClicks } from '../../../lib/click';
 
 interface SharedPostTitleProps {
   sharedPost: SharedPost;
-  mainSource: Post['source'];
+  source: Post['source'];
   children: ReactNode;
   className?: string;
   onGoToLinkProps?: CombinedClicks;
@@ -13,7 +13,7 @@ interface SharedPostTitleProps {
 
 export const SharedPostLink = ({
   sharedPost,
-  mainSource,
+  source,
   className,
   children,
   onGoToLinkProps,
@@ -28,7 +28,7 @@ export const SharedPostLink = ({
         ...onGoToLinkProps,
       }
     : {
-        href: `${sharedPost.commentsPermalink}?squad=${mainSource.handle}&n=${mainSource.name}`,
+        href: `${sharedPost.commentsPermalink}?squad=${source.handle}&n=${source.name}`,
         as: sharedPost.commentsPermalink,
       };
 
