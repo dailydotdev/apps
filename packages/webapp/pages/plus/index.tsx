@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { ReactElement, useCallback, useMemo, useState } from 'react';
 import { usePaymentContext } from '@dailydotdev/shared/src/contexts/PaymentContext';
 import {
   Typography,
@@ -22,7 +16,7 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 
 const PlusPage = (): ReactElement => {
-  const { openCheckout, productPrices, refetchPlanTypes } = usePaymentContext();
+  const { openCheckout, productPrices } = usePaymentContext();
 
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const productOptions = useMemo(
@@ -36,12 +30,6 @@ const PlusPage = (): ReactElement => {
       })) ?? [],
     [productPrices?.data.currencyCode, productPrices?.data?.details?.lineItems],
   );
-
-  useEffect(() => {
-    if (!productPrices) {
-      refetchPlanTypes();
-    }
-  }, [productPrices, refetchPlanTypes]);
 
   const toggleCheckoutOption = useCallback(
     (priceId) => {
