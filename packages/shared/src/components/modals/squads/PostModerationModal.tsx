@@ -22,6 +22,7 @@ import { MarkdownPostImage } from '../../post/MarkdownPostContent';
 import { ModalClose } from '../common/ModalClose';
 import { SquadModerationItemContextMenu } from '../../squads/moderation/SquadModerationItemContextMenu';
 import { useSourceModerationList } from '../../../hooks/squads/useSourceModerationList';
+import { ProfileImageSize } from '../../ProfilePicture';
 
 type ActionHandler = (ids: string[], sourceId: string) => void;
 
@@ -67,7 +68,7 @@ function PostModerationModal({
       size={Modal.Size.Large}
       kind={Modal.Kind.FlexibleTop}
     >
-      <Modal.Body className="gap-6">
+      <Modal.Body className="gap-6 !p-6">
         {isModerator && (
           <SquadModerationActions
             onReject={() => onReject([id], source.id)}
@@ -85,16 +86,15 @@ function PostModerationModal({
             Post preview
           </Typography>
           {!isModerator && (
-            <div className="mr-4">
-              <SquadModerationItemContextMenu
-                id={id}
-                onDelete={onDeleteClick}
-              />
-            </div>
+            <SquadModerationItemContextMenu id={id} onDelete={onDeleteClick} />
           )}
-          <ModalClose onClick={modalProps.onRequestClose} />
+          <ModalClose
+            onClick={modalProps.onRequestClose}
+            position="relative"
+            right="0"
+          />
         </div>
-        <PostSourceInfo source={squad} />
+        <PostSourceInfo source={squad} size={ProfileImageSize.Small} />
         <SquadPostAuthor author={createdBy} date={createdAt} />
         <SharePostTitle
           title={title || editPost?.title}
@@ -103,17 +103,20 @@ function PostModerationModal({
         {!sharedPost && (image || editPost?.image) && (
           <MarkdownPostImage imgSrc={image || editPost?.image} />
         )}
-        {contentHtml ? (
-          <Markdown content={contentHtml} />
-        ) : (
+        {!!contentHtml?.length && (
+          <Markdown className="!mt-0" content={contentHtml} />
+        )}
+        {!contentHtml?.length && !!content?.length && (
           <Typography type={TypographyType.Body}>{content}</Typography>
         )}
         {sharedPost && (
-          <CommonSharePostContent
-            mainSource={squad}
-            sharedPost={sharedPost}
-            onReadArticle={onReadArticle}
-          />
+          <div className="-mt-8">
+            <CommonSharePostContent
+              source={squad}
+              sharedPost={sharedPost}
+              onReadArticle={onReadArticle}
+            />
+          </div>
         )}
       </Modal.Body>
     </Modal>

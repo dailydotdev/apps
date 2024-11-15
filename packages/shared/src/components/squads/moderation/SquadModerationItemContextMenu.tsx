@@ -5,6 +5,7 @@ import ContextMenu from '../../fields/ContextMenu';
 import { EditIcon, TrashIcon } from '../../icons';
 import useContextMenu from '../../../hooks/useContextMenu';
 import { usePrompt } from '../../../hooks/usePrompt';
+import { ButtonSize } from '../../buttons/common';
 import { SourcePostModeration } from '../../../graphql/squads';
 
 interface SquadModerationItemContextMenuProps
@@ -38,6 +39,7 @@ export const SquadModerationItemContextMenu = ({
         onClick={onMenuClick}
         className="z-1 !my-0"
         tooltipPlacement="right"
+        size={ButtonSize.Medium}
       />
       <ContextMenu
         options={[
