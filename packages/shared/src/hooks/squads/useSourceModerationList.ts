@@ -13,7 +13,7 @@ import { LazyModal } from '../../components/modals/common/types';
 import { usePrompt } from '../usePrompt';
 import { useToastNotification } from '../useToastNotification';
 import { generateQueryKey, RequestKey } from '../../lib/query';
-import { Squad } from '../../graphql/sources';
+import { SourceType, Squad } from '../../graphql/sources';
 import { LogEvent } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
@@ -114,6 +114,8 @@ export const useSourceModerationList = ({
           type: item.type,
           image: item.image,
           commentsPermalink: '',
+          author: item.createdBy,
+          createdAt: item.createdAt,
         };
         logEvent(postLogEvent(LogEvent.ApprovePost, post));
       });
@@ -159,7 +161,19 @@ export const useSourceModerationList = ({
     isPending: isPendingReject,
     isSuccess: isSuccessReject,
   } = useMutation({
-    mutationFn: (props: SquadPostRejectionProps) => squadRejectMutation(props),
+    mutationFn: (props: SquadPostRejectionProps) => {
+      return squadRejectMutation(props).then(() => {
+        const { postIds, sourceId } = props;
+        const [postId] = postIds;
+        logEvent({
+          event_name: LogEvent.RejectPost,
+          post_source_id: sourceId,
+          post_source_type: SourceType.Squad,
+          target_id: postId,
+          target_type: 'post',
+        });
+      });
+    },
     onSuccess: () => {
       displayToast('Post(s) declined successfully');
       logEvent({
