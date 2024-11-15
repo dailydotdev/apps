@@ -4,6 +4,7 @@ import { usePaymentContext } from '@dailydotdev/shared/src/contexts/PaymentConte
 import { useRouter } from 'next/router';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { NextSeo } from 'next-seo';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 
 const PlusPaymentPage = (): ReactElement => {
@@ -22,18 +23,21 @@ const PlusPaymentPage = (): ReactElement => {
   }, [isLaptop, pid, router]);
 
   return (
-    <div className="flex flex-1 items-center justify-center">
-      <div
-        ref={(element) => {
-          if (!element) {
-            return;
-          }
+    <>
+      <NextSeo nofollow noindex />
+      <div className="flex flex-1 items-center justify-center">
+        <div
+          ref={(element) => {
+            if (!element) {
+              return;
+            }
 
-          openCheckout({ priceId: pid as string });
-        }}
-        className="checkout-container h-full w-full bg-background-default p-5"
-      />
-    </div>
+            openCheckout({ priceId: pid as string });
+          }}
+          className="checkout-container h-full w-full bg-background-default p-5"
+        />
+      </div>
+    </>
   );
 };
 
