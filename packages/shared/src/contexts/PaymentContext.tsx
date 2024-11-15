@@ -57,33 +57,33 @@ export const PaymentContextProvider = ({
         'production',
       token: process.env.NEXT_PUBLIC_PADDLE_TOKEN,
       eventCallback: (event: PaddleEventData) => {
-        switch (event.name) {
+        switch (event?.name) {
           case CheckoutEventNames.CHECKOUT_PAYMENT_SELECTED:
             logSubscriptionEvent(
               LogEvent.SelectCheckoutPayment,
-              event.data.payment.method_details.type,
+              event?.data?.payment.method_details.type,
             );
             break;
           case CheckoutEventNames.CHECKOUT_COMPLETED:
             logSubscriptionEvent(LogEvent.CompleteCheckout, '', {
-              cycle: 'event.data.checkout.cycle',
-              cost: event.data.totals.total,
-              payment: event.data.payment.method_details.type,
+              cycle: event?.data.items?.[0]?.billing_cycle.interval,
+              cost: event?.data.totals.total,
+              payment: event?.data.payment.method_details.type,
             });
             break;
           // This doesn't exist in the original code
           case 'checkout.warning' as CheckoutEventNames:
             logSubscriptionEvent(LogEvent.WarningCheckout, '', {
-              cycle: 'event.data.checkout.cycle',
-              cost: event.data.totals.total,
-              payment: event.data.payment.method_details.type,
+              cycle: event?.data.items?.[0]?.billing_cycle.interval,
+              cost: event?.data.totals.total,
+              payment: event?.data.payment.method_details.type,
             });
             break;
           case CheckoutEventNames.CHECKOUT_ERROR:
             logSubscriptionEvent(LogEvent.ErrorCheckout, '', {
-              cycle: 'event.data.checkout.cycle',
-              cost: event.data.totals.total,
-              payment: event.data.payment.method_details.type,
+              cycle: event?.data.items?.[0]?.billing_cycle.interval,
+              cost: event?.data.totals.total,
+              payment: event?.data.payment.method_details.type,
             });
             break;
           default:
