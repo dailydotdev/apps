@@ -176,9 +176,6 @@ export const useSourceModerationList = ({
     },
     onSuccess: () => {
       displayToast('Post(s) declined successfully');
-      logEvent({
-        event_name: LogEvent.RejectPost,
-      });
       invalidateQueries();
     },
   });
