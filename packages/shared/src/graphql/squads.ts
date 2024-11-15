@@ -610,6 +610,9 @@ const SOURCE_POST_MODERATION_FRAGMENT = gql`
     contentHtml
     image
     createdAt
+    source {
+      ...SourceBaseInfo
+    }
     createdBy {
       ...UserAuthor
     }
