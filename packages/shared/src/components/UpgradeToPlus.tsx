@@ -29,7 +29,10 @@ export const UpgradeToPlus = ({
   const content = isMobile ? 'Upgrade' : 'Upgrade to plus';
 
   const onClick = useCallback(() => {
-    logSubscriptionEvent(LogEvent.UpgradeSubscription, target);
+    logSubscriptionEvent({
+      event_name: LogEvent.UpgradeSubscription,
+      target_id: target,
+    });
   }, [logSubscriptionEvent, target]);
 
   if (!showPlusSubscription || isPlus) {

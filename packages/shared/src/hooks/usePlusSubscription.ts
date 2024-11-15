@@ -2,17 +2,19 @@ import { useCallback, useMemo } from 'react';
 import { useAuthContext } from '../contexts/AuthContext';
 import { feature } from '../lib/featureManagement';
 import { useFeature } from '../components/GrowthBookProvider';
-import { LogEvent, TargetId, TargetType } from '../lib/log';
+import { TargetType, type LogEvent, type TargetId } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
+
+type LogSubscriptionEvent = {
+  event_name: LogEvent | string;
+  target_id?: TargetId | string;
+  extra?: Record<string, unknown>;
+};
 
 export const usePlusSubscription = (): {
   showPlusSubscription: boolean;
   isPlus: boolean;
-  logSubscriptionEvent: (
-    event_name: LogEvent | string,
-    target_id: TargetId | string,
-    extra?: Record<string, unknown>,
-  ) => void;
+  logSubscriptionEvent: (event: LogSubscriptionEvent) => void;
 } => {
   const { user } = useAuthContext();
   const isPlus = user?.isPlus || false;
@@ -20,11 +22,7 @@ export const usePlusSubscription = (): {
   const { logEvent } = useLogContext();
 
   const logSubscriptionEvent = useCallback(
-    (
-      event_name: LogEvent,
-      target_id: TargetId,
-      extra?: Record<string, unknown>,
-    ) => {
+    ({ event_name, target_id, extra }: LogSubscriptionEvent) => {
       logEvent({
         event_name,
         target_type: TargetType.Plus,

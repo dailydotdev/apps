@@ -91,10 +91,10 @@ export const PlusInfo = ({
                   checked={checked}
                   onChange={() => {
                     onChange(value);
-                    logSubscriptionEvent(
-                      LogEvent.SelectBillingCycle,
-                      label.toLowerCase(),
-                    );
+                    logSubscriptionEvent({
+                      event_name: LogEvent.SelectBillingCycle,
+                      target_id: label.toLowerCase(),
+                    });
                   }}
                   className={{
                     content: 'truncate',

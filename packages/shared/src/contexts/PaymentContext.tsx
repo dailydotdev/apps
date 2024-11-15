@@ -58,31 +58,30 @@ export const PaymentContextProvider = ({
       eventCallback: (event: PaddleEventData) => {
         switch (event?.name) {
           case CheckoutEventNames.CHECKOUT_PAYMENT_SELECTED:
-            logSubscriptionEvent(
-              LogEvent.SelectCheckoutPayment,
-              event?.data?.payment.method_details.type,
-            );
+            logSubscriptionEvent({
+              event_name: LogEvent.SelectCheckoutPayment,
+              target_id: event?.data?.payment.method_details.type,
+            });
             break;
           case CheckoutEventNames.CHECKOUT_COMPLETED:
-            logSubscriptionEvent(LogEvent.CompleteCheckout, '', {
-              cycle: event?.data.items?.[0]?.billing_cycle.interval,
-              cost: event?.data.totals.total,
-              payment: event?.data.payment.method_details.type,
+            logSubscriptionEvent({
+              event_name: LogEvent.CompleteCheckout,
+              extra: {
+                cycle: event?.data.items?.[0]?.billing_cycle.interval,
+                cost: event?.data.totals.total,
+                payment: event?.data.payment.method_details.type,
+              },
             });
             break;
           // This doesn't exist in the original code
           case 'checkout.warning' as CheckoutEventNames:
-            logSubscriptionEvent(LogEvent.WarningCheckout, '', {
-              cycle: event?.data.items?.[0]?.billing_cycle.interval,
-              cost: event?.data.totals.total,
-              payment: event?.data.payment.method_details.type,
+            logSubscriptionEvent({
+              event_name: LogEvent.WarningCheckout,
             });
             break;
           case CheckoutEventNames.CHECKOUT_ERROR:
-            logSubscriptionEvent(LogEvent.ErrorCheckout, '', {
-              cycle: event?.data.items?.[0]?.billing_cycle.interval,
-              cost: event?.data.totals.total,
-              payment: event?.data.payment.method_details.type,
+            logSubscriptionEvent({
+              event_name: LogEvent.ErrorCheckout,
             });
             break;
           default:
@@ -94,7 +93,7 @@ export const PaymentContextProvider = ({
         setPaddle(paddleInstance);
       }
     });
-  }, []);
+  }, [logSubscriptionEvent]);
 
   const openCheckout = useCallback(
     ({ priceId }: { priceId: string }) => {

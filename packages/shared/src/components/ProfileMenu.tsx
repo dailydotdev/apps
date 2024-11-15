@@ -69,12 +69,12 @@ export default function ProfileMenu({
             href: isPlus ? managePlusUrl : plusUrl,
             className: isPlus ? undefined : 'text-action-plus-default',
             onClick: () => {
-              logSubscriptionEvent(
-                isPlus
+              logSubscriptionEvent({
+                event_name: isPlus
                   ? LogEvent.ManageSubscription
                   : LogEvent.UpgradeSubscription,
-                TargetId.ProfileDropdown,
-              );
+                target_id: TargetId.ProfileDropdown,
+              });
             },
           },
         }
