@@ -163,9 +163,7 @@ export const useSourceModerationList = ({
     isPending: isPendingReject,
     isSuccess: isSuccessReject,
   } = useMutation({
-    mutationFn: (props: SquadPostRejectionProps) => {
-      return squadRejectMutation(props);
-    },
+    mutationFn: (props: SquadPostRejectionProps) => squadRejectMutation(props),
     onSuccess: (data) => {
       displayToast('Post(s) declined successfully');
       getLogPostsFromModerationArray(data).forEach((post) => {
