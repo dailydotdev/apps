@@ -97,7 +97,11 @@ const PageComponent = (props: ProtectedPageProps & { squad: Squad }) => {
   return <ProtectedPage {...restProtectedPageProps}>{children}</ProtectedPage>;
 };
 
-const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
+const SquadPage = ({
+  handle,
+  initialData,
+  country,
+}: SourcePageProps & { country: string | null }): ReactElement => {
   const router = useRouter();
   const { openModal } = useLazyModal();
   useJoinReferral();
@@ -221,6 +225,8 @@ const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
           members={squadMembers}
           shouldUseListMode={shouldUseListMode}
         />
+        <h1 className="text-4xl">Hello</h1>
+        <h1 className="text-4xl">{country}</h1>
         <Feed
           className={classNames(
             'pt-14 laptop:pt-10',
@@ -259,8 +265,9 @@ export async function getServerSideProps({
   params,
   query,
   res,
+  req,
 }: GetServerSidePropsContext<SquadPageParams>): Promise<
-  GetServerSidePropsResult<SourcePageProps>
+  GetServerSidePropsResult<SourcePageProps & { country: string | null }>
 > {
   const { handle } = params;
   const { userid: userId, cid: campaign } = query;
@@ -271,6 +278,7 @@ export async function getServerSideProps({
       `public, max-age=0, must-revalidate, s-maxage=${oneHour}, stale-while-revalidate=${oneHour}`,
     );
   };
+  const country = req.headers['x-vercel-ip-country'] as string;
 
   try {
     const promises = [];
@@ -323,6 +331,7 @@ export async function getServerSideProps({
       props: {
         seo,
         handle,
+        country: country || null,
         initialData: squad,
         referringUser: referringUser?.user || null,
       },
@@ -335,7 +344,7 @@ export async function getServerSideProps({
       setCacheHeader();
 
       return {
-        props: { handle },
+        props: { handle, country },
       };
     }
 
