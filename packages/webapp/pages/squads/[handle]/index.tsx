@@ -206,7 +206,7 @@ const SquadPage = ({
   const FeedPageComponent = shouldUseListMode
     ? FeedPageLayoutList
     : BaseFeedPage;
-
+  console.log('**** document referrer ', document?.referrer);
   return (
     <PageComponent squad={squad} fallback={<></>} shouldFallback={!user}>
       <FeedPageComponent
@@ -226,7 +226,9 @@ const SquadPage = ({
           shouldUseListMode={shouldUseListMode}
         />
         <h1 className="text-4xl">Hello</h1>
-        <h1 className="text-4xl">{country}</h1>
+        <h1 className="text-4xl">referer header: {country}</h1>
+        <h1 className="text-4xl">referer document: {document?.referrer}</h1>
+
         <Feed
           className={classNames(
             'pt-14 laptop:pt-10',
@@ -279,7 +281,6 @@ export async function getServerSideProps({
     );
   };
   const country = req.headers['x-vercel-ip-country'] as string;
-
   try {
     const promises = [];
 
@@ -344,7 +345,7 @@ export async function getServerSideProps({
       setCacheHeader();
 
       return {
-        props: { handle, country },
+        props: { handle, country: req.headers.referer },
       };
     }
 
