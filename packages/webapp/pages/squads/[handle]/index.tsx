@@ -100,8 +100,8 @@ const PageComponent = (props: ProtectedPageProps & { squad: Squad }) => {
 const SquadPage = ({
   handle,
   initialData,
-  country,
-}: SourcePageProps & { country: string | null }): ReactElement => {
+  referrer,
+}: SourcePageProps & { referrer: string | null }): ReactElement => {
   const router = useRouter();
   const { openModal } = useLazyModal();
   useJoinReferral();
@@ -206,7 +206,7 @@ const SquadPage = ({
   const FeedPageComponent = shouldUseListMode
     ? FeedPageLayoutList
     : BaseFeedPage;
-  console.log('**** document referrer ', document?.referrer);
+
   return (
     <PageComponent squad={squad} fallback={<></>} shouldFallback={!user}>
       <FeedPageComponent
@@ -226,7 +226,7 @@ const SquadPage = ({
           shouldUseListMode={shouldUseListMode}
         />
         <h1 className="text-4xl">Hello</h1>
-        <h1 className="text-4xl">referer header: {country}</h1>
+        <h1 className="text-4xl">referer header: {referrer}</h1>
         <h1 className="text-4xl">referer document: {document?.referrer}</h1>
 
         <Feed
@@ -269,7 +269,7 @@ export async function getServerSideProps({
   res,
   req,
 }: GetServerSidePropsContext<SquadPageParams>): Promise<
-  GetServerSidePropsResult<SourcePageProps & { country: string | null }>
+  GetServerSidePropsResult<SourcePageProps & { referrer: string | null }>
 > {
   const { handle } = params;
   const { userid: userId, cid: campaign } = query;
@@ -280,7 +280,6 @@ export async function getServerSideProps({
       `public, max-age=0, must-revalidate, s-maxage=${oneHour}, stale-while-revalidate=${oneHour}`,
     );
   };
-  const country = req.headers['x-vercel-ip-country'] as string;
   try {
     const promises = [];
 
@@ -332,7 +331,7 @@ export async function getServerSideProps({
       props: {
         seo,
         handle,
-        country: country || null,
+        referrer: req.headers.referer || null,
         initialData: squad,
         referringUser: referringUser?.user || null,
       },
@@ -345,7 +344,7 @@ export async function getServerSideProps({
       setCacheHeader();
 
       return {
-        props: { handle, country: req.headers.referer },
+        props: { handle, referrer: req.headers.referer || null },
       };
     }
 
