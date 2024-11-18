@@ -31,7 +31,7 @@ export const SidebarDesktop = ({
   const { sidebarExpanded, onboardingChecklistView, toggleSidebarExpanded } =
     useSettingsContext();
   const { isAvailable: isBannerAvailable } = useBanner();
-  const { user, isLoggedIn } = useAuthContext();
+  const { isLoggedIn } = useAuthContext();
   const activePage = router.asPath || router.pathname;
 
   const defaultRenderSectionProps = useMemo(
