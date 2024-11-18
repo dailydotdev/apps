@@ -26,6 +26,7 @@ import { PostContentReminder } from './common/PostContentReminder';
 import { Typography, TypographyType } from '../typography/Typography';
 import { Button, ButtonIconPosition, ButtonSize } from '../buttons/Button';
 import { TimeSortIcon } from '../icons/Sort/Time';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -48,6 +49,7 @@ function PostEngagements({
   const postQueryKey = ['post', post.id];
   const [sortBy, setSortBy] = useState(SortCommentsBy.OldestFirst);
   const { user, showLogin } = useAuthContext();
+  const { isPlus } = usePlusSubscription();
   const commentRef = useRef<NewCommentRef>();
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const [permissionNotificationCommentId, setPermissionNotificationCommentId] =
@@ -136,7 +138,7 @@ function PostEngagements({
         ref={commentRef}
         onCommented={onCommented}
       />
-      <AdAsComment postId={post.id} />
+      {!isPlus && <AdAsComment postId={post.id} />}
       <PostComments
         post={post}
         sortBy={sortBy}
