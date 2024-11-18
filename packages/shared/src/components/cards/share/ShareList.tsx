@@ -39,10 +39,7 @@ export const ShareList = forwardRef(function ShareList(
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
   const isVideoType = isVideoPost(post);
-  const { title } = useTruncatedSummary({
-    ...post,
-    ...(!post.title && { title: post.sharedPost.title }),
-  });
+  const { title } = useTruncatedSummary(post?.title || post?.sharedPost?.title);
 
   return (
     <FeedItemContainer

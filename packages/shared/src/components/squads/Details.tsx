@@ -22,7 +22,7 @@ import { capitalize } from '../../lib/strings';
 import { IconSize } from '../Icon';
 import { FormWrapper } from '../fields/form';
 import { SquadPrivacySection } from './settings/SquadPrivacySection';
-import { PermissionSection } from './settings/PermissionSection';
+import { SquadModerationSettingsSection } from './settings/SquadModerationSettingsSection';
 import { SquadSettingsSection } from './settings';
 import { SquadStats } from './common/SquadStat';
 import { SquadPrivacyState } from './common/SquadPrivacyState';
@@ -81,6 +81,7 @@ export function SquadDetails({
     flags,
     memberPostingRole: initialMemberPostingRole,
     memberInviteRole: initialMemberInviteRole,
+    moderationRequired: initialModerationRequired,
   } = squad ?? { ...initialData };
   const [activeHandle, setActiveHandle] = useState(handle);
   const [imageChanged, setImageChanged] = useState(false);
@@ -170,7 +171,11 @@ export function SquadDetails({
       form="squad-form"
       isHeaderTitle={!isMobile}
       title={createMode ? undefined : 'Squad settings'}
-      className={{ container: 'flex flex-1 flex-col', title: 'typo-title3' }}
+      className={{
+        container: 'flex flex-1 flex-col',
+        title: 'typo-title3',
+        header: 'border-b-0',
+      }}
       copy={{
         right: createMode ? 'Create Squad' : 'Save',
         left: isMobile ? 'Cancel' : null,
@@ -300,9 +305,10 @@ export function SquadDetails({
           categoryHint={categoryHint}
           onCategoryChange={useCallback(() => setCategoryHint(''), [])}
         />
-        <PermissionSection
+        <SquadModerationSettingsSection
           initialMemberInviteRole={initialMemberInviteRole}
           initialMemberPostingRole={initialMemberPostingRole}
+          initialModerationRequired={initialModerationRequired}
         />
         {!createMode && <SquadDangerZone squad={squad} />}
       </form>

@@ -33,7 +33,7 @@ function ShareYouTubeContent({
 
   return (
     <>
-      <SharePostTitle post={post} />
+      <SharePostTitle title={post?.title} titleHtml={post?.titleHtml} />
       <SharedLinkContainer
         className="my-5"
         summary={post?.sharedPost?.summary}
@@ -47,7 +47,8 @@ function ShareYouTubeContent({
             )}
           >
             <SharedPostLink
-              post={post}
+              sharedPost={post?.sharedPost}
+              source={post?.source}
               onGoToLinkProps={combinedClicks(onReadArticle)}
               className="m-4 flex flex-wrap font-bold typo-body"
             >
