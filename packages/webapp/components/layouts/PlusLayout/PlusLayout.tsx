@@ -11,7 +11,7 @@ import { PlusHeader } from './PlusHeader';
 export default function PlusLayout({
   children,
 }: MainFeedPageProps): ReactElement {
-  const { user, isLoggedIn, isAuthReady } = useAuthContext();
+  const { user, isAuthReady } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
   const router = useRouter();
 
@@ -25,7 +25,7 @@ export default function PlusLayout({
     }
 
     router.push(`${onboardingUrl}`);
-  }, [isLoggedIn, router, shouldRedirectOnboarding]);
+  }, [router, shouldRedirectOnboarding]);
 
   if (!isPageReady || shouldRedirectOnboarding) {
     return null;
