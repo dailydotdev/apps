@@ -693,7 +693,7 @@ export interface SquadPostRejectionProps extends SquadPostModerationProps {
 export const squadApproveMutation = ({
   postIds,
   sourceId,
-}: SquadPostModerationProps) => {
+}: SquadPostModerationProps): Promise<SourcePostModeration[]> => {
   return gqlClient
     .request<{
       moderateSourcePosts: SourcePostModeration[];
@@ -710,7 +710,7 @@ export const squadRejectMutation = ({
   sourceId,
   reason,
   note,
-}: SquadPostRejectionProps) => {
+}: SquadPostRejectionProps): Promise<SourcePostModeration[]> => {
   return gqlClient
     .request<{
       moderateSourcePosts: SourcePostModeration[];
