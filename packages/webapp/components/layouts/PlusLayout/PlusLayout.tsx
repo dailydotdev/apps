@@ -1,12 +1,24 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement, ReactNode, useEffect } from 'react';
 import { cloudinaryPlusBackground } from '@dailydotdev/shared/src/lib/image';
 import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/PaymentContext';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { MainFeedPageProps } from '../MainFeedPage';
 import { PlusHeader } from './PlusHeader';
 
 export default function PlusLayout({
   children,
 }: MainFeedPageProps): ReactElement {
+  const { isLoggedIn, showLogin } = useAuthContext();
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      return;
+    }
+
+    showLogin({ trigger: AuthTriggers.Plus });
+  }, [isLoggedIn, showLogin]);
+
   return (
     <main className="relative flex h-screen flex-col">
       <img
