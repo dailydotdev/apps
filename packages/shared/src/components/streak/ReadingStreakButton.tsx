@@ -1,5 +1,6 @@
 import React, { ReactElement, useCallback, useState } from 'react';
 import classnames from 'classnames';
+import { utcToZonedTime } from 'date-fns-tz';
 import { ReadingStreakPopup } from './popup';
 import {
   Button,
@@ -18,6 +19,7 @@ import { RootPortal } from '../tooltips/Portal';
 import { Drawer } from '../drawers';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
@@ -63,6 +65,20 @@ function CustomStreaksTooltip({
   );
 }
 
+const DEFAULT_TIMEZONE = 'UTC';
+const getHasReadToday = (
+  lastView: Date | null,
+  timezone = DEFAULT_TIMEZONE,
+) => {
+  if (!lastView) {
+    return false;
+  }
+
+  const lastViewTz = utcToZonedTime(new Date(lastView), timezone);
+
+  return lastViewTz.getDate() === new Date().getDate();
+};
+
 export function ReadingStreakButton({
   streak,
   isLoading,
@@ -71,11 +87,11 @@ export function ReadingStreakButton({
   className,
 }: ReadingStreakButtonProps): ReactElement {
   const { logEvent } = useLogContext();
+  const { user } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
-  const hasReadToday =
-    new Date(streak?.lastViewAt).getDate() === new Date().getDate();
+  const hasReadToday = getHasReadToday(streak?.lastViewAt, user?.timezone);
 
   const handleToggle = useCallback(() => {
     setShouldShowStreaks((state) => !state);
