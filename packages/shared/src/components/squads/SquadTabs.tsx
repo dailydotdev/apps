@@ -23,12 +23,14 @@ export function SquadTabs({ active, squad }: SquadTabsProps): ReactElement {
     : SquadTab.PendingPosts;
 
   const links = [
-    ...(isModerator && [
-      {
-        label: SquadTab.Settings,
-        url: `${squadLink}/edit`,
-      },
-    ]),
+    ...(isModerator
+      ? [
+          {
+            label: SquadTab.Settings,
+            url: `${squadLink}/edit`,
+          },
+        ]
+      : []),
     { label: pendingTabLabel, url: `${squadLink}/moderate` },
   ];
 
