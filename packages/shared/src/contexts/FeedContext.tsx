@@ -18,9 +18,6 @@ export type FeedContextData = {
   numCards?: Record<Spaciness, number>;
 };
 
-const FeedContext = React.createContext<FeedContextData>({});
-export default FeedContext;
-
 type FeedSettingsKeys =
   | 'default'
   | 'tablet'
@@ -108,6 +105,10 @@ const replaceDigitsWithIncrement = (str: string, increment: number): string => {
 const sidebarRenderedWidth = 44;
 const sidebarOpenWidth = 240;
 
+const FeedContext = React.createContext<FeedContextData>(
+  baseFeedSettings.default,
+);
+
 export function FeedLayoutProvider({
   children,
 }: PropsWithChildren): ReactElement {
@@ -170,3 +171,5 @@ export function FeedLayoutProvider({
     </FeedContext.Provider>
   );
 }
+
+export default FeedContext;
