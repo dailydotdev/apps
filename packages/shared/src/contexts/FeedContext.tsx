@@ -1,13 +1,25 @@
-import React, { ReactElement, ReactNode, useContext, useMemo } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useMemo,
+  type PropsWithChildren,
+} from 'react';
 import { desktop, laptop, laptopL, laptopXL, tablet } from '../styles/media';
-import FeedContext, { defaultFeedContextData } from '../contexts/FeedContext';
 import { useMedia } from '../hooks';
-import SettingsContext from '../contexts/SettingsContext';
+import SettingsContext from './SettingsContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import { feature } from '../lib/featureManagement';
-import { useFeature } from './GrowthBookProvider';
 
-export type FeedLayoutProps = { children?: ReactNode };
+import { Spaciness } from '../graphql/settings';
+import { useFeature } from '../components/GrowthBookProvider';
+
+export type FeedContextData = {
+  pageSize?: number;
+  numCards?: Record<Spaciness, number>;
+};
+
+const FeedContext = React.createContext<FeedContextData>({});
+export default FeedContext;
 
 type FeedSettingsKeys =
   | 'default'
@@ -28,7 +40,14 @@ export type FeedSettings = {
 };
 
 const baseFeedSettings: Record<FeedSettingsKeys, FeedSettings> = {
-  default: defaultFeedContextData,
+  default: {
+    pageSize: 7,
+    numCards: {
+      cozy: 1,
+      eco: 1,
+      roomy: 1,
+    },
+  },
   tablet: {
     pageSize: 9,
     breakpoint: tablet,
@@ -89,9 +108,9 @@ const replaceDigitsWithIncrement = (str: string, increment: number): string => {
 const sidebarRenderedWidth = 44;
 const sidebarOpenWidth = 240;
 
-export default function FeedLayout({
+export function FeedLayoutProvider({
   children,
-}: FeedLayoutProps): ReactElement {
+}: PropsWithChildren): ReactElement {
   const { sidebarExpanded } = useContext(SettingsContext);
   const { sidebarRendered } = useSidebarRendered();
   const feedPageSizes = useFeature(feature.feedPageSizes);
