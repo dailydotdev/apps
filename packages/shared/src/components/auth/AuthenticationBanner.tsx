@@ -25,7 +25,7 @@ export function AuthenticationBanner(): ReactElement {
     >
       <Section className="w-[32.5rem]">
         <OnboardingHeadline
-          className={{ title: 'typo-mega3', description: 'typo-title3' }}
+          className={{ title: 'typo-mega3', description: 'mb-8 typo-title3' }}
         />
       </Section>
       <Section className="w-[23.25rem] pt-2">

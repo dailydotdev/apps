@@ -24,14 +24,13 @@ import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePr
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
 import classNames from 'classnames';
-import { AuthenticationBanner } from '@dailydotdev/shared/src/components/auth';
+
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth/useOnboarding';
 import {
   useJoinReferral,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
-import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
@@ -63,6 +62,12 @@ const CollectionPostContent = dynamic(() =>
   import(
     /* webpackChunkName: "lazyCollectionPostContent" */ '@dailydotdev/shared/src/components/post/collection'
   ).then((module) => module.CollectionPostContent),
+);
+
+const PostAuthBanner = dynamic(() =>
+  import(
+    /* webpackChunkName: "lazyPostAuthBanner" */ '@dailydotdev/shared/src/components/auth/PostAuthBanner'
+  ).then((module) => module.PostAuthBanner),
 );
 
 export interface Props extends DynamicSeoProps {
@@ -162,7 +167,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
           content: 'laptop:pt-8',
         }}
       />
-      {shouldShowAuthBanner && isLaptop && <AuthenticationBanner />}
+      {shouldShowAuthBanner && isLaptop && <PostAuthBanner />}
     </FooterNavBarLayout>
   );
 };
@@ -170,7 +175,6 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
 PostPage.getLayout = getLayout;
 PostPage.layoutProps = {
   screenCentered: false,
-  customBanner: <CustomAuthBanner />,
 };
 
 export default PostPage;
