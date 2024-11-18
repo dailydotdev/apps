@@ -96,7 +96,7 @@ export default function FeedLayout({
   const { sidebarRendered } = useSidebarRendered();
   const feedPageSizes = useFeature(feature.feedPageSizes);
 
-  const { feedSettings } = useMemo(() => {
+  const { feedSettings, defaultFeedSettings } = useMemo(() => {
     Object.keys(baseFeedSettings).forEach((key) => {
       const pageSize = feedPageSizes[key as FeedSettingsKeys];
       if (!pageSize) {
@@ -114,6 +114,7 @@ export default function FeedLayout({
         baseFeedSettings.laptop,
         baseFeedSettings.tablet,
       ],
+      defaultFeedSettings: baseFeedSettings.default,
     };
   }, [feedPageSizes]);
 
@@ -141,7 +142,7 @@ export default function FeedLayout({
   const currentSettings = useMedia(
     feedBreakpoints,
     feedSettings,
-    baseFeedSettings.default,
+    defaultFeedSettings,
   );
 
   return (
