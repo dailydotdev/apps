@@ -89,6 +89,7 @@ function PostModerationModal({
             <SquadModerationItemContextMenu id={id} onDelete={onDeleteClick} />
           )}
           <ModalClose
+            className="!flex"
             onClick={modalProps.onRequestClose}
             position="relative"
             right="0"
