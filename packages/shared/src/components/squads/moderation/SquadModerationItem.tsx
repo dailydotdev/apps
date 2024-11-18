@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import {
   Typography,
+  TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
@@ -51,7 +52,17 @@ export function SquadModerationItem(
           <Typography bold type={TypographyType.Footnote}>
             {createdBy.name}
           </Typography>
-          <PostMetadata readTime={post?.readTime} createdAt={createdAt} />
+          <div className="flex flex-row gap-1">
+            <PostMetadata readTime={post?.readTime} createdAt={createdAt} />
+            {!!data.post && (
+              <Typography
+                color={TypographyColor.Tertiary}
+                type={TypographyType.Footnote}
+              >
+                - Resubmitted Post
+              </Typography>
+            )}
+          </div>
         </div>
         {!user.isModerator && (
           <span className="ml-auto flex flex-row gap-2">
