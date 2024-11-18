@@ -20,7 +20,8 @@ import CustomLinksModal from './ShortcutLinksModal';
 import MostVisitedSitesModal from '../MostVisitedSitesModal';
 import useShortcutLinks from './useShortcutLinks';
 import ShortcutOptionsMenu from './ShortcutOptionsMenu';
-import { ShortcutLinksUI } from './ShortcutLinksUI';
+import { ShortcutLinksList } from './ShortcutLinksList';
+import { ShortcutLinksBanner } from './ShortcutLinksBanner';
 
 interface ShortcutLinksProps {
   shouldUseListFeedLayout: boolean;
@@ -46,6 +47,7 @@ export default function ShortcutLinks({
     formRef,
     onSaveChanges,
     isTopSiteActive,
+    isOldUser,
   } = useShortcutLinks();
   const shortcutSource = isTopSiteActive
     ? ShortcutsSourceType.Browser
@@ -128,18 +130,27 @@ export default function ShortcutLinks({
 
   return (
     <>
-      <ShortcutLinksUI
-        {...{
-          onLinkClick,
-          onMenuClick,
-          onOptionsOpen,
-          shortcutLinks,
-          shouldUseListFeedLayout,
-          showTopSites,
-          toggleShowTopSites,
-          hasCheckedPermission,
-        }}
-      />
+      {hasCheckedPermission &&
+        (isOldUser ? (
+          <ShortcutLinksList
+            {...{
+              onLinkClick,
+              onMenuClick,
+              onOptionsOpen,
+              shortcutLinks,
+              shouldUseListFeedLayout,
+              showTopSites,
+              toggleShowTopSites,
+              hasCheckedPermission,
+              isOldUser,
+            }}
+          />
+        ) : (
+          <ShortcutLinksBanner
+            onTopSitesClick={toggleShowTopSites}
+            onCustomLinksClick={onOptionsOpen}
+          />
+        ))}
 
       {showModal && (
         <MostVisitedSitesModal

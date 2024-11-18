@@ -24,8 +24,10 @@ export default function useTopSites(): UseTopSitesRet {
 
   const getTopSites = async (): Promise<void> => {
     try {
+      console.log(await browser?.topSites?.get?.());
       setTopSites((await browser.topSites.get()).slice(0, 8));
     } catch (err) {
+      console.error(err);
       setTopSites(undefined);
     }
     setHasCheckedPermission(true);
