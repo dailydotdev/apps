@@ -59,7 +59,8 @@ export const isChrome = (): boolean =>
 export const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL;
 export const onboardingUrl = `${webappUrl}onboarding`;
 export const plusUrl = `${webappUrl}plus`;
-export const managePlusUrl = `${webappUrl}manage-plus`;
+export const managePlusUrl =
+  'https://customer-portal.paddle.com/cpl_01jb951tr1mt9xjcmwzshr0rtx';
 // Needs to be fully qualified URL for Paddle to recognize it
 export const plusSuccessUrl = `https://app.daily.dev/plus/success`;
 

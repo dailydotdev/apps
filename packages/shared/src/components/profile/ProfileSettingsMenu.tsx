@@ -60,6 +60,7 @@ const useMenuItems = (): NavItemProps[] => {
           icon: <DevPlusIcon />,
           href: isPlus ? managePlusUrl : plusUrl,
           className: isPlus ? undefined : 'text-action-plus-default',
+          target: isPlus ? '_blank' : undefined,
           onClick: () => {
             logSubscriptionEvent({
               event_name: isPlus
