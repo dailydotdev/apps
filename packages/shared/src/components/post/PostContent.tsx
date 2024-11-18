@@ -57,7 +57,7 @@ export function PostContentRaw({
     post,
   });
   const { onCopyPostLink, onReadArticle } = engagementActions;
-  const onSendViewPost = useViewPost(post);
+  const onSendViewPost = useViewPost();
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);

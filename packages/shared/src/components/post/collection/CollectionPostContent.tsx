@@ -69,7 +69,7 @@ const CollectionPostContentRaw = ({
     onRemovePost,
   };
 
-  const onSendViewPost = useViewPost(post);
+  const onSendViewPost = useViewPost();
 
   useEffect(() => {
     if (!post?.id || !user?.id) {

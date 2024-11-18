@@ -41,7 +41,7 @@ function SquadPostContentRaw({
   isPostPage,
 }: PostContentProps): ReactElement {
   const { user } = useAuthContext();
-  const onSendViewPost = useViewPost(post);
+  const onSendViewPost = useViewPost();
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const engagementActions = usePostContent({ origin, post });
   const { onReadArticle, onCopyPostLink } = engagementActions;

@@ -7,6 +7,7 @@ import {
 } from '../graphql/users';
 import type { Company } from './userCompany';
 import type { ContentPreference } from '../graphql/contentPreference';
+import type { TopReader } from '../components/badges/TopReaderBadge';
 
 export enum Roles {
   Moderator = 'moderator',
@@ -99,6 +100,7 @@ export interface UserShortProfile
   username: string;
   permalink: string;
   contentPreference?: ContentPreference;
+  topReader?: Partial<TopReader>;
 }
 
 export interface LoggedUser extends UserProfile, AnonymousUser {

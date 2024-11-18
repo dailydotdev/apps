@@ -43,7 +43,7 @@ const defaultFeedPage: Connection<Post> = {
         id: '0e4005b2d3cf191f8c44c2718a457a1e',
         title: 'Learn SQL',
         image:
-          'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/22fc3ac5cc3fedf281b6e4b46e8c0ba2',
+          'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/22fc3ac5cc3fedf281b6e4b46e8c0ba2',
         commentsPermalink: 'https://localhost:5002/posts/9CuRpr5NiEY5',
       },
     },
