@@ -1,5 +1,6 @@
 import React, {
   Dispatch,
+  PropsWithChildren,
   ReactElement,
   SetStateAction,
   useContext,
@@ -26,6 +27,11 @@ import { AllFeedPages } from '../../lib/query';
 import { webappUrl } from '../../lib/constants';
 import { checkIsExtension } from '../../lib/func';
 import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
+import {
+  AllowedTags,
+  Typography,
+  TypographyProps,
+} from '../typography/Typography';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -154,3 +160,15 @@ export const SearchControlHeader = ({
     </ConditionalWrapper>
   );
 };
+
+export const PageHeader = classed(
+  'div',
+  'flex flex-row items-center border-b border-border-subtlest-tertiary px-4 py-2 gap-1',
+);
+
+export const PageHeaderTitle = ({
+  children,
+  ...props
+}: PropsWithChildren<TypographyProps<AllowedTags>>): ReactElement => (
+  <Typography {...props}>{children}</Typography>
+);
