@@ -38,7 +38,7 @@ export const MainSection = ({
       : undefined;
 
     const plus =
-      showPlusSubscription || !isPlus
+      !isPlus
         ? {
             title: 'Upgrade to Plus',
             path: '/plus',
