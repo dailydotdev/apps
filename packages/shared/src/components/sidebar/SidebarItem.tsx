@@ -25,7 +25,7 @@ export const SidebarItem = ({
   };
 
   return (
-    <NavItem active={isActive(item)} ref={item.navItemRef}>
+    <NavItem active={isActive(item)} ref={item.navItemRef} color={item.color}>
       <ClickableNavItem
         item={item}
         showLogin={
