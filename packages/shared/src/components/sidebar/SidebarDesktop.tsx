@@ -66,7 +66,7 @@ export const SidebarDesktop = ({
       />
       <SidebarScrollWrapper>
         <Nav>
-          {isLoggedIn && !user?.isPlus && (
+          {!user?.isPlus && (
             <div className="flex px-3">
               <UpgradeToPlus
                 iconOnly={!sidebarExpanded}

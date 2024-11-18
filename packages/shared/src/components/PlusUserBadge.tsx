@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
 import type { PublicProfile } from '../lib/user';
 import { SimpleTooltip } from './tooltips';
-import { useAuthContext } from '../contexts/AuthContext';
 import { PlusUser } from './PlusUser';
 import { plusUrl } from '../lib/constants';
 import Link from './utilities/Link';
@@ -24,7 +23,6 @@ export const PlusUserBadge = ({
   user,
   tooltip = true,
 }: Props): ReactElement => {
-  const { isLoggedIn } = useAuthContext();
   const { showPlusSubscription, isPlus } = usePlusSubscription();
 
   if (!user.isPlus || !showPlusSubscription) {
@@ -44,7 +42,7 @@ export const PlusUserBadge = ({
                 date={user.plusMemberSince}
                 type={TimeFormatType.PlusMember}
               />
-              {isLoggedIn && !isPlus && (
+              {!isPlus && (
                 <Link passHref href={plusUrl}>
                   <Typography
                     tag={TypographyTag.Link}
