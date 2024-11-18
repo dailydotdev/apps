@@ -60,7 +60,7 @@ export const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL;
 export const onboardingUrl = `${webappUrl}onboarding`;
 export const plusUrl = `${webappUrl}plus`;
 export const managePlusUrl =
-  'https://customer-portal.paddle.com/cpl_01jb951tr1mt9xjcmwzshr0rtx';
+  'https://r.daily.dev/billing';
 // Needs to be fully qualified URL for Paddle to recognize it
 export const plusSuccessUrl = `https://app.daily.dev/plus/success`;
 
