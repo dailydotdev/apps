@@ -693,12 +693,16 @@ export interface SquadPostRejectionProps extends SquadPostModerationProps {
 export const squadApproveMutation = ({
   postIds,
   sourceId,
-}: SquadPostModerationProps): Promise<SourcePostModeration[]> => {
-  return gqlClient.request(SQUAD_MODERATE_POST_MUTATION, {
-    postIds,
-    sourceId,
-    status: SourcePostModerationStatus.Approved,
-  });
+}: SquadPostModerationProps): Promise<{
+  moderateSourcePosts: SourcePostModeration[];
+}> => {
+  return gqlClient
+    .request(SQUAD_MODERATE_POST_MUTATION, {
+      postIds,
+      sourceId,
+      status: SourcePostModerationStatus.Approved,
+    })
+    .then((res) => res.moderateSourcePosts);
 };
 
 export const squadRejectMutation = ({
@@ -706,14 +710,18 @@ export const squadRejectMutation = ({
   sourceId,
   reason,
   note,
-}: SquadPostRejectionProps): Promise<SourcePostModeration[]> => {
-  return gqlClient.request(SQUAD_MODERATE_POST_MUTATION, {
-    postIds,
-    sourceId,
-    status: SourcePostModerationStatus.Rejected,
-    rejectionReason: reason,
-    moderatorMessage: note,
-  });
+}: SquadPostRejectionProps): Promise<{
+  moderateSourcePosts: SourcePostModeration[];
+}> => {
+  return gqlClient
+    .request(SQUAD_MODERATE_POST_MUTATION, {
+      postIds,
+      sourceId,
+      status: SourcePostModerationStatus.Rejected,
+      rejectionReason: reason,
+      moderatorMessage: note,
+    })
+    .then((res) => res.moderateSourcePosts);
 };
 
 const DELETE_PENDING_POST_MUTATION = gql`
