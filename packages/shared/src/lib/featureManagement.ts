@@ -47,7 +47,7 @@ const feature = {
     default: 7,
     tablet: 9,
     laptop: 13,
-    laptopL: 9,
+    laptopL: 17,
     laptopXL: 21,
     desktop: 25,
   }),
