@@ -19,7 +19,7 @@ export const feedBreakpoints = [tablet, laptop, laptopL, laptopXL, desktop];
 
 const baseFeedSettings: FeedContextData[] = [
   {
-    pageSize: 9,
+    pageSize: 5,
     adSpot: 0,
     numCards: {
       eco: 2,
@@ -28,7 +28,7 @@ const baseFeedSettings: FeedContextData[] = [
     },
   },
   {
-    pageSize: 13,
+    pageSize: 7,
     adSpot: 0,
     numCards: {
       eco: 3,
@@ -37,7 +37,7 @@ const baseFeedSettings: FeedContextData[] = [
     },
   },
   {
-    pageSize: 17,
+    pageSize: 9,
     adSpot: 0,
     numCards: {
       eco: 4,
@@ -46,7 +46,7 @@ const baseFeedSettings: FeedContextData[] = [
     },
   },
   {
-    pageSize: 21,
+    pageSize: 13,
     adSpot: 0,
     numCards: {
       eco: 5,
@@ -55,7 +55,7 @@ const baseFeedSettings: FeedContextData[] = [
     },
   },
   {
-    pageSize: 25,
+    pageSize: 16,
     adSpot: 0,
     numCards: {
       eco: 6,
