@@ -9,6 +9,8 @@ import type { WithClassNameProps } from './utilities';
 import { useViewSize, ViewSize } from '../hooks';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../lib/log';
+import { useAuthContext } from '../contexts/AuthContext';
+import { AuthTriggers } from '../lib/auth';
 
 type Props = {
   size?: ButtonSize;
@@ -22,18 +24,28 @@ export const UpgradeToPlus = ({
   iconOnly = false,
   target,
 }: Props): ReactElement => {
+  const { isLoggedIn, showLogin } = useAuthContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { showPlusSubscription, isPlus, logSubscriptionEvent } =
     usePlusSubscription();
 
   const content = isMobile ? 'Upgrade' : 'Upgrade to plus';
 
-  const onClick = useCallback(() => {
-    logSubscriptionEvent({
-      event_name: LogEvent.UpgradeSubscription,
-      target_id: target,
-    });
-  }, [logSubscriptionEvent, target]);
+  const onClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (!isLoggedIn) {
+        e.preventDefault();
+        showLogin({ trigger: AuthTriggers.Plus });
+        return;
+      }
+
+      logSubscriptionEvent({
+        event_name: LogEvent.UpgradeSubscription,
+        target_id: target,
+      });
+    },
+    [isLoggedIn, logSubscriptionEvent, showLogin, target],
+  );
 
   if (!showPlusSubscription || isPlus) {
     return null;
