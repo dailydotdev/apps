@@ -44,6 +44,7 @@ export const USER_SHORT_INFO_TOP_READER_FRAGMENT = gql`
   fragment UserShortInfoTopReaderFragment on User {
     topReader {
       issuedAt
+      value
       keyword {
         flags {
           title
