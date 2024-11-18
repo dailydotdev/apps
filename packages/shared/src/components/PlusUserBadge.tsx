@@ -44,7 +44,7 @@ export const PlusUserBadge = ({
                 date={user.plusMemberSince}
                 type={TimeFormatType.PlusMember}
               />
-              {isLoggedIn && !isPlus && (
+              {!isPlus && (
                 <Link passHref href={plusUrl}>
                   <Typography
                     tag={TypographyTag.Link}
