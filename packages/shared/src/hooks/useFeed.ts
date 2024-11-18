@@ -25,6 +25,7 @@ import {
 import { MarketingCta } from '../components/marketingCta/common';
 import { FeedItemType } from '../components/cards/common/common';
 import { GARMR_ERROR, gqlClient } from '../graphql/common';
+import { usePlusSubscription } from './usePlusSubscription';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -109,6 +110,7 @@ export default function useFeed<T>(
 ): FeedReturnType {
   const { query, variables, options = {}, settings, onEmptyFeed } = params;
   const { user, tokenRefreshed } = useContext(AuthContext);
+  const { isPlus } = usePlusSubscription();
   const queryClient = useQueryClient();
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
 
@@ -144,12 +146,14 @@ export default function useFeed<T>(
   const clientError = feedQuery?.error as ClientError;
 
   const isAdsQueryEnabled =
+    !isPlus &&
     query &&
     tokenRefreshed &&
     !isFeedPreview &&
     (!settings?.adPostLength ||
       feedQuery.data?.pages[0]?.page.edges.length > settings?.adPostLength) &&
     !settings?.disableAds;
+
   const adsQuery = useInfiniteQuery<Ad>({
     queryKey: ['ads', ...feedQueryKey],
     queryFn: async ({ pageParam }) => {
@@ -191,15 +195,15 @@ export default function useFeed<T>(
           const withFirstIndex = (condition: boolean) =>
             pageIndex === 0 && condition;
 
-          if (withFirstIndex(!!settings.marketingCta)) {
-            posts.splice(adSpot, 0, {
-              type: FeedItemType.MarketingCta,
-              marketingCta: settings.marketingCta,
-            });
-          } else if (withFirstIndex(settings.showAcquisitionForm)) {
-            posts.splice(adSpot, 0, { type: FeedItemType.UserAcquisition });
-          } else if (isAdsQueryEnabled) {
-            if (adsQuery.data?.pages[pageIndex]) {
+          if (isAdsQueryEnabled) {
+            if (withFirstIndex(!!settings.marketingCta)) {
+              posts.splice(adSpot, 0, {
+                type: FeedItemType.MarketingCta,
+                marketingCta: settings.marketingCta,
+              });
+            } else if (withFirstIndex(settings.showAcquisitionForm)) {
+              posts.splice(adSpot, 0, { type: FeedItemType.UserAcquisition });
+            } else if (adsQuery.data?.pages[pageIndex]) {
               posts.splice(adSpot, 0, {
                 type: FeedItemType.Ad,
                 ad: adsQuery.data?.pages[pageIndex],
