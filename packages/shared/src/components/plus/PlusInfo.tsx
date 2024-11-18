@@ -19,6 +19,8 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { LogEvent } from '../../lib/log';
 
 type PlusInfoProps = {
   productOptions: ProductOption[];
@@ -32,6 +34,7 @@ export const PlusInfo = ({
   onChange,
   onContinue,
 }: PlusInfoProps): ReactElement => {
+  const { logSubscriptionEvent } = usePlusSubscription();
   return (
     <>
       <PlusUser
@@ -86,7 +89,13 @@ export const PlusInfo = ({
                   id={`${label}-${value}`}
                   value={value}
                   checked={checked}
-                  onChange={() => onChange(value)}
+                  onChange={() => {
+                    onChange(value);
+                    logSubscriptionEvent({
+                      event_name: LogEvent.SelectBillingCycle,
+                      target_id: label.toLowerCase(),
+                    });
+                  }}
                   className={{
                     content: 'truncate',
                   }}
