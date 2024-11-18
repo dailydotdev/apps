@@ -44,7 +44,7 @@ export type PaymentContextProviderProps = {
 export const PaymentContextProvider = ({
   children,
 }: PaymentContextProviderProps): ReactElement => {
-  const { user } = useAuthContext();
+  const { user, geo } = useAuthContext();
   const [paddle, setPaddle] = useState<Paddle>();
   const { logSubscriptionEvent } = usePlusSubscription();
 
@@ -131,13 +131,16 @@ export const PaymentContextProvider = ({
         priceId,
         quantity: 1,
       })),
+      address: geo?.region && {
+        countryCode: geo.region,
+      },
     });
-  }, [paddle, planTypes]);
+  }, [paddle, planTypes, geo?.region]);
 
   const { data: productPrices } = useQuery({
     queryKey: ['productPrices'],
     queryFn: async () => getPrices(),
-    enabled: !!paddle && !!planTypes,
+    enabled: !!paddle && !!planTypes && !!geo,
   });
 
   const productOptions = useMemo(
