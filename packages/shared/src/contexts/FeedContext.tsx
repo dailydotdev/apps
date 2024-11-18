@@ -14,8 +14,8 @@ import { Spaciness } from '../graphql/settings';
 import { useFeature } from '../components/GrowthBookProvider';
 
 export type FeedContextData = {
-  pageSize?: number;
-  numCards?: Record<Spaciness, number>;
+  pageSize: number;
+  numCards: Record<Spaciness, number>;
 };
 
 type FeedSettingsKeys =
