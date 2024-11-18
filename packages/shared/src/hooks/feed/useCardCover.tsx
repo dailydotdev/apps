@@ -1,4 +1,4 @@
-import React, { ReactNode, useMemo } from 'react';
+import React, { ReactNode, useEffect, useMemo, useState } from 'react';
 import { Post } from '../../graphql/posts';
 import { usePostShareLoop } from '../post/usePostShareLoop';
 import { CardCoverShare } from '../../components/cards/common/CardCoverShare';
@@ -28,9 +28,21 @@ export const useCardCover = ({
 }: UseCardCoverProps): UseCardCover => {
   const { shouldShowOverlay, onInteract } = usePostShareLoop(post);
   const shouldShowReminder = useBookmarkReminderCover(post);
+  const [lastInteraction, setLastInteraction] = useState<'upvote' | 'bookmark' | null>(null);
+  useEffect(() => {
+    if (shouldShowOverlay) {
+      setLastInteraction('upvote');
+    }
+  }, [shouldShowOverlay]);
+
+  useEffect(() => {
+    if (shouldShowReminder) {
+      setLastInteraction('bookmark');
+    }
+  }, [shouldShowReminder]);
 
   const overlay = useMemo(() => {
-    if (shouldShowOverlay && onShare) {
+    if (shouldShowOverlay && onShare && lastInteraction == 'upvote') {
       return (
         <CardCoverShare
           post={post}
@@ -43,7 +55,7 @@ export const useCardCover = ({
       );
     }
 
-    if (shouldShowReminder) {
+    if (shouldShowReminder && lastInteraction == 'bookmark') {
       return (
         <CardCoverContainer
           title="Don’t have time now? Set a reminder"
@@ -61,6 +73,42 @@ export const useCardCover = ({
       );
     }
 
+     // Default case keeping same as original
+     if (shouldShowReminder) {
+      return (
+        <CardCoverContainer
+          title="Don't have time now? Set a reminder"
+          className={className?.bookmark?.container}
+        >
+          <PostReminderOptions
+            post={post}
+            className="mt-2"
+            buttonProps={{
+              variant: ButtonVariant.Secondary,
+              size: ButtonSize.Small,
+            }}
+          />
+        </CardCoverContainer>
+      );
+    }
+
+    if (shouldShowOverlay && onShare) {
+      return (
+        <CardCoverShare
+          post={post}
+          onCopy={() => {
+            onInteract();
+            setLastInteraction(null);
+          }}
+          onShare={() => {
+            onInteract();
+            onShare(post);
+            setLastInteraction(null);
+          }}
+        />
+      );
+    }
+
     return undefined;
   }, [
     className?.bookmark?.container,
@@ -69,6 +117,7 @@ export const useCardCover = ({
     post,
     shouldShowOverlay,
     shouldShowReminder,
+    lastInteraction
   ]);
 
   return { overlay };
