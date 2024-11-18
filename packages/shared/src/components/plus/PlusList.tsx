@@ -26,6 +26,7 @@ const PlusItem = ({ title }: { title: string }) => {
 export const PlusList = (): ReactElement => {
   return (
     <ul className="flex flex-col gap-2 py-6">
+      <PlusItem title="Ads-free browsing" />
       <PlusItem title="Exclusive Plus badge" />
       <PlusItem title="Private squad for Plus members" />
       <PlusItem title="Support the team and make us smile" />
