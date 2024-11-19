@@ -114,6 +114,7 @@ export const PaymentContextProvider = ({
             'width: 100%; background-color: transparent; border: none;',
           theme: 'dark',
           successUrl: plusSuccessUrl,
+          showAddDiscounts: false,
         },
       });
     },
