@@ -25,6 +25,9 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
+import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
+import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
+import { TypographyType } from '@dailydotdev/shared/src/components/typography/Typography';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
 export default function ModerateSquadPage({
@@ -32,6 +35,7 @@ export default function ModerateSquadPage({
 }: SquadSettingsProps): ReactElement {
   const router = useRouter();
   const { squad, isLoading, isFetched } = useSquad({ handle });
+  const isModerator = verifyPermission(squad, SourcePermissions.ModeratePost);
 
   useEffect(() => {
     if (isLoading || !isFetched) {
@@ -61,7 +65,9 @@ export default function ModerateSquadPage({
           tag="a"
           variant={ButtonVariant.Tertiary}
         />
-        <PageHeaderTitle className="typo-title3">Squad</PageHeaderTitle>
+        <PageHeaderTitle bold type={TypographyType.Title3}>
+          {isModerator ? 'Squad settings' : 'Pending posts'}
+        </PageHeaderTitle>
       </PageHeader>
       <SquadTabs active={SquadTab.PendingPosts} squad={squad} />
       <SquadModerationList squad={squad} />
