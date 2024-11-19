@@ -5,14 +5,19 @@ import Classed from '../../../lib/classed';
 import { useFeedTags } from '../../../hooks/feed/useFeedTags';
 import { useFeedLayout } from '../../../hooks';
 
-type PostTagsProps = Pick<Post, 'tags'>;
+interface PostTagsProps extends Pick<Post, 'tags'> {
+  className?: string;
+}
 
 const Chip = Classed(
   'div',
   'rounded-8 border border-border-subtlest-tertiary px-2 h-6 flex items-center justify-center typo-footnote text-text-quaternary my-2',
 );
 
-export default function PostTags({ tags }: PostTagsProps): ReactElement {
+export default function PostTags({
+  tags,
+  className,
+}: PostTagsProps): ReactElement {
   const { isListMode } = useFeedLayout();
   const elementRef = useRef<HTMLDivElement>(null);
   const width = elementRef?.current?.getBoundingClientRect()?.width || 0;
@@ -25,6 +30,7 @@ export default function PostTags({ tags }: PostTagsProps): ReactElement {
       className={classNames(
         'flex min-h-px w-full items-center gap-2',
         !isListMode && 'tablet:mx-2',
+        className,
       )}
       ref={elementRef}
     >

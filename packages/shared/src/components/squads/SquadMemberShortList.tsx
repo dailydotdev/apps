@@ -46,11 +46,10 @@ function SquadMemberShortList({
           roundClasses[size],
         )}
         onClick={openMemberListModal}
+        aria-label={`View ${squad.membersCount} squad members`}
+        data-testid="squad-member-short-list"
       >
-        <span
-          className="ml-2 mr-1 min-w-[1rem]"
-          aria-label="squad-members-count"
-        >
+        <span className="ml-2 mr-1 min-w-[1rem]">
           {largeNumberFormat(squad.membersCount)}
         </span>
         {members?.slice(0, sidebarRendered ? 5 : 3).map(({ user }) => (

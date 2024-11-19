@@ -1,14 +1,18 @@
 import {
   UseMutateAsyncFunction,
   useMutation,
-  UseMutationOptions,
   useQueryClient,
 } from '@tanstack/react-query';
 import { BaseSyntheticEvent, useCallback, useState } from 'react';
 import {
+  createPost,
+  CreatePostProps,
+  editPost,
+  EditPostProps,
   ExternalLinkPreview,
   getExternalLinkPreview,
   Post,
+  PostType,
   SubmitExternalLink,
   submitExternalLink,
 } from '../../graphql/posts';
@@ -19,14 +23,22 @@ import {
   getApiError,
 } from '../../graphql/common';
 import { useToastNotification } from '../useToastNotification';
-import { addPostToSquad, updateSquadPost } from '../../graphql/squads';
+import {
+  addPostToSquad,
+  SourcePostModeration,
+  updateSquadPost,
+} from '../../graphql/squads';
 import { ActionType } from '../../graphql/actions';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions } from '../useActions';
 import { useRequestProtocol } from '../useRequestProtocol';
+import useSourcePostModeration from '../source/useSourcePostModeration';
+import { Squad } from '../../graphql/sources';
+import { moderationRequired } from '../../components/squads/utils';
 
 interface UsePostToSquad {
   preview: ExternalLinkPreview;
+  isSuccess: boolean;
   isPosting: boolean;
   isLoadingPreview: boolean;
   onUpdatePreview: (preview: ExternalLinkPreview) => void;
@@ -35,30 +47,39 @@ interface UsePostToSquad {
     ApiErrorResult,
     string
   >;
+  onEditFreeformPost: (
+    editedPost: EditPostProps,
+    squad: Squad,
+  ) => Promise<void>;
   onSubmitPost: (
     e: BaseSyntheticEvent,
-    sourceId: string,
+    squad: Squad,
     commentary: string,
   ) => Promise<unknown>;
-  onUpdatePost: (
+  onSubmitFreeformPost: (post: CreatePostProps, squad: Squad) => Promise<void>;
+  onUpdateSharePost: (
     e: BaseSyntheticEvent,
     postId: Post['id'],
     commentary: string,
+    squad: Squad,
   ) => Promise<unknown>;
 }
 
 interface UsePostToSquadProps {
-  callback?: Pick<
-    UseMutationOptions<ExternalLinkPreview, ApiErrorResult, string>,
-    'onSuccess' | 'onError'
-  >;
   onPostSuccess?: (post: Post, url: string) => void;
+  onSourcePostModerationSuccess?: (data: SourcePostModeration) => void;
+  onExternalLinkSuccess?: (data: ExternalLinkPreview, url: string) => void;
   initialPreview?: ExternalLinkPreview;
+  onMutate?: (data) => void;
+  onError?: (error: ApiErrorResult) => void;
 }
 
 export const usePostToSquad = ({
-  callback,
   onPostSuccess,
+  onMutate,
+  onError,
+  onExternalLinkSuccess,
+  onSourcePostModerationSuccess,
   initialPreview,
 }: UsePostToSquadProps = {}): UsePostToSquad => {
   const { displayToast } = useToastNotification();
@@ -67,24 +88,82 @@ export const usePostToSquad = ({
   const { completeAction } = useActions();
   const [preview, setPreview] = useState(initialPreview);
   const { requestMethod } = useRequestProtocol();
+
+  const {
+    mutateAsync: onCreatePost,
+    isPending: isLoadingFreeform,
+    isSuccess: isFreeformPostSuccess,
+  } = useMutation({
+    mutationFn: createPost,
+    onMutate,
+    onError,
+    onSuccess: onPostSuccess,
+  });
+  const {
+    mutateAsync: editPostMutation,
+    isPending: isEditLoading,
+    isSuccess: isEditPostSuccess,
+  } = useMutation({
+    mutationFn: editPost,
+    onMutate,
+    onSuccess: onPostSuccess,
+    onError,
+  });
+
   const { mutateAsync: getLinkPreview, isPending: isLoadingPreview } =
     useMutation({
       mutationFn: (url: string) => getExternalLinkPreview(url, requestMethod),
-      onSuccess: (...params) => {
-        const [result, url] = params;
-        setPreview({ ...result, url });
-
-        if (callback?.onSuccess) {
-          callback.onSuccess(...params);
-        }
+      onSuccess: (data, url) => {
+        setPreview({ ...data, url });
+        onExternalLinkSuccess?.(data, url);
       },
-      onError: (err: ApiErrorResult, link, ...params) => {
+      onError: (err: ApiErrorResult) => {
         const rateLimited = getApiError(err, ApiError.RateLimited);
         const message = rateLimited?.message ?? DEFAULT_ERROR;
         displayToast(message);
-        callback?.onError?.(err, link, ...params);
+        onError?.(err);
       },
     });
+
+  const {
+    onCreatePostModeration,
+    isSuccess: isPostModerationSuccess,
+    isPending: isPostModerationLoading,
+  } = useSourcePostModeration({
+    onSuccess: (data) => {
+      completeAction(ActionType.SquadFirstPost);
+      onSourcePostModerationSuccess?.(data);
+    },
+    onError: () => {
+      displayToast(DEFAULT_ERROR);
+    },
+  });
+
+  const onEditFreeformPost = useCallback<UsePostToSquad['onEditFreeformPost']>(
+    async (editedPost: EditPostProps, squad: Squad): Promise<void> => {
+      if (isEditLoading || isEditPostSuccess) {
+        return null;
+      }
+
+      if (moderationRequired(squad)) {
+        onCreatePostModeration({
+          ...editedPost,
+          type: PostType.Freeform,
+          postId: editedPost.id,
+          sourceId: squad.id,
+        });
+      } else {
+        editPostMutation(editedPost);
+      }
+      return null;
+    },
+    [
+      editPostMutation,
+      onCreatePostModeration,
+      isEditLoading,
+      isEditPostSuccess,
+    ],
+  );
 
   const onSharedPostSuccessfully = async (update = false) => {
     displayToast(
@@ -142,24 +221,42 @@ export const usePostToSquad = ({
   });
 
   const isPosting =
-    isPostLoading || isLinkLoading || isPostSuccess || isLinkSuccess;
+    isPostLoading ||
+    isLinkLoading ||
+    isPostModerationLoading ||
+    isEditLoading ||
+    isLoadingFreeform;
 
-  const isUpdating = isUpdatePostSuccess || isUpdatePostLoading;
+  const isUpdating =
+    isUpdatePostSuccess || isUpdatePostLoading || isPostModerationLoading;
+
+  const isSuccess =
+    isPostModerationSuccess ||
+    isPostSuccess ||
+    isLinkSuccess ||
+    isFreeformPostSuccess ||
+    isEditPostSuccess;
 
   const onSubmitPost = useCallback<UsePostToSquad['onSubmitPost']>(
-    (e, sourceId, commentary) => {
+    (e, squad, commentary) => {
       e?.preventDefault();
-
       if (isPosting) {
         return null;
       }
 
       if (preview.id) {
-        return onPost({
-          id: preview.id,
-          sourceId,
-          commentary,
-        });
+        return moderationRequired(squad)
+          ? onCreatePostModeration({
+              type: PostType.Share,
+              sourceId: squad.id,
+              sharedPostId: preview.id,
+              title: commentary,
+            })
+          : onPost({
+              id: preview.id,
+              sourceId: squad.id,
+              commentary,
+            });
       }
 
       const { title, image, url } = preview;
@@ -169,40 +266,84 @@ export const usePostToSquad = ({
         return null;
       }
 
-      return onSubmitLink({
-        url,
-        title,
-        image,
-        sourceId,
-        commentary,
-      });
+      return moderationRequired(squad)
+        ? onCreatePostModeration({
+            externalLink: url,
+            title,
+            imageUrl: image,
+            type: PostType.Share,
+            sourceId: squad.id,
+            content: commentary,
+          })
+        : onSubmitLink({
+            url,
+            title,
+            image,
+            sourceId: squad.id,
+            commentary,
+          });
     },
-    [preview, displayToast, onSubmitLink, onPost, isPosting],
+    [
+      preview,
+      displayToast,
+      onSubmitLink,
+      onPost,
+      isPosting,
+      onCreatePostModeration,
+    ],
   );
 
-  const onUpdatePost = useCallback<UsePostToSquad['onUpdatePost']>(
-    (e, postId, commentary) => {
+  const onUpdateSharePost = useCallback<UsePostToSquad['onUpdateSharePost']>(
+    (e, postId, commentary, squad) => {
       e.preventDefault();
 
       if (isUpdating) {
         return null;
       }
 
-      return updatePost({
-        id: postId,
-        commentary,
-      });
+      return moderationRequired(squad)
+        ? onCreatePostModeration({
+            postId,
+            type: PostType.Share,
+            sourceId: squad.id,
+            title: commentary,
+          })
+        : updatePost({
+            id: postId,
+            commentary,
+          });
     },
-    [updatePost, isUpdating],
+    [updatePost, isUpdating, onCreatePostModeration],
+  );
+
+  const onSubmitFreeformPost = useCallback<
+    UsePostToSquad['onSubmitFreeformPost']
+  >(
+    (post: CreatePostProps, squad: Squad) => {
+      if (moderationRequired(squad)) {
+        onCreatePostModeration({
+          ...post,
+          sourceId: squad.id,
+          type: PostType.Freeform,
+        });
+      } else {
+        onCreatePost({ ...post, sourceId: squad.id });
+      }
+      return null;
+    },
+    [onCreatePost, onCreatePostModeration],
   );
 
   return {
     isLoadingPreview,
     getLinkPreview,
     onSubmitPost,
-    onUpdatePost,
+    onUpdateSharePost,
     isPosting,
+    onEditFreeformPost,
     preview,
+    isSuccess,
+    onSubmitFreeformPost,
     onUpdatePreview: setPreview,
   };
 };

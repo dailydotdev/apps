@@ -1,4 +1,5 @@
 import React, { ReactElement, useMemo } from 'react';
+import classNames from 'classnames';
 import { useAuthContext } from '../contexts/AuthContext';
 import {
   InviteIcon,
@@ -10,6 +11,7 @@ import {
   PlayIcon,
   PauseIcon,
   EditIcon,
+  DevPlusIcon,
 } from './icons';
 import InteractivePopup, {
   InteractivePopupPosition,
@@ -21,7 +23,12 @@ import {
   ButtonSize,
   ButtonVariant,
 } from './buttons/Button';
-import { reputation, webappUrl } from '../lib/constants';
+import {
+  managePlusUrl,
+  plusUrl,
+  reputation,
+  webappUrl,
+} from '../lib/constants';
 import { UserMetadata } from './profile/UserMetadata';
 import { HeroImage } from './profile/HeroImage';
 import { anchorDefaultRel } from '../lib/strings';
@@ -30,6 +37,8 @@ import { useLazyModal } from '../hooks/useLazyModal';
 import { checkIsExtension } from '../lib/func';
 import { useDndContext } from '../contexts/DndContext';
 import { LazyModal } from './modals/common/types';
+import { usePlusSubscription } from '../hooks/usePlusSubscription';
+import { LogEvent, TargetId } from '../lib/log';
 
 interface ListItem {
   title: string;
@@ -47,8 +56,31 @@ export default function ProfileMenu({
   const { openModal } = useLazyModal();
   const { user, logout } = useAuthContext();
   const { isActive: isDndActive, setShowDnd } = useDndContext();
+  const { showPlusSubscription, isPlus, logSubscriptionEvent } =
+    usePlusSubscription();
 
   const items: ListItem[] = useMemo(() => {
+    const plusItem: ListItem = showPlusSubscription
+      ? {
+          title: isPlus ? 'Manage plus' : 'Upgrade to plus',
+          buttonProps: {
+            tag: 'a',
+            icon: <DevPlusIcon />,
+            href: isPlus ? managePlusUrl : plusUrl,
+            className: isPlus ? undefined : 'text-action-plus-default',
+            target: isPlus ? '_blank' : undefined,
+            onClick: () => {
+              logSubscriptionEvent({
+                event_name: isPlus
+                  ? LogEvent.ManageSubscription
+                  : LogEvent.UpgradeSubscription,
+                target_id: TargetId.ProfileDropdown,
+              });
+            },
+          },
+        }
+      : undefined;
+
     const list: ListItem[] = [
       {
         title: 'Profile',
@@ -58,6 +90,7 @@ export default function ProfileMenu({
           icon: <UserIcon />,
         },
       },
+      plusItem,
       {
         title: 'Account details',
         buttonProps: {
@@ -121,8 +154,17 @@ export default function ProfileMenu({
       },
     });
 
-    return list;
-  }, [isDndActive, logout, openModal, setShowDnd, user.permalink]);
+    return list.filter(Boolean);
+  }, [
+    isDndActive,
+    isPlus,
+    logSubscriptionEvent,
+    logout,
+    openModal,
+    setShowDnd,
+    showPlusSubscription,
+    user.permalink,
+  ]);
 
   if (!user) {
     return <></>;
@@ -155,14 +197,18 @@ export default function ProfileMenu({
         name={user.name}
         createdAt={user.createdAt}
         reputation={user.reputation}
-        className="gap-3 p-4"
+        isPlus={isPlus}
+        className="gap-2 p-4"
       />
       <div className="flex flex-col border-t border-border-subtlest-tertiary py-2">
         {items.map(({ title, buttonProps, rightEmoji }) => (
           <Button
             key={title}
             {...buttonProps}
-            className="btn-tertiary w-full !justify-start !px-5 font-normal"
+            className={classNames(
+              'btn-tertiary w-full !justify-start !px-5 font-normal',
+              buttonProps?.className,
+            )}
           >
             {title}
 

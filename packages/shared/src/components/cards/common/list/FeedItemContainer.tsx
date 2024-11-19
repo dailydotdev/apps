@@ -41,7 +41,7 @@ function FeedItemContainer(
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked,
   });
-  const { adAttribution, pinnedAt, trending, type } = flagProps;
+  const { adAttribution, pinnedAt, trending, type } = flagProps ?? {};
   const raisedLabelType = pinnedAt
     ? RaisedLabelType.Pinned
     : RaisedLabelType.Hot;
@@ -78,22 +78,24 @@ function FeedItemContainer(
           />
         </Link>
       )}
-      <fieldset>
-        {showTypeLabel && (
-          <TypeLabel
-            focus={focus}
-            type={adAttribution ?? type}
-            className="absolute left-3"
-          />
-        )}
-        {showFlag && (
-          <RaisedLabel
-            type={raisedLabelType}
-            description={description}
-            focus={focus}
-          />
-        )}
-      </fieldset>
+      {(showTypeLabel || showFlag) && (
+        <fieldset>
+          {showTypeLabel && (
+            <TypeLabel
+              focus={focus}
+              type={adAttribution ?? type}
+              className="absolute left-3"
+            />
+          )}
+          {showFlag && (
+            <RaisedLabel
+              type={raisedLabelType}
+              description={description}
+              focus={focus}
+            />
+          )}
+        </fieldset>
+      )}
       {children}
     </ListCard>
   );
