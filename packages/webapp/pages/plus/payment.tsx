@@ -25,7 +25,7 @@ const PlusPaymentPage = (): ReactElement => {
   return (
     <>
       <NextSeo nofollow noindex />
-      <div className="flex flex-1 items-center justify-center">
+      <div className="flex flex-1 justify-center">
         <div
           ref={(element) => {
             if (!element) {
