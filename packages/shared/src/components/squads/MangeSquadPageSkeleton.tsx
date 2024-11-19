@@ -1,10 +1,13 @@
-import React, { ReactElement } from 'react';
+import React, { PropsWithChildren, ReactElement } from 'react';
 import { ManageSquadPageMain, ManageSquadPageContainer } from './utils';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 
-export const MangeSquadPageSkeleton = (): ReactElement => {
+export const MangeSquadPageSkeleton = ({
+  children,
+}: PropsWithChildren): ReactElement => {
   return (
     <ManageSquadPageContainer>
+      {children}
       <ManageSquadPageMain className="items-center">
         <ElementPlaceholder className="h-48 w-full" />
         <div className="flex w-full max-w-lg flex-col items-center">
