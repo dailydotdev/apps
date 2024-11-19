@@ -48,7 +48,7 @@ export enum TypographyColor {
   Plus = 'text-action-plus-default',
 }
 
-type AllowedTags = keyof Pick<JSX.IntrinsicElements, TypographyTag>;
+export type AllowedTags = keyof Pick<JSX.IntrinsicElements, TypographyTag>;
 type AllowedElements = HTMLTimeElement | HTMLParagraphElement;
 
 export type TypographyProps<Tag extends AllowedTags> = {

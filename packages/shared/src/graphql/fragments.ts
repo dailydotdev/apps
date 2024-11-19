@@ -47,6 +47,7 @@ export const USER_SHORT_INFO_TOP_READER_FRAGMENT = gql`
     topReader {
       issuedAt
       keyword {
+        value
         flags {
           title
         }
@@ -145,6 +146,7 @@ export const SOURCE_BASE_FRAGMENT = gql`
     }
     memberPostingRole
     memberInviteRole
+    moderationRequired
   }
   ${CURRENT_MEMBER_FRAGMENT}
 `;

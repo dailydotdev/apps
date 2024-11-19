@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { ModalProps } from '../common/Modal';
-import { ReportModal } from './ReportModal';
+import { ReasonSelectionModal } from './ReasonSelectionModal';
 import useReportComment from '../../../hooks/useReportComment';
 import { Comment } from '../../../graphql/comments';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -65,7 +65,7 @@ export function ReportCommentModal({
   };
 
   return (
-    <ReportModal
+    <ReasonSelectionModal
       {...props}
       isOpen
       onReport={onReportComment}

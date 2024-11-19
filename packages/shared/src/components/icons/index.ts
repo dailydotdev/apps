@@ -119,3 +119,4 @@ export * from './RemoveUser';
 export * from './MedalBadge';
 export * from './Download';
 export * from './DevPlus';
+export * from './Warning';

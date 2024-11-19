@@ -18,7 +18,7 @@ import useReportPost from '../../../hooks/useReportPost';
 import { postLogEvent } from '../../../lib/feed';
 import { Origin } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
-import { ReportModal } from './ReportModal';
+import { ReasonSelectionModal } from './ReasonSelectionModal';
 import { ReportReason } from '../../../report';
 
 interface OptionalProps {
@@ -159,7 +159,7 @@ export function ReportPostModal({
   };
 
   return (
-    <ReportModal
+    <ReasonSelectionModal
       {...props}
       isOpen
       onReport={onReportPost}
