@@ -10,8 +10,6 @@ import {
 } from '../typography/Typography';
 import { RadioItem } from '../fields/RadioItem';
 import { PlusList } from './PlusList';
-import { plusInfo } from '../../lib/constants';
-import { anchorDefaultRel } from '../../lib/strings';
 import { ProductOption } from '../../contexts/PaymentContext';
 import {
   Button,
@@ -152,21 +150,6 @@ export const PlusInfo = ({
         </div>
       ) : undefined}
       <PlusList />
-      <Typography
-        tag={TypographyTag.Span}
-        type={TypographyType.Callout}
-        color={TypographyColor.Tertiary}
-      >
-        Still on the fence?{' '}
-        <a
-          className="text-text-link hover:underline"
-          href={plusInfo}
-          target="_blank"
-          rel={anchorDefaultRel}
-        >
-          See what’s inside!
-        </a>
-      </Typography>
     </>
   );
 };
