@@ -173,7 +173,7 @@ export function SquadDetails({
       title={createMode ? undefined : 'Squad settings'}
       className={{
         container: 'flex flex-1 flex-col',
-        title: 'typo-title3',
+        title: 'px-4 font-bold typo-title3 tablet:px-0',
         header: 'border-b-0',
       }}
       copy={{

@@ -27,7 +27,11 @@ export function SquadEmptyScreen({
       <Typography type={TypographyType.Title2} bold>
         {title}
       </Typography>
-      <Typography type={TypographyType.Body} color={TypographyColor.Secondary}>
+      <Typography
+        className="text-center"
+        type={TypographyType.Body}
+        color={TypographyColor.Secondary}
+      >
         {description}
       </Typography>
     </div>
