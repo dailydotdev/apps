@@ -42,7 +42,7 @@ export const useCardCover = ({
   }, [shouldShowReminder]);
 
   const overlay = useMemo(() => {
-    if (shouldShowOverlay && onShare && interaction === 'upvote') {
+    if (shouldShowOverlay && onShare && (interaction === 'upvote' || !shouldShowReminder)) {
       return (
         <CardCoverShare
           post={post}
@@ -55,7 +55,7 @@ export const useCardCover = ({
       );
     }
 
-    if (shouldShowReminder && interaction === 'bookmark') {
+    if (shouldShowReminder && (interaction === 'bookmark' || !shouldShowOverlay)) {
       return (
         <CardCoverContainer
           title="Don’t have time now? Set a reminder"
@@ -70,42 +70,6 @@ export const useCardCover = ({
             }}
           />
         </CardCoverContainer>
-      );
-    }
-
-     // Default case keeping same as original
-     if (shouldShowReminder) {
-      return (
-        <CardCoverContainer
-          title="Don't have time now? Set a reminder"
-          className={className?.bookmark?.container}
-        >
-          <PostReminderOptions
-            post={post}
-            className="mt-2"
-            buttonProps={{
-              variant: ButtonVariant.Secondary,
-              size: ButtonSize.Small,
-            }}
-          />
-        </CardCoverContainer>
-      );
-    }
-
-    if (shouldShowOverlay && onShare) {
-      return (
-        <CardCoverShare
-          post={post}
-          onCopy={() => {
-            onInteract();
-            setInteraction(null);
-          }}
-          onShare={() => {
-            onInteract();
-            onShare(post);
-            setInteraction(null);
-          }}
-        />
       );
     }
 
