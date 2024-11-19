@@ -1,17 +1,12 @@
-import React, {
-  ReactElement,
-  useContext,
-  useMemo,
-  type PropsWithChildren,
-} from 'react';
+import React, { ReactElement, useMemo, type PropsWithChildren } from 'react';
 import { desktop, laptop, laptopL, laptopXL, tablet } from '../styles/media';
-import { useMedia } from '../hooks';
-import SettingsContext from './SettingsContext';
+import { useConditionalFeature, useMedia } from '../hooks';
+import { useSettingsContext } from './SettingsContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import { feature } from '../lib/featureManagement';
 
 import { Spaciness } from '../graphql/settings';
-import { useFeature } from '../components/GrowthBookProvider';
+import { usePlusSubscription } from '../hooks/usePlusSubscription';
 
 export type FeedContextData = {
   pageSize: number;
@@ -112,9 +107,13 @@ const FeedContext = React.createContext<FeedContextData>(
 export function FeedLayoutProvider({
   children,
 }: PropsWithChildren): ReactElement {
-  const { sidebarExpanded } = useContext(SettingsContext);
+  const { sidebarExpanded } = useSettingsContext();
   const { sidebarRendered } = useSidebarRendered();
-  const feedPageSizes = useFeature(feature.feedPageSizes);
+  const { isPlus } = usePlusSubscription();
+  const feedPageSizes = useConditionalFeature({
+    feature: feature.feedPageSizes,
+    shouldEvaluate: !isPlus,
+  });
 
   const { feedSettings, defaultFeedSettings } = useMemo(() => {
     Object.keys(baseFeedSettings).forEach((key) => {
