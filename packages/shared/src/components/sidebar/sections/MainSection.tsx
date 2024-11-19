@@ -16,7 +16,7 @@ export const MainSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
-  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { isEnrolledNotPlus, logSubscriptionEvent } = usePlusSubscription();
 
   const onPlusClick = useCallback(() => {
     logSubscriptionEvent({
@@ -36,7 +36,7 @@ export const MainSection = ({
         }
       : undefined;
 
-    const plus = !isPlus
+    const plus = isEnrolledNotPlus
       ? {
           title: 'Upgrade to Plus',
           path: '/plus',
@@ -78,7 +78,7 @@ export const MainSection = ({
       },
       plus,
     ].filter(Boolean);
-  }, [isLoggedIn, isPlus, onNavTabClick, onPlusClick, user]);
+  }, [isLoggedIn, isEnrolledNotPlus, onNavTabClick, onPlusClick, user]);
 
   return (
     <Section

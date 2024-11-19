@@ -6,9 +6,11 @@ import {
   waitFor,
   within,
 } from '@testing-library/react';
+import { QueryClient } from '@tanstack/react-query';
 import ad from '../../../../__tests__/fixture/ad';
 import { AdGrid } from './AdGrid';
 import { AdCardProps } from './common/common';
+import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 
 const defaultProps: AdCardProps = {
   ad,
@@ -20,7 +22,12 @@ beforeEach(() => {
 });
 
 const renderComponent = (props: Partial<AdCardProps> = {}): RenderResult => {
-  return render(<AdGrid {...defaultProps} {...props} />);
+  const client = new QueryClient();
+  return render(
+    <TestBootProvider client={client}>
+      <AdGrid {...defaultProps} {...props} />
+    </TestBootProvider>,
+  );
 };
 
 it('should call on click on component left click', async () => {
