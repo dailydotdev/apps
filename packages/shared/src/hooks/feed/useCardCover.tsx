@@ -28,21 +28,21 @@ export const useCardCover = ({
 }: UseCardCoverProps): UseCardCover => {
   const { shouldShowOverlay, onInteract } = usePostShareLoop(post);
   const shouldShowReminder = useBookmarkReminderCover(post);
-  const [lastInteraction, setLastInteraction] = useState<'upvote' | 'bookmark' | null>(null);
+  const [interaction, setInteraction] = useState<'upvote' | 'bookmark' | null>(null);
   useEffect(() => {
     if (shouldShowOverlay) {
-      setLastInteraction('upvote');
+      setInteraction('upvote');
     }
   }, [shouldShowOverlay]);
 
   useEffect(() => {
     if (shouldShowReminder) {
-      setLastInteraction('bookmark');
+      setInteraction('bookmark');
     }
   }, [shouldShowReminder]);
 
   const overlay = useMemo(() => {
-    if (shouldShowOverlay && onShare && lastInteraction == 'upvote') {
+    if (shouldShowOverlay && onShare && interaction === 'upvote') {
       return (
         <CardCoverShare
           post={post}
@@ -55,7 +55,7 @@ export const useCardCover = ({
       );
     }
 
-    if (shouldShowReminder && lastInteraction == 'bookmark') {
+    if (shouldShowReminder && interaction === 'bookmark') {
       return (
         <CardCoverContainer
           title="Don’t have time now? Set a reminder"
@@ -98,12 +98,12 @@ export const useCardCover = ({
           post={post}
           onCopy={() => {
             onInteract();
-            setLastInteraction(null);
+            setInteraction(null);
           }}
           onShare={() => {
             onInteract();
             onShare(post);
-            setLastInteraction(null);
+            setInteraction(null);
           }}
         />
       );
@@ -117,7 +117,7 @@ export const useCardCover = ({
     post,
     shouldShowOverlay,
     shouldShowReminder,
-    lastInteraction
+    interaction
   ]);
 
   return { overlay };
