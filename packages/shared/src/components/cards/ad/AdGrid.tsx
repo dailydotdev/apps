@@ -31,7 +31,7 @@ export const AdGrid = forwardRef(function AdGrid(
       <AdImage ad={ad} ImageComponent={CardImage} />
       <CardTextContainer>
         {showPlusSubscription ? (
-          <div className="flex items-center pt-2">
+          <div className="flex items-center pt-2.5">
             <AdAttribution ad={ad} />
             <RemoveAd />
           </div>
