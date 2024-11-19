@@ -129,6 +129,7 @@ export const PlusInfo = ({
                   tag={TypographyTag.Span}
                   type={TypographyType.Body}
                   color={TypographyColor.Secondary}
+                  className="font-normal"
                 >
                   {currencyCode}
                 </Typography>
