@@ -1,12 +1,14 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement, useCallback, useMemo } from 'react';
 import { Section } from '../Section';
 import { ListIcon, SidebarMenuItem } from '../common';
-import { BookmarkIcon, EyeIcon, HotIcon } from '../../icons';
+import { BookmarkIcon, DevPlusIcon, EyeIcon, HotIcon } from '../../icons';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { OtherFeedPage } from '../../../lib/query';
 import { SidebarSectionProps } from './common';
 import { webappUrl } from '../../../lib/constants';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import { LogEvent, TargetId } from '../../../lib/log';
 
 export const MainSection = ({
   isItemsButton,
@@ -14,6 +16,15 @@ export const MainSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+
+  const onPlusClick = useCallback(() => {
+    logSubscriptionEvent({
+      event_name: LogEvent.UpgradeSubscription,
+      target_id: TargetId.Sidebar,
+    });
+    onNavTabClick?.('/plus');
+  }, [logSubscriptionEvent, onNavTabClick]);
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     const myFeed = isLoggedIn
@@ -22,6 +33,18 @@ export const MainSection = ({
           path: '/',
           action: () => onNavTabClick?.('/'),
           icon: <ProfilePicture size={ProfileImageSize.XSmall} user={user} />,
+        }
+      : undefined;
+
+    const plus = !isPlus
+      ? {
+          title: 'Upgrade to Plus',
+          path: '/plus',
+          action: onPlusClick,
+          requiresLogin: true,
+          icon: <DevPlusIcon />,
+          color:
+            'text-action-plus-default bg-action-plus-float hover:bg-action-plus-hover active:bg-action-plus-active',
         }
       : undefined;
 
@@ -53,8 +76,9 @@ export const MainSection = ({
         isForcedLink: true,
         requiresLogin: true,
       },
+      plus,
     ].filter(Boolean);
-  }, [isLoggedIn, onNavTabClick, user]);
+  }, [isLoggedIn, isPlus, onNavTabClick, onPlusClick, user]);
 
   return (
     <Section
