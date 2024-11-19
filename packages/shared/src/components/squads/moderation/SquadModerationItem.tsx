@@ -39,7 +39,7 @@ export function SquadModerationItem(
   );
 
   return (
-    <div className="relative flex flex-col gap-4 p-6 hover:bg-surface-hover">
+    <div className="relative flex flex-col gap-4 border-b border-border-subtlest-tertiary p-6 hover:bg-surface-hover">
       <button
         aria-label={`Review ${title}`}
         className="absolute inset-0"
