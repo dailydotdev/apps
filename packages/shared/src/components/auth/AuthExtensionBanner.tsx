@@ -16,7 +16,7 @@ export const AuthExtensionBanner = (): ReactElement => {
   return (
     <BottomBannerContainer
       className={classNames(
-        'gap-24 border-t border-none border-accent-cabbage-default py-10 shadow-3 laptopL:gap-10',
+        'gap-10 border-t border-none border-accent-cabbage-default py-10 shadow-3',
         BottomBannerBg,
       )}
     >
