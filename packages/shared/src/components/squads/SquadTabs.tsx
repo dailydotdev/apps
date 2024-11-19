@@ -38,7 +38,11 @@ export function SquadTabs({ active, squad }: SquadTabsProps): ReactElement {
     active === SquadTab.PendingPosts ? pendingTabLabel : active;
 
   return (
-    <TabContainer shouldMountInactive controlledActive={controlledActive}>
+    <TabContainer
+      shouldMountInactive
+      controlledActive={controlledActive}
+      className={{ header: 'tablet:px-4' }}
+    >
       {links.map(({ label, url }) => (
         <Tab key={label} label={label} url={url} />
       ))}

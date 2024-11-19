@@ -1,7 +1,6 @@
 import nock from 'nock';
 import React from 'react';
 import {
-  findByRole,
   findByText,
   fireEvent,
   render,
@@ -257,8 +256,8 @@ describe('Feed logged in', () => {
 
     await waitFor(async () => {
       const el = await screen.findByTestId('adItem');
-      // eslint-disable-next-line testing-library/prefer-screen-queries
-      expect(await findByRole(el, 'link')).toHaveAttribute('href', ad.link);
+      const links = await within(el).findAllByRole('link');
+      expect(links[0]).toHaveAttribute('href', ad.link);
     });
   });
 

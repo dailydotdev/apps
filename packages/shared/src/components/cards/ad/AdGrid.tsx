@@ -11,11 +11,14 @@ import AdAttribution from './common/AdAttribution';
 import { AdImage } from './common/AdImage';
 import { AdPixel } from './common/AdPixel';
 import type { AdCardProps } from './common/common';
+import { RemoveAd } from './common/RemoveAd';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 
 export const AdGrid = forwardRef(function AdGrid(
   { ad, onLinkClick, domProps }: AdCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
+  const { isEnrolledNotPlus } = usePlusSubscription();
   return (
     <Card {...domProps} data-testid="adItem" ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
@@ -27,7 +30,14 @@ export const AdGrid = forwardRef(function AdGrid(
       <CardSpace />
       <AdImage ad={ad} ImageComponent={CardImage} />
       <CardTextContainer>
-        <AdAttribution ad={ad} className={{ main: 'mb-2 mt-4' }} />
+        {isEnrolledNotPlus ? (
+          <div className="flex items-center pt-2.5">
+            <AdAttribution ad={ad} />
+            <RemoveAd />
+          </div>
+        ) : (
+          <AdAttribution ad={ad} className={{ main: 'mb-2 mt-4' }} />
+        )}
       </CardTextContainer>
       <AdPixel pixel={ad.pixel} />
     </Card>

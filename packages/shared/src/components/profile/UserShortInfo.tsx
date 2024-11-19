@@ -12,6 +12,7 @@ import { FollowButton } from '../contentPreference/FollowButton';
 import { Origin } from '../../lib/log';
 import { Separator } from '../cards/common/common';
 import { TopReaderIn } from '../TopReaderIn';
+import { PlusUserBadge } from '../PlusUserBadge';
 
 type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? JSX.IntrinsicElements[Tag]
@@ -68,7 +69,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
   ref?: Ref<Tag>,
 ): ReactElement => {
   const Element = (tag || 'a') as React.ElementType;
-  const { name, username, bio, companies, topReader } = user;
+  const { name, username, bio, companies, topReader, isPlus } = user;
   const tooltipProps: TooltipProps = {
     appendTo: appendTooltipTo || globalThis?.document?.body || 'parent',
     visible: disableTooltip ? false : undefined,
@@ -105,6 +106,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
             <TruncateText className="font-bold" title={name}>
               {name}
             </TruncateText>
+            {isPlus && <PlusUserBadge user={{ isPlus }} tooltip={false} />}
             {companies?.length > 0 && (
               <VerifiedCompanyUserBadge user={{ companies }} />
             )}
