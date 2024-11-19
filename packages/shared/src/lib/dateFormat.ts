@@ -61,6 +61,7 @@ export enum TimeFormatType {
   Comment = 'comment',
   ReadHistory = 'readHistory',
   TopReaderBadge = 'topReaderBadge',
+  PlusMember = 'plusMember',
 }
 
 export function postDateFormat(
@@ -171,6 +172,14 @@ export const getTopReaderBadgeDateFormat = (date: string | Date): string => {
   });
 };
 
+export const getPlusMemberDateFormat = (date: string | Date): string => {
+  return new Date(date).toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+};
+
 export enum Day {
   Sunday,
   Monday,
@@ -210,6 +219,10 @@ export const formatDate = ({ value, type }: FormatDateProps): string => {
 
   if (type === TimeFormatType.TopReaderBadge) {
     return getTopReaderBadgeDateFormat(date);
+  }
+
+  if (type === TimeFormatType.PlusMember) {
+    return getPlusMemberDateFormat(date);
   }
 
   return postDateFormat(date);

@@ -258,6 +258,8 @@ export const cloudinaryIntegrationsSlackHeaderDark =
 
 export const cloudinaryTopReaderBadgeBackground =
   'https://media.daily.dev/image/upload/v1730888952/webapp/topReaderBadgeBackground.svg';
+export const cloudinaryPlusBackground =
+  'https://daily-now-res.cloudinary.com/image/upload/s--yGWFYjgW--/f_auto/v1731589143/Upgrade_to_plus_4_1_rketmz';
 
 export const smallPostImage = (url: string): string => {
   if (!url) {
