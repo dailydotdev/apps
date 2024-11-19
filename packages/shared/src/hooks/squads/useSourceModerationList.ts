@@ -23,7 +23,7 @@ import { Post } from '../../graphql/posts';
 export const rejectReasons: { value: PostModerationReason; label: string }[] = [
   {
     value: PostModerationReason.OffTopic,
-    label: 'Off-topic post unrelated to the Squad’s purpose',
+    label: 'Off-topic post unrelated to the Squad',
   },
   {
     value: PostModerationReason.Violation,
@@ -31,7 +31,7 @@ export const rejectReasons: { value: PostModerationReason; label: string }[] = [
   },
   {
     value: PostModerationReason.Promotional,
-    label: 'Too promotional without adding value to the discussion',
+    label: 'Too promotional without adding value',
   },
   {
     value: PostModerationReason.Duplicate,
@@ -40,7 +40,7 @@ export const rejectReasons: { value: PostModerationReason; label: string }[] = [
   { value: PostModerationReason.LowQuality, label: 'Lacks quality or clarity' },
   {
     value: PostModerationReason.NSFW,
-    label: 'Contains inappropriate, NSFW or offensive content',
+    label: 'Inappropriate, NSFW or offensive post',
   },
   { value: PostModerationReason.Spam, label: 'Post is spam or scam' },
   {
