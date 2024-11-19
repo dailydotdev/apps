@@ -16,7 +16,8 @@ export const MainSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
-  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { isPlus, showPlusSubscription, logSubscriptionEvent } =
+    usePlusSubscription();
 
   const onPlusClick = useCallback(() => {
     logSubscriptionEvent({
@@ -36,17 +37,18 @@ export const MainSection = ({
         }
       : undefined;
 
-    const plus = !isPlus
-      ? {
-          title: 'Upgrade to Plus',
-          path: '/plus',
-          action: onPlusClick,
-          requiresLogin: true,
-          icon: <DevPlusIcon />,
-          color:
-            'text-action-plus-default bg-action-plus-float hover:bg-action-plus-hover active:bg-action-plus-active',
-        }
-      : undefined;
+    const plus =
+      !isPlus && showPlusSubscription
+        ? {
+            title: 'Upgrade to Plus',
+            path: '/plus',
+            action: onPlusClick,
+            requiresLogin: true,
+            icon: <DevPlusIcon />,
+            color:
+              'text-action-plus-default bg-action-plus-float hover:bg-action-plus-hover active:bg-action-plus-active',
+          }
+        : undefined;
 
     return [
       myFeed,
@@ -78,7 +80,14 @@ export const MainSection = ({
       },
       plus,
     ].filter(Boolean);
-  }, [isLoggedIn, isPlus, onNavTabClick, onPlusClick, user]);
+  }, [
+    isLoggedIn,
+    isPlus,
+    onNavTabClick,
+    onPlusClick,
+    showPlusSubscription,
+    user,
+  ]);
 
   return (
     <Section
