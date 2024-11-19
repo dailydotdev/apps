@@ -74,53 +74,49 @@ export const PlusInfo = ({
           const { label, value, price, currencyCode, extraLabel } = option;
           const checked = selectedOption === value;
           return (
-            <div
+            <RadioItem
               key={label}
-              className={classNames(
-                'flex h-12 items-center justify-between rounded-10 p-2',
-                checked
-                  ? 'border border-border-subtlest-primary bg-surface-float'
-                  : undefined,
-              )}
+              name={label}
+              id={`${label}-${value}`}
+              value={value}
+              checked={checked}
+              onChange={() => {
+                onChange(value);
+                logSubscriptionEvent({
+                  event_name: LogEvent.SelectBillingCycle,
+                  target_id: label.toLowerCase(),
+                });
+              }}
+              className={{
+                content: classNames(
+                  'h-12 rounded-10 !p-2',
+                  checked
+                    ? 'border border-border-subtlest-primary bg-surface-float'
+                    : undefined,
+                ),
+              }}
             >
-              <div className="flex items-center">
-                <RadioItem
-                  name={label}
-                  id={`${label}-${value}`}
-                  value={value}
-                  checked={checked}
-                  onChange={() => {
-                    onChange(value);
-                    logSubscriptionEvent({
-                      event_name: LogEvent.SelectBillingCycle,
-                      target_id: label.toLowerCase(),
-                    });
-                  }}
-                  className={{
-                    content: 'truncate',
-                  }}
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Callout}
+                color={TypographyColor.Primary}
+              >
+                {option.label}
+              </Typography>
+
+              {extraLabel && (
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.StatusSuccess}
+                  className="ml-3 rounded-10 bg-action-upvote-float px-2 py-1"
+                  bold
                 >
-                  <Typography
-                    tag={TypographyTag.Span}
-                    type={TypographyType.Callout}
-                    color={TypographyColor.Primary}
-                  >
-                    {option.label}
-                  </Typography>
-                </RadioItem>
-                {extraLabel ? (
-                  <Typography
-                    tag={TypographyTag.Span}
-                    type={TypographyType.Caption1}
-                    color={TypographyColor.StatusSuccess}
-                    className="rounded-10 bg-action-upvote-float px-2 py-1"
-                    bold
-                  >
-                    {extraLabel}
-                  </Typography>
-                ) : undefined}
-              </div>
-              <div className="mr-1 flex items-center gap-1">
+                  {extraLabel}
+                </Typography>
+              )}
+
+              <div className="ml-auto mr-1 flex items-center gap-1">
                 <Typography
                   tag={TypographyTag.Span}
                   type={TypographyType.Body}
@@ -137,7 +133,7 @@ export const PlusInfo = ({
                   {currencyCode}
                 </Typography>
               </div>
-            </div>
+            </RadioItem>
           );
         })}
       </div>
