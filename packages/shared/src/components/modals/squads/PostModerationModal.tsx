@@ -67,6 +67,7 @@ function PostModerationModal({
       {...modalProps}
       size={Modal.Size.Large}
       kind={Modal.Kind.FlexibleTop}
+      className="tablet:max-h-[calc(100vh-5rem)]"
     >
       <Modal.Body className="gap-6 !p-6">
         {isModerator && (
