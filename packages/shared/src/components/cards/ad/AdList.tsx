@@ -4,6 +4,7 @@ import React, {
   ReactElement,
   Ref,
 } from 'react';
+import classNames from 'classnames';
 import {
   CardContent,
   CardImage,
@@ -19,6 +20,7 @@ import { combinedClicks } from '../../../lib/click';
 import AdAttribution from './common/AdAttribution';
 
 import { RemoveAd } from './common/RemoveAd';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 
 const getLinkProps = ({
   ad,
@@ -40,23 +42,41 @@ export const AdList = forwardRef(function AdCard(
   { ad, onLinkClick, domProps }: AdCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
+  const { showPlusSubscription } = usePlusSubscription();
   return (
     <FeedItemContainer
       domProps={domProps}
       ref={ref}
       data-testid="adItem"
       linkProps={getLinkProps({ ad, onLinkClick })}
+      flagProps={
+        showPlusSubscription
+          ? undefined
+          : {
+              adAttribution: (
+                <AdAttribution ad={ad} className={{ typo: 'typo-caption1' }} />
+              ),
+              type: undefined,
+            }
+      }
     >
       <CardContent>
-        <CardTitle className="!mt-0 mr-4 line-clamp-4 flex-1 font-bold typo-title3">
+        <CardTitle
+          className={classNames(
+            'mr-4 line-clamp-4 flex-1 font-bold typo-title3',
+            showPlusSubscription && '!mt-0',
+          )}
+        >
           {ad.description}
         </CardTitle>
         <AdImage ad={ad} ImageComponent={CardImage} className="mt-4" />
       </CardContent>
-      <div className="z-1 flex items-center pt-4">
-        <AdAttribution ad={ad} />
-        <RemoveAd />
-      </div>
+      {showPlusSubscription && (
+        <div className="z-1 flex items-center pt-4">
+          <AdAttribution ad={ad} />
+          <RemoveAd />
+        </div>
+      )}
       <CardSpace />
       <AdPixel pixel={ad.pixel} />
     </FeedItemContainer>
