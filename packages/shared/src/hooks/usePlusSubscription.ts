@@ -14,6 +14,7 @@ type LogSubscriptionEvent = {
 export const usePlusSubscription = (): {
   showPlusSubscription: boolean;
   isPlus: boolean;
+  isEnrolledNotPlus: boolean;
   logSubscriptionEvent: (event: LogSubscriptionEvent) => void;
 } => {
   const { user } = useAuthContext();
@@ -38,9 +39,15 @@ export const usePlusSubscription = (): {
     [isPlus, plusSubscriptionFeature],
   );
 
+  const isEnrolledNotPlus = useMemo(
+    () => plusSubscriptionFeature && !isPlus,
+    [plusSubscriptionFeature, isPlus],
+  );
+
   return {
     showPlusSubscription,
     isPlus,
+    isEnrolledNotPlus,
     logSubscriptionEvent,
   };
 };
