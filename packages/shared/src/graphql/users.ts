@@ -38,6 +38,7 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
       permalink
       createdAt
       readmeHtml
+      isPlus
       companies {
         name
         image

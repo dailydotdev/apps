@@ -18,8 +18,8 @@ export default function AdAttribution({
 }: AdAttributionProps): ReactElement {
   const elementClass = classNames(
     'text-text-quaternary no-underline',
-    className.typo ?? 'typo-footnote',
-    className.main,
+    className?.typo ?? 'typo-footnote',
+    className?.main,
   );
   if (ad.referralLink) {
     return (
