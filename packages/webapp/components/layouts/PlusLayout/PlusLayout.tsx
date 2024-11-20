@@ -49,7 +49,7 @@ export default function PlusLayout({
 export function getPlusLayout(page: ReactNode): ReactNode {
   return (
     <PaymentContextProvider>
-      <Pixels />
+      <Pixels hotjarId="5215055" />
       <PlusLayout>{page}</PlusLayout>
     </PaymentContextProvider>
   );
