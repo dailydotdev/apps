@@ -1,6 +1,5 @@
 import { JSONValue } from '@growthbook/growthbook';
 import { ShortcutsUIExperiment } from './featureValues';
-import { SearchStyleVersion } from '../components/fields/SearchField';
 import {
   cloudinaryOnboardingFullBackgroundDesktop,
   cloudinaryOnboardingFullBackgroundMobile,
@@ -36,10 +35,6 @@ const feature = {
   showCodeSnippets: new Feature('show_code_snippets', false),
   searchPlaceholder: new Feature('search_placeholder', 'Search'),
   onboardingShuffleTags: new Feature('onboarding_shuffle_tags', false),
-  searchStyleVersion: new Feature(
-    'search_style_version',
-    SearchStyleVersion.Default,
-  ),
   extensionOverlay: new Feature('onboarding_extension_overlay', false),
   seniorContentOnboarding: new Feature('senior_content_onboarding', false),
   plusSubscription: new Feature('plus_subscription', false),
