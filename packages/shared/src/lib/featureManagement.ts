@@ -33,7 +33,6 @@ const feature = {
   onboardingChecklist: new Feature('onboarding_checklist', true),
   searchUsers: new Feature('search_users', false),
   showCodeSnippets: new Feature('show_code_snippets', false),
-  searchPlaceholder: new Feature('search_placeholder', 'Search'),
   onboardingShuffleTags: new Feature('onboarding_shuffle_tags', false),
   extensionOverlay: new Feature('onboarding_extension_overlay', false),
   seniorContentOnboarding: new Feature('senior_content_onboarding', false),
