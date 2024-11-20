@@ -54,7 +54,10 @@ export const AdGrid = forwardRef(function AdGrid(
     [inViewRef, ref],
   );
 
-  const queryKey = useMemo(() => ['ads', ...feedQueryKey], [feedQueryKey]);
+  const queryKey = useMemo(
+    () => ['ads', ...[...(feedQueryKey || [])]],
+    [feedQueryKey],
+  );
 
   const autorotateAds = useFeature(featureAutorotateAds);
   // const autorotateAds = 30_000;
