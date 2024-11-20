@@ -67,7 +67,7 @@ const CollectionPostContent = dynamic(() =>
 
 const PostAuthBanner = dynamic(() =>
   import(
-    /* webpackChunkName: "lazyPostAuthBanner" */ '@dailydotdev/shared/src/components/auth/PostAuthBanner'
+    /* webpackChunkName: "postAuthBanner" */ '@dailydotdev/shared/src/components/auth/PostAuthBanner'
   ).then((module) => module.PostAuthBanner),
 );
 
