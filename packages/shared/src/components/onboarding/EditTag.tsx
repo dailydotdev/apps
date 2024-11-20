@@ -10,7 +10,6 @@ import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { CreateFeedButton } from './CreateFeedButton';
 import { TagSelection } from '../tags/TagSelection';
-import { SearchStyleVersion } from '../fields/SearchField';
 import { FeedLayoutProvider } from '../../contexts/FeedContext';
 
 interface EditTagProps {
@@ -31,9 +30,6 @@ export const EditTag = ({
   const tagsCount = feedSettings?.includeTags?.length || 0;
   const isPreviewEnabled = tagsCount >= REQUIRED_TAGS_THRESHOLD;
   const shouldShuffleTags = useFeature(feature.onboardingShuffleTags);
-  const searchStyleVersion = useFeature(
-    feature.searchStyleVersion,
-  ) as SearchStyleVersion;
 
   return (
     <>
@@ -43,7 +39,6 @@ export const EditTag = ({
       <TagSelection
         className="mt-10 max-w-4xl"
         shouldShuffleTags={shouldShuffleTags}
-        searchStyleVersion={searchStyleVersion}
       />
       <FeedPreviewControls
         isOpen={isPreviewVisible}
