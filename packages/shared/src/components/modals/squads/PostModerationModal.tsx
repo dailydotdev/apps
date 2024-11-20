@@ -25,6 +25,7 @@ import { SquadModerationItemContextMenu } from '../../squads/moderation/SquadMod
 import { useSourceModerationList } from '../../../hooks/squads/useSourceModerationList';
 import { ProfileImageSize } from '../../ProfilePicture';
 import ConditionalWrapper from '../../ConditionalWrapper';
+import { anchorDefaultRel } from '../../../lib/strings';
 
 type ActionHandler = (ids: string[], sourceId: string) => void;
 
@@ -109,7 +110,9 @@ function PostModerationModal({
           <ConditionalWrapper
             condition={!!externalLink}
             wrapper={(component) => (
-              <Link href={externalLink}>{component}</Link>
+              <Link href={externalLink} target="_blank" rel={anchorDefaultRel}>
+                {component}
+              </Link>
             )}
           >
             <MarkdownPostImage imgSrc={image || editPost?.image} />
