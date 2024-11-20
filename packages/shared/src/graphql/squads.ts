@@ -610,6 +610,7 @@ const SOURCE_POST_MODERATION_FRAGMENT = gql`
     contentHtml
     image
     createdAt
+    externalLink
     source {
       ...SourceBaseInfo
     }
@@ -694,11 +695,15 @@ export const squadApproveMutation = ({
   postIds,
   sourceId,
 }: SquadPostModerationProps): Promise<SourcePostModeration[]> => {
-  return gqlClient.request(SQUAD_MODERATE_POST_MUTATION, {
-    postIds,
-    sourceId,
-    status: SourcePostModerationStatus.Approved,
-  });
+  return gqlClient
+    .request<{
+      moderateSourcePosts: SourcePostModeration[];
+    }>(SQUAD_MODERATE_POST_MUTATION, {
+      postIds,
+      sourceId,
+      status: SourcePostModerationStatus.Approved,
+    })
+    .then((res) => res.moderateSourcePosts);
 };
 
 export const squadRejectMutation = ({
@@ -707,13 +712,17 @@ export const squadRejectMutation = ({
   reason,
   note,
 }: SquadPostRejectionProps): Promise<SourcePostModeration[]> => {
-  return gqlClient.request(SQUAD_MODERATE_POST_MUTATION, {
-    postIds,
-    sourceId,
-    status: SourcePostModerationStatus.Rejected,
-    rejectionReason: reason,
-    moderatorMessage: note,
-  });
+  return gqlClient
+    .request<{
+      moderateSourcePosts: SourcePostModeration[];
+    }>(SQUAD_MODERATE_POST_MUTATION, {
+      postIds,
+      sourceId,
+      status: SourcePostModerationStatus.Rejected,
+      rejectionReason: reason,
+      moderatorMessage: note,
+    })
+    .then((res) => res.moderateSourcePosts);
 };
 
 const DELETE_PENDING_POST_MUTATION = gql`

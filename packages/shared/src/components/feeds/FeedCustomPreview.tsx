@@ -5,7 +5,7 @@ import { PREVIEW_FEED_QUERY } from '../../graphql/feed';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { OtherFeedPage, RequestKey } from '../../lib/query';
 import Feed from '../Feed';
-import FeedLayout from '../FeedLayout';
+import { FeedLayoutProvider } from '../../contexts/FeedContext';
 
 export type FeedCustomPreviewProps = {
   feedId: string;
@@ -39,8 +39,8 @@ export const FeedCustomPreview = ({
   };
 
   return (
-    <FeedLayout>
+    <FeedLayoutProvider>
       <Feed {...feedProps} />
-    </FeedLayout>
+    </FeedLayoutProvider>
   );
 };

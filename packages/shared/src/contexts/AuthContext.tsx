@@ -63,6 +63,7 @@ export interface AuthContextData {
   accessToken?: AccessToken;
   squads?: Squad[];
   isAuthReady?: boolean;
+  geo?: Boot['geo'];
 }
 const isExtension = checkIsExtension();
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -115,6 +116,7 @@ export type AuthContextProviderProps = {
   | 'accessToken'
   | 'squads'
   | 'refetchBoot'
+  | 'geo'
 >;
 
 export const AuthContextProvider = ({
@@ -132,6 +134,7 @@ export const AuthContextProvider = ({
   accessToken,
   squads,
   firstLoad,
+  geo,
 }: AuthContextProviderProps): ReactElement => {
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
@@ -181,6 +184,7 @@ export const AuthContextProvider = ({
         deleteAccount,
         accessToken,
         squads,
+        geo,
       }}
     >
       {children}

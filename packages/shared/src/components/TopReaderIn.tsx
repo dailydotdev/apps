@@ -23,7 +23,9 @@ export const TopReaderIn = ({
     value: topReader.issuedAt,
     type: TimeFormatType.TopReaderBadge,
   });
-  const text = `Top reader in ${topReader.keyword?.flags?.title}`;
+  const text = `Top reader in ${
+    topReader.keyword?.flags?.title || topReader.keyword.value
+  }`;
 
   return (
     <ConditionalWrapper

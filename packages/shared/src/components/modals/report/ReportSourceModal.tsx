@@ -77,6 +77,7 @@ export function ReportSourceModal({
   return (
     <ReasonSelectionModal
       {...props}
+      onRequestClose={onRequestClose}
       isOpen
       onReport={(_, reason, comment) => onReport({ reason, comment })}
       reasons={reportReasons}

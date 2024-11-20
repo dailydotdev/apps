@@ -49,6 +49,9 @@
         "'([^']*)'"
       ]
     ],
-    "jestrunner.codeLensSelector": "**/*{.test,.spec,__tests__/**/*}.{js,jsx,ts,tsx}"
+    "jestrunner.codeLensSelector": "**/*{.test,.spec,__tests__/**/*}.{js,jsx,ts,tsx}",
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "typescript.preferences.preferTypeOnlyAutoImports": true,
+    "typescript.preferences.includePackageJsonAutoImports": "on",
   }
 }

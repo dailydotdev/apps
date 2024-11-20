@@ -29,6 +29,8 @@ export const USER_SHORT_INFO_FRAGMENT = gql`
       name
       image
     }
+    isPlus
+    plusMemberSince
   }
 `;
 
@@ -45,6 +47,7 @@ export const USER_SHORT_INFO_TOP_READER_FRAGMENT = gql`
     topReader {
       issuedAt
       keyword {
+        value
         flags {
           title
         }
