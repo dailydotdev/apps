@@ -261,6 +261,9 @@ export const cloudinaryTopReaderBadgeBackground =
 export const cloudinaryPlusBackground =
   'https://daily-now-res.cloudinary.com/image/upload/s--yGWFYjgW--/f_auto/v1731589143/Upgrade_to_plus_4_1_rketmz';
 
+export const cloudinaryAuthBannerBackground =
+  'https://daily-now-res.cloudinary.com/image/upload/s--lf8LUJjq--/f_auto/v1732012913/login-popover-dailydev_mxb7lw';
+
 export const smallPostImage = (url: string): string => {
   if (!url) {
     return cloudinaryPostImageCoverPlaceholder;

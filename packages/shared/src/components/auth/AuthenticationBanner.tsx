@@ -6,10 +6,14 @@ import AuthOptions, { AuthDisplay } from './AuthOptions';
 import { AuthTriggers } from '../../lib/auth';
 import { MemberAlready } from '../onboarding/MemberAlready';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { authBannerBg, BottomBannerContainer } from '../banners';
+import { BottomBannerContainer } from '../banners';
 import { ButtonVariant } from '../buttons/common';
+import { Image } from '../image/Image';
+import { cloudinaryAuthBannerBackground as bg } from '../../lib/image';
 
 const Section = classed('div', 'flex flex-col');
+const laptopBg = bg.replace('/f_auto', '/c_auto,g_center,w_1440/f_auto/');
+const desktopBg = bg.replace('/f_auto', '/c_auto,g_center,w_1920/f_auto/');
 
 export function AuthenticationBanner(): ReactElement {
   const { showLogin } = useAuthContext();
@@ -19,8 +23,13 @@ export function AuthenticationBanner(): ReactElement {
       className={classNames(
         'gap-24 border-t border-accent-cabbage-default py-10 shadow-3 laptopL:gap-32',
       )}
-      style={{ ...authBannerBg }}
     >
+      <Image
+        className="absolute left-0 top-0 -z-1 h-full w-full"
+        src={bg}
+        srcSet={`${laptopBg} 1440w, ${desktopBg} 1920w, ${bg} 2880w`}
+        sizes="(max-width: 1440px) 100vw, (max-width: 1920px) 1920px, 100vw"
+      />
       <Section className="w-[32.5rem]">
         <OnboardingHeadline
           className={{ title: 'typo-mega3', description: 'mb-8 typo-title3' }}
