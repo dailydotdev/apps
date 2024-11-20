@@ -25,13 +25,20 @@ function MyFeedHeading({
   const isExtension = checkIsExtension();
   const router = useRouter();
   const { checkHasCompleted } = useActions();
-  const { showTopSites, toggleShowTopSites } = useSettingsContext();
+  const { showTopSites, toggleShowTopSites, customLinks } =
+    useSettingsContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { shouldUseListFeedLayout } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const feedName = getFeedName(router.pathname);
   const { isCustomFeed } = useFeedName({ feedName });
   let feedFiltersLabel = 'Feed settings';
+
+  const hasNoShortcuts = !customLinks?.length && !showTopSites;
+  const canEnableShortcuts =
+    isExtension &&
+    hasNoShortcuts &&
+    checkHasCompleted(ActionType.FirstShortcutsSession);
 
   if (isCustomFeed) {
     feedFiltersLabel = 'Edit tags';
@@ -51,24 +58,22 @@ function MyFeedHeading({
       >
         {!isMobile ? feedFiltersLabel : null}
       </FeedSettingsButton>
-      {isExtension &&
-        checkHasCompleted(ActionType.FirstShortcutsSession) &&
-        !showTopSites && (
-          <Button
-            size={ButtonSize.Medium}
-            variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
-            className="mr-auto"
-            onClick={() => {
-              toggleShowTopSites();
-            }}
-            icon={<PlusIcon />}
-            iconPosition={
-              shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined
-            }
-          >
-            Shortcuts
-          </Button>
-        )}
+      {canEnableShortcuts && (
+        <Button
+          size={ButtonSize.Medium}
+          variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
+          className="mr-auto"
+          onClick={() => {
+            toggleShowTopSites();
+          }}
+          icon={<PlusIcon />}
+          iconPosition={
+            shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined
+          }
+        >
+          Shortcuts
+        </Button>
+      )}
     </>
   );
 }

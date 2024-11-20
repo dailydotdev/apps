@@ -13,7 +13,7 @@ import {
   ShortcutItemPlaceholder,
 } from './ShortcutLinksItem';
 
-type ShortcutLinksListProps = {
+interface ShortcutLinksListProps {
   onLinkClick: () => void;
   onMenuClick: MouseEventHandler<Element>;
   onOptionsOpen: () => void;
@@ -22,8 +22,7 @@ type ShortcutLinksListProps = {
   showTopSites: boolean;
   toggleShowTopSites: () => void;
   hasCheckedPermission: boolean;
-  isOldUser: boolean;
-};
+}
 
 const placeholderLinks = Array.from({ length: 6 }).map((_, index) => index);
 

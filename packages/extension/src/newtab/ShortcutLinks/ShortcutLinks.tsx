@@ -47,7 +47,7 @@ export default function ShortcutLinks({
     formRef,
     onSaveChanges,
     isTopSiteActive,
-    isOldUser,
+    haveEnabledShortcuts,
   } = useShortcutLinks();
   const shortcutSource = isTopSiteActive
     ? ShortcutsSourceType.Browser
@@ -131,7 +131,7 @@ export default function ShortcutLinks({
   return (
     <>
       {hasCheckedPermission &&
-        (isOldUser ? (
+        (haveEnabledShortcuts ? (
           <ShortcutLinksList
             {...{
               onLinkClick,
@@ -142,7 +142,6 @@ export default function ShortcutLinks({
               showTopSites,
               toggleShowTopSites,
               hasCheckedPermission,
-              isOldUser,
             }}
           />
         ) : (

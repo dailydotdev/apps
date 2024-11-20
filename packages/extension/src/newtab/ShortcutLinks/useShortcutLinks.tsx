@@ -19,7 +19,7 @@ import { useActions } from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import useTopSites from '../useTopSites';
 
-interface UseShortcutLinks {
+export interface UseShortcutLinks {
   formRef: MutableRefObject<HTMLFormElement>;
   onSaveChanges: (
     e: FormEvent,
@@ -34,7 +34,7 @@ interface UseShortcutLinks {
   isManual?: boolean;
   shortcutLinks: string[];
   formLinks: string[];
-  isOldUser: boolean;
+  haveEnabledShortcuts: boolean;
 }
 
 export default function useShortcutLinks(): UseShortcutLinks {
@@ -57,9 +57,8 @@ export default function useShortcutLinks(): UseShortcutLinks {
   const shortcutLinks = isTopSiteActive ? sites : customLinks;
   const formLinks = (isManual ? customLinks : sites) || [];
 
-  const isOldUser =
-    isTopSiteActive ||
-    hasCustomLinks ||
+  const haveEnabledShortcuts =
+    (isTopSiteActive || hasCustomLinks) &&
     checkHasCompleted(ActionType.FirstShortcutsSession);
 
   const resetSelected = () => {
@@ -152,7 +151,7 @@ export default function useShortcutLinks(): UseShortcutLinks {
       isTopSiteActive,
       hasCheckedPermission,
       customLinks,
-      isOldUser,
+      haveEnabledShortcuts,
       onSaveChanges,
       askTopSitesPermission: async () => {
         const granted = await askTopSitesPermission();
