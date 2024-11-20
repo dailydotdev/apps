@@ -33,6 +33,8 @@ interface FeedItemBase<T extends FeedItemType> {
 
 interface AdItem extends FeedItemBase<FeedItemType.Ad> {
   ad: Ad;
+  index: number;
+  updatedAt: number;
 }
 
 interface MarketingCtaItem extends FeedItemBase<FeedItemType.MarketingCta> {
@@ -207,6 +209,8 @@ export default function useFeed<T>(
               posts.splice(adSpot, 0, {
                 type: FeedItemType.Ad,
                 ad: adsQuery.data?.pages[pageIndex],
+                index: pageIndex,
+                updatedAt: adsQuery.dataUpdatedAt,
               });
             } else {
               posts.splice(adSpot, 0, { type: FeedItemType.Placeholder });
@@ -232,6 +236,7 @@ export default function useFeed<T>(
     adSpot,
     adsQuery.data?.pages,
     placeholdersPerPage,
+    adsQuery.dataUpdatedAt,
   ]);
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);
