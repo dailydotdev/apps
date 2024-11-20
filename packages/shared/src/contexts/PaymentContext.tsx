@@ -5,11 +5,13 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import {
   CheckoutEventNames,
   Environments,
+  getPaddleInstance,
   initializePaddle,
   Paddle,
   type PaddleEventData,
@@ -32,6 +34,7 @@ export type ProductOption = {
 };
 export interface PaymentContextData {
   openCheckout?: ({ priceId }: { priceId: string }) => void;
+  paddle?: Paddle | undefined;
   productOptions?: ProductOption[];
 }
 
@@ -48,9 +51,17 @@ export const PaymentContextProvider = ({
   const { user, geo } = useAuthContext();
   const [paddle, setPaddle] = useState<Paddle>();
   const { logSubscriptionEvent } = usePlusSubscription();
+  const logRef = useRef<typeof logSubscriptionEvent>();
+  logRef.current = logSubscriptionEvent;
 
   // Download and initialize Paddle instance from CDN
   useEffect(() => {
+    const existingPaddleInstance = getPaddleInstance();
+    if (existingPaddleInstance) {
+      setPaddle(existingPaddleInstance);
+      return;
+    }
+
     initializePaddle({
       environment:
         (process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT as Environments) ||
@@ -59,13 +70,13 @@ export const PaymentContextProvider = ({
       eventCallback: (event: PaddleEventData) => {
         switch (event?.name) {
           case CheckoutEventNames.CHECKOUT_PAYMENT_SELECTED:
-            logSubscriptionEvent({
+            logRef.current({
               event_name: LogEvent.SelectCheckoutPayment,
               target_id: event?.data?.payment.method_details.type,
             });
             break;
           case CheckoutEventNames.CHECKOUT_COMPLETED:
-            logSubscriptionEvent({
+            logRef.current({
               event_name: LogEvent.CompleteCheckout,
               extra: {
                 cycle: event?.data.items?.[0]?.billing_cycle.interval,
@@ -82,12 +93,12 @@ export const PaymentContextProvider = ({
             break;
           // This doesn't exist in the original code
           case 'checkout.warning' as CheckoutEventNames:
-            logSubscriptionEvent({
+            logRef.current({
               event_name: LogEvent.WarningCheckout,
             });
             break;
           case CheckoutEventNames.CHECKOUT_ERROR:
-            logSubscriptionEvent({
+            logRef.current({
               event_name: LogEvent.ErrorCheckout,
             });
             break;
@@ -100,7 +111,7 @@ export const PaymentContextProvider = ({
         setPaddle(paddleInstance);
       }
     });
-  }, [logSubscriptionEvent]);
+  }, []);
 
   const openCheckout = useCallback(
     ({ priceId }: { priceId: string }) => {
@@ -124,7 +135,7 @@ export const PaymentContextProvider = ({
         },
       });
     },
-    [paddle?.Checkout, user],
+    [paddle, user],
   );
 
   const { data: planTypes } = useQuery({
@@ -165,9 +176,10 @@ export const PaymentContextProvider = ({
   const contextData = useMemo<PaymentContextData>(
     () => ({
       openCheckout,
+      paddle,
       productOptions,
     }),
-    [openCheckout, productOptions],
+    [openCheckout, paddle, productOptions],
   );
 
   return (
