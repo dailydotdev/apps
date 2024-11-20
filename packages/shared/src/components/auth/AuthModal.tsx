@@ -7,7 +7,7 @@ import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
 import LogContext from '../../contexts/LogContext';
 import { Modal, ModalProps } from '../modals/common/Modal';
 import { AnonymousUser, LoggedUser, LogoutReason } from '../../lib/user';
-import { logSignUp } from './OnboardingLogs';
+import { logPixelSignUp } from '../Pixels';
 
 export interface AuthModalProps extends ModalProps {
   trigger?: AuthTriggersType;
@@ -49,7 +49,9 @@ export default function AuthModal({
   const onSuccessfulRegistration = (newUser?: LoggedUser | AnonymousUser) => {
     loginState?.onRegistrationSuccess?.(newUser);
 
-    logSignUp({ experienceLevel: (newUser as LoggedUser)?.experienceLevel });
+    logPixelSignUp({
+      experienceLevel: (newUser as LoggedUser)?.experienceLevel,
+    });
   };
 
   const defaultDisplay = loginState?.formValues?.email
