@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import classNames from 'classnames';
 import { authBannerBg, BottomBannerContainer } from '../banners';
 import { OnboardingHeadline } from './OnboardingHeadline';
 import { MemberAlready } from '../onboarding/MemberAlready';
@@ -12,9 +11,7 @@ export const AuthExtensionBanner = (): ReactElement => {
 
   return (
     <BottomBannerContainer
-      className={classNames(
-        'gap-10 border-t border-none border-accent-cabbage-default py-10 shadow-3',
-      )}
+      className="gap-10 border-t border-none border-accent-cabbage-default py-10 shadow-3"
       style={{ ...authBannerBg }}
     >
       <section className="w-[36rem]">

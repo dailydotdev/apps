@@ -42,7 +42,7 @@ const feature = {
   ),
   extensionOverlay: new Feature('onboarding_extension_overlay', false),
   seniorContentOnboarding: new Feature('senior_content_onboarding', false),
-  postBannerExtensionPrompt: new Feature('post_banner_extension_prompt', false),
+  postBannerExtensionPrompt: new Feature('post_banner_extension_prompt', true),
   plusSubscription: new Feature('plus_subscription', false),
   feedPageSizes: new Feature('feed_page_sizes', {
     default: 7,
