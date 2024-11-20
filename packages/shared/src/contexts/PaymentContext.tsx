@@ -21,6 +21,7 @@ import { getPricingIds } from '../graphql/paddle';
 import { plusSuccessUrl } from '../lib/constants';
 import { LogEvent } from '../lib/log';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
+import { logPixelPayment } from '../components/Pixels';
 
 export type ProductOption = {
   label: string;
@@ -73,6 +74,11 @@ export const PaymentContextProvider = ({
                 payment: event?.data.payment.method_details.type,
               },
             });
+            logPixelPayment(
+              event?.data.totals.total,
+              event?.data.currency_code,
+              event?.data?.transaction_id,
+            );
             break;
           // This doesn't exist in the original code
           case 'checkout.warning' as CheckoutEventNames:
