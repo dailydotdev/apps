@@ -167,7 +167,6 @@ export const SearchField = forwardRef(function SearchField(
         autoComplete="off"
         className={classNames(
           'flex-1',
-          isFocusVersion ? '!placeholder-text-secondary' : undefined,
           sizeClass,
           getFieldFontColor({ readOnly, disabled, hasInput, focused }),
         )}
