@@ -9,8 +9,7 @@ import { SearchPanelPostSuggestions } from './SearchPanelPostSuggestions';
 import { SearchPanelSourceSuggestions } from './SearchPanelSourceSuggestions';
 import { SearchPanelTagSuggestions } from './SearchPanelTagSuggestions';
 import { SearchPanelUserSuggestions } from './SearchPanelUserSuggestions';
-import { feature } from '../../../lib/featureManagement';
-import { useConditionalFeature, useEventListener } from '../../../hooks';
+import { useEventListener } from '../../../hooks';
 import { useSearchProvider } from '../../../hooks/search';
 import { useLogContext } from '../../../contexts/LogContext';
 
@@ -22,11 +21,6 @@ type Props = {
 const SearchPanelDropdown = ({ query = '', anchor }: Props): ReactElement => {
   const { search } = useSearchProvider();
   const { logEvent } = useLogContext();
-
-  const { value: isUserSearchEnabled } = useConditionalFeature({
-    feature: feature.searchUsers,
-    shouldEvaluate: true,
-  });
 
   useEventListener(anchor, 'keydown', (event) => {
     const navigableElements = [
@@ -82,7 +76,7 @@ const SearchPanelDropdown = ({ query = '', anchor }: Props): ReactElement => {
         <SearchPanelTagSuggestions title="Tags" />
         <SearchPanelPostSuggestions title="Posts on daily.dev" />
         <SearchPanelSourceSuggestions title="Sources" />
-        {isUserSearchEnabled && <SearchPanelUserSuggestions title="Users" />}
+        <SearchPanelUserSuggestions title="Users" />
         <SearchPanelCustomAction
           provider={SearchProviderEnum.Posts}
           onClick={() => {
