@@ -14,6 +14,7 @@ import { checkIsExtension } from '../../lib/func';
 import { ActionType } from '../../graphql/actions';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { FeedSettingsButton } from '../feeds/FeedSettingsButton';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 interface MyFeedHeadingProps {
   onOpenFeedFilters: () => void;
@@ -24,6 +25,7 @@ function MyFeedHeading({
 }: MyFeedHeadingProps): ReactElement {
   const isExtension = checkIsExtension();
   const router = useRouter();
+  const { user, isAuthReady } = useAuthContext();
   const { checkHasCompleted } = useActions();
   const { showTopSites, toggleShowTopSites, customLinks } =
     useSettingsContext();
@@ -35,10 +37,23 @@ function MyFeedHeading({
   let feedFiltersLabel = 'Feed settings';
 
   const hasNoShortcuts = !customLinks?.length && !showTopSites;
+  const isOldUser =
+    isAuthReady &&
+    !!user?.createdAt &&
+    new Date(user.createdAt) < new Date('2024-07-16');
   const canEnableShortcuts =
     isExtension &&
     hasNoShortcuts &&
-    checkHasCompleted(ActionType.FirstShortcutsSession);
+    (isOldUser || checkHasCompleted(ActionType.FirstShortcutsSession));
+
+  console.log({
+    isOldUser,
+    hasNoShortcuts,
+    isExtension,
+    canEnableShortcuts,
+    customLinks,
+    showTopSites,
+  });
 
   if (isCustomFeed) {
     feedFiltersLabel = 'Edit tags';
