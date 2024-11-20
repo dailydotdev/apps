@@ -4,7 +4,11 @@ import { RemoteSettings } from '@dailydotdev/shared/src/graphql/settings';
 import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 
-export const getBootData = async () => {
+export enum BootApp {
+  Extension = 'extension',
+}
+
+export async function getBootData() {
   const defaultAlerts: Alerts = {
     filter: true,
     rankLastSeen: new Date(),
@@ -48,6 +52,6 @@ export const getBootData = async () => {
     feeds: [],
   });
   return getBootMock(defaultBootData);
-};
+}
 
 export * from '@dailydotdev/shared/src/lib/boot';
