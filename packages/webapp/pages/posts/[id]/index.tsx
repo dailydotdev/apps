@@ -33,6 +33,7 @@ import {
 } from '@dailydotdev/shared/src/hooks';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
+import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -175,6 +176,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
 PostPage.getLayout = getLayout;
 PostPage.layoutProps = {
   screenCentered: false,
+  customBanner: <CustomAuthBanner />,
 };
 
 export default PostPage;

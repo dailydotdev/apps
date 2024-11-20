@@ -6,12 +6,10 @@ import AuthOptions, { AuthDisplay } from './AuthOptions';
 import { AuthTriggers } from '../../lib/auth';
 import { MemberAlready } from '../onboarding/MemberAlready';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { BottomBannerContainer } from '../banners';
+import { authBannerBg, BottomBannerContainer } from '../banners';
 import { ButtonVariant } from '../buttons/common';
 
 const Section = classed('div', 'flex flex-col');
-export const authGradientBg =
-  'bg-background-default bg-gradient-to-l from-theme-overlay-active-cabbage from-0% to-theme-overlay-active-onion to-100%';
 
 export function AuthenticationBanner(): ReactElement {
   const { showLogin } = useAuthContext();
@@ -20,8 +18,8 @@ export function AuthenticationBanner(): ReactElement {
     <BottomBannerContainer
       className={classNames(
         'gap-24 border-t border-accent-cabbage-default py-10 shadow-3 laptopL:gap-32',
-        authGradientBg,
       )}
+      style={{ ...authBannerBg }}
     >
       <Section className="w-[32.5rem]">
         <OnboardingHeadline

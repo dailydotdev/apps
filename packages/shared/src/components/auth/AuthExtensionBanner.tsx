@@ -1,14 +1,11 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { BottomBannerContainer } from '../banners';
+import { authBannerBg, BottomBannerContainer } from '../banners';
 import { OnboardingHeadline } from './OnboardingHeadline';
 import { MemberAlready } from '../onboarding/MemberAlready';
 import { AuthTriggers } from '../../lib/auth';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { GetExtensionButton } from '../buttons/GetExtensionButton';
-
-export const BottomBannerBg =
-  "bg-cover bg-[url('https://daily-now-res.cloudinary.com/image/upload/s--lf8LUJjq--/f_auto/v1732012913/login-popover-dailydev_mxb7lw')]";
 
 export const AuthExtensionBanner = (): ReactElement => {
   const { showLogin } = useAuthContext();
@@ -17,8 +14,8 @@ export const AuthExtensionBanner = (): ReactElement => {
     <BottomBannerContainer
       className={classNames(
         'gap-10 border-t border-none border-accent-cabbage-default py-10 shadow-3',
-        BottomBannerBg,
       )}
+      style={{ ...authBannerBg }}
     >
       <section className="w-[36rem]">
         <OnboardingHeadline
