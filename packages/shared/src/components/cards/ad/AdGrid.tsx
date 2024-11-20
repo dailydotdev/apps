@@ -73,10 +73,7 @@ export const AdGrid = forwardRef(function AdGrid(
       queryKey,
       (currentData: InfiniteData<Ad, unknown>) => {
         const data = currentData;
-        data.pages[index] = {
-          ...newAd,
-          description: `${Date.now()}`,
-        };
+        data.pages[index] = newAd;
         data.pageParams[index] = Date.now();
         return data;
       },
