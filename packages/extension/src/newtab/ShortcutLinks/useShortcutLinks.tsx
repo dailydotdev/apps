@@ -1,11 +1,10 @@
-import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import {
   Dispatch,
   FormEvent,
   MutableRefObject,
   useContext,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -15,8 +14,7 @@ import {
   ShortcutsSourceType,
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
-import { useActions } from '@dailydotdev/shared/src/hooks';
-import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { useShortcutsUser } from '@dailydotdev/shared/src/hooks/useShortcutsUser';
 import useTopSites from '../useTopSites';
 
 export interface UseShortcutLinks {
@@ -34,21 +32,23 @@ export interface UseShortcutLinks {
   isManual?: boolean;
   shortcutLinks: string[];
   formLinks: string[];
-  haveEnabledShortcuts: boolean;
+  customLinks?: string[];
+  hideShortcuts: boolean;
+  showInitialBanner: boolean;
 }
 
 export default function useShortcutLinks(): UseShortcutLinks {
   const { logEvent } = useContext(LogContext);
   const formRef = useRef<HTMLFormElement>();
   const [isManual, setIsManual] = useState(true);
-  const { customLinks, updateCustomLinks } = useContext(SettingsContext);
-  const { checkHasCompleted } = useActions();
+  const { customLinks, updateCustomLinks, showTopSites } = useSettingsContext();
   const {
     topSites,
     hasCheckedPermission,
     revokePermission,
     askTopSitesPermission,
   } = useTopSites();
+
   const hasTopSites = topSites === undefined ? null : topSites?.length > 0;
   const hasCustomLinks = customLinks?.length > 0;
   const isTopSiteActive =
@@ -57,9 +57,10 @@ export default function useShortcutLinks(): UseShortcutLinks {
   const shortcutLinks = isTopSiteActive ? sites : customLinks;
   const formLinks = (isManual ? customLinks : sites) || [];
 
-  const haveEnabledShortcuts =
-    (isTopSiteActive || hasCustomLinks) &&
-    checkHasCompleted(ActionType.FirstShortcutsSession);
+  const { isOldUser, showToggleShortcuts } = useShortcutsUser();
+
+  const hasNoShortcuts = !shortcutLinks?.length && showTopSites;
+  const showInitialBanner = !isOldUser && hasNoShortcuts;
 
   const resetSelected = () => {
     if (topSites !== undefined && !hasCustomLinks) {
@@ -141,50 +142,33 @@ export default function useShortcutLinks(): UseShortcutLinks {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isManual, hasCustomLinks]);
 
-  return useMemo(
-    () => ({
-      formRef,
-      isManual,
-      formLinks,
-      shortcutLinks,
-      hasTopSites,
-      isTopSiteActive,
-      hasCheckedPermission,
-      customLinks,
-      haveEnabledShortcuts,
-      onSaveChanges,
-      askTopSitesPermission: async () => {
-        const granted = await askTopSitesPermission();
+  return {
+    formRef,
+    isManual,
+    formLinks,
+    shortcutLinks,
+    hasTopSites,
+    isTopSiteActive,
+    hasCheckedPermission,
+    customLinks,
+    showInitialBanner,
+    hideShortcuts: showToggleShortcuts,
+    onSaveChanges,
+    askTopSitesPermission: async () => {
+      const granted = await askTopSitesPermission();
 
-        if (granted) {
-          logEvent({
-            event_name: LogEvent.SaveShortcutAccess,
-            target_type: TargetType.Shortcuts,
-            extra: JSON.stringify({ source: ShortcutsSourceType.Browser }),
-          });
-        }
+      if (granted) {
+        logEvent({
+          event_name: LogEvent.SaveShortcutAccess,
+          target_type: TargetType.Shortcuts,
+          extra: JSON.stringify({ source: ShortcutsSourceType.Browser }),
+        });
+      }
 
-        return granted;
-      },
-      resetSelected,
-      onIsManual: setIsManual,
-      revokePermission: onRevokePermission,
-    }),
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      formRef,
-      isManual,
-      formLinks,
-      shortcutLinks,
-      hasTopSites,
-      isTopSiteActive,
-      hasCheckedPermission,
-      onSaveChanges,
-      askTopSitesPermission,
-      resetSelected,
-      setIsManual,
-      onRevokePermission,
-    ],
-  );
+      return granted;
+    },
+    resetSelected,
+    onIsManual: setIsManual,
+    revokePermission: onRevokePermission,
+  };
 }

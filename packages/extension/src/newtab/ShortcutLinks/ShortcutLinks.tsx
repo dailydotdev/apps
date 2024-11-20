@@ -47,7 +47,8 @@ export default function ShortcutLinks({
     formRef,
     onSaveChanges,
     isTopSiteActive,
-    haveEnabledShortcuts,
+    showInitialBanner,
+    hideShortcuts,
   } = useShortcutLinks();
   const shortcutSource = isTopSiteActive
     ? ShortcutsSourceType.Browser
@@ -130,8 +131,13 @@ export default function ShortcutLinks({
 
   return (
     <>
-      {hasCheckedPermission &&
-        (haveEnabledShortcuts ? (
+      {!hideShortcuts &&
+        (showInitialBanner ? (
+          <ShortcutLinksBanner
+            onTopSitesClick={toggleShowTopSites}
+            onCustomLinksClick={onOptionsOpen}
+          />
+        ) : (
           <ShortcutLinksList
             {...{
               onLinkClick,
@@ -143,11 +149,6 @@ export default function ShortcutLinks({
               toggleShowTopSites,
               hasCheckedPermission,
             }}
-          />
-        ) : (
-          <ShortcutLinksBanner
-            onTopSitesClick={toggleShowTopSites}
-            onCustomLinksClick={onOptionsOpen}
           />
         ))}
 

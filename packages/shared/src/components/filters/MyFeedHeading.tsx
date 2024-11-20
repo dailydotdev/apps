@@ -10,11 +10,10 @@ import {
 import { useActions, useFeedLayout, useViewSize, ViewSize } from '../../hooks';
 import { getFeedName } from '../../lib/feed';
 import { useFeedName } from '../../hooks/feed/useFeedName';
-import { checkIsExtension } from '../../lib/func';
 import { ActionType } from '../../graphql/actions';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { FeedSettingsButton } from '../feeds/FeedSettingsButton';
-import { useAuthContext } from '../../contexts/AuthContext';
+import { useShortcutsUser } from '../../hooks/useShortcutsUser';
 
 interface MyFeedHeadingProps {
   onOpenFeedFilters: () => void;
@@ -23,12 +22,9 @@ interface MyFeedHeadingProps {
 function MyFeedHeading({
   onOpenFeedFilters,
 }: MyFeedHeadingProps): ReactElement {
-  const isExtension = checkIsExtension();
   const router = useRouter();
-  const { user, isAuthReady } = useAuthContext();
-  const { checkHasCompleted } = useActions();
-  const { showTopSites, toggleShowTopSites, customLinks } =
-    useSettingsContext();
+  const { completeAction } = useActions();
+  const { toggleShowTopSites } = useSettingsContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { shouldUseListFeedLayout } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -36,24 +32,7 @@ function MyFeedHeading({
   const { isCustomFeed } = useFeedName({ feedName });
   let feedFiltersLabel = 'Feed settings';
 
-  const hasNoShortcuts = !customLinks?.length && !showTopSites;
-  const isOldUser =
-    isAuthReady &&
-    !!user?.createdAt &&
-    new Date(user.createdAt) < new Date('2024-07-16');
-  const canEnableShortcuts =
-    isExtension &&
-    hasNoShortcuts &&
-    (isOldUser || checkHasCompleted(ActionType.FirstShortcutsSession));
-
-  console.log({
-    isOldUser,
-    hasNoShortcuts,
-    isExtension,
-    canEnableShortcuts,
-    customLinks,
-    showTopSites,
-  });
+  const { isOldUserWithNoShortcuts, showToggleShortcuts } = useShortcutsUser();
 
   if (isCustomFeed) {
     feedFiltersLabel = 'Edit tags';
@@ -73,12 +52,16 @@ function MyFeedHeading({
       >
         {!isMobile ? feedFiltersLabel : null}
       </FeedSettingsButton>
-      {canEnableShortcuts && (
+      {showToggleShortcuts && (
         <Button
           size={ButtonSize.Medium}
           variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
           className="mr-auto"
           onClick={() => {
+            if (isOldUserWithNoShortcuts) {
+              completeAction(ActionType.FirstShortcutsSession);
+              return;
+            }
             toggleShowTopSites();
           }}
           icon={<PlusIcon />}
