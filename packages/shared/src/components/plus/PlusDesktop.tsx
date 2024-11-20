@@ -1,5 +1,5 @@
 import React, {
-  ReactElement,
+  type ReactElement,
   useCallback,
   useEffect,
   useRef,
