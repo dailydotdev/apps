@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import Link from 'next/link';
 import { Modal, ModalProps } from '../common/Modal';
 import {
   Typography,
@@ -23,6 +24,7 @@ import { ModalClose } from '../common/ModalClose';
 import { SquadModerationItemContextMenu } from '../../squads/moderation/SquadModerationItemContextMenu';
 import { useSourceModerationList } from '../../../hooks/squads/useSourceModerationList';
 import { ProfileImageSize } from '../../ProfilePicture';
+import ConditionalWrapper from '../../ConditionalWrapper';
 
 type ActionHandler = (ids: string[], sourceId: string) => void;
 
@@ -52,6 +54,7 @@ function PostModerationModal({
     contentHtml,
     sharedPost,
     source,
+    externalLink,
   } = data;
   const onReadArticle = useReadArticle({
     origin: Origin.ArticleModal,
@@ -103,7 +106,14 @@ function PostModerationModal({
           titleHtml={titleHtml || editPost?.titleHtml}
         />
         {!sharedPost && (image || editPost?.image) && (
-          <MarkdownPostImage imgSrc={image || editPost?.image} />
+          <ConditionalWrapper
+            condition={!!externalLink}
+            wrapper={(component) => (
+              <Link href={externalLink}>{component}</Link>
+            )}
+          >
+            <MarkdownPostImage imgSrc={image || editPost?.image} />
+          </ConditionalWrapper>
         )}
         {!!contentHtml?.length && (
           <Markdown className="!mt-0" content={contentHtml} />
