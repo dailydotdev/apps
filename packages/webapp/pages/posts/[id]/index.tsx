@@ -176,6 +176,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
 PostPage.getLayout = getLayout;
 PostPage.layoutProps = {
   screenCentered: false,
+  customBanner: <CustomAuthBanner />,
 };
 
 export default PostPage;

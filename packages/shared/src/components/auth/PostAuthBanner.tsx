@@ -10,6 +10,40 @@ import { OnboardingHeadline } from './OnboardingHeadline';
 import { sizeClasses } from '../ProfilePicture';
 import { Image, ImageType } from '../image/Image';
 import { useConditionalFeature } from '../../hooks';
+import { IconSize } from '../Icon';
+import { socialCTA, socialGradient, socialIcon } from '../../lib/socialMedia';
+import { capitalize } from '../../lib/strings';
+
+/**
+ * NOTE! document.referrer does not contain a referrer on localhost
+ */
+const getSocialReferrer = (): string | null => {
+  if (!document.referrer) {
+    return null;
+  }
+
+  const url = new URL(document.referrer);
+  const host = url.hostname.replace(/^www\./, '').split('.')[0];
+  return ['reddit', 'x'].includes(host) ? host : null;
+};
+
+const SocialPersonalizedBanner = ({ site }: { site: string }): ReactElement => {
+  const Icon = socialIcon[site];
+  const gradient = socialGradient[site];
+  return (
+    <AuthenticationBanner>
+      <Icon size={IconSize.XXLarge} />
+      <OnboardingHeadline
+        className={{
+          title: `typo-mega3 ${gradient}`,
+          description: 'mb-8 typo-title3',
+        }}
+        pretitle={`Coming from ${capitalize(site)}?`}
+        {...socialCTA[site]}
+      />
+    </AuthenticationBanner>
+  );
+};
 
 const UserPersonalizedBanner = ({
   userId,
@@ -66,6 +100,11 @@ export const PostAuthBanner = (): ReactElement => {
 
   if (userId) {
     return <UserPersonalizedBanner userId={userId} />;
+  }
+
+  const social = getSocialReferrer();
+  if (social) {
+    return <SocialPersonalizedBanner site={social} />;
   }
 
   return <AuthenticationBanner />;

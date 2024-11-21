@@ -49,7 +49,7 @@ export function AuthenticationBanner({
           />
         )}
       </Section>
-      <Section className="w-[23.25rem] pt-2">
+      <Section className="w-[23.25rem]">
         <AuthOptions
           ignoreMessages
           formRef={null}
