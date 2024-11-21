@@ -14,7 +14,7 @@ import {
   TagsData,
 } from '../../graphql/feedSettings';
 import { disabledRefetch, getRandomNumber } from '../../lib/func';
-import { SearchField, SearchStyleVersion } from '../fields/SearchField';
+import { SearchField } from '../fields/SearchField';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { useTagSearch, useViewSize, ViewSize } from '../../hooks';
 import type { FilterOnboardingProps } from '../onboarding/FilterOnboarding';
@@ -40,8 +40,6 @@ export type TagSelectionProps = {
   onClickTag?: ({ tag, action }: OnSelectTagProps) => void;
   origin?: Origin;
   searchOrigin?: Origin;
-  searchStyleVersion?: SearchStyleVersion;
-  shouldShuffleTags?: boolean;
 } & Omit<FilterOnboardingProps, 'onSelectedTopics'>;
 
 export function TagSelection({
@@ -52,8 +50,6 @@ export function TagSelection({
   onClickTag,
   origin = Origin.Onboarding,
   searchOrigin = Origin.EditTag,
-  shouldShuffleTags = false,
-  searchStyleVersion,
 }: TagSelectionProps): ReactElement {
   const [isShuffled, setIsShuffled] = useState(false);
   const queryClient = useQueryClient();
@@ -108,13 +104,13 @@ export function TagSelection({
   });
 
   const onboardingTags = useMemo(() => {
-    if (!shouldShuffleTags || isShuffled || !onboardingTagsRaw) {
+    if (isShuffled || !onboardingTagsRaw) {
       return onboardingTagsRaw;
     }
 
     setIsShuffled(true);
     return onboardingTagsRaw?.sort(() => Math.random() - 0.5);
-  }, [shouldShuffleTags, isShuffled, onboardingTagsRaw]);
+  }, [isShuffled, onboardingTagsRaw]);
 
   const excludedTags = useMemo(() => {
     if (!onboardingTags) {
@@ -208,7 +204,6 @@ export function TagSelection({
         inputId="search-filters"
         placeholder="Search javascript, php, git, etc…"
         valueChanged={onSearch}
-        styleVersion={searchStyleVersion}
       />
       <div
         role="list"

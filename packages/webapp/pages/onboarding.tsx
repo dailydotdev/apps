@@ -43,9 +43,9 @@ import {
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
   EXPERIENCE_TO_SENIORITY,
-  logSignUp,
-  OnboardingLogs,
-} from '@dailydotdev/shared/src/components/auth/OnboardingLogs';
+  logPixelSignUp,
+  Pixels,
+} from '@dailydotdev/shared/src/components/Pixels';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
@@ -229,7 +229,7 @@ export function OnboardPage(): ReactElement {
   }, [router]);
 
   const onSuccessfulRegistration = (userRefetched: LoggedUser) => {
-    logSignUp({
+    logPixelSignUp({
       experienceLevel: userRefetched?.experienceLevel,
     });
     setActiveScreen(OnboardingStep.EditTag);
@@ -285,9 +285,6 @@ export function OnboardPage(): ReactElement {
     return null;
   }
 
-  const instanceId = router.query?.aiid?.toString();
-  const userId = user?.id || anonymous?.id;
-
   return (
     <div className="z-3 flex h-full max-h-screen min-h-screen w-full flex-1 flex-col items-center overflow-x-hidden">
       {showOnboardingPage && (
@@ -303,7 +300,7 @@ export function OnboardPage(): ReactElement {
           sizes="(max-width: 655px) 450px, 1024px"
         />
       )}
-      <OnboardingLogs userId={userId} instanceId={instanceId} />
+      <Pixels />
       {showGenerigLoader && <GenericLoader />}
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}
