@@ -1,16 +1,5 @@
-import React, {
-  forwardRef,
-  ReactElement,
-  useCallback,
-  useContext,
-  useMemo,
-} from 'react';
-import {
-  useQuery,
-  useQueryClient,
-  type InfiniteData,
-} from '@tanstack/react-query';
-import { useInView } from 'react-intersection-observer';
+import React, { forwardRef, ReactElement } from 'react';
+
 import {
   Card,
   CardImage,
@@ -25,75 +14,20 @@ import { AdPixel } from './common/AdPixel';
 import type { AdCardProps } from './common/common';
 import { RemoveAd } from './common/RemoveAd';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
-import { apiUrl } from '../../../lib/config';
-import type { Ad } from '../../../graphql/posts';
-import { ActiveFeedContext } from '../../../contexts';
-import { disabledRefetch } from '../../../lib/func';
-import { useFeature } from '../../GrowthBookProvider';
-import { featureAutorotateAds } from '../../../lib/featureManagement';
+import {
+  useAutorotatingAds,
+  type InViewRef,
+} from '../../../hooks/feed/useAutorotatingAds';
 
 export const AdGrid = forwardRef(function AdGrid(
   { ad, onLinkClick, domProps, index, feedIndex }: AdCardProps,
-  ref: (node?: Element | null) => void,
+  inViewRef: InViewRef,
 ): ReactElement {
   const { isEnrolledNotPlus } = usePlusSubscription();
-  const { logEventEnd } = useLogContext();
-  const { queryKey: feedQueryKey } = useContext(ActiveFeedContext);
-  const queryClient = useQueryClient();
-  const { ref: inViewRef, inView } = useInView({
-    threshold: 0.5,
-  });
-
-  const refs = useCallback(
-    (node: HTMLElement) => {
-      ref(node);
-      inViewRef(node);
-    },
-    [inViewRef, ref],
-  );
-
-  const queryKey = useMemo(
-    () => ['ads', ...[...(feedQueryKey || [])]],
-    [feedQueryKey],
-  );
-
-  const autorotateAds = useFeature(featureAutorotateAds);
-
-  const fetchNewAd = useCallback(async (): Promise<Ad> => {
-    const res = await fetch(`${apiUrl}/v1/a?active=true`);
-    const newAd: Ad = (await res.json())?.[0];
-    if (!newAd) {
-      return null;
-    }
-
-    // End the impression event for the old ad
-    logEventEnd(generateAdLogEventKey(feedIndex));
-
-    queryClient.setQueryData(
-      queryKey,
-      (currentData: InfiniteData<Ad, unknown>) => {
-        const data = currentData;
-        data.pages[index] = newAd;
-        data.pageParams[index] = Date.now();
-        return data;
-      },
-    );
-
-    return newAd;
-  }, [feedIndex, index, logEventEnd, queryClient, queryKey]);
-
-  useQuery<Ad>({
-    queryKey: [...queryKey, index],
-    queryFn: fetchNewAd,
-    enabled: !!autorotateAds,
-    initialData: ad,
-    staleTime: autorotateAds,
-    refetchInterval: () => (inView ? autorotateAds : false),
-    ...disabledRefetch,
-  });
+  const { ref } = useAutorotatingAds(ad, index, feedIndex, inViewRef);
 
   return (
-    <Card {...domProps} data-testid="adItem" ref={refs}>
+    <Card {...domProps} data-testid="adItem" ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <CardTextContainer>
         <CardTitle className="my-4 line-clamp-4 font-bold typo-title3">
