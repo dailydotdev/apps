@@ -16,6 +16,10 @@ export type PixelProps = {
   userId?: string;
 };
 
+export type HotjarProps = {
+  hotjarId: string;
+};
+
 const FbTracking = ({ userId }: PixelProps): ReactElement => {
   return (
     <>
@@ -59,13 +63,13 @@ const GtagTracking = ({ userId, instanceId }: PixelProps): ReactElement => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const HotJarTracking = (): ReactElement => {
+const HotJarTracking = ({ hotjarId }: HotjarProps): ReactElement => {
   return (
     <Script strategy="afterInteractive" id="load-hotjar">
       {`
       (function(h,o,t,j,a,r){
         h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
-        h._hjSettings={hjid:3871311,hjsv:6};
+        h._hjSettings={hjid:${hotjarId},hjsv:6};
         a=o.getElementsByTagName('head')[0];
         r=o.createElement('script');r.async=1;
         r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
@@ -189,7 +193,7 @@ export const logPixelPayment = (
   }
 };
 
-export const Pixels = (): ReactElement => {
+export const Pixels = ({ hotjarId }: Partial<HotjarProps>): ReactElement => {
   const { user, anonymous } = useAuthContext();
   const userId = user?.id || anonymous?.id;
 
@@ -204,6 +208,7 @@ export const Pixels = (): ReactElement => {
 
   return (
     <>
+      {hotjarId && <HotJarTracking hotjarId={hotjarId} />}
       <FbTracking {...props} />
       <GtagTracking {...props} />
       <TiktokTracking />
