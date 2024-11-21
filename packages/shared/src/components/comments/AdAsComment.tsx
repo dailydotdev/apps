@@ -1,7 +1,5 @@
 import React, { ReactElement, useContext, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Ad } from '../../graphql/posts';
-import { apiUrl } from '../../lib/config';
 import { TruncateText } from '../utilities';
 import AdLink from '../cards/ad/common/AdLink';
 import { adLogEvent } from '../../lib/feed';
@@ -12,6 +10,7 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import AuthContext from '../../contexts/AuthContext';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { AdPixel } from '../cards/ad/common/AdPixel';
+import { fetchCommentAd } from '../../lib/ads';
 
 interface AdAsCommentProps {
   postId: string;
@@ -23,11 +22,7 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
   const ad = useQuery({
     queryKey: generateQueryKey(RequestKey.Ads, user, postId),
 
-    queryFn: async () => {
-      const res = await fetch(`${apiUrl}/v1/a/post`);
-      const ads: Ad[] = await res.json();
-      return ads[0];
-    },
+    queryFn: fetchCommentAd,
     enabled: true,
     refetchOnMount: false,
     refetchOnReconnect: false,
