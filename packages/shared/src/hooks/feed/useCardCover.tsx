@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useMemo, useState } from 'react';
+import React, { ReactNode, useMemo } from 'react';
 import { Post } from '../../graphql/posts';
 import { usePostShareLoop } from '../post/usePostShareLoop';
 import { CardCoverShare } from '../../components/cards/common/CardCoverShare';
@@ -26,23 +26,11 @@ export const useCardCover = ({
   onShare,
   className = {},
 }: UseCardCoverProps): UseCardCover => {
-  const { shouldShowOverlay, onInteract } = usePostShareLoop(post);
+  const { shouldShowOverlay, onInteract, currentInteraction } = usePostShareLoop(post);
   const shouldShowReminder = useBookmarkReminderCover(post);
-  const [interaction, setInteraction] = useState<'upvote' | 'bookmark' | null>(null);
-  useEffect(() => {
-    if (shouldShowOverlay) {
-      setInteraction('upvote');
-    }
-  }, [shouldShowOverlay]);
-
-  useEffect(() => {
-    if (shouldShowReminder) {
-      setInteraction('bookmark');
-    }
-  }, [shouldShowReminder]);
 
   const overlay = useMemo(() => {
-    if (shouldShowOverlay && onShare && (interaction === 'upvote' || !shouldShowReminder)) {
+    if (shouldShowOverlay && onShare && currentInteraction === 'upvote') {
       return (
         <CardCoverShare
           post={post}
@@ -55,7 +43,7 @@ export const useCardCover = ({
       );
     }
 
-    if (shouldShowReminder && (interaction === 'bookmark' || !shouldShowOverlay)) {
+    if (shouldShowReminder && currentInteraction === 'bookmark') {
       return (
         <CardCoverContainer
           title="Don’t have time now? Set a reminder"
@@ -81,7 +69,7 @@ export const useCardCover = ({
     post,
     shouldShowOverlay,
     shouldShowReminder,
-    interaction
+    currentInteraction
   ]);
 
   return { overlay };
