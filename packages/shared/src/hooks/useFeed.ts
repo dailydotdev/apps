@@ -157,7 +157,7 @@ export default function useFeed<T>(
     !settings?.disableAds;
 
   const adsQuery = useInfiniteQuery<Ad>({
-    queryKey: ['ads', ...feedQueryKey],
+    queryKey: [RequestKey.Ads, ...feedQueryKey],
     queryFn: async ({ pageParam }) => {
       const res = await fetch(`${apiUrl}/v1/a?active=${!!pageParam}`);
       const ads: Ad[] = await res.json();
