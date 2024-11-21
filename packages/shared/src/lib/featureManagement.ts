@@ -42,6 +42,10 @@ const feature = {
     laptopXL: 21,
     desktop: 25,
   }),
+  pricingIds: new Feature('pricing_ids', {
+    pri_01jbsccbdbcwyhdy8hy3c2etyn: 'monthly',
+    pri_01jbscda57910yvwjtyapnrrzc: 'yearly',
+  }),
 };
 
 export { feature };
