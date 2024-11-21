@@ -17,6 +17,7 @@ import {
   type PaddleEventData,
 } from '@paddle/paddle-js';
 import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import { useAuthContext } from './AuthContext';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { getPricingIds } from '../graphql/paddle';
@@ -48,6 +49,7 @@ export type PaymentContextProviderProps = {
 export const PaymentContextProvider = ({
   children,
 }: PaymentContextProviderProps): ReactElement => {
+  const router = useRouter();
   const { user, geo } = useAuthContext();
   const [paddle, setPaddle] = useState<Paddle>();
   const { logSubscriptionEvent } = usePlusSubscription();
@@ -90,6 +92,7 @@ export const PaymentContextProvider = ({
               event?.data.currency_code,
               event?.data?.transaction_id,
             );
+            router.push(plusSuccessUrl);
             break;
           // This doesn't exist in the original code
           case 'checkout.warning' as CheckoutEventNames:
@@ -111,7 +114,7 @@ export const PaymentContextProvider = ({
         setPaddle(paddleInstance);
       }
     });
-  }, []);
+  }, [router]);
 
   const openCheckout = useCallback(
     ({ priceId }: { priceId: string }) => {
@@ -130,7 +133,6 @@ export const PaymentContextProvider = ({
           frameStyle:
             'width: 100%; background-color: transparent; border: none;',
           theme: 'dark',
-          successUrl: plusSuccessUrl,
           showAddDiscounts: false,
         },
       });
