@@ -38,6 +38,8 @@ export const useAutoRotatingAds = (
     skip: !autorotateAds,
   });
 
+  const rotationTime = autorotateAds * 1_000;
+
   const refs = useCallback(
     (node: HTMLElement) => {
       ref(node);
@@ -78,10 +80,10 @@ export const useAutoRotatingAds = (
     queryFn: fetchNewAd,
     enabled: !!autorotateAds,
     initialData: ad,
-    staleTime: autorotateAds,
+    staleTime: rotationTime,
     // Disable refetching when the ad is not in view,
     // and resets the timer for when it is back in view
-    refetchInterval: () => (inView ? autorotateAds : false),
+    refetchInterval: () => (inView ? rotationTime : false),
     ...disabledRefetch,
   });
 
