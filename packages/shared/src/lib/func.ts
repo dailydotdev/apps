@@ -100,6 +100,10 @@ export enum UserAgent {
 export const checkIsBrowser = (agent: UserAgent): boolean =>
   globalThis?.navigator?.userAgent?.includes(agent);
 
+export const checkIsFirefox = (): boolean =>
+  typeof globalThis?.navigator !== 'undefined' &&
+  /firefox/i.test(globalThis?.navigator.userAgent);
+
 export const checkIsChromeOnly = (): boolean =>
   checkIsBrowser(UserAgent.Chrome) && !checkIsBrowser(UserAgent.Edge);
 

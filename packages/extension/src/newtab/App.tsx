@@ -40,6 +40,8 @@ import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext'
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
+import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
+import { checkIsFirefox } from '@dailydotdev/shared/src/lib/func';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
@@ -47,6 +49,11 @@ import MainFeedPage from './MainFeedPage';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
 import { useContentScriptStatus } from '../../../shared/src/hooks';
+import {
+  FirefoxPermission,
+  FirefoxPermissionType,
+} from '../permission/FirefoxPermission';
+import { FirefoxPermissionDeclined } from '../permission/FirefoxPermissionDeclined';
 
 structuredCloneJsonPolyfill();
 
@@ -67,7 +74,6 @@ Modal.defaultStyles = {};
 const getRedirectUri = () => browser.runtime.getURL('index.html');
 function InternalApp(): ReactElement {
   useError();
-  useLazyModal();
   useWebVitals();
   const { openModal } = useLazyModal();
   const { setCurrentPage, currentPage, promptUninstallExtension } =
@@ -94,6 +100,11 @@ function InternalApp(): ReactElement {
     }
   }, [analyticsConsent, analyticsConsentPrompt]);
 
+  const [firefoxPermission, setFirefoxPermission, isFetched] =
+    usePersistentContext<FirefoxPermissionType | null>(
+      'firefox_accepted_permissions',
+      null,
+    );
   const { unreadCount } = useNotificationContext();
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useContentScriptStatus();
@@ -135,12 +146,31 @@ function InternalApp(): ReactElement {
       : DEFAULT_TAB_TITLE;
   }, [unreadCount]);
 
+  if (!isFetched) {
+    return null;
+  }
+
   if (!hostGranted) {
     return isCheckingHostPermissions ? null : <ExtensionPermissionsPrompt />;
   }
 
   if (shouldRedirectOnboarding) {
     return <ExtensionOnboarding />;
+  }
+
+  if (
+    checkIsFirefox() &&
+    firefoxPermission !== FirefoxPermissionType.Accepted
+  ) {
+    if (firefoxPermission === FirefoxPermissionType.Declined) {
+      return (
+        <FirefoxPermissionDeclined
+          onGoBack={() => setFirefoxPermission(null)}
+        />
+      );
+    }
+
+    return <FirefoxPermission onUpdate={setFirefoxPermission} />;
   }
 
   return (
