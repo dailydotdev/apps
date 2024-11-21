@@ -14,7 +14,7 @@ export const PlusMobile = (): ReactElement => {
   }, []);
 
   const onContinue = useCallback(() => {
-    router.replace(`${webappUrl}plus/payment?pid=${selectedOption}`);
+    router.push(`${webappUrl}plus/payment?pid=${selectedOption}`);
   }, [router, selectedOption]);
 
   return (

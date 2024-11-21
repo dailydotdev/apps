@@ -23,8 +23,7 @@ export const MainSection = ({
       event_name: LogEvent.UpgradeSubscription,
       target_id: TargetId.Sidebar,
     });
-    onNavTabClick?.('/plus');
-  }, [logSubscriptionEvent, onNavTabClick]);
+  }, [logSubscriptionEvent]);
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     const myFeed = isLoggedIn
@@ -39,8 +38,9 @@ export const MainSection = ({
     const plus = isEnrolledNotPlus
       ? {
           title: 'Upgrade to Plus',
-          path: '/plus',
-          action: onPlusClick,
+          path: `${webappUrl}plus`,
+          onClick: onPlusClick,
+          isForcedLink: true,
           requiresLogin: true,
           icon: <DevPlusIcon />,
           color:

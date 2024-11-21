@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, ReactElement, useEffect } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import Logo, { LogoPosition } from './Logo';
 import { OnboardingTitleGradient } from './onboarding/common';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
@@ -6,9 +6,7 @@ import { cloudinaryOnboardingGlow } from '../lib/image';
 import { useExtensionContext } from '../contexts/ExtensionContext';
 import { useHostStatus } from '../hooks/useHostPermissionStatus';
 
-const ExtensionPermissionsPrompt = ({
-  children,
-}: PropsWithChildren): ReactElement => {
+const ExtensionPermissionsPrompt = (): ReactElement => {
   const { requestHostPermissions, origins, setCurrentPage } =
     useExtensionContext();
   const { refetch: refetchHostPermissions } = useHostStatus();
@@ -29,7 +27,7 @@ const ExtensionPermissionsPrompt = ({
   };
 
   return (
-    <div className="relative flex max-h-screen min-h-screen flex-col items-center justify-center overflow-hidden px-7 text-center antialiased">
+    <div className="flex max-h-screen min-h-screen flex-col items-center justify-center overflow-hidden px-7 text-center antialiased">
       <Logo
         position={LogoPosition.Relative}
         logoClassName={{ container: 'h-logo-big' }}
@@ -60,7 +58,6 @@ const ExtensionPermissionsPrompt = ({
         src={cloudinaryOnboardingGlow}
         alt="Gradient background"
       />
-      {children}
     </div>
   );
 };
