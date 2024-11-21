@@ -28,6 +28,7 @@ import {
 import {
   BasicSourceMember,
   Squad,
+  Source,
 } from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { useQuery } from '@tanstack/react-query';
@@ -273,9 +274,9 @@ export async function getServerSideProps({
   };
 
   try {
-    const promises = [];
-
-    promises.push(getSquadStaticFields(handle));
+    const promises: [Promise<Source | Squad>, Promise<PublicProfile>?] = [
+      getSquadStaticFields(handle),
+    ];
 
     if (userId && campaign) {
       promises.push(
@@ -286,6 +287,7 @@ export async function getServerSideProps({
               id: userId,
             },
           )
+          .then((data) => data?.user)
           .catch(() => undefined),
       );
     }
@@ -317,8 +319,8 @@ export async function getServerSideProps({
       props: {
         seo,
         handle,
-        initialData: squad,
-        referringUser: referringUser?.user || null,
+        initialData: squad as Squad,
+        referringUser: referringUser || null,
       },
     };
   } catch (err) {
