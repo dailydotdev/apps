@@ -4,6 +4,8 @@ import withBundleAnalyzerInit from '@next/bundle-analyzer';
 import { readFileSync } from 'fs';
 import { NextConfig } from 'next';
 import { Rewrite } from 'next/dist/lib/load-custom-routes';
+// @ts-expect-error - no types
+import { setupDevPlatform } from '@cloudflare/next-on-pages/next-dev';
 
 const { version } = JSON.parse(
   readFileSync('../extension/package.json', 'utf8'),
@@ -169,5 +171,9 @@ const nextConfig: NextConfig = {
     }),
   }),
 };
+
+if (process.env.NODE_ENV === 'development') {
+  await setupDevPlatform();
+}
 
 export default nextConfig;

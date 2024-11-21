@@ -13,6 +13,9 @@
   "pnpm": {
     "patchedDependencies": {
       "graphql-request@3.7.0": "patches/graphql-request@3.7.0.patch"
+    },
+    "overrides": {
+      "eslint": "^7.32.0"
     }
   }
 }

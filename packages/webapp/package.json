@@ -9,10 +9,13 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "pretest": "npm run lint",
     "test": "jest --runInBand",
-    "deploy": "vercel"
+    "pages:build": "pnpm exec next-on-pages",
+    "preview": "pnpm run pages:build && wrangler pages dev",
+    "deploy": "pnpm run pages:build && wrangler pages deploy"
   },
   "prettier": "@dailydotdev/prettier-config",
   "dependencies": {
+    "@cloudflare/next-on-pages": "^1.13.5",
     "@dailydotdev/react-contexify": "^5.0.2",
     "@dailydotdev/shared": "*",
     "@paddle/paddle-js": "^1.3.2",
@@ -66,6 +69,7 @@
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-jest-dom": "^3.9.4",
     "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-next-on-pages": "^1.13.5",
     "eslint-plugin-prettier": "^3.4.1",
     "eslint-plugin-react": "^7.29.4",
     "eslint-plugin-react-hooks": "^4.5.0",
@@ -91,8 +95,7 @@
     "serwist": "^9.0.9",
     "tailwindcss": "^3.4.14",
     "ts-jest": "^26.5.4",
-    "typescript": "5.6.3",
-    "vercel": "^21.3.3"
+    "typescript": "5.6.3"
   },
   "sideEffects": [
     "*.css"
