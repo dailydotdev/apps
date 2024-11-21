@@ -117,6 +117,7 @@ function InternalApp(): ReactElement {
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
   const shouldRedirectOnboarding = !user && isPageReady && !isTesting;
+  const isFirefox = checkIsFirefox();
 
   useEffect(() => {
     if (routeChangedCallbackRef.current && isPageReady) {
@@ -146,7 +147,7 @@ function InternalApp(): ReactElement {
       : DEFAULT_TAB_TITLE;
   }, [unreadCount]);
 
-  if (!isFetched) {
+  if (isFirefox && !isFetched) {
     return null;
   }
 
@@ -158,10 +159,7 @@ function InternalApp(): ReactElement {
     return <ExtensionOnboarding />;
   }
 
-  if (
-    checkIsFirefox() &&
-    firefoxPermission !== FirefoxPermissionType.Accepted
-  ) {
+  if (isFirefox && firefoxPermission !== FirefoxPermissionType.Accepted) {
     if (firefoxPermission === FirefoxPermissionType.Declined) {
       return (
         <FirefoxPermissionDeclined
