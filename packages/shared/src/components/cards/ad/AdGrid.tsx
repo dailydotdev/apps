@@ -17,7 +17,7 @@ import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import {
   useAutoRotatingAds,
   type InViewRef,
-} from '../../../hooks/feed/useAutoRotatingAdsTmp';
+} from '../../../hooks/feed/useAutoRotatingAds';
 
 export const AdGrid = forwardRef(function AdGrid(
   { ad, onLinkClick, domProps, index, feedIndex }: AdCardProps,
