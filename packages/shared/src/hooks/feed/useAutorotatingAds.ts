@@ -14,10 +14,10 @@ import { ActiveFeedContext } from '../../contexts';
 import { useFeature } from '../../components/GrowthBookProvider';
 import { featureAutorotateAds } from '../../lib/featureManagement';
 import type { Ad } from '../../graphql/posts';
-import { apiUrl } from '../../lib/config';
 import { generateAdLogEventKey } from './useLogImpression';
 import { disabledRefetch } from '../../lib/func';
 import { RequestKey } from '../../lib/query';
+import { fetchAd } from '../../lib/ads';
 
 export type InViewRef = InViewHookResponse['ref'];
 
@@ -52,8 +52,7 @@ export const useAutoRotatingAds = (
   );
 
   const fetchNewAd = useCallback(async (): Promise<Ad> => {
-    const res = await fetch(`${apiUrl}/v1/a?active=true`);
-    const newAd: Ad = (await res.json())?.[0];
+    const newAd = await fetchAd(true);
     if (!newAd) {
       return null;
     }

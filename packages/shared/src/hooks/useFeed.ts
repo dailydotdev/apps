@@ -14,7 +14,6 @@ import {
   PostsEngaged,
 } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
-import { apiUrl } from '../lib/config';
 import useSubscription from './useSubscription';
 import {
   getNextPageParam,
@@ -26,6 +25,7 @@ import { MarketingCta } from '../components/marketingCta/common';
 import { FeedItemType } from '../components/cards/common/common';
 import { GARMR_ERROR, gqlClient } from '../graphql/common';
 import { usePlusSubscription } from './usePlusSubscription';
+import { fetchAd } from '../lib/ads';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -158,11 +158,7 @@ export default function useFeed<T>(
 
   const adsQuery = useInfiniteQuery<Ad>({
     queryKey: [RequestKey.Ads, ...feedQueryKey],
-    queryFn: async ({ pageParam }) => {
-      const res = await fetch(`${apiUrl}/v1/a?active=${!!pageParam}`);
-      const ads: Ad[] = await res.json();
-      return ads[0];
-    },
+    queryFn: async ({ pageParam }) => fetchAd(!!pageParam),
     initialPageParam: '',
     getNextPageParam: () => Date.now(),
     enabled: isAdsQueryEnabled,
