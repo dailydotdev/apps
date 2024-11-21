@@ -33,18 +33,16 @@ import { useFeature } from '../../GrowthBookProvider';
 import { featureAutorotateAds } from '../../../lib/featureManagement';
 
 export const AdGrid = forwardRef(function AdGrid(
-  { ad, onLinkClick, domProps, index }: AdCardProps,
+  { ad, onLinkClick, domProps, index, feedIndex }: AdCardProps,
   ref: (node?: Element | null) => void,
 ): ReactElement {
   const { isEnrolledNotPlus } = usePlusSubscription();
+  const { logEventEnd } = useLogContext();
   const { queryKey: feedQueryKey } = useContext(ActiveFeedContext);
   const queryClient = useQueryClient();
   const { ref: inViewRef, inView } = useInView({
     threshold: 0.5,
-    trackVisibility: true,
-    delay: 100,
   });
-  // useFeature(featureAutorotateAds);
 
   const refs = useCallback(
     (node: HTMLElement) => {
@@ -60,7 +58,6 @@ export const AdGrid = forwardRef(function AdGrid(
   );
 
   const autorotateAds = useFeature(featureAutorotateAds);
-  // const autorotateAds = 30_000;
 
   const fetchNewAd = useCallback(async (): Promise<Ad> => {
     const res = await fetch(`${apiUrl}/v1/a?active=true`);
@@ -68,6 +65,9 @@ export const AdGrid = forwardRef(function AdGrid(
     if (!newAd) {
       return null;
     }
+
+    // End the impression event for the old ad
+    logEventEnd(generateAdLogEventKey(feedIndex));
 
     queryClient.setQueryData(
       queryKey,
@@ -80,7 +80,7 @@ export const AdGrid = forwardRef(function AdGrid(
     );
 
     return newAd;
-  }, [index, queryClient, queryKey]);
+  }, [feedIndex, index, logEventEnd, queryClient, queryKey]);
 
   useQuery<Ad>({
     queryKey: [...queryKey, index],
