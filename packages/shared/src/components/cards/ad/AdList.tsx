@@ -1,9 +1,4 @@
-import React, {
-  AnchorHTMLAttributes,
-  forwardRef,
-  ReactElement,
-  Ref,
-} from 'react';
+import React, { AnchorHTMLAttributes, forwardRef, ReactElement } from 'react';
 import classNames from 'classnames';
 import {
   CardContent,
@@ -21,6 +16,10 @@ import AdAttribution from './common/AdAttribution';
 
 import { RemoveAd } from './common/RemoveAd';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import {
+  useAutoRotatingAds,
+  type InViewRef,
+} from '../../../hooks/feed/useAutoRotatingAds';
 
 const getLinkProps = ({
   ad,
@@ -39,10 +38,12 @@ const getLinkProps = ({
 };
 
 export const AdList = forwardRef(function AdCard(
-  { ad, onLinkClick, domProps }: AdCardProps,
-  ref: Ref<HTMLElement>,
+  { ad, onLinkClick, domProps, index, feedIndex }: AdCardProps,
+  inViewRef: InViewRef,
 ): ReactElement {
   const { isEnrolledNotPlus } = usePlusSubscription();
+  const { ref } = useAutoRotatingAds(ad, index, feedIndex, inViewRef);
+
   return (
     <FeedItemContainer
       domProps={domProps}
