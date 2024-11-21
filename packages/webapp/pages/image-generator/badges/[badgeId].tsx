@@ -18,6 +18,8 @@ interface PageProps {
   topReaderBadge: TopReader;
 }
 
+export const runtime = 'experimental-edge';
+
 export async function getStaticProps({
   params,
 }: GetStaticPropsContext): Promise<GetStaticPropsResult<PageProps>> {

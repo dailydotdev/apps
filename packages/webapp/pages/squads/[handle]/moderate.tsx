@@ -83,6 +83,8 @@ interface SquadPageParams extends ParsedUrlQuery {
   handle: string;
 }
 
+export const runtime = 'experimental-edge';
+
 export function getStaticProps({
   params,
 }: GetStaticPropsContext<SquadPageParams>): GetStaticPropsResult<SquadSettingsProps> {

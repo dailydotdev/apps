@@ -256,6 +256,8 @@ interface SquadPageParams extends ParsedUrlQuery {
   handle: string;
 }
 
+export const runtime = 'experimental-edge';
+
 export async function getServerSideProps({
   params,
   query,

@@ -105,6 +105,8 @@ SourcesPage.layoutProps = {
 };
 export default SourcesPage;
 
+export const runtime = 'experimental-edge';
+
 export async function getStaticProps(): Promise<
   GetStaticPropsResult<SourcesPageProps>
 > {

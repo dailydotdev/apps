@@ -145,6 +145,8 @@ TagsPage.layoutProps = {
 };
 export default TagsPage;
 
+export const runtime = 'experimental-edge';
+
 export async function getStaticProps(): Promise<
   GetStaticPropsResult<TagsPageProps>
 > {

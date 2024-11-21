@@ -58,6 +58,8 @@ interface KeywordParams extends ParsedUrlQuery {
   value: string;
 }
 
+export const runtime = 'experimental-edge';
+
 export async function getStaticProps({
   params,
 }: GetStaticPropsContext<KeywordParams>): Promise<

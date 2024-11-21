@@ -92,6 +92,8 @@ const redirect = {
   permanent: false,
 };
 
+export const runtime = 'experimental-edge';
+
 export async function getServerSideProps({
   params,
   res,

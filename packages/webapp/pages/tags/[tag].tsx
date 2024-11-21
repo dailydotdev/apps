@@ -363,6 +363,8 @@ const getSeoData = (
   description,
 });
 
+export const runtime = 'experimental-edge';
+
 export async function getStaticProps({
   params,
 }: GetStaticPropsContext<TagPageParams>): Promise<

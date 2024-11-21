@@ -262,6 +262,8 @@ interface SourcePageParams extends ParsedUrlQuery {
   source: string;
 }
 
+export const runtime = 'experimental-edge';
+
 export async function getStaticProps({
   params,
 }: GetStaticPropsContext<SourcePageParams>): Promise<

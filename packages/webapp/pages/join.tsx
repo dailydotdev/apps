@@ -92,6 +92,8 @@ interface QueryParams {
   cid: ReferralCampaignKey;
 }
 
+export const runtime = 'experimental-edge';
+
 export const getServerSideProps: GetServerSideProps<JoinPageProps> = async ({
   query,
   res,
