@@ -286,7 +286,7 @@ export async function getServerSideProps({
               id: userId,
             },
           )
-          .then((data) => data.user)
+          .then((data) => data?.user)
           .catch(() => undefined),
       );
     }
