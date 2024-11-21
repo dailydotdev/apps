@@ -13,6 +13,7 @@ import ConditionalWrapper from './ConditionalWrapper';
 import { DateFormat } from './utilities';
 import { TimeFormatType } from '../lib/dateFormat';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
+import { LogEvent, TargetId } from '../lib/log';
 
 export type Props = {
   user: Pick<PublicProfile, 'isPlus' | 'plusMemberSince'>;
@@ -23,7 +24,8 @@ export const PlusUserBadge = ({
   user,
   tooltip = true,
 }: Props): ReactElement => {
-  const { showPlusSubscription, isPlus } = usePlusSubscription();
+  const { showPlusSubscription, isPlus, logSubscriptionEvent } =
+    usePlusSubscription();
 
   if (!user.isPlus || !showPlusSubscription) {
     return null;
@@ -47,6 +49,12 @@ export const PlusUserBadge = ({
                   <Typography
                     tag={TypographyTag.Link}
                     color={TypographyColor.Link}
+                    onClick={() => {
+                      logSubscriptionEvent({
+                        event_name: LogEvent.UpgradeSubscription,
+                        target_id: TargetId.PlusBadge,
+                      });
+                    }}
                   >
                     Upgrade to Plus!
                   </Typography>

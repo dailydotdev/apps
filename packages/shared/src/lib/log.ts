@@ -60,8 +60,6 @@ export enum Origin {
 }
 
 export enum LogEvent {
-  ShowNewTabPermission = 'show new tab permission',
-  DismissNewTabPermission = 'dismiss new tab permission',
   ReportSquad = 'report squad',
   Click = 'click',
   CommentPost = 'comment post',
@@ -282,6 +280,7 @@ export enum TargetId {
   ProfileDropdown = 'profile dropdown',
   Ads = 'ads',
   MyProfile = 'my profile',
+  PlusBadge = 'plus badge',
 }
 
 export enum NotificationChannel {

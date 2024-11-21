@@ -110,7 +110,7 @@ export function FeedLayoutProvider({
   const { sidebarExpanded } = useSettingsContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isPlus } = usePlusSubscription();
-  const feedPageSizes = useConditionalFeature({
+  const { value: feedPageSizes } = useConditionalFeature({
     feature: feature.feedPageSizes,
     shouldEvaluate: !isPlus,
   });
