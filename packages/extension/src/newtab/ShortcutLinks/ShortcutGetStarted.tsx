@@ -15,7 +15,7 @@ import React, { PropsWithChildren } from 'react';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { useActions } from '@dailydotdev/shared/src/hooks';
 
-function ShortcutUIItemPlaceholder({ children }: PropsWithChildren) {
+function ShortcutItemPlaceholder({ children }: PropsWithChildren) {
   return (
     <div className="group flex flex-col items-center">
       <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
@@ -26,15 +26,15 @@ function ShortcutUIItemPlaceholder({ children }: PropsWithChildren) {
   );
 }
 
-interface ShortcutLinksBannerProps {
+interface ShortcutGetStartedProps {
   onTopSitesClick: () => void;
   onCustomLinksClick: () => void;
 }
 
-export const ShortcutLinksBanner = ({
+export const ShortcutGetStarted = ({
   onTopSitesClick,
   onCustomLinksClick,
-}: ShortcutLinksBannerProps) => {
+}: ShortcutGetStartedProps) => {
   const { githubShortcut } = useThemedAsset();
   const { completeAction } = useActions();
 
@@ -58,18 +58,18 @@ export const ShortcutLinksBanner = ({
       </h4>
       <div className="flex gap-4">
         {items.map((url) => (
-          <ShortcutUIItemPlaceholder key={url}>
+          <ShortcutItemPlaceholder key={url}>
             <img
               src={url}
               alt={url}
               loading="lazy"
               className="size-6 object-contain"
             />
-          </ShortcutUIItemPlaceholder>
+          </ShortcutItemPlaceholder>
         ))}
-        <ShortcutUIItemPlaceholder>
+        <ShortcutItemPlaceholder>
           <PlusIcon />
-        </ShortcutUIItemPlaceholder>
+        </ShortcutItemPlaceholder>
       </div>
       <div className="flex gap-4">
         <Button

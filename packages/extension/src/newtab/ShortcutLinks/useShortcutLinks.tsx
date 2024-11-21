@@ -34,7 +34,7 @@ export interface UseShortcutLinks {
   formLinks: string[];
   customLinks?: string[];
   hideShortcuts: boolean;
-  showInitialBanner: boolean;
+  showGetStarted: boolean;
 }
 
 export default function useShortcutLinks(): UseShortcutLinks {
@@ -60,7 +60,7 @@ export default function useShortcutLinks(): UseShortcutLinks {
   const { isOldUser, showToggleShortcuts } = useShortcutsUser();
 
   const hasNoShortcuts = !shortcutLinks?.length && showTopSites;
-  const showInitialBanner = !isOldUser && hasNoShortcuts;
+  const showGetStarted = !isOldUser && hasNoShortcuts;
 
   const resetSelected = () => {
     if (topSites !== undefined && !hasCustomLinks) {
@@ -151,7 +151,7 @@ export default function useShortcutLinks(): UseShortcutLinks {
     isTopSiteActive,
     hasCheckedPermission,
     customLinks,
-    showInitialBanner,
+    showGetStarted,
     hideShortcuts: showToggleShortcuts,
     onSaveChanges,
     askTopSitesPermission: async () => {

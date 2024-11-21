@@ -21,7 +21,7 @@ import MostVisitedSitesModal from '../MostVisitedSitesModal';
 import useShortcutLinks from './useShortcutLinks';
 import ShortcutOptionsMenu from './ShortcutOptionsMenu';
 import { ShortcutLinksList } from './ShortcutLinksList';
-import { ShortcutLinksBanner } from './ShortcutLinksBanner';
+import { ShortcutGetStarted } from './ShortcutGetStarted';
 
 interface ShortcutLinksProps {
   shouldUseListFeedLayout: boolean;
@@ -47,7 +47,7 @@ export default function ShortcutLinks({
     formRef,
     onSaveChanges,
     isTopSiteActive,
-    showInitialBanner,
+    showGetStarted,
     hideShortcuts,
   } = useShortcutLinks();
   const shortcutSource = isTopSiteActive
@@ -132,8 +132,8 @@ export default function ShortcutLinks({
   return (
     <>
       {!hideShortcuts &&
-        (showInitialBanner ? (
-          <ShortcutLinksBanner
+        (showGetStarted ? (
+          <ShortcutGetStarted
             onTopSitesClick={toggleShowTopSites}
             onCustomLinksClick={onOptionsOpen}
           />
