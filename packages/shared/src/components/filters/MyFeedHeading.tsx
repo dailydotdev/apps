@@ -25,18 +25,13 @@ function MyFeedHeading({
   const router = useRouter();
   const { completeAction } = useActions();
   const { toggleShowTopSites } = useSettingsContext();
+  const { isOldUserWithNoShortcuts, showToggleShortcuts } = useShortcutsUser();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { shouldUseListFeedLayout } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const feedName = getFeedName(router.pathname);
   const { isCustomFeed } = useFeedName({ feedName });
-  let feedFiltersLabel = 'Feed settings';
-
-  const { isOldUserWithNoShortcuts, showToggleShortcuts } = useShortcutsUser();
-
-  if (isCustomFeed) {
-    feedFiltersLabel = 'Edit tags';
-  }
+  const feedFiltersLabel = isCustomFeed ? 'Edit tags' : 'Feed settings';
 
   return (
     <>
