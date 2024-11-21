@@ -1,4 +1,5 @@
-import React, { forwardRef, ReactElement, Ref } from 'react';
+import React, { forwardRef, ReactElement } from 'react';
+
 import {
   Card,
   CardImage,
@@ -11,11 +12,20 @@ import AdAttribution from './common/AdAttribution';
 import { AdImage } from './common/AdImage';
 import { AdPixel } from './common/AdPixel';
 import type { AdCardProps } from './common/common';
+import { RemoveAd } from './common/RemoveAd';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import {
+  useAutoRotatingAds,
+  type InViewRef,
+} from '../../../hooks/feed/useAutoRotatingAds';
 
 export const AdGrid = forwardRef(function AdGrid(
-  { ad, onLinkClick, domProps }: AdCardProps,
-  ref: Ref<HTMLElement>,
+  { ad, onLinkClick, domProps, index, feedIndex }: AdCardProps,
+  inViewRef: InViewRef,
 ): ReactElement {
+  const { isEnrolledNotPlus } = usePlusSubscription();
+  const { ref } = useAutoRotatingAds(ad, index, feedIndex, inViewRef);
+
   return (
     <Card {...domProps} data-testid="adItem" ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
@@ -27,7 +37,14 @@ export const AdGrid = forwardRef(function AdGrid(
       <CardSpace />
       <AdImage ad={ad} ImageComponent={CardImage} />
       <CardTextContainer>
-        <AdAttribution ad={ad} className={{ main: 'mb-2 mt-4' }} />
+        {isEnrolledNotPlus ? (
+          <div className="flex items-center pt-2.5">
+            <AdAttribution ad={ad} />
+            <RemoveAd />
+          </div>
+        ) : (
+          <AdAttribution ad={ad} className={{ main: 'mb-2 mt-4' }} />
+        )}
       </CardTextContainer>
       <AdPixel pixel={ad.pixel} />
     </Card>

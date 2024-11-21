@@ -22,12 +22,13 @@ import {
 } from '@dailydotdev/shared/src/components/utilities';
 import {
   getSquadMembers,
-  SQUAD_STATIC_FIELDS_QUERY,
+  getSquadStaticFields,
   SquadStaticData,
 } from '@dailydotdev/shared/src/graphql/squads';
 import {
   BasicSourceMember,
   Squad,
+  Source,
 } from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { useQuery } from '@tanstack/react-query';
@@ -281,15 +282,9 @@ export async function getServerSideProps({
     );
   };
   try {
-    const promises = [];
-
-    promises.push(
-      gqlClient.request<{
-        source: SourcePageProps['initialData'];
-      }>(SQUAD_STATIC_FIELDS_QUERY, {
-        handle,
-      }),
-    );
+    const promises: [Promise<Source | Squad>, Promise<PublicProfile>?] = [
+      getSquadStaticFields(handle),
+    ];
 
     if (userId && campaign) {
       promises.push(
@@ -300,11 +295,12 @@ export async function getServerSideProps({
               id: userId,
             },
           )
+          .then((data) => data?.user)
           .catch(() => undefined),
       );
     }
 
-    const [{ source: squad }, referringUser] = await Promise.all(promises);
+    const [squad, referringUser] = await Promise.all(promises);
 
     if (squad?.type === 'machine') {
       return {
@@ -332,8 +328,8 @@ export async function getServerSideProps({
         seo,
         handle,
         referrer: req.headers.referer || null,
-        initialData: squad,
-        referringUser: referringUser?.user || null,
+        initialData: squad as Squad,
+        referringUser: referringUser || null,
       },
     };
   } catch (err) {

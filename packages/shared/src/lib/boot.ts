@@ -65,6 +65,10 @@ export type Boot = {
   marketingCta?: MarketingCta | null;
   feeds: Feed[];
   language?: ContentLanguage;
+  geo: {
+    ip?: string;
+    region?: string;
+  };
 };
 
 export type BootCacheData = Pick<
@@ -77,6 +81,7 @@ export type BootCacheData = Pick<
   | 'squads'
   | 'exp'
   | 'feeds'
+  | 'geo'
 > & { lastModifier?: string };
 
 export async function getBootData(app: string, url?: string): Promise<Boot> {
