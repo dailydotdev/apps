@@ -14,7 +14,6 @@ import {
   PostsEngaged,
 } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
-import { apiUrl } from '../lib/config';
 import useSubscription from './useSubscription';
 import {
   getNextPageParam,
@@ -26,6 +25,7 @@ import { MarketingCta } from '../components/marketingCta/common';
 import { FeedItemType } from '../components/cards/common/common';
 import { GARMR_ERROR, gqlClient } from '../graphql/common';
 import { usePlusSubscription } from './usePlusSubscription';
+import { fetchAd } from '../lib/ads';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -33,6 +33,8 @@ interface FeedItemBase<T extends FeedItemType> {
 
 interface AdItem extends FeedItemBase<FeedItemType.Ad> {
   ad: Ad;
+  index: number;
+  updatedAt: number;
 }
 
 interface MarketingCtaItem extends FeedItemBase<FeedItemType.MarketingCta> {
@@ -155,12 +157,8 @@ export default function useFeed<T>(
     !settings?.disableAds;
 
   const adsQuery = useInfiniteQuery<Ad>({
-    queryKey: ['ads', ...feedQueryKey],
-    queryFn: async ({ pageParam }) => {
-      const res = await fetch(`${apiUrl}/v1/a?active=${!!pageParam}`);
-      const ads: Ad[] = await res.json();
-      return ads[0];
-    },
+    queryKey: [RequestKey.Ads, ...feedQueryKey],
+    queryFn: async ({ pageParam }) => fetchAd(!!pageParam),
     initialPageParam: '',
     getNextPageParam: () => Date.now(),
     enabled: isAdsQueryEnabled,
@@ -207,6 +205,8 @@ export default function useFeed<T>(
               posts.splice(adSpot, 0, {
                 type: FeedItemType.Ad,
                 ad: adsQuery.data?.pages[pageIndex],
+                index: pageIndex,
+                updatedAt: adsQuery.dataUpdatedAt,
               });
             } else {
               posts.splice(adSpot, 0, { type: FeedItemType.Placeholder });
@@ -232,6 +232,7 @@ export default function useFeed<T>(
     adSpot,
     adsQuery.data?.pages,
     placeholdersPerPage,
+    adsQuery.dataUpdatedAt,
   ]);
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);

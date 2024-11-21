@@ -270,6 +270,8 @@ export default function FeedItemComponent({
         <AdTag
           ref={inViewRef}
           ad={item.ad}
+          index={item.index}
+          feedIndex={index}
           onLinkClick={(ad) => onAdClick(ad, row, column)}
         />
       );

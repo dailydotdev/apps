@@ -46,4 +46,6 @@ const feature = {
   }),
 };
 
+export const featureAutorotateAds = new Feature('autorotate_ads', 0);
+
 export { feature };
