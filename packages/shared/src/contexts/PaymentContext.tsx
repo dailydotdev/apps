@@ -5,22 +5,26 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import {
   CheckoutEventNames,
   Environments,
+  getPaddleInstance,
   initializePaddle,
   Paddle,
   type PaddleEventData,
 } from '@paddle/paddle-js';
 import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import { useAuthContext } from './AuthContext';
-import { generateQueryKey, RequestKey } from '../lib/query';
-import { getPricingIds } from '../graphql/paddle';
 import { plusSuccessUrl } from '../lib/constants';
 import { LogEvent } from '../lib/log';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
+import { logPixelPayment } from '../components/Pixels';
+import { useFeature } from '../components/GrowthBookProvider';
+import { feature } from '../lib/featureManagement';
 
 export type ProductOption = {
   label: string;
@@ -31,6 +35,7 @@ export type ProductOption = {
 };
 export interface PaymentContextData {
   openCheckout?: ({ priceId }: { priceId: string }) => void;
+  paddle?: Paddle | undefined;
   productOptions?: ProductOption[];
 }
 
@@ -44,12 +49,22 @@ export type PaymentContextProviderProps = {
 export const PaymentContextProvider = ({
   children,
 }: PaymentContextProviderProps): ReactElement => {
+  const router = useRouter();
   const { user, geo } = useAuthContext();
+  const planTypes = useFeature(feature.pricingIds);
   const [paddle, setPaddle] = useState<Paddle>();
   const { logSubscriptionEvent } = usePlusSubscription();
+  const logRef = useRef<typeof logSubscriptionEvent>();
+  logRef.current = logSubscriptionEvent;
 
   // Download and initialize Paddle instance from CDN
   useEffect(() => {
+    const existingPaddleInstance = getPaddleInstance();
+    if (existingPaddleInstance) {
+      setPaddle(existingPaddleInstance);
+      return;
+    }
+
     initializePaddle({
       environment:
         (process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT as Environments) ||
@@ -58,13 +73,13 @@ export const PaymentContextProvider = ({
       eventCallback: (event: PaddleEventData) => {
         switch (event?.name) {
           case CheckoutEventNames.CHECKOUT_PAYMENT_SELECTED:
-            logSubscriptionEvent({
+            logRef.current({
               event_name: LogEvent.SelectCheckoutPayment,
               target_id: event?.data?.payment.method_details.type,
             });
             break;
           case CheckoutEventNames.CHECKOUT_COMPLETED:
-            logSubscriptionEvent({
+            logRef.current({
               event_name: LogEvent.CompleteCheckout,
               extra: {
                 cycle: event?.data.items?.[0]?.billing_cycle.interval,
@@ -73,15 +88,21 @@ export const PaymentContextProvider = ({
                 payment: event?.data.payment.method_details.type,
               },
             });
+            logPixelPayment(
+              event?.data.totals.total,
+              event?.data.currency_code,
+              event?.data?.transaction_id,
+            );
+            router.push(plusSuccessUrl);
             break;
           // This doesn't exist in the original code
           case 'checkout.warning' as CheckoutEventNames:
-            logSubscriptionEvent({
+            logRef.current({
               event_name: LogEvent.WarningCheckout,
             });
             break;
           case CheckoutEventNames.CHECKOUT_ERROR:
-            logSubscriptionEvent({
+            logRef.current({
               event_name: LogEvent.ErrorCheckout,
             });
             break;
@@ -94,7 +115,7 @@ export const PaymentContextProvider = ({
         setPaddle(paddleInstance);
       }
     });
-  }, [logSubscriptionEvent]);
+  }, [router]);
 
   const openCheckout = useCallback(
     ({ priceId }: { priceId: string }) => {
@@ -113,18 +134,12 @@ export const PaymentContextProvider = ({
           frameStyle:
             'width: 100%; background-color: transparent; border: none;',
           theme: 'dark',
-          successUrl: plusSuccessUrl,
           showAddDiscounts: false,
         },
       });
     },
-    [paddle?.Checkout, user],
+    [paddle, user],
   );
-
-  const { data: planTypes } = useQuery({
-    queryKey: generateQueryKey(RequestKey.PlanTypes),
-    queryFn: getPricingIds,
-  });
 
   const getPrices = useCallback(async () => {
     return paddle?.PricePreview({
@@ -159,9 +174,10 @@ export const PaymentContextProvider = ({
   const contextData = useMemo<PaymentContextData>(
     () => ({
       openCheckout,
+      paddle,
       productOptions,
     }),
-    [openCheckout, productOptions],
+    [openCheckout, paddle, productOptions],
   );
 
   return (

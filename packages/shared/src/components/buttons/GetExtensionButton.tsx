@@ -2,6 +2,7 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { BrowserGroupIcon } from '../icons/Browsers';
 import { IconSize } from '../Icon';
+import { downloadBrowserExtension } from '../../lib/constants';
 
 type GetExtensionButtonProps = {
   className?: string;
@@ -12,7 +13,7 @@ export const GetExtensionButton = ({
 }: GetExtensionButtonProps): ReactElement => {
   return (
     <a
-      href="https://api.daily.dev/get"
+      href={downloadBrowserExtension}
       className={classNames(
         `btn focus-outline btn-primary inline-flex min-w-fit max-w-64 flex-row items-center
         justify-center gap-3 rounded-14 border

@@ -3,13 +3,13 @@ import { useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { feature } from '../../lib/featureManagement';
 import { checkIsBrowser, checkIsExtension, UserAgent } from '../../lib/func';
-import { useFeaturesReadyContext } from '../GrowthBookProvider';
 import { AuthExtensionBanner } from './AuthExtensionBanner';
 import { AuthenticationBanner } from './AuthenticationBanner';
 import { getBasicUserInfo } from '../../graphql/users';
 import { OnboardingHeadline } from './OnboardingHeadline';
 import { sizeClasses } from '../ProfilePicture';
 import { Image, ImageType } from '../image/Image';
+import { useConditionalFeature } from '../../hooks';
 
 const UserPersonalizedBanner = ({
   userId,
@@ -49,13 +49,16 @@ const UserPersonalizedBanner = ({
 
 export const PostAuthBanner = (): ReactElement => {
   const searchParams = useSearchParams();
-  const { getFeatureValue } = useFeaturesReadyContext();
-  const showExtensionCTA = getFeatureValue(feature.postBannerExtensionPrompt);
   const isCompatibleBrowser =
     (checkIsBrowser(UserAgent.Chrome) || checkIsBrowser(UserAgent.Edge)) &&
     !checkIsExtension();
 
-  if (showExtensionCTA && isCompatibleBrowser) {
+  const { value: showExtensionCTA } = useConditionalFeature({
+    feature: feature.postBannerExtensionPrompt,
+    shouldEvaluate: isCompatibleBrowser,
+  });
+
+  if (showExtensionCTA) {
     return <AuthExtensionBanner />;
   }
 

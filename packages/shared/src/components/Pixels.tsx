@@ -1,7 +1,9 @@
 import React, { ReactElement } from 'react';
 import Script from 'next/script';
-import { isProduction } from '../../lib/constants';
-import { UserExperienceLevel } from '../../lib/user';
+import { useRouter } from 'next/router';
+import { isProduction } from '../lib/constants';
+import { UserExperienceLevel } from '../lib/user';
+import { useAuthContext } from '../contexts/AuthContext';
 
 const FB_PIXEL_ID = '519268979315924';
 const GA_TRACKING_ID = 'G-VTGLXD7QSN';
@@ -9,12 +11,16 @@ const TWITTER_TRACKING_ID = 'o6izs';
 const REDDIT_TRACKING_ID = 't2_j1li1n7e';
 const TIKTOK_TRACKING_ID = 'CO2RCPBC77U37LT1TAIG';
 
-export type OnboardingLogsProps = {
+export type PixelProps = {
   instanceId?: string;
   userId?: string;
 };
 
-const FbTracking = ({ userId }: OnboardingLogsProps): ReactElement => {
+export type HotjarProps = {
+  hotjarId: string;
+};
+
+const FbTracking = ({ userId }: PixelProps): ReactElement => {
   return (
     <>
       <Script
@@ -37,10 +43,7 @@ const FbTracking = ({ userId }: OnboardingLogsProps): ReactElement => {
   );
 };
 
-const GtagTracking = ({
-  userId,
-  instanceId,
-}: OnboardingLogsProps): ReactElement => {
+const GtagTracking = ({ userId, instanceId }: PixelProps): ReactElement => {
   return (
     <>
       <Script
@@ -60,13 +63,13 @@ const GtagTracking = ({
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const HotJarTracking = (): ReactElement => {
+const HotJarTracking = ({ hotjarId }: HotjarProps): ReactElement => {
   return (
     <Script strategy="afterInteractive" id="load-hotjar">
       {`
       (function(h,o,t,j,a,r){
         h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
-        h._hjSettings={hjid:3871311,hjsv:6};
+        h._hjSettings={hjid:${hotjarId},hjsv:6};
         a=o.getElementsByTagName('head')[0];
         r=o.createElement('script');r.async=1;
         r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
@@ -127,7 +130,7 @@ export const EXPERIENCE_TO_SENIORITY: Record<
   NOT_ENGINEER: 'not_engineer',
 };
 
-export const logSignUp = ({ experienceLevel }: LogSignUpProps): void => {
+export const logPixelSignUp = ({ experienceLevel }: LogSignUpProps): void => {
   const urlParams = new URLSearchParams(window.location.search);
   const isExtension = urlParams.get('ref') === 'install';
 
@@ -169,14 +172,43 @@ export const logSignUp = ({ experienceLevel }: LogSignUpProps): void => {
   }
 };
 
-export const OnboardingLogs = (props: OnboardingLogsProps): ReactElement => {
-  const { userId } = props;
+export const logPixelPayment = (
+  value: number,
+  currency: string,
+  transactionId: string,
+): void => {
+  if (typeof globalThis.gtag === 'function') {
+    globalThis.gtag('event', 'purchase', {
+      transaction_id: transactionId,
+      value,
+      currency,
+    });
+  }
+
+  if (typeof globalThis.fbq === 'function') {
+    globalThis.fbq('track', 'Purchase', {
+      value,
+      currency,
+    });
+  }
+};
+
+export const Pixels = ({ hotjarId }: Partial<HotjarProps>): ReactElement => {
+  const { user, anonymous } = useAuthContext();
+  const userId = user?.id || anonymous?.id;
+
+  const { query } = useRouter();
+  const instanceId = query?.aiid?.toString();
+
+  const props: PixelProps = { userId, instanceId };
+
   if (!isProduction || !userId) {
     return null;
   }
 
   return (
     <>
+      {hotjarId && <HotJarTracking hotjarId={hotjarId} />}
       <FbTracking {...props} />
       <GtagTracking {...props} />
       <TiktokTracking />

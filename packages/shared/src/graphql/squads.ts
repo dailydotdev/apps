@@ -610,6 +610,7 @@ const SOURCE_POST_MODERATION_FRAGMENT = gql`
     contentHtml
     image
     createdAt
+    externalLink
     source {
       ...SourceBaseInfo
     }

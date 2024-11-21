@@ -8,6 +8,12 @@ import { MemberAlready } from '../onboarding/MemberAlready';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { BottomBannerContainer } from '../banners';
 import { ButtonVariant } from '../buttons/common';
+import { Image } from '../image/Image';
+import {
+  cloudinaryAuthBannerBackground as bg,
+  cloudinaryAuthBannerBackground1440w as laptopBg,
+  cloudinaryAuthBannerBackground1920w as desktopBg,
+} from '../../lib/image';
 
 const Section = classed('div', 'flex flex-col');
 export const authGradientBg =
@@ -24,14 +30,22 @@ export function AuthenticationBanner({
     <BottomBannerContainer
       className={classNames(
         'gap-24 border-t border-accent-cabbage-default py-10 shadow-3 laptopL:gap-32',
-        authGradientBg,
       )}
     >
+      <Image
+        className="absolute left-0 top-0 -z-1 h-full w-full"
+        src={bg}
+        srcSet={`${laptopBg} 1440w, ${desktopBg} 1920w, ${bg} 2880w`}
+        sizes="(max-width: 1440px) 100vw, (max-width: 1920px) 1920px, 100vw"
+      />
       <Section className="w-[32.5rem] gap-4">
         {children}
         {!children && (
           <OnboardingHeadline
-            className={{ title: 'typo-mega3', description: 'mb-8 typo-title3' }}
+            className={{
+              title: 'typo-mega3',
+              description: 'mb-8 typo-title3',
+            }}
           />
         )}
       </Section>

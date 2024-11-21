@@ -1,25 +1,28 @@
 import React, { ReactElement } from 'react';
-import classNames from 'classnames';
 import { BottomBannerContainer } from '../banners';
 import { OnboardingHeadline } from './OnboardingHeadline';
 import { MemberAlready } from '../onboarding/MemberAlready';
 import { AuthTriggers } from '../../lib/auth';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { GetExtensionButton } from '../buttons/GetExtensionButton';
-
-export const BottomBannerBg =
-  "bg-cover bg-[url('https://daily-now-res.cloudinary.com/image/upload/s--lf8LUJjq--/f_auto/v1732012913/login-popover-dailydev_mxb7lw')]";
+import { Image } from '../image/Image';
+import {
+  cloudinaryAuthBannerBackground as bg,
+  cloudinaryAuthBannerBackground1440w as laptopBg,
+  cloudinaryAuthBannerBackground1920w as desktopBg,
+} from '../../lib/image';
 
 export const AuthExtensionBanner = (): ReactElement => {
   const { showLogin } = useAuthContext();
 
   return (
-    <BottomBannerContainer
-      className={classNames(
-        'gap-10 border-t border-none border-accent-cabbage-default py-10 shadow-3',
-        BottomBannerBg,
-      )}
-    >
+    <BottomBannerContainer className="gap-10 border-t border-none border-accent-cabbage-default py-10 shadow-3">
+      <Image
+        className="absolute left-0 top-0 -z-1 h-full w-full"
+        src={bg}
+        srcSet={`${laptopBg} 1440w, ${desktopBg} 1920w, ${bg} 2880w`}
+        sizes="(max-width: 1440px) 100vw, (max-width: 1920px) 1920px, 100vw"
+      />
       <section className="w-[36rem]">
         <OnboardingHeadline
           className={{ title: 'typo-mega3', description: 'typo-title3' }}
