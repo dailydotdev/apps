@@ -21,7 +21,7 @@ import { RequestKey } from '../../lib/query';
 
 export type InViewRef = InViewHookResponse['ref'];
 
-export const useAutorotatingAds = (
+export const useAutorotatingAdsOld = (
   ad: Ad,
   index: number,
   feedIndex: number,

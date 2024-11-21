@@ -17,9 +17,9 @@ import AdAttribution from './common/AdAttribution';
 import { RemoveAd } from './common/RemoveAd';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import {
-  useAutorotatingAds,
+  useAutorotatingAdsOld,
   type InViewRef,
-} from '../../../hooks/feed/useAutorotatingAds';
+} from '../../../hooks/feed/useAutorotatingAdsOld';
 
 const getLinkProps = ({
   ad,
@@ -42,7 +42,7 @@ export const AdList = forwardRef(function AdCard(
   inViewRef: InViewRef,
 ): ReactElement {
   const { isEnrolledNotPlus } = usePlusSubscription();
-  const { ref } = useAutorotatingAds(ad, index, feedIndex, inViewRef);
+  const { ref } = useAutorotatingAdsOld(ad, index, feedIndex, inViewRef);
 
   return (
     <FeedItemContainer
