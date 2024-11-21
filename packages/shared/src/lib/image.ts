@@ -263,6 +263,11 @@ export const cloudinaryPlusBackground =
 
 export const cloudinaryAuthBannerBackground =
   'https://daily-now-res.cloudinary.com/image/upload/s--lf8LUJjq--/f_auto/v1732012913/login-popover-dailydev_mxb7lw';
+export const cloudinaryAuthBannerBackground1920w =
+  'https://daily-now-res.cloudinary.com/image/upload/s--lf8LUJjq--/c_auto,g_center,w_1920/f_auto//v1732012913/login-popover-dailydev_mxb7lw';
+
+export const cloudinaryAuthBannerBackground1440w =
+  'https://daily-now-res.cloudinary.com/image/upload/s--lf8LUJjq--/c_auto,g_center,w_1440/f_auto//v1732012913/login-popover-dailydev_mxb7lw';
 
 export const smallPostImage = (url: string): string => {
   if (!url) {

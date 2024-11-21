@@ -9,11 +9,13 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { BottomBannerContainer } from '../banners';
 import { ButtonVariant } from '../buttons/common';
 import { Image } from '../image/Image';
-import { cloudinaryAuthBannerBackground as bg } from '../../lib/image';
+import {
+  cloudinaryAuthBannerBackground as bg,
+  cloudinaryAuthBannerBackground1440w as laptopBg,
+  cloudinaryAuthBannerBackground1920w as desktopBg,
+} from '../../lib/image';
 
 const Section = classed('div', 'flex flex-col');
-const laptopBg = bg.replace('/f_auto', '/c_auto,g_center,w_1440/f_auto/');
-const desktopBg = bg.replace('/f_auto', '/c_auto,g_center,w_1920/f_auto/');
 
 export function AuthenticationBanner(): ReactElement {
   const { showLogin } = useAuthContext();

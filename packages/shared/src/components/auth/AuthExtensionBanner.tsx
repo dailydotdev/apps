@@ -5,11 +5,12 @@ import { MemberAlready } from '../onboarding/MemberAlready';
 import { AuthTriggers } from '../../lib/auth';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { GetExtensionButton } from '../buttons/GetExtensionButton';
-import { cloudinaryAuthBannerBackground as bg } from '../../lib/image';
 import { Image } from '../image/Image';
-
-const laptopBg = bg.replace('/f_auto', '/c_auto,g_center,w_1440/f_auto/');
-const desktopBg = bg.replace('/f_auto', '/c_auto,g_center,w_1920/f_auto/');
+import {
+  cloudinaryAuthBannerBackground as bg,
+  cloudinaryAuthBannerBackground1440w as laptopBg,
+  cloudinaryAuthBannerBackground1920w as desktopBg,
+} from '../../lib/image';
 
 export const AuthExtensionBanner = (): ReactElement => {
   const { showLogin } = useAuthContext();
