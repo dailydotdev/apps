@@ -85,10 +85,10 @@ export const AdGrid = forwardRef(function AdGrid(
   useQuery<Ad>({
     queryKey: [...queryKey, index],
     queryFn: fetchNewAd,
-    enabled: !!autorotateAds && inView,
+    enabled: !!autorotateAds,
     initialData: ad,
     staleTime: autorotateAds,
-    refetchInterval: autorotateAds,
+    refetchInterval: () => (inView ? autorotateAds : false),
     ...disabledRefetch,
   });
 
