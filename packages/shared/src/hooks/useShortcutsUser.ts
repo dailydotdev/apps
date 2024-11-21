@@ -13,7 +13,7 @@ export interface UseShortcutsUser {
 
 const DATE_TO_SHOW_SHORTCUTS = new Date('2024-07-16');
 
-export const useShortcutsUser = () => {
+export const useShortcutsUser = (): UseShortcutsUser => {
   const { user, isAuthReady } = useAuthContext();
   const { checkHasCompleted, isActionsFetched } = useActions();
   const isExtension = checkIsExtension();
@@ -33,6 +33,5 @@ export const useShortcutsUser = () => {
     hasCompletedFirstSession,
     showToggleShortcuts:
       isExtension && (!showTopSites || isOldUserWithNoShortcuts),
-    hideInitialBanner: isOldUserWithNoShortcuts,
   };
 };
