@@ -15,16 +15,16 @@ import type { AdCardProps } from './common/common';
 import { RemoveAd } from './common/RemoveAd';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import {
-  useAutorotatingAdsOld,
+  useAutoRotatingAds,
   type InViewRef,
-} from '../../../hooks/feed/useAutorotatingAdsOld';
+} from '../../../hooks/feed/useAutorotatingAds';
 
 export const AdGrid = forwardRef(function AdGrid(
   { ad, onLinkClick, domProps, index, feedIndex }: AdCardProps,
   inViewRef: InViewRef,
 ): ReactElement {
   const { isEnrolledNotPlus } = usePlusSubscription();
-  const { ref } = useAutorotatingAdsOld(ad, index, feedIndex, inViewRef);
+  const { ref } = useAutoRotatingAds(ad, index, feedIndex, inViewRef);
 
   return (
     <Card {...domProps} data-testid="adItem" ref={ref}>
