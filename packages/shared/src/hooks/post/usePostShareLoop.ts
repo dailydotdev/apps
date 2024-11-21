@@ -11,7 +11,7 @@ import { Post, UserVote } from '../../graphql/posts';
 interface UsePostShareLoop {
   shouldShowOverlay: boolean;
   onInteract: () => void;
-  currentInteraction: 'upvote' | 'bookmark' | null
+  currentInteraction: 'upvote' | 'bookmark' | null;
 }
 
 export const usePostShareLoop = (post: Post): UsePostShareLoop => {
@@ -20,7 +20,9 @@ export const usePostShareLoop = (post: Post): UsePostShareLoop => {
   const [hasInteracted, setHasInteracted] = useState(false);
   const shouldShowOverlay = justUpvoted && !hasInteracted;
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [lastInteraction, setLastInteraction] = useState<'upvote' | 'bookmark' | null>(null);
+  const [lastInteraction, setLastInteraction] = useState<
+    'upvote' | 'bookmark' | null
+  >(null);
   const key = useMemo(
     () =>
       createVoteMutationKey({
@@ -42,8 +44,8 @@ export const usePostShareLoop = (post: Post): UsePostShareLoop => {
       }
 
       setJustUpvoted(vars.vote === UserVote.Up);
-      if(vars.vote === UserVote.Up){
-        setLastInteraction('upvote')
+      if (vars.vote === UserVote.Up) {
+        setLastInteraction('upvote');
       }
     },
   });
@@ -68,6 +70,6 @@ export const usePostShareLoop = (post: Post): UsePostShareLoop => {
   return {
     shouldShowOverlay,
     onInteract: useCallback(() => setHasInteracted(true), []),
-    currentInteraction
+    currentInteraction,
   };
 };
