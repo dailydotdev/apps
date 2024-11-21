@@ -2,6 +2,7 @@ import React from 'react';
 import nock from 'nock';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import {
+  act,
   fireEvent,
   render,
   RenderResult,
@@ -187,10 +188,15 @@ describe('shortcut links component', () => {
   });
 
   it('should display top sites if permission is previously granted', async () => {
-    await browser.permissions.request({ permissions: ['topSites'] });
-    renderComponent({
-      ...defaultBootData,
-      settings: { ...defaultBootData.settings, customLinks: null },
+    await act(async () => {
+      await browser.permissions.request({ permissions: ['topSites'] });
+      renderComponent({
+        ...defaultBootData,
+        settings: {
+          ...defaultBootData.settings,
+          customLinks: null,
+        },
+      });
     });
 
     const shortcuts = await screen.findAllByRole('link');
