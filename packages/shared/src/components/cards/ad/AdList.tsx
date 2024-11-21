@@ -19,7 +19,7 @@ import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import {
   useAutoRotatingAds,
   type InViewRef,
-} from '../../../hooks/feed/useAutorotatingAds';
+} from '../../../hooks/feed/useAutoRotatingAdsTmp';
 
 const getLinkProps = ({
   ad,
