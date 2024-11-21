@@ -6,6 +6,10 @@ import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useRouter } from 'next/router';
 import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { Pixels } from '@dailydotdev/shared/src/components/Pixels';
+import {
+  ThemeMode,
+  useSettingsContext,
+} from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { MainFeedPageProps } from '../MainFeedPage';
 import { PlusHeader } from './PlusHeader';
 
@@ -15,6 +19,7 @@ export default function PlusLayout({
   const { user, isAuthReady } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
   const router = useRouter();
+  const { applyThemeMode } = useSettingsContext();
 
   const isPageReady = growthbook?.ready && router?.isReady && isAuthReady;
 
@@ -27,6 +32,13 @@ export default function PlusLayout({
 
     router.push(`${onboardingUrl}`);
   }, [router, shouldRedirectOnboarding]);
+
+  useEffect(() => {
+    applyThemeMode(ThemeMode.Dark);
+    return () => {
+      applyThemeMode();
+    };
+  }, [applyThemeMode]);
 
   if (!isPageReady || shouldRedirectOnboarding) {
     return null;
