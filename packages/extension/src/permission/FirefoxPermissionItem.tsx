@@ -7,19 +7,19 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 
-interface PermissionItemProps {
+interface FirefoxPermissionItemProps {
   title: string;
   description: string;
   icon: ReactNode;
   className?: string;
 }
 
-export function PermissionItem({
+export function FirefoxPermissionItem({
   title,
   description,
   icon,
   className,
-}: PermissionItemProps): ReactElement {
+}: FirefoxPermissionItemProps): ReactElement {
   return (
     <div
       className={classNames(

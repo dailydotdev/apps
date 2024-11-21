@@ -13,7 +13,7 @@ import {
 import { VIcon } from '@dailydotdev/shared/src/components/icons';
 import { cloudinaryFeedBgLaptop } from '@dailydotdev/shared/src/lib/image';
 import { privacyPolicy } from '@dailydotdev/shared/src/lib/constants';
-import { PermissionItem } from './FirefoxPermissionItem';
+import { FirefoxPermissionItem } from './FirefoxPermissionItem';
 import { FirefoxPermissionContainer } from './common';
 
 export enum FirefoxPermissionType {
@@ -50,13 +50,13 @@ export function FirefoxPermission({
           permissions. Enhance your daily.dev experience with personalized
           content and connect with fellow developers.
         </Typography>
-        <PermissionItem
+        <FirefoxPermissionItem
           className="mt-2"
           title="Ads pixel tracking"
           description="Enable pixel tracking for fewer, non-intrusive ads, helping us in keeping the experience free and relevant."
           icon="📢"
         />
-        <PermissionItem
+        <FirefoxPermissionItem
           title="Analytics data"
           description="Allow us to capture analytics data to understand your preferences and personalize content for you."
           icon="📊"
