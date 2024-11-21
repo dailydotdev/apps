@@ -54,6 +54,7 @@ export function ShortcutLinksList({
             icon={<MenuIcon className="rotate-90" secondary />}
             onClick={onMenuClick}
             className="mt-2"
+            aria-label="toggle shortcuts menu"
           />
         </>
       )}
@@ -67,6 +68,7 @@ export function ShortcutLinksList({
             />
           ))}
           <Button
+            aria-label="Remove shortcuts"
             variant={ButtonVariant.Tertiary}
             onClick={toggleShowTopSites}
             size={ButtonSize.Small}

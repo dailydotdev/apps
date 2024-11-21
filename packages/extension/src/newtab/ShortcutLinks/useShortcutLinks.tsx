@@ -48,7 +48,6 @@ export default function useShortcutLinks(): UseShortcutLinks {
     revokePermission,
     askTopSitesPermission,
   } = useTopSites();
-
   const hasTopSites = topSites === undefined ? null : topSites?.length > 0;
   const hasCustomLinks = customLinks?.length > 0;
   const isTopSiteActive =
@@ -57,10 +56,11 @@ export default function useShortcutLinks(): UseShortcutLinks {
   const shortcutLinks = isTopSiteActive ? sites : customLinks;
   const formLinks = (isManual ? customLinks : sites) || [];
 
-  const { isOldUser, showToggleShortcuts } = useShortcutsUser();
-
+  const { isOldUser, showToggleShortcuts, hasCompletedFirstSession } =
+    useShortcutsUser();
   const hasNoShortcuts = !shortcutLinks?.length && showTopSites;
-  const showGetStarted = !isOldUser && hasNoShortcuts;
+  const showGetStarted =
+    !isOldUser && hasNoShortcuts && !hasCompletedFirstSession;
 
   const resetSelected = () => {
     if (topSites !== undefined && !hasCustomLinks) {

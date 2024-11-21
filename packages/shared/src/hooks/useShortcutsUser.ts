@@ -14,15 +14,13 @@ export interface UseShortcutsUser {
 const DATE_TO_SHOW_SHORTCUTS = new Date('2024-07-16');
 
 export const useShortcutsUser = (): UseShortcutsUser => {
-  const { user, isAuthReady } = useAuthContext();
+  const { user } = useAuthContext();
   const { checkHasCompleted, isActionsFetched } = useActions();
   const isExtension = checkIsExtension();
   const { showTopSites } = useSettingsContext();
 
   const isOldUser =
-    isAuthReady &&
-    user?.createdAt &&
-    new Date(user.createdAt) < DATE_TO_SHOW_SHORTCUTS;
+    user?.createdAt && new Date(user.createdAt) < DATE_TO_SHOW_SHORTCUTS;
   const hasCompletedFirstSession =
     isActionsFetched && checkHasCompleted(ActionType.FirstShortcutsSession);
   const isOldUserWithNoShortcuts = isOldUser && !hasCompletedFirstSession;

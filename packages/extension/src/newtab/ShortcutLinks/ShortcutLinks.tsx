@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import {
@@ -30,7 +30,7 @@ interface ShortcutLinksProps {
 export default function ShortcutLinks({
   shouldUseListFeedLayout,
 }: ShortcutLinksProps): ReactElement {
-  const { showTopSites, toggleShowTopSites } = useContext(SettingsContext);
+  const { showTopSites, toggleShowTopSites } = useSettingsContext();
   const [showModal, setShowModal] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const { logEvent } = useContext(LogContext);
