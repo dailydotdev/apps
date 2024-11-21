@@ -26,7 +26,8 @@ export const useCardCover = ({
   onShare,
   className = {},
 }: UseCardCoverProps): UseCardCover => {
-  const { shouldShowOverlay, onInteract, currentInteraction } = usePostShareLoop(post);
+  const { shouldShowOverlay, onInteract, currentInteraction } =
+    usePostShareLoop(post);
   const shouldShowReminder = useBookmarkReminderCover(post);
 
   const overlay = useMemo(() => {
@@ -69,7 +70,7 @@ export const useCardCover = ({
     post,
     shouldShowOverlay,
     shouldShowReminder,
-    currentInteraction
+    currentInteraction,
   ]);
 
   return { overlay };

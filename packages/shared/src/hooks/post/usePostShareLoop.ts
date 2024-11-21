@@ -62,8 +62,12 @@ export const usePostShareLoop = (post: Post): UsePostShareLoop => {
     if (justUpvoted && isBookmarked) {
       return lastInteraction;
     }
-    if (justUpvoted) return 'upvote';
-    if (isBookmarked) return 'bookmark';
+    if (justUpvoted) {
+      return 'upvote';
+    }
+    if (isBookmarked) {
+      return 'bookmark';
+    }
     return null;
   }, [justUpvoted, isBookmarked, lastInteraction]);
 
