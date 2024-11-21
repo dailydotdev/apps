@@ -11,7 +11,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, ReactElement } from 'react';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { useActions } from '@dailydotdev/shared/src/hooks';
 
@@ -34,7 +34,7 @@ interface ShortcutGetStartedProps {
 export const ShortcutGetStarted = ({
   onTopSitesClick,
   onCustomLinksClick,
-}: ShortcutGetStartedProps) => {
+}: ShortcutGetStartedProps): ReactElement => {
   const { githubShortcut } = useThemedAsset();
   const { completeAction } = useActions();
 
