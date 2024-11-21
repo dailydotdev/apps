@@ -42,7 +42,7 @@ export const useAutoRotatingAds = (
 
   const refs = useCallback(
     (node: HTMLElement) => {
-      ref(node);
+      ref?.(node);
       inViewRef(node);
     },
     [inViewRef, ref],
