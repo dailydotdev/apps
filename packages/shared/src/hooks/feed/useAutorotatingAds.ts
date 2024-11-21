@@ -34,6 +34,7 @@ export const useAutorotatingAds = (
   const queryClient = useQueryClient();
   const { ref: inViewRef, inView } = useInView({
     threshold: 0.5,
+    skip: !autorotateAds,
   });
 
   const refs = useCallback(
