@@ -19,12 +19,12 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { useAuthContext } from './AuthContext';
-import { generateQueryKey, RequestKey } from '../lib/query';
-import { getPricingIds } from '../graphql/paddle';
 import { plusSuccessUrl } from '../lib/constants';
 import { LogEvent } from '../lib/log';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
 import { logPixelPayment } from '../components/Pixels';
+import { useFeature } from '../components/GrowthBookProvider';
+import { feature } from '../lib/featureManagement';
 
 export type ProductOption = {
   label: string;
@@ -51,6 +51,7 @@ export const PaymentContextProvider = ({
 }: PaymentContextProviderProps): ReactElement => {
   const router = useRouter();
   const { user, geo } = useAuthContext();
+  const planTypes = useFeature(feature.pricingIds);
   const [paddle, setPaddle] = useState<Paddle>();
   const { logSubscriptionEvent } = usePlusSubscription();
   const logRef = useRef<typeof logSubscriptionEvent>();
@@ -139,11 +140,6 @@ export const PaymentContextProvider = ({
     },
     [paddle, user],
   );
-
-  const { data: planTypes } = useQuery({
-    queryKey: generateQueryKey(RequestKey.PlanTypes),
-    queryFn: getPricingIds,
-  });
 
   const getPrices = useCallback(async () => {
     return paddle?.PricePreview({
