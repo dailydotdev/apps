@@ -1,8 +1,9 @@
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useContext, useEffect, useMemo } from 'react';
 import {
   useQuery,
   useQueryClient,
   type InfiniteData,
+  focusManager,
 } from '@tanstack/react-query';
 import {
   useInView,
@@ -84,6 +85,29 @@ export const useAutorotatingAds = (
     refetchInterval: () => (inView ? autorotateAds : false),
     ...disabledRefetch,
   });
+
+  // Disable refetching when the window is not in focus
+  useEffect(() => {
+    focusManager.setEventListener((handleFocus) => {
+      if (typeof window !== 'undefined' && window.addEventListener) {
+        window.addEventListener('blur', () => handleFocus(false), false);
+      }
+
+      return () => {
+        window.removeEventListener('blur', () => handleFocus(false));
+      };
+    });
+
+    focusManager.setEventListener((handleFocus) => {
+      if (typeof window !== 'undefined' && window.addEventListener) {
+        window.addEventListener('focus', () => handleFocus(true), false);
+      }
+
+      return () => {
+        window.removeEventListener('focus', () => handleFocus(true));
+      };
+    });
+  }, []);
 
   return { ref: refs };
 };
