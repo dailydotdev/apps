@@ -11,6 +11,7 @@ import ad from '../../../../__tests__/fixture/ad';
 import { AdGrid } from './AdGrid';
 import { AdCardProps } from './common/common';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
+import { ActiveFeedContext } from '../../../contexts';
 
 const defaultProps: AdCardProps = {
   ad,
@@ -25,7 +26,9 @@ const renderComponent = (props: Partial<AdCardProps> = {}): RenderResult => {
   const client = new QueryClient();
   return render(
     <TestBootProvider client={client}>
-      <AdGrid {...defaultProps} {...props} />
+      <ActiveFeedContext.Provider value={{ queryKey: 'test' }}>
+        <AdGrid {...defaultProps} {...props} />
+      </ActiveFeedContext.Provider>
     </TestBootProvider>,
   );
 };

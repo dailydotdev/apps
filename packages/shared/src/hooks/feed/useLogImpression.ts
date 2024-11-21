@@ -8,6 +8,9 @@ import { PostType } from '../../graphql/posts';
 const LOGGING = 1;
 const LOGGED = 2;
 
+export const generateAdLogEventKey = (index: number): string => `ai-${index}`;
+export const generatePostLogEventKey = (id: string): string => `pi-${id}`;
+
 export default function useLogImpression(
   item: FeedItem,
   index: number,
@@ -24,7 +27,7 @@ export default function useLogImpression(
 
   useEffect(() => {
     if (item.type === 'post') {
-      const eventKey = `pi-${item.post.id}`;
+      const eventKey = generatePostLogEventKey(item.post.id);
       if (inView && !item.post.impressionStatus) {
         logEventStart(
           eventKey,
@@ -48,7 +51,7 @@ export default function useLogImpression(
         item.post.impressionStatus = LOGGED;
       }
     } else if (item.type === 'ad') {
-      const eventKey = `ai-${index}`;
+      const eventKey = generateAdLogEventKey(index);
       if (inView && !item.ad.impressionStatus) {
         logEventStart(
           eventKey,
@@ -69,13 +72,13 @@ export default function useLogImpression(
     }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inView]);
+  }, [inView, item]);
 
   useEffect(() => {
     // Send pending impression on unmount
     return () => {
       if (item.type === 'ad' && item.ad.impressionStatus === LOGGING) {
-        const eventKey = `ai-${index}`;
+        const eventKey = generateAdLogEventKey(index);
         logEventEnd(eventKey);
         // eslint-disable-next-line no-param-reassign
         item.ad.impressionStatus = LOGGED;
@@ -83,7 +86,7 @@ export default function useLogImpression(
         item.type === 'post' &&
         item.post.impressionStatus === LOGGING
       ) {
-        const eventKey = `pi-${item.post.id}`;
+        const eventKey = generatePostLogEventKey(item.post.id);
         logEventEnd(eventKey);
         // eslint-disable-next-line no-param-reassign
         item.post.impressionStatus = LOGGED;
