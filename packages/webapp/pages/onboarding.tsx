@@ -81,6 +81,11 @@ const OnboardingFooter = dynamic(() =>
     /* webpackChunkName: "onboardingFooter" */ '@dailydotdev/shared/src/components/onboarding/OnboardingFooter'
   ).then((mod) => mod.OnboardingFooter),
 );
+const OnboardingPlusStep = dynamic(() =>
+  import(
+    /* webpackChunkName: "onboardingPlusStep" */ '@dailydotdev/shared/src/components/onboarding/OnboardingPlusStep'
+  ).then((mod) => mod.OnboardingPlusStep),
+);
 
 type OnboardingVisual = {
   fullBackground?: {
@@ -128,7 +133,7 @@ export function OnboardPage(): ReactElement {
   const { isPushSupported } = usePushNotificationContext();
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
-  const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
+  const [activeScreen, setActiveScreen] = useState(OnboardingStep.Plus); // Intro
   const { updateAdvancedSettings } = useMutateFilters(user);
   const isSeniorUser =
     EXPERIENCE_TO_SENIORITY[user?.experienceLevel] === 'senior' ||
@@ -195,6 +200,14 @@ export function OnboardPage(): ReactElement {
       isPushSupported
     ) {
       return setActiveScreen(OnboardingStep.ReadingReminder);
+    }
+
+    if (
+      [OnboardingStep.ContentTypes, OnboardingStep.ReadingReminder].includes(
+        activeScreen,
+      )
+    ) {
+      return setActiveScreen(OnboardingStep.Plus);
     }
 
     if (!hasSelectTopics) {
@@ -354,6 +367,9 @@ export function OnboardPage(): ReactElement {
               />
             )}
             {activeScreen === OnboardingStep.ContentTypes && <ContentTypes />}
+            {activeScreen === OnboardingStep.Plus && (
+              <OnboardingPlusStep onClickNext={onClickNext} />
+            )}
           </div>
         )}
       </div>
