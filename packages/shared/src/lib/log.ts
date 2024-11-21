@@ -280,6 +280,7 @@ export enum TargetId {
   ProfileDropdown = 'profile dropdown',
   Ads = 'ads',
   MyProfile = 'my profile',
+  PlusBadge = 'plus badge',
 }
 
 export enum NotificationChannel {
