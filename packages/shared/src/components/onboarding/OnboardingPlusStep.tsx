@@ -1,4 +1,5 @@
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
+import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
@@ -12,8 +13,13 @@ import {
 } from '../plus/PlusList';
 import { DevPlusIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { plusUrl } from '../../lib/constants';
+import {
+  PaymentContextData,
+  ProductOption,
+  usePaymentContext,
+} from '../../contexts/PaymentContext';
 
 interface OnboardingStepProps {
   onClickNext: () => void;
@@ -24,22 +30,23 @@ enum OnboardingPlans {
   Plus = 'Plus',
 }
 
-const PlanCard: FC<
-  {
-    plan: OnboardingPlans;
-  } & Pick<OnboardingStepProps, 'onClickNext'>
-> = ({ plan, onClickNext }) => {
-  const price = '5';
-  const currency = '$';
-  const isPlus = plan === OnboardingPlans.Plus;
-  const billingCycle = 'monthly';
-  const billingLabel = isPlus ? `Billed ${billingCycle}` : 'Free forever';
+interface PlanCardProps {
+  currency: string;
+  onClickNext: () => void;
+  productOption?: ProductOption;
+}
+
+const PlanCard: FC<PlanCardProps> = ({
+  currency,
+  productOption: plan,
+  onClickNext,
+}) => {
+  const isPlus = !!plan;
+  const price = plan?.price || '0';
+  const billingLabel = isPlus ? `Billed ${plan?.label}` : 'Free forever';
 
   return (
-    <div
-      key={plan}
-      className="mx-auto w-70 max-w-full rounded-16 border border-border-subtlest-tertiary bg-background-default p-4"
-    >
+    <div className="mx-auto w-70 max-w-full rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
       <div className="flex items-start justify-between gap-6">
         <Typography
           bold
@@ -48,7 +55,7 @@ const PlanCard: FC<
           type={TypographyType.Title3}
           color={isPlus ? TypographyColor.Plus : TypographyColor.Primary}
         >
-          {plan}
+          {isPlus ? 'Plus' : 'Free'}
         </Typography>
         {isPlus && (
           <Typography
@@ -62,8 +69,8 @@ const PlanCard: FC<
       </div>
       <div>
         <Typography bold tag={TypographyTag.Span} type={TypographyType.Title1}>
-          {price}
           {currency}
+          {price}
         </Typography>
         <Typography
           color={TypographyColor.Tertiary}
@@ -72,12 +79,13 @@ const PlanCard: FC<
           {billingLabel}
         </Typography>
       </div>
-      {plan === OnboardingPlans.Free ? (
+      {!isPlus ? (
         <Button
           className="my-4 block w-full"
           onClick={onClickNext}
           title="Continue without Plus"
           variant={ButtonVariant.Secondary}
+          type="button"
         >
           Continue
         </Button>
@@ -94,7 +102,11 @@ const PlanCard: FC<
       )}
       <PlusList
         className="!py-0"
-        items={isPlus ? plusFeatureList : defaultFeatureList}
+        items={
+          isPlus
+            ? ['Everything on the Free plan', ...plusFeatureList]
+            : defaultFeatureList
+        }
         icon={{ size: IconSize.XSmall }}
         text={{
           type: TypographyType.Caption1,
@@ -105,12 +117,40 @@ const PlanCard: FC<
   );
 };
 
+const PlanCards: FC<
+  Pick<PaymentContextData, 'productOptions'> & {
+    currentIndex: number;
+    onClickNext: () => void;
+  }
+> = ({ productOptions, currentIndex, onClickNext }) => {
+  const productOption = productOptions[currentIndex];
+  const currency = productOption.currencyCode;
+
+  return (
+    <div className="mx-auto grid grid-cols-1 place-content-center items-start gap-6 laptop:grid-cols-2">
+      {Object.values(OnboardingPlans).map((plan) => (
+        <PlanCard
+          key={plan}
+          currency={currency}
+          productOption={
+            plan === OnboardingPlans.Plus ? productOption : undefined
+          }
+          onClickNext={onClickNext}
+        />
+      ))}
+    </div>
+  );
+};
+
 export const OnboardingPlusStep: FC<OnboardingStepProps> = ({
   onClickNext,
 }) => {
+  const { productOptions } = usePaymentContext();
+  const [currentPlanIndex, setCurrentPlanIndex] = useState<number>(0);
+
   return (
     <section className="flex max-w-screen-laptop flex-col tablet:px-10">
-      <header className="mb-10 text-center">
+      <header className="text-center">
         <Typography
           bold
           tag={TypographyTag.H1}
@@ -128,12 +168,56 @@ export const OnboardingPlusStep: FC<OnboardingStepProps> = ({
           exclusive features and perks to level up your game.
         </Typography>
       </header>
+      {!!productOptions?.length && (
+        <>
+          <div className="mx-auto my-8 inline-flex gap-1 rounded-12 border border-border-subtlest-tertiary p-1">
+            {productOptions.map(({ label, extraLabel }, index) => {
+              const isActive = index === currentPlanIndex;
+              const variant = isActive
+                ? ButtonVariant.Float
+                : ButtonVariant.Option;
+              return (
+                <Button
+                  className="min-w-24 justify-center"
+                  key={label}
+                  onClick={() => setCurrentPlanIndex(index)}
+                  size={ButtonSize.Medium}
+                  variant={variant}
+                >
+                  <span>
+                    <Typography
+                      tag={TypographyTag.Span}
+                      type={TypographyType.Callout}
+                      color={TypographyColor.Primary}
+                      className={classNames('text-center capitalize', {
+                        'font-normal': !isActive,
+                      })}
+                    >
+                      {label}
+                    </Typography>
+                    {extraLabel && (
+                      <Typography
+                        tag={TypographyTag.Span}
+                        type={TypographyType.Caption2}
+                        color={TypographyColor.StatusSuccess}
+                        className="block text-center font-normal"
+                      >
+                        {extraLabel}
+                      </Typography>
+                    )}
+                  </span>
+                </Button>
+              );
+            })}
+          </div>
 
-      <div className="mx-auto grid grid-cols-1 place-content-center gap-6 laptop:grid-cols-2">
-        {Object.values(OnboardingPlans).map((plan) => (
-          <PlanCard key={plan} plan={plan} onClickNext={onClickNext} />
-        ))}
-      </div>
+          <PlanCards
+            currentIndex={currentPlanIndex}
+            productOptions={productOptions}
+            onClickNext={onClickNext}
+          />
+        </>
+      )}
     </section>
   );
 };

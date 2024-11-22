@@ -13,8 +13,8 @@ import { WithClassNameProps } from '../utilities';
 
 interface PlusItemProps {
   title: string;
-  text: TypographyProps<TypographyTag.P>;
-  icon: IconProps;
+  text?: TypographyProps<TypographyTag.P>;
+  icon?: IconProps;
 }
 
 export const defaultFeatureList = [

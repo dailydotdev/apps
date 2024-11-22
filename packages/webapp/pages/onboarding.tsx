@@ -58,6 +58,7 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import useMutateFilters from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import dynamic from 'next/dynamic';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
+import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/PaymentContext';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -368,7 +369,9 @@ export function OnboardPage(): ReactElement {
             )}
             {activeScreen === OnboardingStep.ContentTypes && <ContentTypes />}
             {activeScreen === OnboardingStep.Plus && (
-              <OnboardingPlusStep onClickNext={onClickNext} />
+              <PaymentContextProvider>
+                <OnboardingPlusStep onClickNext={onClickNext} />
+              </PaymentContextProvider>
             )}
           </div>
         )}
