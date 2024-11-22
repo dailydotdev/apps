@@ -24,15 +24,22 @@ const PlusBillingCycleSwitch: FC<{
   onChangeCycle: (index: number) => void;
 }> = ({ productOptions, currentCycleIndex, onChangeCycle }) => {
   return (
-    <div className="mx-auto my-6 inline-flex gap-1 rounded-12 border border-border-subtlest-tertiary p-1 tablet:my-8">
+    <div
+      aria-label="Select billing cycle"
+      role="radiogroup"
+      className="mx-auto my-6 inline-flex gap-1 rounded-12 border border-border-subtlest-tertiary p-1 tablet:my-8"
+    >
       {productOptions.map(({ label, extraLabel }, index) => {
         const isActive = index === currentCycleIndex;
         const variant = isActive ? ButtonVariant.Float : ButtonVariant.Option;
         return (
           <Button
+            aria-checked={isActive}
+            aria-label={label}
             className="min-w-24 justify-center"
             key={label}
             onClick={() => onChangeCycle(index)}
+            role="radio"
             size={ButtonSize.Medium}
             variant={variant}
           >

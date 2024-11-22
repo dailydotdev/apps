@@ -2,12 +2,12 @@ import classNames from 'classnames';
 import React, { Dispatch, ReactElement, SetStateAction, useId } from 'react';
 import { useViewSize, ViewSize } from '../../hooks';
 import {
-  cloudinaryFeedBgMobile,
   cloudinaryFeedBgLaptop,
+  cloudinaryFeedBgMobile,
   cloudinaryFeedBgTablet,
 } from '../../lib/image';
 import Logo, { LogoPosition } from '../Logo';
-import { AuthProps, AuthDisplay } from '../auth/AuthOptions';
+import { AuthDisplay, AuthProps } from '../auth/AuthOptions';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { CreateFeedButton } from './CreateFeedButton';
 import { OnboardingStep, wrapperMaxWidth } from './common';
@@ -18,6 +18,7 @@ type OnboardingHeaderProps = {
   onClickCreateFeed: () => void;
   activeScreen: OnboardingStep;
   customActionName?: string;
+  onClickNext: () => void;
 };
 
 export const OnboardingHeader = ({
@@ -26,6 +27,7 @@ export const OnboardingHeader = ({
   setAuth,
   onClickCreateFeed,
   customActionName,
+  onClickNext,
 }: OnboardingHeaderProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -65,6 +67,16 @@ export const OnboardingHeader = ({
               customActionName={customActionName}
               activeScreen={activeScreen}
             />
+          )}
+          {activeScreen === OnboardingStep.Plus && (
+            <Button
+              aria-label="Continue to the next step without selecting any plan"
+              title="Skip this step"
+              variant={ButtonVariant.Secondary}
+              onClick={onClickNext}
+            >
+              Skip for now ➞
+            </Button>
           )}
         </div>
       </header>
