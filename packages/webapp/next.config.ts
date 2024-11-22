@@ -145,11 +145,13 @@ const nextConfig: NextConfig = {
           },
         ];
 
-        // TODO cf just because origin on cf is different for now, remove this before prod
-        rewrites.unshift({
-          source: '/api/:path*',
-          destination: `https://api.daily.dev/:path*`,
-        });
+        // to support GitPod environment and avoid CORS issues, we need to proxy the API requests
+        if (process.env.NEXT_PUBLIC_DOMAIN === 'localhost') {
+          rewrites.unshift({
+            source: '/api/:path*',
+            destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
+          });
+        }
 
         return rewrites;
       },
