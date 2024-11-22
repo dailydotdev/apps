@@ -3,12 +3,12 @@ version: 2.1
 jobs:
   install_deps:
     docker:
-      - image: cimg/node:20.12
+      - image: cimg/node:22.11
     steps:
       - checkout
       - run:
           name: Install pnpm
-          command: npm i --prefix=$HOME/.local -g pnpm@8.15.7
+          command: npm i --prefix=$HOME/.local -g pnpm
       - restore_cache:
           keys:
             - deps-v6-{{ checksum "pnpm-lock.yaml" }}
@@ -28,7 +28,7 @@ jobs:
             - ./packages/extension/node_modules
   build:
     docker:
-      - image: cimg/node:20.12
+      - image: cimg/node:22.11
     resource_class: medium+
     steps:
       - checkout
@@ -42,7 +42,7 @@ jobs:
           working_directory: packages/extension
   test_extension:
     docker:
-      - image: cimg/node:20.12
+      - image: cimg/node:22.11
     parallelism: 1
     steps:
       - checkout
@@ -63,7 +63,7 @@ jobs:
           path: ./test-results
   test_webapp:
     docker:
-      - image: cimg/node:20.12
+      - image: cimg/node:22.11
     parallelism: 1
     steps:
       - checkout
@@ -84,7 +84,7 @@ jobs:
           path: ./test-results
   lint_shared:
     docker:
-      - image: cimg/node:20.12
+      - image: cimg/node:22.11
     resource_class: large
     steps:
       - checkout
@@ -98,7 +98,7 @@ jobs:
           working_directory: packages/shared
   test_shared:
     docker:
-      - image: cimg/node:20.12
+      - image: cimg/node:22.11
     parallelism: 1
     steps:
       - checkout

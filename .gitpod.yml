@@ -38,7 +38,7 @@ tasks:
       nvm install
       nvm use
     init: |
-      npm i -g pnpm@8.15.7
+      npm i -g pnpm
       pnpm install
     command: |
       cd packages/webapp

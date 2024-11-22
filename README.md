@@ -70,7 +70,7 @@ https://github.com/dailydotdev/.github/blob/master/CONTRIBUTING.md
 After cloning the project, please make sure to run the following commands to bootstrap the project:
 
 ```bash
-npm i -g pnpm@8.15.7
+npm i -g pnpm
 pnpm install
 ```
 
