@@ -99,6 +99,9 @@ const defaultSettings: RemoteSettings = {
 };
 
 const defaultBootData: BootCacheData = {
+  exp: undefined,
+  geo: {},
+  postData: undefined,
   alerts: defaultAlerts,
   user: { ...defaultUser, createdAt: '2024-02-16T00:00:00.000Z' },
   settings: defaultSettings,
