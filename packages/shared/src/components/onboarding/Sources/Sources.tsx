@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
+  TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
 import { SearchField } from '../../fields/SearchField';
@@ -14,13 +15,18 @@ import { Origin } from '../../../lib/log';
 import { gqlClient } from '../../../graphql/common';
 import { disabledRefetch } from '../../../lib/func';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
-import { ONBOARDING_SOURCES_QUERY, Source } from '../../../graphql/sources';
+import {
+  ONBOARDING_SOURCES_QUERY,
+  Source,
+  SourceType,
+} from '../../../graphql/sources';
 import { ElementPlaceholder } from '../../ElementPlaceholder';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { PlusIcon, VIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import useFeedSettings from '../../../hooks/useFeedSettings';
 import useTagAndSource from '../../../hooks/useTagAndSource';
+import { Separator } from '../../cards/common/common';
 
 const placeholderSources = new Array(5).fill(null).map((_, index) => index);
 
@@ -120,6 +126,18 @@ export const Sources = (): ReactElement => {
                 color={TypographyColor.Secondary}
               >
                 {source.handle}
+                {source.type === SourceType.Squad && (
+                  <>
+                    <Separator />
+                    <Typography
+                      tag={TypographyTag.Span}
+                      type={TypographyType.Body}
+                      color={TypographyColor.Brand}
+                    >
+                      Squad
+                    </Typography>
+                  </>
+                )}
               </Typography>
               <Typography
                 type={TypographyType.Body}
@@ -153,7 +171,7 @@ export const Sources = (): ReactElement => {
         bold
         className="mb-10 text-center"
       >
-        Things you would care to follow
+        Content sources you may want to follow
       </Typography>
       <div className="w-full max-w-[35rem]">
         <SearchField
