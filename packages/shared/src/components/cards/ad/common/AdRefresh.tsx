@@ -9,7 +9,7 @@ import { RefreshIcon } from '../../../icons';
 
 export const AdRefresh = ({
   onClick,
-  size = ButtonSize.Small,
+  size = ButtonSize.Medium,
   ...props
 }: ButtonProps<AllowedTags>): ReactElement => {
   return (

@@ -15,7 +15,6 @@ import {
   type InViewRef,
 } from '../../../hooks/feed/useAutoRotatingAds';
 import { AdRefresh } from './common/AdRefresh';
-import { ButtonSize } from '../../buttons/common';
 import AdAttribution from './common/AdAttribution';
 
 const getLinkProps = ({
@@ -62,13 +61,12 @@ export const AdList = forwardRef(function AdCard(
 
       <div className="z-1 flex items-center pt-2">
         <AdRefresh
-          size={ButtonSize.Medium}
           onClick={() => {
             onRefresh?.(ad);
             refetch();
           }}
         />
-        {isEnrolledNotPlus && <RemoveAd size={ButtonSize.Medium} />}
+        {isEnrolledNotPlus && <RemoveAd />}
       </div>
       <AdPixel pixel={ad.pixel} />
     </FeedItemContainer>

@@ -13,6 +13,7 @@ import {
   type InViewRef,
 } from '../../../hooks/feed/useAutoRotatingAds';
 import { AdRefresh } from './common/AdRefresh';
+import { ButtonSize } from '../../buttons/common';
 
 export const AdGrid = forwardRef(function AdGrid(
   { ad, onLinkClick, onRefresh, domProps, index, feedIndex }: AdCardProps,
@@ -34,12 +35,13 @@ export const AdGrid = forwardRef(function AdGrid(
       <CardTextContainer>
         <div className="flex items-center">
           <AdRefresh
+            size={ButtonSize.Small}
             onClick={() => {
               onRefresh?.(ad);
               refetch();
             }}
           />
-          {isEnrolledNotPlus && <RemoveAd />}
+          {isEnrolledNotPlus && <RemoveAd size={ButtonSize.Small} />}
         </div>
       </CardTextContainer>
       <AdPixel pixel={ad.pixel} />

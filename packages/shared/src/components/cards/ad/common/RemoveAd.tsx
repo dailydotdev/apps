@@ -18,7 +18,7 @@ type Props = ButtonProps<AllowedTags>;
 
 export const RemoveAd = ({
   className,
-  size = ButtonSize.Small,
+  size = ButtonSize.Medium,
 }: Props): ReactElement => {
   const { logSubscriptionEvent } = usePlusSubscription();
   return (
