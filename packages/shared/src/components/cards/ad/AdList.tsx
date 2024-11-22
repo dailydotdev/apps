@@ -35,7 +35,7 @@ const getLinkProps = ({
 };
 
 export const AdList = forwardRef(function AdCard(
-  { ad, onLinkClick, domProps, index, feedIndex }: AdCardProps,
+  { ad, onLinkClick, onRefresh, domProps, index, feedIndex }: AdCardProps,
   inViewRef: InViewRef,
 ): ReactElement {
   const { isEnrolledNotPlus } = usePlusSubscription();
@@ -61,7 +61,13 @@ export const AdList = forwardRef(function AdCard(
       </CardContent>
 
       <div className="z-1 flex items-center pt-2">
-        <AdRefresh size={ButtonSize.Medium} onClick={refetch} />
+        <AdRefresh
+          size={ButtonSize.Medium}
+          onClick={() => {
+            onRefresh?.(ad);
+            refetch();
+          }}
+        />
         {isEnrolledNotPlus && <RemoveAd size={ButtonSize.Medium} />}
       </div>
       <AdPixel pixel={ad.pixel} />

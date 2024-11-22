@@ -15,7 +15,7 @@ import {
 import { AdRefresh } from './common/AdRefresh';
 
 export const AdGrid = forwardRef(function AdGrid(
-  { ad, onLinkClick, domProps, index, feedIndex }: AdCardProps,
+  { ad, onLinkClick, onRefresh, domProps, index, feedIndex }: AdCardProps,
   inViewRef: InViewRef,
 ): ReactElement {
   const { isEnrolledNotPlus } = usePlusSubscription();
@@ -33,7 +33,12 @@ export const AdGrid = forwardRef(function AdGrid(
       <AdImage ad={ad} ImageComponent={CardImage} />
       <CardTextContainer>
         <div className="flex items-center">
-          <AdRefresh onClick={refetch} />
+          <AdRefresh
+            onClick={() => {
+              onRefresh?.(ad);
+              refetch();
+            }}
+          />
           {isEnrolledNotPlus && <RemoveAd />}
         </div>
       </CardTextContainer>

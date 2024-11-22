@@ -373,6 +373,17 @@ export default function Feed<T>({
     );
   };
 
+  const onAdRefresh = (ad: Ad, row: number, column: number) => {
+    logEvent(
+      adLogEvent('refresh', ad, {
+        columns: virtualizedNumCards,
+        column,
+        row,
+        ...feedLogExtra(feedName, ranking),
+      }),
+    );
+  };
+
   const post = (items[postMenuIndex] as PostItem)?.post;
   const commonMenuItems = {
     onShare: () =>
@@ -450,6 +461,7 @@ export default function Feed<T>({
                 onCopyLinkClick={onCopyLinkClickLogged}
                 onCommentClick={onCommentClick}
                 onAdClick={onAdClick}
+                onAdRefresh={onAdRefresh}
                 onReadArticleClick={onReadArticleClick}
               />
             ))}
