@@ -11,13 +11,13 @@ jobs:
           command: npm i --prefix=$HOME/.local -g pnpm
       - restore_cache:
           keys:
-            - deps-v6-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v6-{{ .Branch }}
+            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v7-{{ .Branch }}
       - run:
           name: Install dependencies
           command: pnpm install
       - save_cache:
-          key: deps-v6-{{ checksum "pnpm-lock.yaml" }}
+          key: deps-v7-{{ checksum "pnpm-lock.yaml" }}
           paths:
             - ./node_modules
             - ./packages/eslint-config/node_modules
@@ -34,8 +34,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v6-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v6-{{ .Branch }}
+            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v7-{{ .Branch }}
       - run:
           name: Build
           command: npm run build:chrome
@@ -48,8 +48,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v6-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v6-{{ .Branch }}
+            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v7-{{ .Branch }}
       - run:
           name: Test
           command: |
@@ -69,8 +69,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v6-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v6-{{ .Branch }}
+            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v7-{{ .Branch }}
       - run:
           name: Test
           command: |
@@ -90,8 +90,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v6-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v6-{{ .Branch }}
+            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v7-{{ .Branch }}
       - run:
           name: Lint
           command: npm run pretest
@@ -104,8 +104,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v6-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v6-{{ .Branch }}
+            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v7-{{ .Branch }}
       - run:
           name: Test
           command: |
