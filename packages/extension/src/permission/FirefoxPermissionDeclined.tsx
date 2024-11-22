@@ -9,6 +9,8 @@ import {
   TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { FirefoxPermissionContainer } from './common';
 
 interface FirefoxPermissionDeclinedProps {
@@ -50,12 +52,17 @@ export function FirefoxPermissionDeclined({
           color={TypographyColor.Secondary}
           tag={TypographyTag.H1}
           type={TypographyType.Body}
+          className="text-center"
         >
           You can{' '}
           <button type="button" className="text-text-link" onClick={onGoBack}>
             go back
           </button>{' '}
-          and accept the required permissions.
+          and accept the required permissions or use our{' '}
+          <a className="text-text-link" href={webappUrl} rel={anchorDefaultRel}>
+            web app
+          </a>{' '}
+          instead.
         </Typography>
       </div>
     </FirefoxPermissionContainer>
