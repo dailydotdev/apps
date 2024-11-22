@@ -40,6 +40,13 @@ export const getSocialReferrer = (): string | null => {
   }
 
   const url = new URL(document.referrer);
-  const host = url.hostname.replace(/^www\./, '').split('.')[0];
-  return ['reddit', 'x'].includes(host) ? host : null;
+  const host = url.hostname;
+
+  if (host.includes('reddit.')) {
+    return 'reddit';
+  }
+  if (host.includes('x.') || host.includes('twitter.')) {
+    return 'x';
+  }
+  return null;
 };
