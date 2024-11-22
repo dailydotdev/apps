@@ -128,7 +128,7 @@ export function TagSelection({
   const [searchQuery, setSearchQuery] = React.useState<string>();
   const [onSearch] = useDebounceFn(setSearchQuery, 200);
 
-  const { data: searchResult, isLoading: isSearchLoading } = useTagSearch({
+  const { data: searchResult } = useTagSearch({
     value: searchQuery,
     origin: searchOrigin,
   });
