@@ -1,19 +1,22 @@
 import React, { ReactElement } from 'react';
-import { Post } from '../../../graphql/posts';
 import Markdown from '../../Markdown';
 
 interface SharePostTitleProps {
-  post: Post;
+  title?: string;
+  titleHtml?: string;
 }
 
-export function SharePostTitle({ post }: SharePostTitleProps): ReactElement {
-  if (!post?.title) {
+export function SharePostTitle({
+  title,
+  titleHtml,
+}: SharePostTitleProps): ReactElement {
+  if (!title) {
     return null;
   }
 
-  if (!post?.titleHtml) {
-    return <p className="mt-6 whitespace-pre-line typo-title3">{post.title}</p>;
+  if (!titleHtml) {
+    return <p className="mt-6 whitespace-pre-line typo-title3">{title}</p>;
   }
 
-  return <Markdown className="mt-6" content={post.titleHtml} />;
+  return <Markdown className="mt-6" content={titleHtml} />;
 }

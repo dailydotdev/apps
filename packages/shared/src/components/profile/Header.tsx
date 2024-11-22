@@ -1,6 +1,6 @@
 import React, { CSSProperties, ReactElement, useState } from 'react';
 import classNames from 'classnames';
-import { LoggedUser, PublicProfile } from '../../lib/user';
+import { PublicProfile } from '../../lib/user';
 import { SettingsIcon, ShareIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
@@ -12,6 +12,10 @@ import { GoBackButton } from '../post/GoBackHeaderMobile';
 import { useViewSize, ViewSize } from '../../hooks';
 import { FollowButton } from '../contentPreference/FollowButton';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
+import { UpgradeToPlus } from '../UpgradeToPlus';
+import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { TargetId } from '../../lib/log';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -19,6 +23,7 @@ export interface HeaderProps {
   sticky?: boolean;
   className?: string;
   style?: CSSProperties;
+  isPlus?: boolean;
 }
 
 export function Header({
@@ -36,6 +41,13 @@ export function Header({
   });
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isPlus } = usePlusSubscription();
+
+  const { data: contentPreference } = useContentPreferenceStatusQuery({
+    id: user?.id,
+    entity: ContentPreferenceType.User,
+  });
+
   return (
     <header
       className={classNames('flex h-12 items-center px-4', className)}
@@ -52,7 +64,7 @@ export function Header({
               nativeLazyLoading
               size={ProfileImageSize.Medium}
             />
-            <div className="ml-2 flex flex-col typo-footnote">
+            <div className="ml-2 mr-auto flex flex-col typo-footnote">
               <p className="font-bold">{user.name}</p>
               <p className="text-text-tertiary">
                 {largeNumberFormat(user.reputation)} Reputation
@@ -60,12 +72,12 @@ export function Header({
             </div>
           </>
         ) : (
-          <h2 className="font-bold typo-body">Profile</h2>
+          <h2 className="mr-auto font-bold typo-body">Profile</h2>
         )}
       </>
       {isSameUser && (
         <Button
-          className="ml-auto mr-2 hidden laptop:flex"
+          className="mr-2 hidden laptop:flex"
           variant={ButtonVariant.Float}
           size={ButtonSize.Small}
           tag="a"
@@ -74,8 +86,14 @@ export function Header({
           Edit profile
         </Button>
       )}
+      {isSameUser && !isPlus && (
+        <UpgradeToPlus
+          className="mr-2 max-w-fit laptop:hidden"
+          size={ButtonSize.Small}
+          target={TargetId.MyProfile}
+        />
+      )}
       <Button
-        className={classNames('ml-auto', isSameUser && 'laptop:ml-0')}
         variant={ButtonVariant.Float}
         size={ButtonSize.Small}
         icon={<ShareIcon />}
@@ -84,7 +102,7 @@ export function Header({
       <FollowButton
         userId={user.id}
         type={ContentPreferenceType.User}
-        status={(user as LoggedUser).contentPreference?.status}
+        status={contentPreference?.status}
         entityName={`@${user.username}`}
         className="ml-2 flex-row-reverse"
       />

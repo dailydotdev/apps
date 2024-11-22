@@ -1,0 +1,13 @@
+diff --git a/dist/index.js b/dist/index.js
+index 7e52a12d28c4d258e9948ed6b58c49317fa5cce4..345f63aea4ba92798e226806e5901cdb070e5a2f 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -93,7 +93,7 @@ var resolveHeaders = function (headers) {
+     var oHeaders = {};
+     if (headers) {
+         if ((typeof Headers !== 'undefined' && headers instanceof Headers) ||
+-            headers instanceof CrossFetch.Headers) {
++        (CrossFetch && CrossFetch.Headers && headers instanceof CrossFetch.Headers)) {
+             oHeaders = HeadersInstanceToPlainObject(headers);
+         }
+         else if (Array.isArray(headers)) {

@@ -1,10 +1,11 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "ES2018",
     "lib": [
       "dom",
       "dom.iterable",
-      "esnext"
+      "esnext",
+      "webworker"
     ],
     "allowJs": true,
     "skipLibCheck": true,
@@ -27,5 +28,8 @@
   ],
   "exclude": [
     "node_modules"
+  ],
+  "types": [
+    "@serwist/next/typings"
   ]
 }

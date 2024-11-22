@@ -7,8 +7,8 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import { NextSeo } from 'next-seo';
 import {
+  Post,
   POST_BY_ID_STATIC_FIELDS_QUERY,
   PostData,
   PostType,
@@ -16,29 +16,24 @@ import {
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import { ClientError } from 'graphql-request';
-import {
-  PostContent,
-  SCROLL_OFFSET,
-} from '@dailydotdev/shared/src/components/post/PostContent';
+import { SCROLL_OFFSET } from '@dailydotdev/shared/src/components/post/PostContent';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
-import SquadPostContent from '@dailydotdev/shared/src/components/post/SquadPostContent';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
 import classNames from 'classnames';
-import { CollectionPostContent } from '@dailydotdev/shared/src/components/post/collection';
-import { AuthenticationBanner } from '@dailydotdev/shared/src/components/auth';
+
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth/useOnboarding';
 import {
   useJoinReferral,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
-import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
+import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -46,12 +41,37 @@ import {
   getSeoDescription,
   PostSEOSchema,
 } from '../../../components/PostSEOSchema';
+import { DynamicSeoProps } from '../../../components/common';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
 );
 
-export interface Props {
+const PostContent = dynamic(() =>
+  import(
+    /* webpackChunkName: "lazyPostContent" */ '@dailydotdev/shared/src/components/post/PostContent'
+  ).then((module) => module.PostContent),
+);
+
+const SquadPostContent = dynamic(() =>
+  import(
+    /* webpackChunkName: "lazySquadPostContent" */ '@dailydotdev/shared/src/components/post/SquadPostContent'
+  ).then((module) => module.SquadPostContent),
+);
+
+const CollectionPostContent = dynamic(() =>
+  import(
+    /* webpackChunkName: "lazyCollectionPostContent" */ '@dailydotdev/shared/src/components/post/collection'
+  ).then((module) => module.CollectionPostContent),
+);
+
+const PostAuthBanner = dynamic(() =>
+  import(
+    /* webpackChunkName: "postAuthBanner" */ '@dailydotdev/shared/src/components/auth/PostAuthBanner'
+  ).then((module) => module.PostAuthBanner),
+);
+
+export interface Props extends DynamicSeoProps {
   id: string;
   initialData?: PostData;
 }
@@ -69,6 +89,14 @@ interface PostParams extends ParsedUrlQuery {
   id: string;
 }
 
+const seoTitle = (post: Post) => {
+  if (post?.type === PostType.Share && post?.title === null) {
+    return `Shared post at ${post?.source?.name}`;
+  }
+
+  return post?.title;
+};
+
 const PostPage = ({ id, initialData }: Props): ReactElement => {
   useJoinReferral();
   const [position, setPosition] =
@@ -79,7 +107,10 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { post, isError, isLoading } = usePostById({
     id,
-    options: { initialData, retry: false },
+    options: {
+      initialData,
+      retry: false,
+    },
   });
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
@@ -87,27 +118,6 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     [PostType.Share, PostType.Welcome, PostType.Freeform].includes(post?.type),
     featureTheme && 'bg-transparent',
   );
-  const seoTitle = () => {
-    if (post?.type === PostType.Share && post?.title === null) {
-      return `Shared post at ${post?.source?.name}`;
-    }
-
-    return post?.title;
-  };
-  const seo: NextSeoProps = {
-    canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
-    title: getTemplatedTitle(seoTitle()),
-    description: getSeoDescription(post),
-    openGraph: {
-      images: [{ url: `https://og.daily.dev/api/posts/${post?.id}` }],
-      article: {
-        publishedTime: post?.createdAt,
-        tags: post?.tags,
-      },
-    },
-  };
-
-  const seoComponent = <NextSeo {...seo} />;
 
   useScrollTopOffset(() => globalThis.window, {
     onOverOffset: () => position !== 'fixed' && setPosition('fixed'),
@@ -122,7 +132,6 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     return (
       <>
         <PostSEOSchema post={post} />
-        {post?.title?.length && seoComponent}
         <PostLoadingSkeleton className={containerClass} type={post?.type} />
       </>
     );
@@ -139,7 +148,6 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
       <Head>
         <link rel="preload" as="image" href={post?.image} />
       </Head>
-      {seoComponent}
       <PostSEOSchema post={post} />
       <Content
         position={position}
@@ -160,7 +168,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
           content: 'laptop:pt-8',
         }}
       />
-      {shouldShowAuthBanner && isLaptop && <AuthenticationBanner />}
+      {shouldShowAuthBanner && isLaptop && <PostAuthBanner />}
     </FooterNavBarLayout>
   );
 };
@@ -186,10 +194,26 @@ export async function getStaticProps({
       POST_BY_ID_STATIC_FIELDS_QUERY,
       { id },
     );
+
+    const post = initialData.post as Post;
+    const seo: NextSeoProps = {
+      canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
+      title: getTemplatedTitle(seoTitle(post)),
+      description: getSeoDescription(post),
+      openGraph: {
+        images: [{ url: `https://og.daily.dev/api/posts/${post?.id}` }],
+        article: {
+          publishedTime: post?.createdAt,
+          tags: post?.tags,
+        },
+      },
+    };
+
     return {
       props: {
         id: initialData.post.id,
         initialData,
+        seo,
       },
       revalidate: 60,
     };

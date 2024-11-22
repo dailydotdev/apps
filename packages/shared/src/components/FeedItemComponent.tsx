@@ -26,6 +26,7 @@ import { ArticleGrid } from './cards/article/ArticleGrid';
 import { ShareGrid } from './cards/share/ShareGrid';
 import { ShareList } from './cards/share/ShareList';
 import { CollectionGrid } from './cards/collection';
+import { UseBookmarkPost } from '../hooks/useBookmarkPost';
 
 const CommentPopup = dynamic(
   () =>
@@ -58,7 +59,6 @@ export type FeedItemComponentProps = {
   onPostClick: PostClick;
   onReadArticleClick: FeedPostClick;
   onShare: (post: Post, row?: number, column?: number) => void;
-  onBookmark: (post: Post, row: number, column: number) => Promise<void>;
   onMenuClick: (
     e: React.MouseEvent,
     index: number,
@@ -79,7 +79,8 @@ export type FeedItemComponentProps = {
     column: number,
   ) => unknown;
   onAdClick: (ad: Ad, row: number, column: number) => void;
-} & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'>;
+} & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'> &
+  Pick<UseBookmarkPost, 'toggleBookmark'>;
 
 export function getFeedItemKey(item: FeedItem, index: number): string {
   switch (item.type) {
@@ -155,7 +156,7 @@ export default function FeedItemComponent({
   onPostClick,
   onShare,
   onCopyLinkClick,
-  onBookmark,
+  toggleBookmark,
   onMenuClick,
   onCommentClick,
   onAdClick,
@@ -231,7 +232,17 @@ export default function FeedItemComponent({
             onReadArticleClick(item.post, index, row, column)
           }
           onShare={(post) => onShare(post, row, column)}
-          onBookmarkClick={(post) => onBookmark(post, row, column)}
+          onBookmarkClick={(post, origin = Origin.Feed) => {
+            toggleBookmark({
+              post,
+              origin,
+              opts: {
+                columns,
+                column,
+                row,
+              },
+            });
+          }}
           openNewTab={openNewTab}
           enableMenu={!!user}
           onMenuClick={(event) => onMenuClick(event, index, row, column)}
@@ -240,6 +251,7 @@ export default function FeedItemComponent({
           }
           menuOpened={postMenuIndex === index}
           onCommentClick={(post) => onCommentClick(post, index, row, column)}
+          eagerLoadImage={row === 0 && column === 0}
         >
           {showCommentPopupId === item.post.id && (
             <CommentPopup
@@ -258,6 +270,8 @@ export default function FeedItemComponent({
         <AdTag
           ref={inViewRef}
           ad={item.ad}
+          index={item.index}
+          feedIndex={index}
           onLinkClick={(ad) => onAdClick(ad, row, column)}
         />
       );

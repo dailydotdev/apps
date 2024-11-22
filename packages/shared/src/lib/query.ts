@@ -5,13 +5,14 @@ import {
   QueryClientConfig,
   QueryKey,
 } from '@tanstack/react-query';
-import cloneDeep from 'lodash.clonedeep';
 import { ClientError } from 'graphql-request';
+
 import { Connection, GARMR_ERROR } from '../graphql/common';
+import type { PageInfo } from '../graphql/common';
 import { EmptyObjectLiteral } from './kratos';
 import { LoggedUser } from './user';
 import { FeedData, Post, ReadHistoryPost } from '../graphql/posts';
-import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
+import type { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
 import { SharedFeedPage } from '../components/utilities';
 import {
   Comment as PostComment,
@@ -73,6 +74,13 @@ export type AllFeedPages = SharedFeedPage | OtherFeedPage;
 
 export type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
 
+export const getNextPageParam = (pageInfo: PageInfo): null | string => {
+  if (!pageInfo?.hasNextPage || !pageInfo?.endCursor) {
+    return null;
+  }
+  return pageInfo?.hasNextPage && pageInfo?.endCursor;
+};
+
 export const generateQueryKey = (
   name: RequestKey | AllFeedPages,
   user?: Pick<LoggedUser, 'id'>,
@@ -93,8 +101,10 @@ export enum RequestKey {
   Bookmarks = 'bookmarks',
   PostComments = 'post_comments',
   PostCommentsMutations = 'post_comments_mutations',
+  SourcePostModeration = 'source_post_moderation',
   Actions = 'actions',
   Squad = 'squad',
+  SquadPostRequests = 'squad_post_requests',
   SquadMembers = 'squad_members',
   Search = 'search',
   SearchHistory = 'searchHistory',
@@ -164,6 +174,7 @@ export enum RequestKey {
   ContentPreferenceUnfollow = 'content_preference_unfollow',
   ContentPreferenceSubscribe = 'content_preference_subscribe',
   ContentPreferenceUnsubscribe = 'content_preference_unsubscribe',
+  TopReaderBadge = 'top_reader_badge',
 }
 
 export type HasConnection<
@@ -257,7 +268,7 @@ export const updateCachedPage = (
     feedQueryKey,
     (currentData) => {
       const { pages } = currentData;
-      const currentPage = cloneDeep(pages[pageIndex]);
+      const currentPage = structuredClone(pages[pageIndex]);
       currentPage.page = manipulate(currentPage.page);
       const newPages = [
         ...pages.slice(0, pageIndex),
@@ -309,7 +320,7 @@ export const updateReadingHistoryListPost = ({
   }
 
   queryClient.setQueryData<ReadHistoryInfiniteData>(queryKey, (currentData) => {
-    const updatedPage = cloneDeep(currentData.pages[pageIndex]);
+    const updatedPage = structuredClone(currentData.pages[pageIndex]);
     const currentPostNode = updatedPage.readHistory.edges[index].node;
 
     currentPostNode.post = {

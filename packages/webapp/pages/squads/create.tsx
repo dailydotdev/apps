@@ -5,18 +5,14 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { NextSeo, NextSeoProps } from 'next-seo';
+import { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import {
   WriteFreeformContent,
   WriteFreeFormSkeleton,
   WritePageContainer,
 } from '@dailydotdev/shared/src/components/post/freeform';
-import { useMutation } from '@tanstack/react-query';
-import {
-  createPost,
-  CreatePostProps,
-} from '@dailydotdev/shared/src/graphql/posts';
+import { CreatePostProps } from '@dailydotdev/shared/src/graphql/posts';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -35,25 +31,28 @@ import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import {
   useActions,
+  usePostToSquad,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import { useSquadCreate } from '@dailydotdev/shared/src/hooks/squads/useSquadCreate';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import {
+  WriteFormTab,
+  WriteFormTabToFormID,
+} from '@dailydotdev/shared/src/components/fields/form/common';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { getTemplatedTitle } from '../../components/layouts/utils';
 
 const seo: NextSeoProps = {
-  title: 'Create post',
+  title: getTemplatedTitle('Create post'),
   openGraph: { ...defaultOpenGraph },
+  nofollow: true,
+  noindex: true,
   ...defaultSeo,
 };
-
-enum WriteFormTab {
-  Share = 'Share a link',
-  NewPost = 'New post',
-}
 
 function CreatePost(): ReactElement {
   const { completeAction } = useActions();
@@ -96,19 +95,18 @@ function CreatePost(): ReactElement {
     clearDraft,
     isUpdatingDraft,
   } = useDiscardPost({ draftIdentifier: squad?.id });
-  const {
-    mutateAsync: onCreatePost,
-    isLoading: isPosting,
-    isSuccess,
-  } = useMutation(createPost, {
-    onMutate: () => {
-      onAskConfirmation(false);
+  const onPostSuccess = async (link: string) => {
+    onAskConfirmation(false);
+    clearDraft();
+    completeAction(ActionType.SquadFirstPost);
+    await push(link);
+  };
+  const { onSubmitFreeformPost, isPosting, isSuccess } = usePostToSquad({
+    onPostSuccess: async (data) => {
+      onPostSuccess(data.commentsPermalink);
     },
-    onSuccess: async (post) => {
-      clearDraft();
-      await push(post.commentsPermalink);
-
-      completeAction(ActionType.SquadFirstPost);
+    onSourcePostModerationSuccess: async (data) => {
+      onPostSuccess(data.source.permalink);
     },
     onError: (data: ApiErrorResult) => {
       if (data?.response?.errors?.[0]) {
@@ -122,7 +120,7 @@ function CreatePost(): ReactElement {
       const form = formToJson<CreatePostProps>(formRef.current);
 
       setSelected(selected + 1);
-      return onCreatePost({ ...form, sourceId: newSquad.id });
+      return onSubmitFreeformPost(form, newSquad);
     },
     retryWithRandomizedHandle: true,
   });
@@ -150,6 +148,7 @@ function CreatePost(): ReactElement {
   }, [shareParam]);
 
   const onClickSubmit = async (e: FormEvent<HTMLFormElement>, params) => {
+    e.preventDefault();
     if (isPosting || isSuccess || isLoading) {
       return null;
     }
@@ -160,7 +159,7 @@ function CreatePost(): ReactElement {
     }
 
     if (squads.some(({ id }) => squad.id === id)) {
-      return onCreatePost({ ...params, sourceId: squad.id });
+      return onSubmitFreeformPost(params, squad);
     }
 
     await onCreateSquad(generateDefaultSquad(user.username));
@@ -185,14 +184,14 @@ function CreatePost(): ReactElement {
       isPosting={isPosting || isSuccess || isLoading}
       updateDraft={updateDraft}
       onSubmitForm={onClickSubmit}
+      formId={WriteFormTabToFormID[display]}
       enableUpload
     >
       <WritePageContainer>
-        <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
         <TabContainer<WriteFormTab>
           onActiveChange={(active) => setDisplay(active)}
           controlledActive={display}
-          shouldMountInactive={false}
+          shouldMountInactive
           className={{ header: 'px-1' }}
           showHeader={isTablet}
         >
@@ -231,5 +230,6 @@ function CreatePost(): ReactElement {
 }
 
 CreatePost.getLayout = getMainLayout;
+CreatePost.layoutProps = { seo };
 
 export default CreatePost;

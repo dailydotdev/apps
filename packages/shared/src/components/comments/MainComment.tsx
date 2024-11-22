@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import { useInView } from 'react-intersection-observer';
+import dynamic from 'next/dynamic';
 import EnableNotification from '../notifications/EnableNotification';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 import SubComment from './SubComment';
@@ -21,7 +22,13 @@ import usePersistentContext from '../../hooks/usePersistentContext';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
 import LogContext from '../../contexts/LogContext';
-import CommentInputOrModal from './CommentInputOrModal';
+
+const CommentInputOrModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "commentInputOrModal" */ './CommentInputOrModal'
+    ),
+);
 
 type ClassName = {
   container?: string;

@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { NextSeo, NextSeoProps } from 'next-seo';
+import { NextSeoProps } from 'next-seo';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks/useFeedLayout';
 import classNames from 'classnames';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -60,6 +60,12 @@ const discardPrompt: PromptOptions = {
   },
 };
 
+const seo: NextSeoProps = {
+  title: getTemplatedTitle('Edit feed'),
+  openGraph: { ...defaultOpenGraph },
+  ...defaultSeo,
+};
+
 const EditFeedPage = (): ReactElement => {
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -96,8 +102,8 @@ const EditFeedPage = (): ReactElement => {
     onValidateAction,
   });
 
-  const { mutateAsync: onSubmit, isLoading } = useMutation(
-    async ({ name }: EditFeedFormProps) => {
+  const { mutateAsync: onSubmit, isPending: isLoading } = useMutation({
+    mutationFn: async ({ name }: EditFeedFormProps) => {
       const result = await updateFeed({ feedId, name });
       const tagPromises = [
         gqlClient.request(ADD_FILTERS_TO_FEED_MUTATION, {
@@ -125,41 +131,43 @@ const EditFeedPage = (): ReactElement => {
 
       return result;
     },
-    {
-      onSuccess: (data) => {
-        logEvent({
-          event_name: LogEvent.UpdateCustomFeed,
-          target_id: data.id,
-        });
 
-        queryClient.removeQueries(getFeedSettingsQueryKey(user, feedId));
-        queryClient.removeQueries(
-          generateQueryKey(SharedFeedPage.Custom, user),
-        );
+    onSuccess: (data) => {
+      logEvent({
+        event_name: LogEvent.UpdateCustomFeed,
+        target_id: data.id,
+      });
 
-        onAskConfirmation(false);
-        router.replace(`${webappUrl}feeds/${data.id}`);
-      },
-      onError: (error) => {
-        const clientErrors = (error as ClientError)?.response?.errors || [];
+      queryClient.removeQueries({
+        queryKey: getFeedSettingsQueryKey(user, feedId),
+      });
+      queryClient.removeQueries({
+        queryKey: generateQueryKey(SharedFeedPage.Custom, user),
+      });
 
-        if (
-          clientErrors.some(
-            (item) => item.message === labels.feed.error.feedNameInvalid.api,
-          )
-        ) {
-          displayToast(labels.feed.error.feedNameInvalid.api);
-
-          return;
-        }
-
-        displayToast(labels.error.generic);
-      },
+      onAskConfirmation(false);
+      router.replace(`${webappUrl}feeds/${data.id}`);
     },
-  );
 
-  const { mutateAsync: onDelete, status: deleteStatus } = useMutation(
-    async () => {
+    onError: (error) => {
+      const clientErrors = (error as ClientError)?.response?.errors || [];
+
+      if (
+        clientErrors.some(
+          (item) => item.message === labels.feed.error.feedNameInvalid.api,
+        )
+      ) {
+        displayToast(labels.feed.error.feedNameInvalid.api);
+
+        return;
+      }
+
+      displayToast(labels.error.generic);
+    },
+  });
+
+  const { mutateAsync: onDelete, status: deleteStatus } = useMutation({
+    mutationFn: async () => {
       const shouldDelete = await showPrompt({
         title: `Delete ${feed?.flags?.name || 'feed'}?`,
         description: labels.feed.prompt.delete.description,
@@ -177,20 +185,21 @@ const EditFeedPage = (): ReactElement => {
 
       return result;
     },
-    {
-      onSuccess: (data) => {
-        logEvent({
-          event_name: LogEvent.DeleteCustomFeed,
-          target_id: data.id,
-        });
 
-        queryClient.removeQueries(getFeedSettingsQueryKey(user, feedId));
+    onSuccess: (data) => {
+      logEvent({
+        event_name: LogEvent.DeleteCustomFeed,
+        target_id: data.id,
+      });
 
-        onAskConfirmation(false);
-        router.replace(webappUrl);
-      },
+      queryClient.removeQueries({
+        queryKey: getFeedSettingsQueryKey(user, feedId),
+      });
+
+      onAskConfirmation(false);
+      router.replace(webappUrl);
     },
-  );
+  });
 
   const shouldRedirectToNewFeed =
     feeds && feedSlugOrId && deleteStatus === 'idle';
@@ -207,7 +216,9 @@ const EditFeedPage = (): ReactElement => {
 
   const cleanupRef = useRef<() => void>();
   cleanupRef.current = () => {
-    queryClient.removeQueries(getFeedSettingsQueryKey(user, feedId));
+    queryClient.removeQueries({
+      queryKey: getFeedSettingsQueryKey(user, feedId),
+    });
   };
 
   useEffect(() => {
@@ -221,101 +232,92 @@ const EditFeedPage = (): ReactElement => {
     return null;
   }
 
-  const seo: NextSeoProps = {
-    title: getTemplatedTitle('Edit feed'),
-    openGraph: { ...defaultOpenGraph },
-    ...defaultSeo,
-  };
-
   return (
-    <>
-      <NextSeo {...seo} />
-      <FeedPageLayoutComponent className={classNames('!p-0')}>
-        <LayoutHeader className="flex-col overflow-x-visible">
-          <form
-            className="flex w-full flex-col justify-center bg-gradient-to-b from-surface-invert via-surface-invert"
-            onSubmit={(e) => {
-              e.preventDefault();
+    <FeedPageLayoutComponent className={classNames('!p-0')}>
+      <LayoutHeader className="flex-col overflow-x-visible">
+        <form
+          className="flex w-full flex-col justify-center bg-gradient-to-b from-surface-invert via-surface-invert"
+          onSubmit={(e) => {
+            e.preventDefault();
 
-              const { name } = formToJson<EditFeedFormProps>(e.currentTarget);
+            const { name } = formToJson<EditFeedFormProps>(e.currentTarget);
 
-              onSubmit({ name });
+            onSubmit({ name });
+          }}
+        >
+          <FeedCustomActions
+            isDisabled={!isPreviewFeedEnabled}
+            isLoading={isLoading}
+            onDiscard={async () => {
+              const shouldDiscard =
+                onValidateAction() || (await showPrompt(discardPrompt));
+
+              if (shouldDiscard) {
+                onAskConfirmation(false);
+
+                router.push(`${webappUrl}feeds/${feedId}`);
+              }
             }}
+            onDelete={onDelete}
           >
-            <FeedCustomActions
-              isDisabled={!isPreviewFeedEnabled}
-              isLoading={isLoading}
-              onDiscard={async () => {
-                const shouldDiscard =
-                  onValidateAction() || (await showPrompt(discardPrompt));
+            <p className="font-bold typo-title3">Edit tags</p>
+          </FeedCustomActions>
+          <TextField
+            className={{
+              container: 'mx-auto mt-10 w-full px-4 tablet:max-w-96',
+            }}
+            defaultValue={feed.flags?.name}
+            name="name"
+            type="text"
+            inputId="feedName"
+            label="Enter feed name"
+            required
+            maxLength={50}
+          />
+        </form>
 
-                if (shouldDiscard) {
-                  onAskConfirmation(false);
+        <div className="flex w-full max-w-full flex-col">
+          <TagSelection
+            className="mt-10 px-4 pt-0 tablet:px-10"
+            shouldUpdateAlerts={false}
+            shouldFilterLocally
+            feedId={feedId}
+            onClickTag={({ tag, action }) => {
+              setDirty(true);
 
-                  router.push(`${webappUrl}feeds/${feedId}`);
-                }
-              }}
-              onDelete={onDelete}
-            >
-              <p className="font-bold typo-title3">Edit tags</p>
-            </FeedCustomActions>
-            <TextField
-              className={{
-                container: 'mx-auto mt-10 w-full px-4 tablet:max-w-96',
-              }}
-              defaultValue={feed.flags?.name}
-              name="name"
-              type="text"
-              inputId="feedName"
-              label="Enter feed name"
-              required
-              maxLength={50}
-            />
-          </form>
+              if (action === 'follow') {
+                setTagsToRemove((current) => {
+                  const newTags = { ...current };
+                  delete newTags[tag.name];
 
-          <div className="flex w-full max-w-full flex-col">
-            <TagSelection
-              className="mt-10 px-4 pt-0 tablet:px-10"
-              shouldUpdateAlerts={false}
-              shouldFilterLocally
-              feedId={feedId}
-              onClickTag={({ tag, action }) => {
-                setDirty(true);
-
-                if (action === 'follow') {
-                  setTagsToRemove((current) => {
-                    const newTags = { ...current };
-                    delete newTags[tag.name];
-
-                    return newTags;
-                  });
-                } else {
-                  setTagsToRemove((current) => {
-                    return { ...current, [tag.name]: true };
-                  });
-                }
-              }}
-              origin={Origin.CustomFeed}
-              searchOrigin={Origin.CustomFeed}
-            />
-            <FeedPreviewControls
-              isOpen={isPreviewFeedVisible}
-              isDisabled={!isPreviewFeedEnabled}
-              textDisabled="Select tags to show feed preview"
-              origin={Origin.CustomFeed}
-              onClick={setPreviewFeedVisible}
-            />
-          </div>
-        </LayoutHeader>
-        {isPreviewFeedEnabled && isPreviewFeedVisible && (
-          <FeedCustomPreview feedId={feedId} />
-        )}
-      </FeedPageLayoutComponent>
-    </>
+                  return newTags;
+                });
+              } else {
+                setTagsToRemove((current) => {
+                  return { ...current, [tag.name]: true };
+                });
+              }
+            }}
+            origin={Origin.CustomFeed}
+            searchOrigin={Origin.CustomFeed}
+          />
+          <FeedPreviewControls
+            isOpen={isPreviewFeedVisible}
+            isDisabled={!isPreviewFeedEnabled}
+            textDisabled="Select tags to show feed preview"
+            origin={Origin.CustomFeed}
+            onClick={setPreviewFeedVisible}
+          />
+        </div>
+      </LayoutHeader>
+      {isPreviewFeedEnabled && isPreviewFeedVisible && (
+        <FeedCustomPreview feedId={feedId} />
+      )}
+    </FeedPageLayoutComponent>
   );
 };
 
 EditFeedPage.getLayout = getLayout;
-EditFeedPage.layoutProps = mainFeedLayoutProps;
+EditFeedPage.layoutProps = { ...mainFeedLayoutProps, seo };
 
 export default EditFeedPage;

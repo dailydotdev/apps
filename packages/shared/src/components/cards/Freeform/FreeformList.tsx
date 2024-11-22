@@ -12,6 +12,7 @@ import { CardContainer, CardContent, CardTitle } from '../common/list/ListCard';
 import { PostCardHeader } from '../common/list/PostCardHeader';
 import { CardCoverList } from '../common/list/CardCover';
 import ActionButtons from '../common/list/ActionButtons';
+import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
@@ -27,6 +28,7 @@ export const FreeformList = forwardRef(function SharePostCard(
     children,
     enableSourceHeader = false,
     domProps = {},
+    eagerLoadImage = false,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
@@ -42,7 +44,7 @@ export const FreeformList = forwardRef(function SharePostCard(
     [post.contentHtml],
   );
 
-  const { title } = useTruncatedSummary(post, content);
+  const { title } = useTruncatedSummary(post?.title, content);
 
   return (
     <FeedItemContainer
@@ -98,9 +100,10 @@ export const FreeformList = forwardRef(function SharePostCard(
               onShare={onShare}
               post={post}
               imageProps={{
-                src: image,
-                className: 'my-2 mobileXXL:self-start w-full',
                 alt: 'Post Cover image',
+                className: 'my-2 mobileXXL:self-start w-full',
+                ...(eagerLoadImage && HIGH_PRIORITY_IMAGE_PROPS),
+                src: image,
               }}
             />
           )}

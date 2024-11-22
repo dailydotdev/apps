@@ -9,19 +9,16 @@ import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
-import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
-import {
-  SearchProviderEnum,
-  getSearchUrl,
-} from '@dailydotdev/shared/src/graphql/search';
+import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
+import { FeedLayoutProvider } from '@dailydotdev/shared/src/contexts/FeedContext';
 import ShortcutLinks from './ShortcutLinks/ShortcutLinks';
 import DndBanner from './DndBanner';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
@@ -54,11 +51,6 @@ export default function MainFeedPage({
   const { shouldUseListFeedLayout } = useFeedLayout({ feedRelated: false });
   useCompanionSettings();
   const { isActive: isDndActive, showDnd, setShowDnd } = useDndContext();
-  const enableSearch = () => {
-    window.location.assign(
-      getSearchUrl({ provider: SearchProviderEnum.Posts }),
-    );
-  };
 
   const onNavTabClick = useCallback(
     (tab: string): void => {
@@ -99,8 +91,6 @@ export default function MainFeedPage({
     setSearchQuery(undefined);
   };
 
-  const onShowDndClick = useCallback(() => setShowDnd(true), [setShowDnd]);
-
   return (
     <>
       <div className="fixed bottom-0 left-0 z-2 w-full">
@@ -111,16 +101,12 @@ export default function MainFeedPage({
         isNavItemsButton
         activePage={activePage}
         onLogoClick={onLogoClick}
-        showDnd={showDnd}
-        dndActive={isDndActive}
-        onShowDndClick={onShowDndClick}
-        enableSearch={enableSearch}
         onNavTabClick={onNavTabClick}
         screenCentered={false}
         customBanner={isDndActive && <DndBanner />}
         additionalButtons={!loadingUser && <CompanionPopupButton />}
       >
-        <FeedLayout>
+        <FeedLayoutProvider>
           <MainFeedLayout
             feedName={feedName}
             isSearchOn={isSearchOn}
@@ -150,7 +136,7 @@ export default function MainFeedPage({
               />
             }
           />
-        </FeedLayout>
+        </FeedLayoutProvider>
         <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />
       </MainLayout>
     </>

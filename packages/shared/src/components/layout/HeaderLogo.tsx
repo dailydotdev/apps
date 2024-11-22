@@ -1,46 +1,35 @@
-import React, { ReactElement, useState } from 'react';
-import dynamic from 'next/dynamic';
-import { LoggedUser } from '../../lib/user';
+import React, { ReactElement } from 'react';
 import Logo, { LogoPosition } from '../Logo';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { withNoSSR } from '../../lib/withNoSSR';
+import type { WithClassNameProps } from '../utilities';
 
-const Greeting = dynamic(
-  () => import(/* webpackChunkName: "greeting" */ '../Greeting'),
-);
-
-interface HeaderLogoProps {
-  user?: LoggedUser;
-  greeting?: boolean;
+interface HeaderLogoProps extends WithClassNameProps {
   onLogoClick?: (e: React.MouseEvent) => unknown;
   position?: LogoPosition;
+  compact?: boolean;
 }
 
 function HeaderLogo({
-  user,
-  greeting,
   onLogoClick,
   position,
+  compact = false,
+  className,
 }: HeaderLogoProps): ReactElement {
-  const [showGreeting, setShowGreeting] = useState(false);
   const featureTheme = useFeatureTheme();
+  const { user } = useAuthContext();
 
   return (
-    <>
-      <Logo
-        position={position}
-        onLogoClick={onLogoClick}
-        showGreeting={showGreeting}
-        featureTheme={featureTheme}
-      />
-      {greeting && (
-        <Greeting
-          user={user}
-          onEnter={() => setShowGreeting(true)}
-          onExit={() => setShowGreeting(false)}
-        />
-      )}
-    </>
+    <Logo
+      compact={compact}
+      position={position}
+      onLogoClick={onLogoClick}
+      featureTheme={featureTheme}
+      isPlus={user?.isPlus}
+      className={className}
+    />
   );
 }
 
-export default HeaderLogo;
+export default withNoSSR(HeaderLogo);

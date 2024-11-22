@@ -5,7 +5,7 @@ import { DEV_CARD_QUERY } from '../../graphql/users';
 import { useRequestProtocol } from '../useRequestProtocol';
 import { PublicProfile } from '../../lib/user';
 import { Source } from '../../graphql/sources';
-import { cloudinary } from '../../lib/image';
+import { cloudinaryDevcardDefaultCoverImage } from '../../lib/image';
 
 export interface DevCardData {
   id: string;
@@ -38,24 +38,23 @@ export interface UseDevCard {
 
 export const useDevCard = (userId: string): UseDevCard => {
   const { requestMethod } = useRequestProtocol();
-  const { data, isLoading } = useQuery<DevCardQueryData>(
-    generateQueryKey(RequestKey.DevCard, { id: userId }),
-    async () => {
-      const res = await requestMethod(DEV_CARD_QUERY, {
-        id: userId,
-      });
+  const { data, isLoading } = useQuery<DevCardQueryData>({
+    queryKey: generateQueryKey(RequestKey.DevCard, { id: userId }),
 
-      return res;
-    },
-    { staleTime: StaleTime.Default, enabled: !!userId },
-  );
+    queryFn: async () =>
+      await requestMethod(DEV_CARD_QUERY, {
+        id: userId,
+      }),
+    staleTime: StaleTime.Default,
+    enabled: !!userId,
+  });
 
   const { devCard, userStreakProfile } = data || {};
 
   const { isProfileCover, user } = devCard ?? {};
   const coverImage =
     (isProfileCover ? user.cover : undefined) ??
-    cloudinary.devcard.defaultCoverImage;
+    cloudinaryDevcardDefaultCoverImage;
 
   return {
     devcard: {

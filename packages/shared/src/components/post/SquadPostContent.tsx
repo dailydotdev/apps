@@ -14,6 +14,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { PostContentProps, PostNavigationProps } from './common';
 import ShareYouTubeContent from './ShareYouTubeContent';
 import { useViewPost } from '../../hooks/post';
+import { withPostById } from './withPostById';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
@@ -22,7 +23,7 @@ const ContentMap = {
   [PostType.VideoYouTube]: ShareYouTubeContent,
 };
 
-function SquadPostContent({
+function SquadPostContentRaw({
   post,
   isFallback,
   shouldOnboardAuthor,
@@ -40,7 +41,7 @@ function SquadPostContent({
   isPostPage,
 }: PostContentProps): ReactElement {
   const { user } = useAuthContext();
-  const onSendViewPost = useViewPost(post);
+  const onSendViewPost = useViewPost();
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const engagementActions = usePostContent({ origin, post });
   const { onReadArticle, onCopyPostLink } = engagementActions;
@@ -139,4 +140,4 @@ function SquadPostContent({
   );
 }
 
-export default SquadPostContent;
+export const SquadPostContent = withPostById(SquadPostContentRaw);

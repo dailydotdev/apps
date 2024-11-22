@@ -27,6 +27,8 @@ export enum Origin {
   Sidebar = 'sidebar',
   Share = 'share',
   Notification = 'notification',
+  NotificationsPage = 'notifications page',
+  Boot = 'boot',
   SquadMembersList = 'squad members list',
   SquadChecklist = 'squad checklist',
   SquadInvitation = 'squad invitation',
@@ -58,8 +60,6 @@ export enum Origin {
 }
 
 export enum LogEvent {
-  ShowNewTabPermission = 'show new tab permission',
-  DismissNewTabPermission = 'dismiss new tab permission',
   ReportSquad = 'report squad',
   Click = 'click',
   CommentPost = 'comment post',
@@ -113,6 +113,10 @@ export enum LogEvent {
   DownvoteComment = 'downvote comment',
   RemoveCommentDownvote = 'remove comment downvote',
   // vote - end
+  // moderation - start
+  ApprovePost = 'approve post',
+  RejectPost = 'reject post',
+  // moderation - end
   // bookmark - start
   BookmarkPost = 'bookmark post',
   RemovePostBookmark = 'remove post bookmark',
@@ -200,6 +204,18 @@ export enum LogEvent {
   NextSnippet = 'next snippet',
   PreviousSnippet = 'previous snippet',
   // End post snippets
+  TopReaderModalClose = 'close badge',
+  TopReaderBadgeDownload = 'download badge',
+  // Plug subscription
+  UpgradeSubscription = 'upgrade subscription',
+  ManageSubscription = 'manage subscription',
+  SelectBillingCycle = 'select billing cycle',
+  SelectCheckoutPayment = 'select checkout payment',
+  CompleteCheckout = 'complete checkout',
+  WarningCheckout = 'warning checkout',
+  ErrorCheckout = 'error checkout',
+  CancelSubscription = 'cancel subscription',
+  ReceivePayment = 'receive payment',
 }
 
 export enum FeedItemTitle {
@@ -240,6 +256,8 @@ export enum TargetType {
   Language = 'language',
   // End settings
   SocialLink = 'social link',
+  Badge = 'badge',
+  Plus = 'plus',
 }
 
 export enum TargetId {
@@ -257,6 +275,12 @@ export enum TargetId {
   Cards = 'cards',
   List = 'list',
   // End settings
+  TopReader = 'top reader',
+  Sidebar = 'sidebar',
+  ProfileDropdown = 'profile dropdown',
+  Ads = 'ads',
+  MyProfile = 'my profile',
+  PlusBadge = 'plus badge',
 }
 
 export enum NotificationChannel {

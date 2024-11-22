@@ -9,11 +9,7 @@ import { CameraIcon } from '../../../icons';
 import { TextField } from '../../../fields/TextField';
 import MarkdownInput from '../../../fields/MarkdownInput';
 import { WritePageMain } from './common';
-import {
-  EditPostProps,
-  Post,
-  imageSizeLimitMB,
-} from '../../../../graphql/posts';
+import { EditPostProps, imageSizeLimitMB } from '../../../../graphql/posts';
 import { formToJson } from '../../../../lib/form';
 import useDebounceFn from '../../../../hooks/useDebounceFn';
 import AlertPointer, { AlertPlacement } from '../../../alert/AlertPointer';
@@ -21,7 +17,11 @@ import { useActions, useViewSize, ViewSize } from '../../../../hooks';
 import { ActionType } from '../../../../graphql/actions';
 import useSidebarRendered from '../../../../hooks/useSidebarRendered';
 import { base64ToFile } from '../../../../lib/base64';
-import { useWritePostContext, WriteForm } from '../../../../contexts';
+import {
+  MergedWriteObject,
+  useWritePostContext,
+  WriteForm,
+} from '../../../../contexts';
 import { defaultMarkdownCommands } from '../../../../hooks/input';
 import { WriteFooter } from '../../write';
 
@@ -32,11 +32,15 @@ export const checkSavedProperty = (
   prop: keyof WriteForm,
   form: EditPostProps,
   draft: Partial<WriteForm>,
-  post?: Post,
+  post?: MergedWriteObject,
 ): boolean =>
   !form[prop] || (form[prop] === draft?.[prop] && form[prop] !== post?.[prop]);
 
 const defaultFilename = 'thumbnail.png';
+
+// Shared constants - remember to update them in daily-api
+const MAX_TITLE_LENGTH = 250;
+const MAX_CONTENT_LENGTH = 10_000;
 
 interface WriteFreeformContentProps {
   className?: string;
@@ -49,7 +53,7 @@ export function WriteFreeformContent({
     onSubmitForm,
     isPosting,
     squad,
-    post,
+    fetchedPost,
     draft,
     updateDraft,
     isUpdatingDraft,
@@ -97,7 +101,7 @@ export function WriteFreeformContent({
       className={className}
       onSubmit={handleSubmit}
       ref={formRef}
-      id="write-post"
+      id="write-post-freeform"
     >
       <ImageInput
         size={isLaptop ? 'medium' : 'large'}
@@ -111,7 +115,7 @@ export function WriteFreeformContent({
         closeable
         fileSizeLimitMB={imageSizeLimitMB}
         name="image"
-        initialValue={draft?.image ?? post?.image}
+        initialValue={draft?.image ?? fetchedPost?.image}
         onChange={(base64, file) =>
           updateDraft({
             ...draft,
@@ -153,19 +157,20 @@ export function WriteFreeformContent({
           label="Post Title*"
           placeholder="Give your post a title"
           required
-          defaultValue={draft?.title ?? post?.title}
+          defaultValue={draft?.title ?? fetchedPost?.title}
           onInput={onFormUpdate}
-          maxLength={250}
+          maxLength={MAX_TITLE_LENGTH}
         />
       </AlertPointer>
       <MarkdownInput
         className={{ container: 'mt-4' }}
         sourceId={squad?.id}
         onValueUpdate={onFormUpdate}
-        initialContent={draft?.content ?? post?.content ?? ''}
+        initialContent={draft?.content ?? fetchedPost?.content ?? ''}
         textareaProps={{ name: 'content' }}
         enabledCommand={{ ...defaultMarkdownCommands, upload: true }}
         isUpdatingDraft={isUpdatingDraft}
+        maxInputLength={MAX_CONTENT_LENGTH}
       />
       <WriteFooter isLoading={isPosting} className="mt-5" />
     </WritePageMain>

@@ -49,7 +49,7 @@ export type RegistrationFormValues = Omit<
   'method' | 'provider'
 >;
 
-export const RegistrationForm = ({
+const RegistrationForm = ({
   email,
   formRef,
   onBack,
@@ -224,6 +224,7 @@ export const RegistrationForm = ({
         <PasswordField
           required
           minLength={6}
+          maxLength={72}
           saveHintSpace
           className={{ container: 'w-full' }}
           name="password"
@@ -312,3 +313,5 @@ export const RegistrationForm = ({
     </>
   );
 };
+
+export default RegistrationForm;

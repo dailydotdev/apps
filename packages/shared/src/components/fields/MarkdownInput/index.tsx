@@ -64,6 +64,7 @@ interface MarkdownInputProps
   timeline?: ReactNode;
   isLoading?: boolean;
   disabledSubmit?: boolean;
+  maxInputLength?: number;
 }
 
 enum CommentTab {
@@ -95,6 +96,7 @@ function MarkdownInput(
     timeline,
     isLoading,
     disabledSubmit,
+    maxInputLength,
   }: MarkdownInputProps,
   ref: MutableRefObject<MarkdownRef>,
 ): ReactElement {
@@ -226,6 +228,7 @@ function MarkdownInput(
                   className={classNames('ml-3 mt-3', className?.profile)}
                   user={user}
                   nativeLazyLoading
+                  fetchPriority="low"
                 />
                 {component}
               </span>
@@ -246,8 +249,14 @@ function MarkdownInput(
                 value={input}
                 onClick={onInputClick}
                 onDragOver={(e) => e.preventDefault()} // for better experience and stop opening the file with browser
+                maxLength={maxInputLength}
               />
             </span>
+            {maxInputLength && (
+              <div className="m-2 flex justify-end font-bold text-text-tertiary typo-callout">
+                {maxInputLength - (input?.length || 0)}
+              </div>
+            )}
           </ConditionalWrapper>
         </ConditionalWrapper>
       </ConditionalWrapper>

@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Checkbox } from '../../fields/Checkbox';
 import { ModalProps } from '../common/Modal';
 import { useLogContext } from '../../../contexts/LogContext';
-import { ReportModal } from './ReportModal';
+import { ReasonSelectionModal } from './ReasonSelectionModal';
 import { ReportReason, sendSourceReport } from '../../../report';
 import { Squad } from '../../../graphql/sources';
 import { useLeaveSquad, useToastNotification } from '../../../hooks';
@@ -47,37 +47,37 @@ export function ReportSourceModal({
   const { squads } = useAuthContext();
   const inputRef = useRef<HTMLInputElement>();
   const onLeaveSquad = useLeaveSquad({ squad });
-  const { mutateAsync: onReport } = useMutation(
-    ({ reason, comment }: SubmitReportProps) =>
+  const { mutateAsync: onReport } = useMutation({
+    mutationFn: ({ reason, comment }: SubmitReportProps) =>
       sendSourceReport({
         id: squad.id,
         reason,
         comment,
       }),
-    {
-      onSuccess: () => {
-        logEvent({
-          event_name: LogEvent.ReportSquad,
-          extra: JSON.stringify({ squad: squad.id }),
-        });
 
-        displayToast(labels.reporting.reportFeedbackText);
+    onSuccess: () => {
+      logEvent({
+        event_name: LogEvent.ReportSquad,
+        extra: JSON.stringify({ squad: squad.id }),
+      });
 
-        if (inputRef.current?.checked) {
-          onLeaveSquad({ forceLeave: true });
-        }
+      displayToast(labels.reporting.reportFeedbackText);
 
-        onReported?.();
-        onRequestClose(null);
-      },
+      if (inputRef.current?.checked) {
+        onLeaveSquad({ forceLeave: true });
+      }
+
+      onReported?.();
+      onRequestClose(null);
     },
-  );
+  });
 
   const isUserMember = squads.some((s) => s.id === squad.id);
 
   return (
-    <ReportModal
+    <ReasonSelectionModal
       {...props}
+      onRequestClose={onRequestClose}
       isOpen
       onReport={(_, reason, comment) => onReport({ reason, comment })}
       reasons={reportReasons}

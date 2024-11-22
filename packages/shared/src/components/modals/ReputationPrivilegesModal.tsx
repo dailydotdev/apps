@@ -5,7 +5,7 @@ import { ModalClose } from './common/ModalClose';
 import { useActions } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { Image } from '../image/Image';
-import { cloudinary } from '../../lib/image';
+import { cloudinaryReputationPrivilegesUnlocked } from '../../lib/image';
 import { reputation } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 
@@ -32,7 +32,7 @@ export const ReputationPrivilegesModal = ({
       <ModalClose className="top-2" onClick={onClose} />
       <div className="flex flex-col items-center gap-10 p-0 text-center tablet:p-6">
         <Image
-          src={cloudinary.reputation.privilegesUnlocked}
+          src={cloudinaryReputationPrivilegesUnlocked}
           alt="Privileges unlocked!"
         />
 

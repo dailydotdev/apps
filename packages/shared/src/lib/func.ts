@@ -1,5 +1,10 @@
 import { MouseEvent } from 'react';
+import type ReactModal from 'react-modal';
 import { EmptyObjectLiteral } from './kratos';
+import { isTesting } from './constants';
+
+export type EmptyFunction = () => void;
+export type EmptyPromise = () => Promise<void>;
 
 export const nextTick = (): Promise<unknown> =>
   new Promise((resolve) => setTimeout(resolve));
@@ -97,3 +102,45 @@ export const checkIsBrowser = (agent: UserAgent): boolean =>
 
 export const checkIsChromeOnly = (): boolean =>
   checkIsBrowser(UserAgent.Chrome) && !checkIsBrowser(UserAgent.Edge);
+
+export const shuffleArray = <T>(array: T[]): T[] => {
+  const newArray = array.slice();
+
+  // fisher-yates
+  for (let i = newArray.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+
+    const temp = newArray[i];
+    newArray[i] = newArray[j];
+    newArray[j] = temp;
+  }
+
+  return newArray;
+};
+
+export const initReactModal = ({
+  modalObject,
+  appElement,
+  defaultStyles,
+}: {
+  modalObject: {
+    setAppElement: (element: string | HTMLElement) => void;
+    defaultStyles: ReactModal.Styles;
+  };
+  appElement: string | HTMLElement;
+  defaultStyles?: ReactModal.Styles;
+}): void => {
+  if (isTesting) {
+    return;
+  }
+
+  if (globalThis.reactModalInit) {
+    return;
+  }
+
+  modalObject.setAppElement(appElement);
+  // eslint-disable-next-line no-param-reassign
+  modalObject.defaultStyles = defaultStyles || {};
+
+  globalThis.reactModalInit = true;
+};

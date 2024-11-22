@@ -3,45 +3,38 @@ import {
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
-import { Post, sendViewPost } from '../../graphql/posts';
+import { getDay } from 'date-fns';
+import { sendViewPost } from '../../graphql/posts';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ReadingDay, UserStreak } from '../../graphql/users';
 
-export const useViewPost = (
-  post: Post,
-): UseMutateAsyncFunction<unknown, unknown, string> => {
+export const useViewPost = (): UseMutateAsyncFunction<
+  unknown,
+  unknown,
+  string
+> => {
   const client = useQueryClient();
   const { user } = useAuthContext();
   const streakKey = generateQueryKey(RequestKey.UserStreak, user);
   const readKey = generateQueryKey(RequestKey.ReadingStreak30Days, user);
-  const { mutateAsync: onSendViewPost } = useMutation(sendViewPost, {
+  const { mutateAsync: onSendViewPost } = useMutation({
+    mutationFn: sendViewPost,
     onSuccess: async () => {
-      await client.invalidateQueries(streakKey);
-      if (!post.read) {
-        client.setQueryData<UserStreak>(streakKey, (data) => {
-          const streak = { ...data };
+      const streak = client.getQueryData<UserStreak>(streakKey);
+      const isNewStreak = !streak?.lastViewAt;
+      const isFirstViewToday =
+        getDay(new Date(streak?.lastViewAt)) !== getDay(new Date());
 
-          if (
-            !streak?.lastViewAt ||
-            new Date(streak.lastViewAt).getDate() !== new Date().getDate()
-          ) {
-            streak.max += 1;
-            streak.total += 1;
-            streak.current += 1;
-          }
-
-          streak.lastViewAt = new Date();
-
-          return streak;
-        });
+      if (isNewStreak || isFirstViewToday) {
+        await client.refetchQueries({ queryKey: streakKey });
       }
 
       const reading = client.getQueryData<ReadingDay[]>(readKey);
 
       if (reading) {
         // just mark the query as stale
-        await client.invalidateQueries(readKey);
+        await client.invalidateQueries({ queryKey: readKey });
       }
 
       return null;

@@ -19,8 +19,14 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import classNames from 'classnames';
 import { combinedClicks } from '@dailydotdev/shared/src/lib/click';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import {
+  cloudinaryShortcutsIconsGmail,
+  cloudinaryShortcutsIconsReddit,
+  cloudinaryShortcutsIconsOpenai,
+  cloudinaryShortcutsIconsStackoverflow,
+} from '@dailydotdev/shared/src/lib/image';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 
 const pixelRatio = globalThis?.window.devicePixelRatio ?? 1;
 const iconSize = Math.round(24 * pixelRatio);
@@ -87,9 +93,7 @@ function ShortcutV1Item({
     >
       <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
         <img
-          src={`https://api.daily.dev/icon?url=${encodeURIComponent(
-            url,
-          )}&size=${iconSize}`}
+          src={`${apiUrl}/icon?url=${encodeURIComponent(url)}&size=${iconSize}`}
           alt={url}
           className="size-6"
         />
@@ -139,11 +143,11 @@ export function ShortcutLinksUIV1(props: ShortcutLinksV1Props): ReactElement {
     !checkHasCompleted(ActionType.FirstShortcutsSession)
   ) {
     const placeholderShortcutLinks = [
-      cloudinary.shortcuts.icons.gmail,
+      cloudinaryShortcutsIconsGmail,
       githubShortcut,
-      cloudinary.shortcuts.icons.reddit,
-      cloudinary.shortcuts.icons.openai,
-      cloudinary.shortcuts.icons.stackoverflow,
+      cloudinaryShortcutsIconsReddit,
+      cloudinaryShortcutsIconsOpenai,
+      cloudinaryShortcutsIconsStackoverflow,
     ];
 
     return (

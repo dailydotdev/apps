@@ -3,11 +3,6 @@ html, #daily-companion-wrapper {
   color: var(--theme-text-primary);
   height: stretch;
 }
-:root {
-  --balloon-border-radius: 0.625rem;
-  --balloon-color: var(--theme-text-primary);
-  --balloon-text-color: var(--theme-surface-invert);
-}
 body {
   min-width: 20rem;
   overflow-y: scroll;
@@ -179,6 +174,11 @@ body {
   --theme-actions-share-float: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 92%);
   --theme-actions-share-hover: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 88%);
   --theme-actions-share-active: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 84%);
+  /* Plus */
+  --theme-actions-plus-default: var(--theme-accent-bacon-default);
+  --theme-actions-plus-float: color-mix(in srgb, var(--theme-accent-bacon-bolder), transparent 92%);
+  --theme-actions-plus-hover: color-mix(in srgb, var(--theme-accent-bacon-bolder), transparent 88%);
+  --theme-actions-plus-active: color-mix(in srgb, var(--theme-accent-bacon-bolder), transparent 84%);
 
   /* Overlay */
   --theme-overlay-base-primary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 36%);
@@ -435,6 +435,11 @@ body {
   --theme-actions-share-float: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 92%);
   --theme-actions-share-hover: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 88%);
   --theme-actions-share-active: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 84%);
+  /* Plus */
+  --theme-actions-plus-default: var(--theme-accent-bacon-default);
+  --theme-actions-plus-float: color-mix(in srgb, var(--theme-accent-bacon-bolder), transparent 92%);
+  --theme-actions-plus-hover: color-mix(in srgb, var(--theme-accent-bacon-bolder), transparent 88%);
+  --theme-actions-plus-active: color-mix(in srgb, var(--theme-accent-bacon-bolder), transparent 84%);
 
   /* Overlay */
   --theme-overlay-base-primary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 36%);

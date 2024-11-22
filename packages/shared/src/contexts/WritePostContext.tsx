@@ -6,11 +6,12 @@ import React, {
   useContext,
 } from 'react';
 import { useRouter } from 'next/router';
-import { Post } from '../graphql/posts';
+import { EditPostProps, Post, SharedPost } from '../graphql/posts';
 import { Squad } from '../graphql/sources';
 import ConditionalWrapper from '../components/ConditionalWrapper';
 import { useViewSize, ViewSize } from '../hooks';
 import { FormWrapper } from '../components/fields/form';
+import { SourcePostModeration } from '../graphql/squads';
 
 export interface WriteForm {
   title: string;
@@ -19,19 +20,29 @@ export interface WriteForm {
   filename?: string;
 }
 
+export interface MergedWriteObject
+  extends Partial<Pick<WriteForm, 'title' | 'content' | 'image'>> {
+  id?: string;
+  type?: string;
+  sharedPost?: SharedPost;
+}
+
 export interface WritePostProps {
   onSubmitForm: (
     e: FormEvent<HTMLFormElement>,
-    prop: WriteForm,
-  ) => Promise<Post>;
+    prop: WriteForm & Omit<EditPostProps, 'id'>,
+  ) => void;
   isPosting: boolean;
   squad: Squad;
   post?: Post;
+  moderated?: SourcePostModeration;
+  fetchedPost?: MergedWriteObject;
   enableUpload: boolean;
   formRef?: MutableRefObject<HTMLFormElement>;
   draft?: Partial<WriteForm>;
   updateDraft?: (props: Partial<WriteForm>) => Promise<void>;
   isUpdatingDraft?: boolean;
+  formId?: string;
 }
 
 export const WritePostContext = React.createContext<WritePostProps>({
@@ -43,6 +54,7 @@ export const WritePostContext = React.createContext<WritePostProps>({
   formRef: null,
   draft: {},
   updateDraft: null,
+  formId: null,
 });
 
 export const useWritePostContext = (): WritePostProps =>
@@ -50,6 +62,7 @@ export const useWritePostContext = (): WritePostProps =>
 
 export const WritePostContextProvider = ({
   children,
+  formId,
   ...props
 }: PropsWithChildren<WritePostProps>): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -65,7 +78,7 @@ export const WritePostContextProvider = ({
             copy={{ right: 'Post' }}
             rightButtonProps={{ disabled: props.isPosting }}
             leftButtonProps={{ onClick: () => router.back() }}
-            form="write-post"
+            form={formId}
           >
             {component}
           </FormWrapper>

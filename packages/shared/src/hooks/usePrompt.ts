@@ -12,6 +12,7 @@ export type PromptButtonProps = Omit<ButtonProps<'button'>, 'onClick'> & {
 
 export type PromptOptions = {
   title: string;
+  icon?: ReactNode;
   description?: string | ReactNode;
   okButton?: PromptButtonProps;
   cancelButton?: PromptButtonProps;
@@ -38,10 +39,10 @@ type UsePromptRet = {
 
 export function usePrompt(): UsePromptRet {
   const client = useQueryClient();
-  const { data: prompt } = useQuery<Prompt>(
-    PROMPT_KEY,
-    () => client.getQueryData<Prompt>(PROMPT_KEY) || null,
-  );
+  const { data: prompt } = useQuery({
+    queryKey: PROMPT_KEY,
+    queryFn: () => client.getQueryData<Prompt>(PROMPT_KEY) || null,
+  });
 
   const setPrompt = useCallback(
     (data: Prompt) => client.setQueryData(PROMPT_KEY, data),

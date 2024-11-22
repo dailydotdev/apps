@@ -18,6 +18,9 @@ import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { CardLink } from '../cards/common/Card';
 import { ReputationUserBadge } from '../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
+import { Separator } from '../cards/common/common';
+import { TopReaderIn } from '../TopReaderIn';
+import { PlusUserBadge } from '../PlusUserBadge';
 
 interface ClassName extends CommentClassName {
   content?: string;
@@ -60,6 +63,8 @@ export default function CommentContainer({
     user: comment.author,
   });
 
+  const topReader = comment.author?.topReader;
+
   return (
     <article
       ref={isCommentReferenced ? commentRef : null}
@@ -96,7 +101,10 @@ export default function CommentContainer({
           userId={comment.author.id}
           tooltip={{ appendTo: appendTooltipTo }}
         >
-          <ProfileImageLink user={comment.author} />
+          <ProfileImageLink
+            user={comment.author}
+            picture={{ width: 48, height: 48, fetchPriority: 'low' }}
+          />
         </ProfileTooltip>
         <div className="ml-3 flex min-w-0 flex-1 flex-col typo-callout">
           <FlexRow>
@@ -104,6 +112,9 @@ export default function CommentContainer({
               author={comment.author}
               appendTooltipTo={appendTooltipTo}
             />
+            {!!comment.author?.isPlus && (
+              <PlusUserBadge user={comment.author} />
+            )}
             {comment.author?.companies?.length > 0 && (
               <VerifiedCompanyUserBadge user={comment.author} />
             )}
@@ -142,8 +153,14 @@ export default function CommentContainer({
                 @{comment.author.username}
               </TruncateText>
             </ProfileLink>
-            <div className="mx-2 h-0.5 w-0.5 bg-text-quaternary" />
+            <Separator />
             <CommentPublishDate comment={comment} />
+            {topReader && (
+              <>
+                <Separator />
+                <TopReaderIn topReader={topReader} tooltip />
+              </>
+            )}
           </FlexRow>
         </div>
       </header>

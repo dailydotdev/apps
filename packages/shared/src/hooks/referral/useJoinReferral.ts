@@ -49,10 +49,12 @@ export const useJoinReferral = (): void => {
     return null;
   };
 
-  useQuery(['join_referral', { cid, userid }], loadReferralCookie, {
+  useQuery({
+    queryKey: ['join_referral', { cid, userid }],
+    queryFn: loadReferralCookie,
     ...disabledRefetch,
     enabled: shouldSetReferralCookie,
-    cacheTime: Infinity,
+    gcTime: Infinity,
     staleTime: Infinity,
   });
 };

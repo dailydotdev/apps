@@ -1,6 +1,10 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { SourceMember, SourcePermissions, Squad } from '../../graphql/sources';
+import {
+  BasicSourceMember,
+  SourcePermissions,
+  Squad,
+} from '../../graphql/sources';
 import { SquadHeaderBar } from './SquadHeaderBar';
 import { SquadImage } from './SquadImage';
 import EnableNotification from '../notifications/EnableNotification';
@@ -35,7 +39,7 @@ import {
 
 interface SquadPageHeaderProps {
   squad: Squad;
-  members: SourceMember[];
+  members: BasicSourceMember[];
   shouldUseListMode: boolean;
 }
 
@@ -122,7 +126,7 @@ export function SquadPageHeader({
                 <a
                   aria-label={`View all squads in ${category.title}`}
                   className="text-text-link"
-                  href={`/squads/discover/${category.id}`}
+                  href={`/squads/discover/${category.slug}`}
                   title={`View all squads in ${category.title}`}
                 >
                   {category.title}

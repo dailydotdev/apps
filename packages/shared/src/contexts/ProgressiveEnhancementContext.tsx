@@ -41,7 +41,7 @@ export const ProgressiveEnhancementContextProvider = ({
   useEffect(() => {
     const callback = () => {
       setWindowLoaded(true);
-      setNativeShareSupport('share' in navigator);
+      setNativeShareSupport('share' in globalThis?.navigator);
     };
 
     if ('windowLoaded' in window) {
@@ -50,13 +50,6 @@ export const ProgressiveEnhancementContextProvider = ({
     window.addEventListener('load', callback, {
       once: true,
     });
-
-    // Currently it reduces the PageSpeed score
-    // if ('loading' in HTMLImageElement.prototype) {
-    //   setAsyncImageSupport(true);
-    // } else {
-    //   import(/* webpackChunkName: "lazysizes" */ 'lazysizes');
-    // }
   }, []);
 
   return (

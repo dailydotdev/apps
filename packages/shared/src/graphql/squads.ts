@@ -1,13 +1,15 @@
 import { gql } from 'graphql-request';
 import {
+  SHARED_POST_INFO_FRAGMENT,
   SOURCE_BASE_FRAGMENT,
   SQUAD_BASE_FRAGMENT,
   USER_AUTHOR_FRAGMENT,
+  USER_BASIC_INFO,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
 import { Connection, gqlClient } from './common';
 import {
-  PublicSquadRequest,
+  BasicSourceMember,
   Source,
   SourceMember,
   SourceMemberRole,
@@ -15,15 +17,21 @@ import {
   SourceType,
   Squad,
 } from './sources';
-import { Post } from './posts';
+import type { Post } from './posts';
 import { EmptyResponse } from './emptyResponse';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
 import { PrivacyOption } from '../components/squads/settings/SquadPrivacySection';
+import { Author } from './comments';
 
 interface BaseSquadForm
   extends Pick<
     Squad,
-    'name' | 'handle' | 'description' | 'memberInviteRole' | 'memberPostingRole'
+    | 'name'
+    | 'handle'
+    | 'description'
+    | 'memberInviteRole'
+    | 'memberPostingRole'
+    | 'moderationRequired'
   > {
   categoryId?: string;
 }
@@ -148,6 +156,7 @@ export const CREATE_SQUAD_MUTATION = gql`
     $image: Upload
     $memberPostingRole: String
     $memberInviteRole: String
+    $moderationRequired: Boolean
     $isPrivate: Boolean
     $categoryId: ID
   ) {
@@ -158,6 +167,7 @@ export const CREATE_SQUAD_MUTATION = gql`
       image: $image
       memberPostingRole: $memberPostingRole
       memberInviteRole: $memberInviteRole
+      moderationRequired: $moderationRequired
       isPrivate: $isPrivate
       categoryId: $categoryId
     ) {
@@ -183,6 +193,7 @@ export const EDIT_SQUAD_MUTATION = gql`
     $image: Upload
     $memberPostingRole: String
     $memberInviteRole: String
+    $moderationRequired: Boolean
     $isPrivate: Boolean
     $categoryId: ID
   ) {
@@ -194,6 +205,7 @@ export const EDIT_SQUAD_MUTATION = gql`
       image: $image
       memberPostingRole: $memberPostingRole
       memberInviteRole: $memberInviteRole
+      moderationRequired: $moderationRequired
       isPrivate: $isPrivate
       categoryId: $categoryId
     ) {
@@ -225,6 +237,7 @@ export const SQUAD_QUERY = gql`
   query Source($handle: ID!) {
     source(id: $handle) {
       ...SquadBaseInfo
+      moderationPostCount
     }
   }
   ${SQUAD_BASE_FRAGMENT}
@@ -235,13 +248,37 @@ export const SQUAD_STATIC_FIELDS_QUERY = gql`
     source(id: $handle) {
       id
       name
+      handle
       public
       description
       image
       type
+      permalink
+      moderationRequired
     }
   }
 `;
+
+export type SquadStaticData = Pick<
+  Squad,
+  | 'id'
+  | 'name'
+  | 'handle'
+  | 'public'
+  | 'description'
+  | 'image'
+  | 'type'
+  | 'moderationRequired'
+  | 'permalink'
+>;
+
+export const getSquadStaticFields = async (
+  handle: string,
+): Promise<SquadStaticData> => {
+  const res = await gqlClient.request(SQUAD_STATIC_FIELDS_QUERY, { handle });
+
+  return res.source;
+};
 
 export const SQUAD_HANDE_AVAILABILITY_QUERY = gql`
   query SourceHandleExists($handle: String!) {
@@ -281,6 +318,21 @@ export const SQUAD_MEMBERS_QUERY = gql`
   ${USER_AUTHOR_FRAGMENT}
 `;
 
+export const BASIC_SQUAD_MEMBERS_QUERY = gql`
+  query BasicSourceMembers($id: ID!, $first: Int) {
+    sourceMembers(sourceId: $id, first: $first) {
+      edges {
+        node {
+          user {
+            ...UserBasicInfo
+          }
+        }
+      }
+    }
+  }
+  ${USER_BASIC_INFO}
+`;
+
 export const SQUAD_INVITATION_QUERY = gql`
   query SourceInvitationQuery($token: String!) {
     member: sourceMemberByToken(token: $token) {
@@ -303,23 +355,6 @@ export const SQUAD_INVITATION_QUERY = gql`
   }
   ${SOURCE_BASE_FRAGMENT}
   ${USER_SHORT_INFO_FRAGMENT}
-`;
-
-export const PUBLIC_SQUAD_REQUESTS = gql`
-  query PublicSquadRequests($sourceId: String!, $first: Int) {
-    requests: publicSquadRequests(sourceId: $sourceId, first: $first) {
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
-      edges {
-        node {
-          requestorId
-          status
-        }
-      }
-    }
-  }
 `;
 
 export const SQUAD_JOIN_MUTATION = gql`
@@ -358,6 +393,10 @@ export interface SquadEdgesData {
   sourceMembers: Connection<SourceMember>;
 }
 
+export interface BasicSourceMembersData {
+  sourceMembers: Connection<BasicSourceMember>;
+}
+
 interface SquadMemberMutationProps {
   sourceId: string;
   memberId: string;
@@ -393,11 +432,16 @@ export async function getSquad(handle: string): Promise<Squad> {
   return res.source;
 }
 
-export async function getSquadMembers(id: string): Promise<SourceMember[]> {
-  const res = await gqlClient.request<SquadEdgesData>(SQUAD_MEMBERS_QUERY, {
-    id,
-    first: 5,
-  });
+export async function getSquadMembers(
+  id: string,
+): Promise<BasicSourceMember[]> {
+  const res = await gqlClient.request<BasicSourceMembersData>(
+    BASIC_SQUAD_MEMBERS_QUERY,
+    {
+      id,
+      first: 5,
+    },
+  );
   return res.sourceMembers.edges?.map((edge) => edge.node);
 }
 
@@ -461,6 +505,7 @@ const formToInput = (form: SquadForm): SharedSquadInput => ({
   memberPostingRole: form.memberPostingRole,
   memberInviteRole: form.memberInviteRole,
   categoryId: form.categoryId,
+  moderationRequired: form.moderationRequired,
   isPrivate: form.status === PrivacyOption.Private,
 });
 
@@ -519,39 +564,177 @@ export const SQUAD_COMMENT_JOIN_BANNER_KEY = generateStorageKey(
   'comment_join_banner',
 );
 
-export const SUBMIT_SQUAD_FOR_REVIEW_MUTATION = gql`
-  mutation SubmitSquadForReview($sourceId: ID!) {
-    submitSquadForReview(sourceId: $sourceId) {
-      status
+export enum SourcePostModerationStatus {
+  Approved = 'approved',
+  Rejected = 'rejected',
+  Pending = 'pending',
+}
+
+type PostRequestContentProps = Pick<
+  Post,
+  | 'type'
+  | 'title'
+  | 'titleHtml'
+  | 'content'
+  | 'contentHtml'
+  | 'image'
+  | 'sharedPost'
+  | 'createdAt'
+>;
+
+interface PostRequestContent extends PostRequestContentProps {
+  createdBy: Author;
+}
+
+export interface SourcePostModeration extends Partial<PostRequestContent> {
+  id: string;
+  post?: Post;
+  status: SourcePostModerationStatus;
+  rejectionReason?: PostModerationReason;
+  moderatorMessage?: string;
+  source?: Source;
+  externalLink?: string;
+}
+
+const SOURCE_POST_MODERATION_FRAGMENT = gql`
+  fragment SourcePostModerationFragment on SourcePostModeration {
+    id
+    title
+    status
+    rejectionReason
+    moderatorMessage
+    type
+    title
+    titleHtml
+    content
+    contentHtml
+    image
+    createdAt
+    externalLink
+    source {
+      ...SourceBaseInfo
+    }
+    createdBy {
+      ...UserAuthor
+    }
+    moderatedBy {
+      ...UserAuthor
+    }
+    sharedPost {
+      ...SharedPostInfo
+    }
+    post {
+      ...SharedPostInfo
+    }
+  }
+  ${SHARED_POST_INFO_FRAGMENT}
+`;
+
+export const SQUAD_PENDING_POSTS_QUERY = gql`
+  query sourcePostModerations($sourceId: ID!, $status: [String]) {
+    sourcePostModerations(sourceId: $sourceId, status: $status) {
+      edges {
+        node {
+          ...SourcePostModerationFragment
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+  ${SOURCE_POST_MODERATION_FRAGMENT}
+`;
+
+export const SQUAD_MODERATE_POST_MUTATION = gql`
+  mutation ModerateSourcePost(
+    $postIds: [ID]!
+    $status: String
+    $sourceId: ID!
+    $rejectionReason: String
+    $moderatorMessage: String
+  ) {
+    moderateSourcePosts(
+      postIds: $postIds
+      status: $status
+      sourceId: $sourceId
+      rejectionReason: $rejectionReason
+      moderatorMessage: $moderatorMessage
+    ) {
+      ...SourcePostModerationFragment
+    }
+  }
+  ${SOURCE_POST_MODERATION_FRAGMENT}
+`;
+
+export enum PostModerationReason {
+  OffTopic = 'OFF_TOPIC',
+  Violation = 'VIOLATION',
+  Promotional = 'PROMOTIONAL',
+  Duplicate = 'DUPLICATE',
+  LowQuality = 'LOW_QUALITY',
+  NSFW = 'NSFW',
+  Spam = 'SPAM',
+  Misinformation = 'MISINFORMATION',
+  Copyright = 'COPYRIGHT',
+  Other = 'OTHER',
+}
+
+export interface SquadPostModerationProps {
+  postIds: string[];
+  sourceId: Source['id'];
+}
+
+export interface SquadPostRejectionProps extends SquadPostModerationProps {
+  reason: PostModerationReason;
+  note?: string;
+}
+
+export const squadApproveMutation = ({
+  postIds,
+  sourceId,
+}: SquadPostModerationProps): Promise<SourcePostModeration[]> => {
+  return gqlClient
+    .request<{
+      moderateSourcePosts: SourcePostModeration[];
+    }>(SQUAD_MODERATE_POST_MUTATION, {
+      postIds,
+      sourceId,
+      status: SourcePostModerationStatus.Approved,
+    })
+    .then((res) => res.moderateSourcePosts);
+};
+
+export const squadRejectMutation = ({
+  postIds,
+  sourceId,
+  reason,
+  note,
+}: SquadPostRejectionProps): Promise<SourcePostModeration[]> => {
+  return gqlClient
+    .request<{
+      moderateSourcePosts: SourcePostModeration[];
+    }>(SQUAD_MODERATE_POST_MUTATION, {
+      postIds,
+      sourceId,
+      status: SourcePostModerationStatus.Rejected,
+      rejectionReason: reason,
+      moderatorMessage: note,
+    })
+    .then((res) => res.moderateSourcePosts);
+};
+
+const DELETE_PENDING_POST_MUTATION = gql`
+  mutation DeleteSourcePostModeration($postId: ID!) {
+    deleteSourcePostModeration(postId: $postId) {
+      _
     }
   }
 `;
 
-interface SubmitSquadForReviewOutput {
-  submitSquadForReview: PublicSquadRequest;
-}
-
-export async function submitSquadForReview(
-  sourceId: string,
-): Promise<PublicSquadRequest> {
-  const data = await gqlClient.request<SubmitSquadForReviewOutput>(
-    SUBMIT_SQUAD_FOR_REVIEW_MUTATION,
-    { sourceId },
-  );
-  return data.submitSquadForReview;
-}
-
-interface GetPublicSquadRequestsProps {
-  sourceId: string;
-  first?: number;
-}
-
-export const getPublicSquadRequests = async (
-  params: GetPublicSquadRequestsProps,
-): Promise<Connection<PublicSquadRequest>> => {
-  const res = await gqlClient.request<{
-    requests: Connection<PublicSquadRequest>;
-  }>(PUBLIC_SQUAD_REQUESTS, params);
-
-  return res.requests;
+export const deletePendingPostMutation = async (
+  postId: string,
+): Promise<void> => {
+  return gqlClient.request(DELETE_PENDING_POST_MUTATION, { postId });
 };

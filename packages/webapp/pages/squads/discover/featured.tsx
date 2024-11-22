@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
 import InfiniteScrolling, {
   checkFetchMore,
 } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
@@ -54,7 +53,6 @@ const SquadsPage = (): ReactElement => {
 
   return (
     <SquadDirectoryLayout>
-      <NextSeo {...seo} />
       <InfiniteScrolling
         isFetchingNextPage={result.isFetchingNextPage}
         canFetchMore={checkFetchMore(result)}
@@ -84,6 +82,7 @@ SquadsPage.getLayout = getLayout;
 SquadsPage.layoutProps = {
   ...mainFeedLayoutProps,
   customBanner: <CustomAuthBanner />,
+  seo,
 };
 
 export default SquadsPage;

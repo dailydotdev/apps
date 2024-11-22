@@ -1,6 +1,12 @@
 import classNames from 'classnames';
 import React, { HTMLAttributes, ReactElement, useMemo } from 'react';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import {
+  AllowedTags,
+  Button,
+  ButtonProps,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import SquadHeaderMenu from './SquadHeaderMenu';
 import useContextMenu from '../../hooks/useContextMenu';
@@ -20,6 +26,7 @@ import {
   AddUserIcon,
   MenuIcon,
   SlackIcon,
+  TimerIcon,
 } from '../icons';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
@@ -29,34 +36,18 @@ import { UserIntegrationType } from '../../graphql/integrations';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ProfileImageSize } from '../ProfilePicture';
 
-export function SquadHeaderBar({
+type SquadBarButtonProps<T extends AllowedTags> = Pick<
+  Partial<ButtonProps<T>>,
+  'onClick' | 'disabled' | 'icon'
+> &
+  Pick<SquadMemberShortListProps, 'squad'>;
+
+const SquadSlackButton = <T extends AllowedTags>({
   squad,
-  members,
-  className,
   ...props
-}: SquadMemberShortListProps & HTMLAttributes<HTMLDivElement>): ReactElement {
+}: SquadBarButtonProps<T>) => {
   const { user } = useAuthContext();
-  const { copying, logAndCopyLink } = useSquadInvitation({
-    squad,
-    origin: Origin.SquadPage,
-  });
-  const { openModal, modal } = useLazyModal();
-  const { onMenuClick } = useContextMenu({ id: ContextMenu.SquadMenuContext });
-
-  const {
-    steps,
-    completedSteps,
-    isChecklistVisible,
-    setChecklistVisible,
-    isChecklistReady,
-  } = useSquadChecklist({ squad });
-
-  const completedStepsCount = completedSteps.length;
-  const totalStepsCount = steps.length;
-  const checklistTooltipText = `${completedStepsCount}/${totalStepsCount}`;
-  const showJoinButton = squad.public && !squad.currentMember;
-
-  const { data: sourceIntegration, isLoading } = useSourceIntegrationQuery({
+  const { data: sourceIntegration, isPending } = useSourceIntegrationQuery({
     sourceId: squad.id,
     userIntegrationType: UserIntegrationType.Slack,
   });
@@ -66,7 +57,7 @@ export function SquadHeaderBar({
       return null;
     }
 
-    if (isLoading && !sourceIntegration) {
+    if (isPending && !sourceIntegration) {
       return null;
     }
 
@@ -79,7 +70,142 @@ export function SquadHeaderBar({
     }
 
     return null;
-  }, [sourceIntegration, user, squad, isLoading]);
+  }, [sourceIntegration, user, squad, isPending]);
+
+  if (!slackButtonLabel) {
+    return null;
+  }
+
+  return (
+    <Button
+      variant={ButtonVariant.Secondary}
+      icon={<SlackIcon />}
+      size={ButtonSize.Small}
+      {...props}
+    >
+      {slackButtonLabel}
+    </Button>
+  );
+};
+
+const SquadInviteButton = <T extends AllowedTags>({
+  squad,
+  ...props
+}: SquadBarButtonProps<T>) => {
+  const canRender = useMemo(() => {
+    return verifyPermission(squad, SourcePermissions.Invite);
+  }, [squad]);
+
+  if (!canRender) {
+    return null;
+  }
+
+  return (
+    <Button
+      variant={ButtonVariant.Secondary}
+      size={ButtonSize.Small}
+      icon={<AddUserIcon />}
+      {...props}
+    >
+      Invitation link
+    </Button>
+  );
+};
+
+const SquadChecklistButton = ({ squad }: SquadBarButtonProps<'button'>) => {
+  const {
+    steps,
+    completedSteps,
+    isChecklistVisible,
+    setChecklistVisible,
+    isChecklistReady,
+  } = useSquadChecklist({ squad });
+
+  const completedStepsCount = completedSteps.length;
+  const totalStepsCount = steps.length;
+  const checklistTooltipText = `${completedStepsCount}/${totalStepsCount}`;
+
+  return (
+    <SimpleTooltip
+      forceLoad={!isTesting}
+      visible={isChecklistReady && completedStepsCount < totalStepsCount}
+      container={{
+        className: '-mb-4 !bg-accent-onion-default !text-white',
+      }}
+      placement="top"
+      content={checklistTooltipText}
+      zIndex={3}
+    >
+      <Button
+        data-testid="squad-checklist-button"
+        variant={ButtonVariant.Float}
+        icon={<ChecklistBIcon secondary />}
+        onClick={() => {
+          setChecklistVisible(!isChecklistVisible);
+        }}
+        size={ButtonSize.Small}
+      />
+    </SimpleTooltip>
+  );
+};
+
+const SquadUserNotifications = ({
+  squad,
+  ...props
+}: SquadBarButtonProps<'button'>) => {
+  return (
+    <SimpleTooltip
+      forceLoad={!isTesting}
+      placement="bottom"
+      content="Squad notifications settings"
+    >
+      <Button
+        data-testid="squad-notification-button"
+        className="order-3 tablet:order-4"
+        variant={ButtonVariant.Float}
+        size={ButtonSize.Small}
+        {...props}
+      />
+    </SimpleTooltip>
+  );
+};
+
+const SquadModerationButton = ({ squad }: SquadBarButtonProps<'a'>) => {
+  const count = squad.moderationPostCount;
+  const postLabel = count === 1 ? 'post' : 'posts';
+
+  return (
+    <Button
+      aria-label={`Check ${count} pending ${postLabel}`}
+      href={`/squads/${squad.handle}/moderate`}
+      icon={<TimerIcon aria-hidden role="presentation" />}
+      size={ButtonSize.Small}
+      tag="a"
+      title="Go to post moderation page"
+      variant={ButtonVariant.Subtle}
+    >
+      {count} Pending {postLabel}
+    </Button>
+  );
+};
+
+export function SquadHeaderBar({
+  squad,
+  members,
+  className,
+  ...props
+}: SquadMemberShortListProps & HTMLAttributes<HTMLDivElement>): ReactElement {
+  const { copying, logAndCopyLink } = useSquadInvitation({
+    squad,
+    origin: Origin.SquadPage,
+  });
+  const { openModal, modal } = useLazyModal();
+  const { onMenuClick } = useContextMenu({ id: ContextMenu.SquadMenuContext });
+  const isMember = !!squad.currentMember;
+  const userCanJoin = squad.public && !isMember;
+  const showPendingCount = !!(
+    squad.moderationRequired && squad.moderationPostCount
+  );
 
   return (
     <div
@@ -88,8 +214,9 @@ export function SquadHeaderBar({
         'flex h-fit w-full flex-row flex-wrap justify-center gap-3 tablet:w-auto',
         className,
       )}
+      data-testid="squad-header-bar"
     >
-      {showJoinButton && (
+      {userCanJoin && (
         <SquadActionButton
           origin={Origin.SquadPage}
           size={ButtonSize.Small}
@@ -101,84 +228,45 @@ export function SquadHeaderBar({
         members={members}
         size={ProfileImageSize.Small}
       />
-      {verifyPermission(squad, SourcePermissions.Invite) && !showJoinButton && (
-        <Button
-          variant={ButtonVariant.Secondary}
-          size={ButtonSize.Small}
+      {!userCanJoin && (
+        <SquadInviteButton
+          squad={squad}
           onClick={() => {
             logAndCopyLink();
           }}
-          icon={<AddUserIcon />}
           disabled={copying}
-        >
-          Invitation link
-        </Button>
+        />
       )}
-      {!!slackButtonLabel && (
-        <Button
-          variant={ButtonVariant.Secondary}
+      {showPendingCount && <SquadModerationButton squad={squad} />}
+      <SquadSlackButton
+        squad={squad}
+        disabled={copying}
+        onClick={() => {
+          openModal({
+            type: LazyModal.SlackIntegration,
+            props: {
+              source: squad,
+              trackStart: true,
+            },
+          });
+        }}
+      />
+      {isMember && <SquadChecklistButton squad={squad} />}
+      {isMember && (
+        <SquadUserNotifications
+          icon={
+            <BellIcon
+              secondary={modal?.type === LazyModal.SquadNotifications}
+            />
+          }
           onClick={() => {
             openModal({
-              type: LazyModal.SlackIntegration,
-              props: {
-                source: squad,
-                trackStart: true,
-              },
+              type: LazyModal.SquadNotifications,
+              props: { squad },
             });
           }}
-          icon={<SlackIcon />}
-          disabled={copying}
-          size={ButtonSize.Small}
-        >
-          {slackButtonLabel}
-        </Button>
-      )}
-      {!!squad.currentMember && (
-        <SimpleTooltip
-          forceLoad={!isTesting}
-          visible={isChecklistReady && completedStepsCount < totalStepsCount}
-          container={{
-            className: '-mb-4 !bg-accent-onion-default !text-white',
-          }}
-          placement="top"
-          content={checklistTooltipText}
-          zIndex={3}
-        >
-          <Button
-            data-testid="squad-checklist-button"
-            variant={ButtonVariant.Float}
-            icon={<ChecklistBIcon secondary />}
-            onClick={() => {
-              setChecklistVisible(!isChecklistVisible);
-            }}
-            size={ButtonSize.Small}
-          />
-        </SimpleTooltip>
-      )}
-      {!!squad.currentMember && (
-        <SimpleTooltip
-          forceLoad={!isTesting}
-          placement="bottom"
-          content="Squad notifications settings"
-        >
-          <Button
-            data-testid="squad-notification-button"
-            className="order-3 tablet:order-4"
-            variant={ButtonVariant.Float}
-            icon={
-              <BellIcon
-                secondary={modal?.type === LazyModal.SquadNotifications}
-              />
-            }
-            onClick={() => {
-              openModal({
-                type: LazyModal.SquadNotifications,
-                props: { squad },
-              });
-            }}
-            size={ButtonSize.Small}
-          />
-        </SimpleTooltip>
+          squad={squad}
+        />
       )}
       <SimpleTooltip placement="top" content="Squad options">
         <Button

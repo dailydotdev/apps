@@ -1,7 +1,5 @@
 import React, { ReactElement, useContext, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Ad } from '../../graphql/posts';
-import { apiUrl } from '../../lib/config';
 import { TruncateText } from '../utilities';
 import AdLink from '../cards/ad/common/AdLink';
 import { adLogEvent } from '../../lib/feed';
@@ -10,8 +8,9 @@ import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import PlaceholderCommentList from './PlaceholderCommentList';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import AuthContext from '../../contexts/AuthContext';
-import { cloudinary } from '../../lib/image';
+import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { AdPixel } from '../cards/ad/common/AdPixel';
+import { fetchCommentAd } from '../../lib/ads';
 
 interface AdAsCommentProps {
   postId: string;
@@ -20,28 +19,23 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
   const { logEvent } = useContext(LogContext);
   const { user } = useContext(AuthContext);
   const isImpressionTracked = useRef(false);
-  const ad = useQuery<Ad>(
-    generateQueryKey(RequestKey.Ads, user, postId),
-    async () => {
-      const res = await fetch(`${apiUrl}/v1/a/post`);
-      const ads: Ad[] = await res.json();
-      return ads[0];
-    },
-    {
-      enabled: true,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      staleTime: StaleTime.OneHour,
-    },
-  );
+  const ad = useQuery({
+    queryKey: generateQueryKey(RequestKey.Ads, user, postId),
 
-  const { isLoading, data, isError } = ad || {};
+    queryFn: fetchCommentAd,
+    enabled: true,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+    staleTime: StaleTime.OneHour,
+  });
+
+  const { isPending, data, isError } = ad || {};
   const { providerId, source, image, description, pixel, company, tagLine } =
     data || {};
 
   useEffect(() => {
-    if (isImpressionTracked.current || isLoading || isError) {
+    if (isImpressionTracked.current || isPending || isError) {
       return;
     }
 
@@ -54,12 +48,12 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
     );
 
     isImpressionTracked.current = true;
-  }, [isLoading, isError, isImpressionTracked, logEvent, data]);
+  }, [isPending, isError, isImpressionTracked, logEvent, data]);
 
   if (isError) {
     return null;
   }
-  if (isLoading) {
+  if (isPending) {
     return <PlaceholderCommentList placeholderAmount={1} />;
   }
 
@@ -81,7 +75,7 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
         className="!inline-block"
         size={ProfileImageSize.Large}
         user={{ id: providerId, username: source, image }}
-        fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+        fallbackSrc={cloudinaryPostImageCoverPlaceholder}
         style={{ backgroundColor: data?.backgroundColor }}
       />
       <div className="ml-3 inline-block flex-col">

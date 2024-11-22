@@ -20,6 +20,7 @@ import PostTags from '../common/PostTags';
 import { CardCoverList } from '../common/list/CardCover';
 import ActionButtons from '../common/list/ActionButtons';
 import { FeedbackList } from './feedback/FeedbackList';
+import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 
 export const ArticleList = forwardRef(function ArticleList(
   {
@@ -36,6 +37,7 @@ export const ArticleList = forwardRef(function ArticleList(
     onReadArticleClick,
     domProps = {},
     onShare,
+    eagerLoadImage = false,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
@@ -47,7 +49,7 @@ export const ArticleList = forwardRef(function ArticleList(
 
   const { showFeedback } = usePostFeedback({ post });
   const isFeedPreview = useFeedPreviewMode();
-  const { title } = useTruncatedSummary(post);
+  const { title } = useTruncatedSummary(post?.title);
 
   return (
     <FeedItemContainer
@@ -124,13 +126,15 @@ export const ArticleList = forwardRef(function ArticleList(
                 onShare={onShare}
                 post={post}
                 imageProps={{
-                  loading: 'lazy',
                   alt: 'Post Cover image',
-                  src: post.image,
                   className: classNames(
                     'mobileXXL:self-start',
                     !isVideoType && 'mt-4',
                   ),
+                  ...(eagerLoadImage
+                    ? HIGH_PRIORITY_IMAGE_PROPS
+                    : { loading: 'lazy' }),
+                  src: post.image,
                 }}
                 videoProps={{
                   className: 'mt-4 mobileXL:w-40 mobileXXL:w-56 !h-fit',

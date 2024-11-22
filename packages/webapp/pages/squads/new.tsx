@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from 'react';
-import { NextSeo, NextSeoProps } from 'next-seo';
+import { NextSeoProps } from 'next-seo';
 import router, { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
@@ -11,19 +11,26 @@ import {
 } from '@dailydotdev/shared/src/components/squads/utils';
 import { MangeSquadPageSkeleton } from '@dailydotdev/shared/src/components/squads/MangeSquadPageSkeleton';
 import { useSquadCreate } from '@dailydotdev/shared/src/hooks/squads/useSquadCreate';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import {
+  cloudinarySquadsCreateSquadMobile,
+  cloudinarySquadsCreateSquadBiggerThanMobile,
+} from '@dailydotdev/shared/src/lib/image';
 import { SourceIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useIntegrationQuery } from '@dailydotdev/shared/src/hooks/integrations/useIntegrationQuery';
 
 import { useSlackConnectSourceMutation } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackConnectSourceMutation';
+import { SourceMemberRole } from '@dailydotdev/shared/src/graphql/sources';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { getTemplatedTitle } from '../../components/layouts/utils';
 
 const seo: NextSeoProps = {
-  title: 'Create your Squad',
+  title: getTemplatedTitle('Create your Squad'),
   openGraph: { ...defaultOpenGraph },
+  nofollow: true,
+  noindex: true,
   ...defaultSeo,
 };
 
@@ -50,7 +57,7 @@ const NewSquad = (): ReactElement => {
   });
   const isMobile = useViewSize(ViewSize.MobileL);
 
-  const { data, isLoading: isIntegrationLoading } = useIntegrationQuery({
+  const { data, isPending: isIntegrationLoading } = useIntegrationQuery({
     id: integrationId,
     queryOptions: { enabled: !!shouldLoadIntegration && !!integrationId },
   });
@@ -76,7 +83,6 @@ const NewSquad = (): ReactElement => {
 
   return (
     <ManageSquadPageContainer>
-      <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
       <SquadDetails
         onRequestClose={handleClose}
         onSubmit={(e, form, channelId) => {
@@ -87,6 +93,8 @@ const NewSquad = (): ReactElement => {
         initialData={{
           name: data?.name,
           handle: initialHandle,
+          memberPostingRole: SourceMemberRole.Member,
+          moderationRequired: true,
         }}
         integrationId={integrationId}
       >
@@ -105,8 +113,8 @@ const NewSquad = (): ReactElement => {
             className="w-full tablet:h-[9.6875rem] tablet:w-[15.625rem]"
             src={
               isMobile
-                ? cloudinary.squads.createSquad.mobile
-                : cloudinary.squads.createSquad.biggerThanMobile
+                ? cloudinarySquadsCreateSquadMobile
+                : cloudinarySquadsCreateSquadBiggerThanMobile
             }
             alt="A collection of other people's avatars"
           />
@@ -117,5 +125,6 @@ const NewSquad = (): ReactElement => {
 };
 
 NewSquad.getLayout = getMainLayout;
+NewSquad.layoutProps = { seo };
 
 export default NewSquad;

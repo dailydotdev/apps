@@ -59,10 +59,11 @@ export interface AuthContextData {
   visit?: Visit;
   firstVisit?: string;
   deleteAccount?: () => Promise<void>;
-  refetchBoot?: () => Promise<QueryObserverResult<Boot>>;
+  refetchBoot?: () => Promise<QueryObserverResult<Partial<Boot>>>;
   accessToken?: AccessToken;
   squads?: Squad[];
   isAuthReady?: boolean;
+  geo?: Boot['geo'];
 }
 const isExtension = checkIsExtension();
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -102,9 +103,8 @@ export type AuthContextProviderProps = {
   user?: LoggedUser | AnonymousUser;
   isFetched?: boolean;
   isLegacyLogout?: boolean;
-  firstLoad?: boolean;
-  refetchBoot?: () => Promise<QueryObserverResult<Boot>>;
   children?: ReactNode;
+  firstLoad?: boolean;
 } & Pick<
   AuthContextData,
   | 'getRedirectUri'
@@ -115,6 +115,8 @@ export type AuthContextProviderProps = {
   | 'visit'
   | 'accessToken'
   | 'squads'
+  | 'refetchBoot'
+  | 'geo'
 >;
 
 export const AuthContextProvider = ({
@@ -129,9 +131,10 @@ export const AuthContextProvider = ({
   refetchBoot,
   visit,
   isLegacyLogout,
-  firstLoad,
   accessToken,
   squads,
+  firstLoad,
+  geo,
 }: AuthContextProviderProps): ReactElement => {
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
@@ -181,6 +184,7 @@ export const AuthContextProvider = ({
         deleteAccount,
         accessToken,
         squads,
+        geo,
       }}
     >
       {children}

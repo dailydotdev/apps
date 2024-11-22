@@ -11,7 +11,7 @@ import {
   showSourceFeedPosts,
   subscribeNotification,
 } from '../../graphql/notifications';
-import { generateQueryKey, RequestKey } from '../../lib/query';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { NotificationType } from '../../components/notifications/utils';
 import { Squad } from '../../graphql/sources';
@@ -50,12 +50,18 @@ export const useNotificationPreference = ({
   const { user, isLoggedIn } = useAuthContext();
   const client = useQueryClient();
   const key = generateQueryKey(RequestKey.NotificationPreference, user, params);
-  const { data, isFetched, isLoading } = useQuery(
-    key,
-    () => getNotificationPreferences(params),
-    { enabled: isLoggedIn && params?.length > 0, initialData: () => [] },
-  );
-  const { mutateAsync: muteNotificationAsync } = useMutation(muteNotification, {
+  const {
+    data = [],
+    isFetched,
+    isPending,
+  } = useQuery({
+    queryKey: key,
+    queryFn: () => getNotificationPreferences(params),
+    enabled: isLoggedIn && params?.length > 0,
+    staleTime: StaleTime.Default,
+  });
+  const { mutateAsync: muteNotificationAsync } = useMutation({
+    mutationFn: muteNotification,
     onSuccess: (_, { referenceId, type }) => {
       client.setQueryData<NotificationPreference[]>(key, (oldData = []) => {
         const preference: NotificationPreference = {
@@ -71,63 +77,55 @@ export const useNotificationPreference = ({
     },
   });
 
-  const { mutateAsync: clearNotificationPreferenceAsync } = useMutation(
-    clearNotificationPreference,
-    {
-      onSuccess: (_, { referenceId, type }) => {
-        client.setQueryData<NotificationPreference[]>(key, (oldData) => {
-          if (!oldData) {
-            return [];
-          }
+  const { mutateAsync: clearNotificationPreferenceAsync } = useMutation({
+    mutationFn: clearNotificationPreference,
+    onSuccess: (_, { referenceId, type }) => {
+      client.setQueryData<NotificationPreference[]>(key, (oldData) => {
+        if (!oldData) {
+          return [];
+        }
 
-          return oldData.filter(
-            (preference) =>
-              !checkHasStatusPreference(preference, type, referenceId, [
-                NotificationPreferenceStatus.Muted,
-                NotificationPreferenceStatus.Subscribed,
-              ]),
-          );
-        });
-      },
+        return oldData.filter(
+          (preference) =>
+            !checkHasStatusPreference(preference, type, referenceId, [
+              NotificationPreferenceStatus.Muted,
+              NotificationPreferenceStatus.Subscribed,
+            ]),
+        );
+      });
     },
-  );
+  });
 
-  const { mutateAsync: subscribeNotificationAsync } = useMutation(
-    subscribeNotification,
-    {
-      onSuccess: (_, { referenceId, type }) => {
-        client.setQueryData<NotificationPreference[]>(key, (oldData = []) => {
-          const preference: NotificationPreference = {
-            referenceId,
-            notificationType: type,
-            type: notificationPreferenceMap[type],
-            userId: user.id,
-            status: NotificationPreferenceStatus.Subscribed,
-          };
+  const { mutateAsync: subscribeNotificationAsync } = useMutation({
+    mutationFn: subscribeNotification,
+    onSuccess: (_, { referenceId, type }) => {
+      client.setQueryData<NotificationPreference[]>(key, (oldData = []) => {
+        const preference: NotificationPreference = {
+          referenceId,
+          notificationType: type,
+          type: notificationPreferenceMap[type],
+          userId: user.id,
+          status: NotificationPreferenceStatus.Subscribed,
+        };
 
-          return [...oldData, preference];
-        });
-      },
+        return [...oldData, preference];
+      });
     },
-  );
+  });
 
-  const { mutateAsync: hideSourceFeedPostsAsync } = useMutation(
-    hideSourceFeedPosts,
-    {
-      onSuccess: () => {
-        updateFlagsCache(client, squad, user, { hideFeedPosts: true });
-      },
+  const { mutateAsync: hideSourceFeedPostsAsync } = useMutation({
+    mutationFn: hideSourceFeedPosts,
+    onSuccess: () => {
+      updateFlagsCache(client, squad, user, { hideFeedPosts: true });
     },
-  );
+  });
 
-  const { mutateAsync: showSourceFeedPostsAsync } = useMutation(
-    showSourceFeedPosts,
-    {
-      onSuccess: () => {
-        updateFlagsCache(client, squad, user, { hideFeedPosts: false });
-      },
+  const { mutateAsync: showSourceFeedPostsAsync } = useMutation({
+    mutationFn: showSourceFeedPosts,
+    onSuccess: () => {
+      updateFlagsCache(client, squad, user, { hideFeedPosts: false });
     },
-  );
+  });
 
   return {
     hideSourceFeedPosts: useCallback(
@@ -138,7 +136,7 @@ export const useNotificationPreference = ({
       () => showSourceFeedPostsAsync(squad?.id),
       [showSourceFeedPostsAsync, squad?.id],
     ),
-    isFetching: isLoading,
+    isFetching: isPending,
     preferences: data,
     muteNotification: muteNotificationAsync,
     subscribeNotification: subscribeNotificationAsync,

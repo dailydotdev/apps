@@ -14,7 +14,7 @@ import {
   TagsData,
 } from '../../graphql/feedSettings';
 import { disabledRefetch, getRandomNumber } from '../../lib/func';
-import { SearchField, SearchStyleVersion } from '../fields/SearchField';
+import { SearchField } from '../fields/SearchField';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { useTagSearch, useViewSize, ViewSize } from '../../hooks';
 import type { FilterOnboardingProps } from '../onboarding/FilterOnboarding';
@@ -40,8 +40,6 @@ export type TagSelectionProps = {
   onClickTag?: ({ tag, action }: OnSelectTagProps) => void;
   origin?: Origin;
   searchOrigin?: Origin;
-  searchStyleVersion?: SearchStyleVersion;
-  shouldShuffleTags?: boolean;
 } & Omit<FilterOnboardingProps, 'onSelectedTopics'>;
 
 export function TagSelection({
@@ -52,8 +50,6 @@ export function TagSelection({
   onClickTag,
   origin = Origin.Onboarding,
   searchOrigin = Origin.EditTag,
-  shouldShuffleTags = false,
-  searchStyleVersion,
 }: TagSelectionProps): ReactElement {
   const [isShuffled, setIsShuffled] = useState(false);
   const queryClient = useQueryClient();
@@ -92,30 +88,29 @@ export function TagSelection({
     feedId,
   );
 
-  const { data: onboardingTagsRaw, isLoading } = useQuery(
-    onboardingTagsQueryKey,
-    async () => {
+  const { data: onboardingTagsRaw, isPending } = useQuery({
+    queryKey: onboardingTagsQueryKey,
+
+    queryFn: async () => {
       const result = await gqlClient.request<{
         onboardingTags: TagsData;
       }>(GET_ONBOARDING_TAGS_QUERY, {});
 
       return result.onboardingTags;
     },
-    {
-      ...disabledRefetch,
-      staleTime: Infinity,
-      select: tagsSelector,
-    },
-  );
+    ...disabledRefetch,
+    staleTime: Infinity,
+    select: tagsSelector,
+  });
 
   const onboardingTags = useMemo(() => {
-    if (!shouldShuffleTags || isShuffled || !onboardingTagsRaw) {
+    if (isShuffled || !onboardingTagsRaw) {
       return onboardingTagsRaw;
     }
 
     setIsShuffled(true);
     return onboardingTagsRaw?.sort(() => Math.random() - 0.5);
-  }, [shouldShuffleTags, isShuffled, onboardingTagsRaw]);
+  }, [isShuffled, onboardingTagsRaw]);
 
   const excludedTags = useMemo(() => {
     if (!onboardingTags) {
@@ -134,8 +129,8 @@ export function TagSelection({
   });
   const searchTags = searchResult?.searchTags.tags || [];
 
-  const { mutate: recommendTags, data: recommendedTags } = useMutation(
-    async ({ tag }: Pick<OnSelectTagProps, 'tag'>) => {
+  const { mutate: recommendTags, data: recommendedTags } = useMutation({
+    mutationFn: async ({ tag }: Pick<OnSelectTagProps, 'tag'>) => {
       const result = await gqlClient.request<{
         recommendedTags: TagsData;
       }>(GET_RECOMMENDED_TAGS_QUERY, {
@@ -160,7 +155,7 @@ export function TagSelection({
 
       return recommendedTagsSet;
     },
-  );
+  });
 
   const handleClickTag = async ({ tag }: Pick<OnSelectTagProps, 'tag'>) => {
     const isSearchMode = !!searchQuery;
@@ -209,14 +204,13 @@ export function TagSelection({
         inputId="search-filters"
         placeholder="Search javascript, php, git, etc…"
         valueChanged={onSearch}
-        styleVersion={searchStyleVersion}
       />
       <div
         role="list"
-        aria-busy={isLoading}
+        aria-busy={isPending}
         className="flex flex-row flex-wrap justify-center gap-4"
       >
-        {isLoading &&
+        {isPending &&
           placeholderTags.map((item) => (
             <ElementPlaceholder
               key={item}
@@ -225,7 +219,7 @@ export function TagSelection({
               <span className="invisible">{item}</span>
             </ElementPlaceholder>
           ))}
-        {!isLoading &&
+        {!isPending &&
           tags?.map((tag) => {
             const isSelected = selectedTags.has(tag.name);
             renderedTags[tag.name] = true;
@@ -241,7 +235,7 @@ export function TagSelection({
             );
           })}
         {/* render leftover tags not rendered in initial recommendations but selected */}
-        {!isLoading &&
+        {!isPending &&
           !searchQuery &&
           feedSettings?.includeTags?.map((tag) => {
             if (renderedTags[tag]) {

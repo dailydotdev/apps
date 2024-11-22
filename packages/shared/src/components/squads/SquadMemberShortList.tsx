@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
-import { SourceMember, Squad } from '../../graphql/sources';
+import { BasicSourceMember, Squad } from '../../graphql/sources';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import {
@@ -14,7 +14,7 @@ import { largeNumberFormat } from '../../lib';
 
 export interface SquadMemberShortListProps {
   squad: Squad;
-  members: SourceMember[];
+  members: BasicSourceMember[];
   className?: string;
   size?: ProfileImageSize;
 }
@@ -46,18 +46,17 @@ function SquadMemberShortList({
           roundClasses[size],
         )}
         onClick={openMemberListModal}
+        aria-label={`View ${squad.membersCount} squad members`}
+        data-testid="squad-member-short-list"
       >
-        <span
-          className="ml-2 mr-1 min-w-[1rem]"
-          aria-label="squad-members-count"
-        >
+        <span className="ml-2 mr-1 min-w-[1rem]">
           {largeNumberFormat(squad.membersCount)}
         </span>
         {members?.slice(0, sidebarRendered ? 5 : 3).map(({ user }) => (
           <ProfilePicture
             className="-ml-2"
             size={size}
-            key={user.username}
+            key={user.id}
             user={user}
           />
         ))}

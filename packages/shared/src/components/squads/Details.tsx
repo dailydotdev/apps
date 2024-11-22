@@ -15,14 +15,14 @@ import { TextField } from '../fields/TextField';
 import { ArrowIcon, AtIcon, CameraIcon, SlackIcon, SquadIcon } from '../icons';
 import Textarea from '../fields/Textarea';
 import ImageInput from '../fields/ImageInput';
-import { cloudinary } from '../../lib/image';
+import { cloudinarySquadsImageFallback } from '../../lib/image';
 import { formToJson } from '../../lib/form';
 import { checkExistingHandle, SquadForm } from '../../graphql/squads';
 import { capitalize } from '../../lib/strings';
 import { IconSize } from '../Icon';
 import { FormWrapper } from '../fields/form';
 import { SquadPrivacySection } from './settings/SquadPrivacySection';
-import { PermissionSection } from './settings/PermissionSection';
+import { SquadModerationSettingsSection } from './settings/SquadModerationSettingsSection';
 import { SquadSettingsSection } from './settings';
 import { SquadStats } from './common/SquadStat';
 import { SquadPrivacyState } from './common/SquadPrivacyState';
@@ -81,6 +81,7 @@ export function SquadDetails({
     flags,
     memberPostingRole: initialMemberPostingRole,
     memberInviteRole: initialMemberInviteRole,
+    moderationRequired: initialModerationRequired,
   } = squad ?? { ...initialData };
   const [activeHandle, setActiveHandle] = useState(handle);
   const [imageChanged, setImageChanged] = useState(false);
@@ -101,7 +102,8 @@ export function SquadDetails({
     return channels?.findIndex((item) => item.id === selectedChannel) || 0;
   }, [channels, selectedChannel]);
 
-  const { mutateAsync: onValidateHandle } = useMutation(checkExistingHandle, {
+  const { mutateAsync: onValidateHandle } = useMutation({
+    mutationFn: checkExistingHandle,
     onError: (err) => {
       const clientError = err as ClientError;
       const message = clientError?.response?.errors?.[0]?.message;
@@ -169,7 +171,11 @@ export function SquadDetails({
       form="squad-form"
       isHeaderTitle={!isMobile}
       title={createMode ? undefined : 'Squad settings'}
-      className={{ container: 'flex flex-1 flex-col', title: 'typo-title3' }}
+      className={{
+        container: 'flex flex-1 flex-col',
+        title: 'px-4 font-bold typo-title3 tablet:px-0',
+        header: 'border-b-0',
+      }}
       copy={{
         right: createMode ? 'Create Squad' : 'Save',
         left: isMobile ? 'Cancel' : null,
@@ -198,7 +204,7 @@ export function SquadDetails({
             <ImageInput
               initialValue={image}
               id={squadImageId}
-              fallbackImage={cloudinary.squads.imageFallback}
+              fallbackImage={cloudinarySquadsImageFallback}
               className={{
                 container: 'mt-4 !rounded-full border-0',
                 img: 'object-cover',
@@ -299,9 +305,10 @@ export function SquadDetails({
           categoryHint={categoryHint}
           onCategoryChange={useCallback(() => setCategoryHint(''), [])}
         />
-        <PermissionSection
+        <SquadModerationSettingsSection
           initialMemberInviteRole={initialMemberInviteRole}
           initialMemberPostingRole={initialMemberPostingRole}
+          initialModerationRequired={initialModerationRequired}
         />
         {!createMode && <SquadDangerZone squad={squad} />}
       </form>

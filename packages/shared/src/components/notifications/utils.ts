@@ -13,6 +13,7 @@ import {
   StarIcon,
   DevCardIcon,
   ReadingStreakIcon,
+  TimerIcon,
 } from '../icons';
 import { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
@@ -51,6 +52,7 @@ export enum NotificationType {
   SourcePostAdded = 'source_post_added',
   SquadPublicApproved = 'squad_public_approved',
   UserPostAdded = 'user_post_added',
+  UserTopReaderBadge = 'user_given_top_reader',
 }
 
 export enum NotificationIconType {
@@ -66,6 +68,8 @@ export enum NotificationIconType {
   DevCard = 'DevCard',
   BookmarkReminder = 'BookmarkReminder',
   Streak = 'Streak',
+  TopReaderBadge = 'TopReaderBadge',
+  Timer = 'Timer',
 }
 
 export const notificationIcon: Record<
@@ -84,6 +88,8 @@ export const notificationIcon: Record<
   [NotificationIconType.DevCard]: DevCardIcon,
   [NotificationIconType.BookmarkReminder]: BookmarkReminderIcon,
   [NotificationIconType.Streak]: ReadingStreakIcon,
+  [NotificationIconType.TopReaderBadge]: BellIcon,
+  [NotificationIconType.Timer]: TimerIcon,
 };
 
 export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
@@ -99,6 +105,8 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
   [NotificationIconType.DevCard]: '',
   [NotificationIconType.BookmarkReminder]: 'text-accent-bun-default',
   [NotificationIconType.Streak]: '',
+  [NotificationIconType.TopReaderBadge]: 'text-brand-default',
+  [NotificationIconType.Timer]: 'text-brand-default',
 };
 
 export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
@@ -115,6 +123,7 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.SourcePostAdded]: 'text-brand-default',
     [NotificationType.SquadPublicApproved]: 'text-brand-default',
     [NotificationType.UserPostAdded]: 'text-brand-default',
+    [NotificationType.UserTopReaderBadge]: 'text-brand-default',
   };
 
 export const notificationsUrl = `/notifications`;

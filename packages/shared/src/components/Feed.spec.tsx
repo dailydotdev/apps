@@ -1,7 +1,6 @@
 import nock from 'nock';
 import React from 'react';
 import {
-  findByRole,
   findByText,
   fireEvent,
   render,
@@ -11,7 +10,6 @@ import {
   within,
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { OperationOptions } from 'subscriptions-transport-ws';
 import { mocked } from 'ts-jest/utils';
 import { useRouter } from 'next/router';
 
@@ -23,10 +21,10 @@ import {
   POST_BY_ID_QUERY,
   PostData,
   PostsEngaged,
-  REMOVE_BOOKMARK_MUTATION,
   REPORT_POST_MUTATION,
   PostType,
   UserVote,
+  REMOVE_BOOKMARK_MUTATION,
 } from '../graphql/posts';
 import {
   completeActionMock,
@@ -68,8 +66,9 @@ import { SharedFeedPage } from './utilities';
 import { AllFeedPages } from '../lib/query';
 import { UserVoteEntity } from '../hooks';
 import * as hooks from '../hooks/useViewSize';
-import { ActionType, COMPLETE_ACTION_MUTATION } from '../graphql/actions';
+import { ActionType } from '../graphql/actions';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
+import { defaultQueryClientTestingConfig } from '../../__tests__/helpers/tanstack-query';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -87,7 +86,7 @@ jest.mock('../hooks', () => {
         .fn()
         .mockImplementation(
           (
-            request: () => OperationOptions,
+            request: () => null,
             { next }: SubscriptionCallbacks<PostsEngaged>,
           ): void => {
             nextCallback = next;
@@ -103,7 +102,7 @@ jest.mock('../hooks/useSubscription', () => ({
     .fn()
     .mockImplementation(
       (
-        request: () => OperationOptions,
+        request: () => null,
         { next }: SubscriptionCallbacks<PostsEngaged>,
       ): void => {
         nextCallback = next;
@@ -115,13 +114,16 @@ let variables: unknown;
 const defaultVariables = {
   first: 7,
   loggedIn: true,
+  after: '',
 };
 
+let queryClient: QueryClient;
+
 beforeEach(() => {
+  queryClient?.clear();
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
-  jest.clearAllMocks();
   variables = defaultVariables;
 });
 
@@ -152,17 +154,6 @@ const createTagsSettingsMock = (
   },
 });
 
-const mockCompleteAction = () =>
-  mockGraphQL({
-    request: {
-      query: COMPLETE_ACTION_MUTATION,
-      variables: { type: 'bookmark_promote_mobile' },
-    },
-    result: () => {
-      return { data: {} };
-    },
-  });
-
 const createFeedMock = (
   page = defaultFeedPage,
   query: string = ANONYMOUS_FEED_QUERY,
@@ -179,14 +170,12 @@ const createFeedMock = (
   },
 });
 
-let queryClient: QueryClient;
-
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
   user: LoggedUser = defaultUser,
   feedName: AllFeedPages = SharedFeedPage.MyFeed,
 ): RenderResult => {
-  queryClient = new QueryClient();
+  queryClient = new QueryClient(defaultQueryClientTestingConfig);
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
@@ -244,7 +233,7 @@ const renderComponent = (
   );
 };
 
-describe('Feed', () => {
+describe('Feed logged in', () => {
   it('should add one placeholder when loading', async () => {
     renderComponent();
     expect(await screen.findByRole('article')).toHaveAttribute('aria-busy');
@@ -267,8 +256,8 @@ describe('Feed', () => {
 
     await waitFor(async () => {
       const el = await screen.findByTestId('adItem');
-      // eslint-disable-next-line testing-library/prefer-screen-queries
-      expect(await findByRole(el, 'link')).toHaveAttribute('href', ad.link);
+      const links = await within(el).findAllByRole('link');
+      expect(links[0]).toHaveAttribute('href', ad.link);
     });
   });
 
@@ -363,31 +352,8 @@ describe('Feed', () => {
     await waitFor(() => expect(mutationCalled).toBeTruthy());
   });
 
-  it('should open login modal on anonymous upvote', async () => {
-    renderComponent(
-      [
-        createFeedMock(
-          {
-            pageInfo: defaultFeedPage.pageInfo,
-            edges: [defaultFeedPage.edges[0]],
-          },
-          ANONYMOUS_FEED_QUERY,
-          {
-            first: 7,
-            loggedIn: false,
-          },
-        ),
-      ],
-      null,
-    );
-    const [el] = await screen.findAllByLabelText('Upvote');
-    el.click();
-    expect(showLogin).toBeCalledWith({ trigger: AuthTriggers.Upvote });
-  });
-
   it('should send add bookmark mutation', async () => {
     let mutationCalled = false;
-    mockCompleteAction();
     renderComponent([
       createFeedMock({
         pageInfo: defaultFeedPage.pageInfo,
@@ -413,7 +379,9 @@ describe('Feed', () => {
       completeActionMock({ action: ActionType.BookmarkPost }),
     ]);
     const [el] = await screen.findAllByLabelText('Bookmark');
-    el.click();
+    fireEvent.click(el);
+    await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'true'));
+    await waitForNock();
     await waitFor(() => expect(mutationCalled).toBeTruthy());
   });
 
@@ -442,34 +410,10 @@ describe('Feed', () => {
       completeActionMock({ action: ActionType.BookmarkPost }),
     ]);
     const [el] = await screen.findAllByLabelText('Remove bookmark');
+    fireEvent.click(el);
     await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'true'));
-    el.click();
+    await waitForNock();
     await waitFor(() => expect(mutationCalled).toBeTruthy());
-    await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'false'));
-  });
-
-  it('should open login modal on anonymous bookmark', async () => {
-    renderComponent(
-      [
-        createFeedMock(
-          {
-            pageInfo: defaultFeedPage.pageInfo,
-            edges: [defaultFeedPage.edges[0]],
-          },
-          ANONYMOUS_FEED_QUERY,
-          {
-            first: 7,
-            loggedIn: false,
-          },
-        ),
-      ],
-      null,
-    );
-    const [el] = await screen.findAllByLabelText('Bookmark');
-    el.click();
-    await waitFor(() =>
-      expect(showLogin).toBeCalledWith({ trigger: AuthTriggers.Bookmark }),
-    );
   });
 
   it('should update feed item on subscription message', async () => {
@@ -808,7 +752,7 @@ describe('Feed', () => {
           summary: '',
           permalink: 'http://localhost:4000/r/9CuRpr5NiEY5',
           image:
-            'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/22fc3ac5cc3fedf281b6e4b46e8c0ba2',
+            'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/22fc3ac5cc3fedf281b6e4b46e8c0ba2',
           createdAt: '2019-05-16T15:16:05.000Z',
           readTime: 8,
           tags: ['development', 'data-science', 'sql'],
@@ -819,7 +763,7 @@ describe('Feed', () => {
             handle: 's',
             permalink: 's',
             image:
-              'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/tds',
+              'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/tds',
           },
           upvoted: false,
           commented: false,
@@ -1028,5 +972,55 @@ describe('Feed', () => {
       const card = screen.queryByTestId('acquisitionFormCard');
       expect(card).not.toBeInTheDocument();
     });
+  });
+});
+
+describe('Feed annonymous', () => {
+  it('should open login modal on anonymous upvote', async () => {
+    renderComponent(
+      [
+        createFeedMock(
+          {
+            pageInfo: defaultFeedPage.pageInfo,
+            edges: [defaultFeedPage.edges[0]],
+          },
+          ANONYMOUS_FEED_QUERY,
+          {
+            first: 7,
+            loggedIn: false,
+            after: '',
+          },
+        ),
+      ],
+      null,
+    );
+    const [el] = await screen.findAllByLabelText('Upvote');
+    el.click();
+    expect(showLogin).toBeCalledWith({ trigger: AuthTriggers.Upvote });
+  });
+
+  it('should open login modal on anonymous bookmark', async () => {
+    renderComponent(
+      [
+        createFeedMock(
+          {
+            pageInfo: defaultFeedPage.pageInfo,
+            edges: [defaultFeedPage.edges[0]],
+          },
+          ANONYMOUS_FEED_QUERY,
+          {
+            first: 7,
+            loggedIn: false,
+            after: '',
+          },
+        ),
+      ],
+      null,
+    );
+    const [el] = await screen.findAllByLabelText('Bookmark');
+    el.click();
+    await waitFor(() =>
+      expect(showLogin).toBeCalledWith({ trigger: AuthTriggers.Bookmark }),
+    );
   });
 });

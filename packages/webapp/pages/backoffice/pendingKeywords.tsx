@@ -2,11 +2,7 @@ import React, { ReactElement, useContext } from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Roles } from '@dailydotdev/shared/src/lib/user';
 import { useQuery } from '@tanstack/react-query';
-import {
-  CountPendingKeywordsData,
-  KeywordData,
-  RANDOM_PENDING_KEYWORD_QUERY,
-} from '@dailydotdev/shared/src/graphql/keywords';
+import { RANDOM_PENDING_KEYWORD_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import useRequirePermissions from '@dailydotdev/shared/src/hooks/useRequirePermissions';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
@@ -20,19 +16,17 @@ const PendingKeywords = (): ReactElement => {
   const {
     data: currentKeywordData,
     refetch: refetchCurrentKeyword,
-    isLoading: isLoadingCurrentKeyword,
-  } = useQuery<KeywordData & CountPendingKeywordsData>(
-    ['randomPendingKeyword'],
-    () => gqlClient.request(RANDOM_PENDING_KEYWORD_QUERY),
-    {
-      enabled: tokenRefreshed,
-      refetchOnMount: false,
-      refetchInterval: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      refetchIntervalInBackground: false,
-    },
-  );
+    isPending: isLoadingCurrentKeyword,
+  } = useQuery({
+    queryKey: ['randomPendingKeyword'],
+    queryFn: () => gqlClient.request(RANDOM_PENDING_KEYWORD_QUERY),
+    enabled: tokenRefreshed,
+    refetchOnMount: false,
+    refetchInterval: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+    refetchIntervalInBackground: false,
+  });
   const currentKeyword = currentKeywordData?.keyword;
   const onOperationCompleted = async () => {
     await refetchCurrentKeyword();

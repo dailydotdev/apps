@@ -14,9 +14,9 @@ import {
   PostsEngaged,
 } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
-import { apiUrl } from '../lib/config';
 import useSubscription from './useSubscription';
 import {
+  getNextPageParam,
   removeCachedPagePost,
   RequestKey,
   updateCachedPagePost,
@@ -24,6 +24,8 @@ import {
 import { MarketingCta } from '../components/marketingCta/common';
 import { FeedItemType } from '../components/cards/common/common';
 import { GARMR_ERROR, gqlClient } from '../graphql/common';
+import { usePlusSubscription } from './usePlusSubscription';
+import { fetchAd } from '../lib/ads';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -31,6 +33,8 @@ interface FeedItemBase<T extends FeedItemType> {
 
 interface AdItem extends FeedItemBase<FeedItemType.Ad> {
   ad: Ad;
+  index: number;
+  updatedAt: number;
 }
 
 interface MarketingCtaItem extends FeedItemBase<FeedItemType.MarketingCta> {
@@ -91,7 +95,10 @@ type UseFeedSettingParams = {
 export interface UseFeedOptionalParams<T> {
   query?: string;
   variables?: T;
-  options?: UseInfiniteQueryOptions<FeedData>;
+  options?: Pick<
+    UseInfiniteQueryOptions<FeedData>,
+    'refetchOnMount' | 'gcTime' | 'placeholderData' | 'staleTime'
+  >;
   settings?: UseFeedSettingParams;
   onEmptyFeed?: () => void;
 }
@@ -105,12 +112,13 @@ export default function useFeed<T>(
 ): FeedReturnType {
   const { query, variables, options = {}, settings, onEmptyFeed } = params;
   const { user, tokenRefreshed } = useContext(AuthContext);
+  const { isPlus } = usePlusSubscription();
   const queryClient = useQueryClient();
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
 
-  const feedQuery = useInfiniteQuery<FeedData>(
-    feedQueryKey,
-    async ({ pageParam }) => {
+  const feedQuery = useInfiniteQuery<FeedData>({
+    queryKey: feedQueryKey,
+    queryFn: async ({ pageParam }) => {
       const res = await gqlClient.request(query, {
         ...variables,
         first: pageSize,
@@ -128,41 +136,36 @@ export default function useFeed<T>(
 
       return res;
     },
-    {
-      refetchOnMount: false,
-      ...options,
-      enabled: query && tokenRefreshed,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      getNextPageParam: (lastPage) =>
-        lastPage.page.pageInfo.hasNextPage && lastPage.page.pageInfo.endCursor,
-    },
-  );
+    refetchOnMount: false,
+    ...options,
+    enabled: query && tokenRefreshed,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+    initialPageParam: '',
+    getNextPageParam: ({ page }) => getNextPageParam(page?.pageInfo),
+  });
 
   const clientError = feedQuery?.error as ClientError;
 
   const isAdsQueryEnabled =
+    !isPlus &&
     query &&
     tokenRefreshed &&
     !isFeedPreview &&
     (!settings?.adPostLength ||
       feedQuery.data?.pages[0]?.page.edges.length > settings?.adPostLength) &&
     !settings?.disableAds;
-  const adsQuery = useInfiniteQuery<Ad>(
-    ['ads', ...feedQueryKey],
-    async ({ pageParam }) => {
-      const res = await fetch(`${apiUrl}/v1/a?active=${!!pageParam}`);
-      const ads: Ad[] = await res.json();
-      return ads[0];
-    },
-    {
-      getNextPageParam: () => Date.now(),
-      enabled: isAdsQueryEnabled,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-    },
-  );
+
+  const adsQuery = useInfiniteQuery<Ad>({
+    queryKey: [RequestKey.Ads, ...feedQueryKey],
+    queryFn: async ({ pageParam }) => fetchAd(!!pageParam),
+    initialPageParam: '',
+    getNextPageParam: () => Date.now(),
+    enabled: isAdsQueryEnabled,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+  });
 
   useEffect(() => {
     if (
@@ -190,18 +193,20 @@ export default function useFeed<T>(
           const withFirstIndex = (condition: boolean) =>
             pageIndex === 0 && condition;
 
-          if (withFirstIndex(!!settings.marketingCta)) {
-            posts.splice(adSpot, 0, {
-              type: FeedItemType.MarketingCta,
-              marketingCta: settings.marketingCta,
-            });
-          } else if (withFirstIndex(settings.showAcquisitionForm)) {
-            posts.splice(adSpot, 0, { type: FeedItemType.UserAcquisition });
-          } else if (isAdsQueryEnabled) {
-            if (adsQuery.data?.pages[pageIndex]) {
+          if (isAdsQueryEnabled) {
+            if (withFirstIndex(!!settings.marketingCta)) {
+              posts.splice(adSpot, 0, {
+                type: FeedItemType.MarketingCta,
+                marketingCta: settings.marketingCta,
+              });
+            } else if (withFirstIndex(settings.showAcquisitionForm)) {
+              posts.splice(adSpot, 0, { type: FeedItemType.UserAcquisition });
+            } else if (adsQuery.data?.pages[pageIndex]) {
               posts.splice(adSpot, 0, {
                 type: FeedItemType.Ad,
                 ad: adsQuery.data?.pages[pageIndex],
+                index: pageIndex,
+                updatedAt: adsQuery.dataUpdatedAt,
               });
             } else {
               posts.splice(adSpot, 0, { type: FeedItemType.Placeholder });
@@ -227,6 +232,7 @@ export default function useFeed<T>(
     adSpot,
     adsQuery.data?.pages,
     placeholdersPerPage,
+    adsQuery.dataUpdatedAt,
   ]);
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);

@@ -25,6 +25,7 @@ import {
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import {
+  generateBasicMembersResult,
   generateForbiddenSquadResult,
   generateMembersList,
   generateMembersResult,
@@ -32,6 +33,8 @@ import {
   generateTestSquad,
 } from '@dailydotdev/shared/__tests__/fixture/squads';
 import {
+  BASIC_SQUAD_MEMBERS_QUERY,
+  BasicSourceMembersData,
   SQUAD_MEMBERS_QUERY,
   SQUAD_QUERY,
   SquadData,
@@ -78,6 +81,7 @@ const createFeedMock = (
   query: string = SOURCE_FEED_QUERY,
   variables: unknown = {
     first: 7,
+    after: '',
     loggedIn: true,
     source: defaultSquad.id,
     ranking: 'TIME',
@@ -131,14 +135,22 @@ const createSourceMembersMock = (
   result: { data: result },
 });
 
+const createBasicSourceMembersMock = (
+  result = generateBasicMembersResult(),
+  variables: unknown = { id: defaultSquad.id, first: 5 },
+): MockedGraphQLResponse<BasicSourceMembersData> => ({
+  request: { query: BASIC_SQUAD_MEMBERS_QUERY, variables },
+  result: { data: result },
+});
+
 let client: QueryClient;
 
 const renderComponent = (
   handle = defaultSquad.handle,
   mocks: MockedGraphQLResponse[] = [
     createSourceMock(handle),
-    createSourceMembersMock(),
     createFeedMock(),
+    createBasicSourceMembersMock(),
   ],
   user: LoggedUser = defaultUser,
   squads = [defaultSquad],
@@ -239,13 +251,16 @@ describe('squad header bar', () => {
         removeListener: jest.fn(),
       })),
     });
-    const members = generateMembersResult().sourceMembers.edges.slice(0, 5);
+    const source = generateBasicMembersResult();
+    const members = source.sourceMembers.edges.slice(0, 5);
     renderComponent();
-    const list = await screen.findByLabelText('Members list');
+    const list = await screen.findByLabelText(
+      `View ${defaultSquad.membersCount} squad members`,
+    );
     const result = await Promise.all(
       members.map(async ({ node: { user } }) => {
         const elements = await screen.findAllByAltText(
-          `${user.username}'s profile`,
+          `${user.name}'s profile`,
         );
         return expect(elements.length).toEqual(1);
       }),
@@ -264,23 +279,30 @@ describe('squad header bar', () => {
   });
 
   it('should show three of the squad member images when sidebar is not rendered', async () => {
-    const members = generateMembersResult().sourceMembers.edges.slice(0, 3);
+    const members = generateBasicMembersResult().sourceMembers.edges.slice(
+      0,
+      3,
+    );
     renderComponent();
-    await screen.findByLabelText('Members list');
     const result = await Promise.all(
       members.map(({ node: { user } }) =>
-        screen.findByAltText(`${user.username}'s profile`),
+        screen.findByAltText(`${user.name}'s profile`),
       ),
     );
     const COUNTER_ELEMENT = 1;
     expect(result.length).toEqual(3);
-    const list = await screen.findByLabelText('Members list');
+    const list = await screen.findByLabelText(
+      `View ${defaultSquad.membersCount} squad members`,
+    );
     expect(list.childNodes.length).toEqual(result.length + COUNTER_ELEMENT);
   });
 
   it('should show total members count', async () => {
     renderComponent();
-    const count = await screen.findByLabelText('squad-members-count');
+    const membersCount = defaultSquad.membersCount.toString();
+    const count = await screen.findByLabelText(
+      `View ${membersCount} squad members`,
+    );
     expect(count).toHaveTextContent(defaultSquad.membersCount.toString());
   });
 
@@ -372,9 +394,15 @@ describe('squad members modal', () => {
     renderComponent();
     const result = generateMembersResult(members);
     mockGraphQL(
-      createSourceMembersMock(result, { id: defaultSquad.id, role: null }),
+      createSourceMembersMock(result, {
+        id: defaultSquad.id,
+        role: null,
+        after: '',
+      }),
     );
-    const trigger = await screen.findByLabelText('Members list');
+    const trigger = await screen.findByLabelText(
+      `View ${defaultSquad.membersCount} squad members`,
+    );
     trigger.click();
     await screen.findByText('Squad members');
     return members;
@@ -421,7 +449,9 @@ describe('squad members modal', () => {
       member.node.role = role;
     });
     const result = generateMembersResult(members);
-    mockGraphQL(createSourceMembersMock(result, { id: defaultSquad.id, role }));
+    mockGraphQL(
+      createSourceMembersMock(result, { id: defaultSquad.id, role, after: '' }),
+    );
     const blocked = await screen.findByText('Blocked members');
     blocked.click();
     const unblocks = await screen.findAllByLabelText('Unblock');

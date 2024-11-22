@@ -1,8 +1,17 @@
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import {
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
+import { QueryClient } from '@tanstack/react-query';
 import ad from '../../../../__tests__/fixture/ad';
 import { AdGrid } from './AdGrid';
 import { AdCardProps } from './common/common';
+import { TestBootProvider } from '../../../../__tests__/helpers/boot';
+import { ActiveFeedContext } from '../../../contexts';
 
 const defaultProps: AdCardProps = {
   ad,
@@ -14,20 +23,31 @@ beforeEach(() => {
 });
 
 const renderComponent = (props: Partial<AdCardProps> = {}): RenderResult => {
-  return render(<AdGrid {...defaultProps} {...props} />);
+  const client = new QueryClient();
+  return render(
+    <TestBootProvider client={client}>
+      <ActiveFeedContext.Provider value={{ queryKey: 'test' }}>
+        <AdGrid {...defaultProps} {...props} />
+      </ActiveFeedContext.Provider>
+    </TestBootProvider>,
+  );
 };
 
 it('should call on click on component left click', async () => {
   renderComponent();
-  const el = await screen.findByRole('link');
-  el.click();
+  const el = await screen.findByTestId('adItem');
+  const links = await within(el).findAllByRole('link');
+  links[0].click();
   await waitFor(() => expect(defaultProps.onLinkClick).toBeCalledWith(ad));
 });
 
 it('should call on click on component middle mouse up', async () => {
   renderComponent();
-  const el = await screen.findByRole('link');
-  el.dispatchEvent(new MouseEvent('auxclick', { bubbles: true, button: 1 }));
+  const el = await screen.findByTestId('adItem');
+  const links = await within(el).findAllByRole('link');
+  links[0].dispatchEvent(
+    new MouseEvent('auxclick', { bubbles: true, button: 1 }),
+  );
   await waitFor(() => expect(defaultProps.onLinkClick).toBeCalledWith(ad));
 });
 

@@ -1,15 +1,18 @@
 import React, {
   ReactElement,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
+  useRef,
 } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import {
   CampaignCtaPlacement,
   RemoteSettings,
   RemoteTheme,
+  type SettingsFlags,
   Spaciness,
   UPDATE_USER_SETTINGS_MUTATION,
 } from '../graphql/settings';
@@ -51,10 +54,12 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   toggleAutoDismissNotifications: () => Promise<void>;
   loadedSettings: boolean;
   updateCustomLinks: (links: string[]) => Promise<unknown>;
+  updateFlag: (flag: keyof SettingsFlags, value: boolean) => Promise<unknown>;
   syncSettings: (bootUserId?: string) => Promise<unknown>;
   onToggleHeaderPlacement(): Promise<unknown>;
   setOnboardingChecklistView: (value: ChecklistViewState) => Promise<unknown>;
   setSettings: (newSettings: Partial<RemoteSettings>) => Promise<void>;
+  applyThemeMode: (mode?: ThemeMode) => void;
 }
 
 const SettingsContext = React.createContext<SettingsContextData>(null);
@@ -115,6 +120,12 @@ const defaultSettings: RemoteSettings = {
   theme: remoteThemes[ThemeMode.Dark],
   campaignCtaPlacement: CampaignCtaPlacement.Header,
   onboardingChecklistView: ChecklistViewState.Hidden,
+  flags: {
+    sidebarSquadExpanded: true,
+    sidebarCustomFeedsExpanded: true,
+    sidebarOtherExpanded: true,
+    sidebarResourcesExpanded: true,
+  },
 };
 
 export const SettingsContextProvider = ({
@@ -123,12 +134,13 @@ export const SettingsContextProvider = ({
   updateSettings,
   loadedSettings,
 }: SettingsContextProviderProps): ReactElement => {
+  const setTheme = useRef<ThemeMode>(null);
   const { user } = useContext(AuthContext);
   const userId = user?.id;
   const { unsubscribePersonalizedDigest } = usePersonalizedDigest();
 
   useEffect(() => {
-    if (!loadedSettings) {
+    if (!loadedSettings || setTheme.current) {
       return;
     }
 
@@ -139,21 +151,33 @@ export const SettingsContextProvider = ({
     unknown,
     unknown,
     RemoteSettings
-  >(
-    (params) =>
+  >({
+    mutationFn: (params) =>
       gqlClient.request(UPDATE_USER_SETTINGS_MUTATION, {
         data: params,
       }),
-    {
-      onError: (_, params) => {
-        const rollback = Object.keys(params).reduce(
-          (values, key) => ({ ...values, [key]: settings[key] }),
-          {},
-        );
 
-        updateSettings({ ...settings, ...rollback });
-      },
+    onError: (_, params) => {
+      const rollback = Object.keys(params).reduce(
+        (values, key) => ({ ...values, [key]: settings[key] }),
+        {},
+      );
+
+      updateSettings({ ...settings, ...rollback });
     },
+  });
+
+  const applyThemeMode = useCallback(
+    (mode?: ThemeMode) => {
+      if (mode) {
+        setTheme.current = mode;
+      } else {
+        setTheme.current = null;
+      }
+
+      applyTheme(setTheme.current || themeModes[settings.theme]);
+    },
+    [settings.theme],
   );
 
   useEffect(() => {
@@ -240,11 +264,20 @@ export const SettingsContextProvider = ({
           ...settings,
           onboardingChecklistView: value,
         }),
+      updateFlag: (flag: keyof SettingsFlags, value: boolean) =>
+        setSettings({
+          ...settings,
+          flags: {
+            ...settings.flags,
+            [flag]: value,
+          },
+        }),
       setSettings,
+      applyThemeMode,
     }),
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [settings, loadedSettings, userId],
+    [settings, loadedSettings, userId, applyThemeMode],
   );
 
   return (

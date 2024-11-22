@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
 import { GetStaticPropsResult } from 'next';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { LEADERBOARD_QUERY } from '@dailydotdev/shared/src/graphql/leaderboard';
 import { useRouter } from 'next/router';
@@ -56,53 +55,50 @@ const LeaderboardPage = ({
   }
 
   return (
-    <>
-      <NextSeo {...seo} />
-      <PageWrapperLayout>
-        <div className="mb-6 hidden justify-between laptop:flex">
-          <BreadCrumbs>
-            <SquadIcon size={IconSize.XSmall} secondary /> Leaderboard
-          </BreadCrumbs>
-        </div>
-        <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-3">
-          <UserTopList
-            containerProps={{ title: 'Highest reputation' }}
-            items={highestReputation}
-            isLoading={isLoading}
-          />
-          <UserTopList
-            containerProps={{ title: 'Longest streak' }}
-            items={longestStreak}
-            isLoading={isLoading}
-          />
-          <UserTopList
-            containerProps={{ title: 'Highest post views' }}
-            items={highestPostViews}
-            isLoading={isLoading}
-          />
-          <UserTopList
-            containerProps={{ title: 'Most upvoted' }}
-            items={mostUpvoted}
-            isLoading={isLoading}
-          />
-          <UserTopList
-            containerProps={{ title: 'Most referrals' }}
-            items={mostReferrals}
-            isLoading={isLoading}
-          />
-          <UserTopList
-            containerProps={{ title: 'Most reading days' }}
-            items={mostReadingDays}
-            isLoading={isLoading}
-          />
-          <CompanyTopList
-            containerProps={{ title: 'Most verified employees' }}
-            items={mostVerifiedUsers}
-            isLoading={isLoading}
-          />
-        </div>
-      </PageWrapperLayout>
-    </>
+    <PageWrapperLayout>
+      <div className="mb-6 hidden justify-between laptop:flex">
+        <BreadCrumbs>
+          <SquadIcon size={IconSize.XSmall} secondary /> Leaderboard
+        </BreadCrumbs>
+      </div>
+      <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-3">
+        <UserTopList
+          containerProps={{ title: 'Highest reputation' }}
+          items={highestReputation}
+          isLoading={isLoading}
+        />
+        <UserTopList
+          containerProps={{ title: 'Longest streak' }}
+          items={longestStreak}
+          isLoading={isLoading}
+        />
+        <UserTopList
+          containerProps={{ title: 'Highest post views' }}
+          items={highestPostViews}
+          isLoading={isLoading}
+        />
+        <UserTopList
+          containerProps={{ title: 'Most upvoted' }}
+          items={mostUpvoted}
+          isLoading={isLoading}
+        />
+        <UserTopList
+          containerProps={{ title: 'Most referrals' }}
+          items={mostReferrals}
+          isLoading={isLoading}
+        />
+        <UserTopList
+          containerProps={{ title: 'Most reading days' }}
+          items={mostReadingDays}
+          isLoading={isLoading}
+        />
+        <CompanyTopList
+          containerProps={{ title: 'Most verified employees' }}
+          items={mostVerifiedUsers}
+          isLoading={isLoading}
+        />
+      </div>
+    </PageWrapperLayout>
   );
 };
 
@@ -112,6 +108,7 @@ const getPageLayout: typeof getLayout = (...props) =>
 LeaderboardPage.getLayout = getPageLayout;
 LeaderboardPage.layoutProps = {
   screenCentered: false,
+  seo,
 };
 
 export default LeaderboardPage;

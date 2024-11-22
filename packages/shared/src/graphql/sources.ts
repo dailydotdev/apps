@@ -18,6 +18,7 @@ export enum SourcePermissions {
   View = 'view',
   ViewBlockedMembers = 'view_blocked_members',
   Post = 'post',
+  PostRequest = 'post_request',
   PostLimit = 'post_limit',
   PostPin = 'post_pin',
   PostDelete = 'post_delete',
@@ -29,6 +30,7 @@ export enum SourcePermissions {
   Edit = 'edit',
   WelcomePostEdit = 'welcome_post_edit',
   ConnectSlack = 'connect_slack',
+  ModeratePost = 'moderate_post',
 }
 
 export type SourceMemberFlag = Partial<{
@@ -45,8 +47,13 @@ export interface SourceMember {
   flags?: SourceMemberFlag;
 }
 
-export interface SourceMemberSimple {
-  image: string;
+export interface BasicSourceMember {
+  user: {
+    id: string;
+    name: string;
+    image: string;
+    permalink: string;
+  };
 }
 
 export enum SourceType {
@@ -64,8 +71,10 @@ export interface Squad extends Source {
   description: string;
   memberPostingRole: SourceMemberRole;
   memberInviteRole: SourceMemberRole;
+  moderationRequired: boolean;
   referralUrl?: string;
   category?: SourceCategory;
+  moderationPostCount: number;
 }
 
 interface SourceFlags {

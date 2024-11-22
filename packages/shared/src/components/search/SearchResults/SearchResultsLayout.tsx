@@ -20,8 +20,6 @@ import SettingsContext from '../../../contexts/SettingsContext';
 import { gapClass } from '../../feeds/FeedContainer';
 import { useFeedLayout } from '../../../hooks';
 import { SearchResultsUsers } from './SearchResultsUsers';
-import { useFeature } from '../../GrowthBookProvider';
-import { feature } from '../../../lib/featureManagement';
 import { useUseSearchSuggestionsContentPreferenceMutationSubscription } from '../../../hooks/contentPreference/useSearchSuggestionsContentPreferenceMutationSubscription';
 
 type SearchResultsLayoutProps = PropsWithChildren;
@@ -35,7 +33,6 @@ export const SearchResultsLayout = (
   props: SearchResultsLayoutProps,
 ): ReactElement => {
   const { children } = props;
-  const userSearch = useFeature(feature.searchUsers);
   const { isListMode } = useFeedLayout();
   const { spaciness } = useContext(SettingsContext);
   const { isSearchPageLaptop } = useSearchResultsLayout();
@@ -165,9 +162,7 @@ export const SearchResultsLayout = (
               });
             }}
           />
-          {userSearch && (
-            <SearchResultsUsers isLoading={isUsersLoading} items={users} />
-          )}
+          <SearchResultsUsers isLoading={isUsersLoading} items={users} />
         </PageWidgets>
       </div>
     </section>

@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
-import { BootApp, BootCacheData, getBootData } from '../lib/boot';
+import { Boot, BootApp, BootCacheData, getBootData } from '../lib/boot';
 import { AuthContextProvider } from './AuthContext';
 import { AnonymousUser, ContentLanguage, LoggedUser } from '../lib/user';
 import { AlertContextProvider } from './AlertContext';
@@ -22,12 +22,13 @@ import { storageWrapper as storage } from '../lib/storageWrapper';
 import { useRefreshToken } from '../hooks/useRefreshToken';
 import { NotificationsContextProvider } from './NotificationsContext';
 import { BOOT_LOCAL_KEY, BOOT_QUERY_KEY } from './common';
-import { LogContextProvider } from './LogContext';
 import { GrowthBookProvider } from '../components/GrowthBookProvider';
 import { useHostStatus } from '../hooks/useHostPermissionStatus';
 import { checkIsExtension } from '../lib/func';
 import { Feed, FeedList } from '../graphql/feed';
 import { gqlClient } from '../graphql/common';
+import { ErrorBoundary } from '../components/ErrorBoundary';
+import { LogContextProvider } from './LogContext';
 
 const ServerError = dynamic(
   () =>
@@ -78,11 +79,20 @@ const updateLocalBootData = (
     'squads',
     'exp',
     'feeds',
+    'geo',
   ]);
 
   storage.setItem(BOOT_LOCAL_KEY, JSON.stringify(result));
 
   return result;
+};
+
+const getCachedOrNull = () => {
+  try {
+    return JSON.parse(storage.getItem(BOOT_LOCAL_KEY));
+  } catch (err) {
+    return null;
+  }
 };
 
 export type PreloadFeeds = ({
@@ -102,11 +112,7 @@ export const BootDataProvider = ({
   getRedirectUri,
   getPage,
 }: BootDataProviderProps): ReactElement => {
-  const { hostGranted } = useHostStatus();
-  const isExtension = checkIsExtension();
-
   const queryClient = useQueryClient();
-
   const preloadFeedsRef = useRef<PreloadFeeds>();
   preloadFeedsRef.current = ({ feeds, user }) => {
     if (!feeds || !user) {
@@ -124,122 +130,125 @@ export const BootDataProvider = ({
     );
   };
 
-  const [cachedBootData, setCachedBootData] =
-    useState<Partial<BootCacheData>>(localBootData);
-  const [lastAppliedChange, setLastAppliedChange] =
-    useState<Partial<BootCacheData>>();
   const [initialLoad, setInitialLoad] = useState<boolean>(null);
-  const loadedFromCache = !!cachedBootData;
-  const { user, settings, alerts, notifications, squads } =
-    cachedBootData || {};
-  const loggedUser = !!(user && 'providers' in user && user?.id);
+  const [cachedBootData, setCachedBootData] = useState<Partial<Boot>>(() => {
+    if (localBootData) {
+      return localBootData;
+    }
+
+    const boot = getLocalBootData();
+
+    if (!boot) {
+      return null;
+    }
+
+    if (boot?.settings?.theme) {
+      applyTheme(themeModes[boot.settings.theme]);
+    }
+
+    preloadFeedsRef.current({ feeds: boot.feeds, user: boot.user });
+
+    return boot;
+  });
+  const { hostGranted } = useHostStatus();
+  const isExtension = checkIsExtension();
+  const logged = cachedBootData?.user as LoggedUser;
+  const shouldRefetch = !!logged?.providers && !!logged?.id;
+  const lastAppliedChangeRef = useRef<Partial<BootCacheData>>();
+
   const {
-    data: bootRemoteData,
+    data: remoteData,
     error,
     refetch,
     isFetched,
+    isError,
     dataUpdatedAt,
-  } = useQuery(
-    BOOT_QUERY_KEY,
-    async () => {
+  } = useQuery<Partial<Boot>>({
+    queryKey: BOOT_QUERY_KEY,
+    queryFn: async () => {
       const result = await getBootData(app);
       preloadFeedsRef.current({ feeds: result.feeds, user: result.user });
 
       return result;
     },
-    {
-      refetchOnWindowFocus: loggedUser,
-      staleTime: STALE_TIME,
-      enabled: isExtension ? !!hostGranted : true,
-    },
-  );
+    refetchOnWindowFocus: shouldRefetch,
+    staleTime: STALE_TIME,
+    enabled: !isExtension || !!hostGranted,
+  });
 
-  useEffect(() => {
-    const boot = getLocalBootData();
-    if (boot) {
-      if (boot?.settings?.theme) {
-        applyTheme(themeModes[boot.settings.theme]);
-      }
+  const isBootReady = isFetched && !isError;
+  const loadedFromCache = !!cachedBootData;
+  const { user, settings, alerts, notifications, squads, geo } =
+    cachedBootData || {};
 
-      preloadFeedsRef.current({ feeds: boot.feeds, user: boot.user });
-
-      setCachedBootData(boot);
-    }
-  }, []);
-
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const setBootData = (
-    updatedBootData: Partial<BootCacheData>,
-    update = true,
-  ) => {
-    const cachedData = JSON.parse(storage.getItem(BOOT_LOCAL_KEY));
-    let updatedData = { ...updatedBootData };
-    if (update) {
-      if (lastAppliedChange) {
-        updatedData = { ...lastAppliedChange, ...updatedData };
-      }
-      setLastAppliedChange(updatedData);
-    } else {
-      if (cachedData?.lastModifier !== 'companion' && lastAppliedChange) {
-        updatedData = { ...updatedData, ...lastAppliedChange };
-      }
-      setLastAppliedChange(null);
-    }
-    const updated = updateLocalBootData(cachedData, updatedData);
-    setCachedBootData(updated);
-  };
-
-  useEffect(() => {
-    if (bootRemoteData) {
-      setInitialLoad(initialLoad === null);
-      // We need to remove the settings for anonymous users as they might have changed them already
-      if (!bootRemoteData.user || !('providers' in bootRemoteData.user)) {
-        delete bootRemoteData.settings;
-      }
-
-      setBootData(bootRemoteData, false);
-    }
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bootRemoteData]);
-
-  useRefreshToken(bootRemoteData?.accessToken, refetch);
+  useRefreshToken(remoteData?.accessToken, refetch);
   const updatedAtActive = user ? dataUpdatedAt : null;
+  const updateBootData = useCallback(
+    (updatedBootData: Partial<BootCacheData>, update = true) => {
+      const cachedData = getCachedOrNull() || {};
+      const lastAppliedChange = lastAppliedChangeRef.current;
+      let updatedData = { ...updatedBootData };
+      if (update) {
+        if (lastAppliedChange) {
+          updatedData = { ...lastAppliedChange, ...updatedData };
+        }
+        lastAppliedChangeRef.current = updatedData;
+      } else {
+        if (cachedData?.lastModifier !== 'companion' && lastAppliedChange) {
+          updatedData = { ...updatedData, ...lastAppliedChange };
+        }
+        lastAppliedChangeRef.current = null;
+      }
+
+      const updated = updateLocalBootData(cachedData, updatedData);
+      setCachedBootData(updated);
+    },
+    [],
+  );
 
   const updateUser = useCallback(
     async (newUser: LoggedUser | AnonymousUser) => {
-      const updated = updateLocalBootData(cachedBootData, { user: newUser });
-      setCachedBootData(updated);
-      await queryClient.invalidateQueries(
-        generateQueryKey(RequestKey.Profile, newUser),
-      );
+      updateBootData({ user: newUser });
+      await queryClient.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.Profile, newUser),
+      });
     },
-    [queryClient, cachedBootData],
+    [updateBootData, queryClient],
   );
 
   const updateSettings = useCallback(
-    (updatedSettings) => setBootData({ settings: updatedSettings }),
-    [setBootData],
+    (updatedSettings) => updateBootData({ settings: updatedSettings }),
+    [updateBootData],
   );
 
   const updateAlerts = useCallback(
-    (updatedAlerts) => setBootData({ alerts: updatedAlerts }),
-    [setBootData],
+    (updatedAlerts) => updateBootData({ alerts: updatedAlerts }),
+    [updateBootData],
   );
 
-  const updateExperimentation = useCallback((exp: BootCacheData['exp']) => {
-    setCachedBootData((cachedData) => updateLocalBootData(cachedData, { exp }));
-  }, []);
+  const updateExperimentation = useCallback(
+    (exp: BootCacheData['exp']) => {
+      updateLocalBootData(cachedBootData, { exp });
+    },
+    [cachedBootData],
+  );
 
   gqlClient.setHeader(
     'content-language',
     (user as Partial<LoggedUser>)?.language || ContentLanguage.English,
   );
 
+  useEffect(() => {
+    if (remoteData) {
+      setInitialLoad(initialLoad === null);
+      updateBootData(remoteData);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [remoteData]);
+
   if (error) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="mx-2 flex h-screen items-center justify-center">
         <ServerError />
       </div>
     );
@@ -252,7 +261,6 @@ export const BootDataProvider = ({
       deviceId={deviceId}
       experimentation={cachedBootData?.exp}
       updateExperimentation={updateExperimentation}
-      firstLoad={initialLoad}
     >
       <AuthContextProvider
         user={user}
@@ -261,13 +269,14 @@ export const BootDataProvider = ({
         getRedirectUri={getRedirectUri}
         loadingUser={!dataUpdatedAt || !user}
         loadedUserFromCache={loadedFromCache}
-        visit={bootRemoteData?.visit}
+        visit={remoteData?.visit}
         refetchBoot={refetch}
-        isFetched={isFetched}
-        isLegacyLogout={bootRemoteData?.isLegacyLogout}
-        firstLoad={initialLoad}
-        accessToken={bootRemoteData?.accessToken}
+        isFetched={isBootReady}
+        isLegacyLogout={remoteData?.isLegacyLogout}
+        accessToken={remoteData?.accessToken}
         squads={squads}
+        firstLoad={initialLoad}
+        geo={geo}
       >
         <SettingsContextProvider
           settings={settings}
@@ -276,7 +285,7 @@ export const BootDataProvider = ({
         >
           <AlertContextProvider
             alerts={alerts}
-            isFetched={isFetched}
+            isFetched={isBootReady}
             updateAlerts={updateAlerts}
             loadedAlerts={loadedFromCache}
           >
@@ -286,12 +295,14 @@ export const BootDataProvider = ({
               getPage={getPage}
               deviceId={deviceId}
             >
-              <NotificationsContextProvider
-                isNotificationsReady={initialLoad}
-                unreadCount={notifications?.unreadNotificationsCount}
-              >
-                {children}
-              </NotificationsContextProvider>
+              <ErrorBoundary>
+                <NotificationsContextProvider
+                  isNotificationsReady={isBootReady}
+                  unreadCount={notifications?.unreadNotificationsCount}
+                >
+                  {children}
+                </NotificationsContextProvider>
+              </ErrorBoundary>
             </LogContextProvider>
           </AlertContextProvider>
         </SettingsContextProvider>

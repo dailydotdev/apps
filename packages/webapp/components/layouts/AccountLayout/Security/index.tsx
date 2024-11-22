@@ -1,4 +1,4 @@
-import { getProviderMapClone } from '@dailydotdev/shared/src/components/auth/common';
+import { providerMap } from '@dailydotdev/shared/src/components/auth/common';
 import {
   Button,
   ButtonColor,
@@ -44,8 +44,7 @@ import {
 import EmailSentSection from '../EmailSentSection';
 import AccountLoginSection from './AccountLoginSection';
 
-const socialProvider = getProviderMapClone();
-const providers = Object.values(socialProvider);
+const providers = Object.values(providerMap);
 
 export interface ChangePasswordParams {
   password: string;
@@ -56,10 +55,29 @@ export interface UpdateProvidersParams {
   unlink?: string;
 }
 
-const removeProvider = getProviderMapClone();
-removeProvider.google.icon.props.secondary = false;
-removeProvider.facebook.icon.props.secondary = false;
-const removeProviderList = Object.values(removeProvider);
+const removeProviderList = Object.values({
+  ...providerMap,
+  google: {
+    ...providerMap.google,
+    icon: {
+      ...providerMap.google.icon,
+      props: {
+        ...providerMap.google.icon.props,
+        secondary: false,
+      },
+    },
+  },
+  facebook: {
+    ...providerMap.facebook,
+    icon: {
+      ...providerMap.facebook.icon,
+      props: {
+        ...providerMap.facebook.icon.props,
+        secondary: false,
+      },
+    },
+  },
+});
 
 interface AccountSecurityDefaultProps {
   email?: string;

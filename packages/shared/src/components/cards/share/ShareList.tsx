@@ -12,6 +12,7 @@ import { CardContent, CardTitle } from '../common/list/ListCard';
 import PostTags from '../common/PostTags';
 import { CardCoverList } from '../common/list/CardCover';
 import ActionButtons from '../common/list/ActionButtons';
+import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 
 export const ShareList = forwardRef(function ShareList(
   {
@@ -25,8 +26,11 @@ export const ShareList = forwardRef(function ShareList(
     onShare,
     onBookmarkClick,
     children,
+    openNewTab,
+    onReadArticleClick,
     enableSourceHeader = false,
     domProps = {},
+    eagerLoadImage = false,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
@@ -35,10 +39,7 @@ export const ShareList = forwardRef(function ShareList(
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
   const isVideoType = isVideoPost(post);
-  const { title } = useTruncatedSummary({
-    ...post,
-    ...(!post.title && { title: post.sharedPost.title }),
-  });
+  const { title } = useTruncatedSummary(post?.title || post?.sharedPost?.title);
 
   return (
     <FeedItemContainer
@@ -62,6 +63,8 @@ export const ShareList = forwardRef(function ShareList(
           ...post,
           type: post.sharedPost.type,
         }}
+        openNewTab={openNewTab}
+        onReadArticleClick={onReadArticleClick}
         onMenuClick={(event) => onMenuClick?.(event, post)}
         metadata={{
           topLabel: enableSourceHeader ? (
@@ -103,13 +106,15 @@ export const ShareList = forwardRef(function ShareList(
           onShare={onShare}
           post={post}
           imageProps={{
-            loading: 'lazy',
             alt: 'Post Cover image',
-            src: post.sharedPost.image,
             className: classNames(
               'mobileXXL:self-start',
               !isVideoType && 'mt-4',
             ),
+            ...(eagerLoadImage
+              ? HIGH_PRIORITY_IMAGE_PROPS
+              : { loading: 'lazy' }),
+            src: post.sharedPost.image,
           }}
           videoProps={{
             className: 'mt-4 mobileXL:w-40 mobileXXL:w-56 !h-fit',

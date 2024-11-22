@@ -28,12 +28,12 @@ export const useSourceIntegrationQuery = ({
   const { user } = useAuthContext();
   const enabled = !!(userIntegrationType && sourceId);
 
-  const queryResult = useQuery(
-    generateQueryKey(RequestKey.UserSourceIntegrations, user, {
+  const queryResult = useQuery({
+    queryKey: generateQueryKey(RequestKey.UserSourceIntegrations, user, {
       sourceId,
       userIntegrationType,
     }),
-    async ({ queryKey }) => {
+    queryFn: async ({ queryKey }) => {
       const [, , queryVariables] = queryKey as [
         unknown,
         unknown,
@@ -51,21 +51,19 @@ export const useSourceIntegrationQuery = ({
         const errorCode = error.response?.errors?.[0]?.extensions?.code;
 
         if ([ApiError.NotFound, ApiError.Forbidden].includes(errorCode)) {
-          return undefined;
+          return null;
         }
 
         throw originalError;
       }
     },
-    {
-      staleTime: StaleTime.Default,
-      ...queryOptions,
-      enabled:
-        typeof queryOptions?.enabled !== 'undefined'
-          ? queryOptions.enabled && enabled
-          : enabled,
-    },
-  );
+    staleTime: StaleTime.Default,
+    ...queryOptions,
+    enabled:
+      typeof queryOptions?.enabled !== 'undefined'
+        ? queryOptions.enabled && enabled
+        : enabled,
+  });
 
   return queryResult;
 };

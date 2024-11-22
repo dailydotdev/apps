@@ -1,5 +1,11 @@
 import React, { ReactElement, useState } from 'react';
-import { cloudinary } from '../../lib/image';
+import {
+  cloudinarySquadsTourBanner0,
+  cloudinarySquadsTourBanner1V2,
+  cloudinarySquadsTourBanner2,
+  cloudinarySquadsTourBanner3,
+  cloudinarySquadsTourBanner4V2,
+} from '../../lib/image';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { Justify } from '../utilities';
 import Carousel from '../containers/Carousel';
@@ -14,11 +20,6 @@ interface SquadTourProps {
 }
 
 const FooterButton = classed(Button, 'w-22');
-
-export enum TourScreenIndex {
-  Post = 0,
-  CopyInvitation = 3,
-}
 
 function SquadTour({ onClose }: SquadTourProps): ReactElement {
   const [shouldShowCarousel, setShouldShowCarousel] = useState(false);
@@ -43,7 +44,7 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
       <>
         <SquadTourCard
           key="intro"
-          banner={cloudinary.squads.tour.banner0}
+          banner={cloudinarySquadsTourBanner0}
           title="Let's see what you can do with Squads!"
           className={{ container: 'h-[29.25rem]', banner: '!pt-0' }}
         />
@@ -64,28 +65,28 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
   const items = [
     <SquadTourCard
       key="step1"
-      banner={cloudinary.squads.tour.banner1_v2}
+      banner={cloudinarySquadsTourBanner1V2}
       title="Share articles"
       description="Share articles, receive and give feedback!"
       badge="NEW"
     />,
     <SquadTourCard
       key="step2"
-      banner={cloudinary.squads.tour.banner2}
+      banner={cloudinarySquadsTourBanner2}
       title="Share from main feed"
       description="Share articles using the share button!"
       badge="NEW"
     />,
     <SquadTourCard
       key="step3"
-      banner={cloudinary.squads.tour.banner3}
+      banner={cloudinarySquadsTourBanner3}
       title="Private discussions"
       description="Hold private discussions and stay up to date with friends, colleagues and like-minded developers."
       badge="NEW"
     />,
     <SquadTourCard
       key="step4"
-      banner={cloudinary.squads.tour.banner4_v2}
+      banner={cloudinarySquadsTourBanner4V2}
       title="Invite members"
       description="Invite friends and colleagues to your Squads"
       badge="NEW"
