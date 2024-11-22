@@ -45,3 +45,4 @@ webapp.xml
 
 # IDE
 .idea/
+.env*.local
