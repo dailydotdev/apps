@@ -1,4 +1,4 @@
-import React, { forwardRef, ReactElement } from 'react';
+import React, { forwardRef, ReactElement, useCallback } from 'react';
 
 import { Card, CardImage, CardTextContainer, CardTitle } from '../common/Card';
 import AdLink from './common/AdLink';
@@ -27,6 +27,11 @@ export const AdGrid = forwardRef(function AdGrid(
     inViewRef,
   );
 
+  const onRefreshClick = useCallback(async () => {
+    onRefresh?.(ad);
+    await refetch();
+  }, [ad, onRefresh, refetch]);
+
   return (
     <Card {...domProps} data-testid="adItem" ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
@@ -41,10 +46,7 @@ export const AdGrid = forwardRef(function AdGrid(
         <div className="flex items-center">
           <AdRefresh
             size={ButtonSize.Small}
-            onClick={async () => {
-              onRefresh?.(ad);
-              await refetch();
-            }}
+            onClick={onRefreshClick}
             loading={isRefetching}
           />
           {isEnrolledNotPlus && <RemoveAd size={ButtonSize.Small} />}

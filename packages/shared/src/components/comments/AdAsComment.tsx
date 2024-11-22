@@ -55,6 +55,11 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
     [logEvent, ad],
   );
 
+  const onRefreshClick = useCallback(async () => {
+    onAdAction(AdActions.Refresh);
+    await refetch();
+  }, [onAdAction, refetch]);
+
   useEffect(() => {
     if (!ad || ad?.impressionStatus === ImpressionStatus.LOGGED) {
       return;
@@ -97,10 +102,7 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
       <div className="z-1 ml-auto flex gap-1">
         <AdRefresh
           variant={ButtonVariant.Tertiary}
-          onClick={async () => {
-            onAdAction(AdActions.Refresh);
-            await refetch();
-          }}
+          onClick={onRefreshClick}
           loading={isRefetching}
         />
         {isEnrolledNotPlus && (

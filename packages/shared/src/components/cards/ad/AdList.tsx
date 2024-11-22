@@ -1,4 +1,9 @@
-import React, { AnchorHTMLAttributes, forwardRef, ReactElement } from 'react';
+import React, {
+  AnchorHTMLAttributes,
+  forwardRef,
+  ReactElement,
+  useCallback,
+} from 'react';
 import classNames from 'classnames';
 import { CardContent, CardImage, CardTitle } from '../common/list/ListCard';
 import FeedItemContainer from '../common/list/FeedItemContainer';
@@ -45,6 +50,11 @@ export const AdList = forwardRef(function AdCard(
     inViewRef,
   );
 
+  const onRefreshClick = useCallback(async () => {
+    onRefresh?.(ad);
+    await refetch();
+  }, [ad, onRefresh, refetch]);
+
   return (
     <FeedItemContainer
       domProps={domProps}
@@ -66,13 +76,7 @@ export const AdList = forwardRef(function AdCard(
       </CardContent>
 
       <div className="z-1 flex items-center pt-2">
-        <AdRefresh
-          onClick={async () => {
-            onRefresh?.(ad);
-            await refetch();
-          }}
-          loading={isRefetching}
-        />
+        <AdRefresh onClick={onRefreshClick} loading={isRefetching} />
         {isEnrolledNotPlus && <RemoveAd />}
       </div>
       <AdPixel pixel={ad.pixel} />
