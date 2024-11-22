@@ -6,23 +6,29 @@ import {
   ButtonColor,
   ButtonSize,
   ButtonVariant,
+  type AllowedTags,
+  type ButtonProps,
 } from '../../../buttons/Button';
 import { plusUrl } from '../../../../lib/constants';
 import Link from '../../../utilities/Link';
-import type { WithClassNameProps } from '../../../utilities';
 import { LogEvent, TargetId } from '../../../../lib/log';
 import { usePlusSubscription } from '../../../../hooks/usePlusSubscription';
 
-type Props = WithClassNameProps;
+type Props = { iconOnly?: boolean } & ButtonProps<AllowedTags>;
 
-export const RemoveAd = ({ className }: Props): ReactElement => {
+export const RemoveAd = ({
+  className,
+  size = ButtonSize.Medium,
+  iconOnly,
+  ...props
+}: Props): ReactElement => {
   const { logSubscriptionEvent } = usePlusSubscription();
   return (
     <Link passHref href={plusUrl}>
       <Button
         tag="a"
         variant={ButtonVariant.Float}
-        size={ButtonSize.Small}
+        size={size}
         color={ButtonColor.Bacon}
         className={classNames('ml-auto', className)}
         onClick={() => {
@@ -31,8 +37,9 @@ export const RemoveAd = ({ className }: Props): ReactElement => {
             target_id: TargetId.Ads,
           });
         }}
+        {...props}
       >
-        Remove
+        {!iconOnly ? 'Remove' : undefined}
       </Button>
     </Link>
   );
