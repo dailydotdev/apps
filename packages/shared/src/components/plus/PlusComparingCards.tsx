@@ -84,6 +84,7 @@ const PlusCard: FC<PlusCardProps> = ({
           className="my-4 block w-full"
           href={plusUrl}
           tag="a"
+          target="_blank"
           title="Upgrade to Plus"
           variant={ButtonVariant.Primary}
         >
