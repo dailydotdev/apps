@@ -78,7 +78,7 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
         fallbackSrc={cloudinaryPostImageCoverPlaceholder}
         style={{ backgroundColor: data?.backgroundColor }}
       />
-      <div className="ml-3 inline-block flex-col">
+      <div className="ml-3">
         <TruncateText className="commentAuthor flex w-fit font-bold text-text-primary typo-callout">
           {company}
         </TruncateText>
