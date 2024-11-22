@@ -26,7 +26,7 @@ export const AdGrid = forwardRef(function AdGrid(
     <Card {...domProps} data-testid="adItem" ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <CardTextContainer className="flex-1">
-        <CardTitle className="line-clamp-4 font-bold typo-title3">
+        <CardTitle className="line-clamp-4 typo-title3">
           {ad.description}
         </CardTitle>
         <AdAttribution ad={ad} className={{ main: 'mt-auto' }} />

@@ -49,9 +49,7 @@ export const AdList = forwardRef(function AdCard(
     >
       <CardContent>
         <CardTitle
-          className={classNames(
-            '!mt-0 mr-4 line-clamp-4 flex-1 font-bold typo-title3',
-          )}
+          className={classNames('!mt-0 mr-4 line-clamp-4 flex-1 typo-title3')}
         >
           {ad.description}
           <AdAttribution ad={ad} className={{ main: 'mb-2 mt-4 block' }} />
