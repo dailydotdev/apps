@@ -24,6 +24,11 @@ import { ElementPlaceholder } from '../ElementPlaceholder';
 import { TagElement } from './TagElement';
 import { gqlClient } from '../../graphql/common';
 import { OnSelectTagProps } from './common';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
 
 const tagsSelector = (data: TagsData) => data?.tags || [];
 
@@ -192,7 +197,7 @@ export function TagSelection({
     refetchFeed();
   };
 
-  const tags = searchQuery && !isSearchLoading ? searchTags : onboardingTags;
+  const tags = searchQuery ? searchTags : onboardingTags;
   const renderedTags = {};
 
   return (
@@ -219,6 +224,15 @@ export function TagSelection({
               <span className="invisible">{item}</span>
             </ElementPlaceholder>
           ))}
+        {!isPending && !tags?.length && (
+          <Typography
+            type={TypographyType.Body}
+            color={TypographyColor.Secondary}
+            className="text-center"
+          >
+            No tags found
+          </Typography>
+        )}
         {!isPending &&
           tags?.map((tag) => {
             const isSelected = selectedTags.has(tag.name);

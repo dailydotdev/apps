@@ -36,7 +36,7 @@ export const Sources = (): ReactElement => {
     origin: Origin.Onboarding,
   });
 
-  const selectedTags = feedSettings?.includeTags || [];
+  const selectedTags = feedSettings?.includeTags || ['webdev'];
 
   const selectedSources = useMemo(() => {
     return feedSettings?.includeSources.map(({ id }) => id);
@@ -71,8 +71,7 @@ export const Sources = (): ReactElement => {
     staleTime: Infinity,
   });
 
-  const sources =
-    searchQuery && !isPendingSearch ? searchResult : onboardingSources;
+  const sources = searchQuery ? searchResult : onboardingSources;
 
   const SourceTag = ({ source }: { source: Source }): ReactElement => {
     const checked = selectedSources?.includes(source.id);
@@ -148,7 +147,7 @@ export const Sources = (): ReactElement => {
   };
 
   return (
-    <div className="flex max-w-screen-laptop flex-col tablet:px-10">
+    <div className="flex w-full max-w-screen-laptop flex-col items-center tablet:px-10">
       <Typography
         type={TypographyType.LargeTitle}
         bold
@@ -176,6 +175,15 @@ export const Sources = (): ReactElement => {
                 <span className="invisible">{item}</span>
               </ElementPlaceholder>
             ))}
+          {!isPending && !sources?.length && (
+            <Typography
+              type={TypographyType.Body}
+              color={TypographyColor.Secondary}
+              className="text-center"
+            >
+              No sources found
+            </Typography>
+          )}
           {!isPending &&
             sources?.map((source) => (
               <SourceTag source={source} key={source.id} />
