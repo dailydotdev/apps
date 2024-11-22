@@ -46,9 +46,16 @@ import {
   logPixelSignUp,
   Pixels,
 } from '@dailydotdev/shared/src/components/Pixels';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import {
+  feature,
+  featureOnboardingSources,
+} from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import {
+  useConditionalFeature,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -80,6 +87,11 @@ const OnboardingFooter = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingFooter" */ '@dailydotdev/shared/src/components/onboarding/OnboardingFooter'
   ).then((mod) => mod.OnboardingFooter),
+);
+const Sources = dynamic(() =>
+  import('@dailydotdev/shared/src/components/onboarding/Sources/Sources').then(
+    (mod) => mod.Sources,
+  ),
 );
 
 type OnboardingVisual = {
@@ -130,6 +142,12 @@ export function OnboardPage(): ReactElement {
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
   const { updateAdvancedSettings } = useMutateFilters(user);
+  const [shouldEnrollSourceSelection, setShouldEnrollSourceSelection] =
+    useState(false);
+  const { value: showOnboardingSources } = useConditionalFeature({
+    feature: featureOnboardingSources,
+    shouldEvaluate: shouldEnrollSourceSelection,
+  });
   const isSeniorUser =
     EXPERIENCE_TO_SENIORITY[user?.experienceLevel] === 'senior' ||
     user?.experienceLevel === 'MORE_THAN_4_YEARS';
@@ -186,6 +204,7 @@ export function OnboardPage(): ReactElement {
         }
       }
 
+      setShouldEnrollSourceSelection(true);
       return setActiveScreen(OnboardingStep.ContentTypes);
     }
 
@@ -195,6 +214,14 @@ export function OnboardPage(): ReactElement {
       isPushSupported
     ) {
       return setActiveScreen(OnboardingStep.ReadingReminder);
+    }
+
+    if (
+      showOnboardingSources &&
+      (activeScreen === OnboardingStep.ReadingReminder ||
+        activeScreen === OnboardingStep.ContentTypes)
+    ) {
+      return setActiveScreen(OnboardingStep.Sources);
     }
 
     if (!hasSelectTopics) {
@@ -272,8 +299,17 @@ export function OnboardPage(): ReactElement {
     targetId,
   ]);
 
-  const customActionName =
-    activeScreen === OnboardingStep.EditTag ? 'Continue' : undefined;
+  const customActionName = useMemo(() => {
+    if (activeScreen === OnboardingStep.EditTag) {
+      return 'Continue';
+    }
+
+    if (showOnboardingSources && activeScreen === OnboardingStep.ContentTypes) {
+      return 'Continue';
+    }
+
+    return undefined;
+  }, [activeScreen, showOnboardingSources]);
 
   const showOnboardingPage =
     !isAuthenticating && activeScreen === OnboardingStep.Intro && !shouldVerify;
@@ -353,6 +389,7 @@ export function OnboardPage(): ReactElement {
               />
             )}
             {activeScreen === OnboardingStep.ContentTypes && <ContentTypes />}
+            {activeScreen === OnboardingStep.Sources && <Sources />}
           </div>
         )}
       </div>

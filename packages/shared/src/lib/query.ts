@@ -175,6 +175,8 @@ export enum RequestKey {
   ContentPreferenceSubscribe = 'content_preference_subscribe',
   ContentPreferenceUnsubscribe = 'content_preference_unsubscribe',
   TopReaderBadge = 'top_reader_badge',
+  SearchSources = 'search_sources',
+  OnboardingSources = 'onboarding_sources',
 }
 
 export type HasConnection<
