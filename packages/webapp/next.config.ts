@@ -104,6 +104,7 @@ const nextConfig: NextConfig = {
       env: {
         CURRENT_VERSION: version,
       },
+      assetPrefix: process.env.CDN_ASSET_PREFIX,
       rewrites: async () => {
         if (process.env.CF_DEPLOYMENT_URL) {
           return {
