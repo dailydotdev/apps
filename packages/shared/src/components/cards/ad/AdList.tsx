@@ -38,7 +38,12 @@ export const AdList = forwardRef(function AdCard(
   inViewRef: InViewRef,
 ): ReactElement {
   const { isEnrolledNotPlus } = usePlusSubscription();
-  const { ref, refetch } = useAutoRotatingAds(ad, index, feedIndex, inViewRef);
+  const { ref, refetch, isRefetching } = useAutoRotatingAds(
+    ad,
+    index,
+    feedIndex,
+    inViewRef,
+  );
 
   return (
     <FeedItemContainer
@@ -66,6 +71,7 @@ export const AdList = forwardRef(function AdCard(
             onRefresh?.(ad);
             refetch();
           }}
+          loading={isRefetching}
         />
         {isEnrolledNotPlus && <RemoveAd />}
       </div>

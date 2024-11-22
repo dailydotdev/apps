@@ -101,7 +101,7 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
             onAdAction(AdActions.Refresh);
             refetch();
           }}
-          disabled={isRefetching}
+          loading={isRefetching}
         />
         {isEnrolledNotPlus && (
           <RemoveAd

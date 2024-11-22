@@ -30,6 +30,7 @@ export const useAutoRotatingAds = (
 ): {
   ref: InViewRef;
   refetch: QueryObserverBaseResult<Ad>['refetch'];
+  isRefetching: QueryObserverBaseResult<Ad>['isRefetching'];
 } => {
   const autorotateAds = useFeature(featureAutorotateAds);
   const { logEventEnd } = useLogContext();
@@ -77,7 +78,7 @@ export const useAutoRotatingAds = (
     return newAd;
   }, [feedIndex, index, logEventEnd, queryClient, queryKey]);
 
-  const { refetch } = useQuery<Ad>({
+  const { refetch, isRefetching } = useQuery<Ad>({
     queryKey: [...queryKey, index],
     queryFn: fetchNewAd,
     enabled: !!autorotateAds,
@@ -112,5 +113,5 @@ export const useAutoRotatingAds = (
     });
   }, []);
 
-  return { ref: refs, refetch };
+  return { ref: refs, refetch, isRefetching };
 };
