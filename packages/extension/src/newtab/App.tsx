@@ -147,18 +147,10 @@ function InternalApp(): ReactElement {
   }, [unreadCount]);
 
   if (isFirefox && !isFetched) {
-    return null;
-  }
+    if (!isFetched) {
+      return null;
+    }
 
-  if (!hostGranted) {
-    return isCheckingHostPermissions ? null : <ExtensionPermissionsPrompt />;
-  }
-
-  if (shouldRedirectOnboarding) {
-    return <ExtensionOnboarding />;
-  }
-
-  if (isFirefox && firefoxPermission !== FirefoxPermissionType.Accepted) {
     if (firefoxPermission === FirefoxPermissionType.Declined) {
       return (
         <FirefoxPermissionDeclined
@@ -167,7 +159,17 @@ function InternalApp(): ReactElement {
       );
     }
 
-    return <FirefoxPermission onUpdate={setFirefoxPermission} />;
+    if (firefoxPermission !== FirefoxPermissionType.Accepted) {
+      return <FirefoxPermission onUpdate={setFirefoxPermission} />;
+    }
+  }
+
+  if (!hostGranted) {
+    return isCheckingHostPermissions ? null : <ExtensionPermissionsPrompt />;
+  }
+
+  if (shouldRedirectOnboarding) {
+    return <ExtensionOnboarding />;
   }
 
   return (
