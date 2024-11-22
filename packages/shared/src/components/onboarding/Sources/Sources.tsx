@@ -53,7 +53,7 @@ export const Sources = (): ReactElement => {
     [onFollowSource, onUnfollowSource, selectedSources],
   );
 
-  const { data: searchResult, isPending: isPendingSearch } = useSourceSearch({
+  const { data: searchResult } = useSourceSearch({
     value: searchQuery,
   });
 
