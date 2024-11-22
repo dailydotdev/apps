@@ -46,6 +46,7 @@ const PlusItem = ({ title, text, icon }: PlusItemProps) => {
         type={TypographyType.Body}
         color={TypographyColor.Primary}
         {...text}
+        className={classNames('flex-1', text?.className)}
       >
         {title}
       </Typography>

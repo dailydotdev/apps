@@ -20,6 +20,7 @@ import {
   ProductOption,
   usePaymentContext,
 } from '../../contexts/PaymentContext';
+import { useViewSize, ViewSize } from '../../hooks';
 
 interface OnboardingStepProps {
   onClickNext: () => void;
@@ -128,7 +129,7 @@ const PlanCards: FC<
   const currency = Number.isInteger(+priceFirstChar) ? '' : priceFirstChar;
 
   return (
-    <div className="mx-auto grid grid-cols-1 place-content-center items-start gap-6 laptop:grid-cols-2">
+    <div className="mx-auto grid grid-cols-1 place-content-center items-start gap-6 tablet:grid-cols-2">
       {Object.values(OnboardingPlans).map((plan) => (
         <PlanCard
           key={plan}
@@ -143,11 +144,59 @@ const PlanCards: FC<
   );
 };
 
+const PlusPlanSwitch: FC<{
+  productOptions: ProductOption[];
+  currentPlanIndex: number;
+  setCurrentPlanIndex: (index: number) => void;
+}> = ({ productOptions, currentPlanIndex, setCurrentPlanIndex }) => {
+  return (
+    <div className="mx-auto my-6 inline-flex gap-1 rounded-12 border border-border-subtlest-tertiary p-1 tablet:my-8">
+      {productOptions.map(({ label, extraLabel }, index) => {
+        const isActive = index === currentPlanIndex;
+        const variant = isActive ? ButtonVariant.Float : ButtonVariant.Option;
+        return (
+          <Button
+            className="min-w-24 justify-center"
+            key={label}
+            onClick={() => setCurrentPlanIndex(index)}
+            size={ButtonSize.Medium}
+            variant={variant}
+          >
+            <span>
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Callout}
+                color={TypographyColor.Primary}
+                className={classNames('text-center capitalize', {
+                  'font-normal': !isActive,
+                })}
+              >
+                {label}
+              </Typography>
+              {extraLabel && (
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Caption2}
+                  color={TypographyColor.StatusSuccess}
+                  className="block text-center font-normal"
+                >
+                  {extraLabel}
+                </Typography>
+              )}
+            </span>
+          </Button>
+        );
+      })}
+    </div>
+  );
+};
+
 export const OnboardingPlusStep: FC<OnboardingStepProps> = ({
   onClickNext,
 }) => {
   const { productOptions } = usePaymentContext();
   const [currentPlanIndex, setCurrentPlanIndex] = useState<number>(0);
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   return (
     <section className="flex max-w-screen-laptop flex-col tablet:px-10">
@@ -155,15 +204,15 @@ export const OnboardingPlusStep: FC<OnboardingStepProps> = ({
         <Typography
           bold
           tag={TypographyTag.H1}
-          type={TypographyType.LargeTitle}
-          className="mb-6"
+          type={isLaptop ? TypographyType.LargeTitle : TypographyType.Title2}
+          className="mb-4 tablet:mb-6"
         >
           Unlock more with Plus
         </Typography>
         <Typography
-          className="mx-auto text-balance laptop:w-2/3"
+          className="mx-auto text-balance tablet:w-2/3"
           tag={TypographyTag.H2}
-          type={TypographyType.Title3}
+          type={isLaptop ? TypographyType.Title3 : TypographyType.Callout}
         >
           Upgrade to daily.dev Plus for an enhanced, ad-free experience with
           exclusive features and perks to level up your game.
@@ -171,46 +220,11 @@ export const OnboardingPlusStep: FC<OnboardingStepProps> = ({
       </header>
       {!!productOptions?.length && (
         <>
-          <div className="mx-auto my-8 inline-flex gap-1 rounded-12 border border-border-subtlest-tertiary p-1">
-            {productOptions.map(({ label, extraLabel }, index) => {
-              const isActive = index === currentPlanIndex;
-              const variant = isActive
-                ? ButtonVariant.Float
-                : ButtonVariant.Option;
-              return (
-                <Button
-                  className="min-w-24 justify-center"
-                  key={label}
-                  onClick={() => setCurrentPlanIndex(index)}
-                  size={ButtonSize.Medium}
-                  variant={variant}
-                >
-                  <span>
-                    <Typography
-                      tag={TypographyTag.Span}
-                      type={TypographyType.Callout}
-                      color={TypographyColor.Primary}
-                      className={classNames('text-center capitalize', {
-                        'font-normal': !isActive,
-                      })}
-                    >
-                      {label}
-                    </Typography>
-                    {extraLabel && (
-                      <Typography
-                        tag={TypographyTag.Span}
-                        type={TypographyType.Caption2}
-                        color={TypographyColor.StatusSuccess}
-                        className="block text-center font-normal"
-                      >
-                        {extraLabel}
-                      </Typography>
-                    )}
-                  </span>
-                </Button>
-              );
-            })}
-          </div>
+          <PlusPlanSwitch
+            productOptions={productOptions}
+            currentPlanIndex={currentPlanIndex}
+            setCurrentPlanIndex={setCurrentPlanIndex}
+          />
 
           <PlanCards
             currentIndex={currentPlanIndex}

@@ -146,7 +146,7 @@ export function OnboardPage(): ReactElement {
   const { isPushSupported } = usePushNotificationContext();
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
-  const [activeScreen, setActiveScreen] = useState(OnboardingStep.Plus); // Intro
+  const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
   const { updateAdvancedSettings } = useMutateFilters(user);
   const [shouldEnrollSourceSelection, setShouldEnrollSourceSelection] =
     useState(false);
