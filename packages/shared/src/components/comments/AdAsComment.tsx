@@ -68,7 +68,7 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
   };
 
   return (
-    <div className="relative mt-6 flex flex-wrap rounded-24 border border-border-subtlest-tertiary p-4 hover:bg-surface-hover focus:outline">
+    <div className="relative mt-6 flex flex-wrap rounded-16 border border-border-subtlest-tertiary p-4 hover:bg-surface-hover focus:outline">
       <AdLink ad={data} onLinkClick={onAdLinkClick} />
       <ProfilePicture
         nativeLazyLoading
