@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useEffect, useRef } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+} from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { TruncateText } from '../utilities';
 import AdLink from '../cards/ad/common/AdLink';
@@ -10,7 +16,7 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import AuthContext from '../../contexts/AuthContext';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { AdPixel } from '../cards/ad/common/AdPixel';
-import { fetchCommentAd } from '../../lib/ads';
+import { AdActions, fetchCommentAd } from '../../lib/ads';
 
 interface AdAsCommentProps {
   postId: string;
@@ -34,21 +40,28 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
   const { providerId, source, image, description, pixel, company, tagLine } =
     data || {};
 
+  const onAdAction = useCallback(
+    (action: AdActions) => {
+      logEvent(
+        adLogEvent(action, data, {
+          extra: {
+            origin: 'post page',
+          },
+        }),
+      );
+    },
+    [logEvent, data],
+  );
+
   useEffect(() => {
     if (isImpressionTracked.current || isPending || isError) {
       return;
     }
 
-    logEvent(
-      adLogEvent('impression', data, {
-        extra: {
-          origin: 'post page',
-        },
-      }),
-    );
+    onAdAction(AdActions.Impression);
 
     isImpressionTracked.current = true;
-  }, [isPending, isError, isImpressionTracked, logEvent, data]);
+  }, [isPending, isError, isImpressionTracked, onAdAction]);
 
   if (isError) {
     return null;
@@ -57,19 +70,9 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
     return <PlaceholderCommentList placeholderAmount={1} />;
   }
 
-  const onAdLinkClick = () => {
-    logEvent(
-      adLogEvent('click', data, {
-        extra: {
-          origin: 'post page',
-        },
-      }),
-    );
-  };
-
   return (
     <div className="relative mt-6 flex flex-wrap rounded-16 border border-border-subtlest-tertiary p-4 hover:bg-surface-hover focus:outline">
-      <AdLink ad={data} onLinkClick={onAdLinkClick} />
+      <AdLink ad={data} onLinkClick={() => onAdAction(AdActions.Click)} />
       <ProfilePicture
         nativeLazyLoading
         className="!inline-block"
