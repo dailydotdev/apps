@@ -2,10 +2,10 @@ import React, {
   ComponentClass,
   FunctionComponent,
   PropsWithChildren,
+  ReactElement,
   ReactHTML,
   ReactNode,
 } from 'react';
-import { ReactElement } from 'react-markdown/lib/react-markdown';
 
 type LoaderResult<P> = ComponentClass<P> | FunctionComponent<P>;
 

@@ -1,6 +1,5 @@
 import classNames from 'classnames';
-import React from 'react';
-import { ReactElement } from 'react-markdown/lib/react-markdown';
+import React, { ReactElement } from 'react';
 import { Button } from '../buttons/Button';
 import { ButtonVariant, ButtonIconPosition } from '../buttons/common';
 import { ArrowIcon } from '../icons';
