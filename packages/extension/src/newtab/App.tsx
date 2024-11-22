@@ -41,7 +41,7 @@ import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
-import { checkIsFirefox } from '@dailydotdev/shared/src/lib/func';
+import { checkIsBrowser, UserAgent } from '@dailydotdev/shared/src/lib/func';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
@@ -117,7 +117,7 @@ function InternalApp(): ReactElement {
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
   const shouldRedirectOnboarding = !user && isPageReady && !isTesting;
-  const isFirefox = checkIsFirefox();
+  const isFirefox = checkIsBrowser(UserAgent.Firefox);
 
   useEffect(() => {
     if (routeChangedCallbackRef.current && isPageReady) {

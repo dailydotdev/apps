@@ -95,14 +95,11 @@ export const sortAlphabeticallyByProperty =
 export enum UserAgent {
   Chrome = 'Chrome',
   Edge = 'Edg', // intended to be Edg, not Edge
+  Firefox = 'Firefox', // intended to be Edg, not Edge
 }
 
 export const checkIsBrowser = (agent: UserAgent): boolean =>
-  globalThis?.navigator?.userAgent?.includes(agent);
-
-export const checkIsFirefox = (): boolean =>
-  typeof globalThis?.navigator !== 'undefined' &&
-  /firefox/i.test(globalThis?.navigator.userAgent);
+  globalThis?.navigator?.userAgent?.toLowerCase().includes(agent.toLowerCase());
 
 export const checkIsChromeOnly = (): boolean =>
   checkIsBrowser(UserAgent.Chrome) && !checkIsBrowser(UserAgent.Edge);
