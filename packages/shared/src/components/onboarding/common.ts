@@ -7,6 +7,7 @@ export enum OnboardingStep {
   EditTag = 'edit_tag',
   ContentTypes = 'content_types',
   ReadingReminder = 'reading_reminder',
+  Sources = 'sources',
   Plus = 'plus',
 }
 

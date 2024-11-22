@@ -1,6 +1,12 @@
 import { apiUrl } from './config';
 import type { Ad } from '../graphql/posts';
 
+export enum AdActions {
+  Click = 'click',
+  Refresh = 'refresh',
+  Impression = 'impression',
+}
+
 export const fetchAd = async (active = false): Promise<Ad | null> => {
   const res = await fetch(`${apiUrl}/v1/a?active=${active}`);
   const ads = (await res.json()) as Ad[];
