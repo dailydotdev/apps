@@ -13,7 +13,6 @@ import PromotionalBanner from './PromotionalBanner';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import LogContext from '../contexts/LogContext';
 import SettingsContext from '../contexts/SettingsContext';
-import Toast from './notifications/Toast';
 import { useAuthErrors } from '../hooks/useAuthErrors';
 import { useAuthVerificationRecovery } from '../hooks/useAuthVerificationRecovery';
 import MainLayoutHeader, {
@@ -50,6 +49,10 @@ const Sidebar = dynamic(() =>
   import(/* webpackChunkName: "sidebar" */ './sidebar/Sidebar').then(
     (mod) => mod.Sidebar,
   ),
+);
+
+const Toast = dynamic(
+  () => import(/* webpackChunkName: "toast" */ './notifications/Toast'),
 );
 
 export interface MainLayoutProps
