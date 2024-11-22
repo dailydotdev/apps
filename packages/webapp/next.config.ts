@@ -105,6 +105,24 @@ const nextConfig: NextConfig = {
         CURRENT_VERSION: version,
       },
       rewrites: async () => {
+        if (process.env.CF_DEPLOYMENT_URL) {
+          return {
+            beforeFiles: [
+              {
+                source: '/:path*',
+                destination: `${process.env.CF_DEPLOYMENT_URL}/:path*`,
+              },
+            ],
+            afterFiles: [],
+            fallback: [
+              {
+                source: '/:path*',
+                destination: `${process.env.CF_DEPLOYMENT_URL}/:path*`,
+              },
+            ],
+          };
+        }
+
         const rewrites: Rewrite[] = [
           {
             source: '/api/sitemaps/:path*',
