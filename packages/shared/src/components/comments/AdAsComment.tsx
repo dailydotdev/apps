@@ -97,9 +97,9 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
       <div className="z-1 ml-auto flex gap-1">
         <AdRefresh
           variant={ButtonVariant.Tertiary}
-          onClick={() => {
+          onClick={async () => {
             onAdAction(AdActions.Refresh);
-            refetch();
+            await refetch();
           }}
           loading={isRefetching}
         />

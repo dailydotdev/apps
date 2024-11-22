@@ -67,9 +67,9 @@ export const AdList = forwardRef(function AdCard(
 
       <div className="z-1 flex items-center pt-2">
         <AdRefresh
-          onClick={() => {
+          onClick={async () => {
             onRefresh?.(ad);
-            refetch();
+            await refetch();
           }}
           loading={isRefetching}
         />

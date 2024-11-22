@@ -41,9 +41,9 @@ export const AdGrid = forwardRef(function AdGrid(
         <div className="flex items-center">
           <AdRefresh
             size={ButtonSize.Small}
-            onClick={() => {
+            onClick={async () => {
               onRefresh?.(ad);
-              refetch();
+              await refetch();
             }}
             loading={isRefetching}
           />
