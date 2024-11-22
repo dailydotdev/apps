@@ -31,9 +31,9 @@ const PlusCard: FC<PlusCardProps> = ({
   productOption: plan,
   onClickNext,
 }) => {
-  const isPlus = !!plan;
+  const isPaidPlan = !!plan;
   const price = plan?.price ?? '0';
-  const billingLabel = isPlus ? `Billed ${plan?.label}` : 'Free forever';
+  const billingLabel = isPaidPlan ? `Billed ${plan?.label}` : 'Free forever';
 
   return (
     <div className="mx-auto w-70 max-w-full rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
@@ -43,11 +43,11 @@ const PlusCard: FC<PlusCardProps> = ({
           className="mb-1.5"
           tag={TypographyTag.H2}
           type={TypographyType.Title3}
-          color={isPlus ? TypographyColor.Plus : TypographyColor.Primary}
+          color={isPaidPlan ? TypographyColor.Plus : TypographyColor.Primary}
         >
-          {isPlus ? 'Plus' : 'Free'}
+          {isPaidPlan ? 'Plus' : 'Free'}
         </Typography>
-        {isPlus && (
+        {isPaidPlan && (
           <Typography
             className="grid aspect-square h-8 w-8 place-content-center rounded-8 bg-surface-float"
             tag={TypographyTag.Span}
@@ -59,7 +59,7 @@ const PlusCard: FC<PlusCardProps> = ({
       </div>
       <div>
         <Typography bold tag={TypographyTag.Span} type={TypographyType.Title1}>
-          {!isPlus && currency}
+          {!isPaidPlan && currency}
           {price}
         </Typography>
         <Typography
@@ -69,7 +69,7 @@ const PlusCard: FC<PlusCardProps> = ({
           {billingLabel}
         </Typography>
       </div>
-      {!isPlus ? (
+      {!isPaidPlan ? (
         <Button
           className="my-4 block w-full"
           onClick={onClickNext}
@@ -94,7 +94,7 @@ const PlusCard: FC<PlusCardProps> = ({
       <PlusList
         className="!py-0"
         items={
-          isPlus
+          isPaidPlan
             ? ['Everything on the Free plan', ...plusFeatureList]
             : defaultFeatureList
         }
