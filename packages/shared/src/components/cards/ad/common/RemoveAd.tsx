@@ -14,11 +14,13 @@ import Link from '../../../utilities/Link';
 import { LogEvent, TargetId } from '../../../../lib/log';
 import { usePlusSubscription } from '../../../../hooks/usePlusSubscription';
 
-type Props = ButtonProps<AllowedTags>;
+type Props = { iconOnly?: boolean } & ButtonProps<AllowedTags>;
 
 export const RemoveAd = ({
   className,
   size = ButtonSize.Medium,
+  iconOnly,
+  ...props
 }: Props): ReactElement => {
   const { logSubscriptionEvent } = usePlusSubscription();
   return (
@@ -35,8 +37,9 @@ export const RemoveAd = ({
             target_id: TargetId.Ads,
           });
         }}
+        {...props}
       >
-        Remove
+        {!iconOnly ? 'Remove' : undefined}
       </Button>
     </Link>
   );
