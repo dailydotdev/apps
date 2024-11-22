@@ -46,6 +46,7 @@ import { PostClick } from '../lib/click';
 
 import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedContentPreferenceMutationSubscription';
 import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
+import type { AdActions } from '../lib/ads';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -363,7 +364,7 @@ export default function Feed<T>({
   };
 
   const onAdAction = (
-    action: 'click' | 'refresh',
+    action: Exclude<AdActions, AdActions.Impression>,
     ad: Ad,
     row: number,
     column: number,

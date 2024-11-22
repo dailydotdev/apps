@@ -27,6 +27,7 @@ import { ShareGrid } from './cards/share/ShareGrid';
 import { ShareList } from './cards/share/ShareList';
 import { CollectionGrid } from './cards/collection';
 import { UseBookmarkPost } from '../hooks/useBookmarkPost';
+import { AdActions } from '../lib/ads';
 
 const CommentPopup = dynamic(
   () =>
@@ -79,7 +80,7 @@ export type FeedItemComponentProps = {
     column: number,
   ) => unknown;
   onAdAction: (
-    action: 'click' | 'refresh',
+    action: Exclude<AdActions, AdActions.Impression>,
     ad: Ad,
     row: number,
     column: number,
@@ -277,8 +278,8 @@ export default function FeedItemComponent({
           ad={item.ad}
           index={item.index}
           feedIndex={index}
-          onLinkClick={(ad) => onAdAction('click', ad, row, column)}
-          onRefresh={(ad) => onAdAction('refresh', ad, row, column)}
+          onLinkClick={(ad) => onAdAction(AdActions.Click, ad, row, column)}
+          onRefresh={(ad) => onAdAction(AdActions.Refresh, ad, row, column)}
         />
       );
     case FeedItemType.UserAcquisition:
