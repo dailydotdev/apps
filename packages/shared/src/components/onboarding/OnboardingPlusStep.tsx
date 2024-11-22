@@ -1,164 +1,38 @@
 import React, { FC, useState } from 'react';
 import classNames from 'classnames';
+import { useViewSize, ViewSize } from '../../hooks';
+import {
+  ProductOption,
+  usePaymentContext,
+} from '../../contexts/PaymentContext';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import {
-  defaultFeatureList,
-  plusFeatureList,
-  PlusList,
-} from '../plus/PlusList';
-import { DevPlusIcon } from '../icons';
-import { IconSize } from '../Icon';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { plusUrl } from '../../lib/constants';
-import {
-  PaymentContextData,
-  ProductOption,
-  usePaymentContext,
-} from '../../contexts/PaymentContext';
-import { useViewSize, ViewSize } from '../../hooks';
+import { PlusComparingCards } from '../plus/PlusComparingCards';
 
 interface OnboardingStepProps {
   onClickNext: () => void;
 }
 
-enum OnboardingPlans {
-  Free = 'Free',
-  Plus = 'Plus',
-}
-
-interface PlanCardProps {
-  currency: string;
-  onClickNext: () => void;
-  productOption?: ProductOption;
-}
-
-const PlanCard: FC<PlanCardProps> = ({
-  currency,
-  productOption: plan,
-  onClickNext,
-}) => {
-  const isPlus = !!plan;
-  const price = plan?.price ?? '0';
-  const billingLabel = isPlus ? `Billed ${plan?.label}` : 'Free forever';
-
-  return (
-    <div className="mx-auto w-70 max-w-full rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
-      <div className="flex items-start justify-between gap-6">
-        <Typography
-          bold
-          className="mb-1.5"
-          tag={TypographyTag.H2}
-          type={TypographyType.Title3}
-          color={isPlus ? TypographyColor.Plus : TypographyColor.Primary}
-        >
-          {isPlus ? 'Plus' : 'Free'}
-        </Typography>
-        {isPlus && (
-          <Typography
-            className="grid aspect-square h-8 w-8 place-content-center rounded-8 bg-surface-float"
-            tag={TypographyTag.Span}
-            color={TypographyColor.Plus}
-          >
-            <DevPlusIcon />
-          </Typography>
-        )}
-      </div>
-      <div>
-        <Typography bold tag={TypographyTag.Span} type={TypographyType.Title1}>
-          {!isPlus && currency}
-          {price}
-        </Typography>
-        <Typography
-          color={TypographyColor.Tertiary}
-          type={TypographyType.Footnote}
-        >
-          {billingLabel}
-        </Typography>
-      </div>
-      {!isPlus ? (
-        <Button
-          className="my-4 block w-full"
-          onClick={onClickNext}
-          title="Continue without Plus"
-          variant={ButtonVariant.Secondary}
-          type="button"
-        >
-          Continue
-        </Button>
-      ) : (
-        <Button
-          className="my-4 block w-full"
-          href={plusUrl}
-          tag="a"
-          title="Upgrade to Plus"
-          variant={ButtonVariant.Primary}
-        >
-          Upgrade to Plus
-        </Button>
-      )}
-      <PlusList
-        className="!py-0"
-        items={
-          isPlus
-            ? ['Everything on the Free plan', ...plusFeatureList]
-            : defaultFeatureList
-        }
-        icon={{ size: IconSize.XSmall }}
-        text={{
-          type: TypographyType.Caption1,
-          className: 'self-center',
-        }}
-      />
-    </div>
-  );
-};
-
-const PlanCards: FC<
-  Pick<PaymentContextData, 'productOptions'> & {
-    currentIndex: number;
-    onClickNext: () => void;
-  }
-> = ({ productOptions, currentIndex, onClickNext }) => {
-  const productOption = productOptions[currentIndex];
-  const priceFirstChar = productOption.price.at(0);
-  const currency = Number.isInteger(+priceFirstChar) ? '' : priceFirstChar;
-
-  return (
-    <div className="mx-auto grid grid-cols-1 place-content-center items-start gap-6 tablet:grid-cols-2">
-      {Object.values(OnboardingPlans).map((plan) => (
-        <PlanCard
-          key={plan}
-          currency={currency}
-          productOption={
-            plan === OnboardingPlans.Plus ? productOption : undefined
-          }
-          onClickNext={onClickNext}
-        />
-      ))}
-    </div>
-  );
-};
-
-const PlusPlanSwitch: FC<{
+const PlusBillingCycleSwitch: FC<{
   productOptions: ProductOption[];
-  currentPlanIndex: number;
-  setCurrentPlanIndex: (index: number) => void;
-}> = ({ productOptions, currentPlanIndex, setCurrentPlanIndex }) => {
+  currentCycleIndex: number;
+  onChangeCycle: (index: number) => void;
+}> = ({ productOptions, currentCycleIndex, onChangeCycle }) => {
   return (
     <div className="mx-auto my-6 inline-flex gap-1 rounded-12 border border-border-subtlest-tertiary p-1 tablet:my-8">
       {productOptions.map(({ label, extraLabel }, index) => {
-        const isActive = index === currentPlanIndex;
+        const isActive = index === currentCycleIndex;
         const variant = isActive ? ButtonVariant.Float : ButtonVariant.Option;
         return (
           <Button
             className="min-w-24 justify-center"
             key={label}
-            onClick={() => setCurrentPlanIndex(index)}
+            onClick={() => onChangeCycle(index)}
             size={ButtonSize.Medium}
             variant={variant}
           >
@@ -195,7 +69,7 @@ export const OnboardingPlusStep: FC<OnboardingStepProps> = ({
   onClickNext,
 }) => {
   const { productOptions } = usePaymentContext();
-  const [currentPlanIndex, setCurrentPlanIndex] = useState<number>(0);
+  const [currentProductIndex, setCurrentProductIndex] = useState<number>(0);
   const isLaptop = useViewSize(ViewSize.Laptop);
 
   return (
@@ -220,14 +94,13 @@ export const OnboardingPlusStep: FC<OnboardingStepProps> = ({
       </header>
       {!!productOptions?.length && (
         <>
-          <PlusPlanSwitch
+          <PlusBillingCycleSwitch
             productOptions={productOptions}
-            currentPlanIndex={currentPlanIndex}
-            setCurrentPlanIndex={setCurrentPlanIndex}
+            currentCycleIndex={currentProductIndex}
+            onChangeCycle={setCurrentProductIndex}
           />
-
-          <PlanCards
-            currentIndex={currentPlanIndex}
+          <PlusComparingCards
+            currentIndex={currentProductIndex}
             productOptions={productOptions}
             onClickNext={onClickNext}
           />
