@@ -46,7 +46,10 @@ import {
   logPixelSignUp,
   Pixels,
 } from '@dailydotdev/shared/src/components/Pixels';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import {
+  feature,
+  featureOnboardingSources,
+} from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import {
   useConditionalFeature,
@@ -142,7 +145,7 @@ export function OnboardPage(): ReactElement {
   const [shouldEnrollSourceSelection, setShouldEnrollSourceSelection] =
     useState(false);
   const { value: showOnboardingSources } = useConditionalFeature({
-    feature: feature.onboardingSources,
+    feature: featureOnboardingSources,
     shouldEvaluate: shouldEnrollSourceSelection,
   });
   const isSeniorUser =
