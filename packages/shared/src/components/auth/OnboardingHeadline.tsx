@@ -34,14 +34,14 @@ export function OnboardingHeadline(
   return (
     <div>
       {pretitle && (
-        <h2
+        <p
           className={classNames(
             'font-bold text-white typo-mega3',
             className?.pretitle,
           )}
         >
           {pretitle}
-        </h2>
+        </p>
       )}
       <OnboardingTitleGradient className={classNames('mb-4', className?.title)}>
         {title}
