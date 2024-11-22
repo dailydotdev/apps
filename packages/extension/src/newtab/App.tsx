@@ -146,7 +146,7 @@ function InternalApp(): ReactElement {
       : DEFAULT_TAB_TITLE;
   }, [unreadCount]);
 
-  if (isFirefox && !isFetched) {
+  if (isFirefox) {
     if (!isFetched) {
       return null;
     }
