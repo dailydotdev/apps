@@ -4,6 +4,7 @@ import {
   useQueryClient,
   type InfiniteData,
   focusManager,
+  type QueryObserverBaseResult,
 } from '@tanstack/react-query';
 import {
   useInView,
@@ -28,6 +29,8 @@ export const useAutoRotatingAds = (
   ref: InViewRef,
 ): {
   ref: InViewRef;
+  refetch: QueryObserverBaseResult<Ad>['refetch'];
+  isRefetching: QueryObserverBaseResult<Ad>['isRefetching'];
 } => {
   const autorotateAds = useFeature(featureAutorotateAds);
   const { logEventEnd } = useLogContext();
@@ -75,7 +78,7 @@ export const useAutoRotatingAds = (
     return newAd;
   }, [feedIndex, index, logEventEnd, queryClient, queryKey]);
 
-  useQuery<Ad>({
+  const { refetch, isRefetching } = useQuery<Ad>({
     queryKey: [...queryKey, index],
     queryFn: fetchNewAd,
     enabled: !!autorotateAds,
@@ -110,5 +113,5 @@ export const useAutoRotatingAds = (
     });
   }, []);
 
-  return { ref: refs };
+  return { ref: refs, refetch, isRefetching };
 };
