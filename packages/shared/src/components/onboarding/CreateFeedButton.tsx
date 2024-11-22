@@ -25,6 +25,7 @@ export const CreateFeedButton = ({
   const { selectedSettings, checkSourceBlocked } = useAdvancedSettings();
 
   const contentTypeStep = activeScreen === OnboardingStep.ContentTypes;
+  const sourceStep = activeScreen === OnboardingStep.Sources;
 
   const contentTypeNotEmpty =
     !!getContentTypeNotEmpty({
@@ -39,7 +40,7 @@ export const CreateFeedButton = ({
     tagsCount >= REQUIRED_TAGS_THRESHOLD &&
     activeScreen === OnboardingStep.EditTag;
 
-  const canCreateFeed = tagsCountMatch || contentTypeNotEmpty;
+  const canCreateFeed = tagsCountMatch || contentTypeNotEmpty || sourceStep;
   const { sidebarRendered } = useSidebarRendered();
   const buttonName =
     customActionName ??

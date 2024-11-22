@@ -39,6 +39,12 @@ export const OnboardingHeader = ({
     return isLaptop ? cloudinaryFeedBgLaptop : cloudinaryFeedBgTablet;
   };
 
+  const showButtonOnScreens: Partial<OnboardingStep[]> = [
+    OnboardingStep.EditTag,
+    OnboardingStep.ContentTypes,
+    OnboardingStep.Sources,
+  ];
+
   if (activeScreen !== OnboardingStep.Intro) {
     return (
       <header className="sticky top-0 z-3 mb-10 flex w-full justify-center backdrop-blur-sm">
@@ -53,8 +59,7 @@ export const OnboardingHeader = ({
             position={LogoPosition.Relative}
             linkDisabled
           />
-          {(activeScreen === OnboardingStep.EditTag ||
-            activeScreen === OnboardingStep.ContentTypes) && (
+          {showButtonOnScreens.includes(activeScreen) && (
             <CreateFeedButton
               onClick={onClickCreateFeed}
               customActionName={customActionName}
