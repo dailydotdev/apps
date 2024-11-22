@@ -22,7 +22,7 @@ import { IconSize } from '../../Icon';
 import useFeedSettings from '../../../hooks/useFeedSettings';
 import useTagAndSource from '../../../hooks/useTagAndSource';
 
-const placeholderSources = new Array(10).fill(null).map((_, index) => index);
+const placeholderSources = new Array(5).fill(null).map((_, index) => index);
 
 export const Sources = (): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -172,7 +172,7 @@ export const Sources = (): ReactElement => {
         >
           {isPending &&
             placeholderSources.map((item) => (
-              <ElementPlaceholder key={item} className="h-10 rounded-12">
+              <ElementPlaceholder key={item} className="h-16 w-full rounded-12">
                 <span className="invisible">{item}</span>
               </ElementPlaceholder>
             ))}
