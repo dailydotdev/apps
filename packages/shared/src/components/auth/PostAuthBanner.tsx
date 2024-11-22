@@ -11,20 +11,41 @@ import { sizeClasses } from '../ProfilePicture';
 import { Image, ImageType } from '../image/Image';
 import { useConditionalFeature } from '../../hooks';
 import { IconSize } from '../Icon';
-import { socialCTA, socialGradient, socialIcon } from '../../lib/socialMedia';
+import {
+  getSocialReferrer,
+  socialCTA,
+  socialGradient,
+  socialIcon,
+} from '../../lib/socialMedia';
 import { capitalize } from '../../lib/strings';
+import { useAuthContext } from '../../contexts/AuthContext';
 
-/**
- * NOTE! document.referrer does not contain a referrer on localhost
- */
-const getSocialReferrer = (): string | null => {
-  if (!document.referrer) {
-    return null;
-  }
+const geoToEmoji = (geo: string): string => {
+  return geo
+    .toUpperCase()
+    .split('')
+    .map((char) => String.fromCodePoint(char.charCodeAt(0) + 0x1f1a5))
+    .join('');
+};
 
-  const url = new URL(document.referrer);
-  const host = url.hostname.replace(/^www\./, '').split('.')[0];
-  return ['reddit', 'x'].includes(host) ? host : null;
+const GeoPersonalizedBanner = ({ geo }: { geo: string }): ReactElement => {
+  const emoji = geoToEmoji(geo);
+  const displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
+  const country = displayNames.of(geo.toUpperCase());
+
+  return (
+    <AuthenticationBanner>
+      <span className="text-[3.5rem] leading-none">{emoji}</span>
+      <OnboardingHeadline
+        className={{
+          title: `typo-mega3`,
+          description: 'mb-8 typo-title3',
+        }}
+        title={`daily.dev is the fastest growing developer platform in ${country}!`}
+        description="We know how hard it is to be a developer. It doesn't have to be. Personalized news feed, dev community and search, much better than what's out there. Maybe ;)"
+      />
+    </AuthenticationBanner>
+  );
 };
 
 const SocialPersonalizedBanner = ({ site }: { site: string }): ReactElement => {
@@ -32,7 +53,7 @@ const SocialPersonalizedBanner = ({ site }: { site: string }): ReactElement => {
   const gradient = socialGradient[site];
   return (
     <AuthenticationBanner>
-      <Icon size={IconSize.XXLarge} />
+      <Icon size={IconSize.XXLarge} secondary={site === 'reddit'} />
       <OnboardingHeadline
         className={{
           title: `typo-mega3 ${gradient}`,
@@ -59,6 +80,8 @@ const UserPersonalizedBanner = ({
     return <AuthenticationBanner />;
   }
 
+  const name = user?.name ? user?.name.split(' ')[0] : user?.username;
+
   return (
     <AuthenticationBanner>
       {user?.image && (
@@ -73,9 +96,7 @@ const UserPersonalizedBanner = ({
         className={{ title: 'typo-mega3', description: 'mb-8 typo-title3' }}
         pretitle={user?.username}
         title="shared it, so it's probably a good one."
-        description={`Be like ${
-          user?.name.split(' ')[0]
-        }, join daily.dev. There is a lot more content waiting for you inside!`}
+        description={`Be like ${name}, join daily.dev. There is a lot more content waiting for you inside!`}
       />
     </AuthenticationBanner>
   );
@@ -83,6 +104,7 @@ const UserPersonalizedBanner = ({
 
 export const PostAuthBanner = (): ReactElement => {
   const searchParams = useSearchParams();
+  const { geo } = useAuthContext();
   const isCompatibleBrowser =
     (checkIsBrowser(UserAgent.Chrome) || checkIsBrowser(UserAgent.Edge)) &&
     !checkIsExtension();
@@ -92,20 +114,30 @@ export const PostAuthBanner = (): ReactElement => {
     shouldEvaluate: isCompatibleBrowser,
   });
 
+  const { value: showPersonalizedBanner } = useConditionalFeature({
+    feature: feature.postPersonalizedBanner,
+    shouldEvaluate: isCompatibleBrowser,
+  });
+
   if (showExtensionCTA) {
     return <AuthExtensionBanner />;
   }
 
-  const userId = searchParams.get('userid');
+  if (showPersonalizedBanner) {
+    const userId = searchParams.get('userid');
 
-  if (userId) {
-    return <UserPersonalizedBanner userId={userId} />;
+    if (userId) {
+      return <UserPersonalizedBanner userId={userId} />;
+    }
+
+    const social = getSocialReferrer();
+    if (social) {
+      return <SocialPersonalizedBanner site={social} />;
+    }
+
+    if (geo?.region) {
+      return <GeoPersonalizedBanner geo={geo.region} />;
+    }
   }
-
-  const social = getSocialReferrer();
-  if (social) {
-    return <SocialPersonalizedBanner site={social} />;
-  }
-
   return <AuthenticationBanner />;
 };

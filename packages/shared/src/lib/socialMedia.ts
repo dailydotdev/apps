@@ -1,6 +1,6 @@
 import { type ComponentType } from 'react';
 import { RedditIcon } from '../components/icons';
-import { XIcon } from '../components/icons/X';
+import { TwitterIcon } from '../components/icons/Twitter';
 import type { IconProps } from '../components/Icon';
 
 export enum SocialIconType {
@@ -10,7 +10,7 @@ export enum SocialIconType {
 
 export const socialIcon: Record<SocialIconType, ComponentType<IconProps>> = {
   [SocialIconType.Reddit]: RedditIcon,
-  [SocialIconType.X]: XIcon,
+  [SocialIconType.X]: TwitterIcon,
 };
 
 export const socialGradient = {
@@ -29,4 +29,17 @@ export const socialCTA = {
     description:
       "Now imagine a place where tech content is served fresh, minus the endless scrolls of cat memes (unless you're into that).",
   },
+};
+
+/**
+ * NOTE! document.referrer does not contain a referrer on localhost
+ */
+export const getSocialReferrer = (): string | null => {
+  if (!document.referrer) {
+    return null;
+  }
+
+  const url = new URL(document.referrer);
+  const host = url.hostname.replace(/^www\./, '').split('.')[0];
+  return ['reddit', 'x'].includes(host) ? host : null;
 };
