@@ -14,7 +14,7 @@ export const socialIcon: Record<SocialIconType, ComponentType<IconProps>> = {
 };
 
 export const socialGradient = {
-  reddit: 'bg-gradient-to-r !from-[#FF4500] !to-[#FF6B00]',
+  reddit: 'bg-gradient-to-r from-[#FF4500] to-[#FF6B00]',
 };
 
 export const socialCTA = {

@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { OnboardingTitleGradient } from '../onboarding/common';
+import { OnboardingGradientClasses } from '../onboarding/common';
 
 interface ClassName {
   pretitle?: string;
@@ -43,10 +43,14 @@ export function OnboardingHeadline(
           {pretitle}
         </p>
       )}
-      <OnboardingTitleGradient className={classNames('mb-4', className?.title)}>
+      <h1
+        className={classNames(
+          `mb-4 ${OnboardingGradientClasses}`,
+          className?.title,
+        )}
+      >
         {title}
-      </OnboardingTitleGradient>
-
+      </h1>
       <h2 className={className?.description}>{description}</h2>
     </div>
   );
