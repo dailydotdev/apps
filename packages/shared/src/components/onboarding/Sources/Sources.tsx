@@ -36,7 +36,7 @@ export const Sources = (): ReactElement => {
     origin: Origin.Onboarding,
   });
 
-  const selectedTags = feedSettings?.includeTags || ['webdev'];
+  const selectedTags = feedSettings?.includeTags || [];
 
   const selectedSources = useMemo(() => {
     return feedSettings?.includeSources.map(({ id }) => id);
