@@ -42,7 +42,7 @@ const PlanCard: FC<PlanCardProps> = ({
   onClickNext,
 }) => {
   const isPlus = !!plan;
-  const price = plan?.price || '0';
+  const price = plan?.price ?? '0';
   const billingLabel = isPlus ? `Billed ${plan?.label}` : 'Free forever';
 
   return (
@@ -69,7 +69,7 @@ const PlanCard: FC<PlanCardProps> = ({
       </div>
       <div>
         <Typography bold tag={TypographyTag.Span} type={TypographyType.Title1}>
-          {currency}
+          {!isPlus && currency}
           {price}
         </Typography>
         <Typography
@@ -124,7 +124,8 @@ const PlanCards: FC<
   }
 > = ({ productOptions, currentIndex, onClickNext }) => {
   const productOption = productOptions[currentIndex];
-  const currency = productOption.currencyCode;
+  const priceFirstChar = productOption.price.at(0);
+  const currency = Number.isInteger(+priceFirstChar) ? '' : priceFirstChar;
 
   return (
     <div className="mx-auto grid grid-cols-1 place-content-center items-start gap-6 laptop:grid-cols-2">
