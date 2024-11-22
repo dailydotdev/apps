@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useActiveFeedNameContext } from '../../contexts';
 import { useMutationSubscription } from '../mutationSubscription';
 import {
@@ -7,6 +7,7 @@ import {
   createVoteMutationKey,
 } from '../vote';
 import { Post, UserVote } from '../../graphql/posts';
+import { useBookmarkReminderCover } from '../bookmark/useBookmarkReminderCover';
 
 interface UsePostShareLoop {
   shouldShowOverlay: boolean;
@@ -19,7 +20,7 @@ export const usePostShareLoop = (post: Post): UsePostShareLoop => {
   const [justUpvoted, setJustUpvoted] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
   const shouldShowOverlay = justUpvoted && !hasInteracted;
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const shouldShowReminder = useBookmarkReminderCover(post);
   const [lastInteraction, setLastInteraction] = useState<
     'upvote' | 'bookmark' | null
   >(null);
@@ -50,26 +51,24 @@ export const usePostShareLoop = (post: Post): UsePostShareLoop => {
     },
   });
 
-  useMemo(() => {
-    const bookmarked = post?.bookmarked;
-    setIsBookmarked(!!bookmarked);
-    if (bookmarked) {
+  useEffect(() => {
+    if (shouldShowReminder) {
       setLastInteraction('bookmark');
     }
-  }, [post?.bookmarked]);
+  }, [shouldShowReminder]);
 
   const currentInteraction = useMemo(() => {
-    if (justUpvoted && isBookmarked) {
+    if (justUpvoted && shouldShowReminder) {
       return lastInteraction;
     }
     if (justUpvoted) {
       return 'upvote';
     }
-    if (isBookmarked) {
+    if (shouldShowReminder) {
       return 'bookmark';
     }
     return null;
-  }, [justUpvoted, isBookmarked, lastInteraction]);
+  }, [justUpvoted, shouldShowReminder, lastInteraction]);
 
   return {
     shouldShowOverlay,
