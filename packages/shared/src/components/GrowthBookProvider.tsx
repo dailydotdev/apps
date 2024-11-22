@@ -26,6 +26,7 @@ import { apiUrl } from '../lib/config';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
 import { feature as localFeature, Feature } from '../lib/featureManagement';
 import { useViewSize, ViewSize } from '../hooks/useViewSize';
+import { withCredentials } from '../lib/withCredentials';
 
 const ServerError = dynamic(
   () => import(/* webpackChunkName: "serverError" */ './errors/ServerError'),
@@ -81,7 +82,7 @@ export const GrowthBookProvider = ({
           experiment_id: data.experimentId,
           variation_id: data.variationId,
         }),
-        credentials: 'include',
+        credentials: withCredentials('include'),
         headers: {
           'content-type': 'application/json',
         },

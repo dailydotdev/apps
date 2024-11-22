@@ -8,6 +8,7 @@ import { Squad } from '../graphql/sources';
 import { decrypt } from '../components/crypto';
 import { MarketingCta } from '../components/marketingCta/common';
 import { Feed } from '../graphql/feed';
+import { withCredentials } from './withCredentials';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;
@@ -94,7 +95,7 @@ export async function getBootData(app: string, url?: string): Promise<Boot> {
 
   const res = await fetch(`${apiUrl}/boot${appRoute}?${params}`, {
     method: 'GET',
-    credentials: 'include',
+    credentials: withCredentials('include'),
     headers: { app, 'Content-Type': 'application/json' },
   });
   const result = await res.json();

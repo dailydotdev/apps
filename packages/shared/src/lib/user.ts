@@ -8,6 +8,7 @@ import {
 import type { Company } from './userCompany';
 import type { ContentPreference } from '../graphql/contentPreference';
 import type { TopReader } from '../components/badges/TopReaderBadge';
+import { withCredentials } from './withCredentials';
 
 export enum Roles {
   Moderator = 'moderator',
@@ -152,14 +153,14 @@ export async function logout(reason: string): Promise<void> {
   const urlParams = reason ? `?${new URLSearchParams({ reason })}` : '';
   await fetch(`${apiUrl}/v1/users/logout${urlParams}`, {
     method: 'POST',
-    credentials: 'include',
+    credentials: withCredentials('include'),
   });
 }
 
 export async function deleteAccount(): Promise<void> {
   await fetch(`${apiUrl}/v1/users/me`, {
     method: 'DELETE',
-    credentials: 'include',
+    credentials: withCredentials('include'),
   });
 }
 
@@ -175,7 +176,7 @@ const getProfileRequest = async (method = fetch, id: string) => {
         id,
       },
     }),
-    credentials: 'include',
+    credentials: withCredentials('include'),
   });
   if (userRes.status === 404) {
     throw new Error('not found');
@@ -200,7 +201,7 @@ const getProfileV2ExtraRequest = async (
         id,
       },
     }),
-    credentials: 'include',
+    credentials: withCredentials('include'),
   });
   if (userRes.status === 404) {
     throw new Error('not found');

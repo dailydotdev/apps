@@ -4,6 +4,7 @@ import {
   useMutation,
 } from '@tanstack/react-query';
 import { HttpError } from '../lib/errors';
+import { withCredentials } from '../lib/withCredentials';
 
 export enum Automation {
   Roaster = 'roaster',
@@ -28,7 +29,7 @@ export function useAutomation<
       const url = `${process.env.NEXT_PUBLIC_API_URL}/auto/${name}`;
       const res = await fetch(url, {
         method: 'POST',
-        credentials: 'include',
+        credentials: withCredentials('include'),
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(vars),
         keepalive: true,
