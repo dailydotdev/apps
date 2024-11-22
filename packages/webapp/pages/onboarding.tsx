@@ -322,7 +322,7 @@ export function OnboardPage(): ReactElement {
               <OnboardingHeadline
                 className={{
                   title: 'tablet:typo-mega-1 typo-large-title',
-                  description: 'typo-body tablet:typo-title2',
+                  description: 'mb-8 typo-body tablet:typo-title2',
                 }}
               />
               <AuthOptions {...authOptionProps} />
