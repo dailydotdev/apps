@@ -362,20 +362,14 @@ export default function Feed<T>({
     }
   };
 
-  const onAdClick = (ad: Ad, row: number, column: number) => {
+  const onAdAction = (
+    action: 'click' | 'refresh',
+    ad: Ad,
+    row: number,
+    column: number,
+  ) => {
     logEvent(
-      adLogEvent('click', ad, {
-        columns: virtualizedNumCards,
-        column,
-        row,
-        ...feedLogExtra(feedName, ranking),
-      }),
-    );
-  };
-
-  const onAdRefresh = (ad: Ad, row: number, column: number) => {
-    logEvent(
-      adLogEvent('refresh', ad, {
+      adLogEvent(action, ad, {
         columns: virtualizedNumCards,
         column,
         row,
@@ -460,8 +454,7 @@ export default function Feed<T>({
                 onMenuClick={onMenuClick}
                 onCopyLinkClick={onCopyLinkClickLogged}
                 onCommentClick={onCommentClick}
-                onAdClick={onAdClick}
-                onAdRefresh={onAdRefresh}
+                onAdAction={onAdAction}
                 onReadArticleClick={onReadArticleClick}
               />
             ))}

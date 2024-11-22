@@ -78,8 +78,12 @@ export type FeedItemComponentProps = {
     row: number,
     column: number,
   ) => unknown;
-  onAdClick: (ad: Ad, row: number, column: number) => void;
-  onAdRefresh: (ad: Ad, row: number, column: number) => void;
+  onAdAction: (
+    action: 'click' | 'refresh',
+    ad: Ad,
+    row: number,
+    column: number,
+  ) => void;
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'> &
   Pick<UseBookmarkPost, 'toggleBookmark'>;
 
@@ -160,8 +164,7 @@ export default function FeedItemComponent({
   toggleBookmark,
   onMenuClick,
   onCommentClick,
-  onAdClick,
-  onAdRefresh,
+  onAdAction,
   onReadArticleClick,
 }: FeedItemComponentProps): ReactElement {
   const inViewRef = useLogImpression(
@@ -274,8 +277,8 @@ export default function FeedItemComponent({
           ad={item.ad}
           index={item.index}
           feedIndex={index}
-          onLinkClick={(ad) => onAdClick(ad, row, column)}
-          onRefresh={(ad) => onAdRefresh(ad, row, column)}
+          onLinkClick={(ad) => onAdAction('click', ad, row, column)}
+          onRefresh={(ad) => onAdAction('refresh', ad, row, column)}
         />
       );
     case FeedItemType.UserAcquisition:
