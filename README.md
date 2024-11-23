@@ -62,7 +62,7 @@ contains a collection of smaller projects or libraries that are used across the 
   The web app project. This is a Next.js project and has more pages than the extension, such as a registration page, post page, profile page, etc. For more information [click here](https://github.com/dailydotdev/apps/tree/master/packages/webapp).
 
 ## Local Environment
-  To spin up a local environment, we suggest using GitPod. We have a GitPod button above, everything is already configured and should work out of the box. click on it and let's roll!
+  To spin up a local environment, we suggest using GitPod. We have a GitPod button above, everything is already configured and should work out of the box. Click on it and let's roll!
 
   **Note:** Checkout getting started with gitPod using their [official docs](https://www.gitpod.io/docs/introduction/getting-started). If you're new to gitPod, don't worry, it's a simple and powerful tool that will help you get started with this project in no time.
 
