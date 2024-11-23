@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
+import classNames from 'classnames';
 import { feature } from '../../lib/featureManagement';
 import { checkIsBrowser, checkIsExtension, UserAgent } from '../../lib/func';
 import { AuthExtensionBanner } from './AuthExtensionBanner';
@@ -16,6 +17,7 @@ import {
   socialCTA,
   socialGradient,
   socialIcon,
+  type SocialIconType,
 } from '../../lib/socialMedia';
 import { capitalize } from '../../lib/strings';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -48,7 +50,11 @@ const GeoPersonalizedBanner = ({ geo }: { geo: string }): ReactElement => {
   );
 };
 
-const SocialPersonalizedBanner = ({ site }: { site: string }): ReactElement => {
+const SocialPersonalizedBanner = ({
+  site,
+}: {
+  site: SocialIconType;
+}): ReactElement => {
   const Icon = socialIcon[site];
   const gradient = socialGradient[site];
   return (
@@ -56,7 +62,7 @@ const SocialPersonalizedBanner = ({ site }: { site: string }): ReactElement => {
       <Icon size={IconSize.XXLarge} secondary={site === 'reddit'} />
       <OnboardingHeadline
         className={{
-          title: `typo-mega3 ${gradient}`,
+          title: classNames('typo-mega3', gradient),
           description: 'mb-8 typo-title3',
         }}
         pretitle={`Coming from ${capitalize(site)}?`}

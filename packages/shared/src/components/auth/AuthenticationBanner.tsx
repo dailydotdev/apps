@@ -1,4 +1,4 @@
-import React, { ReactElement, type ReactNode } from 'react';
+import React, { ReactElement, type PropsWithChildren } from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
 import { OnboardingHeadline } from './OnboardingHeadline';
@@ -17,12 +17,9 @@ import {
 
 const Section = classed('div', 'flex flex-col');
 
-type AuthenticationBannerProps = {
-  children?: ReactNode | ReactNode[];
-};
 export function AuthenticationBanner({
   children,
-}: AuthenticationBannerProps): ReactElement {
+}: PropsWithChildren): ReactElement {
   const { showLogin } = useAuthContext();
 
   return (
@@ -39,8 +36,7 @@ export function AuthenticationBanner({
         sizes="(max-width: 1440px) 100vw, (max-width: 1920px) 1920px, 100vw"
       />
       <Section className="w-[32.5rem] gap-4">
-        {children}
-        {!children && (
+        {children || (
           <OnboardingHeadline
             className={{
               title: 'typo-mega3',

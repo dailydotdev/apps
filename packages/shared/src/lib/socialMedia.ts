@@ -34,7 +34,7 @@ export const socialCTA = {
 /**
  * NOTE! document.referrer does not contain a referrer on localhost
  */
-export const getSocialReferrer = (): string | null => {
+export const getSocialReferrer = (): SocialIconType | null => {
   if (!document.referrer) {
     return null;
   }
@@ -43,10 +43,10 @@ export const getSocialReferrer = (): string | null => {
   const host = url.hostname;
 
   if (host.includes('reddit.')) {
-    return 'reddit';
+    return SocialIconType.Reddit;
   }
   if (host.includes('x.') || host.includes('twitter.')) {
-    return 'x';
+    return SocialIconType.X;
   }
   return null;
 };

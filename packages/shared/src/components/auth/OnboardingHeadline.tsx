@@ -20,19 +20,14 @@ const defaultDescription = `We know how hard it is to be a developer. It doesn't
         Personalized news feed, dev community and search, much better than
         what's out there. Maybe ;)`;
 
-export function OnboardingHeadline(
-  {
-    pretitle,
-    title = defaultTitle,
-    description = defaultDescription,
-    className,
-  }: OnboardingHeadlineProps = {
-    title: defaultTitle,
-    description: defaultDescription,
-  },
-): ReactElement {
+export function OnboardingHeadline({
+  pretitle,
+  title = defaultTitle,
+  description = defaultDescription,
+  className,
+}: OnboardingHeadlineProps): ReactElement {
   return (
-    <div>
+    <div className="flex flex-col">
       {pretitle && (
         <p
           className={classNames(
