@@ -64,7 +64,7 @@ contains a collection of smaller projects or libraries that are used across the 
 ## Local Environment
   To spin up a local environment, we suggest using GitPod. We have a GitPod button above, everything is already configured and should work out of the box. Click on it and let's roll!
 
-  **Note:** Checkout getting started with gitPod using their [official docs](https://www.gitpod.io/docs/introduction/getting-started). If you're new to gitPod, don't worry, it's a simple and powerful tool that will help you get started with this project in no time.
+  **Note:** Checkout getting started with GitPod using their [official docs](https://www.gitpod.io/docs/introduction/getting-started). If you're new to gitPod, don't worry, it's a simple and powerful tool that will help you get started with this project in no time.
 
 
 ## Want to Help?
