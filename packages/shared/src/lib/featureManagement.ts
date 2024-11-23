@@ -1,6 +1,5 @@
 import { JSONValue } from '@growthbook/growthbook';
 import { ShortcutsUIExperiment } from './featureValues';
-import { SearchStyleVersion } from '../components/fields/SearchField';
 import {
   cloudinaryOnboardingFullBackgroundDesktop,
   cloudinaryOnboardingFullBackgroundMobile,
@@ -32,16 +31,28 @@ const feature = {
   shortcutsUI: new Feature('shortcuts_ui', ShortcutsUIExperiment.Control),
   showRoadmap: new Feature('show_roadmap', true),
   onboardingChecklist: new Feature('onboarding_checklist', true),
-  searchUsers: new Feature('search_users', false),
   showCodeSnippets: new Feature('show_code_snippets', false),
-  searchPlaceholder: new Feature('search_placeholder', 'Search'),
-  onboardingShuffleTags: new Feature('onboarding_shuffle_tags', false),
-  searchStyleVersion: new Feature(
-    'search_style_version',
-    SearchStyleVersion.Default,
-  ),
-  extensionOverlay: new Feature('onboarding_extension_overlay', false),
   seniorContentOnboarding: new Feature('senior_content_onboarding', false),
+  postBannerExtensionPrompt: new Feature('post_banner_extension_prompt', false),
+  plusSubscription: new Feature('plus_subscription', false),
+  feedPageSizes: new Feature('feed_page_sizes', {
+    default: 7,
+    tablet: 9,
+    laptop: 13,
+    laptopL: 17,
+    laptopXL: 21,
+    desktop: 25,
+  }),
+  pricingIds: new Feature('pricing_ids', {
+    pri_01jbsccbdbcwyhdy8hy3c2etyn: 'monthly',
+    pri_01jbscda57910yvwjtyapnrrzc: 'yearly',
+  }),
 };
+
+export const featureAutorotateAds = new Feature('autorotate_ads', 0);
+export const featureOnboardingSources = new Feature(
+  'onboarding_sources',
+  false,
+);
 
 export { feature };

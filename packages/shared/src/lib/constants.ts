@@ -58,6 +58,9 @@ export const isChrome = (): boolean =>
 
 export const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL;
 export const onboardingUrl = `${webappUrl}onboarding`;
+export const plusUrl = `${webappUrl}plus`;
+export const managePlusUrl = 'https://r.daily.dev/billing';
+export const plusSuccessUrl = `${webappUrl}plus/success`;
 
 export const authUrl =
   process.env.NEXT_PUBLIC_AUTH_URL || 'http://127.0.0.1:4433';
@@ -68,6 +71,7 @@ export const heimdallUrl = isDevelopment
 export const bookmarkLoops = 'https://r.daily.dev/bookmarkloops';
 export const migrateUserToStreaks = 'https://r.daily.dev/streaks';
 export const topReaderBadgeDocs = 'https://r.daily.dev/top-reader-badge';
+export const plusInfo = 'https://r.daily.dev/plus';
 
 export const squadCategoriesPaths = {
   'My Squads': '/squads/discover/my',

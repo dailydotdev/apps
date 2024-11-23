@@ -2,6 +2,7 @@ import React, { ReactElement } from 'react';
 import { PageHeader, PageHeaderTitle } from './common';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
+import { TypographyType } from '../typography/Typography';
 
 interface DefaultSquadHeaderProps {
   onClick?: () => void;
@@ -19,7 +20,9 @@ export function DefaultSquadHeader({
         variant={ButtonVariant.Tertiary}
         icon={<ArrowIcon className="-rotate-90" />}
       />
-      <PageHeaderTitle className="typo-title3">Squad settings</PageHeaderTitle>
+      <PageHeaderTitle bold type={TypographyType.Title3}>
+        Squad settings
+      </PageHeaderTitle>
     </PageHeader>
   );
 }

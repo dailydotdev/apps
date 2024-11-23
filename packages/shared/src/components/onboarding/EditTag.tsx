@@ -2,16 +2,13 @@ import React, { ReactElement, useState } from 'react';
 import { FeedPreviewControls } from '../feeds';
 import { OnboardingStep, REQUIRED_TAGS_THRESHOLD } from './common';
 import { Origin } from '../../lib/log';
-import FeedLayout from '../FeedLayout';
 import Feed from '../Feed';
 import { OtherFeedPage, RequestKey } from '../../lib/query';
 import { PREVIEW_FEED_QUERY } from '../../graphql/feed';
 import { FeedSettings } from '../../graphql/feedSettings';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
 import { CreateFeedButton } from './CreateFeedButton';
 import { TagSelection } from '../tags/TagSelection';
-import { SearchStyleVersion } from '../fields/SearchField';
+import { FeedLayoutProvider } from '../../contexts/FeedContext';
 
 interface EditTagProps {
   feedSettings: FeedSettings;
@@ -30,21 +27,13 @@ export const EditTag = ({
   const [isPreviewVisible, setPreviewVisible] = useState(false);
   const tagsCount = feedSettings?.includeTags?.length || 0;
   const isPreviewEnabled = tagsCount >= REQUIRED_TAGS_THRESHOLD;
-  const shouldShuffleTags = useFeature(feature.onboardingShuffleTags);
-  const searchStyleVersion = useFeature(
-    feature.searchStyleVersion,
-  ) as SearchStyleVersion;
 
   return (
     <>
       <h2 className="text-center font-bold typo-large-title">
         Pick tags that are relevant to you
       </h2>
-      <TagSelection
-        className="mt-10 max-w-4xl"
-        shouldShuffleTags={shouldShuffleTags}
-        searchStyleVersion={searchStyleVersion}
-      />
+      <TagSelection className="mt-10 max-w-4xl" />
       <FeedPreviewControls
         isOpen={isPreviewVisible}
         isDisabled={!isPreviewEnabled}
@@ -53,7 +42,7 @@ export const EditTag = ({
         onClick={setPreviewVisible}
       />
       {isPreviewEnabled && isPreviewVisible && (
-        <FeedLayout>
+        <FeedLayoutProvider>
           <p className="-mb-4 mt-6 text-center text-text-secondary typo-body">
             Change your tag selection until you&apos;re happy with your feed
             preview.
@@ -73,7 +62,7 @@ export const EditTag = ({
             customActionName={customActionName}
             activeScreen={activeScreen}
           />
-        </FeedLayout>
+        </FeedLayoutProvider>
       )}
     </>
   );

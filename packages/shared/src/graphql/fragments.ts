@@ -29,6 +29,8 @@ export const USER_SHORT_INFO_FRAGMENT = gql`
       name
       image
     }
+    isPlus
+    plusMemberSince
   }
 `;
 
@@ -330,6 +332,7 @@ export const USER_STREAK_FRAGMENT = gql`
     total
     current
     lastViewAt
+    lastViewAtTz
     weekStart
   }
 `;

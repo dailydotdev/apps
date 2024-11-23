@@ -3,10 +3,10 @@ import { useRouter } from 'next/router';
 import MainLayout, {
   MainLayoutProps,
 } from '@dailydotdev/shared/src/components/MainLayout';
-import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
+import { FeedLayoutProvider } from '@dailydotdev/shared/src/contexts/FeedContext';
 import { getLayout as getFooterNavBarLayout } from './FooterNavBarLayout';
 
-export default FeedLayout;
+export default FeedLayoutProvider;
 
 export const getLayout = (
   page: ReactNode,
@@ -18,7 +18,7 @@ export const getLayout = (
   const router = useRouter();
   return getFooterNavBarLayout(
     <MainLayout {...layoutProps} activePage={router?.asPath}>
-      <FeedLayout>{page}</FeedLayout>
+      <FeedLayoutProvider>{page}</FeedLayoutProvider>
     </MainLayout>,
   );
 };

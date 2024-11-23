@@ -47,6 +47,7 @@ export interface SidebarMenuItem {
     text?: string;
   };
   navItemRef?: MutableRefObject<HTMLElement>;
+  color?: string;
 }
 
 interface ListIconProps {
