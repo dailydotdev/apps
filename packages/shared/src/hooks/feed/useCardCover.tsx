@@ -5,7 +5,6 @@ import { CardCoverShare } from '../../components/cards/common/CardCoverShare';
 import { CardCoverContainer } from '../../components/cards/common/CardCoverContainer';
 import { PostReminderOptions } from '../../components/post/common/PostReminderOptions';
 import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
-import { useBookmarkReminderCover } from '../bookmark/useBookmarkReminderCover';
 
 interface UseCardCover {
   overlay: ReactNode;
@@ -26,9 +25,12 @@ export const useCardCover = ({
   onShare,
   className = {},
 }: UseCardCoverProps): UseCardCover => {
-  const { shouldShowOverlay, onInteract, currentInteraction } =
-    usePostShareLoop(post);
-  const shouldShowReminder = useBookmarkReminderCover(post);
+  const {
+    shouldShowOverlay,
+    onInteract,
+    currentInteraction,
+    shouldShowReminder,
+  } = usePostShareLoop(post);
 
   const overlay = useMemo(() => {
     if (shouldShowOverlay && onShare && currentInteraction === 'upvote') {

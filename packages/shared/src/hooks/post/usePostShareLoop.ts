@@ -13,6 +13,7 @@ interface UsePostShareLoop {
   shouldShowOverlay: boolean;
   onInteract: () => void;
   currentInteraction: 'upvote' | 'bookmark' | null;
+  shouldShowReminder: boolean;
 }
 
 export const usePostShareLoop = (post: Post): UsePostShareLoop => {
@@ -74,5 +75,6 @@ export const usePostShareLoop = (post: Post): UsePostShareLoop => {
     shouldShowOverlay,
     onInteract: useCallback(() => setHasInteracted(true), []),
     currentInteraction,
+    shouldShowReminder,
   };
 };
