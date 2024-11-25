@@ -63,7 +63,7 @@ export default function useShortcutLinks(): UseShortcutLinks {
     !isOldUser && hasNoShortcuts && !hasCompletedFirstSession;
 
   const resetSelected = () => {
-    const isResetManual = !(topSites !== undefined && !hasCustomLinks);
+    const isResetManual = topSites === undefined || !!hasCustomLinks
     setIsManual(isResetManual);
   };
 
