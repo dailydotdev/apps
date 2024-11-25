@@ -103,10 +103,10 @@ export const GrowthBookProvider = ({
 
   useEffect(() => {
     if (gb && experimentation?.features) {
-      const currentFeats = gb.getFeatures();
+      const currentFeats = gb.getFeatures?.();
       // Do not update when the features are already set
       if (!currentFeats || !Object.keys(currentFeats).length) {
-        gb.setFeatures(experimentation.features);
+        gb.setFeatures?.(experimentation.features);
         setReady(true);
       }
     }
