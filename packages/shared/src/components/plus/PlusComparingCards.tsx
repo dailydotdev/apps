@@ -116,7 +116,7 @@ const PlusCard: FC<PlusCardProps> = ({
         }
         icon={{
           size: IconSize.XSmall,
-          className: isPaidPlan ? 'text-text-quaternary' : 'text-text-tertiary',
+          className: isPaidPlan ? 'text-text-tertiary' : 'text-text-quaternary',
         }}
         text={{
           type: TypographyType.Caption1,
