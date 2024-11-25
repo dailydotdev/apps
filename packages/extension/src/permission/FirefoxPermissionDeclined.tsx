@@ -21,7 +21,7 @@ export function FirefoxPermissionDeclined({
   onGoBack,
 }: FirefoxPermissionDeclinedProps): ReactElement {
   return (
-    <FirefoxPermissionContainer className="justify-center">
+    <FirefoxPermissionContainer>
       <img
         src={cloudinaryFeedBgLaptop}
         alt="a glowing background"
