@@ -32,7 +32,6 @@ import { NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import {
   useFeature,
-  useFeaturesReadyContext,
   useGrowthBookContext,
 } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisclaimer';
@@ -42,7 +41,6 @@ import {
 } from '@dailydotdev/shared/src/components';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
-  EXPERIENCE_TO_SENIORITY,
   logPixelSignUp,
   Pixels,
 } from '@dailydotdev/shared/src/components/Pixels';
@@ -62,7 +60,6 @@ import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsCon
 import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import useMutateFilters from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import dynamic from 'next/dynamic';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
@@ -109,7 +106,6 @@ const seo: NextSeoProps = {
 
 export function OnboardPage(): ReactElement {
   const router = useRouter();
-  const { getFeatureValue } = useFeaturesReadyContext();
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
   const { user, isAuthReady, anonymous } = useAuthContext();
@@ -141,33 +137,13 @@ export function OnboardPage(): ReactElement {
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
-  const { updateAdvancedSettings } = useMutateFilters(user);
   const [shouldEnrollSourceSelection, setShouldEnrollSourceSelection] =
     useState(false);
   const { value: showOnboardingSources } = useConditionalFeature({
     feature: featureOnboardingSources,
     shouldEvaluate: shouldEnrollSourceSelection,
   });
-  const isSeniorUser =
-    EXPERIENCE_TO_SENIORITY[user?.experienceLevel] === 'senior' ||
-    user?.experienceLevel === 'MORE_THAN_4_YEARS';
-
-  const isFeedSettingsDefined = useMemo(() => !!feedSettings, [feedSettings]);
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
-
-  const updateSettingsBasedOnExperience = useCallback(() => {
-    const LISTICLE_ADVANCED_SETTINGS_ID = 10;
-    const MEMES_ADVANCED_SETTINGS_ID = 5;
-
-    if (isSeniorUser && isFeedSettingsDefined) {
-      updateAdvancedSettings({
-        advancedSettings: [
-          { id: MEMES_ADVANCED_SETTINGS_ID, enabled: false },
-          { id: LISTICLE_ADVANCED_SETTINGS_ID, enabled: false },
-        ],
-      });
-    }
-  }, [isSeniorUser, isFeedSettingsDefined, updateAdvancedSettings]);
 
   useEffect(() => {
     if (!isPageReady || isLogged.current) {
@@ -195,15 +171,6 @@ export function OnboardPage(): ReactElement {
     }
 
     if (activeScreen === OnboardingStep.EditTag) {
-      if (isSeniorUser) {
-        const seniorContentOnboarding = getFeatureValue(
-          feature.seniorContentOnboarding,
-        );
-        if (seniorContentOnboarding) {
-          updateSettingsBasedOnExperience();
-        }
-      }
-
       setShouldEnrollSourceSelection(true);
       return setActiveScreen(OnboardingStep.ContentTypes);
     }
