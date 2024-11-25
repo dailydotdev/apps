@@ -91,7 +91,7 @@ const PlusCard: FC<PlusCardProps> = ({
       ) : (
         <Button
           className="my-4 block w-full"
-          href={plusUrl}
+          href={`${plusUrl}?selectedPlan=${plan?.value}`}
           rel={anchorDefaultRel}
           tag="a"
           target="_blank"
