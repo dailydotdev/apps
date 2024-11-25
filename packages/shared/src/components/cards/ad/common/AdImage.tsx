@@ -18,7 +18,7 @@ export const AdImage = ({
   return (
     <div
       className={classNames(
-        'pointer-events-none relative overflow-hidden rounded-12',
+        'pointer-events-none relative my-2 overflow-hidden rounded-12',
         className,
       )}
     >

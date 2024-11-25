@@ -83,7 +83,12 @@ export function SquadModerationItem(
       </div>
       <div className="flex flex-col gap-4 tablet:flex-row">
         <div className="flex flex-1 flex-col gap-4">
-          <Typography tag={TypographyTag.H2} type={TypographyType.Title3} bold>
+          <Typography
+            className="break-words"
+            tag={TypographyTag.H2}
+            type={TypographyType.Title3}
+            bold
+          >
             {title}
           </Typography>
           <PostTags className="!mx-0 min-w-full" tags={post?.tags} />
