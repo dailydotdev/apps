@@ -24,7 +24,9 @@ export default function useTopSites(): UseTopSitesRet {
 
   const getTopSites = async (): Promise<void> => {
     try {
-      setTopSites((await browser.topSites.get()).slice(0, 8));
+      await browser.topSites.get().then((result = []) => {
+        setTopSites(result.slice(0, 8));
+      });
     } catch (err) {
       setTopSites(undefined);
     }
