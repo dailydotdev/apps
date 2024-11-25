@@ -66,6 +66,7 @@ import useMutateFilters from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import dynamic from 'next/dynamic';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/PaymentContext';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -119,6 +120,7 @@ export function OnboardPage(): ReactElement {
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
   const { user, isAuthReady, anonymous } = useAuthContext();
+  const { isOnboardingPlusActive } = usePlusSubscription();
   const shouldVerify = anonymous?.shouldVerify;
   const { growthbook } = useGrowthBookContext();
   const { logEvent } = useLogContext();
@@ -230,12 +232,12 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.Sources);
     }
 
-    if (
-      (showOnboardingSources && activeScreen === OnboardingStep.Sources) ||
-      [OnboardingStep.ContentTypes, OnboardingStep.ReadingReminder].includes(
-        activeScreen,
-      )
-    ) {
+    const isSourcesStep = activeScreen === OnboardingStep.Sources;
+    const isLastStepBeforePlus = [
+      OnboardingStep.ContentTypes,
+      OnboardingStep.ReadingReminder,
+    ].includes(activeScreen);
+    if (isOnboardingPlusActive && (isSourcesStep || isLastStepBeforePlus)) {
       return setActiveScreen(OnboardingStep.Plus);
     }
 

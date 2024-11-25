@@ -35,6 +35,7 @@ const feature = {
   seniorContentOnboarding: new Feature('senior_content_onboarding', false),
   postBannerExtensionPrompt: new Feature('post_banner_extension_prompt', false),
   plusSubscription: new Feature('plus_subscription', false),
+  onboardingPlus: new Feature('onboarding_plus', false),
   feedPageSizes: new Feature('feed_page_sizes', {
     default: 7,
     tablet: 9,
