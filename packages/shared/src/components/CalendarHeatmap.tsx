@@ -47,6 +47,10 @@ const binsAttributes: React.SVGProps<SVGRectElement>[] = [
 ];
 
 function getRange(count: number): number[] {
+  if (count <= 0) {
+    return [];
+  }
+
   return Array.from(new Array(count), (_, i) => i);
 }
 

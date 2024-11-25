@@ -11,13 +11,6 @@ import { useViewSize, ViewSize } from '../useViewSize';
 import SettingsContext from '../../contexts/SettingsContext';
 
 const BASE_YEAR = 2018;
-const currentYear = new Date().getFullYear();
-const dropdownOptions = [
-  'Last year',
-  ...Array.from(new Array(currentYear - BASE_YEAR + 1), (_, i) =>
-    (currentYear - i).toString(),
-  ),
-];
 
 type UseActivityTimeFilterRet = {
   selectedHistoryYear: number;
@@ -29,6 +22,18 @@ type UseActivityTimeFilterRet = {
 };
 
 export function useActivityTimeFilter(): UseActivityTimeFilterRet {
+  const dropdownOptions = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const optionsLength = Math.max(currentYear - BASE_YEAR + 1, 0);
+
+    return [
+      'Last year',
+      ...Array.from(new Array(optionsLength), (_, i) =>
+        (currentYear - i).toString(),
+      ),
+    ];
+  }, []);
+
   const laptop = useViewSize(ViewSize.Laptop);
   const laptopL = useViewSize(ViewSize.LaptopL);
   const { sidebarExpanded } = useContext(SettingsContext);
@@ -47,7 +52,7 @@ export function useActivityTimeFilter(): UseActivityTimeFilterRet {
     const startYear = new Date(selected, 0, 1);
 
     return [addDays(endOfYear(startYear), 1), startYear];
-  }, [fullHistory, selectedHistoryYear]);
+  }, [fullHistory, selectedHistoryYear, dropdownOptions]);
 
   return {
     selectedHistoryYear,
