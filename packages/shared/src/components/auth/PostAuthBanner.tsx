@@ -21,14 +21,7 @@ import {
 } from '../../lib/socialMedia';
 import { capitalize } from '../../lib/strings';
 import { useAuthContext } from '../../contexts/AuthContext';
-
-const geoToEmoji = (geo: string): string => {
-  return geo
-    .toUpperCase()
-    .split('')
-    .map((char) => String.fromCodePoint(char.charCodeAt(0) + 0x1f1a5))
-    .join('');
-};
+import { geoToEmoji } from '../../lib/geo';
 
 const GeoPersonalizedBanner = ({ geo }: { geo: string }): ReactElement => {
   const emoji = geoToEmoji(geo);
