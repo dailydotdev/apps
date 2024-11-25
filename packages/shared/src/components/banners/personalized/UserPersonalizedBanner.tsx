@@ -2,8 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import React, { type ReactElement } from 'react';
 import { getBasicUserInfo } from '../../../graphql/users';
 import { AuthenticationBanner, OnboardingHeadline } from '../../auth';
-import { sizeClasses } from '../../ProfilePicture';
-import { Image, ImageType } from '../../image/Image';
+import { ProfilePicture } from '../../ProfilePicture';
 
 const UserPersonalizedBanner = ({
   userId,
@@ -23,14 +22,7 @@ const UserPersonalizedBanner = ({
 
   return (
     <AuthenticationBanner>
-      {user?.image && (
-        <Image
-          className={`mr-2 rounded-10 object-cover ${sizeClasses.xlarge}`}
-          src={user.image}
-          alt={`Avatar of ${user.username}`}
-          type={ImageType.Squad}
-        />
-      )}
+      {user?.image && <ProfilePicture user={user} />}
       <OnboardingHeadline
         className={{ title: 'typo-mega3', description: 'mb-8 typo-title3' }}
         pretitle={user?.username}
