@@ -18,7 +18,6 @@ type OnboardingHeaderProps = {
   onClickCreateFeed: () => void;
   activeScreen: OnboardingStep;
   customActionName?: string;
-  onClickNext: () => void;
 };
 
 export const OnboardingHeader = ({
@@ -27,7 +26,6 @@ export const OnboardingHeader = ({
   setAuth,
   onClickCreateFeed,
   customActionName,
-  onClickNext,
 }: OnboardingHeaderProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -73,7 +71,7 @@ export const OnboardingHeader = ({
               aria-label="Continue to the next step without selecting any plan"
               title="Skip this step"
               variant={ButtonVariant.Secondary}
-              onClick={onClickNext}
+              onClick={onClickCreateFeed}
             >
               Skip for now ➞
             </Button>

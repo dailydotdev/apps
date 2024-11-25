@@ -358,7 +358,6 @@ export function OnboardPage(): ReactElement {
         setAuth={setAuth}
         customActionName={customActionName}
         onClickCreateFeed={onClickCreateFeed}
-        onClickNext={onClickNext}
         activeScreen={activeScreen}
       />
       <div
