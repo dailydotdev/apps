@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { useViewSize, ViewSize } from '../../hooks';
 import {
@@ -18,11 +18,15 @@ interface OnboardingStepProps {
   onClickNext: () => void;
 }
 
-const PlusBillingCycleSwitch: FC<{
+const PlusBillingCycleSwitch = ({
+  productOptions,
+  currentCycleIndex,
+  onChangeCycle,
+}: {
   productOptions: ProductOption[];
   currentCycleIndex: number;
   onChangeCycle: (index: number) => void;
-}> = ({ productOptions, currentCycleIndex, onChangeCycle }) => {
+}): ReactElement => {
   return (
     <div
       aria-label="Select billing cycle"
@@ -72,9 +76,9 @@ const PlusBillingCycleSwitch: FC<{
   );
 };
 
-export const OnboardingPlusStep: FC<OnboardingStepProps> = ({
+export const OnboardingPlusStep = ({
   onClickNext,
-}) => {
+}: OnboardingStepProps): ReactElement => {
   const { productOptions } = usePaymentContext();
   const [currentProductIndex, setCurrentProductIndex] = useState<number>(0);
   const isLaptop = useViewSize(ViewSize.Laptop);

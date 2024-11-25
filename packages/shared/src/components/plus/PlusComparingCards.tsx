@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { ReactElement } from 'react';
 import {
   PaymentContextData,
   ProductOption,
@@ -28,11 +28,11 @@ interface PlusCardProps {
   productOption?: ProductOption;
 }
 
-const PlusCard: FC<PlusCardProps> = ({
+const PlusCard = ({
   currency,
   productOption: plan,
   onClickNext,
-}) => {
+}: PlusCardProps): ReactElement => {
   const isPaidPlan = !!plan;
   const price = plan?.price ?? '0';
   const billingLabel = isPaidPlan ? `Billed ${plan?.label}` : 'Free forever';
@@ -133,11 +133,11 @@ interface PlusComparingCardsProps
   onClickNext: () => void;
 }
 
-export const PlusComparingCards: FC<PlusComparingCardsProps> = ({
+export const PlusComparingCards = ({
   productOptions,
   currentIndex,
   onClickNext,
-}) => {
+}: PlusComparingCardsProps): ReactElement => {
   const productOption = productOptions[currentIndex];
   const priceFirstChar = productOption.price.at(0);
   const currency = Number.isInteger(+priceFirstChar) ? '' : priceFirstChar;
