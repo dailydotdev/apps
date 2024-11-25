@@ -48,5 +48,9 @@ const feature = {
 };
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
+export const featureOnboardingSources = new Feature(
+  'onboarding_sources',
+  false,
+);
 
 export { feature };
