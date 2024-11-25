@@ -17,7 +17,7 @@ import { useActions } from '@dailydotdev/shared/src/hooks';
 
 function ShortcutItemPlaceholder({ children }: PropsWithChildren) {
   return (
-    <div className="group flex flex-col items-center">
+    <div className="group flex flex-col items-center" aria-hidden>
       <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
         {children}
       </div>
@@ -36,7 +36,7 @@ export const ShortcutGetStarted = ({
   onCustomLinksClick,
 }: ShortcutGetStartedProps): ReactElement => {
   const { githubShortcut } = useThemedAsset();
-  const { completeAction } = useActions();
+  const { completeAction, checkHasCompleted } = useActions();
 
   const items = [
     cloudinaryShortcutsIconsGmail,
@@ -47,7 +47,9 @@ export const ShortcutGetStarted = ({
   ];
 
   const completeActionThenFire = (callback?: () => void) => {
-    completeAction(ActionType.FirstShortcutsSession);
+    if (!checkHasCompleted(ActionType.FirstShortcutsSession)) {
+      completeAction(ActionType.FirstShortcutsSession);
+    }
     callback?.();
   };
 
@@ -61,7 +63,7 @@ export const ShortcutGetStarted = ({
           <ShortcutItemPlaceholder key={url}>
             <img
               src={url}
-              alt={url}
+              alt={`Icon for ${url}`}
               loading="lazy"
               className="size-6 object-contain"
             />
@@ -73,16 +75,16 @@ export const ShortcutGetStarted = ({
       </div>
       <div className="flex gap-4">
         <Button
-          variant={ButtonVariant.Float}
-          size={ButtonSize.Medium}
           onClick={() => completeActionThenFire(onTopSitesClick)}
+          size={ButtonSize.Medium}
+          variant={ButtonVariant.Float}
         >
           Skip for now
         </Button>
         <Button
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Medium}
           onClick={() => completeActionThenFire(onCustomLinksClick)}
+          size={ButtonSize.Medium}
+          variant={ButtonVariant.Primary}
         >
           Add shortcuts
         </Button>
