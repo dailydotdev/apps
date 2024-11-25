@@ -1,5 +1,4 @@
 import { JSONValue } from '@growthbook/growthbook';
-import { ShortcutsUIExperiment } from './featureValues';
 import {
   cloudinaryOnboardingFullBackgroundDesktop,
   cloudinaryOnboardingFullBackgroundMobile,
@@ -28,7 +27,6 @@ const feature = {
   feedAdSpot: new Feature('feed_ad_spot', 2),
   searchVersion: new Feature('search_version', 2),
   featureTheme: new Feature('feature_theme', {}),
-  shortcutsUI: new Feature('shortcuts_ui', ShortcutsUIExperiment.Control),
   showRoadmap: new Feature('show_roadmap', true),
   onboardingChecklist: new Feature('onboarding_checklist', true),
   showCodeSnippets: new Feature('show_code_snippets', false),
@@ -50,5 +48,9 @@ const feature = {
 };
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
+export const featureOnboardingSources = new Feature(
+  'onboarding_sources',
+  false,
+);
 
 export { feature };
