@@ -22,7 +22,7 @@ export interface UseShortcutLinks {
   onSaveChanges: (
     e: FormEvent,
   ) => Promise<{ errors: Record<string | number, string> }>;
-  askTopSitesPermission: () => Promise<boolean>;
+  askTopSitesBrowserPermission: () => Promise<boolean>;
   revokePermission: () => Promise<unknown>;
   onIsManual: Dispatch<boolean>;
   resetSelected: () => unknown;
@@ -63,11 +63,8 @@ export default function useShortcutLinks(): UseShortcutLinks {
     !isOldUser && hasNoShortcuts && !hasCompletedFirstSession;
 
   const resetSelected = () => {
-    if (topSites !== undefined && !hasCustomLinks) {
-      setIsManual(false);
-    } else {
-      setIsManual(true);
-    }
+    const isResetManual = !(topSites !== undefined && !hasCustomLinks);
+    setIsManual(isResetManual);
   };
 
   const getFormInputs = () =>
@@ -154,7 +151,7 @@ export default function useShortcutLinks(): UseShortcutLinks {
     showGetStarted,
     hideShortcuts: showToggleShortcuts,
     onSaveChanges,
-    askTopSitesPermission: async () => {
+    askTopSitesBrowserPermission: async () => {
       const granted = await askTopSitesPermission();
 
       if (granted) {

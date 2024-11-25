@@ -35,7 +35,7 @@ export default function ShortcutLinks({
   const [showOptions, setShowOptions] = useState(false);
   const { logEvent } = useContext(LogContext);
   const {
-    askTopSitesPermission,
+    askTopSitesBrowserPermission,
     revokePermission,
     onIsManual,
     resetSelected,
@@ -161,7 +161,7 @@ export default function ShortcutLinks({
           }}
           onApprove={async () => {
             setShowModal(false);
-            const granted = await askTopSitesPermission();
+            const granted = await askTopSitesBrowserPermission();
             if (!granted) {
               onIsManual(true);
             }
