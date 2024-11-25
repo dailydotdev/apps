@@ -59,7 +59,7 @@ function SharePostBar({
     });
 
   const { getLinkPreview, isLoadingPreview } = usePostToSquad({
-    callback: { onSuccess: onOpenCreatePost },
+    onExternalLinkSuccess: onOpenCreatePost,
   });
 
   const onSubmit = async (e: FormEvent) => {

@@ -27,6 +27,7 @@ import { ShareGrid } from './cards/share/ShareGrid';
 import { ShareList } from './cards/share/ShareList';
 import { CollectionGrid } from './cards/collection';
 import { UseBookmarkPost } from '../hooks/useBookmarkPost';
+import { AdActions } from '../lib/ads';
 
 const CommentPopup = dynamic(
   () =>
@@ -78,7 +79,12 @@ export type FeedItemComponentProps = {
     row: number,
     column: number,
   ) => unknown;
-  onAdClick: (ad: Ad, row: number, column: number) => void;
+  onAdAction: (
+    action: Exclude<AdActions, AdActions.Impression>,
+    ad: Ad,
+    row: number,
+    column: number,
+  ) => void;
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'> &
   Pick<UseBookmarkPost, 'toggleBookmark'>;
 
@@ -159,7 +165,7 @@ export default function FeedItemComponent({
   toggleBookmark,
   onMenuClick,
   onCommentClick,
-  onAdClick,
+  onAdAction,
   onReadArticleClick,
 }: FeedItemComponentProps): ReactElement {
   const inViewRef = useLogImpression(
@@ -270,7 +276,10 @@ export default function FeedItemComponent({
         <AdTag
           ref={inViewRef}
           ad={item.ad}
-          onLinkClick={(ad) => onAdClick(ad, row, column)}
+          index={item.index}
+          feedIndex={index}
+          onLinkClick={(ad) => onAdAction(AdActions.Click, ad, row, column)}
+          onRefresh={(ad) => onAdAction(AdActions.Refresh, ad, row, column)}
         />
       );
     case FeedItemType.UserAcquisition:

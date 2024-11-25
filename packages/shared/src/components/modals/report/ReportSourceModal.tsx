@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Checkbox } from '../../fields/Checkbox';
 import { ModalProps } from '../common/Modal';
 import { useLogContext } from '../../../contexts/LogContext';
-import { ReportModal } from './ReportModal';
+import { ReasonSelectionModal } from './ReasonSelectionModal';
 import { ReportReason, sendSourceReport } from '../../../report';
 import { Squad } from '../../../graphql/sources';
 import { useLeaveSquad, useToastNotification } from '../../../hooks';
@@ -75,8 +75,9 @@ export function ReportSourceModal({
   const isUserMember = squads.some((s) => s.id === squad.id);
 
   return (
-    <ReportModal
+    <ReasonSelectionModal
       {...props}
+      onRequestClose={onRequestClose}
       isOpen
       onReport={(_, reason, comment) => onReport({ reason, comment })}
       reasons={reportReasons}

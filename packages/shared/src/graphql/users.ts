@@ -38,6 +38,7 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
       permalink
       createdAt
       readmeHtml
+      isPlus
       companies {
         name
         image
@@ -497,6 +498,7 @@ export interface UserStreak {
   current: number;
   weekStart: DayOfWeek;
   lastViewAt: Date;
+  lastViewAtTz: Date;
 }
 
 export const getReadingStreak = async (): Promise<UserStreak> => {

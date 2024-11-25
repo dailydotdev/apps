@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { PublicProfile } from '../../lib/user';
+import { type PublicProfile } from '../../lib/user';
 import JoinedDate from './JoinedDate';
 import { Separator } from '../cards/common/common';
 import { ReputationUserBadge } from '../ReputationUserBadge';
@@ -13,10 +13,12 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
+import { PlusUser } from '../PlusUser';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 
 export type UserMetadataProps = Pick<
   PublicProfile,
-  'name' | 'username' | 'createdAt'
+  'name' | 'username' | 'createdAt' | 'isPlus'
 > &
   Partial<Pick<PublicProfile, 'reputation'>> & {
     className?: string;
@@ -30,7 +32,9 @@ export function UserMetadata({
   reputation,
   className,
   company,
+  isPlus,
 }: UserMetadataProps): ReactElement {
+  const { showPlusSubscription } = usePlusSubscription();
   return (
     <div
       className={classNames(
@@ -66,8 +70,9 @@ export function UserMetadata({
           date={new Date(createdAt)}
         />
       </div>
+      {isPlus && showPlusSubscription && <PlusUser />}
       {!!company && (
-        <div className="mt-4 flex items-center gap-1">
+        <div className="flex items-center gap-1">
           <ProfilePicture
             className="border border-border-subtlest-secondary"
             size={ProfileImageSize.Size16}

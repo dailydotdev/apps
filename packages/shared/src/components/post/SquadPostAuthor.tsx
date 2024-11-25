@@ -16,6 +16,7 @@ import { TimeFormatType } from '../../lib/dateFormat';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { TopReaderIn } from '../TopReaderIn';
+import { PlusUserBadge } from '../PlusUserBadge';
 
 interface SquadPostAuthorProps {
   className?: Partial<{
@@ -87,6 +88,7 @@ function SquadPostAuthor({
               {author.name}
             </TruncateText>
             <div className="flex gap-1">
+              {author?.isPlus && <PlusUserBadge user={author} />}
               {author?.companies?.length > 0 && (
                 <VerifiedCompanyUserBadge user={author} />
               )}

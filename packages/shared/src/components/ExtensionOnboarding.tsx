@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, ReactElement, useEffect } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import Link from './utilities/Link';
 import Logo, { LogoPosition } from './Logo';
 import { OnboardingTitleGradient } from './onboarding/common';
@@ -7,7 +7,7 @@ import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { cloudinaryOnboardingGlow } from '../lib/image';
 import { useExtensionContext } from '../contexts/ExtensionContext';
 
-const ExtensionOnboarding = ({ children }: PropsWithChildren): ReactElement => {
+const ExtensionOnboarding = (): ReactElement => {
   const { setCurrentPage } = useExtensionContext();
 
   useEffect(() => {
@@ -18,7 +18,7 @@ const ExtensionOnboarding = ({ children }: PropsWithChildren): ReactElement => {
   }, [setCurrentPage]);
 
   return (
-    <div className="relative flex max-h-[100vh] min-h-[100vh] flex-col items-center justify-center overflow-hidden px-7 text-center antialiased">
+    <div className="flex max-h-[100vh] min-h-[100vh] flex-col items-center justify-center overflow-hidden px-7 text-center antialiased">
       <Logo
         position={LogoPosition.Relative}
         logoClassName={{ container: 'h-logo-big' }}
@@ -52,7 +52,6 @@ const ExtensionOnboarding = ({ children }: PropsWithChildren): ReactElement => {
         src={cloudinaryOnboardingGlow}
         alt="Gradient background"
       />
-      {children}
     </div>
   );
 };

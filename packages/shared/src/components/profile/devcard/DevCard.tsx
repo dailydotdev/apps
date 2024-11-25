@@ -18,6 +18,7 @@ import { DevCardTwitterCover } from './DevCardTwitterCover';
 import { checkLowercaseEquality } from '../../../lib/strings';
 import { devcardBorder } from '../../../styles/custom';
 import { fallbackImages } from '../../../lib/config';
+import { PlusUser } from '../../PlusUser';
 
 export interface DevCardProps {
   type?: DevCardType;
@@ -172,6 +173,7 @@ export function DevCard({
                   !isIron && !isDefault && 'text-raw-pepper-90',
                 )}
               />
+              {user?.isPlus && <PlusUser className="pl-1" />}
             </div>
             {isHorizontal && (
               <Divider

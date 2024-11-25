@@ -4,6 +4,7 @@ import type { Connection } from './common';
 import {
   SOURCE_CATEGORY_FRAGMENT,
   SOURCE_DIRECTORY_INFO_FRAGMENT,
+  SOURCE_SHORT_INFO_FRAGMENT,
 } from './fragments';
 
 export enum SourceMemberRole {
@@ -18,6 +19,7 @@ export enum SourcePermissions {
   View = 'view',
   ViewBlockedMembers = 'view_blocked_members',
   Post = 'post',
+  PostRequest = 'post_request',
   PostLimit = 'post_limit',
   PostPin = 'post_pin',
   PostDelete = 'post_delete',
@@ -29,6 +31,7 @@ export enum SourcePermissions {
   Edit = 'edit',
   WelcomePostEdit = 'welcome_post_edit',
   ConnectSlack = 'connect_slack',
+  ModeratePost = 'moderate_post',
 }
 
 export type SourceMemberFlag = Partial<{
@@ -69,8 +72,10 @@ export interface Squad extends Source {
   description: string;
   memberPostingRole: SourceMemberRole;
   memberInviteRole: SourceMemberRole;
+  moderationRequired: boolean;
   referralUrl?: string;
   category?: SourceCategory;
+  moderationPostCount: number;
 }
 
 interface SourceFlags {
@@ -108,6 +113,24 @@ export const SOURCE_QUERY = gql`
     }
   }
   ${SOURCE_DIRECTORY_INFO_FRAGMENT}
+`;
+
+export const SEARCH_SOURCES_QUERY = gql`
+  query SearchSources($query: String!, $limit: Int) {
+    searchSources(query: $query, limit: $limit) {
+      ...SourceShortInfo
+    }
+  }
+  ${SOURCE_SHORT_INFO_FRAGMENT}
+`;
+
+export const ONBOARDING_SOURCES_QUERY = gql`
+  query SourceRecommendationByTags($tags: [String]!) {
+    sourceRecommendationByTags(tags: $tags) {
+      ...SourceShortInfo
+    }
+  }
+  ${SOURCE_SHORT_INFO_FRAGMENT}
 `;
 
 export const SOURCE_DIRECTORY_QUERY = gql`
