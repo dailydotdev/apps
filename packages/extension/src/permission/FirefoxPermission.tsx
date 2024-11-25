@@ -12,7 +12,11 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { VIcon } from '@dailydotdev/shared/src/components/icons';
 import { cloudinaryFeedBgLaptop } from '@dailydotdev/shared/src/lib/image';
-import { privacyPolicy } from '@dailydotdev/shared/src/lib/constants';
+import {
+  onboardingUrl,
+  privacyPolicy,
+} from '@dailydotdev/shared/src/lib/constants';
+import { useRouter } from 'next/router';
 import { FirefoxPermissionItem } from './FirefoxPermissionItem';
 import { FirefoxPermissionContainer } from './common';
 
@@ -22,12 +26,19 @@ export enum FirefoxPermissionType {
 }
 
 interface FirefoxPermissionProps {
-  onUpdate(permission: FirefoxPermissionType): void;
+  onUpdate(permission: FirefoxPermissionType): Promise<void>;
 }
 
 export function FirefoxPermission({
   onUpdate,
 }: FirefoxPermissionProps): ReactElement {
+  const router = useRouter();
+
+  const onAccept = async () => {
+    await onUpdate(FirefoxPermissionType.Accepted);
+    await router.push(onboardingUrl);
+  };
+
   return (
     <FirefoxPermissionContainer>
       <img
@@ -74,7 +85,7 @@ export function FirefoxPermission({
           className="w-full"
           icon={<VIcon />}
           variant={ButtonVariant.Primary}
-          onClick={() => onUpdate(FirefoxPermissionType.Accepted)}
+          onClick={onAccept}
         >
           Accept
         </Button>
