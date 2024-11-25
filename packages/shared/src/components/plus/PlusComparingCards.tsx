@@ -14,6 +14,7 @@ import { Button, ButtonVariant } from '../buttons/Button';
 import { plusUrl } from '../../lib/constants';
 import { defaultFeatureList, plusFeatureList, PlusList } from './PlusList';
 import { IconSize } from '../Icon';
+import { anchorDefaultRel } from '../../lib/strings';
 
 export enum OnboardingPlans {
   Free = 'Free',
@@ -49,7 +50,7 @@ const PlusCard: FC<PlusCardProps> = ({
         </Typography>
         {isPaidPlan && (
           <Typography
-            className="grid aspect-square h-8 w-8 place-content-center rounded-8 bg-surface-float"
+            className="grid aspect-square size-8 place-content-center rounded-8 bg-surface-float"
             tag={TypographyTag.Span}
             color={TypographyColor.Plus}
           >
@@ -83,6 +84,7 @@ const PlusCard: FC<PlusCardProps> = ({
         <Button
           className="my-4 block w-full"
           href={plusUrl}
+          rel={anchorDefaultRel}
           tag="a"
           target="_blank"
           title="Upgrade to Plus"
