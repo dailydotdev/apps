@@ -11,6 +11,7 @@ import { AuthDisplay, AuthProps } from '../auth/AuthOptions';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { CreateFeedButton } from './CreateFeedButton';
 import { OnboardingStep, wrapperMaxWidth } from './common';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 
 type OnboardingHeaderProps = {
   showOnboardingPage: boolean;
@@ -29,6 +30,7 @@ export const OnboardingHeader = ({
 }: OnboardingHeaderProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { logSubscriptionEvent } = usePlusSubscription();
   const id = useId();
 
   const getImage = () => {
@@ -71,7 +73,13 @@ export const OnboardingHeader = ({
               aria-label="Continue to the next step without selecting any plan"
               title="Skip this step"
               variant={ButtonVariant.Secondary}
-              onClick={onClickCreateFeed}
+              onClick={() => {
+                logSubscriptionEvent({
+                  event_name: 'skip upgrade subscription',
+                  target_id: 'onboarding',
+                });
+                onClickCreateFeed();
+              }}
             >
               Skip for now ➞
             </Button>

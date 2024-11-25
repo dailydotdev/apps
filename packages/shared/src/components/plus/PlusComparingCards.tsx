@@ -15,6 +15,7 @@ import { plusUrl } from '../../lib/constants';
 import { defaultFeatureList, plusFeatureList, PlusList } from './PlusList';
 import { IconSize } from '../Icon';
 import { anchorDefaultRel } from '../../lib/strings';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 
 export enum OnboardingPlans {
   Free = 'Free',
@@ -35,6 +36,7 @@ const PlusCard: FC<PlusCardProps> = ({
   const isPaidPlan = !!plan;
   const price = plan?.price ?? '0';
   const billingLabel = isPaidPlan ? `Billed ${plan?.label}` : 'Free forever';
+  const { logSubscriptionEvent } = usePlusSubscription();
 
   return (
     <div className="mx-auto w-70 max-w-full rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
@@ -73,7 +75,13 @@ const PlusCard: FC<PlusCardProps> = ({
       {!isPaidPlan ? (
         <Button
           className="my-4 block w-full"
-          onClick={onClickNext}
+          onClick={() => {
+            logSubscriptionEvent({
+              event_name: 'skip upgrade subscription',
+              target_id: 'onboarding',
+            });
+            onClickNext();
+          }}
           title="Continue without Plus"
           variant={ButtonVariant.Secondary}
           type="button"
@@ -89,6 +97,12 @@ const PlusCard: FC<PlusCardProps> = ({
           target="_blank"
           title="Upgrade to Plus"
           variant={ButtonVariant.Primary}
+          onClick={() => {
+            logSubscriptionEvent({
+              event_name: 'upgrade subscription',
+              target_id: 'onboarding',
+            });
+          }}
         >
           Upgrade to Plus
         </Button>
