@@ -1,19 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import HorizontalScroll from '@dailydotdev/shared/src/components/HorizontalScroll/HorizontalScroll';
-import React, {
-  ReactElement,
-  RefObject,
-  useCallback,
-  useState,
-} from 'react';
+import React, { ReactElement, RefObject, useCallback, useState } from 'react';
 import { UnfeaturedSquadGrid } from '@dailydotdev/shared/src/components/cards/squad/UnfeaturedSquadGrid';
 import {
   SourceMemberRole,
   SourceType,
 } from '@dailydotdev/shared/src/graphql/sources';
 import { UnFeaturedSquadCardProps } from '@dailydotdev/shared/src/components/cards/squad/common/types';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { QueryClientProvider } from '../extension/_providers';
+import { ExtensionProviders } from '../extension/_providers';
 
 const ScrollableElement = ({
   item,
@@ -69,7 +63,7 @@ export const HorizontalScrollStory: Story = {
     );
   },
   name: 'HorizontalScroll',
-  args: { scrollProps: { title: 'Horizontal Scroll' } },
+  args: { scrollProps: { title: { copy: 'Horizontal Scroll' } } },
 };
 
 export const HorizontalScrollSquadStory: Story = {
@@ -88,30 +82,30 @@ export const HorizontalScrollSquadStory: Story = {
         memberInviteRole: SourceMemberRole.Admin,
         image: 'https://via.placeholder.com/150',
         handle: 'squad-handle',
+        moderationPostCount: 0,
+        moderationRequired: false,
       },
     };
 
     return (
-      <QueryClientProvider>
-        <AuthContext.Provider value={{}}>
-          <HorizontalScroll
-            scrollProps={scrollProps}
-            className={{ scroll: 'gap-8 py-4' }}
-          >
-            {new Array(30).fill(null).map((item, i) => (
-              /* eslint-disable react/no-array-index-key */
-              <UnfeaturedSquadGrid
-                {...args}
-                key={`horizontal scroll item ${i}`}
-              />
-            ))}
-          </HorizontalScroll>
-        </AuthContext.Provider>
-      </QueryClientProvider>
+      <ExtensionProviders>
+        <HorizontalScroll
+          scrollProps={scrollProps}
+          className={{ scroll: 'gap-8 py-4' }}
+        >
+          {new Array(30).fill(null).map((item, i) => (
+            /* eslint-disable react/no-array-index-key */
+            <UnfeaturedSquadGrid
+              {...args}
+              key={`horizontal scroll item ${i}`}
+            />
+          ))}
+        </HorizontalScroll>
+      </ExtensionProviders>
     );
   },
   name: 'HorizontalScrollSquadStory',
-  args: { scrollProps: { title: 'Horizontal Scroll' } },
+  args: { scrollProps: { title: { copy: 'Horizontal Scroll' } } },
 };
 
 export const HorizontalScrollInfinite: Story = {
@@ -170,5 +164,5 @@ export const HorizontalScrollInfinite: Story = {
     );
   },
   name: 'HorizontalScrollInfinite',
-  args: { scrollProps: { title: 'Horizontal Scroll' } },
+  args: { scrollProps: { title: { copy: 'Horizontal Scroll' } } },
 };
