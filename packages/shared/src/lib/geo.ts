@@ -8,7 +8,7 @@ export const geoToEmoji = (geo: string): string => {
 
 const geoWithPrefix = [
   'US',
-  'UK',
+  'GB',
   'UAE',
   'NL',
   'PH',
