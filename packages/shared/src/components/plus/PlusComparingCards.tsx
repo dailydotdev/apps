@@ -114,7 +114,10 @@ const PlusCard: FC<PlusCardProps> = ({
             ? ['Everything on the Free plan', ...plusFeatureList]
             : defaultFeatureList
         }
-        icon={{ size: IconSize.XSmall }}
+        icon={{
+          size: IconSize.XSmall,
+          className: isPaidPlan ? 'text-text-quaternary' : 'text-text-tertiary',
+        }}
         text={{
           type: TypographyType.Caption1,
           className: 'self-center',
