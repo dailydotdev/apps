@@ -153,6 +153,7 @@ export const BootPopups = (): ReactElement => {
         onAfterOpen: () => {
           updateLastBootPopup();
         },
+        isDrawerOnMobile: true,
       },
     });
   }, [alerts?.showGenericReferral, updateLastBootPopup]);
