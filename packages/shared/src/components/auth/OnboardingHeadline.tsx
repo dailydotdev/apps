@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { OnboardingGradientClasses } from '../onboarding/common';
+import { Typography } from '../typography/Typography';
 
 interface ClassName {
   pretitle?: string;
@@ -29,23 +30,24 @@ export function OnboardingHeadline({
   return (
     <div className="flex flex-col">
       {pretitle && (
-        <p
+        <Typography
           className={classNames(
             'font-bold text-white typo-mega3',
             className?.pretitle,
           )}
         >
           {pretitle}
-        </p>
+        </Typography>
       )}
-      <h1
+      <Typography
         className={classNames(
-          `mb-4 ${OnboardingGradientClasses}`,
+          'mb-4',
+          OnboardingGradientClasses,
           className?.title,
         )}
       >
         {title}
-      </h1>
+      </Typography>
       <h2 className={className?.description}>{description}</h2>
     </div>
   );
