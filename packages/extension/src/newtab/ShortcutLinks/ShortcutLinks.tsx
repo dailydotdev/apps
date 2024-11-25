@@ -6,85 +6,36 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
-import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
-import {
-  Button,
-  ButtonIconPosition,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import {
   LogEvent,
   ShortcutsSourceType,
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import useContextMenu from '@dailydotdev/shared/src/hooks/useContextMenu';
 import { ContextMenu } from '@dailydotdev/shared/src/hooks/constants';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { ShortcutsUIExperiment } from '@dailydotdev/shared/src/lib/featureValues';
-import { useShortcuts } from '@dailydotdev/shared/src/hooks/utils';
 import CustomLinksModal from './ShortcutLinksModal';
 import MostVisitedSitesModal from '../MostVisitedSitesModal';
-import { CustomLinks } from '../CustomLinks';
 import useShortcutLinks from './useShortcutLinks';
 import ShortcutOptionsMenu from './ShortcutOptionsMenu';
-import { ShortcutLinksUIV1 } from './experiments/ShortcutLinksUIV1';
+import { ShortcutLinksList } from './ShortcutLinksList';
+import { ShortcutGetStarted } from './ShortcutGetStarted';
 
 interface ShortcutLinksProps {
   shouldUseListFeedLayout: boolean;
 }
 
-type ShortcutLinksControlProps = {
-  className?: string;
-  onLinkClick: () => void;
-  onOptionsOpen: () => void;
-  shortcutLinks: string[];
-};
-
-function ShortcutLinksUIControl(props: ShortcutLinksControlProps) {
-  const { shortcutLinks, onLinkClick, onOptionsOpen, className } = props;
-  return (
-    <>
-      {shortcutLinks?.length ? (
-        <CustomLinks
-          links={shortcutLinks}
-          className={className}
-          onOptions={onOptionsOpen}
-          onLinkClick={onLinkClick}
-        />
-      ) : (
-        <Button
-          className={className}
-          variant={ButtonVariant.Tertiary}
-          icon={<PlusIcon />}
-          iconPosition={ButtonIconPosition.Right}
-          onClick={onOptionsOpen}
-        >
-          Add shortcuts
-        </Button>
-      )}
-    </>
-  );
-}
-
 export default function ShortcutLinks({
   shouldUseListFeedLayout,
 }: ShortcutLinksProps): ReactElement {
-  const className = !shouldUseListFeedLayout
-    ? 'ml-auto'
-    : 'mt-4 w-fit mx-4 laptop:mx-0';
-  const shortcutsUIFeature = useFeature(feature.shortcutsUI);
-  const isShortcutsUIV1 = shortcutsUIFeature === ShortcutsUIExperiment.V1;
-  const { showTopSites, toggleShowTopSites } = useContext(SettingsContext);
+  const { showTopSites, toggleShowTopSites } = useSettingsContext();
   const [showModal, setShowModal] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
-  const { displayToast } = useToastNotification();
   const { logEvent } = useContext(LogContext);
   const {
-    askTopSitesPermission,
+    askTopSitesBrowserPermission,
     revokePermission,
     onIsManual,
     resetSelected,
@@ -96,6 +47,8 @@ export default function ShortcutLinks({
     formRef,
     onSaveChanges,
     isTopSiteActive,
+    showGetStarted,
+    hideShortcuts,
   } = useShortcutLinks();
   const shortcutSource = isTopSiteActive
     ? ShortcutsSourceType.Browser
@@ -104,7 +57,6 @@ export default function ShortcutLinks({
   const loggedInitialRef = useRef(false);
   const loggedRef = useRef(false);
 
-  const { isShortcutsV1 } = useShortcuts();
   const { onMenuClick, isOpen } = useContextMenu({
     id: ContextMenu.ShortcutContext,
   });
@@ -117,9 +69,7 @@ export default function ShortcutLinks({
           event_name: LogEvent.Impression,
           target_type: TargetType.Shortcuts,
           extra: JSON.stringify({
-            source: isShortcutsV1
-              ? ShortcutsSourceType.Placeholder
-              : ShortcutsSourceType.Button,
+            source: ShortcutsSourceType.Placeholder,
           }),
         });
       }
@@ -138,13 +88,7 @@ export default function ShortcutLinks({
       target_type: TargetType.Shortcuts,
       extra: JSON.stringify({ source: shortcutSource }),
     });
-  }, [
-    logEvent,
-    showTopSites,
-    shortcutSource,
-    hasCheckedPermission,
-    isShortcutsV1,
-  ]);
+  }, [logEvent, showTopSites, shortcutSource, hasCheckedPermission]);
 
   const onOptionsOpen = () => {
     setShowOptions(true);
@@ -153,16 +97,6 @@ export default function ShortcutLinks({
       event_name: LogEvent.OpenShortcutConfig,
       target_type: TargetType.Shortcuts,
     });
-  };
-
-  const onV1Hide = () => {
-    if (!isShortcutsUIV1) {
-      displayToast(
-        'Get your shortcuts back by turning it on from the customize options on the sidebar',
-      );
-    }
-
-    toggleShowTopSites();
   };
 
   if (!showTopSites) {
@@ -197,30 +131,26 @@ export default function ShortcutLinks({
 
   return (
     <>
-      {isShortcutsV1 ? (
-        <ShortcutLinksUIV1
-          {...{
-            onLinkClick,
-            onMenuClick,
-            onOptionsOpen,
-            onV1Hide,
-            shortcutLinks,
-            shouldUseListFeedLayout,
-            showTopSites,
-            toggleShowTopSites,
-            hasCheckedPermission,
-          }}
-        />
-      ) : (
-        <ShortcutLinksUIControl
-          {...{
-            shortcutLinks,
-            onLinkClick,
-            onOptionsOpen,
-            className,
-          }}
-        />
-      )}
+      {!hideShortcuts &&
+        (showGetStarted ? (
+          <ShortcutGetStarted
+            onTopSitesClick={toggleShowTopSites}
+            onCustomLinksClick={onOptionsOpen}
+          />
+        ) : (
+          <ShortcutLinksList
+            {...{
+              onLinkClick,
+              onMenuClick,
+              onOptionsOpen,
+              shortcutLinks,
+              shouldUseListFeedLayout,
+              showTopSites,
+              toggleShowTopSites,
+              hasCheckedPermission,
+            }}
+          />
+        ))}
 
       {showModal && (
         <MostVisitedSitesModal
@@ -231,7 +161,7 @@ export default function ShortcutLinks({
           }}
           onApprove={async () => {
             setShowModal(false);
-            const granted = await askTopSitesPermission();
+            const granted = await askTopSitesBrowserPermission();
             if (!granted) {
               onIsManual(true);
             }
@@ -257,7 +187,7 @@ export default function ShortcutLinks({
       )}
       <ShortcutOptionsMenu
         isOpen={isOpen}
-        onHide={onV1Hide}
+        onHide={toggleShowTopSites}
         onManage={onOptionsOpen}
       />
     </>
