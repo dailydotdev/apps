@@ -21,12 +21,11 @@ import {
 } from '../../lib/socialMedia';
 import { capitalize } from '../../lib/strings';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { geoToEmoji } from '../../lib/geo';
+import { geoToCountry, geoToEmoji } from '../../lib/geo';
 
 const GeoPersonalizedBanner = ({ geo }: { geo: string }): ReactElement => {
   const emoji = geoToEmoji(geo);
-  const displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
-  const country = displayNames.of(geo.toUpperCase());
+  const country = geoToCountry(geo);
 
   return (
     <AuthenticationBanner>
