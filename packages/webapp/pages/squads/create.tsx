@@ -119,7 +119,6 @@ function CreatePost(): ReactElement {
     onSuccess: (newSquad) => {
       const form = formToJson<CreatePostProps>(formRef.current);
 
-      setSelected(selected + 1);
       return onSubmitFreeformPost(form, newSquad);
     },
     retryWithRandomizedHandle: true,
