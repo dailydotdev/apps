@@ -18,6 +18,7 @@ import {
 } from '@dailydotdev/shared/src/lib/constants';
 import { useRouter } from 'next/router';
 import { FirefoxPermissionType } from '@dailydotdev/shared/src/lib/cookie';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { FirefoxPermissionItem } from './FirefoxPermissionItem';
 import { FirefoxPermissionContainer } from './common';
 
@@ -74,6 +75,8 @@ export function FirefoxPermission({
           color={TypographyColor.Link}
           type={TypographyType.Subhead}
           href={privacyPolicy}
+          target="_blank"
+          rel={anchorDefaultRel}
         >
           Full permission document
         </Typography>
