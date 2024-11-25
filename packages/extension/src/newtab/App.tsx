@@ -38,6 +38,10 @@ import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
+import {
+  FIREFOX_ACCEPTED_PERMISSION,
+  FirefoxPermissionType,
+} from '@dailydotdev/shared/src/lib/cookie';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
@@ -45,10 +49,7 @@ import MainFeedPage from './MainFeedPage';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
 import { useContentScriptStatus } from '../../../shared/src/hooks';
-import {
-  FirefoxPermission,
-  FirefoxPermissionType,
-} from '../permission/FirefoxPermission';
+import { FirefoxPermission } from '../permission/FirefoxPermission';
 import { FirefoxPermissionDeclined } from '../permission/FirefoxPermissionDeclined';
 
 structuredCloneJsonPolyfill();
@@ -73,7 +74,7 @@ function InternalApp(): ReactElement {
   const { setCurrentPage, currentPage } = useExtensionContext();
   const [firefoxPermission, setFirefoxPermission, isFetched] =
     usePersistentContext<FirefoxPermissionType | null>(
-      'firefox_accepted_permissions',
+      FIREFOX_ACCEPTED_PERMISSION,
       null,
     );
   const { unreadCount } = useNotificationContext();

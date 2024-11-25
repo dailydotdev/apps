@@ -17,13 +17,9 @@ import {
   privacyPolicy,
 } from '@dailydotdev/shared/src/lib/constants';
 import { useRouter } from 'next/router';
+import { FirefoxPermissionType } from '@dailydotdev/shared/src/lib/cookie';
 import { FirefoxPermissionItem } from './FirefoxPermissionItem';
 import { FirefoxPermissionContainer } from './common';
-
-export enum FirefoxPermissionType {
-  Accepted = 'accepted',
-  Declined = 'declined',
-}
 
 interface FirefoxPermissionProps {
   onUpdate(permission: FirefoxPermissionType): Promise<void>;
