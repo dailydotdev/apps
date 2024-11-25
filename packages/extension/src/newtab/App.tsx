@@ -23,7 +23,6 @@ import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNoti
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
-import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
@@ -37,8 +36,6 @@ import ExtensionPermissionsPrompt from '@dailydotdev/shared/src/components/Exten
 import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
 import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
-import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
-import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
@@ -56,7 +53,6 @@ import { FirefoxPermissionDeclined } from '../permission/FirefoxPermissionDeclin
 
 structuredCloneJsonPolyfill();
 
-const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
 const DEFAULT_TAB_TITLE = 'New Tab';
 const router = new CustomRouter();
 const queryClient = new QueryClient(defaultQueryClientConfig);
@@ -74,31 +70,7 @@ const getRedirectUri = () => browser.runtime.getURL('index.html');
 function InternalApp(): ReactElement {
   useError();
   useWebVitals();
-  const { openModal } = useLazyModal();
-  const { setCurrentPage, currentPage, promptUninstallExtension } =
-    useExtensionContext();
-  const [analyticsConsent, setAnalyticsConsent] = usePersistentState(
-    'consent',
-    false,
-    isFirefoxExtension ? null : true,
-  );
-
-  const analyticsConsentPrompt = useCallback(() => {
-    openModal({
-      type: LazyModal.FirefoxPrivacy,
-      props: {
-        onAccept: () => setAnalyticsConsent(true),
-        onDecline: () => promptUninstallExtension(),
-      },
-    });
-  }, [openModal, promptUninstallExtension, setAnalyticsConsent]);
-
-  useEffect(() => {
-    if (analyticsConsent === null) {
-      analyticsConsentPrompt();
-    }
-  }, [analyticsConsent, analyticsConsentPrompt]);
-
+  const { setCurrentPage, currentPage } = useExtensionContext();
   const [firefoxPermission, setFirefoxPermission, isFetched] =
     usePersistentContext<FirefoxPermissionType | null>(
       'firefox_accepted_permissions',
