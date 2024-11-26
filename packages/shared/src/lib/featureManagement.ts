@@ -32,8 +32,8 @@ const feature = {
   showCodeSnippets: new Feature('show_code_snippets', false),
   seniorContentOnboarding: new Feature('senior_content_onboarding', false),
   postBannerExtensionPrompt: new Feature('post_banner_extension_prompt', false),
-  plusSubscription: new Feature('plus_subscription', true),
-  plusEarlyAdopter: new Feature('plus_early_adopter', true),
+  plusSubscription: new Feature('plus_subscription', false),
+  plusEarlyAdopter: new Feature('plus_early_adopter', false),
   feedPageSizes: new Feature('feed_page_sizes', {
     default: 7,
     tablet: 9,
@@ -43,6 +43,7 @@ const feature = {
     desktop: 25,
   }),
   pricingIds: new Feature('pricing_ids', {
+    pri_O1jdkx6sakk5kb6p586nejnqam: 'early_adopter',
     pri_01jbsccbdbcwyhdy8hy3c2etyn: 'monthly',
     pri_01jbscda57910yvwjtyapnrrzc: 'yearly',
   }),

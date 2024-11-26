@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import classNames from 'classnames';
 import { PlusUser } from '../PlusUser';
 import { IconSize } from '../Icon';
@@ -19,6 +19,8 @@ import {
 } from '../buttons/Button';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent } from '../../lib/log';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
 
 type PlusInfoProps = {
   productOptions: ProductOption[];
@@ -33,6 +35,13 @@ export const PlusInfo = ({
   onContinue,
 }: PlusInfoProps): ReactElement => {
   const { logSubscriptionEvent } = usePlusSubscription();
+  const planTypes = useFeature(feature.pricingIds);
+  const earlyAccessPlanId = useMemo(() => {
+    return Object.keys(planTypes).find(
+      (id) => planTypes[id] === 'early_adopter',
+    );
+  }, [planTypes]);
+
   return (
     <>
       <PlusUser
@@ -71,6 +80,7 @@ export const PlusInfo = ({
         {productOptions.map((option) => {
           const { label, value, price, currencyCode, extraLabel } = option;
           const checked = selectedOption === value;
+          const isEarlyAccess = value === earlyAccessPlanId;
           return (
             <RadioItem
               key={label}
@@ -106,8 +116,15 @@ export const PlusInfo = ({
                 <Typography
                   tag={TypographyTag.Span}
                   type={TypographyType.Caption1}
-                  color={TypographyColor.StatusSuccess}
-                  className="ml-3 rounded-10 bg-action-upvote-float px-2 py-1"
+                  color={
+                    isEarlyAccess
+                      ? TypographyColor.StatusHelp
+                      : TypographyColor.StatusSuccess
+                  }
+                  className={classNames(
+                    'ml-3 rounded-10 px-2 py-1',
+                    isEarlyAccess ? 'bg-[#FFE92314]' : 'bg-action-upvote-float',
+                  )}
                   bold
                 >
                   {extraLabel}
