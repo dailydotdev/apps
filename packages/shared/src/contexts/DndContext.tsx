@@ -26,7 +26,6 @@ const DEFAULT_VALUE = {
   onDndSettings: null,
 };
 const DndContext = React.createContext<DndContextData>(DEFAULT_VALUE);
-const now = new Date();
 
 interface DndContextProviderProps {
   children: ReactNode;
@@ -35,6 +34,7 @@ interface DndContextProviderProps {
 export const DndContextProvider = ({
   children,
 }: DndContextProviderProps): ReactElement => {
+  const now = new Date();
   const [showDnd, setShowDnd] = useState(false);
   const [dndSettings, setDndSettings] =
     usePersistentContext<DndSettings>('dnd');
