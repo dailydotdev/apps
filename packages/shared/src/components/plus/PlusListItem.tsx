@@ -16,6 +16,7 @@ import { feature } from '../../lib/featureManagement';
 
 export enum PlusItemStatus {
   Ready = 'done',
+  Disabled = 'disabled',
   ComingSoon = 'coming-soon',
 }
 
@@ -74,24 +75,30 @@ const PlusListItemWithTooltip = ({
         </SimpleTooltip>
       )}
     >
-      <li className="flex items-center gap-2 rounded-6 p-1 hover:bg-surface-float">
-        <ChecklistAIcon
-          className="text-text-quaternary"
-          size={IconSize.XSmall}
-          {...icon}
-        />
-        <div className="flex flex-1 gap-2">
-          <Typography
-            tag={TypographyTag.P}
-            type={TypographyType.Body}
-            color={TypographyColor.Primary}
-            {...text}
-            className={text?.className}
-          >
-            {item.label}
-          </Typography>
+      <li
+        className={classNames(
+          'flex gap-2 rounded-6 p-1',
+          !!item.tooltip && 'hover:bg-surface-float',
+        )}
+      >
+        <div className="mt-0.5 inline-block ">
+          <ChecklistAIcon
+            className="text-text-quaternary"
+            size={IconSize.XSmall}
+            {...icon}
+          />
+        </div>
+        <Typography
+          tag={TypographyTag.P}
+          type={TypographyType.Body}
+          color={TypographyColor.Primary}
+          {...text}
+          className={classNames('flex flex-1 flex-wrap gap-2', text?.className)}
+        >
+          {item.label}
           {item.status === PlusItemStatus.ComingSoon && (
             <Typography
+              tag={TypographyTag.Span}
               type={TypographyType.Caption1}
               color={TypographyColor.Tertiary}
               className="rounded-6 bg-surface-float px-2 py-0.5"
@@ -99,7 +106,7 @@ const PlusListItemWithTooltip = ({
               Coming soon
             </Typography>
           )}
-        </div>
+        </Typography>
         {item.tooltip && <InfoIcon />}
       </li>
     </ConditionalWrapper>

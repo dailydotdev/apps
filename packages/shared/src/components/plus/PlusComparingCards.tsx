@@ -13,9 +13,9 @@ import { DevPlusIcon } from '../icons';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { plusUrl } from '../../lib/constants';
 import { defaultFeatureList, plusFeatureList, PlusList } from './PlusList';
-import { IconSize } from '../Icon';
 import { anchorDefaultRel } from '../../lib/strings';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { PlusItemStatus } from './PlusListItem';
 
 export enum OnboardingPlans {
   Free = 'Free',
@@ -111,16 +111,17 @@ const PlusCard = ({
         className="!py-0"
         items={
           isPaidPlan
-            ? ['Everything on the Free plan', ...plusFeatureList]
+            ? [
+                {
+                  label: 'Everything on the Free plan',
+                  status: PlusItemStatus.Disabled,
+                },
+                ...plusFeatureList,
+              ]
             : defaultFeatureList
         }
         icon={{
-          size: IconSize.XSmall,
           className: isPaidPlan ? 'text-text-tertiary' : 'text-text-quaternary',
-        }}
-        text={{
-          type: TypographyType.Caption1,
-          className: 'self-center',
         }}
       />
     </div>

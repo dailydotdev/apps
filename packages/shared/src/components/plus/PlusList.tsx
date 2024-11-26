@@ -77,7 +77,7 @@ export const PlusList = ({
     () =>
       items.filter(
         (item) =>
-          isEarlyAdopterExperiment || item.status === PlusItemStatus.Ready,
+          isEarlyAdopterExperiment || item.status !== PlusItemStatus.ComingSoon,
       ),
     [items, isEarlyAdopterExperiment],
   );
