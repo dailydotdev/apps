@@ -1,7 +1,13 @@
 import React, { ReactElement, useCallback, useMemo } from 'react';
 import { Section } from '../Section';
 import { ListIcon, SidebarMenuItem } from '../common';
-import { BookmarkIcon, DevPlusIcon, EyeIcon, HotIcon } from '../../icons';
+import {
+  BookmarkIcon,
+  DevPlusIcon,
+  EyeIcon,
+  HotIcon,
+  SquadIcon,
+} from '../../icons';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { OtherFeedPage } from '../../../lib/query';
@@ -9,6 +15,7 @@ import { SidebarSectionProps } from './common';
 import { webappUrl } from '../../../lib/constants';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../../lib/log';
+import { useFollowingFeed } from '../../../hooks/feed/useFollowingFeed';
 
 export const MainSection = ({
   isItemsButton,
@@ -17,6 +24,7 @@ export const MainSection = ({
 }: SidebarSectionProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
   const { isEnrolledNotPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { isActive } = useFollowingFeed();
 
   const onPlusClick = useCallback(() => {
     logSubscriptionEvent({
@@ -48,8 +56,20 @@ export const MainSection = ({
         }
       : undefined;
 
+    const following = isActive
+      ? {
+          title: 'Following',
+          path: `${webappUrl}following`,
+          action: () => onNavTabClick?.(OtherFeedPage.Following),
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <SquadIcon secondary={active} />} />
+          ),
+        }
+      : undefined;
+
     return [
       myFeed,
+      following,
       {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <HotIcon secondary={active} />} />
@@ -78,7 +98,14 @@ export const MainSection = ({
       },
       plus,
     ].filter(Boolean);
-  }, [isLoggedIn, isEnrolledNotPlus, onNavTabClick, onPlusClick, user]);
+  }, [
+    isLoggedIn,
+    user,
+    isEnrolledNotPlus,
+    onPlusClick,
+    isActive,
+    onNavTabClick,
+  ]);
 
   return (
     <Section

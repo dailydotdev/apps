@@ -18,6 +18,7 @@ import {
   ANONYMOUS_FEED_QUERY,
   CUSTOM_FEED_QUERY,
   FEED_QUERY,
+  FOLLOWING_FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
   PREVIEW_FEED_QUERY,
@@ -115,6 +116,9 @@ const propsByFeed: Record<SharedFeedPage & OtherFeedPage, FeedQueryProps> = {
   },
   [SharedFeedPage.CustomForm]: {
     query: PREVIEW_FEED_QUERY,
+  },
+  [OtherFeedPage.Following]: {
+    query: FOLLOWING_FEED_QUERY,
   },
 };
 

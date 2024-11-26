@@ -27,6 +27,7 @@ import classed from '../../lib/classed';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { OtherFeedPage } from '../../lib/query';
 import { ChecklistViewState } from '../../lib/checklist';
+import { useFollowingFeed } from '../../hooks/feed/useFollowingFeed';
 
 const OnboardingChecklistBar = dynamic(
   () =>
@@ -46,6 +47,7 @@ enum FeedNavTab {
   History = 'History',
   Discussions = 'Discussions',
   NewFeed = 'Custom feed',
+  Following = 'Following',
 }
 
 const StickyNavIconWrapper = classed(
@@ -60,6 +62,7 @@ function FeedNav(): ReactElement {
   const { sortingEnabled, onboardingChecklistView } = useSettingsContext();
   const { isSortableFeed } = useFeedName({ feedName });
   const { home: shouldRenderNav } = useActiveNav(feedName);
+  const { isActive } = useFollowingFeed();
   const isMobile = useViewSize(ViewSize.MobileL);
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
@@ -92,8 +95,15 @@ function FeedNav(): ReactElement {
       ...customFeeds,
     };
 
+    const following = isActive
+      ? {
+          [`${webappUrl}following`]: FeedNavTab.Following,
+        }
+      : undefined;
+
     return {
       ...urls,
+      ...following,
       [`${webappUrl}${OtherFeedPage.Discussed}`]: FeedNavTab.Discussions,
       [`${webappUrl}tags`]: FeedNavTab.Tags,
       [`${webappUrl}sources`]: FeedNavTab.Sources,
@@ -101,7 +111,7 @@ function FeedNav(): ReactElement {
       [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
       [`${webappUrl}history`]: FeedNavTab.History,
     };
-  }, [feeds?.edges, router.query.slugOrId, router.pathname]);
+  }, [feeds?.edges, isActive, router.query.slugOrId, router.pathname]);
 
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
