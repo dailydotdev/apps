@@ -99,7 +99,7 @@ function InternalApp(): ReactElement {
   const { contentScriptGranted } = useContentScriptStatus();
   const { hostGranted, isFetching: isCheckingHostPermissions } =
     useHostStatus();
-  const routeChangedCallbackRef = useLogPageView();
+  const routeChangedCallback = useLogPageView();
   useConsoleLogo();
   const { user, isAuthReady } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
@@ -108,10 +108,10 @@ function InternalApp(): ReactElement {
   const shouldRedirectOnboarding = !user && isPageReady && !isTesting;
 
   useEffect(() => {
-    if (routeChangedCallbackRef.current && isPageReady) {
-      routeChangedCallbackRef.current();
+    if (isPageReady && currentPage) {
+      routeChangedCallback?.();
     }
-  }, [isPageReady, routeChangedCallbackRef, currentPage]);
+  }, [isPageReady, routeChangedCallback, currentPage]);
 
   const { dismissToast } = useToastNotification();
 
