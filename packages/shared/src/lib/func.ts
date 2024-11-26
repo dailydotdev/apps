@@ -38,6 +38,14 @@ export const postWindowMessage = (
 export const checkIsExtension = (): boolean => !!process.env.TARGET_BROWSER;
 export const isExtension = !!process.env.TARGET_BROWSER;
 
+export const isAndroidApp = (): boolean =>
+  globalThis?.location?.pathname?.includes('/?android=true');
+
+export const isPWA = (): boolean =>
+  globalThis?.location?.pathname?.includes('/?pwa=true');
+
+export const isApp = isPWA() || isAndroidApp();
+
 export const defaultSearchDebounceMs = 500;
 
 export const getRandomNumber = (min: number, max: number): number => {
@@ -95,6 +103,7 @@ export const sortAlphabeticallyByProperty =
 export enum UserAgent {
   Chrome = 'Chrome',
   Edge = 'Edg', // intended to be Edg, not Edge
+  Android = 'Android',
 }
 
 export const checkIsBrowser = (agent: UserAgent): boolean =>

@@ -65,6 +65,7 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import useMutateFilters from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import dynamic from 'next/dynamic';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
+import { checkIsBrowser, UserAgent } from '@dailydotdev/shared/src/lib/func';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -92,6 +93,12 @@ const Sources = dynamic(() =>
   import('@dailydotdev/shared/src/components/onboarding/Sources/Sources').then(
     (mod) => mod.Sources,
   ),
+);
+
+const OnboardingAndroidApp = dynamic(() =>
+  import(
+    /* webpackChunkName: "onboardingAndroidApp" */ '@dailydotdev/shared/src/components/onboarding/OnboardingAndroidApp'
+  ).then((mod) => mod.OnboardingAndroidApp),
 );
 
 type OnboardingVisual = {
@@ -152,6 +159,11 @@ export function OnboardPage(): ReactElement {
     EXPERIENCE_TO_SENIORITY[user?.experienceLevel] === 'senior' ||
     user?.experienceLevel === 'MORE_THAN_4_YEARS';
 
+  const appExperiment = useConditionalFeature({
+    feature: feature.onboardingAndroid,
+    shouldEvaluate: checkIsBrowser(UserAgent.Android),
+  });
+
   const isFeedSettingsDefined = useMemo(() => !!feedSettings, [feedSettings]);
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
 
@@ -183,6 +195,14 @@ export function OnboardPage(): ReactElement {
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPageReady, user]);
+
+  const onCompleteOnboarding = () =>
+    router.replace({
+      pathname: '/',
+      query: {
+        ua: 'true',
+      },
+    });
 
   const onClickNext = () => {
     logEvent({
@@ -234,12 +254,11 @@ export function OnboardPage(): ReactElement {
       });
     }
 
-    return router.replace({
-      pathname: '/',
-      query: {
-        ua: 'true',
-      },
-    });
+    if (appExperiment && activeScreen !== OnboardingStep.AndroidApp) {
+      return setActiveScreen(OnboardingStep.AndroidApp);
+    }
+
+    return onCompleteOnboarding();
   };
 
   const onClickCreateFeed = () => {
@@ -307,6 +326,9 @@ export function OnboardPage(): ReactElement {
     if (showOnboardingSources && activeScreen === OnboardingStep.ContentTypes) {
       return 'Continue';
     }
+    if (activeScreen === OnboardingStep.AndroidApp) {
+      return 'Not now →';
+    }
 
     return undefined;
   }, [activeScreen, showOnboardingSources]);
@@ -342,14 +364,21 @@ export function OnboardPage(): ReactElement {
         showOnboardingPage={showOnboardingPage}
         setAuth={setAuth}
         customActionName={customActionName}
-        onClickCreateFeed={onClickCreateFeed}
+        onClick={
+          activeScreen === OnboardingStep.AndroidApp
+            ? onCompleteOnboarding
+            : onClickCreateFeed
+        }
         activeScreen={activeScreen}
       />
       <div
         className={classNames(
-          'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
+          'flex w-full flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
           activeScreen === OnboardingStep.Intro && wrapperMaxWidth,
-          !isAuthenticating && 'mt-7.5 flex-1 content-center',
+          !isAuthenticating &&
+            activeScreen !== OnboardingStep.AndroidApp &&
+            'mt-7.5 flex-1 content-center',
+          activeScreen !== OnboardingStep.AndroidApp && 'flex-1 flex-grow',
         )}
       >
         {showOnboardingPage && (
@@ -391,11 +420,16 @@ export function OnboardPage(): ReactElement {
             )}
             {activeScreen === OnboardingStep.ContentTypes && <ContentTypes />}
             {activeScreen === OnboardingStep.Sources && <Sources />}
+            {activeScreen === OnboardingStep.AndroidApp && (
+              <OnboardingAndroidApp />
+            )}
           </div>
         )}
       </div>
       {showOnboardingPage && <OnboardingFooter />}
-      <FooterLinks className="mx-auto pb-6" />
+      {activeScreen !== OnboardingStep.AndroidApp && (
+        <FooterLinks className="mx-auto pb-6" />
+      )}
     </div>
   );
 }

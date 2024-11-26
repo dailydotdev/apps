@@ -34,6 +34,8 @@ import { usePrompt } from '../../hooks/usePrompt';
 import { ButtonColor } from '../buttons/Button';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../lib/log';
+import { GooglePlayIcon } from '../icons/Google/Play';
+import { isAndroidApp } from '../../lib/func';
 
 const useMenuItems = (): NavItemProps[] => {
   const { logout } = useAuthContext();
@@ -69,6 +71,15 @@ const useMenuItems = (): NavItemProps[] => {
               target_id: TargetId.ProfileDropdown,
             });
           },
+        }
+      : undefined;
+
+    const downloadAndroidApp = !isAndroidApp()
+      ? {
+          label: 'Download mobile app',
+          icon: <GooglePlayIcon />,
+          href: process.env.NEXT_PUBLIC_ANDROID_APP,
+          target: '_blank',
         }
       : undefined;
 
@@ -128,6 +139,7 @@ const useMenuItems = (): NavItemProps[] => {
         label: 'Support',
         isHeader: true,
       },
+      downloadAndroidApp,
       {
         label: 'Docs',
         icon: <DocsIcon />,
