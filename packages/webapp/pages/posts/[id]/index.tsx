@@ -197,9 +197,6 @@ export async function getStaticProps({
       { id },
     );
 
-    // eslint-disable-next-line no-console
-    console.log('fetched post', initialData.post);
-
     const post = initialData.post as Post;
     const seo: NextSeoProps = {
       canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
