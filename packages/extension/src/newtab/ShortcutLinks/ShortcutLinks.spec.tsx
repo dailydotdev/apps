@@ -1,12 +1,13 @@
-import React, { act } from 'react';
+import React from 'react';
 import nock from 'nock';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import {
+  act,
   fireEvent,
   render,
   RenderResult,
   screen,
-  waitForElementToBeRemoved,
+  waitFor,
 } from '@testing-library/react';
 import { mocked } from 'ts-jest/utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -18,7 +19,6 @@ import {
   BootCacheData,
   getBootData,
 } from '@dailydotdev/shared/src/lib/boot';
-import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import {
   RemoteSettings,
   UPDATE_USER_SETTINGS_MUTATION,
@@ -32,6 +32,9 @@ import {
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
 import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
+import * as actionHook from '@dailydotdev/shared/src/hooks/useActions';
+import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import * as libFuncs from '@dailydotdev/shared/src/lib/func';
 import ShortcutLinks from './ShortcutLinks';
 
 jest.mock('@dailydotdev/shared/src/lib/boot', () => ({
@@ -103,11 +106,12 @@ const defaultBootData: BootCacheData = {
   geo: {},
   postData: undefined,
   alerts: defaultAlerts,
-  user: { ...defaultUser, createdAt: '2024-02-16T00:00:00.000Z' },
+  user: { ...loggedUser, createdAt: '2024-08-16T00:00:00.000Z' },
   settings: defaultSettings,
   squads: [],
   notifications: { unreadNotificationsCount: 0 },
   feeds: [],
+  geo: { ip: '192.168.1.1', region: 'EU' },
 };
 
 const getBootMock = (bootMock: BootCacheData): Boot => ({
@@ -119,31 +123,44 @@ const getBootMock = (bootMock: BootCacheData): Boot => ({
 
 const logEvent = jest.fn();
 
+const checkHasCompleted = jest.fn();
+const completeAction = jest.fn();
+jest.spyOn(actionHook, 'useActions').mockReturnValue({
+  completeAction,
+  checkHasCompleted,
+  isActionsFetched: true,
+  actions: [],
+});
+jest.spyOn(libFuncs, 'checkIsExtension').mockReturnValue(true);
+
 const renderComponent = (bootData = defaultBootData): RenderResult => {
   const queryClient = new QueryClient();
   const app = BootApp.Extension;
   mocked(getBootData).mockResolvedValue(getBootMock(bootData));
   return render(
-    <QueryClientProvider client={queryClient}>
-      <BootDataProvider
-        app={app}
-        getRedirectUri={jest.fn()}
-        version="pwa"
-        deviceId="123"
-        getPage={jest.fn()}
-      >
-        <LogContext.Provider
-          value={{
-            logEvent,
-            logEventStart: jest.fn(),
-            logEventEnd: jest.fn(),
-            sendBeacon: jest.fn(),
-          }}
+    <div id="__next">
+      <QueryClientProvider client={queryClient}>
+        <BootDataProvider
+          app={app}
+          getRedirectUri={jest.fn()}
+          version="pwa"
+          deviceId="123"
+          getPage={jest.fn()}
+          localBootData={bootData}
         >
-          <ShortcutLinks shouldUseListFeedLayout={false} />
-        </LogContext.Provider>
-      </BootDataProvider>
-    </QueryClientProvider>,
+          <LogContext.Provider
+            value={{
+              logEvent,
+              logEventStart: jest.fn(),
+              logEventEnd: jest.fn(),
+              sendBeacon: jest.fn(),
+            }}
+          >
+            <ShortcutLinks shouldUseListFeedLayout={false} />
+          </LogContext.Provider>
+        </BootDataProvider>
+      </QueryClientProvider>
+    </div>,
   );
 };
 
@@ -154,16 +171,17 @@ describe('shortcut links component', () => {
       settings: { ...defaultSettings, showTopSites: false },
     });
 
-    await waitForElementToBeRemoved(() => screen.queryByText('Add shortcuts'));
+    expect(screen.queryByText('Add shortcuts')).not.toBeInTheDocument();
   });
 
-  it('should display add shortcuts if settings is enabled', async () => {
-    renderComponent();
-
-    await act(async () => {
-      const addShortcuts = await screen.findByText('Add shortcuts');
-      expect(addShortcuts).toBeVisible();
+  it('should display add shortcuts if settings is enabled and no customLinks added', async () => {
+    renderComponent({
+      ...defaultBootData,
+      settings: { ...defaultSettings, customLinks: null },
     });
+
+    const addShortcuts = await screen.findByText('Add shortcuts');
+    expect(addShortcuts).toBeVisible();
 
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.Impression,
@@ -173,10 +191,15 @@ describe('shortcut links component', () => {
   });
 
   it('should display top sites if permission is previously granted', async () => {
-    await browser.permissions.request({ permissions: ['topSites'] });
-    renderComponent({
-      ...defaultBootData,
-      settings: { ...defaultBootData.settings, customLinks: null },
+    await act(async () => {
+      await browser.permissions.request({ permissions: ['topSites'] });
+      renderComponent({
+        ...defaultBootData,
+        settings: {
+          ...defaultBootData.settings,
+          customLinks: null,
+        },
+      });
     });
 
     const shortcuts = await screen.findAllByRole('link');
@@ -233,34 +256,6 @@ describe('shortcut links component', () => {
     });
   });
 
-  it('should be able to remove permission', async () => {
-    await browser.permissions.request({ permissions: ['topSites'] });
-    renderComponent({
-      ...defaultBootData,
-      settings: { ...defaultSettings, customLinks: [] },
-      user: {
-        id: 'string',
-        firstVisit: 'string',
-        referrer: 'string',
-      },
-    });
-
-    const edit = await screen.findByLabelText('Edit shortcuts');
-    fireEvent.click(edit);
-
-    const remove = await screen.findByText('Revoke access');
-    expect(remove).toBeVisible();
-    fireEvent.click(remove);
-
-    const addShortcuts = await screen.findByText('Add shortcuts');
-    expect(addShortcuts).toBeVisible();
-
-    expect(logEvent).toHaveBeenCalledWith({
-      event_name: LogEvent.RevokeShortcutAccess,
-      target_type: TargetType.Shortcuts,
-    });
-  });
-
   it('should display custom shortcut links', async () => {
     renderComponent();
 
@@ -289,8 +284,11 @@ describe('shortcut links component', () => {
     const shortcuts = await screen.findAllByRole('link');
     expect(shortcuts.length).toEqual(4);
 
-    const edit = await screen.findByLabelText('Edit shortcuts');
+    const edit = await screen.findByLabelText('toggle shortcuts menu');
     fireEvent.click(edit);
+
+    const manage = await screen.findByText('Manage');
+    fireEvent.click(manage);
 
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.OpenShortcutConfig,
@@ -331,6 +329,36 @@ describe('shortcut links component', () => {
     });
   });
 
+  it('should allow to hide shortcuts', async () => {
+    let mutationCalled = false;
+    mockGraphQL({
+      request: {
+        query: UPDATE_USER_SETTINGS_MUTATION,
+        variables: { data: { ...defaultSettings, showTopSites: false } },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { updateUserSettings: { updatedAt: new Date(0) } } };
+      },
+    });
+
+    renderComponent();
+
+    const link = await screen.findByAltText('http://custom1.com');
+
+    const toggleMenu = await screen.findByLabelText('toggle shortcuts menu');
+    fireEvent.click(toggleMenu);
+
+    const hide = await screen.findByText('Hide');
+    fireEvent.click(hide);
+    await waitForNock();
+    expect(mutationCalled).toBeTruthy();
+
+    await waitFor(() => {
+      expect(link).not.toBeInTheDocument();
+    });
+  });
+
   it('should log click event for individual shortcuts', async () => {
     renderComponent();
 
@@ -343,5 +371,38 @@ describe('shortcut links component', () => {
       target_type: TargetType.Shortcuts,
       extra: JSON.stringify({ source: ShortcutsSourceType.Custom }),
     });
+  });
+
+  it('should show getting started for new users with no [actions and links]', async () => {
+    renderComponent({
+      ...defaultBootData,
+      user: {
+        id: 'string',
+        firstVisit: 'string',
+        referrer: 'string',
+        createdAt: '2024-08-16T00:00:00.000Z',
+      },
+      settings: { ...defaultSettings, customLinks: [] },
+    });
+
+    const gettingStarted = await screen.findByText(
+      'Choose your most visited sites',
+    );
+    expect(gettingStarted).toBeVisible();
+  });
+
+  it('should hide getting started for old users with no [actions and links]', async () => {
+    renderComponent({
+      ...defaultBootData,
+      user: {
+        ...loggedUser,
+        createdAt: '2024-06-16T00:00:00.000Z',
+      },
+      settings: { ...defaultSettings, customLinks: null, showTopSites: true },
+    });
+
+    expect(
+      screen.queryByText('Choose your most visited sites'),
+    ).not.toBeInTheDocument();
   });
 });

@@ -19,15 +19,13 @@ import { IconSize } from '../Icon';
 import { RankingAlgorithm } from '../../graphql/feed';
 import SettingsContext from '../../contexts/SettingsContext';
 import { useFeedName } from '../../hooks/feed/useFeedName';
-import { useConditionalFeature, useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import { AllFeedPages } from '../../lib/query';
 import { webappUrl } from '../../lib/constants';
-import { feature } from '../../lib/featureManagement';
 import { checkIsExtension } from '../../lib/func';
-import { ShortcutsUIExperiment } from '../../lib/featureValues';
 import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import {
   AllowedTags,
@@ -78,11 +76,6 @@ export const SearchControlHeader = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
-  const { value: shortcutsUIFeature } = useConditionalFeature({
-    feature: feature.shortcutsUI,
-    shouldEvaluate: isExtension,
-  });
-  const isShortcutsUIV1 = shortcutsUIFeature === ShortcutsUIExperiment.V1;
 
   if (isMobile) {
     return null;
@@ -152,15 +145,13 @@ export const SearchControlHeader = ({
               'flex w-full items-center justify-between tablet:mb-2 tablet:p-4',
             )}
           >
-            {isShortcutsUIV1 && wrapperChildren}
+            {isExtension && wrapperChildren}
 
             <div className="flex-0">
               {isStreaksEnabled && (
                 <ReadingStreakButton streak={streak} isLoading={isLoading} />
               )}
             </div>
-
-            {!isShortcutsUIV1 && wrapperChildren}
           </div>
         );
       }}
