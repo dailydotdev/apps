@@ -120,7 +120,8 @@ export function OnboardPage(): ReactElement {
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
   const { user, isAuthReady, anonymous } = useAuthContext();
-  const { isOnboardingPlusActive } = usePlusSubscription();
+  const { isOnboardingPlusActive, logSubscriptionEvent } =
+    usePlusSubscription();
   const shouldVerify = anonymous?.shouldVerify;
   const { growthbook } = useGrowthBookContext();
   const { logEvent } = useLogContext();
@@ -232,12 +233,12 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.Sources);
     }
 
-    const isSourcesStep = activeScreen === OnboardingStep.Sources;
     const isLastStepBeforePlus = [
       OnboardingStep.ContentTypes,
       OnboardingStep.ReadingReminder,
+      OnboardingStep.Sources,
     ].includes(activeScreen);
-    if (isOnboardingPlusActive && (isSourcesStep || isLastStepBeforePlus)) {
+    if (isOnboardingPlusActive && isLastStepBeforePlus) {
       return setActiveScreen(OnboardingStep.Plus);
     }
 
@@ -260,6 +261,13 @@ export function OnboardPage(): ReactElement {
   };
 
   const onClickCreateFeed = () => {
+    if (isOnboardingPlusActive) {
+      logSubscriptionEvent({
+        event_name: 'skip upgrade subscription',
+        target_id: 'onboarding',
+      });
+    }
+
     setSettings({
       sidebarExpanded: true,
       onboardingChecklistView: ChecklistViewState.Open,
@@ -323,6 +331,10 @@ export function OnboardPage(): ReactElement {
 
     if (showOnboardingSources && activeScreen === OnboardingStep.ContentTypes) {
       return 'Continue';
+    }
+
+    if (activeScreen === OnboardingStep.Plus) {
+      return 'Skip for now ➞';
     }
 
     return undefined;

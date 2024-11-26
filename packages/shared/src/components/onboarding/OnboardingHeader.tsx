@@ -45,6 +45,7 @@ export const OnboardingHeader = ({
     OnboardingStep.EditTag,
     OnboardingStep.ContentTypes,
     OnboardingStep.Sources,
+    OnboardingStep.Plus,
   ];
 
   if (activeScreen !== OnboardingStep.Intro) {
@@ -67,22 +68,6 @@ export const OnboardingHeader = ({
               customActionName={customActionName}
               activeScreen={activeScreen}
             />
-          )}
-          {activeScreen === OnboardingStep.Plus && (
-            <Button
-              aria-label="Continue to the next step without selecting any plan"
-              title="Skip this step"
-              variant={ButtonVariant.Secondary}
-              onClick={() => {
-                logSubscriptionEvent({
-                  event_name: 'skip upgrade subscription',
-                  target_id: 'onboarding',
-                });
-                onClickCreateFeed();
-              }}
-            >
-              Skip for now ➞
-            </Button>
           )}
         </div>
       </header>
