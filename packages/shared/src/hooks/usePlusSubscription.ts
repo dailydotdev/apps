@@ -15,13 +15,11 @@ export const usePlusSubscription = (): {
   showPlusSubscription: boolean;
   isPlus: boolean;
   isEnrolledNotPlus: boolean;
-  isOnboardingPlusActive: boolean;
   logSubscriptionEvent: (event: LogSubscriptionEvent) => void;
 } => {
   const { user } = useAuthContext();
   const isPlus = user?.isPlus || false;
   const plusSubscriptionFeature = useFeature(feature.plusSubscription);
-  const isOnboardingPlusActive = useFeature(feature.onboardingPlus);
   const { logEvent } = useLogContext();
 
   const logSubscriptionEvent = useCallback(
@@ -50,7 +48,6 @@ export const usePlusSubscription = (): {
     showPlusSubscription,
     isPlus,
     isEnrolledNotPlus,
-    isOnboardingPlusActive,
     logSubscriptionEvent,
   };
 };

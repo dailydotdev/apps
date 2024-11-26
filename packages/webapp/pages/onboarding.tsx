@@ -120,8 +120,7 @@ export function OnboardPage(): ReactElement {
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
   const { user, isAuthReady, anonymous } = useAuthContext();
-  const { isOnboardingPlusActive, logSubscriptionEvent } =
-    usePlusSubscription();
+  const { logSubscriptionEvent } = usePlusSubscription();
   const shouldVerify = anonymous?.shouldVerify;
   const { growthbook } = useGrowthBookContext();
   const { logEvent } = useLogContext();
@@ -151,12 +150,17 @@ export function OnboardPage(): ReactElement {
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
   const { updateAdvancedSettings } = useMutateFilters(user);
-  const [shouldEnrollSourceSelection, setShouldEnrollSourceSelection] =
+  const [shouldEnrollOnboardingStep, setShouldEnrollOnboardingStep] =
     useState(false);
   const { value: showOnboardingSources } = useConditionalFeature({
     feature: featureOnboardingSources,
-    shouldEvaluate: shouldEnrollSourceSelection,
+    shouldEvaluate: shouldEnrollOnboardingStep,
   });
+  const { value: isOnboardingPlusActive } = useConditionalFeature({
+    feature: feature.onboardingPlus,
+    shouldEvaluate: shouldEnrollOnboardingStep,
+  });
+
   const isSeniorUser =
     EXPERIENCE_TO_SENIORITY[user?.experienceLevel] === 'senior' ||
     user?.experienceLevel === 'MORE_THAN_4_YEARS';
@@ -213,7 +217,7 @@ export function OnboardPage(): ReactElement {
         }
       }
 
-      setShouldEnrollSourceSelection(true);
+      setShouldEnrollOnboardingStep(true);
       return setActiveScreen(OnboardingStep.ContentTypes);
     }
 
