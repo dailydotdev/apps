@@ -120,7 +120,8 @@ export function OnboardPage(): ReactElement {
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
   const { user, isAuthReady, anonymous } = useAuthContext();
-  const { logSubscriptionEvent } = usePlusSubscription();
+  const { logSubscriptionEvent, showPlusSubscription: isOnboardingPlusActive } =
+    usePlusSubscription();
   const shouldVerify = anonymous?.shouldVerify;
   const { growthbook } = useGrowthBookContext();
   const { logEvent } = useLogContext();
@@ -154,10 +155,6 @@ export function OnboardPage(): ReactElement {
     useState(false);
   const { value: showOnboardingSources } = useConditionalFeature({
     feature: featureOnboardingSources,
-    shouldEvaluate: shouldEnrollOnboardingStep,
-  });
-  const { value: isOnboardingPlusActive } = useConditionalFeature({
-    feature: feature.onboardingPlus,
     shouldEvaluate: shouldEnrollOnboardingStep,
   });
 
@@ -246,15 +243,11 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.Plus);
     }
 
-    if (!hasSelectTopics) {
-      logEvent({
-        event_name: LogEvent.OnboardingSkip,
-      });
-    } else {
-      logEvent({
-        event_name: LogEvent.CreateFeed,
-      });
-    }
+    logEvent({
+      event_name: hasSelectTopics
+        ? LogEvent.CreateFeed
+        : LogEvent.OnboardingSkip,
+    });
 
     return router.replace({
       pathname: '/',
