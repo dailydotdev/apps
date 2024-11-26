@@ -78,6 +78,7 @@ const updateLocalBootData = (
     'squads',
     'exp',
     'feeds',
+    'geo',
   ]);
 
   storage.setItem(BOOT_LOCAL_KEY, JSON.stringify(result));
@@ -178,7 +179,7 @@ export const BootDataProvider = ({
 
   const isBootReady = isFetched && !isError && !!bootData;
   const loadedFromCache = !!bootData;
-  const { user, settings, alerts, notifications, squads } = bootData || {};
+  const { user, settings, alerts, notifications, squads, geo } = bootData || {};
 
   useRefreshToken(bootData?.accessToken, refetch);
   const updatedAtActive = user ? dataUpdatedAt : null;
@@ -276,6 +277,7 @@ export const BootDataProvider = ({
         accessToken={bootData?.accessToken}
         squads={squads}
         isAuthReady={isBootReady}
+        geo={geo}
       >
         <SettingsContextProvider
           settings={settings}

@@ -1,9 +1,17 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
 import LogoText from '../svg/LogoText';
 import LogoIcon from '../svg/LogoIcon';
 import { webappUrl } from '../lib/constants';
+import { IconSize } from './Icon';
+
+const DevPlusIcon = dynamic(() =>
+  import(/* webpackChunkName: "devPlusIcon" */ './icons').then(
+    (mod) => mod.DevPlusIcon,
+  ),
+);
 
 export enum LogoPosition {
   Absolute = 'absolute',
@@ -26,12 +34,14 @@ interface LogoSvgElemProps {
     group?: string;
   };
   src?: string;
+  isPlus?: boolean;
   fallback: typeof LogoText | typeof LogoIcon;
 }
 
 const LogoSvgElem = ({
   className,
   src,
+  isPlus,
   fallback: FallbackElem,
 }: LogoSvgElemProps): ReactElement => {
   if (src) {
@@ -46,7 +56,7 @@ const LogoSvgElem = ({
       />
     );
   }
-  return <FallbackElem className={className} />;
+  return <FallbackElem isPlus={isPlus} className={className} />;
 };
 
 interface LogoProps {
@@ -64,6 +74,7 @@ interface LogoProps {
     logoText?: string;
   };
   linkDisabled?: boolean;
+  isPlus?: boolean;
 }
 
 export default function Logo({
@@ -75,6 +86,7 @@ export default function Logo({
   position = LogoPosition.Absolute,
   featureTheme,
   linkDisabled,
+  isPlus = false,
 }: LogoProps): ReactElement {
   return (
     <LinkWithTooltip
@@ -86,7 +98,7 @@ export default function Logo({
       <a
         aria-disabled={linkDisabled}
         className={classNames(
-          'flex items-center',
+          'relative flex items-center',
           logoPositionToClassName[position],
           className,
           linkDisabled && 'pointer-events-none',
@@ -94,11 +106,19 @@ export default function Logo({
         href={webappUrl}
         onClick={onLogoClick}
       >
-        <LogoSvgElem
-          className={logoClassName}
-          src={featureTheme?.logo}
-          fallback={LogoIcon}
-        />
+        <div className="relative">
+          <LogoSvgElem
+            className={logoClassName}
+            src={featureTheme?.logo}
+            fallback={LogoIcon}
+          />
+          {isPlus && compact && (
+            <DevPlusIcon
+              className="absolute right-0 top-0 -translate-y-2/3 translate-x-2/3 text-action-plus-default"
+              size={IconSize.XXSmall}
+            />
+          )}
+        </div>
         {!compact && (
           <LogoSvgElem
             className={{
@@ -110,6 +130,7 @@ export default function Logo({
               group: logoClassName?.group,
             }}
             src={featureTheme?.logoText}
+            isPlus={isPlus}
             fallback={LogoText}
           />
         )}

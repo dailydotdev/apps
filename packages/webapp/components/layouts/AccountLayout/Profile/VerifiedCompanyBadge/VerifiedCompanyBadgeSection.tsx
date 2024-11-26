@@ -159,13 +159,20 @@ export const VerifiedCompanyBadgeSection = ({
 
   const UserHasCompanyInReview = () => {
     return (
-      <div className="mt-6 max-w-sm">
+      <div className="mt-4 flex max-w-sm flex-wrap items-center">
         <p className="text-text-tertiary typo-footnote">
           {userCompanies[0].email}{' '}
           <span className="ml-1 text-accent-bun-default">In review</span>
         </p>
+        <Button
+          type="button"
+          variant={ButtonVariant.Tertiary}
+          onClick={() => onDeleteUserCompany(userCompanies[0].email)}
+          icon={<TrashIcon />}
+          className="ml-auto"
+        />
         <Alert
-          className="mt-6"
+          className="mt-4 w-full"
           type={AlertType.Success}
           flexDirection="flex-row"
         >

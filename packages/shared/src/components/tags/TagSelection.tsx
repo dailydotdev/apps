@@ -14,7 +14,7 @@ import {
   TagsData,
 } from '../../graphql/feedSettings';
 import { disabledRefetch, getRandomNumber } from '../../lib/func';
-import { SearchField, SearchStyleVersion } from '../fields/SearchField';
+import { SearchField } from '../fields/SearchField';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { useTagSearch, useViewSize, ViewSize } from '../../hooks';
 import type { FilterOnboardingProps } from '../onboarding/FilterOnboarding';
@@ -24,6 +24,11 @@ import { ElementPlaceholder } from '../ElementPlaceholder';
 import { TagElement } from './TagElement';
 import { gqlClient } from '../../graphql/common';
 import { OnSelectTagProps } from './common';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
 
 const tagsSelector = (data: TagsData) => data?.tags || [];
 
@@ -40,8 +45,6 @@ export type TagSelectionProps = {
   onClickTag?: ({ tag, action }: OnSelectTagProps) => void;
   origin?: Origin;
   searchOrigin?: Origin;
-  searchStyleVersion?: SearchStyleVersion;
-  shouldShuffleTags?: boolean;
 } & Omit<FilterOnboardingProps, 'onSelectedTopics'>;
 
 export function TagSelection({
@@ -52,8 +55,6 @@ export function TagSelection({
   onClickTag,
   origin = Origin.Onboarding,
   searchOrigin = Origin.EditTag,
-  shouldShuffleTags = false,
-  searchStyleVersion,
 }: TagSelectionProps): ReactElement {
   const [isShuffled, setIsShuffled] = useState(false);
   const queryClient = useQueryClient();
@@ -108,13 +109,13 @@ export function TagSelection({
   });
 
   const onboardingTags = useMemo(() => {
-    if (!shouldShuffleTags || isShuffled || !onboardingTagsRaw) {
+    if (isShuffled || !onboardingTagsRaw) {
       return onboardingTagsRaw;
     }
 
     setIsShuffled(true);
     return onboardingTagsRaw?.sort(() => Math.random() - 0.5);
-  }, [shouldShuffleTags, isShuffled, onboardingTagsRaw]);
+  }, [isShuffled, onboardingTagsRaw]);
 
   const excludedTags = useMemo(() => {
     if (!onboardingTags) {
@@ -127,7 +128,7 @@ export function TagSelection({
   const [searchQuery, setSearchQuery] = React.useState<string>();
   const [onSearch] = useDebounceFn(setSearchQuery, 200);
 
-  const { data: searchResult, isLoading: isSearchLoading } = useTagSearch({
+  const { data: searchResult } = useTagSearch({
     value: searchQuery,
     origin: searchOrigin,
   });
@@ -196,7 +197,7 @@ export function TagSelection({
     refetchFeed();
   };
 
-  const tags = searchQuery && !isSearchLoading ? searchTags : onboardingTags;
+  const tags = searchQuery ? searchTags : onboardingTags;
   const renderedTags = {};
 
   return (
@@ -208,7 +209,6 @@ export function TagSelection({
         inputId="search-filters"
         placeholder="Search javascript, php, git, etc…"
         valueChanged={onSearch}
-        styleVersion={searchStyleVersion}
       />
       <div
         role="list"
@@ -224,6 +224,15 @@ export function TagSelection({
               <span className="invisible">{item}</span>
             </ElementPlaceholder>
           ))}
+        {!isPending && !tags?.length && (
+          <Typography
+            type={TypographyType.Body}
+            color={TypographyColor.Secondary}
+            className="text-center"
+          >
+            No tags found
+          </Typography>
+        )}
         {!isPending &&
           tags?.map((tag) => {
             const isSelected = selectedTags.has(tag.name);

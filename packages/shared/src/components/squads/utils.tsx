@@ -11,6 +11,12 @@ import {
   pageBorders,
   WithClassNameProps,
 } from '../utilities';
+import { SourcePermissions, Squad } from '../../graphql/sources';
+import { TimerIcon } from '../icons';
+import { IconSize } from '../Icon';
+import { PromptOptions } from '../../hooks/usePrompt';
+import { ModalSize } from '../modals/common/types';
+import { verifyPermission } from '../../graphql/squads';
 
 export const SquadTitle = ({
   children,
@@ -42,3 +48,31 @@ export const ManageSquadPageContainer = classed(
 );
 
 export const ManageSquadPageMain = classed('div', 'flex flex-1 flex-col');
+
+export const moderationRequired = (squad: Squad): boolean =>
+  squad?.moderationRequired &&
+  !verifyPermission(squad, SourcePermissions.ModeratePost);
+
+export const createModerationPromptProps: PromptOptions = {
+  title: 'Your post has been submitted for review',
+  description:
+    "Your post is now waiting for the admin's approval. We'll notify you once it's been reviewed.",
+  okButton: {
+    title: 'Got it',
+    className: 'tablet:w-full',
+  },
+  cancelButton: null,
+  promptSize: ModalSize.XSmall,
+  icon: <TimerIcon size={IconSize.XXXLarge} />,
+};
+
+export const editModerationPromptProps: PromptOptions = {
+  ...createModerationPromptProps,
+  title: 'Your edit has been submitted for review',
+  description:
+    'Your edit is now waiting for the admin’s approval. We’ll notify you once it’s been reviewed.',
+};
+
+export interface SquadSettingsProps {
+  handle: string;
+}

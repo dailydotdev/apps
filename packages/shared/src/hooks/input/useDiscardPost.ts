@@ -1,7 +1,7 @@
 import { MutableRefObject, useCallback, useRef } from 'react';
 import { del as deleteCache } from 'idb-keyval';
 import { formToJson } from '../../lib/form';
-import { EditPostProps, Post } from '../../graphql/posts';
+import { EditPostProps } from '../../graphql/posts';
 import {
   checkSavedProperty,
   generateWritePostKey,
@@ -11,10 +11,10 @@ import {
   useExitConfirmation,
 } from '../useExitConfirmation';
 import usePersistentContext from '../usePersistentContext';
-import { WriteForm, WritePostProps } from '../../contexts';
+import { MergedWriteObject, WriteForm, WritePostProps } from '../../contexts';
 
 interface UseDiscardPostProps {
-  post?: Post;
+  post?: MergedWriteObject;
   draftIdentifier?: string;
 }
 

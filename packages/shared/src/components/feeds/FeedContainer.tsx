@@ -25,7 +25,7 @@ import { useActiveFeedNameContext } from '../../contexts';
 import { SharedFeedPage } from '../utilities';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { OtherFeedPage } from '../../lib/query';
-import { useShortcuts } from '../../hooks/utils';
+import { isExtension } from '../../lib/func';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -140,7 +140,6 @@ export const FeedContainer = ({
   isHorizontal,
   feedContainerRef,
 }: FeedContainerProps): ReactElement => {
-  const { isShortcutsV1 } = useShortcuts();
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
   const { spaciness, loadedSettings } = useContext(SettingsContext);
@@ -219,7 +218,7 @@ export const FeedContainer = ({
             <span
               className={classNames(
                 'flex flex-1 items-center',
-                isShortcutsV1 ? 'flex-col-reverse' : 'flex-row',
+                isExtension ? 'flex-col-reverse' : 'flex-row',
               )}
             >
               {!!actionButtons && (
@@ -230,7 +229,6 @@ export const FeedContainer = ({
               {shortcuts}
             </span>
           )}
-          {shouldUseListFeedLayout && !isShortcutsV1 && shortcuts}
           <ConditionalWrapper
             condition={shouldUseListFeedLayout}
             wrapper={(child) => (
@@ -252,7 +250,7 @@ export const FeedContainer = ({
                 >
                   {actionButtons || null}
                 </ConditionalWrapper>
-                {isShortcutsV1 && shortcuts}
+                {isExtension && shortcuts}
                 {child}
               </div>
             )}

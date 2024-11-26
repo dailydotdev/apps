@@ -63,7 +63,9 @@ export interface AuthContextData {
   accessToken?: AccessToken;
   squads?: Squad[];
   isAuthReady?: boolean;
+  geo?: Boot['geo'];
 }
+
 const isExtension = checkIsExtension();
 const AuthContext = React.createContext<AuthContextData>(null);
 export const useAuthContext = (): AuthContextData => useContext(AuthContext);
@@ -115,6 +117,7 @@ export type AuthContextProviderProps = {
   | 'accessToken'
   | 'squads'
   | 'refetchBoot'
+  | 'geo'
 >;
 
 export const AuthContextProvider = ({
@@ -132,13 +135,14 @@ export const AuthContextProvider = ({
   accessToken,
   squads,
   isAuthReady,
+  geo,
 }: AuthContextProviderProps): ReactElement => {
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
   const referral = user?.referralId || user?.referrer;
   const referralOrigin = user?.referralOrigin;
 
-  if (isAuthReady === true && endUser && !endUser?.infoConfirmed) {
+  if (!!isAuthReady && endUser && !endUser?.infoConfirmed) {
     logout(LogoutReason.IncomleteOnboarding);
   }
 
@@ -181,6 +185,7 @@ export const AuthContextProvider = ({
         deleteAccount,
         accessToken,
         squads,
+        geo,
       }}
     >
       {children}

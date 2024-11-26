@@ -2,7 +2,7 @@ name: Assign preview-domain
 on:
   # Trigger when a pull request is opened or reopened
   pull_request:
-    types: [opened, reopened, ready_for_review]
+    types: [opened, reopened, ready_for_review, synchronize]
 
 permissions:
   contents: read
