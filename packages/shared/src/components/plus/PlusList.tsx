@@ -1,34 +1,14 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import classNames from 'classnames';
-import { ChecklistAIcon, InfoIcon } from '../icons';
-import {
-  Typography,
-  TypographyColor,
-  TypographyProps,
-  TypographyTag,
-  TypographyType,
-} from '../typography/Typography';
-import { IconProps, IconSize } from '../Icon';
 import { WithClassNameProps } from '../utilities';
-import { SimpleTooltip } from '../tooltips';
-import ConditionalWrapper from '../ConditionalWrapper';
-
-enum PlusItemStatus {
-  Ready = 'done',
-  ComingSoon = 'coming-soon',
-}
-
-interface PlusItem {
-  label: string;
-  status: PlusItemStatus;
-  tooltip?: string;
-}
-
-interface PlusItemProps {
-  item: PlusItem;
-  text?: TypographyProps<TypographyTag.P>;
-  icon?: IconProps;
-}
+import {
+  PlusItem,
+  PlusItemStatus,
+  PlusListItem,
+  PlusListItemProps,
+} from './PlusListItem';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
 
 export const defaultFeatureList: Array<PlusItem> = [
   { label: 'Hyper-personalized feed', status: PlusItemStatus.Ready },
@@ -81,54 +61,8 @@ export const plusFeatureList: Array<PlusItem> = [
   },
 ];
 
-const PlusListItem = ({ item, text, icon }: PlusItemProps) => {
-  return (
-    <ConditionalWrapper
-      condition={!!item.tooltip}
-      wrapper={(component: ReactElement) => (
-        <SimpleTooltip
-          container={{ className: 'tablet:max-w-72' }}
-          content={item.tooltip}
-          delay={0}
-        >
-          {component}
-        </SimpleTooltip>
-      )}
-    >
-      <li className="flex items-center gap-2 rounded-6 p-1 hover:bg-surface-float">
-        <ChecklistAIcon
-          className="text-text-quaternary"
-          size={IconSize.XSmall}
-          {...icon}
-        />
-        <div className="flex flex-1 gap-2">
-          <Typography
-            tag={TypographyTag.P}
-            type={TypographyType.Body}
-            color={TypographyColor.Primary}
-            {...text}
-            className={text?.className}
-          >
-            {item.label}
-          </Typography>
-          {item.status === PlusItemStatus.ComingSoon && (
-            <Typography
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-              className="rounded-6 bg-surface-float px-2 py-0.5"
-            >
-              Coming soon
-            </Typography>
-          )}
-        </div>
-        {item.tooltip && <InfoIcon />}
-      </li>
-    </ConditionalWrapper>
-  );
-};
-
 interface PlusListProps
-  extends Omit<PlusItemProps, 'item'>,
+  extends Omit<PlusListItemProps, 'item'>,
     WithClassNameProps {
   items?: PlusItem[];
 }
@@ -138,11 +72,38 @@ export const PlusList = ({
   items = plusFeatureList,
   ...props
 }: PlusListProps & WithClassNameProps): ReactElement => {
+  const isEarlyAdopterExperiment = useFeature(feature.plusEarlyAdopter);
+  const list = useMemo(
+    () =>
+      items.filter(
+        (item) =>
+          isEarlyAdopterExperiment || item.status === PlusItemStatus.Ready,
+      ),
+    [items, isEarlyAdopterExperiment],
+  );
+  const hasFilteredComingSoon =
+    !isEarlyAdopterExperiment && list.length !== items.length;
+
   return (
-    <ul className={classNames('flex flex-col gap-0.5 py-6', className)}>
-      {items.map((item) => (
+    <ul
+      className={classNames(
+        'flex flex-col py-6',
+        isEarlyAdopterExperiment ? 'gap-0.5' : 'gap-2',
+        className,
+      )}
+    >
+      {list.map((item) => (
         <PlusListItem key={item.label} item={item} {...props} />
       ))}
+      {hasFilteredComingSoon && (
+        <PlusListItem
+          item={{
+            label: 'And so much more coming soon...',
+            status: PlusItemStatus.Ready,
+          }}
+          {...props}
+        />
+      )}
     </ul>
   );
 };

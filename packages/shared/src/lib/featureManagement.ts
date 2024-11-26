@@ -32,7 +32,8 @@ const feature = {
   showCodeSnippets: new Feature('show_code_snippets', false),
   seniorContentOnboarding: new Feature('senior_content_onboarding', false),
   postBannerExtensionPrompt: new Feature('post_banner_extension_prompt', false),
-  plusSubscription: new Feature('plus_subscription', false),
+  plusSubscription: new Feature('plus_subscription', true),
+  plusEarlyAdopter: new Feature('plus_early_adopter', true),
   feedPageSizes: new Feature('feed_page_sizes', {
     default: 7,
     tablet: 9,
