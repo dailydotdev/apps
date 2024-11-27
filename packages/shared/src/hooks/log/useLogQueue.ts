@@ -36,7 +36,7 @@ export default function useLogQueue({
   queueRef: MutableRefObject<LogEvent[]>;
   sendBeacon: () => void;
 } {
-  const isFirefox = process.env.TARGET_BROWSER === 'firefox';
+  const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
   const [permission] = usePersistentContext<FirefoxPermissionType>(
     FIREFOX_ACCEPTED_PERMISSION,
   );
@@ -81,7 +81,10 @@ export default function useLogQueue({
       },
       queueRef,
       sendBeacon: () => {
-        if (isFirefox && permission !== FirefoxPermissionType.Accepted) {
+        if (
+          isFirefoxExtension &&
+          permission !== FirefoxPermissionType.Accepted
+        ) {
           return;
         }
 

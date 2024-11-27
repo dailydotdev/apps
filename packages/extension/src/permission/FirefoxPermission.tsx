@@ -54,9 +54,9 @@ export function FirefoxPermission({
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
         >
-          Ready to go? 🟢 Give us the green signal by accepting the below
-          permissions. Enhance your daily.dev experience with personalized
-          content and connect with fellow developers.
+          Ready to go? 🟢 Give us the green signal by accepting the permissions
+          below. Enhance your daily.dev experience with personalized content and
+          connect with fellow developers.
         </Typography>
         <FirefoxPermissionItem
           className="mt-2"

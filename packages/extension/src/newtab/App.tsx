@@ -89,7 +89,7 @@ function InternalApp(): ReactElement {
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
   const shouldRedirectOnboarding = !user && isPageReady && !isTesting;
-  const isFirefox = process.env.TARGET_BROWSER === 'firefox';
+  const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
 
   useEffect(() => {
     if (routeChangedCallbackRef.current && isPageReady) {
@@ -119,7 +119,7 @@ function InternalApp(): ReactElement {
       : DEFAULT_TAB_TITLE;
   }, [unreadCount]);
 
-  if (isFirefox) {
+  if (isFirefoxExtension) {
     if (!isFetched) {
       return null;
     }
