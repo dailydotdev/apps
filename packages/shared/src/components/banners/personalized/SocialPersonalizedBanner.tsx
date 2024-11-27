@@ -19,7 +19,7 @@ const SocialPersonalizedBanner = ({
   const gradient = socialGradient[site];
   return (
     <AuthenticationBanner>
-      <Icon size={IconSize.XXLarge} secondary={site === 'reddit'} />
+      <Icon size={IconSize.XXLarge} secondary={site === SocialIconType.Reddit} />
       <OnboardingHeadline
         className={{
           title: classNames('typo-mega3', gradient),
