@@ -102,7 +102,7 @@ const nextConfig: NextConfig = {
       env: {
         CURRENT_VERSION: version,
       },
-      assetPrefix: process.env.CDN_ASSET_PREFIX,
+      assetPrefix: process.env.NEXT_PUBLIC_CDN_ASSET_PREFIX,
       rewrites: async () => {
         const rewrites: Rewrite[] = [
           {
