@@ -27,6 +27,7 @@ const withSerwist = withSerwistInit({
   exclude: [/syntax/i],
   register: false,
   maximumFileSizeToCacheInBytes: 1024 * 1024,
+  swUrl: `${process.env.NEXT_PUBLIC_CDN_ASSET_PREFIX || ''}/sw.js`,
 });
 
 const nextConfig: NextConfig = {
