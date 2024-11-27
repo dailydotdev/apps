@@ -45,6 +45,7 @@ const feature = {
     pri_01jbsccbdbcwyhdy8hy3c2etyn: 'monthly',
     pri_01jbscda57910yvwjtyapnrrzc: 'yearly',
   }),
+  postPersonalizedBanner: new Feature('post_banner_personalized', false),
 };
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
