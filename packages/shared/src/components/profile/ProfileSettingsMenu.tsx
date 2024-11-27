@@ -35,7 +35,7 @@ import { ButtonColor } from '../buttons/Button';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../lib/log';
 import { GooglePlayIcon } from '../icons/Google/Play';
-import { isAndroidApp } from '../../lib/func';
+import { checkIsBrowser, isAndroidApp, UserAgent } from '../../lib/func';
 
 const useMenuItems = (): NavItemProps[] => {
   const { logout } = useAuthContext();
@@ -74,14 +74,15 @@ const useMenuItems = (): NavItemProps[] => {
         }
       : undefined;
 
-    const downloadAndroidApp = !isAndroidApp()
-      ? {
-          label: 'Download mobile app',
-          icon: <GooglePlayIcon />,
-          href: process.env.NEXT_PUBLIC_ANDROID_APP,
-          target: '_blank',
-        }
-      : undefined;
+    const downloadAndroidApp =
+      checkIsBrowser(UserAgent.Android) && !isAndroidApp()
+        ? {
+            label: 'Download mobile app',
+            icon: <GooglePlayIcon />,
+            href: process.env.NEXT_PUBLIC_ANDROID_APP,
+            target: '_blank',
+          }
+        : undefined;
 
     return [
       {
