@@ -30,7 +30,6 @@ const feature = {
   showRoadmap: new Feature('show_roadmap', true),
   onboardingChecklist: new Feature('onboarding_checklist', true),
   showCodeSnippets: new Feature('show_code_snippets', false),
-  seniorContentOnboarding: new Feature('senior_content_onboarding', false),
   postBannerExtensionPrompt: new Feature('post_banner_extension_prompt', false),
   plusSubscription: new Feature('plus_subscription', false),
   plusEarlyAdopter: new Feature('plus_early_adopter', false),

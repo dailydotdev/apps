@@ -169,7 +169,12 @@ browser.runtime.onInstalled.addListener(async (details) => {
   }
 
   if (details.reason === 'install') {
-    browser.tabs.create({ url: install, active: true });
+    const firefoxUrl = browser.runtime.getURL('index.html?source=install');
+    const isFirefox = process.env.TARGET_BROWSER === 'firefox';
+    browser.tabs.create({
+      url: isFirefox ? firefoxUrl : install,
+      active: true,
+    });
   }
 });
 
