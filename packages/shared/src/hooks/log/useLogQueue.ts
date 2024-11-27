@@ -115,6 +115,6 @@ export default function useLogQueue({
     }),
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [queueRef, debouncedSendEvents, enabledRef],
+    [queueRef, debouncedSendEvents, enabledRef, permission, isFirefoxExtension],
   );
 }
