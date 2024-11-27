@@ -16,6 +16,7 @@ import { IconSize } from '../Icon';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { plusUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
+import { LogEvent, TargetId } from '../../lib/log';
 
 export enum OnboardingPlans {
   Free = 'Free',
@@ -102,8 +103,8 @@ const PlusCard = ({
           className="my-4 block w-full"
           onClick={() => {
             logSubscriptionEvent({
-              event_name: 'skip upgrade subscription',
-              target_id: 'onboarding',
+              event_name: LogEvent.OnboardingSkipPlus,
+              target_id: TargetId.Onboarding,
             });
             onClickNext();
           }}
@@ -119,8 +120,8 @@ const PlusCard = ({
           href={`${plusUrl}?selectedPlan=${plan?.value}`}
           onClick={() => {
             logSubscriptionEvent({
-              event_name: 'upgrade subscription',
-              target_id: 'onboarding',
+              event_name: LogEvent.OnboardingUpgradePlus,
+              target_id: TargetId.Onboarding,
             });
           }}
           rel={anchorDefaultRel}
