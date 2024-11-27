@@ -3,14 +3,16 @@ import React, { type ReactElement } from 'react';
 import { getBasicUserInfo } from '../../../graphql/users';
 import { AuthenticationBanner, OnboardingHeadline } from '../../auth';
 import { ProfilePicture } from '../../ProfilePicture';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
 
 const UserPersonalizedBanner = ({
   userId,
 }: {
   userId: string;
 }): ReactElement => {
+  const key = generateQueryKey(RequestKey.ReferringUser);
   const { data: user, isError } = useQuery({
-    queryKey: ['user_personalized_banner', userId],
+    queryKey: [key, userId],
     queryFn: () => getBasicUserInfo(userId),
   });
 
