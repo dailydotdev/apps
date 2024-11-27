@@ -132,13 +132,6 @@ const PrivilegedMemberModal = dynamic(
     ),
 );
 
-const FirefoxPrivacyModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "firefoxPrivacyModal" */ './firefoxPrivacy/FirefoxPrivacyModal'
-    ),
-);
-
 const BookmarkReminderModal = dynamic(
   () =>
     import(
@@ -213,7 +206,6 @@ export const modals = {
   [LazyModal.UserSettings]: UserSettingsModal,
   [LazyModal.Share]: ShareModal,
   [LazyModal.PrivilegedMembers]: PrivilegedMemberModal,
-  [LazyModal.FirefoxPrivacy]: FirefoxPrivacyModal,
   [LazyModal.BookmarkReminder]: BookmarkReminderModal,
   [LazyModal.RecoverStreak]: StreakRecoverModal,
   [LazyModal.SlackIntegration]: SlackIntegrationModal,

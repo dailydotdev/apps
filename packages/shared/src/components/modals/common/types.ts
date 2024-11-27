@@ -53,7 +53,6 @@ export enum LazyModal {
   UserSettings = 'userSettings',
   Share = 'share',
   PrivilegedMembers = 'privilegedMembers',
-  FirefoxPrivacy = 'firefoxPrivacy',
   BookmarkReminder = 'bookmarkReminder',
   SlackIntegration = 'slackIntegration',
   ReportSource = 'reportSource',
