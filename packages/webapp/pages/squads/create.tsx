@@ -74,12 +74,12 @@ function CreatePost(): ReactElement {
     }
 
     return [
+      ...filtered,
       {
         ...generateDefaultSquad(user.username),
         name: 'Create new Squad',
         handle: null,
       },
-      ...filtered,
     ];
   }, [squads, user]);
   const squad = activeSquads?.[selected];
