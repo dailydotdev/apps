@@ -6,6 +6,8 @@ const SquadsPage = (): ReactElement => {
   return <></>;
 };
 
+export const runtime = 'experimental-edge';
+
 export async function getServerSideProps(): Promise<
   GetServerSidePropsResult<void>
 > {

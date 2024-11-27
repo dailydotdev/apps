@@ -1,3 +1,4 @@
+import { withCredentials } from './withCredentials';
 import { authUrl, heimdallUrl } from './constants';
 
 export type EmptyObjectLiteral = Record<string, never | string>;
@@ -221,7 +222,7 @@ export const initializeKratosFlow = async (
 ): Promise<InitializationData> => {
   const search = new URLSearchParams(params);
   const res = await fetch(`${authUrl}/self-service${flow}/browser?${search}`, {
-    credentials: 'include',
+    credentials: withCredentials('include'),
     headers: { Accept: 'application/json' },
   });
 
@@ -233,7 +234,7 @@ export const getKratosSettingsFlow = async (
   id: string,
 ): Promise<InitializationData> => {
   const res = await fetch(`${authUrl}/self-service${flow}/flows?id=${id}`, {
-    credentials: 'include',
+    credentials: withCredentials('include'),
     headers: { Accept: 'application/json' },
   });
   return res.json();
@@ -244,7 +245,7 @@ export const getKratosFlow = async <T = InitializationData>(
   id: string,
 ): Promise<T> => {
   const res = await fetch(`${authUrl}/self-service${flow}?flow=${id}`, {
-    credentials: 'include',
+    credentials: withCredentials('include'),
     headers: { Accept: 'application/json' },
   });
   return res.json();
@@ -252,7 +253,7 @@ export const getKratosFlow = async <T = InitializationData>(
 
 export const getKratosError = async (id: string): Promise<ErrorData> => {
   const res = await fetch(`${authUrl}/self-service/errors?id=${id}`, {
-    credentials: 'include',
+    credentials: withCredentials('include'),
     headers: { Accept: 'application/json' },
   });
   return res.json();
@@ -296,7 +297,7 @@ export const getKratosProviders = async (
 ): Promise<KratosProviderData> => {
   const search = flow ? new URLSearchParams({ flow }) : '';
   const res = await fetch(`${heimdallUrl}/api/list_providers?${search}`, {
-    credentials: 'include',
+    credentials: withCredentials('include'),
     method: flow ? 'GET' : 'POST',
   });
   return res.json();
@@ -313,7 +314,7 @@ export const submitKratosFlow = async <
 }: KratosFormParams<T>): Promise<RequestResponse<R, E>> => {
   const res = await fetch(action, {
     method,
-    credentials: 'include',
+    credentials: withCredentials('include'),
     headers: {
       'Content-Type': 'application/json',
       'X-CSRF-Token': params.csrf_token,
@@ -350,7 +351,7 @@ interface KratosSession {
 
 export const getKratosSession = async (): Promise<KratosSession> => {
   const res = await fetch(`${heimdallUrl}/api/whoami`, {
-    credentials: 'include',
+    credentials: withCredentials('include'),
   });
 
   if (res.status === 401) {
@@ -363,7 +364,7 @@ export const getKratosSession = async (): Promise<KratosSession> => {
 export const getVerificationSession =
   async (): Promise<VerificationSession> => {
     const res = await fetch(`${heimdallUrl}/api/get_verification_flow`, {
-      credentials: 'include',
+      credentials: withCredentials('include'),
     });
 
     if (!res.ok) {

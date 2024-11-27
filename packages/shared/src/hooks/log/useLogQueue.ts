@@ -3,6 +3,7 @@ import { MutableRefObject, useMemo, useRef } from 'react';
 import { apiUrl } from '../../lib/config';
 import useDebounceFn from '../useDebounceFn';
 import { ExtensionMessageType } from '../../lib/extension';
+import { withCredentials } from '../../lib/withCredentials';
 
 export interface LogEvent extends Record<string, unknown> {
   visit_id?: string;
@@ -37,7 +38,7 @@ export default function useLogQueue({
       const res = await fetchMethod(LOG_ENDPOINT, {
         method: 'POST',
         body: JSON.stringify({ events }),
-        credentials: 'include',
+        credentials: withCredentials('include'),
         headers: {
           'content-type': 'application/json',
         },
@@ -84,7 +85,7 @@ export default function useLogQueue({
               type: ExtensionMessageType.FetchRequest,
               args: {
                 body: JSON.stringify({ events }),
-                credentials: 'include',
+                credentials: withCredentials('include'),
                 method: 'POST',
                 headers: {
                   'content-type': 'application/json',

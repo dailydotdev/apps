@@ -303,6 +303,8 @@ export async function getStaticPaths(): Promise<GetStaticPathsResult> {
   return { paths: [], fallback: true };
 }
 
+export const runtime = 'experimental-edge';
+
 export async function getStaticProps({
   params,
 }: GetStaticPropsContext<SquadReferralProps & ParsedUrlQuery>): Promise<

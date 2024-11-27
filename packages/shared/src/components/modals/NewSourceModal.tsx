@@ -38,6 +38,7 @@ import { ReputationAlert } from './ReputationAlert';
 import { RequestKey } from '../../lib/query';
 import { ProfileImageSize } from '../ProfilePicture';
 import { gqlClient } from '../../graphql/common';
+import { withCredentials } from '../../lib/withCredentials';
 
 interface RSS {
   url: string;
@@ -136,7 +137,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
         `${apiUrl}/scrape/source?url=${url}`,
         20000,
         {
-          credentials: 'same-origin',
+          credentials: withCredentials('same-origin'),
         },
       );
       return res.json();

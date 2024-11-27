@@ -113,6 +113,8 @@ LeaderboardPage.layoutProps = {
 
 export default LeaderboardPage;
 
+export const runtime = 'experimental-edge';
+
 export async function getStaticProps(): Promise<
   GetStaticPropsResult<PageProps>
 > {

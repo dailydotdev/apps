@@ -16,6 +16,8 @@ interface DevCardPageProps {
   userId: string;
 }
 
+export const runtime = 'experimental-edge';
+
 export async function getStaticProps({
   params,
 }: GetStaticPropsContext): Promise<GetStaticPropsResult<DevCardPageProps>> {

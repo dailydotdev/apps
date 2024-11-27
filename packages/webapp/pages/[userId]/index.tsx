@@ -103,5 +103,7 @@ const ProfilePage = ({
 ProfilePage.getLayout = getProfileLayout;
 export default ProfilePage;
 
+export const runtime = 'experimental-edge';
+
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;

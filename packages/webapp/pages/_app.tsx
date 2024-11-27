@@ -36,6 +36,7 @@ import { PushNotificationContextProvider } from '@dailydotdev/shared/src/context
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
+import Script from 'next/script';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -162,18 +163,19 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           href="/sitemap.txt"
         />
 
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.addEventListener('load', () => { window.windowLoaded = true; }, {
-      once: true,
-    });`,
-          }}
-        />
-
         <link rel="preconnect" href="https://api.daily.dev" />
         <link rel="preconnect" href="https://sso.daily.dev" />
         <link rel="preconnect" href="https://media.daily.dev" />
       </Head>
+      <Script
+        id="window-loaded"
+        dangerouslySetInnerHTML={{
+          __html: `window.addEventListener('load', () => { window.windowLoaded = true; }, {
+              once: true,
+            });`,
+        }}
+        strategy="beforeInteractive"
+      />
       <DefaultSeo
         {...Seo}
         {...defaultSeo}

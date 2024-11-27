@@ -18,6 +18,8 @@ import {
 } from '../../components/layouts/ProfileLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
+export const runtime = 'experimental-edge';
+
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
 
