@@ -22,7 +22,7 @@ import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import {
   OnboardingStep,
   wrapperMaxWidth,
@@ -260,8 +260,8 @@ export function OnboardPage(): ReactElement {
   const onClickCreateFeed = () => {
     if (isOnboardingPlusActive) {
       logSubscriptionEvent({
-        event_name: 'skip upgrade subscription',
-        target_id: 'onboarding',
+        event_name: LogEvent.OnboardingSkipPlus,
+        target_id: TargetId.Onboarding,
       });
     }
 

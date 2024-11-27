@@ -11,10 +11,12 @@ import {
 } from '../typography/Typography';
 import { DevPlusIcon } from '../icons';
 import { Button, ButtonVariant } from '../buttons/Button';
-import { plusUrl } from '../../lib/constants';
 import { defaultFeatureList, plusFeatureList, PlusList } from './PlusList';
-import { anchorDefaultRel } from '../../lib/strings';
+import { IconSize } from '../Icon';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { plusUrl } from '../../lib/constants';
+import { anchorDefaultRel } from '../../lib/strings';
+import { LogEvent, TargetId } from '../../lib/log';
 import { PlusItemStatus } from './PlusListItem';
 
 export enum OnboardingPlans {
@@ -28,15 +30,46 @@ interface PlusCardProps {
   productOption?: ProductOption;
 }
 
+const cardContent = {
+  [OnboardingPlans.Free]: {
+    heading: {
+      label: 'Free',
+      color: TypographyColor.Primary,
+    },
+    features: {
+      items: defaultFeatureList,
+    },
+  },
+  [OnboardingPlans.Plus]: {
+    heading: {
+      label: 'Plus',
+      color: TypographyColor.Plus,
+    },
+    features: {
+      items: [
+        {
+          label: 'Everything on the Free plan',
+          status: PlusItemStatus.Disabled,
+        },
+        ...plusFeatureList,
+      ],
+    },
+  },
+};
+
 const PlusCard = ({
   currency,
   productOption: plan,
   onClickNext,
 }: PlusCardProps): ReactElement => {
   const isPaidPlan = !!plan;
-  const price = plan?.price ?? '0';
-  const billingLabel = isPaidPlan ? `Billed ${plan?.label}` : 'Free forever';
+  const price = {
+    amount: plan?.price ?? '0',
+    cycle: isPaidPlan ? `Billed ${plan?.label}` : 'Free forever',
+  };
   const { logSubscriptionEvent } = usePlusSubscription();
+  const currentPlan = isPaidPlan ? OnboardingPlans.Plus : OnboardingPlans.Free;
+  const { heading, features } = cardContent[currentPlan];
 
   return (
     <div className="mx-auto w-70 max-w-full rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
@@ -46,9 +79,9 @@ const PlusCard = ({
           className="mb-1.5"
           tag={TypographyTag.H2}
           type={TypographyType.Title3}
-          color={isPaidPlan ? TypographyColor.Plus : TypographyColor.Primary}
+          color={heading.color}
         >
-          {isPaidPlan ? 'Plus' : 'Free'}
+          {heading.label}
         </Typography>
         {isPaidPlan && (
           <Typography
@@ -63,13 +96,13 @@ const PlusCard = ({
       <div>
         <Typography bold tag={TypographyTag.Span} type={TypographyType.Title1}>
           {!isPaidPlan && currency}
-          {price}
+          {price.amount}
         </Typography>
         <Typography
           color={TypographyColor.Tertiary}
           type={TypographyType.Footnote}
         >
-          {billingLabel}
+          {price.cycle}
         </Typography>
       </div>
       {!isPaidPlan ? (
@@ -77,8 +110,8 @@ const PlusCard = ({
           className="my-4 block w-full"
           onClick={() => {
             logSubscriptionEvent({
-              event_name: 'skip upgrade subscription',
-              target_id: 'onboarding',
+              event_name: LogEvent.OnboardingSkipPlus,
+              target_id: TargetId.Onboarding,
             });
             onClickNext();
           }}
@@ -92,34 +125,24 @@ const PlusCard = ({
         <Button
           className="my-4 block w-full"
           href={`${plusUrl}?selectedPlan=${plan?.value}`}
+          onClick={() => {
+            logSubscriptionEvent({
+              event_name: LogEvent.OnboardingUpgradePlus,
+              target_id: TargetId.Onboarding,
+            });
+          }}
           rel={anchorDefaultRel}
           tag="a"
           target="_blank"
           title="Upgrade to Plus"
           variant={ButtonVariant.Primary}
-          onClick={() => {
-            logSubscriptionEvent({
-              event_name: 'upgrade subscription',
-              target_id: 'onboarding',
-            });
-          }}
         >
           Upgrade to Plus
         </Button>
       )}
       <PlusList
         className="!py-0"
-        items={
-          isPaidPlan
-            ? [
-                {
-                  label: 'Everything on the Free plan',
-                  status: PlusItemStatus.Disabled,
-                },
-                ...plusFeatureList,
-              ]
-            : defaultFeatureList
-        }
+        items={features.items}
         icon={{
           className: isPaidPlan ? 'text-text-tertiary' : 'text-text-quaternary',
         }}
