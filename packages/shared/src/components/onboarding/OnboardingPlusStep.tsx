@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useViewSize, ViewSize } from '../../hooks';
 import {
@@ -27,13 +27,19 @@ const PlusBillingCycleSwitch = ({
   currentCycleIndex: number;
   onChangeCycle: (index: number) => void;
 }): ReactElement => {
+  const { earlyAccessPlanId } = usePaymentContext();
+  const items = useMemo(
+    () => productOptions.filter(({ value }) => value !== earlyAccessPlanId),
+    [productOptions, earlyAccessPlanId],
+  );
+
   return (
     <div
       aria-label="Select billing cycle"
       role="radiogroup"
       className="mx-auto my-6 inline-flex gap-1 rounded-12 border border-border-subtlest-tertiary p-1 tablet:my-8"
     >
-      {productOptions.map(({ label, extraLabel }, index) => {
+      {items.map(({ label, extraLabel }, index) => {
         const isActive = index === currentCycleIndex;
         const variant = isActive ? ButtonVariant.Float : ButtonVariant.Option;
         return (

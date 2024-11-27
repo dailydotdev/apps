@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { PlusUser } from '../PlusUser';
 import { IconSize } from '../Icon';
@@ -10,7 +10,10 @@ import {
 } from '../typography/Typography';
 import { RadioItem } from '../fields/RadioItem';
 import { PlusList } from './PlusList';
-import { ProductOption } from '../../contexts/PaymentContext';
+import {
+  ProductOption,
+  usePaymentContext,
+} from '../../contexts/PaymentContext';
 import {
   Button,
   ButtonColor,
@@ -19,8 +22,6 @@ import {
 } from '../buttons/Button';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent } from '../../lib/log';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
 
 type PlusInfoProps = {
   productOptions: ProductOption[];
@@ -34,13 +35,8 @@ export const PlusInfo = ({
   onChange,
   onContinue,
 }: PlusInfoProps): ReactElement => {
+  const { earlyAccessPlanId } = usePaymentContext();
   const { logSubscriptionEvent } = usePlusSubscription();
-  const planTypes = useFeature(feature.pricingIds);
-  const earlyAccessPlanId = useMemo(() => {
-    return Object.keys(planTypes).find(
-      (id) => planTypes[id] === 'early_adopter',
-    );
-  }, [planTypes]);
 
   return (
     <>

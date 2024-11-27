@@ -12,12 +12,12 @@ import {
 import { DevPlusIcon } from '../icons';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { defaultFeatureList, plusFeatureList, PlusList } from './PlusList';
-import { IconSize } from '../Icon';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { plusUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import { LogEvent, TargetId } from '../../lib/log';
 import { PlusItemStatus } from './PlusListItem';
+import { IconSize } from '../Icon';
 
 export enum OnboardingPlans {
   Free = 'Free',
@@ -76,22 +76,14 @@ const PlusCard = ({
       <div className="flex items-start justify-between gap-6">
         <Typography
           bold
-          className="mb-1.5"
+          className="mb-1.5 flex gap-1"
           tag={TypographyTag.H2}
           type={TypographyType.Title3}
           color={heading.color}
         >
+          {isPaidPlan && <DevPlusIcon aria-hidden size={IconSize.Small} />}
           {heading.label}
         </Typography>
-        {isPaidPlan && (
-          <Typography
-            className="grid aspect-square size-8 place-content-center rounded-8 bg-surface-float"
-            tag={TypographyTag.Span}
-            color={TypographyColor.Plus}
-          >
-            <DevPlusIcon />
-          </Typography>
-        )}
       </div>
       <div>
         <Typography bold tag={TypographyTag.Span} type={TypographyType.Title1}>

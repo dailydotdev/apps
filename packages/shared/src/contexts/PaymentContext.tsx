@@ -33,10 +33,12 @@ export type ProductOption = {
   currencyCode: string;
   extraLabel: string;
 };
+
 export interface PaymentContextData {
   openCheckout?: ({ priceId }: { priceId: string }) => void;
   paddle?: Paddle | undefined;
   productOptions?: ProductOption[];
+  earlyAccessPlanId?: string | null;
 }
 
 const PaymentContext = React.createContext<PaymentContextData>({});
@@ -171,13 +173,20 @@ export const PaymentContextProvider = ({
     [productPrices?.data.currencyCode, productPrices?.data?.details?.lineItems],
   );
 
+  const earlyAccessPlanId = useMemo(() => {
+    return Object.keys(planTypes).find(
+      (id) => planTypes[id] === 'early_adopter',
+    );
+  }, [planTypes]);
+
   const contextData = useMemo<PaymentContextData>(
     () => ({
       openCheckout,
       paddle,
       productOptions,
+      earlyAccessPlanId,
     }),
-    [openCheckout, paddle, productOptions],
+    [earlyAccessPlanId, openCheckout, paddle, productOptions],
   );
 
   return (
