@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { QueryClientProvider } from '../../../extension/_providers';
+import { ExtensionProviders } from '../../../extension/_providers';
 import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
 import {
   SourceMemberRole,
@@ -25,17 +25,17 @@ const meta: Meta<typeof SquadList> = {
       memberInviteRole: SourceMemberRole.Admin,
       image: 'https://via.placeholder.com/150',
       handle: 'squad-handle',
+      moderationRequired: false,
+      moderationPostCount: 0,
     },
   },
   decorators: [
     (Story) => (
-      <QueryClientProvider>
-        <AuthContext.Provider value={{}}>
-          <div className="w-96 p-4 border border-border-subtlest-primary rounded-16">
-            <Story />
-          </div>
-        </AuthContext.Provider>
-      </QueryClientProvider>
+      <ExtensionProviders>
+        <div className="w-96 p-4 border border-border-subtlest-primary rounded-16">
+          <Story />
+        </div>
+      </ExtensionProviders>
     ),
   ],
 };
