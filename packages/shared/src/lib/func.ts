@@ -38,11 +38,9 @@ export const postWindowMessage = (
 export const checkIsExtension = (): boolean => !!process.env.TARGET_BROWSER;
 export const isExtension = !!process.env.TARGET_BROWSER;
 
-export const isAndroidApp = (): boolean =>
-  globalThis?.location?.pathname?.includes('/?android=true');
+export const isAndroidApp = (): boolean => globalThis?.isAndroidApp;
 
-export const isPWA = (): boolean =>
-  globalThis?.location?.pathname?.includes('/?pwa=true');
+export const isPWA = (): boolean => globalThis?.isPWA;
 
 export const isApp = isPWA() || isAndroidApp();
 
@@ -152,4 +150,14 @@ export const initReactModal = ({
   modalObject.defaultStyles = defaultStyles || {};
 
   globalThis.reactModalInit = true;
+};
+
+export const initApp = (): void => {
+  const param = globalThis?.location?.search;
+  if (param?.includes('android=true')) {
+    globalThis.isAndroidApp = true;
+  }
+  if (param?.includes('pwa=true')) {
+    globalThis.isPWA = true;
+  }
 };
