@@ -5,7 +5,7 @@ import {
   socialCTA,
   socialGradient,
   socialIcon,
-  type SocialIconType,
+  SocialIconType,
 } from '../../../lib/socialMedia';
 import { capitalize } from '../../../lib/strings';
 import { IconSize } from '../../Icon';
@@ -19,7 +19,10 @@ const SocialPersonalizedBanner = ({
   const gradient = socialGradient[site];
   return (
     <AuthenticationBanner>
-      <Icon size={IconSize.XXLarge} secondary={site === SocialIconType.Reddit} />
+      <Icon
+        size={IconSize.XXLarge}
+        secondary={site === SocialIconType.Reddit}
+      />
       <OnboardingHeadline
         className={{
           title: classNames('typo-mega3', gradient),
