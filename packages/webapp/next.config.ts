@@ -102,6 +102,7 @@ const nextConfig: NextConfig = {
       env: {
         CURRENT_VERSION: version,
       },
+      assetPrefix: process.env.CDN_ASSET_PREFIX,
       rewrites: async () => {
         const rewrites: Rewrite[] = [
           {
@@ -123,6 +124,24 @@ const nextConfig: NextConfig = {
             destination: '/search/posts',
           },
         ];
+
+        if (process.env.REWRITE_DEPLOYMENT_URL) {
+          return {
+            beforeFiles: [
+              {
+                source: '/:path*',
+                destination: `${process.env.REWRITE_DEPLOYMENT_URL}/:path*`,
+              },
+            ],
+            afterFiles: rewrites,
+            fallback: [
+              {
+                source: '/:path*',
+                destination: `${process.env.REWRITE_DEPLOYMENT_URL}/:path*`,
+              },
+            ],
+          };
+        }
 
         // to support GitPod environment and avoid CORS issues, we need to proxy the API requests
         if (process.env.NEXT_PUBLIC_DOMAIN === 'localhost') {
