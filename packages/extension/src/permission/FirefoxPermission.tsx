@@ -43,7 +43,7 @@ export function FirefoxPermission({
         alt="a glowing background"
         className="pointer-events-none absolute -top-10 -z-1 select-none"
       />
-      <span className="py-6">
+      <span className="absolute top-0 py-6">
         <DailyDevLogo />
       </span>
       <div className="flex w-full max-w-[33rem] flex-col gap-2 rounded-10 bg-surface-float p-4">
