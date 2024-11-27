@@ -146,7 +146,7 @@ export function OnboardPage(): ReactElement {
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
-  const [shouldEnrollOnboardingStep, setShouldEnrollSourceSelection] =
+  const [shouldEnrollOnboardingStep, setShouldEnrollOnboardingStep] =
     useState(false);
   const { value: showOnboardingSources } = useConditionalFeature({
     feature: featureOnboardingSources,
@@ -180,7 +180,7 @@ export function OnboardPage(): ReactElement {
     }
 
     if (activeScreen === OnboardingStep.EditTag) {
-      setShouldEnrollSourceSelection(true);
+      setShouldEnrollOnboardingStep(true);
       return setActiveScreen(OnboardingStep.ContentTypes);
     }
 
