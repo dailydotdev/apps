@@ -1,13 +1,12 @@
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
-import {
-  QueryClient,
-  QueryClientProvider as TanStackQueryClientProvider,
-} from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Browser } from 'webextension-polyfill';
-import type { FC, PropsWithChildren } from 'react';
+import { FC, PropsWithChildren } from 'react';
+import { BootApp } from '@dailydotdev/shared/src/lib/boot';
+import { fn } from '@storybook/test';
+import { getBootMock } from '../../mock/boot';
+import { ActiveFeedContext } from '@dailydotdev/shared/src/contexts';
 
-const app = 'extension';
 const queryClient = new QueryClient();
 
 declare global {
@@ -16,34 +15,20 @@ declare global {
   }
 }
 
-export const QueryClientProvider: FC<PropsWithChildren> = ({ children }) => {
-  return (
-    <TanStackQueryClientProvider client={queryClient}>
-      {children}
-    </TanStackQueryClientProvider>
-  );
-};
-
 export const ExtensionProviders: FC<PropsWithChildren> = ({ children }) => {
   return (
-    <QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
       <BootDataProvider
-        app={app}
-        getRedirectUri={() => `https://daily.dev`}
-        version="pwa"
+        app={BootApp.Extension}
         deviceId="123"
-        getPage={() => '/'}
+        getPage={fn()}
+        getRedirectUri={fn()}
+        version="pwa"
+        localBootData={getBootMock()}
       >
-        <LogContext.Provider
-          value={{
-            logEvent: console.log,
-            logEventStart: console.log,
-            logEventEnd: console.log,
-            sendBeacon: console.log,
-          }}
-        >
+        <ActiveFeedContext.Provider value={{ items: [], queryKey: [] }}>
           {children}
-        </LogContext.Provider>
+        </ActiveFeedContext.Provider>
       </BootDataProvider>
     </QueryClientProvider>
   );
