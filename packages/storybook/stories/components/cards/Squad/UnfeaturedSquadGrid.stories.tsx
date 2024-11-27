@@ -5,7 +5,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/sources';
 import { UnfeaturedSquadGrid } from '@dailydotdev/shared/src/components/cards/squad/UnfeaturedSquadGrid';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { QueryClientProvider } from '../../../extension/_providers';
+import { ExtensionProviders } from '../../../extension/_providers';
 
 const meta: Meta<typeof UnfeaturedSquadGrid> = {
   title: 'Components/Cards/Squad/UnfeaturedSquadGrid',
@@ -24,17 +24,17 @@ const meta: Meta<typeof UnfeaturedSquadGrid> = {
       memberInviteRole: SourceMemberRole.Admin,
       image: 'https://via.placeholder.com/150',
       handle: 'squad-handle',
+      moderationRequired: false,
+      moderationPostCount: 0,
     },
   },
   decorators: [
     (Story) => (
-      <QueryClientProvider>
-        <AuthContext.Provider value={{}}>
-          <div className="grid grid-cols-4 gap-8">
-            <Story />
-          </div>
-        </AuthContext.Provider>
-      </QueryClientProvider>
+      <ExtensionProviders>
+        <div className="grid grid-cols-4 gap-8">
+          <Story />
+        </div>
+      </ExtensionProviders>
     ),
   ],
 };
