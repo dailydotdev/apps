@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { AdList } from '@dailydotdev/shared/src/components/cards/ad/AdList';
+import ExtensionProviders from '../../../extension/_providers';
 
 const meta: Meta<typeof AdList> = {
   title: 'Components/Cards/Ads/AdList',
@@ -12,8 +13,13 @@ const meta: Meta<typeof AdList> = {
       source: 'Carbon',
       company: 'Ad Company',
       referralLink: 'https://daily.dev',
-    }
-  }
+    },
+  },
+  render: (props) => (
+    <ExtensionProviders>
+      <AdList {...props} />
+    </ExtensionProviders>
+  ),
 };
 
 export default meta;
