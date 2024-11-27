@@ -1,6 +1,6 @@
 import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { Meta, StoryObj } from '@storybook/react';
-import { QueryClientProvider } from '../extension/_providers';
+import ExtensionProviders from '../extension/_providers';
 
 const meta: Meta<typeof ProfilePicture> = {
   title: 'Atoms/ProfilePicture',
@@ -15,9 +15,9 @@ const meta: Meta<typeof ProfilePicture> = {
   },
   render: (args) => {
     return (
-      <QueryClientProvider>
+      <ExtensionProviders>
         <ProfilePicture {...args} />
-      </QueryClientProvider>
+      </ExtensionProviders>
     );
   },
 };

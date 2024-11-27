@@ -5,7 +5,6 @@ import { CardCoverShare } from '../../components/cards/common/CardCoverShare';
 import { CardCoverContainer } from '../../components/cards/common/CardCoverContainer';
 import { PostReminderOptions } from '../../components/post/common/PostReminderOptions';
 import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
-import { useBookmarkReminderCover } from '../bookmark/useBookmarkReminderCover';
 
 interface UseCardCover {
   overlay: ReactNode;
@@ -26,11 +25,15 @@ export const useCardCover = ({
   onShare,
   className = {},
 }: UseCardCoverProps): UseCardCover => {
-  const { shouldShowOverlay, onInteract } = usePostShareLoop(post);
-  const shouldShowReminder = useBookmarkReminderCover(post);
+  const {
+    shouldShowOverlay,
+    onInteract,
+    currentInteraction,
+    shouldShowReminder,
+  } = usePostShareLoop(post);
 
   const overlay = useMemo(() => {
-    if (shouldShowOverlay && onShare) {
+    if (shouldShowOverlay && onShare && currentInteraction === 'upvote') {
       return (
         <CardCoverShare
           post={post}
@@ -43,7 +46,7 @@ export const useCardCover = ({
       );
     }
 
-    if (shouldShowReminder) {
+    if (shouldShowReminder && currentInteraction === 'bookmark') {
       return (
         <CardCoverContainer
           title="Don’t have time now? Set a reminder"
@@ -69,6 +72,7 @@ export const useCardCover = ({
     post,
     shouldShowOverlay,
     shouldShowReminder,
+    currentInteraction,
   ]);
 
   return { overlay };
