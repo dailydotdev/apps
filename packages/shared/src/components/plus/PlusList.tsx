@@ -11,11 +11,31 @@ import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 
 export const defaultFeatureList: Array<PlusItem> = [
-  { label: 'Hyper-personalized feed', status: PlusItemStatus.Ready },
-  { label: 'AI-powered search', status: PlusItemStatus.Ready },
-  { label: 'Squads (developer communities)', status: PlusItemStatus.Ready },
-  { label: 'Advanced customizations', status: PlusItemStatus.Ready },
-  { label: '100+ more features', status: PlusItemStatus.Ready },
+  {
+    label: 'Hyper-personalized feed',
+    status: PlusItemStatus.Ready,
+    tooltip: `Your go-to place for dev news, tutorials, and updates. Curated just for you, so you never miss what’s new.`,
+  },
+  {
+    label: 'AI-powered search',
+    status: PlusItemStatus.Ready,
+    tooltip: `Find exactly what you’re looking for—whether it’s answers, trending topics, or the latest tools and resources.`,
+  },
+  {
+    label: 'Squads (developer communities)',
+    status: PlusItemStatus.Ready,
+    tooltip: `Join groups of developers who share your interests. Exchange ideas, collaborate, and grow together in a focused space.`,
+  },
+  {
+    label: 'Bookmarks',
+    status: PlusItemStatus.Ready,
+    tooltip: `Save posts you want to revisit later. Short on time? Set reading reminders and never lose track of the good stuff.`,
+  },
+  {
+    label: '100+ more features',
+    status: PlusItemStatus.Ready,
+    tooltip: `We offer tons of other features for free because we believe high-quality, personalized content should be open for everyone.`,
+  },
 ];
 
 export const plusFeatureList: Array<PlusItem> = [
