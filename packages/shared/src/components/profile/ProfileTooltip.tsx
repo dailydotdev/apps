@@ -88,5 +88,9 @@ export function ProfileTooltip({
     );
   }
 
-  return <SimpleTooltip {...props}>{children}</SimpleTooltip>;
+  return (
+    <SimpleTooltip {...props} key={userId}>
+      {children}
+    </SimpleTooltip>
+  );
 }
