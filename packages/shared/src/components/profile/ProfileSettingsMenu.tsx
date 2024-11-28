@@ -87,6 +87,7 @@ const useMenuItems = (): NavItemProps[] => {
           icon: <GooglePlayIcon />,
           href: process.env.NEXT_PUBLIC_ANDROID_APP,
           target: '_blank',
+          rel: anchorDefaultRel,
         }
       : undefined;
 
