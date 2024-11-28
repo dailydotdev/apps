@@ -64,6 +64,7 @@ import dynamic from 'next/dynamic';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/PaymentContext';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
+import { useInstallPWA } from '@dailydotdev/shared/src/components/onboarding/PWA/useInstallPWA';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -96,6 +97,11 @@ const OnboardingPlusStep = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingPlusStep" */ '@dailydotdev/shared/src/components/onboarding/OnboardingPlusStep'
   ).then((mod) => mod.OnboardingPlusStep),
+);
+const InstallDesktop = dynamic(() =>
+  import(
+    /* webpackChunkName: "onboardingInstallDesktopStep" */ '@dailydotdev/shared/src/components/onboarding/PWA/InstallDesktopStep'
+  ).then((mod) => mod.InstallDesktopStep),
 );
 
 type OnboardingVisual = {
@@ -145,7 +151,9 @@ export function OnboardPage(): ReactElement {
   const { isPushSupported } = usePushNotificationContext();
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
-  const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
+  const [activeScreen, setActiveScreen] = useState(
+    OnboardingStep.InstallDesktop,
+  );
   const [shouldEnrollOnboardingStep, setShouldEnrollOnboardingStep] =
     useState(false);
   const { value: showOnboardingSources } = useConditionalFeature({
@@ -153,6 +161,8 @@ export function OnboardPage(): ReactElement {
     shouldEvaluate: shouldEnrollOnboardingStep,
   });
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
+  const { isInstalledPWA, installPWA } = useInstallPWA();
+  console.log({ isInstalledPWA, installPWA });
 
   useEffect(() => {
     if (!isPageReady || isLogged.current) {
@@ -387,6 +397,9 @@ export function OnboardPage(): ReactElement {
               <PaymentContextProvider>
                 <OnboardingPlusStep onClickNext={onClickNext} />
               </PaymentContextProvider>
+            )}
+            {activeScreen === OnboardingStep.InstallDesktop && (
+              <InstallDesktop onClickNext={onClickNext} />
             )}
           </div>
         )}

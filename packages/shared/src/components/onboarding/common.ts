@@ -9,6 +9,7 @@ export enum OnboardingStep {
   ReadingReminder = 'reading_reminder',
   Sources = 'sources',
   Plus = 'plus',
+  InstallDesktop = 'plus',
 }
 
 export const OnboardingTitle = classed(
