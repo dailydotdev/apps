@@ -21,6 +21,7 @@ import { PlusItemStatus } from './PlusListItem';
 import { IconSize } from '../Icon';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
+import { ProductPriceType } from '../../lib/featureValues';
 
 export enum OnboardingPlans {
   Free = 'Free',
@@ -85,7 +86,7 @@ const PlusCard = ({
 
       const isCardPlan = product.value === plan.value;
       const isDiscountPlan = product.value === earlyAdopterPlanId;
-      const isMonthly = pricingIds[product.value] === 'monthly';
+      const isMonthly = pricingIds[product.value] === ProductPriceType.Monthly;
 
       return {
         hasDiscount: acc.hasDiscount || (isCardPlan && isMonthly),

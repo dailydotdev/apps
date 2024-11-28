@@ -6,9 +6,10 @@ export enum ExperimentWinner {
   OnboardingV4 = 'v4',
 }
 
-export enum ShortcutsUIExperiment {
-  Control = 'control',
-  V1 = 'v1',
+export enum ProductPriceType {
+  Monthly = 'monthly',
+  Yearly = 'yearly',
+  EarlyAdopter = 'early_adopter',
 }
 
 export interface FeatureThemeVariant {

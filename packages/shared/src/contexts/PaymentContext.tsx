@@ -25,6 +25,7 @@ import { usePlusSubscription } from '../hooks';
 import { logPixelPayment } from '../components/Pixels';
 import { useFeature } from '../components/GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
+import { ProductPriceType } from '../lib/featureValues';
 
 export type ProductOption = {
   label: string;
@@ -175,7 +176,7 @@ export const PaymentContextProvider = ({
 
   const earlyAdopterPlanId = useMemo(() => {
     return Object.keys(planTypes).find(
-      (id) => planTypes[id] === 'early_adopter',
+      (id) => planTypes[id] === ProductPriceType.EarlyAdopter,
     );
   }, [planTypes]);
 
