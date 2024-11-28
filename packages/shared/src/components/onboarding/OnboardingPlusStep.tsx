@@ -27,19 +27,13 @@ const PlusBillingCycleSwitch = ({
   currentCycleIndex: number;
   onChangeCycle: (index: number) => void;
 }): ReactElement => {
-  const { earlyAdopterPlanId } = usePaymentContext();
-  const items = useMemo(
-    () => productOptions.filter(({ value }) => value !== earlyAdopterPlanId),
-    [productOptions, earlyAdopterPlanId],
-  );
-
   return (
     <div
       aria-label="Select billing cycle"
       role="radiogroup"
       className="mx-auto my-6 inline-flex gap-1 rounded-12 border border-border-subtlest-tertiary p-1 tablet:my-8"
     >
-      {items.map(({ label, extraLabel }, index) => {
+      {productOptions.map(({ label, extraLabel }, index) => {
         const isActive = index === currentCycleIndex;
         const variant = isActive ? ButtonVariant.Float : ButtonVariant.Option;
         return (
@@ -117,7 +111,7 @@ export const OnboardingPlusStep = ({
       {!!items?.length && (
         <>
           <PlusBillingCycleSwitch
-            productOptions={productOptions}
+            productOptions={items}
             currentCycleIndex={currentProductIndex}
             onChangeCycle={setCurrentProductIndex}
           />
