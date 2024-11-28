@@ -17,6 +17,7 @@ export const OnboardingAndroidApp = (): ReactElement => {
       </OnboardingTitle>
       <Button
         tag="a"
+        target="_blank"
         href={process.env.NEXT_PUBLIC_ANDROID_APP}
         icon={<GooglePlayIcon />}
         className="absolute bottom-4 left-0 right-0 m-auto h-fit max-w-fit px-6 py-3"
