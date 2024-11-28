@@ -2,12 +2,12 @@ import classNames from 'classnames';
 import React, { Dispatch, ReactElement, SetStateAction, useId } from 'react';
 import { useViewSize, ViewSize } from '../../hooks';
 import {
-  cloudinaryFeedBgMobile,
   cloudinaryFeedBgLaptop,
+  cloudinaryFeedBgMobile,
   cloudinaryFeedBgTablet,
 } from '../../lib/image';
 import Logo, { LogoPosition } from '../Logo';
-import { AuthProps, AuthDisplay } from '../auth/AuthOptions';
+import { AuthDisplay, AuthProps } from '../auth/AuthOptions';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { CreateFeedButton } from './CreateFeedButton';
 import { OnboardingStep, wrapperMaxWidth } from './common';
@@ -44,6 +44,7 @@ export const OnboardingHeader = ({
     OnboardingStep.ContentTypes,
     OnboardingStep.Sources,
     OnboardingStep.AndroidApp,
+    OnboardingStep.Plus,
   ];
 
   if (activeScreen !== OnboardingStep.Intro) {

@@ -22,7 +22,7 @@ import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import {
   OnboardingStep,
   wrapperMaxWidth,
@@ -62,6 +62,8 @@ import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import dynamic from 'next/dynamic';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
+import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/PaymentContext';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import { checkIsBrowser, UserAgent } from '@dailydotdev/shared/src/lib/func';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
@@ -91,6 +93,11 @@ const Sources = dynamic(() =>
     (mod) => mod.Sources,
   ),
 );
+const OnboardingPlusStep = dynamic(() =>
+  import(
+    /* webpackChunkName: "onboardingPlusStep" */ '@dailydotdev/shared/src/components/onboarding/OnboardingPlusStep'
+  ).then((mod) => mod.OnboardingPlusStep),
+);
 
 const OnboardingAndroidApp = dynamic(() =>
   import(
@@ -116,6 +123,8 @@ export function OnboardPage(): ReactElement {
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
   const { user, isAuthReady, anonymous } = useAuthContext();
+  const { logSubscriptionEvent, showPlusSubscription: isOnboardingPlusActive } =
+    usePlusSubscription();
   const shouldVerify = anonymous?.shouldVerify;
   const { growthbook } = useGrowthBookContext();
   const { logEvent } = useLogContext();
@@ -150,7 +159,7 @@ export function OnboardPage(): ReactElement {
     feature: featureOnboardingSources,
     shouldEvaluate: shouldEnrollOnboardingStep,
   });
-  const appExperiment = useConditionalFeature({
+  const { value: appExperiment } = useConditionalFeature({
     feature: feature.onboardingAndroid,
     shouldEvaluate:
       shouldEnrollOnboardingStep && checkIsBrowser(UserAgent.Android),
@@ -203,19 +212,24 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.Sources);
     }
 
-    if (!hasSelectTopics) {
-      logEvent({
-        event_name: LogEvent.OnboardingSkip,
-      });
-    } else {
-      logEvent({
-        event_name: LogEvent.CreateFeed,
-      });
+    const isLastStepBeforePlus = [
+      OnboardingStep.ContentTypes,
+      OnboardingStep.ReadingReminder,
+      OnboardingStep.Sources,
+    ].includes(activeScreen);
+    if (isOnboardingPlusActive && isLastStepBeforePlus) {
+      return setActiveScreen(OnboardingStep.Plus);
     }
 
     if (appExperiment && activeScreen !== OnboardingStep.AndroidApp) {
       return setActiveScreen(OnboardingStep.AndroidApp);
     }
+
+    logEvent({
+      event_name: hasSelectTopics
+        ? LogEvent.CreateFeed
+        : LogEvent.OnboardingSkip,
+    });
 
     return router.replace({
       pathname: '/',
@@ -226,6 +240,13 @@ export function OnboardPage(): ReactElement {
   };
 
   const onClickCreateFeed = () => {
+    if (isOnboardingPlusActive) {
+      logSubscriptionEvent({
+        event_name: LogEvent.OnboardingSkipPlus,
+        target_id: TargetId.Onboarding,
+      });
+    }
+
     setSettings({
       sidebarExpanded: true,
       onboardingChecklistView: ChecklistViewState.Open,
@@ -289,6 +310,10 @@ export function OnboardPage(): ReactElement {
 
     if (showOnboardingSources && activeScreen === OnboardingStep.ContentTypes) {
       return 'Continue';
+    }
+
+    if (activeScreen === OnboardingStep.Plus) {
+      return 'Skip for now ➞';
     }
     if (activeScreen === OnboardingStep.AndroidApp) {
       return 'Not now →';
@@ -378,6 +403,11 @@ export function OnboardPage(): ReactElement {
             )}
             {activeScreen === OnboardingStep.ContentTypes && <ContentTypes />}
             {activeScreen === OnboardingStep.Sources && <Sources />}
+            {activeScreen === OnboardingStep.Plus && (
+              <PaymentContextProvider>
+                <OnboardingPlusStep onClickNext={onClickNext} />
+              </PaymentContextProvider>
+            )}
             {activeScreen === OnboardingStep.AndroidApp && (
               <OnboardingAndroidApp />
             )}

@@ -41,8 +41,13 @@ export const CreateFeedButton = ({
     tagsCount >= REQUIRED_TAGS_THRESHOLD &&
     activeScreen === OnboardingStep.EditTag;
 
+  const isPlusStep = activeScreen === OnboardingStep.Plus;
   const canCreateFeed =
-    tagsCountMatch || contentTypeNotEmpty || sourceStep || androidStep;
+    tagsCountMatch ||
+    contentTypeNotEmpty ||
+    sourceStep ||
+    isPlusStep ||
+    androidStep;
   const { sidebarRendered } = useSidebarRendered();
   const buttonName =
     customActionName ??
@@ -55,11 +60,24 @@ export const CreateFeedButton = ({
     if (contentTypeStep && !canCreateFeed) {
       return 'Choose at least one content type';
     }
+    if (isPlusStep) {
+      return 'Continue without Plus for now';
+    }
     return '';
   };
 
   const tooltipProps = {
     ...(contentTypeStep ? { visible: !canCreateFeed && isLaptop } : {}),
+  };
+
+  const getButtonVariant = () => {
+    if (isPlusStep) {
+      return ButtonVariant.Secondary;
+    }
+    if (androidStep) {
+      return ButtonVariant.Tertiary;
+    }
+    return ButtonVariant.Primary;
   };
 
   return (
@@ -71,7 +89,7 @@ export const CreateFeedButton = ({
       <div className="relative">
         <Button
           className={className}
-          variant={androidStep ? ButtonVariant.Tertiary : ButtonVariant.Primary}
+          variant={getButtonVariant()}
           disabled={!canCreateFeed}
           onClick={onClick}
         >
