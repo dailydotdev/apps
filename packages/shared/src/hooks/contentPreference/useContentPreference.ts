@@ -1,6 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
 import {
+  CONTENT_PREFERENCE_BLOCK_MUTATION,
   CONTENT_PREFERENCE_FOLLOW_MUTATION,
+  CONTENT_PREFERENCE_UNBLOCK_MUTATION,
   CONTENT_PREFERENCE_UNFOLLOW_MUTATION,
   ContentPreferenceStatus,
 } from '../../graphql/contentPreference';
@@ -19,6 +21,8 @@ export type UseContentPreference = {
   unfollow: ContentPreferenceMutation;
   subscribe: ContentPreferenceMutation;
   unsubscribe: ContentPreferenceMutation;
+  block: ContentPreferenceMutation;
+  unblock: ContentPreferenceMutation;
 };
 
 export const useContentPreference = (): UseContentPreference => {
@@ -152,10 +156,72 @@ export const useContentPreference = (): UseContentPreference => {
     },
   });
 
+  const { mutateAsync: block } = useMutation({
+    mutationKey: generateQueryKey(RequestKey.ContentPreferenceBlock, user),
+    mutationFn: async ({
+      id,
+      entity,
+      entityName,
+      opts,
+    }: PropsParameters<UseContentPreference['block']>) => {
+      if (!user) {
+        showLogin({ trigger: AuthTriggers.Follow });
+
+        throw new Error('not logged in');
+      }
+
+      logEvent({
+        event_name: LogEvent.Block,
+        target_id: id,
+        target_type: entityName,
+        extra: opts?.extra ? JSON.stringify(opts.extra) : undefined,
+      });
+
+      await gqlClient.request(CONTENT_PREFERENCE_BLOCK_MUTATION, {
+        id,
+        entity,
+      });
+
+      displayToast(`⛔️ You blocked the following words: ${entityName}`);
+    },
+  });
+
+  const { mutateAsync: unblock } = useMutation({
+    mutationKey: generateQueryKey(RequestKey.ContentPreferenceUnblock, user),
+    mutationFn: async ({
+      id,
+      entity,
+      entityName,
+      opts,
+    }: PropsParameters<UseContentPreference['unblock']>) => {
+      if (!user) {
+        showLogin({ trigger: AuthTriggers.Follow });
+
+        throw new Error('not logged in');
+      }
+
+      logEvent({
+        event_name: LogEvent.Unblock,
+        target_id: id,
+        target_type: entityName,
+        extra: opts?.extra ? JSON.stringify(opts.extra) : undefined,
+      });
+
+      await gqlClient.request(CONTENT_PREFERENCE_UNBLOCK_MUTATION, {
+        id,
+        entity,
+      });
+
+      displayToast(`⛔️ You unblocked ${entityName}`);
+    },
+  });
+
   return {
     follow,
     unfollow,
     subscribe,
     unsubscribe,
+    block,
+    unblock,
   };
 };

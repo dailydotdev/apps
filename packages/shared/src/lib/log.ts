@@ -281,6 +281,7 @@ export enum TargetId {
   Ads = 'ads',
   MyProfile = 'my profile',
   PlusBadge = 'plus badge',
+  BlockedWords = 'blocked words',
 }
 
 export enum NotificationChannel {
