@@ -43,9 +43,6 @@ export const OnboardingHeader = ({
     OnboardingStep.EditTag,
     OnboardingStep.ContentTypes,
     OnboardingStep.Sources,
-  ];
-
-  const showNotNowButton: Partial<OnboardingStep[]> = [
     OnboardingStep.AndroidApp,
   ];
 
@@ -69,11 +66,6 @@ export const OnboardingHeader = ({
               customActionName={customActionName}
               activeScreen={activeScreen}
             />
-          )}
-          {showNotNowButton.includes(activeScreen) && (
-            <Button onClick={onClick} variant={ButtonVariant.Tertiary}>
-              {customActionName}
-            </Button>
           )}
         </div>
       </header>
