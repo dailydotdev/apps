@@ -18,7 +18,7 @@ export const InstallDesktopStep = ({
   onClickNext,
 }: OnboardingStepProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { isInstalledPWA, installPWA } = useInstallPWA();
+  const { isInstalledPWA, promptToInstall } = useInstallPWA();
 
   return (
     <section className="flex max-w-screen-laptop flex-col text-center tablet:px-10">
@@ -32,7 +32,7 @@ export const InstallDesktopStep = ({
         <br />
         Yes, please! 👀
       </Typography>
-      <Button variant={ButtonVariant.Primary} onClick={installPWA}>
+      <Button variant={ButtonVariant.Primary} onClick={promptToInstall}>
         Install
       </Button>{' '}
       - {isInstalledPWA ? 'Installed' : 'Not installed'}

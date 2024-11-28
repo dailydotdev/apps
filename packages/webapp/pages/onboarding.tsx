@@ -161,8 +161,8 @@ export function OnboardPage(): ReactElement {
     shouldEvaluate: shouldEnrollOnboardingStep,
   });
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
-  const { isInstalledPWA, installPWA } = useInstallPWA();
-  console.log({ isInstalledPWA, installPWA });
+  const { isInstalledPWA, isAvailable, promptToInstall } = useInstallPWA();
+  console.log({ isInstalledPWA, isAvailable, promptToInstall });
 
   useEffect(() => {
     if (!isPageReady || isLogged.current) {
