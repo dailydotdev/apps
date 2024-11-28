@@ -30,6 +30,7 @@ export interface PlusListItemProps {
   item: PlusItem;
   typographyProps?: TypographyProps<TypographyTag.P>;
   iconProps?: IconProps;
+  badgeProps?: TypographyProps<TypographyTag.Span>;
 }
 
 export const SimplePlusListItem = ({
@@ -58,9 +59,10 @@ export const SimplePlusListItem = ({
 };
 
 const PlusListItemWithTooltip = ({
+  badgeProps,
+  iconProps,
   item,
   typographyProps,
-  iconProps,
 }: PlusListItemProps): ReactElement => {
   return (
     <ConditionalWrapper
@@ -77,7 +79,7 @@ const PlusListItemWithTooltip = ({
     >
       <li
         className={classNames(
-          'flex gap-1 rounded-6 p-1',
+          '-mx-1 flex gap-1 rounded-6 p-1',
           !!item.tooltip && 'hover:bg-surface-float',
         )}
       >
@@ -96,17 +98,21 @@ const PlusListItemWithTooltip = ({
           color={TypographyColor.Primary}
           {...typographyProps}
           className={classNames(
-            'flex flex-1 flex-wrap gap-2',
+            'flex flex-1 flex-wrap items-baseline gap-2',
             typographyProps?.className,
           )}
         >
-          {item.label}
+          <span>{item.label}</span>
           {item.status === PlusItemStatus.ComingSoon && (
             <Typography
               tag={TypographyTag.Span}
               type={TypographyType.Caption1}
               color={TypographyColor.Tertiary}
-              className="rounded-6 bg-surface-float px-2 py-0.5"
+              {...badgeProps}
+              className={classNames(
+                'rounded-6 bg-surface-float px-2 py-0.5',
+                badgeProps?.className,
+              )}
             >
               Coming soon
             </Typography>

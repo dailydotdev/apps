@@ -70,43 +70,43 @@ const PlusCard = ({
   const { earlyAdopterPlanId, productOptions } = usePaymentContext();
   const pricingIds = useFeature(feature.pricingIds);
   const isEarlyAdopterExperiment = useFeature(feature.plusEarlyAdopter);
-  const isPaidPlan = !!plan;
-  const { heading, features } =
-    cardContent[isPaidPlan ? OnboardingPlans.Plus : OnboardingPlans.Free];
 
-  const { hasEarlyAccessDiscount, discountPlan } = productOptions.reduce(
+  const isPaidPlan = !!plan;
+  const cardContentName = isPaidPlan
+    ? OnboardingPlans.Plus
+    : OnboardingPlans.Free;
+  const { heading, features } = cardContent[cardContentName];
+
+  const { hasDiscount, discountPlan } = productOptions.reduce(
     (acc, product) => {
       if (!plan || !isEarlyAdopterExperiment || !earlyAdopterPlanId) {
         return acc;
       }
 
-      const isSamePlan = product.value === plan.value;
+      const isCardPlan = product.value === plan.value;
+      const isDiscountPlan = product.value === earlyAdopterPlanId;
       const isMonthly = pricingIds[product.value] === 'monthly';
 
       return {
-        hasEarlyAccessDiscount:
-          acc.hasEarlyAccessDiscount ||
-          (isSamePlan && isMonthly && !!earlyAdopterPlanId),
-        discountPlan:
-          acc.discountPlan ||
-          (product.value === earlyAdopterPlanId ? product : null),
+        hasDiscount: acc.hasDiscount || (isCardPlan && isMonthly),
+        discountPlan: acc.discountPlan || (isDiscountPlan ? product : null),
       };
     },
     {
-      hasEarlyAccessDiscount: false,
+      hasDiscount: false,
       discountPlan: null,
     },
   );
 
   const price = {
-    amount: (hasEarlyAccessDiscount ? discountPlan.price : plan?.price) ?? '0',
+    amount: (hasDiscount ? discountPlan.price : plan?.price) ?? '0',
     cycle: isPaidPlan ? `Billed ${plan?.label?.toLowerCase()}` : 'Free forever',
   };
 
   return (
     <li
       aria-labelledby={`${id}-heading`}
-      className="mx-auto w-80 max-w-full rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4"
+      className="mx-auto w-[21rem] max-w-full rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4"
     >
       <div className="flex items-start justify-between gap-6">
         <Typography
@@ -120,7 +120,7 @@ const PlusCard = ({
           {isPaidPlan && <DevPlusIcon aria-hidden size={IconSize.Small} />}
           {heading.label}
         </Typography>
-        {hasEarlyAccessDiscount && discountPlan?.extraLabel && (
+        {hasDiscount && discountPlan?.extraLabel && (
           <Typography
             tag={TypographyTag.Span}
             type={TypographyType.Caption1}
@@ -137,7 +137,7 @@ const PlusCard = ({
           {!isPaidPlan && currency}
           {price.amount}
         </Typography>
-        {hasEarlyAccessDiscount && (
+        {hasDiscount && (
           <Typography
             type={TypographyType.Title3}
             color={TypographyColor.Quaternary}
@@ -193,7 +193,8 @@ const PlusCard = ({
         className="!py-0"
         items={features.items}
         iconProps={{ size: IconSize.Size16, className: '!m-0' }}
-        typographyProps={{ type: TypographyType.Caption1 }}
+        typographyProps={{ type: TypographyType.Caption1, className: '!gap-1' }}
+        badgeProps={{ className: '!px-1' }}
       />
     </li>
   );
