@@ -182,7 +182,7 @@ PostPage.layoutProps = {
 export default PostPage;
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
-  return { paths: [], fallback: true };
+  return { paths: [], fallback: 'blocking' };
 }
 
 export async function getStaticProps({

@@ -49,7 +49,7 @@ const TestPage = ({ id, initialData }: Props): ReactElement => {
 export default TestPage;
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
-  return { paths: [], fallback: true };
+  return { paths: [], fallback: 'blocking' };
 }
 
 export async function getStaticProps({
