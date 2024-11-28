@@ -4,6 +4,8 @@ import { Browser } from 'webextension-polyfill';
 import { FC, PropsWithChildren } from 'react';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { fn } from '@storybook/test';
+import { getBootMock } from '../../mock/boot';
+import { ActiveFeedContext } from '@dailydotdev/shared/src/contexts';
 
 const queryClient = new QueryClient();
 
@@ -22,8 +24,11 @@ export const ExtensionProviders: FC<PropsWithChildren> = ({ children }) => {
         getPage={fn()}
         getRedirectUri={fn()}
         version="pwa"
+        localBootData={getBootMock()}
       >
-        {children}
+        <ActiveFeedContext.Provider value={{ items: [], queryKey: [] }}>
+          {children}
+        </ActiveFeedContext.Provider>
       </BootDataProvider>
     </QueryClientProvider>
   );

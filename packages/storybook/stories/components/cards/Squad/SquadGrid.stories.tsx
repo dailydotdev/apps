@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { QueryClientProvider } from '../../../extension/_providers';
+import { ExtensionProviders } from '../../../extension/_providers';
 import { SquadGrid } from '@dailydotdev/shared/src/components/cards/squad/SquadGrid';
 import {
   SourceMemberRole,
@@ -78,13 +78,11 @@ const meta: Meta<typeof SquadGrid> = {
   },
   decorators: [
     (Story) => (
-      <QueryClientProvider>
-        <AuthContext.Provider value={{}}>
-          <div className="grid grid-cols-3 gap-4">
-            <Story />
-          </div>
-        </AuthContext.Provider>
-      </QueryClientProvider>
+      <ExtensionProviders>
+        <div className="grid grid-cols-3 gap-4">
+          <Story />
+        </div>
+      </ExtensionProviders>
     ),
   ],
 };

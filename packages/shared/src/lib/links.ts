@@ -79,3 +79,7 @@ export const withPrefix = (prefix: string, url?: string): string => {
 
   return `${prefix}${url}`;
 };
+
+export const fromCDN = (path: string): string => {
+  return `${process.env.NEXT_PUBLIC_CDN_ASSET_PREFIX || ''}${path}`;
+};

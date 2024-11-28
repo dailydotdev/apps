@@ -30,7 +30,6 @@ const feature = {
   showRoadmap: new Feature('show_roadmap', true),
   onboardingChecklist: new Feature('onboarding_checklist', true),
   showCodeSnippets: new Feature('show_code_snippets', false),
-  seniorContentOnboarding: new Feature('senior_content_onboarding', false),
   postBannerExtensionPrompt: new Feature('post_banner_extension_prompt', false),
   plusSubscription: new Feature('plus_subscription', false),
   feedPageSizes: new Feature('feed_page_sizes', {
@@ -45,6 +44,7 @@ const feature = {
     pri_01jbsccbdbcwyhdy8hy3c2etyn: 'monthly',
     pri_01jbscda57910yvwjtyapnrrzc: 'yearly',
   }),
+  postPersonalizedBanner: new Feature('post_banner_personalized', false),
 };
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
