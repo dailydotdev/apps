@@ -3,6 +3,11 @@ import { MutableRefObject, useMemo, useRef } from 'react';
 import { apiUrl } from '../../lib/config';
 import useDebounceFn from '../useDebounceFn';
 import { ExtensionMessageType } from '../../lib/extension';
+import usePersistentContext from '../usePersistentContext';
+import {
+  FIREFOX_ACCEPTED_PERMISSION,
+  FirefoxPermissionType,
+} from '../../lib/cookie';
 
 export interface LogEvent extends Record<string, unknown> {
   visit_id?: string;
@@ -31,6 +36,10 @@ export default function useLogQueue({
   queueRef: MutableRefObject<LogEvent[]>;
   sendBeacon: () => void;
 } {
+  const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
+  const [permission] = usePersistentContext<FirefoxPermissionType>(
+    FIREFOX_ACCEPTED_PERMISSION,
+  );
   const enabledRef = useRef(false);
   const { mutateAsync: sendEvents } = useMutation({
     mutationFn: async (events: LogEvent[]) => {
@@ -72,6 +81,13 @@ export default function useLogQueue({
       },
       queueRef,
       sendBeacon: () => {
+        if (
+          isFirefoxExtension &&
+          permission !== FirefoxPermissionType.Accepted
+        ) {
+          return;
+        }
+
         if (queueRef.current.length) {
           const events = queueRef.current;
           queueRef.current = [];
@@ -99,6 +115,6 @@ export default function useLogQueue({
     }),
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [queueRef, debouncedSendEvents, enabledRef],
+    [queueRef, debouncedSendEvents, enabledRef, permission, isFirefoxExtension],
   );
 }
