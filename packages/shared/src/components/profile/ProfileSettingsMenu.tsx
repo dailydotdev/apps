@@ -181,7 +181,14 @@ const useMenuItems = (): NavItemProps[] => {
         rel: anchorDefaultRel,
       },
     ].filter(Boolean);
-  }, [isPlus, logSubscriptionEvent, onLogout, openModal, showPlusSubscription]);
+  }, [
+    isPlus,
+    logSubscriptionEvent,
+    onLogout,
+    openModal,
+    showPlusSubscription,
+    appExperiment,
+  ]);
 };
 
 interface ProfileSettingsMenuProps {

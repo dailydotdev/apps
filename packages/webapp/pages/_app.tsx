@@ -81,6 +81,10 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   useConsoleLogo();
 
   useEffect(() => {
+    initApp();
+  }, []);
+
+  useEffect(() => {
     updateCookieBanner(user);
 
     if (
@@ -95,8 +99,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   }, [updateCookieBanner, user]);
 
   useEffect(() => {
-    initApp();
-
     if (!modal) {
       return undefined;
     }

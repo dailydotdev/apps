@@ -40,9 +40,10 @@ export const isExtension = !!process.env.TARGET_BROWSER;
 
 export const isAndroidApp = (): boolean => globalThis?.isAndroidApp;
 
-export const isPWA = (): boolean => globalThis?.isPWA;
-
-export const isApp = isPWA() || isAndroidApp();
+export const isPWA = (): boolean =>
+  // @ts-expect-error - Safari only, not web standard.
+  globalThis?.navigator?.standalone ||
+  globalThis?.matchMedia('(display-mode: standalone)')?.matches;
 
 export const defaultSearchDebounceMs = 500;
 
@@ -153,11 +154,8 @@ export const initReactModal = ({
 };
 
 export const initApp = (): void => {
-  const param = globalThis?.location?.search;
-  if (param?.includes('android=true')) {
+  const params = new URLSearchParams(globalThis?.location?.search);
+  if (params.get('android') === 'true') {
     globalThis.isAndroidApp = true;
-  }
-  if (param?.includes('pwa=true')) {
-    globalThis.isPWA = true;
   }
 };
