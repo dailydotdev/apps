@@ -93,40 +93,43 @@ export const PlusInfo = ({
               }}
               className={{
                 content: classNames(
-                  'h-12 rounded-10 !p-2',
+                  'min-h-12 rounded-10 !p-2',
                   checked
-                    ? 'border border-border-subtlest-primary bg-surface-float'
+                    ? '-m-[1px] border border-border-subtlest-primary bg-surface-float'
                     : undefined,
                 ),
               }}
             >
-              <Typography
-                tag={TypographyTag.Span}
-                type={TypographyType.Callout}
-                color={TypographyColor.Primary}
-              >
-                {option.label}
-              </Typography>
-
-              {extraLabel && (
+              <div className="flex flex-1 flex-wrap items-center gap-x-3 gap-y-1">
                 <Typography
                   tag={TypographyTag.Span}
-                  type={TypographyType.Caption1}
-                  color={
-                    isEarlyAccess
-                      ? TypographyColor.StatusHelp
-                      : TypographyColor.StatusSuccess
-                  }
-                  className={classNames(
-                    'ml-3 rounded-10 px-2 py-1',
-                    isEarlyAccess ? 'bg-[#FFE92314]' : 'bg-action-upvote-float',
-                  )}
-                  bold
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Primary}
                 >
-                  {extraLabel}
+                  {option.label}
                 </Typography>
-              )}
 
+                {extraLabel && (
+                  <Typography
+                    tag={TypographyTag.Span}
+                    type={TypographyType.Caption1}
+                    color={
+                      isEarlyAccess
+                        ? TypographyColor.StatusHelp
+                        : TypographyColor.StatusSuccess
+                    }
+                    className={classNames(
+                      'rounded-10 px-2 py-1',
+                      isEarlyAccess
+                        ? 'whitespace-nowrap bg-[#FFE92314]'
+                        : 'bg-action-upvote-float',
+                    )}
+                    bold
+                  >
+                    {extraLabel}
+                  </Typography>
+                )}
+              </div>
               <div className="ml-auto mr-1 flex items-center gap-1">
                 <Typography
                   tag={TypographyTag.Span}
