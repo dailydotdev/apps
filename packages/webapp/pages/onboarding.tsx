@@ -144,15 +144,16 @@ export function OnboardPage(): ReactElement {
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
-  const [shouldEnrollSourceSelection, setShouldEnrollSourceSelection] =
+  const [shouldEnrollOnboardingStep, setShouldEnrollOnboardingStep] =
     useState(false);
   const { value: showOnboardingSources } = useConditionalFeature({
     feature: featureOnboardingSources,
-    shouldEvaluate: shouldEnrollSourceSelection,
+    shouldEvaluate: shouldEnrollOnboardingStep,
   });
   const appExperiment = useConditionalFeature({
     feature: feature.onboardingAndroid,
-    shouldEvaluate: checkIsBrowser(UserAgent.Android),
+    shouldEvaluate:
+      shouldEnrollOnboardingStep && checkIsBrowser(UserAgent.Android),
   });
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
 
@@ -190,7 +191,7 @@ export function OnboardPage(): ReactElement {
     }
 
     if (activeScreen === OnboardingStep.EditTag) {
-      setShouldEnrollSourceSelection(true);
+      setShouldEnrollOnboardingStep(true);
       return setActiveScreen(OnboardingStep.ContentTypes);
     }
 

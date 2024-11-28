@@ -36,6 +36,8 @@ import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../lib/log';
 import { GooglePlayIcon } from '../icons/Google/Play';
 import { checkIsBrowser, isAndroidApp, UserAgent } from '../../lib/func';
+import { useConditionalFeature } from '../../hooks';
+import { feature } from '../../lib/featureManagement';
 
 const useMenuItems = (): NavItemProps[] => {
   const { logout } = useAuthContext();
@@ -43,6 +45,11 @@ const useMenuItems = (): NavItemProps[] => {
   const { showPrompt } = usePrompt();
   const { showPlusSubscription, isPlus, logSubscriptionEvent } =
     usePlusSubscription();
+  const appExperiment = useConditionalFeature({
+    feature: feature.onboardingAndroid,
+    shouldEvaluate: checkIsBrowser(UserAgent.Android) && !isAndroidApp(),
+  });
+
   const onLogout = useCallback(async () => {
     const shouldLogout = await showPrompt({
       title: 'Are you sure?',
@@ -74,15 +81,14 @@ const useMenuItems = (): NavItemProps[] => {
         }
       : undefined;
 
-    const downloadAndroidApp =
-      checkIsBrowser(UserAgent.Android) && !isAndroidApp()
-        ? {
-            label: 'Download mobile app',
-            icon: <GooglePlayIcon />,
-            href: process.env.NEXT_PUBLIC_ANDROID_APP,
-            target: '_blank',
-          }
-        : undefined;
+    const downloadAndroidApp = appExperiment
+      ? {
+          label: 'Download mobile app',
+          icon: <GooglePlayIcon />,
+          href: process.env.NEXT_PUBLIC_ANDROID_APP,
+          target: '_blank',
+        }
+      : undefined;
 
     return [
       {
