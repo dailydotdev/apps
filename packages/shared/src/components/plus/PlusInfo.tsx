@@ -95,7 +95,7 @@ export const PlusInfo = ({
                 content: classNames(
                   'min-h-12 rounded-10 !p-2',
                   checked
-                    ? '-m-[1px] border border-border-subtlest-primary bg-surface-float'
+                    ? '-m-px border border-border-subtlest-primary bg-surface-float'
                     : undefined,
                 ),
               }}
