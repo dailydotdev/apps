@@ -333,12 +333,9 @@ export function OnboardPage(): ReactElement {
       />
       <div
         className={classNames(
-          'flex w-full flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
+          'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
           activeScreen === OnboardingStep.Intro && wrapperMaxWidth,
-          !isAuthenticating &&
-            activeScreen !== OnboardingStep.AndroidApp &&
-            'mt-7.5 flex-1 content-center',
-          activeScreen !== OnboardingStep.AndroidApp && 'flex-1 flex-grow',
+          !isAuthenticating && 'mt-7.5 flex-1 content-center',
         )}
       >
         {showOnboardingPage && (
@@ -364,6 +361,7 @@ export function OnboardPage(): ReactElement {
               activeScreen === OnboardingStep.Intro
                 ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
                 : 'mb-10 ml-0 w-full flex-col items-center justify-start',
+              activeScreen === OnboardingStep.AndroidApp && 'mb-auto',
             )}
           >
             {activeScreen === OnboardingStep.ReadingReminder && (
