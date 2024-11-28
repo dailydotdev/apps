@@ -172,14 +172,6 @@ export function OnboardPage(): ReactElement {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPageReady, user]);
 
-  const onCompleteOnboarding = () =>
-    router.replace({
-      pathname: '/',
-      query: {
-        ua: 'true',
-      },
-    });
-
   const onClickNext = () => {
     logEvent({
       event_name: LogEvent.ClickOnboardingNext,
@@ -225,7 +217,12 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.AndroidApp);
     }
 
-    return onCompleteOnboarding();
+    return router.replace({
+      pathname: '/',
+      query: {
+        ua: 'true',
+      },
+    });
   };
 
   const onClickCreateFeed = () => {
@@ -331,11 +328,7 @@ export function OnboardPage(): ReactElement {
         showOnboardingPage={showOnboardingPage}
         setAuth={setAuth}
         customActionName={customActionName}
-        onClick={
-          activeScreen === OnboardingStep.AndroidApp
-            ? onCompleteOnboarding
-            : onClickCreateFeed
-        }
+        onClick={onClickCreateFeed}
         activeScreen={activeScreen}
       />
       <div
