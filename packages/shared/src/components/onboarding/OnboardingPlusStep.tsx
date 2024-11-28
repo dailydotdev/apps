@@ -27,10 +27,10 @@ const PlusBillingCycleSwitch = ({
   currentCycleIndex: number;
   onChangeCycle: (index: number) => void;
 }): ReactElement => {
-  const { earlyAccessPlanId } = usePaymentContext();
+  const { earlyAdopterPlanId } = usePaymentContext();
   const items = useMemo(
-    () => productOptions.filter(({ value }) => value !== earlyAccessPlanId),
-    [productOptions, earlyAccessPlanId],
+    () => productOptions.filter(({ value }) => value !== earlyAdopterPlanId),
+    [productOptions, earlyAdopterPlanId],
   );
 
   return (
@@ -85,9 +85,14 @@ const PlusBillingCycleSwitch = ({
 export const OnboardingPlusStep = ({
   onClickNext,
 }: OnboardingStepProps): ReactElement => {
-  const { productOptions } = usePaymentContext();
+  const { productOptions, earlyAdopterPlanId } = usePaymentContext();
   const [currentProductIndex, setCurrentProductIndex] = useState<number>(0);
   const isLaptop = useViewSize(ViewSize.Laptop);
+
+  const items = useMemo(
+    () => productOptions.filter(({ value }) => value !== earlyAdopterPlanId),
+    [productOptions, earlyAdopterPlanId],
+  );
 
   return (
     <section className="flex max-w-screen-laptop flex-col tablet:px-10">
@@ -109,7 +114,7 @@ export const OnboardingPlusStep = ({
           exclusive features and perks to level up your game.
         </Typography>
       </header>
-      {!!productOptions?.length && (
+      {!!items?.length && (
         <>
           <PlusBillingCycleSwitch
             productOptions={productOptions}
@@ -118,7 +123,7 @@ export const OnboardingPlusStep = ({
           />
           <PlusComparingCards
             currentIndex={currentProductIndex}
-            productOptions={productOptions}
+            productOptions={items}
             onClickNext={onClickNext}
           />
         </>

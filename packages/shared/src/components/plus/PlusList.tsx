@@ -115,6 +115,7 @@ export const PlusList = ({
       {list.map((item) => (
         <PlusListItem key={item.label} item={item} {...props} />
       ))}
+      {/* On cleanup: remove this additional item if ComingSoon experiment won */}
       {hasFilteredComingSoon && (
         <PlusListItem
           item={{

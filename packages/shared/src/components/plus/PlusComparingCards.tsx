@@ -1,7 +1,8 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useId } from 'react';
 import {
   PaymentContextData,
   ProductOption,
+  usePaymentContext,
 } from '../../contexts/PaymentContext';
 import {
   Typography,
@@ -12,12 +13,14 @@ import {
 import { DevPlusIcon } from '../icons';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { defaultFeatureList, plusFeatureList, PlusList } from './PlusList';
-import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { usePlusSubscription } from '../../hooks';
 import { plusUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import { LogEvent, TargetId } from '../../lib/log';
 import { PlusItemStatus } from './PlusListItem';
 import { IconSize } from '../Icon';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
 
 export enum OnboardingPlans {
   Free = 'Free',
@@ -62,41 +65,95 @@ const PlusCard = ({
   productOption: plan,
   onClickNext,
 }: PlusCardProps): ReactElement => {
-  const isPaidPlan = !!plan;
-  const price = {
-    amount: plan?.price ?? '0',
-    cycle: isPaidPlan ? `Billed ${plan?.label}` : 'Free forever',
-  };
+  const id = useId();
   const { logSubscriptionEvent } = usePlusSubscription();
-  const currentPlan = isPaidPlan ? OnboardingPlans.Plus : OnboardingPlans.Free;
-  const { heading, features } = cardContent[currentPlan];
+  const { earlyAdopterPlanId, productOptions } = usePaymentContext();
+  const pricingIds = useFeature(feature.pricingIds);
+  const isEarlyAdopterExperiment = useFeature(feature.plusEarlyAdopter);
+  const isPaidPlan = !!plan;
+  const { heading, features } =
+    cardContent[isPaidPlan ? OnboardingPlans.Plus : OnboardingPlans.Free];
+
+  const { hasEarlyAccessDiscount, discountPlan } = productOptions.reduce(
+    (acc, product) => {
+      if (!plan || !isEarlyAdopterExperiment || !earlyAdopterPlanId) {
+        return acc;
+      }
+
+      const isSamePlan = product.value === plan.value;
+      const isMonthly = pricingIds[product.value] === 'monthly';
+
+      return {
+        hasEarlyAccessDiscount:
+          acc.hasEarlyAccessDiscount ||
+          (isSamePlan && isMonthly && !!earlyAdopterPlanId),
+        discountPlan:
+          acc.discountPlan ||
+          (product.value === earlyAdopterPlanId ? product : null),
+      };
+    },
+    {
+      hasEarlyAccessDiscount: false,
+      discountPlan: null,
+    },
+  );
+
+  const price = {
+    amount: (hasEarlyAccessDiscount ? discountPlan.price : plan?.price) ?? '0',
+    cycle: isPaidPlan ? `Billed ${plan?.label?.toLowerCase()}` : 'Free forever',
+  };
 
   return (
-    <div className="mx-auto w-70 max-w-full rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
+    <li
+      aria-labelledby={`${id}-heading`}
+      className="mx-auto w-80 max-w-full rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4"
+    >
       <div className="flex items-start justify-between gap-6">
         <Typography
           bold
           className="mb-1.5 flex gap-1"
-          tag={TypographyTag.H2}
+          tag={TypographyTag.H3}
           type={TypographyType.Title3}
           color={heading.color}
+          id={`${id}-heading`}
         >
           {isPaidPlan && <DevPlusIcon aria-hidden size={IconSize.Small} />}
           {heading.label}
         </Typography>
+        {hasEarlyAccessDiscount && discountPlan?.extraLabel && (
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Caption1}
+            color={TypographyColor.StatusHelp}
+            className="ml-3 rounded-10 bg-[#FFE92314] px-2 py-1"
+            bold
+          >
+            {discountPlan.extraLabel}
+          </Typography>
+        )}
       </div>
-      <div>
+      <div className="flex items-baseline gap-0.5">
         <Typography bold tag={TypographyTag.Span} type={TypographyType.Title1}>
           {!isPaidPlan && currency}
           {price.amount}
         </Typography>
-        <Typography
-          color={TypographyColor.Tertiary}
-          type={TypographyType.Footnote}
-        >
-          {price.cycle}
-        </Typography>
+        {hasEarlyAccessDiscount && (
+          <Typography
+            type={TypographyType.Title3}
+            color={TypographyColor.Quaternary}
+            className="line-through"
+          >
+            {plan.price}
+          </Typography>
+        )}
       </div>
+      <Typography
+        color={TypographyColor.Tertiary}
+        type={TypographyType.Footnote}
+      >
+        {price.cycle}
+      </Typography>
+
       {!isPaidPlan ? (
         <Button
           className="my-4 block w-full"
@@ -135,11 +192,10 @@ const PlusCard = ({
       <PlusList
         className="!py-0"
         items={features.items}
-        icon={{
-          className: isPaidPlan ? 'text-text-tertiary' : 'text-text-quaternary',
-        }}
+        iconProps={{ size: IconSize.Size16, className: '!m-0' }}
+        typographyProps={{ type: TypographyType.Caption1 }}
       />
-    </div>
+    </li>
   );
 };
 
@@ -159,7 +215,10 @@ export const PlusComparingCards = ({
   const currency = Number.isInteger(+priceFirstChar) ? '' : priceFirstChar;
 
   return (
-    <div className="mx-auto grid grid-cols-1 place-content-center items-start gap-6 tablet:grid-cols-2">
+    <ul
+      aria-label="Pricing plans"
+      className="mx-auto grid grid-cols-1 place-content-center items-start gap-6 tablet:grid-cols-2"
+    >
       {Object.values(OnboardingPlans).map((plan) => (
         <PlusCard
           key={plan}
@@ -170,6 +229,6 @@ export const PlusComparingCards = ({
           onClickNext={onClickNext}
         />
       ))}
-    </div>
+    </ul>
   );
 };

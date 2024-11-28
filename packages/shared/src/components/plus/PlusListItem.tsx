@@ -28,28 +28,28 @@ export interface PlusItem {
 
 export interface PlusListItemProps {
   item: PlusItem;
-  text?: TypographyProps<TypographyTag.P>;
-  icon?: IconProps;
+  typographyProps?: TypographyProps<TypographyTag.P>;
+  iconProps?: IconProps;
 }
 
 export const SimplePlusListItem = ({
   item,
-  text,
-  icon,
+  typographyProps,
+  iconProps,
 }: PlusListItemProps): ReactElement => {
   return (
     <li className="flex gap-2">
       <ChecklistAIcon
-        className="text-text-quaternary"
         size={IconSize.Small}
-        {...icon}
+        {...iconProps}
+        className={classNames('text-text-quaternary', iconProps?.className)}
       />
       <Typography
         tag={TypographyTag.P}
         type={TypographyType.Body}
         color={TypographyColor.Primary}
-        {...text}
-        className={classNames('flex-1', text?.className)}
+        {...typographyProps}
+        className={classNames('flex-1', typographyProps?.className)}
       >
         {item.label}
       </Typography>
@@ -59,8 +59,8 @@ export const SimplePlusListItem = ({
 
 const PlusListItemWithTooltip = ({
   item,
-  text,
-  icon,
+  typographyProps,
+  iconProps,
 }: PlusListItemProps): ReactElement => {
   return (
     <ConditionalWrapper
@@ -77,23 +77,28 @@ const PlusListItemWithTooltip = ({
     >
       <li
         className={classNames(
-          'flex gap-2 rounded-6 p-1',
+          'flex gap-1 rounded-6 p-1',
           !!item.tooltip && 'hover:bg-surface-float',
         )}
       >
-        <div className="mt-0.5 inline-block ">
-          <ChecklistAIcon
-            className="text-text-quaternary"
-            size={IconSize.XSmall}
-            {...icon}
-          />
-        </div>
+        <ChecklistAIcon
+          aria-hidden
+          size={IconSize.XSmall}
+          {...iconProps}
+          className={classNames(
+            'mr-1 mt-0.5 inline-block text-text-quaternary',
+            iconProps?.className,
+          )}
+        />
         <Typography
           tag={TypographyTag.P}
           type={TypographyType.Body}
           color={TypographyColor.Primary}
-          {...text}
-          className={classNames('flex flex-1 flex-wrap gap-2', text?.className)}
+          {...typographyProps}
+          className={classNames(
+            'flex flex-1 flex-wrap gap-2',
+            typographyProps?.className,
+          )}
         >
           {item.label}
           {item.status === PlusItemStatus.ComingSoon && (

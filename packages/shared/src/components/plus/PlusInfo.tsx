@@ -35,7 +35,7 @@ export const PlusInfo = ({
   onChange,
   onContinue,
 }: PlusInfoProps): ReactElement => {
-  const { earlyAccessPlanId } = usePaymentContext();
+  const { earlyAdopterPlanId } = usePaymentContext();
   const { logSubscriptionEvent } = usePlusSubscription();
 
   return (
@@ -76,7 +76,7 @@ export const PlusInfo = ({
         {productOptions.map((option) => {
           const { label, value, price, currencyCode, extraLabel } = option;
           const checked = selectedOption === value;
-          const isEarlyAccess = value === earlyAccessPlanId;
+          const isEarlyAccess = value === earlyAdopterPlanId;
           return (
             <RadioItem
               key={label}
