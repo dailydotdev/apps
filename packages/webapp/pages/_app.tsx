@@ -155,7 +155,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           sizes="16x16"
           href={fromCDN('/favicon-16x16.png')}
         />
-        <link rel="manifest" href={fromCDN('/manifest.json')} />
+        <link rel="manifest" href="/manifest.json" />
         <link
           rel="sitemap"
           type="text/plain"
