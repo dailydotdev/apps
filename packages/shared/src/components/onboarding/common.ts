@@ -8,6 +8,7 @@ export enum OnboardingStep {
   ContentTypes = 'content_types',
   ReadingReminder = 'reading_reminder',
   Sources = 'sources',
+  Plus = 'plus',
 }
 
 export const OnboardingTitle = classed(

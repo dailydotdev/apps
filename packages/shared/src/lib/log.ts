@@ -206,7 +206,7 @@ export enum LogEvent {
   // End post snippets
   TopReaderModalClose = 'close badge',
   TopReaderBadgeDownload = 'download badge',
-  // Plug subscription
+  // Plus subscription
   UpgradeSubscription = 'upgrade subscription',
   ManageSubscription = 'manage subscription',
   SelectBillingCycle = 'select billing cycle',
@@ -216,6 +216,9 @@ export enum LogEvent {
   ErrorCheckout = 'error checkout',
   CancelSubscription = 'cancel subscription',
   ReceivePayment = 'receive payment',
+  OnboardingSkipPlus = 'skip upgrade subscription',
+  OnboardingUpgradePlus = 'upgrade subscription',
+  // End Plus subscription
 }
 
 export enum FeedItemTitle {
@@ -281,6 +284,7 @@ export enum TargetId {
   Ads = 'ads',
   MyProfile = 'my profile',
   PlusBadge = 'plus badge',
+  Onboarding = 'onboarding',
   BlockedWords = 'blocked words',
 }
 

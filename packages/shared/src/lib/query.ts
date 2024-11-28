@@ -178,6 +178,7 @@ export enum RequestKey {
   ContentPreferenceBlock = 'content_preference_block',
   ContentPreferenceUnblock = 'content_preference_unblock',
   TopReaderBadge = 'top_reader_badge',
+  ReferringUser = 'referring_user',
   SearchSources = 'search_sources',
   OnboardingSources = 'onboarding_sources',
 }
