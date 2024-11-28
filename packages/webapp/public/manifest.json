@@ -15,7 +15,7 @@
       "purpose": "any"
     },
     {
-      "src": "/maskable_icon.png",
+      "src": "https://cdn.daily.dev/assets/maskable_icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

@@ -136,7 +136,21 @@ const nextConfig: NextConfig = {
         return rewrites;
       },
       redirects: async () => {
+        const oldPublicAssets = [
+          'dailydev.svg',
+          'google.svg',
+          'maskable_icon.png',
+          'mstile-150x150.png',
+        ];
+
         return [
+          ...oldPublicAssets.map((asset) => ({
+            source: `/${asset}`,
+            destination: `${
+              process.env.NEXT_PUBLIC_CDN_ASSET_PREFIX || ''
+            }/assets/${asset}`,
+            permanent: true,
+          })),
           {
             source: '/posts/finder',
             destination: '/search?provider=posts',
