@@ -255,7 +255,7 @@ SourcePage.layoutProps = {
 export default SourcePage;
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
-  return { paths: [], fallback: true };
+  return { paths: [], fallback: 'blocking' };
 }
 
 interface SourcePageParams extends ParsedUrlQuery {

@@ -51,7 +51,7 @@ KeywordPage.getLayout = getMainLayout;
 export default KeywordPage;
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
-  return { paths: [], fallback: true };
+  return { paths: [], fallback: 'blocking' };
 }
 
 interface KeywordParams extends ParsedUrlQuery {
