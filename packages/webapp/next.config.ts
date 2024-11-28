@@ -199,6 +199,9 @@ const nextConfig: NextConfig = {
       poweredByHeader: false,
       reactStrictMode: false,
       productionBrowserSourceMaps: process.env.SOURCE_MAPS === 'true',
+      generateBuildId: async () => {
+        return process.env.COMMIT_REF || process.env.VERCEL_GIT_COMMIT_SHA;
+      },
     }),
   }),
 };
