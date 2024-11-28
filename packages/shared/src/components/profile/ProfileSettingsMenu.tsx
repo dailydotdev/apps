@@ -45,7 +45,7 @@ const useMenuItems = (): NavItemProps[] => {
   const { showPrompt } = usePrompt();
   const { showPlusSubscription, isPlus, logSubscriptionEvent } =
     usePlusSubscription();
-  const appExperiment = useConditionalFeature({
+  const { value: appExperiment } = useConditionalFeature({
     feature: feature.onboardingAndroid,
     shouldEvaluate: checkIsBrowser(UserAgent.Android) && !isAndroidApp(),
   });
