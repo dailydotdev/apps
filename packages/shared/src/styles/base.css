@@ -3,7 +3,6 @@ html, #daily-companion-wrapper {
   color: var(--theme-text-primary);
   height: stretch;
 }
-
 body {
   min-width: 20rem;
   overflow-y: scroll;
@@ -186,6 +185,7 @@ body {
   --theme-actions-help-hover: color-mix(in srgb, var(--theme-actions-help-default), transparent 88%);
   --theme-actions-help-active: color-mix(in srgb, var(--theme-actions-help-default), transparent 84%);
 
+
   /* Overlay */
   --theme-overlay-base-primary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 36%);
   --theme-overlay-base-secondary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 60%);
@@ -238,20 +238,20 @@ body {
   --theme-blur-blur-bg: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 36%);
   --theme-blur-blur-glass: color-mix(in srgb, theme('colors.raw.salt.90'), transparent 92%);
 
-  /**
-    * Current old colors, these should all be changed to one of the above matching ones.
-   */
-  --theme-active: theme('colors.raw.salt.90') 33;
+/**
+  * Current old colors, these should all be changed to one of the above matching ones.
+ */
+  --theme-active: theme('colors.raw.salt.90')33;
 
   --theme-shadow2: theme('boxShadow.2-black');
   --theme-shadow3: theme('boxShadow.3-black');
 
-  --theme-post-disabled: theme('colors.raw.pepper.70') 66;
+  --theme-post-disabled: theme('colors.raw.pepper.70')66;
   --theme-overlay-quaternary: theme('colors.overlay.quaternary.white');
   --theme-overlay-water: theme('colors.overlay.quaternary.water');
   --theme-overlay-cabbage: theme('colors.overlay.quaternary.cabbage');
-  --theme-overlay-from: theme('colors.raw.onion.40') 30;
-  --theme-overlay-to: theme('colors.raw.cabbage.40') 30;
+  --theme-overlay-from: theme('colors.raw.onion.40')30;
+  --theme-overlay-to: theme('colors.raw.cabbage.40')30;
 
   --theme-overlay-float-bun: theme('colors.overlay.float.bun');
   --theme-overlay-float-blueCheese: theme('colors.overlay.float.blueCheese');
@@ -263,8 +263,8 @@ body {
   --theme-overlay-active-onion: theme('colors.overlay.active.onion');
   --theme-overlay-active-salt: theme('colors.overlay.active.salt');
 
-  --theme-gradient-cabbage: theme('colors.raw.cabbage.10') 66;
-  --theme-gradient-onion: theme('colors.raw.onion.10') 66;
+  --theme-gradient-cabbage: theme('colors.raw.cabbage.10')66;
+  --theme-gradient-onion: theme('colors.raw.onion.10')66;
 
   --theme-rank-highlight: theme('colors.raw.salt.10');
 
@@ -509,14 +509,14 @@ body {
   /**
     * Current old colors, these should all be changed to one of the above matching ones.
    */
-  --theme-active: theme('colors.raw.pepper.10') 33;
+  --theme-active: theme('colors.raw.pepper.10')33;
   --theme-post-disabled: #ffffff66;
 
   --theme-overlay-quaternary: theme('colors.overlay.quaternary.pepper');
   --theme-overlay-water: theme('colors.overlay.quaternary.water');
   --theme-overlay-cabbage: theme('colors.overlay.quaternary.cabbage');
-  --theme-overlay-from: theme('colors.raw.onion.40') 30;
-  --theme-overlay-to: theme('colors.raw.cabbage.40') 30;
+  --theme-overlay-from: theme('colors.raw.onion.40')30;
+  --theme-overlay-to: theme('colors.raw.cabbage.40')30;
 
   --theme-overlay-float-bun: theme('colors.overlay.float.bun');
   --theme-overlay-float-blueCheese: theme('colors.overlay.float.blueCheese');
@@ -528,8 +528,8 @@ body {
   --theme-overlay-active-onion: theme('colors.overlay.active.onion');
   --theme-overlay-active-salt: theme('colors.overlay.active.salt');
 
-  --theme-gradient-cabbage: theme('colors.raw.cabbage.10') 66;
-  --theme-gradient-onion: theme('colors.raw.onion.10') 66;
+  --theme-gradient-cabbage: theme('colors.raw.cabbage.10')66;
+  --theme-gradient-onion: theme('colors.raw.onion.10')66;
 
   --theme-rank-highlight: theme('colors.raw.salt.10');
 
@@ -597,7 +597,7 @@ body {
 html,
 html.light .invert,
 html .invert .invert,
-#daily-companion-wrapper {
+#daily-companion-wrapper{
   @mixin dark-mode;
 }
 
@@ -644,7 +644,7 @@ img.lazyload:not([src]) {
 }
 
 .withNavBar {
-  margin-bottom: $ navBarHeight;
+  margin-bottom: $navBarHeight;
 
   @screen laptop {
     margin-bottom: 0;
@@ -723,7 +723,6 @@ details {
     }
   }
 }
-
 details.right-icon {
   & summary .icon {
     --tw-rotate: 90deg;
@@ -790,7 +789,7 @@ details.right-icon {
 }
 
 .footer-navbar {
-  min-height: $ navBarHeight;
+  min-height: $navBarHeight;
   grid-column-gap: 0.5rem;
   padding-bottom: max(env(safe-area-inset-bottom, 0.5rem), 0.5rem);
 }
