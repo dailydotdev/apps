@@ -182,7 +182,7 @@ export const useContentPreference = (): UseContentPreference => {
         entity,
       });
 
-      displayToast(`⛔️ You blocked the following words: ${entityName}`);
+      displayToast(`⛔️ You blocked the following ${entityName}: ${id}`);
     },
   });
 

@@ -56,7 +56,7 @@ export const BlockedWords = (): ReactElement => {
       await block({
         id: words,
         entity: ContentPreferenceType.Word,
-        entityName: words,
+        entityName: 'words',
       });
       invalidateBlockedWords();
       setWords('');
