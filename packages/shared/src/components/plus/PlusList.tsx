@@ -69,7 +69,7 @@ export const plusFeatureList: Array<PlusItem> = [
     tooltip: `Easily categorize and organize your bookmarked posts into folders, so you can find what you need quickly.`,
   },
   {
-    label: 'Keyword blocker',
+    label: 'Block posts with unwanted words',
     status: PlusItemStatus.ComingSoon,
     tooltip: `Automatically filter out posts containing words you never want to see again. Life’s too short for unnecessary noise.`,
   },
