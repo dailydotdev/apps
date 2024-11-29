@@ -51,6 +51,7 @@ export const PlusListItem = ({
           container={{ className: 'tablet:max-w-72' }}
           content={item.tooltip}
           delay={0}
+          forceLoad
         >
           {component}
         </SimpleTooltip>
