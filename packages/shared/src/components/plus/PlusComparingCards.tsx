@@ -70,7 +70,6 @@ const PlusCard = ({
   const { logSubscriptionEvent } = usePlusSubscription();
   const { earlyAdopterPlanId, productOptions } = usePaymentContext();
   const pricingIds = useFeature(feature.pricingIds);
-  const isEarlyAdopterExperiment = !!earlyAdopterPlanId;
 
   const isPaidPlan = !!plan;
   const cardContentName = isPaidPlan
@@ -80,7 +79,7 @@ const PlusCard = ({
 
   const { hasDiscount, discountPlan } = productOptions.reduce(
     (acc, product) => {
-      if (!plan || !isEarlyAdopterExperiment || !earlyAdopterPlanId) {
+      if (!isPaidPlan || !earlyAdopterPlanId) {
         return acc;
       }
 
