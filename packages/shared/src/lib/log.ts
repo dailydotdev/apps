@@ -74,6 +74,7 @@ export enum LogEvent {
   ClickArticleAnonymousCTA = 'click article anonymous cta',
   ClickScrollBlock = 'click scroll block',
   KeyboardShortcutTriggered = 'keyboard shortcut triggered',
+  FeedEmpty = 'feed empty',
   // notifications - start
   ClickNotificationIcon = 'click notification icon',
   OpenNotificationList = 'open notification list',
@@ -285,7 +286,7 @@ export enum TargetId {
   MyProfile = 'my profile',
   PlusBadge = 'plus badge',
   Onboarding = 'onboarding',
-  BlockedWords = 'blocked words',
+  BlockedWords = 'block words',
 }
 
 export enum NotificationChannel {
