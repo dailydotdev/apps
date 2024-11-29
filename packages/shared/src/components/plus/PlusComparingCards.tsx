@@ -192,11 +192,9 @@ const PlusCard = ({
       <PlusList
         className="!py-0"
         items={features.items}
-        iconProps={{ size: IconSize.Size16, className: '!m-0' }}
+        iconProps={{ size: IconSize.Size16, className: '!mx-0' }}
         typographyProps={{
-          type: earlyAdopterPlanId
-            ? TypographyType.Caption1
-            : TypographyType.Body,
+          type: TypographyType.Caption1,
           className: '!gap-1',
         }}
         badgeProps={{ className: '!px-1' }}

@@ -32,56 +32,17 @@ export interface PlusListItemProps {
   badgeProps?: TypographyProps<TypographyTag.Span>;
 }
 
-export const SimplePlusListItem = ({
-  item,
-  typographyProps,
-  iconProps,
-}: PlusListItemProps): ReactElement => {
-  return (
-    <ConditionalWrapper
-      condition={!!item.tooltip}
-      wrapper={(component: ReactElement) => (
-        <SimpleTooltip
-          container={{ className: 'tablet:max-w-72' }}
-          content={item.tooltip}
-          delay={0}
-        >
-          {component}
-        </SimpleTooltip>
-      )}
-    >
-      <li
-        className={classNames(
-          '-m-px flex items-center gap-2 rounded-6 p-1',
-          !!item.tooltip && 'hover:bg-surface-float',
-        )}
-      >
-        <ChecklistAIcon
-          size={IconSize.Small}
-          {...iconProps}
-          className={classNames('text-text-quaternary', iconProps?.className)}
-        />
-        <Typography
-          tag={TypographyTag.P}
-          type={TypographyType.Body}
-          color={TypographyColor.Primary}
-          {...typographyProps}
-          className={classNames('flex-1', typographyProps?.className)}
-        >
-          {item.label}
-        </Typography>
-        {item.tooltip && <InfoIcon />}
-      </li>
-    </ConditionalWrapper>
-  );
-};
-
-const PlusListItemWithComingSoon = ({
+export const PlusListItem = ({
   badgeProps,
   iconProps,
   item,
   typographyProps,
 }: PlusListItemProps): ReactElement => {
+  const { earlyAdopterPlanId } = usePaymentContext();
+  const isEarlyAdopterExperiment = !!earlyAdopterPlanId;
+  const isComingSoonVisible =
+    isEarlyAdopterExperiment && item.status === PlusItemStatus.ComingSoon;
+
   return (
     <ConditionalWrapper
       condition={!!item.tooltip}
@@ -106,7 +67,8 @@ const PlusListItemWithComingSoon = ({
           size={IconSize.XSmall}
           {...iconProps}
           className={classNames(
-            'mr-1 mt-0.5 inline-block text-text-quaternary',
+            'mr-1 inline-block text-text-quaternary',
+            isComingSoonVisible && 'mt-px',
             iconProps?.className,
           )}
         />
@@ -116,12 +78,12 @@ const PlusListItemWithComingSoon = ({
           color={TypographyColor.Primary}
           {...typographyProps}
           className={classNames(
-            'flex flex-1 flex-wrap items-baseline gap-2',
+            '-mt-px flex flex-1 flex-wrap items-baseline gap-2',
             typographyProps?.className,
           )}
         >
           <span>{item.label}</span>
-          {item.status === PlusItemStatus.ComingSoon && (
+          {isComingSoonVisible && (
             <Typography
               tag={TypographyTag.Span}
               type={TypographyType.Caption1}
@@ -136,19 +98,14 @@ const PlusListItemWithComingSoon = ({
             </Typography>
           )}
         </Typography>
-        {item.tooltip && <InfoIcon />}
+        {item.tooltip && (
+          <InfoIcon
+            aria-hidden
+            {...iconProps}
+            className={classNames('mt-px', iconProps?.className)}
+          />
+        )}
       </li>
     </ConditionalWrapper>
   );
-};
-
-export const PlusListItem = (props: PlusListItemProps): ReactElement => {
-  const { earlyAdopterPlanId } = usePaymentContext();
-  const isEarlyAdopterExperiment = !!earlyAdopterPlanId;
-
-  if (isEarlyAdopterExperiment) {
-    return <PlusListItemWithComingSoon {...props} />;
-  }
-
-  return <SimplePlusListItem {...props} />;
 };
