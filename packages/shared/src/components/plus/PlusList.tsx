@@ -27,7 +27,7 @@ export const defaultFeatureList = [
 
 export const plusFeatureList = [
   'Ads-free browsing',
-  'Keyword blocker',
+  'Blocks posts with unwanted words',
   'Exclusive Plus badge',
   'Private squad for Plus members',
   'Support the team and make us smile',
