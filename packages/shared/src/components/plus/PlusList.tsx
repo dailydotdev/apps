@@ -44,6 +44,11 @@ export const plusFeatureList: Array<PlusItem> = [
     tooltip: `No ads, no distractions. It’s like noise canceling headphones, but for your feed.`,
   },
   {
+    label: 'Block posts with unwanted words',
+    status: PlusItemStatus.Ready,
+    tooltip: `Automatically filter out posts containing words you never want to see again. Life’s too short for unnecessary noise.`,
+  },
+  {
     label: 'Exclusive Plus badge',
     status: PlusItemStatus.Ready,
     tooltip: `This badge is like a VIP pass, but for devs who love daily.dev. Flex it on your profile as if you just shipped flawless code.`,
@@ -52,11 +57,6 @@ export const plusFeatureList: Array<PlusItem> = [
     label: 'Private Squad for Plus members',
     status: PlusItemStatus.Ready,
     tooltip: `Join an exclusive community space to connect with other Plus members, share feedback, and access priority support.`,
-  },
-  {
-    label: 'Support the team and make us smile',
-    status: PlusItemStatus.Ready,
-    tooltip: `By subscribing to Plus, you help us suffer less and build more (well… mostly suffer less).`,
   },
   {
     label: 'AI-powered clickbait-free titles',
@@ -69,14 +69,14 @@ export const plusFeatureList: Array<PlusItem> = [
     tooltip: `Easily categorize and organize your bookmarked posts into folders, so you can find what you need quickly.`,
   },
   {
-    label: 'Block posts with unwanted words',
-    status: PlusItemStatus.ComingSoon,
-    tooltip: `Automatically filter out posts containing words you never want to see again. Life’s too short for unnecessary noise.`,
-  },
-  {
     label: 'Advanced custom feeds',
     status: PlusItemStatus.ComingSoon,
     tooltip: `Why settle for one feed when you can have many? Build your personalized content empire, one custom feed at a time.`,
+  },
+  {
+    label: 'Support the team and make us smile',
+    status: PlusItemStatus.Ready,
+    tooltip: `By subscribing to Plus, you help us suffer less and build more (well… mostly suffer less).`,
   },
 ];
 
