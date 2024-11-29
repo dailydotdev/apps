@@ -285,7 +285,7 @@ export enum TargetId {
   MyProfile = 'my profile',
   PlusBadge = 'plus badge',
   Onboarding = 'onboarding',
-  BlockedWords = 'blocked words',
+  BlockedWords = 'block words',
 }
 
 export enum NotificationChannel {
