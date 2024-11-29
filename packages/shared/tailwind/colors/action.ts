@@ -40,7 +40,7 @@ const actionColors = {
     float: 'var(--theme-actions-help-float)',
     hover: 'var(--theme-actions-help-hover)',
     active: 'var(--theme-actions-help-active)',
-  }
+  },
 };
 
 export default actionColors;
