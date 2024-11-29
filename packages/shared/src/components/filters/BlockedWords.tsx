@@ -9,12 +9,19 @@ import {
   Typography,
   TypographyColor,
   TypographyTag,
+  TypographyType,
 } from '../typography/Typography';
 import Link from '../utilities/Link';
 import { plusUrl } from '../../lib/constants';
 import { LogEvent, TargetId } from '../../lib/log';
 import { TextField } from '../fields/TextField';
-import { BlockIcon, FeedbackIcon, LockIcon, MiniCloseIcon } from '../icons';
+import {
+  BlockIcon,
+  DevPlusIcon,
+  FeedbackIcon,
+  LockIcon,
+  MiniCloseIcon,
+} from '../icons';
 import { GenericTagButton } from './TagButton';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { useBlockedQuery } from '../../hooks/contentPreference/useBlockedQuery';
@@ -22,6 +29,7 @@ import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
 import { usePlusSubscription } from '../../hooks';
+import { IconSize } from '../Icon';
 
 export const BlockedWords = (): ReactElement => {
   const queryClient = useQueryClient();
@@ -65,8 +73,20 @@ export const BlockedWords = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-2">
-      <Typography tag={TypographyTag.H3} bold>
-        Blocked words
+      <Typography
+        tag={TypographyTag.H3}
+        bold
+        className="flex items-center gap-2"
+      >
+        Blocked words{' '}
+        <Typography
+          tag={TypographyTag.Span}
+          type={TypographyType.Caption1}
+          className="flex gap-0.5 rounded-4 bg-action-plus-float p-0.5 pr-1"
+          color={TypographyColor.Plus}
+        >
+          <DevPlusIcon size={IconSize.Size16} /> Plus
+        </Typography>
       </Typography>
       <Typography color={TypographyColor.Tertiary}>
         Automatically filter out posts containing words you never want to see
