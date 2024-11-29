@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import dynamic from 'next/dynamic';
 import { FilterMenuProps } from './common';
 import SourceItemList from './SourceItemList';
 import TagItemList from './TagItemList';
@@ -6,11 +7,25 @@ import useFeedSettings from '../../hooks/useFeedSettings';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import { BlockIcon } from '../icons';
 import { Origin } from '../../lib/log';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
+import { usePlusSubscription } from '../../hooks';
+
+const BlockedWords = dynamic(() =>
+  import(/* webpackChunkName: "blockedWords" */ './BlockedWords').then(
+    (mod) => mod.BlockedWords,
+  ),
+);
 
 export default function BlockedFilter({
   onUnblockItem,
 }: FilterMenuProps): ReactElement {
+  const { showPlusSubscription } = usePlusSubscription();
   const { feedSettings, isLoading } = useFeedSettings();
+
   const { onUnblockTags, onUnblockSource } = useTagAndSource({
     origin: Origin.BlockedFilter,
   });
@@ -30,29 +45,36 @@ export default function BlockedFilter({
   };
 
   return (
-    <div className="flex flex-col" aria-busy={isLoading}>
-      <p className="mb-6 text-text-tertiary typo-callout">
-        Block tags and sources directly from the feed. Whenever you see a post
-        with a tag/source you wish to block, click on the more options button
-        (⋮) and choose “Not interested in…“.
-      </p>
+    <div className="flex flex-col gap-5" aria-busy={isLoading}>
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Tertiary}
+      >
+        Customize your feed by blocking what you don’t want to see. Remove{' '}
+        {showPlusSubscription ? 'specific words,' : undefined} tags or sources
+        to create a more personalized and focused experience.
+      </Typography>
 
-      <h3 className="my-3 font-bold typo-body">Blocked tags</h3>
+      {showPlusSubscription ? <BlockedWords /> : undefined}
 
-      <TagItemList
-        tags={feedSettings?.blockedTags}
-        options={tagItemAction}
-        tooltip="Unblock tag"
-        emptyText="No blocked tags."
-        rowIcon={<BlockIcon />}
-      />
+      <div>
+        <h3 className="font-bold typo-body">Blocked tags</h3>
+        <TagItemList
+          tags={feedSettings?.blockedTags}
+          options={tagItemAction}
+          tooltip="Unblock tag"
+          emptyText="No blocked tags."
+          rowIcon={<BlockIcon />}
+        />
+      </div>
 
-      <h3 className="mb-3 mt-10 font-bold typo-body">Blocked sources</h3>
-
-      <SourceItemList
-        excludeSources={feedSettings?.excludeSources}
-        onSourceClick={sourceItemAction}
-      />
+      <div>
+        <h3 className="font-bold typo-body">Blocked sources</h3>
+        <SourceItemList
+          excludeSources={feedSettings?.excludeSources}
+          onSourceClick={sourceItemAction}
+        />
+      </div>
     </div>
   );
 }
