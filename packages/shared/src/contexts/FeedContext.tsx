@@ -1,12 +1,10 @@
 import React, { ReactElement, useMemo, type PropsWithChildren } from 'react';
 import { desktop, laptop, laptopL, laptopXL, tablet } from '../styles/media';
-import { useConditionalFeature, useMedia } from '../hooks';
+import { useMedia } from '../hooks';
 import { useSettingsContext } from './SettingsContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
-import { feature } from '../lib/featureManagement';
 
 import { Spaciness } from '../graphql/settings';
-import { usePlusSubscription } from '../hooks/usePlusSubscription';
 
 export type FeedContextData = {
   pageSize: number;
@@ -109,22 +107,8 @@ export function FeedLayoutProvider({
 }: PropsWithChildren): ReactElement {
   const { sidebarExpanded } = useSettingsContext();
   const { sidebarRendered } = useSidebarRendered();
-  const { isPlus } = usePlusSubscription();
-  const { value: feedPageSizes } = useConditionalFeature({
-    feature: feature.feedPageSizes,
-    shouldEvaluate: !isPlus,
-  });
 
   const { feedSettings, defaultFeedSettings } = useMemo(() => {
-    Object.keys(baseFeedSettings).forEach((key) => {
-      const pageSize = feedPageSizes[key as FeedSettingsKeys];
-      if (!pageSize) {
-        return;
-      }
-
-      baseFeedSettings[key as FeedSettingsKeys].pageSize = pageSize;
-    });
-
     return {
       feedSettings: [
         baseFeedSettings.desktop,
@@ -135,7 +119,7 @@ export function FeedLayoutProvider({
       ],
       defaultFeedSettings: baseFeedSettings.default,
     };
-  }, [feedPageSizes]);
+  }, []);
 
   // Generate the breakpoints for the feed settings
   const feedBreakpoints = useMemo(() => {
