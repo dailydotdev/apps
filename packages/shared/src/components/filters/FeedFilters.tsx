@@ -25,7 +25,7 @@ enum FilterMenuTitle {
   Tags = 'Manage tags',
   ManageCategories = 'Manage categories',
   ContentTypes = 'Content & Language',
-  Blocked = 'Blocked items',
+  Blocked = 'Blocking',
   Following = 'Following',
 }
 

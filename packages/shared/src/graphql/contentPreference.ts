@@ -7,6 +7,7 @@ import { UserShortProfile } from '../lib/user';
 
 export enum ContentPreferenceType {
   User = 'user',
+  Word = 'word',
 }
 
 export enum ContentPreferenceStatus {
@@ -99,7 +100,31 @@ export const USER_FOLLOWERS_QUERY = gql`
   ${USER_SHORT_INFO_FRAGMENT}
 `;
 
+export const USER_BLOCKED_QUERY = gql`
+  query UserBlocked(
+    $id: ID!
+    $entity: ContentPreferenceType!
+    $first: Int
+    $after: String
+  ) {
+    userBlocked(userId: $id, entity: $entity, first: $first, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          referenceId
+          type
+          status
+        }
+      }
+    }
+  }
+`;
+
 export const DEFAULT_FOLLOW_LIMIT = 20;
+export const DEFAULT_BLOCKED_LIMIT = 200;
 
 export const CONTENT_PREFERENCE_FOLLOW_MUTATION = gql`
   mutation Follow(
@@ -116,6 +141,22 @@ export const CONTENT_PREFERENCE_FOLLOW_MUTATION = gql`
 export const CONTENT_PREFERENCE_UNFOLLOW_MUTATION = gql`
   mutation Unfollow($id: ID!, $entity: ContentPreferenceType!) {
     unfollow(id: $id, entity: $entity) {
+      _
+    }
+  }
+`;
+
+export const CONTENT_PREFERENCE_BLOCK_MUTATION = gql`
+  mutation Block($id: ID!, $entity: ContentPreferenceType!) {
+    block(id: $id, entity: $entity) {
+      _
+    }
+  }
+`;
+
+export const CONTENT_PREFERENCE_UNBLOCK_MUTATION = gql`
+  mutation Unblock($id: ID!, $entity: ContentPreferenceType!) {
+    unblock(id: $id, entity: $entity) {
       _
     }
   }
