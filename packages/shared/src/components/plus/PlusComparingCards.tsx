@@ -125,7 +125,7 @@ const PlusCard = ({
             tag={TypographyTag.Span}
             type={TypographyType.Caption1}
             color={TypographyColor.StatusHelp}
-            className="ml-3 rounded-10 bg-[#FFE92314] px-2 py-1"
+            className="ml-3 rounded-10 bg-action-help-float px-2 py-1"
             bold
           >
             {discountPlan.extraLabel}

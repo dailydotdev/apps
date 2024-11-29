@@ -121,7 +121,7 @@ export const PlusInfo = ({
                     className={classNames(
                       'rounded-10 px-2 py-1',
                       isEarlyAccess
-                        ? 'whitespace-nowrap bg-[#FFE92314]'
+                        ? 'whitespace-nowrap bg-action-help-float'
                         : 'bg-action-upvote-float',
                     )}
                     bold

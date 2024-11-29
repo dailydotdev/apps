@@ -42,8 +42,7 @@ const feature = {
     desktop: 25,
   }),
   pricingIds: new Feature('pricing_ids', {
-    pri_O1jdkx6sakk5kb6p586nejnqam: PlusPriceType.Monthly, // early adopter
-    pri_01jbsccbdbcwyhdy8hy3c2etyn: PlusPriceType.Monthly, // plus monthly
+    pri_01jbsccbdbcwyhdy8hy3c2etyn: PlusPriceType.Monthly,
     pri_01jbscda57910yvwjtyapnrrzc: PlusPriceType.Yearly,
   }),
   postPersonalizedBanner: new Feature('post_banner_personalized', false),
