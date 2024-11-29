@@ -82,7 +82,7 @@ export const PlusListItem = ({
             typographyProps?.className,
           )}
         >
-          <span>{item.label}</span>
+          {item.label}
           {isComingSoonVisible && (
             <Typography
               tag={TypographyTag.Span}
