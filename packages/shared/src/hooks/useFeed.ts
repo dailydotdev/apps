@@ -138,7 +138,7 @@ export default function useFeed<T>(
         logEvent({
           event_name: LogEvent.FeedEmpty,
           target_id: params?.settings?.feedName,
-          extra: JSON.stringify({ ...params?.variables }),
+          extra: params?.variables ? JSON.stringify({ ...params?.variables }) : undefined,
         });
         if (onEmptyFeed) {
           onEmptyFeed();
