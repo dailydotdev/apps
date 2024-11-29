@@ -10,7 +10,6 @@ import { Origin } from '../../lib/log';
 import {
   Typography,
   TypographyColor,
-  TypographyTag,
   TypographyType,
 } from '../typography/Typography';
 import { usePlusSubscription } from '../../hooks';
@@ -50,7 +49,6 @@ export default function BlockedFilter({
       <Typography
         type={TypographyType.Callout}
         color={TypographyColor.Tertiary}
-        tag={TypographyTag.P}
       >
         Customize your feed by blocking what you don’t want to see. Remove{' '}
         {showPlusSubscription ? 'specific words,' : undefined} tags or sources

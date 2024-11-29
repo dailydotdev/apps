@@ -68,7 +68,7 @@ export const BlockedWords = (): ReactElement => {
       <Typography tag={TypographyTag.H3} bold>
         Blocked words
       </Typography>
-      <Typography tag={TypographyTag.P} color={TypographyColor.Tertiary}>
+      <Typography color={TypographyColor.Tertiary}>
         Automatically filter out posts containing words you never want to see
         again. Life’s too short for unnecessary noise.
         {!isPlus ? (
