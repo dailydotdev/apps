@@ -23,6 +23,7 @@ export interface TextFieldProps extends BaseFieldProps {
   progress?: string;
   leftIcon?: ReactNode;
   rightIcon?: React.ReactElement<IconProps>;
+  hintIcon?: ReactElement<IconProps>;
   actionButton?: React.ReactElement<ButtonProps<'button'>>;
 }
 
@@ -37,6 +38,7 @@ function TextFieldComponent(
     saveHintSpace = false,
     progress,
     hint,
+    hintIcon,
     valid,
     validityChanged,
     valueChanged,
@@ -86,6 +88,7 @@ function TextFieldComponent(
       focusInput={focusInput}
       saveHintSpace={saveHintSpace}
       hint={hint}
+      hintIcon={hintIcon}
       fieldType={fieldType}
       readOnly={readOnly}
       isLocked={isLocked}

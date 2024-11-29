@@ -35,6 +35,7 @@ export const contentPreferenceMutationMatcher: UseMutationMatcher<
       RequestKey.ContentPreferenceUnfollow,
       RequestKey.ContentPreferenceSubscribe,
       RequestKey.ContentPreferenceUnsubscribe,
+      RequestKey.ContentPreferenceUnblock,
     ].includes(requestKey as RequestKey)
   );
 };
@@ -46,6 +47,7 @@ export const mutationKeyToContentPreferenceStatusMap: Partial<
   [RequestKey.ContentPreferenceUnfollow]: null,
   [RequestKey.ContentPreferenceSubscribe]: ContentPreferenceStatus.Subscribed,
   [RequestKey.ContentPreferenceUnsubscribe]: ContentPreferenceStatus.Follow,
+  [RequestKey.ContentPreferenceUnblock]: null,
 };
 
 export const isFollowingContent = (
