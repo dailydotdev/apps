@@ -49,6 +49,7 @@ export * from './Hashnode';
 export * from './Hashtag';
 export * from './Home';
 export * from './Hot';
+export * from './Info';
 export * from './Image';
 export * from './ReputationLightning';
 export * from './Invite';
