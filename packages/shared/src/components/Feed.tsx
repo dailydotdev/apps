@@ -176,6 +176,7 @@ export default function Feed<T>({
         adPostLength: isSquadFeed ? 2 : undefined,
         showAcquisitionForm,
         ...(showMarketingCta && { marketingCta }),
+        feedName,
       },
     },
   );
