@@ -11,8 +11,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { feature } from '../../lib/featureManagement';
-import { useConditionalFeature, usePlusSubscription } from '../../hooks';
+import { usePaymentContext } from '../../contexts/PaymentContext';
 
 export enum PlusItemStatus {
   Ready = 'done',
@@ -125,11 +124,8 @@ const PlusListItemWithTooltip = ({
 };
 
 export const PlusListItem = (props: PlusListItemProps): ReactElement => {
-  const { showPlusSubscription } = usePlusSubscription();
-  const { value: isEarlyAdopterExperiment } = useConditionalFeature({
-    feature: feature.plusEarlyAdopter,
-    shouldEvaluate: showPlusSubscription,
-  });
+  const { earlyAdopterPlanId } = usePaymentContext();
+  const isEarlyAdopterExperiment = !!earlyAdopterPlanId;
 
   if (isEarlyAdopterExperiment) {
     return <PlusListItemWithTooltip {...props} />;

@@ -3,7 +3,7 @@ import {
   cloudinaryOnboardingFullBackgroundDesktop,
   cloudinaryOnboardingFullBackgroundMobile,
 } from './image';
-import { ProductPriceType } from './featureValues';
+import { PlusPriceType } from './featureValues';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -33,7 +33,6 @@ const feature = {
   showCodeSnippets: new Feature('show_code_snippets', false),
   postBannerExtensionPrompt: new Feature('post_banner_extension_prompt', false),
   plusSubscription: new Feature('plus_subscription', false),
-  plusEarlyAdopter: new Feature('plus_early_adopter', false),
   feedPageSizes: new Feature('feed_page_sizes', {
     default: 7,
     tablet: 9,
@@ -43,9 +42,9 @@ const feature = {
     desktop: 25,
   }),
   pricingIds: new Feature('pricing_ids', {
-    pri_O1jdkx6sakk5kb6p586nejnqam: ProductPriceType.EarlyAdopter,
-    pri_01jbsccbdbcwyhdy8hy3c2etyn: ProductPriceType.Monthly,
-    pri_01jbscda57910yvwjtyapnrrzc: ProductPriceType.Yearly,
+    pri_O1jdkx6sakk5kb6p586nejnqam: PlusPriceType.Monthly,
+    pri_01jbsccbdbcwyhdy8hy3c2etyn: PlusPriceType.Monthly,
+    pri_01jbscda57910yvwjtyapnrrzc: PlusPriceType.Yearly,
   }),
   postPersonalizedBanner: new Feature('post_banner_personalized', false),
 };

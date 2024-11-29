@@ -7,8 +7,7 @@ import {
   PlusListItem,
   PlusListItemProps,
 } from './PlusListItem';
-import { feature } from '../../lib/featureManagement';
-import { useConditionalFeature, usePlusSubscription } from '../../hooks';
+import { usePaymentContext } from '../../contexts/PaymentContext';
 
 export const defaultFeatureList: Array<PlusItem> = [
   {
@@ -92,11 +91,9 @@ export const PlusList = ({
   items = plusFeatureList,
   ...props
 }: PlusListProps & WithClassNameProps): ReactElement => {
-  const { showPlusSubscription } = usePlusSubscription();
-  const { value: isEarlyAdopterExperiment } = useConditionalFeature({
-    feature: feature.plusEarlyAdopter,
-    shouldEvaluate: showPlusSubscription,
-  });
+  const { earlyAdopterPlanId } = usePaymentContext();
+  const isEarlyAdopterExperiment = !!earlyAdopterPlanId;
+
   const list = useMemo(
     () =>
       items.filter(

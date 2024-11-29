@@ -13,7 +13,7 @@ import {
 import { DevPlusIcon } from '../icons';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { defaultFeatureList, plusFeatureList, PlusList } from './PlusList';
-import { useConditionalFeature, usePlusSubscription } from '../../hooks';
+import { usePlusSubscription } from '../../hooks';
 import { plusUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import { LogEvent, TargetId } from '../../lib/log';
@@ -21,7 +21,7 @@ import { PlusItemStatus } from './PlusListItem';
 import { IconSize } from '../Icon';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
-import { ProductPriceType } from '../../lib/featureValues';
+import { PlusPriceType } from '../../lib/featureValues';
 
 export enum OnboardingPlans {
   Free = 'Free',
@@ -67,13 +67,10 @@ const PlusCard = ({
   onClickNext,
 }: PlusCardProps): ReactElement => {
   const id = useId();
-  const { logSubscriptionEvent, showPlusSubscription } = usePlusSubscription();
+  const { logSubscriptionEvent } = usePlusSubscription();
   const { earlyAdopterPlanId, productOptions } = usePaymentContext();
   const pricingIds = useFeature(feature.pricingIds);
-  const { value: isEarlyAdopterExperiment } = useConditionalFeature({
-    feature: feature.plusEarlyAdopter,
-    shouldEvaluate: showPlusSubscription,
-  });
+  const isEarlyAdopterExperiment = !!earlyAdopterPlanId;
 
   const isPaidPlan = !!plan;
   const cardContentName = isPaidPlan
@@ -89,7 +86,7 @@ const PlusCard = ({
 
       const isCardPlan = product.value === plan.value;
       const isDiscountPlan = product.value === earlyAdopterPlanId;
-      const isMonthly = pricingIds[product.value] === ProductPriceType.Monthly;
+      const isMonthly = pricingIds[product.value] === PlusPriceType.Monthly;
 
       return {
         hasDiscount: acc.hasDiscount || (isCardPlan && isMonthly),

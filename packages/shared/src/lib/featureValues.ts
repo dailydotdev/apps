@@ -6,10 +6,9 @@ export enum ExperimentWinner {
   OnboardingV4 = 'v4',
 }
 
-export enum ProductPriceType {
+export enum PlusPriceType {
   Monthly = 'monthly',
   Yearly = 'yearly',
-  EarlyAdopter = 'early_adopter',
 }
 
 export interface FeatureThemeVariant {
