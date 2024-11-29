@@ -40,7 +40,7 @@ const PlusBillingCycleSwitch = ({
           <Button
             aria-checked={isActive}
             aria-label={label}
-            className="min-w-24 justify-center"
+            className="min-w-26 justify-center"
             key={label}
             onClick={() => onChangeCycle(index)}
             role="radio"
