@@ -32,14 +32,6 @@ const feature = {
   showCodeSnippets: new Feature('show_code_snippets', false),
   postBannerExtensionPrompt: new Feature('post_banner_extension_prompt', false),
   plusSubscription: new Feature('plus_subscription', false),
-  feedPageSizes: new Feature('feed_page_sizes', {
-    default: 7,
-    tablet: 9,
-    laptop: 13,
-    laptopL: 17,
-    laptopXL: 21,
-    desktop: 25,
-  }),
   pricingIds: new Feature('pricing_ids', {
     pri_01jbsccbdbcwyhdy8hy3c2etyn: 'monthly',
     pri_01jbscda57910yvwjtyapnrrzc: 'yearly',
