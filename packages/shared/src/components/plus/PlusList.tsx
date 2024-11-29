@@ -106,13 +106,7 @@ export const PlusList = ({
     !isEarlyAdopterExperiment && list.length !== items.length;
 
   return (
-    <ul
-      className={classNames(
-        'flex flex-col py-6',
-        isEarlyAdopterExperiment ? 'gap-0.5' : 'gap-2',
-        className,
-      )}
-    >
+    <ul className={classNames('flex flex-col gap-0.5 py-6', className)}>
       {list.map((item) => (
         <PlusListItem key={item.label} item={item} {...props} />
       ))}
