@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import {
   InfiniteData,
   useInfiniteQuery,
@@ -179,56 +179,105 @@ export default function useFeed<T>(
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
   });
+  const {
+    data: adsData,
+    fetchNextPage: fetchNextAd,
+    isLoading,
+    dataUpdatedAt: adsUpdatedAt,
+  } = adsQuery;
 
-  useEffect(() => {
-    if (
-      !adsQuery.isFetching &&
-      adsQuery.data?.pages?.length < feedQuery.data?.pages?.length
-    ) {
-      adsQuery.fetchNextPage();
-    }
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [adsQuery.data, feedQuery.data, adsQuery.isFetching]);
+  // TODO ad-repeat-logic - needs to be passed from props
+  const adSpotTemplate = useMemo(() => [adSpot, pageSize], [adSpot, pageSize]);
+
+  const getAd = useCallback(
+    ({ index }: { index: number }) => {
+      if (!isAdsQueryEnabled || isLoading) {
+        return undefined;
+      }
+
+      const [adStart, adRepeat] = adSpotTemplate;
+
+      const adIndex = index - adStart; // 0-based index from adStart
+      const adMatch = adIndex % adRepeat === 0; // should ad be shown at this index based on adRepeat
+
+      if (!adMatch) {
+        return undefined;
+      }
+
+      const adPage = (index - adStart) / adRepeat; // page number for ad
+
+      const nextAd = adsData?.pages[adPage];
+
+      if (!nextAd) {
+        fetchNextAd({ cancelRefetch: false });
+
+        // TODO ad-repeat-logic - return placeholder
+        return undefined;
+      }
+
+      return {
+        type: FeedItemType.Ad,
+        ad: nextAd,
+        index: adPage,
+        updatedAt: adsUpdatedAt,
+      };
+    },
+    [
+      adsData,
+      fetchNextAd,
+      isAdsQueryEnabled,
+      isLoading,
+      adSpotTemplate,
+      adsUpdatedAt,
+    ],
+  );
 
   const items = useMemo(() => {
     let newItems: FeedItem[] = [];
     if (feedQuery.data) {
-      newItems = feedQuery.data.pages.flatMap(
-        ({ page }, pageIndex): FeedItem[] => {
-          const posts: FeedItem[] = page.edges.map(({ node }, index) => ({
+      newItems = feedQuery.data.pages.reduce((acc, { page }, pageIndex) => {
+        page.edges.forEach(({ node }, index) => {
+          const adIndex = acc.length;
+          const adItem = getAd({ index: adIndex });
+
+          if (adItem) {
+            acc.push(adItem);
+          }
+
+          acc.push({
             type: FeedItemType.Post,
             post: node,
             page: pageIndex,
             index,
-          }));
+          });
+        });
 
-          const withFirstIndex = (condition: boolean) =>
-            pageIndex === 0 && condition;
+        // TODO ad-repeat-logic - add support for marketingCta and userAcquisition
+        // const withFirstIndex = (condition: boolean) =>
+        //   pageIndex === 0 && condition;
 
-          if (isAdsQueryEnabled) {
-            if (withFirstIndex(!!settings.marketingCta)) {
-              posts.splice(adSpot, 0, {
-                type: FeedItemType.MarketingCta,
-                marketingCta: settings.marketingCta,
-              });
-            } else if (withFirstIndex(settings.showAcquisitionForm)) {
-              posts.splice(adSpot, 0, { type: FeedItemType.UserAcquisition });
-            } else if (adsQuery.data?.pages[pageIndex]) {
-              posts.splice(adSpot, 0, {
-                type: FeedItemType.Ad,
-                ad: adsQuery.data?.pages[pageIndex],
-                index: pageIndex,
-                updatedAt: adsQuery.dataUpdatedAt,
-              });
-            } else {
-              posts.splice(adSpot, 0, { type: FeedItemType.Placeholder });
-            }
-          }
+        // if (isAdsQueryEnabled) {
+        //   if (withFirstIndex(!!settings.marketingCta)) {
+        //     posts.splice(adSpot, 0, {
+        //       type: FeedItemType.MarketingCta,
+        //       marketingCta: settings.marketingCta,
+        //     });
+        //   } else if (withFirstIndex(settings.showAcquisitionForm)) {
+        //     posts.splice(adSpot, 0, { type: FeedItemType.UserAcquisition });
+        //   } else if (adsQuery.data?.pages[pageIndex]) {
+        //     posts.splice(adSpot, 0, {
+        //       type: FeedItemType.Ad,
+        //       ad: adsQuery.data?.pages[pageIndex],
+        //       index: pageIndex,
+        //       updatedAt: adsQuery.dataUpdatedAt,
+        //     });
+        //   } else {
+        //     posts.splice(adSpot, 0, { type: FeedItemType.Placeholder });
+        //   }
+        // }
 
-          return posts;
-        },
-      );
+        return acc;
+      }, []);
     }
     if (feedQuery.isFetching) {
       newItems.push(
@@ -236,17 +285,7 @@ export default function useFeed<T>(
       );
     }
     return newItems;
-  }, [
-    feedQuery.data,
-    feedQuery.isFetching,
-    settings.marketingCta,
-    settings.showAcquisitionForm,
-    isAdsQueryEnabled,
-    adSpot,
-    adsQuery.data?.pages,
-    placeholdersPerPage,
-    adsQuery.dataUpdatedAt,
-  ]);
+  }, [feedQuery.data, feedQuery.isFetching, getAd, placeholdersPerPage]);
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);
 
@@ -273,9 +312,7 @@ export default function useFeed<T>(
   return {
     items,
     fetchPage: async () => {
-      const adPromise = adsQuery.fetchNextPage();
       await feedQuery.fetchNextPage();
-      await adPromise;
     },
     updatePost,
     removePost: removeCachedPagePost(feedQueryKey, queryClient),
