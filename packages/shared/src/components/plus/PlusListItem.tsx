@@ -38,26 +38,45 @@ export const SimplePlusListItem = ({
   iconProps,
 }: PlusListItemProps): ReactElement => {
   return (
-    <li className="flex gap-2">
-      <ChecklistAIcon
-        size={IconSize.Small}
-        {...iconProps}
-        className={classNames('text-text-quaternary', iconProps?.className)}
-      />
-      <Typography
-        tag={TypographyTag.P}
-        type={TypographyType.Body}
-        color={TypographyColor.Primary}
-        {...typographyProps}
-        className={classNames('flex-1', typographyProps?.className)}
+    <ConditionalWrapper
+      condition={!!item.tooltip}
+      wrapper={(component: ReactElement) => (
+        <SimpleTooltip
+          container={{ className: 'tablet:max-w-72' }}
+          content={item.tooltip}
+          delay={0}
+        >
+          {component}
+        </SimpleTooltip>
+      )}
+    >
+      <li
+        className={classNames(
+          '-m-px flex items-center gap-2 rounded-6 p-1',
+          !!item.tooltip && 'hover:bg-surface-float',
+        )}
       >
-        {item.label}
-      </Typography>
-    </li>
+        <ChecklistAIcon
+          size={IconSize.Small}
+          {...iconProps}
+          className={classNames('text-text-quaternary', iconProps?.className)}
+        />
+        <Typography
+          tag={TypographyTag.P}
+          type={TypographyType.Body}
+          color={TypographyColor.Primary}
+          {...typographyProps}
+          className={classNames('flex-1', typographyProps?.className)}
+        >
+          {item.label}
+        </Typography>
+        {item.tooltip && <InfoIcon />}
+      </li>
+    </ConditionalWrapper>
   );
 };
 
-const PlusListItemWithTooltip = ({
+const PlusListItemWithComingSoon = ({
   badgeProps,
   iconProps,
   item,
@@ -128,7 +147,7 @@ export const PlusListItem = (props: PlusListItemProps): ReactElement => {
   const isEarlyAdopterExperiment = !!earlyAdopterPlanId;
 
   if (isEarlyAdopterExperiment) {
-    return <PlusListItemWithTooltip {...props} />;
+    return <PlusListItemWithComingSoon {...props} />;
   }
 
   return <SimplePlusListItem {...props} />;
