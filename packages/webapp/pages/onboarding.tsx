@@ -13,7 +13,10 @@ import AuthOptions, {
   AuthProps,
 } from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
+import {
+  OnboardingHeader,
+  OnboardingPWA,
+} from '@dailydotdev/shared/src/components/onboarding';
 import {
   ButtonSize,
   ButtonVariant,
@@ -64,7 +67,11 @@ import dynamic from 'next/dynamic';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/PaymentContext';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
-import { checkIsBrowser, UserAgent } from '@dailydotdev/shared/src/lib/func';
+import {
+  checkIsBrowser,
+  isAppleDevice,
+  UserAgent,
+} from '@dailydotdev/shared/src/lib/func';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -164,7 +171,14 @@ export function OnboardPage(): ReactElement {
     shouldEvaluate:
       shouldEnrollOnboardingStep && checkIsBrowser(UserAgent.Android),
   });
+
+  const { value: PWAExperiment } = useConditionalFeature({
+    feature: feature.onboardingPWA,
+    shouldEvaluate: shouldEnrollOnboardingStep && isAppleDevice(),
+  });
+
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
+  const isCTA = appExperiment || PWAExperiment;
 
   useEffect(() => {
     if (!isPageReady || isLogged.current) {
@@ -223,6 +237,10 @@ export function OnboardPage(): ReactElement {
 
     if (appExperiment && activeScreen !== OnboardingStep.AndroidApp) {
       return setActiveScreen(OnboardingStep.AndroidApp);
+    }
+
+    if (PWAExperiment && activeScreen !== OnboardingStep.PWA) {
+      return setActiveScreen(OnboardingStep.PWA);
     }
 
     logEvent({
@@ -315,12 +333,12 @@ export function OnboardPage(): ReactElement {
     if (activeScreen === OnboardingStep.Plus) {
       return 'Skip for now ➞';
     }
-    if (activeScreen === OnboardingStep.AndroidApp) {
+    if (isCTA) {
       return 'Not now →';
     }
 
     return undefined;
-  }, [activeScreen, showOnboardingSources]);
+  }, [activeScreen, showOnboardingSources, isCTA]);
 
   const showOnboardingPage =
     !isAuthenticating && activeScreen === OnboardingStep.Intro && !shouldVerify;
@@ -386,7 +404,9 @@ export function OnboardPage(): ReactElement {
               activeScreen === OnboardingStep.Intro
                 ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
                 : 'mb-10 ml-0 w-full flex-col items-center justify-start',
-              activeScreen === OnboardingStep.AndroidApp && 'mb-auto',
+              (activeScreen === OnboardingStep.AndroidApp ||
+                activeScreen === OnboardingStep.PWA) &&
+                'mb-auto',
             )}
           >
             {activeScreen === OnboardingStep.ReadingReminder && (
@@ -411,13 +431,12 @@ export function OnboardPage(): ReactElement {
             {activeScreen === OnboardingStep.AndroidApp && (
               <OnboardingAndroidApp />
             )}
+            {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
           </div>
         )}
       </div>
       {showOnboardingPage && <OnboardingFooter />}
-      {activeScreen !== OnboardingStep.AndroidApp && (
-        <FooterLinks className="mx-auto pb-6" />
-      )}
+      <FooterLinks className="mx-auto pb-6" />
     </div>
   );
 }

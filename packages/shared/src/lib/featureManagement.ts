@@ -45,6 +45,7 @@ const feature = {
     pri_01jbscda57910yvwjtyapnrrzc: 'yearly',
   }),
   onboardingAndroid: new Feature('onboarding_android', false),
+  onboardingPWA: new Feature('onboarding_pwa', true),
   postPersonalizedBanner: new Feature('post_banner_personalized', false),
 };
 
