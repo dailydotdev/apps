@@ -415,9 +415,7 @@ export function OnboardPage(): ReactElement {
         )}
       </div>
       {showOnboardingPage && <OnboardingFooter />}
-      {activeScreen !== OnboardingStep.AndroidApp && (
-        <FooterLinks className="mx-auto pb-6" />
-      )}
+      <FooterLinks className="mx-auto pb-6" />
     </div>
   );
 }
