@@ -4,6 +4,7 @@ import {
   cloudinaryOnboardingFullBackgroundMobile,
 } from './image';
 import { PlusPriceType } from './featureValues';
+import type { FeedAdTemplate } from './feed';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -46,5 +47,9 @@ export const featureOnboardingSources = new Feature(
   'onboarding_sources',
   false,
 );
+
+export const featureFeedAdTemplate = new Feature('feed_ad_template', {
+  adStart: 2,
+} as FeedAdTemplate);
 
 export { feature };
