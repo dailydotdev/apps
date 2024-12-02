@@ -29,6 +29,8 @@ export const USER_SHORT_INFO_FRAGMENT = gql`
       name
       image
     }
+    isPlus
+    plusMemberSince
   }
 `;
 
@@ -40,15 +42,31 @@ export const CONTENT_PREFERENCE_FRAMENT = gql`
   }
 `;
 
+export const USER_SHORT_INFO_TOP_READER_FRAGMENT = gql`
+  fragment UserShortInfoTopReaderFragment on User {
+    topReader {
+      issuedAt
+      keyword {
+        value
+        flags {
+          title
+        }
+      }
+    }
+  }
+`;
+
 export const USER_AUTHOR_FRAGMENT = gql`
   fragment UserAuthor on User {
     ...UserShortInfo
     contentPreference {
       ...ContentPreferenceFragment
     }
+    ...UserShortInfoTopReaderFragment
   }
   ${CONTENT_PREFERENCE_FRAMENT}
   ${USER_SHORT_INFO_FRAGMENT}
+  ${USER_SHORT_INFO_TOP_READER_FRAGMENT}
 `;
 
 export const USER_BASIC_INFO = gql`
@@ -128,6 +146,7 @@ export const SOURCE_BASE_FRAGMENT = gql`
     }
     memberPostingRole
     memberInviteRole
+    moderationRequired
   }
   ${CURRENT_MEMBER_FRAGMENT}
 `;
@@ -313,6 +332,7 @@ export const USER_STREAK_FRAGMENT = gql`
     total
     current
     lastViewAt
+    lastViewAtTz
     weekStart
   }
 `;
@@ -328,5 +348,20 @@ export const SOURCE_CATEGORY_FRAGMENT = gql`
 export const POST_CODE_SNIPPET_FRAGMENT = gql`
   fragment PostCodeSnippet on PostCodeSnippet {
     content
+  }
+`;
+
+export const TOP_READER_BADGE_FRAGMENT = gql`
+  fragment TopReader on UserTopReader {
+    id
+    issuedAt
+    image
+    total
+    keyword {
+      value
+      flags {
+        title
+      }
+    }
   }
 `;

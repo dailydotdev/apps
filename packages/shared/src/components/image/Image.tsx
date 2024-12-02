@@ -47,6 +47,10 @@ const ImageComponent = (
     if (finalFallbackSrc && finalFallbackSrc !== event.currentTarget.src) {
       // eslint-disable-next-line no-param-reassign
       event.currentTarget.src = finalFallbackSrc;
+      if (event.currentTarget.srcset) {
+        // eslint-disable-next-line no-param-reassign
+        event.currentTarget.srcset = finalFallbackSrc;
+      }
     }
   };
 

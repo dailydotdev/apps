@@ -8,8 +8,8 @@ import {
 } from '../tooltips/LinkWithTooltip';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { DevCard, DevCardType } from './devcard';
-import { UserTooltipContentData } from '../../hooks/useProfileTooltip';
 import { useDevCard } from '../../hooks/profile/useDevCard';
+import { MostReadTag, UserReadingRank } from '../../graphql/users';
 
 export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   children: ReactElement;
@@ -19,11 +19,15 @@ export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   scrollingContainer?: HTMLElement;
 }
 
+export type UserTooltipContentData = {
+  rank: UserReadingRank;
+  tags: MostReadTag[];
+  user?: Author;
+};
+
 export interface ProfileTooltipContentProps {
   userId: Author['id'];
   data?: UserTooltipContentData;
-  onMouseEnter?: () => unknown;
-  onMouseLeave?: () => unknown;
 }
 
 export function ProfileTooltip({
@@ -33,9 +37,9 @@ export function ProfileTooltip({
   scrollingContainer,
   tooltip = {},
 }: Omit<ProfileTooltipProps, 'user'>): ReactElement {
-  const [id, setId] = useState<string>();
   const query = useQueryClient();
   const handler = useRef<() => void>();
+  const [id, setId] = useState('');
   const data = useDevCard(id);
 
   const onShow = () => {
@@ -59,13 +63,21 @@ export function ProfileTooltip({
   const props: TooltipProps = {
     showArrow: false,
     interactive: true,
-    onShow,
     onHide,
-    onTrigger: () => setId(userId),
     appendTo: tooltip?.appendTo || globalThis?.document?.body,
     container: { bgClassName: null },
     content: data ? <DevCard data={data} type={DevCardType.Compact} /> : null,
     ...tooltip,
+    onShow: (instance) => {
+      if (id !== userId) {
+        setId(userId);
+      }
+      if (typeof tooltip.onShow === 'function') {
+        tooltip.onShow(instance);
+        return;
+      }
+      onShow();
+    },
   };
 
   if (link) {
@@ -76,5 +88,9 @@ export function ProfileTooltip({
     );
   }
 
-  return <SimpleTooltip {...props}>{children}</SimpleTooltip>;
+  return (
+    <SimpleTooltip {...props} key={userId}>
+      {children}
+    </SimpleTooltip>
+  );
 }

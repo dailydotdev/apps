@@ -17,7 +17,6 @@ import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import { useJoinReferral } from '@dailydotdev/shared/src/hooks';
 import { useReadingStreak } from '@dailydotdev/shared/src/hooks/streaks';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { useProfileContentPreferenceMutationSubscription } from '@dailydotdev/shared/src/hooks/profile/useProfileContentPreferenceMutationSubscription';
 import { NextSeo } from 'next-seo';
 import { NextSeoProps } from 'next-seo/lib/types';
 import {
@@ -28,6 +27,7 @@ import {
   ProfileLayoutProps,
 } from '../../components/layouts/ProfileLayout';
 import { ReadingStreaksWidget } from '../../../shared/src/components/profile/ReadingStreaksWidget';
+import { TopReaderWidget } from '../../../shared/src/components/profile/TopReaderWidget';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfilePage = ({
@@ -41,10 +41,7 @@ const ProfilePage = ({
   const { selectedHistoryYear, before, after, yearOptions, fullHistory } =
     useActivityTimeFilter();
 
-  const { user, userQueryKey } = useProfile(initialUser);
-  useProfileContentPreferenceMutationSubscription({
-    queryKey: userQueryKey,
-  });
+  const { user } = useProfile(initialUser);
 
   const { data: readingHistory, isLoading } = useQuery<ProfileReadingData>({
     queryKey: generateQueryKey(
@@ -70,12 +67,13 @@ const ProfilePage = ({
   const seo: NextSeoProps = {
     ...getProfileSeoDefaults(user, {}, noindex),
   };
-
   return (
     <>
       <NextSeo {...seo} />
       <div className="flex flex-col gap-6 px-4 py-6 tablet:px-6">
         <Readme user={user} />
+
+        <TopReaderWidget user={user} />
         {isStreaksEnabled && readingHistory?.userStreakProfile && (
           <ReadingStreaksWidget
             streak={readingHistory?.userStreakProfile}

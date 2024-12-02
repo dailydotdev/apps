@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { QueryClientProvider } from '../../../extension/_providers';
+import { ExtensionProviders } from '../../../extension/_providers';
 import { SquadGrid } from '@dailydotdev/shared/src/components/cards/squad/SquadGrid';
 import {
   SourceMemberRole,
@@ -33,7 +33,7 @@ const meta: Meta<typeof SquadGrid> = {
                 id: 'Se4LmwLU0q6aVDpX1MkqX',
                 name: 'Lee Hansel Solevilla',
                 image:
-                  'https://res.cloudinary.com/daily-now/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
+                  'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
                 permalink: 'http://webapp.local.com:5002/a123124124111',
                 username: 'a123124124111',
               },
@@ -48,7 +48,7 @@ const meta: Meta<typeof SquadGrid> = {
                 id: 'Se4LmwLU0q6aVDpX1MkqX',
                 name: 'Lee Hansel Solevilla',
                 image:
-                  'https://res.cloudinary.com/daily-now/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
+                  'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
                 permalink: 'http://webapp.local.com:5002/a123124124111',
                 username: 'a123124124111',
               },
@@ -63,7 +63,7 @@ const meta: Meta<typeof SquadGrid> = {
                 id: 'Se4LmwLU0q6aVDpX1MkqX',
                 name: 'Lee Hansel Solevilla',
                 image:
-                  'https://res.cloudinary.com/daily-now/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
+                  'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
                 permalink: 'http://webapp.local.com:5002/a123124124111',
                 username: 'a123124124111',
               },
@@ -78,13 +78,11 @@ const meta: Meta<typeof SquadGrid> = {
   },
   decorators: [
     (Story) => (
-      <QueryClientProvider>
-        <AuthContext.Provider value={{}}>
-          <div className="grid grid-cols-3 gap-4">
-            <Story />
-          </div>
-        </AuthContext.Provider>
-      </QueryClientProvider>
+      <ExtensionProviders>
+        <div className="grid grid-cols-3 gap-4">
+          <Story />
+        </div>
+      </ExtensionProviders>
     ),
   ],
 };

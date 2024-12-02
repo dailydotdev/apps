@@ -10,7 +10,6 @@ import { UnFeaturedSquadCardProps } from './common/types';
 import { SquadActionButton } from '../../squads/SquadActionButton';
 import { Origin } from '../../../lib/log';
 import { ButtonVariant } from '../../buttons/common';
-import { useViewSize, ViewSize } from '../../../hooks';
 import { anchorDefaultRel } from '../../../lib/strings';
 
 export enum SourceCardBorderColor {
@@ -61,7 +60,6 @@ export const SquadGrid = ({
     membersCount,
   } = source;
   const borderColor = color || SourceCardBorderColor.Avocado;
-  const isMobile = useViewSize(ViewSize.MobileL);
 
   return (
     <Card
@@ -116,10 +114,7 @@ export const SquadGrid = ({
             origin={Origin.SquadDirectory}
             onSuccess={() => router.push(source.permalink)}
             data-testid="squad-action"
-            buttonVariants={[
-              ButtonVariant.Secondary,
-              isMobile ? ButtonVariant.Float : ButtonVariant.Secondary,
-            ]}
+            buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
           />
         </div>
       </div>

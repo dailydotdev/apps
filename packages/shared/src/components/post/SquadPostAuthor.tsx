@@ -15,6 +15,8 @@ import { TruncateText, DateFormat } from '../utilities';
 import { TimeFormatType } from '../../lib/dateFormat';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
+import { TopReaderIn } from '../TopReaderIn';
+import { PlusUserBadge } from '../PlusUserBadge';
 
 interface SquadPostAuthorProps {
   className?: Partial<{
@@ -74,7 +76,7 @@ function SquadPostAuthor({
         <a
           href={author.permalink}
           className={classNames(
-            'ml-4 flex flex-col overflow-hidden',
+            'ml-4 flex shrink flex-col overflow-hidden',
             className?.details,
           )}
         >
@@ -86,6 +88,7 @@ function SquadPostAuthor({
               {author.name}
             </TruncateText>
             <div className="flex gap-1">
+              {author?.isPlus && <PlusUserBadge user={author} />}
               {author?.companies?.length > 0 && (
                 <VerifiedCompanyUserBadge user={author} />
               )}
@@ -107,6 +110,12 @@ function SquadPostAuthor({
             </TruncateText>
             {!!date && <Separator />}
             {!!date && <DateFormat date={date} type={TimeFormatType.Post} />}
+            {author?.topReader && (
+              <>
+                <Separator />
+                <TopReaderIn topReader={author.topReader} />
+              </>
+            )}
           </div>
         </a>
       </ProfileTooltip>

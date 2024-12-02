@@ -4,6 +4,7 @@ import {
   Post,
   PostsEngaged,
   POSTS_ENGAGED_SUBSCRIPTION,
+  SharedPost,
 } from '../graphql/posts';
 import { useLogContext } from '../contexts/LogContext';
 import { postLogEvent } from '../lib/feed';
@@ -15,6 +16,8 @@ import { ReferralCampaignKey } from '../lib';
 import { useGetShortUrl } from './utils/useGetShortUrl';
 import { ShareProvider } from '../lib/share';
 import { useCopyPostLink } from './useCopyPostLink';
+import { EmptyPromise } from '../lib/func';
+import { Origin } from '../lib/log';
 
 export interface UsePostContent {
   onCopyPostLink: () => void;
@@ -26,6 +29,27 @@ export interface UsePostContentProps {
   post: Post;
 }
 
+interface UseReadArticle {
+  origin: Origin;
+  post: Post | SharedPost;
+}
+
+export const useReadArticle = ({
+  post,
+  origin,
+}: UseReadArticle): EmptyPromise => {
+  const onPostClick = useOnPostClick({ origin });
+
+  return useCallback(
+    () =>
+      onPostClick({
+        post: post?.sharedPost || post,
+        optional: { parent_id: post.sharedPost && post.id },
+      }),
+    [onPostClick, post],
+  );
+};
+
 const usePostContent = ({
   origin,
   post,
@@ -33,7 +57,7 @@ const usePostContent = ({
   const id = post?.id;
   const queryClient = useQueryClient();
   const { logEvent } = useLogContext();
-  const onPostClick = useOnPostClick({ origin });
+  const onReadArticle = useReadArticle({ origin, post });
   const { commentsPermalink } = post;
   const cid = ReferralCampaignKey.SharePost;
   const { getShortUrl } = useGetShortUrl();
@@ -54,15 +78,6 @@ const usePostContent = ({
     copyLink({ link: shortLink });
     logShareEvent(ShareProvider.CopyLink);
   }, [cid, commentsPermalink, copyLink, getShortUrl, logShareEvent]);
-
-  const onReadArticle = useCallback(
-    () =>
-      onPostClick({
-        post: post?.sharedPost || post,
-        optional: { parent_id: post.sharedPost && post.id },
-      }),
-    [onPostClick, post],
-  );
 
   useSubscription(
     () => ({

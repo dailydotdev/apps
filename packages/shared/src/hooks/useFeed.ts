@@ -14,7 +14,6 @@ import {
   PostsEngaged,
 } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
-import { apiUrl } from '../lib/config';
 import useSubscription from './useSubscription';
 import {
   getNextPageParam,
@@ -25,6 +24,10 @@ import {
 import { MarketingCta } from '../components/marketingCta/common';
 import { FeedItemType } from '../components/cards/common/common';
 import { GARMR_ERROR, gqlClient } from '../graphql/common';
+import { usePlusSubscription } from './usePlusSubscription';
+import { fetchAd } from '../lib/ads';
+import { LogEvent } from '../lib/log';
+import { useLogContext } from '../contexts/LogContext';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -32,6 +35,8 @@ interface FeedItemBase<T extends FeedItemType> {
 
 interface AdItem extends FeedItemBase<FeedItemType.Ad> {
   ad: Ad;
+  index: number;
+  updatedAt: number;
 }
 
 interface MarketingCtaItem extends FeedItemBase<FeedItemType.MarketingCta> {
@@ -87,6 +92,7 @@ type UseFeedSettingParams = {
   disableAds?: boolean;
   showAcquisitionForm?: boolean;
   marketingCta?: MarketingCta;
+  feedName?: string;
 };
 
 export interface UseFeedOptionalParams<T> {
@@ -107,8 +113,10 @@ export default function useFeed<T>(
   placeholdersPerPage: number,
   params: UseFeedOptionalParams<T> = {},
 ): FeedReturnType {
+  const { logEvent } = useLogContext();
   const { query, variables, options = {}, settings, onEmptyFeed } = params;
   const { user, tokenRefreshed } = useContext(AuthContext);
+  const { isPlus } = usePlusSubscription();
   const queryClient = useQueryClient();
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
 
@@ -122,12 +130,21 @@ export default function useFeed<T>(
         loggedIn: !!user,
       });
 
-      if (
+      const isEmpty =
         !feedQuery?.data?.pages[0]?.page.edges.length &&
-        !res?.page?.edges?.length &&
-        onEmptyFeed
-      ) {
-        onEmptyFeed();
+        !res?.page?.edges?.length;
+
+      if (isEmpty) {
+        logEvent({
+          event_name: LogEvent.FeedEmpty,
+          target_id: params?.settings?.feedName,
+          extra: params?.variables
+            ? JSON.stringify({ ...params?.variables })
+            : undefined,
+        });
+        if (onEmptyFeed) {
+          onEmptyFeed();
+        }
       }
 
       return res;
@@ -144,19 +161,17 @@ export default function useFeed<T>(
   const clientError = feedQuery?.error as ClientError;
 
   const isAdsQueryEnabled =
+    !isPlus &&
     query &&
     tokenRefreshed &&
     !isFeedPreview &&
     (!settings?.adPostLength ||
       feedQuery.data?.pages[0]?.page.edges.length > settings?.adPostLength) &&
     !settings?.disableAds;
+
   const adsQuery = useInfiniteQuery<Ad>({
-    queryKey: ['ads', ...feedQueryKey],
-    queryFn: async ({ pageParam }) => {
-      const res = await fetch(`${apiUrl}/v1/a?active=${!!pageParam}`);
-      const ads: Ad[] = await res.json();
-      return ads[0];
-    },
+    queryKey: [RequestKey.Ads, ...feedQueryKey],
+    queryFn: async ({ pageParam }) => fetchAd(!!pageParam),
     initialPageParam: '',
     getNextPageParam: () => Date.now(),
     enabled: isAdsQueryEnabled,
@@ -191,18 +206,20 @@ export default function useFeed<T>(
           const withFirstIndex = (condition: boolean) =>
             pageIndex === 0 && condition;
 
-          if (withFirstIndex(!!settings.marketingCta)) {
-            posts.splice(adSpot, 0, {
-              type: FeedItemType.MarketingCta,
-              marketingCta: settings.marketingCta,
-            });
-          } else if (withFirstIndex(settings.showAcquisitionForm)) {
-            posts.splice(adSpot, 0, { type: FeedItemType.UserAcquisition });
-          } else if (isAdsQueryEnabled) {
-            if (adsQuery.data?.pages[pageIndex]) {
+          if (isAdsQueryEnabled) {
+            if (withFirstIndex(!!settings.marketingCta)) {
+              posts.splice(adSpot, 0, {
+                type: FeedItemType.MarketingCta,
+                marketingCta: settings.marketingCta,
+              });
+            } else if (withFirstIndex(settings.showAcquisitionForm)) {
+              posts.splice(adSpot, 0, { type: FeedItemType.UserAcquisition });
+            } else if (adsQuery.data?.pages[pageIndex]) {
               posts.splice(adSpot, 0, {
                 type: FeedItemType.Ad,
                 ad: adsQuery.data?.pages[pageIndex],
+                index: pageIndex,
+                updatedAt: adsQuery.dataUpdatedAt,
               });
             } else {
               posts.splice(adSpot, 0, { type: FeedItemType.Placeholder });
@@ -228,6 +245,7 @@ export default function useFeed<T>(
     adSpot,
     adsQuery.data?.pages,
     placeholdersPerPage,
+    adsQuery.dataUpdatedAt,
   ]);
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);

@@ -6,7 +6,7 @@ import { ActionType } from '../../graphql/actions';
 import { LazyModal } from './common/types';
 import AlertContext from '../../contexts/AlertContext';
 import { MarketingCtaVariant } from '../marketingCta/common';
-import { LogEvent, TargetType } from '../../lib/log';
+import { LogEvent, Origin, TargetType } from '../../lib/log';
 import LogContext from '../../contexts/LogContext';
 import { promotion } from './generic';
 import { useReadingStreak } from '../../hooks/streaks';
@@ -153,6 +153,7 @@ export const BootPopups = (): ReactElement => {
         onAfterOpen: () => {
           updateLastBootPopup();
         },
+        isDrawerOnMobile: true,
       },
     });
   }, [alerts?.showGenericReferral, updateLastBootPopup]);
@@ -239,6 +240,23 @@ export const BootPopups = (): ReactElement => {
     updateLastBootPopup,
     user,
   ]);
+
+  useEffect(() => {
+    if (!alerts?.showTopReader) {
+      return;
+    }
+
+    addBootPopup({
+      type: LazyModal.TopReaderBadge,
+      props: {
+        origin: Origin.Boot,
+        onAfterClose: () => {
+          updateAlerts({ showTopReader: false });
+          updateLastBootPopup();
+        },
+      },
+    });
+  }, [alerts.showTopReader, logEvent, updateAlerts, updateLastBootPopup]);
 
   /**
    * Actual rendering of the boot popup that's first in line

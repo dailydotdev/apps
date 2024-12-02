@@ -101,8 +101,10 @@ export enum RequestKey {
   Bookmarks = 'bookmarks',
   PostComments = 'post_comments',
   PostCommentsMutations = 'post_comments_mutations',
+  SourcePostModeration = 'source_post_moderation',
   Actions = 'actions',
   Squad = 'squad',
+  SquadPostRequests = 'squad_post_requests',
   SquadMembers = 'squad_members',
   Search = 'search',
   SearchHistory = 'searchHistory',
@@ -168,10 +170,17 @@ export enum RequestKey {
   ContentPreference = 'content_preference',
   UserFollowers = 'user_followers',
   UserFollowing = 'user_following',
+  UserBlocked = 'user_blocked',
   ContentPreferenceFollow = 'content_preference_follow',
   ContentPreferenceUnfollow = 'content_preference_unfollow',
   ContentPreferenceSubscribe = 'content_preference_subscribe',
   ContentPreferenceUnsubscribe = 'content_preference_unsubscribe',
+  ContentPreferenceBlock = 'content_preference_block',
+  ContentPreferenceUnblock = 'content_preference_unblock',
+  TopReaderBadge = 'top_reader_badge',
+  ReferringUser = 'referring_user',
+  SearchSources = 'search_sources',
+  OnboardingSources = 'onboarding_sources',
 }
 
 export type HasConnection<

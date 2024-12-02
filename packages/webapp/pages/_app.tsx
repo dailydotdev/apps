@@ -36,6 +36,7 @@ import { PushNotificationContextProvider } from '@dailydotdev/shared/src/context
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
+import { fromCDN } from '@dailydotdev/shared/src/lib';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -140,19 +141,19 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         <link
           rel="apple-touch-icon"
           sizes="180x180"
-          href="/apple-touch-icon.png"
+          href={fromCDN('/apple-touch-icon.png')}
         />
         <link
           rel="icon"
           type="image/png"
           sizes="32x32"
-          href="/favicon-32x32.png"
+          href={fromCDN('/favicon-32x32.png')}
         />
         <link
           rel="icon"
           type="image/png"
           sizes="16x16"
-          href="/favicon-16x16.png"
+          href={fromCDN('/favicon-16x16.png')}
         />
         <link rel="manifest" href="/manifest.json" />
         <link
@@ -172,8 +173,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
         <link rel="preconnect" href="https://api.daily.dev" />
         <link rel="preconnect" href="https://sso.daily.dev" />
-        <link rel="preconnect" href="https://res.cloudinary.com" />
-        <link rel="preconnect" href="https://daily-now-res.cloudinary.com" />
+        <link rel="preconnect" href="https://media.daily.dev" />
       </Head>
       <DefaultSeo
         {...Seo}

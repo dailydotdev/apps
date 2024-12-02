@@ -1,6 +1,6 @@
 {
   "name": "extension",
-  "version": "3.34.9",
+  "version": "3.35.4",
   "scripts": {
     "dev:chrome": "cross-env NODE_ENV=development cross-env TARGET_BROWSER=chrome webpack --watch",
     "dev:firefox": "cross-env NODE_ENV=development cross-env TARGET_BROWSER=firefox webpack --watch",
@@ -8,7 +8,7 @@
     "build:chrome": "cross-env NODE_ENV=production cross-env TARGET_BROWSER=chrome webpack",
     "build:firefox": "cross-env NODE_ENV=production cross-env TARGET_BROWSER=firefox webpack",
     "build:opera": "cross-env NODE_ENV=production cross-env TARGET_BROWSER=opera webpack",
-    "build": "npm run build:chrome",
+    "build": "npm run build:chrome && npm run build:firefox",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0 --fix",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "pretest": "npm run lint",

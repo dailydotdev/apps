@@ -12,11 +12,7 @@ import {
   WriteFreeFormSkeleton,
   WritePageContainer,
 } from '@dailydotdev/shared/src/components/post/freeform';
-import { useMutation } from '@tanstack/react-query';
-import {
-  createPost,
-  CreatePostProps,
-} from '@dailydotdev/shared/src/graphql/posts';
+import { CreatePostProps } from '@dailydotdev/shared/src/graphql/posts';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -35,6 +31,7 @@ import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import {
   useActions,
+  usePostToSquad,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
@@ -77,12 +74,12 @@ function CreatePost(): ReactElement {
     }
 
     return [
+      ...filtered,
       {
         ...generateDefaultSquad(user.username),
         name: 'Create new Squad',
         handle: null,
       },
-      ...filtered,
     ];
   }, [squads, user]);
   const squad = activeSquads?.[selected];
@@ -98,20 +95,18 @@ function CreatePost(): ReactElement {
     clearDraft,
     isUpdatingDraft,
   } = useDiscardPost({ draftIdentifier: squad?.id });
-  const {
-    mutateAsync: onCreatePost,
-    isPending: isPosting,
-    isSuccess,
-  } = useMutation({
-    mutationFn: createPost,
-    onMutate: () => {
-      onAskConfirmation(false);
+  const onPostSuccess = async (link: string) => {
+    onAskConfirmation(false);
+    clearDraft();
+    completeAction(ActionType.SquadFirstPost);
+    await push(link);
+  };
+  const { onSubmitFreeformPost, isPosting, isSuccess } = usePostToSquad({
+    onPostSuccess: async (data) => {
+      onPostSuccess(data.commentsPermalink);
     },
-    onSuccess: async (post) => {
-      clearDraft();
-      await push(post.commentsPermalink);
-
-      completeAction(ActionType.SquadFirstPost);
+    onSourcePostModerationSuccess: async (data) => {
+      onPostSuccess(data.source.permalink);
     },
     onError: (data: ApiErrorResult) => {
       if (data?.response?.errors?.[0]) {
@@ -124,7 +119,7 @@ function CreatePost(): ReactElement {
     onSuccess: (newSquad) => {
       const form = formToJson<CreatePostProps>(formRef.current);
 
-      return onCreatePost({ ...form, sourceId: newSquad.id });
+      return onSubmitFreeformPost(form, newSquad);
     },
     retryWithRandomizedHandle: true,
   });
@@ -152,6 +147,7 @@ function CreatePost(): ReactElement {
   }, [shareParam]);
 
   const onClickSubmit = async (e: FormEvent<HTMLFormElement>, params) => {
+    e.preventDefault();
     if (isPosting || isSuccess || isLoading) {
       return null;
     }
@@ -162,7 +158,7 @@ function CreatePost(): ReactElement {
     }
 
     if (squads.some(({ id }) => squad.id === id)) {
-      return onCreatePost({ ...params, sourceId: squad.id });
+      return onSubmitFreeformPost(params, squad);
     }
 
     await onCreateSquad(generateDefaultSquad(user.username));

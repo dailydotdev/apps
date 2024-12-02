@@ -62,7 +62,11 @@ export function BaseTooltipContainer({
       {!!showArrow && (
         <Arrow
           data-popper-arrow
-          className={classNames(styles.tippyTooltipArrow, bgClassName)}
+          className={classNames(
+            styles.tippyTooltipArrow,
+            bgClassName,
+            'text-justify',
+          )}
         />
       )}
     </div>

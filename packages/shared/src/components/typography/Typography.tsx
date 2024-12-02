@@ -14,6 +14,7 @@ export enum TypographyTag {
   H6 = 'h6',
   Span = 'span',
   Label = 'label',
+  Link = 'a',
 }
 
 export enum TypographyType {
@@ -44,9 +45,12 @@ export enum TypographyColor {
   Disabled = 'text-text-disabled',
   Link = 'text-text-link',
   StatusSuccess = 'text-status-success',
+  StatusHelp = 'text-status-help',
+  Plus = 'text-action-plus-default',
+  Brand = 'text-brand-default',
 }
 
-type AllowedTags = keyof Pick<JSX.IntrinsicElements, TypographyTag>;
+export type AllowedTags = keyof Pick<JSX.IntrinsicElements, TypographyTag>;
 type AllowedElements = HTMLTimeElement | HTMLParagraphElement;
 
 export type TypographyProps<Tag extends AllowedTags> = {

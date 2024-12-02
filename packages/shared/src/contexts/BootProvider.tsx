@@ -79,6 +79,7 @@ const updateLocalBootData = (
     'squads',
     'exp',
     'feeds',
+    'geo',
   ]);
 
   storage.setItem(BOOT_LOCAL_KEY, JSON.stringify(result));
@@ -177,7 +178,7 @@ export const BootDataProvider = ({
 
   const isBootReady = isFetched && !isError;
   const loadedFromCache = !!cachedBootData;
-  const { user, settings, alerts, notifications, squads } =
+  const { user, settings, alerts, notifications, squads, geo } =
     cachedBootData || {};
 
   useRefreshToken(remoteData?.accessToken, refetch);
@@ -247,7 +248,7 @@ export const BootDataProvider = ({
 
   if (error) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="mx-2 flex h-screen items-center justify-center">
         <ServerError />
       </div>
     );
@@ -275,6 +276,7 @@ export const BootDataProvider = ({
         accessToken={remoteData?.accessToken}
         squads={squads}
         firstLoad={initialLoad}
+        geo={geo}
       >
         <SettingsContextProvider
           settings={settings}

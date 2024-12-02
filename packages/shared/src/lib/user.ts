@@ -7,6 +7,7 @@ import {
 } from '../graphql/users';
 import type { Company } from './userCompany';
 import type { ContentPreference } from '../graphql/contentPreference';
+import type { TopReader } from '../components/badges/TopReaderBadge';
 
 export enum Roles {
   Moderator = 'moderator',
@@ -50,6 +51,8 @@ export interface PublicProfile {
   readme?: string;
   companies?: Company[];
   contentPreference?: ContentPreference;
+  isPlus?: boolean;
+  plusMemberSince?: Date;
 }
 
 export enum UserExperienceLevel {
@@ -94,11 +97,20 @@ export interface UserProfile {
 export interface UserShortProfile
   extends Pick<
     PublicProfile,
-    'id' | 'name' | 'image' | 'bio' | 'createdAt' | 'reputation' | 'companies'
+    | 'id'
+    | 'name'
+    | 'image'
+    | 'bio'
+    | 'createdAt'
+    | 'reputation'
+    | 'companies'
+    | 'isPlus'
+    | 'plusMemberSince'
   > {
   username: string;
   permalink: string;
   contentPreference?: ContentPreference;
+  topReader?: Partial<TopReader>;
 }
 
 export interface LoggedUser extends UserProfile, AnonymousUser {
@@ -118,6 +130,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   acquisitionChannel?: string;
   experienceLevel?: keyof typeof UserExperienceLevel;
   isTeamMember?: boolean;
+  isPlus?: boolean;
   companies?: Company[];
   contentPreference?: ContentPreference;
 }

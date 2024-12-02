@@ -36,6 +36,7 @@ export enum LazyModal {
   ReadingHistory = 'readingHistory',
   SquadPromotion = 'squadPromotion',
   CreateSharedPost = 'createSharedPost',
+  ReasonSelection = 'reasonSelection',
   ReportPost = 'reportPost',
   ReportComment = 'reportComment',
   SquadNotifications = 'squadNotifications',
@@ -52,13 +53,14 @@ export enum LazyModal {
   UserSettings = 'userSettings',
   Share = 'share',
   PrivilegedMembers = 'privilegedMembers',
-  FirefoxPrivacy = 'firefoxPrivacy',
   BookmarkReminder = 'bookmarkReminder',
   SlackIntegration = 'slackIntegration',
   ReportSource = 'reportSource',
   UserFollowersModal = 'userFollowersModal',
   UserFollowingModal = 'userFollowingModal',
+  PostModeration = 'postModeration',
   NewSquad = 'newSquad',
+  TopReaderBadge = 'topReaderBadge',
 }
 
 export type ModalTabItem = {

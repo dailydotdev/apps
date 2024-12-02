@@ -25,6 +25,7 @@ export const CreateFeedButton = ({
   const { selectedSettings, checkSourceBlocked } = useAdvancedSettings();
 
   const contentTypeStep = activeScreen === OnboardingStep.ContentTypes;
+  const sourceStep = activeScreen === OnboardingStep.Sources;
 
   const contentTypeNotEmpty =
     !!getContentTypeNotEmpty({
@@ -39,7 +40,9 @@ export const CreateFeedButton = ({
     tagsCount >= REQUIRED_TAGS_THRESHOLD &&
     activeScreen === OnboardingStep.EditTag;
 
-  const canCreateFeed = tagsCountMatch || contentTypeNotEmpty;
+  const isPlusStep = activeScreen === OnboardingStep.Plus;
+  const canCreateFeed =
+    tagsCountMatch || contentTypeNotEmpty || sourceStep || isPlusStep;
   const { sidebarRendered } = useSidebarRendered();
   const buttonName =
     customActionName ??
@@ -51,6 +54,9 @@ export const CreateFeedButton = ({
     }
     if (contentTypeStep && !canCreateFeed) {
       return 'Choose at least one content type';
+    }
+    if (isPlusStep) {
+      return 'Continue without Plus for now';
     }
     return '';
   };
@@ -68,7 +74,7 @@ export const CreateFeedButton = ({
       <div className="relative">
         <Button
           className={className}
-          variant={ButtonVariant.Primary}
+          variant={isPlusStep ? ButtonVariant.Secondary : ButtonVariant.Primary}
           disabled={!canCreateFeed}
           onClick={onClick}
         >

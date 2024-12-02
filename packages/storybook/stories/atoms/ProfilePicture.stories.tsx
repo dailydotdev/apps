@@ -1,6 +1,6 @@
 import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { Meta, StoryObj } from '@storybook/react';
-import { QueryClientProvider } from '../extension/_providers';
+import ExtensionProviders from '../extension/_providers';
 
 const meta: Meta<typeof ProfilePicture> = {
   title: 'Atoms/ProfilePicture',
@@ -8,16 +8,16 @@ const meta: Meta<typeof ProfilePicture> = {
   args: {
     user: {
       image:
-        'https://res.cloudinary.com/daily-now/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
+        'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       id: '1337',
       username: 'johndoe',
     },
   },
   render: (args) => {
     return (
-      <QueryClientProvider>
+      <ExtensionProviders>
         <ProfilePicture {...args} />
-      </QueryClientProvider>
+      </ExtensionProviders>
     );
   },
 };

@@ -46,6 +46,7 @@ import { PostClick } from '../lib/click';
 
 import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedContentPreferenceMutationSubscription';
 import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
+import type { AdActions } from '../lib/ads';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -175,6 +176,7 @@ export default function Feed<T>({
         adPostLength: isSquadFeed ? 2 : undefined,
         showAcquisitionForm,
         ...(showMarketingCta && { marketingCta }),
+        feedName,
       },
     },
   );
@@ -362,9 +364,14 @@ export default function Feed<T>({
     }
   };
 
-  const onAdClick = (ad: Ad, row: number, column: number) => {
+  const onAdAction = (
+    action: Exclude<AdActions, AdActions.Impression>,
+    ad: Ad,
+    row: number,
+    column: number,
+  ) => {
     logEvent(
-      adLogEvent('click', ad, {
+      adLogEvent(action, ad, {
         columns: virtualizedNumCards,
         column,
         row,
@@ -449,7 +456,7 @@ export default function Feed<T>({
                 onMenuClick={onMenuClick}
                 onCopyLinkClick={onCopyLinkClickLogged}
                 onCommentClick={onCommentClick}
-                onAdClick={onAdClick}
+                onAdAction={onAdAction}
                 onReadArticleClick={onReadArticleClick}
               />
             ))}

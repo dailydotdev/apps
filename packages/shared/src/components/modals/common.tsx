@@ -132,13 +132,6 @@ const PrivilegedMemberModal = dynamic(
     ),
 );
 
-const FirefoxPrivacyModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "firefoxPrivacyModal" */ './firefoxPrivacy/FirefoxPrivacyModal'
-    ),
-);
-
 const BookmarkReminderModal = dynamic(
   () =>
     import(
@@ -167,9 +160,28 @@ const ReportSourceModal = dynamic(
     ),
 );
 
+const ReasonSelectionModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "reasonSelectionModal" */ './report/ReasonSelectionModal'
+    ),
+);
+
+const PostModerationModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "postModerationModal" */ './squads/PostModerationModal'
+    ),
+);
 const NewSquadModal = dynamic(
   () =>
     import(/* webpackChunkName: "newSquadModal" */ './squads/NewSquadModal'),
+);
+const TopReaderBadgeModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "topReaderBadgeModal" */ './badges/TopReaderBadgeModal'
+    ),
 );
 
 export const modals = {
@@ -194,14 +206,16 @@ export const modals = {
   [LazyModal.UserSettings]: UserSettingsModal,
   [LazyModal.Share]: ShareModal,
   [LazyModal.PrivilegedMembers]: PrivilegedMemberModal,
-  [LazyModal.FirefoxPrivacy]: FirefoxPrivacyModal,
   [LazyModal.BookmarkReminder]: BookmarkReminderModal,
   [LazyModal.RecoverStreak]: StreakRecoverModal,
   [LazyModal.SlackIntegration]: SlackIntegrationModal,
   [LazyModal.ReportSource]: ReportSourceModal,
   [LazyModal.UserFollowersModal]: UserFollowersModal,
   [LazyModal.UserFollowingModal]: UserFollowingModal,
+  [LazyModal.ReasonSelection]: ReasonSelectionModal,
+  [LazyModal.PostModeration]: PostModerationModal,
   [LazyModal.NewSquad]: NewSquadModal,
+  [LazyModal.TopReaderBadge]: TopReaderBadgeModal,
 };
 
 type GetComponentProps<T> = T extends

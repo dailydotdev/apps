@@ -1,7 +1,6 @@
 import nock from 'nock';
 import React from 'react';
 import {
-  findByRole,
   findByText,
   fireEvent,
   render,
@@ -257,8 +256,8 @@ describe('Feed logged in', () => {
 
     await waitFor(async () => {
       const el = await screen.findByTestId('adItem');
-      // eslint-disable-next-line testing-library/prefer-screen-queries
-      expect(await findByRole(el, 'link')).toHaveAttribute('href', ad.link);
+      const links = await within(el).findAllByRole('link');
+      expect(links[0]).toHaveAttribute('href', ad.link);
     });
   });
 
@@ -753,7 +752,7 @@ describe('Feed logged in', () => {
           summary: '',
           permalink: 'http://localhost:4000/r/9CuRpr5NiEY5',
           image:
-            'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/22fc3ac5cc3fedf281b6e4b46e8c0ba2',
+            'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/22fc3ac5cc3fedf281b6e4b46e8c0ba2',
           createdAt: '2019-05-16T15:16:05.000Z',
           readTime: 8,
           tags: ['development', 'data-science', 'sql'],
@@ -764,7 +763,7 @@ describe('Feed logged in', () => {
             handle: 's',
             permalink: 's',
             image:
-              'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/tds',
+              'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/tds',
           },
           upvoted: false,
           commented: false,

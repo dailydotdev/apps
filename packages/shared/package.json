@@ -101,6 +101,7 @@
   "dependencies": {
     "@growthbook/growthbook": "https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?b8f31f9e80879fe2bcc42b275087b50e1357f1cb",
     "@growthbook/growthbook-react": "^0.17.0",
+    "@paddle/paddle-js": "^1.3.2",
     "@tippyjs/react": "^4.2.6",
     "check-password-strength": "^2.0.10",
     "graphql-ws": "^5.5.5",

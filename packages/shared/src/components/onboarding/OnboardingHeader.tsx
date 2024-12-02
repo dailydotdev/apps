@@ -2,12 +2,12 @@ import classNames from 'classnames';
 import React, { Dispatch, ReactElement, SetStateAction, useId } from 'react';
 import { useViewSize, ViewSize } from '../../hooks';
 import {
-  cloudinaryFeedBgMobile,
   cloudinaryFeedBgLaptop,
+  cloudinaryFeedBgMobile,
   cloudinaryFeedBgTablet,
 } from '../../lib/image';
 import Logo, { LogoPosition } from '../Logo';
-import { AuthProps, AuthDisplay } from '../auth/AuthOptions';
+import { AuthDisplay, AuthProps } from '../auth/AuthOptions';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { CreateFeedButton } from './CreateFeedButton';
 import { OnboardingStep, wrapperMaxWidth } from './common';
@@ -39,6 +39,13 @@ export const OnboardingHeader = ({
     return isLaptop ? cloudinaryFeedBgLaptop : cloudinaryFeedBgTablet;
   };
 
+  const showButtonOnScreens: Partial<OnboardingStep[]> = [
+    OnboardingStep.EditTag,
+    OnboardingStep.ContentTypes,
+    OnboardingStep.Sources,
+    OnboardingStep.Plus,
+  ];
+
   if (activeScreen !== OnboardingStep.Intro) {
     return (
       <header className="sticky top-0 z-3 mb-10 flex w-full justify-center backdrop-blur-sm">
@@ -53,8 +60,7 @@ export const OnboardingHeader = ({
             position={LogoPosition.Relative}
             linkDisabled
           />
-          {(activeScreen === OnboardingStep.EditTag ||
-            activeScreen === OnboardingStep.ContentTypes) && (
+          {showButtonOnScreens.includes(activeScreen) && (
             <CreateFeedButton
               onClick={onClickCreateFeed}
               customActionName={customActionName}
