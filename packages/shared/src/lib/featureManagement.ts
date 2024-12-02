@@ -3,6 +3,7 @@ import {
   cloudinaryOnboardingFullBackgroundDesktop,
   cloudinaryOnboardingFullBackgroundMobile,
 } from './image';
+import { PlusPriceType } from './featureValues';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -33,9 +34,10 @@ const feature = {
   postBannerExtensionPrompt: new Feature('post_banner_extension_prompt', false),
   plusSubscription: new Feature('plus_subscription', false),
   pricingIds: new Feature('pricing_ids', {
-    pri_01jbsccbdbcwyhdy8hy3c2etyn: 'monthly',
-    pri_01jbscda57910yvwjtyapnrrzc: 'yearly',
+    pri_01jbsccbdbcwyhdy8hy3c2etyn: PlusPriceType.Monthly,
+    pri_01jbscda57910yvwjtyapnrrzc: PlusPriceType.Yearly,
   }),
+  onboardingAndroid: new Feature('onboarding_android', false),
   postPersonalizedBanner: new Feature('post_banner_personalized', false),
 };
 

@@ -127,6 +127,7 @@ export const BlockedWords = (): ReactElement => {
       <div className="flex flex-wrap gap-2">
         {flatBlockedWords.map((word) => (
           <GenericTagButton
+            showHashtag={false}
             key={word.referenceId}
             className="group btn-tagBlocked"
             icon={
