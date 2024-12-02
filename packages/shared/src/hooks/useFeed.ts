@@ -191,7 +191,7 @@ export default function useFeed<T>(
 
   const getAd = useCallback(
     ({ index }: { index: number }) => {
-      if (!isAdsQueryEnabled || isLoading) {
+      if (!isAdsQueryEnabled) {
         return undefined;
       }
 
@@ -204,15 +204,24 @@ export default function useFeed<T>(
         return undefined;
       }
 
-      const adPage = (index - adStart) / adRepeat; // page number for ad
+      const adPage = adIndex / adRepeat; // page number for ad
+
+      if (isLoading) {
+        return {
+          type: FeedItemType.Placeholder,
+          index: adPage,
+        };
+      }
 
       const nextAd = adsData?.pages[adPage];
 
       if (!nextAd) {
         fetchNextAd({ cancelRefetch: false });
 
-        // TODO ad-repeat-logic - return placeholder
-        return undefined;
+        return {
+          type: FeedItemType.Placeholder,
+          index: adPage,
+        };
       }
 
       return {
