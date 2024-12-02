@@ -1,4 +1,9 @@
-import React, { useState, type ReactElement } from 'react';
+import React, {
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactElement,
+} from 'react';
 import classNames from 'classnames';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { OnboardingTitle } from './common';
@@ -11,15 +16,20 @@ import { Image } from '../image/Image';
 import { Typography } from '../typography/Typography';
 
 export const OnboardingPWA = (): ReactElement => {
+  const videoRef = useRef<HTMLVideoElement>();
   const [clickedAdd, setClickedAdd] = useState(false);
   const onClickAdd = () => {
     if (navigator.share) {
-      navigator.share({
-        url: 'https://app.daily.dev',
-      });
+      navigator.share();
     }
     setClickedAdd(true);
   };
+
+  useLayoutEffect(() => {
+    if (videoRef.current) {
+      videoRef?.current?.play();
+    }
+  }, []);
 
   return (
     <>
@@ -52,6 +62,7 @@ export const OnboardingPWA = (): ReactElement => {
         </div>
       </div>
       <video
+        ref={videoRef}
         className="absolute -bottom-8 max-h-screen w-full"
         poster={cloudinaryPWA}
         src={cloudinaryPWAVideo}
