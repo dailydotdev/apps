@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useViewSize, ViewSize } from '../../hooks';
 import {
@@ -40,7 +40,7 @@ const PlusBillingCycleSwitch = ({
           <Button
             aria-checked={isActive}
             aria-label={label}
-            className="min-w-24 justify-center"
+            className="flex-1 justify-center"
             key={label}
             onClick={() => onChangeCycle(index)}
             role="radio"
@@ -79,9 +79,14 @@ const PlusBillingCycleSwitch = ({
 export const OnboardingPlusStep = ({
   onClickNext,
 }: OnboardingStepProps): ReactElement => {
-  const { productOptions } = usePaymentContext();
+  const { productOptions, earlyAdopterPlanId } = usePaymentContext();
   const [currentProductIndex, setCurrentProductIndex] = useState<number>(0);
   const isLaptop = useViewSize(ViewSize.Laptop);
+
+  const items = useMemo(
+    () => productOptions.filter(({ value }) => value !== earlyAdopterPlanId),
+    [productOptions, earlyAdopterPlanId],
+  );
 
   return (
     <section className="flex max-w-screen-laptop flex-col tablet:px-10">
@@ -103,16 +108,16 @@ export const OnboardingPlusStep = ({
           exclusive features and perks to level up your game.
         </Typography>
       </header>
-      {!!productOptions?.length && (
+      {!!items?.length && (
         <>
           <PlusBillingCycleSwitch
-            productOptions={productOptions}
+            productOptions={items}
             currentCycleIndex={currentProductIndex}
             onChangeCycle={setCurrentProductIndex}
           />
           <PlusComparingCards
             currentIndex={currentProductIndex}
-            productOptions={productOptions}
+            productOptions={items}
             onClickNext={onClickNext}
           />
         </>

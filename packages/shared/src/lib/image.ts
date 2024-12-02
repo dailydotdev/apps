@@ -269,6 +269,9 @@ export const cloudinaryAuthBannerBackground1920w =
 export const cloudinaryAuthBannerBackground1440w =
   'https://daily-now-res.cloudinary.com/image/upload/s--lf8LUJjq--/c_auto,g_center,w_1440/f_auto//v1732012913/login-popover-dailydev_mxb7lw';
 
+export const cloudinaryAndroidApp =
+  'https://daily-now-res.cloudinary.com/image/upload/s--IEq-BTWL--/f_auto/v1733066824/dailydev_pwa_peqr8o';
+
 export const smallPostImage = (url: string): string => {
   if (!url) {
     return cloudinaryPostImageCoverPlaceholder;

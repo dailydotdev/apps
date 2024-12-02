@@ -18,6 +18,7 @@ interface GenericTagButtonProps
   icon?: ReactElement;
   action: () => unknown;
   variant?: ButtonVariant;
+  showHashtag?: boolean;
 }
 
 export const GenericTagButton = ({
@@ -25,6 +26,7 @@ export const GenericTagButton = ({
   className,
   icon,
   action,
+  showHashtag = true,
   ...props
 }: GenericTagButtonProps): ReactElement => (
   <Button
@@ -35,7 +37,7 @@ export const GenericTagButton = ({
     icon={action ? icon : undefined}
     iconPosition={action ? ButtonIconPosition.Right : undefined}
   >
-    {`#${tagItem}`}
+    {showHashtag ? `#${tagItem}` : tagItem}
   </Button>
 );
 
