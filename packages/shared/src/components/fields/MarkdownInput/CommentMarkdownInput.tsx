@@ -40,6 +40,7 @@ export interface CommentMarkdownInputProps {
   showUserAvatar?: boolean;
   onChange?: (value: string) => void;
   formProps?: FormHTMLAttributes<HTMLFormElement>;
+  onRequestClose?: () => void;
 }
 
 export function CommentMarkdownInputComponent(
@@ -54,6 +55,7 @@ export function CommentMarkdownInputComponent(
     showSubmit = true,
     showUserAvatar = true,
     formProps = {},
+    onRequestClose,
   }: CommentMarkdownInputProps,
   ref: MutableRefObject<HTMLFormElement>,
 ): ReactElement {
@@ -131,6 +133,7 @@ export function CommentMarkdownInputComponent(
           ) : null
         }
         onValueUpdate={onChange}
+        onRequestClose={onRequestClose}
       />
     </form>
   );
