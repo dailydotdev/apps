@@ -1,7 +1,8 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useId } from 'react';
 import {
   PaymentContextData,
   ProductOption,
+  usePaymentContext,
 } from '../../contexts/PaymentContext';
 import {
   Typography,
@@ -12,11 +13,15 @@ import {
 import { DevPlusIcon } from '../icons';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { defaultFeatureList, plusFeatureList, PlusList } from './PlusList';
-import { IconSize } from '../Icon';
-import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { usePlusSubscription } from '../../hooks';
 import { plusUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import { LogEvent, TargetId } from '../../lib/log';
+import { PlusItemStatus } from './PlusListItem';
+import { IconSize } from '../Icon';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { PlusPriceType } from '../../lib/featureValues';
 
 export enum OnboardingPlans {
   Free = 'Free',
@@ -45,7 +50,13 @@ const cardContent = {
       color: TypographyColor.Plus,
     },
     features: {
-      items: ['Everything on the Free plan', ...plusFeatureList],
+      items: [
+        {
+          label: 'Everything on the Free plan',
+          status: PlusItemStatus.Disabled,
+        },
+        ...plusFeatureList,
+      ],
     },
   },
 };
@@ -55,49 +66,94 @@ const PlusCard = ({
   productOption: plan,
   onClickNext,
 }: PlusCardProps): ReactElement => {
-  const isPaidPlan = !!plan;
-  const price = {
-    amount: plan?.price ?? '0',
-    cycle: isPaidPlan ? `Billed ${plan?.label}` : 'Free forever',
-  };
+  const id = useId();
   const { logSubscriptionEvent } = usePlusSubscription();
-  const currentPlan = isPaidPlan ? OnboardingPlans.Plus : OnboardingPlans.Free;
-  const { heading, features } = cardContent[currentPlan];
+  const { earlyAdopterPlanId, productOptions } = usePaymentContext();
+  const pricingIds = useFeature(feature.pricingIds);
+
+  const isPaidPlan = !!plan;
+  const cardContentName = isPaidPlan
+    ? OnboardingPlans.Plus
+    : OnboardingPlans.Free;
+  const { heading, features } = cardContent[cardContentName];
+
+  const { hasDiscount, discountPlan } = productOptions.reduce(
+    (acc, product) => {
+      if (!isPaidPlan || !earlyAdopterPlanId) {
+        return acc;
+      }
+
+      const isCardPlan = product.value === plan.value;
+      const isDiscountPlan = product.value === earlyAdopterPlanId;
+      const isMonthly = pricingIds[product.value] === PlusPriceType.Monthly;
+
+      return {
+        hasDiscount: acc.hasDiscount || (isCardPlan && isMonthly),
+        discountPlan: acc.discountPlan || (isDiscountPlan ? product : null),
+      };
+    },
+    {
+      hasDiscount: false,
+      discountPlan: null,
+    },
+  );
+
+  const price = {
+    amount: (hasDiscount ? discountPlan.price : plan?.price) ?? '0',
+    cycle: isPaidPlan ? `Billed ${plan?.label?.toLowerCase()}` : 'Free forever',
+  };
 
   return (
-    <div className="mx-auto w-70 max-w-full rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
+    <li
+      aria-labelledby={`${id}-heading`}
+      className="mx-auto w-[21rem] max-w-full rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4"
+    >
       <div className="flex items-start justify-between gap-6">
         <Typography
           bold
-          className="mb-1.5"
-          tag={TypographyTag.H2}
+          className="mb-1.5 flex gap-1"
+          tag={TypographyTag.H3}
           type={TypographyType.Title3}
           color={heading.color}
+          id={`${id}-heading`}
         >
+          {isPaidPlan && <DevPlusIcon aria-hidden size={IconSize.Small} />}
           {heading.label}
         </Typography>
-        {isPaidPlan && (
+        {hasDiscount && discountPlan?.extraLabel && (
           <Typography
-            className="grid aspect-square size-8 place-content-center rounded-8 bg-surface-float"
             tag={TypographyTag.Span}
-            color={TypographyColor.Plus}
+            type={TypographyType.Caption1}
+            color={TypographyColor.StatusHelp}
+            className="ml-3 rounded-10 bg-action-help-float px-2 py-1"
+            bold
           >
-            <DevPlusIcon />
+            {discountPlan.extraLabel}
           </Typography>
         )}
       </div>
-      <div>
+      <div className="flex items-baseline gap-0.5">
         <Typography bold tag={TypographyTag.Span} type={TypographyType.Title1}>
           {!isPaidPlan && currency}
           {price.amount}
         </Typography>
-        <Typography
-          color={TypographyColor.Tertiary}
-          type={TypographyType.Footnote}
-        >
-          {price.cycle}
-        </Typography>
+        {hasDiscount && (
+          <Typography
+            type={TypographyType.Title3}
+            color={TypographyColor.Quaternary}
+            className="line-through"
+          >
+            {plan.price}
+          </Typography>
+        )}
       </div>
+      <Typography
+        color={TypographyColor.Tertiary}
+        type={TypographyType.Footnote}
+      >
+        {price.cycle}
+      </Typography>
+
       {!isPaidPlan ? (
         <Button
           className="my-4 block w-full"
@@ -117,7 +173,9 @@ const PlusCard = ({
       ) : (
         <Button
           className="my-4 block w-full"
-          href={`${plusUrl}?selectedPlan=${plan?.value}`}
+          href={`${plusUrl}?selectedPlan=${
+            hasDiscount ? discountPlan?.value : plan?.value
+          }`}
           onClick={() => {
             logSubscriptionEvent({
               event_name: LogEvent.OnboardingUpgradePlus,
@@ -136,16 +194,14 @@ const PlusCard = ({
       <PlusList
         className="!py-0"
         items={features.items}
-        icon={{
-          size: IconSize.XSmall,
-          className: isPaidPlan ? 'text-text-tertiary' : 'text-text-quaternary',
-        }}
-        text={{
+        iconProps={{ size: IconSize.Size16, className: '!mx-0' }}
+        typographyProps={{
           type: TypographyType.Caption1,
-          className: 'self-center',
+          className: '!gap-1',
         }}
+        badgeProps={{ className: '!px-1' }}
       />
-    </div>
+    </li>
   );
 };
 
@@ -165,7 +221,10 @@ export const PlusComparingCards = ({
   const currency = Number.isInteger(+priceFirstChar) ? '' : priceFirstChar;
 
   return (
-    <div className="mx-auto grid grid-cols-1 place-content-center items-start gap-6 tablet:grid-cols-2">
+    <ul
+      aria-label="Pricing plans"
+      className="mx-auto grid grid-cols-1 place-content-center items-start gap-6 tablet:grid-cols-2"
+    >
       {Object.values(OnboardingPlans).map((plan) => (
         <PlusCard
           key={plan}
@@ -176,6 +235,6 @@ export const PlusComparingCards = ({
           onClickNext={onClickNext}
         />
       ))}
-    </div>
+    </ul>
   );
 };

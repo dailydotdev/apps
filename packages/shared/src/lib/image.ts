@@ -269,9 +269,6 @@ export const cloudinaryAuthBannerBackground1920w =
 export const cloudinaryAuthBannerBackground1440w =
   'https://daily-now-res.cloudinary.com/image/upload/s--lf8LUJjq--/c_auto,g_center,w_1440/f_auto//v1732012913/login-popover-dailydev_mxb7lw';
 
-export const cloudinaryAndroidApp320w =
-  'https://res.cloudinary.com/daily-now/image/upload/s--Igb475YN--/c_auto,g_center,w_320/f_auto/daily.dev.mobile.app_prvkxr';
-
 export const cloudinaryPWA =
   'https://daily-now-res.cloudinary.com/image/upload/s--OJZMKmCg--/f_auto/v1730721076/web_-_safari_asp3ts';
 
@@ -280,6 +277,9 @@ export const cloudinaryPWAVideo =
 
 export const cloudinaryAddToHomeScreen =
   'https://daily-now-res.cloudinary.com/image/upload/s--Ml_3MSzc--/f_auto/v1733037697/add_to_home_screen_mddvzw';
+
+export const cloudinaryAndroidApp =
+  'https://daily-now-res.cloudinary.com/image/upload/s--IEq-BTWL--/f_auto/v1733066824/dailydev_pwa_peqr8o';
 
 export const smallPostImage = (url: string): string => {
   if (!url) {

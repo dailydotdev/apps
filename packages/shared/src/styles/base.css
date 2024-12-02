@@ -179,6 +179,12 @@ body {
   --theme-actions-plus-float: color-mix(in srgb, var(--theme-accent-bacon-bolder), transparent 92%);
   --theme-actions-plus-hover: color-mix(in srgb, var(--theme-accent-bacon-bolder), transparent 88%);
   --theme-actions-plus-active: color-mix(in srgb, var(--theme-accent-bacon-bolder), transparent 84%);
+  /* Help */
+  --theme-actions-help-default: var(--status-help);
+  --theme-actions-help-float: color-mix(in srgb, var(--theme-actions-help-default), transparent 92%);
+  --theme-actions-help-hover: color-mix(in srgb, var(--theme-actions-help-default), transparent 88%);
+  --theme-actions-help-active: color-mix(in srgb, var(--theme-actions-help-default), transparent 84%);
+
 
   /* Overlay */
   --theme-overlay-base-primary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 36%);
@@ -440,6 +446,11 @@ body {
   --theme-actions-plus-float: color-mix(in srgb, var(--theme-accent-bacon-bolder), transparent 92%);
   --theme-actions-plus-hover: color-mix(in srgb, var(--theme-accent-bacon-bolder), transparent 88%);
   --theme-actions-plus-active: color-mix(in srgb, var(--theme-accent-bacon-bolder), transparent 84%);
+  /* Help */
+  --theme-actions-help-default: var(--status-help);
+  --theme-actions-help-float: color-mix(in srgb, var(--theme-actions-help-default), transparent 92%);
+  --theme-actions-help-hover: color-mix(in srgb, var(--theme-actions-help-default), transparent 88%);
+  --theme-actions-help-active: color-mix(in srgb, var(--theme-actions-help-default), transparent 84%);
 
   /* Overlay */
   --theme-overlay-base-primary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 36%);
