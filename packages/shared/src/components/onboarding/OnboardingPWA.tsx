@@ -13,8 +13,14 @@ import { Typography } from '../typography/Typography';
 export const OnboardingPWA = (): ReactElement => {
   const [clickedAdd, setClickedAdd] = useState(false);
   const onClickAdd = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'PWA',
+        text: 'Add the daily.dev PWA to your home screen',
+        url: 'https://app.daily.dev',
+      });
+    }
     setClickedAdd(true);
-    navigator.share?.();
   };
 
   return (
@@ -48,7 +54,7 @@ export const OnboardingPWA = (): ReactElement => {
         </div>
       </div>
       <video
-        className="absolute inset-0 max-h-screen w-full"
+        className="absolute -bottom-8 max-h-screen w-full"
         poster={cloudinaryPWA}
         src={cloudinaryPWAVideo}
         autoPlay
