@@ -14,11 +14,7 @@ export const OnboardingPWA = (): ReactElement => {
   const [clickedAdd, setClickedAdd] = useState(false);
   const onClickAdd = () => {
     if (navigator.share) {
-      navigator.share({
-        title: 'PWA',
-        text: 'Add the daily.dev PWA to your home screen',
-        url: 'https://app.daily.dev',
-      });
+      navigator.share();
     }
     setClickedAdd(true);
   };
