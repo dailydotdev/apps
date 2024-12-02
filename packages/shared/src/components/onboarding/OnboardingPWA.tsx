@@ -14,7 +14,9 @@ export const OnboardingPWA = (): ReactElement => {
   const [clickedAdd, setClickedAdd] = useState(false);
   const onClickAdd = () => {
     if (navigator.share) {
-      navigator.share();
+      navigator.share({
+        url: 'https://app.daily.dev',
+      });
     }
     setClickedAdd(true);
   };
@@ -55,6 +57,7 @@ export const OnboardingPWA = (): ReactElement => {
         src={cloudinaryPWAVideo}
         autoPlay
         muted
+        playsInline
         controls={false}
       >
         <track kind="captions" />
