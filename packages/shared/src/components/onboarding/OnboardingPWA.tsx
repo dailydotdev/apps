@@ -1,9 +1,4 @@
-import React, {
-  useLayoutEffect,
-  useRef,
-  useState,
-  type ReactElement,
-} from 'react';
+import React, { useRef, useState, type ReactElement } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { OnboardingTitle } from './common';
@@ -24,12 +19,6 @@ export const OnboardingPWA = (): ReactElement => {
     }
     setClickedAdd(true);
   };
-
-  useLayoutEffect(() => {
-    if (videoRef.current) {
-      videoRef?.current?.play();
-    }
-  }, []);
 
   return (
     <>
@@ -66,9 +55,11 @@ export const OnboardingPWA = (): ReactElement => {
         className="absolute -bottom-8 max-h-screen w-full"
         poster={cloudinaryPWA}
         src={cloudinaryPWAVideo}
-        autoPlay
         muted
+        autoPlay
+        loop
         playsInline
+        disablePictureInPicture
         controls={false}
       >
         <track kind="captions" />
