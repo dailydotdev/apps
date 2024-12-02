@@ -48,9 +48,12 @@ export const PlusListItem = ({
       condition={!!item.tooltip}
       wrapper={(component: ReactElement) => (
         <SimpleTooltip
-          container={{ className: 'tablet:max-w-72' }}
+          container={{
+            className: 'tablet:max-w-72 text-center',
+          }}
           content={item.tooltip}
           delay={0}
+          forceLoad
         >
           {component}
         </SimpleTooltip>
