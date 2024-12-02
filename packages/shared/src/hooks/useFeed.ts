@@ -28,6 +28,8 @@ import { usePlusSubscription } from './usePlusSubscription';
 import { fetchAd } from '../lib/ads';
 import { LogEvent } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
+import type { FeedAdTemplate } from '../lib/feed';
+import { featureFeedAdTemplate } from '../lib/featureManagement';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -109,7 +111,7 @@ export interface UseFeedOptionalParams<T> {
 export default function useFeed<T>(
   feedQueryKey: unknown[],
   pageSize: number,
-  adSpot: number,
+  adTemplate: FeedAdTemplate,
   placeholdersPerPage: number,
   params: UseFeedOptionalParams<T> = {},
 ): FeedReturnType {
@@ -186,16 +188,15 @@ export default function useFeed<T>(
     dataUpdatedAt: adsUpdatedAt,
   } = adsQuery;
 
-  // TODO ad-repeat-logic - needs to be passed from props
-  const adSpotTemplate = useMemo(() => [adSpot, pageSize], [adSpot, pageSize]);
-
   const getAd = useCallback(
     ({ index }: { index: number }) => {
       if (!isAdsQueryEnabled) {
         return undefined;
       }
 
-      const [adStart, adRepeat] = adSpotTemplate;
+      const adStart =
+        adTemplate.adStart ?? featureFeedAdTemplate.defaultValue.adStart;
+      const adRepeat = adTemplate.adRepeat ?? pageSize;
 
       const adIndex = index - adStart; // 0-based index from adStart
 
@@ -242,8 +243,10 @@ export default function useFeed<T>(
       fetchNextAd,
       isAdsQueryEnabled,
       isLoading,
-      adSpotTemplate,
+      adTemplate.adStart,
+      adTemplate.adRepeat,
       adsUpdatedAt,
+      pageSize,
     ],
   );
 
