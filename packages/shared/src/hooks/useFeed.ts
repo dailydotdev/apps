@@ -198,6 +198,12 @@ export default function useFeed<T>(
       const [adStart, adRepeat] = adSpotTemplate;
 
       const adIndex = index - adStart; // 0-based index from adStart
+
+      // if adIndex is negative, it means we are not supposed to show ads yet based on adStart
+      if (adIndex < 0) {
+        return undefined;
+      }
+
       const adMatch = adIndex % adRepeat === 0; // should ad be shown at this index based on adRepeat
 
       if (!adMatch) {
@@ -250,7 +256,19 @@ export default function useFeed<T>(
           const adItem = getAd({ index: adIndex });
 
           if (adItem) {
-            acc.push(adItem);
+            const withFirstIndex = (condition: boolean) =>
+              pageIndex === 0 && adItem.index === 0 && condition;
+
+            if (withFirstIndex(!!settings.marketingCta)) {
+              acc.push({
+                type: FeedItemType.MarketingCta,
+                marketingCta: settings.marketingCta,
+              });
+            } else if (withFirstIndex(settings.showAcquisitionForm)) {
+              acc.push({ type: FeedItemType.UserAcquisition });
+            } else {
+              acc.push(adItem);
+            }
           }
 
           acc.push({
@@ -261,30 +279,6 @@ export default function useFeed<T>(
           });
         });
 
-        // TODO ad-repeat-logic - add support for marketingCta and userAcquisition
-        // const withFirstIndex = (condition: boolean) =>
-        //   pageIndex === 0 && condition;
-
-        // if (isAdsQueryEnabled) {
-        //   if (withFirstIndex(!!settings.marketingCta)) {
-        //     posts.splice(adSpot, 0, {
-        //       type: FeedItemType.MarketingCta,
-        //       marketingCta: settings.marketingCta,
-        //     });
-        //   } else if (withFirstIndex(settings.showAcquisitionForm)) {
-        //     posts.splice(adSpot, 0, { type: FeedItemType.UserAcquisition });
-        //   } else if (adsQuery.data?.pages[pageIndex]) {
-        //     posts.splice(adSpot, 0, {
-        //       type: FeedItemType.Ad,
-        //       ad: adsQuery.data?.pages[pageIndex],
-        //       index: pageIndex,
-        //       updatedAt: adsQuery.dataUpdatedAt,
-        //     });
-        //   } else {
-        //     posts.splice(adSpot, 0, { type: FeedItemType.Placeholder });
-        //   }
-        // }
-
         return acc;
       }, []);
     }
@@ -294,7 +288,14 @@ export default function useFeed<T>(
       );
     }
     return newItems;
-  }, [feedQuery.data, feedQuery.isFetching, getAd, placeholdersPerPage]);
+  }, [
+    feedQuery.data,
+    feedQuery.isFetching,
+    settings.marketingCta,
+    settings.showAcquisitionForm,
+    placeholdersPerPage,
+    getAd,
+  ]);
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);
 
