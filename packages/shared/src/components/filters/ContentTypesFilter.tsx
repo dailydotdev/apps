@@ -38,13 +38,12 @@ export function ContentTypesFilter(): ReactElement {
         <>
           <section className="flex flex-col gap-4" aria-busy={isLoading}>
             <div className="flex flex-col">
-              <div className="flex items-center gap-2">
+              <div className="mb-1 flex items-center gap-2">
                 <Typography
                   tag={TypographyTag.H3}
                   color={TypographyColor.Primary}
                   type={TypographyType.Body}
                   bold
-                  className="mb-1"
                 >
                   Clickbait Shield
                 </Typography>
