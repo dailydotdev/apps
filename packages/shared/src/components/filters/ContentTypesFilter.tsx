@@ -109,7 +109,6 @@ export function ContentTypesFilter(): ReactElement {
           <Divider className="bg-border-subtlest-tertiary" />
         </>
       )}
-
       <section className="flex flex-col gap-4" aria-busy={isLoading}>
         <div className="flex flex-col">
           <Typography

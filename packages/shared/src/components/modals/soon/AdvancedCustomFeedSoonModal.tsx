@@ -56,7 +56,7 @@ const AdvancedCustomFeedSoonModal = ({
         </Typography>
         <Typography type={TypographyType.Body} color={TypographyColor.Tertiary}>
           Choose your tags, sources, content types, and languages. Enjoy diverse
-          sorting options, block unwanted words, and customize your feed—your
+          sorting options, block unwanted words, and customize your feed, your
           rules, your way.
         </Typography>
         {!isPlus && (
