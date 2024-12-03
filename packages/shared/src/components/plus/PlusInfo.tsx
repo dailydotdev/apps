@@ -10,7 +10,10 @@ import {
 } from '../typography/Typography';
 import { RadioItem } from '../fields/RadioItem';
 import { PlusList } from './PlusList';
-import { ProductOption } from '../../contexts/PaymentContext';
+import {
+  ProductOption,
+  usePaymentContext,
+} from '../../contexts/PaymentContext';
 import {
   Button,
   ButtonColor,
@@ -32,7 +35,9 @@ export const PlusInfo = ({
   onChange,
   onContinue,
 }: PlusInfoProps): ReactElement => {
+  const { earlyAdopterPlanId } = usePaymentContext();
   const { logSubscriptionEvent } = usePlusSubscription();
+
   return (
     <>
       <PlusUser
@@ -71,6 +76,7 @@ export const PlusInfo = ({
         {productOptions.map((option) => {
           const { label, value, price, currencyCode, extraLabel } = option;
           const checked = selectedOption === value;
+          const isEarlyAccess = value === earlyAdopterPlanId;
           return (
             <RadioItem
               key={label}
@@ -87,33 +93,43 @@ export const PlusInfo = ({
               }}
               className={{
                 content: classNames(
-                  'h-12 rounded-10 !p-2',
+                  'min-h-12 rounded-10 !p-2',
                   checked
-                    ? 'border border-border-subtlest-primary bg-surface-float'
+                    ? '-m-px border border-border-subtlest-primary bg-surface-float'
                     : undefined,
                 ),
               }}
             >
-              <Typography
-                tag={TypographyTag.Span}
-                type={TypographyType.Callout}
-                color={TypographyColor.Primary}
-              >
-                {option.label}
-              </Typography>
-
-              {extraLabel && (
+              <div className="flex flex-1 flex-wrap items-center gap-x-3 gap-y-1">
                 <Typography
                   tag={TypographyTag.Span}
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.StatusSuccess}
-                  className="ml-3 rounded-10 bg-action-upvote-float px-2 py-1"
-                  bold
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Primary}
                 >
-                  {extraLabel}
+                  {option.label}
                 </Typography>
-              )}
 
+                {extraLabel && (
+                  <Typography
+                    tag={TypographyTag.Span}
+                    type={TypographyType.Caption1}
+                    color={
+                      isEarlyAccess
+                        ? TypographyColor.StatusHelp
+                        : TypographyColor.StatusSuccess
+                    }
+                    className={classNames(
+                      'rounded-10 px-2 py-1',
+                      isEarlyAccess
+                        ? 'whitespace-nowrap bg-action-help-float'
+                        : 'bg-action-upvote-float',
+                    )}
+                    bold
+                  >
+                    {extraLabel}
+                  </Typography>
+                )}
+              </div>
               <div className="ml-auto mr-1 flex items-center gap-1">
                 <Typography
                   tag={TypographyTag.Span}

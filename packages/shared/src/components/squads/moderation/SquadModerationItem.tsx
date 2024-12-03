@@ -67,7 +67,13 @@ export function SquadModerationItem(
         {!user.isModerator && (
           <span className="ml-auto flex flex-row gap-2">
             <Button
-              icon={<IconComponent aria-hidden role="presentation" />}
+              icon={
+                <IconComponent
+                  aria-hidden
+                  role="presentation"
+                  fill="currentcolor"
+                />
+              }
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               disabled

@@ -5,13 +5,20 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useRouter } from 'next/router';
 import { usePaymentContext } from '../../contexts/PaymentContext';
 
 import { PlusInfo } from './PlusInfo';
 
 export const PlusDesktop = (): ReactElement => {
   const { openCheckout, paddle, productOptions } = usePaymentContext();
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const {
+    query: { selectedPlan },
+  } = useRouter();
+  const initialPaymentOption = selectedPlan ? `${selectedPlan}` : null;
+  const [selectedOption, setSelectedOption] = useState<string | null>(
+    initialPaymentOption,
+  );
   const ref = useRef();
 
   const toggleCheckoutOption = useCallback(

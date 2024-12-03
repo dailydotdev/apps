@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { isProduction } from '../lib/constants';
 import { UserExperienceLevel } from '../lib/user';
 import { useAuthContext } from '../contexts/AuthContext';
+import { fromCDN } from '../lib';
 
 const FB_PIXEL_ID = '519268979315924';
 const GA_TRACKING_ID = 'G-VTGLXD7QSN';
@@ -25,7 +26,7 @@ const FbTracking = ({ userId }: PixelProps): ReactElement => {
     <>
       <Script
         id="fb-pixel"
-        src="/scripts/fb.js"
+        src={fromCDN('/scripts/fb.js')}
         strategy="afterInteractive"
         data-pixel-id={FB_PIXEL_ID}
         data-user-id={userId}
@@ -52,7 +53,7 @@ const GtagTracking = ({ userId, instanceId }: PixelProps): ReactElement => {
       />
       <Script
         id="ga-script"
-        src="/scripts/gtag.js"
+        src={fromCDN('/scripts/gtag.js')}
         strategy="afterInteractive"
         data-ga-id={GA_TRACKING_ID}
         data-user-id={userId}
@@ -84,7 +85,7 @@ const TwitterTracking = (): ReactElement => {
   return (
     <Script
       id="twitter-pixel"
-      src="/scripts/twitter.js"
+      src={fromCDN('/scripts/twitter.js')}
       strategy="afterInteractive"
       data-twitter-id={TWITTER_TRACKING_ID}
     />
@@ -95,7 +96,7 @@ const RedditTracking = (): ReactElement => {
   return (
     <Script
       id="reddit-pixel"
-      src="/scripts/reddit.js"
+      src={fromCDN('/scripts/reddit.js')}
       strategy="afterInteractive"
       data-reddit-id={REDDIT_TRACKING_ID}
     />
@@ -106,7 +107,7 @@ const TiktokTracking = (): ReactElement => {
   return (
     <Script
       id="tiktok-pixel"
-      src="/scripts/tiktok.js"
+      src={fromCDN('/scripts/tiktok.js')}
       strategy="afterInteractive"
       data-tiktok-id={TIKTOK_TRACKING_ID}
     />

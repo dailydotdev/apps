@@ -8,6 +8,8 @@ export enum OnboardingStep {
   ContentTypes = 'content_types',
   ReadingReminder = 'reading_reminder',
   Sources = 'sources',
+  AndroidApp = 'android_app',
+  Plus = 'plus',
 }
 
 export const OnboardingTitle = classed(

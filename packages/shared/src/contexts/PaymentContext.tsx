@@ -21,10 +21,11 @@ import { useRouter } from 'next/router';
 import { useAuthContext } from './AuthContext';
 import { plusSuccessUrl } from '../lib/constants';
 import { LogEvent } from '../lib/log';
-import { usePlusSubscription } from '../hooks/usePlusSubscription';
+import { usePlusSubscription } from '../hooks';
 import { logPixelPayment } from '../components/Pixels';
 import { useFeature } from '../components/GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
+import { PlusPriceType } from '../lib/featureValues';
 
 export type ProductOption = {
   label: string;
@@ -33,10 +34,12 @@ export type ProductOption = {
   currencyCode: string;
   extraLabel: string;
 };
+
 export interface PaymentContextData {
   openCheckout?: ({ priceId }: { priceId: string }) => void;
   paddle?: Paddle | undefined;
   productOptions?: ProductOption[];
+  earlyAdopterPlanId?: string | null;
 }
 
 const PaymentContext = React.createContext<PaymentContextData>({});
@@ -171,13 +174,29 @@ export const PaymentContextProvider = ({
     [productPrices?.data.currencyCode, productPrices?.data?.details?.lineItems],
   );
 
+  const earlyAdopterPlanId: PaymentContextData['earlyAdopterPlanId'] =
+    useMemo(() => {
+      const monthlyPrices = productOptions.filter(
+        (option) => planTypes[option.value] === PlusPriceType.Monthly,
+      );
+
+      if (monthlyPrices.length <= 1) {
+        return null;
+      }
+
+      return monthlyPrices.reduce((acc, plan) => {
+        return acc.price < plan.price ? acc : plan;
+      }).value;
+    }, [planTypes, productOptions]);
+
   const contextData = useMemo<PaymentContextData>(
     () => ({
       openCheckout,
       paddle,
       productOptions,
+      earlyAdopterPlanId,
     }),
-    [openCheckout, paddle, productOptions],
+    [earlyAdopterPlanId, openCheckout, paddle, productOptions],
   );
 
   return (
