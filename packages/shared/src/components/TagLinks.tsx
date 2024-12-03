@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import Link from './utilities/Link';
 import {
   Button,
+  ButtonColor,
   ButtonProps,
   ButtonSize,
   ButtonVariant,
@@ -12,12 +13,14 @@ import { getTagPageLink } from '../lib/links';
 interface TagLinkProps {
   tag: string;
   className?: string;
+  isSelected?: boolean;
   buttonProps?: ButtonProps<'a'>;
 }
 
 export function TagLink({
   tag,
   className,
+  isSelected = false,
   buttonProps = {},
 }: TagLinkProps): ReactElement {
   return (
@@ -25,8 +28,9 @@ export function TagLink({
       <Button
         tag="a"
         size={ButtonSize.XSmall}
-        variant={ButtonVariant.Float}
+        variant={isSelected ? ButtonVariant.Primary : ButtonVariant.Float}
         className={className}
+        {...(isSelected && { color: ButtonColor.Cabbage })}
         {...buttonProps}
       >
         #{tag}

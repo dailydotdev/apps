@@ -14,6 +14,7 @@ import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrum
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { TagTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
+import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../../next-seo';
@@ -38,6 +39,9 @@ const TagsPage = ({
   popularTags,
 }: TagsPageProps): ReactElement => {
   const { isFallback: isLoading } = useRouter();
+
+  const { feedSettings } = useFeedSettings();
+  const selectedTags = feedSettings?.includeTags || [];
 
   const recentlyAddedTags = useMemo(() => {
     return tags
@@ -125,6 +129,7 @@ const TagsPage = ({
                     key={tag.value}
                     tag={tag.value}
                     className="!line-clamp-2 !h-auto"
+                    isSelected={selectedTags.includes(tag.value)}
                   />
                 ))}
               </div>
