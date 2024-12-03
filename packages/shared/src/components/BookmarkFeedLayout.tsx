@@ -122,7 +122,7 @@ export default function BookmarkFeedLayout({
         />
       )}
       {showPlusSubscription && (
-        <div className="mb-4 px-4 tablet:hidden">
+        <div className="mb-4 px-4 laptop:hidden">
           <Button
             className="w-full"
             variant={ButtonVariant.Tertiary}
