@@ -287,6 +287,8 @@ export enum TargetId {
   PlusBadge = 'plus badge',
   Onboarding = 'onboarding',
   BlockedWords = 'block words',
+  AdvancedCustomFeedSoonModal = 'advanced custom feed soon modal',
+  BookmarkFolderSoonModal = 'bookmark folder soon modal',
 }
 
 export enum NotificationChannel {
