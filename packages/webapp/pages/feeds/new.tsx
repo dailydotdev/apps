@@ -73,13 +73,13 @@ const NewFeedPage = (): ReactElement => {
   const { showPrompt } = usePrompt();
   const { FeedPageLayoutComponent } = useFeedLayout();
   const { logEvent } = useLogContext();
-  const { isEnrolledNotPlus } = usePlusSubscription();
+  const { showPlusSubscription } = usePlusSubscription();
 
   useEffect(() => {
-    if (isEnrolledNotPlus) {
+    if (showPlusSubscription) {
       router.replace(webappUrl);
     }
-  }, [isEnrolledNotPlus, router]);
+  }, [showPlusSubscription, router]);
 
   const { user } = useAuthContext();
   const { feedSettings } = useFeedSettings({ feedId: newFeedId });
@@ -180,7 +180,7 @@ const NewFeedPage = (): ReactElement => {
     });
   }, [logEvent]);
 
-  if (isEnrolledNotPlus) {
+  if (showPlusSubscription) {
     return null;
   }
 
