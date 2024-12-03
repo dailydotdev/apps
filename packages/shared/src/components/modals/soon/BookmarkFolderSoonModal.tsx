@@ -34,11 +34,18 @@ const BookmarkFolderSoonModal = ({
         variant={ButtonVariant.Primary}
       />
       <Modal.Body className="flex flex-col items-center justify-center gap-4 text-center">
-        <Image
-          className="rounded-16"
-          src={bookmarkFolderSoonImage}
-          alt="Bookmark Folder coming soon"
-        />
+        <div className="relative overflow-hidden">
+          <Image
+            className="rounded-16"
+            src={bookmarkFolderSoonImage}
+            alt="Bookmark Folder coming soon"
+          />
+          <div className="absolute -right-14 top-8 w-52 rotate-45 bg-action-plus-default px-2 py-1 text-white">
+            <Typography type={TypographyType.Callout} bold>
+              Coming soon
+            </Typography>
+          </div>
+        </div>
         <Typography
           type={TypographyType.Title1}
           bold
