@@ -184,11 +184,13 @@ function MarkdownInput(
           isUptoDate={initialContent === input}
         />
       )}
-      <CloseButton
-          size={ButtonSize.XSmall}
-          className="absolute right-1 top-1 laptop:right-3 laptop:top-3"
-          onClick={onRequestClose}
-      />
+      {onRequestClose && (
+        <CloseButton
+            size={ButtonSize.XSmall}
+            className="absolute right-1 top-1 laptop:right-3 laptop:top-3"
+            onClick={onRequestClose}
+        />
+      )}
       <ConditionalWrapper
         condition={allowPreview}
         wrapper={(children) => (
