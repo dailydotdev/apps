@@ -12,7 +12,7 @@ export const useFollowingFeed = (): UseFollowingFeed => {
   const { user } = useAuthContext();
   const { feedSettings } = useFeedSettings();
   const queryResult = useFollowingQuery({
-    id: user.id,
+    id: user?.id,
     entity: ContentPreferenceType.User,
   });
 
