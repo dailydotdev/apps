@@ -78,7 +78,7 @@ const BookmarkFolderSoonModal = ({
               onClick={() => {
                 logSubscriptionEvent({
                   event_name: LogEvent.UpgradeSubscription,
-                  target_id: TargetId.BookmarkFolderSoonModal,
+                  target_id: TargetId.BookmarkFolder,
                 });
               }}
             >

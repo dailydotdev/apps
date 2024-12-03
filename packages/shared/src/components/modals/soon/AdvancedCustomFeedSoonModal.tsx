@@ -79,7 +79,7 @@ const AdvancedCustomFeedSoonModal = ({
               onClick={() => {
                 logSubscriptionEvent({
                   event_name: LogEvent.UpgradeSubscription,
-                  target_id: TargetId.AdvancedCustomFeedSoonModal,
+                  target_id: TargetId.CustomFeed,
                 });
               }}
             >
