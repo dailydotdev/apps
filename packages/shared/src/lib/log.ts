@@ -289,6 +289,7 @@ export enum TargetId {
   BlockedWords = 'block words',
   AdvancedCustomFeedSoonModal = 'advanced custom feed soon modal',
   BookmarkFolderSoonModal = 'bookmark folder soon modal',
+  FeedSettings = 'feed settings',
 }
 
 export enum NotificationChannel {

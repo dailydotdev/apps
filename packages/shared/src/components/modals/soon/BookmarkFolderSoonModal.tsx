@@ -19,7 +19,7 @@ export type SlackIntegrationModalProps = Omit<ModalProps, 'children'>;
 const BookmarkFolderSoonModal = ({
   ...props
 }: SlackIntegrationModalProps): ReactElement => {
-  const { logSubscriptionEvent } = usePlusSubscription();
+  const { logSubscriptionEvent, isPlus } = usePlusSubscription();
 
   return (
     <Modal
@@ -57,32 +57,34 @@ const BookmarkFolderSoonModal = ({
           Organize your bookmarked posts into folders so you always know where
           to find what you need.
         </Typography>
-        <div className="flex flex-col gap-4 rounded-10 border border-border-subtlest-tertiary bg-action-plus-float p-4">
-          <Typography
-            type={TypographyType.Body}
-            color={TypographyColor.Primary}
-          >
-            Upgrade to daily.dev Plus today, get an early adopter discount and
-            be among the first to experience it as soon as it launches!
-          </Typography>
-          <Button
-            className="w-full"
-            tag="a"
-            type="button"
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Medium}
-            href="/plus"
-            icon={<DevPlusIcon className="text-action-plus-default" />}
-            onClick={() => {
-              logSubscriptionEvent({
-                event_name: LogEvent.UpgradeSubscription,
-                target_id: TargetId.BookmarkFolderSoonModal,
-              });
-            }}
-          >
-            Upgrade to Plus
-          </Button>
-        </div>
+        {!isPlus && (
+          <div className="flex flex-col items-center justify-center gap-4 rounded-10 border border-border-subtlest-tertiary bg-action-plus-float p-4">
+            <Typography
+              type={TypographyType.Body}
+              color={TypographyColor.Primary}
+            >
+              Upgrade to daily.dev Plus today, get an early adopter discount and
+              be among the first to experience it as soon as it launches!
+            </Typography>
+            <Button
+              className="w-full"
+              tag="a"
+              type="button"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Medium}
+              href="/plus"
+              icon={<DevPlusIcon className="text-action-plus-default" />}
+              onClick={() => {
+                logSubscriptionEvent({
+                  event_name: LogEvent.UpgradeSubscription,
+                  target_id: TargetId.BookmarkFolderSoonModal,
+                });
+              }}
+            >
+              Upgrade to Plus
+            </Button>
+          </div>
+        )}
       </Modal.Body>
     </Modal>
   );
