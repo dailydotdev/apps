@@ -13,6 +13,7 @@ import { Button } from '../../buttons/Button';
 import { DevPlusIcon } from '../../icons';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { bookmarkFolderSoonImage } from '../../../lib/image';
+import { webappUrl } from '../../../lib/constants';
 
 export type SlackIntegrationModalProps = Omit<ModalProps, 'children'>;
 
@@ -72,7 +73,7 @@ const BookmarkFolderSoonModal = ({
               type="button"
               variant={ButtonVariant.Primary}
               size={ButtonSize.Medium}
-              href="/plus"
+              href={`${webappUrl}plus`}
               icon={<DevPlusIcon className="text-action-plus-default" />}
               onClick={() => {
                 logSubscriptionEvent({

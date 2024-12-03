@@ -13,6 +13,7 @@ import { advancedCustomFeedSoonImage } from '../../../lib/image';
 import { DevPlusIcon } from '../../icons';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../../lib/log';
+import { webappUrl } from '../../../lib/constants';
 
 export type SlackIntegrationModalProps = Omit<ModalProps, 'children'>;
 
@@ -73,7 +74,7 @@ const AdvancedCustomFeedSoonModal = ({
               type="button"
               variant={ButtonVariant.Primary}
               size={ButtonSize.Medium}
-              href="/plus"
+              href={`${webappUrl}plus`}
               icon={<DevPlusIcon className="text-action-plus-default" />}
               onClick={() => {
                 logSubscriptionEvent({

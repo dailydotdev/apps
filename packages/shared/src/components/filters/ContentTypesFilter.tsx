@@ -19,6 +19,7 @@ import { usePlusSubscription } from '../../hooks';
 import { LogEvent, TargetId } from '../../lib/log';
 import { Switch } from '../fields/Switch';
 import { PlusUser } from '../PlusUser';
+import { webappUrl } from '../../lib/constants';
 
 export function ContentTypesFilter(): ReactElement {
   const { advancedSettings, isLoading } = useFeedSettings();
@@ -86,7 +87,7 @@ export function ContentTypesFilter(): ReactElement {
                   type="button"
                   variant={ButtonVariant.Primary}
                   size={ButtonSize.Medium}
-                  href="/plus"
+                  href={`${webappUrl}plus`}
                   icon={<DevPlusIcon className="text-action-plus-default" />}
                   onClick={() => {
                     logSubscriptionEvent({
