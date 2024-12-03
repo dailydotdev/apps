@@ -122,3 +122,4 @@ export * from './Download';
 export * from './DevPlus';
 export * from './Warning';
 export * from './Shield';
+export * from './ShieldCheck';
