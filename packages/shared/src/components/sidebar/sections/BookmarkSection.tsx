@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
-import { SidebarMenuItem } from '../common';
-import { PlusIcon } from '../../icons';
+import { ListIcon, SidebarMenuItem } from '../common';
+import { BookmarkIcon, PlusIcon } from '../../icons';
 import { Section } from '../Section';
 import { webappUrl } from '../../../lib/constants';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
@@ -15,6 +15,15 @@ export const BookmarkSection = ({
   const { openModal } = useLazyModal();
 
   const menuItems: SidebarMenuItem[] = [
+    {
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <BookmarkIcon secondary={active} />} />
+      ),
+      title: 'Bookmarks',
+      path: `${webappUrl}bookmarks`,
+      isForcedLink: true,
+      requiresLogin: true,
+    },
     {
       icon: () => (
         <div className="rounded-6 bg-background-subtle">

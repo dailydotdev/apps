@@ -1,7 +1,7 @@
 import React, { ReactElement, useCallback, useMemo } from 'react';
 import { Section } from '../Section';
 import { ListIcon, SidebarMenuItem } from '../common';
-import { BookmarkIcon, DevPlusIcon, EyeIcon, HotIcon } from '../../icons';
+import { DevPlusIcon, EyeIcon, HotIcon } from '../../icons';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { OtherFeedPage } from '../../../lib/query';
@@ -57,15 +57,6 @@ export const MainSection = ({
         title: 'Explore',
         path: '/posts',
         action: () => onNavTabClick?.(OtherFeedPage.Explore),
-      },
-      {
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <BookmarkIcon secondary={active} />} />
-        ),
-        title: 'Bookmarks',
-        path: `${webappUrl}bookmarks`,
-        isForcedLink: true,
-        requiresLogin: true,
       },
       {
         icon: (active: boolean) => (
