@@ -9,7 +9,7 @@ export type FooterLinksProps = {
 
 export const FooterLinks = ({ className }: FooterLinksProps): ReactElement => {
   return (
-    <footer>
+    <footer className="z-1">
       <nav>
         <ul
           className={classNames(

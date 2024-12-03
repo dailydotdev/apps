@@ -18,9 +18,12 @@ import SearchEmptyScreen from './SearchEmptyScreen';
 import Feed, { FeedProps } from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import { Button, ButtonVariant } from './buttons/Button';
-import { ShareIcon } from './icons';
+import { PlusIcon, ShareIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
-import { useFeedLayout } from '../hooks';
+import { useFeedLayout, usePlusSubscription } from '../hooks';
+import { useLazyModal } from '../hooks/useLazyModal';
+import { LazyModal } from './modals/common/types';
+import { IconSize } from './Icon';
 
 export type BookmarkFeedLayoutProps = {
   searchQuery?: string;
@@ -46,6 +49,8 @@ export default function BookmarkFeedLayout({
     FeedPageLayoutComponent,
     shouldUseListMode,
   } = useFeedLayout();
+  const { openModal } = useLazyModal();
+  const { showPlusSubscription } = usePlusSubscription();
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showEmptyScreen, setShowEmptyScreen] = useState(false);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
@@ -115,6 +120,25 @@ export default function BookmarkFeedLayout({
           isOpen={showSharedBookmarks}
           onRequestClose={() => setShowSharedBookmarks(false)}
         />
+      )}
+      {showPlusSubscription && (
+        <div className="mb-4 px-4 laptop:hidden">
+          <Button
+            className="w-full"
+            variant={ButtonVariant.Tertiary}
+            onClick={() => {
+              openModal({
+                type: LazyModal.BookmarkFolderSoon,
+                props: {},
+              });
+            }}
+          >
+            <div className="flex items-center justify-center rounded-6 bg-background-subtle">
+              <PlusIcon size={IconSize.Small} />
+            </div>
+            <div className="w-full pl-4 text-left">New folder</div>
+          </Button>
+        </div>
       )}
       {tokenRefreshed && <Feed {...feedProps} />}
     </FeedPageLayoutComponent>

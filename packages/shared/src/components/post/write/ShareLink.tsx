@@ -32,7 +32,9 @@ export function ShareLink({
 }: ShareLinkProps): ReactElement {
   const fetchedPost = post || moderated;
   const { displayToast } = useToastNotification();
-  const [commentary, setCommentary] = useState(fetchedPost?.title ?? '');
+  const [commentary, setCommentary] = useState(
+    fetchedPost?.sharedPost ? fetchedPost?.title : fetchedPost?.content,
+  );
   const { squads, user } = useAuthContext();
   const {
     getLinkPreview,
@@ -93,6 +95,7 @@ export function ShareLink({
           title: moderated.sharedPost ? commentary : preview.title,
           content: moderated.sharedPost ? null : commentary,
           imageUrl: moderated.sharedPost ? null : preview.image,
+          externalLink: moderated.sharedPost ? null : preview.url,
         });
       }
 
