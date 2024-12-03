@@ -123,3 +123,4 @@ export * from './DevPlus';
 export * from './Warning';
 export * from './Shield';
 export * from './ShieldCheck';
+export * from './ShieldWarning';
