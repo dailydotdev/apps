@@ -124,3 +124,4 @@ export * from './Warning';
 export * from './Shield';
 export * from './ShieldCheck';
 export * from './ShieldWarning';
+export * from './ShieldPlus';
