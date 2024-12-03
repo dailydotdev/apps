@@ -70,7 +70,7 @@ export function ContentTypesFilter(): ReactElement {
               Optimize title quality
             </Switch>
             {!isPlus && (
-              <div className="flex items-center justify-center gap-4 rounded-10 border border-border-subtlest-tertiary bg-action-plus-float p-4">
+              <div className="flex flex-col items-center justify-center gap-4 rounded-10 border border-border-subtlest-tertiary bg-action-plus-float p-4 text-center laptop:flex-row laptop:text-left">
                 <Typography
                   className="flex flex-1"
                   type={TypographyType.Body}
@@ -81,7 +81,7 @@ export function ContentTypesFilter(): ReactElement {
                   launches!
                 </Typography>
                 <Button
-                  className="flex"
+                  className="flex w-full laptop:w-auto"
                   tag="a"
                   type="button"
                   variant={ButtonVariant.Primary}
