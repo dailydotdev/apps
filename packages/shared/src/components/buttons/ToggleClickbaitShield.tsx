@@ -65,16 +65,11 @@ export const ToggleClickbaitShield = (): ReactElement => {
           )
         }
         onClick={() => {
-          updateFlag(
-            SidebarSettingsFlags.ClickbaitShieldEnabled,
-            !flags.clickbaitShieldEnabled,
-          );
-
+          const newSatate = !flags?.clickbaitShieldEnabled;
+          updateFlag(SidebarSettingsFlags.ClickbaitShieldEnabled, newSatate);
           logEvent({
             event_name: LogEvent.ToggleClickbaitShield,
-            target_id: !flags.clickbaitShieldEnabled
-              ? TargetId.On
-              : TargetId.Off,
+            target_id: newSatate ? TargetId.On : TargetId.Off,
           });
         }}
       />
