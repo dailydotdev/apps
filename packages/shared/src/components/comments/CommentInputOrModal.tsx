@@ -11,9 +11,8 @@ import { useMutateComment } from '../../hooks/post/useMutateComment';
 
 interface CommentInputOrModalProps
   extends Partial<LazyModalCommonProps>,
-    Omit<CommentMarkdownInputProps, 'className' | 'onRequestClose'> {
+    Omit<CommentMarkdownInputProps, 'className'> {
   onClose?: () => void;
-  onRequestClose?: () => void;
   className?: {
     input?: CommentMarkdownInputProps['className'];
     modal?: string;
@@ -24,7 +23,6 @@ interface CommentInputOrModalProps
 export default function CommentInputOrModal({
   onClose,
   className,
-  onRequestClose,
   ...props
 }: CommentInputOrModalProps): ReactElement {
   const isModal = !useViewSize(ViewSize.Tablet);
@@ -44,7 +42,7 @@ export default function CommentInputOrModal({
     <WriteCommentContext.Provider
       value={{ mutateComment: mutateCommentResult }}
     >
-      <CommentMarkdownInput {...props} className={className.input} onRequestClose={onRequestClose}/>
+      <CommentMarkdownInput {...props} className={className.input} onRequestClose={onClose}/>
     </WriteCommentContext.Provider>
   );
 }

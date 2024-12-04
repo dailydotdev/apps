@@ -175,7 +175,6 @@ export default function MainComment({
             onCommented(...params);
           }}
           onClose={() => onEdit(null)}
-          onRequestClose={() => onEdit(null)}
           className={{ input: className?.commentBox }}
         />
       )}
@@ -188,7 +187,6 @@ export default function MainComment({
             onCommented(...params);
           }}
           onClose={() => onReplyTo(null)}
-          onRequestClose={() => onReplyTo(null)} 
           className={{ input: className?.commentBox }}
           replyToCommentId={commentId}
         />
