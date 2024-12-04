@@ -3,6 +3,8 @@ import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { Post } from '../../graphql/posts';
 import defaultFeedPage from '../../../__tests__/fixture/feed';
 import SimilarPosts from './SimilarPosts';
+import AuthContext from '../../contexts/AuthContext';
+import user from '../../../__tests__/fixture/loggedUser';
 
 const onBookmark = jest.fn();
 
@@ -21,11 +23,25 @@ const renderComponent = (
   isLoading = false,
 ): RenderResult => {
   return render(
-    <SimilarPosts
-      posts={posts}
-      isLoading={isLoading}
-      onBookmark={onBookmark}
-    />,
+    <AuthContext.Provider
+      value={{
+        user,
+        closeLogin: jest.fn(),
+        showLogin: jest.fn(),
+        isLoggedIn: true,
+        shouldShowLogin: false,
+        logout: jest.fn(),
+        updateUser: jest.fn(),
+        tokenRefreshed: true,
+        getRedirectUri: jest.fn(),
+      }}
+    >
+      <SimilarPosts
+        posts={posts}
+        isLoading={isLoading}
+        onBookmark={onBookmark}
+      />
+    </AuthContext.Provider>,
   );
 };
 
