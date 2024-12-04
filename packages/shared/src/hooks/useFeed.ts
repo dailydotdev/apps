@@ -195,9 +195,9 @@ export default function useFeed<T>(
       }
 
       const adStart =
-        adTemplate.adStart ??
+        adTemplate?.adStart ??
         featureFeedAdTemplate.defaultValue.default.adStart;
-      const adRepeat = adTemplate.adRepeat ?? pageSize + 1;
+      const adRepeat = adTemplate?.adRepeat ?? pageSize + 1;
 
       const adIndex = index - adStart; // 0-based index from adStart
 
@@ -244,8 +244,8 @@ export default function useFeed<T>(
       fetchNextAd,
       isAdsQueryEnabled,
       isLoading,
-      adTemplate.adStart,
-      adTemplate.adRepeat,
+      adTemplate?.adStart,
+      adTemplate?.adRepeat,
       adsUpdatedAt,
       pageSize,
     ],
