@@ -32,7 +32,7 @@ const feature = {
   onboardingChecklist: new Feature('onboarding_checklist', true),
   showCodeSnippets: new Feature('show_code_snippets', false),
   postBannerExtensionPrompt: new Feature('post_banner_extension_prompt', false),
-  plusSubscription: new Feature('plus_subscription', false),
+  plusSubscription: new Feature('plus_subscription', true),
   pricingIds: new Feature('pricing_ids', {
     pri_01jbsccbdbcwyhdy8hy3c2etyn: PlusPriceType.Monthly,
     pri_01jbscda57910yvwjtyapnrrzc: PlusPriceType.Yearly,

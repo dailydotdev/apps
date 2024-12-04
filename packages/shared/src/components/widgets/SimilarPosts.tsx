@@ -54,58 +54,66 @@ const DefaultListItem = ({
   post,
   onLinkClick,
   onBookmark,
-}: PostProps): ReactElement => (
-  <article
-    className={classNames(
-      'group relative flex items-start py-2 pl-4 pr-2 hover:bg-surface-hover',
-      styles.card,
-    )}
-  >
-    <CardLink
-      href={post.commentsPermalink}
-      title={post.title}
-      {...combinedClicks(() => onLinkClick(post))}
-    />
-    <LazyImage
-      imgSrc={post.source.image}
-      imgAlt={post.source.name}
-      className={imageClassName}
-    />
-    <div className={textContainerClassName}>
-      <h5
-        className={classNames(
-          'multi-truncate mb-0.5 text-ellipsis break-words text-text-primary typo-callout',
-          styles.title,
-        )}
-      >
-        {post.title}
-      </h5>
-      {post.trending ? (
-        <div className="flex items-center text-text-tertiary typo-footnote">
-          <HotLabel />
-          <div className="ml-2">{post.trending} devs read it last hour</div>
-        </div>
-      ) : (
-        <PostEngagementCounts
-          upvotes={post.numUpvotes}
-          comments={post.numComments}
-          className="text-text-tertiary"
-        />
+}: PostProps): ReactElement => {
+  const isPlus = useFeature(feature.plusSubscription);
+
+  return (
+    <article
+      className={classNames(
+        'group relative flex items-start py-2 pl-4 pr-2 hover:bg-surface-hover',
+        styles.card,
       )}
-    </div>
-    <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
-      <Button
-        variant={ButtonVariant.Tertiary}
-        color={ButtonColor.Bun}
-        className="mt-1 group-hover:visible mouse:invisible"
-        pressed={post.bookmarked}
-        size={ButtonSize.Small}
-        icon={<BookmarkIcon secondary={post.bookmarked} />}
-        onClick={() => onBookmark(post)}
+    >
+      <CardLink
+        href={post.commentsPermalink}
+        title={post.title}
+        {...combinedClicks(() => onLinkClick(post))}
       />
-    </SimpleTooltip>
-  </article>
-);
+      <LazyImage
+        imgSrc={post.source.image}
+        imgAlt={post.source.name}
+        className={imageClassName}
+      />
+      <div className={textContainerClassName}>
+        <h5
+          className={classNames(
+            'multi-truncate mb-0.5 text-ellipsis break-words text-text-primary typo-callout',
+            styles.title,
+          )}
+        >
+          {post.title}
+        </h5>
+        {post.trending ? (
+          <div className="flex items-center text-text-tertiary typo-footnote">
+            <HotLabel />
+            <div className="ml-2">{post.trending} devs read it last hour</div>
+          </div>
+        ) : (
+          <PostEngagementCounts
+            upvotes={post.numUpvotes}
+            comments={post.numComments}
+            className="text-text-tertiary"
+          />
+        )}
+      </div>
+      {!isPlus && (
+        <SimpleTooltip
+          content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
+        >
+          <Button
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.Bun}
+            className="mt-1 group-hover:visible mouse:invisible"
+            pressed={post.bookmarked}
+            size={ButtonSize.Small}
+            icon={<BookmarkIcon secondary={post.bookmarked} />}
+            onClick={() => onBookmark(post)}
+          />
+        </SimpleTooltip>
+      )}
+    </article>
+  );
+};
 
 const TextPlaceholder = classed(ElementPlaceholder, 'h-3 rounded-12 my-0.5');
 
@@ -130,7 +138,6 @@ export default function SimilarPosts({
   moreButtonProps,
   ListItem = DefaultListItem,
 }: SimilarPostsProps): ReactElement {
-  const isPlus = useFeature(feature.plusSubscription);
   const { logEvent } = useContext(LogContext);
   const moreButtonHref =
     moreButtonProps?.href || process.env.NEXT_PUBLIC_WEBAPP_URL;
@@ -165,7 +172,7 @@ export default function SimilarPosts({
             <ListItem
               key={post.id}
               post={post}
-              onBookmark={isPlus ? null : onBookmark}
+              onBookmark={onBookmark}
               onLinkClick={() => onLinkClick(post)}
             />
           ))}

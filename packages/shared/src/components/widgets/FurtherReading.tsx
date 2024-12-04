@@ -20,8 +20,6 @@ import { isSourcePublicSquad } from '../../graphql/squads';
 import { SquadPostListItem } from '../squads/SquadPostListItem';
 import { disabledRefetch } from '../../lib/func';
 import { gqlClient } from '../../graphql/common';
-import { feature } from '../../lib/featureManagement';
-import { useFeature } from '../GrowthBookProvider';
 
 export type FurtherReadingProps = {
   currentPost: Post;
@@ -64,7 +62,6 @@ export default function FurtherReading({
   currentPost,
   className,
 }: FurtherReadingProps): ReactElement {
-  const isPlus = useFeature(feature.plusSubscription);
   const isPublicSquad = isSourcePublicSquad(currentPost.source);
   const postId = currentPost.id;
   const { tags } = currentPost;
@@ -168,7 +165,7 @@ export default function FurtherReading({
         <SimilarPosts
           posts={similarPosts}
           isLoading={isLoading}
-          onBookmark={isPlus ? null : onToggleBookmark}
+          onBookmark={onToggleBookmark}
           {...(isPublicSquad && publicSquadProps)}
         />
       )}
