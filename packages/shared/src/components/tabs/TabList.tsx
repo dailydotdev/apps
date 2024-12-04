@@ -24,7 +24,10 @@ interface DimensionProps {
 export interface TabListProps<T extends string = string> {
   items: Pick<TabProps<T>, 'label' | 'url'>[];
   active: T;
-  onClick?: (label: T) => unknown;
+  onClick?: (
+    label: T,
+    event: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>,
+  ) => unknown;
   className?: ClassName;
   autoScrollActive?: boolean;
   renderTab?: RenderTab;
@@ -144,7 +147,7 @@ function TabList<T extends string = string>({
               if (isAnchor) {
                 event.preventDefault();
               }
-              onClick(label);
+              onClick(label, event);
             }}
             {...(isAnchor
               ? {
