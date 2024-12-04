@@ -21,6 +21,8 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import { PostEngagementCounts } from '../cards/SimilarPosts';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
@@ -128,6 +130,7 @@ export default function SimilarPosts({
   moreButtonProps,
   ListItem = DefaultListItem,
 }: SimilarPostsProps): ReactElement {
+  const isPlus = useFeature(feature.plusSubscription);
   const { logEvent } = useContext(LogContext);
   const moreButtonHref =
     moreButtonProps?.href || process.env.NEXT_PUBLIC_WEBAPP_URL;
@@ -162,7 +165,7 @@ export default function SimilarPosts({
             <ListItem
               key={post.id}
               post={post}
-              onBookmark={onBookmark}
+              onBookmark={isPlus ? null : onBookmark}
               onLinkClick={() => onLinkClick(post)}
             />
           ))}
