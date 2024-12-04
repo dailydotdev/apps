@@ -8,7 +8,7 @@ jobs:
       - checkout
       - run:
           name: Install pnpm
-          command: npm i --prefix=$HOME/.local -g pnpm
+          command: npm i --prefix=$HOME/.local -g pnpm@9.14.4
       - restore_cache:
           keys:
             - deps-v7-{{ checksum "pnpm-lock.yaml" }}
