@@ -15,6 +15,7 @@ export type SettingsFlags = {
   sidebarOtherExpanded: boolean;
   sidebarResourcesExpanded: boolean;
   sidebarBookmarksExpanded: boolean;
+  clickbaitShieldEnabled: boolean;
 };
 
 export enum SidebarSettingsFlags {
@@ -23,6 +24,7 @@ export enum SidebarSettingsFlags {
   OtherExpanded = 'sidebarOtherExpanded',
   ResourcesExpanded = 'sidebarResourcesExpanded',
   BookmarksExpanded = 'sidebarBookmarksExpanded',
+  ClickbaitShieldEnabled = 'clickbaitShieldEnabled',
 }
 
 export type RemoteSettings = {
