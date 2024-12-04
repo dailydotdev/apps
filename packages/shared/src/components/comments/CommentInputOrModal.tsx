@@ -42,7 +42,9 @@ export default function CommentInputOrModal({
     <WriteCommentContext.Provider
       value={{ mutateComment: mutateCommentResult }}
     >
-      <CommentMarkdownInput {...props} className={className.input} onRequestClose={onClose}/>
+      <CommentMarkdownInput {...props} 
+      className={className.input} 
+      onRequestClose={onClose}/>
     </WriteCommentContext.Provider>
   );
 }
