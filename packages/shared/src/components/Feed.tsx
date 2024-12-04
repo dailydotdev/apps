@@ -35,8 +35,6 @@ import { ActiveFeedContext } from '../contexts';
 import { useBoot, useFeedLayout, useFeedVotePost } from '../hooks';
 import { AllFeedPages, OtherFeedPage, RequestKey } from '../lib/query';
 
-import { useFeature } from './GrowthBookProvider';
-import { featureFeedAdTemplate } from '../lib/featureManagement';
 import { MarketingCtaVariant } from './marketingCta/common';
 import { isNullOrUndefined } from '../lib/func';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
@@ -144,7 +142,6 @@ export default function Feed<T>({
     feedName === SharedFeedPage.MyFeed &&
     (routerQuery?.[acquisitionKey] as string)?.toLocaleLowerCase() === 'true' &&
     !user?.acquisitionChannel;
-  const feedAdTemplate = useFeature(featureFeedAdTemplate);
   const { getMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Card);
   const showMarketingCta = !!marketingCta;
@@ -168,7 +165,7 @@ export default function Feed<T>({
       ? {
           adStart: 2,
         }
-      : feedAdTemplate,
+      : currentSettings.adTemplate,
     numCards,
     {
       onEmptyFeed,
