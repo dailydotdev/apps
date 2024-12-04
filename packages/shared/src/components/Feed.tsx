@@ -163,7 +163,8 @@ export default function Feed<T>({
     pageSize ?? currentSettings.pageSize,
     isSquadFeed || shouldUseListFeedLayout
       ? {
-          adStart: 2,
+          ...currentSettings.adTemplate,
+          adStart: 2, // always make adStart 2 for squads due to welcome and pinned posts
         }
       : currentSettings.adTemplate,
     numCards,
