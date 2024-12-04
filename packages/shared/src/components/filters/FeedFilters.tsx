@@ -25,7 +25,7 @@ enum FilterMenuTitle {
   Tags = 'Manage tags',
   ManageCategories = 'Manage categories',
   ContentTypes = 'Content & Language',
-  Blocked = 'Blocked items',
+  Blocked = 'Blocking',
   Following = 'Following',
 }
 
@@ -135,7 +135,10 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
           <Modal.Body view={FilterMenuTitle.ManageCategories}>
             <AdvancedSettingsFilter />
           </Modal.Body>
-          <Modal.Body view={FilterMenuTitle.ContentTypes}>
+          <Modal.Body
+            view={FilterMenuTitle.ContentTypes}
+            className="relative overflow-x-hidden overscroll-none"
+          >
             <ContentTypesFilter />
           </Modal.Body>
           <Modal.Body view={FilterMenuTitle.Blocked}>

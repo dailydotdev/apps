@@ -26,6 +26,8 @@ import { FeedItemType } from '../components/cards/common/common';
 import { GARMR_ERROR, gqlClient } from '../graphql/common';
 import { usePlusSubscription } from './usePlusSubscription';
 import { fetchAd } from '../lib/ads';
+import { LogEvent } from '../lib/log';
+import { useLogContext } from '../contexts/LogContext';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -90,6 +92,7 @@ type UseFeedSettingParams = {
   disableAds?: boolean;
   showAcquisitionForm?: boolean;
   marketingCta?: MarketingCta;
+  feedName?: string;
 };
 
 export interface UseFeedOptionalParams<T> {
@@ -110,6 +113,7 @@ export default function useFeed<T>(
   placeholdersPerPage: number,
   params: UseFeedOptionalParams<T> = {},
 ): FeedReturnType {
+  const { logEvent } = useLogContext();
   const { query, variables, options = {}, settings, onEmptyFeed } = params;
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { isPlus } = usePlusSubscription();
@@ -126,12 +130,21 @@ export default function useFeed<T>(
         loggedIn: !!user,
       });
 
-      if (
+      const isEmpty =
         !feedQuery?.data?.pages[0]?.page.edges.length &&
-        !res?.page?.edges?.length &&
-        onEmptyFeed
-      ) {
-        onEmptyFeed();
+        !res?.page?.edges?.length;
+
+      if (isEmpty) {
+        logEvent({
+          event_name: LogEvent.FeedEmpty,
+          target_id: params?.settings?.feedName,
+          extra: params?.variables
+            ? JSON.stringify({ ...params?.variables })
+            : undefined,
+        });
+        if (onEmptyFeed) {
+          onEmptyFeed();
+        }
       }
 
       return res;

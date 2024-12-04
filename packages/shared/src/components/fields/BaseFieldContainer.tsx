@@ -6,6 +6,7 @@ import React, {
   MutableRefObject,
 } from 'react';
 import { BaseField, FieldType, TextInputProps } from './common';
+import { IconProps } from '../Icon';
 
 interface FieldStateProps {
   readOnly?: boolean;
@@ -92,6 +93,7 @@ interface BaseFieldContainerProps extends FieldPlaceholderProps {
   inputId: string;
   fieldType?: FieldType;
   hint?: string;
+  hintIcon?: ReactElement<IconProps>;
   saveHintSpace?: boolean;
   focusInput: () => void;
   children?: ReactNode;
@@ -154,6 +156,7 @@ function BaseFieldContainer(
     children,
     invalid,
     hint,
+    hintIcon,
     saveHintSpace,
     focusInput,
   }: BaseFieldContainerProps,
@@ -197,12 +200,13 @@ function BaseFieldContainer(
         <div
           role={invalid ? 'alert' : undefined}
           className={classNames(
-            'mt-1 px-2 typo-caption1',
+            'mt-1 flex items-center gap-1 px-2 typo-caption1',
             saveHintSpace && 'h-4',
             invalid ? 'text-status-error' : 'text-text-quaternary',
             className.hint,
           )}
         >
+          {hintIcon || undefined}
           {hint}
         </div>
       )}
