@@ -24,6 +24,7 @@ interface CommentInputOrModalProps
 export default function CommentInputOrModal({
   onClose,
   className,
+  onRequestClose,
   ...props
 }: CommentInputOrModalProps): ReactElement {
   const isModal = !useViewSize(ViewSize.Tablet);
@@ -43,7 +44,7 @@ export default function CommentInputOrModal({
     <WriteCommentContext.Provider
       value={{ mutateComment: mutateCommentResult }}
     >
-      <CommentMarkdownInput {...props} className={className.input} onRequestClose={onClose}/>
+      <CommentMarkdownInput {...props} className={className.input} onRequestClose={onRequestClose}/>
     </WriteCommentContext.Provider>
   );
 }
