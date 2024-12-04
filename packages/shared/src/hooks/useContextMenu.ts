@@ -2,7 +2,7 @@ import { MouseEventHandler, useCallback, useMemo } from 'react';
 import { useContextMenu as useContexifyContextMenu } from '@dailydotdev/react-contexify';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { generateQueryKey, RequestKey } from '../lib/query';
-import { useViewSize, ViewSize } from '.';
+import { useViewSize, ViewSize } from './useViewSize';
 
 interface UseContextMenuProps {
   id: string;
