@@ -272,6 +272,12 @@ export const cloudinaryAuthBannerBackground1440w =
 export const cloudinaryAndroidApp =
   'https://daily-now-res.cloudinary.com/image/upload/s--IEq-BTWL--/f_auto/v1733066824/dailydev_pwa_peqr8o';
 
+export const advancedCustomFeedSoonImage =
+  'https://daily-now-res.cloudinary.com/image/upload/s--1ITlYroY--/f_auto/v1733239487/Advanced_custom_feeds_mfimpv';
+
+export const bookmarkFolderSoonImage =
+  'https://daily-now-res.cloudinary.com/image/upload/s--_jM3zDSE--/f_auto/v1733239852/daily_dev_bookmarks_folders_fsughm';
+
 export const smallPostImage = (url: string): string => {
   if (!url) {
     return cloudinaryPostImageCoverPlaceholder;
