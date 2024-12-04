@@ -1,5 +1,5 @@
 import React, { type ReactElement } from 'react';
-import { Button, ButtonSize, ButtonVariant } from './Button';
+import { Button, ButtonSize, ButtonVariant, type ButtonProps } from './Button';
 import { ShieldCheckIcon, ShieldIcon, ShieldPlusIcon } from '../icons';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { usePlusSubscription } from '../../hooks';
@@ -17,6 +17,12 @@ export const ToggleClickbaitShield = (): ReactElement => {
   const { logEvent } = useLogContext();
   const { flags, updateFlag } = useSettingsContext();
 
+  const commonIconProps: ButtonProps<'button'> = {
+    size: ButtonSize.Medium,
+    variant: ButtonVariant.Float,
+    iconSecondaryOnHover: true,
+  };
+
   if (!isPlus) {
     return (
       <SimpleTooltip
@@ -27,10 +33,8 @@ export const ToggleClickbaitShield = (): ReactElement => {
         }}
       >
         <Button
-          size={ButtonSize.Medium}
-          variant={ButtonVariant.Float}
+          {...commonIconProps}
           icon={<ShieldPlusIcon />}
-          iconSecondaryOnHover
           onClick={() => {
             openModal({
               type: LazyModal.FeedFilters,
@@ -52,8 +56,7 @@ export const ToggleClickbaitShield = (): ReactElement => {
       }`}
     >
       <Button
-        size={ButtonSize.Medium}
-        variant={ButtonVariant.Float}
+        {...commonIconProps}
         icon={
           flags.clickbaitShieldEnabled ? (
             <ShieldCheckIcon className="text-status-success" />
@@ -61,7 +64,6 @@ export const ToggleClickbaitShield = (): ReactElement => {
             <ShieldIcon />
           )
         }
-        iconSecondaryOnHover
         onClick={() => {
           updateFlag(
             SidebarSettingsFlags.ClickbaitShieldEnabled,
