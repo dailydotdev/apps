@@ -9,7 +9,7 @@ import { LogEvent, TargetId } from '../../lib/log';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { SimpleTooltip } from '../tooltips';
 import { LazyModal } from '../modals/common/types';
-import { FilterMenuTitle } from '../filters/FeedFilters';
+import { FilterMenuTitle } from '../filters/helpers';
 
 export const ToggleClickbaitShield = (): ReactElement => {
   const { openModal } = useLazyModal();
@@ -30,14 +30,14 @@ export const ToggleClickbaitShield = (): ReactElement => {
           size={ButtonSize.Medium}
           variant={ButtonVariant.Float}
           icon={<ShieldPlusIcon />}
-          onClick={() =>
+          onClick={() => {
             openModal({
               type: LazyModal.FeedFilters,
               props: {
                 defaultView: FilterMenuTitle.ContentTypes,
               },
-            })
-          }
+            });
+          }}
         />
       </SimpleTooltip>
     );

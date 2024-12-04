@@ -19,15 +19,7 @@ import { Source } from '../../graphql/sources';
 import { webappUrl } from '../../lib/constants';
 import { ViewSize, useFeeds, useViewSize } from '../../hooks';
 import { FollowingFilter } from './FollowingFilter';
-
-export enum FilterMenuTitle {
-  MyFeed = 'My feed',
-  Tags = 'Manage tags',
-  ManageCategories = 'Manage categories',
-  ContentTypes = 'Content & Language',
-  Blocked = 'Blocking',
-  Following = 'Following',
-}
+import { FilterMenuTitle } from './helpers';
 
 type FeedFiltersProps = ModalProps;
 
