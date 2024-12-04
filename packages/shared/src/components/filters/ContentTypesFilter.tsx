@@ -91,7 +91,7 @@ export function ContentTypesFilter(): ReactElement {
                   onClick={() => {
                     logSubscriptionEvent({
                       event_name: LogEvent.UpgradeSubscription,
-                      target_id: TargetId.FeedSettings,
+                      target_id: TargetId.ClickbaitShield,
                     });
                   }}
                 >
