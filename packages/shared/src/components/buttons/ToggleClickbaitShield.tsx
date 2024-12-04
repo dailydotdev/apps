@@ -30,6 +30,7 @@ export const ToggleClickbaitShield = (): ReactElement => {
           size={ButtonSize.Medium}
           variant={ButtonVariant.Float}
           icon={<ShieldPlusIcon />}
+          iconSecondaryOnHover
           onClick={() => {
             openModal({
               type: LazyModal.FeedFilters,
@@ -60,6 +61,7 @@ export const ToggleClickbaitShield = (): ReactElement => {
             <ShieldIcon />
           )
         }
+        iconSecondaryOnHover
         onClick={() => {
           updateFlag(
             SidebarSettingsFlags.ClickbaitShieldEnabled,

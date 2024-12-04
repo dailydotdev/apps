@@ -196,9 +196,13 @@ export const useGetIconWithSize = (
   size: ButtonSize,
   iconOnly: boolean,
   iconPosition: ButtonIconPosition,
-): ((icon: React.ReactElement<IconProps>) => React.ReactElement<IconProps>) => {
-  return (icon: React.ReactElement<IconProps>) =>
+): ((
+  icon: React.ReactElement<IconProps>,
+  iconSecondaryOnHover?: boolean,
+) => React.ReactElement<IconProps>) => {
+  return (icon: React.ReactElement<IconProps>, iconSecondaryOnHover = false) =>
     React.cloneElement(icon, {
+      secondary: iconSecondaryOnHover,
       size: icon.props?.size ?? buttonSizeToIconSize[size],
       className: classNames(
         icon.props.className,
