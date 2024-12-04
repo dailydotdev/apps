@@ -16,8 +16,7 @@ import SquadPostAuthor from '../post/SquadPostAuthor';
 import { CardLink } from '../cards/common/Card';
 import { combinedClicks } from '../../lib/click';
 import { ProfileImageSize } from '../ProfilePicture';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
+import { usePlusSubscription } from '../../hooks';
 
 type PostProps = {
   post: Post;
@@ -30,7 +29,7 @@ export const SquadPostListItem = ({
   onLinkClick,
   onBookmark,
 }: PostProps): ReactElement => {
-  const isPlus = useFeature(feature.plusSubscription);
+  const { showPlusSubscription } = usePlusSubscription();
 
   return (
     <article
@@ -61,7 +60,7 @@ export const SquadPostListItem = ({
           {post.title ?? post.sharedPost.title}
         </p>
       </div>
-      {!isPlus && (
+      {!showPlusSubscription && (
         <SimpleTooltip
           content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
         >

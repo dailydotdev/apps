@@ -21,8 +21,7 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import { PostEngagementCounts } from '../cards/SimilarPosts';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
+import { usePlusSubscription } from '../../hooks';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
@@ -55,7 +54,7 @@ const DefaultListItem = ({
   onLinkClick,
   onBookmark,
 }: PostProps): ReactElement => {
-  const isPlus = useFeature(feature.plusSubscription);
+  const { showPlusSubscription } = usePlusSubscription();
 
   return (
     <article
@@ -96,7 +95,7 @@ const DefaultListItem = ({
           />
         )}
       </div>
-      {!isPlus && (
+      {!showPlusSubscription && (
         <SimpleTooltip
           content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
         >
