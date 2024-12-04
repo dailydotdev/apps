@@ -247,7 +247,7 @@ export const FOLLOWING_FEED_QUERY = gql`
     $loggedIn: Boolean! = false
     $first: Int
     $after: String
-    $supportedTypes: [String!]
+    ${SUPPORTED_TYPES}
   ) {
     page: followingFeed(
       first: $first
