@@ -20,6 +20,8 @@ import { LogEvent, TargetId } from '../../lib/log';
 import { Switch } from '../fields/Switch';
 import { PlusUser } from '../PlusUser';
 import { webappUrl } from '../../lib/constants';
+import { useSettingsContext } from '../../contexts/SettingsContext';
+import { SidebarSettingsFlags } from '../../graphql/settings';
 
 export function ContentTypesFilter(): ReactElement {
   const { advancedSettings, isLoading } = useFeedSettings();
@@ -27,6 +29,7 @@ export function ContentTypesFilter(): ReactElement {
   const { user } = useAuthContext();
   const { isPlus, showPlusSubscription, logSubscriptionEvent } =
     usePlusSubscription();
+  const { flags, updateFlag } = useSettingsContext();
 
   const videoSetting = getVideoSetting(advancedSettings);
 
@@ -65,7 +68,14 @@ export function ContentTypesFilter(): ReactElement {
               inputId="clickbait-shield-switch"
               name="clickbait_shield"
               compact={false}
-              disabled
+              disabled={!isPlus}
+              checked={isPlus ? flags?.clickbaitShieldEnabled : false}
+              onClick={() =>
+                updateFlag(
+                  SidebarSettingsFlags.ClickbaitShieldEnabled,
+                  !flags?.clickbaitShieldEnabled,
+                )
+              }
             >
               Optimize title quality
             </Switch>
