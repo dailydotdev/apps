@@ -99,11 +99,6 @@ export function ContentTypesFilter(): ReactElement {
                 </Button>
               </div>
             )}
-            <div className="absolute -right-14 top-8 w-52 rotate-45 bg-action-plus-default px-2 py-1 text-center text-white">
-              <Typography type={TypographyType.Callout} bold>
-                Coming soon
-              </Typography>
-            </div>
           </section>
           <Divider className="bg-border-subtlest-tertiary" />
         </>
