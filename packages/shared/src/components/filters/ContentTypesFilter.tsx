@@ -22,8 +22,10 @@ import { PlusUser } from '../PlusUser';
 import { webappUrl } from '../../lib/constants';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { SidebarSettingsFlags } from '../../graphql/settings';
+import { useLogContext } from '../../contexts/LogContext';
 
 export function ContentTypesFilter(): ReactElement {
+  const { logEvent } = useLogContext();
   const { advancedSettings, isLoading } = useFeedSettings();
   const { selectedSettings, onToggleSettings } = useAdvancedSettings();
   const { user } = useAuthContext();
@@ -70,12 +72,17 @@ export function ContentTypesFilter(): ReactElement {
               compact={false}
               disabled={!isPlus}
               checked={isPlus ? flags?.clickbaitShieldEnabled : false}
-              onClick={() =>
+              onClick={() => {
+                const newSatate = !flags?.clickbaitShieldEnabled;
                 updateFlag(
                   SidebarSettingsFlags.ClickbaitShieldEnabled,
-                  !flags?.clickbaitShieldEnabled,
-                )
-              }
+                  newSatate,
+                );
+                logEvent({
+                  event_name: LogEvent.ToggleClickbaitShield,
+                  target_id: newSatate ? TargetId.On : TargetId.Off,
+                });
+              }}
             >
               Optimize title quality
             </Switch>
