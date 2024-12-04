@@ -130,7 +130,8 @@ export const SearchControlHeader = ({
         drawerProps={{ displayCloseButton: true }}
       />
     ) : null,
-    showPlusSubscription ? (
+    showPlusSubscription &&
+    feedsWithActions.includes(feedName as SharedFeedPage) ? (
       <ToggleClickbaitShield key="toggle-clickbait-shield" />
     ) : null,
   ];
