@@ -137,7 +137,7 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
           </Modal.Body>
           <Modal.Body
             view={FilterMenuTitle.ContentTypes}
-            className="relative overflow-hidden"
+            className="relative overflow-x-hidden overscroll-none"
           >
             <ContentTypesFilter />
           </Modal.Body>
