@@ -13,6 +13,7 @@ interface CommentInputOrModalProps
   extends Partial<LazyModalCommonProps>,
     Omit<CommentMarkdownInputProps, 'className' | 'onRequestClose'> {
   onClose?: () => void;
+  onRequestClose?: () => void;
   className?: {
     input?: CommentMarkdownInputProps['className'];
     modal?: string;

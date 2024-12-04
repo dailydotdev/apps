@@ -68,6 +68,7 @@ function SubComment({
             onCommented(data, isNew);
           }}
           onClose={() => onEdit(null)}
+          onRequestClose={() => onEdit(null)}
           className={{ input: className }}
         />
       )}
@@ -81,6 +82,7 @@ function SubComment({
             onCommented(...params);
           }}
           onClose={() => onReplyTo(null)}
+          onRequestClose={() => onReplyTo(null)}
           replyToCommentId={commentId}
         />
       )}
