@@ -16,7 +16,7 @@ import { useLanguage } from '../../hooks/useLanguage';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { DevPlusIcon } from '../icons';
 import { usePlusSubscription } from '../../hooks';
-import { LogEvent, TargetId } from '../../lib/log';
+import { LogEvent, Origin, TargetId } from '../../lib/log';
 import { Switch } from '../fields/Switch';
 import { PlusUser } from '../PlusUser';
 import { webappUrl } from '../../lib/constants';
@@ -81,6 +81,9 @@ export function ContentTypesFilter(): ReactElement {
                 logEvent({
                   event_name: LogEvent.ToggleClickbaitShield,
                   target_id: newSatate ? TargetId.On : TargetId.Off,
+                  extra: JSON.stringify({
+                    origin: Origin.Settings,
+                  }),
                 });
               }}
             >
