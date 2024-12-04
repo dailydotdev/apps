@@ -16,6 +16,8 @@ import SquadPostAuthor from '../post/SquadPostAuthor';
 import { CardLink } from '../cards/common/Card';
 import { combinedClicks } from '../../lib/click';
 import { ProfileImageSize } from '../ProfilePicture';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
 
 type PostProps = {
   post: Post;
@@ -28,6 +30,8 @@ export const SquadPostListItem = ({
   onLinkClick,
   onBookmark,
 }: PostProps): ReactElement => {
+  const isPlus = useFeature(feature.plusSubscription);
+
   return (
     <article
       className={classNames(
@@ -57,17 +61,21 @@ export const SquadPostListItem = ({
           {post.title ?? post.sharedPost.title}
         </p>
       </div>
-      <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
-        <Button
-          className="absolute right-3 group-hover:visible mouse:invisible"
-          variant={ButtonVariant.Tertiary}
-          color={ButtonColor.Bun}
-          pressed={post.bookmarked}
-          size={ButtonSize.Small}
-          icon={<BookmarkIcon secondary={post.bookmarked} />}
-          onClick={() => onBookmark(post)}
-        />
-      </SimpleTooltip>
+      {!isPlus && (
+        <SimpleTooltip
+          content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
+        >
+          <Button
+            className="absolute right-3 group-hover:visible mouse:invisible"
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.Bun}
+            pressed={post.bookmarked}
+            size={ButtonSize.Small}
+            icon={<BookmarkIcon secondary={post.bookmarked} />}
+            onClick={() => onBookmark(post)}
+          />
+        </SimpleTooltip>
+      )}
     </article>
   );
 };
