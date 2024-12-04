@@ -20,7 +20,7 @@ import { webappUrl } from '../../lib/constants';
 import { ViewSize, useFeeds, useViewSize } from '../../hooks';
 import { FollowingFilter } from './FollowingFilter';
 
-enum FilterMenuTitle {
+export enum FilterMenuTitle {
   MyFeed = 'My feed',
   Tags = 'Manage tags',
   ManageCategories = 'Manage categories',
