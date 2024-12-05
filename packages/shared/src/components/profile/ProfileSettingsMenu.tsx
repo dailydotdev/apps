@@ -14,6 +14,8 @@ import {
   HammerIcon,
   AppIcon,
   DevPlusIcon,
+  BookmarkIcon,
+  PlusIcon,
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
 import {
@@ -128,6 +130,19 @@ const useMenuItems = (): NavItemProps[] => {
         label: 'Integrations',
         icon: <AppIcon />,
         href: '/account/integrations',
+      },
+      { label: 'Bookmarks', isHeader: true },
+      { label: 'Bookmarks', icon: <BookmarkIcon />, href: '/bookmarks' },
+      {
+        label: 'New folder',
+        icon: <PlusIcon />,
+        onClick: () =>
+          openModal({
+            type: LazyModal.BookmarkFolder,
+            props: {
+              onSubmit: () => {},
+            },
+          }),
       },
       {
         label: 'Contribute',

@@ -1,7 +1,7 @@
 import React, { ReactElement, useState, type FormEvent } from 'react';
-import classNames from 'classnames';
 import Link from 'next/link';
-import { usePlusSubscription } from '../../../hooks';
+import classNames from 'classnames';
+import { usePlusSubscription, useViewSize, ViewSize } from '../../../hooks';
 import { Modal, type ModalProps } from '../common/Modal';
 import { ModalHeader } from '../common/ModalHeader';
 import { TextField } from '../../fields/TextField';
@@ -18,6 +18,7 @@ import { plusUrl } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { formToJson } from '../../../lib/form';
+import { useLazyModal } from '../../../hooks/useLazyModal';
 
 type BookmarkFolderModalProps = Omit<ModalProps, 'children'> & {
   onSubmit: (name: string) => void;
@@ -79,15 +80,58 @@ const PlusCTA = ({ folderCount }: { folderCount: number }) => {
   );
 };
 
+const FormActions = ({
+  valid,
+  folderCount,
+  onRequestClose,
+  isPlus,
+  isMobile,
+}: {
+  valid: boolean;
+  folderCount: number;
+  onRequestClose: () => void;
+  isPlus: boolean;
+  isMobile: boolean;
+}) => {
+  return (
+    <div
+      className={classNames(
+        'flex w-full justify-between px-4 pt-4 tablet:px-0 tablet:pt-0',
+        isMobile && 'border-b border-border-subtlest-tertiary pb-4',
+      )}
+    >
+      {isMobile && (
+        <Button onClick={onRequestClose} variant={ButtonVariant.Tertiary}>
+          Cancel
+        </Button>
+      )}
+      <Button
+        className="tablet:flex-grow"
+        disabled={!valid}
+        variant={ButtonVariant.Primary}
+      >
+        {!isPlus && folderCount > 0 ? (
+          <>
+            <DevPlusIcon /> Upgrade to plus
+          </>
+        ) : (
+          'Create folder'
+        )}
+      </Button>
+    </div>
+  );
+};
+
 const BookmarkFolderModal = ({
-  className,
   folder,
   onSubmit,
   folderCount = 0,
   ...rest
 }: BookmarkFolderModalProps): ReactElement => {
+  const { closeModal } = useLazyModal();
   const { isPlus } = usePlusSubscription();
   const [valid, setValid] = useState(false);
+  const isMobile = useViewSize(ViewSize.MobileL);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -95,27 +139,34 @@ const BookmarkFolderModal = ({
     const formJson = formToJson(e.currentTarget);
     console.log('formData', formJson);
   };
+
   return (
-    <Modal
-      kind={Modal.Kind.FlexibleCenter}
-      size={Modal.Size.Small}
-      isDrawerOnMobile
-      {...rest}
-      className={classNames(className, '!w-[380px]')}
-    >
-      <ModalHeader className="gap-2">
-        <ModalHeader.Title>New Folder</ModalHeader.Title>
-        <Typography
-          className="flex items-center"
-          tag={TypographyTag.Span}
-          color={TypographyColor.Plus}
-        >
-          <DevPlusIcon />
-          Plus
-        </Typography>
-      </ModalHeader>
+    <Modal kind={Modal.Kind.FlexibleCenter} size={Modal.Size.Small} {...rest}>
       <form onSubmit={handleSubmit}>
-        <Modal.Body className="flex flex-col gap-4">
+        {isMobile && (
+          <FormActions
+            valid={valid}
+            folderCount={folderCount}
+            onRequestClose={closeModal}
+            isPlus={isPlus}
+            isMobile={isMobile}
+          />
+        )}
+        <ModalHeader
+          showCloseButton={!isMobile}
+          className={classNames('gap-2', isMobile && '!border-b-0 pb-0')}
+        >
+          <ModalHeader.Title>New Folder</ModalHeader.Title>
+          <Typography
+            className="flex items-center"
+            tag={TypographyTag.Span}
+            color={TypographyColor.Plus}
+          >
+            <DevPlusIcon />
+            Plus
+          </Typography>
+        </ModalHeader>
+        <Modal.Body className="flex flex-col gap-5 tablet:gap-4">
           {!isPlus && <PlusCTA folderCount={folderCount} />}
           <TextField
             maxLength={50}
@@ -125,8 +176,10 @@ const BookmarkFolderModal = ({
             onChange={(e) => setValid(e.target.value.length > 0)}
             value={folder?.name || ''}
           />
-          <Typography type={TypographyType.Body}>Choose an icon</Typography>
-          <ul className="flex flex-wrap gap-4">
+          <Typography className="font-bold" type={TypographyType.Body}>
+            Choose an icon
+          </Typography>
+          <ul className="flex flex-wrap justify-evenly gap-4">
             <li>
               <label
                 htmlFor="noicon"
@@ -139,7 +192,7 @@ const BookmarkFolderModal = ({
                   value=""
                   className="peer hidden"
                 />
-                <span className="flex h-10 w-10 items-center justify-center rounded-14 border-2 border-transparent bg-overlay-float-salt peer-checked:border-surface-focus">
+                <span className="flex h-12 w-12 items-center justify-center rounded-14 border-2 border-transparent bg-overlay-float-salt peer-checked:border-surface-focus">
                   <FolderIcon />
                 </span>
               </label>
@@ -157,22 +210,22 @@ const BookmarkFolderModal = ({
                     value={emoji}
                     className="peer hidden"
                   />
-                  <span className="flex h-10 w-10 items-center justify-center rounded-14 border-2 border-transparent bg-overlay-float-salt peer-checked:border-surface-focus">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-14 border-2 border-transparent bg-overlay-float-salt peer-checked:border-surface-focus">
                     {emoji}
                   </span>
                 </label>
               </li>
             ))}
           </ul>
-          <Button disabled={!valid} variant={ButtonVariant.Primary}>
-            {!isPlus && folderCount > 0 ? (
-              <>
-                <DevPlusIcon /> Upgrade to plus
-              </>
-            ) : (
-              'Create folder'
-            )}
-          </Button>
+          {!isMobile && (
+            <FormActions
+              valid={valid}
+              folderCount={folderCount}
+              onRequestClose={closeModal}
+              isPlus={isPlus}
+              isMobile={isMobile}
+            />
+          )}
         </Modal.Body>
       </form>
     </Modal>
