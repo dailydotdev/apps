@@ -6,6 +6,7 @@ import { TextField } from '../../fields/TextField';
 import type { SlackIntegrationModalProps } from '../soon/AdvancedCustomFeedSoonModal';
 import { Typography } from '../../typography/Typography';
 import { Button, ButtonVariant } from '../../buttons/Button';
+import { FolderIcon } from '../../icons/Folder';
 
 const emojiOptions = [
   '🐹',
@@ -33,6 +34,7 @@ const BookmarkFolderModal = ({
       size={Modal.Size.Small}
       isDrawerOnMobile
       {...props}
+      className="!w-[380px]"
     >
       <ModalHeader>
         <ModalHeader.Title>New Folder</ModalHeader.Title>
@@ -44,7 +46,24 @@ const BookmarkFolderModal = ({
           onChange={(e) => setValid(e.target.value.length > 0)}
         />
         <Typography>Choose an icon</Typography>
-        <ul className="flex flex-wrap gap-2">
+        <ul className="flex flex-wrap gap-4">
+          <li>
+            <label
+              htmlFor="noicon"
+              className="flex cursor-pointer items-center transition"
+            >
+              <input
+                type="radio"
+                name="icon"
+                id="noicon"
+                value=""
+                className="peer hidden"
+              />
+              <span className="flex h-10 w-10 items-center justify-center rounded-14 border-2 border-transparent bg-overlay-float-salt peer-checked:border-surface-focus">
+                <FolderIcon />
+              </span>
+            </label>
+          </li>
           {emojiOptions.map((emoji) => (
             <li key={emoji}>
               <label
@@ -53,12 +72,12 @@ const BookmarkFolderModal = ({
               >
                 <input
                   type="radio"
-                  name="option"
+                  name="icon"
                   id={emoji}
                   value={emoji}
                   className="peer hidden"
                 />
-                <span className="flex h-10 w-10 items-center justify-center rounded-14 border-2 border-transparent peer-checked:border-surface-focus">
+                <span className="flex h-10 w-10 items-center justify-center rounded-14 border-2 border-transparent bg-overlay-float-salt peer-checked:border-surface-focus">
                   {emoji}
                 </span>
               </label>
