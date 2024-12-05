@@ -5,13 +5,17 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 import { usePlusSubscription } from '../../hooks';
 import { SidebarSettingsFlags } from '../../graphql/settings';
 import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent, TargetId } from '../../lib/log';
+import { LogEvent, Origin, TargetId } from '../../lib/log';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { SimpleTooltip } from '../tooltips';
 import { LazyModal } from '../modals/common/types';
 import { FilterMenuTitle } from '../filters/helpers';
 
-export const ToggleClickbaitShield = (): ReactElement => {
+export const ToggleClickbaitShield = ({
+  origin,
+}: {
+  origin: Origin;
+}): ReactElement => {
   const { openModal } = useLazyModal();
   const { isPlus } = usePlusSubscription();
   const { logEvent } = useLogContext();
@@ -70,6 +74,9 @@ export const ToggleClickbaitShield = (): ReactElement => {
           logEvent({
             event_name: LogEvent.ToggleClickbaitShield,
             target_id: newSatate ? TargetId.On : TargetId.Off,
+            extra: JSON.stringify({
+              origin,
+            }),
           });
         }}
       />

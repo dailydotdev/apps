@@ -33,6 +33,7 @@ import {
   TypographyProps,
 } from '../typography/Typography';
 import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
+import { Origin } from '../../lib/log';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -132,7 +133,12 @@ export const SearchControlHeader = ({
     ) : null,
     showPlusSubscription &&
     feedsWithActions.includes(feedName as SharedFeedPage) ? (
-      <ToggleClickbaitShield key="toggle-clickbait-shield" />
+      <ToggleClickbaitShield
+        origin={
+          feedName === SharedFeedPage.Custom ? Origin.CustomFeed : Origin.Feed
+        }
+        key="toggle-clickbait-shield"
+      />
     ) : null,
   ];
   const actions = actionButtons.filter((button) => !!button);
