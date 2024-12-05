@@ -41,6 +41,10 @@ export default function useLogImpression(
               ...feedLogExtra(feedName, ranking, {
                 scroll_y: window.scrollY,
               }).extra,
+              clickbait_badge:
+                item.post.type === PostType.Share
+                  ? item.post.sharedPost.clickbaitTitleDetected
+                  : item.post.clickbaitTitleDetected,
               feedback: item.post.type === PostType.Article ? true : undefined,
             },
           }),

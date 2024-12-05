@@ -282,6 +282,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       sharedPost {
         ...SharedPostInfo
       }
+      clickbaitTitleDetected
     }
   }
   ${SOURCE_SHORT_INFO_FRAGMENT}
