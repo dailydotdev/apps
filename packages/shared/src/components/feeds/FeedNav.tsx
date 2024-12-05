@@ -192,8 +192,8 @@ function FeedNav(): ReactElement {
               shouldIndicateSelected
               buttonSize={ButtonSize.Small}
               buttonVariant={ButtonVariant.Tertiary}
-              icon={<SortIcon style={{margin:'auto'}}  size={IconSize.Medium} />}
-              iconOnly={true}
+              icon={<SortIcon />}
+              iconOnly
               selectedIndex={selectedAlgo}
               options={algorithmsList}
               onChange={(_, index) => setSelectedAlgo(index)}
