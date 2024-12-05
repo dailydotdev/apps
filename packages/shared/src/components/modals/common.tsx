@@ -198,6 +198,13 @@ const BookmarkFolderSoonModal = dynamic(
     ),
 );
 
+const BookmarkFolderModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "bookmarkFolderModal" */ './bookmark/BookmarkFolderModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -232,6 +239,7 @@ export const modals = {
   [LazyModal.TopReaderBadge]: TopReaderBadgeModal,
   [LazyModal.AdvancedCustomFeedSoon]: AdvancedCustomFeedSoonModal,
   [LazyModal.BookmarkFolderSoon]: BookmarkFolderSoonModal,
+  [LazyModal.BookmarkFolder]: BookmarkFolderModal,
 };
 
 type GetComponentProps<T> = T extends
