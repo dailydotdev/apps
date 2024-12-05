@@ -23,16 +23,21 @@ export const useCreateBookmarkFolder = (): UseCreateBookmarkFolder => {
 
   const createFolder = useCallback(
     async (folder: CreateBookmarkFolderProps) => {
-      const { id } = await mutateAsync(folder);
-      logEvent({
-        event_name: LogEvent.CreateBookmarkFolder,
-        target_id: id,
-      });
+      await mutateAsync(folder)
+        .then(async ({ id }) => {
+          logEvent({
+            event_name: LogEvent.CreateBookmarkFolder,
+            target_id: id,
+          });
 
-      const listQueryKey = generateQueryKey(RequestKey.BookmarkFolders);
-      await queryClient.invalidateQueries({ queryKey: listQueryKey });
+          const listQueryKey = generateQueryKey(RequestKey.BookmarkFolders);
+          await queryClient.invalidateQueries({ queryKey: listQueryKey });
 
-      displayToast(`${folder.name} has been created`);
+          displayToast(`${folder.name} has been created`);
+        })
+        .catch(() => {
+          displayToast('Failed to create folder');
+        });
     },
     [displayToast, logEvent, mutateAsync, queryClient],
   );
