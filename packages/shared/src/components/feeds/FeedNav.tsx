@@ -53,6 +53,7 @@ enum FeedNavTab {
   History = 'History',
   Discussions = 'Discussions',
   NewFeed = 'Custom feed',
+  Following = 'Following',
 }
 
 const StickyNavIconWrapper = classed(
@@ -103,6 +104,7 @@ function FeedNav(): ReactElement {
 
     return {
       ...urls,
+      [`${webappUrl}following`]: FeedNavTab.Following,
       [`${webappUrl}${OtherFeedPage.Discussed}`]: FeedNavTab.Discussions,
       [`${webappUrl}tags`]: FeedNavTab.Tags,
       [`${webappUrl}sources`]: FeedNavTab.Sources,

@@ -53,6 +53,7 @@ export enum OtherFeedPage {
   FeedByIds = 'feed-by-ids',
   Welcome = 'welcome',
   Discussed = 'discussed',
+  Following = 'following',
 }
 
 const ONE_MINUTE = 60 * 1000;

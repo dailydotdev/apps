@@ -48,7 +48,7 @@ const LogoSvgElem = ({
     return (
       <img
         loading="eager"
-        // @ts-expect-error - Not supported by react yet
+        /* @ts-expect-error - Not supported by react yet */ /* eslint-disable react/no-unknown-property */
         fetchpriority="high"
         src={src}
         className={className?.container}
