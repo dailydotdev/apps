@@ -22,6 +22,7 @@ import { feature } from '../../lib/featureManagement';
 import { LazyImage } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { withPostById } from './withPostById';
+import { PostClickbaitShield } from './common/PostClickbaitShield';
 
 export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;
@@ -141,12 +142,15 @@ export function PostContentRaw({
           origin={origin}
           post={post}
         >
-          <h1
-            className="my-6 break-words font-bold typo-large-title"
-            data-testid="post-modal-title"
-          >
-            <ArticleLink>{post.title}</ArticleLink>
-          </h1>
+          <div className="my-6">
+            <h1
+              className="break-words font-bold typo-large-title"
+              data-testid="post-modal-title"
+            >
+              <ArticleLink>{post.title}</ArticleLink>
+            </h1>
+            {post.clickbaitTitleDetected && <PostClickbaitShield />}
+          </div>
           {isVideoType && (
             <YoutubeVideo
               title={post.title}
