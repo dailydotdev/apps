@@ -11,7 +11,7 @@ import { Button } from '../buttons/Button';
 import { webappUrl } from '../../lib/constants';
 import { DevPlusIcon } from '../icons';
 import { usePlusSubscription } from '../../hooks';
-import { LogEvent } from '../../lib/log';
+import { LogEvent, TargetId } from '../../lib/log';
 
 export const ClickbaitTrial = (): ReactElement => {
   const [show, setShow] = useState(true);
@@ -63,7 +63,7 @@ export const ClickbaitTrial = (): ReactElement => {
           onClick={() => {
             logSubscriptionEvent({
               event_name: LogEvent.UpgradeSubscription,
-              // target_id: TargetId. @TODO: Add TargetId
+              target_id: TargetId.ClickbaitShield,
             });
           }}
         >

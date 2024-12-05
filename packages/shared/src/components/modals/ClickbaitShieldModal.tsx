@@ -11,7 +11,7 @@ import { Button, ButtonVariant } from '../buttons/Button';
 import { webappUrl } from '../../lib/constants';
 import { DevPlusIcon } from '../icons';
 import { usePlusSubscription, useViewSize, ViewSize } from '../../hooks';
-import { LogEvent } from '../../lib/log';
+import { LogEvent, TargetId } from '../../lib/log';
 import { Switch } from '../fields/Switch';
 import { useLazyModal } from '../../hooks/useLazyModal';
 
@@ -77,7 +77,7 @@ const ClickbaitShieldModal = (props: ModalProps): ReactElement => {
           onClick={() => {
             logSubscriptionEvent({
               event_name: LogEvent.UpgradeSubscription,
-              // target_id: TargetId. @TODO: Add TargetId
+              target_id: TargetId.ClickbaitShield,
             });
           }}
         >
