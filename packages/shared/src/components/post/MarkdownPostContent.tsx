@@ -5,6 +5,8 @@ import { Post, PostType } from '../../graphql/posts';
 import Markdown from '../Markdown';
 import { LazyImage, LazyImageProps } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
+import { useSmartTitle } from '../../hooks/post/useSmartTitle';
+import { PostClickbaitShield } from './common/PostClickbaitShield';
 
 interface MarkdownPostContentProps {
   post: Post;
@@ -31,11 +33,13 @@ export const MarkdownPostImage = ({
 );
 
 function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
+  const { title } = useSmartTitle(post);
   return (
     <>
-      <h1 className="my-6 whitespace-pre-line font-bold typo-title2">
-        {post.title}
-      </h1>
+      <div className="my-6">
+        <h1 className="whitespace-pre-line font-bold typo-title2">{title}</h1>
+        {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
+      </div>
       {post.type === PostType.Freeform && post.image && (
         <Link href={post.image}>
           <a target="_blank" rel="noopener noreferrer">
