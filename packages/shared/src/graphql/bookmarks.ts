@@ -55,3 +55,27 @@ export const getBookmarkFolders = async (): Promise<BookmarkFolder[]> => {
     }>(GET_BOOKMARK_FOLDERS)
     .then((data) => data.bookmarkLists);
 };
+
+export const CREATE_BOOKMARK_FOLDER = gql`
+  mutation CreateBookmarkFolder($name: String!, $icon: String) {
+    createBookmarkList(name: $name, icon: $icon) {
+      id
+      name
+      icon
+    }
+  }
+`;
+
+export const createBookmarkFolder = async ({
+  name,
+  icon,
+}: Pick<BookmarkFolder, 'name' | 'icon'>): Promise<BookmarkFolder> => {
+  return gqlClient
+    .request<{
+      createBookmarkList: BookmarkFolder;
+    }>(CREATE_BOOKMARK_FOLDER, {
+      name,
+      icon,
+    })
+    .then((data) => data.createBookmarkList);
+};

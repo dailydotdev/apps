@@ -8,7 +8,10 @@ import { SidebarSectionProps } from './common';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { BookmarkReminderIcon } from '../../icons/Bookmark/Reminder';
-import { useBookmarkFolderList } from '../../../hooks/bookmark';
+import {
+  useBookmarkFolderList,
+  useCreateBookmarkFolder,
+} from '../../../hooks/bookmark';
 
 export const BookmarkSection = ({
   isItemsButton,
@@ -16,6 +19,7 @@ export const BookmarkSection = ({
 }: SidebarSectionProps): ReactElement => {
   const { openModal } = useLazyModal();
   const { folders } = useBookmarkFolderList();
+  const { createFolder } = useCreateBookmarkFolder();
 
   const menuItems: SidebarMenuItem[] = [
     {
@@ -58,7 +62,17 @@ export const BookmarkSection = ({
       ) => {
         event.preventDefault();
 
-        openModal({ type: LazyModal.BookmarkFolderSoon, props: {} });
+        openModal({
+          type: LazyModal.BookmarkFolderSoon,
+          props: {
+            onAfterClose() {
+              createFolder({
+                name: 'New folder',
+                icon: '🚀',
+              });
+            },
+          },
+        });
       },
     },
   ];
