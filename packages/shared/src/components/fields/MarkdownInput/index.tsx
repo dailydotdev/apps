@@ -66,7 +66,7 @@ interface MarkdownInputProps
   isLoading?: boolean;
   disabledSubmit?: boolean;
   maxInputLength?: number;
-  onRequestClose?: () => void;
+  onClose?: () => void;
 }
 
 enum CommentTab {
