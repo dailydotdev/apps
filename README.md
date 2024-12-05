@@ -28,7 +28,7 @@ The decision was made to allow faster iterations and to keep features parity in 
 
 ## Technologies
 
-- Node v20.12.0 (a `.nvmrc` is presented for [nvm](https://github.com/nvm-sh/nvm) users).
+- Node v22.11 (a `.nvmrc` is presented for [nvm](https://github.com/nvm-sh/nvm) users).
 - [pnpm](https://pnpm.io/workspaces) for managing the monorepo and dependencies.
 
 ## Projects
@@ -81,7 +81,7 @@ https://github.com/dailydotdev/.github/blob/master/CONTRIBUTING.md
 After cloning the project, please make sure to run the following commands to bootstrap the project:
 
 ```bash
-npm i -g pnpm@8.15.7
+npm i -g pnpm@9.14.4
 pnpm install
 ```
 
