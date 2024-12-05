@@ -23,10 +23,10 @@ import { useFollowContentPreferenceMutationSubscription } from './useFollowConte
 export type UseFollowingQueryProps = {
   id: string;
   entity: ContentPreferenceType;
-  enabled?: boolean;
   limit?: number;
-  queryOptions?: Partial<
-    Omit<UseInfiniteQueryOptions<Connection<ContentPreference>>, 'select'>
+  queryOptions?: Omit<
+    UseInfiniteQueryOptions<Connection<ContentPreference>>,
+    'select'
   >;
 };
 
