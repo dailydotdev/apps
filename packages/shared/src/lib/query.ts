@@ -181,6 +181,7 @@ export enum RequestKey {
   ReferringUser = 'referring_user',
   SearchSources = 'search_sources',
   OnboardingSources = 'onboarding_sources',
+  UsedSmartTitleTrial = 'used_smart_title_trial',
 }
 
 export type HasConnection<
