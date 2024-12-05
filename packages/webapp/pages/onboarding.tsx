@@ -64,6 +64,7 @@ import dynamic from 'next/dynamic';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/PaymentContext';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
+import { checkIsBrowser, UserAgent } from '@dailydotdev/shared/src/lib/func';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -96,6 +97,12 @@ const OnboardingPlusStep = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingPlusStep" */ '@dailydotdev/shared/src/components/onboarding/OnboardingPlusStep'
   ).then((mod) => mod.OnboardingPlusStep),
+);
+
+const OnboardingAndroidApp = dynamic(() =>
+  import(
+    /* webpackChunkName: "onboardingAndroidApp" */ '@dailydotdev/shared/src/components/onboarding/OnboardingAndroidApp'
+  ).then((mod) => mod.OnboardingAndroidApp),
 );
 
 type OnboardingVisual = {
@@ -152,6 +159,11 @@ export function OnboardPage(): ReactElement {
     feature: featureOnboardingSources,
     shouldEvaluate: shouldEnrollOnboardingStep,
   });
+  const { value: appExperiment } = useConditionalFeature({
+    feature: feature.onboardingAndroid,
+    shouldEvaluate:
+      shouldEnrollOnboardingStep && checkIsBrowser(UserAgent.Android),
+  });
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
 
   useEffect(() => {
@@ -207,6 +219,10 @@ export function OnboardPage(): ReactElement {
     ].includes(activeScreen);
     if (isOnboardingPlusActive && isLastStepBeforePlus) {
       return setActiveScreen(OnboardingStep.Plus);
+    }
+
+    if (appExperiment && activeScreen !== OnboardingStep.AndroidApp) {
+      return setActiveScreen(OnboardingStep.AndroidApp);
     }
 
     logEvent({
@@ -299,6 +315,9 @@ export function OnboardPage(): ReactElement {
     if (activeScreen === OnboardingStep.Plus) {
       return 'Skip for now ➞';
     }
+    if (activeScreen === OnboardingStep.AndroidApp) {
+      return 'Not now →';
+    }
 
     return undefined;
   }, [activeScreen, showOnboardingSources]);
@@ -319,8 +338,7 @@ export function OnboardPage(): ReactElement {
         <img
           alt="Onboarding background"
           className="pointer-events-none absolute inset-0 -z-1 h-full w-full object-cover tablet:object-center"
-          // @ts-expect-error - Not supported by react yet
-          fetchpriority="high"
+          fetchPriority="high"
           loading="eager"
           role="presentation"
           src={onboardingVisual.fullBackground.mobile}
@@ -334,7 +352,7 @@ export function OnboardPage(): ReactElement {
         showOnboardingPage={showOnboardingPage}
         setAuth={setAuth}
         customActionName={customActionName}
-        onClickCreateFeed={onClickCreateFeed}
+        onClick={onClickCreateFeed}
         activeScreen={activeScreen}
       />
       <div
@@ -367,6 +385,7 @@ export function OnboardPage(): ReactElement {
               activeScreen === OnboardingStep.Intro
                 ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
                 : 'mb-10 ml-0 w-full flex-col items-center justify-start',
+              activeScreen === OnboardingStep.AndroidApp && 'mb-auto',
             )}
           >
             {activeScreen === OnboardingStep.ReadingReminder && (
@@ -387,6 +406,9 @@ export function OnboardPage(): ReactElement {
               <PaymentContextProvider>
                 <OnboardingPlusStep onClickNext={onClickNext} />
               </PaymentContextProvider>
+            )}
+            {activeScreen === OnboardingStep.AndroidApp && (
+              <OnboardingAndroidApp />
             )}
           </div>
         )}

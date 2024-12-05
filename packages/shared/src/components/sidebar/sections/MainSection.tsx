@@ -1,7 +1,13 @@
 import React, { ReactElement, useCallback, useMemo } from 'react';
 import { Section } from '../Section';
 import { ListIcon, SidebarMenuItem } from '../common';
-import { BookmarkIcon, DevPlusIcon, EyeIcon, HotIcon } from '../../icons';
+import {
+  BookmarkIcon,
+  DevPlusIcon,
+  EyeIcon,
+  HotIcon,
+  SquadIcon,
+} from '../../icons';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { OtherFeedPage } from '../../../lib/query';
@@ -16,7 +22,8 @@ export const MainSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
-  const { isEnrolledNotPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { showPlusSubscription, isEnrolledNotPlus, logSubscriptionEvent } =
+    usePlusSubscription();
 
   const onPlusClick = useCallback(() => {
     logSubscriptionEvent({
@@ -51,6 +58,14 @@ export const MainSection = ({
     return [
       myFeed,
       {
+        title: 'Following',
+        path: `${webappUrl}following`,
+        action: () => onNavTabClick?.(OtherFeedPage.Following),
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <SquadIcon secondary={active} />} />
+        ),
+      },
+      {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <HotIcon secondary={active} />} />
         ),
@@ -58,7 +73,7 @@ export const MainSection = ({
         path: '/posts',
         action: () => onNavTabClick?.(OtherFeedPage.Explore),
       },
-      {
+      !showPlusSubscription && {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <BookmarkIcon secondary={active} />} />
         ),
@@ -78,7 +93,14 @@ export const MainSection = ({
       },
       plus,
     ].filter(Boolean);
-  }, [isLoggedIn, isEnrolledNotPlus, onNavTabClick, onPlusClick, user]);
+  }, [
+    isLoggedIn,
+    user,
+    isEnrolledNotPlus,
+    onPlusClick,
+    onNavTabClick,
+    showPlusSubscription,
+  ]);
 
   return (
     <Section

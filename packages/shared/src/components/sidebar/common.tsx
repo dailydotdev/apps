@@ -37,7 +37,9 @@ export interface SidebarMenuItem {
   onClick?: () => unknown;
   target?: HTMLAttributeAnchorTarget | undefined;
   isForcedLink?: boolean;
-  action?: () => unknown;
+  action?: (
+    event: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>,
+  ) => unknown;
   alert?: ReactElement;
   active?: boolean;
   hideOnMobile?: boolean;

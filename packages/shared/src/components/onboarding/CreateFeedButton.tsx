@@ -26,6 +26,7 @@ export const CreateFeedButton = ({
 
   const contentTypeStep = activeScreen === OnboardingStep.ContentTypes;
   const sourceStep = activeScreen === OnboardingStep.Sources;
+  const androidStep = activeScreen === OnboardingStep.AndroidApp;
 
   const contentTypeNotEmpty =
     !!getContentTypeNotEmpty({
@@ -42,7 +43,11 @@ export const CreateFeedButton = ({
 
   const isPlusStep = activeScreen === OnboardingStep.Plus;
   const canCreateFeed =
-    tagsCountMatch || contentTypeNotEmpty || sourceStep || isPlusStep;
+    tagsCountMatch ||
+    contentTypeNotEmpty ||
+    sourceStep ||
+    isPlusStep ||
+    androidStep;
   const { sidebarRendered } = useSidebarRendered();
   const buttonName =
     customActionName ??
@@ -65,6 +70,16 @@ export const CreateFeedButton = ({
     ...(contentTypeStep ? { visible: !canCreateFeed && isLaptop } : {}),
   };
 
+  const getButtonVariant = () => {
+    if (isPlusStep) {
+      return ButtonVariant.Secondary;
+    }
+    if (androidStep) {
+      return ButtonVariant.Tertiary;
+    }
+    return ButtonVariant.Primary;
+  };
+
   return (
     <SimpleTooltip
       content={tooltipName()}
@@ -74,7 +89,7 @@ export const CreateFeedButton = ({
       <div className="relative">
         <Button
           className={className}
-          variant={isPlusStep ? ButtonVariant.Secondary : ButtonVariant.Primary}
+          variant={getButtonVariant()}
           disabled={!canCreateFeed}
           onClick={onClick}
         >

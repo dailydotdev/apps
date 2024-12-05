@@ -19,7 +19,8 @@ export const useCompanionSettings = (): void => {
       return;
     }
 
-    registerBrowserContentScripts();
+    // Edge case for Brave browser where this only exists if accepted
+    registerBrowserContentScripts?.();
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [optOutCompanion, loadedSettings]);
