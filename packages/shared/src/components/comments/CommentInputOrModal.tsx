@@ -45,7 +45,7 @@ export default function CommentInputOrModal({
       <CommentMarkdownInput
         {...props}
         className={className.input}
-        onRequestClose={onClose}
+        onClose={onClose}
       />
     </WriteCommentContext.Provider>
   );
