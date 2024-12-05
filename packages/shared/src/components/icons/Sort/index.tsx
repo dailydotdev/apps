@@ -4,5 +4,5 @@ import OutlinedIcon from './outlined.svg';
 import FilledIcon from './filled.svg';
 
 export const SortIcon = (props: IconProps): ReactElement => (
-  <Icon {...props} style={{margin:'auto'}} IconPrimary={OutlinedIcon} IconSecondary={FilledIcon} />
+  <Icon {...props} IconPrimary={OutlinedIcon} IconSecondary={FilledIcon} />
 );
