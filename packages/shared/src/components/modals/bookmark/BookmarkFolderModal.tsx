@@ -32,6 +32,7 @@ type BookmarkFolderModalProps = Omit<ModalProps, 'children'> & {
 };
 
 const emojiOptions = [
+  '',
   '🐹',
   '🐍',
   '☕️',
@@ -180,38 +181,21 @@ const BookmarkFolderModal = ({
             Choose an icon
           </Typography>
           <ul className="flex flex-wrap justify-evenly gap-4">
-            <li>
-              <label
-                htmlFor="noicon"
-                className="flex cursor-pointer items-center"
-              >
-                <input
-                  type="radio"
-                  name="icon"
-                  id="noicon"
-                  value=""
-                  className="peer hidden"
-                />
-                <span className="flex h-12 w-12 select-none items-center justify-center rounded-14 border-2 border-transparent bg-overlay-float-salt peer-checked:border-surface-focus">
-                  <FolderIcon />
-                </span>
-              </label>
-            </li>
             {emojiOptions.map((emoji) => (
               <li key={emoji}>
                 <label
-                  htmlFor={emoji}
+                  htmlFor={emoji || 'noicon'}
                   className="flex cursor-pointer items-center"
                 >
                   <input
                     type="radio"
                     name="icon"
-                    id={emoji}
+                    id={emoji || 'noicon'}
                     value={emoji}
                     className="peer hidden"
                   />
                   <span className="flex h-12 w-12 select-none items-center justify-center rounded-14 border-2 border-transparent bg-overlay-float-salt peer-checked:border-surface-focus">
-                    {emoji}
+                    {!emoji ? <FolderIcon /> : emoji}
                   </span>
                 </label>
               </li>
