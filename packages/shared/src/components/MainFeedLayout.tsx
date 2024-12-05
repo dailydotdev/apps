@@ -18,6 +18,7 @@ import {
   ANONYMOUS_FEED_QUERY,
   CUSTOM_FEED_QUERY,
   FEED_QUERY,
+  FOLLOWING_FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
   PREVIEW_FEED_QUERY,
@@ -73,6 +74,12 @@ const SearchEmptyScreen = dynamic(
 const FeedEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "feedEmptyScreen" */ './FeedEmptyScreen'),
 );
+const FollowingFeedEmptyScreen = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "followingFeedEmptyScreen" */ './FollowingFeedEmptyScreen'
+    ),
+);
 
 type FeedQueryProps = {
   query: string;
@@ -115,6 +122,10 @@ const propsByFeed: Record<SharedFeedPage & OtherFeedPage, FeedQueryProps> = {
   },
   [SharedFeedPage.CustomForm]: {
     query: PREVIEW_FEED_QUERY,
+  },
+  [OtherFeedPage.Following]: {
+    query: FOLLOWING_FEED_QUERY,
+    emptyScreen: <FollowingFeedEmptyScreen />,
   },
 };
 
@@ -323,7 +334,7 @@ export default function MainFeedLayout({
       ),
       query: config.query,
       variables,
-      emptyScreen: <FeedEmptyScreen />,
+      emptyScreen: propsByFeed[feedName].emptyScreen || <FeedEmptyScreen />,
       actionButtons: feedWithActions && (
         <SearchControlHeader
           algoState={[selectedAlgo, setSelectedAlgo]}
