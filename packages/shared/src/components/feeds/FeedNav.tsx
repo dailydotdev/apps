@@ -5,7 +5,12 @@ import dynamic from 'next/dynamic';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { useActiveFeedNameContext } from '../../contexts';
 import useActiveNav from '../../hooks/useActiveNav';
-import { useFeeds, useViewSize, ViewSize } from '../../hooks';
+import {
+  useFeeds,
+  usePlusSubscription,
+  useViewSize,
+  ViewSize,
+} from '../../hooks';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import {
   algorithmsList,
@@ -27,6 +32,8 @@ import classed from '../../lib/classed';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { OtherFeedPage } from '../../lib/query';
 import { ChecklistViewState } from '../../lib/checklist';
+import { LazyModal } from '../modals/common/types';
+import { useLazyModal } from '../../hooks/useLazyModal';
 
 const OnboardingChecklistBar = dynamic(
   () =>
@@ -46,6 +53,7 @@ enum FeedNavTab {
   History = 'History',
   Discussions = 'Discussions',
   NewFeed = 'Custom feed',
+  Following = 'Following',
 }
 
 const StickyNavIconWrapper = classed(
@@ -70,6 +78,8 @@ function FeedNav(): ReactElement {
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const { feeds } = useFeeds();
+  const { showPlusSubscription } = usePlusSubscription();
+  const { openModal } = useLazyModal();
 
   const isHiddenOnboardingChecklistView =
     onboardingChecklistView === ChecklistViewState.Hidden;
@@ -94,6 +104,7 @@ function FeedNav(): ReactElement {
 
     return {
       ...urls,
+      [`${webappUrl}following`]: FeedNavTab.Following,
       [`${webappUrl}${OtherFeedPage.Discussed}`]: FeedNavTab.Discussions,
       [`${webappUrl}tags`]: FeedNavTab.Tags,
       [`${webappUrl}sources`]: FeedNavTab.Sources,
@@ -153,6 +164,17 @@ function FeedNav(): ReactElement {
             }
 
             return null;
+          }}
+          onActiveChange={(label, event) => {
+            if (showPlusSubscription && label === FeedNavTab.NewFeed) {
+              event.preventDefault();
+
+              openModal({ type: LazyModal.AdvancedCustomFeedSoon, props: {} });
+
+              return false;
+            }
+
+            return true;
           }}
         >
           {Object.entries(urlToTab).map(([url, label]) => (
