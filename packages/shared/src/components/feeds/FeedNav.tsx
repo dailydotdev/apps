@@ -22,7 +22,6 @@ import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { Dropdown } from '../fields/Dropdown';
 import { PlusIcon, SortIcon } from '../icons';
-import { IconSize } from '../Icon';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
