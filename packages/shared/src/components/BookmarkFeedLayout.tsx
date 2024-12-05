@@ -119,12 +119,14 @@ export default function BookmarkFeedLayout({
         />
       )}
       {showPlusSubscription && (
-        <BookmarkSection
-          isItemsButton={false}
-          sidebarExpanded
-          shouldShowLabel
-          activePage=""
-        />
+        <div className="mb-4 laptop:hidden">
+          <BookmarkSection
+            isItemsButton={false}
+            sidebarExpanded
+            shouldShowLabel
+            activePage=""
+          />
+        </div>
       )}
       {tokenRefreshed && <Feed {...feedProps} />}
     </FeedPageLayoutComponent>
