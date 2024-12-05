@@ -5,6 +5,7 @@ import {
   mainFeedLayoutProps,
 } from '../components/layouts/MainFeedPage';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
+import ProtectedPage from '../components/ProtectedPage';
 
 const seo: NextSeoProps = {
   title: 'Following',
@@ -12,7 +13,11 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
-const FollowingFeed = (): ReactElement => <></>;
+const FollowingFeed = (): ReactElement => (
+  <ProtectedPage>
+    <></>
+  </ProtectedPage>
+);
 
 FollowingFeed.getLayout = getMainFeedLayout;
 FollowingFeed.layoutProps = { ...mainFeedLayoutProps, seo };
