@@ -50,7 +50,7 @@ export const BookmarkSection = ({
     {
       icon: () => (
         <div className="rounded-6 bg-background-subtle">
-          <PlusIcon />
+          <PlusIcon aria-label="Add" />
         </div>
       ),
       title: 'New folder',
