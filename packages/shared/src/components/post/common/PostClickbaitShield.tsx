@@ -1,4 +1,4 @@
-import React, { useState, type ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ShieldCheckIcon, ShieldIcon, ShieldWarningIcon } from '../../icons';
@@ -11,15 +11,16 @@ import { LazyModal } from '../../modals/common/types';
 import { FilterMenuTitle } from '../../filters/helpers';
 
 import { ClickbaitTrial } from '../../plus/ClickbaitTrial';
+import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import type { Post } from '../../../graphql/posts';
 
-export const PostClickbaitShield = (): ReactElement => {
+export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const { openModal } = useLazyModal();
   const { isPlus, showPlusSubscription } = usePlusSubscription();
   const { checkHasCompleted } = useActions();
   const { flags } = useSettingsContext();
   const { clickbaitShieldEnabled } = flags;
-
-  const [usedTrial, setUsedTrial] = useState(false);
+  const { fetchSmartTitle, usedTrial } = useSmartTitle(post);
 
   if (!showPlusSubscription) {
     return null;
@@ -69,8 +70,7 @@ export const PostClickbaitShield = (): ReactElement => {
                     },
                   });
                 } else {
-                  setUsedTrial(true);
-                  // await fetchSmartTitle(() => setUsedTrial(true));
+                  await fetchSmartTitle();
                 }
               }}
             >
@@ -107,7 +107,7 @@ export const PostClickbaitShield = (): ReactElement => {
         }
         iconSecondaryOnHover
         onClick={async () => {
-          // setPostTitle(await fetchSmartTitle());
+          await fetchSmartTitle();
         }}
       >
         {clickbaitShieldEnabled
