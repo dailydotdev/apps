@@ -10,6 +10,7 @@ import { SquadPostCardHeader } from '../common/SquadPostCardHeader';
 import PostMetadata from '../common/PostMetadata';
 import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
 import ActionButtons from '../ActionsButtons/ActionButtons';
+import { ClickbaitShield } from '../common/ClickbaitShield';
 
 export const FreeformGrid = forwardRef(function SharePostCard(
   {
@@ -73,9 +74,17 @@ export const FreeformGrid = forwardRef(function SharePostCard(
       {!!post.author && (
         <>
           {image && <div className="flex-1" />}
+          <div
+            className={classNames(
+              'mx-2 mb-2 flex items-center',
+              !image && 'mt-1',
+            )}
+          >
+            {post.clickbaitTitleDetected && <ClickbaitShield />}
+          </div>
           <PostMetadata
             className={classNames(
-              'mx-2 mb-1 line-clamp-1 break-words',
+              'mx-2 line-clamp-1 break-words',
               image ? 'mt-0' : 'mt-1',
             )}
             createdAt={post.createdAt}

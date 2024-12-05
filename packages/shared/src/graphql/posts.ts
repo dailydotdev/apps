@@ -125,6 +125,7 @@ export interface Post {
   slug?: string;
   bookmark?: Bookmark;
   domain?: string;
+  clickbaitTitleDetected?: boolean;
 }
 
 export type RelatedPost = Pick<

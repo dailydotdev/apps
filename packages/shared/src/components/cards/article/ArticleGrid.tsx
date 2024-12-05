@@ -21,6 +21,7 @@ import PostMetadata from '../common/PostMetadata';
 import { PostCardFooter } from '../common/PostCardFooter';
 import ActionButtons from '../ActionsButtons';
 import { FeedbackGrid } from './feedback/FeedbackGrid';
+import { ClickbaitShield } from '../common/ClickbaitShield';
 
 export const ArticleGrid = forwardRef(function ArticleGrid(
   {
@@ -115,7 +116,10 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
         {!showFeedback && (
           <Container>
             <CardSpace />
-            <PostTags tags={post.tags} />
+            <div className="mx-2 flex items-center">
+              {post.clickbaitTitleDetected && <ClickbaitShield />}
+              <PostTags tags={post.tags} />
+            </div>
             <PostMetadata
               createdAt={post.createdAt}
               readTime={post.readTime}
