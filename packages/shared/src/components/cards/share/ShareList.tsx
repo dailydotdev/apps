@@ -99,7 +99,9 @@ export const ShareList = forwardRef(function ShareList(
           </CardTitle>
           <div className="flex flex-1" />
           <div className="mx-2 flex items-center">
-            {post.clickbaitTitleDetected && <ClickbaitShield />}
+            {!post.title && post.sharedPost.clickbaitTitleDetected && (
+              <ClickbaitShield />
+            )}
             <PostTags tags={post.tags} />
           </div>
         </div>

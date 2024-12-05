@@ -82,7 +82,9 @@ export const ShareGrid = forwardRef(function ShareGrid(
         <Container>
           <CardSpace />
           <div className="mx-2 flex items-center">
-            {post.sharedPost.clickbaitTitleDetected && <ClickbaitShield />}
+            {!post.title && post.sharedPost.clickbaitTitleDetected && (
+              <ClickbaitShield />
+            )}
             <PostTags tags={post.sharedPost.tags} />
           </div>
           <PostMetadata
