@@ -17,12 +17,12 @@ import { DevPlusIcon } from '../../icons';
 import { plusUrl } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { LogEvent, TargetId } from '../../../lib/log';
-import { formToJson } from '../../../lib/form';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { IconSize } from '../../Icon';
 
 type BookmarkFolderModalProps = Omit<ModalProps, 'children'> & {
   onSubmit: (name: string) => void;
+  // TODO: Replace with correct type when implementing request
   folder?: {
     name: string;
     id: string;
@@ -58,7 +58,6 @@ const PlusCTA = ({ folderCount }: { folderCount: number }) => {
       <span>{folderCount === 0 ? createFirstFolder : getMoreFolders}</span>{' '}
       <Link
         target="_blank"
-        passHref
         href={plusUrl}
         rel={anchorDefaultRel}
         onClick={() => {
@@ -137,8 +136,7 @@ const BookmarkFolderModal = ({
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // TODO: Dummy component for now. Implement request later.
-    const formJson = formToJson(e.currentTarget);
-    console.log('formData', formJson);
+    // const formJson = formToJson(e.currentTarget);
   };
 
   return (
@@ -185,7 +183,7 @@ const BookmarkFolderModal = ({
             <li>
               <label
                 htmlFor="noicon"
-                className="flex cursor-pointer items-center transition"
+                className="flex cursor-pointer items-center"
               >
                 <input
                   type="radio"
@@ -194,7 +192,7 @@ const BookmarkFolderModal = ({
                   value=""
                   className="peer hidden"
                 />
-                <span className="flex h-12 w-12 items-center justify-center rounded-14 border-2 border-transparent bg-overlay-float-salt peer-checked:border-surface-focus">
+                <span className="flex h-12 w-12 select-none items-center justify-center rounded-14 border-2 border-transparent bg-overlay-float-salt peer-checked:border-surface-focus">
                   <FolderIcon />
                 </span>
               </label>
@@ -203,7 +201,7 @@ const BookmarkFolderModal = ({
               <li key={emoji}>
                 <label
                   htmlFor={emoji}
-                  className="flex cursor-pointer items-center transition"
+                  className="flex cursor-pointer items-center"
                 >
                   <input
                     type="radio"
@@ -212,7 +210,7 @@ const BookmarkFolderModal = ({
                     value={emoji}
                     className="peer hidden"
                   />
-                  <span className="flex h-12 w-12 items-center justify-center rounded-14 border-2 border-transparent bg-overlay-float-salt peer-checked:border-surface-focus">
+                  <span className="flex h-12 w-12 select-none items-center justify-center rounded-14 border-2 border-transparent bg-overlay-float-salt peer-checked:border-surface-focus">
                     {emoji}
                   </span>
                 </label>
