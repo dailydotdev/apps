@@ -2,7 +2,12 @@ import React, { type ReactElement } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ShieldCheckIcon, ShieldIcon, ShieldWarningIcon } from '../../icons';
-import { useActions, usePlusSubscription } from '../../../hooks';
+import {
+  useActions,
+  usePlusSubscription,
+  useViewSize,
+  ViewSize,
+} from '../../../hooks';
 import { SimpleTooltip } from '../../tooltips';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { ActionType } from '../../../graphql/actions';
@@ -21,6 +26,7 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const { flags } = useSettingsContext();
   const { clickbaitShieldEnabled } = flags;
   const { fetchSmartTitle, usedTrial } = useSmartTitle(post);
+  const isMobile = useViewSize(ViewSize.MobileL);
 
   if (!showPlusSubscription) {
     return null;
@@ -63,12 +69,18 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
               className="!underline"
               onClick={async () => {
                 if (hasUsedFreeTrial) {
-                  openModal({
-                    type: LazyModal.FeedFilters,
-                    props: {
-                      defaultView: FilterMenuTitle.ContentTypes,
-                    },
-                  });
+                  if (isMobile) {
+                    openModal({
+                      type: LazyModal.ClickbaitShield,
+                    });
+                  } else {
+                    openModal({
+                      type: LazyModal.FeedFilters,
+                      props: {
+                        defaultView: FilterMenuTitle.ContentTypes,
+                      },
+                    });
+                  }
                 } else {
                   await fetchSmartTitle();
                 }
