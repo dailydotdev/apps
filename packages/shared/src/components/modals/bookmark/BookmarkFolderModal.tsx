@@ -134,7 +134,7 @@ const BookmarkFolderModal = ({
   folderCount = 0,
   ...rest
 }: BookmarkFolderModalProps): ReactElement => {
-  const { isPlus } = usePlusSubscription();
+  const { showPlusSubscription } = usePlusSubscription();
   const [valid, setValid] = useState(false);
   const isMobile = useViewSize(ViewSize.MobileL);
 
@@ -151,7 +151,7 @@ const BookmarkFolderModal = ({
           <FormActions
             valid={valid}
             folderCount={folderCount}
-            isPlus={isPlus}
+            isPlus={showPlusSubscription}
             isMobile={isMobile}
           />
         )}
@@ -171,7 +171,7 @@ const BookmarkFolderModal = ({
           </Typography>
         </ModalHeader>
         <Modal.Body className="flex flex-col gap-5 tablet:gap-4">
-          {!isPlus && <PlusCTA folderCount={folderCount} />}
+          {!showPlusSubscription && <PlusCTA folderCount={folderCount} />}
           <TextField
             maxLength={50}
             label="Give your folder a name..."
@@ -208,7 +208,7 @@ const BookmarkFolderModal = ({
             <FormActions
               valid={valid}
               folderCount={folderCount}
-              isPlus={isPlus}
+              isPlus={showPlusSubscription}
               isMobile={isMobile}
             />
           )}
