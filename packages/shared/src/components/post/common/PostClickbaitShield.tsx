@@ -31,7 +31,7 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
     return (
       <div
         className={classNames(
-          'mt-1 flex flex-wrap items-center text-text-tertiary typo-callout',
+          'mt-6 flex flex-wrap items-center text-text-tertiary typo-callout tablet:mt-1',
           !usedTrial &&
             'rounded-12 border border-border-subtlest-tertiary px-3 py-2',
         )}
