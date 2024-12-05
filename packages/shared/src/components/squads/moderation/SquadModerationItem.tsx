@@ -100,7 +100,7 @@ export function SquadModerationItem(
           <PostTags className="!mx-0 min-w-full" tags={post?.tags} />
         </div>
         <div className="flex-1">
-          <CardImage src={image || post?.image} />
+          <CardImage className="mx-auto" src={image || post?.image} />
         </div>
       </div>
       {status === SourcePostModerationStatus.Rejected && !user.isModerator && (
