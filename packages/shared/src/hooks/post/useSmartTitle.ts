@@ -35,7 +35,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
       const data = await gqlClient.request<{
         fetchSmartTitle: { title: string };
       }>(POST_FETCH_SMART_TITLE_QUERY, {
-        id: post?.id,
+        id: post.sharedPost ? post.sharedPost.id : post?.id,
       });
 
       if (!isPlus) {
