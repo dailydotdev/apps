@@ -68,7 +68,7 @@ function LazyImageComponent(
         loading={eager ? 'eager' : 'lazy'}
         src={src}
         onError={onError}
-        // @ts-expect-error - Not supported by react yet
+        /* @ts-expect-error - Not supported by react yet */ /* eslint-disable react/no-unknown-property */
         fetchpriority={fetchPriority}
       />
       {children}

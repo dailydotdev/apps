@@ -18,7 +18,6 @@ import {
   REMOVE_FILTERS_FROM_FEED_MUTATION,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { getFeedSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useFeedSettings';
-import ad from '@dailydotdev/shared/__tests__/fixture/ad';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
 import {
@@ -26,6 +25,7 @@ import {
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
+import ad from '@dailydotdev/shared/__tests__/fixture/ad';
 import SourcePage from '../pages/sources/[source]';
 import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
 
@@ -126,7 +126,7 @@ const renderComponent = (
   client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
-  nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
+  nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
   const settingsContext: SettingsContextData = {
     spaciness: 'eco',
     openNewTab: true,

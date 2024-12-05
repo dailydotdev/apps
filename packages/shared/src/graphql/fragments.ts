@@ -215,6 +215,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       }
     }
     slug
+    clickbaitTitleDetected
   }
 `;
 
@@ -264,6 +265,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     }
     slug
     domain
+    clickbaitTitleDetected
   }
   ${PRIVILEGED_MEMBERS_FRAGMENT}
   ${SOURCE_BASE_FRAGMENT}
