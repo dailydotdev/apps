@@ -19,6 +19,7 @@ import { anchorDefaultRel } from '../../../lib/strings';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { formToJson } from '../../../lib/form';
 import { useLazyModal } from '../../../hooks/useLazyModal';
+import { IconSize } from '../../Icon';
 
 type BookmarkFolderModalProps = Omit<ModalProps, 'children'> & {
   onSubmit: (name: string) => void;
@@ -68,7 +69,7 @@ const PlusCTA = ({ folderCount }: { folderCount: number }) => {
         }}
       >
         <Typography
-          tag={TypographyTag.Link}
+          tag={TypographyTag.Span}
           type={TypographyType.Callout}
           color={TypographyColor.Plus}
           className="underline"
@@ -158,11 +159,12 @@ const BookmarkFolderModal = ({
         >
           <ModalHeader.Title>New Folder</ModalHeader.Title>
           <Typography
-            className="flex items-center"
             tag={TypographyTag.Span}
+            type={TypographyType.Caption1}
+            className="flex items-center rounded-4 bg-action-plus-float px-1 font-bold"
             color={TypographyColor.Plus}
           >
-            <DevPlusIcon />
+            <DevPlusIcon size={IconSize.Size16} />
             Plus
           </Typography>
         </ModalHeader>
