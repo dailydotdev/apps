@@ -7,23 +7,42 @@ import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { SidebarSectionProps } from './common';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
+import { BookmarkReminderIcon } from '../../icons/Bookmark/Reminder';
+import { useBookmarkFolderList } from '../../../hooks/bookmark';
 
 export const BookmarkSection = ({
   isItemsButton,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const { openModal } = useLazyModal();
+  const { folders } = useBookmarkFolderList();
 
   const menuItems: SidebarMenuItem[] = [
     {
       icon: (active: boolean) => (
         <ListIcon Icon={() => <BookmarkIcon secondary={active} />} />
       ),
-      title: 'Bookmarks',
+      title: 'Quick saves',
       path: `${webappUrl}bookmarks`,
       isForcedLink: true,
       requiresLogin: true,
     },
+    {
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <BookmarkReminderIcon secondary={active} />} />
+      ),
+      title: 'Read it later',
+      path: `${webappUrl}bookmarks/read-it-later`,
+      isForcedLink: true,
+      requiresLogin: true,
+    },
+    ...(folders ?? []).map((folder) => ({
+      icon: folder.icon,
+      title: folder.name,
+      path: `${webappUrl}bookmarks/${folder.id}`,
+      isForcedLink: true,
+      requiresLogin: true,
+    })),
     {
       icon: () => (
         <div className="rounded-6 bg-background-subtle">

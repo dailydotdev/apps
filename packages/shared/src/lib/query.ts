@@ -181,6 +181,7 @@ export enum RequestKey {
   ReferringUser = 'referring_user',
   SearchSources = 'search_sources',
   OnboardingSources = 'onboarding_sources',
+  BookmarkFolders = 'bookmark_folders',
 }
 
 export type HasConnection<
