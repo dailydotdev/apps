@@ -78,7 +78,7 @@ const renderComponent = (
   client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
-  nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
+  nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
 
   return render(
     <TestBootProvider client={client} auth={{ user }}>
