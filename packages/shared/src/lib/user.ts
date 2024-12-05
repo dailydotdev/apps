@@ -211,7 +211,7 @@ const getProfileV2ExtraRequest = async (
 };
 
 export async function getProfileSSR(id: string): Promise<PublicProfile> {
-  return await getProfileRequest(nodeFetch, id);
+  return await getProfileRequest(nodeFetch as unknown as typeof fetch, id);
 }
 
 export async function getProfile(id: string): Promise<PublicProfile> {
@@ -221,7 +221,10 @@ export async function getProfile(id: string): Promise<PublicProfile> {
 export async function getProfileV2ExtraSSR(
   id: string,
 ): Promise<Omit<ProfileV2, 'user'>> {
-  return await getProfileV2ExtraRequest(nodeFetch, id);
+  return await getProfileV2ExtraRequest(
+    nodeFetch as unknown as typeof fetch,
+    id,
+  );
 }
 
 export enum ReferralOriginKey {
