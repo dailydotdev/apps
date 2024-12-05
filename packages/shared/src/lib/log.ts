@@ -222,6 +222,7 @@ export enum LogEvent {
   // End Plus subscription
   // Clickbait Shield
   ToggleClickbaitShield = 'toggle clickbait shield',
+  ClickbaitShieldTitle = 'clickbait shield title',
   // End Clickbait Shield
 }
 

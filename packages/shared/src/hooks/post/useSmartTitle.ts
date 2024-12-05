@@ -8,16 +8,19 @@ import { generateQueryKey, RequestKey } from '../../lib/query';
 import { disabledRefetch } from '../../lib/func';
 import { useActions } from '../useActions';
 import { ActionType } from '../../graphql/actions';
+import { postLogEvent } from '../../lib/feed';
+import { LogEvent } from '../../lib/log';
+import { useLogContext } from '../../contexts/LogContext';
 
 type UseSmartTitle = {
-  // fetchSmartTitle: () => Promise<QueryObserverResult<string, Error>>;
-  fetchSmartTitle: (callback?: () => void | Promise<void>) => Promise<void>;
+  fetchSmartTitle: () => Promise<void>;
   usedTrial: boolean;
   title: string;
 };
 
 export const useSmartTitle = (post: Post): UseSmartTitle => {
   const { user } = useAuthContext();
+  const { logEvent } = useLogContext();
   const client = useQueryClient();
   const { isPlus, showPlusSubscription } = usePlusSubscription();
   const { completeAction } = useActions();
@@ -64,9 +67,9 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     ...disabledRefetch,
   });
 
-  const fetchSmartTitle = async (callback?: () => void | Promise<void>) => {
+  const fetchSmartTitle = async () => {
     await refetch();
-    await callback?.();
+    logEvent(postLogEvent(LogEvent.ClickbaitShieldTitle, post));
   };
 
   return {
