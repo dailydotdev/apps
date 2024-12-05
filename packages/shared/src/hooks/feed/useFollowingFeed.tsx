@@ -3,6 +3,8 @@ import useFeedSettings from '../useFeedSettings';
 import { useFollowingQuery } from '../contentPreference/useFollowingQuery';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
+import { useActiveFeedNameContext } from '../../contexts';
+import { OtherFeedPage } from '../../lib/query';
 
 export type UseFollowingFeed = {
   isActive: boolean;
@@ -11,9 +13,13 @@ export type UseFollowingFeed = {
 export const useFollowingFeed = (): UseFollowingFeed => {
   const { user } = useAuthContext();
   const { feedSettings } = useFeedSettings();
+  const { feedName } = useActiveFeedNameContext();
   const queryResult = useFollowingQuery({
     id: user?.id,
     entity: ContentPreferenceType.User,
+    queryOptions: {
+      enabled: feedName === OtherFeedPage.Following,
+    },
   });
 
   const isActive = useMemo(() => {
