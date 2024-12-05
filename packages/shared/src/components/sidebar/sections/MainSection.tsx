@@ -25,7 +25,7 @@ export const MainSection = ({
   const { user, isLoggedIn } = useAuthContext();
   const { showPlusSubscription, isEnrolledNotPlus, logSubscriptionEvent } =
     usePlusSubscription();
-  const { isActive } = useFollowingFeed();
+  const { isActive: isFollowingActive } = useFollowingFeed();
 
   const onPlusClick = useCallback(() => {
     logSubscriptionEvent({
@@ -57,7 +57,7 @@ export const MainSection = ({
         }
       : undefined;
 
-    const following = isActive
+    const following = isFollowingActive
       ? {
           title: 'Following',
           path: `${webappUrl}following`,
@@ -104,7 +104,7 @@ export const MainSection = ({
     user,
     isEnrolledNotPlus,
     onPlusClick,
-    isActive,
+    isFollowingActive,
     onNavTabClick,
     showPlusSubscription,
   ]);

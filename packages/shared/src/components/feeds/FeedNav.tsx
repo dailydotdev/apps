@@ -69,7 +69,7 @@ function FeedNav(): ReactElement {
   const { sortingEnabled, onboardingChecklistView } = useSettingsContext();
   const { isSortableFeed } = useFeedName({ feedName });
   const { home: shouldRenderNav } = useActiveNav(feedName);
-  const { isActive } = useFollowingFeed();
+  const { isActive: isFollowingActive } = useFollowingFeed();
   const isMobile = useViewSize(ViewSize.MobileL);
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
@@ -104,7 +104,7 @@ function FeedNav(): ReactElement {
       ...customFeeds,
     };
 
-    const following = isActive
+    const following = isFollowingActive
       ? {
           [`${webappUrl}following`]: FeedNavTab.Following,
         }
@@ -120,7 +120,7 @@ function FeedNav(): ReactElement {
       [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
       [`${webappUrl}history`]: FeedNavTab.History,
     };
-  }, [feeds?.edges, isActive, router.query.slugOrId, router.pathname]);
+  }, [feeds?.edges, isFollowingActive, router.query.slugOrId, router.pathname]);
 
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
