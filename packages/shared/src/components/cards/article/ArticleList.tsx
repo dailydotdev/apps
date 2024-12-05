@@ -22,6 +22,7 @@ import ActionButtons from '../common/list/ActionButtons';
 import { FeedbackList } from './feedback/FeedbackList';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
+import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 
 export const ArticleList = forwardRef(function ArticleList(
   {
@@ -50,7 +51,8 @@ export const ArticleList = forwardRef(function ArticleList(
 
   const { showFeedback } = usePostFeedback({ post });
   const isFeedPreview = useFeedPreviewMode();
-  const { title } = useTruncatedSummary(post?.title);
+  const { title } = useSmartTitle(post);
+  const { title: truncatedTitle } = useTruncatedSummary(title);
 
   return (
     <FeedItemContainer
@@ -115,11 +117,13 @@ export const ArticleList = forwardRef(function ArticleList(
                   lineClamp={undefined}
                   className={!!post.read && 'text-text-tertiary'}
                 >
-                  {title}
+                  {truncatedTitle}
                 </CardTitle>
                 <div className="flex flex-1" />
                 <div className="mx-2 flex items-center">
-                  {post.clickbaitTitleDetected && <ClickbaitShield />}
+                  {post.clickbaitTitleDetected && (
+                    <ClickbaitShield post={post} />
+                  )}
                   <PostTags tags={post.tags} />
                 </div>
               </div>
