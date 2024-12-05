@@ -5,6 +5,8 @@ import { getPostByIdKey } from '../usePostById';
 import { usePlusSubscription } from '../usePlusSubscription';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { generateQueryKey, RequestKey } from '../../lib/query';
+import { useActions } from '../useActions';
+import { ActionType } from '../../graphql/actions';
 
 type UseSmartTitle = {
   // fetchSmartTitle: () => Promise<QueryObserverResult<string, Error>>;
@@ -17,6 +19,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
   const { user } = useAuthContext();
   const client = useQueryClient();
   const { isPlus, showPlusSubscription } = usePlusSubscription();
+  const { completeAction } = useActions();
   const key = [...getPostByIdKey(post?.id), 'title'];
   const trialKey = generateQueryKey(
     RequestKey.UsedSmartTitleTrial,
@@ -40,12 +43,14 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
 
       if (!isPlus) {
         client.setQueryData(trialKey, true);
+        completeAction(ActionType.FetchedSmartTitle);
       }
 
       return data.fetchSmartTitle.title;
     },
     enabled: false,
     initialData: post?.title || post?.sharedPost?.title,
+    ...disabledRefetch,
   });
 
   const { data: usedTrial } = useQuery({
