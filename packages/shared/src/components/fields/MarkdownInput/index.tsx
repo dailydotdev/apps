@@ -99,7 +99,7 @@ function MarkdownInput(
     isLoading,
     disabledSubmit,
     maxInputLength,
-    onRequestClose,
+    onClose,
   }: MarkdownInputProps,
   ref: MutableRefObject<MarkdownRef>,
 ): ReactElement {
