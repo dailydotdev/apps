@@ -498,7 +498,6 @@ export interface UserStreak {
   current: number;
   weekStart: DayOfWeek;
   lastViewAt: Date;
-  lastViewAtTz: Date;
 }
 
 export const getReadingStreak = async (): Promise<UserStreak> => {

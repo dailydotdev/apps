@@ -22,9 +22,9 @@ export const useViewPost = (): UseMutateAsyncFunction<
     mutationFn: sendViewPost,
     onSuccess: async () => {
       const streak = client.getQueryData<UserStreak>(streakKey);
-      const isNewStreak = !streak?.lastViewAtTz;
+      const isNewStreak = !streak?.lastViewAt;
       const isFirstViewToday =
-        getDay(new Date(streak?.lastViewAtTz)) !== getDay(new Date());
+        getDay(new Date(streak?.lastViewAt)) !== getDay(new Date());
 
       if (isNewStreak || isFirstViewToday) {
         await client.refetchQueries({ queryKey: streakKey });

@@ -2,6 +2,7 @@ import React, { ReactElement, useEffect, useMemo } from 'react';
 import { addDays, isSameDay, subDays } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
+import { zonedTimeToUtc } from 'date-fns-tz';
 import { StreakSection } from './StreakSection';
 import { DayStreak, Streak } from './DayStreak';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
@@ -20,6 +21,7 @@ import ReadingStreakSwitch from '../ReadingStreakSwitch';
 import { useToggle } from '../../../hooks/useToggle';
 import { ToggleWeekStart } from '../../widgets/ToggleWeekStart';
 import { isWeekend, DayOfWeek } from '../../../lib/date';
+import { DEFAULT_TIMEZONE } from '../../../lib/constants';
 
 const getStreak = ({
   value,
@@ -27,12 +29,14 @@ const getStreak = ({
   dateToday,
   history,
   startOfWeek = DayOfWeek.Monday,
+  userTimezone,
 }: {
   value: Date;
   today: Date;
   dateToday: number;
   history?: ReadingDay[];
   startOfWeek?: number;
+  userTimezone: string;
 }): Streak => {
   const date = value.getDate();
   const isFreezeDay = isWeekend(value, startOfWeek);
@@ -41,7 +45,7 @@ const getStreak = ({
   const isCompleted =
     !isFuture &&
     history?.some(({ date: historyDate, reads }) => {
-      const dateToCompare = new Date(historyDate);
+      const dateToCompare = zonedTimeToUtc(historyDate, userTimezone);
       const sameDate = isSameDay(dateToCompare, value);
 
       return sameDate && reads > 0;
@@ -109,6 +113,7 @@ export function ReadingStreakPopup({
         dateToday,
         history,
         startOfWeek: streak.weekStart,
+        userTimezone: user.timezone || DEFAULT_TIMEZONE,
       });
 
       return (
@@ -121,7 +126,13 @@ export function ReadingStreakPopup({
         />
       );
     });
-  }, [dateToday, history, streak.weekStart, toggleShowStreakConfig]);
+  }, [
+    dateToday,
+    history,
+    streak.weekStart,
+    toggleShowStreakConfig,
+    user.timezone,
+  ]);
 
   useEffect(() => {
     if ([streak.max, streak.current].some((value) => value >= 2)) {

@@ -78,3 +78,5 @@ export const squadCategoriesPaths = {
   discover: '/squads/discover',
   featured: '/squads/discover/featured',
 };
+
+export const DEFAULT_TIMEZONE = 'Etc/UTC';
