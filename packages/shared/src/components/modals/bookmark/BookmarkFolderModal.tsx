@@ -84,16 +84,16 @@ const PlusCTA = ({ folderCount }: { folderCount: number }) => {
 const FormActions = ({
   valid,
   folderCount,
-  onRequestClose,
   isPlus,
   isMobile,
 }: {
   valid: boolean;
   folderCount: number;
-  onRequestClose: () => void;
   isPlus: boolean;
   isMobile: boolean;
 }) => {
+  const { closeModal } = useLazyModal();
+
   return (
     <div
       className={classNames(
@@ -102,11 +102,16 @@ const FormActions = ({
       )}
     >
       {isMobile && (
-        <Button onClick={onRequestClose} variant={ButtonVariant.Tertiary}>
+        <Button
+          type="button"
+          onClick={closeModal}
+          variant={ButtonVariant.Tertiary}
+        >
           Cancel
         </Button>
       )}
       <Button
+        type="submit"
         className="tablet:flex-grow"
         disabled={!valid}
         variant={ButtonVariant.Primary}
@@ -129,7 +134,6 @@ const BookmarkFolderModal = ({
   folderCount = 0,
   ...rest
 }: BookmarkFolderModalProps): ReactElement => {
-  const { closeModal } = useLazyModal();
   const { isPlus } = usePlusSubscription();
   const [valid, setValid] = useState(false);
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -147,7 +151,6 @@ const BookmarkFolderModal = ({
           <FormActions
             valid={valid}
             folderCount={folderCount}
-            onRequestClose={closeModal}
             isPlus={isPlus}
             isMobile={isMobile}
           />
@@ -205,7 +208,6 @@ const BookmarkFolderModal = ({
             <FormActions
               valid={valid}
               folderCount={folderCount}
-              onRequestClose={closeModal}
               isPlus={isPlus}
               isMobile={isMobile}
             />
