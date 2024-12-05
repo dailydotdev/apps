@@ -72,7 +72,7 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
       }}
       content={
         clickbaitShieldEnabled
-          ? 'Click to see the origianl title'
+          ? 'Click to see the original title'
           : 'Click to see the optimized title'
       }
     >
