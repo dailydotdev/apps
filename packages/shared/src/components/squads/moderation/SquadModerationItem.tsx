@@ -99,7 +99,9 @@ export function SquadModerationItem(
           </Typography>
           <PostTags className="!mx-0 min-w-full" tags={post?.tags} />
         </div>
-        <CardImage src={image || post?.image} />
+        <div className="flex-1">
+          <CardImage src={image || post?.image} />
+        </div>
       </div>
       {status === SourcePostModerationStatus.Rejected && !user.isModerator && (
         <AlertPointerMessage color={AlertColor.Bun}>
