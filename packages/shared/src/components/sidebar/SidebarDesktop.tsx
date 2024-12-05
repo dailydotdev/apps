@@ -13,7 +13,7 @@ import { NetworkSection } from './sections/NetworkSection';
 import { CustomFeedSection } from './sections/CustomFeedSection';
 import { DiscoverSection } from './sections/DiscoverSection';
 import { ResourceSection } from './sections/ResourceSection';
-import { BookmarkSection } from './sections/BookmarkSection';
+import { BookmarkFolderSection } from './sections/BookmarkFolderSection';
 import { usePlusSubscription } from '../../hooks';
 
 type SidebarDesktopProps = {
@@ -82,7 +82,7 @@ export const SidebarDesktop = ({
             isItemsButton={false}
           />
           {showPlusSubscription && (
-            <BookmarkSection
+            <BookmarkFolderSection
               {...defaultRenderSectionProps}
               title="Bookmarks"
               isItemsButton={false}

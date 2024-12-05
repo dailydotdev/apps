@@ -21,7 +21,7 @@ import { Button, ButtonVariant } from './buttons/Button';
 import { ShareIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import { useFeedLayout, usePlusSubscription } from '../hooks';
-import { BookmarkSection } from './sidebar/sections/BookmarkSection';
+import { BookmarkFolderSection } from './sidebar/sections/BookmarkFolderSection';
 
 export type BookmarkFeedLayoutProps = {
   searchQuery?: string;
@@ -120,7 +120,7 @@ export default function BookmarkFeedLayout({
       )}
       {showPlusSubscription && (
         <div className="mb-4 laptop:hidden">
-          <BookmarkSection
+          <BookmarkFolderSection
             isItemsButton={false}
             sidebarExpanded
             shouldShowLabel
