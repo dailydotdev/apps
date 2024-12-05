@@ -23,7 +23,8 @@ export const MainSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
-  const { isEnrolledNotPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { showPlusSubscription, isEnrolledNotPlus, logSubscriptionEvent } =
+    usePlusSubscription();
   const { isActive } = useFollowingFeed();
 
   const onPlusClick = useCallback(() => {
@@ -78,7 +79,7 @@ export const MainSection = ({
         path: '/posts',
         action: () => onNavTabClick?.(OtherFeedPage.Explore),
       },
-      {
+      !showPlusSubscription && {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <BookmarkIcon secondary={active} />} />
         ),
@@ -105,6 +106,7 @@ export const MainSection = ({
     onPlusClick,
     isActive,
     onNavTabClick,
+    showPlusSubscription,
   ]);
 
   return (

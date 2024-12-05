@@ -3,15 +3,19 @@ import { SidebarMenuItem } from '../common';
 import { HashtagIcon, PlusIcon } from '../../icons';
 import { Section } from '../Section';
 import { webappUrl } from '../../../lib/constants';
-import { useFeeds } from '../../../hooks';
+import { useFeeds, usePlusSubscription } from '../../../hooks';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { SidebarSectionProps } from './common';
+import { useLazyModal } from '../../../hooks/useLazyModal';
+import { LazyModal } from '../../modals/common/types';
 
 export const CustomFeedSection = ({
   isItemsButton,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const { feeds } = useFeeds();
+  const { openModal } = useLazyModal();
+  const { showPlusSubscription } = usePlusSubscription();
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     const customFeeds =
@@ -39,9 +43,24 @@ export const CustomFeedSection = ({
         title: 'Custom feed',
         path: `${webappUrl}feeds/new`,
         requiresLogin: true,
+        isForcedClickable: true,
+        action: (
+          event: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>,
+        ) => {
+          if (showPlusSubscription) {
+            event.preventDefault();
+
+            openModal({ type: LazyModal.AdvancedCustomFeedSoon, props: {} });
+          }
+        },
       },
     ].filter(Boolean);
-  }, [defaultRenderSectionProps.activePage, feeds?.edges]);
+  }, [
+    defaultRenderSectionProps.activePage,
+    feeds?.edges,
+    showPlusSubscription,
+    openModal,
+  ]);
 
   return (
     <Section
