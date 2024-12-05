@@ -29,7 +29,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     queryFn: async () => {
       // Enusre that we don't accidentally fetch the smart title for users outside of the feature flag
       if (!showPlusSubscription) {
-        return post?.title;
+        return post?.title || post?.sharedPost?.title;
       }
 
       const data = await gqlClient.request<{
@@ -45,7 +45,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
       return data.fetchSmartTitle.title;
     },
     enabled: false,
-    initialData: post?.title,
+    initialData: post?.title || post?.sharedPost?.title,
   });
 
   const { data: usedTrial } = useQuery({
