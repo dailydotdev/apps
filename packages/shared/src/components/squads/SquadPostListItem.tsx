@@ -1,14 +1,7 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
-import {
-  Button,
-  ButtonColor,
-  ButtonSize,
-  ButtonVariant,
-} from '../buttons/Button';
-import { BookmarkIcon } from '../icons';
+
 import styles from '../cards/common/Card.module.css';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { Post } from '../../graphql/posts';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { TextPlaceholder } from '../widgets/common';
@@ -16,21 +9,16 @@ import SquadPostAuthor from '../post/SquadPostAuthor';
 import { CardLink } from '../cards/common/Card';
 import { combinedClicks } from '../../lib/click';
 import { ProfileImageSize } from '../ProfilePicture';
-import { usePlusSubscription } from '../../hooks';
 
 type PostProps = {
   post: Post;
   onLinkClick: (post: Post) => unknown;
-  onBookmark: (post: Post) => unknown;
 };
 
 export const SquadPostListItem = ({
   post,
   onLinkClick,
-  onBookmark,
 }: PostProps): ReactElement => {
-  const { showPlusSubscription } = usePlusSubscription();
-
   return (
     <article
       className={classNames(
@@ -60,21 +48,6 @@ export const SquadPostListItem = ({
           {post.title ?? post.sharedPost.title}
         </p>
       </div>
-      {!showPlusSubscription && (
-        <SimpleTooltip
-          content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
-        >
-          <Button
-            className="absolute right-3 group-hover:visible mouse:invisible"
-            variant={ButtonVariant.Tertiary}
-            color={ButtonColor.Bun}
-            pressed={post.bookmarked}
-            size={ButtonSize.Small}
-            icon={<BookmarkIcon secondary={post.bookmarked} />}
-            onClick={() => onBookmark(post)}
-          />
-        </SimpleTooltip>
-      )}
     </article>
   );
 };

@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import Link from '../utilities/Link';
-import { ArrowIcon, BookmarkIcon } from '../icons';
+import { ArrowIcon } from '../icons';
 import { Post } from '../../graphql/posts';
 import styles from '../cards/common/Card.module.css';
 import { LazyImage } from '../LazyImage';
@@ -10,23 +10,19 @@ import { ElementPlaceholder } from '../ElementPlaceholder';
 import classed from '../../lib/classed';
 import { postLogEvent } from '../../lib/feed';
 import LogContext from '../../contexts/LogContext';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { HotLabel } from '../utilities';
 import { combinedClicks } from '../../lib/click';
 import {
   Button,
-  ButtonColor,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
 import { PostEngagementCounts } from '../cards/SimilarPosts';
-import { usePlusSubscription } from '../../hooks';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
   isLoading: boolean;
-  onBookmark: (post: Post) => unknown;
   className?: string;
   title?: string;
   moreButtonProps?: {
@@ -43,76 +39,52 @@ const Separator = <div className="h-px bg-border-subtlest-tertiary" />;
 type PostProps = {
   post: Post;
   onLinkClick: (post: Post) => unknown;
-  onBookmark: (post: Post) => unknown;
 };
 
 const imageClassName = 'w-7 h-7 rounded-full mt-1';
 const textContainerClassName = 'flex flex-col ml-3 mr-2 flex-1';
 
-const DefaultListItem = ({
-  post,
-  onLinkClick,
-  onBookmark,
-}: PostProps): ReactElement => {
-  const { showPlusSubscription } = usePlusSubscription();
-
-  return (
-    <article
-      className={classNames(
-        'group relative flex items-start py-2 pl-4 pr-2 hover:bg-surface-hover',
-        styles.card,
-      )}
-    >
-      <CardLink
-        href={post.commentsPermalink}
-        title={post.title}
-        {...combinedClicks(() => onLinkClick(post))}
-      />
-      <LazyImage
-        imgSrc={post.source.image}
-        imgAlt={post.source.name}
-        className={imageClassName}
-      />
-      <div className={textContainerClassName}>
-        <h5
-          className={classNames(
-            'multi-truncate mb-0.5 text-ellipsis break-words text-text-primary typo-callout',
-            styles.title,
-          )}
-        >
-          {post.title}
-        </h5>
-        {post.trending ? (
-          <div className="flex items-center text-text-tertiary typo-footnote">
-            <HotLabel />
-            <div className="ml-2">{post.trending} devs read it last hour</div>
-          </div>
-        ) : (
-          <PostEngagementCounts
-            upvotes={post.numUpvotes}
-            comments={post.numComments}
-            className="text-text-tertiary"
-          />
+const DefaultListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
+  <article
+    className={classNames(
+      'group relative flex items-start py-2 pl-4 pr-2 hover:bg-surface-hover',
+      styles.card,
+    )}
+  >
+    <CardLink
+      href={post.commentsPermalink}
+      title={post.title}
+      {...combinedClicks(() => onLinkClick(post))}
+    />
+    <LazyImage
+      imgSrc={post.source.image}
+      imgAlt={post.source.name}
+      className={imageClassName}
+    />
+    <div className={textContainerClassName}>
+      <h5
+        className={classNames(
+          'multi-truncate mb-0.5 text-ellipsis break-words text-text-primary typo-callout',
+          styles.title,
         )}
-      </div>
-      {!showPlusSubscription && (
-        <SimpleTooltip
-          content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
-        >
-          <Button
-            variant={ButtonVariant.Tertiary}
-            color={ButtonColor.Bun}
-            className="mt-1 group-hover:visible mouse:invisible"
-            pressed={post.bookmarked}
-            size={ButtonSize.Small}
-            icon={<BookmarkIcon secondary={post.bookmarked} />}
-            onClick={() => onBookmark(post)}
-          />
-        </SimpleTooltip>
+      >
+        {post.title}
+      </h5>
+      {post.trending ? (
+        <div className="flex items-center text-text-tertiary typo-footnote">
+          <HotLabel />
+          <div className="ml-2">{post.trending} devs read it last hour</div>
+        </div>
+      ) : (
+        <PostEngagementCounts
+          upvotes={post.numUpvotes}
+          comments={post.numComments}
+          className="text-text-tertiary"
+        />
       )}
-    </article>
-  );
-};
+    </div>
+  </article>
+);
 
 const TextPlaceholder = classed(ElementPlaceholder, 'h-3 rounded-12 my-0.5');
 
@@ -131,7 +103,6 @@ DefaultListItem.Placeholder = DefaultListItemPlaceholder;
 export default function SimilarPosts({
   posts,
   isLoading,
-  onBookmark,
   className,
   title = 'You might like',
   moreButtonProps,
@@ -171,7 +142,6 @@ export default function SimilarPosts({
             <ListItem
               key={post.id}
               post={post}
-              onBookmark={onBookmark}
               onLinkClick={() => onLinkClick(post)}
             />
           ))}
