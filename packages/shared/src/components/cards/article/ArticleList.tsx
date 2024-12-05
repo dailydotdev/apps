@@ -21,6 +21,7 @@ import { CardCoverList } from '../common/list/CardCover';
 import ActionButtons from '../common/list/ActionButtons';
 import { FeedbackList } from './feedback/FeedbackList';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
+import { ClickbaitShield } from '../common/ClickbaitShield';
 
 export const ArticleList = forwardRef(function ArticleList(
   {
@@ -117,7 +118,10 @@ export const ArticleList = forwardRef(function ArticleList(
                   {title}
                 </CardTitle>
                 <div className="flex flex-1" />
-                <PostTags tags={post.tags} />
+                <div className="mx-2 flex items-center">
+                  {post.clickbaitTitleDetected && <ClickbaitShield />}
+                  <PostTags tags={post.tags} />
+                </div>
               </div>
 
               <CardCoverList

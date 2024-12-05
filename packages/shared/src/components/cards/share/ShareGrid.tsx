@@ -14,6 +14,7 @@ import PostTags from '../common/PostTags';
 import PostMetadata from '../common/PostMetadata';
 import { PostCardFooter } from '../common/PostCardFooter';
 import ActionButtons from '../ActionsButtons';
+import { ClickbaitShield } from '../common/ClickbaitShield';
 
 export const ShareGrid = forwardRef(function ShareGrid(
   {
@@ -80,7 +81,12 @@ export const ShareGrid = forwardRef(function ShareGrid(
         </CardTextContainer>
         <Container>
           <CardSpace />
-          <PostTags tags={post.sharedPost.tags} />
+          <div className="mx-2 flex items-center">
+            {!post.title && post.sharedPost.clickbaitTitleDetected && (
+              <ClickbaitShield />
+            )}
+            <PostTags tags={post.sharedPost.tags} />
+          </div>
           <PostMetadata
             createdAt={post.createdAt}
             readTime={post.sharedPost.readTime}

@@ -13,6 +13,7 @@ import PostTags from '../common/PostTags';
 import { CardCoverList } from '../common/list/CardCover';
 import ActionButtons from '../common/list/ActionButtons';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
+import { ClickbaitShield } from '../common/ClickbaitShield';
 
 export const ShareList = forwardRef(function ShareList(
   {
@@ -97,7 +98,12 @@ export const ShareList = forwardRef(function ShareList(
             {title}
           </CardTitle>
           <div className="flex flex-1" />
-          <PostTags tags={post.sharedPost.tags} />
+          <div className="mx-2 flex items-center">
+            {!post.title && post.sharedPost.clickbaitTitleDetected && (
+              <ClickbaitShield />
+            )}
+            <PostTags tags={post.tags} />
+          </div>
         </div>
 
         <CardCoverList
