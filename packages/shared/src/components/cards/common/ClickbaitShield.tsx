@@ -56,7 +56,7 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
             )
           }
           iconSecondaryOnHover
-          onClick={() => {
+          onClick={async () => {
             if (hasUsedFreeTrial) {
               if (isMobile) {
                 openModal({
@@ -71,7 +71,7 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
                 });
               }
             } else {
-              fetchSmartTitle();
+              await fetchSmartTitle();
             }
           }}
         />
@@ -101,8 +101,8 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
           )
         }
         iconSecondaryOnHover
-        onClick={() => {
-          fetchSmartTitle();
+        onClick={async () => {
+          await fetchSmartTitle();
         }}
       />
     </SimpleTooltip>
