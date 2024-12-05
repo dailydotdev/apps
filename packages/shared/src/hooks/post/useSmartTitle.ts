@@ -5,6 +5,7 @@ import { getPostByIdKey } from '../usePostById';
 import { usePlusSubscription } from '../usePlusSubscription';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { generateQueryKey, RequestKey } from '../../lib/query';
+import { disabledRefetch } from '../../lib/func';
 import { useActions } from '../useActions';
 import { ActionType } from '../../graphql/actions';
 
@@ -60,6 +61,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     },
     enabled: !isPlus,
     staleTime: Infinity,
+    ...disabledRefetch,
   });
 
   const fetchSmartTitle = async (callback?: () => void | Promise<void>) => {
