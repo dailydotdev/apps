@@ -119,7 +119,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
           <Container>
             <CardSpace />
             <div className="mx-2 flex items-center">
-              {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
+              {true && <ClickbaitShield post={post} />}
               <PostTags tags={post.tags} />
             </div>
             <PostMetadata

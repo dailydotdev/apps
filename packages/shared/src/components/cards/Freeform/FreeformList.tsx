@@ -97,7 +97,7 @@ export const FreeformList = forwardRef(function SharePostCard(
               {truncatedTitle}
             </CardTitle>
 
-            {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
+            {true && <ClickbaitShield post={post} />}
           </div>
 
           {image && (
