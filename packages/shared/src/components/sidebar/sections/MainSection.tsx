@@ -15,7 +15,6 @@ import { SidebarSectionProps } from './common';
 import { webappUrl } from '../../../lib/constants';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../../lib/log';
-import { useFollowingFeed } from '../../../hooks/feed/useFollowingFeed';
 
 export const MainSection = ({
   isItemsButton,
@@ -25,7 +24,6 @@ export const MainSection = ({
   const { user, isLoggedIn } = useAuthContext();
   const { showPlusSubscription, isEnrolledNotPlus, logSubscriptionEvent } =
     usePlusSubscription();
-  const { isActive: isFollowingActive } = useFollowingFeed();
 
   const onPlusClick = useCallback(() => {
     logSubscriptionEvent({
@@ -57,20 +55,16 @@ export const MainSection = ({
         }
       : undefined;
 
-    const following = isFollowingActive
-      ? {
-          title: 'Following',
-          path: `${webappUrl}following`,
-          action: () => onNavTabClick?.(OtherFeedPage.Following),
-          icon: (active: boolean) => (
-            <ListIcon Icon={() => <SquadIcon secondary={active} />} />
-          ),
-        }
-      : undefined;
-
     return [
       myFeed,
-      following,
+      {
+        title: 'Following',
+        path: `${webappUrl}following`,
+        action: () => onNavTabClick?.(OtherFeedPage.Following),
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <SquadIcon secondary={active} />} />
+        ),
+      },
       {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <HotIcon secondary={active} />} />
@@ -104,7 +98,6 @@ export const MainSection = ({
     user,
     isEnrolledNotPlus,
     onPlusClick,
-    isFollowingActive,
     onNavTabClick,
     showPlusSubscription,
   ]);

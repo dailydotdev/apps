@@ -32,7 +32,6 @@ import classed from '../../lib/classed';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { OtherFeedPage } from '../../lib/query';
 import { ChecklistViewState } from '../../lib/checklist';
-import { useFollowingFeed } from '../../hooks/feed/useFollowingFeed';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 
@@ -69,7 +68,6 @@ function FeedNav(): ReactElement {
   const { sortingEnabled, onboardingChecklistView } = useSettingsContext();
   const { isSortableFeed } = useFeedName({ feedName });
   const { home: shouldRenderNav } = useActiveNav(feedName);
-  const { isActive: isFollowingActive } = useFollowingFeed();
   const isMobile = useViewSize(ViewSize.MobileL);
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
@@ -104,15 +102,9 @@ function FeedNav(): ReactElement {
       ...customFeeds,
     };
 
-    const following = isFollowingActive
-      ? {
-          [`${webappUrl}following`]: FeedNavTab.Following,
-        }
-      : undefined;
-
     return {
       ...urls,
-      ...following,
+      [`${webappUrl}following`]: FeedNavTab.Following,
       [`${webappUrl}${OtherFeedPage.Discussed}`]: FeedNavTab.Discussions,
       [`${webappUrl}tags`]: FeedNavTab.Tags,
       [`${webappUrl}sources`]: FeedNavTab.Sources,
@@ -120,7 +112,7 @@ function FeedNav(): ReactElement {
       [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
       [`${webappUrl}history`]: FeedNavTab.History,
     };
-  }, [feeds?.edges, isFollowingActive, router.query.slugOrId, router.pathname]);
+  }, [feeds?.edges, router.query.slugOrId, router.pathname]);
 
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
