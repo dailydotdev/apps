@@ -30,11 +30,13 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
         container={{
           className: 'max-w-70 text-center typo-subhead',
         }}
-        // visible
         content={
-          hasUsedFreeTrial
-            ? 'Potential issues detected in this title. To get clearer, more informative titles, enable Clickbait Shield'
-            : 'This title could be clearer and more informative. Try out Clickbait Shield'
+          <>
+            {usedTrial && 'This title was optimized with Clickbait Shield'}
+            {!usedTrial && hasUsedFreeTrial
+              ? 'Potential issues detected in this title. To get clearer, more informative titles, enable Clickbait Shield'
+              : 'This title could be clearer and more informative. Try out Clickbait Shield'}
+          </>
         }
       >
         <Button
