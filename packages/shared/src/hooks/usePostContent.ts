@@ -5,6 +5,7 @@ import {
   PostsEngaged,
   POSTS_ENGAGED_SUBSCRIPTION,
   SharedPost,
+  PostType,
 } from '../graphql/posts';
 import { useLogContext } from '../contexts/LogContext';
 import { postLogEvent } from '../lib/feed';
@@ -108,7 +109,16 @@ const usePostContent = ({
 
     loggedPostEvent.current = post.id;
 
-    logEvent(postLogEvent(`${origin} view`, post));
+    logEvent(
+      postLogEvent(`${origin} view`, post, {
+        extra: {
+          clickbait_badge:
+            post.type === PostType.Share
+              ? post.sharedPost.clickbaitTitleDetected
+              : post.clickbaitTitleDetected,
+        },
+      }),
+    );
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post]);

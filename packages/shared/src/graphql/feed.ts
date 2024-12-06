@@ -64,6 +64,7 @@ export const FEED_POST_FRAGMENT = gql`
         image
       }
       slug
+      clickbaitTitleDetected
     }
     trending
     feedMeta

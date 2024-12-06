@@ -4,6 +4,7 @@ import React, {
   ReactElement,
   ReactNode,
   Ref,
+  useState,
 } from 'react';
 import classNames from 'classnames';
 import { IconProps } from '../Icon';
@@ -43,8 +44,12 @@ type ColorButtonProps =
 
 // when iconPosition is present, icon is required
 type IconButtonProps =
-  | { iconPosition: ButtonIconPosition; icon: IconType }
-  | { iconPosition?: never; icon?: IconType };
+  | {
+      iconPosition: ButtonIconPosition;
+      icon: IconType;
+      iconSecondaryOnHover?: boolean;
+    }
+  | { iconPosition?: never; icon?: IconType; iconSecondaryOnHover?: boolean };
 
 type BaseButtonProps = CommonButtonProps & ColorButtonProps & IconButtonProps;
 
@@ -68,6 +73,7 @@ function ButtonComponent<TagName extends AllowedTags>(
     className,
     icon,
     iconPosition = ButtonIconPosition.Left,
+    iconSecondaryOnHover = false,
     loading,
     pressed,
     children,
@@ -80,6 +86,7 @@ function ButtonComponent<TagName extends AllowedTags>(
   const iconOnly = icon && isNullOrUndefined(children);
   const getIconWithSize = useGetIconWithSize(size, iconOnly, iconPosition);
   const isAnchor = Tag === 'a';
+  const [isHovering, setIsHovering] = useState(false);
 
   return (
     <Tag
@@ -100,16 +107,18 @@ function ButtonComponent<TagName extends AllowedTags>(
         VariantColorToClassName[variant]?.[color],
         className,
       )}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
     >
       {icon &&
         [ButtonIconPosition.Left, ButtonIconPosition.Top].includes(
           iconPosition,
         ) &&
-        getIconWithSize(icon)}
+        getIconWithSize(icon, iconSecondaryOnHover ? isHovering : false)}
       {loading ? <span className="invisible">{children}</span> : children}
       {icon &&
         iconPosition === ButtonIconPosition.Right &&
-        getIconWithSize(icon)}
+        getIconWithSize(icon, iconSecondaryOnHover ? isHovering : false)}
       {loading && (
         <Loader
           data-testid="buttonLoader"
