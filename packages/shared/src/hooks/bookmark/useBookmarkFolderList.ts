@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { BookmarkFolder, getBookmarkFolders } from '../../graphql/bookmarks';
-import { generateQueryKey, RequestKey } from '../../lib/query';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 
 interface UseBookmarkFolderList {
   isPending: boolean;
@@ -11,6 +11,7 @@ export const useBookmarkFolderList = (): UseBookmarkFolderList => {
   const { data, isPending } = useQuery({
     queryKey: generateQueryKey(RequestKey.BookmarkFolders),
     queryFn: getBookmarkFolders,
+    staleTime: StaleTime.Default,
   });
 
   return {

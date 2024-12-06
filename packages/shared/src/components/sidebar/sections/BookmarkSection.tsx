@@ -14,7 +14,7 @@ import {
 } from '../../../hooks/bookmark';
 import { useViewSize, ViewSize } from '../../../hooks';
 
-export const BookmarkFolderSection = ({
+export const BookmarkSection = ({
   isItemsButton,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
