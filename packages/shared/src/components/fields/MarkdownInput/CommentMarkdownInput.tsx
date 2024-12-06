@@ -133,7 +133,7 @@ export function CommentMarkdownInputComponent(
           ) : null
         }
         onValueUpdate={onChange}
-        onRequestClose={onRequestClose}
+        onClose={onClose}
       />
     </form>
   );
