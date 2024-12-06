@@ -220,6 +220,10 @@ export enum LogEvent {
   OnboardingSkipPlus = 'skip upgrade subscription',
   OnboardingUpgradePlus = 'upgrade subscription',
   // End Plus subscription
+  // Clickbait Shield
+  ToggleClickbaitShield = 'toggle clickbait shield',
+  ClickbaitShieldTitle = 'clickbait shield title',
+  // End Clickbait Shield
 }
 
 export enum FeedItemTitle {
@@ -265,6 +269,8 @@ export enum TargetType {
 }
 
 export enum TargetId {
+  On = 'on',
+  Off = 'off',
   SearchReferralBadge = 'search referral badge',
   InviteBanner = 'invite banner',
   InviteProfileMenu = 'invite in profile menu',
@@ -290,6 +296,7 @@ export enum TargetId {
   CustomFeed = 'custom feed',
   BookmarkFolder = 'bookmark folder',
   FeedSettings = 'feed settings',
+  ClickbaitShield = 'clickbait shield',
 }
 
 export enum NotificationChannel {
