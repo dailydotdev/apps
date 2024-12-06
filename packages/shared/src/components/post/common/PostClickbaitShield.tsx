@@ -44,7 +44,7 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
         )}
       >
         <Button
-          className="relative mr-2 font-normal"
+          className="relative mr-2 cursor-auto font-normal"
           size={ButtonSize.XSmall}
           icon={
             fetchedSmartTitle ? (
@@ -53,7 +53,6 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
               <ShieldWarningIcon className="text-accent-cheese-default" />
             )
           }
-          iconSecondaryOnHover
         />
 
         {fetchedSmartTitle ? (
