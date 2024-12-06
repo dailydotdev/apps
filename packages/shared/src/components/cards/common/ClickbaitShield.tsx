@@ -103,9 +103,7 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
           )
         }
         iconSecondaryOnHover
-        onClick={async () => {
-          await fetchSmartTitle();
-        }}
+        onClick={fetchSmartTitle}
       />
     </SimpleTooltip>
   );
