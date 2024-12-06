@@ -82,7 +82,7 @@ const ClickbaitShieldModal = ({
           tag="a"
           type="button"
           variant={ButtonVariant.Primary}
-          href={`${webappUrl}plus`}
+          href={hasUsedFreeTrial ? `${webappUrl}plus` : undefined}
           icon={
             hasUsedFreeTrial && (
               <DevPlusIcon className="text-action-plus-default" />
