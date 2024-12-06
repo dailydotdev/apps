@@ -17,6 +17,7 @@ export const useCreateBookmarkFolder = (): UseCreateBookmarkFolder => {
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const queryClient = useQueryClient();
+
   const { mutateAsync, isPending } = useMutation({
     mutationFn: createBookmarkFolder,
   });
@@ -31,7 +32,9 @@ export const useCreateBookmarkFolder = (): UseCreateBookmarkFolder => {
           });
 
           const listQueryKey = generateQueryKey(RequestKey.BookmarkFolders);
-          await queryClient.invalidateQueries({ queryKey: listQueryKey });
+          queryClient.setQueryData(listQueryKey, (data: BookmarkFolder[]) => {
+            return [...data, { id, ...folder }];
+          });
 
           displayToast(`${folder.name} has been created`);
         })
