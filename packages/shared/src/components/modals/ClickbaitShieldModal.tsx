@@ -14,6 +14,7 @@ import { usePlusSubscription, useViewSize, ViewSize } from '../../hooks';
 import { LogEvent, TargetId } from '../../lib/log';
 import { Switch } from '../fields/Switch';
 import { useLazyModal } from '../../hooks/useLazyModal';
+import { clickbaitShieldModalImage } from '../../lib/image';
 
 const ClickbaitShieldModal = (props: ModalProps): ReactElement => {
   const { logSubscriptionEvent } = usePlusSubscription();
@@ -28,7 +29,7 @@ const ClickbaitShieldModal = (props: ModalProps): ReactElement => {
     <Modal {...props} isDrawerOnMobile>
       <Image
         className="mb-5 rounded-16"
-        src="https://daily-now-res.cloudinary.com/image/upload/s--GWqpMG8r--/f_auto/v1732802237/Streak_together_with_a_friend_1_1_pwoill"
+        src={clickbaitShieldModalImage}
         alt="Clickbait shield feature"
       />
       <div className="flex flex-col gap-4">
