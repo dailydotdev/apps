@@ -1,4 +1,5 @@
-import React, { type ReactElement } from 'react';
+import React, { useContext, useState, type ReactElement } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button, ButtonSize, ButtonVariant, type ButtonProps } from './Button';
 import { ShieldCheckIcon, ShieldIcon, ShieldPlusIcon } from '../icons';
 import { useSettingsContext } from '../../contexts/SettingsContext';
@@ -10,16 +11,20 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { SimpleTooltip } from '../tooltips';
 import { LazyModal } from '../modals/common/types';
 import { FilterMenuTitle } from '../filters/helpers';
+import { ActiveFeedContext } from '../../contexts';
 
 export const ToggleClickbaitShield = ({
   origin,
 }: {
   origin: Origin;
 }): ReactElement => {
+  const queryClient = useQueryClient();
+  const { queryKey: feedQueryKey } = useContext(ActiveFeedContext);
   const { openModal } = useLazyModal();
   const { isPlus } = usePlusSubscription();
   const { logEvent } = useLogContext();
   const { flags, updateFlag } = useSettingsContext();
+  const [loading, setLoading] = useState(false);
 
   const commonIconProps: ButtonProps<'button'> = {
     size: ButtonSize.Medium,
@@ -68,15 +73,25 @@ export const ToggleClickbaitShield = ({
             <ShieldIcon />
           )
         }
+        loading={loading}
         onClick={async () => {
-          const newSatate = !flags?.clickbaitShieldEnabled;
+          const newState = !flags?.clickbaitShieldEnabled;
+          setLoading(true);
           await updateFlag(
             SidebarSettingsFlags.ClickbaitShieldEnabled,
-            newSatate,
+            newState,
           );
+          await queryClient.cancelQueries({
+            queryKey: feedQueryKey,
+          });
+          await queryClient.invalidateQueries({
+            queryKey: feedQueryKey,
+            stale: true,
+          });
+          setLoading(false);
           logEvent({
             event_name: LogEvent.ToggleClickbaitShield,
-            target_id: newSatate ? TargetId.On : TargetId.Off,
+            target_id: newState ? TargetId.On : TargetId.Off,
             extra: JSON.stringify({
               origin,
             }),
