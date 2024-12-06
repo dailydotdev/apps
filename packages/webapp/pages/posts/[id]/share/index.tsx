@@ -19,14 +19,16 @@ import { PostPage, PostParams, Props, seoTitle } from '../index';
 import { getLayout } from '../../../../components/layouts/MainLayout';
 
 export type SharePostPageProps = Props & {
-  shareUser: PublicProfile;
+  shareUserId?: string;
+  shareUser?: PublicProfile;
 };
 
 const SharePostPage = ({
+  shareUserId,
   shareUser,
   ...props
 }: SharePostPageProps): ReactElement => {
-  useUserShortByIdQuery({ id: shareUser?.id, initialData: shareUser });
+  useUserShortByIdQuery({ id: shareUserId, initialData: shareUser });
 
   return <PostPage {...props} />;
 };
@@ -82,6 +84,7 @@ export const getServerSideProps: GetServerSideProps<
         initialData,
         seo,
         shareUser,
+        shareUserId: shareUser ? query.userid : undefined,
       },
     };
   } catch (err) {
