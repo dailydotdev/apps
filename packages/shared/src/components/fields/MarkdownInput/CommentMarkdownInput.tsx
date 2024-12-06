@@ -55,7 +55,7 @@ export function CommentMarkdownInputComponent(
     showSubmit = true,
     showUserAvatar = true,
     formProps = {},
-    onRequestClose,
+    onClose,
   }: CommentMarkdownInputProps,
   ref: MutableRefObject<HTMLFormElement>,
 ): ReactElement {
