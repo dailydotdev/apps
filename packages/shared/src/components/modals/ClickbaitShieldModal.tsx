@@ -16,7 +16,16 @@ import { Switch } from '../fields/Switch';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { clickbaitShieldModalImage } from '../../lib/image';
 
-const ClickbaitShieldModal = (props: ModalProps): ReactElement => {
+type Props = {
+  hasUsedFreeTrial: boolean;
+  fetchSmartTitle: () => Promise<void>;
+};
+
+const ClickbaitShieldModal = ({
+  hasUsedFreeTrial = true,
+  fetchSmartTitle,
+  ...props
+}: Props & ModalProps): ReactElement => {
   const { logSubscriptionEvent } = usePlusSubscription();
   const { closeModal } = useLazyModal();
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -74,15 +83,24 @@ const ClickbaitShieldModal = (props: ModalProps): ReactElement => {
           type="button"
           variant={ButtonVariant.Primary}
           href={`${webappUrl}plus`}
-          icon={<DevPlusIcon className="text-action-plus-default" />}
-          onClick={() => {
-            logSubscriptionEvent({
-              event_name: LogEvent.UpgradeSubscription,
-              target_id: TargetId.ClickbaitShield,
-            });
+          icon={
+            hasUsedFreeTrial && (
+              <DevPlusIcon className="text-action-plus-default" />
+            )
+          }
+          onClick={async () => {
+            if (hasUsedFreeTrial) {
+              logSubscriptionEvent({
+                event_name: LogEvent.UpgradeSubscription,
+                target_id: TargetId.ClickbaitShield,
+              });
+            } else {
+              await fetchSmartTitle();
+              closeModal();
+            }
           }}
         >
-          Upgrade to Plus
+          {hasUsedFreeTrial ? 'Upgrade to Plus' : 'Try out Clickbait Shield'}
         </Button>
       </div>
     </Modal>

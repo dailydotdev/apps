@@ -71,6 +71,14 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
                   },
                 });
               }
+            } else if (isMobile) {
+              openModal({
+                type: LazyModal.ClickbaitShield,
+                props: {
+                  hasUsedFreeTrial,
+                  fetchSmartTitle,
+                },
+              });
             } else {
               await fetchSmartTitle();
             }
