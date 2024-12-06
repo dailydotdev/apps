@@ -421,6 +421,7 @@ describe('Feed logged in', () => {
         edges: [defaultFeedPage.edges[0]],
       }),
     ]);
+    await screen.findByTestId('adItem');
     await waitFor(async () => {
       const [el] = await screen.findAllByLabelText('Upvote');
       // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries

@@ -1,20 +1,17 @@
 import React, { ReactElement, useMemo, type PropsWithChildren } from 'react';
 import { desktop, laptop, laptopL, laptopXL, tablet } from '../styles/media';
-import { useConditionalFeature, useMedia, usePlusSubscription } from '../hooks';
+import { useMedia } from '../hooks';
 import { useSettingsContext } from './SettingsContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 
 import { Spaciness } from '../graphql/settings';
-import { featureFeedAdTemplate } from '../lib/featureManagement';
-import type { FeedAdTemplate } from '../lib/feed';
 
 export type FeedContextData = {
   pageSize: number;
   numCards: Record<Spaciness, number>;
-  adTemplate?: FeedAdTemplate;
 };
 
-export type FeedSettingsKeys =
+type FeedSettingsKeys =
   | 'default'
   | 'tablet'
   | 'laptop'
@@ -30,7 +27,6 @@ export type FeedSettings = {
     roomy: number;
     cozy: number;
   };
-  adTemplate?: FeedAdTemplate;
 };
 
 const baseFeedSettings: Record<FeedSettingsKeys, FeedSettings> = {
@@ -41,7 +37,6 @@ const baseFeedSettings: Record<FeedSettingsKeys, FeedSettings> = {
       eco: 1,
       roomy: 1,
     },
-    adTemplate: featureFeedAdTemplate.defaultValue.default,
   },
   tablet: {
     pageSize: 9,
@@ -112,38 +107,19 @@ export function FeedLayoutProvider({
 }: PropsWithChildren): ReactElement {
   const { sidebarExpanded } = useSettingsContext();
   const { sidebarRendered } = useSidebarRendered();
-  const { isPlus } = usePlusSubscription();
-  const feedAdTemplateFeature = useConditionalFeature({
-    feature: featureFeedAdTemplate,
-    shouldEvaluate: !isPlus,
-  });
 
   const { feedSettings, defaultFeedSettings } = useMemo(() => {
-    const enhancedFeedSettings = Object.entries(baseFeedSettings).reduce(
-      (acc, [feedSettingsKey, feedSettingsValue]) => {
-        acc[feedSettingsKey] = {
-          ...feedSettingsValue,
-          adTemplate:
-            feedAdTemplateFeature.value[feedSettingsKey] ||
-            feedAdTemplateFeature.value.default,
-        };
-
-        return acc;
-      },
-      {},
-    ) as typeof baseFeedSettings;
-
     return {
       feedSettings: [
-        enhancedFeedSettings.desktop,
-        enhancedFeedSettings.laptopXL,
-        enhancedFeedSettings.laptopL,
-        enhancedFeedSettings.laptop,
-        enhancedFeedSettings.tablet,
+        baseFeedSettings.desktop,
+        baseFeedSettings.laptopXL,
+        baseFeedSettings.laptopL,
+        baseFeedSettings.laptop,
+        baseFeedSettings.tablet,
       ],
-      defaultFeedSettings: enhancedFeedSettings.default,
+      defaultFeedSettings: baseFeedSettings.default,
     };
-  }, [feedAdTemplateFeature.value]);
+  }, []);
 
   // Generate the breakpoints for the feed settings
   const feedBreakpoints = useMemo(() => {
