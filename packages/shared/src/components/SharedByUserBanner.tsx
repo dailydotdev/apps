@@ -17,7 +17,7 @@ import { LoggedUser } from '../lib/user';
 export const SharedByUserBanner = (): ReactElement => {
   const { user: currentUser } = useAuthContext();
   const { query } = useRouter();
-  const { userid }: { userid: string } = query;
+  const userid = (query?.userid as string) || null;
 
   const { data: user } = useUserShortByIdQuery({ id: userid });
 

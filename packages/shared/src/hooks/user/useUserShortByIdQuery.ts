@@ -1,5 +1,4 @@
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
-import { UserCompany } from '../../lib/userCompany';
 import { USER_SHORT_BY_ID } from '../../graphql/users';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { gqlClient } from '../../graphql/common';
@@ -16,17 +15,17 @@ import {
   ContentPreferenceType,
 } from '../../graphql/contentPreference';
 
-export type UseSlackChannelsQuery = UseQueryResult<PublicProfile>;
+export type UseUserShortByIdQuery = UseQueryResult<PublicProfile>;
 export const useUserShortByIdQuery = ({
   id,
 }: {
   id: string;
-}): UseSlackChannelsQuery => {
+}): UseUserShortByIdQuery => {
   const queryKey = generateQueryKey(RequestKey.UserShortById, null, { id });
 
   const queryResult = useQuery({
     queryKey,
-    queryFn: async (): Promise<UserCompany[]> => {
+    queryFn: async (): Promise<PublicProfile> => {
       const res = await gqlClient.request(USER_SHORT_BY_ID, { id });
 
       return res.user;
