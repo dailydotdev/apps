@@ -1,4 +1,4 @@
-import React, { useContext, type ReactElement } from 'react';
+import React, { useContext, useState, type ReactElement } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button, ButtonSize, ButtonVariant, type ButtonProps } from './Button';
 import { ShieldCheckIcon, ShieldIcon, ShieldPlusIcon } from '../icons';
@@ -24,6 +24,7 @@ export const ToggleClickbaitShield = ({
   const { isPlus } = usePlusSubscription();
   const { logEvent } = useLogContext();
   const { flags, updateFlag } = useSettingsContext();
+  const [loading, setLoading] = useState(false);
 
   const commonIconProps: ButtonProps<'button'> = {
     size: ButtonSize.Medium,
@@ -72,8 +73,10 @@ export const ToggleClickbaitShield = ({
             <ShieldIcon />
           )
         }
+        loading={loading}
         onClick={async () => {
           const newState = !flags?.clickbaitShieldEnabled;
+          setLoading(true);
           await updateFlag(
             SidebarSettingsFlags.ClickbaitShieldEnabled,
             newState,
@@ -85,6 +88,7 @@ export const ToggleClickbaitShield = ({
             queryKey: feedQueryKey,
             stale: true,
           });
+          setLoading(false);
           logEvent({
             event_name: LogEvent.ToggleClickbaitShield,
             target_id: newState ? TargetId.On : TargetId.Off,
