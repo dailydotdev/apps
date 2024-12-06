@@ -73,10 +73,10 @@ export const ToggleClickbaitShield = ({
           )
         }
         onClick={async () => {
-          const newSatate = !flags?.clickbaitShieldEnabled;
+          const newState = !flags?.clickbaitShieldEnabled;
           await updateFlag(
             SidebarSettingsFlags.ClickbaitShieldEnabled,
-            newSatate,
+            newState,
           );
           await queryClient.cancelQueries({
             queryKey: feedQueryKey,
@@ -87,7 +87,7 @@ export const ToggleClickbaitShield = ({
           });
           logEvent({
             event_name: LogEvent.ToggleClickbaitShield,
-            target_id: newSatate ? TargetId.On : TargetId.Off,
+            target_id: newState ? TargetId.On : TargetId.Off,
             extra: JSON.stringify({
               origin,
             }),
