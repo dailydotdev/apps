@@ -4,11 +4,7 @@ import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import { LoggedUser } from '../../lib/user';
-import {
-  ADD_BOOKMARKS_MUTATION,
-  Post,
-  REMOVE_BOOKMARK_MUTATION,
-} from '../../graphql/posts';
+import { Post } from '../../graphql/posts';
 import {
   FURTHER_READING_QUERY,
   FurtherReadingData,
@@ -17,14 +13,11 @@ import defaultFeedPage from '../../../__tests__/fixture/feed';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import FurtherReading from './FurtherReading';
 import {
-  completeActionMock,
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import post from '../../../__tests__/fixture/post';
-import { AuthTriggers } from '../../lib/auth';
-import { ActionType } from '../../graphql/actions';
 
 const showLogin = jest.fn();
 
@@ -33,9 +26,6 @@ jest.mock('../../hooks', () => {
   return {
     __esModule: true,
     ...originalModule,
-    useBookmarkProvider: (): { highlightBookmarkedPost: boolean } => ({
-      highlightBookmarkedPost: false,
-    }),
   };
 });
 
@@ -147,88 +137,6 @@ describe('further reading', () => {
     expect(element1).toHaveTextContent('15 Comments');
     expect(element1).toHaveTextContent('1 Upvotes');
     expect(element2).toHaveTextContent('1 Upvotes');
-  });
-
-  it('should send add bookmark mutation', async () => {
-    let mutationCalled = false;
-    renderComponent([
-      createFeedMock(),
-      {
-        request: {
-          query: ADD_BOOKMARKS_MUTATION,
-          variables: {
-            data: { postIds: ['4f354bb73009e4adfa5dbcbf9b3c4ebf'] },
-          },
-        },
-        result: () => {
-          mutationCalled = true;
-          return { data: { _: true } };
-        },
-      },
-      completeActionMock({ action: ActionType.BookmarkPost }),
-    ]);
-    const [el] = await screen.findAllByLabelText('Bookmark');
-    el.click();
-    await waitFor(() => expect(mutationCalled).toBeTruthy());
-    await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'true'));
-  });
-
-  it('should send remove bookmark mutation', async () => {
-    let mutationCalled = false;
-    renderComponent([
-      createFeedMock([
-        { ...defaultFeedPage.edges[0].node, trending: 50, bookmarked: true },
-      ]),
-      {
-        request: {
-          query: REMOVE_BOOKMARK_MUTATION,
-          variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
-        },
-        result: () => {
-          mutationCalled = true;
-          return { data: { _: true } };
-        },
-      },
-      completeActionMock({ action: ActionType.BookmarkPost }),
-    ]);
-    const [el] = await screen.findAllByLabelText('Remove bookmark');
-    await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'true'));
-    el.click();
-    await waitFor(() => expect(mutationCalled).toBeTruthy());
-    await waitFor(() => expect(el).toHaveAttribute('aria-pressed', 'false'));
-  });
-
-  it('should open login modal on anonymous bookmark', async () => {
-    renderComponent(
-      [
-        createFeedMock(
-          [{ ...defaultFeedPage.edges[0].node, trending: 50 }],
-          [
-            defaultFeedPage.edges[2].node,
-            defaultFeedPage.edges[3].node,
-            defaultFeedPage.edges[4].node,
-          ],
-          [
-            defaultFeedPage.edges[1].node,
-            defaultFeedPage.edges[5].node,
-            defaultFeedPage.edges[6].node,
-          ],
-          {
-            post: post.id,
-            loggedIn: false,
-            trendingFirst: 1,
-            similarFirst: 3,
-            discussedFirst: 4,
-            tags: post.tags,
-            withDiscussedPosts: true,
-          },
-        ),
-      ],
-      null,
-    );
-    const [el] = await screen.findAllByLabelText('Bookmark');
-    el.click();
-    expect(showLogin).toBeCalledWith({ trigger: AuthTriggers.Bookmark });
   });
 
   it('should not show table of contents when it does not exist', async () => {
