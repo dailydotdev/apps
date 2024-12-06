@@ -1,4 +1,3 @@
-import nodeFetch from 'node-fetch';
 import { apiUrl, graphqlUrl } from './config';
 import {
   PROFILE_V2_EXTRA_QUERY,
@@ -163,8 +162,8 @@ export async function deleteAccount(): Promise<void> {
   });
 }
 
-const getProfileRequest = async (method = fetch, id: string) => {
-  const userRes = await method(graphqlUrl, {
+const getProfileRequest = async (id: string) => {
+  const userRes = await fetch(graphqlUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -186,10 +185,9 @@ const getProfileRequest = async (method = fetch, id: string) => {
 };
 
 const getProfileV2ExtraRequest = async (
-  method = fetch,
   id: string,
 ): Promise<Omit<ProfileV2, 'user'>> => {
-  const userRes = await method(graphqlUrl, {
+  const userRes = await fetch(graphqlUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -210,21 +208,14 @@ const getProfileV2ExtraRequest = async (
   return response?.data;
 };
 
-export async function getProfileSSR(id: string): Promise<PublicProfile> {
-  return await getProfileRequest(nodeFetch as unknown as typeof fetch, id);
-}
-
 export async function getProfile(id: string): Promise<PublicProfile> {
-  return await getProfileRequest(fetch, id);
+  return await getProfileRequest(id);
 }
 
-export async function getProfileV2ExtraSSR(
+export async function getProfileV2Extra(
   id: string,
 ): Promise<Omit<ProfileV2, 'user'>> {
-  return await getProfileV2ExtraRequest(
-    nodeFetch as unknown as typeof fetch,
-    id,
-  );
+  return await getProfileV2ExtraRequest(id);
 }
 
 export enum ReferralOriginKey {
