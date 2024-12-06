@@ -74,8 +74,21 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
       client.setQueryData(key, post?.title);
     }
     client.setQueryData(trialKey, (prevValue: boolean) => !prevValue);
-    logEvent(postLogEvent(LogEvent.ClickbaitShieldTitle, post));
-  }, [fetchedSmartTitle, logEvent, post, refetch, client, key, trialKey]);
+    logEvent(
+      postLogEvent(LogEvent.ClickbaitShieldTitle, post, {
+        extra: { isPlus },
+      }),
+    );
+  }, [
+    fetchedSmartTitle,
+    client,
+    trialKey,
+    logEvent,
+    post,
+    isPlus,
+    refetch,
+    key,
+  ]);
 
   return {
     fetchSmartTitle,
