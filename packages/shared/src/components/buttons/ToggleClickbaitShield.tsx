@@ -1,4 +1,5 @@
-import React, { type ReactElement } from 'react';
+import React, { useContext, type ReactElement } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button, ButtonSize, ButtonVariant, type ButtonProps } from './Button';
 import { ShieldCheckIcon, ShieldIcon, ShieldPlusIcon } from '../icons';
 import { useSettingsContext } from '../../contexts/SettingsContext';
@@ -10,12 +11,15 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { SimpleTooltip } from '../tooltips';
 import { LazyModal } from '../modals/common/types';
 import { FilterMenuTitle } from '../filters/helpers';
+import { ActiveFeedContext } from '../../contexts';
 
 export const ToggleClickbaitShield = ({
   origin,
 }: {
   origin: Origin;
 }): ReactElement => {
+  const { queryKey: feedQueryKey } = useContext(ActiveFeedContext);
+  const queryClient = useQueryClient();
   const { openModal } = useLazyModal();
   const { isPlus } = usePlusSubscription();
   const { logEvent } = useLogContext();
@@ -70,6 +74,13 @@ export const ToggleClickbaitShield = ({
         }
         onClick={async () => {
           const newSatate = !flags?.clickbaitShieldEnabled;
+          await queryClient.cancelQueries({
+            queryKey: feedQueryKey,
+          });
+          await queryClient.invalidateQueries({
+            queryKey: feedQueryKey,
+            stale: true,
+          });
           await updateFlag(
             SidebarSettingsFlags.ClickbaitShieldEnabled,
             newSatate,
