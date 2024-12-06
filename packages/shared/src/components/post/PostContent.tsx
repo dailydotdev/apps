@@ -151,7 +151,7 @@ export function PostContentRaw({
             >
               <ArticleLink>{title}</ArticleLink>
             </h1>
-            {true && <PostClickbaitShield post={post} />}
+            {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
           </div>
           {isVideoType && (
             <YoutubeVideo

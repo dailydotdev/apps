@@ -38,7 +38,7 @@ function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
     <>
       <div className="my-6">
         <h1 className="whitespace-pre-line font-bold typo-title2">{title}</h1>
-        {true && <PostClickbaitShield post={post} />}
+        {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
       </div>
       {post.type === PostType.Freeform && post.image && (
         <Link href={post.image}>

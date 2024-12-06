@@ -121,7 +121,9 @@ export const ArticleList = forwardRef(function ArticleList(
                 </CardTitle>
                 <div className="flex flex-1" />
                 <div className="mx-2 flex items-center">
-                  {true && <ClickbaitShield post={post} />}
+                  {post.clickbaitTitleDetected && (
+                    <ClickbaitShield post={post} />
+                  )}
                   <PostTags tags={post.tags} />
                 </div>
               </div>

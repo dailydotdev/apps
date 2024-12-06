@@ -82,7 +82,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
               !image && 'mt-1',
             )}
           >
-            {true && <ClickbaitShield post={post} />}
+            {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
           </div>
           <PostMetadata
             className={classNames(
