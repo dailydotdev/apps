@@ -21,7 +21,7 @@ type UseSmartTitle = {
 
 export const useSmartTitle = (post: Post): UseSmartTitle => {
   const client = useQueryClient();
-  const { user } = useAuthContext();
+  const { user, isLoggedIn } = useAuthContext();
   const { logEvent } = useLogContext();
   const { isPlus, showPlusSubscription } = usePlusSubscription();
   const { completeAction } = useActions();
@@ -37,7 +37,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     queryKey: key,
     queryFn: async () => {
       // Enusre that we don't accidentally fetch the smart title for users outside of the feature flag
-      if (!showPlusSubscription) {
+      if (!showPlusSubscription || !isLoggedIn) {
         return post?.title || post?.sharedPost?.title;
       }
 
