@@ -14,6 +14,7 @@ import {
   ContentPreference,
   ContentPreferenceType,
 } from '../../graphql/contentPreference';
+import { disabledRefetch } from '../../lib/func';
 
 export type UseUserShortByIdQuery = UseQueryResult<PublicProfile>;
 export const useUserShortByIdQuery = ({
@@ -30,8 +31,10 @@ export const useUserShortByIdQuery = ({
 
       return res.user;
     },
+    ...disabledRefetch
     staleTime: StaleTime.Default,
     enabled: !!id,
+    retry: false,
   });
 
   useMutationSubscription({
