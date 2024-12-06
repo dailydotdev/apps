@@ -18,8 +18,10 @@ import {
 export type UseUserShortByIdQuery = UseQueryResult<PublicProfile>;
 export const useUserShortByIdQuery = ({
   id,
+  initialData,
 }: {
   id: string;
+  initialData?: PublicProfile;
 }): UseUserShortByIdQuery => {
   const queryKey = generateQueryKey(RequestKey.UserShortById, null, { id });
 
@@ -32,6 +34,7 @@ export const useUserShortByIdQuery = ({
     },
     staleTime: StaleTime.Default,
     enabled: !!id,
+    initialData,
   });
 
   useMutationSubscription({

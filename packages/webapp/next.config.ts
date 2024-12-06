@@ -104,7 +104,7 @@ const nextConfig: NextConfig = {
       },
       assetPrefix: process.env.NEXT_PUBLIC_CDN_ASSET_PREFIX,
       rewrites: async () => {
-        const rewrites: Rewrite[] = [
+        const afterFiles: Rewrite[] = [
           {
             source: '/api/sitemaps/:path*',
             destination: `${process.env.NEXT_PUBLIC_API_URL}/sitemaps/:path*`,
@@ -127,13 +127,28 @@ const nextConfig: NextConfig = {
 
         // to support GitPod environment and avoid CORS issues, we need to proxy the API requests
         if (process.env.NEXT_PUBLIC_DOMAIN === 'localhost') {
-          rewrites.unshift({
+          afterFiles.unshift({
             source: '/api/:path*',
             destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
           });
         }
 
-        return rewrites;
+        return {
+          beforeFiles: [
+            {
+              source: '/posts/:id',
+              destination: '/posts/:id/share',
+              has: [
+                {
+                  type: 'query',
+                  key: 'userid',
+                },
+              ],
+            },
+          ],
+          afterFiles,
+          fallback: [],
+        };
       },
       redirects: async () => {
         const oldPublicAssets = [
