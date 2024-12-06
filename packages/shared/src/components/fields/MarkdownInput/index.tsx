@@ -40,6 +40,7 @@ import { Loader } from '../../Loader';
 import { Divider } from '../../utilities';
 import { usePopupSelector } from '../../../hooks/usePopupSelector';
 import { focusInput } from '../../../lib/textarea';
+import CloseButton from '../../CloseButton';
 
 interface ClassName {
   container?: string;
@@ -65,6 +66,7 @@ interface MarkdownInputProps
   isLoading?: boolean;
   disabledSubmit?: boolean;
   maxInputLength?: number;
+  onClose?: () => void;
 }
 
 enum CommentTab {
@@ -97,6 +99,7 @@ function MarkdownInput(
     isLoading,
     disabledSubmit,
     maxInputLength,
+    onClose,
   }: MarkdownInputProps,
   ref: MutableRefObject<MarkdownRef>,
 ): ReactElement {
@@ -179,6 +182,13 @@ function MarkdownInput(
           className="absolute right-3 top-3"
           isUpdating={isUpdatingDraft}
           isUptoDate={initialContent === input}
+        />
+      )}
+      {onClose && (
+        <CloseButton
+          size={ButtonSize.Small}
+          className="absolute right-3 top-2"
+          onClick={onClose}
         />
       )}
       <ConditionalWrapper
