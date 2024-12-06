@@ -186,8 +186,8 @@ function MarkdownInput(
       )}
       {onClose && (
         <CloseButton
-          size={ButtonSize.XSmall}
-          className="absolute right-3 top-3"
+          size={ButtonSize.Small}
+          className="absolute right-3 top-2"
           onClick={onClose}
         />
       )}
