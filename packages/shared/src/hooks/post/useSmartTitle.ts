@@ -40,7 +40,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     ...getPostByIdKey(post?.id),
   );
 
-  const { data: title, refetch } = useQuery({
+  const { data: smartTitle, refetch } = useQuery({
     queryKey: key,
     queryFn: async () => {
       // Enusre that we don't accidentally fetch the smart title for users outside of the feature flag
@@ -61,7 +61,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
       return data.fetchSmartTitle.title;
     },
     enabled: false,
-    initialData: post?.title || post?.sharedPost?.title,
+    staleTime: Infinity,
     ...disabledRefetch,
   });
 
@@ -96,6 +96,10 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     refetch,
     key,
   ]);
+
+  const title = useMemo(() => {
+    return fetchedSmartTitle ? smartTitle : post?.title;
+  }, [fetchedSmartTitle, smartTitle, post]);
 
   return {
     fetchSmartTitle,
