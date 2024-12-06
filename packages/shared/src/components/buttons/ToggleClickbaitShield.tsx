@@ -1,4 +1,4 @@
-import React, { useContext, useState, type ReactElement } from 'react';
+import React, { useState, type ReactElement } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button, ButtonSize, ButtonVariant, type ButtonProps } from './Button';
 import { ShieldCheckIcon, ShieldIcon, ShieldPlusIcon } from '../icons';
@@ -11,7 +11,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { SimpleTooltip } from '../tooltips';
 import { LazyModal } from '../modals/common/types';
 import { FilterMenuTitle } from '../filters/helpers';
-import { ActiveFeedContext } from '../../contexts';
+import { useActiveFeedContext } from '../../contexts/ActiveFeedContext';
 
 export const ToggleClickbaitShield = ({
   origin,
@@ -19,7 +19,7 @@ export const ToggleClickbaitShield = ({
   origin: Origin;
 }): ReactElement => {
   const queryClient = useQueryClient();
-  const { queryKey: feedQueryKey } = useContext(ActiveFeedContext);
+  const { queryKey: feedQueryKey } = useActiveFeedContext();
   const { openModal } = useLazyModal();
   const { isPlus } = usePlusSubscription();
   const { logEvent } = useLogContext();
