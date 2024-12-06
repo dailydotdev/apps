@@ -21,8 +21,26 @@ export const BookmarkFolderSection = ({
   const { openModal } = useLazyModal();
   const { folders } = useBookmarkFolderList();
   const { createFolder } = useCreateBookmarkFolder();
+
   const isLaptop = useViewSize(ViewSize.Laptop);
   const rightIcon = !isLaptop && (() => <ArrowIcon className="rotate-90" />);
+
+  const onAddFolderClick = (
+    event: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>,
+  ) => {
+    event.preventDefault();
+    openModal({
+      type: LazyModal.BookmarkFolderSoon,
+      props: {
+        onAfterClose() {
+          createFolder({
+            name: 'New folder',
+            icon: '🚀',
+          });
+        },
+      },
+    });
+  };
 
   const menuItems: SidebarMenuItem[] = [
     {
@@ -60,26 +78,8 @@ export const BookmarkFolderSection = ({
         </div>
       ),
       title: 'New folder',
-      path: `${webappUrl}bookmarks/new`,
-      isForcedLink: true,
       requiresLogin: true,
-      action: (
-        event: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>,
-      ) => {
-        event.preventDefault();
-
-        openModal({
-          type: LazyModal.BookmarkFolderSoon,
-          props: {
-            onAfterClose() {
-              createFolder({
-                name: 'New folder',
-                icon: '🚀',
-              });
-            },
-          },
-        });
-      },
+      action: onAddFolderClick,
     },
   ];
 
