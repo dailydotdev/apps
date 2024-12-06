@@ -173,7 +173,7 @@ export default function useFeed<T>(
 
   const adsQuery = useInfiniteQuery<Ad>({
     queryKey: [RequestKey.Ads, ...feedQueryKey],
-    queryFn: async ({ pageParam }) => fetchAd(!!pageParam, pageParam),
+    queryFn: async ({ pageParam }) => fetchAd(!!pageParam),
     initialPageParam: '',
     getNextPageParam: () => Date.now(),
     enabled: isAdsQueryEnabled,
@@ -222,9 +222,6 @@ export default function useFeed<T>(
       }
 
       const nextAd = adsData?.pages[adPage];
-
-      // eslint-disable-next-line no-console
-      console.log(adPage, adIndex, adsData?.pages.length);
 
       if (!nextAd) {
         fetchNextAd({ cancelRefetch: false });
