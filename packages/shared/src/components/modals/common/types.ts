@@ -63,6 +63,7 @@ export enum LazyModal {
   TopReaderBadge = 'topReaderBadge',
   AdvancedCustomFeedSoon = 'advancedCustomFeedSoon',
   BookmarkFolderSoon = 'bookmarkFolderSoon',
+  BookmarkFolderSponsor = 'bookmarkFolderSponsor',
 }
 
 export type ModalTabItem = {
