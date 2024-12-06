@@ -28,7 +28,6 @@ import {
   mutationKeyToContentPreferenceStatusMap,
 } from './contentPreference/types';
 import { PropsParameters } from '../types';
-import { usePlusSubscription } from './usePlusSubscription';
 
 interface UsePostByIdProps {
   id: string;
@@ -118,7 +117,6 @@ export const removePostComments = (
 const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
   const { initialData, ...restOptions } = options;
   const { tokenRefreshed } = useAuthContext();
-  const { isPlus } = usePlusSubscription();
   const key = getPostByIdKey(id);
   const {
     data: postById,
@@ -131,9 +129,7 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
     staleTime: StaleTime.Default,
     enabled: !!id && tokenRefreshed,
   });
-  const post = isPlus
-    ? postById
-    : postById || (options?.initialData as PostData);
+  const post = postById || (options?.initialData as PostData);
 
   useMutationSubscription({
     matcher: contentPreferenceMutationMatcher,
