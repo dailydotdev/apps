@@ -17,8 +17,8 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { clickbaitShieldModalImage } from '../../lib/image';
 
 type Props = {
-  hasUsedFreeTrial: boolean;
-  fetchSmartTitle: () => Promise<void>;
+  hasUsedFreeTrial?: boolean;
+  fetchSmartTitle?: () => Promise<void>;
 };
 
 const ClickbaitShieldModal = ({
@@ -95,7 +95,7 @@ const ClickbaitShieldModal = ({
                 target_id: TargetId.ClickbaitShield,
               });
             } else {
-              await fetchSmartTitle();
+              await fetchSmartTitle?.();
               closeModal();
             }
           }}
