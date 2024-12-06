@@ -31,7 +31,7 @@ export const useUserShortByIdQuery = ({
 
       return res.user;
     },
-    ...disabledRefetch
+    ...disabledRefetch,
     staleTime: StaleTime.Default,
     enabled: !!id,
     retry: false,
