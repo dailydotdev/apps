@@ -68,9 +68,12 @@ export const ToggleClickbaitShield = ({
             <ShieldIcon />
           )
         }
-        onClick={() => {
+        onClick={async () => {
           const newSatate = !flags?.clickbaitShieldEnabled;
-          updateFlag(SidebarSettingsFlags.ClickbaitShieldEnabled, newSatate);
+          await updateFlag(
+            SidebarSettingsFlags.ClickbaitShieldEnabled,
+            newSatate,
+          );
           logEvent({
             event_name: LogEvent.ToggleClickbaitShield,
             target_id: newSatate ? TargetId.On : TargetId.Off,

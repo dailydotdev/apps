@@ -89,9 +89,9 @@ export function ContentTypesFilter(): ReactElement {
                 compact={false}
                 disabled={!isPlus}
                 checked={isPlus ? flags?.clickbaitShieldEnabled : false}
-                onClick={() => {
+                onClick={async () => {
                   const newSatate = !flags?.clickbaitShieldEnabled;
-                  updateFlag(
+                  await updateFlag(
                     SidebarSettingsFlags.ClickbaitShieldEnabled,
                     newSatate,
                   );
