@@ -6,7 +6,6 @@ import React, {
   useContext,
 } from 'react';
 import { useRouter } from 'next/router';
-import classNames from 'classnames';
 import classed from '../../lib/classed';
 import { SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
@@ -25,7 +24,6 @@ import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import { AllFeedPages } from '../../lib/query';
 import { webappUrl } from '../../lib/constants';
-import { checkIsExtension } from '../../lib/func';
 import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import {
   AllowedTags,
@@ -70,7 +68,6 @@ export const SearchControlHeader = ({
     key: [QueryStateKeys.FeedPeriod],
     defaultValue: 0,
   });
-  const isExtension = checkIsExtension();
   const router = useRouter();
   const { openModal } = useLazyModal();
   const { sortingEnabled } = useContext(SettingsContext);
@@ -152,12 +149,8 @@ export const SearchControlHeader = ({
         );
 
         return (
-          <div
-            className={classNames(
-              'flex w-full items-center justify-between tablet:mb-2 tablet:p-4',
-            )}
-          >
-            {isExtension && wrapperChildren}
+          <div className="flex w-full items-center justify-between tablet:mb-2 tablet:p-2">
+            {wrapperChildren}
 
             <div className="flex-0">
               {isStreaksEnabled && (
