@@ -34,6 +34,7 @@ import {
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
+import { useUserShortByIdQuery } from '@dailydotdev/shared/src/hooks/user/useUserShortByIdQuery';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -105,6 +106,8 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   const { isFallback } = router;
   const { shouldShowAuthBanner } = useOnboarding();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const userid = (router.query?.userid as string) || null;
+  const { isLoading: isPendingBanner } = useUserShortByIdQuery({ id: userid });
   const { post, isError, isLoading } = usePostById({
     id,
     options: {
@@ -128,7 +131,12 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
 
   const privateSourceJoin = usePrivateSourceJoin({ postId: id });
 
-  if (isLoading || isFallback || privateSourceJoin.isActive) {
+  if (
+    isLoading ||
+    isFallback ||
+    privateSourceJoin.isActive ||
+    isPendingBanner
+  ) {
     return (
       <>
         <PostSEOSchema post={post} />

@@ -15,6 +15,7 @@ import {
   ContentPreferenceType,
 } from '../../graphql/contentPreference';
 import { disabledRefetch } from '../../lib/func';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 export type UseUserShortByIdQuery = UseQueryResult<PublicProfile>;
 export const useUserShortByIdQuery = ({
@@ -22,7 +23,8 @@ export const useUserShortByIdQuery = ({
 }: {
   id: string;
 }): UseUserShortByIdQuery => {
-  const queryKey = generateQueryKey(RequestKey.UserShortById, null, { id });
+  const { user } = useAuthContext();
+  const queryKey = generateQueryKey(RequestKey.UserShortById, user, { id });
 
   const queryResult = useQuery({
     queryKey,
@@ -33,7 +35,7 @@ export const useUserShortByIdQuery = ({
     },
     ...disabledRefetch,
     staleTime: StaleTime.Default,
-    enabled: !!id,
+    enabled: !!id && user?.id !== id,
     retry: false,
   });
 
