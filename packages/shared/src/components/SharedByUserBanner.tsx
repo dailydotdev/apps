@@ -1,5 +1,6 @@
 import React, { type ReactElement } from 'react';
 import { useRouter } from 'next/router';
+import classNames from 'classnames';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useUserShortByIdQuery } from '../hooks/user/useUserShortByIdQuery';
 import { ProfileImageSize, ProfilePicture } from './ProfilePicture';
@@ -13,8 +14,11 @@ import { ContentPreferenceType } from '../graphql/contentPreference';
 import { Origin } from '../lib/log';
 import { ButtonVariant } from './buttons/Button';
 import { LoggedUser } from '../lib/user';
+import { WithClassNameProps } from './utilities';
 
-export const SharedByUserBanner = (): ReactElement => {
+export const SharedByUserBanner = ({
+  className,
+}: WithClassNameProps): ReactElement => {
   const { user: currentUser } = useAuthContext();
   const { query } = useRouter();
   const userid = (query?.userid as string) || null;
@@ -26,7 +30,12 @@ export const SharedByUserBanner = (): ReactElement => {
   }
 
   return (
-    <div className="mt-5 flex items-center gap-2 rounded-14 border border-brand-float bg-background-subtle p-2 laptop:mt-0">
+    <div
+      className={classNames(
+        'mt-5 flex items-center gap-2 rounded-14 border border-brand-float bg-background-subtle p-2 laptop:mt-0',
+        className,
+      )}
+    >
       <ProfilePicture
         user={user}
         size={ProfileImageSize.Large}
