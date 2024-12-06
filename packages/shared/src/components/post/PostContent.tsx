@@ -24,6 +24,7 @@ import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { withPostById } from './withPostById';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
+import { SharedByUserBanner } from '../SharedByUserBanner';
 
 export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;
@@ -144,6 +145,7 @@ export function PostContentRaw({
           origin={origin}
           post={post}
         >
+          <SharedByUserBanner />
           <div className="my-6">
             <h1
               className="break-words font-bold typo-large-title"
