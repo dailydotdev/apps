@@ -1,7 +1,7 @@
 import React, { ReactElement, ReactNode } from 'react';
 import {
-  getProfileSSR,
-  getProfileV2ExtraSSR,
+  getProfile,
+  getProfileV2Extra,
   PublicProfile,
 } from '@dailydotdev/shared/src/lib/user';
 import dynamic from 'next/dynamic';
@@ -138,14 +138,14 @@ export async function getStaticProps({
 > {
   const { userId } = params;
   try {
-    const user = await getProfileSSR(userId);
+    const user = await getProfile(userId);
     if (!user) {
       return {
         props: { noindex: true },
         revalidate: 60,
       };
     }
-    const data = await getProfileV2ExtraSSR(user.id);
+    const data = await getProfileV2Extra(user.id);
 
     return {
       props: {
