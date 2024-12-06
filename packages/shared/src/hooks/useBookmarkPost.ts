@@ -77,7 +77,7 @@ const useBookmarkPost = ({
   const { displayToast } = useToastNotification();
   const { user, showLogin } = useContext(AuthContext);
   const { logEvent } = useContext(LogContext);
-  const { completeAction } = useActions();
+  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
 
   const defaultOnMutate = ({ id }) => {
     updatePostCache(client, id, (post) => ({ bookmarked: !post.bookmarked }));
