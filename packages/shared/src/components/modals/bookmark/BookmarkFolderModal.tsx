@@ -19,15 +19,18 @@ import { anchorDefaultRel } from '../../../lib/strings';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { IconSize } from '../../Icon';
+import { formToJson } from '../../../lib/form';
+
+// Feel free to replace if defined somewhere else at a later point
+type BookmarkFolder = {
+  name: string;
+  id: string;
+  icon?: string;
+};
 
 type BookmarkFolderModalProps = Omit<ModalProps, 'children'> & {
-  onSubmit: (name: string) => void;
-  // TODO: Replace with correct type when implementing request
-  folder?: {
-    name: string;
-    id: string;
-    icon?: string;
-  };
+  onSubmit: (folder: BookmarkFolder) => void;
+  folder?: BookmarkFolder;
   folderCount?: number;
 };
 
@@ -134,14 +137,14 @@ const BookmarkFolderModal = ({
   folderCount = 0,
   ...rest
 }: BookmarkFolderModalProps): ReactElement => {
-  const { showPlusSubscription } = usePlusSubscription();
+  const { isPlus } = usePlusSubscription();
   const [valid, setValid] = useState(false);
   const isMobile = useViewSize(ViewSize.MobileL);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // TODO: Dummy component for now. Implement request later.
-    // const formJson = formToJson(e.currentTarget);
+    const { name, icon } = formToJson<BookmarkFolder>(e.currentTarget);
+    onSubmit({ ...folder, name, icon });
   };
 
   return (
@@ -151,7 +154,7 @@ const BookmarkFolderModal = ({
           <FormActions
             valid={valid}
             folderCount={folderCount}
-            isPlus={showPlusSubscription}
+            isPlus={isPlus}
             isMobile={isMobile}
           />
         )}
@@ -171,7 +174,7 @@ const BookmarkFolderModal = ({
           </Typography>
         </ModalHeader>
         <Modal.Body className="flex flex-col gap-5 tablet:gap-4">
-          {!showPlusSubscription && <PlusCTA folderCount={folderCount} />}
+          {!isPlus && <PlusCTA folderCount={folderCount} />}
           <TextField
             maxLength={50}
             label="Give your folder a name..."
@@ -208,7 +211,7 @@ const BookmarkFolderModal = ({
             <FormActions
               valid={valid}
               folderCount={folderCount}
-              isPlus={showPlusSubscription}
+              isPlus={isPlus}
               isMobile={isMobile}
             />
           )}
