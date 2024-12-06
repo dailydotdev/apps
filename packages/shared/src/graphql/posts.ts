@@ -332,7 +332,11 @@ export const DEMOTE_FROM_PUBLIC_MUTATION = gql`
 export const ADD_BOOKMARKS_MUTATION = gql`
   mutation AddBookmarks($data: AddBookmarkInput!) {
     addBookmarks(data: $data) {
-      _
+      list {
+        id
+        name
+      }
+      postId
     }
   }
 `;
