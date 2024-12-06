@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { FilterCheckbox } from '../fields/FilterCheckbox';
 import { useAdvancedSettings } from '../../hooks/feed';
 import useFeedSettings from '../../hooks/useFeedSettings';
@@ -25,8 +26,11 @@ import { SidebarSettingsFlags } from '../../graphql/settings';
 import { useLogContext } from '../../contexts/LogContext';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SimpleTooltip } from '../tooltips';
+import { ActiveFeedContext } from '../../contexts';
 
 export function ContentTypesFilter(): ReactElement {
+  const queryClient = useQueryClient();
+  const { queryKey: feedQueryKey } = useContext(ActiveFeedContext);
   const { logEvent } = useLogContext();
   const { advancedSettings, isLoading } = useFeedSettings();
   const { selectedSettings, onToggleSettings } = useAdvancedSettings();
@@ -90,14 +94,21 @@ export function ContentTypesFilter(): ReactElement {
                 disabled={!isPlus}
                 checked={isPlus ? flags?.clickbaitShieldEnabled : false}
                 onClick={async () => {
-                  const newSatate = !flags?.clickbaitShieldEnabled;
+                  const newState = !flags?.clickbaitShieldEnabled;
                   await updateFlag(
                     SidebarSettingsFlags.ClickbaitShieldEnabled,
-                    newSatate,
+                    newState,
                   );
+                  await queryClient.cancelQueries({
+                    queryKey: feedQueryKey,
+                  });
+                  await queryClient.invalidateQueries({
+                    queryKey: feedQueryKey,
+                    stale: true,
+                  });
                   logEvent({
                     event_name: LogEvent.ToggleClickbaitShield,
-                    target_id: newSatate ? TargetId.On : TargetId.Off,
+                    target_id: newState ? TargetId.On : TargetId.Off,
                     extra: JSON.stringify({
                       origin: Origin.Settings,
                     }),

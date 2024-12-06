@@ -18,8 +18,8 @@ export const ToggleClickbaitShield = ({
 }: {
   origin: Origin;
 }): ReactElement => {
-  const { queryKey: feedQueryKey } = useContext(ActiveFeedContext);
   const queryClient = useQueryClient();
+  const { queryKey: feedQueryKey } = useContext(ActiveFeedContext);
   const { openModal } = useLazyModal();
   const { isPlus } = usePlusSubscription();
   const { logEvent } = useLogContext();
