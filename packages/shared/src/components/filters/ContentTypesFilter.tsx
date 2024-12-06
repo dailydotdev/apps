@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { FilterCheckbox } from '../fields/FilterCheckbox';
 import { useAdvancedSettings } from '../../hooks/feed';
 import useFeedSettings from '../../hooks/useFeedSettings';
@@ -16,17 +17,27 @@ import { useLanguage } from '../../hooks/useLanguage';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { DevPlusIcon } from '../icons';
 import { usePlusSubscription } from '../../hooks';
-import { LogEvent, TargetId } from '../../lib/log';
+import { LogEvent, Origin, TargetId } from '../../lib/log';
 import { Switch } from '../fields/Switch';
 import { PlusUser } from '../PlusUser';
 import { webappUrl } from '../../lib/constants';
+import { useSettingsContext } from '../../contexts/SettingsContext';
+import { SidebarSettingsFlags } from '../../graphql/settings';
+import { useLogContext } from '../../contexts/LogContext';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { SimpleTooltip } from '../tooltips';
+import { ActiveFeedContext } from '../../contexts';
 
 export function ContentTypesFilter(): ReactElement {
+  const queryClient = useQueryClient();
+  const { queryKey: feedQueryKey } = useContext(ActiveFeedContext);
+  const { logEvent } = useLogContext();
   const { advancedSettings, isLoading } = useFeedSettings();
   const { selectedSettings, onToggleSettings } = useAdvancedSettings();
   const { user } = useAuthContext();
   const { isPlus, showPlusSubscription, logSubscriptionEvent } =
     usePlusSubscription();
+  const { flags, updateFlag } = useSettingsContext();
 
   const videoSetting = getVideoSetting(advancedSettings);
 
@@ -61,49 +72,71 @@ export function ContentTypesFilter(): ReactElement {
                 actually need.
               </Typography>
             </div>
-            <Switch
-              inputId="clickbait-shield-switch"
-              name="clickbait_shield"
-              compact={false}
-              disabled
+            <ConditionalWrapper
+              condition={!isPlus}
+              wrapper={(child) => {
+                return (
+                  <SimpleTooltip
+                    container={{
+                      className: 'max-w-70 text-center typo-subhead',
+                    }}
+                    content="Upgrade to Plus to unlock Clickbait Shield and enhance titles automatically."
+                  >
+                    <div className="w-fit">{child as ReactElement}</div>
+                  </SimpleTooltip>
+                );
+              }}
             >
-              Optimize title quality
-            </Switch>
+              <Switch
+                inputId="clickbait-shield-switch"
+                name="clickbait_shield"
+                compact={false}
+                disabled={!isPlus}
+                checked={isPlus ? flags?.clickbaitShieldEnabled : false}
+                onClick={async () => {
+                  const newState = !flags?.clickbaitShieldEnabled;
+                  await updateFlag(
+                    SidebarSettingsFlags.ClickbaitShieldEnabled,
+                    newState,
+                  );
+                  await queryClient.cancelQueries({
+                    queryKey: feedQueryKey,
+                  });
+                  await queryClient.invalidateQueries({
+                    queryKey: feedQueryKey,
+                    stale: true,
+                  });
+                  logEvent({
+                    event_name: LogEvent.ToggleClickbaitShield,
+                    target_id: newState ? TargetId.On : TargetId.Off,
+                    extra: JSON.stringify({
+                      origin: Origin.Settings,
+                    }),
+                  });
+                }}
+              >
+                Optimize title quality
+              </Switch>
+            </ConditionalWrapper>
             {!isPlus && (
-              <div className="flex flex-col items-center justify-center gap-4 rounded-10 border border-border-subtlest-tertiary bg-action-plus-float p-4 text-center laptop:flex-row laptop:text-left">
-                <Typography
-                  className="flex flex-1"
-                  type={TypographyType.Body}
-                  color={TypographyColor.Primary}
-                >
-                  Upgrade to daily.dev Plus today, get an early adopter discount
-                  and be among the first to experience it as soon as it
-                  launches!
-                </Typography>
-                <Button
-                  className="flex w-full laptop:w-auto"
-                  tag="a"
-                  type="button"
-                  variant={ButtonVariant.Primary}
-                  size={ButtonSize.Medium}
-                  href={`${webappUrl}plus`}
-                  icon={<DevPlusIcon className="text-action-plus-default" />}
-                  onClick={() => {
-                    logSubscriptionEvent({
-                      event_name: LogEvent.UpgradeSubscription,
-                      target_id: TargetId.FeedSettings,
-                    });
-                  }}
-                >
-                  Upgrade to Plus
-                </Button>
-              </div>
+              <Button
+                className="w-fit"
+                tag="a"
+                type="button"
+                variant={ButtonVariant.Primary}
+                size={ButtonSize.Medium}
+                href={`${webappUrl}plus`}
+                icon={<DevPlusIcon className="text-action-plus-default" />}
+                onClick={() => {
+                  logSubscriptionEvent({
+                    event_name: LogEvent.UpgradeSubscription,
+                    target_id: TargetId.ClickbaitShield,
+                  });
+                }}
+              >
+                Upgrade to Plus
+              </Button>
             )}
-            <div className="absolute -right-14 top-8 w-52 rotate-45 bg-action-plus-default px-2 py-1 text-center text-white">
-              <Typography type={TypographyType.Callout} bold>
-                Coming soon
-              </Typography>
-            </div>
           </section>
           <Divider className="bg-border-subtlest-tertiary" />
         </>

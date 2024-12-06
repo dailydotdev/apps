@@ -22,7 +22,6 @@ import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { Dropdown } from '../fields/Dropdown';
 import { PlusIcon, SortIcon } from '../icons';
-import { IconSize } from '../Icon';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
@@ -53,6 +52,7 @@ enum FeedNavTab {
   History = 'History',
   Discussions = 'Discussions',
   NewFeed = 'Custom feed',
+  Following = 'Following',
 }
 
 const StickyNavIconWrapper = classed(
@@ -103,6 +103,7 @@ function FeedNav(): ReactElement {
 
     return {
       ...urls,
+      [`${webappUrl}following`]: FeedNavTab.Following,
       [`${webappUrl}${OtherFeedPage.Discussed}`]: FeedNavTab.Discussions,
       [`${webappUrl}tags`]: FeedNavTab.Tags,
       [`${webappUrl}sources`]: FeedNavTab.Sources,
@@ -192,7 +193,8 @@ function FeedNav(): ReactElement {
               shouldIndicateSelected
               buttonSize={ButtonSize.Small}
               buttonVariant={ButtonVariant.Tertiary}
-              icon={<SortIcon size={IconSize.Medium} />}
+              icon={<SortIcon />}
+              iconOnly
               selectedIndex={selectedAlgo}
               options={algorithmsList}
               onChange={(_, index) => setSelectedAlgo(index)}

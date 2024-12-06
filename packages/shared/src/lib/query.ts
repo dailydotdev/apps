@@ -53,6 +53,7 @@ export enum OtherFeedPage {
   FeedByIds = 'feed-by-ids',
   Welcome = 'welcome',
   Discussed = 'discussed',
+  Following = 'following',
 }
 
 const ONE_MINUTE = 60 * 1000;
@@ -181,6 +182,7 @@ export enum RequestKey {
   ReferringUser = 'referring_user',
   SearchSources = 'search_sources',
   OnboardingSources = 'onboarding_sources',
+  FetchedOriginalTitle = 'fetched_original_title',
 }
 
 export type HasConnection<
