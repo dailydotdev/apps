@@ -29,8 +29,10 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
   const key = useMemo(
     () => [
       ...getPostByIdKey(post?.id),
-      'title',
-      showPlusSubscription.toString(),
+      {
+        key: 'title',
+        showPlusSubscription,
+      },
     ],
     [post?.id, showPlusSubscription],
   );
