@@ -30,6 +30,8 @@ import { LogEvent } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
 import type { FeedAdTemplate } from '../lib/feed';
 import { featureFeedAdTemplate } from '../lib/featureManagement';
+import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
+import { AD_PLACEHOLDER_SOURCE_ID } from '../lib/constants';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -173,7 +175,21 @@ export default function useFeed<T>(
 
   const adsQuery = useInfiniteQuery<Ad>({
     queryKey: [RequestKey.Ads, ...feedQueryKey],
-    queryFn: async ({ pageParam }) => fetchAd(!!pageParam),
+    queryFn: async ({ pageParam }) => {
+      const ad = await fetchAd(!!pageParam);
+
+      if (!ad) {
+        return {
+          source: AD_PLACEHOLDER_SOURCE_ID,
+          link: 'https://daily.dev',
+          company: 'daily.dev',
+          description: 'daily.dev',
+          image: cloudinaryPostImageCoverPlaceholder,
+        };
+      }
+
+      return ad;
+    },
     initialPageParam: '',
     getNextPageParam: () => Date.now(),
     enabled: isAdsQueryEnabled,
@@ -226,6 +242,15 @@ export default function useFeed<T>(
       if (!nextAd) {
         fetchNextAd({ cancelRefetch: false });
 
+        return {
+          type: FeedItemType.Placeholder,
+          index: adPage,
+        };
+      }
+
+      // for now we return placeholder when no ad is available
+      // this can be replace with some local replacements in the future
+      if (nextAd.source === AD_PLACEHOLDER_SOURCE_ID) {
         return {
           type: FeedItemType.Placeholder,
           index: adPage,
