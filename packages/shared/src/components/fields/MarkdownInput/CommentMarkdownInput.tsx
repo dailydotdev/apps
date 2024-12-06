@@ -40,7 +40,7 @@ export interface CommentMarkdownInputProps {
   showUserAvatar?: boolean;
   onChange?: (value: string) => void;
   formProps?: FormHTMLAttributes<HTMLFormElement>;
-  onRequestClose?: () => void;
+  onClose?: () => void;
 }
 
 export function CommentMarkdownInputComponent(
