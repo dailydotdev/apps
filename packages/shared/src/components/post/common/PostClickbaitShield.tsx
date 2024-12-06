@@ -66,7 +66,9 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
             <Button
               size={ButtonSize.XSmall}
               variant={ButtonVariant.Option}
-              className="!underline"
+              tag="a"
+              role="button"
+              className="!underline hover:!bg-transparent"
               onClick={async () => {
                 if (hasUsedFreeTrial) {
                   if (isMobile) {
