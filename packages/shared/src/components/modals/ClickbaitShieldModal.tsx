@@ -29,7 +29,7 @@ const ClickbaitShieldModal = (props: ModalProps): ReactElement => {
       <Image
         className="mb-5 rounded-16"
         src="https://daily-now-res.cloudinary.com/image/upload/s--GWqpMG8r--/f_auto/v1732802237/Streak_together_with_a_friend_1_1_pwoill"
-        alt="Slack integration"
+        alt="Clickbait shield feature"
       />
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-2">
