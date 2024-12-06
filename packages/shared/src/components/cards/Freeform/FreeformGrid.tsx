@@ -11,6 +11,7 @@ import PostMetadata from '../common/PostMetadata';
 import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
 import ActionButtons from '../ActionsButtons/ActionButtons';
 import { ClickbaitShield } from '../common/ClickbaitShield';
+import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 
 export const FreeformGrid = forwardRef(function SharePostCard(
   {
@@ -34,6 +35,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
   const onPostCardAuxClick = () => onPostAuxClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const image = usePostImage(post);
+  const { title } = useSmartTitle(post);
 
   return (
     <FeedItemContainer
@@ -69,7 +71,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
           }),
         )}
       >
-        {post.title}
+        {title}
       </FreeformCardTitle>
       {!!post.author && (
         <>
@@ -80,7 +82,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
               !image && 'mt-1',
             )}
           >
-            {post.clickbaitTitleDetected && <ClickbaitShield />}
+            {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
           </div>
           <PostMetadata
             className={classNames(

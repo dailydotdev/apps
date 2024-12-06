@@ -282,6 +282,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       sharedPost {
         ...SharedPostInfo
       }
+      clickbaitTitleDetected
     }
   }
   ${SOURCE_SHORT_INFO_FRAGMENT}
@@ -816,6 +817,14 @@ export const POST_CODE_SNIPPETS_QUERY = gql`
     }
   }
   ${POST_CODE_SNIPPET_FRAGMENT}
+`;
+
+export const POST_FETCH_SMART_TITLE_QUERY = gql`
+  query FetchSmartTitle($id: ID!) {
+    fetchSmartTitle(id: $id) {
+      title
+    }
+  }
 `;
 
 export const createSourcePostModeration = async (

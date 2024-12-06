@@ -278,6 +278,9 @@ export const advancedCustomFeedSoonImage =
 export const bookmarkFolderSoonImage =
   'https://daily-now-res.cloudinary.com/image/upload/s--_jM3zDSE--/f_auto/v1733239852/daily_dev_bookmarks_folders_fsughm';
 
+export const clickbaitShieldModalImage =
+  'https://daily-now-res.cloudinary.com/image/upload/s--GWqpMG8r--/f_auto/v1732802237/Streak_together_with_a_friend_1_1_pwoill';
+
 export const smallPostImage = (url: string): string => {
   if (!url) {
     return cloudinaryPostImageCoverPlaceholder;

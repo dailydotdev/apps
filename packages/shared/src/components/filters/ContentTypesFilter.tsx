@@ -23,6 +23,8 @@ import { webappUrl } from '../../lib/constants';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { SidebarSettingsFlags } from '../../graphql/settings';
 import { useLogContext } from '../../contexts/LogContext';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { SimpleTooltip } from '../tooltips';
 
 export function ContentTypesFilter(): ReactElement {
   const { logEvent } = useLogContext();
@@ -66,58 +68,63 @@ export function ContentTypesFilter(): ReactElement {
                 actually need.
               </Typography>
             </div>
-            <Switch
-              inputId="clickbait-shield-switch"
-              name="clickbait_shield"
-              compact={false}
-              disabled={!isPlus}
-              checked={isPlus ? flags?.clickbaitShieldEnabled : false}
-              onClick={() => {
-                const newSatate = !flags?.clickbaitShieldEnabled;
-                updateFlag(
-                  SidebarSettingsFlags.ClickbaitShieldEnabled,
-                  newSatate,
+            <ConditionalWrapper
+              condition={!isPlus}
+              wrapper={(child) => {
+                return (
+                  <SimpleTooltip
+                    container={{
+                      className: 'max-w-70 text-center typo-subhead',
+                    }}
+                    content="Upgrade to Plus to unlock Clickbait Shield and enhance titles automatically."
+                  >
+                    <div className="w-fit">{child as ReactElement}</div>
+                  </SimpleTooltip>
                 );
-                logEvent({
-                  event_name: LogEvent.ToggleClickbaitShield,
-                  target_id: newSatate ? TargetId.On : TargetId.Off,
-                  extra: JSON.stringify({
-                    origin: Origin.Settings,
-                  }),
-                });
               }}
             >
-              Optimize title quality
-            </Switch>
+              <Switch
+                inputId="clickbait-shield-switch"
+                name="clickbait_shield"
+                compact={false}
+                disabled={!isPlus}
+                checked={isPlus ? flags?.clickbaitShieldEnabled : false}
+                onClick={() => {
+                  const newSatate = !flags?.clickbaitShieldEnabled;
+                  updateFlag(
+                    SidebarSettingsFlags.ClickbaitShieldEnabled,
+                    newSatate,
+                  );
+                  logEvent({
+                    event_name: LogEvent.ToggleClickbaitShield,
+                    target_id: newSatate ? TargetId.On : TargetId.Off,
+                    extra: JSON.stringify({
+                      origin: Origin.Settings,
+                    }),
+                  });
+                }}
+              >
+                Optimize title quality
+              </Switch>
+            </ConditionalWrapper>
             {!isPlus && (
-              <div className="flex flex-col items-center justify-center gap-4 rounded-10 border border-border-subtlest-tertiary bg-action-plus-float p-4 text-center laptop:flex-row laptop:text-left">
-                <Typography
-                  className="flex flex-1"
-                  type={TypographyType.Body}
-                  color={TypographyColor.Primary}
-                >
-                  Upgrade to daily.dev Plus today, get an early adopter discount
-                  and be among the first to experience it as soon as it
-                  launches!
-                </Typography>
-                <Button
-                  className="flex w-full laptop:w-auto"
-                  tag="a"
-                  type="button"
-                  variant={ButtonVariant.Primary}
-                  size={ButtonSize.Medium}
-                  href={`${webappUrl}plus`}
-                  icon={<DevPlusIcon className="text-action-plus-default" />}
-                  onClick={() => {
-                    logSubscriptionEvent({
-                      event_name: LogEvent.UpgradeSubscription,
-                      target_id: TargetId.ClickbaitShield,
-                    });
-                  }}
-                >
-                  Upgrade to Plus
-                </Button>
-              </div>
+              <Button
+                className="w-fit"
+                tag="a"
+                type="button"
+                variant={ButtonVariant.Primary}
+                size={ButtonSize.Medium}
+                href={`${webappUrl}plus`}
+                icon={<DevPlusIcon className="text-action-plus-default" />}
+                onClick={() => {
+                  logSubscriptionEvent({
+                    event_name: LogEvent.UpgradeSubscription,
+                    target_id: TargetId.ClickbaitShield,
+                  });
+                }}
+              >
+                Upgrade to Plus
+              </Button>
             )}
           </section>
           <Divider className="bg-border-subtlest-tertiary" />

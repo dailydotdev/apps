@@ -22,6 +22,7 @@ import { PostCardFooter } from '../common/PostCardFooter';
 import ActionButtons from '../ActionsButtons';
 import { FeedbackGrid } from './feedback/FeedbackGrid';
 import { ClickbaitShield } from '../common/ClickbaitShield';
+import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 
 export const ArticleGrid = forwardRef(function ArticleGrid(
   {
@@ -49,6 +50,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
   const onPostCardAuxClick = () => onPostAuxClick(post);
   const { pinnedAt, trending } = post;
   const { showFeedback } = usePostFeedback({ post });
+  const { title } = useSmartTitle(post);
   const isVideoType = isVideoPost(post);
 
   if (data?.showTagsPanel && post.tags.length > 0) {
@@ -110,14 +112,14 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             showFeedback={showFeedback}
           />
           <CardTitle lineClamp={showFeedback ? 'line-clamp-2' : undefined}>
-            {post.title}
+            {title}
           </CardTitle>
         </CardTextContainer>
         {!showFeedback && (
           <Container>
             <CardSpace />
             <div className="mx-2 flex items-center">
-              {post.clickbaitTitleDetected && <ClickbaitShield />}
+              {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
               <PostTags tags={post.tags} />
             </div>
             <PostMetadata

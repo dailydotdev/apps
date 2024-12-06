@@ -1,22 +1,29 @@
-import React, { useState, type ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { Button, ButtonSize } from '../../buttons/Button';
 import { ShieldCheckIcon, ShieldIcon, ShieldWarningIcon } from '../../icons';
-import { useActions, usePlusSubscription } from '../../../hooks';
+import {
+  useActions,
+  usePlusSubscription,
+  useViewSize,
+  ViewSize,
+} from '../../../hooks';
 import { SimpleTooltip } from '../../tooltips';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { FilterMenuTitle } from '../../filters/helpers';
 import { ActionType } from '../../../graphql/actions';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
+import type { Post } from '../../../graphql/posts';
+import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 
-export const ClickbaitShield = (): ReactElement => {
+export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const { openModal } = useLazyModal();
   const { isPlus, showPlusSubscription } = usePlusSubscription();
   const { checkHasCompleted } = useActions();
   const { flags } = useSettingsContext();
   const { clickbaitShieldEnabled } = flags;
-
-  const [usedTrial, setUsedTrial] = useState(false);
+  const { fetchSmartTitle, fetchedSmartTitle } = useSmartTitle(post);
+  const isMobile = useViewSize(ViewSize.MobileL);
 
   if (!showPlusSubscription) {
     return null;
@@ -29,35 +36,51 @@ export const ClickbaitShield = (): ReactElement => {
         container={{
           className: 'max-w-70 text-center typo-subhead',
         }}
-        // visible
         content={
-          hasUsedFreeTrial
-            ? 'Potential issues detected in this title. To get clearer, more informative titles, enable Clickbait Shield'
-            : 'This title could be clearer and more informative. Try out Clickbait Shield'
+          <>
+            {fetchedSmartTitle &&
+              'This title was optimized with Clickbait Shield'}
+            {!fetchedSmartTitle && hasUsedFreeTrial
+              ? 'Potential issues detected in this title. To get clearer, more informative titles, enable Clickbait Shield'
+              : 'This title could be clearer and more informative. Try out Clickbait Shield'}
+          </>
         }
       >
         <Button
           className="relative mr-2 text-accent-cheese-default"
           size={ButtonSize.XSmall}
           icon={
-            usedTrial ? (
+            fetchedSmartTitle ? (
               <ShieldCheckIcon className="text-status-success" />
             ) : (
               <ShieldWarningIcon />
             )
           }
           iconSecondaryOnHover
-          onClick={() => {
+          onClick={async () => {
             if (hasUsedFreeTrial) {
+              if (isMobile) {
+                openModal({
+                  type: LazyModal.ClickbaitShield,
+                });
+              } else {
+                openModal({
+                  type: LazyModal.FeedFilters,
+                  props: {
+                    defaultView: FilterMenuTitle.ContentTypes,
+                  },
+                });
+              }
+            } else if (isMobile) {
               openModal({
-                type: LazyModal.FeedFilters,
+                type: LazyModal.ClickbaitShield,
                 props: {
-                  defaultView: FilterMenuTitle.ContentTypes,
+                  hasUsedFreeTrial,
+                  fetchSmartTitle,
                 },
               });
             } else {
-              setUsedTrial(true);
-              // TODO: fetch smart title
+              await fetchSmartTitle();
             }
           }}
         />
@@ -72,7 +95,7 @@ export const ClickbaitShield = (): ReactElement => {
       }}
       content={
         clickbaitShieldEnabled
-          ? 'Click to see the origianl title'
+          ? 'Click to see the original title'
           : 'Click to see the optimized title'
       }
     >
@@ -80,16 +103,15 @@ export const ClickbaitShield = (): ReactElement => {
         className="relative mr-2"
         size={ButtonSize.XSmall}
         icon={
-          clickbaitShieldEnabled ? (
+          (clickbaitShieldEnabled && !fetchedSmartTitle) ||
+          (!clickbaitShieldEnabled && fetchedSmartTitle) ? (
             <ShieldCheckIcon className="text-status-success" />
           ) : (
             <ShieldIcon />
           )
         }
         iconSecondaryOnHover
-        onClick={() => {
-          // TODO: fetch smart title
-        }}
+        onClick={fetchSmartTitle}
       />
     </SimpleTooltip>
   );

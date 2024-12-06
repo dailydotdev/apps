@@ -39,7 +39,7 @@ interface UsePostById extends Pick<UseQueryResult, 'isError' | 'isLoading'> {
   relatedCollectionPosts?: Connection<RelatedPost>;
 }
 
-const POST_KEY = 'post';
+export const POST_KEY = 'post';
 
 export const getPostByIdKey = (id: string): QueryKey => [POST_KEY, id];
 
