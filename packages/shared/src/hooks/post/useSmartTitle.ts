@@ -14,19 +14,20 @@ import { useLogContext } from '../../contexts/LogContext';
 
 type UseSmartTitle = {
   fetchSmartTitle: () => Promise<void>;
-  usedTrial: boolean;
   title: string;
+  fetchedSmartTitle: boolean;
 };
 
 export const useSmartTitle = (post: Post): UseSmartTitle => {
+  const client = useQueryClient();
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
-  const client = useQueryClient();
   const { isPlus, showPlusSubscription } = usePlusSubscription();
   const { completeAction } = useActions();
-  const key = [...getPostByIdKey(post?.id), 'title'];
+
+  const key = useMemo(() => [...getPostByIdKey(post?.id), 'title'], [post?.id]);
   const trialKey = generateQueryKey(
-    RequestKey.UsedSmartTitleTrial,
+    RequestKey.FetchedOriginalTitle,
     user,
     ...getPostByIdKey(post?.id),
   );
@@ -57,24 +58,28 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     ...disabledRefetch,
   });
 
-  const { data: usedTrial } = useQuery({
+  const { data: fetchedSmartTitle } = useQuery({
     queryKey: trialKey,
     queryFn: async () => {
       return false;
     },
-    enabled: !isPlus,
     staleTime: Infinity,
     ...disabledRefetch,
   });
 
-  const fetchSmartTitle = async () => {
-    await refetch();
+  const fetchSmartTitle = useCallback(async () => {
+    if (!fetchedSmartTitle) {
+      await refetch();
+    } else {
+      client.setQueryData(key, post?.title);
+    }
+    client.setQueryData(trialKey, (prevValue: boolean) => !prevValue);
     logEvent(postLogEvent(LogEvent.ClickbaitShieldTitle, post));
-  };
+  }, [fetchedSmartTitle, logEvent, post, refetch, client, key, trialKey]);
 
   return {
     fetchSmartTitle,
     title,
-    usedTrial,
+    fetchedSmartTitle,
   };
 };

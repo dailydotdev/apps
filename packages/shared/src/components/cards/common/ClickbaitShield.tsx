@@ -22,7 +22,7 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const { checkHasCompleted } = useActions();
   const { flags } = useSettingsContext();
   const { clickbaitShieldEnabled } = flags;
-  const { fetchSmartTitle, usedTrial } = useSmartTitle(post);
+  const { fetchSmartTitle, fetchedSmartTitle } = useSmartTitle(post);
   const isMobile = useViewSize(ViewSize.MobileL);
 
   if (!showPlusSubscription) {
@@ -38,8 +38,9 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
         }}
         content={
           <>
-            {usedTrial && 'This title was optimized with Clickbait Shield'}
-            {!usedTrial && hasUsedFreeTrial
+            {fetchedSmartTitle &&
+              'This title was optimized with Clickbait Shield'}
+            {!fetchedSmartTitle && hasUsedFreeTrial
               ? 'Potential issues detected in this title. To get clearer, more informative titles, enable Clickbait Shield'
               : 'This title could be clearer and more informative. Try out Clickbait Shield'}
           </>
@@ -49,7 +50,7 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
           className="relative mr-2 text-accent-cheese-default"
           size={ButtonSize.XSmall}
           icon={
-            usedTrial ? (
+            fetchedSmartTitle ? (
               <ShieldCheckIcon className="text-status-success" />
             ) : (
               <ShieldWarningIcon />
@@ -94,7 +95,8 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
         className="relative mr-2"
         size={ButtonSize.XSmall}
         icon={
-          clickbaitShieldEnabled ? (
+          (clickbaitShieldEnabled && !fetchedSmartTitle) ||
+          (!clickbaitShieldEnabled && fetchedSmartTitle) ? (
             <ShieldCheckIcon className="text-status-success" />
           ) : (
             <ShieldIcon />
