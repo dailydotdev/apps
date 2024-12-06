@@ -22,6 +22,8 @@ import { feature } from '../../lib/featureManagement';
 import { LazyImage } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { withPostById } from './withPostById';
+import { PostClickbaitShield } from './common/PostClickbaitShield';
+import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 
 export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;
@@ -59,6 +61,7 @@ export function PostContentRaw({
   const { onCopyPostLink, onReadArticle } = engagementActions;
   const onSendViewPost = useViewPost();
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
+  const { title } = useSmartTitle(post);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);
   const containerClass = classNames(
@@ -141,15 +144,18 @@ export function PostContentRaw({
           origin={origin}
           post={post}
         >
-          <h1
-            className="my-6 break-words font-bold typo-large-title"
-            data-testid="post-modal-title"
-          >
-            <ArticleLink>{post.title}</ArticleLink>
-          </h1>
+          <div className="my-6">
+            <h1
+              className="break-words font-bold typo-large-title"
+              data-testid="post-modal-title"
+            >
+              <ArticleLink>{title}</ArticleLink>
+            </h1>
+            {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
+          </div>
           {isVideoType && (
             <YoutubeVideo
-              title={post.title}
+              title={title}
               videoId={post.videoId}
               className="mb-7"
             />

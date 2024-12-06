@@ -60,7 +60,7 @@ export const plusFeatureList: Array<PlusItem> = [
   },
   {
     label: 'AI-powered clickbait-free titles',
-    status: PlusItemStatus.ComingSoon,
+    status: PlusItemStatus.Ready,
     tooltip: `Say goodbye to clickbait titles and hello to AI-optimized titles that make your feed clearer and more informative.`,
   },
   {

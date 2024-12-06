@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+import { createContext, useContext } from 'react';
 import { FeedReturnType } from '../hooks/useFeed';
 
 export type ActiveFeedContextValue = {
@@ -10,3 +10,6 @@ export type ActiveFeedContextValue = {
 export const ActiveFeedContext = createContext<ActiveFeedContextValue>({
   items: [],
 });
+
+export const useActiveFeedContext = (): ActiveFeedContextValue =>
+  useContext(ActiveFeedContext);

@@ -36,6 +36,7 @@ export enum ActionType {
   CreateBookmarkFolder = 'create_bookmark_folder',
   DigestConfig = 'digest_config',
   StreakMilestone = 'streak_milestone',
+  FetchedSmartTitle = 'fetched_smart_title',
 }
 
 export interface Action {

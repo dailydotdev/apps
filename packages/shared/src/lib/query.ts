@@ -182,6 +182,7 @@ export enum RequestKey {
   ReferringUser = 'referring_user',
   SearchSources = 'search_sources',
   OnboardingSources = 'onboarding_sources',
+  FetchedOriginalTitle = 'fetched_original_title',
 }
 
 export type HasConnection<

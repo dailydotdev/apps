@@ -14,6 +14,8 @@ import PostTags from '../common/PostTags';
 import PostMetadata from '../common/PostMetadata';
 import { PostCardFooter } from '../common/PostCardFooter';
 import ActionButtons from '../ActionsButtons';
+import { ClickbaitShield } from '../common/ClickbaitShield';
+import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 
 export const ShareGrid = forwardRef(function ShareGrid(
   {
@@ -37,6 +39,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);
   const containerRef = useRef<HTMLDivElement>();
+  const { title } = useSmartTitle(post);
 
   const isVideoType = isVideoPost(post);
 
@@ -76,11 +79,16 @@ export const ShareGrid = forwardRef(function ShareGrid(
             onMenuClick={(event) => onMenuClick?.(event, post)}
             onReadArticleClick={onReadArticleClick}
           />
-          <CardTitle>{post?.title || post.sharedPost.title}</CardTitle>
+          <CardTitle>{title}</CardTitle>
         </CardTextContainer>
         <Container>
           <CardSpace />
-          <PostTags tags={post.sharedPost.tags} />
+          <div className="mx-2 flex items-center">
+            {!post.title && post.sharedPost.clickbaitTitleDetected && (
+              <ClickbaitShield post={post} />
+            )}
+            <PostTags tags={post.sharedPost.tags} />
+          </div>
           <PostMetadata
             createdAt={post.createdAt}
             readTime={post.sharedPost.readTime}

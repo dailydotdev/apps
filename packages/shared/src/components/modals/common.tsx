@@ -198,6 +198,13 @@ const BookmarkFolderSoonModal = dynamic(
     ),
 );
 
+const ClickbaitShieldModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "clickbaitShieldModal" */ './ClickbaitShieldModal'
+    ),
+);
+
 const BookmarkFolderSponsorModal = dynamic(
   () =>
     import(
@@ -240,6 +247,7 @@ export const modals = {
   [LazyModal.AdvancedCustomFeedSoon]: AdvancedCustomFeedSoonModal,
   [LazyModal.BookmarkFolderSoon]: BookmarkFolderSoonModal,
   [LazyModal.BookmarkFolderSponsor]: BookmarkFolderSponsorModal,
+  [LazyModal.ClickbaitShield]: ClickbaitShieldModal,
 };
 
 type GetComponentProps<T> = T extends
