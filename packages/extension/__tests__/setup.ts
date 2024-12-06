@@ -1,7 +1,6 @@
 import '@testing-library/jest-dom';
 import 'fake-indexeddb/auto';
 import { clear } from 'idb-keyval';
-import nodeFetch from 'node-fetch';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import { NextRouter } from 'next/router';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';

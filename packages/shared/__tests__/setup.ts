@@ -1,6 +1,5 @@
 import '@testing-library/jest-dom';
 import 'fake-indexeddb/auto';
-import nodeFetch from 'node-fetch';
 import { NextRouter } from 'next/router';
 import { clear } from 'idb-keyval';
 import { storageWrapper as storage } from '../src/lib/storageWrapper';

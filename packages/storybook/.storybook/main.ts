@@ -38,7 +38,6 @@ const config: StorybookConfig = {
       resolve: {
         alias: {
           '@growthbook/growthbook': path.resolve(__dirname, '../mock/gb.ts'),
-          'node-fetch': path.resolve(__dirname, '../mock/node-fetch.ts'),
           'webextension-polyfill': path.resolve(
             __dirname,
             '../mock/webextension-polyfill.ts',

@@ -1,6 +1,5 @@
 import '@testing-library/jest-dom';
 import 'fake-indexeddb/auto';
-import nodeFetch from 'node-fetch';
 import { NextRouter } from 'next/router';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 

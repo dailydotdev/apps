@@ -179,9 +179,6 @@ importers:
       '@types/node':
         specifier: ^22.9.1
         version: 22.10.1
-      '@types/node-fetch':
-        specifier: ^2.6.11
-        version: 2.6.12
       '@types/react':
         specifier: 18.3.12
         version: 18.3.12
@@ -299,9 +296,6 @@ importers:
       nock:
         specifier: ^13.2.4
         version: 13.5.6
-      node-fetch:
-        specifier: ^2.6.6
-        version: 2.7.0
       postcss:
         specifier: ^8.4.47
         version: 8.4.49
@@ -394,9 +388,6 @@ importers:
       graphql-ws:
         specifier: ^5.5.5
         version: 5.16.0(graphql@16.9.0)
-      node-fetch:
-        specifier: ^2.6.6
-        version: 2.7.0
       react-markdown:
         specifier: ^8.0.7
         version: 8.0.7(@types/react@18.3.12)(react@18.3.1)
@@ -467,9 +458,6 @@ importers:
       '@types/jest':
         specifier: ^26.0.24
         version: 26.0.24
-      '@types/node-fetch':
-        specifier: ^2.6.11
-        version: 2.6.12
       '@types/react':
         specifier: 18.3.12
         version: 18.3.12
@@ -880,9 +868,6 @@ importers:
       '@types/node':
         specifier: ^22.9.1
         version: 22.10.1
-      '@types/node-fetch':
-        specifier: ^2.6.11
-        version: 2.6.12
       '@types/react':
         specifier: 18.3.12
         version: 18.3.12
@@ -961,9 +946,6 @@ importers:
       nock:
         specifier: ^13.2.4
         version: 13.5.6
-      node-fetch:
-        specifier: ^2.6.7
-        version: 2.7.0
       postcss:
         specifier: ^8.4.47
         version: 8.4.49
@@ -3130,9 +3112,6 @@ packages:
   '@types/ms@0.7.34':
     resolution: {integrity: sha512-nG96G3Wp6acyAgJqGasjODb+acrI7KltPiRxzHPXnP3NgI28bpQDRv53olbqGXbfcgF5aiiHmO3xpwEpS5Ld9g==}
 
-  '@types/node-fetch@2.6.12':
-    resolution: {integrity: sha512-8nneRWKCg3rMtF69nLQJnOYUcbafYeFSjqkw3jCRLsqkWFlHaoQrr5mXmofFGOx3DKn7UfmBMyov8ySvLRVldA==}
-
   '@types/node@22.10.1':
     resolution: {integrity: sha512-qKgsUwfHZV2WCWLAnVP1JqnpE6Im6h3Y0+fYgMTasNQ7V++CBX5OT1as0g0f+OyubbFqhf6XVNIsmN4IIhEgGQ==}
 
@@ -5091,10 +5070,6 @@ packages:
 
   form-data@3.0.2:
     resolution: {integrity: sha512-sJe+TQb2vIaIyO783qN6BlMYWMw3WBOHA1Ay2qxsnjuafEOQFJ2JakedOQirT6D5XPRxDvS7AHYyem9fTpb4LQ==}
-    engines: {node: '>= 6'}
-
-  form-data@4.0.1:
-    resolution: {integrity: sha512-tzN8e4TX8+kkxGPK8D5u0FNmjPUjw3lwC9lSLxxoB/+GtsJG91CO8bSWy73APlgAZzZbXEYZJuxjkHH2w+Ezhw==}
     engines: {node: '>= 6'}
 
   format@0.2.2:
@@ -11061,11 +11036,6 @@ snapshots:
 
   '@types/ms@0.7.34': {}
 
-  '@types/node-fetch@2.6.12':
-    dependencies:
-      '@types/node': 22.10.1
-      form-data: 4.0.1
-
   '@types/node@22.10.1':
     dependencies:
       undici-types: 6.20.0
@@ -13455,12 +13425,6 @@ snapshots:
       mime-types: 2.1.35
 
   form-data@3.0.2:
-    dependencies:
-      asynckit: 0.4.0
-      combined-stream: 1.0.8
-      mime-types: 2.1.35
-
-  form-data@4.0.1:
     dependencies:
       asynckit: 0.4.0
       combined-stream: 1.0.8
