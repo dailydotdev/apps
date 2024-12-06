@@ -1,3 +1,4 @@
+import { useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { gqlClient } from '../../graphql/common';
 import { POST_FETCH_SMART_TITLE_QUERY, type Post } from '../../graphql/posts';
