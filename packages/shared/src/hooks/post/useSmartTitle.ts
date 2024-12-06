@@ -100,7 +100,9 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
   ]);
 
   const title = useMemo(() => {
-    return fetchedSmartTitle ? smartTitle : post?.title;
+    return fetchedSmartTitle
+      ? smartTitle
+      : post?.title || post?.sharedPost?.title;
   }, [fetchedSmartTitle, smartTitle, post]);
 
   return {
