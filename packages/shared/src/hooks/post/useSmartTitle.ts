@@ -26,8 +26,15 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
   const { isPlus, showPlusSubscription } = usePlusSubscription();
   const { completeAction } = useActions();
 
-  const key = useMemo(() => [...getPostByIdKey(post?.id), 'title'], [post?.id]);
-  const trialKey = generateQueryKey(
+  const key = useMemo(
+    () => [
+      ...getPostByIdKey(post?.id),
+      'title',
+      showPlusSubscription.toString(),
+    ],
+    [post?.id, showPlusSubscription],
+  );
+  const fetchSmartTitleKey = generateQueryKey(
     RequestKey.FetchedOriginalTitle,
     user,
     ...getPostByIdKey(post?.id),
@@ -59,7 +66,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
   });
 
   const { data: fetchedSmartTitle } = useQuery({
-    queryKey: trialKey,
+    queryKey: fetchSmartTitleKey,
     queryFn: async () => {
       return false;
     },
@@ -73,7 +80,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     } else {
       client.setQueryData(key, post?.title);
     }
-    client.setQueryData(trialKey, (prevValue: boolean) => !prevValue);
+    client.setQueryData(fetchSmartTitleKey, (prevValue: boolean) => !prevValue);
     logEvent(
       postLogEvent(LogEvent.ClickbaitShieldTitle, post, {
         extra: { isPlus },
@@ -82,7 +89,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
   }, [
     fetchedSmartTitle,
     client,
-    trialKey,
+    fetchSmartTitleKey,
     logEvent,
     post,
     isPlus,
