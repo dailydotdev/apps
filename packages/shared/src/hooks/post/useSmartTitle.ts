@@ -48,7 +48,6 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
       });
 
       if (!isPlus) {
-        client.setQueryData(trialKey, true);
         completeAction(ActionType.FetchedSmartTitle);
       }
 
