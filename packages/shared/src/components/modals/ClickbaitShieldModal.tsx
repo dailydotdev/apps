@@ -1,4 +1,4 @@
-import React, { type ReactElement } from 'react';
+import React, { type MouseEvent, type ReactElement } from 'react';
 import { Modal, type ModalProps } from './common/Modal';
 import { Image } from '../image/Image';
 import {
@@ -82,19 +82,20 @@ const ClickbaitShieldModal = ({
           tag="a"
           type="button"
           variant={ButtonVariant.Primary}
-          href={hasUsedFreeTrial ? `${webappUrl}plus` : undefined}
+          href={`${webappUrl}plus`}
           icon={
             hasUsedFreeTrial && (
               <DevPlusIcon className="text-action-plus-default" />
             )
           }
-          onClick={async () => {
+          onClick={async (event: MouseEvent) => {
             if (hasUsedFreeTrial) {
               logSubscriptionEvent({
                 event_name: LogEvent.UpgradeSubscription,
                 target_id: TargetId.ClickbaitShield,
               });
             } else {
+              event.preventDefault();
               await fetchSmartTitle?.();
               closeModal();
             }
