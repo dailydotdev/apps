@@ -4,8 +4,6 @@ import { Post } from '../../graphql/posts';
 import defaultFeedPage from '../../../__tests__/fixture/feed';
 import SimilarPosts from './SimilarPosts';
 
-const onBookmark = jest.fn();
-
 beforeEach(() => {
   jest.clearAllMocks();
 });
@@ -20,13 +18,7 @@ const renderComponent = (
   posts = defaultPosts,
   isLoading = false,
 ): RenderResult => {
-  return render(
-    <SimilarPosts
-      posts={posts}
-      isLoading={isLoading}
-      onBookmark={onBookmark}
-    />,
-  );
+  return render(<SimilarPosts posts={posts} isLoading={isLoading} />);
 };
 
 it('should show placeholders when loading', async () => {
