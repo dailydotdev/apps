@@ -170,6 +170,119 @@ function MarkdownInput(
     focusInput(textareaRef.current, [content.length, content.length]);
   }, []);
 
+  const handleMarkdownShortcut = (
+    e: React.KeyboardEvent<HTMLTextAreaElement>,
+  ) => {
+    const textarea = textareaRef.current;
+    const { selectionStart, selectionEnd, value } = textarea;
+
+    const updateTextarea = (
+      newValue: string,
+      newStart: number,
+      newEnd: number,
+    ) => {
+      onValueUpdate?.(newValue);
+      callbacks.onInput?.({
+        currentTarget: { value: newValue },
+      } as React.FormEvent<HTMLTextAreaElement>);
+
+      requestAnimationFrame(() => {
+        textarea.value = newValue;
+        textarea.setSelectionRange(newStart, newEnd);
+      });
+    };
+
+    const handleTextFormatting = (symbol: string) => {
+      const selectedValue = value.substring(selectionStart, selectionEnd);
+      const trimmedValue = selectedValue.trim();
+
+      const leadingWhitespace =
+        selectedValue.length - selectedValue.trimStart().length;
+      const newStart = selectionStart + leadingWhitespace;
+      const newEnd = newStart + trimmedValue.length;
+      const symbolLength = symbol.length;
+
+      const isFormatted =
+        value.substring(newStart - symbolLength, newStart) === symbol &&
+        value.substring(newEnd, newEnd + symbolLength) === symbol;
+
+      let updatedValue;
+      let updatedStart;
+      let updatedEnd;
+
+      if (isFormatted) {
+        updatedValue =
+          value.substring(0, newStart - symbolLength) +
+          trimmedValue +
+          value.substring(newEnd + symbolLength);
+        updatedStart = newStart - symbolLength;
+        updatedEnd = newEnd - symbolLength;
+      } else {
+        updatedValue =
+          value.substring(0, newStart) +
+          symbol +
+          trimmedValue +
+          symbol +
+          value.substring(newEnd);
+        updatedStart = newStart + symbolLength;
+        updatedEnd = newEnd + symbolLength;
+      }
+
+      updateTextarea(updatedValue, updatedStart, updatedEnd);
+    };
+
+    const handleLinkPaste = () => {
+      navigator.clipboard.readText().then((clipboardText) => {
+        const selectedText = value.substring(selectionStart, selectionEnd);
+        const trimmedText = selectedText.trim();
+
+        const leadingWhitespace =
+          selectedText.length - selectedText.trimStart().length;
+        const trailingWhitespace =
+          selectedText.length - selectedText.trimEnd().length;
+
+        const newStart = selectionStart + leadingWhitespace;
+        const newEnd = selectionEnd - trailingWhitespace;
+
+        const newText =
+          /^https?:\/\//.test(clipboardText) && trimmedText
+            ? `${value.substring(
+                0,
+                newStart,
+              )}[${trimmedText}](${clipboardText})${value.substring(newEnd)}`
+            : value.substring(0, selectionStart) +
+              clipboardText +
+              value.substring(selectionEnd);
+
+        const linkEnd = newStart + `[${trimmedText}](${clipboardText})`.length;
+        updateTextarea(newText, linkEnd, linkEnd);
+      });
+    };
+
+    if (e.metaKey || e.ctrlKey) {
+      switch (e.key) {
+        case 'b':
+          e.preventDefault();
+          handleTextFormatting('**');
+          break;
+        case 'i':
+          e.preventDefault();
+          handleTextFormatting('_');
+          break;
+        case 'v':
+          e.preventDefault();
+          handleLinkPaste();
+          break;
+        case 'l':
+          e.preventDefault();
+          onLinkCommand?.();
+          break;
+        default:
+          break;
+      }
+    }
+  };
+
   return (
     <div
       className={classNames(
@@ -258,6 +371,7 @@ function MarkdownInput(
                 )}
                 value={input}
                 onClick={onInputClick}
+                onKeyDown={handleMarkdownShortcut}
                 onDragOver={(e) => e.preventDefault()} // for better experience and stop opening the file with browser
                 maxLength={maxInputLength}
               />
