@@ -108,34 +108,23 @@ export function ContentTypesFilter(): ReactElement {
               </Switch>
             </ConditionalWrapper>
             {!isPlus && (
-              <div className="flex flex-col items-center justify-center gap-4 rounded-10 border border-border-subtlest-tertiary bg-action-plus-float p-4 text-center laptop:flex-row laptop:text-left">
-                <Typography
-                  className="flex flex-1"
-                  type={TypographyType.Body}
-                  color={TypographyColor.Primary}
-                >
-                  Upgrade to daily.dev Plus today, get an early adopter discount
-                  and be among the first to experience it as soon as it
-                  launches!
-                </Typography>
-                <Button
-                  className="flex w-full laptop:w-auto"
-                  tag="a"
-                  type="button"
-                  variant={ButtonVariant.Primary}
-                  size={ButtonSize.Medium}
-                  href={`${webappUrl}plus`}
-                  icon={<DevPlusIcon className="text-action-plus-default" />}
-                  onClick={() => {
-                    logSubscriptionEvent({
-                      event_name: LogEvent.UpgradeSubscription,
-                      target_id: TargetId.ClickbaitShield,
-                    });
-                  }}
-                >
-                  Upgrade to Plus
-                </Button>
-              </div>
+              <Button
+                className="w-fit"
+                tag="a"
+                type="button"
+                variant={ButtonVariant.Primary}
+                size={ButtonSize.Medium}
+                href={`${webappUrl}plus`}
+                icon={<DevPlusIcon className="text-action-plus-default" />}
+                onClick={() => {
+                  logSubscriptionEvent({
+                    event_name: LogEvent.UpgradeSubscription,
+                    target_id: TargetId.ClickbaitShield,
+                  });
+                }}
+              >
+                Upgrade to Plus
+              </Button>
             )}
           </section>
           <Divider className="bg-border-subtlest-tertiary" />
