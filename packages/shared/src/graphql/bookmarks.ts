@@ -10,6 +10,14 @@ export const SET_BOOKMARK_REMINDER = gql`
   }
 `;
 
+export const MOVE_BOOKMARK_MUTATION = gql`
+  mutation MoveBookmark($id: ID!, $listId: ID) {
+    moveBookmark(id: $id, listId: $listId) {
+      _
+    }
+  }
+`;
+
 export interface Bookmark {
   createdAt: Date;
   remindAt?: Date;
@@ -27,4 +35,13 @@ export const setBookmarkReminder = ({
   gqlClient.request(SET_BOOKMARK_REMINDER, {
     postId,
     remindAt: remindAt ? remindAt.toISOString() : null,
+  });
+
+export const moveBookmark = (
+  id: string,
+  listId: string,
+): Promise<EmptyResponse> =>
+  gqlClient.request(MOVE_BOOKMARK_MUTATION, {
+    id,
+    listId,
   });
