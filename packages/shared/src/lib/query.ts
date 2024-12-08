@@ -183,6 +183,7 @@ export enum RequestKey {
   SearchSources = 'search_sources',
   OnboardingSources = 'onboarding_sources',
   BookmarkFolders = 'bookmark_folders',
+  FetchedOriginalTitle = 'fetched_original_title',
 }
 
 export type HasConnection<
