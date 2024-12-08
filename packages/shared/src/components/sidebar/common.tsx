@@ -135,6 +135,9 @@ const ItemInnerIconTooltip = ({
   </SimpleTooltip>
 );
 
+const isFontIcon = (icon: SidebarMenuItem['icon']): icon is string =>
+  typeof icon === 'string';
+
 export const ItemInner = ({
   item,
   shouldShowLabel,
@@ -144,7 +147,15 @@ export const ItemInner = ({
 
   return (
     <>
-      <Icon {...item} active={active} />
+      {isFontIcon(item.icon) ? (
+        <ItemInnerIcon
+          icon={
+            <span className="inline-block w-5 text-center">{item.icon}</span>
+          }
+        />
+      ) : (
+        <Icon {...item} active={active} />
+      )}
       <span
         className={classNames(
           'flex-1 truncate text-left transition-opacity',
