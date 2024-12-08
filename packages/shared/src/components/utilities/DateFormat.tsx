@@ -23,7 +23,7 @@ export const DateFormat = ({
 
   return (
     <time
-      title={convertedDate.toString()}
+      title={convertedDate.toISOString()}
       className={className}
       dateTime={convertedDate.toISOString()}
     >
