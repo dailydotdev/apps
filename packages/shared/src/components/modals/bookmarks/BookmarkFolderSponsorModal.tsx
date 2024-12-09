@@ -104,6 +104,7 @@ export const BookmarkFolderSponsorModal = (
                 });
               }}
               tag={TypographyTag.Link}
+              type={TypographyType.Callout}
             >
               Upgrade to Plus
             </Typography>
