@@ -12,7 +12,6 @@ import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { FilterMenuTitle } from '../../filters/helpers';
 import { ActionType } from '../../../graphql/actions';
-import { useSettingsContext } from '../../../contexts/SettingsContext';
 import type { Post } from '../../../graphql/posts';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 
@@ -20,9 +19,8 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const { openModal } = useLazyModal();
   const { isPlus, showPlusSubscription } = usePlusSubscription();
   const { checkHasCompleted } = useActions();
-  const { flags } = useSettingsContext();
-  const { clickbaitShieldEnabled } = flags;
-  const { fetchSmartTitle, fetchedSmartTitle } = useSmartTitle(post);
+  const { fetchSmartTitle, fetchedSmartTitle, shieldActive } =
+    useSmartTitle(post);
   const isMobile = useViewSize(ViewSize.MobileL);
 
   if (!showPlusSubscription) {
@@ -37,13 +35,18 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
           className: 'max-w-70 text-center typo-subhead',
         }}
         content={
-          <>
-            {fetchedSmartTitle &&
-              'This title was optimized with Clickbait Shield'}
-            {!fetchedSmartTitle && hasUsedFreeTrial
-              ? 'Potential issues detected in this title. To get clearer, more informative titles, enable Clickbait Shield'
-              : 'This title could be clearer and more informative. Try out Clickbait Shield'}
-          </>
+          fetchedSmartTitle ? (
+            <>
+              {hasUsedFreeTrial &&
+                'Want to automatically optimize titles across your feed? Upgrade to Plus'}
+            </>
+          ) : (
+            <>
+              {hasUsedFreeTrial
+                ? 'Potential issues detected in this title. To get clearer, more informative titles, enable Clickbait Shield'
+                : 'This title could be clearer and more informative. Try out Clickbait Shield'}
+            </>
+          )
         }
       >
         <Button
@@ -94,7 +97,7 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
         className: 'max-w-70 text-center typo-subhead',
       }}
       content={
-        clickbaitShieldEnabled
+        shieldActive
           ? 'Click to see the original title'
           : 'Click to see the optimized title'
       }
@@ -103,8 +106,7 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
         className="relative mr-2"
         size={ButtonSize.XSmall}
         icon={
-          (clickbaitShieldEnabled && !fetchedSmartTitle) ||
-          (!clickbaitShieldEnabled && fetchedSmartTitle) ? (
+          shieldActive ? (
             <ShieldCheckIcon className="text-status-success" />
           ) : (
             <ShieldIcon />
