@@ -37,6 +37,7 @@ export const BookmarkSection = ({
           await createFolder(folder);
           closeModal();
         },
+        folderCount: folders.length ?? 0,
       },
     });
   };

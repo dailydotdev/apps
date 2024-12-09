@@ -9,6 +9,7 @@ import {
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { getPostByIdKey } from '../usePostById';
+import { useToastNotification } from '../useToastNotification';
 
 interface UseBookmarkFolderList {
   isPending: boolean;
@@ -19,6 +20,7 @@ interface UseBookmarkFolderList {
 
 export const useBookmarkFolderList = (): UseBookmarkFolderList => {
   const client = useQueryClient();
+  const { displayToast } = useToastNotification();
   const { isAuthReady, isLoggedIn } = useAuthContext();
   const { data, isPending } = useQuery({
     queryKey: generateQueryKey(RequestKey.BookmarkFolders),
@@ -28,6 +30,9 @@ export const useBookmarkFolderList = (): UseBookmarkFolderList => {
   });
   const { mutate: moveBookmark, isPending: isMoving } = useMutation({
     mutationFn: moveBookmarkMutation,
+    onError: () => {
+      displayToast('❌ Failed to move bookmark');
+    },
   });
 
   const onMoveBookmark = useCallback(
