@@ -110,7 +110,7 @@ const useBookmarkPost = ({
         !checkHasCompleted(ActionType.CreateBookmarkFolder)
       ) {
         openModal({
-          type: LazyModal.BookmarkFolderSponsor,
+          type: LazyModal.BookmarksFolderEntry,
         });
       }
     },
@@ -170,8 +170,9 @@ const useBookmarkPost = ({
         displayToast(`Bookmarked! Saved to ${list?.name ?? 'Quick saves'}`, {
           undoCopy: 'Change folder',
           onUndo: () => {
+            // todo: add moveToFolder modal
             openModal({
-              type: LazyModal.BookmarkFolderSponsor,
+              type: LazyModal.BookmarksFolderEntry,
             });
           },
         });

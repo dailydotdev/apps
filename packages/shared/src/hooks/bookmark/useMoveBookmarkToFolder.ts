@@ -11,7 +11,7 @@ interface UseMoveBookmarkToFolder {
   ) => Promise<EmptyResponse>;
 }
 
-const useMoveBookmarkToFolder = (): UseMoveBookmarkToFolder => {
+export const useMoveBookmarkToFolder = (): UseMoveBookmarkToFolder => {
   const { logEvent } = useLogContext();
   const { isPending, mutateAsync } = useMutation({
     mutationFn: moveBookmarkToFolder,
