@@ -53,7 +53,7 @@ import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import { UserVoteEntity } from '@dailydotdev/shared/src/hooks';
 import { VOTE_MUTATION } from '@dailydotdev/shared/src/graphql/users';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
-import PostPage, { Props } from '../pages/posts/[id]';
+import { PostPage, Props } from '../pages/posts/[id]';
 import { getSeoDescription } from '../components/PostSEOSchema';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 

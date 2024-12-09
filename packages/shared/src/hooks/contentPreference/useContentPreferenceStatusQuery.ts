@@ -22,7 +22,7 @@ import { PropsParameters } from '../../types';
 export type UseContentPreferenceStatusQueryProps = {
   id: string;
   entity: ContentPreferenceType;
-  queryOptions?: UseQueryOptions<ContentPreference>;
+  queryOptions?: Partial<UseQueryOptions<ContentPreference>>;
 };
 
 export type UseContentPreferenceStatusQuery = UseQueryResult<ContentPreference>;

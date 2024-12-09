@@ -123,6 +123,16 @@ const nextConfig: NextConfig = {
             source: '/search',
             destination: '/search/posts',
           },
+          {
+            source: '/posts/:id',
+            destination: '/posts/:id/share',
+            has: [
+              {
+                type: 'query',
+                key: 'userid',
+              },
+            ],
+          },
         ];
 
         // to support GitPod environment and avoid CORS issues, we need to proxy the API requests

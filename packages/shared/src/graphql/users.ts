@@ -12,6 +12,18 @@ import { SourceMember } from './sources';
 import type { SendType } from '../hooks';
 import { DayOfWeek } from '../lib/date';
 
+export const USER_SHORT_BY_ID = `
+  query UserShortById($id: ID!) {
+    user(id: $id) {
+      id
+      name
+      image
+      username
+      permalink
+    }
+  }
+`;
+
 export const USER_BY_ID_STATIC_FIELDS_QUERY = `
   query User($id: ID!) {
     user(id: $id) {

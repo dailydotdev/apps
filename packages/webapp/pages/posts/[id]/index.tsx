@@ -85,11 +85,11 @@ const CONTENT_MAP: Record<PostType, typeof PostContent> = {
   collection: CollectionPostContent,
 };
 
-interface PostParams extends ParsedUrlQuery {
+export interface PostParams extends ParsedUrlQuery {
   id: string;
 }
 
-const seoTitle = (post: Post) => {
+export const seoTitle = (post: Post): string | undefined => {
   if (post?.type === PostType.Share && post?.title === null) {
     return `Shared post at ${post?.source?.name}`;
   }
@@ -97,7 +97,7 @@ const seoTitle = (post: Post) => {
   return post?.title;
 };
 
-const PostPage = ({ id, initialData }: Props): ReactElement => {
+export const PostPage = ({ id, initialData }: Props): ReactElement => {
   useJoinReferral();
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');

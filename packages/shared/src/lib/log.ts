@@ -57,6 +57,7 @@ export enum Origin {
   UserFollowersList = 'user followers list',
   UserUpvotesList = 'user upvotes list',
   FollowFilter = 'follow filter',
+  PostSharedBy = 'post shared by',
 }
 
 export enum LogEvent {

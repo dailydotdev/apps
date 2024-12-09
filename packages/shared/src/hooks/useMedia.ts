@@ -5,6 +5,7 @@ export default function useMedia<T>(
   values: T[],
   defaultValue: T,
   ssrValue = defaultValue,
+  afterHydration = false,
 ): T {
   const getMedia = (): MediaQueryList[] =>
     queries.map((q) => window.matchMedia(q));
@@ -14,9 +15,13 @@ export default function useMedia<T>(
     return values?.[index] || defaultValue;
   };
 
-  const [value, setValue] = useState<T>(
-    typeof window !== 'undefined' ? getValue(getMedia()) : ssrValue,
-  );
+  const [value, setValue] = useState<T>(() => {
+    if (afterHydration) {
+      return undefined;
+    }
+
+    return typeof window !== 'undefined' ? getValue(getMedia()) : ssrValue;
+  });
 
   useEffect(() => {
     const mediaQueryLists = getMedia();
@@ -44,5 +49,11 @@ export default function useMedia<T>(
 
   return value;
 }
+
+export const useMediaClient = <T>(
+  queries: string[],
+  values: T[],
+  defaultValue: T,
+): T => useMedia(queries, values, defaultValue, undefined, true);
 
 export { useMedia };
