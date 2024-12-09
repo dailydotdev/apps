@@ -1,4 +1,4 @@
-import React, { useRef, type ReactElement } from 'react';
+import React, { useLayoutEffect, useState, type ReactElement } from 'react';
 import classNames from 'classnames';
 import { OnboardingTitle } from './common';
 import {
@@ -10,7 +10,13 @@ import { Image } from '../image/Image';
 import { Typography } from '../typography/Typography';
 
 export const OnboardingPWA = (): ReactElement => {
-  const videoRef = useRef<HTMLVideoElement>();
+  const [video, setVideo] = useState<HTMLVideoElement>();
+
+  useLayoutEffect(() => {
+    if (video) {
+      video.play();
+    }
+  }, [video]);
 
   return (
     <>
@@ -32,7 +38,7 @@ export const OnboardingPWA = (): ReactElement => {
         </div>
       </div>
       <video
-        ref={videoRef}
+        ref={setVideo}
         className="absolute -bottom-8 max-h-screen w-full"
         poster={cloudinaryPWA}
         src={cloudinaryPWAVideo}
