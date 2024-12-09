@@ -23,10 +23,10 @@ import { plusUrl } from '../../../lib/constants';
 import { LogEvent, TargetId } from '../../../lib/log';
 import Link from '../../utilities/Link';
 
-type BookmarkFolderSponsorModalProps = Omit<ModalProps, 'children'>;
+type BookmarksFolderEntryModalProps = Omit<ModalProps, 'children'>;
 
-export const BookmarkFolderSponsorModal = (
-  props: BookmarkFolderSponsorModalProps,
+export const BookmarksFolderEntryModal = (
+  props: BookmarksFolderEntryModalProps,
 ): ReactElement => {
   const { onRequestClose } = props;
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
@@ -115,4 +115,4 @@ export const BookmarkFolderSponsorModal = (
   );
 };
 
-export default BookmarkFolderSponsorModal;
+export default BookmarksFolderEntryModal;
