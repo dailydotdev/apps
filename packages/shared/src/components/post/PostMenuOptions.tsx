@@ -74,6 +74,24 @@ export function PostMenuOptions({
     }
   };
 
+  const clickbaitPostPrompt = useCallback(async () => {
+    const isClickbait = post.clickbaitTitleDetected;
+
+    const options: PromptOptions = {
+      title: isClickbait ? 'Remove clickbait' : 'Mark as clickbait',
+      description: `Do you want to ${
+        isClickbait ? 'remove' : 'mark'
+      } this post as clickbait?`,
+      okButton: {
+        title: isClickbait ? 'Remove' : 'Mark',
+      },
+    };
+
+    if (await showPrompt(options)) {
+      await clickbaitPost(post.id);
+    }
+  }, [post.clickbaitTitleDetected, post.id, showPrompt]);
+
   return (
     <>
       <SimpleTooltip placement="bottom" content="Options">
@@ -99,6 +117,7 @@ export function PostMenuOptions({
         onRemovePost={onRemovePost}
         setShowBanPost={isModerator ? () => banPostPrompt() : null}
         setShowPromotePost={isModerator ? () => promotePostPrompt() : null}
+        setShowClickbaitPost={isModerator ? () => clickbaitPostPrompt() : null}
         contextId={contextMenuId}
         origin={origin}
         onHidden={onHide}
