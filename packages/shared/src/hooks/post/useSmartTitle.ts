@@ -13,6 +13,8 @@ import { postLogEvent } from '../../lib/feed';
 import { LogEvent } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import { useToastNotification } from '../useToastNotification';
+import { labels } from '../../lib';
 
 type UseSmartTitle = {
   fetchSmartTitle: () => Promise<void>;
@@ -23,6 +25,7 @@ type UseSmartTitle = {
 
 export const useSmartTitle = (post: Post): UseSmartTitle => {
   const client = useQueryClient();
+  const { displayToast } = useToastNotification();
   const { user, isLoggedIn } = useAuthContext();
   const { logEvent } = useLogContext();
   const { isPlus, showPlusSubscription } = usePlusSubscription();
@@ -50,22 +53,31 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
   const { data: smartTitle, refetch } = useQuery({
     queryKey: key,
     queryFn: async () => {
+      let title = post?.title || post?.sharedPost?.title;
       // Enusre that we don't accidentally fetch the smart title for users outside of the feature flag
       if (!showPlusSubscription || !isLoggedIn) {
-        return post?.title || post?.sharedPost?.title;
+        return title;
       }
 
-      const data = await gqlClient.request<{
-        fetchSmartTitle: { title: string };
-      }>(POST_FETCH_SMART_TITLE_QUERY, {
-        id: post.sharedPost ? post.sharedPost.id : post?.id,
-      });
+      try {
+        const data = await gqlClient.request<{
+          fetchSmartTitle: { title: string };
+        }>(POST_FETCH_SMART_TITLE_QUERY, {
+          id: post.sharedPost ? post.sharedPost.id : post?.id,
+        });
+
+        title = data.fetchSmartTitle.title;
+      } catch (error) {
+        displayToast(
+          error.response?.errors?.[0].message || labels.error.generic,
+        );
+      }
 
       if (!isPlus) {
         completeAction(ActionType.FetchedSmartTitle);
       }
 
-      return data.fetchSmartTitle.title;
+      return title;
     },
     enabled: false,
     staleTime: Infinity,
