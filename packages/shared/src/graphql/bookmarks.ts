@@ -28,3 +28,25 @@ export const setBookmarkReminder = ({
     postId,
     remindAt: remindAt ? remindAt.toISOString() : null,
   });
+
+export const MOVE_BOOKMARK_TO_FOLDER = gql`
+  mutation MoveBookmarkToFolder($postId: ID!, $listId: ID!) {
+    moveBookmark(id: $postId, listId: $listId) {
+      _
+    }
+  }
+`;
+
+export interface MoveBookmarkToFolderProps {
+  postId: string;
+  listId: string;
+}
+
+export const moveBookmarkToFolder = ({
+  postId,
+  listId,
+}: MoveBookmarkToFolderProps): Promise<EmptyResponse> =>
+  gqlClient.request(MOVE_BOOKMARK_TO_FOLDER, {
+    postId,
+    listId,
+  });
