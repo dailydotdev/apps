@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import {
   BOOKMARKS_FEED_QUERY,
   SEARCH_BOOKMARKS_QUERY,
@@ -24,6 +25,11 @@ import { useFeedLayout, usePlusSubscription } from '../hooks';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { IconSize } from './Icon';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from './typography/Typography';
 
 export type BookmarkFeedLayoutProps = {
   searchQuery?: string;
@@ -54,10 +60,13 @@ export default function BookmarkFeedLayout({
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showEmptyScreen, setShowEmptyScreen] = useState(false);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
+  const router = useRouter();
+  const listId = router.query.folderId ?? null;
   const defaultKey = useMemo(
-    () => generateQueryKey(RequestKey.Bookmarks, user),
-    [user],
+    () => generateQueryKey(RequestKey.Bookmarks, user, listId),
+    [user, listId],
   );
+
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (searchQuery) {
       return {
@@ -66,6 +75,7 @@ export default function BookmarkFeedLayout({
         query: SEARCH_BOOKMARKS_QUERY,
         variables: {
           query: searchQuery,
+          ...(listId && { listId }),
           supportedTypes: supportedTypesForPrivateSources,
         },
         emptyScreen: <SearchEmptyScreen />,
@@ -76,12 +86,13 @@ export default function BookmarkFeedLayout({
       feedQueryKey: defaultKey,
       query: BOOKMARKS_FEED_QUERY,
       variables: {
+        ...(listId && { listId }),
         supportedTypes: supportedTypesForPrivateSources,
       },
       onEmptyFeed: () => setShowEmptyScreen(true),
       options: { refetchOnMount: true },
     };
-  }, [defaultKey, searchQuery]);
+  }, [defaultKey, searchQuery, listId]);
 
   if (showEmptyScreen) {
     return <BookmarkEmptyScreen />;
@@ -102,7 +113,9 @@ export default function BookmarkFeedLayout({
     <FeedPageLayoutComponent>
       {children}
       <FeedPageHeader className="mb-5">
-        <h1 className="font-bold typo-callout">Bookmarks</h1>
+        <Typography bold type={TypographyType.Title3} tag={TypographyTag.H1}>
+          Bookmarks
+        </Typography>
       </FeedPageHeader>
       <CustomFeedHeader
         className={classNames(

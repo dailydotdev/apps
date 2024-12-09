@@ -230,11 +230,13 @@ export const BOOKMARKS_FEED_QUERY = gql`
     $loggedIn: Boolean! = false
     $first: Int
     $after: String
+    $listId: ID
     $supportedTypes: [String!]
   ) {
     page: bookmarksFeed(
       first: $first
       after: $after
+      listId: $listId
       supportedTypes: $supportedTypes
     ) {
       ...FeedPostConnection
@@ -287,12 +289,14 @@ export const SEARCH_BOOKMARKS_QUERY = gql`
     $first: Int
     $after: String
     $query: String!
+    $listId: ID
     $supportedTypes: [String!]
   ) {
     page: searchBookmarks(
       first: $first
       after: $after
       query: $query
+      listId: $listId
       supportedTypes: $supportedTypes
     ) {
       ...FeedPostConnection
