@@ -60,6 +60,7 @@ import { useContentPreference } from '../hooks/contentPreference/useContentPrefe
 import { ContentPreferenceType } from '../graphql/contentPreference';
 import { isFollowingContent } from '../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../hooks/auth/useIsSpecialUser';
+import { FolderIcon } from './icons/Folder';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -352,6 +353,21 @@ export default function PostOptionsMenu({
         action: () => {
           onRemoveReminder(post.id);
         },
+      });
+    }
+
+    if (post?.bookmark) {
+      postOptions.push({
+        icon: <MenuIcon Icon={FolderIcon} />,
+        label: 'Move to...',
+        action: () =>
+          openModal({
+            type: LazyModal.MoveBookmark,
+            props: {
+              postId: post.id,
+              listId: post.bookmarkList?.id,
+            },
+          }),
       });
     }
   }

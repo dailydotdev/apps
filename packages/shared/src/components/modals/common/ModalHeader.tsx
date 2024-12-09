@@ -85,7 +85,11 @@ export function ModalHeader({
         </ModalHeaderTitle>
       )}
       {shouldShowClose && (
-        <ModalClose className="hidden tablet:flex" onClick={onRequestClose} />
+        <ModalClose
+          type="button"
+          className="hidden tablet:flex"
+          onClick={onRequestClose}
+        />
       )}
     </ModalHeaderOuter>
   );

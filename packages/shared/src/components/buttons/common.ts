@@ -195,7 +195,6 @@ const buttonSizeToIconSize: Record<ButtonSize, IconSize> = {
 export const useGetIconWithSize = (
   size: ButtonSize,
   iconOnly: boolean,
-  iconPosition: ButtonIconPosition,
 ): ((
   icon: React.ReactElement<IconProps>,
   iconSecondaryOnHover?: boolean,
@@ -209,8 +208,6 @@ export const useGetIconWithSize = (
       className: classNames(
         icon.props.className,
         !iconOnly && '!h-6 !w-6 text-base',
-        !iconOnly && iconPosition === ButtonIconPosition.Left && '-ml-2 mr-1',
-        !iconOnly && iconPosition === ButtonIconPosition.Right && '-mr-2 ml-1',
       ),
     });
 };

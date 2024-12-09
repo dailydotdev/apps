@@ -84,7 +84,7 @@ function ButtonComponent<TagName extends AllowedTags>(
   ref?: Ref<ButtonElementType<TagName>>,
 ): ReactElement {
   const iconOnly = icon && isNullOrUndefined(children);
-  const getIconWithSize = useGetIconWithSize(size, iconOnly, iconPosition);
+  const getIconWithSize = useGetIconWithSize(size, iconOnly);
   const isAnchor = Tag === 'a';
   const [isHovering, setIsHovering] = useState(false);
 
@@ -96,8 +96,8 @@ function ButtonComponent<TagName extends AllowedTags>(
       aria-pressed={pressed}
       ref={ref}
       className={classNames(
-        `btn focus-outline inline-flex cursor-pointer select-none flex-row
-        items-center border no-underline shadow-none transition
+        `btn focus-outline inline-flex cursor-pointer select-none flex-row items-center
+        gap-2 border no-underline shadow-none transition
         duration-200 ease-in-out typo-callout`,
         variant !== ButtonVariant.Option && 'justify-center font-bold',
         { iconOnly },
