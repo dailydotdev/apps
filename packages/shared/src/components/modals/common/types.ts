@@ -63,6 +63,7 @@ export enum LazyModal {
   TopReaderBadge = 'topReaderBadge',
   AdvancedCustomFeedSoon = 'advancedCustomFeedSoon',
   BookmarkFolderSoon = 'bookmarkFolderSoon',
+  BookmarkFolder = 'bookmarkFolder',
   ClickbaitShield = 'clickbaitShield',
 }
 
