@@ -40,7 +40,7 @@ const feature = {
     pri_01jbscda57910yvwjtyapnrrzc: PlusPriceType.Yearly,
   }),
   onboardingAndroid: new Feature('onboarding_android', false),
-  onboardingPWA: new Feature('onboarding_pwa', true),
+  onboardingPWA: new Feature('onboarding_pwa', false),
   postPersonalizedBanner: new Feature('post_banner_personalized', false),
 };
 

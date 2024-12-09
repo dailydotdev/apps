@@ -69,7 +69,7 @@ import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/Payment
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import {
   checkIsBrowser,
-  isAppleDevice,
+  isSafariOnIOS,
   UserAgent,
 } from '@dailydotdev/shared/src/lib/func';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
@@ -174,7 +174,7 @@ export function OnboardPage(): ReactElement {
 
   const { value: PWAExperiment } = useConditionalFeature({
     feature: feature.onboardingPWA,
-    shouldEvaluate: shouldEnrollOnboardingStep && isAppleDevice(),
+    shouldEvaluate: shouldEnrollOnboardingStep && isSafariOnIOS(),
   });
 
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
@@ -200,8 +200,6 @@ export function OnboardPage(): ReactElement {
       event_name: LogEvent.ClickOnboardingNext,
       extra: JSON.stringify({ screen_value: activeScreen }),
     });
-
-    return setActiveScreen(OnboardingStep.PWA);
 
     if (activeScreen === OnboardingStep.Intro) {
       return setActiveScreen(OnboardingStep.EditTag);
