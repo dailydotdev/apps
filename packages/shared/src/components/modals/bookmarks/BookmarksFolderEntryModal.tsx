@@ -64,6 +64,7 @@ export const BookmarksFolderEntryModal = (
             className="rounded-16"
             src={bookmarkFolderSoonImage}
             alt="Bookmark Folder coming soon"
+            role="presentation"
           />
         </div>
         <Typography
