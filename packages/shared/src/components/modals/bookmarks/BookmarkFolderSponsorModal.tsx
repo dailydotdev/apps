@@ -100,7 +100,7 @@ export const BookmarkFolderSponsorModal = (
               onClick={() => {
                 logSubscriptionEvent({
                   event_name: LogEvent.UpgradeSubscription,
-                  target_id: TargetId.BlockedWords,
+                  target_id: TargetId.BookmarkFolder,
                 });
               }}
               tag={TypographyTag.Link}
