@@ -64,6 +64,7 @@ export enum LazyModal {
   AdvancedCustomFeedSoon = 'advancedCustomFeedSoon',
   BookmarkFolderSoon = 'bookmarkFolderSoon',
   BookmarksFolderEntry = 'bookmarkFolderEntry',
+  BookmarkFolder = 'bookmarkFolder',
   ClickbaitShield = 'clickbaitShield',
 }
 
