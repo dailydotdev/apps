@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useCallback, useContext } from 'react';
 import classNames from 'classnames';
 import { OpenLinkIcon } from '../icons';
 import {
@@ -14,7 +14,7 @@ import { PostHeaderActionsProps } from './common';
 import { PostMenuOptions } from './PostMenuOptions';
 import { Origin } from '../../lib/log';
 import { CollectionSubscribeButton } from './collection/CollectionSubscribeButton';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useViewSizeClient, ViewSize } from '../../hooks';
 
 const Container = classed('div', 'flex flex-row items-center');
 
@@ -45,11 +45,11 @@ export function PostHeaderActions({
   ...props
 }: PostHeaderActionsProps): ReactElement {
   const { openNewTab } = useContext(SettingsContext);
-  const isLaptop = useViewSize(ViewSize.Laptop);
+  const isLaptop = useViewSizeClient(ViewSize.Laptop);
   const readButtonText = getReadPostButtonText(post);
   const isCollection = post?.type === PostType.Collection;
   const isEnlarged = isFixedNavigation || isLaptop;
-  const ButtonWithExperiment = () => {
+  const ButtonWithExperiment = useCallback(() => {
     return (
       <SimpleTooltip
         placement="bottom"
@@ -74,7 +74,15 @@ export function PostHeaderActions({
         </Button>
       </SimpleTooltip>
     );
-  };
+  }, [
+    inlineActions,
+    isEnlarged,
+    onReadArticle,
+    openNewTab,
+    post.permalink,
+    post.sharedPost?.permalink,
+    readButtonText,
+  ]);
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
