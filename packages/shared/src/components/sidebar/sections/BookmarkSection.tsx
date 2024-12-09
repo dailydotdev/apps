@@ -58,7 +58,7 @@ export const BookmarkSection = ({
         <ListIcon Icon={() => <BookmarkReminderIcon secondary={active} />} />
       ),
       title: 'Read it later',
-      path: `${webappUrl}bookmarks/read-it-later`,
+      path: `${webappUrl}bookmarks/later`,
       isForcedLink: true,
       requiresLogin: true,
       rightIcon,
