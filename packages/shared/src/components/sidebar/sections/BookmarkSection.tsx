@@ -19,7 +19,7 @@ export const BookmarkSection = ({
   isItemsButton,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
-  const { openModal } = useLazyModal();
+  const { openModal, closeModal } = useLazyModal();
   const { folders } = useBookmarkFolderList();
   const { createFolder } = useCreateBookmarkFolder();
 
@@ -33,8 +33,9 @@ export const BookmarkSection = ({
     openModal({
       type: LazyModal.BookmarkFolder,
       props: {
-        onSubmit: (folder) => {
-          createFolder(folder);
+        onSubmit: async (folder) => {
+          await createFolder(folder);
+          closeModal();
         },
       },
     });

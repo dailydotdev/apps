@@ -1,11 +1,7 @@
 import React, { type ReactElement } from 'react';
 import { Modal, type ModalProps } from '../common/Modal';
 import { ModalHeader } from '../common/ModalHeader';
-import {
-  Button,
-  ButtonIconPosition,
-  ButtonVariant,
-} from '../../buttons/Button';
+import { Button, ButtonVariant } from '../../buttons/Button';
 import { BookmarkIcon, PlusIcon, VIcon } from '../../icons';
 import {
   useBookmarkFolderList,
@@ -50,8 +46,8 @@ const MoveBookmarkModal = ({
   };
 
   const onCreateNewFolder = async (folder: BookmarkFolder) => {
-    const newFolderId = await createFolder(folder);
-    handleMoveBookmark(newFolderId.id);
+    const newFolder = await createFolder(folder);
+    handleMoveBookmark(newFolder.id);
     closeModal();
   };
 
@@ -62,8 +58,6 @@ const MoveBookmarkModal = ({
         onSubmit: (folder) =>
           onCreateNewFolder({
             ...folder,
-            createdAt: new Date(),
-            updatedAt: new Date(),
           }),
         onAfterClose: () =>
           openModal({
@@ -109,7 +103,6 @@ const MoveBookmarkModal = ({
               onClick={() => handleMoveBookmark(folder.id)}
               className="!px-2"
               variant={ButtonVariant.Option}
-              iconPosition={ButtonIconPosition.Left}
               icon={folder?.icon ? <span>{folder.icon}</span> : <FolderIcon />}
             >
               {folder.name}
