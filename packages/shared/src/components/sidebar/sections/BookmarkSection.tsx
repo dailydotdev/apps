@@ -13,6 +13,7 @@ import {
   useCreateBookmarkFolder,
 } from '../../../hooks/bookmark';
 import { useViewSize, ViewSize } from '../../../hooks';
+import { FolderIcon } from '../../icons/Folder';
 
 export const BookmarkSection = ({
   isItemsButton,
@@ -55,13 +56,17 @@ export const BookmarkSection = ({
         <ListIcon Icon={() => <BookmarkReminderIcon secondary={active} />} />
       ),
       title: 'Read it later',
-      path: `${webappUrl}bookmarks/read-it-later`,
+      path: `${webappUrl}bookmarks/later`,
       isForcedLink: true,
       requiresLogin: true,
       rightIcon,
     },
     ...(folders ?? []).map((folder) => ({
-      icon: folder.icon,
+      icon:
+        folder.icon ||
+        ((active: boolean) => (
+          <ListIcon Icon={() => <FolderIcon secondary={active} />} />
+        )),
       title: folder.name,
       path: `${webappUrl}bookmarks/${folder.id}`,
       isForcedLink: true,

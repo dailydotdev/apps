@@ -3,26 +3,28 @@ import { useCallback } from 'react';
 import {
   BookmarkFolder,
   getBookmarkFolders,
-  moveBookmark as moveBookmarkMutation,
   type MoveBookmarkProps,
+  moveBookmark as moveBookmarkMutation,
 } from '../../graphql/bookmarks';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { getPostByIdKey } from '../usePostById';
 
 interface UseBookmarkFolderList {
   isPending: boolean;
-  isMoving: boolean;
   folders: Array<BookmarkFolder>;
+  isMoving: boolean;
   onMoveBookmark: (props: MoveBookmarkProps) => void;
 }
 
 export const useBookmarkFolderList = (): UseBookmarkFolderList => {
   const client = useQueryClient();
-
+  const { isAuthReady, isLoggedIn } = useAuthContext();
   const { data, isPending } = useQuery({
     queryKey: generateQueryKey(RequestKey.BookmarkFolders),
     queryFn: getBookmarkFolders,
     staleTime: StaleTime.Default,
+    enabled: isAuthReady && isLoggedIn,
   });
   const { mutate: moveBookmark, isPending: isMoving } = useMutation({
     mutationFn: moveBookmarkMutation,
