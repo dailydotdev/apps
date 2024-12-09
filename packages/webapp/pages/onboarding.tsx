@@ -159,7 +159,7 @@ export function OnboardPage(): ReactElement {
   const { isPushSupported } = usePushNotificationContext();
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
-  const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
+  const [activeScreen, setActiveScreen] = useState(OnboardingStep.PWA);
   const [shouldEnrollOnboardingStep, setShouldEnrollOnboardingStep] =
     useState(false);
   const { value: showOnboardingSources } = useConditionalFeature({
@@ -357,7 +357,7 @@ export function OnboardPage(): ReactElement {
           alt="Onboarding background"
           className="pointer-events-none absolute inset-0 -z-1 h-full w-full object-cover tablet:object-center"
           // @ts-expect-error - Not supported by react yet
-          fetchpriority="high"
+          fetchPriority="high"
           loading="eager"
           role="presentation"
           src={onboardingVisual.fullBackground.mobile}

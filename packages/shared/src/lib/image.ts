@@ -273,7 +273,7 @@ export const cloudinaryPWA =
   'https://daily-now-res.cloudinary.com/image/upload/s--OJZMKmCg--/f_auto/v1730721076/web_-_safari_asp3ts';
 
 export const cloudinaryPWAVideo =
-  'https://daily-now-res.cloudinary.com/video/upload/s--wosgzuy6--/v1730719023/web_-_safari_gndizk.mp4';
+  'https://daily-now-res.cloudinary.com/video/upload/s--0mT5rE2C--/v1733649847/web_-_safari_j81dxl.mp4';
 
 export const cloudinaryAddToHomeScreen =
   'https://daily-now-res.cloudinary.com/image/upload/s--Ml_3MSzc--/f_auto/v1733037697/add_to_home_screen_mddvzw';
