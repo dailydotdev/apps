@@ -79,3 +79,42 @@ export const createBookmarkFolder = async ({
     })
     .then((data) => data.createBookmarkList);
 };
+
+export const UPDATE_BOOKMARK_FOLDER = gql`
+  mutation UpdateBookmarkList($id: ID!, $name: String!, $icon: String) {
+    updateBookmarkList(id: $id, name: $name, icon: $icon) {
+      icon
+      name
+    }
+  }
+`;
+
+export const updateBookmarkFolder = async ({
+  id,
+  name,
+  icon,
+}: BookmarkFolder): Promise<BookmarkFolder> => {
+  return gqlClient
+    .request<{
+      updateBookmarkList: BookmarkFolder;
+    }>(UPDATE_BOOKMARK_FOLDER, {
+      id,
+      name,
+      icon,
+    })
+    .then((data) => data.updateBookmarkList);
+};
+
+export const DELETE_BOOKMARK_FOLDER = gql`
+  mutation RemoveBookmarkList($id: ID!) {
+    removeBookmarkList(id: $id) {
+      _
+    }
+  }
+`;
+
+export const deleteBookmarkFolder = async (
+  id: string,
+): Promise<EmptyResponse> => {
+  return gqlClient.request(DELETE_BOOKMARK_FOLDER, { id });
+};
