@@ -22,33 +22,34 @@ export const useCreateBookmarkFolder = (): UseCreateBookmarkFolder => {
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: createBookmarkFolder,
+    onSuccess: (createdFolder) => {
+      const { id } = createdFolder;
+
+      logEvent({
+        event_name: LogEvent.CreateBookmarkFolder,
+        target_id: id,
+      });
+
+      const listQueryKey = generateQueryKey(RequestKey.BookmarkFolders);
+      queryClient.setQueryData(listQueryKey, (data: BookmarkFolder[]) => {
+        return [...data, { id, ...createdFolder }];
+      });
+
+      displayToast(`${createdFolder.name} has been created`);
+    },
+    onError: () => {
+      displayToast('Failed to create folder');
+    },
   });
 
   const createFolder: UseCreateBookmarkFolder['createFolder'] = useCallback(
     async (folder) => {
-      try {
-        const createdFolder = await mutateAsync(folder);
-        const { id } = createdFolder;
-
-        logEvent({
-          event_name: LogEvent.CreateBookmarkFolder,
-          target_id: id,
-        });
-
-        const listQueryKey = generateQueryKey(RequestKey.BookmarkFolders);
-        queryClient.setQueryData(listQueryKey, (data: BookmarkFolder[]) => {
-          return [...data, { id, ...folder }];
-        });
-
-        displayToast(`${folder.name} has been created`);
-
-        return createdFolder;
-      } catch (e) {
-        displayToast('Failed to create folder');
-        return null;
-      }
+      return mutateAsync(folder).then((createdFolder) => ({
+        ...folder,
+        ...createdFolder,
+      }));
     },
-    [displayToast, logEvent, mutateAsync, queryClient],
+    [mutateAsync],
   );
 
   return {
