@@ -26,7 +26,9 @@ export const CreateFeedButton = ({
 
   const contentTypeStep = activeScreen === OnboardingStep.ContentTypes;
   const sourceStep = activeScreen === OnboardingStep.Sources;
-  const androidStep = activeScreen === OnboardingStep.AndroidApp;
+  const CTAStep =
+    activeScreen === OnboardingStep.AndroidApp ||
+    activeScreen === OnboardingStep.PWA;
 
   const contentTypeNotEmpty =
     !!getContentTypeNotEmpty({
@@ -47,7 +49,7 @@ export const CreateFeedButton = ({
     contentTypeNotEmpty ||
     sourceStep ||
     isPlusStep ||
-    androidStep;
+    CTAStep;
   const { sidebarRendered } = useSidebarRendered();
   const buttonName =
     customActionName ??
@@ -74,7 +76,7 @@ export const CreateFeedButton = ({
     if (isPlusStep) {
       return ButtonVariant.Secondary;
     }
-    if (androidStep) {
+    if (CTAStep) {
       return ButtonVariant.Tertiary;
     }
     return ButtonVariant.Primary;
