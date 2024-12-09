@@ -201,6 +201,8 @@ export function OnboardPage(): ReactElement {
       extra: JSON.stringify({ screen_value: activeScreen }),
     });
 
+    return setActiveScreen(OnboardingStep.PWA);
+
     if (activeScreen === OnboardingStep.Intro) {
       return setActiveScreen(OnboardingStep.EditTag);
     }
