@@ -29,7 +29,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
   const { completeAction } = useActions();
   const { flags } = useSettingsContext();
 
-  const { clickbaitShieldEnabled } = flags;
+  const { clickbaitShieldEnabled } = flags || {};
 
   const key = useMemo(
     () => [
