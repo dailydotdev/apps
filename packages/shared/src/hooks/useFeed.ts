@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import {
   InfiniteData,
   useInfiniteQuery,
@@ -28,6 +28,10 @@ import { usePlusSubscription } from './usePlusSubscription';
 import { fetchAd } from '../lib/ads';
 import { LogEvent } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
+import type { FeedAdTemplate } from '../lib/feed';
+import { featureFeedAdTemplate } from '../lib/featureManagement';
+import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
+import { AD_PLACEHOLDER_SOURCE_ID } from '../lib/constants';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -109,7 +113,7 @@ export interface UseFeedOptionalParams<T> {
 export default function useFeed<T>(
   feedQueryKey: unknown[],
   pageSize: number,
-  adSpot: number,
+  adTemplate: FeedAdTemplate,
   placeholdersPerPage: number,
   params: UseFeedOptionalParams<T> = {},
 ): FeedReturnType {
@@ -171,7 +175,21 @@ export default function useFeed<T>(
 
   const adsQuery = useInfiniteQuery<Ad>({
     queryKey: [RequestKey.Ads, ...feedQueryKey],
-    queryFn: async ({ pageParam }) => fetchAd(!!pageParam),
+    queryFn: async ({ pageParam }) => {
+      const ad = await fetchAd(!!pageParam);
+
+      if (!ad) {
+        return {
+          source: AD_PLACEHOLDER_SOURCE_ID,
+          link: 'https://daily.dev',
+          company: 'daily.dev',
+          description: 'daily.dev',
+          image: cloudinaryPostImageCoverPlaceholder,
+        };
+      }
+
+      return ad;
+    },
     initialPageParam: '',
     getNextPageParam: () => Date.now(),
     enabled: isAdsQueryEnabled,
@@ -179,56 +197,119 @@ export default function useFeed<T>(
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
   });
+  const {
+    data: adsData,
+    fetchNextPage: fetchNextAd,
+    isLoading,
+    dataUpdatedAt: adsUpdatedAt,
+  } = adsQuery;
 
-  useEffect(() => {
-    if (
-      !adsQuery.isFetching &&
-      adsQuery.data?.pages?.length < feedQuery.data?.pages?.length
-    ) {
-      adsQuery.fetchNextPage();
-    }
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [adsQuery.data, feedQuery.data, adsQuery.isFetching]);
+  const getAd = useCallback(
+    ({ index }: { index: number }) => {
+      if (!isAdsQueryEnabled) {
+        return undefined;
+      }
+
+      const adStart =
+        adTemplate?.adStart ??
+        featureFeedAdTemplate.defaultValue.default.adStart;
+      const adRepeat = adTemplate?.adRepeat ?? pageSize + 1;
+
+      const adIndex = index - adStart; // 0-based index from adStart
+
+      // if adIndex is negative, it means we are not supposed to show ads yet based on adStart
+      if (adIndex < 0) {
+        return undefined;
+      }
+
+      const adMatch = adIndex % adRepeat === 0; // should ad be shown at this index based on adRepeat
+
+      if (!adMatch) {
+        return undefined;
+      }
+
+      const adPage = adIndex / adRepeat; // page number for ad
+
+      if (isLoading) {
+        return {
+          type: FeedItemType.Placeholder,
+          index: adPage,
+        };
+      }
+
+      const nextAd = adsData?.pages[adPage];
+
+      if (!nextAd) {
+        fetchNextAd({ cancelRefetch: false });
+
+        return {
+          type: FeedItemType.Placeholder,
+          index: adPage,
+        };
+      }
+
+      // for now we return placeholder when no ad is available
+      // this can be replace with some local replacements in the future
+      if (nextAd.source === AD_PLACEHOLDER_SOURCE_ID) {
+        return {
+          type: FeedItemType.Placeholder,
+          index: adPage,
+        };
+      }
+
+      return {
+        type: FeedItemType.Ad,
+        ad: nextAd,
+        index: adPage,
+        updatedAt: adsUpdatedAt,
+      };
+    },
+    [
+      adsData,
+      fetchNextAd,
+      isAdsQueryEnabled,
+      isLoading,
+      adTemplate?.adStart,
+      adTemplate?.adRepeat,
+      adsUpdatedAt,
+      pageSize,
+    ],
+  );
 
   const items = useMemo(() => {
     let newItems: FeedItem[] = [];
     if (feedQuery.data) {
-      newItems = feedQuery.data.pages.flatMap(
-        ({ page }, pageIndex): FeedItem[] => {
-          const posts: FeedItem[] = page.edges.map(({ node }, index) => ({
-            type: FeedItemType.Post,
-            post: node,
-            page: pageIndex,
-            index,
-          }));
+      newItems = feedQuery.data.pages.reduce((acc, { page }, pageIndex) => {
+        page.edges.forEach(({ node }, index) => {
+          const adIndex = acc.length;
+          const adItem = getAd({ index: adIndex });
 
-          const withFirstIndex = (condition: boolean) =>
-            pageIndex === 0 && condition;
+          if (adItem) {
+            const withFirstIndex = (condition: boolean) =>
+              pageIndex === 0 && adItem.index === 0 && condition;
 
-          if (isAdsQueryEnabled) {
             if (withFirstIndex(!!settings.marketingCta)) {
-              posts.splice(adSpot, 0, {
+              acc.push({
                 type: FeedItemType.MarketingCta,
                 marketingCta: settings.marketingCta,
               });
             } else if (withFirstIndex(settings.showAcquisitionForm)) {
-              posts.splice(adSpot, 0, { type: FeedItemType.UserAcquisition });
-            } else if (adsQuery.data?.pages[pageIndex]) {
-              posts.splice(adSpot, 0, {
-                type: FeedItemType.Ad,
-                ad: adsQuery.data?.pages[pageIndex],
-                index: pageIndex,
-                updatedAt: adsQuery.dataUpdatedAt,
-              });
+              acc.push({ type: FeedItemType.UserAcquisition });
             } else {
-              posts.splice(adSpot, 0, { type: FeedItemType.Placeholder });
+              acc.push(adItem);
             }
           }
 
-          return posts;
-        },
-      );
+          acc.push({
+            type: FeedItemType.Post,
+            post: node,
+            page: pageIndex,
+            index,
+          });
+        });
+
+        return acc;
+      }, []);
     }
     if (feedQuery.isFetching) {
       newItems.push(
@@ -241,11 +322,8 @@ export default function useFeed<T>(
     feedQuery.isFetching,
     settings.marketingCta,
     settings.showAcquisitionForm,
-    isAdsQueryEnabled,
-    adSpot,
-    adsQuery.data?.pages,
     placeholdersPerPage,
-    adsQuery.dataUpdatedAt,
+    getAd,
   ]);
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);
@@ -273,9 +351,7 @@ export default function useFeed<T>(
   return {
     items,
     fetchPage: async () => {
-      const adPromise = adsQuery.fetchNextPage();
       await feedQuery.fetchNextPage();
-      await adPromise;
     },
     updatePost,
     removePost: removeCachedPagePost(feedQueryKey, queryClient),

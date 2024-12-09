@@ -78,3 +78,5 @@ export const squadCategoriesPaths = {
   discover: '/squads/discover',
   featured: '/squads/discover/featured',
 };
+
+export const AD_PLACEHOLDER_SOURCE_ID = '__dailydotdev_app_ad_placeholder__';
