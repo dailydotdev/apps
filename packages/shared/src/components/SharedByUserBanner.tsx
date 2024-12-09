@@ -11,9 +11,9 @@ import {
 import { FollowButton } from './contentPreference/FollowButton';
 import { ContentPreferenceType } from '../graphql/contentPreference';
 import { Origin } from '../lib/log';
-import { LoggedUser } from '../lib/user';
 import { WithClassNameProps } from './utilities';
 import { useUserShortByIdQuery } from '../hooks/user/useUserShortByIdQuery';
+import { useContentPreferenceStatusQuery } from '../hooks/contentPreference/useContentPreferenceStatusQuery';
 
 export const SharedByUserBanner = ({
   className,
@@ -22,6 +22,11 @@ export const SharedByUserBanner = ({
   const { query } = useRouter();
   const userid = (query?.userid as string) || null;
 
+  const { data: contentPreference } = useContentPreferenceStatusQuery({
+    id: userid,
+    entity: ContentPreferenceType.User,
+    queryOptions: { enabled: !!userid && userid !== currentUser?.id },
+  });
   const { data: user } = useUserShortByIdQuery({ id: userid });
   if (!userid || userid === currentUser?.id || !user) {
     return null;
@@ -51,7 +56,7 @@ export const SharedByUserBanner = ({
         userId={userid}
         type={ContentPreferenceType.User}
         entityName={`@${user.username}`}
-        status={(user as LoggedUser).contentPreference?.status}
+        status={contentPreference?.status}
         origin={Origin.PostSharedBy}
       />
     </div>

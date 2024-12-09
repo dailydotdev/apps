@@ -34,7 +34,6 @@ import {
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
-import { useUserShortByIdQuery } from '@dailydotdev/shared/src/hooks/user/useUserShortByIdQuery';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -86,11 +85,11 @@ const CONTENT_MAP: Record<PostType, typeof PostContent> = {
   collection: CollectionPostContent,
 };
 
-interface PostParams extends ParsedUrlQuery {
+export interface PostParams extends ParsedUrlQuery {
   id: string;
 }
 
-const seoTitle = (post: Post) => {
+export const seoTitle = (post: Post): string | undefined => {
   if (post?.type === PostType.Share && post?.title === null) {
     return `Shared post at ${post?.source?.name}`;
   }
@@ -98,7 +97,7 @@ const seoTitle = (post: Post) => {
   return post?.title;
 };
 
-const PostPage = ({ id, initialData }: Props): ReactElement => {
+export const PostPage = ({ id, initialData }: Props): ReactElement => {
   useJoinReferral();
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
@@ -106,8 +105,6 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   const { isFallback } = router;
   const { shouldShowAuthBanner } = useOnboarding();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const userid = (router.query?.userid as string) || null;
-  const { isLoading: isPendingBanner } = useUserShortByIdQuery({ id: userid });
   const { post, isError, isLoading } = usePostById({
     id,
     options: {
@@ -131,12 +128,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
 
   const privateSourceJoin = usePrivateSourceJoin({ postId: id });
 
-  if (
-    isLoading ||
-    isFallback ||
-    privateSourceJoin.isActive ||
-    isPendingBanner
-  ) {
+  if (isLoading || isFallback || privateSourceJoin.isActive) {
     return (
       <>
         <PostSEOSchema post={post} />

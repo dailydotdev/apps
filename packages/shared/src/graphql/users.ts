@@ -20,9 +20,6 @@ export const USER_SHORT_BY_ID = `
       image
       username
       permalink
-      contentPreference {
-        status
-      }
     }
   }
 `;
