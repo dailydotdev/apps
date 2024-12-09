@@ -19,9 +19,10 @@ import SearchEmptyScreen from './SearchEmptyScreen';
 import Feed, { FeedProps } from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import { Button, ButtonVariant } from './buttons/Button';
-import { PlusIcon, ShareIcon } from './icons';
+import { ShareIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import { useFeedLayout, usePlusSubscription } from '../hooks';
+import { BookmarkSection } from './sidebar/sections/BookmarkSection';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { IconSize } from './Icon';
@@ -55,7 +56,6 @@ export default function BookmarkFeedLayout({
     FeedPageLayoutComponent,
     shouldUseListMode,
   } = useFeedLayout();
-  const { openModal } = useLazyModal();
   const { showPlusSubscription } = usePlusSubscription();
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showEmptyScreen, setShowEmptyScreen] = useState(false);
@@ -135,22 +135,13 @@ export default function BookmarkFeedLayout({
         />
       )}
       {showPlusSubscription && (
-        <div className="mb-4 px-4 laptop:hidden">
-          <Button
-            className="w-full"
-            variant={ButtonVariant.Tertiary}
-            onClick={() => {
-              openModal({
-                type: LazyModal.BookmarkFolderSoon,
-                props: {},
-              });
-            }}
-          >
-            <div className="flex items-center justify-center rounded-6 bg-background-subtle">
-              <PlusIcon size={IconSize.Small} />
-            </div>
-            <div className="w-full pl-4 text-left">New folder</div>
-          </Button>
+        <div className="mb-4 laptop:hidden">
+          <BookmarkSection
+            isItemsButton={false}
+            sidebarExpanded
+            shouldShowLabel
+            activePage=""
+          />
         </div>
       )}
       {tokenRefreshed && <Feed {...feedProps} />}

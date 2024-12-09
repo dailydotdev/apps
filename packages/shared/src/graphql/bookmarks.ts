@@ -15,6 +15,15 @@ export interface Bookmark {
   remindAt?: Date;
 }
 
+export interface BookmarkFolder {
+  id: string;
+  name: string;
+  icon?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  bookmarks?: Bookmark[];
+}
+
 export interface SetBookmarkReminderProps {
   postId: string;
   remindAt: Date;
@@ -28,3 +37,45 @@ export const setBookmarkReminder = ({
     postId,
     remindAt: remindAt ? remindAt.toISOString() : null,
   });
+
+export const GET_BOOKMARK_FOLDERS = gql`
+  query GetBookmarkFolders {
+    bookmarkLists {
+      id
+      name
+      icon
+    }
+  }
+`;
+
+export const getBookmarkFolders = async (): Promise<BookmarkFolder[]> => {
+  return gqlClient
+    .request<{
+      bookmarkLists: Array<BookmarkFolder>;
+    }>(GET_BOOKMARK_FOLDERS)
+    .then((data) => data.bookmarkLists);
+};
+
+export const CREATE_BOOKMARK_FOLDER = gql`
+  mutation CreateBookmarkFolder($name: String!, $icon: String) {
+    createBookmarkList(name: $name, icon: $icon) {
+      id
+      name
+      icon
+    }
+  }
+`;
+
+export const createBookmarkFolder = async ({
+  name,
+  icon,
+}: Pick<BookmarkFolder, 'name' | 'icon'>): Promise<BookmarkFolder> => {
+  return gqlClient
+    .request<{
+      createBookmarkList: BookmarkFolder;
+    }>(CREATE_BOOKMARK_FOLDER, {
+      name,
+      icon,
+    })
+    .then((data) => data.createBookmarkList);
+};
