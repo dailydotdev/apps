@@ -12,11 +12,13 @@ import { ActionType } from '../../graphql/actions';
 import { postLogEvent } from '../../lib/feed';
 import { LogEvent } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 
 type UseSmartTitle = {
   fetchSmartTitle: () => Promise<void>;
   title: string;
   fetchedSmartTitle: boolean;
+  shieldActive: boolean;
 };
 
 export const useSmartTitle = (post: Post): UseSmartTitle => {
@@ -25,6 +27,9 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
   const { logEvent } = useLogContext();
   const { isPlus, showPlusSubscription } = usePlusSubscription();
   const { completeAction } = useActions();
+  const { flags } = useSettingsContext();
+
+  const { clickbaitShieldEnabled } = flags;
 
   const key = useMemo(
     () => [
@@ -105,9 +110,17 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
       : post?.title || post?.sharedPost?.title;
   }, [fetchedSmartTitle, smartTitle, post]);
 
+  const shieldActive = useMemo(() => {
+    return (
+      (clickbaitShieldEnabled && !fetchedSmartTitle) ||
+      (!clickbaitShieldEnabled && fetchedSmartTitle)
+    );
+  }, [clickbaitShieldEnabled, fetchedSmartTitle]);
+
   return {
     fetchSmartTitle,
     title,
     fetchedSmartTitle,
+    shieldActive,
   };
 };
