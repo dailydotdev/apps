@@ -6,7 +6,7 @@ import {
   ButtonIconPosition,
   ButtonVariant,
 } from '../../buttons/Button';
-import { BookmarkIcon, PlusIcon } from '../../icons';
+import { BookmarkIcon, PlusIcon, VIcon } from '../../icons';
 import {
   useBookmarkFolderList,
   useCreateBookmarkFolder,
@@ -15,6 +15,7 @@ import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../common/types';
 import type { BookmarkFolder } from '../../../graphql/bookmarks';
 import { useToastNotification } from '../../../hooks';
+import { FolderIcon } from '../../icons/Folder';
 
 type MoveBookmarkFolderModalProps = Omit<ModalProps, 'children'> & {
   listId?: string;
@@ -38,7 +39,7 @@ const MoveBookmarkModal = ({
     }
     onMoveBookmark({ postId, listId: targetList });
     displayToast(
-      `Moved to ${
+      `✅ Moved to ${
         folders?.find((f) => f.id === targetList)?.name || 'Quick saves'
       }`,
       {
@@ -50,7 +51,7 @@ const MoveBookmarkModal = ({
 
   const onCreateNewFolder = async (folder: BookmarkFolder) => {
     const newFolderId = await createFolder(folder);
-    handleMoveBookmark(newFolderId);
+    handleMoveBookmark(newFolderId.id);
     closeModal();
   };
 
@@ -109,10 +110,14 @@ const MoveBookmarkModal = ({
               className="!px-2"
               variant={ButtonVariant.Option}
               iconPosition={ButtonIconPosition.Left}
-              icon={<span>{folder.icon}</span>}
+              icon={folder?.icon ? <span>{folder.icon}</span> : <FolderIcon />}
             >
               {folder.name}
-              {folder.id === listId && <span className="ml-auto">check</span>}
+              {folder.id === listId && (
+                <span className="ml-auto">
+                  <VIcon secondary />
+                </span>
+              )}
             </Button>
           ))}
       </Modal.Body>

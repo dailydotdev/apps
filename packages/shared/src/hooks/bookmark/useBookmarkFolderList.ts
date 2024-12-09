@@ -47,6 +47,6 @@ export const useBookmarkFolderList = (): UseBookmarkFolderList => {
     isMoving,
     onMoveBookmark,
     isPending,
-    folders: data || [],
+    folders: data ?? [],
   };
 };
