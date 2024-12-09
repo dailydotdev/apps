@@ -19,6 +19,7 @@ export const MOVE_BOOKMARK_MUTATION = gql`
 `;
 
 export interface Bookmark {
+  listId?: string;
   createdAt: Date;
   remindAt?: Date;
 }
@@ -88,11 +89,15 @@ export const createBookmarkFolder = async ({
     .then((data) => data.createBookmarkList);
 };
 
-export const moveBookmark = (
-  id: string,
-  listId: string,
-): Promise<EmptyResponse> =>
+export type MoveBookmarkProps = {
+  postId: string;
+  listId: string;
+};
+export const moveBookmark = ({
+  postId,
+  listId,
+}: MoveBookmarkProps): Promise<EmptyResponse> =>
   gqlClient.request(MOVE_BOOKMARK_MUTATION, {
-    id,
+    id: postId,
     listId,
   });

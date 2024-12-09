@@ -30,13 +30,10 @@ export const BookmarkSection = ({
   ) => {
     event.preventDefault();
     openModal({
-      type: LazyModal.BookmarkFolderSoon,
+      type: LazyModal.BookmarkFolder,
       props: {
-        onAfterClose() {
-          createFolder({
-            name: 'New folder',
-            icon: '🚀',
-          });
+        onSubmit: (folder) => {
+          createFolder(folder);
         },
       },
     });
