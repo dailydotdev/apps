@@ -71,7 +71,7 @@ export default function BookmarkFeedLayout({
   const [showEmptyScreen, setShowEmptyScreen] = useState(false);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
   const router = useRouter();
-  const listId = `${router.query.folderId}` ?? null;
+  const listId = router.query.folderId ? `${router.query.folderId}` : null;
   const {
     query: { folder },
   } = useBookmarkFolder({ id: listId });
