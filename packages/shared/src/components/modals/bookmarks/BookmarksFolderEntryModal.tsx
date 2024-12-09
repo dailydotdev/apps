@@ -30,7 +30,7 @@ export const BookmarksFolderEntryModal = (
 ): ReactElement => {
   const { onRequestClose } = props;
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
-  const { logSubscriptionEvent } = usePlusSubscription();
+  const { logSubscriptionEvent, isPlus } = usePlusSubscription();
   const isTablet = useViewSize(ViewSize.Tablet);
 
   useEffect(() => {
@@ -41,6 +41,10 @@ export const BookmarksFolderEntryModal = (
       completeAction(ActionType.CreateBookmarkFolder);
     }
   }, [checkHasCompleted, completeAction, isActionsFetched]);
+
+  if (isPlus) {
+    return;
+  }
 
   return (
     <Modal
@@ -54,7 +58,7 @@ export const BookmarksFolderEntryModal = (
         onClick={onRequestClose}
         variant={ButtonVariant.Primary}
       />
-      <Modal.Body className="!tablet:p-4 flex flex-col justify-center gap-4 tablet:items-center tablet:text-center">
+      <Modal.Body className="!tablet:p-4 flex flex-col items-center justify-center gap-4 text-center">
         <div className="relative overflow-hidden">
           <Image
             className="rounded-16"
