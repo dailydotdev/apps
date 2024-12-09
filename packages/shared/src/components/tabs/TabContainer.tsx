@@ -42,7 +42,10 @@ export interface TabContainerProps<T extends string = string> {
   children?: ReactElement<TabProps<T>>[];
   className?: ClassName;
   controlledActive?: T;
-  onActiveChange?: (active: T) => unknown;
+  onActiveChange?: (
+    active: T,
+    event: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>,
+  ) => boolean | void;
   renderTab?: RenderTab;
   shouldFocusTabOnChange?: boolean;
   shouldMountInactive?: boolean;
@@ -84,22 +87,25 @@ export function TabContainer<T extends string = string>({
   });
 
   const currentActive = controlledActive ?? active;
-  const onClick = (label: T) => {
+  const onClick: TabListProps['onClick'] = (label: T, event) => {
     const child = children.find((c) => c.props.label === label);
     setActive(label);
-    onActiveChange?.(label);
+    const shouldChange = onActiveChange?.(label, event);
 
-    setTimeout(() => {
-      if (shouldFocusTabOnChange && containerRef?.current) {
-        const [firstChild] = containerRef.current.children;
-        if (firstChild instanceof HTMLElement) {
-          firstChild.focus();
+    // evaluate !== false due to backwards compatibility with implementations that return undefined
+    if (shouldChange !== false) {
+      setTimeout(() => {
+        if (shouldFocusTabOnChange && containerRef?.current) {
+          const [firstChild] = containerRef.current.children;
+          if (firstChild instanceof HTMLElement) {
+            firstChild.focus();
+          }
         }
-      }
-    }, 0);
+      }, 0);
 
-    if (child?.props?.url) {
-      router.push(child.props.url);
+      if (child?.props?.url) {
+        router.push(child.props.url);
+      }
     }
   };
 

@@ -64,6 +64,7 @@ export const FEED_POST_FRAGMENT = gql`
         image
       }
       slug
+      clickbaitTitleDetected
     }
     trending
     feedMeta
@@ -232,6 +233,24 @@ export const BOOKMARKS_FEED_QUERY = gql`
     $supportedTypes: [String!]
   ) {
     page: bookmarksFeed(
+      first: $first
+      after: $after
+      supportedTypes: $supportedTypes
+    ) {
+      ...FeedPostConnection
+    }
+  }
+  ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
+export const FOLLOWING_FEED_QUERY = gql`
+  query FollowingFeed(
+    $loggedIn: Boolean! = false
+    $first: Int
+    $after: String
+    ${SUPPORTED_TYPES}
+  ) {
+    page: followingFeed(
       first: $first
       after: $after
       supportedTypes: $supportedTypes

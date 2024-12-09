@@ -4,8 +4,8 @@
   "main": "index.js",
   "prettier": "@dailydotdev/prettier-config",
   "devDependencies": {
-    "@dailydotdev/eslint-plugin-daily-dev-eslint-rules": "*",
-    "@dailydotdev/prettier-config": "*",
+    "@dailydotdev/eslint-plugin-daily-dev-eslint-rules": "workspace:*",
+    "@dailydotdev/prettier-config": "workspace:*",
     "@typescript-eslint/eslint-plugin": "^4.31.2",
     "@typescript-eslint/parser": "^4.31.2",
     "eslint-config-airbnb-typescript": "^12.3.1",

@@ -125,6 +125,8 @@ const defaultSettings: RemoteSettings = {
     sidebarCustomFeedsExpanded: true,
     sidebarOtherExpanded: true,
     sidebarResourcesExpanded: true,
+    sidebarBookmarksExpanded: true,
+    clickbaitShieldEnabled: true,
   },
 };
 

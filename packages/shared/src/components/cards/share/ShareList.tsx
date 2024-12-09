@@ -13,6 +13,8 @@ import PostTags from '../common/PostTags';
 import { CardCoverList } from '../common/list/CardCover';
 import ActionButtons from '../common/list/ActionButtons';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
+import { ClickbaitShield } from '../common/ClickbaitShield';
+import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 
 export const ShareList = forwardRef(function ShareList(
   {
@@ -39,7 +41,8 @@ export const ShareList = forwardRef(function ShareList(
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
   const isVideoType = isVideoPost(post);
-  const { title } = useTruncatedSummary(post?.title || post?.sharedPost?.title);
+  const { title } = useSmartTitle(post);
+  const { title: truncatedTitle } = useTruncatedSummary(title);
 
   return (
     <FeedItemContainer
@@ -94,10 +97,15 @@ export const ShareList = forwardRef(function ShareList(
             lineClamp={undefined}
             className={!!post.read && 'text-text-tertiary'}
           >
-            {title}
+            {truncatedTitle}
           </CardTitle>
           <div className="flex flex-1" />
-          <PostTags tags={post.sharedPost.tags} />
+          <div className="mx-2 flex items-center">
+            {!post.title && post.sharedPost.clickbaitTitleDetected && (
+              <ClickbaitShield post={post} />
+            )}
+            <PostTags tags={post.tags} />
+          </div>
         </div>
 
         <CardCoverList

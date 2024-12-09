@@ -61,6 +61,9 @@ export enum LazyModal {
   PostModeration = 'postModeration',
   NewSquad = 'newSquad',
   TopReaderBadge = 'topReaderBadge',
+  AdvancedCustomFeedSoon = 'advancedCustomFeedSoon',
+  BookmarkFolderSoon = 'bookmarkFolderSoon',
+  ClickbaitShield = 'clickbaitShield',
 }
 
 export type ModalTabItem = {
