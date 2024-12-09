@@ -91,7 +91,8 @@ const ModalTitle = () => (
     <Typography
       tag={TypographyTag.Span}
       type={TypographyType.Caption1}
-      className="flex items-center rounded-4 bg-action-plus-float px-1 font-bold"
+      className="flex items-center rounded-4 bg-action-plus-float px-1"
+      bold
       color={TypographyColor.Plus}
     >
       <DevPlusIcon size={IconSize.Size16} />
