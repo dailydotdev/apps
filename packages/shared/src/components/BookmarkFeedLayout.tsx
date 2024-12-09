@@ -23,14 +23,12 @@ import { ShareIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import { useFeedLayout, usePlusSubscription } from '../hooks';
 import { BookmarkSection } from './sidebar/sections/BookmarkSection';
-import { useLazyModal } from '../hooks/useLazyModal';
-import { LazyModal } from './modals/common/types';
-import { IconSize } from './Icon';
 import {
   Typography,
   TypographyTag,
   TypographyType,
 } from './typography/Typography';
+import { useBookmarkFolder } from '../hooks/bookmark/useBookmarkFolder';
 
 export type BookmarkFeedLayoutProps = {
   searchQuery?: string;
@@ -61,7 +59,10 @@ export default function BookmarkFeedLayout({
   const [showEmptyScreen, setShowEmptyScreen] = useState(false);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
   const router = useRouter();
-  const listId = router.query.folderId ?? null;
+  const listId = `${router.query.folderId}` ?? null;
+  const {
+    query: { folder },
+  } = useBookmarkFolder({ id: listId });
   const defaultKey = useMemo(
     () => generateQueryKey(RequestKey.Bookmarks, user, listId),
     [user, listId],
@@ -114,7 +115,7 @@ export default function BookmarkFeedLayout({
       {children}
       <FeedPageHeader className="mb-5">
         <Typography bold type={TypographyType.Title3} tag={TypographyTag.H1}>
-          Bookmarks
+          {listId ? `${folder.icon} ${folder.name}` : 'Bookmarks'}
         </Typography>
       </FeedPageHeader>
       <CustomFeedHeader
