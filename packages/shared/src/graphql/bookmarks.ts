@@ -5,7 +5,7 @@ import { gqlClient } from './common';
 export const SET_BOOKMARK_REMINDER = gql`
   mutation SetBookmarkReminder($postId: ID!, $remindAt: DateTime) {
     setBookmarkReminder(postId: $postId, remindAt: $remindAt) {
-      _
+      postId
     }
   }
 `;
