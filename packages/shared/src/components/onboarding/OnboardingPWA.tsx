@@ -21,9 +21,8 @@ export const OnboardingPWA = (): ReactElement => {
         loop
         playsInline
         disablePictureInPicture
-      >
-        <track kind="captions" />
-      </video>
+        controls={false}
+      />
       <div className="z-1 flex flex-col gap-4">
         <OnboardingTitle className="!px-0">
           Add daily.dev to Home Screen
