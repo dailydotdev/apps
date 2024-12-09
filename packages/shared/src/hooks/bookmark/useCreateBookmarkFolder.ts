@@ -10,7 +10,9 @@ type CreateBookmarkFolderProps = Pick<BookmarkFolder, 'name' | 'icon'>;
 
 interface UseCreateBookmarkFolder {
   isPending: boolean;
-  createFolder: (folder: CreateBookmarkFolderProps) => void;
+  createFolder: (
+    folder: CreateBookmarkFolderProps,
+  ) => Promise<BookmarkFolder | null>;
 }
 
 export const useCreateBookmarkFolder = (): UseCreateBookmarkFolder => {
@@ -22,25 +24,29 @@ export const useCreateBookmarkFolder = (): UseCreateBookmarkFolder => {
     mutationFn: createBookmarkFolder,
   });
 
-  const createFolder = useCallback(
-    async (folder: CreateBookmarkFolderProps) => {
-      await mutateAsync(folder)
-        .then(async ({ id }) => {
-          logEvent({
-            event_name: LogEvent.CreateBookmarkFolder,
-            target_id: id,
-          });
+  const createFolder: UseCreateBookmarkFolder['createFolder'] = useCallback(
+    async (folder) => {
+      try {
+        const createdFolder = await mutateAsync(folder);
+        const { id } = createdFolder;
 
-          const listQueryKey = generateQueryKey(RequestKey.BookmarkFolders);
-          queryClient.setQueryData(listQueryKey, (data: BookmarkFolder[]) => {
-            return [...data, { id, ...folder }];
-          });
-
-          displayToast(`${folder.name} has been created`);
-        })
-        .catch(() => {
-          displayToast('Failed to create folder');
+        logEvent({
+          event_name: LogEvent.CreateBookmarkFolder,
+          target_id: id,
         });
+
+        const listQueryKey = generateQueryKey(RequestKey.BookmarkFolders);
+        queryClient.setQueryData(listQueryKey, (data: BookmarkFolder[]) => {
+          return [...data, { id, ...folder }];
+        });
+
+        displayToast(`${folder.name} has been created`);
+
+        return createdFolder;
+      } catch (e) {
+        displayToast('Failed to create folder');
+        return null;
+      }
     },
     [displayToast, logEvent, mutateAsync, queryClient],
   );
