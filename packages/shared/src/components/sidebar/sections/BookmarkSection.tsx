@@ -39,7 +39,12 @@ export const BookmarkSection = ({
       ) => {
         event.preventDefault();
 
-        openModal({ type: LazyModal.BookmarkFolderSoon, props: {} });
+        openModal({
+          type: LazyModal.BookmarkFolder,
+          props: {
+            onSubmit: () => {},
+          },
+        });
       },
     },
   ];

@@ -23,14 +23,14 @@ import { plusUrl } from '../../../lib/constants';
 import { LogEvent, TargetId } from '../../../lib/log';
 import Link from '../../utilities/Link';
 
-type BookmarkFolderSponsorModalProps = Omit<ModalProps, 'children'>;
+type BookmarksFolderEntryModalProps = Omit<ModalProps, 'children'>;
 
-export const BookmarkFolderSponsorModal = (
-  props: BookmarkFolderSponsorModalProps,
+export const BookmarksFolderEntryModal = (
+  props: BookmarksFolderEntryModalProps,
 ): ReactElement => {
   const { onRequestClose } = props;
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
-  const { logSubscriptionEvent } = usePlusSubscription();
+  const { logSubscriptionEvent, isPlus } = usePlusSubscription();
   const isTablet = useViewSize(ViewSize.Tablet);
 
   useEffect(() => {
@@ -41,6 +41,10 @@ export const BookmarkFolderSponsorModal = (
       completeAction(ActionType.CreateBookmarkFolder);
     }
   }, [checkHasCompleted, completeAction, isActionsFetched]);
+
+  if (isPlus) {
+    return;
+  }
 
   return (
     <Modal
@@ -54,12 +58,13 @@ export const BookmarkFolderSponsorModal = (
         onClick={onRequestClose}
         variant={ButtonVariant.Primary}
       />
-      <Modal.Body className="!tablet:p-4 flex flex-col justify-center gap-4 tablet:items-center tablet:text-center">
+      <Modal.Body className="!tablet:p-4 flex flex-col items-center justify-center gap-4 text-center">
         <div className="relative overflow-hidden">
           <Image
             className="rounded-16"
             src={bookmarkFolderSoonImage}
             alt="Bookmark Folder coming soon"
+            role="presentation"
           />
         </div>
         <Typography
@@ -100,10 +105,11 @@ export const BookmarkFolderSponsorModal = (
               onClick={() => {
                 logSubscriptionEvent({
                   event_name: LogEvent.UpgradeSubscription,
-                  target_id: TargetId.BlockedWords,
+                  target_id: TargetId.BookmarkFolder,
                 });
               }}
               tag={TypographyTag.Link}
+              type={TypographyType.Callout}
             >
               Upgrade to Plus
             </Typography>
@@ -114,4 +120,4 @@ export const BookmarkFolderSponsorModal = (
   );
 };
 
-export default BookmarkFolderSponsorModal;
+export default BookmarksFolderEntryModal;
