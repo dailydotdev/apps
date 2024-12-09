@@ -146,6 +146,8 @@ const BookmarkFolderModal = ({
             inputId="newFolder"
             onChange={(e) => setName(e.target.value)}
             value={name}
+            autoComplete="off"
+            autoFocus
           />
           <Typography bold type={TypographyType.Body}>
             Choose an icon
