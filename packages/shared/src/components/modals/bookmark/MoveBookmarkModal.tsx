@@ -55,10 +55,7 @@ const MoveBookmarkModal = ({
     openModal({
       type: LazyModal.BookmarkFolder,
       props: {
-        onSubmit: (folder) =>
-          onCreateNewFolder({
-            ...folder,
-          }),
+        onSubmit: (folder) => onCreateNewFolder(folder),
         onAfterClose: () =>
           openModal({
             type: LazyModal.MoveBookmark,

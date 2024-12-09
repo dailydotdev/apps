@@ -17,7 +17,7 @@ import { LogEvent, TargetId } from '../../../lib/log';
 import { IconSize } from '../../Icon';
 import { ModalHeader } from '../common/ModalHeader';
 import { FolderIcon } from '../../icons/Folder';
-import type { BookmarkFolder } from '../../../graphql/bookmarks';
+import { BookmarkFolder } from '../../../graphql/bookmarks';
 
 type BookmarkFolderModalProps = Omit<ModalProps, 'children'> & {
   onSubmit: (folder: BookmarkFolder) => void;
