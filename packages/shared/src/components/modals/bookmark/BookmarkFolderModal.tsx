@@ -105,10 +105,14 @@ const BookmarkFolderModal = ({
   const { isPlus } = usePlusSubscription();
   const [name, setName] = useState(folder?.name || '');
   const isMobile = useViewSize(ViewSize.MobileL);
+  const shoudUpgrade = !isPlus && folderCount > 0;
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onSubmit({ ...folder, name, icon });
+    if (shoudUpgrade) {
+      return;
+    }
+    onSubmit?.({ ...folder, name, icon });
   };
 
   return (
@@ -174,7 +178,7 @@ const BookmarkFolderModal = ({
               disabled={name.length === 0}
               variant={ButtonVariant.Primary}
             >
-              {!isPlus && folderCount > 0 ? (
+              {shoudUpgrade ? (
                 <>
                   <DevPlusIcon /> Upgrade to plus
                 </>
