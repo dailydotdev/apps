@@ -205,10 +205,10 @@ const ClickbaitShieldModal = dynamic(
     ),
 );
 
-const BookmarkFolderSponsorModal = dynamic(
+const BookmarksFolderEntryModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "bookmarkFolderSponsorModal" */ './bookmarks/BookmarkFolderSponsorModal'
+      /* webpackChunkName: "bookmarksFolderEntryModal" */ './bookmarks/BookmarksFolderEntryModal'
     ),
 );
 
@@ -246,7 +246,7 @@ export const modals = {
   [LazyModal.TopReaderBadge]: TopReaderBadgeModal,
   [LazyModal.AdvancedCustomFeedSoon]: AdvancedCustomFeedSoonModal,
   [LazyModal.BookmarkFolderSoon]: BookmarkFolderSoonModal,
-  [LazyModal.BookmarkFolderSponsor]: BookmarkFolderSponsorModal,
+  [LazyModal.BookmarksFolderEntry]: BookmarksFolderEntryModal,
   [LazyModal.ClickbaitShield]: ClickbaitShieldModal,
 };
 
