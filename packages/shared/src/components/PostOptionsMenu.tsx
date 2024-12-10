@@ -26,6 +26,7 @@ import {
   BellAddIcon,
   AddUserIcon,
   RemoveUserIcon,
+  FolderIcon,
 } from './icons';
 import { ReportedCallback } from './modals';
 import useTagAndSource from '../hooks/useTagAndSource';
@@ -60,7 +61,6 @@ import { useContentPreference } from '../hooks/contentPreference/useContentPrefe
 import { ContentPreferenceType } from '../graphql/contentPreference';
 import { isFollowingContent } from '../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../hooks/auth/useIsSpecialUser';
-import { FolderIcon } from './icons/Folder';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
