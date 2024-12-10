@@ -195,7 +195,7 @@ export const POST_BY_ID_QUERY = gql`
       contentHtml
       pinnedAt
       bookmarkList {
-      id
+        id
       }
       sharedPost {
         ...SharedPostInfo
