@@ -8,8 +8,9 @@ import {
 } from '../../graphql/bookmarks';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { getPostByIdKey } from '../usePostById';
 import { useToastNotification } from '../useToastNotification';
+import { getPostByIdKey } from '../usePostById';
+import type { PostData } from '../../graphql/posts';
 
 interface UseBookmarkFolderList {
   isPending: boolean;
@@ -34,8 +35,16 @@ export const useBookmarkFolderList = (): UseBookmarkFolderList => {
       displayToast('❌ Failed to move bookmark');
     },
     onSuccess: (_, vars: MoveBookmarkProps) => {
-      client.invalidateQueries({
-        queryKey: getPostByIdKey(vars.postId),
+      client.setQueryData(getPostByIdKey(vars.postId), (postData: PostData) => {
+        return {
+          ...postData,
+          post: {
+            ...postData.post,
+            bookmarkList: {
+              id: vars.listId,
+            },
+          },
+        };
       });
     },
   });
