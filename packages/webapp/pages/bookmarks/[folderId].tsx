@@ -1,6 +1,6 @@
 import React, { ReactElement, useMemo } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { GetStaticPropsResult } from 'next';
+import { GetStaticPathsResult, GetStaticPropsResult } from 'next';
 import {
   BookmarkFolder,
   getBookmarkFolder,
@@ -31,6 +31,10 @@ const BookmarksPage = ({ folder }: BookmarksFolderPageProps): ReactElement => {
 
   return <>{layout}</>;
 };
+
+export async function getStaticPaths(): Promise<GetStaticPathsResult> {
+  return { paths: [], fallback: true };
+}
 
 export async function getStaticProps({
   params,
