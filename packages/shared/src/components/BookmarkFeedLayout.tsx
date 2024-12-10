@@ -3,6 +3,7 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -109,6 +110,12 @@ export default function BookmarkFeedLayout({
       options: { refetchOnMount: true },
     };
   }, [searchQuery, defaultKey, listId, isReminderOnly]);
+
+  useEffect(() => {
+    if (folder?.id) {
+      setShowEmptyScreen(false);
+    }
+  }, [folder?.id]);
 
   if (showEmptyScreen && !isFolderPage) {
     return <BookmarkEmptyScreen />;
