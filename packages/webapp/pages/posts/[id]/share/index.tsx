@@ -35,7 +35,7 @@ const SharePostPage = ({
 };
 
 export const getServerSideProps: GetServerSideProps<
-  SharePostPageProps
+  SharePostPageProps | { redirect: { destination: string } }
 > = async ({ params, res, query }) => {
   const { id } = params;
   try {
@@ -66,6 +66,7 @@ export const getServerSideProps: GetServerSideProps<
             new URLSearchParams(restQuery as Record<string, string>),
           ),
         },
+        props: { id: initialData.post.id },
       };
     }
 
