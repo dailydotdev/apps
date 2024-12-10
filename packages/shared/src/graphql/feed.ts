@@ -231,12 +231,14 @@ export const BOOKMARKS_FEED_QUERY = gql`
     $first: Int
     $after: String
     $listId: ID
+    $reminderOnly: Boolean
     $supportedTypes: [String!]
   ) {
     page: bookmarksFeed(
       first: $first
       after: $after
       listId: $listId
+      reminderOnly: $reminderOnly
       supportedTypes: $supportedTypes
     ) {
       ...FeedPostConnection
