@@ -101,7 +101,7 @@ const BookmarkFolderModal = ({
   folderCount = 0,
   ...rest
 }: BookmarkFolderModalProps): ReactElement => {
-  const [icon, setIcon] = useState(folder.icon || '');
+  const [icon, setIcon] = useState(folder?.icon || '');
   const { isPlus } = usePlusSubscription();
   const [name, setName] = useState(folder?.name || '');
   const isMobile = useViewSize(ViewSize.MobileL);
