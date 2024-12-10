@@ -24,6 +24,7 @@ export default function BookmarkFeedPage({
   children,
   folder,
   isReminderOnly,
+  ...props
 }: BookmarkFeedPageProps): ReactElement {
   const router = useRouter();
   const { user, tokenRefreshed } = useContext(AuthContext);
@@ -50,6 +51,7 @@ export default function BookmarkFeedPage({
           />
         )
       }
+      {...props}
     >
       {children}
     </BookmarkFeedLayout>
