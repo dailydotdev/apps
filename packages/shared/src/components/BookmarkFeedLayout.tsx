@@ -38,6 +38,7 @@ export type BookmarkFeedLayoutProps = {
   searchChildren: ReactNode;
   onSearchButtonClick?: () => unknown;
   folder?: BookmarkFolder;
+  title?: string;
 };
 
 const SharedBookmarksModal = dynamic(
@@ -63,6 +64,7 @@ export default function BookmarkFeedLayout({
   searchChildren,
   children,
   folder,
+  title = 'Bookmarks',
   isReminderOnly,
 }: BookmarkFeedLayoutProps): ReactElement {
   const {
@@ -74,7 +76,7 @@ export default function BookmarkFeedLayout({
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showEmptyScreen, setShowEmptyScreen] = useState(false);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
-  const isFolderPage = !!folder;
+  const isFolderPage = !!folder || isReminderOnly;
   const listId = folder?.id;
   const defaultKey = useMemo(
     () => generateQueryKey(RequestKey.Bookmarks, user, listId),
@@ -117,7 +119,7 @@ export default function BookmarkFeedLayout({
       {children}
       <FeedPageHeader className="mb-5">
         <Typography bold type={TypographyType.Title3} tag={TypographyTag.H1}>
-          {isFolderPage ? `${folder.icon} ${folder.name}` : 'Bookmarks'}
+          {title}
         </Typography>
       </FeedPageHeader>
       <CustomFeedHeader
