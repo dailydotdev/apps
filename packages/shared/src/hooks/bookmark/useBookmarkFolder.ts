@@ -51,7 +51,9 @@ export const useBookmarkFolder = ({
 
       const listQueryKey = generateQueryKey(RequestKey.BookmarkFolders);
       queryClient.setQueryData(listQueryKey, (data: BookmarkFolder[]) => {
-        return data.map((f) => (f.id === updated.id ? updated : f));
+        return data.map((current) =>
+          current.id === id ? { ...current, ...updated } : current,
+        );
       });
     },
   });
