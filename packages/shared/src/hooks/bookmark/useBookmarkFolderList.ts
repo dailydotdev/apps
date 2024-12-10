@@ -33,19 +33,21 @@ export const useBookmarkFolderList = (): UseBookmarkFolderList => {
     onError: () => {
       displayToast('❌ Failed to move bookmark');
     },
+    onSuccess: (_, vars: MoveBookmarkProps) => {
+      client.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.BookmarkFolders),
+      });
+      client.invalidateQueries({
+        queryKey: getPostByIdKey(vars.postId),
+      });
+    },
   });
 
   const onMoveBookmark = useCallback(
     ({ postId, listId }: MoveBookmarkProps) => {
       moveBookmark({ postId, listId });
-      client.invalidateQueries({
-        queryKey: generateQueryKey(RequestKey.BookmarkFolders),
-      });
-      client.invalidateQueries({
-        queryKey: getPostByIdKey(postId),
-      });
     },
-    [moveBookmark, client],
+    [moveBookmark],
   );
 
   return {
