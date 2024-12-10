@@ -70,8 +70,8 @@ const MoveBookmarkModal = ({
 
   return (
     <Modal {...props}>
-      <ModalHeader className="!px-5" title="Choose a folder" />
-      <Modal.Body className="!px-4">
+      <ModalHeader title="Choose a folder" />
+      <Modal.Body>
         <Button
           onClick={onClickCreateNewFolder}
           icon={
