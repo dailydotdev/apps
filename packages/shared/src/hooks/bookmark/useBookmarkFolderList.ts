@@ -35,9 +35,6 @@ export const useBookmarkFolderList = (): UseBookmarkFolderList => {
     },
     onSuccess: (_, vars: MoveBookmarkProps) => {
       client.invalidateQueries({
-        queryKey: generateQueryKey(RequestKey.BookmarkFolders),
-      });
-      client.invalidateQueries({
         queryKey: getPostByIdKey(vars.postId),
       });
     },
