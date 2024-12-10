@@ -7,8 +7,8 @@ import {
 import {
   ADD_BOOKMARKS_MUTATION,
   Post,
-  REMOVE_BOOKMARK_MUTATION,
   ReadHistoryPost,
+  REMOVE_BOOKMARK_MUTATION,
 } from '../graphql/posts';
 import LogContext from '../contexts/LogContext';
 import { useToastNotification } from './useToastNotification';
@@ -18,14 +18,17 @@ import { updatePostCache } from './usePostById';
 import { AuthTriggers } from '../lib/auth';
 import { LogEvent, Origin } from '../lib/log';
 import {
-  PostLogEventFnOptions,
   optimisticPostUpdateInFeed,
   postLogEvent,
+  PostLogEventFnOptions,
 } from '../lib/feed';
 import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { ActionType } from '../graphql/actions';
 import { useActions } from './useActions';
 import { bookmarkMutationKey } from './bookmark/types';
+import { useLazyModal } from './useLazyModal';
+import { LazyModal } from '../components/modals/common/types';
+import { usePlusSubscription } from './usePlusSubscription';
 
 export type ToggleBookmarkProps = {
   origin: Origin;
@@ -77,7 +80,9 @@ const useBookmarkPost = ({
   const { displayToast } = useToastNotification();
   const { user, showLogin } = useContext(AuthContext);
   const { logEvent } = useContext(LogContext);
-  const { completeAction } = useActions();
+  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
+  const { openModal } = useLazyModal();
+  const { showPlusSubscription } = usePlusSubscription();
 
   const defaultOnMutate = ({ id }) => {
     updatePostCache(client, id, (post) => ({ bookmarked: !post.bookmarked }));
@@ -98,6 +103,16 @@ const useBookmarkPost = ({
     onMutate: onMutate || defaultOnMutate,
     onSuccess: () => {
       completeAction(ActionType.BookmarkPost);
+
+      if (
+        showPlusSubscription &&
+        isActionsFetched &&
+        !checkHasCompleted(ActionType.CreateBookmarkFolder)
+      ) {
+        openModal({
+          type: LazyModal.BookmarksFolderEntry,
+        });
+      }
     },
     onError: (err, _, rollback?: () => void) => rollback?.(),
   });
@@ -150,10 +165,43 @@ const useBookmarkPost = ({
 
       logEvent(postLogEvent(LogEvent.BookmarkPost, post, logOptions));
 
-      await addBookmark({ id: post.id });
-      displayToast('Post was added to your bookmarks');
+      const { list } = await addBookmark({ id: post.id });
+      if (showPlusSubscription) {
+        displayToast(`Bookmarked! Saved to ${list?.name ?? 'Quick saves'}`, {
+          undoCopy: 'Change folder',
+          onUndo: () => {
+            openModal({
+              type: LazyModal.MoveBookmark,
+              props: {
+                postId: post.id,
+                listId: list?.id,
+                onMoveBookmark: async () => {
+                  logEvent(
+                    postLogEvent(
+                      LogEvent.MoveBookmarkToFolder,
+                      post,
+                      logOptions,
+                    ),
+                  );
+                },
+              },
+            });
+          },
+        });
+      } else {
+        displayToast('Post was added to your bookmarks');
+      }
     },
-    [addBookmark, displayToast, removeBookmark, showLogin, logEvent, user],
+    [
+      user,
+      logEvent,
+      addBookmark,
+      showPlusSubscription,
+      showLogin,
+      removeBookmark,
+      displayToast,
+      openModal,
+    ],
   );
 
   return { toggleBookmark };

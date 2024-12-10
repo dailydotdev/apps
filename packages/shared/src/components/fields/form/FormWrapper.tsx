@@ -19,7 +19,7 @@ export interface FormWrapperProps {
   copy?: Copy;
   leftButtonProps?: ButtonProps<'button'>;
   rightButtonProps?: ButtonProps<'button'>;
-  title?: string;
+  title?: string | React.ReactNode;
   isHeaderTitle?: boolean;
   headerRef?: MutableRefObject<HTMLDivElement>;
 }
