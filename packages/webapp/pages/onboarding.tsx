@@ -46,6 +46,7 @@ import {
 } from '@dailydotdev/shared/src/components/Pixels';
 import {
   feature,
+  featureOnboardingAndroid,
   featureOnboardingPWA,
   featureOnboardingSources,
 } from '@dailydotdev/shared/src/lib/featureManagement';
@@ -171,7 +172,7 @@ export function OnboardPage(): ReactElement {
     shouldEvaluate: shouldEnrollOnboardingStep,
   });
   const { value: appExperiment } = useConditionalFeature({
-    feature: feature.onboardingAndroid,
+    feature: featureOnboardingAndroid,
     shouldEvaluate:
       shouldEnrollOnboardingStep && checkIsBrowser(UserAgent.Android),
   });
