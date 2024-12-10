@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
 import BookmarkFeedLayout from '@dailydotdev/shared/src/components/BookmarkFeedLayout';
+import { BookmarkFolder } from '@dailydotdev/shared/src/graphql/bookmarks';
 import { getLayout } from './FeedLayout';
 import { MainFeedPageProps } from './MainFeedPage';
 
@@ -15,9 +16,16 @@ const PostsSearch = dynamic(
   },
 );
 
+interface BookmarkFeedPageProps extends MainFeedPageProps {
+  folder?: BookmarkFolder;
+  isReminderOnly?: boolean;
+}
+
 export default function BookmarkFeedPage({
   children,
-}: MainFeedPageProps): ReactElement {
+  folder,
+  isReminderOnly,
+}: BookmarkFeedPageProps): ReactElement {
   const router = useRouter();
   const { user, tokenRefreshed } = useContext(AuthContext);
 
@@ -31,6 +39,8 @@ export default function BookmarkFeedPage({
 
   return (
     <BookmarkFeedLayout
+      folder={folder}
+      isReminderOnly={isReminderOnly}
       searchQuery={router.query?.q?.toString()}
       searchChildren={
         user && (
@@ -50,7 +60,7 @@ export default function BookmarkFeedPage({
 export function getBookmarkFeedLayout(
   page: ReactNode,
   pageProps: Record<string, unknown>,
-  layoutProps: MainLayoutProps & MainFeedPageProps,
+  layoutProps: BookmarkFeedPageProps,
 ): ReactNode {
   return getLayout(
     <BookmarkFeedPage {...layoutProps}>{page}</BookmarkFeedPage>,
