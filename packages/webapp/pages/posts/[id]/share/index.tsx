@@ -13,6 +13,7 @@ import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuth
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { useUserShortByIdQuery } from '@dailydotdev/shared/src/hooks/user/useUserShortByIdQuery';
 import { USER_SHORT_BY_ID } from '@dailydotdev/shared/src/graphql/users';
+import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
 import { getSeoDescription } from '../../../../components/PostSEOSchema';
 import { PostPage, Props, seoTitle } from '../index';
@@ -54,6 +55,19 @@ export const getServerSideProps: GetServerSideProps<
     }
 
     const [initialData, shareUser] = await Promise.all(promises);
+
+    if (shareUser && query.userid !== shareUser.id) {
+      const { id: queryId, userid, ...restQuery } = query;
+
+      return {
+        redirect: {
+          destination: getPathnameWithQuery(
+            `/posts/${id}`,
+            new URLSearchParams(restQuery as Record<string, string>),
+          ),
+        },
+      };
+    }
 
     const post = initialData.post as Post;
     const seo: NextSeoProps = {
