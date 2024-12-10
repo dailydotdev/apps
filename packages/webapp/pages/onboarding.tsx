@@ -46,6 +46,7 @@ import {
 } from '@dailydotdev/shared/src/components/Pixels';
 import {
   feature,
+  featureOnboardingPWA,
   featureOnboardingSources,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
@@ -176,12 +177,14 @@ export function OnboardPage(): ReactElement {
   });
 
   const { value: PWAExperiment } = useConditionalFeature({
-    feature: feature.onboardingPWA,
+    feature: featureOnboardingPWA,
     shouldEvaluate: shouldEnrollOnboardingStep && isSafariOnIOS(),
   });
 
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
-  const isCTA = appExperiment || PWAExperiment;
+  const isCTA =
+    activeScreen === OnboardingStep.AndroidApp ||
+    activeScreen === OnboardingStep.PWA;
 
   useEffect(() => {
     if (!isPageReady || isLogged.current) {
@@ -406,9 +409,7 @@ export function OnboardPage(): ReactElement {
               activeScreen === OnboardingStep.Intro
                 ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
                 : 'mb-10 ml-0 w-full flex-col items-center justify-start',
-              (activeScreen === OnboardingStep.AndroidApp ||
-                activeScreen === OnboardingStep.PWA) &&
-                'mb-auto',
+              isCTA && 'relative mb-auto flex-1 overflow-hidden',
             )}
           >
             {activeScreen === OnboardingStep.ReadingReminder && (
@@ -438,7 +439,7 @@ export function OnboardPage(): ReactElement {
         )}
       </div>
       {showOnboardingPage && <OnboardingFooter />}
-      <FooterLinks className="mx-auto pb-6" />
+      {!isCTA && <FooterLinks className="mx-auto pb-6" />}
     </div>
   );
 }
