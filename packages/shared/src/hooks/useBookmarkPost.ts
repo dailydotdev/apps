@@ -172,16 +172,12 @@ const useBookmarkPost = ({
         displayToast(`Bookmarked! Saved to ${list?.name ?? 'Quick saves'}`, {
           undoCopy: 'Change folder',
           onUndo: () => {
-            // todo: add moveToFolder modal
             openModal({
-              type: LazyModal.BookmarkFolder,
+              type: LazyModal.MoveBookmark,
               props: {
-                onSubmit: async () => {
-                  // todo: list id should come from the modal
-                  await moveBookmarkToFolder({
-                    postId: post.id,
-                    listId: list.id,
-                  });
+                postId: post.id,
+                listId: list?.id,
+                onMoveBookmark: async () => {
                   logEvent(
                     postLogEvent(
                       LogEvent.MoveBookmarkToFolder,
@@ -207,7 +203,6 @@ const useBookmarkPost = ({
       removeBookmark,
       displayToast,
       openModal,
-      moveBookmarkToFolder,
     ],
   );
 

@@ -366,6 +366,11 @@ export default function PostOptionsMenu({
             props: {
               postId: post.id,
               listId: post.bookmarkList?.id,
+              onMoveBookmark: () => {
+                logEvent(
+                  postLogEvent(LogEvent.MoveBookmarkToFolder, post, logOpts),
+                );
+              },
             },
           }),
       });
