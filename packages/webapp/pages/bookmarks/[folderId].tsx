@@ -31,9 +31,6 @@ const BookmarksPage = ({ folder }: BookmarksFolderPageProps): ReactElement => {
   return <>{layout}</>;
 };
 
-BookmarksPage.getLayout = getBookmarkFeedLayout;
-BookmarksPage.layoutProps = { ...bookmarkFeedLayoutProps, seo };
-
 export async function getStaticProps({
   params,
 }): Promise<GetStaticPropsResult<BookmarksFolderPageProps>> {
