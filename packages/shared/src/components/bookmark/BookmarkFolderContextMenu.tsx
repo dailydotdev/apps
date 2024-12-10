@@ -1,4 +1,5 @@
 import React, { ReactElement, useId } from 'react';
+import { useRouter } from 'next/router';
 import { BookmarkFolder } from '../../graphql/bookmarks';
 import useContextMenu from '../../hooks/useContextMenu';
 import { usePrompt } from '../../hooks/usePrompt';
@@ -18,9 +19,10 @@ export const BookmarkFolderContextMenu = ({
   folder,
 }: BookmarkFolderContextMenuProps): ReactElement => {
   const contextMenuId = useId();
+  const router = useRouter();
+  const { openModal, closeModal } = useLazyModal();
   const { isOpen, onMenuClick } = useContextMenu({ id: contextMenuId });
   const { showPrompt } = usePrompt();
-  const { openModal } = useLazyModal();
   const { update: updateFolder, delete: deleteFolder } = useBookmarkFolder({
     id: folder.id,
   });
@@ -34,6 +36,7 @@ export const BookmarkFolderContextMenu = ({
     });
 
     if (confirm) {
+      await router.push('/bookmarks');
       await deleteFolder.mutate(folder.id);
     }
   };
@@ -56,7 +59,8 @@ export const BookmarkFolderContextMenu = ({
                 type: LazyModal.BookmarkFolder,
                 props: {
                   folder,
-                  onSubmit: updateFolder.mutate,
+                  onSubmit: (f) =>
+                    updateFolder.mutate(f).then(() => closeModal()),
                 },
               });
             },
