@@ -17,6 +17,7 @@ type UseBookmarkFoldersProps = Pick<BookmarkFolder, 'id'>;
 interface UseBookmarkFolder {
   query: {
     isPending: boolean;
+    isReady: boolean;
     folder: BookmarkFolder;
   };
   update: {
@@ -36,7 +37,11 @@ export const useBookmarkFolder = ({
   const queryClient = useQueryClient();
   const { logEvent } = useLogContext();
 
-  const { isPending: isPendingQuery, folders } = useBookmarkFolderList();
+  const {
+    isPending: isPendingQuery,
+    isSuccess,
+    folders,
+  } = useBookmarkFolderList();
   const folder = useMemo(() => folders.find((f) => f.id === id), [folders, id]);
 
   const update = useMutation({
@@ -78,6 +83,7 @@ export const useBookmarkFolder = ({
   return {
     query: {
       isPending: isPendingQuery,
+      isReady: isSuccess,
       folder,
     },
     update: {

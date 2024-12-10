@@ -18,7 +18,7 @@ const BookmarksPage = (): ReactElement => {
   const router = useRouter();
   const id = `${router.query.folderId}`;
   const {
-    query: { folder },
+    query: { folder, isPending, isReady },
   } = useBookmarkFolder({ id });
   const props = useMemo(() => {
     return {
@@ -33,6 +33,10 @@ const BookmarksPage = (): ReactElement => {
   const layout = getBookmarkFeedLayout(null, { seo }, props);
 
   if (!folder) {
+    if (isReady && !isPending) {
+      router.replace('/bookmarks');
+    }
+
     return null;
   }
 
