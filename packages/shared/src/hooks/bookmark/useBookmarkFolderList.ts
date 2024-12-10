@@ -34,8 +34,11 @@ export const useBookmarkFolderList = (): UseBookmarkFolderList => {
     onError: () => {
       displayToast('❌ Failed to move bookmark');
     },
-    onSuccess: (_, vars: MoveBookmarkProps) => {
-      client.setQueryData(getPostByIdKey(vars.postId), (postData: PostData) => {
+    onMutate: (vars: MoveBookmarkProps) => {
+      const queryKey = getPostByIdKey(vars.postId);
+      const currentPostData = client.getQueryData<PostData>(queryKey);
+
+      client.setQueryData(queryKey, (postData: PostData) => {
         return {
           ...postData,
           post: {
@@ -46,6 +49,7 @@ export const useBookmarkFolderList = (): UseBookmarkFolderList => {
           },
         };
       });
+      return () => client.setQueryData(queryKey, currentPostData);
     },
   });
 
