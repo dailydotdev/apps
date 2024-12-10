@@ -110,7 +110,7 @@ export default function BookmarkFeedLayout({
     };
   }, [searchQuery, defaultKey, listId, isReminderOnly]);
 
-  if (showEmptyScreen) {
+  if (showEmptyScreen && !folder) {
     return <BookmarkEmptyScreen />;
   }
 
@@ -157,6 +157,7 @@ export default function BookmarkFeedLayout({
           />
         </div>
       )}
+      {isFolderPage && showEmptyScreen && <BookmarkEmptyScreen />}
       {tokenRefreshed && <Feed {...feedProps} />}
     </FeedPageLayoutComponent>
   );
