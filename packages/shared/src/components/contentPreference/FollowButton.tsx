@@ -19,6 +19,7 @@ export type FollowButtonProps = {
   type: ContentPreferenceType;
   entityName: string;
   origin?: Origin;
+  variant?: ButtonVariant;
 };
 
 export const FollowButton = ({
@@ -28,6 +29,7 @@ export const FollowButton = ({
   status: currentStatus,
   type,
   origin,
+  variant = ButtonVariant.Secondary,
 }: FollowButtonProps): ReactElement => {
   const { follow, unfollow, subscribe, unsubscribe } = useContentPreference();
 
@@ -88,7 +90,7 @@ export const FollowButton = ({
       <SourceActionsFollow
         isSubscribed={!!currentStatus}
         isFetching={isLoading}
-        variant={ButtonVariant.Secondary}
+        variant={variant}
         onClick={(e) => {
           e.preventDefault();
           onButtonClick();
