@@ -123,6 +123,7 @@ export enum LogEvent {
   RemovePostBookmark = 'remove post bookmark',
   SetBookmarkReminder = 'set bookmark reminder',
   RemoveBookmarkReminder = 'remove bookmark reminder',
+  MoveBookmarkToFolder = 'change bookmark folder',
   CreateBookmarkFolder = 'create bookmark folder',
   RenameBookmarkFolder = 'rename bookmark folder',
   DeleteBookmarkFolder = 'delete bookmark folder',

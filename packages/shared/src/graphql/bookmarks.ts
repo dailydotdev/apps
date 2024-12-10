@@ -10,14 +10,6 @@ export const SET_BOOKMARK_REMINDER = gql`
   }
 `;
 
-export const MOVE_BOOKMARK_MUTATION = gql`
-  mutation MoveBookmark($id: ID!, $listId: ID) {
-    moveBookmark(id: $id, listId: $listId) {
-      _
-    }
-  }
-`;
-
 export interface Bookmark {
   listId?: string;
   createdAt: Date;
@@ -45,6 +37,28 @@ export const setBookmarkReminder = ({
   gqlClient.request(SET_BOOKMARK_REMINDER, {
     postId,
     remindAt: remindAt ? remindAt.toISOString() : null,
+  });
+
+export const MOVE_BOOKMARK_TO_FOLDER = gql`
+  mutation MoveBookmarkToFolder($postId: ID!, $listId: ID) {
+    moveBookmark(id: $postId, listId: $listId) {
+      _
+    }
+  }
+`;
+
+export interface MoveBookmarkToFolderProps {
+  postId: string;
+  listId: string;
+}
+
+export const moveBookmarkToFolder = ({
+  postId,
+  listId,
+}: MoveBookmarkToFolderProps): Promise<EmptyResponse> =>
+  gqlClient.request(MOVE_BOOKMARK_TO_FOLDER, {
+    postId,
+    listId,
   });
 
 export const GET_BOOKMARK_FOLDERS = gql`
@@ -147,16 +161,3 @@ export const deleteBookmarkFolder = async (
 ): Promise<EmptyResponse> => {
   return gqlClient.request(DELETE_BOOKMARK_FOLDER, { id });
 };
-
-export type MoveBookmarkProps = {
-  postId: string;
-  listId: string;
-};
-export const moveBookmark = ({
-  postId,
-  listId,
-}: MoveBookmarkProps): Promise<EmptyResponse> =>
-  gqlClient.request(MOVE_BOOKMARK_MUTATION, {
-    id: postId,
-    listId,
-  });
