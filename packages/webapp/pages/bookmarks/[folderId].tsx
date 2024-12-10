@@ -36,7 +36,7 @@ const BookmarksPage = (): ReactElement => {
     if (isReady && !isPending && !folder) {
       router.replace('/bookmarks');
     }
-  }, [isPending, isReady, router]);
+  }, [folder, isPending, isReady, router]);
 
   if (!folder) {
     return null;
