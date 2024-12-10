@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement, useEffect, useMemo } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { useBookmarkFolder } from '@dailydotdev/shared/src/hooks/bookmark/useBookmarkFolder';
 import { useRouter } from 'next/router';
@@ -25,18 +25,20 @@ const BookmarksPage = (): ReactElement => {
       ...bookmarkFeedLayoutProps,
       ...(folder && {
         folder,
-        title: `${folder.icon} ${folder.name}`,
+        title: [folder.icon, folder.name].filter(Boolean).join(' '),
       }),
     };
   }, [folder]);
 
   const layout = getBookmarkFeedLayout(null, { seo }, props);
 
-  if (!folder) {
+  useEffect(() => {
     if (isReady && !isPending) {
       router.replace('/bookmarks');
     }
+  }, [isPending, isReady, router]);
 
+  if (!folder) {
     return null;
   }
 
