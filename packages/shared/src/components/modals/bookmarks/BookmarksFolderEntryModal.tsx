@@ -43,7 +43,7 @@ export const BookmarksFolderEntryModal = (
   }, [checkHasCompleted, completeAction, isActionsFetched]);
 
   if (isPlus) {
-    return;
+    return null;
   }
 
   return (
