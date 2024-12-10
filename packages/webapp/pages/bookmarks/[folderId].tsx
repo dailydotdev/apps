@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { GetStaticPropsResult } from 'next';
 import {
@@ -22,11 +22,12 @@ interface BookmarksFolderPageProps {
 }
 
 const BookmarksPage = ({ folder }: BookmarksFolderPageProps): ReactElement => {
-  const layout = getBookmarkFeedLayout(
-    null,
-    { seo },
-    { ...bookmarkFeedLayoutProps, folder },
+  const title = `${folder.icon} ${folder.name}`;
+  const props = useMemo(
+    () => ({ ...bookmarkFeedLayoutProps, folder, title }),
+    [folder, title],
   );
+  const layout = getBookmarkFeedLayout(null, { seo }, props);
 
   return <>{layout}</>;
 };

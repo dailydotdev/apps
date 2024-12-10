@@ -3,8 +3,9 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
-import BookmarkFeedLayout from '@dailydotdev/shared/src/components/BookmarkFeedLayout';
-import { BookmarkFolder } from '@dailydotdev/shared/src/graphql/bookmarks';
+import BookmarkFeedLayout, {
+  BookmarkFeedLayoutProps,
+} from '@dailydotdev/shared/src/components/BookmarkFeedLayout';
 import { getLayout } from './FeedLayout';
 import { MainFeedPageProps } from './MainFeedPage';
 
@@ -16,10 +17,8 @@ const PostsSearch = dynamic(
   },
 );
 
-interface BookmarkFeedPageProps extends MainFeedPageProps {
-  folder?: BookmarkFolder;
-  isReminderOnly?: boolean;
-}
+type BookmarkFeedPageProps = MainFeedPageProps &
+  Pick<BookmarkFeedLayoutProps, 'title' | 'folder' | 'isReminderOnly'>;
 
 export default function BookmarkFeedPage({
   children,
