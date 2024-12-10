@@ -29,6 +29,7 @@ import { bookmarkMutationKey } from './bookmark/types';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
 import { usePlusSubscription } from './usePlusSubscription';
+import { useMoveBookmarkToFolder } from './bookmark/useMoveBookmarkToFolder';
 
 export type ToggleBookmarkProps = {
   origin: Origin;
@@ -83,6 +84,7 @@ const useBookmarkPost = ({
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
   const { openModal } = useLazyModal();
   const { showPlusSubscription } = usePlusSubscription();
+  const { moveBookmarkToFolder } = useMoveBookmarkToFolder();
 
   const defaultOnMutate = ({ id }) => {
     updatePostCache(client, id, (post) => ({ bookmarked: !post.bookmarked }));
@@ -172,7 +174,23 @@ const useBookmarkPost = ({
           onUndo: () => {
             // todo: add moveToFolder modal
             openModal({
-              type: LazyModal.BookmarksFolderEntry,
+              type: LazyModal.BookmarkFolder,
+              props: {
+                onSubmit: async () => {
+                  // todo: list id should come from the modal
+                  await moveBookmarkToFolder({
+                    postId: post.id,
+                    listId: list.id,
+                  });
+                  logEvent(
+                    postLogEvent(
+                      LogEvent.MoveBookmarkToFolder,
+                      post,
+                      logOptions,
+                    ),
+                  );
+                },
+              },
             });
           },
         });
