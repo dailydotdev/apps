@@ -207,6 +207,7 @@ const useBookmarkPost = ({
       removeBookmark,
       displayToast,
       openModal,
+      moveBookmarkToFolder,
     ],
   );
 
