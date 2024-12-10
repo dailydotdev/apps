@@ -211,6 +211,12 @@ const ClickbaitShieldModal = dynamic(
       /* webpackChunkName: "clickbaitShieldModal" */ './ClickbaitShieldModal'
     ),
 );
+const MoveBookmarkModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "moveBookmarkModal" */ './bookmark/MoveBookmarkModal'
+    ),
+);
 
 const BookmarksFolderEntryModal = dynamic(
   () =>
@@ -256,6 +262,7 @@ export const modals = {
   [LazyModal.BookmarkFolder]: BookmarkFolderModal,
   [LazyModal.BookmarksFolderEntry]: BookmarksFolderEntryModal,
   [LazyModal.ClickbaitShield]: ClickbaitShieldModal,
+  [LazyModal.MoveBookmark]: MoveBookmarkModal,
 };
 
 type GetComponentProps<T> = T extends

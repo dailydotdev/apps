@@ -66,6 +66,7 @@ export enum LazyModal {
   BookmarksFolderEntry = 'bookmarkFolderEntry',
   BookmarkFolder = 'bookmarkFolder',
   ClickbaitShield = 'clickbaitShield',
+  MoveBookmark = 'moveBookmark',
 }
 
 export type ModalTabItem = {

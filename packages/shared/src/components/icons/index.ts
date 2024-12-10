@@ -125,3 +125,4 @@ export * from './Shield';
 export * from './ShieldCheck';
 export * from './ShieldWarning';
 export * from './ShieldPlus';
+export * from './Folder';
