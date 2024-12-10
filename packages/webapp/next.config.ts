@@ -171,6 +171,12 @@ const nextConfig: NextConfig = {
             destination: '/onboarding',
             permanent: false,
           },
+          // so we can't access /share route directly
+          {
+            source: '/posts/:id/share',
+            destination: '/posts/:id',
+            permanent: false,
+          },
         ];
       },
       headers: async () => {
