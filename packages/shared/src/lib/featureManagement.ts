@@ -49,6 +49,8 @@ export const featureOnboardingSources = new Feature(
   false,
 );
 
+export const featureOnboardingPWA = new Feature('onboarding_pwa', false);
+
 export const featureFeedAdTemplate = new Feature('feed_ad_template', {
   default: {
     adStart: 2,

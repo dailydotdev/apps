@@ -7,3 +7,4 @@ export * from './EditTag';
 export * from './ReadingReminder';
 export * from './ContentTypes/ContentTypes';
 export * from './OnboardingAndroidApp';
+export * from './OnboardingPWA';
