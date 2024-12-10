@@ -26,6 +26,7 @@ import {
   BellAddIcon,
   AddUserIcon,
   RemoveUserIcon,
+  FolderIcon,
 } from './icons';
 import { ReportedCallback } from './modals';
 import useTagAndSource from '../hooks/useTagAndSource';
@@ -352,6 +353,21 @@ export default function PostOptionsMenu({
         action: () => {
           onRemoveReminder(post.id);
         },
+      });
+    }
+
+    if (post?.bookmark) {
+      postOptions.push({
+        icon: <MenuIcon Icon={FolderIcon} />,
+        label: 'Move to...',
+        action: () =>
+          openModal({
+            type: LazyModal.MoveBookmark,
+            props: {
+              postId: post.id,
+              listId: post.bookmarkList?.id,
+            },
+          }),
       });
     }
   }
