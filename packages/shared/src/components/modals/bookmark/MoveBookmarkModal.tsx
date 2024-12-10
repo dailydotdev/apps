@@ -74,7 +74,6 @@ const MoveBookmarkModal = ({
       <Modal.Body className="!px-4">
         <Button
           onClick={onClickCreateNewFolder}
-          className="!px-2"
           icon={
             <div className="flex  rounded-6 bg-background-subtle">
               <PlusIcon className="m-auto" />
@@ -86,7 +85,6 @@ const MoveBookmarkModal = ({
         </Button>
         <Button
           onClick={() => handleMoveBookmark()}
-          className="!px-2"
           icon={<BookmarkIcon />}
           variant={ButtonVariant.Option}
         >
@@ -98,7 +96,6 @@ const MoveBookmarkModal = ({
               loading={isPending}
               key={folder.id}
               onClick={() => handleMoveBookmark(folder.id)}
-              className="!px-2"
               variant={ButtonVariant.Option}
               icon={folder?.icon ? <span>{folder.icon}</span> : <FolderIcon />}
             >
