@@ -30,6 +30,7 @@ import {
   TypographyType,
 } from './typography/Typography';
 import { useBookmarkFolder } from '../hooks/bookmark/useBookmarkFolder';
+import { BookmarkFolderContextMenu } from './bookmark/BookmarkFolderContextMenu';
 
 export type BookmarkFeedLayoutProps = {
   searchQuery?: string;
@@ -136,6 +137,7 @@ export default function BookmarkFeedLayout({
             <span className="hidden laptop:inline">Share bookmarks</span>
           </ShareBookmarksButton>
         )}
+        {isFolderPage && <BookmarkFolderContextMenu folder={folder} />}
       </CustomFeedHeader>
 
       {showSharedBookmarks && (
