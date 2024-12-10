@@ -10,7 +10,16 @@ export const SET_BOOKMARK_REMINDER = gql`
   }
 `;
 
+export const MOVE_BOOKMARK_MUTATION = gql`
+  mutation MoveBookmark($id: ID!, $listId: ID) {
+    moveBookmark(id: $id, listId: $listId) {
+      _
+    }
+  }
+`;
+
 export interface Bookmark {
+  listId?: string;
   createdAt: Date;
   remindAt?: Date;
 }
@@ -138,3 +147,16 @@ export const deleteBookmarkFolder = async (
 ): Promise<EmptyResponse> => {
   return gqlClient.request(DELETE_BOOKMARK_FOLDER, { id });
 };
+
+export type MoveBookmarkProps = {
+  postId: string;
+  listId: string;
+};
+export const moveBookmark = ({
+  postId,
+  listId,
+}: MoveBookmarkProps): Promise<EmptyResponse> =>
+  gqlClient.request(MOVE_BOOKMARK_MUTATION, {
+    id: postId,
+    listId,
+  });
