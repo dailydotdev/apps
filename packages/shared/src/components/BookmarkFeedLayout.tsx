@@ -110,7 +110,7 @@ export default function BookmarkFeedLayout({
     };
   }, [searchQuery, defaultKey, listId, isReminderOnly]);
 
-  if (showEmptyScreen && !folder) {
+  if (showEmptyScreen && !isFolderPage) {
     return <BookmarkEmptyScreen />;
   }
 
@@ -138,7 +138,9 @@ export default function BookmarkFeedLayout({
             <span className="hidden laptop:inline">Share bookmarks</span>
           </ShareBookmarksButton>
         )}
-        {isFolderPage && <BookmarkFolderContextMenu folder={folder} />}
+        {isFolderPage && !isReminderOnly && (
+          <BookmarkFolderContextMenu folder={folder} />
+        )}
       </CustomFeedHeader>
 
       {showSharedBookmarks && (

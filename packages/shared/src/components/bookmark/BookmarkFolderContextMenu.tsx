@@ -24,7 +24,7 @@ export const BookmarkFolderContextMenu = ({
   const { isOpen, onMenuClick } = useContextMenu({ id: contextMenuId });
   const { showPrompt } = usePrompt();
   const { update: updateFolder, delete: deleteFolder } = useBookmarkFolder({
-    id: folder.id,
+    id: folder?.id,
   });
 
   const handleDelete = async () => {
