@@ -33,7 +33,7 @@ const BookmarksPage = (): ReactElement => {
   const layout = getBookmarkFeedLayout(null, { seo }, props);
 
   useEffect(() => {
-    if (isReady && !isPending) {
+    if (isReady && !isPending && !folder) {
       router.replace('/bookmarks');
     }
   }, [isPending, isReady, router]);
