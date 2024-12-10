@@ -1,5 +1,4 @@
 import React, { type ReactElement } from 'react';
-import classNames from 'classnames';
 import { OnboardingTitle } from './common';
 import { cloudinaryPWA, cloudinaryPWAVideo } from '../../lib/image';
 import { Typography } from '../typography/Typography';
@@ -7,11 +6,7 @@ import { Typography } from '../typography/Typography';
 export const OnboardingPWA = (): ReactElement => {
   return (
     <>
-      <div
-        className={classNames(
-          'rounded-lg pointer-events-none absolute top-0 z-2 flex h-screen w-screen flex-col gap-4 p-6 opacity-0 backdrop-blur transition-all duration-200',
-        )}
-      />
+      <div className="rounded-lg pointer-events-none absolute top-0 z-2 flex h-screen w-screen flex-col gap-4 p-6 opacity-0 backdrop-blur transition-all duration-200" />
       <video
         className="absolute -bottom-8 max-h-screen w-full"
         poster={cloudinaryPWA}

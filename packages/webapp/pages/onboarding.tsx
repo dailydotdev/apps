@@ -13,10 +13,7 @@ import AuthOptions, {
   AuthProps,
 } from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import {
-  OnboardingHeader,
-  OnboardingPWA,
-} from '@dailydotdev/shared/src/components/onboarding';
+import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
 import {
   ButtonSize,
   ButtonVariant,
@@ -110,6 +107,12 @@ const OnboardingAndroidApp = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingAndroidApp" */ '@dailydotdev/shared/src/components/onboarding/OnboardingAndroidApp'
   ).then((mod) => mod.OnboardingAndroidApp),
+);
+
+const OnboardingPWA = dynamic(() =>
+  import(
+    /* webpackChunkName: "onboardingPWA" */ '@dailydotdev/shared/src/components/onboarding/OnboardingPWA'
+  ).then((mod) => mod.OnboardingPWA),
 );
 
 type OnboardingVisual = {
