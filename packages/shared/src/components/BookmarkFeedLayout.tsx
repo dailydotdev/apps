@@ -8,7 +8,6 @@ import React, {
 } from 'react';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
-import { useRouter } from 'next/router';
 import {
   BOOKMARKS_FEED_QUERY,
   SEARCH_BOOKMARKS_QUERY,
@@ -29,13 +28,15 @@ import {
   TypographyTag,
   TypographyType,
 } from './typography/Typography';
-import { useBookmarkFolder } from '../hooks/bookmark/useBookmarkFolder';
+import { BookmarkFolder } from '../graphql/bookmarks';
 
 export type BookmarkFeedLayoutProps = {
+  isReminderOnly?: boolean;
   searchQuery?: string;
   children?: ReactNode;
   searchChildren: ReactNode;
   onSearchButtonClick?: () => unknown;
+  folder?: BookmarkFolder;
 };
 
 const SharedBookmarksModal = dynamic(
@@ -60,6 +61,8 @@ export default function BookmarkFeedLayout({
   searchQuery,
   searchChildren,
   children,
+  folder,
+  isReminderOnly,
 }: BookmarkFeedLayoutProps): ReactElement {
   const {
     shouldUseListFeedLayout,
@@ -70,12 +73,8 @@ export default function BookmarkFeedLayout({
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showEmptyScreen, setShowEmptyScreen] = useState(false);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
-  const router = useRouter();
-  const listId = router.query.folderId ? `${router.query.folderId}` : null;
-  const {
-    query: { folder },
-  } = useBookmarkFolder({ id: listId });
-  const isFolderPage = !!listId && !!folder;
+  const isFolderPage = !!folder;
+  const listId = folder?.id;
   const defaultKey = useMemo(
     () => generateQueryKey(RequestKey.Bookmarks, user, listId),
     [user, listId],
@@ -89,7 +88,6 @@ export default function BookmarkFeedLayout({
         query: SEARCH_BOOKMARKS_QUERY,
         variables: {
           query: searchQuery,
-          ...(listId && { listId }),
           supportedTypes: supportedTypesForPrivateSources,
         },
         emptyScreen: <SearchEmptyScreen />,
@@ -101,12 +99,13 @@ export default function BookmarkFeedLayout({
       query: BOOKMARKS_FEED_QUERY,
       variables: {
         ...(listId && { listId }),
+        reminderOnly: isReminderOnly,
         supportedTypes: supportedTypesForPrivateSources,
       },
       onEmptyFeed: () => setShowEmptyScreen(true),
       options: { refetchOnMount: true },
     };
-  }, [searchQuery, defaultKey, listId]);
+  }, [searchQuery, defaultKey, listId, isReminderOnly]);
 
   if (showEmptyScreen) {
     return <BookmarkEmptyScreen />;
