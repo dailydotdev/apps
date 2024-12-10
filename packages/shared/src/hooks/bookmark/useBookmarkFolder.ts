@@ -46,19 +46,23 @@ export const useBookmarkFolder = ({
 
   const update = useMutation({
     mutationFn: updateBookmarkFolder,
+    onMutate: (updated) => {
+      const listQueryKey = generateQueryKey(RequestKey.BookmarkFolders);
+      const currentList =
+        queryClient.getQueryData<BookmarkFolder[]>(listQueryKey);
+      queryClient.setQueryData(listQueryKey, (data: BookmarkFolder[]) => {
+        return data.map((current) =>
+          current.id === id ? { ...current, ...updated } : current,
+        );
+      });
+      return () => queryClient.setQueryData(listQueryKey, currentList);
+    },
     onSuccess: (updated) => {
       displayToast(`Folder ${updated.name} updated`);
 
       logEvent({
         event_name: LogEvent.RenameBookmarkFolder,
         target_id: folder.id,
-      });
-
-      const listQueryKey = generateQueryKey(RequestKey.BookmarkFolders);
-      queryClient.setQueryData(listQueryKey, (data: BookmarkFolder[]) => {
-        return data.map((current) =>
-          current.id === id ? { ...current, ...updated } : current,
-        );
       });
     },
     onError: () => {
@@ -68,17 +72,21 @@ export const useBookmarkFolder = ({
 
   const remove = useMutation({
     mutationFn: deleteBookmarkFolder,
+    onMutate: () => {
+      const listQueryKey = generateQueryKey(RequestKey.BookmarkFolders);
+      const currentList =
+        queryClient.getQueryData<BookmarkFolder[]>(listQueryKey);
+      queryClient.setQueryData(listQueryKey, (data: BookmarkFolder[]) => {
+        return data.filter((f) => f.id !== id);
+      });
+      return () => queryClient.setQueryData(listQueryKey, currentList);
+    },
     onSuccess: () => {
       displayToast(`Folder deleted`);
 
       logEvent({
         event_name: LogEvent.DeleteBookmarkFolder,
         target_id: folder.id,
-      });
-
-      const listQueryKey = generateQueryKey(RequestKey.BookmarkFolders);
-      queryClient.setQueryData(listQueryKey, (data: BookmarkFolder[]) => {
-        return data.filter((f) => f.id !== id);
       });
     },
     onError: () => {
