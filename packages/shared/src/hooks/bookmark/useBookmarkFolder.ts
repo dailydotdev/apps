@@ -9,6 +9,8 @@ import { useBookmarkFolderList } from './useBookmarkFolderList';
 import { useToastNotification } from '../useToastNotification';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { EmptyResponse } from '../../graphql/emptyResponse';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent } from '../../lib/log';
 
 type UseBookmarkFoldersProps = Pick<BookmarkFolder, 'id'>;
 
@@ -32,6 +34,7 @@ export const useBookmarkFolder = ({
 }: UseBookmarkFoldersProps): UseBookmarkFolder => {
   const { displayToast } = useToastNotification();
   const queryClient = useQueryClient();
+  const { logEvent } = useLogContext();
 
   const { isPending: isPendingQuery, folders } = useBookmarkFolderList();
   const folder = useMemo(() => folders.find((f) => f.id === id), [folders, id]);
@@ -40,6 +43,11 @@ export const useBookmarkFolder = ({
     mutationFn: updateBookmarkFolder,
     onSuccess: (updated) => {
       displayToast(`Folder ${updated.name} updated`);
+
+      logEvent({
+        event_name: LogEvent.RenameBookmarkFolder,
+        target_id: folder.id,
+      });
 
       const listQueryKey = generateQueryKey(RequestKey.BookmarkFolders);
       queryClient.setQueryData(listQueryKey, (data: BookmarkFolder[]) => {
@@ -52,6 +60,12 @@ export const useBookmarkFolder = ({
     mutationFn: deleteBookmarkFolder,
     onSuccess: () => {
       displayToast(`Folder deleted`);
+
+      logEvent({
+        event_name: LogEvent.DeleteBookmarkFolder,
+        target_id: folder.id,
+      });
+
       const listQueryKey = generateQueryKey(RequestKey.BookmarkFolders);
       queryClient.setQueryData(listQueryKey, (data: BookmarkFolder[]) => {
         return data.filter((f) => f.id !== id);
