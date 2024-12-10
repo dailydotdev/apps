@@ -215,7 +215,7 @@ const ClickbaitShieldModal = dynamic(
 const BookmarksFolderEntryModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "bookmarksFolderEntryModal" */ './bookmarks/BookmarksFolderEntryModal'
+      /* webpackChunkName: "bookmarksFolderEntryModal" */ './bookmark/BookmarksFolderEntryModal'
     ),
 );
 
