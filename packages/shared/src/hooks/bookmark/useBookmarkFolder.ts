@@ -61,6 +61,9 @@ export const useBookmarkFolder = ({
         );
       });
     },
+    onError: () => {
+      displayToast(`❌ Failed updating folder`);
+    },
   });
 
   const remove = useMutation({
@@ -77,6 +80,9 @@ export const useBookmarkFolder = ({
       queryClient.setQueryData(listQueryKey, (data: BookmarkFolder[]) => {
         return data.filter((f) => f.id !== id);
       });
+    },
+    onError: () => {
+      displayToast(`❌ Failed deleting folder`);
     },
   });
 
