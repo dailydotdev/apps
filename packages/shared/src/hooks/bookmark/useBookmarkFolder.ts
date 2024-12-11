@@ -81,12 +81,12 @@ export const useBookmarkFolder = ({
       });
       return () => queryClient.setQueryData(listQueryKey, currentList);
     },
-    onSuccess: () => {
+    onSuccess: (_, deletedId) => {
       displayToast(`Folder deleted`);
 
       logEvent({
         event_name: LogEvent.DeleteBookmarkFolder,
-        target_id: folder.id,
+        target_id: deletedId,
       });
     },
     onError: () => {
