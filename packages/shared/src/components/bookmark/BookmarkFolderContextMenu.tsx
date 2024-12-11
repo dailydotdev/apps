@@ -1,5 +1,4 @@
 import React, { ReactElement, useId } from 'react';
-import { useRouter } from 'next/router';
 import { BookmarkFolder } from '../../graphql/bookmarks';
 import useContextMenu from '../../hooks/useContextMenu';
 import { usePrompt } from '../../hooks/usePrompt';
@@ -19,7 +18,6 @@ export const BookmarkFolderContextMenu = ({
   folder,
 }: BookmarkFolderContextMenuProps): ReactElement => {
   const contextMenuId = useId();
-  const router = useRouter();
   const { openModal, closeModal } = useLazyModal();
   const { isOpen, onMenuClick } = useContextMenu({ id: contextMenuId });
   const { showPrompt } = usePrompt();

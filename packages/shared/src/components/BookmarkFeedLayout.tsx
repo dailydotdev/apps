@@ -21,7 +21,12 @@ import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import { Button, ButtonProps, ButtonVariant } from './buttons/Button';
 import { ShareIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
-import { useFeedLayout, usePlusSubscription } from '../hooks';
+import {
+  useFeedLayout,
+  usePlusSubscription,
+  useViewSize,
+  ViewSize,
+} from '../hooks';
 import { BookmarkSection } from './sidebar/sections/BookmarkSection';
 import {
   Typography,
@@ -75,19 +80,24 @@ export default function BookmarkFeedLayout({
   const { showPlusSubscription } = usePlusSubscription();
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const isFolderPage = !!folder || isReminderOnly;
   const listId = folder?.id;
-  const defaultKey = useMemo(
+  const feedQueryKey = useMemo(
     () =>
-      generateQueryKey(RequestKey.Bookmarks, user, { listId, isReminderOnly }),
-    [user, listId, isReminderOnly],
+      generateQueryKey(RequestKey.Bookmarks, user, {
+        listId,
+        isReminderOnly,
+        searchQuery,
+      }),
+    [user, listId, isReminderOnly, searchQuery],
   );
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (searchQuery) {
       return {
         feedName: OtherFeedPage.SearchBookmarks,
-        feedQueryKey: defaultKey.concat(searchQuery),
+        feedQueryKey,
         query: SEARCH_BOOKMARKS_QUERY,
         variables: {
           query: searchQuery,
@@ -98,7 +108,7 @@ export default function BookmarkFeedLayout({
     }
     return {
       feedName: OtherFeedPage.Bookmarks,
-      feedQueryKey: defaultKey,
+      feedQueryKey,
       query: BOOKMARKS_FEED_QUERY,
       variables: {
         ...(listId && { listId }),
@@ -116,7 +126,7 @@ export default function BookmarkFeedLayout({
       ),
       options: { refetchOnMount: true },
     };
-  }, [searchQuery, defaultKey, listId, isReminderOnly]);
+  }, [searchQuery, feedQueryKey, listId, isReminderOnly]);
 
   return (
     <FeedPageLayoutComponent>
@@ -135,11 +145,12 @@ export default function BookmarkFeedLayout({
         {searchChildren}
         {!isFolderPage && (
           <ShareBookmarksButton
+            aria-label="Share bookmarks"
             className="ml-4 flex"
-            icon={<ShareIcon secondary={showSharedBookmarks} />}
+            icon={<ShareIcon secondary={showSharedBookmarks} aria-hidden />}
             onClick={() => setShowSharedBookmarks(true)}
           >
-            <span className="hidden laptop:inline">Share bookmarks</span>
+            {isLaptop && <span>Share bookmarks</span>}
           </ShareBookmarksButton>
         )}
         {isFolderPage && !isReminderOnly && (
