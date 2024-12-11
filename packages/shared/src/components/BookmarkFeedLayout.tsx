@@ -150,7 +150,7 @@ export default function BookmarkFeedLayout({
             icon={<ShareIcon secondary={showSharedBookmarks} aria-hidden />}
             onClick={() => setShowSharedBookmarks(true)}
           >
-            {isLaptop && <span>Share bookmarks</span>}
+            {isLaptop ? <span>Share bookmarks</span> : null}
           </ShareBookmarksButton>
         )}
         {isFolderPage && !isReminderOnly && (
