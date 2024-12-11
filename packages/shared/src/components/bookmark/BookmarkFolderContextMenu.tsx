@@ -35,8 +35,10 @@ export const BookmarkFolderContextMenu = ({
     });
 
     if (confirm) {
-      await router.push('/bookmarks');
-      await deleteFolder.mutate(folder.id);
+      await Promise.all([
+        router.push('/bookmarks'),
+        deleteFolder.mutate(folder.id),
+      ]);
     }
   };
 
