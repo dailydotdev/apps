@@ -1,6 +1,7 @@
 import { useCallback, useContext, useMemo } from 'react';
 import {
   InfiniteData,
+  QueryKey,
   useInfiniteQuery,
   UseInfiniteQueryOptions,
   useQueryClient,
@@ -111,7 +112,7 @@ export interface UseFeedOptionalParams<T> {
 }
 
 export default function useFeed<T>(
-  feedQueryKey: unknown[],
+  feedQueryKey: QueryKey,
   pageSize: number,
   adTemplate: FeedAdTemplate,
   placeholdersPerPage: number,
