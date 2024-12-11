@@ -27,6 +27,8 @@ import {
   AddUserIcon,
   RemoveUserIcon,
   FolderIcon,
+  ShieldIcon,
+  ShieldWarningIcon,
 } from './icons';
 import { ReportedCallback } from './modals';
 import useTagAndSource from '../hooks/useTagAndSource';
@@ -79,6 +81,7 @@ export interface PostOptionsMenuProps {
   onRemovePost?: (postIndex: number) => Promise<unknown>;
   setShowBanPost?: () => unknown;
   setShowPromotePost?: () => unknown;
+  setShowClickbaitPost?: () => unknown;
   contextId?: string;
   origin: Origin;
   allowPin?: boolean;
@@ -94,6 +97,7 @@ export default function PostOptionsMenu({
   onRemovePost,
   setShowBanPost,
   setShowPromotePost,
+  setShowClickbaitPost,
   origin,
   allowPin,
   contextId = ContextMenuTypes.PostContext,
@@ -554,6 +558,15 @@ export default function PostOptionsMenu({
       icon: <MenuIcon Icon={promoteFlag ? DownvoteIcon : UpvoteIcon} />,
       label: promoteFlag ? 'Demote' : 'Promote',
       action: setShowPromotePost,
+    });
+  }
+
+  if (setShowClickbaitPost) {
+    const isClickbait = post.clickbaitTitleDetected;
+    postOptions.push({
+      icon: <MenuIcon Icon={isClickbait ? ShieldIcon : ShieldWarningIcon} />,
+      label: isClickbait ? 'Remove clickbait' : 'Mark as clickbait',
+      action: setShowClickbaitPost,
     });
   }
 
