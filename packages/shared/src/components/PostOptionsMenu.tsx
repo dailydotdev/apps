@@ -120,7 +120,7 @@ export default function PostOptionsMenu({
 
   const { openModal } = useLazyModal();
   const feedContextData = useActiveFeedContext();
-  const { queryKey: feedQueryKey, logOpts, items } = feedContextData
+  const { queryKey: feedQueryKey, logOpts } = feedContextData;
   const {
     onBlockSource,
     onBlockTags,
