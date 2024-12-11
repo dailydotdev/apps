@@ -119,7 +119,8 @@ export default function PostOptionsMenu({
   const { follow, unfollow } = useContentPreference();
 
   const { openModal } = useLazyModal();
-  const { queryKey: feedQueryKey, logOpts, items } = useActiveFeedContext();
+  const feedContextData = useActiveFeedContext();
+  const { queryKey: feedQueryKey, logOpts, items } = feedContextData
   const {
     onBlockSource,
     onBlockTags,
