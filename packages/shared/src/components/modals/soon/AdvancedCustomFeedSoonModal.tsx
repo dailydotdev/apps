@@ -39,13 +39,8 @@ const AdvancedCustomFeedSoonModal = ({
           <Image
             className="rounded-16"
             src={advancedCustomFeedSoonImage}
-            alt="Advanced Custom Feeds coming soon"
+            alt="Advanced Custom Feeds"
           />
-          <div className="absolute -right-14 top-8 w-52 rotate-45 bg-action-plus-default px-2 py-1 text-white">
-            <Typography type={TypographyType.Callout} bold>
-              Coming soon
-            </Typography>
-          </div>
         </div>
         <Typography
           type={TypographyType.Title1}
@@ -66,7 +61,7 @@ const AdvancedCustomFeedSoonModal = ({
               color={TypographyColor.Primary}
             >
               Upgrade to daily.dev Plus today, get an early adopter discount and
-              be among the first to experience it as soon as it launches!
+              be among the first to experience it!
             </Typography>
             <Button
               className="w-full"
