@@ -119,7 +119,11 @@ export default function PostOptionsMenu({
   const { follow, unfollow } = useContentPreference();
 
   const { openModal } = useLazyModal();
-  const { queryKey: feedQueryKey, logOpts } = useContext(ActiveFeedContext);
+  const {
+    queryKey: feedQueryKey,
+    logOpts,
+    items,
+  } = useContext(ActiveFeedContext);
   const {
     onBlockSource,
     onBlockTags,
@@ -341,7 +345,10 @@ export default function PostOptionsMenu({
       ),
       label: hasPostReminder ? 'Edit reminder' : 'Read it later',
       action: () => {
-        openModal({ type: LazyModal.BookmarkReminder, props: { post } });
+        openModal({
+          type: LazyModal.BookmarkReminder,
+          props: { post, feedContextData: { items, queryKey: feedQueryKey } },
+        });
       },
     });
 
