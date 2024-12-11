@@ -24,9 +24,9 @@ const OptionsButton = ({
 }: OptionsButtonProps): ReactElement => (
   <SimpleTooltip placement={tooltipPlacement} content="Options">
     <Button
+      variant={ButtonVariant.Tertiary}
       {...props}
       className={classNames('my-auto', className)}
-      variant={ButtonVariant.Tertiary}
       icon={icon}
       size={size}
     />

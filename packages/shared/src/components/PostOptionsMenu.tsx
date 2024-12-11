@@ -39,7 +39,7 @@ import {
   useSourceActionsNotify,
   useToastNotification,
 } from '../hooks';
-import { AllFeedPages, generateQueryKey } from '../lib/query';
+import { AllFeedPages, generateQueryKey, RequestKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { LogEvent, Origin } from '../lib/log';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
@@ -370,6 +370,12 @@ export default function PostOptionsMenu({
                 logEvent(
                   postLogEvent(LogEvent.MoveBookmarkToFolder, post, logOpts),
                 );
+                const listFeedKeey = generateQueryKey(
+                  RequestKey.Bookmarks,
+                  user,
+                  post.bookmarkList?.id,
+                );
+                client.invalidateQueries({ queryKey: listFeedKeey });
               },
             },
           }),

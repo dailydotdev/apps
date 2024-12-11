@@ -1,4 +1,5 @@
 import React, {
+  PropsWithChildren,
   ReactElement,
   ReactNode,
   useContext,
@@ -17,17 +18,27 @@ import { CustomFeedHeader, FeedPageHeader } from './utilities';
 import SearchEmptyScreen from './SearchEmptyScreen';
 import Feed, { FeedProps } from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
-import { Button, ButtonVariant } from './buttons/Button';
+import { Button, ButtonProps, ButtonVariant } from './buttons/Button';
 import { ShareIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import { useFeedLayout, usePlusSubscription } from '../hooks';
 import { BookmarkSection } from './sidebar/sections/BookmarkSection';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from './typography/Typography';
+import { BookmarkFolder } from '../graphql/bookmarks';
+import { BookmarkFolderContextMenu } from './bookmark/BookmarkFolderContextMenu';
 
 export type BookmarkFeedLayoutProps = {
+  isReminderOnly?: boolean;
   searchQuery?: string;
   children?: ReactNode;
   searchChildren: ReactNode;
   onSearchButtonClick?: () => unknown;
+  folder?: BookmarkFolder;
+  title?: string;
 };
 
 const SharedBookmarksModal = dynamic(
@@ -37,10 +48,24 @@ const SharedBookmarksModal = dynamic(
     ),
 );
 
+const ShareBookmarksButton = ({
+  children,
+  ...props
+}: PropsWithChildren<
+  Pick<ButtonProps<'button'>, 'className' | 'onClick' | 'icon'>
+>) => (
+  <Button variant={ButtonVariant.Secondary} {...props}>
+    {children}
+  </Button>
+);
+
 export default function BookmarkFeedLayout({
   searchQuery,
   searchChildren,
   children,
+  folder,
+  title = 'Bookmarks',
+  isReminderOnly,
 }: BookmarkFeedLayoutProps): ReactElement {
   const {
     shouldUseListFeedLayout,
@@ -49,12 +74,15 @@ export default function BookmarkFeedLayout({
   } = useFeedLayout();
   const { showPlusSubscription } = usePlusSubscription();
   const { user, tokenRefreshed } = useContext(AuthContext);
-  const [showEmptyScreen, setShowEmptyScreen] = useState(false);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
+  const isFolderPage = !!folder || isReminderOnly;
+  const listId = folder?.id;
   const defaultKey = useMemo(
-    () => generateQueryKey(RequestKey.Bookmarks, user),
-    [user],
+    () =>
+      generateQueryKey(RequestKey.Bookmarks, user, { listId, isReminderOnly }),
+    [user, listId, isReminderOnly],
   );
+
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (searchQuery) {
       return {
@@ -73,33 +101,30 @@ export default function BookmarkFeedLayout({
       feedQueryKey: defaultKey,
       query: BOOKMARKS_FEED_QUERY,
       variables: {
+        ...(listId && { listId }),
+        reminderOnly: isReminderOnly,
         supportedTypes: supportedTypesForPrivateSources,
       },
-      onEmptyFeed: () => setShowEmptyScreen(true),
+      emptyScreen: (
+        <BookmarkEmptyScreen
+          {...(listId && {
+            title: 'Your folder is feeling a little empty',
+            description:
+              'Start saving bookmarks to keep everything you need, right where you want it.',
+          })}
+        />
+      ),
       options: { refetchOnMount: true },
     };
-  }, [defaultKey, searchQuery]);
-
-  if (showEmptyScreen) {
-    return <BookmarkEmptyScreen />;
-  }
-
-  const shareBookmarksButton = (style: string, text?: string) => (
-    <Button
-      className={style}
-      variant={ButtonVariant.Secondary}
-      icon={<ShareIcon secondary={showSharedBookmarks} />}
-      onClick={() => setShowSharedBookmarks(true)}
-    >
-      {text}
-    </Button>
-  );
+  }, [searchQuery, defaultKey, listId, isReminderOnly]);
 
   return (
     <FeedPageLayoutComponent>
       {children}
       <FeedPageHeader className="mb-5">
-        <h1 className="font-bold typo-callout">Bookmarks</h1>
+        <Typography bold type={TypographyType.Title3} tag={TypographyTag.H1}>
+          {title}
+        </Typography>
       </FeedPageHeader>
       <CustomFeedHeader
         className={classNames(
@@ -108,8 +133,18 @@ export default function BookmarkFeedLayout({
         )}
       >
         {searchChildren}
-        {shareBookmarksButton('hidden laptop:flex ml-4', 'Share bookmarks')}
-        {shareBookmarksButton('flex laptop:hidden ml-4')}
+        {!isFolderPage && (
+          <ShareBookmarksButton
+            className="ml-4 flex"
+            icon={<ShareIcon secondary={showSharedBookmarks} />}
+            onClick={() => setShowSharedBookmarks(true)}
+          >
+            <span className="hidden laptop:inline">Share bookmarks</span>
+          </ShareBookmarksButton>
+        )}
+        {isFolderPage && !isReminderOnly && (
+          <BookmarkFolderContextMenu folder={folder} />
+        )}
       </CustomFeedHeader>
 
       {showSharedBookmarks && (
