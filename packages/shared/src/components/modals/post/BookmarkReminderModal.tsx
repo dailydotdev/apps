@@ -11,7 +11,7 @@ import {
   useBookmarkReminder,
 } from '../../../hooks/notifications';
 import { Post } from '../../../graphql/posts';
-import { ActiveFeedContextValue } from '../../../contexts';
+import { ActiveFeedContext, ActiveFeedContextValue } from '../../../contexts';
 
 export interface BookmarkReminderProps extends LazyModalCommonProps {
   onReminderSet?: (reminder: string) => void;
@@ -91,12 +91,11 @@ const BookmarkReminderModalOption = (
 export const BookmarkReminderModal = (
   props: BookmarkReminderProps,
 ): ReactElement => {
-  const { post, onReminderSet, isOpen, onRequestClose, feedContextData } =
-    props;
+  const { post, onReminderSet, isOpen, onRequestClose } = props;
   const [selectedOption, setSelectedOption] = useState<ReminderPreference>(
     ReminderPreference.OneHour,
   );
-  const { onBookmarkReminder } = useBookmarkReminder({ post, feedContextData });
+  const { onBookmarkReminder } = useBookmarkReminder({ post });
 
   const handleSubmit: FormEventHandler = async (e) => {
     e.preventDefault();
@@ -155,4 +154,13 @@ export const BookmarkReminderModal = (
   );
 };
 
-export default BookmarkReminderModal;
+const ModalComponent: typeof BookmarkReminderModal = ({
+  feedContextData,
+  ...props
+}) => (
+  <ActiveFeedContext.Provider value={feedContextData}>
+    <BookmarkReminderModal {...props} />
+  </ActiveFeedContext.Provider>
+);
+
+export default ModalComponent;

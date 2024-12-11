@@ -8,7 +8,7 @@ import {
 } from '../../graphql/bookmarks';
 import { useToastNotification } from '../useToastNotification';
 import { updatePostCache } from '../usePostById';
-import { ActiveFeedContext, ActiveFeedContextValue } from '../../contexts';
+import { ActiveFeedContext } from '../../contexts';
 import { updateCachedPagePost } from '../../lib/query';
 import { optimisticPostUpdateInFeed, postLogEvent } from '../../lib/feed';
 import { EmptyResponse } from '../../graphql/emptyResponse';
@@ -66,15 +66,13 @@ export const getRemindAt = (
 
 interface UseBookmarkReminderProps {
   post: Post;
-  feedContextData?: ActiveFeedContextValue;
 }
 
 export const useBookmarkReminder = ({
   post,
-  feedContextData,
 }: UseBookmarkReminderProps): UseBookmarkReminder => {
   const client = useQueryClient();
-  const feedContext = useContext(ActiveFeedContext);
+  const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
   const { isPushSupported, isSubscribed } = usePushNotificationContext();
@@ -85,9 +83,6 @@ export const useBookmarkReminder = ({
       bookmarked: true,
       bookmark: { ..._post.bookmark, remindAt },
     }));
-
-    const { queryKey: feedQueryKey, items } =
-      feedContextData || feedContext || {};
 
     if (feedQueryKey) {
       const bookmark: Bookmark = { createdAt: new Date(), remindAt };
