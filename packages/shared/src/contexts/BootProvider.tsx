@@ -131,15 +131,21 @@ export const BootDataProvider = ({
   };
 
   const [initialLoad, setInitialLoad] = useState<boolean>(null);
-  const [cachedBootData, setCachedBootData] = useState<Partial<Boot>>(() => {
+  const [cachedBootData, setCachedBootData] = useState<Partial<Boot>>();
+
+  useEffect(() => {
     if (localBootData) {
-      return localBootData;
+      setCachedBootData(localBootData);
+
+      return;
     }
 
     const boot = getLocalBootData();
 
     if (!boot) {
-      return null;
+      setCachedBootData(null);
+
+      return;
     }
 
     if (boot?.settings?.theme) {
@@ -148,8 +154,9 @@ export const BootDataProvider = ({
 
     preloadFeedsRef.current({ feeds: boot.feeds, user: boot.user });
 
-    return boot;
-  });
+    setCachedBootData(boot);
+  }, [localBootData]);
+
   const { hostGranted } = useHostStatus();
   const isExtension = checkIsExtension();
   const logged = cachedBootData?.user as LoggedUser;

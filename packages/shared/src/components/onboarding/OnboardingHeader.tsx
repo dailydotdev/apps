@@ -44,6 +44,7 @@ export const OnboardingHeader = ({
     OnboardingStep.ContentTypes,
     OnboardingStep.Sources,
     OnboardingStep.AndroidApp,
+    OnboardingStep.PWA,
     OnboardingStep.Plus,
   ];
 
