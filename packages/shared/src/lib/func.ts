@@ -71,6 +71,19 @@ export const isAppleDevice = (): boolean => {
   return appleDeviceMatch.test(window.navigator.platform);
 };
 
+export const isSafariOnIOS = (): boolean => {
+  const { userAgent } = navigator;
+
+  const isIOS = /iPhone|iPad/i.test(userAgent);
+  if (!isIOS) {
+    return false;
+  }
+
+  const isSafari = /Safari/.test(userAgent) && !/Chrome/.test(userAgent);
+
+  return isSafari;
+};
+
 export enum ArrowKeyEnum {
   Up = 'ArrowUp',
   Right = 'ArrowRight',
