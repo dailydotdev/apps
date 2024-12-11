@@ -37,7 +37,7 @@ import { LogEvent, TargetId } from '../../lib/log';
 import { GooglePlayIcon } from '../icons/Google/Play';
 import { checkIsBrowser, isAndroidApp, UserAgent } from '../../lib/func';
 import { useConditionalFeature } from '../../hooks';
-import { feature } from '../../lib/featureManagement';
+import { featureOnboardingAndroid } from '../../lib/featureManagement';
 
 const useMenuItems = (): NavItemProps[] => {
   const { logout } = useAuthContext();
@@ -46,7 +46,7 @@ const useMenuItems = (): NavItemProps[] => {
   const { showPlusSubscription, isPlus, logSubscriptionEvent } =
     usePlusSubscription();
   const { value: appExperiment } = useConditionalFeature({
-    feature: feature.onboardingAndroid,
+    feature: featureOnboardingAndroid,
     shouldEvaluate: checkIsBrowser(UserAgent.Android) && !isAndroidApp(),
   });
 
