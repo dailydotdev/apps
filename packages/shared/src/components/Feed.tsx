@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { QueryKey } from '@tanstack/react-query';
+import { QueryKey, useQuery } from '@tanstack/react-query';
 import useFeed, { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import { Ad, Post, PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
@@ -210,6 +210,10 @@ export default function Feed<T>({
       logOpts,
     };
   }, [feedQueryKey, items, logOpts]);
+  useQuery({
+    queryKey: ['feed_context_data'],
+    queryFn: () => feedContextValue,
+  });
 
   const { ranking } = (variables as RankVariables) || {};
   const {
