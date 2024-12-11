@@ -3,7 +3,6 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -75,7 +74,6 @@ export default function BookmarkFeedLayout({
   } = useFeedLayout();
   const { showPlusSubscription } = usePlusSubscription();
   const { user, tokenRefreshed } = useContext(AuthContext);
-  const [showEmptyScreen, setShowEmptyScreen] = useState(false);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
   const isFolderPage = !!folder || isReminderOnly;
   const listId = folder?.id;
@@ -106,20 +104,10 @@ export default function BookmarkFeedLayout({
         reminderOnly: isReminderOnly,
         supportedTypes: supportedTypesForPrivateSources,
       },
-      onEmptyFeed: () => setShowEmptyScreen(true),
       options: { refetchOnMount: true },
+      emptyScreen: <BookmarkEmptyScreen />,
     };
   }, [searchQuery, defaultKey, listId, isReminderOnly]);
-
-  useEffect(() => {
-    if (folder?.id) {
-      setShowEmptyScreen(false);
-    }
-  }, [folder?.id]);
-
-  if (showEmptyScreen && !isFolderPage) {
-    return <BookmarkEmptyScreen />;
-  }
 
   return (
     <FeedPageLayoutComponent>
@@ -166,7 +154,6 @@ export default function BookmarkFeedLayout({
           />
         </div>
       )}
-      {isFolderPage && showEmptyScreen && <BookmarkEmptyScreen />}
       {tokenRefreshed && <Feed {...feedProps} />}
     </FeedPageLayoutComponent>
   );
