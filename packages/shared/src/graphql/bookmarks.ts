@@ -79,6 +79,26 @@ export const getBookmarkFolders = async (): Promise<BookmarkFolder[]> => {
     .then((data) => data.bookmarkLists);
 };
 
+export const QUERY_BOOKMARK_FOLDER = gql`
+  query BookmarkList($id: ID!) {
+    bookmarkList(id: $id) {
+      id
+      name
+      icon
+    }
+  }
+`;
+
+export const getBookmarkFolder = async (
+  id: string,
+): Promise<BookmarkFolder> => {
+  const res = await gqlClient.request<{
+    bookmarkList: BookmarkFolder;
+  }>(QUERY_BOOKMARK_FOLDER, { id });
+
+  return res.bookmarkList;
+};
+
 export const CREATE_BOOKMARK_FOLDER = gql`
   mutation CreateBookmarkFolder($name: String!, $icon: String) {
     createBookmarkList(name: $name, icon: $icon) {
@@ -101,4 +121,43 @@ export const createBookmarkFolder = async ({
       icon,
     })
     .then((data) => data.createBookmarkList);
+};
+
+export const UPDATE_BOOKMARK_FOLDER = gql`
+  mutation UpdateBookmarkList($id: ID!, $name: String!, $icon: String) {
+    updateBookmarkList(id: $id, name: $name, icon: $icon) {
+      icon
+      name
+    }
+  }
+`;
+
+export const updateBookmarkFolder = async ({
+  id,
+  name,
+  icon,
+}: BookmarkFolder): Promise<BookmarkFolder> => {
+  return gqlClient
+    .request<{
+      updateBookmarkList: BookmarkFolder;
+    }>(UPDATE_BOOKMARK_FOLDER, {
+      id,
+      name,
+      icon,
+    })
+    .then((data) => data.updateBookmarkList);
+};
+
+export const DELETE_BOOKMARK_FOLDER = gql`
+  mutation RemoveBookmarkList($id: ID!) {
+    removeBookmarkList(id: $id) {
+      _
+    }
+  }
+`;
+
+export const deleteBookmarkFolder = async (
+  id: string,
+): Promise<EmptyResponse> => {
+  return gqlClient.request(DELETE_BOOKMARK_FOLDER, { id });
 };

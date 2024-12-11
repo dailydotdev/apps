@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
 import { BookmarkFolder, createBookmarkFolder } from '../../graphql/bookmarks';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
@@ -22,7 +21,7 @@ export const useCreateBookmarkFolder = (): UseCreateBookmarkFolder => {
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: createBookmarkFolder,
-    onSuccess: (createdFolder) => {
+    onSuccess: (createdFolder, folder) => {
       const { id } = createdFolder;
 
       logEvent({
@@ -32,7 +31,7 @@ export const useCreateBookmarkFolder = (): UseCreateBookmarkFolder => {
 
       const listQueryKey = generateQueryKey(RequestKey.BookmarkFolders);
       queryClient.setQueryData(listQueryKey, (data: BookmarkFolder[]) => {
-        return [...data, { id, ...createdFolder }];
+        return [...data, { id, ...folder }];
       });
 
       displayToast(`${createdFolder.name} has been created`);
@@ -42,18 +41,8 @@ export const useCreateBookmarkFolder = (): UseCreateBookmarkFolder => {
     },
   });
 
-  const createFolder: UseCreateBookmarkFolder['createFolder'] = useCallback(
-    async (folder) => {
-      return mutateAsync(folder).then((createdFolder) => ({
-        ...folder,
-        ...createdFolder,
-      }));
-    },
-    [mutateAsync],
-  );
-
   return {
     isPending,
-    createFolder,
+    createFolder: mutateAsync,
   };
 };

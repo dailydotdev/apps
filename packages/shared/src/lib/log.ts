@@ -125,6 +125,8 @@ export enum LogEvent {
   RemoveBookmarkReminder = 'remove bookmark reminder',
   MoveBookmarkToFolder = 'change bookmark folder',
   CreateBookmarkFolder = 'create bookmark folder',
+  RenameBookmarkFolder = 'rename bookmark folder',
+  DeleteBookmarkFolder = 'delete bookmark folder',
   // bookmark - end
   ReportComment = 'report comment',
   // search start
