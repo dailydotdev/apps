@@ -76,7 +76,11 @@ export const getServerSideProps: GetServerSideProps<
       title: getTemplatedTitle(seoTitle(post)),
       description: getSeoDescription(post),
       openGraph: {
-        images: [{ url: `https://og.daily.dev/api/posts/${post?.id}` }],
+        images: [
+          {
+            url: `https://og.daily.dev/api/posts/${post?.id}?userid=${shareUser.id}`,
+          },
+        ],
         article: {
           publishedTime: post?.createdAt,
           tags: post?.tags,
