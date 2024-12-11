@@ -80,8 +80,9 @@ export default function BookmarkFeedLayout({
   const isFolderPage = !!folder || isReminderOnly;
   const listId = folder?.id;
   const defaultKey = useMemo(
-    () => generateQueryKey(RequestKey.Bookmarks, user, listId),
-    [user, listId],
+    () =>
+      generateQueryKey(RequestKey.Bookmarks, user, { listId, isReminderOnly }),
+    [user, listId, isReminderOnly],
   );
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
