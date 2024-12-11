@@ -11,7 +11,6 @@ import {
 import { SimpleTooltip } from '../../tooltips';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { ActionType } from '../../../graphql/actions';
-import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { LazyModal } from '../../modals/common/types';
 import { FilterMenuTitle } from '../../filters/helpers';
 
@@ -23,11 +22,9 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const { openModal } = useLazyModal();
   const { isPlus, showPlusSubscription } = usePlusSubscription();
   const { checkHasCompleted } = useActions();
-  const { flags } = useSettingsContext();
-  const { fetchSmartTitle, fetchedSmartTitle } = useSmartTitle(post);
+  const { fetchSmartTitle, fetchedSmartTitle, shieldActive } =
+    useSmartTitle(post);
   const isMobile = useViewSize(ViewSize.MobileL);
-
-  const { clickbaitShieldEnabled } = flags;
 
   if (!showPlusSubscription) {
     return null;
@@ -104,7 +101,7 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
         className: 'max-w-70 text-center typo-subhead',
       }}
       content={
-        clickbaitShieldEnabled
+        shieldActive
           ? 'Click to see the original title'
           : 'Click to see the optimized title'
       }
@@ -113,8 +110,7 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
         className="relative mr-2 mt-1 font-normal"
         size={ButtonSize.XSmall}
         icon={
-          (clickbaitShieldEnabled && !fetchedSmartTitle) ||
-          (!clickbaitShieldEnabled && fetchedSmartTitle) ? (
+          shieldActive ? (
             <ShieldCheckIcon className="text-status-success" />
           ) : (
             <ShieldIcon />
@@ -123,10 +119,7 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
         iconSecondaryOnHover
         onClick={fetchSmartTitle}
       >
-        {(clickbaitShieldEnabled && !fetchedSmartTitle) ||
-        (!clickbaitShieldEnabled && fetchedSmartTitle)
-          ? 'Optimized title'
-          : 'Clickbait Shield disabled'}
+        {shieldActive ? 'Optimized title' : 'Clickbait Shield disabled'}
       </Button>
     </SimpleTooltip>
   );

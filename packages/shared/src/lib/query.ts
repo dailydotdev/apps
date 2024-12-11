@@ -182,6 +182,7 @@ export enum RequestKey {
   ReferringUser = 'referring_user',
   SearchSources = 'search_sources',
   OnboardingSources = 'onboarding_sources',
+  UserShortById = 'user_short_by_id',
   FetchedOriginalTitle = 'fetched_original_title',
 }
 
