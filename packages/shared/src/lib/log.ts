@@ -57,6 +57,7 @@ export enum Origin {
   UserFollowersList = 'user followers list',
   UserUpvotesList = 'user upvotes list',
   FollowFilter = 'follow filter',
+  PostSharedBy = 'post shared by',
 }
 
 export enum LogEvent {
@@ -125,6 +126,8 @@ export enum LogEvent {
   RemoveBookmarkReminder = 'remove bookmark reminder',
   MoveBookmarkToFolder = 'change bookmark folder',
   CreateBookmarkFolder = 'create bookmark folder',
+  RenameBookmarkFolder = 'rename bookmark folder',
+  DeleteBookmarkFolder = 'delete bookmark folder',
   // bookmark - end
   ReportComment = 'report comment',
   // search start

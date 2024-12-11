@@ -101,7 +101,7 @@ const BookmarkFolderModal = ({
   folderCount = 0,
   ...rest
 }: BookmarkFolderModalProps): ReactElement => {
-  const [icon, setIcon] = useState('');
+  const [icon, setIcon] = useState(folder?.icon || '');
   const { isPlus } = usePlusSubscription();
   const [name, setName] = useState(folder?.name || '');
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -128,7 +128,7 @@ const BookmarkFolderModal = ({
           variant: ButtonVariant.Primary,
           disabled: name.length === 0,
         },
-        copy: { right: 'Create folder' },
+        copy: { right: `${folder ? 'Update' : 'Create'} folder` },
       }}
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Small}
@@ -156,7 +156,7 @@ const BookmarkFolderModal = ({
           <Typography bold type={TypographyType.Body}>
             Choose an icon
           </Typography>
-          <ul className="flex flex-wrap justify-evenly gap-4">
+          <ul className="flex flex-wrap justify-evenly gap-4" role="radiogroup">
             {emojiOptions.map((emoji) => (
               <Button
                 type="button"
@@ -167,6 +167,8 @@ const BookmarkFolderModal = ({
                   icon === emoji && 'border-surface-focus',
                 )}
                 variant={ButtonVariant.Float}
+                aria-checked={icon === emoji || (!emoji && icon === '')}
+                role="radio"
               >
                 {!emoji ? <FolderIcon /> : emoji}
               </Button>
@@ -183,7 +185,7 @@ const BookmarkFolderModal = ({
                   <DevPlusIcon /> Upgrade to plus
                 </>
               ) : (
-                'Create folder'
+                `${folder ? 'Update' : 'Create'} folder`
               )}
             </Button>
           )}
