@@ -329,6 +329,14 @@ export const DEMOTE_FROM_PUBLIC_MUTATION = gql`
   }
 `;
 
+export const CLICKBAIT_POST_MUTATION = gql`
+  mutation ClickbaitPost($id: ID!) {
+    clickbaitPost(id: $id) {
+      _
+    }
+  }
+`;
+
 export const ADD_BOOKMARKS_MUTATION = gql`
   mutation AddBookmarks($data: AddBookmarkInput!) {
     addBookmarks(data: $data) {
@@ -419,6 +427,11 @@ export const deletePost = (id: string): Promise<EmptyResponse> => {
     id,
   });
 };
+
+export const clickbaitPost = (id: string): Promise<EmptyResponse> =>
+  gqlClient.request(CLICKBAIT_POST_MUTATION, {
+    id,
+  });
 
 export const VIEW_POST_MUTATION = gql`
   mutation ViewPost($id: ID!) {
