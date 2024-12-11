@@ -48,7 +48,6 @@ import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { labels } from '../lib';
 import { MenuItemProps } from './fields/ContextMenu';
-import { ActiveFeedContext } from '../contexts';
 import { useAdvancedSettings } from '../hooks/feed';
 import { ContextMenu as ContextMenuTypes } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
@@ -61,6 +60,7 @@ import { useContentPreference } from '../hooks/contentPreference/useContentPrefe
 import { ContentPreferenceType } from '../graphql/contentPreference';
 import { isFollowingContent } from '../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../hooks/auth/useIsSpecialUser';
+import { useActiveFeedContext } from '../contexts';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -119,11 +119,7 @@ export default function PostOptionsMenu({
   const { follow, unfollow } = useContentPreference();
 
   const { openModal } = useLazyModal();
-  const {
-    queryKey: feedQueryKey,
-    logOpts,
-    items,
-  } = useContext(ActiveFeedContext);
+  const { queryKey: feedQueryKey, logOpts, items } = useActiveFeedContext();
   const {
     onBlockSource,
     onBlockTags,
