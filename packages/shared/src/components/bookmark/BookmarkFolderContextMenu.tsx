@@ -31,7 +31,6 @@ export const BookmarkFolderContextMenu = ({
     const confirm = await showPrompt({
       title: `Delete ${folder.name}?`,
       description: 'This will also delete all bookmarks in this folder.',
-      cancelButton: { title: 'Cancel' },
       okButton: { title: 'Delete folder' },
     });
 
