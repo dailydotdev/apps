@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useCallback, useContext } from 'react';
 import { addDays, addHours, nextMonday, set } from 'date-fns';
 import {
   Bookmark,
@@ -8,7 +8,7 @@ import {
 } from '../../graphql/bookmarks';
 import { useToastNotification } from '../useToastNotification';
 import { updatePostCache } from '../usePostById';
-import { ActiveFeedContextValue } from '../../contexts';
+import { ActiveFeedContext, ActiveFeedContextValue } from '../../contexts';
 import { updateCachedPagePost } from '../../lib/query';
 import { optimisticPostUpdateInFeed, postLogEvent } from '../../lib/feed';
 import { EmptyResponse } from '../../graphql/emptyResponse';
@@ -71,26 +71,23 @@ interface UseBookmarkReminderProps {
 
 export const useBookmarkReminder = ({
   post,
+  feedContextData,
 }: UseBookmarkReminderProps): UseBookmarkReminder => {
   const client = useQueryClient();
+  const feedContext = useContext(ActiveFeedContext);
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
   const { isPushSupported, isSubscribed } = usePushNotificationContext();
   const { onEnablePush } = usePushNotificationMutation();
 
-  const onUpdateCache = async (postId: string, remindAt?: Date) => {
-    await client.refetchQueries({
-      queryKey: ['feed_context_data'],
-      stale: true,
-    });
-    const key = ['feed_context_data'];
-    const ctx = await client.getQueryData<ActiveFeedContextValue>(key);
+  const onUpdateCache = (postId: string, remindAt?: Date) => {
     updatePostCache(client, postId, (_post) => ({
       bookmarked: true,
       bookmark: { ..._post.bookmark, remindAt },
     }));
 
-    const { queryKey: feedQueryKey, items } = ctx || {};
+    const { queryKey: feedQueryKey, items } =
+      feedContextData || feedContext || {};
 
     if (feedQueryKey) {
       const bookmark: Bookmark = { createdAt: new Date(), remindAt };
