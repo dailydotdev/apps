@@ -11,17 +11,17 @@ import { usePaymentContext } from '../../contexts/PaymentContext';
 
 export const defaultFeatureList: Array<PlusItem> = [
   {
-    label: 'Hyper-personalized feed',
+    label: 'Personalized feed',
     status: PlusItemStatus.Ready,
     tooltip: `Your go-to place for dev news, tutorials, and updates. Curated just for you, so you never miss what’s new.`,
   },
   {
-    label: 'AI-powered search',
+    label: 'Search',
     status: PlusItemStatus.Ready,
     tooltip: `Find exactly what you’re looking for—whether it’s answers, trending topics, or the latest tools and resources.`,
   },
   {
-    label: 'Squads (developer communities)',
+    label: 'Squads',
     status: PlusItemStatus.Ready,
     tooltip: `Join groups of developers who share your interests. Exchange ideas, collaborate, and grow together in a focused space.`,
   },
