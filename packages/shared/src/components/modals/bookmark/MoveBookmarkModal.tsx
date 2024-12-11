@@ -32,26 +32,24 @@ const MoveBookmarkModal = ({
   const { moveBookmarkToFolder, isPending: isMoving } =
     useMoveBookmarkToFolder();
 
-  const handleMoveBookmark = async (targetList?: string) => {
+  const handleMoveBookmark = async (folder?: {
+    id?: string;
+    name?: string;
+  }) => {
     if (isMoving) {
       return;
     }
-    await moveBookmarkToFolder({ postId, listId: targetList });
-    displayToast(
-      `✅ Moved to ${
-        folders?.find((f) => f.id === targetList)?.name || 'Quick saves'
-      }`,
-      {
-        onUndo: () => handleMoveBookmark(listId),
-      },
-    );
-    onMoveBookmark?.(targetList);
+    await moveBookmarkToFolder({ postId, listId: folder?.id });
+    displayToast(`✅ Moved to ${folder?.name}`, {
+      onUndo: () => handleMoveBookmark({ id: listId }),
+    });
+    onMoveBookmark?.(folder?.id);
     closeModal();
   };
 
   const onCreateNewFolder = async (folder: BookmarkFolder) => {
     const newFolder = await createFolder(folder);
-    handleMoveBookmark(newFolder.id);
+    handleMoveBookmark(newFolder);
     closeModal();
   };
 
@@ -88,7 +86,7 @@ const MoveBookmarkModal = ({
           New folder
         </Button>
         <Button
-          onClick={() => handleMoveBookmark()}
+          onClick={() => handleMoveBookmark({ name: 'Quick saves' })}
           icon={<BookmarkIcon />}
           variant={ButtonVariant.Option}
           role="radio"
@@ -106,7 +104,7 @@ const MoveBookmarkModal = ({
             <Button
               loading={isPending}
               key={folder.id}
-              onClick={() => handleMoveBookmark(folder.id)}
+              onClick={() => handleMoveBookmark(folder)}
               variant={ButtonVariant.Option}
               icon={folder?.icon ? <span>{folder.icon}</span> : <FolderIcon />}
               role="radio"

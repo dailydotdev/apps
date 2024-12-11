@@ -31,7 +31,9 @@ export const useCreateBookmarkFolder = (): UseCreateBookmarkFolder => {
 
       const listQueryKey = generateQueryKey(RequestKey.BookmarkFolders);
       queryClient.setQueryData(listQueryKey, (data: BookmarkFolder[]) => {
-        return [...data, { id, ...folder }];
+        return [...data, { id, ...folder }].sort((a, b) =>
+          a.name.localeCompare(b.name),
+        );
       });
 
       displayToast(`${createdFolder.name} has been created`);
