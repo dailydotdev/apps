@@ -344,7 +344,7 @@ export default function PostOptionsMenu({
       action: () => {
         openModal({
           type: LazyModal.BookmarkReminder,
-          props: { post, feedContextData: { items, queryKey: feedQueryKey } },
+          props: { post, feedContextData },
         });
       },
     });
