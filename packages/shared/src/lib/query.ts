@@ -269,7 +269,7 @@ export const defaultQueryClientConfig: QueryClientConfig = {
 };
 
 export const updateCachedPage = (
-  feedQueryKey: unknown[],
+  feedQueryKey: QueryKey,
   queryClient: QueryClient,
   pageIndex: number,
   manipulate: (page: Connection<Post>) => Connection<Post>,
@@ -291,7 +291,7 @@ export const updateCachedPage = (
 };
 
 export const updateCachedPagePost =
-  (feedQueryKey: unknown[], queryClient: QueryClient) =>
+  (feedQueryKey: QueryKey, queryClient: QueryClient) =>
   (pageIndex: number, index: number, post: Post): void => {
     updateCachedPage(feedQueryKey, queryClient, pageIndex, (page) => {
       // eslint-disable-next-line no-param-reassign
@@ -301,7 +301,7 @@ export const updateCachedPagePost =
   };
 
 export const removeCachedPagePost =
-  (feedQueryKey: unknown[], queryClient: QueryClient) =>
+  (feedQueryKey: QueryKey, queryClient: QueryClient) =>
   (pageIndex: number, index: number): void => {
     updateCachedPage(feedQueryKey, queryClient, pageIndex, (page) => {
       // eslint-disable-next-line no-param-reassign
@@ -317,7 +317,7 @@ export const updateReadingHistoryListPost = ({
   manipulate,
   queryClient,
 }: {
-  queryKey: unknown[];
+  queryKey: QueryKey;
   pageIndex: number;
   index: number;
   manipulate: (post: ReadHistoryPost) => ReadHistoryPost;

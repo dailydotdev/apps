@@ -14,6 +14,7 @@ import { LazyModal } from '../../modals/common/types';
 import { Post } from '../../../graphql/posts';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { wrapStopPropagation } from '../../../lib/func';
+import { useActiveFeedContext } from '../../../contexts';
 
 interface PostReminderOptionsProps {
   post: Post;
@@ -27,6 +28,7 @@ export function PostReminderOptions({
   buttonProps = { variant: ButtonVariant.Float, size: ButtonSize.XSmall },
 }: PostReminderOptionsProps): ReactElement {
   const { openModal } = useLazyModal();
+  const feedContextData = useActiveFeedContext();
   const { onBookmarkReminder } = useBookmarkReminder({ post });
 
   const runBookmarkReminder = (preference: ReminderPreference) =>
@@ -57,7 +59,10 @@ export function PostReminderOptions({
       <Button
         {...buttonProps}
         onClick={wrapStopPropagation(() =>
-          openModal({ type: LazyModal.BookmarkReminder, props: { post } }),
+          openModal({
+            type: LazyModal.BookmarkReminder,
+            props: { post, feedContextData },
+          }),
         )}
       >
         Other

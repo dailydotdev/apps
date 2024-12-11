@@ -11,9 +11,12 @@ import {
   useBookmarkReminder,
 } from '../../../hooks/notifications';
 import { Post } from '../../../graphql/posts';
+import { ActiveFeedContext, ActiveFeedContextValue } from '../../../contexts';
+import ConditionalWrapper from '../../ConditionalWrapper';
 
 export interface BookmarkReminderProps extends LazyModalCommonProps {
   onReminderSet?: (reminder: string) => void;
+  feedContextData?: ActiveFeedContextValue;
   post: Post;
 }
 
@@ -152,4 +155,20 @@ export const BookmarkReminderModal = (
   );
 };
 
-export default BookmarkReminderModal;
+const ModalComponent: typeof BookmarkReminderModal = ({
+  feedContextData,
+  ...props
+}) => (
+  <ConditionalWrapper
+    condition={!!feedContextData}
+    wrapper={(component) => (
+      <ActiveFeedContext.Provider value={feedContextData}>
+        {component}
+      </ActiveFeedContext.Provider>
+    )}
+  >
+    <BookmarkReminderModal {...props} />
+  </ConditionalWrapper>
+);
+
+export default ModalComponent;
