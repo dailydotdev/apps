@@ -105,8 +105,16 @@ export default function BookmarkFeedLayout({
         reminderOnly: isReminderOnly,
         supportedTypes: supportedTypesForPrivateSources,
       },
+      emptyScreen: (
+        <BookmarkEmptyScreen
+          {...(listId && {
+            title: 'Your folder is feeling a little empty',
+            description:
+              'Start saving bookmarks to keep everything you need, right where you want it.',
+          })}
+        />
+      ),
       options: { refetchOnMount: true },
-      emptyScreen: <BookmarkEmptyScreen />,
     };
   }, [searchQuery, defaultKey, listId, isReminderOnly]);
 
