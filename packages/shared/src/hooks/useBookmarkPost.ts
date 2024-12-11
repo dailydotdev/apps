@@ -166,7 +166,7 @@ const useBookmarkPost = ({
       logEvent(postLogEvent(LogEvent.BookmarkPost, post, logOptions));
 
       const result = await addBookmark({ id: post.id });
-      const { list = null } = result?.addBookmarks?.[0];
+      const list = result?.addBookmarks?.[0]?.list ?? null;
 
       if (showPlusSubscription) {
         displayToast(`Bookmarked! Saved to ${list?.name ?? 'Quick saves'}`, {
