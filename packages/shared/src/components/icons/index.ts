@@ -126,3 +126,4 @@ export * from './ShieldCheck';
 export * from './ShieldWarning';
 export * from './ShieldPlus';
 export * from './Sidebar';
+export * from './Folder';

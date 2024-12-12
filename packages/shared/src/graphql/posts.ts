@@ -11,7 +11,7 @@ import {
   USER_AUTHOR_FRAGMENT,
 } from './fragments';
 import { acceptedTypesList, MEGABYTE } from '../components/fields/ImageInput';
-import { Bookmark } from './bookmarks';
+import { Bookmark, type BookmarkFolder } from './bookmarks';
 import { SourcePostModeration } from './squads';
 
 export type TocItem = { text: string; id?: string; children?: TocItem[] };
@@ -124,6 +124,7 @@ export interface Post {
   updatedAt?: string;
   slug?: string;
   bookmark?: Bookmark;
+  bookmarkList?: BookmarkFolder;
   domain?: string;
   clickbaitTitleDetected?: boolean;
 }
@@ -193,6 +194,9 @@ export const POST_BY_ID_QUERY = gql`
       content
       contentHtml
       pinnedAt
+      bookmarkList {
+        id
+      }
       sharedPost {
         ...SharedPostInfo
       }
@@ -340,6 +344,10 @@ export const CLICKBAIT_POST_MUTATION = gql`
 export const ADD_BOOKMARKS_MUTATION = gql`
   mutation AddBookmarks($data: AddBookmarkInput!) {
     addBookmarks(data: $data) {
+      list {
+        id
+        name
+      }
       postId
     }
   }
