@@ -38,8 +38,10 @@ import { MenuIcon } from './MenuIcon';
 import {
   ToastSubject,
   useFeedLayout,
+  usePlusSubscription,
   useSourceActionsNotify,
   useToastNotification,
+  useAdvancedSettings,
 } from '../hooks';
 import { AllFeedPages, generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
@@ -50,7 +52,6 @@ import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { labels } from '../lib';
 import { MenuItemProps } from './fields/ContextMenu';
-import { useAdvancedSettings } from '../hooks/feed';
 import { ContextMenu as ContextMenuTypes } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
 import { SourceType } from '../graphql/sources';
@@ -114,6 +115,7 @@ export default function PostOptionsMenu({
     id: initialPost?.id,
   });
   const post = loadedPost ?? initialPost;
+  const { showPlusSubscription } = usePlusSubscription();
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({ enabled: isPostOptionsOpen });
   const { onUpdateSettings } = useAdvancedSettings({ enabled: false });
@@ -364,7 +366,7 @@ export default function PostOptionsMenu({
       });
     }
 
-    if (post?.bookmark) {
+    if (post?.bookmark && showPlusSubscription) {
       postOptions.push({
         icon: <MenuIcon Icon={FolderIcon} />,
         label: 'Move to...',
