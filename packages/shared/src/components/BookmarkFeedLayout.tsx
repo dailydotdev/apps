@@ -132,7 +132,7 @@ export default function BookmarkFeedLayout({
       ),
       options: { refetchOnMount: true },
     };
-  }, [searchQuery, feedQueryKey, listId, isReminderOnly]);
+  }, [searchQuery, feedQueryKey, listId, isReminderOnly, isFolderPage]);
 
   return (
     <FeedPageLayoutComponent>
