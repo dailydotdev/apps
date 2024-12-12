@@ -18,7 +18,7 @@ export type ModalHeaderProps = {
   kind?: ModalHeaderKind;
   children?: ReactNode;
   className?: string;
-  title?: string | ReactNode;
+  title?: string;
   showCloseButton?: boolean;
 };
 
