@@ -33,7 +33,11 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
     ];
 
     if (!isLaptop) {
-      homePages.push(OtherFeedPage.Bookmarks);
+      homePages.push(
+        OtherFeedPage.Bookmarks,
+        OtherFeedPage.BookmarkFolder,
+        OtherFeedPage.BookmarkLater,
+      );
       if (!isMobile) {
         homePages.push(OtherFeedPage.Notifications);
       }
@@ -53,10 +57,14 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
     OtherFeedPage.ExploreUpvoted,
     OtherFeedPage.ExploreDiscussed,
   ];
-
   const isProfileActive = router.pathname?.includes('/[userId]');
   const isExploreActive = explorePages.includes(activeFeed);
-  const isBookmarksActive = activeFeed === OtherFeedPage.Bookmarks;
+  const bookmarksPages: AllFeedPages[] = [
+    OtherFeedPage.Bookmarks,
+    OtherFeedPage.BookmarkLater,
+    OtherFeedPage.BookmarkFolder,
+  ];
+  const isBookmarksActive = bookmarksPages.includes(activeFeed);
   const isNotificationsActive = activeFeed === OtherFeedPage.Notifications;
   const isSquadsActive = activeFeed.includes(OtherFeedPage.Squad);
 
