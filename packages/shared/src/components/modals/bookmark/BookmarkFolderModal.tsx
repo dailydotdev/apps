@@ -129,15 +129,14 @@ const BookmarkFolderModal = ({
             </Typography>
           )}
           <TextField
-            maxLength={50}
-            label="Give your folder a name..."
-            name="name"
-            inputId="newFolder"
-            onChange={(e) => setName(e.target.value)}
-            value={name}
             autoComplete="off"
             autoFocus={!shouldUpgrade}
-            disabled={shouldUpgrade}
+            inputId="newFolder"
+            label="Give your folder a name..."
+            maxLength={50}
+            name="name"
+            onChange={(e) => setName(e.target.value)}
+            value={name}
           />
           <Typography bold type={TypographyType.Body}>
             Choose an icon
