@@ -80,7 +80,7 @@ const useBookmarkPost = ({
   const { displayToast } = useToastNotification();
   const { user, showLogin } = useContext(AuthContext);
   const { logEvent } = useContext(LogContext);
-  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
+  const { completeAction } = useActions();
   const { openModal } = useLazyModal();
   const { showPlusSubscription } = usePlusSubscription();
 
