@@ -17,7 +17,6 @@ import { LogEvent, TargetId } from '../../../lib/log';
 import { IconSize } from '../../Icon';
 import { ModalHeader } from '../common/ModalHeader';
 import { BookmarkFolder } from '../../../graphql/bookmarks';
-import { ModalHeaderKind } from '../common/types';
 
 type BookmarkFolderModalProps = Omit<ModalProps, 'children'> & {
   onSubmit: (folder: BookmarkFolder) => void;
@@ -80,8 +79,8 @@ const PlusCTA = ({ folderCount }: { folderCount: number }) => {
 };
 
 const ModalTitle = () => (
-  <span className="flex flex-row items-center gap-1 tablet:gap-2">
-    New Folder
+  <>
+    <ModalHeader.Title className="typo-title3">New Folder</ModalHeader.Title>
     <Typography
       tag={TypographyTag.Span}
       type={TypographyType.Caption1}
@@ -92,7 +91,7 @@ const ModalTitle = () => (
       <DevPlusIcon size={IconSize.Size16} />
       Plus
     </Typography>
-  </span>
+  </>
 );
 
 const BookmarkFolderModal = ({
@@ -120,7 +119,7 @@ const BookmarkFolderModal = ({
       formProps={{
         form: 'create_folder',
         title: (
-          <div className="px-4 font-bold">
+          <div className="flex gap-1 px-4">
             <ModalTitle />
           </div>
         ),
@@ -135,12 +134,9 @@ const BookmarkFolderModal = ({
       {...rest}
     >
       <form onSubmit={handleSubmit} id="create_folder">
-        <ModalHeader
-          showCloseButton={!isMobile}
-          className="gap-2"
-          kind={ModalHeaderKind.Primary}
-          title={<ModalTitle />}
-        />
+        <ModalHeader showCloseButton={!isMobile} className="gap-2">
+          <ModalTitle />
+        </ModalHeader>
         <Modal.Body className="flex flex-col gap-5 tablet:gap-4">
           {!isPlus && <PlusCTA folderCount={folderCount} />}
           <TextField
