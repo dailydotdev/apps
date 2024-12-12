@@ -84,7 +84,7 @@ const BookmarkFolderModal = ({
         ),
         rightButtonProps: {
           variant: ButtonVariant.Primary,
-          disabled: name.length === 0,
+          disabled: name.length === 0 || shouldUpgrade,
         },
         copy: { right: `${folder ? 'Update' : 'Create'} folder` },
       }}
@@ -102,12 +102,11 @@ const BookmarkFolderModal = ({
               type={TypographyType.Callout}
               color={TypographyColor.Secondary}
             >
-              To keep your bookmarks perfectly organized in folders,
+              To keep your bookmarks perfectly organized in folders, {` `}
               <Button
                 className="h-fit border-0 !p-0"
                 variant={ButtonVariant.Option}
                 tag="a"
-                type="button"
                 target="_blank"
                 href={plusUrl}
                 rel={anchorDefaultRel}
@@ -137,7 +136,8 @@ const BookmarkFolderModal = ({
             onChange={(e) => setName(e.target.value)}
             value={name}
             autoComplete="off"
-            autoFocus
+            autoFocus={!shouldUpgrade}
+            disabled={shouldUpgrade}
           />
           <Typography bold type={TypographyType.Body}>
             Choose an icon
@@ -157,6 +157,7 @@ const BookmarkFolderModal = ({
                 )}
                 variant={ButtonVariant.Float}
                 aria-checked={icon === emoji || (!emoji && icon === '')}
+                aria-disabled={shouldUpgrade}
                 role="radio"
               >
                 {!emoji ? (
@@ -173,19 +174,36 @@ const BookmarkFolderModal = ({
             ))}
           </ul>
           {!isMobile && (
-            <Button
-              type="submit"
-              disabled={name.length === 0}
-              variant={ButtonVariant.Primary}
-            >
+            <>
               {shouldUpgrade ? (
-                <>
-                  <DevPlusIcon /> Upgrade to plus
-                </>
+                <Button
+                  tag="a"
+                  target="_blank"
+                  href={plusUrl}
+                  rel={anchorDefaultRel}
+                  onClick={() => {
+                    logSubscriptionEvent({
+                      event_name: LogEvent.UpgradeSubscription,
+                      target_id: TargetId.BookmarkFolder,
+                    });
+                  }}
+                  variant={ButtonVariant.Primary}
+                >
+                  <span className="flex gap-1">
+                    <DevPlusIcon className="text-action-plus-default" /> Upgrade
+                    to plus
+                  </span>
+                </Button>
               ) : (
-                `${folder ? 'Update' : 'Create'} folder`
+                <Button
+                  type="submit"
+                  disabled={name.length === 0}
+                  variant={ButtonVariant.Primary}
+                >
+                  {folder ? 'Update' : 'Create'} folder
+                </Button>
               )}
-            </Button>
+            </>
           )}
         </Modal.Body>
       </form>
