@@ -30,6 +30,7 @@ export const BookmarkFolderContextMenu = ({
       title: `Delete ${folder.name}?`,
       description: 'This will also delete all bookmarks in this folder.',
       okButton: { title: 'Delete folder' },
+      className: { title: 'break-all' },
     });
 
     if (confirm) {
