@@ -33,6 +33,8 @@ export enum OtherFeedPage {
   Sources = 'sources',
   Leaderboard = 'users',
   Bookmarks = 'bookmarks',
+  BookmarkLater = 'bookmarkslater',
+  BookmarkFolder = 'bookmarks[folderId]',
   SearchBookmarks = 'search-bookmarks',
   Preview = 'preview',
   Author = 'author',

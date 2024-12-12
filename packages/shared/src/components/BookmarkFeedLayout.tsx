@@ -106,8 +106,14 @@ export default function BookmarkFeedLayout({
         emptyScreen: <SearchEmptyScreen />,
       };
     }
+
+    const folderFeed = isReminderOnly
+      ? OtherFeedPage.BookmarkLater
+      : OtherFeedPage.BookmarkFolder;
+    const feedName = isFolderPage ? folderFeed : OtherFeedPage.Bookmarks;
+
     return {
-      feedName: OtherFeedPage.Bookmarks,
+      feedName,
       feedQueryKey,
       query: BOOKMARKS_FEED_QUERY,
       variables: {
