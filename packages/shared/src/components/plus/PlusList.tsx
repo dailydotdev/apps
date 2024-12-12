@@ -50,7 +50,7 @@ export const plusFeatureList: Array<PlusItem> = [
   },
   {
     label: 'Organize bookmarks in folders',
-    status: PlusItemStatus.ComingSoon,
+    status: PlusItemStatus.Ready,
     tooltip: `Easily categorize and organize your bookmarked posts into folders, so you can find what you need quickly.`,
   },
   {
