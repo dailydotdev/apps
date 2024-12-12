@@ -1,4 +1,4 @@
-import React, { type FormEvent, ReactElement, useState } from 'react';
+import React, { type FormEvent, type ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { usePlusSubscription, useViewSize, ViewSize } from '../../../hooks';
 import { Modal, type ModalProps } from '../common/Modal';
