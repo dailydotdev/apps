@@ -152,7 +152,10 @@ const BookmarkFolderModal = ({
           <Typography bold type={TypographyType.Body}>
             Choose an icon
           </Typography>
-          <ul className="flex flex-wrap justify-evenly gap-4" role="radiogroup">
+          <ul
+            className="flex flex-wrap gap-4 laptop:justify-evenly"
+            role="radiogroup"
+          >
             {emojiOptions.map((emoji) => (
               <Button
                 type="button"
