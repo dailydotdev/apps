@@ -1,4 +1,4 @@
-import React, { ReactElement, useState, type FormEvent } from 'react';
+import React, { type FormEvent, ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { usePlusSubscription, useViewSize, ViewSize } from '../../../hooks';
 import { Modal, type ModalProps } from '../common/Modal';
@@ -81,7 +81,7 @@ const PlusCTA = ({ folderCount }: { folderCount: number }) => {
 
 const ModalTitle = () => (
   <>
-    <ModalHeader.Title>New Folder</ModalHeader.Title>
+    <ModalHeader.Title className="typo-title3">New Folder</ModalHeader.Title>
     <Typography
       tag={TypographyTag.Span}
       type={TypographyType.Caption1}
@@ -163,14 +163,23 @@ const BookmarkFolderModal = ({
                 key={emoji}
                 onClick={() => setIcon(emoji)}
                 className={classNames(
-                  'size-12',
+                  'aspect-square !size-12',
                   icon === emoji && 'border-surface-focus',
                 )}
                 variant={ButtonVariant.Float}
                 aria-checked={icon === emoji || (!emoji && icon === '')}
                 role="radio"
               >
-                {!emoji ? <FolderIcon /> : emoji}
+                {!emoji ? (
+                  <FolderIcon size={IconSize.Large} />
+                ) : (
+                  <Typography
+                    tag={TypographyTag.Span}
+                    type={TypographyType.Title1}
+                  >
+                    {emoji}
+                  </Typography>
+                )}
               </Button>
             ))}
           </ul>
