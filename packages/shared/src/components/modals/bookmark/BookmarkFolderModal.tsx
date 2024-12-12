@@ -1,4 +1,4 @@
-import React, { ReactElement, useState, type FormEvent } from 'react';
+import React, { type FormEvent, type ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { usePlusSubscription, useViewSize, ViewSize } from '../../../hooks';
 import { Modal, type ModalProps } from '../common/Modal';
@@ -10,13 +10,12 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { Button, ButtonVariant } from '../../buttons/Button';
-import { DevPlusIcon } from '../../icons';
+import { DevPlusIcon, FolderIcon } from '../../icons';
 import { plusUrl } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { IconSize } from '../../Icon';
 import { ModalHeader } from '../common/ModalHeader';
-import { FolderIcon } from '../../icons/Folder';
 import { BookmarkFolder } from '../../../graphql/bookmarks';
 
 type BookmarkFolderModalProps = Omit<ModalProps, 'children'> & {
@@ -81,7 +80,7 @@ const PlusCTA = ({ folderCount }: { folderCount: number }) => {
 
 const ModalTitle = () => (
   <>
-    <ModalHeader.Title>New Folder</ModalHeader.Title>
+    <ModalHeader.Title className="typo-title3">New Folder</ModalHeader.Title>
     <Typography
       tag={TypographyTag.Span}
       type={TypographyType.Caption1}
@@ -135,10 +134,7 @@ const BookmarkFolderModal = ({
       {...rest}
     >
       <form onSubmit={handleSubmit} id="create_folder">
-        <ModalHeader
-          showCloseButton={!isMobile}
-          className={classNames('gap-2')}
-        >
+        <ModalHeader showCloseButton={!isMobile} className="gap-2">
           <ModalTitle />
         </ModalHeader>
         <Modal.Body className="flex flex-col gap-5 tablet:gap-4">
@@ -156,21 +152,33 @@ const BookmarkFolderModal = ({
           <Typography bold type={TypographyType.Body}>
             Choose an icon
           </Typography>
-          <ul className="flex flex-wrap justify-evenly gap-4" role="radiogroup">
+          <ul
+            className="flex flex-wrap gap-4 laptop:justify-evenly"
+            role="radiogroup"
+          >
             {emojiOptions.map((emoji) => (
               <Button
                 type="button"
                 key={emoji}
                 onClick={() => setIcon(emoji)}
                 className={classNames(
-                  'size-12',
+                  '!size-12',
                   icon === emoji && 'border-surface-focus',
                 )}
                 variant={ButtonVariant.Float}
                 aria-checked={icon === emoji || (!emoji && icon === '')}
                 role="radio"
               >
-                {!emoji ? <FolderIcon /> : emoji}
+                {!emoji ? (
+                  <FolderIcon size={IconSize.Large} />
+                ) : (
+                  <Typography
+                    tag={TypographyTag.Span}
+                    type={TypographyType.Title1}
+                  >
+                    {emoji}
+                  </Typography>
+                )}
               </Button>
             ))}
           </ul>
