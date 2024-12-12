@@ -10,14 +10,14 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { Button, ButtonVariant } from '../../buttons/Button';
-import { DevPlusIcon } from '../../icons';
+import { DevPlusIcon, FolderIcon } from '../../icons';
 import { plusUrl } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { IconSize } from '../../Icon';
 import { ModalHeader } from '../common/ModalHeader';
-import { FolderIcon } from '../../icons/Folder';
 import { BookmarkFolder } from '../../../graphql/bookmarks';
+import { ModalHeaderKind } from '../common/types';
 
 type BookmarkFolderModalProps = Omit<ModalProps, 'children'> & {
   onSubmit: (folder: BookmarkFolder) => void;
@@ -80,8 +80,8 @@ const PlusCTA = ({ folderCount }: { folderCount: number }) => {
 };
 
 const ModalTitle = () => (
-  <>
-    <ModalHeader.Title className="typo-title3">New Folder</ModalHeader.Title>
+  <span className="flex flex-row items-center gap-1 tablet:gap-2">
+    New Folder
     <Typography
       tag={TypographyTag.Span}
       type={TypographyType.Caption1}
@@ -92,7 +92,7 @@ const ModalTitle = () => (
       <DevPlusIcon size={IconSize.Size16} />
       Plus
     </Typography>
-  </>
+  </span>
 );
 
 const BookmarkFolderModal = ({
@@ -120,7 +120,7 @@ const BookmarkFolderModal = ({
       formProps={{
         form: 'create_folder',
         title: (
-          <div className="flex gap-1 px-4">
+          <div className="px-4 font-bold">
             <ModalTitle />
           </div>
         ),
@@ -137,10 +137,10 @@ const BookmarkFolderModal = ({
       <form onSubmit={handleSubmit} id="create_folder">
         <ModalHeader
           showCloseButton={!isMobile}
-          className={classNames('gap-2')}
-        >
-          <ModalTitle />
-        </ModalHeader>
+          className="gap-2"
+          kind={ModalHeaderKind.Primary}
+          title={<ModalTitle />}
+        />
         <Modal.Body className="flex flex-col gap-5 tablet:gap-4">
           {!isPlus && <PlusCTA folderCount={folderCount} />}
           <TextField
@@ -163,7 +163,7 @@ const BookmarkFolderModal = ({
                 key={emoji}
                 onClick={() => setIcon(emoji)}
                 className={classNames(
-                  'aspect-square !size-12',
+                  '!size-12',
                   icon === emoji && 'border-surface-focus',
                 )}
                 variant={ButtonVariant.Float}
