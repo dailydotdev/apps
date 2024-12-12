@@ -82,11 +82,11 @@ export const SidebarScrollWrapper = classed(
   'div',
   'flex overflow-x-hidden overflow-y-auto flex-col h-full no-scrollbar',
 );
-export const Nav = classed('nav', 'my-4 mt-10 laptop:mt-4');
+export const Nav = classed('nav', 'mb-4');
 export const NavSection = classed('ul', 'mt-0 laptop:mt-4');
 export const NavHeader = classed(
   'li',
-  'typo-callout text-text-quaternary h-8 flex items-center font-bold  transition-opacity',
+  'typo-callout text-text-quaternary h-8 flex items-center font-bold transition-opacity',
 );
 
 const RawNavItem = classed(

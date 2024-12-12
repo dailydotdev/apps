@@ -107,6 +107,7 @@ export const MainSection = ({
       {...defaultRenderSectionProps}
       items={menuItems}
       isItemsButton={isItemsButton}
+      className="!mt-0"
     />
   );
 };
