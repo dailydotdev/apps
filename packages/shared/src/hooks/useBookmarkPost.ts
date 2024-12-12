@@ -103,16 +103,6 @@ const useBookmarkPost = ({
     onMutate: onMutate || defaultOnMutate,
     onSuccess: () => {
       completeAction(ActionType.BookmarkPost);
-
-      if (
-        showPlusSubscription &&
-        isActionsFetched &&
-        !checkHasCompleted(ActionType.CreateBookmarkFolder)
-      ) {
-        openModal({
-          type: LazyModal.BookmarksFolderEntry,
-        });
-      }
     },
     onError: (err, _, rollback?: () => void) => rollback?.(),
   });
