@@ -21,7 +21,6 @@ import { BookmarkFolder } from '../../../graphql/bookmarks';
 type BookmarkFolderModalProps = Omit<ModalProps, 'children'> & {
   onSubmit: (folder: BookmarkFolder) => void;
   folder?: BookmarkFolder;
-  folderCount?: number;
 };
 
 const emojiOptions = [
@@ -38,45 +37,6 @@ const emojiOptions = [
   '📜',
   '🚀',
 ];
-
-const createFirstFolder =
-  'You can create your first folder for free! Organize your bookmarks and see how it works. To unlock unlimited folders,';
-const getMoreFolders =
-  "You've used your free folder. To create more and keep your bookmarks perfectly organized,";
-
-const PlusCTA = ({ folderCount }: { folderCount: number }) => {
-  const { logSubscriptionEvent } = usePlusSubscription();
-
-  return (
-    <Typography type={TypographyType.Callout} color={TypographyColor.Secondary}>
-      <span>{folderCount === 0 ? createFirstFolder : getMoreFolders}</span>{' '}
-      <Button
-        className="h-fit border-0 !p-0"
-        variant={ButtonVariant.Option}
-        tag="a"
-        type="button"
-        target="_blank"
-        href={plusUrl}
-        rel={anchorDefaultRel}
-        onClick={() => {
-          logSubscriptionEvent({
-            event_name: LogEvent.UpgradeSubscription,
-            target_id: TargetId.BookmarkFolder,
-          });
-        }}
-      >
-        <Typography
-          tag={TypographyTag.Span}
-          type={TypographyType.Callout}
-          color={TypographyColor.Plus}
-          className="underline"
-        >
-          upgrade to Plus
-        </Typography>
-      </Button>
-    </Typography>
-  );
-};
 
 const ModalTitle = () => (
   <>
@@ -97,14 +57,13 @@ const ModalTitle = () => (
 const BookmarkFolderModal = ({
   folder,
   onSubmit,
-  folderCount = 0,
   ...rest
 }: BookmarkFolderModalProps): ReactElement => {
   const [icon, setIcon] = useState(folder?.icon || '');
-  const { isPlus } = usePlusSubscription();
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const [name, setName] = useState(folder?.name || '');
   const isMobile = useViewSize(ViewSize.MobileL);
-  const shouldUpgrade = !isPlus && folderCount > 0;
+  const shouldUpgrade = !isPlus;
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -138,7 +97,38 @@ const BookmarkFolderModal = ({
           <ModalTitle />
         </ModalHeader>
         <Modal.Body className="flex flex-col gap-5 tablet:gap-4">
-          {!isPlus && <PlusCTA folderCount={folderCount} />}
+          {shouldUpgrade && (
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Secondary}
+            >
+              To keep your bookmarks perfectly organized in folders,
+              <Button
+                className="h-fit border-0 !p-0"
+                variant={ButtonVariant.Option}
+                tag="a"
+                type="button"
+                target="_blank"
+                href={plusUrl}
+                rel={anchorDefaultRel}
+                onClick={() => {
+                  logSubscriptionEvent({
+                    event_name: LogEvent.UpgradeSubscription,
+                    target_id: TargetId.BookmarkFolder,
+                  });
+                }}
+              >
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Plus}
+                  className="underline"
+                >
+                  upgrade to Plus
+                </Typography>
+              </Button>
+            </Typography>
+          )}
           <TextField
             maxLength={50}
             label="Give your folder a name..."
