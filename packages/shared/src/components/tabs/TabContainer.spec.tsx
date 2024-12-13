@@ -51,9 +51,12 @@ describe('tab container component', () => {
     const inactive1 = await screen.findByText('Second');
     const inactive2 = await screen.findByText('Third');
 
-    expect(active).toHaveClass('bg-theme-active');
-    expect(inactive1).not.toHaveClass('bg-theme-active');
-    expect(inactive2).not.toHaveClass('bg-theme-active');
+    // eslint-disable-next-line testing-library/no-node-access
+    expect(active.parentElement).toHaveClass('bg-theme-active');
+    // eslint-disable-next-line testing-library/no-node-access
+    expect(inactive1.parentElement).not.toHaveClass('bg-theme-active');
+    // eslint-disable-next-line testing-library/no-node-access
+    expect(inactive2.parentElement).not.toHaveClass('bg-theme-active');
   });
 
   it('should switch between tabs', async () => {
@@ -102,9 +105,12 @@ describe('tab container component', () => {
       const inactive1 = await screen.findByText('First');
       const inactive2 = await screen.findByText('Third');
 
-      expect(active).toHaveClass('bg-theme-active');
-      expect(inactive1).not.toHaveClass('bg-theme-active');
-      expect(inactive2).not.toHaveClass('bg-theme-active');
+      // eslint-disable-next-line testing-library/no-node-access
+      expect(active.parentElement).toHaveClass('bg-theme-active');
+      // eslint-disable-next-line testing-library/no-node-access
+      expect(inactive1.parentElement).not.toHaveClass('bg-theme-active');
+      // eslint-disable-next-line testing-library/no-node-access
+      expect(inactive2.parentElement).not.toHaveClass('bg-theme-active');
     });
 
     it('should redirect to the given URL on tab click', async () => {
