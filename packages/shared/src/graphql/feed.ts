@@ -30,6 +30,7 @@ export interface FeedData {
 
 export type FeedFlags = {
   name: string;
+  icon?: string;
 };
 
 export type Feed = {

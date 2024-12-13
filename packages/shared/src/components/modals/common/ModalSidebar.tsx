@@ -59,7 +59,7 @@ export function ModalSidebar({
   className,
 }: ModalSidebarProps): ReactElement {
   return (
-    <div className={classNames('flex h-full w-full flex-row', className)}>
+    <div className={classNames('flex w-full flex-1 flex-row', className)}>
       {children}
     </div>
   );
