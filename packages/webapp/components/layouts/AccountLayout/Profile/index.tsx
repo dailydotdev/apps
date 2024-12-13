@@ -152,7 +152,7 @@ const ProfileIndex = ({
         });
       }
     },
-    [updateUserProfile, uploadCoverImage],
+    [updateUserProfile, uploadCoverImage, clearImageMutation],
   );
 
   const CoverHoverIcon = () => (
