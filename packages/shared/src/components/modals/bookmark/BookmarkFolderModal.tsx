@@ -171,38 +171,35 @@ const BookmarkFolderModal = ({
               </Button>
             ))}
           </ul>
-          {!isMobile && (
-            <>
-              {shouldUpgrade ? (
-                <Button
-                  tag="a"
-                  target="_blank"
-                  href={plusUrl}
-                  rel={anchorDefaultRel}
-                  onClick={() => {
-                    logSubscriptionEvent({
-                      event_name: LogEvent.UpgradeSubscription,
-                      target_id: TargetId.BookmarkFolder,
-                    });
-                  }}
-                  variant={ButtonVariant.Primary}
-                >
-                  <span className="flex gap-1">
-                    <DevPlusIcon className="text-action-plus-default" /> Upgrade
-                    to plus
-                  </span>
-                </Button>
-              ) : (
-                <Button
-                  type="submit"
-                  disabled={name.length === 0}
-                  variant={ButtonVariant.Primary}
-                >
-                  {folder ? 'Update' : 'Create'} folder
-                </Button>
-              )}
-            </>
-          )}
+          {!isMobile &&
+            (shouldUpgrade ? (
+              <Button
+                tag="a"
+                target="_blank"
+                href={plusUrl}
+                rel={anchorDefaultRel}
+                onClick={() => {
+                  logSubscriptionEvent({
+                    event_name: LogEvent.UpgradeSubscription,
+                    target_id: TargetId.BookmarkFolder,
+                  });
+                }}
+                variant={ButtonVariant.Primary}
+              >
+                <span className="flex gap-1">
+                  <DevPlusIcon className="text-action-plus-default" /> Upgrade
+                  to plus
+                </span>
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                disabled={name.length === 0}
+                variant={ButtonVariant.Primary}
+              >
+                {folder ? 'Update' : 'Create'} folder
+              </Button>
+            ))}
         </Modal.Body>
       </form>
     </Modal>
