@@ -18,6 +18,7 @@ import { FeedSettingsEditHeader } from './FeedSettingsEditHeader';
 import { FeedSettingsEditBody } from './FeedSettingsEditBody';
 import { FeedSettingsGeneralSection } from './sections/FeedSettingsGeneralSection';
 import { FeedSettingsTitle } from './FeedSettingsTitle';
+import { FeedSettingsTagsSection } from './sections/FeedSettingsTagsSection';
 
 export type FeedSettingsEditProps = {
   feedSlugOrId: string;
@@ -87,6 +88,9 @@ export const FeedSettingsEdit = ({
           <Modal.Sidebar.Inner>
             <FeedSettingsEditBody view={FeedSettingsMenu.General}>
               <FeedSettingsGeneralSection />
+            </FeedSettingsEditBody>
+            <FeedSettingsEditBody view={FeedSettingsMenu.Tags}>
+              <FeedSettingsTagsSection />
             </FeedSettingsEditBody>
           </Modal.Sidebar.Inner>
         </Modal.Sidebar>
