@@ -156,7 +156,6 @@ const BookmarkFolderModal = ({
                 )}
                 variant={ButtonVariant.Float}
                 aria-checked={icon === emoji || (!emoji && icon === '')}
-                aria-disabled={shouldUpgrade}
                 role="radio"
               >
                 {!emoji ? (
