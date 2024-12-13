@@ -135,10 +135,9 @@ const ProfileIndex = ({
   const onImageInputChange = useCallback(
     (file?: File, fileName?: string, isCover = false) => {
       if (!file) {
-        clearImageMutation([
+        return clearImageMutation([
           isCover ? UploadPreset.ProfileCover : UploadPreset.Avatar,
         ]);
-        return;
       }
 
       if (isCover) {
@@ -151,6 +150,8 @@ const ProfileIndex = ({
           image: file,
         });
       }
+
+      return undefined;
     },
     [updateUserProfile, uploadCoverImage, clearImageMutation],
   );
