@@ -1,7 +1,13 @@
 import React, { ReactElement, useCallback, useMemo } from 'react';
 import { Section } from '../Section';
 import { ListIcon, SidebarMenuItem } from '../common';
-import { BookmarkIcon, DevPlusIcon, EyeIcon, HotIcon } from '../../icons';
+import {
+  BookmarkIcon,
+  DevPlusIcon,
+  EyeIcon,
+  HotIcon,
+  SquadIcon,
+} from '../../icons';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { OtherFeedPage } from '../../../lib/query';
@@ -52,6 +58,14 @@ export const MainSection = ({
     return [
       myFeed,
       {
+        title: 'Following',
+        path: `${webappUrl}following`,
+        action: () => onNavTabClick?.(OtherFeedPage.Following),
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <SquadIcon secondary={active} />} />
+        ),
+      },
+      {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <HotIcon secondary={active} />} />
         ),
@@ -81,10 +95,10 @@ export const MainSection = ({
     ].filter(Boolean);
   }, [
     isLoggedIn,
-    isEnrolledNotPlus,
-    onNavTabClick,
-    onPlusClick,
     user,
+    isEnrolledNotPlus,
+    onPlusClick,
+    onNavTabClick,
     showPlusSubscription,
   ]);
 
@@ -93,6 +107,7 @@ export const MainSection = ({
       {...defaultRenderSectionProps}
       items={menuItems}
       isItemsButton={isItemsButton}
+      className="!mt-0"
     />
   );
 };

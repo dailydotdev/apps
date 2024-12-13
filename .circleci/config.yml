@@ -3,21 +3,21 @@ version: 2.1
 jobs:
   install_deps:
     docker:
-      - image: cimg/node:20.12
+      - image: cimg/node:22.11
     steps:
       - checkout
       - run:
           name: Install pnpm
-          command: npm i --prefix=$HOME/.local -g pnpm@8.15.7
+          command: npm i --prefix=$HOME/.local -g pnpm@9.14.4
       - restore_cache:
           keys:
-            - deps-v6-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v6-{{ .Branch }}
+            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v7-{{ .Branch }}
       - run:
           name: Install dependencies
           command: pnpm install
       - save_cache:
-          key: deps-v6-{{ checksum "pnpm-lock.yaml" }}
+          key: deps-v7-{{ checksum "pnpm-lock.yaml" }}
           paths:
             - ./node_modules
             - ./packages/eslint-config/node_modules
@@ -28,28 +28,28 @@ jobs:
             - ./packages/extension/node_modules
   build:
     docker:
-      - image: cimg/node:20.12
+      - image: cimg/node:22.11
     resource_class: medium+
     steps:
       - checkout
       - restore_cache:
           keys:
-            - deps-v6-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v6-{{ .Branch }}
+            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v7-{{ .Branch }}
       - run:
           name: Build
           command: npm run build:chrome
           working_directory: packages/extension
   test_extension:
     docker:
-      - image: cimg/node:20.12
+      - image: cimg/node:22.11
     parallelism: 1
     steps:
       - checkout
       - restore_cache:
           keys:
-            - deps-v6-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v6-{{ .Branch }}
+            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v7-{{ .Branch }}
       - run:
           name: Test
           command: |
@@ -63,14 +63,14 @@ jobs:
           path: ./test-results
   test_webapp:
     docker:
-      - image: cimg/node:20.12
+      - image: cimg/node:22.11
     parallelism: 1
     steps:
       - checkout
       - restore_cache:
           keys:
-            - deps-v6-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v6-{{ .Branch }}
+            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v7-{{ .Branch }}
       - run:
           name: Test
           command: |
@@ -84,28 +84,28 @@ jobs:
           path: ./test-results
   lint_shared:
     docker:
-      - image: cimg/node:20.12
+      - image: cimg/node:22.11
     resource_class: large
     steps:
       - checkout
       - restore_cache:
           keys:
-            - deps-v6-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v6-{{ .Branch }}
+            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v7-{{ .Branch }}
       - run:
           name: Lint
           command: npm run pretest
           working_directory: packages/shared
   test_shared:
     docker:
-      - image: cimg/node:20.12
+      - image: cimg/node:22.11
     parallelism: 1
     steps:
       - checkout
       - restore_cache:
           keys:
-            - deps-v6-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v6-{{ .Branch }}
+            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v7-{{ .Branch }}
       - run:
           name: Test
           command: |

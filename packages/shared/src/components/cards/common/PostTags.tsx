@@ -28,8 +28,7 @@ export default function PostTags({
   return (
     <div
       className={classNames(
-        'flex min-h-px w-full items-center gap-2',
-        !isListMode && 'tablet:mx-2',
+        'flex min-h-px flex-1 items-center gap-2',
         className,
       )}
       ref={elementRef}

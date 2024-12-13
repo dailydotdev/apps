@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import PostNavigation from './PostNavigation';
 import { PostNavigationProps } from './common';
+import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 
 function FixedPostNavigation({
   onPreviousPost,
@@ -12,11 +13,12 @@ function FixedPostNavigation({
   isBannerVisible,
   ...props
 }: PostNavigationProps): ReactElement {
+  const { title } = useSmartTitle(post);
   const published = `Published on ${post?.source.name}`;
   const subtitle = !post?.author
     ? published
     : `${published} by ${post?.author.name}`;
-  const content = { title: post?.title, subtitle };
+  const content = { title, subtitle };
   const hasNavigation = !!onPreviousPost || !!onNextPost;
 
   return (

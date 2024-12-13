@@ -128,13 +128,6 @@ const ProfileIndex = ({
     (file?: File, fileName?: string, isCover = false) => {
       if (isCover) {
         setCoverImage(fileName);
-      }
-
-      if (!file) {
-        return;
-      }
-
-      if (isCover) {
         uploadCoverImage({
           image: file,
         });
@@ -163,11 +156,11 @@ const ProfileIndex = ({
         your comments and contributions easily!"
       >
         <div className="relative mt-6 flex">
-          <div className="absolute left-0 top-0 flex w-full">
+          <div className="absolute left-0 top-0 flex w-full max-w-[19.25rem]">
             <ImageInput
               id={coverId}
               className={{
-                root: 'w-full max-w-[19.25rem]',
+                root: 'w-full',
                 container:
                   'border-0 bg-background-subtle hover:bg-accent-pepper-subtlest',
                 img: 'object-cover',
@@ -181,17 +174,21 @@ const ProfileIndex = ({
               onChange={(fileName, file) =>
                 onImageInputChange(file, fileName, true)
               }
+              closeable
             />
           </div>
           <ImageInput
             id={imageId}
             className={{
               img: 'object-cover',
-              container: 'border-4 !border-background-default',
+              container:
+                'border-4 !border-background-default bg-background-subtle hover:bg-accent-pepper-subtlest',
             }}
             initialValue={user?.image}
+            alwaysShowHover={!user?.image}
             hoverIcon={<CameraIcon size={IconSize.Large} />}
             onChange={(_, file) => onImageInputChange(file)}
+            closeable
           />
         </div>
       </AccountContentSection>

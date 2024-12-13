@@ -13,6 +13,8 @@ import { PostCardHeader } from '../common/list/PostCardHeader';
 import { CardCoverList } from '../common/list/CardCover';
 import ActionButtons from '../common/list/ActionButtons';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
+import { ClickbaitShield } from '../common/ClickbaitShield';
+import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
@@ -37,6 +39,7 @@ export const FreeformList = forwardRef(function SharePostCard(
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
   const image = usePostImage(post);
+  const { title } = useSmartTitle(post);
 
   const content = useMemo(
     () =>
@@ -44,7 +47,7 @@ export const FreeformList = forwardRef(function SharePostCard(
     [post.contentHtml],
   );
 
-  const { title } = useTruncatedSummary(post?.title, content);
+  const { title: truncatedTitle } = useTruncatedSummary(title, content);
 
   return (
     <FeedItemContainer
@@ -91,8 +94,10 @@ export const FreeformList = forwardRef(function SharePostCard(
                 'multi-truncate',
               )}
             >
-              {title}
+              {truncatedTitle}
             </CardTitle>
+
+            {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
           </div>
 
           {image && (
