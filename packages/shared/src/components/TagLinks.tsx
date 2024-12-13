@@ -31,7 +31,6 @@ export function TagLink({
         size={ButtonSize.XSmall}
         variant={ButtonVariant.Float}
         className={classNames('relative', className)}
-        {...(isSelected && { color: ButtonColor.Cabbage })}
         {...buttonProps}
       >
         #{tag}
