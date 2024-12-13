@@ -7,9 +7,7 @@ import { Button } from '../../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Modal } from '../../modals/common/Modal';
 import { ModalPropsContext } from '../../modals/common/types';
-import { Typography, TypographyType } from '../../typography/Typography';
-import { HashtagIcon } from '../../icons';
-import { IconSize } from '../../Icon';
+import { FeedSettingsTitle } from './FeedSettingsTitle';
 
 export const FeedSettingsEditHeader = (): ReactElement => {
   const router = useRouter();
@@ -29,23 +27,8 @@ export const FeedSettingsEditHeader = (): ReactElement => {
       className="justify-between !p-4"
       showCloseButton={false}
     >
-      {/* TODO AS-814 - feed icon and check if main feed for "My feed" */}
-      <Typography
-        className="hidden items-center justify-center gap-2 tablet:flex"
-        type={TypographyType.Body}
-        bold
-      >
-        <div>
-          {feed.flags.icon ? (
-            <Typography type={TypographyType.Title2}>
-              {feed.flags.icon}
-            </Typography>
-          ) : (
-            <HashtagIcon size={IconSize.Medium} />
-          )}
-        </div>
-        {feed.flags.name || 'My feed'}
-      </Typography>
+      {/* TODO AS-814 - check if main feed for "My feed" */}
+      <FeedSettingsTitle className="hidden tablet:flex" />
       <div className="flex w-full justify-between gap-2 tablet:w-auto tablet:justify-start">
         <Button
           type="button"

@@ -6,7 +6,7 @@ import { ArrowIcon } from '../icons';
 import { useModalContext } from '../modals/common/types';
 
 interface SidebarListProps {
-  title: string;
+  title: ReactNode;
   isOpen?: boolean;
   className?: string;
   children?: ReactNode;

@@ -15,6 +15,7 @@ import { FeedSettingsEditContext } from './FeedSettingsEditContext';
 import { FeedSettingsEditHeader } from './FeedSettingsEditHeader';
 import { FeedSettingsEditBody } from './FeedSettingsEditBody';
 import { FeedSettingsGeneralSection } from './sections/FeedSettingsGeneralSection';
+import { FeedSettingsTitle } from './FeedSettingsTitle';
 
 export type FeedSettingsEditProps = {
   feedSlugOrId: string;
@@ -70,7 +71,7 @@ export const FeedSettingsEdit = ({
         <Modal.Sidebar>
           <Modal.Sidebar.List
             className="w-74 bg-transparent"
-            title="Feed settings"
+            title={<FeedSettingsTitle />}
             defaultOpen
           />
           <Modal.Sidebar.Inner>
