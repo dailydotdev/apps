@@ -11,7 +11,7 @@ import {
 } from '../../typography/Typography';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { DevPlusIcon, FolderIcon } from '../../icons';
-import { plusUrl } from '../../../lib/constants';
+import { emojiOptions, plusUrl } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { IconSize } from '../../Icon';
@@ -23,21 +23,6 @@ type BookmarkFolderModalProps = Omit<ModalProps, 'children'> & {
   folder?: BookmarkFolder;
   folderCount?: number;
 };
-
-const emojiOptions = [
-  '',
-  '🐹',
-  '🐍',
-  '☕️',
-  '🔥',
-  '📦',
-  '⚙️',
-  '🐙',
-  '🐳',
-  '💡',
-  '📜',
-  '🚀',
-];
 
 const createFirstFolder =
   'You can create your first folder for free! Organize your bookmarks and see how it works. To unlock unlimited folders,';

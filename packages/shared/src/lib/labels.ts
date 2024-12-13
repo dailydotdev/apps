@@ -46,7 +46,7 @@ export const labels = {
       },
       delete: {
         description:
-          'Are you sure you want to delete your custom feed? This action cannot be undone.',
+          'Are you sure you want to delete your feed? This action cannot be undone.',
         okButton: 'Yes, delete feed',
       },
     },

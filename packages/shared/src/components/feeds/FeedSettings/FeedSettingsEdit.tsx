@@ -14,6 +14,7 @@ import { IconSize } from '../../Icon';
 import { FeedSettingsEditContext } from './FeedSettingsEditContext';
 import { FeedSettingsEditHeader } from './FeedSettingsEditHeader';
 import { FeedSettingsEditBody } from './FeedSettingsEditBody';
+import { FeedSettingsGeneralSection } from './sections/FeedSettingsGeneralSection';
 
 export type FeedSettingsEditProps = {
   feedSlugOrId: string;
@@ -74,7 +75,7 @@ export const FeedSettingsEdit = ({
           />
           <Modal.Sidebar.Inner>
             <FeedSettingsEditBody view={FeedSettingsMenu.General}>
-              <div>Feed settings edit</div>
+              <FeedSettingsGeneralSection />
             </FeedSettingsEditBody>
           </Modal.Sidebar.Inner>
         </Modal.Sidebar>

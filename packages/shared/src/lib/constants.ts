@@ -80,3 +80,18 @@ export const squadCategoriesPaths = {
 };
 
 export const AD_PLACEHOLDER_SOURCE_ID = '__dailydotdev_app_ad_placeholder__';
+
+export const emojiOptions = [
+  '',
+  '🐹',
+  '🐍',
+  '☕️',
+  '🔥',
+  '📦',
+  '⚙️',
+  '🐙',
+  '🐳',
+  '💡',
+  '📜',
+  '🚀',
+];
