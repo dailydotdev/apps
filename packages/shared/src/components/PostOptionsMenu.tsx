@@ -371,7 +371,6 @@ export default function PostOptionsMenu({
         icon: <MenuIcon Icon={FolderIcon} />,
         label: 'Move to...',
         action: () => {
-          console.log({ isPlus });
           if (!isPlus) {
             openModal({
               type: LazyModal.BookmarkFolder,
