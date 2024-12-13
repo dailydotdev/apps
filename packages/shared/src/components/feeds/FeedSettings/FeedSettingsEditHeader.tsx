@@ -27,7 +27,6 @@ export const FeedSettingsEditHeader = (): ReactElement => {
       className="justify-between !p-4"
       showCloseButton={false}
     >
-      {/* TODO AS-814 - check if main feed for "My feed" */}
       <FeedSettingsTitle className="hidden tablet:flex" />
       <div className="flex w-full justify-between gap-2 tablet:w-auto tablet:justify-start">
         <Button
