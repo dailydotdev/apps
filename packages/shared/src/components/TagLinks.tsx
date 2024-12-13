@@ -8,6 +8,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from './buttons/Button';
+import { AlertDot, AlertColor } from './AlertDot';
 import { getTagPageLink } from '../lib/links';
 
 interface TagLinkProps {
@@ -28,12 +29,17 @@ export function TagLink({
       <Button
         tag="a"
         size={ButtonSize.XSmall}
-        variant={isSelected ? ButtonVariant.Primary : ButtonVariant.Float}
-        className={className}
+        className={classNames('relative', className)}
         {...(isSelected && { color: ButtonColor.Cabbage })}
         {...buttonProps}
       >
         #{tag}
+        {isSelected && (
+          <AlertDot
+            className="absolute right-1 top-1"
+            color={AlertColor.Cabbage}
+          />
+        )}
       </Button>
     </Link>
   );
