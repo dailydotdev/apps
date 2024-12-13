@@ -128,7 +128,7 @@ const TagsPage = ({
                   <TagLink
                     key={tag.value}
                     tag={tag.value}
-                    className="!line-clamp-2 !h-auto"
+                    className="!line-clamp-2 !h-auto py-1.5"
                     isSelected={selectedTags.includes(tag.value)}
                   />
                 ))}
