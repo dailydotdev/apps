@@ -48,7 +48,11 @@ import {
   gqlClient,
   ResponseError,
 } from '@dailydotdev/shared/src/graphql/common';
-import { UPLOAD_COVER_MUTATION } from '@dailydotdev/shared/src/graphql/users';
+import {
+  clearImage,
+  UPLOAD_COVER_MUTATION,
+  UploadPreset,
+} from '@dailydotdev/shared/src/graphql/users';
 import { useRouter } from 'next/router';
 import { AccountTextField } from '../common';
 import AccountContentSection from '../AccountContentSection';
@@ -124,8 +128,18 @@ const ProfileIndex = ({
     },
   });
 
+  const { mutateAsync: clearImageMutation } = useMutation({
+    mutationFn: clearImage,
+  });
+
   const onImageInputChange = useCallback(
     (file?: File, fileName?: string, isCover = false) => {
+      if (!file) {
+        return clearImageMutation([
+          isCover ? UploadPreset.ProfileCover : UploadPreset.Avatar,
+        ]);
+      }
+
       if (isCover) {
         setCoverImage(fileName);
         uploadCoverImage({
@@ -136,8 +150,10 @@ const ProfileIndex = ({
           image: file,
         });
       }
+
+      return undefined;
     },
-    [updateUserProfile, uploadCoverImage],
+    [updateUserProfile, uploadCoverImage, clearImageMutation],
   );
 
   const CoverHoverIcon = () => (
