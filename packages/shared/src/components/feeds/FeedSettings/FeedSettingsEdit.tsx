@@ -4,8 +4,10 @@ import { useFeedSettingsEdit } from './useFeedSettingsEdit';
 import { Modal } from '../../modals/common/Modal';
 import {
   AddUserIcon,
+  AppIcon,
   BlockIcon,
   EditIcon,
+  FilterIcon,
   HashtagIcon,
   MagicIcon,
 } from '../../icons';
@@ -42,8 +44,16 @@ export const FeedSettingsEdit = ({
       options: { icon: <AddUserIcon size={IconSize.Small} /> },
     },
     {
+      title: FeedSettingsMenu.ContentPreferences,
+      options: { icon: <AppIcon size={IconSize.Small} /> },
+    },
+    {
       title: FeedSettingsMenu.AI,
       options: { icon: <MagicIcon size={IconSize.Small} /> },
+    },
+    {
+      title: FeedSettingsMenu.Filters,
+      options: { icon: <FilterIcon size={IconSize.Small} /> },
     },
     {
       title: FeedSettingsMenu.Blocking,
