@@ -98,6 +98,7 @@ export default function useLogSharedProps(
     visit,
     visitId,
     deviceId,
+    user?.createdAt,
   ]);
 
   return [sharedPropsRef, sharedPropsSet];

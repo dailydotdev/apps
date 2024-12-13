@@ -57,7 +57,7 @@ const ImageComponent = (
   return (
     <img
       {...props}
-      // @ts-expect-error - Not supported by react yet
+      /* @ts-expect-error - Not supported by react yet */ /* eslint-disable react/no-unknown-property */
       fetchpriority={fetchPriority}
       ref={ref}
       alt={alt}

@@ -34,6 +34,10 @@ import { usePrompt } from '../../hooks/usePrompt';
 import { ButtonColor } from '../buttons/Button';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../lib/log';
+import { GooglePlayIcon } from '../icons/Google/Play';
+import { checkIsBrowser, isAndroidApp, UserAgent } from '../../lib/func';
+import { useConditionalFeature } from '../../hooks';
+import { featureOnboardingAndroid } from '../../lib/featureManagement';
 
 const useMenuItems = (): NavItemProps[] => {
   const { logout } = useAuthContext();
@@ -41,6 +45,11 @@ const useMenuItems = (): NavItemProps[] => {
   const { showPrompt } = usePrompt();
   const { showPlusSubscription, isPlus, logSubscriptionEvent } =
     usePlusSubscription();
+  const { value: appExperiment } = useConditionalFeature({
+    feature: featureOnboardingAndroid,
+    shouldEvaluate: checkIsBrowser(UserAgent.Android) && !isAndroidApp(),
+  });
+
   const onLogout = useCallback(async () => {
     const shouldLogout = await showPrompt({
       title: 'Are you sure?',
@@ -69,6 +78,16 @@ const useMenuItems = (): NavItemProps[] => {
               target_id: TargetId.ProfileDropdown,
             });
           },
+        }
+      : undefined;
+
+    const downloadAndroidApp = appExperiment
+      ? {
+          label: 'Download mobile app',
+          icon: <GooglePlayIcon />,
+          href: process.env.NEXT_PUBLIC_ANDROID_APP,
+          target: '_blank',
+          rel: anchorDefaultRel,
         }
       : undefined;
 
@@ -128,6 +147,7 @@ const useMenuItems = (): NavItemProps[] => {
         label: 'Support',
         isHeader: true,
       },
+      downloadAndroidApp,
       {
         label: 'Docs',
         icon: <DocsIcon />,
@@ -162,7 +182,14 @@ const useMenuItems = (): NavItemProps[] => {
         rel: anchorDefaultRel,
       },
     ].filter(Boolean);
-  }, [isPlus, logSubscriptionEvent, onLogout, openModal, showPlusSubscription]);
+  }, [
+    isPlus,
+    logSubscriptionEvent,
+    onLogout,
+    openModal,
+    showPlusSubscription,
+    appExperiment,
+  ]);
 };
 
 interface ProfileSettingsMenuProps {

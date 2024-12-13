@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useMedia } from './useMedia';
+import { useMedia, useMediaClient } from './useMedia';
 import {
   desktop,
   desktopL,
@@ -46,4 +46,17 @@ const useViewSize = (size: ViewSize): boolean => {
     return reversedEvaluatedSizes.includes(size) ? !check : check;
   }, [check, size]);
 };
+
+export const useViewSizeClient = (size: ViewSize): boolean => {
+  const check = useMediaClient(
+    [viewSizeToQuery[size].replace('@media ', '')],
+    [true],
+    false,
+  );
+
+  return useMemo(() => {
+    return reversedEvaluatedSizes.includes(size) ? !check : check;
+  }, [check, size]);
+};
+
 export { useViewSize };

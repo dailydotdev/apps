@@ -7,7 +7,10 @@ import { useSquadPendingPosts } from '../../../hooks/squads/useSquadPendingPosts
 import { SquadModerationItem } from './SquadModerationItem';
 import { SourcePermissions, Squad } from '../../../graphql/sources';
 import InfiniteScrolling from '../../containers/InfiniteScrolling';
-import { verifyPermission } from '../../../graphql/squads';
+import {
+  SourcePostModerationStatus,
+  verifyPermission,
+} from '../../../graphql/squads';
 import { EmptyModerationList } from './SquadModerationEmptyScreen';
 
 interface SquadModerationListProps {
@@ -20,9 +23,17 @@ export function SquadModerationList({
   const moderate = useSourceModerationList({
     squad,
   });
-  const { data, isFetched, fetchNextPage, hasNextPage, isPending } =
-    useSquadPendingPosts(squad?.id);
   const isModerator = verifyPermission(squad, SourcePermissions.ModeratePost);
+  const { data, isFetched, fetchNextPage, hasNextPage, isPending } =
+    useSquadPendingPosts(
+      squad?.id,
+      isModerator
+        ? [SourcePostModerationStatus.Pending]
+        : [
+            SourcePostModerationStatus.Pending,
+            SourcePostModerationStatus.Rejected,
+          ],
+    );
 
   const list = useMemo(
     () =>

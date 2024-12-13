@@ -173,7 +173,9 @@ const PlusCard = ({
       ) : (
         <Button
           className="my-4 block w-full"
-          href={`${plusUrl}?selectedPlan=${plan?.value}`}
+          href={`${plusUrl}?selectedPlan=${
+            hasDiscount ? discountPlan?.value : plan?.value
+          }`}
           onClick={() => {
             logSubscriptionEvent({
               event_name: LogEvent.OnboardingUpgradePlus,

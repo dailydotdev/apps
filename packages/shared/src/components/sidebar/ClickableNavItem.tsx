@@ -30,7 +30,7 @@ export function ClickableNavItem({
         event.preventDefault();
         showLogin();
       } else {
-        item.action?.();
+        item.action?.(event);
       }
     },
     [showLogin, item],
