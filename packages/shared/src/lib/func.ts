@@ -38,6 +38,13 @@ export const postWindowMessage = (
 export const checkIsExtension = (): boolean => !!process.env.TARGET_BROWSER;
 export const isExtension = !!process.env.TARGET_BROWSER;
 
+export const isAndroidApp = (): boolean => globalThis?.isAndroidApp;
+
+export const isPWA = (): boolean =>
+  // @ts-expect-error - Safari only, not web standard.
+  globalThis?.navigator?.standalone ||
+  globalThis?.matchMedia('(display-mode: standalone)')?.matches;
+
 export const defaultSearchDebounceMs = 500;
 
 export const getRandomNumber = (min: number, max: number): number => {
@@ -62,6 +69,19 @@ export const isAppleDevice = (): boolean => {
   }
 
   return appleDeviceMatch.test(window.navigator.platform);
+};
+
+export const isSafariOnIOS = (): boolean => {
+  const { userAgent } = navigator;
+
+  const isIOS = /iPhone|iPad/i.test(userAgent);
+  if (!isIOS) {
+    return false;
+  }
+
+  const isSafari = /Safari/.test(userAgent) && !/Chrome/.test(userAgent);
+
+  return isSafari;
 };
 
 export enum ArrowKeyEnum {
@@ -95,6 +115,7 @@ export const sortAlphabeticallyByProperty =
 export enum UserAgent {
   Chrome = 'Chrome',
   Edge = 'Edg', // intended to be Edg, not Edge
+  Android = 'Android',
 }
 
 export const checkIsBrowser = (agent: UserAgent): boolean =>
@@ -143,4 +164,11 @@ export const initReactModal = ({
   modalObject.defaultStyles = defaultStyles || {};
 
   globalThis.reactModalInit = true;
+};
+
+export const initApp = (): void => {
+  const params = new URLSearchParams(globalThis?.location?.search);
+  if (params.get('android') === 'true') {
+    globalThis.isAndroidApp = true;
+  }
 };

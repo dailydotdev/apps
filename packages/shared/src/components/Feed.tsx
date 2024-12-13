@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
+import { QueryKey } from '@tanstack/react-query';
 import useFeed, { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import { Ad, Post, PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
@@ -35,8 +36,6 @@ import { ActiveFeedContext } from '../contexts';
 import { useBoot, useFeedLayout, useFeedVotePost } from '../hooks';
 import { AllFeedPages, OtherFeedPage, RequestKey } from '../lib/query';
 
-import { useFeature } from './GrowthBookProvider';
-import { feature } from '../lib/featureManagement';
 import { MarketingCtaVariant } from './marketingCta/common';
 import { isNullOrUndefined } from '../lib/func';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
@@ -56,7 +55,7 @@ export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'>,
     Pick<FeedContainerProps, 'shortcuts'> {
   feedName: AllFeedPages;
-  feedQueryKey: unknown[];
+  feedQueryKey: QueryKey;
   query?: string;
   variables?: T;
   className?: string;
@@ -144,7 +143,6 @@ export default function Feed<T>({
     feedName === SharedFeedPage.MyFeed &&
     (routerQuery?.[acquisitionKey] as string)?.toLocaleLowerCase() === 'true' &&
     !user?.acquisitionChannel;
-  const adSpot = useFeature(feature.feedAdSpot);
   const { getMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Card);
   const showMarketingCta = !!marketingCta;
@@ -164,7 +162,12 @@ export default function Feed<T>({
   } = useFeed(
     feedQueryKey,
     pageSize ?? currentSettings.pageSize,
-    isSquadFeed || shouldUseListFeedLayout ? 2 : adSpot,
+    isSquadFeed || shouldUseListFeedLayout
+      ? {
+          ...currentSettings.adTemplate,
+          adStart: 2, // always make adStart 2 for squads due to welcome and pinned posts
+        }
+      : currentSettings.adTemplate,
     numCards,
     {
       onEmptyFeed,
@@ -176,6 +179,7 @@ export default function Feed<T>({
         adPostLength: isSquadFeed ? 2 : undefined,
         showAcquisitionForm,
         ...(showMarketingCta && { marketingCta }),
+        feedName,
       },
     },
   );

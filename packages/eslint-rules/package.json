@@ -12,7 +12,7 @@
   },
   "prettier": "@dailydotdev/prettier-config",
   "devDependencies": {
-    "@dailydotdev/prettier-config": "*"
+    "@dailydotdev/prettier-config": "workspace:*"
   },
   "files": [
     "lib"

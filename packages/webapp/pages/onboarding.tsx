@@ -22,7 +22,7 @@ import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import {
   OnboardingStep,
   wrapperMaxWidth,
@@ -32,7 +32,6 @@ import { NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import {
   useFeature,
-  useFeaturesReadyContext,
   useGrowthBookContext,
 } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisclaimer';
@@ -42,12 +41,13 @@ import {
 } from '@dailydotdev/shared/src/components';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
-  EXPERIENCE_TO_SENIORITY,
   logPixelSignUp,
   Pixels,
 } from '@dailydotdev/shared/src/components/Pixels';
 import {
   feature,
+  featureOnboardingAndroid,
+  featureOnboardingPWA,
   featureOnboardingSources,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
@@ -62,9 +62,15 @@ import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsCon
 import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import useMutateFilters from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import dynamic from 'next/dynamic';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
+import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/PaymentContext';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
+import {
+  checkIsBrowser,
+  isSafariOnIOS,
+  UserAgent,
+} from '@dailydotdev/shared/src/lib/func';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -93,6 +99,23 @@ const Sources = dynamic(() =>
     (mod) => mod.Sources,
   ),
 );
+const OnboardingPlusStep = dynamic(() =>
+  import(
+    /* webpackChunkName: "onboardingPlusStep" */ '@dailydotdev/shared/src/components/onboarding/OnboardingPlusStep'
+  ).then((mod) => mod.OnboardingPlusStep),
+);
+
+const OnboardingAndroidApp = dynamic(() =>
+  import(
+    /* webpackChunkName: "onboardingAndroidApp" */ '@dailydotdev/shared/src/components/onboarding/OnboardingAndroidApp'
+  ).then((mod) => mod.OnboardingAndroidApp),
+);
+
+const OnboardingPWA = dynamic(() =>
+  import(
+    /* webpackChunkName: "onboardingPWA" */ '@dailydotdev/shared/src/components/onboarding/OnboardingPWA'
+  ).then((mod) => mod.OnboardingPWA),
+);
 
 type OnboardingVisual = {
   fullBackground?: {
@@ -109,10 +132,11 @@ const seo: NextSeoProps = {
 
 export function OnboardPage(): ReactElement {
   const router = useRouter();
-  const { getFeatureValue } = useFeaturesReadyContext();
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
   const { user, isAuthReady, anonymous } = useAuthContext();
+  const { logSubscriptionEvent, showPlusSubscription: isOnboardingPlusActive } =
+    usePlusSubscription();
   const shouldVerify = anonymous?.shouldVerify;
   const { growthbook } = useGrowthBookContext();
   const { logEvent } = useLogContext();
@@ -141,33 +165,27 @@ export function OnboardPage(): ReactElement {
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
-  const { updateAdvancedSettings } = useMutateFilters(user);
-  const [shouldEnrollSourceSelection, setShouldEnrollSourceSelection] =
+  const [shouldEnrollOnboardingStep, setShouldEnrollOnboardingStep] =
     useState(false);
   const { value: showOnboardingSources } = useConditionalFeature({
     feature: featureOnboardingSources,
-    shouldEvaluate: shouldEnrollSourceSelection,
+    shouldEvaluate: shouldEnrollOnboardingStep,
   });
-  const isSeniorUser =
-    EXPERIENCE_TO_SENIORITY[user?.experienceLevel] === 'senior' ||
-    user?.experienceLevel === 'MORE_THAN_4_YEARS';
+  const { value: appExperiment } = useConditionalFeature({
+    feature: featureOnboardingAndroid,
+    shouldEvaluate:
+      shouldEnrollOnboardingStep && checkIsBrowser(UserAgent.Android),
+  });
 
-  const isFeedSettingsDefined = useMemo(() => !!feedSettings, [feedSettings]);
+  const { value: PWAExperiment } = useConditionalFeature({
+    feature: featureOnboardingPWA,
+    shouldEvaluate: shouldEnrollOnboardingStep && isSafariOnIOS(),
+  });
+
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
-
-  const updateSettingsBasedOnExperience = useCallback(() => {
-    const LISTICLE_ADVANCED_SETTINGS_ID = 10;
-    const MEMES_ADVANCED_SETTINGS_ID = 5;
-
-    if (isSeniorUser && isFeedSettingsDefined) {
-      updateAdvancedSettings({
-        advancedSettings: [
-          { id: MEMES_ADVANCED_SETTINGS_ID, enabled: false },
-          { id: LISTICLE_ADVANCED_SETTINGS_ID, enabled: false },
-        ],
-      });
-    }
-  }, [isSeniorUser, isFeedSettingsDefined, updateAdvancedSettings]);
+  const isCTA =
+    activeScreen === OnboardingStep.AndroidApp ||
+    activeScreen === OnboardingStep.PWA;
 
   useEffect(() => {
     if (!isPageReady || isLogged.current) {
@@ -195,16 +213,7 @@ export function OnboardPage(): ReactElement {
     }
 
     if (activeScreen === OnboardingStep.EditTag) {
-      if (isSeniorUser) {
-        const seniorContentOnboarding = getFeatureValue(
-          feature.seniorContentOnboarding,
-        );
-        if (seniorContentOnboarding) {
-          updateSettingsBasedOnExperience();
-        }
-      }
-
-      setShouldEnrollSourceSelection(true);
+      setShouldEnrollOnboardingStep(true);
       return setActiveScreen(OnboardingStep.ContentTypes);
     }
 
@@ -224,15 +233,28 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.Sources);
     }
 
-    if (!hasSelectTopics) {
-      logEvent({
-        event_name: LogEvent.OnboardingSkip,
-      });
-    } else {
-      logEvent({
-        event_name: LogEvent.CreateFeed,
-      });
+    const isLastStepBeforePlus = [
+      OnboardingStep.ContentTypes,
+      OnboardingStep.ReadingReminder,
+      OnboardingStep.Sources,
+    ].includes(activeScreen);
+    if (isOnboardingPlusActive && isLastStepBeforePlus) {
+      return setActiveScreen(OnboardingStep.Plus);
     }
+
+    if (appExperiment && activeScreen !== OnboardingStep.AndroidApp) {
+      return setActiveScreen(OnboardingStep.AndroidApp);
+    }
+
+    if (PWAExperiment && activeScreen !== OnboardingStep.PWA) {
+      return setActiveScreen(OnboardingStep.PWA);
+    }
+
+    logEvent({
+      event_name: hasSelectTopics
+        ? LogEvent.CreateFeed
+        : LogEvent.OnboardingSkip,
+    });
 
     return router.replace({
       pathname: '/',
@@ -243,6 +265,13 @@ export function OnboardPage(): ReactElement {
   };
 
   const onClickCreateFeed = () => {
+    if (isOnboardingPlusActive) {
+      logSubscriptionEvent({
+        event_name: LogEvent.OnboardingSkipPlus,
+        target_id: TargetId.Onboarding,
+      });
+    }
+
     setSettings({
       sidebarExpanded: true,
       onboardingChecklistView: ChecklistViewState.Open,
@@ -308,8 +337,15 @@ export function OnboardPage(): ReactElement {
       return 'Continue';
     }
 
+    if (activeScreen === OnboardingStep.Plus) {
+      return 'Skip for now ➞';
+    }
+    if (isCTA) {
+      return 'Not now →';
+    }
+
     return undefined;
-  }, [activeScreen, showOnboardingSources]);
+  }, [activeScreen, showOnboardingSources, isCTA]);
 
   const showOnboardingPage =
     !isAuthenticating && activeScreen === OnboardingStep.Intro && !shouldVerify;
@@ -327,8 +363,7 @@ export function OnboardPage(): ReactElement {
         <img
           alt="Onboarding background"
           className="pointer-events-none absolute inset-0 -z-1 h-full w-full object-cover tablet:object-center"
-          // @ts-expect-error - Not supported by react yet
-          fetchpriority="high"
+          fetchPriority="high"
           loading="eager"
           role="presentation"
           src={onboardingVisual.fullBackground.mobile}
@@ -342,7 +377,7 @@ export function OnboardPage(): ReactElement {
         showOnboardingPage={showOnboardingPage}
         setAuth={setAuth}
         customActionName={customActionName}
-        onClickCreateFeed={onClickCreateFeed}
+        onClick={onClickCreateFeed}
         activeScreen={activeScreen}
       />
       <div
@@ -375,6 +410,7 @@ export function OnboardPage(): ReactElement {
               activeScreen === OnboardingStep.Intro
                 ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
                 : 'mb-10 ml-0 w-full flex-col items-center justify-start',
+              isCTA && 'relative mb-auto flex-1 overflow-hidden',
             )}
           >
             {activeScreen === OnboardingStep.ReadingReminder && (
@@ -391,11 +427,20 @@ export function OnboardPage(): ReactElement {
             )}
             {activeScreen === OnboardingStep.ContentTypes && <ContentTypes />}
             {activeScreen === OnboardingStep.Sources && <Sources />}
+            {activeScreen === OnboardingStep.Plus && (
+              <PaymentContextProvider>
+                <OnboardingPlusStep onClickNext={onClickNext} />
+              </PaymentContextProvider>
+            )}
+            {activeScreen === OnboardingStep.AndroidApp && (
+              <OnboardingAndroidApp />
+            )}
+            {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
           </div>
         )}
       </div>
       {showOnboardingPage && <OnboardingFooter />}
-      <FooterLinks className="mx-auto pb-6" />
+      {!isCTA && <FooterLinks className="mx-auto pb-6" />}
     </div>
   );
 }

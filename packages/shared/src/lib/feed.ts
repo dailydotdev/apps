@@ -210,3 +210,8 @@ export const getFeedName = (
 
   return page.replace(/^\/+/, '') as SharedFeedPage;
 };
+
+export type FeedAdTemplate = {
+  adStart: number;
+  adRepeat?: number;
+};

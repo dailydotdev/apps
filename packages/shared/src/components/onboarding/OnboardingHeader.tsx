@@ -2,12 +2,12 @@ import classNames from 'classnames';
 import React, { Dispatch, ReactElement, SetStateAction, useId } from 'react';
 import { useViewSize, ViewSize } from '../../hooks';
 import {
-  cloudinaryFeedBgMobile,
   cloudinaryFeedBgLaptop,
+  cloudinaryFeedBgMobile,
   cloudinaryFeedBgTablet,
 } from '../../lib/image';
 import Logo, { LogoPosition } from '../Logo';
-import { AuthProps, AuthDisplay } from '../auth/AuthOptions';
+import { AuthDisplay, AuthProps } from '../auth/AuthOptions';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { CreateFeedButton } from './CreateFeedButton';
 import { OnboardingStep, wrapperMaxWidth } from './common';
@@ -15,7 +15,7 @@ import { OnboardingStep, wrapperMaxWidth } from './common';
 type OnboardingHeaderProps = {
   showOnboardingPage: boolean;
   setAuth: Dispatch<SetStateAction<AuthProps>>;
-  onClickCreateFeed: () => void;
+  onClick: () => void;
   activeScreen: OnboardingStep;
   customActionName?: string;
 };
@@ -24,7 +24,7 @@ export const OnboardingHeader = ({
   showOnboardingPage,
   activeScreen,
   setAuth,
-  onClickCreateFeed,
+  onClick,
   customActionName,
 }: OnboardingHeaderProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -39,10 +39,13 @@ export const OnboardingHeader = ({
     return isLaptop ? cloudinaryFeedBgLaptop : cloudinaryFeedBgTablet;
   };
 
-  const showButtonOnScreens: Partial<OnboardingStep[]> = [
+  const showCreateFeedButton: Partial<OnboardingStep[]> = [
     OnboardingStep.EditTag,
     OnboardingStep.ContentTypes,
     OnboardingStep.Sources,
+    OnboardingStep.AndroidApp,
+    OnboardingStep.PWA,
+    OnboardingStep.Plus,
   ];
 
   if (activeScreen !== OnboardingStep.Intro) {
@@ -59,9 +62,9 @@ export const OnboardingHeader = ({
             position={LogoPosition.Relative}
             linkDisabled
           />
-          {showButtonOnScreens.includes(activeScreen) && (
+          {showCreateFeedButton.includes(activeScreen) && (
             <CreateFeedButton
-              onClick={onClickCreateFeed}
+              onClick={onClick}
               customActionName={customActionName}
               activeScreen={activeScreen}
             />

@@ -102,6 +102,7 @@ const nextConfig: NextConfig = {
       env: {
         CURRENT_VERSION: version,
       },
+      assetPrefix: process.env.NEXT_PUBLIC_CDN_ASSET_PREFIX,
       rewrites: async () => {
         const rewrites: Rewrite[] = [
           {
@@ -122,6 +123,16 @@ const nextConfig: NextConfig = {
             source: '/search',
             destination: '/search/posts',
           },
+          {
+            source: '/posts/:id',
+            destination: '/posts/:id/share',
+            has: [
+              {
+                type: 'query',
+                key: 'userid',
+              },
+            ],
+          },
         ];
 
         // to support GitPod environment and avoid CORS issues, we need to proxy the API requests
@@ -135,7 +146,21 @@ const nextConfig: NextConfig = {
         return rewrites;
       },
       redirects: async () => {
+        const oldPublicAssets = [
+          'dailydev.svg',
+          'google.svg',
+          'maskable_icon.png',
+          'mstile-150x150.png',
+        ];
+
         return [
+          ...oldPublicAssets.map((asset) => ({
+            source: `/${asset}`,
+            destination: `${
+              process.env.NEXT_PUBLIC_CDN_ASSET_PREFIX || ''
+            }/assets/${asset}`,
+            permanent: true,
+          })),
           {
             source: '/posts/finder',
             destination: '/search?provider=posts',
@@ -144,6 +169,12 @@ const nextConfig: NextConfig = {
           {
             source: '/signup',
             destination: '/onboarding',
+            permanent: false,
+          },
+          // so we can't access /share route directly
+          {
+            source: '/posts/:id/share',
+            destination: '/posts/:id',
             permanent: false,
           },
         ];

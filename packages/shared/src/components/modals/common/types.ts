@@ -53,7 +53,6 @@ export enum LazyModal {
   UserSettings = 'userSettings',
   Share = 'share',
   PrivilegedMembers = 'privilegedMembers',
-  FirefoxPrivacy = 'firefoxPrivacy',
   BookmarkReminder = 'bookmarkReminder',
   SlackIntegration = 'slackIntegration',
   ReportSource = 'reportSource',
@@ -62,6 +61,12 @@ export enum LazyModal {
   PostModeration = 'postModeration',
   NewSquad = 'newSquad',
   TopReaderBadge = 'topReaderBadge',
+  AdvancedCustomFeedSoon = 'advancedCustomFeedSoon',
+  BookmarkFolderSoon = 'bookmarkFolderSoon',
+  BookmarksFolderEntry = 'bookmarkFolderEntry',
+  BookmarkFolder = 'bookmarkFolder',
+  ClickbaitShield = 'clickbaitShield',
+  MoveBookmark = 'moveBookmark',
 }
 
 export type ModalTabItem = {

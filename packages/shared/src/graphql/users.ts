@@ -6,11 +6,23 @@ import {
   USER_SHORT_INFO_FRAGMENT,
   USER_STREAK_FRAGMENT,
 } from './fragments';
-import type { PublicProfile } from '../lib/user';
+import type { PublicProfile, UserShortProfile } from '../lib/user';
 import { Connection, gqlClient } from './common';
 import { SourceMember } from './sources';
 import type { SendType } from '../hooks';
 import { DayOfWeek } from '../lib/date';
+
+export const USER_SHORT_BY_ID = `
+  query UserShortById($id: ID!) {
+    user(id: $id) {
+      id
+      name
+      image
+      username
+      permalink
+    }
+  }
+`;
 
 export const USER_BY_ID_STATIC_FIELDS_QUERY = `
   query User($id: ID!) {
@@ -660,3 +672,13 @@ export const TOP_READER_BADGE_BY_ID = gql`
 
   ${TOP_READER_BADGE_FRAGMENT}
 `;
+
+export const getBasicUserInfo = async (
+  userId: string,
+): Promise<UserShortProfile> => {
+  const res = await gqlClient.request(GET_REFERRING_USER_QUERY, {
+    id: userId,
+  });
+
+  return res.user || null;
+};
