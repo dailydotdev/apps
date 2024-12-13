@@ -218,13 +218,6 @@ const MoveBookmarkModal = dynamic(
     ),
 );
 
-const BookmarksFolderEntryModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "bookmarksFolderEntryModal" */ './bookmark/BookmarksFolderEntryModal'
-    ),
-);
-
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -260,7 +253,6 @@ export const modals = {
   [LazyModal.AdvancedCustomFeedSoon]: AdvancedCustomFeedSoonModal,
   [LazyModal.BookmarkFolderSoon]: BookmarkFolderSoonModal,
   [LazyModal.BookmarkFolder]: BookmarkFolderModal,
-  [LazyModal.BookmarksFolderEntry]: BookmarksFolderEntryModal,
   [LazyModal.ClickbaitShield]: ClickbaitShieldModal,
   [LazyModal.MoveBookmark]: MoveBookmarkModal,
 };
