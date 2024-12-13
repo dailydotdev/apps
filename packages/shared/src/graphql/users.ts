@@ -682,3 +682,20 @@ export const getBasicUserInfo = async (
 
   return res.user || null;
 };
+
+export enum UploadPreset {
+  Avatar = 'avatar',
+  ProfileCover = 'cover',
+}
+
+export const CLEAR_IMAGE_MUTATION = gql`
+  mutation ClearImage($presets: [UploadPreset]!) {
+    clearImage(presets: $presets) {
+      _
+    }
+  }
+`;
+
+export const clearImage = async (presets: string[]): Promise<void> => {
+  await gqlClient.request(CLEAR_IMAGE_MUTATION, { presets });
+};
