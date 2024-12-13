@@ -9,7 +9,7 @@ export type FeedSettingsFormData = {
 export type FeedSettingsEditContextValue = {
   feed?: Feed;
   data: FeedSettingsFormData;
-  setData: (data: FeedSettingsFormData) => void;
+  setData: (data: Partial<FeedSettingsFormData>) => void;
   onSubmit: () => Promise<Feed>;
   isSubmitPending: boolean;
   onDelete: () => Promise<Pick<Feed, 'id'>>;

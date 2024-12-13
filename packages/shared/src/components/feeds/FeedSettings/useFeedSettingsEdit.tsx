@@ -76,7 +76,8 @@ export const useFeedSettingsEdit = ({
 
   const feedData = useMemo<FeedSettingsFormData>(() => {
     return {
-      name: feed.flags.name,
+      name: feed?.flags.name,
+      icon: feed?.flags.icon || '',
       ...formState,
     };
   }, [feed, formState]);
@@ -210,8 +211,10 @@ export const useFeedSettingsEdit = ({
   return {
     feed,
     data: feedData,
-    setData: useCallback((data: FeedSettingsFormData) => {
-      setFormState(data);
+    setData: useCallback((data) => {
+      setFormState((current) => {
+        return { ...current, ...data };
+      });
       setDirty(true);
     }, []),
     isSubmitPending,
