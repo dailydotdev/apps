@@ -37,11 +37,11 @@ import { postLogEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
 import {
   ToastSubject,
+  useAdvancedSettings,
   useFeedLayout,
   usePlusSubscription,
   useSourceActionsNotify,
   useToastNotification,
-  useAdvancedSettings,
 } from '../hooks';
 import { AllFeedPages, generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
@@ -115,7 +115,7 @@ export default function PostOptionsMenu({
     id: initialPost?.id,
   });
   const post = loadedPost ?? initialPost;
-  const { showPlusSubscription } = usePlusSubscription();
+  const { showPlusSubscription, isPlus } = usePlusSubscription();
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({ enabled: isPostOptionsOpen });
   const { onUpdateSettings } = useAdvancedSettings({ enabled: false });
@@ -370,7 +370,19 @@ export default function PostOptionsMenu({
       postOptions.push({
         icon: <MenuIcon Icon={FolderIcon} />,
         label: 'Move to...',
-        action: () =>
+        action: () => {
+          console.log({ isPlus });
+          if (!isPlus) {
+            openModal({
+              type: LazyModal.BookmarkFolder,
+              props: {
+                // this modal will never submit because the user is not plus
+                onSubmit: () => null,
+              },
+            });
+            return;
+          }
+
           openModal({
             type: LazyModal.MoveBookmark,
             props: {
@@ -383,7 +395,8 @@ export default function PostOptionsMenu({
                 client.invalidateQueries({ queryKey: feedQueryKey });
               },
             },
-          }),
+          });
+        },
       });
     }
   }
