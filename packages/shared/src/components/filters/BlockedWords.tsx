@@ -74,6 +74,7 @@ export const BlockedWords = (): ReactElement => {
   return (
     <div className="flex flex-col gap-2">
       <Typography
+        type={TypographyType.Body}
         tag={TypographyTag.H3}
         bold
         className="flex items-center gap-2"
@@ -88,7 +89,10 @@ export const BlockedWords = (): ReactElement => {
           <DevPlusIcon size={IconSize.Size16} /> Plus
         </Typography>
       </Typography>
-      <Typography color={TypographyColor.Tertiary}>
+      <Typography
+        color={TypographyColor.Tertiary}
+        type={TypographyType.Callout}
+      >
         Automatically filter out posts containing words you never want to see
         again. Life’s too short for unnecessary noise.
         {!isPlus ? (

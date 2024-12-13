@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
+import { QueryKey } from '@tanstack/react-query';
 import useFeed, { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import { Ad, Post, PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
@@ -54,7 +55,7 @@ export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'>,
     Pick<FeedContainerProps, 'shortcuts'> {
   feedName: AllFeedPages;
-  feedQueryKey: unknown[];
+  feedQueryKey: QueryKey;
   query?: string;
   variables?: T;
   className?: string;

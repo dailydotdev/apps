@@ -33,6 +33,8 @@ export enum OtherFeedPage {
   Sources = 'sources',
   Leaderboard = 'users',
   Bookmarks = 'bookmarks',
+  BookmarkLater = 'bookmarkslater',
+  BookmarkFolder = 'bookmarks[folderId]',
   SearchBookmarks = 'search-bookmarks',
   Preview = 'preview',
   Author = 'author',
@@ -182,6 +184,8 @@ export enum RequestKey {
   ReferringUser = 'referring_user',
   SearchSources = 'search_sources',
   OnboardingSources = 'onboarding_sources',
+  UserShortById = 'user_short_by_id',
+  BookmarkFolders = 'bookmark_folders',
   FetchedOriginalTitle = 'fetched_original_title',
 }
 
@@ -267,7 +271,7 @@ export const defaultQueryClientConfig: QueryClientConfig = {
 };
 
 export const updateCachedPage = (
-  feedQueryKey: unknown[],
+  feedQueryKey: QueryKey,
   queryClient: QueryClient,
   pageIndex: number,
   manipulate: (page: Connection<Post>) => Connection<Post>,
@@ -289,7 +293,7 @@ export const updateCachedPage = (
 };
 
 export const updateCachedPagePost =
-  (feedQueryKey: unknown[], queryClient: QueryClient) =>
+  (feedQueryKey: QueryKey, queryClient: QueryClient) =>
   (pageIndex: number, index: number, post: Post): void => {
     updateCachedPage(feedQueryKey, queryClient, pageIndex, (page) => {
       // eslint-disable-next-line no-param-reassign
@@ -299,7 +303,7 @@ export const updateCachedPagePost =
   };
 
 export const removeCachedPagePost =
-  (feedQueryKey: unknown[], queryClient: QueryClient) =>
+  (feedQueryKey: QueryKey, queryClient: QueryClient) =>
   (pageIndex: number, index: number): void => {
     updateCachedPage(feedQueryKey, queryClient, pageIndex, (page) => {
       // eslint-disable-next-line no-param-reassign
@@ -315,7 +319,7 @@ export const updateReadingHistoryListPost = ({
   manipulate,
   queryClient,
 }: {
-  queryKey: unknown[];
+  queryKey: QueryKey;
   pageIndex: number;
   index: number;
   manipulate: (post: ReadHistoryPost) => ReadHistoryPost;
