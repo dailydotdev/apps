@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import Link from './utilities/Link';
 import {
   Button,
-  ButtonColor,
   ButtonProps,
   ButtonSize,
   ButtonVariant,
