@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { usePlusSubscription } from '../../../../hooks';
+import { usePlusSubscription, useToastNotification } from '../../../../hooks';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { useSettingsContext } from '../../../../contexts/SettingsContext';
@@ -23,10 +23,12 @@ import {
 } from '../../../typography/Typography';
 import { Divider } from '../../../utilities';
 import { Switch } from '../../../fields/Switch';
+import { labels } from '../../../../lib';
 
 export const FeedSettingsAISection = (): ReactElement => {
   const { isPlus, showPlusSubscription, logSubscriptionEvent } =
     usePlusSubscription();
+  const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
   const { isLoading } = useFeedSettings();
   const { user } = useAuthContext();
@@ -91,6 +93,10 @@ export const FeedSettingsAISection = (): ReactElement => {
                     newState,
                   );
 
+                  displayToast(
+                    labels.feed.settings.globalPreferenceNotice.clickbaitShield,
+                  );
+
                   logEvent({
                     event_name: LogEvent.ToggleClickbaitShield,
                     target_id: newState ? TargetId.On : TargetId.Off,
@@ -148,7 +154,13 @@ export const FeedSettingsAISection = (): ReactElement => {
           className={{ container: 'w-full max-w-60' }}
           name="language"
           defaultValue={user.language}
-          onChange={(value) => onLanguageChange(value)}
+          onChange={(value) => {
+            onLanguageChange(value);
+
+            displayToast(
+              labels.feed.settings.globalPreferenceNotice.contentLanguage,
+            );
+          }}
           icon={null}
         />
       </section>
