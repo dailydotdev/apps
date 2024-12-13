@@ -43,7 +43,7 @@ function SidebarList({
   return (
     <div
       className={classNames(
-        'flex flex-col transition-transform ease-in-out tablet:translate-x-[unset] tablet:items-center tablet:px-6 tablet:pt-6',
+        'flex flex-col p-2 transition-transform ease-in-out tablet:translate-x-[unset] tablet:items-center',
         'absolute h-fit max-h-[100vh] w-full bg-inherit tablet:relative tablet:w-fit',
         isOpen ? 'translate-x-0' : ' -translate-x-full',
         className,

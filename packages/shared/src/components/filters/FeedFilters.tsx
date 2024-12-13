@@ -35,6 +35,7 @@ const unBlockPromptOptions: PromptOptions = {
   },
 };
 
+// TODO-AS-814 remove and replace instances with FeedSettingsEdit
 export default function FeedFilters(props: FeedFiltersProps): ReactElement {
   const { showPrompt } = usePrompt();
   const unBlockPrompt = async ({ action, source, tag }: UnblockItem) => {
