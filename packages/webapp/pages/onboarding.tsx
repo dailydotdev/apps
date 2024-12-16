@@ -360,8 +360,8 @@ export function OnboardPage(): ReactElement {
   return (
     <div
       className={classNames(
-        'z-3 flex h-full max-h-screen min-h-screen w-full flex-1 flex-col items-center overflow-x-hidden',
-        isCTA && 'fixed !max-h-dvh !min-h-dvh',
+        'z-3 flex h-full max-h-dvh !min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
+        isCTA && 'fixed',
       )}
     >
       {showOnboardingPage && (
