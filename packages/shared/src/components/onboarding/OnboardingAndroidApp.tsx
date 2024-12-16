@@ -17,7 +17,7 @@ export const OnboardingAndroidApp = (): ReactElement => {
         target="_blank"
         href={process.env.NEXT_PUBLIC_ANDROID_APP}
         icon={<GooglePlayIcon />}
-        className="z-1 mb-8 h-fit max-w-fit px-6 py-3"
+        className="z-1 mb-20 h-fit max-w-fit px-6 py-3"
         variant={ButtonVariant.Primary}
       >
         Download from Google Play
