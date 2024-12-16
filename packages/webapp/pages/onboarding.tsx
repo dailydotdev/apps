@@ -361,7 +361,7 @@ export function OnboardPage(): ReactElement {
     <div
       className={classNames(
         'z-3 flex h-full max-h-screen min-h-screen w-full flex-1 flex-col items-center overflow-x-hidden',
-        isCTA && 'fixed !h-dvh',
+        isCTA && 'fixed',
       )}
     >
       {showOnboardingPage && (
@@ -416,7 +416,7 @@ export function OnboardPage(): ReactElement {
                 ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
                 : 'mb-10 ml-0 w-full flex-col items-center justify-start',
               isCTA &&
-                'relative mb-auto flex-1 !justify-between overflow-hidden',
+                'relative mb-auto !h-dvh flex-1 !justify-between overflow-hidden',
             )}
           >
             {activeScreen === OnboardingStep.ReadingReminder && (
