@@ -361,7 +361,7 @@ export function OnboardPage(): ReactElement {
     <div
       className={classNames(
         'z-3 flex h-full max-h-screen min-h-screen w-full flex-1 flex-col items-center overflow-x-hidden',
-        isCTA && 'fixed',
+        isCTA && 'fixed !h-dvh',
       )}
     >
       {showOnboardingPage && (
