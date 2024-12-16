@@ -51,7 +51,8 @@ export const ManageSquadPageMain = classed('div', 'flex flex-1 flex-col');
 
 export const moderationRequired = (squad: Squad): boolean =>
   squad?.moderationRequired &&
-  !verifyPermission(squad, SourcePermissions.ModeratePost);
+  !verifyPermission(squad, SourcePermissions.ModeratePost) &&
+  squad?.currentMember?.role === 'member';
 
 export const createModerationPromptProps: PromptOptions = {
   title: 'Your post has been submitted for review',
