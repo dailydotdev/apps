@@ -59,6 +59,12 @@ export const labels = {
         api: 'Feed name should not contain special characters',
       },
     },
+    settings: {
+      globalPreferenceNotice: {
+        clickbaitShield: 'Clickbait shield has been applied for all feeds',
+        contentLanguage: 'New language preferences set for all feeds',
+      },
+    },
   },
   integrations: {
     prompt: {
