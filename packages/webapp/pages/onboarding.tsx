@@ -335,7 +335,12 @@ export function OnboardPage(): ReactElement {
   }
 
   return (
-    <div className="z-3 flex h-full max-h-screen min-h-screen w-full flex-1 flex-col items-center overflow-x-hidden">
+    <div
+      className={classNames(
+        'z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
+        isCTA && 'fixed',
+      )}
+    >
       {showOnboardingPage && (
         <img
           alt="Onboarding background"
@@ -387,7 +392,8 @@ export function OnboardPage(): ReactElement {
               activeScreen === OnboardingStep.Intro
                 ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
                 : 'mb-10 ml-0 w-full flex-col items-center justify-start',
-              isCTA && 'relative mb-auto flex-1 overflow-hidden',
+              isCTA &&
+                'relative mb-auto flex-1 !justify-between overflow-hidden',
             )}
           >
             {activeScreen === OnboardingStep.ReadingReminder && (
