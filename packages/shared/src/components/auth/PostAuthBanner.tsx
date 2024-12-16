@@ -41,7 +41,7 @@ export const PostAuthBanner = (): ReactElement => {
   if (showExtensionCTA) {
     return <AuthExtensionBanner />;
   }
-  const userId = searchParams.get('userid');
+  const userId = searchParams?.get('userid');
 
   if (userId) {
     return <UserPersonalizedBanner userId={userId} />;
