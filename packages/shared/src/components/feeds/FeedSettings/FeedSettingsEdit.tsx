@@ -18,6 +18,7 @@ import { FeedSettingsEditHeader } from './FeedSettingsEditHeader';
 import { FeedSettingsEditBody } from './FeedSettingsEditBody';
 import { FeedSettingsGeneralSection } from './sections/FeedSettingsGeneralSection';
 import { FeedSettingsTitle } from './FeedSettingsTitle';
+import { FeedSettingsContentPreferencesSection } from './sections/FeedSettingsContentPreferencesSection';
 import { FeedSettingsAISection } from './sections/FeedSettingsAISection';
 
 export type FeedSettingsEditProps = {
@@ -88,6 +89,9 @@ export const FeedSettingsEdit = ({
           <Modal.Sidebar.Inner>
             <FeedSettingsEditBody view={FeedSettingsMenu.General}>
               <FeedSettingsGeneralSection />
+            </FeedSettingsEditBody>
+            <FeedSettingsEditBody view={FeedSettingsMenu.ContentPreferences}>
+              <FeedSettingsContentPreferencesSection />
             </FeedSettingsEditBody>
             <FeedSettingsEditBody view={FeedSettingsMenu.AI}>
               <FeedSettingsAISection />
