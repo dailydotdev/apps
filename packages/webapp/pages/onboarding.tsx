@@ -360,7 +360,7 @@ export function OnboardPage(): ReactElement {
   return (
     <div
       className={classNames(
-        'z-3 flex h-full max-h-dvh !min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
+        'z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
         isCTA && 'fixed',
       )}
     >
