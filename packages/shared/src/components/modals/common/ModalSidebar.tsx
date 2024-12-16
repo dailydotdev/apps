@@ -11,7 +11,7 @@ export type ModalSidebarProps = {
 
 export type ModalSidebarListProps = {
   className?: string;
-  title: string;
+  title: ReactNode;
   defaultOpen?: boolean;
 };
 

@@ -243,6 +243,8 @@ export const useFeedSettingsEdit = ({
 
       if (shouldDiscard) {
         onAskConfirmation(false);
+
+        setDirty(false);
       }
 
       return shouldDiscard;

@@ -458,8 +458,8 @@ export const CUSTOM_FEED_QUERY = gql`
 `;
 
 export const CREATE_FEED_MUTATION = `
-  mutation CreateFeed($name: String!) {
-    createFeed(name: $name) {
+  mutation CreateFeed($name: String!, $icon: String) {
+    createFeed(name: $name, icon: $icon) {
       ...CustomFeed
     }
   }
@@ -467,8 +467,8 @@ export const CREATE_FEED_MUTATION = `
 `;
 
 export const UPDATE_FEED_MUTATION = `
-  mutation UpdateFeed($feedId: ID!, $name: String!) {
-    updateFeed(feedId: $feedId, name: $name) {
+  mutation UpdateFeed($feedId: ID!, $name: String!, $icon: String) {
+    updateFeed(feedId: $feedId, name: $name, icon: $icon) {
       ...CustomFeed
     }
   }

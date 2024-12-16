@@ -91,6 +91,7 @@ export interface UserProfile {
   language?: ContentLanguage;
   followingEmail?: boolean;
   followNotifications?: boolean;
+  defaultFeedId?: string;
 }
 
 export interface UserShortProfile
@@ -132,6 +133,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   isPlus?: boolean;
   companies?: Company[];
   contentPreference?: ContentPreference;
+  defaultFeedId?: string;
 }
 
 interface BaseError {

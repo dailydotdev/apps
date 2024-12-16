@@ -312,6 +312,7 @@ export const CUSTOM_FEED_FRAGMENT = gql`
     userId
     flags {
       name
+      icon
     }
     slug
     createdAt

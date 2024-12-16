@@ -4,8 +4,10 @@ import { useFeedSettingsEdit } from './useFeedSettingsEdit';
 import { Modal } from '../../modals/common/Modal';
 import {
   AddUserIcon,
+  AppIcon,
   BlockIcon,
   EditIcon,
+  FilterIcon,
   HashtagIcon,
   MagicIcon,
 } from '../../icons';
@@ -14,6 +16,10 @@ import { IconSize } from '../../Icon';
 import { FeedSettingsEditContext } from './FeedSettingsEditContext';
 import { FeedSettingsEditHeader } from './FeedSettingsEditHeader';
 import { FeedSettingsEditBody } from './FeedSettingsEditBody';
+import { FeedSettingsGeneralSection } from './sections/FeedSettingsGeneralSection';
+import { FeedSettingsTitle } from './FeedSettingsTitle';
+import { FeedSettingsContentPreferencesSection } from './sections/FeedSettingsContentPreferencesSection';
+import { FeedSettingsAISection } from './sections/FeedSettingsAISection';
 
 export type FeedSettingsEditProps = {
   feedSlugOrId: string;
@@ -40,8 +46,16 @@ export const FeedSettingsEdit = ({
       options: { icon: <AddUserIcon size={IconSize.Small} /> },
     },
     {
+      title: FeedSettingsMenu.ContentPreferences,
+      options: { icon: <AppIcon size={IconSize.Small} /> },
+    },
+    {
       title: FeedSettingsMenu.AI,
       options: { icon: <MagicIcon size={IconSize.Small} /> },
+    },
+    {
+      title: FeedSettingsMenu.Filters,
+      options: { icon: <FilterIcon size={IconSize.Small} /> },
     },
     {
       title: FeedSettingsMenu.Blocking,
@@ -69,12 +83,18 @@ export const FeedSettingsEdit = ({
         <Modal.Sidebar>
           <Modal.Sidebar.List
             className="w-74 bg-transparent"
-            title="Feed settings"
+            title={<FeedSettingsTitle />}
             defaultOpen
           />
           <Modal.Sidebar.Inner>
             <FeedSettingsEditBody view={FeedSettingsMenu.General}>
-              <div>Feed settings edit</div>
+              <FeedSettingsGeneralSection />
+            </FeedSettingsEditBody>
+            <FeedSettingsEditBody view={FeedSettingsMenu.ContentPreferences}>
+              <FeedSettingsContentPreferencesSection />
+            </FeedSettingsEditBody>
+            <FeedSettingsEditBody view={FeedSettingsMenu.AI}>
+              <FeedSettingsAISection />
             </FeedSettingsEditBody>
           </Modal.Sidebar.Inner>
         </Modal.Sidebar>
