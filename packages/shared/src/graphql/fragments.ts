@@ -313,6 +313,11 @@ export const CUSTOM_FEED_FRAGMENT = gql`
     flags {
       name
       icon
+      orderBy
+      maxDayRange
+      minUpvotes
+      minViews
+      disableEngagementFilter
     }
     slug
     createdAt
