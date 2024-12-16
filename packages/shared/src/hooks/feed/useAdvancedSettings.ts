@@ -22,7 +22,7 @@ export const useAdvancedSettings = (
   const { user } = useAuthContext();
   const { feedSettings } = useFeedSettings(props);
   const { logEvent } = useLogContext();
-  const { updateAdvancedSettings } = useMutateFilters(user);
+  const { updateAdvancedSettings } = useMutateFilters(user, props?.feedId);
   const { alerts, updateAlerts } = useAlertsContext();
 
   const selectedSettings = useMemo(
@@ -76,6 +76,7 @@ export const useAdvancedSettings = (
 
   const { onUnblockSource, onBlockSource } = useTagAndSource({
     origin: Origin.SourcePage,
+    feedId: props?.feedId,
   });
 
   const onToggleSource = useCallback(

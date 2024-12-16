@@ -92,7 +92,7 @@ export const FeedSettingsContentPreferencesSection = (): ReactElement => {
             name={`${ADVANCED_SETTINGS_KEY}-${id}`}
             checked={!checkSourceBlocked(options.source)}
             description={description}
-            onToggle={() => onToggleSource(options.source)}
+            onToggleCallback={() => onToggleSource(options.source)}
             descriptionClassName="text-text-tertiary"
           >
             <Typography bold>{title}</Typography>
@@ -105,7 +105,7 @@ export const FeedSettingsContentPreferencesSection = (): ReactElement => {
               name={`${ADVANCED_SETTINGS_KEY}-${id}`}
               checked={selectedSettings[id] ?? defaultEnabledState}
               description={description}
-              onToggle={() => onToggleSettings(id, defaultEnabledState)}
+              onToggleCallback={() => onToggleSettings(id, defaultEnabledState)}
               descriptionClassName="text-text-tertiary"
             >
               <Typography bold>{title}</Typography>
