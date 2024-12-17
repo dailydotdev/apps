@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { checkIsBrowser, UserAgent } from '../../../lib/func';
-import { useActions } from '../../../hooks';
+import { useActions, useViewSize, ViewSize } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 
 export const useOnboardingExtension = () => {
@@ -12,14 +12,18 @@ export const useOnboardingExtension = () => {
   const isEdge = checkIsBrowser(UserAgent.Edge);
   const isValidBrowser = isChrome || isEdge;
 
+  const isLaptop = useViewSize(ViewSize.Laptop);
+
   const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
-  const hasCheckedExtension = checkHasCompleted(ActionType.BrowserExtension);
+  const hasCheckedExtension =
+    isActionsFetched && checkHasCompleted(ActionType.BrowserExtension);
 
   const shouldShowExtensionOnboarding =
+    isLaptop &&
     isValidBrowser &&
     isActionsFetched &&
     !hasCheckedExtension &&
-    isComingFromExtension;
+    !isComingFromExtension;
 
   useEffect(() => {
     if (isComingFromExtension && isActionsFetched && !hasCheckedExtension) {
