@@ -36,6 +36,7 @@ export const useContentPreference = (): UseContentPreference => {
       id,
       entity,
       entityName,
+      feedId,
       opts,
     }: PropsParameters<UseContentPreference['follow']>) => {
       if (!user) {
@@ -54,6 +55,7 @@ export const useContentPreference = (): UseContentPreference => {
       await gqlClient.request(CONTENT_PREFERENCE_FOLLOW_MUTATION, {
         id,
         entity,
+        feedId,
         status: ContentPreferenceStatus.Follow,
       });
 
@@ -67,6 +69,7 @@ export const useContentPreference = (): UseContentPreference => {
       id,
       entity,
       entityName,
+      feedId,
       opts,
     }: PropsParameters<UseContentPreference['unfollow']>) => {
       if (!user) {
@@ -85,6 +88,7 @@ export const useContentPreference = (): UseContentPreference => {
       await gqlClient.request(CONTENT_PREFERENCE_UNFOLLOW_MUTATION, {
         id,
         entity,
+        feedId,
       });
 
       displayToast(`⛔️ You are no longer following ${entityName}`);
@@ -97,6 +101,7 @@ export const useContentPreference = (): UseContentPreference => {
       id,
       entity,
       entityName,
+      feedId,
       opts,
     }: PropsParameters<UseContentPreference['subscribe']>) => {
       if (!user) {
@@ -116,6 +121,7 @@ export const useContentPreference = (): UseContentPreference => {
         id,
         entity,
         status: ContentPreferenceStatus.Subscribed,
+        feedId,
       });
 
       displayToast(`✅ You are now subscribed to ${entityName}`);
@@ -131,6 +137,7 @@ export const useContentPreference = (): UseContentPreference => {
       id,
       entity,
       entityName,
+      feedId,
       opts,
     }: PropsParameters<UseContentPreference['subscribe']>) => {
       if (!user) {
@@ -150,6 +157,7 @@ export const useContentPreference = (): UseContentPreference => {
         id,
         entity,
         status: ContentPreferenceStatus.Follow,
+        feedId,
       });
 
       displayToast(`⛔️ You are no longer subscribed to ${entityName}`);
@@ -162,6 +170,7 @@ export const useContentPreference = (): UseContentPreference => {
       id,
       entity,
       entityName,
+      feedId,
       opts,
     }: PropsParameters<UseContentPreference['block']>) => {
       if (!user) {
@@ -180,6 +189,7 @@ export const useContentPreference = (): UseContentPreference => {
       await gqlClient.request(CONTENT_PREFERENCE_BLOCK_MUTATION, {
         id,
         entity,
+        feedId,
       });
 
       displayToast(`⛔️ You blocked the following ${entityName}: ${id}`);
@@ -192,6 +202,7 @@ export const useContentPreference = (): UseContentPreference => {
       id,
       entity,
       entityName,
+      feedId,
       opts,
     }: PropsParameters<UseContentPreference['unblock']>) => {
       if (!user) {
@@ -210,6 +221,7 @@ export const useContentPreference = (): UseContentPreference => {
       await gqlClient.request(CONTENT_PREFERENCE_UNBLOCK_MUTATION, {
         id,
         entity,
+        feedId,
       });
 
       displayToast(`⛔️ You unblocked ${entityName}`);
