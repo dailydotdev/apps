@@ -47,6 +47,10 @@ export const featureOnboardingSources = new Feature(
   false,
 );
 
+export const featureOnboardingExtension = new Feature(
+  'onboarding_extension',
+  false,
+);
 export const featureOnboardingPWA = new Feature('onboarding_pwa', false);
 export const featureOnboardingAndroid = new Feature(
   'onboarding_android',

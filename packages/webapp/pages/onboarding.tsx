@@ -47,6 +47,7 @@ import {
 import {
   feature,
   featureOnboardingAndroid,
+  featureOnboardingExtension,
   featureOnboardingPWA,
   featureOnboardingSources,
 } from '@dailydotdev/shared/src/lib/featureManagement';
@@ -71,6 +72,7 @@ import {
   isSafariOnIOS,
   UserAgent,
 } from '@dailydotdev/shared/src/lib/func';
+import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboarding/Extension/useOnboardingExtension';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -115,6 +117,12 @@ const OnboardingPWA = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingPWA" */ '@dailydotdev/shared/src/components/onboarding/OnboardingPWA'
   ).then((mod) => mod.OnboardingPWA),
+);
+
+const OnboardingExtension = dynamic(() =>
+  import(
+    /* webpackChunkName: "onboardingExtension" */ '@dailydotdev/shared/src/components/onboarding/Extension/OnboardingExtension'
+  ).then((mod) => mod.OnboardingExtension),
 );
 
 type OnboardingVisual = {
@@ -164,7 +172,7 @@ export function OnboardPage(): ReactElement {
   const { isPushSupported } = usePushNotificationContext();
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
-  const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
+  const [activeScreen, setActiveScreen] = useState(OnboardingStep.Extension);
   const [shouldEnrollOnboardingStep, setShouldEnrollOnboardingStep] =
     useState(false);
   const { value: showOnboardingSources } = useConditionalFeature({
@@ -175,6 +183,11 @@ export function OnboardPage(): ReactElement {
     feature: featureOnboardingAndroid,
     shouldEvaluate:
       shouldEnrollOnboardingStep && checkIsBrowser(UserAgent.Android),
+  });
+  const { shouldShowExtensionOnboarding } = useOnboardingExtension();
+  const { value: extensionExperiment } = useConditionalFeature({
+    feature: featureOnboardingExtension,
+    shouldEvaluate: shouldEnrollOnboardingStep && shouldShowExtensionOnboarding,
   });
 
   const { value: PWAExperiment } = useConditionalFeature({
@@ -436,6 +449,8 @@ export function OnboardPage(): ReactElement {
               <OnboardingAndroidApp />
             )}
             {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
+            {activeScreen === OnboardingStep.Extension &&
+              extensionExperiment && <OnboardingExtension />}
           </div>
         )}
       </div>
