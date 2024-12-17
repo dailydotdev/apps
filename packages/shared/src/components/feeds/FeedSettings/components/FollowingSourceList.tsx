@@ -42,7 +42,7 @@ export const FollowingSourceList = ({
   return (
     <SourceList
       sources={sources}
-      emptyPlaceholder={<p>Can't find any sources</p>}
+      emptyPlaceholder={<p>Can&#39;t find any sources</p>}
       scrollingProps={{
         isFetchingNextPage,
         canFetchMore: checkFetchMore(queryResult),
