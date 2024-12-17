@@ -24,29 +24,29 @@ export const useOnboardingExtension = (): UseOnboardingExtension => {
   const isLaptop = useViewSize(ViewSize.Laptop);
 
   const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
-  const hasCheckedExtension =
+  const isCheckedExtension =
     isActionsFetched && checkHasCompleted(ActionType.BrowserExtension);
 
   const shouldShowExtensionOnboarding =
     isLaptop &&
     isValidBrowser &&
     isActionsFetched &&
-    !hasCheckedExtension &&
+    !isCheckedExtension &&
     !isComingFromExtension;
 
   useEffect(() => {
-    if (isComingFromExtension && isActionsFetched && !hasCheckedExtension) {
+    if (isComingFromExtension && isActionsFetched && !isCheckedExtension) {
       completeAction(ActionType.BrowserExtension);
     }
   }, [
     completeAction,
-    hasCheckedExtension,
+    isCheckedExtension,
     isActionsFetched,
     isComingFromExtension,
   ]);
 
   return {
-    hasCheckedExtension,
+    hasCheckedExtension: isCheckedExtension,
     shouldShowExtensionOnboarding,
     browser: {
       isChrome,
