@@ -13,6 +13,7 @@ import { Origin } from '../../lib/log';
 import { Separator } from '../cards/common/common';
 import { TopReaderIn } from '../TopReaderIn';
 import { PlusUserBadge } from '../PlusUserBadge';
+import { CopyType } from '../sources/SourceActions/SourceActionsFollow';
 
 type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? JSX.IntrinsicElements[Tag]
@@ -41,6 +42,8 @@ export interface UserShortInfoProps<
   transformUsername?(user: UserShortProfile): ReactNode;
   onClick?: () => void;
   showFollow?: boolean;
+  showSubscribe?: boolean;
+  copyType?: CopyType;
   origin?: Origin;
 }
 
@@ -63,6 +66,8 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
     showDescription = true,
     transformUsername,
     showFollow,
+    showSubscribe,
+    copyType,
     origin,
     ...props
   }: UserShortInfoProps<Tag> & Omit<PropsOf<Tag>, 'className'>,
@@ -132,11 +137,13 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
       {children}
       {!!showFollow && (
         <FollowButton
-          userId={user.id}
+          showSubscribe={showSubscribe}
+          entityId={user.id}
           type={ContentPreferenceType.User}
           status={(user as LoggedUser).contentPreference?.status}
           entityName={`@${user.username}`}
           origin={origin}
+          copyType={copyType}
         />
       )}
       {afterContent}

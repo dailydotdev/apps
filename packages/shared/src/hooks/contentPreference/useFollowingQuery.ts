@@ -23,6 +23,7 @@ import { useFollowContentPreferenceMutationSubscription } from './useFollowConte
 export type UseFollowingQueryProps = {
   id: string;
   entity: ContentPreferenceType;
+  feedId?: string;
   limit?: number;
   queryOptions?: Omit<
     UseInfiniteQueryOptions<Connection<ContentPreference>>,
@@ -37,6 +38,7 @@ export type UseFollowingQuery = UseInfiniteQueryResult<
 export const useFollowingQuery = ({
   id,
   entity,
+  feedId,
   limit = DEFAULT_FOLLOW_LIMIT,
   queryOptions,
 }: UseFollowingQueryProps): UseFollowingQuery => {
@@ -50,6 +52,7 @@ export const useFollowingQuery = ({
       id,
       entity,
       first: limit,
+      feedId,
     },
   );
 
@@ -60,7 +63,7 @@ export const useFollowingQuery = ({
         unknown,
         unknown,
         unknown,
-        { id: string; entity: ContentPreferenceType },
+        { id: string; entity: ContentPreferenceType; feedId: string },
       ];
       const result = await gqlClient.request(USER_FOLLOWING_QUERY, {
         ...queryVariables,

@@ -4,10 +4,12 @@ import {
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
 import { UserShortProfile } from '../lib/user';
+import type { Source } from './sources';
 
 export enum ContentPreferenceType {
   User = 'user',
   Word = 'word',
+  Source = 'source',
 }
 
 export enum ContentPreferenceStatus {
@@ -25,6 +27,7 @@ type ContentPreferenceUser = Pick<
 export type ContentPreference = {
   referenceId: string;
   user?: ContentPreferenceUser;
+  source?: Source;
   referenceUser?: ContentPreferenceUser;
   type: ContentPreferenceType;
   createdAt: Date;
@@ -46,8 +49,15 @@ export const USER_FOLLOWING_QUERY = gql`
     $entity: ContentPreferenceType!
     $first: Int
     $after: String
+    $feedId: String
   ) {
-    userFollowing(userId: $id, entity: $entity, first: $first, after: $after) {
+    userFollowing(
+      userId: $id
+      entity: $entity
+      first: $first
+      after: $after
+      feedId: $feedId
+    ) {
       pageInfo {
         endCursor
         hasNextPage
@@ -55,6 +65,14 @@ export const USER_FOLLOWING_QUERY = gql`
       edges {
         node {
           referenceId
+          source {
+            id
+            name
+            type
+            image
+            handle
+            description
+          }
           referenceUser {
             ...UserShortInfo
             contentPreference {
@@ -131,32 +149,37 @@ export const CONTENT_PREFERENCE_FOLLOW_MUTATION = gql`
     $id: ID!
     $entity: ContentPreferenceType!
     $status: FollowStatus!
+    $feedId: String
   ) {
-    follow(id: $id, entity: $entity, status: $status) {
+    follow(id: $id, entity: $entity, status: $status, feedId: $feedId) {
       _
     }
   }
 `;
 
 export const CONTENT_PREFERENCE_UNFOLLOW_MUTATION = gql`
-  mutation Unfollow($id: ID!, $entity: ContentPreferenceType!) {
-    unfollow(id: $id, entity: $entity) {
+  mutation Unfollow(
+    $id: ID!
+    $entity: ContentPreferenceType!
+    $feedId: String
+  ) {
+    unfollow(id: $id, entity: $entity, feedId: $feedId) {
       _
     }
   }
 `;
 
 export const CONTENT_PREFERENCE_BLOCK_MUTATION = gql`
-  mutation Block($id: ID!, $entity: ContentPreferenceType!) {
-    block(id: $id, entity: $entity) {
+  mutation Block($id: ID!, $entity: ContentPreferenceType!, $feedId: String) {
+    block(id: $id, entity: $entity, feedId: $feedId) {
       _
     }
   }
 `;
 
 export const CONTENT_PREFERENCE_UNBLOCK_MUTATION = gql`
-  mutation Unblock($id: ID!, $entity: ContentPreferenceType!) {
-    unblock(id: $id, entity: $entity) {
+  mutation Unblock($id: ID!, $entity: ContentPreferenceType!, $feedId: String) {
+    unblock(id: $id, entity: $entity, feedId: $feedId) {
       _
     }
   }

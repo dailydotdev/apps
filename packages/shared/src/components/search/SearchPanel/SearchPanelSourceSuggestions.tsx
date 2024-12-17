@@ -11,17 +11,27 @@ import { webappUrl } from '../../../lib/constants';
 import { ButtonProps } from '../../buttons/Button';
 import { SearchPanelItem } from './SearchPanelItem';
 import { Image } from '../../image/Image';
+import {
+  FeedSettingsEditContext,
+  useFeedSettingsEditContext,
+} from '../../feeds/FeedSettings/FeedSettingsEditContext';
+import { ContentPreferenceType } from '../../../graphql/contentPreference';
+import { CopyType } from '../../sources/SourceActions/SourceActionsFollow';
+import { FollowButton } from '../../contentPreference/FollowButton';
 
 export type SearchPanelSourceSuggestionsProps = {
-  className?: string;
   title: string;
+  className?: string;
+  showFollow?: boolean;
 };
 
 type PanelItemProps = Pick<ButtonProps<'a'>, 'onClick'> & {
+  showFollow?: boolean;
   suggestion: SearchSuggestion;
 };
 
-const PanelItem = ({ suggestion, ...rest }: PanelItemProps) => {
+const PanelItem = ({ suggestion, showFollow, ...rest }: PanelItemProps) => {
+  const { feed } = useFeedSettingsEditContext();
   const Icon = () => (
     <Image
       loading="lazy"
@@ -44,7 +54,7 @@ const PanelItem = ({ suggestion, ...rest }: PanelItemProps) => {
       {...rest}
       className="px-2 py-1"
     >
-      <div className="flex w-full flex-col items-start">
+      <div className="flex flex-1 flex-col items-start">
         <span className="flex-shrink overflow-hidden overflow-ellipsis whitespace-nowrap font-bold text-text-primary typo-subhead">
           {suggestion.title}
         </span>
@@ -52,14 +62,27 @@ const PanelItem = ({ suggestion, ...rest }: PanelItemProps) => {
           @{suggestion.subtitle}
         </span>
       </div>
+      {!!showFollow && (
+        <FollowButton
+          feedId={feed?.id}
+          entityId={suggestion.id}
+          type={ContentPreferenceType.Source}
+          status={suggestion.contentPreference?.status}
+          entityName={`@${suggestion.subtitle}`}
+          showSubscribe={false}
+          copyType={CopyType.Custom}
+        />
+      )}
     </SearchPanelItem>
   );
 };
 
 export const SearchPanelSourceSuggestions = ({
   className,
+  showFollow,
   title,
 }: SearchPanelSourceSuggestionsProps): ReactElement => {
+  const { feed } = useContext(FeedSettingsEditContext);
   const router = useRouter();
   const { logEvent } = useContext(LogContext);
   const searchPanel = useContext(SearchPanelContext);
@@ -68,6 +91,8 @@ export const SearchPanelSourceSuggestions = ({
     provider: SearchProviderEnum.Sources,
     query: searchPanel.query,
     limit: 3,
+    includeContentPreference: true,
+    feedId: feed?.id,
   });
 
   const onSuggestionClick = (suggestion: SearchSuggestion) => {
@@ -103,6 +128,7 @@ export const SearchPanelSourceSuggestions = ({
         return (
           <PanelItem
             key={suggestion.title}
+            showFollow={showFollow}
             suggestion={suggestion}
             onClick={() => {
               onSuggestionClick(suggestion);
