@@ -82,14 +82,6 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
               };
             });
           }}
-          inputProps={{
-            value: state.query,
-            onFocus: () => {
-              searchPanel.setActive({
-                isActive: true,
-              });
-            },
-          }}
         />
         {searchPanel.query?.length ? (
           <>

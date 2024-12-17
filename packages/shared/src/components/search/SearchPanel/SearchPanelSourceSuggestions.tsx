@@ -26,6 +26,7 @@ export type SearchPanelSourceSuggestionsProps = {
 };
 
 type PanelItemProps = Pick<ButtonProps<'a'>, 'onClick'> & {
+  showFollow?: boolean;
   suggestion: SearchSuggestion;
 };
 
