@@ -9,6 +9,7 @@ import {
   CreateFeedProps,
   useActions,
   useFeeds,
+  usePlusSubscription,
   useProgressAnimation,
   useToastNotification,
 } from '../../../hooks';
@@ -72,6 +73,7 @@ export const FeedSettingsCreate = (): ReactElement => {
     icon: '',
   }));
   const { createFeed } = useFeeds();
+  const { isPlus } = usePlusSubscription();
 
   const { onFinished, delayedRedirect, isAnimating } = useProgressAnimation({
     animationMs: 1000,
@@ -144,6 +146,16 @@ export const FeedSettingsCreate = (): ReactElement => {
   const onRequestClose = () => {
     router.replace(webappUrl);
   };
+
+  useEffect(() => {
+    if (!isPlus) {
+      router.replace(webappUrl);
+    }
+  }, [isPlus, router]);
+
+  if (!isPlus) {
+    return null;
+  }
 
   return (
     <Modal
