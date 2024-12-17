@@ -1,20 +1,15 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
-import { QueryClient, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import {
   FURTHER_READING_QUERY,
   FurtherReadingData,
 } from '../../graphql/furtherReading';
-import {
-  UseBookmarkPostRollback,
-  useBookmarkPost,
-} from '../../hooks/useBookmarkPost';
 import { Post, PostType } from '../../graphql/posts';
 import SimilarPosts, { SimilarPostsProps } from './SimilarPosts';
 import BestDiscussions from './BestDiscussions';
 import PostToc from './PostToc';
-import { Origin } from '../../lib/log';
 import { FeedData, SOURCE_FEED_QUERY } from '../../graphql/feed';
 import { isSourcePublicSquad } from '../../graphql/squads';
 import { SquadPostListItem } from '../squads/SquadPostListItem';
@@ -26,38 +21,6 @@ export type FurtherReadingProps = {
   className?: string;
 };
 
-const transformPosts = (
-  posts: Post[],
-  id: string,
-  update: (oldPost: Post) => Partial<Post>,
-): Post[] =>
-  posts.map((post) =>
-    post.id === id
-      ? {
-          ...post,
-          ...update(post),
-        }
-      : post,
-  );
-
-const updateFurtherReadingPost =
-  (
-    queryClient: QueryClient,
-    queryKey: string[],
-    update: (oldPost: Post) => Partial<Post>,
-  ): ((args: { id: string }) => Promise<UseBookmarkPostRollback>) =>
-  async ({ id }) => {
-    await queryClient.cancelQueries({ queryKey });
-    const previousData = queryClient.getQueryData<FurtherReadingData>(queryKey);
-    queryClient.setQueryData(queryKey, {
-      ...previousData,
-      trendingPosts: transformPosts(previousData.trendingPosts, id, update),
-      similarPosts: transformPosts(previousData.similarPosts, id, update),
-    });
-    return () =>
-      queryClient.setQueryData<FurtherReadingData>(queryKey, previousData);
-  };
-
 export default function FurtherReading({
   currentPost,
   className,
@@ -67,7 +30,6 @@ export default function FurtherReading({
   const { tags } = currentPost;
   const queryKey = ['furtherReading', postId];
   const { user, isLoggedIn } = useContext(AuthContext);
-  const queryClient = useQueryClient();
   const max = 3;
   const { data: posts, isLoading } = useQuery<FurtherReadingData>({
     queryKey,
@@ -115,20 +77,6 @@ export default function FurtherReading({
     ...disabledRefetch,
   });
 
-  const { toggleBookmark } = useBookmarkPost({
-    onMutate: ({ id }) => {
-      const updatedPost = updateFurtherReadingPost(
-        queryClient,
-        queryKey,
-        (post) => ({
-          bookmarked: !post.bookmarked,
-        }),
-      );
-
-      return updatedPost({ id });
-    },
-  });
-
   if (!posts?.similarPosts && !isLoading) {
     return <></>;
   }
@@ -142,10 +90,6 @@ export default function FurtherReading({
         ),
       ]
     : [];
-
-  const onToggleBookmark = async (post) => {
-    toggleBookmark({ post, origin: 'recommendation' as Origin });
-  };
 
   const showToc = currentPost.toc?.length > 0;
 
@@ -165,7 +109,6 @@ export default function FurtherReading({
         <SimilarPosts
           posts={similarPosts}
           isLoading={isLoading}
-          onBookmark={onToggleBookmark}
           {...(isPublicSquad && publicSquadProps)}
         />
       )}

@@ -117,10 +117,10 @@ const defaultVariables = {
   after: '',
 };
 
-let queryClient: QueryClient;
+const queryClient = new QueryClient(defaultQueryClientTestingConfig);
 
 beforeEach(() => {
-  queryClient?.clear();
+  queryClient.clear();
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
@@ -175,8 +175,6 @@ const renderComponent = (
   user: LoggedUser = defaultUser,
   feedName: AllFeedPages = SharedFeedPage.MyFeed,
 ): RenderResult => {
-  queryClient = new QueryClient(defaultQueryClientTestingConfig);
-
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
   const settingsContext: SettingsContextData = {
@@ -423,7 +421,6 @@ describe('Feed logged in', () => {
         edges: [defaultFeedPage.edges[0]],
       }),
     ]);
-    await screen.findByTestId('adItem');
     await waitFor(async () => {
       const [el] = await screen.findAllByLabelText('Upvote');
       // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
@@ -632,7 +629,7 @@ describe('Feed logged in', () => {
     });
     const contextBtn = await screen.findByText("Don't show posts from Echo JS");
     fireEvent.click(contextBtn);
-
+    await waitForNock();
     await waitFor(() => expect(mutationCalled).toBeTruthy());
   });
 
@@ -689,6 +686,7 @@ describe('Feed logged in', () => {
       expect(feed).toHaveAttribute('aria-live', 'assertive');
     });
 
+    await waitForNock();
     await waitFor(() => expect(mutationCalled).toBeTruthy());
   });
 
@@ -723,6 +721,7 @@ describe('Feed logged in', () => {
     const contextBtn = await screen.findByText('Not interested in #javascript');
     fireEvent.click(contextBtn);
 
+    await waitForNock();
     await waitFor(() => expect(mutationCalled).toBeTruthy());
   });
 

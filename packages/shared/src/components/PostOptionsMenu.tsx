@@ -26,6 +26,9 @@ import {
   BellAddIcon,
   AddUserIcon,
   RemoveUserIcon,
+  FolderIcon,
+  ShieldIcon,
+  ShieldWarningIcon,
 } from './icons';
 import { ReportedCallback } from './modals';
 import useTagAndSource from '../hooks/useTagAndSource';
@@ -34,7 +37,9 @@ import { postLogEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
 import {
   ToastSubject,
+  useAdvancedSettings,
   useFeedLayout,
+  usePlusSubscription,
   useSourceActionsNotify,
   useToastNotification,
 } from '../hooks';
@@ -47,8 +52,6 @@ import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { labels } from '../lib';
 import { MenuItemProps } from './fields/ContextMenu';
-import { ActiveFeedContext } from '../contexts';
-import { useAdvancedSettings } from '../hooks/feed';
 import { ContextMenu as ContextMenuTypes } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
 import { SourceType } from '../graphql/sources';
@@ -60,6 +63,7 @@ import { useContentPreference } from '../hooks/contentPreference/useContentPrefe
 import { ContentPreferenceType } from '../graphql/contentPreference';
 import { isFollowingContent } from '../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../hooks/auth/useIsSpecialUser';
+import { useActiveFeedContext } from '../contexts';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -78,6 +82,7 @@ export interface PostOptionsMenuProps {
   onRemovePost?: (postIndex: number) => Promise<unknown>;
   setShowBanPost?: () => unknown;
   setShowPromotePost?: () => unknown;
+  setShowClickbaitPost?: () => unknown;
   contextId?: string;
   origin: Origin;
   allowPin?: boolean;
@@ -93,6 +98,7 @@ export default function PostOptionsMenu({
   onRemovePost,
   setShowBanPost,
   setShowPromotePost,
+  setShowClickbaitPost,
   origin,
   allowPin,
   contextId = ContextMenuTypes.PostContext,
@@ -109,6 +115,7 @@ export default function PostOptionsMenu({
     id: initialPost?.id,
   });
   const post = loadedPost ?? initialPost;
+  const { showPlusSubscription, isPlus } = usePlusSubscription();
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({ enabled: isPostOptionsOpen });
   const { onUpdateSettings } = useAdvancedSettings({ enabled: false });
@@ -118,7 +125,8 @@ export default function PostOptionsMenu({
   const { follow, unfollow } = useContentPreference();
 
   const { openModal } = useLazyModal();
-  const { queryKey: feedQueryKey, logOpts } = useContext(ActiveFeedContext);
+  const feedContextData = useActiveFeedContext();
+  const { queryKey: feedQueryKey, logOpts } = feedContextData;
   const {
     onBlockSource,
     onBlockTags,
@@ -340,7 +348,10 @@ export default function PostOptionsMenu({
       ),
       label: hasPostReminder ? 'Edit reminder' : 'Read it later',
       action: () => {
-        openModal({ type: LazyModal.BookmarkReminder, props: { post } });
+        openModal({
+          type: LazyModal.BookmarkReminder,
+          props: { post, feedContextData },
+        });
       },
     });
 
@@ -351,6 +362,39 @@ export default function PostOptionsMenu({
         label: 'Remove reminder',
         action: () => {
           onRemoveReminder(post.id);
+        },
+      });
+    }
+
+    if (post?.bookmark && showPlusSubscription) {
+      postOptions.push({
+        icon: <MenuIcon Icon={FolderIcon} />,
+        label: 'Move to...',
+        action: () => {
+          if (!isPlus) {
+            openModal({
+              type: LazyModal.BookmarkFolder,
+              props: {
+                // this modal will never submit because the user is not plus
+                onSubmit: () => null,
+              },
+            });
+            return;
+          }
+
+          openModal({
+            type: LazyModal.MoveBookmark,
+            props: {
+              postId: post.id,
+              listId: post.bookmarkList?.id,
+              onMoveBookmark: () => {
+                logEvent(
+                  postLogEvent(LogEvent.MoveBookmarkToFolder, post, logOpts),
+                );
+                client.invalidateQueries({ queryKey: feedQueryKey });
+              },
+            },
+          });
         },
       });
     }
@@ -523,6 +567,15 @@ export default function PostOptionsMenu({
       icon: <MenuIcon Icon={promoteFlag ? DownvoteIcon : UpvoteIcon} />,
       label: promoteFlag ? 'Demote' : 'Promote',
       action: setShowPromotePost,
+    });
+  }
+
+  if (setShowClickbaitPost) {
+    const isClickbait = post.clickbaitTitleDetected;
+    postOptions.push({
+      icon: <MenuIcon Icon={isClickbait ? ShieldIcon : ShieldWarningIcon} />,
+      label: isClickbait ? 'Remove clickbait' : 'Mark as clickbait',
+      action: setShowClickbaitPost,
     });
   }
 

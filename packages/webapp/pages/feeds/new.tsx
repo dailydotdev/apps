@@ -73,6 +73,13 @@ const NewFeedPage = (): ReactElement => {
   const { FeedPageLayoutComponent } = useFeedLayout();
   const { logEvent } = useLogContext();
 
+  useEffect(() => {
+    router.replace(webappUrl);
+  }, [router]);
+
+  // TODO: Remove once the new page is implemented
+  return null;
+
   const { user } = useAuthContext();
   const { feedSettings } = useFeedSettings({ feedId: newFeedId });
   const [isPreviewFeedVisible, setPreviewFeedVisible] = useState(false);

@@ -3,6 +3,9 @@ import {
   cloudinaryOnboardingFullBackgroundDesktop,
   cloudinaryOnboardingFullBackgroundMobile,
 } from './image';
+import { PlusPriceType } from './featureValues';
+import type { FeedAdTemplate } from './feed';
+import type { FeedSettingsKeys } from '../contexts/FeedContext';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -32,25 +35,24 @@ const feature = {
   showCodeSnippets: new Feature('show_code_snippets', false),
   postBannerExtensionPrompt: new Feature('post_banner_extension_prompt', false),
   plusSubscription: new Feature('plus_subscription', false),
-  feedPageSizes: new Feature('feed_page_sizes', {
-    default: 7,
-    tablet: 9,
-    laptop: 13,
-    laptopL: 17,
-    laptopXL: 21,
-    desktop: 25,
-  }),
   pricingIds: new Feature('pricing_ids', {
-    pri_01jbsccbdbcwyhdy8hy3c2etyn: 'monthly',
-    pri_01jbscda57910yvwjtyapnrrzc: 'yearly',
+    pri_01jbsccbdbcwyhdy8hy3c2etyn: PlusPriceType.Monthly,
+    pri_01jbscda57910yvwjtyapnrrzc: PlusPriceType.Yearly,
   }),
-  postPersonalizedBanner: new Feature('post_banner_personalized', false),
 };
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
-export const featureOnboardingSources = new Feature(
-  'onboarding_sources',
+
+export const featureOnboardingPWA = new Feature('onboarding_pwa', false);
+export const featureOnboardingAndroid = new Feature(
+  'onboarding_android',
   false,
 );
+
+export const featureFeedAdTemplate = new Feature('feed_ad_template', {
+  default: {
+    adStart: 2,
+  },
+} as Record<FeedSettingsKeys, FeedAdTemplate>);
 
 export { feature };

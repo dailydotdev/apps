@@ -158,7 +158,7 @@ const renderComponent = (
   client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
-  nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
+  nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
 
   return render(
     <TestBootProvider
@@ -193,7 +193,6 @@ describe('squad page', () => {
     const handle = 'sample';
     const forbidden = generateForbiddenSquadResult();
     renderComponent(handle, [createSourceMock(handle, {}, forbidden)]);
-    await waitForNock();
     await screen.findByText('Oops! This link leads to a private discussion');
   });
 
@@ -201,7 +200,6 @@ describe('squad page', () => {
     const handle = 'sample';
     const notfound = generateNotFoundSquadResult();
     renderComponent(handle, [createSourceMock(handle, {}, notfound)]);
-    await waitForNock();
     await screen.findByText('Why are you here?');
   });
 });

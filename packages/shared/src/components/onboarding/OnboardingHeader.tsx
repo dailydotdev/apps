@@ -15,7 +15,7 @@ import { OnboardingStep, wrapperMaxWidth } from './common';
 type OnboardingHeaderProps = {
   showOnboardingPage: boolean;
   setAuth: Dispatch<SetStateAction<AuthProps>>;
-  onClickCreateFeed: () => void;
+  onClick: () => void;
   activeScreen: OnboardingStep;
   customActionName?: string;
 };
@@ -24,7 +24,7 @@ export const OnboardingHeader = ({
   showOnboardingPage,
   activeScreen,
   setAuth,
-  onClickCreateFeed,
+  onClick,
   customActionName,
 }: OnboardingHeaderProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -39,10 +39,11 @@ export const OnboardingHeader = ({
     return isLaptop ? cloudinaryFeedBgLaptop : cloudinaryFeedBgTablet;
   };
 
-  const showButtonOnScreens: Partial<OnboardingStep[]> = [
+  const showCreateFeedButton: Partial<OnboardingStep[]> = [
     OnboardingStep.EditTag,
     OnboardingStep.ContentTypes,
-    OnboardingStep.Sources,
+    OnboardingStep.AndroidApp,
+    OnboardingStep.PWA,
     OnboardingStep.Plus,
   ];
 
@@ -60,9 +61,9 @@ export const OnboardingHeader = ({
             position={LogoPosition.Relative}
             linkDisabled
           />
-          {showButtonOnScreens.includes(activeScreen) && (
+          {showCreateFeedButton.includes(activeScreen) && (
             <CreateFeedButton
-              onClick={onClickCreateFeed}
+              onClick={onClick}
               customActionName={customActionName}
               activeScreen={activeScreen}
             />

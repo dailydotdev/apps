@@ -76,7 +76,7 @@ export const useReadingStreak = (): UserReadingStreak => {
         queryKey,
       });
     }
-  }, 100);
+  }, 1000);
 
   const isStreaksEnabled = loadedSettings && !optOutReadingStreak;
 

@@ -57,6 +57,7 @@ export enum Origin {
   UserFollowersList = 'user followers list',
   UserUpvotesList = 'user upvotes list',
   FollowFilter = 'follow filter',
+  PostSharedBy = 'post shared by',
 }
 
 export enum LogEvent {
@@ -74,6 +75,7 @@ export enum LogEvent {
   ClickArticleAnonymousCTA = 'click article anonymous cta',
   ClickScrollBlock = 'click scroll block',
   KeyboardShortcutTriggered = 'keyboard shortcut triggered',
+  FeedEmpty = 'feed empty',
   // notifications - start
   ClickNotificationIcon = 'click notification icon',
   OpenNotificationList = 'open notification list',
@@ -122,6 +124,10 @@ export enum LogEvent {
   RemovePostBookmark = 'remove post bookmark',
   SetBookmarkReminder = 'set bookmark reminder',
   RemoveBookmarkReminder = 'remove bookmark reminder',
+  MoveBookmarkToFolder = 'change bookmark folder',
+  CreateBookmarkFolder = 'create bookmark folder',
+  RenameBookmarkFolder = 'rename bookmark folder',
+  DeleteBookmarkFolder = 'delete bookmark folder',
   // bookmark - end
   ReportComment = 'report comment',
   // search start
@@ -219,6 +225,10 @@ export enum LogEvent {
   OnboardingSkipPlus = 'skip upgrade subscription',
   OnboardingUpgradePlus = 'upgrade subscription',
   // End Plus subscription
+  // Clickbait Shield
+  ToggleClickbaitShield = 'toggle clickbait shield',
+  ClickbaitShieldTitle = 'clickbait shield title',
+  // End Clickbait Shield
 }
 
 export enum FeedItemTitle {
@@ -264,6 +274,8 @@ export enum TargetType {
 }
 
 export enum TargetId {
+  On = 'on',
+  Off = 'off',
   SearchReferralBadge = 'search referral badge',
   InviteBanner = 'invite banner',
   InviteProfileMenu = 'invite in profile menu',
@@ -285,6 +297,11 @@ export enum TargetId {
   MyProfile = 'my profile',
   PlusBadge = 'plus badge',
   Onboarding = 'onboarding',
+  BlockedWords = 'block words',
+  CustomFeed = 'custom feed',
+  BookmarkFolder = 'bookmark folder',
+  FeedSettings = 'feed settings',
+  ClickbaitShield = 'clickbait shield',
 }
 
 export enum NotificationChannel {

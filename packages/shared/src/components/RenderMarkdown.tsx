@@ -19,8 +19,12 @@ import {
   TypographyType,
 } from './typography/Typography';
 
-const ReactMarkdown = dynamic(
-  () => import(/* webpackChunkName: "reactMarkdown" */ 'react-markdown'),
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+const ReactMarkdown = dynamic(() =>
+  import(/* webpackChunkName: "reactMarkdown" */ 'react-markdown').then(
+    (mod) => mod.default,
+  ),
 );
 
 const SyntaxHighlighter = dynamic(() =>

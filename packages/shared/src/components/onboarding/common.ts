@@ -7,7 +7,8 @@ export enum OnboardingStep {
   EditTag = 'edit_tag',
   ContentTypes = 'content_types',
   ReadingReminder = 'reading_reminder',
-  Sources = 'sources',
+  AndroidApp = 'android_app',
+  PWA = 'pwa',
   Plus = 'plus',
   InstallDesktop = 'install_desktop',
 }
