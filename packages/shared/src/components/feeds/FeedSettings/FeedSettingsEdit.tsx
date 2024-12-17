@@ -24,6 +24,7 @@ import { FeedSettingsAISection } from './sections/FeedSettingsAISection';
 import { FeedSettingsFiltersSection } from './sections/FeedSettingsFiltersSection';
 import { webappUrl } from '../../../lib/constants';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import { FeedSettingsBlockingSection } from './sections/FeedSettingsBlockingSection';
 
 export type FeedSettingsEditProps = {
   feedSlugOrId: string;
@@ -116,6 +117,9 @@ export const FeedSettingsEdit = ({
             </FeedSettingsEditBody>
             <FeedSettingsEditBody view={FeedSettingsMenu.Filters}>
               <FeedSettingsFiltersSection />
+            </FeedSettingsEditBody>
+            <FeedSettingsEditBody view={FeedSettingsMenu.Blocking}>
+              <FeedSettingsBlockingSection />
             </FeedSettingsEditBody>
           </Modal.Sidebar.Inner>
         </Modal.Sidebar>
