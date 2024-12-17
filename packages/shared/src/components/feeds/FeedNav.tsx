@@ -33,6 +33,7 @@ import { OtherFeedPage } from '../../lib/query';
 import { ChecklistViewState } from '../../lib/checklist';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
+import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 
 const OnboardingChecklistBar = dynamic(
   () =>
@@ -78,6 +79,7 @@ function FeedNav(): ReactElement {
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const { feeds } = useFeeds();
   const { showPlusSubscription } = usePlusSubscription();
+  const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const { openModal } = useLazyModal();
 
   const isHiddenOnboardingChecklistView =
@@ -85,9 +87,14 @@ function FeedNav(): ReactElement {
 
   const urlToTab: Record<string, FeedNavTab> = useMemo(() => {
     const customFeeds = feeds?.edges?.reduce((acc, { node: feed }) => {
-      const feedPath = `${webappUrl}feeds/${feed.id}`;
       const isEditingFeed =
         router.query.slugOrId === feed.id && router.pathname.endsWith('/edit');
+      let feedPath = `${webappUrl}feeds/${feed.id}`;
+
+      if (!isEditingFeed && isCustomDefaultFeed && feed.id === defaultFeedId) {
+        feedPath = `${webappUrl}`;
+      }
+
       const urlPath = `${feedPath}${isEditingFeed ? '/edit' : ''}`;
 
       acc[urlPath] = feed.flags?.name || `Feed ${feed.id}`;
@@ -95,9 +102,11 @@ function FeedNav(): ReactElement {
       return acc;
     }, {});
 
+    const forYouTab = isCustomDefaultFeed ? `${webappUrl}my-feed` : webappUrl;
+
     const urls = {
       [`${webappUrl}feeds/new`]: FeedNavTab.NewFeed,
-      [`${webappUrl}`]: FeedNavTab.ForYou,
+      [forYouTab]: FeedNavTab.ForYou,
       ...customFeeds,
     };
 
@@ -111,7 +120,13 @@ function FeedNav(): ReactElement {
       [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
       [`${webappUrl}history`]: FeedNavTab.History,
     };
-  }, [feeds?.edges, router.query.slugOrId, router.pathname]);
+  }, [
+    feeds?.edges,
+    router.query.slugOrId,
+    router.pathname,
+    defaultFeedId,
+    isCustomDefaultFeed,
+  ]);
 
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
