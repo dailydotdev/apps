@@ -275,7 +275,7 @@ export default function MainFeedLayout({
     if (user?.defaultFeedId && user.defaultFeedId !== user.id) {
       return {
         feedName: SharedFeedPage.MyFeed,
-        feedQueryKey: generateQueryKey(SharedFeedPage.Custom, user),
+        feedQueryKey: generateQueryKey(SharedFeedPage.MyFeed, user),
         query: CUSTOM_FEED_QUERY,
         variables: {
           feedId: user.defaultFeedId,
