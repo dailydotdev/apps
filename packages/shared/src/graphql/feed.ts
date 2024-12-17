@@ -2,6 +2,7 @@ import { gql } from 'graphql-request';
 import { CUSTOM_FEED_FRAGMENT, FEED_POST_INFO_FRAGMENT } from './fragments';
 import { Post, PostType } from './posts';
 import { Connection } from './common';
+import { FeedOrder } from '../lib/constants';
 
 export enum RankingAlgorithm {
   Popularity = 'POPULARITY',
@@ -31,6 +32,11 @@ export interface FeedData {
 export type FeedFlags = {
   name: string;
   icon?: string;
+  orderBy?: FeedOrder;
+  maxDayRange?: number;
+  minUpvotes?: number;
+  minViews?: number;
+  disableEngagementFilter?: boolean;
 };
 
 export type Feed = {
@@ -467,8 +473,8 @@ export const CREATE_FEED_MUTATION = `
 `;
 
 export const UPDATE_FEED_MUTATION = `
-  mutation UpdateFeed($feedId: ID!, $name: String!, $icon: String) {
-    updateFeed(feedId: $feedId, name: $name, icon: $icon) {
+  mutation UpdateFeed($feedId: ID!, $name: String!, $icon: String, $orderBy: FeedOrderBy, $maxDayRange: Int, $minUpvotes: Int, $minViews: Int, $disableEngagementFilter: Boolean) {
+    updateFeed(feedId: $feedId, name: $name, icon: $icon, orderBy: $orderBy, maxDayRange: $maxDayRange, minUpvotes: $minUpvotes, minViews: $minViews, disableEngagementFilter: $disableEngagementFilter) {
       ...CustomFeed
     }
   }

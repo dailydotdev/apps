@@ -1,3 +1,5 @@
+import { RadioItemProps } from '../components/fields/RadioItem';
+
 declare const navigator: Navigator & { brave?: { isBrave: unknown } };
 
 // All links are loaded via Rebrandly
@@ -94,4 +96,31 @@ export const emojiOptions = [
   '💡',
   '📜',
   '🚀',
+];
+
+export enum FeedOrder {
+  Recommended = 'recommended',
+  Upvotes = 'upvotes',
+  Downvotes = 'downvotes',
+  Comments = 'comments',
+  Clicks = 'clicks',
+}
+
+export const feedRangeFilters: RadioItemProps[] = [
+  {
+    label: 'All time',
+    value: null,
+  },
+  {
+    label: 'Past 24 hours',
+    value: '1',
+  },
+  {
+    label: 'Past week',
+    value: '7',
+  },
+  {
+    label: 'Past month',
+    value: '30',
+  },
 ];

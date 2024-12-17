@@ -4,7 +4,14 @@ import { OnSelectTagProps } from '../../tags/common';
 export type FeedSettingsFormData = {
   name: string;
   icon?: string;
-};
+} & Pick<
+  Feed['flags'],
+  | 'orderBy'
+  | 'maxDayRange'
+  | 'minUpvotes'
+  | 'minViews'
+  | 'disableEngagementFilter'
+>;
 
 export type FeedSettingsEditContextValue = {
   feed?: Feed;
