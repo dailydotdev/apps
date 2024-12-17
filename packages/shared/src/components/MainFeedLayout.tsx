@@ -272,6 +272,25 @@ export default function MainFeedLayout({
       return null;
     }
 
+    if (user?.defaultFeedId && user.defaultFeedId !== user.id) {
+      return {
+        feedName: SharedFeedPage.MyFeed,
+        feedQueryKey: generateQueryKey(SharedFeedPage.Custom, user),
+        query: CUSTOM_FEED_QUERY,
+        variables: {
+          feedId: user.defaultFeedId,
+          feedName: SharedFeedPage.MyFeed,
+        },
+        emptyScreen: propsByFeed[feedName].emptyScreen || <FeedEmptyScreen />,
+        actionButtons: feedWithActions && (
+          <SearchControlHeader
+            algoState={[selectedAlgo, setSelectedAlgo]}
+            feedName={feedName}
+          />
+        ),
+      };
+    }
+
     if (isSearchOn && searchQuery) {
       const searchVersion = getFeatureValue(feature.searchVersion);
       return {
