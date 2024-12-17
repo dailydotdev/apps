@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { InstallExtensionChecklistStep } from '../components/checklist/InstallExtensionChecklistStep';
 import { NotificationChecklistStep } from '../components/checklist/NotificationChecklistStep';
 import { SharePostChecklistStep } from '../components/checklist/SharePostChecklistStep';
@@ -21,6 +21,7 @@ import { usePushNotificationContext } from '../contexts/PushNotificationContext'
 import { EditSquadStep } from '../components/checklist/EditSquadStep';
 import { getEditActions } from '../components/checklist/actionUtils';
 import { AboutPublicSquadStep } from '../components/checklist/AboutPublicSquadStep';
+import { isExtension } from '../lib/func';
 
 type UseSquadChecklistProps = {
   squad: Squad;
@@ -35,7 +36,12 @@ type UseSquadChecklist = UseChecklist & {
 const useSquadChecklist = ({
   squad,
 }: UseSquadChecklistProps): UseSquadChecklist => {
-  const { actions, isActionsFetched: isChecklistReady } = useActions();
+  const {
+    actions,
+    isActionsFetched: isChecklistReady,
+    checkHasCompleted,
+    completeAction,
+  } = useActions();
   const { isInitialized, isPushSupported } = usePushNotificationContext();
 
   const stepsMap = useMemo<
@@ -173,6 +179,16 @@ const useSquadChecklist = ({
     SQUAD_CHECKLIST_VISIBLE_KEY,
     true,
   );
+
+  useEffect(() => {
+    if (
+      isExtension &&
+      isChecklistReady &&
+      !checkHasCompleted(ActionType.BrowserExtension)
+    ) {
+      completeAction(ActionType.BrowserExtension);
+    }
+  }, [checkHasCompleted, completeAction, isChecklistReady]);
 
   return {
     ...checklist,

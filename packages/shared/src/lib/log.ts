@@ -271,6 +271,9 @@ export enum TargetType {
   SocialLink = 'social link',
   Badge = 'badge',
   Plus = 'plus',
+  // Browsers
+  Chrome = 'chrome',
+  Edge = 'edge',
 }
 
 export enum TargetId {

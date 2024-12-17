@@ -10,6 +10,7 @@ export enum OnboardingStep {
   AndroidApp = 'android_app',
   PWA = 'pwa',
   Plus = 'plus',
+  Extension = 'extension',
   InstallDesktop = 'install_desktop',
 }
 
