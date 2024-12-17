@@ -264,7 +264,11 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.PWA);
     }
 
-    if (extensionExperiment && activeScreen !== OnboardingStep.Extension) {
+    if (
+      extensionExperiment &&
+      shouldShowExtensionOnboarding &&
+      activeScreen !== OnboardingStep.Extension
+    ) {
       return setActiveScreen(OnboardingStep.Extension);
     }
 
@@ -455,8 +459,9 @@ export function OnboardPage(): ReactElement {
               <OnboardingAndroidApp />
             )}
             {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
-            {activeScreen === OnboardingStep.Extension &&
-              extensionExperiment && <OnboardingExtension />}
+            {activeScreen === OnboardingStep.Extension && (
+              <OnboardingExtension />
+            )}
           </div>
         )}
       </div>
