@@ -321,6 +321,7 @@ export const CUSTOM_FEED_FRAGMENT = gql`
     }
     slug
     createdAt
+    type
   }
 `;
 

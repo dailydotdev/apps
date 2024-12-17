@@ -39,12 +39,18 @@ export type FeedFlags = {
   disableEngagementFilter?: boolean;
 };
 
+export enum FeedType {
+  Main = 'main',
+  Custom = 'custom',
+}
+
 export type Feed = {
   id: string;
   userId: string;
   flags?: FeedFlags;
   slug: string;
   createdAt: Date;
+  type: FeedType;
 };
 
 export type FeedList = {

@@ -20,6 +20,7 @@ import {
 } from '../../../typography/Typography';
 import useFeedSettings from '../../../../hooks/useFeedSettings';
 import useTagAndSource from '../../../../hooks/useTagAndSource';
+import { FeedType } from '../../../../graphql/feed';
 
 enum FeedSettingsTagsSectionTabs {
   Suggested = 'Suggested',
@@ -105,9 +106,16 @@ export const FeedSettingsTagsSection = (): ReactElement => {
               shouldFilterLocally
               feedId={feed?.id}
               onClickTag={onTagClick}
-              // TODO AS-814 - check if main feed for origins
-              origin={Origin.CustomFeed}
-              searchOrigin={Origin.CustomFeed}
+              origin={
+                feed.type === FeedType.Main
+                  ? Origin.TagsFilter
+                  : Origin.CustomFeed
+              }
+              searchOrigin={
+                feed.type === FeedType.Main
+                  ? Origin.ManageTag
+                  : Origin.CustomFeed
+              }
               TagElement={TagElement}
               searchQuery={searchQuery}
               searchTags={searchResult?.searchTags.tags || []}
