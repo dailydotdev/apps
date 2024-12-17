@@ -26,9 +26,11 @@ export const CreateFeedButton = ({
 
   const contentTypeStep = activeScreen === OnboardingStep.ContentTypes;
   const sourceStep = activeScreen === OnboardingStep.Sources;
-  const CTAStep =
-    activeScreen === OnboardingStep.AndroidApp ||
-    activeScreen === OnboardingStep.PWA;
+  const CTAStep = [
+    OnboardingStep.AndroidApp,
+    OnboardingStep.PWA,
+    OnboardingStep.Extension,
+  ].includes(activeScreen);
 
   const contentTypeNotEmpty =
     !!getContentTypeNotEmpty({
