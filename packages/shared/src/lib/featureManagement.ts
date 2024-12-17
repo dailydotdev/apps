@@ -39,7 +39,7 @@ const feature = {
     pri_01jbsccbdbcwyhdy8hy3c2etyn: PlusPriceType.Monthly,
     pri_01jbscda57910yvwjtyapnrrzc: PlusPriceType.Yearly,
   }),
-  onboardingExtension: new Feature('onboarding_extension', true),
+  onboardingExtension: new Feature('onboarding_extension', false),
 };
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
