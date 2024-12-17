@@ -22,6 +22,7 @@ import { FeedSettingsTagsSection } from './sections/FeedSettingsTagsSection';
 import { FeedSettingsContentPreferencesSection } from './sections/FeedSettingsContentPreferencesSection';
 import { FeedSettingsAISection } from './sections/FeedSettingsAISection';
 import { FeedSettingsFiltersSection } from './sections/FeedSettingsFiltersSection';
+import { webappUrl } from '../../../lib/constants';
 
 export type FeedSettingsEditProps = {
   feedSlugOrId: string;
@@ -78,7 +79,7 @@ export const FeedSettingsEdit = ({
         size={Modal.Size.XLarge}
         tabs={tabs}
         onRequestClose={() => {
-          router.replace(`/feeds/${feedSlugOrId}`);
+          router.replace(`${webappUrl}feeds/${feedSlugOrId}`);
         }}
       >
         <FeedSettingsEditHeader />
