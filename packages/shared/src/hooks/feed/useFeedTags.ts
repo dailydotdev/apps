@@ -17,7 +17,6 @@ export const useFeedTags = ({
   width,
   offset = 0,
 }: UseFeedTags): string[] => {
-  const baseWidth = base + gap;
   return useMemo(() => {
     if (!tags?.length || width === 0) {
       return [];
@@ -26,6 +25,7 @@ export const useFeedTags = ({
     let totalLength = offset;
 
     return tags.reduce((items, tag, index) => {
+      const baseWidth = base + gap;
       const minWidth = index === 0 ? base : baseWidth;
       const addition = tag.length * char + minWidth;
       const remaining = tags.length - (items.length + 1); // the value 1 is for the tag we are about to add here
@@ -51,5 +51,5 @@ export const useFeedTags = ({
 
       return items;
     }, []);
-  }, [tags, width, offset]);
+  }, [base, tags, width, offset]);
 };
