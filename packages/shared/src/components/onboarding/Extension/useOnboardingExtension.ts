@@ -1,8 +1,13 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { checkIsBrowser, UserAgent } from '../../../lib/func';
+import {
+  checkIsBrowser,
+  checkIsChromeOnly,
+  UserAgent,
+} from '../../../lib/func';
 import { useActions, useViewSize, ViewSize } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
+import { isBrave } from '../../../lib/constants';
 
 interface UseOnboardingExtension {
   hasCheckedExtension: boolean;
@@ -17,7 +22,7 @@ export const useOnboardingExtension = (): UseOnboardingExtension => {
   const router = useRouter();
   const isComingFromExtension = router.query.ref === 'install';
 
-  const isChrome = checkIsBrowser(UserAgent.Chrome);
+  const isChrome = checkIsChromeOnly() || isBrave();
   const isEdge = checkIsBrowser(UserAgent.Edge);
   const isValidBrowser = isChrome || isEdge;
 
