@@ -60,7 +60,7 @@ export const FeedSettingsFiltersSection = (): ReactElement => {
           </Typography>
         </div>
         <Radio
-          name="theme"
+          name="feedMaxDayRange"
           options={feedRangeFilters}
           value={data.maxDayRange?.toString() || null}
           onChange={(value) => {
@@ -88,7 +88,7 @@ export const FeedSettingsFiltersSection = (): ReactElement => {
             }}
             leftIcon={<UpvoteIcon />}
             defaultValue={feed.flags?.minUpvotes}
-            name="name"
+            name="feedMinUpvotes"
             type="number"
             inputId="feedMinUpvotes"
             label="Min upvotes"
@@ -104,7 +104,7 @@ export const FeedSettingsFiltersSection = (): ReactElement => {
             }}
             leftIcon={<EyeIcon />}
             defaultValue={feed.flags?.minViews}
-            name="name"
+            name="feedMinViews"
             type="number"
             inputId="feedMinViews"
             label="Min views"
@@ -116,17 +116,15 @@ export const FeedSettingsFiltersSection = (): ReactElement => {
           />
         </div>
       </div>
-      <div className="flex flex-col gap-4">
-        <Checkbox
-          name="feedDisableEngagementFilter"
-          checked={data.disableEngagementFilter}
-          onToggleCallback={(value) =>
-            setData({ disableEngagementFilter: value })
-          }
-        >
-          Include posts I&apos;ve interacted with before
-        </Checkbox>
-      </div>
+      <Checkbox
+        name="feedDisableEngagementFilter"
+        checked={data.disableEngagementFilter}
+        onToggleCallback={(value) =>
+          setData({ disableEngagementFilter: value })
+        }
+      >
+        Include posts I&apos;ve interacted with before
+      </Checkbox>
     </>
   );
 };
