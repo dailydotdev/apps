@@ -25,6 +25,7 @@ import { FeedSettingsFiltersSection } from './sections/FeedSettingsFiltersSectio
 import { FeedSettingsContentSourcesSection } from './sections/FeedSettingsContentSourcesSection';
 import { webappUrl } from '../../../lib/constants';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import { FeedType } from '../../../graphql/feed';
 
 export type FeedSettingsEditProps = {
   feedSlugOrId: string;
@@ -92,7 +93,11 @@ export const FeedSettingsEdit = ({
         size={Modal.Size.XLarge}
         tabs={tabs}
         onRequestClose={() => {
-          router.replace(`${webappUrl}feeds/${feedSlugOrId}`);
+          if (feed?.type === FeedType.Main) {
+            router.replace(webappUrl);
+          } else {
+            router.replace(`${webappUrl}feeds/${feedSlugOrId}`);
+          }
         }}
       >
         <FeedSettingsEditHeader />
