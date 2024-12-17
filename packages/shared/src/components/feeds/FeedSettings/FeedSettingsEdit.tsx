@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useFeedSettingsEdit } from './useFeedSettingsEdit';
 import { Modal } from '../../modals/common/Modal';
@@ -22,6 +22,8 @@ import { FeedSettingsTagsSection } from './sections/FeedSettingsTagsSection';
 import { FeedSettingsContentPreferencesSection } from './sections/FeedSettingsContentPreferencesSection';
 import { FeedSettingsAISection } from './sections/FeedSettingsAISection';
 import { FeedSettingsFiltersSection } from './sections/FeedSettingsFiltersSection';
+import { webappUrl } from '../../../lib/constants';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 
 export type FeedSettingsEditProps = {
   feedSlugOrId: string;
@@ -33,6 +35,7 @@ export const FeedSettingsEdit = ({
   const router = useRouter();
   const feedSettingsEditContext = useFeedSettingsEdit({ feedSlugOrId });
   const { feed } = feedSettingsEditContext;
+  const { isPlus } = usePlusSubscription();
 
   const tabs = [
     {
@@ -65,6 +68,16 @@ export const FeedSettingsEdit = ({
     },
   ];
 
+  useEffect(() => {
+    if (!isPlus) {
+      router.replace(webappUrl);
+    }
+  }, [isPlus, router, feedSlugOrId]);
+
+  if (!isPlus) {
+    return null;
+  }
+
   if (!feed) {
     return null;
   }
@@ -78,7 +91,7 @@ export const FeedSettingsEdit = ({
         size={Modal.Size.XLarge}
         tabs={tabs}
         onRequestClose={() => {
-          router.replace(`/feeds/${feedSlugOrId}`);
+          router.replace(`${webappUrl}feeds/${feedSlugOrId}`);
         }}
       >
         <FeedSettingsEditHeader />
