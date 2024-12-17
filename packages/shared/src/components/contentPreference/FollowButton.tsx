@@ -98,13 +98,13 @@ export const FollowButton = ({
   }
 
   return (
-    <div className={classNames('inline-flex gap-2', className)}>
+    <div className={classNames('relative z-1 inline-flex gap-2', className)}>
       <SourceActionsFollow
         isSubscribed={!!currentStatus}
         isFetching={isLoading}
         variant={variant}
         onClick={(e) => {
-          e.preventDefault();
+          e.stopPropagation();
           onButtonClick();
         }}
         copyType={copyType}

@@ -14,6 +14,13 @@ import {
 } from '../../graphql/search';
 import useDebounce from '../useDebounce';
 import { defaultSearchDebounceMs } from '../../lib/func';
+import { useMutationSubscription } from '../mutationSubscription';
+import {
+  ContentPreferenceMutation,
+  contentPreferenceMutationMatcher,
+  mutationKeyToContentPreferenceStatusMap,
+} from '../contentPreference/types';
+import { PropsParameters } from '../../types';
 
 export type UseSearchProviderSuggestionsProps = {
   limit?: number;
@@ -70,6 +77,45 @@ export const useSearchProviderSuggestions = ({
       },
       [limit],
     ),
+  });
+
+  useMutationSubscription({
+    matcher: contentPreferenceMutationMatcher,
+    callback: ({
+      mutation,
+      queryClient: mutationQueryClient,
+      variables: mutationVariables,
+    }) => {
+      const [requestKey] = mutation.options.mutationKey as [
+        RequestKey,
+        ...unknown[],
+      ];
+
+      const { id: entityId } =
+        mutationVariables as PropsParameters<ContentPreferenceMutation>;
+
+      const nextStatus = mutationKeyToContentPreferenceStatusMap[requestKey];
+      mutationQueryClient.setQueryData<SearchSuggestionResult>(
+        queryKey,
+        (subData) => {
+          return {
+            ...subData,
+            hits: subData.hits?.map((hit) => {
+              if (hit.id === entityId) {
+                const newContentPreferenceEdge = structuredClone(hit);
+                newContentPreferenceEdge.contentPreference = {
+                  ...newContentPreferenceEdge.contentPreference,
+                  status: nextStatus,
+                };
+                return newContentPreferenceEdge;
+              }
+
+              return hit;
+            }),
+          };
+        },
+      );
+    },
   });
 
   return {

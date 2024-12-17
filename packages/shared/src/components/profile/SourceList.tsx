@@ -12,10 +12,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { Separator } from '../cards/common/common';
-import {
-  ContentPreferenceStatus,
-  ContentPreferenceType,
-} from '../../graphql/contentPreference';
+import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { FollowButton } from '../contentPreference/FollowButton';
 import { useFeedSettingsEditContext } from '../feeds/FeedSettings/FeedSettingsEditContext';
 import { CopyType } from '../sources/SourceActions/SourceActionsFollow';
@@ -98,7 +95,7 @@ export const SourceList = ({
               feedId={feed?.id}
               entityId={source.id}
               type={ContentPreferenceType.Source}
-              status={ContentPreferenceStatus.Follow}
+              status={source.contentPreference.status}
               entityName={`@${source.handle}`}
               showSubscribe={false}
               copyType={CopyType.Custom}

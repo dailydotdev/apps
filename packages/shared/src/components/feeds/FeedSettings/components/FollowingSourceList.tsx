@@ -27,7 +27,12 @@ export const FollowingSourceList = ({
     return data?.pages.reduce((acc, p) => {
       p?.edges.forEach(({ node }) => {
         if (type && node.source.type === type) {
-          acc.push(node.source);
+          acc.push({
+            ...node.source,
+            contentPreference: {
+              status: node.status,
+            },
+          });
         }
       });
 
