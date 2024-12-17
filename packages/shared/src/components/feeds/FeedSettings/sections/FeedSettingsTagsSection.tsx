@@ -21,13 +21,20 @@ import {
 import useFeedSettings from '../../../../hooks/useFeedSettings';
 import useTagAndSource from '../../../../hooks/useTagAndSource';
 
-const tabs = ['Suggested', 'My tags'];
+enum FeedSettingsTagsSectionTabs {
+  Suggested = 'Suggested',
+  MyTags = 'My tags',
+}
+
+const tabs = Object.values(FeedSettingsTagsSectionTabs);
 
 const noop = () => undefined;
 
 export const FeedSettingsTagsSection = (): ReactElement => {
   const { feed, onTagClick } = useContext(FeedSettingsEditContext);
-  const [activeView, setActiveView] = useState<string>(() => tabs[0]);
+  const [activeView, setActiveView] = useState<string>(
+    () => FeedSettingsTagsSectionTabs.Suggested,
+  );
   const { feedSettings } = useFeedSettings({ feedId: feed?.id });
   const { onUnfollowTags } = useTagAndSource({
     origin: Origin.CustomFeed,
@@ -91,7 +98,7 @@ export const FeedSettingsTagsSection = (): ReactElement => {
       >
         <ModalTabs className="border-b border-border-subtlest-tertiary pb-[0.70rem]" />
         <div className="flex w-full max-w-full flex-col">
-          {activeView === 'Suggested' && (
+          {activeView === FeedSettingsTagsSectionTabs.Suggested && (
             <TagSelection
               classNameTags="!justify-start"
               shouldUpdateAlerts={false}
@@ -106,7 +113,7 @@ export const FeedSettingsTagsSection = (): ReactElement => {
               searchTags={searchResult?.searchTags.tags || []}
             />
           )}
-          {activeView === 'My tags' && (
+          {activeView === FeedSettingsTagsSectionTabs.MyTags && (
             <div className="flex flex-col gap-6">
               {onboardingTagsPerLetter.map(([letter, tags]) => {
                 return (
