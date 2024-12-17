@@ -25,7 +25,6 @@ export const CreateFeedButton = ({
   const { selectedSettings, checkSourceBlocked } = useAdvancedSettings();
 
   const contentTypeStep = activeScreen === OnboardingStep.ContentTypes;
-  const sourceStep = activeScreen === OnboardingStep.Sources;
   const CTAStep = [
     OnboardingStep.AndroidApp,
     OnboardingStep.PWA,
