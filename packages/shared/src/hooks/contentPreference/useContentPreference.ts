@@ -39,6 +39,10 @@ export const useContentPreference = (): UseContentPreference => {
       feedId,
       opts,
     }: PropsParameters<UseContentPreference['follow']>) => {
+      const extra =
+        opts?.extra || feedId
+          ? JSON.stringify({ ...opts?.extra, feedId })
+          : undefined;
       if (!user) {
         showLogin({ trigger: AuthTriggers.Follow });
 
@@ -49,7 +53,7 @@ export const useContentPreference = (): UseContentPreference => {
         event_name: LogEvent.Follow,
         target_id: id,
         target_type: entityName,
-        extra: opts?.extra ? JSON.stringify(opts.extra) : undefined,
+        extra: extra || undefined,
       });
 
       await gqlClient.request(CONTENT_PREFERENCE_FOLLOW_MUTATION, {
@@ -72,6 +76,10 @@ export const useContentPreference = (): UseContentPreference => {
       feedId,
       opts,
     }: PropsParameters<UseContentPreference['unfollow']>) => {
+      const extra =
+        opts?.extra || feedId
+          ? JSON.stringify({ ...opts?.extra, feedId })
+          : undefined;
       if (!user) {
         showLogin({ trigger: AuthTriggers.Follow });
 
@@ -82,7 +90,7 @@ export const useContentPreference = (): UseContentPreference => {
         event_name: LogEvent.Unfollow,
         target_id: id,
         target_type: entityName,
-        extra: opts?.extra ? JSON.stringify(opts.extra) : undefined,
+        extra: extra || undefined,
       });
 
       await gqlClient.request(CONTENT_PREFERENCE_UNFOLLOW_MUTATION, {
@@ -104,6 +112,10 @@ export const useContentPreference = (): UseContentPreference => {
       feedId,
       opts,
     }: PropsParameters<UseContentPreference['subscribe']>) => {
+      const extra =
+        opts?.extra || feedId
+          ? JSON.stringify({ ...opts?.extra, feedId })
+          : undefined;
       if (!user) {
         showLogin({ trigger: AuthTriggers.Follow });
 
@@ -114,7 +126,7 @@ export const useContentPreference = (): UseContentPreference => {
         event_name: LogEvent.Subscribe,
         target_id: id,
         target_type: entityName,
-        extra: opts?.extra ? JSON.stringify(opts.extra) : undefined,
+        extra: extra || undefined,
       });
 
       await gqlClient.request(CONTENT_PREFERENCE_FOLLOW_MUTATION, {
@@ -140,6 +152,10 @@ export const useContentPreference = (): UseContentPreference => {
       feedId,
       opts,
     }: PropsParameters<UseContentPreference['subscribe']>) => {
+      const extra =
+        opts?.extra || feedId
+          ? JSON.stringify({ ...opts?.extra, feedId })
+          : undefined;
       if (!user) {
         showLogin({ trigger: AuthTriggers.Follow });
 
@@ -150,7 +166,7 @@ export const useContentPreference = (): UseContentPreference => {
         event_name: LogEvent.Unsubscribe,
         target_id: id,
         target_type: entityName,
-        extra: opts?.extra ? JSON.stringify(opts.extra) : undefined,
+        extra: extra || undefined,
       });
 
       await gqlClient.request(CONTENT_PREFERENCE_FOLLOW_MUTATION, {
@@ -173,6 +189,10 @@ export const useContentPreference = (): UseContentPreference => {
       feedId,
       opts,
     }: PropsParameters<UseContentPreference['block']>) => {
+      const extra =
+        opts?.extra || feedId
+          ? JSON.stringify({ ...opts?.extra, feedId })
+          : undefined;
       if (!user) {
         showLogin({ trigger: AuthTriggers.Follow });
 
@@ -183,7 +203,7 @@ export const useContentPreference = (): UseContentPreference => {
         event_name: LogEvent.Block,
         target_id: id,
         target_type: entityName,
-        extra: opts?.extra ? JSON.stringify(opts.extra) : undefined,
+        extra: extra || undefined,
       });
 
       await gqlClient.request(CONTENT_PREFERENCE_BLOCK_MUTATION, {
@@ -205,6 +225,10 @@ export const useContentPreference = (): UseContentPreference => {
       feedId,
       opts,
     }: PropsParameters<UseContentPreference['unblock']>) => {
+      const extra =
+        opts?.extra || feedId
+          ? JSON.stringify({ ...opts?.extra, feedId })
+          : undefined;
       if (!user) {
         showLogin({ trigger: AuthTriggers.Follow });
 
@@ -215,7 +239,7 @@ export const useContentPreference = (): UseContentPreference => {
         event_name: LogEvent.Unblock,
         target_id: id,
         target_type: entityName,
-        extra: opts?.extra ? JSON.stringify(opts.extra) : undefined,
+        extra: extra || undefined,
       });
 
       await gqlClient.request(CONTENT_PREFERENCE_UNBLOCK_MUTATION, {
