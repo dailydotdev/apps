@@ -47,7 +47,6 @@ import {
 import {
   feature,
   featureOnboardingAndroid,
-  featureOnboardingExtension,
   featureOnboardingPWA,
   featureOnboardingSources,
 } from '@dailydotdev/shared/src/lib/featureManagement';
@@ -186,7 +185,7 @@ export function OnboardPage(): ReactElement {
   });
   const { shouldShowExtensionOnboarding } = useOnboardingExtension();
   const { value: extensionExperiment } = useConditionalFeature({
-    feature: featureOnboardingExtension,
+    feature: feature.onboardingExtension,
     shouldEvaluate: shouldEnrollOnboardingStep && shouldShowExtensionOnboarding,
   });
 
@@ -196,9 +195,11 @@ export function OnboardPage(): ReactElement {
   });
 
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
-  const isCTA =
-    activeScreen === OnboardingStep.AndroidApp ||
-    activeScreen === OnboardingStep.PWA;
+  const isCTA = [
+    OnboardingStep.AndroidApp,
+    OnboardingStep.PWA,
+    OnboardingStep.Extension,
+  ].includes(activeScreen);
 
   useEffect(() => {
     if (!isPageReady || isLogged.current) {
@@ -398,6 +399,7 @@ export function OnboardPage(): ReactElement {
           'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
           activeScreen === OnboardingStep.Intro && wrapperMaxWidth,
           !isAuthenticating && 'mt-7.5 flex-1 content-center',
+          activeScreen === OnboardingStep.Extension && '!flex-col',
         )}
       >
         {showOnboardingPage && (
