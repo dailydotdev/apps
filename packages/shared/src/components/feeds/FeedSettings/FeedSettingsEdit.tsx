@@ -18,6 +18,7 @@ import { FeedSettingsEditHeader } from './FeedSettingsEditHeader';
 import { FeedSettingsEditBody } from './FeedSettingsEditBody';
 import { FeedSettingsGeneralSection } from './sections/FeedSettingsGeneralSection';
 import { FeedSettingsTitle } from './FeedSettingsTitle';
+import { FeedSettingsTagsSection } from './sections/FeedSettingsTagsSection';
 import { FeedSettingsContentPreferencesSection } from './sections/FeedSettingsContentPreferencesSection';
 import { FeedSettingsAISection } from './sections/FeedSettingsAISection';
 import { FeedSettingsFiltersSection } from './sections/FeedSettingsFiltersSection';
@@ -90,6 +91,9 @@ export const FeedSettingsEdit = ({
           <Modal.Sidebar.Inner>
             <FeedSettingsEditBody view={FeedSettingsMenu.General}>
               <FeedSettingsGeneralSection />
+            </FeedSettingsEditBody>
+            <FeedSettingsEditBody view={FeedSettingsMenu.Tags}>
+              <FeedSettingsTagsSection />
             </FeedSettingsEditBody>
             <FeedSettingsEditBody view={FeedSettingsMenu.ContentPreferences}>
               <FeedSettingsContentPreferencesSection />
