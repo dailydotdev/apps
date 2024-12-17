@@ -47,6 +47,7 @@ import {
 import {
   feature,
   featureOnboardingAndroid,
+  featureOnboardingExtension,
   featureOnboardingPWA,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
@@ -175,7 +176,7 @@ export function OnboardPage(): ReactElement {
   });
   const { shouldShowExtensionOnboarding } = useOnboardingExtension();
   const { value: extensionExperiment } = useConditionalFeature({
-    feature: feature.onboardingExtension,
+    feature: featureOnboardingExtension,
     shouldEvaluate: shouldEnrollOnboardingStep && shouldShowExtensionOnboarding,
   });
 

@@ -280,13 +280,13 @@ export const cloudinaryOnboardingExtension = {
     default:
       'https://res.cloudinary.com/daily-now/image/upload/s--HjgXzokn--/c_scale,h_360,w_820/f_auto/dailydev-extenstion-mindblown_ggmkfg',
     retina:
-      'https://daily-now-res.cloudinary.com/image/upload/s--8DUtxwmf--/v1731233621/dailydev-extenstion-mindblown_ggmkfg.png',
+      'https://res.cloudinary.com/daily-now/image/upload/s--HjgXzokn--/f_auto/dailydev-extenstion-mindblown_ggmkfg',
   },
   edge: {
     default:
       'https://res.cloudinary.com/daily-now/image/upload/s--kvj5ZB_s--/c_scale,h_360,w_820/f_auto/dailydev-extenstion-mindblown-edge_svb0kv',
     retina:
-      'https://daily-now-res.cloudinary.com/image/upload/v1731233621/dailydev-extenstion-mindblown-edge_svb0kv.png',
+      'https://res.cloudinary.com/daily-now/image/upload/s--kvj5ZB_s--/f_auto/dailydev-extenstion-mindblown-edge_svb0kv',
   },
 };
 
