@@ -65,7 +65,11 @@ export const OnboardingExtension = (): ReactElement => {
         >
           <span>Get it for Chrome</span>
         </Button>
-        <Typography color={TypographyColor.Secondary}>
+        <Typography
+          color={TypographyColor.Secondary}
+          tag={TypographyTag.P}
+          type={TypographyType.Body}
+        >
           Dare to skip? <strong>You might miss out</strong>.
         </Typography>
       </div>
