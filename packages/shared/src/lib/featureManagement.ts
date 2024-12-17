@@ -39,14 +39,9 @@ const feature = {
     pri_01jbsccbdbcwyhdy8hy3c2etyn: PlusPriceType.Monthly,
     pri_01jbscda57910yvwjtyapnrrzc: PlusPriceType.Yearly,
   }),
-  postPersonalizedBanner: new Feature('post_banner_personalized', false),
 };
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
-export const featureOnboardingSources = new Feature(
-  'onboarding_sources',
-  false,
-);
 
 export const featureOnboardingPWA = new Feature('onboarding_pwa', false);
 export const featureOnboardingAndroid = new Feature(

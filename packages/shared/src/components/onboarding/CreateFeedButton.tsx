@@ -25,7 +25,6 @@ export const CreateFeedButton = ({
   const { selectedSettings, checkSourceBlocked } = useAdvancedSettings();
 
   const contentTypeStep = activeScreen === OnboardingStep.ContentTypes;
-  const sourceStep = activeScreen === OnboardingStep.Sources;
   const CTAStep =
     activeScreen === OnboardingStep.AndroidApp ||
     activeScreen === OnboardingStep.PWA;
@@ -45,11 +44,7 @@ export const CreateFeedButton = ({
 
   const isPlusStep = activeScreen === OnboardingStep.Plus;
   const canCreateFeed =
-    tagsCountMatch ||
-    contentTypeNotEmpty ||
-    sourceStep ||
-    isPlusStep ||
-    CTAStep;
+    tagsCountMatch || contentTypeNotEmpty || isPlusStep || CTAStep;
   const { sidebarRendered } = useSidebarRendered();
   const buttonName =
     customActionName ??

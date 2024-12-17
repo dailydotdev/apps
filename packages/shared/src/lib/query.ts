@@ -183,7 +183,6 @@ export enum RequestKey {
   TopReaderBadge = 'top_reader_badge',
   ReferringUser = 'referring_user',
   SearchSources = 'search_sources',
-  OnboardingSources = 'onboarding_sources',
   UserShortById = 'user_short_by_id',
   BookmarkFolders = 'bookmark_folders',
   FetchedOriginalTitle = 'fetched_original_title',

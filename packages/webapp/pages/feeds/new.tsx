@@ -18,7 +18,6 @@ import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import {
   useActions,
   useFeeds,
-  usePlusSubscription,
   useProgressAnimation,
   useToastNotification,
 } from '@dailydotdev/shared/src/hooks';
@@ -73,13 +72,13 @@ const NewFeedPage = (): ReactElement => {
   const { showPrompt } = usePrompt();
   const { FeedPageLayoutComponent } = useFeedLayout();
   const { logEvent } = useLogContext();
-  const { showPlusSubscription } = usePlusSubscription();
 
   useEffect(() => {
-    if (showPlusSubscription) {
-      router.replace(webappUrl);
-    }
-  }, [showPlusSubscription, router]);
+    router.replace(webappUrl);
+  }, [router]);
+
+  // TODO: Remove once the new page is implemented
+  return null;
 
   const { user } = useAuthContext();
   const { feedSettings } = useFeedSettings({ feedId: newFeedId });
@@ -179,10 +178,6 @@ const NewFeedPage = (): ReactElement => {
       event_name: LogEvent.StartCustomFeed,
     });
   }, [logEvent]);
-
-  if (showPlusSubscription) {
-    return null;
-  }
 
   if (finished) {
     return (
