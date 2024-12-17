@@ -19,6 +19,7 @@ export class Feature<T extends JSONValue> {
 }
 
 const feature = {
+  feedActionSpacing: new Feature('feed_action_spacing', true),
   showError: new Feature('show_error', false),
   feedVersion: new Feature('feed_version', 15),
   onboardingVisual: new Feature('onboarding_visual', {

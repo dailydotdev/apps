@@ -4,6 +4,8 @@ import { Post } from '../../../graphql/posts';
 import Classed from '../../../lib/classed';
 import { useFeedTags } from '../../../hooks/feed/useFeedTags';
 import { useFeedLayout } from '../../../hooks';
+import { useFeature } from '../../GrowthBookProvider';
+import { feature } from '../../../lib/featureManagement';
 
 interface PostTagsProps extends Pick<Post, 'tags'> {
   className?: string;
@@ -21,7 +23,13 @@ export default function PostTags({
   const { isListMode } = useFeedLayout();
   const elementRef = useRef<HTMLDivElement>(null);
   const width = elementRef?.current?.getBoundingClientRect()?.width || 0;
-  const list = useFeedTags({ tags, width, offset: isListMode ? 0 : 8 });
+  const feedActionSpacing = useFeature(feature.feedActionSpacing);
+  const list = useFeedTags({
+    tags,
+    width,
+    offset: isListMode ? 0 : 8,
+    base: feedActionSpacing ? 16 : undefined,
+  });
   const tagsCount = tags?.length || 0;
   const remainingTags = tagsCount - list.length;
 

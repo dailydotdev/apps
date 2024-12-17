@@ -3,19 +3,21 @@ import { useMemo } from 'react';
 interface UseFeedTags {
   tags: string[];
   width: number;
+  base?: number;
   offset?: number;
 }
 
-const base = 25;
+const basePadding = 25;
 const char = 8;
 const gap = 8;
-const baseWidth = base + gap;
 
 export const useFeedTags = ({
+  base = basePadding,
   tags,
   width,
   offset = 0,
 }: UseFeedTags): string[] => {
+  const baseWidth = base + gap;
   return useMemo(() => {
     if (!tags?.length || width === 0) {
       return [];

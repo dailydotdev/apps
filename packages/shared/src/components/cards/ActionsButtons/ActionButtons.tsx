@@ -21,6 +21,8 @@ import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
 import { IconSize } from '../../Icon';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
+import { useFeature } from '../../GrowthBookProvider';
+import { feature } from '../../../lib/featureManagement';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -45,6 +47,7 @@ const ActionButtons = ({
   const isUpvoteActive = post.userState?.vote === UserVote.Up;
   const isDownvoteActive = post.userState?.vote === UserVote.Down;
   const { onShowPanel, onClose } = useBlockPostPanel(post);
+  const feedActionSpacing = useFeature(feature.feedActionSpacing);
 
   if (isFeedPreview) {
     return null;
@@ -59,29 +62,6 @@ const ActionButtons = ({
 
     await onDownvoteClick?.(post);
   };
-
-  const lastActions = (
-    <>
-      <BookmarkButton
-        post={post}
-        buttonProps={{
-          id: `post-${post.id}-bookmark-btn`,
-          icon: <BookmarkIcon secondary={post.bookmarked} />,
-          onClick: () => onBookmarkClick(post),
-          size: ButtonSize.Small,
-        }}
-      />
-      <SimpleTooltip content="Copy link">
-        <Button
-          size={ButtonSize.Small}
-          icon={<LinkIcon />}
-          onClick={(e) => onCopyLinkClick?.(e, post)}
-          variant={ButtonVariant.Tertiary}
-          color={ButtonColor.Cabbage}
-        />
-      </SimpleTooltip>
-    </>
-  );
 
   return (
     <div
@@ -118,7 +98,9 @@ const ActionButtons = ({
             ) : null}
           </Button>
         </SimpleTooltip>
-        <div className="box-border border border-surface-float py-2.5" />
+        {!feedActionSpacing && (
+          <div className="box-border border border-surface-float py-2.5" />
+        )}
         <SimpleTooltip
           content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
         >
@@ -149,7 +131,24 @@ const ActionButtons = ({
           ) : null}
         </QuaternaryButton>
       </SimpleTooltip>
-      {lastActions}
+      <BookmarkButton
+        post={post}
+        buttonProps={{
+          id: `post-${post.id}-bookmark-btn`,
+          icon: <BookmarkIcon secondary={post.bookmarked} />,
+          onClick: () => onBookmarkClick(post),
+          size: ButtonSize.Small,
+        }}
+      />
+      <SimpleTooltip content="Copy link">
+        <Button
+          size={ButtonSize.Small}
+          icon={<LinkIcon />}
+          onClick={(e) => onCopyLinkClick?.(e, post)}
+          variant={ButtonVariant.Tertiary}
+          color={ButtonColor.Cabbage}
+        />
+      </SimpleTooltip>
     </div>
   );
 };
