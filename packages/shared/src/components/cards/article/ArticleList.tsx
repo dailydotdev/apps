@@ -56,7 +56,12 @@ export const ArticleList = forwardRef(function ArticleList(
   const { title } = useSmartTitle(post);
   const { title: truncatedTitle } = useTruncatedSummary(title);
   const actionButtons = (
-    <Container className="pointer-events-none">
+    <Container
+      className={classNames(
+        'pointer-events-none',
+        feedActionSpacing && 'flex-[unset]',
+      )}
+    >
       <ActionButtons
         className={feedActionSpacing ? 'justify-between' : 'mt-4'}
         post={post}
