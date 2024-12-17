@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect } from 'react';
+import React, { ReactElement, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { useFeedSettingsEdit } from './useFeedSettingsEdit';
 import { Modal } from '../../modals/common/Modal';
@@ -70,6 +70,15 @@ export const FeedSettingsEdit = ({
     },
   ];
 
+  const defaultView = useMemo(() => {
+    const settingsMenuEntry = Object.entries(FeedSettingsMenu).find(
+      ([key]) => router.query.dview === key.toLowerCase(),
+    );
+    const settingsMenuKey = settingsMenuEntry?.[1];
+
+    return settingsMenuKey;
+  }, [router.query.dview]);
+
   useEffect(() => {
     if (!isPlus) {
       router.replace(webappUrl);
@@ -99,6 +108,7 @@ export const FeedSettingsEdit = ({
             router.replace(`${webappUrl}feeds/${feedSlugOrId}`);
           }
         }}
+        defaultView={defaultView}
       >
         <FeedSettingsEditHeader />
         <Modal.Sidebar>

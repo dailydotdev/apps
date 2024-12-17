@@ -4,18 +4,16 @@ import Link from '../utilities/Link';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { Divider } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
-import { LazyModal } from '../modals/common/types';
-import { useLazyModal } from '../../hooks/useLazyModal';
 import { useReadingStreak } from '../../hooks/streaks';
 import { ButtonIconPosition } from '../buttons/common';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import HeaderLogo from '../layout/HeaderLogo';
 import { LogoPosition } from '../Logo';
+import { webappUrl } from '../../lib/constants';
 
 export function MobileFeedActions(): ReactElement {
   const router = useRouter();
-  const { openModal } = useLazyModal();
   const { user } = useAuthContext();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
 
@@ -36,11 +34,9 @@ export function MobileFeedActions(): ReactElement {
         )}
         <Divider className="bg-border-subtlest-tertiary" vertical />
         <MyFeedHeading
-          onOpenFeedFilters={() =>
-            openModal({
-              type: LazyModal.FeedFilters,
-            })
-          }
+          onOpenFeedFilters={() => {
+            router.push(`${webappUrl}feeds/${user.id}/edit`);
+          }}
         />
         {user && (
           <Link href={user.permalink} passHref>

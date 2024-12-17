@@ -1,5 +1,6 @@
 import React, { type ReactElement } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ShieldCheckIcon, ShieldIcon, ShieldWarningIcon } from '../../icons';
 import {
@@ -12,11 +13,13 @@ import { SimpleTooltip } from '../../tooltips';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { ActionType } from '../../../graphql/actions';
 import { LazyModal } from '../../modals/common/types';
-import { FilterMenuTitle } from '../../filters/helpers';
 
 import { ClickbaitTrial } from '../../plus/ClickbaitTrial';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import type { Post } from '../../../graphql/posts';
+import { FeedSettingsMenu } from '../../feeds/FeedSettings/types';
+import { webappUrl } from '../../../lib/constants';
+import { useAuthContext } from '../../../contexts/AuthContext';
 
 export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const { openModal } = useLazyModal();
@@ -25,6 +28,8 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const { fetchSmartTitle, fetchedSmartTitle, shieldActive } =
     useSmartTitle(post);
   const isMobile = useViewSize(ViewSize.MobileL);
+  const router = useRouter();
+  const { user } = useAuthContext();
 
   if (!showPlusSubscription) {
     return null;
@@ -73,12 +78,9 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
                       type: LazyModal.ClickbaitShield,
                     });
                   } else {
-                    openModal({
-                      type: LazyModal.FeedFilters,
-                      props: {
-                        defaultView: FilterMenuTitle.ContentTypes,
-                      },
-                    });
+                    router.push(
+                      `${webappUrl}feeds/${user.id}/edit?dview=${FeedSettingsMenu.AI}`,
+                    );
                   }
                 } else {
                   await fetchSmartTitle();
