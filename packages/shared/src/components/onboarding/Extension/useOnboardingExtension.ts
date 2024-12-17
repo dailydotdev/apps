@@ -4,7 +4,16 @@ import { checkIsBrowser, UserAgent } from '../../../lib/func';
 import { useActions, useViewSize, ViewSize } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 
-export const useOnboardingExtension = () => {
+interface UseOnboardingExtension {
+  hasCheckedExtension: boolean;
+  shouldShowExtensionOnboarding: boolean;
+  browser: {
+    isChrome: boolean;
+    isEdge: boolean;
+  };
+}
+
+export const useOnboardingExtension = (): UseOnboardingExtension => {
   const router = useRouter();
   const isComingFromExtension = router.query.ref === 'install';
 
