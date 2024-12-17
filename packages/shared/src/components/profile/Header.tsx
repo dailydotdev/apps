@@ -1,9 +1,8 @@
 import React, { CSSProperties, ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { PublicProfile } from '../../lib/user';
-import { SettingsIcon, ShareIcon } from '../icons';
+import { SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { largeNumberFormat, ReferralCampaignKey } from '../../lib';
 import { ProfileSettingsMenu } from './ProfileSettingsMenu';
@@ -16,6 +15,7 @@ import { UpgradeToPlus } from '../UpgradeToPlus';
 import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { TargetId } from '../../lib/log';
+import CustomFeedOptionsMenu from '../CustomFeedOptionsMenu';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -33,12 +33,6 @@ export function Header({
   className,
   style,
 }: HeaderProps): ReactElement {
-  const [, onShareOrCopyLink] = useShareOrCopyLink({
-    text: `Check out ${user.name}'s profile on daily.dev`,
-    link: user.permalink,
-    cid: ReferralCampaignKey.ShareProfile,
-    logObject: () => ({ event_name: 'share profile', target_id: user.id }),
-  });
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isPlus } = usePlusSubscription();
@@ -93,12 +87,6 @@ export function Header({
           target={TargetId.MyProfile}
         />
       )}
-      <Button
-        variant={ButtonVariant.Float}
-        size={ButtonSize.Small}
-        icon={<ShareIcon />}
-        onClick={() => onShareOrCopyLink()}
-      />
       <FollowButton
         userId={user.id}
         type={ContentPreferenceType.User}
@@ -106,6 +94,19 @@ export function Header({
         entityName={`@${user.username}`}
         className="ml-2 flex-row-reverse"
       />
+      {!isSameUser && (
+        <CustomFeedOptionsMenu
+          shareProps={{
+            text: `Check out ${user.name}'s profile on daily.dev`,
+            link: user.permalink,
+            cid: ReferralCampaignKey.ShareProfile,
+            logObject: () => ({
+              event_name: 'share profile',
+              target_id: user.id,
+            }),
+          }}
+        />
+      )}
       {isSameUser && (
         <>
           <Button
