@@ -14,7 +14,7 @@ import {
   useToastNotification,
 } from '../../../hooks';
 import { emojiOptions, webappUrl } from '../../../lib/constants';
-import { Button, ButtonProps } from '../../buttons/Button';
+import { Button } from '../../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { TextField } from '../../fields/TextField';
 import { IconSize } from '../../Icon';
@@ -32,34 +32,6 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { PlusUser } from '../../PlusUser';
 import { ModalClose } from '../../modals/common/ModalClose';
 import { ActionType } from '../../../graphql/actions';
-
-const CreateTitle = ({ className }: { className?: string }): ReactElement => {
-  return (
-    <div className={classNames('flex items-center gap-4', className)}>
-      <Typography
-        className="tablet:typo-title3"
-        type={TypographyType.Body}
-        bold
-      >
-        New custom feed
-      </Typography>
-      <PlusUser />
-    </div>
-  );
-};
-
-const SubmitButton = (buttonProps: ButtonProps<'button'>): ReactElement => {
-  return (
-    <Button
-      {...buttonProps}
-      type="submit"
-      size={ButtonSize.Medium}
-      variant={ButtonVariant.Primary}
-    >
-      Create feed
-    </Button>
-  );
-};
 
 export const FeedSettingsCreate = (): ReactElement => {
   const [newFeedId] = useState(() => Date.now().toString());
@@ -173,7 +145,16 @@ export const FeedSettingsCreate = (): ReactElement => {
       >
         <ModalClose className="top-2" onClick={onRequestClose} type="button" />
         <Modal.Header title="" showCloseButton={false}>
-          <CreateTitle className="hidden tablet:flex" />
+          <div className="hidden items-center gap-4 tablet:flex">
+            <Typography
+              className="tablet:typo-title3"
+              type={TypographyType.Body}
+              bold
+            >
+              New custom feed
+            </Typography>
+            <PlusUser />
+          </div>
           <div className="flex w-full items-center justify-between gap-2 tablet:hidden">
             <Button
               type="button"
@@ -183,14 +164,28 @@ export const FeedSettingsCreate = (): ReactElement => {
             >
               Cancel
             </Button>
-            <SubmitButton
+            <Button
+              type="submit"
+              size={ButtonSize.Medium}
+              variant={ButtonVariant.Primary}
               loading={isSubmitPending || isAnimating}
               disabled={!data.name}
-            />
+            >
+              Create feed
+            </Button>
           </div>
         </Modal.Header>
         <Modal.Body className="flex flex-col gap-4">
-          <CreateTitle className="tablet:hidden" />
+          <div className="flex items-center gap-4 tablet:hidden">
+            <Typography
+              className="tablet:typo-title3"
+              type={TypographyType.Body}
+              bold
+            >
+              New custom feed
+            </Typography>
+            <PlusUser />
+          </div>
           <TextField
             className={{
               container: 'w-full',
@@ -244,11 +239,16 @@ export const FeedSettingsCreate = (): ReactElement => {
               ))}
             </ul>
           </div>
-          <SubmitButton
+          <Button
             className="hidden tablet:flex"
+            type="submit"
+            size={ButtonSize.Medium}
+            variant={ButtonVariant.Primary}
             loading={isSubmitPending || isAnimating}
             disabled={!data.name}
-          />
+          >
+            Create feed
+          </Button>
         </Modal.Body>
       </form>
     </Modal>
