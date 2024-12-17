@@ -48,7 +48,6 @@ import {
   feature,
   featureOnboardingAndroid,
   featureOnboardingPWA,
-  featureOnboardingSources,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import {
@@ -94,11 +93,6 @@ const OnboardingFooter = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingFooter" */ '@dailydotdev/shared/src/components/onboarding/OnboardingFooter'
   ).then((mod) => mod.OnboardingFooter),
-);
-const Sources = dynamic(() =>
-  import('@dailydotdev/shared/src/components/onboarding/Sources/Sources').then(
-    (mod) => mod.Sources,
-  ),
 );
 const OnboardingPlusStep = dynamic(() =>
   import(
@@ -174,10 +168,6 @@ export function OnboardPage(): ReactElement {
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
   const [shouldEnrollOnboardingStep, setShouldEnrollOnboardingStep] =
     useState(false);
-  const { value: showOnboardingSources } = useConditionalFeature({
-    feature: featureOnboardingSources,
-    shouldEvaluate: shouldEnrollOnboardingStep,
-  });
   const { value: appExperiment } = useConditionalFeature({
     feature: featureOnboardingAndroid,
     shouldEvaluate:
@@ -239,18 +229,9 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.ReadingReminder);
     }
 
-    if (
-      showOnboardingSources &&
-      (activeScreen === OnboardingStep.ReadingReminder ||
-        activeScreen === OnboardingStep.ContentTypes)
-    ) {
-      return setActiveScreen(OnboardingStep.Sources);
-    }
-
     const isLastStepBeforePlus = [
       OnboardingStep.ContentTypes,
       OnboardingStep.ReadingReminder,
-      OnboardingStep.Sources,
     ].includes(activeScreen);
     if (isOnboardingPlusActive && isLastStepBeforePlus) {
       return setActiveScreen(OnboardingStep.Plus);
@@ -355,10 +336,6 @@ export function OnboardPage(): ReactElement {
       return 'Continue';
     }
 
-    if (showOnboardingSources && activeScreen === OnboardingStep.ContentTypes) {
-      return 'Continue';
-    }
-
     if (activeScreen === OnboardingStep.Plus) {
       return 'Skip for now ➞';
     }
@@ -367,7 +344,7 @@ export function OnboardPage(): ReactElement {
     }
 
     return undefined;
-  }, [activeScreen, showOnboardingSources, isCTA]);
+  }, [activeScreen, isCTA]);
 
   const showOnboardingPage =
     !isAuthenticating && activeScreen === OnboardingStep.Intro && !shouldVerify;
@@ -380,7 +357,12 @@ export function OnboardPage(): ReactElement {
   }
 
   return (
-    <div className="z-3 flex h-full max-h-screen min-h-screen w-full flex-1 flex-col items-center overflow-x-hidden">
+    <div
+      className={classNames(
+        'z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
+        isCTA && 'fixed',
+      )}
+    >
       {showOnboardingPage && (
         <img
           alt="Onboarding background"
@@ -433,7 +415,8 @@ export function OnboardPage(): ReactElement {
               activeScreen === OnboardingStep.Intro
                 ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
                 : 'mb-10 ml-0 w-full flex-col items-center justify-start',
-              isCTA && 'relative mb-auto flex-1 overflow-hidden',
+              isCTA &&
+                'relative mb-auto flex-1 !justify-between overflow-hidden',
             )}
           >
             {activeScreen === OnboardingStep.ReadingReminder && (
@@ -449,7 +432,6 @@ export function OnboardPage(): ReactElement {
               />
             )}
             {activeScreen === OnboardingStep.ContentTypes && <ContentTypes />}
-            {activeScreen === OnboardingStep.Sources && <Sources />}
             {activeScreen === OnboardingStep.Plus && (
               <PaymentContextProvider>
                 <OnboardingPlusStep onClickNext={onClickNext} />

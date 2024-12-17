@@ -47,11 +47,7 @@ export const CreateFeedButton = ({
 
   const isPlusStep = activeScreen === OnboardingStep.Plus;
   const canCreateFeed =
-    tagsCountMatch ||
-    contentTypeNotEmpty ||
-    sourceStep ||
-    isPlusStep ||
-    CTAStep;
+    tagsCountMatch || contentTypeNotEmpty || isPlusStep || CTAStep;
   const { sidebarRendered } = useSidebarRendered();
   const buttonName =
     customActionName ??
