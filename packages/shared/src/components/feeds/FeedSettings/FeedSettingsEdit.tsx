@@ -39,36 +39,38 @@ export const FeedSettingsEdit = ({
   const { feed } = feedSettingsEditContext;
   const { isPlus } = usePlusSubscription();
 
-  const tabs = [
-    {
-      title: FeedSettingsMenu.General,
-      options: { icon: <EditIcon size={IconSize.Small} /> },
-    },
-    {
-      title: FeedSettingsMenu.Tags,
-      options: { icon: <HashtagIcon size={IconSize.Small} /> },
-    },
-    {
-      title: FeedSettingsMenu.ContentSources,
-      options: { icon: <AddUserIcon size={IconSize.Small} /> },
-    },
-    {
-      title: FeedSettingsMenu.ContentPreferences,
-      options: { icon: <AppIcon size={IconSize.Small} /> },
-    },
-    {
-      title: FeedSettingsMenu.AI,
-      options: { icon: <MagicIcon size={IconSize.Small} /> },
-    },
-    {
-      title: FeedSettingsMenu.Filters,
-      options: { icon: <FilterIcon size={IconSize.Small} /> },
-    },
-    {
-      title: FeedSettingsMenu.Blocking,
-      options: { icon: <BlockIcon size={IconSize.Small} /> },
-    },
-  ];
+  const tabs = useMemo(() => {
+    return [
+      {
+        title: FeedSettingsMenu.General,
+        options: { icon: <EditIcon size={IconSize.Small} /> },
+      },
+      {
+        title: FeedSettingsMenu.Tags,
+        options: { icon: <HashtagIcon size={IconSize.Small} /> },
+      },
+      {
+        title: FeedSettingsMenu.ContentSources,
+        options: { icon: <AddUserIcon size={IconSize.Small} /> },
+      },
+      {
+        title: FeedSettingsMenu.ContentPreferences,
+        options: { icon: <AppIcon size={IconSize.Small} /> },
+      },
+      {
+        title: FeedSettingsMenu.AI,
+        options: { icon: <MagicIcon size={IconSize.Small} /> },
+      },
+      feed?.type === FeedType.Custom && {
+        title: FeedSettingsMenu.Filters,
+        options: { icon: <FilterIcon size={IconSize.Small} /> },
+      },
+      {
+        title: FeedSettingsMenu.Blocking,
+        options: { icon: <BlockIcon size={IconSize.Small} /> },
+      },
+    ].filter(Boolean);
+  }, [feed?.type]);
 
   const defaultView = useMemo(() => {
     const settingsMenuEntry = Object.entries(FeedSettingsMenu).find(
