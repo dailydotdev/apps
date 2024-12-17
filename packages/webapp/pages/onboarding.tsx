@@ -171,7 +171,7 @@ export function OnboardPage(): ReactElement {
   const { isPushSupported } = usePushNotificationContext();
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
-  const [activeScreen, setActiveScreen] = useState(OnboardingStep.Extension);
+  const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
   const [shouldEnrollOnboardingStep, setShouldEnrollOnboardingStep] =
     useState(false);
   const { value: showOnboardingSources } = useConditionalFeature({
@@ -262,6 +262,10 @@ export function OnboardPage(): ReactElement {
 
     if (PWAExperiment && activeScreen !== OnboardingStep.PWA) {
       return setActiveScreen(OnboardingStep.PWA);
+    }
+
+    if (extensionExperiment && activeScreen !== OnboardingStep.Extension) {
+      return setActiveScreen(OnboardingStep.Extension);
     }
 
     logEvent({
