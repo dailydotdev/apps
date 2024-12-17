@@ -21,6 +21,7 @@ import { FeedSettingsTitle } from './FeedSettingsTitle';
 import { FeedSettingsTagsSection } from './sections/FeedSettingsTagsSection';
 import { FeedSettingsContentPreferencesSection } from './sections/FeedSettingsContentPreferencesSection';
 import { FeedSettingsAISection } from './sections/FeedSettingsAISection';
+import { FeedSettingsFiltersSection } from './sections/FeedSettingsFiltersSection';
 
 export type FeedSettingsEditProps = {
   feedSlugOrId: string;
@@ -99,6 +100,9 @@ export const FeedSettingsEdit = ({
             </FeedSettingsEditBody>
             <FeedSettingsEditBody view={FeedSettingsMenu.AI}>
               <FeedSettingsAISection />
+            </FeedSettingsEditBody>
+            <FeedSettingsEditBody view={FeedSettingsMenu.Filters}>
+              <FeedSettingsFiltersSection />
             </FeedSettingsEditBody>
           </Modal.Sidebar.Inner>
         </Modal.Sidebar>

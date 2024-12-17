@@ -78,6 +78,7 @@ export const useFeedSettingsEdit = ({
     return {
       name: feed?.flags.name,
       icon: feed?.flags.icon || '',
+      ...feed?.flags,
       ...formState,
     };
   }, [feed, formState]);
