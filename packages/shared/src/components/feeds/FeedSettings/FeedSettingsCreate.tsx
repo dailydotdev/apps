@@ -64,7 +64,7 @@ export const FeedSettingsCreate = (): ReactElement => {
       });
 
       onFinished();
-      delayedRedirect(`${webappUrl}feeds/${newFeed.id}`);
+      delayedRedirect(`${webappUrl}feeds/${newFeed.id}?created=1`);
     },
     onError: (error) => {
       const clientErrors = (error as ClientError)?.response?.errors || [];

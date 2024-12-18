@@ -7,6 +7,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { ClientError } from 'graphql-request';
+import { useRouter } from 'next/router';
 import {
   Ad,
   FeedData,
@@ -118,6 +119,7 @@ export default function useFeed<T>(
   placeholdersPerPage: number,
   params: UseFeedOptionalParams<T> = {},
 ): FeedReturnType {
+  const router = useRouter();
   const { logEvent } = useLogContext();
   const { query, variables, options = {}, settings, onEmptyFeed } = params;
   const { user, tokenRefreshed } = useContext(AuthContext);
@@ -349,6 +351,8 @@ export default function useFeed<T>(
     },
   );
 
+  const didJustCreateFeed = router.query?.created === '1';
+
   return {
     items,
     fetchPage: async () => {
@@ -358,7 +362,9 @@ export default function useFeed<T>(
     removePost: removeCachedPagePost(feedQueryKey, queryClient),
     canFetchMore: feedQuery.hasNextPage,
     emptyFeed:
-      !feedQuery?.data?.pages[0]?.page.edges.length && !feedQuery.isFetching,
+      (!feedQuery?.data?.pages[0]?.page.edges.length &&
+        !feedQuery.isFetching) ||
+      didJustCreateFeed,
     isError:
       clientError?.response?.errors?.[0]?.extensions?.code === GARMR_ERROR,
     isLoading: feedQuery.isLoading,
