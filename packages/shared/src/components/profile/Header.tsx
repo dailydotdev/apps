@@ -16,6 +16,7 @@ import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/u
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../lib/log';
 import CustomFeedOptionsMenu from '../CustomFeedOptionsMenu';
+import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -36,6 +37,7 @@ export function Header({
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isPlus } = usePlusSubscription();
+  const { follow, unfollow } = useContentPreference();
 
   const { data: contentPreference } = useContentPreferenceStatusQuery({
     id: user?.id,
@@ -97,6 +99,22 @@ export function Header({
         />
         {!isSameUser && (
           <CustomFeedOptionsMenu
+            onAdd={(feedId) =>
+              follow({
+                id: user.id,
+                entity: ContentPreferenceType.User,
+                entityName: user.username,
+                feedId,
+              })
+            }
+            onUndo={(feedId) =>
+              unfollow({
+                id: user.id,
+                entity: ContentPreferenceType.User,
+                entityName: user.username,
+                feedId,
+              })
+            }
             shareProps={{
               text: `Check out ${user.name}'s profile on daily.dev`,
               link: user.permalink,

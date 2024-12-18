@@ -37,7 +37,7 @@ const CustomFeedOptionsMenu = ({
 
   const handleOpenModal = () => {
     if (feeds?.edges?.length > 0) {
-      openModal({
+      return openModal({
         type: LazyModal.AddToCustomFeed,
         props: {
           onAdd,
