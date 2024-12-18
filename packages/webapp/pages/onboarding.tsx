@@ -121,10 +121,10 @@ const OnboardingExtension = dynamic(() =>
   ).then((mod) => mod.OnboardingExtension),
 );
 
-const InstallDesktop = dynamic(() =>
+const OnboardingInstallDesktop = dynamic(() =>
   import(
-    /* webpackChunkName: "onboardingInstallDesktopStep" */ '@dailydotdev/shared/src/components/onboarding/PWA/InstallDesktopStep'
-  ).then((mod) => mod.InstallDesktopStep),
+    /* webpackChunkName: "onboardingInstallDesktopStep" */ '@dailydotdev/shared/src/components/onboarding/PWA/OnboardingInstallDesktop'
+  ).then((mod) => mod.OnboardingInstallDesktop),
 );
 
 type OnboardingVisual = {
@@ -180,9 +180,7 @@ export function OnboardPage(): ReactElement {
   const { isPushSupported } = usePushNotificationContext();
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
-  const [activeScreen, setActiveScreen] = useState(
-    OnboardingStep.InstallDesktop,
-  );
+  const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
   const [shouldEnrollOnboardingStep, setShouldEnrollOnboardingStep] =
     useState(false);
   const { value: appExperiment } = useConditionalFeature({
@@ -201,16 +199,15 @@ export function OnboardPage(): ReactElement {
     shouldEvaluate: shouldEnrollOnboardingStep && isSafariOnIOS(),
   });
 
-  const {
-    isInstalledPWA,
-    isAvailable: canUserInstallDesktop,
-    promptToInstall,
-  } = useInstallPWA();
+  const { isInstalledPWA, isAvailable: canUserInstallDesktop } =
+    useInstallPWA();
   const { value: installDesktopExperiment } = useConditionalFeature({
     feature: featureOnboardingInstallDesktop,
-    shouldEvaluate: shouldEnrollOnboardingStep && shouldShowExtensionOnboarding,
+    shouldEvaluate:
+      shouldEnrollOnboardingStep &&
+      !isInstalledPWA &&
+      shouldShowExtensionOnboarding,
   });
-  console.log({ isInstalledPWA, canUserInstallDesktop, promptToInstall });
 
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
   const isCTA = [
@@ -483,7 +480,7 @@ export function OnboardPage(): ReactElement {
               <OnboardingExtension onClickNext={onClickNext} />
             )}
             {activeScreen === OnboardingStep.InstallDesktop && (
-              <InstallDesktop />
+              <OnboardingInstallDesktop onClickNext={onClickNext} />
             )}
           </div>
         )}

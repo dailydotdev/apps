@@ -30,11 +30,10 @@ export const useInstallPWA = (): UseInstallPWA => {
       if (prompt) {
         await installEvent.prompt();
         const { outcome } = await installEvent.userChoice;
-        console.log(`User response to the install prompt: ${outcome}`);
         return outcome;
       }
     } catch (e) {
-      console.log('Error during PWA installation:', e);
+      console.error('Error during PWA installation:', e);
     }
 
     return console.error(

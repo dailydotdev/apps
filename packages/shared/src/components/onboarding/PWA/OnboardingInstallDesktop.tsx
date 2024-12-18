@@ -11,9 +11,13 @@ import { useInstallPWA } from './useInstallPWA';
 import { cloudinaryPWADesktopInstall } from '../../../lib/image';
 import { PWADesktopIcon } from '../../icons/PWADesktop';
 
-export const InstallDesktopStep = (): ReactElement => {
+export const OnboardingInstallDesktop = ({
+  onClickNext,
+}: {
+  onClickNext: () => void;
+}): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { isInstalledPWA, promptToInstall } = useInstallPWA();
+  const { promptToInstall } = useInstallPWA();
 
   return (
     <section className="flex flex-1 flex-col laptop:justify-between">
@@ -30,7 +34,10 @@ export const InstallDesktopStep = (): ReactElement => {
         </Typography>
         <Button
           icon={<PWADesktopIcon aria-hidden />}
-          onClick={promptToInstall}
+          onClick={async () => {
+            await promptToInstall?.();
+            onClickNext?.();
+          }}
           variant={ButtonVariant.Primary}
         >
           Install on desktop
