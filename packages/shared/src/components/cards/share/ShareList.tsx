@@ -153,7 +153,7 @@ export const ShareList = forwardRef(function ShareList(
           }}
         />
       </CardContent>
-      {actionButtons}
+      {!feedActionSpacing && actionButtons}
       {children}
     </FeedItemContainer>
   );
