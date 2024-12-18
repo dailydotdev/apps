@@ -60,7 +60,7 @@ export const useFollowContentPreferenceMutationSubscription = ({
 
                   if (
                     queryType === RequestKey.UserFollowing &&
-                    node.referenceUser.id === entityId
+                    node.referenceUser?.id === entityId
                   ) {
                     node.referenceUser.contentPreference = {
                       status: nextStatus,
@@ -69,11 +69,15 @@ export const useFollowContentPreferenceMutationSubscription = ({
 
                   if (
                     queryType === RequestKey.UserFollowers &&
-                    node.user.id === entityId
+                    node.user?.id === entityId
                   ) {
                     node.user.contentPreference = {
                       status: nextStatus,
                     };
+                  }
+
+                  if (node.referenceId === entityId) {
+                    node.status = nextStatus;
                   }
 
                   return newContentPreferenceEdge;

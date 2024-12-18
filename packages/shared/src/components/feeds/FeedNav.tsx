@@ -78,8 +78,8 @@ function FeedNav(): ReactElement {
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const { feeds } = useFeeds();
-  const { showPlusSubscription } = usePlusSubscription();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
+  const { showPlusSubscription, isPlus } = usePlusSubscription();
   const { openModal } = useLazyModal();
 
   const isHiddenOnboardingChecklistView =
@@ -180,7 +180,11 @@ function FeedNav(): ReactElement {
             return null;
           }}
           onActiveChange={(label, event) => {
-            if (showPlusSubscription && label === FeedNavTab.NewFeed) {
+            if (
+              showPlusSubscription &&
+              label === FeedNavTab.NewFeed &&
+              !isPlus
+            ) {
               event.preventDefault();
 
               openModal({ type: LazyModal.AdvancedCustomFeedSoon, props: {} });

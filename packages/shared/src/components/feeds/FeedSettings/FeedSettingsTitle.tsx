@@ -4,6 +4,7 @@ import { IconSize } from '../../Icon';
 import { HashtagIcon } from '../../icons';
 import { Typography, TypographyType } from '../../typography/Typography';
 import { FeedSettingsEditContext } from './FeedSettingsEditContext';
+import { FeedType } from '../../../graphql/feed';
 
 export type FeedSettingsTitleProps = {
   className?: string;
@@ -32,8 +33,7 @@ export const FeedSettingsTitle = ({
           <HashtagIcon size={IconSize.Medium} />
         )}
       </div>
-      {/* TODO AS-814 - check if main feed for "My feed" */}
-      {feed.flags.name || 'My feed'}
+      {feed.type === FeedType.Custom ? feed.flags.name : 'My feed'}
     </Typography>
   );
 };

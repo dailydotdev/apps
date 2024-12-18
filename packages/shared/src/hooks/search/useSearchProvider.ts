@@ -19,6 +19,7 @@ export type UseSearchProviderProps = {
   query: string;
   limit?: number;
   includeContentPreference?: boolean;
+  feedId?: string;
 };
 
 export type UseSearchProvider = {
@@ -67,6 +68,7 @@ export const useSearchProvider = (): UseSearchProvider => {
         query,
         limit = defaultSearchSuggestionsLimit,
         includeContentPreference,
+        feedId,
       }) => {
         const graphqlQuery = searchProviderSuggestionsQueryMap[provider];
         const resultExtractor = searchProviderExtractResultMap[provider];
@@ -84,6 +86,7 @@ export const useSearchProvider = (): UseSearchProvider => {
           version: searchVersion,
           limit,
           includeContentPreference,
+          feedId,
         });
 
         return resultExtractor(result);

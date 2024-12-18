@@ -53,7 +53,7 @@ export const SharedByUserBanner = ({
       </Typography>
       <FollowButton
         className="ml-auto"
-        userId={userid}
+        entityId={userid}
         type={ContentPreferenceType.User}
         entityName={`@${user.username}`}
         status={contentPreference?.status}

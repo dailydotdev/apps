@@ -15,7 +15,7 @@ export const CustomFeedSection = ({
 }: SidebarSectionProps): ReactElement => {
   const { feeds } = useFeeds();
   const { openModal } = useLazyModal();
-  const { showPlusSubscription } = usePlusSubscription();
+  const { showPlusSubscription, isPlus } = usePlusSubscription();
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     const customFeeds =
@@ -24,7 +24,7 @@ export const CustomFeedSection = ({
         return {
           title: feed.node.flags.name || `Feed ${feed.node.id}`,
           path: feedPath,
-          icon: (
+          icon: feed.node.flags.icon || (
             <HashtagIcon
               secondary={defaultRenderSectionProps.activePage === feedPath}
             />
@@ -47,7 +47,7 @@ export const CustomFeedSection = ({
         action: (
           event: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>,
         ) => {
-          if (showPlusSubscription) {
+          if (showPlusSubscription && !isPlus) {
             event.preventDefault();
 
             openModal({ type: LazyModal.AdvancedCustomFeedSoon, props: {} });
@@ -60,6 +60,7 @@ export const CustomFeedSection = ({
     feeds?.edges,
     showPlusSubscription,
     openModal,
+    isPlus,
   ]);
 
   return (

@@ -314,13 +314,14 @@ export const CUSTOM_FEED_FRAGMENT = gql`
       name
       icon
       orderBy
-      maxDayRange
+      minDayRange
       minUpvotes
       minViews
       disableEngagementFilter
     }
     slug
     createdAt
+    type
   }
 `;
 
