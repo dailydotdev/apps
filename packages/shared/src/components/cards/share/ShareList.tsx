@@ -48,7 +48,13 @@ export const ShareList = forwardRef(function ShareList(
   const { title: truncatedTitle } = useTruncatedSummary(title);
 
   const actionButtons = (
-    <Container ref={containerRef} className={classNames('pointer-events-none')}>
+    <Container
+      ref={containerRef}
+      className={classNames(
+        'pointer-events-none',
+        feedActionSpacing && 'flex-[unset]',
+      )}
+    >
       <ActionButtons
         className={feedActionSpacing ? 'justify-between' : 'mt-4'}
         post={post}
