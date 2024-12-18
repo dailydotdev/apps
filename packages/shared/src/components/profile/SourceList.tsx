@@ -34,6 +34,7 @@ export const SourceList = ({
 }: SourceListProps): ReactElement => {
   const { feed } = useFeedSettingsEditContext();
   const loader = (
+    // TODO: AS-869 Finish the loader
     <UserShortInfoPlaceholder placeholderAmount={placeholderAmount} />
   );
 
