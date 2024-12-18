@@ -11,6 +11,7 @@ import {
   useShareOrCopyLink,
   type UseShareOrCopyLinkProps,
 } from '../hooks/useShareOrCopyLink';
+import { usePlusSubscription } from '../hooks';
 
 type CustomFeedOptionsMenuProps = {
   className?: string;
@@ -21,6 +22,7 @@ const CustomFeedOptionsMenu = ({
   className,
   shareProps,
 }: CustomFeedOptionsMenuProps): ReactElement => {
+  const { showPlusSubscription } = usePlusSubscription();
   const [, onShareOrCopyLink] = useShareOrCopyLink(shareProps);
   const { isOpen, onMenuClick } = useContextMenu({
     id: ContextMenuIds.CustomFeedContext,
@@ -40,6 +42,17 @@ const CustomFeedOptionsMenu = ({
       },
     },
   ];
+
+  if (!showPlusSubscription) {
+    return (
+      <Button
+        variant={ButtonVariant.Float}
+        size={ButtonSize.Small}
+        icon={<ShareIcon />}
+        onClick={() => onShareOrCopyLink()}
+      />
+    );
+  }
 
   return (
     <>

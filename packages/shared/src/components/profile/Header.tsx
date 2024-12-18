@@ -69,45 +69,46 @@ export function Header({
           <h2 className="mr-auto font-bold typo-body">Profile</h2>
         )}
       </>
-      {isSameUser && (
-        <Button
-          className="mr-2 hidden laptop:flex"
-          variant={ButtonVariant.Float}
-          size={ButtonSize.Small}
-          tag="a"
-          href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}account/profile`}
-        >
-          Edit profile
-        </Button>
-      )}
-      {isSameUser && !isPlus && (
-        <UpgradeToPlus
-          className="mr-2 max-w-fit laptop:hidden"
-          size={ButtonSize.Small}
-          target={TargetId.MyProfile}
+      <div className="flex flex-row gap-2">
+        {isSameUser && (
+          <Button
+            className="hidden laptop:flex"
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Small}
+            tag="a"
+            href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}account/profile`}
+          >
+            Edit profile
+          </Button>
+        )}
+        {isSameUser && !isPlus && (
+          <UpgradeToPlus
+            className="max-w-fit laptop:hidden"
+            size={ButtonSize.Small}
+            target={TargetId.MyProfile}
+          />
+        )}
+        <FollowButton
+          entityId={user.id}
+          type={ContentPreferenceType.User}
+          status={contentPreference?.status}
+          entityName={`@${user.username}`}
+          className="flex-row-reverse"
         />
-      )}
-      <FollowButton
-        entityId={user.id}
-        type={ContentPreferenceType.User}
-        status={contentPreference?.status}
-        entityName={`@${user.username}`}
-        className="ml-2 flex-row-reverse"
-      />
-      {!isSameUser && (
-        <CustomFeedOptionsMenu
-          className="ml-2"
-          shareProps={{
-            text: `Check out ${user.name}'s profile on daily.dev`,
-            link: user.permalink,
-            cid: ReferralCampaignKey.ShareProfile,
-            logObject: () => ({
-              event_name: LogEvent.ShareProfile,
-              target_id: user.id,
-            }),
-          }}
-        />
-      )}
+        {!isSameUser && (
+          <CustomFeedOptionsMenu
+            shareProps={{
+              text: `Check out ${user.name}'s profile on daily.dev`,
+              link: user.permalink,
+              cid: ReferralCampaignKey.ShareProfile,
+              logObject: () => ({
+                event_name: LogEvent.ShareProfile,
+                target_id: user.id,
+              }),
+            }}
+          />
+        )}
+      </div>
       {isSameUser && (
         <>
           <Button
