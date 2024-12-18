@@ -47,6 +47,7 @@ import {
 import {
   feature,
   featureOnboardingAndroid,
+  featureOnboardingExtension,
   featureOnboardingPWA,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
@@ -70,6 +71,7 @@ import {
   isSafariOnIOS,
   UserAgent,
 } from '@dailydotdev/shared/src/lib/func';
+import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboarding/Extension/useOnboardingExtension';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -109,6 +111,12 @@ const OnboardingPWA = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingPWA" */ '@dailydotdev/shared/src/components/onboarding/OnboardingPWA'
   ).then((mod) => mod.OnboardingPWA),
+);
+
+const OnboardingExtension = dynamic(() =>
+  import(
+    /* webpackChunkName: "onboardingExtension" */ '@dailydotdev/shared/src/components/onboarding/Extension/OnboardingExtension'
+  ).then((mod) => mod.OnboardingExtension),
 );
 
 type OnboardingVisual = {
@@ -166,6 +174,11 @@ export function OnboardPage(): ReactElement {
     shouldEvaluate:
       shouldEnrollOnboardingStep && checkIsBrowser(UserAgent.Android),
   });
+  const { shouldShowExtensionOnboarding } = useOnboardingExtension();
+  const { value: extensionExperiment } = useConditionalFeature({
+    feature: featureOnboardingExtension,
+    shouldEvaluate: shouldEnrollOnboardingStep && shouldShowExtensionOnboarding,
+  });
 
   const { value: PWAExperiment } = useConditionalFeature({
     feature: featureOnboardingPWA,
@@ -173,9 +186,11 @@ export function OnboardPage(): ReactElement {
   });
 
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
-  const isCTA =
-    activeScreen === OnboardingStep.AndroidApp ||
-    activeScreen === OnboardingStep.PWA;
+  const isCTA = [
+    OnboardingStep.AndroidApp,
+    OnboardingStep.PWA,
+    OnboardingStep.Extension,
+  ].includes(activeScreen);
 
   useEffect(() => {
     if (!isPageReady || isLogged.current) {
@@ -229,6 +244,14 @@ export function OnboardPage(): ReactElement {
 
     if (PWAExperiment && activeScreen !== OnboardingStep.PWA) {
       return setActiveScreen(OnboardingStep.PWA);
+    }
+
+    if (
+      extensionExperiment &&
+      shouldShowExtensionOnboarding &&
+      activeScreen !== OnboardingStep.Extension
+    ) {
+      return setActiveScreen(OnboardingStep.Extension);
     }
 
     logEvent({
@@ -367,6 +390,7 @@ export function OnboardPage(): ReactElement {
           'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
           activeScreen === OnboardingStep.Intro && wrapperMaxWidth,
           !isAuthenticating && 'mt-7.5 flex-1 content-center',
+          activeScreen === OnboardingStep.Extension && '!flex-col',
         )}
       >
         {showOnboardingPage && (
@@ -418,6 +442,9 @@ export function OnboardPage(): ReactElement {
               <OnboardingAndroidApp />
             )}
             {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
+            {activeScreen === OnboardingStep.Extension && (
+              <OnboardingExtension />
+            )}
           </div>
         )}
       </div>
