@@ -10,13 +10,7 @@ import { Button, ButtonVariant } from '../../buttons/Button';
 import { useInstallPWA } from './useInstallPWA';
 import { cloudinaryPWADesktopInstall } from '../../../lib/image';
 
-interface OnboardingStepProps {
-  onClickNext: () => void;
-}
-
-export const InstallDesktopStep = ({
-  onClickNext,
-}: OnboardingStepProps): ReactElement => {
+export const InstallDesktopStep = (): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { isInstalledPWA, promptToInstall } = useInstallPWA();
 

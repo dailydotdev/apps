@@ -12,28 +12,31 @@ export interface UseInstallPWA {
 }
 
 let installEvent: IBeforeInstallPromptEvent | null = null;
-window.addEventListener(
+globalThis?.addEventListener?.(
   'beforeinstallprompt',
   (e: IBeforeInstallPromptEvent) => {
     e.preventDefault();
     installEvent = e;
   },
+  { once: true },
 );
 
 export const useInstallPWA = (): UseInstallPWA => {
   const isInstalledPWA = isPWA();
-
-  const isAvailable = !!prompt;
+  const isAvailable = !!installEvent;
 
   const promptToInstall = async () => {
-    if (prompt) {
-      await installEvent.prompt();
-      const { outcome } = await installEvent.userChoice;
-      // Optionally, send analytics event with outcome of user choice
-      console.log(`User response to the install prompt: ${outcome}`);
-      // We've used the prompt, and can't use it again, throw it away
-      return outcome;
+    try {
+      if (prompt) {
+        await installEvent.prompt();
+        const { outcome } = await installEvent.userChoice;
+        console.log(`User response to the install prompt: ${outcome}`);
+        return outcome;
+      }
+    } catch (e) {
+      console.log('Error during PWA installation:', e);
     }
+
     return console.error(
       'Tried installing before browser sent "beforeinstallprompt" event',
     );

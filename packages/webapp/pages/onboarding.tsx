@@ -215,6 +215,7 @@ export function OnboardPage(): ReactElement {
     OnboardingStep.AndroidApp,
     OnboardingStep.PWA,
     OnboardingStep.Extension,
+    OnboardingStep.InstallDesktop,
   ].includes(activeScreen);
 
   useEffect(() => {
@@ -480,7 +481,7 @@ export function OnboardPage(): ReactElement {
               <OnboardingExtension onClickNext={onClickNext} />
             )}
             {activeScreen === OnboardingStep.InstallDesktop && (
-              <InstallDesktop onClickNext={onClickNext} />
+              <InstallDesktop />
             )}
           </div>
         )}
