@@ -274,7 +274,7 @@ export default function MainFeedLayout({
       return null;
     }
 
-    if (router?.pathname === '/' && isCustomDefaultFeed) {
+    if (feedNameProp === 'default' && isCustomDefaultFeed) {
       return {
         feedName: SharedFeedPage.Custom,
         feedQueryKey: generateQueryKey(SharedFeedPage.Custom, user),
@@ -384,6 +384,7 @@ export default function MainFeedLayout({
     setSelectedAlgo,
     router.pathname,
     isCustomDefaultFeed,
+    feedNameProp,
   ]);
 
   useEffect(() => {
