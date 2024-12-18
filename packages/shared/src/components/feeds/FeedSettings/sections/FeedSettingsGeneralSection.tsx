@@ -26,6 +26,7 @@ import { ColorName } from '../../../../styles/colors';
 import useProfileForm from '../../../../hooks/useProfileForm';
 import { FeedType } from '../../../../graphql/feed';
 import { SimpleTooltip } from '../../../tooltips';
+import { usePlusSubscription } from '../../../../hooks';
 
 export const FeedSettingsGeneralSection = (): ReactElement => {
   const { setData, data, feed, onDelete } = useContext(FeedSettingsEditContext);
@@ -33,6 +34,7 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
   const { updateUserProfile } = useProfileForm();
   const isMainFeed = feed?.type === FeedType.Main;
   const isCustomFeed = feed?.type === FeedType.Custom;
+  const { isPlus } = usePlusSubscription();
 
   const isDefaultFeed = isMainFeed
     ? user.defaultFeedId === null
@@ -49,7 +51,7 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            {isMainFeed ? (
+            {isMainFeed && isPlus ? (
               <span>
                 Want a custom feed name? You can always{' '}
                 <Link className="underline" href={`${webappUrl}feeds/new`}>

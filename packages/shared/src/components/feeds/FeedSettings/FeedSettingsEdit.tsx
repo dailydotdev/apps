@@ -81,13 +81,15 @@ export const FeedSettingsEdit = ({
     return settingsMenuKey;
   }, [router.query.dview]);
 
+  const canEditFeed = isPlus || feed?.type === FeedType.Main;
+
   useEffect(() => {
-    if (!isPlus) {
+    if (!canEditFeed) {
       router.replace(webappUrl);
     }
-  }, [isPlus, router, feedSlugOrId]);
+  }, [canEditFeed, router, feedSlugOrId]);
 
-  if (!isPlus) {
+  if (!canEditFeed) {
     return null;
   }
 
