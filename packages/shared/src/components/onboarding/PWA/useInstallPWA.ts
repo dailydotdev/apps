@@ -8,7 +8,7 @@ interface IBeforeInstallPromptEvent extends Event {
 export interface UseInstallPWA {
   isAvailable: boolean;
   isCurrentPWA: boolean;
-  promptToInstall: (() => Promise<void | 'accepted' | 'dismissed'>) | null;
+  promptToInstall: (() => Promise<null | 'accepted' | 'dismissed'>) | null;
 }
 
 let installEvent: IBeforeInstallPromptEvent | null = null;
@@ -31,6 +31,8 @@ export const useInstallPWA = (): UseInstallPWA => {
       const { outcome } = await installEvent.userChoice;
       return outcome;
     }
+
+    return null;
   };
 
   return { isCurrentPWA, isAvailable, promptToInstall };
