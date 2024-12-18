@@ -172,3 +172,9 @@ export const initApp = (): void => {
     globalThis.isAndroidApp = true;
   }
 };
+
+export const isMobile = (): boolean =>
+  globalThis?.localStorage.mobile || globalThis?.navigator.maxTouchPoints > 1;
+
+export const shouldUseNativeShare = (): boolean =>
+  'share' in globalThis?.navigator && isMobile();
