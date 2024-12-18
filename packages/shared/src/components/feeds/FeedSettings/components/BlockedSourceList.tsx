@@ -1,6 +1,5 @@
 import React, { type ReactElement, useContext, useMemo } from 'react';
 import { FeedSettingsEditContext } from '../FeedSettingsEditContext';
-import { useAuthContext } from '../../../../contexts/AuthContext';
 import { ContentPreferenceType } from '../../../../graphql/contentPreference';
 import { checkFetchMore } from '../../../containers/InfiniteScrolling';
 import { SourceList } from '../../../profile/SourceList';
@@ -15,11 +14,9 @@ export const BlockedSourceList = ({
   searchQuery,
   type = SourceType.Machine,
 }: BlockedSourceListProps): ReactElement => {
-  const { user } = useAuthContext();
   const { feed } = useContext(FeedSettingsEditContext);
 
   const queryResult = useBlockedQuery({
-    id: user.id,
     entity: ContentPreferenceType.Source,
     feedId: feed.id,
   });
