@@ -1,6 +1,5 @@
 import React, { type ReactElement, useContext, useMemo } from 'react';
 import { FeedSettingsEditContext } from '../FeedSettingsEditContext';
-import { useAuthContext } from '../../../../contexts/AuthContext';
 import { ContentPreferenceType } from '../../../../graphql/contentPreference';
 import { checkFetchMore } from '../../../containers/InfiniteScrolling';
 import { useBlockedQuery } from '../../../../hooks/contentPreference/useBlockedQuery';
@@ -13,11 +12,9 @@ type BlockedTagListProps = {
 export const BlockedTagList = ({
   searchQuery,
 }: BlockedTagListProps): ReactElement => {
-  const { user } = useAuthContext();
   const { feed } = useContext(FeedSettingsEditContext);
 
   const queryResult = useBlockedQuery({
-    id: user.id,
     entity: ContentPreferenceType.Keyword,
     feedId: feed.id,
   });

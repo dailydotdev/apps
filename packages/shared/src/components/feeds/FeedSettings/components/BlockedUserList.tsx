@@ -1,6 +1,5 @@
 import React, { type ReactElement, useMemo } from 'react';
 import { useFeedSettingsEditContext } from '../FeedSettingsEditContext';
-import { useAuthContext } from '../../../../contexts/AuthContext';
 import { ContentPreferenceType } from '../../../../graphql/contentPreference';
 import UserList from '../../../profile/UserList';
 import { checkFetchMore } from '../../../containers/InfiniteScrolling';
@@ -15,11 +14,9 @@ type BlockedUserListProps = {
 export const BlockedUserList = ({
   searchQuery,
 }: BlockedUserListProps): ReactElement => {
-  const { user } = useAuthContext();
   const { feed } = useFeedSettingsEditContext();
 
   const queryResult = useBlockedQuery({
-    id: user.id,
     entity: ContentPreferenceType.User,
     feedId: feed.id,
   });
