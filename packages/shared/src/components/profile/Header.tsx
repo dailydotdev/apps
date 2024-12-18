@@ -14,7 +14,7 @@ import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { UpgradeToPlus } from '../UpgradeToPlus';
 import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
-import { TargetId } from '../../lib/log';
+import { LogEvent, TargetId } from '../../lib/log';
 import CustomFeedOptionsMenu from '../CustomFeedOptionsMenu';
 
 export interface HeaderProps {
@@ -102,7 +102,7 @@ export function Header({
             link: user.permalink,
             cid: ReferralCampaignKey.ShareProfile,
             logObject: () => ({
-              event_name: 'share profile',
+              event_name: LogEvent.ShareProfile,
               target_id: user.id,
             }),
           }}

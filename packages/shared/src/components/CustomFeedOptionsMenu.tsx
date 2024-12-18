@@ -44,13 +44,12 @@ const CustomFeedOptionsMenu = ({
   return (
     <>
       <Button
-        className={classNames('!border-none !px-1.5', className)}
+        className={classNames('!px-1.5', className)}
         onClick={onMenuClick}
         size={ButtonSize.Small}
         variant={ButtonVariant.Float}
-      >
-        <DotsIcon />
-      </Button>
+        icon={<DotsIcon />}
+      />
       <ContextMenu
         disableBoundariesCheck
         id={ContextMenuIds.CustomFeedContext}

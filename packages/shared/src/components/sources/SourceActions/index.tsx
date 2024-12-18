@@ -6,6 +6,7 @@ import SourceActionsNotify from './SourceActionsNotify';
 import SourceActionsBlock from './SourceActionsBlock';
 import SourceActionsFollow from './SourceActionsFollow';
 import CustomFeedOptionsMenu from '../../CustomFeedOptionsMenu';
+import { LogEvent } from '../../../lib/log';
 
 interface SourceActionsButton {
   className?: string;
@@ -73,7 +74,7 @@ export const SourceActions = ({
           link: source.permalink,
           cid: ReferralCampaignKey.ShareSource,
           logObject: () => ({
-            event_name: 'share source',
+            event_name: LogEvent.ShareSource,
             target_id: source.id,
           }),
         }}

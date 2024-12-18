@@ -38,7 +38,7 @@ import {
   RequestKey,
   StaleTime,
 } from '@dailydotdev/shared/src/lib/query';
-import { Origin } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import {
   KEYWORD_QUERY,
   Keyword,
@@ -245,7 +245,7 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
               link: `${webappUrl}tags/${tag}`,
               cid: ReferralCampaignKey.ShareTag,
               logObject: () => ({
-                event_name: 'share tag',
+                event_name: LogEvent.ShareTag,
                 target_id: tag,
               }),
             }}
