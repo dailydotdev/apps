@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import { useViewSize, ViewSize } from '../../../hooks';
 import {
   Typography,
   TypographyColor,
@@ -12,13 +11,15 @@ import { cloudinaryPWAChrome, cloudinaryPWAEdge } from '../../../lib/image';
 import { checkIsBrowser, UserAgent } from '../../../lib/func';
 import { PWAChrome } from '../../icons/PWA/Chrome';
 import { PWAEdge } from '../../icons/PWA/Edge';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 
 export const OnboardingInstallDesktop = ({
   onClickNext,
 }: {
   onClickNext: () => void;
 }): ReactElement => {
-  const isLaptop = useViewSize(ViewSize.Laptop);
+  const { logEvent } = useLogContext();
   const { promptToInstall } = useInstallPWA();
   const isEdge = checkIsBrowser(UserAgent.Edge);
   const PWAIcon = isEdge ? PWAEdge : PWAChrome;
@@ -30,7 +31,7 @@ export const OnboardingInstallDesktop = ({
         <Typography
           bold
           tag={TypographyTag.H1}
-          type={isLaptop ? TypographyType.LargeTitle : TypographyType.Title2}
+          type={TypographyType.LargeTitle}
         >
           More daily.dev on your desktop?
           <br />
@@ -39,6 +40,9 @@ export const OnboardingInstallDesktop = ({
         <Button
           icon={<PWAIcon aria-hidden />}
           onClick={async () => {
+            logEvent({
+              event_name: LogEvent.InstallPWA,
+            });
             await promptToInstall?.();
             onClickNext?.();
           }}

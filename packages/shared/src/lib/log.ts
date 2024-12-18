@@ -229,6 +229,7 @@ export enum LogEvent {
   ToggleClickbaitShield = 'toggle clickbait shield',
   ClickbaitShieldTitle = 'clickbait shield title',
   // End Clickbait Shield
+  InstallPWA = 'install pwa',
 }
 
 export enum FeedItemTitle {
