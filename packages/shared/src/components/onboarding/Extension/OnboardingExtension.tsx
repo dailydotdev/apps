@@ -63,7 +63,7 @@ export const OnboardingExtension = (): ReactElement => {
           target="_blank"
           variant={ButtonVariant.Primary}
         >
-          <span>Get it for Chrome</span>
+          <span>Get it for {browser.isEdge ? 'Edge' : 'Chrome'}</span>
         </Button>
         <Typography
           color={TypographyColor.Secondary}
