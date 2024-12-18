@@ -68,7 +68,6 @@ import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { cloudinarySourceRoadmap } from '@dailydotdev/shared/src/lib/image';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import CustomFeedOptionsMenu from '@dailydotdev/shared/src/components/CustomFeedOptionsMenu';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -242,7 +241,7 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
           <CustomFeedOptionsMenu
             shareProps={{
               text: `Check out the ${tag} tag on daily.dev`,
-              link: `${webappUrl}tags/${tag}`,
+              link: globalThis?.location?.href,
               cid: ReferralCampaignKey.ShareTag,
               logObject: () => ({
                 event_name: LogEvent.ShareTag,
