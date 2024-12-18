@@ -6,12 +6,13 @@ import {
   AddUserIcon,
   AppIcon,
   BlockIcon,
+  DevPlusIcon,
   EditIcon,
   FilterIcon,
   HashtagIcon,
   MagicIcon,
 } from '../../icons';
-import { FeedSettingsMenu } from './types';
+import { FeedSettingsMenu, feedSettingsMenuTitle } from './types';
 import { IconSize } from '../../Icon';
 import { FeedSettingsEditContext } from './FeedSettingsEditContext';
 import { FeedSettingsEditHeader } from './FeedSettingsEditHeader';
@@ -27,6 +28,14 @@ import { webappUrl } from '../../../lib/constants';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { FeedType } from '../../../graphql/feed';
 import { FeedSettingsBlockingSection } from './sections/FeedSettingsBlockingSection';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../typography/Typography';
+import { ButtonSize, ButtonVariant } from '../../buttons/common';
+import { LogEvent, TargetId } from '../../../lib/log';
+import { Button } from '../../buttons/Button';
 
 export type FeedSettingsEditProps = {
   feedSlugOrId: string;
@@ -38,48 +47,78 @@ export const FeedSettingsEdit = ({
   const router = useRouter();
   const feedSettingsEditContext = useFeedSettingsEdit({ feedSlugOrId });
   const { feed } = feedSettingsEditContext;
-  const { isPlus } = usePlusSubscription();
+  const { isPlus, showPlusSubscription, logSubscriptionEvent } =
+    usePlusSubscription();
 
   const tabs = useMemo(() => {
     return [
       {
-        title: FeedSettingsMenu.General,
+        title: feedSettingsMenuTitle.general,
         options: { icon: <EditIcon size={IconSize.Small} /> },
       },
       {
-        title: FeedSettingsMenu.Tags,
+        title: feedSettingsMenuTitle.tags,
         options: { icon: <HashtagIcon size={IconSize.Small} /> },
       },
+      !isPlus &&
+        showPlusSubscription && {
+          title: 'Upgrade to Plus',
+          options: {
+            icon: <></>,
+            customElement: (
+              <div className="flex w-full flex-col justify-center gap-4 rounded-10 border border-border-subtlest-tertiary bg-action-plus-float p-4">
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Primary}
+                >
+                  Upgrade to daily.dev plus today and be among the first to
+                  create advanced custom feeds!
+                </Typography>
+                <Button
+                  tag="a"
+                  type="button"
+                  variant={ButtonVariant.Primary}
+                  size={ButtonSize.Medium}
+                  href={`${webappUrl}plus`}
+                  icon={<DevPlusIcon className="text-action-plus-default" />}
+                  onClick={() => {
+                    logSubscriptionEvent({
+                      event_name: LogEvent.UpgradeSubscription,
+                      target_id: TargetId.FeedSettings,
+                    });
+                  }}
+                >
+                  Upgrade to Plus
+                </Button>
+              </div>
+            ),
+          },
+        },
       {
-        title: FeedSettingsMenu.ContentSources,
+        title: feedSettingsMenuTitle.sources,
         options: { icon: <AddUserIcon size={IconSize.Small} /> },
       },
       {
-        title: FeedSettingsMenu.ContentPreferences,
+        title: feedSettingsMenuTitle.preferences,
         options: { icon: <AppIcon size={IconSize.Small} /> },
       },
       {
-        title: FeedSettingsMenu.AI,
+        title: feedSettingsMenuTitle.ai,
         options: { icon: <MagicIcon size={IconSize.Small} /> },
       },
       feed?.type === FeedType.Custom && {
-        title: FeedSettingsMenu.Filters,
+        title: feedSettingsMenuTitle.filters,
         options: { icon: <FilterIcon size={IconSize.Small} /> },
       },
       {
-        title: FeedSettingsMenu.Blocking,
+        title: feedSettingsMenuTitle.blocking,
         options: { icon: <BlockIcon size={IconSize.Small} /> },
       },
     ].filter(Boolean);
-  }, [feed?.type]);
+  }, [feed?.type, isPlus, showPlusSubscription, logSubscriptionEvent]);
 
   const defaultView = useMemo(() => {
-    const settingsMenuEntry = Object.entries(FeedSettingsMenu).find(
-      ([key]) => router.query.dview === key.toLowerCase(),
-    );
-    const settingsMenuKey = settingsMenuEntry?.[1];
-
-    return settingsMenuKey;
+    return feedSettingsMenuTitle[router.query.dview as FeedSettingsMenu];
   }, [router.query.dview]);
 
   const canEditFeed = isPlus || feed?.type === FeedType.Main;
@@ -123,25 +162,25 @@ export const FeedSettingsEdit = ({
             defaultOpen
           />
           <Modal.Sidebar.Inner>
-            <FeedSettingsEditBody view={FeedSettingsMenu.General}>
+            <FeedSettingsEditBody view={feedSettingsMenuTitle.general}>
               <FeedSettingsGeneralSection />
             </FeedSettingsEditBody>
-            <FeedSettingsEditBody view={FeedSettingsMenu.Tags}>
+            <FeedSettingsEditBody view={feedSettingsMenuTitle.tags}>
               <FeedSettingsTagsSection />
             </FeedSettingsEditBody>
-            <FeedSettingsEditBody view={FeedSettingsMenu.ContentSources}>
+            <FeedSettingsEditBody view={feedSettingsMenuTitle.sources}>
               <FeedSettingsContentSourcesSection />
             </FeedSettingsEditBody>
-            <FeedSettingsEditBody view={FeedSettingsMenu.ContentPreferences}>
+            <FeedSettingsEditBody view={feedSettingsMenuTitle.preferences}>
               <FeedSettingsContentPreferencesSection />
             </FeedSettingsEditBody>
-            <FeedSettingsEditBody view={FeedSettingsMenu.AI}>
+            <FeedSettingsEditBody view={feedSettingsMenuTitle.ai}>
               <FeedSettingsAISection />
             </FeedSettingsEditBody>
-            <FeedSettingsEditBody view={FeedSettingsMenu.Filters}>
+            <FeedSettingsEditBody view={feedSettingsMenuTitle.filters}>
               <FeedSettingsFiltersSection />
             </FeedSettingsEditBody>
-            <FeedSettingsEditBody view={FeedSettingsMenu.Blocking}>
+            <FeedSettingsEditBody view={feedSettingsMenuTitle.blocking}>
               <FeedSettingsBlockingSection />
             </FeedSettingsEditBody>
           </Modal.Sidebar.Inner>
