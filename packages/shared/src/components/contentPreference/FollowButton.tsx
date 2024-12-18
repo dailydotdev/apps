@@ -105,7 +105,6 @@ export const FollowButton = ({
         variant={variant}
         onClick={(e) => {
           e.stopPropagation();
-          console.log('stopping');
           onButtonClick();
         }}
         copyType={copyType}
