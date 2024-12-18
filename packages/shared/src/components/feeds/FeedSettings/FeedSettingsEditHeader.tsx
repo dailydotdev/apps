@@ -8,6 +8,14 @@ import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Modal } from '../../modals/common/Modal';
 import { ModalPropsContext } from '../../modals/common/types';
 import { FeedSettingsTitle } from './FeedSettingsTitle';
+import { feedSettingsMenuTitle } from './types';
+
+// for now only some views have save button
+// on other views settings are auto saved
+const viewsWithSaveButton = new Set([
+  feedSettingsMenuTitle.general,
+  feedSettingsMenuTitle.filters,
+]);
 
 export const FeedSettingsEditHeader = (): ReactElement => {
   const router = useRouter();
@@ -17,6 +25,8 @@ export const FeedSettingsEditHeader = (): ReactElement => {
   const { activeView, setActiveView } = useContext(ModalPropsContext);
   const isMobile = useViewSizeClient(ViewSize.MobileL);
 
+  const viewHasSaveButton = viewsWithSaveButton.has(activeView);
+
   if (!activeView) {
     return null;
   }
@@ -25,41 +35,43 @@ export const FeedSettingsEditHeader = (): ReactElement => {
     <Modal.Header
       title=""
       className="justify-between !p-4"
-      showCloseButton={false}
+      showCloseButton={!viewHasSaveButton}
     >
       <FeedSettingsTitle className="hidden tablet:flex" />
-      <div className="flex w-full justify-between gap-2 tablet:w-auto tablet:justify-start">
-        <Button
-          type="button"
-          size={ButtonSize.Small}
-          variant={isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float}
-          onClick={async () => {
-            const shouldDiscard = await onDiscard();
+      {viewHasSaveButton && (
+        <div className="flex w-full justify-between gap-2 tablet:w-auto tablet:justify-start">
+          <Button
+            type="button"
+            size={ButtonSize.Small}
+            variant={isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float}
+            onClick={async () => {
+              const shouldDiscard = await onDiscard();
 
-            if (!shouldDiscard) {
-              return;
-            }
+              if (!shouldDiscard) {
+                return;
+              }
 
-            if (isMobile) {
-              setActiveView(undefined);
-            } else {
-              router.push(`${webappUrl}feeds/${feed.id}`);
-            }
-          }}
-        >
-          {isMobile ? 'Cancel' : 'Discard'}
-        </Button>
-        <Button
-          type="submit"
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Primary}
-          loading={isSubmitPending}
-          onClick={onSubmit}
-          disabled={!isDirty}
-        >
-          Save
-        </Button>
-      </div>
+              if (isMobile) {
+                setActiveView(undefined);
+              } else {
+                router.push(`${webappUrl}feeds/${feed.id}`);
+              }
+            }}
+          >
+            {isMobile ? 'Cancel' : 'Discard'}
+          </Button>
+          <Button
+            type="submit"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Primary}
+            loading={isSubmitPending}
+            onClick={onSubmit}
+            disabled={!isDirty}
+          >
+            Save
+          </Button>
+        </div>
+      )}
     </Modal.Header>
   );
 };

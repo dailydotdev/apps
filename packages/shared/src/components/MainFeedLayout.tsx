@@ -82,6 +82,12 @@ const FollowingFeedEmptyScreen = dynamic(
     ),
 );
 
+const CustomFeedEmptyScreen = dynamic(() =>
+  import(
+    /* webpackChunkName: "customFeedEmptyScreen" */ './CustomFeedEmptyScreen'
+  ).then((mod) => mod.CustomFeedEmptyScreen),
+);
+
 type FeedQueryProps = {
   query: string;
   queryIfLogged?: string;
@@ -120,6 +126,7 @@ const propsByFeed: Record<SharedFeedPage & OtherFeedPage, FeedQueryProps> = {
   },
   [SharedFeedPage.Custom]: {
     query: CUSTOM_FEED_QUERY,
+    emptyScreen: <CustomFeedEmptyScreen />,
   },
   [SharedFeedPage.CustomForm]: {
     query: PREVIEW_FEED_QUERY,

@@ -121,14 +121,12 @@ export const USER_FOLLOWERS_QUERY = gql`
 
 export const USER_BLOCKED_QUERY = gql`
   query UserBlocked(
-    $id: ID!
     $entity: ContentPreferenceType!
     $first: Int
     $after: String
     $feedId: String
   ) {
     userBlocked(
-      userId: $id
       entity: $entity
       first: $first
       after: $after
