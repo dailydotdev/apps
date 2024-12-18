@@ -48,6 +48,7 @@ import {
   feature,
   featureOnboardingAndroid,
   featureOnboardingExtension,
+  featureOnboardingInstallDesktop,
   featureOnboardingPWA,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
@@ -123,7 +124,7 @@ const OnboardingExtension = dynamic(() =>
 const InstallDesktop = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingInstallDesktopStep" */ '@dailydotdev/shared/src/components/onboarding/PWA/InstallDesktopStep'
-    ).then((mod) => mod.InstallDesktopStep),
+  ).then((mod) => mod.InstallDesktopStep),
 );
 
 type OnboardingVisual = {
@@ -132,6 +133,12 @@ type OnboardingVisual = {
     desktop?: string;
   };
 };
+
+type OnboardingOnClickNext = (
+  options?: Partial<{
+    clickExtension: boolean;
+  }>,
+) => void;
 
 const seo: NextSeoProps = {
   title: getTemplatedTitle('Get started'),
@@ -192,15 +199,23 @@ export function OnboardPage(): ReactElement {
     shouldEvaluate: shouldEnrollOnboardingStep && isSafariOnIOS(),
   });
 
+  const {
+    isInstalledPWA,
+    isAvailable: canUserInstallDesktop,
+    promptToInstall,
+  } = useInstallPWA();
+  const { value: installDesktopExperiment } = useConditionalFeature({
+    feature: featureOnboardingInstallDesktop,
+    shouldEvaluate: shouldEnrollOnboardingStep && shouldShowExtensionOnboarding,
+  });
+  console.log({ isInstalledPWA, canUserInstallDesktop, promptToInstall });
+
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
   const isCTA = [
     OnboardingStep.AndroidApp,
     OnboardingStep.PWA,
     OnboardingStep.Extension,
   ].includes(activeScreen);
-
-  const { isInstalledPWA, isAvailable, promptToInstall } = useInstallPWA();
-  console.log({ isInstalledPWA, isAvailable, promptToInstall });
 
   useEffect(() => {
     if (!isPageReady || isLogged.current) {
@@ -217,7 +232,7 @@ export function OnboardPage(): ReactElement {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPageReady, user]);
 
-  const onClickNext = () => {
+  const onClickNext: OnboardingOnClickNext = (options) => {
     logEvent({
       event_name: LogEvent.ClickOnboardingNext,
       extra: JSON.stringify({ screen_value: activeScreen }),
@@ -262,6 +277,15 @@ export function OnboardPage(): ReactElement {
       activeScreen !== OnboardingStep.Extension
     ) {
       return setActiveScreen(OnboardingStep.Extension);
+    }
+
+    if (
+      !options?.clickExtension &&
+      installDesktopExperiment &&
+      canUserInstallDesktop &&
+      activeScreen === OnboardingStep.Extension
+    ) {
+      return setActiveScreen(OnboardingStep.InstallDesktop);
     }
 
     logEvent({
@@ -453,7 +477,7 @@ export function OnboardPage(): ReactElement {
             )}
             {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
             {activeScreen === OnboardingStep.Extension && (
-              <OnboardingExtension />
+              <OnboardingExtension onClickNext={onClickNext} />
             )}
             {activeScreen === OnboardingStep.InstallDesktop && (
               <InstallDesktop onClickNext={onClickNext} />
