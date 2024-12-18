@@ -31,10 +31,6 @@ export const useInstallPWA = (): UseInstallPWA => {
       const { outcome } = await installEvent.userChoice;
       return outcome;
     }
-
-    return console.error(
-      'Tried installing before browser sent "beforeinstallprompt" event',
-    );
   };
 
   return { isCurrentPWA, isAvailable, promptToInstall };
