@@ -45,11 +45,11 @@ export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
 export const featureOnboardingExtension = new Feature(
   'onboarding_extension',
-  true,
+  false,
 );
 export const featureOnboardingInstallDesktop = new Feature(
   'onboarding_extension',
-  true,
+  false,
 );
 export const featureOnboardingPWA = new Feature('onboarding_pwa', false);
 export const featureOnboardingAndroid = new Feature(
