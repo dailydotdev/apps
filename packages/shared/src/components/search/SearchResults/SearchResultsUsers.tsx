@@ -64,7 +64,7 @@ export const SearchResultsUsers = ({
               />
               <FollowButton
                 className="ml-auto"
-                userId={user.id}
+                entityId={user.id}
                 type={ContentPreferenceType.User}
                 entityName={`@${user.username}`}
                 status={(user as LoggedUser).contentPreference?.status}

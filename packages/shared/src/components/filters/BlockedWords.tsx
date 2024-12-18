@@ -51,7 +51,6 @@ export const BlockedWords = (): ReactElement => {
     });
   }, [queryClient, user]);
   const queryResult = useBlockedQuery({
-    id: user.id,
     entity: ContentPreferenceType.Word,
   });
   const flatBlockedWords =

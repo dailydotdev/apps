@@ -24,7 +24,7 @@ export const CustomFeedSection = ({
         return {
           title: feed.node.flags.name || `Feed ${feed.node.id}`,
           path: feedPath,
-          icon: (
+          icon: feed.node.flags.icon || (
             <HashtagIcon
               secondary={defaultRenderSectionProps.activePage === feedPath}
             />

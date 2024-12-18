@@ -18,11 +18,12 @@ import {
 } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Connection, gqlClient } from '../../graphql/common';
+import { useFollowContentPreferenceMutationSubscription } from './useFollowContentPreferenceMutationSubscription';
 
 export type UseBlockedQueryProps = {
-  id: string;
   entity: ContentPreferenceType;
   limit?: number;
+  feedId?: string;
   queryOptions?: Omit<
     UseInfiniteQueryOptions<Connection<ContentPreference>>,
     'select'
@@ -34,21 +35,21 @@ export type UseBlockedQuery = UseInfiniteQueryResult<
 >;
 
 export const useBlockedQuery = ({
-  id,
   entity,
   limit = DEFAULT_BLOCKED_LIMIT,
+  feedId,
   queryOptions,
 }: UseBlockedQueryProps): UseBlockedQuery => {
   const { user } = useAuthContext();
-  const enabled = !!(id && entity);
+  const enabled = !!entity;
   const queryKey = generateQueryKey(
     RequestKey.ContentPreference,
     user,
     RequestKey.UserBlocked,
     {
-      id,
       entity,
       first: limit,
+      feedId,
     },
   );
 
@@ -77,6 +78,8 @@ export const useBlockedQuery = ({
         ? queryOptions.enabled && enabled
         : enabled,
   });
+
+  useFollowContentPreferenceMutationSubscription({ queryKey });
 
   return queryResult;
 };

@@ -7,7 +7,7 @@ export type FeedSettingsFormData = {
 } & Pick<
   Feed['flags'],
   | 'orderBy'
-  | 'maxDayRange'
+  | 'minDayRange'
   | 'minUpvotes'
   | 'minViews'
   | 'disableEngagementFilter'

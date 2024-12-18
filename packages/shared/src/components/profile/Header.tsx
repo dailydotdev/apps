@@ -88,7 +88,7 @@ export function Header({
         />
       )}
       <FollowButton
-        userId={user.id}
+        entityId={user.id}
         type={ContentPreferenceType.User}
         status={contentPreference?.status}
         entityName={`@${user.username}`}
