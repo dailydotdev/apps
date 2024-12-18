@@ -96,6 +96,7 @@ export function Header({
       />
       {!isSameUser && (
         <CustomFeedOptionsMenu
+          className="ml-2"
           shareProps={{
             text: `Check out ${user.name}'s profile on daily.dev`,
             link: user.permalink,

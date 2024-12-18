@@ -1,21 +1,24 @@
 import React, { type ReactElement } from 'react';
+import classNames from 'classnames';
 import { ContextMenuIds } from '../hooks/constants';
 import type { MenuItemProps } from './fields/ContextMenu';
 import ContextMenu from './fields/ContextMenu';
 import { HashtagIcon, MenuIcon as DotsIcon, ShareIcon } from './icons';
 import { MenuIcon } from './MenuIcon';
 import useContextMenu from '../hooks/useContextMenu';
-import { Button, ButtonSize } from './buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import {
   useShareOrCopyLink,
   type UseShareOrCopyLinkProps,
 } from '../hooks/useShareOrCopyLink';
 
 type CustomFeedOptionsMenuProps = {
+  className?: string;
   shareProps: UseShareOrCopyLinkProps;
 };
 
 const CustomFeedOptionsMenu = ({
+  className,
   shareProps,
 }: CustomFeedOptionsMenuProps): ReactElement => {
   const [, onShareOrCopyLink] = useShareOrCopyLink(shareProps);
@@ -33,20 +36,24 @@ const CustomFeedOptionsMenu = ({
       icon: <MenuIcon Icon={HashtagIcon} />,
       label: 'Add to custom feed',
       action: () => {
-        console.log('TODO: Implement modal || funnel to upgrade to plus');
+        // TODO: Implement modal || funnel to upgrade to plus
       },
     },
   ];
 
   return (
     <>
-      <Button onClick={onMenuClick} size={ButtonSize.XSmall}>
+      <Button
+        className={classNames('!border-none !px-1.5', className)}
+        onClick={onMenuClick}
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Float}
+      >
         <DotsIcon />
       </Button>
       <ContextMenu
         disableBoundariesCheck
         id={ContextMenuIds.CustomFeedContext}
-        className="mt-2"
         options={options}
         isOpen={isOpen}
       />

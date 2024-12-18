@@ -1,10 +1,11 @@
 import React, { ReactElement } from 'react';
 import { ButtonVariant } from '../../buttons/common';
 import { Source } from '../../../graphql/sources';
-import { useSourceActions } from '../../../hooks';
+import { ReferralCampaignKey, useSourceActions } from '../../../hooks';
 import SourceActionsNotify from './SourceActionsNotify';
 import SourceActionsBlock from './SourceActionsBlock';
 import SourceActionsFollow from './SourceActionsFollow';
+import CustomFeedOptionsMenu from '../../CustomFeedOptionsMenu';
 
 interface SourceActionsButton {
   className?: string;
@@ -66,6 +67,17 @@ export const SourceActions = ({
           {...blockProps}
         />
       )}
+      <CustomFeedOptionsMenu
+        shareProps={{
+          text: `Check out ${source.handle} on daily.dev`,
+          link: source.permalink,
+          cid: ReferralCampaignKey.ShareSource,
+          logObject: () => ({
+            event_name: 'share source',
+            target_id: source.id,
+          }),
+        }}
+      />
     </div>
   );
 };

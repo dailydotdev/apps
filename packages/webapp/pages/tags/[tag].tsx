@@ -49,7 +49,10 @@ import {
   GET_RECOMMENDED_TAGS_QUERY,
   TagsData,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
-import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import {
+  ReferralCampaignKey,
+  useFeedLayout,
+} from '@dailydotdev/shared/src/hooks';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
 import {
   SOURCES_BY_TAG_QUERY,
@@ -65,6 +68,8 @@ import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { cloudinarySourceRoadmap } from '@dailydotdev/shared/src/lib/image';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import CustomFeedOptionsMenu from '@dailydotdev/shared/src/components/CustomFeedOptionsMenu';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { DynamicSeoProps } from '../../components/common';
@@ -234,6 +239,17 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
               {tagStatus === 'followed' ? 'Unfollow' : 'Follow'}
             </Button>
           )}
+          <CustomFeedOptionsMenu
+            shareProps={{
+              text: `Check out the ${tag} tag on daily.dev`,
+              link: `${webappUrl}tags/${tag}`,
+              cid: ReferralCampaignKey.ShareTag,
+              logObject: () => ({
+                event_name: 'share tag',
+                target_id: tag,
+              }),
+            }}
+          />
           {tagStatus !== 'followed' && (
             <Button
               variant={ButtonVariant.Float}
