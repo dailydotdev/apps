@@ -127,7 +127,7 @@ export const FreeformList = forwardRef(function SharePostCard(
               post={post}
               imageProps={{
                 alt: 'Post Cover image',
-                className: 'my-2 mobileXXL:self-start w-full',
+                className: 'mobileXXL:self-start w-full',
                 ...(eagerLoadImage && HIGH_PRIORITY_IMAGE_PROPS),
                 src: image,
               }}
