@@ -238,6 +238,15 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
               {tagStatus === 'followed' ? 'Unfollow' : 'Follow'}
             </Button>
           )}
+          {tagStatus !== 'followed' && (
+            <Button
+              variant={ButtonVariant.Float}
+              {...blockButtonProps}
+              aria-label={tagStatus === 'blocked' ? 'Unblock' : 'Block'}
+            >
+              {tagStatus === 'blocked' ? 'Unblock' : 'Block'}
+            </Button>
+          )}
           <CustomFeedOptionsMenu
             shareProps={{
               text: `Check out the ${tag} tag on daily.dev`,
@@ -249,15 +258,6 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
               }),
             }}
           />
-          {tagStatus !== 'followed' && (
-            <Button
-              variant={ButtonVariant.Float}
-              {...blockButtonProps}
-              aria-label={tagStatus === 'blocked' ? 'Unblock' : 'Block'}
-            >
-              {tagStatus === 'blocked' ? 'Unblock' : 'Block'}
-            </Button>
-          )}
         </div>
         {initialData?.flags?.description && (
           <p className="typo-body">{initialData?.flags?.description}</p>
