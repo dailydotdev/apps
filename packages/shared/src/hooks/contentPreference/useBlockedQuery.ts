@@ -20,7 +20,6 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { Connection, gqlClient } from '../../graphql/common';
 
 export type UseBlockedQueryProps = {
-  id: string;
   entity: ContentPreferenceType;
   limit?: number;
   queryOptions?: Omit<
@@ -34,19 +33,17 @@ export type UseBlockedQuery = UseInfiniteQueryResult<
 >;
 
 export const useBlockedQuery = ({
-  id,
   entity,
   limit = DEFAULT_BLOCKED_LIMIT,
   queryOptions,
 }: UseBlockedQueryProps): UseBlockedQuery => {
   const { user } = useAuthContext();
-  const enabled = !!(id && entity);
+  const enabled = !!entity;
   const queryKey = generateQueryKey(
     RequestKey.ContentPreference,
     user,
     RequestKey.UserBlocked,
     {
-      id,
       entity,
       first: limit,
     },
