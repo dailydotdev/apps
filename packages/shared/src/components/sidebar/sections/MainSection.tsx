@@ -16,6 +16,7 @@ import { webappUrl } from '../../../lib/constants';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { SharedFeedPage } from '../../utilities';
+import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 
 export const MainSection = ({
   isItemsButton,
@@ -23,6 +24,7 @@ export const MainSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
+  const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const { showPlusSubscription, isEnrolledNotPlus, logSubscriptionEvent } =
     usePlusSubscription();
 
@@ -34,10 +36,11 @@ export const MainSection = ({
   }, [logSubscriptionEvent]);
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
+    const myFeedPath = isCustomDefaultFeed ? `${webappUrl}my-feed` : '/';
     const myFeed = isLoggedIn
       ? {
           title: 'My feed',
-          path: '/',
+          path: myFeedPath,
           action: () => onNavTabClick?.(SharedFeedPage.MyFeed),
           icon: <ProfilePicture size={ProfileImageSize.XSmall} user={user} />,
         }
