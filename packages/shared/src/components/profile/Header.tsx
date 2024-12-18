@@ -100,7 +100,7 @@ export function Header({
         onClick={() => onShareOrCopyLink()}
       />
       <FollowButton
-        userId={user.id}
+        entityId={user.id}
         type={ContentPreferenceType.User}
         status={contentPreference?.status}
         entityName={`@${user.username}`}

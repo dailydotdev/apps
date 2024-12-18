@@ -22,6 +22,7 @@ import { FeedSettingsTagsSection } from './sections/FeedSettingsTagsSection';
 import { FeedSettingsContentPreferencesSection } from './sections/FeedSettingsContentPreferencesSection';
 import { FeedSettingsAISection } from './sections/FeedSettingsAISection';
 import { FeedSettingsFiltersSection } from './sections/FeedSettingsFiltersSection';
+import { FeedSettingsContentSourcesSection } from './sections/FeedSettingsContentSourcesSection';
 import { webappUrl } from '../../../lib/constants';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { FeedSettingsBlockingSection } from './sections/FeedSettingsBlockingSection';
@@ -108,6 +109,9 @@ export const FeedSettingsEdit = ({
             </FeedSettingsEditBody>
             <FeedSettingsEditBody view={FeedSettingsMenu.Tags}>
               <FeedSettingsTagsSection />
+            </FeedSettingsEditBody>
+            <FeedSettingsEditBody view={FeedSettingsMenu.ContentSources}>
+              <FeedSettingsContentSourcesSection />
             </FeedSettingsEditBody>
             <FeedSettingsEditBody view={FeedSettingsMenu.ContentPreferences}>
               <FeedSettingsContentPreferencesSection />
