@@ -5,6 +5,7 @@ import { ShareProvider } from '../lib/share';
 import { LogEvent } from './log/useLogQueue';
 import { useGetShortUrl } from './utils/useGetShortUrl';
 import { ReferralCampaignKey } from '../lib';
+import { shouldUseNativeShare } from '../lib/func';
 
 interface UseShareOrCopyLinkProps {
   link: string;
@@ -26,7 +27,7 @@ export function useShareOrCopyLink({
   const onShareOrCopy: CopyNotifyFunction = async () => {
     const shortLink = cid ? await getShortUrl(link, cid) : link;
 
-    if ('share' in globalThis?.navigator) {
+    if (shouldUseNativeShare()) {
       try {
         await navigator.share({
           text: `${text}\n${shortLink}`,

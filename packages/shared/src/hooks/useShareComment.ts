@@ -8,6 +8,7 @@ import { Comment, getCommentHash } from '../graphql/comments';
 import { useGetShortUrl } from './utils/useGetShortUrl';
 import { ReferralCampaignKey } from '../lib';
 import { useSharePost } from './useSharePost';
+import { shouldUseNativeShare } from '../lib/func';
 
 interface UseShareComment {
   openShareComment: (comment: Comment, post: Post) => void;
@@ -20,7 +21,7 @@ export function useShareComment(origin: Origin): UseShareComment {
 
   const openShareComment = useCallback(
     async (comment, post) => {
-      if ('share' in globalThis?.navigator) {
+      if (shouldUseNativeShare()) {
         try {
           const shortUrl = await getShortUrl(
             `${post.commentsPermalink}${getCommentHash(comment.id)}`,

@@ -44,6 +44,10 @@ const feature = {
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
+export const featureOnboardingExtension = new Feature(
+  'onboarding_extension',
+  false,
+);
 export const featureOnboardingPWA = new Feature('onboarding_pwa', false);
 export const featureOnboardingAndroid = new Feature(
   'onboarding_android',
