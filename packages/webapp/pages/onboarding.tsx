@@ -48,7 +48,7 @@ import {
   feature,
   featureOnboardingAndroid,
   featureOnboardingExtension,
-  featureOnboardingInstallDesktop,
+  featureOnboardingDesktopPWA,
   featureOnboardingPWA,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
@@ -201,7 +201,7 @@ export function OnboardPage(): ReactElement {
 
   const { isCurrentPWA, isAvailable: canUserInstallDesktop } = useInstallPWA();
   const { value: installDesktopExperiment } = useConditionalFeature({
-    feature: featureOnboardingInstallDesktop,
+    feature: featureOnboardingDesktopPWA,
     shouldEvaluate:
       shouldEnrollOnboardingStep &&
       shouldShowExtensionOnboarding &&
