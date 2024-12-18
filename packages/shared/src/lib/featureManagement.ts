@@ -44,7 +44,7 @@ const feature = {
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 export const featureUpvoteCounter = new Feature(
   'always_visible_upvote_counter',
-  true,
+  false,
 );
 
 export const featureOnboardingExtension = new Feature(
