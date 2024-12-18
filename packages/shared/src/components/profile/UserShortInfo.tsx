@@ -85,7 +85,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
       ref={ref}
       {...props}
       className={classNames(
-        'flex flex-row items-center',
+        'z-0 flex flex-row items-center',
         className.container ?? defaultClassName.container,
       )}
     >

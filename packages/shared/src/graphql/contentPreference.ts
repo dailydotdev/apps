@@ -10,6 +10,7 @@ export enum ContentPreferenceType {
   User = 'user',
   Word = 'word',
   Source = 'source',
+  Keyword = 'keyword',
 }
 
 export enum ContentPreferenceStatus {
@@ -124,8 +125,15 @@ export const USER_BLOCKED_QUERY = gql`
     $entity: ContentPreferenceType!
     $first: Int
     $after: String
+    $feedId: String
   ) {
-    userBlocked(userId: $id, entity: $entity, first: $first, after: $after) {
+    userBlocked(
+      userId: $id
+      entity: $entity
+      first: $first
+      after: $after
+      feedId: $feedId
+    ) {
       pageInfo {
         endCursor
         hasNextPage
@@ -135,10 +143,25 @@ export const USER_BLOCKED_QUERY = gql`
           referenceId
           type
           status
+          referenceUser {
+            ...UserShortInfo
+            contentPreference {
+              status
+            }
+          }
+          source {
+            id
+            name
+            type
+            image
+            handle
+            description
+          }
         }
       }
     }
   }
+  ${USER_SHORT_INFO_FRAGMENT}
 `;
 
 export const DEFAULT_FOLLOW_LIMIT = 20;

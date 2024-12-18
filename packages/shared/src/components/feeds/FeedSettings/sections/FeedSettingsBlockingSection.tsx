@@ -1,6 +1,4 @@
-import React, { ReactElement, useContext, useState } from 'react';
-import { FeedSettingsEditContext } from '../FeedSettingsEditContext';
-import { Origin } from '../../../../lib/log';
+import React, { ReactElement, useState } from 'react';
 import {
   ModalKind,
   ModalPropsContext,
@@ -8,19 +6,18 @@ import {
 } from '../../../modals/common/types';
 import { ModalTabs } from '../../../modals/common/ModalTabs';
 import useDebounceFn from '../../../../hooks/useDebounceFn';
-import { useTagSearch } from '../../../../hooks/useTagSearch';
 import { SearchField } from '../../../fields/SearchField';
 
-import useFeedSettings from '../../../../hooks/useFeedSettings';
-import useTagAndSource from '../../../../hooks/useTagAndSource';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '../../../typography/Typography';
 import { BlockedWords } from '../../../filters/BlockedWords';
-import { BlockIcon } from '../../../icons';
-import TagItemList from '../../../filters/TagItemList';
+import { BlockedSourceList } from '../components/BlockedSourceList';
+import { SourceType } from '../../../../graphql/sources';
+import { BlockedUserList } from '../components/BlockedUserList';
+import { BlockedTagList } from '../components/BlockedTagList';
 
 enum FeedSettingsBlockingSectionTabs {
   Sources = 'Sources',
@@ -34,25 +31,12 @@ const tabs = Object.values(FeedSettingsBlockingSectionTabs);
 const noop = () => undefined;
 
 export const FeedSettingsBlockingSection = (): ReactElement => {
-  const { feed, onTagClick } = useContext(FeedSettingsEditContext);
   const [activeView, setActiveView] = useState<string>(
     () => FeedSettingsBlockingSectionTabs.Sources,
   );
-  const { feedSettings } = useFeedSettings({ feedId: feed?.id });
-  const { onUnfollowTags } = useTagAndSource({
-    origin: Origin.CustomFeed,
-    feedId: feed?.id,
-    shouldFilterLocally: true,
-    shouldUpdateAlerts: true,
-  });
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [onSearch] = useDebounceFn(setSearchQuery, 200);
-
-  const { data: searchResult } = useTagSearch({
-    value: searchQuery,
-    origin: Origin.CustomFeed,
-  });
 
   return (
     <div className="flex flex-col gap-6">
@@ -84,19 +68,19 @@ export const FeedSettingsBlockingSection = (): ReactElement => {
         <ModalTabs className="border-b border-border-subtlest-tertiary pb-[0.70rem]" />
         <div className="flex w-full max-w-full flex-col">
           {activeView === FeedSettingsBlockingSectionTabs.Sources && (
-            <p>Sources</p>
+            <BlockedSourceList searchQuery={searchQuery} />
           )}
           {activeView === FeedSettingsBlockingSectionTabs.Squads && (
-            <p>Squads</p>
-          )}
-          {activeView === FeedSettingsBlockingSectionTabs.Users && <p>Users</p>}
-          {activeView === FeedSettingsBlockingSectionTabs.Tags && (
-            <TagItemList
-              tags={feedSettings?.blockedTags}
-              tooltip="Unblock tag"
-              emptyText="No blocked tags."
-              rowIcon={<BlockIcon />}
+            <BlockedSourceList
+              type={SourceType.Squad}
+              searchQuery={searchQuery}
             />
+          )}
+          {activeView === FeedSettingsBlockingSectionTabs.Users && (
+            <BlockedUserList searchQuery={searchQuery} />
+          )}
+          {activeView === FeedSettingsBlockingSectionTabs.Tags && (
+            <BlockedTagList searchQuery={searchQuery} />
           )}
         </div>
       </ModalPropsContext.Provider>
