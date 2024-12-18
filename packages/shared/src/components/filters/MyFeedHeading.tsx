@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import { useRouter } from 'next/router';
 import { FilterIcon, PlusIcon } from '../icons';
 import {
   Button,
@@ -8,8 +7,6 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import { useActions, useFeedLayout, useViewSize, ViewSize } from '../../hooks';
-import { getFeedName } from '../../lib/feed';
-import { useFeedName } from '../../hooks/feed/useFeedName';
 import { ActionType } from '../../graphql/actions';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { FeedSettingsButton } from '../feeds/FeedSettingsButton';
@@ -22,16 +19,12 @@ interface MyFeedHeadingProps {
 function MyFeedHeading({
   onOpenFeedFilters,
 }: MyFeedHeadingProps): ReactElement {
-  const router = useRouter();
   const { completeAction } = useActions();
   const { toggleShowTopSites } = useSettingsContext();
   const { isOldUserWithNoShortcuts, showToggleShortcuts } = useShortcutsUser();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { shouldUseListFeedLayout } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const feedName = getFeedName(router.pathname);
-  const { isCustomFeed } = useFeedName({ feedName });
-  const feedFiltersLabel = isCustomFeed ? 'Edit tags' : 'Feed settings';
 
   return (
     <>
@@ -45,7 +38,7 @@ function MyFeedHeading({
           shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined
         }
       >
-        {!isMobile ? feedFiltersLabel : null}
+        {!isMobile ? 'Feed settings' : null}
       </FeedSettingsButton>
       {showToggleShortcuts && (
         <Button

@@ -22,7 +22,7 @@ import { generateQueryKey } from '../../../lib/query';
 import { ButtonColor } from '../../buttons/Button';
 import { SharedFeedPage } from '../../utilities';
 import { FeedSettingsEditContextValue, FeedSettingsFormData } from './types';
-import { Feed } from '../../../graphql/feed';
+import { Feed, FeedType } from '../../../graphql/feed';
 
 const discardPrompt: PromptOptions = {
   title: labels.feed.prompt.discard.title,
@@ -49,16 +49,31 @@ export const useFeedSettingsEdit = ({
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
   const { logEvent } = useLogContext();
+  const { user } = useAuthContext();
 
   const feed = useMemo<Feed>(() => {
+    // calculate main feed from user object as fallback for now
+    // in the future feedList can return main feed as well
+    if (feedSlugOrId === user.id) {
+      return {
+        id: user.id,
+        userId: user.id,
+        slug: user.id,
+        flags: {
+          name: '',
+        },
+        type: FeedType.Main,
+        createdAt: null,
+      };
+    }
+
     return feeds?.edges.find(
       (edge) =>
         edge.node.slug === feedSlugOrId || edge.node.id === feedSlugOrId,
     )?.node;
-  }, [feeds, feedSlugOrId]);
+  }, [feeds, feedSlugOrId, user]);
   const feedId = feed?.id;
 
-  const { user } = useAuthContext();
   const { feedSettings } = useFeedSettings({ feedId, enabled: !!feedId });
   const [isDirty, setDirty] = useState(false);
   const [tagsToRemove, setTagsToRemove] = useState<Record<string, true>>(
@@ -127,7 +142,12 @@ export const useFeedSettingsEdit = ({
       });
 
       onAskConfirmation(false);
-      router.replace(`${webappUrl}feeds/${data.id}`);
+
+      if (feed.type === FeedType.Main) {
+        router.replace(webappUrl);
+      } else {
+        router.replace(`${webappUrl}feeds/${data.id}`);
+      }
     },
 
     onError: (error) => {

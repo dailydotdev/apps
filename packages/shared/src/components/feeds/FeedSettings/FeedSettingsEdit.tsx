@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect } from 'react';
+import React, { ReactElement, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { useFeedSettingsEdit } from './useFeedSettingsEdit';
 import { Modal } from '../../modals/common/Modal';
@@ -25,6 +25,7 @@ import { FeedSettingsFiltersSection } from './sections/FeedSettingsFiltersSectio
 import { FeedSettingsContentSourcesSection } from './sections/FeedSettingsContentSourcesSection';
 import { webappUrl } from '../../../lib/constants';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import { FeedType } from '../../../graphql/feed';
 import { FeedSettingsBlockingSection } from './sections/FeedSettingsBlockingSection';
 
 export type FeedSettingsEditProps = {
@@ -39,44 +40,57 @@ export const FeedSettingsEdit = ({
   const { feed } = feedSettingsEditContext;
   const { isPlus } = usePlusSubscription();
 
-  const tabs = [
-    {
-      title: FeedSettingsMenu.General,
-      options: { icon: <EditIcon size={IconSize.Small} /> },
-    },
-    {
-      title: FeedSettingsMenu.Tags,
-      options: { icon: <HashtagIcon size={IconSize.Small} /> },
-    },
-    {
-      title: FeedSettingsMenu.ContentSources,
-      options: { icon: <AddUserIcon size={IconSize.Small} /> },
-    },
-    {
-      title: FeedSettingsMenu.ContentPreferences,
-      options: { icon: <AppIcon size={IconSize.Small} /> },
-    },
-    {
-      title: FeedSettingsMenu.AI,
-      options: { icon: <MagicIcon size={IconSize.Small} /> },
-    },
-    {
-      title: FeedSettingsMenu.Filters,
-      options: { icon: <FilterIcon size={IconSize.Small} /> },
-    },
-    {
-      title: FeedSettingsMenu.Blocking,
-      options: { icon: <BlockIcon size={IconSize.Small} /> },
-    },
-  ];
+  const tabs = useMemo(() => {
+    return [
+      {
+        title: FeedSettingsMenu.General,
+        options: { icon: <EditIcon size={IconSize.Small} /> },
+      },
+      {
+        title: FeedSettingsMenu.Tags,
+        options: { icon: <HashtagIcon size={IconSize.Small} /> },
+      },
+      {
+        title: FeedSettingsMenu.ContentSources,
+        options: { icon: <AddUserIcon size={IconSize.Small} /> },
+      },
+      {
+        title: FeedSettingsMenu.ContentPreferences,
+        options: { icon: <AppIcon size={IconSize.Small} /> },
+      },
+      {
+        title: FeedSettingsMenu.AI,
+        options: { icon: <MagicIcon size={IconSize.Small} /> },
+      },
+      feed?.type === FeedType.Custom && {
+        title: FeedSettingsMenu.Filters,
+        options: { icon: <FilterIcon size={IconSize.Small} /> },
+      },
+      {
+        title: FeedSettingsMenu.Blocking,
+        options: { icon: <BlockIcon size={IconSize.Small} /> },
+      },
+    ].filter(Boolean);
+  }, [feed?.type]);
+
+  const defaultView = useMemo(() => {
+    const settingsMenuEntry = Object.entries(FeedSettingsMenu).find(
+      ([key]) => router.query.dview === key.toLowerCase(),
+    );
+    const settingsMenuKey = settingsMenuEntry?.[1];
+
+    return settingsMenuKey;
+  }, [router.query.dview]);
+
+  const canEditFeed = isPlus || feed?.type === FeedType.Main;
 
   useEffect(() => {
-    if (!isPlus) {
+    if (!canEditFeed) {
       router.replace(webappUrl);
     }
-  }, [isPlus, router, feedSlugOrId]);
+  }, [canEditFeed, router, feedSlugOrId]);
 
-  if (!isPlus) {
+  if (!canEditFeed) {
     return null;
   }
 
@@ -93,8 +107,13 @@ export const FeedSettingsEdit = ({
         size={Modal.Size.XLarge}
         tabs={tabs}
         onRequestClose={() => {
-          router.replace(`${webappUrl}feeds/${feedSlugOrId}`);
+          if (feed?.type === FeedType.Main) {
+            router.replace(webappUrl);
+          } else {
+            router.replace(`${webappUrl}feeds/${feedSlugOrId}`);
+          }
         }}
+        defaultView={defaultView}
       >
         <FeedSettingsEditHeader />
         <Modal.Sidebar>
