@@ -60,11 +60,11 @@ export const FeedSettingsFiltersSection = (): ReactElement => {
           </Typography>
         </div>
         <Radio
-          name="feedMaxDayRange"
+          name="feedminDayRange"
           options={feedRangeFilters}
-          value={data.maxDayRange?.toString() || null}
+          value={data.minDayRange?.toString() || null}
           onChange={(value) => {
-            setData({ maxDayRange: +value || null });
+            setData({ minDayRange: +value || null });
           }}
         />
       </div>

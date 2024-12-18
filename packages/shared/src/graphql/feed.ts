@@ -33,7 +33,7 @@ export type FeedFlags = {
   name: string;
   icon?: string;
   orderBy?: FeedOrder;
-  maxDayRange?: number;
+  minDayRange?: number;
   minUpvotes?: number;
   minViews?: number;
   disableEngagementFilter?: boolean;
@@ -479,8 +479,8 @@ export const CREATE_FEED_MUTATION = `
 `;
 
 export const UPDATE_FEED_MUTATION = `
-  mutation UpdateFeed($feedId: ID!, $name: String!, $icon: String, $orderBy: FeedOrderBy, $maxDayRange: Int, $minUpvotes: Int, $minViews: Int, $disableEngagementFilter: Boolean) {
-    updateFeed(feedId: $feedId, name: $name, icon: $icon, orderBy: $orderBy, maxDayRange: $maxDayRange, minUpvotes: $minUpvotes, minViews: $minViews, disableEngagementFilter: $disableEngagementFilter) {
+  mutation UpdateFeed($feedId: ID!, $name: String!, $icon: String, $orderBy: FeedOrderBy, $minDayRange: Int, $minUpvotes: Int, $minViews: Int, $disableEngagementFilter: Boolean) {
+    updateFeed(feedId: $feedId, name: $name, icon: $icon, orderBy: $orderBy, minDayRange: $minDayRange, minUpvotes: $minUpvotes, minViews: $minViews, disableEngagementFilter: $disableEngagementFilter) {
       ...CustomFeed
     }
   }
