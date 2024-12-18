@@ -7,6 +7,8 @@ import SourceActionsBlock from './SourceActionsBlock';
 import SourceActionsFollow from './SourceActionsFollow';
 import CustomFeedOptionsMenu from '../../CustomFeedOptionsMenu';
 import { LogEvent } from '../../../lib/log';
+import { useContentPreference } from '../../../hooks/contentPreference/useContentPreference';
+import { ContentPreferenceType } from '../../../graphql/contentPreference';
 
 interface SourceActionsButton {
   className?: string;
@@ -42,6 +44,7 @@ export const SourceActions = ({
   } = useSourceActions({
     source,
   });
+  const { follow, unfollow } = useContentPreference();
 
   return (
     <div className="inline-flex flex-row gap-2">
@@ -69,6 +72,22 @@ export const SourceActions = ({
         />
       )}
       <CustomFeedOptionsMenu
+        onAdd={(feedId) =>
+          follow({
+            id: source.id,
+            entity: ContentPreferenceType.Source,
+            entityName: source.handle,
+            feedId,
+          })
+        }
+        onUndo={(feedId) =>
+          unfollow({
+            id: source.id,
+            entity: ContentPreferenceType.Source,
+            entityName: source.handle,
+            feedId,
+          })
+        }
         shareProps={{
           text: `Check out ${source.handle} on daily.dev`,
           link: source.permalink,

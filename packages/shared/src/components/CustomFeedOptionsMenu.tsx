@@ -11,9 +11,13 @@ import {
   useShareOrCopyLink,
   type UseShareOrCopyLinkProps,
 } from '../hooks/useShareOrCopyLink';
-import { usePlusSubscription } from '../hooks';
+import { useFeeds, usePlusSubscription } from '../hooks';
+import { LazyModal } from './modals/common/types';
+import { useLazyModal } from '../hooks/useLazyModal';
 
 type CustomFeedOptionsMenuProps = {
+  onAdd: (feedId: string) => void;
+  onUndo?: (feedId: string) => void;
   className?: string;
   shareProps: UseShareOrCopyLinkProps;
 };
@@ -21,12 +25,30 @@ type CustomFeedOptionsMenuProps = {
 const CustomFeedOptionsMenu = ({
   className,
   shareProps,
+  onAdd,
 }: CustomFeedOptionsMenuProps): ReactElement => {
   const { showPlusSubscription } = usePlusSubscription();
+  const { openModal } = useLazyModal();
   const [, onShareOrCopyLink] = useShareOrCopyLink(shareProps);
   const { isOpen, onMenuClick } = useContextMenu({
     id: ContextMenuIds.CustomFeedContext,
   });
+  const { feeds } = useFeeds();
+
+  const handleOpenModal = () => {
+    if (feeds?.edges?.length > 0) {
+      openModal({
+        type: LazyModal.AddToCustomFeed,
+        props: {
+          onAdd,
+        },
+      });
+    }
+    return openModal({
+      type: LazyModal.AdvancedCustomFeedSoon,
+    });
+    // TODO: Implement create first feed modal
+  };
 
   const options: MenuItemProps[] = [
     {
@@ -37,9 +59,7 @@ const CustomFeedOptionsMenu = ({
     {
       icon: <MenuIcon Icon={HashtagIcon} />,
       label: 'Add to custom feed',
-      action: () => {
-        // TODO: Implement modal || funnel to upgrade to plus
-      },
+      action: handleOpenModal,
     },
   ];
 
