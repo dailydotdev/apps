@@ -140,7 +140,12 @@ export const ArticleList = forwardRef(function ArticleList(
                   {truncatedTitle}
                 </CardTitle>
                 {!feedActionSpacing && <div className="flex flex-1" />}
-                <div className="flex items-center">
+                <div
+                  className={classNames(
+                    'flex items-center',
+                    !feedActionSpacing && 'mx-2',
+                  )}
+                >
                   {post.clickbaitTitleDetected && (
                     <ClickbaitShield post={post} />
                   )}
