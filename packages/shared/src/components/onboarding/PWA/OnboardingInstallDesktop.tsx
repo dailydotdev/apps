@@ -8,8 +8,10 @@ import {
 } from '../../typography/Typography';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { useInstallPWA } from './useInstallPWA';
-import { cloudinaryPWADesktopInstall } from '../../../lib/image';
-import { PWADesktopIcon } from '../../icons/PWADesktop';
+import { cloudinaryPWAChrome, cloudinaryPWAEdge } from '../../../lib/image';
+import { checkIsBrowser, UserAgent } from '../../../lib/func';
+import { PWAChrome } from '../../icons/PWA/Chrome';
+import { PWAEdge } from '../../icons/PWA/Edge';
 
 export const OnboardingInstallDesktop = ({
   onClickNext,
@@ -18,22 +20,24 @@ export const OnboardingInstallDesktop = ({
 }): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { promptToInstall } = useInstallPWA();
+  const isEdge = checkIsBrowser(UserAgent.Edge);
+  const PWAIcon = isEdge ? PWAEdge : PWAChrome;
+  const imageSrc = isEdge ? cloudinaryPWAEdge : cloudinaryPWAChrome;
 
   return (
-    <section className="flex flex-1 flex-col laptop:justify-between">
+    <div className="flex flex-1 flex-col laptop:justify-between">
       <div className="mb-14 flex flex-col items-center gap-6 justify-self-start text-center">
         <Typography
           bold
           tag={TypographyTag.H1}
           type={isLaptop ? TypographyType.LargeTitle : TypographyType.Title2}
-          className="mb-4 tablet:mb-6"
         >
           More daily.dev on your desktop?
           <br />
           Yes, please! 👀
         </Typography>
         <Button
-          icon={<PWADesktopIcon aria-hidden />}
+          icon={<PWAIcon aria-hidden />}
           onClick={async () => {
             await promptToInstall?.();
             onClickNext?.();
@@ -48,23 +52,23 @@ export const OnboardingInstallDesktop = ({
           tag={TypographyTag.P}
           type={TypographyType.Subhead}
         >
-          Manual: Press the{' '}
-          <span className="mx-1.5 inline-grid size-7 place-content-center rounded-1/2 bg-accent-salt-bolder align-middle text-text-primary">
-            <PWADesktopIcon className="inline-block" aria-hidden />
-          </span>{' '}
+          Manual: Press the
+          <span className="mx-2 inline-grid size-7 place-content-center rounded-1/2 bg-accent-salt-bolder align-middle text-text-primary">
+            <PWAIcon className="inline-block" aria-hidden />
+          </span>
           icon next to the browser search bar and choose {`"`}Install{`"`} to
           level up
         </Typography>
       </div>
-      <figure className="pointer-events-none mx-auto w-full laptopL:w-2/3">
+      <figure className="pointer-events-none mx-auto">
         <img
           alt="Amazing daily.dev extension screenshot"
           className="w-full"
           loading="lazy"
           role="presentation"
-          src={cloudinaryPWADesktopInstall}
+          src={imageSrc}
         />
       </figure>
-    </section>
+    </div>
   );
 };

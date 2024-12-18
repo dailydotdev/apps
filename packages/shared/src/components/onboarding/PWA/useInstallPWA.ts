@@ -7,7 +7,7 @@ interface IBeforeInstallPromptEvent extends Event {
 
 export interface UseInstallPWA {
   isAvailable: boolean;
-  isInstalledPWA: boolean;
+  isCurrentPWA: boolean;
   promptToInstall: (() => Promise<void | 'accepted' | 'dismissed'>) | null;
 }
 
@@ -22,18 +22,14 @@ globalThis?.addEventListener?.(
 );
 
 export const useInstallPWA = (): UseInstallPWA => {
-  const isInstalledPWA = isPWA();
+  const isCurrentPWA = isPWA();
   const isAvailable = !!installEvent;
 
   const promptToInstall = async () => {
-    try {
-      if (prompt) {
-        await installEvent.prompt();
-        const { outcome } = await installEvent.userChoice;
-        return outcome;
-      }
-    } catch (e) {
-      console.error('Error during PWA installation:', e);
+    if (installEvent) {
+      await installEvent.prompt?.();
+      const { outcome } = await installEvent.userChoice;
+      return outcome;
     }
 
     return console.error(
@@ -41,5 +37,5 @@ export const useInstallPWA = (): UseInstallPWA => {
     );
   };
 
-  return { isInstalledPWA, isAvailable, promptToInstall };
+  return { isCurrentPWA, isAvailable, promptToInstall };
 };

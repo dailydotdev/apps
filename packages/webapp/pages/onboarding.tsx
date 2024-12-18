@@ -199,14 +199,13 @@ export function OnboardPage(): ReactElement {
     shouldEvaluate: shouldEnrollOnboardingStep && isSafariOnIOS(),
   });
 
-  const { isInstalledPWA, isAvailable: canUserInstallDesktop } =
-    useInstallPWA();
+  const { isCurrentPWA, isAvailable: canUserInstallDesktop } = useInstallPWA();
   const { value: installDesktopExperiment } = useConditionalFeature({
     feature: featureOnboardingInstallDesktop,
     shouldEvaluate:
       shouldEnrollOnboardingStep &&
-      !isInstalledPWA &&
-      shouldShowExtensionOnboarding,
+      shouldShowExtensionOnboarding &&
+      !isCurrentPWA,
   });
 
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
@@ -424,7 +423,9 @@ export function OnboardPage(): ReactElement {
           'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
           activeScreen === OnboardingStep.Intro && wrapperMaxWidth,
           !isAuthenticating && 'mt-7.5 flex-1 content-center',
-          activeScreen === OnboardingStep.Extension && '!flex-col',
+          [OnboardingStep.Extension, OnboardingStep.InstallDesktop].includes(
+            activeScreen,
+          ) && '!flex-col',
         )}
       >
         {showOnboardingPage && (
