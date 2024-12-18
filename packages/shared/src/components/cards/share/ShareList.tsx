@@ -15,6 +15,8 @@ import ActionButtons from '../common/list/ActionButtons';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { useFeature } from '../../GrowthBookProvider';
+import { feature } from '../../../lib/featureManagement';
 
 export const ShareList = forwardRef(function ShareList(
   {
@@ -37,12 +39,27 @@ export const ShareList = forwardRef(function ShareList(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const { pinnedAt, trending, type } = post;
+  const feedActionSpacing = useFeature(feature.feedActionSpacing);
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
   const isVideoType = isVideoPost(post);
   const { title } = useSmartTitle(post);
   const { title: truncatedTitle } = useTruncatedSummary(title);
+
+  const actionButtons = (
+    <Container ref={containerRef} className={classNames('pointer-events-none')}>
+      <ActionButtons
+        className={feedActionSpacing ? 'justify-between' : 'mt-4'}
+        post={post}
+        onUpvoteClick={onUpvoteClick}
+        onDownvoteClick={onDownvoteClick}
+        onCommentClick={onCommentClick}
+        onCopyLinkClick={onCopyLinkClick}
+        onBookmarkClick={onBookmarkClick}
+      />
+    </Container>
+  );
 
   return (
     <FeedItemContainer
@@ -99,13 +116,15 @@ export const ShareList = forwardRef(function ShareList(
           >
             {truncatedTitle}
           </CardTitle>
-          <div className="flex flex-1" />
+          {!feedActionSpacing && <div className="flex flex-1" />}
           <div className="mx-2 flex items-center">
             {!post.title && post.sharedPost.clickbaitTitleDetected && (
               <ClickbaitShield post={post} />
             )}
             <PostTags tags={post.tags} />
           </div>
+          {feedActionSpacing && <div className="flex flex-1" />}
+          {feedActionSpacing && actionButtons}
         </div>
 
         <CardCoverList
@@ -129,20 +148,7 @@ export const ShareList = forwardRef(function ShareList(
           }}
         />
       </CardContent>
-      <Container
-        ref={containerRef}
-        className={classNames('pointer-events-none')}
-      >
-        <ActionButtons
-          className="mt-4"
-          post={post}
-          onUpvoteClick={onUpvoteClick}
-          onDownvoteClick={onDownvoteClick}
-          onCommentClick={onCommentClick}
-          onCopyLinkClick={onCopyLinkClick}
-          onBookmarkClick={onBookmarkClick}
-        />
-      </Container>
+      {actionButtons}
       {children}
     </FeedItemContainer>
   );

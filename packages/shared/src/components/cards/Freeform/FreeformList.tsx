@@ -15,6 +15,8 @@ import ActionButtons from '../common/list/ActionButtons';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { useFeature } from '../../GrowthBookProvider';
+import { feature } from '../../../lib/featureManagement';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
@@ -35,12 +37,12 @@ export const FreeformList = forwardRef(function SharePostCard(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const { pinnedAt, type: postType } = post;
+  const feedActionSpacing = useFeature(feature.feedActionSpacing);
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
   const image = usePostImage(post);
   const { title } = useSmartTitle(post);
-
   const content = useMemo(
     () =>
       post.contentHtml ? sanitize(post.contentHtml, { ALLOWED_TAGS: [] }) : '',
@@ -48,6 +50,23 @@ export const FreeformList = forwardRef(function SharePostCard(
   );
 
   const { title: truncatedTitle } = useTruncatedSummary(title, content);
+
+  const actionButtons = (
+    <Container ref={containerRef} className="pointer-events-none">
+      <ActionButtons
+        post={post}
+        onUpvoteClick={onUpvoteClick}
+        onDownvoteClick={onDownvoteClick}
+        onCommentClick={onCommentClick}
+        onCopyLinkClick={onCopyLinkClick}
+        onBookmarkClick={onBookmarkClick}
+        className={classNames(
+          feedActionSpacing ? 'justify-between' : 'mt-4',
+          !!image && 'laptop:mt-auto',
+        )}
+      />
+    </Container>
+  );
 
   return (
     <FeedItemContainer
@@ -98,6 +117,8 @@ export const FreeformList = forwardRef(function SharePostCard(
             </CardTitle>
 
             {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
+            {feedActionSpacing && <div className="flex flex-1" />}
+            {feedActionSpacing && actionButtons}
           </div>
 
           {image && (
@@ -114,17 +135,7 @@ export const FreeformList = forwardRef(function SharePostCard(
           )}
         </CardContent>
       </CardContainer>
-      <Container ref={containerRef} className="pointer-events-none">
-        <ActionButtons
-          post={post}
-          onUpvoteClick={onUpvoteClick}
-          onDownvoteClick={onDownvoteClick}
-          onCommentClick={onCommentClick}
-          onCopyLinkClick={onCopyLinkClick}
-          onBookmarkClick={onBookmarkClick}
-          className={classNames('mt-4', !!image && 'laptop:mt-auto')}
-        />
-      </Container>
+      {!feedActionSpacing && actionButtons}
       {!image && <PostContentReminder post={post} className="z-1" />}
       {children}
     </FeedItemContainer>
