@@ -102,7 +102,7 @@ export const FreeformList = forwardRef(function SharePostCard(
           />
         </PostCardHeader>
 
-        <CardContent>
+        <CardContent className="my-2">
           <div className="mr-4 flex-1">
             <CardTitle
               className={classNames(
