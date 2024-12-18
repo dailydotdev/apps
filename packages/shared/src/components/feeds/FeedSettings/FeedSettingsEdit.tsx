@@ -36,6 +36,7 @@ import {
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { Button } from '../../buttons/Button';
+import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 
 export type FeedSettingsEditProps = {
   feedSlugOrId: string;
@@ -50,6 +51,7 @@ export const FeedSettingsEdit = ({
   const { isPlus, showPlusSubscription, logSubscriptionEvent } =
     usePlusSubscription();
 
+  const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const tabs = useMemo(() => {
     return [
       {
@@ -146,7 +148,10 @@ export const FeedSettingsEdit = ({
         size={Modal.Size.XLarge}
         tabs={tabs}
         onRequestClose={() => {
-          if (feed?.type === FeedType.Main) {
+          if (
+            feed?.type === FeedType.Main ||
+            (isCustomDefaultFeed && feedSlugOrId === defaultFeedId)
+          ) {
             router.replace(webappUrl);
           } else {
             router.replace(`${webappUrl}feeds/${feedSlugOrId}`);

@@ -8,6 +8,7 @@ import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { SidebarSectionProps } from './common';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
+import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 
 export const CustomFeedSection = ({
   isItemsButton,
@@ -16,11 +17,15 @@ export const CustomFeedSection = ({
   const { feeds } = useFeeds();
   const { openModal } = useLazyModal();
   const { showPlusSubscription, isPlus } = usePlusSubscription();
+  const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     const customFeeds =
       feeds?.edges?.map((feed) => {
-        const feedPath = `${webappUrl}feeds/${feed.node.id}`;
+        const feedPath =
+          isCustomDefaultFeed && defaultFeedId === feed.node.id
+            ? '/'
+            : `${webappUrl}feeds/${feed.node.id}`;
         return {
           title: feed.node.flags.name || `Feed ${feed.node.id}`,
           path: feedPath,
@@ -61,6 +66,8 @@ export const CustomFeedSection = ({
     showPlusSubscription,
     openModal,
     isPlus,
+    isCustomDefaultFeed,
+    defaultFeedId,
   ]);
 
   return (
