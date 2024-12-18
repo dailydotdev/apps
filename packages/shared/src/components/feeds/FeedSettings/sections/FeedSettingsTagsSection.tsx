@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext, useMemo, useState } from 'react';
+import classNames from 'classnames';
 import { FeedSettingsEditContext } from '../FeedSettingsEditContext';
 import { TagSelection } from '../../../tags/TagSelection';
 import { Origin } from '../../../../lib/log';
@@ -32,8 +33,8 @@ const tabs = Object.values(FeedSettingsTagsSectionTabs);
 const noop = () => undefined;
 
 export const FeedSettingsTagsSection = (): ReactElement => {
-  const { feed, onTagClick } = useContext(FeedSettingsEditContext);
-  const [activeView, setActiveView] = useState<string>(
+  const { feed } = useContext(FeedSettingsEditContext);
+  const [activeViewState, setActiveView] = useState<string>(
     () => FeedSettingsTagsSectionTabs.Suggested,
   );
   const { feedSettings } = useFeedSettings({ feedId: feed?.id });
@@ -51,6 +52,11 @@ export const FeedSettingsTagsSection = (): ReactElement => {
     value: searchQuery,
     origin: Origin.CustomFeed,
   });
+
+  // when searching we always show suggested view
+  const activeView = searchQuery
+    ? FeedSettingsTagsSectionTabs.Suggested
+    : activeViewState;
 
   const onboardingTagsPerLetter = useMemo(() => {
     const tagsToGroup = searchQuery
@@ -97,15 +103,19 @@ export const FeedSettingsTagsSection = (): ReactElement => {
           size: ModalSize.Medium,
         }}
       >
-        <ModalTabs className="border-b border-border-subtlest-tertiary pb-[0.70rem]" />
+        <ModalTabs
+          className={classNames(
+            'border-b border-border-subtlest-tertiary pb-[0.70rem]',
+            !!searchQuery && 'hidden',
+          )}
+        />
         <div className="flex w-full max-w-full flex-col">
           {activeView === FeedSettingsTagsSectionTabs.Suggested && (
             <TagSelection
+              className="!items-start"
               classNameTags="!justify-start"
               shouldUpdateAlerts={false}
-              shouldFilterLocally
               feedId={feed?.id}
-              onClickTag={onTagClick}
               origin={
                 feed.type === FeedType.Main
                   ? Origin.TagsFilter
@@ -143,7 +153,6 @@ export const FeedSettingsTagsSection = (): ReactElement => {
                             tag={tag}
                             onClick={() => {
                               onUnfollowTags({ tags: [tag.name] });
-                              onTagClick({ tag, action: 'unfollow' });
                             }}
                           />
                         ))}
