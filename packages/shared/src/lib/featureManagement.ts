@@ -41,7 +41,7 @@ const feature = {
   }),
 };
 
-export const feedActionSpacing = new Feature('feed_action_spacing', true);
+export const feedActionSpacing = new Feature('feed_action_spacing', false);
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 export const featureUpvoteCounter = new Feature(
   'always_visible_upvote_counter',
