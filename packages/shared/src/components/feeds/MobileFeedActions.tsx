@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import Link from '../utilities/Link';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
-import { Divider } from '../utilities';
+import { Divider, SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
 import { useReadingStreak } from '../../hooks/streaks';
 import { ButtonIconPosition } from '../buttons/common';
@@ -11,11 +11,14 @@ import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import HeaderLogo from '../layout/HeaderLogo';
 import { LogoPosition } from '../Logo';
 import { webappUrl } from '../../lib/constants';
+import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
+import { getFeedName } from '../../lib/feed';
 
 export function MobileFeedActions(): ReactElement {
   const router = useRouter();
   const { user } = useAuthContext();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
+  const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
 
   return (
     <div className="flex flex-row justify-between px-4 py-1">
@@ -35,7 +38,19 @@ export function MobileFeedActions(): ReactElement {
         <Divider className="bg-border-subtlest-tertiary" vertical />
         <MyFeedHeading
           onOpenFeedFilters={() => {
-            router.push(`${webappUrl}feeds/${user.id}/edit`);
+            if (isCustomDefaultFeed && router.pathname === '/') {
+              router.push(`${webappUrl}feeds/${defaultFeedId}/edit`);
+            } else {
+              const feedName = getFeedName(router.pathname);
+
+              router.push(
+                `${webappUrl}feeds/${
+                  feedName === SharedFeedPage.Custom
+                    ? router.query.slugOrId
+                    : user.id
+                }/edit`,
+              );
+            }
           }}
         />
         {user && (

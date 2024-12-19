@@ -31,6 +31,7 @@ import {
 import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
 import { Origin } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
+import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -75,6 +76,7 @@ export const SearchControlHeader = ({
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const { showPlusSubscription } = usePlusSubscription();
   const { user } = useAuthContext();
+  const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
 
   if (isMobile) {
     return null;
@@ -96,13 +98,17 @@ export const SearchControlHeader = ({
       <MyFeedHeading
         key="my-feed"
         onOpenFeedFilters={() => {
-          router.push(
-            `${webappUrl}feeds/${
-              feedName === SharedFeedPage.Custom
-                ? router.query.slugOrId
-                : user.id
-            }/edit`,
-          );
+          if (isCustomDefaultFeed && router.pathname === '/') {
+            router.push(`${webappUrl}feeds/${defaultFeedId}/edit`);
+          } else {
+            router.push(
+              `${webappUrl}feeds/${
+                feedName === SharedFeedPage.Custom
+                  ? router.query.slugOrId
+                  : user.id
+              }/edit`,
+            );
+          }
         }}
       />
     ) : null,

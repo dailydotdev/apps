@@ -8,15 +8,12 @@ import {
   EmptyScreenTitle,
 } from './EmptyScreen';
 import { HashtagIcon } from './icons';
-import { PageContainer, SharedFeedPage } from './utilities';
+import { PageContainer } from './utilities';
 import { ButtonSize } from './buttons/common';
-import { getFeedName } from '../lib/feed';
 import { webappUrl } from '../lib/constants';
-import { useAuthContext } from '../contexts/AuthContext';
 
 export const CustomFeedEmptyScreen = (): ReactElement => {
   const router = useRouter();
-  const { user } = useAuthContext();
 
   return (
     <PageContainer className="mx-auto">
@@ -32,15 +29,7 @@ export const CustomFeedEmptyScreen = (): ReactElement => {
         </EmptyScreenDescription>
         <EmptyScreenButton
           onClick={() => {
-            const feedName = getFeedName(router.pathname);
-
-            router.push(
-              `${webappUrl}feeds/${
-                feedName === SharedFeedPage.Custom
-                  ? router.query.slugOrId
-                  : user.id
-              }/edit`,
-            );
+            router.push(`${webappUrl}feeds/${router.query.slugOrId}/edit`);
           }}
           size={ButtonSize.Large}
         >

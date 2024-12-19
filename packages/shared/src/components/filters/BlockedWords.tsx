@@ -2,6 +2,7 @@ import React, {
   KeyboardEvent,
   ReactElement,
   useCallback,
+  useContext,
   useState,
 } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -30,8 +31,10 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
 import { usePlusSubscription } from '../../hooks';
 import { IconSize } from '../Icon';
+import { FeedSettingsEditContext } from '../feeds/FeedSettings/FeedSettingsEditContext';
 
 export const BlockedWords = (): ReactElement => {
+  const { feed } = useContext(FeedSettingsEditContext);
   const queryClient = useQueryClient();
   const { user } = useAuthContext();
   const { block, unblock } = useContentPreference();
@@ -52,6 +55,7 @@ export const BlockedWords = (): ReactElement => {
   }, [queryClient, user]);
   const queryResult = useBlockedQuery({
     entity: ContentPreferenceType.Word,
+    feedId: feed?.id,
   });
   const flatBlockedWords =
     queryResult?.data?.pages.flatMap(
@@ -64,6 +68,7 @@ export const BlockedWords = (): ReactElement => {
         id: words,
         entity: ContentPreferenceType.Word,
         entityName: 'words',
+        feedId: feed?.id,
       });
       invalidateBlockedWords();
       setWords('');
@@ -144,6 +149,7 @@ export const BlockedWords = (): ReactElement => {
                 id: word.referenceId,
                 entity: ContentPreferenceType.Word,
                 entityName: word.referenceId,
+                feedId: feed?.id,
               }).then(() => invalidateBlockedWords())
             }
             tagItem={word.referenceId}
