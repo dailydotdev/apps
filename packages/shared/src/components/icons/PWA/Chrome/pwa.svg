@@ -1,0 +1,8 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+     xmlns="http://www.w3.org/2000/svg">
+  <title>Download PWA</title>
+  <path
+    d="M19.2 16.6H4.8V5.8H12V4H4.8C3.801 4 3 4.801 3 5.8V16.6C3 17.59 3.801 18.4 4.8 18.4H8.4V20.2H15.6V18.4H19.2C20.19 18.4 21 17.59 21 16.6V13.9H19.2V16.6Z" fill="currentColor"/>
+  <path
+    d="M16.4998 13.9L20.9998 9.4L19.7308 8.131L17.3998 10.453V4H15.5998V10.453L13.2688 8.131L11.9998 9.4L16.4998 13.9Z" fill="currentColor"/>
+</svg>
