@@ -21,6 +21,7 @@ import { generateQueryKey, RequestKey } from '../../../../lib/query';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useMutationSubscription } from '../../../../hooks';
 import { contentPreferenceMutationMatcher } from '../../../../hooks/contentPreference/types';
+import { useFeedSettingsEditContext } from '../FeedSettingsEditContext';
 
 enum Tabs {
   Sources = 'Sources',
@@ -34,6 +35,7 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
   const [activeView, setActiveView] = useState<string>(() => tabs[0]);
+  const { feed } = useFeedSettingsEditContext();
 
   const [state, setState] = useState(() => {
     return {
@@ -72,17 +74,22 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
   useMutationSubscription({
     matcher: contentPreferenceMutationMatcher,
     callback: () => {
-      return searchPanel.query?.length
-        ? queryClient.invalidateQueries({
-            queryKey: generateQueryKey(
-              RequestKey.ContentPreference,
-              user,
-              RequestKey.UserFollowing,
-            ),
-          })
-        : queryClient.invalidateQueries({
-            queryKey: generateQueryKey(RequestKey.Search, user, 'suggestions'),
-          });
+      if (searchPanel.query?.length) {
+        queryClient.invalidateQueries({
+          queryKey: generateQueryKey(
+            RequestKey.ContentPreference,
+            user,
+            RequestKey.UserFollowing,
+            {
+              feedId: feed?.id,
+            },
+          ),
+        });
+      } else {
+        queryClient.invalidateQueries({
+          queryKey: generateQueryKey(RequestKey.Search, user, 'suggestions'),
+        });
+      }
     },
   });
 

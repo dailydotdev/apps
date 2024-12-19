@@ -241,33 +241,43 @@ export const updateInfiniteCache = <
   });
 };
 
-export const mutationSuccessSubscribers: Map<
-  string,
-  MutationCache['config']['onSuccess']
-> = new Map();
+export const createDefaultQueryClientConfig = (): QueryClientConfig => {
+  const mutationSuccessSubscribers: Map<
+    string,
+    MutationCache['config']['onSuccess']
+  > = new Map();
 
-export const globalMutationCache = new MutationCache({
-  onSuccess: (...args) => {
-    mutationSuccessSubscribers.forEach((subscriber) => subscriber(...args));
-  },
-});
+  globalThis.mutationSuccessSubscribers = mutationSuccessSubscribers;
 
-export const defaultQueryClientConfig: QueryClientConfig = {
-  mutationCache: globalMutationCache,
-  defaultOptions: {
-    queries: {
-      retry: (failureCount, error) => {
-        const clientError = error as ClientError;
-        if (
-          clientError?.response?.errors?.[0]?.extensions?.code === GARMR_ERROR
-        ) {
-          return false;
-        }
-        return failureCount < 3;
-      },
-      refetchOnWindowFocus: process.env.NODE_ENV !== 'development',
+  const globalMutationCache = new MutationCache({
+    onSuccess: (data, variables, context, mutation) => {
+      if (!mutation.options.mutationKey) {
+        return;
+      }
+
+      mutationSuccessSubscribers.forEach((subscriber) =>
+        subscriber(data, variables, context, mutation),
+      );
     },
-  },
+  });
+
+  return {
+    mutationCache: globalMutationCache,
+    defaultOptions: {
+      queries: {
+        retry: (failureCount, error) => {
+          const clientError = error as ClientError;
+          if (
+            clientError?.response?.errors?.[0]?.extensions?.code === GARMR_ERROR
+          ) {
+            return false;
+          }
+          return failureCount < 3;
+        },
+        refetchOnWindowFocus: process.env.NODE_ENV !== 'development',
+      },
+    },
+  };
 };
 
 export const updateCachedPage = (
