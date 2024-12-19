@@ -11,6 +11,7 @@ export interface SidebarListItemProps
   isActive?: boolean;
   className?: string;
   group?: string;
+  customElement?: ReactElement;
 }
 
 function SidebarListItem({
@@ -26,6 +27,11 @@ function SidebarListItem({
     isActive && 'bg-surface-float',
     className,
   );
+
+  if (props.customElement) {
+    return <div className={containerClass}>{props.customElement}</div>;
+  }
+
   const content = (
     <>
       {React.cloneElement(icon as ReactElement, {
