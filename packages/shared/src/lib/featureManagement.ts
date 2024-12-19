@@ -40,7 +40,7 @@ const feature = {
     pri_01jbscda57910yvwjtyapnrrzc: PlusPriceType.Yearly,
   }),
 };
-export const plusImprovedEntripoints = new Feature(
+export const plusImprovedEntryPoint = new Feature(
   'plus_improved_entry_points',
   false,
 );
