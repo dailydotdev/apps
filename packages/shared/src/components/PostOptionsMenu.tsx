@@ -113,18 +113,27 @@ export default function PostOptionsMenu({
   const { post: loadedPost } = usePostById({
     id: initialPost?.id,
   });
+  const feedContextData = useActiveFeedContext();
+  const { queryKey: feedQueryKey, logOpts } = feedContextData;
+  const isCustomFeed = feedQueryKey?.[0] === 'custom';
+  const customFeedId = feedQueryKey?.[2] as string;
   const post = loadedPost ?? initialPost;
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
-    useFeedSettings({ enabled: isPostOptionsOpen });
-  const { onUpdateSettings } = useAdvancedSettings({ enabled: false });
+    useFeedSettings({
+      enabled: isPostOptionsOpen,
+      feedId: isCustomFeed ? customFeedId : undefined,
+    });
+  const { onUpdateSettings } = useAdvancedSettings({
+    enabled: false,
+    feedId: isCustomFeed ? customFeedId : undefined,
+  });
   const { logEvent } = useContext(LogContext);
   const { hidePost, unhidePost } = useReportPost();
   const { openSharePost } = useSharePost(origin);
   const { follow, unfollow } = useContentPreference();
 
   const { openModal } = useLazyModal();
-  const feedContextData = useActiveFeedContext();
-  const { queryKey: feedQueryKey, logOpts } = feedContextData;
+
   const {
     onBlockSource,
     onBlockTags,
@@ -135,8 +144,8 @@ export default function PostOptionsMenu({
     origin: Origin.PostContextMenu,
     postId: post?.id,
     shouldInvalidateQueries: false,
+    feedId: isCustomFeed ? customFeedId : undefined,
   });
-
   const isSourceBlocked = useMemo(() => {
     return !!feedSettings?.excludeSources?.some(
       (excludedSource) => excludedSource.id === post?.source?.id,
@@ -144,7 +153,10 @@ export default function PostOptionsMenu({
   }, [feedSettings?.excludeSources, post?.source?.id]);
 
   const shouldShowSubscribe =
-    isLoggedIn && !isSourceBlocked && post?.source?.type === SourceType.Machine;
+    isLoggedIn &&
+    !isSourceBlocked &&
+    post?.source?.type === SourceType.Machine &&
+    !isCustomFeed;
 
   const sourceSubscribe = useSourceActionsNotify({
     source: shouldShowSubscribe ? post?.source : undefined,
