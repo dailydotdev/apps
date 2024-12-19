@@ -284,6 +284,14 @@ export function OnboardPage(): ReactElement {
     const haveSkippedExtension =
       !options?.clickExtension && activeScreen === OnboardingStep.Extension;
     const isFirefox = checkIsBrowser(UserAgent.Firefox) && isLaptop;
+    console.log({
+      isFirefox,
+      isInstallStepAvailable,
+      activeScreen,
+      haveSkippedExtension,
+      installDesktopExperiment,
+      canUserInstallDesktop,
+    });
     if (
       isInstallStepAvailable &&
       activeScreen !== OnboardingStep.InstallDesktop &&
