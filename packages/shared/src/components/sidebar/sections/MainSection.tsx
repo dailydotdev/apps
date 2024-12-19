@@ -102,9 +102,10 @@ export const MainSection = ({
     isLoggedIn,
     user,
     isEnrolledNotPlus,
+    isPlusEntrypointExperiment,
     onPlusClick,
-    onNavTabClick,
     showPlusSubscription,
+    onNavTabClick,
   ]);
 
   return (
