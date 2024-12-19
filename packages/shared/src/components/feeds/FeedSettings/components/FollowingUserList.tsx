@@ -67,6 +67,7 @@ export const FollowingUserList = (): ReactElement => {
         showFollow: true,
         showSubscribe: false,
         copyType: CopyType.Custom,
+        feedId: feed.id,
       }}
     />
   );
