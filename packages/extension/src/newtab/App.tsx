@@ -23,7 +23,7 @@ import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNoti
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
-import { createDefaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
+import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
@@ -56,7 +56,7 @@ structuredCloneJsonPolyfill();
 
 const DEFAULT_TAB_TITLE = 'New Tab';
 const router = new CustomRouter();
-const queryClient = new QueryClient(createDefaultQueryClientConfig());
+const queryClient = new QueryClient(defaultQueryClientConfig);
 const AuthModal = dynamic(
   () =>
     import(

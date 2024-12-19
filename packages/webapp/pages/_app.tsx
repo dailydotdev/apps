@@ -28,7 +28,7 @@ import { useNotificationContext } from '@dailydotdev/shared/src/contexts/Notific
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { createDefaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
+import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import { useManualScrollRestoration } from '@dailydotdev/shared/src/hooks';
@@ -207,7 +207,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
 export default function App(props: AppProps): ReactElement {
   const [queryClient] = useState(
-    () => new QueryClient(createDefaultQueryClientConfig()),
+    () => new QueryClient(defaultQueryClientConfig),
   );
   const version = useWebappVersion();
   const deviceId = useDeviceId();

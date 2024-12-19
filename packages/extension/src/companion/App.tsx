@@ -15,7 +15,7 @@ import {
   ExtensionMessageType,
   getCompanionWrapper,
 } from '@dailydotdev/shared/src/lib/extension';
-import { createDefaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
+import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
 import { GrowthBookProvider } from '@dailydotdev/shared/src/components/GrowthBookProvider';
@@ -29,7 +29,7 @@ import { version } from '../../package.json';
 
 structuredCloneJsonPolyfill();
 
-const queryClient = new QueryClient(createDefaultQueryClientConfig());
+const queryClient = new QueryClient(defaultQueryClientConfig);
 const router = new CustomRouter();
 
 export type CompanionData = { url: string; deviceId: string } & Pick<
