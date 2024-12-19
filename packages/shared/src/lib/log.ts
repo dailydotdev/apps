@@ -296,6 +296,7 @@ export enum TargetId {
   // End settings
   TopReader = 'top reader',
   Sidebar = 'sidebar',
+  Header = 'header',
   ProfileDropdown = 'profile dropdown',
   Ads = 'ads',
   MyProfile = 'my profile',
