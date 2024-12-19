@@ -174,6 +174,7 @@ export function OnboardPage(): ReactElement {
   const isPageReady = growthbook?.ready && isAuthReady;
   const { feedSettings } = useFeedSettings();
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const onboardingVisual: OnboardingVisual = useFeature(
     feature.onboardingVisual,
   );
@@ -278,11 +279,15 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.Extension);
     }
 
+    const isInstallStepAvailable =
+      installDesktopExperiment && canUserInstallDesktop;
+    const haveSkippedExtension =
+      !options?.clickExtension && activeScreen === OnboardingStep.Extension;
+    const isFirefox = checkIsBrowser(UserAgent.Firefox) && isLaptop;
     if (
-      !options?.clickExtension &&
-      installDesktopExperiment &&
-      canUserInstallDesktop &&
-      activeScreen === OnboardingStep.Extension
+      isInstallStepAvailable &&
+      activeScreen !== OnboardingStep.InstallDesktop &&
+      (haveSkippedExtension || isFirefox)
     ) {
       return setActiveScreen(OnboardingStep.InstallDesktop);
     }
