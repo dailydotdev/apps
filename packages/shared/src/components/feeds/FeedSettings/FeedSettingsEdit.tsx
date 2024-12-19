@@ -46,7 +46,7 @@ export const FeedSettingsEdit = ({
 }: FeedSettingsEditProps): ReactElement => {
   const router = useRouter();
   const feedSettingsEditContext = useFeedSettingsEdit({ feedSlugOrId });
-  const { feed } = feedSettingsEditContext;
+  const { feed, onBackToFeed } = feedSettingsEditContext;
   const { isPlus, showPlusSubscription, logSubscriptionEvent } =
     usePlusSubscription();
 
@@ -145,13 +145,7 @@ export const FeedSettingsEdit = ({
         kind={Modal.Kind.FlexibleCenter}
         size={Modal.Size.XLarge}
         tabs={tabs}
-        onRequestClose={() => {
-          if (feed?.type === FeedType.Main) {
-            router.replace(webappUrl);
-          } else {
-            router.replace(`${webappUrl}feeds/${feedSlugOrId}`);
-          }
-        }}
+        onRequestClose={onBackToFeed}
         defaultView={defaultView}
       >
         <FeedSettingsEditHeader />
