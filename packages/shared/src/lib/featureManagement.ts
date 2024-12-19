@@ -42,7 +42,7 @@ const feature = {
 
 export const featurePostBannerExtensionPrompt = new Feature(
   'post_banner_extension_prompt',
-  false,
+  true,
 );
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 export const featureOnboardingSources = new Feature(
