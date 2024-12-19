@@ -16,7 +16,7 @@ import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useFeature } from '../../GrowthBookProvider';
-import { feature } from '../../../lib/featureManagement';
+import { feedActionSpacing } from '../../../lib/featureManagement';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
@@ -37,7 +37,7 @@ export const FreeformList = forwardRef(function SharePostCard(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const { pinnedAt, type: postType } = post;
-  const feedActionSpacing = useFeature(feature.feedActionSpacing);
+  const feedActionSpacingExp = useFeature(feedActionSpacing);
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
@@ -61,7 +61,7 @@ export const FreeformList = forwardRef(function SharePostCard(
         onCopyLinkClick={onCopyLinkClick}
         onBookmarkClick={onBookmarkClick}
         className={classNames(
-          feedActionSpacing ? 'justify-between' : 'mt-4',
+          feedActionSpacingExp ? 'justify-between' : 'mt-4',
           !!image && 'laptop:mt-auto',
         )}
       />
@@ -117,8 +117,8 @@ export const FreeformList = forwardRef(function SharePostCard(
             </CardTitle>
 
             {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
-            {feedActionSpacing && <div className="flex flex-1" />}
-            {feedActionSpacing && actionButtons}
+            {feedActionSpacingExp && <div className="flex flex-1" />}
+            {feedActionSpacingExp && actionButtons}
           </div>
 
           {image && (
@@ -135,7 +135,7 @@ export const FreeformList = forwardRef(function SharePostCard(
           )}
         </CardContent>
       </CardContainer>
-      {!feedActionSpacing && actionButtons}
+      {!feedActionSpacingExp && actionButtons}
       {!image && <PostContentReminder post={post} className="z-1" />}
       {children}
     </FeedItemContainer>

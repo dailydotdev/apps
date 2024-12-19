@@ -22,7 +22,7 @@ import { BookmarkButton } from '../../buttons';
 import { IconSize } from '../../Icon';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { useFeature } from '../../GrowthBookProvider';
-import { feature } from '../../../lib/featureManagement';
+import { feedActionSpacing } from '../../../lib/featureManagement';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -47,7 +47,7 @@ const ActionButtons = ({
   const isUpvoteActive = post.userState?.vote === UserVote.Up;
   const isDownvoteActive = post.userState?.vote === UserVote.Down;
   const { onShowPanel, onClose } = useBlockPostPanel(post);
-  const feedActionSpacing = useFeature(feature.feedActionSpacing);
+  const feedActionSpacingExp = useFeature(feedActionSpacing);
 
   if (isFeedPreview) {
     return null;
@@ -63,7 +63,7 @@ const ActionButtons = ({
     await onDownvoteClick?.(post);
   };
 
-  const keepUpvoteSpace = post.numUpvotes || feedActionSpacing;
+  const keepUpvoteSpace = post.numUpvotes || feedActionSpacingExp;
 
   return (
     <div
@@ -77,7 +77,7 @@ const ActionButtons = ({
           <Button
             className={classNames(
               'pointer-events-auto',
-              keepUpvoteSpace ? '!pl-1 !pr-3' : !feedActionSpacing && 'w-8',
+              keepUpvoteSpace ? '!pl-1 !pr-3' : !feedActionSpacingExp && 'w-8',
             )}
             id={`post-${post.id}-upvote-btn`}
             color={ButtonColor.Avocado}
@@ -96,14 +96,14 @@ const ActionButtons = ({
               <InteractionCounter
                 className={classNames(
                   'ml-1.5 tabular-nums',
-                  !post.numUpvotes && feedActionSpacing && 'invisible',
+                  !post.numUpvotes && feedActionSpacingExp && 'invisible',
                 )}
                 value={post.numUpvotes}
               />
             ) : null}
           </Button>
         </SimpleTooltip>
-        {!feedActionSpacing && (
+        {!feedActionSpacingExp && (
           <div className="box-border border border-surface-float py-2.5" />
         )}
         <SimpleTooltip

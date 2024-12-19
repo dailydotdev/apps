@@ -16,7 +16,7 @@ import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useFeature } from '../../GrowthBookProvider';
-import { feature } from '../../../lib/featureManagement';
+import { feedActionSpacing } from '../../../lib/featureManagement';
 
 export const ShareList = forwardRef(function ShareList(
   {
@@ -39,7 +39,7 @@ export const ShareList = forwardRef(function ShareList(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const { pinnedAt, trending, type } = post;
-  const feedActionSpacing = useFeature(feature.feedActionSpacing);
+  const feedActionSpacingExp = useFeature(feedActionSpacing);
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
@@ -52,11 +52,11 @@ export const ShareList = forwardRef(function ShareList(
       ref={containerRef}
       className={classNames(
         'pointer-events-none',
-        feedActionSpacing && 'flex-[unset]',
+        feedActionSpacingExp && 'flex-[unset]',
       )}
     >
       <ActionButtons
-        className={feedActionSpacing ? 'justify-between' : 'mt-4'}
+        className={feedActionSpacingExp ? 'justify-between' : 'mt-4'}
         post={post}
         onUpvoteClick={onUpvoteClick}
         onDownvoteClick={onDownvoteClick}
@@ -122,11 +122,11 @@ export const ShareList = forwardRef(function ShareList(
           >
             {truncatedTitle}
           </CardTitle>
-          {!feedActionSpacing && <div className="flex flex-1" />}
+          {!feedActionSpacingExp && <div className="flex flex-1" />}
           <div
             className={classNames(
               'flex items-center',
-              !feedActionSpacing && 'mx-2',
+              !feedActionSpacingExp && 'mx-2',
             )}
           >
             {!post.title && post.sharedPost.clickbaitTitleDetected && (
@@ -134,8 +134,8 @@ export const ShareList = forwardRef(function ShareList(
             )}
             <PostTags tags={post.tags} />
           </div>
-          {feedActionSpacing && <div className="flex flex-1" />}
-          {feedActionSpacing && actionButtons}
+          {feedActionSpacingExp && <div className="flex flex-1" />}
+          {feedActionSpacingExp && actionButtons}
         </div>
 
         <CardCoverList
@@ -159,7 +159,7 @@ export const ShareList = forwardRef(function ShareList(
           }}
         />
       </CardContent>
-      {!feedActionSpacing && actionButtons}
+      {!feedActionSpacingExp && actionButtons}
       {children}
     </FeedItemContainer>
   );

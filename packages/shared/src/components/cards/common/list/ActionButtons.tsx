@@ -21,7 +21,7 @@ import { ActionButtonsProps } from '../../ActionsButtons';
 import { UpvoteButtonIcon } from '../../ActionsButtons/UpvoteButtonIcon';
 import { BookmarkButton } from '../../../buttons';
 import { useFeature } from '../../../GrowthBookProvider';
-import { feature } from '../../../../lib/featureManagement';
+import { feedActionSpacing } from '../../../../lib/featureManagement';
 
 interface ActionButtonsPropsList extends ActionButtonsProps {
   onDownvoteClick?: (post: Post) => unknown;
@@ -38,7 +38,7 @@ export default function ActionButtons({
 }: ActionButtonsPropsList): ReactElement {
   const isFeedPreview = useFeedPreviewMode();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
-  const feedActionSpacing = useFeature(feature.feedActionSpacing);
+  const feedActionSpacingExp = useFeature(feedActionSpacing);
   const { showTagsPanel } = data;
 
   if (isFeedPreview) {
@@ -63,7 +63,7 @@ export default function ActionButtons({
     onUpvoteClick?.(post);
   };
 
-  const keepUpvoteSpace = post.numUpvotes || feedActionSpacing;
+  const keepUpvoteSpace = post.numUpvotes || feedActionSpacingExp;
 
   return (
     <ConditionalWrapper
@@ -85,7 +85,9 @@ export default function ActionButtons({
             <Button
               className={classNames(
                 'pointer-events-auto',
-                keepUpvoteSpace ? '!pl-1 !pr-3' : !feedActionSpacing && 'w-8',
+                keepUpvoteSpace
+                  ? '!pl-1 !pr-3'
+                  : !feedActionSpacingExp && 'w-8',
               )}
               id={`post-${post.id}-upvote-btn`}
               color={ButtonColor.Avocado}
@@ -101,14 +103,14 @@ export default function ActionButtons({
                 <InteractionCounter
                   className={classNames(
                     'ml-1.5 tabular-nums',
-                    !post.numUpvotes && feedActionSpacing && 'invisible',
+                    !post.numUpvotes && feedActionSpacingExp && 'invisible',
                   )}
                   value={post?.numUpvotes}
                 />
               ) : null}
             </Button>
           </SimpleTooltip>
-          {!feedActionSpacing && (
+          {!feedActionSpacingExp && (
             <div className="box-border border border-surface-float py-2.5" />
           )}
           <SimpleTooltip
