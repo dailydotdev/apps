@@ -6,7 +6,7 @@ import { LogEvent } from './log/useLogQueue';
 import { useGetShortUrl } from './utils/useGetShortUrl';
 import { ReferralCampaignKey } from '../lib';
 
-interface UseShareOrCopyLinkProps {
+export interface UseShareOrCopyLinkProps {
   link: string;
   text: string;
   logObject?: (provider: ShareProvider) => LogEvent;

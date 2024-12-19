@@ -104,6 +104,7 @@ export const FollowButton = ({
         isFetching={isLoading}
         variant={variant}
         onClick={(e) => {
+          e.preventDefault();
           e.stopPropagation();
           onButtonClick();
         }}
@@ -116,6 +117,7 @@ export const FollowButton = ({
           }
           onClick={(e) => {
             e.preventDefault();
+            e.stopPropagation();
             onNotifyClick();
           }}
           disabled={isLoading}
