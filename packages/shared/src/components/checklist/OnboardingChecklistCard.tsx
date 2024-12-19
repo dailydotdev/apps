@@ -3,12 +3,14 @@ import classNames from 'classnames';
 import { ChecklistCard } from './ChecklistCard';
 import LogContext from '../../contexts/LogContext';
 import { LogEvent, TargetId, TargetType } from '../../lib/log';
-import { useOnboardingChecklist } from '../../hooks';
+import { useActions, useOnboardingChecklist } from '../../hooks';
 import {
   ChecklistCardProps,
   ChecklistCardVariant,
   ChecklistVariantClassNameMap,
 } from '../../lib/checklist';
+import { ActionType } from '../../graphql/actions';
+import { isExtension } from '../../lib/func';
 
 export type OnboardingChecklistCardProps = Pick<
   ChecklistCardProps,
@@ -29,6 +31,17 @@ export const OnboardingChecklistCard = ({
   const { logEvent } = useContext(LogContext);
   const { steps, completedSteps, nextStep, isDone } = useOnboardingChecklist();
   const trackedRef = useRef(false);
+
+  const { isActionsFetched, completeAction, checkHasCompleted } = useActions();
+  useEffect(() => {
+    if (
+      isActionsFetched &&
+      !checkHasCompleted(ActionType.BrowserExtension) &&
+      isExtension
+    ) {
+      completeAction(ActionType.BrowserExtension);
+    }
+  }, [checkHasCompleted, completeAction, isActionsFetched]);
 
   useEffect(() => {
     if (trackedRef.current === isOpen) {

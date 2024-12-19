@@ -75,6 +75,13 @@ const EditFeedPage = (): ReactElement => {
   const { FeedPageLayoutComponent } = useFeedLayout();
   const { logEvent } = useLogContext();
 
+  useEffect(() => {
+    router.replace(webappUrl);
+  }, [router]);
+
+  // TODO: Remove once the new page is implemented
+  return null;
+
   const feedSlugOrId = router.query.slugOrId as string;
   const feed = useMemo(() => {
     return feeds?.edges.find(

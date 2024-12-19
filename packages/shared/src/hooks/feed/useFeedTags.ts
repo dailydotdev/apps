@@ -3,15 +3,16 @@ import { useMemo } from 'react';
 interface UseFeedTags {
   tags: string[];
   width: number;
+  base?: number;
   offset?: number;
 }
 
-const base = 25;
+const basePadding = 25;
 const char = 8;
 const gap = 8;
-const baseWidth = base + gap;
 
 export const useFeedTags = ({
+  base = basePadding,
   tags,
   width,
   offset = 0,
@@ -24,6 +25,7 @@ export const useFeedTags = ({
     let totalLength = offset;
 
     return tags.reduce((items, tag, index) => {
+      const baseWidth = base + gap;
       const minWidth = index === 0 ? base : baseWidth;
       const addition = tag.length * char + minWidth;
       const remaining = tags.length - (items.length + 1); // the value 1 is for the tag we are about to add here
@@ -49,5 +51,5 @@ export const useFeedTags = ({
 
       return items;
     }, []);
-  }, [tags, width, offset]);
+  }, [base, tags, width, offset]);
 };

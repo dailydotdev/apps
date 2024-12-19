@@ -44,12 +44,21 @@ export const featurePostBannerExtensionPrompt = new Feature(
   'post_banner_extension_prompt',
   true,
 );
+export const plusImprovedEntryPoint = new Feature(
+  'plus_improved_entry_points',
+  false,
+);
+export const feedActionSpacing = new Feature('feed_action_spacing', false);
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
-export const featureOnboardingSources = new Feature(
-  'onboarding_sources',
+export const featureUpvoteCounter = new Feature(
+  'always_visible_upvote_counter',
   false,
 );
 
+export const featureOnboardingExtension = new Feature(
+  'onboarding_extension',
+  false,
+);
 export const featureOnboardingPWA = new Feature('onboarding_pwa', false);
 export const featureOnboardingAndroid = new Feature(
   'onboarding_android',
