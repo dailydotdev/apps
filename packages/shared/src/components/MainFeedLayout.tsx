@@ -198,7 +198,7 @@ export default function MainFeedLayout({
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
   });
-  const { isCustomDefaultFeed } = useCustomDefaultFeed();
+  const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const feedVersion = useFeature(feature.feedVersion);
   const {
@@ -284,7 +284,11 @@ export default function MainFeedLayout({
     if (feedNameProp === 'default' && isCustomDefaultFeed) {
       return {
         feedName: SharedFeedPage.Custom,
-        feedQueryKey: generateQueryKey(SharedFeedPage.Custom, user),
+        feedQueryKey: generateQueryKey(
+          SharedFeedPage.Custom,
+          user,
+          defaultFeedId,
+        ),
         query: CUSTOM_FEED_QUERY,
         variables: {
           feedId: user.defaultFeedId,
@@ -392,6 +396,7 @@ export default function MainFeedLayout({
     router.pathname,
     isCustomDefaultFeed,
     feedNameProp,
+    defaultFeedId,
   ]);
 
   useEffect(() => {
