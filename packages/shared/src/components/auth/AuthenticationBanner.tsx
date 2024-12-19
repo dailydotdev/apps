@@ -18,14 +18,12 @@ import { checkIsBrowser, checkIsExtension, UserAgent } from '../../lib/func';
 import { featurePostBannerExtensionPrompt } from '../../lib/featureManagement';
 import { useConditionalFeature } from '../../hooks';
 import { GetExtensionButton } from '../buttons/GetExtensionButton';
-import { useFeature } from '../GrowthBookProvider';
 
 const Section = classed('div', 'flex flex-col');
 
 export function AuthenticationBanner({
   children,
 }: PropsWithChildren): ReactElement {
-  const extensionExperiment = useFeature(featurePostBannerExtensionPrompt);
   const isCompatibleBrowser =
     (checkIsBrowser(UserAgent.Chrome) || checkIsBrowser(UserAgent.Edge)) &&
     !checkIsExtension();
@@ -54,7 +52,7 @@ export function AuthenticationBanner({
         <Section
           className={classNames(
             'max-w-full flex-grow gap-4',
-            !extensionExperiment && 'w-[32.5rem]',
+            !showExtensionCTA && 'w-[32.5rem]',
           )}
         >
           {children || (
