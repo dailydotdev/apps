@@ -58,8 +58,12 @@ export const useFollowContentPreferenceMutationSubscription = ({
                   const newContentPreferenceEdge = structuredClone(edge);
                   const { node } = newContentPreferenceEdge;
 
+                  const followingKeys = [
+                    RequestKey.UserFollowing,
+                    RequestKey.UserBlocked,
+                  ];
                   if (
-                    queryType === RequestKey.UserFollowing &&
+                    followingKeys.includes(queryType) &&
                     node.referenceUser?.id === entityId
                   ) {
                     node.referenceUser.contentPreference = {
