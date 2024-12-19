@@ -32,6 +32,8 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { PlusUser } from '../../PlusUser';
 import { ModalClose } from '../../modals/common/ModalClose';
 import { ActionType } from '../../../graphql/actions';
+import { useContentPreference } from '../../../hooks/contentPreference/useContentPreference';
+import type { ContentPreferenceType } from '../../../graphql/contentPreference';
 
 export const FeedSettingsCreate = (): ReactElement => {
   const [newFeedId] = useState(() => Date.now().toString());
@@ -45,6 +47,7 @@ export const FeedSettingsCreate = (): ReactElement => {
     icon: '',
   }));
   const { createFeed } = useFeeds();
+  const { follow } = useContentPreference({ showToastOnSuccess: false });
   const { isPlus } = usePlusSubscription();
 
   const { onFinished, delayedRedirect, isAnimating } = useProgressAnimation({
@@ -62,6 +65,17 @@ export const FeedSettingsCreate = (): ReactElement => {
       queryClient.removeQueries({
         queryKey: getFeedSettingsQueryKey(user, newFeedId),
       });
+
+      const entityId = router?.query?.entityId as string;
+      const entityType = router?.query?.entityType as ContentPreferenceType;
+      if (entityId && entityType) {
+        follow({
+          id: entityId,
+          entity: entityType,
+          entityName: entityId,
+          feedId: newFeed.id,
+        });
+      }
 
       onFinished();
       delayedRedirect(`${webappUrl}feeds/${newFeed.id}?created=1`);

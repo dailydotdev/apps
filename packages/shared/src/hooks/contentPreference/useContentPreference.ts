@@ -25,7 +25,13 @@ export type UseContentPreference = {
   unblock: ContentPreferenceMutation;
 };
 
-export const useContentPreference = (): UseContentPreference => {
+type UseContentPreferenceProps = {
+  showToastOnSuccess?: boolean;
+};
+
+export const useContentPreference = ({
+  showToastOnSuccess,
+}: UseContentPreferenceProps = {}): UseContentPreference => {
   const { user, showLogin } = useAuthContext();
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
@@ -63,7 +69,9 @@ export const useContentPreference = (): UseContentPreference => {
         status: ContentPreferenceStatus.Follow,
       });
 
-      displayToast(`✅ You are now following ${entityName}`);
+      if (showToastOnSuccess) {
+        displayToast(`✅ You are now following ${entityName}`);
+      }
     },
   });
 
