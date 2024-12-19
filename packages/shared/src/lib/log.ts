@@ -143,6 +143,7 @@ export enum LogEvent {
   ErrorSearch = 'error search',
   AcceptInvitation = 'accept invitation',
   DownloadExtension = 'download extension',
+  DownloadApp = 'download app',
   SearchHighlightAnimation = 'highlight search',
   SwitchSearch = 'switch search',
   // search end
