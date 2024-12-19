@@ -22,7 +22,10 @@ import { BookmarkButton } from '../../buttons';
 import { IconSize } from '../../Icon';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { useFeature } from '../../GrowthBookProvider';
-import { feedActionSpacing, featureUpvoteCounter } from '../../../lib/featureManagement';
+import {
+  feedActionSpacing,
+  featureUpvoteCounter,
+} from '../../../lib/featureManagement';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -49,7 +52,8 @@ const ActionButtons = ({
   const { onShowPanel, onClose } = useBlockPostPanel(post);
   const feedActionSpacingExp = useFeature(feedActionSpacing);
   const alwaysShowUpvoteCounter = useFeature(featureUpvoteCounter);
-  const isCounterVisible = post.numUpvotes || alwaysShowUpvoteCounter || feedActionSpacingExp;
+  const isCounterVisible =
+    post.numUpvotes || alwaysShowUpvoteCounter || feedActionSpacingExp;
 
   if (isFeedPreview) {
     return null;

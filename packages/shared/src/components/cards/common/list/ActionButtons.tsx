@@ -21,7 +21,10 @@ import { ActionButtonsProps } from '../../ActionsButtons';
 import { UpvoteButtonIcon } from '../../ActionsButtons/UpvoteButtonIcon';
 import { BookmarkButton } from '../../../buttons';
 import { useFeature } from '../../../GrowthBookProvider';
-import { feedActionSpacing, featureUpvoteCounter } from '../../../../lib/featureManagement';
+import {
+  feedActionSpacing,
+  featureUpvoteCounter,
+} from '../../../../lib/featureManagement';
 
 interface ActionButtonsPropsList extends ActionButtonsProps {
   onDownvoteClick?: (post: Post) => unknown;
@@ -41,7 +44,8 @@ export default function ActionButtons({
   const feedActionSpacingExp = useFeature(feedActionSpacing);
   const { showTagsPanel } = data;
   const alwaysShowUpvoteCounter = useFeature(featureUpvoteCounter);
-  const isCounterVisible = post?.numUpvotes || alwaysShowUpvoteCounter || feedActionSpacingExp;
+  const isCounterVisible =
+    post?.numUpvotes || alwaysShowUpvoteCounter || feedActionSpacingExp;
 
   if (isFeedPreview) {
     return null;
