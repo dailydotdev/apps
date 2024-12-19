@@ -229,6 +229,11 @@ export enum LogEvent {
   ToggleClickbaitShield = 'toggle clickbait shield',
   ClickbaitShieldTitle = 'clickbait shield title',
   // End Clickbait Shield
+  // Start Share
+  ShareProfile = 'share profile',
+  ShareSource = 'share source',
+  ShareTag = 'share tag',
+  // End Share
 }
 
 export enum FeedItemTitle {
