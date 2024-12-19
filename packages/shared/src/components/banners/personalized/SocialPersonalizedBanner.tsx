@@ -9,6 +9,8 @@ import {
 } from '../../../lib/socialMedia';
 import { capitalize } from '../../../lib/strings';
 import { IconSize } from '../../Icon';
+import { featurePostBannerExtensionPrompt } from '../../../lib/featureManagement';
+import { useFeature } from '../../GrowthBookProvider';
 
 const SocialPersonalizedBanner = ({
   site,
@@ -17,13 +19,25 @@ const SocialPersonalizedBanner = ({
 }): ReactElement => {
   const Icon = socialIcon[site];
   const gradient = socialGradient[site];
+  const extensionExperiment = useFeature(featurePostBannerExtensionPrompt);
+
   return (
     <AuthenticationBanner>
-      <Icon
-        size={IconSize.XXLarge}
-        secondary={site === SocialIconType.Reddit}
-      />
+      {!extensionExperiment && (
+        <Icon
+          size={IconSize.Size48}
+          secondary={site === SocialIconType.Reddit}
+        />
+      )}
       <OnboardingHeadline
+        avatar={
+          extensionExperiment && (
+            <Icon
+              size={IconSize.Size48}
+              secondary={site === SocialIconType.Reddit}
+            />
+          )
+        }
         className={{
           title: classNames('typo-mega3', gradient),
           description: 'mb-8 typo-title3',

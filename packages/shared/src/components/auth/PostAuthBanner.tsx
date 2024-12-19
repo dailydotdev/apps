@@ -1,11 +1,7 @@
 import React, { ReactElement } from 'react';
 import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { feature } from '../../lib/featureManagement';
-import { checkIsBrowser, checkIsExtension, UserAgent } from '../../lib/func';
-import { AuthExtensionBanner } from './AuthExtensionBanner';
 import { AuthenticationBanner } from './AuthenticationBanner';
-import { useConditionalFeature } from '../../hooks';
 import { getSocialReferrer } from '../../lib/socialMedia';
 import { useAuthContext } from '../../contexts/AuthContext';
 
@@ -29,18 +25,7 @@ const GeoPersonalizedBanner = dynamic(
 export const PostAuthBanner = (): ReactElement => {
   const searchParams = useSearchParams();
   const { geo } = useAuthContext();
-  const isCompatibleBrowser =
-    (checkIsBrowser(UserAgent.Chrome) || checkIsBrowser(UserAgent.Edge)) &&
-    !checkIsExtension();
 
-  const { value: showExtensionCTA } = useConditionalFeature({
-    feature: feature.postBannerExtensionPrompt,
-    shouldEvaluate: isCompatibleBrowser,
-  });
-
-  if (showExtensionCTA) {
-    return <AuthExtensionBanner />;
-  }
   const userId = searchParams?.get('userid');
 
   if (userId) {
