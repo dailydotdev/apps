@@ -69,8 +69,6 @@ const ActionButtons = ({
     await onDownvoteClick?.(post);
   };
 
-  const keepUpvoteSpace = post.numUpvotes || feedActionSpacingExp;
-
   return (
     <div
       className={classNames(
@@ -83,7 +81,7 @@ const ActionButtons = ({
           <Button
             className={classNames(
               'pointer-events-auto',
-              isCounterVisible ? '!pl-1 !pr-3' : feedActionSpacingExp && 'w-8',
+              isCounterVisible ? '!pl-1 !pr-3' : !feedActionSpacingExp && 'w-8',
             )}
             id={`post-${post.id}-upvote-btn`}
             color={ButtonColor.Avocado}
@@ -102,7 +100,10 @@ const ActionButtons = ({
               <InteractionCounter
                 className={classNames(
                   'ml-1.5 tabular-nums',
-                  !post.numUpvotes && feedActionSpacingExp && 'invisible',
+                  !post.numUpvotes &&
+                    feedActionSpacingExp &&
+                    !alwaysShowUpvoteCounter &&
+                    'invisible',
                 )}
                 value={post.numUpvotes}
               />

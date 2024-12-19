@@ -69,8 +69,6 @@ export default function ActionButtons({
     onUpvoteClick?.(post);
   };
 
-  const keepUpvoteSpace = post.numUpvotes || feedActionSpacingExp;
-
   return (
     <ConditionalWrapper
       condition={showTagsPanel === true}
@@ -109,7 +107,10 @@ export default function ActionButtons({
                 <InteractionCounter
                   className={classNames(
                     'ml-1.5 tabular-nums',
-                    !post.numUpvotes && feedActionSpacingExp && 'invisible',
+                    !post.numUpvotes &&
+                      feedActionSpacingExp &&
+                      !alwaysShowUpvoteCounter &&
+                      'invisible',
                   )}
                   value={post?.numUpvotes}
                 />
