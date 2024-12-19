@@ -40,7 +40,10 @@ const feature = {
     pri_01jbscda57910yvwjtyapnrrzc: PlusPriceType.Yearly,
   }),
 };
-
+export const plusImprovedEntripoints = new Feature(
+  'plus_improved_entripoints',
+  false,
+);
 export const feedActionSpacing = new Feature('feed_action_spacing', false);
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 export const featureUpvoteCounter = new Feature(

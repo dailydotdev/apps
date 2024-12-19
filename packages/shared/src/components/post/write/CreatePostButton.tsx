@@ -6,8 +6,10 @@ import { useSquad, useViewSize, ViewSize } from '../../../hooks';
 import { verifyPermission } from '../../../graphql/squads';
 import { SourcePermissions } from '../../../graphql/sources';
 import {
+  AllowedElements,
   AllowedTags,
   Button,
+  ButtonProps,
   ButtonSize,
   ButtonVariant,
 } from '../../buttons/Button';
@@ -15,21 +17,23 @@ import { PlusIcon } from '../../icons';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { SimpleTooltip } from '../../tooltips';
 
-interface CreatePostButtonProps {
-  className?: string;
+interface CreatePostButtonProps<Tag extends AllowedTags>
+  extends Pick<ButtonProps<Tag>, 'className' | 'onClick' | 'size'> {
   compact?: boolean;
+  showIcon?: boolean;
   sidebar?: boolean;
   footer?: boolean;
-  onClick?: () => void;
 }
 
-export function CreatePostButton({
+export function CreatePostButton<Tag extends AllowedTags>({
   className,
   compact,
   sidebar,
   footer,
   onClick,
-}: CreatePostButtonProps): ReactElement {
+  showIcon,
+  ...attrs
+}: CreatePostButtonProps<Tag>): ReactElement {
   const { user, squads } = useAuthContext();
   const { route, query } = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -63,10 +67,11 @@ export function CreatePostButton({
   const buttonProps: {
     tag?: AllowedTags;
     href?: string;
-    onClick?: () => void;
+    onClick?: (e: React.MouseEvent<AllowedElements, MouseEvent>) => void;
   } = onClick ? { onClick } : { tag: 'a', href };
 
-  const shouldShowAsCompact = (isLaptop && !isLaptopL) || compact;
+  const shouldShowAsCompact =
+    compact !== false && ((isLaptop && !isLaptopL) || compact);
 
   return (
     <ConditionalWrapper
@@ -84,10 +89,11 @@ export function CreatePostButton({
         }
         className={className}
         disabled={getIsDisabled()}
-        icon={shouldShowAsCompact && <PlusIcon />}
+        icon={(shouldShowAsCompact || showIcon) && <PlusIcon />}
         size={
           isLaptop || sidebar || footer ? ButtonSize.Medium : ButtonSize.Small
         }
+        {...attrs}
       >
         {!shouldShowAsCompact ? 'New post' : null}
       </Button>
