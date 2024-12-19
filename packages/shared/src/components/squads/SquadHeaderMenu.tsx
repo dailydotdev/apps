@@ -186,6 +186,10 @@ export default function SquadHeaderMenu({
     openModal,
     squad,
     isLoggedIn,
+    follow,
+    unfollow,
+    router,
+    showPlusSubscription,
   ]);
 
   return (
