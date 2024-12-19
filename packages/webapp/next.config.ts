@@ -135,6 +135,24 @@ const nextConfig: NextConfig = {
           },
         ];
 
+        if (process.env.REWRITE_DEPLOYMENT_URL) {
+          return {
+            beforeFiles: [
+              {
+                source: '/:path*',
+                destination: `${process.env.REWRITE_DEPLOYMENT_URL}/:path*`,
+              },
+            ],
+            afterFiles: rewrites,
+            fallback: [
+              {
+                source: '/:path*',
+                destination: `${process.env.REWRITE_DEPLOYMENT_URL}/:path*`,
+              },
+            ],
+          };
+        }
+
         // to support GitPod environment and avoid CORS issues, we need to proxy the API requests
         if (process.env.NEXT_PUBLIC_DOMAIN === 'localhost') {
           rewrites.unshift({
@@ -197,6 +215,9 @@ const nextConfig: NextConfig = {
       poweredByHeader: false,
       reactStrictMode: false,
       productionBrowserSourceMaps: process.env.SOURCE_MAPS === 'true',
+      generateBuildId: async () => {
+        return process.env.COMMIT_REF || process.env.VERCEL_GIT_COMMIT_SHA;
+      },
     }),
   }),
 };
