@@ -26,6 +26,7 @@ const CustomFeedOptionsMenu = ({
   className,
   shareProps,
   onAdd,
+  onUndo,
 }: CustomFeedOptionsMenuProps): ReactElement => {
   const { showPlusSubscription } = usePlusSubscription();
   const { openModal } = useLazyModal();
@@ -41,6 +42,7 @@ const CustomFeedOptionsMenu = ({
         type: LazyModal.AddToCustomFeed,
         props: {
           onAdd,
+          onUndo,
         },
       });
     }
