@@ -41,7 +41,7 @@ const feature = {
   }),
 };
 export const plusImprovedEntripoints = new Feature(
-  'plus_improved_entripoints',
+  'plus_improved_entry_points',
   false,
 );
 export const feedActionSpacing = new Feature('feed_action_spacing', false);
