@@ -21,7 +21,7 @@ import { ActionButtonsProps } from '../../ActionsButtons';
 import { UpvoteButtonIcon } from '../../ActionsButtons/UpvoteButtonIcon';
 import { BookmarkButton } from '../../../buttons';
 import { useFeature } from '../../../GrowthBookProvider';
-import { feedActionSpacing } from '../../../../lib/featureManagement';
+import { feedActionSpacing, featureUpvoteCounter } from '../../../../lib/featureManagement';
 
 interface ActionButtonsPropsList extends ActionButtonsProps {
   onDownvoteClick?: (post: Post) => unknown;
@@ -40,6 +40,8 @@ export default function ActionButtons({
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const feedActionSpacingExp = useFeature(feedActionSpacing);
   const { showTagsPanel } = data;
+  const alwaysShowUpvoteCounter = useFeature(featureUpvoteCounter);
+  const isCounterVisible = post?.numUpvotes || alwaysShowUpvoteCounter || feedActionSpacingExp;
 
   if (isFeedPreview) {
     return null;
@@ -85,7 +87,7 @@ export default function ActionButtons({
             <Button
               className={classNames(
                 'pointer-events-auto',
-                keepUpvoteSpace
+                isCounterVisible
                   ? '!pl-1 !pr-3'
                   : !feedActionSpacingExp && 'w-8',
               )}
@@ -99,7 +101,7 @@ export default function ActionButtons({
                 secondary={post?.userState?.vote === UserVote.Up}
                 size={IconSize.Medium}
               />
-              {keepUpvoteSpace ? (
+              {isCounterVisible ? (
                 <InteractionCounter
                   className={classNames(
                     'ml-1.5 tabular-nums',
