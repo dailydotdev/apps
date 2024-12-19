@@ -34,7 +34,8 @@ import { IconSize } from '../Icon';
 import { FeedSettingsEditContext } from '../feeds/FeedSettings/FeedSettingsEditContext';
 
 export const BlockedWords = (): ReactElement => {
-  const { feed } = useContext(FeedSettingsEditContext);
+  const feedSettingsEditContext = useContext(FeedSettingsEditContext);
+  const feed = feedSettingsEditContext?.feed;
   const queryClient = useQueryClient();
   const { user } = useAuthContext();
   const { block, unblock } = useContentPreference();

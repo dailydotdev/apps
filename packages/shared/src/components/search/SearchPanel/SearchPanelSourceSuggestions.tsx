@@ -31,7 +31,8 @@ type PanelItemProps = Pick<ButtonProps<'a'>, 'onClick'> & {
 };
 
 const PanelItem = ({ suggestion, showFollow, ...rest }: PanelItemProps) => {
-  const { feed } = useFeedSettingsEditContext();
+  const feedSettingsEditContext = useFeedSettingsEditContext();
+  const feed = feedSettingsEditContext?.feed;
   const Icon = () => (
     <Image
       loading="lazy"
@@ -82,7 +83,8 @@ export const SearchPanelSourceSuggestions = ({
   showFollow,
   title,
 }: SearchPanelSourceSuggestionsProps): ReactElement => {
-  const { feed } = useContext(FeedSettingsEditContext);
+  const feedSettingsEditContext = useContext(FeedSettingsEditContext);
+  const feed = feedSettingsEditContext?.feed;
   const router = useRouter();
   const { logEvent } = useContext(LogContext);
   const searchPanel = useContext(SearchPanelContext);

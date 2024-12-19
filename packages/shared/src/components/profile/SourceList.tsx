@@ -32,7 +32,8 @@ export const SourceList = ({
   isLoading,
   emptyPlaceholder,
 }: SourceListProps): ReactElement => {
-  const { feed } = useFeedSettingsEditContext();
+  const feedSettingsEditContext = useFeedSettingsEditContext();
+  const feed = feedSettingsEditContext?.feed;
   const loader = (
     <SourceListPlaceholder placeholderAmount={placeholderAmount} />
   );
