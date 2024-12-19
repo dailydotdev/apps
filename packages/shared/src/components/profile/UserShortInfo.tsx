@@ -45,6 +45,7 @@ export interface UserShortInfoProps<
   showSubscribe?: boolean;
   copyType?: CopyType;
   origin?: Origin;
+  feedId?: string;
 }
 
 const defaultClassName = {
@@ -69,6 +70,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
     showSubscribe,
     copyType,
     origin,
+    feedId,
     ...props
   }: UserShortInfoProps<Tag> & Omit<PropsOf<Tag>, 'className'>,
   ref?: Ref<Tag>,
@@ -144,6 +146,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
           entityName={`@${user.username}`}
           origin={origin}
           copyType={copyType}
+          feedId={feedId}
         />
       )}
       {afterContent}
