@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { useRouter } from 'next/router';
 import { ButtonVariant } from '../../buttons/common';
 import { Source } from '../../../graphql/sources';
 import { ReferralCampaignKey, useSourceActions } from '../../../hooks';
@@ -45,6 +46,7 @@ export const SourceActions = ({
     source,
   });
   const { follow, unfollow } = useContentPreference();
+  const router = useRouter();
 
   return (
     <div className="inline-flex flex-row gap-2">
@@ -72,6 +74,11 @@ export const SourceActions = ({
         />
       )}
       <CustomFeedOptionsMenu
+        onCreateNewFeed={() =>
+          router.push(
+            `/feeds/new?entityId=${source.id}&entityType=${ContentPreferenceType.Source}`,
+          )
+        }
         onAdd={(feedId) =>
           follow({
             id: source.id,

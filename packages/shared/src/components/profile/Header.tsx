@@ -1,5 +1,6 @@
 import React, { CSSProperties, ReactElement, useState } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import { PublicProfile } from '../../lib/user';
 import { SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
@@ -38,7 +39,7 @@ export function Header({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isPlus } = usePlusSubscription();
   const { follow, unfollow } = useContentPreference();
-
+  const router = useRouter();
   const { data: contentPreference } = useContentPreferenceStatusQuery({
     id: user?.id,
     entity: ContentPreferenceType.User,
@@ -114,6 +115,11 @@ export function Header({
                 entityName: user.username,
                 feedId,
               })
+            }
+            onCreateNewFeed={() =>
+              router.push(
+                `/feeds/new?entityId=${user.id}&entityType=${ContentPreferenceType.User}`,
+              )
             }
             shareProps={{
               text: `Check out ${user.name}'s profile on daily.dev`,

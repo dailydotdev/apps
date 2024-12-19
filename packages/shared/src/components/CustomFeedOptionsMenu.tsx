@@ -16,6 +16,7 @@ import { LazyModal } from './modals/common/types';
 import { useLazyModal } from '../hooks/useLazyModal';
 
 type CustomFeedOptionsMenuProps = {
+  onCreateNewFeed?: () => void;
   onAdd: (feedId: string) => void;
   onUndo?: (feedId: string) => void;
   className?: string;
@@ -27,8 +28,9 @@ const CustomFeedOptionsMenu = ({
   shareProps,
   onAdd,
   onUndo,
+  onCreateNewFeed,
 }: CustomFeedOptionsMenuProps): ReactElement => {
-  const { showPlusSubscription } = usePlusSubscription();
+  const { showPlusSubscription, isPlus } = usePlusSubscription();
   const { openModal } = useLazyModal();
   const [, onShareOrCopyLink] = useShareOrCopyLink(shareProps);
   const { isOpen, onMenuClick } = useContextMenu({
@@ -37,19 +39,22 @@ const CustomFeedOptionsMenu = ({
   const { feeds } = useFeeds();
 
   const handleOpenModal = () => {
+    if (!isPlus) {
+      return openModal({
+        type: LazyModal.AdvancedCustomFeedSoon,
+      });
+    }
     if (feeds?.edges?.length > 0) {
       return openModal({
         type: LazyModal.AddToCustomFeed,
         props: {
           onAdd,
           onUndo,
+          onCreateNewFeed,
         },
       });
     }
-    return openModal({
-      type: LazyModal.AdvancedCustomFeedSoon,
-    });
-    // TODO: Implement create first feed modal
+    return onCreateNewFeed();
   };
 
   const options: MenuItemProps[] = [

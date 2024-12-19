@@ -10,11 +10,13 @@ import type { Feed } from '../../../graphql/feed';
 type AddToFeedModalProps = Omit<ModalProps, 'children'> & {
   onAdd: (feedId: string) => void;
   onUndo?: (feedId: string) => void;
+  onCreateNewFeed?: () => void;
 };
 
 const AddToCustomFeedModal = ({
   onAdd,
   onUndo,
+  onCreateNewFeed,
   ...props
 }: AddToFeedModalProps): ReactElement => {
   const { displayToast } = useToastNotification();
@@ -34,14 +36,12 @@ const AddToCustomFeedModal = ({
     closeModal();
   };
 
-  const onClickCreateNewFeed = () => {};
-
   return (
     <Modal {...props}>
       <ModalHeader title="Add to custom feed" />
       <Modal.Body>
         <Button
-          onClick={onClickCreateNewFeed}
+          onClick={onCreateNewFeed}
           icon={
             <div className="flex  rounded-6 bg-background-subtle">
               <PlusIcon className="m-auto" />

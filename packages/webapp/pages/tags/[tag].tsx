@@ -138,7 +138,7 @@ const TagTopSources = ({ tag }: { tag: string }) => {
 };
 
 const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
-  const { isFallback } = useRouter();
+  const { isFallback, push } = useRouter();
   const showRoadmap = useFeature(feature.showRoadmap);
   const { user, showLogin } = useContext(AuthContext);
   const mostUpvotedQueryVariables = useMemo(
@@ -253,6 +253,11 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
             </Button>
           )}
           <CustomFeedOptionsMenu
+            onCreateNewFeed={() =>
+              push(
+                `/feeds/new?entityId=${tag}&entityType=${ContentPreferenceType.Keyword}`,
+              )
+            }
             onAdd={(feedId) =>
               follow({
                 id: tag,
