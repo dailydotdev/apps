@@ -116,16 +116,16 @@ export default function PostOptionsMenu({
   const feedContextData = useActiveFeedContext();
   const { queryKey: feedQueryKey, logOpts } = feedContextData;
   const isCustomFeed = feedQueryKey?.[0] === 'custom';
-  const customFeedId = feedQueryKey?.[2] as string;
+  const customFeedId = isCustomFeed ? (feedQueryKey?.[2] as string) : undefined;
   const post = loadedPost ?? initialPost;
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({
       enabled: isPostOptionsOpen,
-      feedId: isCustomFeed ? customFeedId : undefined,
+      feedId: customFeedId,
     });
   const { onUpdateSettings } = useAdvancedSettings({
     enabled: false,
-    feedId: isCustomFeed ? customFeedId : undefined,
+    feedId: customFeedId,
   });
   const { logEvent } = useContext(LogContext);
   const { hidePost, unhidePost } = useReportPost();
@@ -144,7 +144,7 @@ export default function PostOptionsMenu({
     origin: Origin.PostContextMenu,
     postId: post?.id,
     shouldInvalidateQueries: false,
-    feedId: isCustomFeed ? customFeedId : undefined,
+    feedId: customFeedId,
   });
   const isSourceBlocked = useMemo(() => {
     return !!feedSettings?.excludeSources?.some(
