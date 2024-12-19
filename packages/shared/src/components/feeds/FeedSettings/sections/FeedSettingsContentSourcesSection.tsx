@@ -1,4 +1,5 @@
 import React, { ReactElement, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { SearchField } from '../../../fields/SearchField';
 import { ModalTabs } from '../../../modals/common/ModalTabs';
 import {
@@ -16,6 +17,10 @@ import {
   SearchPanelContextValue,
 } from '../../../search/SearchPanel/SearchPanelContext';
 import { defaultSearchProvider, providerToLabelTextMap } from '../../../search';
+import { generateQueryKey, RequestKey } from '../../../../lib/query';
+import { useAuthContext } from '../../../../contexts/AuthContext';
+import { useMutationSubscription } from '../../../../hooks';
+import { contentPreferenceMutationMatcher } from '../../../../hooks/contentPreference/types';
 
 enum Tabs {
   Sources = 'Sources',
@@ -26,6 +31,8 @@ const tabs = Object.values(Tabs);
 const noop = () => undefined;
 
 export const FeedSettingsContentSourcesSection = (): ReactElement => {
+  const { user } = useAuthContext();
+  const queryClient = useQueryClient();
   const [activeView, setActiveView] = useState<string>(() => tabs[0]);
 
   const [state, setState] = useState(() => {
@@ -61,6 +68,23 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
       },
     };
   }, [state]);
+
+  useMutationSubscription({
+    matcher: contentPreferenceMutationMatcher,
+    callback: () => {
+      return searchPanel.query?.length
+        ? queryClient.invalidateQueries({
+            queryKey: generateQueryKey(
+              RequestKey.ContentPreference,
+              user,
+              RequestKey.UserFollowing,
+            ),
+          })
+        : queryClient.invalidateQueries({
+            queryKey: generateQueryKey(RequestKey.Search, user, 'suggestions'),
+          });
+    },
+  });
 
   return (
     <div className="flex flex-col gap-6">
