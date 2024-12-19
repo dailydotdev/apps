@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import { UserShortInfoPlaceholder } from './UserShortInfoPlaceholder';
 import InfiniteScrolling, {
   InfiniteScrollingProps,
 } from '../containers/InfiniteScrolling';
@@ -15,6 +14,7 @@ import {
 import { FollowButton } from '../contentPreference/FollowButton';
 import { useFeedSettingsEditContext } from '../feeds/FeedSettings/FeedSettingsEditContext';
 import { CopyType } from '../sources/SourceActions/SourceActionsFollow';
+import { TagListPlaceholder } from './TagListPlaceholder';
 
 export interface TagListProps {
   scrollingProps: Omit<InfiniteScrollingProps, 'children'>;
@@ -32,10 +32,7 @@ export const TagList = ({
   emptyPlaceholder,
 }: TagListProps): ReactElement => {
   const { feed } = useFeedSettingsEditContext();
-  const loader = (
-    // TODO: AS-869 Finish the loader
-    <UserShortInfoPlaceholder placeholderAmount={placeholderAmount} />
-  );
+  const loader = <TagListPlaceholder placeholderAmount={placeholderAmount} />;
 
   if (tags?.length) {
     return (
