@@ -42,10 +42,10 @@ export const OnboardingHeader = ({
   const showCreateFeedButton: Partial<OnboardingStep[]> = [
     OnboardingStep.EditTag,
     OnboardingStep.ContentTypes,
-    OnboardingStep.Sources,
     OnboardingStep.AndroidApp,
     OnboardingStep.PWA,
     OnboardingStep.Plus,
+    OnboardingStep.Extension,
   ];
 
   if (activeScreen !== OnboardingStep.Intro) {

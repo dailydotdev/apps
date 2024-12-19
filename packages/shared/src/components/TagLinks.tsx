@@ -7,17 +7,20 @@ import {
   ButtonSize,
   ButtonVariant,
 } from './buttons/Button';
+import { AlertDot, AlertColor } from './AlertDot';
 import { getTagPageLink } from '../lib/links';
 
 interface TagLinkProps {
   tag: string;
   className?: string;
+  isSelected?: boolean;
   buttonProps?: ButtonProps<'a'>;
 }
 
 export function TagLink({
   tag,
   className,
+  isSelected = false,
   buttonProps = {},
 }: TagLinkProps): ReactElement {
   return (
@@ -26,10 +29,16 @@ export function TagLink({
         tag="a"
         size={ButtonSize.XSmall}
         variant={ButtonVariant.Float}
-        className={className}
+        className={classNames('relative', className)}
         {...buttonProps}
       >
         #{tag}
+        {isSelected && (
+          <AlertDot
+            className="absolute right-1 top-1"
+            color={AlertColor.Cabbage}
+          />
+        )}
       </Button>
     </Link>
   );

@@ -33,7 +33,6 @@ export enum ActionType {
   FirstShortcutsSession = 'first_shortcuts_session',
   VotePost = 'vote_post',
   BookmarkPost = 'bookmark_post',
-  CreateBookmarkFolder = 'create_bookmark_folder',
   DigestConfig = 'digest_config',
   StreakMilestone = 'streak_milestone',
   FetchedSmartTitle = 'fetched_smart_title',
