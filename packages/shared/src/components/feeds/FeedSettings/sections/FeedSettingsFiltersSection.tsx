@@ -9,8 +9,9 @@ import { FeedOrder, feedRangeFilters } from '../../../../lib/constants';
 import { Dropdown } from '../../../fields/Dropdown';
 import { Radio } from '../../../fields/Radio';
 import { TextField } from '../../../fields/TextField';
-import { EyeIcon, UpvoteIcon } from '../../../icons';
+import { EyeIcon, FlagIcon, UpvoteIcon } from '../../../icons';
 import { Checkbox } from '../../../fields/Checkbox';
+import { IconSize } from '../../../Icon';
 
 export const FeedSettingsFiltersSection = (): ReactElement => {
   const { setData, data, feed } = useContext(FeedSettingsEditContext);
@@ -83,6 +84,12 @@ export const FeedSettingsFiltersSection = (): ReactElement => {
         </div>
         <div className="flex gap-4">
           <TextField
+            hintIcon={<FlagIcon secondary size={IconSize.Size16} />}
+            hint={
+              data?.minUpvotes < 0 || data?.minUpvotes > 1000
+                ? 'Min upvotes must be between 0 and 1000'
+                : ''
+            }
             className={{
               container: 'w-full tablet:max-w-70',
             }}
@@ -99,6 +106,12 @@ export const FeedSettingsFiltersSection = (): ReactElement => {
             valueChanged={(value) => setData({ minUpvotes: +value })}
           />
           <TextField
+            hintIcon={<FlagIcon secondary size={IconSize.Size16} />}
+            hint={
+              data?.minViews < 0 || data?.minViews > 1000
+                ? 'Min views must be between 0 and 1000'
+                : ''
+            }
             className={{
               container: 'w-full tablet:max-w-70',
             }}

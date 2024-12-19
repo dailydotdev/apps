@@ -17,6 +17,7 @@ import { usePlusSubscription } from '../../hooks';
 import { SidebarMenuIcon } from './SidebarMenuIcon';
 
 type SidebarDesktopProps = {
+  activePage?: string;
   featureTheme?: {
     logo?: string;
     logoText?: string;
@@ -25,6 +26,7 @@ type SidebarDesktopProps = {
   onNavTabClick?: (tab: string) => void;
 };
 export const SidebarDesktop = ({
+  activePage: activePageProp,
   featureTheme,
   isNavButtons,
   onNavTabClick,
@@ -33,7 +35,7 @@ export const SidebarDesktop = ({
   const { sidebarExpanded, onboardingChecklistView } = useSettingsContext();
   const { isAvailable: isBannerAvailable } = useBanner();
   const { isLoggedIn } = useAuthContext();
-  const activePage = router.asPath || router.pathname;
+  const activePage = activePageProp || router.asPath || router.pathname;
   const { showPlusSubscription } = usePlusSubscription();
 
   const defaultRenderSectionProps = useMemo(
@@ -74,6 +76,7 @@ export const SidebarDesktop = ({
           />
           <CustomFeedSection
             {...defaultRenderSectionProps}
+            onNavTabClick={onNavTabClick}
             title="Custom feeds"
             isItemsButton={false}
           />

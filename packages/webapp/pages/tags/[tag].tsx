@@ -69,6 +69,8 @@ import { cloudinarySourceRoadmap } from '@dailydotdev/shared/src/lib/image';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import CustomFeedOptionsMenu from '@dailydotdev/shared/src/components/CustomFeedOptionsMenu';
+import { useContentPreference } from '@dailydotdev/shared/src/hooks/contentPreference/useContentPreference';
+import { ContentPreferenceType } from '@dailydotdev/shared/src/graphql/contentPreference';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { DynamicSeoProps } from '../../components/common';
@@ -136,7 +138,7 @@ const TagTopSources = ({ tag }: { tag: string }) => {
 };
 
 const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
-  const { isFallback } = useRouter();
+  const { isFallback, push } = useRouter();
   const showRoadmap = useFeature(feature.showRoadmap);
   const { user, showLogin } = useContext(AuthContext);
   const mostUpvotedQueryVariables = useMemo(
@@ -164,6 +166,9 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({ origin: Origin.TagPage });
   const title = initialData?.flags?.title || tag;
+  const { follow, unfollow } = useContentPreference({
+    showToastOnSuccess: false,
+  });
 
   const tagStatus = useMemo(() => {
     if (!feedSettings) {
@@ -248,6 +253,27 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
             </Button>
           )}
           <CustomFeedOptionsMenu
+            onCreateNewFeed={() =>
+              push(
+                `/feeds/new?entityId=${tag}&entityType=${ContentPreferenceType.Keyword}`,
+              )
+            }
+            onAdd={(feedId) =>
+              follow({
+                id: tag,
+                entity: ContentPreferenceType.Keyword,
+                entityName: tag,
+                feedId,
+              })
+            }
+            onUndo={(feedId) =>
+              unfollow({
+                id: tag,
+                entity: ContentPreferenceType.Keyword,
+                entityName: tag,
+                feedId,
+              })
+            }
             shareProps={{
               text: `Check out the ${tag} tag on daily.dev`,
               link: globalThis?.location?.href,

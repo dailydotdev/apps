@@ -55,6 +55,7 @@ import { Origin } from '../lib/log';
 import { ExploreTabs, tabToUrl, urlToTab } from './header';
 import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
+import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -197,6 +198,7 @@ export default function MainFeedLayout({
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
   });
+  const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const feedVersion = useFeature(feature.feedVersion);
   const {
@@ -277,6 +279,25 @@ export default function MainFeedLayout({
     // so returning false so feed does not do any requests
     if (isSearchOn && !searchQuery) {
       return null;
+    }
+
+    if (feedNameProp === 'default' && isCustomDefaultFeed) {
+      return {
+        feedName: SharedFeedPage.Custom,
+        feedQueryKey: generateQueryKey(SharedFeedPage.Custom, user),
+        query: CUSTOM_FEED_QUERY,
+        variables: {
+          feedId: user.defaultFeedId,
+          feedName: SharedFeedPage.Custom,
+        },
+        emptyScreen: propsByFeed[feedName].emptyScreen || <FeedEmptyScreen />,
+        actionButtons: feedWithActions && (
+          <SearchControlHeader
+            algoState={[selectedAlgo, setSelectedAlgo]}
+            feedName={feedName}
+          />
+        ),
+      };
     }
 
     if (isSearchOn && searchQuery) {
@@ -369,6 +390,8 @@ export default function MainFeedLayout({
     selectedPeriod,
     setSelectedAlgo,
     router.pathname,
+    isCustomDefaultFeed,
+    feedNameProp,
   ]);
 
   useEffect(() => {

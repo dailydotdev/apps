@@ -8,19 +8,45 @@ import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { SidebarSectionProps } from './common';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
+import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
+import { isExtension } from '../../../lib/func';
 
 export const CustomFeedSection = ({
   isItemsButton,
+  onNavTabClick,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const { feeds } = useFeeds();
   const { openModal } = useLazyModal();
   const { showPlusSubscription, isPlus } = usePlusSubscription();
+  const { defaultFeedId } = useCustomDefaultFeed();
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     const customFeeds =
       feeds?.edges?.map((feed) => {
+        const isDefaultFeed = defaultFeedId === feed.node.id;
+
+        if (isDefaultFeed) {
+          const isCustomFeedPageActive = [
+            `${webappUrl}feeds/${feed.node.id}`,
+            '/',
+          ].includes(defaultRenderSectionProps.activePage);
+
+          return {
+            title: feed.node.flags.name || `Feed ${feed.node.id}`,
+            // on extension we don't use router so no need for a path
+            // onNavTabClick takes care of the navigation
+            path: isExtension ? undefined : '/',
+            action: isExtension ? () => onNavTabClick?.('default') : undefined,
+            icon: feed.node.flags.icon || (
+              <HashtagIcon secondary={isCustomFeedPageActive} />
+            ),
+            active: isCustomFeedPageActive,
+          };
+        }
+
         const feedPath = `${webappUrl}feeds/${feed.node.id}`;
+
         return {
           title: feed.node.flags.name || `Feed ${feed.node.id}`,
           path: feedPath,
@@ -61,6 +87,8 @@ export const CustomFeedSection = ({
     showPlusSubscription,
     openModal,
     isPlus,
+    defaultFeedId,
+    onNavTabClick,
   ]);
 
   return (

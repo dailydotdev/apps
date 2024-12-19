@@ -1,5 +1,6 @@
 import React, { CSSProperties, ReactElement, useState } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import { PublicProfile } from '../../lib/user';
 import { SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
@@ -16,6 +17,7 @@ import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/u
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../lib/log';
 import CustomFeedOptionsMenu from '../CustomFeedOptionsMenu';
+import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -36,7 +38,8 @@ export function Header({
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isPlus } = usePlusSubscription();
-
+  const { follow, unfollow } = useContentPreference();
+  const router = useRouter();
   const { data: contentPreference } = useContentPreferenceStatusQuery({
     id: user?.id,
     entity: ContentPreferenceType.User,
@@ -97,6 +100,27 @@ export function Header({
         />
         {!isSameUser && (
           <CustomFeedOptionsMenu
+            onAdd={(feedId) =>
+              follow({
+                id: user.id,
+                entity: ContentPreferenceType.User,
+                entityName: user.username,
+                feedId,
+              })
+            }
+            onUndo={(feedId) =>
+              unfollow({
+                id: user.id,
+                entity: ContentPreferenceType.User,
+                entityName: user.username,
+                feedId,
+              })
+            }
+            onCreateNewFeed={() =>
+              router.push(
+                `/feeds/new?entityId=${user.id}&entityType=${ContentPreferenceType.User}`,
+              )
+            }
             shareProps={{
               text: `Check out ${user.name}'s profile on daily.dev`,
               link: user.permalink,
