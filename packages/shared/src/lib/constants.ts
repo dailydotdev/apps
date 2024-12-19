@@ -124,3 +124,5 @@ export const feedRangeFilters: RadioItemProps[] = [
     value: '30',
   },
 ];
+
+export const customFeedsPlusDate = new Date('2024-12-11');

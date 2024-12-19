@@ -2,7 +2,7 @@ import React, { ReactElement, useMemo } from 'react';
 import { SidebarMenuItem } from '../common';
 import { HashtagIcon, PlusIcon } from '../../icons';
 import { Section } from '../Section';
-import { webappUrl } from '../../../lib/constants';
+import { customFeedsPlusDate, webappUrl } from '../../../lib/constants';
 import { useFeeds, usePlusSubscription } from '../../../hooks';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { SidebarSectionProps } from './common';
@@ -55,6 +55,19 @@ export const CustomFeedSection = ({
               secondary={defaultRenderSectionProps.activePage === feedPath}
             />
           ),
+          action: (
+            event: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>,
+          ) => {
+            if (
+              showPlusSubscription &&
+              !isPlus &&
+              new Date(feed.node.createdAt) > customFeedsPlusDate
+            ) {
+              event.preventDefault();
+
+              openModal({ type: LazyModal.AdvancedCustomFeedSoon, props: {} });
+            }
+          },
         };
       }) ?? [];
 
