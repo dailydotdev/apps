@@ -21,6 +21,8 @@ import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
 import { IconSize } from '../../Icon';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
+import { useFeature } from '../../GrowthBookProvider';
+import { featureUpvoteCounter } from '../../../lib/featureManagement';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -45,6 +47,8 @@ const ActionButtons = ({
   const isUpvoteActive = post.userState?.vote === UserVote.Up;
   const isDownvoteActive = post.userState?.vote === UserVote.Down;
   const { onShowPanel, onClose } = useBlockPostPanel(post);
+  const alwaysShowUpvoteCounter = useFeature(featureUpvoteCounter);
+  const isCounterVisible = post.numUpvotes || alwaysShowUpvoteCounter;
 
   if (isFeedPreview) {
     return null;
@@ -95,7 +99,7 @@ const ActionButtons = ({
           <Button
             className={classNames(
               'pointer-events-auto',
-              post.numUpvotes ? '!pl-1 !pr-3' : 'w-8',
+              isCounterVisible ? '!pl-1 !pr-3' : 'w-8',
             )}
             id={`post-${post.id}-upvote-btn`}
             color={ButtonColor.Avocado}
@@ -110,7 +114,7 @@ const ActionButtons = ({
               secondary={isUpvoteActive}
               size={IconSize.Small}
             />
-            {post.numUpvotes ? (
+            {isCounterVisible ? (
               <InteractionCounter
                 className="ml-1.5 tabular-nums"
                 value={post.numUpvotes}
