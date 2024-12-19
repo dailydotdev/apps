@@ -9,6 +9,7 @@ export enum ContextMenu {
   ShortcutContext = 'shortcut-context',
   SidebarOnboardingChecklistCard = 'sidebar-onboarding-checklist-card-context',
   SourceIntegrationContext = 'source-integration-context',
+  CustomFeedContext = 'custom-feed-context',
 }
 
 export const ContextMenuIds = ContextMenu;

@@ -130,7 +130,7 @@ function TabList<T extends string = string>({
 
         return (
           <Tag
-            key={label}
+            key={`${label}-${href}`}
             ref={(el) => {
               if (!el || !isActive) {
                 return;
