@@ -15,7 +15,7 @@ export const useMutationSubscription = ({
   matcherRef.current = matcher;
 
   useEffect(() => {
-    const subscriptionId = (mutationSuccessSubscribers.size + 1).toString();
+    const subscriptionId = crypto.randomUUID();
 
     mutationSuccessSubscribers.set(
       subscriptionId,
