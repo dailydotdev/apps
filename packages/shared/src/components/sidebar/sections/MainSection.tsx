@@ -36,6 +36,8 @@ export const MainSection = ({
   }, [logSubscriptionEvent]);
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
+    // this path can be opened on extension so it purposly
+    // is not using webappUrl so it gets selected
     const myFeedPath = isCustomDefaultFeed ? '/my-feed' : '/';
 
     const myFeed = isLoggedIn
@@ -65,7 +67,9 @@ export const MainSection = ({
       myFeed,
       {
         title: 'Following',
-        path: `${webappUrl}following`,
+        // this path can be opened on extension so it purposly
+        // is not using webappUrl so it gets selected
+        path: '/following',
         action: () => onNavTabClick?.(OtherFeedPage.Following),
         icon: (active: boolean) => (
           <ListIcon Icon={() => <SquadIcon secondary={active} />} />
