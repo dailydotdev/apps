@@ -104,6 +104,7 @@ export const MainSection = ({
     onPlusClick,
     onNavTabClick,
     showPlusSubscription,
+    isCustomDefaultFeed,
   ]);
 
   return (
