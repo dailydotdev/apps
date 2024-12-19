@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import { UserShortInfoPlaceholder } from './UserShortInfoPlaceholder';
 import InfiniteScrolling, {
   InfiniteScrollingProps,
 } from '../containers/InfiniteScrolling';
@@ -16,6 +15,7 @@ import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { FollowButton } from '../contentPreference/FollowButton';
 import { useFeedSettingsEditContext } from '../feeds/FeedSettings/FeedSettingsEditContext';
 import { CopyType } from '../sources/SourceActions/SourceActionsFollow';
+import { SourceListPlaceholder } from './SourceListPlaceholder';
 
 export interface SourceListProps {
   scrollingProps: Omit<InfiniteScrollingProps, 'children'>;
@@ -34,8 +34,7 @@ export const SourceList = ({
 }: SourceListProps): ReactElement => {
   const { feed } = useFeedSettingsEditContext();
   const loader = (
-    // TODO: AS-869 Finish the loader
-    <UserShortInfoPlaceholder placeholderAmount={placeholderAmount} />
+    <SourceListPlaceholder placeholderAmount={placeholderAmount} />
   );
 
   if (sources?.length) {
