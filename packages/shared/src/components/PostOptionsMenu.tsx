@@ -485,6 +485,9 @@ export default function PostOptionsMenu({
   post?.tags?.forEach((tag) => {
     if (tag.length) {
       const isBlocked = feedSettings?.blockedTags?.includes(tag);
+      if (isBlocked && isCustomFeed) {
+        return;
+      }
       postOptions.push({
         icon: <MenuIcon Icon={isBlocked ? PlusIcon : BlockIcon} />,
         label: isBlocked ? `Follow #${tag}` : `Not interested in #${tag}`,
