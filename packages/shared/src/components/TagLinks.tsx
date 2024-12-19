@@ -27,7 +27,7 @@ export function TagLink({
     <Link href={getTagPageLink(tag)} passHref key={tag} prefetch={false}>
       <Button
         tag="a"
-        size={ButtonSize.Small}
+        size={ButtonSize.XSmall}
         variant={ButtonVariant.Float}
         className={classNames('relative', className)}
         {...buttonProps}
