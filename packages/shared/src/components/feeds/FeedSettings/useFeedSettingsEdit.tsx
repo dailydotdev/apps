@@ -23,6 +23,7 @@ import { ButtonColor } from '../../buttons/Button';
 import { SharedFeedPage } from '../../utilities';
 import { FeedSettingsEditContextValue, FeedSettingsFormData } from './types';
 import { Feed, FeedType } from '../../../graphql/feed';
+import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 
 const discardPrompt: PromptOptions = {
   title: labels.feed.prompt.discard.title,
@@ -50,6 +51,7 @@ export const useFeedSettingsEdit = ({
   const { showPrompt } = usePrompt();
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
+  const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
 
   const feed = useMemo<Feed>(() => {
     // calculate main feed from user object as fallback for now
@@ -88,6 +90,22 @@ export const useFeedSettingsEdit = ({
     message: discardPrompt.description as string,
     onValidateAction,
   });
+
+  const onBackToFeed = useCallback(() => {
+    if (feed?.type === FeedType.Main) {
+      router.replace(`${webappUrl}${isCustomDefaultFeed ? 'my-feed' : ''}`);
+
+      return;
+    }
+
+    if (feed?.id === defaultFeedId) {
+      router.replace(webappUrl);
+
+      return;
+    }
+
+    router.replace(`${webappUrl}feeds/${feedSlugOrId}`);
+  }, [feed, router, isCustomDefaultFeed, defaultFeedId, feedSlugOrId]);
 
   const feedData = useMemo<FeedSettingsFormData>(() => {
     return {
@@ -143,11 +161,7 @@ export const useFeedSettingsEdit = ({
 
       onAskConfirmation(false);
 
-      if (feed.type === FeedType.Main) {
-        router.replace(webappUrl);
-      } else {
-        router.replace(`${webappUrl}feeds/${data.id}`);
-      }
+      onBackToFeed();
     },
 
     onError: (error) => {
@@ -271,5 +285,6 @@ export const useFeedSettingsEdit = ({
       return shouldDiscard;
     }, [onValidateAction, showPrompt, onAskConfirmation]),
     isDirty,
+    onBackToFeed,
   };
 };

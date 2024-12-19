@@ -8,9 +8,8 @@ import {
   EmptyScreenTitle,
 } from './EmptyScreen';
 import { FilterIcon } from './icons';
-import { PageContainer, SharedFeedPage } from './utilities';
+import { PageContainer } from './utilities';
 import { ButtonSize } from './buttons/common';
-import { getFeedName } from '../lib/feed';
 import { webappUrl } from '../lib/constants';
 import { useAuthContext } from '../contexts/AuthContext';
 
@@ -32,15 +31,7 @@ function FeedEmptyScreen(): ReactElement {
         </EmptyScreenDescription>
         <EmptyScreenButton
           onClick={() => {
-            const feedName = getFeedName(router.pathname);
-
-            router.push(
-              `${webappUrl}feeds/${
-                feedName === SharedFeedPage.Custom
-                  ? router.query.slugOrId
-                  : user.id
-              }/edit`,
-            );
+            router.push(`${webappUrl}feeds/${user.id}/edit`);
           }}
           size={ButtonSize.Large}
         >

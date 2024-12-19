@@ -24,6 +24,7 @@ export type FeedSettingsEditContextValue = {
   onTagClick: (props: OnSelectTagProps) => void;
   onDiscard: () => Promise<boolean>;
   isDirty: boolean;
+  onBackToFeed: () => void;
 };
 
 export enum FeedSettingsMenu {

@@ -196,7 +196,7 @@ function FeedNav(): ReactElement {
           }}
         >
           {Object.entries(urlToTab).map(([url, label]) => (
-            <Tab key={label} label={label} url={url} />
+            <Tab key={`${label}-${url}`} label={label} url={url} />
           ))}
         </TabContainer>
 

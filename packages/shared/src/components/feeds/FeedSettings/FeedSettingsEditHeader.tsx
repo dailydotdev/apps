@@ -1,8 +1,6 @@
-import { useRouter } from 'next/router';
 import React, { ReactElement, useContext } from 'react';
 import { FeedSettingsEditContext } from './FeedSettingsEditContext';
 import { useViewSizeClient, ViewSize } from '../../../hooks/useViewSize';
-import { webappUrl } from '../../../lib/constants';
 import { Button } from '../../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Modal } from '../../modals/common/Modal';
@@ -18,10 +16,8 @@ const viewsWithSaveButton = new Set([
 ]);
 
 export const FeedSettingsEditHeader = (): ReactElement => {
-  const router = useRouter();
-  const { feed, onSubmit, onDiscard, isSubmitPending, isDirty } = useContext(
-    FeedSettingsEditContext,
-  );
+  const { onSubmit, onDiscard, isSubmitPending, isDirty, onBackToFeed } =
+    useContext(FeedSettingsEditContext);
   const { activeView, setActiveView } = useContext(ModalPropsContext);
   const isMobile = useViewSizeClient(ViewSize.MobileL);
 
@@ -54,7 +50,7 @@ export const FeedSettingsEditHeader = (): ReactElement => {
               if (isMobile) {
                 setActiveView(undefined);
               } else {
-                router.push(`${webappUrl}feeds/${feed.id}`);
+                onBackToFeed();
               }
             }}
           >
