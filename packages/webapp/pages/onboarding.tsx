@@ -48,6 +48,7 @@ import {
   feature,
   featureOnboardingAndroid,
   featureOnboardingExtension,
+  featureOnboardingDesktopPWA,
   featureOnboardingPWA,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
@@ -72,6 +73,7 @@ import {
   UserAgent,
 } from '@dailydotdev/shared/src/lib/func';
 import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboarding/Extension/useOnboardingExtension';
+import { useInstallPWA } from '@dailydotdev/shared/src/components/onboarding/PWA/useInstallPWA';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -119,12 +121,24 @@ const OnboardingExtension = dynamic(() =>
   ).then((mod) => mod.OnboardingExtension),
 );
 
+const OnboardingInstallDesktop = dynamic(() =>
+  import(
+    /* webpackChunkName: "onboardingInstallDesktopStep" */ '@dailydotdev/shared/src/components/onboarding/PWA/OnboardingInstallDesktop'
+  ).then((mod) => mod.OnboardingInstallDesktop),
+);
+
 type OnboardingVisual = {
   fullBackground?: {
     mobile?: string;
     desktop?: string;
   };
 };
+
+type OnboardingOnClickNext = (
+  options?: Partial<{
+    clickExtension: boolean;
+  }>,
+) => void;
 
 const seo: NextSeoProps = {
   title: getTemplatedTitle('Get started'),
@@ -160,6 +174,7 @@ export function OnboardPage(): ReactElement {
   const isPageReady = growthbook?.ready && isAuthReady;
   const { feedSettings } = useFeedSettings();
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const onboardingVisual: OnboardingVisual = useFeature(
     feature.onboardingVisual,
   );
@@ -185,11 +200,21 @@ export function OnboardPage(): ReactElement {
     shouldEvaluate: shouldEnrollOnboardingStep && isSafariOnIOS(),
   });
 
+  const { isCurrentPWA, isAvailable: canUserInstallDesktop } = useInstallPWA();
+  const { value: installDesktopExperiment } = useConditionalFeature({
+    feature: featureOnboardingDesktopPWA,
+    shouldEvaluate:
+      shouldEnrollOnboardingStep &&
+      shouldShowExtensionOnboarding &&
+      !isCurrentPWA,
+  });
+
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
   const isCTA = [
     OnboardingStep.AndroidApp,
     OnboardingStep.PWA,
     OnboardingStep.Extension,
+    OnboardingStep.InstallDesktop,
   ].includes(activeScreen);
 
   useEffect(() => {
@@ -207,7 +232,7 @@ export function OnboardPage(): ReactElement {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPageReady, user]);
 
-  const onClickNext = () => {
+  const onClickNext: OnboardingOnClickNext = (options) => {
     logEvent({
       event_name: LogEvent.ClickOnboardingNext,
       extra: JSON.stringify({ screen_value: activeScreen }),
@@ -252,6 +277,20 @@ export function OnboardPage(): ReactElement {
       activeScreen !== OnboardingStep.Extension
     ) {
       return setActiveScreen(OnboardingStep.Extension);
+    }
+
+    const isInstallStepAvailable =
+      installDesktopExperiment && canUserInstallDesktop;
+    const haveSkippedExtension =
+      !options?.clickExtension && activeScreen === OnboardingStep.Extension;
+    const isFirefox = checkIsBrowser(UserAgent.Firefox) && isLaptop;
+
+    if (
+      isInstallStepAvailable &&
+      activeScreen !== OnboardingStep.InstallDesktop &&
+      (haveSkippedExtension || isFirefox)
+    ) {
+      return setActiveScreen(OnboardingStep.InstallDesktop);
     }
 
     logEvent({
@@ -390,7 +429,9 @@ export function OnboardPage(): ReactElement {
           'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
           activeScreen === OnboardingStep.Intro && wrapperMaxWidth,
           !isAuthenticating && 'mt-7.5 flex-1 content-center',
-          activeScreen === OnboardingStep.Extension && '!flex-col',
+          [OnboardingStep.Extension, OnboardingStep.InstallDesktop].includes(
+            activeScreen,
+          ) && '!flex-col',
         )}
       >
         {showOnboardingPage && (
@@ -443,7 +484,10 @@ export function OnboardPage(): ReactElement {
             )}
             {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
             {activeScreen === OnboardingStep.Extension && (
-              <OnboardingExtension />
+              <OnboardingExtension onClickNext={onClickNext} />
+            )}
+            {activeScreen === OnboardingStep.InstallDesktop && (
+              <OnboardingInstallDesktop onClickNext={onClickNext} />
             )}
           </div>
         )}

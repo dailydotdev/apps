@@ -116,6 +116,7 @@ export enum UserAgent {
   Chrome = 'Chrome',
   Edge = 'Edg', // intended to be Edg, not Edge
   Android = 'Android',
+  Firefox = 'Firefox',
 }
 
 export const checkIsBrowser = (agent: UserAgent): boolean =>
