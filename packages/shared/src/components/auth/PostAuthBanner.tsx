@@ -26,7 +26,7 @@ export const PostAuthBanner = (): ReactElement => {
   const searchParams = useSearchParams();
   const { geo } = useAuthContext();
 
-  const userId = searchParams.get('userid');
+  const userId = searchParams?.get('userid');
 
   if (userId) {
     return <UserPersonalizedBanner userId={userId} />;
