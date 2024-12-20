@@ -82,7 +82,7 @@ export const FeedSettingsFiltersSection = (): ReactElement => {
             feed.
           </Typography>
         </div>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-4">
           <TextField
             hintIcon={<FlagIcon secondary size={IconSize.Size16} />}
             hint={
