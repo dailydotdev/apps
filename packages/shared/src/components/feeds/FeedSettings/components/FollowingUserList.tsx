@@ -11,6 +11,7 @@ import { IconSize } from '../../../Icon';
 import { checkFetchMore } from '../../../containers/InfiniteScrolling';
 import { Origin } from '../../../../lib/log';
 import { CopyType } from '../../../sources/SourceActions/SourceActionsFollow';
+import { anchorDefaultRel } from '../../../../lib/strings';
 
 export const FollowingUserList = (): ReactElement => {
   const { user } = useAuthContext();
@@ -68,6 +69,8 @@ export const FollowingUserList = (): ReactElement => {
         showSubscribe: false,
         copyType: CopyType.Custom,
         feedId: feed.id,
+        rel: anchorDefaultRel,
+        target: '_blank',
       }}
     />
   );
