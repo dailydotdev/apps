@@ -3,6 +3,8 @@ import classNames from 'classnames';
 import { BrowserGroupIcon } from '../icons/Browsers';
 import { IconSize } from '../Icon';
 import { downloadBrowserExtension } from '../../lib/constants';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent } from '../../lib/log';
 
 type GetExtensionButtonProps = {
   className?: string;
@@ -11,6 +13,7 @@ type GetExtensionButtonProps = {
 export const GetExtensionButton = ({
   className,
 }: GetExtensionButtonProps): ReactElement => {
+  const { logEvent } = useLogContext();
   return (
     <a
       href={downloadBrowserExtension}
@@ -20,6 +23,12 @@ export const GetExtensionButton = ({
         px-3 text-xl font-bold leading-5 no-underline shadow-none`,
         className,
       )}
+      target="_blank"
+      onClick={() =>
+        logEvent({
+          event_name: LogEvent.DownloadExtension,
+        })
+      }
     >
       <BrowserGroupIcon size={IconSize.XXLarge} className="text-white" />
       <span>Join 1M developers</span>

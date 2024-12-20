@@ -33,13 +33,17 @@ const feature = {
   showRoadmap: new Feature('show_roadmap', true),
   onboardingChecklist: new Feature('onboarding_checklist', true),
   showCodeSnippets: new Feature('show_code_snippets', false),
-  postBannerExtensionPrompt: new Feature('post_banner_extension_prompt', false),
   plusSubscription: new Feature('plus_subscription', false),
   pricingIds: new Feature('pricing_ids', {
     pri_01jbsccbdbcwyhdy8hy3c2etyn: PlusPriceType.Monthly,
     pri_01jbscda57910yvwjtyapnrrzc: PlusPriceType.Yearly,
   }),
 };
+
+export const featurePostBannerExtensionPrompt = new Feature(
+  'post_banner_extension_prompt',
+  false,
+);
 export const plusImprovedEntryPoint = new Feature(
   'plus_improved_entry_points',
   false,

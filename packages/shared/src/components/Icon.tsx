@@ -10,6 +10,7 @@ export enum IconSize {
   Large = 'large',
   XLarge = 'xlarge',
   XXLarge = 'xxlarge',
+  Size48 = 'size48',
   XXXLarge = 'xxxlarge',
 }
 
@@ -21,6 +22,7 @@ export const iconSizeToClassName: Record<IconSize, string> = {
   [IconSize.Medium]: 'w-7 h-7',
   [IconSize.Large]: 'w-8 h-8',
   [IconSize.XLarge]: 'w-10 h-10',
+  [IconSize.Size48]: 'w-12 h-12',
   [IconSize.XXLarge]: 'w-14 h-14',
   [IconSize.XXXLarge]: 'w-16 h-16',
 };
