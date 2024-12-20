@@ -51,7 +51,7 @@ function UserList({
             <UserShortInfo
               {...userInfoProps}
               tag="a"
-              target="_blank"
+              href={user.permalink}
               user={user}
               afterContent={afterContent?.(user, i)}
             >
