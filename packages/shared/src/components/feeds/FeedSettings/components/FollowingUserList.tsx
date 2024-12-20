@@ -1,13 +1,9 @@
 import React, { type ReactElement, useMemo } from 'react';
-import Link from 'next/link';
 import { useFeedSettingsEditContext } from '../FeedSettingsEditContext';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useFollowingQuery } from '../../../../hooks/contentPreference/useFollowingQuery';
 import { ContentPreferenceType } from '../../../../graphql/contentPreference';
 import UserList from '../../../profile/UserList';
-import { FlexCentered } from '../../../utilities';
-import { AddUserIcon } from '../../../icons';
-import { IconSize } from '../../../Icon';
 import { checkFetchMore } from '../../../containers/InfiniteScrolling';
 import { Origin } from '../../../../lib/log';
 import { CopyType } from '../../../sources/SourceActions/SourceActionsFollow';
@@ -41,23 +37,7 @@ export const FollowingUserList = (): ReactElement => {
   return (
     <UserList
       users={users}
-      emptyPlaceholder={
-        <FlexCentered className="flex-col gap-4 px-6 py-10 text-center text-text-tertiary typo-callout">
-          <AddUserIcon size={IconSize.XXXLarge} />
-          <p>
-            You haven&apos;t follow any User yet.
-            <br /> Explore our{' '}
-            <Link
-              href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}users`}
-              passHref
-              className="text-text-link"
-            >
-              Leaderboards
-            </Link>{' '}
-            to find and follow inspiring users!
-          </p>
-        </FlexCentered>
-      }
+      emptyPlaceholder={<p>Can&#39;t find any users</p>}
       scrollingProps={{
         isFetchingNextPage,
         canFetchMore: checkFetchMore(queryResult),
