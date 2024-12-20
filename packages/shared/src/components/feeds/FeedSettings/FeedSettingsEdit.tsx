@@ -1,5 +1,6 @@
 import React, { ReactElement, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 import { useFeedSettingsEdit } from './useFeedSettingsEdit';
 import { Modal } from '../../modals/common/Modal';
 import {
@@ -17,17 +18,10 @@ import { IconSize } from '../../Icon';
 import { FeedSettingsEditContext } from './FeedSettingsEditContext';
 import { FeedSettingsEditHeader } from './FeedSettingsEditHeader';
 import { FeedSettingsEditBody } from './FeedSettingsEditBody';
-import { FeedSettingsGeneralSection } from './sections/FeedSettingsGeneralSection';
 import { FeedSettingsTitle } from './FeedSettingsTitle';
-import { FeedSettingsTagsSection } from './sections/FeedSettingsTagsSection';
-import { FeedSettingsContentPreferencesSection } from './sections/FeedSettingsContentPreferencesSection';
-import { FeedSettingsAISection } from './sections/FeedSettingsAISection';
-import { FeedSettingsFiltersSection } from './sections/FeedSettingsFiltersSection';
-import { FeedSettingsContentSourcesSection } from './sections/FeedSettingsContentSourcesSection';
 import { webappUrl } from '../../../lib/constants';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { FeedType } from '../../../graphql/feed';
-import { FeedSettingsBlockingSection } from './sections/FeedSettingsBlockingSection';
 import {
   Typography,
   TypographyColor,
@@ -36,10 +30,81 @@ import {
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { Button } from '../../buttons/Button';
+import { SuspenseLoader } from './components/SuspenseLoader';
 
 export type FeedSettingsEditProps = {
   feedSlugOrId: string;
 };
+
+const FeedSettingsGeneralSection = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedSettingsGeneralSection" */ './sections/FeedSettingsGeneralSection'
+    ).then((mod) => mod.FeedSettingsGeneralSection),
+  {
+    loading: SuspenseLoader,
+  },
+);
+
+const FeedSettingsTagsSection = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedSettingsTagsSection" */ './sections/FeedSettingsTagsSection'
+    ).then((mod) => mod.FeedSettingsTagsSection),
+  {
+    loading: SuspenseLoader,
+  },
+);
+
+const FeedSettingsContentSourcesSection = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedSettingsContentSourcesSection" */ './sections/FeedSettingsContentSourcesSection'
+    ).then((mod) => mod.FeedSettingsContentSourcesSection),
+  {
+    loading: SuspenseLoader,
+  },
+);
+
+const FeedSettingsContentPreferencesSection = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedSettingsContentPreferencesSection" */ './sections/FeedSettingsContentPreferencesSection'
+    ).then((mod) => mod.FeedSettingsContentPreferencesSection),
+  {
+    loading: SuspenseLoader,
+  },
+);
+
+const FeedSettingsAISection = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedSettingsAISection" */ './sections/FeedSettingsAISection'
+    ).then((mod) => mod.FeedSettingsAISection),
+  {
+    loading: SuspenseLoader,
+  },
+);
+
+const FeedSettingsFiltersSection = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedSettingsFiltersSection" */ './sections/FeedSettingsFiltersSection'
+    ).then((mod) => mod.FeedSettingsFiltersSection),
+  {
+    loading: SuspenseLoader,
+  },
+);
+
+const FeedSettingsBlockingSection = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedSettingsBlockingSection" */ './sections/FeedSettingsBlockingSection'
+    ).then((mod) => mod.FeedSettingsBlockingSection),
+  {
+    loading: SuspenseLoader,
+  },
+);
 
 export const FeedSettingsEdit = ({
   feedSlugOrId,
