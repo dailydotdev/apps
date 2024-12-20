@@ -93,7 +93,7 @@ export const SearchControlHeader = ({
 
   const feedsWithActions = [SharedFeedPage.MyFeed];
   if (showPlusSubscription) {
-    feedsWithActions.push(SharedFeedPage.Custom);
+    feedsWithActions.push(SharedFeedPage.Custom, SharedFeedPage.CustomForm);
   }
 
   const actionButtons = [
