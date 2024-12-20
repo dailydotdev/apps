@@ -8,7 +8,6 @@ import React, {
 } from 'react';
 import { RenderTab } from './common';
 import type { TabProps } from './TabContainer';
-import { TruncateText } from '../utilities';
 
 export type AllowedTabTags = keyof Pick<JSX.IntrinsicElements, 'a' | 'button'>;
 
@@ -120,11 +119,11 @@ function TabList<T extends string = string>({
         const renderedTab = renderTab?.({ label, isActive }) ?? (
           <span
             className={classNames(
-              'flex rounded-10 px-3 py-1.5',
+              'inline rounded-10 px-3 py-1.5',
               isActive && 'bg-theme-active',
             )}
           >
-            <TruncateText>{label}</TruncateText>
+            {label?.length > 25 ? `${label.slice(0, 25)}...` : label}
           </span>
         );
 

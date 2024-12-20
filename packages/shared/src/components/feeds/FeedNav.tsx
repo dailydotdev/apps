@@ -164,7 +164,7 @@ function FeedNav(): ReactElement {
           tabListProps={{
             className: {
               indicator: '!w-6',
-              item: 'px-1 tablet:last-of-type:mr-12 max-w-60',
+              item: 'px-1 tablet:last-of-type:mr-12',
             },
             autoScrollActive: true,
           }}
