@@ -234,8 +234,9 @@ export default function MainFeedLayout({
         },
       },
       [SharedFeedPage.CustomForm]: {
+        queryIfLogged: FEED_QUERY,
         variables: {
-          feedId: (router.query?.slugOrId as string) || user.id,
+          feedId: (router.query?.slugOrId as string) || user?.id,
         },
       },
     };
@@ -244,8 +245,9 @@ export default function MainFeedLayout({
       query: getQueryBasedOnLogin(
         tokenRefreshed,
         user,
-        propsByFeed[feedName].query,
-        propsByFeed[feedName].queryIfLogged,
+        dynamicPropsByFeed[feedName]?.query || propsByFeed[feedName].query,
+        dynamicPropsByFeed[feedName]?.queryIfLogged ||
+          propsByFeed[feedName].queryIfLogged,
       ),
       variables: {
         ...propsByFeed[feedName].variables,
