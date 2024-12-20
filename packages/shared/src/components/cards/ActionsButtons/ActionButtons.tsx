@@ -21,6 +21,11 @@ import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
 import { IconSize } from '../../Icon';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
+import { useFeature } from '../../GrowthBookProvider';
+import {
+  feedActionSpacing,
+  featureUpvoteCounter,
+} from '../../../lib/featureManagement';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -45,6 +50,10 @@ const ActionButtons = ({
   const isUpvoteActive = post.userState?.vote === UserVote.Up;
   const isDownvoteActive = post.userState?.vote === UserVote.Down;
   const { onShowPanel, onClose } = useBlockPostPanel(post);
+  const feedActionSpacingExp = useFeature(feedActionSpacing);
+  const alwaysShowUpvoteCounter = useFeature(featureUpvoteCounter);
+  const isCounterVisible =
+    post.numUpvotes || alwaysShowUpvoteCounter || feedActionSpacingExp;
 
   if (isFeedPreview) {
     return null;
@@ -60,29 +69,6 @@ const ActionButtons = ({
     await onDownvoteClick?.(post);
   };
 
-  const lastActions = (
-    <>
-      <BookmarkButton
-        post={post}
-        buttonProps={{
-          id: `post-${post.id}-bookmark-btn`,
-          icon: <BookmarkIcon secondary={post.bookmarked} />,
-          onClick: () => onBookmarkClick(post),
-          size: ButtonSize.Small,
-        }}
-      />
-      <SimpleTooltip content="Copy link">
-        <Button
-          size={ButtonSize.Small}
-          icon={<LinkIcon />}
-          onClick={(e) => onCopyLinkClick?.(e, post)}
-          variant={ButtonVariant.Tertiary}
-          color={ButtonColor.Cabbage}
-        />
-      </SimpleTooltip>
-    </>
-  );
-
   return (
     <div
       className={classNames(
@@ -95,7 +81,7 @@ const ActionButtons = ({
           <Button
             className={classNames(
               'pointer-events-auto',
-              post.numUpvotes ? '!pl-1 !pr-3' : 'w-8',
+              isCounterVisible ? '!pl-1 !pr-3' : !feedActionSpacingExp && 'w-8',
             )}
             id={`post-${post.id}-upvote-btn`}
             color={ButtonColor.Avocado}
@@ -110,15 +96,23 @@ const ActionButtons = ({
               secondary={isUpvoteActive}
               size={IconSize.Small}
             />
-            {post.numUpvotes ? (
+            {isCounterVisible ? (
               <InteractionCounter
-                className="ml-1.5 tabular-nums"
+                className={classNames(
+                  'ml-1.5 tabular-nums',
+                  !post.numUpvotes &&
+                    feedActionSpacingExp &&
+                    !alwaysShowUpvoteCounter &&
+                    'invisible',
+                )}
                 value={post.numUpvotes}
               />
             ) : null}
           </Button>
         </SimpleTooltip>
-        <div className="box-border border border-surface-float py-2.5" />
+        {!feedActionSpacingExp && (
+          <div className="box-border border border-surface-float py-2.5" />
+        )}
         <SimpleTooltip
           content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
         >
@@ -149,7 +143,24 @@ const ActionButtons = ({
           ) : null}
         </QuaternaryButton>
       </SimpleTooltip>
-      {lastActions}
+      <BookmarkButton
+        post={post}
+        buttonProps={{
+          id: `post-${post.id}-bookmark-btn`,
+          icon: <BookmarkIcon secondary={post.bookmarked} />,
+          onClick: () => onBookmarkClick(post),
+          size: ButtonSize.Small,
+        }}
+      />
+      <SimpleTooltip content="Copy link">
+        <Button
+          size={ButtonSize.Small}
+          icon={<LinkIcon />}
+          onClick={(e) => onCopyLinkClick?.(e, post)}
+          variant={ButtonVariant.Tertiary}
+          color={ButtonColor.Cabbage}
+        />
+      </SimpleTooltip>
     </div>
   );
 };

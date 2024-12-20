@@ -143,6 +143,7 @@ export enum LogEvent {
   ErrorSearch = 'error search',
   AcceptInvitation = 'accept invitation',
   DownloadExtension = 'download extension',
+  DownloadApp = 'download app',
   SearchHighlightAnimation = 'highlight search',
   SwitchSearch = 'switch search',
   // search end
@@ -276,6 +277,9 @@ export enum TargetType {
   SocialLink = 'social link',
   Badge = 'badge',
   Plus = 'plus',
+  // Browsers
+  Chrome = 'chrome',
+  Edge = 'edge',
 }
 
 export enum TargetId {
@@ -297,6 +301,7 @@ export enum TargetId {
   // End settings
   TopReader = 'top reader',
   Sidebar = 'sidebar',
+  Header = 'header',
   ProfileDropdown = 'profile dropdown',
   Ads = 'ads',
   MyProfile = 'my profile',

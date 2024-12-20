@@ -15,6 +15,7 @@ import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { TagTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
+import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/common';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../../next-seo';
@@ -130,6 +131,7 @@ const TagsPage = ({
                     tag={tag.value}
                     className="!line-clamp-2 !h-auto py-1.5"
                     isSelected={selectedTags.includes(tag.value)}
+                    buttonProps={{ size: ButtonSize.Small }}
                   />
                 ))}
               </div>

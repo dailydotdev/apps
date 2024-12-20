@@ -15,6 +15,8 @@ import { ResourceSection } from './sections/ResourceSection';
 import { BookmarkSection } from './sections/BookmarkSection';
 import { usePlusSubscription } from '../../hooks';
 import { SidebarMenuIcon } from './SidebarMenuIcon';
+import { CreatePostButton } from '../post/write';
+import { ButtonSize } from '../buttons/Button';
 
 type SidebarDesktopProps = {
   activePage?: string;
@@ -36,7 +38,8 @@ export const SidebarDesktop = ({
   const { isAvailable: isBannerAvailable } = useBanner();
   const { isLoggedIn } = useAuthContext();
   const activePage = activePageProp || router.asPath || router.pathname;
-  const { showPlusSubscription } = usePlusSubscription();
+  const { showPlusSubscription, isPlusEntrypointExperiment } =
+    usePlusSubscription();
 
   const defaultRenderSectionProps = useMemo(
     () => ({
@@ -64,6 +67,17 @@ export const SidebarDesktop = ({
       <SidebarScrollWrapper>
         <Nav>
           <SidebarMenuIcon />
+          {isPlusEntrypointExperiment && (
+            <CreatePostButton
+              className={classNames(
+                'mb-4 !flex whitespace-nowrap',
+                sidebarExpanded ? 'mx-4' : 'mx-auto',
+              )}
+              compact={!sidebarExpanded}
+              size={sidebarExpanded ? ButtonSize.Small : ButtonSize.XSmall}
+              showIcon
+            />
+          )}
           <MainSection
             {...defaultRenderSectionProps}
             onNavTabClick={onNavTabClick}

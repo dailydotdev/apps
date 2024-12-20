@@ -275,6 +275,21 @@ export const cloudinaryPWA =
 export const cloudinaryPWAVideo =
   'https://daily-now-res.cloudinary.com/video/upload/s--0mT5rE2C--/v1733649847/web_-_safari_j81dxl.mp4';
 
+export const cloudinaryOnboardingExtension = {
+  chrome: {
+    default:
+      'https://res.cloudinary.com/daily-now/image/upload/s--HjgXzokn--/c_scale,h_360,w_820/f_auto/dailydev-extenstion-mindblown_ggmkfg',
+    retina:
+      'https://res.cloudinary.com/daily-now/image/upload/s--HjgXzokn--/f_auto/dailydev-extenstion-mindblown_ggmkfg',
+  },
+  edge: {
+    default:
+      'https://res.cloudinary.com/daily-now/image/upload/s--kvj5ZB_s--/c_scale,h_360,w_820/f_auto/dailydev-extenstion-mindblown-edge_svb0kv',
+    retina:
+      'https://res.cloudinary.com/daily-now/image/upload/s--kvj5ZB_s--/f_auto/dailydev-extenstion-mindblown-edge_svb0kv',
+  },
+};
+
 export const cloudinaryAddToHomeScreen =
   'https://daily-now-res.cloudinary.com/image/upload/s--Ml_3MSzc--/f_auto/v1733037697/add_to_home_screen_mddvzw';
 
