@@ -90,7 +90,7 @@ export const SearchControlHeader = ({
     iconOnly: true,
     buttonVariant: isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary,
   };
-
+  
   const feedsWithActions = [SharedFeedPage.MyFeed];
   if (showPlusSubscription) {
     feedsWithActions.push(SharedFeedPage.Custom, SharedFeedPage.CustomForm);
