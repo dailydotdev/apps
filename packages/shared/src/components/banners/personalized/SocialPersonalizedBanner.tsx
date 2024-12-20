@@ -39,8 +39,12 @@ const SocialPersonalizedBanner = ({
           )
         }
         className={{
+          pretitle: extensionExperiment && ' typo-title2',
           title: classNames('typo-mega3', gradient),
-          description: 'mb-8 typo-title3',
+          description: classNames(
+            'typo-title3',
+            !extensionExperiment && 'mb-8',
+          ),
         }}
         pretitle={`Coming from ${capitalize(site)}?`}
         {...socialCTA[site]}

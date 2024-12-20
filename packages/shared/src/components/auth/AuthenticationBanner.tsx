@@ -42,32 +42,30 @@ export function AuthenticationBanner({
         authGradientBg,
       )}
     >
-      <div className="flex max-w-4xl flex-row  justify-center gap-10">
+      <div className="flex max-w-[63.75rem] flex-row  justify-center gap-10">
         <Image
           className="absolute left-0 top-0 -z-1 h-full w-full"
           src={bg}
           srcSet={`${laptopBg} 1440w, ${desktopBg} 1920w, ${bg} 2880w`}
           sizes="(max-width: 1440px) 100vw, (max-width: 1920px) 1920px, 100vw"
         />
-        <Section
-          className={classNames(
-            'max-w-full flex-grow gap-4',
-            !showExtensionCTA && 'w-[32.5rem]',
-          )}
-        >
+        <Section className={classNames('max-w-full flex-grow basis-0 gap-4')}>
           {children || (
             <OnboardingHeadline
               className={{
                 title: 'typo-mega3',
-                description: 'mb-8 typo-title3',
+                description: classNames(
+                  'typo-title3',
+                  !showExtensionCTA && 'mb-8',
+                ),
               }}
             />
           )}
         </Section>
         <Section
           className={classNames(
-            'w-[23.25rem]',
             showExtensionCTA && 'my-auto flex flex-col gap-4',
+            !showExtensionCTA && 'w-[23.25rem]',
           )}
         >
           {showExtensionCTA ? (
