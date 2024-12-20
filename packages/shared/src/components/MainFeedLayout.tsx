@@ -234,7 +234,9 @@ export default function MainFeedLayout({
         },
       },
       [SharedFeedPage.CustomForm]: {
-        queryIfLogged: FEED_QUERY,
+        // when editing main feed load feed query
+        queryIfLogged:
+          router.query?.slugOrId === user?.id ? FEED_QUERY : CUSTOM_FEED_QUERY,
         variables: {
           feedId: (router.query?.slugOrId as string) || user?.id,
         },
