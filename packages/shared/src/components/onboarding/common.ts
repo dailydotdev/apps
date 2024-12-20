@@ -11,6 +11,7 @@ export enum OnboardingStep {
   PWA = 'pwa',
   Plus = 'plus',
   Extension = 'extension',
+  InstallDesktop = 'install_desktop',
 }
 
 export const OnboardingTitle = classed(

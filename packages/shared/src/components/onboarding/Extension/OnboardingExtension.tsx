@@ -15,9 +15,12 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { useOnboardingExtension } from './useOnboardingExtension';
 import { cloudinaryOnboardingExtension } from '../../../lib/image';
 
-export const OnboardingExtension = (): ReactElement => {
+export const OnboardingExtension = ({
+  onClickNext,
+}: {
+  onClickNext: (option: { clickExtension: boolean }) => void;
+}): ReactElement => {
   const { logEvent } = useLogContext();
-
   const { browser } = useOnboardingExtension();
 
   const imageUrls =
@@ -57,6 +60,7 @@ export const OnboardingExtension = (): ReactElement => {
               event_name: LogEvent.DownloadExtension,
               target_id: browser.isEdge ? TargetType.Edge : TargetType.Chrome,
             });
+            onClickNext?.({ clickExtension: true });
           }}
           rel={anchorDefaultRel}
           tag="a"
