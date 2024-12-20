@@ -66,10 +66,6 @@ const SquadNotificationsModal = dynamic(
     ),
 );
 
-const FeedFilters = dynamic(
-  () => import(/* webpackChunkName: "feedFilters" */ '../filters/FeedFilters'),
-);
-
 const SubmitArticle = dynamic(
   () =>
     import(/* webpackChunkName: "submitArticleModal" */ './SubmitArticleModal'),
@@ -237,7 +233,6 @@ export const modals = {
   [LazyModal.SquadNotifications]: SquadNotificationsModal,
   [LazyModal.SubmitArticle]: SubmitArticle,
   [LazyModal.NewSource]: NewSource,
-  [LazyModal.FeedFilters]: FeedFilters,
   [LazyModal.VerifySession]: VerifySession,
   [LazyModal.GenericReferral]: GenericReferralModal,
   [LazyModal.Video]: VideoModal,

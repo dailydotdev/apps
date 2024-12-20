@@ -42,7 +42,6 @@ export enum LazyModal {
   SquadNotifications = 'squadNotifications',
   NewSource = 'newSource',
   SubmitArticle = 'submitArticle',
-  FeedFilters = 'feedFilters',
   VerifySession = 'verifySession',
   GenericReferral = 'genericReferral',
   Video = 'video',
