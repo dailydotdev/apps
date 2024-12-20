@@ -21,7 +21,6 @@ import {
   FOLLOWING_FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
-  PREVIEW_FEED_QUERY,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
@@ -129,7 +128,8 @@ const propsByFeed: Record<SharedFeedPage & OtherFeedPage, FeedQueryProps> = {
     emptyScreen: <CustomFeedEmptyScreen />,
   },
   [SharedFeedPage.CustomForm]: {
-    query: PREVIEW_FEED_QUERY,
+    query: CUSTOM_FEED_QUERY,
+    emptyScreen: <CustomFeedEmptyScreen />,
   },
   [OtherFeedPage.Following]: {
     query: FOLLOWING_FEED_QUERY,
@@ -229,6 +229,11 @@ export default function MainFeedLayout({
       Record<SharedFeedPage, Partial<FeedQueryProps>>
     > = {
       [SharedFeedPage.Custom]: {
+        variables: {
+          feedId: router.query?.slugOrId as string,
+        },
+      },
+      [SharedFeedPage.CustomForm]: {
         variables: {
           feedId: router.query?.slugOrId as string,
         },
