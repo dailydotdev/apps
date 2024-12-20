@@ -44,7 +44,7 @@ function SidebarList({
     <div
       className={classNames(
         'flex flex-col p-2 transition-transform ease-in-out tablet:translate-x-[unset] tablet:items-center',
-        'absolute h-fit h-full max-h-[100vh] w-full overflow-hidden bg-background-default tablet:relative tablet:w-fit',
+        'absolute h-full max-h-[100vh] w-full overflow-hidden bg-background-default tablet:relative tablet:w-fit',
         isOpen ? 'translate-x-0' : 'top-0 -translate-x-full',
         className,
       )}
