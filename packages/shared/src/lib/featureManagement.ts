@@ -42,7 +42,7 @@ const feature = {
 
 export const featurePostBannerExtensionPrompt = new Feature(
   'post_banner_extension_prompt',
-  true,
+  false,
 );
 export const plusImprovedEntryPoint = new Feature(
   'plus_improved_entry_points',
