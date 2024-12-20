@@ -37,6 +37,7 @@ interface UseBlockPost {
 interface UseBlockPostProps {
   toastOnSuccess?: boolean;
   blockedSource?: boolean;
+  feedId?: string;
 }
 
 interface Params {
@@ -62,7 +63,7 @@ const ignoredCall = () => Promise.resolve({ successful: true });
 
 export const useBlockPostPanel = (
   post: Post | ReadHistoryPost,
-  { toastOnSuccess, blockedSource }: UseBlockPostProps = {},
+  { toastOnSuccess, blockedSource, feedId }: UseBlockPostProps = {},
 ): UseBlockPost => {
   const { openModal } = useLazyModal();
   const { displayToast } = useToastNotification();
@@ -71,6 +72,7 @@ export const useBlockPostPanel = (
       origin: Origin.TagsFilter,
       postId: post?.id,
       shouldInvalidateQueries: false,
+      feedId,
     });
   const client = useQueryClient();
   const { user } = useAuthContext();
