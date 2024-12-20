@@ -17,6 +17,7 @@ import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../../lib/log';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { SharedFeedPage } from '../../utilities';
+import { isExtension } from '../../../lib/func';
 
 export const MainSection = ({
   isItemsButton,
@@ -38,7 +39,11 @@ export const MainSection = ({
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     // this path can be opened on extension so it purposly
     // is not using webappUrl so it gets selected
-    const myFeedPath = isCustomDefaultFeed ? '/my-feed' : '/';
+    let myFeedPath = isCustomDefaultFeed ? '/my-feed' : '/';
+
+    if (isExtension) {
+      myFeedPath = '/my-feed';
+    }
 
     const myFeed = isLoggedIn
       ? {
