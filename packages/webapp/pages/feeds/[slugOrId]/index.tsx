@@ -25,10 +25,16 @@ const FeedPage = (): ReactElement => {
   }, [feeds, router.query.slugOrId]);
 
   useEffect(() => {
-    if (!isPlus && new Date(feed?.createdAt) > customFeedsPlusDate) {
+    if (!feed) {
+      router.replace(webappUrl);
+
+      return;
+    }
+
+    if (!isPlus && new Date(feed.createdAt) > customFeedsPlusDate) {
       router.replace(webappUrl);
     }
-  }, [router, isPlus, feed.createdAt]);
+  }, [router, isPlus, feed]);
 
   const seo: NextSeoProps = {
     title: getTemplatedTitle(

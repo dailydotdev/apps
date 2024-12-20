@@ -32,6 +32,8 @@ import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
 import { Origin } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../modals/common/types';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -74,9 +76,10 @@ export const SearchControlHeader = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
-  const { showPlusSubscription } = usePlusSubscription();
+  const { showPlusSubscription, isEnrolledNotPlus } = usePlusSubscription();
   const { user } = useAuthContext();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
+  const { openModal } = useLazyModal();
 
   if (isMobile) {
     return null;
@@ -101,6 +104,15 @@ export const SearchControlHeader = ({
       <MyFeedHeading
         key="my-feed"
         onOpenFeedFilters={() => {
+          if (isEnrolledNotPlus) {
+            openModal({
+              type: LazyModal.AdvancedCustomFeedSoon,
+              props: {},
+            });
+
+            return;
+          }
+
           if (isCustomDefaultFeed && router.pathname === '/') {
             router.push(`${webappUrl}feeds/${defaultFeedId}/edit`);
           } else {
