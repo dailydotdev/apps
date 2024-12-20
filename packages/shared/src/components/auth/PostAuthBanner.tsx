@@ -38,30 +38,23 @@ export const PostAuthBanner = (): ReactElement => {
     shouldEvaluate: isCompatibleBrowser,
   });
 
-  const { value: showPersonalizedBanner } = useConditionalFeature({
-    feature: feature.postPersonalizedBanner,
-    shouldEvaluate: isCompatibleBrowser,
-  });
-
   if (showExtensionCTA) {
     return <AuthExtensionBanner />;
   }
+  const userId = searchParams?.get('userid');
 
-  if (showPersonalizedBanner) {
-    const userId = searchParams.get('userid');
-
-    if (userId) {
-      return <UserPersonalizedBanner userId={userId} />;
-    }
-
-    const social = getSocialReferrer();
-    if (social) {
-      return <SocialPersonalizedBanner site={social} />;
-    }
-
-    if (geo?.region) {
-      return <GeoPersonalizedBanner geo={geo.region} />;
-    }
+  if (userId) {
+    return <UserPersonalizedBanner userId={userId} />;
   }
+
+  const social = getSocialReferrer();
+  if (social) {
+    return <SocialPersonalizedBanner site={social} />;
+  }
+
+  if (geo?.region) {
+    return <GeoPersonalizedBanner geo={geo.region} />;
+  }
+
   return <AuthenticationBanner />;
 };

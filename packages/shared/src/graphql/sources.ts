@@ -126,15 +126,6 @@ export const SEARCH_SOURCES_QUERY = gql`
   ${SOURCE_SHORT_INFO_FRAGMENT}
 `;
 
-export const ONBOARDING_SOURCES_QUERY = gql`
-  query SourceRecommendationByTags($tags: [String]!) {
-    sourceRecommendationByTags(tags: $tags) {
-      ...SourceShortInfo
-    }
-  }
-  ${SOURCE_SHORT_INFO_FRAGMENT}
-`;
-
 export const SOURCE_DIRECTORY_QUERY = gql`
   query SourceDirectory {
     trendingSources {

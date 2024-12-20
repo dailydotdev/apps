@@ -26,8 +26,12 @@ export const MainSection = ({
 }: SidebarSectionProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
-  const { showPlusSubscription, isEnrolledNotPlus, logSubscriptionEvent } =
-    usePlusSubscription();
+  const {
+    showPlusSubscription,
+    isEnrolledNotPlus,
+    logSubscriptionEvent,
+    isPlusEntrypointExperiment,
+  } = usePlusSubscription();
 
   const onPlusClick = useCallback(() => {
     logSubscriptionEvent({
@@ -55,18 +59,19 @@ export const MainSection = ({
         }
       : undefined;
 
-    const plus = isEnrolledNotPlus
-      ? {
-          title: 'Upgrade to Plus',
-          path: `${webappUrl}plus`,
-          onClick: onPlusClick,
-          isForcedLink: true,
-          requiresLogin: true,
-          icon: <DevPlusIcon />,
-          color:
-            'text-action-plus-default bg-action-plus-float hover:bg-action-plus-hover active:bg-action-plus-active',
-        }
-      : undefined;
+    const plus =
+      isEnrolledNotPlus && !isPlusEntrypointExperiment
+        ? {
+            title: 'Upgrade to Plus',
+            path: `${webappUrl}plus`,
+            onClick: onPlusClick,
+            isForcedLink: true,
+            requiresLogin: true,
+            icon: <DevPlusIcon />,
+            color:
+              'text-action-plus-default bg-action-plus-float hover:bg-action-plus-hover active:bg-action-plus-active',
+          }
+        : undefined;
 
     return [
       myFeed,
@@ -112,10 +117,11 @@ export const MainSection = ({
     isLoggedIn,
     user,
     isEnrolledNotPlus,
+    isPlusEntrypointExperiment,
     onPlusClick,
-    onNavTabClick,
     showPlusSubscription,
     isCustomDefaultFeed,
+    onNavTabClick,
   ]);
 
   return (

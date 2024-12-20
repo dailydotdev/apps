@@ -37,7 +37,9 @@ import { postLogEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
 import {
   ToastSubject,
+  useAdvancedSettings,
   useFeedLayout,
+  usePlusSubscription,
   useSourceActionsNotify,
   useToastNotification,
 } from '../hooks';
@@ -50,7 +52,6 @@ import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { labels } from '../lib';
 import { MenuItemProps } from './fields/ContextMenu';
-import { useAdvancedSettings } from '../hooks/feed';
 import { ContextMenu as ContextMenuTypes } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
 import { SourceType } from '../graphql/sources';
@@ -118,6 +119,7 @@ export default function PostOptionsMenu({
   const isCustomFeed = feedQueryKey?.[0] === 'custom';
   const customFeedId = isCustomFeed ? (feedQueryKey?.[2] as string) : undefined;
   const post = loadedPost ?? initialPost;
+  const { showPlusSubscription, isPlus } = usePlusSubscription();
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({
       enabled: isPostOptionsOpen,
@@ -376,11 +378,22 @@ export default function PostOptionsMenu({
       });
     }
 
-    if (post?.bookmark) {
+    if (post?.bookmark && showPlusSubscription) {
       postOptions.push({
         icon: <MenuIcon Icon={FolderIcon} />,
         label: 'Move to...',
-        action: () =>
+        action: () => {
+          if (!isPlus) {
+            openModal({
+              type: LazyModal.BookmarkFolder,
+              props: {
+                // this modal will never submit because the user is not plus
+                onSubmit: () => null,
+              },
+            });
+            return;
+          }
+
           openModal({
             type: LazyModal.MoveBookmark,
             props: {
@@ -393,7 +406,8 @@ export default function PostOptionsMenu({
                 client.invalidateQueries({ queryKey: feedQueryKey });
               },
             },
-          }),
+          });
+        },
       });
     }
   }
