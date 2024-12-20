@@ -91,7 +91,7 @@ export default function useTagAndSource({
         event_name: `follow${category ? ' all' : ''}`,
         target_type: 'tag',
         target_id: category || tags[0],
-        extra: JSON.stringify({ origin, feedId }),
+        extra: JSON.stringify({ origin, feed_id: feedId }),
       });
       if (alerts?.filter && user && shouldUpdateAlerts) {
         updateAlerts({ filter: false, myFeed: 'created' });
@@ -127,7 +127,7 @@ export default function useTagAndSource({
         event_name: `unfollow${category ? ' all' : ''}`,
         target_type: 'tag',
         target_id: category || tags[0],
-        extra: JSON.stringify({ origin, feedId }),
+        extra: JSON.stringify({ origin, feed_id: feedId }),
       });
       await unfollowTags({ tags });
 
@@ -157,7 +157,7 @@ export default function useTagAndSource({
         event_name: LogEvent.BlockTag,
         target_type: 'tag',
         target_id: tags[0],
-        extra: JSON.stringify({ origin, post_id: postId, feedId }),
+        extra: JSON.stringify({ origin, post_id: postId, feed_id: feedId }),
       });
       await blockTag({ tags });
 
@@ -187,7 +187,7 @@ export default function useTagAndSource({
         event_name: LogEvent.UnblockTag,
         target_type: 'tag',
         target_id: tags[0],
-        extra: JSON.stringify({ origin, post_id: postId, feedId }),
+        extra: JSON.stringify({ origin, post_id: postId, feed_id: feedId }),
       });
       await unblockTag({ tags });
 
@@ -217,7 +217,7 @@ export default function useTagAndSource({
         event_name: LogEvent.Unblock,
         target_type: 'source',
         target_id: source?.id,
-        extra: JSON.stringify({ origin, post_id: postId, feedId }),
+        extra: JSON.stringify({ origin, post_id: postId, feed_id: feedId }),
       });
 
       await unblockSource({ source });
@@ -249,7 +249,7 @@ export default function useTagAndSource({
         event_name: LogEvent.Block,
         target_type: 'source',
         target_id: source?.id,
-        extra: JSON.stringify({ origin, post_id: postId, feedId }),
+        extra: JSON.stringify({ origin, post_id: postId, feed_id: feedId }),
       });
       await blockSource({ source });
 
@@ -280,7 +280,7 @@ export default function useTagAndSource({
         event_name: LogEvent.Follow,
         target_type: 'source',
         target_id: source?.id,
-        extra: JSON.stringify({ origin, post_id: postId, feedId }),
+        extra: JSON.stringify({ origin, post_id: postId, feed_id: feedId }),
       });
 
       await followSource({ source });
@@ -312,7 +312,7 @@ export default function useTagAndSource({
         event_name: LogEvent.Unfollow,
         target_type: 'source',
         target_id: source?.id,
-        extra: JSON.stringify({ origin, post_id: postId, feedId }),
+        extra: JSON.stringify({ origin, post_id: postId, feed_id: feedId }),
       });
 
       await unfollowSource({ source });
