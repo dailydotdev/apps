@@ -19,7 +19,8 @@ export interface UserListProps {
   userInfoProps?: Omit<
     UserShortInfoProps,
     'user' | 'href' | 'tag' | 'children'
-  >;
+  > &
+    Partial<Pick<HTMLLinkElement, 'target' | 'rel'>>;
 }
 
 function UserList({
@@ -50,7 +51,7 @@ function UserList({
             <UserShortInfo
               {...userInfoProps}
               tag="a"
-              href={user.permalink}
+              target="_blank"
               user={user}
               afterContent={afterContent?.(user, i)}
             >
