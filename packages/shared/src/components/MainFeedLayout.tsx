@@ -235,7 +235,7 @@ export default function MainFeedLayout({
       },
       [SharedFeedPage.CustomForm]: {
         variables: {
-          feedId: router.query?.slugOrId as string,
+          feedId: (router.query?.slugOrId as string) || user.id,
         },
       },
     };
