@@ -9,8 +9,6 @@ import { useRouter } from 'next/router';
 import classed from '../../lib/classed';
 import { SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { LazyModal } from '../modals/common/types';
 import { Dropdown, DropdownProps } from '../fields/Dropdown';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { CalendarIcon, SortIcon } from '../icons';
@@ -32,6 +30,8 @@ import {
 } from '../typography/Typography';
 import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
 import { Origin } from '../../lib/log';
+import { useAuthContext } from '../../contexts/AuthContext';
+import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -69,19 +69,18 @@ export const SearchControlHeader = ({
     defaultValue: 0,
   });
   const router = useRouter();
-  const { openModal } = useLazyModal();
   const { sortingEnabled } = useContext(SettingsContext);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const { showPlusSubscription } = usePlusSubscription();
+  const { user } = useAuthContext();
+  const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
 
   if (isMobile) {
     return null;
   }
-
-  const openFeedFilters = () => openModal({ type: LazyModal.FeedFilters });
 
   const dropdownProps: Partial<DropdownProps> = {
     className: { label: 'hidden', chevron: 'hidden', button: '!px-1' },
@@ -92,17 +91,26 @@ export const SearchControlHeader = ({
     buttonVariant: isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary,
   };
 
-  const feedsWithActions = [SharedFeedPage.MyFeed, SharedFeedPage.Custom];
+  const feedsWithActions = [SharedFeedPage.MyFeed];
+  if (showPlusSubscription) {
+    feedsWithActions.push(SharedFeedPage.Custom, SharedFeedPage.CustomForm);
+  }
 
   const actionButtons = [
     feedsWithActions.includes(feedName as SharedFeedPage) ? (
       <MyFeedHeading
         key="my-feed"
         onOpenFeedFilters={() => {
-          if (feedName === SharedFeedPage.Custom && router.query?.slugOrId) {
-            router.push(`${webappUrl}feeds/${router.query.slugOrId}/edit`);
+          if (isCustomDefaultFeed && router.pathname === '/') {
+            router.push(`${webappUrl}feeds/${defaultFeedId}/edit`);
           } else {
-            openFeedFilters();
+            router.push(
+              `${webappUrl}feeds/${
+                feedName === SharedFeedPage.Custom
+                  ? router.query.slugOrId
+                  : user.id
+              }/edit`,
+            );
           }
         }}
       />

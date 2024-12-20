@@ -2,6 +2,7 @@ import React, { ReactElement } from 'react';
 import dynamic from 'next/dynamic';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
+import { isExtension } from '../../lib/func';
 
 const SidebarTablet = dynamic(() =>
   import(/* webpackChunkName: "sidebarTablet" */ './SidebarTablet').then(
@@ -44,6 +45,9 @@ export const Sidebar = ({
   if (isLaptop) {
     return (
       <SidebarDesktop
+        // for extension we want to pass active page
+        // because router does not update there
+        activePage={isExtension ? activePage : undefined}
         featureTheme={featureTheme}
         isNavButtons={isNavButtons}
         onNavTabClick={onNavTabClick}

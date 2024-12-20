@@ -11,6 +11,7 @@ export interface SidebarListItemProps
   isActive?: boolean;
   className?: string;
   group?: string;
+  customElement?: ReactElement;
 }
 
 function SidebarListItem({
@@ -22,11 +23,15 @@ function SidebarListItem({
   ...props
 }: SidebarListItemProps): ReactElement {
   const containerClass = classNames(
-    'flex w-full flex-row rounded-16 p-4 tablet:w-64',
-    isActive && 'border border-border-subtlest-tertiary bg-theme-active',
-    isActive && 'p-[0.9375rem]', // to avoid layout shift for when the border (1px) is displayed being active
+    'flex w-full flex-row rounded-12 p-3 tablet:w-64',
+    isActive && 'bg-surface-float',
     className,
   );
+
+  if (props.customElement) {
+    return <div className={containerClass}>{props.customElement}</div>;
+  }
+
   const content = (
     <>
       {React.cloneElement(icon as ReactElement, {

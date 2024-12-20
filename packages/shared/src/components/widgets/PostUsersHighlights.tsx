@@ -231,7 +231,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
       )}
       {isUserType && (
         <FollowButton
-          userId={id}
+          entityId={id}
           type={ContentPreferenceType.User}
           status={(user as CommentAuthor).contentPreference?.status}
           entityName={`@${handleOrUsernameOrId}`}

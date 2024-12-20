@@ -134,7 +134,7 @@ export function TabContainer<T extends string = string>({
     : children.map((child, i) =>
         createElement<TabProps<T>>(child.type, {
           ...child.props,
-          key: child.props.label || i,
+          key: child.key || child.props.label || i,
           style: isTabActive(child)
             ? child.props.style
             : { ...child.props.style, display: 'none' },

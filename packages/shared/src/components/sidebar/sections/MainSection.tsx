@@ -15,6 +15,9 @@ import { SidebarSectionProps } from './common';
 import { webappUrl } from '../../../lib/constants';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../../lib/log';
+import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
+import { SharedFeedPage } from '../../utilities';
+import { isExtension } from '../../../lib/func';
 
 export const MainSection = ({
   isItemsButton,
@@ -22,6 +25,7 @@ export const MainSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
+  const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const {
     showPlusSubscription,
     isEnrolledNotPlus,
@@ -37,11 +41,20 @@ export const MainSection = ({
   }, [logSubscriptionEvent]);
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
+    // this path can be opened on extension so it purposly
+    // is not using webappUrl so it gets selected
+    let myFeedPath = isCustomDefaultFeed ? '/my-feed' : '/';
+
+    if (isExtension) {
+      myFeedPath = '/my-feed';
+    }
+
     const myFeed = isLoggedIn
       ? {
           title: 'My feed',
-          path: '/',
-          action: () => onNavTabClick?.('/'),
+          path: myFeedPath,
+          action: () =>
+            onNavTabClick?.(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/'),
           icon: <ProfilePicture size={ProfileImageSize.XSmall} user={user} />,
         }
       : undefined;
@@ -64,7 +77,9 @@ export const MainSection = ({
       myFeed,
       {
         title: 'Following',
-        path: `${webappUrl}following`,
+        // this path can be opened on extension so it purposly
+        // is not using webappUrl so it gets selected
+        path: '/following',
         action: () => onNavTabClick?.(OtherFeedPage.Following),
         icon: (active: boolean) => (
           <ListIcon Icon={() => <SquadIcon secondary={active} />} />
@@ -105,6 +120,7 @@ export const MainSection = ({
     isPlusEntrypointExperiment,
     onPlusClick,
     showPlusSubscription,
+    isCustomDefaultFeed,
     onNavTabClick,
   ]);
 
