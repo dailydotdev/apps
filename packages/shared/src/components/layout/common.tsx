@@ -91,7 +91,10 @@ export const SearchControlHeader = ({
     buttonVariant: isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary,
   };
 
-  const feedsWithActions = [SharedFeedPage.MyFeed, SharedFeedPage.Custom];
+  const feedsWithActions = [SharedFeedPage.MyFeed];
+  if (showPlusSubscription) {
+    feedsWithActions.push(SharedFeedPage.Custom);
+  }
 
   const actionButtons = [
     feedsWithActions.includes(feedName as SharedFeedPage) ? (
