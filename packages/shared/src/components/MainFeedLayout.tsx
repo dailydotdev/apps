@@ -91,6 +91,7 @@ type FeedQueryProps = {
   query: string;
   queryIfLogged?: string;
   variables?: Record<string, unknown>;
+  requestKey?: string;
 };
 
 const propsByFeed: Record<SharedFeedPage & OtherFeedPage, FeedQueryProps> = {
@@ -128,6 +129,7 @@ const propsByFeed: Record<SharedFeedPage & OtherFeedPage, FeedQueryProps> = {
     emptyScreen: <CustomFeedEmptyScreen />,
   },
   [SharedFeedPage.CustomForm]: {
+    requestKey: SharedFeedPage.Custom,
     query: CUSTOM_FEED_QUERY,
     emptyScreen: <CustomFeedEmptyScreen />,
   },
@@ -244,6 +246,7 @@ export default function MainFeedLayout({
     };
 
     return {
+      requestKey: propsByFeed[feedName].requestKey,
       query: getQueryBasedOnLogin(
         tokenRefreshed,
         user,
@@ -369,7 +372,7 @@ export default function MainFeedLayout({
     return {
       feedName,
       feedQueryKey: generateQueryKey(
-        feedName,
+        config.requestKey || feedName,
         user,
         ...Object.values(variables ?? {}),
       ),
@@ -406,6 +409,7 @@ export default function MainFeedLayout({
     isCustomDefaultFeed,
     feedNameProp,
     defaultFeedId,
+    config.requestKey,
   ]);
 
   useEffect(() => {
