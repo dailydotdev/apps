@@ -56,7 +56,7 @@ export const FeedSettingsCreate = (): ReactElement => {
 
   const { mutate: onSubmit, isPending: isSubmitPending } = useMutation({
     mutationFn: createFeed,
-    onSuccess: (newFeed) => {
+    onSuccess: async (newFeed) => {
       logEvent({
         event_name: LogEvent.CreateCustomFeed,
         target_id: newFeed.id,
@@ -68,13 +68,19 @@ export const FeedSettingsCreate = (): ReactElement => {
 
       const entityId = router?.query?.entityId as string;
       const entityType = router?.query?.entityType as ContentPreferenceType;
+
       if (entityId && entityType) {
-        follow({
+        await follow({
           id: entityId,
           entity: entityType,
           entityName: entityId,
           feedId: newFeed.id,
         });
+
+        // go back to entity page that was followed
+        router.back();
+
+        return;
       }
 
       onFinished();
