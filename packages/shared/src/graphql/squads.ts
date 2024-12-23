@@ -631,8 +631,18 @@ const SOURCE_POST_MODERATION_FRAGMENT = gql`
 `;
 
 export const SQUAD_PENDING_POSTS_QUERY = gql`
-  query sourcePostModerations($sourceId: ID!, $status: [String]) {
-    sourcePostModerations(sourceId: $sourceId, status: $status) {
+  query sourcePostModerations(
+    $sourceId: ID!
+    $status: [String]
+    $first: Int
+    $after: String
+  ) {
+    sourcePostModerations(
+      sourceId: $sourceId
+      status: $status
+      first: $first
+      after: $after
+    ) {
       edges {
         node {
           ...SourcePostModerationFragment

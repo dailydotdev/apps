@@ -1,4 +1,8 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQueryClient,
+  type InfiniteData,
+} from '@tanstack/react-query';
 import { MouseEventHandler, useCallback } from 'react';
 import {
   PostModerationReason,
@@ -19,6 +23,7 @@ import { LogEvent } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
 import { Post } from '../../graphql/posts';
+import type { Connection } from '../../graphql/common';
 
 export const rejectReasons: { value: PostModerationReason; label: string }[] = [
   {
@@ -98,14 +103,6 @@ export const useSourceModerationList = ({
     user,
     squad.id,
   );
-  const squadQueryKey = generateQueryKey(RequestKey.Squad, user, squad.handle);
-
-  const invalidateQueries = () => {
-    Promise.all([
-      queryClient.invalidateQueries({ queryKey: listQueryKey }),
-      queryClient.invalidateQueries({ queryKey: squadQueryKey }),
-    ]);
-  };
 
   const {
     mutateAsync: onApprove,
@@ -117,12 +114,35 @@ export const useSourceModerationList = ({
         postIds,
         sourceId,
       }),
+    onMutate: (data) => {
+      const currentData =
+        queryClient.getQueryData<SourcePostModeration[]>(listQueryKey);
+
+      queryClient.setQueryData<InfiniteData<Connection<SourcePostModeration>>>(
+        listQueryKey,
+        (oldData) => {
+          if (!oldData) {
+            return oldData;
+          }
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              edges: page.edges.filter(
+                (edge) => !data.postIds.includes(edge.node.id),
+              ),
+            })),
+          };
+        },
+      );
+
+      return () => queryClient.setQueryData(listQueryKey, currentData);
+    },
     onSuccess: (data) => {
       displayToast('Post(s) approved successfully');
       getLogPostsFromModerationArray(data).forEach((post) => {
         logEvent(postLogEvent(LogEvent.ApprovePost, post));
       });
-      invalidateQueries();
     },
     onError: (_, variables) => {
       if (variables.postIds.length > 50) {
@@ -164,12 +184,35 @@ export const useSourceModerationList = ({
     isSuccess: isSuccessReject,
   } = useMutation({
     mutationFn: (props: SquadPostRejectionProps) => squadRejectMutation(props),
+    onMutate: (data) => {
+      const currentData =
+        queryClient.getQueryData<SourcePostModeration[]>(listQueryKey);
+
+      queryClient.setQueryData<InfiniteData<Connection<SourcePostModeration>>>(
+        listQueryKey,
+        (oldData) => {
+          if (!oldData) {
+            return oldData;
+          }
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              edges: page.edges.filter(
+                (edge) => !data.postIds.includes(edge.node.id),
+              ),
+            })),
+          };
+        },
+      );
+
+      return () => queryClient.setQueryData(listQueryKey, currentData);
+    },
     onSuccess: (data) => {
       displayToast('Post(s) declined successfully');
       getLogPostsFromModerationArray(data).forEach((post) => {
         logEvent(postLogEvent(LogEvent.RejectPost, post));
       });
-      invalidateQueries();
     },
   });
 
@@ -197,7 +240,6 @@ export const useSourceModerationList = ({
     mutationFn: (postId: string) => deletePendingPostMutation(postId),
     onSuccess: () => {
       displayToast('Post deleted successfully');
-      invalidateQueries();
     },
   });
 
