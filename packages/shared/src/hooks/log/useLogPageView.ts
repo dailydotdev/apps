@@ -1,32 +1,29 @@
-import { MutableRefObject, useContext, useEffect, useRef } from 'react';
+import { useCallback, useContext, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import LogContext from '../../contexts/LogContext';
 
-export default function useLogPageView(): MutableRefObject<() => void> {
+export default function useLogPageView(): () => void {
   const router = useRouter();
   const { logEventStart, logEventEnd } = useContext(LogContext);
-  const routeChangedCallbackRef = useRef<() => void>();
-  const lifecycleCallbackRef = useRef<(event: CustomEvent) => void>();
+  const routeChangedCallback = useCallback(() => {
+    logEventEnd('page view');
+    logEventStart('page view', { event_name: 'page view' });
+  }, [logEventEnd, logEventStart]);
 
-  useEffect(() => {
-    routeChangedCallbackRef.current = () => {
-      logEventEnd('page view');
-      logEventStart('page view', { event_name: 'page view' });
-    };
-
-    lifecycleCallbackRef.current = (event) => {
+  const lifecycleCallback = useCallback(
+    (event: CustomEvent) => {
       if (event.detail.newState === 'active') {
         logEventStart('page view', { event_name: 'page view' });
       }
-    };
-  }, [logEventStart, logEventEnd]);
+    },
+    [logEventStart],
+  );
 
   useEffect(() => {
-    const handleRouteChange = () => routeChangedCallbackRef.current();
+    const handleRouteChange = () => routeChangedCallback();
     router.events.on('routeChangeComplete', handleRouteChange);
 
-    const handleLifecycle = (event: CustomEvent) =>
-      lifecycleCallbackRef.current(event);
+    const handleLifecycle = (event: CustomEvent) => lifecycleCallback(event);
     window.addEventListener('statechange', handleLifecycle);
 
     return () => {
@@ -35,7 +32,7 @@ export default function useLogPageView(): MutableRefObject<() => void> {
     };
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [lifecycleCallback, routeChangedCallback]);
 
-  return routeChangedCallbackRef;
+  return routeChangedCallback;
 }
