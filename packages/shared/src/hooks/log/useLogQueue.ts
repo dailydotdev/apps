@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { MutableRefObject, useCallback, useRef } from 'react';
+import { MutableRefObject, useMemo, useRef } from 'react';
 import { apiUrl } from '../../lib/config';
 import useDebounceFn from '../useDebounceFn';
 import { ExtensionMessageType } from '../../lib/extension';
@@ -65,60 +65,56 @@ export default function useLogQueue({
     }
   }, 500);
 
-  const pushToQueue = useCallback(
-    (events) => {
-      queueRef.current.push(...events);
-      if (enabledRef.current) {
-        debouncedSendEvents();
-      }
-    },
-    [debouncedSendEvents],
+  return useMemo(
+    () => ({
+      pushToQueue: (events) => {
+        queueRef.current.push(...events);
+        if (enabledRef.current) {
+          debouncedSendEvents();
+        }
+      },
+      setEnabled: (enabled) => {
+        enabledRef.current = enabled;
+        if (enabled && queueRef.current.length) {
+          debouncedSendEvents();
+        }
+      },
+      queueRef,
+      sendBeacon: () => {
+        if (
+          isFirefoxExtension &&
+          permission !== FirefoxPermissionType.Accepted
+        ) {
+          return;
+        }
+
+        if (queueRef.current.length) {
+          const events = queueRef.current;
+          queueRef.current = [];
+          const blob = new Blob([JSON.stringify({ events })], {
+            type: 'application/json',
+          });
+          if (backgroundMethod) {
+            backgroundMethod?.({
+              url: LOG_ENDPOINT,
+              type: ExtensionMessageType.FetchRequest,
+              args: {
+                body: JSON.stringify({ events }),
+                credentials: 'include',
+                method: 'POST',
+                headers: {
+                  'content-type': 'application/json',
+                },
+              },
+            });
+          } else {
+            navigator.sendBeacon(LOG_ENDPOINT, blob);
+          }
+        }
+      },
+    }),
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [queueRef, debouncedSendEvents, enabledRef, permission, isFirefoxExtension],
   );
-
-  const sendBeacon = useCallback(() => {
-    if (isFirefoxExtension && permission !== FirefoxPermissionType.Accepted) {
-      return;
-    }
-
-    if (queueRef.current.length) {
-      const events = queueRef.current;
-      queueRef.current = [];
-      const blob = new Blob([JSON.stringify({ events })], {
-        type: 'application/json',
-      });
-      if (backgroundMethod) {
-        backgroundMethod?.({
-          url: LOG_ENDPOINT,
-          type: ExtensionMessageType.FetchRequest,
-          args: {
-            body: JSON.stringify({ events }),
-            credentials: 'include',
-            method: 'POST',
-            headers: {
-              'content-type': 'application/json',
-            },
-          },
-        });
-      } else {
-        navigator.sendBeacon(LOG_ENDPOINT, blob);
-      }
-    }
-  }, [backgroundMethod, isFirefoxExtension, permission]);
-
-  const setEnabled = useCallback(
-    (enabled: boolean) => {
-      enabledRef.current = enabled;
-      if (enabled && queueRef.current.length) {
-        debouncedSendEvents();
-      }
-    },
-    [debouncedSendEvents],
-  );
-
-  return {
-    pushToQueue,
-    setEnabled,
-    queueRef,
-    sendBeacon,
-  };
 }

@@ -82,7 +82,7 @@ function InternalApp(): ReactElement {
   const { contentScriptGranted } = useContentScriptStatus();
   const { hostGranted, isFetching: isCheckingHostPermissions } =
     useHostStatus();
-  const routeChangedCallback = useLogPageView();
+  const routeChangedCallbackRef = useLogPageView();
   useConsoleLogo();
   const { user, isAuthReady } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
@@ -92,10 +92,10 @@ function InternalApp(): ReactElement {
   const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
 
   useEffect(() => {
-    if (isPageReady && currentPage) {
-      routeChangedCallback?.();
+    if (routeChangedCallbackRef.current && isPageReady) {
+      routeChangedCallbackRef.current();
     }
-  }, [isPageReady, routeChangedCallback, currentPage]);
+  }, [isPageReady, routeChangedCallbackRef, currentPage]);
 
   const { dismissToast } = useToastNotification();
 
