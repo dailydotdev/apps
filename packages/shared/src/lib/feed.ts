@@ -168,6 +168,7 @@ export function adLogEvent(
 export interface GetDefaultFeedProps {
   hasFiltered?: boolean;
   hasUser?: boolean;
+  isMyFeed?: boolean;
 }
 
 export const getDefaultFeed = ({
@@ -201,7 +202,10 @@ export const getFeedName = (
     return OtherFeedPage.UserPosts;
   }
   if (feed.startsWith('feeds')) {
-    return SharedFeedPage.Custom;
+    const isMyFeedEdit =
+      ['edit'].some((item) => feed.endsWith(item)) && options.isMyFeed;
+
+    return isMyFeedEdit ? SharedFeedPage.MyFeed : SharedFeedPage.Custom;
   }
 
   const [page] = feed.split('?');
