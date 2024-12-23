@@ -100,6 +100,7 @@ export const emojiOptions = [
 
 export enum FeedOrder {
   Recommended = 'recommended',
+  Date = 'date',
   Upvotes = 'upvotes',
   Downvotes = 'downvotes',
   Comments = 'comments',

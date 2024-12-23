@@ -10,7 +10,10 @@ import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
 import type { MainFeedLayoutProps } from '@dailydotdev/shared/src/components/MainFeedLayout';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
-import { getFeedName as getFeedNameLib } from '@dailydotdev/shared/src/lib/feed';
+import {
+  type GetDefaultFeedProps,
+  getFeedName,
+} from '@dailydotdev/shared/src/lib/feed';
 import dynamic from 'next/dynamic';
 import { getLayout } from './FeedLayout';
 
@@ -27,7 +30,10 @@ export type MainFeedPageProps = {
   isFinder?: boolean;
 } & Pick<MainFeedLayoutProps, 'searchChildren'>;
 
-const getFeedName = (path: string): string => {
+const getInternalFeedName = (
+  path: string,
+  options?: GetDefaultFeedProps,
+): string => {
   if (path === '/') {
     return 'default';
   }
@@ -37,7 +43,7 @@ const getFeedName = (path: string): string => {
   }
 
   if (path.startsWith('/feeds/')) {
-    return getFeedNameLib(path);
+    return getFeedName(path, options);
   }
 
   return path.replace(/^\/+/, '');
@@ -51,7 +57,10 @@ export default function MainFeedPage({
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const isFinderPage = router?.pathname === '/search/posts' || isFinder;
-  const [feedName, setFeedName] = useState(getFeedName(router?.pathname));
+  const isMyFeedURL = router?.query?.slugOrId === user?.id;
+  const [feedName, setFeedName] = useState(
+    getInternalFeedName(router?.pathname, { isMyFeed: isMyFeedURL }),
+  );
   const [isSearchOn, setIsSearchOn] = useState(isFinderPage);
   useEffect(() => {
     const isMyFeed = router?.pathname === '/my-feed';
@@ -61,7 +70,9 @@ export default function MainFeedPage({
       setIsSearchOn(true);
       setFeedName('search');
     } else {
-      const newFeed = getFeedName(router?.pathname);
+      const newFeed = getInternalFeedName(router?.pathname, {
+        isMyFeed: isMyFeedURL,
+      });
       if (isSearchOn) {
         setIsSearchOn(false);
       }
