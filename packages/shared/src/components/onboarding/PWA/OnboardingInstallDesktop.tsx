@@ -37,9 +37,9 @@ export const OnboardingInstallDesktop = ({
 }): ReactElement => {
   const { logEvent } = useLogContext();
   const { promptToInstall, browserName } = useInstallPWA();
+  const isSafari = browserName === BrowserName.Safari;
   const PWAIcon = icons[browserName] ?? icons[BrowserName.Chrome];
   const imageSrc = images[browserName] ?? images[BrowserName.Chrome];
-  const isSafari = browserName === BrowserName.Safari;
 
   return (
     <div className="flex flex-1 flex-col laptop:justify-between">

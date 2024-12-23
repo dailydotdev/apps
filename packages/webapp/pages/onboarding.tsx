@@ -68,7 +68,9 @@ import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/Pus
 import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/PaymentContext';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import {
+  BrowserName,
   checkIsBrowser,
+  getCurrentBrowserName,
   isSafariOnIOS,
   UserAgent,
 } from '@dailydotdev/shared/src/lib/func';
@@ -283,12 +285,17 @@ export function OnboardPage(): ReactElement {
       installDesktopExperiment && canUserInstallDesktop;
     const haveSkippedExtension =
       !options?.clickExtension && activeScreen === OnboardingStep.Extension;
-    const isFirefox = checkIsBrowser(UserAgent.Firefox) && isLaptop;
+    const browserName = getCurrentBrowserName();
+    const browserDontHaveExtension = [
+      BrowserName.Safari,
+      BrowserName.Firefox,
+    ].includes(browserName);
 
     if (
+      isLaptop &&
       isInstallStepAvailable &&
       activeScreen !== OnboardingStep.InstallDesktop &&
-      (haveSkippedExtension || isFirefox)
+      (haveSkippedExtension || browserDontHaveExtension)
     ) {
       return setActiveScreen(OnboardingStep.InstallDesktop);
     }
