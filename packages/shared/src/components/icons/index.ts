@@ -78,6 +78,7 @@ export * from './Pin';
 export * from './Play';
 export * from './Plus';
 export * from './Power';
+export * from './PWA';
 export * from './ReadingStreak';
 export * from './Reddit';
 export * from './Redis';
