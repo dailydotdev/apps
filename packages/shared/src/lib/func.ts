@@ -1,7 +1,7 @@
 import { MouseEvent } from 'react';
 import type ReactModal from 'react-modal';
 import { EmptyObjectLiteral } from './kratos';
-import { isTesting } from './constants';
+import { isBrave, isTesting } from './constants';
 
 export type EmptyFunction = () => void;
 export type EmptyPromise = () => Promise<void>;
@@ -117,6 +117,16 @@ export enum UserAgent {
   Edge = 'Edg', // intended to be Edg, not Edge
   Android = 'Android',
   Firefox = 'Firefox',
+  Safari = 'Safari',
+}
+
+export enum BrowserName {
+  Chrome = 'Chrome',
+  Brave = 'Brave',
+  Firefox = 'Firefox',
+  Safari = 'Safari',
+  Edge = 'Edge',
+  Others = 'Others',
 }
 
 export const checkIsBrowser = (agent: UserAgent): boolean =>
@@ -124,6 +134,30 @@ export const checkIsBrowser = (agent: UserAgent): boolean =>
 
 export const checkIsChromeOnly = (): boolean =>
   checkIsBrowser(UserAgent.Chrome) && !checkIsBrowser(UserAgent.Edge);
+
+export const getCurrentBrowserName = (): BrowserName => {
+  if (checkIsChromeOnly()) {
+    return BrowserName.Chrome;
+  }
+
+  if (isBrave()) {
+    return BrowserName.Brave;
+  }
+
+  if (checkIsBrowser(UserAgent.Firefox)) {
+    return BrowserName.Firefox;
+  }
+
+  if (checkIsBrowser(UserAgent.Edge)) {
+    return BrowserName.Edge;
+  }
+
+  if (checkIsBrowser(UserAgent.Safari)) {
+    return BrowserName.Safari;
+  }
+
+  return BrowserName.Others;
+};
 
 export const shuffleArray = <T>(array: T[]): T[] => {
   const newArray = array.slice();

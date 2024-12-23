@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { FC, ReactElement } from 'react';
 import {
   Typography,
   TypographyColor,
@@ -7,12 +7,28 @@ import {
 } from '../../typography/Typography';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { useInstallPWA } from './useInstallPWA';
-import { cloudinaryPWAChrome, cloudinaryPWAEdge } from '../../../lib/image';
-import { checkIsBrowser, UserAgent } from '../../../lib/func';
+import {
+  cloudinaryPWAChrome,
+  cloudinaryPWAEdge,
+  cloudinaryPWASafari,
+} from '../../../lib/image';
+import { BrowserName } from '../../../lib/func';
 import { PWAChrome } from '../../icons/PWA/Chrome';
 import { PWAEdge } from '../../icons/PWA/Edge';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
+import { IconProps } from '../../Icon';
+
+const icons: Partial<Record<BrowserName, FC<IconProps>>> = {
+  [BrowserName.Chrome]: PWAChrome,
+  [BrowserName.Edge]: PWAEdge,
+  [BrowserName.Safari]: PWAChrome,
+};
+const images: Partial<Record<BrowserName, string>> = {
+  [BrowserName.Chrome]: cloudinaryPWAChrome,
+  [BrowserName.Edge]: cloudinaryPWAEdge,
+  [BrowserName.Safari]: cloudinaryPWASafari,
+};
 
 export const OnboardingInstallDesktop = ({
   onClickNext,
@@ -20,10 +36,9 @@ export const OnboardingInstallDesktop = ({
   onClickNext: () => void;
 }): ReactElement => {
   const { logEvent } = useLogContext();
-  const { promptToInstall } = useInstallPWA();
-  const isEdge = checkIsBrowser(UserAgent.Edge);
-  const PWAIcon = isEdge ? PWAEdge : PWAChrome;
-  const imageSrc = isEdge ? cloudinaryPWAEdge : cloudinaryPWAChrome;
+  const { promptToInstall, browserName } = useInstallPWA();
+  const PWAIcon = icons[browserName] ?? icons[BrowserName.Chrome];
+  const imageSrc = images[browserName] ?? images[BrowserName.Chrome];
 
   return (
     <div className="flex flex-1 flex-col laptop:justify-between">

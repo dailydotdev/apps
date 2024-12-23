@@ -1,3 +1,5 @@
+import { BrowserName } from './func';
+
 export const cloudinaryFeedBgLaptop =
   'https://media.daily.dev/image/upload/s--O8GDhJO8--/f_auto/v1692271285/public/Desktop-ask-bg';
 
@@ -276,13 +278,13 @@ export const cloudinaryPWAVideo =
   'https://daily-now-res.cloudinary.com/video/upload/s--0mT5rE2C--/v1733649847/web_-_safari_j81dxl.mp4';
 
 export const cloudinaryOnboardingExtension = {
-  chrome: {
+  [BrowserName.Chrome]: {
     default:
       'https://res.cloudinary.com/daily-now/image/upload/s--HjgXzokn--/c_scale,h_360,w_820/f_auto/dailydev-extenstion-mindblown_ggmkfg',
     retina:
       'https://res.cloudinary.com/daily-now/image/upload/s--HjgXzokn--/f_auto/dailydev-extenstion-mindblown_ggmkfg',
   },
-  edge: {
+  [BrowserName.Edge]: {
     default:
       'https://res.cloudinary.com/daily-now/image/upload/s--kvj5ZB_s--/c_scale,h_360,w_820/f_auto/dailydev-extenstion-mindblown-edge_svb0kv',
     retina:
@@ -307,6 +309,9 @@ export const cloudinaryPWAChrome =
 
 export const cloudinaryPWAEdge =
   'https://daily-now-res.cloudinary.com/image/upload/s--kEBZKEnE--/f_auto/v1731405024/dailydev_pwa_edge_web_ygzeqp';
+
+export const cloudinaryPWASafari =
+  'https://res.cloudinary.com/daily-now/image/upload/s--8_A3sC32--/f_auto,q_auto/dailydev-safari-pwa_dli6xx';
 
 export const clickbaitShieldModalImage =
   'https://daily-now-res.cloudinary.com/image/upload/s--GWqpMG8r--/f_auto/v1732802237/Streak_together_with_a_friend_1_1_pwoill';
