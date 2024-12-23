@@ -2,8 +2,9 @@ import React, {
   ReactElement,
   ReactNode,
   useCallback,
-  useMemo,
+  useEffect,
   useRef,
+  useState,
 } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
@@ -86,7 +87,7 @@ const updateLocalBootData = (
   return result;
 };
 
-const getCachedBootOrNull = () => {
+const getCachedOrNull = () => {
   try {
     return JSON.parse(storage.getItem(BOOT_LOCAL_KEY));
   } catch (err) {
@@ -111,8 +112,6 @@ export const BootDataProvider = ({
   getRedirectUri,
   getPage,
 }: BootDataProviderProps): ReactElement => {
-  const { hostGranted } = useHostStatus();
-  const isExtension = checkIsExtension();
   const queryClient = useQueryClient();
   const preloadFeedsRef = useRef<PreloadFeeds>();
   preloadFeedsRef.current = ({ feeds, user }) => {
@@ -131,15 +130,22 @@ export const BootDataProvider = ({
     );
   };
 
-  const initialData = useMemo(() => {
+  const [initialLoad, setInitialLoad] = useState<boolean>(null);
+  const [cachedBootData, setCachedBootData] = useState<Partial<Boot>>();
+
+  useEffect(() => {
     if (localBootData) {
-      return localBootData;
+      setCachedBootData(localBootData);
+
+      return;
     }
 
     const boot = getLocalBootData();
 
     if (!boot) {
-      return null;
+      setCachedBootData(null);
+
+      return;
     }
 
     if (boot?.settings?.theme) {
@@ -148,15 +154,17 @@ export const BootDataProvider = ({
 
     preloadFeedsRef.current({ feeds: boot.feeds, user: boot.user });
 
-    return boot;
+    setCachedBootData(boot);
   }, [localBootData]);
 
-  const logged = initialData?.user as LoggedUser;
+  const { hostGranted } = useHostStatus();
+  const isExtension = checkIsExtension();
+  const logged = cachedBootData?.user as LoggedUser;
   const shouldRefetch = !!logged?.providers && !!logged?.id;
   const lastAppliedChangeRef = useRef<Partial<BootCacheData>>();
 
   const {
-    data: bootData,
+    data: remoteData,
     error,
     refetch,
     isFetched,
@@ -167,25 +175,24 @@ export const BootDataProvider = ({
     queryFn: async () => {
       const result = await getBootData(app);
       preloadFeedsRef.current({ feeds: result.feeds, user: result.user });
-      updateLocalBootData(bootData || {}, result);
 
       return result;
     },
     refetchOnWindowFocus: shouldRefetch,
     staleTime: STALE_TIME,
     enabled: !isExtension || !!hostGranted,
-    placeholderData: initialData,
   });
 
-  const isBootReady = isFetched && !isError && !!bootData;
-  const loadedFromCache = !!bootData;
-  const { user, settings, alerts, notifications, squads, geo } = bootData || {};
+  const isBootReady = isFetched && !isError;
+  const loadedFromCache = !!cachedBootData;
+  const { user, settings, alerts, notifications, squads, geo } =
+    cachedBootData || {};
 
-  useRefreshToken(bootData?.accessToken, refetch);
+  useRefreshToken(remoteData?.accessToken, refetch);
   const updatedAtActive = user ? dataUpdatedAt : null;
-  const updateQueryCache = useCallback(
+  const updateBootData = useCallback(
     (updatedBootData: Partial<BootCacheData>, update = true) => {
-      const cachedData = getCachedBootOrNull() ?? {};
+      const cachedData = getCachedOrNull() || {};
       const lastAppliedChange = lastAppliedChangeRef.current;
       let updatedData = { ...updatedBootData };
       if (update) {
@@ -201,51 +208,50 @@ export const BootDataProvider = ({
       }
 
       const updated = updateLocalBootData(cachedData, updatedData);
-
-      queryClient.setQueryData<Partial<Boot>>(BOOT_QUERY_KEY, (previous) => {
-        if (!previous) {
-          return updated;
-        }
-
-        return { ...previous, ...updated };
-      });
+      setCachedBootData(updated);
     },
-    [queryClient],
+    [],
   );
 
   const updateUser = useCallback(
     async (newUser: LoggedUser | AnonymousUser) => {
-      updateQueryCache({ user: newUser });
+      updateBootData({ user: newUser });
       await queryClient.invalidateQueries({
         queryKey: generateQueryKey(RequestKey.Profile, newUser),
       });
     },
-    [updateQueryCache, queryClient],
+    [updateBootData, queryClient],
   );
 
   const updateSettings = useCallback(
-    (updatedSettings: Boot['settings']) =>
-      updateQueryCache({ settings: updatedSettings }),
-    [updateQueryCache],
+    (updatedSettings) => updateBootData({ settings: updatedSettings }),
+    [updateBootData],
   );
 
   const updateAlerts = useCallback(
-    (updatedAlerts: Boot['alerts']) =>
-      updateQueryCache({ alerts: updatedAlerts }),
-    [updateQueryCache],
+    (updatedAlerts) => updateBootData({ alerts: updatedAlerts }),
+    [updateBootData],
   );
 
   const updateExperimentation = useCallback(
     (exp: BootCacheData['exp']) => {
-      updateLocalBootData(bootData, { exp });
+      updateLocalBootData(cachedBootData, { exp });
     },
-    [bootData],
+    [cachedBootData],
   );
 
   gqlClient.setHeader(
     'content-language',
     (user as Partial<LoggedUser>)?.language || ContentLanguage.English,
   );
+
+  useEffect(() => {
+    if (remoteData) {
+      setInitialLoad(initialLoad === null);
+      updateBootData(remoteData);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [remoteData]);
 
   if (error) {
     return (
@@ -260,7 +266,7 @@ export const BootDataProvider = ({
       app={app}
       user={user}
       deviceId={deviceId}
-      experimentation={bootData?.exp}
+      experimentation={cachedBootData?.exp}
       updateExperimentation={updateExperimentation}
     >
       <AuthContextProvider
@@ -270,13 +276,13 @@ export const BootDataProvider = ({
         getRedirectUri={getRedirectUri}
         loadingUser={!dataUpdatedAt || !user}
         loadedUserFromCache={loadedFromCache}
-        visit={bootData?.visit}
+        visit={remoteData?.visit}
         refetchBoot={refetch}
         isFetched={isBootReady}
-        isLegacyLogout={bootData?.isLegacyLogout}
-        accessToken={bootData?.accessToken}
+        isLegacyLogout={remoteData?.isLegacyLogout}
+        accessToken={remoteData?.accessToken}
         squads={squads}
-        isAuthReady={isBootReady}
+        firstLoad={initialLoad}
         geo={geo}
       >
         <SettingsContextProvider
