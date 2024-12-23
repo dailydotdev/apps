@@ -107,7 +107,9 @@ export const useSourceModerationList = ({
   const handleOptimistic = useCallback(
     (data: SquadPostModerationProps) => {
       const currentData =
-        queryClient.getQueryData<SourcePostModeration[]>(listQueryKey);
+        queryClient.getQueryData<
+          InfiniteData<Connection<SourcePostModeration>>
+        >(listQueryKey);
 
       queryClient.setQueryData<InfiniteData<Connection<SourcePostModeration>>>(
         listQueryKey,
@@ -127,7 +129,7 @@ export const useSourceModerationList = ({
         },
       );
 
-      return () => queryClient.setQueryData(listQueryKey, currentData);
+      return { currentData };
     },
     [queryClient, listQueryKey],
   );
@@ -149,14 +151,14 @@ export const useSourceModerationList = ({
         logEvent(postLogEvent(LogEvent.ApprovePost, post));
       });
     },
-    onError: (_, variables) => {
+    onError: (_, variables, context) => {
       if (variables.postIds.length > 50) {
         displayToast(
           'Failed to approve post(s). Please approve maximum 50 posts at a time',
         );
         return;
       }
-
+      queryClient.setQueryData(listQueryKey, context.currentData);
       displayToast('Failed to approve post(s)');
     },
   });
@@ -195,6 +197,9 @@ export const useSourceModerationList = ({
       getLogPostsFromModerationArray(data).forEach((post) => {
         logEvent(postLogEvent(LogEvent.RejectPost, post));
       });
+    },
+    onError: (_, __, context) => {
+      queryClient.setQueryData(listQueryKey, context.currentData);
     },
   });
 
