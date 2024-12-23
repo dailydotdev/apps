@@ -57,9 +57,9 @@ export default function MainFeedPage({
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const isFinderPage = router?.pathname === '/search/posts' || isFinder;
-  const isMyFeed = router?.query?.slugOrId === user?.id;
+  const isMyFeedURL = router?.query?.slugOrId === user?.id;
   const [feedName, setFeedName] = useState(
-    getInternalFeedName(router?.pathname, { isMyFeed }),
+    getInternalFeedName(router?.pathname, { isMyFeed: isMyFeedURL }),
   );
   const [isSearchOn, setIsSearchOn] = useState(isFinderPage);
   useEffect(() => {
@@ -70,7 +70,9 @@ export default function MainFeedPage({
       setIsSearchOn(true);
       setFeedName('search');
     } else {
-      const newFeed = getInternalFeedName(router?.pathname, { isMyFeed });
+      const newFeed = getInternalFeedName(router?.pathname, {
+        isMyFeed: isMyFeedURL,
+      });
       if (isSearchOn) {
         setIsSearchOn(false);
       }
