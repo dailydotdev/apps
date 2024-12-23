@@ -1,4 +1,4 @@
-import { MutableRefObject, useCallback } from 'react';
+import { MutableRefObject, useMemo } from 'react';
 import { LogEvent, PushToQueueFunc } from './useLogQueue';
 import { getCurrentLifecycleState } from '../../lib/lifecycle';
 import { Origin } from '../../lib/log';
@@ -51,42 +51,33 @@ export default function useLogContextData(
   durationEventsQueue: MutableRefObject<Map<string, LogEvent>>,
   sendBeacon: () => void,
 ): LogContextData {
-  const logEvent = useCallback(
-    (event: LogEvent) => {
-      pushToQueue([generateEvent(event, sharedPropsRef, getPage())]);
-    },
-    [getPage, pushToQueue, sharedPropsRef],
-  );
-  const logEventStart = useCallback(
-    (id, event) => {
-      if (!durationEventsQueue.current.has(id)) {
-        durationEventsQueue.current.set(
-          id,
-          generateEvent(event, sharedPropsRef, getPage()),
-        );
-      }
-    },
-    [durationEventsQueue, getPage, sharedPropsRef],
-  );
-  const logEventEnd = useCallback(
-    (id, now = new Date()) => {
-      const event = durationEventsQueue.current.get(id);
-      if (event) {
-        durationEventsQueue.current.delete(id);
-        event.event_duration = now.getTime() - event.event_timestamp.getTime();
-        if (window.scrollY > 0 && event.event_name !== 'page inactive') {
-          event.page_state = 'active';
+  return useMemo<LogContextData>(
+    () => ({
+      logEvent(event: LogEvent) {
+        pushToQueue([generateEvent(event, sharedPropsRef, getPage())]);
+      },
+      logEventStart(id, event) {
+        if (!durationEventsQueue.current.has(id)) {
+          durationEventsQueue.current.set(
+            id,
+            generateEvent(event, sharedPropsRef, getPage()),
+          );
         }
-        pushToQueue([event]);
-      }
-    },
-    [durationEventsQueue, pushToQueue],
+      },
+      logEventEnd(id, now = new Date()) {
+        const event = durationEventsQueue.current.get(id);
+        if (event) {
+          durationEventsQueue.current.delete(id);
+          event.event_duration =
+            now.getTime() - event.event_timestamp.getTime();
+          if (window.scrollY > 0 && event.event_name !== 'page inactive') {
+            event.page_state = 'active';
+          }
+          pushToQueue([event]);
+        }
+      },
+      sendBeacon,
+    }),
+    [sharedPropsRef, getPage, pushToQueue, durationEventsQueue, sendBeacon],
   );
-
-  return {
-    logEvent,
-    logEventStart,
-    logEventEnd,
-    sendBeacon,
-  };
 }

@@ -17,7 +17,7 @@ import { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import { AuthTriggers, AuthTriggersType } from '../lib/auth';
 import { Squad } from '../graphql/sources';
-import { checkIsExtension } from '../lib/func';
+import { checkIsExtension, isNullOrUndefined } from '../lib/func';
 
 export interface LoginState {
   trigger: AuthTriggersType;
@@ -65,7 +65,6 @@ export interface AuthContextData {
   isAuthReady?: boolean;
   geo?: Boot['geo'];
 }
-
 const isExtension = checkIsExtension();
 const AuthContext = React.createContext<AuthContextData>(null);
 export const useAuthContext = (): AuthContextData => useContext(AuthContext);
@@ -105,7 +104,7 @@ export type AuthContextProviderProps = {
   isFetched?: boolean;
   isLegacyLogout?: boolean;
   children?: ReactNode;
-  isAuthReady?: boolean;
+  firstLoad?: boolean;
 } & Pick<
   AuthContextData,
   | 'getRedirectUri'
@@ -134,7 +133,7 @@ export const AuthContextProvider = ({
   isLegacyLogout,
   accessToken,
   squads,
-  isAuthReady,
+  firstLoad,
   geo,
 }: AuthContextProviderProps): ReactElement => {
   const [loginState, setLoginState] = useState<LoginState | null>(null);
@@ -142,7 +141,7 @@ export const AuthContextProvider = ({
   const referral = user?.referralId || user?.referrer;
   const referralOrigin = user?.referralOrigin;
 
-  if (!!isAuthReady && endUser && !endUser?.infoConfirmed) {
+  if (firstLoad === true && endUser && !endUser?.infoConfirmed) {
     logout(LogoutReason.IncomleteOnboarding);
   }
 
@@ -153,7 +152,7 @@ export const AuthContextProvider = ({
   return (
     <AuthContext.Provider
       value={{
-        isAuthReady,
+        isAuthReady: !isNullOrUndefined(firstLoad),
         user: endUser,
         isLoggedIn: !!endUser?.id,
         referral: loginState?.referral ?? referral,
