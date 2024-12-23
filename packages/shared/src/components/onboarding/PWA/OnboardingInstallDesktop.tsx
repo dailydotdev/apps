@@ -1,4 +1,5 @@
 import React, { FC, ReactElement } from 'react';
+import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
@@ -13,16 +14,15 @@ import {
   cloudinaryPWASafari,
 } from '../../../lib/image';
 import { BrowserName } from '../../../lib/func';
-import { PWAChrome } from '../../icons/PWA/Chrome';
-import { PWAEdge } from '../../icons/PWA/Edge';
+import { PWAChromeIcon, PWAEdgeIcon, PWASafariIcon } from '../../icons';
+import { IconProps } from '../../Icon';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
-import { IconProps } from '../../Icon';
 
 const icons: Partial<Record<BrowserName, FC<IconProps>>> = {
-  [BrowserName.Chrome]: PWAChrome,
-  [BrowserName.Edge]: PWAEdge,
-  [BrowserName.Safari]: PWAChrome,
+  [BrowserName.Chrome]: PWAChromeIcon,
+  [BrowserName.Edge]: PWAEdgeIcon,
+  [BrowserName.Safari]: PWASafariIcon,
 };
 const images: Partial<Record<BrowserName, string>> = {
   [BrowserName.Chrome]: cloudinaryPWAChrome,
@@ -39,6 +39,7 @@ export const OnboardingInstallDesktop = ({
   const { promptToInstall, browserName } = useInstallPWA();
   const PWAIcon = icons[browserName] ?? icons[BrowserName.Chrome];
   const imageSrc = images[browserName] ?? images[BrowserName.Chrome];
+  const isSafari = browserName === BrowserName.Safari;
 
   return (
     <div className="flex flex-1 flex-col laptop:justify-between">
@@ -63,7 +64,7 @@ export const OnboardingInstallDesktop = ({
           }}
           variant={ButtonVariant.Primary}
         >
-          Install on desktop
+          {isSafari ? 'Add to Dock' : 'Install on desktop'}
         </Button>
         <Typography
           bold
@@ -73,15 +74,18 @@ export const OnboardingInstallDesktop = ({
         >
           Manual: Press the
           <span className="mx-2 inline-grid size-7 place-content-center rounded-1/2 bg-accent-salt-bolder align-middle text-text-primary">
-            <PWAIcon className="inline-block" aria-hidden />
+            <PWAIcon
+              className={classNames('inline-block', isSafari && '-mt-0.5')}
+              aria-hidden
+            />
           </span>
-          icon next to the browser search bar and choose {`"`}Install{`"`} to
-          level up
+          icon next to the browser search bar and choose{' '}
+          {isSafari ? `"Add to Dock"` : `"Install"`} to level up!
         </Typography>
       </div>
       <figure className="pointer-events-none mx-auto">
         <img
-          alt="Amazing daily.dev extension screenshot"
+          alt="Install daily.dev on desktop"
           className="w-full"
           loading="lazy"
           role="presentation"
