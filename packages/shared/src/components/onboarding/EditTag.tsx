@@ -9,6 +9,10 @@ import { FeedSettings } from '../../graphql/feedSettings';
 import { CreateFeedButton } from './CreateFeedButton';
 import { TagSelection } from '../tags/TagSelection';
 import { FeedLayoutProvider } from '../../contexts/FeedContext';
+import useDebounceFn from '../../hooks/useDebounceFn';
+import { useTagSearch } from '../../hooks/useTagSearch';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
+import { SearchField } from '../fields/SearchField';
 
 interface EditTagProps {
   feedSettings: FeedSettings;
@@ -24,16 +28,40 @@ export const EditTag = ({
   customActionName,
   activeScreen,
 }: EditTagProps): ReactElement => {
+  const isMobile = useViewSize(ViewSize.MobileL);
   const [isPreviewVisible, setPreviewVisible] = useState(false);
   const tagsCount = feedSettings?.includeTags?.length || 0;
   const isPreviewEnabled = tagsCount >= REQUIRED_TAGS_THRESHOLD;
+
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [onSearch] = useDebounceFn(setSearchQuery, 200);
+
+  const { data: searchResult } = useTagSearch({
+    value: searchQuery,
+    origin: Origin.EditTag,
+  });
+  const searchTags = searchResult?.searchTags.tags || [];
 
   return (
     <>
       <h2 className="text-center font-bold typo-large-title">
         Pick tags that are relevant to you
       </h2>
-      <TagSelection className="mt-10 max-w-4xl" />
+      <TagSelection
+        className="mt-10 max-w-4xl"
+        searchElement={
+          <SearchField
+            aria-label="Pick tags that are relevant to you"
+            autoFocus={!isMobile}
+            className="mb-10 w-full tablet:max-w-xs"
+            inputId="search-filters"
+            placeholder="Search javascript, php, git, etc…"
+            valueChanged={onSearch}
+          />
+        }
+        searchQuery={searchQuery}
+        searchTags={searchTags}
+      />
       <FeedPreviewControls
         isOpen={isPreviewVisible}
         isDisabled={!isPreviewEnabled}

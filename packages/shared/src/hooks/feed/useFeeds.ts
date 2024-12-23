@@ -15,6 +15,7 @@ import { gqlClient } from '../../graphql/common';
 
 export type CreateFeedProps = {
   name: string;
+  icon?: string;
 };
 
 export type UpdateFeedProps = { feedId: string } & CreateFeedProps;
@@ -47,12 +48,10 @@ export const useFeeds = (): UseFeeds => {
   });
 
   const { mutateAsync: createFeed } = useMutation({
-    mutationFn: async ({ name }: CreateFeedProps) => {
+    mutationFn: async (createProps: CreateFeedProps) => {
       const result = await gqlClient.request<{ createFeed: Feed }>(
         CREATE_FEED_MUTATION,
-        {
-          name,
-        },
+        createProps,
       );
 
       return result.createFeed;
@@ -78,13 +77,10 @@ export const useFeeds = (): UseFeeds => {
   });
 
   const { mutateAsync: updateFeed } = useMutation({
-    mutationFn: async ({ feedId, name }: UpdateFeedProps) => {
+    mutationFn: async (updateProps: UpdateFeedProps) => {
       const result = await gqlClient.request<{ updateFeed: Feed }>(
         UPDATE_FEED_MUTATION,
-        {
-          feedId,
-          name,
-        },
+        updateProps,
       );
 
       return result.updateFeed;

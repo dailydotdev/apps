@@ -7,7 +7,7 @@ import { useGetShortUrl } from './utils/useGetShortUrl';
 import { ReferralCampaignKey } from '../lib';
 import { shouldUseNativeShare } from '../lib/func';
 
-interface UseShareOrCopyLinkProps {
+export interface UseShareOrCopyLinkProps {
   link: string;
   text: string;
   logObject?: (provider: ShareProvider) => LogEvent;

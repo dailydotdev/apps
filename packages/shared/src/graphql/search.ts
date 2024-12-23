@@ -165,13 +165,28 @@ export const SEARCH_TAG_SUGGESTIONS = gql`
 `;
 
 export const SEARCH_SOURCE_SUGGESTIONS = gql`
-  query SearchSourceSuggestions($query: String!, $version: Int, $limit: Int) {
-    searchSourceSuggestions(query: $query, version: $version, limit: $limit) {
+  query SearchSourceSuggestions(
+    $query: String!
+    $version: Int
+    $limit: Int
+    $includeContentPreference: Boolean
+    $feedId: String
+  ) {
+    searchSourceSuggestions(
+      query: $query
+      version: $version
+      limit: $limit
+      includeContentPreference: $includeContentPreference
+      feedId: $feedId
+    ) {
       hits {
         id
         title
         subtitle
         image
+        contentPreference {
+          status
+        }
       }
     }
   }
@@ -183,12 +198,14 @@ export const SEARCH_USER_SUGGESTIONS = gql`
     $version: Int
     $limit: Int
     $includeContentPreference: Boolean
+    $feedId: String
   ) {
     searchUserSuggestions(
       query: $query
       version: $version
       limit: $limit
       includeContentPreference: $includeContentPreference
+      feedId: $feedId
     ) {
       hits {
         id

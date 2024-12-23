@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo, useState } from 'react';
+import React, { ReactElement, ReactNode, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import {
   QueryFilters,
@@ -14,14 +14,15 @@ import {
   TagsData,
 } from '../../graphql/feedSettings';
 import { disabledRefetch, getRandomNumber } from '../../lib/func';
-import { SearchField } from '../fields/SearchField';
 import useDebounceFn from '../../hooks/useDebounceFn';
-import { useTagSearch, useViewSize, ViewSize } from '../../hooks';
 import type { FilterOnboardingProps } from '../onboarding/FilterOnboarding';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import { Origin } from '../../lib/log';
 import { ElementPlaceholder } from '../ElementPlaceholder';
-import { TagElement } from './TagElement';
+import {
+  OnboardingTagProps,
+  TagElement as TagElementDefault,
+} from './TagElement';
 import { gqlClient } from '../../graphql/common';
 import { OnSelectTagProps } from './common';
 import {
@@ -45,20 +46,28 @@ export type TagSelectionProps = {
   onClickTag?: ({ tag, action }: OnSelectTagProps) => void;
   origin?: Origin;
   searchOrigin?: Origin;
+  searchElement?: ReactNode;
+  searchQuery?: string;
+  searchTags?: TagsData['tags'];
+  TagElement?: React.ComponentType<OnboardingTagProps>;
+  classNameTags?: string;
 } & Omit<FilterOnboardingProps, 'onSelectedTopics'>;
 
 export function TagSelection({
   shouldUpdateAlerts = true,
   className,
+  classNameTags,
   shouldFilterLocally,
   feedId,
   onClickTag,
   origin = Origin.Onboarding,
-  searchOrigin = Origin.EditTag,
+  searchElement,
+  searchQuery,
+  searchTags,
+  TagElement = TagElementDefault,
 }: TagSelectionProps): ReactElement {
   const [isShuffled, setIsShuffled] = useState(false);
   const queryClient = useQueryClient();
-  const isMobile = useViewSize(ViewSize.MobileL);
   const { feedSettings } = useFeedSettings({ feedId });
   const selectedTags = useMemo(() => {
     return new Set(feedSettings?.includeTags || []);
@@ -124,15 +133,6 @@ export function TagSelection({
 
     return [...onboardingTags.map((item) => item.name)];
   }, [onboardingTags]);
-
-  const [searchQuery, setSearchQuery] = React.useState<string>();
-  const [onSearch] = useDebounceFn(setSearchQuery, 200);
-
-  const { data: searchResult } = useTagSearch({
-    value: searchQuery,
-    origin: searchOrigin,
-  });
-  const searchTags = searchResult?.searchTags.tags || [];
 
   const { mutate: recommendTags, data: recommendedTags } = useMutation({
     mutationFn: async ({ tag }: Pick<OnSelectTagProps, 'tag'>) => {
@@ -202,18 +202,14 @@ export function TagSelection({
 
   return (
     <div className={classNames(className, 'flex w-full flex-col items-center')}>
-      <SearchField
-        aria-label="Pick tags that are relevant to you"
-        autoFocus={!isMobile}
-        className="mb-10 w-full tablet:max-w-xs"
-        inputId="search-filters"
-        placeholder="Search javascript, php, git, etc…"
-        valueChanged={onSearch}
-      />
+      {searchElement}
       <div
         role="list"
         aria-busy={isPending}
-        className="flex flex-row flex-wrap justify-center gap-4"
+        className={classNames(
+          classNameTags,
+          'flex flex-row flex-wrap justify-center gap-4',
+        )}
       >
         {isPending &&
           placeholderTags.map((item) => (

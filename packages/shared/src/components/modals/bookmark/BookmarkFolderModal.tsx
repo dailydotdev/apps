@@ -11,7 +11,7 @@ import {
 } from '../../typography/Typography';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { DevPlusIcon, FolderIcon } from '../../icons';
-import { plusUrl } from '../../../lib/constants';
+import { emojiOptions, plusUrl } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { IconSize } from '../../Icon';
@@ -22,21 +22,6 @@ type BookmarkFolderModalProps = Omit<ModalProps, 'children'> & {
   onSubmit: (folder: BookmarkFolder) => void;
   folder?: BookmarkFolder;
 };
-
-const emojiOptions = [
-  '',
-  '🐹',
-  '🐍',
-  '☕️',
-  '🔥',
-  '📦',
-  '⚙️',
-  '🐙',
-  '🐳',
-  '💡',
-  '📜',
-  '🚀',
-];
 
 const ModalTitle = () => (
   <>

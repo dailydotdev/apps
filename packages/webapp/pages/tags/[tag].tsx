@@ -38,7 +38,7 @@ import {
   RequestKey,
   StaleTime,
 } from '@dailydotdev/shared/src/lib/query';
-import { Origin } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import {
   KEYWORD_QUERY,
   Keyword,
@@ -49,7 +49,10 @@ import {
   GET_RECOMMENDED_TAGS_QUERY,
   TagsData,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
-import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import {
+  ReferralCampaignKey,
+  useFeedLayout,
+} from '@dailydotdev/shared/src/hooks';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
 import {
   SOURCES_BY_TAG_QUERY,
@@ -65,6 +68,9 @@ import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { cloudinarySourceRoadmap } from '@dailydotdev/shared/src/lib/image';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import CustomFeedOptionsMenu from '@dailydotdev/shared/src/components/CustomFeedOptionsMenu';
+import { useContentPreference } from '@dailydotdev/shared/src/hooks/contentPreference/useContentPreference';
+import { ContentPreferenceType } from '@dailydotdev/shared/src/graphql/contentPreference';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { DynamicSeoProps } from '../../components/common';
@@ -132,7 +138,7 @@ const TagTopSources = ({ tag }: { tag: string }) => {
 };
 
 const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
-  const { isFallback } = useRouter();
+  const { isFallback, push } = useRouter();
   const showRoadmap = useFeature(feature.showRoadmap);
   const { user, showLogin } = useContext(AuthContext);
   const mostUpvotedQueryVariables = useMemo(
@@ -160,6 +166,9 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({ origin: Origin.TagPage });
   const title = initialData?.flags?.title || tag;
+  const { follow, unfollow } = useContentPreference({
+    showToastOnSuccess: false,
+  });
 
   const tagStatus = useMemo(() => {
     if (!feedSettings) {
@@ -243,6 +252,38 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
               {tagStatus === 'blocked' ? 'Unblock' : 'Block'}
             </Button>
           )}
+          <CustomFeedOptionsMenu
+            onCreateNewFeed={() =>
+              push(
+                `/feeds/new?entityId=${tag}&entityType=${ContentPreferenceType.Keyword}`,
+              )
+            }
+            onAdd={(feedId) =>
+              follow({
+                id: tag,
+                entity: ContentPreferenceType.Keyword,
+                entityName: tag,
+                feedId,
+              })
+            }
+            onUndo={(feedId) =>
+              unfollow({
+                id: tag,
+                entity: ContentPreferenceType.Keyword,
+                entityName: tag,
+                feedId,
+              })
+            }
+            shareProps={{
+              text: `Check out the ${tag} tag on daily.dev`,
+              link: globalThis?.location?.href,
+              cid: ReferralCampaignKey.ShareTag,
+              logObject: () => ({
+                event_name: LogEvent.ShareTag,
+                target_id: tag,
+              }),
+            }}
+          />
         </div>
         {initialData?.flags?.description && (
           <p className="typo-body">{initialData?.flags?.description}</p>

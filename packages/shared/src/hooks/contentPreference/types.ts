@@ -11,11 +11,13 @@ export type ContentPreferenceMutation = ({
   id,
   entity,
   entityName,
+  feedId,
   opts,
 }: {
   id: string;
   entity: ContentPreferenceType;
   entityName: string;
+  feedId?: string;
   opts?: Partial<{
     extra: Record<string, unknown>;
   }>;

@@ -1,13 +1,12 @@
 import React, { useMemo } from 'react';
+import { useRouter } from 'next/router';
 import { ActionType } from '../graphql/actions';
 import { ChecklistViewState, createChecklistStep } from '../lib/checklist';
 import { useActions } from './useActions';
 import { UseChecklist, useChecklist } from './useChecklist';
-import { useLazyModal } from './useLazyModal';
 import { Button } from '../components/buttons/Button';
 import { ButtonVariant, ButtonSize } from '../components/buttons/common';
 import { ChecklistStep } from '../components/checklist/ChecklistStep';
-import { LazyModal } from '../components/modals/common/types';
 import { webappUrl } from '../lib/constants';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useSettingsContext } from '../contexts/SettingsContext';
@@ -26,9 +25,9 @@ export const useOnboardingChecklist = (): UseOnboardingChecklist => {
     onboardingChecklistView: checklistView,
     setOnboardingChecklistView: setChecklistView,
   } = useSettingsContext();
-  const { isLoggedIn } = useAuthContext();
+  const router = useRouter();
+  const { isLoggedIn, user } = useAuthContext();
   const { actions, isActionsFetched, completeAction } = useActions();
-  const { openModal } = useLazyModal();
   const isChecklistReady = isActionsFetched && isLoggedIn;
 
   const steps = useMemo(() => {
@@ -51,9 +50,7 @@ export const useOnboardingChecklist = (): UseOnboardingChecklist => {
                     variant={ButtonVariant.Primary}
                     size={ButtonSize.XSmall}
                     onClick={() => {
-                      openModal({
-                        type: LazyModal.FeedFilters,
-                      });
+                      router.push(`${webappUrl}feeds/${user.id}/edit`);
                     }}
                   >
                     Customize your feed
@@ -143,7 +140,7 @@ export const useOnboardingChecklist = (): UseOnboardingChecklist => {
         actions,
       }),
     ];
-  }, [isChecklistReady, actions, openModal, completeAction]);
+  }, [isChecklistReady, actions, router, user?.id, completeAction]);
 
   const checklist = useChecklist({ steps });
 

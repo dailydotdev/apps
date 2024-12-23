@@ -17,6 +17,7 @@ import { BlockTagSelection, getBlockedMessage } from './common';
 import { GenericTagButton } from '../../filters/TagButton';
 import { SimpleTooltip } from '../../tooltips';
 import ConditionalWrapper from '../../ConditionalWrapper';
+import { useActiveFeedContext } from '../../../contexts/ActiveFeedContext';
 
 interface PostTagsPanelProps {
   post: Post;
@@ -29,7 +30,13 @@ export function PostTagsPanel({
   className,
   toastOnSuccess = true,
 }: PostTagsPanelProps): ReactElement {
-  const { feedSettings } = useFeedSettings();
+  const feedContextData = useActiveFeedContext();
+  const feedQueryKey = feedContextData?.queryKey;
+  const isCustomFeed = feedQueryKey?.[0] === 'custom';
+  const customFeedId = isCustomFeed ? (feedQueryKey?.[2] as string) : undefined;
+  const { feedSettings } = useFeedSettings({
+    feedId: customFeedId,
+  });
   const hasBlockedSource = () =>
     feedSettings?.excludeSources?.some(({ id }) => id === post.source.id);
   const [initialPreference] = useState(hasBlockedSource);
@@ -52,6 +59,7 @@ export function PostTagsPanel({
   } = useBlockPostPanel(post, {
     toastOnSuccess,
     blockedSource: initialPreference,
+    feedId: customFeedId,
   });
 
   if (post.tags.length === 0 || isNullOrUndefined(showTagsPanel)) {
