@@ -66,10 +66,6 @@ const SquadNotificationsModal = dynamic(
     ),
 );
 
-const FeedFilters = dynamic(
-  () => import(/* webpackChunkName: "feedFilters" */ '../filters/FeedFilters'),
-);
-
 const SubmitArticle = dynamic(
   () =>
     import(/* webpackChunkName: "submitArticleModal" */ './SubmitArticleModal'),
@@ -218,6 +214,13 @@ const MoveBookmarkModal = dynamic(
     ),
 );
 
+const AddToCustomFeedModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "addToCustomFeedModal" */ './feed/AddToCustomFeedModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -230,7 +233,6 @@ export const modals = {
   [LazyModal.SquadNotifications]: SquadNotificationsModal,
   [LazyModal.SubmitArticle]: SubmitArticle,
   [LazyModal.NewSource]: NewSource,
-  [LazyModal.FeedFilters]: FeedFilters,
   [LazyModal.VerifySession]: VerifySession,
   [LazyModal.GenericReferral]: GenericReferralModal,
   [LazyModal.Video]: VideoModal,
@@ -255,6 +257,7 @@ export const modals = {
   [LazyModal.BookmarkFolder]: BookmarkFolderModal,
   [LazyModal.ClickbaitShield]: ClickbaitShieldModal,
   [LazyModal.MoveBookmark]: MoveBookmarkModal,
+  [LazyModal.AddToCustomFeed]: AddToCustomFeedModal,
 };
 
 type GetComponentProps<T> = T extends

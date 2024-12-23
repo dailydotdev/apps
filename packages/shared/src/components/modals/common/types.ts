@@ -42,7 +42,6 @@ export enum LazyModal {
   SquadNotifications = 'squadNotifications',
   NewSource = 'newSource',
   SubmitArticle = 'submitArticle',
-  FeedFilters = 'feedFilters',
   VerifySession = 'verifySession',
   GenericReferral = 'genericReferral',
   Video = 'video',
@@ -66,6 +65,7 @@ export enum LazyModal {
   BookmarkFolder = 'bookmarkFolder',
   ClickbaitShield = 'clickbaitShield',
   MoveBookmark = 'moveBookmark',
+  AddToCustomFeed = 'addToCustomFeed',
 }
 
 export type ModalTabItem = {

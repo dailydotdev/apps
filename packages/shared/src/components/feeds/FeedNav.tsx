@@ -25,7 +25,7 @@ import { PlusIcon, SortIcon } from '../icons';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
-import { webappUrl } from '../../lib/constants';
+import { customFeedsPlusDate, webappUrl } from '../../lib/constants';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -33,6 +33,7 @@ import { OtherFeedPage } from '../../lib/query';
 import { ChecklistViewState } from '../../lib/checklist';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
+import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 
 const OnboardingChecklistBar = dynamic(
   () =>
@@ -77,7 +78,8 @@ function FeedNav(): ReactElement {
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const { feeds } = useFeeds();
-  const { showPlusSubscription } = usePlusSubscription();
+  const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
+  const { showPlusSubscription, isPlus } = usePlusSubscription();
   const { openModal } = useLazyModal();
 
   const isHiddenOnboardingChecklistView =
@@ -85,9 +87,14 @@ function FeedNav(): ReactElement {
 
   const urlToTab: Record<string, FeedNavTab> = useMemo(() => {
     const customFeeds = feeds?.edges?.reduce((acc, { node: feed }) => {
-      const feedPath = `${webappUrl}feeds/${feed.id}`;
       const isEditingFeed =
         router.query.slugOrId === feed.id && router.pathname.endsWith('/edit');
+      let feedPath = `${webappUrl}feeds/${feed.id}`;
+
+      if (!isEditingFeed && isCustomDefaultFeed && feed.id === defaultFeedId) {
+        feedPath = `${webappUrl}`;
+      }
+
       const urlPath = `${feedPath}${isEditingFeed ? '/edit' : ''}`;
 
       acc[urlPath] = feed.flags?.name || `Feed ${feed.id}`;
@@ -95,9 +102,11 @@ function FeedNav(): ReactElement {
       return acc;
     }, {});
 
+    const forYouTab = isCustomDefaultFeed ? `${webappUrl}my-feed` : webappUrl;
+
     const urls = {
       [`${webappUrl}feeds/new`]: FeedNavTab.NewFeed,
-      [`${webappUrl}`]: FeedNavTab.ForYou,
+      [forYouTab]: FeedNavTab.ForYou,
       ...customFeeds,
     };
 
@@ -111,7 +120,13 @@ function FeedNav(): ReactElement {
       [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
       [`${webappUrl}history`]: FeedNavTab.History,
     };
-  }, [feeds?.edges, router.query.slugOrId, router.pathname]);
+  }, [
+    feeds?.edges,
+    router.query.slugOrId,
+    router.pathname,
+    defaultFeedId,
+    isCustomDefaultFeed,
+  ]);
 
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
@@ -165,10 +180,34 @@ function FeedNav(): ReactElement {
             return null;
           }}
           onActiveChange={(label, event) => {
-            if (showPlusSubscription && label === FeedNavTab.NewFeed) {
+            if (
+              showPlusSubscription &&
+              label === FeedNavTab.NewFeed &&
+              !isPlus
+            ) {
               event.preventDefault();
 
               openModal({ type: LazyModal.AdvancedCustomFeedSoon, props: {} });
+
+              return false;
+            }
+
+            const feedNavItem = feeds?.edges?.find(
+              ({ node }) => node.flags.name === label,
+            );
+
+            if (
+              showPlusSubscription &&
+              !isPlus &&
+              feedNavItem &&
+              new Date(feedNavItem.node.createdAt) > customFeedsPlusDate
+            ) {
+              event.preventDefault();
+
+              openModal({
+                type: LazyModal.AdvancedCustomFeedSoon,
+                props: {},
+              });
 
               return false;
             }
@@ -177,7 +216,7 @@ function FeedNav(): ReactElement {
           }}
         >
           {Object.entries(urlToTab).map(([url, label]) => (
-            <Tab key={label} label={label} url={url} />
+            <Tab key={`${label}-${url}`} label={label} url={url} />
           ))}
         </TabContainer>
 

@@ -231,6 +231,11 @@ export enum LogEvent {
   ClickbaitShieldTitle = 'clickbait shield title',
   // End Clickbait Shield
   InstallPWA = 'install pwa',
+  // Start Share
+  ShareProfile = 'share profile',
+  ShareSource = 'share source',
+  ShareTag = 'share tag',
+  // End Share
 }
 
 export enum FeedItemTitle {
@@ -297,6 +302,7 @@ export enum TargetId {
   // End settings
   TopReader = 'top reader',
   Sidebar = 'sidebar',
+  Header = 'header',
   ProfileDropdown = 'profile dropdown',
   Ads = 'ads',
   MyProfile = 'my profile',

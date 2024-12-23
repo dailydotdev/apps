@@ -19,7 +19,8 @@ export interface UserListProps {
   userInfoProps?: Omit<
     UserShortInfoProps,
     'user' | 'href' | 'tag' | 'children'
-  >;
+  > &
+    Partial<Pick<HTMLLinkElement, 'target' | 'rel'>>;
 }
 
 function UserList({

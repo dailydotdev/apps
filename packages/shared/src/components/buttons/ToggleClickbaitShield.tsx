@@ -1,5 +1,6 @@
 import React, { useState, type ReactElement } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import { Button, ButtonSize, ButtonVariant, type ButtonProps } from './Button';
 import { ShieldCheckIcon, ShieldIcon, ShieldPlusIcon } from '../icons';
 import { useSettingsContext } from '../../contexts/SettingsContext';
@@ -7,11 +8,11 @@ import { usePlusSubscription } from '../../hooks';
 import { SidebarSettingsFlags } from '../../graphql/settings';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin, TargetId } from '../../lib/log';
-import { useLazyModal } from '../../hooks/useLazyModal';
 import { SimpleTooltip } from '../tooltips';
-import { LazyModal } from '../modals/common/types';
-import { FilterMenuTitle } from '../filters/helpers';
 import { useActiveFeedContext } from '../../contexts/ActiveFeedContext';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { webappUrl } from '../../lib/constants';
+import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
 
 export const ToggleClickbaitShield = ({
   origin,
@@ -20,11 +21,12 @@ export const ToggleClickbaitShield = ({
 }): ReactElement => {
   const queryClient = useQueryClient();
   const { queryKey: feedQueryKey } = useActiveFeedContext();
-  const { openModal } = useLazyModal();
   const { isPlus } = usePlusSubscription();
   const { logEvent } = useLogContext();
   const { flags, updateFlag } = useSettingsContext();
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { user } = useAuthContext();
 
   const commonIconProps: ButtonProps<'button'> = {
     size: ButtonSize.Medium,
@@ -45,12 +47,9 @@ export const ToggleClickbaitShield = ({
           {...commonIconProps}
           icon={<ShieldPlusIcon />}
           onClick={() => {
-            openModal({
-              type: LazyModal.FeedFilters,
-              props: {
-                defaultView: FilterMenuTitle.ContentTypes,
-              },
-            });
+            router.push(
+              `${webappUrl}feeds/${user.id}/edit?dview=${FeedSettingsMenu.AI}`,
+            );
           }}
         />
       </SimpleTooltip>

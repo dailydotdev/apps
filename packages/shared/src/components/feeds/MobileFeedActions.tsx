@@ -2,22 +2,28 @@ import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import Link from '../utilities/Link';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
-import { Divider } from '../utilities';
+import { Divider, SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
-import { LazyModal } from '../modals/common/types';
-import { useLazyModal } from '../../hooks/useLazyModal';
 import { useReadingStreak } from '../../hooks/streaks';
 import { ButtonIconPosition } from '../buttons/common';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import HeaderLogo from '../layout/HeaderLogo';
 import { LogoPosition } from '../Logo';
+import { webappUrl } from '../../lib/constants';
+import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
+import { getFeedName } from '../../lib/feed';
+import { usePlusSubscription } from '../../hooks';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../modals/common/types';
 
 export function MobileFeedActions(): ReactElement {
   const router = useRouter();
-  const { openModal } = useLazyModal();
   const { user } = useAuthContext();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
+  const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
+  const { isEnrolledNotPlus } = usePlusSubscription();
+  const { openModal } = useLazyModal();
 
   return (
     <div className="flex flex-row justify-between px-4 py-1">
@@ -36,11 +42,30 @@ export function MobileFeedActions(): ReactElement {
         )}
         <Divider className="bg-border-subtlest-tertiary" vertical />
         <MyFeedHeading
-          onOpenFeedFilters={() =>
-            openModal({
-              type: LazyModal.FeedFilters,
-            })
-          }
+          onOpenFeedFilters={() => {
+            if (isEnrolledNotPlus) {
+              openModal({
+                type: LazyModal.AdvancedCustomFeedSoon,
+                props: {},
+              });
+
+              return;
+            }
+
+            if (isCustomDefaultFeed && router.pathname === '/') {
+              router.push(`${webappUrl}feeds/${defaultFeedId}/edit`);
+            } else {
+              const feedName = getFeedName(router.pathname);
+
+              router.push(
+                `${webappUrl}feeds/${
+                  feedName === SharedFeedPage.Custom
+                    ? router.query.slugOrId
+                    : user.id
+                }/edit`,
+              );
+            }
+          }}
         />
         {user && (
           <Link href={user.permalink} passHref>

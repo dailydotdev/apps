@@ -8,16 +8,14 @@ import {
   EmptyScreenTitle,
 } from './EmptyScreen';
 import { FilterIcon } from './icons';
-import { PageContainer, SharedFeedPage } from './utilities';
+import { PageContainer } from './utilities';
 import { ButtonSize } from './buttons/common';
-import { useLazyModal } from '../hooks/useLazyModal';
-import { LazyModal } from './modals/common/types';
-import { getFeedName } from '../lib/feed';
 import { webappUrl } from '../lib/constants';
+import { useAuthContext } from '../contexts/AuthContext';
 
 function FeedEmptyScreen(): ReactElement {
-  const { openModal } = useLazyModal();
   const router = useRouter();
+  const { user } = useAuthContext();
 
   return (
     <PageContainer className="mx-auto">
@@ -33,13 +31,7 @@ function FeedEmptyScreen(): ReactElement {
         </EmptyScreenDescription>
         <EmptyScreenButton
           onClick={() => {
-            const feedName = getFeedName(router.pathname);
-
-            if (feedName === SharedFeedPage.Custom && router.query?.slugOrId) {
-              router.replace(`${webappUrl}feeds/${router.query.slugOrId}/edit`);
-            } else {
-              openModal({ type: LazyModal.FeedFilters });
-            }
+            router.push(`${webappUrl}feeds/${user.id}/edit`);
           }}
           size={ButtonSize.Large}
         >

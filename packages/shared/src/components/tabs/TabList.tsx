@@ -123,13 +123,13 @@ function TabList<T extends string = string>({
               isActive && 'bg-theme-active',
             )}
           >
-            {label}
+            {label?.length > 25 ? `${label.slice(0, 25)}...` : label}
           </span>
         );
 
         return (
           <Tag
-            key={label}
+            key={`${label}-${href}`}
             ref={(el) => {
               if (!el || !isActive) {
                 return;

@@ -46,7 +46,7 @@ export const labels = {
       },
       delete: {
         description:
-          'Are you sure you want to delete your custom feed? This action cannot be undone.',
+          'Are you sure you want to delete your feed? This action cannot be undone.',
         okButton: 'Yes, delete feed',
       },
     },
@@ -57,6 +57,12 @@ export const labels = {
       },
       feedNameInvalid: {
         api: 'Feed name should not contain special characters',
+      },
+    },
+    settings: {
+      globalPreferenceNotice: {
+        clickbaitShield: 'Clickbait shield has been applied for all feeds',
+        contentLanguage: 'New language preferences set for all feeds',
       },
     },
   },

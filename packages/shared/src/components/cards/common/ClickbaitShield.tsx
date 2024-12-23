@@ -1,4 +1,5 @@
 import React, { type ReactElement } from 'react';
+import { useRouter } from 'next/router';
 import { Button, ButtonSize } from '../../buttons/Button';
 import { ShieldCheckIcon, ShieldIcon, ShieldWarningIcon } from '../../icons';
 import {
@@ -10,10 +11,12 @@ import {
 import { SimpleTooltip } from '../../tooltips';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
-import { FilterMenuTitle } from '../../filters/helpers';
 import { ActionType } from '../../../graphql/actions';
 import type { Post } from '../../../graphql/posts';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { FeedSettingsMenu } from '../../feeds/FeedSettings/types';
+import { useAuthContext } from '../../../contexts/AuthContext';
+import { webappUrl } from '../../../lib/constants';
 
 export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const { openModal } = useLazyModal();
@@ -22,6 +25,8 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const { fetchSmartTitle, fetchedSmartTitle, shieldActive } =
     useSmartTitle(post);
   const isMobile = useViewSize(ViewSize.MobileL);
+  const router = useRouter();
+  const { user } = useAuthContext();
 
   if (!showPlusSubscription) {
     return null;
@@ -67,12 +72,9 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
                   type: LazyModal.ClickbaitShield,
                 });
               } else {
-                openModal({
-                  type: LazyModal.FeedFilters,
-                  props: {
-                    defaultView: FilterMenuTitle.ContentTypes,
-                  },
-                });
+                router.push(
+                  `${webappUrl}feeds/${user.id}/edit?dview=${FeedSettingsMenu.AI}`,
+                );
               }
             } else if (isMobile) {
               openModal({
