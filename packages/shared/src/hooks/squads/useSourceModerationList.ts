@@ -104,17 +104,8 @@ export const useSourceModerationList = ({
     squad.id,
   );
 
-  const {
-    mutateAsync: onApprove,
-    isPending: isPendingApprove,
-    isSuccess: isSuccessApprove,
-  } = useMutation({
-    mutationFn: ({ postIds, sourceId }: SquadPostModerationProps) =>
-      squadApproveMutation({
-        postIds,
-        sourceId,
-      }),
-    onMutate: (data) => {
+  const handleOptimistic = useCallback(
+    (data: SquadPostModerationProps) => {
       const currentData =
         queryClient.getQueryData<SourcePostModeration[]>(listQueryKey);
 
@@ -138,6 +129,20 @@ export const useSourceModerationList = ({
 
       return () => queryClient.setQueryData(listQueryKey, currentData);
     },
+    [queryClient, listQueryKey],
+  );
+
+  const {
+    mutateAsync: onApprove,
+    isPending: isPendingApprove,
+    isSuccess: isSuccessApprove,
+  } = useMutation({
+    mutationFn: ({ postIds, sourceId }: SquadPostModerationProps) =>
+      squadApproveMutation({
+        postIds,
+        sourceId,
+      }),
+    onMutate: (data) => handleOptimistic(data),
     onSuccess: (data) => {
       displayToast('Post(s) approved successfully');
       getLogPostsFromModerationArray(data).forEach((post) => {
@@ -184,30 +189,7 @@ export const useSourceModerationList = ({
     isSuccess: isSuccessReject,
   } = useMutation({
     mutationFn: (props: SquadPostRejectionProps) => squadRejectMutation(props),
-    onMutate: (data) => {
-      const currentData =
-        queryClient.getQueryData<SourcePostModeration[]>(listQueryKey);
-
-      queryClient.setQueryData<InfiniteData<Connection<SourcePostModeration>>>(
-        listQueryKey,
-        (oldData) => {
-          if (!oldData) {
-            return oldData;
-          }
-          return {
-            ...oldData,
-            pages: oldData.pages.map((page) => ({
-              ...page,
-              edges: page.edges.filter(
-                (edge) => !data.postIds.includes(edge.node.id),
-              ),
-            })),
-          };
-        },
-      );
-
-      return () => queryClient.setQueryData(listQueryKey, currentData);
-    },
+    onMutate: (data) => handleOptimistic(data),
     onSuccess: (data) => {
       displayToast('Post(s) declined successfully');
       getLogPostsFromModerationArray(data).forEach((post) => {
