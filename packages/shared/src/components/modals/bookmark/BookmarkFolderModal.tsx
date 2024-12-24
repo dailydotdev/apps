@@ -2,8 +2,8 @@ import type { type FormEvent, type ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { usePlusSubscription, useViewSize, ViewSize } from '../../../hooks';
-import { Modal } from '../common/Modal';
 import type { type ModalProps } from '../common/Modal';
+import { Modal } from '../common/Modal';
 import { TextField } from '../../fields/TextField';
 import {
   Typography,

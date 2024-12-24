@@ -2,8 +2,8 @@ import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import { ClickableNavItem } from './ClickableNavItem';
 import type { AuthTriggersType } from '../../lib/auth';
-import { ItemInner, NavItem } from './common';
 import type { type SidebarMenuItem } from './common';
+import { ItemInner, NavItem } from './common';
 import AuthContext from '../../contexts/AuthContext';
 import type { SidebarSectionProps } from './sections/common';
 

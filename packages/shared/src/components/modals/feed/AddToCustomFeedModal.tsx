@@ -1,7 +1,7 @@
 import type { type ReactElement } from 'react';
 import React from 'react';
-import { Modal } from '../common/Modal';
 import type { type ModalProps } from '../common/Modal';
+import { Modal } from '../common/Modal';
 import { ModalHeader } from '../common/ModalHeader';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { PlusIcon, HashtagIcon } from '../../icons';
