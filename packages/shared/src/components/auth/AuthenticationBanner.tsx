@@ -1,4 +1,4 @@
-import type { ReactElement, type PropsWithChildren } from 'react';
+import type { ReactElement, PropsWithChildren } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';

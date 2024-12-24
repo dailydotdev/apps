@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { gqlClient } from '../../graphql/common';
-import type { type Post } from '../../graphql/posts';
+import type { Post } from '../../graphql/posts';
 import { POST_FETCH_SMART_TITLE_QUERY } from '../../graphql/posts';
 import { getPostByIdKey } from '../usePostById';
 import { usePlusSubscription } from '../usePlusSubscription';

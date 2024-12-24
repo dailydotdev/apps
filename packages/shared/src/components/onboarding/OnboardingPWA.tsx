@@ -1,4 +1,4 @@
-import type { type ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import React from 'react';
 import { OnboardingTitle } from './common';
 import { cloudinaryPWA, cloudinaryPWAVideo } from '../../lib/image';

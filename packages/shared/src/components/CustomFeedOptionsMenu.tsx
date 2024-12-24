@@ -1,4 +1,4 @@
-import type { type ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { ContextMenuIds } from '../hooks/constants';
@@ -8,7 +8,7 @@ import { HashtagIcon, MenuIcon as DotsIcon, ShareIcon } from './icons';
 import { MenuIcon } from './MenuIcon';
 import useContextMenu from '../hooks/useContextMenu';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
-import type { type UseShareOrCopyLinkProps } from '../hooks/useShareOrCopyLink';
+import type { UseShareOrCopyLinkProps } from '../hooks/useShareOrCopyLink';
 import { useShareOrCopyLink } from '../hooks/useShareOrCopyLink';
 import { useFeeds, usePlusSubscription } from '../hooks';
 import { LazyModal } from './modals/common/types';

@@ -13,7 +13,7 @@ import {
   USER_AUTHOR_FRAGMENT,
 } from './fragments';
 import { acceptedTypesList, MEGABYTE } from '../components/fields/ImageInput';
-import type { Bookmark, type BookmarkFolder } from './bookmarks';
+import type { Bookmark, BookmarkFolder } from './bookmarks';
 import type { SourcePostModeration } from './squads';
 
 export type TocItem = { text: string; id?: string; children?: TocItem[] };

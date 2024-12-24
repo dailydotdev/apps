@@ -5,7 +5,7 @@ import type { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLay
 import type { MainFeedLayoutProps } from '@dailydotdev/shared/src/components/MainFeedLayout';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
-import type { type GetDefaultFeedProps } from '@dailydotdev/shared/src/lib/feed';
+import type { GetDefaultFeedProps } from '@dailydotdev/shared/src/lib/feed';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import dynamic from 'next/dynamic';
 import { getLayout } from './FeedLayout';

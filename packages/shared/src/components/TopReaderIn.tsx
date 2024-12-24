@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import type { type WithClassNameProps } from './utilities';
+import type { WithClassNameProps } from './utilities';
 import { TruncateText } from './utilities';
 import type { TopReader } from './badges/TopReaderBadge';
 import ConditionalWrapper from './ConditionalWrapper';

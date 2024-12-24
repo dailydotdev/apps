@@ -1,8 +1,8 @@
-import type { type ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import type { type ButtonProps } from './Button';
+import type { ButtonProps } from './Button';
 import { Button, ButtonSize, ButtonVariant } from './Button';
 import { ShieldCheckIcon, ShieldIcon, ShieldPlusIcon } from '../icons';
 import { useSettingsContext } from '../../contexts/SettingsContext';

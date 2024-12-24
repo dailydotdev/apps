@@ -1,4 +1,4 @@
-import type { type ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import { useFeedSettingsEditContext } from '../FeedSettingsEditContext';
 import { ContentPreferenceType } from '../../../../graphql/contentPreference';

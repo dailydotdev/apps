@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import type { type PublicProfile } from '../../lib/user';
+import type { PublicProfile } from '../../lib/user';
 import JoinedDate from './JoinedDate';
 import { Separator } from '../cards/common/common';
 import { ReputationUserBadge } from '../ReputationUserBadge';
