@@ -136,9 +136,6 @@ importers:
       react-swipeable:
         specifier: ^7.0.1
         version: 7.0.2(react@18.3.1)
-      tailwindcss:
-        specifier: ^3.4.14
-        version: 3.4.16
       webextension-polyfill:
         specifier: ^0.12.0
         version: 0.12.0
@@ -344,6 +341,9 @@ importers:
       sass:
         specifier: ^1.53.0
         version: 1.82.0
+      tailwindcss:
+        specifier: ^3.4.14
+        version: 3.4.16
       terser-webpack-plugin:
         specifier: ^4.2.3
         version: 4.2.3(webpack@5.97.0)
@@ -409,9 +409,6 @@ importers:
       remark-gfm:
         specifier: ^3.0.1
         version: 3.0.1
-      tailwindcss:
-        specifier: ^3.4.14
-        version: 3.4.16
       tippy.js:
         specifier: ^6.3.7
         version: 6.3.7
@@ -626,6 +623,9 @@ importers:
       react-swipeable:
         specifier: ^7.0.1
         version: 7.0.2(react@18.3.1)
+      tailwindcss:
+        specifier: ^3.4.14
+        version: 3.4.16
       ts-jest:
         specifier: ^26.5.4
         version: 26.5.6(jest@26.6.3)(typescript@5.6.3)
@@ -843,9 +843,6 @@ importers:
       react-swipeable:
         specifier: ^7.0.1
         version: 7.0.2(react@18.3.1)
-      tailwindcss:
-        specifier: ^3.4.14
-        version: 3.4.16
     devDependencies:
       '@babel/preset-typescript':
         specifier: ^7.25.9
@@ -1000,6 +997,9 @@ importers:
       serwist:
         specifier: ^9.0.9
         version: 9.0.10(typescript@5.6.3)
+      tailwindcss:
+        specifier: ^3.4.14
+        version: 3.4.16
       ts-jest:
         specifier: ^26.5.4
         version: 26.5.6(jest@26.6.3)(typescript@5.6.3)
@@ -14290,11 +14290,7 @@ snapshots:
       pretty-format: 26.6.2
       throat: 5.0.0
     transitivePeerDependencies:
-      - bufferutil
-      - canvas
       - supports-color
-      - ts-node
-      - utf-8-validate
 
   jest-junit@12.3.0:
     dependencies:
