@@ -1,10 +1,12 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { Modal, ModalProps } from './common/Modal';
+import type { ModalProps } from './common/Modal';
+import { Modal } from './common/Modal';
 import styles from './BasePostModal.module.css';
 import PostLoadingSkeleton from '../post/PostLoadingSkeleton';
-import { PostType } from '../../graphql/posts';
-import { Source } from '../../graphql/sources';
+import type { PostType } from '../../graphql/posts';
+import type { Source } from '../../graphql/sources';
 
 interface BasePostModalProps extends ModalProps {
   postType: PostType;

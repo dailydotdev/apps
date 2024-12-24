@@ -1,4 +1,5 @@
-import React, { type ReactElement } from 'react';
+import type { type ReactElement } from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -11,7 +12,7 @@ import {
 import { FollowButton } from './contentPreference/FollowButton';
 import { ContentPreferenceType } from '../graphql/contentPreference';
 import { Origin } from '../lib/log';
-import { WithClassNameProps } from './utilities';
+import type { WithClassNameProps } from './utilities';
 import { useUserShortByIdQuery } from '../hooks/user/useUserShortByIdQuery';
 import { useContentPreferenceStatusQuery } from '../hooks/contentPreference/useContentPreferenceStatusQuery';
 

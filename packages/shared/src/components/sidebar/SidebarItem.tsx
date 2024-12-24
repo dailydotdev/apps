@@ -1,9 +1,11 @@
-import React, { ReactElement, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
 import { ClickableNavItem } from './ClickableNavItem';
-import { AuthTriggersType } from '../../lib/auth';
-import { ItemInner, NavItem, type SidebarMenuItem } from './common';
+import type { AuthTriggersType } from '../../lib/auth';
+import type { type SidebarMenuItem } from './common';
+import { ItemInner, NavItem } from './common';
 import AuthContext from '../../contexts/AuthContext';
-import { SidebarSectionProps } from './sections/common';
+import type { SidebarSectionProps } from './sections/common';
 
 type SidebarItemProps = Pick<
   SidebarSectionProps,

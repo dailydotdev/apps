@@ -1,10 +1,8 @@
-import { SyntheticEvent, useEffect, useRef, useState } from 'react';
+import type { SyntheticEvent } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useDebounceFn from './useDebounceFn';
-import {
-  UseInputField,
-  useInputField,
-  ValidInputElement,
-} from './useInputField';
+import type { UseInputField, ValidInputElement } from './useInputField';
+import { useInputField } from './useInputField';
 
 export interface InputFieldFunctionsProps {
   value?: string | ReadonlyArray<string> | number | undefined;

@@ -1,6 +1,5 @@
+import type { ReactElement, ReactNode } from 'react';
 import React, {
-  ReactElement,
-  ReactNode,
   useCallback,
   useContext,
   useEffect,
@@ -8,12 +7,14 @@ import React, {
   useRef,
 } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import {
-  CampaignCtaPlacement,
+import type {
   RemoteSettings,
   RemoteTheme,
   type SettingsFlags,
   Spaciness,
+} from '../graphql/settings';
+import {
+  CampaignCtaPlacement,
   UPDATE_USER_SETTINGS_MUTATION,
 } from '../graphql/settings';
 import AuthContext from './AuthContext';

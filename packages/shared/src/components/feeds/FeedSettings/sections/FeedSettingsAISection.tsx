@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { usePlusSubscription, useToastNotification } from '../../../../hooks';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useLogContext } from '../../../../contexts/LogContext';

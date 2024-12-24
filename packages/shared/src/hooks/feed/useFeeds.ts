@@ -1,9 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { FeedList, Feed } from '../../graphql/feed';
 import {
-  FeedList,
   FEED_LIST_QUERY,
   CREATE_FEED_MUTATION,
-  Feed,
   UPDATE_FEED_MUTATION,
   DELETE_FEED_MUTATION,
 } from '../../graphql/feed';

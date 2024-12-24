@@ -1,4 +1,4 @@
-import { CommentMarkdownInputProps } from '../../components/fields/MarkdownInput/CommentMarkdownInput';
+import type { CommentMarkdownInputProps } from '../../components/fields/MarkdownInput/CommentMarkdownInput';
 
 export interface CommentWriteProps {
   commentId: string;

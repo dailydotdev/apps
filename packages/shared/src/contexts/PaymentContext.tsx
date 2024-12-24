@@ -1,6 +1,5 @@
+import type { ReactElement, ReactNode } from 'react';
 import React, {
-  ReactElement,
-  ReactNode,
   useCallback,
   useContext,
   useEffect,
@@ -8,13 +7,15 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {
-  CheckoutEventNames,
+import type {
   Environments,
-  getPaddleInstance,
-  initializePaddle,
   Paddle,
   type PaddleEventData,
+} from '@paddle/paddle-js';
+import {
+  CheckoutEventNames,
+  getPaddleInstance,
+  initializePaddle,
 } from '@paddle/paddle-js';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';

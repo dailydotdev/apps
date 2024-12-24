@@ -1,4 +1,4 @@
-import type { Config } from 'tailwindcss';
+import { Config } from 'tailwindcss';
 import colors from './tailwind/colors';
 import boxShadow from './tailwind/boxShadow';
 import caret from './tailwind/caret';

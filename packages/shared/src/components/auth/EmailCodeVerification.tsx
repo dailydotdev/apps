@@ -1,8 +1,9 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
-import { AuthFormProps } from './common';
+import type { AuthFormProps } from './common';
 import { AuthFlow } from '../../lib/kratos';
 import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
 import AuthForm from './AuthForm';

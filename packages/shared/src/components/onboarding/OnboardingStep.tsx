@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import { Modal } from '../modals/common/Modal';
 import { OnboardingTitle } from './common';
 

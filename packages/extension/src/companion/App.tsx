@@ -1,7 +1,9 @@
-import React, { ReactElement, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import browser from 'webextension-polyfill';
-import { Boot, BootApp } from '@dailydotdev/shared/src/lib/boot';
+import type { Boot } from '@dailydotdev/shared/src/lib/boot';
+import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useRefreshToken } from '@dailydotdev/shared/src/hooks/useRefreshToken';

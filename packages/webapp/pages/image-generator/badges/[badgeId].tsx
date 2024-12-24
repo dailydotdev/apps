@@ -1,13 +1,12 @@
-import React, { ReactElement } from 'react';
-import {
+import type { ReactElement } from 'react';
+import React from 'react';
+import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
-import {
-  TopReaderBadge,
-  type TopReader,
-} from '@dailydotdev/shared/src/components/badges/TopReaderBadge';
+import type { type TopReader } from '@dailydotdev/shared/src/components/badges/TopReaderBadge';
+import { TopReaderBadge } from '@dailydotdev/shared/src/components/badges/TopReaderBadge';
 import { fetchTopReaderById } from '@dailydotdev/shared/src/lib/topReader';
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {

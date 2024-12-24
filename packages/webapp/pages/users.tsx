@@ -1,6 +1,7 @@
-import React, { ReactElement } from 'react';
-import { GetStaticPropsResult } from 'next';
-import { NextSeoProps } from 'next-seo/lib/types';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { GetStaticPropsResult } from 'next';
+import type { NextSeoProps } from 'next-seo/lib/types';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { LEADERBOARD_QUERY } from '@dailydotdev/shared/src/graphql/leaderboard';
 import { useRouter } from 'next/router';
@@ -9,14 +10,10 @@ import { SquadIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
-import {
-  UserLeaderboard,
-  UserTopList,
-} from '@dailydotdev/shared/src/components/cards/Leaderboard';
-import {
-  CompanyLeaderboard,
-  CompanyTopList,
-} from '@dailydotdev/shared/src/components/cards/Leaderboard/CompanyTopList';
+import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
+import { UserTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
+import type { CompanyLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard/CompanyTopList';
+import { CompanyTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard/CompanyTopList';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';

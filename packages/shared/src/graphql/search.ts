@@ -1,11 +1,12 @@
 import { gql } from 'graphql-request';
 import { apiUrl } from '../lib/config';
 import { isNullOrUndefined } from '../lib/func';
-import { Connection, RequestQueryParams, gqlClient } from './common';
+import type { Connection, RequestQueryParams } from './common';
+import { gqlClient } from './common';
 import { webappUrl } from '../lib/constants';
-import { Post } from './posts';
+import type { Post } from './posts';
 import { labels } from '../lib';
-import { ContentPreference } from './contentPreference';
+import type { ContentPreference } from './contentPreference';
 
 export enum SearchProviderEnum {
   Posts = 'posts',

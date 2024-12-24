@@ -1,19 +1,12 @@
-import React, {
-  ReactElement,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { SearchPanelInput } from './SearchPanelInput';
 import { minSearchQueryLength } from '../../../graphql/search';
-import {
-  SearchPanelContext,
-  SearchPanelContextValue,
-} from './SearchPanelContext';
+import type { SearchPanelContextValue } from './SearchPanelContext';
+import { SearchPanelContext } from './SearchPanelContext';
 import { defaultSearchProvider, providerToLabelTextMap } from './common';
 
 const SearchPanelDropdown = dynamic(

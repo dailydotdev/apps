@@ -4,7 +4,7 @@ import { useRequestProtocol } from '../useRequestProtocol';
 import { REFERRAL_CAMPAIGN_QUERY } from '../../graphql/users';
 import { RequestKey, generateQueryKey, STALE_TIME } from '../../lib/query';
 import AuthContext from '../../contexts/AuthContext';
-import { Feature } from '../../lib/featureManagement';
+import type { Feature } from '../../lib/featureManagement';
 import { useFeatureIsOn } from '../../components/GrowthBookProvider';
 import { isTesting } from '../../lib/constants';
 import { ReferralCampaignKey } from '../../lib';

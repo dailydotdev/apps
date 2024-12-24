@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { ShareIcon } from '../../icons';
 import { useLoggedCopyPostLink } from '../../../hooks/post';
-import { Post } from '../../../graphql/posts';
+import type { Post } from '../../../graphql/posts';
 import { ShareProvider } from '../../../lib/share';
 import { CardCoverContainer } from './CardCoverContainer';
 import { wrapStopPropagation } from '../../../lib/func';

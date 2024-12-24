@@ -1,10 +1,5 @@
-import React, {
-  Dispatch,
-  ReactElement,
-  ReactNode,
-  useContext,
-  useState,
-} from 'react';
+import type { Dispatch, ReactElement, ReactNode } from 'react';
+import React, { useContext, useState } from 'react';
 import usePersistentContext from '../hooks/usePersistentContext';
 import { checkIsExtension } from '../lib/func';
 

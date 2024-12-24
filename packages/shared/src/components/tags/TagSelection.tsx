@@ -1,17 +1,14 @@
-import React, { ReactElement, ReactNode, useMemo, useState } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
-import {
-  QueryFilters,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import type { QueryFilters } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { RequestKey, generateQueryKey } from '../../lib/query';
+import type { TagsData } from '../../graphql/feedSettings';
 import {
   GET_ONBOARDING_TAGS_QUERY,
   GET_RECOMMENDED_TAGS_QUERY,
-  TagsData,
 } from '../../graphql/feedSettings';
 import { disabledRefetch, getRandomNumber } from '../../lib/func';
 import useDebounceFn from '../../hooks/useDebounceFn';
@@ -19,12 +16,10 @@ import type { FilterOnboardingProps } from '../onboarding/FilterOnboarding';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import { Origin } from '../../lib/log';
 import { ElementPlaceholder } from '../ElementPlaceholder';
-import {
-  OnboardingTagProps,
-  TagElement as TagElementDefault,
-} from './TagElement';
+import type { OnboardingTagProps } from './TagElement';
+import { TagElement as TagElementDefault } from './TagElement';
 import { gqlClient } from '../../graphql/common';
-import { OnSelectTagProps } from './common';
+import type { OnSelectTagProps } from './common';
 import {
   Typography,
   TypographyColor,

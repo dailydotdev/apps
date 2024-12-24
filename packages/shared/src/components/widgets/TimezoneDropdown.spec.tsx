@@ -1,14 +1,9 @@
 import React from 'react';
-import {
-  act,
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-} from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TimezoneDropdown } from './TimezoneDropdown';
-import { LoggedUser } from '../../lib/user';
+import type { LoggedUser } from '../../lib/user';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { getTimeZoneOptions } from '../../lib/timezones';

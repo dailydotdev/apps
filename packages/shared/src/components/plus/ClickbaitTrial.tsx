@@ -1,4 +1,5 @@
-import React, { useState, type ReactElement } from 'react';
+import type { type ReactElement } from 'react';
+import React, { useState } from 'react';
 import { PlusUser } from '../PlusUser';
 import CloseButton from '../CloseButton';
 import { ButtonSize, ButtonVariant } from '../buttons/common';

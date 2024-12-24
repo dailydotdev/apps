@@ -1,10 +1,11 @@
-import React, { ReactElement, useContext } from 'react';
-import {
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
+import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
-import { ParsedUrlQuery } from 'querystring';
+import type { ParsedUrlQuery } from 'querystring';
 import { KEYWORD_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
 import { useQuery } from '@tanstack/react-query';
 import useRequirePermissions from '@dailydotdev/shared/src/hooks/useRequirePermissions';

@@ -1,4 +1,5 @@
-import React, { type ReactElement, useContext } from 'react';
+import type { type ReactElement } from 'react';
+import React, { useContext } from 'react';
 import classNames from 'classnames';
 import {
   Typography,

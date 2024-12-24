@@ -1,4 +1,5 @@
-import React, { ReactElement, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
 import useFeedSettings from '../../../hooks/useFeedSettings';
 
 import { useAdvancedSettings } from '../../../hooks';

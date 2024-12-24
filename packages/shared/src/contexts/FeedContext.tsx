@@ -1,10 +1,11 @@
-import React, { ReactElement, useMemo, type PropsWithChildren } from 'react';
+import type { ReactElement, type PropsWithChildren } from 'react';
+import React, { useMemo } from 'react';
 import { desktop, laptop, laptopL, laptopXL, tablet } from '../styles/media';
 import { useConditionalFeature, useMedia, usePlusSubscription } from '../hooks';
 import { useSettingsContext } from './SettingsContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 
-import { Spaciness } from '../graphql/settings';
+import type { Spaciness } from '../graphql/settings';
 import { featureFeedAdTemplate } from '../lib/featureManagement';
 import type { FeedAdTemplate } from '../lib/feed';
 

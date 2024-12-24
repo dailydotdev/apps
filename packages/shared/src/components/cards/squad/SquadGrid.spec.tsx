@@ -1,8 +1,10 @@
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import nock from 'nock';
-import { NextRouter, useRouter } from 'next/router';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
 import { AuthContextProvider } from '../../../contexts/AuthContext';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
@@ -14,14 +16,12 @@ import {
 } from '../../../../__tests__/fixture/squads';
 import { SquadGrid } from './SquadGrid';
 import { LazyModalElement } from '../../modals/LazyModalElement';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '../../../../__tests__/helpers/graphql';
+import type { MockedGraphQLResponse } from '../../../../__tests__/helpers/graphql';
+import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
+import type { SquadEdgesData } from '../../../graphql/squads';
 import {
   SQUAD_JOIN_MUTATION,
   SQUAD_MEMBERS_QUERY,
-  SquadEdgesData,
 } from '../../../graphql/squads';
 import { waitForNock } from '../../../../__tests__/helpers/utilities';
 import { cloudinarySquadsDirectoryCardBannerDefault } from '../../../lib/image';

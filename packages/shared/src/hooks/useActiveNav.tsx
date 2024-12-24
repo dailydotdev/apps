@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import { useMemo } from 'react';
-import { AllFeedPages, OtherFeedPage } from '../lib/query';
+import type { AllFeedPages } from '../lib/query';
+import { OtherFeedPage } from '../lib/query';
 import { SharedFeedPage } from '../components/utilities';
 import { useViewSize, ViewSize } from './useViewSize';
 

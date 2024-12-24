@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import React, { ReactElement, ReactNode, useCallback } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import HeaderLogo from './HeaderLogo';
 import { useViewSize, ViewSize } from '../../hooks';

@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { WidgetCard } from '../../widgets/WidgetCard';
 import { TagLink } from '../../TagLinks';
 import { ListItemPlaceholder } from '../../widgets/ListItemPlaceholder';
-import { SearchSuggestion } from '../../../graphql/search';
+import type { SearchSuggestion } from '../../../graphql/search';
 
 interface SearchResultsTagsProps {
   items: string[];

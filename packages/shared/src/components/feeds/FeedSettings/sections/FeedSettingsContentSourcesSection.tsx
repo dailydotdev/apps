@@ -1,4 +1,5 @@
-import React, { ReactElement, useMemo, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { SearchField } from '../../../fields/SearchField';
 import { ModalTabs } from '../../../modals/common/ModalTabs';
@@ -12,10 +13,8 @@ import { FollowingSourceList } from '../components/FollowingSourceList';
 import { SourceType } from '../../../../graphql/sources';
 import { SearchPanelSourceSuggestions } from '../../../search/SearchPanel/SearchPanelSourceSuggestions';
 import { SearchPanelUserSuggestions } from '../../../search/SearchPanel/SearchPanelUserSuggestions';
-import {
-  SearchPanelContext,
-  SearchPanelContextValue,
-} from '../../../search/SearchPanel/SearchPanelContext';
+import type { SearchPanelContextValue } from '../../../search/SearchPanel/SearchPanelContext';
+import { SearchPanelContext } from '../../../search/SearchPanel/SearchPanelContext';
 import { defaultSearchProvider, providerToLabelTextMap } from '../../../search';
 import { generateQueryKey, RequestKey } from '../../../../lib/query';
 import { useAuthContext } from '../../../../contexts/AuthContext';

@@ -1,12 +1,9 @@
-import { MutationKey } from '@tanstack/react-query';
-import {
-  Post as PostEntity,
-  ReadHistoryPost,
-  UserVote,
-} from '../../graphql/posts';
-import { Origin } from '../../lib/log';
-import { PostLogEventFnOptions } from '../../lib/feed';
-import { UseMutationMatcher } from '../mutationSubscription/types';
+import type { MutationKey } from '@tanstack/react-query';
+import type { Post as PostEntity, ReadHistoryPost } from '../../graphql/posts';
+import { UserVote } from '../../graphql/posts';
+import type { Origin } from '../../lib/log';
+import type { PostLogEventFnOptions } from '../../lib/feed';
+import type { UseMutationMatcher } from '../mutationSubscription/types';
 
 export type VoteEntityPayload = {
   id: string;

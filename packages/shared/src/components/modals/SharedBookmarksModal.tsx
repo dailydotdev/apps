@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   CopyIcon,
@@ -9,15 +10,16 @@ import {
 } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Switch } from '../fields/Switch';
+import type { BookmarksSharingData } from '../../graphql/bookmarksSharing';
 import {
   BOOKMARK_SHARING_MUTATION,
   BOOKMARK_SHARING_QUERY,
-  BookmarksSharingData,
 } from '../../graphql/bookmarksSharing';
 import { TextField } from '../fields/TextField';
 import { useCopyLink } from '../../hooks/useCopy';
 import { sharingBookmarks } from '../../lib/constants';
-import { Modal, ModalProps } from './common/Modal';
+import type { ModalProps } from './common/Modal';
+import { Modal } from './common/Modal';
 import { IconSize } from '../Icon';
 import { gqlClient } from '../../graphql/common';
 

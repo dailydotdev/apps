@@ -1,7 +1,9 @@
-import React, { type FormEvent, type ReactElement, useState } from 'react';
+import type { type FormEvent, type ReactElement } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { usePlusSubscription, useViewSize, ViewSize } from '../../../hooks';
-import { Modal, type ModalProps } from '../common/Modal';
+import type { type ModalProps } from '../common/Modal';
+import { Modal } from '../common/Modal';
 import { TextField } from '../../fields/TextField';
 import {
   Typography,
@@ -16,7 +18,7 @@ import { anchorDefaultRel } from '../../../lib/strings';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { IconSize } from '../../Icon';
 import { ModalHeader } from '../common/ModalHeader';
-import { BookmarkFolder } from '../../../graphql/bookmarks';
+import type { BookmarkFolder } from '../../../graphql/bookmarks';
 
 type BookmarkFolderModalProps = Omit<ModalProps, 'children'> & {
   onSubmit: (folder: BookmarkFolder) => void;

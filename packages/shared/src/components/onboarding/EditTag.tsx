@@ -1,11 +1,13 @@
-import React, { ReactElement, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useState } from 'react';
 import { FeedPreviewControls } from '../feeds';
-import { OnboardingStep, REQUIRED_TAGS_THRESHOLD } from './common';
+import type { OnboardingStep } from './common';
+import { REQUIRED_TAGS_THRESHOLD } from './common';
 import { Origin } from '../../lib/log';
 import Feed from '../Feed';
 import { OtherFeedPage, RequestKey } from '../../lib/query';
 import { PREVIEW_FEED_QUERY } from '../../graphql/feed';
-import { FeedSettings } from '../../graphql/feedSettings';
+import type { FeedSettings } from '../../graphql/feedSettings';
 import { CreateFeedButton } from './CreateFeedButton';
 import { TagSelection } from '../tags/TagSelection';
 import { FeedLayoutProvider } from '../../contexts/FeedContext';

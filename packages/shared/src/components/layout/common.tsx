@@ -1,15 +1,16 @@
-import React, {
+import type {
   Dispatch,
   PropsWithChildren,
   ReactElement,
   SetStateAction,
-  useContext,
 } from 'react';
+import React, { useContext } from 'react';
 import { useRouter } from 'next/router';
 import classed from '../../lib/classed';
 import { SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
-import { Dropdown, DropdownProps } from '../fields/Dropdown';
+import type { DropdownProps } from '../fields/Dropdown';
+import { Dropdown } from '../fields/Dropdown';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { CalendarIcon, SortIcon } from '../icons';
 import { IconSize } from '../Icon';
@@ -20,14 +21,11 @@ import { usePlusSubscription, useViewSize, ViewSize } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
-import { AllFeedPages } from '../../lib/query';
+import type { AllFeedPages } from '../../lib/query';
 import { webappUrl } from '../../lib/constants';
 import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
-import {
-  AllowedTags,
-  Typography,
-  TypographyProps,
-} from '../typography/Typography';
+import type { AllowedTags, TypographyProps } from '../typography/Typography';
+import { Typography } from '../typography/Typography';
 import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
 import { Origin } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';

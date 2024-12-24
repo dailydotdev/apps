@@ -1,11 +1,12 @@
-import React, {
+import type {
   ComponentClass,
   FunctionComponent,
   PropsWithChildren,
   ReactHTML,
   ReactNode,
 } from 'react';
-import { ReactElement } from 'react-markdown/lib/react-markdown';
+import React from 'react';
+import type { ReactElement } from 'react-markdown/lib/react-markdown';
 
 type LoaderResult<P> = ComponentClass<P> | FunctionComponent<P>;
 

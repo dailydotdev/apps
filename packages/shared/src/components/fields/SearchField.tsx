@@ -1,22 +1,18 @@
-import React, {
+import type {
   ForwardedRef,
-  forwardRef,
   InputHTMLAttributes,
   MouseEvent,
   ReactElement,
 } from 'react';
+import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import { useInputField } from '../../hooks/useInputField';
 import { BaseField, FieldInput } from './common';
 import { SearchIcon, MiniCloseIcon as CloseIcon, ArrowIcon } from '../icons';
-import {
-  Button,
-  ButtonProps,
-  ButtonSize,
-  ButtonVariant,
-} from '../buttons/Button';
+import type { ButtonProps } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { getFieldFontColor } from './BaseFieldContainer';
-import { IconProps } from '../Icon';
+import type { IconProps } from '../Icon';
 
 export interface SearchFieldProps
   extends Pick<

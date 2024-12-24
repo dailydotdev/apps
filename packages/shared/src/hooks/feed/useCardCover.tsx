@@ -1,5 +1,6 @@
-import React, { ReactNode, useMemo } from 'react';
-import { Post } from '../../graphql/posts';
+import type { ReactNode } from 'react';
+import React, { useMemo } from 'react';
+import type { Post } from '../../graphql/posts';
 import { usePostShareLoop } from '../post/usePostShareLoop';
 import { CardCoverShare } from '../../components/cards/common/CardCoverShare';
 import { CardCoverContainer } from '../../components/cards/common/CardCoverContainer';

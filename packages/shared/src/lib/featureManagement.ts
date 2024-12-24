@@ -1,4 +1,4 @@
-import { JSONValue } from '@growthbook/growthbook';
+import type { JSONValue } from '@growthbook/growthbook';
 import {
   cloudinaryOnboardingFullBackgroundDesktop,
   cloudinaryOnboardingFullBackgroundMobile,

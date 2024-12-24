@@ -1,6 +1,6 @@
 import { useContext, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { Roles } from '../lib/user';
+import type { Roles } from '../lib/user';
 import AuthContext from '../contexts/AuthContext';
 
 export default function useRequirePermissions(role: Roles): void {

@@ -1,25 +1,27 @@
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../../contexts/AuthContext';
-import {
-  initializeSearchSession,
+import type {
   Search,
   SearchChunk,
   SearchChunkError,
+} from '../../graphql/search';
+import {
+  initializeSearchSession,
   SearchChunkErrorCode,
   searchErrorCodeToMessage,
   sendSearchQuery,
   updateSearchData,
 } from '../../graphql/search';
 import { generateQueryKey, RequestKey } from '../../lib/query';
-import {
+import type {
   CreatePayload,
   SourcesMessage,
   TokenPayload,
   UseChatMessage,
-  UseChatMessageType,
   UseChatStream,
 } from './types';
+import { UseChatMessageType } from './types';
 import LogContext from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 

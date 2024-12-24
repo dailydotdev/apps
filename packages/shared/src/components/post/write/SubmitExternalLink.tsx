@@ -1,6 +1,10 @@
-import React, { FormEventHandler, ReactElement, useState } from 'react';
+import type { FormEventHandler, ReactElement } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
-import { ExternalLinkPreview, ReadHistoryPost } from '../../../graphql/posts';
+import type {
+  ExternalLinkPreview,
+  ReadHistoryPost,
+} from '../../../graphql/posts';
 import { TextField } from '../../fields/TextField';
 import { LinkIcon } from '../../icons';
 import { ClickableText } from '../../buttons/ClickableText';

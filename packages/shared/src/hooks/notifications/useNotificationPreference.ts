@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
+import type { NotificationPreference } from '../../graphql/notifications';
 import {
   clearNotificationPreference,
   getNotificationPreferences,
   hideSourceFeedPosts,
   muteNotification,
-  NotificationPreference,
   notificationPreferenceMap,
   NotificationPreferenceStatus,
   showSourceFeedPosts,
@@ -13,8 +13,8 @@ import {
 } from '../../graphql/notifications';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { NotificationType } from '../../components/notifications/utils';
-import { Squad } from '../../graphql/sources';
+import type { NotificationType } from '../../components/notifications/utils';
+import type { Squad } from '../../graphql/sources';
 import { updateFlagsCache } from '../../graphql/source/common';
 
 interface UseNotificationPreference {

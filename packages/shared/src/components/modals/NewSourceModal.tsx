@@ -1,10 +1,5 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  useContext,
-  useRef,
-  useState,
-} from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
@@ -13,16 +8,17 @@ import { formToJson } from '../../lib/form';
 import { apiUrl } from '../../lib/config';
 import fetchTimeout from '../../lib/fetchTimeout';
 import { contentGuidelines } from '../../lib/constants';
+import type { SourceRequestAvailability } from '../../graphql/newSource';
 import {
   REQUEST_SOURCE_MUTATION,
   SOURCE_BY_FEED_QUERY,
   SOURCE_REQUEST_AVAILABILITY_QUERY,
-  SourceRequestAvailability,
 } from '../../graphql/newSource';
-import { Source } from '../../graphql/sources';
+import type { Source } from '../../graphql/sources';
 import AuthContext from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
-import { Modal, ModalProps } from './common/Modal';
+import type { ModalProps } from './common/Modal';
+import { Modal } from './common/Modal';
 import PushNotificationModal from './PushNotificationModal';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import Alert, { AlertType } from '../widgets/Alert';

@@ -1,15 +1,11 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import {
-  AllowedTags,
-  Button,
-  ButtonProps,
-  ButtonSize,
-  ButtonVariant,
-} from './Button';
+import type { AllowedTags, ButtonProps } from './Button';
+import { Button, ButtonSize, ButtonVariant } from './Button';
 import { MenuIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
+import type { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 
 type OptionsButtonProps = ButtonProps<AllowedTags> & {
   tooltipPlacement?: TooltipPosition;

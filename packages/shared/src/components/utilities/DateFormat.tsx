@@ -1,5 +1,7 @@
-import React, { ReactElement, useMemo } from 'react';
-import { formatDate, TimeFormatType } from '../../lib/dateFormat';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
+import type { TimeFormatType } from '../../lib/dateFormat';
+import { formatDate } from '../../lib/dateFormat';
 
 interface DateFormatProps {
   date: string | number | Date;

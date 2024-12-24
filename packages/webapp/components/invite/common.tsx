@@ -1,7 +1,8 @@
-import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
-import { Author } from '@dailydotdev/shared/src/graphql/comments';
+import type { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
+import type { Author } from '@dailydotdev/shared/src/graphql/comments';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 
 export interface JoinPageProps {
   token?: string;

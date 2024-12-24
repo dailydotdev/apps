@@ -1,8 +1,9 @@
-import React, { ReactNode, ReactElement, useMemo, useContext } from 'react';
-import { UseMutateAsyncFunction, useMutation } from '@tanstack/react-query';
+import type { ReactNode, ReactElement } from 'react';
+import React, { useMemo, useContext } from 'react';
+import type { UseMutateAsyncFunction } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
+import type { Alerts, AlertsUpdate } from '../graphql/alerts';
 import {
-  Alerts,
-  AlertsUpdate,
   UPDATE_ALERTS,
   UPDATE_LAST_BOOT_POPUP,
   UPDATE_LAST_REFERRAL_REMINDER,

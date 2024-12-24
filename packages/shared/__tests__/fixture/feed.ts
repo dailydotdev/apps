@@ -1,5 +1,6 @@
-import { Connection } from '../../src/graphql/common';
-import { Post, PostType } from '../../src/graphql/posts';
+import type { Connection } from '../../src/graphql/common';
+import type { Post } from '../../src/graphql/posts';
+import { PostType } from '../../src/graphql/posts';
 
 const feed: Connection<Post> = {
   pageInfo: {

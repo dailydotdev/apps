@@ -1,12 +1,13 @@
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ClientError } from 'graphql-request';
+import type { ClientError } from 'graphql-request';
 import { Modal } from '../../modals/common/Modal';
 
+import type { CreateFeedProps } from '../../../hooks';
 import {
-  CreateFeedProps,
   useActions,
   useFeeds,
   usePlusSubscription,

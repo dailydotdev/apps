@@ -5,7 +5,8 @@ import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import useTimer from '@dailydotdev/shared/src/hooks/useTimer';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
@@ -13,7 +14,7 @@ import {
   ADD_USER_COMPANY_MUTATION,
   VERIFY_USER_COMPANY_CODE_MUTATION,
 } from '@dailydotdev/shared/src/graphql/users';
-import { UserCompany } from '@dailydotdev/shared/src/lib/userCompany';
+import type { UserCompany } from '@dailydotdev/shared/src/lib/userCompany';
 import {
   generateQueryKey,
   RequestKey,

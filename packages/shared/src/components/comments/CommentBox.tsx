@@ -1,9 +1,10 @@
-import React, { ReactElement } from 'react';
-import { Origin } from '../../lib/log';
-import CommentActionButtons, {
-  CommentActionProps,
-} from './CommentActionButtons';
-import CommentContainer, { CommentContainerProps } from './CommentContainer';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { Origin } from '../../lib/log';
+import type { CommentActionProps } from './CommentActionButtons';
+import CommentActionButtons from './CommentActionButtons';
+import type { CommentContainerProps } from './CommentContainer';
+import CommentContainer from './CommentContainer';
 
 export interface CommentBoxProps
   extends Omit<CommentContainerProps, 'actions'>,

@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import React, { ReactElement, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { Tab, TabContainer } from '../tabs/TabContainer';

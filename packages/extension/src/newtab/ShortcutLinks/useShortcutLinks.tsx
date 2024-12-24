@@ -1,13 +1,6 @@
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import {
-  Dispatch,
-  FormEvent,
-  MutableRefObject,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import type { Dispatch, FormEvent, MutableRefObject } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import {
   LogEvent,

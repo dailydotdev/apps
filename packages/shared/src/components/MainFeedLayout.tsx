@@ -1,6 +1,5 @@
+import type { ReactElement, ReactNode } from 'react';
 import React, {
-  ReactElement,
-  ReactNode,
   useCallback,
   useContext,
   useEffect,
@@ -10,9 +9,10 @@ import React, {
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import Feed, { FeedProps } from './Feed';
+import type { FeedProps } from './Feed';
+import Feed from './Feed';
 import AuthContext from '../contexts/AuthContext';
-import { LoggedUser } from '../lib/user';
+import type { LoggedUser } from '../lib/user';
 import { SharedFeedPage } from './utilities';
 import {
   ANONYMOUS_FEED_QUERY,
@@ -45,7 +45,7 @@ import {
 } from '../hooks';
 import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
-import { FeedContainerProps } from './feeds';
+import type { FeedContainerProps } from './feeds';
 import { getFeedName } from '../lib/feed';
 import CommentFeed from './CommentFeed';
 import { COMMENT_FEED_QUERY } from '../graphql/comments';

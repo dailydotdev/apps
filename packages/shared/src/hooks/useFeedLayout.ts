@@ -8,7 +8,8 @@ import {
   FeedPageLayoutMobile,
   SharedFeedPage,
 } from '../components/utilities';
-import { AllFeedPages, OtherFeedPage } from '../lib/query';
+import type { AllFeedPages } from '../lib/query';
+import { OtherFeedPage } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import { isNullOrUndefined } from '../lib/func';
 import { useSearchResultsLayout } from './search/useSearchResultsLayout';

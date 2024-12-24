@@ -1,13 +1,15 @@
 import React from 'react';
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
+import type {
+  type AllowedTags,
+  type ButtonProps,
+} from '../../../buttons/Button';
 import {
   Button,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-  type AllowedTags,
-  type ButtonProps,
 } from '../../../buttons/Button';
 import { plusUrl } from '../../../../lib/constants';
 import Link from '../../../utilities/Link';

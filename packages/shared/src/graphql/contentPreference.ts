@@ -3,7 +3,7 @@ import {
   CONTENT_PREFERENCE_FRAMENT,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
-import { UserShortProfile } from '../lib/user';
+import type { UserShortProfile } from '../lib/user';
 import type { Source } from './sources';
 
 export enum ContentPreferenceType {

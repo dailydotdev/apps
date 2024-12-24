@@ -1,19 +1,18 @@
 import nock from 'nock';
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import AuthContext from '../../contexts/AuthContext';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '../../../__tests__/helpers/graphql';
-import { LoggedUser } from '../../lib/user';
-import {
-  FEED_SETTINGS_QUERY,
+import type { MockedGraphQLResponse } from '../../../__tests__/helpers/graphql';
+import { mockGraphQL } from '../../../__tests__/helpers/graphql';
+import type { LoggedUser } from '../../lib/user';
+import type {
   FeedSettings,
   AllTagCategoriesData,
 } from '../../graphql/feedSettings';
+import { FEED_SETTINGS_QUERY } from '../../graphql/feedSettings';
 import BlockedFilter from './BlockedFilter';
 
 const showLogin = jest.fn();

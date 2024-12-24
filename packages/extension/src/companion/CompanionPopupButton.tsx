@@ -1,4 +1,5 @@
-import React, { useState, ReactElement, useContext, useEffect } from 'react';
+import type { ReactElement } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import {
   Button,
   ButtonVariant,

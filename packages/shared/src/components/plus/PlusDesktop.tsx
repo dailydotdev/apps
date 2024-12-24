@@ -1,10 +1,5 @@
-import React, {
-  type ReactElement,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import type { type ReactElement } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { usePaymentContext } from '../../contexts/PaymentContext';
 

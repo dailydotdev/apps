@@ -1,10 +1,12 @@
-import React, { ReactElement, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
-import { Dropdown, DropdownClassName } from '../fields/Dropdown';
+import type { DropdownClassName } from '../fields/Dropdown';
+import { Dropdown } from '../fields/Dropdown';
 import { LanguageIcon } from '../icons';
-import { BaseFieldProps } from '../fields/BaseFieldContainer';
+import type { BaseFieldProps } from '../fields/BaseFieldContainer';
 import { ContentLanguage, contnetLanguageToLabelMap } from '../../lib/user';
-import { IconProps } from '../Icon';
+import type { IconProps } from '../Icon';
 
 type ClassName = {
   hint?: string;

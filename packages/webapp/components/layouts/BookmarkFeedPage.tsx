@@ -1,13 +1,13 @@
-import React, { ReactElement, ReactNode, useEffect, useContext } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useEffect, useContext } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
-import BookmarkFeedLayout, {
-  BookmarkFeedLayoutProps,
-} from '@dailydotdev/shared/src/components/BookmarkFeedLayout';
+import type { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
+import type { BookmarkFeedLayoutProps } from '@dailydotdev/shared/src/components/BookmarkFeedLayout';
+import BookmarkFeedLayout from '@dailydotdev/shared/src/components/BookmarkFeedLayout';
 import { getLayout } from './FeedLayout';
-import { MainFeedPageProps } from './MainFeedPage';
+import type { MainFeedPageProps } from './MainFeedPage';
 
 const PostsSearch = dynamic(
   () =>

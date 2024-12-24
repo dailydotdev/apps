@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import React, { ComponentProps, ReactElement, useEffect } from 'react';
+import type { ComponentProps, ReactElement } from 'react';
+import React, { useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { isVideoPost } from '../../graphql/posts';
 import PostMetadata from '../cards/common/PostMetadata';
@@ -12,7 +13,8 @@ import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
 import { BasePostContent } from './BasePostContent';
 import { combinedClicks } from '../../lib/click';
-import { PostContainer, PostContentProps, PostNavigationProps } from './common';
+import type { PostContentProps, PostNavigationProps } from './common';
+import { PostContainer } from './common';
 import YoutubeVideo from '../video/YoutubeVideo';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useViewPost } from '../../hooks/post';

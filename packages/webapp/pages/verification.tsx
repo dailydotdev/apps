@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import EmailCodeVerification from '@dailydotdev/shared/src/components/auth/EmailCodeVerification';
 import { useRouter } from 'next/router';
 import AuthHeader from '@dailydotdev/shared/src/components/auth/AuthHeader';

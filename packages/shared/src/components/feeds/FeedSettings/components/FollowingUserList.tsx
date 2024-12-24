@@ -1,4 +1,5 @@
-import React, { type ReactElement, useMemo } from 'react';
+import type { type ReactElement } from 'react';
+import React, { useMemo } from 'react';
 import { useFeedSettingsEditContext } from '../FeedSettingsEditContext';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useFollowingQuery } from '../../../../hooks/contentPreference/useFollowingQuery';

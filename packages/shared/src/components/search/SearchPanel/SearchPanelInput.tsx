@@ -1,12 +1,11 @@
-import React, {
+import type {
   FormEvent,
   InputHTMLAttributes,
   MouseEvent,
   ReactElement,
   ReactNode,
-  useContext,
-  useRef,
 } from 'react';
+import React, { useContext, useRef } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { BaseField, FieldInput } from '../../fields/common';

@@ -1,6 +1,7 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
-import { BasicSourceMember, Squad } from '../../graphql/sources';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { BasicSourceMember, Squad } from '../../graphql/sources';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import {

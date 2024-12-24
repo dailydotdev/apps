@@ -1,4 +1,5 @@
-import React, { ReactElement, useCallback, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   AddUserIcon,
   BellIcon,

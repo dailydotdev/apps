@@ -1,6 +1,7 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
-import { TagCategory } from '../../graphql/feedSettings';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { TagCategory } from '../../graphql/feedSettings';
 import classed from '../../lib/classed';
 import { VIcon } from '../icons';
 

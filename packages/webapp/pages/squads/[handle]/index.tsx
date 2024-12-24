@@ -1,13 +1,8 @@
-import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
-import { ParsedUrlQuery } from 'querystring';
-import React, {
-  ReactElement,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
-import { NextSeoProps } from 'next-seo';
+import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
+import type { ParsedUrlQuery } from 'querystring';
+import type { ReactElement } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import type { NextSeoProps } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import {
   SOURCE_FEED_QUERY,
@@ -20,12 +15,12 @@ import {
   BaseFeedPage,
   FeedPageLayoutList,
 } from '@dailydotdev/shared/src/components/utilities';
+import type { SquadStaticData } from '@dailydotdev/shared/src/graphql/squads';
 import {
   getSquadMembers,
   getSquadStaticFields,
-  SquadStaticData,
 } from '@dailydotdev/shared/src/graphql/squads';
-import {
+import type {
   BasicSourceMember,
   Squad,
   Source,
@@ -43,7 +38,7 @@ import {
   useSquad,
 } from '@dailydotdev/shared/src/hooks';
 import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
-import { ClientError } from 'graphql-request';
+import type { ClientError } from 'graphql-request';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { OtherFeedPage, StaleTime } from '@dailydotdev/shared/src/lib/query';
 import { useRouter } from 'next/router';
@@ -53,15 +48,14 @@ import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
 import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
-import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
-import ProtectedPage, {
-  ProtectedPageProps,
-} from '../../../components/ProtectedPage';
+import type { ProtectedPageProps } from '../../../components/ProtectedPage';
+import ProtectedPage from '../../../components/ProtectedPage';
 import { getSquadOpenGraph } from '../../../next-seo';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
-import { DynamicSeoProps } from '../../../components/common';
+import type { DynamicSeoProps } from '../../../components/common';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),

@@ -1,7 +1,9 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { isVideoPost, Post } from '../../../graphql/posts';
-import { CommonCardCoverProps } from './common';
+import type { Post } from '../../../graphql/posts';
+import { isVideoPost } from '../../../graphql/posts';
+import type { CommonCardCoverProps } from './common';
 import { CardCover } from './CardCover';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 

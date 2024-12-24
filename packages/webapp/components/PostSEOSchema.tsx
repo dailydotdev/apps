@@ -1,5 +1,7 @@
-import React, { ReactElement } from 'react';
-import { Post, PostType } from '@dailydotdev/shared/src/graphql/posts';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { Post } from '@dailydotdev/shared/src/graphql/posts';
+import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 
 export const getSeoDescription = (post: Post): string => {
   if (post?.summary) {

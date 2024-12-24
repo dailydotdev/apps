@@ -1,15 +1,11 @@
 import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { FeedItem, UpdateFeedPost } from '../useFeed';
+import type { FeedItem, UpdateFeedPost } from '../useFeed';
 import { feedLogExtra } from '../../lib/feed';
-import { Origin } from '../../lib/log';
+import type { Origin } from '../../lib/log';
 import { useMutationSubscription } from '../mutationSubscription/useMutationSubscription';
-import {
-  UseVotePost,
-  UseVoteMutationProps,
-  voteMutationMatcher,
-  voteMutationHandlers,
-} from './types';
+import type { UseVotePost, UseVoteMutationProps } from './types';
+import { voteMutationMatcher, voteMutationHandlers } from './types';
 import { useVotePost } from './useVotePost';
 import { mutateVoteFeedPost } from './utils';
 import { updatePostCache } from '../usePostById';

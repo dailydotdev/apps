@@ -1,8 +1,10 @@
 import classNames from 'classnames';
-import React, { ReactElement, ReactNode, useContext, useState } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useContext, useState } from 'react';
 import classed from '../../../lib/classed';
 import SidebarList from '../../sidebar/SidebarList';
-import { ModalPropsContext, ModalTabItem } from './types';
+import type { ModalTabItem } from './types';
+import { ModalPropsContext } from './types';
 
 export type ModalSidebarProps = {
   children?: ReactNode;

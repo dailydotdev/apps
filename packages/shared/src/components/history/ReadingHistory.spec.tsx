@@ -1,16 +1,14 @@
 import React from 'react';
 import { subDays } from 'date-fns';
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-} from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import PostItemCard, { PostItemCardProps } from '../post/PostItemCard';
-import ReadHistoryList, { ReadHistoryListProps } from './ReadingHistoryList';
-import { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
+import type { PostItemCardProps } from '../post/PostItemCard';
+import PostItemCard from '../post/PostItemCard';
+import type { ReadHistoryListProps } from './ReadingHistoryList';
+import ReadHistoryList from './ReadingHistoryList';
+import type { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
 import AuthContext from '../../contexts/AuthContext';
 import user from '../../../__tests__/fixture/loggedUser';
 import { getLabel } from '../../lib/dateFormat.spec';

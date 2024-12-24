@@ -1,7 +1,8 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { PostContentWidget } from './PostContentWidget';
-import { Post } from '../../../graphql/posts';
+import type { Post } from '../../../graphql/posts';
 import { BookmarkReminderIcon } from '../../icons/Bookmark/Reminder';
 import { IconSize } from '../../Icon';
 import { PostReminderOptions } from './PostReminderOptions';

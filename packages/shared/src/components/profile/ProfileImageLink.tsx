@@ -1,11 +1,10 @@
-import React, { forwardRef, ReactElement, Ref } from 'react';
-import { ProfileLink, ProfileLinkProps } from './ProfileLink';
-import {
-  ProfileImageSize,
-  ProfilePicture,
-  ProfilePictureProps,
-} from '../ProfilePicture';
-import { Author } from '../../graphql/comments';
+import type { ReactElement, Ref } from 'react';
+import React, { forwardRef } from 'react';
+import type { ProfileLinkProps } from './ProfileLink';
+import { ProfileLink } from './ProfileLink';
+import type { ProfilePictureProps } from '../ProfilePicture';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import type { Author } from '../../graphql/comments';
 
 interface ProfileImageLinkProps extends ProfileLinkProps {
   picture?: Omit<ProfilePictureProps, 'user'>;

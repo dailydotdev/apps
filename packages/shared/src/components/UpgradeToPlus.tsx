@@ -1,21 +1,18 @@
 import React, { useCallback } from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
-import {
-  Button,
-  ButtonVariant,
-  type ButtonSize,
-  type ButtonColor,
-} from './buttons/Button';
+import type { type ButtonSize, type ButtonColor } from './buttons/Button';
+import { Button, ButtonVariant } from './buttons/Button';
 import { DevPlusIcon } from './icons';
 import Link from './utilities/Link';
 import { plusUrl } from '../lib/constants';
 import { useViewSize, ViewSize } from '../hooks';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
-import { LogEvent, TargetId } from '../lib/log';
+import type { TargetId } from '../lib/log';
+import { LogEvent } from '../lib/log';
 import { useAuthContext } from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
-import { WithClassNameProps } from './utilities';
+import type { WithClassNameProps } from './utilities';
 
 type Props = {
   iconOnly?: boolean;

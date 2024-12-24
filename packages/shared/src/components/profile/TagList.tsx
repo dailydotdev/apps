@@ -1,16 +1,14 @@
-import React, { ReactElement } from 'react';
-import InfiniteScrolling, {
-  InfiniteScrollingProps,
-} from '../containers/InfiniteScrolling';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { InfiniteScrollingProps } from '../containers/InfiniteScrolling';
+import InfiniteScrolling from '../containers/InfiniteScrolling';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import {
-  ContentPreference,
-  ContentPreferenceType,
-} from '../../graphql/contentPreference';
+import type { ContentPreference } from '../../graphql/contentPreference';
+import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { FollowButton } from '../contentPreference/FollowButton';
 import { useFeedSettingsEditContext } from '../feeds/FeedSettings/FeedSettingsEditContext';
 import { CopyType } from '../sources/SourceActions/SourceActionsFollow';

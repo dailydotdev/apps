@@ -1,8 +1,9 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { LightAsync as SyntaxHighlighterAsync } from 'react-syntax-highlighter';
 import dynamic from 'next/dynamic';
-import { ReactMarkdownOptions } from 'react-markdown/lib/react-markdown';
+import type { ReactMarkdownOptions } from 'react-markdown/lib/react-markdown';
 import styles from './markdown.module.css';
 import {
   Button,

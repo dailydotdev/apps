@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
-import { Ad } from '../../../../graphql/posts';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { Ad } from '../../../../graphql/posts';
 import { CardLink } from '../../common/Card';
 import { combinedClicks } from '../../../../lib/click';
 

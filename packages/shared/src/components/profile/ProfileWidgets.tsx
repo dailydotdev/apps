@@ -1,4 +1,5 @@
-import React, { ReactElement, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
 import classNames from 'classnames';
 import { Header } from './Header';
 import { HeroImage } from './HeroImage';
@@ -8,7 +9,7 @@ import { SocialChips } from './SocialChips';
 import { SquadsList } from './SquadsList';
 import { useDynamicHeader } from '../../useDynamicHeader';
 import AuthContext from '../../contexts/AuthContext';
-import { ProfileV2 } from '../../graphql/users';
+import type { ProfileV2 } from '../../graphql/users';
 import { ReferralCampaignKey, useReferralCampaign } from '../../hooks';
 import ReferralWidget from '../widgets/ReferralWidget';
 import { ButtonSize, ButtonVariant } from '../buttons/common';

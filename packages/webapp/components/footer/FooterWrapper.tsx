@@ -1,6 +1,7 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { Post } from '@dailydotdev/shared/src/graphql/posts';
+import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import dynamic from 'next/dynamic';
 import { blurClasses } from './common';
 

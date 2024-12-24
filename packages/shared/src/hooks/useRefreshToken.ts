@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { differenceInMilliseconds } from 'date-fns';
-import { AccessToken } from '../lib/boot';
+import type { AccessToken } from '../lib/boot';
 import useDebounceFn from './useDebounceFn';
 
 export function useRefreshToken(

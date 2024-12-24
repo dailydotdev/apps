@@ -1,4 +1,4 @@
-import { ApiError } from '../graphql/common';
+import type { ApiError } from '../graphql/common';
 
 export class HttpError extends Error {
   public url: string;

@@ -1,16 +1,16 @@
 import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/react';
-import { LoggedUser, PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import type {
+  LoggedUser,
+  PublicProfile,
+} from '@dailydotdev/shared/src/lib/user';
 import nock from 'nock';
-import {
-  FeedData,
-  USER_UPVOTED_FEED_QUERY,
-} from '@dailydotdev/shared/src/graphql/feed';
+import type { FeedData } from '@dailydotdev/shared/src/graphql/feed';
+import { USER_UPVOTED_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import { QueryClient } from '@tanstack/react-query';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';

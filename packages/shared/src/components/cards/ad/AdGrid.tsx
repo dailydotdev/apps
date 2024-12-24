@@ -1,4 +1,5 @@
-import React, { forwardRef, ReactElement, useCallback } from 'react';
+import type { ReactElement } from 'react';
+import React, { forwardRef, useCallback } from 'react';
 
 import { Card, CardImage, CardTextContainer, CardTitle } from '../common/Card';
 import AdLink from './common/AdLink';
@@ -8,10 +9,8 @@ import { AdPixel } from './common/AdPixel';
 import type { AdCardProps } from './common/common';
 import { RemoveAd } from './common/RemoveAd';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
-import {
-  useAutoRotatingAds,
-  type InViewRef,
-} from '../../../hooks/feed/useAutoRotatingAds';
+import type { type InViewRef } from '../../../hooks/feed/useAutoRotatingAds';
+import { useAutoRotatingAds } from '../../../hooks/feed/useAutoRotatingAds';
 import { AdRefresh } from './common/AdRefresh';
 import { ButtonSize } from '../../buttons/common';
 

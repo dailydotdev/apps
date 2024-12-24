@@ -1,4 +1,5 @@
-import { Ref, useEffect, useRef, useState } from 'react';
+import type { Ref } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export type UseDynamicHeaderRet<T extends HTMLElement> = {
   ref: Ref<T>;

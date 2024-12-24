@@ -1,4 +1,5 @@
-import React, { CSSProperties, ReactElement, ReactNode, useMemo } from 'react';
+import type { CSSProperties, ReactElement, ReactNode } from 'react';
+import React, { useMemo } from 'react';
 import { addDays, differenceInDays, endOfWeek } from 'date-fns';
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
 

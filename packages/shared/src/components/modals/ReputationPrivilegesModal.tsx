@@ -1,5 +1,7 @@
-import React, { MouseEvent, ReactElement } from 'react';
-import { Modal, ModalProps } from './common/Modal';
+import type { MouseEvent, ReactElement } from 'react';
+import React from 'react';
+import type { ModalProps } from './common/Modal';
+import { Modal } from './common/Modal';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ModalClose } from './common/ModalClose';
 import { useActions } from '../../hooks';

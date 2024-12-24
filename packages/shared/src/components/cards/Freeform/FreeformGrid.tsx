@@ -1,6 +1,8 @@
-import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
+import type { ReactElement, Ref } from 'react';
+import React, { forwardRef, useRef } from 'react';
 import classNames from 'classnames';
-import { Container, generateTitleClamp, PostCardProps } from '../common/common';
+import type { PostCardProps } from '../common/common';
+import { Container, generateTitleClamp } from '../common/common';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import FeedItemContainer from '../common/FeedItemContainer';
 import {

@@ -1,15 +1,11 @@
 import { useCallback, useContext, useEffect, useMemo } from 'react';
-import {
-  useQuery,
-  useQueryClient,
+import type {
   type InfiniteData,
-  focusManager,
   type QueryObserverBaseResult,
 } from '@tanstack/react-query';
-import {
-  useInView,
-  type InViewHookResponse,
-} from 'react-intersection-observer';
+import { useQuery, useQueryClient, focusManager } from '@tanstack/react-query';
+import type { type InViewHookResponse } from 'react-intersection-observer';
+import { useInView } from 'react-intersection-observer';
 import { useLogContext } from '../../contexts/LogContext';
 import { ActiveFeedContext } from '../../contexts';
 import { useFeature } from '../../components/GrowthBookProvider';

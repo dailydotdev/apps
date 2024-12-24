@@ -1,8 +1,11 @@
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { CommonCardCoverProps } from './common';
-import { ImageProps, ImageType } from '../../image/Image';
-import VideoImage, { VideoImageProps } from '../../image/VideoImage';
+import type { CommonCardCoverProps } from './common';
+import type { ImageProps } from '../../image/Image';
+import { ImageType } from '../../image/Image';
+import type { VideoImageProps } from '../../image/VideoImage';
+import VideoImage from '../../image/VideoImage';
 import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { CardImage } from './Card';
 

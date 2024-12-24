@@ -2,25 +2,25 @@ import { useQuery } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import {
+import type {
   UseSearchProvider,
   UseSearchProviderProps,
-  useSearchProvider,
 } from './useSearchProvider';
+import { useSearchProvider } from './useSearchProvider';
+import type { SearchSuggestionResult } from '../../graphql/search';
 import {
   defaultSearchSuggestionsLimit,
   minSearchQueryLength,
-  SearchSuggestionResult,
 } from '../../graphql/search';
 import useDebounce from '../useDebounce';
 import { defaultSearchDebounceMs } from '../../lib/func';
 import { useMutationSubscription } from '../mutationSubscription';
+import type { ContentPreferenceMutation } from '../contentPreference/types';
 import {
-  ContentPreferenceMutation,
   contentPreferenceMutationMatcher,
   mutationKeyToContentPreferenceStatusMap,
 } from '../contentPreference/types';
-import { PropsParameters } from '../../types';
+import type { PropsParameters } from '../../types';
 
 export type UseSearchProviderSuggestionsProps = {
   limit?: number;

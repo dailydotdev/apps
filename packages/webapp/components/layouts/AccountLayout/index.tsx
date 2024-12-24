@@ -1,6 +1,7 @@
-import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useContext, useEffect } from 'react';
 import classNames from 'classnames';
-import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   generateQueryKey,

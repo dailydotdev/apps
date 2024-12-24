@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import React, { CSSProperties, ReactElement, ReactNode } from 'react';
+import type { CSSProperties, ReactElement, ReactNode } from 'react';
+import React from 'react';
 import classed from '../../lib/classed';
 import { DailyIcon } from '../icons';
 

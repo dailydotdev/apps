@@ -1,5 +1,7 @@
-import React, { ReactElement } from 'react';
-import { Modal, ModalProps } from '../common/Modal';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { ModalProps } from '../common/Modal';
+import { Modal } from '../common/Modal';
 import { ModalClose } from '../common/ModalClose';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Image } from '../../image/Image';

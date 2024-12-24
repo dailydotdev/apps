@@ -1,8 +1,9 @@
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { sharePost } from '../../../../__tests__/fixture/post';
-import { PostCardProps } from '../common/common';
+import type { PostCardProps } from '../common/common';
 import { PostType } from '../../../graphql/posts';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ShareGrid } from './ShareGrid';

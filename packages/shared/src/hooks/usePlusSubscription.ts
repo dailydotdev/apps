@@ -2,7 +2,8 @@ import { useCallback, useMemo } from 'react';
 import { useAuthContext } from '../contexts/AuthContext';
 import { feature, plusImprovedEntryPoint } from '../lib/featureManagement';
 import { useFeature } from '../components/GrowthBookProvider';
-import { TargetType, type LogEvent, type TargetId } from '../lib/log';
+import type { type LogEvent, type TargetId } from '../lib/log';
+import { TargetType } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
 import { useConditionalFeature } from './useConditionalFeature';
 
