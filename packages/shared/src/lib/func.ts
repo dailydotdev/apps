@@ -114,6 +114,7 @@ export const sortAlphabeticallyByProperty =
 
 export enum UserAgent {
   Chrome = 'Chrome',
+  CriOS = 'CriOS', // Chrome running on iOS
   Edge = 'Edg', // intended to be Edg, not Edge
   Android = 'Android',
 }
@@ -122,7 +123,8 @@ export const checkIsBrowser = (agent: UserAgent): boolean =>
   globalThis?.navigator?.userAgent?.includes(agent);
 
 export const checkIsChromeOnly = (): boolean =>
-  checkIsBrowser(UserAgent.Chrome) && !checkIsBrowser(UserAgent.Edge);
+  (checkIsBrowser(UserAgent.Chrome) || checkIsBrowser(UserAgent.CriOS)) &&
+  !checkIsBrowser(UserAgent.Edge);
 
 export const shuffleArray = <T>(array: T[]): T[] => {
   const newArray = array.slice();

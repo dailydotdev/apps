@@ -272,8 +272,14 @@ export const cloudinaryAuthBannerBackground1440w =
 export const cloudinaryPWA =
   'https://daily-now-res.cloudinary.com/image/upload/s--OJZMKmCg--/f_auto/v1730721076/web_-_safari_asp3ts';
 
+export const cloudinaryPWAChrome =
+  'https://daily-now-res.cloudinary.com/image/upload/s--Rl0AQ5rs--/f_auto/v1730721076/web_-_chrome_lng0pv';
+
 export const cloudinaryPWAVideo =
   'https://daily-now-res.cloudinary.com/video/upload/s--gN1-dqeq--/v1735029367/web_-_safari_e3wes4.mp4';
+
+export const cloudinaryPWAVideoChrome =
+  'https://daily-now-res.cloudinary.com/video/upload/s--RD5n9hm9--/v1735044247/web_-_chrome_xavter.mp4';
 
 export const cloudinaryOnboardingExtension = {
   chrome: {
