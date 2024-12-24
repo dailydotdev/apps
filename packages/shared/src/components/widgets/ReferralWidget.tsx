@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { link } from '../../lib/links';
 import { LogEvent, TargetId, TargetType } from '../../lib/log';

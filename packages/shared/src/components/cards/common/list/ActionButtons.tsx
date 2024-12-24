@@ -1,6 +1,8 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { Post, UserVote } from '../../../../graphql/posts';
+import type { Post } from '../../../../graphql/posts';
+import { UserVote } from '../../../../graphql/posts';
 import InteractionCounter from '../../../InteractionCounter';
 import {
   BookmarkIcon,
@@ -17,7 +19,7 @@ import ConditionalWrapper from '../../../ConditionalWrapper';
 import { PostTagsPanel } from '../../../post/block/PostTagsPanel';
 import { IconSize } from '../../../Icon';
 import { LinkWithTooltip } from '../../../tooltips/LinkWithTooltip';
-import { ActionButtonsProps } from '../../ActionsButtons';
+import type { ActionButtonsProps } from '../../ActionsButtons';
 import { UpvoteButtonIcon } from '../../ActionsButtons/UpvoteButtonIcon';
 import { BookmarkButton } from '../../../buttons';
 import { useFeature } from '../../../GrowthBookProvider';

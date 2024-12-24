@@ -7,12 +7,8 @@ import {
   initializeKratosFlow,
   submitKratosFlow,
 } from '../lib/kratos';
-import {
-  getErrorMessage,
-  getNodeByKey,
-  getNodeValue,
-  VerifyEmail,
-} from '../lib/auth';
+import type { VerifyEmail } from '../lib/auth';
+import { getErrorMessage, getNodeByKey, getNodeValue } from '../lib/auth';
 import useTimer from './useTimer';
 import { disabledRefetch } from '../lib/func';
 import { authUrl } from '../lib/constants';

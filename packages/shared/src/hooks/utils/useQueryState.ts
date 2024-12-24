@@ -1,9 +1,5 @@
-import {
-  QueryKey,
-  useQuery,
-  useQueryClient,
-  UseQueryResult,
-} from '@tanstack/react-query';
+import type { QueryKey, UseQueryResult } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { disabledRefetch } from '../../lib/func';
 

@@ -1,6 +1,8 @@
-import React, { forwardRef, ReactElement, Ref } from 'react';
+import type { ReactElement, Ref } from 'react';
+import React, { forwardRef } from 'react';
 import classNames from 'classnames';
-import { Container, PostCardProps } from '../common/common';
+import type { PostCardProps } from '../common/common';
+import { Container } from '../common/common';
 import { isVideoPost } from '../../../graphql/posts';
 import {
   useFeedPreviewMode,

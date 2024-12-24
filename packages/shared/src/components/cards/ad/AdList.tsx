@@ -1,24 +1,18 @@
-import React, {
-  AnchorHTMLAttributes,
-  forwardRef,
-  ReactElement,
-  useCallback,
-} from 'react';
+import type { AnchorHTMLAttributes, ReactElement } from 'react';
+import React, { forwardRef, useCallback } from 'react';
 import classNames from 'classnames';
 import { CardContent, CardImage, CardTitle } from '../common/list/ListCard';
 import FeedItemContainer from '../common/list/FeedItemContainer';
 import type { AdCardProps } from './common/common';
 import { AdImage } from './common/AdImage';
 import { AdPixel } from './common/AdPixel';
-import { Ad } from '../../../graphql/posts';
+import type { Ad } from '../../../graphql/posts';
 import { combinedClicks } from '../../../lib/click';
 
 import { RemoveAd } from './common/RemoveAd';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
-import {
-  useAutoRotatingAds,
-  type InViewRef,
-} from '../../../hooks/feed/useAutoRotatingAds';
+import type { InViewRef } from '../../../hooks/feed/useAutoRotatingAds';
+import { useAutoRotatingAds } from '../../../hooks/feed/useAutoRotatingAds';
 import { AdRefresh } from './common/AdRefresh';
 import AdAttribution from './common/AdAttribution';
 

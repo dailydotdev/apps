@@ -1,14 +1,14 @@
-import {
+import type {
   InfiniteData,
-  useInfiniteQuery,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
 } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { useCallback } from 'react';
+import type { PostCodeSnippet } from '../../graphql/posts';
 import {
   POST_CODE_SNIPPETS_PER_PAGE_DEFAULT,
   POST_CODE_SNIPPETS_QUERY,
-  PostCodeSnippet,
 } from '../../graphql/posts';
 import {
   generateQueryKey,
@@ -16,7 +16,8 @@ import {
   RequestKey,
   StaleTime,
 } from '../../lib/query';
-import { Connection, gqlClient } from '../../graphql/common';
+import type { Connection } from '../../graphql/common';
+import { gqlClient } from '../../graphql/common';
 
 type UsePostCodeSnippetsData = Connection<PostCodeSnippet>;
 

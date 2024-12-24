@@ -1,7 +1,7 @@
-import React, { ReactElement } from 'react';
-import PostsSearch, {
-  PostsSearchProps,
-} from '@dailydotdev/shared/src/components/PostsSearch';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { PostsSearchProps } from '@dailydotdev/shared/src/components/PostsSearch';
+import PostsSearch from '@dailydotdev/shared/src/components/PostsSearch';
 import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';

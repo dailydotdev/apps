@@ -1,11 +1,5 @@
-import React, {
-  PropsWithChildren,
-  ReactElement,
-  ReactNode,
-  useContext,
-  useMemo,
-  useState,
-} from 'react';
+import type { PropsWithChildren, ReactElement, ReactNode } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import {
@@ -16,9 +10,11 @@ import {
 import AuthContext from '../contexts/AuthContext';
 import { CustomFeedHeader, FeedPageHeader } from './utilities';
 import SearchEmptyScreen from './SearchEmptyScreen';
-import Feed, { FeedProps } from './Feed';
+import type { FeedProps } from './Feed';
+import Feed from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
-import { Button, ButtonProps, ButtonVariant } from './buttons/Button';
+import type { ButtonProps } from './buttons/Button';
+import { Button, ButtonVariant } from './buttons/Button';
 import { ShareIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import {
@@ -33,7 +29,7 @@ import {
   TypographyTag,
   TypographyType,
 } from './typography/Typography';
-import { BookmarkFolder } from '../graphql/bookmarks';
+import type { BookmarkFolder } from '../graphql/bookmarks';
 import { BookmarkFolderContextMenu } from './bookmark/BookmarkFolderContextMenu';
 
 export type BookmarkFeedLayoutProps = {

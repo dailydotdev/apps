@@ -1,6 +1,8 @@
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import RadialProgress, { RadialProgressProps } from './RadialProgress';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import type { RadialProgressProps } from './RadialProgress';
+import RadialProgress from './RadialProgress';
 
 const renderComponent = (props: RadialProgressProps): RenderResult => {
   return render(<RadialProgress {...props} />);

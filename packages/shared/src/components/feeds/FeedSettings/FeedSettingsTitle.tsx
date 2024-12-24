@@ -1,4 +1,5 @@
-import React, { ReactElement, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
 import classNames from 'classnames';
 import { IconSize } from '../../Icon';
 import { HashtagIcon } from '../../icons';

@@ -1,12 +1,9 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import Link from './utilities/Link';
-import {
-  Button,
-  ButtonProps,
-  ButtonSize,
-  ButtonVariant,
-} from './buttons/Button';
+import type { ButtonProps } from './buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { AlertDot, AlertColor } from './AlertDot';
 import { getTagPageLink } from '../lib/links';
 

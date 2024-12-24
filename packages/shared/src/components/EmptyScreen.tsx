@@ -1,8 +1,10 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 
 import classed from '../lib/classed';
-import { Button, ButtonProps, ButtonVariant } from './buttons/Button';
+import type { ButtonProps } from './buttons/Button';
+import { Button, ButtonVariant } from './buttons/Button';
 
 export const EmptyScreenContainer = classed(
   'div',

@@ -1,7 +1,8 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
 import { ButtonVariant } from '../../buttons/common';
-import { Source } from '../../../graphql/sources';
+import type { Source } from '../../../graphql/sources';
 import { ReferralCampaignKey, useSourceActions } from '../../../hooks';
 import SourceActionsNotify from './SourceActionsNotify';
 import SourceActionsBlock from './SourceActionsBlock';

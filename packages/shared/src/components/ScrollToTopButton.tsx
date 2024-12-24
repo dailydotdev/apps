@@ -1,10 +1,7 @@
-import React, { CSSProperties, ReactElement, useEffect, useState } from 'react';
-import {
-  Button,
-  ButtonProps,
-  ButtonSize,
-  ButtonVariant,
-} from './buttons/Button';
+import type { CSSProperties, ReactElement } from 'react';
+import React, { useEffect, useState } from 'react';
+import type { ButtonProps } from './buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { ArrowIcon } from './icons';
 import { useViewSize, ViewSize } from '../hooks';
 

@@ -8,7 +8,7 @@ import {
 import { ADD_FILTERS_TO_FEED_MUTATION } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { UPDATE_ALERTS } from '@dailydotdev/shared/src/graphql/alerts';
 import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/settings';
-import { MutateFunc } from '@dailydotdev/shared/src/lib/query';
+import type { MutateFunc } from '@dailydotdev/shared/src/lib/query';
 import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
 import { companionRequest } from './companionRequest';
 

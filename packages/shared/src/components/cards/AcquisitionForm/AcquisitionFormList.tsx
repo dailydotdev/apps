@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { ListCard } from '../common/list/ListCard';
 import { AcquisitionFormInner } from './common/AcquisitionFormInner';
 

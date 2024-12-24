@@ -1,4 +1,4 @@
-import { Squad } from '../../../../graphql/sources';
+import type { Squad } from '../../../../graphql/sources';
 
 type SquadCardActionType = 'link' | 'action';
 export interface SquadCardAction {

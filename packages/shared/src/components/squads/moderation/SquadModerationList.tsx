@@ -1,11 +1,13 @@
-import React, { ReactElement, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
 import { Button } from '../../buttons/Button';
 import { ButtonVariant, ButtonSize } from '../../buttons/common';
 import { VIcon } from '../../icons';
 import { useSourceModerationList } from '../../../hooks/squads/useSourceModerationList';
 import { useSquadPendingPosts } from '../../../hooks/squads/useSquadPendingPosts';
 import { SquadModerationItem } from './SquadModerationItem';
-import { SourcePermissions, Squad } from '../../../graphql/sources';
+import type { Squad } from '../../../graphql/sources';
+import { SourcePermissions } from '../../../graphql/sources';
 import InfiniteScrolling from '../../containers/InfiniteScrolling';
 import {
   SourcePostModerationStatus,

@@ -1,7 +1,8 @@
-import React, { ReactElement } from 'react';
-import { Tag } from '../../graphql/feedSettings';
-import { TagActionArguments } from '../../hooks/useTagAndSource';
-import { HTMLElementComponent } from '../utilities';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { Tag } from '../../graphql/feedSettings';
+import type { TagActionArguments } from '../../hooks/useTagAndSource';
+import type { HTMLElementComponent } from '../utilities';
 import { FiltersList, FiltersGrid } from './common';
 import { TagCategoryLayout } from './TagCategoryDropdown';
 import TagItemRow from './TagItemRow';

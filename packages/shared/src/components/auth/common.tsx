@@ -1,7 +1,7 @@
 import React from 'react';
 import { FacebookIcon, GoogleIcon, GitHubIcon, AppleIcon } from '../icons';
 import classed from '../../lib/classed';
-import { IconType } from '../buttons/Button';
+import type { IconType } from '../buttons/Button';
 
 export interface Provider {
   icon: IconType;

@@ -1,4 +1,5 @@
-import React, { ReactElement, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useState } from 'react';
 import {
   DiscussIcon as CommentIcon,
   FlagIcon,
@@ -7,22 +8,19 @@ import {
   DownvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { Item, Menu } from '@dailydotdev/react-contexify';
-import {
-  ReportPostModal,
-  ReportedCallback,
-} from '@dailydotdev/shared/src/components/modals';
-import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
+import type { ReportedCallback } from '@dailydotdev/shared/src/components/modals';
+import { ReportPostModal } from '@dailydotdev/shared/src/components/modals';
+import type { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { feedback } from '@dailydotdev/shared/src/lib/constants';
-import {
-  PromptOptions,
-  usePrompt,
-} from '@dailydotdev/shared/src/hooks/usePrompt';
+import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import classNames from 'classnames';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { labels } from '@dailydotdev/shared/src/lib';
-import { Post, UserVote } from '@dailydotdev/shared/src/graphql/posts';
+import type { Post } from '@dailydotdev/shared/src/graphql/posts';
+import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
 
 interface CompanionContextMenuProps {

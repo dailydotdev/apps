@@ -1,5 +1,6 @@
-import { NextSeoProps } from 'next-seo';
-import React, { ReactElement } from 'react';
+import type { NextSeoProps } from 'next-seo';
+import type { ReactElement } from 'react';
+import React from 'react';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,

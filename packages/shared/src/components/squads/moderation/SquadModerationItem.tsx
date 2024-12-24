@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import {
   Typography,
   TypographyColor,
@@ -17,10 +18,8 @@ import { capitalize } from '../../../lib/strings';
 import { TimerIcon, WarningIcon } from '../../icons';
 import { AlertColor } from '../../AlertDot';
 import { useTruncatedSummary } from '../../../hooks';
-import {
-  SquadModerationItemProps,
-  useSourceModerationItem,
-} from './useSourceModerationItem';
+import type { SquadModerationItemProps } from './useSourceModerationItem';
+import { useSourceModerationItem } from './useSourceModerationItem';
 import { SquadModerationItemContextMenu } from './SquadModerationItemContextMenu';
 
 export function SquadModerationItem(

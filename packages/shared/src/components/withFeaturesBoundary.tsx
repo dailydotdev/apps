@@ -1,9 +1,5 @@
-import React, {
-  ComponentType,
-  ReactElement,
-  ReactNode,
-  useContext,
-} from 'react';
+import type { ComponentType, ReactElement, ReactNode } from 'react';
+import React, { useContext } from 'react';
 import { FeaturesReadyContext } from './GrowthBookProvider';
 
 export type WrappedComponentType<

@@ -1,4 +1,5 @@
-import React, { ReactElement, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useState } from 'react';
 import { SquadSettingsSection } from './SquadSettingsSection';
 import { Radio } from '../../fields/Radio';
 import { SourceMemberRole } from '../../../graphql/sources';

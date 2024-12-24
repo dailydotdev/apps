@@ -1,14 +1,11 @@
-import React, {
+import type {
   ChangeEvent,
-  forwardRef,
   LegacyRef,
   ReactElement,
   ReactNode,
-  useEffect,
-  useState,
   InputHTMLAttributes,
-  useId,
 } from 'react';
+import React, { forwardRef, useEffect, useState, useId } from 'react';
 import classNames from 'classnames';
 import { VIcon } from '../icons';
 import styles from './Checkbox.module.css';

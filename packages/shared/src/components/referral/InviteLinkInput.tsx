@@ -1,10 +1,11 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import { useCopyLink } from '../../hooks/useCopy';
 import { useLogContext } from '../../contexts/LogContext';
-import { FieldClassName } from '../fields/BaseFieldContainer';
-import { LogEvent } from '../../hooks/log/useLogQueue';
+import type { FieldClassName } from '../fields/BaseFieldContainer';
+import type { LogEvent } from '../../hooks/log/useLogQueue';
 
 interface Text {
   copied?: string;

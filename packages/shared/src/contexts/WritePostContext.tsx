@@ -1,17 +1,17 @@
-import React, {
+import type {
   FormEvent,
   MutableRefObject,
   PropsWithChildren,
   ReactElement,
-  useContext,
 } from 'react';
+import React, { useContext } from 'react';
 import { useRouter } from 'next/router';
-import { EditPostProps, Post, SharedPost } from '../graphql/posts';
-import { Squad } from '../graphql/sources';
+import type { EditPostProps, Post, SharedPost } from '../graphql/posts';
+import type { Squad } from '../graphql/sources';
 import ConditionalWrapper from '../components/ConditionalWrapper';
 import { useViewSize, ViewSize } from '../hooks';
 import { FormWrapper } from '../components/fields/form';
-import { SourcePostModeration } from '../graphql/squads';
+import type { SourcePostModeration } from '../graphql/squads';
 
 export interface WriteForm {
   title: string;

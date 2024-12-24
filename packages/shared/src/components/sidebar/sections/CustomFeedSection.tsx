@@ -1,11 +1,12 @@
-import React, { ReactElement, useMemo } from 'react';
-import { SidebarMenuItem } from '../common';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
+import type { SidebarMenuItem } from '../common';
 import { HashtagIcon, PlusIcon } from '../../icons';
 import { Section } from '../Section';
 import { customFeedsPlusDate, webappUrl } from '../../../lib/constants';
 import { useFeeds, usePlusSubscription } from '../../../hooks';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
-import { SidebarSectionProps } from './common';
+import type { SidebarSectionProps } from './common';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';

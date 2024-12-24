@@ -1,8 +1,10 @@
-import React, { forwardRef, ReactElement, Ref, useMemo, useRef } from 'react';
+import type { ReactElement, Ref } from 'react';
+import React, { forwardRef, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { sanitize } from 'dompurify';
 
-import { Container, generateTitleClamp, PostCardProps } from '../common/common';
+import type { PostCardProps } from '../common/common';
+import { Container, generateTitleClamp } from '../common/common';
 import { useFeedPreviewMode, useTruncatedSummary } from '../../../hooks';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import SquadHeaderPicture from '../common/SquadHeaderPicture';

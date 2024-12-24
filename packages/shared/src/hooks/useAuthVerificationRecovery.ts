@@ -1,13 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { useCallback, useContext, useEffect } from 'react';
-import {
-  AuthFlow,
-  ErrorData,
-  getKratosFlow,
-  InitializationData,
-  KRATOS_ERROR,
-} from '../lib/kratos';
+import type { ErrorData, InitializationData } from '../lib/kratos';
+import { AuthFlow, getKratosFlow, KRATOS_ERROR } from '../lib/kratos';
 import { useToastNotification } from './useToastNotification';
 import { disabledRefetch } from '../lib/func';
 import AuthContext from '../contexts/AuthContext';

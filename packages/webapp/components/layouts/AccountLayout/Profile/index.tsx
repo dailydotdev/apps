@@ -3,13 +3,8 @@ import {
   ButtonColor,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import React, {
-  ReactElement,
-  useCallback,
-  useContext,
-  useRef,
-  useState,
-} from 'react';
+import type { ReactElement } from 'react';
+import React, { useCallback, useContext, useRef, useState } from 'react';
 import {
   AtIcon,
   CameraIcon,
@@ -37,17 +32,14 @@ import {
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
-import useProfileForm, {
-  UpdateProfileParameters,
-} from '@dailydotdev/shared/src/hooks/useProfileForm';
+import type { UpdateProfileParameters } from '@dailydotdev/shared/src/hooks/useProfileForm';
+import useProfileForm from '@dailydotdev/shared/src/hooks/useProfileForm';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import { useMutation } from '@tanstack/react-query';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import {
-  gqlClient,
-  ResponseError,
-} from '@dailydotdev/shared/src/graphql/common';
+import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import type { ResponseError } from '@dailydotdev/shared/src/graphql/common';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import {
   clearImage,
   UPLOAD_COVER_MUTATION,

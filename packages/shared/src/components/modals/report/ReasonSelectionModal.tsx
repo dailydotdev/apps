@@ -1,11 +1,14 @@
-import React, { ReactElement, ReactNode, useState } from 'react';
-import { Radio, RadioItemProps } from '../../fields/Radio';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useState } from 'react';
+import type { RadioItemProps } from '../../fields/Radio';
+import { Radio } from '../../fields/Radio';
 import { Button, ButtonVariant } from '../../buttons/Button';
-import { Modal, ModalProps } from '../common/Modal';
+import type { ModalProps } from '../common/Modal';
+import { Modal } from '../common/Modal';
 import { Justify } from '../../utilities';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { ReportReason } from '../../../report';
-import { PostModerationReason } from '../../../graphql/squads';
+import type { PostModerationReason } from '../../../graphql/squads';
 
 interface Props<T extends ReportReason | PostModerationReason>
   extends ModalProps {

@@ -1,12 +1,8 @@
 import React from 'react';
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-  waitFor,
-} from '@testing-library/react';
-import { SearchField, SearchFieldProps } from './SearchField';
+import type { RenderResult } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import type { SearchFieldProps } from './SearchField';
+import { SearchField } from './SearchField';
 
 const renderComponent = (
   props: Partial<SearchFieldProps> = {},

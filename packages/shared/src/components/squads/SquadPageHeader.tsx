@@ -1,10 +1,8 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import {
-  BasicSourceMember,
-  SourcePermissions,
-  Squad,
-} from '../../graphql/sources';
+import type { BasicSourceMember, Squad } from '../../graphql/sources';
+import { SourcePermissions } from '../../graphql/sources';
 import { SquadHeaderBar } from './SquadHeaderBar';
 import { SquadImage } from './SquadImage';
 import EnableNotification from '../notifications/EnableNotification';

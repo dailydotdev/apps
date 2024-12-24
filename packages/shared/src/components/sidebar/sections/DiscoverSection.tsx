@@ -1,5 +1,7 @@
-import React, { ReactElement, useMemo } from 'react';
-import { ListIcon, SidebarMenuItem } from '../common';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
+import type { SidebarMenuItem } from '../common';
+import { ListIcon } from '../common';
 import {
   DiscussIcon,
   EarthIcon,
@@ -8,7 +10,7 @@ import {
   SquadIcon,
 } from '../../icons';
 import { Section } from '../Section';
-import { SidebarSectionProps } from './common';
+import type { SidebarSectionProps } from './common';
 import { LazyModal } from '../../modals/common/types';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { SidebarSettingsFlags } from '../../../graphql/settings';

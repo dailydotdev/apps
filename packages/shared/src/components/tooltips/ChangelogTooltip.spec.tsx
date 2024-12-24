@@ -1,10 +1,5 @@
-import {
-  act,
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-} from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import nock from 'nock';
@@ -15,14 +10,13 @@ import ChangelogTooltip from './ChangelogTooltip';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { postDateFormat } from '../../lib/dateFormat';
 import { AlertContextProvider } from '../../contexts/AlertContext';
-import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
+import type { Alerts } from '../../graphql/alerts';
+import { UPDATE_ALERTS } from '../../graphql/alerts';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import { ExtensionMessageType } from '../../lib/extension';
-import {
-  ToastNotification,
-  TOAST_NOTIF_KEY,
-} from '../../hooks/useToastNotification';
+import type { ToastNotification } from '../../hooks/useToastNotification';
+import { TOAST_NOTIF_KEY } from '../../hooks/useToastNotification';
 import SettingsContext from '../../contexts/SettingsContext';
 import * as hooks from '../../hooks/useChangelog';
 

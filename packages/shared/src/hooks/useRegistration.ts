@@ -1,23 +1,24 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { QueryKey, useMutation, useQuery } from '@tanstack/react-query';
+import type { QueryKey } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import AuthContext from '../contexts/AuthContext';
-import {
-  AuthEventNames,
-  errorsToJson,
-  getNodeValue,
+import type {
   RegistrationError,
   RegistrationParameters,
   ValidateRegistrationParams,
 } from '../lib/auth';
+import { AuthEventNames, errorsToJson, getNodeValue } from '../lib/auth';
+import type {
+  InitializationData,
+  SuccessfulRegistrationData,
+} from '../lib/kratos';
 import {
   AuthFlow,
   ContinueWithAction,
-  InitializationData,
   initializeKratosFlow,
   KRATOS_ERROR,
   KRATOS_ERROR_MESSAGE,
   submitKratosFlow,
-  SuccessfulRegistrationData,
 } from '../lib/kratos';
 import { useToastNotification } from './useToastNotification';
 import { getUserDefaultTimezone } from '../lib/timezones';

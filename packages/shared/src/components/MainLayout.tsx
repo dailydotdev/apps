@@ -1,11 +1,5 @@
-import React, {
-  HTMLAttributes,
-  ReactElement,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import type { HTMLAttributes, ReactElement, ReactNode } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
@@ -16,9 +10,8 @@ import SettingsContext from '../contexts/SettingsContext';
 import Toast from './notifications/Toast';
 import { useAuthErrors } from '../hooks/useAuthErrors';
 import { useAuthVerificationRecovery } from '../hooks/useAuthVerificationRecovery';
-import MainLayoutHeader, {
-  MainLayoutHeaderProps,
-} from './layout/MainLayoutHeader';
+import type { MainLayoutHeaderProps } from './layout/MainLayoutHeader';
+import MainLayoutHeader from './layout/MainLayoutHeader';
 import { InAppNotificationElement } from './notifications/InAppNotification';
 import { useNotificationContext } from '../contexts/NotificationsContext';
 import { LogEvent, NotificationTarget } from '../lib/log';

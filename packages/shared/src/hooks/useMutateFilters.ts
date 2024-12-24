@@ -1,20 +1,19 @@
 import { useCallback, useMemo } from 'react';
-import {
-  QueryClient,
-  useMutation,
-  useQueryClient,
-} from '@tanstack/react-query';
-import { LoggedUser } from '../lib/user';
-import {
+import type { QueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { LoggedUser } from '../lib/user';
+import type {
   FeedAdvancedSettings,
-  ADD_FILTERS_TO_FEED_MUTATION,
   FeedSettings,
   FeedSettingsData,
+} from '../graphql/feedSettings';
+import {
+  ADD_FILTERS_TO_FEED_MUTATION,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
   UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION,
   FEED_FILTERS_FROM_REGISTRATION,
 } from '../graphql/feedSettings';
-import { Source } from '../graphql/sources';
+import type { Source } from '../graphql/sources';
 import { getFeedSettingsQueryKey } from './useFeedSettings';
 import { RequestKey, generateQueryKey } from '../lib/query';
 import { gqlClient } from '../graphql/common';

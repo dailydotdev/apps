@@ -1,6 +1,7 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import dynamic from 'next/dynamic';
-import { FilterMenuProps } from './common';
+import type { FilterMenuProps } from './common';
 import SourceItemList from './SourceItemList';
 import TagItemList from './TagItemList';
 import useFeedSettings from '../../hooks/useFeedSettings';

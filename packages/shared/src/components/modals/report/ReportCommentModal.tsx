@@ -1,12 +1,13 @@
-import React, { ReactElement } from 'react';
-import { ModalProps } from '../common/Modal';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { ModalProps } from '../common/Modal';
 import { ReasonSelectionModal } from './ReasonSelectionModal';
 import useReportComment from '../../../hooks/useReportComment';
-import { Comment } from '../../../graphql/comments';
+import type { Comment } from '../../../graphql/comments';
 import { useLogContext } from '../../../contexts/LogContext';
 import { postLogEvent } from '../../../lib/feed';
-import { Post } from '../../../graphql/posts';
-import { PostBootData } from '../../../lib/boot';
+import type { Post } from '../../../graphql/posts';
+import type { PostBootData } from '../../../lib/boot';
 import { LogEvent } from '../../../lib/log';
 import { ReportReason } from '../../../report';
 

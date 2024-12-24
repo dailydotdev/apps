@@ -3,9 +3,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { useToggle } from '../useToggle';
 import { useActions } from '../useActions';
+import type { UserStreakRecoverData } from '../../graphql/users';
 import {
   USER_STREAK_RECOVER_QUERY,
-  UserStreakRecoverData,
   USER_STREAK_RECOVER_MUTATION,
 } from '../../graphql/users';
 import { generateQueryKey, RequestKey } from '../../lib/query';

@@ -1,8 +1,9 @@
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import { Separator } from './common';
-import { Post } from '../../../graphql/posts';
+import type { Post } from '../../../graphql/posts';
 import { formatReadTime, TruncateText, DateFormat } from '../../utilities';
 import { largeNumberFormat } from '../../../lib';
 

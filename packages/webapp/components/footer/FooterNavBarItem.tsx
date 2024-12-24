@@ -1,4 +1,5 @@
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import { Flipped } from 'react-flip-toolkit';
 import classNames from 'classnames';

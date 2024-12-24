@@ -1,12 +1,9 @@
-import React, { ReactElement, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
-import { WithClassNameProps } from '../utilities';
-import {
-  PlusItem,
-  PlusItemStatus,
-  PlusListItem,
-  PlusListItemProps,
-} from './PlusListItem';
+import type { WithClassNameProps } from '../utilities';
+import type { PlusItem, PlusListItemProps } from './PlusListItem';
+import { PlusItemStatus, PlusListItem } from './PlusListItem';
 import { usePaymentContext } from '../../contexts/PaymentContext';
 
 export const defaultFeatureList: Array<PlusItem> = [

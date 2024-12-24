@@ -1,4 +1,5 @@
-import React, { FunctionComponent, ReactElement, ReactNode } from 'react';
+import type { FunctionComponent, ReactElement, ReactNode } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import styles from './BaseTooltip.module.css';
 

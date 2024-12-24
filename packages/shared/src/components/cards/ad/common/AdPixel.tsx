@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import type { Ad } from '../../../../graphql/posts';
 
 export const AdPixel = ({ pixel }: Pick<Ad, 'pixel'>): ReactElement => {

@@ -1,15 +1,18 @@
-import React, { FunctionComponent, ReactElement } from 'react';
+import type { FunctionComponent, ReactElement } from 'react';
+import React from 'react';
 import dynamic from 'next/dynamic';
-import { FeedItem } from '../hooks/useFeed';
+import type { FeedItem } from '../hooks/useFeed';
 import { PlaceholderGrid } from './cards/placeholder/PlaceholderGrid';
 import { PlaceholderList } from './cards/placeholder/PlaceholderList';
-import { Ad, Post, PostItem, PostType } from '../graphql/posts';
-import { LoggedUser } from '../lib/user';
-import { CommentOnData } from '../graphql/comments';
+import type { Ad, Post, PostItem } from '../graphql/posts';
+import { PostType } from '../graphql/posts';
+import type { LoggedUser } from '../lib/user';
+import type { CommentOnData } from '../graphql/comments';
 import useLogImpression from '../hooks/feed/useLogImpression';
-import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
+import type { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
 import { Origin } from '../lib/log';
-import { useFeedLayout, UseVotePost } from '../hooks';
+import type { UseVotePost } from '../hooks';
+import { useFeedLayout } from '../hooks';
 import { CollectionList } from './cards/collection/CollectionList';
 import { MarketingCtaCard } from './marketingCta';
 import { MarketingCtaList } from './marketingCta/MarketingCtaList';
@@ -20,13 +23,13 @@ import { AcquisitionFormGrid } from './cards/AcquisitionForm/AcquisitionFormGrid
 import { AcquisitionFormList } from './cards/AcquisitionForm/AcquisitionFormList';
 import { FreeformGrid } from './cards/Freeform/FreeformGrid';
 import { FreeformList } from './cards/Freeform/FreeformList';
-import { PostClick } from '../lib/click';
+import type { PostClick } from '../lib/click';
 import { ArticleList } from './cards/article/ArticleList';
 import { ArticleGrid } from './cards/article/ArticleGrid';
 import { ShareGrid } from './cards/share/ShareGrid';
 import { ShareList } from './cards/share/ShareList';
 import { CollectionGrid } from './cards/collection';
-import { UseBookmarkPost } from '../hooks/useBookmarkPost';
+import type { UseBookmarkPost } from '../hooks/useBookmarkPost';
 import { AdActions } from '../lib/ads';
 
 const CommentPopup = dynamic(

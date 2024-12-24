@@ -1,6 +1,7 @@
-import React, { ReactElement, useCallback, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useCallback, useContext } from 'react';
 import { ClickableText } from '../buttons/ClickableText';
-import { SearchChunkSource } from '../../graphql/search';
+import type { SearchChunkSource } from '../../graphql/search';
 import LogContext from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
 

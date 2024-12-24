@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { BrowserGroupIcon } from '../icons/Browsers';
 import { IconSize } from '../Icon';

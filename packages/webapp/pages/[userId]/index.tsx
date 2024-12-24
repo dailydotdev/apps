@@ -1,9 +1,8 @@
-import React, { ReactElement, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import {
-  ProfileReadingData,
-  USER_READING_HISTORY_QUERY,
-} from '@dailydotdev/shared/src/graphql/users';
+import type { ProfileReadingData } from '@dailydotdev/shared/src/graphql/users';
+import { USER_READING_HISTORY_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useActivityTimeFilter } from '@dailydotdev/shared/src/hooks/profile/useActivityTimeFilter';
 import { ReadingTagsWidget } from '@dailydotdev/shared/src/components/profile/ReadingTagsWidget';
@@ -18,13 +17,13 @@ import { useJoinReferral } from '@dailydotdev/shared/src/hooks';
 import { useReadingStreak } from '@dailydotdev/shared/src/hooks/streaks';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { NextSeo } from 'next-seo';
-import { NextSeoProps } from 'next-seo/lib/types';
+import type { NextSeoProps } from 'next-seo/lib/types';
+import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
   getLayout as getProfileLayout,
   getProfileSeoDefaults,
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
-  ProfileLayoutProps,
 } from '../../components/layouts/ProfileLayout';
 import { ReadingStreaksWidget } from '../../../shared/src/components/profile/ReadingStreaksWidget';
 import { TopReaderWidget } from '../../../shared/src/components/profile/TopReaderWidget';

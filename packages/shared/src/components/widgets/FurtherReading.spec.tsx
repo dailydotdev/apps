@@ -1,21 +1,18 @@
 import nock from 'nock';
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
-import { LoggedUser } from '../../lib/user';
-import { Post } from '../../graphql/posts';
-import {
-  FURTHER_READING_QUERY,
-  FurtherReadingData,
-} from '../../graphql/furtherReading';
+import type { LoggedUser } from '../../lib/user';
+import type { Post } from '../../graphql/posts';
+import type { FurtherReadingData } from '../../graphql/furtherReading';
+import { FURTHER_READING_QUERY } from '../../graphql/furtherReading';
 import defaultFeedPage from '../../../__tests__/fixture/feed';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import FurtherReading from './FurtherReading';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '../../../__tests__/helpers/graphql';
+import type { MockedGraphQLResponse } from '../../../__tests__/helpers/graphql';
+import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import post from '../../../__tests__/fixture/post';
 

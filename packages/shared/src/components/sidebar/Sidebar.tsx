@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import dynamic from 'next/dynamic';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';

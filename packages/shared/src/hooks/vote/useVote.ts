@@ -4,14 +4,13 @@ import AuthContext from '../../contexts/AuthContext';
 import { UserVote } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
 import { useRequestProtocol } from '../useRequestProtocol';
-import {
+import type {
   UseVoteMutationProps,
   VoteProps,
   UseVote,
   UseVoteProps,
-  createVoteMutationKey,
-  UserVoteEntity,
 } from './types';
+import { createVoteMutationKey, UserVoteEntity } from './types';
 import { VOTE_MUTATION } from '../../graphql/users';
 import { useActions } from '../useActions';
 import { ActionType } from '../../graphql/actions';

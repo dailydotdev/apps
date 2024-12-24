@@ -1,6 +1,8 @@
-import React, { FormEventHandler, ReactElement, useState } from 'react';
+import type { FormEventHandler, ReactElement } from 'react';
+import React, { useState } from 'react';
 import { format } from 'date-fns';
-import { LazyModalCommonProps, Modal } from '../common/Modal';
+import type { LazyModalCommonProps } from '../common/Modal';
+import { Modal } from '../common/Modal';
 import { ModalHeader } from '../common/ModalHeader';
 import { ModalBody } from '../common/ModalBody';
 import { ModalSize } from '../common/types';
@@ -10,8 +12,9 @@ import {
   ReminderPreference,
   useBookmarkReminder,
 } from '../../../hooks/notifications';
-import { Post } from '../../../graphql/posts';
-import { ActiveFeedContext, ActiveFeedContextValue } from '../../../contexts';
+import type { Post } from '../../../graphql/posts';
+import type { ActiveFeedContextValue } from '../../../contexts';
+import { ActiveFeedContext } from '../../../contexts';
 import ConditionalWrapper from '../../ConditionalWrapper';
 
 export interface BookmarkReminderProps extends LazyModalCommonProps {

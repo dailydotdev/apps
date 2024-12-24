@@ -1,6 +1,9 @@
-import React, { ReactElement, useMemo, useState } from 'react';
-import Link, { LinkProps } from '../utilities/Link';
-import { BaseTooltip, getShouldLoadTooltip, TooltipProps } from './BaseTooltip';
+import type { ReactElement } from 'react';
+import React, { useMemo, useState } from 'react';
+import type { LinkProps } from '../utilities/Link';
+import Link from '../utilities/Link';
+import type { TooltipProps } from './BaseTooltip';
+import { BaseTooltip, getShouldLoadTooltip } from './BaseTooltip';
 
 export interface LinkWithTooltipProps extends LinkProps {
   children?: ReactElement;

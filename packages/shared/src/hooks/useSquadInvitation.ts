@@ -1,7 +1,8 @@
-import { CopyNotifyFunction, useCopyLink } from './useCopy';
+import type { CopyNotifyFunction } from './useCopy';
+import { useCopyLink } from './useCopy';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
-import { Squad } from '../graphql/sources';
+import type { Squad } from '../graphql/sources';
 import { useActions } from './useActions';
 import { ActionType } from '../graphql/actions';
 

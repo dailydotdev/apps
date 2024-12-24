@@ -1,8 +1,9 @@
-import React, { PropsWithChildren, ReactElement } from 'react';
+import type { PropsWithChildren, ReactElement } from 'react';
+import React from 'react';
 import classed from '../../lib/classed';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { HomeIcon } from '../icons';
-import { WithClassNameProps } from '../utilities';
+import type { WithClassNameProps } from '../utilities';
 
 const BreadCrumbsWrapper = classed(
   'nav',

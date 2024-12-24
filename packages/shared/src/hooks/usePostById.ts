@@ -1,33 +1,30 @@
 import { useMemo } from 'react';
-import {
+import type {
   QueryClient,
   QueryKey,
   QueryObserverOptions,
-  useQuery,
   UseQueryResult,
 } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../contexts/AuthContext';
-import {
-  Post,
-  PostData,
-  POST_BY_ID_QUERY,
-  RelatedPost,
-} from '../graphql/posts';
-import { PostCommentsData } from '../graphql/comments';
+import type { Post, PostData, RelatedPost } from '../graphql/posts';
+import { POST_BY_ID_QUERY } from '../graphql/posts';
+import type { PostCommentsData } from '../graphql/comments';
+import type { RequestKey } from '../lib/query';
 import {
   getAllCommentsQuery,
-  RequestKey,
   StaleTime,
   updatePostContentPreference,
 } from '../lib/query';
-import { Connection, gqlClient } from '../graphql/common';
+import type { Connection } from '../graphql/common';
+import { gqlClient } from '../graphql/common';
 import { useMutationSubscription } from './mutationSubscription/useMutationSubscription';
+import type { ContentPreferenceMutation } from './contentPreference/types';
 import {
-  ContentPreferenceMutation,
   contentPreferenceMutationMatcher,
   mutationKeyToContentPreferenceStatusMap,
 } from './contentPreference/types';
-import { PropsParameters } from '../types';
+import type { PropsParameters } from '../types';
 
 interface UsePostByIdProps {
   id: string;

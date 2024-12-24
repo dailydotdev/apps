@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { Button, ButtonColor, ButtonVariant } from '../../../../buttons/Button';
 import { UserVote } from '../../../../../graphql/posts';
 import { DownvoteIcon, UpvoteIcon } from '../../../../icons';
-import { FeedbackProps } from './common';
+import type { FeedbackProps } from './common';
 
 export const FeedbackButtons = ({
   post,

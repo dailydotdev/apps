@@ -1,9 +1,11 @@
-import React, { type ReactElement } from 'react';
-import { ButtonSize, ButtonVariant, type ButtonProps, Button } from './Button';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { ButtonProps } from './Button';
+import { ButtonSize, ButtonVariant, Button } from './Button';
 import { SimpleTooltip } from '../tooltips';
 import { useFeedSettingsEdit } from '../feeds/FeedSettings/useFeedSettingsEdit';
 import { TrashIcon } from '../icons';
-import { WithClassNameProps } from '../utilities';
+import type { WithClassNameProps } from '../utilities';
 
 type DeleteCustomFeedProps = {
   feedId: string;

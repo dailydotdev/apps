@@ -1,4 +1,5 @@
-import React, { KeyboardEvent, ReactElement, useState } from 'react';
+import type { KeyboardEvent, ReactElement } from 'react';
+import React, { useState } from 'react';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import classNames from 'classnames';
 import commentPopupText from '../../../commentPopupText';

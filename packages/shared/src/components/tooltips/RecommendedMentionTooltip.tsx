@@ -1,7 +1,8 @@
-import React, { MutableRefObject, ReactElement } from 'react';
+import type { MutableRefObject, ReactElement } from 'react';
+import React from 'react';
 import { BaseTooltip } from './BaseTooltip';
 import { RecommendedMention } from '../RecommendedMention';
-import { UserShortProfile } from '../../lib/user';
+import type { UserShortProfile } from '../../lib/user';
 import { isTesting } from '../../lib/constants';
 
 interface RecommendedMentionTooltipProps {

@@ -1,7 +1,6 @@
+import type { MutableRefObject, ReactElement } from 'react';
 import React, {
   forwardRef,
-  MutableRefObject,
-  ReactElement,
   useCallback,
   useEffect,
   useImperativeHandle,
@@ -18,7 +17,7 @@ import {
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Image } from '../image/Image';
 import { fallbackImages } from '../../lib/config';
-import { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
+import type { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';

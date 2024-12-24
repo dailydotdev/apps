@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useActiveFeedNameContext } from '../../contexts';
 import { useMutationSubscription } from '../mutationSubscription';
-import {
-  UseVoteMutationProps,
-  UserVoteEntity,
-  createVoteMutationKey,
-} from '../vote';
-import { Post, UserVote } from '../../graphql/posts';
+import type { UseVoteMutationProps } from '../vote';
+import { UserVoteEntity, createVoteMutationKey } from '../vote';
+import type { Post } from '../../graphql/posts';
+import { UserVote } from '../../graphql/posts';
 import { useBookmarkReminderCover } from '../bookmark/useBookmarkReminderCover';
 
 interface UsePostShareLoop {

@@ -1,6 +1,8 @@
-import React, { ReactElement, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
-import FeedTopicCard, { ButtonEvent } from '../containers/FeedTopicCard';
+import type { ButtonEvent } from '../containers/FeedTopicCard';
+import FeedTopicCard from '../containers/FeedTopicCard';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { Origin } from '../../lib/log';

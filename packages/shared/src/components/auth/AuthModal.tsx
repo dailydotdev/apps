@@ -1,12 +1,16 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useState } from 'react';
 import classNames from 'classnames';
 import AuthOptions, { AuthDisplay as Display } from './AuthOptions';
 import useAuthForms from '../../hooks/useAuthForms';
 import AuthContext from '../../contexts/AuthContext';
-import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
+import type { AuthTriggersType } from '../../lib/auth';
+import { AuthEventNames } from '../../lib/auth';
 import LogContext from '../../contexts/LogContext';
-import { Modal, ModalProps } from '../modals/common/Modal';
-import { AnonymousUser, LoggedUser, LogoutReason } from '../../lib/user';
+import type { ModalProps } from '../modals/common/Modal';
+import { Modal } from '../modals/common/Modal';
+import type { AnonymousUser, LoggedUser } from '../../lib/user';
+import { LogoutReason } from '../../lib/user';
 import { logPixelSignUp } from '../Pixels';
 
 export interface AuthModalProps extends ModalProps {

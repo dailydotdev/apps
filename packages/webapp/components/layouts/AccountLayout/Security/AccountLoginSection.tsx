@@ -1,12 +1,13 @@
-import { Provider } from '@dailydotdev/shared/src/components/auth/common';
+import type { Provider } from '@dailydotdev/shared/src/components/auth/common';
 import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import AccountContentSection from '../AccountContentSection';
-import {
+import type {
   ManageSocialProviderTypes,
   ManageSocialProvidersProps,
 } from '../common';

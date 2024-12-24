@@ -1,7 +1,7 @@
-import { FeedItemPosition } from '../../../lib/feed';
-import { Post } from '../../../graphql/posts';
-import { Comment } from '../../../graphql/comments';
-import { Origin } from '../../../lib/log';
+import type { FeedItemPosition } from '../../../lib/feed';
+import type { Post } from '../../../graphql/posts';
+import type { Comment } from '../../../graphql/comments';
+import type { Origin } from '../../../lib/log';
 
 export interface ShareProps extends FeedItemPosition {
   post: Post;

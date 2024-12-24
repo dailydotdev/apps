@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classnames from 'classnames';
 import { LoaderIcon } from '../../icons';
 import { IconSize } from '../../Icon';

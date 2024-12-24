@@ -1,6 +1,8 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import Link from '../utilities/Link';
-import Alert, { AlertProps, AlertType } from '../widgets/Alert';
+import type { AlertProps } from '../widgets/Alert';
+import Alert, { AlertType } from '../widgets/Alert';
 import { webappUrl } from '../../lib/constants';
 
 export type ReputationAlertProps = Omit<AlertProps, 'type' | 'title'>;

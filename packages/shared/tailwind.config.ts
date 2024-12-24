@@ -1,4 +1,5 @@
-import type { Config } from 'tailwindcss';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { type Config } from 'tailwindcss';
 import colors from './tailwind/colors';
 import boxShadow from './tailwind/boxShadow';
 import caret from './tailwind/caret';

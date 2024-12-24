@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import React, { ReactElement, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { Nav, SidebarAside, SidebarScrollWrapper } from './common';
 import { useSettingsContext } from '../../contexts/SettingsContext';

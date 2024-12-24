@@ -1,18 +1,13 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  createContext,
-  useRef,
-  useContext,
-} from 'react';
-import useLogQueue, { LogEvent } from '../hooks/log/useLogQueue';
+import type { ReactElement, ReactNode } from 'react';
+import React, { createContext, useRef, useContext } from 'react';
+import type { LogEvent } from '../hooks/log/useLogQueue';
+import useLogQueue from '../hooks/log/useLogQueue';
 import useLogSharedProps from '../hooks/log/useLogSharedProps';
-import useLogContextData, {
-  LogContextData,
-} from '../hooks/log/useLogContextData';
+import type { LogContextData } from '../hooks/log/useLogContextData';
+import useLogContextData from '../hooks/log/useLogContextData';
 import useBackfillPendingLogs from '../hooks/log/useBackfillPendingLogs';
 import useLogLifecycleEvents from '../hooks/log/useLogLifecycleEvents';
-import { BootApp } from '../lib/boot';
+import type { BootApp } from '../lib/boot';
 
 const LogContext = createContext<LogContextData>({
   logEvent: () => {},

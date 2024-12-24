@@ -1,5 +1,7 @@
-import React, { ReactElement, useMemo } from 'react';
-import { ListIcon, SidebarMenuItem } from '../common';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
+import type { SidebarMenuItem } from '../common';
+import { ListIcon } from '../common';
 import { DefaultSquadIcon, NewSquadIcon, SourceIcon } from '../../icons';
 import { Section } from '../Section';
 import { Origin } from '../../../lib/log';
@@ -8,7 +10,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { SquadImage } from '../../squads/SquadImage';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { webappUrl } from '../../../lib/constants';
-import { SidebarSectionProps } from './common';
+import type { SidebarSectionProps } from './common';
 
 export const NetworkSection = ({
   isItemsButton,

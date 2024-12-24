@@ -1,5 +1,5 @@
 import React, { act } from 'react';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import {
   loginVerificationMockData,
@@ -17,12 +17,8 @@ import {
   socialProviderRedirectMock,
   verifiedLoginData,
 } from '@dailydotdev/shared/__tests__/fixture/auth';
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-} from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getNodeValue } from '@dailydotdev/shared/src/lib/auth';

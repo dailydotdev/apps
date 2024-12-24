@@ -1,25 +1,25 @@
-import {
+import type {
   InfiniteData,
-  MutationCache,
   QueryClient,
   QueryClientConfig,
   QueryKey,
 } from '@tanstack/react-query';
-import { ClientError } from 'graphql-request';
+import { MutationCache } from '@tanstack/react-query';
+import type { ClientError } from 'graphql-request';
 
-import { Connection, GARMR_ERROR } from '../graphql/common';
-import type { PageInfo } from '../graphql/common';
-import { EmptyObjectLiteral } from './kratos';
-import { LoggedUser } from './user';
-import { FeedData, Post, ReadHistoryPost } from '../graphql/posts';
+import { GARMR_ERROR } from '../graphql/common';
+import type { PageInfo, Connection } from '../graphql/common';
+import type { EmptyObjectLiteral } from './kratos';
+import type { LoggedUser } from './user';
+import type { FeedData, Post, ReadHistoryPost } from '../graphql/posts';
 import type { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
-import { SharedFeedPage } from '../components/utilities';
-import {
+import type { SharedFeedPage } from '../components/utilities';
+import type {
   Comment as PostComment,
   Author as UserAuthor,
-  SortCommentsBy,
 } from '../graphql/comments';
-import {
+import { SortCommentsBy } from '../graphql/comments';
+import type {
   ContentPreferenceStatus,
   ContentPreferenceType,
 } from '../graphql/contentPreference';

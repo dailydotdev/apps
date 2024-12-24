@@ -1,19 +1,15 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  useEffect,
-  useRef,
-  useState,
-  LegacyRef,
-  useCallback,
-} from 'react';
+import type { ReactElement, ReactNode, LegacyRef } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import Modal from 'react-modal';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import { REQUEST_PROTOCOL_KEY } from '@dailydotdev/shared/src/graphql/common';
 import '@dailydotdev/shared/src/styles/globals.css';
-import { AccessToken, PostBootData } from '@dailydotdev/shared/src/lib/boot';
+import type {
+  AccessToken,
+  PostBootData,
+} from '@dailydotdev/shared/src/lib/boot';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
 import { usePopupSelector } from '@dailydotdev/shared/src/hooks/usePopupSelector';

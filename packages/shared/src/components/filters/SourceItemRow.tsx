@@ -1,6 +1,7 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { FilterItem } from './common';
-import { Source } from '../../graphql/sources';
+import type { Source } from '../../graphql/sources';
 import { LazyImage } from '../LazyImage';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { BlockIcon } from '../icons';

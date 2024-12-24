@@ -1,20 +1,21 @@
-import React, { ReactElement, ReactNode, useMemo } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import OptionsButton from '../../buttons/OptionsButton';
 import { CardHeader } from './Card';
 import SourceButton from './SourceButton';
-import { Source } from '../../../graphql/sources';
+import type { Source } from '../../../graphql/sources';
 import { ReadArticleButton } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
 import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
+import type { Post } from '../../../graphql/posts';
 import {
   getReadPostButtonText,
   isInternalReadType,
   isSharedPostSquadPost,
-  Post,
 } from '../../../graphql/posts';
 import { ButtonVariant } from '../../buttons/Button';
-import { FlagProps } from './FeedItemContainer';
+import type { FlagProps } from './FeedItemContainer';
 import {
   BookmakProviderHeader,
   headerHiddenClassName,

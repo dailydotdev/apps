@@ -1,7 +1,9 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { TabContainer, Tab } from '../tabs/TabContainer';
 import { webappUrl } from '../../lib/constants';
-import { SourcePermissions, Squad } from '../../graphql/sources';
+import type { Squad } from '../../graphql/sources';
+import { SourcePermissions } from '../../graphql/sources';
 import { verifyPermission } from '../../graphql/squads';
 
 export enum SquadTab {

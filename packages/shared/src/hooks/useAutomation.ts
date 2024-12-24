@@ -1,8 +1,8 @@
-import {
+import type {
   MutationOptions,
   UseMutateAsyncFunction,
-  useMutation,
 } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { HttpError } from '../lib/errors';
 
 export enum Automation {

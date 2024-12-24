@@ -1,4 +1,5 @@
-import React, { ReactElement, useEffect, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { useFeedSettingsEdit } from './useFeedSettingsEdit';
@@ -13,7 +14,8 @@ import {
   HashtagIcon,
   MagicIcon,
 } from '../../icons';
-import { FeedSettingsMenu, feedSettingsMenuTitle } from './types';
+import type { FeedSettingsMenu } from './types';
+import { feedSettingsMenuTitle } from './types';
 import { IconSize } from '../../Icon';
 import { FeedSettingsEditContext } from './FeedSettingsEditContext';
 import { FeedSettingsEditHeader } from './FeedSettingsEditHeader';

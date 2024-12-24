@@ -1,5 +1,6 @@
 import classed from '@dailydotdev/shared/src/lib/classed';
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 
 interface ClassName {
   container?: string;

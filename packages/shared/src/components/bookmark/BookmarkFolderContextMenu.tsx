@@ -1,5 +1,6 @@
-import React, { ReactElement, useId } from 'react';
-import { BookmarkFolder } from '../../graphql/bookmarks';
+import type { ReactElement } from 'react';
+import React, { useId } from 'react';
+import type { BookmarkFolder } from '../../graphql/bookmarks';
 import useContextMenu from '../../hooks/useContextMenu';
 import { usePrompt } from '../../hooks/usePrompt';
 import OptionsButton from '../buttons/OptionsButton';

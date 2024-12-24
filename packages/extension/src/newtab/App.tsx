@@ -1,10 +1,5 @@
-import React, {
-  ReactElement,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import type { ReactElement } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import Modal from 'react-modal';
@@ -15,7 +10,7 @@ import AuthContext, {
 } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import browser from 'webextension-polyfill';
-import { BootDataProviderProps } from '@dailydotdev/shared/src/contexts/BootProvider';
+import type { BootDataProviderProps } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { RouterContext } from 'next/dist/shared/lib/router-context.shared-runtime';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import useDeviceId from '@dailydotdev/shared/src/hooks/log/useDeviceId';

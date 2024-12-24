@@ -1,4 +1,5 @@
-import React, { ReactElement, ReactNode, useMemo, useState } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
@@ -6,7 +7,8 @@ import {
   OtherFeedPage,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
-import Feed, { FeedProps } from '@dailydotdev/shared/src/components/Feed';
+import type { FeedProps } from '@dailydotdev/shared/src/components/Feed';
+import Feed from '@dailydotdev/shared/src/components/Feed';
 import {
   FEED_BY_IDS_QUERY,
   supportedTypesForPrivateSources,

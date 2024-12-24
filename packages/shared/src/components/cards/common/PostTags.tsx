@@ -1,6 +1,7 @@
-import React, { ReactElement, useRef } from 'react';
+import type { ReactElement } from 'react';
+import React, { useRef } from 'react';
 import classNames from 'classnames';
-import { Post } from '../../../graphql/posts';
+import type { Post } from '../../../graphql/posts';
 import Classed from '../../../lib/classed';
 import { useFeedTags } from '../../../hooks/feed/useFeedTags';
 import { useFeedLayout } from '../../../hooks';

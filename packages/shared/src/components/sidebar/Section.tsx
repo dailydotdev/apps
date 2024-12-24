@@ -1,15 +1,12 @@
 import classNames from 'classnames';
-import React, { ReactElement, useRef } from 'react';
-import {
-  ItemInnerProps,
-  NavHeader,
-  NavSection,
-  SidebarMenuItem,
-} from './common';
+import type { ReactElement } from 'react';
+import React, { useRef } from 'react';
+import type { ItemInnerProps, SidebarMenuItem } from './common';
+import { NavHeader, NavSection } from './common';
 import { SidebarItem } from './SidebarItem';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
-import { SettingsFlags } from '../../graphql/settings';
+import type { SettingsFlags } from '../../graphql/settings';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { isNullOrUndefined } from '../../lib/func';
 

@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { useSourceIntegrationsQuery } from '../../hooks/integrations/useSourceIntegrationsQuery';
 import { ProfileImageSize } from '../ProfilePicture';
 import { SourceAvatar } from '../profile/source';

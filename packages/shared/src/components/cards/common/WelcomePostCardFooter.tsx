@@ -1,7 +1,8 @@
-import React, { ReactElement, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
 import { sanitize } from 'dompurify';
 import { CardSpace } from './Card';
-import { Post } from '../../../graphql/posts';
+import type { Post } from '../../../graphql/posts';
 import { CardCover } from './CardCover';
 import { useCardCover } from '../../../hooks/feed/useCardCover';
 

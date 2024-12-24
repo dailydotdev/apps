@@ -1,4 +1,5 @@
-import React, { PropsWithChildren, ReactElement, useContext } from 'react';
+import type { PropsWithChildren, ReactElement } from 'react';
+import React, { useContext } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { PageWidgets } from '../../utilities';
@@ -8,7 +9,8 @@ import {
   providerToLabelTextMap,
   SearchProviderButton,
 } from '../SearchPanel';
-import { SearchProviderEnum, SearchSuggestion } from '../../../graphql/search';
+import type { SearchSuggestion } from '../../../graphql/search';
+import { SearchProviderEnum } from '../../../graphql/search';
 import { useSearchResultsLayout } from '../../../hooks/search/useSearchResultsLayout';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';

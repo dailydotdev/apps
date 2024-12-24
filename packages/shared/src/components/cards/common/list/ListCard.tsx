@@ -1,6 +1,7 @@
-import React, { HTMLAttributes, ReactNode } from 'react';
+import type { HTMLAttributes, ReactNode } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { ReactElement } from 'react-markdown/lib/react-markdown';
+import type { ReactElement } from 'react-markdown/lib/react-markdown';
 import classed from '../../../../lib/classed';
 import { Image } from '../../../image/Image';
 

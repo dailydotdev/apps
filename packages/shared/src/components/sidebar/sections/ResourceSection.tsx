@@ -1,12 +1,14 @@
-import React, { ReactElement, useMemo } from 'react';
-import { ListIcon, SidebarMenuItem } from '../common';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
+import type { SidebarMenuItem } from '../common';
+import { ListIcon } from '../common';
 import { DocsIcon, FeedbackIcon, TerminalIcon } from '../../icons';
 import { docs, feedback, webappUrl } from '../../../lib/constants';
 import { Section } from '../Section';
 import { AlertColor, AlertDot } from '../../AlertDot';
 import { useChangelog } from '../../../hooks/useChangelog';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
-import { SidebarSectionProps } from './common';
+import type { SidebarSectionProps } from './common';
 
 export const ResourceSection = ({
   isItemsButton,

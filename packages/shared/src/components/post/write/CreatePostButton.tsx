@@ -1,18 +1,17 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
 import { link } from '../../../lib/links';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useSquad, useViewSize, ViewSize } from '../../../hooks';
 import { verifyPermission } from '../../../graphql/squads';
 import { SourcePermissions } from '../../../graphql/sources';
-import {
+import type {
   AllowedElements,
   AllowedTags,
-  Button,
   ButtonProps,
-  ButtonSize,
-  ButtonVariant,
 } from '../../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { PlusIcon } from '../../icons';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { SimpleTooltip } from '../../tooltips';

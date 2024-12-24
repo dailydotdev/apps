@@ -1,13 +1,15 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SimpleTooltip } from '../tooltips';
 import { ChecklistAIcon, InfoIcon } from '../icons';
-import { IconProps, IconSize } from '../Icon';
+import type { IconProps } from '../Icon';
+import { IconSize } from '../Icon';
+import type { TypographyProps } from '../typography/Typography';
 import {
   Typography,
   TypographyColor,
-  TypographyProps,
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';

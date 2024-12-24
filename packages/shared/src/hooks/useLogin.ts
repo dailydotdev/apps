@@ -1,28 +1,30 @@
 import { useCallback, useContext, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { LoginFormParams } from '../components/auth/LoginForm';
+import type { LoginFormParams } from '../components/auth/LoginForm';
 import AuthContext from '../contexts/AuthContext';
-import {
-  AuthEventNames,
-  getNodeValue,
+import type {
   LoginPasswordParameters,
   LoginSocialParameters,
   ValidateLoginParams,
 } from '../lib/auth';
+import { AuthEventNames, getNodeValue } from '../lib/auth';
+import type {
+  AuthSession,
+  EmptyObjectLiteral,
+  InitializationData,
+} from '../lib/kratos';
 import {
   AuthEvent,
   AuthFlow,
-  AuthSession,
-  EmptyObjectLiteral,
   getKratosSession,
-  InitializationData,
   initializeKratosFlow,
   submitKratosFlow,
 } from '../lib/kratos';
 import LogContext from '../contexts/LogContext';
 import { useToastNotification } from './useToastNotification';
-import { SignBackProvider, useSignBack } from './auth/useSignBack';
-import { LoggedUser } from '../lib/user';
+import type { SignBackProvider } from './auth/useSignBack';
+import { useSignBack } from './auth/useSignBack';
+import type { LoggedUser } from '../lib/user';
 import { labels } from '../lib';
 import { useEventListener } from './useEventListener';
 

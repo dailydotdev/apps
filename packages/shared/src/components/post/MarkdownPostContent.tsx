@@ -1,9 +1,12 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import Link from '../utilities/Link';
-import { Post, PostType } from '../../graphql/posts';
+import type { Post } from '../../graphql/posts';
+import { PostType } from '../../graphql/posts';
 import Markdown from '../Markdown';
-import { LazyImage, LazyImageProps } from '../LazyImage';
+import type { LazyImageProps } from '../LazyImage';
+import { LazyImage } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { PostClickbaitShield } from './common/PostClickbaitShield';

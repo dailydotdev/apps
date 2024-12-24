@@ -1,4 +1,5 @@
-import React, { FormEventHandler, ReactElement } from 'react';
+import type { FormEventHandler, ReactElement } from 'react';
+import React from 'react';
 import { TextField } from '../../fields/TextField';
 import { LinkIcon, OpenLinkIcon } from '../../icons';
 import { SourceAvatar } from '../../profile/source';
@@ -8,7 +9,7 @@ import {
   WritePreviewContainer,
   WritePreviewContent,
 } from './common';
-import { ExternalLinkPreview } from '../../../graphql/posts';
+import type { ExternalLinkPreview } from '../../../graphql/posts';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { ProfileImageSize } from '../../ProfilePicture';
 

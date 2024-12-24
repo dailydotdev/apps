@@ -4,15 +4,17 @@ import { NotificationChecklistStep } from '../components/checklist/NotificationC
 import { SharePostChecklistStep } from '../components/checklist/SharePostChecklistStep';
 import { SquadFirstCommentChecklistStep } from '../components/checklist/SquadFirstCommentChecklistStep';
 import { ActionType } from '../graphql/actions';
-import { SourceMemberRole, SourcePermissions, Squad } from '../graphql/sources';
+import type { Squad } from '../graphql/sources';
+import { SourceMemberRole, SourcePermissions } from '../graphql/sources';
+import type { ChecklistStepType } from '../lib/checklist';
 import {
   actionsPerRoleMap,
-  ChecklistStepType,
   createChecklistStep,
   SQUAD_CHECKLIST_VISIBLE_KEY,
 } from '../lib/checklist';
 import { useActions } from './useActions';
-import { UseChecklist, useChecklist } from './useChecklist';
+import type { UseChecklist } from './useChecklist';
+import { useChecklist } from './useChecklist';
 import usePersistentContext from './usePersistentContext';
 import { InviteMemberChecklistStep } from '../components/checklist/InviteMemberChecklistStep';
 import { verifyPermission } from '../graphql/squads';

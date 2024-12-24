@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { Source, SourceMemberRole } from '../graphql/sources';
-import { PublicProfile } from '../lib/user';
+import type { Source, SourceMemberRole } from '../graphql/sources';
+import type { PublicProfile } from '../lib/user';
 
 export type UseMemberRoleForSourceProps = {
   source?: Source;

@@ -1,6 +1,8 @@
-import React, { ReactElement, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useState } from 'react';
 import { passwordStrength } from 'check-password-strength';
-import { TextField, TextFieldProps } from './TextField';
+import type { TextFieldProps } from './TextField';
+import { TextField } from './TextField';
 import { EyeIcon, EyeCancelIcon, LockIcon } from '../icons';
 import { IconSize } from '../Icon';
 
