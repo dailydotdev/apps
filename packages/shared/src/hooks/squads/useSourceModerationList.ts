@@ -103,6 +103,7 @@ export const useSourceModerationList = ({
     user,
     squad.id,
   );
+  const squadQueryKey = generateQueryKey(RequestKey.Squad, user, squad.handle);
 
   const handleOptimistic = useCallback(
     (data: SquadPostModerationProps) => {
@@ -110,6 +111,15 @@ export const useSourceModerationList = ({
         queryClient.getQueryData<
           InfiniteData<Connection<SourcePostModeration>>
         >(listQueryKey);
+
+      const currentSquad = queryClient.getQueryData<Squad>(squadQueryKey);
+      queryClient.setQueryData<Squad>(squadQueryKey, (sqd) => {
+        return {
+          ...sqd,
+          moderationPostCount:
+            currentSquad.moderationPostCount - data.postIds.length,
+        };
+      });
 
       queryClient.setQueryData<InfiniteData<Connection<SourcePostModeration>>>(
         listQueryKey,
@@ -129,9 +139,9 @@ export const useSourceModerationList = ({
         },
       );
 
-      return { currentData };
+      return { currentData, currentSquad };
     },
-    [queryClient, listQueryKey],
+    [queryClient, listQueryKey, squadQueryKey],
   );
 
   const {
@@ -159,6 +169,7 @@ export const useSourceModerationList = ({
         return;
       }
       queryClient.setQueryData(listQueryKey, context.currentData);
+      queryClient.setQueryData(squadQueryKey, context.currentSquad);
       displayToast('Failed to approve post(s)');
     },
   });
@@ -200,6 +211,7 @@ export const useSourceModerationList = ({
     },
     onError: (_, __, context) => {
       queryClient.setQueryData(listQueryKey, context.currentData);
+      queryClient.setQueryData(squadQueryKey, context.currentSquad);
     },
   });
 
