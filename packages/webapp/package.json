@@ -35,7 +35,8 @@
     "react-intersection-observer": "^8.34.0",
     "react-modal": "^3.15.1",
     "react-parallax-tilt": "^1.7.248",
-    "react-swipeable": "^7.0.1"
+    "react-swipeable": "^7.0.1",
+    "tailwindcss": "^3.4.14"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.25.9",
@@ -89,7 +90,6 @@
     "postcss-simple-vars": "^7.0.1",
     "prettier": "^2.6.2",
     "serwist": "^9.0.9",
-    "tailwindcss": "^3.4.14",
     "ts-jest": "^26.5.4",
     "typescript": "5.6.3",
     "vercel": "^21.3.3"
