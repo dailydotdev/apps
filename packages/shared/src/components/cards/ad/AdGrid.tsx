@@ -9,8 +9,8 @@ import { AdPixel } from './common/AdPixel';
 import type { AdCardProps } from './common/common';
 import { RemoveAd } from './common/RemoveAd';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
-import type { type InViewRef } from '../../../hooks/feed/useAutoRotatingAds';
 import { useAutoRotatingAds } from '../../../hooks/feed/useAutoRotatingAds';
+import type { type InViewRef } from '../../../hooks/feed/useAutoRotatingAds';
 import { AdRefresh } from './common/AdRefresh';
 import { ButtonSize } from '../../buttons/common';
 

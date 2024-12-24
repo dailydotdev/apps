@@ -11,8 +11,8 @@ import { combinedClicks } from '../../../lib/click';
 
 import { RemoveAd } from './common/RemoveAd';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
-import type { type InViewRef } from '../../../hooks/feed/useAutoRotatingAds';
 import { useAutoRotatingAds } from '../../../hooks/feed/useAutoRotatingAds';
+import type { type InViewRef } from '../../../hooks/feed/useAutoRotatingAds';
 import { AdRefresh } from './common/AdRefresh';
 import AdAttribution from './common/AdAttribution';
 

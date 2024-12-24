@@ -1,7 +1,7 @@
 import type { type MouseEvent, type ReactElement } from 'react';
 import React from 'react';
-import type { type ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
+import type { type ModalProps } from './common/Modal';
 import { Image } from '../image/Image';
 import {
   Typography,
