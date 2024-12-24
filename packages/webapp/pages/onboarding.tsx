@@ -68,7 +68,7 @@ import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/Payment
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import {
   checkIsBrowser,
-  isSafariOnIOS,
+  isIOS,
   UserAgent,
 } from '@dailydotdev/shared/src/lib/func';
 import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboarding/Extension/useOnboardingExtension';
@@ -166,7 +166,7 @@ export function OnboardPage(): ReactElement {
   const { isPushSupported } = usePushNotificationContext();
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
-  const [activeScreen, setActiveScreen] = useState(OnboardingStep.PWA);
+  const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
   const [shouldEnrollOnboardingStep, setShouldEnrollOnboardingStep] =
     useState(false);
   const { value: appExperiment } = useConditionalFeature({
@@ -182,7 +182,7 @@ export function OnboardPage(): ReactElement {
 
   const { value: PWAExperiment } = useConditionalFeature({
     feature: featureOnboardingPWA,
-    shouldEvaluate: shouldEnrollOnboardingStep && isSafariOnIOS(),
+    shouldEvaluate: shouldEnrollOnboardingStep && isIOS(),
   });
 
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
