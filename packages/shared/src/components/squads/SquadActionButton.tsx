@@ -1,17 +1,21 @@
-import React, { ReactElement, useEffect, MouseEvent } from 'react';
+import type { ReactElement, MouseEvent } from 'react';
+import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
-import { SourceMemberRole, Squad } from '../../graphql/sources';
-import { Button, ButtonProps, ButtonVariant } from '../buttons/Button';
+import type { Squad } from '../../graphql/sources';
+import { SourceMemberRole } from '../../graphql/sources';
+import type { ButtonProps } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useJoinSquad, useLeaveSquad } from '../../hooks';
 import { labels } from '../../lib';
 import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent, Origin, TargetType } from '../../lib/log';
+import type { Origin } from '../../lib/log';
+import { LogEvent, TargetType } from '../../lib/log';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { UserShortProfile } from '../../lib/user';
+import type { UserShortProfile } from '../../lib/user';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { AuthTriggers } from '../../lib/auth';
 

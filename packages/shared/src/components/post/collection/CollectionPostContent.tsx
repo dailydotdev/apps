@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import React, { ReactElement, useEffect } from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect } from 'react';
 import Link from '../../utilities/Link';
 import { LazyImage } from '../../LazyImage';
 import { ToastSubject, useToastNotification } from '../../../hooks';
@@ -11,11 +12,8 @@ import { Separator } from '../../cards/common/common';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import Markdown from '../../Markdown';
 import { CollectionPostWidgets } from './CollectionPostWidgets';
-import {
-  PostContainer,
-  PostContentProps,
-  PostNavigationProps,
-} from '../common';
+import type { PostContentProps, PostNavigationProps } from '../common';
+import { PostContainer } from '../common';
 import { Pill } from '../../Pill';
 import { CollectionsIntro } from '../widgets';
 import { useAuthContext } from '../../../contexts/AuthContext';

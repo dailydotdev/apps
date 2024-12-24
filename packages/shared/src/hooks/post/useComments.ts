@@ -4,9 +4,9 @@ import { isNullOrUndefined } from '../../lib/func';
 import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
 import { LogEvent, Origin } from '../../lib/log';
-import { Post } from '../../graphql/posts';
+import type { Post } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
-import { CommentWrite, CommentWriteProps } from './common';
+import type { CommentWrite, CommentWriteProps } from './common';
 
 interface ReplyTo extends CommentWriteProps {
   username: string;

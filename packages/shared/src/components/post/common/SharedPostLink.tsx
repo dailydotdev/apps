@@ -1,7 +1,8 @@
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import Link from '../../utilities/Link';
-import { Post, SharedPost } from '../../../graphql/posts';
-import { CombinedClicks } from '../../../lib/click';
+import type { Post, SharedPost } from '../../../graphql/posts';
+import type { CombinedClicks } from '../../../lib/click';
 
 interface SharedPostTitleProps {
   sharedPost: SharedPost;

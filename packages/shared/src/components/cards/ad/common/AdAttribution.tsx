@@ -1,6 +1,7 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { Ad } from '../../../../graphql/posts';
+import type { Ad } from '../../../../graphql/posts';
 
 interface AdClassName {
   main?: string;

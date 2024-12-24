@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import React, { ReactElement, ReactNode, useContext } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useContext } from 'react';
 import { ModalPropsContext } from './types';
 import { Justify } from '../../utilities';
 

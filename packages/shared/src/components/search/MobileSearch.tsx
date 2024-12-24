@@ -1,12 +1,10 @@
-import React, {
+import type {
   MouseEvent,
   FormEventHandler,
   ReactElement,
-  useEffect,
-  useRef,
-  useState,
   FormEvent,
 } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
@@ -14,10 +12,8 @@ import { cloudinaryFeedBgMobile } from '../../lib/image';
 import CloseButton from '../CloseButton';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { SearchSubmitButton } from './SearchSubmitButton';
-import {
-  SearchBarSuggestionList,
-  SearchBarSuggestionListProps,
-} from './SearchBarSuggestionList';
+import type { SearchBarSuggestionListProps } from './SearchBarSuggestionList';
+import { SearchBarSuggestionList } from './SearchBarSuggestionList';
 import { SearchHistory } from './SearchHistory';
 
 interface MobileSearchProps {

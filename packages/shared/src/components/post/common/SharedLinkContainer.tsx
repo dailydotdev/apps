@@ -1,4 +1,5 @@
-import React, { ReactElement, ReactNode, useState } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import PostSummary from '../../cards/common/PostSummary';
 import { ArrowIcon } from '../../icons';

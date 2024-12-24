@@ -1,9 +1,10 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
 import { DangerZone } from '../../widgets/DangerZone';
 import { SquadSettingsSection } from './SquadSettingsSection';
 import { useDeleteSquad } from '../../../hooks/useDeleteSquad';
-import { Squad } from '../../../graphql/sources';
+import type { Squad } from '../../../graphql/sources';
 import { anchorDefaultRel } from '../../../lib/strings';
 
 interface SquadDangerZoneProps {

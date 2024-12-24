@@ -1,10 +1,5 @@
-import {
-  render,
-  RenderResult,
-  screen,
-  waitFor,
-  fireEvent,
-} from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { act } from 'react';
 import nock from 'nock';

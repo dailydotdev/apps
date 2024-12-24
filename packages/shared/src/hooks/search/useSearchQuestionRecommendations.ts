@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { getSearchSuggestions } from '../../graphql/search';
-import { SearchBarSuggestionListProps } from '../../components/search/SearchBarSuggestionList';
+import type { SearchBarSuggestionListProps } from '../../components/search/SearchBarSuggestionList';
 import { disabledRefetch } from '../../lib/func';
 
 type UseSearchQuestionRecommendations = (data: {

@@ -8,9 +8,9 @@ import {
 } from '../../graphql/contentPreference';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { gqlClient } from '../../graphql/common';
-import { PropsParameters } from '../../types';
+import type { PropsParameters } from '../../types';
 import { useToastNotification } from '../useToastNotification';
-import { ContentPreferenceMutation } from './types';
+import type { ContentPreferenceMutation } from './types';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { AuthTriggers } from '../../lib/auth';

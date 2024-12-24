@@ -1,6 +1,7 @@
-import React, { ReactElement } from 'react';
-import { GetStaticPropsResult } from 'next';
-import { NextSeoProps } from 'next-seo/lib/types';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { GetStaticPropsResult } from 'next';
+import type { NextSeoProps } from 'next-seo/lib/types';
 
 import {
   Button,
@@ -10,10 +11,8 @@ import { PlusIcon, SitesIcon } from '@dailydotdev/shared/src/components/icons';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import {
-  Source,
-  SOURCE_DIRECTORY_QUERY,
-} from '@dailydotdev/shared/src/graphql/sources';
+import type { Source } from '@dailydotdev/shared/src/graphql/sources';
+import { SOURCE_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/sources';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';

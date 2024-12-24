@@ -1,7 +1,7 @@
-import React, { ReactElement } from 'react';
-import PlaceholderComment, {
-  PlaceholderCommentProps,
-} from './PlaceholderComment';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { PlaceholderCommentProps } from './PlaceholderComment';
+import PlaceholderComment from './PlaceholderComment';
 
 export interface PlaceholderCommentListProps extends PlaceholderCommentProps {
   placeholderAmount?: number;

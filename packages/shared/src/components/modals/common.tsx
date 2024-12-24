@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import dynamic from 'next/dynamic';
 import { LazyModal } from './common/types';
 

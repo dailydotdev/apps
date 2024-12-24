@@ -1,8 +1,9 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
+import type { HTMLAttributes, ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
 import { FlexCol, FlexRow } from '../utilities';
-import { Squad } from '../../graphql/sources';
+import type { Squad } from '../../graphql/sources';
 
 const PlaceholderElement = classed('div', 'bg-accent-pepper-subtlest');
 const RectangleElement = classed(PlaceholderElement, 'rounded-12');

@@ -1,10 +1,7 @@
-import React, { ReactElement } from 'react';
-import {
-  Button,
-  ButtonProps,
-  ButtonSize,
-  ButtonVariant,
-} from '../buttons/Button';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { ButtonProps } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { FilterIcon } from '../icons';

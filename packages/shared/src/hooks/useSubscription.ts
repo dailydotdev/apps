@@ -1,4 +1,5 @@
-import { DependencyList, useContext, useEffect, useRef } from 'react';
+import type { DependencyList } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import SubscriptionContext from '../contexts/SubscriptionContext';
 
 export interface SubscriptionCallbacks<T> {

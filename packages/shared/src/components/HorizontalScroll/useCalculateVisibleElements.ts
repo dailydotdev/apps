@@ -1,4 +1,5 @@
-import { MutableRefObject, useCallback, useEffect, useState } from 'react';
+import type { MutableRefObject } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useToggle } from '../../hooks/useToggle';
 import { useEventListener } from '../../hooks';
 

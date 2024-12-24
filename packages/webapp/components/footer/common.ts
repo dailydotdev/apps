@@ -1,5 +1,5 @@
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import { ReactElement, ReactNode } from 'react';
+import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import type { ReactElement, ReactNode } from 'react';
 
 export interface FooterTab {
   path?: string | ((user: LoggedUser) => string);

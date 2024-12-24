@@ -1,28 +1,23 @@
-import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
+import type { FeedData } from '@dailydotdev/shared/src/graphql/posts';
 import {
   SOURCE_FEED_QUERY,
   supportedTypesForPrivateSources,
 } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import React from 'react';
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import { NextRouter } from 'next/router';
+import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import type { NextRouter } from 'next/router';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
-import {
+import type {
   GraphQLResult,
   MockedGraphQLResponse,
-  mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import {
   generateBasicMembersResult,
@@ -32,18 +27,20 @@ import {
   generateNotFoundSquadResult,
   generateTestSquad,
 } from '@dailydotdev/shared/__tests__/fixture/squads';
-import {
-  BASIC_SQUAD_MEMBERS_QUERY,
+import type {
   BasicSourceMembersData,
-  SQUAD_MEMBERS_QUERY,
-  SQUAD_QUERY,
   SquadData,
   SquadEdgesData,
 } from '@dailydotdev/shared/src/graphql/squads';
 import {
+  BASIC_SQUAD_MEMBERS_QUERY,
+  SQUAD_MEMBERS_QUERY,
+  SQUAD_QUERY,
+} from '@dailydotdev/shared/src/graphql/squads';
+import type { Squad } from '@dailydotdev/shared/src/graphql/sources';
+import {
   SourceMemberRole,
   SourcePermissions,
-  Squad,
 } from '@dailydotdev/shared/src/graphql/sources';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import {

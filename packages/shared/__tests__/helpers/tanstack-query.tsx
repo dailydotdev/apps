@@ -1,4 +1,4 @@
-import { QueryClientConfig } from '@tanstack/react-query';
+import type { QueryClientConfig } from '@tanstack/react-query';
 
 export const defaultQueryClientTestingConfig: QueryClientConfig = {
   defaultOptions: {

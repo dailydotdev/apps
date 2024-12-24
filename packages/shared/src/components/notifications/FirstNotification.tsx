@@ -1,4 +1,5 @@
-import React, { ReactElement, useEffect } from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect } from 'react';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { firstNotificationLink } from '../../lib/constants';
 import NotificationItem from './NotificationItem';

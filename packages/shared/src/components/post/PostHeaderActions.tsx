@@ -1,4 +1,5 @@
-import React, { ReactElement, useCallback, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useCallback, useContext } from 'react';
 import classNames from 'classnames';
 import { OpenLinkIcon } from '../icons';
 import {
@@ -10,7 +11,7 @@ import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import SettingsContext from '../../contexts/SettingsContext';
-import { PostHeaderActionsProps } from './common';
+import type { PostHeaderActionsProps } from './common';
 import { PostMenuOptions } from './PostMenuOptions';
 import { Origin } from '../../lib/log';
 import { CollectionSubscribeButton } from './collection/CollectionSubscribeButton';

@@ -1,4 +1,5 @@
-import React, { InputHTMLAttributes, ReactElement, ReactNode } from 'react';
+import type { InputHTMLAttributes, ReactElement, ReactNode } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import styles from './RadioItem.module.css';
 import ConditionalWrapper from '../ConditionalWrapper';

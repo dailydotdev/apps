@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 

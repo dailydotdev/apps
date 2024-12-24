@@ -1,7 +1,8 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { CardLink } from './Card';
 import { useFeedPreviewMode } from '../../../hooks';
-import { Post } from '../../../graphql/posts';
+import type { Post } from '../../../graphql/posts';
 import { webappUrl } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
 

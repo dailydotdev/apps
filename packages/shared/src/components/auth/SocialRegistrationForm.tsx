@@ -1,26 +1,21 @@
 import classNames from 'classnames';
-import React, {
-  MutableRefObject,
-  ReactElement,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
-import {
-  AuthEventNames,
-  AuthTriggers,
+import type { MutableRefObject, ReactElement } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import type {
   AuthTriggersType,
   SocialRegistrationParameters,
 } from '../../lib/auth';
+import { AuthEventNames, AuthTriggers } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
 import { TextField } from '../fields/TextField';
 import { MailIcon, UserIcon, LockIcon, AtIcon, TwitterIcon } from '../icons';
 import AuthHeader from './AuthHeader';
-import { AuthFormProps, providerMap } from './common';
+import type { AuthFormProps } from './common';
+import { providerMap } from './common';
 import AuthContext from '../../contexts/AuthContext';
-import { ProfileFormHint } from '../../hooks/useProfileForm';
+import type { ProfileFormHint } from '../../hooks/useProfileForm';
 import { Checkbox } from '../fields/Checkbox';
 import LogContext from '../../contexts/LogContext';
 import AuthForm from './AuthForm';
@@ -29,7 +24,8 @@ import { IconSize } from '../Icon';
 import { useGenerateUsername } from '../../hooks';
 import AuthContainer from './AuthContainer';
 import ConditionalWrapper from '../ConditionalWrapper';
-import { SignBackProvider, useSignBack } from '../../hooks/auth/useSignBack';
+import type { SignBackProvider } from '../../hooks/auth/useSignBack';
+import { useSignBack } from '../../hooks/auth/useSignBack';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
 import { LanguageDropdown } from '../profile/LanguageDropdown';
 

@@ -1,6 +1,7 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { ChecklistBarProps } from '../../lib/checklist';
+import type { ChecklistBarProps } from '../../lib/checklist';
 import { useChecklist } from '../../hooks/useChecklist';
 import { ChecklistConfetti } from './ChecklistConfetti';
 

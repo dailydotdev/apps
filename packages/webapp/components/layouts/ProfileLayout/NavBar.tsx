@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
-import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import {
   Button,

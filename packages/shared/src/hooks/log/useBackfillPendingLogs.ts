@@ -1,5 +1,6 @@
-import { MutableRefObject, useEffect } from 'react';
-import { LogEvent } from './useLogQueue';
+import type { MutableRefObject } from 'react';
+import { useEffect } from 'react';
+import type { LogEvent } from './useLogQueue';
 
 export default function useBackfillPendingLogs(
   sharedPropsRef: MutableRefObject<Partial<LogEvent>>,

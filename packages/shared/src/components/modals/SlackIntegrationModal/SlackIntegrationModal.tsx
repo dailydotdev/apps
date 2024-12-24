@@ -1,11 +1,13 @@
-import React, { ReactElement, useEffect, useRef } from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
-import { Modal, ModalProps } from '../common/Modal';
+import type { ModalProps } from '../common/Modal';
+import { Modal } from '../common/Modal';
 import { Dropdown } from '../../fields/Dropdown';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Button } from '../../buttons/Button';
 import { useViewSize, ViewSize } from '../../../hooks';
-import { Source } from '../../../graphql/sources';
+import type { Source } from '../../../graphql/sources';
 import { SourceAvatar } from '../../profile/source';
 import { ProfileImageSize } from '../../ProfilePicture';
 import {

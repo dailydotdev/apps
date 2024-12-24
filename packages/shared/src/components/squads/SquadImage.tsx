@@ -1,6 +1,7 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { Squad } from '../../graphql/sources';
+import type { Squad } from '../../graphql/sources';
 import { Image } from '../image/Image';
 import { cloudinarySquadsImageFallback } from '../../lib/image';
 

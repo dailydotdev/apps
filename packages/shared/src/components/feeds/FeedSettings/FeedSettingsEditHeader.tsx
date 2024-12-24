@@ -1,4 +1,5 @@
-import React, { ReactElement, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
 import { FeedSettingsEditContext } from './FeedSettingsEditContext';
 import { useViewSizeClient, ViewSize } from '../../../hooks/useViewSize';
 import { Button } from '../../buttons/Button';

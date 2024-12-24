@@ -1,17 +1,18 @@
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import InfiniteScrolling, {
   checkFetchMore,
 } from './containers/InfiniteScrolling';
 import MainComment from './comments/MainComment';
-import { Origin } from '../lib/log';
+import type { Origin } from '../lib/log';
 import { useShareComment } from '../hooks/useShareComment';
 import { useUpvoteQuery } from '../hooks/useUpvoteQuery';
 import { useDeleteComment } from '../hooks/comments/useDeleteComment';
 import PlaceholderCommentList from './comments/PlaceholderCommentList';
-import { CommentClassName } from './comments/common';
-import { CommentFeedData } from '../graphql/comments';
+import type { CommentClassName } from './comments/common';
+import type { CommentFeedData } from '../graphql/comments';
 import { useViewSize, ViewSize } from '../hooks';
 import { gqlClient } from '../graphql/common';
 import { getNextPageParam } from '../lib/query';

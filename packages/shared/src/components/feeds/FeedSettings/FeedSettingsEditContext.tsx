@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import { FeedSettingsEditContextValue } from './types';
+import type { FeedSettingsEditContextValue } from './types';
 
 export const FeedSettingsEditContext =
   createContext<FeedSettingsEditContextValue>(undefined);

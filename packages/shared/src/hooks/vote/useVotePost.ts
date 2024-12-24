@@ -2,21 +2,18 @@ import { useContext, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import LogContext from '../../contexts/LogContext';
 import AuthContext from '../../contexts/AuthContext';
-import { PostData, UserVote } from '../../graphql/posts';
+import type { PostData } from '../../graphql/posts';
+import { UserVote } from '../../graphql/posts';
 import { LogEvent } from '../../lib/log';
 import { AuthTriggers } from '../../lib/auth';
-import { PostLogEventFnOptions, postLogEvent } from '../../lib/feed';
+import type { PostLogEventFnOptions } from '../../lib/feed';
+import { postLogEvent } from '../../lib/feed';
 import {
   getPostByIdKey,
   updatePostCache as updateSinglePostCache,
 } from '../usePostById';
-import {
-  UseVotePostProps,
-  UseVotePost,
-  voteMutationHandlers,
-  ToggleVoteProps,
-  UserVoteEntity,
-} from './types';
+import type { UseVotePostProps, UseVotePost, ToggleVoteProps } from './types';
+import { voteMutationHandlers, UserVoteEntity } from './types';
 import { useVote } from './useVote';
 
 const prepareVotePostLogOptions = ({

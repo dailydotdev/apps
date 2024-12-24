@@ -1,8 +1,10 @@
-import React, { MutableRefObject, ReactElement } from 'react';
+import type { MutableRefObject, ReactElement } from 'react';
+import React from 'react';
 import Link from '../utilities/Link';
-import { Button, ButtonProps, ButtonVariant } from '../buttons/Button';
+import type { ButtonProps } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/Button';
 import ConditionalWrapper from '../ConditionalWrapper';
-import { DrawerRef } from './Drawer';
+import type { DrawerRef } from './Drawer';
 
 export type NavItemProps = ButtonProps<'a'> & {
   label: string;

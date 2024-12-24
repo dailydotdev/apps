@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { BreadCrumbs } from './BreadCrumbs';

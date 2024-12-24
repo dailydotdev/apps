@@ -1,5 +1,6 @@
-import React, { ReactElement, useState } from 'react';
-import { NextSeoProps } from 'next-seo';
+import type { ReactElement } from 'react';
+import React, { useState } from 'react';
+import type { NextSeoProps } from 'next-seo';
 import router, { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';

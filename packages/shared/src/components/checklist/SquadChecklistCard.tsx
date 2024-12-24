@@ -1,7 +1,8 @@
-import React, { ReactElement, useContext, useEffect } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { ChecklistCard } from './ChecklistCard';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
-import { Squad } from '../../graphql/sources';
+import type { Squad } from '../../graphql/sources';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';

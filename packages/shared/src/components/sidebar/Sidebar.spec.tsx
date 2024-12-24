@@ -1,23 +1,20 @@
 import React from 'react';
 import nock from 'nock';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
-import { LoggedUser } from '../../lib/user';
-import SettingsContext, {
-  SettingsContextData,
-  ThemeMode,
-} from '../../contexts/SettingsContext';
-import {
-  mockGraphQL,
-  MockedGraphQLResponse,
-} from '../../../__tests__/helpers/graphql';
+import type { LoggedUser } from '../../lib/user';
+import type { SettingsContextData } from '../../contexts/SettingsContext';
+import SettingsContext, { ThemeMode } from '../../contexts/SettingsContext';
+import type { MockedGraphQLResponse } from '../../../__tests__/helpers/graphql';
+import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { FEED_SETTINGS_QUERY } from '../../graphql/feedSettings';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
-import { Alerts } from '../../graphql/alerts';
+import type { Alerts } from '../../graphql/alerts';
 import { SidebarDesktop } from './SidebarDesktop';
 
 let client: QueryClient;

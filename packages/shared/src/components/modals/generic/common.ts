@@ -1,6 +1,7 @@
 import { cloudinaryStreakMigrate } from '../../../lib/image';
 import { migrateUserToStreaks } from '../../../lib/constants';
-import { MarketingCta, MarketingCtaVariant } from '../../marketingCta/common';
+import type { MarketingCta } from '../../marketingCta/common';
+import { MarketingCtaVariant } from '../../marketingCta/common';
 
 export const promotion: Record<string, MarketingCta> = {
   migrateStreaks: {

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { UserCompany } from '../../lib/userCompany';
+import type { UserCompany } from '../../lib/userCompany';
 import { GET_USER_COMPANIES } from '../../graphql/users';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';

@@ -1,8 +1,10 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { BookmarkIcon } from './icons';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import Link from './utilities/Link';
-import { IconProps, IconSize } from './Icon';
+import type { IconProps } from './Icon';
+import { IconSize } from './Icon';
 
 interface BookmarkEmptyScreenProps {
   title?: string;

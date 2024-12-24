@@ -1,8 +1,10 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { SourceAvatar, SourceShortInfo } from '../../profile/source';
 import { ArrowIcon, SquadIcon } from '../../icons';
 import { Dropdown } from '../../fields/Dropdown';
-import { SourceMemberRole, SourceType, Squad } from '../../../graphql/sources';
+import type { Squad } from '../../../graphql/sources';
+import { SourceMemberRole, SourceType } from '../../../graphql/sources';
 import { ButtonSize } from '../../buttons/common';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { ProfileImageSize } from '../../ProfilePicture';

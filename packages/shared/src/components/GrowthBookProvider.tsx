@@ -1,6 +1,5 @@
+import type { ReactElement, ReactNode } from 'react';
 import React, {
-  ReactElement,
-  ReactNode,
   useContext,
   useEffect,
   useRef,
@@ -9,22 +8,25 @@ import React, {
   useCallback,
 } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import {
+import type {
   Context,
+  GrowthBookContextValue,
+} from '@growthbook/growthbook-react';
+import {
   GrowthBook,
   GrowthBookContext,
   GrowthBookProvider as Provider,
   useFeatureValue,
   useFeatureIsOn as gbUseFeatureIsOn,
-  GrowthBookContextValue,
 } from '@growthbook/growthbook-react';
-import { WidenPrimitives, JSONValue } from '@growthbook/growthbook';
+import type { WidenPrimitives, JSONValue } from '@growthbook/growthbook';
 import dynamic from 'next/dynamic';
 import { isGBDevMode, isProduction } from '../lib/constants';
-import { BootApp, BootCacheData } from '../lib/boot';
+import type { BootApp, BootCacheData } from '../lib/boot';
 import { apiUrl } from '../lib/config';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
-import { feature as localFeature, Feature } from '../lib/featureManagement';
+import type { Feature } from '../lib/featureManagement';
+import { feature as localFeature } from '../lib/featureManagement';
 import { useViewSize, ViewSize } from '../hooks/useViewSize';
 
 const ServerError = dynamic(

@@ -1,7 +1,8 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { InviteLinkInput } from '../../referral/InviteLinkInput';
 import { Origin } from '../../../lib/log';
-import { Post } from '../../../graphql/posts';
+import type { Post } from '../../../graphql/posts';
 import { usePostShareLoop } from '../../../hooks/post/usePostShareLoop';
 import { postLogEvent } from '../../../lib/feed';
 import { ShareProvider } from '../../../lib/share';

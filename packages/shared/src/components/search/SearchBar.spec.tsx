@@ -1,11 +1,13 @@
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import nock from 'nock';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../__tests__/fixture/squads';
-import { SearchBar, SearchBarProps } from './SearchBar';
+import type { SearchBarProps } from './SearchBar';
+import { SearchBar } from './SearchBar';
 
 beforeEach(async () => {
   nock.cleanAll();

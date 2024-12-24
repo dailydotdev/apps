@@ -1,8 +1,10 @@
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import nock from 'nock';
-import { NextRouter, useRouter } from 'next/router';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
 import { AuthContextProvider } from '../../../contexts/AuthContext';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
@@ -17,7 +19,7 @@ import { SQUAD_JOIN_MUTATION } from '../../../graphql/squads';
 import { waitForNock } from '../../../../__tests__/helpers/utilities';
 import { ActionType, COMPLETE_ACTION_MUTATION } from '../../../graphql/actions';
 import { SquadList } from './SquadList';
-import { Squad } from '../../../graphql/sources';
+import type { Squad } from '../../../graphql/sources';
 
 const routerReplace = jest.fn();
 const squadsList = [generateTestSquad()];

@@ -1,7 +1,9 @@
-import React, { ReactElement } from 'react';
-import { Source } from '../../graphql/sources';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { Source } from '../../graphql/sources';
 import ConditionalWrapper from '../ConditionalWrapper';
-import { ProfilePicture, ProfilePictureProps } from '../ProfilePicture';
+import type { ProfilePictureProps } from '../ProfilePicture';
+import { ProfilePicture } from '../ProfilePicture';
 import { ProfileLink } from './ProfileLink';
 import { cloudinarySquadsImageFallback } from '../../lib/image';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';

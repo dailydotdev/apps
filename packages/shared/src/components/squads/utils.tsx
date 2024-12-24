@@ -1,4 +1,5 @@
-import React, { PropsWithChildren, ReactElement } from 'react';
+import type { PropsWithChildren, ReactElement } from 'react';
+import React from 'react';
 import classed from '../../lib/classed';
 import {
   Typography,
@@ -6,15 +7,13 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import {
-  BasePageContainer,
-  pageBorders,
-  WithClassNameProps,
-} from '../utilities';
-import { SourcePermissions, Squad } from '../../graphql/sources';
+import type { WithClassNameProps } from '../utilities';
+import { BasePageContainer, pageBorders } from '../utilities';
+import type { Squad } from '../../graphql/sources';
+import { SourcePermissions } from '../../graphql/sources';
 import { TimerIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { PromptOptions } from '../../hooks/usePrompt';
+import type { PromptOptions } from '../../hooks/usePrompt';
 import { ModalSize } from '../modals/common/types';
 import { verifyPermission } from '../../graphql/squads';
 

@@ -1,9 +1,9 @@
 import { useContext, useMemo } from 'react';
-import { UseInfiniteQueryResult } from '@tanstack/react-query';
+import type { UseInfiniteQueryResult } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import { READING_HISTORY_QUERY } from '../../graphql/users';
 import useInfiniteReadingHistory from '../useInfiniteReadingHistory';
-import { PostItem } from '../useFeed';
+import type { PostItem } from '../useFeed';
 import { checkFetchMore } from '../../components/containers/InfiniteScrolling';
 
 interface UseReadingHistory {

@@ -1,12 +1,9 @@
 import classNames from 'classnames';
-import React, {
-  ReactElement,
-  ReactNode,
-  forwardRef,
-  MutableRefObject,
-} from 'react';
-import { BaseField, FieldType, TextInputProps } from './common';
-import { IconProps } from '../Icon';
+import type { ReactElement, ReactNode, MutableRefObject } from 'react';
+import React, { forwardRef } from 'react';
+import type { FieldType, TextInputProps } from './common';
+import { BaseField } from './common';
+import type { IconProps } from '../Icon';
 
 interface FieldStateProps {
   readOnly?: boolean;

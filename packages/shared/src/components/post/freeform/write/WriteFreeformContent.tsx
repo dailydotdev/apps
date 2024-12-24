@@ -1,15 +1,12 @@
-import React, {
-  FormEventHandler,
-  ReactElement,
-  useImperativeHandle,
-  useRef,
-} from 'react';
+import type { FormEventHandler, ReactElement } from 'react';
+import React, { useImperativeHandle, useRef } from 'react';
 import ImageInput from '../../../fields/ImageInput';
 import { CameraIcon } from '../../../icons';
 import { TextField } from '../../../fields/TextField';
 import MarkdownInput from '../../../fields/MarkdownInput';
 import { WritePageMain } from './common';
-import { EditPostProps, imageSizeLimitMB } from '../../../../graphql/posts';
+import type { EditPostProps } from '../../../../graphql/posts';
+import { imageSizeLimitMB } from '../../../../graphql/posts';
 import { formToJson } from '../../../../lib/form';
 import useDebounceFn from '../../../../hooks/useDebounceFn';
 import AlertPointer, { AlertPlacement } from '../../../alert/AlertPointer';
@@ -17,11 +14,8 @@ import { useActions, useViewSize, ViewSize } from '../../../../hooks';
 import { ActionType } from '../../../../graphql/actions';
 import useSidebarRendered from '../../../../hooks/useSidebarRendered';
 import { base64ToFile } from '../../../../lib/base64';
-import {
-  MergedWriteObject,
-  useWritePostContext,
-  WriteForm,
-} from '../../../../contexts';
+import type { MergedWriteObject, WriteForm } from '../../../../contexts';
+import { useWritePostContext } from '../../../../contexts';
 import { defaultMarkdownCommands } from '../../../../hooks/input';
 import { WriteFooter } from '../../write';
 

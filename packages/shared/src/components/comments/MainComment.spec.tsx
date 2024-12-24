@@ -1,9 +1,11 @@
 import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
-import { LoggedUser } from '../../lib/user';
-import MainComment, { MainCommentProps } from './MainComment';
+import type { LoggedUser } from '../../lib/user';
+import type { MainCommentProps } from './MainComment';
+import MainComment from './MainComment';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import comment from '../../../__tests__/fixture/comment';
 import post from '../../../__tests__/fixture/post';

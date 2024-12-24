@@ -1,15 +1,14 @@
-import React, {
+import type {
   AnchorHTMLAttributes,
-  forwardRef,
   HTMLAttributes,
   ReactElement,
   ReactNode,
   Ref,
-  useState,
 } from 'react';
+import React, { forwardRef, useState } from 'react';
 import classNames from 'classnames';
 import Link from '../../../utilities/Link';
-import { Post } from '../../../../graphql/posts';
+import type { Post } from '../../../../graphql/posts';
 import { ListCard, CardLink } from './ListCard';
 import { RaisedLabel, RaisedLabelType } from './RaisedLabel';
 import { useFeedPreviewMode, useBookmarkProvider } from '../../../../hooks';

@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
-import { NextSeoProps } from 'next-seo/lib/types';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { NextSeoProps } from 'next-seo/lib/types';
 import {
   getBookmarkFeedLayout,
   bookmarkFeedLayoutProps,

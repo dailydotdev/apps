@@ -1,24 +1,27 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { MouseEventHandler, useCallback } from 'react';
+import type { MouseEventHandler } from 'react';
+import { useCallback } from 'react';
+import type {
+  SquadPostRejectionProps,
+  SquadPostModerationProps,
+  SourcePostModeration,
+} from '../../graphql/squads';
 import {
   PostModerationReason,
-  SquadPostRejectionProps,
   squadApproveMutation,
   squadRejectMutation,
-  SquadPostModerationProps,
   deletePendingPostMutation,
-  SourcePostModeration,
 } from '../../graphql/squads';
 import { useLazyModal } from '../useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
 import { usePrompt } from '../usePrompt';
 import { useToastNotification } from '../useToastNotification';
 import { generateQueryKey, RequestKey } from '../../lib/query';
-import { Squad } from '../../graphql/sources';
+import type { Squad } from '../../graphql/sources';
 import { LogEvent } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
-import { Post } from '../../graphql/posts';
+import type { Post } from '../../graphql/posts';
 
 export const rejectReasons: { value: PostModerationReason; label: string }[] = [
   {

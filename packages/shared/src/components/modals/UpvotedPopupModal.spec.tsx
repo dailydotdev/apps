@@ -1,20 +1,17 @@
 import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import { COMMENT_UPVOTES_BY_ID_QUERY } from '../../graphql/comments';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '../../../__tests__/helpers/graphql';
-import {
-  DEFAULT_UPVOTES_PER_PAGE,
-  RequestQuery,
-  UpvotesData,
-} from '../../graphql/common';
+import type { MockedGraphQLResponse } from '../../../__tests__/helpers/graphql';
+import { mockGraphQL } from '../../../__tests__/helpers/graphql';
+import type { RequestQuery, UpvotesData } from '../../graphql/common';
+import { DEFAULT_UPVOTES_PER_PAGE } from '../../graphql/common';
 import { POST_UPVOTES_BY_ID_QUERY } from '../../graphql/posts';
-import { UpvotedPopupModal, UpvotedPopupModalProps } from './UpvotedPopupModal';
+import type { UpvotedPopupModalProps } from './UpvotedPopupModal';
+import { UpvotedPopupModal } from './UpvotedPopupModal';
 import user from '../../../__tests__/fixture/loggedUser';
 
 beforeEach(() => {

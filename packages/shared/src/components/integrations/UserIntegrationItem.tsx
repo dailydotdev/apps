@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import { getIconForIntegration } from '../../lib/integrations';
-import { UserIntegration } from '../../graphql/integrations';
+import type { UserIntegration } from '../../graphql/integrations';
 import { ContextMenuIds } from '../../hooks/constants';
 import { Button } from '../buttons/Button';
 import { ButtonSize } from '../buttons/common';

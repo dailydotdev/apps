@@ -1,20 +1,21 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { Modal, ModalProps } from '../common/Modal';
+import type { ModalProps } from '../common/Modal';
+import { Modal } from '../common/Modal';
 import {
   Typography,
   TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
-import {
-  SourcePostModeration,
-  verifyPermission,
-} from '../../../graphql/squads';
+import type { SourcePostModeration } from '../../../graphql/squads';
+import { verifyPermission } from '../../../graphql/squads';
 import { SquadModerationActions } from '../../squads/moderation/SquadModerationActions';
 import PostSourceInfo from '../../post/PostSourceInfo';
 import SquadPostAuthor from '../../post/SquadPostAuthor';
 import { CommonSharePostContent } from '../../post/SharePostContent';
-import { SourcePermissions, Squad } from '../../../graphql/sources';
+import type { Squad } from '../../../graphql/sources';
+import { SourcePermissions } from '../../../graphql/sources';
 import { Origin } from '../../../lib/log';
 import { useReadArticle } from '../../../hooks/usePostContent';
 import { SharePostTitle } from '../../post/share';

@@ -1,6 +1,7 @@
-import React, { ComponentType, ReactElement, ReactNode } from 'react';
+import type { ComponentType, ReactElement, ReactNode } from 'react';
+import React from 'react';
 import usePostById from '../../hooks/usePostById';
-import { Post } from '../../graphql/posts';
+import type { Post } from '../../graphql/posts';
 
 type WrappedComponentType<
   Props,

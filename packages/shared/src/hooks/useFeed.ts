@@ -1,20 +1,14 @@
 import { useCallback, useContext, useMemo } from 'react';
-import {
+import type {
   InfiniteData,
   QueryKey,
-  useInfiniteQuery,
   UseInfiniteQueryOptions,
-  useQueryClient,
 } from '@tanstack/react-query';
-import { ClientError } from 'graphql-request';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import type { ClientError } from 'graphql-request';
 import { useRouter } from 'next/router';
-import {
-  Ad,
-  FeedData,
-  Post,
-  POSTS_ENGAGED_SUBSCRIPTION,
-  PostsEngaged,
-} from '../graphql/posts';
+import type { Ad, FeedData, Post, PostsEngaged } from '../graphql/posts';
+import { POSTS_ENGAGED_SUBSCRIPTION } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import useSubscription from './useSubscription';
 import {
@@ -23,7 +17,7 @@ import {
   RequestKey,
   updateCachedPagePost,
 } from '../lib/query';
-import { MarketingCta } from '../components/marketingCta/common';
+import type { MarketingCta } from '../components/marketingCta/common';
 import { FeedItemType } from '../components/cards/common/common';
 import { GARMR_ERROR, gqlClient } from '../graphql/common';
 import { usePlusSubscription } from './usePlusSubscription';

@@ -1,18 +1,13 @@
 import classNames from 'classnames';
-import React, { HTMLAttributes, ReactElement, useMemo } from 'react';
-import {
-  AllowedTags,
-  Button,
-  ButtonProps,
-  ButtonSize,
-  ButtonVariant,
-} from '../buttons/Button';
+import type { HTMLAttributes, ReactElement } from 'react';
+import React, { useMemo } from 'react';
+import type { AllowedTags, ButtonProps } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import SquadHeaderMenu from './SquadHeaderMenu';
 import useContextMenu from '../../hooks/useContextMenu';
-import SquadMemberShortList, {
-  SquadMemberShortListProps,
-} from './SquadMemberShortList';
+import type { SquadMemberShortListProps } from './SquadMemberShortList';
+import SquadMemberShortList from './SquadMemberShortList';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { Origin } from '../../lib/log';
 import { verifyPermission } from '../../graphql/squads';

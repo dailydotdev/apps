@@ -1,15 +1,17 @@
-import { UseMutateAsyncFunction, useMutation } from '@tanstack/react-query';
+import type { UseMutateAsyncFunction } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import router from 'next/router';
 import { useContext } from 'react';
-import { SquadForm, createSquad } from '../../graphql/squads';
+import type { SquadForm } from '../../graphql/squads';
+import { createSquad } from '../../graphql/squads';
 import { LogEvent } from '../../lib/log';
 import { ActionType } from '../../graphql/actions';
 import LogContext from '../../contexts/LogContext';
 import { useToastNotification } from '../useToastNotification';
 import { useBoot } from '../useBoot';
 import { useActions } from '../useActions';
-import { Squad } from '../../graphql/sources';
-import { ApiErrorResult } from '../../graphql/common';
+import type { Squad } from '../../graphql/sources';
+import type { ApiErrorResult } from '../../graphql/common';
 import { parseOrDefault } from '../../lib/func';
 import { getRandom4Digits } from '../../lib';
 

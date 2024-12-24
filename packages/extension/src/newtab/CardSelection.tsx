@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import { VIcon } from '@dailydotdev/shared/src/components/icons';
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 
 interface CardSelectionProps {
   title: string;

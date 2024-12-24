@@ -1,8 +1,7 @@
-import React, { ReactElement } from 'react';
-import {
-  NotificationAttachment,
-  NotificationAttachmentType,
-} from '../../graphql/notifications';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { NotificationAttachment } from '../../graphql/notifications';
+import { NotificationAttachmentType } from '../../graphql/notifications';
 import { IconSize } from '../Icon';
 import { CardCover } from '../cards/common/CardCover';
 

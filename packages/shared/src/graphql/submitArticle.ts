@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request';
-import { Post } from './posts';
+import type { Post } from './posts';
 
 interface Submission {
   id: string;

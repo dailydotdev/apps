@@ -1,9 +1,13 @@
-import React, { ReactElement, useRef, useState } from 'react';
-import { Drawer, DrawerRef } from '@dailydotdev/shared/src/components/drawers';
-import {
+import type { ReactElement } from 'react';
+import React, { useRef, useState } from 'react';
+import type { DrawerRef } from '@dailydotdev/shared/src/components/drawers';
+import { Drawer } from '@dailydotdev/shared/src/components/drawers';
+import type {
   AllowedTags,
-  Button,
   ButtonProps,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';

@@ -1,31 +1,25 @@
-import {
+import type {
   ClipboardEventHandler,
   DragEventHandler,
   FormEventHandler,
   HTMLAttributes,
   KeyboardEventHandler,
   MutableRefObject,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
 } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import type { GetReplacementFn } from '../../lib/textarea';
 import {
   CursorType,
   getCloseWord,
   getCursorType,
-  GetReplacementFn,
   getTemporaryUploadString,
   TextareaCommand,
 } from '../../lib/textarea';
 import { useRequestProtocol } from '../useRequestProtocol';
 import { useAuthContext } from '../../contexts/AuthContext';
-import {
-  RECOMMEND_MENTIONS_QUERY,
-  RecommendedMentionsData,
-} from '../../graphql/comments';
+import type { RecommendedMentionsData } from '../../graphql/comments';
+import { RECOMMEND_MENTIONS_QUERY } from '../../graphql/comments';
 import { isNullOrUndefined } from '../../lib/func';
 import {
   ArrowKey,
@@ -34,7 +28,7 @@ import {
   KeyboardCommand,
   Y_AXIS_KEYS,
 } from '../../lib/element';
-import { UserShortProfile } from '../../lib/user';
+import type { UserShortProfile } from '../../lib/user';
 import { getLinkReplacement, getMentionReplacement } from '../../lib/markdown';
 import { handleRegex } from '../../graphql/users';
 import { UploadState, useSyncUploader } from './useSyncUploader';

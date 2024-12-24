@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { EyeIcon, ReadingStreakIcon, ReputationIcon } from '../../icons';
 import { DevCardStatsSection } from './DevCardStatsSection';
-import { PublicProfile } from '../../../lib/user';
+import type { PublicProfile } from '../../../lib/user';
 
 interface DevCardStatsProps {
   user: PublicProfile;

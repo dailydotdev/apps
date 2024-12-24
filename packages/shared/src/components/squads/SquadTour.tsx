@@ -1,4 +1,5 @@
-import React, { ReactElement, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useState } from 'react';
 import {
   cloudinarySquadsTourBanner0,
   cloudinarySquadsTourBanner1V2,
@@ -13,7 +14,7 @@ import { ModalFooter } from '../modals/common/ModalFooter';
 import SquadTourCard from './SquadTourCard';
 import classed from '../../lib/classed';
 import { useSquadTour } from '../../hooks/useSquadTour';
-import { PopupCloseFunc } from '../drawers';
+import type { PopupCloseFunc } from '../drawers';
 
 interface SquadTourProps {
   onClose: PopupCloseFunc;

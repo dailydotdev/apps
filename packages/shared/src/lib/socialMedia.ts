@@ -1,4 +1,4 @@
-import { type ComponentType } from 'react';
+import type { ComponentType } from 'react';
 import { RedditIcon } from '../components/icons';
 import { TwitterIcon } from '../components/icons/Twitter';
 import type { IconProps } from '../components/Icon';

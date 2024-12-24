@@ -1,6 +1,8 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { RenderMarkdown, RenderMarkdownProps } from '../RenderMarkdown';
+import type { RenderMarkdownProps } from '../RenderMarkdown';
+import { RenderMarkdown } from '../RenderMarkdown';
 import styles from './SearchMessage.module.css';
 
 export type SearchMessageProps = Pick<

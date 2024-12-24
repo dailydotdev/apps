@@ -2,8 +2,10 @@ import TabContainer, {
   Tab,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
 import usePrivilegedSession from '@dailydotdev/shared/src/hooks/usePrivilegedSession';
-import React, { ReactElement, useRef, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { SuccessfulRegistrationData } from '@dailydotdev/shared/src/lib/kratos';
 import {
   AuthFlow,
   ContinueWithAction,
@@ -12,31 +14,29 @@ import {
   initializeKratosFlow,
   KRATOS_ERROR,
   submitKratosFlow,
-  SuccessfulRegistrationData,
 } from '@dailydotdev/shared/src/lib/kratos';
-import {
-  getNodeValue,
+import type {
   SettingsParams,
   ValidateChangeEmail,
   ValidateResetPassword,
 } from '@dailydotdev/shared/src/lib/auth';
+import { getNodeValue } from '@dailydotdev/shared/src/lib/auth';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import {
-  SignBackProvider,
-  useSignBack,
-} from '@dailydotdev/shared/src/hooks/auth/useSignBack';
+import type { SignBackProvider } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
+import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { NextSeoProps } from 'next-seo';
+import type { NextSeoProps } from 'next-seo';
 import { AccountSecurityDisplay as Display } from '../../components/layouts/AccountLayout/common';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
-import AccountSecurityDefault, {
+import type {
   ChangePasswordParams,
   UpdateProvidersParams,
 } from '../../components/layouts/AccountLayout/Security';
+import AccountSecurityDefault from '../../components/layouts/AccountLayout/Security';
 import EmailFormPage from '../../components/layouts/AccountLayout/Security/EmailFormPage';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';

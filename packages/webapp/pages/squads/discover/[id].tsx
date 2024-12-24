@@ -1,18 +1,17 @@
 import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
-import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
-import { ParsedUrlQuery } from 'querystring';
-import React, { ReactElement } from 'react';
-import {
-  getSourceCategory,
-  SourceCategory,
-} from '@dailydotdev/shared/src/graphql/source/categories';
+import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
+import type { ParsedUrlQuery } from 'querystring';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { SourceCategory } from '@dailydotdev/shared/src/graphql/source/categories';
+import { getSourceCategory } from '@dailydotdev/shared/src/graphql/source/categories';
 import { useSources } from '@dailydotdev/shared/src/hooks/source/useSources';
 import InfiniteScrolling, {
   checkFetchMore,
 } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { FeedContainer } from '@dailydotdev/shared/src/components';
 import { UnfeaturedSquadGrid } from '@dailydotdev/shared/src/components/cards/squad/UnfeaturedSquadGrid';
-import { Squad } from '@dailydotdev/shared/src/graphql/sources';
+import type { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import { SquadDirectoryLayout } from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryLayout';
 import { PlaceholderSquadGridList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadGrid';
 import { PlaceholderSquadListList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadList';
@@ -21,7 +20,7 @@ import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
-import { DynamicSeoProps } from '../../../components/common';
+import type { DynamicSeoProps } from '../../../components/common';
 
 interface SquadCategoryPageProps extends DynamicSeoProps {
   category: SourceCategory;

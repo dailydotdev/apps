@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { BookmarkFolder, getBookmarkFolders } from '../../graphql/bookmarks';
+import type { BookmarkFolder } from '../../graphql/bookmarks';
+import { getBookmarkFolders } from '../../graphql/bookmarks';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 

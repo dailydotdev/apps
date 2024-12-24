@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
-import { Post } from '../../graphql/posts';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { Post } from '../../graphql/posts';
 import { ClickableText } from '../buttons/ClickableText';
 import { largeNumberFormat } from '../../lib';
 

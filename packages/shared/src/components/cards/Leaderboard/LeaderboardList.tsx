@@ -1,6 +1,7 @@
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import { LeaderboardListContainer } from './LeaderboardListContainer';
-import { LeaderboardListContainerProps } from './common';
+import type { LeaderboardListContainerProps } from './common';
 import classed from '../../../lib/classed';
 import { ElementPlaceholder } from '../../ElementPlaceholder';
 

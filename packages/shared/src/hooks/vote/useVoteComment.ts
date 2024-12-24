@@ -1,16 +1,18 @@
 import { useCallback, useContext } from 'react';
 import LogContext from '../../contexts/LogContext';
 import AuthContext from '../../contexts/AuthContext';
-import { Post, UserVote } from '../../graphql/posts';
+import type { Post } from '../../graphql/posts';
+import { UserVote } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
-import { PostLogEventFnOptions, postLogEvent } from '../../lib/feed';
-import {
-  UserVoteEntity,
+import type { PostLogEventFnOptions } from '../../lib/feed';
+import { postLogEvent } from '../../lib/feed';
+import type {
   UseVote,
   UseVoteProps,
   ToggleVoteProps,
   VoteEntityPayload,
 } from './types';
+import { UserVoteEntity } from './types';
 import { useVote } from './useVote';
 import { LogEvent } from '../../lib/log';
 

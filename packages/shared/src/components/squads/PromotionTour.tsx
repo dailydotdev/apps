@@ -1,4 +1,5 @@
-import React, { ReactElement, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
 import {
   cloudinarySquadsPromotionRemove,
   cloudinarySquadsPromotionPromote,
@@ -13,7 +14,8 @@ import Carousel from '../containers/Carousel';
 import { ModalFooter } from '../modals/common/ModalFooter';
 import SquadTourCard from './SquadTourCard';
 import classed from '../../lib/classed';
-import { Source, SourceMemberRole } from '../../graphql/sources';
+import type { Source } from '../../graphql/sources';
+import { SourceMemberRole } from '../../graphql/sources';
 import { StarIcon, UserIcon } from '../icons';
 import { capitalize } from '../../lib/strings';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';

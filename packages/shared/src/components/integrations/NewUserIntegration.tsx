@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
-import { IconProps } from '../Icon';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { IconProps } from '../Icon';
 import { Button } from '../buttons/Button';
 import { ButtonVariant, ButtonSize } from '../buttons/common';
 import {

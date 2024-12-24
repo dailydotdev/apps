@@ -1,17 +1,20 @@
-import React, { FormEvent, ReactElement } from 'react';
+import type { FormEvent, ReactElement } from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
 import {
   WriteFreeformContent,
   WritePage,
   WritePostHeader,
 } from '@dailydotdev/shared/src/components/post/freeform';
-import { EditPostProps, PostType } from '@dailydotdev/shared/src/graphql/posts';
+import type { EditPostProps } from '@dailydotdev/shared/src/graphql/posts';
+import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { useDiscardPost } from '@dailydotdev/shared/src/hooks/input/useDiscardPost';
-import { NextSeo, NextSeoProps } from 'next-seo';
+import type { NextSeoProps } from 'next-seo';
+import { NextSeo } from 'next-seo';
 import { WritePostContextProvider } from '@dailydotdev/shared/src/contexts';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';

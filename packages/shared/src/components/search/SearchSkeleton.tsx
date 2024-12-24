@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { SearchHistoryContainer } from './common';
 import classed from '../../lib/classed';
 import { Pill } from '../utilities/loaders';
-import { WithClassNameProps } from '../utilities';
+import type { WithClassNameProps } from '../utilities';
 
 const ShortPill = classed(Pill, 'w-1/2');
 const LongPill = classed(Pill, 'w-4/5');

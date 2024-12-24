@@ -1,8 +1,10 @@
-import React, { ReactElement } from 'react';
-import { CommonLeaderboardProps, LeaderboardList } from './LeaderboardList';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { CommonLeaderboardProps } from './LeaderboardList';
+import { LeaderboardList } from './LeaderboardList';
 import { LeaderboardListItem } from './LeaderboardListItem';
 import { UserHighlight } from '../../widgets/PostUsersHighlights';
-import { LoggedUser } from '../../../lib/user';
+import type { LoggedUser } from '../../../lib/user';
 
 export interface UserLeaderboard {
   score: number;

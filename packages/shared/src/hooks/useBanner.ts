@@ -2,7 +2,8 @@ import { useCallback, useContext, useMemo } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import AlertContext from '../contexts/AlertContext';
 import { generateQueryKey, RequestKey } from '../lib/query';
-import { Banner, BANNER_QUERY } from '../graphql/banner';
+import type { Banner } from '../graphql/banner';
+import { BANNER_QUERY } from '../graphql/banner';
 import { gqlClient } from '../graphql/common';
 
 type UseBanner = {

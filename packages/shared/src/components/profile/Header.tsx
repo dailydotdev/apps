@@ -1,7 +1,8 @@
-import React, { CSSProperties, ReactElement, useState } from 'react';
+import type { CSSProperties, ReactElement } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import { PublicProfile } from '../../lib/user';
+import type { PublicProfile } from '../../lib/user';
 import { SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';

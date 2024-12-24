@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
-import { MutableRefObject, useMemo, useRef } from 'react';
+import type { MutableRefObject } from 'react';
+import { useMemo, useRef } from 'react';
 import { apiUrl } from '../../lib/config';
 import useDebounceFn from '../useDebounceFn';
 import { ExtensionMessageType } from '../../lib/extension';

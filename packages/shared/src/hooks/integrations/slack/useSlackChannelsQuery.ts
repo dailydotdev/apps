@@ -1,12 +1,7 @@
-import {
-  useQuery,
-  UseQueryOptions,
-  UseQueryResult,
-} from '@tanstack/react-query';
-import {
-  SLACK_CHANNELS_QUERY,
-  SlackChannel,
-} from '../../../graphql/integrations';
+import type { UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+import type { SlackChannel } from '../../../graphql/integrations';
+import { SLACK_CHANNELS_QUERY } from '../../../graphql/integrations';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { gqlClient } from '../../../graphql/common';
 import { useAuthContext } from '../../../contexts/AuthContext';

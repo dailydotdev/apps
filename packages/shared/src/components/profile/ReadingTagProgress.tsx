@@ -1,6 +1,7 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { MostReadTag } from '../../graphql/users';
+import type { MostReadTag } from '../../graphql/users';
 import Link from '../utilities/Link';
 import { getTagPageLink } from '../../lib';
 

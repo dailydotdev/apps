@@ -1,8 +1,9 @@
-import React, { ReactElement, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import Link from '../utilities/Link';
-import { Notification } from '../../graphql/notifications';
+import type { Notification } from '../../graphql/notifications';
 import { useObjectPurify } from '../../hooks/useDomPurify';
 import NotificationItemIcon from './NotificationIcon';
 import NotificationItemAttachment from './NotificationItemAttachment';

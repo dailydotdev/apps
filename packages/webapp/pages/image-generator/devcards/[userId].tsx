@@ -1,6 +1,7 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { DevCardType } from '@dailydotdev/shared/src/components/profile/devcard';
-import {
+import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
   GetStaticPropsResult,

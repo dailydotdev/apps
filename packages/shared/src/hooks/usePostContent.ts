@@ -1,24 +1,19 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import {
-  Post,
-  PostsEngaged,
-  POSTS_ENGAGED_SUBSCRIPTION,
-  SharedPost,
-  PostType,
-} from '../graphql/posts';
+import type { Post, PostsEngaged, SharedPost } from '../graphql/posts';
+import { POSTS_ENGAGED_SUBSCRIPTION, PostType } from '../graphql/posts';
 import { useLogContext } from '../contexts/LogContext';
 import { postLogEvent } from '../lib/feed';
 import useOnPostClick from './useOnPostClick';
 import useSubscription from './useSubscription';
-import { PostOrigin } from './log/useLogContextData';
+import type { PostOrigin } from './log/useLogContextData';
 import { updatePostCache } from './usePostById';
 import { ReferralCampaignKey } from '../lib';
 import { useGetShortUrl } from './utils/useGetShortUrl';
 import { ShareProvider } from '../lib/share';
 import { useCopyPostLink } from './useCopyPostLink';
-import { EmptyPromise } from '../lib/func';
-import { Origin } from '../lib/log';
+import type { EmptyPromise } from '../lib/func';
+import type { Origin } from '../lib/log';
 
 export interface UsePostContent {
   onCopyPostLink: () => void;

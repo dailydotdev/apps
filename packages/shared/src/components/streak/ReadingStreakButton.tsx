@@ -1,15 +1,12 @@
-import React, { ReactElement, useCallback, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useCallback, useState } from 'react';
 import classnames from 'classnames';
 import { ReadingStreakPopup } from './popup';
-import {
-  Button,
-  ButtonIconPosition,
-  ButtonSize,
-  ButtonVariant,
-} from '../buttons/Button';
+import type { ButtonIconPosition } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ReadingStreakIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips';
-import { UserStreak } from '../../graphql/users';
+import type { UserStreak } from '../../graphql/users';
 import { useViewSize, ViewSize } from '../../hooks';
 import { isTesting } from '../../lib/constants';
 import { useLogContext } from '../../contexts/LogContext';
@@ -17,7 +14,7 @@ import { LogEvent } from '../../lib/log';
 import { RootPortal } from '../tooltips/Portal';
 import { Drawer } from '../drawers';
 import ConditionalWrapper from '../ConditionalWrapper';
-import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
+import type { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;

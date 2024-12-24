@@ -1,24 +1,27 @@
-import {
+import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
-import { ParsedUrlQuery } from 'querystring';
-import React, { ReactElement, useContext, useMemo } from 'react';
+import type { ParsedUrlQuery } from 'querystring';
+import type { ReactElement } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { useRouter } from 'next/router';
-import { NextSeoProps } from 'next-seo/lib/types';
+import type { NextSeoProps } from 'next-seo/lib/types';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import {
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
   SOURCE_FEED_QUERY,
 } from '@dailydotdev/shared/src/graphql/feed';
+import type {
+  Source,
+  SourceData,
+} from '@dailydotdev/shared/src/graphql/sources';
 import {
   SIMILAR_SOURCES_QUERY,
-  Source,
   SOURCE_QUERY,
   SOURCE_RELATED_TAGS_QUERY,
-  SourceData,
 } from '@dailydotdev/shared/src/graphql/sources';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 
@@ -27,11 +30,8 @@ import {
   DiscussIcon,
   UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import {
-  ApiError,
-  Connection,
-  gqlClient,
-} from '@dailydotdev/shared/src/graphql/common';
+import type { Connection } from '@dailydotdev/shared/src/graphql/common';
+import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import {
   OtherFeedPage,
   RequestKey,
@@ -59,7 +59,7 @@ import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { SourceActions } from '../../../shared/src/components/sources/SourceActions';
-import { DynamicSeoProps } from '../../components/common';
+import type { DynamicSeoProps } from '../../components/common';
 
 interface SourcePageProps extends DynamicSeoProps {
   source?: Source;

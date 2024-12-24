@@ -1,5 +1,6 @@
-import React, { ReactElement, ReactNode, useMemo } from 'react';
-import { UserReadHistory } from '../../graphql/users';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useMemo } from 'react';
+import type { UserReadHistory } from '../../graphql/users';
 import {
   ActivityContainer,
   ActivitySectionTitle,

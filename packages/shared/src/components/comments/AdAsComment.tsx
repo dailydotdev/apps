@@ -1,4 +1,5 @@
-import React, { ReactElement, useCallback, useEffect } from 'react';
+import type { ReactElement } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { TruncateText } from '../utilities';
 import AdLink from '../cards/ad/common/AdLink';

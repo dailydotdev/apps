@@ -1,4 +1,5 @@
-import React, { InputHTMLAttributes, ReactElement } from 'react';
+import type { InputHTMLAttributes, ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import {
   Typography,
