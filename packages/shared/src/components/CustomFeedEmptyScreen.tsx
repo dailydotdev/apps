@@ -15,7 +15,7 @@ import { usePlusSubscription } from '../hooks';
 import { DeleteCustomFeed } from './buttons/DeleteCustomFeed';
 
 export const CustomFeedEmptyScreen = (): ReactElement => {
-  const { isEnrolledNotPlus } = usePlusSubscription();
+  const { isPlus } = usePlusSubscription();
   const router = useRouter();
 
   return (
@@ -39,7 +39,7 @@ export const CustomFeedEmptyScreen = (): ReactElement => {
           >
             Set up feed
           </EmptyScreenButton>
-          {isEnrolledNotPlus ? (
+          {!isPlus ? (
             <DeleteCustomFeed
               className="mt-10"
               feedId={router.query.slugOrId as string}
