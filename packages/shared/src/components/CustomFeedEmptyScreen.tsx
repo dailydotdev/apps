@@ -11,8 +11,11 @@ import { HashtagIcon } from './icons';
 import { PageContainer } from './utilities';
 import { ButtonSize } from './buttons/common';
 import { webappUrl } from '../lib/constants';
+import { usePlusSubscription } from '../hooks';
+import { DeleteCustomFeed } from './buttons/DeleteCustomFeed';
 
 export const CustomFeedEmptyScreen = (): ReactElement => {
+  const { isPlus } = usePlusSubscription();
   const router = useRouter();
 
   return (
@@ -27,14 +30,22 @@ export const CustomFeedEmptyScreen = (): ReactElement => {
           Start by configuring your feed settings to tailor content to your
           interests. Add tags, filters, and sources to make it truly yours.
         </EmptyScreenDescription>
-        <EmptyScreenButton
-          onClick={() => {
-            router.push(`${webappUrl}feeds/${router.query.slugOrId}/edit`);
-          }}
-          size={ButtonSize.Large}
-        >
-          Set up feed
-        </EmptyScreenButton>
+        <div className="flex flex-col items-center gap-4 tablet:flex-row">
+          <EmptyScreenButton
+            onClick={() => {
+              router.push(`${webappUrl}feeds/${router.query.slugOrId}/edit`);
+            }}
+            size={ButtonSize.Large}
+          >
+            Set up feed
+          </EmptyScreenButton>
+          {!isPlus ? (
+            <DeleteCustomFeed
+              className="mt-10"
+              feedId={router.query.slugOrId as string}
+            />
+          ) : null}
+        </div>
       </EmptyScreenContainer>
     </PageContainer>
   );

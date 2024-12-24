@@ -34,6 +34,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
+import { DeleteCustomFeed } from '../buttons/DeleteCustomFeed';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -76,7 +77,8 @@ export const SearchControlHeader = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
-  const { showPlusSubscription, isEnrolledNotPlus } = usePlusSubscription();
+  const { showPlusSubscription, isEnrolledNotPlus, isPlus } =
+    usePlusSubscription();
   const { user } = useAuthContext();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const { openModal } = useLazyModal();
@@ -156,6 +158,9 @@ export const SearchControlHeader = ({
         }
         key="toggle-clickbait-shield"
       />
+    ) : null,
+    !isPlus && feedName === SharedFeedPage.Custom ? (
+      <DeleteCustomFeed feedId={router?.query?.slugOrId as string} />
     ) : null,
   ];
   const actions = actionButtons.filter((button) => !!button);
