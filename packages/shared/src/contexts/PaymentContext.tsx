@@ -7,11 +7,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import type {
-  Environments,
-  Paddle,
-  type PaddleEventData,
-} from '@paddle/paddle-js';
+import type { Environments, Paddle, PaddleEventData } from '@paddle/paddle-js';
 import {
   CheckoutEventNames,
   getPaddleInstance,

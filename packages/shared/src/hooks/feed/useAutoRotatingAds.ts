@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect, useMemo } from 'react';
 import type {
-  type InfiniteData,
-  type QueryObserverBaseResult,
+  InfiniteData,
+  QueryObserverBaseResult,
 } from '@tanstack/react-query';
 import { useQuery, useQueryClient, focusManager } from '@tanstack/react-query';
 import type { InViewHookResponse } from 'react-intersection-observer';

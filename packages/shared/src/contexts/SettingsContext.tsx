@@ -10,7 +10,7 @@ import { useMutation } from '@tanstack/react-query';
 import type {
   RemoteSettings,
   RemoteTheme,
-  type SettingsFlags,
+  SettingsFlags,
   Spaciness,
 } from '../graphql/settings';
 import {

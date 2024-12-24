@@ -1,10 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
-import type {
-  type AllowedTags,
-  type ButtonProps,
-} from '../../../buttons/Button';
+import type { AllowedTags, ButtonProps } from '../../../buttons/Button';
 import {
   Button,
   ButtonColor,

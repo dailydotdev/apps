@@ -1,4 +1,4 @@
-import type { ReactElement, type PropsWithChildren } from 'react';
+import type { ReactElement, PropsWithChildren } from 'react';
 import React, { useMemo } from 'react';
 import { desktop, laptop, laptopL, laptopXL, tablet } from '../styles/media';
 import { useConditionalFeature, useMedia, usePlusSubscription } from '../hooks';

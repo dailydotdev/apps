@@ -1,4 +1,5 @@
-import { Config } from 'tailwindcss';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { type Config } from 'tailwindcss';
 import config from '@dailydotdev/shared/tailwind.config';
 import path from 'path';
 import * as fs from 'fs';
