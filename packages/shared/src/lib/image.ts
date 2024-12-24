@@ -273,7 +273,7 @@ export const cloudinaryPWA =
   'https://daily-now-res.cloudinary.com/image/upload/s--OJZMKmCg--/f_auto/v1730721076/web_-_safari_asp3ts';
 
 export const cloudinaryPWAVideo =
-  'https://daily-now-res.cloudinary.com/video/upload/s--0mT5rE2C--/v1733649847/web_-_safari_j81dxl.mp4';
+  'https://daily-now-res.cloudinary.com/video/upload/s--gN1-dqeq--/v1735029367/web_-_safari_e3wes4.mp4';
 
 export const cloudinaryOnboardingExtension = {
   chrome: {
