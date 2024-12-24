@@ -21,20 +21,18 @@ export const OnboardingPWA = (): ReactElement => {
         disablePictureInPicture
         controls={false}
       />
-      {isChrome && (
-        <Button
-          className="absolute bottom-8 z-1"
-          variant={ButtonVariant.Primary}
-          type="button"
-          onClick={() => {
-            globalThis?.navigator.share({
-              title: 'Daily.dev',
-            });
-          }}
-        >
-          PWA
-        </Button>
-      )}
+      <Button
+        className="absolute bottom-8 z-1 !min-h-fit"
+        variant={ButtonVariant.Primary}
+        type="button"
+        onClick={() => {
+          globalThis?.navigator.share({
+            title: 'Daily.dev',
+          });
+        }}
+      >
+        {globalThis?.navigator.userAgent}
+      </Button>
       <div className="z-1 flex flex-col gap-4">
         <OnboardingTitle className="!px-0">
           Add daily.dev to Home Screen
