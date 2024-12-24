@@ -1,4 +1,4 @@
-import type { type ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import React from 'react';
 import type { ButtonProps } from './Button';
 import { ButtonSize, ButtonVariant, Button } from './Button';
