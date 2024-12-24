@@ -2,11 +2,8 @@ import React, { type ReactElement } from 'react';
 import { OnboardingTitle } from './common';
 import { cloudinaryPWA, cloudinaryPWAVideo } from '../../lib/image';
 import { Typography } from '../typography/Typography';
-import { Button, ButtonVariant } from '../buttons/Button';
-import { checkIsBrowser, UserAgent } from '../../lib/func';
 
 export const OnboardingPWA = (): ReactElement => {
-  const isChrome = checkIsBrowser(UserAgent.Chrome);
   return (
     <>
       <div className="rounded-lg pointer-events-none absolute top-0 z-2 flex h-screen w-screen flex-col gap-4 p-6 opacity-0 backdrop-blur transition-all duration-200" />
@@ -21,18 +18,6 @@ export const OnboardingPWA = (): ReactElement => {
         disablePictureInPicture
         controls={false}
       />
-      <Button
-        className="absolute bottom-8 z-1 !min-h-fit"
-        variant={ButtonVariant.Primary}
-        type="button"
-        onClick={() => {
-          globalThis?.navigator.share({
-            title: 'Daily.dev',
-          });
-        }}
-      >
-        {globalThis?.navigator.userAgent}
-      </Button>
       <div className="z-1 flex flex-col gap-4">
         <OnboardingTitle className="!px-0">
           Add daily.dev to Home Screen
