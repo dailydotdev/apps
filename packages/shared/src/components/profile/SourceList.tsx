@@ -49,7 +49,12 @@ export const SourceList = ({
         placeholder={loader}
       >
         {sources.map((source) => (
-          <Link key={source.id} href={`${webappUrl}sources/${source.handle}`}>
+          <Link
+            key={source.id}
+            href={`${webappUrl}${
+              source.type === SourceType.Squad ? 'squads' : 'sources'
+            }/${source.handle}`}
+          >
             <a
               key={source.id}
               className="flex gap-2 px-6 py-3 hover:bg-surface-hover"
