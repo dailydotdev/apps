@@ -28,16 +28,15 @@ export const useSquadPendingPosts = (
   const { user } = useAuthContext();
 
   return useInfiniteQuery<Connection<SourcePostModeration[]>>({
-    queryKey: generateQueryKey(RequestKey.SquadPostRequests, user, squadId, {
-      status,
-    }),
-    queryFn: async () => {
+    queryKey: generateQueryKey(RequestKey.SquadPostRequests, user, squadId),
+    queryFn: async ({ pageParam }) => {
       return gqlClient
         .request<{
           sourcePostModerations: Connection<SourcePostModeration[]>;
         }>(SQUAD_PENDING_POSTS_QUERY, {
           sourceId: squadId,
           status,
+          after: pageParam,
         })
         .then((res) => res.sourcePostModerations);
     },
