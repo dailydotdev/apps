@@ -104,7 +104,7 @@ export const SearchControlHeader = ({
       <MyFeedHeading
         key="my-feed"
         onOpenFeedFilters={() => {
-          if (isEnrolledNotPlus) {
+          if (isEnrolledNotPlus && feedName === SharedFeedPage.Custom) {
             openModal({
               type: LazyModal.AdvancedCustomFeedSoon,
               props: {},
