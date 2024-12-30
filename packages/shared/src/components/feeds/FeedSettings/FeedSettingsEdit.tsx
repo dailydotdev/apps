@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { useFeedSettingsEdit } from './useFeedSettingsEdit';
@@ -118,87 +118,85 @@ export const FeedSettingsEdit = ({
     usePlusSubscription();
 
   const tabs = useMemo(() => {
-    return [
+    const base = [
       {
         title: feedSettingsMenuTitle.general,
         options: { icon: <EditIcon size={IconSize.Small} /> },
       },
-      {
-        title: feedSettingsMenuTitle.tags,
-        options: { icon: <HashtagIcon size={IconSize.Small} /> },
-      },
-      !isPlus &&
-        showPlusSubscription && {
-          title: 'Upgrade to Plus',
-          options: {
-            icon: <></>,
-            customElement: (
-              <div className="flex w-full flex-col justify-center gap-4 rounded-10 border border-border-subtlest-tertiary bg-action-plus-float p-4">
-                <Typography
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Primary}
-                >
-                  Upgrade to daily.dev plus today and be among the first to
-                  create advanced custom feeds!
-                </Typography>
-                <Button
-                  tag="a"
-                  type="button"
-                  variant={ButtonVariant.Primary}
-                  size={ButtonSize.Medium}
-                  href={`${webappUrl}plus`}
-                  icon={<DevPlusIcon className="text-action-plus-default" />}
-                  onClick={() => {
-                    logSubscriptionEvent({
-                      event_name: LogEvent.UpgradeSubscription,
-                      target_id: TargetId.FeedSettings,
-                    });
-                  }}
-                >
-                  Upgrade to Plus
-                </Button>
-              </div>
-            ),
-          },
+    ];
+
+    if (showPlusSubscription) {
+      base.push(
+        {
+          title: feedSettingsMenuTitle.tags,
+          options: { icon: <HashtagIcon size={IconSize.Small} /> },
         },
-      {
-        title: feedSettingsMenuTitle.sources,
-        options: { icon: <AddUserIcon size={IconSize.Small} /> },
-      },
-      {
-        title: feedSettingsMenuTitle.preferences,
-        options: { icon: <AppIcon size={IconSize.Small} /> },
-      },
-      {
-        title: feedSettingsMenuTitle.ai,
-        options: { icon: <MagicIcon size={IconSize.Small} /> },
-      },
-      feed?.type === FeedType.Custom && {
-        title: feedSettingsMenuTitle.filters,
-        options: { icon: <FilterIcon size={IconSize.Small} /> },
-      },
-      {
-        title: feedSettingsMenuTitle.blocking,
-        options: { icon: <BlockIcon size={IconSize.Small} /> },
-      },
-    ].filter(Boolean);
+        !isPlus
+          ? {
+              title: 'Upgrade to Plus',
+              options: {
+                icon: <></>,
+                customElement: (
+                  <div className="flex w-full flex-col justify-center gap-4 rounded-10 border border-border-subtlest-tertiary bg-action-plus-float p-4">
+                    <Typography
+                      type={TypographyType.Callout}
+                      color={TypographyColor.Primary}
+                    >
+                      Upgrade to daily.dev plus today and be among the first to
+                      create advanced custom feeds!
+                    </Typography>
+                    <Button
+                      tag="a"
+                      type="button"
+                      variant={ButtonVariant.Primary}
+                      size={ButtonSize.Medium}
+                      href={`${webappUrl}plus`}
+                      icon={
+                        <DevPlusIcon className="text-action-plus-default" />
+                      }
+                      onClick={() => {
+                        logSubscriptionEvent({
+                          event_name: LogEvent.UpgradeSubscription,
+                          target_id: TargetId.FeedSettings,
+                        });
+                      }}
+                    >
+                      Upgrade to Plus
+                    </Button>
+                  </div>
+                ),
+              },
+            }
+          : null,
+        {
+          title: feedSettingsMenuTitle.sources,
+          options: { icon: <AddUserIcon size={IconSize.Small} /> },
+        },
+        {
+          title: feedSettingsMenuTitle.preferences,
+          options: { icon: <AppIcon size={IconSize.Small} /> },
+        },
+        {
+          title: feedSettingsMenuTitle.ai,
+          options: { icon: <MagicIcon size={IconSize.Small} /> },
+        },
+        feed?.type === FeedType.Custom && {
+          title: feedSettingsMenuTitle.filters,
+          options: { icon: <FilterIcon size={IconSize.Small} /> },
+        },
+        {
+          title: feedSettingsMenuTitle.blocking,
+          options: { icon: <BlockIcon size={IconSize.Small} /> },
+        },
+      );
+    }
+
+    return base.filter(Boolean);
   }, [feed?.type, isPlus, showPlusSubscription, logSubscriptionEvent]);
 
   const defaultView = useMemo(() => {
     return feedSettingsMenuTitle[router.query.dview as FeedSettingsMenu];
   }, [router.query.dview]);
-
-  const canEditFeed = isPlus || feed?.type === FeedType.Main;
-
-  useEffect(() => {
-    if (!canEditFeed) {
-      router.replace(webappUrl);
-    }
-  }, [canEditFeed, router, feedSlugOrId]);
-
-  if (!canEditFeed) {
-    return null;
-  }
 
   if (!feed) {
     return null;

@@ -28,6 +28,7 @@ import type { FeedAdTemplate } from '../lib/feed';
 import { featureFeedAdTemplate } from '../lib/featureManagement';
 import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
 import { AD_PLACEHOLDER_SOURCE_ID } from '../lib/constants';
+import { SharedFeedPage } from '../components/utilities';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -117,9 +118,12 @@ export default function useFeed<T>(
   const { logEvent } = useLogContext();
   const { query, variables, options = {}, settings, onEmptyFeed } = params;
   const { user, tokenRefreshed } = useContext(AuthContext);
-  const { isPlus } = usePlusSubscription();
+  const { showPlusSubscription, isPlus } = usePlusSubscription();
   const queryClient = useQueryClient();
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
+  const shouldRetry =
+    params?.settings?.feedName === SharedFeedPage.Custom &&
+    showPlusSubscription;
 
   const feedQuery = useInfiniteQuery<FeedData>({
     queryKey: feedQueryKey,
@@ -155,6 +159,7 @@ export default function useFeed<T>(
     enabled: query && tokenRefreshed,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
+    retry: shouldRetry ? false : 3,
     initialPageParam: '',
     getNextPageParam: ({ page }) => getNextPageParam(page?.pageInfo),
   });
