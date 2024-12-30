@@ -6,12 +6,7 @@ import dynamic from 'next/dynamic';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { useActiveFeedNameContext } from '../../contexts';
 import useActiveNav from '../../hooks/useActiveNav';
-import {
-  useFeeds,
-  usePlusSubscription,
-  useViewSize,
-  ViewSize,
-} from '../../hooks';
+import { useFeeds, useViewSize, ViewSize } from '../../hooks';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import {
   algorithmsList,
@@ -32,7 +27,6 @@ import classed from '../../lib/classed';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { OtherFeedPage } from '../../lib/query';
 import { ChecklistViewState } from '../../lib/checklist';
-import { useLazyModal } from '../../hooks/useLazyModal';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 
 const OnboardingChecklistBar = dynamic(
@@ -79,8 +73,6 @@ function FeedNav(): ReactElement {
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const { feeds } = useFeeds();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
-  const { showPlusSubscription, isPlus } = usePlusSubscription();
-  const { openModal } = useLazyModal();
 
   const isHiddenOnboardingChecklistView =
     onboardingChecklistView === ChecklistViewState.Hidden;
