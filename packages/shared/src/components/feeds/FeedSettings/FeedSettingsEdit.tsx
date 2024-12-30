@@ -108,6 +108,14 @@ const FeedSettingsBlockingSection = dynamic(
   },
 );
 
+type TabOptions = {
+  title: string;
+  options: {
+    icon: ReactElement;
+    customElement?: ReactElement;
+  };
+};
+
 export const FeedSettingsEdit = ({
   feedSlugOrId,
 }: FeedSettingsEditProps): ReactElement => {
@@ -118,7 +126,7 @@ export const FeedSettingsEdit = ({
     usePlusSubscription();
 
   const tabs = useMemo(() => {
-    const base = [
+    const base: TabOptions[] = [
       {
         title: feedSettingsMenuTitle.general,
         options: { icon: <EditIcon size={IconSize.Small} /> },

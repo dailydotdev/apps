@@ -4,10 +4,9 @@ import type { SidebarMenuItem } from '../common';
 import { HashtagIcon, PlusIcon } from '../../icons';
 import { Section } from '../Section';
 import { webappUrl } from '../../../lib/constants';
-import { useFeeds, usePlusSubscription } from '../../../hooks';
+import { useFeeds } from '../../../hooks';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import type { SidebarSectionProps } from './common';
-import { useLazyModal } from '../../../hooks/useLazyModal';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { isExtension } from '../../../lib/func';
 
@@ -17,8 +16,6 @@ export const CustomFeedSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const { feeds } = useFeeds();
-  const { openModal } = useLazyModal();
-  const { showPlusSubscription, isPlus } = usePlusSubscription();
   const { defaultFeedId } = useCustomDefaultFeed();
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
@@ -75,9 +72,6 @@ export const CustomFeedSection = ({
   }, [
     defaultRenderSectionProps.activePage,
     feeds?.edges,
-    showPlusSubscription,
-    openModal,
-    isPlus,
     defaultFeedId,
     onNavTabClick,
   ]);

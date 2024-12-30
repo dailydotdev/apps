@@ -55,7 +55,6 @@ export enum LazyModal {
   PostModeration = 'postModeration',
   NewSquad = 'newSquad',
   TopReaderBadge = 'topReaderBadge',
-  AdvancedCustomFeedSoon = 'advancedCustomFeedSoon',
   BookmarkFolderSoon = 'bookmarkFolderSoon',
   BookmarkFolder = 'bookmarkFolder',
   ClickbaitShield = 'clickbaitShield',
