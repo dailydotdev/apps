@@ -26,13 +26,12 @@ import { PlusIcon, SortIcon } from '../icons';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
-import { customFeedsPlusDate, webappUrl } from '../../lib/constants';
+import { webappUrl } from '../../lib/constants';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { OtherFeedPage } from '../../lib/query';
 import { ChecklistViewState } from '../../lib/checklist';
-import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 
@@ -179,41 +178,6 @@ function FeedNav(): ReactElement {
             }
 
             return null;
-          }}
-          onActiveChange={(label, event) => {
-            if (
-              showPlusSubscription &&
-              label === FeedNavTab.NewFeed &&
-              !isPlus
-            ) {
-              event.preventDefault();
-
-              openModal({ type: LazyModal.AdvancedCustomFeedSoon, props: {} });
-
-              return false;
-            }
-
-            const feedNavItem = feeds?.edges?.find(
-              ({ node }) => node.flags.name === label,
-            );
-
-            if (
-              showPlusSubscription &&
-              !isPlus &&
-              feedNavItem &&
-              new Date(feedNavItem.node.createdAt) > customFeedsPlusDate
-            ) {
-              event.preventDefault();
-
-              openModal({
-                type: LazyModal.AdvancedCustomFeedSoon,
-                props: {},
-              });
-
-              return false;
-            }
-
-            return true;
           }}
         >
           {Object.entries(urlToTab).map(([url, label]) => (

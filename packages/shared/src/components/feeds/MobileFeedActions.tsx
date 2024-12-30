@@ -16,7 +16,6 @@ import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { getFeedName } from '../../lib/feed';
 import { usePlusSubscription } from '../../hooks';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import { LazyModal } from '../modals/common/types';
 
 export function MobileFeedActions(): ReactElement {
   const router = useRouter();
@@ -44,15 +43,6 @@ export function MobileFeedActions(): ReactElement {
         <Divider className="bg-border-subtlest-tertiary" vertical />
         <MyFeedHeading
           onOpenFeedFilters={() => {
-            if (isEnrolledNotPlus) {
-              openModal({
-                type: LazyModal.AdvancedCustomFeedSoon,
-                props: {},
-              });
-
-              return;
-            }
-
             if (isCustomDefaultFeed && router.pathname === '/') {
               router.push(`${webappUrl}feeds/${defaultFeedId}/edit`);
             } else {
