@@ -121,9 +121,10 @@ export default function useFeed<T>(
   const { showPlusSubscription, isPlus } = usePlusSubscription();
   const queryClient = useQueryClient();
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
-  const shouldRetry =
+  const avoidRetry =
     params?.settings?.feedName === SharedFeedPage.Custom &&
-    showPlusSubscription;
+    showPlusSubscription &&
+    !isPlus;
 
   const feedQuery = useInfiniteQuery<FeedData>({
     queryKey: feedQueryKey,
@@ -159,7 +160,7 @@ export default function useFeed<T>(
     enabled: query && tokenRefreshed,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
-    retry: shouldRetry ? false : 3,
+    retry: avoidRetry ? false : 3,
     initialPageParam: '',
     getNextPageParam: ({ page }) => getNextPageParam(page?.pageInfo),
   });
