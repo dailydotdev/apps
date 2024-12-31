@@ -3,12 +3,10 @@ import React, { useMemo } from 'react';
 import type { SidebarMenuItem } from '../common';
 import { HashtagIcon, PlusIcon } from '../../icons';
 import { Section } from '../Section';
-import { customFeedsPlusDate, webappUrl } from '../../../lib/constants';
+import { webappUrl } from '../../../lib/constants';
 import { useFeeds, usePlusSubscription } from '../../../hooks';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import type { SidebarSectionProps } from './common';
-import { useLazyModal } from '../../../hooks/useLazyModal';
-import { LazyModal } from '../../modals/common/types';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { isExtension } from '../../../lib/func';
 
@@ -18,8 +16,7 @@ export const CustomFeedSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const { feeds } = useFeeds();
-  const { openModal } = useLazyModal();
-  const { showPlusSubscription, isPlus } = usePlusSubscription();
+  const { showPlusSubscription } = usePlusSubscription();
   const { defaultFeedId } = useCustomDefaultFeed();
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
@@ -56,54 +53,39 @@ export const CustomFeedSection = ({
               secondary={defaultRenderSectionProps.activePage === feedPath}
             />
           ),
-          action: (
-            event: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>,
-          ) => {
-            if (
-              showPlusSubscription &&
-              !isPlus &&
-              new Date(feed.node.createdAt) > customFeedsPlusDate
-            ) {
-              event.preventDefault();
-
-              openModal({ type: LazyModal.AdvancedCustomFeedSoon, props: {} });
-            }
-          },
         };
       }) ?? [];
 
     return [
       ...customFeeds,
-      {
-        icon: () => (
-          <div className="rounded-6 bg-background-subtle">
-            <PlusIcon />
-          </div>
-        ),
-        title: 'Custom feed',
-        path: `${webappUrl}feeds/new`,
-        requiresLogin: true,
-        isForcedClickable: true,
-        action: (
-          event: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>,
-        ) => {
-          if (showPlusSubscription && !isPlus) {
-            event.preventDefault();
-
-            openModal({ type: LazyModal.AdvancedCustomFeedSoon, props: {} });
+      showPlusSubscription
+        ? {
+            icon: () => (
+              <div className="rounded-6 bg-background-subtle">
+                <PlusIcon />
+              </div>
+            ),
+            title: 'Custom feed',
+            path: `${webappUrl}feeds/new`,
+            requiresLogin: true,
+            isForcedClickable: true,
           }
-        },
-      },
+        : undefined,
     ].filter(Boolean);
   }, [
     defaultRenderSectionProps.activePage,
     feeds?.edges,
-    showPlusSubscription,
-    openModal,
-    isPlus,
     defaultFeedId,
     onNavTabClick,
+    showPlusSubscription,
   ]);
+
+  /**
+   * If there are no custom feeds and the user is not subscribed to Plus don't show this section
+   */
+  if (!menuItems.length && !showPlusSubscription) {
+    return null;
+  }
 
   return (
     <Section

@@ -29,7 +29,7 @@ const CustomFeedOptionsMenu = ({
   onUndo,
   onCreateNewFeed,
 }: CustomFeedOptionsMenuProps): ReactElement => {
-  const { showPlusSubscription, isPlus } = usePlusSubscription();
+  const { showPlusSubscription } = usePlusSubscription();
   const { openModal } = useLazyModal();
   const [, onShareOrCopyLink] = useShareOrCopyLink(shareProps);
   const { isOpen, onMenuClick } = useContextMenu({
@@ -38,11 +38,6 @@ const CustomFeedOptionsMenu = ({
   const { feeds } = useFeeds();
 
   const handleOpenModal = () => {
-    if (!isPlus) {
-      return openModal({
-        type: LazyModal.AdvancedCustomFeedSoon,
-      });
-    }
     if (feeds?.edges?.length > 0) {
       return openModal({
         type: LazyModal.AddToCustomFeed,

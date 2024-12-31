@@ -19,6 +19,7 @@ import { BlockedSourceList } from '../components/BlockedSourceList';
 import { SourceType } from '../../../../graphql/sources';
 import { BlockedUserList } from '../components/BlockedUserList';
 import { BlockedTagList } from '../components/BlockedTagList';
+import { usePlusSubscription } from '../../../../hooks';
 
 enum FeedSettingsBlockingSectionTabs {
   Sources = 'Sources',
@@ -32,6 +33,7 @@ const tabs = Object.values(FeedSettingsBlockingSectionTabs);
 const noop = () => undefined;
 
 export const FeedSettingsBlockingSection = (): ReactElement => {
+  const { showPlusSubscription } = usePlusSubscription();
   const [activeView, setActiveView] = useState<string>(
     () => FeedSettingsBlockingSectionTabs.Sources,
   );
@@ -55,7 +57,7 @@ export const FeedSettingsBlockingSection = (): ReactElement => {
         Manage everything you’ve excluded from your feed. Search and block
         sources, squads, users, or tags to fine-tune your content.
       </Typography>
-      <BlockedWords />
+      {showPlusSubscription ? <BlockedWords /> : undefined}
       <ModalPropsContext.Provider
         value={{
           tabs,
