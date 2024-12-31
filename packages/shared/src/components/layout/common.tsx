@@ -30,9 +30,6 @@ import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
 import { Origin } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { LazyModal } from '../modals/common/types';
-import { DeleteCustomFeed } from '../buttons/DeleteCustomFeed';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -75,11 +72,9 @@ export const SearchControlHeader = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
-  const { showPlusSubscription, isEnrolledNotPlus, isPlus } =
-    usePlusSubscription();
+  const { showPlusSubscription } = usePlusSubscription();
   const { user } = useAuthContext();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
-  const { openModal } = useLazyModal();
 
   if (isMobile) {
     return null;
@@ -94,25 +89,17 @@ export const SearchControlHeader = ({
     buttonVariant: isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary,
   };
 
-  const feedsWithActions = [SharedFeedPage.MyFeed];
-  if (showPlusSubscription) {
-    feedsWithActions.push(SharedFeedPage.Custom, SharedFeedPage.CustomForm);
-  }
+  const feedsWithActions = [
+    SharedFeedPage.MyFeed,
+    SharedFeedPage.Custom,
+    SharedFeedPage.CustomForm,
+  ];
 
   const actionButtons = [
     feedsWithActions.includes(feedName as SharedFeedPage) ? (
       <MyFeedHeading
         key="my-feed"
         onOpenFeedFilters={() => {
-          if (isEnrolledNotPlus) {
-            openModal({
-              type: LazyModal.AdvancedCustomFeedSoon,
-              props: {},
-            });
-
-            return;
-          }
-
           if (isCustomDefaultFeed && router.pathname === '/') {
             router.push(`${webappUrl}feeds/${defaultFeedId}/edit`);
           } else {
@@ -156,9 +143,6 @@ export const SearchControlHeader = ({
         }
         key="toggle-clickbait-shield"
       />
-    ) : null,
-    !isPlus && feedName === SharedFeedPage.Custom ? (
-      <DeleteCustomFeed feedId={router?.query?.slugOrId as string} />
     ) : null,
   ];
   const actions = actionButtons.filter((button) => !!button);

@@ -35,7 +35,7 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
   const { updateUserProfile } = useProfileForm();
   const isMainFeed = feed?.type === FeedType.Main;
   const isCustomFeed = feed?.type === FeedType.Custom;
-  const { isPlus } = usePlusSubscription();
+  const { isPlus, showPlusSubscription } = usePlusSubscription();
 
   const isDefaultFeed = isMainFeed
     ? user.defaultFeedId === null
@@ -97,7 +97,7 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
           />
         )}
       </div>
-      {isCustomFeed && (
+      {isCustomFeed && showPlusSubscription && (
         <div className="flex flex-col gap-4">
           <Typography bold type={TypographyType.Body}>
             Choose an icon
@@ -133,69 +133,73 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
           </ul>
         </div>
       )}
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
-          <Typography bold type={TypographyType.Body}>
-            Set as your default feed
-          </Typography>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            Make this feed the first one you see every time you open daily.dev.
-          </Typography>
+      {showPlusSubscription && (
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <Typography bold type={TypographyType.Body}>
+              Set as your default feed
+            </Typography>
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+            >
+              Make this feed the first one you see every time you open
+              daily.dev.
+            </Typography>
+          </div>
+          {isCustomFeed && (
+            <Button
+              className={classNames(isDefaultFeed ? 'w-44' : 'w-40')}
+              type="button"
+              pressed
+              size={ButtonSize.Small}
+              color={isDefaultFeed ? ColorName.Avocado : undefined}
+              variant={
+                isDefaultFeed ? ButtonVariant.Tertiary : ButtonVariant.Secondary
+              }
+              disabled={!isPlus}
+              icon={isDefaultFeed ? <VIcon /> : <StarIcon />}
+              onClick={async () =>
+                await updateUserProfile({
+                  defaultFeedId: isDefaultFeed ? null : feed.id,
+                })
+              }
+            >
+              {isDefaultFeed ? 'Default feed set' : 'Make default'}
+            </Button>
+          )}
+          {isMainFeed && (
+            <SimpleTooltip
+              disabled={!isDefaultFeed}
+              content="Your main feed is already your default feed"
+              placement="bottom"
+            >
+              <div className={classNames(isDefaultFeed ? 'w-44' : 'w-40')}>
+                <Button
+                  type="button"
+                  pressed
+                  size={ButtonSize.Small}
+                  color={isDefaultFeed ? ColorName.Avocado : undefined}
+                  variant={
+                    user.defaultFeedId === null
+                      ? ButtonVariant.Tertiary
+                      : ButtonVariant.Secondary
+                  }
+                  icon={isDefaultFeed ? <VIcon /> : <StarIcon />}
+                  disabled={user.defaultFeedId === null}
+                  onClick={async () => {
+                    updateUserProfile({
+                      defaultFeedId: null,
+                    });
+                  }}
+                >
+                  {isDefaultFeed ? 'Default feed set' : 'Make default'}
+                </Button>
+              </div>
+            </SimpleTooltip>
+          )}
         </div>
-        {isCustomFeed && (
-          <Button
-            className={classNames(isDefaultFeed ? 'w-44' : 'w-40')}
-            type="button"
-            pressed
-            size={ButtonSize.Small}
-            color={isDefaultFeed ? ColorName.Avocado : undefined}
-            variant={
-              isDefaultFeed ? ButtonVariant.Tertiary : ButtonVariant.Secondary
-            }
-            icon={isDefaultFeed ? <VIcon /> : <StarIcon />}
-            onClick={async () =>
-              await updateUserProfile({
-                defaultFeedId: isDefaultFeed ? null : feed.id,
-              })
-            }
-          >
-            {isDefaultFeed ? 'Default feed set' : 'Make default'}
-          </Button>
-        )}
-        {isMainFeed && (
-          <SimpleTooltip
-            disabled={!isDefaultFeed}
-            content="Your main feed is already your default feed"
-            placement="bottom"
-          >
-            <div className={classNames(isDefaultFeed ? 'w-44' : 'w-40')}>
-              <Button
-                type="button"
-                pressed
-                size={ButtonSize.Small}
-                color={isDefaultFeed ? ColorName.Avocado : undefined}
-                variant={
-                  user.defaultFeedId === null
-                    ? ButtonVariant.Tertiary
-                    : ButtonVariant.Secondary
-                }
-                icon={isDefaultFeed ? <VIcon /> : <StarIcon />}
-                disabled={user.defaultFeedId === null}
-                onClick={async () => {
-                  updateUserProfile({
-                    defaultFeedId: null,
-                  });
-                }}
-              >
-                {isDefaultFeed ? 'Default feed set' : 'Make default'}
-              </Button>
-            </div>
-          </SimpleTooltip>
-        )}
-      </div>
+      )}
       {isCustomFeed && (
         <>
           <Divider className="my-1 bg-border-subtlest-tertiary" />
