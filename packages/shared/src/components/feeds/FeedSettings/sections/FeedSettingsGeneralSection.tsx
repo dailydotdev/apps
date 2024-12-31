@@ -157,6 +157,7 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
               variant={
                 isDefaultFeed ? ButtonVariant.Tertiary : ButtonVariant.Secondary
               }
+              disabled={!isPlus}
               icon={isDefaultFeed ? <VIcon /> : <StarIcon />}
               onClick={async () =>
                 await updateUserProfile({

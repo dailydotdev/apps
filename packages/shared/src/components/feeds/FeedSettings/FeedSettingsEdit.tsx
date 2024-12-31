@@ -8,7 +8,6 @@ import {
   AddUserIcon,
   AppIcon,
   BlockIcon,
-  DevPlusIcon,
   EditIcon,
   FilterIcon,
   HashtagIcon,
@@ -21,17 +20,9 @@ import { FeedSettingsEditContext } from './FeedSettingsEditContext';
 import { FeedSettingsEditHeader } from './FeedSettingsEditHeader';
 import { FeedSettingsEditBody } from './FeedSettingsEditBody';
 import { FeedSettingsTitle } from './FeedSettingsTitle';
-import { webappUrl } from '../../../lib/constants';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { FeedType } from '../../../graphql/feed';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '../../typography/Typography';
-import { ButtonSize, ButtonVariant } from '../../buttons/common';
-import { LogEvent, TargetId } from '../../../lib/log';
-import { Button } from '../../buttons/Button';
+
 import { SuspenseLoader } from './components/SuspenseLoader';
 
 export type FeedSettingsEditProps = {
@@ -133,49 +124,12 @@ export const FeedSettingsEdit = ({
       },
     ];
 
-    if (showPlusSubscription) {
+    if (showPlusSubscription || feed?.type === FeedType.Main) {
       base.push(
         {
           title: feedSettingsMenuTitle.tags,
           options: { icon: <HashtagIcon size={IconSize.Small} /> },
         },
-        !isPlus
-          ? {
-              title: 'Upgrade to Plus',
-              options: {
-                icon: <></>,
-                customElement: (
-                  <div className="flex w-full flex-col justify-center gap-4 rounded-10 border border-border-subtlest-tertiary bg-action-plus-float p-4">
-                    <Typography
-                      type={TypographyType.Callout}
-                      color={TypographyColor.Primary}
-                    >
-                      Upgrade to daily.dev plus today and be among the first to
-                      create advanced custom feeds!
-                    </Typography>
-                    <Button
-                      tag="a"
-                      type="button"
-                      variant={ButtonVariant.Primary}
-                      size={ButtonSize.Medium}
-                      href={`${webappUrl}plus`}
-                      icon={
-                        <DevPlusIcon className="text-action-plus-default" />
-                      }
-                      onClick={() => {
-                        logSubscriptionEvent({
-                          event_name: LogEvent.UpgradeSubscription,
-                          target_id: TargetId.FeedSettings,
-                        });
-                      }}
-                    >
-                      Upgrade to Plus
-                    </Button>
-                  </div>
-                ),
-              },
-            }
-          : null,
         {
           title: feedSettingsMenuTitle.sources,
           options: { icon: <AddUserIcon size={IconSize.Small} /> },
