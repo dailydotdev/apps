@@ -113,8 +113,7 @@ export const FeedSettingsEdit = ({
   const router = useRouter();
   const feedSettingsEditContext = useFeedSettingsEdit({ feedSlugOrId });
   const { feed, onBackToFeed } = feedSettingsEditContext;
-  const { isPlus, showPlusSubscription, logSubscriptionEvent } =
-    usePlusSubscription();
+  const { showPlusSubscription } = usePlusSubscription();
 
   const tabs = useMemo(() => {
     const base: TabOptions[] = [
