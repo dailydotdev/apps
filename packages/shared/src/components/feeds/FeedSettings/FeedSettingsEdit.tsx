@@ -154,7 +154,7 @@ export const FeedSettingsEdit = ({
     }
 
     return base.filter(Boolean);
-  }, [feed?.type, isPlus, showPlusSubscription, logSubscriptionEvent]);
+  }, [feed?.type, showPlusSubscription]);
 
   const defaultView = useMemo(() => {
     return feedSettingsMenuTitle[router.query.dview as FeedSettingsMenu];

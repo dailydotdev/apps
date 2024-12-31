@@ -77,6 +77,7 @@ export const CustomFeedSection = ({
     feeds?.edges,
     defaultFeedId,
     onNavTabClick,
+    showPlusSubscription,
   ]);
 
   /**
