@@ -27,7 +27,7 @@ import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { isTesting } from '@dailydotdev/shared/src/lib/constants';
+import { isTesting, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import ExtensionOnboarding from '@dailydotdev/shared/src/components/ExtensionOnboarding';
 import { withFeaturesBoundary } from '@dailydotdev/shared/src/components/withFeaturesBoundary';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
@@ -42,13 +42,14 @@ import {
   FIREFOX_ACCEPTED_PERMISSION,
   FirefoxPermissionType,
 } from '@dailydotdev/shared/src/lib/cookie';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
-import { useContentScriptStatus } from '../../../shared/src/hooks';
+import { useActions, useContentScriptStatus } from '../../../shared/src/hooks';
 import { FirefoxPermission } from '../permission/FirefoxPermission';
 import { FirefoxPermissionDeclined } from '../permission/FirefoxPermissionDeclined';
 
@@ -69,6 +70,7 @@ Modal.defaultStyles = {};
 
 const getRedirectUri = () => browser.runtime.getURL('index.html');
 function InternalApp(): ReactElement {
+  const { checkHasCompleted, isActionsFetched } = useActions();
   useError();
   useWebVitals();
   const { setCurrentPage, currentPage } = useExtensionContext();
@@ -106,6 +108,17 @@ function InternalApp(): ReactElement {
     },
     [dismissToast, setCurrentPage],
   );
+
+  useEffect(() => {
+    if (isActionsFetched) {
+      const hasCompletedEssentials =
+        checkHasCompleted(ActionType.EditTag) &&
+        checkHasCompleted(ActionType.ContentTypes);
+      if (!hasCompletedEssentials) {
+        router.replace(`${webappUrl}onboarding`);
+      }
+    }
+  }, [isActionsFetched, checkHasCompleted]);
 
   useEffect(() => {
     if (contentScriptGranted) {

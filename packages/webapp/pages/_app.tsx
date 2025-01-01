@@ -31,13 +31,17 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
-import { useManualScrollRestoration } from '@dailydotdev/shared/src/hooks';
+import {
+  useActions,
+  useManualScrollRestoration,
+} from '@dailydotdev/shared/src/hooks';
 import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { fromCDN } from '@dailydotdev/shared/src/lib';
 import { initApp } from '@dailydotdev/shared/src/lib/func';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -69,6 +73,7 @@ const getRedirectUri = () =>
 const getPage = () => window.location.pathname;
 
 function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
+  const { checkHasCompleted, isActionsFetched } = useActions();
   const didRegisterSwRef = useRef(false);
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
@@ -79,6 +84,17 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   useLogPageView();
   const { modal, closeModal } = useLazyModal();
   useConsoleLogo();
+
+  useEffect(() => {
+    if (isActionsFetched) {
+      const hasCompletedEssentials =
+        checkHasCompleted(ActionType.EditTag) &&
+        checkHasCompleted(ActionType.ContentTypes);
+      if (!hasCompletedEssentials && !router.pathname.includes('/onboarding')) {
+        router.replace('/onboarding');
+      }
+    }
+  }, [isActionsFetched, router, checkHasCompleted]);
 
   useEffect(() => {
     initApp();
