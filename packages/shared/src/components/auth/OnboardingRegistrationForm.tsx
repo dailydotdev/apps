@@ -1,17 +1,16 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { checkKratosEmail } from '../../lib/kratos';
-import { AuthFormProps, getFormEmail, providerMap } from './common';
+import type { AuthFormProps } from './common';
+import { getFormEmail, providerMap } from './common';
 import OrDivider from './OrDivider';
 import LogContext from '../../contexts/LogContext';
-import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
-import {
-  Button,
-  ButtonProps,
-  ButtonSize,
-  ButtonVariant,
-} from '../buttons/Button';
+import type { AuthTriggersType } from '../../lib/auth';
+import { AuthEventNames } from '../../lib/auth';
+import type { ButtonProps } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import AuthForm from './AuthForm';
 import { TextField } from '../fields/TextField';
 import { MailIcon } from '../icons';

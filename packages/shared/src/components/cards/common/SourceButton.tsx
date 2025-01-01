@@ -1,9 +1,10 @@
-import React, { CSSProperties, ReactElement } from 'react';
-import { TooltipPosition } from '../../tooltips/BaseTooltipContainer';
+import type { CSSProperties, ReactElement } from 'react';
+import React from 'react';
+import type { TooltipPosition } from '../../tooltips/BaseTooltipContainer';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
-import { Source } from '../../../graphql/sources';
+import type { Source } from '../../../graphql/sources';
 import { useFeedPreviewMode } from '../../../hooks';
 
 interface SourceButtonProps {

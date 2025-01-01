@@ -1,9 +1,10 @@
-import React, {
+import type {
   InputHTMLAttributes,
   MutableRefObject,
   ReactElement,
   ReactNode,
 } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import styles from './Switch.module.css';
 

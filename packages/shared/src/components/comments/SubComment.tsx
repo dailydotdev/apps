@@ -1,8 +1,10 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import dynamic from 'next/dynamic';
-import { Comment } from '../../graphql/comments';
-import CommentBox, { CommentBoxProps } from './CommentBox';
-import { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
+import type { Comment } from '../../graphql/comments';
+import type { CommentBoxProps } from './CommentBox';
+import CommentBox from './CommentBox';
+import type { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
 import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
 

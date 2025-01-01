@@ -1,6 +1,8 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { VIcon } from '../../icons';
-import { SourcePermissions, Squad } from '../../../graphql/sources';
+import type { Squad } from '../../../graphql/sources';
+import { SourcePermissions } from '../../../graphql/sources';
 import { SquadEmptyScreen } from './SquadEmptyScreen';
 import { ElementPlaceholder } from '../../ElementPlaceholder';
 import { verifyPermission } from '../../../graphql/squads';

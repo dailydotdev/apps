@@ -1,4 +1,5 @@
-import React, { ReactElement, useMemo, useRef } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo, useRef } from 'react';
 import {
   ReferralCampaignKey,
   useReferralCampaign,
@@ -14,13 +15,11 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { REFERRED_USERS_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import UserList from '@dailydotdev/shared/src/components/profile/UserList';
 import { checkFetchMore } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
-import {
-  ReferredUsersData,
-  gqlClient,
-} from '@dailydotdev/shared/src/graphql/common';
+import type { ReferredUsersData } from '@dailydotdev/shared/src/graphql/common';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { SocialShareList } from '@dailydotdev/shared/src/components/widgets/SocialShareList';
 import { Separator } from '@dailydotdev/shared/src/components/cards/common/common';
-import { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
+import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import { format } from 'date-fns';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useInfiniteQuery } from '@tanstack/react-query';
@@ -30,11 +29,11 @@ import {
   TargetId,
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
-import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
+import type { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
 import { InviteLinkInput } from '@dailydotdev/shared/src/components/referral';
 import { TruncateText } from '@dailydotdev/shared/src/components/utilities';
-import { NextSeoProps } from 'next-seo';
+import type { NextSeoProps } from 'next-seo';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';

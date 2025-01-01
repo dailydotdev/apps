@@ -1,9 +1,7 @@
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
-import {
-  UseHorizontalScrollHeaderProps,
-  useHorizontalScrollHeader,
-} from './useHorizontalScrollHeader';
+import type { UseHorizontalScrollHeaderProps } from './useHorizontalScrollHeader';
+import { useHorizontalScrollHeader } from './useHorizontalScrollHeader';
 import { useScrollManagement } from './useScrollManagement';
 import { useCalculateVisibleElements } from './useCalculateVisibleElements';
 

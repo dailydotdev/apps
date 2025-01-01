@@ -1,11 +1,7 @@
-import React, {
-  ReactElement,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-import { Modal, ModalProps } from '../common/Modal';
+import type { ReactElement } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import type { ModalProps } from '../common/Modal';
+import { Modal } from '../common/Modal';
 import {
   cloudinaryReferralCampaignGenericHappy,
   cloudinaryReferralCampaignGenericSad,

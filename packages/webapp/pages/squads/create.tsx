@@ -1,20 +1,15 @@
-import React, {
-  FormEvent,
-  ReactElement,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
-import { NextSeoProps } from 'next-seo';
+import type { FormEvent, ReactElement } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import {
   WriteFreeformContent,
   WriteFreeFormSkeleton,
   WritePageContainer,
 } from '@dailydotdev/shared/src/components/post/freeform';
-import { CreatePostProps } from '@dailydotdev/shared/src/graphql/posts';
+import type { CreatePostProps } from '@dailydotdev/shared/src/graphql/posts';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useDiscardPost } from '@dailydotdev/shared/src/hooks/input/useDiscardPost';
 import { WritePostContextProvider } from '@dailydotdev/shared/src/contexts';

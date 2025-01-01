@@ -1,14 +1,12 @@
 import React from 'react';
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-} from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import nock from 'nock';
-import { NextRouter, useRouter } from 'next/router';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
-import { Tab, TabContainer, TabContainerProps } from './TabContainer';
+import type { TabContainerProps } from './TabContainer';
+import { Tab, TabContainer } from './TabContainer';
 
 beforeEach(() => {
   nock.cleanAll();

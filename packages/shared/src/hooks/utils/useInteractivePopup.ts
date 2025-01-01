@@ -1,4 +1,5 @@
-import { MouseEvent, useCallback, useState } from 'react';
+import type { MouseEvent } from 'react';
+import { useCallback, useState } from 'react';
 
 type Fn = (e: MouseEvent) => void;
 

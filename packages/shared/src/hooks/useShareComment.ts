@@ -1,10 +1,11 @@
 import { useCallback, useContext } from 'react';
-import { Post } from '../graphql/posts';
+import type { Post } from '../graphql/posts';
 import { postLogEvent } from '../lib/feed';
 import LogContext from '../contexts/LogContext';
 import { ShareProvider } from '../lib/share';
-import { Origin } from '../lib/log';
-import { Comment, getCommentHash } from '../graphql/comments';
+import type { Origin } from '../lib/log';
+import type { Comment } from '../graphql/comments';
+import { getCommentHash } from '../graphql/comments';
 import { useGetShortUrl } from './utils/useGetShortUrl';
 import { ReferralCampaignKey } from '../lib';
 import { useSharePost } from './useSharePost';

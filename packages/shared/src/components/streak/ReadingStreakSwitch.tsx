@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { Switch } from '../fields/Switch';
 

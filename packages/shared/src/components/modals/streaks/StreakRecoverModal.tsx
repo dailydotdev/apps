@@ -1,27 +1,23 @@
-import React, { ReactElement, useId } from 'react';
+import type { ReactElement } from 'react';
+import React, { useId } from 'react';
 import { ModalSize } from '../common/types';
 import { ModalBody } from '../common/ModalBody';
-import { Modal, ModalProps } from '../common/Modal';
-import { LoggedUser } from '../../../lib/user';
+import type { ModalProps } from '../common/Modal';
+import { Modal } from '../common/Modal';
+import type { LoggedUser } from '../../../lib/user';
 import {
   Typography,
   TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
-import {
-  Button,
-  ButtonProps,
-  ButtonSize,
-  ButtonVariant,
-} from '../../buttons/Button';
+import type { ButtonProps } from '../../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { reputation as reputationHref } from '../../../lib/constants';
 import { ReputationIcon } from '../../icons';
 import { IconSize } from '../../Icon';
-import {
-  useStreakRecover,
-  UseStreakRecoverReturn,
-} from '../../../hooks/streaks/useStreakRecover';
+import type { UseStreakRecoverReturn } from '../../../hooks/streaks/useStreakRecover';
+import { useStreakRecover } from '../../../hooks/streaks/useStreakRecover';
 import { Checkbox } from '../../fields/Checkbox';
 import { ModalClose } from '../common/ModalClose';
 import { cloudinaryStreakLost } from '../../../lib/image';

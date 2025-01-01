@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
-import { ChecklistStepProps } from '../../lib/checklist';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { ChecklistStepProps } from '../../lib/checklist';
 import { ChecklistStep } from './ChecklistStep';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ActionType } from '../../graphql/actions';

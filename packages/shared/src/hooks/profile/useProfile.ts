@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProfile, PublicProfile } from '../../lib/user';
+import type { PublicProfile } from '../../lib/user';
+import { getProfile } from '../../lib/user';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { disabledRefetch } from '../../lib/func';
 import { useAuthContext } from '../../contexts/AuthContext';

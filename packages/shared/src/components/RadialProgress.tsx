@@ -1,11 +1,5 @@
-import React, {
-  CSSProperties,
-  forwardRef,
-  LegacyRef,
-  ReactElement,
-  useMemo,
-  useState,
-} from 'react';
+import type { CSSProperties, LegacyRef, ReactElement } from 'react';
+import React, { forwardRef, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import styles from './RadialProgress.module.css';
 import classed from '../lib/classed';

@@ -1,5 +1,5 @@
-import { TriggerEvent } from '@dailydotdev/react-contexify';
-import { ContextMenuParams } from '@dailydotdev/react-contexify/dist/types';
+import type { TriggerEvent } from '@dailydotdev/react-contexify';
+import type { ContextMenuParams } from '@dailydotdev/react-contexify/dist/types';
 import useContextMenu from './useContextMenu';
 import { ContextMenu } from './constants';
 

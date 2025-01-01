@@ -1,4 +1,8 @@
-import { Mutation, MutationStatus, QueryClient } from '@tanstack/react-query';
+import type {
+  Mutation,
+  MutationStatus,
+  QueryClient,
+} from '@tanstack/react-query';
 
 export type UseMutationMatcherProps<TVariables = unknown> = {
   status: MutationStatus;

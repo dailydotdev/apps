@@ -1,10 +1,5 @@
-import React, {
-  ReactElement,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { formToJson } from '../../lib/form';
@@ -14,17 +9,18 @@ import {
 } from '../../lib/constants';
 import { TextField } from '../fields/TextField';
 import AuthContext from '../../contexts/AuthContext';
+import type { SubmissionAvailability } from '../../graphql/submitArticle';
 import {
-  SubmissionAvailability,
   SUBMISSION_AVAILABILITY_QUERY,
   SUBMIT_ARTICLE_MUTATION,
 } from '../../graphql/submitArticle';
 import PostItemCard from '../post/PostItemCard';
-import { PostItem } from '../../graphql/posts';
+import type { PostItem } from '../../graphql/posts';
 import LogContext from '../../contexts/LogContext';
 import { LinkIcon, LockIcon } from '../icons';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
-import { Modal, ModalProps } from './common/Modal';
+import type { ModalProps } from './common/Modal';
+import { Modal } from './common/Modal';
 import EnableNotification from '../notifications/EnableNotification';
 import {
   LogEvent,

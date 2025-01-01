@@ -11,8 +11,9 @@ import {
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { pageBorders } from '@dailydotdev/shared/src/components/utilities';
 import classed from '@dailydotdev/shared/src/lib/classed';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import React, { ReactNode } from 'react';
+import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import type { ReactNode } from 'react';
+import React from 'react';
 import {
   faq,
   privacyPolicy,

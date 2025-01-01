@@ -1,13 +1,10 @@
-import {
-  UseMutateAsyncFunction,
-  useMutation,
-  useQueryClient,
-} from '@tanstack/react-query';
+import type { UseMutateAsyncFunction } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getDay } from 'date-fns';
 import { sendViewPost } from '../../graphql/posts';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { ReadingDay, UserStreak } from '../../graphql/users';
+import type { ReadingDay, UserStreak } from '../../graphql/users';
 
 export const useViewPost = (): UseMutateAsyncFunction<
   unknown,

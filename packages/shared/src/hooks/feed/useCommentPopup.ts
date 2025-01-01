@@ -1,12 +1,10 @@
 import { useContext, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import {
-  COMMENT_ON_POST_MUTATION,
-  CommentOnData,
-} from '../../graphql/comments';
+import type { CommentOnData } from '../../graphql/comments';
+import { COMMENT_ON_POST_MUTATION } from '../../graphql/comments';
 import LogContext from '../../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../../lib/feed';
-import { Post } from '../../graphql/posts';
+import type { Post } from '../../graphql/posts';
 import { gqlClient } from '../../graphql/common';
 
 export default function useCommentPopup(

@@ -1,15 +1,11 @@
-import React, {
-  MouseEventHandler,
-  ReactElement,
-  useContext,
-  useMemo,
-  useState,
-} from 'react';
+import type { MouseEventHandler, ReactElement } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { TimerIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips';
 import { useSearchHistory } from '../../hooks/search';
-import ContextMenu, { MenuItemProps } from '../fields/ContextMenu';
+import type { MenuItemProps } from '../fields/ContextMenu';
+import ContextMenu from '../fields/ContextMenu';
 import useContextMenu from '../../hooks/useContextMenu';
 import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 import { SearchProviderEnum, getSearchUrl } from '../../graphql/search';

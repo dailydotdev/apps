@@ -1,24 +1,26 @@
-import React, { ReactElement, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useState } from 'react';
 import ReactModal from 'react-modal';
 import classNames from 'classnames';
 import { ModalHeader } from './ModalHeader';
 import { ModalBody } from './ModalBody';
 import { ModalFooter } from './ModalFooter';
 import { ModalSidebar } from './ModalSidebar';
+import type { ModalStep, ModalTabItem } from './types';
 import {
   ModalKind,
   ModalPropsContext,
   ModalSize,
-  ModalStep,
-  ModalTabItem,
   modalTabTitle,
 } from './types';
 import classed from '../../../lib/classed';
 import { ModalStepsWrapper } from './ModalStepsWrapper';
-import { LogEvent } from '../../../lib/log';
+import type { LogEvent } from '../../../lib/log';
 import { useViewSize, ViewSize } from '../../../hooks';
-import { Drawer, DrawerOnMobileProps } from '../../drawers';
-import { FormWrapper, FormWrapperProps } from '../../fields/form';
+import type { DrawerOnMobileProps } from '../../drawers';
+import { Drawer } from '../../drawers';
+import type { FormWrapperProps } from '../../fields/form';
+import { FormWrapper } from '../../fields/form';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { initReactModal, isExtension } from '../../../lib/func';
 

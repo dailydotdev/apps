@@ -1,10 +1,11 @@
 import classNames from 'classnames';
 import React from 'react';
-import { ReactElement } from 'react-markdown/lib/react-markdown';
+import type { ReactElement } from 'react-markdown/lib/react-markdown';
 import { Button } from '../buttons/Button';
 import { ButtonVariant, ButtonIconPosition } from '../buttons/common';
 import { ArrowIcon } from '../icons';
-import { LogEvent, Origin } from '../../lib/log';
+import type { Origin } from '../../lib/log';
+import { LogEvent } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 
 export type FeedPreviewControlsControlsProps = {

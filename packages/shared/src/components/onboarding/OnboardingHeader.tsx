@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import React, { Dispatch, ReactElement, SetStateAction, useId } from 'react';
+import type { Dispatch, ReactElement, SetStateAction } from 'react';
+import React, { useId } from 'react';
 import { useViewSize, ViewSize } from '../../hooks';
 import {
   cloudinaryFeedBgLaptop,
@@ -7,7 +8,8 @@ import {
   cloudinaryFeedBgTablet,
 } from '../../lib/image';
 import Logo, { LogoPosition } from '../Logo';
-import { AuthDisplay, AuthProps } from '../auth/AuthOptions';
+import type { AuthProps } from '../auth/AuthOptions';
+import { AuthDisplay } from '../auth/AuthOptions';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { CreateFeedButton } from './CreateFeedButton';
 import { OnboardingStep, wrapperMaxWidth } from './common';

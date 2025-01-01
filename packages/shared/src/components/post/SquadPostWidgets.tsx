@@ -1,4 +1,5 @@
-import React, { ReactElement, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { PageWidgets } from '../utilities';
 import { ShareMobile } from '../ShareMobile';
@@ -7,13 +8,13 @@ import ShareBar from '../ShareBar';
 import FurtherReading from '../widgets/FurtherReading';
 import { PostHeaderActions } from './PostHeaderActions';
 import SourceButton from '../cards/common/SourceButton';
-import { BasicSourceMember, Squad } from '../../graphql/sources';
+import type { BasicSourceMember, Squad } from '../../graphql/sources';
 import { SquadActionButton } from '../squads/SquadActionButton';
 import { Origin } from '../../lib/log';
 import { useSquad } from '../../hooks';
 import { getSquadMembers, isSourcePublicSquad } from '../../graphql/squads';
 import SquadMemberShortList from '../squads/SquadMemberShortList';
-import { PostWidgetsProps } from './PostWidgets';
+import type { PostWidgetsProps } from './PostWidgets';
 import { ProfileImageSize } from '../ProfilePicture';
 import { FooterLinks } from '../footer';
 

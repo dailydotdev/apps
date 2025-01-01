@@ -1,7 +1,5 @@
-import {
-  SettingsContextData,
-  ThemeMode,
-} from '../../src/contexts/SettingsContext';
+import type { SettingsContextData } from '../../src/contexts/SettingsContext';
+import { ThemeMode } from '../../src/contexts/SettingsContext';
 
 export const createTestSettings = (
   props: Partial<SettingsContextData> = {},

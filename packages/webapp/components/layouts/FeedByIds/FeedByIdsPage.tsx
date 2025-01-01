@@ -1,9 +1,10 @@
-import React, { ReactElement, ReactNode, useEffect, useContext } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { useRouter } from 'next/router';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
+import type { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
 import { getLayout } from '../FeedLayout';
-import { MainFeedPageProps } from '../MainFeedPage';
+import type { MainFeedPageProps } from '../MainFeedPage';
 import FeedByIdsLayout from './FeedByIdsLayout';
 
 export default function FeedByIdsPage({

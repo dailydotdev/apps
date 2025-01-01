@@ -1,6 +1,6 @@
 import nock from 'nock';
 import { authUrl, heimdallUrl } from '../../src/lib/constants';
-import {
+import type {
   EmptyObjectLiteral,
   Identity,
   InitializationData,

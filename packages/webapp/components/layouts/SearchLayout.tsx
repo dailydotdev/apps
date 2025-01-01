@@ -1,5 +1,5 @@
-import { ReactNode } from 'react';
-import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
+import type { ReactNode } from 'react';
+import type { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
 import { getLayout as getMainLayout } from './MainLayout';
 import { getLayout as getFooterNavBarLayout } from './FooterNavBarLayout';
 

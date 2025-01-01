@@ -1,8 +1,9 @@
 import dynamic from 'next/dynamic';
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import PostEngagements from './PostEngagements';
-import { BasePostContentProps } from './common';
+import type { BasePostContentProps } from './common';
 import { PostHeaderActions } from './PostHeaderActions';
 import PostNavigation from './PostNavigation';
 

@@ -1,11 +1,10 @@
 import { gql } from 'graphql-request';
-import {
-  NotificationIconType,
-  NotificationType,
-} from '../components/notifications/utils';
-import { Connection, gqlClient } from './common';
-import { EmptyResponse } from './emptyResponse';
-import { WithClassNameProps } from '../components/utilities';
+import type { NotificationIconType } from '../components/notifications/utils';
+import { NotificationType } from '../components/notifications/utils';
+import type { Connection } from './common';
+import { gqlClient } from './common';
+import type { EmptyResponse } from './emptyResponse';
+import type { WithClassNameProps } from '../components/utilities';
 
 export enum NotificationAvatarType {
   User = 'user',

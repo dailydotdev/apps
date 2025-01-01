@@ -1,4 +1,5 @@
-import React, { ReactElement, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
 import { USER_COMMENTS_QUERY } from '@dailydotdev/shared/src/graphql/comments';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import {
@@ -9,10 +10,10 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { MyProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/MyProfileEmptyScreen';
 import { ProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/ProfileEmptyScreen';
 import CommentFeed from '@dailydotdev/shared/src/components/CommentFeed';
-import { NextSeoProps } from 'next-seo/lib/types';
+import type { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
+import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
-  ProfileLayoutProps,
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
   getLayout as getProfileLayout,

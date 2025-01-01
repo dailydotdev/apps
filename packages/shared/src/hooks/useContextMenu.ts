@@ -1,4 +1,5 @@
-import { MouseEventHandler, useCallback, useMemo } from 'react';
+import type { MouseEventHandler } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useContextMenu as useContexifyContextMenu } from '@dailydotdev/react-contexify';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { generateQueryKey, RequestKey } from '../lib/query';

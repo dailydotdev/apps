@@ -1,16 +1,12 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
-import { Boot, BootApp, BootCacheData, getBootData } from '../lib/boot';
+import type { Boot, BootApp, BootCacheData } from '../lib/boot';
+import { getBootData } from '../lib/boot';
 import { AuthContextProvider } from './AuthContext';
-import { AnonymousUser, ContentLanguage, LoggedUser } from '../lib/user';
+import type { AnonymousUser, LoggedUser } from '../lib/user';
+import { ContentLanguage } from '../lib/user';
 import { AlertContextProvider } from './AlertContext';
 import { generateQueryKey, RequestKey, STALE_TIME } from '../lib/query';
 import {
@@ -25,7 +21,7 @@ import { BOOT_LOCAL_KEY, BOOT_QUERY_KEY } from './common';
 import { GrowthBookProvider } from '../components/GrowthBookProvider';
 import { useHostStatus } from '../hooks/useHostPermissionStatus';
 import { checkIsExtension } from '../lib/func';
-import { Feed, FeedList } from '../graphql/feed';
+import type { Feed, FeedList } from '../graphql/feed';
 import { gqlClient } from '../graphql/common';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { LogContextProvider } from './LogContext';

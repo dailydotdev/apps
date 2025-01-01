@@ -1,13 +1,14 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { type PublicProfile } from '../../lib/user';
+import type { PublicProfile } from '../../lib/user';
 import JoinedDate from './JoinedDate';
 import { Separator } from '../cards/common/common';
 import { ReputationUserBadge } from '../ReputationUserBadge';
 import { IconSize } from '../Icon';
 import { TruncateText, truncateTextClassNames } from '../utilities';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
-import { Company } from '../../lib/userCompany';
+import type { Company } from '../../lib/userCompany';
 import {
   Typography,
   TypographyColor,

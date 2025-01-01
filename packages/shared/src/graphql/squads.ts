@@ -7,21 +7,22 @@ import {
   USER_BASIC_INFO,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
-import { Connection, gqlClient } from './common';
-import {
+import type { Connection } from './common';
+import { gqlClient } from './common';
+import type {
   BasicSourceMember,
   Source,
   SourceMember,
   SourceMemberRole,
   SourcePermissions,
-  SourceType,
   Squad,
 } from './sources';
+import { SourceType } from './sources';
 import type { Post } from './posts';
-import { EmptyResponse } from './emptyResponse';
+import type { EmptyResponse } from './emptyResponse';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
 import { PrivacyOption } from '../components/squads/settings/SquadPrivacySection';
-import { Author } from './comments';
+import type { Author } from './comments';
 
 interface BaseSquadForm
   extends Pick<

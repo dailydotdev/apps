@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import { UseMutateCommentResult } from '../hooks/post/useMutateComment';
+import type { UseMutateCommentResult } from '../hooks/post/useMutateComment';
 
 interface WriteCommentContextProp {
   mutateComment: UseMutateCommentResult;

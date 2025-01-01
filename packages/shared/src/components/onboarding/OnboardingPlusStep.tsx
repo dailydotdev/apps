@@ -1,10 +1,9 @@
-import React, { ReactElement, useMemo, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useViewSize, ViewSize } from '../../hooks';
-import {
-  ProductOption,
-  usePaymentContext,
-} from '../../contexts/PaymentContext';
+import type { ProductOption } from '../../contexts/PaymentContext';
+import { usePaymentContext } from '../../contexts/PaymentContext';
 import {
   Typography,
   TypographyColor,

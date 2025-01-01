@@ -1,18 +1,11 @@
-import React, {
-  HTMLAttributes,
-  ReactElement,
-  ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import type { HTMLAttributes, ReactElement, ReactNode } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import classed from '../lib/classed';
 import { Radio } from './fields/Radio';
 import { Switch } from './fields/Switch';
+import type { ThemeMode } from '../contexts/SettingsContext';
 import SettingsContext, {
-  ThemeMode,
   themes as layoutThemes,
 } from '../contexts/SettingsContext';
 import { CardIcon, LineIcon } from './icons';

@@ -1,11 +1,6 @@
 import React from 'react';
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
@@ -13,7 +8,7 @@ import {
   emailSentRecoveryMockData,
   passwordRecoveryFlowMockData,
 } from '../../../__tests__/fixture/auth';
-import { AccountRecoveryParameters } from '../../lib/auth';
+import type { AccountRecoveryParameters } from '../../lib/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
 import ForgotPasswordForm from './ForgotPasswordForm';

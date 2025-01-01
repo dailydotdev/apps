@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import type React from 'react';
+import { useState } from 'react';
 import useContextMenu from './useContextMenu';
-import { Tag } from '../graphql/feedSettings';
+import type { Tag } from '../graphql/feedSettings';
 import { ContextMenu } from './constants';
 
 export default function useTagContext(): {

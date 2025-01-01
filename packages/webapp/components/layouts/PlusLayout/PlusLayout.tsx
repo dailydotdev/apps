@@ -1,4 +1,5 @@
-import React, { ReactElement, ReactNode, useEffect } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useEffect } from 'react';
 import { cloudinaryPlusBackground } from '@dailydotdev/shared/src/lib/image';
 import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/PaymentContext';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -10,7 +11,7 @@ import {
   ThemeMode,
   useSettingsContext,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { MainFeedPageProps } from '../MainFeedPage';
+import type { MainFeedPageProps } from '../MainFeedPage';
 import { PlusHeader } from './PlusHeader';
 
 export default function PlusLayout({

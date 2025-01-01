@@ -1,13 +1,8 @@
 import React from 'react';
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { PasswordField } from './PasswordField';
-import { TextFieldProps } from './TextField';
+import type { TextFieldProps } from './TextField';
 
 const renderComponent = (props: Partial<TextFieldProps> = {}): RenderResult => {
   const defaultProps: TextFieldProps = {

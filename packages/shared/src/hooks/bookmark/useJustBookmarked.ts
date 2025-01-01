@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { isNullOrUndefined } from '../../lib/func';
-import { UseBookmarkProviderProps } from './common';
+import type { UseBookmarkProviderProps } from './common';
 
 interface UseJustBookmarked {
   justBookmarked: boolean;

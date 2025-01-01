@@ -1,10 +1,5 @@
-import React, {
-  ReactElement,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-} from 'react';
+import type { ReactElement } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import Tilt from 'react-parallax-tilt';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
@@ -22,7 +17,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
-import { NextSeoProps } from 'next-seo/lib/types';
+import type { NextSeoProps } from 'next-seo/lib/types';
 import DevCardPlaceholder from '@dailydotdev/shared/src/components/DevCardPlaceholder';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { devCard } from '@dailydotdev/shared/src/lib/constants';
@@ -47,10 +42,8 @@ import {
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import {
-  DevCardQueryData,
-  useDevCard,
-} from '@dailydotdev/shared/src/hooks/profile/useDevCard';
+import type { DevCardQueryData } from '@dailydotdev/shared/src/hooks/profile/useDevCard';
+import { useDevCard } from '@dailydotdev/shared/src/hooks/profile/useDevCard';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
@@ -63,11 +56,11 @@ import { getLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 import styles from '../components/layouts/ProfileLayout/NavBar.module.css';
-import {
+import type {
   DevCardMutation,
-  GENERATE_DEVCARD_MUTATION,
   GenerateDevCardParams,
 } from '../graphql/devcard';
+import { GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 
 interface Step1Props {

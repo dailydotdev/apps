@@ -1,20 +1,21 @@
-import React, { FormEvent, ReactElement, useState } from 'react';
+import type { FormEvent, ReactElement } from 'react';
+import React, { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant } from '../buttons/Button';
 import AuthHeader from './AuthHeader';
-import { AuthFormProps, AuthModalText } from './common';
+import type { AuthFormProps } from './common';
+import { AuthModalText } from './common';
 import {
   AuthFlow,
   initializeKratosFlow,
   submitKratosFlow,
 } from '../../lib/kratos';
-import {
-  errorsToJson,
-  getNodeValue,
+import type {
   RegistrationParameters,
   ValidateRegistrationParams,
 } from '../../lib/auth';
+import { errorsToJson, getNodeValue } from '../../lib/auth';
 import AuthForm from './AuthForm';
 import { PasswordField } from '../fields/PasswordField';
 import { useToastNotification } from '../../hooks/useToastNotification';

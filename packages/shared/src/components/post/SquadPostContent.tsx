@@ -1,4 +1,5 @@
-import React, { ReactElement, useEffect } from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
@@ -11,7 +12,7 @@ import SharePostContent from './SharePostContent';
 import MarkdownPostContent from './MarkdownPostContent';
 import { SquadPostWidgets } from './SquadPostWidgets';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { PostContentProps, PostNavigationProps } from './common';
+import type { PostContentProps, PostNavigationProps } from './common';
 import ShareYouTubeContent from './ShareYouTubeContent';
 import { useViewPost } from '../../hooks/post';
 import { withPostById } from './withPostById';

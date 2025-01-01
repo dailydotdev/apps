@@ -1,10 +1,6 @@
 import { ReferralCampaignKey } from './referral';
-import {
-  AddLinkShareLogQueryParams,
-  ShareProvider,
-  addLogQueryParams,
-  getShareLink,
-} from './share';
+import type { AddLinkShareLogQueryParams } from './share';
+import { ShareProvider, addLogQueryParams, getShareLink } from './share';
 
 describe('getShareLink tests', () => {
   const link = 'https://foo.bar';

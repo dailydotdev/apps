@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { PlusUser } from '../PlusUser';
 import { IconSize } from '../Icon';
@@ -10,10 +11,8 @@ import {
 } from '../typography/Typography';
 import { RadioItem } from '../fields/RadioItem';
 import { PlusList } from './PlusList';
-import {
-  ProductOption,
-  usePaymentContext,
-} from '../../contexts/PaymentContext';
+import type { ProductOption } from '../../contexts/PaymentContext';
+import { usePaymentContext } from '../../contexts/PaymentContext';
 import {
   Button,
   ButtonColor,

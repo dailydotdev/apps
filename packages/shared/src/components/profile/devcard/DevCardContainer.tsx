@@ -1,6 +1,8 @@
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { DevCardTheme, themeToLinearGradient } from './common';
+import type { DevCardTheme } from './common';
+import { themeToLinearGradient } from './common';
 
 interface DevCardContainerProps {
   theme: DevCardTheme;

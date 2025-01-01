@@ -1,8 +1,6 @@
 import { useState } from 'react';
-import {
-  NotifyOptionalProps,
-  useToastNotification,
-} from './useToastNotification';
+import type { NotifyOptionalProps } from './useToastNotification';
+import { useToastNotification } from './useToastNotification';
 import { useGetShortUrl } from './utils/useGetShortUrl';
 
 type CopyNotifyFunctionProps = NotifyOptionalProps & {

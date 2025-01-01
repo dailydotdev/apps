@@ -1,5 +1,5 @@
-import React from 'react';
-import { Post } from '../graphql/posts';
+import type React from 'react';
+import type { Post } from '../graphql/posts';
 
 export interface CombinedClicks {
   onAuxClick: React.MouseEventHandler<HTMLAnchorElement>;

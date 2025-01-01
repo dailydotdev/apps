@@ -1,4 +1,5 @@
-import React, { ReactElement, useId, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useId, useState } from 'react';
 import SignupDisclaimer from './SignupDisclaimer';
 import AuthForm from './AuthForm';
 import { TextField } from '../fields/TextField';

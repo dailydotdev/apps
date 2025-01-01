@@ -1,7 +1,9 @@
-import React, { ReactElement, MouseEvent, ReactNode } from 'react';
-import { Post } from '../../graphql/posts';
+import type { ReactElement, MouseEvent, ReactNode } from 'react';
+import React from 'react';
+import type { Post } from '../../graphql/posts';
 import ContextMenu from '../fields/ContextMenu';
-import { QuaternaryButton, QuaternaryButtonProps } from './QuaternaryButton';
+import type { QuaternaryButtonProps } from './QuaternaryButton';
+import { QuaternaryButton } from './QuaternaryButton';
 import { BookmarkIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';

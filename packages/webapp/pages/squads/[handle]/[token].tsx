@@ -5,15 +5,13 @@ import {
   getSquadInvitation,
   validateSourceHandle,
 } from '@dailydotdev/shared/src/graphql/squads';
-import {
-  SourceMember,
-  SourceMemberRole,
-} from '@dailydotdev/shared/src/graphql/sources';
-import {
-  ApiErrorMessage,
+import type { SourceMember } from '@dailydotdev/shared/src/graphql/sources';
+import { SourceMemberRole } from '@dailydotdev/shared/src/graphql/sources';
+import type {
   ApiErrorResult,
   Edge,
 } from '@dailydotdev/shared/src/graphql/common';
+import { ApiErrorMessage } from '@dailydotdev/shared/src/graphql/common';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -22,15 +20,10 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import React, {
-  ReactElement,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-import { ParsedUrlQuery } from 'querystring';
-import {
+import type { ReactElement } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import type { ParsedUrlQuery } from 'querystring';
+import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
   GetStaticPropsResult,
@@ -39,7 +32,7 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
-import { NextSeoProps } from 'next-seo/lib/types';
+import type { NextSeoProps } from 'next-seo/lib/types';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ReferralOriginKey } from '@dailydotdev/shared/src/lib/user';
 import { useJoinSquad } from '@dailydotdev/shared/src/hooks';
@@ -50,7 +43,7 @@ import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePict
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { getSquadOpenGraph } from '../../../next-seo';
-import { DynamicSeoProps } from '../../../components/common';
+import type { DynamicSeoProps } from '../../../components/common';
 
 const getOthers = (others: Edge<SourceMember>[], total: number) => {
   const { length } = others;

@@ -1,4 +1,5 @@
-import React, { forwardRef, ReactElement, Ref } from 'react';
+import type { ReactElement, Ref } from 'react';
+import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import {
   ListCard,
@@ -7,7 +8,7 @@ import {
 } from '../common/list/ListCard';
 import { ElementPlaceholder } from '../../ElementPlaceholder';
 import classed from '../../../lib/classed';
-import { PlaceholderProps } from './common/common';
+import type { PlaceholderProps } from './common/common';
 
 const Text = classed(ElementPlaceholder, 'rounded-12');
 

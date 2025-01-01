@@ -1,7 +1,8 @@
-import React, { FunctionComponent } from 'react';
+import type { FunctionComponent } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { SearchProviderEnum } from '../../../graphql/search';
-import { IconProps } from '../../Icon';
+import type { IconProps } from '../../Icon';
 import { GoogleIcon, MagicIcon, SearchIcon } from '../../icons';
 
 export const defaultSearchProvider = SearchProviderEnum.Posts;

@@ -8,39 +8,31 @@ import {
 import { LockIcon, MailIcon } from '@dailydotdev/shared/src/components/icons';
 import AccountDangerZone from '@dailydotdev/shared/src/components/profile/AccountDangerZone';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import React, {
-  FormEvent,
-  MutableRefObject,
-  ReactElement,
-  useContext,
-  useState,
-} from 'react';
+import type { FormEvent, MutableRefObject, ReactElement } from 'react';
+import React, { useContext, useState } from 'react';
+import type {
+  AuthSession,
+  KratosProviderData,
+} from '@dailydotdev/shared/src/lib/kratos';
 import {
   AuthEvent,
   AuthFlow,
-  AuthSession,
   getKratosSettingsFlow,
   KRATOS_ERROR,
-  KratosProviderData,
 } from '@dailydotdev/shared/src/lib/kratos';
 import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import {
-  PromptOptions,
-  usePrompt,
-} from '@dailydotdev/shared/src/hooks/usePrompt';
+import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import { useEventListener } from '@dailydotdev/shared/src/hooks';
 import { capitalize } from '@dailydotdev/shared/src/lib/strings';
 import { BOOT_LOCAL_KEY } from '@dailydotdev/shared/src/contexts/common';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
-import {
-  AccountSecurityDisplay as Display,
-  AccountTextField,
-  ManageSocialProvidersProps,
-} from '../common';
+import type { ManageSocialProvidersProps } from '../common';
+import { AccountSecurityDisplay as Display, AccountTextField } from '../common';
 import EmailSentSection from '../EmailSentSection';
 import AccountLoginSection from './AccountLoginSection';
 

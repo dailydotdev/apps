@@ -1,4 +1,5 @@
-import React, { ReactElement, useEffect, useMemo, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Typography,
   TypographyColor,

@@ -1,12 +1,7 @@
-import React, {
-  forwardRef,
-  HTMLAttributes,
-  ReactElement,
-  ReactNode,
-  Ref,
-} from 'react';
+import type { HTMLAttributes, ReactElement, ReactNode, Ref } from 'react';
+import React, { forwardRef } from 'react';
 import classNames from 'classnames';
-import { Post } from '../../../graphql/posts';
+import type { Post } from '../../../graphql/posts';
 import { Card } from './Card';
 import {
   RaisedLabel,

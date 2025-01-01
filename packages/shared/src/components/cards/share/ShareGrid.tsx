@@ -1,5 +1,7 @@
-import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
-import { Container, PostCardProps } from '../common/common';
+import type { ReactElement, Ref } from 'react';
+import React, { forwardRef, useRef } from 'react';
+import type { PostCardProps } from '../common/common';
+import { Container } from '../common/common';
 import { isVideoPost } from '../../../graphql/posts';
 import FeedItemContainer from '../common/FeedItemContainer';
 import {

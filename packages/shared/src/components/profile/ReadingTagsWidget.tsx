@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
-import { MostReadTag } from '../../graphql/users';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { MostReadTag } from '../../graphql/users';
 import { ActivityContainer, ActivitySectionHeader } from './ActivitySection';
 import { ReadingTagProgress } from './ReadingTagProgress';
 

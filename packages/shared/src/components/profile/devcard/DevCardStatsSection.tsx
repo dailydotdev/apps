@@ -1,7 +1,8 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { largeNumberFormat } from '../../../lib/numberFormat';
 import { IconSize } from '../../Icon';
-import { ReputationIcon } from '../../icons';
+import type { ReputationIcon } from '../../icons';
 
 interface StatsSectionProps {
   Icon: typeof ReputationIcon;

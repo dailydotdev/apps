@@ -1,10 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  REMOVE_INTEGRATION_MUTATION,
-  REMOVE_SOURCE_INTEGRATION_MUTATION,
+import type {
   UserIntegration,
   UserIntegrationType,
   UserSourceIntegration,
+} from '../../graphql/integrations';
+import {
+  REMOVE_INTEGRATION_MUTATION,
+  REMOVE_SOURCE_INTEGRATION_MUTATION,
 } from '../../graphql/integrations';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';

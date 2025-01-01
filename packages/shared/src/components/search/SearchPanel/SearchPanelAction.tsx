@@ -1,6 +1,7 @@
-import React, { ReactElement, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
 import classNames from 'classnames';
-import { SearchProviderEnum } from '../../../graphql/search';
+import type { SearchProviderEnum } from '../../../graphql/search';
 import { SearchPanelContext } from './SearchPanelContext';
 import { SearchPanelItem } from './SearchPanelItem';
 import { useSearchProvider } from '../../../hooks/search';

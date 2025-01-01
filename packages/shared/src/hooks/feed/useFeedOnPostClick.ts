@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { Post } from '../../graphql/posts';
-import { FeedItem, PostItem } from '../useFeed';
+import type { Post } from '../../graphql/posts';
+import type { FeedItem, PostItem } from '../useFeed';
 import useOnPostClick from '../useOnPostClick';
 
 interface PostClickOptionalProps {

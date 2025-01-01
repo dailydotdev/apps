@@ -1,7 +1,8 @@
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import classed from '../../lib/classed';
 import FixedPostNavigation from './FixedPostNavigation';
-import { PostNavigationProps } from './common';
+import type { PostNavigationProps } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useViewSize, ViewSize } from '../../hooks';
 

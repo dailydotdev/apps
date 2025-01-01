@@ -1,4 +1,5 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
+import type { HTMLAttributes, ReactElement } from 'react';
+import React from 'react';
 import { format } from 'date-fns';
 
 export interface JoinedDateProps extends HTMLAttributes<HTMLDivElement> {

@@ -1,7 +1,9 @@
-import React, { ReactElement, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
 import { link } from '@dailydotdev/shared/src/lib/links';
 import { AUTHOR_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
-import Feed, { FeedProps } from '@dailydotdev/shared/src/components/Feed';
+import type { FeedProps } from '@dailydotdev/shared/src/components/Feed';
+import Feed from '@dailydotdev/shared/src/components/Feed';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import { MyProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/MyProfileEmptyScreen';
 import { ProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/ProfileEmptyScreen';
@@ -9,13 +11,13 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
-import { NextSeoProps } from 'next-seo/lib/types';
+import type { NextSeoProps } from 'next-seo/lib/types';
+import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
   getLayout as getProfileLayout,
   getProfileSeoDefaults,
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
-  ProfileLayoutProps,
 } from '../../components/layouts/ProfileLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 

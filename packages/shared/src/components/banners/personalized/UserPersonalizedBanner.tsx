@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import React, { type ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { getBasicUserInfo } from '../../../graphql/users';
 import { AuthenticationBanner, OnboardingHeadline } from '../../auth';

@@ -1,15 +1,10 @@
 import React from 'react';
-import {
-  render,
-  RenderResult,
-  screen,
-  waitFor,
-  within,
-} from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import ad from '../../../../__tests__/fixture/ad';
 import { AdGrid } from './AdGrid';
-import { AdCardProps } from './common/common';
+import type { AdCardProps } from './common/common';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ActiveFeedContext } from '../../../contexts';
 

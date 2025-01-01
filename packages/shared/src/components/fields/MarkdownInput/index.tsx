@@ -1,11 +1,13 @@
-import React, {
+import type {
   ChangeEventHandler,
-  forwardRef,
   MouseEventHandler,
   MutableRefObject,
   ReactElement,
   ReactNode,
   TextareaHTMLAttributes,
+} from 'react';
+import React, {
+  forwardRef,
   useEffect,
   useImperativeHandle,
   useRef,
@@ -20,11 +22,11 @@ import {
   ButtonVariant,
 } from '../../buttons/Button';
 import { RecommendedMentionTooltip } from '../../tooltips/RecommendedMentionTooltip';
-import {
+import type {
   UseMarkdownInput,
-  useMarkdownInput,
   UseMarkdownInputProps,
 } from '../../../hooks/input';
+import { useMarkdownInput } from '../../../hooks/input';
 import { ACCEPTED_TYPES } from '../ImageInput';
 import { MarkdownUploadLabel } from './MarkdownUploadLabel';
 import { markdownGuide } from '../../../lib/constants';

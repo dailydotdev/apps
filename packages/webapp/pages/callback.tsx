@@ -1,6 +1,7 @@
 import { postWindowMessage } from '@dailydotdev/shared/src/lib/func';
 import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
-import { ReactElement, useContext, useEffect } from 'react';
+import type { ReactElement } from 'react';
+import { useContext, useEffect } from 'react';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 
 function CallbackPage(): ReactElement {

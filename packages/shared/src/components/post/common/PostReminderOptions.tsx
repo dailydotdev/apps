@@ -1,17 +1,14 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import {
-  Button,
-  ButtonProps,
-  ButtonSize,
-  ButtonVariant,
-} from '../../buttons/Button';
+import type { ButtonProps } from '../../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import {
   ReminderPreference,
   useBookmarkReminder,
 } from '../../../hooks/notifications';
 import { LazyModal } from '../../modals/common/types';
-import { Post } from '../../../graphql/posts';
+import type { Post } from '../../../graphql/posts';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { wrapStopPropagation } from '../../../lib/func';
 import { useActiveFeedContext } from '../../../contexts';

@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
-import { NextSeoProps } from 'next-seo';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
@@ -8,25 +9,23 @@ import { DefaultSquadHeader } from '@dailydotdev/shared/src/components/layout/De
 import { editSquad } from '@dailydotdev/shared/src/graphql/squads';
 import { useBoot } from '@dailydotdev/shared/src/hooks/useBoot';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import {
-  ManageSquadPageContainer,
-  SquadSettingsProps,
-} from '@dailydotdev/shared/src/components/squads/utils';
+import type { SquadSettingsProps } from '@dailydotdev/shared/src/components/squads/utils';
+import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
 import { MangeSquadPageSkeleton } from '@dailydotdev/shared/src/components/squads/MangeSquadPageSkeleton';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSquad } from '@dailydotdev/shared/src/hooks';
-import {
+import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
-import { ParsedUrlQuery } from 'querystring';
+import type { ParsedUrlQuery } from 'querystring';
 import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
-import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import {
   SquadTab,
   SquadTabs,

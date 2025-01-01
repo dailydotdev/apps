@@ -1,11 +1,11 @@
 import { useCallback } from 'react';
-import {
+import type {
   InfiniteData,
-  useInfiniteQuery,
   UseInfiniteQueryResult,
 } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import type { SourcePostModeration } from '../../graphql/squads';
 import {
-  SourcePostModeration,
   SourcePostModerationStatus,
   SQUAD_PENDING_POSTS_QUERY,
 } from '../../graphql/squads';
@@ -15,7 +15,8 @@ import {
   RequestKey,
 } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { Connection, gqlClient } from '../../graphql/common';
+import type { Connection } from '../../graphql/common';
+import { gqlClient } from '../../graphql/common';
 
 type UseSquadPendingPosts = UseInfiniteQueryResult<
   InfiniteData<Connection<SourcePostModeration[]>>

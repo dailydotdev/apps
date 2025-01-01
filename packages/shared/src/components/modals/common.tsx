@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import dynamic from 'next/dynamic';
 import { LazyModal } from './common/types';
 
@@ -180,13 +180,6 @@ const TopReaderBadgeModal = dynamic(
     ),
 );
 
-const AdvancedCustomFeedSoonModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "advancedCustomFeedSoonModal" */ './soon/AdvancedCustomFeedSoonModal'
-    ),
-);
-
 const BookmarkFolderSoonModal = dynamic(
   () =>
     import(
@@ -252,7 +245,6 @@ export const modals = {
   [LazyModal.PostModeration]: PostModerationModal,
   [LazyModal.NewSquad]: NewSquadModal,
   [LazyModal.TopReaderBadge]: TopReaderBadgeModal,
-  [LazyModal.AdvancedCustomFeedSoon]: AdvancedCustomFeedSoonModal,
   [LazyModal.BookmarkFolderSoon]: BookmarkFolderSoonModal,
   [LazyModal.BookmarkFolder]: BookmarkFolderModal,
   [LazyModal.ClickbaitShield]: ClickbaitShieldModal,

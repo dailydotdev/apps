@@ -1,13 +1,7 @@
-import React, {
-  FormEvent,
-  ReactElement,
-  ReactNode,
-  useCallback,
-  useMemo,
-  useState,
-} from 'react';
+import type { FormEvent, ReactElement, ReactNode } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import classNames from 'classnames';
-import { ClientError } from 'graphql-request';
+import type { ClientError } from 'graphql-request';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { ButtonColor, ButtonSize, ButtonVariant } from '../buttons/Button';
@@ -17,7 +11,8 @@ import Textarea from '../fields/Textarea';
 import ImageInput from '../fields/ImageInput';
 import { cloudinarySquadsImageFallback } from '../../lib/image';
 import { formToJson } from '../../lib/form';
-import { checkExistingHandle, SquadForm } from '../../graphql/squads';
+import type { SquadForm } from '../../graphql/squads';
+import { checkExistingHandle } from '../../graphql/squads';
 import { capitalize } from '../../lib/strings';
 import { IconSize } from '../Icon';
 import { FormWrapper } from '../fields/form';
@@ -27,7 +22,7 @@ import { SquadSettingsSection } from './settings';
 import { SquadStats } from './common/SquadStat';
 import { SquadPrivacyState } from './common/SquadPrivacyState';
 import { SquadDangerZone } from './settings/SquadDangerZone';
-import { Squad } from '../../graphql/sources';
+import type { Squad } from '../../graphql/sources';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useSlackChannelsQuery } from '../../hooks/integrations/slack/useSlackChannelsQuery';
 import { Dropdown } from '../fields/Dropdown';

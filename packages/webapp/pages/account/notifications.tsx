@@ -1,6 +1,7 @@
 import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
-import React, { ReactElement, SetStateAction, useState } from 'react';
+import type { ReactElement, SetStateAction } from 'react';
+import React, { useState } from 'react';
 import { cloudinaryNotificationsBrowser } from '@dailydotdev/shared/src/lib/image';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import Pointer, {
@@ -32,7 +33,7 @@ import { TimezoneDropdown } from '@dailydotdev/shared/src/components/widgets/Tim
 import { ToggleWeekStart } from '@dailydotdev/shared/src/components/widgets/ToggleWeekStart';
 import { getUserInitialTimezone } from '@dailydotdev/shared/src/lib/timezones';
 
-import { NextSeoProps } from 'next-seo';
+import type { NextSeoProps } from 'next-seo';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection, {

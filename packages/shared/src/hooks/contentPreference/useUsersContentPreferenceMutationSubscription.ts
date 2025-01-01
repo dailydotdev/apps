@@ -1,11 +1,12 @@
-import { InfiniteData, QueryKey } from '@tanstack/react-query';
+import type { InfiniteData, QueryKey } from '@tanstack/react-query';
 import { useMutationSubscription } from '../mutationSubscription/useMutationSubscription';
-import { RequestKey, updateAuthorContentPreference } from '../../lib/query';
-import { PropsParameters } from '../../types';
+import type { RequestKey } from '../../lib/query';
+import { updateAuthorContentPreference } from '../../lib/query';
+import type { PropsParameters } from '../../types';
+import type { ContentPreferenceMutation } from './types';
 import {
   contentPreferenceMutationMatcher,
   mutationKeyToContentPreferenceStatusMap,
-  ContentPreferenceMutation,
 } from './types';
 
 type UseUsersContentPreferenceMutationSubscriptionProps = {

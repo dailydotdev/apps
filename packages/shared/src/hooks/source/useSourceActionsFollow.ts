@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { Source } from '../../graphql/sources';
+import type { Source } from '../../graphql/sources';
 import { Origin } from '../../lib/log';
 import { useToastNotification } from '../useToastNotification';
 import useTagAndSource from '../useTagAndSource';

@@ -1,21 +1,20 @@
-import React, { ReactElement, ReactNode, useCallback, useContext } from 'react';
-import { QueryKey, useMutation, useQueryClient } from '@tanstack/react-query';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useCallback, useContext } from 'react';
+import type { QueryKey } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { WidgetContainer } from '../widgets/common';
 import LogoIcon from '../../svg/LogoIcon';
 import { UpvoteIcon, DownvoteIcon, CopyIcon } from '../icons';
-import { SearchMessage, SearchMessageProps } from './SearchMessage';
-import {
-  Search,
-  SearchChunk,
-  sendSearchFeedback,
-  updateSearchData,
-} from '../../graphql/search';
+import type { SearchMessageProps } from './SearchMessage';
+import { SearchMessage } from './SearchMessage';
+import type { Search, SearchChunk } from '../../graphql/search';
+import { sendSearchFeedback, updateSearchData } from '../../graphql/search';
 import { useCopyText } from '../../hooks/useCopy';
 import { useToastNotification } from '../../hooks';
 import { labels } from '../../lib';
 import { Pill } from '../utilities/loaders';
-import { WithClassNameProps } from '../utilities';
+import type { WithClassNameProps } from '../utilities';
 import classed from '../../lib/classed';
 import LogContext from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';

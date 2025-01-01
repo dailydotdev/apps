@@ -1,10 +1,5 @@
-import React, {
-  ReactElement,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-} from 'react';
+import type { ReactElement } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';

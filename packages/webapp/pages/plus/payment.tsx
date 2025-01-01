@@ -1,4 +1,5 @@
-import React, { ReactElement, useEffect } from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect } from 'react';
 import { usePaymentContext } from '@dailydotdev/shared/src/contexts/PaymentContext';
 
 import { useRouter } from 'next/router';

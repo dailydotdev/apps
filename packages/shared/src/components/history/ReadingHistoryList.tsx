@@ -1,5 +1,6 @@
-import React, { ReactElement, useCallback } from 'react';
-import { HideReadHistory } from '../../hooks/useReadingHistory';
+import type { ReactElement } from 'react';
+import React, { useCallback } from 'react';
+import type { HideReadHistory } from '../../hooks/useReadingHistory';
 import { isDateOnlyEqual, TimeFormatType } from '../../lib/dateFormat';
 import PostItemCard from '../post/PostItemCard';
 import { InfiniteScrollScreenOffset } from '../../hooks/feed/useFeedInfiniteScroll';
@@ -8,7 +9,7 @@ import useReadingHistoryContextMenu from '../../hooks/useReadingHistoryContextMe
 import { useSharePost } from '../../hooks/useSharePost';
 import { Origin } from '../../lib/log';
 import { DateFormat } from '../utilities';
-import { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
+import type { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
 
 export interface ReadHistoryListProps {
   data: ReadHistoryInfiniteData;

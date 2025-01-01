@@ -1,16 +1,18 @@
-import React, { ReactElement, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
-import {
-  FURTHER_READING_QUERY,
-  FurtherReadingData,
-} from '../../graphql/furtherReading';
-import { Post, PostType } from '../../graphql/posts';
-import SimilarPosts, { SimilarPostsProps } from './SimilarPosts';
+import type { FurtherReadingData } from '../../graphql/furtherReading';
+import { FURTHER_READING_QUERY } from '../../graphql/furtherReading';
+import type { Post } from '../../graphql/posts';
+import { PostType } from '../../graphql/posts';
+import type { SimilarPostsProps } from './SimilarPosts';
+import SimilarPosts from './SimilarPosts';
 import BestDiscussions from './BestDiscussions';
 import PostToc from './PostToc';
-import { FeedData, SOURCE_FEED_QUERY } from '../../graphql/feed';
+import type { FeedData } from '../../graphql/feed';
+import { SOURCE_FEED_QUERY } from '../../graphql/feed';
 import { isSourcePublicSquad } from '../../graphql/squads';
 import { SquadPostListItem } from '../squads/SquadPostListItem';
 import { disabledRefetch } from '../../lib/func';

@@ -1,5 +1,5 @@
-import { LoggedUser } from '../../src/lib/user';
-import { Author } from '../../src/graphql/comments';
+import type { LoggedUser } from '../../src/lib/user';
+import type { Author } from '../../src/graphql/comments';
 
 const user: LoggedUser = {
   id: 'u1',
