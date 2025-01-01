@@ -1,4 +1,4 @@
-import { RadioItemProps } from '../components/fields/RadioItem';
+import type { RadioItemProps } from '../components/fields/RadioItem';
 
 declare const navigator: Navigator & { brave?: { isBrave: unknown } };
 
@@ -100,6 +100,7 @@ export const emojiOptions = [
 
 export enum FeedOrder {
   Recommended = 'recommended',
+  Date = 'date',
   Upvotes = 'upvotes',
   Downvotes = 'downvotes',
   Comments = 'comments',

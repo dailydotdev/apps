@@ -1,9 +1,9 @@
-import React, { ReactElement, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
 import PostSourceInfo from './PostSourceInfo';
 import { ReadArticleButton } from '../cards/common/ReadArticleButton';
+import type { Post, SharedPost } from '../../graphql/posts';
 import {
-  Post,
-  SharedPost,
   getReadPostButtonText,
   isInternalReadType,
   isSharedPostSquadPost,

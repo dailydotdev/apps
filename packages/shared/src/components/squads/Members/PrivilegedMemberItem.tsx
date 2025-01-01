@@ -1,7 +1,8 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import SquadMemberBadge from '../SquadMemberBadge';
-import { SourceMember } from '../../../graphql/sources';
+import type { SourceMember } from '../../../graphql/sources';
 import { ProfileTooltip } from '../../profile/ProfileTooltip';
 import { ProfileLink } from '../../profile/ProfileLink';
 

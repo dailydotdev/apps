@@ -2,7 +2,8 @@ import React from 'react';
 import classNames from 'classnames';
 
 import { ColorName as ButtonColor } from '../../styles/colors';
-import { IconProps, IconSize } from '../Icon';
+import type { IconProps } from '../Icon';
+import { IconSize } from '../Icon';
 
 export enum ButtonSize {
   XLarge = 'xlarge', // only used for iconOnly buttons

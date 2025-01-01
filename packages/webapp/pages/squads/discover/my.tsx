@@ -1,9 +1,10 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
 import { useRouter } from 'next/router';
 import { squadCategoriesPaths } from '@dailydotdev/shared/src/lib/constants';
-import { NextSeoProps } from 'next-seo';
+import type { NextSeoProps } from 'next-seo';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { SquadDirectoryLayout } from '../../../../shared/src/components/squads/layout/SquadDirectoryLayout';

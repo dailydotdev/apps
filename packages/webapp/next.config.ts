@@ -2,8 +2,8 @@ import withSerwistInit from '@serwist/next';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import withBundleAnalyzerInit from '@next/bundle-analyzer';
 import { readFileSync } from 'fs';
-import { NextConfig } from 'next';
-import { Rewrite } from 'next/dist/lib/load-custom-routes';
+import type { NextConfig } from 'next';
+import type { Rewrite } from 'next/dist/lib/load-custom-routes';
 
 const { version } = JSON.parse(
   readFileSync('../extension/package.json', 'utf8'),

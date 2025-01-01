@@ -1,6 +1,8 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { DayOfWeek, getDefaultStartOfWeek } from '../../lib/date';
-import { Radio, ClassName as RadioClassName } from '../fields/Radio';
+import type { ClassName as RadioClassName } from '../fields/Radio';
+import { Radio } from '../fields/Radio';
 import { useReadingStreak } from '../../hooks/streaks';
 
 export const ToggleWeekStart = ({

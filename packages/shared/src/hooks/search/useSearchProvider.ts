@@ -1,10 +1,10 @@
 import { useRouter } from 'next/router';
 import { useCallback } from 'react';
+import type { SearchSuggestionResult } from '../../graphql/search';
 import {
   SEARCH_POST_SUGGESTIONS,
   SEARCH_TAG_SUGGESTIONS,
   SearchProviderEnum,
-  SearchSuggestionResult,
   defaultSearchSuggestionsLimit,
   getSearchUrl,
   SEARCH_SOURCE_SUGGESTIONS,

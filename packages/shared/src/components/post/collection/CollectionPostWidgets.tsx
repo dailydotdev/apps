@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { PageWidgets } from '../../utilities';
 import { ShareMobile } from '../../ShareMobile';
 import ShareBar from '../../ShareBar';
@@ -6,7 +7,7 @@ import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
 import { CollectionsIntro } from '../widgets';
 import { RelatedPostsWidget } from '../RelatedPostsWidget';
 import { PostRelationType } from '../../../graphql/posts';
-import { PostWidgetsProps } from '../PostWidgets';
+import type { PostWidgetsProps } from '../PostWidgets';
 import { FooterLinks } from '../../footer';
 
 export const CollectionPostWidgets = ({

@@ -1,17 +1,18 @@
-import {
+import type {
   InfiniteData,
-  useInfiniteQuery,
   UseInfiniteQueryResult,
 } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { SOURCES_QUERY } from '../../graphql/squads';
-import { Connection, gqlClient } from '../../graphql/common';
+import type { Connection } from '../../graphql/common';
+import { gqlClient } from '../../graphql/common';
 import {
   generateQueryKey,
   getNextPageParam,
   RequestKey,
   StaleTime,
 } from '../../lib/query';
-import { Source, Squad } from '../../graphql/sources';
+import type { Source, Squad } from '../../graphql/sources';
 
 export interface SourcesQueryData<T extends Source | Squad> {
   sources: Connection<T>;

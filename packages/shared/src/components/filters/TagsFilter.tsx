@@ -1,10 +1,5 @@
-import React, {
-  ReactElement,
-  useContext,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { SearchField } from '../fields/SearchField';
 import TagCategoryDropdown, { TagCategoryLayout } from './TagCategoryDropdown';
@@ -12,14 +7,13 @@ import useFeedSettings from '../../hooks/useFeedSettings';
 import TagItemList from './TagItemList';
 import TagOptionsMenu from './TagOptionsMenu';
 import useTagContext from '../../hooks/useTagContext';
-import useTagAndSource, {
-  TagActionArguments,
-} from '../../hooks/useTagAndSource';
-import { FilterMenuProps } from './common';
+import type { TagActionArguments } from '../../hooks/useTagAndSource';
+import useTagAndSource from '../../hooks/useTagAndSource';
+import type { FilterMenuProps } from './common';
 import { MenuIcon } from '../icons';
 import AuthContext from '../../contexts/AuthContext';
 import classed from '../../lib/classed';
-import { HTMLElementComponent } from '../utilities';
+import type { HTMLElementComponent } from '../utilities';
 import { Origin } from '../../lib/log';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { useTagSearch } from '../../hooks';

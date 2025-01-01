@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { Search, getSearchSession } from '../../graphql/search';
+import type { Search } from '../../graphql/search';
+import { getSearchSession } from '../../graphql/search';
 import { generateQueryKey, RequestKey } from '../../lib/query';
-import { UseChatSessionProps, UseChatSession } from './types';
+import type { UseChatSessionProps, UseChatSession } from './types';
 
 export const useChatSession = ({
   id,

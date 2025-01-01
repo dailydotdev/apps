@@ -1,7 +1,8 @@
-import React, { ReactElement, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
-import { Post } from '../../../graphql/posts';
+import type { Post } from '../../../graphql/posts';
 import { isNullOrUndefined } from '../../../lib/func';
 import { PostBlockedPanel } from './PostBlockedPanel';
 import CloseButton from '../../CloseButton';
@@ -13,7 +14,8 @@ import {
 } from '../../buttons/Button';
 import { SourceAvatar } from '../../profile/source';
 import useFeedSettings from '../../../hooks/useFeedSettings';
-import { BlockTagSelection, getBlockedMessage } from './common';
+import type { BlockTagSelection } from './common';
+import { getBlockedMessage } from './common';
 import { GenericTagButton } from '../../filters/TagButton';
 import { SimpleTooltip } from '../../tooltips';
 import ConditionalWrapper from '../../ConditionalWrapper';

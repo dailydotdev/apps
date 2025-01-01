@@ -1,9 +1,11 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useState } from 'react';
 import dynamic from 'next/dynamic';
 import LogContext from '../../contexts/LogContext';
 import { LogEvent, TargetId } from '../../lib/log';
 import { useConditionalFeature, useOnboardingChecklist } from '../../hooks';
-import { ChecklistBarProps, ChecklistViewState } from '../../lib/checklist';
+import type { ChecklistBarProps } from '../../lib/checklist';
+import { ChecklistViewState } from '../../lib/checklist';
 import { ChecklistBar } from './ChecklistBar';
 import InteractivePopup, {
   InteractivePopupPosition,

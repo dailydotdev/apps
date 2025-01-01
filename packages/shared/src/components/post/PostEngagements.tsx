@@ -1,16 +1,19 @@
 import dynamic from 'next/dynamic';
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { Post } from '../../graphql/posts';
-import { PostOrigin } from '../../hooks/log/useLogContextData';
+import type { Post } from '../../graphql/posts';
+import type { PostOrigin } from '../../hooks/log/useLogContextData';
 import { useShareComment } from '../../hooks/useShareComment';
 import { useUpvoteQuery } from '../../hooks/useUpvoteQuery';
 import { AuthTriggers } from '../../lib/auth';
-import { NewComment, NewCommentRef } from './NewComment';
+import type { NewCommentRef } from './NewComment';
+import { NewComment } from './NewComment';
 import { PostActions } from './PostActions';
 import { PostComments } from './PostComments';
 import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
-import { Comment, SortCommentsBy } from '../../graphql/comments';
+import type { Comment } from '../../graphql/comments';
+import { SortCommentsBy } from '../../graphql/comments';
 import { Origin } from '../../lib/log';
 import {
   isSourcePublicSquad,

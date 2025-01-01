@@ -1,11 +1,12 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { useObjectPurify } from '../../hooks/useDomPurify';
 import classed from '../../lib/classed';
 import NotificationItemIcon from './NotificationIcon';
 import NotificationItemAvatar from './NotificationItemAvatar';
 import styles from './InAppNotification.module.css';
-import { NewNotification } from '../../graphql/notifications';
+import type { NewNotification } from '../../graphql/notifications';
 
 const NotificationLink = classed(
   'a',

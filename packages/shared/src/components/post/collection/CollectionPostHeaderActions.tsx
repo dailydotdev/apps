@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import classed from '../../../lib/classed';
 import { Origin } from '../../../lib/log';
-import { PostHeaderActionsProps } from '../common';
+import type { PostHeaderActionsProps } from '../common';
 import { PostMenuOptions } from '../PostMenuOptions';
 import { CollectionSubscribeButton } from './CollectionSubscribeButton';
 

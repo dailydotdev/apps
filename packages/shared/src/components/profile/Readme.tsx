@@ -1,5 +1,6 @@
-import React, { FormEventHandler, ReactElement, useContext } from 'react';
-import { PublicProfile } from '../../lib/user';
+import type { FormEventHandler, ReactElement } from 'react';
+import React, { useContext } from 'react';
+import type { PublicProfile } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
 import { MyProfileEmptyScreen } from './MyProfileEmptyScreen';
 import Markdown from '../Markdown';

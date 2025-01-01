@@ -1,4 +1,5 @@
-import React, { ReactElement, useEffect } from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect } from 'react';
 import {
   Button,
   ButtonSize,
@@ -23,7 +24,8 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import router from 'next/router';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
-import { DailyDevLogo, JoinPageProps } from './common';
+import type { JoinPageProps } from './common';
+import { DailyDevLogo } from './common';
 
 export function Referral({
   referringUser,

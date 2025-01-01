@@ -1,8 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
+import type { Comment, PostCommentsData } from '../../graphql/comments';
 import {
-  Comment,
-  PostCommentsData,
   COMMENT_ON_COMMENT_MUTATION,
   COMMENT_ON_POST_MUTATION,
   EDIT_COMMENT_MUTATION,
@@ -16,11 +15,11 @@ import {
 } from '../../lib/query';
 import { useBackgroundRequest } from '../companion';
 import { updatePostCache } from '../usePostById';
-import { Edge } from '../../graphql/common';
+import type { Edge } from '../../graphql/common';
 import { useLogContext } from '../../contexts/LogContext';
 import { useRequestProtocol } from '../useRequestProtocol';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { Post } from '../../graphql/posts';
+import type { Post } from '../../graphql/posts';
 
 interface SubmitComment {
   id?: string;

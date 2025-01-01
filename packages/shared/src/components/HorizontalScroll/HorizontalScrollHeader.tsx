@@ -1,4 +1,5 @@
-import React, { MouseEventHandler, ReactElement, ReactNode } from 'react';
+import type { MouseEventHandler, ReactElement, ReactNode } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { Button } from '../buttons/Button';
 import { ButtonVariant } from '../buttons/common';

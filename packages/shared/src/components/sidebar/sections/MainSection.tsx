@@ -1,6 +1,8 @@
-import React, { ReactElement, useCallback, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Section } from '../Section';
-import { ListIcon, SidebarMenuItem } from '../common';
+import type { SidebarMenuItem } from '../common';
+import { ListIcon } from '../common';
 import {
   BookmarkIcon,
   DevPlusIcon,
@@ -11,7 +13,7 @@ import {
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { OtherFeedPage } from '../../../lib/query';
-import { SidebarSectionProps } from './common';
+import type { SidebarSectionProps } from './common';
 import { webappUrl } from '../../../lib/constants';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../../lib/log';

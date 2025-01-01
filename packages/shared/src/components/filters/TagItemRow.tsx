@@ -1,8 +1,9 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
+import type { HTMLAttributes, ReactElement } from 'react';
+import React from 'react';
 import { FilterItem } from './common';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import TagButton from './TagButton';
-import { TagActionArguments } from '../../hooks/useTagAndSource';
+import type { TagActionArguments } from '../../hooks/useTagAndSource';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 type TagItemRowProps = {

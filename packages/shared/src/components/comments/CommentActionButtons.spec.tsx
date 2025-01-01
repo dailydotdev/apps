@@ -1,13 +1,16 @@
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
-import { LoggedUser, Roles } from '../../lib/user';
-import CommentActionButtons, { Props } from './CommentActionButtons';
-import { Comment } from '../../graphql/comments';
+import type { LoggedUser } from '../../lib/user';
+import { Roles } from '../../lib/user';
+import type { Props } from './CommentActionButtons';
+import CommentActionButtons from './CommentActionButtons';
+import type { Comment } from '../../graphql/comments';
+import type { MockedGraphQLResponse } from '../../../__tests__/helpers/graphql';
 import {
   completeActionMock,
-  MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
 import loggedUser from '../../../__tests__/fixture/loggedUser';

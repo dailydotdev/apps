@@ -1,7 +1,9 @@
-import React, { ReactElement, useCallback, useEffect, useRef } from 'react';
+import type { ReactElement } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { CardCover } from '../cards/common/CardCover';
-import { CTAButton, Description, MarketingCta, Title } from './common';
+import type { MarketingCta } from './common';
+import { CTAButton, Description, Title } from './common';
 import { ViewSize, useBoot, useViewSize } from '../../hooks';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';

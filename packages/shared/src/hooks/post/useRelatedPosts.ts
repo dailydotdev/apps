@@ -1,16 +1,14 @@
-import {
-  useQueryClient,
-  useInfiniteQuery,
+import type {
   InfiniteData,
   UseInfiniteQueryResult,
 } from '@tanstack/react-query';
+import { useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { useCallback } from 'react';
-import { Connection } from '../../graphql/common';
+import type { Connection } from '../../graphql/common';
+import type { RelatedPost, PostData } from '../../graphql/posts';
 import {
-  RelatedPost,
   RELATED_POSTS_QUERY,
   PostRelationType,
-  PostData,
   RELATED_POSTS_PER_PAGE_DEFAULT,
 } from '../../graphql/posts';
 import {

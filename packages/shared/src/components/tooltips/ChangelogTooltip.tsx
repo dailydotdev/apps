@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Button, ButtonColor, ButtonSize } from '../buttons/Button';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';

@@ -1,11 +1,9 @@
-import React, { forwardRef, ReactElement, ReactNode, Ref } from 'react';
+import type { ReactElement, ReactNode, Ref } from 'react';
+import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import { Image } from '../image/Image';
-import {
-  ProfileImageSize,
-  ProfilePicture,
-  ProfilePictureProps,
-} from '../ProfilePicture';
+import type { ProfilePictureProps } from '../ProfilePicture';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 
 export type HeroImageProps = ProfilePictureProps['user'] & {
   cover: string;

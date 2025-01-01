@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import React, { ReactElement, ReactNode, useRef } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useRef } from 'react';
 import { RootPortal } from './Portal';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
@@ -7,7 +8,8 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { MiniCloseIcon as CloseIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
-import { Drawer, DrawerOnMobileProps, PopupCloseFunc } from '../drawers';
+import type { DrawerOnMobileProps, PopupCloseFunc } from '../drawers';
+import { Drawer } from '../drawers';
 import { useViewSize, ViewSize } from '../../hooks';
 
 export enum InteractivePopupPosition {

@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { TextField } from '../../fields/TextField';
 import { Loader } from '../../Loader';
 import { ElementPlaceholder } from '../../ElementPlaceholder';

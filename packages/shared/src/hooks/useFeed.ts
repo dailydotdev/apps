@@ -1,20 +1,14 @@
 import { useCallback, useContext, useMemo } from 'react';
-import {
+import type {
   InfiniteData,
   QueryKey,
-  useInfiniteQuery,
   UseInfiniteQueryOptions,
-  useQueryClient,
 } from '@tanstack/react-query';
-import { ClientError } from 'graphql-request';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import type { ClientError } from 'graphql-request';
 import { useRouter } from 'next/router';
-import {
-  Ad,
-  FeedData,
-  Post,
-  POSTS_ENGAGED_SUBSCRIPTION,
-  PostsEngaged,
-} from '../graphql/posts';
+import type { Ad, FeedData, Post, PostsEngaged } from '../graphql/posts';
+import { POSTS_ENGAGED_SUBSCRIPTION } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import useSubscription from './useSubscription';
 import {
@@ -23,7 +17,7 @@ import {
   RequestKey,
   updateCachedPagePost,
 } from '../lib/query';
-import { MarketingCta } from '../components/marketingCta/common';
+import type { MarketingCta } from '../components/marketingCta/common';
 import { FeedItemType } from '../components/cards/common/common';
 import { GARMR_ERROR, gqlClient } from '../graphql/common';
 import { usePlusSubscription } from './usePlusSubscription';
@@ -34,6 +28,7 @@ import type { FeedAdTemplate } from '../lib/feed';
 import { featureFeedAdTemplate } from '../lib/featureManagement';
 import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
 import { AD_PLACEHOLDER_SOURCE_ID } from '../lib/constants';
+import { SharedFeedPage } from '../components/utilities';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -123,9 +118,13 @@ export default function useFeed<T>(
   const { logEvent } = useLogContext();
   const { query, variables, options = {}, settings, onEmptyFeed } = params;
   const { user, tokenRefreshed } = useContext(AuthContext);
-  const { isPlus } = usePlusSubscription();
+  const { showPlusSubscription, isPlus } = usePlusSubscription();
   const queryClient = useQueryClient();
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
+  const avoidRetry =
+    params?.settings?.feedName === SharedFeedPage.Custom &&
+    showPlusSubscription &&
+    !isPlus;
 
   const feedQuery = useInfiniteQuery<FeedData>({
     queryKey: feedQueryKey,
@@ -161,6 +160,7 @@ export default function useFeed<T>(
     enabled: query && tokenRefreshed,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
+    retry: avoidRetry ? false : 3,
     initialPageParam: '',
     getNextPageParam: ({ page }) => getNextPageParam(page?.pageInfo),
   });

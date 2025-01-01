@@ -1,4 +1,5 @@
-import React, { ReactElement, useContext, useMemo, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { usePostCodeSnippetsQuery } from '../../hooks/post/usePostCodeSnippets';
 import { RenderMarkdown } from '../RenderMarkdown';

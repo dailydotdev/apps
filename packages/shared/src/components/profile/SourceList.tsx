@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
-import InfiniteScrolling, {
-  InfiniteScrollingProps,
-} from '../containers/InfiniteScrolling';
-import { Source, SourceType } from '../../graphql/sources';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { InfiniteScrollingProps } from '../containers/InfiniteScrolling';
+import InfiniteScrolling from '../containers/InfiniteScrolling';
+import type { Source } from '../../graphql/sources';
+import { SourceType } from '../../graphql/sources';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import {
   Typography,
@@ -49,7 +50,12 @@ export const SourceList = ({
         placeholder={loader}
       >
         {sources.map((source) => (
-          <Link key={source.id} href={`${webappUrl}sources/${source.handle}`}>
+          <Link
+            key={source.id}
+            href={`${webappUrl}${
+              source.type === SourceType.Squad ? 'squads' : 'sources'
+            }/${source.handle}`}
+          >
             <a
               key={source.id}
               className="flex gap-2 px-6 py-3 hover:bg-surface-hover"

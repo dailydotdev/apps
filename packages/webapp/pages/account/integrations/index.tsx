@@ -1,14 +1,13 @@
-import React, { ReactElement, useCallback, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { useIntegrationsQuery } from '@dailydotdev/shared/src/hooks/integrations/useIntegrationsQuery';
 
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 
 import { PlusIcon, SlackIcon } from '@dailydotdev/shared/src/components/icons';
-import {
-  UserIntegration,
-  UserIntegrationType,
-} from '@dailydotdev/shared/src/graphql/integrations';
+import type { UserIntegration } from '@dailydotdev/shared/src/graphql/integrations';
+import { UserIntegrationType } from '@dailydotdev/shared/src/graphql/integrations';
 import { useSlack } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlack';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { UserIntegrationItem } from '@dailydotdev/shared/src/components/integrations/UserIntegrationItem';

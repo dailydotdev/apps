@@ -1,12 +1,13 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { ChecklistCardComponent } from '../cards/common/Card';
 import { ChecklistStep } from './ChecklistStep';
-import {
+import type {
   ChecklistCardProps,
-  ChecklistCardVariant,
   ChecklistVariantClassNameMap,
 } from '../../lib/checklist';
+import { ChecklistCardVariant } from '../../lib/checklist';
 import { useChecklist } from '../../hooks/useChecklist';
 import { ChecklistConfetti } from './ChecklistConfetti';
 

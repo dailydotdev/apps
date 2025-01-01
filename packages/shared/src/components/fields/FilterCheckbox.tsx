@@ -1,6 +1,8 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { Checkbox, CheckboxProps } from './Checkbox';
+import type { CheckboxProps } from './Checkbox';
+import { Checkbox } from './Checkbox';
 
 interface FilterCheckboxProps extends CheckboxProps {
   description?: string;

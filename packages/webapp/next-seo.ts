@@ -1,6 +1,10 @@
-import { Source } from '@dailydotdev/shared/src/graphql/sources';
+import type { Source } from '@dailydotdev/shared/src/graphql/sources';
 import { cloudinarySquadsImageFallback } from '@dailydotdev/shared/src/lib/image';
-import { DefaultSeoProps, NextSeoProps, OpenGraph } from 'next-seo/lib/types';
+import type {
+  DefaultSeoProps,
+  NextSeoProps,
+  OpenGraph,
+} from 'next-seo/lib/types';
 
 const config: DefaultSeoProps = {
   openGraph: {

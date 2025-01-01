@@ -1,4 +1,5 @@
-import React, { type ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { Image } from '../image/Image';
 import { cloudinaryAndroidApp } from '../../lib/image';

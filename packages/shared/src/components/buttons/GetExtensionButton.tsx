@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { BrowserGroupIcon } from '../icons/Browsers';
 import { IconSize } from '../Icon';
@@ -18,7 +19,7 @@ export const GetExtensionButton = ({
     <a
       href={downloadBrowserExtension}
       className={classNames(
-        `btn focus-outline btn-primary inline-flex min-w-fit max-w-64 flex-row items-center
+        `btn focus-outline btn-primary inline-flex min-w-fit max-w-fit flex-row items-center
         justify-center gap-3 rounded-14 border
         px-3 text-xl font-bold leading-5 no-underline shadow-none`,
         className,

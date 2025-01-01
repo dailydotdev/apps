@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { JSONValue, WidenPrimitives } from '@growthbook/growthbook';
+import type { JSONValue, WidenPrimitives } from '@growthbook/growthbook';
 import { useContext } from 'react';
 import { generateQueryKey, RequestKey } from '../lib/query';
-import { Feature } from '../lib/featureManagement';
+import type { Feature } from '../lib/featureManagement';
 import { disabledRefetch } from '../lib/func';
 import AuthContext from '../contexts/AuthContext';
 import {

@@ -1,11 +1,13 @@
-import React, { ReactElement, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { providers } from './common';
 import AuthDefault from './AuthDefault';
 import { AuthTriggers } from '../../lib/auth';
-import { Modal, ModalProps } from '../modals/common/Modal';
+import type { ModalProps } from '../modals/common/Modal';
+import { Modal } from '../modals/common/Modal';
 import useLogin from '../../hooks/useLogin';
-import { AuthSession } from '../../lib/kratos';
+import type { AuthSession } from '../../lib/kratos';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 

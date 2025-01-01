@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request';
-import { ReferralCampaignKey } from '../hooks';
+import type { ReferralCampaignKey } from '../hooks';
 import { gqlClient } from './common';
 
 export const ACCEPT_FEATURE_MUTATION = gql`

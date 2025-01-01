@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { gqlClient } from '../graphql/common';
-import { SEARCH_SOURCES_QUERY, Source } from '../graphql/sources';
+import type { Source } from '../graphql/sources';
+import { SEARCH_SOURCES_QUERY } from '../graphql/sources';
 import { generateQueryKey, RequestKey } from '../lib/query';
 
 export type UseSourceSearchProps = {

@@ -1,5 +1,5 @@
-import { Feed } from '../../../graphql/feed';
-import { OnSelectTagProps } from '../../tags/common';
+import type { Feed } from '../../../graphql/feed';
+import type { OnSelectTagProps } from '../../tags/common';
 
 export type FeedSettingsFormData = {
   name: string;

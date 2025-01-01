@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { WritePageContainer, WritePageMain } from './common';
 import { WritePostHeader } from './WritePostHeader';
 import { ElementPlaceholder } from '../../../ElementPlaceholder';

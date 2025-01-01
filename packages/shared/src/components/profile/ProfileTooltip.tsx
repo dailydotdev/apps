@@ -1,15 +1,14 @@
-import React, { ReactElement, useRef, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Author } from '../../graphql/comments';
-import { TooltipProps } from '../tooltips/BaseTooltip';
-import {
-  LinkWithTooltip,
-  LinkWithTooltipProps,
-} from '../tooltips/LinkWithTooltip';
+import type { Author } from '../../graphql/comments';
+import type { TooltipProps } from '../tooltips/BaseTooltip';
+import type { LinkWithTooltipProps } from '../tooltips/LinkWithTooltip';
+import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { DevCard, DevCardType } from './devcard';
 import { useDevCard } from '../../hooks/profile/useDevCard';
-import { MostReadTag, UserReadingRank } from '../../graphql/users';
+import type { MostReadTag, UserReadingRank } from '../../graphql/users';
 
 export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   children: ReactElement;

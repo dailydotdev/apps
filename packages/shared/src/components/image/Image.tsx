@@ -1,10 +1,10 @@
-import React, {
+import type {
   ComponentPropsWithoutRef,
-  forwardRef,
   ReactElement,
   Ref,
   SyntheticEvent,
 } from 'react';
+import React, { forwardRef } from 'react';
 import {
   cloudinaryPostImageCoverPlaceholder,
   cloudinarySquadsImageFallback,

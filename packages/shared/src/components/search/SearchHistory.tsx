@@ -1,9 +1,11 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { SearchProviderEnum, getSearchUrl } from '../../graphql/search';
 import { InfiniteScrollScreenOffset } from '../../hooks/feed/useFeedInfiniteScroll';
 import { SearchEmpty } from './SearchEmpty';
 import { SearchHistoryContainer } from './common';
-import { SearchBarSuggestion, SuggestionOrigin } from './SearchBarSuggestion';
+import type { SuggestionOrigin } from './SearchBarSuggestion';
+import { SearchBarSuggestion } from './SearchBarSuggestion';
 import { SearchSkeleton } from './SearchSkeleton';
 import { TimerIcon } from '../icons';
 import { useSearchHistory } from '../../hooks/search';

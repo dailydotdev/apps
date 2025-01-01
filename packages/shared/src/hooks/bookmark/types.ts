@@ -1,4 +1,4 @@
-import { UseMutationMatcher } from '../mutationSubscription';
+import type { UseMutationMatcher } from '../mutationSubscription';
 
 export type UseBookmarkMutationProps = {
   id: string;

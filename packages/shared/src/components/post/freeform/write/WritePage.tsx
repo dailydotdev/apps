@@ -1,4 +1,5 @@
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import { WritePageContainer } from './common';
 import { WriteFreeFormSkeleton } from './WriteFreeFormSkeleton';
 import Unauthorized from '../../../errors/Unauthorized';

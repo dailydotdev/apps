@@ -1,12 +1,6 @@
 import classNames from 'classnames';
-import React, {
-  ChangeEvent,
-  DragEvent,
-  ReactElement,
-  ReactNode,
-  useRef,
-  useState,
-} from 'react';
+import type { ChangeEvent, DragEvent, ReactElement, ReactNode } from 'react';
+import React, { useRef, useState } from 'react';
 import { blobToBase64 } from '../../lib/blob';
 import { fallbackImages } from '../../lib/config';
 import { EditIcon } from '../icons';

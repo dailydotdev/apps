@@ -1,15 +1,12 @@
-import React, {
-  ReactElement,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
-import AuthOptions, {
-  AuthDisplay,
+import type {
   AuthOptionsProps,
   AuthProps,
+} from '@dailydotdev/shared/src/components/auth/AuthOptions';
+import AuthOptions, {
+  AuthDisplay,
 } from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
@@ -27,7 +24,7 @@ import {
   wrapperMaxWidth,
 } from '@dailydotdev/shared/src/components/onboarding/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { NextSeoProps } from 'next-seo';
+import type { NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import {
   useFeature,
@@ -57,7 +54,7 @@ import {
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
@@ -68,7 +65,7 @@ import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/Payment
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import {
   checkIsBrowser,
-  isSafariOnIOS,
+  isIOS,
   UserAgent,
 } from '@dailydotdev/shared/src/lib/func';
 import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboarding/Extension/useOnboardingExtension';
@@ -184,7 +181,7 @@ export function OnboardPage(): ReactElement {
 
   const { value: PWAExperiment } = useConditionalFeature({
     feature: featureOnboardingPWA,
-    shouldEvaluate: shouldEnrollOnboardingStep && isSafariOnIOS(),
+    shouldEvaluate: shouldEnrollOnboardingStep && isIOS(),
   });
 
   const hasSelectTopics = !!feedSettings?.includeTags?.length;

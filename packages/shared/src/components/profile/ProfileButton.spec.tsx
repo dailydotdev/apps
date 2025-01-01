@@ -1,6 +1,7 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { waitFor, render, RenderResult, screen } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { waitFor, render, screen } from '@testing-library/react';
 import ProfileButton from './ProfileButton';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';

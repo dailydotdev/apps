@@ -1,6 +1,7 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { SourceAvatarProps } from '../../profile/source';
+import type { SourceAvatarProps } from '../../profile/source';
 import { CollectionPillSources } from '../../post/collection';
 import OptionsButton from '../../buttons/OptionsButton';
 import {

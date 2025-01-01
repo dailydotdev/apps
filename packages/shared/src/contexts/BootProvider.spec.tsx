@@ -1,16 +1,14 @@
-import React, { ReactNode, useContext } from 'react';
+import type { ReactNode } from 'react';
+import React, { useContext } from 'react';
 import nock from 'nock';
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-} from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { mocked } from 'ts-jest/utils';
 import AuthContext from './AuthContext';
 import defaultUser from '../../__tests__/fixture/loggedUser';
-import { LoggedUser, deleteAccount, AnonymousUser } from '../lib/user';
+import type { LoggedUser, AnonymousUser } from '../lib/user';
+import { deleteAccount } from '../lib/user';
 import SettingsContext, {
   remoteThemes,
   ThemeMode,
@@ -18,15 +16,15 @@ import SettingsContext, {
 } from './SettingsContext';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
 import AlertContext from './AlertContext';
-import { Alerts, UPDATE_ALERTS } from '../graphql/alerts';
-import {
-  RemoteSettings,
-  Spaciness,
-  UPDATE_USER_SETTINGS_MUTATION,
-} from '../graphql/settings';
+import type { Alerts } from '../graphql/alerts';
+import { UPDATE_ALERTS } from '../graphql/alerts';
+import type { RemoteSettings, Spaciness } from '../graphql/settings';
+import { UPDATE_USER_SETTINGS_MUTATION } from '../graphql/settings';
 import { BootDataProvider } from './BootProvider';
-import { getBootData, Boot, BootCacheData } from '../lib/boot';
-import { AuthTriggers, AuthTriggersType } from '../lib/auth';
+import type { Boot, BootCacheData } from '../lib/boot';
+import { getBootData } from '../lib/boot';
+import type { AuthTriggersType } from '../lib/auth';
+import { AuthTriggers } from '../lib/auth';
 import { expectToHaveTestValue } from '../../__tests__/helpers/utilities';
 
 jest.mock('../lib/boot', () => ({

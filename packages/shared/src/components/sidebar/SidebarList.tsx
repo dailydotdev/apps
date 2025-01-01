@@ -1,6 +1,8 @@
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import SidebarListItem, { SidebarListItemProps } from './SidebarListItem';
+import type { SidebarListItemProps } from './SidebarListItem';
+import SidebarListItem from './SidebarListItem';
 import { Button, ButtonSize } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
 import { useModalContext } from '../modals/common/types';

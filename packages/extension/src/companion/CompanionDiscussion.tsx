@@ -1,6 +1,7 @@
-import React, { CSSProperties, ReactElement } from 'react';
+import type { CSSProperties, ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
+import type { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { NewComment } from '@dailydotdev/shared/src/components/post/NewComment';
 import { PostComments } from '@dailydotdev/shared/src/components/post/PostComments';
 import { Origin } from '@dailydotdev/shared/src/lib/log';

@@ -1,32 +1,25 @@
 import classNames from 'classnames';
-import React, {
-  MutableRefObject,
-  ReactElement,
-  useContext,
-  useEffect,
-  useId,
-  useState,
-} from 'react';
-import {
-  AuthEventNames,
-  AuthTriggers,
+import type { MutableRefObject, ReactElement } from 'react';
+import React, { useContext, useEffect, useId, useState } from 'react';
+import type {
   AuthTriggersType,
   RegistrationError,
   RegistrationParameters,
 } from '../../lib/auth';
+import { AuthEventNames, AuthTriggers } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
 import { MailIcon, UserIcon, VIcon, AtIcon, TwitterIcon } from '../icons';
-import { CloseModalFunc } from '../modals/common';
+import type { CloseModalFunc } from '../modals/common';
 import AuthHeader from './AuthHeader';
 import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
 import { Checkbox } from '../fields/Checkbox';
 import LogContext from '../../contexts/LogContext';
 import { useGenerateUsername } from '../../hooks';
-import { AuthFormProps } from './common';
+import type { AuthFormProps } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
 import AuthContainer from './AuthContainer';
 import { onValidateHandles } from '../../hooks/useProfileForm';

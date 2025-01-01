@@ -1,12 +1,12 @@
-import { render, RenderResult, screen } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import React from 'react';
+import type { ButtonProps, AllowedTags } from './Button';
 import {
   Button,
-  ButtonProps,
   ButtonColor,
   ButtonVariant,
   ButtonIconPosition,
-  AllowedTags,
 } from './Button';
 import { UpvoteIcon } from '../icons';
 

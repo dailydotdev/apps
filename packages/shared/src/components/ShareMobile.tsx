@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { LinkIcon, ShareIcon } from './icons';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import {
@@ -9,11 +10,12 @@ import {
 } from './buttons/Button';
 import { WidgetContainer } from './widgets/common';
 import { postLogEvent } from '../lib/feed';
-import { LogEvent, Origin } from '../lib/log';
-import { Post } from '../graphql/posts';
+import type { Origin } from '../lib/log';
+import { LogEvent } from '../lib/log';
+import type { Post } from '../graphql/posts';
 import { useLogContext } from '../contexts/LogContext';
 import { useSharePost } from '../hooks/useSharePost';
-import { UsePostContent } from '../hooks/usePostContent';
+import type { UsePostContent } from '../hooks/usePostContent';
 
 export interface ShareMobileProps {
   post: Post;

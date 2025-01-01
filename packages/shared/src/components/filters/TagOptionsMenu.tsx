@@ -1,8 +1,9 @@
-import React, { ReactElement, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
 import dynamic from 'next/dynamic';
-import { Tag } from '../../graphql/feedSettings';
+import type { Tag } from '../../graphql/feedSettings';
 import { getTagPageLink } from '../../lib/links';
-import { MenuItemProps } from '../fields/ContextMenu';
+import type { MenuItemProps } from '../fields/ContextMenu';
 import useContextMenu from '../../hooks/useContextMenu';
 import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 

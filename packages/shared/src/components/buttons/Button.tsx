@@ -1,13 +1,7 @@
-import React, {
-  forwardRef,
-  HTMLAttributes,
-  ReactElement,
-  ReactNode,
-  Ref,
-  useState,
-} from 'react';
+import type { HTMLAttributes, ReactElement, ReactNode, Ref } from 'react';
+import React, { forwardRef, useState } from 'react';
 import classNames from 'classnames';
-import { IconProps } from '../Icon';
+import type { IconProps } from '../Icon';
 import { Loader } from '../Loader';
 import { combinedClicks } from '../../lib/click';
 

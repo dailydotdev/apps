@@ -1,5 +1,6 @@
-import React, { ReactElement, useLayoutEffect, useMemo } from 'react';
-import { NextSeoProps } from 'next-seo/lib/types';
+import type { ReactElement } from 'react';
+import React, { useLayoutEffect, useMemo } from 'react';
+import type { NextSeoProps } from 'next-seo/lib/types';
 import { useBookmarkFolder } from '@dailydotdev/shared/src/hooks/bookmark/useBookmarkFolder';
 import { useRouter } from 'next/router';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks';

@@ -1,4 +1,5 @@
-import React, { ReactElement, useContext, useMemo, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { FeedSettingsEditContext } from '../FeedSettingsEditContext';
 import { TagSelection } from '../../../tags/TagSelection';
@@ -13,7 +14,7 @@ import { ModalTabs } from '../../../modals/common/ModalTabs';
 import useDebounceFn from '../../../../hooks/useDebounceFn';
 import { useTagSearch } from '../../../../hooks/useTagSearch';
 import { SearchField } from '../../../fields/SearchField';
-import { TagsData } from '../../../../graphql/feedSettings';
+import type { TagsData } from '../../../../graphql/feedSettings';
 import {
   Typography,
   TypographyColor,

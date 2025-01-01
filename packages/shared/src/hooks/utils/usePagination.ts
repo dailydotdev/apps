@@ -1,4 +1,5 @@
-import { MouseEventHandler, useCallback, useMemo, useState } from 'react';
+import type { MouseEventHandler } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 export interface UsePagination<T = unknown> {
   onNext: MouseEventHandler;

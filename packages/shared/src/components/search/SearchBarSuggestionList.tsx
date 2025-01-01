@@ -1,13 +1,11 @@
 import React, { useContext } from 'react';
 import classNames from 'classnames';
-import { SearchBarSuggestion, SuggestionOrigin } from './SearchBarSuggestion';
+import type { SuggestionOrigin } from './SearchBarSuggestion';
+import { SearchBarSuggestion } from './SearchBarSuggestion';
 import AuthContext from '../../contexts/AuthContext';
 import { AiIcon, FeedbackIcon } from '../icons';
-import {
-  getSearchUrl,
-  SearchProviderEnum,
-  SearchQuestion,
-} from '../../graphql/search';
+import type { SearchQuestion } from '../../graphql/search';
+import { getSearchUrl, SearchProviderEnum } from '../../graphql/search';
 import { Pill } from '../utilities/loaders';
 import { AuthTriggers } from '../../lib/auth';
 import { Button, ButtonVariant } from '../buttons/Button';

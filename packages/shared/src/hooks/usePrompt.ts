@@ -1,7 +1,8 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ReactNode, useCallback } from 'react';
-import { ButtonProps } from '../components/buttons/Button';
-import { ModalSize } from '../components/modals/common/types';
+import type { ReactNode } from 'react';
+import { useCallback } from 'react';
+import type { ButtonProps } from '../components/buttons/Button';
+import type { ModalSize } from '../components/modals/common/types';
 import { generateQueryKey, RequestKey } from '../lib/query';
 
 export const PROMPT_KEY = generateQueryKey(RequestKey.Prompt, null);

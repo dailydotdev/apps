@@ -1,8 +1,10 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import Link from '../utilities/Link';
-import { SourceMember, SourceMemberRole } from '../../graphql/sources';
+import type { SourceMember } from '../../graphql/sources';
+import { SourceMemberRole } from '../../graphql/sources';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import { Image } from '../image/Image';
 import SquadMemberBadge from '../squads/SquadMemberBadge';
@@ -19,11 +21,10 @@ import {
 import { labels } from '../../lib';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import AuthContext from '../../contexts/AuthContext';
-import {
-  ProfileV2,
-  PUBLIC_SOURCE_MEMBERSHIPS_QUERY,
-} from '../../graphql/users';
-import { Connection, gqlClient } from '../../graphql/common';
+import type { ProfileV2 } from '../../graphql/users';
+import { PUBLIC_SOURCE_MEMBERSHIPS_QUERY } from '../../graphql/users';
+import type { Connection } from '../../graphql/common';
+import { gqlClient } from '../../graphql/common';
 import { AuthTriggers } from '../../lib/auth';
 import { webappUrl } from '../../lib/constants';
 

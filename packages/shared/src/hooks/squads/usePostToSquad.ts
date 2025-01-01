@@ -1,39 +1,32 @@
-import {
-  UseMutateAsyncFunction,
-  useMutation,
-  useQueryClient,
-} from '@tanstack/react-query';
-import { BaseSyntheticEvent, useCallback, useState } from 'react';
-import {
-  createPost,
+import type { UseMutateAsyncFunction } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { BaseSyntheticEvent } from 'react';
+import { useCallback, useState } from 'react';
+import type {
   CreatePostProps,
-  editPost,
   EditPostProps,
   ExternalLinkPreview,
-  getExternalLinkPreview,
   Post,
-  PostType,
   SubmitExternalLink,
-  submitExternalLink,
 } from '../../graphql/posts';
 import {
-  ApiError,
-  ApiErrorResult,
-  DEFAULT_ERROR,
-  getApiError,
-} from '../../graphql/common';
+  createPost,
+  editPost,
+  getExternalLinkPreview,
+  PostType,
+  submitExternalLink,
+} from '../../graphql/posts';
+import type { ApiErrorResult } from '../../graphql/common';
+import { ApiError, DEFAULT_ERROR, getApiError } from '../../graphql/common';
 import { useToastNotification } from '../useToastNotification';
-import {
-  addPostToSquad,
-  SourcePostModeration,
-  updateSquadPost,
-} from '../../graphql/squads';
+import type { SourcePostModeration } from '../../graphql/squads';
+import { addPostToSquad, updateSquadPost } from '../../graphql/squads';
 import { ActionType } from '../../graphql/actions';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions } from '../useActions';
 import { useRequestProtocol } from '../useRequestProtocol';
 import useSourcePostModeration from '../source/useSourcePostModeration';
-import { Squad } from '../../graphql/sources';
+import type { Squad } from '../../graphql/sources';
 import { moderationRequired } from '../../components/squads/utils';
 
 interface UsePostToSquad {

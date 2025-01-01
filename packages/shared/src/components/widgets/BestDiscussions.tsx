@@ -1,8 +1,9 @@
-import React, { ReactElement, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
 import classNames from 'classnames';
 import Link from '../utilities/Link';
 import { ArrowIcon } from '../icons';
-import { Post } from '../../graphql/posts';
+import type { Post } from '../../graphql/posts';
 import styles from '../cards/common/Card.module.css';
 import { CardLink } from '../cards/common/Card';
 import { ElementPlaceholder } from '../ElementPlaceholder';

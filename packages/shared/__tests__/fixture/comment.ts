@@ -1,4 +1,4 @@
-import { Comment } from '../../src/graphql/comments';
+import type { Comment } from '../../src/graphql/comments';
 import { author } from './loggedUser';
 
 const comment: Comment = {

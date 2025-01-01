@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
-import { QueryKey } from '@tanstack/react-query';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { QueryKey } from '@tanstack/react-query';
 import classNames from 'classnames';
 import {
   UpvoteIcon,
@@ -7,9 +8,10 @@ import {
   DownvoteIcon,
   LinkIcon,
 } from '../icons';
-import { Post, UserVote } from '../../graphql/posts';
+import type { Post } from '../../graphql/posts';
+import { UserVote } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
-import { PostOrigin } from '../../hooks/log/useLogContextData';
+import type { PostOrigin } from '../../hooks/log/useLogContextData';
 import { useVotePost } from '../../hooks';
 import { Origin } from '../../lib/log';
 import { Card } from '../cards/common/Card';

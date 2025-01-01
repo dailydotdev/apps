@@ -7,7 +7,8 @@ import {
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { setOnError } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
-import App, { CompanionData } from './App';
+import type { CompanionData } from './App';
+import App from './App';
 
 let root: ReturnType<typeof createRoot>;
 

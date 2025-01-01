@@ -1,4 +1,4 @@
-import {
+import type {
   AuthenticationType,
   AuthPostParams,
   InitializationData,
@@ -6,9 +6,9 @@ import {
   KratosFormParams,
   KratosMessage,
   KratosMethod,
-  MessageType,
 } from './kratos';
-import { Origin } from './log';
+import { MessageType } from './kratos';
+import type { Origin } from './log';
 
 export enum AuthEventNames {
   OpenSignup = 'open signup',

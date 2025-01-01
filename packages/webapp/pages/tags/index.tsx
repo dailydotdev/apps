@@ -1,10 +1,9 @@
-import React, { ReactElement, useMemo } from 'react';
-import { GetStaticPropsResult } from 'next';
-import { NextSeoProps } from 'next-seo/lib/types';
-import {
-  Keyword,
-  TAG_DIRECTORY_QUERY,
-} from '@dailydotdev/shared/src/graphql/keywords';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
+import type { GetStaticPropsResult } from 'next';
+import type { NextSeoProps } from 'next-seo/lib/types';
+import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
+import { TAG_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
 import { TagLink } from '@dailydotdev/shared/src/components/TagLinks';
 import { HashtagIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';

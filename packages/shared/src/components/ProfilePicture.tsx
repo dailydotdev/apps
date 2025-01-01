@@ -1,13 +1,9 @@
-import React, {
-  forwardRef,
-  ReactElement,
-  ReactEventHandler,
-  Ref,
-  useMemo,
-} from 'react';
+import type { ReactElement, ReactEventHandler, Ref } from 'react';
+import React, { forwardRef, useMemo } from 'react';
 import classNames from 'classnames';
-import { LazyImage, LazyImageProps } from './LazyImage';
-import { PublicProfile } from '../lib/user';
+import type { LazyImageProps } from './LazyImage';
+import { LazyImage } from './LazyImage';
+import type { PublicProfile } from '../lib/user';
 import { fallbackImages } from '../lib/config';
 import { Image, ImageType } from './image/Image';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';

@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { OtherFeedPage } from '../../lib/query';
 import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import { Dropdown } from '../fields/Dropdown';

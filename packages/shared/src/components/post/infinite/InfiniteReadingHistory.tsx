@@ -1,5 +1,6 @@
-import React, { ReactElement, MouseEvent } from 'react';
-import { PostItem } from '../../../graphql/posts';
+import type { ReactElement, MouseEvent } from 'react';
+import React from 'react';
+import type { PostItem } from '../../../graphql/posts';
 import InfiniteScrolling from '../../containers/InfiniteScrolling';
 import PostItemCard from '../PostItemCard';
 import { ArrowIcon } from '../../icons';

@@ -1,7 +1,7 @@
 import { apiUrl, graphqlUrl } from './config';
+import type { ProfileV2 } from '../graphql/users';
 import {
   PROFILE_V2_EXTRA_QUERY,
-  ProfileV2,
   USER_BY_ID_STATIC_FIELDS_QUERY,
 } from '../graphql/users';
 import type { Company } from './userCompany';

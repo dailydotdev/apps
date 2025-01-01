@@ -1,8 +1,9 @@
-import React, { ReactElement, ReactNode, useContext } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useContext } from 'react';
 import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import { Post } from '@dailydotdev/shared/src/graphql/posts';
+import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 
 const FooterWrapper = dynamic(
   () =>

@@ -1,6 +1,8 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
-import { IconProps, IconSize } from './Icon';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { IconProps } from './Icon';
+import { IconSize } from './Icon';
 
 interface MenuIconProps extends IconProps {
   Icon: React.ElementType;

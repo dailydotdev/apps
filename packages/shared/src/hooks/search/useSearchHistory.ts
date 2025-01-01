@@ -1,10 +1,11 @@
-import {
+import type {
   InfiniteData,
-  useInfiniteQuery,
   UseInfiniteQueryResult,
 } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { getSearchHistory, SearchHistoryData } from '../../graphql/search';
+import type { SearchHistoryData } from '../../graphql/search';
+import { getSearchHistory } from '../../graphql/search';
 import {
   generateQueryKey,
   getNextPageParam,

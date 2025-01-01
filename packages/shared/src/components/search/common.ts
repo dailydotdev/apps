@@ -1,7 +1,7 @@
-import { FormEvent, InputHTMLAttributes } from 'react';
+import type { FormEvent, InputHTMLAttributes } from 'react';
 import classed from '../../lib/classed';
-import { SearchChunk } from '../../graphql/search';
-import { SearchBarSuggestionListProps } from './SearchBarSuggestionList';
+import type { SearchChunk } from '../../graphql/search';
+import type { SearchBarSuggestionListProps } from './SearchBarSuggestionList';
 
 export const SearchHistoryContainer = classed('div', 'flex flex-col gap-3 p-6');
 

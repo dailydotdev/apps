@@ -1,17 +1,13 @@
 import { useCallback, useMemo } from 'react';
-import {
+import type {
   QueryObserverOptions,
-  useQuery,
-  useQueryClient,
   UseQueryResult,
 } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { generateQueryKey, RequestKey } from '../../lib/query';
-import {
-  Comment,
-  COMMENT_BY_ID_QUERY,
-  CommentOnData,
-} from '../../graphql/comments';
+import type { Comment, CommentOnData } from '../../graphql/comments';
+import { COMMENT_BY_ID_QUERY } from '../../graphql/comments';
 import { useRequestProtocol } from '../useRequestProtocol';
 
 interface UseCommentByIdProps {

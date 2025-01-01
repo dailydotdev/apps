@@ -1,4 +1,5 @@
-import { Post, PostType } from '../../src/graphql/posts';
+import type { Post } from '../../src/graphql/posts';
+import { PostType } from '../../src/graphql/posts';
 import { author } from './loggedUser';
 
 const post: Post = {

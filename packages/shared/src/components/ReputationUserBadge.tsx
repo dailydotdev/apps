@@ -1,8 +1,10 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
-import UserBadge, { UserBadgeProps } from './UserBadge';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { UserBadgeProps } from './UserBadge';
+import UserBadge from './UserBadge';
 import { ReputationIcon } from './icons';
-import { LoggedUser } from '../lib/user';
+import type { LoggedUser } from '../lib/user';
 import { SimpleTooltip } from './tooltips';
 import { largeNumberFormat } from '../lib';
 import { IconSize } from './Icon';

@@ -8,9 +8,10 @@ import {
 } from 'react';
 import { useRouter } from 'next/router';
 import LogContext from '../contexts/LogContext';
-import { Post, PostType } from '../graphql/posts';
+import type { Post } from '../graphql/posts';
+import { PostType } from '../graphql/posts';
 import { postLogEvent } from '../lib/feed';
-import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
+import type { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { useKeyboardNavigation } from './useKeyboardNavigation';
 import { Origin } from '../lib/log';
 import { checkIsExtension } from '../lib/func';

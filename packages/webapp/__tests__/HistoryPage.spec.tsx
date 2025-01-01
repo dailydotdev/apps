@@ -1,16 +1,16 @@
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import nock from 'nock';
-import { ReadHistoryData } from '@dailydotdev/shared/src/hooks/useInfiniteReadingHistory';
+import type { ReadHistoryData } from '@dailydotdev/shared/src/hooks/useInfiniteReadingHistory';
 import { READING_HISTORY_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { mocked } from 'ts-jest/utils';
-import { NextRouter, useRouter } from 'next/router';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
+import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import user from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import HistoryPage from '../pages/history';

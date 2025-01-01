@@ -1,5 +1,5 @@
-import { HTMLAttributes } from 'react';
-import { Ad } from '../../../../graphql/posts';
+import type { HTMLAttributes } from 'react';
+import type { Ad } from '../../../../graphql/posts';
 
 type Callback = (ad: Ad) => unknown;
 export interface AdCardProps {

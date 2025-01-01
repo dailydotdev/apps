@@ -1,4 +1,5 @@
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { LockIcon } from '../icons';
 import { PageContainerCentered } from '../utilities';

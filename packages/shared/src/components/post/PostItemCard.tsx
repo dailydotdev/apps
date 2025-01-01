@@ -1,8 +1,10 @@
-import React, { MouseEvent, ReactElement } from 'react';
+import type { MouseEvent, ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import Link from '../utilities/Link';
-import { HidePostItemCardProps } from '../../graphql/users';
-import { PostItem, UserVote, isVideoPost } from '../../graphql/posts';
+import type { HidePostItemCardProps } from '../../graphql/users';
+import type { PostItem } from '../../graphql/posts';
+import { UserVote, isVideoPost } from '../../graphql/posts';
 import {
   MiniCloseIcon as XIcon,
   MenuIcon,

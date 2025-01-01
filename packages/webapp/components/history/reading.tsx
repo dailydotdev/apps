@@ -1,4 +1,5 @@
-import React, { ReactElement, useContext, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {

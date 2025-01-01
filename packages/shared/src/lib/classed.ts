@@ -1,11 +1,10 @@
-import React, {
+import type {
   AnchorHTMLAttributes,
   ClassAttributes,
   Component,
   ComponentType,
   DetailsHTMLAttributes,
   ElementType,
-  forwardRef,
   ForwardRefExoticComponent,
   FunctionComponent,
   HTMLAttributes,
@@ -18,6 +17,7 @@ import React, {
   SVGAttributes,
   TimeHTMLAttributes,
 } from 'react';
+import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import { isNullOrUndefined } from './func';
 
