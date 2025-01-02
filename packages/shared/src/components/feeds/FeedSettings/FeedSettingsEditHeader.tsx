@@ -17,8 +17,6 @@ const SaveButton = ({ activeView }: { activeView: string }): ReactElement => {
     FeedSettingsEditContext,
   );
 
-  console.log(activeView);
-
   if (activeView !== 'General') {
     return (
       <Button
