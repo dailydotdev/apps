@@ -94,6 +94,7 @@ export const CollectionList = forwardRef(function CollectionCard(
                   hasImage: !!image,
                   hasHtmlContent: !!post.contentHtml,
                 }),
+                feedActionSpacingExp && 'mb-2',
               )}
             >
               {title}
