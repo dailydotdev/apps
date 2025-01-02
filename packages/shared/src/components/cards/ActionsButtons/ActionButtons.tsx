@@ -24,10 +24,7 @@ import { BookmarkButton } from '../../buttons';
 import { IconSize } from '../../Icon';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { useFeature } from '../../GrowthBookProvider';
-import {
-  feedActionSpacing,
-  featureUpvoteCounter,
-} from '../../../lib/featureManagement';
+import { feedActionSpacing } from '../../../lib/featureManagement';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -53,9 +50,7 @@ const ActionButtons = ({
   const isDownvoteActive = post.userState?.vote === UserVote.Down;
   const { onShowPanel, onClose } = useBlockPostPanel(post);
   const feedActionSpacingExp = useFeature(feedActionSpacing);
-  const alwaysShowUpvoteCounter = useFeature(featureUpvoteCounter);
-  const isCounterVisible =
-    post.numUpvotes || alwaysShowUpvoteCounter || feedActionSpacingExp;
+  const isCounterVisible = post.numUpvotes || feedActionSpacingExp;
 
   if (isFeedPreview) {
     return null;
@@ -102,10 +97,7 @@ const ActionButtons = ({
               <InteractionCounter
                 className={classNames(
                   'ml-1.5 tabular-nums',
-                  !post.numUpvotes &&
-                    feedActionSpacingExp &&
-                    !alwaysShowUpvoteCounter &&
-                    'invisible',
+                  !post.numUpvotes && feedActionSpacingExp && 'invisible',
                 )}
                 value={post.numUpvotes}
               />
