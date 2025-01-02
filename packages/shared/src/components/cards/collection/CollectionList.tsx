@@ -18,6 +18,8 @@ import { useTruncatedSummary } from '../../../hooks';
 import PostTags from '../common/PostTags';
 import { CardCoverList } from '../common/list/CardCover';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
+import { useFeature } from '../../GrowthBookProvider';
+import { feedActionSpacing } from '../../../lib/featureManagement';
 
 export const CollectionList = forwardRef(function CollectionCard(
   {
@@ -36,8 +38,22 @@ export const CollectionList = forwardRef(function CollectionCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
+  const feedActionSpacingExp = useFeature(feedActionSpacing);
   const image = usePostImage(post);
   const { title } = useTruncatedSummary(post?.title);
+  const actionButtons = (
+    <Container className="pointer-events-none mt-2">
+      <ActionButtons
+        post={post}
+        onUpvoteClick={onUpvoteClick}
+        onDownvoteClick={onDownvoteClick}
+        onCommentClick={onCommentClick}
+        onCopyLinkClick={onCopyLinkClick}
+        onBookmarkClick={onBookmarkClick}
+        className={feedActionSpacingExp && 'justify-between'}
+      />
+    </Container>
+  );
 
   return (
     <FeedItemContainer
@@ -82,8 +98,10 @@ export const CollectionList = forwardRef(function CollectionCard(
             >
               {title}
             </CardTitle>
-            <div className="flex flex-1" />
+            {!feedActionSpacingExp && <div className="flex flex-1" />}
             <PostTags tags={post.tags} />
+            {feedActionSpacingExp && <div className="flex flex-1" />}
+            {feedActionSpacingExp && actionButtons}
           </div>
 
           {image && (
@@ -102,16 +120,7 @@ export const CollectionList = forwardRef(function CollectionCard(
       </CardContainer>
 
       {!!post.image && <CardSpace />}
-      <Container className="pointer-events-none mt-2">
-        <ActionButtons
-          post={post}
-          onUpvoteClick={onUpvoteClick}
-          onDownvoteClick={onDownvoteClick}
-          onCommentClick={onCommentClick}
-          onCopyLinkClick={onCopyLinkClick}
-          onBookmarkClick={onBookmarkClick}
-        />
-      </Container>
+      {!feedActionSpacingExp && actionButtons}
       {children}
     </FeedItemContainer>
   );
