@@ -82,7 +82,7 @@ export type BootCacheData = Pick<
   | 'exp'
   | 'feeds'
   | 'geo'
-> & { lastModifier?: string };
+> & { lastModifier?: string; isAndroidApp?: boolean };
 
 export async function getBootData(app: string, url?: string): Promise<Boot> {
   const appRoute = app === 'companion' ? '/companion' : '';

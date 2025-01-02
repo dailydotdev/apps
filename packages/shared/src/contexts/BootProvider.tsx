@@ -76,6 +76,7 @@ const updateLocalBootData = (
     'exp',
     'feeds',
     'geo',
+    'isAndroidApp',
   ]);
 
   storage.setItem(BOOT_LOCAL_KEY, JSON.stringify(result));

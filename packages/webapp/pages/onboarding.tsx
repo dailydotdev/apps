@@ -68,12 +68,9 @@ import dynamic from 'next/dynamic';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/PaymentContext';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
-import {
-  checkIsBrowser,
-  isIOS,
-  UserAgent,
-} from '@dailydotdev/shared/src/lib/func';
+import { isIOS } from '@dailydotdev/shared/src/lib/func';
 import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboarding/Extension/useOnboardingExtension';
+import { isAndroidApp } from '@dailydotdev/shared/src/lib/android';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -173,8 +170,7 @@ export function OnboardPage(): ReactElement {
     useState(false);
   const { value: appExperiment } = useConditionalFeature({
     feature: featureOnboardingAndroid,
-    shouldEvaluate:
-      shouldEnrollOnboardingStep && checkIsBrowser(UserAgent.Android),
+    shouldEvaluate: shouldEnrollOnboardingStep && isAndroidApp(),
   });
   const { shouldShowExtensionOnboarding } = useOnboardingExtension();
   const { value: extensionExperiment } = useConditionalFeature({

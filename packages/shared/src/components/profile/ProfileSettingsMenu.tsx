@@ -36,9 +36,10 @@ import { ButtonColor } from '../buttons/Button';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../lib/log';
 import { GooglePlayIcon } from '../icons/Google/Play';
-import { checkIsBrowser, isAndroidApp, UserAgent } from '../../lib/func';
+import { checkIsBrowser, UserAgent } from '../../lib/func';
 import { useConditionalFeature } from '../../hooks';
 import { featureOnboardingAndroid } from '../../lib/featureManagement';
+import { isAndroidApp } from '../../lib/android';
 
 const useMenuItems = (): NavItemProps[] => {
   const { logout } = useAuthContext();
