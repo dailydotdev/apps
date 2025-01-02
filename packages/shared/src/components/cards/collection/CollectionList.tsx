@@ -42,12 +42,7 @@ export const CollectionList = forwardRef(function CollectionCard(
   const image = usePostImage(post);
   const { title } = useTruncatedSummary(post?.title);
   const actionButtons = (
-    <Container
-      className={classNames(
-        'pointer-events-none',
-        !feedActionSpacingExp && 'mt-2',
-      )}
-    >
+    <Container className="pointer-events-none mt-2">
       <ActionButtons
         post={post}
         onUpvoteClick={onUpvoteClick}
@@ -104,7 +99,7 @@ export const CollectionList = forwardRef(function CollectionCard(
                   hasImage: !!image,
                   hasHtmlContent: !!post.contentHtml,
                 }),
-                feedActionSpacingExp && '!mt-2 mb-2',
+                feedActionSpacingExp && 'mb-2',
               )}
             >
               {title}
@@ -121,7 +116,7 @@ export const CollectionList = forwardRef(function CollectionCard(
               onShare={onShare}
               imageProps={{
                 alt: 'Post Cover image',
-                className: 'my-2 w-full mobileXXL:self-start',
+                className: 'mt-4 w-full mobileXXL:self-start',
                 ...(eagerLoadImage && HIGH_PRIORITY_IMAGE_PROPS),
                 src: image,
               }}
