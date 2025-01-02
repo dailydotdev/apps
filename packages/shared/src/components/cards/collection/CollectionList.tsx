@@ -42,7 +42,12 @@ export const CollectionList = forwardRef(function CollectionCard(
   const image = usePostImage(post);
   const { title } = useTruncatedSummary(post?.title);
   const actionButtons = (
-    <Container className="pointer-events-none mt-2">
+    <Container
+      className={classNames(
+        'pointer-events-none',
+        !feedActionSpacingExp && 'mt-2',
+      )}
+    >
       <ActionButtons
         post={post}
         onUpvoteClick={onUpvoteClick}
