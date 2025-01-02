@@ -128,3 +128,4 @@ export * from './ShieldPlus';
 export * from './Sidebar';
 export * from './Folder';
 export * from './EditPrompt';
+export * from './CustomPrompt';
