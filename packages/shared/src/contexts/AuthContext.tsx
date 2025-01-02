@@ -59,6 +59,7 @@ export interface AuthContextData {
   squads?: Squad[];
   isAuthReady?: boolean;
   geo?: Boot['geo'];
+  isAndroidApp?: boolean;
 }
 const isExtension = checkIsExtension();
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -100,6 +101,7 @@ export type AuthContextProviderProps = {
   isLegacyLogout?: boolean;
   children?: ReactNode;
   firstLoad?: boolean;
+  isAndroidApp?: boolean;
 } & Pick<
   AuthContextData,
   | 'getRedirectUri'
@@ -130,6 +132,7 @@ export const AuthContextProvider = ({
   squads,
   firstLoad,
   geo,
+  isAndroidApp,
 }: AuthContextProviderProps): ReactElement => {
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
@@ -180,6 +183,7 @@ export const AuthContextProvider = ({
         accessToken,
         squads,
         geo,
+        isAndroidApp,
       }}
     >
       {children}

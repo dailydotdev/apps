@@ -39,17 +39,16 @@ import { GooglePlayIcon } from '../icons/Google/Play';
 import { checkIsBrowser, UserAgent } from '../../lib/func';
 import { useConditionalFeature } from '../../hooks';
 import { featureOnboardingAndroid } from '../../lib/featureManagement';
-import { isAndroidApp } from '../../lib/android';
 
 const useMenuItems = (): NavItemProps[] => {
-  const { logout } = useAuthContext();
+  const { logout, isAndroidApp } = useAuthContext();
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
   const { showPlusSubscription, isPlus, logSubscriptionEvent } =
     usePlusSubscription();
   const { value: appExperiment } = useConditionalFeature({
     feature: featureOnboardingAndroid,
-    shouldEvaluate: checkIsBrowser(UserAgent.Android) && !isAndroidApp(),
+    shouldEvaluate: checkIsBrowser(UserAgent.Android) && !isAndroidApp,
   });
 
   const onLogout = useCallback(async () => {

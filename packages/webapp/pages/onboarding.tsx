@@ -70,7 +70,6 @@ import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/Payment
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import { isIOS } from '@dailydotdev/shared/src/lib/func';
 import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboarding/Extension/useOnboardingExtension';
-import { isAndroidApp } from '@dailydotdev/shared/src/lib/android';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -135,7 +134,7 @@ export function OnboardPage(): ReactElement {
   const router = useRouter();
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
-  const { user, isAuthReady, anonymous } = useAuthContext();
+  const { user, isAuthReady, anonymous, isAndroidApp } = useAuthContext();
   const { logSubscriptionEvent, showPlusSubscription: isOnboardingPlusActive } =
     usePlusSubscription();
   const shouldVerify = anonymous?.shouldVerify;
@@ -170,7 +169,7 @@ export function OnboardPage(): ReactElement {
     useState(false);
   const { value: appExperiment } = useConditionalFeature({
     feature: featureOnboardingAndroid,
-    shouldEvaluate: shouldEnrollOnboardingStep && isAndroidApp(),
+    shouldEvaluate: shouldEnrollOnboardingStep && isAndroidApp,
   });
   const { shouldShowExtensionOnboarding } = useOnboardingExtension();
   const { value: extensionExperiment } = useConditionalFeature({

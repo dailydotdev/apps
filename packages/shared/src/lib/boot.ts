@@ -69,6 +69,7 @@ export type Boot = {
     ip?: string;
     region?: string;
   };
+  isAndroidApp?: boolean;
 };
 
 export type BootCacheData = Pick<

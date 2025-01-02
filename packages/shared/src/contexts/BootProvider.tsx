@@ -182,7 +182,7 @@ export const BootDataProvider = ({
 
   const isBootReady = isFetched && !isError;
   const loadedFromCache = !!cachedBootData;
-  const { user, settings, alerts, notifications, squads, geo } =
+  const { user, settings, alerts, notifications, squads, geo, isAndroidApp } =
     cachedBootData || {};
 
   useRefreshToken(remoteData?.accessToken, refetch);
@@ -191,7 +191,13 @@ export const BootDataProvider = ({
     (updatedBootData: Partial<BootCacheData>, update = true) => {
       const cachedData = getCachedOrNull() || {};
       const lastAppliedChange = lastAppliedChangeRef.current;
-      let updatedData = { ...updatedBootData };
+      const params = new URLSearchParams(globalThis?.location?.search);
+      let updatedData = {
+        ...updatedBootData,
+        isAndroidApp:
+          cachedData?.isAndroidApp || Boolean(params.get('android')),
+      };
+
       if (update) {
         if (lastAppliedChange) {
           updatedData = { ...lastAppliedChange, ...updatedData };
@@ -281,6 +287,7 @@ export const BootDataProvider = ({
         squads={squads}
         firstLoad={initialLoad}
         geo={geo}
+        isAndroidApp={isAndroidApp}
       >
         <SettingsContextProvider
           settings={settings}
