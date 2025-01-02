@@ -87,14 +87,19 @@ export const CollectionList = forwardRef(function CollectionCard(
         </PostCardHeader>
 
         <CardContent>
-          <div className="mb-4 mr-4 flex flex-1 flex-col">
+          <div
+            className={classNames(
+              'mr-4 flex flex-1 flex-col',
+              !feedActionSpacingExp && 'mb-4',
+            )}
+          >
             <CardTitle
               className={classNames(
                 generateTitleClamp({
                   hasImage: !!image,
                   hasHtmlContent: !!post.contentHtml,
                 }),
-                feedActionSpacingExp && 'mb-2',
+                feedActionSpacingExp && '!mt-2 mb-2',
               )}
             >
               {title}
