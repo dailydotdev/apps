@@ -101,7 +101,6 @@ export type AuthContextProviderProps = {
   isLegacyLogout?: boolean;
   children?: ReactNode;
   firstLoad?: boolean;
-  isAndroidApp?: boolean;
 } & Pick<
   AuthContextData,
   | 'getRedirectUri'
@@ -114,6 +113,7 @@ export type AuthContextProviderProps = {
   | 'squads'
   | 'refetchBoot'
   | 'geo'
+  | 'isAndroidApp'
 >;
 
 export const AuthContextProvider = ({
