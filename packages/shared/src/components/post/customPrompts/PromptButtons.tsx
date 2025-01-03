@@ -103,7 +103,7 @@ export const PromptButtons = ({
         flags={{ icon: 'TLDR', color: ColorName.Cabbage }}
         onClick={() => setActiveDisplay(PromptDisplay.TLDR)}
       >
-        TL;DR
+        TLDR
       </PromptButton>
 
       {promptList?.map(({ id, label, flags }) => (

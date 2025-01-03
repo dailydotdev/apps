@@ -7,6 +7,7 @@ import { usePlusSubscription } from '../../../hooks';
 import { PromptButtons } from './PromptButtons';
 import { TargetId } from '../../../lib/log';
 import { PostUpgradeToPlus } from '../../plus/PostUpgradeToPlus';
+import ShowMoreContent from '../../cards/common/ShowMoreContent';
 
 export enum PromptDisplay {
   TLDR = 'tldr',
@@ -43,7 +44,10 @@ export const CustomPrompt = ({ post }: { post: Post }): ReactElement => {
   }
 
   return (
-    <div className="mb-6 flex flex-col gap-3" ref={elementRef}>
+    <div
+      className="mb-6 flex flex-col gap-3 text-text-secondary"
+      ref={elementRef}
+    >
       <PromptButtons
         activeDisplay={activeDisplay}
         setActiveDisplay={onSetActiveDisplay}
@@ -54,7 +58,12 @@ export const CustomPrompt = ({ post }: { post: Post }): ReactElement => {
         showHeader={false}
       >
         <Tab label={PromptDisplay.TLDR}>
-          <PostSummary summary={post.summary} />
+          <ShowMoreContent
+            className="overflow-hidden"
+            content={post.summary}
+            charactersLimit={330}
+            threshold={50}
+          />
         </Tab>
         <Tab label={PromptDisplay.SimplifyIt}>simplify</Tab>
         <Tab label={PromptDisplay.RemoveFluff}>Remove fluff</Tab>
