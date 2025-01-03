@@ -26,7 +26,7 @@ import { withPostById } from './withPostById';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { SharedByUserBanner } from '../SharedByUserBanner';
-import { SmartPrompt } from './customPrompts/SmartPrompt';
+import { SmartPrompt } from './smartPrompts/SmartPrompt';
 
 export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;
