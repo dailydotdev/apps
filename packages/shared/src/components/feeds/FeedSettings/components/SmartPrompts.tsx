@@ -11,7 +11,7 @@ import ConditionalWrapper from '../../../ConditionalWrapper';
 import { SimpleTooltip } from '../../../tooltips';
 import { LogEvent, Origin, TargetId } from '../../../../lib/log';
 import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
-import { webappUrl } from '../../../../lib/constants';
+import { plusUrl } from '../../../../lib/constants';
 import { DevPlusIcon } from '../../../icons';
 import { usePlusSubscription, useToastNotification } from '../../../../hooks';
 import { usePromptsQuery } from '../../../../hooks/prompt/usePromptsQuery';
@@ -104,7 +104,7 @@ export const SmartPrompts = (): ReactElement => {
           type="button"
           variant={ButtonVariant.Primary}
           size={ButtonSize.Medium}
-          href={`${webappUrl}plus`}
+          href={plusUrl}
           icon={<DevPlusIcon className="text-action-plus-default" />}
           onClick={() => {
             logSubscriptionEvent({
