@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { BellIcon } from '../icons';

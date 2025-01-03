@@ -1,7 +1,8 @@
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import { Button } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
-import { MenuItem } from '../filters/common';
+import type { MenuItem } from '../filters/common';
 
 export default function MultiLevelMenuDetail({
   children,

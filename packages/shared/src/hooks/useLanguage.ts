@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ContentLanguage } from '../lib/user';
+import type { ContentLanguage } from '../lib/user';
 import { useAuthContext } from '../contexts/AuthContext';
 import { UPDATE_USER_PROFILE_MUTATION } from '../graphql/users';
 import { useLogContext } from '../contexts/LogContext';

@@ -1,11 +1,11 @@
-import { Squad } from '../../graphql/sources';
-import { RequestKey } from '../../lib/query';
-import { PropsParameters } from '../../types';
+import type { Squad } from '../../graphql/sources';
+import type { RequestKey } from '../../lib/query';
+import type { PropsParameters } from '../../types';
 import { useMutationSubscription } from '../mutationSubscription';
+import type { ContentPreferenceMutation } from './types';
 import {
   contentPreferenceMutationMatcher,
   mutationKeyToContentPreferenceStatusMap,
-  ContentPreferenceMutation,
 } from './types';
 
 type UseSourceContentPreferenceMutationSubscriptionProps = {

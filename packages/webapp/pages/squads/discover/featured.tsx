@@ -1,16 +1,15 @@
-import React, { ReactElement } from 'react';
-import { NextSeoProps } from 'next-seo/lib/types';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { NextSeoProps } from 'next-seo/lib/types';
 import InfiniteScrolling, {
   checkFetchMore,
 } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
-import { InfiniteData } from '@tanstack/react-query';
+import type { InfiniteData } from '@tanstack/react-query';
 import { FeedContainer, SquadGrid } from '@dailydotdev/shared/src/components';
-import { Squad } from '@dailydotdev/shared/src/graphql/sources';
+import type { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
-import {
-  SourcesQueryData,
-  useSources,
-} from '@dailydotdev/shared/src/hooks/source/useSources';
+import type { SourcesQueryData } from '@dailydotdev/shared/src/hooks/source/useSources';
+import { useSources } from '@dailydotdev/shared/src/hooks/source/useSources';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
 import { PlaceholderSquadGridList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadGrid';

@@ -1,4 +1,5 @@
-import React, { ReactElement, useContext, useEffect } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useEffect } from 'react';
 import {
   Button,
   ButtonColor,
@@ -15,7 +16,7 @@ import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleToo
 import Modal from 'react-modal';
 import { useContextMenu } from '@dailydotdev/react-contexify';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
-import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
+import type { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
@@ -27,12 +28,11 @@ import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/type
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import { useVotePost } from '@dailydotdev/shared/src/hooks';
-import UpvotedPopupModal, {
-  UpvotedPopupModalProps,
-} from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
+import type { UpvotedPopupModalProps } from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
+import UpvotedPopupModal from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
 import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
-import { ShareProps } from '@dailydotdev/shared/src/components/modals/post/common';
+import type { ShareProps } from '@dailydotdev/shared/src/components/modals/post/common';
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useCompanionActions from './useCompanionActions';

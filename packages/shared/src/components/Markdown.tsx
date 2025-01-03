@@ -1,13 +1,9 @@
-import React, {
-  MouseEventHandler,
-  ReactElement,
-  useCallback,
-  useState,
-} from 'react';
+import type { MouseEventHandler, ReactElement } from 'react';
+import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
 import styles from './markdown.module.css';
 import { ProfileTooltip } from './profile/ProfileTooltip';
-import { CaretOffset } from '../lib/element';
+import type { CaretOffset } from '../lib/element';
 import useDebounceFn from '../hooks/useDebounceFn';
 import { useDomPurify } from '../hooks/useDomPurify';
 

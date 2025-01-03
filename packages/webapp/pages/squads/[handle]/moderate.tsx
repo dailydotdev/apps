@@ -1,8 +1,7 @@
-import React, { ReactElement, useEffect } from 'react';
-import {
-  ManageSquadPageContainer,
-  SquadSettingsProps,
-} from '@dailydotdev/shared/src/components/squads/utils';
+import type { ReactElement } from 'react';
+import React, { useEffect } from 'react';
+import type { SquadSettingsProps } from '@dailydotdev/shared/src/components/squads/utils';
+import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
 import {
   SquadTab,
   SquadTabs,
@@ -19,12 +18,12 @@ import {
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { useSquad } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
-import {
+import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
-import { ParsedUrlQuery } from 'querystring';
+import type { ParsedUrlQuery } from 'querystring';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import { TypographyType } from '@dailydotdev/shared/src/components/typography/Typography';

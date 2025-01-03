@@ -2,18 +2,25 @@ import { useQuery } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import {
+import type {
   UseSearchProvider,
   UseSearchProviderProps,
-  useSearchProvider,
 } from './useSearchProvider';
+import { useSearchProvider } from './useSearchProvider';
+import type { SearchSuggestionResult } from '../../graphql/search';
 import {
   defaultSearchSuggestionsLimit,
   minSearchQueryLength,
-  SearchSuggestionResult,
 } from '../../graphql/search';
 import useDebounce from '../useDebounce';
 import { defaultSearchDebounceMs } from '../../lib/func';
+import { useMutationSubscription } from '../mutationSubscription';
+import type { ContentPreferenceMutation } from '../contentPreference/types';
+import {
+  contentPreferenceMutationMatcher,
+  mutationKeyToContentPreferenceStatusMap,
+} from '../contentPreference/types';
+import type { PropsParameters } from '../../types';
 
 export type UseSearchProviderSuggestionsProps = {
   limit?: number;
@@ -31,6 +38,7 @@ export const useSearchProviderSuggestions = ({
   query,
   limit = defaultSearchSuggestionsLimit,
   includeContentPreference,
+  feedId,
 }: UseSearchProviderSuggestionsProps): UseSearchProviderSuggestions => {
   const { user } = useAuthContext();
   const { getSuggestions } = useSearchProvider();
@@ -40,6 +48,7 @@ export const useSearchProviderSuggestions = ({
     debouncedQuery,
     limit,
     includeContentPreference,
+    feedId,
   });
 
   const { data, isPending } = useQuery({
@@ -50,6 +59,7 @@ export const useSearchProviderSuggestions = ({
         query: debouncedQuery,
         limit,
         includeContentPreference,
+        feedId,
       });
     },
     enabled: query?.length >= minSearchQueryLength,
@@ -67,6 +77,45 @@ export const useSearchProviderSuggestions = ({
       },
       [limit],
     ),
+  });
+
+  useMutationSubscription({
+    matcher: contentPreferenceMutationMatcher,
+    callback: ({
+      mutation,
+      queryClient: mutationQueryClient,
+      variables: mutationVariables,
+    }) => {
+      const [requestKey] = mutation.options.mutationKey as [
+        RequestKey,
+        ...unknown[],
+      ];
+
+      const { id: entityId } =
+        mutationVariables as PropsParameters<ContentPreferenceMutation>;
+
+      const nextStatus = mutationKeyToContentPreferenceStatusMap[requestKey];
+      mutationQueryClient.setQueryData<SearchSuggestionResult>(
+        queryKey,
+        (subData) => {
+          return {
+            ...subData,
+            hits: subData.hits?.map((hit) => {
+              if (hit.id === entityId) {
+                const newContentPreferenceEdge = structuredClone(hit);
+                newContentPreferenceEdge.contentPreference = {
+                  ...newContentPreferenceEdge.contentPreference,
+                  status: nextStatus,
+                };
+                return newContentPreferenceEdge;
+              }
+
+              return hit;
+            }),
+          };
+        },
+      );
+    },
   });
 
   return {

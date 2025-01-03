@@ -1,4 +1,5 @@
-import React, { type ReactElement, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { useAuthContext } from '../../contexts/AuthContext';
 import UserList from '../profile/UserList';
@@ -40,7 +41,7 @@ export const FollowingFilter = (): ReactElement => {
         <FlexCentered className="flex-col gap-4 px-6 py-10 text-center text-text-tertiary typo-callout">
           <AddUserIcon size={IconSize.XXXLarge} />
           <p>
-            You haven&apos;t follow any User yet.
+            You haven&apos;t followed any user yet.
             <br /> Explore our{' '}
             <Link
               href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}users`}

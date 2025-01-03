@@ -1,12 +1,8 @@
 import React from 'react';
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-} from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { ChecklistStep } from './ChecklistStep';
-import { ChecklistStepProps } from '../../lib/checklist';
+import type { ChecklistStepProps } from '../../lib/checklist';
 import { ActionType } from '../../graphql/actions';
 
 const step = {

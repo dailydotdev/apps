@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import {
@@ -7,8 +8,8 @@ import {
   ProfilePicture,
 } from '../ProfilePicture';
 import SquadMemberBadge from '../squads/SquadMemberBadge';
-import { Author } from '../../graphql/comments';
-import { SourceMemberRole } from '../../graphql/sources';
+import type { Author } from '../../graphql/comments';
+import type { SourceMemberRole } from '../../graphql/sources';
 import { Separator } from '../cards/common/common';
 import { ReputationUserBadge } from '../ReputationUserBadge';
 import { TruncateText, DateFormat } from '../utilities';

@@ -1,39 +1,30 @@
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { defaultTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
-import { NextRouter } from 'next/router';
+import type { NextRouter } from 'next/router';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import {
   defaultSquadToken,
   generateTestMember,
   generateTestAdmin,
 } from '@dailydotdev/shared/__tests__/fixture/squads';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import type { SquadInvitation } from '@dailydotdev/shared/src/graphql/squads';
 import {
   SQUAD_INVITATION_QUERY,
   SQUAD_JOIN_MUTATION,
-  SquadInvitation,
 } from '@dailydotdev/shared/src/graphql/squads';
-import {
-  SourceMember,
-  SourceMemberRole,
-} from '@dailydotdev/shared/src/graphql/sources';
+import type { SourceMember } from '@dailydotdev/shared/src/graphql/sources';
+import { SourceMemberRole } from '@dailydotdev/shared/src/graphql/sources';
 import { BOOT_QUERY_KEY } from '@dailydotdev/shared/src/contexts/common';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { labels } from '@dailydotdev/shared/src/lib';
@@ -41,9 +32,8 @@ import {
   ActionType,
   COMPLETE_ACTION_MUTATION,
 } from '@dailydotdev/shared/src/graphql/actions';
-import SquadPage, {
-  SquadReferralProps,
-} from '../pages/squads/[handle]/[token]';
+import type { SquadReferralProps } from '../pages/squads/[handle]/[token]';
+import SquadPage from '../pages/squads/[handle]/[token]';
 
 const showLogin = jest.fn();
 let replaced = '';

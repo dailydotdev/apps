@@ -1,10 +1,11 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { usePostFeedback } from '../../../../hooks';
 import CloseButton from '../../../CloseButton';
 import { ButtonSize } from '../../../buttons/common';
 import { CardContent } from '../../common/list/ListCard';
 import { CardCoverList } from '../../common/list/CardCover';
-import { FeedbackProps } from './common/common';
+import type { FeedbackProps } from './common/common';
 import { FeedbackButtons } from './common/FeedbackButtons';
 
 export const FeedbackList = ({

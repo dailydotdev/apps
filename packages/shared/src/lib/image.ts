@@ -270,10 +270,31 @@ export const cloudinaryAuthBannerBackground1440w =
   'https://daily-now-res.cloudinary.com/image/upload/s--lf8LUJjq--/c_auto,g_center,w_1440/f_auto//v1732012913/login-popover-dailydev_mxb7lw';
 
 export const cloudinaryPWA =
-  'https://daily-now-res.cloudinary.com/image/upload/s--OJZMKmCg--/f_auto/v1730721076/web_-_safari_asp3ts';
+  'https://daily-now-res.cloudinary.com/image/upload/s--_kFKAft3--/f_auto/v1735045791/web_-_safari_j52hcx';
+
+export const cloudinaryPWAChrome =
+  'https://daily-now-res.cloudinary.com/image/upload/s--6ajr-Fje--/f_auto/v1735045791/web_-_chrome_we4vak';
 
 export const cloudinaryPWAVideo =
-  'https://daily-now-res.cloudinary.com/video/upload/s--0mT5rE2C--/v1733649847/web_-_safari_j81dxl.mp4';
+  'https://daily-now-res.cloudinary.com/video/upload/s--gN1-dqeq--/v1735029367/web_-_safari_e3wes4.mp4';
+
+export const cloudinaryPWAVideoChrome =
+  'https://daily-now-res.cloudinary.com/video/upload/s--RD5n9hm9--/v1735044247/web_-_chrome_xavter.mp4';
+
+export const cloudinaryOnboardingExtension = {
+  chrome: {
+    default:
+      'https://res.cloudinary.com/daily-now/image/upload/s--HjgXzokn--/c_scale,h_360,w_820/f_auto/dailydev-extenstion-mindblown_ggmkfg',
+    retina:
+      'https://res.cloudinary.com/daily-now/image/upload/s--HjgXzokn--/f_auto/dailydev-extenstion-mindblown_ggmkfg',
+  },
+  edge: {
+    default:
+      'https://res.cloudinary.com/daily-now/image/upload/s--kvj5ZB_s--/c_scale,h_360,w_820/f_auto/dailydev-extenstion-mindblown-edge_svb0kv',
+    retina:
+      'https://res.cloudinary.com/daily-now/image/upload/s--kvj5ZB_s--/f_auto/dailydev-extenstion-mindblown-edge_svb0kv',
+  },
+};
 
 export const cloudinaryAddToHomeScreen =
   'https://daily-now-res.cloudinary.com/image/upload/s--Ml_3MSzc--/f_auto/v1733037697/add_to_home_screen_mddvzw';

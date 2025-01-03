@@ -1,9 +1,11 @@
-import { Item, ItemProps } from '@dailydotdev/react-contexify';
+import type { ItemProps } from '@dailydotdev/react-contexify';
+import { Item } from '@dailydotdev/react-contexify';
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import Link from '../utilities/Link';
 import ConditionalWrapper from '../ConditionalWrapper';
-import { MenuItemProps } from '../fields/ContextMenu';
+import type { MenuItemProps } from '../fields/ContextMenu';
 import { IconSize } from '../Icon';
 
 export interface ContextMenuItemProps

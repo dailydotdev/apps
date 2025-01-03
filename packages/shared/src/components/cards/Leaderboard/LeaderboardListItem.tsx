@@ -1,4 +1,5 @@
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import { largeNumberFormat } from '../../../lib';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import Link from '../../utilities/Link';

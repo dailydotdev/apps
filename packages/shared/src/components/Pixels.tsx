@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import Script from 'next/script';
 import { useRouter } from 'next/router';
 import { isProduction } from '../lib/constants';
-import { UserExperienceLevel } from '../lib/user';
+import type { UserExperienceLevel } from '../lib/user';
 import { useAuthContext } from '../contexts/AuthContext';
 import { fromCDN } from '../lib';
 

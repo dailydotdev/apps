@@ -1,4 +1,6 @@
-import React, { RefObject, useCallback, useState } from 'react';
+import type { RefObject } from 'react';
+import type React from 'react';
+import { useCallback, useState } from 'react';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { useEventListener } from '../../hooks';
 

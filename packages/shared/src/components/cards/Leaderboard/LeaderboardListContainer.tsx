@@ -1,5 +1,7 @@
-import React, { ReactElement } from 'react';
-import { LeaderboardCard, LeaderboardListContainerProps } from './common';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { LeaderboardListContainerProps } from './common';
+import { LeaderboardCard } from './common';
 
 export function LeaderboardListContainer({
   children,

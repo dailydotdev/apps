@@ -1,9 +1,11 @@
 import { useContext, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import AlertContext from '../contexts/AlertContext';
-import { getLatestChangelogPost, Post } from '../graphql/posts';
+import type { Post } from '../graphql/posts';
+import { getLatestChangelogPost } from '../graphql/posts';
 import useSidebarRendered from './useSidebarRendered';
-import { UseVotePost, useVotePost, voteMutationHandlers } from './vote';
+import type { UseVotePost } from './vote';
+import { useVotePost, voteMutationHandlers } from './vote';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { useAuthContext } from '../contexts/AuthContext';
 

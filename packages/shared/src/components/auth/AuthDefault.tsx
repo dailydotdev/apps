@@ -1,19 +1,16 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import { checkKratosEmail } from '../../lib/kratos';
-import { AuthFormProps, Provider, getFormEmail } from './common';
+import type { AuthFormProps, Provider } from './common';
+import { getFormEmail } from './common';
 import EmailSignupForm from './EmailSignupForm';
-import LoginForm, { LoginFormParams } from './LoginForm';
+import type { LoginFormParams } from './LoginForm';
+import LoginForm from './LoginForm';
 import LogContext from '../../contexts/LogContext';
-import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
+import type { AuthTriggersType } from '../../lib/auth';
+import { AuthEventNames } from '../../lib/auth';
 import AuthContainer from './AuthContainer';
 import AuthHeader from './AuthHeader';
 import ConditionalWrapper from '../ConditionalWrapper';

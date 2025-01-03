@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { separatorCharacter } from '../common/common';
 import { largeNumberFormat } from '../../../lib';

@@ -1,10 +1,12 @@
-import React, { ReactElement } from 'react';
-import { ListIcon, SidebarMenuItem } from '../common';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { SidebarMenuItem } from '../common';
+import { ListIcon } from '../common';
 import { ArrowIcon, BookmarkIcon, PlusIcon } from '../../icons';
 import { Section } from '../Section';
 import { webappUrl } from '../../../lib/constants';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
-import { SidebarSectionProps } from './common';
+import type { SidebarSectionProps } from './common';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { BookmarkReminderIcon } from '../../icons/Bookmark/Reminder';
@@ -37,7 +39,6 @@ export const BookmarkSection = ({
           await createFolder(folder);
           closeModal();
         },
-        folderCount: folders.length ?? 0,
       },
     });
   };

@@ -1,11 +1,9 @@
-import React, { ReactElement, useState } from 'react';
-import { Modal, ModalProps } from './common/Modal';
-import {
-  SourceMember,
-  SourceMemberRole,
-  SourcePermissions,
-  Squad,
-} from '../../graphql/sources';
+import type { ReactElement } from 'react';
+import React, { useState } from 'react';
+import type { ModalProps } from './common/Modal';
+import { Modal } from './common/Modal';
+import type { SourceMember, Squad } from '../../graphql/sources';
+import { SourceMemberRole, SourcePermissions } from '../../graphql/sources';
 import UserListModal from './UserListModal';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
 import useContextMenu from '../../hooks/useContextMenu';

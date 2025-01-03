@@ -1,10 +1,10 @@
 import React from 'react';
 import nock from 'nock';
+import type { RenderResult } from '@testing-library/react';
 import {
   fireEvent,
   queryByText,
   render,
-  RenderResult,
   screen,
   waitFor,
 } from '@testing-library/react';
@@ -12,16 +12,15 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
 import { SettingsContextProvider } from '../contexts/SettingsContext';
 import Settings from './Settings';
-import {
-  RemoteSettings,
-  UPDATE_USER_SETTINGS_MUTATION,
-} from '../graphql/settings';
-import { LoggedUser } from '../lib/user';
+import type { RemoteSettings } from '../graphql/settings';
+import { UPDATE_USER_SETTINGS_MUTATION } from '../graphql/settings';
+import type { LoggedUser } from '../lib/user';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import AuthContext from '../contexts/AuthContext';
 import { BootDataProvider } from '../contexts/BootProvider';
 import { apiUrl } from '../lib/config';
-import { BootApp, BootCacheData } from '../lib/boot';
+import type { BootCacheData } from '../lib/boot';
+import { BootApp } from '../lib/boot';
 import { BOOT_LOCAL_KEY } from '../contexts/common';
 import * as hooks from '../hooks/useViewSize';
 

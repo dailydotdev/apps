@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import dynamic from 'next/dynamic';
 import { LazyModal } from './common/types';
 
@@ -64,10 +64,6 @@ const SquadNotificationsModal = dynamic(
     import(
       /* webpackChunkName: "squadNotificationsModal" */ './squads/SquadNotificationsModal'
     ),
-);
-
-const FeedFilters = dynamic(
-  () => import(/* webpackChunkName: "feedFilters" */ '../filters/FeedFilters'),
 );
 
 const SubmitArticle = dynamic(
@@ -184,13 +180,6 @@ const TopReaderBadgeModal = dynamic(
     ),
 );
 
-const AdvancedCustomFeedSoonModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "advancedCustomFeedSoonModal" */ './soon/AdvancedCustomFeedSoonModal'
-    ),
-);
-
 const BookmarkFolderSoonModal = dynamic(
   () =>
     import(
@@ -218,10 +207,10 @@ const MoveBookmarkModal = dynamic(
     ),
 );
 
-const BookmarksFolderEntryModal = dynamic(
+const AddToCustomFeedModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "bookmarksFolderEntryModal" */ './bookmark/BookmarksFolderEntryModal'
+      /* webpackChunkName: "addToCustomFeedModal" */ './feed/AddToCustomFeedModal'
     ),
 );
 
@@ -237,7 +226,6 @@ export const modals = {
   [LazyModal.SquadNotifications]: SquadNotificationsModal,
   [LazyModal.SubmitArticle]: SubmitArticle,
   [LazyModal.NewSource]: NewSource,
-  [LazyModal.FeedFilters]: FeedFilters,
   [LazyModal.VerifySession]: VerifySession,
   [LazyModal.GenericReferral]: GenericReferralModal,
   [LazyModal.Video]: VideoModal,
@@ -257,12 +245,11 @@ export const modals = {
   [LazyModal.PostModeration]: PostModerationModal,
   [LazyModal.NewSquad]: NewSquadModal,
   [LazyModal.TopReaderBadge]: TopReaderBadgeModal,
-  [LazyModal.AdvancedCustomFeedSoon]: AdvancedCustomFeedSoonModal,
   [LazyModal.BookmarkFolderSoon]: BookmarkFolderSoonModal,
   [LazyModal.BookmarkFolder]: BookmarkFolderModal,
-  [LazyModal.BookmarksFolderEntry]: BookmarksFolderEntryModal,
   [LazyModal.ClickbaitShield]: ClickbaitShieldModal,
   [LazyModal.MoveBookmark]: MoveBookmarkModal,
+  [LazyModal.AddToCustomFeed]: AddToCustomFeedModal,
 };
 
 type GetComponentProps<T> = T extends

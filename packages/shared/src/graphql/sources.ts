@@ -6,6 +6,7 @@ import {
   SOURCE_DIRECTORY_INFO_FRAGMENT,
   SOURCE_SHORT_INFO_FRAGMENT,
 } from './fragments';
+import type { ContentPreference } from './contentPreference';
 
 export enum SourceMemberRole {
   Member = 'member',
@@ -101,6 +102,7 @@ export interface Source {
   description?: string;
   flags?: SourceFlags;
   createdAt?: Date;
+  contentPreference?: ContentPreference;
 }
 
 export type SourceData = { source: Source };
@@ -118,15 +120,6 @@ export const SOURCE_QUERY = gql`
 export const SEARCH_SOURCES_QUERY = gql`
   query SearchSources($query: String!, $limit: Int) {
     searchSources(query: $query, limit: $limit) {
-      ...SourceShortInfo
-    }
-  }
-  ${SOURCE_SHORT_INFO_FRAGMENT}
-`;
-
-export const ONBOARDING_SOURCES_QUERY = gql`
-  query SourceRecommendationByTags($tags: [String]!) {
-    sourceRecommendationByTags(tags: $tags) {
       ...SourceShortInfo
     }
   }

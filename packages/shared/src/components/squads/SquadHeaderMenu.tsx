@@ -1,16 +1,18 @@
-import React, { ReactElement, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useMutation } from '@tanstack/react-query';
-import {
-  Squad,
-  SourcePermissions,
-  SourceMemberRole,
-} from '../../graphql/sources';
+import type { Squad } from '../../graphql/sources';
+import { SourcePermissions, SourceMemberRole } from '../../graphql/sources';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useDeleteSquad } from '../../hooks/useDeleteSquad';
-import { useLeaveSquad, useSquadNavigation } from '../../hooks';
+import {
+  useLeaveSquad,
+  usePlusSubscription,
+  useSquadNavigation,
+} from '../../hooks';
 import { ContextMenuIcon } from '../tooltips/ContextMenuItem';
 import { verifyPermission } from '../../graphql/squads';
 import {
@@ -21,14 +23,17 @@ import {
   LinkIcon,
   ExitIcon,
   FlagIcon,
+  HashtagIcon,
 } from '../icons';
 import { squadFeedback } from '../../lib/constants';
-import { MenuItemProps } from '../fields/ContextMenu';
+import type { MenuItemProps } from '../fields/ContextMenu';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { Origin } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 import useContextMenu from '../../hooks/useContextMenu';
+import { ContentPreferenceType } from '../../graphql/contentPreference';
+import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ '../fields/ContextMenu'),
@@ -44,6 +49,7 @@ interface SquadHeaderMenuProps {
 export default function SquadHeaderMenu({
   squad,
 }: SquadHeaderMenuProps): ReactElement {
+  const { showPlusSubscription } = usePlusSubscription();
   const { isLoggedIn } = useAuthContext();
   const { logAndCopyLink } = useSquadInvitation({
     squad,
@@ -53,6 +59,7 @@ export default function SquadHeaderMenu({
   const { openModal } = useLazyModal();
   const { editSquad } = useSquadNavigation();
   const { isOpen } = useContextMenu({ id: ContextMenuIds.SquadMenuContext });
+  const { follow, unfollow } = useContentPreference();
 
   const { onDeleteSquad } = useDeleteSquad({
     squad,
@@ -75,6 +82,37 @@ export default function SquadHeaderMenu({
     const canDeleteSquad = verifyPermission(squad, SourcePermissions.Delete);
 
     const list: MenuItemProps[] = [];
+
+    if (showPlusSubscription) {
+      list.push({
+        icon: <ContextMenuIcon Icon={HashtagIcon} />,
+        action: () =>
+          openModal({
+            type: LazyModal.AddToCustomFeed,
+            props: {
+              onAdd: (feedId) =>
+                follow({
+                  id: squad.id,
+                  entity: ContentPreferenceType.Source,
+                  entityName: squad.handle,
+                  feedId,
+                }),
+              onUndo: (feedId) =>
+                unfollow({
+                  id: squad.id,
+                  entity: ContentPreferenceType.Source,
+                  entityName: squad.handle,
+                  feedId,
+                }),
+              onCreateNewFeed: () =>
+                router.push(
+                  `/feeds/new?entityId=${squad.id}&entityType=${ContentPreferenceType.Source}`,
+                ),
+            },
+          }),
+        label: 'Add to custom feed',
+      });
+    }
 
     if (canEditSquad) {
       list.push({
@@ -146,6 +184,10 @@ export default function SquadHeaderMenu({
     openModal,
     squad,
     isLoggedIn,
+    follow,
+    unfollow,
+    router,
+    showPlusSubscription,
   ]);
 
   return (

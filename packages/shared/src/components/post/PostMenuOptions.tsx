@@ -1,24 +1,25 @@
-import React, {
+import type {
   KeyboardEventHandler,
   MouseEventHandler,
   ReactElement,
-  useCallback,
-  useContext,
 } from 'react';
+import React, { useCallback, useContext } from 'react';
 import { MenuIcon, MiniCloseIcon as CloseIcon } from '../icons';
 import { Roles } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
+import type { Post } from '../../graphql/posts';
 import {
   banPost,
   clickbaitPost,
   demotePost,
-  Post,
   promotePost,
 } from '../../graphql/posts';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import PostOptionsMenu, { PostOptionsMenuProps } from '../PostOptionsMenu';
-import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import { Origin } from '../../lib/log';
+import type { PostOptionsMenuProps } from '../PostOptionsMenu';
+import PostOptionsMenu from '../PostOptionsMenu';
+import type { PromptOptions } from '../../hooks/usePrompt';
+import { usePrompt } from '../../hooks/usePrompt';
+import type { Origin } from '../../lib/log';
 import useContextMenu from '../../hooks/useContextMenu';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 

@@ -1,22 +1,23 @@
 import { useContext, useMemo } from 'react';
-import {
+import type {
   InfiniteData,
   QueryClient,
   QueryKey,
-  useQueryClient,
 } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import LogContext from '../contexts/LogContext';
 import {
   feedLogExtra,
   optimisticPostUpdateInFeed,
   postLogEvent,
 } from '../lib/feed';
-import { Post, PostType } from '../graphql/posts';
-import { Origin } from '../lib/log';
+import type { Post } from '../graphql/posts';
+import { PostType } from '../graphql/posts';
+import type { Origin } from '../lib/log';
 import { ActiveFeedContext } from '../contexts';
 import { updateCachedPagePost } from '../lib/query';
 import { FeedLayoutMobileFeedPages, useFeedLayout } from './useFeedLayout';
-import { FeedData } from '../graphql/feed';
+import type { FeedData } from '../graphql/feed';
 import { useReadingStreak } from './streaks';
 
 interface PostClickOptionalProps {

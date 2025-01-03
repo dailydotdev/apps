@@ -1,11 +1,12 @@
-import React, { ReactElement, useRef } from 'react';
+import type { ReactElement } from 'react';
+import React, { useRef } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Checkbox } from '../../fields/Checkbox';
-import { ModalProps } from '../common/Modal';
+import type { ModalProps } from '../common/Modal';
 import { useLogContext } from '../../../contexts/LogContext';
 import { ReasonSelectionModal } from './ReasonSelectionModal';
 import { ReportReason, sendSourceReport } from '../../../report';
-import { Squad } from '../../../graphql/sources';
+import type { Squad } from '../../../graphql/sources';
 import { useLeaveSquad, useToastNotification } from '../../../hooks';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { LogEvent } from '../../../lib/log';

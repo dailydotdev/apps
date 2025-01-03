@@ -1,10 +1,9 @@
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import { useInView } from 'react-intersection-observer';
-import { Squad } from '../../../graphql/sources';
-import {
-  SourcesQueryProps,
-  useSources,
-} from '../../../hooks/source/useSources';
+import type { Squad } from '../../../graphql/sources';
+import type { SourcesQueryProps } from '../../../hooks/source/useSources';
+import { useSources } from '../../../hooks/source/useSources';
 import HorizontalScroll from '../../HorizontalScroll/HorizontalScroll';
 import { UnfeaturedSquadGrid } from './UnfeaturedSquadGrid';
 import { SquadGrid } from './SquadGrid';
@@ -14,10 +13,8 @@ import { Button, ButtonVariant } from '../../buttons/Button';
 import { PlaceholderSquadGridList } from './PlaceholderSquadGrid';
 import { PlaceholderSquadListList } from './PlaceholderSquadList';
 import Link from '../../utilities/Link';
-import {
-  HorizontalScrollTitle,
-  HorizontalScrollTitleProps,
-} from '../../HorizontalScroll/HorizontalScrollHeader';
+import type { HorizontalScrollTitleProps } from '../../HorizontalScroll/HorizontalScrollHeader';
+import { HorizontalScrollTitle } from '../../HorizontalScroll/HorizontalScrollHeader';
 
 interface SquadHorizontalListProps {
   title: HorizontalScrollTitleProps;

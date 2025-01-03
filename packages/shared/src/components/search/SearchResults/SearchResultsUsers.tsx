@@ -1,13 +1,15 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { WidgetCard } from '../../widgets/WidgetCard';
 import { UserHighlight } from '../../widgets/PostUsersHighlights';
 import { ListItemPlaceholder } from '../../widgets/ListItemPlaceholder';
-import { SearchProviderEnum, SearchSuggestion } from '../../../graphql/search';
+import type { SearchSuggestion } from '../../../graphql/search';
+import { SearchProviderEnum } from '../../../graphql/search';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { FollowButton } from '../../contentPreference/FollowButton';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
-import { LoggedUser } from '../../../lib/user';
+import type { LoggedUser } from '../../../lib/user';
 
 interface SearchResultsUsersProps {
   items: SearchSuggestion[];
@@ -64,7 +66,7 @@ export const SearchResultsUsers = ({
               />
               <FollowButton
                 className="ml-auto"
-                userId={user.id}
+                entityId={user.id}
                 type={ContentPreferenceType.User}
                 entityName={`@${user.username}`}
                 status={(user as LoggedUser).contentPreference?.status}

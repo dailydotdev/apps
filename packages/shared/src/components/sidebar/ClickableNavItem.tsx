@@ -1,12 +1,9 @@
-import React, {
-  HTMLAttributes,
-  ReactElement,
-  ReactNode,
-  useCallback,
-} from 'react';
+import type { HTMLAttributes, ReactElement, ReactNode } from 'react';
+import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import Link from '../utilities/Link';
-import { navBtnClass, SidebarMenuItem } from './common';
+import type { SidebarMenuItem } from './common';
+import { navBtnClass } from './common';
 import { combinedClicks } from '../../lib/click';
 
 interface ClickableNavItemProps

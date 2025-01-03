@@ -1,6 +1,8 @@
-import React, { ReactElement, useRef } from 'react';
+import type { ReactElement } from 'react';
+import React, { useRef } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonProps, ButtonSize } from '../buttons/Button';
+import type { ButtonProps } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import classed from '../../lib/classed';
 
 type SocialShareButtonProps = ButtonProps<'a'> & {

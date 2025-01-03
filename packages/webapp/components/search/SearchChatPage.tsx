@@ -1,5 +1,7 @@
-import React, { ReactElement, useEffect } from 'react';
-import { NextSeo, NextSeoProps } from 'next-seo';
+import type { ReactElement } from 'react';
+import React, { useEffect } from 'react';
+import type { NextSeoProps } from 'next-seo';
+import { NextSeo } from 'next-seo';
 import {
   SearchProviderButton,
   SearchResult,

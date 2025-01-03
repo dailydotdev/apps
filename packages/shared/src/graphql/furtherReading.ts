@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request';
 import { SOURCE_SHORT_INFO_FRAGMENT, USER_AUTHOR_FRAGMENT } from './fragments';
-import { Post } from './posts';
+import type { Post } from './posts';
 
 export type FurtherReadingData = {
   trendingPosts: Post[];

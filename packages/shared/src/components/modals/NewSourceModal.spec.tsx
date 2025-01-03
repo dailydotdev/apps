@@ -1,20 +1,19 @@
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import nock from 'nock';
 import NewSourceModal from './NewSourceModal';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '../../../__tests__/helpers/graphql';
+import type { MockedGraphQLResponse } from '../../../__tests__/helpers/graphql';
+import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import {
   REQUEST_SOURCE_MUTATION,
   SOURCE_BY_FEED_QUERY,
   SOURCE_REQUEST_AVAILABILITY_QUERY,
 } from '../../graphql/newSource';
 import { AuthContextProvider } from '../../contexts/AuthContext';
-import { AnonymousUser, LoggedUser } from '../../lib/user';
+import type { AnonymousUser, LoggedUser } from '../../lib/user';
 import user from '../../../__tests__/fixture/loggedUser';
 import { NotificationsContextProvider } from '../../contexts/NotificationsContext';
 

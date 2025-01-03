@@ -1,10 +1,11 @@
-import React, { Fragment, ReactElement, ReactNode } from 'react';
-import { UseInfiniteQueryResult } from '@tanstack/react-query/build/legacy/types';
-import { InfiniteData } from '@tanstack/react-query';
+import type { ReactElement, ReactNode } from 'react';
+import React, { Fragment } from 'react';
+import type { UseInfiniteQueryResult } from '@tanstack/react-query/build/legacy/types';
+import type { InfiniteData } from '@tanstack/react-query';
 import classed from '../../lib/classed';
 import { IconSize } from '../Icon';
-import { FeedData } from '../../graphql/feed';
-import { Post } from '../../graphql/posts';
+import type { FeedData } from '../../graphql/feed';
+import type { Post } from '../../graphql/posts';
 import type { WithClassNameProps } from '../utilities';
 
 export const ActivityContainer = classed('section', 'flex flex-col');

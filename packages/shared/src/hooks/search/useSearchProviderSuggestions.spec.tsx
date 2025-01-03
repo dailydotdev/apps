@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { AuthContextProvider } from '../../contexts/AuthContext';
-import { Alerts } from '../../graphql/alerts';
+import type { Alerts } from '../../graphql/alerts';
 import {
   SEARCH_POST_SUGGESTIONS,
   SearchProviderEnum,

@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { SocialShareButton } from './SocialShareButton';
 import { getShareLink, ShareProvider } from '../../lib/share';
 import {

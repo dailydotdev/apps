@@ -1,5 +1,6 @@
-import React, { CSSProperties, ReactElement, useContext, useMemo } from 'react';
-import { NextSeoProps } from 'next-seo/lib/types';
+import type { CSSProperties, ReactElement } from 'react';
+import React, { useContext, useMemo } from 'react';
+import type { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import { useRouter } from 'next/router';
 import {

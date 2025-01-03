@@ -1,4 +1,5 @@
-import React, { ReactElement, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
 import SettingsContext, { ThemeMode } from '../../contexts/SettingsContext';
 import { useViewSize, ViewSize } from '../../hooks';
 import {

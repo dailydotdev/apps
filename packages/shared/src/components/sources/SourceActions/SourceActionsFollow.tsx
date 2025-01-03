@@ -1,7 +1,13 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Button } from '../../buttons/Button';
+
+export enum CopyType {
+  Main = 'main',
+  Custom = 'custom',
+}
 
 interface SourceActionsFollowProps {
   className?: string;
@@ -9,10 +15,36 @@ interface SourceActionsFollowProps {
   isSubscribed: boolean;
   onClick: (e) => void;
   variant: ButtonVariant;
+  copyType?: CopyType;
 }
 
+const copyTypeToCopy: Record<
+  CopyType,
+  { follow: string; following: string; unfollow: string }
+> = {
+  [CopyType.Main]: {
+    follow: 'Follow',
+    following: 'Following',
+    unfollow: 'Unfollow',
+  },
+  [CopyType.Custom]: {
+    follow: 'Add',
+    following: 'Remove',
+    unfollow: 'Remove',
+  },
+};
+
 const SourceActionsFollow = (props: SourceActionsFollowProps): ReactElement => {
-  const { className, isSubscribed, isFetching, onClick, variant } = props;
+  const {
+    className,
+    isSubscribed,
+    isFetching,
+    onClick,
+    variant,
+    copyType = CopyType.Main,
+  } = props;
+
+  const copy = copyTypeToCopy[copyType];
 
   return (
     <Button
@@ -30,10 +62,10 @@ const SourceActionsFollow = (props: SourceActionsFollowProps): ReactElement => {
       variant={isSubscribed ? ButtonVariant.Subtle : variant}
     >
       <span className="group-hover:hidden">
-        {isSubscribed ? 'Following' : 'Follow'}
+        {isSubscribed ? copy.following : copy.follow}
       </span>
       <span className="hidden group-hover:block">
-        {isSubscribed ? 'Unfollow' : 'Follow'}
+        {isSubscribed ? copy.unfollow : copy.follow}
       </span>
     </Button>
   );

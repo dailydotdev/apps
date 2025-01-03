@@ -1,13 +1,11 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { widgetClasses } from '../widgets/common';
 import { InfinitePaginationActions } from '../pagination';
 import { ElementPlaceholder } from '../ElementPlaceholder';
-import {
-  Post,
-  PostRelationType,
-  RELATED_POSTS_PER_PAGE_DEFAULT,
-} from '../../graphql/posts';
+import type { Post, PostRelationType } from '../../graphql/posts';
+import { RELATED_POSTS_PER_PAGE_DEFAULT } from '../../graphql/posts';
 import { SourceAvatar } from '../profile/source';
 import PostMetadata from '../cards/common/PostMetadata';
 import { CardLink } from '../cards/common/Card';

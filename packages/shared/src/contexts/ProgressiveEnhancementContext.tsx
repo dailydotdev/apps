@@ -1,10 +1,5 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 
 export interface ProgressiveEnhancementContextData {

@@ -1,19 +1,18 @@
-import React, {
+import type {
   AnchorHTMLAttributes,
   ComponentType,
   ReactElement,
   ReactNode,
-  useCallback,
 } from 'react';
-import { Item, Menu, MenuProps } from '@dailydotdev/react-contexify';
+import React, { useCallback } from 'react';
+import type { MenuProps } from '@dailydotdev/react-contexify';
+import { Item, Menu } from '@dailydotdev/react-contexify';
 import { RootPortal } from '../tooltips/Portal';
 import ConditionalWrapper from '../ConditionalWrapper';
 import useContextMenu from '../../hooks/useContextMenu';
 import { useViewSize, ViewSize } from '../../hooks';
-import {
-  ContextMenuDrawer,
-  ContextMenuDrawerItem,
-} from '../drawers/ContextMenuDrawer';
+import type { ContextMenuDrawerItem } from '../drawers/ContextMenuDrawer';
+import { ContextMenuDrawer } from '../drawers/ContextMenuDrawer';
 
 function PortalMenu({
   id,

@@ -1,10 +1,5 @@
-import React, {
-  ReactElement,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-} from 'react';
+import type { ReactElement } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
@@ -19,6 +14,7 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
 import { FeedLayoutProvider } from '@dailydotdev/shared/src/contexts/FeedContext';
+import useCustomDefaultFeed from '@dailydotdev/shared/src/hooks/feed/useCustomDefaultFeed';
 import ShortcutLinks from './ShortcutLinks/ShortcutLinks';
 import DndBanner from './DndBanner';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
@@ -51,6 +47,7 @@ export default function MainFeedPage({
   const { shouldUseListFeedLayout } = useFeedLayout({ feedRelated: false });
   useCompanionSettings();
   const { isActive: isDndActive, showDnd, setShowDnd } = useDndContext();
+  const { isCustomDefaultFeed } = useCustomDefaultFeed();
 
   const onNavTabClick = useCallback(
     (tab: string): void => {
@@ -71,6 +68,11 @@ export default function MainFeedPage({
   const activePage = useMemo(() => {
     if (isSearchOn) {
       return '/search';
+    }
+
+    // default page when user selected custom default feed
+    if (isCustomDefaultFeed && feedName === 'default') {
+      return '/';
     }
 
     const feed = getFeedName(feedName, {

@@ -1,14 +1,13 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useState } from 'react';
+import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import {
   ALLOW_KEYWORD_MUTATION,
   DENY_KEYWORD_MUTATION,
-  Keyword,
 } from '@dailydotdev/shared/src/graphql/keywords';
 import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
-import {
-  FeedData,
-  KEYWORD_FEED_QUERY,
-} from '@dailydotdev/shared/src/graphql/feed';
+import type { FeedData } from '@dailydotdev/shared/src/graphql/feed';
+import { KEYWORD_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import { NextSeo } from 'next-seo';
 import ActivitySection from '@dailydotdev/shared/src/components/profile/ActivitySection';
 import { smallPostImage } from '@dailydotdev/shared/src/lib/image';
@@ -24,8 +23,8 @@ import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/Prog
 import classNames from 'classnames';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import { Post } from '@dailydotdev/shared/src/graphql/posts';
-import { GraphQLError } from 'graphql/error';
+import type { Post } from '@dailydotdev/shared/src/graphql/posts';
+import type { GraphQLError } from 'graphql/error';
 import { getNextPageParam } from '@dailydotdev/shared/src/lib/query';
 import styles from './KeywordManagement.module.css';
 

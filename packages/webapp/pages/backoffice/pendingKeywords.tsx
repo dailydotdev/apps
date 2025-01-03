@@ -1,4 +1,5 @@
-import React, { ReactElement, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Roles } from '@dailydotdev/shared/src/lib/user';
 import { useQuery } from '@tanstack/react-query';

@@ -1,10 +1,11 @@
-import React, { ReactElement, useCallback, useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
+import type { InAppNotification } from '../../hooks/useInAppNotification';
 import {
   IN_APP_NOTIFICATION_KEY,
-  InAppNotification,
   useInAppNotification,
 } from '../../hooks/useInAppNotification';
 import classed from '../../lib/classed';

@@ -1,13 +1,9 @@
 import { useCallback, useContext } from 'react';
-import {
-  MutationKey,
-  useMutation,
-  useQueryClient,
-} from '@tanstack/react-query';
+import type { MutationKey } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { Post, ReadHistoryPost } from '../graphql/posts';
 import {
   ADD_BOOKMARKS_MUTATION,
-  Post,
-  ReadHistoryPost,
   REMOVE_BOOKMARK_MUTATION,
 } from '../graphql/posts';
 import LogContext from '../contexts/LogContext';
@@ -16,13 +12,11 @@ import { useRequestProtocol } from './useRequestProtocol';
 import AuthContext from '../contexts/AuthContext';
 import { updatePostCache } from './usePostById';
 import { AuthTriggers } from '../lib/auth';
-import { LogEvent, Origin } from '../lib/log';
-import {
-  optimisticPostUpdateInFeed,
-  postLogEvent,
-  PostLogEventFnOptions,
-} from '../lib/feed';
-import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
+import type { Origin } from '../lib/log';
+import { LogEvent } from '../lib/log';
+import type { PostLogEventFnOptions } from '../lib/feed';
+import { optimisticPostUpdateInFeed, postLogEvent } from '../lib/feed';
+import type { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { ActionType } from '../graphql/actions';
 import { useActions } from './useActions';
 import { bookmarkMutationKey } from './bookmark/types';
@@ -80,7 +74,7 @@ const useBookmarkPost = ({
   const { displayToast } = useToastNotification();
   const { user, showLogin } = useContext(AuthContext);
   const { logEvent } = useContext(LogContext);
-  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
+  const { completeAction } = useActions();
   const { openModal } = useLazyModal();
   const { showPlusSubscription } = usePlusSubscription();
 
@@ -103,16 +97,6 @@ const useBookmarkPost = ({
     onMutate: onMutate || defaultOnMutate,
     onSuccess: () => {
       completeAction(ActionType.BookmarkPost);
-
-      if (
-        showPlusSubscription &&
-        isActionsFetched &&
-        !checkHasCompleted(ActionType.CreateBookmarkFolder)
-      ) {
-        openModal({
-          type: LazyModal.BookmarksFolderEntry,
-        });
-      }
     },
     onError: (err, _, rollback?: () => void) => rollback?.(),
   });

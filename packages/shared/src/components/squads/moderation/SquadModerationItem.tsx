@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import {
   Typography,
   TypographyColor,
@@ -17,10 +18,8 @@ import { capitalize } from '../../../lib/strings';
 import { TimerIcon, WarningIcon } from '../../icons';
 import { AlertColor } from '../../AlertDot';
 import { useTruncatedSummary } from '../../../hooks';
-import {
-  SquadModerationItemProps,
-  useSourceModerationItem,
-} from './useSourceModerationItem';
+import type { SquadModerationItemProps } from './useSourceModerationItem';
+import { useSourceModerationItem } from './useSourceModerationItem';
 import { SquadModerationItemContextMenu } from './SquadModerationItemContextMenu';
 
 export function SquadModerationItem(
@@ -47,7 +46,11 @@ export function SquadModerationItem(
         type="button"
       />
       <div className="flex flex-row gap-4">
-        <ProfilePicture user={createdBy} size={ProfileImageSize.Large} />
+        <ProfilePicture
+          className="pointer-events-none"
+          user={createdBy}
+          size={ProfileImageSize.Large}
+        />
         <div className="flex flex-col gap-1">
           <Typography bold type={TypographyType.Footnote}>
             {createdBy.name}

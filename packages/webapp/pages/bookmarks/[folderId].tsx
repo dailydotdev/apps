@@ -1,7 +1,10 @@
-import React, { ReactElement, useLayoutEffect, useMemo } from 'react';
-import { NextSeoProps } from 'next-seo/lib/types';
+import type { ReactElement } from 'react';
+import React, { useLayoutEffect, useMemo } from 'react';
+import type { NextSeoProps } from 'next-seo/lib/types';
 import { useBookmarkFolder } from '@dailydotdev/shared/src/hooks/bookmark/useBookmarkFolder';
 import { useRouter } from 'next/router';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import {
   getBookmarkFeedLayout,
@@ -16,6 +19,8 @@ const seo: NextSeoProps = {
 
 const BookmarksPage = (): ReactElement => {
   const router = useRouter();
+  const { isAuthReady } = useAuthContext();
+  const { isPlus } = usePlusSubscription();
   const id = `${router.query.folderId}`;
   const {
     query: { folder, isPending, isReady },
@@ -33,10 +38,12 @@ const BookmarksPage = (): ReactElement => {
   const layout = getBookmarkFeedLayout(null, { seo }, props);
 
   useLayoutEffect(() => {
-    if (isReady && !isPending && !folder) {
+    const folderNotFound = !folder && isReady && !isPending;
+    const isNotPlus = !isPlus && isAuthReady;
+    if (folderNotFound || isNotPlus) {
       router.replace('/bookmarks');
     }
-  }, [folder, isPending, isReady, router]);
+  }, [folder, isAuthReady, isPending, isPlus, isReady, router]);
 
   if (!folder) {
     return null;

@@ -1,26 +1,23 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import React, { ReactElement, ReactNode } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
+import type { QueryClient } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { GrowthBook, GrowthBookProvider } from '@growthbook/growthbook-react';
-import { WidenPrimitives } from '@growthbook/growthbook';
-import AuthContext, { AuthContextData } from '../../src/contexts/AuthContext';
-import {
-  NotificationsContextProvider,
-  NotificationsContextProviderProps,
-} from '../../src/contexts/NotificationsContext';
-import SettingsContext, {
-  SettingsContextData,
-  ThemeMode,
-} from '../../src/contexts/SettingsContext';
-import {
-  AlertContextProvider,
-  AlertContextProviderProps,
-} from '../../src/contexts/AlertContext';
+import type { WidenPrimitives } from '@growthbook/growthbook';
+import type { AuthContextData } from '../../src/contexts/AuthContext';
+import AuthContext from '../../src/contexts/AuthContext';
+import type { NotificationsContextProviderProps } from '../../src/contexts/NotificationsContext';
+import { NotificationsContextProvider } from '../../src/contexts/NotificationsContext';
+import type { SettingsContextData } from '../../src/contexts/SettingsContext';
+import SettingsContext, { ThemeMode } from '../../src/contexts/SettingsContext';
+import type { AlertContextProviderProps } from '../../src/contexts/AlertContext';
+import { AlertContextProvider } from '../../src/contexts/AlertContext';
 import { FeaturesReadyContext } from '../../src/components/GrowthBookProvider';
 import { LazyModalElement } from '../../src/components/modals/LazyModalElement';
 import LogContext from '../../src/contexts/LogContext';
-import { LogContextData } from '../../src/hooks/log/useLogContextData';
+import type { LogContextData } from '../../src/hooks/log/useLogContextData';
 import { ChecklistViewState } from '../../src/lib/checklist';
 
 interface TestBootProviderProps {

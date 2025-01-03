@@ -1,6 +1,8 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { useDevCard } from '../../../hooks/profile/useDevCard';
-import { DevCard, DevCardProps } from './DevCard';
+import type { DevCardProps } from './DevCard';
+import { DevCard } from './DevCard';
 
 interface DevCardFetchWrapperProps extends Omit<DevCardProps, 'data'> {
   userId: string;

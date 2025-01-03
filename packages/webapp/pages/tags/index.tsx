@@ -1,10 +1,9 @@
-import React, { ReactElement, useMemo } from 'react';
-import { GetStaticPropsResult } from 'next';
-import { NextSeoProps } from 'next-seo/lib/types';
-import {
-  Keyword,
-  TAG_DIRECTORY_QUERY,
-} from '@dailydotdev/shared/src/graphql/keywords';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
+import type { GetStaticPropsResult } from 'next';
+import type { NextSeoProps } from 'next-seo/lib/types';
+import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
+import { TAG_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
 import { TagLink } from '@dailydotdev/shared/src/components/TagLinks';
 import { HashtagIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -15,6 +14,7 @@ import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { TagTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
+import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/common';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../../next-seo';
@@ -130,6 +130,7 @@ const TagsPage = ({
                     tag={tag.value}
                     className="!line-clamp-2 !h-auto py-1.5"
                     isSelected={selectedTags.includes(tag.value)}
+                    buttonProps={{ size: ButtonSize.Small }}
                   />
                 ))}
               </div>

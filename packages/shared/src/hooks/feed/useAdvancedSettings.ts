@@ -1,10 +1,11 @@
 import { useCallback, useMemo } from 'react';
-import useFeedSettings, { UseFeedSettingsProps } from '../useFeedSettings';
+import type { UseFeedSettingsProps } from '../useFeedSettings';
+import useFeedSettings from '../useFeedSettings';
 import { useAlertsContext } from '../../contexts/AlertContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import useMutateFilters from '../useMutateFilters';
-import { Source } from '../../graphql/sources';
+import type { Source } from '../../graphql/sources';
 import useTagAndSource from '../useTagAndSource';
 import { Origin } from '../../lib/log';
 
@@ -22,7 +23,7 @@ export const useAdvancedSettings = (
   const { user } = useAuthContext();
   const { feedSettings } = useFeedSettings(props);
   const { logEvent } = useLogContext();
-  const { updateAdvancedSettings } = useMutateFilters(user);
+  const { updateAdvancedSettings } = useMutateFilters(user, props?.feedId);
   const { alerts, updateAlerts } = useAlertsContext();
 
   const selectedSettings = useMemo(
@@ -76,6 +77,7 @@ export const useAdvancedSettings = (
 
   const { onUnblockSource, onBlockSource } = useTagAndSource({
     origin: Origin.SourcePage,
+    feedId: props?.feedId,
   });
 
   const onToggleSource = useCallback(

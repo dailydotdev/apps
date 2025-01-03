@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
-import { ChecklistStepPropsWithSquad } from '../../lib/checklist';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { ChecklistStepPropsWithSquad } from '../../lib/checklist';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ChecklistStep } from './ChecklistStep';
 import { EditIcon } from '../icons';

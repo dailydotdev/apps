@@ -11,7 +11,8 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import React, { PropsWithChildren, ReactElement } from 'react';
+import type { PropsWithChildren, ReactElement } from 'react';
+import React from 'react';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { useActions } from '@dailydotdev/shared/src/hooks';
 

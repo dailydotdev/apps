@@ -1,4 +1,5 @@
-import React, { ReactElement, useEffect, useRef } from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { useQueryClient } from '@tanstack/react-query';
 import { Modal } from '../common/Modal';
@@ -9,7 +10,7 @@ import {
   cloudinaryStreakSplash,
   cloudinaryStreakFire,
 } from '../../../lib/image';
-import { StreakModalProps } from './common';
+import type { StreakModalProps } from './common';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { generateQueryKey, RequestKey } from '../../../lib/query';

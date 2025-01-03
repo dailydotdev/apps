@@ -1,6 +1,8 @@
-import React, { MutableRefObject, ReactElement, ReactNode } from 'react';
+import type { MutableRefObject, ReactElement, ReactNode } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { Button, ButtonProps, ButtonVariant } from '../../buttons/Button';
+import type { ButtonProps } from '../../buttons/Button';
+import { Button, ButtonVariant } from '../../buttons/Button';
 import { PageHeader, PageHeaderTitle } from '../../layout/common';
 
 interface Copy {

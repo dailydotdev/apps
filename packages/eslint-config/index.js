@@ -44,6 +44,7 @@ module.exports = {
     'jsx-a11y/anchor-is-valid': 0,
     'react/no-danger': 0,
     '@typescript-eslint/return-await': 0,
+    '@typescript-eslint/consistent-type-imports': 'error',
     'tailwindcss/classnames-order': 'warn',
     'tailwindcss/no-contradicting-classname': 'error',
     'no-restricted-globals': [

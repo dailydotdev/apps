@@ -1,21 +1,23 @@
-import {
+import type {
   ContentPreference,
-  ContentPreferenceStatus,
   ContentPreferenceType,
 } from '../../graphql/contentPreference';
+import { ContentPreferenceStatus } from '../../graphql/contentPreference';
 import { RequestKey } from '../../lib/query';
-import { PropsParameters } from '../../types';
-import { UseMutationMatcher } from '../mutationSubscription/types';
+import type { PropsParameters } from '../../types';
+import type { UseMutationMatcher } from '../mutationSubscription/types';
 
 export type ContentPreferenceMutation = ({
   id,
   entity,
   entityName,
+  feedId,
   opts,
 }: {
   id: string;
   entity: ContentPreferenceType;
   entityName: string;
+  feedId?: string;
   opts?: Partial<{
     extra: Record<string, unknown>;
   }>;

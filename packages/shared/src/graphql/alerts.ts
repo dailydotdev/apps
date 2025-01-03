@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request';
-import { EmptyResponse } from './emptyResponse';
+import type { EmptyResponse } from './emptyResponse';
 import { gqlClient } from './common';
 
 export type Alerts = {

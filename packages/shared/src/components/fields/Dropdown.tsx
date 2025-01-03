@@ -1,7 +1,5 @@
+import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import React, {
-  CSSProperties,
-  ReactElement,
-  ReactNode,
   useEffect,
   useId,
   useLayoutEffect,
@@ -9,21 +7,17 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import {
-  Item,
-  Menu,
-  TriggerEvent,
-  useContextMenu,
-} from '@dailydotdev/react-contexify';
+import type { TriggerEvent } from '@dailydotdev/react-contexify';
+import { Item, Menu, useContextMenu } from '@dailydotdev/react-contexify';
 import { ArrowIcon, VIcon } from '../icons';
 import styles from './Dropdown.module.css';
 import { usePrevious, useViewSize, ViewSize } from '../../hooks';
 import { ListDrawer } from '../drawers/ListDrawer';
-import { SelectParams } from '../drawers/common';
+import type { SelectParams } from '../drawers/common';
 import { RootPortal } from '../tooltips/Portal';
-import { DrawerProps } from '../drawers';
+import type { DrawerProps } from '../drawers';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { IconProps } from '../Icon';
+import type { IconProps } from '../Icon';
 
 export interface DropdownClassName {
   container?: string;

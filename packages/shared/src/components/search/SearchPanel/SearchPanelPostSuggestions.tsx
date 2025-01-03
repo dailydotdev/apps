@@ -1,11 +1,13 @@
 import classNames from 'classnames';
-import React, { ReactElement, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
 import { useRouter } from 'next/router';
 import { SearchIcon } from '../../icons';
-import { SearchPanelItem, SearchPanelItemProps } from './SearchPanelItem';
+import type { SearchPanelItemProps } from './SearchPanelItem';
+import { SearchPanelItem } from './SearchPanelItem';
+import type { SearchSuggestion } from '../../../graphql/search';
 import {
   SearchProviderEnum,
-  SearchSuggestion,
   sanitizeSearchTitleMatch,
 } from '../../../graphql/search';
 import {

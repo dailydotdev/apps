@@ -1,5 +1,7 @@
-import React, { ReactElement, useEffect, useState } from 'react';
-import Feed, { FeedProps } from '@dailydotdev/shared/src/components/Feed';
+import type { ReactElement } from 'react';
+import React, { useEffect, useState } from 'react';
+import type { FeedProps } from '@dailydotdev/shared/src/components/Feed';
+import Feed from '@dailydotdev/shared/src/components/Feed';
 import {
   ANONYMOUS_FEED_QUERY,
   RankingAlgorithm,
@@ -32,7 +34,7 @@ import {
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { cloudinaryWelcomePageHeaderMainImage } from '@dailydotdev/shared/src/lib/image';
 import classNames from 'classnames';
-import { NextSeoProps } from 'next-seo';
+import type { NextSeoProps } from 'next-seo';
 import { useQueryClient } from '@tanstack/react-query';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { Pixels } from '@dailydotdev/shared/src/components/Pixels';

@@ -1,19 +1,18 @@
 import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/react';
-import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import nock from 'nock';
-import {
-  USER_READING_HISTORY_QUERY,
+import type {
   UserReadingRankHistory,
   MostReadTag,
   ProfileReadingData,
 } from '@dailydotdev/shared/src/graphql/users';
+import { USER_READING_HISTORY_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { QueryClient } from '@tanstack/react-query';
 import { startOfTomorrow, subDays, subYears } from 'date-fns';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';

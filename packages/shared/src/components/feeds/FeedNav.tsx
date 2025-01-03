@@ -1,16 +1,12 @@
 import classNames from 'classnames';
-import React, { ReactElement, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { useActiveFeedNameContext } from '../../contexts';
 import useActiveNav from '../../hooks/useActiveNav';
-import {
-  useFeeds,
-  usePlusSubscription,
-  useViewSize,
-  ViewSize,
-} from '../../hooks';
+import { useFeeds, useViewSize, ViewSize } from '../../hooks';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import {
   algorithmsList,
@@ -31,8 +27,7 @@ import classed from '../../lib/classed';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { OtherFeedPage } from '../../lib/query';
 import { ChecklistViewState } from '../../lib/checklist';
-import { LazyModal } from '../modals/common/types';
-import { useLazyModal } from '../../hooks/useLazyModal';
+import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 
 const OnboardingChecklistBar = dynamic(
   () =>
@@ -77,17 +72,21 @@ function FeedNav(): ReactElement {
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const { feeds } = useFeeds();
-  const { showPlusSubscription } = usePlusSubscription();
-  const { openModal } = useLazyModal();
+  const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
 
   const isHiddenOnboardingChecklistView =
     onboardingChecklistView === ChecklistViewState.Hidden;
 
   const urlToTab: Record<string, FeedNavTab> = useMemo(() => {
     const customFeeds = feeds?.edges?.reduce((acc, { node: feed }) => {
-      const feedPath = `${webappUrl}feeds/${feed.id}`;
       const isEditingFeed =
         router.query.slugOrId === feed.id && router.pathname.endsWith('/edit');
+      let feedPath = `${webappUrl}feeds/${feed.id}`;
+
+      if (!isEditingFeed && isCustomDefaultFeed && feed.id === defaultFeedId) {
+        feedPath = `${webappUrl}`;
+      }
+
       const urlPath = `${feedPath}${isEditingFeed ? '/edit' : ''}`;
 
       acc[urlPath] = feed.flags?.name || `Feed ${feed.id}`;
@@ -95,9 +94,11 @@ function FeedNav(): ReactElement {
       return acc;
     }, {});
 
+    const forYouTab = isCustomDefaultFeed ? `${webappUrl}my-feed` : webappUrl;
+
     const urls = {
       [`${webappUrl}feeds/new`]: FeedNavTab.NewFeed,
-      [`${webappUrl}`]: FeedNavTab.ForYou,
+      [forYouTab]: FeedNavTab.ForYou,
       ...customFeeds,
     };
 
@@ -111,7 +112,13 @@ function FeedNav(): ReactElement {
       [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
       [`${webappUrl}history`]: FeedNavTab.History,
     };
-  }, [feeds?.edges, router.query.slugOrId, router.pathname]);
+  }, [
+    feeds?.edges,
+    router.query.slugOrId,
+    router.pathname,
+    defaultFeedId,
+    isCustomDefaultFeed,
+  ]);
 
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
@@ -164,20 +171,9 @@ function FeedNav(): ReactElement {
 
             return null;
           }}
-          onActiveChange={(label, event) => {
-            if (showPlusSubscription && label === FeedNavTab.NewFeed) {
-              event.preventDefault();
-
-              openModal({ type: LazyModal.AdvancedCustomFeedSoon, props: {} });
-
-              return false;
-            }
-
-            return true;
-          }}
         >
           {Object.entries(urlToTab).map(([url, label]) => (
-            <Tab key={label} label={label} url={url} />
+            <Tab key={`${label}-${url}`} label={label} url={url} />
           ))}
         </TabContainer>
 

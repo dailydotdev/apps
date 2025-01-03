@@ -1,18 +1,20 @@
 import classNames from 'classnames';
-import React, { forwardRef, ReactElement, ReactNode, Ref } from 'react';
+import type { ReactElement, ReactNode, Ref } from 'react';
+import React, { forwardRef } from 'react';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
-import { TooltipProps } from '../tooltips/BaseTooltip';
+import type { TooltipProps } from '../tooltips/BaseTooltip';
 import { TruncateText } from '../utilities';
 import { ProfileTooltip } from './ProfileTooltip';
-import { LoggedUser, UserShortProfile } from '../../lib/user';
+import type { LoggedUser, UserShortProfile } from '../../lib/user';
 import { ReputationUserBadge } from '../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { FollowButton } from '../contentPreference/FollowButton';
-import { Origin } from '../../lib/log';
+import type { Origin } from '../../lib/log';
 import { Separator } from '../cards/common/common';
 import { TopReaderIn } from '../TopReaderIn';
 import { PlusUserBadge } from '../PlusUserBadge';
+import type { CopyType } from '../sources/SourceActions/SourceActionsFollow';
 
 type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? JSX.IntrinsicElements[Tag]
@@ -41,7 +43,10 @@ export interface UserShortInfoProps<
   transformUsername?(user: UserShortProfile): ReactNode;
   onClick?: () => void;
   showFollow?: boolean;
+  showSubscribe?: boolean;
+  copyType?: CopyType;
   origin?: Origin;
+  feedId?: string;
 }
 
 const defaultClassName = {
@@ -63,7 +68,10 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
     showDescription = true,
     transformUsername,
     showFollow,
+    showSubscribe,
+    copyType,
     origin,
+    feedId,
     ...props
   }: UserShortInfoProps<Tag> & Omit<PropsOf<Tag>, 'className'>,
   ref?: Ref<Tag>,
@@ -132,11 +140,14 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
       {children}
       {!!showFollow && (
         <FollowButton
-          userId={user.id}
+          showSubscribe={showSubscribe}
+          entityId={user.id}
           type={ContentPreferenceType.User}
           status={(user as LoggedUser).contentPreference?.status}
           entityName={`@${user.username}`}
           origin={origin}
+          copyType={copyType}
+          feedId={feedId}
         />
       )}
       {afterContent}

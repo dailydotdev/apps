@@ -1,4 +1,5 @@
-import useDebounceFn, { CancelEvent, StartFn } from '../useDebounceFn';
+import type { CancelEvent, StartFn } from '../useDebounceFn';
+import useDebounceFn from '../useDebounceFn';
 import { isValidHttpUrl } from '../../lib/links';
 
 export const useDebouncedUrl = (

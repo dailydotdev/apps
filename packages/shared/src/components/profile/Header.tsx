@@ -1,9 +1,10 @@
-import React, { CSSProperties, ReactElement, useState } from 'react';
+import type { CSSProperties, ReactElement } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
-import { PublicProfile } from '../../lib/user';
-import { SettingsIcon, ShareIcon } from '../icons';
+import { useRouter } from 'next/router';
+import type { PublicProfile } from '../../lib/user';
+import { SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { largeNumberFormat, ReferralCampaignKey } from '../../lib';
 import { ProfileSettingsMenu } from './ProfileSettingsMenu';
@@ -15,7 +16,9 @@ import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { UpgradeToPlus } from '../UpgradeToPlus';
 import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
-import { TargetId } from '../../lib/log';
+import { LogEvent, TargetId } from '../../lib/log';
+import CustomFeedOptionsMenu from '../CustomFeedOptionsMenu';
+import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -33,16 +36,11 @@ export function Header({
   className,
   style,
 }: HeaderProps): ReactElement {
-  const [, onShareOrCopyLink] = useShareOrCopyLink({
-    text: `Check out ${user.name}'s profile on daily.dev`,
-    link: user.permalink,
-    cid: ReferralCampaignKey.ShareProfile,
-    logObject: () => ({ event_name: 'share profile', target_id: user.id }),
-  });
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isPlus } = usePlusSubscription();
-
+  const { follow, unfollow } = useContentPreference();
+  const router = useRouter();
   const { data: contentPreference } = useContentPreferenceStatusQuery({
     id: user?.id,
     entity: ContentPreferenceType.User,
@@ -75,37 +73,67 @@ export function Header({
           <h2 className="mr-auto font-bold typo-body">Profile</h2>
         )}
       </>
-      {isSameUser && (
-        <Button
-          className="mr-2 hidden laptop:flex"
-          variant={ButtonVariant.Float}
-          size={ButtonSize.Small}
-          tag="a"
-          href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}account/profile`}
-        >
-          Edit profile
-        </Button>
-      )}
-      {isSameUser && !isPlus && (
-        <UpgradeToPlus
-          className="mr-2 max-w-fit laptop:hidden"
-          size={ButtonSize.Small}
-          target={TargetId.MyProfile}
+      <div className="flex flex-row gap-2">
+        {isSameUser && (
+          <Button
+            className="hidden laptop:flex"
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Small}
+            tag="a"
+            href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}account/profile`}
+          >
+            Edit profile
+          </Button>
+        )}
+        {isSameUser && !isPlus && (
+          <UpgradeToPlus
+            className="max-w-fit laptop:hidden"
+            size={ButtonSize.Small}
+            target={TargetId.MyProfile}
+          />
+        )}
+        <FollowButton
+          entityId={user.id}
+          type={ContentPreferenceType.User}
+          status={contentPreference?.status}
+          entityName={`@${user.username}`}
+          className="flex-row-reverse"
         />
-      )}
-      <Button
-        variant={ButtonVariant.Float}
-        size={ButtonSize.Small}
-        icon={<ShareIcon />}
-        onClick={() => onShareOrCopyLink()}
-      />
-      <FollowButton
-        userId={user.id}
-        type={ContentPreferenceType.User}
-        status={contentPreference?.status}
-        entityName={`@${user.username}`}
-        className="ml-2 flex-row-reverse"
-      />
+        {!isSameUser && (
+          <CustomFeedOptionsMenu
+            onAdd={(feedId) =>
+              follow({
+                id: user.id,
+                entity: ContentPreferenceType.User,
+                entityName: user.username,
+                feedId,
+              })
+            }
+            onUndo={(feedId) =>
+              unfollow({
+                id: user.id,
+                entity: ContentPreferenceType.User,
+                entityName: user.username,
+                feedId,
+              })
+            }
+            onCreateNewFeed={() =>
+              router.push(
+                `/feeds/new?entityId=${user.id}&entityType=${ContentPreferenceType.User}`,
+              )
+            }
+            shareProps={{
+              text: `Check out ${user.name}'s profile on daily.dev`,
+              link: user.permalink,
+              cid: ReferralCampaignKey.ShareProfile,
+              logObject: () => ({
+                event_name: LogEvent.ShareProfile,
+                target_id: user.id,
+              }),
+            }}
+          />
+        )}
+      </div>
       {isSameUser && (
         <>
           <Button

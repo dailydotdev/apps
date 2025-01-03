@@ -1,9 +1,16 @@
-import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
+import type { ReactElement, Ref } from 'react';
+import React, { forwardRef, useRef } from 'react';
 import classNames from 'classnames';
-import { Container, generateTitleClamp, PostCardProps } from '../common/common';
+import type { PostCardProps } from '../common/common';
+import { Container, generateTitleClamp } from '../common/common';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import FeedItemContainer from '../common/FeedItemContainer';
-import { FreeformCardTitle, getPostClassNames } from '../common/Card';
+import {
+  CardSpace,
+  CardTextContainer,
+  FreeformCardTitle,
+  getPostClassNames,
+} from '../common/Card';
 import CardOverlay from '../common/CardOverlay';
 import OptionsButton from '../../buttons/OptionsButton';
 import { SquadPostCardHeader } from '../common/SquadPostCardHeader';
@@ -63,19 +70,21 @@ export const FreeformGrid = forwardRef(function SharePostCard(
         enableSourceHeader={enableSourceHeader}
         bookmarked={post.bookmarked}
       />
-      <FreeformCardTitle
-        className={classNames(
-          generateTitleClamp({
-            hasImage: !!image,
-            hasHtmlContent: !!post.contentHtml,
-          }),
-        )}
-      >
-        {title}
-      </FreeformCardTitle>
+      <CardTextContainer>
+        <FreeformCardTitle
+          className={classNames(
+            generateTitleClamp({
+              hasImage: !!image,
+              hasHtmlContent: !!post.contentHtml,
+            }),
+          )}
+        >
+          {title}
+        </FreeformCardTitle>
+      </CardTextContainer>
       {!!post.author && (
         <>
-          {image && <div className="flex-1" />}
+          {image && <CardSpace />}
           <div
             className={classNames(
               'mx-2 mb-2 flex items-center',
@@ -86,7 +95,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
           </div>
           <PostMetadata
             className={classNames(
-              'mx-2 line-clamp-1 break-words',
+              'mx-4 line-clamp-1 break-words',
               image ? 'mt-0' : 'mt-1',
             )}
             createdAt={post.createdAt}

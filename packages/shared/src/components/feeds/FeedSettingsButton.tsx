@@ -1,14 +1,9 @@
-import React, { ReactElement } from 'react';
-import {
-  Button,
-  ButtonProps,
-  ButtonSize,
-  ButtonVariant,
-} from '../buttons/Button';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { ButtonProps } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
-import { LazyModal } from '../modals/common/types';
-import { useLazyModal } from '../../hooks/useLazyModal';
 import { FilterIcon } from '../icons';
 
 export function FeedSettingsButton({
@@ -17,15 +12,10 @@ export function FeedSettingsButton({
   ...props
 }: ButtonProps<'button'>): ReactElement {
   const { logEvent } = useLogContext();
-  const { openModal } = useLazyModal();
+
   const onButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     logEvent({ event_name: LogEvent.ManageTags });
-
-    if (onClick) {
-      onClick(event);
-    } else {
-      openModal({ type: LazyModal.FeedFilters, persistOnRouteChange: true });
-    }
+    onClick(event);
   };
 
   return (

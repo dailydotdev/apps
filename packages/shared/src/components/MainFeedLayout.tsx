@@ -1,6 +1,5 @@
+import type { ReactElement, ReactNode } from 'react';
 import React, {
-  ReactElement,
-  ReactNode,
   useCallback,
   useContext,
   useEffect,
@@ -10,9 +9,10 @@ import React, {
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import Feed, { FeedProps } from './Feed';
+import type { FeedProps } from './Feed';
+import Feed from './Feed';
 import AuthContext from '../contexts/AuthContext';
-import { LoggedUser } from '../lib/user';
+import type { LoggedUser } from '../lib/user';
 import { SharedFeedPage } from './utilities';
 import {
   ANONYMOUS_FEED_QUERY,
@@ -21,7 +21,6 @@ import {
   FOLLOWING_FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
-  PREVIEW_FEED_QUERY,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
@@ -46,7 +45,7 @@ import {
 } from '../hooks';
 import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
-import { FeedContainerProps } from './feeds';
+import type { FeedContainerProps } from './feeds';
 import { getFeedName } from '../lib/feed';
 import CommentFeed from './CommentFeed';
 import { COMMENT_FEED_QUERY } from '../graphql/comments';
@@ -55,6 +54,7 @@ import { Origin } from '../lib/log';
 import { ExploreTabs, tabToUrl, urlToTab } from './header';
 import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
+import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -81,10 +81,17 @@ const FollowingFeedEmptyScreen = dynamic(
     ),
 );
 
+const CustomFeedEmptyScreen = dynamic(() =>
+  import(
+    /* webpackChunkName: "customFeedEmptyScreen" */ './CustomFeedEmptyScreen'
+  ).then((mod) => mod.CustomFeedEmptyScreen),
+);
+
 type FeedQueryProps = {
   query: string;
   queryIfLogged?: string;
   variables?: Record<string, unknown>;
+  requestKey?: string;
 };
 
 const propsByFeed: Record<SharedFeedPage & OtherFeedPage, FeedQueryProps> = {
@@ -119,9 +126,12 @@ const propsByFeed: Record<SharedFeedPage & OtherFeedPage, FeedQueryProps> = {
   },
   [SharedFeedPage.Custom]: {
     query: CUSTOM_FEED_QUERY,
+    emptyScreen: <CustomFeedEmptyScreen />,
   },
   [SharedFeedPage.CustomForm]: {
-    query: PREVIEW_FEED_QUERY,
+    requestKey: SharedFeedPage.Custom,
+    query: CUSTOM_FEED_QUERY,
+    emptyScreen: <CustomFeedEmptyScreen />,
   },
   [OtherFeedPage.Following]: {
     query: FOLLOWING_FEED_QUERY,
@@ -190,6 +200,7 @@ export default function MainFeedLayout({
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
   });
+  const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const feedVersion = useFeature(feature.feedVersion);
   const {
@@ -224,14 +235,24 @@ export default function MainFeedLayout({
           feedId: router.query?.slugOrId as string,
         },
       },
+      [SharedFeedPage.CustomForm]: {
+        // when editing main feed load feed query
+        queryIfLogged:
+          router.query?.slugOrId === user?.id ? FEED_QUERY : CUSTOM_FEED_QUERY,
+        variables: {
+          feedId: (router.query?.slugOrId as string) || user?.id,
+        },
+      },
     };
 
     return {
+      requestKey: propsByFeed[feedName].requestKey,
       query: getQueryBasedOnLogin(
         tokenRefreshed,
         user,
-        propsByFeed[feedName].query,
-        propsByFeed[feedName].queryIfLogged,
+        dynamicPropsByFeed[feedName]?.query || propsByFeed[feedName].query,
+        dynamicPropsByFeed[feedName]?.queryIfLogged ||
+          propsByFeed[feedName].queryIfLogged,
       ),
       variables: {
         ...propsByFeed[feedName].variables,
@@ -270,6 +291,29 @@ export default function MainFeedLayout({
     // so returning false so feed does not do any requests
     if (isSearchOn && !searchQuery) {
       return null;
+    }
+
+    if (feedNameProp === 'default' && isCustomDefaultFeed) {
+      return {
+        feedName: SharedFeedPage.Custom,
+        feedQueryKey: generateQueryKey(
+          SharedFeedPage.Custom,
+          user,
+          defaultFeedId,
+        ),
+        query: CUSTOM_FEED_QUERY,
+        variables: {
+          feedId: user.defaultFeedId,
+          feedName: SharedFeedPage.Custom,
+        },
+        emptyScreen: propsByFeed[feedName].emptyScreen || <FeedEmptyScreen />,
+        actionButtons: feedWithActions && (
+          <SearchControlHeader
+            algoState={[selectedAlgo, setSelectedAlgo]}
+            feedName={feedName}
+          />
+        ),
+      };
     }
 
     if (isSearchOn && searchQuery) {
@@ -328,7 +372,7 @@ export default function MainFeedLayout({
     return {
       feedName,
       feedQueryKey: generateQueryKey(
-        feedName,
+        config.requestKey || feedName,
         user,
         ...Object.values(variables ?? {}),
       ),
@@ -362,6 +406,10 @@ export default function MainFeedLayout({
     selectedPeriod,
     setSelectedAlgo,
     router.pathname,
+    isCustomDefaultFeed,
+    feedNameProp,
+    defaultFeedId,
+    config.requestKey,
   ]);
 
   useEffect(() => {

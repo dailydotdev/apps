@@ -1,7 +1,8 @@
-import { MutableRefObject, useEffect, useRef } from 'react';
+import type { MutableRefObject } from 'react';
+import { useEffect, useRef } from 'react';
 import listenToLifecycleEvents from '../../lib/lifecycle';
-import { LogContextData } from './useLogContextData';
-import { LogEvent } from './useLogQueue';
+import type { LogContextData } from './useLogContextData';
+import type { LogEvent } from './useLogQueue';
 
 const ACTIVE_STATES = ['active', 'passive'];
 

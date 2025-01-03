@@ -1,10 +1,13 @@
-import React, { ReactElement } from 'react';
-import { Modal, ModalProps, modalSizeToClassName } from './common/Modal';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { ModalProps } from './common/Modal';
+import { Modal, modalSizeToClassName } from './common/Modal';
 import { PostContent } from '../post/PostContent';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import BasePostModal from './BasePostModal';
-import { Post, PostType } from '../../graphql/posts';
-import { PassedPostNavigationProps } from '../post/common';
+import type { Post } from '../../graphql/posts';
+import { PostType } from '../../graphql/posts';
+import type { PassedPostNavigationProps } from '../post/common';
 import { Origin } from '../../lib/log';
 
 interface ArticlePostModalProps extends ModalProps, PassedPostNavigationProps {

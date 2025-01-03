@@ -1,9 +1,5 @@
-import React, {
-  CSSProperties,
-  forwardRef,
-  MutableRefObject,
-  ReactElement,
-} from 'react';
+import type { CSSProperties, MutableRefObject, ReactElement } from 'react';
+import React, { forwardRef } from 'react';
 import classed from '../../lib/classed';
 
 const PointerContainer = classed('div', 'h-5 z-3 flex flex-col items-center');

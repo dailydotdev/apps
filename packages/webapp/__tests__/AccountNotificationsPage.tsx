@@ -1,25 +1,24 @@
 import React from 'react';
 import nock from 'nock';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import type { RenderResult } from '@testing-library/react';
 import {
   act,
   fireEvent,
   render,
-  RenderResult,
   screen,
   waitFor,
 } from '@testing-library/react';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
-import { BootApp, Visit } from '@dailydotdev/shared/src/lib/boot';
+import type { Visit } from '@dailydotdev/shared/src/lib/boot';
+import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
-import { UpdateProfileParameters } from '@dailydotdev/shared/src/hooks/useProfileForm';
+import type { UpdateProfileParameters } from '@dailydotdev/shared/src/hooks/useProfileForm';
 import {
   GET_PERSONALIZED_DIGEST_SETTINGS,
   SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,

@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import Primary from './primary.svg';
 import type { IconProps } from '../../../Icon';
 import Icon from '../../../Icon';

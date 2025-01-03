@@ -1,14 +1,14 @@
 import { useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { BookmarkFolder } from '../../graphql/bookmarks';
 import {
-  BookmarkFolder,
   deleteBookmarkFolder,
   updateBookmarkFolder,
 } from '../../graphql/bookmarks';
 import { useBookmarkFolderList } from './useBookmarkFolderList';
 import { useToastNotification } from '../useToastNotification';
 import { generateQueryKey, RequestKey } from '../../lib/query';
-import { EmptyResponse } from '../../graphql/emptyResponse';
+import type { EmptyResponse } from '../../graphql/emptyResponse';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 

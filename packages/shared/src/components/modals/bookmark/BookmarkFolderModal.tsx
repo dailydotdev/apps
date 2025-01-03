@@ -1,7 +1,9 @@
-import React, { type FormEvent, type ReactElement, useState } from 'react';
+import type { FormEvent, ReactElement } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { usePlusSubscription, useViewSize, ViewSize } from '../../../hooks';
-import { Modal, type ModalProps } from '../common/Modal';
+import type { ModalProps } from '../common/Modal';
+import { Modal } from '../common/Modal';
 import { TextField } from '../../fields/TextField';
 import {
   Typography,
@@ -11,71 +13,16 @@ import {
 } from '../../typography/Typography';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { DevPlusIcon, FolderIcon } from '../../icons';
-import { plusUrl } from '../../../lib/constants';
+import { emojiOptions, plusUrl } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { IconSize } from '../../Icon';
 import { ModalHeader } from '../common/ModalHeader';
-import { BookmarkFolder } from '../../../graphql/bookmarks';
+import type { BookmarkFolder } from '../../../graphql/bookmarks';
 
 type BookmarkFolderModalProps = Omit<ModalProps, 'children'> & {
   onSubmit: (folder: BookmarkFolder) => void;
   folder?: BookmarkFolder;
-  folderCount?: number;
-};
-
-const emojiOptions = [
-  '',
-  '🐹',
-  '🐍',
-  '☕️',
-  '🔥',
-  '📦',
-  '⚙️',
-  '🐙',
-  '🐳',
-  '💡',
-  '📜',
-  '🚀',
-];
-
-const createFirstFolder =
-  'You can create your first folder for free! Organize your bookmarks and see how it works. To unlock unlimited folders,';
-const getMoreFolders =
-  "You've used your free folder. To create more and keep your bookmarks perfectly organized,";
-
-const PlusCTA = ({ folderCount }: { folderCount: number }) => {
-  const { logSubscriptionEvent } = usePlusSubscription();
-
-  return (
-    <Typography type={TypographyType.Callout} color={TypographyColor.Secondary}>
-      <span>{folderCount === 0 ? createFirstFolder : getMoreFolders}</span>{' '}
-      <Button
-        className="h-fit border-0 !p-0"
-        variant={ButtonVariant.Option}
-        tag="a"
-        type="button"
-        target="_blank"
-        href={plusUrl}
-        rel={anchorDefaultRel}
-        onClick={() => {
-          logSubscriptionEvent({
-            event_name: LogEvent.UpgradeSubscription,
-            target_id: TargetId.BookmarkFolder,
-          });
-        }}
-      >
-        <Typography
-          tag={TypographyTag.Span}
-          type={TypographyType.Callout}
-          color={TypographyColor.Plus}
-          className="underline"
-        >
-          upgrade to Plus
-        </Typography>
-      </Button>
-    </Typography>
-  );
 };
 
 const ModalTitle = () => (
@@ -97,14 +44,13 @@ const ModalTitle = () => (
 const BookmarkFolderModal = ({
   folder,
   onSubmit,
-  folderCount = 0,
   ...rest
 }: BookmarkFolderModalProps): ReactElement => {
   const [icon, setIcon] = useState(folder?.icon || '');
-  const { isPlus } = usePlusSubscription();
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const [name, setName] = useState(folder?.name || '');
   const isMobile = useViewSize(ViewSize.MobileL);
-  const shouldUpgrade = !isPlus && folderCount > 0;
+  const shouldUpgrade = !isPlus;
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -125,7 +71,7 @@ const BookmarkFolderModal = ({
         ),
         rightButtonProps: {
           variant: ButtonVariant.Primary,
-          disabled: name.length === 0,
+          disabled: name.length === 0 || shouldUpgrade,
         },
         copy: { right: `${folder ? 'Update' : 'Create'} folder` },
       }}
@@ -138,16 +84,46 @@ const BookmarkFolderModal = ({
           <ModalTitle />
         </ModalHeader>
         <Modal.Body className="flex flex-col gap-5 tablet:gap-4">
-          {!isPlus && <PlusCTA folderCount={folderCount} />}
+          {shouldUpgrade && (
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Secondary}
+            >
+              To keep your bookmarks perfectly organized in folders, {` `}
+              <Button
+                className="h-fit border-0 !p-0"
+                variant={ButtonVariant.Option}
+                tag="a"
+                target="_blank"
+                href={plusUrl}
+                rel={anchorDefaultRel}
+                onClick={() => {
+                  logSubscriptionEvent({
+                    event_name: LogEvent.UpgradeSubscription,
+                    target_id: TargetId.BookmarkFolder,
+                  });
+                }}
+              >
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Plus}
+                  className="underline"
+                >
+                  upgrade to Plus
+                </Typography>
+              </Button>
+            </Typography>
+          )}
           <TextField
-            maxLength={50}
-            label="Give your folder a name..."
-            name="name"
+            autoComplete="off"
+            autoFocus={!shouldUpgrade}
             inputId="newFolder"
+            label="Give your folder a name..."
+            maxLength={50}
+            name="name"
             onChange={(e) => setName(e.target.value)}
             value={name}
-            autoComplete="off"
-            autoFocus
           />
           <Typography bold type={TypographyType.Body}>
             Choose an icon
@@ -182,21 +158,35 @@ const BookmarkFolderModal = ({
               </Button>
             ))}
           </ul>
-          {!isMobile && (
-            <Button
-              type="submit"
-              disabled={name.length === 0}
-              variant={ButtonVariant.Primary}
-            >
-              {shouldUpgrade ? (
-                <>
-                  <DevPlusIcon /> Upgrade to plus
-                </>
-              ) : (
-                `${folder ? 'Update' : 'Create'} folder`
-              )}
-            </Button>
-          )}
+          {!isMobile &&
+            (shouldUpgrade ? (
+              <Button
+                tag="a"
+                target="_blank"
+                href={plusUrl}
+                rel={anchorDefaultRel}
+                onClick={() => {
+                  logSubscriptionEvent({
+                    event_name: LogEvent.UpgradeSubscription,
+                    target_id: TargetId.BookmarkFolder,
+                  });
+                }}
+                variant={ButtonVariant.Primary}
+              >
+                <span className="flex gap-1">
+                  <DevPlusIcon className="text-action-plus-default" /> Upgrade
+                  to plus
+                </span>
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                disabled={name.length === 0}
+                variant={ButtonVariant.Primary}
+              >
+                {folder ? 'Update' : 'Create'} folder
+              </Button>
+            ))}
         </Modal.Body>
       </form>
     </Modal>

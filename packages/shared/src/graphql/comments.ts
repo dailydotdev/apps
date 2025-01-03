@@ -1,11 +1,11 @@
 import { gql } from 'graphql-request';
-import { Connection, gqlClient } from './common';
+import type { Connection, gqlClient } from './common';
 import { COMMENT_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
-import { EmptyResponse } from './emptyResponse';
-import { UserShortProfile } from '../lib/user';
+import type { EmptyResponse } from './emptyResponse';
+import type { UserShortProfile } from '../lib/user';
 import type { Post, UserVote } from './posts';
-import { Company } from '../lib/userCompany';
-import { ContentPreference } from './contentPreference';
+import type { Company } from '../lib/userCompany';
+import type { ContentPreference } from './contentPreference';
 import type { TopReader } from '../components/badges/TopReaderBadge';
 
 export interface Author {

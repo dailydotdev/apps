@@ -1,14 +1,13 @@
-import React, { FormEventHandler, MutableRefObject, ReactElement } from 'react';
+import type { FormEventHandler, MutableRefObject, ReactElement } from 'react';
+import React from 'react';
 import {
   Button,
   ButtonColor,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { UserIcon, SitesIcon } from '@dailydotdev/shared/src/components/icons';
-import {
-  Modal,
-  ModalProps,
-} from '@dailydotdev/shared/src/components/modals/common/Modal';
+import type { ModalProps } from '@dailydotdev/shared/src/components/modals/common/Modal';
+import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { Justify } from '@dailydotdev/shared/src/components/utilities';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { CardSelection } from '../CardSelection';

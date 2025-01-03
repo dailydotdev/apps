@@ -1,11 +1,11 @@
-import React, {
+import type {
   ComponentPropsWithoutRef,
-  forwardRef,
   ReactElement,
   ReactNode,
   Ref,
   SyntheticEvent,
 } from 'react';
+import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 
 export interface LazyImageProps extends ComponentPropsWithoutRef<'img'> {

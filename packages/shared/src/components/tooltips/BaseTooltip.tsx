@@ -1,13 +1,15 @@
-import React, { useState, ReactElement, Ref } from 'react';
-import Tippy, { TippyProps } from '@tippyjs/react';
+import type { ReactElement, Ref } from 'react';
+import React, { useState } from 'react';
+import type { TippyProps } from '@tippyjs/react';
+import Tippy from '@tippyjs/react';
 import styles from './BaseTooltip.module.css';
 import { isTouchDevice } from '../../lib/tooltip';
 import { isTesting } from '../../lib/constants';
-import {
-  BaseTooltipContainer,
+import type {
   BaseTooltipContainerProps,
   TooltipPosition,
 } from './BaseTooltipContainer';
+import { BaseTooltipContainer } from './BaseTooltipContainer';
 
 const DEFAULT_DELAY_MS = 300;
 const DEFAULT_DURATION = 200;

@@ -1,7 +1,8 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '@testing-library/jest-dom';
-import { render, RenderResult, screen } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
 import { ExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
 import { contentScriptKey } from '@dailydotdev/shared/src/hooks';

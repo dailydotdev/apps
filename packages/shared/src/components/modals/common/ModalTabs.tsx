@@ -1,13 +1,17 @@
 import classNames from 'classnames';
-import React, { ReactElement, useContext } from 'react';
-import { ModalPropsContext, ModalTabItem, modalTabTitle } from './types';
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
+import type { ModalTabItem } from './types';
+import { ModalPropsContext, modalTabTitle } from './types';
 
 export type ModalTabsProps = {
+  className?: string;
   disabledTab?: (tab: string) => boolean;
   onTabClick?: (tab: string) => void;
 };
 
 export function ModalTabs({
+  className,
   disabledTab,
   onTabClick,
 }: ModalTabsProps): ReactElement {
@@ -18,7 +22,7 @@ export function ModalTabs({
   };
 
   return (
-    <ul className="flex flex-row gap-4">
+    <ul className={classNames(className, 'flex flex-row gap-4')}>
       {tabs.map((tab: string | ModalTabItem) => {
         const tabTitle = modalTabTitle(tab);
         const disabled = !!disabledTab?.(tabTitle);

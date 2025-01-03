@@ -1,5 +1,7 @@
-import React, { ReactElement } from 'react';
-import { SourceMember, SourceMemberRole } from '../../graphql/sources';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { SourceMember } from '../../graphql/sources';
+import { SourceMemberRole } from '../../graphql/sources';
 import { useAuthContext } from '../../contexts/AuthContext';
 import SquadMemberBadge from './SquadMemberBadge';
 

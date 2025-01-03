@@ -1,10 +1,13 @@
-import React, { ReactElement } from 'react';
-import { SourceMember, SourceMemberRole } from '../../graphql/sources';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { SourceMember } from '../../graphql/sources';
+import { SourceMemberRole } from '../../graphql/sources';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { BlockIcon, MenuIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
+import type { PromptOptions } from '../../hooks/usePrompt';
+import { usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
 import { useToastNotification } from '../../hooks';
 

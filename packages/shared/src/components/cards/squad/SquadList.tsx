@@ -1,7 +1,8 @@
-import React, { ComponentProps, ReactElement } from 'react';
+import type { ComponentProps, ReactElement } from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { Squad } from '../../../graphql/sources';
+import type { Squad } from '../../../graphql/sources';
 import {
   Typography,
   TypographyColor,

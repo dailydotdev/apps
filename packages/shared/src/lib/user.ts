@@ -1,7 +1,7 @@
 import { apiUrl, graphqlUrl } from './config';
+import type { ProfileV2 } from '../graphql/users';
 import {
   PROFILE_V2_EXTRA_QUERY,
-  ProfileV2,
   USER_BY_ID_STATIC_FIELDS_QUERY,
 } from '../graphql/users';
 import type { Company } from './userCompany';
@@ -91,6 +91,7 @@ export interface UserProfile {
   language?: ContentLanguage;
   followingEmail?: boolean;
   followNotifications?: boolean;
+  defaultFeedId?: string;
 }
 
 export interface UserShortProfile
@@ -132,6 +133,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   isPlus?: boolean;
   companies?: Company[];
   contentPreference?: ContentPreference;
+  defaultFeedId?: string;
 }
 
 interface BaseError {

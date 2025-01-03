@@ -1,20 +1,20 @@
-import React, { ReactElement, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import { QueryClient, QueryKey, useQueryClient } from '@tanstack/react-query';
-import { ReadHistoryPost } from '../graphql/posts';
+import type { QueryClient, QueryKey } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import type { ReadHistoryPost } from '../graphql/posts';
 import { ShareIcon, BookmarkIcon, MiniCloseIcon as XIcon } from './icons';
-import {
-  UseBookmarkPostRollback,
-  useBookmarkPost,
-} from '../hooks/useBookmarkPost';
+import type { UseBookmarkPostRollback } from '../hooks/useBookmarkPost';
+import { useBookmarkPost } from '../hooks/useBookmarkPost';
 import AuthContext from '../contexts/AuthContext';
-import {
+import type {
   ReadHistoryInfiniteData,
   ReadHistoryData,
 } from '../hooks/useInfiniteReadingHistory';
 import { MenuIcon } from './MenuIcon';
-import { QueryIndexes } from '../hooks/useReadingHistory';
+import type { QueryIndexes } from '../hooks/useReadingHistory';
 import {
   generateQueryKey,
   RequestKey,

@@ -1,11 +1,9 @@
-import React, { ReactElement } from 'react';
-import {
-  Drawer,
-  DrawerPosition,
-  DrawerRef,
-  DrawerWrapperProps,
-} from './Drawer';
-import { NavDrawerItem, NavItemProps } from './NavDrawerItem';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { DrawerRef, DrawerWrapperProps } from './Drawer';
+import { Drawer, DrawerPosition } from './Drawer';
+import type { NavItemProps } from './NavDrawerItem';
+import { NavDrawerItem } from './NavDrawerItem';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
 import classed from '../../lib/classed';

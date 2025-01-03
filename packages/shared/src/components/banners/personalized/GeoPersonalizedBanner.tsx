@@ -1,4 +1,5 @@
-import React, { type ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { geoToCountry, geoToEmoji } from '../../../lib/geo';
 import { AuthenticationBanner, OnboardingHeadline } from '../../auth';
 

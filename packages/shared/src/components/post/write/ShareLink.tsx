@@ -1,19 +1,21 @@
-import React, { FormEventHandler, ReactElement, useState } from 'react';
+import type { FormEventHandler, ReactElement } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import { Squad } from '../../../graphql/sources';
+import type { Squad } from '../../../graphql/sources';
 import MarkdownInput from '../../fields/MarkdownInput';
 import { WriteFooter } from './WriteFooter';
 import { SubmitExternalLink } from './SubmitExternalLink';
 import { usePostToSquad } from '../../../hooks';
 import { useToastNotification } from '../../../hooks/useToastNotification';
-import { Post, PostType } from '../../../graphql/posts';
+import type { Post } from '../../../graphql/posts';
+import { PostType } from '../../../graphql/posts';
 import { WriteLinkPreview } from './WriteLinkPreview';
 import { generateDefaultSquad } from './SquadsDropdown';
 import { useSquadCreate } from '../../../hooks/squads/useSquadCreate';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import useSourcePostModeration from '../../../hooks/source/useSourcePostModeration';
-import { SourcePostModeration } from '../../../graphql/squads';
+import type { SourcePostModeration } from '../../../graphql/squads';
 
 interface ShareLinkProps {
   squad: Squad;

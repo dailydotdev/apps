@@ -1,12 +1,9 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import Link from './utilities/Link';
-import {
-  Button,
-  ButtonProps,
-  ButtonSize,
-  ButtonVariant,
-} from './buttons/Button';
+import type { ButtonProps } from './buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { AlertDot, AlertColor } from './AlertDot';
 import { getTagPageLink } from '../lib/links';
 
@@ -27,7 +24,7 @@ export function TagLink({
     <Link href={getTagPageLink(tag)} passHref key={tag} prefetch={false}>
       <Button
         tag="a"
-        size={ButtonSize.Small}
+        size={ButtonSize.XSmall}
         variant={ButtonVariant.Float}
         className={classNames('relative', className)}
         {...buttonProps}

@@ -1,10 +1,11 @@
-import { FeedItem, PostItem } from '../hooks/useFeed';
-import { Ad, Post, ReadHistoryPost } from '../graphql/posts';
-import { LogEvent } from '../hooks/log/useLogQueue';
-import { PostBootData } from './boot';
+import type { FeedItem, PostItem } from '../hooks/useFeed';
+import type { Ad, Post, ReadHistoryPost } from '../graphql/posts';
+import type { LogEvent } from '../hooks/log/useLogQueue';
+import type { PostBootData } from './boot';
 import { Origin } from './log';
 import { SharedFeedPage } from '../components/utilities';
-import { AllFeedPages, OtherFeedPage } from './query';
+import type { AllFeedPages } from './query';
+import { OtherFeedPage } from './query';
 
 export function optimisticPostUpdateInFeed(
   items: FeedItem[],
@@ -168,6 +169,7 @@ export function adLogEvent(
 export interface GetDefaultFeedProps {
   hasFiltered?: boolean;
   hasUser?: boolean;
+  isMyFeed?: boolean;
 }
 
 export const getDefaultFeed = ({
@@ -201,9 +203,10 @@ export const getFeedName = (
     return OtherFeedPage.UserPosts;
   }
   if (feed.startsWith('feeds')) {
-    const isForm = ['new', 'edit'].some((item) => feed.endsWith(item));
+    const isMyFeedEdit =
+      ['edit'].some((item) => feed.endsWith(item)) && options.isMyFeed;
 
-    return isForm ? SharedFeedPage.CustomForm : SharedFeedPage.Custom;
+    return isMyFeedEdit ? SharedFeedPage.MyFeed : SharedFeedPage.Custom;
   }
 
   const [page] = feed.split('?');
