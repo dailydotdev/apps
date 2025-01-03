@@ -11,10 +11,42 @@ import { usePlusSubscription } from '../../../hooks';
 import { webappUrl } from '../../../lib/constants';
 import { DevPlusIcon } from '../../icons';
 import { LogEvent, TargetId } from '../../../lib/log';
+import { FeedType } from '../../../graphql/feed';
+
+const SaveButton = ({ activeView }: { activeView: string }): ReactElement => {
+  const { onSubmit, isSubmitPending, isDirty, onBackToFeed } = useContext(
+    FeedSettingsEditContext,
+  );
+
+  if (activeView !== 'General') {
+    return (
+      <Button
+        type="submit"
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Primary}
+        onClick={onBackToFeed}
+      >
+        Save
+      </Button>
+    );
+  }
+
+  return (
+    <Button
+      type="submit"
+      size={ButtonSize.Small}
+      variant={ButtonVariant.Primary}
+      loading={isSubmitPending}
+      onClick={onSubmit}
+      disabled={!isDirty}
+    >
+      Save
+    </Button>
+  );
+};
 
 export const FeedSettingsEditHeader = (): ReactElement => {
-  const { onSubmit, onDiscard, isSubmitPending, isDirty, onBackToFeed } =
-    useContext(FeedSettingsEditContext);
+  const { onDiscard, onBackToFeed, feed } = useContext(FeedSettingsEditContext);
   const { activeView, setActiveView } = useContext(ModalPropsContext);
   const isMobile = useViewSizeClient(ViewSize.MobileL);
   const { isEnrolledNotPlus, logSubscriptionEvent } = usePlusSubscription();
@@ -51,7 +83,7 @@ export const FeedSettingsEditHeader = (): ReactElement => {
         >
           Cancel
         </Button>
-        {isEnrolledNotPlus ? (
+        {isEnrolledNotPlus && feed?.type === FeedType.Custom ? (
           <Button
             tag="a"
             type="button"
@@ -69,16 +101,7 @@ export const FeedSettingsEditHeader = (): ReactElement => {
             Upgrade to Plus
           </Button>
         ) : (
-          <Button
-            type="submit"
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Primary}
-            loading={isSubmitPending}
-            onClick={onSubmit}
-            disabled={!isDirty}
-          >
-            Save
-          </Button>
+          <SaveButton activeView={activeView} />
         )}
       </div>
     </Modal.Header>

@@ -1,3 +1,4 @@
+import type { InfiniteData } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { MouseEventHandler } from 'react';
 import { useCallback } from 'react';
@@ -22,6 +23,7 @@ import { LogEvent } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
 import type { Post } from '../../graphql/posts';
+import type { Connection } from '../../graphql/common';
 
 export const rejectReasons: { value: PostModerationReason; label: string }[] = [
   {
@@ -103,12 +105,44 @@ export const useSourceModerationList = ({
   );
   const squadQueryKey = generateQueryKey(RequestKey.Squad, user, squad.handle);
 
-  const invalidateQueries = () => {
-    Promise.all([
-      queryClient.invalidateQueries({ queryKey: listQueryKey }),
-      queryClient.invalidateQueries({ queryKey: squadQueryKey }),
-    ]);
-  };
+  const handleOptimistic = useCallback(
+    (data: SquadPostModerationProps) => {
+      const currentData =
+        queryClient.getQueryData<
+          InfiniteData<Connection<SourcePostModeration>>
+        >(listQueryKey);
+
+      const currentSquad = queryClient.getQueryData<Squad>(squadQueryKey);
+      queryClient.setQueryData<Squad>(squadQueryKey, (sqd) => {
+        return {
+          ...sqd,
+          moderationPostCount:
+            currentSquad.moderationPostCount - data.postIds.length,
+        };
+      });
+
+      queryClient.setQueryData<InfiniteData<Connection<SourcePostModeration>>>(
+        listQueryKey,
+        (oldData) => {
+          if (!oldData) {
+            return oldData;
+          }
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              edges: page.edges.filter(
+                (edge) => !data.postIds.includes(edge.node.id),
+              ),
+            })),
+          };
+        },
+      );
+
+      return { currentData, currentSquad };
+    },
+    [queryClient, listQueryKey, squadQueryKey],
+  );
 
   const {
     mutateAsync: onApprove,
@@ -120,21 +154,22 @@ export const useSourceModerationList = ({
         postIds,
         sourceId,
       }),
+    onMutate: (data) => handleOptimistic(data),
     onSuccess: (data) => {
       displayToast('Post(s) approved successfully');
       getLogPostsFromModerationArray(data).forEach((post) => {
         logEvent(postLogEvent(LogEvent.ApprovePost, post));
       });
-      invalidateQueries();
     },
-    onError: (_, variables) => {
+    onError: (_, variables, context) => {
       if (variables.postIds.length > 50) {
         displayToast(
           'Failed to approve post(s). Please approve maximum 50 posts at a time',
         );
         return;
       }
-
+      queryClient.setQueryData(listQueryKey, context.currentData);
+      queryClient.setQueryData(squadQueryKey, context.currentSquad);
       displayToast('Failed to approve post(s)');
     },
   });
@@ -167,12 +202,16 @@ export const useSourceModerationList = ({
     isSuccess: isSuccessReject,
   } = useMutation({
     mutationFn: (props: SquadPostRejectionProps) => squadRejectMutation(props),
+    onMutate: (data) => handleOptimistic(data),
     onSuccess: (data) => {
       displayToast('Post(s) declined successfully');
       getLogPostsFromModerationArray(data).forEach((post) => {
         logEvent(postLogEvent(LogEvent.RejectPost, post));
       });
-      invalidateQueries();
+    },
+    onError: (_, __, context) => {
+      queryClient.setQueryData(listQueryKey, context.currentData);
+      queryClient.setQueryData(squadQueryKey, context.currentSquad);
     },
   });
 
@@ -200,7 +239,6 @@ export const useSourceModerationList = ({
     mutationFn: (postId: string) => deletePendingPostMutation(postId),
     onSuccess: () => {
       displayToast('Post deleted successfully');
-      invalidateQueries();
     },
   });
 
