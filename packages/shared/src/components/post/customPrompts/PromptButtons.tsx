@@ -18,7 +18,7 @@ import { IconSize } from '../../Icon';
 import { usePromptsQuery } from '../../../hooks/prompt/usePromptsQuery';
 import { ElementPlaceholder } from '../../ElementPlaceholder';
 import type { PromptFlags } from '../../../graphql/prompt';
-import { PromptDisplay } from './CustomPrompt';
+import { PromptDisplay } from '../../../graphql/prompt';
 import { usePromptButtons } from '../../../hooks/feed/usePromptButtons';
 import { useViewSize, ViewSize } from '../../../hooks';
 

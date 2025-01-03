@@ -8,20 +8,7 @@ import { PromptButtons } from './PromptButtons';
 import { TargetId } from '../../../lib/log';
 import { PostUpgradeToPlus } from '../../plus/PostUpgradeToPlus';
 import ShowMoreContent from '../../cards/common/ShowMoreContent';
-
-export enum PromptDisplay {
-  TLDR = 'tldr',
-  UpgradeToPlus = 'upgrade-to-plus',
-  ActionableSteps = 'actionable-steps',
-  ChallengeThis = 'challenge-this',
-  CompareAlternatives = 'compare-alternatives',
-  CustomPrompt = 'custom-prompt',
-  ExtractCode = 'extract-code',
-  PracticalExamples = 'practical-examples',
-  RemoveFluff = 'remove-fluff',
-  SimplifyIt = 'simplify-it',
-  SkillsNeeded = 'skills-needed',
-}
+import { PromptDisplay } from '../../../graphql/prompt';
 
 export const CustomPrompt = ({ post }: { post: Post }): ReactElement => {
   const { isPlus, showPlusSubscription } = usePlusSubscription();
