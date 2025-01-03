@@ -54,14 +54,14 @@ const PromptButton = forwardRef(
 PromptButton.displayName = 'PromptButton';
 
 type PromptButtonsProps = {
-  activeDisplay: PromptDisplay;
-  setActiveDisplay: (display: string) => void;
+  activePrompt: string;
+  setActivePrompt: (prompt: string) => void;
   width: number;
 };
 
 export const PromptButtons = ({
-  activeDisplay,
-  setActiveDisplay,
+  activePrompt,
+  setActivePrompt,
   width,
 }: PromptButtonsProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -93,9 +93,9 @@ export const PromptButtons = ({
   return (
     <div className="no-scrollbar flex gap-x-1 gap-y-2 overflow-x-auto tablet:flex-wrap">
       <PromptButton
-        active={activeDisplay === PromptDisplay.TLDR}
+        active={activePrompt === PromptDisplay.TLDR}
         flags={{ icon: 'TLDR', color: ColorName.Cabbage }}
-        onClick={() => setActiveDisplay(PromptDisplay.TLDR)}
+        onClick={() => setActivePrompt(PromptDisplay.TLDR)}
       >
         TLDR
       </PromptButton>
@@ -108,9 +108,9 @@ export const PromptButtons = ({
           show={!isMobile}
         >
           <PromptButton
-            active={activeDisplay === id}
+            active={activePrompt === id}
             flags={flags}
-            onClick={() => setActiveDisplay(id)}
+            onClick={() => setActivePrompt(id)}
           >
             {label}
           </PromptButton>

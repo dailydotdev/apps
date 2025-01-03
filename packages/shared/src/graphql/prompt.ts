@@ -18,15 +18,8 @@ export type Prompt = {
 export enum PromptDisplay {
   TLDR = 'tldr',
   UpgradeToPlus = 'upgrade-to-plus',
-  ActionableSteps = 'actionable-steps',
-  ChallengeThis = 'challenge-this',
-  CompareAlternatives = 'compare-alternatives',
+  SmartPrompt = 'smart-prompt',
   CustomPrompt = 'custom-prompt',
-  ExtractCode = 'extract-code',
-  PracticalExamples = 'practical-examples',
-  RemoveFluff = 'remove-fluff',
-  SimplifyIt = 'simplify-it',
-  SkillsNeeded = 'skills-needed',
 }
 
 export const PROMPTS_QUERY = gql`

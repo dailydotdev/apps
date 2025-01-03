@@ -5,25 +5,38 @@ import PostSummary from '../../cards/common/PostSummary';
 import { Tab, TabContainer } from '../../tabs/TabContainer';
 import { usePlusSubscription } from '../../../hooks';
 import { PromptButtons } from './PromptButtons';
-import { TargetId } from '../../../lib/log';
-import { PostUpgradeToPlus } from '../../plus/PostUpgradeToPlus';
-import ShowMoreContent from '../../cards/common/ShowMoreContent';
 import { PromptDisplay } from '../../../graphql/prompt';
+import { PostUpgradeToPlus } from '../../plus/PostUpgradeToPlus';
+import { TargetId } from '../../../lib/log';
+import ShowMoreContent from '../../cards/common/ShowMoreContent';
 
 export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
   const { isPlus, showPlusSubscription } = usePlusSubscription();
   const [activeDisplay, setActiveDisplay] = useState<PromptDisplay>(
     PromptDisplay.TLDR,
   );
+  const [activePrompt, setActivePrompt] = useState<string>(PromptDisplay.TLDR);
   const elementRef = useRef<HTMLDivElement>(null);
   const width = elementRef?.current?.getBoundingClientRect()?.width || 0;
 
-  const onSetActiveDisplay = (display: PromptDisplay) => {
-    if (!isPlus && display !== PromptDisplay.TLDR) {
+  const onSetActivePrompt = (prompt: string) => {
+    setActivePrompt(prompt);
+    if (!isPlus && prompt !== PromptDisplay.TLDR) {
       setActiveDisplay(PromptDisplay.UpgradeToPlus);
       return;
     }
-    setActiveDisplay(display);
+
+    switch (prompt) {
+      case PromptDisplay.TLDR:
+        setActiveDisplay(PromptDisplay.TLDR);
+        break;
+      case PromptDisplay.CustomPrompt:
+        setActiveDisplay(PromptDisplay.CustomPrompt);
+        break;
+      default:
+        setActiveDisplay(PromptDisplay.SmartPrompt);
+        break;
+    }
   };
 
   if (!showPlusSubscription) {
@@ -36,14 +49,11 @@ export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
       ref={elementRef}
     >
       <PromptButtons
-        activeDisplay={activeDisplay}
-        setActiveDisplay={onSetActiveDisplay}
+        activePrompt={activePrompt}
+        setActivePrompt={onSetActivePrompt}
         width={width}
       />
-      <TabContainer<PromptDisplay>
-        controlledActive={activeDisplay}
-        showHeader={false}
-      >
+      <TabContainer controlledActive={activeDisplay} showHeader={false}>
         <Tab label={PromptDisplay.TLDR}>
           <ShowMoreContent
             className="overflow-hidden"
@@ -52,17 +62,14 @@ export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
             threshold={50}
           />
         </Tab>
-        <Tab label={PromptDisplay.SimplifyIt}>simplify</Tab>
-        <Tab label={PromptDisplay.RemoveFluff}>Remove fluff</Tab>
-        <Tab label={PromptDisplay.ChallengeThis}>Challenge this</Tab>
-        <Tab label={PromptDisplay.PracticalExamples}>Practical examples</Tab>
-        <Tab label={PromptDisplay.ActionableSteps}>Actionable steps</Tab>
-        <Tab label={PromptDisplay.SkillsNeeded}>Skills needed</Tab>
-        <Tab label={PromptDisplay.CompareAlternatives}>
-          Compare alternatives
+
+        <Tab label={PromptDisplay.SmartPrompt}>
+          Smart prompt - {activePrompt}
         </Tab>
-        <Tab label={PromptDisplay.ExtractCode}>Extract code</Tab>
-        <Tab label={PromptDisplay.CustomPrompt}>Custom prompt</Tab>
+
+        <Tab label={PromptDisplay.CustomPrompt}>
+          <input type="text" placeholder="Enter your custom prompt" />
+        </Tab>
 
         <Tab label={PromptDisplay.UpgradeToPlus}>
           <PostUpgradeToPlus
