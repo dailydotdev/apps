@@ -1,13 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
 import { getBasicUserInfo } from '../../../graphql/users';
 import { AuthenticationBanner, OnboardingHeadline } from '../../auth';
 import { ProfilePicture } from '../../ProfilePicture';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
-import { featurePostBannerExtensionPrompt } from '../../../lib/featureManagement';
-import { useFeature } from '../../GrowthBookProvider';
 
 const UserPersonalizedBanner = ({
   userId,
@@ -19,7 +16,6 @@ const UserPersonalizedBanner = ({
     queryKey: [key, userId],
     queryFn: () => getBasicUserInfo(userId),
   });
-  const extensionExperiment = useFeature(featurePostBannerExtensionPrompt);
 
   if (isError) {
     return <AuthenticationBanner />;
@@ -29,18 +25,12 @@ const UserPersonalizedBanner = ({
 
   return (
     <AuthenticationBanner>
-      {!extensionExperiment && user?.image && <ProfilePicture user={user} />}
+      {user?.image && <ProfilePicture user={user} />}
       <OnboardingHeadline
-        avatar={
-          extensionExperiment && user?.image && <ProfilePicture user={user} />
-        }
+        avatar={user?.image && <ProfilePicture user={user} />}
         className={{
-          pretitle: extensionExperiment && ' typo-title2',
           title: 'typo-mega3',
-          description: classNames(
-            'typo-title3',
-            !extensionExperiment && 'mb-8',
-          ),
+          description: 'mb-8 typo-title3',
         }}
         pretitle={user?.username}
         title="shared it, so it's probably a good one."
