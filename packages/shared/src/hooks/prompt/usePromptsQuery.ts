@@ -1,6 +1,5 @@
 import type { UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
-import type { UserIntegration } from '../../graphql/integrations';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { gqlClient } from '../../graphql/common';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -8,7 +7,7 @@ import type { Prompt } from '../../graphql/prompt';
 import { PROMPTS_QUERY } from '../../graphql/prompt';
 
 type UsePromptsQueryProps = {
-  queryOptions?: Partial<UseQueryOptions<UserIntegration[]>>;
+  queryOptions?: Partial<UseQueryOptions<Prompt[]>>;
 };
 
 type UsePromptsQuery = UseQueryResult<Prompt[]>;
