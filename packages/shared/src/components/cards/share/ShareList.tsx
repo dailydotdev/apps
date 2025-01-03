@@ -135,12 +135,7 @@ export const ShareList = forwardRef(function ShareList(
             {truncatedTitle}
           </CardTitle>
           {!shouldSwapActions && <div className="flex flex-1" />}
-          <div
-            className={classNames(
-              'flex items-center',
-              !feedActionSpacingExp && 'mx-2',
-            )}
-          >
+          <div className="flex items-center">
             {!post.title && post.sharedPost.clickbaitTitleDetected && (
               <ClickbaitShield post={post} />
             )}
