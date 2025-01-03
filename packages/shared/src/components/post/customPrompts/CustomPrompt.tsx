@@ -72,6 +72,9 @@ export const CustomPrompt = ({ post }: { post: Post }): ReactElement => {
           <PostUpgradeToPlus
             title="Want unlimited access to smart prompts for every post?"
             targetId={TargetId.SmartPrompt}
+            onClose={() => {
+              setActiveDisplay(PromptDisplay.TLDR);
+            }}
           >
             Level up how you interact with posts using AI-powered prompts.
             Extract insights, refine content, or run custom instructions to get

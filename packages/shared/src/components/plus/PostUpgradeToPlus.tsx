@@ -1,5 +1,5 @@
 import type { PropsWithChildren, ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
 import { PlusUser } from '../PlusUser';
 import CloseButton from '../CloseButton';
@@ -20,6 +20,7 @@ type PostUpgradeToPlusProps = {
   targetId: TargetId;
   title: ReactElement | string;
   className?: string;
+  onClose?: () => void;
 };
 
 export const PostUpgradeToPlus = ({
@@ -27,9 +28,15 @@ export const PostUpgradeToPlus = ({
   title,
   children,
   className,
+  onClose,
 }: PostUpgradeToPlusProps & PropsWithChildren): ReactElement => {
   const [show, setShow] = useState(true);
   const { logSubscriptionEvent } = usePlusSubscription();
+
+  const onCloseClick = useCallback(() => {
+    onClose?.();
+    setShow(false);
+  }, [onClose]);
 
   if (!show) {
     return null;
@@ -47,9 +54,7 @@ export const PostUpgradeToPlus = ({
         <CloseButton
           className="ml-auto"
           size={ButtonSize.Small}
-          onClick={() => {
-            setShow(false);
-          }}
+          onClick={onCloseClick}
         />
       </div>
       <Typography
@@ -84,9 +89,7 @@ export const PostUpgradeToPlus = ({
           className="flex-1"
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Small}
-          onClick={() => {
-            setShow(false);
-          }}
+          onClick={onCloseClick}
         >
           Not now
         </Button>
