@@ -14,7 +14,7 @@ import ActionButtons from '../common/list/ActionButtons';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import { PostCardHeader } from '../common/list/PostCardHeader';
 import { CollectionPillSources } from '../../post/collection';
-import { useTruncatedSummary } from '../../../hooks';
+import { useTruncatedSummary, useViewSize, ViewSize } from '../../../hooks';
 import PostTags from '../common/PostTags';
 import { CardCoverList } from '../common/list/CardCover';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
@@ -39,6 +39,8 @@ export const CollectionList = forwardRef(function CollectionCard(
   ref: Ref<HTMLElement>,
 ) {
   const feedActionSpacingExp = useFeature(feedActionSpacing);
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const shouldSwapActions = feedActionSpacingExp && !isMobile;
   const image = usePostImage(post);
   const { title } = useTruncatedSummary(post?.title);
   const actionButtons = (
@@ -104,10 +106,10 @@ export const CollectionList = forwardRef(function CollectionCard(
             >
               {title}
             </CardTitle>
-            {!feedActionSpacingExp && <div className="flex flex-1" />}
+            {!shouldSwapActions && <div className="flex flex-1" />}
             <PostTags tags={post.tags} />
-            {feedActionSpacingExp && <div className="flex flex-1" />}
-            {feedActionSpacingExp && actionButtons}
+            {shouldSwapActions && <div className="flex flex-1" />}
+            {shouldSwapActions && actionButtons}
           </div>
 
           {image && (
@@ -126,7 +128,7 @@ export const CollectionList = forwardRef(function CollectionCard(
       </CardContainer>
 
       {!!post.image && <CardSpace />}
-      {!feedActionSpacingExp && actionButtons}
+      {!shouldSwapActions && actionButtons}
       {children}
     </FeedItemContainer>
   );
