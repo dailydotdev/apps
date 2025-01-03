@@ -52,7 +52,7 @@ export const CollectionList = forwardRef(function CollectionCard(
         onCommentClick={onCommentClick}
         onCopyLinkClick={onCopyLinkClick}
         onBookmarkClick={onBookmarkClick}
-        className={feedActionSpacingExp && 'justify-between'}
+        className={feedActionSpacingExp && 'mt-2 justify-between tablet:mt-0'}
       />
     </Container>
   );
