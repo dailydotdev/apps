@@ -1,12 +1,7 @@
 import React, { forwardRef, useState } from 'react';
 import type { ReactElement, Ref } from 'react';
 import { ColorName } from '../../../styles/colors';
-import {
-  ArrowIcon,
-  CustomPromptIcon,
-  EditPromptIcon,
-  TLDRIcon,
-} from '../../icons';
+import { ArrowIcon, CustomPromptIcon } from '../../icons';
 import type { ButtonProps } from '../../buttons/Button';
 import {
   Button,
@@ -22,12 +17,7 @@ import { PromptDisplay } from '../../../graphql/prompt';
 import { usePromptButtons } from '../../../hooks/feed/usePromptButtons';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { SimpleTooltip } from '../../tooltips';
-
-export const PromptIconMap = {
-  TLDR: TLDRIcon,
-  CustomPrompt: CustomPromptIcon,
-  EditPrompt: EditPromptIcon,
-};
+import { promptColorMap, PromptIconMap } from './common';
 
 type PromptButtonProps = ButtonProps<'button'> & {
   active: boolean;
@@ -50,7 +40,7 @@ const PromptButton = forwardRef(
         icon={
           <PromptIcon
             size={IconSize.XSmall}
-            className={!active && `text-accent-${flags.color}-default`}
+            className={!active && promptColorMap[flags.color]}
           />
         }
         {...props}
