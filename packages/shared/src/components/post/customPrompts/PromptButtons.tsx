@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import type { ReactElement } from 'react';
 import { ColorName } from '../../../styles/colors';
 import {
@@ -28,15 +28,17 @@ export const PromptIconMap = {
   EditPrompt: EditPromptIcon,
 };
 
+type PromptButtonProps = ButtonProps<'button'> & {
+  active: boolean;
+  flags: PromptFlags;
+};
+
 const PromptButton = ({
   children,
   flags,
   active,
   ...props
-}: {
-  active: boolean;
-  flags: PromptFlags;
-} & ButtonProps<'button'>): ReactElement => {
+}: PromptButtonProps): ReactElement => {
   const PromptIcon = PromptIconMap[flags.icon] || CustomPromptIcon;
   const variant = active ? ButtonVariant.Primary : ButtonVariant.Subtle;
   const color = active ? flags.color : undefined;
@@ -58,18 +60,20 @@ const PromptButton = ({
   );
 };
 
+type PromptButtonsProps = {
+  activeDisplay: PromptDisplay;
+  setActiveDisplay: (display: string) => void;
+  width: number;
+};
+
 export const PromptButtons = ({
   activeDisplay,
   setActiveDisplay,
-}: {
-  activeDisplay: PromptDisplay;
-  setActiveDisplay: (display: string) => void;
-}): ReactElement => {
+  width,
+}: PromptButtonsProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const [showAll, setShowAll] = useState(false);
   const { data: prompts, isLoading } = usePromptsQuery();
-  const elementRef = useRef<HTMLDivElement>(null);
-  const width = elementRef?.current?.getBoundingClientRect()?.width || 0;
   const promptList = usePromptButtons({
     prompts,
     width,
@@ -93,10 +97,7 @@ export const PromptButtons = ({
     );
   }
   return (
-    <div
-      className="no-scrollbar flex gap-x-1 gap-y-2 overflow-x-auto tablet:flex-wrap"
-      ref={elementRef}
-    >
+    <div className="no-scrollbar flex gap-x-1 gap-y-2 overflow-x-auto tablet:flex-wrap">
       <PromptButton
         active={activeDisplay === PromptDisplay.TLDR}
         flags={{ icon: 'TLDR', color: ColorName.Cabbage }}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import type { ReactElement } from 'react';
 import type { Post } from '../../../graphql/posts';
 import PostSummary from '../../cards/common/PostSummary';
@@ -27,6 +27,9 @@ export const CustomPrompt = ({ post }: { post: Post }): ReactElement => {
   const [activeDisplay, setActiveDisplay] = useState<PromptDisplay>(
     PromptDisplay.TLDR,
   );
+  const elementRef = useRef<HTMLDivElement>(null);
+  const width = elementRef?.current?.getBoundingClientRect()?.width || 0;
+
   const onSetActiveDisplay = (display: PromptDisplay) => {
     if (!isPlus && display !== PromptDisplay.TLDR) {
       setActiveDisplay(PromptDisplay.UpgradeToPlus);
@@ -40,10 +43,11 @@ export const CustomPrompt = ({ post }: { post: Post }): ReactElement => {
   }
 
   return (
-    <div className="mb-6 flex flex-col gap-3">
+    <div className="mb-6 flex flex-col gap-3" ref={elementRef}>
       <PromptButtons
         activeDisplay={activeDisplay}
         setActiveDisplay={onSetActiveDisplay}
+        width={width}
       />
       <TabContainer<PromptDisplay>
         controlledActive={activeDisplay}
