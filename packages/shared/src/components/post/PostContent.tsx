@@ -27,8 +27,6 @@ import { withPostById } from './withPostById';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { SharedByUserBanner } from '../SharedByUserBanner';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { LazyModal } from '../modals/common/types';
 
 export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;
@@ -73,7 +71,6 @@ export function PostContentRaw({
     'laptop:flex-row laptop:pb-0',
     className?.container,
   );
-  const { openModal } = useLazyModal();
 
   const navigationProps: PostNavigationProps = {
     postPosition,
@@ -150,9 +147,6 @@ export function PostContentRaw({
           origin={origin}
           post={post}
         >
-          <p onClick={() => openModal({ type: LazyModal.SmartPrompt })}>
-            Something
-          </p>
           <SharedByUserBanner />
           <div className="my-6">
             <h1

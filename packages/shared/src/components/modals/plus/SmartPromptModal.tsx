@@ -18,6 +18,7 @@ import { usePlusSubscription } from '../../../hooks';
 
 export const SmartPromptModal = ({ ...props }: ModalProps): ReactElement => {
   const { logSubscriptionEvent } = usePlusSubscription();
+  // TODO: Add correct image below
   return (
     <Modal {...props} isDrawerOnMobile>
       <Image
