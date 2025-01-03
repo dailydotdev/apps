@@ -3,7 +3,12 @@ import React, { forwardRef, useRef } from 'react';
 import classNames from 'classnames';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
-import { useFeedPreviewMode, useTruncatedSummary } from '../../../hooks';
+import {
+  useFeedPreviewMode,
+  useTruncatedSummary,
+  useViewSize,
+  ViewSize,
+} from '../../../hooks';
 import { isVideoPost } from '../../../graphql/posts';
 import FeedItemContainer from '../common/list/FeedItemContainer';
 import { PostCardHeader } from '../common/list/PostCardHeader';
@@ -41,7 +46,9 @@ export const ShareList = forwardRef(function ShareList(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const { pinnedAt, trending, type } = post;
+  const isMobile = useViewSize(ViewSize.MobileL);
   const feedActionSpacingExp = useFeature(feedActionSpacing);
+  const shouldSwapActions = feedActionSpacingExp && !isMobile;
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
@@ -124,7 +131,7 @@ export const ShareList = forwardRef(function ShareList(
           >
             {truncatedTitle}
           </CardTitle>
-          {!feedActionSpacingExp && <div className="flex flex-1" />}
+          {!shouldSwapActions && <div className="flex flex-1" />}
           <div
             className={classNames(
               'flex items-center',
@@ -136,8 +143,8 @@ export const ShareList = forwardRef(function ShareList(
             )}
             <PostTags tags={post.tags} />
           </div>
-          {feedActionSpacingExp && <div className="flex flex-1" />}
-          {feedActionSpacingExp && actionButtons}
+          {shouldSwapActions && <div className="flex flex-1" />}
+          {shouldSwapActions && actionButtons}
         </div>
 
         <CardCoverList
@@ -161,7 +168,7 @@ export const ShareList = forwardRef(function ShareList(
           }}
         />
       </CardContent>
-      {!feedActionSpacingExp && actionButtons}
+      {!shouldSwapActions && actionButtons}
       {children}
     </FeedItemContainer>
   );
