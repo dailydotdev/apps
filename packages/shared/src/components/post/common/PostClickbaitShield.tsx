@@ -63,7 +63,7 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
           <>
             This title was optimized with Clickbait Shield
             <PostUpgradeToPlus
-              className="mt-6 "
+              className="mt-6"
               targetId={TargetId.ClickbaitShield}
               title="Want to automatically optimize titles across your feed?"
             >
