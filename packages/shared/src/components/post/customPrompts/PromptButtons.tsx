@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import type { ReactElement } from 'react';
+import React, { forwardRef, useState } from 'react';
+import type { ReactElement, Ref } from 'react';
 import { ColorName } from '../../../styles/colors';
 import {
   ArrowIcon,
@@ -21,6 +21,7 @@ import type { PromptFlags } from '../../../graphql/prompt';
 import { PromptDisplay } from '../../../graphql/prompt';
 import { usePromptButtons } from '../../../hooks/feed/usePromptButtons';
 import { useViewSize, ViewSize } from '../../../hooks';
+import { SimpleTooltip } from '../../tooltips';
 
 export const PromptIconMap = {
   TLDR: TLDRIcon,
@@ -33,32 +34,34 @@ type PromptButtonProps = ButtonProps<'button'> & {
   flags: PromptFlags;
 };
 
-const PromptButton = ({
-  children,
-  flags,
-  active,
-  ...props
-}: PromptButtonProps): ReactElement => {
-  const PromptIcon = PromptIconMap[flags.icon] || CustomPromptIcon;
-  const variant = active ? ButtonVariant.Primary : ButtonVariant.Subtle;
-  const color = active ? flags.color : undefined;
-  return (
-    <Button
-      variant={variant}
-      color={color}
-      size={ButtonSize.XSmall}
-      icon={
-        <PromptIcon
-          size={IconSize.XSmall}
-          className={!active && `text-accent-${flags.color}-default`}
-        />
-      }
-      {...props}
-    >
-      {children}
-    </Button>
-  );
-};
+const PromptButton = forwardRef(
+  (
+    { children, flags, active, ...props }: PromptButtonProps,
+    ref?: Ref<HTMLButtonElement>,
+  ): ReactElement => {
+    const PromptIcon = PromptIconMap[flags.icon] || CustomPromptIcon;
+    const variant = active ? ButtonVariant.Primary : ButtonVariant.Subtle;
+    const color = active ? flags.color : undefined;
+    return (
+      <Button
+        variant={variant}
+        color={color}
+        size={ButtonSize.XSmall}
+        icon={
+          <PromptIcon
+            size={IconSize.XSmall}
+            className={!active && `text-accent-${flags.color}-default`}
+          />
+        }
+        {...props}
+        ref={ref}
+      >
+        {children}
+      </Button>
+    );
+  },
+);
+PromptButton.displayName = 'PromptButton';
 
 type PromptButtonsProps = {
   activeDisplay: PromptDisplay;
@@ -96,6 +99,7 @@ export const PromptButtons = ({
       </div>
     );
   }
+
   return (
     <div className="no-scrollbar flex gap-x-1 gap-y-2 overflow-x-auto tablet:flex-wrap">
       <PromptButton
@@ -106,27 +110,35 @@ export const PromptButtons = ({
         TLDR
       </PromptButton>
 
-      {promptList?.map(({ id, label, flags }) => (
-        <PromptButton
+      {promptList?.map(({ id, label, flags, description }) => (
+        <SimpleTooltip
           key={id}
-          active={activeDisplay === id}
-          flags={flags}
-          onClick={() => setActiveDisplay(id)}
+          content={description}
+          container={{ className: 'max-w-70 text-center' }}
+          show={!isMobile}
         >
-          {label}
-        </PromptButton>
+          <PromptButton
+            active={activeDisplay === id}
+            flags={flags}
+            onClick={() => setActiveDisplay(id)}
+          >
+            {label}
+          </PromptButton>
+        </SimpleTooltip>
       ))}
 
       {!showAll && !isMobile && (
-        <Button
-          variant={ButtonVariant.Subtle}
-          size={ButtonSize.XSmall}
-          icon={<ArrowIcon className="rotate-180" />}
-          iconPosition={ButtonIconPosition.Right}
-          onClick={() => setShowAll(true)}
-        >
-          {remainingTags}+ More
-        </Button>
+        <SimpleTooltip content="See more prompts">
+          <Button
+            variant={ButtonVariant.Subtle}
+            size={ButtonSize.XSmall}
+            icon={<ArrowIcon className="rotate-180" />}
+            iconPosition={ButtonIconPosition.Right}
+            onClick={() => setShowAll(true)}
+          >
+            {remainingTags}+ More
+          </Button>
+        </SimpleTooltip>
       )}
     </div>
   );
