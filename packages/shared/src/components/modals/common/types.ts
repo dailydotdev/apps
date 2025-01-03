@@ -60,6 +60,7 @@ export enum LazyModal {
   ClickbaitShield = 'clickbaitShield',
   MoveBookmark = 'moveBookmark',
   AddToCustomFeed = 'addToCustomFeed',
+  SmartPrompt = 'smartPrompt',
 }
 
 export type ModalTabItem = {

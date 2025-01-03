@@ -315,6 +315,7 @@ export enum TargetId {
   BookmarkFolder = 'bookmark folder',
   FeedSettings = 'feed settings',
   ClickbaitShield = 'clickbait shield',
+  SmartPrompt = 'smart prompt',
 }
 
 export enum NotificationChannel {
