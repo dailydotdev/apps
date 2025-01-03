@@ -56,6 +56,7 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   loadedSettings: boolean;
   updateCustomLinks: (links: string[]) => Promise<unknown>;
   updateFlag: (flag: keyof SettingsFlags, value: boolean) => Promise<unknown>;
+  updatePromptFlag: (flag: string, value: boolean) => Promise<unknown>;
   syncSettings: (bootUserId?: string) => Promise<unknown>;
   onToggleHeaderPlacement(): Promise<unknown>;
   setOnboardingChecklistView: (value: ChecklistViewState) => Promise<unknown>;
@@ -273,6 +274,17 @@ export const SettingsContextProvider = ({
           flags: {
             ...settings.flags,
             [flag]: value,
+          },
+        }),
+      updatePromptFlag: (flag: keyof SettingsFlags, value: boolean) =>
+        setSettings({
+          ...settings,
+          flags: {
+            ...settings.flags,
+            prompt: {
+              ...settings.flags.prompt,
+              [flag]: value,
+            },
           },
         }),
       setSettings,
