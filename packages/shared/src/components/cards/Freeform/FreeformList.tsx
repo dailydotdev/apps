@@ -70,7 +70,7 @@ export const FreeformList = forwardRef(function SharePostCard(
         onCopyLinkClick={onCopyLinkClick}
         onBookmarkClick={onBookmarkClick}
         className={classNames(
-          feedActionSpacingExp ? 'justify-between' : 'mt-4',
+          feedActionSpacingExp ? 'mt-2 justify-between tablet:mt-0' : 'mt-4',
           !!image && 'laptop:mt-auto',
         )}
       />
@@ -136,7 +136,10 @@ export const FreeformList = forwardRef(function SharePostCard(
               post={post}
               imageProps={{
                 alt: 'Post Cover image',
-                className: 'mobileXXL:self-start w-full',
+                className: classNames(
+                  'w-full mobileXXL:self-start',
+                  feedActionSpacingExp && 'mt-2 tablet:mt-0',
+                ),
                 ...(eagerLoadImage && HIGH_PRIORITY_IMAGE_PROPS),
                 src: image,
               }}
