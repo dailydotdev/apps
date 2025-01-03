@@ -38,3 +38,10 @@ export const getVideoSetting = (
   advancedSettings: AdvancedSettings[],
 ): AdvancedSettings =>
   advancedSettings?.find(({ title }) => title === 'Videos');
+
+export const getArticleSettings = (
+  advancedSettings: AdvancedSettings[],
+): AdvancedSettings[] =>
+  advancedSettings?.filter(({ title }) =>
+    ['Article', 'Share', 'Freeform', 'Welcome', 'Collection'].includes(title),
+  ) || [];
