@@ -1,9 +1,9 @@
 import { useCallback, useMemo, useState } from 'react';
-import {
+import type {
   SlackChannel,
   UserIntegration,
-  UserIntegrationType,
 } from '../../../graphql/integrations';
+import { UserIntegrationType } from '../../../graphql/integrations';
 import { SourceType } from '../../../graphql/sources';
 import { useSlack } from '../../../hooks/integrations/slack/useSlack';
 import { LazyModal } from '../common/types';

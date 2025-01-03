@@ -1,11 +1,11 @@
 import React from 'react';
 import nock from 'nock';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
+import type { RenderResult } from '@testing-library/react';
 import {
   act,
   fireEvent,
   render,
-  RenderResult,
   screen,
   waitFor,
 } from '@testing-library/react';
@@ -13,18 +13,13 @@ import { mocked } from 'ts-jest/utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
-import {
-  Boot,
-  BootApp,
-  BootCacheData,
-  getBootData,
-} from '@dailydotdev/shared/src/lib/boot';
-import {
-  RemoteSettings,
-  UPDATE_USER_SETTINGS_MUTATION,
-} from '@dailydotdev/shared/src/graphql/settings';
-import { Alerts } from '@dailydotdev/shared/src/graphql/alerts';
-import browser, { TopSites } from 'webextension-polyfill';
+import type { Boot, BootCacheData } from '@dailydotdev/shared/src/lib/boot';
+import { BootApp, getBootData } from '@dailydotdev/shared/src/lib/boot';
+import type { RemoteSettings } from '@dailydotdev/shared/src/graphql/settings';
+import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/settings';
+import type { Alerts } from '@dailydotdev/shared/src/graphql/alerts';
+import type { TopSites } from 'webextension-polyfill';
+import browser from 'webextension-polyfill';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import {
   LogEvent,

@@ -1,11 +1,11 @@
-import { MouseEventHandler, useId } from 'react';
-import {
-  SourcePostModeration,
-  verifyPermission,
-} from '../../../graphql/squads';
+import type { MouseEventHandler } from 'react';
+import { useId } from 'react';
+import type { SourcePostModeration } from '../../../graphql/squads';
+import { verifyPermission } from '../../../graphql/squads';
 import useContextMenu from '../../../hooks/useContextMenu';
 import { useLazyModal } from '../../../hooks/useLazyModal';
-import { SourcePermissions, Squad } from '../../../graphql/sources';
+import type { Squad } from '../../../graphql/sources';
+import { SourcePermissions } from '../../../graphql/sources';
 import { LazyModal } from '../../modals/common/types';
 import { useSourceModerationList } from '../../../hooks/squads/useSourceModerationList';
 

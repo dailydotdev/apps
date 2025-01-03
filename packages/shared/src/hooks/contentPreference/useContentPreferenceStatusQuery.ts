@@ -1,28 +1,26 @@
-import {
-  useQuery,
-  UseQueryOptions,
-  UseQueryResult,
-} from '@tanstack/react-query';
-import {
-  CONTENT_PREFERENCE_STATUS_QUERY,
+import type { UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+import type {
   ContentPreference,
   ContentPreferenceType,
 } from '../../graphql/contentPreference';
+import { CONTENT_PREFERENCE_STATUS_QUERY } from '../../graphql/contentPreference';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { ApiError, ApiErrorResult, gqlClient } from '../../graphql/common';
+import type { ApiErrorResult } from '../../graphql/common';
+import { ApiError, gqlClient } from '../../graphql/common';
 import { useMutationSubscription } from '../mutationSubscription/useMutationSubscription';
+import type { ContentPreferenceMutation } from './types';
 import {
-  ContentPreferenceMutation,
   contentPreferenceMutationMatcher,
   mutationKeyToContentPreferenceStatusMap,
 } from './types';
-import { PropsParameters } from '../../types';
+import type { PropsParameters } from '../../types';
 
 export type UseContentPreferenceStatusQueryProps = {
   id: string;
   entity: ContentPreferenceType;
-  queryOptions?: UseQueryOptions<ContentPreference>;
+  queryOptions?: Partial<UseQueryOptions<ContentPreference>>;
 };
 
 export type UseContentPreferenceStatusQuery = UseQueryResult<ContentPreference>;

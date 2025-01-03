@@ -1,6 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { UseMutationSubscription, UseMutationSubscriptionProps } from './types';
+import { v4 as uuidv4 } from 'uuid';
+import type {
+  UseMutationSubscription,
+  UseMutationSubscriptionProps,
+} from './types';
 import { mutationSuccessSubscribers } from '../../lib/query';
 
 export const useMutationSubscription = ({
@@ -15,7 +19,7 @@ export const useMutationSubscription = ({
   matcherRef.current = matcher;
 
   useEffect(() => {
-    const subscriptionId = (mutationSuccessSubscribers.size + 1).toString();
+    const subscriptionId = uuidv4();
 
     mutationSuccessSubscribers.set(
       subscriptionId,

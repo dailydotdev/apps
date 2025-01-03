@@ -1,13 +1,13 @@
+import type { ReactElement, Ref } from 'react';
 import React, {
   forwardRef,
-  ReactElement,
-  Ref,
   useImperativeHandle,
   useRef,
   useState,
 } from 'react';
 import classNames from 'classnames';
-import { AllowedTags, Button, ButtonElementType, ButtonProps } from './Button';
+import type { AllowedTags, ButtonElementType, ButtonProps } from './Button';
+import { Button } from './Button';
 
 export type QuaternaryButtonProps<TagName extends AllowedTags> =
   ButtonProps<TagName> & {

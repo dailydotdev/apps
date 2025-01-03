@@ -1,21 +1,22 @@
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
+import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import {
   getProfile,
   getProfileV2Extra,
-  PublicProfile,
 } from '@dailydotdev/shared/src/lib/user';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import {
+import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
-import { ParsedUrlQuery } from 'querystring';
-import { ClientError } from 'graphql-request';
-import { ProfileV2 } from '@dailydotdev/shared/src/graphql/users';
+import type { ParsedUrlQuery } from 'querystring';
+import type { ClientError } from 'graphql-request';
+import type { ProfileV2 } from '@dailydotdev/shared/src/graphql/users';
 import Head from 'next/head';
-import { NextSeoProps } from 'next-seo';
+import type { NextSeoProps } from 'next-seo';
 import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';

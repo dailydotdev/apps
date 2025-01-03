@@ -1,11 +1,6 @@
-import {
-  KeyboardEvent,
-  MouseEvent,
-  createContext,
-  ReactNode,
-  useContext,
-} from 'react';
-import { LogEvent } from '../../../lib/log';
+import type { KeyboardEvent, MouseEvent, ReactNode } from 'react';
+import { createContext, useContext } from 'react';
+import type { LogEvent } from '../../../lib/log';
 
 export enum ModalHeaderKind {
   Primary = 'primary',
@@ -42,7 +37,6 @@ export enum LazyModal {
   SquadNotifications = 'squadNotifications',
   NewSource = 'newSource',
   SubmitArticle = 'submitArticle',
-  FeedFilters = 'feedFilters',
   VerifySession = 'verifySession',
   GenericReferral = 'genericReferral',
   Video = 'video',
@@ -61,9 +55,11 @@ export enum LazyModal {
   PostModeration = 'postModeration',
   NewSquad = 'newSquad',
   TopReaderBadge = 'topReaderBadge',
-  AdvancedCustomFeedSoon = 'advancedCustomFeedSoon',
   BookmarkFolderSoon = 'bookmarkFolderSoon',
+  BookmarkFolder = 'bookmarkFolder',
   ClickbaitShield = 'clickbaitShield',
+  MoveBookmark = 'moveBookmark',
+  AddToCustomFeed = 'addToCustomFeed',
 }
 
 export type ModalTabItem = {

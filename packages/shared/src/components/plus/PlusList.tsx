@@ -1,27 +1,24 @@
-import React, { ReactElement, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
-import { WithClassNameProps } from '../utilities';
-import {
-  PlusItem,
-  PlusItemStatus,
-  PlusListItem,
-  PlusListItemProps,
-} from './PlusListItem';
+import type { WithClassNameProps } from '../utilities';
+import type { PlusItem, PlusListItemProps } from './PlusListItem';
+import { PlusItemStatus, PlusListItem } from './PlusListItem';
 import { usePaymentContext } from '../../contexts/PaymentContext';
 
 export const defaultFeatureList: Array<PlusItem> = [
   {
-    label: 'Hyper-personalized feed',
+    label: 'Personalized feed',
     status: PlusItemStatus.Ready,
     tooltip: `Your go-to place for dev news, tutorials, and updates. Curated just for you, so you never miss what’s new.`,
   },
   {
-    label: 'AI-powered search',
+    label: 'Search',
     status: PlusItemStatus.Ready,
     tooltip: `Find exactly what you’re looking for—whether it’s answers, trending topics, or the latest tools and resources.`,
   },
   {
-    label: 'Squads (developer communities)',
+    label: 'Squads',
     status: PlusItemStatus.Ready,
     tooltip: `Join groups of developers who share your interests. Exchange ideas, collaborate, and grow together in a focused space.`,
   },
@@ -44,6 +41,21 @@ export const plusFeatureList: Array<PlusItem> = [
     tooltip: `No ads, no distractions. It’s like noise canceling headphones, but for your feed.`,
   },
   {
+    label: 'AI-powered clickbait-free titles',
+    status: PlusItemStatus.Ready,
+    tooltip: `Say goodbye to clickbait titles and hello to AI-optimized titles that make your feed clearer and more informative.`,
+  },
+  {
+    label: 'Organize bookmarks in folders',
+    status: PlusItemStatus.Ready,
+    tooltip: `Easily categorize and organize your bookmarked posts into folders, so you can find what you need quickly.`,
+  },
+  {
+    label: 'Advanced custom feeds',
+    status: PlusItemStatus.Ready,
+    tooltip: `Why settle for one feed when you can have many? Build your personalized content empire, one custom feed at a time.`,
+  },
+  {
     label: 'Block posts with unwanted words',
     status: PlusItemStatus.Ready,
     tooltip: `Automatically filter out posts containing words you never want to see again. Life’s too short for unnecessary noise.`,
@@ -57,21 +69,6 @@ export const plusFeatureList: Array<PlusItem> = [
     label: 'Private Squad for Plus members',
     status: PlusItemStatus.Ready,
     tooltip: `Join an exclusive community space to connect with other Plus members, share feedback, and access priority support.`,
-  },
-  {
-    label: 'AI-powered clickbait-free titles',
-    status: PlusItemStatus.Ready,
-    tooltip: `Say goodbye to clickbait titles and hello to AI-optimized titles that make your feed clearer and more informative.`,
-  },
-  {
-    label: 'Organize bookmarks in folders',
-    status: PlusItemStatus.ComingSoon,
-    tooltip: `Easily categorize and organize your bookmarked posts into folders, so you can find what you need quickly.`,
-  },
-  {
-    label: 'Advanced custom feeds',
-    status: PlusItemStatus.ComingSoon,
-    tooltip: `Why settle for one feed when you can have many? Build your personalized content empire, one custom feed at a time.`,
   },
   {
     label: 'Support the team and make us smile',

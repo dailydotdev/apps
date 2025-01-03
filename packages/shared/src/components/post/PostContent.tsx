@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import React, { ComponentProps, ReactElement, useEffect } from 'react';
+import type { ComponentProps, ReactElement } from 'react';
+import React, { useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { isVideoPost } from '../../graphql/posts';
 import PostMetadata from '../cards/common/PostMetadata';
@@ -12,7 +13,8 @@ import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
 import { BasePostContent } from './BasePostContent';
 import { combinedClicks } from '../../lib/click';
-import { PostContainer, PostContentProps, PostNavigationProps } from './common';
+import type { PostContentProps, PostNavigationProps } from './common';
+import { PostContainer } from './common';
 import YoutubeVideo from '../video/YoutubeVideo';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useViewPost } from '../../hooks/post';
@@ -24,6 +26,7 @@ import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { withPostById } from './withPostById';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
+import { SharedByUserBanner } from '../SharedByUserBanner';
 
 export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;
@@ -144,6 +147,7 @@ export function PostContentRaw({
           origin={origin}
           post={post}
         >
+          <SharedByUserBanner />
           <div className="my-6">
             <h1
               className="break-words font-bold typo-large-title"

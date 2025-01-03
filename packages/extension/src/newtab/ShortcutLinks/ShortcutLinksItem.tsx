@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
 
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';

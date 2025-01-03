@@ -1,6 +1,7 @@
-import React, { ReactElement, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
 import classNames from 'classnames';
-import { Post, TocItem } from '../../graphql/posts';
+import type { Post, TocItem } from '../../graphql/posts';
 import { UnreadIcon as TocIcon } from '../icons';
 import { Summary, SummaryArrow } from '../utilities';
 import LogContext from '../../contexts/LogContext';

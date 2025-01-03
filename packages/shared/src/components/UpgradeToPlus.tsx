@@ -1,28 +1,35 @@
 import React, { useCallback } from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonVariant, type ButtonSize } from './buttons/Button';
+import type { ButtonSize, ButtonColor } from './buttons/Button';
+import { Button, ButtonVariant } from './buttons/Button';
 import { DevPlusIcon } from './icons';
 import Link from './utilities/Link';
 import { plusUrl } from '../lib/constants';
-import type { WithClassNameProps } from './utilities';
 import { useViewSize, ViewSize } from '../hooks';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
-import { LogEvent, TargetId } from '../lib/log';
+import type { TargetId } from '../lib/log';
+import { LogEvent } from '../lib/log';
 import { useAuthContext } from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
+import type { WithClassNameProps } from './utilities';
 
 type Props = {
-  size?: ButtonSize;
   iconOnly?: boolean;
   target: TargetId;
+  size?: ButtonSize;
+  variant?: ButtonVariant;
+  color?: ButtonColor;
 } & WithClassNameProps;
 
 export const UpgradeToPlus = ({
   className,
+  color,
   size,
   iconOnly = false,
   target,
+  variant,
+  ...attrs
 }: Props): ReactElement => {
   const { isLoggedIn, showLogin } = useAuthContext();
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -57,13 +64,15 @@ export const UpgradeToPlus = ({
         tag="a"
         variant={ButtonVariant.Secondary}
         className={classNames(
-          'border-action-plus-default text-action-plus-default',
+          !color && 'border-action-plus-default text-action-plus-default',
           !iconOnly && 'flex-1',
           className,
         )}
         icon={<DevPlusIcon />}
         size={size}
         onClick={onClick}
+        {...(variant && { variant, color })}
+        {...attrs}
       >
         {iconOnly ? null : content}
       </Button>

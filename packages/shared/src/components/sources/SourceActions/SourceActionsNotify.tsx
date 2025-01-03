@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
 import { Button } from '../../buttons/Button';

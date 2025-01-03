@@ -2,22 +2,13 @@ import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  PasswordField,
-  PasswordFieldProps,
-} from '@dailydotdev/shared/src/components/fields/PasswordField';
-import {
-  TextField,
-  TextFieldProps,
-} from '@dailydotdev/shared/src/components/fields/TextField';
+import type { PasswordFieldProps } from '@dailydotdev/shared/src/components/fields/PasswordField';
+import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
+import type { TextFieldProps } from '@dailydotdev/shared/src/components/fields/TextField';
+import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import classNames from 'classnames';
-import React, {
-  Dispatch,
-  ReactElement,
-  SetStateAction,
-  useContext,
-  useState,
-} from 'react';
+import type { Dispatch, ReactElement, SetStateAction } from 'react';
+import React, { useContext, useState } from 'react';
 import useAccountEmailFlow from '@dailydotdev/shared/src/hooks/useAccountEmailFlow';
 import { AuthFlow } from '@dailydotdev/shared/src/lib/kratos';
 import useTimer from '@dailydotdev/shared/src/hooks/useTimer';

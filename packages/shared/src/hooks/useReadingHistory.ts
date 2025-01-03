@@ -1,9 +1,8 @@
-import { useQueryClient, useMutation, QueryKey } from '@tanstack/react-query';
-import {
-  HidePostItemCardProps,
-  HIDE_READING_HISTORY_MUTATION,
-} from '../graphql/users';
-import { ReadHistoryInfiniteData } from './useInfiniteReadingHistory';
+import type { QueryKey } from '@tanstack/react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
+import type { HidePostItemCardProps } from '../graphql/users';
+import { HIDE_READING_HISTORY_MUTATION } from '../graphql/users';
+import type { ReadHistoryInfiniteData } from './useInfiniteReadingHistory';
 import { gqlClient } from '../graphql/common';
 
 export type QueryIndexes = { page: number; edge: number };

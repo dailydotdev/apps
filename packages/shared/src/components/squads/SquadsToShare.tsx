@@ -1,6 +1,8 @@
-import React, { ReactElement, MouseEvent, useMemo } from 'react';
+import type { ReactElement, MouseEvent } from 'react';
+import React, { useMemo } from 'react';
 import { verifyPermission } from '../../graphql/squads';
-import { SourcePermissions, Squad } from '../../graphql/sources';
+import type { Squad } from '../../graphql/sources';
+import { SourcePermissions } from '../../graphql/sources';
 import SourceProfilePicture from '../profile/SourceProfilePicture';
 import { SocialShareButton } from '../widgets/SocialShareButton';
 import { useAuthContext } from '../../contexts/AuthContext';

@@ -1,3 +1,5 @@
+import type { RadioItemProps } from '../components/fields/RadioItem';
+
 declare const navigator: Navigator & { brave?: { isBrave: unknown } };
 
 // All links are loaded via Rebrandly
@@ -78,3 +80,50 @@ export const squadCategoriesPaths = {
   discover: '/squads/discover',
   featured: '/squads/discover/featured',
 };
+
+export const AD_PLACEHOLDER_SOURCE_ID = '__dailydotdev_app_ad_placeholder__';
+
+export const emojiOptions = [
+  '',
+  '🐹',
+  '🐍',
+  '☕️',
+  '🔥',
+  '📦',
+  '⚙️',
+  '🐙',
+  '🐳',
+  '💡',
+  '📜',
+  '🚀',
+];
+
+export enum FeedOrder {
+  Recommended = 'recommended',
+  Date = 'date',
+  Upvotes = 'upvotes',
+  Downvotes = 'downvotes',
+  Comments = 'comments',
+  Clicks = 'clicks',
+}
+
+export const feedRangeFilters: RadioItemProps[] = [
+  {
+    label: 'All time',
+    value: null,
+  },
+  {
+    label: 'Past 24 hours',
+    value: '1',
+  },
+  {
+    label: 'Past week',
+    value: '7',
+  },
+  {
+    label: 'Past month',
+    value: '30',
+  },
+];
+
+export const customFeedsPlusDate = new Date('2024-12-11');

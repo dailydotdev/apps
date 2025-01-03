@@ -1,15 +1,13 @@
-import React, { ReactElement, ReactNode, useContext } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useContext } from 'react';
 import classNames from 'classnames';
 import classed from '../../../lib/classed';
-import { ModalTabs, ModalTabsProps } from './ModalTabs';
+import type { ModalTabsProps } from './ModalTabs';
+import { ModalTabs } from './ModalTabs';
 import { ModalClose } from './ModalClose';
 import { ModalHeaderKind, ModalPropsContext } from './types';
-import {
-  Button,
-  ButtonProps,
-  ButtonSize,
-  ButtonVariant,
-} from '../../buttons/Button';
+import type { ButtonProps } from '../../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ArrowIcon } from '../../icons';
 import { ModalStepsWrapper } from './ModalStepsWrapper';
 import { ProgressBar } from '../../fields/ProgressBar';
@@ -85,7 +83,11 @@ export function ModalHeader({
         </ModalHeaderTitle>
       )}
       {shouldShowClose && (
-        <ModalClose className="hidden tablet:flex" onClick={onRequestClose} />
+        <ModalClose
+          type="button"
+          className="hidden tablet:flex"
+          onClick={onRequestClose}
+        />
       )}
     </ModalHeaderOuter>
   );

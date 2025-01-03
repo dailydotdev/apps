@@ -1,7 +1,9 @@
-import React, { Dispatch, useCallback, useState } from 'react';
+import type { Dispatch } from 'react';
+import type React from 'react';
+import { useCallback, useState } from 'react';
 import useContextMenu from './useContextMenu';
-import { PostItem } from '../graphql/posts';
-import { QueryIndexes } from './useReadingHistory';
+import type { PostItem } from '../graphql/posts';
+import type { QueryIndexes } from './useReadingHistory';
 import { ContextMenu } from './constants';
 
 type ReadingOptionsFunc = (

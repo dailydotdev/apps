@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request';
-import { Source } from './sources';
+import type { Source } from './sources';
 import { SOURCE_SHORT_INFO_FRAGMENT } from './fragments';
 
 export enum AdvancedSettingsGroup {
@@ -157,8 +157,14 @@ export const REMOVE_FILTERS_FROM_FEED_MUTATION = gql`
 `;
 
 export const UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION = gql`
-  mutation UpdateFeedAdvancedSettings($settings: [FeedAdvancedSettingsInput]!) {
-    feedSettings: updateFeedAdvancedSettings(settings: $settings) {
+  mutation UpdateFeedAdvancedSettings(
+    $feedId: ID
+    $settings: [FeedAdvancedSettingsInput]!
+  ) {
+    feedSettings: updateFeedAdvancedSettings(
+      feedId: $feedId
+      settings: $settings
+    ) {
       id
       enabled
     }

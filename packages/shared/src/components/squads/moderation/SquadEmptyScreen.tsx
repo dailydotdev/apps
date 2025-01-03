@@ -1,5 +1,7 @@
-import React, { FC, ReactElement } from 'react';
-import { IconProps, IconSize } from '../../Icon';
+import type { FC, ReactElement } from 'react';
+import React from 'react';
+import type { IconProps } from '../../Icon';
+import { IconSize } from '../../Icon';
 import {
   TypographyColor,
   Typography,

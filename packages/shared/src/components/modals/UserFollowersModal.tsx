@@ -1,12 +1,11 @@
-import React, { ReactElement } from 'react';
-import { ModalProps } from './common/Modal';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { ModalProps } from './common/Modal';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
 import UserListModal from './UserListModal';
 
-import {
-  useFollowersQuery,
-  UseFollowersQueryProps,
-} from '../../hooks/contentPreference/useFollowersQuery';
+import type { UseFollowersQueryProps } from '../../hooks/contentPreference/useFollowersQuery';
+import { useFollowersQuery } from '../../hooks/contentPreference/useFollowersQuery';
 import { FlexCentered } from '../utilities';
 import { Origin } from '../../lib/log';
 

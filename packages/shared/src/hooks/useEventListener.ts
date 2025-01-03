@@ -1,4 +1,5 @@
-import { RefObject, useEffect, useMemo, useRef } from 'react';
+import type { RefObject } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 // List all `EventMap` types here.
 export type DOMEventMapDefinitions = [

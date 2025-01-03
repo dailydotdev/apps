@@ -1,17 +1,25 @@
-import React, {
+import type {
   KeyboardEventHandler,
   MouseEventHandler,
   ReactElement,
-  useContext,
 } from 'react';
+import React, { useCallback, useContext } from 'react';
 import { MenuIcon, MiniCloseIcon as CloseIcon } from '../icons';
 import { Roles } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
-import { banPost, demotePost, Post, promotePost } from '../../graphql/posts';
+import type { Post } from '../../graphql/posts';
+import {
+  banPost,
+  clickbaitPost,
+  demotePost,
+  promotePost,
+} from '../../graphql/posts';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import PostOptionsMenu, { PostOptionsMenuProps } from '../PostOptionsMenu';
-import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import { Origin } from '../../lib/log';
+import type { PostOptionsMenuProps } from '../PostOptionsMenu';
+import PostOptionsMenu from '../PostOptionsMenu';
+import type { PromptOptions } from '../../hooks/usePrompt';
+import { usePrompt } from '../../hooks/usePrompt';
+import type { Origin } from '../../lib/log';
 import useContextMenu from '../../hooks/useContextMenu';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 
@@ -39,7 +47,7 @@ export function PostMenuOptions({
   const { onMenuClick, onHide } = useContextMenu({ id: contextMenuId });
   const isModerator = user?.roles?.includes(Roles.Moderator);
 
-  const banPostPrompt = async () => {
+  const banPostPrompt = useCallback(async () => {
     const options: PromptOptions = {
       title: 'Ban post 💩',
       description: 'Are you sure you want to ban this post?',
@@ -51,9 +59,9 @@ export function PostMenuOptions({
     if (await showPrompt(options)) {
       await banPost(post.id);
     }
-  };
+  }, [post.id, showPrompt]);
 
-  const promotePostPrompt = async () => {
+  const promotePostPrompt = useCallback(async () => {
     const promoteFlag = post.flags?.promoteToPublic;
 
     const options: PromptOptions = {
@@ -72,7 +80,25 @@ export function PostMenuOptions({
         await promotePost(post.id);
       }
     }
-  };
+  }, [post.flags?.promoteToPublic, post.id, showPrompt]);
+
+  const clickbaitPostPrompt = useCallback(async () => {
+    const isClickbait = post.clickbaitTitleDetected;
+
+    const options: PromptOptions = {
+      title: isClickbait ? 'Remove clickbait' : 'Mark as clickbait',
+      description: `Do you want to ${
+        isClickbait ? 'remove' : 'mark'
+      } this post as clickbait?`,
+      okButton: {
+        title: isClickbait ? 'Remove' : 'Mark',
+      },
+    };
+
+    if (await showPrompt(options)) {
+      await clickbaitPost(post.id);
+    }
+  }, [post.clickbaitTitleDetected, post.id, showPrompt]);
 
   return (
     <>
@@ -99,6 +125,7 @@ export function PostMenuOptions({
         onRemovePost={onRemovePost}
         setShowBanPost={isModerator ? () => banPostPrompt() : null}
         setShowPromotePost={isModerator ? () => promotePostPrompt() : null}
+        setShowClickbaitPost={isModerator ? () => clickbaitPostPrompt() : null}
         contextId={contextMenuId}
         origin={origin}
         onHidden={onHide}

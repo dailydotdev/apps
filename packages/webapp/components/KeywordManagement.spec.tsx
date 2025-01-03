@@ -1,22 +1,19 @@
 import React from 'react';
 import nock from 'nock';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import {
   ALLOW_KEYWORD_MUTATION,
   DENY_KEYWORD_MUTATION,
-  Keyword,
 } from '@dailydotdev/shared/src/graphql/keywords';
-import {
-  FeedData,
-  KEYWORD_FEED_QUERY,
-} from '@dailydotdev/shared/src/graphql/feed';
-import { Post } from '@dailydotdev/shared/src/graphql/posts';
-import { Connection } from '@dailydotdev/shared/src/graphql/common';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import type { FeedData } from '@dailydotdev/shared/src/graphql/feed';
+import { KEYWORD_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import type { Post } from '@dailydotdev/shared/src/graphql/posts';
+import type { Connection } from '@dailydotdev/shared/src/graphql/common';
+import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import KeywordManagement from './KeywordManagement';
 
 const onOperationCompleted = jest.fn();

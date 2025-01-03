@@ -5,13 +5,14 @@ import { subDays } from 'date-fns';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import type { LoggedUser } from '../../../lib/user';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
-import { Alerts, UPDATE_ALERTS } from '../../../graphql/alerts';
+import type { Alerts } from '../../../graphql/alerts';
+import { UPDATE_ALERTS } from '../../../graphql/alerts';
 import { BootPopups } from '../BootPopups';
 import { waitForNock } from '../../../../__tests__/helpers/utilities';
+import type { UserStreakRecoverData } from '../../../graphql/users';
 import {
   USER_STREAK_RECOVER_MUTATION,
   USER_STREAK_RECOVER_QUERY,
-  UserStreakRecoverData,
 } from '../../../graphql/users';
 import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
 import * as actionHook from '../../../hooks/useActions';

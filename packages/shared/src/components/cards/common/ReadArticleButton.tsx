@@ -1,10 +1,7 @@
-import React, { ReactElement } from 'react';
-import {
-  Button,
-  ButtonIconPosition,
-  ButtonProps,
-  ButtonSize,
-} from '../../buttons/Button';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { ButtonProps } from '../../buttons/Button';
+import { Button, ButtonIconPosition, ButtonSize } from '../../buttons/Button';
 import { OpenLinkIcon } from '../../icons';
 
 type ReadArticleButtonProps = ButtonProps<'a'> & {

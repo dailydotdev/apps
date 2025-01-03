@@ -1,6 +1,8 @@
-import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
+import type { ReactElement, Ref } from 'react';
+import React, { forwardRef, useRef } from 'react';
 import classNames from 'classnames';
-import { Container, PostCardProps } from '../common/common';
+import type { PostCardProps } from '../common/common';
+import { Container } from '../common/common';
 import { useFeedPreviewMode, useTruncatedSummary } from '../../../hooks';
 import { isVideoPost } from '../../../graphql/posts';
 import FeedItemContainer from '../common/list/FeedItemContainer';
@@ -15,6 +17,8 @@ import ActionButtons from '../common/list/ActionButtons';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { useFeature } from '../../GrowthBookProvider';
+import { feedActionSpacing } from '../../../lib/featureManagement';
 
 export const ShareList = forwardRef(function ShareList(
   {
@@ -37,12 +41,33 @@ export const ShareList = forwardRef(function ShareList(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const { pinnedAt, trending, type } = post;
+  const feedActionSpacingExp = useFeature(feedActionSpacing);
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
   const isVideoType = isVideoPost(post);
   const { title } = useSmartTitle(post);
   const { title: truncatedTitle } = useTruncatedSummary(title);
+
+  const actionButtons = (
+    <Container
+      ref={containerRef}
+      className={classNames(
+        'pointer-events-none',
+        feedActionSpacingExp && 'flex-[unset]',
+      )}
+    >
+      <ActionButtons
+        className={feedActionSpacingExp ? 'justify-between' : 'mt-4'}
+        post={post}
+        onUpvoteClick={onUpvoteClick}
+        onDownvoteClick={onDownvoteClick}
+        onCommentClick={onCommentClick}
+        onCopyLinkClick={onCopyLinkClick}
+        onBookmarkClick={onBookmarkClick}
+      />
+    </Container>
+  );
 
   return (
     <FeedItemContainer
@@ -99,13 +124,20 @@ export const ShareList = forwardRef(function ShareList(
           >
             {truncatedTitle}
           </CardTitle>
-          <div className="flex flex-1" />
-          <div className="mx-2 flex items-center">
+          {!feedActionSpacingExp && <div className="flex flex-1" />}
+          <div
+            className={classNames(
+              'flex items-center',
+              !feedActionSpacingExp && 'mx-2',
+            )}
+          >
             {!post.title && post.sharedPost.clickbaitTitleDetected && (
               <ClickbaitShield post={post} />
             )}
             <PostTags tags={post.tags} />
           </div>
+          {feedActionSpacingExp && <div className="flex flex-1" />}
+          {feedActionSpacingExp && actionButtons}
         </div>
 
         <CardCoverList
@@ -129,20 +161,7 @@ export const ShareList = forwardRef(function ShareList(
           }}
         />
       </CardContent>
-      <Container
-        ref={containerRef}
-        className={classNames('pointer-events-none')}
-      >
-        <ActionButtons
-          className="mt-4"
-          post={post}
-          onUpvoteClick={onUpvoteClick}
-          onDownvoteClick={onDownvoteClick}
-          onCommentClick={onCommentClick}
-          onCopyLinkClick={onCopyLinkClick}
-          onBookmarkClick={onBookmarkClick}
-        />
-      </Container>
+      {!feedActionSpacingExp && actionButtons}
       {children}
     </FeedItemContainer>
   );

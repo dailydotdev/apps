@@ -1,4 +1,5 @@
-import React, { ReactElement, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
 import { Button, ButtonVariant } from '../buttons/Button';
 import {
   getFacebookShareLink,
@@ -10,7 +11,8 @@ import { TwitterIcon, FacebookIcon, WhatsappIcon } from '../icons';
 import { link } from '../../lib/links';
 import { labels } from '../../lib';
 import { SimpleTooltip } from '../tooltips';
-import { LogEvent, TargetType } from '../../lib/log';
+import type { TargetType } from '../../lib/log';
+import { LogEvent } from '../../lib/log';
 import LogContext from '../../contexts/LogContext';
 
 interface ReferralSocialShareButtonsProps {

@@ -1,6 +1,7 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { largeNumberFormat } from '../../../lib';
-import { Squad } from '../../../graphql/sources';
+import type { Squad } from '../../../graphql/sources';
 
 interface SquadStatProps {
   count: number;

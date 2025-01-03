@@ -1,11 +1,13 @@
-import React, { ReactElement, ReactNode, useEffect, useContext } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useEffect, useContext } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
+import type { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
+import type { BookmarkFeedLayoutProps } from '@dailydotdev/shared/src/components/BookmarkFeedLayout';
 import BookmarkFeedLayout from '@dailydotdev/shared/src/components/BookmarkFeedLayout';
 import { getLayout } from './FeedLayout';
-import { MainFeedPageProps } from './MainFeedPage';
+import type { MainFeedPageProps } from './MainFeedPage';
 
 const PostsSearch = dynamic(
   () =>
@@ -15,9 +17,15 @@ const PostsSearch = dynamic(
   },
 );
 
+type BookmarkFeedPageProps = MainFeedPageProps &
+  Pick<BookmarkFeedLayoutProps, 'title' | 'folder' | 'isReminderOnly'>;
+
 export default function BookmarkFeedPage({
   children,
-}: MainFeedPageProps): ReactElement {
+  folder,
+  isReminderOnly,
+  ...props
+}: BookmarkFeedPageProps): ReactElement {
   const router = useRouter();
   const { user, tokenRefreshed } = useContext(AuthContext);
 
@@ -31,6 +39,8 @@ export default function BookmarkFeedPage({
 
   return (
     <BookmarkFeedLayout
+      folder={folder}
+      isReminderOnly={isReminderOnly}
       searchQuery={router.query?.q?.toString()}
       searchChildren={
         user && (
@@ -41,6 +51,7 @@ export default function BookmarkFeedPage({
           />
         )
       }
+      {...props}
     >
       {children}
     </BookmarkFeedLayout>
@@ -50,7 +61,7 @@ export default function BookmarkFeedPage({
 export function getBookmarkFeedLayout(
   page: ReactNode,
   pageProps: Record<string, unknown>,
-  layoutProps: MainLayoutProps & MainFeedPageProps,
+  layoutProps: BookmarkFeedPageProps,
 ): ReactNode {
   return getLayout(
     <BookmarkFeedPage {...layoutProps}>{page}</BookmarkFeedPage>,

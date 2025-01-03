@@ -1,20 +1,13 @@
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import nock from 'nock';
 import { AuthContextProvider } from '../../contexts/AuthContext';
-import { AnonymousUser, LoggedUser } from '../../lib/user';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '../../../__tests__/helpers/graphql';
+import type { AnonymousUser, LoggedUser } from '../../lib/user';
+import type { MockedGraphQLResponse } from '../../../__tests__/helpers/graphql';
+import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import {
   SUBMISSION_AVAILABILITY_QUERY,
   SUBMIT_ARTICLE_MUTATION,

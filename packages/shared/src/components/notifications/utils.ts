@@ -1,6 +1,6 @@
-import { ComponentType } from 'react';
+import type { ComponentType } from 'react';
 import classed from '../../lib/classed';
-import { IconProps } from '../Icon';
+import type { IconProps } from '../Icon';
 import {
   BellIcon,
   CommunityPicksIcon,
@@ -15,7 +15,7 @@ import {
   ReadingStreakIcon,
   TimerIcon,
 } from '../icons';
-import { NotificationPromptSource } from '../../lib/log';
+import type { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
 
 export const NotifContainer = classed(

@@ -1,9 +1,5 @@
-import React, {
-  KeyboardEvent,
-  ReactElement,
-  useCallback,
-  useState,
-} from 'react';
+import type { KeyboardEvent, ReactElement } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   Typography,
@@ -30,8 +26,11 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
 import { usePlusSubscription } from '../../hooks';
 import { IconSize } from '../Icon';
+import { FeedSettingsEditContext } from '../feeds/FeedSettings/FeedSettingsEditContext';
 
 export const BlockedWords = (): ReactElement => {
+  const feedSettingsEditContext = useContext(FeedSettingsEditContext);
+  const feed = feedSettingsEditContext?.feed;
   const queryClient = useQueryClient();
   const { user } = useAuthContext();
   const { block, unblock } = useContentPreference();
@@ -51,8 +50,8 @@ export const BlockedWords = (): ReactElement => {
     });
   }, [queryClient, user]);
   const queryResult = useBlockedQuery({
-    id: user.id,
     entity: ContentPreferenceType.Word,
+    feedId: feed?.id,
   });
   const flatBlockedWords =
     queryResult?.data?.pages.flatMap(
@@ -65,6 +64,7 @@ export const BlockedWords = (): ReactElement => {
         id: words,
         entity: ContentPreferenceType.Word,
         entityName: 'words',
+        feedId: feed?.id,
       });
       invalidateBlockedWords();
       setWords('');
@@ -74,6 +74,7 @@ export const BlockedWords = (): ReactElement => {
   return (
     <div className="flex flex-col gap-2">
       <Typography
+        type={TypographyType.Body}
         tag={TypographyTag.H3}
         bold
         className="flex items-center gap-2"
@@ -88,7 +89,10 @@ export const BlockedWords = (): ReactElement => {
           <DevPlusIcon size={IconSize.Size16} /> Plus
         </Typography>
       </Typography>
-      <Typography color={TypographyColor.Tertiary}>
+      <Typography
+        color={TypographyColor.Tertiary}
+        type={TypographyType.Callout}
+      >
         Automatically filter out posts containing words you never want to see
         again. Life’s too short for unnecessary noise.
         {!isPlus ? (
@@ -141,6 +145,7 @@ export const BlockedWords = (): ReactElement => {
                 id: word.referenceId,
                 entity: ContentPreferenceType.Word,
                 entityName: word.referenceId,
+                feedId: feed?.id,
               }).then(() => invalidateBlockedWords())
             }
             tagItem={word.referenceId}

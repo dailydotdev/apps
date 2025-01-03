@@ -1,6 +1,6 @@
-import { QueryKey } from '@tanstack/react-query';
-import { MouseEvent } from 'react';
-import { Search, SearchChunkSource } from '../../graphql/search';
+import type { QueryKey } from '@tanstack/react-query';
+import type { MouseEvent } from 'react';
+import type { Search, SearchChunkSource } from '../../graphql/search';
 
 export interface UseChatProps {
   id?: string;

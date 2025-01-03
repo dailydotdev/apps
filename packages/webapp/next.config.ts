@@ -2,8 +2,8 @@ import withSerwistInit from '@serwist/next';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import withBundleAnalyzerInit from '@next/bundle-analyzer';
 import { readFileSync } from 'fs';
-import { NextConfig } from 'next';
-import { Rewrite } from 'next/dist/lib/load-custom-routes';
+import type { NextConfig } from 'next';
+import type { Rewrite } from 'next/dist/lib/load-custom-routes';
 
 const { version } = JSON.parse(
   readFileSync('../extension/package.json', 'utf8'),
@@ -123,6 +123,16 @@ const nextConfig: NextConfig = {
             source: '/search',
             destination: '/search/posts',
           },
+          {
+            source: '/posts/:id',
+            destination: '/posts/:id/share',
+            has: [
+              {
+                type: 'query',
+                key: 'userid',
+              },
+            ],
+          },
         ];
 
         // to support GitPod environment and avoid CORS issues, we need to proxy the API requests
@@ -159,6 +169,12 @@ const nextConfig: NextConfig = {
           {
             source: '/signup',
             destination: '/onboarding',
+            permanent: false,
+          },
+          // so we can't access /share route directly
+          {
+            source: '/posts/:id/share',
+            destination: '/posts/:id',
             permanent: false,
           },
         ];

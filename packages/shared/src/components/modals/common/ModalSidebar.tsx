@@ -1,8 +1,10 @@
 import classNames from 'classnames';
-import React, { ReactElement, ReactNode, useContext, useState } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useContext, useState } from 'react';
 import classed from '../../../lib/classed';
 import SidebarList from '../../sidebar/SidebarList';
-import { ModalPropsContext, ModalTabItem } from './types';
+import type { ModalTabItem } from './types';
+import { ModalPropsContext } from './types';
 
 export type ModalSidebarProps = {
   children?: ReactNode;
@@ -11,7 +13,7 @@ export type ModalSidebarProps = {
 
 export type ModalSidebarListProps = {
   className?: string;
-  title: string;
+  title: ReactNode;
   defaultOpen?: boolean;
 };
 
@@ -59,7 +61,7 @@ export function ModalSidebar({
   className,
 }: ModalSidebarProps): ReactElement {
   return (
-    <div className={classNames('flex h-full w-full flex-row', className)}>
+    <div className={classNames('flex w-full flex-1 flex-row', className)}>
       {children}
     </div>
   );

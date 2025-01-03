@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
-import { GetServerSidePropsResult } from 'next';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { GetServerSidePropsResult } from 'next';
 import { squadCategoriesPaths } from '@dailydotdev/shared/src/lib/constants';
 
 const SquadsPage = (): ReactElement => {

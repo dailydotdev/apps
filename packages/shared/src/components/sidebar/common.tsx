@@ -1,14 +1,14 @@
-import React, {
+import type {
   ReactNode,
   ReactElement,
   HTMLAttributeAnchorTarget,
-  forwardRef,
   MutableRefObject,
 } from 'react';
+import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { TooltipProps } from '../tooltips/BaseTooltip';
+import type { TooltipProps } from '../tooltips/BaseTooltip';
 
 export interface SidebarProps {
   promotionalBannerActive?: boolean;
@@ -82,11 +82,11 @@ export const SidebarScrollWrapper = classed(
   'div',
   'flex overflow-x-hidden overflow-y-auto flex-col h-full no-scrollbar',
 );
-export const Nav = classed('nav', 'my-4 mt-10 laptop:mt-4');
+export const Nav = classed('nav', 'mb-4');
 export const NavSection = classed('ul', 'mt-0 laptop:mt-4');
 export const NavHeader = classed(
   'li',
-  'typo-callout text-text-quaternary h-8 flex items-center font-bold  transition-opacity',
+  'typo-callout text-text-quaternary h-8 flex items-center font-bold transition-opacity',
 );
 
 const RawNavItem = classed(
@@ -135,6 +135,9 @@ const ItemInnerIconTooltip = ({
   </SimpleTooltip>
 );
 
+const isFontIcon = (icon: SidebarMenuItem['icon']): icon is string =>
+  typeof icon === 'string';
+
 export const ItemInner = ({
   item,
   shouldShowLabel,
@@ -144,7 +147,15 @@ export const ItemInner = ({
 
   return (
     <>
-      <Icon {...item} active={active} />
+      {isFontIcon(item.icon) ? (
+        <ItemInnerIcon
+          icon={
+            <span className="inline-block w-5 text-center">{item.icon}</span>
+          }
+        />
+      ) : (
+        <Icon {...item} active={active} />
+      )}
       <span
         className={classNames(
           'flex-1 truncate text-left transition-opacity',

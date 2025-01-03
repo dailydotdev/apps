@@ -1,11 +1,6 @@
 import classNames from 'classnames';
-import React, {
-  forwardRef,
-  MutableRefObject,
-  ReactElement,
-  ReactNode,
-  useContext,
-} from 'react';
+import type { MutableRefObject, ReactElement, ReactNode } from 'react';
+import React, { forwardRef, useContext } from 'react';
 import { ModalKind, ModalPropsContext, ModalSize } from './types';
 
 export type ModalBodyProps = JSX.IntrinsicElements['section'] & {

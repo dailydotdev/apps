@@ -1,5 +1,7 @@
-import React, { type ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ShieldCheckIcon, ShieldIcon, ShieldWarningIcon } from '../../icons';
 import {
@@ -11,23 +13,24 @@ import {
 import { SimpleTooltip } from '../../tooltips';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { ActionType } from '../../../graphql/actions';
-import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { LazyModal } from '../../modals/common/types';
-import { FilterMenuTitle } from '../../filters/helpers';
 
 import { ClickbaitTrial } from '../../plus/ClickbaitTrial';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import type { Post } from '../../../graphql/posts';
+import { FeedSettingsMenu } from '../../feeds/FeedSettings/types';
+import { webappUrl } from '../../../lib/constants';
+import { useAuthContext } from '../../../contexts/AuthContext';
 
 export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const { openModal } = useLazyModal();
   const { isPlus, showPlusSubscription } = usePlusSubscription();
   const { checkHasCompleted } = useActions();
-  const { flags } = useSettingsContext();
-  const { fetchSmartTitle, fetchedSmartTitle } = useSmartTitle(post);
+  const { fetchSmartTitle, fetchedSmartTitle, shieldActive } =
+    useSmartTitle(post);
   const isMobile = useViewSize(ViewSize.MobileL);
-
-  const { clickbaitShieldEnabled } = flags;
+  const router = useRouter();
+  const { user } = useAuthContext();
 
   if (!showPlusSubscription) {
     return null;
@@ -76,12 +79,9 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
                       type: LazyModal.ClickbaitShield,
                     });
                   } else {
-                    openModal({
-                      type: LazyModal.FeedFilters,
-                      props: {
-                        defaultView: FilterMenuTitle.ContentTypes,
-                      },
-                    });
+                    router.push(
+                      `${webappUrl}feeds/${user.id}/edit?dview=${FeedSettingsMenu.AI}`,
+                    );
                   }
                 } else {
                   await fetchSmartTitle();
@@ -104,7 +104,7 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
         className: 'max-w-70 text-center typo-subhead',
       }}
       content={
-        clickbaitShieldEnabled
+        shieldActive
           ? 'Click to see the original title'
           : 'Click to see the optimized title'
       }
@@ -113,8 +113,7 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
         className="relative mr-2 mt-1 font-normal"
         size={ButtonSize.XSmall}
         icon={
-          (clickbaitShieldEnabled && !fetchedSmartTitle) ||
-          (!clickbaitShieldEnabled && fetchedSmartTitle) ? (
+          shieldActive ? (
             <ShieldCheckIcon className="text-status-success" />
           ) : (
             <ShieldIcon />
@@ -123,10 +122,7 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
         iconSecondaryOnHover
         onClick={fetchSmartTitle}
       >
-        {(clickbaitShieldEnabled && !fetchedSmartTitle) ||
-        (!clickbaitShieldEnabled && fetchedSmartTitle)
-          ? 'Optimized title'
-          : 'Clickbait Shield disabled'}
+        {shieldActive ? 'Optimized title' : 'Clickbait Shield disabled'}
       </Button>
     </SimpleTooltip>
   );

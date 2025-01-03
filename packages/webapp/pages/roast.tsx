@@ -1,4 +1,5 @@
-import React, { ReactElement, ReactNode, useContext, useState } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useContext, useState } from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   Button,
@@ -8,14 +9,14 @@ import {
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import classNames from 'classnames';
 import { FormErrorMessage } from '@dailydotdev/shared/src/components/utilities';
-import { NextSeoProps } from 'next-seo/lib/types';
+import type { NextSeoProps } from 'next-seo/lib/types';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { labels } from '@dailydotdev/shared/src/lib';
 import {
   Automation,
   useAutomation,
 } from '@dailydotdev/shared/src/hooks/useAutomation';
-import { HttpError } from '@dailydotdev/shared/src/lib/errors';
+import type { HttpError } from '@dailydotdev/shared/src/lib/errors';
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import { useMutation } from '@tanstack/react-query';
 import { downloadUrl } from '@dailydotdev/shared/src/lib/blob';

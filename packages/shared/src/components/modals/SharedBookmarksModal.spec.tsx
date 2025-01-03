@@ -1,8 +1,8 @@
+import type { RenderResult } from '@testing-library/react';
 import {
   fireEvent,
   queryByText,
   render,
-  RenderResult,
   screen,
   waitFor,
 } from '@testing-library/react';
@@ -10,10 +10,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import nock from 'nock';
 import SharedBookmarksModal from './SharedBookmarksModal';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '../../../__tests__/helpers/graphql';
+import type { MockedGraphQLResponse } from '../../../__tests__/helpers/graphql';
+import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import {
   BOOKMARK_SHARING_MUTATION,
   BOOKMARK_SHARING_QUERY,

@@ -1,6 +1,8 @@
-import React, { FormEventHandler, ReactElement, useState } from 'react';
+import type { FormEventHandler, ReactElement } from 'react';
+import React, { useState } from 'react';
 import { format } from 'date-fns';
-import { LazyModalCommonProps, Modal } from '../common/Modal';
+import type { LazyModalCommonProps } from '../common/Modal';
+import { Modal } from '../common/Modal';
 import { ModalHeader } from '../common/ModalHeader';
 import { ModalBody } from '../common/ModalBody';
 import { ModalSize } from '../common/types';
@@ -10,10 +12,14 @@ import {
   ReminderPreference,
   useBookmarkReminder,
 } from '../../../hooks/notifications';
-import { Post } from '../../../graphql/posts';
+import type { Post } from '../../../graphql/posts';
+import type { ActiveFeedContextValue } from '../../../contexts';
+import { ActiveFeedContext } from '../../../contexts';
+import ConditionalWrapper from '../../ConditionalWrapper';
 
 export interface BookmarkReminderProps extends LazyModalCommonProps {
   onReminderSet?: (reminder: string) => void;
+  feedContextData?: ActiveFeedContextValue;
   post: Post;
 }
 
@@ -152,4 +158,20 @@ export const BookmarkReminderModal = (
   );
 };
 
-export default BookmarkReminderModal;
+const ModalComponent: typeof BookmarkReminderModal = ({
+  feedContextData,
+  ...props
+}) => (
+  <ConditionalWrapper
+    condition={!!feedContextData}
+    wrapper={(component) => (
+      <ActiveFeedContext.Provider value={feedContextData}>
+        {component}
+      </ActiveFeedContext.Provider>
+    )}
+  >
+    <BookmarkReminderModal {...props} />
+  </ConditionalWrapper>
+);
+
+export default ModalComponent;

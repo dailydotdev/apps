@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import {
   checkHasStatusPreference,
   useNotificationPreference,
@@ -6,7 +7,7 @@ import {
 import { NotificationType } from '../../notifications/utils';
 import { NotificationPreferenceStatus } from '../../../graphql/notifications';
 import { BellDisabledIcon, BellIcon } from '../../icons';
-import { Post } from '../../../graphql/posts';
+import type { Post } from '../../../graphql/posts';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { AuthTriggers } from '../../../lib/auth';
 import { useAuthContext } from '../../../contexts/AuthContext';

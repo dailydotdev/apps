@@ -1,4 +1,5 @@
-import React, { type ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { AuthenticationBanner, OnboardingHeadline } from '../../auth';
 import {
@@ -17,16 +18,14 @@ const SocialPersonalizedBanner = ({
 }): ReactElement => {
   const Icon = socialIcon[site];
   const gradient = socialGradient[site];
+
   return (
     <AuthenticationBanner>
-      <Icon
-        size={IconSize.XXLarge}
-        secondary={site === SocialIconType.Reddit}
-      />
+      <Icon size={IconSize.Size48} secondary={site === SocialIconType.Reddit} />
       <OnboardingHeadline
         className={{
           title: classNames('typo-mega3', gradient),
-          description: 'mb-8 typo-title3',
+          description: classNames('mb-8 typo-title3'),
         }}
         pretitle={`Coming from ${capitalize(site)}?`}
         {...socialCTA[site]}

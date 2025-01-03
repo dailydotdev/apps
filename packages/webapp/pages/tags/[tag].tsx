@@ -1,10 +1,11 @@
-import {
+import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
-import { ParsedUrlQuery } from 'querystring';
-import React, { ReactElement, useContext, useMemo } from 'react';
+import type { ParsedUrlQuery } from 'querystring';
+import type { ReactElement } from 'react';
+import React, { useContext, useMemo } from 'react';
 import {
   BlockIcon,
   DiscussIcon,
@@ -16,7 +17,7 @@ import {
 } from '@dailydotdev/shared/src/components/icons';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import { useRouter } from 'next/router';
-import { NextSeoProps } from 'next-seo';
+import type { NextSeoProps } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import {
   MOST_DISCUSSED_FEED_QUERY,
@@ -24,9 +25,9 @@ import {
   TAG_FEED_QUERY,
 } from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import type { ButtonProps } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   Button,
-  ButtonProps,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -38,24 +39,22 @@ import {
   RequestKey,
   StaleTime,
 } from '@dailydotdev/shared/src/lib/query';
-import { Origin } from '@dailydotdev/shared/src/lib/log';
-import {
-  KEYWORD_QUERY,
-  Keyword,
-} from '@dailydotdev/shared/src/graphql/keywords';
+import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
+import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
+import { KEYWORD_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useQuery } from '@tanstack/react-query';
+import type { TagsData } from '@dailydotdev/shared/src/graphql/feedSettings';
+import { GET_RECOMMENDED_TAGS_QUERY } from '@dailydotdev/shared/src/graphql/feedSettings';
 import {
-  GET_RECOMMENDED_TAGS_QUERY,
-  TagsData,
-} from '@dailydotdev/shared/src/graphql/feedSettings';
-import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+  ReferralCampaignKey,
+  useFeedLayout,
+} from '@dailydotdev/shared/src/hooks';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
-import {
-  SOURCES_BY_TAG_QUERY,
-  Source,
-} from '@dailydotdev/shared/src/graphql/sources';
-import { Connection, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import type { Source } from '@dailydotdev/shared/src/graphql/sources';
+import { SOURCES_BY_TAG_QUERY } from '@dailydotdev/shared/src/graphql/sources';
+import type { Connection } from '@dailydotdev/shared/src/graphql/common';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { RelatedSources } from '@dailydotdev/shared/src/components/RelatedSources';
 import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts';
 import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
@@ -65,9 +64,12 @@ import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { cloudinarySourceRoadmap } from '@dailydotdev/shared/src/lib/image';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import CustomFeedOptionsMenu from '@dailydotdev/shared/src/components/CustomFeedOptionsMenu';
+import { useContentPreference } from '@dailydotdev/shared/src/hooks/contentPreference/useContentPreference';
+import { ContentPreferenceType } from '@dailydotdev/shared/src/graphql/contentPreference';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
-import { DynamicSeoProps } from '../../components/common';
+import type { DynamicSeoProps } from '../../components/common';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
 interface TagPageProps extends DynamicSeoProps {
@@ -132,7 +134,7 @@ const TagTopSources = ({ tag }: { tag: string }) => {
 };
 
 const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
-  const { isFallback } = useRouter();
+  const { isFallback, push } = useRouter();
   const showRoadmap = useFeature(feature.showRoadmap);
   const { user, showLogin } = useContext(AuthContext);
   const mostUpvotedQueryVariables = useMemo(
@@ -160,6 +162,9 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({ origin: Origin.TagPage });
   const title = initialData?.flags?.title || tag;
+  const { follow, unfollow } = useContentPreference({
+    showToastOnSuccess: false,
+  });
 
   const tagStatus = useMemo(() => {
     if (!feedSettings) {
@@ -243,6 +248,38 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
               {tagStatus === 'blocked' ? 'Unblock' : 'Block'}
             </Button>
           )}
+          <CustomFeedOptionsMenu
+            onCreateNewFeed={() =>
+              push(
+                `/feeds/new?entityId=${tag}&entityType=${ContentPreferenceType.Keyword}`,
+              )
+            }
+            onAdd={(feedId) =>
+              follow({
+                id: tag,
+                entity: ContentPreferenceType.Keyword,
+                entityName: tag,
+                feedId,
+              })
+            }
+            onUndo={(feedId) =>
+              unfollow({
+                id: tag,
+                entity: ContentPreferenceType.Keyword,
+                entityName: tag,
+                feedId,
+              })
+            }
+            shareProps={{
+              text: `Check out the ${tag} tag on daily.dev`,
+              link: globalThis?.location?.href,
+              cid: ReferralCampaignKey.ShareTag,
+              logObject: () => ({
+                event_name: LogEvent.ShareTag,
+                target_id: tag,
+              }),
+            }}
+          />
         </div>
         {initialData?.flags?.description && (
           <p className="typo-body">{initialData?.flags?.description}</p>

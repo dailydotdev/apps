@@ -1,6 +1,8 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
+import type { HTMLAttributes, ReactElement } from 'react';
+import React from 'react';
 import useFeedSettings from '../../hooks/useFeedSettings';
-import { Button, ButtonElementType, ButtonVariant } from '../buttons/Button';
+import type { ButtonElementType } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips';
 import { isTesting } from '../../lib/constants';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
@@ -25,8 +27,11 @@ export const CreateFeedButton = ({
   const { selectedSettings, checkSourceBlocked } = useAdvancedSettings();
 
   const contentTypeStep = activeScreen === OnboardingStep.ContentTypes;
-  const sourceStep = activeScreen === OnboardingStep.Sources;
-  const androidStep = activeScreen === OnboardingStep.AndroidApp;
+  const CTAStep = [
+    OnboardingStep.AndroidApp,
+    OnboardingStep.PWA,
+    OnboardingStep.Extension,
+  ].includes(activeScreen);
 
   const contentTypeNotEmpty =
     !!getContentTypeNotEmpty({
@@ -43,11 +48,7 @@ export const CreateFeedButton = ({
 
   const isPlusStep = activeScreen === OnboardingStep.Plus;
   const canCreateFeed =
-    tagsCountMatch ||
-    contentTypeNotEmpty ||
-    sourceStep ||
-    isPlusStep ||
-    androidStep;
+    tagsCountMatch || contentTypeNotEmpty || isPlusStep || CTAStep;
   const { sidebarRendered } = useSidebarRendered();
   const buttonName =
     customActionName ??
@@ -74,7 +75,7 @@ export const CreateFeedButton = ({
     if (isPlusStep) {
       return ButtonVariant.Secondary;
     }
-    if (androidStep) {
+    if (CTAStep) {
       return ButtonVariant.Tertiary;
     }
     return ButtonVariant.Primary;

@@ -1,11 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
+import type {
+  UserPersonalizedDigest,
+  UserPersonalizedDigestSubscribe,
+} from '../graphql/users';
 import {
   GET_PERSONALIZED_DIGEST_SETTINGS,
   SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
   UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
-  UserPersonalizedDigest,
-  UserPersonalizedDigestSubscribe,
   UserPersonalizedDigestType,
 } from '../graphql/users';
 import { RequestKey, StaleTime, generateQueryKey } from '../lib/query';

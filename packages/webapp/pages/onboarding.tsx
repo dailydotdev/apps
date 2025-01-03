@@ -1,5 +1,5 @@
+import type { ReactElement } from 'react';
 import React, {
-  ReactElement,
   useCallback,
   useEffect,
   useMemo,
@@ -7,10 +7,12 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import AuthOptions, {
-  AuthDisplay,
+import type {
   AuthOptionsProps,
   AuthProps,
+} from '@dailydotdev/shared/src/components/auth/AuthOptions';
+import AuthOptions, {
+  AuthDisplay,
 } from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
@@ -28,7 +30,7 @@ import {
   wrapperMaxWidth,
 } from '@dailydotdev/shared/src/components/onboarding/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { NextSeoProps } from 'next-seo';
+import type { NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import {
   useFeature,
@@ -46,7 +48,9 @@ import {
 } from '@dailydotdev/shared/src/components/Pixels';
 import {
   feature,
-  featureOnboardingSources,
+  featureOnboardingAndroid,
+  featureOnboardingExtension,
+  featureOnboardingPWA,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import {
@@ -55,7 +59,7 @@ import {
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
@@ -64,7 +68,12 @@ import dynamic from 'next/dynamic';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/PaymentContext';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
-import { checkIsBrowser, UserAgent } from '@dailydotdev/shared/src/lib/func';
+import {
+  checkIsBrowser,
+  isIOS,
+  UserAgent,
+} from '@dailydotdev/shared/src/lib/func';
+import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboarding/Extension/useOnboardingExtension';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -88,11 +97,6 @@ const OnboardingFooter = dynamic(() =>
     /* webpackChunkName: "onboardingFooter" */ '@dailydotdev/shared/src/components/onboarding/OnboardingFooter'
   ).then((mod) => mod.OnboardingFooter),
 );
-const Sources = dynamic(() =>
-  import('@dailydotdev/shared/src/components/onboarding/Sources/Sources').then(
-    (mod) => mod.Sources,
-  ),
-);
 const OnboardingPlusStep = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingPlusStep" */ '@dailydotdev/shared/src/components/onboarding/OnboardingPlusStep'
@@ -103,6 +107,18 @@ const OnboardingAndroidApp = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingAndroidApp" */ '@dailydotdev/shared/src/components/onboarding/OnboardingAndroidApp'
   ).then((mod) => mod.OnboardingAndroidApp),
+);
+
+const OnboardingPWA = dynamic(() =>
+  import(
+    /* webpackChunkName: "onboardingPWA" */ '@dailydotdev/shared/src/components/onboarding/OnboardingPWA'
+  ).then((mod) => mod.OnboardingPWA),
+);
+
+const OnboardingExtension = dynamic(() =>
+  import(
+    /* webpackChunkName: "onboardingExtension" */ '@dailydotdev/shared/src/components/onboarding/Extension/OnboardingExtension'
+  ).then((mod) => mod.OnboardingExtension),
 );
 
 type OnboardingVisual = {
@@ -155,16 +171,28 @@ export function OnboardPage(): ReactElement {
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
   const [shouldEnrollOnboardingStep, setShouldEnrollOnboardingStep] =
     useState(false);
-  const { value: showOnboardingSources } = useConditionalFeature({
-    feature: featureOnboardingSources,
-    shouldEvaluate: shouldEnrollOnboardingStep,
-  });
   const { value: appExperiment } = useConditionalFeature({
-    feature: feature.onboardingAndroid,
+    feature: featureOnboardingAndroid,
     shouldEvaluate:
       shouldEnrollOnboardingStep && checkIsBrowser(UserAgent.Android),
   });
+  const { shouldShowExtensionOnboarding } = useOnboardingExtension();
+  const { value: extensionExperiment } = useConditionalFeature({
+    feature: featureOnboardingExtension,
+    shouldEvaluate: shouldEnrollOnboardingStep && shouldShowExtensionOnboarding,
+  });
+
+  const { value: PWAExperiment } = useConditionalFeature({
+    feature: featureOnboardingPWA,
+    shouldEvaluate: shouldEnrollOnboardingStep && isIOS(),
+  });
+
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
+  const isCTA = [
+    OnboardingStep.AndroidApp,
+    OnboardingStep.PWA,
+    OnboardingStep.Extension,
+  ].includes(activeScreen);
 
   useEffect(() => {
     if (!isPageReady || isLogged.current) {
@@ -204,18 +232,9 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.ReadingReminder);
     }
 
-    if (
-      showOnboardingSources &&
-      (activeScreen === OnboardingStep.ReadingReminder ||
-        activeScreen === OnboardingStep.ContentTypes)
-    ) {
-      return setActiveScreen(OnboardingStep.Sources);
-    }
-
     const isLastStepBeforePlus = [
       OnboardingStep.ContentTypes,
       OnboardingStep.ReadingReminder,
-      OnboardingStep.Sources,
     ].includes(activeScreen);
     if (isOnboardingPlusActive && isLastStepBeforePlus) {
       return setActiveScreen(OnboardingStep.Plus);
@@ -223,6 +242,18 @@ export function OnboardPage(): ReactElement {
 
     if (appExperiment && activeScreen !== OnboardingStep.AndroidApp) {
       return setActiveScreen(OnboardingStep.AndroidApp);
+    }
+
+    if (PWAExperiment && activeScreen !== OnboardingStep.PWA) {
+      return setActiveScreen(OnboardingStep.PWA);
+    }
+
+    if (
+      extensionExperiment &&
+      shouldShowExtensionOnboarding &&
+      activeScreen !== OnboardingStep.Extension
+    ) {
+      return setActiveScreen(OnboardingStep.Extension);
     }
 
     logEvent({
@@ -308,19 +339,15 @@ export function OnboardPage(): ReactElement {
       return 'Continue';
     }
 
-    if (showOnboardingSources && activeScreen === OnboardingStep.ContentTypes) {
-      return 'Continue';
-    }
-
     if (activeScreen === OnboardingStep.Plus) {
       return 'Skip for now ➞';
     }
-    if (activeScreen === OnboardingStep.AndroidApp) {
+    if (isCTA) {
       return 'Not now →';
     }
 
     return undefined;
-  }, [activeScreen, showOnboardingSources]);
+  }, [activeScreen, isCTA]);
 
   const showOnboardingPage =
     !isAuthenticating && activeScreen === OnboardingStep.Intro && !shouldVerify;
@@ -333,7 +360,12 @@ export function OnboardPage(): ReactElement {
   }
 
   return (
-    <div className="z-3 flex h-full max-h-screen min-h-screen w-full flex-1 flex-col items-center overflow-x-hidden">
+    <div
+      className={classNames(
+        'z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
+        isCTA && 'fixed',
+      )}
+    >
       {showOnboardingPage && (
         <img
           alt="Onboarding background"
@@ -360,6 +392,7 @@ export function OnboardPage(): ReactElement {
           'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
           activeScreen === OnboardingStep.Intro && wrapperMaxWidth,
           !isAuthenticating && 'mt-7.5 flex-1 content-center',
+          activeScreen === OnboardingStep.Extension && '!flex-col',
         )}
       >
         {showOnboardingPage && (
@@ -385,7 +418,8 @@ export function OnboardPage(): ReactElement {
               activeScreen === OnboardingStep.Intro
                 ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
                 : 'mb-10 ml-0 w-full flex-col items-center justify-start',
-              activeScreen === OnboardingStep.AndroidApp && 'mb-auto',
+              isCTA &&
+                'relative mb-auto flex-1 !justify-between overflow-hidden',
             )}
           >
             {activeScreen === OnboardingStep.ReadingReminder && (
@@ -401,7 +435,6 @@ export function OnboardPage(): ReactElement {
               />
             )}
             {activeScreen === OnboardingStep.ContentTypes && <ContentTypes />}
-            {activeScreen === OnboardingStep.Sources && <Sources />}
             {activeScreen === OnboardingStep.Plus && (
               <PaymentContextProvider>
                 <OnboardingPlusStep onClickNext={onClickNext} />
@@ -410,11 +443,15 @@ export function OnboardPage(): ReactElement {
             {activeScreen === OnboardingStep.AndroidApp && (
               <OnboardingAndroidApp />
             )}
+            {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
+            {activeScreen === OnboardingStep.Extension && (
+              <OnboardingExtension />
+            )}
           </div>
         )}
       </div>
       {showOnboardingPage && <OnboardingFooter />}
-      <FooterLinks className="mx-auto pb-6" />
+      {!isCTA && <FooterLinks className="mx-auto pb-6" />}
     </div>
   );
 }

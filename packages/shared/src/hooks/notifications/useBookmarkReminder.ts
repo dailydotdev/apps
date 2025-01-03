@@ -1,20 +1,20 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 import { addDays, addHours, nextMonday, set } from 'date-fns';
-import {
+import type {
   Bookmark,
-  setBookmarkReminder,
   SetBookmarkReminderProps,
 } from '../../graphql/bookmarks';
+import { setBookmarkReminder } from '../../graphql/bookmarks';
 import { useToastNotification } from '../useToastNotification';
 import { updatePostCache } from '../usePostById';
-import { ActiveFeedContext } from '../../contexts';
+import { useActiveFeedContext } from '../../contexts';
 import { updateCachedPagePost } from '../../lib/query';
 import { optimisticPostUpdateInFeed, postLogEvent } from '../../lib/feed';
-import { EmptyResponse } from '../../graphql/emptyResponse';
+import type { EmptyResponse } from '../../graphql/emptyResponse';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, NotificationPromptSource } from '../../lib/log';
-import { Post } from '../../graphql/posts';
+import type { Post } from '../../graphql/posts';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { usePushNotificationMutation } from './usePushNotificationMutation';
 
@@ -72,7 +72,7 @@ export const useBookmarkReminder = ({
   post,
 }: UseBookmarkReminderProps): UseBookmarkReminder => {
   const client = useQueryClient();
-  const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
+  const { queryKey: feedQueryKey, items } = useActiveFeedContext();
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
   const { isPushSupported, isSubscribed } = usePushNotificationContext();
@@ -80,6 +80,7 @@ export const useBookmarkReminder = ({
 
   const onUpdateCache = (postId: string, remindAt?: Date) => {
     updatePostCache(client, postId, (_post) => ({
+      bookmarked: true,
       bookmark: { ..._post.bookmark, remindAt },
     }));
 
@@ -91,6 +92,7 @@ export const useBookmarkReminder = ({
       );
       const update = optimisticPostUpdateInFeed(items, updatePost, () => ({
         bookmark,
+        bookmarked: true,
       }));
 
       update({ index: postIndexToUpdate });

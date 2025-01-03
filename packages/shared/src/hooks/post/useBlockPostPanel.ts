@@ -1,14 +1,16 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
-import { Post, ReadHistoryPost } from '../../graphql/posts';
+import type { Post, ReadHistoryPost } from '../../graphql/posts';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions } from '../useActions';
 import { ActionType } from '../../graphql/actions';
 import useTagAndSource from '../useTagAndSource';
 import { Origin } from '../../lib/log';
-import {
+import type {
   BlockTagSelection,
   DownvoteBlocked,
+} from '../../components/post/block/common';
+import {
   getBlockedLength,
   getBlockedMessage,
 } from '../../components/post/block/common';
@@ -37,6 +39,7 @@ interface UseBlockPost {
 interface UseBlockPostProps {
   toastOnSuccess?: boolean;
   blockedSource?: boolean;
+  feedId?: string;
 }
 
 interface Params {
@@ -62,7 +65,7 @@ const ignoredCall = () => Promise.resolve({ successful: true });
 
 export const useBlockPostPanel = (
   post: Post | ReadHistoryPost,
-  { toastOnSuccess, blockedSource }: UseBlockPostProps = {},
+  { toastOnSuccess, blockedSource, feedId }: UseBlockPostProps = {},
 ): UseBlockPost => {
   const { openModal } = useLazyModal();
   const { displayToast } = useToastNotification();
@@ -71,6 +74,7 @@ export const useBlockPostPanel = (
       origin: Origin.TagsFilter,
       postId: post?.id,
       shouldInvalidateQueries: false,
+      feedId,
     });
   const client = useQueryClient();
   const { user } = useAuthContext();

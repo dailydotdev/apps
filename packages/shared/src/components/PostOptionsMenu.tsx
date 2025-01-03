@@ -1,11 +1,13 @@
-import React, { ReactElement, useContext, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
-import { Post, UserVote, isVideoPost } from '../graphql/posts';
+import type { Post } from '../graphql/posts';
+import { UserVote, isVideoPost } from '../graphql/posts';
 import {
   TrashIcon,
   HammerIcon,
@@ -26,19 +28,25 @@ import {
   BellAddIcon,
   AddUserIcon,
   RemoveUserIcon,
+  FolderIcon,
+  ShieldIcon,
+  ShieldWarningIcon,
 } from './icons';
-import { ReportedCallback } from './modals';
+import type { ReportedCallback } from './modals';
 import useTagAndSource from '../hooks/useTagAndSource';
 import LogContext from '../contexts/LogContext';
 import { postLogEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
 import {
   ToastSubject,
+  useAdvancedSettings,
   useFeedLayout,
+  usePlusSubscription,
   useSourceActionsNotify,
   useToastNotification,
 } from '../hooks';
-import { AllFeedPages, generateQueryKey } from '../lib/query';
+import type { AllFeedPages } from '../lib/query';
+import { generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { LogEvent, Origin } from '../lib/log';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
@@ -46,9 +54,7 @@ import usePostById, { getPostByIdKey } from '../hooks/usePostById';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { labels } from '../lib';
-import { MenuItemProps } from './fields/ContextMenu';
-import { ActiveFeedContext } from '../contexts';
-import { useAdvancedSettings } from '../hooks/feed';
+import type { MenuItemProps } from './fields/ContextMenu';
 import { ContextMenu as ContextMenuTypes } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
 import { SourceType } from '../graphql/sources';
@@ -60,6 +66,7 @@ import { useContentPreference } from '../hooks/contentPreference/useContentPrefe
 import { ContentPreferenceType } from '../graphql/contentPreference';
 import { isFollowingContent } from '../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../hooks/auth/useIsSpecialUser';
+import { useActiveFeedContext } from '../contexts';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -78,6 +85,7 @@ export interface PostOptionsMenuProps {
   onRemovePost?: (postIndex: number) => Promise<unknown>;
   setShowBanPost?: () => unknown;
   setShowPromotePost?: () => unknown;
+  setShowClickbaitPost?: () => unknown;
   contextId?: string;
   origin: Origin;
   allowPin?: boolean;
@@ -93,6 +101,7 @@ export default function PostOptionsMenu({
   onRemovePost,
   setShowBanPost,
   setShowPromotePost,
+  setShowClickbaitPost,
   origin,
   allowPin,
   contextId = ContextMenuTypes.PostContext,
@@ -108,17 +117,28 @@ export default function PostOptionsMenu({
   const { post: loadedPost } = usePostById({
     id: initialPost?.id,
   });
+  const feedContextData = useActiveFeedContext();
+  const { queryKey: feedQueryKey, logOpts } = feedContextData;
+  const isCustomFeed = feedQueryKey?.[0] === 'custom';
+  const customFeedId = isCustomFeed ? (feedQueryKey?.[2] as string) : undefined;
   const post = loadedPost ?? initialPost;
+  const { showPlusSubscription, isPlus } = usePlusSubscription();
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
-    useFeedSettings({ enabled: isPostOptionsOpen });
-  const { onUpdateSettings } = useAdvancedSettings({ enabled: false });
+    useFeedSettings({
+      enabled: isPostOptionsOpen,
+      feedId: customFeedId,
+    });
+  const { onUpdateSettings } = useAdvancedSettings({
+    enabled: false,
+    feedId: customFeedId,
+  });
   const { logEvent } = useContext(LogContext);
   const { hidePost, unhidePost } = useReportPost();
   const { openSharePost } = useSharePost(origin);
   const { follow, unfollow } = useContentPreference();
 
   const { openModal } = useLazyModal();
-  const { queryKey: feedQueryKey, logOpts } = useContext(ActiveFeedContext);
+
   const {
     onBlockSource,
     onBlockTags,
@@ -129,8 +149,8 @@ export default function PostOptionsMenu({
     origin: Origin.PostContextMenu,
     postId: post?.id,
     shouldInvalidateQueries: false,
+    feedId: customFeedId,
   });
-
   const isSourceBlocked = useMemo(() => {
     return !!feedSettings?.excludeSources?.some(
       (excludedSource) => excludedSource.id === post?.source?.id,
@@ -138,7 +158,10 @@ export default function PostOptionsMenu({
   }, [feedSettings?.excludeSources, post?.source?.id]);
 
   const shouldShowSubscribe =
-    isLoggedIn && !isSourceBlocked && post?.source?.type === SourceType.Machine;
+    isLoggedIn &&
+    !isSourceBlocked &&
+    post?.source?.type === SourceType.Machine &&
+    !isCustomFeed;
 
   const sourceSubscribe = useSourceActionsNotify({
     source: shouldShowSubscribe ? post?.source : undefined,
@@ -340,7 +363,10 @@ export default function PostOptionsMenu({
       ),
       label: hasPostReminder ? 'Edit reminder' : 'Read it later',
       action: () => {
-        openModal({ type: LazyModal.BookmarkReminder, props: { post } });
+        openModal({
+          type: LazyModal.BookmarkReminder,
+          props: { post, feedContextData },
+        });
       },
     });
 
@@ -351,6 +377,39 @@ export default function PostOptionsMenu({
         label: 'Remove reminder',
         action: () => {
           onRemoveReminder(post.id);
+        },
+      });
+    }
+
+    if (post?.bookmark && showPlusSubscription) {
+      postOptions.push({
+        icon: <MenuIcon Icon={FolderIcon} />,
+        label: 'Move to...',
+        action: () => {
+          if (!isPlus) {
+            openModal({
+              type: LazyModal.BookmarkFolder,
+              props: {
+                // this modal will never submit because the user is not plus
+                onSubmit: () => null,
+              },
+            });
+            return;
+          }
+
+          openModal({
+            type: LazyModal.MoveBookmark,
+            props: {
+              postId: post.id,
+              listId: post.bookmarkList?.id,
+              onMoveBookmark: () => {
+                logEvent(
+                  postLogEvent(LogEvent.MoveBookmarkToFolder, post, logOpts),
+                );
+                client.invalidateQueries({ queryKey: feedQueryKey });
+              },
+            },
+          });
         },
       });
     }
@@ -443,6 +502,9 @@ export default function PostOptionsMenu({
   post?.tags?.forEach((tag) => {
     if (tag.length) {
       const isBlocked = feedSettings?.blockedTags?.includes(tag);
+      if (isBlocked && isCustomFeed) {
+        return;
+      }
       postOptions.push({
         icon: <MenuIcon Icon={isBlocked ? PlusIcon : BlockIcon} />,
         label: isBlocked ? `Follow #${tag}` : `Not interested in #${tag}`,
@@ -523,6 +585,15 @@ export default function PostOptionsMenu({
       icon: <MenuIcon Icon={promoteFlag ? DownvoteIcon : UpvoteIcon} />,
       label: promoteFlag ? 'Demote' : 'Promote',
       action: setShowPromotePost,
+    });
+  }
+
+  if (setShowClickbaitPost) {
+    const isClickbait = post.clickbaitTitleDetected;
+    postOptions.push({
+      icon: <MenuIcon Icon={isClickbait ? ShieldIcon : ShieldWarningIcon} />,
+      label: isClickbait ? 'Remove clickbait' : 'Mark as clickbait',
+      action: setShowClickbaitPost,
     });
   }
 

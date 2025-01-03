@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { ElementPlaceholder } from './ElementPlaceholder';
 import { TagLink } from './TagLinks';
 import type { Tag } from '../graphql/feedSettings';

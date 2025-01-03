@@ -1,12 +1,14 @@
 import { useContext } from 'react';
 import LogContext from '../contexts/LogContext';
-import { CopyNotifyFunction, useCopyLink } from './useCopy';
+import type { CopyNotifyFunction } from './useCopy';
+import { useCopyLink } from './useCopy';
 import { ShareProvider } from '../lib/share';
-import { LogEvent } from './log/useLogQueue';
+import type { LogEvent } from './log/useLogQueue';
 import { useGetShortUrl } from './utils/useGetShortUrl';
-import { ReferralCampaignKey } from '../lib';
+import type { ReferralCampaignKey } from '../lib';
+import { shouldUseNativeShare } from '../lib/func';
 
-interface UseShareOrCopyLinkProps {
+export interface UseShareOrCopyLinkProps {
   link: string;
   text: string;
   logObject?: (provider: ShareProvider) => LogEvent;
@@ -26,7 +28,7 @@ export function useShareOrCopyLink({
   const onShareOrCopy: CopyNotifyFunction = async () => {
     const shortLink = cid ? await getShortUrl(link, cid) : link;
 
-    if ('share' in globalThis?.navigator) {
+    if (shouldUseNativeShare()) {
       try {
         await navigator.share({
           text: `${text}\n${shortLink}`,

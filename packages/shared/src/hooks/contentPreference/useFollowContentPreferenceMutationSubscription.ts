@@ -1,13 +1,13 @@
-import { InfiniteData } from '@tanstack/react-query';
-import { Connection } from '../../graphql/common';
-import { ContentPreference } from '../../graphql/contentPreference';
+import type { InfiniteData } from '@tanstack/react-query';
+import type { Connection } from '../../graphql/common';
+import type { ContentPreference } from '../../graphql/contentPreference';
 import { RequestKey } from '../../lib/query';
-import { PropsParameters } from '../../types';
+import type { PropsParameters } from '../../types';
 import { useMutationSubscription } from '../mutationSubscription';
+import type { ContentPreferenceMutation } from './types';
 import {
   contentPreferenceMutationMatcher,
   mutationKeyToContentPreferenceStatusMap,
-  ContentPreferenceMutation,
 } from './types';
 
 type UseFollowContentPreferenceMutationSubscriptionProps = {
@@ -58,9 +58,13 @@ export const useFollowContentPreferenceMutationSubscription = ({
                   const newContentPreferenceEdge = structuredClone(edge);
                   const { node } = newContentPreferenceEdge;
 
+                  const followingKeys = [
+                    RequestKey.UserFollowing,
+                    RequestKey.UserBlocked,
+                  ];
                   if (
-                    queryType === RequestKey.UserFollowing &&
-                    node.referenceUser.id === entityId
+                    followingKeys.includes(queryType) &&
+                    node.referenceUser?.id === entityId
                   ) {
                     node.referenceUser.contentPreference = {
                       status: nextStatus,
@@ -69,11 +73,15 @@ export const useFollowContentPreferenceMutationSubscription = ({
 
                   if (
                     queryType === RequestKey.UserFollowers &&
-                    node.user.id === entityId
+                    node.user?.id === entityId
                   ) {
                     node.user.contentPreference = {
                       status: nextStatus,
                     };
+                  }
+
+                  if (node.referenceId === entityId) {
+                    node.status = nextStatus;
                   }
 
                   return newContentPreferenceEdge;

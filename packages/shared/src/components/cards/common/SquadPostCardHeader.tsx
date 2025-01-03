@@ -1,6 +1,7 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { Post } from '../../../graphql/posts';
+import type { Post } from '../../../graphql/posts';
 import { ProfileImageSize } from '../../ProfilePicture';
 import SourceButton from './SourceButton';
 import {

@@ -1,13 +1,10 @@
-import React, {
+import type {
   HTMLAttributes,
   MutableRefObject,
   ReactElement,
   ReactNode,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
 } from 'react';
+import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
 import classNames from 'classnames';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import ConditionalWrapper from '../ConditionalWrapper';

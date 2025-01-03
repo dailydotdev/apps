@@ -1,5 +1,8 @@
-import React, { MutableRefObject, useMemo, useRef, useState } from 'react';
-import { PromptOptions, usePrompt } from './usePrompt';
+import type { MutableRefObject } from 'react';
+import type React from 'react';
+import { useMemo, useRef, useState } from 'react';
+import type { PromptOptions } from './usePrompt';
+import { usePrompt } from './usePrompt';
 import { ButtonColor } from '../components/buttons/Button';
 
 export type CloseAuthModalFunc = (

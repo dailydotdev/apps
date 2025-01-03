@@ -3,14 +3,15 @@ import { useQueryClient } from '@tanstack/react-query';
 import AuthContext from '../contexts/AuthContext';
 import LogContext from '../contexts/LogContext';
 import useMutateFilters from './useMutateFilters';
-import { Source } from '../graphql/sources';
+import type { Source } from '../graphql/sources';
 import AlertContext from '../contexts/AlertContext';
-import { BooleanPromise } from '../components/filters/common';
+import type { BooleanPromise } from '../components/filters/common';
 import { generateQueryKey } from '../lib/query';
 import useDebounceFn from './useDebounceFn';
 import { SharedFeedPage } from '../components/utilities';
-import { LogEvent, Origin } from '../lib/log';
-import { AuthTriggersType } from '../lib/auth';
+import type { Origin } from '../lib/log';
+import { LogEvent } from '../lib/log';
+import type { AuthTriggersType } from '../lib/auth';
 
 export interface TagActionArguments {
   tags: Array<string>;
@@ -91,7 +92,7 @@ export default function useTagAndSource({
         event_name: `follow${category ? ' all' : ''}`,
         target_type: 'tag',
         target_id: category || tags[0],
-        extra: JSON.stringify({ origin }),
+        extra: JSON.stringify({ origin, feed_id: feedId }),
       });
       if (alerts?.filter && user && shouldUpdateAlerts) {
         updateAlerts({ filter: false, myFeed: 'created' });
@@ -103,6 +104,7 @@ export default function useTagAndSource({
       return { successful: true };
     },
     [
+      feedId,
       logEvent,
       shouldShowLogin,
       origin,
@@ -126,7 +128,7 @@ export default function useTagAndSource({
         event_name: `unfollow${category ? ' all' : ''}`,
         target_type: 'tag',
         target_id: category || tags[0],
-        extra: JSON.stringify({ origin }),
+        extra: JSON.stringify({ origin, feed_id: feedId }),
       });
       await unfollowTags({ tags });
 
@@ -135,6 +137,7 @@ export default function useTagAndSource({
       return { successful: true };
     },
     [
+      feedId,
       logEvent,
       shouldShowLogin,
       origin,
@@ -155,7 +158,7 @@ export default function useTagAndSource({
         event_name: LogEvent.BlockTag,
         target_type: 'tag',
         target_id: tags[0],
-        extra: JSON.stringify({ origin, post_id: postId }),
+        extra: JSON.stringify({ origin, post_id: postId, feed_id: feedId }),
       });
       await blockTag({ tags });
 
@@ -164,6 +167,7 @@ export default function useTagAndSource({
       return { successful: true };
     },
     [
+      feedId,
       logEvent,
       shouldShowLogin,
       origin,
@@ -184,7 +188,7 @@ export default function useTagAndSource({
         event_name: LogEvent.UnblockTag,
         target_type: 'tag',
         target_id: tags[0],
-        extra: JSON.stringify({ origin, post_id: postId }),
+        extra: JSON.stringify({ origin, post_id: postId, feed_id: feedId }),
       });
       await unblockTag({ tags });
 
@@ -193,6 +197,7 @@ export default function useTagAndSource({
       return { successful: true };
     },
     [
+      feedId,
       logEvent,
       shouldShowLogin,
       origin,
@@ -213,7 +218,7 @@ export default function useTagAndSource({
         event_name: LogEvent.Unblock,
         target_type: 'source',
         target_id: source?.id,
-        extra: JSON.stringify({ origin, post_id: postId }),
+        extra: JSON.stringify({ origin, post_id: postId, feed_id: feedId }),
       });
 
       await unblockSource({ source });
@@ -223,6 +228,7 @@ export default function useTagAndSource({
       return { successful: true };
     },
     [
+      feedId,
       logEvent,
       shouldShowLogin,
       origin,
@@ -244,7 +250,7 @@ export default function useTagAndSource({
         event_name: LogEvent.Block,
         target_type: 'source',
         target_id: source?.id,
-        extra: JSON.stringify({ origin, post_id: postId }),
+        extra: JSON.stringify({ origin, post_id: postId, feed_id: feedId }),
       });
       await blockSource({ source });
 
@@ -253,6 +259,7 @@ export default function useTagAndSource({
       return { successful: true };
     },
     [
+      feedId,
       logEvent,
       shouldShowLogin,
       origin,
@@ -274,7 +281,7 @@ export default function useTagAndSource({
         event_name: LogEvent.Follow,
         target_type: 'source',
         target_id: source?.id,
-        extra: JSON.stringify({ origin, post_id: postId }),
+        extra: JSON.stringify({ origin, post_id: postId, feed_id: feedId }),
       });
 
       await followSource({ source });
@@ -284,6 +291,7 @@ export default function useTagAndSource({
       return { successful: true };
     },
     [
+      feedId,
       logEvent,
       shouldShowLogin,
       origin,
@@ -305,7 +313,7 @@ export default function useTagAndSource({
         event_name: LogEvent.Unfollow,
         target_type: 'source',
         target_id: source?.id,
-        extra: JSON.stringify({ origin, post_id: postId }),
+        extra: JSON.stringify({ origin, post_id: postId, feed_id: feedId }),
       });
 
       await unfollowSource({ source });
@@ -315,6 +323,7 @@ export default function useTagAndSource({
       return { successful: true };
     },
     [
+      feedId,
       shouldShowLogin,
       logEvent,
       origin,

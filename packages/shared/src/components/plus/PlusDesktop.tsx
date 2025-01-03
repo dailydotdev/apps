@@ -1,10 +1,5 @@
-import React, {
-  type ReactElement,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import type { ReactElement } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { usePaymentContext } from '../../contexts/PaymentContext';
 
@@ -16,9 +11,7 @@ export const PlusDesktop = (): ReactElement => {
     query: { selectedPlan },
   } = useRouter();
   const initialPaymentOption = selectedPlan ? `${selectedPlan}` : null;
-  const [selectedOption, setSelectedOption] = useState<string | null>(
-    initialPaymentOption,
-  );
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const ref = useRef();
 
   const toggleCheckoutOption = useCallback(
@@ -34,11 +27,18 @@ export const PlusDesktop = (): ReactElement => {
       return;
     }
 
-    if (productOptions?.[0]?.value && !selectedOption) {
-      setSelectedOption(productOptions?.[0]?.value);
-      openCheckout({ priceId: productOptions?.[0]?.value });
+    const option = initialPaymentOption || productOptions?.[0]?.value;
+    if (option && !selectedOption) {
+      setSelectedOption(option);
+      openCheckout({ priceId: option });
     }
-  }, [openCheckout, paddle, productOptions, selectedOption]);
+  }, [
+    initialPaymentOption,
+    openCheckout,
+    paddle,
+    productOptions,
+    selectedOption,
+  ]);
 
   return (
     <div className="flex flex-1 items-center justify-center gap-20">

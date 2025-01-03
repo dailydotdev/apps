@@ -1,4 +1,5 @@
-import React, { MutableRefObject, ReactElement } from 'react';
+import type { MutableRefObject, ReactElement } from 'react';
+import React from 'react';
 import { SearchProviderEnum } from '../../../graphql/search';
 import { ArrowKeyEnum, isExtension } from '../../../lib/func';
 import { LogEvent } from '../../../lib/log';

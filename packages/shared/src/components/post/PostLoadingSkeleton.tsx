@@ -1,6 +1,7 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { PostType } from '../../graphql/posts';
+import type { PostType } from '../../graphql/posts';
 import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import PostContentContainer from './PostContentContainer';
 

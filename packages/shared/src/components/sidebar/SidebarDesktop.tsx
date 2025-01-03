@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import React, { ReactElement, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { Nav, SidebarAside, SidebarScrollWrapper } from './common';
 import { useSettingsContext } from '../../contexts/SettingsContext';
@@ -7,7 +8,6 @@ import { useBanner } from '../../hooks/useBanner';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { SidebarOnboardingChecklistCard } from '../checklist/SidebarOnboardingChecklistCard';
 import { ChecklistViewState } from '../../lib/checklist';
-import { MobileMenuIcon } from './MobileMenuIcon';
 import { MainSection } from './sections/MainSection';
 import { NetworkSection } from './sections/NetworkSection';
 import { CustomFeedSection } from './sections/CustomFeedSection';
@@ -15,8 +15,12 @@ import { DiscoverSection } from './sections/DiscoverSection';
 import { ResourceSection } from './sections/ResourceSection';
 import { BookmarkSection } from './sections/BookmarkSection';
 import { usePlusSubscription } from '../../hooks';
+import { SidebarMenuIcon } from './SidebarMenuIcon';
+import { CreatePostButton } from '../post/write';
+import { ButtonSize } from '../buttons/Button';
 
 type SidebarDesktopProps = {
+  activePage?: string;
   featureTheme?: {
     logo?: string;
     logoText?: string;
@@ -25,17 +29,18 @@ type SidebarDesktopProps = {
   onNavTabClick?: (tab: string) => void;
 };
 export const SidebarDesktop = ({
+  activePage: activePageProp,
   featureTheme,
   isNavButtons,
   onNavTabClick,
 }: SidebarDesktopProps): ReactElement => {
   const router = useRouter();
-  const { sidebarExpanded, onboardingChecklistView, toggleSidebarExpanded } =
-    useSettingsContext();
+  const { sidebarExpanded, onboardingChecklistView } = useSettingsContext();
   const { isAvailable: isBannerAvailable } = useBanner();
   const { isLoggedIn } = useAuthContext();
-  const activePage = router.asPath || router.pathname;
-  const { showPlusSubscription } = usePlusSubscription();
+  const activePage = activePageProp || router.asPath || router.pathname;
+  const { showPlusSubscription, isPlusEntrypointExperiment } =
+    usePlusSubscription();
 
   const defaultRenderSectionProps = useMemo(
     () => ({
@@ -60,12 +65,20 @@ export const SidebarDesktop = ({
         featureTheme && 'bg-transparent',
       )}
     >
-      <MobileMenuIcon
-        sidebarExpanded={sidebarExpanded}
-        toggleSidebarExpanded={toggleSidebarExpanded}
-      />
       <SidebarScrollWrapper>
         <Nav>
+          <SidebarMenuIcon />
+          {isPlusEntrypointExperiment && (
+            <CreatePostButton
+              className={classNames(
+                'mb-4 !flex whitespace-nowrap',
+                sidebarExpanded ? 'mx-4' : 'mx-auto',
+              )}
+              compact={!sidebarExpanded}
+              size={sidebarExpanded ? ButtonSize.Small : ButtonSize.XSmall}
+              showIcon
+            />
+          )}
           <MainSection
             {...defaultRenderSectionProps}
             onNavTabClick={onNavTabClick}
@@ -78,6 +91,7 @@ export const SidebarDesktop = ({
           />
           <CustomFeedSection
             {...defaultRenderSectionProps}
+            onNavTabClick={onNavTabClick}
             title="Custom feeds"
             isItemsButton={false}
           />

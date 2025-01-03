@@ -1,4 +1,5 @@
-import React, { ReactElement, useEffect } from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect } from 'react';
 import {
   Button,
   ButtonVariant,
@@ -17,15 +18,14 @@ import {
   cloudinaryReferralCampaignSearchBgPopupMobile,
   cloudinaryReferralCampaignSearchBgMobile,
 } from '@dailydotdev/shared/src/lib/image';
-import {
-  ApiErrorResult,
-  DEFAULT_ERROR,
-} from '@dailydotdev/shared/src/graphql/common';
+import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import { DEFAULT_ERROR } from '@dailydotdev/shared/src/graphql/common';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
-import { DailyDevLogo, JoinPageProps } from './common';
+import type { JoinPageProps } from './common';
+import { DailyDevLogo } from './common';
 
 export function AISearchInvite({
   referringUser,

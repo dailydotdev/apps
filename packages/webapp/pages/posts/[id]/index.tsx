@@ -1,21 +1,21 @@
-import React, { CSSProperties, ReactElement, useState } from 'react';
+import type { CSSProperties, ReactElement } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import {
+import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
-import { ParsedUrlQuery } from 'querystring';
+import type { ParsedUrlQuery } from 'querystring';
+import type { Post, PostData } from '@dailydotdev/shared/src/graphql/posts';
 import {
-  Post,
   POST_BY_ID_STATIC_FIELDS_QUERY,
-  PostData,
   PostType,
 } from '@dailydotdev/shared/src/graphql/posts';
-import { NextSeoProps } from 'next-seo/lib/types';
+import type { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
-import { ClientError } from 'graphql-request';
+import type { ClientError } from 'graphql-request';
 import { SCROLL_OFFSET } from '@dailydotdev/shared/src/components/post/PostContent';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
@@ -41,7 +41,7 @@ import {
   getSeoDescription,
   PostSEOSchema,
 } from '../../../components/PostSEOSchema';
-import { DynamicSeoProps } from '../../../components/common';
+import type { DynamicSeoProps } from '../../../components/common';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
@@ -85,11 +85,11 @@ const CONTENT_MAP: Record<PostType, typeof PostContent> = {
   collection: CollectionPostContent,
 };
 
-interface PostParams extends ParsedUrlQuery {
+export interface PostParams extends ParsedUrlQuery {
   id: string;
 }
 
-const seoTitle = (post: Post) => {
+export const seoTitle = (post: Post): string | undefined => {
   if (post?.type === PostType.Share && post?.title === null) {
     return `Shared post at ${post?.source?.name}`;
   }
@@ -97,7 +97,7 @@ const seoTitle = (post: Post) => {
   return post?.title;
 };
 
-const PostPage = ({ id, initialData }: Props): ReactElement => {
+export const PostPage = ({ id, initialData }: Props): ReactElement => {
   useJoinReferral();
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');

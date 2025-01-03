@@ -1,11 +1,12 @@
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import Link from '../utilities/Link';
 import { UserShortInfoPlaceholder } from './UserShortInfoPlaceholder';
-import { UserShortInfo, UserShortInfoProps } from './UserShortInfo';
-import InfiniteScrolling, {
-  InfiniteScrollingProps,
-} from '../containers/InfiniteScrolling';
-import { UserShortProfile } from '../../lib/user';
+import type { UserShortInfoProps } from './UserShortInfo';
+import { UserShortInfo } from './UserShortInfo';
+import type { InfiniteScrollingProps } from '../containers/InfiniteScrolling';
+import InfiniteScrolling from '../containers/InfiniteScrolling';
+import type { UserShortProfile } from '../../lib/user';
 
 export interface UserListProps {
   scrollingProps: Omit<InfiniteScrollingProps, 'children'>;
@@ -19,7 +20,8 @@ export interface UserListProps {
   userInfoProps?: Omit<
     UserShortInfoProps,
     'user' | 'href' | 'tag' | 'children'
-  >;
+  > &
+    Partial<Pick<HTMLLinkElement, 'target' | 'rel'>>;
 }
 
 function UserList({

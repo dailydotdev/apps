@@ -1,5 +1,6 @@
-import { Squad } from '../../graphql/sources';
-import { Action, ActionType } from '../../graphql/actions';
+import type { Squad } from '../../graphql/sources';
+import type { Action } from '../../graphql/actions';
+import { ActionType } from '../../graphql/actions';
 import { cloudinarySquadsImageFallback } from '../../lib/image';
 
 export const getEditActions = (squad: Squad): Action[] => {

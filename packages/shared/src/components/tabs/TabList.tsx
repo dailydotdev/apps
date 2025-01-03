@@ -1,12 +1,7 @@
 import classNames from 'classnames';
-import React, {
-  ReactElement,
-  useCallback,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
-import { RenderTab } from './common';
+import type { ReactElement } from 'react';
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import type { RenderTab } from './common';
 import type { TabProps } from './TabContainer';
 
 export type AllowedTabTags = keyof Pick<JSX.IntrinsicElements, 'a' | 'button'>;
@@ -123,13 +118,13 @@ function TabList<T extends string = string>({
               isActive && 'bg-theme-active',
             )}
           >
-            {label}
+            {label?.length > 25 ? `${label.slice(0, 25)}...` : label}
           </span>
         );
 
         return (
           <Tag
-            key={label}
+            key={`${label}-${href}`}
             ref={(el) => {
               if (!el || !isActive) {
                 return;

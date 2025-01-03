@@ -1,12 +1,9 @@
-import React, {
-  HTMLAttributes,
-  ReactElement,
-  ReactHTML,
-  ReactNode,
-} from 'react';
-import { Post } from '../../../graphql/posts';
-import classed, { ClassedHTML } from '../../../lib/classed';
-import { Origin } from '../../../lib/log';
+import type { HTMLAttributes, ReactElement, ReactHTML, ReactNode } from 'react';
+import React from 'react';
+import type { Post } from '../../../graphql/posts';
+import type { ClassedHTML } from '../../../lib/classed';
+import classed from '../../../lib/classed';
+import type { Origin } from '../../../lib/log';
 
 export interface CommonCardCoverProps {
   post?: Post;

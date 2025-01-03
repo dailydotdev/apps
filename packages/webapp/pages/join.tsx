@@ -1,15 +1,17 @@
 import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
 import { isDevelopment } from '@dailydotdev/shared/src/lib/constants';
-import React, { FunctionComponent, ReactElement, useEffect } from 'react';
-import { GetServerSideProps } from 'next';
-import { NextSeo, NextSeoProps } from 'next-seo';
+import type { FunctionComponent, ReactElement } from 'react';
+import React, { useEffect } from 'react';
+import type { GetServerSideProps } from 'next';
+import type { NextSeoProps } from 'next-seo';
+import { NextSeo } from 'next-seo';
 import { setCookie } from '@dailydotdev/shared/src/lib/cookie';
 import { oneYear } from '@dailydotdev/shared/src/lib/dateFormat';
 import { useReferralConfig } from '@dailydotdev/shared/src/hooks/referral/useReferralConfig';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { defaultOpenGraph } from '../next-seo';
-import { JoinPageProps } from '../components/invite/common';
+import type { JoinPageProps } from '../components/invite/common';
 import { AISearchInvite } from '../components/invite/AISearchInvite';
 import Custom404Seo from './404';
 import { Referral } from '../components/invite/Referral';
@@ -22,6 +24,8 @@ const componentsMap: ReferralRecord<FunctionComponent<JoinPageProps>> = {
   [ReferralCampaignKey.SharePost]: Referral,
   [ReferralCampaignKey.ShareComment]: Referral,
   [ReferralCampaignKey.ShareProfile]: Referral,
+  [ReferralCampaignKey.ShareSource]: Referral,
+  [ReferralCampaignKey.ShareTag]: Referral,
 };
 
 const Page = ({

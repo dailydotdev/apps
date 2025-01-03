@@ -1,15 +1,15 @@
 import { useCallback, useContext } from 'react';
-import { Post } from '../graphql/posts';
+import type { Post } from '../graphql/posts';
 import { postLogEvent } from '../lib/feed';
 import LogContext from '../contexts/LogContext';
 import { ShareProvider } from '../lib/share';
-import { Origin } from '../lib/log';
+import type { Origin } from '../lib/log';
 import { useCopyPostLink } from './useCopyPostLink';
 import { useGetShortUrl } from './utils/useGetShortUrl';
 import { ReferralCampaignKey } from '../lib';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
-import { ShareProps } from '../components/modals/post/common';
+import type { ShareProps } from '../components/modals/post/common';
 
 type FuncProps = Omit<ShareProps, 'origin'>;
 

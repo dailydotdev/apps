@@ -1,4 +1,5 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions, useBoot } from '../../hooks';
@@ -10,9 +11,9 @@ import { LogEvent, Origin, TargetType } from '../../lib/log';
 import LogContext from '../../contexts/LogContext';
 import { promotion } from './generic';
 import { useReadingStreak } from '../../hooks/streaks';
+import type { InteractivePopupProps } from '../tooltips/InteractivePopup';
 import InteractivePopup, {
   InteractivePopupPosition,
-  InteractivePopupProps,
 } from '../tooltips/InteractivePopup';
 import { MarketingCtaPopoverSmall } from '../marketingCta/MarketingCtaPopoverSmall';
 import { ButtonVariant } from '../buttons/common';

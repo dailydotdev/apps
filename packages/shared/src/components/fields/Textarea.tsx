@@ -1,10 +1,10 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import styles from './TextField.module.css';
 import useInputFieldFunctions from '../../hooks/useInputFieldFunctions';
+import type { BaseFieldProps, FieldClassName } from './BaseFieldContainer';
 import BaseFieldContainer, {
-  BaseFieldProps,
-  FieldClassName,
   getFieldFontColor,
   getFieldPlaceholder,
   InnerLabel,

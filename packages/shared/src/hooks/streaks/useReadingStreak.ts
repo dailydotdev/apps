@@ -1,24 +1,21 @@
-import {
-  UseMutateFunction,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import type { UseMutateFunction } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useContext } from 'react';
 import { getDay } from 'date-fns';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import type { UserStreak } from '../../graphql/users';
 import {
   getReadingStreak,
   UPDATE_STREAK_COUNT_MUTATION,
-  UserStreak,
 } from '../../graphql/users';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions } from '../useActions';
 import { ActionType } from '../../graphql/actions';
 import useDebounceFn from '../useDebounceFn';
 import SettingsContext from '../../contexts/SettingsContext';
-import { gqlClient, ResponseError } from '../../graphql/common';
-import { DayOfWeek } from '../../lib/date';
+import type { ResponseError } from '../../graphql/common';
+import { gqlClient } from '../../graphql/common';
+import type { DayOfWeek } from '../../lib/date';
 
 type UpdateReadingStreakConfig = {
   weekStart: DayOfWeek;

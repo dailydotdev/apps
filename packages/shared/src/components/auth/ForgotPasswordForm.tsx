@@ -1,12 +1,14 @@
-import React, { FormEvent, ReactElement, useContext, useState } from 'react';
+import type { FormEvent, ReactElement } from 'react';
+import React, { useContext, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import { MailIcon } from '../icons';
-import { CloseModalFunc } from '../modals/common';
+import type { CloseModalFunc } from '../modals/common';
 import AuthHeader from './AuthHeader';
-import { AuthFormProps, AuthModalText } from './common';
+import type { AuthFormProps } from './common';
+import { AuthModalText } from './common';
 import TokenInput from './TokenField';
 import { AuthFlow } from '../../lib/kratos';
 import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';

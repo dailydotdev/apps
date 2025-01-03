@@ -1,15 +1,14 @@
 import { useCallback } from 'react';
-import { MutationKey, useQueryClient } from '@tanstack/react-query';
-import { FeedItem, UpdateFeedPost } from '../useFeed';
+import type { MutationKey } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import type { FeedItem, UpdateFeedPost } from '../useFeed';
 import { feedLogExtra } from '../../lib/feed';
-import { Origin } from '../../lib/log';
+import type { Origin } from '../../lib/log';
 import { useMutationSubscription } from '../mutationSubscription/useMutationSubscription';
-import {
-  mutateBookmarkFeedPost,
-  UseBookmarkPost,
-  useBookmarkPost,
-} from '../useBookmarkPost';
-import { bookmarkMutationMatcher, UseBookmarkMutationProps } from './types';
+import type { UseBookmarkPost } from '../useBookmarkPost';
+import { mutateBookmarkFeedPost, useBookmarkPost } from '../useBookmarkPost';
+import type { UseBookmarkMutationProps } from './types';
+import { bookmarkMutationMatcher } from './types';
 import { updatePostCache } from '../usePostById';
 
 export type UseFeedBookmarkPost = {

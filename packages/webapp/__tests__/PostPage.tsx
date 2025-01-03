@@ -1,50 +1,48 @@
 import React from 'react';
+import type { RenderResult } from '@testing-library/react';
 import {
   act,
   fireEvent,
   queryByText,
   render,
-  RenderResult,
   screen,
   waitFor,
 } from '@testing-library/react';
 
+import type { Post, PostData } from '@dailydotdev/shared/src/graphql/posts';
 import {
   ADD_BOOKMARKS_MUTATION,
-  Post,
   POST_BY_ID_QUERY,
-  PostData,
   PostType,
   REMOVE_BOOKMARK_MUTATION,
   UserVote,
   VIEW_POST_MUTATION,
 } from '@dailydotdev/shared/src/graphql/posts';
+import type { PostCommentsData } from '@dailydotdev/shared/src/graphql/comments';
+import { POST_COMMENTS_QUERY } from '@dailydotdev/shared/src/graphql/comments';
+import type { Action } from '@dailydotdev/shared/src/graphql/actions';
 import {
-  POST_COMMENTS_QUERY,
-  PostCommentsData,
-} from '@dailydotdev/shared/src/graphql/comments';
-import {
-  Action,
   ActionType,
   COMPLETE_ACTION_MUTATION,
   COMPLETED_USER_ACTIONS,
 } from '@dailydotdev/shared/src/graphql/actions';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import nock from 'nock';
 import { QueryClient } from '@tanstack/react-query';
 import { mocked } from 'ts-jest/utils';
-import { NextRouter, useRouter } from 'next/router';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import {
   completeActionMock,
-  MockedGraphQLResponse,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import { createTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
+import type { AllTagCategoriesData } from '@dailydotdev/shared/src/graphql/feedSettings';
 import {
   ADD_FILTERS_TO_FEED_MUTATION,
-  AllTagCategoriesData,
   FEED_SETTINGS_QUERY,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
@@ -53,7 +51,8 @@ import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import { UserVoteEntity } from '@dailydotdev/shared/src/hooks';
 import { VOTE_MUTATION } from '@dailydotdev/shared/src/graphql/users';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
-import PostPage, { Props } from '../pages/posts/[id]';
+import type { Props } from '../pages/posts/[id]';
+import { PostPage } from '../pages/posts/[id]';
 import { getSeoDescription } from '../components/PostSEOSchema';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 

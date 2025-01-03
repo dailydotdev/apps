@@ -1,6 +1,8 @@
-import React, { ReactElement } from 'react';
-import { Keyword, Tag } from '../../../graphql/keywords';
-import { CommonLeaderboardProps, LeaderboardList } from './LeaderboardList';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { Keyword, Tag } from '../../../graphql/keywords';
+import type { CommonLeaderboardProps } from './LeaderboardList';
+import { LeaderboardList } from './LeaderboardList';
 import { LeaderboardListItem } from './LeaderboardListItem';
 import { getTagPageLink } from '../../../lib';
 

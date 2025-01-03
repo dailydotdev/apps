@@ -1,4 +1,5 @@
-import React, { CSSProperties, ReactElement, ReactNode, useRef } from 'react';
+import type { CSSProperties, ReactElement, ReactNode } from 'react';
+import React, { useRef } from 'react';
 import classNames from 'classnames';
 import { ButtonSize } from '../buttons/Button';
 import {

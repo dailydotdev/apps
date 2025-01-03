@@ -1,4 +1,5 @@
-import React, { ReactElement, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 import { SearchIcon as MagnifyingIcon } from '../icons';

@@ -1,25 +1,25 @@
-import {
+import type {
   InfiniteData,
-  MutationCache,
   QueryClient,
   QueryClientConfig,
   QueryKey,
 } from '@tanstack/react-query';
-import { ClientError } from 'graphql-request';
+import { MutationCache } from '@tanstack/react-query';
+import type { ClientError } from 'graphql-request';
 
-import { Connection, GARMR_ERROR } from '../graphql/common';
-import type { PageInfo } from '../graphql/common';
-import { EmptyObjectLiteral } from './kratos';
-import { LoggedUser } from './user';
-import { FeedData, Post, ReadHistoryPost } from '../graphql/posts';
+import { GARMR_ERROR } from '../graphql/common';
+import type { PageInfo, Connection } from '../graphql/common';
+import type { EmptyObjectLiteral } from './kratos';
+import type { LoggedUser } from './user';
+import type { FeedData, Post, ReadHistoryPost } from '../graphql/posts';
 import type { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
-import { SharedFeedPage } from '../components/utilities';
-import {
+import type { SharedFeedPage } from '../components/utilities';
+import type {
   Comment as PostComment,
   Author as UserAuthor,
-  SortCommentsBy,
 } from '../graphql/comments';
-import {
+import { SortCommentsBy } from '../graphql/comments';
+import type {
   ContentPreferenceStatus,
   ContentPreferenceType,
 } from '../graphql/contentPreference';
@@ -33,6 +33,8 @@ export enum OtherFeedPage {
   Sources = 'sources',
   Leaderboard = 'users',
   Bookmarks = 'bookmarks',
+  BookmarkLater = 'bookmarkslater',
+  BookmarkFolder = 'bookmarks[folderId]',
   SearchBookmarks = 'search-bookmarks',
   Preview = 'preview',
   Author = 'author',
@@ -181,7 +183,8 @@ export enum RequestKey {
   TopReaderBadge = 'top_reader_badge',
   ReferringUser = 'referring_user',
   SearchSources = 'search_sources',
-  OnboardingSources = 'onboarding_sources',
+  UserShortById = 'user_short_by_id',
+  BookmarkFolders = 'bookmark_folders',
   FetchedOriginalTitle = 'fetched_original_title',
 }
 
@@ -267,7 +270,7 @@ export const defaultQueryClientConfig: QueryClientConfig = {
 };
 
 export const updateCachedPage = (
-  feedQueryKey: unknown[],
+  feedQueryKey: QueryKey,
   queryClient: QueryClient,
   pageIndex: number,
   manipulate: (page: Connection<Post>) => Connection<Post>,
@@ -289,7 +292,7 @@ export const updateCachedPage = (
 };
 
 export const updateCachedPagePost =
-  (feedQueryKey: unknown[], queryClient: QueryClient) =>
+  (feedQueryKey: QueryKey, queryClient: QueryClient) =>
   (pageIndex: number, index: number, post: Post): void => {
     updateCachedPage(feedQueryKey, queryClient, pageIndex, (page) => {
       // eslint-disable-next-line no-param-reassign
@@ -299,7 +302,7 @@ export const updateCachedPagePost =
   };
 
 export const removeCachedPagePost =
-  (feedQueryKey: unknown[], queryClient: QueryClient) =>
+  (feedQueryKey: QueryKey, queryClient: QueryClient) =>
   (pageIndex: number, index: number): void => {
     updateCachedPage(feedQueryKey, queryClient, pageIndex, (page) => {
       // eslint-disable-next-line no-param-reassign
@@ -315,7 +318,7 @@ export const updateReadingHistoryListPost = ({
   manipulate,
   queryClient,
 }: {
-  queryKey: unknown[];
+  queryKey: QueryKey;
   pageIndex: number;
   index: number;
   manipulate: (post: ReadHistoryPost) => ReadHistoryPost;

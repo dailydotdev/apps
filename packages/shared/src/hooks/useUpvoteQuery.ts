@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { QueryKey } from '@tanstack/react-query';
+import type { QueryKey } from '@tanstack/react-query';
 import { LazyModal } from '../components/modals/common/types';
 import { COMMENT_UPVOTES_BY_ID_QUERY } from '../graphql/comments';
 import { POST_UPVOTES_BY_ID_QUERY } from '../graphql/posts';

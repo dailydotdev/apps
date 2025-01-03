@@ -1,6 +1,8 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { Post, UserVote } from '../../../../graphql/posts';
+import type { Post } from '../../../../graphql/posts';
+import { UserVote } from '../../../../graphql/posts';
 import InteractionCounter from '../../../InteractionCounter';
 import {
   BookmarkIcon,
@@ -17,9 +19,11 @@ import ConditionalWrapper from '../../../ConditionalWrapper';
 import { PostTagsPanel } from '../../../post/block/PostTagsPanel';
 import { IconSize } from '../../../Icon';
 import { LinkWithTooltip } from '../../../tooltips/LinkWithTooltip';
-import { ActionButtonsProps } from '../../ActionsButtons';
+import type { ActionButtonsProps } from '../../ActionsButtons';
 import { UpvoteButtonIcon } from '../../ActionsButtons/UpvoteButtonIcon';
 import { BookmarkButton } from '../../../buttons';
+import { useFeature } from '../../../GrowthBookProvider';
+import { feedActionSpacing } from '../../../../lib/featureManagement';
 
 interface ActionButtonsPropsList extends ActionButtonsProps {
   onDownvoteClick?: (post: Post) => unknown;
@@ -36,7 +40,9 @@ export default function ActionButtons({
 }: ActionButtonsPropsList): ReactElement {
   const isFeedPreview = useFeedPreviewMode();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
+  const feedActionSpacingExp = useFeature(feedActionSpacing);
   const { showTagsPanel } = data;
+  const isCounterVisible = post?.numUpvotes || feedActionSpacingExp;
 
   if (isFeedPreview) {
     return null;
@@ -80,7 +86,9 @@ export default function ActionButtons({
             <Button
               className={classNames(
                 'pointer-events-auto',
-                post?.numUpvotes > 0 ? '!pl-1 !pr-3' : 'w-10',
+                isCounterVisible
+                  ? '!pl-1 !pr-3'
+                  : !feedActionSpacingExp && 'w-8',
               )}
               id={`post-${post.id}-upvote-btn`}
               color={ButtonColor.Avocado}
@@ -92,15 +100,20 @@ export default function ActionButtons({
                 secondary={post?.userState?.vote === UserVote.Up}
                 size={IconSize.Medium}
               />
-              {post?.numUpvotes > 0 ? (
+              {isCounterVisible ? (
                 <InteractionCounter
-                  className="ml-1.5 tabular-nums"
+                  className={classNames(
+                    'ml-1.5 tabular-nums',
+                    !post.numUpvotes && feedActionSpacingExp && 'invisible',
+                  )}
                   value={post?.numUpvotes}
                 />
               ) : null}
             </Button>
           </SimpleTooltip>
-          <div className="box-border border border-surface-float py-2.5" />
+          {!feedActionSpacingExp && (
+            <div className="box-border border border-surface-float py-2.5" />
+          )}
           <SimpleTooltip
             content={
               post?.userState?.vote === UserVote.Down

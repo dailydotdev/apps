@@ -3,13 +3,8 @@ import {
   ButtonColor,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import React, {
-  ReactElement,
-  useCallback,
-  useContext,
-  useRef,
-  useState,
-} from 'react';
+import type { ReactElement } from 'react';
+import React, { useCallback, useContext, useRef, useState } from 'react';
 import {
   AtIcon,
   CameraIcon,
@@ -37,18 +32,19 @@ import {
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
-import useProfileForm, {
-  UpdateProfileParameters,
-} from '@dailydotdev/shared/src/hooks/useProfileForm';
+import type { UpdateProfileParameters } from '@dailydotdev/shared/src/hooks/useProfileForm';
+import useProfileForm from '@dailydotdev/shared/src/hooks/useProfileForm';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import { useMutation } from '@tanstack/react-query';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import type { ResponseError } from '@dailydotdev/shared/src/graphql/common';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import {
-  gqlClient,
-  ResponseError,
-} from '@dailydotdev/shared/src/graphql/common';
-import { UPLOAD_COVER_MUTATION } from '@dailydotdev/shared/src/graphql/users';
+  clearImage,
+  UPLOAD_COVER_MUTATION,
+  UploadPreset,
+} from '@dailydotdev/shared/src/graphql/users';
 import { useRouter } from 'next/router';
 import { AccountTextField } from '../common';
 import AccountContentSection from '../AccountContentSection';
@@ -124,17 +120,20 @@ const ProfileIndex = ({
     },
   });
 
+  const { mutateAsync: clearImageMutation } = useMutation({
+    mutationFn: clearImage,
+  });
+
   const onImageInputChange = useCallback(
     (file?: File, fileName?: string, isCover = false) => {
+      if (!file) {
+        return clearImageMutation([
+          isCover ? UploadPreset.ProfileCover : UploadPreset.Avatar,
+        ]);
+      }
+
       if (isCover) {
         setCoverImage(fileName);
-      }
-
-      if (!file) {
-        return;
-      }
-
-      if (isCover) {
         uploadCoverImage({
           image: file,
         });
@@ -143,8 +142,10 @@ const ProfileIndex = ({
           image: file,
         });
       }
+
+      return undefined;
     },
-    [updateUserProfile, uploadCoverImage],
+    [updateUserProfile, uploadCoverImage, clearImageMutation],
   );
 
   const CoverHoverIcon = () => (
@@ -163,11 +164,11 @@ const ProfileIndex = ({
         your comments and contributions easily!"
       >
         <div className="relative mt-6 flex">
-          <div className="absolute left-0 top-0 flex w-full">
+          <div className="absolute left-0 top-0 flex w-full max-w-[19.25rem]">
             <ImageInput
               id={coverId}
               className={{
-                root: 'w-full max-w-[19.25rem]',
+                root: 'w-full',
                 container:
                   'border-0 bg-background-subtle hover:bg-accent-pepper-subtlest',
                 img: 'object-cover',
@@ -181,17 +182,21 @@ const ProfileIndex = ({
               onChange={(fileName, file) =>
                 onImageInputChange(file, fileName, true)
               }
+              closeable
             />
           </div>
           <ImageInput
             id={imageId}
             className={{
               img: 'object-cover',
-              container: 'border-4 !border-background-default',
+              container:
+                'border-4 !border-background-default bg-background-subtle hover:bg-accent-pepper-subtlest',
             }}
             initialValue={user?.image}
+            alwaysShowHover={!user?.image}
             hoverIcon={<CameraIcon size={IconSize.Large} />}
             onChange={(_, file) => onImageInputChange(file)}
+            closeable
           />
         </div>
       </AccountContentSection>

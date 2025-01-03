@@ -1,4 +1,5 @@
-import React, { ReactElement, useMemo, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Radio } from '../../fields/Radio';
 import { SquadSettingsSection } from './SquadSettingsSection';
 import {

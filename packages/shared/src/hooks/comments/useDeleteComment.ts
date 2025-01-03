@@ -1,6 +1,7 @@
 import { useCallback, useContext } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { PromptOptions, usePrompt } from '../usePrompt';
+import type { PromptOptions } from '../usePrompt';
+import { usePrompt } from '../usePrompt';
 import { ButtonVariant } from '../../components/buttons/common';
 import { ButtonColor } from '../../components/buttons/Button';
 import { postLogEvent } from '../../lib/feed';
@@ -10,7 +11,7 @@ import { removePostComments } from '../usePostById';
 import LogContext from '../../contexts/LogContext';
 import { useToastNotification } from '../useToastNotification';
 import { useRequestProtocol } from '../useRequestProtocol';
-import { Post } from '../../graphql/posts';
+import type { Post } from '../../graphql/posts';
 
 type UseDeleteCommentRet = {
   deleteComment: (

@@ -1,4 +1,5 @@
-import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
+import type { HTMLAttributes, ReactElement, ReactNode } from 'react';
+import React from 'react';
 
 export type SearchPanelItemContainerProps = {
   children?: ReactNode;

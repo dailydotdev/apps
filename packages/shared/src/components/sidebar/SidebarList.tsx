@@ -1,12 +1,14 @@
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import SidebarListItem, { SidebarListItemProps } from './SidebarListItem';
+import type { SidebarListItemProps } from './SidebarListItem';
+import SidebarListItem from './SidebarListItem';
 import { Button, ButtonSize } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
 import { useModalContext } from '../modals/common/types';
 
 interface SidebarListProps {
-  title: string;
+  title: ReactNode;
   isOpen?: boolean;
   className?: string;
   children?: ReactNode;
@@ -43,9 +45,9 @@ function SidebarList({
   return (
     <div
       className={classNames(
-        'flex flex-col transition-transform ease-in-out tablet:translate-x-[unset] tablet:items-center tablet:px-6 tablet:pt-6',
-        'absolute h-fit max-h-[100vh] w-full bg-inherit tablet:relative tablet:w-fit',
-        isOpen ? 'translate-x-0' : ' -translate-x-full',
+        'flex flex-col p-2 transition-transform ease-in-out tablet:translate-x-[unset] tablet:items-center',
+        'absolute h-full max-h-[100vh] w-full overflow-hidden bg-background-default tablet:relative tablet:w-fit',
+        isOpen ? 'translate-x-0' : 'top-0 -translate-x-full',
         className,
       )}
     >

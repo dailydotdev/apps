@@ -1,15 +1,15 @@
-import {
+import type {
   CSSProperties,
   KeyboardEventHandler,
   MouseEventHandler,
   ReactNode,
 } from 'react';
-import { Post } from '../../graphql/posts';
-import { PostOrigin } from '../../hooks/log/useLogContextData';
+import type { Post } from '../../graphql/posts';
+import type { PostOrigin } from '../../hooks/log/useLogContextData';
 import classed from '../../lib/classed';
-import { PostOptionsMenuProps } from '../PostOptionsMenu';
-import { PostPosition } from '../../hooks/usePostModalNavigation';
-import {
+import type { PostOptionsMenuProps } from '../PostOptionsMenu';
+import type { PostPosition } from '../../hooks/usePostModalNavigation';
+import type {
   UsePostContent,
   UsePostContentProps,
 } from '../../hooks/usePostContent';

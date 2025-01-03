@@ -1,10 +1,7 @@
 import { useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import {
-  RequestProtocol,
-  REQUEST_PROTOCOL_KEY,
-  gqlRequest,
-} from '../graphql/common';
+import type { RequestProtocol } from '../graphql/common';
+import { REQUEST_PROTOCOL_KEY, gqlRequest } from '../graphql/common';
 
 export const useRequestProtocol = (): RequestProtocol => {
   const client = useQueryClient();

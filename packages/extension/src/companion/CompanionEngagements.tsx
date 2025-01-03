@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
-import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRawBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';

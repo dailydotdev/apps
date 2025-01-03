@@ -1,4 +1,5 @@
-import React, { ReactElement, useCallback } from 'react';
+import type { ReactElement } from 'react';
+import React, { useCallback } from 'react';
 import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
 import {
   Button,

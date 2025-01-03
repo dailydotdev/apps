@@ -1,16 +1,17 @@
-import { InfiniteData } from '@tanstack/react-query';
-import { FeedData } from '../../graphql/posts';
+import type { InfiniteData, QueryKey } from '@tanstack/react-query';
+import type { FeedData } from '../../graphql/posts';
+import type { ContentPreferenceMutation } from '../../hooks/contentPreference/types';
 import {
-  ContentPreferenceMutation,
   contentPreferenceMutationMatcher,
   mutationKeyToContentPreferenceStatusMap,
 } from '../../hooks/contentPreference/types';
 import { useMutationSubscription } from '../../hooks/mutationSubscription/useMutationSubscription';
-import { RequestKey, updatePostContentPreference } from '../../lib/query';
-import { PropsParameters } from '../../types';
+import type { RequestKey } from '../../lib/query';
+import { updatePostContentPreference } from '../../lib/query';
+import type { PropsParameters } from '../../types';
 
 type UseFeedContentPreferenceMutationSubscriptionProps = {
-  feedQueryKey: unknown[];
+  feedQueryKey: QueryKey;
 };
 
 type UseFeedContentPreferenceMutationSubscription = ReturnType<

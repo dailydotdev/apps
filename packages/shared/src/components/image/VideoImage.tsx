@@ -1,8 +1,10 @@
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { PlayIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { ImageProps, ImageType } from './Image';
+import type { ImageProps } from './Image';
+import { ImageType } from './Image';
 import { CardImage } from '../cards/common/Card';
 
 export interface VideoImageProps {

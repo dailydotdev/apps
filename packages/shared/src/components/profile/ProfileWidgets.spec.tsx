@@ -1,17 +1,14 @@
 import React from 'react';
-import { render, RenderResult, screen, within } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import userEvent from '@testing-library/user-event';
-import { LoggedUser, PublicProfile } from '../../lib/user';
+import type { LoggedUser, PublicProfile } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
 import { ProfileWidgets } from './ProfileWidgets';
-import { Connection } from '../../graphql/common';
-import {
-  SourceMember,
-  SourceMemberRole,
-  SourceType,
-  Squad,
-} from '../../graphql/sources';
+import type { Connection } from '../../graphql/common';
+import type { SourceMember, Squad } from '../../graphql/sources';
+import { SourceMemberRole, SourceType } from '../../graphql/sources';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { PUBLIC_SOURCE_MEMBERSHIPS_QUERY } from '../../graphql/users';
 import { waitForNock } from '../../../__tests__/helpers/utilities';

@@ -1,6 +1,8 @@
-import React, { ReactElement, ReactNode } from 'react';
-import { ThemeMode } from '../../contexts/SettingsContext';
-import { RadioItem, RadioItemProps } from '../fields/RadioItem';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
+import type { ThemeMode } from '../../contexts/SettingsContext';
+import type { RadioItemProps } from '../fields/RadioItem';
+import { RadioItem } from '../fields/RadioItem';
 import ThemeWidgetBackground, {
   DarkNode,
   DarkNodeLayout,

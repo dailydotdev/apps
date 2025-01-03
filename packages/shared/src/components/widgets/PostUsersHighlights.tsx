@@ -1,23 +1,25 @@
-import React, { ReactElement, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
-import { Post } from '../../graphql/posts';
+import type { Post } from '../../graphql/posts';
 import classed from '../../lib/classed';
 import { LazyImage } from '../LazyImage';
 import { WidgetContainer } from './common';
 import { FeatherIcon, ScoutIcon } from '../icons';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { ProfileLink } from '../profile/ProfileLink';
-import { Author as CommentAuthor } from '../../graphql/comments';
+import type { Author as CommentAuthor } from '../../graphql/comments';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ReputationUserBadge } from '../ReputationUserBadge';
 import { ButtonVariant } from '../buttons/common';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import EnableNotification from '../notifications/EnableNotification';
-import { NotificationPromptSource, Origin } from '../../lib/log';
+import type { Origin } from '../../lib/log';
+import { NotificationPromptSource } from '../../lib/log';
 import { useSourceActionsNotify } from '../../hooks';
 import { SourceActions } from '../sources/SourceActions';
-import { Source as ISource } from '../../graphql/sources';
+import type { Source as ISource } from '../../graphql/sources';
 import { TruncateText } from '../utilities';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { FollowButton } from '../contentPreference/FollowButton';
@@ -231,7 +233,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
       )}
       {isUserType && (
         <FollowButton
-          userId={id}
+          entityId={id}
           type={ContentPreferenceType.User}
           status={(user as CommentAuthor).contentPreference?.status}
           entityName={`@${handleOrUsernameOrId}`}

@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { SearchHistoryContainer } from './common';
 import { AiIcon } from '../icons';
 import { IconSize } from '../Icon';

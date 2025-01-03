@@ -7,10 +7,23 @@ import {
   USER_STREAK_FRAGMENT,
 } from './fragments';
 import type { PublicProfile, UserShortProfile } from '../lib/user';
-import { Connection, gqlClient } from './common';
-import { SourceMember } from './sources';
+import type { Connection } from './common';
+import { gqlClient } from './common';
+import type { SourceMember } from './sources';
 import type { SendType } from '../hooks';
-import { DayOfWeek } from '../lib/date';
+import type { DayOfWeek } from '../lib/date';
+
+export const USER_SHORT_BY_ID = `
+  query UserShortById($id: ID!) {
+    user(id: $id) {
+      id
+      name
+      image
+      username
+      permalink
+    }
+  }
+`;
 
 export const USER_BY_ID_STATIC_FIELDS_QUERY = `
   query User($id: ID!) {
@@ -669,4 +682,21 @@ export const getBasicUserInfo = async (
   });
 
   return res.user || null;
+};
+
+export enum UploadPreset {
+  Avatar = 'avatar',
+  ProfileCover = 'cover',
+}
+
+export const CLEAR_IMAGE_MUTATION = gql`
+  mutation ClearImage($presets: [UploadPreset]!) {
+    clearImage(presets: $presets) {
+      _
+    }
+  }
+`;
+
+export const clearImage = async (presets: string[]): Promise<void> => {
+  await gqlClient.request(CLEAR_IMAGE_MUTATION, { presets });
 };

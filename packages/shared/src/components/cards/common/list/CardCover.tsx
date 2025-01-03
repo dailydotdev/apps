@@ -1,10 +1,12 @@
-import React, { ReactElement, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import ConditionalWrapper from '../../../ConditionalWrapper';
-import { ReusedCardCoverProps, SharedCardCover } from '../SharedCardCover';
+import type { ReusedCardCoverProps } from '../SharedCardCover';
+import { SharedCardCover } from '../SharedCardCover';
 import { CardImage } from './ListCard';
 import { useViewSize, ViewSize } from '../../../../hooks';
-import { ImageProps } from '../../../image/Image';
+import type { ImageProps } from '../../../image/Image';
 
 interface CardCoverProps extends ReusedCardCoverProps {
   className?: string;

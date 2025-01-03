@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { useContext } from 'react';
-import { ClientError } from 'graphql-request';
-import { Squad } from '../../graphql/sources';
+import type { ClientError } from 'graphql-request';
+import type { Squad } from '../../graphql/sources';
 import { getSquad } from '../../graphql/squads';
-import { ApiError, ApiErrorResult, getApiError } from '../../graphql/common';
+import type { ApiErrorResult } from '../../graphql/common';
+import { ApiError, getApiError } from '../../graphql/common';
 import AuthContext from '../../contexts/AuthContext';
 import { isNullOrUndefined } from '../../lib/func';
 import { generateQueryKey, RequestKey } from '../../lib/query';

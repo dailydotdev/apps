@@ -1,4 +1,5 @@
-import React, { ReactElement, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { FilterCheckbox } from '../fields/FilterCheckbox';
 import { useAdvancedSettings } from '../../hooks/feed';

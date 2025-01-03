@@ -1,12 +1,14 @@
-import {
+import type {
   InfiniteData,
-  useInfiniteQuery,
   UseInfiniteQueryOptions,
 } from '@tanstack/react-query';
-import { UseInfiniteQueryResult } from '@tanstack/react-query/build/legacy/types';
-import {
+import { useInfiniteQuery } from '@tanstack/react-query';
+import type { UseInfiniteQueryResult } from '@tanstack/react-query/build/legacy/types';
+import type {
   ContentPreference,
   ContentPreferenceType,
+} from '../../graphql/contentPreference';
+import {
   DEFAULT_FOLLOW_LIMIT,
   USER_FOLLOWERS_QUERY,
 } from '../../graphql/contentPreference';
@@ -17,7 +19,8 @@ import {
   StaleTime,
 } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { Connection, gqlClient } from '../../graphql/common';
+import type { Connection } from '../../graphql/common';
+import { gqlClient } from '../../graphql/common';
 import { useFollowContentPreferenceMutationSubscription } from './useFollowContentPreferenceMutationSubscription';
 
 export type UseFollowersQueryProps = {

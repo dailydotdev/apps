@@ -1,11 +1,6 @@
 import React from 'react';
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
@@ -15,7 +10,8 @@ import {
   mockRegistrationFlow,
 } from '../../../__tests__/fixture/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
-import AuthOptions, { AuthOptionsProps } from './AuthOptions';
+import type { AuthOptionsProps } from './AuthOptions';
+import AuthOptions from './AuthOptions';
 import SettingsContext from '../../contexts/SettingsContext';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { GET_USERNAME_SUGGESTION } from '../../graphql/users';

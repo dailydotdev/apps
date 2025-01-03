@@ -1,7 +1,8 @@
-import React, { ReactElement, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
-import { Post } from '../../../graphql/posts';
+import type { Post } from '../../../graphql/posts';
 import { isNullOrUndefined } from '../../../lib/func';
 import { PostBlockedPanel } from './PostBlockedPanel';
 import CloseButton from '../../CloseButton';
@@ -13,10 +14,12 @@ import {
 } from '../../buttons/Button';
 import { SourceAvatar } from '../../profile/source';
 import useFeedSettings from '../../../hooks/useFeedSettings';
-import { BlockTagSelection, getBlockedMessage } from './common';
+import type { BlockTagSelection } from './common';
+import { getBlockedMessage } from './common';
 import { GenericTagButton } from '../../filters/TagButton';
 import { SimpleTooltip } from '../../tooltips';
 import ConditionalWrapper from '../../ConditionalWrapper';
+import { useActiveFeedContext } from '../../../contexts/ActiveFeedContext';
 
 interface PostTagsPanelProps {
   post: Post;
@@ -29,7 +32,13 @@ export function PostTagsPanel({
   className,
   toastOnSuccess = true,
 }: PostTagsPanelProps): ReactElement {
-  const { feedSettings } = useFeedSettings();
+  const feedContextData = useActiveFeedContext();
+  const feedQueryKey = feedContextData?.queryKey;
+  const isCustomFeed = feedQueryKey?.[0] === 'custom';
+  const customFeedId = isCustomFeed ? (feedQueryKey?.[2] as string) : undefined;
+  const { feedSettings } = useFeedSettings({
+    feedId: customFeedId,
+  });
   const hasBlockedSource = () =>
     feedSettings?.excludeSources?.some(({ id }) => id === post.source.id);
   const [initialPreference] = useState(hasBlockedSource);
@@ -52,6 +61,7 @@ export function PostTagsPanel({
   } = useBlockPostPanel(post, {
     toastOnSuccess,
     blockedSource: initialPreference,
+    feedId: customFeedId,
   });
 
   if (post.tags.length === 0 || isNullOrUndefined(showTagsPanel)) {

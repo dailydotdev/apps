@@ -1,14 +1,10 @@
 import { useCallback, useContext } from 'react';
-import {
-  MutationKey,
-  useMutation,
-  useQueryClient,
-} from '@tanstack/react-query';
+import type { MutationKey } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { Post, ReadHistoryPost } from '../graphql/posts';
 import {
   ADD_BOOKMARKS_MUTATION,
-  Post,
   REMOVE_BOOKMARK_MUTATION,
-  ReadHistoryPost,
 } from '../graphql/posts';
 import LogContext from '../contexts/LogContext';
 import { useToastNotification } from './useToastNotification';
@@ -16,16 +12,17 @@ import { useRequestProtocol } from './useRequestProtocol';
 import AuthContext from '../contexts/AuthContext';
 import { updatePostCache } from './usePostById';
 import { AuthTriggers } from '../lib/auth';
-import { LogEvent, Origin } from '../lib/log';
-import {
-  PostLogEventFnOptions,
-  optimisticPostUpdateInFeed,
-  postLogEvent,
-} from '../lib/feed';
-import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
+import type { Origin } from '../lib/log';
+import { LogEvent } from '../lib/log';
+import type { PostLogEventFnOptions } from '../lib/feed';
+import { optimisticPostUpdateInFeed, postLogEvent } from '../lib/feed';
+import type { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { ActionType } from '../graphql/actions';
 import { useActions } from './useActions';
 import { bookmarkMutationKey } from './bookmark/types';
+import { useLazyModal } from './useLazyModal';
+import { LazyModal } from '../components/modals/common/types';
+import { usePlusSubscription } from './usePlusSubscription';
 
 export type ToggleBookmarkProps = {
   origin: Origin;
@@ -78,6 +75,8 @@ const useBookmarkPost = ({
   const { user, showLogin } = useContext(AuthContext);
   const { logEvent } = useContext(LogContext);
   const { completeAction } = useActions();
+  const { openModal } = useLazyModal();
+  const { showPlusSubscription } = usePlusSubscription();
 
   const defaultOnMutate = ({ id }) => {
     updatePostCache(client, id, (post) => ({ bookmarked: !post.bookmarked }));
@@ -150,10 +149,45 @@ const useBookmarkPost = ({
 
       logEvent(postLogEvent(LogEvent.BookmarkPost, post, logOptions));
 
-      await addBookmark({ id: post.id });
-      displayToast('Post was added to your bookmarks');
+      const result = await addBookmark({ id: post.id });
+      const list = result?.addBookmarks?.[0]?.list ?? null;
+
+      if (showPlusSubscription) {
+        displayToast(`Bookmarked! Saved to ${list?.name ?? 'Quick saves'}`, {
+          undoCopy: 'Change folder',
+          onUndo: () => {
+            openModal({
+              type: LazyModal.MoveBookmark,
+              props: {
+                postId: post.id,
+                listId: list?.id,
+                onMoveBookmark: async () => {
+                  logEvent(
+                    postLogEvent(
+                      LogEvent.MoveBookmarkToFolder,
+                      post,
+                      logOptions,
+                    ),
+                  );
+                },
+              },
+            });
+          },
+        });
+      } else {
+        displayToast('Post was added to your bookmarks');
+      }
     },
-    [addBookmark, displayToast, removeBookmark, showLogin, logEvent, user],
+    [
+      user,
+      logEvent,
+      addBookmark,
+      showPlusSubscription,
+      showLogin,
+      removeBookmark,
+      displayToast,
+      openModal,
+    ],
   );
 
   return { toggleBookmark };

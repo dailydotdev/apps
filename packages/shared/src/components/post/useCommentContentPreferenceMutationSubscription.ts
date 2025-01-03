@@ -1,12 +1,13 @@
-import { PostCommentsData } from '../../graphql/comments';
+import type { PostCommentsData } from '../../graphql/comments';
+import type { ContentPreferenceMutation } from '../../hooks/contentPreference/types';
 import {
-  ContentPreferenceMutation,
   contentPreferenceMutationMatcher,
   mutationKeyToContentPreferenceStatusMap,
 } from '../../hooks/contentPreference/types';
 import { useMutationSubscription } from '../../hooks/mutationSubscription/useMutationSubscription';
-import { RequestKey, updateCommentContentPreference } from '../../lib/query';
-import { PropsParameters } from '../../types';
+import type { RequestKey } from '../../lib/query';
+import { updateCommentContentPreference } from '../../lib/query';
+import type { PropsParameters } from '../../types';
 
 type UseCommentContentPreferenceMutationSubscriptionProps = {
   queryKey: unknown[];

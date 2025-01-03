@@ -1,18 +1,14 @@
 import { useCallback, useContext, useMemo } from 'react';
-import {
+import type {
   InfiniteData,
-  useInfiniteQuery,
+  QueryKey,
   UseInfiniteQueryOptions,
-  useQueryClient,
 } from '@tanstack/react-query';
-import { ClientError } from 'graphql-request';
-import {
-  Ad,
-  FeedData,
-  Post,
-  POSTS_ENGAGED_SUBSCRIPTION,
-  PostsEngaged,
-} from '../graphql/posts';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import type { ClientError } from 'graphql-request';
+import { useRouter } from 'next/router';
+import type { Ad, FeedData, Post, PostsEngaged } from '../graphql/posts';
+import { POSTS_ENGAGED_SUBSCRIPTION } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import useSubscription from './useSubscription';
 import {
@@ -21,7 +17,7 @@ import {
   RequestKey,
   updateCachedPagePost,
 } from '../lib/query';
-import { MarketingCta } from '../components/marketingCta/common';
+import type { MarketingCta } from '../components/marketingCta/common';
 import { FeedItemType } from '../components/cards/common/common';
 import { GARMR_ERROR, gqlClient } from '../graphql/common';
 import { usePlusSubscription } from './usePlusSubscription';
@@ -30,6 +26,9 @@ import { LogEvent } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
 import type { FeedAdTemplate } from '../lib/feed';
 import { featureFeedAdTemplate } from '../lib/featureManagement';
+import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
+import { AD_PLACEHOLDER_SOURCE_ID } from '../lib/constants';
+import { SharedFeedPage } from '../components/utilities';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -109,18 +108,23 @@ export interface UseFeedOptionalParams<T> {
 }
 
 export default function useFeed<T>(
-  feedQueryKey: unknown[],
+  feedQueryKey: QueryKey,
   pageSize: number,
   adTemplate: FeedAdTemplate,
   placeholdersPerPage: number,
   params: UseFeedOptionalParams<T> = {},
 ): FeedReturnType {
+  const router = useRouter();
   const { logEvent } = useLogContext();
   const { query, variables, options = {}, settings, onEmptyFeed } = params;
   const { user, tokenRefreshed } = useContext(AuthContext);
-  const { isPlus } = usePlusSubscription();
+  const { showPlusSubscription, isPlus } = usePlusSubscription();
   const queryClient = useQueryClient();
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
+  const avoidRetry =
+    params?.settings?.feedName === SharedFeedPage.Custom &&
+    showPlusSubscription &&
+    !isPlus;
 
   const feedQuery = useInfiniteQuery<FeedData>({
     queryKey: feedQueryKey,
@@ -156,6 +160,7 @@ export default function useFeed<T>(
     enabled: query && tokenRefreshed,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
+    retry: avoidRetry ? false : 3,
     initialPageParam: '',
     getNextPageParam: ({ page }) => getNextPageParam(page?.pageInfo),
   });
@@ -173,7 +178,21 @@ export default function useFeed<T>(
 
   const adsQuery = useInfiniteQuery<Ad>({
     queryKey: [RequestKey.Ads, ...feedQueryKey],
-    queryFn: async ({ pageParam }) => fetchAd(!!pageParam),
+    queryFn: async ({ pageParam }) => {
+      const ad = await fetchAd(!!pageParam);
+
+      if (!ad) {
+        return {
+          source: AD_PLACEHOLDER_SOURCE_ID,
+          link: 'https://daily.dev',
+          company: 'daily.dev',
+          description: 'daily.dev',
+          image: cloudinaryPostImageCoverPlaceholder,
+        };
+      }
+
+      return ad;
+    },
     initialPageParam: '',
     getNextPageParam: () => Date.now(),
     enabled: isAdsQueryEnabled,
@@ -226,6 +245,15 @@ export default function useFeed<T>(
       if (!nextAd) {
         fetchNextAd({ cancelRefetch: false });
 
+        return {
+          type: FeedItemType.Placeholder,
+          index: adPage,
+        };
+      }
+
+      // for now we return placeholder when no ad is available
+      // this can be replace with some local replacements in the future
+      if (nextAd.source === AD_PLACEHOLDER_SOURCE_ID) {
         return {
           type: FeedItemType.Placeholder,
           index: adPage,
@@ -323,6 +351,8 @@ export default function useFeed<T>(
     },
   );
 
+  const didJustCreateFeed = router.query?.created === '1';
+
   return {
     items,
     fetchPage: async () => {
@@ -332,7 +362,9 @@ export default function useFeed<T>(
     removePost: removeCachedPagePost(feedQueryKey, queryClient),
     canFetchMore: feedQuery.hasNextPage,
     emptyFeed:
-      !feedQuery?.data?.pages[0]?.page.edges.length && !feedQuery.isFetching,
+      (!feedQuery?.data?.pages[0]?.page.edges.length &&
+        !feedQuery.isFetching) ||
+      didJustCreateFeed,
     isError:
       clientError?.response?.errors?.[0]?.extensions?.code === GARMR_ERROR,
     isLoading: feedQuery.isLoading,

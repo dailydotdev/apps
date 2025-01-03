@@ -1,12 +1,6 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-import { AppProps } from 'next/app';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import 'focus-visible';

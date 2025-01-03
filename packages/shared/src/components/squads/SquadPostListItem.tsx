@@ -1,8 +1,9 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 
 import styles from '../cards/common/Card.module.css';
-import { Post } from '../../graphql/posts';
+import type { Post } from '../../graphql/posts';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { TextPlaceholder } from '../widgets/common';
 import SquadPostAuthor from '../post/SquadPostAuthor';

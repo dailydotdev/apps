@@ -1,15 +1,10 @@
-import React, {
-  createElement,
-  CSSProperties,
-  ReactElement,
-  ReactNode,
-  useRef,
-  useState,
-} from 'react';
+import type { CSSProperties, ReactElement, ReactNode } from 'react';
+import React, { createElement, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import TabList, { AllowedTabTags, TabListProps } from './TabList';
-import { RenderTab } from './common';
+import type { AllowedTabTags, TabListProps } from './TabList';
+import TabList from './TabList';
+import type { RenderTab } from './common';
 
 export interface TabProps<T extends string> {
   children?: ReactNode;
@@ -134,7 +129,7 @@ export function TabContainer<T extends string = string>({
     : children.map((child, i) =>
         createElement<TabProps<T>>(child.type, {
           ...child.props,
-          key: child.props.label || i,
+          key: child.key || child.props.label || i,
           style: isTabActive(child)
             ? child.props.style
             : { ...child.props.style, display: 'none' },

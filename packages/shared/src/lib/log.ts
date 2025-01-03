@@ -57,6 +57,7 @@ export enum Origin {
   UserFollowersList = 'user followers list',
   UserUpvotesList = 'user upvotes list',
   FollowFilter = 'follow filter',
+  PostSharedBy = 'post shared by',
 }
 
 export enum LogEvent {
@@ -123,6 +124,10 @@ export enum LogEvent {
   RemovePostBookmark = 'remove post bookmark',
   SetBookmarkReminder = 'set bookmark reminder',
   RemoveBookmarkReminder = 'remove bookmark reminder',
+  MoveBookmarkToFolder = 'change bookmark folder',
+  CreateBookmarkFolder = 'create bookmark folder',
+  RenameBookmarkFolder = 'rename bookmark folder',
+  DeleteBookmarkFolder = 'delete bookmark folder',
   // bookmark - end
   ReportComment = 'report comment',
   // search start
@@ -138,6 +143,7 @@ export enum LogEvent {
   ErrorSearch = 'error search',
   AcceptInvitation = 'accept invitation',
   DownloadExtension = 'download extension',
+  DownloadApp = 'download app',
   SearchHighlightAnimation = 'highlight search',
   SwitchSearch = 'switch search',
   // search end
@@ -224,6 +230,11 @@ export enum LogEvent {
   ToggleClickbaitShield = 'toggle clickbait shield',
   ClickbaitShieldTitle = 'clickbait shield title',
   // End Clickbait Shield
+  // Start Share
+  ShareProfile = 'share profile',
+  ShareSource = 'share source',
+  ShareTag = 'share tag',
+  // End Share
 }
 
 export enum FeedItemTitle {
@@ -266,6 +277,9 @@ export enum TargetType {
   SocialLink = 'social link',
   Badge = 'badge',
   Plus = 'plus',
+  // Browsers
+  Chrome = 'chrome',
+  Edge = 'edge',
 }
 
 export enum TargetId {
@@ -287,6 +301,7 @@ export enum TargetId {
   // End settings
   TopReader = 'top reader',
   Sidebar = 'sidebar',
+  Header = 'header',
   ProfileDropdown = 'profile dropdown',
   Ads = 'ads',
   MyProfile = 'my profile',
