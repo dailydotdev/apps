@@ -69,9 +69,10 @@ export const ArticleList = forwardRef(function ArticleList(
       )}
     >
       <ActionButtons
-        className={
-          feedActionSpacingExp ? 'mt-4 justify-between tablet:mt-0' : 'mt-4'
-        }
+        className={classNames(
+          'mt-4',
+          feedActionSpacingExp && 'justify-between tablet:mt-0',
+        )}
         post={post}
         onUpvoteClick={onUpvoteClick}
         onDownvoteClick={onDownvoteClick}
