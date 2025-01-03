@@ -1,8 +1,9 @@
 import { gql } from 'graphql-request';
+import type { ColorName } from '../styles/colors';
 
 export type PromptFlags = {
   icon?: string;
-  color?: string;
+  color?: ColorName;
 };
 
 export type Prompt = {
