@@ -36,19 +36,19 @@ import { ButtonColor } from '../buttons/Button';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../lib/log';
 import { GooglePlayIcon } from '../icons/Google/Play';
-import { checkIsBrowser, isAndroidApp, UserAgent } from '../../lib/func';
+import { checkIsBrowser, UserAgent } from '../../lib/func';
 import { useConditionalFeature } from '../../hooks';
 import { featureOnboardingAndroid } from '../../lib/featureManagement';
 
 const useMenuItems = (): NavItemProps[] => {
-  const { logout } = useAuthContext();
+  const { logout, isAndroidApp } = useAuthContext();
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
   const { showPlusSubscription, isPlus, logSubscriptionEvent } =
     usePlusSubscription();
   const { value: appExperiment } = useConditionalFeature({
     feature: featureOnboardingAndroid,
-    shouldEvaluate: checkIsBrowser(UserAgent.Android) && !isAndroidApp(),
+    shouldEvaluate: checkIsBrowser(UserAgent.Android) && !isAndroidApp,
   });
 
   const onLogout = useCallback(async () => {
