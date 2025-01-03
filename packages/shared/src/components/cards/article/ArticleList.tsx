@@ -8,6 +8,8 @@ import {
   useFeedPreviewMode,
   usePostFeedback,
   useTruncatedSummary,
+  useViewSize,
+  ViewSize,
 } from '../../../hooks';
 import FeedItemContainer from '../common/list/FeedItemContainer';
 import { combinedClicks } from '../../../lib/click';
@@ -53,6 +55,8 @@ export const ArticleList = forwardRef(function ArticleList(
 
   const onPostCardClick = () => onPostClick?.(post);
   const feedActionSpacingExp = useFeature(feedActionSpacing);
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const shouldSwapActions = feedActionSpacingExp && !isMobile;
   const { showFeedback } = usePostFeedback({ post });
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useSmartTitle(post);
@@ -141,7 +145,7 @@ export const ArticleList = forwardRef(function ArticleList(
                 >
                   {truncatedTitle}
                 </CardTitle>
-                {!feedActionSpacingExp && <div className="flex flex-1" />}
+                {!shouldSwapActions && <div className="flex flex-1" />}
                 <div
                   className={classNames(
                     'flex items-center',
@@ -153,8 +157,8 @@ export const ArticleList = forwardRef(function ArticleList(
                   )}
                   <PostTags tags={post.tags} />
                 </div>
-                {feedActionSpacingExp && <div className="flex flex-1" />}
-                {feedActionSpacingExp && actionButtons}
+                {shouldSwapActions && <div className="flex flex-1" />}
+                {shouldSwapActions && actionButtons}
               </div>
 
               <CardCoverList
@@ -179,7 +183,7 @@ export const ArticleList = forwardRef(function ArticleList(
               />
             </CardContent>
           </CardContainer>
-          {!feedActionSpacingExp && actionButtons}
+          {!shouldSwapActions && actionButtons}
           {children}
         </>
       )}
