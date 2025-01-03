@@ -235,6 +235,9 @@ export enum LogEvent {
   ShareSource = 'share source',
   ShareTag = 'share tag',
   // End Share
+  // Start Smart Prompts
+  ToggleSmartPrompts = 'toggle smart prompts',
+  // End Smart Prompts
 }
 
 export enum FeedItemTitle {
