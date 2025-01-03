@@ -25,6 +25,7 @@ import {
 import { Divider } from '../../../utilities';
 import { Switch } from '../../../fields/Switch';
 import { labels } from '../../../../lib';
+import { SmartPrompts } from '../components/SmartPrompts';
 
 export const FeedSettingsAISection = (): ReactElement => {
   const { isPlus, showPlusSubscription, logSubscriptionEvent } =
@@ -130,6 +131,8 @@ export const FeedSettingsAISection = (): ReactElement => {
               </Button>
             )}
           </section>
+          <Divider className="bg-border-subtlest-tertiary" />
+          <SmartPrompts />
           <Divider className="bg-border-subtlest-tertiary" />
         </>
       )}

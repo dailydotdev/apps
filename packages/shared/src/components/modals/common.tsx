@@ -214,6 +214,12 @@ const AddToCustomFeedModal = dynamic(
     ),
 );
 
+const SmartPromptModal = dynamic(() =>
+  import(
+    /* webpackChunkName: "smartPromptModal" */ './plus/SmartPromptModal'
+  ).then((mod) => mod.SmartPromptModal),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -250,6 +256,7 @@ export const modals = {
   [LazyModal.ClickbaitShield]: ClickbaitShieldModal,
   [LazyModal.MoveBookmark]: MoveBookmarkModal,
   [LazyModal.AddToCustomFeed]: AddToCustomFeedModal,
+  [LazyModal.SmartPrompt]: SmartPromptModal,
 };
 
 type GetComponentProps<T> = T extends

@@ -63,6 +63,7 @@ export const labels = {
       globalPreferenceNotice: {
         clickbaitShield: 'Clickbait shield has been applied for all feeds',
         contentLanguage: 'New language preferences set for all feeds',
+        smartPrompt: 'Smart Prompt setting has been applied for all feeds',
       },
     },
   },

@@ -235,6 +235,9 @@ export enum LogEvent {
   ShareSource = 'share source',
   ShareTag = 'share tag',
   // End Share
+  // Start Smart Prompts
+  ToggleSmartPrompts = 'toggle smart prompts',
+  // End Smart Prompts
 }
 
 export enum FeedItemTitle {
@@ -312,6 +315,7 @@ export enum TargetId {
   BookmarkFolder = 'bookmark folder',
   FeedSettings = 'feed settings',
   ClickbaitShield = 'clickbait shield',
+  SmartPrompt = 'smart prompt',
 }
 
 export enum NotificationChannel {
