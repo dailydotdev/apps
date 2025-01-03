@@ -5,6 +5,8 @@ import PostSummary from '../../cards/common/PostSummary';
 import { Tab, TabContainer } from '../../tabs/TabContainer';
 import { usePlusSubscription } from '../../../hooks';
 import { PromptButtons } from './PromptButtons';
+import { TargetId } from '../../../lib/log';
+import { PostUpgradeToPlus } from '../../plus/PostUpgradeToPlus';
 
 export enum PromptDisplay {
   TLDR = 'tldr',
@@ -62,7 +64,16 @@ export const CustomPrompt = ({ post }: { post: Post }): ReactElement => {
         <Tab label={PromptDisplay.ExtractCode}>Extract code</Tab>
         <Tab label={PromptDisplay.CustomPrompt}>Custom prompt</Tab>
 
-        <Tab label={PromptDisplay.UpgradeToPlus}>Upgrade to plus</Tab>
+        <Tab label={PromptDisplay.UpgradeToPlus}>
+          <PostUpgradeToPlus
+            title="Want unlimited access to smart prompts for every post?"
+            targetId={TargetId.SmartPrompt}
+          >
+            Level up how you interact with posts using AI-powered prompts.
+            Extract insights, refine content, or run custom instructions to get
+            more out of every post in one click.
+          </PostUpgradeToPlus>
+        </Tab>
       </TabContainer>
     </div>
   );
