@@ -10,7 +10,7 @@ import { PostUpgradeToPlus } from '../../plus/PostUpgradeToPlus';
 import ShowMoreContent from '../../cards/common/ShowMoreContent';
 import { PromptDisplay } from '../../../graphql/prompt';
 
-export const CustomPrompt = ({ post }: { post: Post }): ReactElement => {
+export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
   const { isPlus, showPlusSubscription } = usePlusSubscription();
   const [activeDisplay, setActiveDisplay] = useState<PromptDisplay>(
     PromptDisplay.TLDR,

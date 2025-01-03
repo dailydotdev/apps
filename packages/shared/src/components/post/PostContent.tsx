@@ -26,7 +26,7 @@ import { withPostById } from './withPostById';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { SharedByUserBanner } from '../SharedByUserBanner';
-import { CustomPrompt } from './customPrompts/CustomPrompt';
+import { SmartPrompt } from './customPrompts/SmartPrompt';
 
 export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;
@@ -164,7 +164,7 @@ export function PostContentRaw({
               className="mb-7"
             />
           )}
-          {post.summary && <CustomPrompt post={post} />}
+          {post.summary && <SmartPrompt post={post} />}
           <TagLinks tags={post.tags || []} />
           <PostMetadata
             createdAt={post.createdAt}
