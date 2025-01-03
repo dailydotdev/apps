@@ -5,7 +5,12 @@ import { sanitize } from 'dompurify';
 
 import type { PostCardProps } from '../common/common';
 import { Container, generateTitleClamp } from '../common/common';
-import { useFeedPreviewMode, useTruncatedSummary } from '../../../hooks';
+import {
+  useFeedPreviewMode,
+  useTruncatedSummary,
+  useViewSize,
+  ViewSize,
+} from '../../../hooks';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import SquadHeaderPicture from '../common/SquadHeaderPicture';
 import { PostContentReminder } from '../../post/common/PostContentReminder';
@@ -40,6 +45,8 @@ export const FreeformList = forwardRef(function SharePostCard(
 ): ReactElement {
   const { pinnedAt, type: postType } = post;
   const feedActionSpacingExp = useFeature(feedActionSpacing);
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const shouldSwapActions = feedActionSpacingExp && !isMobile;
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
@@ -119,8 +126,8 @@ export const FreeformList = forwardRef(function SharePostCard(
             </CardTitle>
 
             {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
-            {feedActionSpacingExp && <div className="flex flex-1" />}
-            {feedActionSpacingExp && actionButtons}
+            {shouldSwapActions && <div className="flex flex-1" />}
+            {shouldSwapActions && actionButtons}
           </div>
 
           {image && (
@@ -137,7 +144,7 @@ export const FreeformList = forwardRef(function SharePostCard(
           )}
         </CardContent>
       </CardContainer>
-      {!feedActionSpacingExp && actionButtons}
+      {!shouldSwapActions && actionButtons}
       {!image && <PostContentReminder post={post} className="z-1" />}
       {children}
     </FeedItemContainer>
