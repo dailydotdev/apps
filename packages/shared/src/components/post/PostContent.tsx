@@ -4,7 +4,6 @@ import React, { useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { isVideoPost } from '../../graphql/posts';
 import PostMetadata from '../cards/common/PostMetadata';
-import PostSummary from '../cards/common/PostSummary';
 import { PostWidgets } from './PostWidgets';
 import { TagLinks } from '../TagLinks';
 import PostToc from '../widgets/PostToc';
@@ -27,6 +26,7 @@ import { withPostById } from './withPostById';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { SharedByUserBanner } from '../SharedByUserBanner';
+import { SmartPrompt } from './smartPrompts/SmartPrompt';
 
 export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;
@@ -164,9 +164,7 @@ export function PostContentRaw({
               className="mb-7"
             />
           )}
-          {post.summary && (
-            <PostSummary className="mb-6" summary={post.summary} />
-          )}
+          {post.summary && <SmartPrompt post={post} />}
           <TagLinks tags={post.tags || []} />
           <PostMetadata
             createdAt={post.createdAt}
