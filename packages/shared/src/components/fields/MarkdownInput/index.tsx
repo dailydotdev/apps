@@ -41,6 +41,7 @@ import { Divider } from '../../utilities';
 import { usePopupSelector } from '../../../hooks/usePopupSelector';
 import { focusInput } from '../../../lib/textarea';
 import CloseButton from '../../CloseButton';
+import { isValidHttpUrl } from '../../../lib';
 
 interface ClassName {
   container?: string;
@@ -170,6 +171,25 @@ function MarkdownInput(
     focusInput(textareaRef.current, [content.length, content.length]);
   }, []);
 
+  const getTextBoundaries = (
+    text: string,
+    selectionStart: number,
+    selectionEnd: number,
+  ) => {
+    const selectedText = text.substring(selectionStart, selectionEnd);
+    const trimmedText = selectedText.trim();
+    const leadingWhitespace =
+      selectedText.length - selectedText.trimStart().length;
+    const trailingWhitespace =
+      selectedText.length - selectedText.trimEnd().length;
+
+    return {
+      trimmedText,
+      newStart: selectionStart + leadingWhitespace,
+      newEnd: selectionEnd - trailingWhitespace,
+    };
+  };
+
   const handleMarkdownShortcut = (
     e: React.KeyboardEvent<HTMLTextAreaElement>,
   ) => {
@@ -193,13 +213,11 @@ function MarkdownInput(
     };
 
     const handleTextFormatting = (symbol: string) => {
-      const selectedValue = value.substring(selectionStart, selectionEnd);
-      const trimmedValue = selectedValue.trim();
-
-      const leadingWhitespace =
-        selectedValue.length - selectedValue.trimStart().length;
-      const newStart = selectionStart + leadingWhitespace;
-      const newEnd = newStart + trimmedValue.length;
+      const { trimmedText, newStart, newEnd } = getTextBoundaries(
+        value,
+        selectionStart,
+        selectionEnd,
+      );
       const symbolLength = symbol.length;
 
       const isFormatted =
@@ -213,7 +231,7 @@ function MarkdownInput(
       if (isFormatted) {
         updatedValue =
           value.substring(0, newStart - symbolLength) +
-          trimmedValue +
+          trimmedText +
           value.substring(newEnd + symbolLength);
         updatedStart = newStart - symbolLength;
         updatedEnd = newEnd - symbolLength;
@@ -221,7 +239,7 @@ function MarkdownInput(
         updatedValue =
           value.substring(0, newStart) +
           symbol +
-          trimmedValue +
+          trimmedText +
           symbol +
           value.substring(newEnd);
         updatedStart = newStart + symbolLength;
@@ -233,19 +251,14 @@ function MarkdownInput(
 
     const handleLinkPaste = () => {
       navigator.clipboard.readText().then((clipboardText) => {
-        const selectedText = value.substring(selectionStart, selectionEnd);
-        const trimmedText = selectedText.trim();
-
-        const leadingWhitespace =
-          selectedText.length - selectedText.trimStart().length;
-        const trailingWhitespace =
-          selectedText.length - selectedText.trimEnd().length;
-
-        const newStart = selectionStart + leadingWhitespace;
-        const newEnd = selectionEnd - trailingWhitespace;
+        const { trimmedText, newStart, newEnd } = getTextBoundaries(
+          value,
+          selectionStart,
+          selectionEnd,
+        );
 
         const newText =
-          /^https?:\/\//.test(clipboardText) && trimmedText
+          isValidHttpUrl(clipboardText) && trimmedText
             ? `${value.substring(
                 0,
                 newStart,
