@@ -15,12 +15,14 @@ import {
   cloudinaryAuthBannerBackground1440w as laptopBg,
   cloudinaryAuthBannerBackground1920w as desktopBg,
 } from '../../lib/image';
+import { useRouter } from 'next/router';
 
 const Section = classed('div', 'flex flex-col');
 
 export function AuthenticationBanner({
   children,
 }: PropsWithChildren): ReactElement {
+  const router = useRouter();
   const { showLogin } = useAuthContext();
 
   return (
@@ -58,15 +60,11 @@ export function AuthenticationBanner({
             className={{
               onboardingSignup: '!gap-4',
             }}
-            onAuthStateUpdate={(props) =>
-              showLogin({
-                trigger: AuthTriggers.Onboarding,
-                options: {
-                  formValues: {
-                    email: props?.email,
-                  },
-                },
-              })
+            onAuthStateUpdate={(props) => {
+              const params = new URLSearchParams();
+              params.set("afterAuth", window.location.pathname)
+              router.replace(`/onboarding?${params.toString()}`);
+            }
             }
             onboardingSignupButton={{
               variant: ButtonVariant.Primary,
