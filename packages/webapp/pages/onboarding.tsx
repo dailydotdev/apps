@@ -14,7 +14,8 @@ import type {
 import AuthOptions, {
   AuthDisplay,
 } from '@dailydotdev/shared/src/components/auth/AuthOptions';
-import { AuthTriggers, type AuthTriggersType } from '@dailydotdev/shared/src/lib/auth';
+import type { AuthTriggersType } from '@dailydotdev/shared/src/lib/auth';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
 import {
   ButtonSize,
@@ -321,7 +322,8 @@ export function OnboardPage(): ReactElement {
         ),
         onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
       },
-      trigger: authTriggerParam as AuthTriggersType || AuthTriggers.Onboarding,
+      trigger:
+        (authTriggerParam as AuthTriggersType) || AuthTriggers.Onboarding,
       formRef,
       defaultDisplay,
       forceDefaultDisplay: !isAuthenticating,
@@ -433,7 +435,7 @@ export function OnboardPage(): ReactElement {
                 ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
                 : 'mb-10 ml-0 w-full flex-col items-center justify-start',
               isCTA &&
-              'relative mb-auto flex-1 !justify-between overflow-hidden',
+                'relative mb-auto flex-1 !justify-between overflow-hidden',
             )}
           >
             {activeScreen === OnboardingStep.ReadingReminder && (
