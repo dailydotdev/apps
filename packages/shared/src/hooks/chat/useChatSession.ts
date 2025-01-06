@@ -3,7 +3,7 @@ import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { Search } from '../../graphql/search';
 import { getSearchSession } from '../../graphql/search';
-import { generateQueryKey, RequestKey } from '../../lib/query';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import type { UseChatSessionProps, UseChatSession } from './types';
 
 export const useChatSession = ({
@@ -27,6 +27,7 @@ export const useChatSession = ({
       return getSearchSession(id);
     },
     enabled: !!id,
+    staleTime: StaleTime.OneHour,
   });
 
   return {
