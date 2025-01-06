@@ -135,6 +135,8 @@ const seo: NextSeoProps = {
 };
 
 export function OnboardPage(): ReactElement {
+  const params = new URLSearchParams(window.location.search);
+  const emailParam = params.get("email");
   const router = useRouter();
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
@@ -145,12 +147,14 @@ export function OnboardPage(): ReactElement {
   const { growthbook } = useGrowthBookContext();
   const { logEvent } = useLogContext();
   const [auth, setAuth] = useState<AuthProps>({
-    isAuthenticating: !!storage.getItem(SIGNIN_METHOD_KEY) || shouldVerify,
+    isAuthenticating: !!storage.getItem(SIGNIN_METHOD_KEY) || shouldVerify || !!emailParam,
     isLoginFlow: false,
-    defaultDisplay: shouldVerify
-      ? AuthDisplay.EmailVerification
-      : AuthDisplay.OnboardingSignup,
-    ...(anonymous?.email && { email: anonymous.email }),
+    defaultDisplay: emailParam
+      ? AuthDisplay.Registration
+      : shouldVerify
+        ? AuthDisplay.EmailVerification
+        : AuthDisplay.OnboardingSignup,
+    ...(emailParam ? { email: emailParam } : anonymous?.email && { email: anonymous.email }),
   });
   const {
     isAuthenticating,
@@ -262,9 +266,7 @@ export function OnboardPage(): ReactElement {
         : LogEvent.OnboardingSkip,
     });
 
-    const params = new URLSearchParams(window.location.search);
     const afterAuth = params.get("afterAuth");
-
     return router.replace({
       pathname: afterAuth || '/',
       query: {
@@ -361,7 +363,10 @@ export function OnboardPage(): ReactElement {
   if (!isPageReady) {
     return null;
   }
-
+  console.log("showonboardingpage", showOnboardingPage)
+  console.log("activeScreen", activeScreen)
+  console.log("defaultDisplay", defaultDisplay)
+  console.log("is authenticating", isAuthenticating)
   return (
     <div
       className={classNames(
