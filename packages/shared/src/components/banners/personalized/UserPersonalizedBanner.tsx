@@ -27,7 +27,6 @@ const UserPersonalizedBanner = ({
     <AuthenticationBanner>
       {user?.image && <ProfilePicture user={user} />}
       <OnboardingHeadline
-        avatar={user?.image && <ProfilePicture user={user} />}
         className={{
           title: 'typo-mega3',
           description: 'mb-8 typo-title3',
