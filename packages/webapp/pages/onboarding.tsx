@@ -141,7 +141,7 @@ export function OnboardPage(): ReactElement {
   const router = useRouter();
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
-  const { user, isAuthReady, anonymous } = useAuthContext();
+  const { user, isAuthReady, anonymous, isAndroidApp } = useAuthContext();
   const { logSubscriptionEvent, showPlusSubscription: isOnboardingPlusActive } =
     usePlusSubscription();
   const shouldVerify = anonymous?.shouldVerify;
@@ -183,7 +183,9 @@ export function OnboardPage(): ReactElement {
   const { value: appExperiment } = useConditionalFeature({
     feature: featureOnboardingAndroid,
     shouldEvaluate:
-      shouldEnrollOnboardingStep && checkIsBrowser(UserAgent.Android),
+      shouldEnrollOnboardingStep &&
+      checkIsBrowser(UserAgent.Android) &&
+      !isAndroidApp,
   });
   const { shouldShowExtensionOnboarding } = useOnboardingExtension();
   const { value: extensionExperiment } = useConditionalFeature({
