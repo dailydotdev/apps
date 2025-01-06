@@ -150,7 +150,11 @@ export default function ActionButtons({
             tag="a"
             href={post.commentsPermalink}
             pressed={post.commented}
-            variant={ButtonVariant.Float}
+            variant={
+              feedActionSpacingExp
+                ? ButtonVariant.Tertiary
+                : ButtonVariant.Float
+            }
             {...combinedClicks(() => onCommentClick?.(post))}
           >
             <CommentIcon secondary={post.commented} size={IconSize.Medium} />
@@ -168,7 +172,9 @@ export default function ActionButtons({
             id: `post-${post.id}-bookmark-btn`,
             icon: <BookmarkIcon secondary={post.bookmarked} />,
             onClick: () => onBookmarkClick(post),
-            variant: ButtonVariant.Float,
+            variant: feedActionSpacingExp
+              ? ButtonVariant.Tertiary
+              : ButtonVariant.Float,
             className: 'pointer-events-auto ml-2',
           }}
         />
@@ -177,7 +183,11 @@ export default function ActionButtons({
             className="pointer-events-auto ml-2"
             icon={<LinkIcon />}
             onClick={(e) => onCopyLinkClick?.(e, post)}
-            variant={ButtonVariant.Float}
+            variant={
+              feedActionSpacingExp
+                ? ButtonVariant.Tertiary
+                : ButtonVariant.Float
+            }
             color={ButtonColor.Cabbage}
           />
         </SimpleTooltip>
