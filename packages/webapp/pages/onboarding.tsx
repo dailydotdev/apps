@@ -271,7 +271,7 @@ export function OnboardPage(): ReactElement {
         : LogEvent.OnboardingSkip,
     });
 
-    const afterAuth = params.get("afterAuth");
+    const afterAuth = params.get('afterAuth');
     return router.replace({
       pathname: afterAuth || '/',
       query: {

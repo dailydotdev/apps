@@ -39,8 +39,8 @@ export default function LoginButton({
   const onClick = (copy: ButtonCopy) => {
     logEvent(getLogEvent(copy));
     const params = new URLSearchParams();
-    params.set("authTrigger", AuthTriggers.MainButton);
-    params.set("afterAuth", window.location.pathname);
+    params.set('authTrigger', AuthTriggers.MainButton);
+    params.set('afterAuth', window.location.pathname);
     router.push(`/onboarding?${params.toString()}`);
   };
 

@@ -62,9 +62,9 @@ export function AuthenticationBanner({
             }}
             onAuthStateUpdate={(props) => {
               const params = new URLSearchParams();
-              params.set("afterAuth", window.location.pathname)
+              params.set('afterAuth', window.location.pathname)
               if (props?.email)
-                params.set("email", props.email)
+                params.set('email', props.email)
               router.push(`/onboarding?${params.toString()}`)
             }
             }
