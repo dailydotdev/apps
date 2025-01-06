@@ -28,6 +28,7 @@ export const PROMPTS_QUERY = gql`
       id
       label
       description
+      prompt
       flags {
         icon
         color
