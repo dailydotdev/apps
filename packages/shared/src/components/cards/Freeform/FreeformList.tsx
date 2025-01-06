@@ -70,7 +70,7 @@ export const FreeformList = forwardRef(function SharePostCard(
         onCopyLinkClick={onCopyLinkClick}
         onBookmarkClick={onBookmarkClick}
         className={classNames(
-          feedActionSpacingExp ? 'mt-2 justify-between tablet:mt-0' : 'mt-4',
+          feedActionSpacingExp ? 'mt-2 justify-between' : 'mt-4',
           !!image && 'laptop:mt-auto',
         )}
       />
