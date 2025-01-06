@@ -1,5 +1,6 @@
-import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import type { PropsWithChildren, ReactElement } from 'react';
+import React, { useCallback, useState } from 'react';
+import classNames from 'classnames';
 import { PlusUser } from '../PlusUser';
 import CloseButton from '../CloseButton';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
@@ -12,26 +13,48 @@ import { Button } from '../buttons/Button';
 import { webappUrl } from '../../lib/constants';
 import { DevPlusIcon } from '../icons';
 import { usePlusSubscription } from '../../hooks';
-import { LogEvent, TargetId } from '../../lib/log';
+import type { TargetId } from '../../lib/log';
+import { LogEvent } from '../../lib/log';
 
-export const ClickbaitTrial = (): ReactElement => {
+type PostUpgradeToPlusProps = {
+  targetId: TargetId;
+  title: ReactElement | string;
+  className?: string;
+  onClose?: () => void;
+};
+
+export const PostUpgradeToPlus = ({
+  targetId: target_id,
+  title,
+  children,
+  className,
+  onClose,
+}: PostUpgradeToPlusProps & PropsWithChildren): ReactElement => {
   const [show, setShow] = useState(true);
   const { logSubscriptionEvent } = usePlusSubscription();
+
+  const onCloseClick = useCallback(() => {
+    onClose?.();
+    setShow(false);
+  }, [onClose]);
 
   if (!show) {
     return null;
   }
 
   return (
-    <div className="relative mt-6 flex w-full flex-col rounded-12 border border-border-subtlest-tertiary bg-action-plus-float p-3">
+    <div
+      className={classNames(
+        className,
+        'relative flex w-full flex-col rounded-12 border border-border-subtlest-tertiary bg-action-plus-float p-3',
+      )}
+    >
       <div className="flex w-full items-start">
         <PlusUser className="rounded-4 bg-action-plus-float px-1 py-0.5 " />
         <CloseButton
           className="ml-auto"
           size={ButtonSize.Small}
-          onClick={() => {
-            setShow(false);
-          }}
+          onClick={onCloseClick}
         />
       </div>
       <Typography
@@ -40,17 +63,9 @@ export const ClickbaitTrial = (): ReactElement => {
         color={TypographyColor.Primary}
         className="py-2"
       >
-        Want to automatically optimize titles across your feed?
+        {title}
       </Typography>
-      <Typography className="w-full">
-        Clickbait Shield uses AI to automatically optimize post titles by fixing
-        common problems like clickbait, lack of clarity, and overly promotional
-        language.
-        <br />
-        <br />
-        The result is clearer, more informative titles that help you quickly
-        find the content you actually need.
-      </Typography>
+      <Typography className="w-full">{children}</Typography>
 
       <div className="mt-4 flex gap-2">
         <Button
@@ -64,7 +79,7 @@ export const ClickbaitTrial = (): ReactElement => {
           onClick={() => {
             logSubscriptionEvent({
               event_name: LogEvent.UpgradeSubscription,
-              target_id: TargetId.ClickbaitShield,
+              target_id,
             });
           }}
         >
@@ -74,9 +89,7 @@ export const ClickbaitTrial = (): ReactElement => {
           className="flex-1"
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Small}
-          onClick={() => {
-            setShow(false);
-          }}
+          onClick={onCloseClick}
         >
           Not now
         </Button>

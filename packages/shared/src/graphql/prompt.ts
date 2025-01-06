@@ -1,8 +1,9 @@
 import { gql } from 'graphql-request';
+import type { ColorName } from '../styles/colors';
 
 export type PromptFlags = {
   icon?: string;
-  color?: string;
+  color?: ColorName;
 };
 
 export type Prompt = {
@@ -13,6 +14,13 @@ export type Prompt = {
   updatedAt: Date;
   flags?: PromptFlags;
 };
+
+export enum PromptDisplay {
+  TLDR = 'tldr',
+  UpgradeToPlus = 'upgrade-to-plus',
+  SmartPrompt = 'smart-prompt',
+  CustomPrompt = 'custom-prompt',
+}
 
 export const PROMPTS_QUERY = gql`
   query Prompts {
