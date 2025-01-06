@@ -38,8 +38,6 @@ export const postWindowMessage = (
 export const checkIsExtension = (): boolean => !!process.env.TARGET_BROWSER;
 export const isExtension = !!process.env.TARGET_BROWSER;
 
-export const isAndroidApp = (): boolean => globalThis?.isAndroidApp;
-
 export const isPWA = (): boolean =>
   // @ts-expect-error - Safari only, not web standard.
   globalThis?.navigator?.standalone ||
@@ -156,13 +154,6 @@ export const initReactModal = ({
   modalObject.defaultStyles = defaultStyles || {};
 
   globalThis.reactModalInit = true;
-};
-
-export const initApp = (): void => {
-  const params = new URLSearchParams(globalThis?.location?.search);
-  if (params.get('android') === 'true') {
-    globalThis.isAndroidApp = true;
-  }
 };
 
 export const isMobile = (): boolean =>
