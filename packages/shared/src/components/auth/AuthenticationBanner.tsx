@@ -1,6 +1,7 @@
 import type { ReactElement, PropsWithChildren } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import classed from '../../lib/classed';
 import { OnboardingHeadline } from './OnboardingHeadline';
 import AuthOptions, { AuthDisplay } from './AuthOptions';
@@ -15,7 +16,6 @@ import {
   cloudinaryAuthBannerBackground1440w as laptopBg,
   cloudinaryAuthBannerBackground1920w as desktopBg,
 } from '../../lib/image';
-import { useRouter } from 'next/router';
 
 const Section = classed('div', 'flex flex-col');
 
@@ -62,12 +62,12 @@ export function AuthenticationBanner({
             }}
             onAuthStateUpdate={(props) => {
               const params = new URLSearchParams();
-              params.set('afterAuth', window.location.pathname)
-              if (props?.email)
-                params.set('email', props.email)
-              router.push(`/onboarding?${params.toString()}`)
-            }
-            }
+              params.set('afterAuth', window.location.pathname);
+              if (props?.email) {
+                params.set('email', props.email);
+              }
+              router.push(`/onboarding?${params.toString()}`);
+            }}
             onboardingSignupButton={{
               variant: ButtonVariant.Primary,
             }}

@@ -148,7 +148,8 @@ export function OnboardPage(): ReactElement {
   const { growthbook } = useGrowthBookContext();
   const { logEvent } = useLogContext();
   const [auth, setAuth] = useState<AuthProps>({
-    isAuthenticating: !!storage.getItem(SIGNIN_METHOD_KEY) || shouldVerify || !!emailParam,
+    isAuthenticating:
+      !!storage.getItem(SIGNIN_METHOD_KEY) || shouldVerify || !!emailParam,
     isLoginFlow: false,
     defaultDisplay: (() => {
       if (emailParam) {
@@ -344,6 +345,7 @@ export function OnboardPage(): ReactElement {
     isMobile,
     onSuccessfulLogin,
     targetId,
+    authTriggerParam,
   ]);
 
   const customActionName = useMemo(() => {
@@ -431,7 +433,7 @@ export function OnboardPage(): ReactElement {
                 ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
                 : 'mb-10 ml-0 w-full flex-col items-center justify-start',
               isCTA &&
-              'relative mb-auto flex-1 !justify-between overflow-hidden',
+                'relative mb-auto flex-1 !justify-between overflow-hidden',
             )}
           >
             {activeScreen === OnboardingStep.ReadingReminder && (

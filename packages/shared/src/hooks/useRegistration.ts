@@ -88,7 +88,9 @@ const useRegistration = ({
      * We ignore it if 'afterAuth' param exists, because it means we manually redirected the user here, and that will trigger this error.
      */
     if (
-      registration.error?.id === KRATOS_ERROR_MESSAGE.SESSION_ALREADY_AVAILABLE && !afterAuth
+      registration.error?.id ===
+        KRATOS_ERROR_MESSAGE.SESSION_ALREADY_AVAILABLE &&
+      !afterAuth
     ) {
       logout(LogoutReason.KratosSessionAlreadyAvailable);
     }

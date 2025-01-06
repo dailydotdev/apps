@@ -1,12 +1,12 @@
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import { Button, ButtonVariant } from './buttons/Button';
 import LogContext from '../contexts/LogContext';
 import type { LogEvent } from '../hooks/log/useLogQueue';
 import { AuthTriggers } from '../lib/auth';
 import { TargetType } from '../lib/log';
-import { useRouter } from 'next/router';
 
 interface ClassName {
   container?: string;
