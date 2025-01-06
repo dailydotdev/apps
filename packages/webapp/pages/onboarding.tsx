@@ -136,8 +136,8 @@ const seo: NextSeoProps = {
 
 export function OnboardPage(): ReactElement {
   const params = new URLSearchParams(window.location.search);
-  const emailParam = params.get("email");
-  const authTriggerParam = params.get("authTrigger");
+  const emailParam = params.get('email');
+  const authTriggerParam = params.get('authTrigger');
   const router = useRouter();
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
