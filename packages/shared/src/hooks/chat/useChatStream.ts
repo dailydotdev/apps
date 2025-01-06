@@ -182,11 +182,6 @@ export const useChatStream = (): UseChatStream => {
 
   return {
     id: sessionId,
-    handleSubmit: useCallback(
-      (_, prompt: string) => {
-        executePrompt(prompt);
-      },
-      [executePrompt],
-    ),
+    handleSubmit: executePrompt,
   };
 };

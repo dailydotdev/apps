@@ -1,5 +1,4 @@
 import type { QueryKey } from '@tanstack/react-query';
-import type { MouseEvent } from 'react';
 import type { Search, SearchChunkSource } from '../../graphql/search';
 
 export interface UseChatProps {
@@ -32,7 +31,7 @@ export interface UseChat {
   queryKey: QueryKey;
   data: Search;
   isLoading: boolean;
-  handleSubmit(event: MouseEvent, value: string): void;
+  handleSubmit(prompt: string): Promise<void>;
 }
 
 export interface CreatePayload {
