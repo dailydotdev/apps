@@ -34,10 +34,9 @@ import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { fromCDN } from '@dailydotdev/shared/src/lib';
-import { initApp } from '@dailydotdev/shared/src/lib/func';
-import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 
 structuredCloneJsonPolyfill();
 
@@ -89,10 +88,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       }
     }
   }, [isActionsFetched, router, checkHasCompleted]);
-
-  useEffect(() => {
-    initApp();
-  }, []);
 
   useEffect(() => {
     updateCookieBanner(user);
