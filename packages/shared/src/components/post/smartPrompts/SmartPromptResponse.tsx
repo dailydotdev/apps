@@ -31,7 +31,7 @@ export const SmartPromptResponse = ({
       return;
     }
 
-    executePrompt(prompt.prompt + new Date().getTime());
+    executePrompt(prompt.prompt);
   }, [prompt, executePrompt, data]);
 
   return (
