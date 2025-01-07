@@ -16,11 +16,12 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { useOnboardingExtension } from './useOnboardingExtension';
 import { cloudinaryOnboardingExtension } from '../../../lib/image';
 import { BrowserName } from '../../../lib/func';
+import type { OnboardingOnClickNext } from '../common';
 
 export const OnboardingExtension = ({
   onClickNext,
 }: {
-  onClickNext: (option: { clickExtension: boolean }) => void;
+  onClickNext: OnboardingOnClickNext;
 }): ReactElement => {
   const { logEvent } = useLogContext();
   const { browserName } = useOnboardingExtension();
