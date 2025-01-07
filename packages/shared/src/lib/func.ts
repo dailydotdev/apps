@@ -115,7 +115,7 @@ export enum BrowserName {
   Firefox = 'Firefox',
   Safari = 'Safari',
   Edge = 'Edge',
-  Others = 'Others',
+  Other = 'Other',
 }
 
 export const checkIsBrowser = (agent: UserAgent): boolean =>
@@ -146,7 +146,7 @@ export const getCurrentBrowserName = (): BrowserName => {
     return BrowserName.Safari;
   }
 
-  return BrowserName.Others;
+  return BrowserName.Other;
 };
 
 export const shuffleArray = <T>(array: T[]): T[] => {
