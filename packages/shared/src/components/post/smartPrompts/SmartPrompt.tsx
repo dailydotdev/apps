@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import type { ReactElement } from 'react';
 import type { Post } from '../../../graphql/posts';
 import PostSummary from '../../cards/common/PostSummary';
@@ -9,8 +9,8 @@ import { PromptDisplay } from '../../../graphql/prompt';
 import { PostUpgradeToPlus } from '../../plus/PostUpgradeToPlus';
 import { TargetId } from '../../../lib/log';
 import ShowMoreContent from '../../cards/common/ShowMoreContent';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { SmartPromptResponse } from './SmartPromptResponse';
+import { CustomPrompt } from './CustomPrompt';
 
 export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
   const { isPlus, showPlusSubscription } = usePlusSubscription();
@@ -20,10 +20,6 @@ export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
   const [activePrompt, setActivePrompt] = useState<string>(PromptDisplay.TLDR);
   const elementRef = useRef<HTMLDivElement>(null);
   const width = elementRef?.current?.getBoundingClientRect()?.width || 0;
-
-  const onSubmitCustomPrompt = useCallback((e) => {
-    e.preventDefault();
-  }, []);
 
   const onSetActivePrompt = (prompt: string) => {
     setActivePrompt(prompt);
@@ -74,24 +70,7 @@ export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
         </Tab>
 
         <Tab label={PromptDisplay.CustomPrompt}>
-          <form
-            className="rounded-14 bg-surface-float"
-            onSubmit={onSubmitCustomPrompt}
-          >
-            <textarea
-              className="min-h-[9.5rem] w-full bg-transparent p-3"
-              placeholder="Write your custom instruction to tailor the post to your needs."
-            />
-            <div className="flex border-t border-t-border-subtlest-tertiary px-4 py-2">
-              <Button
-                className="ml-auto"
-                variant={ButtonVariant.Primary}
-                size={ButtonSize.Small}
-              >
-                Run prompt
-              </Button>
-            </div>
-          </form>
+          <CustomPrompt post={post} />
         </Tab>
 
         <Tab label={PromptDisplay.UpgradeToPlus}>

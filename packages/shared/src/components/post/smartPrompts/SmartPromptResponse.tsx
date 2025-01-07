@@ -24,11 +24,7 @@ export const SmartPromptResponse = ({
     [activePrompt, prompts],
   );
 
-  const {
-    executePrompt,
-    data,
-    isPending: isChatLoading,
-  } = useSmartPrompt({ post, prompt });
+  const { executePrompt, data, isPending } = useSmartPrompt({ post, prompt });
 
   useEffect(() => {
     if (!prompt.prompt || data) {
@@ -61,7 +57,7 @@ export const SmartPromptResponse = ({
         />
       )}
       <RenderMarkdown
-        isLoading={isChatLoading}
+        isLoading={isPending}
         content={data?.chunks?.[0]?.response || ''}
       />
     </div>
