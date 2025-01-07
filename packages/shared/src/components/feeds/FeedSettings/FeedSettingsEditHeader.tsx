@@ -18,7 +18,7 @@ const SaveButton = ({ activeView }: { activeView: string }): ReactElement => {
     FeedSettingsEditContext,
   );
 
-  if (activeView !== 'General') {
+  if (activeView !== 'General' && activeView !== 'Filters') {
     return (
       <Button
         type="submit"
