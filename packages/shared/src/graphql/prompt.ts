@@ -9,6 +9,7 @@ export type PromptFlags = {
 export type Prompt = {
   id: string;
   label: string;
+  prompt: string;
   description?: string;
   createdAt: Date;
   updatedAt: Date;
