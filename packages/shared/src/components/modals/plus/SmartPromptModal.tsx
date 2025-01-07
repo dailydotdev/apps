@@ -3,7 +3,7 @@ import React from 'react';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import { Image } from '../../image/Image';
-import { clickbaitShieldModalImage } from '../../../lib/image';
+import { smartPromptModalImage } from '../../../lib/image';
 import {
   Typography,
   TypographyColor,
@@ -18,12 +18,11 @@ import { usePlusSubscription } from '../../../hooks';
 
 export const SmartPromptModal = ({ ...props }: ModalProps): ReactElement => {
   const { logSubscriptionEvent } = usePlusSubscription();
-  // TODO: Add correct image below
   return (
     <Modal {...props} isDrawerOnMobile>
       <Image
         className="mb-5 rounded-16"
-        src={clickbaitShieldModalImage}
+        src={smartPromptModalImage}
         alt="Smart Prompt feature"
       />
       <div className="flex flex-col gap-4">
