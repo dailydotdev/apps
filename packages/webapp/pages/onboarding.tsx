@@ -48,7 +48,6 @@ import {
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import {
-  useActions,
   useConditionalFeature,
   useViewSize,
   ViewSize,
@@ -69,6 +68,7 @@ import {
   UserAgent,
 } from '@dailydotdev/shared/src/lib/func';
 import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboarding/Extension/useOnboardingExtension';
+import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
@@ -131,7 +131,12 @@ const seo: NextSeoProps = {
 };
 
 export function OnboardPage(): ReactElement {
-  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
+  const {
+    isOnboardingReady,
+    hasCompletedEditTags,
+    hasCompletedContentTypes,
+    completeStep,
+  } = useOnboarding();
   const router = useRouter();
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
@@ -194,16 +199,16 @@ export function OnboardPage(): ReactElement {
   ].includes(activeScreen);
 
   useEffect(() => {
-    if (!isPageReady || isLogged.current || !isActionsFetched) {
+    if (!isPageReady || isLogged.current || !isOnboardingReady) {
       return;
     }
 
-    if (user?.infoConfirmed && !checkHasCompleted(ActionType.EditTag)) {
+    if (user?.infoConfirmed && !hasCompletedEditTags) {
       setActiveScreen(OnboardingStep.EditTag);
       return;
     }
 
-    if (user?.infoConfirmed && !checkHasCompleted(ActionType.ContentTypes)) {
+    if (user?.infoConfirmed && !hasCompletedContentTypes) {
       setActiveScreen(OnboardingStep.ContentTypes);
       return;
     }
@@ -216,7 +221,7 @@ export function OnboardPage(): ReactElement {
     isLogged.current = true;
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPageReady, user, isActionsFetched]);
+  }, [isPageReady, user, isOnboardingReady]);
 
   const onClickNext = () => {
     logEvent({
@@ -229,13 +234,13 @@ export function OnboardPage(): ReactElement {
     }
 
     if (activeScreen === OnboardingStep.EditTag) {
-      completeAction(ActionType.EditTag);
+      completeStep(ActionType.EditTag);
       setShouldEnrollOnboardingStep(true);
       return setActiveScreen(OnboardingStep.ContentTypes);
     }
 
     if (activeScreen === OnboardingStep.ContentTypes) {
-      completeAction(ActionType.ContentTypes);
+      completeStep(ActionType.ContentTypes);
     }
 
     if (
@@ -364,8 +369,7 @@ export function OnboardPage(): ReactElement {
     isAuthenticating &&
     isAuthLoading &&
     activeScreen === OnboardingStep.Intro &&
-    !isActionsFetched;
-
+    !isOnboardingReady;
   if (!isPageReady) {
     return null;
   }

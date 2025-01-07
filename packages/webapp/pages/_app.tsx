@@ -25,16 +25,13 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
-import {
-  useActions,
-  useManualScrollRestoration,
-} from '@dailydotdev/shared/src/hooks';
+import { useManualScrollRestoration } from '@dailydotdev/shared/src/hooks';
 import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { fromCDN } from '@dailydotdev/shared/src/lib';
-import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -66,7 +63,8 @@ const getRedirectUri = () =>
 const getPage = () => window.location.pathname;
 
 function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
-  const { checkHasCompleted, isActionsFetched } = useActions();
+  const { isOnboardingReady, hasCompletedContentTypes, hasCompletedEditTags } =
+    useOnboarding();
   const didRegisterSwRef = useRef(false);
 
   const { unreadCount } = useNotificationContext();
@@ -80,15 +78,19 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   useConsoleLogo();
 
   useEffect(() => {
-    if (isActionsFetched) {
-      const hasCompletedEssentials =
-        checkHasCompleted(ActionType.EditTag) &&
-        checkHasCompleted(ActionType.ContentTypes);
-      if (!hasCompletedEssentials && !router.pathname.includes('/onboarding')) {
-        router.replace('/onboarding');
-      }
+    if (
+      isOnboardingReady &&
+      (!hasCompletedEditTags || !hasCompletedContentTypes) &&
+      !router.pathname.includes('/onboarding')
+    ) {
+      router.replace('/onboarding');
     }
-  }, [isActionsFetched, router, checkHasCompleted]);
+  }, [
+    isOnboardingReady,
+    router,
+    hasCompletedEditTags,
+    hasCompletedContentTypes,
+  ]);
 
   useEffect(() => {
     updateCookieBanner(user);
