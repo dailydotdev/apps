@@ -50,7 +50,7 @@ export const useSmartPrompt = ({
         return;
       }
 
-      if (sourceRef.current?.readyState === EventSource.OPEN) {
+      if (sourceRef.current?.readyState === sourceRef.current?.OPEN) {
         sourceRef.current.close();
       }
 
@@ -128,7 +128,7 @@ export const useSmartPrompt = ({
 
   useEffect(() => {
     return () => {
-      if (sourceRef.current?.readyState === EventSource.OPEN) {
+      if (sourceRef.current?.readyState === sourceRef.current?.OPEN) {
         client.resetQueries({ queryKey, exact: true });
         sourceRef.current.close();
       }
