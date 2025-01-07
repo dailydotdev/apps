@@ -274,7 +274,7 @@ export const cloudinaryAuthBannerBackground1440w =
 export const cloudinaryPWA =
   'https://daily-now-res.cloudinary.com/image/upload/s--_kFKAft3--/f_auto/v1735045791/web_-_safari_j52hcx';
 
-export const cloudinaryPWAChrome =
+export const cloudinaryMobilePWAChrome =
   'https://daily-now-res.cloudinary.com/image/upload/s--6ajr-Fje--/f_auto/v1735045791/web_-_chrome_we4vak';
 
 export const cloudinaryPWAVideo =
@@ -310,13 +310,13 @@ export const advancedCustomFeedSoonImage =
 export const bookmarkFolderSoonImage =
   'https://daily-now-res.cloudinary.com/image/upload/s--_jM3zDSE--/f_auto/v1733239852/daily_dev_bookmarks_folders_fsughm';
 
-export const cloudinaryPWAChrome =
+export const cloudinaryPWADesktopChrome =
   'https://daily-now-res.cloudinary.com/image/upload/s--Whz80e4B--/f_auto/v1731405024/dailydev_pwa_chrome_web_lfhgnk';
 
-export const cloudinaryPWAEdge =
+export const cloudinaryPWADesktopEdge =
   'https://daily-now-res.cloudinary.com/image/upload/s--kEBZKEnE--/f_auto/v1731405024/dailydev_pwa_edge_web_ygzeqp';
 
-export const cloudinaryPWASafari =
+export const cloudinaryPWADesktopSafari =
   'https://res.cloudinary.com/daily-now/image/upload/s--8_A3sC32--/f_auto,q_auto/dailydev-safari-pwa_dli6xx';
 
 export const clickbaitShieldModalImage =

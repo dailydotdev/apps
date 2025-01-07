@@ -3,7 +3,7 @@ import React from 'react';
 import { OnboardingTitle } from './common';
 import {
   cloudinaryPWA,
-  cloudinaryPWAChrome,
+  cloudinaryMobilePWAChrome,
   cloudinaryPWAVideo,
   cloudinaryPWAVideoChrome,
 } from '../../lib/image';
@@ -17,7 +17,7 @@ export const OnboardingPWA = (): ReactElement => {
       <div className="rounded-lg pointer-events-none absolute top-0 z-2 flex h-screen w-screen flex-col gap-4 p-6 opacity-0 backdrop-blur transition-all duration-200" />
       <video
         className="absolute top-0 max-h-screen w-full"
-        poster={isChrome ? cloudinaryPWAChrome : cloudinaryPWA}
+        poster={isChrome ? cloudinaryMobilePWAChrome : cloudinaryPWA}
         src={isChrome ? cloudinaryPWAVideoChrome : cloudinaryPWAVideo}
         muted
         autoPlay

@@ -1,4 +1,4 @@
-import React, { FC, ReactElement } from 'react';
+import type { FC, ReactElement } from 'react';
 import classNames from 'classnames';
 import {
   Typography,
@@ -9,13 +9,13 @@ import {
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { useInstallPWA } from './useInstallPWA';
 import {
-  cloudinaryPWAChrome,
-  cloudinaryPWAEdge,
-  cloudinaryPWASafari,
+  cloudinaryPWADesktopChrome,
+  cloudinaryPWADesktopEdge,
+  cloudinaryPWADesktopSafari,
 } from '../../../lib/image';
 import { BrowserName } from '../../../lib/func';
 import { PWAChromeIcon, PWAEdgeIcon, PWASafariIcon } from '../../icons';
-import { IconProps } from '../../Icon';
+import type { IconProps } from '../../Icon';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 
@@ -25,9 +25,9 @@ const icons: Partial<Record<BrowserName, FC<IconProps>>> = {
   [BrowserName.Safari]: PWASafariIcon,
 };
 const images: Partial<Record<BrowserName, string>> = {
-  [BrowserName.Chrome]: cloudinaryPWAChrome,
-  [BrowserName.Edge]: cloudinaryPWAEdge,
-  [BrowserName.Safari]: cloudinaryPWASafari,
+  [BrowserName.Chrome]: cloudinaryPWADesktopChrome,
+  [BrowserName.Edge]: cloudinaryPWADesktopEdge,
+  [BrowserName.Safari]: cloudinaryPWADesktopSafari,
 };
 
 export const OnboardingInstallDesktop = ({
