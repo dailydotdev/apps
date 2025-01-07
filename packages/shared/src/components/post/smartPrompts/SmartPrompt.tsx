@@ -79,7 +79,7 @@ export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
           >
             <textarea
               className="min-h-[9.5rem] w-full bg-transparent p-3"
-              placeholder="Enter your custom prompt"
+              placeholder="Write your custom instruction to tailor the post to your needs."
             />
             <div className="flex border-t border-t-border-subtlest-tertiary px-4 py-2">
               <Button
