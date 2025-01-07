@@ -10,6 +10,7 @@ import { PostUpgradeToPlus } from '../../plus/PostUpgradeToPlus';
 import { TargetId } from '../../../lib/log';
 import ShowMoreContent from '../../cards/common/ShowMoreContent';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { SmartPromptResponse } from './SmartPromptResponse';
 
 export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
   const { isPlus, showPlusSubscription } = usePlusSubscription();
@@ -69,7 +70,7 @@ export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
         </Tab>
 
         <Tab label={PromptDisplay.SmartPrompt}>
-          Smart prompt - {activePrompt}
+          <SmartPromptResponse post={post} activePrompt={activePrompt} />
         </Tab>
 
         <Tab label={PromptDisplay.CustomPrompt}>
