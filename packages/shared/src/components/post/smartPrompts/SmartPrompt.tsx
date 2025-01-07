@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import type { ReactElement } from 'react';
 import type { Post } from '../../../graphql/posts';
 import PostSummary from '../../cards/common/PostSummary';
@@ -9,6 +9,7 @@ import { PromptDisplay } from '../../../graphql/prompt';
 import { PostUpgradeToPlus } from '../../plus/PostUpgradeToPlus';
 import { TargetId } from '../../../lib/log';
 import ShowMoreContent from '../../cards/common/ShowMoreContent';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 
 export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
   const { isPlus, showPlusSubscription } = usePlusSubscription();
@@ -18,6 +19,10 @@ export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
   const [activePrompt, setActivePrompt] = useState<string>(PromptDisplay.TLDR);
   const elementRef = useRef<HTMLDivElement>(null);
   const width = elementRef?.current?.getBoundingClientRect()?.width || 0;
+
+  const onSubmitCustomPrompt = useCallback((e) => {
+    e.preventDefault();
+  }, []);
 
   const onSetActivePrompt = (prompt: string) => {
     setActivePrompt(prompt);
@@ -68,7 +73,24 @@ export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
         </Tab>
 
         <Tab label={PromptDisplay.CustomPrompt}>
-          <input type="text" placeholder="Enter your custom prompt" />
+          <form
+            className="rounded-14 bg-surface-float"
+            onSubmit={onSubmitCustomPrompt}
+          >
+            <textarea
+              className="min-h-[9.5rem] w-full bg-transparent p-3"
+              placeholder="Enter your custom prompt"
+            />
+            <div className="flex border-t border-t-border-subtlest-tertiary px-4 py-2">
+              <Button
+                className="ml-auto"
+                variant={ButtonVariant.Primary}
+                size={ButtonSize.Small}
+              >
+                Run prompt
+              </Button>
+            </div>
+          </form>
         </Tab>
 
         <Tab label={PromptDisplay.UpgradeToPlus}>
