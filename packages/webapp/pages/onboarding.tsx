@@ -202,13 +202,6 @@ export function OnboardPage(): ReactElement {
   });
 
   const { isCurrentPWA, isAvailable: canUserInstallDesktop } = useInstallPWA();
-  const { value: installDesktopExperiment } = useConditionalFeature({
-    feature: featureOnboardingDesktopPWA,
-    shouldEvaluate:
-      shouldEnrollOnboardingStep &&
-      shouldShowExtensionOnboarding &&
-      !isCurrentPWA,
-  });
 
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
   const isCTA = [
@@ -280,8 +273,6 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.Extension);
     }
 
-    const isInstallStepAvailable =
-      installDesktopExperiment && canUserInstallDesktop;
     const haveSkippedExtension =
       !options?.clickExtension && activeScreen === OnboardingStep.Extension;
     const browserName = getCurrentBrowserName();
@@ -292,11 +283,18 @@ export function OnboardPage(): ReactElement {
 
     if (
       isLaptop &&
-      isInstallStepAvailable &&
+      !isCurrentPWA &&
+      canUserInstallDesktop &&
       activeScreen !== OnboardingStep.InstallDesktop &&
       (haveSkippedExtension || browserDontHaveExtension)
     ) {
-      return setActiveScreen(OnboardingStep.InstallDesktop);
+      const installDesktopExperiment = growthbook.getFeatureValue(
+        featureOnboardingDesktopPWA.id,
+        featureOnboardingDesktopPWA.defaultValue,
+      );
+      if (installDesktopExperiment) {
+        return setActiveScreen(OnboardingStep.InstallDesktop);
+      }
     }
 
     logEvent({

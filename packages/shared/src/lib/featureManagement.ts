@@ -53,7 +53,7 @@ export const featureOnboardingExtension = new Feature(
 );
 export const featureOnboardingDesktopPWA = new Feature(
   'onboarding_desktop_pwa',
-  false,
+  true,
 );
 export const featureOnboardingPWA = new Feature('onboarding_pwa', false);
 export const featureOnboardingAndroid = new Feature(
