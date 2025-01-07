@@ -15,7 +15,7 @@ import { ElementPlaceholder } from '../../ElementPlaceholder';
 import type { PromptFlags } from '../../../graphql/prompt';
 import { PromptDisplay } from '../../../graphql/prompt';
 import { usePromptButtons } from '../../../hooks/prompt/usePromptButtons';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { usePlusSubscription, useViewSize, ViewSize } from '../../../hooks';
 import { SimpleTooltip } from '../../tooltips';
 import { promptColorMap, PromptIconMap } from './common';
 import { LazyModal } from '../../modals/common/types';
@@ -70,6 +70,7 @@ export const PromptButtons = ({
   const [showAll, setShowAll] = useState(false);
   const { openModal } = useLazyModal();
   const { data: prompts, isLoading } = usePromptsQuery();
+  const { isPlus } = usePlusSubscription();
   const promptList = usePromptButtons({
     prompts,
     width,
@@ -83,7 +84,7 @@ export const PromptButtons = ({
 
   const onPromptClick = useCallback(
     (id) => {
-      if (isMobile) {
+      if (isMobile && !isPlus) {
         openModal({
           type: LazyModal.SmartPrompt,
         });
@@ -91,7 +92,7 @@ export const PromptButtons = ({
       }
       setActivePrompt(id);
     },
-    [isMobile, openModal, setActivePrompt],
+    [isMobile, isPlus, openModal, setActivePrompt],
   );
 
   if (isLoading) {
