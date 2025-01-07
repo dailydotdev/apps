@@ -34,9 +34,9 @@ import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { fromCDN } from '@dailydotdev/shared/src/lib';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
-import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 
 structuredCloneJsonPolyfill();
 
@@ -68,6 +68,7 @@ const getPage = () => window.location.pathname;
 function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { checkHasCompleted, isActionsFetched } = useActions();
   const didRegisterSwRef = useRef(false);
+
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
   const { user, closeLogin, shouldShowLogin, loginState } =
