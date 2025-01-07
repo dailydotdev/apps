@@ -38,7 +38,10 @@ export const useChatStream = (): UseChatStream => {
         return;
       }
 
-      if (sourceRef.current?.readyState === sourceRef.current?.OPEN) {
+      if (
+        sourceRef.current &&
+        sourceRef.current?.readyState === sourceRef.current?.OPEN
+      ) {
         sourceRef.current.close();
       }
 
@@ -174,7 +177,10 @@ export const useChatStream = (): UseChatStream => {
 
   useEffect(() => {
     return () => {
-      if (sourceRef.current?.readyState === sourceRef.current?.OPEN) {
+      if (
+        sourceRef.current &&
+        sourceRef.current?.readyState === sourceRef.current?.OPEN
+      ) {
         sourceRef.current.close();
       }
     };
