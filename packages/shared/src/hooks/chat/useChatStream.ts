@@ -33,12 +33,15 @@ export const useChatStream = (): UseChatStream => {
   const [sessionId, setSessionId] = useState<string>(null);
 
   const executePrompt = useCallback(
-    async (value: string) => {
-      if (!value) {
+    async (prompt: string) => {
+      if (!prompt) {
         return;
       }
 
-      if (sourceRef.current?.OPEN) {
+      if (
+        sourceRef.current &&
+        sourceRef.current?.readyState === sourceRef.current?.OPEN
+      ) {
         sourceRef.current.close();
       }
 
@@ -87,7 +90,7 @@ export const useChatStream = (): UseChatStream => {
                   ...payload,
                   createdAt: new Date(),
                   status: data.status,
-                  prompt: value,
+                  prompt,
                 }),
               );
 
@@ -164,7 +167,7 @@ export const useChatStream = (): UseChatStream => {
         logErrorEvent(code);
       };
 
-      const source = await sendSearchQuery(value, accessToken?.token);
+      const source = await sendSearchQuery(prompt, accessToken?.token);
       source.addEventListener('message', onMessage);
       source.addEventListener('error', onError);
       sourceRef.current = source;
@@ -174,7 +177,10 @@ export const useChatStream = (): UseChatStream => {
 
   useEffect(() => {
     return () => {
-      if (sourceRef.current?.OPEN) {
+      if (
+        sourceRef.current &&
+        sourceRef.current?.readyState === sourceRef.current?.OPEN
+      ) {
         sourceRef.current.close();
       }
     };
@@ -182,11 +188,6 @@ export const useChatStream = (): UseChatStream => {
 
   return {
     id: sessionId,
-    handleSubmit: useCallback(
-      (_, value: string) => {
-        executePrompt(value);
-      },
-      [executePrompt],
-    ),
+    handleSubmit: executePrompt,
   };
 };

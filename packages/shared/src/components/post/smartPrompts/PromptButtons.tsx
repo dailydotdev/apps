@@ -14,7 +14,7 @@ import { usePromptsQuery } from '../../../hooks/prompt/usePromptsQuery';
 import { ElementPlaceholder } from '../../ElementPlaceholder';
 import type { PromptFlags } from '../../../graphql/prompt';
 import { PromptDisplay } from '../../../graphql/prompt';
-import { usePromptButtons } from '../../../hooks/feed/usePromptButtons';
+import { usePromptButtons } from '../../../hooks/prompt/usePromptButtons';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { SimpleTooltip } from '../../tooltips';
 import { promptColorMap, PromptIconMap } from './common';

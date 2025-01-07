@@ -9,6 +9,7 @@ export type PromptFlags = {
 export type Prompt = {
   id: string;
   label: string;
+  prompt: string;
   description?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -28,6 +29,7 @@ export const PROMPTS_QUERY = gql`
       id
       label
       description
+      prompt
       flags {
         icon
         color
