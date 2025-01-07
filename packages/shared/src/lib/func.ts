@@ -1,6 +1,6 @@
 import type { MouseEvent } from 'react';
 import type ReactModal from 'react-modal';
-import { EmptyObjectLiteral } from './kratos';
+import type { EmptyObjectLiteral } from './kratos';
 import { isBrave, isTesting } from './constants';
 
 export type EmptyFunction = () => void;

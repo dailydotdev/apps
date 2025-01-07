@@ -1,4 +1,5 @@
-import { BrowserName, getCurrentBrowserName, isPWA } from '../../../lib/func';
+import type { BrowserName } from '../../../lib/func';
+import { getCurrentBrowserName, isPWA } from '../../../lib/func';
 
 interface IBeforeInstallPromptEvent extends Event {
   prompt: () => Promise<'accepted' | 'dismissed'>;
