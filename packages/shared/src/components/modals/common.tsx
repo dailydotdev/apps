@@ -214,6 +214,13 @@ const AddToCustomFeedModal = dynamic(
     ),
 );
 
+const ReportUserModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "reportUserModal" */ './report/ReportUserModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -250,6 +257,7 @@ export const modals = {
   [LazyModal.ClickbaitShield]: ClickbaitShieldModal,
   [LazyModal.MoveBookmark]: MoveBookmarkModal,
   [LazyModal.AddToCustomFeed]: AddToCustomFeedModal,
+  [LazyModal.ReportUser]: ReportUserModal,
 };
 
 type GetComponentProps<T> = T extends
@@ -281,14 +289,14 @@ export type LazyModalType<T extends keyof ModalsType> = {
   [K in keyof ModalsType]: NonOptional<
     LazyModalComponentType<K>
   > extends Record<string, never>
-    ? {
-        type: K;
-        persistOnRouteChange?: boolean;
-        props?: LazyModalComponentType<K>;
-      }
-    : {
-        type: K;
-        persistOnRouteChange?: boolean;
-        props: LazyModalComponentType<K>;
-      };
+  ? {
+    type: K;
+    persistOnRouteChange?: boolean;
+    props?: LazyModalComponentType<K>;
+  }
+  : {
+    type: K;
+    persistOnRouteChange?: boolean;
+    props: LazyModalComponentType<K>;
+  };
 }[T];
