@@ -25,6 +25,7 @@ import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWr
 import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
+import type { OnboardingOnClickNext } from '@dailydotdev/shared/src/components/onboarding/common';
 import {
   OnboardingStep,
   wrapperMaxWidth,
@@ -137,12 +138,6 @@ type OnboardingVisual = {
     desktop?: string;
   };
 };
-
-type OnboardingOnClickNext = (
-  options?: Partial<{
-    clickExtension: boolean;
-  }>,
-) => void;
 
 const seo: NextSeoProps = {
   title: getTemplatedTitle('Get started'),
