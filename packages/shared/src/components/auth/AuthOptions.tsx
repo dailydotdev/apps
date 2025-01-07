@@ -1,22 +1,13 @@
-import React, {
-  MutableRefObject,
-  ReactElement,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import type { MutableRefObject, ReactElement } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Tab, TabContainer } from '../tabs/TabContainer';
-import { RegistrationFormValues } from './RegistrationForm';
-import {
-  AuthEventNames,
-  AuthTriggersType,
-  getNodeValue,
-  RegistrationError,
-} from '../../lib/auth';
+import type { RegistrationFormValues } from './RegistrationForm';
+import type { AuthTriggersType, RegistrationError } from '../../lib/auth';
+import { AuthEventNames, getNodeValue } from '../../lib/auth';
 import useRegistration from '../../hooks/useRegistration';
 import {
   AuthEvent,
@@ -29,19 +20,16 @@ import { storageWrapper as storage } from '../../lib/storageWrapper';
 import { providers } from './common';
 import useLogin from '../../hooks/useLogin';
 import useProfileForm from '../../hooks/useProfileForm';
-import { CloseAuthModalFunc } from '../../hooks/useAuthForms';
+import type { CloseAuthModalFunc } from '../../hooks/useAuthForms';
 import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useToastNotification, useEventListener } from '../../hooks';
 import { isTesting } from '../../lib/constants';
-import {
-  SignBackProvider,
-  SIGNIN_METHOD_KEY,
-  useSignBack,
-} from '../../hooks/auth/useSignBack';
-import { AnonymousUser, LoggedUser } from '../../lib/user';
+import type { SignBackProvider } from '../../hooks/auth/useSignBack';
+import { SIGNIN_METHOD_KEY, useSignBack } from '../../hooks/auth/useSignBack';
+import type { AnonymousUser, LoggedUser } from '../../lib/user';
 import { labels } from '../../lib';
-import { ButtonProps } from '../buttons/Button';
+import type { ButtonProps } from '../buttons/Button';
 import usePersistentState from '../../hooks/usePersistentState';
 
 const AuthDefault = dynamic(

@@ -1,4 +1,5 @@
-import React, { FormEvent, ReactElement, useRef, useState } from 'react';
+import type { FormEvent, ReactElement } from 'react';
+import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
@@ -10,8 +11,8 @@ import { usePostToSquad, useViewSize, ViewSize } from '../../hooks';
 import { ClickableText } from '../buttons/ClickableText';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import { Squad } from '../../graphql/sources';
-import { ExternalLinkPreview } from '../../graphql/posts';
+import type { Squad } from '../../graphql/sources';
+import type { ExternalLinkPreview } from '../../graphql/posts';
 
 export interface SharePostBarProps {
   className?: string;

@@ -1,7 +1,9 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import Link from '../../utilities/Link';
-import { Modal, ModalProps } from '../common/Modal';
-import { Source } from '../../../graphql/sources';
+import type { ModalProps } from '../common/Modal';
+import { Modal } from '../common/Modal';
+import type { Source } from '../../../graphql/sources';
 import { UserShortInfo } from '../../profile/UserShortInfo';
 import SquadMemberBadge from '../../squads/SquadMemberBadge';
 import { Origin } from '../../../lib/log';

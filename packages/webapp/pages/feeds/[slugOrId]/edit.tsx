@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
-import { NextSeoProps } from 'next-seo';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { NextSeoProps } from 'next-seo';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks/useFeedLayout';
 import { FeedSettingsEdit } from '@dailydotdev/shared/src/components/feeds/FeedSettings/FeedSettingsEdit';
 import { useRouter } from 'next/router';

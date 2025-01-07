@@ -1,6 +1,5 @@
+import type { ReactElement, ReactNode } from 'react';
 import React, {
-  ReactElement,
-  ReactNode,
   useCallback,
   useContext,
   useEffect,
@@ -9,9 +8,11 @@ import React, {
 } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { QueryKey } from '@tanstack/react-query';
-import useFeed, { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
-import { Ad, Post, PostType } from '../graphql/posts';
+import type { QueryKey } from '@tanstack/react-query';
+import type { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
+import useFeed from '../hooks/useFeed';
+import type { Ad, Post } from '../graphql/posts';
+import { PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
 import SettingsContext from '../contexts/SettingsContext';
@@ -31,17 +32,19 @@ import { useSharePost } from '../hooks/useSharePost';
 import { Origin } from '../lib/log';
 import ShareOptionsMenu from './ShareOptionsMenu';
 import { SharedFeedPage } from './utilities';
-import { FeedContainer, FeedContainerProps } from './feeds/FeedContainer';
+import type { FeedContainerProps } from './feeds/FeedContainer';
+import { FeedContainer } from './feeds/FeedContainer';
 import { ActiveFeedContext } from '../contexts';
 import { useBoot, useFeedLayout, useFeedVotePost } from '../hooks';
-import { AllFeedPages, OtherFeedPage, RequestKey } from '../lib/query';
+import type { AllFeedPages } from '../lib/query';
+import { OtherFeedPage, RequestKey } from '../lib/query';
 
 import { MarketingCtaVariant } from './marketingCta/common';
 import { isNullOrUndefined } from '../lib/func';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import { SearchResultsLayout } from './search/SearchResults/SearchResultsLayout';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
-import { PostClick } from '../lib/click';
+import type { PostClick } from '../lib/click';
 
 import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedContentPreferenceMutationSubscription';
 import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';

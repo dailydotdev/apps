@@ -1,9 +1,11 @@
-import React, { ReactElement, useCallback, useEffect, useRef } from 'react';
+import type { ReactElement } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { ListCard } from '../cards/common/list/ListCard';
 import { useBoot } from '../../hooks';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
-import { CTAButton, Description, Header, MarketingCta, Title } from './common';
+import type { MarketingCta } from './common';
+import { CTAButton, Description, Header, Title } from './common';
 import { CardCoverList } from '../cards/common/list/CardCover';
 
 export function MarketingCtaList({

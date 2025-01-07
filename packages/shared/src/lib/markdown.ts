@@ -1,4 +1,5 @@
-import { CursorType, GetReplacementFn, isFalsyOrSpace } from './textarea';
+import type { GetReplacementFn } from './textarea';
+import { CursorType, isFalsyOrSpace } from './textarea';
 
 const urlText = 'url';
 const getUrlText = (content = '') => `[${content}](${urlText})`;

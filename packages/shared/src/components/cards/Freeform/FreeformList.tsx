@@ -1,9 +1,16 @@
-import React, { forwardRef, ReactElement, Ref, useMemo, useRef } from 'react';
+import type { ReactElement, Ref } from 'react';
+import React, { forwardRef, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { sanitize } from 'dompurify';
 
-import { Container, generateTitleClamp, PostCardProps } from '../common/common';
-import { useFeedPreviewMode, useTruncatedSummary } from '../../../hooks';
+import type { PostCardProps } from '../common/common';
+import { Container, generateTitleClamp } from '../common/common';
+import {
+  useFeedPreviewMode,
+  useTruncatedSummary,
+  useViewSize,
+  ViewSize,
+} from '../../../hooks';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import SquadHeaderPicture from '../common/SquadHeaderPicture';
 import { PostContentReminder } from '../../post/common/PostContentReminder';
@@ -38,6 +45,8 @@ export const FreeformList = forwardRef(function SharePostCard(
 ): ReactElement {
   const { pinnedAt, type: postType } = post;
   const feedActionSpacingExp = useFeature(feedActionSpacing);
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const shouldSwapActions = feedActionSpacingExp && !isMobile;
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
@@ -61,7 +70,7 @@ export const FreeformList = forwardRef(function SharePostCard(
         onCopyLinkClick={onCopyLinkClick}
         onBookmarkClick={onBookmarkClick}
         className={classNames(
-          feedActionSpacingExp ? 'justify-between' : 'mt-4',
+          feedActionSpacingExp ? 'mt-2 justify-between' : 'mt-4',
           !!image && 'laptop:mt-auto',
         )}
       />
@@ -103,7 +112,7 @@ export const FreeformList = forwardRef(function SharePostCard(
         </PostCardHeader>
 
         <CardContent className="my-2">
-          <div className="mr-4 flex-1">
+          <div className="mr-4 flex flex-1 flex-col">
             <CardTitle
               className={classNames(
                 generateTitleClamp({
@@ -117,8 +126,8 @@ export const FreeformList = forwardRef(function SharePostCard(
             </CardTitle>
 
             {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
-            {feedActionSpacingExp && <div className="flex flex-1" />}
-            {feedActionSpacingExp && actionButtons}
+            {shouldSwapActions && <div className="flex flex-1" />}
+            {shouldSwapActions && actionButtons}
           </div>
 
           {image && (
@@ -127,7 +136,10 @@ export const FreeformList = forwardRef(function SharePostCard(
               post={post}
               imageProps={{
                 alt: 'Post Cover image',
-                className: 'mobileXXL:self-start w-full',
+                className: classNames(
+                  'w-full mobileXXL:self-start',
+                  feedActionSpacingExp && 'mt-2 tablet:mt-0',
+                ),
                 ...(eagerLoadImage && HIGH_PRIORITY_IMAGE_PROPS),
                 src: image,
               }}
@@ -135,7 +147,7 @@ export const FreeformList = forwardRef(function SharePostCard(
           )}
         </CardContent>
       </CardContainer>
-      {!feedActionSpacingExp && actionButtons}
+      {!shouldSwapActions && actionButtons}
       {!image && <PostContentReminder post={post} className="z-1" />}
       {children}
     </FeedItemContainer>

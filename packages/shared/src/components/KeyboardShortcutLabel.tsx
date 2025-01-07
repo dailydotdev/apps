@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import React, { Fragment, ReactElement, useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 
 export type KeyboadShortcutLabelProps = {
   className?: string;

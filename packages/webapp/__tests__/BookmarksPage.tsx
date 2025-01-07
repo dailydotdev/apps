@@ -1,28 +1,22 @@
-import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
+import type { FeedData } from '@dailydotdev/shared/src/graphql/posts';
 import {
   BOOKMARKS_FEED_QUERY,
   supportedTypesForPrivateSources,
 } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import React, { act } from 'react';
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import { NextRouter, useRouter } from 'next/router';
+import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import BookmarksPage from '../pages/bookmarks';

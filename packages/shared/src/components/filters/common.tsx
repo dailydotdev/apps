@@ -1,5 +1,5 @@
-import { ReactNode } from 'react';
-import { Source } from '../../graphql/sources';
+import type { ReactNode } from 'react';
+import type { Source } from '../../graphql/sources';
 import classed from '../../lib/classed';
 
 export type BooleanPromise = Promise<{ successful: boolean }>;

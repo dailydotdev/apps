@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
-import { Tag } from '../../graphql/feedSettings';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { Tag } from '../../graphql/feedSettings';
 
 export type CopyProps = {
   name: string | Tag;

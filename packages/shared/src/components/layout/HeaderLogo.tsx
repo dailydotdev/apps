@@ -1,5 +1,7 @@
-import React, { ReactElement } from 'react';
-import Logo, { LogoPosition } from '../Logo';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { LogoPosition } from '../Logo';
+import Logo from '../Logo';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { withNoSSR } from '../../lib/withNoSSR';

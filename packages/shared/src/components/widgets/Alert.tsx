@@ -1,4 +1,5 @@
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { AlertIcon, FeedbackIcon, VIcon as CheckIcon } from '../icons';
 import classed from '../../lib/classed';

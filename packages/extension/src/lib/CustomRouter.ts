@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
-import { NextRouter } from 'next/router';
-import { UrlObject } from 'url';
-import { MittEmitter } from 'next/dist/shared/lib/mitt';
-import { RouterEvent } from 'next/dist/client/router';
+import type { NextRouter } from 'next/router';
+import type { UrlObject } from 'url';
+import type { MittEmitter } from 'next/dist/shared/lib/mitt';
+import type { RouterEvent } from 'next/dist/client/router';
 
 declare type Url = UrlObject | string;
 

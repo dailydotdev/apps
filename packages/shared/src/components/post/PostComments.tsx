@@ -1,25 +1,21 @@
-import React, {
-  ReactElement,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
-import {
+import type {
   Comment,
-  POST_COMMENTS_QUERY,
   PostCommentsData,
   SortCommentsBy,
 } from '../../graphql/comments';
-import { Post } from '../../graphql/posts';
-import MainComment, { MainCommentProps } from '../comments/MainComment';
+import { POST_COMMENTS_QUERY } from '../../graphql/comments';
+import type { Post } from '../../graphql/posts';
+import type { MainCommentProps } from '../comments/MainComment';
+import MainComment from '../comments/MainComment';
 import PlaceholderCommentList from '../comments/PlaceholderCommentList';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { initialDataKey } from '../../lib/constants';
-import { Origin } from '../../lib/log';
-import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
+import type { Origin } from '../../lib/log';
+import type { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useDeleteComment } from '../../hooks/comments/useDeleteComment';
 import { lazyCommentThreshold } from '../utilities';
 import { isNullOrUndefined } from '../../lib/func';

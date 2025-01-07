@@ -1,11 +1,13 @@
-import React, { ReactElement, useContext, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
-import { Post, UserVote, isVideoPost } from '../graphql/posts';
+import type { Post } from '../graphql/posts';
+import { UserVote, isVideoPost } from '../graphql/posts';
 import {
   TrashIcon,
   HammerIcon,
@@ -30,7 +32,7 @@ import {
   ShieldIcon,
   ShieldWarningIcon,
 } from './icons';
-import { ReportedCallback } from './modals';
+import type { ReportedCallback } from './modals';
 import useTagAndSource from '../hooks/useTagAndSource';
 import LogContext from '../contexts/LogContext';
 import { postLogEvent } from '../lib/feed';
@@ -43,7 +45,8 @@ import {
   useSourceActionsNotify,
   useToastNotification,
 } from '../hooks';
-import { AllFeedPages, generateQueryKey } from '../lib/query';
+import type { AllFeedPages } from '../lib/query';
+import { generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { LogEvent, Origin } from '../lib/log';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
@@ -51,7 +54,7 @@ import usePostById, { getPostByIdKey } from '../hooks/usePostById';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { labels } from '../lib';
-import { MenuItemProps } from './fields/ContextMenu';
+import type { MenuItemProps } from './fields/ContextMenu';
 import { ContextMenu as ContextMenuTypes } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
 import { SourceType } from '../graphql/sources';

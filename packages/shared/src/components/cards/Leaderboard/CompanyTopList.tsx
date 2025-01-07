@@ -1,5 +1,7 @@
-import React, { ReactElement } from 'react';
-import { CommonLeaderboardProps, LeaderboardList } from './LeaderboardList';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { CommonLeaderboardProps } from './LeaderboardList';
+import { LeaderboardList } from './LeaderboardList';
 import { LeaderboardListItem } from './LeaderboardListItem';
 import type { Company } from '../../../lib/userCompany';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';

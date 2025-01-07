@@ -1,10 +1,10 @@
 import nock from 'nock';
 import React from 'react';
+import type { RenderResult } from '@testing-library/react';
 import {
   findByText,
   fireEvent,
   render,
-  RenderResult,
   screen,
   waitFor,
   within,
@@ -13,22 +13,19 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { mocked } from 'ts-jest/utils';
 import { useRouter } from 'next/router';
 
+import type { FeedData, Post, PostData, PostsEngaged } from '../graphql/posts';
 import {
   ADD_BOOKMARKS_MUTATION,
-  FeedData,
   HIDE_POST_MUTATION,
-  Post,
   POST_BY_ID_QUERY,
-  PostData,
-  PostsEngaged,
   REPORT_POST_MUTATION,
   PostType,
   UserVote,
   REMOVE_BOOKMARK_MUTATION,
 } from '../graphql/posts';
+import type { MockedGraphQLResponse } from '../../__tests__/helpers/graphql';
 import {
   completeActionMock,
-  MockedGraphQLResponse,
   mockGraphQL,
 } from '../../__tests__/helpers/graphql';
 import { ANONYMOUS_FEED_QUERY } from '../graphql/feed';
@@ -37,23 +34,23 @@ import Feed from './Feed';
 import defaultFeedPage from '../../__tests__/fixture/feed';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import ad from '../../__tests__/fixture/ad';
-import { LoggedUser } from '../lib/user';
+import type { LoggedUser } from '../lib/user';
 import {
   AcquisitionChannel,
   USER_ACQUISITION_MUTATION,
   VOTE_MUTATION,
 } from '../graphql/users';
-import { SubscriptionCallbacks } from '../hooks/useSubscription';
-import SettingsContext, {
-  SettingsContextData,
-  ThemeMode,
-} from '../contexts/SettingsContext';
+import type { SubscriptionCallbacks } from '../hooks/useSubscription';
+import type { SettingsContextData } from '../contexts/SettingsContext';
+import SettingsContext, { ThemeMode } from '../contexts/SettingsContext';
 import { waitForNock } from '../../__tests__/helpers/utilities';
+import type {
+  AllTagCategoriesData,
+  FeedSettings,
+} from '../graphql/feedSettings';
 import {
   ADD_FILTERS_TO_FEED_MUTATION,
-  AllTagCategoriesData,
   FEED_SETTINGS_QUERY,
-  FeedSettings,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
 } from '../graphql/feedSettings';
 import { getFeedSettingsQueryKey } from '../hooks/useFeedSettings';
@@ -63,7 +60,7 @@ import { AuthTriggers } from '../lib/auth';
 import { SourceType } from '../graphql/sources';
 import { removeQueryParam } from '../lib/links';
 import { SharedFeedPage } from './utilities';
-import { AllFeedPages } from '../lib/query';
+import type { AllFeedPages } from '../lib/query';
 import { UserVoteEntity } from '../hooks';
 import * as hooks from '../hooks/useViewSize';
 import { ActionType } from '../graphql/actions';

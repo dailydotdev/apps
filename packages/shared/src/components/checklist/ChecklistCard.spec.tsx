@@ -1,7 +1,8 @@
 import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ChecklistCardProps } from '../../lib/checklist';
+import type { ChecklistCardProps } from '../../lib/checklist';
 import { ChecklistCard } from './ChecklistCard';
 import { defaultSteps, updateStep } from '../../hooks/useChecklist.spec';
 

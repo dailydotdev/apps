@@ -1,4 +1,5 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useState } from 'react';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import { CopyIcon } from '@dailydotdev/shared/src/components/icons';
 import {
@@ -7,7 +8,7 @@ import {
 } from '@dailydotdev/shared/src/components/utilities';
 import '@dailydotdev/shared/src/styles/globals.css';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
+import type { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import {
   Button,
   ButtonColor,

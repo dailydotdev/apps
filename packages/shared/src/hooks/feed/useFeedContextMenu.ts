@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import type React from 'react';
+import { useState } from 'react';
 import useContextMenu from '../useContextMenu';
-import { Post } from '../../graphql/posts';
+import type { Post } from '../../graphql/posts';
 import { ContextMenu } from '../constants';
 import useReportPostMenu from '../useReportPostMenu';
 

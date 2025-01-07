@@ -1,5 +1,7 @@
-import React, { ReactElement } from 'react';
-import { Dropdown, DropdownClassName } from './Dropdown';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { DropdownClassName } from './Dropdown';
+import { Dropdown } from './Dropdown';
 
 export const Hours = [
   { value: 0, label: '00:00' },

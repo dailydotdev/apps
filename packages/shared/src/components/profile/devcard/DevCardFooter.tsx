@@ -1,11 +1,12 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { TagLinks } from '../../TagLinks';
 import { ButtonVariant } from '../../buttons/common';
 import SourceButton from '../../cards/common/SourceButton';
 import Logo, { LogoPosition } from '../../Logo';
 import { DevCardTheme, DevCardType } from './common';
-import { Source } from '../../../graphql/sources';
+import type { Source } from '../../../graphql/sources';
 import { checkLowercaseEquality } from '../../../lib/strings';
 import { ProfileImageSize } from '../../ProfilePicture';
 

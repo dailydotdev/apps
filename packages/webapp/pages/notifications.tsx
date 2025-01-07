@@ -1,15 +1,15 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { NextSeoProps } from 'next-seo';
-import {
-  InfiniteData,
-  useInfiniteQuery,
-  useMutation,
-} from '@tanstack/react-query';
-import {
+import type { NextSeoProps } from 'next-seo';
+import type { InfiniteData } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
+import type {
   Notification,
-  NOTIFICATIONS_QUERY,
   NotificationsData,
+} from '@dailydotdev/shared/src/graphql/notifications';
+import {
+  NOTIFICATIONS_QUERY,
   READ_NOTIFICATIONS_MUTATION,
 } from '@dailydotdev/shared/src/graphql/notifications';
 import {

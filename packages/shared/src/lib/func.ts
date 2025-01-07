@@ -1,4 +1,4 @@
-import { MouseEvent } from 'react';
+import type { MouseEvent } from 'react';
 import type ReactModal from 'react-modal';
 import { EmptyObjectLiteral } from './kratos';
 import { isBrave, isTesting } from './constants';
@@ -38,8 +38,6 @@ export const postWindowMessage = (
 export const checkIsExtension = (): boolean => !!process.env.TARGET_BROWSER;
 export const isExtension = !!process.env.TARGET_BROWSER;
 
-export const isAndroidApp = (): boolean => globalThis?.isAndroidApp;
-
 export const isPWA = (): boolean =>
   // @ts-expect-error - Safari only, not web standard.
   globalThis?.navigator?.standalone ||
@@ -71,18 +69,8 @@ export const isAppleDevice = (): boolean => {
   return appleDeviceMatch.test(window.navigator.platform);
 };
 
-export const isSafariOnIOS = (): boolean => {
-  const { userAgent } = navigator;
-
-  const isIOS = /iPhone|iPad/i.test(userAgent);
-  if (!isIOS) {
-    return false;
-  }
-
-  const isSafari = /Safari/.test(userAgent) && !/Chrome/.test(userAgent);
-
-  return isSafari;
-};
+export const isIOS = (): boolean =>
+  /iPhone|iPad/i.test(globalThis?.navigator.userAgent);
 
 export enum ArrowKeyEnum {
   Up = 'ArrowUp',
@@ -114,6 +102,7 @@ export const sortAlphabeticallyByProperty =
 
 export enum UserAgent {
   Chrome = 'Chrome',
+  CriOS = 'CriOS', // Chrome running on iOS
   Edge = 'Edg', // intended to be Edg, not Edge
   Android = 'Android',
   Firefox = 'Firefox',
@@ -133,7 +122,8 @@ export const checkIsBrowser = (agent: UserAgent): boolean =>
   globalThis?.navigator?.userAgent?.includes(agent);
 
 export const checkIsChromeOnly = (): boolean =>
-  checkIsBrowser(UserAgent.Chrome) && !checkIsBrowser(UserAgent.Edge);
+  (checkIsBrowser(UserAgent.Chrome) || checkIsBrowser(UserAgent.CriOS)) &&
+  !checkIsBrowser(UserAgent.Edge);
 
 export const getCurrentBrowserName = (): BrowserName => {
   if (checkIsChromeOnly()) {
@@ -199,13 +189,6 @@ export const initReactModal = ({
   modalObject.defaultStyles = defaultStyles || {};
 
   globalThis.reactModalInit = true;
-};
-
-export const initApp = (): void => {
-  const params = new URLSearchParams(globalThis?.location?.search);
-  if (params.get('android') === 'true') {
-    globalThis.isAndroidApp = true;
-  }
 };
 
 export const isMobile = (): boolean =>

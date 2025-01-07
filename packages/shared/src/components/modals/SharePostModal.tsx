@@ -1,10 +1,13 @@
-import React, { ReactElement } from 'react';
-import { Modal, ModalProps } from './common/Modal';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { ModalProps } from './common/Modal';
+import { Modal } from './common/Modal';
 import BasePostModal from './BasePostModal';
 import { NotificationPromptSource, Origin } from '../../lib/log';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
-import { PassedPostNavigationProps } from '../post/common';
-import { Post, PostType } from '../../graphql/posts';
+import type { PassedPostNavigationProps } from '../post/common';
+import type { Post } from '../../graphql/posts';
+import { PostType } from '../../graphql/posts';
 import EnableNotification from '../notifications/EnableNotification';
 import { SquadPostContent } from '../post/SquadPostContent';
 

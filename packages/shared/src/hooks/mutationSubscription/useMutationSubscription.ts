@@ -1,7 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { v4 as uuidv4 } from 'uuid';
-import { UseMutationSubscription, UseMutationSubscriptionProps } from './types';
+import type {
+  UseMutationSubscription,
+  UseMutationSubscriptionProps,
+} from './types';
 import { mutationSuccessSubscribers } from '../../lib/query';
 
 export const useMutationSubscription = ({

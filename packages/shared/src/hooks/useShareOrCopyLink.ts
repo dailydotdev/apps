@@ -1,10 +1,11 @@
 import { useContext } from 'react';
 import LogContext from '../contexts/LogContext';
-import { CopyNotifyFunction, useCopyLink } from './useCopy';
+import type { CopyNotifyFunction } from './useCopy';
+import { useCopyLink } from './useCopy';
 import { ShareProvider } from '../lib/share';
-import { LogEvent } from './log/useLogQueue';
+import type { LogEvent } from './log/useLogQueue';
 import { useGetShortUrl } from './utils/useGetShortUrl';
-import { ReferralCampaignKey } from '../lib';
+import type { ReferralCampaignKey } from '../lib';
 import { shouldUseNativeShare } from '../lib/func';
 
 export interface UseShareOrCopyLinkProps {

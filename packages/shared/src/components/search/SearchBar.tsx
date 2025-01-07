@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { SearchBarSuggestionList } from './SearchBarSuggestionList';
 import Alert, { AlertType } from '../widgets/Alert';
@@ -7,7 +8,7 @@ import { Origin } from '../../lib/log';
 import { labels } from '../../lib';
 import { isNullOrUndefined } from '../../lib/func';
 import { SearchProgressBar } from './SearchProgressBar';
-import { SearchBarInputProps } from './common';
+import type { SearchBarInputProps } from './common';
 
 export type SearchBarProps = Pick<
   SearchBarInputProps,

@@ -1,10 +1,5 @@
-import React, {
-  KeyboardEvent,
-  ReactElement,
-  useCallback,
-  useContext,
-  useState,
-} from 'react';
+import type { KeyboardEvent, ReactElement } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   Typography,

@@ -1,19 +1,18 @@
-import React, {
+import type {
   CSSProperties,
   FormEventHandler,
   FormHTMLAttributes,
   MutableRefObject,
   ReactElement,
-  forwardRef,
-  useEffect,
-  useRef,
 } from 'react';
+import React, { forwardRef, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { defaultMarkdownCommands } from '../../../hooks/input';
-import MarkdownInput, { MarkdownRef } from './index';
-import { Comment } from '../../../graphql/comments';
+import type { MarkdownRef } from './index';
+import MarkdownInput from './index';
+import type { Comment } from '../../../graphql/comments';
 import { formToJson } from '../../../lib/form';
-import { Post } from '../../../graphql/posts';
+import type { Post } from '../../../graphql/posts';
 import { useWriteCommentContext } from '../../../contexts/WriteCommentContext';
 
 export interface CommentClassName {

@@ -5,8 +5,8 @@ import {
   isProduction,
 } from '@dailydotdev/shared/src/lib/constants';
 import { LogEvent as LogEventName } from '@dailydotdev/shared/src/lib/log';
-import { QueryClient } from '@tanstack/react-query';
-import { LogEvent } from '@dailydotdev/shared/src/hooks/log/useLogQueue';
+import type { QueryClient } from '@tanstack/react-query';
+import type { LogEvent } from '@dailydotdev/shared/src/hooks/log/useLogQueue';
 
 export type RequestContentScripts = (data: {
   origin: string;

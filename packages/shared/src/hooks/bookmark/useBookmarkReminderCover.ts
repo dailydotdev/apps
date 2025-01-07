@@ -1,5 +1,5 @@
 import { useJustBookmarked } from './useJustBookmarked';
-import { Post } from '../../graphql/posts';
+import type { Post } from '../../graphql/posts';
 
 export const useBookmarkReminderCover = (post: Post): boolean => {
   const { justBookmarked } = useJustBookmarked({

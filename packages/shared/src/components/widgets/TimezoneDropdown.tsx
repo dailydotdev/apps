@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { ButtonSize } from '../buttons/common';
 import { Dropdown } from '../fields/Dropdown';

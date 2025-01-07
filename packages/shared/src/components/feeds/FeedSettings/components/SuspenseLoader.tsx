@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { Loader } from '../../../Loader';
 
 export const SuspenseLoader = (): ReactElement => {

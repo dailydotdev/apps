@@ -1,11 +1,12 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react';
-import { NextRouter, useRouter } from 'next/router';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { AuthContextProvider } from '../../contexts/AuthContext';
-import { Alerts } from '../../graphql/alerts';
+import type { Alerts } from '../../graphql/alerts';
 import { useSearchProvider } from './useSearchProvider';
 import {
   SEARCH_POST_SUGGESTIONS,

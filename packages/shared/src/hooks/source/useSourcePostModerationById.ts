@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { SourcePostModeration } from '../../graphql/squads';
+import type { SourcePostModeration } from '../../graphql/squads';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { getSourcePostModeration } from '../../graphql/posts';

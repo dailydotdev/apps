@@ -1,6 +1,6 @@
-import { Author } from '../../graphql/comments';
+import type { Author } from '../../graphql/comments';
 import { ReferralCampaignKey } from './useReferralCampaign';
-import { CampaignConfig } from '../../graphql/features';
+import type { CampaignConfig } from '../../graphql/features';
 
 interface UseReferralConfigProps {
   campaign: string;

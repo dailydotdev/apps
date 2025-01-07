@@ -1,8 +1,10 @@
-import React, { ReactElement, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
 import dynamicParent, {
   DynamicParentPlaceholder,
 } from '../../lib/dynamicParent';
-import { getShouldLoadTooltip, TooltipProps } from './BaseTooltip';
+import type { TooltipProps } from './BaseTooltip';
+import { getShouldLoadTooltip } from './BaseTooltip';
 
 const BaseTooltipLoader = () =>
   import(/* webpackChunkName: "lazyTooltip" */ './BaseTooltip');

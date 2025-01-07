@@ -1,22 +1,22 @@
+import type { ReactElement } from 'react';
 import React, {
-  ReactElement,
   useCallback,
   useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
-import { QueryClient, useQueryClient } from '@tanstack/react-query';
+import type { QueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
-import { Modal, LazyModalCommonProps } from '../common/Modal';
+import type { LazyModalCommonProps } from '../common/Modal';
+import { Modal } from '../common/Modal';
 import { FormWrapper } from '../../fields/form';
-import {
-  CommentMarkdownInput,
-  CommentMarkdownInputProps,
-} from '../../fields/MarkdownInput/CommentMarkdownInput';
+import type { CommentMarkdownInputProps } from '../../fields/MarkdownInput/CommentMarkdownInput';
+import { CommentMarkdownInput } from '../../fields/MarkdownInput/CommentMarkdownInput';
 import { useMutateComment } from '../../../hooks/post/useMutateComment';
 import { useVisualViewport } from '../../../hooks/utils/useVisualViewport';
-import { Comment, PostCommentsData } from '../../../graphql/comments';
+import type { Comment, PostCommentsData } from '../../../graphql/comments';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import { NotificationPromptSource } from '../../../lib/log';
 import { Switch } from '../../fields/Switch';

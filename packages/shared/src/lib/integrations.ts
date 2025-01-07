@@ -1,8 +1,8 @@
-import { FunctionComponent } from 'react';
-import { IconProps } from '../components/Icon';
+import type { FunctionComponent } from 'react';
+import type { IconProps } from '../components/Icon';
 import { AppIcon, SlackIcon } from '../components/icons';
 import { UserIntegrationType } from '../graphql/integrations';
-import { PromptOptions } from '../hooks/usePrompt';
+import type { PromptOptions } from '../hooks/usePrompt';
 import { labels } from './labels';
 import { ButtonColor } from '../components/buttons/Button';
 

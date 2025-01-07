@@ -1,11 +1,6 @@
 import React from 'react';
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
@@ -17,14 +12,12 @@ import {
   passwordLoginFlowMockData,
   successfulRegistrationMockData,
 } from '../../../__tests__/fixture/auth';
-import {
-  AuthTriggers,
-  getNodeByKey,
-  LoginPasswordParameters,
-} from '../../lib/auth';
+import type { LoginPasswordParameters } from '../../lib/auth';
+import { AuthTriggers, getNodeByKey } from '../../lib/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
-import AuthOptions, { AuthOptionsProps } from './AuthOptions';
+import type { AuthOptionsProps } from './AuthOptions';
+import AuthOptions from './AuthOptions';
 import SettingsContext from '../../contexts/SettingsContext';
 
 let user = null;

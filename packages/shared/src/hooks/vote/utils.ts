@@ -1,20 +1,17 @@
-import { QueryClient } from '@tanstack/react-query';
-import { Edge } from '../../graphql/common';
+import type { QueryClient } from '@tanstack/react-query';
+import type { Edge } from '../../graphql/common';
 import {
   generateQueryKey,
   RequestKey,
   updateReadingHistoryListPost,
 } from '../../lib/query';
-import { LoggedUser } from '../../lib/user';
-import { ReadHistoryInfiniteData } from '../useInfiniteReadingHistory';
-import {
-  UseVoteMutationProps,
-  UseVotePostProps,
-  voteMutationHandlers,
-} from './types';
-import { PostItem } from '../../graphql/posts';
+import type { LoggedUser } from '../../lib/user';
+import type { ReadHistoryInfiniteData } from '../useInfiniteReadingHistory';
+import type { UseVoteMutationProps, UseVotePostProps } from './types';
+import { voteMutationHandlers } from './types';
+import type { PostItem } from '../../graphql/posts';
 import { optimisticPostUpdateInFeed } from '../../lib/feed';
-import { FeedItem, UpdateFeedPost } from '../useFeed';
+import type { FeedItem, UpdateFeedPost } from '../useFeed';
 
 export const mutateVoteReadHistoryPost = ({
   id,

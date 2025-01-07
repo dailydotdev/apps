@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ClientError } from 'graphql-request';
+import type { ClientError } from 'graphql-request';
 import { useState } from 'react';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { UPDATE_README_MUTATION, USER_README_QUERY } from '../../graphql/users';
-import { PublicProfile } from '../../lib/user';
+import type { PublicProfile } from '../../lib/user';
 import { useToastNotification } from '../useToastNotification';
 import { gqlClient } from '../../graphql/common';
 

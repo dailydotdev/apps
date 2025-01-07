@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { Switch } from '../fields/Switch';
 import { SendType, usePersonalizedDigest } from '../../hooks';
 import { UserPersonalizedDigestType } from '../../graphql/users';

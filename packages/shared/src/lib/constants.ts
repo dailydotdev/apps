@@ -1,4 +1,4 @@
-import { RadioItemProps } from '../components/fields/RadioItem';
+import type { RadioItemProps } from '../components/fields/RadioItem';
 
 declare const navigator: Navigator & { brave?: { isBrave: unknown } };
 

@@ -1,4 +1,4 @@
-import { ReferralCampaignKey } from './referral';
+import type { ReferralCampaignKey } from './referral';
 
 export enum ShareProvider {
   Native = 'native',

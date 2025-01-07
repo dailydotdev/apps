@@ -1,21 +1,16 @@
-import React, {
-  CSSProperties,
-  ReactElement,
-  ReactNode,
-  useContext,
-  useMemo,
-} from 'react';
+import type { CSSProperties, ReactElement, ReactNode } from 'react';
+import React, { useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import { Spaciness } from '../../graphql/settings';
+import type { Spaciness } from '../../graphql/settings';
 import SettingsContext from '../../contexts/SettingsContext';
 import FeedContext from '../../contexts/FeedContext';
 import styles from '../Feed.module.css';
+import type { FeedPagesWithMobileLayoutType } from '../../hooks';
 import {
   useFeedLayout,
   ToastSubject,
   useToastNotification,
-  FeedPagesWithMobileLayoutType,
   useViewSize,
   ViewSize,
   useFeeds,
@@ -24,7 +19,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { useActiveFeedNameContext } from '../../contexts';
 import { SharedFeedPage } from '../utilities';
 import { useFeedName } from '../../hooks/feed/useFeedName';
-import { OtherFeedPage } from '../../lib/query';
+import type { OtherFeedPage } from '../../lib/query';
 import { isExtension } from '../../lib/func';
 
 export interface FeedContainerProps {

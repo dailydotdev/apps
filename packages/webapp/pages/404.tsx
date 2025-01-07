@@ -1,4 +1,5 @@
-import React, { ReactElement, useContext, useEffect, useRef } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import Custom404 from '@dailydotdev/shared/src/components/Custom404';
 import { NextSeo } from 'next-seo';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';

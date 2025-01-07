@@ -1,10 +1,5 @@
-import React, {
-  HTMLAttributes,
-  ReactElement,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import type { HTMLAttributes, ReactElement } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';

@@ -1,9 +1,9 @@
+import type { Post } from './posts';
 import {
   BAN_POST_MUTATION,
   DELETE_POST_MUTATION,
   banPost,
   deletePost,
-  Post,
   getLatestChangelogPost,
   LATEST_CHANGELOG_POST_QUERY,
   PostType,
@@ -11,7 +11,7 @@ import {
   getReadPostButtonText,
 } from './posts';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
-import { Connection } from './common';
+import type { Connection } from './common';
 
 beforeEach(() => {
   jest.clearAllMocks();

@@ -1,16 +1,9 @@
-import React, {
-  MouseEventHandler,
-  ReactNode,
-  RefObject,
-  useCallback,
-  useRef,
-} from 'react';
+import type { MouseEventHandler, ReactNode, RefObject } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { useScrollManagement } from './useScrollManagement';
 import { useCalculateVisibleElements } from './useCalculateVisibleElements';
-import {
-  HorizontalScrollHeader,
-  HorizontalScrollTitleProps,
-} from './HorizontalScrollHeader';
+import type { HorizontalScrollTitleProps } from './HorizontalScrollHeader';
+import { HorizontalScrollHeader } from './HorizontalScrollHeader';
 
 interface HorizontalScrollHeaderReturn<
   El extends HTMLElement = HTMLDivElement,

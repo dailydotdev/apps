@@ -1,6 +1,7 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import PostSourceInfo from './PostSourceInfo';
-import { Post } from '../../graphql/posts';
+import type { Post } from '../../graphql/posts';
 import { SharePostTitle } from './share';
 import { SharedLinkContainer } from './common/SharedLinkContainer';
 import { SharedPostLink } from './common/SharedPostLink';

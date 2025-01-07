@@ -19,16 +19,17 @@ import Alert, {
   AlertParagraph,
   AlertType,
 } from '@dailydotdev/shared/src/components/widgets/Alert';
-import React, { ReactElement, useContext, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import {
   ADD_USER_COMPANY_MUTATION,
   REMOVE_USER_COMPANY_MUTATION,
 } from '@dailydotdev/shared/src/graphql/users';
-import { ClientError } from 'graphql-request';
+import type { ClientError } from 'graphql-request';
 import { labels } from '@dailydotdev/shared/src/lib';
-import { UserCompany } from '@dailydotdev/shared/src/lib/userCompany';
+import type { UserCompany } from '@dailydotdev/shared/src/lib/userCompany';
 import {
   generateQueryKey,
   RequestKey,

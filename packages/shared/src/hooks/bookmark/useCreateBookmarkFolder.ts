@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { BookmarkFolder, createBookmarkFolder } from '../../graphql/bookmarks';
+import type { BookmarkFolder } from '../../graphql/bookmarks';
+import { createBookmarkFolder } from '../../graphql/bookmarks';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { useToastNotification } from '../useToastNotification';

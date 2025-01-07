@@ -1,9 +1,5 @@
-import React, {
-  forwardRef,
-  AnchorHTMLAttributes,
-  ReactElement,
-  Ref,
-} from 'react';
+import type { AnchorHTMLAttributes, ReactElement, Ref } from 'react';
+import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import Link from '../utilities/Link';
 

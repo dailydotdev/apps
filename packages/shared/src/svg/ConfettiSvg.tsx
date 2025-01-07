@@ -1,4 +1,5 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
+import type { HTMLAttributes, ReactElement } from 'react';
+import React from 'react';
 
 export default function ConfettiSvg(
   props: HTMLAttributes<SVGElement>,

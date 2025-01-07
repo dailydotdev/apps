@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request';
-import { EmptyResponse } from './graphql/emptyResponse';
+import type { EmptyResponse } from './graphql/emptyResponse';
 import { gqlClient } from './graphql/common';
 
 export enum ReportEntity {

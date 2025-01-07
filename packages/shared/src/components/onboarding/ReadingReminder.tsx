@@ -1,10 +1,5 @@
-import React, {
-  ReactElement,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { ClickableText } from '../buttons/ClickableText';
 import { Radio } from '../fields/Radio';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';

@@ -1,6 +1,7 @@
 import classNames from 'classnames';
-import React, { FormEvent, ReactElement, useState } from 'react';
-import { LoginPasswordParameters } from '../../lib/auth';
+import type { FormEvent, ReactElement } from 'react';
+import React, { useState } from 'react';
+import type { LoginPasswordParameters } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';

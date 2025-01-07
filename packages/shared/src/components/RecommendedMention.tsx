@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { UserShortInfo } from './profile/UserShortInfo';
 
 interface RecommendedUser {

@@ -1,11 +1,12 @@
-import React, { ReactElement, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { widgetClasses } from '../widgets/common';
 import { ArrowIcon } from '../icons';
 import { PlaceholderSearchSource } from './PlaceholderSearchSource';
 import { PageWidgets } from '../utilities';
 import { SearchSourceItem } from './SearchSourceItem';
-import { SearchChunkSource } from '../../graphql/search';
+import type { SearchChunkSource } from '../../graphql/search';
 import { PaginationActions } from '../pagination';
 import { usePagination } from '../../hooks/utils';
 import useSidebarRendered from '../../hooks/useSidebarRendered';

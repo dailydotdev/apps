@@ -1,11 +1,15 @@
-import React, { forwardRef, ReactElement, Ref } from 'react';
+import type { ReactElement, Ref } from 'react';
+import React, { forwardRef } from 'react';
 import classNames from 'classnames';
-import { Container, PostCardProps } from '../common/common';
+import type { PostCardProps } from '../common/common';
+import { Container } from '../common/common';
 import { isVideoPost } from '../../../graphql/posts';
 import {
   useFeedPreviewMode,
   usePostFeedback,
   useTruncatedSummary,
+  useViewSize,
+  ViewSize,
 } from '../../../hooks';
 import FeedItemContainer from '../common/list/FeedItemContainer';
 import { combinedClicks } from '../../../lib/click';
@@ -51,6 +55,8 @@ export const ArticleList = forwardRef(function ArticleList(
 
   const onPostCardClick = () => onPostClick?.(post);
   const feedActionSpacingExp = useFeature(feedActionSpacing);
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const shouldSwapActions = feedActionSpacingExp && !isMobile;
   const { showFeedback } = usePostFeedback({ post });
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useSmartTitle(post);
@@ -63,7 +69,10 @@ export const ArticleList = forwardRef(function ArticleList(
       )}
     >
       <ActionButtons
-        className={feedActionSpacingExp ? 'justify-between' : 'mt-4'}
+        className={classNames(
+          'mt-4',
+          feedActionSpacingExp && 'justify-between tablet:mt-0',
+        )}
         post={post}
         onUpvoteClick={onUpvoteClick}
         onDownvoteClick={onDownvoteClick}
@@ -139,20 +148,15 @@ export const ArticleList = forwardRef(function ArticleList(
                 >
                   {truncatedTitle}
                 </CardTitle>
-                {!feedActionSpacingExp && <div className="flex flex-1" />}
-                <div
-                  className={classNames(
-                    'flex items-center',
-                    !feedActionSpacingExp && 'mx-2',
-                  )}
-                >
+                {!shouldSwapActions && <div className="flex flex-1" />}
+                <div className="flex items-center">
                   {post.clickbaitTitleDetected && (
                     <ClickbaitShield post={post} />
                   )}
                   <PostTags tags={post.tags} />
                 </div>
-                {feedActionSpacingExp && <div className="flex flex-1" />}
-                {feedActionSpacingExp && actionButtons}
+                {shouldSwapActions && <div className="flex flex-1" />}
+                {shouldSwapActions && actionButtons}
               </div>
 
               <CardCoverList
@@ -177,7 +181,7 @@ export const ArticleList = forwardRef(function ArticleList(
               />
             </CardContent>
           </CardContainer>
-          {!feedActionSpacingExp && actionButtons}
+          {!shouldSwapActions && actionButtons}
           {children}
         </>
       )}

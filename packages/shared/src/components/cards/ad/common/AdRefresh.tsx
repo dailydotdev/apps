@@ -1,10 +1,8 @@
-import React, { type ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { ButtonSize, ButtonVariant } from '../../../buttons/common';
-import {
-  Button,
-  type AllowedTags,
-  type ButtonProps,
-} from '../../../buttons/Button';
+import type { AllowedTags, ButtonProps } from '../../../buttons/Button';
+import { Button } from '../../../buttons/Button';
 import { RefreshIcon } from '../../../icons';
 
 export const AdRefresh = ({

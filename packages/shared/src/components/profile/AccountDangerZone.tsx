@@ -1,4 +1,5 @@
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import { DangerZone } from '../widgets/DangerZone';
 import { anchorDefaultRel } from '../../lib/strings';
 

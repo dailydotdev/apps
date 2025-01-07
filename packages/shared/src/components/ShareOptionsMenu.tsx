@@ -1,7 +1,8 @@
-import React, { ReactElement, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
-import { Post } from '../graphql/posts';
+import type { Post } from '../graphql/posts';
 import { ShareIcon, LinkIcon } from './icons';
 import LogContext from '../contexts/LogContext';
 import { postLogEvent } from '../lib/feed';

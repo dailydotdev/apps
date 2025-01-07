@@ -1,14 +1,13 @@
+import type { ReactElement, ReactNode } from 'react';
 import React, {
   createContext,
-  ReactElement,
-  ReactNode,
   useContext,
   useEffect,
   useMemo,
   useState,
 } from 'react';
 import { useRouter } from 'next/router';
-import { AllFeedPages } from '../lib/query';
+import type { AllFeedPages } from '../lib/query';
 import { usePrevious } from '../hooks/usePrevious';
 import { useAuthContext } from './AuthContext';
 import { getFeedName } from '../lib/feed';

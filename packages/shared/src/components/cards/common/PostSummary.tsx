@@ -1,9 +1,5 @@
-import React, {
-  forwardRef,
-  HTMLAttributes,
-  ReactElement,
-  RefObject,
-} from 'react';
+import type { HTMLAttributes, ReactElement, RefObject } from 'react';
+import React, { forwardRef } from 'react';
 import { SummaryContainer, TLDRText } from '../../utilities';
 import ShowMoreContent from './ShowMoreContent';
 

@@ -1,7 +1,9 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { AccountPageContainer } from '../AccountPageContainer';
 import { AccountSecurityDisplay as Display } from '../common';
-import EmailForm, { EmailFormProps } from '../EmailForm';
+import type { EmailFormProps } from '../EmailForm';
+import EmailForm from '../EmailForm';
 
 interface EmailFormPageProps extends EmailFormProps {
   onSwitchDisplay: (display: Display) => void;

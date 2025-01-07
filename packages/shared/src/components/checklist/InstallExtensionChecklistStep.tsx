@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
-import { ChecklistStepProps } from '../../lib/checklist';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { ChecklistStepProps } from '../../lib/checklist';
 import { ChecklistStep } from './ChecklistStep';
 import { Button, ButtonVariant } from '../buttons/Button';
 import BrowsersIcon from '../../../icons/browsers.svg';

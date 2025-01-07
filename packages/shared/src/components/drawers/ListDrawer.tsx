@@ -1,7 +1,10 @@
-import React, { ReactElement } from 'react';
-import { Drawer, DrawerRef, DrawerWrapperProps } from './Drawer';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { DrawerRef, DrawerWrapperProps } from './Drawer';
+import { Drawer } from './Drawer';
 import type { SelectParams } from './common';
-import { ListDrawerItem, ListDrawerItemProps } from './ListDrawerItem';
+import type { ListDrawerItemProps } from './ListDrawerItem';
+import { ListDrawerItem } from './ListDrawerItem';
 
 interface ListDrawerProps extends Pick<ListDrawerItemProps, 'customItem'> {
   drawerProps: Omit<DrawerWrapperProps, 'children'>;

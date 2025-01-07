@@ -1,5 +1,7 @@
-import React, { ReactElement, useCallback } from 'react';
-import { Modal, ModalProps } from '../common/Modal';
+import type { ReactElement } from 'react';
+import React, { useCallback } from 'react';
+import type { ModalProps } from '../common/Modal';
+import { Modal } from '../common/Modal';
 import { ModalSize } from '../common/types';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { useSquadNavigation } from '../../../hooks';

@@ -1,4 +1,5 @@
-import React, { MouseEvent, ReactElement } from 'react';
+import type { MouseEvent, ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { ChecklistViewState } from '../../lib/checklist';
 import { Button } from '../buttons/Button';

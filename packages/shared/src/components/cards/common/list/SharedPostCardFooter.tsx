@@ -1,8 +1,9 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
-import { Post } from '../../../../graphql/posts';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { Post } from '../../../../graphql/posts';
 import { IconSize } from '../../../Icon';
-import { CommonCardCoverProps } from '../common';
+import type { CommonCardCoverProps } from '../common';
 import { CardCoverList } from './CardCover';
 
 interface SharedPostCardFooterProps

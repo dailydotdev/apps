@@ -1,6 +1,8 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { Post, UserVote } from '../../../graphql/posts';
+import type { Post } from '../../../graphql/posts';
+import { UserVote } from '../../../graphql/posts';
 import InteractionCounter from '../../InteractionCounter';
 import { QuaternaryButton } from '../../buttons/QuaternaryButton';
 import {
@@ -22,10 +24,7 @@ import { BookmarkButton } from '../../buttons';
 import { IconSize } from '../../Icon';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { useFeature } from '../../GrowthBookProvider';
-import {
-  feedActionSpacing,
-  featureUpvoteCounter,
-} from '../../../lib/featureManagement';
+import { feedActionSpacing } from '../../../lib/featureManagement';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -51,9 +50,7 @@ const ActionButtons = ({
   const isDownvoteActive = post.userState?.vote === UserVote.Down;
   const { onShowPanel, onClose } = useBlockPostPanel(post);
   const feedActionSpacingExp = useFeature(feedActionSpacing);
-  const alwaysShowUpvoteCounter = useFeature(featureUpvoteCounter);
-  const isCounterVisible =
-    post.numUpvotes || alwaysShowUpvoteCounter || feedActionSpacingExp;
+  const isCounterVisible = post.numUpvotes || feedActionSpacingExp;
 
   if (isFeedPreview) {
     return null;
@@ -100,10 +97,7 @@ const ActionButtons = ({
               <InteractionCounter
                 className={classNames(
                   'ml-1.5 tabular-nums',
-                  !post.numUpvotes &&
-                    feedActionSpacingExp &&
-                    !alwaysShowUpvoteCounter &&
-                    'invisible',
+                  !post.numUpvotes && feedActionSpacingExp && 'invisible',
                 )}
                 value={post.numUpvotes}
               />

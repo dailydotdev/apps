@@ -1,17 +1,17 @@
 import React from 'react';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import {
+import type {
   Notification,
   NotificationsData,
+} from '@dailydotdev/shared/src/graphql/notifications';
+import {
   NOTIFICATIONS_QUERY,
   READ_NOTIFICATIONS_MUTATION,
 } from '@dailydotdev/shared/src/graphql/notifications';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { render, screen } from '@testing-library/react';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -22,7 +22,8 @@ import {
 } from '@dailydotdev/shared/src/components/notifications/utils';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { mocked } from 'ts-jest/utils';
-import { NextRouter, useRouter } from 'next/router';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import NotificationsPage from '../pages/notifications';
 
 jest.mock('next/router', () => ({

@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -7,7 +8,8 @@ import {
   ButtonVariant,
 } from './buttons/Button';
 import { isTesting } from '../lib/constants';
-import { BannerCustomTheme, BannerTheme } from '../graphql/banner';
+import type { BannerTheme } from '../graphql/banner';
+import { BannerCustomTheme } from '../graphql/banner';
 import { Theme } from './utilities';
 import { useBanner } from '../hooks/useBanner';
 import CloseButton from './CloseButton';

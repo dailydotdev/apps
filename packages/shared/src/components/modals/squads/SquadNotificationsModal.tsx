@@ -1,11 +1,14 @@
-import React, { ReactElement, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Modal, ModalProps } from '../common/Modal';
+import type { ModalProps } from '../common/Modal';
+import { Modal } from '../common/Modal';
 import {
   checkHasStatusPreference,
   useNotificationPreference,
 } from '../../../hooks/notifications';
-import { SourceMemberRole, Squad } from '../../../graphql/sources';
+import type { Squad } from '../../../graphql/sources';
+import { SourceMemberRole } from '../../../graphql/sources';
 import { Switch } from '../../fields/Switch';
 import { NotificationType } from '../../notifications/utils';
 import { generateQueryKey, RequestKey } from '../../../lib/query';

@@ -1,7 +1,8 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { ProfileImageSize } from '../../ProfilePicture';
 import SourceButton from './SourceButton';
-import { Source } from '../../../graphql/sources';
+import type { Source } from '../../../graphql/sources';
 
 interface SquadHeaderPictureProps {
   source: Source;

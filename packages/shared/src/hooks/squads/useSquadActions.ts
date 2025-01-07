@@ -1,20 +1,26 @@
 import { useContext, useMemo } from 'react';
-import {
+import type {
   InfiniteData,
-  useInfiniteQuery,
   UseInfiniteQueryResult,
+} from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
+import type { SquadEdgesData } from '../../graphql/squads';
 import {
   collapsePinnedPosts,
   expandPinnedPosts,
   SQUAD_MEMBERS_QUERY,
-  SquadEdgesData,
   unblockSquadMember,
   updateSquadMemberRole,
 } from '../../graphql/squads';
-import { SourceMember, SourceMemberRole, Squad } from '../../graphql/sources';
+import type {
+  SourceMember,
+  SourceMemberRole,
+  Squad,
+} from '../../graphql/sources';
 import {
   generateQueryKey,
   getNextPageParam,

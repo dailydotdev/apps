@@ -1,9 +1,11 @@
-import React, { ReactElement } from 'react';
-import { Source, SourceType } from '../../../graphql/sources';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { Source } from '../../../graphql/sources';
+import { SourceType } from '../../../graphql/sources';
 import { WidgetCard } from '../../widgets/WidgetCard';
 import { UserHighlight, UserType } from '../../widgets/PostUsersHighlights';
 import { ListItemPlaceholder } from '../../widgets/ListItemPlaceholder';
-import { SearchSuggestion } from '../../../graphql/search';
+import type { SearchSuggestion } from '../../../graphql/search';
 
 interface SearchResultsSourcesProps {
   items: SearchSuggestion[];

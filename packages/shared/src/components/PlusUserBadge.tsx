@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import type { PublicProfile } from '../lib/user';
 import { SimpleTooltip } from './tooltips';
 import { PlusUser } from './PlusUser';

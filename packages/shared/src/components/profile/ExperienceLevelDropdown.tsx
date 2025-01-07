@@ -1,8 +1,10 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { Dropdown, DropdownClassName } from '../fields/Dropdown';
+import type { DropdownClassName } from '../fields/Dropdown';
+import { Dropdown } from '../fields/Dropdown';
 import { TerminalIcon } from '../icons';
-import { BaseFieldProps } from '../fields/BaseFieldContainer';
+import type { BaseFieldProps } from '../fields/BaseFieldContainer';
 import { UserExperienceLevel } from '../../lib/user';
 
 interface ClassName extends DropdownClassName {

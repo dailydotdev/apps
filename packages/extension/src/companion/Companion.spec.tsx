@@ -1,11 +1,7 @@
 import React from 'react';
 import '@testing-library/jest-dom';
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-} from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import {

@@ -1,18 +1,17 @@
-import React, { ReactElement, useContext, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useMemo } from 'react';
 import AuthContext from '../../contexts/AuthContext';
 import { reportSquadMember } from '../../lib/constants';
 import { IconSize } from '../Icon';
-import {
-  SourceMember,
-  SourceMemberRole,
-  SourcePermissions,
-  Squad,
-} from '../../graphql/sources';
+import type { SourceMember, Squad } from '../../graphql/sources';
+import { SourceMemberRole, SourcePermissions } from '../../graphql/sources';
 import { StarIcon, UserIcon, SquadIcon, BlockIcon, FlagIcon } from '../icons';
 import { usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
-import ContextMenu, { MenuItemProps } from '../fields/ContextMenu';
-import { UseSquadActions, useToastNotification } from '../../hooks';
+import type { MenuItemProps } from '../fields/ContextMenu';
+import ContextMenu from '../fields/ContextMenu';
+import type { UseSquadActions } from '../../hooks';
+import { useToastNotification } from '../../hooks';
 import { verifyPermission } from '../../graphql/squads';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';
 import { ContextMenu as ContextMenuIds } from '../../hooks/constants';

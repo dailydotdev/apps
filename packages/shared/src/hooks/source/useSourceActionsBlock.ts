@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 import useTagAndSource from '../useTagAndSource';
 import { Origin } from '../../lib/log';
 import useFeedSettings from '../useFeedSettings';
-import { Source } from '../../graphql/sources';
+import type { Source } from '../../graphql/sources';
 import { useToastNotification } from '../useToastNotification';
 
 interface UseSourceActionsBlockProps {

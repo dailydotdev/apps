@@ -1,22 +1,21 @@
-import React, { GetServerSideProps } from 'next';
-import {
-  Post,
-  POST_BY_ID_STATIC_FIELDS_QUERY,
-  PostData,
-} from '@dailydotdev/shared/src/graphql/posts';
+import type { GetServerSideProps } from 'next';
+import React from 'next';
+import type { Post, PostData } from '@dailydotdev/shared/src/graphql/posts';
+import { POST_BY_ID_STATIC_FIELDS_QUERY } from '@dailydotdev/shared/src/graphql/posts';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { ClientError } from 'graphql-request';
-import { NextSeoProps } from 'next-seo';
+import type { ClientError } from 'graphql-request';
+import type { NextSeoProps } from 'next-seo';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
-import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { useUserShortByIdQuery } from '@dailydotdev/shared/src/hooks/user/useUserShortByIdQuery';
 import { USER_SHORT_BY_ID } from '@dailydotdev/shared/src/graphql/users';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
 import { getSeoDescription } from '../../../../components/PostSEOSchema';
-import { PostPage, Props, seoTitle } from '../index';
+import type { Props } from '../index';
+import { PostPage, seoTitle } from '../index';
 import { getLayout } from '../../../../components/layouts/MainLayout';
 
 export type SharePostPageProps = Props & {

@@ -1,8 +1,10 @@
 import { gql } from 'graphql-request';
 import type { Author, Scout } from './comments';
-import { Connection, gqlClient, gqlRequest } from './common';
-import { Source, SourceType, Squad } from './sources';
-import { EmptyResponse } from './emptyResponse';
+import type { Connection } from './common';
+import { gqlClient, gqlRequest } from './common';
+import type { Source, Squad } from './sources';
+import { SourceType } from './sources';
+import type { EmptyResponse } from './emptyResponse';
 import {
   POST_CODE_SNIPPET_FRAGMENT,
   RELATED_POST_FRAGMENT,
@@ -11,8 +13,8 @@ import {
   USER_AUTHOR_FRAGMENT,
 } from './fragments';
 import { acceptedTypesList, MEGABYTE } from '../components/fields/ImageInput';
-import { Bookmark, type BookmarkFolder } from './bookmarks';
-import { SourcePostModeration } from './squads';
+import type { Bookmark, BookmarkFolder } from './bookmarks';
+import type { SourcePostModeration } from './squads';
 
 export type TocItem = { text: string; id?: string; children?: TocItem[] };
 export type Toc = TocItem[];

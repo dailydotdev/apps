@@ -1,6 +1,7 @@
 import { useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
 import { SharedFeedPage } from '../components/utilities';
-import { UseBookmarkProviderProps, useJustBookmarked } from './bookmark';
+import type { UseBookmarkProviderProps } from './bookmark';
+import { useJustBookmarked } from './bookmark';
 
 interface UseBookmarkProviderReturn {
   highlightBookmarkedPost: boolean;

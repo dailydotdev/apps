@@ -1,7 +1,14 @@
-import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
+import type { ReactElement, Ref } from 'react';
+import React, { forwardRef, useRef } from 'react';
 import classNames from 'classnames';
-import { Container, PostCardProps } from '../common/common';
-import { useFeedPreviewMode, useTruncatedSummary } from '../../../hooks';
+import type { PostCardProps } from '../common/common';
+import { Container } from '../common/common';
+import {
+  useFeedPreviewMode,
+  useTruncatedSummary,
+  useViewSize,
+  ViewSize,
+} from '../../../hooks';
 import { isVideoPost } from '../../../graphql/posts';
 import FeedItemContainer from '../common/list/FeedItemContainer';
 import { PostCardHeader } from '../common/list/PostCardHeader';
@@ -39,7 +46,9 @@ export const ShareList = forwardRef(function ShareList(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const { pinnedAt, trending, type } = post;
+  const isMobile = useViewSize(ViewSize.MobileL);
   const feedActionSpacingExp = useFeature(feedActionSpacing);
+  const shouldSwapActions = feedActionSpacingExp && !isMobile;
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
@@ -56,7 +65,10 @@ export const ShareList = forwardRef(function ShareList(
       )}
     >
       <ActionButtons
-        className={feedActionSpacingExp ? 'justify-between' : 'mt-4'}
+        className={classNames(
+          'mt-4',
+          feedActionSpacingExp && 'justify-between tablet:mt-0',
+        )}
         post={post}
         onUpvoteClick={onUpvoteClick}
         onDownvoteClick={onDownvoteClick}
@@ -122,20 +134,15 @@ export const ShareList = forwardRef(function ShareList(
           >
             {truncatedTitle}
           </CardTitle>
-          {!feedActionSpacingExp && <div className="flex flex-1" />}
-          <div
-            className={classNames(
-              'flex items-center',
-              !feedActionSpacingExp && 'mx-2',
-            )}
-          >
+          {!shouldSwapActions && <div className="flex flex-1" />}
+          <div className="flex items-center">
             {!post.title && post.sharedPost.clickbaitTitleDetected && (
               <ClickbaitShield post={post} />
             )}
             <PostTags tags={post.tags} />
           </div>
-          {feedActionSpacingExp && <div className="flex flex-1" />}
-          {feedActionSpacingExp && actionButtons}
+          {shouldSwapActions && <div className="flex flex-1" />}
+          {shouldSwapActions && actionButtons}
         </div>
 
         <CardCoverList
@@ -159,7 +166,7 @@ export const ShareList = forwardRef(function ShareList(
           }}
         />
       </CardContent>
-      {!feedActionSpacingExp && actionButtons}
+      {!shouldSwapActions && actionButtons}
       {children}
     </FeedItemContainer>
   );

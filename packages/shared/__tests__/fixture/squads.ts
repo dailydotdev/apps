@@ -1,13 +1,15 @@
-import { GraphQLResult } from '../helpers/graphql';
-import { Edge } from '../../src/graphql/common';
-import {
+import type { GraphQLResult } from '../helpers/graphql';
+import type { Edge } from '../../src/graphql/common';
+import type {
   BasicSourceMember,
   SourceMember,
+} from '../../src/graphql/sources';
+import {
   SourceMemberRole,
   SourcePermissions,
   SourceType,
 } from '../../src/graphql/sources';
-import {
+import type {
   BasicSourceMembersData,
   Squad,
   SquadData,

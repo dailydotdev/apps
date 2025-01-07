@@ -1,18 +1,9 @@
-import React, {
-  ComponentProps,
-  PropsWithChildren,
-  ReactElement,
-  useEffect,
-  useId,
-} from 'react';
+import type { ComponentProps, PropsWithChildren, ReactElement } from 'react';
+import React, { useEffect, useId } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
-import {
-  Button,
-  ButtonProps,
-  ButtonSize,
-  ButtonVariant,
-} from '../../buttons/Button';
+import type { ButtonProps } from '../../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { BaseFeedPage } from '../../utilities';
 import { useSquadNavigation } from '../../../hooks';
 import { Origin } from '../../../lib/log';

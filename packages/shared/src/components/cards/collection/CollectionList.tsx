@@ -1,6 +1,8 @@
-import React, { forwardRef, Ref } from 'react';
+import type { Ref } from 'react';
+import React, { forwardRef } from 'react';
 import classNames from 'classnames';
-import { Container, generateTitleClamp, PostCardProps } from '../common/common';
+import type { PostCardProps } from '../common/common';
+import { Container, generateTitleClamp } from '../common/common';
 import FeedItemContainer from '../common/list/FeedItemContainer';
 import {
   CardTitle,
@@ -12,10 +14,12 @@ import ActionButtons from '../common/list/ActionButtons';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import { PostCardHeader } from '../common/list/PostCardHeader';
 import { CollectionPillSources } from '../../post/collection';
-import { useTruncatedSummary } from '../../../hooks';
+import { useTruncatedSummary, useViewSize, ViewSize } from '../../../hooks';
 import PostTags from '../common/PostTags';
 import { CardCoverList } from '../common/list/CardCover';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
+import { useFeature } from '../../GrowthBookProvider';
+import { feedActionSpacing } from '../../../lib/featureManagement';
 
 export const CollectionList = forwardRef(function CollectionCard(
   {
@@ -34,8 +38,24 @@ export const CollectionList = forwardRef(function CollectionCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
+  const feedActionSpacingExp = useFeature(feedActionSpacing);
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const shouldSwapActions = feedActionSpacingExp && !isMobile;
   const image = usePostImage(post);
   const { title } = useTruncatedSummary(post?.title);
+  const actionButtons = (
+    <Container className="pointer-events-none mt-2">
+      <ActionButtons
+        post={post}
+        onUpvoteClick={onUpvoteClick}
+        onDownvoteClick={onDownvoteClick}
+        onCommentClick={onCommentClick}
+        onCopyLinkClick={onCopyLinkClick}
+        onBookmarkClick={onBookmarkClick}
+        className={feedActionSpacingExp && 'mt-2 justify-between tablet:mt-0'}
+      />
+    </Container>
+  );
 
   return (
     <FeedItemContainer
@@ -69,19 +89,27 @@ export const CollectionList = forwardRef(function CollectionCard(
         </PostCardHeader>
 
         <CardContent>
-          <div className="mb-4 mr-4 flex flex-1 flex-col">
+          <div
+            className={classNames(
+              'mr-4 flex flex-1 flex-col',
+              !feedActionSpacingExp && 'mb-4',
+            )}
+          >
             <CardTitle
               className={classNames(
                 generateTitleClamp({
                   hasImage: !!image,
                   hasHtmlContent: !!post.contentHtml,
                 }),
+                feedActionSpacingExp && 'mb-2',
               )}
             >
               {title}
             </CardTitle>
-            <div className="flex flex-1" />
+            {!shouldSwapActions && <div className="flex flex-1" />}
             <PostTags tags={post.tags} />
+            {shouldSwapActions && <div className="flex flex-1" />}
+            {shouldSwapActions && actionButtons}
           </div>
 
           {image && (
@@ -90,7 +118,7 @@ export const CollectionList = forwardRef(function CollectionCard(
               onShare={onShare}
               imageProps={{
                 alt: 'Post Cover image',
-                className: 'my-2 w-full mobileXXL:self-start',
+                className: 'mt-4 w-full mobileXXL:self-start',
                 ...(eagerLoadImage && HIGH_PRIORITY_IMAGE_PROPS),
                 src: image,
               }}
@@ -100,16 +128,7 @@ export const CollectionList = forwardRef(function CollectionCard(
       </CardContainer>
 
       {!!post.image && <CardSpace />}
-      <Container className="pointer-events-none mt-2">
-        <ActionButtons
-          post={post}
-          onUpvoteClick={onUpvoteClick}
-          onDownvoteClick={onDownvoteClick}
-          onCommentClick={onCommentClick}
-          onCopyLinkClick={onCopyLinkClick}
-          onBookmarkClick={onBookmarkClick}
-        />
-      </Container>
+      {!shouldSwapActions && actionButtons}
       {children}
     </FeedItemContainer>
   );

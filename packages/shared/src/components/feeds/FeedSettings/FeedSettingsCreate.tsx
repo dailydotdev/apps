@@ -1,12 +1,13 @@
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ClientError } from 'graphql-request';
+import type { ClientError } from 'graphql-request';
 import { Modal } from '../../modals/common/Modal';
 
+import type { CreateFeedProps } from '../../../hooks';
 import {
-  CreateFeedProps,
   useActions,
   useFeeds,
   usePlusSubscription,
@@ -43,12 +44,12 @@ export const FeedSettingsCreate = (): ReactElement => {
   const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
+  const { showPlusSubscription } = usePlusSubscription();
   const [data, setData] = useState<CreateFeedProps>(() => ({
     icon: '',
   }));
   const { createFeed } = useFeeds();
   const { follow } = useContentPreference({ showToastOnSuccess: false });
-  const { isPlus } = usePlusSubscription();
 
   const { onFinished, delayedRedirect, isAnimating } = useProgressAnimation({
     animationMs: 1000,
@@ -139,16 +140,6 @@ export const FeedSettingsCreate = (): ReactElement => {
     router.replace(webappUrl);
   };
 
-  useEffect(() => {
-    if (!isPlus) {
-      router.replace(webappUrl);
-    }
-  }, [isPlus, router]);
-
-  if (!isPlus) {
-    return null;
-  }
-
   return (
     <Modal
       isOpen
@@ -173,7 +164,7 @@ export const FeedSettingsCreate = (): ReactElement => {
             >
               New custom feed
             </Typography>
-            <PlusUser />
+            {showPlusSubscription && <PlusUser />}
           </div>
           <div className="flex w-full items-center justify-between gap-2 tablet:hidden">
             <Button

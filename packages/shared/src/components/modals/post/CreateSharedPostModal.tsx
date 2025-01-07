@@ -1,7 +1,10 @@
-import React, { FormEventHandler, ReactElement, useRef, useState } from 'react';
-import { Modal, ModalProps } from '../common/Modal';
-import { ExternalLinkPreview } from '../../../graphql/posts';
-import MarkdownInput, { MarkdownRef } from '../../fields/MarkdownInput';
+import type { FormEventHandler, ReactElement } from 'react';
+import React, { useRef, useState } from 'react';
+import type { ModalProps } from '../common/Modal';
+import { Modal } from '../common/Modal';
+import type { ExternalLinkPreview } from '../../../graphql/posts';
+import type { MarkdownRef } from '../../fields/MarkdownInput';
+import MarkdownInput from '../../fields/MarkdownInput';
 import { WriteLinkPreview, WritePreviewSkeleton } from '../../post/write';
 import { usePostToSquad } from '../../../hooks';
 import {
@@ -13,7 +16,7 @@ import {
 import { AtIcon } from '../../icons';
 import { Divider, Justify } from '../../utilities';
 import SourceButton from '../../cards/common/SourceButton';
-import { Squad } from '../../../graphql/sources';
+import type { Squad } from '../../../graphql/sources';
 import { formToJson } from '../../../lib/form';
 import { useDebouncedUrl } from '../../../hooks/input';
 import { useNotificationToggle } from '../../../hooks/notifications';

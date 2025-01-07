@@ -1,7 +1,5 @@
-import {
-  AdvancedSettings,
-  AdvancedSettingsGroup,
-} from '../../graphql/feedSettings';
+import type { AdvancedSettings } from '../../graphql/feedSettings';
+import { AdvancedSettingsGroup } from '../../graphql/feedSettings';
 
 export enum FilterMenuTitle {
   MyFeed = 'My feed',

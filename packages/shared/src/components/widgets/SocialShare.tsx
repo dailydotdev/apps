@@ -1,10 +1,13 @@
-import React, { Dispatch, ReactElement, useContext } from 'react';
+import type { Dispatch, ReactElement } from 'react';
+import React, { useContext } from 'react';
 import { ShareProvider, addLogQueryParams } from '../../lib/share';
-import { Post } from '../../graphql/posts';
-import { FeedItemPosition, postLogEvent } from '../../lib/feed';
+import type { Post } from '../../graphql/posts';
+import type { FeedItemPosition } from '../../lib/feed';
+import { postLogEvent } from '../../lib/feed';
 import { LogEvent, Origin } from '../../lib/log';
 import LogContext from '../../contexts/LogContext';
-import { Comment, getCommentHash } from '../../graphql/comments';
+import type { Comment } from '../../graphql/comments';
+import { getCommentHash } from '../../graphql/comments';
 import { useSharePost } from '../../hooks/useSharePost';
 import { SocialShareContainer } from './SocialShareContainer';
 import { useCopyLink } from '../../hooks/useCopy';
@@ -13,9 +16,9 @@ import { SocialShareList } from './SocialShareList';
 import { useGetShortUrl } from '../../hooks';
 import { ReferralCampaignKey } from '../../lib';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { Squad } from '../../graphql/sources';
+import type { Squad } from '../../graphql/sources';
 import { CreateSharedPostModal } from '../modals/post/CreateSharedPostModal';
-import { ModalProps } from '../modals/common/Modal';
+import type { ModalProps } from '../modals/common/Modal';
 
 interface SocialShareProps extends Pick<ModalProps, 'parentSelector'> {
   origin: Origin;
