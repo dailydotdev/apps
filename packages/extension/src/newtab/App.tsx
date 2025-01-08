@@ -113,12 +113,7 @@ function InternalApp(): ReactElement {
     ) {
       router.replace(`${webappUrl}onboarding`);
     }
-  }, [
-    isOnboardingReady,
-    router,
-    hasCompletedEditTags,
-    hasCompletedContentTypes,
-  ]);
+  }, [isOnboardingReady, hasCompletedEditTags, hasCompletedContentTypes]);
 
   useEffect(() => {
     if (contentScriptGranted) {
