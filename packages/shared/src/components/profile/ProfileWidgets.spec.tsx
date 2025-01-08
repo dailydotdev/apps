@@ -295,7 +295,10 @@ it('should show mastodon link', () => {
 it('should show bluesky link', () => {
   renderComponent();
   const el = screen.getByTestId('bluesky');
-  expect(el).toHaveAttribute('href', 'https://bsky.app/profile/dailydotdev.bsky.social');
+  expect(el).toHaveAttribute(
+    'href',
+    'https://bsky.app/profile/dailydotdev.bsky.social',
+  );
   expect(el).toHaveTextContent('bsky.app/profile/dailydotdev.bsky.social');
 });
 
