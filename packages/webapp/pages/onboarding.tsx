@@ -281,6 +281,15 @@ export function OnboardPage(): ReactElement {
       BrowserName.Firefox,
     ].includes(browserName);
 
+    console.log({
+      isLaptop,
+      isCurrentPWA,
+      canUserInstallDesktop,
+      activeScreen,
+      haveSkippedExtension,
+      browserDontHaveExtension,
+      browserName,
+    });
     if (
       isLaptop &&
       !isCurrentPWA &&
