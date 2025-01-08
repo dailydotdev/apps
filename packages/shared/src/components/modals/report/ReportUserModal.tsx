@@ -50,10 +50,8 @@ export const ReportUserModal = ({
           feedId: user.id,
         }),
       onSuccess: () => {
-        if (!defaultBlockUser) {
-          displayToast(`🚫 ${offendingUser.username} has been blocked`);
-          onClose();
-        }
+        displayToast(`🚫 ${offendingUser.username} has been blocked`);
+        onClose();
       },
       onError: () => {
         displayToast(`❌ Failed to block ${offendingUser.username}`);
