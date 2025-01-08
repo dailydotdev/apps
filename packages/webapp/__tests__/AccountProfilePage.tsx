@@ -36,7 +36,7 @@ const defaultLoggedUser: LoggedUser = {
   youtube: 'dailydotdev',
   linkedin: 'dailydotdev',
   mastodon: 'https://mastodon.social/@dailydotdev',
-  bluesky: 'https://bsky.app/profile/dailydotdev.bsky.social'
+  bluesky: 'https://bsky.app/profile/dailydotdev.bsky.social',
 };
 const updateUser = jest.fn();
 
