@@ -37,7 +37,7 @@ import {
   FIREFOX_ACCEPTED_PERMISSION,
   FirefoxPermissionType,
 } from '@dailydotdev/shared/src/lib/cookie';
-import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
@@ -47,7 +47,6 @@ import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
 import { useActions, useContentScriptStatus } from '../../../shared/src/hooks';
 import { FirefoxPermission } from '../permission/FirefoxPermission';
 import { FirefoxPermissionDeclined } from '../permission/FirefoxPermissionDeclined';
-import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 
 structuredCloneJsonPolyfill();
 
