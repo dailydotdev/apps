@@ -289,14 +289,14 @@ export type LazyModalType<T extends keyof ModalsType> = {
   [K in keyof ModalsType]: NonOptional<
     LazyModalComponentType<K>
   > extends Record<string, never>
-  ? {
-    type: K;
-    persistOnRouteChange?: boolean;
-    props?: LazyModalComponentType<K>;
-  }
-  : {
-    type: K;
-    persistOnRouteChange?: boolean;
-    props: LazyModalComponentType<K>;
-  };
+    ? {
+        type: K;
+        persistOnRouteChange?: boolean;
+        props?: LazyModalComponentType<K>;
+      }
+    : {
+        type: K;
+        persistOnRouteChange?: boolean;
+        props: LazyModalComponentType<K>;
+      };
 }[T];
