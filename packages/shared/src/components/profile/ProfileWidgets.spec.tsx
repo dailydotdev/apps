@@ -44,6 +44,7 @@ const defaultLoggedUser: LoggedUser = {
   youtube: 'idoshamun',
   linkedin: 'idoshamun',
   mastodon: 'https://mastodon.social/@idoshamun',
+  bluesky: 'https://bsky.app/profile/dailydotdev.bsky.social',
 };
 
 const defaultProfile: PublicProfile = {
@@ -69,6 +70,8 @@ const defaultProfile: PublicProfile = {
   youtube: 'dailydotdev',
   linkedin: 'dailydotdev',
   mastodon: 'https://mastodon.social/@dailydotdev',
+  bluesky: 'https://bsky.app/profile/dailydotdev.bsky.social'
+
 };
 
 const defaultMemberships: Connection<SourceMember> = {
@@ -287,6 +290,13 @@ it('should show mastodon link', () => {
   const el = screen.getByTestId('mastodon');
   expect(el).toHaveAttribute('href', 'https://mastodon.social/@dailydotdev');
   expect(el).toHaveTextContent('mastodon.social/@dailydotdev');
+});
+
+it('should show bluesky link', () => {
+  renderComponent();
+  const el = screen.getByTestId('bluesky');
+  expect(el).toHaveAttribute('href', 'https://bsky.app/profile/dailydotdev.bsky.social');
+  expect(el).toHaveTextContent('bsky.app/profile/dailydotdev.bsky.social');
 });
 
 it('should show portfolio link', async () => {

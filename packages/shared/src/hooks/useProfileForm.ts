@@ -27,6 +27,7 @@ export interface ProfileFormHint {
   youtube?: string;
   linkedin?: string;
   mastodon?: string;
+  bluesky?: string;
 }
 
 export interface UpdateProfileParameters extends Partial<UserProfile> {
@@ -64,6 +65,7 @@ type Handles = Pick<
   | 'youtube'
   | 'linkedin'
   | 'mastodon'
+  | 'bluesky'
 >;
 const socials: Array<keyof Handles> = [
   'github',
@@ -77,6 +79,7 @@ const socials: Array<keyof Handles> = [
   'youtube',
   'linkedin',
   'mastodon',
+  'bluesky'
 ];
 
 export const onValidateHandles = (

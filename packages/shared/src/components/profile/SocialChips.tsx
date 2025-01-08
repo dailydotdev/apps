@@ -10,6 +10,7 @@ import {
   RedditIcon,
   RoadmapIcon,
   MastodonIcon,
+  BlueskyIcon,
   ThreadsIcon,
   CodePenIcon,
 } from '../icons';
@@ -32,6 +33,7 @@ export interface SocialChipsProps {
     youtube?: string;
     linkedin?: string;
     mastodon?: string;
+    bluesky?: string;
   };
 }
 
@@ -89,6 +91,11 @@ const handlers: Record<
     href: (x) => x,
     label: (x) => withoutProtocol(x),
   },
+  bluesky: {
+    icon: <BlueskyIcon />,
+    href: (x) => x,
+    label: (x) => withoutProtocol(x),
+  },
   threads: {
     icon: <ThreadsIcon />,
     href: (x) => `https://threads.net/@${x}`,
@@ -111,6 +118,7 @@ const order: (keyof SocialChipsProps['links'])[] = [
   'roadmap',
   'codepen',
   'mastodon',
+  'bluesky',
   'threads',
 ];
 

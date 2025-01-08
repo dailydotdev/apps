@@ -13,6 +13,7 @@ import {
   LinkedInIcon,
   LinkIcon,
   MastodonIcon,
+  BlueskyIcon,
   RedditIcon,
   RoadmapIcon,
   StackOverflowIcon,
@@ -88,6 +89,7 @@ const ProfileIndex = ({
       youtube: values.youtube,
       linkedin: values.linkedin,
       mastodon: values.mastodon ? withHttps(values.mastodon) : null,
+      bluesky: values.bluesky ? withHttps(values.bluesky) : null,
       experienceLevel: values.experienceLevel,
       onUpdateSuccess: () =>
         router.push(`/${values.username}`).then(() => {
@@ -285,7 +287,6 @@ const ProfileIndex = ({
           hint={hint.portfolio}
           valid={!hint.portfolio}
           name="portfolio"
-          type="url"
           value={user?.portfolio}
           placeholder="example.com"
         />
@@ -356,9 +357,18 @@ const ProfileIndex = ({
           hint={hint.mastodon}
           valid={!hint.mastodon}
           name="mastodon"
-          type="url"
           value={user?.mastodon}
           placeholder="mastodon.social/@username"
+        />
+        <AccountTextField
+          leftIcon={<BlueskyIcon />}
+          label="Bluesky"
+          inputId="bluesky"
+          hint={hint.bluesky}
+          valid={!hint.bluesky}
+          name="bluesky"
+          value={user?.bluesky}
+          placeholder="https//bsky.app/profile/username"
         />
         <AccountTextField
           leftIcon={<ThreadsIcon />}
