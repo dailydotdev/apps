@@ -34,14 +34,6 @@ export const useOnboardingExtension = (): UseOnboardingExtension => {
     !isCheckedExtension &&
     !isComingFromExtension;
 
-  console.log({
-    isLaptop,
-    isValidBrowser,
-    isActionsFetched,
-    isCheckedExtension,
-    isComingFromExtension,
-  });
-
   useEffect(() => {
     if (isComingFromExtension && isActionsFetched && !isCheckedExtension) {
       completeAction(ActionType.BrowserExtension);

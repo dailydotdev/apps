@@ -268,7 +268,9 @@ export function OnboardPage(): ReactElement {
     if (
       extensionExperiment &&
       shouldShowExtensionOnboarding &&
-      activeScreen !== OnboardingStep.Extension
+      [OnboardingStep.Extension, OnboardingStep.InstallDesktop].includes(
+        activeScreen,
+      )
     ) {
       return setActiveScreen(OnboardingStep.Extension);
     }
@@ -281,15 +283,6 @@ export function OnboardPage(): ReactElement {
       BrowserName.Firefox,
     ].includes(browserName);
 
-    console.log({
-      isLaptop,
-      isCurrentPWA,
-      canUserInstallDesktop,
-      activeScreen,
-      haveSkippedExtension,
-      browserDontHaveExtension,
-      browserName,
-    });
     if (
       isLaptop &&
       !isCurrentPWA &&
