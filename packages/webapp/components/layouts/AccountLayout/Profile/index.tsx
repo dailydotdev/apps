@@ -368,7 +368,7 @@ const ProfileIndex = ({
           valid={!hint.bluesky}
           name="bluesky"
           value={user?.bluesky}
-          placeholder="https//bsky.app/profile/username"
+          placeholder="bsky.app/profile/username"
         />
         <AccountTextField
           leftIcon={<ThreadsIcon />}
