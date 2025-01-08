@@ -1,7 +1,7 @@
 import type { BrowserName } from '../../../lib/func';
 import { getCurrentBrowserName, isPWA } from '../../../lib/func';
 
-interface IBeforeInstallPromptEvent extends Event {
+interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<'accepted' | 'dismissed'>;
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
@@ -13,10 +13,10 @@ export interface UseInstallPWA {
   browserName: BrowserName;
 }
 
-let installEvent: IBeforeInstallPromptEvent | null = null;
+let installEvent: BeforeInstallPromptEvent | null = null;
 globalThis?.addEventListener?.(
   'beforeinstallprompt',
-  (e: IBeforeInstallPromptEvent) => {
+  (e: BeforeInstallPromptEvent) => {
     e.preventDefault();
     installEvent = e;
   },
