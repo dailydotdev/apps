@@ -79,7 +79,7 @@ const socials: Array<keyof Handles> = [
   'youtube',
   'linkedin',
   'mastodon',
-  'bluesky'
+  'bluesky',
 ];
 
 export const onValidateHandles = (
