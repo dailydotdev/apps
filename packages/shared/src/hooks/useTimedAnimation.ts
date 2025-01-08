@@ -1,11 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useTransition,
-} from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { isNullOrUndefined } from '../lib/func';
 import useDebounceFn from './useDebounceFn';
 
@@ -31,13 +24,7 @@ export const useTimedAnimation = ({
   outAnimationDuration = OUT_ANIMATION_DURATION,
   onAnimationEnd,
 }: UseTimedAnimationProps): UseTimedAnimation => {
-  const [timer, setTimerBlocking] = useState(0);
-  const [, startTransition] = useTransition();
-  const setTimer: typeof setTimerBlocking = useCallback((value) => {
-    startTransition(() => {
-      setTimerBlocking(value);
-    });
-  }, []);
+  const [timer, setTimer] = useState(0);
   const interval = useRef<number>();
   const [animationEnd] = useDebounceFn(onAnimationEnd, outAnimationDuration);
 
@@ -56,7 +43,7 @@ export const useTimedAnimation = ({
     }
 
     setTimer(0);
-  }, [setTimer]);
+  }, []);
 
   const startAnimation = useCallback(
     (duration: number) => {
@@ -82,7 +69,7 @@ export const useTimedAnimation = ({
         PROGRESS_INTERVAL,
       );
     },
-    [autoEndAnimation, setTimer],
+    [autoEndAnimation],
   );
 
   useEffect(() => {
