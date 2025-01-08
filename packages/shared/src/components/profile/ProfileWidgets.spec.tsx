@@ -70,8 +70,7 @@ const defaultProfile: PublicProfile = {
   youtube: 'dailydotdev',
   linkedin: 'dailydotdev',
   mastodon: 'https://mastodon.social/@dailydotdev',
-  bluesky: 'https://bsky.app/profile/dailydotdev.bsky.social'
-
+  bluesky: 'https://bsky.app/profile/dailydotdev.bsky.social',
 };
 
 const defaultMemberships: Connection<SourceMember> = {
