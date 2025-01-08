@@ -67,7 +67,7 @@ export const ReportUserModal = ({
           comment: text,
         }),
       onSuccess: () => {
-        if (!defaultBlockUser) {
+        if (!blockUser) {
           displayToast(`🗒️ ${offendingUser.username} has been reported`);
           onClose();
         }
