@@ -47,6 +47,7 @@ import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
 import { useActions, useContentScriptStatus } from '../../../shared/src/hooks';
 import { FirefoxPermission } from '../permission/FirefoxPermission';
 import { FirefoxPermissionDeclined } from '../permission/FirefoxPermissionDeclined';
+import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 
 structuredCloneJsonPolyfill();
 
@@ -65,6 +66,8 @@ Modal.defaultStyles = {};
 
 const getRedirectUri = () => browser.runtime.getURL('index.html');
 function InternalApp(): ReactElement {
+  const { isOnboardingReady, hasCompletedContentTypes, hasCompletedEditTags } =
+    useOnboarding();
   const { checkHasCompleted, isActionsFetched } = useActions();
   useError();
   useWebVitals();
@@ -105,15 +108,19 @@ function InternalApp(): ReactElement {
   );
 
   useEffect(() => {
-    if (isActionsFetched) {
-      const hasCompletedEssentials =
-        checkHasCompleted(ActionType.EditTag) &&
-        checkHasCompleted(ActionType.ContentTypes);
-      if (!hasCompletedEssentials) {
-        router.replace(`${webappUrl}onboarding`);
-      }
+    if (
+      isOnboardingReady &&
+      (!hasCompletedEditTags || !hasCompletedContentTypes) &&
+      !router.pathname.includes('/onboarding')
+    ) {
+      router.replace(`${webappUrl}onboarding`);
     }
-  }, [isActionsFetched, checkHasCompleted]);
+  }, [
+    isOnboardingReady,
+    router,
+    hasCompletedEditTags,
+    hasCompletedContentTypes,
+  ]);
 
   useEffect(() => {
     if (contentScriptGranted) {
