@@ -28,7 +28,7 @@ const reportReasons: { value: string; label: string }[] = [
 ];
 
 type ReportUserModalProps = {
-  offendingUser: UserShortProfile;
+  offendingUser: Pick<UserShortProfile, 'id' | 'username'>;
   defaultBlockUser?: boolean;
   onClose: () => void;
 };

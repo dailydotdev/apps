@@ -7,30 +7,30 @@ import classNames from 'classnames';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
 import type { Post } from '../graphql/posts';
-import { UserVote, isVideoPost } from '../graphql/posts';
+import { isVideoPost, UserVote } from '../graphql/posts';
 import {
-  TrashIcon,
-  HammerIcon,
-  EyeIcon,
-  BlockIcon,
-  FlagIcon,
-  PlusIcon,
-  EditIcon,
-  UpvoteIcon,
-  DownvoteIcon,
-  SendBackwardIcon,
-  BringForwardIcon,
-  PinIcon,
+  AddUserIcon,
+  BellAddIcon,
   BellSubscribedIcon,
-  ShareIcon,
+  BlockIcon,
+  BringForwardIcon,
+  DownvoteIcon,
+  EditIcon,
+  EyeIcon,
+  FlagIcon,
+  FolderIcon,
+  HammerIcon,
   MiniCloseIcon,
   MinusIcon,
-  BellAddIcon,
-  AddUserIcon,
+  PinIcon,
+  PlusIcon,
   RemoveUserIcon,
-  FolderIcon,
+  SendBackwardIcon,
+  ShareIcon,
   ShieldIcon,
   ShieldWarningIcon,
+  TrashIcon,
+  UpvoteIcon,
 } from './icons';
 import type { ReportedCallback } from './modals';
 import useTagAndSource from '../hooks/useTagAndSource';
@@ -135,9 +135,8 @@ export default function PostOptionsMenu({
   const { logEvent } = useContext(LogContext);
   const { hidePost, unhidePost } = useReportPost();
   const { openSharePost } = useSharePost(origin);
-  const { follow, unfollow } = useContentPreference();
-
-  const { openModal } = useLazyModal();
+  const { follow, unfollow, unblock } = useContentPreference();
+  const { openModal, closeModal } = useLazyModal();
 
   const {
     onBlockSource,
@@ -488,6 +487,37 @@ export default function PostOptionsMenu({
       : `Don't show posts from ${post?.source?.name}`,
     action: isSourceBlocked ? onUnblockSourceClick : onBlockSourceClick,
   });
+
+  // todo: implement when API is updated
+  const isBlockedAuthor = false;
+  if (post?.author && post?.author?.id !== user.id) {
+    postOptions.push({
+      icon: <MenuIcon Icon={BlockIcon} />,
+      label: isBlockedAuthor
+        ? `Unblock ${post.author.name}`
+        : `Block ${post.author.name}`,
+      action: () => {
+        if (isBlockedAuthor) {
+          unblock({
+            id: post.author.id,
+            entity: ContentPreferenceType.User,
+            entityName: post.author.name,
+            feedId: router.query.slugOrId ? `${router.query.slugOrId}` : null,
+          });
+          return;
+        }
+
+        openModal({
+          type: LazyModal.ReportUser,
+          props: {
+            offendingUser: post.author,
+            defaultBlockUser: true,
+            onClose: () => closeModal(),
+          },
+        });
+      },
+    });
+  }
 
   if (video && isVideoPost(post)) {
     const isEnabled = checkSettingsEnabledState(video.id);
