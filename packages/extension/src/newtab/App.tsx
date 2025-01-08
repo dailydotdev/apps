@@ -44,7 +44,7 @@ import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
-import { useActions, useContentScriptStatus } from '../../../shared/src/hooks';
+import { useContentScriptStatus } from '../../../shared/src/hooks';
 import { FirefoxPermission } from '../permission/FirefoxPermission';
 import { FirefoxPermissionDeclined } from '../permission/FirefoxPermissionDeclined';
 
@@ -67,7 +67,6 @@ const getRedirectUri = () => browser.runtime.getURL('index.html');
 function InternalApp(): ReactElement {
   const { isOnboardingReady, hasCompletedContentTypes, hasCompletedEditTags } =
     useOnboarding();
-  const { checkHasCompleted, isActionsFetched } = useActions();
   useError();
   useWebVitals();
   const { setCurrentPage, currentPage } = useExtensionContext();
