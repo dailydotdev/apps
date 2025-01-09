@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { ClientError } from 'graphql-request';
+import type { ClientError } from 'graphql-request';
 import { useRouter } from 'next/router';
 import useFeedSettings, {
   getFeedSettingsQueryKey,
@@ -16,13 +16,18 @@ import {
 } from '../../../graphql/feedSettings';
 import { useFeeds, useToastNotification } from '../../../hooks';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
-import { PromptOptions, usePrompt } from '../../../hooks/usePrompt';
+import type { PromptOptions } from '../../../hooks/usePrompt';
+import { usePrompt } from '../../../hooks/usePrompt';
 import { labels } from '../../../lib';
 import { generateQueryKey } from '../../../lib/query';
 import { ButtonColor } from '../../buttons/Button';
 import { SharedFeedPage } from '../../utilities';
-import { FeedSettingsEditContextValue, FeedSettingsFormData } from './types';
-import { Feed, FeedType } from '../../../graphql/feed';
+import type {
+  FeedSettingsEditContextValue,
+  FeedSettingsFormData,
+} from './types';
+import type { Feed } from '../../../graphql/feed';
+import { FeedType } from '../../../graphql/feed';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 
 const discardPrompt: PromptOptions = {

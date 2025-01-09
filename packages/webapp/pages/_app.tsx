@@ -1,12 +1,6 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-import { AppProps } from 'next/app';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import 'focus-visible';
@@ -37,7 +31,6 @@ import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { fromCDN } from '@dailydotdev/shared/src/lib';
-import { initApp } from '@dailydotdev/shared/src/lib/func';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -79,10 +72,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   useLogPageView();
   const { modal, closeModal } = useLazyModal();
   useConsoleLogo();
-
-  useEffect(() => {
-    initApp();
-  }, []);
 
   useEffect(() => {
     updateCookieBanner(user);

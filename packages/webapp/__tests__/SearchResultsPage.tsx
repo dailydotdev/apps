@@ -1,9 +1,11 @@
 import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import { mocked } from 'ts-jest/utils';
-import { NextRouter, useRouter } from 'next/router';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import * as contexts from '@dailydotdev/shared/src/contexts/ActiveFeedNameContext';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';

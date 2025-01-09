@@ -1,14 +1,11 @@
-import React, { type ReactElement } from 'react';
-import classNames from 'classnames';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { geoToCountry, geoToEmoji } from '../../../lib/geo';
 import { AuthenticationBanner, OnboardingHeadline } from '../../auth';
-import { featurePostBannerExtensionPrompt } from '../../../lib/featureManagement';
-import { useFeature } from '../../GrowthBookProvider';
 
 const GeoPersonalizedBanner = ({ geo }: { geo: string }): ReactElement => {
   const emoji = geoToEmoji(geo);
   const country = geoToCountry(geo);
-  const extensionExperiment = useFeature(featurePostBannerExtensionPrompt);
 
   return (
     <AuthenticationBanner>
@@ -16,10 +13,7 @@ const GeoPersonalizedBanner = ({ geo }: { geo: string }): ReactElement => {
       <OnboardingHeadline
         className={{
           title: `typo-mega3`,
-          description: classNames(
-            'typo-title3',
-            !extensionExperiment && 'mb-8',
-          ),
+          description: 'mb-8 typo-title3',
         }}
         title={`daily.dev is the fastest growing developer platform in ${country}!`}
         description="We know how hard it is to be a developer. It doesn't have to be. Personalized news feed, dev community and search, much better than what's out there. Maybe ;)"

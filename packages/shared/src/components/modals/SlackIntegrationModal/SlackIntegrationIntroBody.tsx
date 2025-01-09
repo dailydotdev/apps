@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { slackIntegration } from '../../../lib/constants';
 import { Button } from '../../buttons/Button';
 import { ButtonVariant, ButtonSize } from '../../buttons/common';

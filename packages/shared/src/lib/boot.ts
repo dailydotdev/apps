@@ -1,13 +1,13 @@
-import { FeatureDefinition } from '@growthbook/growthbook';
-import { AnonymousUser, ContentLanguage, LoggedUser } from './user';
+import type { FeatureDefinition } from '@growthbook/growthbook';
+import type { AnonymousUser, ContentLanguage, LoggedUser } from './user';
 import { apiUrl } from './config';
-import { Alerts } from '../graphql/alerts';
-import { RemoteSettings } from '../graphql/settings';
-import { Post } from '../graphql/posts';
-import { Squad } from '../graphql/sources';
+import type { Alerts } from '../graphql/alerts';
+import type { RemoteSettings } from '../graphql/settings';
+import type { Post } from '../graphql/posts';
+import type { Squad } from '../graphql/sources';
 import { decrypt } from '../components/crypto';
-import { MarketingCta } from '../components/marketingCta/common';
-import { Feed } from '../graphql/feed';
+import type { MarketingCta } from '../components/marketingCta/common';
+import type { Feed } from '../graphql/feed';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;
@@ -69,6 +69,7 @@ export type Boot = {
     ip?: string;
     region?: string;
   };
+  isAndroidApp?: boolean;
 };
 
 export type BootCacheData = Pick<
@@ -82,7 +83,7 @@ export type BootCacheData = Pick<
   | 'exp'
   | 'feeds'
   | 'geo'
-> & { lastModifier?: string };
+> & { lastModifier?: string; isAndroidApp?: boolean };
 
 export async function getBootData(app: string, url?: string): Promise<Boot> {
   const appRoute = app === 'companion' ? '/companion' : '';

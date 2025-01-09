@@ -1,10 +1,7 @@
-import React, { forwardRef, ReactElement, Ref } from 'react';
-import {
-  Button,
-  ButtonProps,
-  ButtonSize,
-  ButtonVariant,
-} from './buttons/Button';
+import type { ReactElement, Ref } from 'react';
+import React, { forwardRef } from 'react';
+import type { ButtonProps } from './buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { MiniCloseIcon as CloseIcon } from './icons';
 
 function CloseButtonComponent(

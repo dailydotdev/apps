@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
+import type { HTMLAttributes, ReactElement, ReactNode } from 'react';
+import React from 'react';
 import Link from '../utilities/Link';
 import { ArrowIcon } from '../icons';
 

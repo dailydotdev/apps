@@ -3,7 +3,10 @@ import { useRouter } from 'next/router';
 import { ThemeMode, useSettingsContext } from '../../contexts/SettingsContext';
 import { useFeature } from '../../components/GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
-import { FeatureTheme, FeatureThemeVariant } from '../../lib/featureValues';
+import type {
+  FeatureTheme,
+  FeatureThemeVariant,
+} from '../../lib/featureValues';
 
 interface UseFeatureThemeResult
   extends Pick<FeatureTheme, 'version' | 'cursor'>,

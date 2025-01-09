@@ -1,9 +1,5 @@
-import {
-  MouseEventHandler,
-  ReactElement,
-  ReactEventHandler,
-  useContext,
-} from 'react';
+import type { MouseEventHandler, ReactElement, ReactEventHandler } from 'react';
+import { useContext } from 'react';
 import { isNullOrUndefined } from '../../../lib/func';
 import { ModalPropsContext } from './types';
 import LogContext from '../../../contexts/LogContext';

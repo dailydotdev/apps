@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
-import { QueryKey } from '@tanstack/react-query';
-import { FeedReturnType } from '../hooks/useFeed';
+import type { QueryKey } from '@tanstack/react-query';
+import type { FeedReturnType } from '../hooks/useFeed';
 
 export type ActiveFeedContextValue = {
   queryKey?: QueryKey;

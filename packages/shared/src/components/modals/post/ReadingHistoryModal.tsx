@@ -1,7 +1,9 @@
-import React, { ReactElement } from 'react';
-import { Modal, ModalProps } from '../common/Modal';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { ModalProps } from '../common/Modal';
+import { Modal } from '../common/Modal';
 import { InfiniteReadingHistory } from '../../post/infinite';
-import { PostItem } from '../../../graphql/posts';
+import type { PostItem } from '../../../graphql/posts';
 import { usePublicReadingHistory } from '../../../hooks/post';
 import { ReadingHistoryTitle } from './ReadingHistoryTitle';
 import ReadingHistoryPlaceholder from '../../history/ReadingHistoryPlaceholder';

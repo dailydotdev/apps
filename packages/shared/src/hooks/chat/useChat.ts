@@ -1,4 +1,4 @@
-import { UseChat, UseChatProps } from './types';
+import type { UseChat, UseChatProps } from './types';
 import { useChatSession } from './useChatSession';
 import { useChatStream } from './useChatStream';
 

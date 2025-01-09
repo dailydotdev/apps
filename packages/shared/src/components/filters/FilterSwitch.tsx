@@ -1,5 +1,7 @@
-import React, { ReactElement, ReactNode } from 'react';
-import { Switch, SwitchProps } from '../fields/Switch';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
+import type { SwitchProps } from '../fields/Switch';
+import { Switch } from '../fields/Switch';
 
 interface FilterSwitchProps extends SwitchProps {
   label: ReactNode;

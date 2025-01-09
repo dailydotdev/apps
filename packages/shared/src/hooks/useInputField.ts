@@ -1,10 +1,5 @@
-import {
-  MutableRefObject,
-  SyntheticEvent,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import type { MutableRefObject, SyntheticEvent } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export type ValidInputElement = HTMLInputElement | HTMLTextAreaElement;
 

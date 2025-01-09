@@ -1,19 +1,20 @@
 import classNames from 'classnames';
-import React, { forwardRef, ReactElement, ReactNode, Ref } from 'react';
+import type { ReactElement, ReactNode, Ref } from 'react';
+import React, { forwardRef } from 'react';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
-import { TooltipProps } from '../tooltips/BaseTooltip';
+import type { TooltipProps } from '../tooltips/BaseTooltip';
 import { TruncateText } from '../utilities';
 import { ProfileTooltip } from './ProfileTooltip';
-import { LoggedUser, UserShortProfile } from '../../lib/user';
+import type { LoggedUser, UserShortProfile } from '../../lib/user';
 import { ReputationUserBadge } from '../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { FollowButton } from '../contentPreference/FollowButton';
-import { Origin } from '../../lib/log';
+import type { Origin } from '../../lib/log';
 import { Separator } from '../cards/common/common';
 import { TopReaderIn } from '../TopReaderIn';
 import { PlusUserBadge } from '../PlusUserBadge';
-import { CopyType } from '../sources/SourceActions/SourceActionsFollow';
+import type { CopyType } from '../sources/SourceActions/SourceActionsFollow';
 
 type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? JSX.IntrinsicElements[Tag]

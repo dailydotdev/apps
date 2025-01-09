@@ -1,4 +1,5 @@
-import React, { ReactElement, useCallback, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
 import { PlusInfo } from './PlusInfo';
 import { usePaymentContext } from '../../contexts/PaymentContext';

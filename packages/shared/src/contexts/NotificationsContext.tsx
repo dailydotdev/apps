@@ -1,11 +1,5 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 
 export interface NotificationsContextData {
   unreadCount: number;

@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { cookiePolicy } from '@dailydotdev/shared/src/lib/constants';
 import { CookieIcon } from '@dailydotdev/shared/src/components/icons';
 import {

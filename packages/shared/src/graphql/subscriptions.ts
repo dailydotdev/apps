@@ -1,4 +1,5 @@
-import { Client, createClient } from 'graphql-ws';
+import type { Client } from 'graphql-ws';
+import { createClient } from 'graphql-ws';
 
 export function createSubscriptionClient(token: string): Client {
   return createClient({

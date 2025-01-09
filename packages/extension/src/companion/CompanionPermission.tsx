@@ -5,7 +5,8 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
-import React, { forwardRef, ReactElement, Ref } from 'react';
+import type { ReactElement, Ref } from 'react';
+import React, { forwardRef } from 'react';
 import { PlayIcon } from '@dailydotdev/shared/src/components/icons';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';

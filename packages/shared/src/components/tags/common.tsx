@@ -1,4 +1,4 @@
-import { Tag } from '../../graphql/feedSettings';
+import type { Tag } from '../../graphql/feedSettings';
 
 export type OnSelectTagProps = {
   tag: Tag;

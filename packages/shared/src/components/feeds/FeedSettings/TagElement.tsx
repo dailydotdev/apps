@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { AlertDot, AlertColor } from '../../AlertDot';
 import { Button } from '../../buttons/Button';
 import {
@@ -7,8 +8,8 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../buttons/common';
-import { Tag } from '../../../graphql/feedSettings';
-import { OnSelectTagProps } from '../../tags/common';
+import type { Tag } from '../../../graphql/feedSettings';
+import type { OnSelectTagProps } from '../../tags/common';
 import { MiniCloseIcon, PlusIcon } from '../../icons';
 
 export type OnboardingTagProps = {

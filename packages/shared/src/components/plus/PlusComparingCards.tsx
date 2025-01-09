@@ -1,9 +1,10 @@
-import React, { ReactElement, useId } from 'react';
-import {
+import type { ReactElement } from 'react';
+import React, { useId } from 'react';
+import type {
   PaymentContextData,
   ProductOption,
-  usePaymentContext,
 } from '../../contexts/PaymentContext';
+import { usePaymentContext } from '../../contexts/PaymentContext';
 import {
   Typography,
   TypographyColor,

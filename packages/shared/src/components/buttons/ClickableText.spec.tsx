@@ -1,6 +1,9 @@
-import { render, RenderResult, screen } from '@testing-library/react';
-import React, { HTMLAttributes, ReactNode } from 'react';
-import { ClickableText, BaseClickableTextProps } from './ClickableText';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import type { HTMLAttributes, ReactNode } from 'react';
+import React from 'react';
+import type { BaseClickableTextProps } from './ClickableText';
+import { ClickableText } from './ClickableText';
 
 const renderComponent = <
   C extends HTMLElement = HTMLButtonElement,

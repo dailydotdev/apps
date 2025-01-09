@@ -1,9 +1,12 @@
-import React, { isValidElement, ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React, { isValidElement } from 'react';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import classNames from 'classnames';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import { FooterNavBarContainerProps, FooterTab, getNavPath } from './common';
-import { FooterNavBarItem, FooterNavBarItemProps } from './FooterNavBarItem';
+import type { FooterNavBarContainerProps, FooterTab } from './common';
+import { getNavPath } from './common';
+import type { FooterNavBarItemProps } from './FooterNavBarItem';
+import { FooterNavBarItem } from './FooterNavBarItem';
 
 interface TabProps extends Pick<FooterNavBarItemProps, 'isActive'> {
   tab: FooterTab;

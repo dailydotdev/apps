@@ -1,6 +1,7 @@
-import React, { ReactElement, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
 import { CopyIcon, FacebookIcon, TwitterIcon, WhatsappIcon } from './icons';
-import { Post } from '../graphql/posts';
+import type { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import { getShareLink, ShareProvider } from '../lib/share';
 import LogContext from '../contexts/LogContext';
@@ -9,7 +10,7 @@ import { WidgetContainer } from './widgets/common';
 import { LogEvent, Origin } from '../lib/log';
 import { LazyModal } from './modals/common/types';
 import { useLazyModal } from '../hooks/useLazyModal';
-import { Squad } from '../graphql/sources';
+import type { Squad } from '../graphql/sources';
 import { SocialShareButton } from './widgets/SocialShareButton';
 import { SquadsToShare } from './squads/SquadsToShare';
 import { ButtonSize, ButtonVariant } from './buttons/common';

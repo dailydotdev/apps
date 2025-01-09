@@ -1,6 +1,8 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { Post, UserVote } from '../../../../graphql/posts';
+import type { Post } from '../../../../graphql/posts';
+import { UserVote } from '../../../../graphql/posts';
 import InteractionCounter from '../../../InteractionCounter';
 import {
   BookmarkIcon,
@@ -17,14 +19,11 @@ import ConditionalWrapper from '../../../ConditionalWrapper';
 import { PostTagsPanel } from '../../../post/block/PostTagsPanel';
 import { IconSize } from '../../../Icon';
 import { LinkWithTooltip } from '../../../tooltips/LinkWithTooltip';
-import { ActionButtonsProps } from '../../ActionsButtons';
+import type { ActionButtonsProps } from '../../ActionsButtons';
 import { UpvoteButtonIcon } from '../../ActionsButtons/UpvoteButtonIcon';
 import { BookmarkButton } from '../../../buttons';
 import { useFeature } from '../../../GrowthBookProvider';
-import {
-  feedActionSpacing,
-  featureUpvoteCounter,
-} from '../../../../lib/featureManagement';
+import { feedActionSpacing } from '../../../../lib/featureManagement';
 
 interface ActionButtonsPropsList extends ActionButtonsProps {
   onDownvoteClick?: (post: Post) => unknown;
@@ -43,9 +42,7 @@ export default function ActionButtons({
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const feedActionSpacingExp = useFeature(feedActionSpacing);
   const { showTagsPanel } = data;
-  const alwaysShowUpvoteCounter = useFeature(featureUpvoteCounter);
-  const isCounterVisible =
-    post?.numUpvotes || alwaysShowUpvoteCounter || feedActionSpacingExp;
+  const isCounterVisible = post?.numUpvotes || feedActionSpacingExp;
 
   if (isFeedPreview) {
     return null;
@@ -107,10 +104,7 @@ export default function ActionButtons({
                 <InteractionCounter
                   className={classNames(
                     'ml-1.5 tabular-nums',
-                    !post.numUpvotes &&
-                      feedActionSpacingExp &&
-                      !alwaysShowUpvoteCounter &&
-                      'invisible',
+                    !post.numUpvotes && feedActionSpacingExp && 'invisible',
                   )}
                   value={post?.numUpvotes}
                 />
@@ -156,7 +150,11 @@ export default function ActionButtons({
             tag="a"
             href={post.commentsPermalink}
             pressed={post.commented}
-            variant={ButtonVariant.Float}
+            variant={
+              feedActionSpacingExp
+                ? ButtonVariant.Tertiary
+                : ButtonVariant.Float
+            }
             {...combinedClicks(() => onCommentClick?.(post))}
           >
             <CommentIcon secondary={post.commented} size={IconSize.Medium} />
@@ -174,7 +172,9 @@ export default function ActionButtons({
             id: `post-${post.id}-bookmark-btn`,
             icon: <BookmarkIcon secondary={post.bookmarked} />,
             onClick: () => onBookmarkClick(post),
-            variant: ButtonVariant.Float,
+            variant: feedActionSpacingExp
+              ? ButtonVariant.Tertiary
+              : ButtonVariant.Float,
             className: 'pointer-events-auto ml-2',
           }}
         />
@@ -183,7 +183,11 @@ export default function ActionButtons({
             className="pointer-events-auto ml-2"
             icon={<LinkIcon />}
             onClick={(e) => onCopyLinkClick?.(e, post)}
-            variant={ButtonVariant.Float}
+            variant={
+              feedActionSpacingExp
+                ? ButtonVariant.Tertiary
+                : ButtonVariant.Float
+            }
             color={ButtonColor.Cabbage}
           />
         </SimpleTooltip>

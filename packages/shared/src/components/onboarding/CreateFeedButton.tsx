@@ -1,6 +1,8 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
+import type { HTMLAttributes, ReactElement } from 'react';
+import React from 'react';
 import useFeedSettings from '../../hooks/useFeedSettings';
-import { Button, ButtonElementType, ButtonVariant } from '../buttons/Button';
+import type { ButtonElementType } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips';
 import { isTesting } from '../../lib/constants';
 import useSidebarRendered from '../../hooks/useSidebarRendered';

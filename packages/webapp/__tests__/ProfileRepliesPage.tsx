@@ -1,23 +1,25 @@
 import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/react';
-import { LoggedUser, PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import type {
+  LoggedUser,
+  PublicProfile,
+} from '@dailydotdev/shared/src/lib/user';
 import nock from 'nock';
 import { QueryClient } from '@tanstack/react-query';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultPost from '@dailydotdev/shared/__tests__/fixture/post';
-import { Connection } from '@dailydotdev/shared/src/graphql/common';
-import {
+import type { Connection } from '@dailydotdev/shared/src/graphql/common';
+import type {
   Comment,
-  USER_COMMENTS_QUERY,
   UserCommentsData,
   Author,
 } from '@dailydotdev/shared/src/graphql/comments';
+import { USER_COMMENTS_QUERY } from '@dailydotdev/shared/src/graphql/comments';
 import ProfilePage from '../pages/[userId]/replies';
 
 beforeEach(() => {

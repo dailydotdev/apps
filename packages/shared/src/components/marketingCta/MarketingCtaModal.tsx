@@ -1,5 +1,7 @@
-import React, { ReactElement } from 'react';
-import { Modal, ModalProps } from '../modals/common/Modal';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { ModalProps } from '../modals/common/Modal';
+import { Modal } from '../modals/common/Modal';
 import { ButtonSize } from '../buttons/Button';
 import { CardCover } from '../cards/common/CardCover';
 import type { MarketingCta } from './common';

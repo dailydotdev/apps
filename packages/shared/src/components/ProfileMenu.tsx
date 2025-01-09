@@ -1,4 +1,5 @@
-import React, { ReactElement, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { useAuthContext } from '../contexts/AuthContext';
 import {
@@ -16,13 +17,8 @@ import {
 import InteractivePopup, {
   InteractivePopupPosition,
 } from './tooltips/InteractivePopup';
-import {
-  AllowedTags,
-  Button,
-  ButtonProps,
-  ButtonSize,
-  ButtonVariant,
-} from './buttons/Button';
+import type { AllowedTags, ButtonProps } from './buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import {
   managePlusUrl,
   plusUrl,

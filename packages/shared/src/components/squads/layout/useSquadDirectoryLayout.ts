@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { squadCategoriesPaths } from '../../../lib/constants';
 import { useViewSize, ViewSize } from '../../../hooks';
-import { Squad } from '../../../graphql/sources';
+import type { Squad } from '../../../graphql/sources';
 import { useSquadCategories } from '../../../hooks/squads/useSquadCategories';
 
 interface SquadDirectoryLayoutReturn {

@@ -1,15 +1,14 @@
 import classNames from 'classnames';
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useMutation } from '@tanstack/react-query';
 import { OnboardingTitleGradient } from '../../../onboarding/common';
 import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
 import { MiniCloseIcon } from '../../../icons';
 import { Radio } from '../../../fields/Radio';
-import {
-  AcquisitionChannel,
-  updateUserAcquisition,
-} from '../../../../graphql/users';
+import type { AcquisitionChannel } from '../../../../graphql/users';
+import { updateUserAcquisition } from '../../../../graphql/users';
 import LogContext from '../../../../contexts/LogContext';
 import { removeQueryParam } from '../../../../lib';
 import { LogEvent, UserAcquisitionEvent } from '../../../../lib/log';

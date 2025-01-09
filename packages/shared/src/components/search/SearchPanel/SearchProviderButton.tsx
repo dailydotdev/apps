@@ -1,6 +1,7 @@
-import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
+import type { HTMLAttributes, ReactElement, ReactNode } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { SearchProviderEnum } from '../../../graphql/search';
+import type { SearchProviderEnum } from '../../../graphql/search';
 import {
   Button,
   ButtonIconPosition,

@@ -1,5 +1,5 @@
-import { MouseEventHandler } from 'react';
-import { Post } from '../../../../../graphql/posts';
+import type { MouseEventHandler } from 'react';
+import type { Post } from '../../../../../graphql/posts';
 
 export interface FeedbackProps {
   post: Post;

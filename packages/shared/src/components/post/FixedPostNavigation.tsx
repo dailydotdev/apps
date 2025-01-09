@@ -1,7 +1,8 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import PostNavigation from './PostNavigation';
-import { PostNavigationProps } from './common';
+import type { PostNavigationProps } from './common';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 
 function FixedPostNavigation({

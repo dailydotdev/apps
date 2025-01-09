@@ -1,4 +1,5 @@
-import React, { type ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { ContextMenuIds } from '../hooks/constants';
 import type { MenuItemProps } from './fields/ContextMenu';
@@ -7,10 +8,8 @@ import { HashtagIcon, MenuIcon as DotsIcon, ShareIcon } from './icons';
 import { MenuIcon } from './MenuIcon';
 import useContextMenu from '../hooks/useContextMenu';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
-import {
-  useShareOrCopyLink,
-  type UseShareOrCopyLinkProps,
-} from '../hooks/useShareOrCopyLink';
+import type { UseShareOrCopyLinkProps } from '../hooks/useShareOrCopyLink';
+import { useShareOrCopyLink } from '../hooks/useShareOrCopyLink';
 import { useFeeds, usePlusSubscription } from '../hooks';
 import { LazyModal } from './modals/common/types';
 import { useLazyModal } from '../hooks/useLazyModal';
@@ -30,7 +29,7 @@ const CustomFeedOptionsMenu = ({
   onUndo,
   onCreateNewFeed,
 }: CustomFeedOptionsMenuProps): ReactElement => {
-  const { showPlusSubscription, isPlus } = usePlusSubscription();
+  const { showPlusSubscription } = usePlusSubscription();
   const { openModal } = useLazyModal();
   const [, onShareOrCopyLink] = useShareOrCopyLink(shareProps);
   const { isOpen, onMenuClick } = useContextMenu({
@@ -39,11 +38,6 @@ const CustomFeedOptionsMenu = ({
   const { feeds } = useFeeds();
 
   const handleOpenModal = () => {
-    if (!isPlus) {
-      return openModal({
-        type: LazyModal.AdvancedCustomFeedSoon,
-      });
-    }
     if (feeds?.edges?.length > 0) {
       return openModal({
         type: LazyModal.AddToCustomFeed,

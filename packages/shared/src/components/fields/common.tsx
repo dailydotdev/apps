@@ -1,5 +1,5 @@
-import { InputHTMLAttributes, TextareaHTMLAttributes } from 'react';
-import { InputFieldFunctionsProps } from '../../hooks/useInputFieldFunctions';
+import type { InputHTMLAttributes, TextareaHTMLAttributes } from 'react';
+import type { InputFieldFunctionsProps } from '../../hooks/useInputFieldFunctions';
 import classed from '../../lib/classed';
 import styles from './fields.module.css';
 

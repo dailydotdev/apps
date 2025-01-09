@@ -1,22 +1,15 @@
-import React, {
-  ReactElement,
-  MouseEvent,
-  useState,
-  useRef,
-  SetStateAction,
-  Dispatch,
-  useCallback,
-} from 'react';
-import { RadioItemProps } from '../../fields/Radio';
-import { Post, ReadHistoryPost } from '../../../graphql/posts';
+import type { ReactElement, MouseEvent, SetStateAction, Dispatch } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
+import type { RadioItemProps } from '../../fields/Radio';
+import type { Post, ReadHistoryPost } from '../../../graphql/posts';
 import { Checkbox } from '../../fields/Checkbox';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { PostBootData } from '../../../lib/boot';
-import { ModalProps } from '../common/Modal';
+import type { PostBootData } from '../../../lib/boot';
+import type { ModalProps } from '../common/Modal';
 import { FlexRow } from '../../utilities';
 import useReportPost from '../../../hooks/useReportPost';
 import { postLogEvent } from '../../../lib/feed';
-import { Origin } from '../../../lib/log';
+import type { Origin } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
 import { ReasonSelectionModal } from './ReasonSelectionModal';
 import { ReportReason } from '../../../report';

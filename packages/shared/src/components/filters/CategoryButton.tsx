@@ -1,7 +1,8 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { TagCategory } from '../../graphql/feedSettings';
-import { TagActionArguments } from '../../hooks/useTagAndSource';
+import type { TagCategory } from '../../graphql/feedSettings';
+import type { TagActionArguments } from '../../hooks/useTagAndSource';
 
 const ClearCategoryButton = ({
   matches,

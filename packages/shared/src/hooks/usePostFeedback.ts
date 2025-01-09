@@ -1,12 +1,13 @@
 import { useContext, useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Post, dismissPostFeedback, UserVote } from '../graphql/posts';
+import type { Post } from '../graphql/posts';
+import { dismissPostFeedback, UserVote } from '../graphql/posts';
 import { optimisticPostUpdateInFeed } from '../lib/feed';
 import { updatePostCache } from './usePostById';
 import { updateCachedPagePost } from '../lib/query';
 import { ActiveFeedContext } from '../contexts/ActiveFeedContext';
 import { SharedFeedPage } from '../components/utilities';
-import { EmptyResponse } from '../graphql/emptyResponse';
+import type { EmptyResponse } from '../graphql/emptyResponse';
 import LogContext from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
 

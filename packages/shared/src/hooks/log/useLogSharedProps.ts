@@ -1,12 +1,7 @@
-import {
-  MutableRefObject,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import type { MutableRefObject } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
-import { LogEvent } from './useLogQueue';
+import type { LogEvent } from './useLogQueue';
 import SettingsContext from '../../contexts/SettingsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { getCookies } from '../../lib/cookie';

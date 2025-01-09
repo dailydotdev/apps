@@ -1,4 +1,5 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useQueryClient } from '@tanstack/react-query';
 import AuthContext, { useAuthContext } from '../../contexts/AuthContext';
@@ -12,7 +13,7 @@ import {
   DownvoteIcon,
   AddUserIcon,
 } from '../icons';
-import { Comment } from '../../graphql/comments';
+import type { Comment } from '../../graphql/comments';
 import { Roles } from '../../lib/user';
 import {
   Button,
@@ -23,9 +24,11 @@ import {
 import { ClickableText } from '../buttons/ClickableText';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { Origin } from '../../lib/log';
-import { Post, UserVote } from '../../graphql/posts';
+import type { Post } from '../../graphql/posts';
+import { UserVote } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
-import ContextMenu, { MenuItemProps } from '../fields/ContextMenu';
+import type { MenuItemProps } from '../fields/ContextMenu';
+import ContextMenu from '../fields/ContextMenu';
 import useContextMenu from '../../hooks/useContextMenu';
 import OptionsButton from '../buttons/OptionsButton';
 import { SourcePermissions } from '../../graphql/sources';
@@ -33,11 +36,8 @@ import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { labels, largeNumberFormat } from '../../lib';
 import { useToastNotification } from '../../hooks/useToastNotification';
-import {
-  VoteEntityPayload,
-  useVoteComment,
-  voteMutationHandlers,
-} from '../../hooks';
+import type { VoteEntityPayload } from '../../hooks';
+import { useVoteComment, voteMutationHandlers } from '../../hooks';
 import { RequestKey } from '../../lib/query';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { getCompanionWrapper } from '../../lib/extension';

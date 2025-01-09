@@ -1,7 +1,8 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { Modal } from '../../modals/common/Modal';
-import { ModalBodyProps } from '../../modals/common/ModalBody';
+import type { ModalBodyProps } from '../../modals/common/ModalBody';
 import { Typography, TypographyType } from '../../typography/Typography';
 
 export type FeedSettingsEditBodyProps = ModalBodyProps;

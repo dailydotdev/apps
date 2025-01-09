@@ -1,11 +1,6 @@
-import React, {
-  ReactElement,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
-import { NextSeoProps } from 'next-seo';
+import type { ReactElement } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import type { NextSeoProps } from 'next-seo';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import { useRouter } from 'next/router';
 import {

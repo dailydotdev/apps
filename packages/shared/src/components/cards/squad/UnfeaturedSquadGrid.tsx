@@ -1,4 +1,5 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { Card, CardLink } from '../common/Card';
@@ -10,7 +11,7 @@ import {
 } from '../../typography/Typography';
 import { largeNumberFormat } from '../../../lib';
 import { Separator } from '../common/common';
-import { UnFeaturedSquadCardProps } from './common/types';
+import type { UnFeaturedSquadCardProps } from './common/types';
 import { Origin } from '../../../lib/log';
 import { SquadActionButton } from '../../squads/SquadActionButton';
 import { ButtonVariant } from '../../buttons/common';

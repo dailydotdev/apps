@@ -1,12 +1,8 @@
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
-import { Checkbox, CheckboxProps } from './Checkbox';
+import type { CheckboxProps } from './Checkbox';
+import { Checkbox } from './Checkbox';
 
 const renderComponent = (props: Partial<CheckboxProps> = {}): RenderResult => {
   return render(<Checkbox name="field" {...props} />);

@@ -1,22 +1,17 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  useCallback,
-  useContext,
-  useState,
-} from 'react';
-import { QueryObserverResult } from '@tanstack/react-query';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
+import type { QueryObserverResult } from '@tanstack/react-query';
+import type { AnonymousUser, LoggedUser } from '../lib/user';
 import {
-  AnonymousUser,
   deleteAccount,
-  LoggedUser,
   logout as dispatchLogout,
   LogoutReason,
 } from '../lib/user';
-import { AccessToken, Boot, Visit } from '../lib/boot';
+import type { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
-import { AuthTriggers, AuthTriggersType } from '../lib/auth';
-import { Squad } from '../graphql/sources';
+import type { AuthTriggersType } from '../lib/auth';
+import { AuthTriggers } from '../lib/auth';
+import type { Squad } from '../graphql/sources';
 import { checkIsExtension, isNullOrUndefined } from '../lib/func';
 
 export interface LoginState {
@@ -64,6 +59,7 @@ export interface AuthContextData {
   squads?: Squad[];
   isAuthReady?: boolean;
   geo?: Boot['geo'];
+  isAndroidApp?: boolean;
 }
 const isExtension = checkIsExtension();
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -117,6 +113,7 @@ export type AuthContextProviderProps = {
   | 'squads'
   | 'refetchBoot'
   | 'geo'
+  | 'isAndroidApp'
 >;
 
 export const AuthContextProvider = ({
@@ -135,6 +132,7 @@ export const AuthContextProvider = ({
   squads,
   firstLoad,
   geo,
+  isAndroidApp,
 }: AuthContextProviderProps): ReactElement => {
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
@@ -185,6 +183,7 @@ export const AuthContextProvider = ({
         accessToken,
         squads,
         geo,
+        isAndroidApp,
       }}
     >
       {children}

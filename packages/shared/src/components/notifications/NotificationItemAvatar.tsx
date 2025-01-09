@@ -1,8 +1,7 @@
-import React, { ReactElement } from 'react';
-import {
-  NotificationAvatar,
-  NotificationAvatarType,
-} from '../../graphql/notifications';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { NotificationAvatar } from '../../graphql/notifications';
+import { NotificationAvatarType } from '../../graphql/notifications';
 import SourceButton from '../cards/common/SourceButton';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { ProfileImageLink } from '../profile/ProfileImageLink';

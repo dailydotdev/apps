@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request';
-import { SubmissionAvailability } from './submitArticle';
+import type { SubmissionAvailability } from './submitArticle';
 
 export type SourceRequestAvailability = Pick<
   SubmissionAvailability,

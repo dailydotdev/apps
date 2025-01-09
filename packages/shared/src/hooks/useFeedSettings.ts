@@ -1,14 +1,14 @@
 import { useCallback, useContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import {
+import type {
   AdvancedSettings,
   FeedSettings,
-  FEED_SETTINGS_QUERY,
   TagCategory,
   AllTagCategoriesData,
 } from '../graphql/feedSettings';
+import { FEED_SETTINGS_QUERY } from '../graphql/feedSettings';
 import AuthContext from '../contexts/AuthContext';
-import { LoggedUser } from '../lib/user';
+import type { LoggedUser } from '../lib/user';
 import { disabledRefetch } from '../lib/func';
 import { RequestKey, StaleTime } from '../lib/query';
 import { gqlClient } from '../graphql/common';

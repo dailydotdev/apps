@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
-import InfiniteScrolling, {
-  InfiniteScrollingProps,
-} from '../containers/InfiniteScrolling';
-import { Source, SourceType } from '../../graphql/sources';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { InfiniteScrollingProps } from '../containers/InfiniteScrolling';
+import InfiniteScrolling from '../containers/InfiniteScrolling';
+import type { Source } from '../../graphql/sources';
+import { SourceType } from '../../graphql/sources';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import {
   Typography,

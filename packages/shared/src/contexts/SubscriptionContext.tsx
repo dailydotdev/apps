@@ -1,11 +1,5 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import type { Client } from 'graphql-ws';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import ProgressiveEnhancementContext from './ProgressiveEnhancementContext';

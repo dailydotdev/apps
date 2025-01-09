@@ -1,9 +1,10 @@
-import React, { PropsWithChildren, ReactElement, useCallback } from 'react';
+import type { PropsWithChildren, ReactElement } from 'react';
+import React, { useCallback } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
-import { WithClassNameProps } from '../utilities';
+import type { WithClassNameProps } from '../utilities';
 import { isDevelopment } from '../../lib/constants';
 import Logo, { LogoPosition } from '../Logo';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';

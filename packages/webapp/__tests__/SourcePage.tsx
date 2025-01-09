@@ -1,29 +1,31 @@
-import { FeedData, PostType } from '@dailydotdev/shared/src/graphql/posts';
+import type { FeedData } from '@dailydotdev/shared/src/graphql/posts';
+import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import { NextRouter } from 'next/router';
-import { Source, SourceType } from '@dailydotdev/shared/src/graphql/sources';
-import SettingsContext, {
-  SettingsContextData,
-} from '@dailydotdev/shared/src/contexts/SettingsContext';
-import {
-  ADD_FILTERS_TO_FEED_MUTATION,
+import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import type { NextRouter } from 'next/router';
+import type { Source } from '@dailydotdev/shared/src/graphql/sources';
+import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
+import type { SettingsContextData } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
+import type {
   AllTagCategoriesData,
   FeedSettings,
+} from '@dailydotdev/shared/src/graphql/feedSettings';
+import {
+  ADD_FILTERS_TO_FEED_MUTATION,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { getFeedSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';
 import SourcePage from '../pages/sources/[source]';

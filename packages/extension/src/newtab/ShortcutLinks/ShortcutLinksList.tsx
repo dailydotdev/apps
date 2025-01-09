@@ -1,4 +1,5 @@
-import React, { MouseEventHandler, ReactElement } from 'react';
+import type { MouseEventHandler, ReactElement } from 'react';
+import React from 'react';
 import { ClearIcon, MenuIcon } from '@dailydotdev/shared/src/components/icons';
 import {
   Button,

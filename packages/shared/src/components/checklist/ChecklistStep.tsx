@@ -1,12 +1,13 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { IconSize } from '../Icon';
 import { ArrowIcon, ChecklistAIcon } from '../icons';
-import {
-  ChecklistCardVariant,
+import type {
   ChecklistStepProps,
   ChecklistVariantClassNameMap,
 } from '../../lib/checklist';
+import { ChecklistCardVariant } from '../../lib/checklist';
 
 const iconToClassNameMap: ChecklistVariantClassNameMap = {
   [ChecklistCardVariant.Default]: 'size-10',

@@ -1,5 +1,6 @@
 import dynamic from 'next/dynamic';
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { ChecklistCardVariant, ChecklistViewState } from '../../lib/checklist';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';

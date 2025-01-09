@@ -1,7 +1,8 @@
-import React, { ComponentType, ReactElement, ReactNode } from 'react';
-import { JSONValue, WidenPrimitives } from '@growthbook/growthbook';
+import type { ComponentType, ReactElement, ReactNode } from 'react';
+import React from 'react';
+import type { JSONValue, WidenPrimitives } from '@growthbook/growthbook';
 import { useFeature } from './GrowthBookProvider';
-import { Feature } from '../lib/featureManagement';
+import type { Feature } from '../lib/featureManagement';
 
 export type WrappedComponentType<
   Props,

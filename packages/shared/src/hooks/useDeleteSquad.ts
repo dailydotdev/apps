@@ -1,7 +1,8 @@
 import { useContext, useMemo } from 'react';
 import { deleteSquad } from '../graphql/squads';
-import { Squad } from '../graphql/sources';
-import { PromptOptions, usePrompt } from './usePrompt';
+import type { Squad } from '../graphql/sources';
+import type { PromptOptions } from './usePrompt';
+import { usePrompt } from './usePrompt';
 import { useBoot } from './useBoot';
 import LogContext from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';

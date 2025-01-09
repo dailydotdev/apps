@@ -1,10 +1,5 @@
-import React, {
-  isValidElement,
-  ReactElement,
-  ReactNode,
-  useContext,
-  useMemo,
-} from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { isValidElement, useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import { Flipper } from 'react-flip-toolkit';
 import {
@@ -14,9 +9,8 @@ import {
   SourceIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import useActiveNav, {
-  UseActiveNav,
-} from '@dailydotdev/shared/src/hooks/useActiveNav';
+import type { UseActiveNav } from '@dailydotdev/shared/src/hooks/useActiveNav';
+import useActiveNav from '@dailydotdev/shared/src/hooks/useActiveNav';
 import { squadCategoriesPaths } from '@dailydotdev/shared/src/lib/constants';
 import { useRouter } from 'next/router';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -24,7 +18,8 @@ import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
-import { blurClasses, FooterTab } from './common';
+import type { FooterTab } from './common';
+import { blurClasses } from './common';
 import { FooterPlusButton } from './FooterPlusButton';
 import { FooterNavBarTabs } from './FooterNavBarTabs';
 

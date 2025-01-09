@@ -1,8 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
-import {
+import type {
   CreatePostModerationProps,
-  createSourcePostModeration,
   UpdatePostModerationProps,
+} from '../../graphql/posts';
+import {
+  createSourcePostModeration,
   updateSourcePostModeration,
 } from '../../graphql/posts';
 import { usePrompt } from '../usePrompt';
@@ -10,8 +12,8 @@ import {
   createModerationPromptProps,
   editModerationPromptProps,
 } from '../../components/squads/utils';
-import { ApiErrorResult } from '../../graphql/common';
-import { SourcePostModeration } from '../../graphql/squads';
+import type { ApiErrorResult } from '../../graphql/common';
+import type { SourcePostModeration } from '../../graphql/squads';
 
 interface UseSourcePostModeration {
   isPending: boolean;

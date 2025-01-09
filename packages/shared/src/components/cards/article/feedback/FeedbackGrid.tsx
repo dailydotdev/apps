@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { usePostFeedback } from '../../../../hooks';
 import CloseButton from '../../../CloseButton';
 import { ButtonSize } from '../../../buttons/common';
-import { FeedbackProps } from './common/common';
+import type { FeedbackProps } from './common/common';
 import { FeedbackButtons } from './common/FeedbackButtons';
 
 export const FeedbackGrid = ({

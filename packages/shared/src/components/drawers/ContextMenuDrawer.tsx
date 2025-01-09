@@ -1,7 +1,9 @@
-import React, { ComponentType, ReactElement, ReactNode } from 'react';
+import type { ComponentType, ReactElement, ReactNode } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { Drawer, DrawerRef, DrawerWrapperProps } from './Drawer';
-import { SelectParams } from './common';
+import type { DrawerRef, DrawerWrapperProps } from './Drawer';
+import { Drawer } from './Drawer';
+import type { SelectParams } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
 
 export interface ContextMenuDrawerItem {

@@ -1,4 +1,5 @@
-import React, { ReactElement, useId } from 'react';
+import type { ReactElement } from 'react';
+import React, { useId } from 'react';
 import { useRouter } from 'next/router';
 import OptionsButton from '../../buttons/OptionsButton';
 import ContextMenu from '../../fields/ContextMenu';
@@ -6,7 +7,7 @@ import { EditIcon, TrashIcon } from '../../icons';
 import useContextMenu from '../../../hooks/useContextMenu';
 import { usePrompt } from '../../../hooks/usePrompt';
 import { ButtonSize } from '../../buttons/common';
-import { SourcePostModeration } from '../../../graphql/squads';
+import type { SourcePostModeration } from '../../../graphql/squads';
 
 interface SquadModerationItemContextMenuProps
   extends Pick<SourcePostModeration, 'id'> {

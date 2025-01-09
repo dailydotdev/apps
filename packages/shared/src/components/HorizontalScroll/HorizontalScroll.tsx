@@ -1,15 +1,8 @@
-import React, {
-  forwardRef,
-  MutableRefObject,
-  ReactElement,
-  ReactNode,
-  useId,
-} from 'react';
+import type { MutableRefObject, ReactElement, ReactNode } from 'react';
+import React, { forwardRef, useId } from 'react';
 import classNames from 'classnames';
-import {
-  UseHorizontalScrollHeaderProps,
-  useHorizontalScrollHeader,
-} from './useHorizontalScrollHeader';
+import type { UseHorizontalScrollHeaderProps } from './useHorizontalScrollHeader';
+import { useHorizontalScrollHeader } from './useHorizontalScrollHeader';
 
 interface ClassName {
   container?: string;

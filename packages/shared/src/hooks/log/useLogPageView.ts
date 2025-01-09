@@ -1,4 +1,5 @@
-import { MutableRefObject, useContext, useEffect, useRef } from 'react';
+import type { MutableRefObject } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import LogContext from '../../contexts/LogContext';
 

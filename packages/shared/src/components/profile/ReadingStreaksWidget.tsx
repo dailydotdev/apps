@@ -1,7 +1,8 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { ActivityContainer, ActivitySectionHeader } from './ActivitySection';
 import { ReadingStreakIcon } from '../icons';
-import { UserStreak } from '../../graphql/users';
+import type { UserStreak } from '../../graphql/users';
 import { largeNumberFormat } from '../../lib';
 
 interface StreakTagProps {

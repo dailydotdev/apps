@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import nock from 'nock';
-import { GraphQLError } from 'graphql-request/dist/types';
-import {
-  ActionType,
-  COMPLETE_ACTION_MUTATION,
-} from '../../src/graphql/actions';
+import type { GraphQLError } from 'graphql-request/dist/types';
+import type { ActionType } from '../../src/graphql/actions';
+import { COMPLETE_ACTION_MUTATION } from '../../src/graphql/actions';
 
 export interface GraphQLRequest {
   query: string;

@@ -1,22 +1,21 @@
-import React, {
-  forwardRef,
+import type {
   MutableRefObject,
   ReactElement,
   ReactNode,
   SyntheticEvent,
-  useId,
 } from 'react';
+import React, { forwardRef, useId } from 'react';
 import classNames from 'classnames';
 import { FieldInput } from './common';
 import styles from './TextField.module.css';
-import { IconProps } from '../Icon';
+import type { IconProps } from '../Icon';
+import type { BaseFieldProps } from './BaseFieldContainer';
 import BaseFieldContainer, {
-  BaseFieldProps,
   getFieldFontColor,
   getFieldLabelColor,
   getFieldPlaceholder,
 } from './BaseFieldContainer';
-import { ButtonProps } from '../buttons/Button';
+import type { ButtonProps } from '../buttons/Button';
 import useInputFieldFunctions from '../../hooks/useInputFieldFunctions';
 
 export interface TextFieldProps extends BaseFieldProps {

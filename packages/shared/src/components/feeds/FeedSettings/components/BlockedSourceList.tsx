@@ -1,4 +1,5 @@
-import React, { type ReactElement, useContext, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { FeedSettingsEditContext } from '../FeedSettingsEditContext';
 import { ContentPreferenceType } from '../../../../graphql/contentPreference';
 import { checkFetchMore } from '../../../containers/InfiniteScrolling';

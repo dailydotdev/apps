@@ -1,14 +1,16 @@
 import { useCallback, useContext, useState } from 'react';
-import { UseMutateFunction, useMutation } from '@tanstack/react-query';
+import type { UseMutateFunction } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import AuthContext from '../contexts/AuthContext';
 import {
   handleRegex,
   socialHandleRegex,
   UPDATE_USER_PROFILE_MUTATION,
 } from '../graphql/users';
-import { LoggedUser, UserProfile } from '../lib/user';
+import type { LoggedUser, UserProfile } from '../lib/user';
 import { useToastNotification } from './useToastNotification';
-import { errorMessage, gqlClient, ResponseError } from '../graphql/common';
+import type { ResponseError } from '../graphql/common';
+import { errorMessage, gqlClient } from '../graphql/common';
 
 export interface ProfileFormHint {
   portfolio?: string;

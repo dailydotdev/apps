@@ -1,4 +1,5 @@
-import React, { PropsWithChildren, ReactElement } from 'react';
+import type { PropsWithChildren, ReactElement } from 'react';
+import React from 'react';
 import { ManageSquadPageMain, ManageSquadPageContainer } from './utils';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 

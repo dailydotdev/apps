@@ -1,5 +1,7 @@
-import React, { ReactElement } from 'react';
-import { Loader, LoaderProps } from './Loader';
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { LoaderProps } from './Loader';
+import { Loader } from './Loader';
 
 export function LoaderOverlay({ ...props }: LoaderProps): ReactElement {
   return (

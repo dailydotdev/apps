@@ -1,13 +1,10 @@
 import classNames from 'classnames';
-import React, { ComponentProps, ReactElement } from 'react';
+import type { ComponentProps, ReactElement } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import ConditionalWrapper from '../../ConditionalWrapper';
-import {
-  Button,
-  ButtonProps,
-  ButtonSize,
-  ButtonVariant,
-} from '../../buttons/Button';
+import type { ButtonProps, ButtonSize } from '../../buttons/Button';
+import { Button, ButtonVariant } from '../../buttons/Button';
 
 interface SquadNavbarItemProps {
   buttonSize: ButtonSize;

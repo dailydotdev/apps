@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { DevCardTheme } from '../../components/profile/devcard/common';
+import type { DevCardTheme } from '../../components/profile/devcard/common';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { DEV_CARD_QUERY } from '../../graphql/users';
 import { useRequestProtocol } from '../useRequestProtocol';
-import { PublicProfile } from '../../lib/user';
-import { Source } from '../../graphql/sources';
+import type { PublicProfile } from '../../lib/user';
+import type { Source } from '../../graphql/sources';
 import { cloudinaryDevcardDefaultCoverImage } from '../../lib/image';
 
 export interface DevCardData {

@@ -1,8 +1,9 @@
-import React, { ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { FlexCentered } from '../utilities';
 import { MagicIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { Post } from '../../graphql/posts';
+import type { Post } from '../../graphql/posts';
 import { ButtonSize } from '../buttons/Button';
 import { TagLinks } from '../TagLinks';
 

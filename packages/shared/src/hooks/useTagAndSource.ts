@@ -3,14 +3,15 @@ import { useQueryClient } from '@tanstack/react-query';
 import AuthContext from '../contexts/AuthContext';
 import LogContext from '../contexts/LogContext';
 import useMutateFilters from './useMutateFilters';
-import { Source } from '../graphql/sources';
+import type { Source } from '../graphql/sources';
 import AlertContext from '../contexts/AlertContext';
-import { BooleanPromise } from '../components/filters/common';
+import type { BooleanPromise } from '../components/filters/common';
 import { generateQueryKey } from '../lib/query';
 import useDebounceFn from './useDebounceFn';
 import { SharedFeedPage } from '../components/utilities';
-import { LogEvent, Origin } from '../lib/log';
-import { AuthTriggersType } from '../lib/auth';
+import type { Origin } from '../lib/log';
+import { LogEvent } from '../lib/log';
+import type { AuthTriggersType } from '../lib/auth';
 
 export interface TagActionArguments {
   tags: Array<string>;

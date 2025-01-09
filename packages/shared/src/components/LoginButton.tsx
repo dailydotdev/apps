@@ -1,9 +1,10 @@
-import React, { ReactElement, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonVariant } from './buttons/Button';
 import AuthContext from '../contexts/AuthContext';
 import LogContext from '../contexts/LogContext';
-import { LogEvent } from '../hooks/log/useLogQueue';
+import type { LogEvent } from '../hooks/log/useLogQueue';
 import { AuthTriggers } from '../lib/auth';
 import { TargetType } from '../lib/log';
 

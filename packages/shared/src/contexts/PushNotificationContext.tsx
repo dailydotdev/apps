@@ -1,6 +1,6 @@
+import type { ReactElement } from 'react';
 import React, {
   createContext,
-  ReactElement,
   useCallback,
   useContext,
   useEffect,
@@ -9,13 +9,14 @@ import React, {
 } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type OneSignal from 'react-onesignal';
-import { LogEvent, NotificationPromptSource } from '../lib/log';
+import type { NotificationPromptSource } from '../lib/log';
+import { LogEvent } from '../lib/log';
 import { checkIsExtension, disabledRefetch } from '../lib/func';
 import { useAuthContext } from './AuthContext';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { isTesting } from '../lib/constants';
 import { useLogContext } from './LogContext';
-import { SubscriptionCallback } from '../components/notifications/utils';
+import type { SubscriptionCallback } from '../components/notifications/utils';
 
 export interface PushNotificationsContextData {
   OneSignal: typeof OneSignal;

@@ -1,11 +1,5 @@
-import React, {
-  FormEvent,
-  ReactElement,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import type { FormEvent, ReactElement } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';

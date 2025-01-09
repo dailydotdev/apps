@@ -1,7 +1,9 @@
-import React, { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import NotificationItem, { NotificationItemProps } from './NotificationItem';
+import type { NotificationItemProps } from './NotificationItem';
+import NotificationItem from './NotificationItem';
 import {
   NotificationAttachmentType,
   NotificationAvatarType,

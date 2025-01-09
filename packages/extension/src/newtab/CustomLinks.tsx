@@ -6,8 +6,9 @@ import {
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { MenuIcon } from '@dailydotdev/shared/src/components/icons';
 import classNames from 'classnames';
-import React, { MouseEventHandler, ReactElement } from 'react';
-import { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
+import type { MouseEventHandler, ReactElement } from 'react';
+import React from 'react';
+import type { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
 import { combinedClicks } from '@dailydotdev/shared/src/lib/click';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
