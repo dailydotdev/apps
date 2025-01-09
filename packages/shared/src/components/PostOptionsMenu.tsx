@@ -493,7 +493,7 @@ export default function PostOptionsMenu({
 
   const isBlockedAuthor =
     post?.author?.contentPreference?.status === ContentPreferenceStatus.Blocked;
-  if (post?.author && post?.author?.id !== user.id) {
+  if (post?.author && post?.author?.id !== user?.id) {
     postOptions.push({
       icon: <MenuIcon Icon={BlockIcon} />,
       label: isBlockedAuthor
