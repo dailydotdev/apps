@@ -197,6 +197,9 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       image
       username
       permalink
+      contentPreference {
+        status
+      }
     }
     type
     tags
