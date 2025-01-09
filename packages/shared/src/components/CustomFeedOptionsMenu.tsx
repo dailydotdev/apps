@@ -20,6 +20,7 @@ type CustomFeedOptionsMenuProps = {
   onUndo?: (feedId: string) => void;
   className?: string;
   shareProps: UseShareOrCopyLinkProps;
+  additionalOptions?: MenuItemProps[];
 };
 
 const CustomFeedOptionsMenu = ({
@@ -28,6 +29,7 @@ const CustomFeedOptionsMenu = ({
   onAdd,
   onUndo,
   onCreateNewFeed,
+  additionalOptions = [],
 }: CustomFeedOptionsMenuProps): ReactElement => {
   const { showPlusSubscription } = usePlusSubscription();
   const { openModal } = useLazyModal();
@@ -62,6 +64,7 @@ const CustomFeedOptionsMenu = ({
       label: 'Add to custom feed',
       action: handleOpenModal,
     },
+    ...additionalOptions,
   ];
 
   if (!showPlusSubscription) {
