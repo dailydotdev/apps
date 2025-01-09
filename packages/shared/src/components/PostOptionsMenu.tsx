@@ -46,7 +46,7 @@ import {
   useToastNotification,
 } from '../hooks';
 import type { AllFeedPages } from '../lib/query';
-import { generateQueryKey } from '../lib/query';
+import { RequestKey, generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { LogEvent, Origin } from '../lib/log';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
@@ -63,10 +63,15 @@ import { useBookmarkReminder } from '../hooks/notifications';
 import { BookmarkReminderIcon } from './icons/Bookmark/Reminder';
 import { useSourceActionsFollow } from '../hooks/source/useSourceActionsFollow';
 import { useContentPreference } from '../hooks/contentPreference/useContentPreference';
-import { ContentPreferenceType } from '../graphql/contentPreference';
+import type { ContentPreference } from '../graphql/contentPreference';
+import {
+  ContentPreferenceStatus,
+  ContentPreferenceType,
+} from '../graphql/contentPreference';
 import { isFollowingContent } from '../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../hooks/auth/useIsSpecialUser';
 import { useActiveFeedContext } from '../contexts';
+import { useContentPreferenceStatusQuery } from '../hooks/contentPreference/useContentPreferenceStatusQuery';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -136,7 +141,7 @@ export default function PostOptionsMenu({
   const { hidePost, unhidePost } = useReportPost();
   const { openSharePost } = useSharePost(origin);
   const { follow, unfollow, unblock } = useContentPreference();
-  const { openModal, closeModal } = useLazyModal();
+  const { openModal } = useLazyModal();
 
   const {
     onBlockSource,
@@ -488,22 +493,38 @@ export default function PostOptionsMenu({
     action: isSourceBlocked ? onUnblockSourceClick : onBlockSourceClick,
   });
 
-  // todo: implement when API is updated
-  const isBlockedAuthor = false;
+  const { data: contentPreference } = useContentPreferenceStatusQuery({
+    id: user?.id,
+    entity: ContentPreferenceType.User,
+  });
+  const isBlockedAuthor =
+    contentPreference?.status === ContentPreferenceStatus.Blocked;
   if (post?.author && post?.author?.id !== user.id) {
     postOptions.push({
       icon: <MenuIcon Icon={BlockIcon} />,
       label: isBlockedAuthor
         ? `Unblock ${post.author.name}`
         : `Block ${post.author.name}`,
-      action: () => {
+      action: async () => {
         if (isBlockedAuthor) {
-          unblock({
+          const commonParams = {
             id: post.author.id,
             entity: ContentPreferenceType.User,
+          };
+          await unblock({
+            ...commonParams,
             entityName: post.author.name,
             feedId: router.query.slugOrId ? `${router.query.slugOrId}` : null,
           });
+          const queryKey = generateQueryKey(
+            RequestKey.ContentPreference,
+            user,
+            { ...commonParams },
+          );
+          client.setQueryData(queryKey, (data: ContentPreference) => ({
+            ...data,
+            status: ContentPreferenceStatus.Follow,
+          }));
           return;
         }
 
@@ -512,7 +533,6 @@ export default function PostOptionsMenu({
           props: {
             offendingUser: post.author,
             defaultBlockUser: true,
-            onClose: () => closeModal(),
           },
         });
       },
