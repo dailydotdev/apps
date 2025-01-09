@@ -46,7 +46,7 @@ import {
   useToastNotification,
 } from '../hooks';
 import type { AllFeedPages } from '../lib/query';
-import { RequestKey, generateQueryKey } from '../lib/query';
+import { generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { LogEvent, Origin } from '../lib/log';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
@@ -63,7 +63,6 @@ import { useBookmarkReminder } from '../hooks/notifications';
 import { BookmarkReminderIcon } from './icons/Bookmark/Reminder';
 import { useSourceActionsFollow } from '../hooks/source/useSourceActionsFollow';
 import { useContentPreference } from '../hooks/contentPreference/useContentPreference';
-import type { ContentPreference } from '../graphql/contentPreference';
 import {
   ContentPreferenceStatus,
   ContentPreferenceType,
@@ -71,7 +70,6 @@ import {
 import { isFollowingContent } from '../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../hooks/auth/useIsSpecialUser';
 import { useActiveFeedContext } from '../contexts';
-import { useContentPreferenceStatusQuery } from '../hooks/contentPreference/useContentPreferenceStatusQuery';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -493,12 +491,8 @@ export default function PostOptionsMenu({
     action: isSourceBlocked ? onUnblockSourceClick : onBlockSourceClick,
   });
 
-  const { data: contentPreference } = useContentPreferenceStatusQuery({
-    id: user?.id,
-    entity: ContentPreferenceType.User,
-  });
   const isBlockedAuthor =
-    contentPreference?.status === ContentPreferenceStatus.Blocked;
+    post?.author?.contentPreference?.status === ContentPreferenceStatus.Blocked;
   if (post?.author && post?.author?.id !== user.id) {
     postOptions.push({
       icon: <MenuIcon Icon={BlockIcon} />,
@@ -506,35 +500,32 @@ export default function PostOptionsMenu({
         ? `Unblock ${post.author.name}`
         : `Block ${post.author.name}`,
       action: async () => {
-        if (isBlockedAuthor) {
-          const commonParams = {
-            id: post.author.id,
-            entity: ContentPreferenceType.User,
-          };
-          await unblock({
-            ...commonParams,
-            entityName: post.author.name,
-            feedId: router.query.slugOrId ? `${router.query.slugOrId}` : null,
+        if (!isBlockedAuthor) {
+          openModal({
+            type: LazyModal.ReportUser,
+            props: {
+              offendingUser: post.author,
+              defaultBlockUser: true,
+            },
           });
-          const queryKey = generateQueryKey(
-            RequestKey.ContentPreference,
-            user,
-            { ...commonParams },
-          );
-          client.setQueryData(queryKey, (data: ContentPreference) => ({
-            ...data,
-            status: ContentPreferenceStatus.Follow,
-          }));
           return;
         }
 
-        openModal({
-          type: LazyModal.ReportUser,
-          props: {
-            offendingUser: post.author,
-            defaultBlockUser: true,
-          },
+        await unblock({
+          id: post.author.id,
+          entity: ContentPreferenceType.User,
+          entityName: post.author.name,
+          feedId: router.query.slugOrId ? `${router.query.slugOrId}` : null,
         });
+
+        const postKey = getPostByIdKey(post.id);
+        const cached = client.getQueryData(postKey);
+        if (cached) {
+          client.setQueryData<Post>(postKey, (data) => ({
+            ...data,
+            author: { ...data.author, contentPreference: null },
+          }));
+        }
       },
     });
   }
