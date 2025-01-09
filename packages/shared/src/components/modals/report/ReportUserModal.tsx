@@ -13,31 +13,31 @@ import {
 } from '../../../graphql/contentPreference';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useToastNotification } from '../../../hooks';
+import { useLazyModal } from '../../../hooks/useLazyModal';
 
 const reportReasons: { value: string; label: string }[] = [
-  { value: 'inappropriate', label: 'Inappropriate or NSFW Content' },
-  { value: 'trolling', label: 'Trolling or Disruptive Behavior' },
-  { value: 'harassment', label: 'Harassment or Bullying' },
-  { value: 'impersonation', label: 'Impersonation or False Identity' },
-  { value: 'spam', label: 'Spam or Unsolicited Advertising' },
-  { value: 'misinformation', label: 'Misinformation or False Claims' },
-  { value: 'hateSpeech', label: 'Hate Speech or Discrimination' },
-  { value: 'privacy', label: 'Privacy or Copyright Violation' },
-  { value: 'plagiarism', label: 'Plagiarism or Content Theft' },
-  { value: 'other', label: 'Other' },
+  { value: 'INAPPROPRIATE', label: 'Inappropriate or NSFW Content' },
+  { value: 'TROLLING', label: 'Trolling or Disruptive Behavior' },
+  { value: 'HARASSMENT', label: 'Harassment or Bullying' },
+  { value: 'IMPERSONATION', label: 'Impersonation or False Identity' },
+  { value: 'SPAM', label: 'Spam or Unsolicited Advertising' },
+  { value: 'MISINFORMATION', label: 'Misinformation or False Claims' },
+  { value: 'HATE_SPEECH', label: 'Hate Speech or Discrimination' },
+  { value: 'PRIVACY', label: 'Privacy or Copyright Violation' },
+  { value: 'PLAGIARISM', label: 'Plagiarism or Content Theft' },
+  { value: 'OTHER', label: 'Other' },
 ];
 
 type ReportUserModalProps = {
   offendingUser: Pick<UserShortProfile, 'id' | 'username'>;
   defaultBlockUser?: boolean;
-  onClose: () => void;
 };
 
 export const ReportUserModal = ({
   offendingUser,
   defaultBlockUser,
-  onClose,
 }: ReportUserModalProps): ReactElement => {
+  const { closeModal: onClose } = useLazyModal();
   const { displayToast } = useToastNotification();
   const { user } = useAuthContext();
   const [blockUser, setBlockUser] = useState(defaultBlockUser);
@@ -47,7 +47,7 @@ export const ReportUserModal = ({
         gqlClient.request(CONTENT_PREFERENCE_BLOCK_MUTATION, {
           id: offendingUser.id,
           entity: ContentPreferenceType.User,
-          feedId: user.id,
+          feedId: user?.id,
         }),
       onSuccess: () => {
         displayToast(`🚫 ${offendingUser.username} has been blocked`);
@@ -84,7 +84,7 @@ export const ReportUserModal = ({
   ) => {
     e.preventDefault();
     reportUserMutation({ reason, text });
-    if (defaultBlockUser) {
+    if (blockUser) {
       blockUserMutation();
     }
   };
