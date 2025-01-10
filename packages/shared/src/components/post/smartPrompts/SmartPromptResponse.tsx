@@ -8,6 +8,14 @@ import { isNullOrUndefined } from '../../../lib/func';
 import { labels } from '../../../lib';
 import { usePromptsQuery } from '../../../hooks/prompt/usePromptsQuery';
 import { useSmartPrompt } from '../../../hooks/prompt/useSmartPrompt';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../../buttons/Button';
+import { CopyIcon } from '../../icons';
+import { useCopyText } from '../../../hooks/useCopy';
 
 type SmartPromptResponseProps = {
   post: Post;
@@ -18,6 +26,7 @@ export const SmartPromptResponse = ({
   post,
   activePrompt,
 }: SmartPromptResponseProps): ReactElement => {
+  const [copying, copy] = useCopyText();
   const { data: prompts } = usePromptsQuery();
   const prompt = useMemo(
     () => prompts?.find((p) => p.id === activePrompt),
@@ -60,6 +69,15 @@ export const SmartPromptResponse = ({
         isLoading={isPending}
         content={data?.chunks?.[0]?.response || ''}
       />
+      <div className="mt-3 flex gap-2">
+        <Button
+          icon={<CopyIcon />}
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+          color={copying ? ButtonColor.Avocado : undefined}
+          onClick={() => copy({ textToCopy: data?.chunks?.[0]?.response })}
+        />
+      </div>
     </div>
   );
 };

@@ -1,6 +1,11 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import type { ReactElement } from 'react';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../../buttons/Button';
 import type { Post } from '../../../graphql/posts';
 import { useSmartPrompt } from '../../../hooks/prompt/useSmartPrompt';
 import { usePromptsQuery } from '../../../hooks/prompt/usePromptsQuery';
@@ -10,6 +15,8 @@ import { isNullOrUndefined } from '../../../lib/func';
 import Alert, { AlertType } from '../../widgets/Alert';
 import { labels } from '../../../lib';
 import { RenderMarkdown } from '../../RenderMarkdown';
+import { CopyIcon, EditIcon } from '../../icons';
+import { useCopyText } from '../../../hooks/useCopy';
 
 type CustomPromptProps = {
   post: Post;
@@ -17,21 +24,31 @@ type CustomPromptProps = {
 
 export const CustomPrompt = ({ post }: CustomPromptProps): ReactElement => {
   const { data: prompts } = usePromptsQuery();
+  const [isEdit, setIsEdit] = useState(false);
+  const [copying, copy] = useCopyText();
   const prompt = useMemo(
     () => prompts?.find((p) => p.id === PromptDisplay.CustomPrompt),
     [prompts],
   );
-  const { executePrompt, data, isPending } = useSmartPrompt({ post, prompt });
+  const data = {
+    chunks: [
+      {
+        progress: 1,
+        response: 'somethign somethjing',
+      },
+    ],
+  };
+  const { executePrompt, isPending } = useSmartPrompt({ post, prompt });
   const onSubmitCustomPrompt = useCallback(
     (e) => {
       e.preventDefault();
-
+      setIsEdit(false);
       executePrompt(e.target[0].value);
     },
     [executePrompt],
   );
 
-  if (!data) {
+  if (!data || isEdit) {
     return (
       <form
         className="rounded-14 bg-surface-float"
@@ -80,6 +97,21 @@ export const CustomPrompt = ({ post }: CustomPromptProps): ReactElement => {
         isLoading={isPending}
         content={data?.chunks?.[0]?.response || ''}
       />
+      <div className="mt-3 flex gap-2">
+        <Button
+          icon={<CopyIcon />}
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+          color={copying ? ButtonColor.Avocado : undefined}
+          onClick={() => copy({ textToCopy: data?.chunks?.[0]?.response })}
+        />
+        <Button
+          icon={<EditIcon />}
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+          onClick={() => setIsEdit(true)}
+        />
+      </div>
     </div>
   );
 };
