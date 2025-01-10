@@ -63,7 +63,7 @@ export const LanguageDropdown = ({
             !open &&
               !valid &&
               '!shadow-[inset_0.125rem_0_0_var(--status-error)]',
-            selectedIndex > -1 && '!text-text-primary',
+            selectedIndex > 0 && '!text-text-primary',
           ),
           menu: classNames(
             menuClassName,
