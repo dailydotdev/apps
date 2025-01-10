@@ -15,14 +15,18 @@ import { LogEvent, TargetType } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useOnboardingExtension } from './useOnboardingExtension';
 import { cloudinaryOnboardingExtension } from '../../../lib/image';
+import { BrowserName } from '../../../lib/func';
+import type { OnboardingOnClickNext } from '../common';
 
-export const OnboardingExtension = (): ReactElement => {
+export const OnboardingExtension = ({
+  onClickNext,
+}: {
+  onClickNext: OnboardingOnClickNext;
+}): ReactElement => {
   const { logEvent } = useLogContext();
-
-  const { browser } = useOnboardingExtension();
-
-  const imageUrls =
-    cloudinaryOnboardingExtension[browser.isEdge ? 'edge' : 'chrome'];
+  const { browserName } = useOnboardingExtension();
+  const isEdge = browserName === BrowserName.Edge;
+  const imageUrls = cloudinaryOnboardingExtension[browserName];
 
   return (
     <div className="flex flex-1 flex-col laptop:justify-between">
@@ -46,25 +50,20 @@ export const OnboardingExtension = (): ReactElement => {
         </Typography>
         <Button
           href={downloadBrowserExtension}
-          icon={
-            browser.isEdge ? (
-              <EdgeIcon aria-hidden />
-            ) : (
-              <ChromeIcon aria-hidden />
-            )
-          }
+          icon={isEdge ? <EdgeIcon aria-hidden /> : <ChromeIcon aria-hidden />}
           onClick={() => {
             logEvent({
               event_name: LogEvent.DownloadExtension,
-              target_id: browser.isEdge ? TargetType.Edge : TargetType.Chrome,
+              target_id: isEdge ? TargetType.Edge : TargetType.Chrome,
             });
+            onClickNext?.({ clickExtension: true });
           }}
           rel={anchorDefaultRel}
           tag="a"
           target="_blank"
           variant={ButtonVariant.Primary}
         >
-          <span>Get it for {browser.isEdge ? 'Edge' : 'Chrome'}</span>
+          <span>Get it for {isEdge ? 'Edge' : 'Chrome'}</span>
         </Button>
         <Typography
           color={TypographyColor.Secondary}
