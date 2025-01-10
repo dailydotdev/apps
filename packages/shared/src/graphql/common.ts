@@ -140,7 +140,7 @@ export interface ResponseError {
 }
 
 GraphQLClient.prototype.unsetHeader = function unsetHeader(name: string) {
-  delete this.options.headers[name];
+  delete this.options.headers?.[name];
   return this;
 };
 
