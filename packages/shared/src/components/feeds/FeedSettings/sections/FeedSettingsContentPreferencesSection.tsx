@@ -4,6 +4,7 @@ import { FeedSettingsEditContext } from '../FeedSettingsEditContext';
 import useFeedSettings from '../../../../hooks/useFeedSettings';
 import { useAdvancedSettings } from '../../../../hooks/feed/useAdvancedSettings';
 import {
+  getArticleSettings,
   getContentCurationList,
   getContentSourceList,
   getVideoSetting,
@@ -14,6 +15,7 @@ import {
   TypographyType,
 } from '../../../typography/Typography';
 import { FilterCheckbox } from '../../../fields/FilterCheckbox';
+import { FeedType } from '../../../../graphql/feed';
 
 const ADVANCED_SETTINGS_KEY = 'advancedSettings';
 
@@ -21,11 +23,13 @@ export const FeedSettingsContentPreferencesSection = (): ReactElement => {
   const { feed } = useContext(FeedSettingsEditContext);
   const { advancedSettings } = useFeedSettings({ feedId: feed?.id });
   const videoSetting = getVideoSetting(advancedSettings);
+  const articleSetting = getArticleSettings(advancedSettings);
   const {
     selectedSettings,
     onToggleSettings,
     checkSourceBlocked,
     onToggleSource,
+    onUpdateSettings,
   } = useAdvancedSettings({ feedId: feed?.id });
 
   const contentSourceList = useMemo(
@@ -70,9 +74,26 @@ export const FeedSettingsContentPreferencesSection = (): ReactElement => {
               {videoSetting.title}
             </FilterCheckbox>
           )}
-          <FilterCheckbox name="Articles" disabled checked>
-            Articles
-          </FilterCheckbox>
+          {articleSetting.length && feed?.type === FeedType.Custom ? (
+            <FilterCheckbox
+              name="Articles"
+              checked={
+                articleSetting.filter(({ id }) => selectedSettings[id] ?? true)
+                  .length > 0
+              }
+              onToggleCallback={(enabled) => {
+                onUpdateSettings(
+                  articleSetting.map(({ id }) => ({ id, enabled })),
+                );
+              }}
+            >
+              Articles
+            </FilterCheckbox>
+          ) : (
+            <FilterCheckbox name="Articles" disabled checked>
+              Articles
+            </FilterCheckbox>
+          )}
         </div>
       </div>
       <div className="flex flex-col gap-4">
