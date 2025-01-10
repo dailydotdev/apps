@@ -244,7 +244,7 @@ export enum ContentLanguage {
   Korean = 'ko',
 }
 
-export const contnetLanguageToLabelMap = {
+export const contentLanguageToLabelMap = {
   [ContentLanguage.Disabled]: 'Disabled',
   [ContentLanguage.English]: 'English',
   [ContentLanguage.Spanish]: 'Spanish',

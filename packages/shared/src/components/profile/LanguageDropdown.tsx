@@ -5,7 +5,7 @@ import type { DropdownClassName } from '../fields/Dropdown';
 import { Dropdown } from '../fields/Dropdown';
 import { LanguageIcon } from '../icons';
 import type { BaseFieldProps } from '../fields/BaseFieldContainer';
-import { ContentLanguage, contnetLanguageToLabelMap } from '../../lib/user';
+import { ContentLanguage, contentLanguageToLabelMap } from '../../lib/user';
 import type { IconProps } from '../Icon';
 
 type ClassName = {
@@ -73,7 +73,7 @@ export const LanguageDropdown = ({
           container: dropdownClassName,
         }}
         selectedIndex={selectedIndex}
-        options={Object.values(contnetLanguageToLabelMap)}
+        options={Object.values(contentLanguageToLabelMap)}
         onChange={(_, index) => {
           const val =
             index === 0 ? null : Object.values(ContentLanguage)[index];
