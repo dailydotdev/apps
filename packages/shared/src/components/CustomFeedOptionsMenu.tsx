@@ -56,27 +56,20 @@ const CustomFeedOptionsMenu = ({
   const options: MenuItemProps[] = [
     {
       icon: <MenuIcon Icon={ShareIcon} />,
-      label: 'Share',
+      label: 'Share profile',
       action: () => onShareOrCopyLink(),
     },
-    {
+  ];
+
+  if (showPlusSubscription) {
+    options.push({
       icon: <MenuIcon Icon={HashtagIcon} />,
       label: 'Add to custom feed',
       action: handleOpenModal,
-    },
-    ...additionalOptions,
-  ];
-
-  if (!showPlusSubscription) {
-    return (
-      <Button
-        variant={ButtonVariant.Float}
-        size={ButtonSize.Small}
-        icon={<ShareIcon />}
-        onClick={() => onShareOrCopyLink()}
-      />
-    );
+    });
   }
+
+  options.push(...additionalOptions);
 
   return (
     <>

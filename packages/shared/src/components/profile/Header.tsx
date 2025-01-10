@@ -161,7 +161,7 @@ export function Header({
             additionalOptions={[
               {
                 icon: <MenuIcon Icon={BlockIcon} />,
-                label: blocked ? 'Unblock' : 'Block',
+                label: `${blocked ? 'Unblock' : 'Block'} ${user.username}`,
                 action: () =>
                   blocked
                     ? unblock({
@@ -173,7 +173,7 @@ export function Header({
               },
               {
                 icon: <MenuIcon Icon={FlagIcon} />,
-                label: 'Report',
+                label: 'Report user',
                 action: () => onReportUser(),
               },
             ]}
