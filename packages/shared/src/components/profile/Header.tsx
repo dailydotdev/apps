@@ -173,7 +173,7 @@ export function Header({
               },
               {
                 icon: <MenuIcon Icon={FlagIcon} />,
-                label: 'Report user',
+                label: 'Report',
                 action: () => onReportUser(),
               },
             ]}

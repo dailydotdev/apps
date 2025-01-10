@@ -56,7 +56,7 @@ const CustomFeedOptionsMenu = ({
   const options: MenuItemProps[] = [
     {
       icon: <MenuIcon Icon={ShareIcon} />,
-      label: 'Share profile',
+      label: 'Share',
       action: () => onShareOrCopyLink(),
     },
   ];
