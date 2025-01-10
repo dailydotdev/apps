@@ -44,6 +44,16 @@ export enum BootApp {
   Test = 'test',
 }
 
+export enum Continent {
+  Africa = 'AF',
+  Antarctica = 'AN',
+  Asia = 'AS',
+  Europe = 'EU',
+  Oceania = 'OC',
+  NorthAmerica = 'NA',
+  SouthAmerica = 'SA',
+}
+
 export type AccessToken = { token: string; expiresIn: string };
 export type Visit = { sessionId: string; visitId: string };
 export type Boot = {
@@ -68,6 +78,7 @@ export type Boot = {
   geo: {
     ip?: string;
     region?: string;
+    continent?: Continent;
   };
   isAndroidApp?: boolean;
 };

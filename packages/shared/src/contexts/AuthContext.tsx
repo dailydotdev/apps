@@ -8,6 +8,7 @@ import {
   LogoutReason,
 } from '../lib/user';
 import type { AccessToken, Boot, Visit } from '../lib/boot';
+import { Continent } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import type { AuthTriggersType } from '../lib/auth';
 import { AuthTriggers } from '../lib/auth';
@@ -60,6 +61,7 @@ export interface AuthContextData {
   isAuthReady?: boolean;
   geo?: Boot['geo'];
   isAndroidApp?: boolean;
+  isGdprCovered?: boolean;
 }
 const isExtension = checkIsExtension();
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -184,6 +186,7 @@ export const AuthContextProvider = ({
         squads,
         geo,
         isAndroidApp,
+        isGdprCovered: geo?.continent === Continent.Europe,
       }}
     >
       {children}

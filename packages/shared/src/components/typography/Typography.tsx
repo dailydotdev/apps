@@ -64,6 +64,14 @@ export type TypographyProps<Tag extends AllowedTags> = {
 } & HTMLAttributes<AllowedElements> &
   JSX.IntrinsicElements[Tag];
 
+const tagToClasses = {
+  [TypographyTag.Link]: 'underline hover:no-underline',
+};
+
+const tagToColor = {
+  [TypographyTag.Link]: TypographyColor.Link,
+};
+
 export function Typography<TagName extends AllowedTags>({
   tag = TypographyTag.P,
   type,
@@ -78,10 +86,10 @@ export function Typography<TagName extends AllowedTags>({
     className,
     type,
     { 'font-bold': bold },
-    color,
+    color ?? tagToColor[tag],
     truncate && truncateTextClassNames,
   );
-  const Tag = classed(tag, classes);
+  const Tag = classed(tag, classes, tagToClasses[tag]);
 
   return <Tag {...props}>{children}</Tag>;
 }

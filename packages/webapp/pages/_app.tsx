@@ -44,7 +44,16 @@ const AuthModal = dynamic(
 );
 const CookieBanner = dynamic(
   () =>
-    import(/* webpackChunkName: "cookieBanner" */ '../components/CookieBanner'),
+    import(
+      /* webpackChunkName: "cookieBanner" */ '../components/banner/CookieBanner'
+    ),
+);
+
+const CookieBannerGdpr = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "cookieBanner" */ '../components/banner/CookieBannerGdpr'
+    ),
 );
 
 interface ComponentGetLayout {
@@ -67,15 +76,14 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const unreadText = getUnreadText(unreadCount);
   const { user, closeLogin, shouldShowLogin, loginState } =
     useContext(AuthContext);
-  const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
+  const { showBasicBanner, showGdprBanner, onAcceptCookies } =
+    useCookieBanner();
   useWebVitals();
   useLogPageView();
   const { modal, closeModal } = useLazyModal();
   useConsoleLogo();
 
   useEffect(() => {
-    updateCookieBanner(user);
-
     if (
       user &&
       !didRegisterSwRef.current &&
@@ -85,7 +93,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       didRegisterSwRef.current = true;
       window.serwist.register();
     }
-  }, [updateCookieBanner, user]);
+  }, [user]);
 
   useEffect(() => {
     if (!modal) {
@@ -189,7 +197,8 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           {...loginState}
         />
       )}
-      {showCookie && <CookieBanner onAccepted={acceptCookies} />}
+      {showBasicBanner && <CookieBanner onAccepted={onAcceptCookies} />}
+      {showGdprBanner && <CookieBannerGdpr onAccepted={onAcceptCookies} />}
     </>
   );
 }
