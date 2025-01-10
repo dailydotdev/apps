@@ -69,6 +69,17 @@ const CustomFeedOptionsMenu = ({
     });
   }
 
+  if (additionalOptions.length === 0 && !showPlusSubscription) {
+    return (
+      <Button
+        variant={ButtonVariant.Float}
+        size={ButtonSize.Small}
+        icon={<ShareIcon />}
+        onClick={() => onShareOrCopyLink()}
+      />
+    );
+  }
+
   options.push(...additionalOptions);
 
   return (
