@@ -75,7 +75,7 @@ export const LanguageDropdown = ({
         selectedIndex={selectedIndex}
         options={Object.values(contnetLanguageToLabelMap)}
         onChange={(_, index) => {
-          const val = Object.values(ContentLanguage)[index];
+          const val = Object.values(ContentLanguage)[index] as ContentLanguage;
           onChange?.(val, index);
           setSelectedIndex(index);
         }}
