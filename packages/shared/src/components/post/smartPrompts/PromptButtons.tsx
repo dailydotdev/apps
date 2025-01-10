@@ -1,4 +1,4 @@
-import React, { forwardRef, useCallback, useState } from 'react';
+import React, { forwardRef, useCallback, useMemo, useState } from 'react';
 import type { ReactElement, Ref } from 'react';
 import { ColorName } from '../../../styles/colors';
 import { ArrowIcon, CustomPromptIcon } from '../../icons';
@@ -20,6 +20,7 @@ import { SimpleTooltip } from '../../tooltips';
 import { promptColorMap, PromptIconMap } from './common';
 import { LazyModal } from '../../modals/common/types';
 import { useLazyModal } from '../../../hooks/useLazyModal';
+import { useSettingsContext } from '../../../contexts/SettingsContext';
 
 type PromptButtonProps = ButtonProps<'button'> & {
   active: boolean;
@@ -69,7 +70,13 @@ export const PromptButtons = ({
   const isMobile = useViewSize(ViewSize.MobileL);
   const [showAll, setShowAll] = useState(false);
   const { openModal } = useLazyModal();
-  const { data: prompts, isLoading } = usePromptsQuery();
+  const { data, isLoading } = usePromptsQuery();
+  const { flags: settingFlags } = useSettingsContext();
+  const { prompt: promptFlags } = settingFlags;
+  const prompts = useMemo(() => {
+    return data?.filter((prompt) => promptFlags[prompt.id] !== false);
+  }, [data, promptFlags]);
+
   const { isPlus } = usePlusSubscription();
   const promptList = usePromptButtons({
     prompts,
