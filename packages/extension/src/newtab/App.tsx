@@ -22,7 +22,7 @@ import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { isTesting, webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import ExtensionOnboarding from '@dailydotdev/shared/src/components/ExtensionOnboarding';
 import { withFeaturesBoundary } from '@dailydotdev/shared/src/components/withFeaturesBoundary';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
@@ -86,7 +86,10 @@ function InternalApp(): ReactElement {
   const { growthbook } = useGrowthBookContext();
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
-  const shouldRedirectOnboarding = !user && isPageReady && !isTesting;
+  const isOnboardingComplete =
+    isOnboardingReady && hasCompletedEditTags && hasCompletedContentTypes;
+  const shouldRedirectOnboarding =
+    isPageReady && (!user || !isOnboardingComplete) && !isTesting;
   const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
 
   useEffect(() => {
@@ -104,16 +107,6 @@ function InternalApp(): ReactElement {
     },
     [dismissToast, setCurrentPage],
   );
-
-  useEffect(() => {
-    if (
-      isOnboardingReady &&
-      (!hasCompletedEditTags || !hasCompletedContentTypes) &&
-      !router.pathname.includes('/onboarding')
-    ) {
-      router.replace(`${webappUrl}onboarding`);
-    }
-  }, [isOnboardingReady, hasCompletedEditTags, hasCompletedContentTypes]);
 
   useEffect(() => {
     if (contentScriptGranted) {
