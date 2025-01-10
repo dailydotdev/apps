@@ -2,12 +2,10 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import LoginButton from '../LoginButton';
 import NotificationsBell from '../notifications/NotificationsBell';
-import { CreatePostButton } from '../post/write';
 import ProfileButton from '../profile/ProfileButton';
 import { useAuthContext } from '../../contexts/AuthContext';
 import classed from '../../lib/classed';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import { usePlusSubscription } from '../../hooks';
 import { UpgradeToPlus } from '../UpgradeToPlus';
 import { TargetId } from '../../lib/log';
 import { ButtonVariant } from '../buttons/common';
@@ -24,7 +22,6 @@ export function HeaderButtons({
 }: HeaderButtonsProps): ReactElement {
   const { isLoggedIn, isAuthReady } = useAuthContext();
   const { loadedSettings } = useSettingsContext();
-  const { isPlusEntrypointExperiment } = usePlusSubscription();
 
   if (!isAuthReady || !loadedSettings) {
     return <Container />;
@@ -45,15 +42,11 @@ export function HeaderButtons({
 
   return (
     <Container>
-      {isPlusEntrypointExperiment ? (
-        <UpgradeToPlus
-          color={ButtonColor.Bacon}
-          target={TargetId.Header}
-          variant={ButtonVariant.Primary}
-        />
-      ) : (
-        <CreatePostButton />
-      )}
+      <UpgradeToPlus
+        color={ButtonColor.Bacon}
+        target={TargetId.Header}
+        variant={ButtonVariant.Primary}
+      />
       {additionalButtons}
       <NotificationsBell />
       <ProfileButton className="hidden laptop:flex" />
