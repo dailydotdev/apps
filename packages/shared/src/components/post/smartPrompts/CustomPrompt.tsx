@@ -30,15 +30,7 @@ export const CustomPrompt = ({ post }: CustomPromptProps): ReactElement => {
     () => prompts?.find((p) => p.id === PromptDisplay.CustomPrompt),
     [prompts],
   );
-  const data = {
-    chunks: [
-      {
-        progress: 1,
-        response: 'somethign somethjing',
-      },
-    ],
-  };
-  const { executePrompt, isPending } = useSmartPrompt({ post, prompt });
+  const { executePrompt, data, isPending } = useSmartPrompt({ post, prompt });
   const onSubmitCustomPrompt = useCallback(
     (e) => {
       e.preventDefault();
