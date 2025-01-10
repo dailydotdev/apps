@@ -77,7 +77,7 @@ export const useFollowingQuery = ({
     },
     initialPageParam: '',
     staleTime: StaleTime.Default,
-    getNextPageParam: ({ lastPage }) => getNextPageParam(lastPage?.pageInfo),
+    getNextPageParam: ({ pageInfo }) => getNextPageParam(pageInfo),
     ...queryOptions,
     enabled:
       typeof queryOptions?.enabled !== 'undefined'
