@@ -74,7 +74,7 @@ export const PromptButtons = ({
   const { flags: settingFlags } = useSettingsContext();
   const { prompt: promptFlags } = settingFlags;
   const prompts = useMemo(() => {
-    return data?.filter((prompt) => promptFlags[prompt.id] !== false);
+    return data?.filter((prompt) => promptFlags?.[prompt.id] !== false);
   }, [data, promptFlags]);
 
   const { isPlus } = usePlusSubscription();
@@ -141,7 +141,7 @@ export const PromptButtons = ({
         </SimpleTooltip>
       ))}
 
-      {!showAll && !isMobile && (
+      {!showAll && !isMobile && promptList?.length > 0 && (
         <SimpleTooltip content="See more prompts">
           <Button
             variant={ButtonVariant.Subtle}
