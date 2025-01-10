@@ -139,6 +139,11 @@ export interface ResponseError {
   response: MutationError;
 }
 
+GraphQLClient.prototype.unsetHeader = function unsetHeader(name: string) {
+  delete this.options.headers[name];
+  return this;
+};
+
 export const gqlClient = new GraphQLClient(graphqlUrl, {
   credentials: 'include',
   fetch: globalThis.fetch,
