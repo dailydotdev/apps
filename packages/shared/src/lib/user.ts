@@ -231,7 +231,7 @@ export enum LogoutReason {
 }
 
 export enum ContentLanguage {
-  Disabled = null,
+  Disabled = 'disabled',
   English = 'en',
   Spanish = 'es',
   German = 'de',
