@@ -48,6 +48,7 @@ export const OnboardingHeader = ({
     OnboardingStep.PWA,
     OnboardingStep.Plus,
     OnboardingStep.Extension,
+    OnboardingStep.InstallDesktop,
   ];
 
   if (activeScreen !== OnboardingStep.Intro) {
