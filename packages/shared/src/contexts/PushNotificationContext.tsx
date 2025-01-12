@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, MutableRefObject } from 'react';
 import React, {
   createContext,
   useCallback,
@@ -45,21 +45,21 @@ interface PushNotificationContextProviderProps {
   children: ReactElement;
 }
 
+interface SubProviderProps {
+  children: ReactElement;
+  notificationSourceRef: MutableRefObject<string>;
+  onSourceChange: PushNotificationsContextData['onSourceChange'];
+}
+
 type ChangeEventHandler = Parameters<
   typeof OneSignal.User.PushSubscription.addEventListener
 >[1];
 
-/**
- * This context provider should only be used in the webapp
- */
-export function PushNotificationContextProvider({
+function OneSignalSubProvider({
   children,
-}: PushNotificationContextProviderProps): ReactElement {
-  const isExtension = checkIsExtension();
-  const notificationSourceRef = useRef<string>();
-  const onSourceChange = useCallback((source) => {
-    notificationSourceRef.current = source;
-  }, []);
+  notificationSourceRef,
+  onSourceChange,
+}: SubProviderProps): ReactElement {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -73,6 +73,7 @@ export function PushNotificationContextProvider({
         event_name: LogEvent.ClickEnableNotification,
         extra: JSON.stringify({
           origin: source || notificationSourceRef.current,
+          provider: 'web',
           permission: 'granted',
           ...(existing_permission && { existing_permission }),
         }),
@@ -82,7 +83,7 @@ export function PushNotificationContextProvider({
   const subscriptionCallbackRef =
     useRef<SubscriptionCallback>(subscriptionCallback);
   subscriptionCallbackRef.current = subscriptionCallback;
-  const isEnabled = !!user && !isTesting && !isExtension;
+
   const key = generateQueryKey(RequestKey.OneSignal, user);
   const client = useQueryClient();
   const {
@@ -100,32 +101,30 @@ export function PushNotificationContextProvider({
         return osr;
       }
 
-      const OneSingalImport = (await import('react-onesignal')).default;
+      const OneSignalImport = (await import('react-onesignal')).default;
 
-      await OneSingalImport.init({
+      await OneSignalImport.init({
         appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
         serviceWorkerParam: { scope: '/push/onesignal/' },
         serviceWorkerPath: '/push/onesignal/OneSignalSDKWorker.js',
       });
 
-      await OneSingalImport.login(user.id);
+      await OneSignalImport.login(user.id);
 
-      setIsSubscribed(OneSingalImport.User.PushSubscription.optedIn);
+      setIsSubscribed(OneSignalImport.User.PushSubscription.optedIn);
 
-      return OneSingalImport;
+      return OneSignalImport;
     },
-    enabled: isEnabled,
     ...disabledRefetch,
   });
-
-  const isPushSupported =
-    !!globalThis.window?.Notification &&
-    OneSignalCache?.Notifications.isPushSupported();
 
   const logPermissionGranted = useCallback(
     (source) => subscriptionCallbackRef.current?.(true, source, true),
     [],
   );
+
+  const isEnabled = !!user && !isTesting;
+  const isPushSupported = OneSignalCache?.Notifications.isPushSupported();
 
   useEffect(() => {
     if (!OneSignalCache) {
@@ -146,12 +145,6 @@ export function PushNotificationContextProvider({
     };
   }, [OneSignalCache]);
 
-  if (isExtension) {
-    throw new Error(
-      'PushNotificationContextProvider should only be used in the webapp',
-    );
-  }
-
   return (
     <PushNotificationsContext.Provider
       value={{
@@ -162,11 +155,137 @@ export function PushNotificationContextProvider({
         onSourceChange,
         logPermissionGranted,
         shouldOpenPopup: false,
-        OneSignal: isEnabled && isFetched ? OneSignalCache : null,
+        OneSignal: isFetched ? OneSignalCache : null,
       }}
     >
       {children}
     </PushNotificationsContext.Provider>
+  );
+}
+
+function NativeAppleSubProvider({
+  children,
+  notificationSourceRef,
+  onSourceChange,
+}: SubProviderProps): ReactElement {
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const { user } = useAuthContext();
+  const { logEvent } = useLogContext();
+  const subscriptionCallback: SubscriptionCallback = (
+    isSubscribedNew,
+    source,
+    existing_permission,
+  ) => {
+    if (isSubscribedNew) {
+      // TODO: check if we can encapsulate this
+      logEvent({
+        event_name: LogEvent.ClickEnableNotification,
+        extra: JSON.stringify({
+          origin: source || notificationSourceRef.current,
+          provider: 'apple',
+          permission: 'granted',
+          // TODO: check if this field is needed
+          ...(existing_permission && { existing_permission }),
+        }),
+      });
+    }
+  };
+  const subscriptionCallbackRef =
+    useRef<SubscriptionCallback>(subscriptionCallback);
+  subscriptionCallbackRef.current = subscriptionCallback;
+
+  const logPermissionGranted = useCallback(
+    (source) => subscriptionCallbackRef.current?.(true, source, true),
+    [],
+  );
+
+  const key = generateQueryKey(RequestKey.ApplePush, user);
+  const { isFetched, isLoading, isSuccess } = useQuery<void>({
+    queryKey: key,
+
+    queryFn: async () => {
+      return new Promise((resolve) => {
+        globalThis.addEventListener(
+          'push-permission-state',
+          (event: CustomEvent) => {
+            // eslint-disable-next-line no-console
+            console.log('push-permission-state', event?.detail);
+            setIsSubscribed(
+              ['authorized', 'ephemeral', 'provisional'].indexOf(
+                event?.detail,
+              ) > -1,
+            );
+            resolve();
+          },
+        );
+        globalThis.webkit.messageHandlers[
+          'push-permission-state'
+        ].postMessage();
+        globalThis.webkit.messageHandlers['push-user-id'].postMessage(user.id);
+      });
+    },
+    ...disabledRefetch,
+  });
+
+  useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log('native apple sub provider');
+  }, []);
+
+  return (
+    <PushNotificationsContext.Provider
+      value={{
+        isInitialized: isFetched || !isSuccess,
+        isLoading,
+        isSubscribed,
+        isPushSupported: true,
+        onSourceChange,
+        logPermissionGranted,
+        shouldOpenPopup: false,
+        OneSignal: null,
+      }}
+    >
+      {children}
+    </PushNotificationsContext.Provider>
+  );
+}
+
+/**
+ * This context provider should only be used in the webapp
+ */
+export function PushNotificationContextProvider({
+  children,
+}: PushNotificationContextProviderProps): ReactElement {
+  const isExtension = checkIsExtension();
+  const notificationSourceRef = useRef<string>();
+  const onSourceChange = useCallback((source) => {
+    notificationSourceRef.current = source;
+  }, []);
+
+  if (isExtension) {
+    throw new Error(
+      'PushNotificationContextProvider should only be used in the webapp',
+    );
+  }
+
+  if (globalThis.webkit && globalThis.webkit.messageHandlers) {
+    return (
+      <NativeAppleSubProvider
+        onSourceChange={onSourceChange}
+        notificationSourceRef={notificationSourceRef}
+      >
+        {children}
+      </NativeAppleSubProvider>
+    );
+  }
+
+  return (
+    <OneSignalSubProvider
+      onSourceChange={onSourceChange}
+      notificationSourceRef={notificationSourceRef}
+    >
+      {children}
+    </OneSignalSubProvider>
   );
 }
 
