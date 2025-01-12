@@ -217,6 +217,7 @@ function NativeAppleSubProvider({
             );
             resolve();
           },
+          { once: true },
         );
         globalThis.webkit.messageHandlers[
           'push-permission-state'
