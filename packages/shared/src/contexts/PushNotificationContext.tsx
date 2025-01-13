@@ -219,9 +219,9 @@ function NativeAppleSubProvider({
           },
           { once: true },
         );
-        globalThis.webkit.messageHandlers[
-          'push-permission-state'
-        ].postMessage();
+        globalThis.webkit.messageHandlers['push-permission-state'].postMessage(
+          null,
+        );
         globalThis.webkit.messageHandlers['push-user-id'].postMessage(user.id);
       });
     },
