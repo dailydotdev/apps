@@ -44,7 +44,7 @@ export default function CookieBannerGdpr({
         />
       </div>
       <div className="mt-2 flex flex-col gap-4">
-        <span className="text-text-secondary">
+        <span className="text-text-secondary" data-testid="gdpr_content">
           This site uses cookies to enhance your experience. By continuing, you
           agree to our use of cookies as outlined in our{' '}
           <Typography
