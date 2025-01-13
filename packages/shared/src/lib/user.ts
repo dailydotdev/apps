@@ -231,6 +231,7 @@ export enum LogoutReason {
 }
 
 export enum ContentLanguage {
+  Disabled = 'disabled',
   English = 'en',
   Spanish = 'es',
   German = 'de',
@@ -243,8 +244,9 @@ export enum ContentLanguage {
   Korean = 'ko',
 }
 
-export const contnetLanguageToLabelMap = {
-  [ContentLanguage.English]: 'English - Default',
+export const contentLanguageToLabelMap = {
+  [ContentLanguage.Disabled]: 'Disabled',
+  [ContentLanguage.English]: 'English',
   [ContentLanguage.Spanish]: 'Spanish',
   [ContentLanguage.German]: 'German',
   [ContentLanguage.French]: 'French',

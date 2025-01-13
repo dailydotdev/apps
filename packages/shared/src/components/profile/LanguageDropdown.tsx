@@ -5,7 +5,7 @@ import type { DropdownClassName } from '../fields/Dropdown';
 import { Dropdown } from '../fields/Dropdown';
 import { LanguageIcon } from '../icons';
 import type { BaseFieldProps } from '../fields/BaseFieldContainer';
-import { ContentLanguage, contnetLanguageToLabelMap } from '../../lib/user';
+import { ContentLanguage, contentLanguageToLabelMap } from '../../lib/user';
 import type { IconProps } from '../Icon';
 
 type ClassName = {
@@ -63,7 +63,7 @@ export const LanguageDropdown = ({
             !open &&
               !valid &&
               '!shadow-[inset_0.125rem_0_0_var(--status-error)]',
-            selectedIndex > -1 && '!text-text-primary',
+            selectedIndex > 0 && '!text-text-primary',
           ),
           menu: classNames(
             menuClassName,
@@ -73,9 +73,10 @@ export const LanguageDropdown = ({
           container: dropdownClassName,
         }}
         selectedIndex={selectedIndex}
-        options={Object.values(contnetLanguageToLabelMap)}
+        options={Object.values(contentLanguageToLabelMap)}
         onChange={(_, index) => {
-          const val = Object.values(ContentLanguage)[index];
+          const val =
+            index === 0 ? null : Object.values(ContentLanguage)[index];
           onChange?.(val, index);
           setSelectedIndex(index);
         }}
