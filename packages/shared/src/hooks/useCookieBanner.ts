@@ -7,6 +7,7 @@ type UseConsentCookie = [
   boolean,
   (additional?: string[]) => void,
   (user?: LoggedUser) => void,
+  boolean,
 ];
 
 export enum GdprConsentKey {
@@ -53,13 +54,18 @@ const setBrowserCookie = (key: string): void => {
   });
 };
 
-const useConsentCookie = (key: string): UseConsentCookie => {
+const getBrowserCookie = (key: string) =>
+  globalThis?.document?.cookie.split('; ').find((row) => row.startsWith(key));
+
+export const useConsentCookie = (key: string): UseConsentCookie => {
   const [showCookie, setShowCookie] = useState(false);
+  const [exists, setExists] = useState(!!getBrowserCookie(key));
 
   const acceptCookies: UseConsentCookie[1] = useCallback(
     (additional) => {
       setShowCookie(false);
 
+      setExists(true);
       setBrowserCookie(key);
 
       additional?.forEach((cookie) => setBrowserCookie(cookie));
@@ -69,19 +75,25 @@ const useConsentCookie = (key: string): UseConsentCookie => {
 
   const updateCookieBanner = useCallback(
     (user?: LoggedUser): void => {
-      if (document.cookie.split('; ').find((row) => row.startsWith(key))) {
+      if (getBrowserCookie(key)) {
+        if (!exists) {
+          setExists(true);
+        }
+
         return;
       }
+
       if (user) {
         acceptCookies();
         return;
       }
+
       setShowCookie(true);
     },
-    [acceptCookies, key],
+    [acceptCookies, exists, key],
   );
 
-  return [showCookie, acceptCookies, updateCookieBanner];
+  return [showCookie, acceptCookies, updateCookieBanner, exists];
 };
 
 interface UseCookieBanner {

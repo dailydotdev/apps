@@ -8,7 +8,6 @@ import {
   LogoutReason,
 } from '../lib/user';
 import type { AccessToken, Boot, Visit } from '../lib/boot';
-import { Continent } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import type { AuthTriggersType } from '../lib/auth';
 import { AuthTriggers } from '../lib/auth';
@@ -186,7 +185,7 @@ export const AuthContextProvider = ({
         squads,
         geo,
         isAndroidApp,
-        isGdprCovered: geo?.continent === Continent.Europe,
+        isGdprCovered: true,
       }}
     >
       {children}
