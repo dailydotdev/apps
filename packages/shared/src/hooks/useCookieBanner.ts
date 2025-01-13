@@ -116,9 +116,9 @@ export function useCookieBanner(): UseCookieBanner {
     }
 
     if (isGdprCovered) {
-      updateCookieBanner(user);
-    } else {
       updateCookieBannerGdpr(user);
+    } else {
+      updateCookieBanner(user);
     }
   }, [
     updateCookieBanner,
@@ -131,6 +131,6 @@ export function useCookieBanner(): UseCookieBanner {
   return {
     showBasicBanner: showCookie,
     showGdprBanner: showCookieGdpr,
-    onAcceptCookies: isGdprCovered ? acceptCookies : acceptCookiesGdpr,
+    onAcceptCookies: isGdprCovered ? acceptCookiesGdpr : acceptCookies,
   };
 }
