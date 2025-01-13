@@ -23,7 +23,6 @@ import { useAlertsContext } from '../../contexts/AlertContext';
 import { UpgradeToPlus } from '../UpgradeToPlus';
 import HeaderLogo from '../layout/HeaderLogo';
 import { TargetId } from '../../lib/log';
-import { usePlusSubscription } from '../../hooks';
 
 export const SidebarTablet = ({
   activePage,
@@ -39,7 +38,6 @@ export const SidebarTablet = ({
 }): ReactElement => {
   const { alerts } = useAlertsContext();
   const { user, isLoggedIn, squads } = useAuthContext();
-  const { isPlusEntrypointExperiment } = usePlusSubscription();
   const buttonProps: ButtonProps<'a' | 'button'> = {
     variant: ButtonVariant.Tertiary,
     size: ButtonSize.Large,
@@ -74,10 +72,8 @@ export const SidebarTablet = ({
         <UpgradeToPlus
           iconOnly
           target={TargetId.Sidebar}
-          {...(isPlusEntrypointExperiment && {
-            variant: ButtonVariant.Primary,
-            color: ButtonColor.Bacon,
-          })}
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Bacon}
         />
       )}
       <Link href={`${webappUrl}`} prefetch={false} passHref>
