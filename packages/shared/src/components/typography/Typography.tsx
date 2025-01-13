@@ -93,3 +93,6 @@ export function Typography<TagName extends AllowedTags>({
 
   return <Tag {...props}>{children}</Tag>;
 }
+
+Typography.Type = TypographyType;
+Typography.Color = TypographyColor;

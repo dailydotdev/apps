@@ -214,6 +214,13 @@ const AddToCustomFeedModal = dynamic(
     ),
 );
 
+const CookieConsentModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "addToCustomFeedModal" */ './user/CookieConsentModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -250,6 +257,7 @@ export const modals = {
   [LazyModal.ClickbaitShield]: ClickbaitShieldModal,
   [LazyModal.MoveBookmark]: MoveBookmarkModal,
   [LazyModal.AddToCustomFeed]: AddToCustomFeedModal,
+  [LazyModal.CookieConsent]: CookieConsentModal,
 };
 
 type GetComponentProps<T> = T extends

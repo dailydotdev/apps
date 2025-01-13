@@ -9,15 +9,38 @@ type UseConsentCookie = [
   (user?: LoggedUser) => void,
 ];
 
-const consentMap = {
+export enum GdprConsentKey {
+  Necessary = 'ilikecookies_gdpr',
+  Marketing = 'ilikecookies_gdpr_marketing',
+}
+
+export const consentMap = {
   basic: 'ilikecookies',
   gdpr: {
-    necessary: 'ilikecookies_gdpr',
-    marketing: 'ilikecookies_gdpr_marketing',
+    necessary: GdprConsentKey.Necessary,
+    marketing: GdprConsentKey.Marketing,
   },
 };
 
+interface ConsentSettings {
+  title: string;
+  description: string;
+  isAlwaysOn?: boolean;
+}
+
 export const otherGdprConsents = [consentMap.gdpr.marketing];
+export const gdprConsentSettings: Record<GdprConsentKey, ConsentSettings> = {
+  [GdprConsentKey.Necessary]: {
+    title: 'Strictly necessary cookies',
+    description: '',
+    isAlwaysOn: true,
+  },
+  [GdprConsentKey.Marketing]: {
+    title: 'Marketing cookies',
+    description:
+      'Marketing cookies are used to deliver content and advertisements that are more relevant to you and your interests. These cookies track your online activity across websites and devices to create a profile of your preferences, enabling personalized experience.',
+  },
+};
 
 const setBrowserCookie = (key: string): void => {
   const TEN_YEARS = 60 * 60 * 24 * 365 * 10;

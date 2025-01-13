@@ -8,7 +8,7 @@ import {
 import { ModalClose } from '@dailydotdev/shared/src/components/modals/common/ModalClose';
 import { CookieIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-// import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import {
   cookiePolicy,
   termsOfService,
@@ -18,17 +18,18 @@ import {
   TypographyTag,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { otherGdprConsents } from '@dailydotdev/shared/src/hooks/useCookieBanner';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import type { CommonCookieBannerProps } from './CookieBannerContainer';
 import { CookieBannerContainer } from './CookieBannerContainer';
 
 export default function CookieBannerGdpr({
   onAccepted,
 }: CommonCookieBannerProps): ReactElement {
-  // const { openModal } = useLazyModal();
+  const { openModal } = useLazyModal();
   const onAcceptAll = () => onAccepted(otherGdprConsents);
 
   return (
-    <CookieBannerContainer className="p-4 laptop:w-56">
+    <CookieBannerContainer className="p-4 laptop:w-64">
       <div className="flex w-full flex-row items-center justify-between">
         <CookieIcon
           secondary
@@ -65,7 +66,7 @@ export default function CookieBannerGdpr({
           </Typography>
           .
         </span>
-        <div className="flex flex-col gap-2 tablet:flex-row">
+        <div className="flex flex-col gap-2 tablet:flex-row tablet:justify-between">
           <Button
             onClick={onAcceptAll}
             size={ButtonSize.Small}
@@ -74,7 +75,12 @@ export default function CookieBannerGdpr({
             Accept all
           </Button>
           <Button
-            // onClick={() => openModal()}
+            onClick={() =>
+              openModal({
+                type: LazyModal.CookieConsent,
+                props: { onAcceptCookies: onAccepted },
+              })
+            }
             size={ButtonSize.Small}
             variant={ButtonVariant.Float}
           >
