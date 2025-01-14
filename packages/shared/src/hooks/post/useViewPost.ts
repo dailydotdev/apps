@@ -1,10 +1,10 @@
 import type { UseMutateAsyncFunction } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { getDay } from 'date-fns';
 import { sendViewPost } from '../../graphql/posts';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { ReadingDay, UserStreak } from '../../graphql/users';
+import { getDayOfMonthInTimezone } from '../../lib/timezones';
 
 export const useViewPost = (): UseMutateAsyncFunction<
   unknown,
@@ -21,7 +21,8 @@ export const useViewPost = (): UseMutateAsyncFunction<
       const streak = client.getQueryData<UserStreak>(streakKey);
       const isNewStreak = !streak?.lastViewAt;
       const isFirstViewToday =
-        getDay(new Date(streak?.lastViewAt)) !== getDay(new Date());
+        getDayOfMonthInTimezone(new Date(streak?.lastViewAt), user.timezone) ===
+        getDayOfMonthInTimezone(new Date(), user.timezone);
 
       if (isNewStreak || isFirstViewToday) {
         await client.refetchQueries({ queryKey: streakKey });

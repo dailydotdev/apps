@@ -1,5 +1,6 @@
 import { utcToZonedTime } from 'date-fns-tz';
 import type { FC } from 'react';
+import { getDate } from 'date-fns';
 import { DaytimeIcon, NighttimeIcon } from '../components/icons/TimeZone';
 import type { IconProps } from '../components/Icon';
 
@@ -586,4 +587,13 @@ export const getTimeZoneIcon = (timezone: string): FC<IconProps> => {
   const hour = getHourTimezone(timezone);
 
   return hour >= 6 && hour < 18 ? DaytimeIcon : NighttimeIcon;
+};
+
+export const DEFAULT_TIMEZONE = 'Etc/UTC';
+
+export const getDayOfMonthInTimezone = (
+  date: Date,
+  timezone?: string,
+): number => {
+  return getDate(utcToZonedTime(date, timezone || DEFAULT_TIMEZONE));
 };

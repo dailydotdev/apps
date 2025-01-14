@@ -15,6 +15,8 @@ import { RootPortal } from '../tooltips/Portal';
 import { Drawer } from '../drawers';
 import ConditionalWrapper from '../ConditionalWrapper';
 import type { TooltipPosition } from '../tooltips/BaseTooltipContainer';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { getDayOfMonthInTimezone } from '../../lib/timezones';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
@@ -68,12 +70,14 @@ export function ReadingStreakButton({
   className,
 }: ReadingStreakButtonProps): ReactElement {
   const { logEvent } = useLogContext();
+  const { user } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
   const hasReadToday =
     streak?.lastViewAt &&
-    new Date(streak.lastViewAt).getDate() === new Date().getDate();
+    getDayOfMonthInTimezone(new Date(streak.lastViewAt), user.timezone) ===
+      getDayOfMonthInTimezone(new Date(), user.timezone);
 
   const handleToggle = useCallback(() => {
     setShouldShowStreaks((state) => !state);

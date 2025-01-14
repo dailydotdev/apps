@@ -3,6 +3,8 @@ import React, { useEffect, useMemo } from 'react';
 import { addDays, isSameDay, subDays } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
+import { utcToZonedTime } from 'date-fns-tz';
+import Link from 'next/link';
 import { StreakSection } from './StreakSection';
 import { DayStreak, Streak } from './DayStreak';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
@@ -18,6 +20,12 @@ import ReadingStreakSwitch from '../ReadingStreakSwitch';
 import { useToggle } from '../../../hooks/useToggle';
 import { ToggleWeekStart } from '../../widgets/ToggleWeekStart';
 import { isWeekend, DayOfWeek } from '../../../lib/date';
+import {
+  DEFAULT_TIMEZONE,
+  getDayOfMonthInTimezone,
+} from '../../../lib/timezones';
+import { SimpleTooltip } from '../../tooltips';
+import { isTesting } from '../../../lib/constants';
 
 const getStreak = ({
   value,
@@ -25,14 +33,16 @@ const getStreak = ({
   dateToday,
   history,
   startOfWeek = DayOfWeek.Monday,
+  timezone,
 }: {
   value: Date;
   today: Date;
   dateToday: number;
   history?: ReadingDay[];
   startOfWeek?: number;
+  timezone?: string;
 }): Streak => {
-  const date = value.getDate();
+  const date = getDayOfMonthInTimezone(value, timezone);
   const isFreezeDay = isWeekend(value, startOfWeek);
   const isToday = date === dateToday;
   const isFuture = value > today;
@@ -93,20 +103,22 @@ export function ReadingStreakPopup({
   });
   const [showStreakConfig, toggleShowStreakConfig] = useToggle(false);
 
-  const dateToday = new Date().getDate();
-
   const streaks = useMemo(() => {
-    const today = new Date();
+    const dateToday = getDayOfMonthInTimezone(new Date(), user.timezone);
+    const today = utcToZonedTime(new Date(), user.timezone || DEFAULT_TIMEZONE);
     const streakDays = getStreakDays(today);
 
     return streakDays.map((value) => {
-      const isToday = value.getDate() === dateToday;
+      const isToday =
+        getDayOfMonthInTimezone(value, user.timezone) === dateToday;
+
       const streakDef = getStreak({
         value,
         today,
         dateToday,
         history,
         startOfWeek: streak.weekStart,
+        timezone: user.timezone,
       });
 
       return (
@@ -119,7 +131,7 @@ export function ReadingStreakPopup({
         />
       );
     });
-  }, [dateToday, history, streak.weekStart, toggleShowStreakConfig]);
+  }, [history, streak.weekStart, toggleShowStreakConfig, user.timezone]);
 
   useEffect(() => {
     if ([streak.max, streak.current].some((value) => value >= 2)) {
@@ -150,6 +162,23 @@ export function ReadingStreakPopup({
             )}
           >
             Total reading days: {streak.total}
+            <SimpleTooltip
+              placement="bottom"
+              forceLoad={!isTesting}
+              content={
+                <div className="flex text-center">
+                  We are showing your reading streak in your selected timezone.
+                  <br />
+                  Click to adjust your timezone if needed or traveling.
+                </div>
+              }
+            >
+              <div className="mt-1 flex font-normal !text-text-quaternary underline decoration-raw-pepper-10">
+                <Link href="/account/notifications?s=timezone">
+                  {user.timezone || DEFAULT_TIMEZONE}
+                </Link>
+              </div>
+            </SimpleTooltip>
           </div>
           <Button
             onClick={() => toggleShowStreakConfig()}
