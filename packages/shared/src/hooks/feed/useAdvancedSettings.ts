@@ -13,7 +13,7 @@ interface UseAdvancedSettings {
   selectedSettings: Record<string, boolean>;
   onToggleSettings(id: number, state: boolean): void;
   onToggleSource(source: Source): void;
-  onUpdateSettings(id: number, state: boolean): void;
+  onUpdateSettings(updatedSettings: { id: number; enabled: boolean }[]): void;
   checkSourceBlocked(source: Source): boolean;
 }
 
@@ -37,16 +37,18 @@ export const useAdvancedSettings = (
   );
 
   const onUpdateSettings = useCallback(
-    (id: number, enabled: boolean) => {
-      logEvent({
-        event_name: `toggle ${enabled ? 'on' : 'off'}`,
-        target_type: 'advanced setting',
-        target_id: id.toString(),
-        extra: JSON.stringify({ origin: 'advanced settings filter' }),
+    (updatedSettings: { id: number; enabled: boolean }[]) => {
+      updatedSettings.forEach(({ id, enabled }) => {
+        logEvent({
+          event_name: `toggle ${enabled ? 'on' : 'off'}`,
+          target_type: 'advanced setting',
+          target_id: id.toString(),
+          extra: JSON.stringify({ origin: 'advanced settings filter' }),
+        });
       });
 
       return updateAdvancedSettings({
-        advancedSettings: [{ id, enabled }],
+        advancedSettings: updatedSettings,
       });
     },
     [logEvent, updateAdvancedSettings],
@@ -62,7 +64,7 @@ export const useAdvancedSettings = (
 
       const enabled = !(selectedSettings[id] ?? defaultEnabledState);
 
-      return onUpdateSettings(id, enabled);
+      return onUpdateSettings([{ id, enabled }]);
     },
     [alerts?.filter, selectedSettings, onUpdateSettings, updateAlerts, user],
   );

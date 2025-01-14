@@ -1,3 +1,5 @@
+import { BrowserName } from './func';
+
 export const cloudinaryFeedBgLaptop =
   'https://media.daily.dev/image/upload/s--O8GDhJO8--/f_auto/v1692271285/public/Desktop-ask-bg';
 
@@ -272,7 +274,7 @@ export const cloudinaryAuthBannerBackground1440w =
 export const cloudinaryPWA =
   'https://daily-now-res.cloudinary.com/image/upload/s--_kFKAft3--/f_auto/v1735045791/web_-_safari_j52hcx';
 
-export const cloudinaryPWAChrome =
+export const cloudinaryMobilePWAChrome =
   'https://daily-now-res.cloudinary.com/image/upload/s--6ajr-Fje--/f_auto/v1735045791/web_-_chrome_we4vak';
 
 export const cloudinaryPWAVideo =
@@ -282,13 +284,13 @@ export const cloudinaryPWAVideoChrome =
   'https://daily-now-res.cloudinary.com/video/upload/s--RD5n9hm9--/v1735044247/web_-_chrome_xavter.mp4';
 
 export const cloudinaryOnboardingExtension = {
-  chrome: {
+  [BrowserName.Chrome]: {
     default:
       'https://res.cloudinary.com/daily-now/image/upload/s--HjgXzokn--/c_scale,h_360,w_820/f_auto/dailydev-extenstion-mindblown_ggmkfg',
     retina:
       'https://res.cloudinary.com/daily-now/image/upload/s--HjgXzokn--/f_auto/dailydev-extenstion-mindblown_ggmkfg',
   },
-  edge: {
+  [BrowserName.Edge]: {
     default:
       'https://res.cloudinary.com/daily-now/image/upload/s--kvj5ZB_s--/c_scale,h_360,w_820/f_auto/dailydev-extenstion-mindblown-edge_svb0kv',
     retina:
@@ -307,6 +309,15 @@ export const advancedCustomFeedSoonImage =
 
 export const bookmarkFolderSoonImage =
   'https://daily-now-res.cloudinary.com/image/upload/s--_jM3zDSE--/f_auto/v1733239852/daily_dev_bookmarks_folders_fsughm';
+
+export const cloudinaryPWADesktopChrome =
+  'https://daily-now-res.cloudinary.com/image/upload/s--Whz80e4B--/f_auto/v1731405024/dailydev_pwa_chrome_web_lfhgnk';
+
+export const cloudinaryPWADesktopEdge =
+  'https://daily-now-res.cloudinary.com/image/upload/s--kEBZKEnE--/f_auto/v1731405024/dailydev_pwa_edge_web_ygzeqp';
+
+export const cloudinaryPWADesktopSafari =
+  'https://res.cloudinary.com/daily-now/image/upload/s--8_A3sC32--/f_auto,q_auto/dailydev-safari-pwa_dli6xx';
 
 export const clickbaitShieldModalImage =
   'https://daily-now-res.cloudinary.com/image/upload/s--GWqpMG8r--/f_auto/v1732802237/Streak_together_with_a_friend_1_1_pwoill';
