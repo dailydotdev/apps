@@ -157,11 +157,13 @@ export function ReadingStreakPopup({
         <div className="mt-4 flex flex-col items-center tablet:flex-row">
           <div
             className={classNames(
-              'font-bold text-text-tertiary',
+              'flex w-full flex-row flex-wrap justify-center gap-2 font-bold text-text-tertiary tablet:w-auto tablet:flex-col tablet:items-start tablet:gap-1',
               isMobile && 'my-4 flex-1 text-center',
             )}
           >
-            Total reading days: {streak.total}
+            <div className="m-auto tablet:m-0">
+              Total reading days: {streak.total}
+            </div>
             <SimpleTooltip
               placement="bottom"
               forceLoad={!isTesting}
@@ -173,7 +175,7 @@ export function ReadingStreakPopup({
                 </div>
               }
             >
-              <div className="mt-1 flex font-normal !text-text-quaternary underline decoration-raw-pepper-10">
+              <div className="m-auto flex justify-center font-normal !text-text-quaternary underline decoration-raw-pepper-10 tablet:m-0 tablet:justify-start">
                 <Link href="/account/notifications?s=timezone">
                   {user.timezone || DEFAULT_TIMEZONE}
                 </Link>
