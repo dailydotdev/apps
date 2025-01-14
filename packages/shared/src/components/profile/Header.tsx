@@ -161,7 +161,7 @@ export function Header({
             additionalOptions={[
               {
                 icon: <MenuIcon Icon={BlockIcon} />,
-                label: blocked ? 'Unblock' : 'Block',
+                label: `${blocked ? 'Unblock' : 'Block'} ${user.username}`,
                 action: () =>
                   blocked
                     ? unblock({
