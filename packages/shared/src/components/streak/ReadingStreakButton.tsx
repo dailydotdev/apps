@@ -72,8 +72,8 @@ export function ReadingStreakButton({
   const isMobile = useViewSize(ViewSize.MobileL);
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
   const hasReadToday =
-    streak?.lastViewAtTz &&
-    new Date(streak.lastViewAtTz).getDate() === new Date().getDate();
+    streak?.lastViewAt &&
+    new Date(streak.lastViewAt).getDate() === new Date().getDate();
 
   const handleToggle = useCallback(() => {
     setShouldShowStreaks((state) => !state);

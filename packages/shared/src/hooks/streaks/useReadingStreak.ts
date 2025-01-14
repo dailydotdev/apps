@@ -65,8 +65,8 @@ export const useReadingStreak = (): UserReadingStreak => {
 
   const [clearQueries] = useDebounceFn(async () => {
     const hasReadToday =
-      streak?.lastViewAtTz &&
-      getDay(new Date(streak?.lastViewAtTz)) === getDay(new Date());
+      streak?.lastViewAt &&
+      getDay(new Date(streak?.lastViewAt)) === getDay(new Date());
 
     if (!hasReadToday) {
       await queryClient.invalidateQueries({

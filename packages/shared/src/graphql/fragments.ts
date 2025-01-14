@@ -341,7 +341,6 @@ export const USER_STREAK_FRAGMENT = gql`
     total
     current
     lastViewAt
-    lastViewAtTz
     weekStart
   }
 `;
