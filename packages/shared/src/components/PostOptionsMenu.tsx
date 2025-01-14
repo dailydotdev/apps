@@ -527,6 +527,7 @@ export default function PostOptionsMenu({
               offendingUser: post.author,
               defaultBlockUser: true,
               onBlockUser: clearCache,
+              ...(isCustomFeed && { feedId: customFeedId }),
             },
           });
           return;
