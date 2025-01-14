@@ -59,15 +59,17 @@ const CustomFeedOptionsMenu = ({
       label: 'Share',
       action: () => onShareOrCopyLink(),
     },
-    {
+  ];
+
+  if (showPlusSubscription) {
+    options.push({
       icon: <MenuIcon Icon={HashtagIcon} />,
       label: 'Add to custom feed',
       action: handleOpenModal,
-    },
-    ...additionalOptions,
-  ];
+    });
+  }
 
-  if (!showPlusSubscription) {
+  if (additionalOptions.length === 0 && !showPlusSubscription) {
     return (
       <Button
         variant={ButtonVariant.Float}
@@ -77,6 +79,8 @@ const CustomFeedOptionsMenu = ({
       />
     );
   }
+
+  options.push(...additionalOptions);
 
   return (
     <>
