@@ -1,22 +1,15 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Section } from '../Section';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
-import {
-  BookmarkIcon,
-  DevPlusIcon,
-  EyeIcon,
-  HotIcon,
-  SquadIcon,
-} from '../../icons';
+import { BookmarkIcon, EyeIcon, HotIcon, SquadIcon } from '../../icons';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { OtherFeedPage } from '../../../lib/query';
 import type { SidebarSectionProps } from './common';
 import { webappUrl } from '../../../lib/constants';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
-import { LogEvent, TargetId } from '../../../lib/log';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { SharedFeedPage } from '../../utilities';
 import { isExtension } from '../../../lib/func';
@@ -28,19 +21,7 @@ export const MainSection = ({
 }: SidebarSectionProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
-  const {
-    showPlusSubscription,
-    isEnrolledNotPlus,
-    logSubscriptionEvent,
-    isPlusEntrypointExperiment,
-  } = usePlusSubscription();
-
-  const onPlusClick = useCallback(() => {
-    logSubscriptionEvent({
-      event_name: LogEvent.UpgradeSubscription,
-      target_id: TargetId.Sidebar,
-    });
-  }, [logSubscriptionEvent]);
+  const { showPlusSubscription } = usePlusSubscription();
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     // this path can be opened on extension so it purposly
@@ -60,20 +41,6 @@ export const MainSection = ({
           icon: <ProfilePicture size={ProfileImageSize.XSmall} user={user} />,
         }
       : undefined;
-
-    const plus =
-      isEnrolledNotPlus && !isPlusEntrypointExperiment
-        ? {
-            title: 'Upgrade to Plus',
-            path: `${webappUrl}plus`,
-            onClick: onPlusClick,
-            isForcedLink: true,
-            requiresLogin: true,
-            icon: <DevPlusIcon />,
-            color:
-              'text-action-plus-default bg-action-plus-float hover:bg-action-plus-hover active:bg-action-plus-active',
-          }
-        : undefined;
 
     return [
       myFeed,
@@ -113,14 +80,10 @@ export const MainSection = ({
         isForcedLink: true,
         requiresLogin: true,
       },
-      plus,
     ].filter(Boolean);
   }, [
     isLoggedIn,
     user,
-    isEnrolledNotPlus,
-    isPlusEntrypointExperiment,
-    onPlusClick,
     showPlusSubscription,
     isCustomDefaultFeed,
     onNavTabClick,

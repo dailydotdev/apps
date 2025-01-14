@@ -288,11 +288,22 @@ export default function PostOptionsMenu({
     const isEnabled = checkSettingsEnabledState(video?.id);
     const icon = isEnabled ? '⛔️' : '✅';
     const label = isEnabled ? 'blocked' : 'unblocked';
-    await onUpdateSettings(video.id, !isEnabled);
+    await onUpdateSettings([
+      {
+        id: video.id,
+        enabled: !isEnabled,
+      },
+    ]);
     await showMessageAndRemovePost(
       `${icon} Video content ${label}`,
       postIndex,
-      () => onUpdateSettings(video.id, isEnabled),
+      () =>
+        onUpdateSettings([
+          {
+            id: video.id,
+            enabled: !isEnabled,
+          },
+        ]),
     );
   };
 

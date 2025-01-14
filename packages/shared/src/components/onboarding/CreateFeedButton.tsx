@@ -31,6 +31,7 @@ export const CreateFeedButton = ({
     OnboardingStep.AndroidApp,
     OnboardingStep.PWA,
     OnboardingStep.Extension,
+    OnboardingStep.InstallDesktop,
   ].includes(activeScreen);
 
   const contentTypeNotEmpty =
