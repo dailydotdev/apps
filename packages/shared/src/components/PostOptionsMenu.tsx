@@ -70,6 +70,7 @@ import {
 import { isFollowingContent } from '../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../hooks/auth/useIsSpecialUser';
 import { useActiveFeedContext } from '../contexts';
+import type { FeedData } from '../graphql/feed';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -158,6 +159,8 @@ export default function PostOptionsMenu({
       (excludedSource) => excludedSource.id === post?.source?.id,
     );
   }, [feedSettings?.excludeSources, post?.source?.id]);
+  const isBlockedAuthor =
+    post?.author?.contentPreference?.status === ContentPreferenceStatus.Blocked;
 
   const shouldShowSubscribe =
     isLoggedIn &&
@@ -458,6 +461,7 @@ export default function PostOptionsMenu({
   const shouldShowFollow =
     !useIsSpecialUser({ userId: post?.author?.id }) &&
     post?.author &&
+    !isBlockedAuthor &&
     isLoggedIn;
 
   if (shouldShowFollow) {
@@ -497,13 +501,11 @@ export default function PostOptionsMenu({
   postOptions.push({
     icon: <MenuIcon Icon={BlockIcon} />,
     label: isSourceBlocked
-      ? `Show posts from ${post?.source?.name}`
-      : `Don't show posts from ${post?.source?.name}`,
+      ? `Unblock ${post?.source?.name}`
+      : `Block ${post?.source?.name}`,
     action: isSourceBlocked ? onUnblockSourceClick : onBlockSourceClick,
   });
 
-  const isBlockedAuthor =
-    post?.author?.contentPreference?.status === ContentPreferenceStatus.Blocked;
   if (post?.author && post?.author?.id !== user?.id) {
     postOptions.push({
       icon: <MenuIcon Icon={BlockIcon} />,
@@ -519,9 +521,7 @@ export default function PostOptionsMenu({
               defaultBlockUser: true,
             },
           });
-          return;
         }
-
         await unblock({
           id: post.author.id,
           entity: ContentPreferenceType.User,
@@ -529,14 +529,13 @@ export default function PostOptionsMenu({
           feedId: router.query.slugOrId ? `${router.query.slugOrId}` : null,
         });
 
-        const postKey = getPostByIdKey(post.id);
-        const cached = client.getQueryData(postKey);
-        if (cached) {
-          client.setQueryData<Post>(postKey, (data) => ({
-            ...data,
-            author: { ...data.author, contentPreference: null },
-          }));
-        }
+        client.setQueryData<FeedData>(feedQueryKey, (data) => {
+          console.log(client.getQueryData<FeedData>(feedQueryKey));
+          if (!data) {
+            return data;
+          }
+          return data;
+        });
       },
     });
   }
