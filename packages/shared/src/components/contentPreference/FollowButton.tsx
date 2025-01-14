@@ -95,9 +95,10 @@ export const FollowButton = ({
     return null;
   }
 
-  const isFollowing =
-    currentStatus === ContentPreferenceStatus.Subscribed ||
-    currentStatus === ContentPreferenceStatus.Follow;
+  const isFollowing = [
+    ContentPreferenceStatus.Subscribed,
+    ContentPreferenceStatus.Follow,
+  ].includes(currentStatus);
 
   return (
     <div className={classNames('relative z-1 inline-flex gap-2', className)}>
