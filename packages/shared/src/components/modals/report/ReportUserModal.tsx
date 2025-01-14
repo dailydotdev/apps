@@ -31,11 +31,13 @@ const reportReasons: { value: string; label: string }[] = [
 type ReportUserModalProps = {
   offendingUser: Pick<UserShortProfile, 'id' | 'username'>;
   defaultBlockUser?: boolean;
+  onBlockUser?: () => void;
 };
 
 export const ReportUserModal = ({
   offendingUser,
   defaultBlockUser,
+  onBlockUser,
 }: ReportUserModalProps): ReactElement => {
   const { closeModal: onClose } = useLazyModal();
   const { displayToast } = useToastNotification();
@@ -52,6 +54,7 @@ export const ReportUserModal = ({
       onSuccess: () => {
         displayToast(`🚫 ${offendingUser.username} has been blocked`);
         onClose();
+        onBlockUser?.();
       },
       onError: () => {
         displayToast(`❌ Failed to block ${offendingUser.username}`);

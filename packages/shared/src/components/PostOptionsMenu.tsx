@@ -70,7 +70,6 @@ import {
 import { isFollowingContent } from '../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../hooks/auth/useIsSpecialUser';
 import { useActiveFeedContext } from '../contexts';
-import type { FeedData } from '../graphql/feed';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -513,15 +512,26 @@ export default function PostOptionsMenu({
         ? `Unblock ${post.author.name}`
         : `Block ${post.author.name}`,
       action: async () => {
+        const clearCache = () => {
+          const postQueryKey = getPostByIdKey(post.id);
+          const postCache = client.getQueryData(postQueryKey);
+          if (postCache) {
+            client.invalidateQueries({ queryKey: postQueryKey });
+          }
+        };
+
         if (!isBlockedAuthor) {
           openModal({
             type: LazyModal.ReportUser,
             props: {
               offendingUser: post.author,
               defaultBlockUser: true,
+              onBlockUser: clearCache,
             },
           });
+          return;
         }
+
         await unblock({
           id: post.author.id,
           entity: ContentPreferenceType.User,
@@ -529,13 +539,7 @@ export default function PostOptionsMenu({
           feedId: router.query.slugOrId ? `${router.query.slugOrId}` : null,
         });
 
-        client.setQueryData<FeedData>(feedQueryKey, (data) => {
-          console.log(client.getQueryData<FeedData>(feedQueryKey));
-          if (!data) {
-            return data;
-          }
-          return data;
-        });
+        clearCache();
       },
     });
   }
