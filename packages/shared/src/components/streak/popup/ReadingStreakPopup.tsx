@@ -1,9 +1,8 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useMemo } from 'react';
-import { addDays, isSameDay, subDays } from 'date-fns';
+import { addDays, subDays } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
-import { utcToZonedTime } from 'date-fns-tz';
 import Link from 'next/link';
 import { StreakSection } from './StreakSection';
 import { DayStreak, Streak } from './DayStreak';
@@ -20,37 +19,31 @@ import ReadingStreakSwitch from '../ReadingStreakSwitch';
 import { useToggle } from '../../../hooks/useToggle';
 import { ToggleWeekStart } from '../../widgets/ToggleWeekStart';
 import { isWeekend, DayOfWeek } from '../../../lib/date';
-import {
-  DEFAULT_TIMEZONE,
-  getDayOfMonthInTimezone,
-} from '../../../lib/timezones';
+import { DEFAULT_TIMEZONE, isSameDayInTimezone } from '../../../lib/timezones';
 import { SimpleTooltip } from '../../tooltips';
 import { isTesting } from '../../../lib/constants';
 
 const getStreak = ({
   value,
   today,
-  dateToday,
   history,
   startOfWeek = DayOfWeek.Monday,
   timezone,
 }: {
   value: Date;
   today: Date;
-  dateToday: number;
   history?: ReadingDay[];
   startOfWeek?: number;
   timezone?: string;
 }): Streak => {
-  const date = getDayOfMonthInTimezone(value, timezone);
   const isFreezeDay = isWeekend(value, startOfWeek);
-  const isToday = date === dateToday;
+  const isToday = isSameDayInTimezone(value, today, timezone);
   const isFuture = value > today;
   const isCompleted =
     !isFuture &&
     history?.some(({ date: historyDate, reads }) => {
       const dateToCompare = new Date(historyDate);
-      const sameDate = isSameDay(dateToCompare, value);
+      const sameDate = isSameDayInTimezone(dateToCompare, value, timezone);
 
       return sameDate && reads > 0;
     });
@@ -104,18 +97,15 @@ export function ReadingStreakPopup({
   const [showStreakConfig, toggleShowStreakConfig] = useToggle(false);
 
   const streaks = useMemo(() => {
-    const dateToday = getDayOfMonthInTimezone(new Date(), user.timezone);
-    const today = utcToZonedTime(new Date(), user.timezone || DEFAULT_TIMEZONE);
+    const today = new Date();
     const streakDays = getStreakDays(today);
 
     return streakDays.map((value) => {
-      const isToday =
-        getDayOfMonthInTimezone(value, user.timezone) === dateToday;
+      const isToday = isSameDayInTimezone(value, today, user.timezone);
 
       const streakDef = getStreak({
         value,
         today,
-        dateToday,
         history,
         startOfWeek: streak.weekStart,
         timezone: user.timezone,

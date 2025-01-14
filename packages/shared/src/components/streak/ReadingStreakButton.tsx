@@ -16,7 +16,7 @@ import { Drawer } from '../drawers';
 import ConditionalWrapper from '../ConditionalWrapper';
 import type { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { getDayOfMonthInTimezone } from '../../lib/timezones';
+import { isSameDayInTimezone } from '../../lib/timezones';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
@@ -76,8 +76,7 @@ export function ReadingStreakButton({
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
   const hasReadToday =
     streak?.lastViewAt &&
-    getDayOfMonthInTimezone(new Date(streak.lastViewAt), user.timezone) ===
-      getDayOfMonthInTimezone(new Date(), user.timezone);
+    isSameDayInTimezone(new Date(streak.lastViewAt), new Date(), user.timezone);
 
   const handleToggle = useCallback(() => {
     setShouldShowStreaks((state) => !state);

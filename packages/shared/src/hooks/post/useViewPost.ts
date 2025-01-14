@@ -4,7 +4,7 @@ import { sendViewPost } from '../../graphql/posts';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { ReadingDay, UserStreak } from '../../graphql/users';
-import { getDayOfMonthInTimezone } from '../../lib/timezones';
+import { isSameDayInTimezone } from '../../lib/timezones';
 
 export const useViewPost = (): UseMutateAsyncFunction<
   unknown,
@@ -20,9 +20,11 @@ export const useViewPost = (): UseMutateAsyncFunction<
     onSuccess: async () => {
       const streak = client.getQueryData<UserStreak>(streakKey);
       const isNewStreak = !streak?.lastViewAt;
-      const isFirstViewToday =
-        getDayOfMonthInTimezone(new Date(streak?.lastViewAt), user.timezone) ===
-        getDayOfMonthInTimezone(new Date(), user.timezone);
+      const isFirstViewToday = !isSameDayInTimezone(
+        new Date(streak?.lastViewAt),
+        new Date(),
+        user.timezone,
+      );
 
       if (isNewStreak || isFirstViewToday) {
         await client.refetchQueries({ queryKey: streakKey });

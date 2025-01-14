@@ -21,7 +21,7 @@
     "@tanstack/react-query-devtools": "^5.59.16",
     "classnames": "^2.5.1",
     "date-fns": "^2.28.0",
-    "date-fns-tz": "1.0.0",
+    "date-fns-tz": "1.2.2",
     "dompurify": "^2.5.4",
     "focus-visible": "^5.2.1",
     "graphql": "^16.9.0",

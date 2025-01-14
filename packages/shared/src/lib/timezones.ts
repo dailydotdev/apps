@@ -1,6 +1,6 @@
 import { utcToZonedTime } from 'date-fns-tz';
 import type { FC } from 'react';
-import { getDate } from 'date-fns';
+import formatInTimeZone from 'date-fns-tz/formatInTimeZone';
 import { DaytimeIcon, NighttimeIcon } from '../components/icons/TimeZone';
 import type { IconProps } from '../components/Icon';
 
@@ -591,9 +591,23 @@ export const getTimeZoneIcon = (timezone: string): FC<IconProps> => {
 
 export const DEFAULT_TIMEZONE = 'Etc/UTC';
 
-export const getDayOfMonthInTimezone = (
+export const dateFormatInTimezone = (
   date: Date,
+  format: string,
   timezone?: string,
-): number => {
-  return getDate(utcToZonedTime(date, timezone || DEFAULT_TIMEZONE));
+): string => {
+  return formatInTimeZone(date, timezone || DEFAULT_TIMEZONE, format);
+};
+
+export const isSameDayInTimezone = (
+  date1: Date,
+  date2: Date,
+  timezone?: string,
+): boolean => {
+  const dateFormat = 'dd-MM-yyyy';
+
+  return (
+    dateFormatInTimezone(date1, dateFormat, timezone) ===
+    dateFormatInTimezone(date2, dateFormat, timezone)
+  );
 };

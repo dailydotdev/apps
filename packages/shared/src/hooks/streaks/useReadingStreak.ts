@@ -15,7 +15,7 @@ import SettingsContext from '../../contexts/SettingsContext';
 import type { ResponseError } from '../../graphql/common';
 import { gqlClient } from '../../graphql/common';
 import type { DayOfWeek } from '../../lib/date';
-import { getDayOfMonthInTimezone } from '../../lib/timezones';
+import { isSameDayInTimezone } from '../../lib/timezones';
 
 type UpdateReadingStreakConfig = {
   weekStart: DayOfWeek;
@@ -66,8 +66,11 @@ export const useReadingStreak = (): UserReadingStreak => {
   const [clearQueries] = useDebounceFn(async () => {
     const hasReadToday =
       streak?.lastViewAt &&
-      getDayOfMonthInTimezone(new Date(streak.lastViewAt), user.timezone) ===
-        getDayOfMonthInTimezone(new Date(), user.timezone);
+      isSameDayInTimezone(
+        new Date(streak.lastViewAt),
+        new Date(),
+        user.timezone,
+      );
 
     if (!hasReadToday) {
       await queryClient.invalidateQueries({
