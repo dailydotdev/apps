@@ -145,7 +145,6 @@ const RegistrationForm = ({
   const isUsernameValid = !hints?.['traits.username'] && isSubmitted;
   const isExperienceLevelValid =
     !isSubmitted || !hints?.['traits.experienceLevel'];
-  const isLanguageValid = !isSubmitted || !hints?.['traits.language'];
 
   const headingId = useId();
 
@@ -271,13 +270,6 @@ const RegistrationForm = ({
         <LanguageDropdown
           className={{ container: 'w-full' }}
           name="traits.language"
-          valid={isLanguageValid}
-          hint={hints?.['traits.language']}
-          onChange={() =>
-            hints?.['traits.language'] &&
-            onUpdateHints({ ...hints, 'traits.language': '' })
-          }
-          saveHintSpace
         />
         <span className="border-b border-border-subtlest-tertiary pb-4 text-text-secondary typo-subhead">
           Your email will be used to send you product and community updates

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import type { DropdownClassName } from '../fields/Dropdown';
 import { Dropdown } from '../fields/Dropdown';
@@ -33,8 +33,13 @@ export const LanguageDropdown = ({
   icon = defaultIcon,
 }: Props): ReactElement => {
   const [open, setOpen] = useState(false);
+  const values = useMemo(() => {
+    const val = Object.values(ContentLanguage);
+    val.splice(1, 1);
+    return val;
+  }, []);
   const [selectedIndex, setSelectedIndex] = useState(
-    defaultValue ? Object.values(ContentLanguage).indexOf(defaultValue) : 0,
+    defaultValue ? values.indexOf(defaultValue) : 0,
   );
 
   const {
@@ -75,8 +80,7 @@ export const LanguageDropdown = ({
         selectedIndex={selectedIndex}
         options={Object.values(contentLanguageToLabelMap)}
         onChange={(_, index) => {
-          const val =
-            index === 0 ? null : Object.values(ContentLanguage)[index];
+          const val = values[index];
           onChange?.(val, index);
           setSelectedIndex(index);
         }}
@@ -89,7 +93,7 @@ export const LanguageDropdown = ({
           type="text"
           className="hidden"
           name={name}
-          value={Object.values(ContentLanguage)[selectedIndex]}
+          value={values[selectedIndex]}
           readOnly
         />
       )}
