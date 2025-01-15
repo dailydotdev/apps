@@ -5,6 +5,8 @@ import { ReadingStreakIcon, TriangleArrowIcon, EditIcon } from '../../icons';
 import classed from '../../../lib/classed';
 import { IconSize, iconSizeToClassName } from '../../Icon';
 import { SimpleTooltip } from '../../tooltips';
+import { useAuthContext } from '../../../contexts/AuthContext';
+import { dateFormatInTimezone } from '../../../lib/timezones';
 
 export enum Streak {
   Completed = 'completed',
@@ -15,7 +17,7 @@ export enum Streak {
 
 interface DayStreakProps {
   streak: Streak;
-  day: string;
+  date: Date;
   size?: IconSize;
   className?: string;
   shouldShowArrow?: boolean;
@@ -29,12 +31,14 @@ const Circle = classed(
 
 export function DayStreak({
   streak,
-  day,
+  date,
   size = IconSize.Medium,
   className,
   shouldShowArrow,
   onClick,
 }: DayStreakProps): ReactElement {
+  const { user } = useAuthContext();
+
   const renderIcon = () => {
     if (streak === Streak.Completed || streak === Streak.Pending) {
       return (
@@ -85,7 +89,7 @@ export function DayStreak({
           />
         )}
         {renderIcon()}
-        {day}
+        {dateFormatInTimezone(date, 'iiiii', user.timezone)}
       </div>
     </SimpleTooltip>
   );
