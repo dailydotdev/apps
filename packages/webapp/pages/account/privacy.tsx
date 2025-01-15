@@ -25,9 +25,7 @@ const seo: NextSeoProps = { ...defaultSeo, title: getTemplatedTitle('Invite') };
 
 const AccountInvitePage = (): ReactElement => {
   const router = useRouter();
-  const [, onAcceptCookies, , exists] = useConsentCookie(
-    GdprConsentKey.Marketing,
-  );
+  const [, onAcceptCookies] = useConsentCookie(GdprConsentKey.Marketing);
   const { user, isGdprCovered, isAuthReady } = useAuthContext();
 
   useEffect(() => {
