@@ -200,6 +200,7 @@ export async function getStaticProps({
       canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
       title: getTemplatedTitle(seoTitle(post)),
       description: getSeoDescription(post),
+      noindex: post?.author ? post.author.reputation <= 10 : false,
       openGraph: {
         images: [{ url: `https://og.daily.dev/api/posts/${post?.id}` }],
         article: {
