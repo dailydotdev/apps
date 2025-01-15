@@ -1,23 +1,34 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import { Switch } from '../../fields/Switch';
 import type { GdprConsentKey } from '../../../hooks/useCookieBanner';
 import { gdprConsentSettings } from '../../../hooks/useCookieBanner';
 import { Typography, TypographyColor } from '../../typography/Typography';
 import { Accordion } from '../../accordion';
+import { getCookies } from '../../../lib/cookie';
 
 interface CookieConsentItemProps {
   consent: GdprConsentKey;
 }
 
+const getCookie = (key: GdprConsentKey) => {
+  const cookies = getCookies([key]);
+  const disabled = globalThis?.localStorage.getItem(key);
+
+  return !!cookies[key] || !disabled;
+};
+
 export function CookieConsentItem({
   consent,
 }: CookieConsentItemProps): ReactElement {
+  const { title, description, isAlwaysOn } = gdprConsentSettings[consent];
+  const [isChecked, setIsChecked] = useState<boolean>(
+    isAlwaysOn ?? getCookie(consent),
+  );
+
   if (!gdprConsentSettings[consent]) {
     return null;
   }
-
-  const { title, description, isAlwaysOn } = gdprConsentSettings[consent];
 
   return (
     <Accordion
@@ -26,7 +37,8 @@ export function CookieConsentItem({
         <Switch
           name={consent}
           inputId={consent}
-          checked={isAlwaysOn ? true : undefined}
+          checked={isChecked}
+          onToggle={() => setIsChecked(isAlwaysOn ? true : !isChecked)}
         >
           {title}
         </Switch>

@@ -1,11 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { LoggedUser } from '../lib/user';
-import { setCookie } from '../lib/cookie';
+import type { CookieOptions } from '../lib/cookie';
+import { expireCookie, setCookie } from '../lib/cookie';
 import { useAuthContext } from '../contexts/AuthContext';
+
+export type AcceptCookiesCallback = (
+  additional?: string[],
+  toRemove?: string[],
+) => void;
 
 type UseConsentCookie = [
   boolean,
-  (additional?: string[]) => void,
+  AcceptCookiesCallback,
   (user?: LoggedUser) => void,
   boolean,
 ];
@@ -43,15 +49,22 @@ export const gdprConsentSettings: Record<GdprConsentKey, ConsentSettings> = {
   },
 };
 
+const cookieOptions: Partial<CookieOptions> = {
+  path: '/',
+  sameSite: 'lax',
+  domain: process.env.NEXT_PUBLIC_DOMAIN,
+};
+
 const setBrowserCookie = (key: string): void => {
   const TEN_YEARS = 60 * 60 * 24 * 365 * 10;
 
-  setCookie(key, true, {
-    path: '/',
-    domain: process.env.NEXT_PUBLIC_DOMAIN,
-    sameSite: 'lax',
-    maxAge: TEN_YEARS,
-  });
+  setCookie(key, true, { ...cookieOptions, maxAge: TEN_YEARS });
+  globalThis?.localStorage.removeItem(key);
+};
+
+const expireBrowserCookie = (key: string): void => {
+  expireCookie(key, { ...cookieOptions });
+  globalThis?.localStorage.setItem(key, 'disabled');
 };
 
 const getBrowserCookie = (key: string) =>
@@ -61,14 +74,20 @@ export const useConsentCookie = (key: string): UseConsentCookie => {
   const [showCookie, setShowCookie] = useState(false);
   const [exists, setExists] = useState(!!getBrowserCookie(key));
 
-  const acceptCookies: UseConsentCookie[1] = useCallback(
-    (additional) => {
+  const acceptCookies: AcceptCookiesCallback = useCallback(
+    (additional, toRemove) => {
       setShowCookie(false);
 
       setExists(true);
       setBrowserCookie(key);
 
-      additional?.forEach((cookie) => setBrowserCookie(cookie));
+      if (additional) {
+        additional.forEach(setBrowserCookie);
+      }
+
+      if (toRemove) {
+        toRemove.forEach(expireBrowserCookie);
+      }
     },
     [key],
   );

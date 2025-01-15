@@ -5,6 +5,7 @@ import { Modal } from '../common/Modal';
 import { Typography, TypographyTag } from '../../typography/Typography';
 import { Divider } from '../../utilities';
 import { cookiePolicy } from '../../../lib/constants';
+import type { AcceptCookiesCallback } from '../../../hooks/useCookieBanner';
 import {
   GdprConsentKey,
   otherGdprConsents,
@@ -13,8 +14,12 @@ import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { CookieConsentItem } from './CookieConsentItem';
 
 interface CookieConsentModalProps extends ModalProps {
-  onAcceptCookies: (additional?: string[]) => void;
+  onAcceptCookies: AcceptCookiesCallback;
 }
+
+const options = Object.values(GdprConsentKey).filter(
+  (key) => key !== GdprConsentKey.Necessary,
+);
 
 export const CookieConsentModal = ({
   onAcceptCookies,
@@ -27,12 +32,16 @@ export const CookieConsentModal = ({
     // get the form
     const formData = new FormData((e.target as HTMLInputElement).form);
     const formProps = Object.fromEntries(formData);
-    const acceptedConsents = Object.keys(formProps).filter(
+    const keys = Object.keys(formProps);
+    const acceptedConsents = keys.filter(
       (key) =>
         formProps[key] === 'on' &&
         otherGdprConsents.includes(key as GdprConsentKey),
     );
-    onAcceptCookies(acceptedConsents);
+    const rejectedConsents = options.filter(
+      (option) => !acceptedConsents.includes(option),
+    );
+    onAcceptCookies(acceptedConsents, rejectedConsents);
 
     onRequestClose(null);
   };

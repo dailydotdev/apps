@@ -58,6 +58,7 @@ function SwitchComponent(
         checked={checked}
         onChange={onToggle}
         className="absolute h-0 w-0 opacity-0"
+        hidden
       />
       <span
         className={classNames(
