@@ -76,6 +76,9 @@ export const useReadingStreak = (): UserReadingStreak => {
       await queryClient.invalidateQueries({
         queryKey,
       });
+
+      const readKey = generateQueryKey(RequestKey.ReadingStreak30Days, user);
+      await queryClient.invalidateQueries({ queryKey: readKey });
     }
   }, 1000);
 
