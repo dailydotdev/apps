@@ -17,8 +17,8 @@ type UseConsentCookie = [
 ];
 
 export enum GdprConsentKey {
-  Necessary = 'ilikecookies_gdpr',
-  Marketing = 'ilikecookies_gdpr_marketing',
+  Necessary = 'ilikecookies',
+  Marketing = 'ilikecookies_marketing',
 }
 
 interface ConsentSettings {

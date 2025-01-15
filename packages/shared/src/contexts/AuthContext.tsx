@@ -34,7 +34,7 @@ type ShowLoginParams = {
 };
 
 export interface AuthContextData {
-  user?: LoggedUser | AnonymousUser;
+  user?: LoggedUser;
   isLoggedIn: boolean;
   referral?: string;
   referralOrigin?: string;
@@ -185,7 +185,7 @@ export const AuthContextProvider = ({
         squads,
         geo,
         isAndroidApp,
-        isGdprCovered: geo?.continent === 'EU',
+        isGdprCovered: true,
       }}
     >
       {children}

@@ -76,8 +76,8 @@ describe('CookieBannerGdpr', () => {
       GdprConsentKey.Necessary,
       GdprConsentKey.Marketing,
     ]);
-    expect(cookies.ilikecookies_gdpr).toEqual('true');
-    expect(cookies.ilikecookies_gdpr_marketing).toEqual('true');
+    expect(cookies.ilikecookies).toEqual('true');
+    expect(cookies.ilikecookies_marketing).toEqual('true');
   });
 
   it('should set the cookies for all when accept all is clicked', async () => {
@@ -91,8 +91,8 @@ describe('CookieBannerGdpr', () => {
       GdprConsentKey.Necessary,
       GdprConsentKey.Marketing,
     ]);
-    expect(cookies.ilikecookies_gdpr).toEqual('true');
-    expect(cookies.ilikecookies_gdpr_marketing).toEqual('true');
+    expect(cookies.ilikecookies).toEqual('true');
+    expect(cookies.ilikecookies_marketing).toEqual('true');
   });
 
   it('should open the modal for detailed consent', async () => {
