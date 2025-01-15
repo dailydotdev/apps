@@ -40,7 +40,10 @@ export function CookieConsentItem({
     const value = !isChecked;
 
     setIsChecked(value);
-    onToggle(value);
+
+    if (onToggle) {
+      onToggle(value);
+    }
   };
 
   return (
