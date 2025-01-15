@@ -34,7 +34,7 @@ type ShowLoginParams = {
 };
 
 export interface AuthContextData {
-  user?: LoggedUser;
+  user?: LoggedUser | AnonymousUser;
   isLoggedIn: boolean;
   referral?: string;
   referralOrigin?: string;
