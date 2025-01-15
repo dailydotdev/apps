@@ -42,12 +42,6 @@ const AuthModal = dynamic(
       /* webpackChunkName: "authModal" */ '@dailydotdev/shared/src/components/auth/AuthModal'
     ),
 );
-const CookieBanner = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "cookieBanner" */ '../components/banner/CookieBanner'
-    ),
-);
 
 const CookieBannerGdpr = dynamic(
   () =>
@@ -76,8 +70,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const unreadText = getUnreadText(unreadCount);
   const { user, closeLogin, shouldShowLogin, loginState } =
     useContext(AuthContext);
-  const { showBasicBanner, showGdprBanner, onAcceptCookies } =
-    useCookieBanner();
+  const { showBanner, onAcceptCookies } = useCookieBanner();
   useWebVitals();
   useLogPageView();
   const { modal, closeModal } = useLazyModal();
@@ -197,8 +190,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           {...loginState}
         />
       )}
-      {showBasicBanner && <CookieBanner onAccepted={onAcceptCookies} />}
-      {showGdprBanner && <CookieBannerGdpr onAccepted={onAcceptCookies} />}
+      {showBanner && <CookieBannerGdpr onAccepted={onAcceptCookies} />}
     </>
   );
 }

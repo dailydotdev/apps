@@ -21,21 +21,13 @@ export enum GdprConsentKey {
   Marketing = 'ilikecookies_gdpr_marketing',
 }
 
-export const consentMap = {
-  basic: 'ilikecookies',
-  gdpr: {
-    necessary: GdprConsentKey.Necessary,
-    marketing: GdprConsentKey.Marketing,
-  },
-};
-
 interface ConsentSettings {
   title: string;
   description: string;
   isAlwaysOn?: boolean;
 }
 
-export const otherGdprConsents = [consentMap.gdpr.marketing];
+export const otherGdprConsents = [GdprConsentKey.Marketing];
 export const gdprConsentSettings: Record<GdprConsentKey, ConsentSettings> = {
   [GdprConsentKey.Necessary]: {
     title: 'Strictly necessary cookies',
@@ -116,40 +108,26 @@ export const useConsentCookie = (key: string): UseConsentCookie => {
 };
 
 interface UseCookieBanner {
-  showBasicBanner: boolean;
-  showGdprBanner: boolean;
+  showBanner: boolean;
   onAcceptCookies: () => void;
 }
 
 export function useCookieBanner(): UseCookieBanner {
   const { user, isGdprCovered, isAuthReady } = useAuthContext();
   const [showCookie, acceptCookies, updateCookieBanner] = useConsentCookie(
-    consentMap.basic,
+    GdprConsentKey.Necessary,
   );
-  const [showCookieGdpr, acceptCookiesGdpr, updateCookieBannerGdpr] =
-    useConsentCookie(consentMap.gdpr.necessary);
 
   useEffect(() => {
     if (!isAuthReady) {
       return;
     }
 
-    if (isGdprCovered) {
-      updateCookieBannerGdpr(user);
-    } else {
-      updateCookieBanner(user);
-    }
-  }, [
-    updateCookieBanner,
-    updateCookieBannerGdpr,
-    isGdprCovered,
-    user,
-    isAuthReady,
-  ]);
+    updateCookieBanner(user);
+  }, [updateCookieBanner, isGdprCovered, user, isAuthReady]);
 
   return {
-    showBasicBanner: showCookie,
-    showGdprBanner: showCookieGdpr,
-    onAcceptCookies: isGdprCovered ? acceptCookiesGdpr : acceptCookies,
+    showBanner: showCookie,
+    onAcceptCookies: acceptCookies,
   };
 }

@@ -19,6 +19,7 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { otherGdprConsents } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { CommonCookieBannerProps } from './CookieBannerContainer';
 import { CookieBannerContainer } from './CookieBannerContainer';
 
@@ -26,6 +27,7 @@ export default function CookieBannerGdpr({
   onAccepted,
 }: CommonCookieBannerProps): ReactElement {
   const { openModal } = useLazyModal();
+  const { isGdprCovered } = useAuthContext();
   const onAcceptAll = () => onAccepted(otherGdprConsents);
 
   return (
@@ -72,20 +74,22 @@ export default function CookieBannerGdpr({
             size={ButtonSize.Small}
             variant={ButtonVariant.Primary}
           >
-            Accept all
+            {isGdprCovered ? 'Accept all' : 'I understand'}
           </Button>
-          <Button
-            onClick={() =>
-              openModal({
-                type: LazyModal.CookieConsent,
-                props: { onAcceptCookies: onAccepted },
-              })
-            }
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Float}
-          >
-            Customize
-          </Button>
+          {isGdprCovered && (
+            <Button
+              onClick={() =>
+                openModal({
+                  type: LazyModal.CookieConsent,
+                  props: { onAcceptCookies: onAccepted },
+                })
+              }
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Float}
+            >
+              Customize
+            </Button>
+          )}
         </div>
       </div>
     </CookieBannerContainer>

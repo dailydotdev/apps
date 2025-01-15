@@ -8,7 +8,7 @@ import {
   useCookieBanner,
 } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { nextTick } from '@dailydotdev/shared/src/lib/func';
-import { getCookies } from '@dailydotdev/shared/src/lib/cookie';
+import { expireCookie, getCookies } from '@dailydotdev/shared/src/lib/cookie';
 import { MODAL_KEY } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import CookieBannerGdpr from './CookieBannerGdpr';
@@ -17,14 +17,17 @@ let client: QueryClient;
 
 beforeEach(() => {
   jest.clearAllMocks();
-  document.cookie = '';
   client = new QueryClient();
+  document.cookie = '';
+  Object.values(GdprConsentKey).forEach((key) => {
+    expireCookie(key);
+  });
 });
 
 const WrapperComponent = () => {
-  const { showGdprBanner, onAcceptCookies } = useCookieBanner();
+  const { showBanner, onAcceptCookies } = useCookieBanner();
 
-  if (!showGdprBanner) {
+  if (!showBanner) {
     return null;
   }
 
@@ -40,11 +43,11 @@ const renderComponent = (auth: Partial<AuthContextData> = {}) => {
 };
 
 describe('CookieBannerGdpr', () => {
-  it('should not render when not covered', async () => {
+  it('should render just a single button to accept all when outside GDPR coverage', async () => {
     renderComponent();
     await nextTick();
     const banner = screen.queryByTestId('gdpr_content');
-    expect(banner).not.toBeInTheDocument();
+    expect(banner).toBeInTheDocument();
   });
 
   it('should not render when cookie is accepted already', async () => {

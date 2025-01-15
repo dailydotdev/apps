@@ -185,7 +185,7 @@ export const AuthContextProvider = ({
         squads,
         geo,
         isAndroidApp,
-        isGdprCovered: true,
+        isGdprCovered: geo?.continent === 'EU',
       }}
     >
       {children}
