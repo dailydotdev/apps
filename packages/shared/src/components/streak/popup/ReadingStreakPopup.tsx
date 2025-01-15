@@ -19,7 +19,11 @@ import ReadingStreakSwitch from '../ReadingStreakSwitch';
 import { useToggle } from '../../../hooks/useToggle';
 import { ToggleWeekStart } from '../../widgets/ToggleWeekStart';
 import { isWeekend, DayOfWeek } from '../../../lib/date';
-import { DEFAULT_TIMEZONE, isSameDayInTimezone } from '../../../lib/timezones';
+import {
+  dateFormatInTimezone,
+  DEFAULT_TIMEZONE,
+  isSameDayInTimezone,
+} from '../../../lib/timezones';
 import { SimpleTooltip } from '../../tooltips';
 import { isTesting } from '../../../lib/constants';
 
@@ -115,7 +119,7 @@ export function ReadingStreakPopup({
         <DayStreak
           key={value.getTime()}
           streak={streakDef}
-          day={value.getDay()}
+          day={dateFormatInTimezone(value, 'iiiii', user.timezone)}
           shouldShowArrow={isToday}
           onClick={() => toggleShowStreakConfig()}
         />

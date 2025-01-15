@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import { ReadingStreakIcon, TriangleArrowIcon, EditIcon } from '../../icons';
 import classed from '../../../lib/classed';
 import { IconSize, iconSizeToClassName } from '../../Icon';
-import { isNullOrUndefined } from '../../../lib/func';
 import { SimpleTooltip } from '../../tooltips';
 
 export enum Streak {
@@ -16,14 +15,13 @@ export enum Streak {
 
 interface DayStreakProps {
   streak: Streak;
-  day?: number;
+  day: string;
   size?: IconSize;
   className?: string;
   shouldShowArrow?: boolean;
   onClick?: () => void;
 }
 
-const dayInitial = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 const Circle = classed(
   'div',
   'rounded-full border border-border-subtlest-tertiary',
@@ -69,8 +67,6 @@ export function DayStreak({
     );
   };
 
-  const finalDay = day < 7 ? day : day % 7;
-
   return (
     <SimpleTooltip
       show={streak === Streak.Freeze}
@@ -89,7 +85,7 @@ export function DayStreak({
           />
         )}
         {renderIcon()}
-        {!isNullOrUndefined(day) ? dayInitial[finalDay] : null}
+        {day}
       </div>
     </SimpleTooltip>
   );
