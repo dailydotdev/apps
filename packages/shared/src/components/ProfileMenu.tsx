@@ -13,6 +13,7 @@ import {
   PauseIcon,
   EditIcon,
   DevPlusIcon,
+  PrivacyIcon,
 } from './icons';
 import InteractivePopup, {
   InteractivePopupPosition,
@@ -134,13 +135,23 @@ export default function ProfileMenu({
       });
     }
 
-    list.push({
-      title: 'Customize',
-      buttonProps: {
-        icon: <SettingsIcon />,
-        onClick: () => openModal({ type: LazyModal.UserSettings }),
+    list.push(
+      {
+        title: 'Customize',
+        buttonProps: {
+          icon: <SettingsIcon />,
+          onClick: () => openModal({ type: LazyModal.UserSettings }),
+        },
       },
-    });
+      {
+        title: 'Privacy',
+        buttonProps: {
+          tag: 'a',
+          icon: <PrivacyIcon />,
+          href: `${webappUrl}account/privacy`,
+        },
+      },
+    );
 
     list.push({
       title: 'Logout',

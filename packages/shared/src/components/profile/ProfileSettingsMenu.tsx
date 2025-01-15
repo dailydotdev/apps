@@ -15,6 +15,7 @@ import {
   HammerIcon,
   AppIcon,
   DevPlusIcon,
+  PrivacyIcon,
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
 import {
@@ -105,6 +106,7 @@ const useMenuItems = (): NavItemProps[] => {
         href: '/account/invite',
       },
       { label: 'Devcard', icon: <DevCardIcon />, href: '/devcard' },
+      { label: 'Privacy', icon: <PrivacyIcon />, href: '/privacy' },
       {
         label: 'Logout',
         icon: <ExitIcon />,
