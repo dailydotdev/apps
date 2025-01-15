@@ -17,7 +17,8 @@ export const getCookies = <
   names: T,
 ): R | undefined => {
   const cookies =
-    document?.cookie?.split(';')?.map((cookie) => cookie.trim()) || [];
+    globalThis?.document?.cookie?.split(';')?.map((cookie) => cookie.trim()) ||
+    [];
   if (!cookies.length) {
     return undefined;
   }
