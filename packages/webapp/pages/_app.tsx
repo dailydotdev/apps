@@ -90,7 +90,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       didRegisterSwRef.current = true;
       window.serwist.register();
     }
-  }, [user]);
+  }, [user, isAuthReady, updateCookieBanner]);
 
   useEffect(() => {
     if (!modal) {
