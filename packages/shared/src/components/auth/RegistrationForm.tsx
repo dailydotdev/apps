@@ -1,6 +1,8 @@
 import classNames from 'classnames';
 import type { MutableRefObject, ReactElement } from 'react';
-import React, { useContext, useEffect, useId, useState } from 'react';
+import React, { useContext, useEffect, useId, useRef, useState } from 'react';
+import type { TurnstileInstance } from '@marsidev/react-turnstile';
+import { Turnstile } from '@marsidev/react-turnstile';
 import type {
   AuthTriggersType,
   RegistrationError,
@@ -40,7 +42,9 @@ export interface RegistrationFormProps extends AuthFormProps {
 export type RegistrationFormValues = Omit<
   RegistrationParameters,
   'method' | 'provider'
->;
+> & {
+  headers?: Record<string, string>;
+};
 
 const RegistrationForm = ({
   email,
@@ -58,6 +62,7 @@ const RegistrationForm = ({
   const [name, setName] = useState('');
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { username, setUsername } = useGenerateUsername(name);
+  const ref = useRef<TurnstileInstance>(null);
 
   useEffect(() => {
     logEvent({
@@ -138,6 +143,9 @@ const RegistrationForm = ({
     onSignup({
       ...values,
       'traits.acceptedMarketing': !optOutMarketing,
+      headers: {
+        'True-Client-Ip': ref?.current?.getResponse(),
+      },
     });
   };
 
@@ -285,6 +293,11 @@ const RegistrationForm = ({
             </AuthContainer>
           )}
         >
+          <Turnstile
+            ref={ref}
+            siteKey={process.env.NEXT_PUBLIC_TURNSTILE_KEY}
+            className="mx-auto"
+          />
           <Button
             form="auth-form"
             type="submit"
