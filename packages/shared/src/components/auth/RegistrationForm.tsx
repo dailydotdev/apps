@@ -20,7 +20,7 @@ import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
 import { Checkbox } from '../fields/Checkbox';
 import LogContext from '../../contexts/LogContext';
-import { useGenerateUsername, useToastNotification } from '../../hooks';
+import { useGenerateUsername } from '../../hooks';
 import type { AuthFormProps } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
 import AuthContainer from './AuthContainer';
@@ -58,14 +58,12 @@ const RegistrationForm = ({
   onUpdateHints,
   simplified,
 }: RegistrationFormProps): ReactElement => {
-  console.log(hints);
   const { logEvent } = useContext(LogContext);
   const [turnstileError, setTurnstileError] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [name, setName] = useState('');
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { username, setUsername } = useGenerateUsername(name);
-  const { displayToast } = useToastNotification();
   const ref = useRef<TurnstileInstance>(null);
 
   useEffect(() => {
