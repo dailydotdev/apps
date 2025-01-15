@@ -101,6 +101,7 @@ const RegistrationForm = ({
     const { optOutMarketing, ...values } = formToJson<RegistrationFormValues>(
       formRef?.current ?? form,
     );
+    delete values?.['cf-turnstile-response'];
 
     if (
       !values['traits.name']?.length ||
