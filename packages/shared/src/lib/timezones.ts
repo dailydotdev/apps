@@ -606,7 +606,7 @@ export const isSameDayInTimezone = (
 ): boolean => {
   const dateFormat = 'dd-MM-yyyy';
 
-  if (globalThis.isNaN(date1.getTime()) || globalThis.isNaN(date2.getTime())) {
+  if (Number.isNaN(date1.getTime()) || Number.isNaN(date2.getTime())) {
     return false;
   }
 
