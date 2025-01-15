@@ -20,13 +20,14 @@ import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
 import { Checkbox } from '../fields/Checkbox';
 import LogContext from '../../contexts/LogContext';
-import { useGenerateUsername } from '../../hooks';
+import { useGenerateUsername, useToastNotification } from '../../hooks';
 import type { AuthFormProps } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
 import AuthContainer from './AuthContainer';
 import { onValidateHandles } from '../../hooks/useProfileForm';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
 import { LanguageDropdown } from '../profile/LanguageDropdown';
+import Alert, { AlertType } from '../widgets/Alert';
 
 export interface RegistrationFormProps extends AuthFormProps {
   email: string;
@@ -57,11 +58,14 @@ const RegistrationForm = ({
   onUpdateHints,
   simplified,
 }: RegistrationFormProps): ReactElement => {
+  console.log(hints);
   const { logEvent } = useContext(LogContext);
+  const [turnstileError, setTurnstileError] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [name, setName] = useState('');
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { username, setUsername } = useGenerateUsername(name);
+  const { displayToast } = useToastNotification();
   const ref = useRef<TurnstileInstance>(null);
 
   useEffect(() => {
@@ -78,6 +82,9 @@ const RegistrationForm = ({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({ error: hints }),
       });
+      if (hints?.csrf_token) {
+        setTurnstileError(true);
+      }
     }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -86,6 +93,7 @@ const RegistrationForm = ({
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    setTurnstileError(false);
     logEvent({
       event_name: AuthEventNames.SubmitSignUpForm,
     });
@@ -114,6 +122,17 @@ const RegistrationForm = ({
       }
 
       onUpdateHints(setHints);
+      return;
+    }
+
+    if (!ref?.current?.getResponse()) {
+      logEvent({
+        event_name: AuthEventNames.SubmitSignUpFormError,
+        extra: JSON.stringify({
+          error: 'Turnstile not valid',
+        }),
+      });
+      setTurnstileError(true);
       return;
     }
 
@@ -298,6 +317,12 @@ const RegistrationForm = ({
             siteKey={process.env.NEXT_PUBLIC_TURNSTILE_KEY}
             className="mx-auto"
           />
+          {turnstileError ? (
+            <Alert
+              type={AlertType.Error}
+              title="Please complete the security check."
+            />
+          ) : undefined}
           <Button
             form="auth-form"
             type="submit"
