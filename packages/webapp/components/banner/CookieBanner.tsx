@@ -23,7 +23,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { CommonCookieBannerProps } from './CookieBannerContainer';
 import { CookieBannerContainer } from './CookieBannerContainer';
 
-export default function CookieBannerGdpr({
+export default function CookieBanner({
   onAccepted,
 }: CommonCookieBannerProps): ReactElement {
   const { openModal } = useLazyModal();

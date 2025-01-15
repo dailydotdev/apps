@@ -43,10 +43,10 @@ const AuthModal = dynamic(
     ),
 );
 
-const CookieBannerGdpr = dynamic(
+const CookieBanner = dynamic(
   () =>
     import(
-      /* webpackChunkName: "cookieBanner" */ '../components/banner/CookieBannerGdpr'
+      /* webpackChunkName: "cookieBanner" */ '../components/banner/CookieBanner'
     ),
 );
 
@@ -190,7 +190,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           {...loginState}
         />
       )}
-      {showBanner && <CookieBannerGdpr onAccepted={onAcceptCookies} />}
+      {showBanner && <CookieBanner onAccepted={onAcceptCookies} />}
     </>
   );
 }

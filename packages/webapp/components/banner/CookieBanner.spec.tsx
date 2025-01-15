@@ -11,7 +11,7 @@ import { nextTick } from '@dailydotdev/shared/src/lib/func';
 import { expireCookie, getCookies } from '@dailydotdev/shared/src/lib/cookie';
 import { MODAL_KEY } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-import CookieBannerGdpr from './CookieBannerGdpr';
+import CookieBanner from './CookieBanner';
 
 let client: QueryClient;
 
@@ -31,7 +31,7 @@ const WrapperComponent = () => {
     return null;
   }
 
-  return <CookieBannerGdpr onAccepted={onAcceptCookies} />;
+  return <CookieBanner onAccepted={onAcceptCookies} />;
 };
 
 const renderComponent = (auth: Partial<AuthContextData> = {}) => {
