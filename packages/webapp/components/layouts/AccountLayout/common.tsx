@@ -4,6 +4,7 @@ import {
   BellIcon,
   InviteIcon,
   AppIcon,
+  PrivacyIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import {
   ProfileImageSize,
@@ -14,13 +15,6 @@ import classed from '@dailydotdev/shared/src/lib/classed';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import type { ReactNode } from 'react';
 import React from 'react';
-import {
-  faq,
-  privacyPolicy,
-  reportIssue,
-  requestFeature,
-  termsOfService,
-} from '@dailydotdev/shared/src/lib/constants';
 
 export interface ManageSocialProvidersProps {
   type: ManageSocialProviderTypes;
@@ -46,6 +40,7 @@ export enum AccountPage {
   Notifications = 'notifications',
   Integrations = 'integrations',
   InviteFriends = 'invite',
+  Privacy = 'privacy',
 }
 
 export enum AccountSecurityDisplay {
@@ -55,39 +50,6 @@ export enum AccountSecurityDisplay {
   VerifyEmail = 'verify_email',
   ConnectEmail = 'connect_email',
 }
-
-interface AccountSidebarPage {
-  title: string;
-  href: string;
-  target: string;
-}
-export const accountSidebarPages: AccountSidebarPage[] = [
-  {
-    title: 'FAQ',
-    href: faq,
-    target: '_blank',
-  },
-  {
-    title: 'Request a feature',
-    href: requestFeature,
-    target: '_blank',
-  },
-  {
-    title: 'Report an issue',
-    href: reportIssue,
-    target: '_blank',
-  },
-  {
-    title: 'Privacy policy',
-    href: privacyPolicy,
-    target: '_blank',
-  },
-  {
-    title: 'Terms of service',
-    href: termsOfService,
-    target: '_blank',
-  },
-];
 
 export const accountPage: Record<AccountPage, AccountPageProps> = {
   profile: {
@@ -142,6 +104,16 @@ export const accountPage: Record<AccountPage, AccountPageProps> = {
       />
     ),
   },
+  privacy: {
+    title: 'Privacy',
+    href: '/privacy',
+    getIcon: ({ isActive }) => (
+      <PrivacyIcon
+        secondary={isActive}
+        className={!isActive && 'text-text-secondary'}
+      />
+    ),
+  },
 };
 
 export const AccountPageContent = classed(
@@ -160,7 +132,3 @@ export const AccountPageHeading = classed(
 
 export const CommonTextField = classed(TextField, { container: 'max-w-sm' });
 export const AccountTextField = classed(CommonTextField, { container: 'mt-6' });
-export const AccountSidebarPagesSection = classed(
-  'div',
-  'flex flex-col py-4 px-5 gap-3 mt-10 w-full rounded-16 border border-border-subtlest-tertiary',
-);

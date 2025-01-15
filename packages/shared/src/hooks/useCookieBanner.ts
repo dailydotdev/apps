@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { LoggedUser } from '../lib/user';
 import type { CookieOptions } from '../lib/cookie';
 import { expireCookie, setCookie } from '../lib/cookie';
-import { useAuthContext } from '../contexts/AuthContext';
 
 export type AcceptCookiesCallback = (
   additional?: string[],
@@ -110,24 +109,17 @@ export const useConsentCookie = (key: string): UseConsentCookie => {
 interface UseCookieBanner {
   showBanner: boolean;
   onAcceptCookies: () => void;
+  updateCookieBanner: (user?: LoggedUser) => void;
 }
 
 export function useCookieBanner(): UseCookieBanner {
-  const { user, isGdprCovered, isAuthReady } = useAuthContext();
   const [showCookie, acceptCookies, updateCookieBanner] = useConsentCookie(
     GdprConsentKey.Necessary,
   );
 
-  useEffect(() => {
-    if (!isAuthReady) {
-      return;
-    }
-
-    updateCookieBanner(user);
-  }, [updateCookieBanner, isGdprCovered, user, isAuthReady]);
-
   return {
     showBanner: showCookie,
     onAcceptCookies: acceptCookies,
+    updateCookieBanner,
   };
 }

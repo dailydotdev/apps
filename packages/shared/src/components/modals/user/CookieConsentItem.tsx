@@ -9,6 +9,7 @@ import { getCookies } from '../../../lib/cookie';
 
 interface CookieConsentItemProps {
   consent: GdprConsentKey;
+  onToggle?: (value: boolean) => void;
 }
 
 const getCookie = (key: GdprConsentKey) => {
@@ -20,6 +21,7 @@ const getCookie = (key: GdprConsentKey) => {
 
 export function CookieConsentItem({
   consent,
+  onToggle,
 }: CookieConsentItemProps): ReactElement {
   const { title, description, isAlwaysOn } = gdprConsentSettings[consent];
   const [isChecked, setIsChecked] = useState<boolean>(
@@ -30,6 +32,17 @@ export function CookieConsentItem({
     return null;
   }
 
+  const onToggleSwitch = () => {
+    if (isAlwaysOn) {
+      return;
+    }
+
+    const value = !isChecked;
+
+    setIsChecked(value);
+    onToggle(value);
+  };
+
   return (
     <Accordion
       key={consent}
@@ -38,7 +51,7 @@ export function CookieConsentItem({
           name={consent}
           inputId={consent}
           checked={isChecked}
-          onToggle={() => setIsChecked(isAlwaysOn ? true : !isChecked)}
+          onToggle={onToggleSwitch}
         >
           {title}
         </Switch>

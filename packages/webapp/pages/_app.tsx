@@ -68,15 +68,19 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const didRegisterSwRef = useRef(false);
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
-  const { user, closeLogin, shouldShowLogin, loginState } =
+  const { user, closeLogin, shouldShowLogin, loginState, isAuthReady } =
     useContext(AuthContext);
-  const { showBanner, onAcceptCookies } = useCookieBanner();
+  const { showBanner, onAcceptCookies, updateCookieBanner } = useCookieBanner();
   useWebVitals();
   useLogPageView();
   const { modal, closeModal } = useLazyModal();
   useConsoleLogo();
 
   useEffect(() => {
+    if (isAuthReady) {
+      updateCookieBanner(user);
+    }
+
     if (
       user &&
       !didRegisterSwRef.current &&

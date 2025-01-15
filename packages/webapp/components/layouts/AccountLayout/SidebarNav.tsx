@@ -7,14 +7,9 @@ import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import { useRouter } from 'next/router';
 import { isTouchDevice } from '@dailydotdev/shared/src/lib/tooltip';
-import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import SidebarNavItem from './SidebarNavItem';
 import type { AccountPage } from './common';
-import {
-  accountPage,
-  accountSidebarPages,
-  AccountSidebarPagesSection,
-} from './common';
+import { accountPage } from './common';
 
 interface SidebarNavProps {
   className?: string;
@@ -86,22 +81,6 @@ function SidebarNav({
             />
           );
         })}
-        <AccountSidebarPagesSection>
-          {accountSidebarPages.map((accountSidebarPage) => (
-            <Link
-              href={accountSidebarPage.href}
-              passHref
-              key={accountSidebarPage.title}
-            >
-              <a
-                className="w-full text-text-tertiary typo-callout"
-                target={accountSidebarPage.target}
-              >
-                {accountSidebarPage.title}
-              </a>
-            </Link>
-          ))}
-        </AccountSidebarPagesSection>
       </div>
     </div>
   );

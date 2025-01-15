@@ -80,7 +80,7 @@ export const CookieConsentModal = ({
           tag={TypographyTag.Link}
           href={cookiePolicy}
         >
-          Learn more about our Cookie Policy -&gt;
+          Learn more about our Cookie Policy →
         </Typography>
         <Divider className="my-4 bg-border-subtlest-tertiary" />
         <form
