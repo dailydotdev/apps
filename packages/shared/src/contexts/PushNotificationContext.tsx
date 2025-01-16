@@ -95,13 +95,14 @@ function OneSignalSubProvider({
 
   const isPushSupported = OneSignalCache?.Notifications.isPushSupported();
 
-  subscriptionCallbackRef.current = async (_, source, permission) => {
+  subscriptionCallbackRef.current = async (
+    newPermission,
+    source,
+    existingPermission,
+  ) => {
     // eslint-disable-next-line no-console
-    console.log(
-      'subscription callback',
-      OneSignalCache.Notifications.permission,
-    );
-    if (OneSignalCache.Notifications.permission) {
+    console.log('subscription callback', newPermission);
+    if (newPermission) {
       await OneSignal.User.PushSubscription.optIn();
       setIsSubscribed(true);
 
@@ -111,7 +112,9 @@ function OneSignalSubProvider({
           origin: source || sourceRef.current,
           provider: 'web',
           permission: 'granted',
-          ...(permission && { existing_permission: permission }),
+          ...(existingPermission && {
+            existing_permission: existingPermission,
+          }),
         }),
       });
     }
