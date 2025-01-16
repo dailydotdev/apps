@@ -38,6 +38,7 @@ import {
   allowedFileSize,
   uploadNotAcceptedMessage,
 } from '../../graphql/posts';
+import { isValidHttpUrl } from '../../lib';
 
 export enum MarkdownCommand {
   Upload = 'upload',
@@ -105,6 +106,24 @@ export const useMarkdownInput = ({
   const key = ['user', query, postId, sourceId];
   const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
+
+  const getTextBoundaries = (
+    text: string,
+    selectionStart: number,
+    selectionEnd: number,
+  ) => {
+    const selectedText = text.substring(selectionStart, selectionEnd);
+    const trimmedText = selectedText.trim();
+    const leadingWhitespace =
+      selectedText.length - selectedText.trimStart().length;
+    const trailingWhitespace =
+      selectedText.length - selectedText.trimEnd().length;
+    return {
+      trimmedText,
+      newStart: selectionStart + leadingWhitespace,
+      newEnd: selectionEnd - trailingWhitespace,
+    };
+  };
 
   useEffect(() => {
     if (dirtyRef.current) {
@@ -236,8 +255,90 @@ export const useMarkdownInput = ({
     checkMention([selectionStart, selectionEnd]);
   };
 
+  const handleTextFormatting = (
+    value: string,
+    symbol: string,
+    start: number,
+    end: number,
+  ) => {
+    const { trimmedText, newStart, newEnd } = getTextBoundaries(
+      value,
+      start,
+      end,
+    );
+    const symbolLength = symbol.length;
+    const isFormatted =
+      value.substring(newStart - symbolLength, newStart) === symbol &&
+      value.substring(newEnd, newEnd + symbolLength) === symbol;
+
+    if (isFormatted) {
+      const updatedValue =
+        value.substring(0, newStart - symbolLength) +
+        trimmedText +
+        value.substring(newEnd + symbolLength);
+      return {
+        value: updatedValue,
+        selection: [newStart - symbolLength, newEnd - symbolLength] as const,
+      };
+    }
+
+    const updatedValue =
+      value.substring(0, newStart) +
+      symbol +
+      trimmedText +
+      symbol +
+      value.substring(newEnd);
+    return {
+      value: updatedValue,
+      selection: [newStart + symbolLength, newEnd + symbolLength] as const,
+    };
+  };
+
   const onKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = async (e) => {
     const isSpecialKey = e.ctrlKey || e.metaKey;
+    const textareaLocal = textareaRef.current;
+
+    if (isSpecialKey) {
+      switch (e.key) {
+        case 'b': {
+          e.preventDefault();
+          const boldResult = handleTextFormatting(
+            textareaLocal.value,
+            '**',
+            textareaLocal.selectionStart,
+            textareaLocal.selectionEnd,
+          );
+          onUpdate(boldResult.value);
+          requestAnimationFrame(() => {
+            textareaLocal.setSelectionRange(...boldResult.selection);
+          });
+          return;
+        }
+        case 'i': {
+          e.preventDefault();
+          const italicResult = handleTextFormatting(
+            textareaLocal.value,
+            '_',
+            textareaLocal.selectionStart,
+            textareaLocal.selectionEnd,
+          );
+          onUpdate(italicResult.value);
+          requestAnimationFrame(() => {
+            textareaLocal.setSelectionRange(...italicResult.selection);
+          });
+          return;
+        }
+        case 'k': {
+          e.preventDefault();
+          e.stopPropagation();
+          onLinkCommand?.();
+          return;
+        }
+        default:
+          break;
+      }
+    }
+
     const isSubmitting =
       isSpecialKey && e.key === KeyboardCommand.Enter && input?.length;
 
@@ -317,15 +418,47 @@ export const useMarkdownInput = ({
   };
 
   const onPaste: ClipboardEventHandler<HTMLTextAreaElement> = (e) => {
-    if (!e.clipboardData.files?.length || !isUploadEnabled) {
+    if (!e.clipboardData.files?.length && !isUploadEnabled) {
       return;
     }
 
-    e.preventDefault();
+    const textareaLocal = e.currentTarget;
+    const pastedText = e.clipboardData.getData('text');
+    if (
+      isValidHttpUrl(pastedText) &&
+      textareaLocal.selectionStart !== textareaLocal.selectionEnd
+    ) {
+      e.preventDefault();
+      const { trimmedText, newStart, newEnd } = getTextBoundaries(
+        textareaLocal.value,
+        textareaLocal.selectionStart,
+        textareaLocal.selectionEnd,
+      );
+      const newText =
+        isValidHttpUrl(pastedText) && trimmedText
+          ? `${textareaLocal.value.substring(
+              0,
+              newStart,
+            )}[${trimmedText}](${pastedText})${textareaLocal.value.substring(
+              newEnd,
+            )}`
+          : textareaLocal.value.substring(0, textareaLocal.selectionStart) +
+            pastedText +
+            textareaLocal.value.substring(textareaLocal.selectionEnd);
+      const linkEnd = newStart + `[${trimmedText}](${pastedText})`.length;
+      onUpdate(newText);
+      requestAnimationFrame(() => {
+        textareaLocal.setSelectionRange(linkEnd, linkEnd);
+      });
+      return;
+    }
+    if (e.clipboardData.files?.length && isUploadEnabled) {
+      e.preventDefault();
 
-    Array.from(e.clipboardData.files).forEach(verifyFile);
+      Array.from(e.clipboardData.files).forEach(verifyFile);
 
-    startUploading();
+      startUploading();
+    }
   };
 
   const onCloseMention = useCallback(() => setQuery(undefined), []);
@@ -357,7 +490,10 @@ export const useMarkdownInput = ({
       onInput,
       onKeyUp,
       onKeyDown,
+      onPaste,
       ...uploadCommands,
     },
   };
 };
+
+export default useMarkdownInput;

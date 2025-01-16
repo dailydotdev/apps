@@ -43,7 +43,6 @@ import { Divider } from '../../utilities';
 import { usePopupSelector } from '../../../hooks/usePopupSelector';
 import { focusInput } from '../../../lib/textarea';
 import CloseButton from '../../CloseButton';
-import { isValidHttpUrl } from '../../../lib';
 
 interface ClassName {
   container?: string;
@@ -173,143 +172,6 @@ function MarkdownInput(
     focusInput(textareaRef.current, [content.length, content.length]);
   }, []);
 
-  const getTextBoundaries = (
-    text: string,
-    selectionStart: number,
-    selectionEnd: number,
-  ) => {
-    const selectedText = text.substring(selectionStart, selectionEnd);
-    const trimmedText = selectedText.trim();
-    const leadingWhitespace =
-      selectedText.length - selectedText.trimStart().length;
-    const trailingWhitespace =
-      selectedText.length - selectedText.trimEnd().length;
-
-    return {
-      trimmedText,
-      newStart: selectionStart + leadingWhitespace,
-      newEnd: selectionEnd - trailingWhitespace,
-    };
-  };
-
-  const handleMarkdownShortcut = (
-    e: React.KeyboardEvent<HTMLTextAreaElement>,
-  ) => {
-    const textarea = textareaRef.current;
-    const { selectionStart, selectionEnd, value } = textarea;
-
-    const updateTextarea = (
-      newValue: string,
-      newStart: number,
-      newEnd: number,
-    ) => {
-      onValueUpdate?.(newValue);
-      callbacks.onInput?.({
-        currentTarget: { value: newValue },
-      } as React.FormEvent<HTMLTextAreaElement>);
-
-      requestAnimationFrame(() => {
-        textarea.value = newValue;
-        textarea.setSelectionRange(newStart, newEnd);
-      });
-    };
-
-    const handleTextFormatting = (symbol: string) => {
-      const { trimmedText, newStart, newEnd } = getTextBoundaries(
-        value,
-        selectionStart,
-        selectionEnd,
-      );
-      const symbolLength = symbol.length;
-
-      const isFormatted =
-        value.substring(newStart - symbolLength, newStart) === symbol &&
-        value.substring(newEnd, newEnd + symbolLength) === symbol;
-
-      let updatedValue;
-      let updatedStart;
-      let updatedEnd;
-
-      if (isFormatted) {
-        updatedValue =
-          value.substring(0, newStart - symbolLength) +
-          trimmedText +
-          value.substring(newEnd + symbolLength);
-        updatedStart = newStart - symbolLength;
-        updatedEnd = newEnd - symbolLength;
-      } else {
-        updatedValue =
-          value.substring(0, newStart) +
-          symbol +
-          trimmedText +
-          symbol +
-          value.substring(newEnd);
-        updatedStart = newStart + symbolLength;
-        updatedEnd = newEnd + symbolLength;
-      }
-
-      updateTextarea(updatedValue, updatedStart, updatedEnd);
-    };
-
-    if (e.metaKey || e.ctrlKey) {
-      switch (e.key) {
-        case 'b':
-          e.preventDefault();
-          handleTextFormatting('**');
-          break;
-        case 'i':
-          e.preventDefault();
-          handleTextFormatting('_');
-          break;
-        case 'k':
-          e.preventDefault();
-          e.stopPropagation();
-          onLinkCommand?.();
-          break;
-        default:
-          break;
-      }
-    }
-  };
-
-  const handleLinkPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    const textarea = e.currentTarget;
-    const { selectionStart, selectionEnd, value } = textarea;
-    const pastedText = e.clipboardData.getData('text');
-
-    if (isValidHttpUrl(pastedText) && selectionStart !== selectionEnd) {
-      e.preventDefault();
-
-      const { trimmedText, newStart, newEnd } = getTextBoundaries(
-        value,
-        selectionStart,
-        selectionEnd,
-      );
-
-      const newText =
-        isValidHttpUrl(pastedText) && trimmedText
-          ? `${value.substring(
-              0,
-              newStart,
-            )}[${trimmedText}](${pastedText})${value.substring(newEnd)}`
-          : value.substring(0, selectionStart) +
-            pastedText +
-            value.substring(selectionEnd);
-
-      const linkEnd = newStart + `[${trimmedText}](${pastedText})`.length;
-
-      onValueUpdate?.(newText);
-      callbacks.onInput?.({
-        currentTarget: { value: newText },
-      } as React.FormEvent<HTMLTextAreaElement>);
-
-      requestAnimationFrame(() => {
-        textarea.value = newText;
-        textarea.setSelectionRange(linkEnd, linkEnd);
-      });
-    }
-  };
-
   return (
     <div
       className={classNames(
@@ -398,8 +260,6 @@ function MarkdownInput(
                 )}
                 value={input}
                 onClick={onInputClick}
-                onKeyDown={handleMarkdownShortcut}
-                onPaste={handleLinkPaste}
                 onDragOver={(e) => e.preventDefault()} // for better experience and stop opening the file with browser
                 maxLength={maxInputLength}
               />
