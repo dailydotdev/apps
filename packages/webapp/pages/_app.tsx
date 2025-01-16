@@ -31,6 +31,7 @@ import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { fromCDN } from '@dailydotdev/shared/src/lib';
+import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -65,7 +66,10 @@ const getRedirectUri = () =>
 const getPage = () => window.location.pathname;
 
 function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
+  const { isOnboardingReady, hasCompletedContentTypes, hasCompletedEditTags } =
+    useOnboarding();
   const didRegisterSwRef = useRef(false);
+
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
   const { user, closeLogin, shouldShowLogin, loginState, isAuthReady } =
@@ -77,9 +81,22 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   useConsoleLogo();
 
   useEffect(() => {
-    if (isAuthReady) {
-      updateCookieBanner(user);
+    if (
+      isOnboardingReady &&
+      (!hasCompletedEditTags || !hasCompletedContentTypes) &&
+      !router.pathname.includes('/onboarding')
+    ) {
+      router.replace('/onboarding');
     }
+  }, [
+    isOnboardingReady,
+    router,
+    hasCompletedEditTags,
+    hasCompletedContentTypes,
+  ]);
+
+  useEffect(() => {
+    updateCookieBanner(user);
 
     if (
       user &&

@@ -1,11 +1,5 @@
 import type { ReactElement } from 'react';
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type {
   AuthOptionsProps,
@@ -78,6 +72,8 @@ import {
   UserAgent,
 } from '@dailydotdev/shared/src/lib/func';
 import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboarding/Extension/useOnboardingExtension';
+import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useInstallPWA } from '@dailydotdev/shared/src/components/onboarding/PWA/useInstallPWA';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
@@ -146,6 +142,12 @@ const seo: NextSeoProps = {
 };
 
 export function OnboardPage(): ReactElement {
+  const {
+    isOnboardingReady,
+    hasCompletedEditTags,
+    hasCompletedContentTypes,
+    completeStep,
+  } = useOnboarding();
   const router = useRouter();
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
@@ -212,11 +214,21 @@ export function OnboardPage(): ReactElement {
   ].includes(activeScreen);
 
   useEffect(() => {
-    if (!isPageReady || isLogged.current) {
+    if (!isPageReady || isLogged.current || !isOnboardingReady) {
       return;
     }
 
-    if (user) {
+    if (user?.infoConfirmed && !hasCompletedEditTags) {
+      setActiveScreen(OnboardingStep.EditTag);
+      return;
+    }
+
+    if (user?.infoConfirmed && !hasCompletedContentTypes) {
+      setActiveScreen(OnboardingStep.ContentTypes);
+      return;
+    }
+
+    if (user?.infoConfirmed && activeScreen === OnboardingStep.Intro) {
       router.replace(getPathnameWithQuery(webappUrl, window.location.search));
       return;
     }
@@ -224,7 +236,7 @@ export function OnboardPage(): ReactElement {
     isLogged.current = true;
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPageReady, user]);
+  }, [isPageReady, user, isOnboardingReady]);
 
   const onClickNext: OnboardingOnClickNext = (options) => {
     logEvent({
@@ -237,8 +249,13 @@ export function OnboardPage(): ReactElement {
     }
 
     if (activeScreen === OnboardingStep.EditTag) {
+      completeStep(ActionType.EditTag);
       setShouldEnrollOnboardingStep(true);
       return setActiveScreen(OnboardingStep.ContentTypes);
+    }
+
+    if (activeScreen === OnboardingStep.ContentTypes) {
+      completeStep(ActionType.ContentTypes);
     }
 
     if (
@@ -332,10 +349,6 @@ export function OnboardPage(): ReactElement {
     return onClickNext();
   };
 
-  const onSuccessfulLogin = useCallback(() => {
-    router.replace(getPathnameWithQuery(webappUrl, window.location.search));
-  }, [router]);
-
   const onSuccessfulRegistration = (userRefetched: LoggedUser) => {
     logPixelSignUp({
       experienceLevel: userRefetched?.experienceLevel,
@@ -361,7 +374,6 @@ export function OnboardPage(): ReactElement {
       initialEmail: email,
       isLoginFlow,
       targetId,
-      onSuccessfulLogin,
       onSuccessfulRegistration,
       onAuthStateUpdate: (props: AuthProps) =>
         setAuth({ isAuthenticating: true, ...props }),
@@ -376,7 +388,6 @@ export function OnboardPage(): ReactElement {
     isAuthenticating,
     isLoginFlow,
     isMobile,
-    onSuccessfulLogin,
     targetId,
   ]);
 
@@ -399,8 +410,10 @@ export function OnboardPage(): ReactElement {
     !isAuthenticating && activeScreen === OnboardingStep.Intro && !shouldVerify;
 
   const showGenerigLoader =
-    isAuthenticating && isAuthLoading && activeScreen === OnboardingStep.Intro;
-
+    isAuthenticating &&
+    isAuthLoading &&
+    activeScreen === OnboardingStep.Intro &&
+    !isOnboardingReady;
   if (!isPageReady) {
     return null;
   }
