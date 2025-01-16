@@ -1,11 +1,11 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import type { DropdownClassName } from '../fields/Dropdown';
 import { Dropdown } from '../fields/Dropdown';
 import { LanguageIcon } from '../icons';
 import type { BaseFieldProps } from '../fields/BaseFieldContainer';
-import { ContentLanguage, contnetLanguageToLabelMap } from '../../lib/user';
+import { ContentLanguage, contentLanguageToLabelMap } from '../../lib/user';
 import type { IconProps } from '../Icon';
 
 type ClassName = {
@@ -33,8 +33,13 @@ export const LanguageDropdown = ({
   icon = defaultIcon,
 }: Props): ReactElement => {
   const [open, setOpen] = useState(false);
+  const values = useMemo(() => {
+    const val = Object.values(ContentLanguage);
+    val.splice(1, 1);
+    return val;
+  }, []);
   const [selectedIndex, setSelectedIndex] = useState(
-    defaultValue ? Object.values(ContentLanguage).indexOf(defaultValue) : 0,
+    defaultValue ? values.indexOf(defaultValue) : 0,
   );
 
   const {
@@ -63,7 +68,7 @@ export const LanguageDropdown = ({
             !open &&
               !valid &&
               '!shadow-[inset_0.125rem_0_0_var(--status-error)]',
-            selectedIndex > -1 && '!text-text-primary',
+            selectedIndex > 0 && '!text-text-primary',
           ),
           menu: classNames(
             menuClassName,
@@ -73,9 +78,9 @@ export const LanguageDropdown = ({
           container: dropdownClassName,
         }}
         selectedIndex={selectedIndex}
-        options={Object.values(contnetLanguageToLabelMap)}
+        options={Object.values(contentLanguageToLabelMap)}
         onChange={(_, index) => {
-          const val = Object.values(ContentLanguage)[index];
+          const val = values[index] as ContentLanguage;
           onChange?.(val, index);
           setSelectedIndex(index);
         }}
@@ -88,7 +93,7 @@ export const LanguageDropdown = ({
           type="text"
           className="hidden"
           name={name}
-          value={Object.values(ContentLanguage)[selectedIndex]}
+          value={values[selectedIndex]}
           readOnly
         />
       )}
