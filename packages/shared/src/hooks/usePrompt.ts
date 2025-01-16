@@ -25,6 +25,7 @@ export type PromptOptions = {
     description?: string;
     buttons?: string;
   };
+  shouldCloseOnOverlayClick?: boolean;
 };
 
 type Prompt = {
