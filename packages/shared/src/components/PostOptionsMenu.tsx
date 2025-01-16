@@ -50,7 +50,10 @@ import { generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { LogEvent, Origin } from '../lib/log';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
-import usePostById, { getPostByIdKey } from '../hooks/usePostById';
+import usePostById, {
+  getPostByIdKey,
+  invalidatePostCacheById,
+} from '../hooks/usePostById';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { labels } from '../lib';
@@ -512,21 +515,16 @@ export default function PostOptionsMenu({
         ? `Unblock ${post.author.name}`
         : `Block ${post.author.name}`,
       action: async () => {
-        const clearCache = () => {
-          const postQueryKey = getPostByIdKey(post.id);
-          const postCache = client.getQueryData(postQueryKey);
-          if (postCache) {
-            client.invalidateQueries({ queryKey: postQueryKey });
-          }
-        };
-
         if (!isBlockedAuthor) {
           openModal({
             type: LazyModal.ReportUser,
             props: {
               offendingUser: post.author,
               defaultBlockUser: true,
-              onBlockUser: clearCache,
+              onBlockUser: invalidatePostCacheById.bind(null, [
+                client,
+                post.id,
+              ]),
               ...(isCustomFeed && { feedId: customFeedId }),
             },
           });
@@ -540,7 +538,7 @@ export default function PostOptionsMenu({
           feedId: router.query.slugOrId ? `${router.query.slugOrId}` : null,
         });
 
-        clearCache();
+        invalidatePostCacheById(client, post.id);
       },
     });
   }
