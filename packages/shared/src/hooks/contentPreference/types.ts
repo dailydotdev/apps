@@ -38,6 +38,7 @@ export const contentPreferenceMutationMatcher: UseMutationMatcher<
       RequestKey.ContentPreferenceSubscribe,
       RequestKey.ContentPreferenceUnsubscribe,
       RequestKey.ContentPreferenceUnblock,
+      RequestKey.ContentPreferenceBlock,
     ].includes(requestKey as RequestKey)
   );
 };
@@ -50,6 +51,7 @@ export const mutationKeyToContentPreferenceStatusMap: Partial<
   [RequestKey.ContentPreferenceSubscribe]: ContentPreferenceStatus.Subscribed,
   [RequestKey.ContentPreferenceUnsubscribe]: ContentPreferenceStatus.Follow,
   [RequestKey.ContentPreferenceUnblock]: null,
+  [RequestKey.ContentPreferenceBlock]: ContentPreferenceStatus.Blocked,
 };
 
 export const isFollowingContent = (
