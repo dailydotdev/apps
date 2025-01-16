@@ -30,7 +30,8 @@ export const otherGdprConsents = [GdprConsentKey.Marketing];
 export const gdprConsentSettings: Record<GdprConsentKey, ConsentSettings> = {
   [GdprConsentKey.Necessary]: {
     title: 'Strictly necessary cookies',
-    description: '',
+    description:
+      'These cookies are used for activities that are strictly necessary to operate or deliver the service you requested from us and, therefore, do not require you to consent.',
     isAlwaysOn: true,
   },
   [GdprConsentKey.Marketing]: {
