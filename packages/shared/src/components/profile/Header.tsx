@@ -52,7 +52,7 @@ export function Header({
     id: user?.id,
     entity: ContentPreferenceType.User,
   });
-  const { unblock } = useContentPreference();
+  const { unblock, block } = useContentPreference();
 
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
@@ -169,7 +169,11 @@ export function Header({
                         entity: ContentPreferenceType.User,
                         entityName: user.username,
                       })
-                    : onReportUser(true),
+                    : block({
+                        id: user.id,
+                        entity: ContentPreferenceType.User,
+                        entityName: user.username,
+                      }),
               },
               {
                 icon: <MenuIcon Icon={FlagIcon} />,
