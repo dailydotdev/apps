@@ -141,6 +141,7 @@ export enum RequestKey {
   Source = 'source',
   Sources = 'sources',
   OneSignal = 'onesignal',
+  ApplePush = 'apple_push',
   ActiveUsers = 'active_users',
   PushNotification = 'push_notification',
   ShortUrl = 'short_url',
