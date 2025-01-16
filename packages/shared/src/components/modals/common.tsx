@@ -217,7 +217,7 @@ const AddToCustomFeedModal = dynamic(
 const CookieConsentModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "addToCustomFeedModal" */ './user/CookieConsentModal'
+      /* webpackChunkName: "cookieConsentModal" */ './user/CookieConsentModal'
     ),
 );
 
