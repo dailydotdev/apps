@@ -8,7 +8,7 @@ import React, {
   useState,
 } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import type OneSignal from 'react-onesignal';
+import OneSignal from 'react-onesignal';
 import type { NotificationPromptSource } from '../lib/log';
 import { LogEvent } from '../lib/log';
 import { checkIsExtension, disabledRefetch } from '../lib/func';
@@ -19,14 +19,15 @@ import { useLogContext } from './LogContext';
 import type { SubscriptionCallback } from '../components/notifications/utils';
 
 export interface PushNotificationsContextData {
-  OneSignal: typeof OneSignal;
   isPushSupported: boolean;
   isInitialized: boolean;
   isSubscribed: boolean;
   isLoading: boolean;
-  shouldOpenPopup: boolean;
-  onSourceChange: (source: string) => void;
+  shouldOpenPopup: () => boolean;
+  onSourceChange: (source: NotificationPromptSource) => void;
   logPermissionGranted: (source: NotificationPromptSource) => void;
+  subscribe: (source: NotificationPromptSource) => Promise<boolean>;
+  unsubscribe: (source: NotificationPromptSource) => Promise<void>;
 }
 
 export const PushNotificationsContext =
@@ -35,10 +36,11 @@ export const PushNotificationsContext =
     isInitialized: true,
     isSubscribed: false,
     isLoading: false,
-    shouldOpenPopup: true,
+    shouldOpenPopup: () => true,
     logPermissionGranted: null,
     onSourceChange: null,
-    OneSignal: null,
+    subscribe: null,
+    unsubscribe: null,
   });
 
 interface PushNotificationContextProviderProps {
@@ -119,12 +121,44 @@ function OneSignalSubProvider({
   });
 
   const logPermissionGranted = useCallback(
-    (source) => subscriptionCallbackRef.current?.(true, source, true),
+    (source: NotificationPromptSource) =>
+      subscriptionCallbackRef.current?.(true, source, true),
     [],
   );
 
   const isEnabled = !!user && !isTesting;
   const isPushSupported = OneSignalCache?.Notifications.isPushSupported();
+
+  const subscribe = useCallback(
+    async (source: NotificationPromptSource) => {
+      if (!OneSignalCache) {
+        return false;
+      }
+      onSourceChange(source);
+      if (!OneSignalCache.Notifications.permission) {
+        await OneSignalCache.Notifications.requestPermission();
+      }
+      if (OneSignalCache.Notifications.permission) {
+        await OneSignal.User.PushSubscription.optIn();
+        setIsSubscribed(true);
+        return true;
+      }
+      return false;
+    },
+    [OneSignalCache, onSourceChange],
+  );
+
+  const unsubscribe = useCallback(
+    async (source: NotificationPromptSource) => {
+      if (!OneSignalCache) {
+        return;
+      }
+      onSourceChange(source);
+      await OneSignalCache.User.PushSubscription.optOut();
+      setIsSubscribed(false);
+    },
+    [OneSignalCache, onSourceChange],
+  );
 
   useEffect(() => {
     if (!OneSignalCache) {
@@ -154,8 +188,12 @@ function OneSignalSubProvider({
         isPushSupported: !!(isPushSupported && isSuccess && isEnabled),
         onSourceChange,
         logPermissionGranted,
-        shouldOpenPopup: false,
-        OneSignal: isFetched ? OneSignalCache : null,
+        shouldOpenPopup: () => {
+          const { permission } = globalThis.Notification ?? {};
+          return permission === 'denied';
+        },
+        subscribe,
+        unsubscribe,
       }}
     >
       {children}
@@ -171,6 +209,7 @@ function NativeAppleSubProvider({
   const [isSubscribed, setIsSubscribed] = useState(false);
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
+  const isEnabled = !!user && !isTesting;
   const subscriptionCallback: SubscriptionCallback = (
     isSubscribedNew,
     source,
@@ -206,32 +245,49 @@ function NativeAppleSubProvider({
     queryFn: async () => {
       return new Promise((resolve) => {
         globalThis.addEventListener(
-          'push-permission-state',
+          'push-state',
           (event: CustomEvent) => {
             // eslint-disable-next-line no-console
-            console.log('push-permission-state', event?.detail);
-            setIsSubscribed(
-              ['authorized', 'ephemeral', 'provisional'].indexOf(
-                event?.detail,
-              ) > -1,
-            );
+            console.log('push-state', event?.detail);
+            setIsSubscribed(!!event?.detail);
             resolve();
           },
           { once: true },
         );
-        globalThis.webkit.messageHandlers['push-permission-state'].postMessage(
-          null,
-        );
+        globalThis.webkit.messageHandlers['push-state'].postMessage(null);
         globalThis.webkit.messageHandlers['push-user-id'].postMessage(user.id);
       });
     },
+    enabled: isEnabled,
     ...disabledRefetch,
   });
 
-  useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.log('native apple sub provider');
-  }, []);
+  const subscribe = useCallback(
+    async (source: NotificationPromptSource) => {
+      onSourceChange(source);
+      return new Promise<boolean>((resolve) => {
+        globalThis.addEventListener(
+          'push-state',
+          (event: CustomEvent) => {
+            // eslint-disable-next-line no-console
+            console.log('push-subscribe', event?.detail);
+            resolve(!!event?.detail);
+          },
+          { once: true },
+        );
+        globalThis.webkit.messageHandlers['push-subscribe'].postMessage(null);
+      });
+    },
+    [onSourceChange],
+  );
+
+  const unsubscribe = useCallback(
+    async (source: NotificationPromptSource) => {
+      onSourceChange(source);
+      globalThis.webkit.messageHandlers['push-unsubscribe'].postMessage(null);
+    },
+    [onSourceChange],
+  );
 
   return (
     <PushNotificationsContext.Provider
@@ -242,8 +298,9 @@ function NativeAppleSubProvider({
         isPushSupported: true,
         onSourceChange,
         logPermissionGranted,
-        shouldOpenPopup: false,
-        OneSignal: null,
+        shouldOpenPopup: () => false,
+        subscribe,
+        unsubscribe,
       }}
     >
       {children}
