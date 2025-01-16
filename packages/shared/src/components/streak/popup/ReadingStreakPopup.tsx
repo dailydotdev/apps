@@ -192,8 +192,10 @@ export function ReadingStreakPopup({
                 </div>
               }
             >
-              <div className="m-auto flex items-center">
-                <WarningIcon className="text-raw-cheese-40" secondary />
+              <div className="m-auto flex items-center tablet:m-0">
+                {!isTimezoneOk && (
+                  <WarningIcon className="text-raw-cheese-40" secondary />
+                )}
                 <div className="flex justify-center font-normal !text-text-quaternary underline decoration-raw-pepper-10 tablet:m-0 tablet:justify-start">
                   <Link
                     onClick={async (event) => {
