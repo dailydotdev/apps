@@ -278,6 +278,7 @@ export interface RequestResponse<TData = unknown, TError = InitializationData> {
 
 export interface AuthPostParams {
   csrf_token: string;
+  headers?: Record<string, string>;
 }
 
 export interface KratosFormParams<T extends AuthPostParams> {
@@ -311,15 +312,17 @@ export const submitKratosFlow = async <
   params,
   method = 'POST',
 }: KratosFormParams<T>): Promise<RequestResponse<R, E>> => {
+  const { headers, ...rest } = params;
   const res = await fetch(action, {
     method,
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      'X-CSRF-Token': params.csrf_token,
+      'X-CSRF-Token': rest.csrf_token,
       Accept: 'application/json',
+      ...headers,
     },
-    body: method === 'GET' ? undefined : JSON.stringify(params),
+    body: method === 'GET' ? undefined : JSON.stringify(rest),
   });
 
   if (res.status === 204) {
