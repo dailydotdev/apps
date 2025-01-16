@@ -42,6 +42,8 @@ function OneSignalSubProvider({
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
 
+  const isEnabled = !!user && !isTesting;
+
   const key = generateQueryKey(RequestKey.OneSignal, user);
   const client = useQueryClient();
   const {
@@ -73,10 +75,10 @@ function OneSignalSubProvider({
 
       return OneSignalImport;
     },
+    enabled: isEnabled,
     ...disabledRefetch,
   });
 
-  const isEnabled = !!user && !isTesting;
   const isPushSupported = OneSignalCache?.Notifications.isPushSupported();
 
   const subscribe = useCallback(
@@ -118,13 +120,21 @@ function OneSignalSubProvider({
     setIsSubscribed(false);
   }, [OneSignalCache]);
 
+  // eslint-disable-next-line no-console
+  console.log('OneSignalSubProvider', {
+    isSubscribed,
+    isEnabled,
+    isFetched,
+    isSuccess,
+    isPushSupported,
+  });
   return (
     <PushNotificationsContext.Provider
       value={{
         isInitialized: !isEnabled || isFetched || !isSuccess,
         isLoading,
         isSubscribed,
-        isPushSupported: !!(isPushSupported && isSuccess && isEnabled),
+        isPushSupported: isPushSupported && isSuccess && isEnabled,
         shouldOpenPopup: () => {
           const { permission } = globalThis.Notification ?? {};
           return permission === 'denied';
