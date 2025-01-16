@@ -34,6 +34,7 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement {
       cancelButton = {},
       okButton = {},
       className = {},
+      shouldCloseOnOverlayClick,
     },
   } = prompt;
   return (
@@ -46,6 +47,7 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement {
       overlayClassName="!z-max"
       isDrawerOnMobile
       drawerProps={{ displayCloseButton: false, appendOnRoot: true }}
+      shouldCloseOnOverlayClick={shouldCloseOnOverlayClick}
       {...props}
     >
       <Modal.Body>
