@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import { ReadingStreakPopup } from './popup';
 import type { ButtonIconPosition } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { ReadingStreakIcon } from '../icons';
+import { ReadingStreakIcon, WarningIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips';
 import type { UserStreak } from '../../graphql/users';
 import { useViewSize, ViewSize } from '../../hooks';
@@ -122,10 +122,10 @@ export function ReadingStreakButton({
           type="button"
           iconPosition={iconPosition}
           icon={
-            <IconWrapper className="relative">
+            <IconWrapper wrapperClassName="relative flex items-center gap-2">
               <ReadingStreakIcon secondary={hasReadToday} />
               {!isTimezoneOk && (
-                <div className="absolute -right-1 -top-2 typo-body">⚠️</div>
+                <WarningIcon className="text-raw-cheese-40" secondary />
               )}
             </IconWrapper>
           }

@@ -62,23 +62,31 @@ const Icon = ({
   );
 };
 
-export const IconWrapper = ({
+export /**
+ * Icon wrapper so we can use more then single element inside the icon
+ * prop on different components. Wrapper automatically applies icon
+ * props as size to all children.
+ */
+const IconWrapper = ({
   size,
-  className,
+  wrapperClassName,
   children,
-}: IconProps & { children: ReactNode }): ReactElement => {
+  ...rest
+}: Omit<IconProps, 'className'> & {
+  wrapperClassName?: string;
+  children: ReactNode;
+}): ReactElement => {
   return (
-    <div
-      className={classNames(
-        iconSizeToClassName[size],
-        'pointer-events-none',
-        className,
-      )}
-    >
+    <div className={wrapperClassName}>
       {Children.map(children, (child) => {
         if (React.isValidElement(child)) {
+          // so that className is no exposed from outside since components
+          // like Button override it for icons
+          const { className } = rest as { className: string };
+
           return React.cloneElement<Props>(child as ReactElement, {
             size,
+            className: classNames(child.props.className, className),
           });
         }
 

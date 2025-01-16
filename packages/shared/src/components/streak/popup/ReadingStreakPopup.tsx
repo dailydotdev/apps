@@ -14,7 +14,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions, useViewSize, ViewSize } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { Button, ButtonVariant } from '../../buttons/Button';
-import { SettingsIcon } from '../../icons';
+import { SettingsIcon, WarningIcon } from '../../icons';
 import StreakReminderSwitch from '../StreakReminderSwitch';
 import ReadingStreakSwitch from '../ReadingStreakSwitch';
 import { useToggle } from '../../../hooks/useToggle';
@@ -192,47 +192,50 @@ export function ReadingStreakPopup({
                 </div>
               }
             >
-              <div className="m-auto flex justify-center font-normal !text-text-quaternary underline decoration-raw-pepper-10 tablet:m-0 tablet:justify-start">
-                <Link
-                  onClick={async (event) => {
-                    if (isTimezoneOk) {
-                      return;
-                    }
+              <div className="m-auto flex items-center">
+                <WarningIcon className="text-raw-cheese-40" secondary />
+                <div className="flex justify-center font-normal !text-text-quaternary underline decoration-raw-pepper-10 tablet:m-0 tablet:justify-start">
+                  <Link
+                    onClick={async (event) => {
+                      const deviceTimezone =
+                        Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-                    event.preventDefault();
+                      if (isTimezoneOk) {
+                        return;
+                      }
 
-                    const deviceTimezone =
-                      Intl.DateTimeFormat().resolvedOptions().timeZone;
+                      event.preventDefault();
 
-                    const promptResult = await showPrompt({
-                      title: 'Streak timezone mismatch',
-                      description: `We detected your current timezone setting ${getTimezoneOffsetLabel(
-                        user?.timezone,
-                      )} does not match your current device timezone ${getTimezoneOffsetLabel(
-                        deviceTimezone,
-                      )}. You can update your timezone in settings.`,
-                      okButton: {
-                        title: 'Go to settings',
-                      },
-                      cancelButton: {
-                        title: 'Ignore',
-                      },
-                    });
+                      const promptResult = await showPrompt({
+                        title: 'Streak timezone mismatch',
+                        description: `We detected your current timezone setting ${getTimezoneOffsetLabel(
+                          user?.timezone,
+                        )} does not match your current device timezone ${getTimezoneOffsetLabel(
+                          deviceTimezone,
+                        )}. You can update your timezone in settings.`,
+                        okButton: {
+                          title: 'Go to settings',
+                        },
+                        cancelButton: {
+                          title: 'Ignore',
+                        },
+                      });
 
-                    if (!promptResult) {
-                      setTimezoneMismatchIgnore(deviceTimezone);
+                      if (!promptResult) {
+                        setTimezoneMismatchIgnore(deviceTimezone);
 
-                      return;
-                    }
+                        return;
+                      }
 
-                    router.push(timezoneSettingsHref);
-                  }}
-                  href={timezoneSettingsHref}
-                >
-                  {isTimezoneOk
-                    ? user.timezone || DEFAULT_TIMEZONE
-                    : 'Timezone mismatch ⚠️'}
-                </Link>
+                      router.push(timezoneSettingsHref);
+                    }}
+                    href={timezoneSettingsHref}
+                  >
+                    {isTimezoneOk
+                      ? user.timezone || DEFAULT_TIMEZONE
+                      : 'Timezone mismatch'}
+                  </Link>
+                </div>
               </div>
             </SimpleTooltip>
           </div>
