@@ -7,7 +7,12 @@ import type {
   RegistrationParameters,
   ValidateRegistrationParams,
 } from '../lib/auth';
-import { AuthEventNames, errorsToJson, getNodeValue } from '../lib/auth';
+import {
+  AuthEventNames,
+  errorsToJson,
+  getNodeByKey,
+  getNodeValue,
+} from '../lib/auth';
 import type {
   InitializationData,
   SuccessfulRegistrationData,
@@ -162,9 +167,15 @@ const useRegistration = ({
         return displayToast('An error occurred, please refresh the page.');
       }
 
+      const turnstileError = getNodeByKey('csrf_token', error.ui.nodes);
       const emailExists = error?.ui?.messages?.find(
         (message) => message.id === EMAIL_EXISTS_ERROR_ID,
       );
+      if (turnstileError?.messages?.length > 0) {
+        return onInvalidRegistration?.({
+          csrf_token: 'Turnstile error',
+        });
+      }
       if (emailExists) {
         return onInvalidRegistration?.({
           'traits.email': 'Email is already taken!',

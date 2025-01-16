@@ -1,11 +1,10 @@
 import { useCallback, useMemo } from 'react';
 import { useAuthContext } from '../contexts/AuthContext';
-import { feature, plusImprovedEntryPoint } from '../lib/featureManagement';
+import { feature } from '../lib/featureManagement';
 import { useFeature } from '../components/GrowthBookProvider';
 import { TargetType } from '../lib/log';
 import type { LogEvent, TargetId } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
-import { useConditionalFeature } from './useConditionalFeature';
 
 type LogSubscriptionEvent = {
   event_name: LogEvent | string;
@@ -17,7 +16,6 @@ export const usePlusSubscription = (): {
   showPlusSubscription: boolean;
   isPlus: boolean;
   isEnrolledNotPlus: boolean;
-  isPlusEntrypointExperiment: boolean;
   logSubscriptionEvent: (event: LogSubscriptionEvent) => void;
 } => {
   const { user } = useAuthContext();
@@ -41,10 +39,6 @@ export const usePlusSubscription = (): {
     () => (isPlus ? true : plusSubscriptionFeature),
     [isPlus, plusSubscriptionFeature],
   );
-  const { value: isEntrypointExperiment } = useConditionalFeature({
-    feature: plusImprovedEntryPoint,
-    shouldEvaluate: showPlusSubscription,
-  });
 
   const isEnrolledNotPlus = useMemo(
     () => plusSubscriptionFeature && !isPlus,
@@ -55,7 +49,6 @@ export const usePlusSubscription = (): {
     showPlusSubscription,
     isPlus,
     isEnrolledNotPlus,
-    isPlusEntrypointExperiment: isEntrypointExperiment,
     logSubscriptionEvent,
   };
 };

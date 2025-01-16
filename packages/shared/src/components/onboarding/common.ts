@@ -1,5 +1,11 @@
 import classed from '../../lib/classed';
 
+export type OnboardingOnClickNext = (
+  options?: Partial<{
+    clickExtension: boolean;
+  }>,
+) => void;
+
 export enum OnboardingStep {
   Intro = 'intro',
   Topics = 'topics',
@@ -11,6 +17,7 @@ export enum OnboardingStep {
   PWA = 'pwa',
   Plus = 'plus',
   Extension = 'extension',
+  InstallDesktop = 'install_desktop',
 }
 
 export const OnboardingTitle = classed(
