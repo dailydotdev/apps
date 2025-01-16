@@ -170,6 +170,7 @@ export enum LogEvent {
   ScheduleStreakReminder = 'schedule streak reminder',
   StreakRecover = 'restore streak',
   DismissStreakRecover = 'dimiss streaks milestone',
+  StreakTimezoneMismatch = 'streak timezone mismatch',
   // 404 page
   View404Page = '404 page',
   // Follow Actions - start
