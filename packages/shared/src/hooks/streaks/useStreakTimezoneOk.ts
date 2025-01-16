@@ -2,24 +2,22 @@ import { getTimezoneOffset } from 'date-fns-tz';
 import { useEffect, useMemo } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { DEFAULT_TIMEZONE } from '../../lib/timezones';
-import usePersistentContext from '../usePersistentContext';
 import { useActions } from '../useActions';
 import { ActionType } from '../../graphql/actions';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
-
-export const timezoneMismatchIgnoreKey = 'timezoneMismatchIgnore';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 
 export const useStreakTimezoneOk = (): boolean => {
   const { user, isLoggedIn } = useAuthContext();
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const { logEvent } = useLogContext();
+  const { flags } = useSettingsContext();
 
-  const [ignoredTimezone] = usePersistentContext(timezoneMismatchIgnoreKey, '');
   const deviceTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const isTimezoneOk = useMemo(() => {
-    if (ignoredTimezone === deviceTimezone) {
+    if (flags?.timezoneMismatchIgnore === deviceTimezone) {
       return true;
     }
 
@@ -31,7 +29,12 @@ export const useStreakTimezoneOk = (): boolean => {
       getTimezoneOffset(user?.timezone || DEFAULT_TIMEZONE) ===
       getTimezoneOffset(Intl.DateTimeFormat().resolvedOptions().timeZone)
     );
-  }, [deviceTimezone, ignoredTimezone, isLoggedIn, user?.timezone]);
+  }, [
+    deviceTimezone,
+    flags?.timezoneMismatchIgnore,
+    isLoggedIn,
+    user?.timezone,
+  ]);
 
   // once off check to see how many users with timezone mismatches we have in the wild
   useEffect(() => {
@@ -53,14 +56,14 @@ export const useStreakTimezoneOk = (): boolean => {
         device_timezone: deviceTimezone,
         user_timezone: user?.timezone,
         timezone_ok: isTimezoneOk,
-        timezone_ignore: ignoredTimezone,
+        timezone_ignore: flags?.timezoneMismatchIgnore,
       }),
     });
 
     completeAction(ActionType.StreakTimezoneMismatch);
   }, [
     isTimezoneOk,
-    ignoredTimezone,
+    flags?.timezoneMismatchIgnore,
     isActionsFetched,
     checkHasCompleted,
     completeAction,
