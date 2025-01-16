@@ -1,4 +1,6 @@
+import { utcToZonedTime } from 'date-fns-tz';
 import { isNullOrUndefined } from './func';
+import { DEFAULT_TIMEZONE } from './timezones';
 
 export enum DayOfWeek {
   Sunday = 0,
@@ -13,10 +15,11 @@ export enum DayOfWeek {
 export const DEFAULT_WEEK_START = DayOfWeek.Monday;
 
 export const isWeekend = (
-  date: Date | string | number,
+  date: Date,
   startOfWeek: DayOfWeek = DEFAULT_WEEK_START,
+  timezone?: string,
 ): boolean => {
-  const day = new Date(date).getDay();
+  const day = utcToZonedTime(date, timezone || DEFAULT_TIMEZONE).getDay();
   switch (startOfWeek) {
     case DayOfWeek.Sunday:
       return day === DayOfWeek.Friday || day === DayOfWeek.Saturday;

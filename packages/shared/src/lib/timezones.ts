@@ -1,5 +1,6 @@
-import { utcToZonedTime } from 'date-fns-tz';
+import { getTimezoneOffset, utcToZonedTime } from 'date-fns-tz';
 import type { FC } from 'react';
+import formatInTimeZone from 'date-fns-tz/formatInTimeZone';
 import { DaytimeIcon, NighttimeIcon } from '../components/icons/TimeZone';
 import type { IconProps } from '../components/Icon';
 
@@ -586,4 +587,39 @@ export const getTimeZoneIcon = (timezone: string): FC<IconProps> => {
   const hour = getHourTimezone(timezone);
 
   return hour >= 6 && hour < 18 ? DaytimeIcon : NighttimeIcon;
+};
+
+export const DEFAULT_TIMEZONE = 'Etc/UTC';
+
+export const dateFormatInTimezone = (
+  date: Date,
+  format: string,
+  timezone?: string,
+): string => {
+  return formatInTimeZone(date, timezone || DEFAULT_TIMEZONE, format);
+};
+
+export const isSameDayInTimezone = (
+  date1: Date,
+  date2: Date,
+  timezone?: string,
+): boolean => {
+  const dateFormat = 'dd-MM-yyyy';
+
+  if (Number.isNaN(date1.getTime()) || Number.isNaN(date2.getTime())) {
+    return false;
+  }
+
+  return (
+    dateFormatInTimezone(date1, dateFormat, timezone) ===
+    dateFormatInTimezone(date2, dateFormat, timezone)
+  );
+};
+
+export const getTimezoneOffsetLabel = (timezone: string): string => {
+  // from ms to hours
+  const timezoneOffset =
+    getTimezoneOffset(timezone || DEFAULT_TIMEZONE) / (60 * 60 * 1000);
+
+  return `(UTC ${timezoneOffset > 0 ? '+' : ''}${timezoneOffset}) ${timezone}`;
 };

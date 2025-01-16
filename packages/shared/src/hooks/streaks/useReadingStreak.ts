@@ -1,7 +1,6 @@
 import type { UseMutateFunction } from '@tanstack/react-query';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useContext } from 'react';
-import { getDay } from 'date-fns';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import type { UserStreak } from '../../graphql/users';
 import {
@@ -16,6 +15,7 @@ import SettingsContext from '../../contexts/SettingsContext';
 import type { ResponseError } from '../../graphql/common';
 import { gqlClient } from '../../graphql/common';
 import type { DayOfWeek } from '../../lib/date';
+import { isSameDayInTimezone } from '../../lib/timezones';
 
 type UpdateReadingStreakConfig = {
   weekStart: DayOfWeek;
@@ -65,13 +65,20 @@ export const useReadingStreak = (): UserReadingStreak => {
 
   const [clearQueries] = useDebounceFn(async () => {
     const hasReadToday =
-      streak?.lastViewAtTz &&
-      getDay(new Date(streak?.lastViewAtTz)) === getDay(new Date());
+      streak?.lastViewAt &&
+      isSameDayInTimezone(
+        new Date(streak.lastViewAt),
+        new Date(),
+        user.timezone,
+      );
 
     if (!hasReadToday) {
       await queryClient.invalidateQueries({
         queryKey,
       });
+
+      const readKey = generateQueryKey(RequestKey.ReadingStreak30Days, user);
+      await queryClient.invalidateQueries({ queryKey: readKey });
     }
   }, 1000);
 
