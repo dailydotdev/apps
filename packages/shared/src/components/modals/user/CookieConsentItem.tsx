@@ -51,6 +51,7 @@ export function CookieConsentItem({
       key={consent}
       title={
         <Switch
+          disabled={isAlwaysOn}
           name={consent}
           inputId={consent}
           checked={isChecked}
