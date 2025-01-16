@@ -111,7 +111,7 @@ export function ReadingStreakPopup({
   const { completeAction } = useActions();
   const { data: history } = useQuery<ReadingDay[]>({
     queryKey: generateQueryKey(RequestKey.ReadingStreak30Days, user),
-    queryFn: () => getReadingStreak30Days(user.id),
+    queryFn: () => getReadingStreak30Days(user?.id),
     staleTime: StaleTime.Default,
   });
   const [showStreakConfig, toggleShowStreakConfig] = useToggle(false);
@@ -126,14 +126,14 @@ export function ReadingStreakPopup({
     const streakDays = getStreakDays(today);
 
     return streakDays.map((value) => {
-      const isToday = isSameDayInTimezone(value, today, user.timezone);
+      const isToday = isSameDayInTimezone(value, today, user?.timezone);
 
       const streakDef = getStreak({
         value,
         today,
         history,
         startOfWeek: streak.weekStart,
-        timezone: user.timezone,
+        timezone: user?.timezone,
       });
 
       return (
@@ -146,7 +146,7 @@ export function ReadingStreakPopup({
         />
       );
     });
-  }, [history, streak.weekStart, toggleShowStreakConfig, user.timezone]);
+  }, [history, streak.weekStart, toggleShowStreakConfig, user?.timezone]);
 
   useEffect(() => {
     if ([streak.max, streak.current].some((value) => value >= 2)) {
@@ -208,7 +208,7 @@ export function ReadingStreakPopup({
                         Intl.DateTimeFormat().resolvedOptions().timeZone;
                       const eventExtra = {
                         device_timezone: deviceTimezone,
-                        user_timezone: user.timezone,
+                        user_timezone: user?.timezone,
                         timezone_ok: isTimezoneOk,
                         timezone_ignore: timezoneMismatchIgnore,
                       };
@@ -263,7 +263,7 @@ export function ReadingStreakPopup({
                     href={timezoneSettingsHref}
                   >
                     {isTimezoneOk
-                      ? user.timezone || DEFAULT_TIMEZONE
+                      ? user?.timezone || DEFAULT_TIMEZONE
                       : 'Timezone mismatch'}
                   </Link>
                 </div>
