@@ -19,6 +19,7 @@ import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWr
 import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
+import type { OnboardingOnClickNext } from '@dailydotdev/shared/src/components/onboarding/common';
 import {
   OnboardingStep,
   wrapperMaxWidth,
@@ -44,6 +45,7 @@ import {
   feature,
   featureOnboardingAndroid,
   featureOnboardingExtension,
+  featureOnboardingDesktopPWA,
   featureOnboardingPWA,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
@@ -63,13 +65,16 @@ import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/Pus
 import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/PaymentContext';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import {
+  BrowserName,
   checkIsBrowser,
+  getCurrentBrowserName,
   isIOS,
   UserAgent,
 } from '@dailydotdev/shared/src/lib/func';
 import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboarding/Extension/useOnboardingExtension';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { useInstallPWA } from '@dailydotdev/shared/src/components/onboarding/PWA/useInstallPWA';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -115,6 +120,12 @@ const OnboardingExtension = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingExtension" */ '@dailydotdev/shared/src/components/onboarding/Extension/OnboardingExtension'
   ).then((mod) => mod.OnboardingExtension),
+);
+
+const OnboardingInstallDesktop = dynamic(() =>
+  import(
+    /* webpackChunkName: "onboardingInstallDesktopStep" */ '@dailydotdev/shared/src/components/onboarding/PWA/OnboardingInstallDesktop'
+  ).then((mod) => mod.OnboardingInstallDesktop),
 );
 
 type OnboardingVisual = {
@@ -164,6 +175,7 @@ export function OnboardPage(): ReactElement {
   const isPageReady = growthbook?.ready && isAuthReady;
   const { feedSettings } = useFeedSettings();
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const onboardingVisual: OnboardingVisual = useFeature(
     feature.onboardingVisual,
   );
@@ -191,11 +203,14 @@ export function OnboardPage(): ReactElement {
     shouldEvaluate: shouldEnrollOnboardingStep && isIOS(),
   });
 
+  const { isCurrentPWA, isAvailable: canUserInstallDesktop } = useInstallPWA();
+
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
   const isCTA = [
     OnboardingStep.AndroidApp,
     OnboardingStep.PWA,
     OnboardingStep.Extension,
+    OnboardingStep.InstallDesktop,
   ].includes(activeScreen);
 
   useEffect(() => {
@@ -223,7 +238,7 @@ export function OnboardPage(): ReactElement {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPageReady, user, isOnboardingReady]);
 
-  const onClickNext = () => {
+  const onClickNext: OnboardingOnClickNext = (options) => {
     logEvent({
       event_name: LogEvent.ClickOnboardingNext,
       extra: JSON.stringify({ screen_value: activeScreen }),
@@ -267,12 +282,41 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.PWA);
     }
 
+    const isNotExtensionRelatedStep = ![
+      OnboardingStep.Extension,
+      OnboardingStep.InstallDesktop,
+    ].includes(activeScreen);
+
     if (
       extensionExperiment &&
       shouldShowExtensionOnboarding &&
-      activeScreen !== OnboardingStep.Extension
+      isNotExtensionRelatedStep
     ) {
       return setActiveScreen(OnboardingStep.Extension);
+    }
+
+    const haveSkippedExtension =
+      !options?.clickExtension && activeScreen === OnboardingStep.Extension;
+    const browserName = getCurrentBrowserName();
+    const browserDontHaveExtension = [
+      BrowserName.Safari,
+      BrowserName.Firefox,
+    ].includes(browserName);
+
+    if (
+      isLaptop &&
+      !isCurrentPWA &&
+      canUserInstallDesktop &&
+      activeScreen !== OnboardingStep.InstallDesktop &&
+      (haveSkippedExtension || browserDontHaveExtension)
+    ) {
+      const installDesktopExperiment = growthbook.getFeatureValue(
+        featureOnboardingDesktopPWA.id,
+        featureOnboardingDesktopPWA.defaultValue,
+      );
+      if (installDesktopExperiment) {
+        return setActiveScreen(OnboardingStep.InstallDesktop);
+      }
     }
 
     logEvent({
@@ -407,7 +451,9 @@ export function OnboardPage(): ReactElement {
           'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
           activeScreen === OnboardingStep.Intro && wrapperMaxWidth,
           !isAuthenticating && 'mt-7.5 flex-1 content-center',
-          activeScreen === OnboardingStep.Extension && '!flex-col',
+          [OnboardingStep.Extension, OnboardingStep.InstallDesktop].includes(
+            activeScreen,
+          ) && '!flex-col',
         )}
       >
         {showOnboardingPage && (
@@ -434,7 +480,7 @@ export function OnboardPage(): ReactElement {
                 ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
                 : 'mb-10 ml-0 w-full flex-col items-center justify-start',
               isCTA &&
-                'relative mb-auto flex-1 !justify-between overflow-hidden',
+              'relative mb-auto flex-1 !justify-between overflow-hidden',
             )}
           >
             {activeScreen === OnboardingStep.ReadingReminder && (
@@ -460,7 +506,10 @@ export function OnboardPage(): ReactElement {
             )}
             {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
             {activeScreen === OnboardingStep.Extension && (
-              <OnboardingExtension />
+              <OnboardingExtension onClickNext={onClickNext} />
+            )}
+            {activeScreen === OnboardingStep.InstallDesktop && (
+              <OnboardingInstallDesktop onClickNext={onClickNext} />
             )}
           </div>
         )}
