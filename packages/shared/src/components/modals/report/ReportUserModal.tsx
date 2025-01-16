@@ -22,7 +22,7 @@ const reportReasons: { value: string; label: string }[] = [
   { value: 'IMPERSONATION', label: 'Impersonation or False Identity' },
   { value: 'SPAM', label: 'Spam or Unsolicited Advertising' },
   { value: 'MISINFORMATION', label: 'Misinformation or False Claims' },
-  { value: 'HATE_SPEECH', label: 'Hate Speech or Discrimination' },
+  { value: 'HATEFUL', label: 'Hate Speech or Discrimination' },
   { value: 'PRIVACY', label: 'Privacy or Copyright Violation' },
   { value: 'PLAGIARISM', label: 'Plagiarism or Content Theft' },
   { value: 'OTHER', label: 'Other' },
