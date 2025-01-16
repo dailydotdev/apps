@@ -83,7 +83,7 @@ export const usePushNotificationMutation = ({
         return false;
       }
 
-      const isGranted = subscribe(source);
+      const isGranted = await subscribe(source);
       if (isGranted) {
         await onGranted();
       }

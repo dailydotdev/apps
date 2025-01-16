@@ -1,12 +1,5 @@
-import type { ReactElement, MutableRefObject } from 'react';
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import type { ReactElement } from 'react';
+import React, { createContext, useCallback, useContext, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import OneSignal from 'react-onesignal';
 import type { NotificationPromptSource } from '../lib/log';
@@ -16,7 +9,6 @@ import { useAuthContext } from './AuthContext';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { isTesting } from '../lib/constants';
 import { useLogContext } from './LogContext';
-import type { SubscriptionCallback } from '../components/notifications/utils';
 
 export interface PushNotificationsContextData {
   isPushSupported: boolean;
@@ -24,8 +16,6 @@ export interface PushNotificationsContextData {
   isSubscribed: boolean;
   isLoading: boolean;
   shouldOpenPopup: () => boolean;
-  onSourceChange: (source: NotificationPromptSource) => void;
-  logPermissionGranted: (source: NotificationPromptSource) => void;
   subscribe: (source: NotificationPromptSource) => Promise<boolean>;
   unsubscribe: (source: NotificationPromptSource) => Promise<void>;
 }
@@ -37,8 +27,6 @@ export const PushNotificationsContext =
     isSubscribed: false,
     isLoading: false,
     shouldOpenPopup: () => true,
-    logPermissionGranted: null,
-    onSourceChange: null,
     subscribe: null,
     unsubscribe: null,
   });
@@ -47,44 +35,12 @@ interface PushNotificationContextProviderProps {
   children: ReactElement;
 }
 
-interface SubProviderProps {
-  children: ReactElement;
-  notificationSourceRef: MutableRefObject<string>;
-  onSourceChange: PushNotificationsContextData['onSourceChange'];
-}
-
-type ChangeEventHandler = Parameters<
-  typeof OneSignal.User.PushSubscription.addEventListener
->[1];
-
 function OneSignalSubProvider({
   children,
-  notificationSourceRef,
-  onSourceChange,
-}: SubProviderProps): ReactElement {
+}: PushNotificationContextProviderProps): ReactElement {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
-  const subscriptionCallback: SubscriptionCallback = (
-    isSubscribedNew,
-    source,
-    existing_permission,
-  ) => {
-    if (isSubscribedNew) {
-      logEvent({
-        event_name: LogEvent.ClickEnableNotification,
-        extra: JSON.stringify({
-          origin: source || notificationSourceRef.current,
-          provider: 'web',
-          permission: 'granted',
-          ...(existing_permission && { existing_permission }),
-        }),
-      });
-    }
-  };
-  const subscriptionCallbackRef =
-    useRef<SubscriptionCallback>(subscriptionCallback);
-  subscriptionCallbackRef.current = subscriptionCallback;
 
   const key = generateQueryKey(RequestKey.OneSignal, user);
   const client = useQueryClient();
@@ -120,12 +76,6 @@ function OneSignalSubProvider({
     ...disabledRefetch,
   });
 
-  const logPermissionGranted = useCallback(
-    (source: NotificationPromptSource) =>
-      subscriptionCallbackRef.current?.(true, source, true),
-    [],
-  );
-
   const isEnabled = !!user && !isTesting;
   const isPushSupported = OneSignalCache?.Notifications.isPushSupported();
 
@@ -134,49 +84,38 @@ function OneSignalSubProvider({
       if (!OneSignalCache) {
         return false;
       }
-      onSourceChange(source);
-      if (!OneSignalCache.Notifications.permission) {
+
+      const { permission } = OneSignalCache.Notifications;
+      if (!permission) {
         await OneSignalCache.Notifications.requestPermission();
       }
       if (OneSignalCache.Notifications.permission) {
         await OneSignal.User.PushSubscription.optIn();
         setIsSubscribed(true);
+
+        logEvent({
+          event_name: LogEvent.ClickEnableNotification,
+          extra: JSON.stringify({
+            origin: source,
+            provider: 'web',
+            permission: 'granted',
+            ...(permission && { existing_permission: permission }),
+          }),
+        });
+
         return true;
       }
       return false;
     },
-    [OneSignalCache, onSourceChange],
+    [OneSignalCache, logEvent],
   );
 
-  const unsubscribe = useCallback(
-    async (source: NotificationPromptSource) => {
-      if (!OneSignalCache) {
-        return;
-      }
-      onSourceChange(source);
-      await OneSignalCache.User.PushSubscription.optOut();
-      setIsSubscribed(false);
-    },
-    [OneSignalCache, onSourceChange],
-  );
-
-  useEffect(() => {
+  const unsubscribe = useCallback(async () => {
     if (!OneSignalCache) {
-      return undefined;
+      return;
     }
-
-    const onChange: ChangeEventHandler = ({ current }) => {
-      setIsSubscribed(() => current.optedIn);
-      subscriptionCallbackRef.current?.(current.optedIn);
-    };
-
-    OneSignalCache.User.PushSubscription.addEventListener('change', onChange);
-    return () => {
-      OneSignalCache.User.PushSubscription.removeEventListener(
-        'change',
-        onChange,
-      );
-    };
+    await OneSignalCache.User.PushSubscription.optOut();
+    setIsSubscribed(false);
   }, [OneSignalCache]);
 
   return (
@@ -186,8 +125,6 @@ function OneSignalSubProvider({
         isLoading,
         isSubscribed,
         isPushSupported: !!(isPushSupported && isSuccess && isEnabled),
-        onSourceChange,
-        logPermissionGranted,
         shouldOpenPopup: () => {
           const { permission } = globalThis.Notification ?? {};
           return permission === 'denied';
@@ -203,40 +140,11 @@ function OneSignalSubProvider({
 
 function NativeAppleSubProvider({
   children,
-  notificationSourceRef,
-  onSourceChange,
-}: SubProviderProps): ReactElement {
+}: PushNotificationContextProviderProps): ReactElement {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
   const isEnabled = !!user && !isTesting;
-  const subscriptionCallback: SubscriptionCallback = (
-    isSubscribedNew,
-    source,
-    existing_permission,
-  ) => {
-    if (isSubscribedNew) {
-      // TODO: check if we can encapsulate this
-      logEvent({
-        event_name: LogEvent.ClickEnableNotification,
-        extra: JSON.stringify({
-          origin: source || notificationSourceRef.current,
-          provider: 'apple',
-          permission: 'granted',
-          // TODO: check if this field is needed
-          ...(existing_permission && { existing_permission }),
-        }),
-      });
-    }
-  };
-  const subscriptionCallbackRef =
-    useRef<SubscriptionCallback>(subscriptionCallback);
-  subscriptionCallbackRef.current = subscriptionCallback;
-
-  const logPermissionGranted = useCallback(
-    (source) => subscriptionCallbackRef.current?.(true, source, true),
-    [],
-  );
 
   const key = generateQueryKey(RequestKey.ApplePush, user);
   const { isFetched, isLoading, isSuccess } = useQuery<void>({
@@ -247,8 +155,6 @@ function NativeAppleSubProvider({
         globalThis.addEventListener(
           'push-state',
           (event: CustomEvent) => {
-            // eslint-disable-next-line no-console
-            console.log('push-state', event?.detail);
             setIsSubscribed(!!event?.detail);
             resolve();
           },
@@ -264,31 +170,36 @@ function NativeAppleSubProvider({
 
   const subscribe = useCallback(
     async (source: NotificationPromptSource) => {
-      onSourceChange(source);
       return new Promise<boolean>((resolve) => {
         globalThis.addEventListener(
           'push-subscribe',
           (event: CustomEvent) => {
-            // eslint-disable-next-line no-console
-            console.log('push-subscribe', event?.detail);
-            resolve(!!event?.detail);
+            const subscribed = !!event?.detail;
+            setIsSubscribed(subscribed);
+            if (subscribed) {
+              logEvent({
+                event_name: LogEvent.ClickEnableNotification,
+                extra: JSON.stringify({
+                  origin: source,
+                  provider: 'apple',
+                  permission: 'granted',
+                }),
+              });
+            }
+            resolve(subscribed);
           },
           { once: true },
         );
         globalThis.webkit.messageHandlers['push-subscribe'].postMessage(null);
       });
     },
-    [onSourceChange],
+    [logEvent],
   );
 
-  const unsubscribe = useCallback(
-    async (source: NotificationPromptSource) => {
-      onSourceChange(source);
-      globalThis.webkit.messageHandlers['push-unsubscribe'].postMessage(null);
-      setIsSubscribed(false);
-    },
-    [onSourceChange],
-  );
+  const unsubscribe = useCallback(async () => {
+    globalThis.webkit.messageHandlers['push-unsubscribe'].postMessage(null);
+    setIsSubscribed(false);
+  }, []);
 
   return (
     <PushNotificationsContext.Provider
@@ -297,8 +208,6 @@ function NativeAppleSubProvider({
         isLoading,
         isSubscribed,
         isPushSupported: true,
-        onSourceChange,
-        logPermissionGranted,
         shouldOpenPopup: () => false,
         subscribe,
         unsubscribe,
@@ -316,10 +225,6 @@ export function PushNotificationContextProvider({
   children,
 }: PushNotificationContextProviderProps): ReactElement {
   const isExtension = checkIsExtension();
-  const notificationSourceRef = useRef<string>();
-  const onSourceChange = useCallback((source) => {
-    notificationSourceRef.current = source;
-  }, []);
 
   if (isExtension) {
     throw new Error(
@@ -328,24 +233,10 @@ export function PushNotificationContextProvider({
   }
 
   if (globalThis.webkit && globalThis.webkit.messageHandlers) {
-    return (
-      <NativeAppleSubProvider
-        onSourceChange={onSourceChange}
-        notificationSourceRef={notificationSourceRef}
-      >
-        {children}
-      </NativeAppleSubProvider>
-    );
+    return <NativeAppleSubProvider>{children}</NativeAppleSubProvider>;
   }
 
-  return (
-    <OneSignalSubProvider
-      onSourceChange={onSourceChange}
-      notificationSourceRef={notificationSourceRef}
-    >
-      {children}
-    </OneSignalSubProvider>
-  );
+  return <OneSignalSubProvider>{children}</OneSignalSubProvider>;
 }
 
 export const usePushNotificationContext = (): PushNotificationsContextData =>
