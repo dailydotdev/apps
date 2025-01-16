@@ -22,7 +22,7 @@ export const useOnboarding = (): UseOnboarding => {
       Anyone who created an account before this date is exempt from the requirement.
     */
     const registeredBeforeRequired =
-      user?.createdAt && new Date(user.createdAt) < new Date('2025-01-08');
+      user?.createdAt && new Date(user.createdAt) < new Date('2025-01-20');
     return {
       hasCompletedEditTags:
         registeredBeforeRequired || checkHasCompleted(ActionType.EditTag),
