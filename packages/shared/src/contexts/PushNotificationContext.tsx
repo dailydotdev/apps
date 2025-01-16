@@ -100,8 +100,6 @@ function OneSignalSubProvider({
     source,
     existingPermission,
   ) => {
-    // eslint-disable-next-line no-console
-    console.log('subscription callback', newPermission);
     if (newPermission) {
       await OneSignal.User.PushSubscription.optIn();
       setIsSubscribed(true);
