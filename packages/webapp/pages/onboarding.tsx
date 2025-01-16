@@ -1,11 +1,5 @@
 import type { ReactElement } from 'react';
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type {
   AuthOptionsProps,
@@ -25,6 +19,7 @@ import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWr
 import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
+import type { OnboardingOnClickNext } from '@dailydotdev/shared/src/components/onboarding/common';
 import {
   OnboardingStep,
   wrapperMaxWidth,
@@ -50,6 +45,7 @@ import {
   feature,
   featureOnboardingAndroid,
   featureOnboardingExtension,
+  featureOnboardingDesktopPWA,
   featureOnboardingPWA,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
@@ -69,11 +65,16 @@ import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/Pus
 import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/PaymentContext';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import {
+  BrowserName,
   checkIsBrowser,
+  getCurrentBrowserName,
   isIOS,
   UserAgent,
 } from '@dailydotdev/shared/src/lib/func';
 import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboarding/Extension/useOnboardingExtension';
+import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { useInstallPWA } from '@dailydotdev/shared/src/components/onboarding/PWA/useInstallPWA';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -121,6 +122,12 @@ const OnboardingExtension = dynamic(() =>
   ).then((mod) => mod.OnboardingExtension),
 );
 
+const OnboardingInstallDesktop = dynamic(() =>
+  import(
+    /* webpackChunkName: "onboardingInstallDesktopStep" */ '@dailydotdev/shared/src/components/onboarding/PWA/OnboardingInstallDesktop'
+  ).then((mod) => mod.OnboardingInstallDesktop),
+);
+
 type OnboardingVisual = {
   fullBackground?: {
     mobile?: string;
@@ -135,6 +142,12 @@ const seo: NextSeoProps = {
 };
 
 export function OnboardPage(): ReactElement {
+  const {
+    isOnboardingReady,
+    hasCompletedEditTags,
+    hasCompletedContentTypes,
+    completeStep,
+  } = useOnboarding();
   const router = useRouter();
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
@@ -162,6 +175,7 @@ export function OnboardPage(): ReactElement {
   const isPageReady = growthbook?.ready && isAuthReady;
   const { feedSettings } = useFeedSettings();
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const onboardingVisual: OnboardingVisual = useFeature(
     feature.onboardingVisual,
   );
@@ -189,19 +203,32 @@ export function OnboardPage(): ReactElement {
     shouldEvaluate: shouldEnrollOnboardingStep && isIOS(),
   });
 
+  const { isCurrentPWA, isAvailable: canUserInstallDesktop } = useInstallPWA();
+
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
   const isCTA = [
     OnboardingStep.AndroidApp,
     OnboardingStep.PWA,
     OnboardingStep.Extension,
+    OnboardingStep.InstallDesktop,
   ].includes(activeScreen);
 
   useEffect(() => {
-    if (!isPageReady || isLogged.current) {
+    if (!isPageReady || isLogged.current || !isOnboardingReady) {
       return;
     }
 
-    if (user) {
+    if (user?.infoConfirmed && !hasCompletedEditTags) {
+      setActiveScreen(OnboardingStep.EditTag);
+      return;
+    }
+
+    if (user?.infoConfirmed && !hasCompletedContentTypes) {
+      setActiveScreen(OnboardingStep.ContentTypes);
+      return;
+    }
+
+    if (user?.infoConfirmed && activeScreen === OnboardingStep.Intro) {
       router.replace(getPathnameWithQuery(webappUrl, window.location.search));
       return;
     }
@@ -209,9 +236,9 @@ export function OnboardPage(): ReactElement {
     isLogged.current = true;
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPageReady, user]);
+  }, [isPageReady, user, isOnboardingReady]);
 
-  const onClickNext = () => {
+  const onClickNext: OnboardingOnClickNext = (options) => {
     logEvent({
       event_name: LogEvent.ClickOnboardingNext,
       extra: JSON.stringify({ screen_value: activeScreen }),
@@ -222,8 +249,13 @@ export function OnboardPage(): ReactElement {
     }
 
     if (activeScreen === OnboardingStep.EditTag) {
+      completeStep(ActionType.EditTag);
       setShouldEnrollOnboardingStep(true);
       return setActiveScreen(OnboardingStep.ContentTypes);
+    }
+
+    if (activeScreen === OnboardingStep.ContentTypes) {
+      completeStep(ActionType.ContentTypes);
     }
 
     if (
@@ -250,12 +282,41 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.PWA);
     }
 
+    const isNotExtensionRelatedStep = ![
+      OnboardingStep.Extension,
+      OnboardingStep.InstallDesktop,
+    ].includes(activeScreen);
+
     if (
       extensionExperiment &&
       shouldShowExtensionOnboarding &&
-      activeScreen !== OnboardingStep.Extension
+      isNotExtensionRelatedStep
     ) {
       return setActiveScreen(OnboardingStep.Extension);
+    }
+
+    const haveSkippedExtension =
+      !options?.clickExtension && activeScreen === OnboardingStep.Extension;
+    const browserName = getCurrentBrowserName();
+    const browserDontHaveExtension = [
+      BrowserName.Safari,
+      BrowserName.Firefox,
+    ].includes(browserName);
+
+    if (
+      isLaptop &&
+      !isCurrentPWA &&
+      canUserInstallDesktop &&
+      activeScreen !== OnboardingStep.InstallDesktop &&
+      (haveSkippedExtension || browserDontHaveExtension)
+    ) {
+      const installDesktopExperiment = growthbook.getFeatureValue(
+        featureOnboardingDesktopPWA.id,
+        featureOnboardingDesktopPWA.defaultValue,
+      );
+      if (installDesktopExperiment) {
+        return setActiveScreen(OnboardingStep.InstallDesktop);
+      }
     }
 
     logEvent({
@@ -288,10 +349,6 @@ export function OnboardPage(): ReactElement {
     return onClickNext();
   };
 
-  const onSuccessfulLogin = useCallback(() => {
-    router.replace(getPathnameWithQuery(webappUrl, window.location.search));
-  }, [router]);
-
   const onSuccessfulRegistration = (userRefetched: LoggedUser) => {
     logPixelSignUp({
       experienceLevel: userRefetched?.experienceLevel,
@@ -317,7 +374,6 @@ export function OnboardPage(): ReactElement {
       initialEmail: email,
       isLoginFlow,
       targetId,
-      onSuccessfulLogin,
       onSuccessfulRegistration,
       onAuthStateUpdate: (props: AuthProps) =>
         setAuth({ isAuthenticating: true, ...props }),
@@ -332,7 +388,6 @@ export function OnboardPage(): ReactElement {
     isAuthenticating,
     isLoginFlow,
     isMobile,
-    onSuccessfulLogin,
     targetId,
   ]);
 
@@ -355,8 +410,10 @@ export function OnboardPage(): ReactElement {
     !isAuthenticating && activeScreen === OnboardingStep.Intro && !shouldVerify;
 
   const showGenerigLoader =
-    isAuthenticating && isAuthLoading && activeScreen === OnboardingStep.Intro;
-
+    isAuthenticating &&
+    isAuthLoading &&
+    activeScreen === OnboardingStep.Intro &&
+    !isOnboardingReady;
   if (!isPageReady) {
     return null;
   }
@@ -394,7 +451,9 @@ export function OnboardPage(): ReactElement {
           'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
           activeScreen === OnboardingStep.Intro && wrapperMaxWidth,
           !isAuthenticating && 'mt-7.5 flex-1 content-center',
-          activeScreen === OnboardingStep.Extension && '!flex-col',
+          [OnboardingStep.Extension, OnboardingStep.InstallDesktop].includes(
+            activeScreen,
+          ) && '!flex-col',
         )}
       >
         {showOnboardingPage && (
@@ -447,7 +506,10 @@ export function OnboardPage(): ReactElement {
             )}
             {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
             {activeScreen === OnboardingStep.Extension && (
-              <OnboardingExtension />
+              <OnboardingExtension onClickNext={onClickNext} />
+            )}
+            {activeScreen === OnboardingStep.InstallDesktop && (
+              <OnboardingInstallDesktop onClickNext={onClickNext} />
             )}
           </div>
         )}
