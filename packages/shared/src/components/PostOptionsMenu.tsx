@@ -97,6 +97,26 @@ export interface PostOptionsMenuProps {
   allowPin?: boolean;
 }
 
+const getBlockOrUnblockLabel = (
+  name: string,
+  { isCustomFeed, isBlocked }: Record<'isCustomFeed' | 'isBlocked', boolean>,
+) => {
+  const blockLabel = {
+    global: {
+      block: `Block ${name}`,
+      unblock: `Unblock ${name}`,
+    },
+    feed: {
+      block: `Remove ${name} from this feed`,
+      unblock: `Add ${name} to this feed`,
+    },
+  };
+
+  return blockLabel[isCustomFeed ? 'feed' : 'global'][
+    isBlocked ? 'unblock' : 'block'
+  ];
+};
+
 export default function PostOptionsMenu({
   postIndex,
   post: initialPost,
@@ -141,7 +161,7 @@ export default function PostOptionsMenu({
   const { logEvent } = useContext(LogContext);
   const { hidePost, unhidePost } = useReportPost();
   const { openSharePost } = useSharePost(origin);
-  const { follow, unfollow, unblock } = useContentPreference();
+  const { follow, unfollow, unblock, block } = useContentPreference();
   const { openModal } = useLazyModal();
 
   const {
@@ -500,43 +520,37 @@ export default function PostOptionsMenu({
     });
   }
 
-  postOptions.push({
-    icon: <MenuIcon Icon={BlockIcon} />,
-    label: isSourceBlocked
-      ? `Unblock ${post?.source?.name}`
-      : `Block ${post?.source?.name}`,
-    action: isSourceBlocked ? onUnblockSourceClick : onBlockSourceClick,
-  });
+  if (post?.source?.name) {
+    postOptions.push({
+      icon: <MenuIcon Icon={BlockIcon} />,
+      label: getBlockOrUnblockLabel(post.source.name, {
+        isCustomFeed,
+        isBlocked: isSourceBlocked,
+      }),
+      action: isSourceBlocked ? onUnblockSourceClick : onBlockSourceClick,
+    });
+  }
 
   if (post?.author && post?.author?.id !== user?.id) {
     postOptions.push({
       icon: <MenuIcon Icon={BlockIcon} />,
-      label: isBlockedAuthor
-        ? `Unblock ${post.author.name}`
-        : `Block ${post.author.name}`,
+      label: getBlockOrUnblockLabel(post.author.name, {
+        isCustomFeed,
+        isBlocked: isBlockedAuthor,
+      }),
       action: async () => {
-        if (!isBlockedAuthor) {
-          openModal({
-            type: LazyModal.ReportUser,
-            props: {
-              offendingUser: post.author,
-              defaultBlockUser: true,
-              onBlockUser: invalidatePostCacheById.bind(null, [
-                client,
-                post.id,
-              ]),
-              ...(isCustomFeed && { feedId: customFeedId }),
-            },
-          });
-          return;
-        }
-
-        await unblock({
+        const params = {
           id: post.author.id,
           entity: ContentPreferenceType.User,
           entityName: post.author.name,
           feedId: router.query.slugOrId ? `${router.query.slugOrId}` : null,
-        });
+        };
+
+        if (isBlockedAuthor) {
+          await unblock(params);
+        } else {
+          await block(params);
+        }
 
         invalidatePostCacheById(client, post.id);
       },
