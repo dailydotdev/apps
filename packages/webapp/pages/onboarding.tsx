@@ -480,7 +480,7 @@ export function OnboardPage(): ReactElement {
                 ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
                 : 'mb-10 ml-0 w-full flex-col items-center justify-start',
               isCTA &&
-              'relative mb-auto flex-1 !justify-between overflow-hidden',
+                'relative mb-auto flex-1 !justify-between overflow-hidden',
             )}
           >
             {activeScreen === OnboardingStep.ReadingReminder && (
