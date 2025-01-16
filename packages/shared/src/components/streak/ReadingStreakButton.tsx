@@ -125,7 +125,7 @@ export function ReadingStreakButton({
             <IconWrapper wrapperClassName="relative flex items-center gap-2">
               <ReadingStreakIcon secondary={hasReadToday} />
               {!isTimezoneOk && (
-                <WarningIcon className="text-raw-cheese-40" secondary />
+                <WarningIcon className="!mr-0 text-raw-cheese-40" secondary />
               )}
             </IconWrapper>
           }
