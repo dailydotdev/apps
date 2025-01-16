@@ -313,6 +313,8 @@ export enum TargetId {
   BookmarkFolder = 'bookmark folder',
   FeedSettings = 'feed settings',
   ClickbaitShield = 'clickbait shield',
+  StreakTimezoneLabel = 'streak timezone label',
+  StreakTimezoneMismatchPrompt = 'streak timezone mismatch prompt',
 }
 
 export enum NotificationChannel {
@@ -360,4 +362,9 @@ export enum ShortcutsSourceType {
 export enum UserAcquisitionEvent {
   Dismiss = 'dismiss ua',
   Submit = 'choose ua',
+}
+
+export enum StreakTimezonePromptAction {
+  Settings = 'settings',
+  Ignore = 'ignore',
 }

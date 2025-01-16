@@ -33,6 +33,12 @@ import {
 } from '../../../hooks/streaks/useStreakTimezoneOk';
 import { usePrompt } from '../../../hooks/usePrompt';
 import usePersistentContext from '../../../hooks/usePersistentContext';
+import { useLogContext } from '../../../contexts/LogContext';
+import {
+  LogEvent,
+  StreakTimezonePromptAction,
+  TargetId,
+} from '../../../lib/log';
 
 const getStreak = ({
   value,
@@ -111,10 +117,9 @@ export function ReadingStreakPopup({
   const [showStreakConfig, toggleShowStreakConfig] = useToggle(false);
   const isTimezoneOk = useStreakTimezoneOk();
   const { showPrompt } = usePrompt();
-  const [, setTimezoneMismatchIgnore] = usePersistentContext(
-    timezoneMismatchIgnoreKey,
-    '',
-  );
+  const [timezoneMismatchIgnore, setTimezoneMismatchIgnore] =
+    usePersistentContext(timezoneMismatchIgnoreKey, '');
+  const { logEvent } = useLogContext();
 
   const streaks = useMemo(() => {
     const today = new Date();
@@ -201,6 +206,18 @@ export function ReadingStreakPopup({
                     onClick={async (event) => {
                       const deviceTimezone =
                         Intl.DateTimeFormat().resolvedOptions().timeZone;
+                      const eventExtra = {
+                        device_timezone: deviceTimezone,
+                        user_timezone: user.timezone,
+                        timezone_ok: isTimezoneOk,
+                        timezone_ignore: timezoneMismatchIgnore,
+                      };
+
+                      logEvent({
+                        event_name: LogEvent.Click,
+                        target_type: TargetId.StreakTimezoneLabel,
+                        extra: JSON.stringify(eventExtra),
+                      });
 
                       if (isTimezoneOk) {
                         return;
@@ -222,6 +239,17 @@ export function ReadingStreakPopup({
                           title: 'Ignore',
                         },
                         shouldCloseOnOverlayClick: false,
+                      });
+
+                      logEvent({
+                        event_name: LogEvent.Click,
+                        target_type: TargetId.StreakTimezoneMismatchPrompt,
+                        extra: JSON.stringify({
+                          ...eventExtra,
+                          action: promptResult
+                            ? StreakTimezonePromptAction.Settings
+                            : StreakTimezonePromptAction.Ignore,
+                        }),
                       });
 
                       if (!promptResult) {
