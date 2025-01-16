@@ -267,7 +267,7 @@ function NativeAppleSubProvider({
       onSourceChange(source);
       return new Promise<boolean>((resolve) => {
         globalThis.addEventListener(
-          'push-state',
+          'push-subscribe',
           (event: CustomEvent) => {
             // eslint-disable-next-line no-console
             console.log('push-subscribe', event?.detail);
@@ -285,6 +285,7 @@ function NativeAppleSubProvider({
     async (source: NotificationPromptSource) => {
       onSourceChange(source);
       globalThis.webkit.messageHandlers['push-unsubscribe'].postMessage(null);
+      setIsSubscribed(false);
     },
     [onSourceChange],
   );
