@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useContext, useEffect } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -8,8 +8,7 @@ import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import { useRouter } from 'next/router';
 import { isTouchDevice } from '@dailydotdev/shared/src/lib/tooltip';
 import SidebarNavItem from './SidebarNavItem';
-import type { AccountPage } from './common';
-import { accountPage } from './common';
+import { AccountPage, accountPage } from './common';
 
 interface SidebarNavProps {
   className?: string;
@@ -33,7 +32,19 @@ function SidebarNav({
     queryFn: () => false,
     ...disabledRefetch,
   });
-  const { user } = useContext(AuthContext);
+  const { user, isGdprCovered } = useContext(AuthContext);
+
+  const keys = useMemo(
+    () =>
+      pageKeys.filter((key) => {
+        if (key === AccountPage.Privacy) {
+          return isGdprCovered;
+        }
+
+        return true;
+      }),
+    [isGdprCovered],
+  );
 
   useEffect(() => {
     if (!isTouchDevice()) {
@@ -67,7 +78,7 @@ function SidebarNav({
         <CloseButton onClick={closeSideNav} />
       </span>
       <div className="px-6 tablet:px-0">
-        {pageKeys.map((key) => {
+        {keys.map((key) => {
           const href = `/${basePath}${accountPage[key].href}`;
           const isActive = globalThis?.window?.location.pathname === href;
 
