@@ -1,4 +1,4 @@
-import React, { act } from 'react';
+import React, { act, useEffect } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import { QueryClient } from '@tanstack/react-query';
@@ -11,6 +11,7 @@ import { nextTick } from '@dailydotdev/shared/src/lib/func';
 import { expireCookie, getCookies } from '@dailydotdev/shared/src/lib/cookie';
 import { MODAL_KEY } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import CookieBanner from './CookieBanner';
 
 let client: QueryClient;
@@ -25,7 +26,12 @@ beforeEach(() => {
 });
 
 const WrapperComponent = () => {
-  const { showBanner, onAcceptCookies } = useCookieBanner();
+  const { user } = useAuthContext();
+  const { showBanner, onAcceptCookies, updateCookieBanner } = useCookieBanner();
+
+  useEffect(() => {
+    updateCookieBanner(user);
+  }, [user, updateCookieBanner]);
 
   if (!showBanner) {
     return null;
