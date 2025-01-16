@@ -79,6 +79,8 @@ export const CookieConsentModal = ({
           type={Typography.Type.Callout}
           tag={TypographyTag.Link}
           href={cookiePolicy}
+          target="_blank"
+          rel="noopener"
         >
           Learn more about our Cookie Policy →
         </Typography>
