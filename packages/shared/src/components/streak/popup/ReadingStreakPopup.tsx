@@ -219,6 +219,7 @@ export function ReadingStreakPopup({
                         cancelButton: {
                           title: 'Ignore',
                         },
+                        shouldCloseOnOverlayClick: false,
                       });
 
                       if (!promptResult) {
