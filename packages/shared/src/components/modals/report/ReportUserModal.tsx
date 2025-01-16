@@ -29,13 +29,17 @@ const reportReasons: { value: string; label: string }[] = [
 ];
 
 type ReportUserModalProps = {
-  offendingUser: Pick<UserShortProfile, 'id' | 'username'>;
   defaultBlockUser?: boolean;
+  feedId?: string;
+  offendingUser: Pick<UserShortProfile, 'id' | 'username'>;
+  onBlockUser?: () => void;
 };
 
 export const ReportUserModal = ({
   offendingUser,
   defaultBlockUser,
+  feedId,
+  onBlockUser,
 }: ReportUserModalProps): ReactElement => {
   const { closeModal: onClose } = useLazyModal();
   const { displayToast } = useToastNotification();
@@ -47,11 +51,12 @@ export const ReportUserModal = ({
         gqlClient.request(CONTENT_PREFERENCE_BLOCK_MUTATION, {
           id: offendingUser.id,
           entity: ContentPreferenceType.User,
-          feedId: user?.id,
+          feedId: feedId ?? user?.id,
         }),
       onSuccess: () => {
         displayToast(`🚫 ${offendingUser.username} has been blocked`);
         onClose();
+        onBlockUser?.();
       },
       onError: () => {
         displayToast(`❌ Failed to block ${offendingUser.username}`);

@@ -220,6 +220,11 @@ export const useContentPreference = ({
         entity,
         feedId,
       });
+
+      if (opts?.hideToast) {
+        return;
+      }
+
       if (entity === ContentPreferenceType.User) {
         displayToast(`🚫 ${entityName} has been blocked`);
       } else {

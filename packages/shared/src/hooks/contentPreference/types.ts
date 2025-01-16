@@ -20,6 +20,7 @@ export type ContentPreferenceMutation = ({
   feedId?: string;
   opts?: Partial<{
     extra: Record<string, unknown>;
+    hideToast: boolean;
   }>;
 }) => Promise<void>;
 
