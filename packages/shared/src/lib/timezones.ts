@@ -1,4 +1,4 @@
-import { utcToZonedTime } from 'date-fns-tz';
+import { getTimezoneOffset, utcToZonedTime } from 'date-fns-tz';
 import type { FC } from 'react';
 import formatInTimeZone from 'date-fns-tz/formatInTimeZone';
 import { DaytimeIcon, NighttimeIcon } from '../components/icons/TimeZone';
@@ -614,4 +614,12 @@ export const isSameDayInTimezone = (
     dateFormatInTimezone(date1, dateFormat, timezone) ===
     dateFormatInTimezone(date2, dateFormat, timezone)
   );
+};
+
+export const getTimezoneOffsetLabel = (timezone: string): string => {
+  // from ms to hours
+  const timezoneOffset =
+    getTimezoneOffset(timezone || DEFAULT_TIMEZONE) / (60 * 60 * 1000);
+
+  return `(UTC ${timezoneOffset > 0 ? '+' : ''}${timezoneOffset}) ${timezone}`;
 };

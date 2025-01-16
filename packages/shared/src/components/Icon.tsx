@@ -1,5 +1,5 @@
-import type { ComponentProps, ReactElement } from 'react';
-import React from 'react';
+import type { ComponentProps, ReactElement, ReactNode } from 'react';
+import React, { Children } from 'react';
 import classNames from 'classnames';
 
 export enum IconSize {
@@ -59,6 +59,32 @@ const Icon = ({
       )}
       {...rest}
     />
+  );
+};
+
+export const IconWrapper = ({
+  size,
+  className,
+  children,
+}: IconProps & { children: ReactNode }): ReactElement => {
+  return (
+    <div
+      className={classNames(
+        iconSizeToClassName[size],
+        'pointer-events-none',
+        className,
+      )}
+    >
+      {Children.map(children, (child) => {
+        if (React.isValidElement(child)) {
+          return React.cloneElement<Props>(child as ReactElement, {
+            size,
+          });
+        }
+
+        return child;
+      })}
+    </div>
   );
 };
 

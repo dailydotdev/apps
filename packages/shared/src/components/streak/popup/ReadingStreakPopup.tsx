@@ -4,6 +4,7 @@ import { addDays, subDays } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { StreakSection } from './StreakSection';
 import { DayStreak, Streak } from './DayStreak';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
@@ -19,9 +20,19 @@ import ReadingStreakSwitch from '../ReadingStreakSwitch';
 import { useToggle } from '../../../hooks/useToggle';
 import { ToggleWeekStart } from '../../widgets/ToggleWeekStart';
 import { isWeekend, DayOfWeek } from '../../../lib/date';
-import { DEFAULT_TIMEZONE, isSameDayInTimezone } from '../../../lib/timezones';
+import {
+  DEFAULT_TIMEZONE,
+  getTimezoneOffsetLabel,
+  isSameDayInTimezone,
+} from '../../../lib/timezones';
 import { SimpleTooltip } from '../../tooltips';
 import { isTesting } from '../../../lib/constants';
+import {
+  timezoneMismatchIgnoreKey,
+  useStreakTimezoneOk,
+} from '../../../hooks/streaks/useStreakTimezoneOk';
+import { usePrompt } from '../../../hooks/usePrompt';
+import usePersistentContext from '../../../hooks/usePersistentContext';
 
 const getStreak = ({
   value,
@@ -82,10 +93,13 @@ interface ReadingStreakPopupProps {
   fullWidth?: boolean;
 }
 
+const timezoneSettingsHref = '/account/notifications?s=timezone';
+
 export function ReadingStreakPopup({
   streak,
   fullWidth,
 }: ReadingStreakPopupProps): ReactElement {
+  const router = useRouter();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { user } = useAuthContext();
   const { completeAction } = useActions();
@@ -95,6 +109,12 @@ export function ReadingStreakPopup({
     staleTime: StaleTime.Default,
   });
   const [showStreakConfig, toggleShowStreakConfig] = useToggle(false);
+  const isTimezoneOk = useStreakTimezoneOk();
+  const { showPrompt } = usePrompt();
+  const [, setTimezoneMismatchIgnore] = usePersistentContext(
+    timezoneMismatchIgnoreKey,
+    '',
+  );
 
   const streaks = useMemo(() => {
     const today = new Date();
@@ -159,15 +179,59 @@ export function ReadingStreakPopup({
               forceLoad={!isTesting}
               content={
                 <div className="flex text-center">
-                  We are showing your reading streak in your selected timezone.
-                  <br />
-                  Click to adjust your timezone if needed or traveling.
+                  {isTimezoneOk ? (
+                    <>
+                      We are showing your reading streak in your selected
+                      timezone.
+                      <br />
+                      Click to adjust your timezone if needed or traveling.
+                    </>
+                  ) : (
+                    <>Click for more info</>
+                  )}
                 </div>
               }
             >
               <div className="m-auto flex justify-center font-normal !text-text-quaternary underline decoration-raw-pepper-10 tablet:m-0 tablet:justify-start">
-                <Link href="/account/notifications?s=timezone">
-                  {user.timezone || DEFAULT_TIMEZONE}
+                <Link
+                  onClick={async (event) => {
+                    if (isTimezoneOk) {
+                      return;
+                    }
+
+                    event.preventDefault();
+
+                    const deviceTimezone =
+                      Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+                    const promptResult = await showPrompt({
+                      title: 'Streak timezone mismatch',
+                      description: `We detected your current timezone setting ${getTimezoneOffsetLabel(
+                        user?.timezone,
+                      )} does not match your current device timezone ${getTimezoneOffsetLabel(
+                        deviceTimezone,
+                      )}. You can update your timezone in settings.`,
+                      okButton: {
+                        title: 'Go to settings',
+                      },
+                      cancelButton: {
+                        title: 'Ignore',
+                      },
+                    });
+
+                    if (!promptResult) {
+                      setTimezoneMismatchIgnore(deviceTimezone);
+
+                      return;
+                    }
+
+                    router.push(timezoneSettingsHref);
+                  }}
+                  href={timezoneSettingsHref}
+                >
+                  {isTimezoneOk
+                    ? user.timezone || DEFAULT_TIMEZONE
+                    : 'Timezone mismatch ⚠️'}
                 </Link>
               </div>
             </SimpleTooltip>

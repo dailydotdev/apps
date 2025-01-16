@@ -17,6 +17,8 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import type { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { isSameDayInTimezone } from '../../lib/timezones';
+import { IconWrapper } from '../Icon';
+import { useStreakTimezoneOk } from '../../hooks/streaks/useStreakTimezoneOk';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
@@ -77,6 +79,7 @@ export function ReadingStreakButton({
   const hasReadToday =
     streak?.lastViewAt &&
     isSameDayInTimezone(new Date(streak.lastViewAt), new Date(), user.timezone);
+  const isTimezoneOk = useStreakTimezoneOk();
 
   const handleToggle = useCallback(() => {
     setShouldShowStreaks((state) => !state);
@@ -118,7 +121,14 @@ export function ReadingStreakButton({
           id="reading-streak-header-button"
           type="button"
           iconPosition={iconPosition}
-          icon={<ReadingStreakIcon secondary={hasReadToday} />}
+          icon={
+            <IconWrapper className="relative">
+              <ReadingStreakIcon secondary={hasReadToday} />
+              {!isTimezoneOk && (
+                <div className="absolute -right-1 -top-2 typo-body">⚠️</div>
+              )}
+            </IconWrapper>
+          }
           variant={
             isLaptop || isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float
           }
