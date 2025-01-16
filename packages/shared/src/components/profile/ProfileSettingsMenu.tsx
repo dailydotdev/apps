@@ -194,6 +194,7 @@ const useMenuItems = (): NavItemProps[] => {
     ].filter(Boolean);
   }, [
     isPlus,
+    isGdprCovered,
     logSubscriptionEvent,
     onLogout,
     openModal,

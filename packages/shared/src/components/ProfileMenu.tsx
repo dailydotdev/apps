@@ -164,6 +164,7 @@ export default function ProfileMenu({
 
     return list.filter(Boolean);
   }, [
+    isGdprCovered,
     isDndActive,
     isPlus,
     logSubscriptionEvent,
