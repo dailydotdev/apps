@@ -44,7 +44,7 @@ interface PushNotificationContextProviderProps {
 }
 
 type ChangeEventHandler = Parameters<
-  typeof OneSignal.User.PushSubscription.addEventListener
+  typeof OneSignal.Notifications.addEventListener<'permissionChange'>
 >[1];
 
 function OneSignalSubProvider({
@@ -97,7 +97,10 @@ function OneSignalSubProvider({
 
   subscriptionCallbackRef.current = async (_, source, permission) => {
     // eslint-disable-next-line no-console
-    console.log('subscription callback');
+    console.log(
+      'subscription callback',
+      OneSignalCache.Notifications.permission,
+    );
     if (OneSignalCache.Notifications.permission) {
       await OneSignal.User.PushSubscription.optIn();
       setIsSubscribed(true);
@@ -145,14 +148,14 @@ function OneSignalSubProvider({
       return undefined;
     }
 
-    const onChange: ChangeEventHandler = ({ current }) => {
-      subscriptionCallbackRef.current?.(current.optedIn);
+    const onChange: ChangeEventHandler = (permission) => {
+      subscriptionCallbackRef.current?.(permission);
     };
 
-    OneSignalCache.User.PushSubscription.addEventListener('change', onChange);
+    OneSignalCache.Notifications.addEventListener('permissionChange', onChange);
     return () => {
-      OneSignalCache.User.PushSubscription.removeEventListener(
-        'change',
+      OneSignalCache.Notifications.removeEventListener(
+        'permissionChange',
         onChange,
       );
     };
