@@ -97,7 +97,7 @@ export interface PostOptionsMenuProps {
   allowPin?: boolean;
 }
 
-const getBlockOrUnblockLabel = (
+const getBlockLabel = (
   name: string,
   { isCustomFeed, isBlocked }: Record<'isCustomFeed' | 'isBlocked', boolean>,
 ) => {
@@ -523,7 +523,7 @@ export default function PostOptionsMenu({
   if (post?.source?.name) {
     postOptions.push({
       icon: <MenuIcon Icon={BlockIcon} />,
-      label: getBlockOrUnblockLabel(post.source.name, {
+      label: getBlockLabel(post.source.name, {
         isCustomFeed,
         isBlocked: isSourceBlocked,
       }),
@@ -534,7 +534,7 @@ export default function PostOptionsMenu({
   if (post?.author && post?.author?.id !== user?.id) {
     postOptions.push({
       icon: <MenuIcon Icon={BlockIcon} />,
-      label: getBlockOrUnblockLabel(post.author.name, {
+      label: getBlockLabel(post.author.name, {
         isCustomFeed,
         isBlocked: isBlockedAuthor,
       }),
@@ -549,7 +549,19 @@ export default function PostOptionsMenu({
         if (isBlockedAuthor) {
           await unblock(params);
         } else {
-          await block(params);
+          await block({
+            ...params,
+            opts: {
+              hideToast: true,
+            },
+          });
+          await showMessageAndRemovePost(
+            `🚫 ${post.author.name} has been ${
+              isCustomFeed ? 'removed' : 'blocked'
+            }`,
+            postIndex,
+            () => unblock(params),
+          );
         }
 
         invalidatePostCacheById(client, post.id);
