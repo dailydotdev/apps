@@ -30,7 +30,7 @@ const BlockButton = ({
   return (
     <Button
       {...attrs}
-      onClick={(e) => {
+      onClick={() => {
         if (status === ContentPreferenceStatus.Blocked) {
           unblock({
             id: entityId,
