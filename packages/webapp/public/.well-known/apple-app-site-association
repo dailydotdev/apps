@@ -1,0 +1,16 @@
+{
+    "applinks": {
+        "apps": [],
+        "details": [
+            {
+                "appIDs": ["C97TTQ7W57.dev.daily.app"],
+                "components": [
+                    {
+                        "/": "/*",
+                        "comment": "Matches any URL path under app.daily.dev"
+                    }
+                ]
+            }
+        ]
+    }
+}
