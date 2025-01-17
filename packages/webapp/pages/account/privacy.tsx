@@ -25,7 +25,7 @@ const seo: NextSeoProps = { ...defaultSeo, title: getTemplatedTitle('Invite') };
 
 const AccountInvitePage = (): ReactElement => {
   const router = useRouter();
-  const [, onAcceptCookies] = useConsentCookie(GdprConsentKey.Marketing);
+  const { saveCookies } = useConsentCookie(GdprConsentKey.Marketing);
   const { user, isGdprCovered, isAuthReady } = useAuthContext();
 
   useEffect(() => {
@@ -44,12 +44,12 @@ const AccountInvitePage = (): ReactElement => {
     return null;
   }
 
-  const onToggle = (value: boolean) => {
+  const onToggleMarketing = (value: boolean) => {
     if (value) {
-      return onAcceptCookies();
+      return saveCookies();
     }
 
-    return onAcceptCookies([], [GdprConsentKey.Marketing]);
+    return saveCookies([], [GdprConsentKey.Marketing]);
   };
 
   return (
@@ -87,7 +87,7 @@ const AccountInvitePage = (): ReactElement => {
           <CookieConsentItem consent={GdprConsentKey.Necessary} />
           <CookieConsentItem
             consent={GdprConsentKey.Marketing}
-            onToggle={onToggle}
+            onToggle={onToggleMarketing}
           />
         </div>
       </AccountContentSection>
