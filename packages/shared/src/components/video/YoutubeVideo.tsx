@@ -25,7 +25,7 @@ const YoutubeVideo = ({
   ...props
 }: YoutubeVideoProps): ReactElement => {
   const { isAuthReady, isGdprCovered } = useAuthContext();
-  const [, onAcceptCookies, , exists] = useConsentCookie(
+  const { cookieExists, saveCookies } = useConsentCookie(
     GdprConsentKey.Marketing,
   );
   const hasAcceptedMarketing = useMemo(() => {
@@ -39,8 +39,8 @@ const YoutubeVideo = ({
 
     const disabled = globalThis?.localStorage.getItem(GdprConsentKey.Marketing);
 
-    return exists || !disabled;
-  }, [isAuthReady, isGdprCovered, exists]);
+    return cookieExists || !disabled;
+  }, [isAuthReady, isGdprCovered, cookieExists]);
 
   if (!isAuthReady) {
     return (
@@ -53,7 +53,11 @@ const YoutubeVideo = ({
   if (isGdprCovered && !hasAcceptedMarketing) {
     return (
       <YoutubeVideoWithoutConsent
-        {...{ title, image, source, onWatchVideo, onAcceptCookies }}
+        title={title}
+        image={image}
+        source={source}
+        onWatchVideo={onWatchVideo}
+        onAcceptCookies={saveCookies}
       />
     );
   }
