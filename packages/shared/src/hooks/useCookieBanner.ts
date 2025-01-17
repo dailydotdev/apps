@@ -1,19 +1,19 @@
-import { useCallback, useState } from 'react';
-import type { LoggedUser } from '../lib/user';
+import { useCallback, useEffect, useState } from 'react';
 import type { CookieOptions } from '../lib/cookie';
 import { expireCookie, setCookie } from '../lib/cookie';
+import { useAuthContext } from '../contexts/AuthContext';
 
 export type AcceptCookiesCallback = (
   additional?: string[],
   toRemove?: string[],
 ) => void;
 
-type UseConsentCookie = [
-  boolean,
-  AcceptCookiesCallback,
-  (user?: LoggedUser) => void,
-  boolean,
-];
+interface UseConsentCookie {
+  saveCookies: AcceptCookiesCallback;
+  cookieExists: boolean;
+}
+
+const cookieAcknowledgedKey = 'cookie_acknowledged';
 
 export enum GdprConsentKey {
   Necessary = 'ilikecookies',
@@ -63,13 +63,10 @@ const getBrowserCookie = (key: string) =>
   globalThis?.document?.cookie.split('; ').find((row) => row.startsWith(key));
 
 export const useConsentCookie = (key: string): UseConsentCookie => {
-  const [showCookie, setShowCookie] = useState(false);
   const [exists, setExists] = useState(!!getBrowserCookie(key));
 
-  const acceptCookies: AcceptCookiesCallback = useCallback(
+  const saveCookies: AcceptCookiesCallback = useCallback(
     (additional, toRemove) => {
-      setShowCookie(false);
-
       setExists(true);
       setBrowserCookie(key);
 
@@ -84,43 +81,70 @@ export const useConsentCookie = (key: string): UseConsentCookie => {
     [key],
   );
 
-  const updateCookieBanner = useCallback(
-    (user?: LoggedUser): void => {
-      if (getBrowserCookie(key)) {
-        if (!exists) {
-          setExists(true);
-        }
-
-        return;
-      }
-
-      if (user) {
-        acceptCookies();
-        return;
-      }
-
-      setShowCookie(true);
-    },
-    [acceptCookies, exists, key],
-  );
-
-  return [showCookie, acceptCookies, updateCookieBanner, exists];
+  return { saveCookies, cookieExists: exists };
 };
 
 interface UseCookieBanner {
   showBanner: boolean;
   onAcceptCookies: () => void;
-  updateCookieBanner: (user?: LoggedUser) => void;
 }
 
 export function useCookieBanner(): UseCookieBanner {
-  const [showCookie, acceptCookies, updateCookieBanner] = useConsentCookie(
+  const { isAuthReady, user, isGdprCovered } = useAuthContext();
+  const [isOpen, setIsOpen] = useState(false);
+  const { saveCookies, cookieExists: hasAccepted } = useConsentCookie(
     GdprConsentKey.Necessary,
   );
 
+  const onAccept: AcceptCookiesCallback = useCallback(
+    (...args) => {
+      saveCookies(...args);
+      globalThis?.localStorage.setItem(cookieAcknowledgedKey, 'true');
+      setIsOpen(false);
+    },
+    [saveCookies],
+  );
+
+  useEffect(() => {
+    if (!isAuthReady || isOpen) {
+      return;
+    }
+
+    if (!isGdprCovered) {
+      if (hasAccepted) {
+        return;
+      }
+
+      if (user) {
+        saveCookies();
+        return;
+      }
+
+      setIsOpen(true);
+      return;
+    }
+
+    if (hasAccepted) {
+      if (!user) {
+        return;
+      }
+
+      const acknowledged = globalThis?.localStorage?.getItem(
+        cookieAcknowledgedKey,
+      );
+
+      if (acknowledged) {
+        return;
+      }
+    } else if (user) {
+      saveCookies(); // accepting necessary ones
+    }
+
+    setIsOpen(true);
+  }, [saveCookies, isOpen, isAuthReady, user, hasAccepted, isGdprCovered]);
+
   return {
-    showBanner: showCookie,
-    onAcceptCookies: acceptCookies,
-    updateCookieBanner,
+    showBanner: isOpen,
+    onAcceptCookies: onAccept,
   };
 }

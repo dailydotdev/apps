@@ -18,8 +18,8 @@ import {
   TypographyTag,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { otherGdprConsents } from '@dailydotdev/shared/src/hooks/useCookieBanner';
-import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import type { CommonCookieBannerProps } from './CookieBannerContainer';
 import { CookieBannerContainer } from './CookieBannerContainer';
 
@@ -29,6 +29,14 @@ export default function CookieBanner({
   const { openModal } = useLazyModal();
   const { isGdprCovered } = useAuthContext();
   const onAcceptAll = () => onAccepted(otherGdprConsents);
+
+  const onOpenModal = () => {
+    onAccepted();
+    openModal({
+      type: LazyModal.CookieConsent,
+      props: { onAcceptCookies: onAccepted },
+    });
+  };
 
   return (
     <CookieBannerContainer className="p-4 laptop:w-64">
@@ -46,7 +54,7 @@ export default function CookieBanner({
         />
       </div>
       <div className="mt-2 flex flex-col gap-4">
-        <span className="text-text-secondary" data-testid="gdpr_content">
+        <span className="text-text-secondary" data-testid="cookie_content">
           This site uses cookies to enhance your experience. By continuing, you
           agree to our use of cookies as outlined in our{' '}
           <Typography
@@ -78,12 +86,7 @@ export default function CookieBanner({
           </Button>
           {isGdprCovered && (
             <Button
-              onClick={() =>
-                openModal({
-                  type: LazyModal.CookieConsent,
-                  props: { onAcceptCookies: onAccepted },
-                })
-              }
+              onClick={onOpenModal}
               size={ButtonSize.Small}
               variant={ButtonVariant.Float}
             >

@@ -1,4 +1,4 @@
-import React, { act, useEffect } from 'react';
+import React, { act } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import { QueryClient } from '@tanstack/react-query';
@@ -11,7 +11,6 @@ import { nextTick } from '@dailydotdev/shared/src/lib/func';
 import { expireCookie, getCookies } from '@dailydotdev/shared/src/lib/cookie';
 import { MODAL_KEY } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import CookieBanner from './CookieBanner';
 
 let client: QueryClient;
@@ -19,6 +18,7 @@ let client: QueryClient;
 beforeEach(() => {
   jest.clearAllMocks();
   client = new QueryClient();
+  localStorage.clear();
   document.cookie = '';
   Object.values(GdprConsentKey).forEach((key) => {
     expireCookie(key);
@@ -26,12 +26,7 @@ beforeEach(() => {
 });
 
 const WrapperComponent = () => {
-  const { user } = useAuthContext();
-  const { showBanner, onAcceptCookies, updateCookieBanner } = useCookieBanner();
-
-  useEffect(() => {
-    updateCookieBanner(user);
-  }, [user, updateCookieBanner]);
+  const { showBanner, onAcceptCookies } = useCookieBanner();
 
   if (!showBanner) {
     return null;
@@ -68,7 +63,7 @@ describe('CookieBannerGdpr', () => {
   it('should render when cookie is not found', async () => {
     renderComponent({ isGdprCovered: true });
 
-    await screen.findByTestId('gdpr_content');
+    await screen.findByTestId('cookie_content');
   });
 
   it('should set the cookies for all when closed', async () => {

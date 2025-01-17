@@ -74,7 +74,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const unreadText = getUnreadText(unreadCount);
   const { user, closeLogin, shouldShowLogin, loginState, isAuthReady } =
     useContext(AuthContext);
-  const { showBanner, onAcceptCookies, updateCookieBanner } = useCookieBanner();
+  const { showBanner, onAcceptCookies } = useCookieBanner();
   useWebVitals();
   useLogPageView();
   const { modal, closeModal } = useLazyModal();
@@ -96,8 +96,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   ]);
 
   useEffect(() => {
-    updateCookieBanner(user);
-
     if (
       user &&
       !didRegisterSwRef.current &&
@@ -107,7 +105,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       didRegisterSwRef.current = true;
       window.serwist.register();
     }
-  }, [user, isAuthReady, updateCookieBanner]);
+  }, [user, isAuthReady]);
 
   useEffect(() => {
     if (!modal) {
