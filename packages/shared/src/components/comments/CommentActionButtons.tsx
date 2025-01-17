@@ -186,7 +186,7 @@ export default function CommentActionButtons({
         const params = {
           id: comment.author.id,
           entity: ContentPreferenceType.User,
-          entityName: post.author.username,
+          entityName: comment.author.username,
           feedId: user.id,
           opts: {
             hideToast: true,
