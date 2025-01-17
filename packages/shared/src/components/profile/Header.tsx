@@ -119,13 +119,15 @@ export function Header({
             target={TargetId.MyProfile}
           />
         )}
-        <FollowButton
-          entityId={user.id}
-          type={ContentPreferenceType.User}
-          status={contentPreference?.status}
-          entityName={`@${user.username}`}
-          className="flex-row-reverse"
-        />
+        {!blocked && (
+          <FollowButton
+            entityId={user.id}
+            type={ContentPreferenceType.User}
+            status={contentPreference?.status}
+            entityName={`@${user.username}`}
+            className="flex-row-reverse"
+          />
+        )}
         {!isSameUser && (
           <CustomFeedOptionsMenu
             onAdd={(feedId) =>
