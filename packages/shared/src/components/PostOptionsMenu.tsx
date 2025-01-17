@@ -46,7 +46,7 @@ import {
   useToastNotification,
 } from '../hooks';
 import type { AllFeedPages } from '../lib/query';
-import { generateQueryKey } from '../lib/query';
+import { generateQueryKey, RequestKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { LogEvent, Origin } from '../lib/log';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
@@ -73,7 +73,6 @@ import {
 import { isFollowingContent } from '../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../hooks/auth/useIsSpecialUser';
 import { useActiveFeedContext } from '../contexts';
-import { SharedFeedPage } from './utilities';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -558,7 +557,7 @@ export default function PostOptionsMenu({
           });
 
           client.invalidateQueries({
-            queryKey: generateQueryKey(SharedFeedPage.MyFeed, user),
+            queryKey: generateQueryKey(RequestKey.UserBlocked),
           });
 
           await showMessageAndRemovePost(
