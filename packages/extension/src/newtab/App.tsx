@@ -65,8 +65,7 @@ Modal.defaultStyles = {};
 
 const getRedirectUri = () => browser.runtime.getURL('index.html');
 function InternalApp(): ReactElement {
-  const { isOnboardingReady, hasCompletedContentTypes, hasCompletedEditTags } =
-    useOnboarding();
+  const { hasCompletedContentTypes, hasCompletedEditTags } = useOnboarding();
   useError();
   useWebVitals();
   const { setCurrentPage, currentPage } = useExtensionContext();
@@ -86,8 +85,7 @@ function InternalApp(): ReactElement {
   const { growthbook } = useGrowthBookContext();
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
-  const isOnboardingComplete =
-    isOnboardingReady && hasCompletedEditTags && hasCompletedContentTypes;
+  const isOnboardingComplete = hasCompletedEditTags && hasCompletedContentTypes;
   const shouldRedirectOnboarding =
     isPageReady && (!user || !isOnboardingComplete) && !isTesting;
   const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';

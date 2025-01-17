@@ -3,6 +3,9 @@ import { useRouter } from 'next/router';
 import type { ParsedUrlQuery } from 'querystring';
 
 const getVersion = (query: ParsedUrlQuery): string | undefined => {
+  if (query.ios) {
+    return 'ios';
+  }
   if (query.android) {
     return 'android';
   }

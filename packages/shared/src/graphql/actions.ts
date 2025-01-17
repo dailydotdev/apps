@@ -38,6 +38,7 @@ export enum ActionType {
   FetchedSmartTitle = 'fetched_smart_title',
   EditTag = 'edit_tag',
   ContentTypes = 'content_types',
+  StreakTimezoneMismatch = 'streak_timezone_mismatch',
 }
 
 export interface Action {
