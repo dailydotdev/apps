@@ -181,21 +181,24 @@ export default function CommentActionButtons({
   if (user && user.id !== comment.author.id) {
     commentOptions.push({
       icon: <BlockIcon />,
-      label: `Block ${post.author.name}`,
+      label: `Block ${post.author.username}`,
       action: async () => {
         const params = {
           id: comment.author.id,
           entity: ContentPreferenceType.User,
-          entityName: post.author.name,
+          entityName: post.author.username,
           feedId: user.id,
+          opts: {
+            hideToast: true,
+          },
         };
 
         await block(params);
 
+        const commentQueryKey = generateQueryKey(RequestKey.PostComments);
         client.invalidateQueries({
           queryKey: generateQueryKey(SharedFeedPage.MyFeed, user),
         });
-        const commentQueryKey = generateQueryKey(RequestKey.PostComments);
         client.invalidateQueries({
           queryKey: commentQueryKey,
         });
