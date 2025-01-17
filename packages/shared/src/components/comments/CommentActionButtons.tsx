@@ -46,7 +46,6 @@ import { useContentPreference } from '../../hooks/contentPreference/useContentPr
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { isFollowingContent } from '../../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
-import { SharedFeedPage } from '../utilities';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -196,9 +195,6 @@ export default function CommentActionButtons({
         await block(params);
 
         const commentQueryKey = generateQueryKey(RequestKey.PostComments);
-        client.invalidateQueries({
-          queryKey: generateQueryKey(SharedFeedPage.MyFeed, user),
-        });
         client.invalidateQueries({
           queryKey: commentQueryKey,
         });
