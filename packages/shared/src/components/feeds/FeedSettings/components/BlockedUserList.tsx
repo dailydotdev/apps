@@ -1,18 +1,14 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import { useFeedSettingsEditContext } from '../FeedSettingsEditContext';
-import {
-  ContentPreferenceStatus,
-  ContentPreferenceType,
-} from '../../../../graphql/contentPreference';
+import { ContentPreferenceType } from '../../../../graphql/contentPreference';
 import UserList from '../../../profile/UserList';
 import { checkFetchMore } from '../../../containers/InfiniteScrolling';
 import { Origin } from '../../../../lib/log';
 import { CopyType } from '../../../sources/SourceActions/SourceActionsFollow';
 import { useBlockedQuery } from '../../../../hooks/contentPreference/useBlockedQuery';
 import { anchorDefaultRel } from '../../../../lib/strings';
-import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
-import { useContentPreference } from '../../../../hooks/contentPreference/useContentPreference';
+import BlockButton from '../../../contentPreference/BlockButton';
 
 type BlockedUserListProps = {
   searchQuery?: string;
@@ -21,7 +17,6 @@ type BlockedUserListProps = {
 export const BlockedUserList = ({
   searchQuery,
 }: BlockedUserListProps): ReactElement => {
-  const { block, unblock } = useContentPreference();
   const { feed } = useFeedSettingsEditContext();
 
   const queryResult = useBlockedQuery({
@@ -59,34 +54,13 @@ export const BlockedUserList = ({
         fetchNextPage,
       }}
       additionalContent={(user) => (
-        <Button
-          onClick={(e) => {
-            e.preventDefault();
-            if (
-              user.contentPreference.status === ContentPreferenceStatus.Blocked
-            ) {
-              unblock({
-                id: user.id,
-                entity: ContentPreferenceType.User,
-                entityName: user.name,
-                feedId: feed.id,
-              });
-            } else {
-              block({
-                id: user.id,
-                entity: ContentPreferenceType.User,
-                entityName: user.name,
-                feedId: feed.id,
-              });
-            }
-          }}
-          variant={ButtonVariant.Secondary}
-          size={ButtonSize.Small}
-        >
-          {user.contentPreference.status === ContentPreferenceStatus.Blocked
-            ? 'Unblock'
-            : 'Block'}
-        </Button>
+        <BlockButton
+          feedId={feed.id}
+          entityId={user.id}
+          entityName={user.name}
+          entityType={ContentPreferenceType.User}
+          status={user.contentPreference.status}
+        />
       )}
       userInfoProps={{
         origin: Origin.BlockedFilter,

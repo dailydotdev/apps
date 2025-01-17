@@ -20,6 +20,7 @@ import { SourceListPlaceholder } from './SourceListPlaceholder';
 import { webappUrl } from '../../lib/constants';
 import Link from '../utilities/Link';
 import { anchorDefaultRel } from '../../lib/strings';
+import BlockButton from '../contentPreference/BlockButton';
 
 export interface SourceListProps {
   scrollingProps: Omit<InfiniteScrollingProps, 'children'>;
@@ -27,6 +28,8 @@ export interface SourceListProps {
   placeholderAmount?: number;
   isLoading?: boolean;
   emptyPlaceholder?: JSX.Element;
+  showFollow?: boolean;
+  showBlock?: boolean;
 }
 
 export const SourceList = ({
@@ -35,6 +38,8 @@ export const SourceList = ({
   sources,
   isLoading,
   emptyPlaceholder,
+  showFollow = true,
+  showBlock,
 }: SourceListProps): ReactElement => {
   const feedSettingsEditContext = useFeedSettingsEditContext();
   const feed = feedSettingsEditContext?.feed;
@@ -107,15 +112,26 @@ export const SourceList = ({
                   {source.description}
                 </Typography>
               </div>
-              <FollowButton
-                feedId={feed?.id}
-                entityId={source.id}
-                type={ContentPreferenceType.Source}
-                status={source.contentPreference.status}
-                entityName={`@${source.handle}`}
-                showSubscribe={false}
-                copyType={CopyType.Custom}
-              />
+              {showBlock && (
+                <BlockButton
+                  feedId={feed?.id}
+                  entityId={source.id}
+                  entityName={`@${source.handle}`}
+                  entityType={ContentPreferenceType.Source}
+                  status={source.contentPreference.status}
+                />
+              )}
+              {showFollow && (
+                <FollowButton
+                  feedId={feed?.id}
+                  entityId={source.id}
+                  type={ContentPreferenceType.Source}
+                  status={source.contentPreference.status}
+                  entityName={`@${source.handle}`}
+                  showSubscribe={false}
+                  copyType={CopyType.Custom}
+                />
+              )}
             </a>
           </Link>
         ))}
