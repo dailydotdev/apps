@@ -27,18 +27,15 @@ import {
 } from '../../../lib/timezones';
 import { SimpleTooltip } from '../../tooltips';
 import { isTesting } from '../../../lib/constants';
-import {
-  timezoneMismatchIgnoreKey,
-  useStreakTimezoneOk,
-} from '../../../hooks/streaks/useStreakTimezoneOk';
+import { useStreakTimezoneOk } from '../../../hooks/streaks/useStreakTimezoneOk';
 import { usePrompt } from '../../../hooks/usePrompt';
-import usePersistentContext from '../../../hooks/usePersistentContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import {
   LogEvent,
   StreakTimezonePromptAction,
   TargetId,
 } from '../../../lib/log';
+import { useSettingsContext } from '../../../contexts/SettingsContext';
 
 const getStreak = ({
   value,
@@ -106,6 +103,7 @@ export function ReadingStreakPopup({
   fullWidth,
 }: ReadingStreakPopupProps): ReactElement {
   const router = useRouter();
+  const { flags, updateFlag } = useSettingsContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { user } = useAuthContext();
   const { completeAction } = useActions();
@@ -117,8 +115,6 @@ export function ReadingStreakPopup({
   const [showStreakConfig, toggleShowStreakConfig] = useToggle(false);
   const isTimezoneOk = useStreakTimezoneOk();
   const { showPrompt } = usePrompt();
-  const [timezoneMismatchIgnore, setTimezoneMismatchIgnore] =
-    usePersistentContext(timezoneMismatchIgnoreKey, '');
   const { logEvent } = useLogContext();
 
   const streaks = useMemo(() => {
@@ -210,7 +206,7 @@ export function ReadingStreakPopup({
                         device_timezone: deviceTimezone,
                         user_timezone: user?.timezone,
                         timezone_ok: isTimezoneOk,
-                        timezone_ignore: timezoneMismatchIgnore,
+                        timezone_ignore: flags?.timezoneMismatchIgnore,
                       };
 
                       logEvent({
@@ -253,7 +249,7 @@ export function ReadingStreakPopup({
                       });
 
                       if (!promptResult) {
-                        setTimezoneMismatchIgnore(deviceTimezone);
+                        updateFlag('timezoneMismatchIgnore', deviceTimezone);
 
                         return;
                       }

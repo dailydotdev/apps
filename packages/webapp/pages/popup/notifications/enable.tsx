@@ -39,8 +39,7 @@ const Description = classed('p', 'typo-callout text-text-tertiary');
 
 function Enable(): React.ReactElement {
   const router = useRouter();
-  const { isSubscribed, isInitialized, logPermissionGranted } =
-    usePushNotificationContext();
+  const { isSubscribed, isInitialized } = usePushNotificationContext();
   const { onEnablePush } = usePushNotificationMutation();
   const { sendBeacon } = useLogContext();
   const { source } = router.query;
@@ -60,7 +59,6 @@ function Enable(): React.ReactElement {
         postWindowMessage(ENABLE_NOTIFICATION_WINDOW_KEY, {
           permission: 'granted',
         });
-        logPermissionGranted(source as NotificationPromptSource);
         closeWindow();
         return;
       }
