@@ -73,6 +73,7 @@ import {
 import { isFollowingContent } from '../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../hooks/auth/useIsSpecialUser';
 import { useActiveFeedContext } from '../contexts';
+import { SharedFeedPage } from './utilities';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -555,6 +556,11 @@ export default function PostOptionsMenu({
               hideToast: true,
             },
           });
+
+          client.invalidateQueries({
+            queryKey: generateQueryKey(SharedFeedPage.MyFeed, user),
+          });
+
           await showMessageAndRemovePost(
             `🚫 ${post.author.name} has been ${
               isCustomFeed ? 'removed' : 'blocked'
