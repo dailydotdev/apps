@@ -8,7 +8,6 @@ import { useAuthContext } from '../contexts/AuthContext';
 import { fromCDN } from '../lib';
 import { getCookies } from '../lib/cookie';
 import { GdprConsentKey } from '../hooks/useCookieBanner';
-import { Continent } from '../lib/boot';
 
 const FB_PIXEL_ID = '519268979315924';
 const GA_TRACKING_ID = 'G-VTGLXD7QSN';
@@ -200,7 +199,7 @@ export const logPixelPayment = (
 
 export const Pixels = ({ hotjarId }: Partial<HotjarProps>): ReactElement => {
   const acceptedMarketing = !!getCookies([GdprConsentKey.Marketing]);
-  const { user, anonymous, isAuthReady, geo } = useAuthContext();
+  const { user, anonymous, isAuthReady, isGdprCovered } = useAuthContext();
   const userId = user?.id || anonymous?.id;
 
   const { query } = useRouter();
@@ -212,7 +211,7 @@ export const Pixels = ({ hotjarId }: Partial<HotjarProps>): ReactElement => {
     !isProduction ||
     !userId ||
     !isAuthReady ||
-    (geo.continent === Continent.Europe && !acceptedMarketing)
+    (isGdprCovered && !acceptedMarketing)
   ) {
     return null;
   }
