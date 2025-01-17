@@ -47,7 +47,7 @@ describe('CookieBannerGdpr', () => {
   it('should render just a single button to accept all when outside GDPR coverage', async () => {
     renderComponent();
     await nextTick();
-    const banner = screen.queryByTestId('gdpr_content');
+    const banner = screen.queryByTestId('cookie_content');
     expect(banner).toBeInTheDocument();
   });
 
@@ -56,7 +56,7 @@ describe('CookieBannerGdpr', () => {
     renderComponent({ isGdprCovered: true });
 
     await nextTick();
-    const banner = screen.queryByTestId('gdpr_content');
+    const banner = screen.queryByTestId('cookie_content');
     expect(banner).not.toBeInTheDocument();
   });
 
@@ -69,7 +69,7 @@ describe('CookieBannerGdpr', () => {
   it('should set the cookies for all when closed', async () => {
     renderComponent({ isGdprCovered: true });
 
-    await screen.findByTestId('gdpr_content');
+    await screen.findByTestId('cookie_content');
     const button = await screen.findByTitle('Close');
     await act(() => fireEvent.click(button));
     await nextTick();
@@ -84,7 +84,7 @@ describe('CookieBannerGdpr', () => {
   it('should set the cookies for all when accept all is clicked', async () => {
     renderComponent({ isGdprCovered: true });
 
-    await screen.findByTestId('gdpr_content');
+    await screen.findByTestId('cookie_content');
     const button = await screen.findByText('Accept all');
     await act(() => fireEvent.click(button));
     await nextTick();
@@ -99,7 +99,7 @@ describe('CookieBannerGdpr', () => {
   it('should open the modal for detailed consent', async () => {
     renderComponent({ isGdprCovered: true });
 
-    await screen.findByTestId('gdpr_content');
+    await screen.findByTestId('cookie_content');
     const button = await screen.findByText('Customize');
     await act(() => fireEvent.click(button));
     await nextTick();
