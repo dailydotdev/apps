@@ -8,7 +8,7 @@ import React, {
   useState,
 } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import OneSignal from 'react-onesignal';
+import type OneSignal from 'react-onesignal';
 import type { NotificationPromptSource } from '../lib/log';
 import { LogEvent } from '../lib/log';
 import { checkIsExtension, disabledRefetch } from '../lib/func';
@@ -101,7 +101,7 @@ function OneSignalSubProvider({
     existingPermission,
   ) => {
     if (newPermission) {
-      await OneSignal.User.PushSubscription.optIn();
+      await OneSignalCache?.User.PushSubscription.optIn();
       setIsSubscribed(true);
 
       logEvent({
