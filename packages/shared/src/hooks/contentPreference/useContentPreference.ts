@@ -16,7 +16,6 @@ import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { AuthTriggers } from '../../lib/auth';
 import { generateQueryKey, RequestKey } from '../../lib/query';
-import { SharedFeedPage } from '../../components/utilities';
 
 export type UseContentPreference = {
   follow: ContentPreferenceMutation;
@@ -226,10 +225,6 @@ export const useContentPreference = ({
       if (opts?.hideToast) {
         return;
       }
-
-      queryClient.invalidateQueries({
-        queryKey: generateQueryKey(SharedFeedPage.MyFeed, user),
-      });
 
       if (entity === ContentPreferenceType.User) {
         displayToast(`🚫 ${entityName} has been blocked`);
