@@ -56,7 +56,7 @@ export const SourceList = ({
       >
         {sources.map((source) => (
           <div
-            className="flex gap-2 px-6 py-3 hover:bg-surface-hover"
+            className="relative flex gap-2 px-6 py-3 hover:bg-surface-hover"
             key={source.id}
           >
             <Link
@@ -65,7 +65,6 @@ export const SourceList = ({
               }/${source.handle}`}
             >
               <a
-                key={source.id}
                 className="absolute inset-0 z-0"
                 rel={anchorDefaultRel}
                 target="_blank"
