@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { ContentPreferenceType } from '../../graphql/contentPreference';
 import { ContentPreferenceStatus } from '../../graphql/contentPreference';
+import type { ButtonProps } from '../buttons/Button';
 import { Button } from '../buttons/Button';
 import { ButtonVariant, ButtonSize } from '../buttons/common';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
@@ -12,9 +13,7 @@ type BlockButtonProps = {
   entityName: string;
   status?: ContentPreferenceStatus;
   entityType: ContentPreferenceType;
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-};
+} & Pick<ButtonProps<'button'>, 'variant' | 'size' | 'className'>;
 
 const BlockButton = ({
   variant = ButtonVariant.Secondary,
@@ -24,13 +23,14 @@ const BlockButton = ({
   entityName,
   entityType,
   status,
+  ...attrs
 }: BlockButtonProps): ReactElement => {
   const { block, unblock } = useContentPreference();
 
   return (
     <Button
+      {...attrs}
       onClick={(e) => {
-        e.preventDefault();
         if (status === ContentPreferenceStatus.Blocked) {
           unblock({
             id: entityId,
@@ -47,6 +47,7 @@ const BlockButton = ({
           });
         }
       }}
+      type="button"
       variant={variant}
       size={size}
     >
