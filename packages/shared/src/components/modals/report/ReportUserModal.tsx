@@ -55,12 +55,12 @@ export const ReportUserModal = ({
         }),
       onSuccess: () => {
         displayToast(`🚫 ${offendingUser.username} has been blocked`);
-        onClose();
         onBlockUser?.();
       },
       onError: () => {
         displayToast(`❌ Failed to block ${offendingUser.username}`);
       },
+      onSettled: () => onClose(),
     });
   const { isPending: isReportPending, mutateAsync: reportUserMutation } =
     useMutation({
@@ -74,12 +74,12 @@ export const ReportUserModal = ({
       onSuccess: () => {
         if (!blockUser) {
           displayToast(`🗒️ ${offendingUser.username} has been reported`);
-          onClose();
         }
       },
       onError: () => {
         displayToast(`❌ Failed to report ${offendingUser.username}`);
       },
+      onSettled: () => onClose(),
     });
 
   const onReportUser = (
