@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import {
   CONTENT_PREFERENCE_BLOCK_MUTATION,
   CONTENT_PREFERENCE_FOLLOW_MUTATION,
@@ -33,7 +33,6 @@ type UseContentPreferenceProps = {
 export const useContentPreference = ({
   showToastOnSuccess,
 }: UseContentPreferenceProps = {}): UseContentPreference => {
-  const queryClient = useQueryClient();
   const { user, showLogin } = useAuthContext();
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
