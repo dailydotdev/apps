@@ -16,15 +16,15 @@ import { useToastNotification } from '../../../hooks';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 
 const reportReasons: { value: string; label: string }[] = [
-  { value: 'INAPPROPRIATE', label: 'Inappropriate or NSFW Content' },
-  { value: 'TROLLING', label: 'Trolling or Disruptive Behavior' },
-  { value: 'HARASSMENT', label: 'Harassment or Bullying' },
-  { value: 'IMPERSONATION', label: 'Impersonation or False Identity' },
-  { value: 'SPAM', label: 'Spam or Unsolicited Advertising' },
-  { value: 'MISINFORMATION', label: 'Misinformation or False Claims' },
-  { value: 'HATEFUL', label: 'Hate Speech or Discrimination' },
-  { value: 'PRIVACY', label: 'Privacy or Copyright Violation' },
-  { value: 'PLAGIARISM', label: 'Plagiarism or Content Theft' },
+  { value: 'INAPPROPRIATE', label: 'Inappropriate or NSFW content' },
+  { value: 'TROLLING', label: 'Trolling or disruptive behavior' },
+  { value: 'HARASSMENT', label: 'Harassment or bullying' },
+  { value: 'IMPERSONATION', label: 'Impersonation or false identity' },
+  { value: 'SPAM', label: 'Spam or unsolicited advertising' },
+  { value: 'MISINFORMATION', label: 'Misinformation or false claims' },
+  { value: 'HATEFUL', label: 'Hate speech or discrimination' },
+  { value: 'PRIVACY', label: 'Privacy or copyright violation' },
+  { value: 'PLAGIARISM', label: 'Plagiarism or content theft' },
   { value: 'OTHER', label: 'Other' },
 ];
 
