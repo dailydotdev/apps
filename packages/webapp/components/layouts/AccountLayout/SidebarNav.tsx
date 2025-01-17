@@ -98,7 +98,7 @@ function SidebarNav({
             />
           );
         })}
-        {isGdprCovered && (
+        {!isGdprCovered && (
           <AccountSidebarPagesSection>
             {accountSidebarPages.map((accountSidebarPage) => (
               <Link
