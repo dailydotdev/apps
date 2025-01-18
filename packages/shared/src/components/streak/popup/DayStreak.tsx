@@ -4,8 +4,9 @@ import classNames from 'classnames';
 import { ReadingStreakIcon, TriangleArrowIcon, EditIcon } from '../../icons';
 import classed from '../../../lib/classed';
 import { IconSize, iconSizeToClassName } from '../../Icon';
-import { isNullOrUndefined } from '../../../lib/func';
 import { SimpleTooltip } from '../../tooltips';
+import { useAuthContext } from '../../../contexts/AuthContext';
+import { dateFormatInTimezone } from '../../../lib/timezones';
 
 export enum Streak {
   Completed = 'completed',
@@ -16,14 +17,13 @@ export enum Streak {
 
 interface DayStreakProps {
   streak: Streak;
-  day?: number;
+  date: Date;
   size?: IconSize;
   className?: string;
   shouldShowArrow?: boolean;
   onClick?: () => void;
 }
 
-const dayInitial = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 const Circle = classed(
   'div',
   'rounded-full border border-border-subtlest-tertiary',
@@ -31,12 +31,14 @@ const Circle = classed(
 
 export function DayStreak({
   streak,
-  day,
+  date,
   size = IconSize.Medium,
   className,
   shouldShowArrow,
   onClick,
 }: DayStreakProps): ReactElement {
+  const { user } = useAuthContext();
+
   const renderIcon = () => {
     if (streak === Streak.Completed || streak === Streak.Pending) {
       return (
@@ -69,8 +71,6 @@ export function DayStreak({
     );
   };
 
-  const finalDay = day < 7 ? day : day % 7;
-
   return (
     <SimpleTooltip
       show={streak === Streak.Freeze}
@@ -89,7 +89,7 @@ export function DayStreak({
           />
         )}
         {renderIcon()}
-        {!isNullOrUndefined(day) ? dayInitial[finalDay] : null}
+        {dateFormatInTimezone(date, 'iiiii', user.timezone)}
       </div>
     </SimpleTooltip>
   );
