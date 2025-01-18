@@ -40,10 +40,6 @@ const feature = {
   }),
 };
 
-export const plusImprovedEntryPoint = new Feature(
-  'plus_improved_entry_points',
-  false,
-);
 export const feedActionSpacing = new Feature('feed_action_spacing', false);
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 

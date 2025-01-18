@@ -185,7 +185,7 @@ export const USER_READING_HISTORY_QUERY = gql`
       rank
       count
     }
-    userReadHistory(id: $id, after: $after, before: $before) {
+    userReadHistory(id: $id, after: $after, before: $before, grouped: true) {
       date
       reads
     }
@@ -513,7 +513,6 @@ export interface UserStreak {
   current: number;
   weekStart: DayOfWeek;
   lastViewAt: Date;
-  lastViewAtTz: Date;
 }
 
 export const getReadingStreak = async (): Promise<UserStreak> => {

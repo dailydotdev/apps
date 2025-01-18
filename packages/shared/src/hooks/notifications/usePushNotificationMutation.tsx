@@ -35,7 +35,7 @@ export const usePushNotificationMutation = ({
   onPopupGranted,
 }: UsePushNotificationMutationProps = {}): UsePushNotificationMutation => {
   const isExtension = checkIsExtension();
-  const { onSourceChange, OneSignal, isSubscribed, shouldOpenPopup } =
+  const { isSubscribed, shouldOpenPopup, subscribe, unsubscribe } =
     usePushNotificationContext();
   const { user } = useAuthContext();
   const [acceptedJustNow, onAcceptedJustNow] = useState(false);
@@ -43,20 +43,15 @@ export const usePushNotificationMutation = ({
   const [permissionCache, setPermissionCache] = usePermissionCache();
 
   const onGranted = useCallback(async () => {
-    setPermissionCache('granted');
+    await setPermissionCache('granted');
     onAcceptedJustNow(true);
 
     if (!checkHasCompleted(ActionType.EnableNotification)) {
-      completeAction(ActionType.EnableNotification);
-    }
-
-    if (OneSignal) {
-      await OneSignal.User.PushSubscription.optIn();
+      await completeAction(ActionType.EnableNotification);
     }
 
     return true;
   }, [
-    OneSignal,
     checkHasCompleted,
     completeAction,
     setPermissionCache,
@@ -83,42 +78,30 @@ export const usePushNotificationMutation = ({
         return false;
       }
 
-      const { permission } = globalThis.Notification ?? {};
-
-      if (shouldOpenPopup || permission === 'denied') {
+      if (shouldOpenPopup()) {
         onOpenPopup(source);
         return false;
       }
 
-      onSourceChange(source);
-
-      if (permission === 'granted') {
-        return onGranted();
-      }
-
-      await OneSignal.Notifications.requestPermission();
-
-      const isGranted = OneSignal.Notifications.permission;
-
+      const isGranted = await subscribe(source);
       if (isGranted) {
         await onGranted();
       }
 
       return isGranted;
     },
-    [user, shouldOpenPopup, onSourceChange, OneSignal, onOpenPopup, onGranted],
+    [user, shouldOpenPopup, subscribe, onOpenPopup, onGranted],
   );
 
   const onTogglePermission = useCallback(
     async (source: NotificationPromptSource): Promise<unknown> => {
       if (isSubscribed) {
-        onSourceChange(source);
-        return OneSignal.User.PushSubscription.optOut();
+        return unsubscribe(source);
       }
 
       return onEnablePush(source);
     },
-    [OneSignal, isSubscribed, onEnablePush, onSourceChange],
+    [isSubscribed, onEnablePush, unsubscribe],
   );
 
   useEventListener(globalThis, 'message', async (e) => {
@@ -133,7 +116,7 @@ export const usePushNotificationMutation = ({
       return;
     }
 
-    onGranted();
+    await onGranted();
 
     if (onPopupGranted) {
       onPopupGranted();
