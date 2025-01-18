@@ -37,12 +37,6 @@ import useWebappVersion from '../hooks/useWebappVersion';
 
 structuredCloneJsonPolyfill();
 
-const AuthModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "authModal" */ '@dailydotdev/shared/src/components/auth/AuthModal'
-    ),
-);
 const CookieBanner = dynamic(
   () =>
     import(/* webpackChunkName: "cookieBanner" */ '../components/CookieBanner'),
@@ -69,8 +63,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
-  const { user, closeLogin, shouldShowLogin, loginState } =
-    useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
   useWebVitals();
   useLogPageView();
@@ -200,14 +193,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       <DndContextProvider>
         {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
       </DndContextProvider>
-      {shouldShowLogin && (
-        <AuthModal
-          isOpen={shouldShowLogin}
-          onRequestClose={closeLogin}
-          contentLabel="Login Modal"
-          {...loginState}
-        />
-      )}
       {showCookie && <CookieBanner onAccepted={acceptCookies} />}
     </>
   );

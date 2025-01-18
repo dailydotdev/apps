@@ -1,12 +1,12 @@
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
-import { useRouter } from 'next/router';
 import { Button, ButtonVariant } from './buttons/Button';
 import LogContext from '../contexts/LogContext';
 import type { LogEvent } from '../hooks/log/useLogQueue';
-import { AuthTriggers } from '../lib/auth';
 import { TargetType } from '../lib/log';
+import { useAuthContext } from '../contexts/AuthContext';
+import { AuthTriggers } from '../lib/auth';
 
 interface ClassName {
   container?: string;
@@ -33,15 +33,11 @@ const getLogEvent = (copy: ButtonCopy): LogEvent => ({
 export default function LoginButton({
   className = {},
 }: LoginButtonProps): ReactElement {
-  const router = useRouter();
   const { logEvent } = useContext(LogContext);
-
+  const { showLogin } = useAuthContext();
   const onClick = (copy: ButtonCopy) => {
     logEvent(getLogEvent(copy));
-    const params = new URLSearchParams(globalThis?.location.search);
-    params.set('authTrigger', AuthTriggers.MainButton);
-    params.set('afterAuth', window.location.pathname);
-    router.push(`/onboarding?${params.toString()}`);
+    showLogin({ trigger: AuthTriggers.MainButton });
   };
 
   return (

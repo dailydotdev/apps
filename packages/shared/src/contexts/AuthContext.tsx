@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import type { QueryObserverResult } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
 import {
   deleteAccount,
@@ -138,7 +139,7 @@ export const AuthContextProvider = ({
   const endUser = user && 'providers' in user ? user : null;
   const referral = user?.referralId || user?.referrer;
   const referralOrigin = user?.referralOrigin;
-
+  const router = useRouter();
   if (firstLoad === true && endUser && !endUser?.infoConfirmed) {
     logout(LogoutReason.IncomleteOnboarding);
   }
@@ -146,6 +147,18 @@ export const AuthContextProvider = ({
   if (isLegacyLogout && !loginState) {
     setLoginState({ trigger: AuthTriggers.LegacyLogout });
   }
+
+  useEffect(() => {
+    const params = new URLSearchParams(globalThis?.location.search);
+    const triggerParam = params.get('authTrigger');
+    if (loginState && loginState?.trigger !== triggerParam) {
+      if (!params.get('afterAuth')) {
+        params.set('afterAuth', window.location.pathname);
+      }
+      params.set('authTrigger', loginState.trigger);
+      router.push(`/onboarding?${params.toString()}`);
+    }
+  }, [loginState, router]);
 
   return (
     <AuthContext.Provider

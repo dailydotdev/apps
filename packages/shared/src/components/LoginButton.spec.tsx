@@ -1,49 +1,67 @@
 /* eslint-disable no-console */
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, act } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/router';
-import { mocked } from 'ts-jest/utils';
 import LoginButton from './LoginButton';
 import { TestBootProvider } from '../../__tests__/helpers/boot';
 import type { LoggedUser } from '../lib/user';
-
-jest.mock('next/router', () => ({
-  useRouter: jest.fn(),
-}));
+import { AuthContextProvider } from '../contexts/AuthContext';
+import { AuthTriggers } from '../lib/auth';
 
 describe('LoginButton', () => {
   const showLogin = jest.fn();
-  const routerPush = jest.fn();
+  const logEvent = jest.fn();
 
   beforeEach(() => {
     showLogin.mockReset();
-    routerPush.mockReset();
-    mocked(useRouter).mockImplementation(() => ({
-      push: routerPush,
-      pathname: '/',
-      query: {},
-      replace: jest.fn(),
-    }));
+    logEvent.mockReset();
   });
 
   const renderLayout = (user: LoggedUser = null): RenderResult => {
     const client = new QueryClient();
 
     return render(
-      <TestBootProvider client={client} auth={{ user, showLogin }}>
-        <LoginButton />
-      </TestBootProvider>,
+      <AuthContextProvider
+        user={user}
+        updateUser={jest.fn()}
+        tokenRefreshed
+        getRedirectUri={jest.fn()}
+        loadingUser={false}
+        loadedUserFromCache
+      >
+        <TestBootProvider client={client} auth={{ user, showLogin }}>
+          <LoginButton />
+        </TestBootProvider>
+      </AuthContextProvider>,
     );
   };
 
-  it('should redirect to onboarding when clicking the button', async () => {
+  it('should call showLogin when clicking the login button', async () => {
     renderLayout();
-    const el = await screen.findByText('Log in');
+    const loginButton = await screen.findByText('Log in');
+    expect(loginButton).toBeInTheDocument();
 
-    fireEvent.click(el);
-    const decodedURL = decodeURIComponent(routerPush.mock.calls[0][0]);
-    expect(decodedURL).toBe('/onboarding?authTrigger=main+button&afterAuth=/');
+    await act(async () => {
+      fireEvent.click(loginButton);
+    });
+
+    expect(showLogin).toHaveBeenCalledWith({
+      trigger: AuthTriggers.MainButton,
+    });
+  });
+
+  it('should call showLogin when clicking the signup button', async () => {
+    renderLayout();
+    const signupButton = await screen.findByText('Sign up');
+    expect(signupButton).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(signupButton);
+    });
+
+    expect(showLogin).toHaveBeenCalledWith({
+      trigger: AuthTriggers.MainButton,
+    });
   });
 });
