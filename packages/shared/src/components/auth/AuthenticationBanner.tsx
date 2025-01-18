@@ -61,7 +61,7 @@ export function AuthenticationBanner({
               onboardingSignup: '!gap-4',
             }}
             onAuthStateUpdate={(props) => {
-              const params = new URLSearchParams();
+              const params = new URLSearchParams(globalThis?.location.search);
               params.set('afterAuth', window.location.pathname);
               if (props?.email) {
                 params.set('email', props.email);

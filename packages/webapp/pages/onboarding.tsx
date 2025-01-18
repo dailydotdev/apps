@@ -240,7 +240,11 @@ export function OnboardPage(): ReactElement {
     }
 
     if (user?.infoConfirmed && activeScreen === OnboardingStep.Intro) {
-      router.replace(getPathnameWithQuery(webappUrl, window.location.search));
+      const afterAuth = params.get('afterAuth');
+      params.delete('afterAuth');
+      router.replace(
+        getPathnameWithQuery(afterAuth || webappUrl, params.toString()),
+      );
       return;
     }
 
