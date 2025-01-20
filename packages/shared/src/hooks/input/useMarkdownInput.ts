@@ -418,10 +418,6 @@ export const useMarkdownInput = ({
   };
 
   const onPaste: ClipboardEventHandler<HTMLTextAreaElement> = (e) => {
-    if (!e.clipboardData.files?.length && !isUploadEnabled) {
-      return;
-    }
-
     const textareaLocal = e.currentTarget;
     const pastedText = e.clipboardData.getData('text');
     if (
