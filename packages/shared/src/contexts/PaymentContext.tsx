@@ -28,6 +28,7 @@ export type ProductOption = {
   label: string;
   value: string;
   price: string;
+  priceUnformatted: number;
   currencyCode: string;
   extraLabel: string;
 };
@@ -165,6 +166,7 @@ export const PaymentContextProvider = ({
         label: item.price.description,
         value: item.price.id,
         price: item.formattedTotals.total,
+        priceUnformatted: Number(item.totals.total),
         currencyCode: productPrices?.data.currencyCode as string,
         extraLabel: item.price.customData?.label as string,
       })) ?? [],
@@ -182,7 +184,7 @@ export const PaymentContextProvider = ({
       }
 
       return monthlyPrices.reduce((acc, plan) => {
-        return acc.price < plan.price ? acc : plan;
+        return acc.priceUnformatted < plan.priceUnformatted ? acc : plan;
       }).value;
     }, [planTypes, productOptions]);
 
