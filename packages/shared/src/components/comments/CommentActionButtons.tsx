@@ -180,12 +180,12 @@ export default function CommentActionButtons({
   if (user && user.id !== comment.author.id) {
     commentOptions.push({
       icon: <BlockIcon />,
-      label: `Block ${comment.author.username}`,
+      label: `Block ${comment.author?.username}`,
       action: async () => {
         const params = {
           id: comment.author.id,
           entity: ContentPreferenceType.User,
-          entityName: comment.author.username,
+          entityName: comment.author?.username,
           feedId: user.id,
           opts: {
             hideToast: true,
@@ -218,7 +218,7 @@ export default function CommentActionButtons({
     !isCompanion;
 
   if (shouldShowFollow) {
-    const authorName = comment.author.name || `@${comment.author.username}`;
+    const authorName = comment.author?.name || `@${comment.author?.username}`;
     const isFollowingUser = isFollowingContent(
       comment.author?.contentPreference,
     );
