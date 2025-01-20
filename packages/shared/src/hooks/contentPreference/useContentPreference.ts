@@ -5,6 +5,7 @@ import {
   CONTENT_PREFERENCE_UNBLOCK_MUTATION,
   CONTENT_PREFERENCE_UNFOLLOW_MUTATION,
   ContentPreferenceStatus,
+  ContentPreferenceType,
 } from '../../graphql/contentPreference';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { gqlClient } from '../../graphql/common';
@@ -220,7 +221,15 @@ export const useContentPreference = ({
         feedId,
       });
 
-      displayToast(`⛔️ You blocked the following ${entityName}: ${id}`);
+      if (opts?.hideToast) {
+        return;
+      }
+
+      if (entity === ContentPreferenceType.User) {
+        displayToast(`🚫 ${entityName} has been blocked`);
+      } else {
+        displayToast(`⛔️ You blocked the following ${entityName}: ${id}`);
+      }
     },
   });
 
