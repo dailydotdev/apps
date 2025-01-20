@@ -89,7 +89,7 @@ const ProfileIndex = ({
       youtube: values.youtube,
       linkedin: values.linkedin,
       mastodon: values.mastodon ? withHttps(values.mastodon) : null,
-      bluesky: values.bluesky ? withHttps(values.bluesky) : null,
+      bluesky: values.bluesky,
       experienceLevel: values.experienceLevel,
       onUpdateSuccess: () =>
         router.push(`/${values.username}`).then(() => {
