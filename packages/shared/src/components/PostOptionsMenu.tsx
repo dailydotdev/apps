@@ -556,10 +556,6 @@ export default function PostOptionsMenu({
             },
           });
 
-          client.invalidateQueries({
-            queryKey: generateQueryKey(RequestKey.UserBlocked),
-          });
-
           await showMessageAndRemovePost(
             `🚫 ${post.author.name} has been ${
               isCustomFeed ? 'removed' : 'blocked'
@@ -568,6 +564,18 @@ export default function PostOptionsMenu({
             () => unblock(params),
           );
         }
+
+        client.invalidateQueries({
+          queryKey: generateQueryKey(
+            RequestKey.ContentPreference,
+            user,
+            RequestKey.UserBlocked,
+            {
+              feedId: customFeedId || user?.id,
+              entity: ContentPreferenceType.User,
+            },
+          ),
+        });
 
         invalidatePostCacheById(client, post.id);
       },
