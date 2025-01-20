@@ -7,7 +7,7 @@ import { checkFetchMore } from '../../../containers/InfiniteScrolling';
 import { Origin } from '../../../../lib/log';
 import { CopyType } from '../../../sources/SourceActions/SourceActionsFollow';
 import { useBlockedQuery } from '../../../../hooks/contentPreference/useBlockedQuery';
-import BlockButton from '../../../contentPreference/BlockButton';
+import { anchorDefaultRel } from '../../../../lib/strings';
 
 type BlockedUserListProps = {
   searchQuery?: string;
@@ -52,22 +52,14 @@ export const BlockedUserList = ({
         canFetchMore: checkFetchMore(queryResult),
         fetchNextPage,
       }}
-      additionalContent={(user) => (
-        <BlockButton
-          feedId={feed.id}
-          entityId={user.id}
-          entityName={user.name}
-          entityType={ContentPreferenceType.User}
-          status={user.contentPreference.status}
-          className="relative z-1"
-        />
-      )}
       userInfoProps={{
         origin: Origin.BlockedFilter,
-        showFollow: false,
+        showFollow: true,
         showSubscribe: false,
         copyType: CopyType.Custom,
         feedId: feed.id,
+        rel: anchorDefaultRel,
+        target: '_blank',
       }}
     />
   );

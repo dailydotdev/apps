@@ -14,7 +14,6 @@ import SourceButton from '../cards/common/SourceButton';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import type { Post } from '../../graphql/posts';
 import { ProfileImageSize } from '../ProfilePicture';
-import { invalidatePostCacheById } from '../../hooks/usePostById';
 
 export type SquadCommentJoinBannerProps = {
   className?: string;
@@ -45,7 +44,9 @@ export const SquadCommentJoinBanner = ({
       displayToast(`🙌 You joined the Squad ${squad.name}`);
       setIsSquadMember(true);
       if (post?.id) {
-        invalidatePostCacheById(queryClient, post.id);
+        queryClient.invalidateQueries({
+          queryKey: ['post', post.id],
+        });
       }
     },
     onError: () => {

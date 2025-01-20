@@ -7,7 +7,6 @@ import { UserShortInfo } from './UserShortInfo';
 import type { InfiniteScrollingProps } from '../containers/InfiniteScrolling';
 import InfiniteScrolling from '../containers/InfiniteScrolling';
 import type { UserShortProfile } from '../../lib/user';
-import { anchorDefaultRel } from '../../lib/strings';
 
 export interface UserListProps {
   scrollingProps: Omit<InfiniteScrollingProps, 'children'>;
@@ -49,28 +48,17 @@ function UserList({
       >
         {!!initialItem && initialItem}
         {users.map((user, i) => (
-          <div
-            className="relative px-6 py-3 hover:bg-surface-hover"
-            key={user.username}
-          >
-            <Link href={user.permalink}>
-              <a
-                className="absolute inset-0 z-0"
-                rel={anchorDefaultRel}
-                target="_blank"
-                aria-label={`View ${user.username}`}
-              />
-            </Link>
+          <Link key={user.username} href={user.permalink}>
             <UserShortInfo
               {...userInfoProps}
-              className={{ container: '' }}
-              tag="div"
+              tag="a"
+              href={user.permalink}
               user={user}
               afterContent={afterContent?.(user, i)}
             >
               {additionalContent?.(user, i)}
             </UserShortInfo>
-          </div>
+          </Link>
         ))}
       </InfiniteScrolling>
     );

@@ -12,7 +12,6 @@ import {
   FlagIcon,
   DownvoteIcon,
   AddUserIcon,
-  BlockIcon,
 } from '../icons';
 import type { Comment } from '../../graphql/comments';
 import { Roles } from '../../lib/user';
@@ -39,7 +38,7 @@ import { labels, largeNumberFormat } from '../../lib';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import type { VoteEntityPayload } from '../../hooks';
 import { useVoteComment, voteMutationHandlers } from '../../hooks';
-import { generateQueryKey, RequestKey } from '../../lib/query';
+import { RequestKey } from '../../lib/query';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { getCompanionWrapper } from '../../lib/extension';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
@@ -90,7 +89,7 @@ export default function CommentActionButtons({
       userState: comment.userState,
     };
   });
-  const { follow, unfollow, block, unblock } = useContentPreference();
+  const { follow, unfollow } = useContentPreference();
 
   useEffect(() => {
     setVoteState({
@@ -174,40 +173,6 @@ export default function CommentActionButtons({
       label: 'Delete comment',
       action: () => onDelete(comment, parentId),
       icon: <TrashIcon />,
-    });
-  }
-
-  if (user && user.id !== comment.author.id) {
-    commentOptions.push({
-      icon: <BlockIcon />,
-      label: `Block ${post.author.username}`,
-      action: async () => {
-        const params = {
-          id: comment.author.id,
-          entity: ContentPreferenceType.User,
-          entityName: comment.author.username,
-          feedId: user.id,
-          opts: {
-            hideToast: true,
-          },
-        };
-
-        await block(params);
-
-        const commentQueryKey = generateQueryKey(RequestKey.PostComments);
-        client.invalidateQueries({
-          queryKey: commentQueryKey,
-        });
-
-        displayToast(`🚫 ${comment.author.name} has been blocked`, {
-          onUndo: () => {
-            unblock(params);
-            client.invalidateQueries({
-              queryKey: commentQueryKey,
-            });
-          },
-        });
-      },
     });
   }
 

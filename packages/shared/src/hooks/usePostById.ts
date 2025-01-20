@@ -40,17 +40,6 @@ export const POST_KEY = 'post';
 
 export const getPostByIdKey = (id: string): QueryKey => [POST_KEY, id];
 
-export const invalidatePostCacheById = (
-  client: QueryClient,
-  id: string,
-): void => {
-  const postQueryKey = getPostByIdKey(id);
-  const postCache = client.getQueryData(postQueryKey);
-  if (postCache) {
-    client.invalidateQueries({ queryKey: postQueryKey });
-  }
-};
-
 export const updatePostCache = (
   client: QueryClient,
   id: string,

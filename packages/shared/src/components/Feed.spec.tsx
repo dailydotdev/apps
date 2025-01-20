@@ -624,7 +624,7 @@ describe('Feed logged in', () => {
       );
       expect(data).toBeTruthy();
     });
-    const contextBtn = await screen.findByText('Block Echo JS');
+    const contextBtn = await screen.findByText("Don't show posts from Echo JS");
     fireEvent.click(contextBtn);
     await waitForNock();
     await waitFor(() => expect(mutationCalled).toBeTruthy());
@@ -673,7 +673,7 @@ describe('Feed logged in', () => {
       );
       expect(data).toBeTruthy();
     });
-    const contextBtn = await screen.findByText('Unblock Echo JS');
+    const contextBtn = await screen.findByText('Show posts from Echo JS');
 
     await waitFor(async () => {
       fireEvent.click(contextBtn);

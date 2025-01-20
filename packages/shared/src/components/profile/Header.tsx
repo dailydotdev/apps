@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { PublicProfile } from '../../lib/user';
-import { BlockIcon, FlagIcon, SettingsIcon } from '../icons';
+import { SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { largeNumberFormat, ReferralCampaignKey } from '../../lib';
@@ -12,19 +12,13 @@ import { RootPortal } from '../tooltips/Portal';
 import { GoBackButton } from '../post/GoBackHeaderMobile';
 import { useViewSize, ViewSize } from '../../hooks';
 import { FollowButton } from '../contentPreference/FollowButton';
-import {
-  ContentPreferenceStatus,
-  ContentPreferenceType,
-} from '../../graphql/contentPreference';
+import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { UpgradeToPlus } from '../UpgradeToPlus';
 import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../lib/log';
 import CustomFeedOptionsMenu from '../CustomFeedOptionsMenu';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { LazyModal } from '../modals/common/types';
-import { MenuIcon } from '../MenuIcon';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -42,7 +36,6 @@ export function Header({
   className,
   style,
 }: HeaderProps): ReactElement {
-  const { openModal } = useLazyModal();
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isPlus } = usePlusSubscription();
@@ -52,26 +45,6 @@ export function Header({
     id: user?.id,
     entity: ContentPreferenceType.User,
   });
-  const { unblock, block } = useContentPreference();
-
-  const onReportUser = React.useCallback(
-    (defaultBlocked = false) => {
-      openModal({
-        type: LazyModal.ReportUser,
-        props: {
-          offendingUser: {
-            id: user.id,
-            username: user.username,
-          },
-          defaultBlockUser: defaultBlocked,
-        },
-      });
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [user],
-  );
-
-  const blocked = contentPreference?.status === ContentPreferenceStatus.Blocked;
 
   return (
     <header
@@ -119,15 +92,13 @@ export function Header({
             target={TargetId.MyProfile}
           />
         )}
-        {!blocked && (
-          <FollowButton
-            entityId={user.id}
-            type={ContentPreferenceType.User}
-            status={contentPreference?.status}
-            entityName={`@${user.username}`}
-            className="flex-row-reverse"
-          />
-        )}
+        <FollowButton
+          entityId={user.id}
+          type={ContentPreferenceType.User}
+          status={contentPreference?.status}
+          entityName={`@${user.username}`}
+          className="flex-row-reverse"
+        />
         {!isSameUser && (
           <CustomFeedOptionsMenu
             onAdd={(feedId) =>
@@ -160,29 +131,6 @@ export function Header({
                 target_id: user.id,
               }),
             }}
-            additionalOptions={[
-              {
-                icon: <MenuIcon Icon={BlockIcon} />,
-                label: `${blocked ? 'Unblock' : 'Block'} ${user.username}`,
-                action: () =>
-                  blocked
-                    ? unblock({
-                        id: user.id,
-                        entity: ContentPreferenceType.User,
-                        entityName: user.username,
-                      })
-                    : block({
-                        id: user.id,
-                        entity: ContentPreferenceType.User,
-                        entityName: user.username,
-                      }),
-              },
-              {
-                icon: <MenuIcon Icon={FlagIcon} />,
-                label: 'Report',
-                action: () => onReportUser(),
-              },
-            ]}
           />
         )}
       </div>

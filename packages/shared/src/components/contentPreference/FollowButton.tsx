@@ -95,15 +95,10 @@ export const FollowButton = ({
     return null;
   }
 
-  const isFollowing = [
-    ContentPreferenceStatus.Subscribed,
-    ContentPreferenceStatus.Follow,
-  ].includes(currentStatus);
-
   return (
     <div className={classNames('relative z-1 inline-flex gap-2', className)}>
       <SourceActionsFollow
-        isSubscribed={isFollowing}
+        isSubscribed={!!currentStatus}
         isFetching={isLoading}
         variant={variant}
         onClick={(e) => {
@@ -113,7 +108,7 @@ export const FollowButton = ({
         }}
         copyType={copyType}
       />
-      {isFollowing && showSubscribe && (
+      {!!currentStatus && showSubscribe && (
         <SourceActionsNotify
           haveNotificationsOn={
             currentStatus === ContentPreferenceStatus.Subscribed

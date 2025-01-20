@@ -16,7 +16,6 @@ export enum ContentPreferenceType {
 export enum ContentPreferenceStatus {
   Follow = 'follow',
   Subscribed = 'subscribed',
-  Blocked = 'blocked',
 }
 
 type ContentPreferenceUser = Pick<

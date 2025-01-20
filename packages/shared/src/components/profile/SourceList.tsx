@@ -20,7 +20,6 @@ import { SourceListPlaceholder } from './SourceListPlaceholder';
 import { webappUrl } from '../../lib/constants';
 import Link from '../utilities/Link';
 import { anchorDefaultRel } from '../../lib/strings';
-import BlockButton from '../contentPreference/BlockButton';
 
 export interface SourceListProps {
   scrollingProps: Omit<InfiniteScrollingProps, 'children'>;
@@ -28,8 +27,6 @@ export interface SourceListProps {
   placeholderAmount?: number;
   isLoading?: boolean;
   emptyPlaceholder?: JSX.Element;
-  showFollow?: boolean;
-  showBlock?: boolean;
 }
 
 export const SourceList = ({
@@ -38,8 +35,6 @@ export const SourceList = ({
   sources,
   isLoading,
   emptyPlaceholder,
-  showFollow = true,
-  showBlock,
 }: SourceListProps): ReactElement => {
   const feedSettingsEditContext = useFeedSettingsEditContext();
   const feed = feedSettingsEditContext?.feed;
@@ -55,78 +50,63 @@ export const SourceList = ({
         placeholder={loader}
       >
         {sources.map((source) => (
-          <div
-            className="relative flex gap-2 px-6 py-3 hover:bg-surface-hover"
+          <Link
             key={source.id}
+            href={`${webappUrl}${
+              source.type === SourceType.Squad ? 'squads' : 'sources'
+            }/${source.handle}`}
           >
-            <Link
-              href={`${webappUrl}${
-                source.type === SourceType.Squad ? 'squads' : 'sources'
-              }/${source.handle}`}
+            <a
+              key={source.id}
+              className="flex gap-2 px-6 py-3 hover:bg-surface-hover"
+              rel={anchorDefaultRel}
+              target="_blank"
             >
-              <a
-                className="absolute inset-0 z-0"
-                rel={anchorDefaultRel}
-                target="_blank"
-                aria-label={`View ${source.handle}`}
+              <ProfilePicture
+                size={ProfileImageSize.Large}
+                rounded="full"
+                className="mt-2"
+                user={{
+                  id: source.id,
+                  image: source.image,
+                  username: source.handle,
+                }}
+                nativeLazyLoading
               />
-            </Link>
-            <ProfilePicture
-              size={ProfileImageSize.Large}
-              rounded="full"
-              className="mt-2"
-              user={{
-                id: source.id,
-                image: source.image,
-                username: source.handle,
-              }}
-              nativeLazyLoading
-            />
-            <div className="flex-1">
-              <Typography
-                type={TypographyType.Callout}
-                bold
-                color={TypographyColor.Primary}
-              >
-                {source.name}
-              </Typography>
-              <Typography
-                type={TypographyType.Footnote}
-                color={TypographyColor.Secondary}
-              >
-                {source.handle}
-                {source.type === SourceType.Squad && (
-                  <>
-                    <Separator />
-                    <Typography
-                      tag={TypographyTag.Span}
-                      type={TypographyType.Footnote}
-                      color={TypographyColor.Brand}
-                    >
-                      Squad
-                    </Typography>
-                  </>
-                )}
-              </Typography>
-              <Typography
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-                className="multi-truncate line-clamp-2"
-              >
-                {source.description}
-              </Typography>
-            </div>
-            {showBlock && (
-              <BlockButton
-                feedId={feed?.id}
-                entityId={source.id}
-                entityName={`@${source.handle}`}
-                entityType={ContentPreferenceType.Source}
-                status={source.contentPreference.status}
-                className="relative z-1"
-              />
-            )}
-            {showFollow && (
+              <div className="flex-1">
+                <Typography
+                  type={TypographyType.Callout}
+                  bold
+                  color={TypographyColor.Primary}
+                >
+                  {source.name}
+                </Typography>
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Secondary}
+                >
+                  {source.handle}
+                  {source.type === SourceType.Squad && (
+                    <>
+                      <Separator />
+                      <Typography
+                        tag={TypographyTag.Span}
+                        type={TypographyType.Footnote}
+                        color={TypographyColor.Brand}
+                      >
+                        Squad
+                      </Typography>
+                    </>
+                  )}
+                </Typography>
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                  className="multi-truncate line-clamp-2"
+                >
+                  {source.description}
+                </Typography>
+              </div>
               <FollowButton
                 feedId={feed?.id}
                 entityId={source.id}
@@ -135,10 +115,9 @@ export const SourceList = ({
                 entityName={`@${source.handle}`}
                 showSubscribe={false}
                 copyType={CopyType.Custom}
-                className="relative z-1"
               />
-            )}
-          </div>
+            </a>
+          </Link>
         ))}
       </InfiniteScrolling>
     );

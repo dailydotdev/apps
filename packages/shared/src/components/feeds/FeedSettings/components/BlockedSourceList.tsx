@@ -58,8 +58,6 @@ export const BlockedSourceList = ({
         canFetchMore: checkFetchMore(queryResult),
         fetchNextPage,
       }}
-      showBlock
-      showFollow={false}
     />
   );
 };
