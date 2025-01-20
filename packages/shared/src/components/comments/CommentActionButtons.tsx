@@ -180,7 +180,7 @@ export default function CommentActionButtons({
   if (user && user.id !== comment.author.id) {
     commentOptions.push({
       icon: <BlockIcon />,
-      label: `Block ${post.author.username}`,
+      label: `Block ${comment.author.username}`,
       action: async () => {
         const params = {
           id: comment.author.id,
