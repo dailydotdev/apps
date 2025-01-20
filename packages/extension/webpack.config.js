@@ -53,6 +53,7 @@ const baseConfig = {
     extensions: ['.svg', '.ts', '.tsx', '.js', '.json'],
     alias: {
       'react-onesignal': false,
+      '@marsidev/react-turnstile': false,
     },
     fallback: {
       fs: false,
