@@ -75,7 +75,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
-  const { user, closeLogin, shouldShowLogin, loginState, isAuthReady } =
+  const { user, closeLogin, shouldShowLogin, loginState } =
     useContext(AuthContext);
   const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
     useCookieBanner();
@@ -109,7 +109,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       didRegisterSwRef.current = true;
       window.serwist.register();
     }
-  }, [user, isAuthReady]);
+  }, [user]);
 
   useEffect(() => {
     if (!modal) {
