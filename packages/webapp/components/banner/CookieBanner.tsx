@@ -50,7 +50,7 @@ export default function CookieBanner({
           <ModalClose
             size={ButtonSize.Small}
             position="relative"
-            onClick={onAcceptAll}
+            onClick={() => onAccepted()}
             right="0"
           />
         )}

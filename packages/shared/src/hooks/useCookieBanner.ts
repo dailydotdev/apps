@@ -13,7 +13,7 @@ interface UseConsentCookie {
   cookieExists: boolean;
 }
 
-const cookieAcknowledgedKey = 'cookie_acknowledged';
+export const cookieAcknowledgedKey = 'cookie_acknowledged';
 
 export enum GdprConsentKey {
   Necessary = 'ilikecookies',
