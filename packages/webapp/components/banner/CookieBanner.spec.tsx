@@ -34,7 +34,13 @@ const WrapperComponent = () => {
     return null;
   }
 
-  return <CookieBanner onAccepted={onAcceptCookies} />;
+  return (
+    <CookieBanner
+      onAccepted={onAcceptCookies}
+      onHideBanner={jest.fn()}
+      onModalClose={jest.fn()}
+    />
+  );
 };
 
 const renderComponent = (auth: Partial<AuthContextData> = {}) => {
