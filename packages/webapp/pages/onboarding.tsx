@@ -76,6 +76,7 @@ import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboa
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useInstallPWA } from '@dailydotdev/shared/src/components/onboarding/PWA/useInstallPWA';
+import { AFTER_AUTH_PARAM } from '@dailydotdev/shared/src/components/auth/common';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -236,8 +237,8 @@ export function OnboardPage(): ReactElement {
     }
 
     if (user?.infoConfirmed && activeScreen === OnboardingStep.Intro) {
-      const afterAuth = params.get('afterAuth');
-      params.delete('afterAuth');
+      const afterAuth = params.get(AFTER_AUTH_PARAM);
+      params.delete(AFTER_AUTH_PARAM);
       router.replace(
         getPathnameWithQuery(afterAuth || webappUrl, params.toString()),
       );
@@ -336,7 +337,7 @@ export function OnboardPage(): ReactElement {
         : LogEvent.OnboardingSkip,
     });
 
-    const afterAuth = params.get('afterAuth');
+    const afterAuth = params.get(AFTER_AUTH_PARAM);
     return router.replace({
       pathname: afterAuth || '/',
       query: {

@@ -14,6 +14,7 @@ import type { AuthTriggersType } from '../lib/auth';
 import { AuthTriggers } from '../lib/auth';
 import type { Squad } from '../graphql/sources';
 import { checkIsExtension, isNullOrUndefined } from '../lib/func';
+import { AFTER_AUTH_PARAM } from '../components/auth/common';
 
 export interface LoginState {
   trigger: AuthTriggersType;
@@ -169,8 +170,8 @@ export const AuthContextProvider = ({
               const params = new URLSearchParams(globalThis?.location.search);
 
               setLoginState({ ...options, trigger });
-              if (!params.get('afterAuth')) {
-                params.set('afterAuth', window.location.pathname);
+              if (!params.get(AFTER_AUTH_PARAM)) {
+                params.set(AFTER_AUTH_PARAM, window.location.pathname);
               }
               router.push(`/onboarding?${params.toString()}`);
             }
