@@ -147,7 +147,7 @@ export default function ProfileMenu({
       title: 'Gift daily.dev Plus',
       buttonProps: {
         icon: <GiftIcon />,
-        // onClick: () => openModal({ type: LazyModal.GiftPlus }),
+        onClick: () => openModal({ type: LazyModal.GiftPlus }),
       },
     });
 
