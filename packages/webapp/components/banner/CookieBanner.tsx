@@ -46,12 +46,14 @@ export default function CookieBanner({
           size={IconSize.Small}
           className="text-text-tertiary"
         />
-        <ModalClose
-          size={ButtonSize.Small}
-          position="relative"
-          onClick={onAcceptAll}
-          right="0"
-        />
+        {!isGdprCovered && (
+          <ModalClose
+            size={ButtonSize.Small}
+            position="relative"
+            onClick={onAcceptAll}
+            right="0"
+          />
+        )}
       </div>
       <div className="mt-2 flex flex-col gap-4">
         <span className="text-text-secondary" data-testid="cookie_content">
