@@ -239,9 +239,7 @@ export function OnboardPage(): ReactElement {
     if (user?.infoConfirmed && activeScreen === OnboardingStep.Intro) {
       const afterAuth = params.get(AFTER_AUTH_PARAM);
       params.delete(AFTER_AUTH_PARAM);
-      router.replace(
-        getPathnameWithQuery(afterAuth || webappUrl, params.toString()),
-      );
+      router.replace(getPathnameWithQuery(afterAuth || webappUrl, params));
       return;
     }
 
