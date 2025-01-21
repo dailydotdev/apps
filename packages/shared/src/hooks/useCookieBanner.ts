@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CookieOptions } from '../lib/cookie';
 import { expireCookie, setCookie } from '../lib/cookie';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -87,10 +87,13 @@ export const useConsentCookie = (key: string): UseConsentCookie => {
 interface UseCookieBanner {
   showBanner: boolean;
   onAcceptCookies: () => void;
+  onOpenBanner: () => void;
+  onHideBanner: () => void;
 }
 
 export function useCookieBanner(): UseCookieBanner {
   const { isAuthReady, user, isGdprCovered } = useAuthContext();
+  const isInitializedRef = useRef(false);
   const [isOpen, setIsOpen] = useState(false);
   const { saveCookies, cookieExists: hasAccepted } = useConsentCookie(
     GdprConsentKey.Necessary,
@@ -106,9 +109,11 @@ export function useCookieBanner(): UseCookieBanner {
   );
 
   useEffect(() => {
-    if (!isAuthReady || isOpen) {
+    if (!isAuthReady || isOpen || isInitializedRef.current) {
       return;
     }
+
+    isInitializedRef.current = true;
 
     if (!isGdprCovered) {
       if (hasAccepted) {
@@ -146,5 +151,7 @@ export function useCookieBanner(): UseCookieBanner {
   return {
     showBanner: isOpen,
     onAcceptCookies: onAccept,
+    onOpenBanner: () => setIsOpen(true),
+    onHideBanner: () => setIsOpen(false),
   };
 }
