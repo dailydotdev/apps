@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { useViewSize, ViewSize } from './useViewSize';
+import { useViewSizeClient, ViewSize } from './useViewSize';
 import { useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
 import {
   CommentFeedPage,
@@ -109,7 +109,7 @@ const getFeedPageLayoutComponent = ({
 export const useFeedLayout = ({
   feedRelated = true,
 }: UseFeedLayoutProps = {}): UseFeedLayoutReturn => {
-  const isLaptopSize = useViewSize(ViewSize.Laptop);
+  const isLaptopSize = useViewSizeClient(ViewSize.Laptop);
   const isLaptop = isNullOrUndefined(isLaptopSize) || isLaptopSize;
   const { feedName } = useActiveFeedNameContext();
   const { insaneMode } = useContext(SettingsContext);
