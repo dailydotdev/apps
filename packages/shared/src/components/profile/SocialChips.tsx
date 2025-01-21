@@ -93,8 +93,8 @@ const handlers: Record<
   },
   bluesky: {
     icon: <BlueskyIcon />,
-    href: (x) => x,
-    label: (x) => `https://bsky.app/profile/${x}`,
+    href: (x) => `https://bsky.app/profile/${x}`,
+    label: (x) => x,
   },
   threads: {
     icon: <ThreadsIcon />,
