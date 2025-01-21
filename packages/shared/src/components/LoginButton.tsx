@@ -37,7 +37,12 @@ export default function LoginButton({
   const { showLogin } = useAuthContext();
   const onClick = (copy: ButtonCopy) => {
     logEvent(getLogEvent(copy));
-    showLogin({ trigger: AuthTriggers.MainButton });
+    showLogin({
+      trigger: AuthTriggers.MainButton,
+      options: {
+        isLogin: copy === ButtonCopy.Login,
+      },
+    });
   };
 
   return (

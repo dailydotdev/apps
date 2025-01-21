@@ -164,14 +164,18 @@ export function OnboardPage(): ReactElement {
     isAuthenticating:
       !!storage.getItem(SIGNIN_METHOD_KEY) ||
       shouldVerify ||
-      !!loginState?.formValues?.email,
-    isLoginFlow: false,
+      !!loginState?.formValues?.email ||
+      loginState?.isLogin,
+    isLoginFlow: loginState?.isLogin,
     defaultDisplay: (() => {
       if (loginState?.formValues?.email) {
         return AuthDisplay.Registration;
       }
       if (shouldVerify) {
         return AuthDisplay.EmailVerification;
+      }
+      if (loginState?.isLogin) {
+        return AuthDisplay.Default;
       }
       return AuthDisplay.OnboardingSignup;
     })(),
