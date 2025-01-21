@@ -218,7 +218,7 @@ const CookieConsentModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "cookieConsentModal" */ './user/CookieConsentModal'
-  ),
+    ),
 );
 
 const ReportUserModal = dynamic(
