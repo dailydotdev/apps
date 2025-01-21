@@ -1,7 +1,6 @@
 import type { PropsWithChildren, ReactElement, ReactNode } from 'react';
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
-import classNames from 'classnames';
 import {
   BOOKMARKS_FEED_QUERY,
   SEARCH_BOOKMARKS_QUERY,
@@ -73,6 +72,7 @@ export default function BookmarkFeedLayout({
     FeedPageLayoutComponent,
     shouldUseListMode,
   } = useFeedLayout();
+  const [isHydrated, setIsHydrated] = useState(false);
   const { showPlusSubscription } = usePlusSubscription();
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
@@ -130,6 +130,14 @@ export default function BookmarkFeedLayout({
     };
   }, [searchQuery, feedQueryKey, listId, isReminderOnly, isFolderPage]);
 
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  if (!isHydrated) {
+    return null;
+  }
+
   return (
     <FeedPageLayoutComponent>
       {children}
@@ -139,10 +147,7 @@ export default function BookmarkFeedLayout({
         </Typography>
       </FeedPageHeader>
       <CustomFeedHeader
-        className={classNames(
-          'mb-6',
-          shouldUseListFeedLayout && !shouldUseListMode && 'px-4',
-        )}
+        className={shouldUseListFeedLayout && !shouldUseListMode && 'px-4'}
       >
         {searchChildren}
         {!isFolderPage && (
