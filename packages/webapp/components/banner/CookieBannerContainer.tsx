@@ -5,6 +5,8 @@ import type { AcceptCookiesCallback } from '@dailydotdev/shared/src/hooks/useCoo
 
 export interface CommonCookieBannerProps {
   onAccepted: AcceptCookiesCallback;
+  onModalClose: () => void;
+  onHideBanner: () => void;
 }
 
 interface CookieBannerContainerProps {

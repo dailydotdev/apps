@@ -25,16 +25,18 @@ import { CookieBannerContainer } from './CookieBannerContainer';
 
 export default function CookieBanner({
   onAccepted,
+  onModalClose,
+  onHideBanner,
 }: CommonCookieBannerProps): ReactElement {
   const { openModal } = useLazyModal();
   const { isGdprCovered } = useAuthContext();
   const onAcceptAll = () => onAccepted(otherGdprConsents);
 
   const onOpenModal = () => {
-    onAccepted();
+    onHideBanner();
     openModal({
       type: LazyModal.CookieConsent,
-      props: { onAcceptCookies: onAccepted },
+      props: { onAcceptCookies: onAccepted, onAfterClose: onModalClose },
     });
   };
 

@@ -37,9 +37,7 @@ const YoutubeVideo = ({
       return true;
     }
 
-    const disabled = globalThis?.localStorage.getItem(GdprConsentKey.Marketing);
-
-    return cookieExists || !disabled;
+    return cookieExists;
   }, [isAuthReady, isGdprCovered, cookieExists]);
 
   if (!isAuthReady) {

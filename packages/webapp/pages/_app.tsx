@@ -8,7 +8,10 @@ import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import { DefaultSeo, NextSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
+import {
+  cookieAcknowledgedKey,
+  useCookieBanner,
+} from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
@@ -74,7 +77,8 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const unreadText = getUnreadText(unreadCount);
   const { user, closeLogin, shouldShowLogin, loginState, isAuthReady } =
     useContext(AuthContext);
-  const { showBanner, onAcceptCookies } = useCookieBanner();
+  const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
+    useCookieBanner();
   useWebVitals();
   useLogPageView();
   const { modal, closeModal } = useLazyModal();
@@ -209,7 +213,19 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           {...loginState}
         />
       )}
-      {showBanner && <CookieBanner onAccepted={onAcceptCookies} />}
+      {showBanner && (
+        <CookieBanner
+          onAccepted={onAcceptCookies}
+          onHideBanner={onHideBanner}
+          onModalClose={() => {
+            const interacted = !!localStorage.getItem(cookieAcknowledgedKey);
+
+            if (!interacted) {
+              onOpenBanner();
+            }
+          }}
+        />
+      )}
     </>
   );
 }

@@ -8,12 +8,23 @@ import {
   LogoutReason,
 } from '../lib/user';
 import type { AccessToken, Boot, Visit } from '../lib/boot';
-import { Continent, outsideGdpr } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import type { AuthTriggersType } from '../lib/auth';
 import { AuthTriggers } from '../lib/auth';
 import type { Squad } from '../graphql/sources';
 import { checkIsExtension, isNullOrUndefined } from '../lib/func';
+
+export enum Continent {
+  Africa = 'AF',
+  Antarctica = 'AN',
+  Asia = 'AS',
+  Europe = 'EU',
+  Oceania = 'OC',
+  NorthAmerica = 'NA',
+  SouthAmerica = 'SA',
+}
+
+export const outsideGdpr = ['US', 'IL'];
 
 export interface LoginState {
   trigger: AuthTriggersType;
