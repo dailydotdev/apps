@@ -28,6 +28,7 @@ import { onValidateHandles } from '../../hooks/useProfileForm';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
 import { LanguageDropdown } from '../profile/LanguageDropdown';
 import Alert, { AlertType } from '../widgets/Alert';
+import { isDevelopment } from '../../lib/constants';
 
 export interface RegistrationFormProps extends AuthFormProps {
   email: string;
@@ -162,7 +163,9 @@ const RegistrationForm = ({
       ...values,
       'traits.acceptedMarketing': !optOutMarketing,
       headers: {
-        'True-Client-Ip': ref?.current?.getResponse(),
+        'True-Client-Ip': isDevelopment
+          ? undefined
+          : ref?.current?.getResponse(),
       },
     });
   };

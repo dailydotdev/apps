@@ -13,6 +13,7 @@ import { FollowButton } from '../contentPreference/FollowButton';
 import { useFeedSettingsEditContext } from '../feeds/FeedSettings/FeedSettingsEditContext';
 import { CopyType } from '../sources/SourceActions/SourceActionsFollow';
 import { TagListPlaceholder } from './TagListPlaceholder';
+import BlockButton from '../contentPreference/BlockButton';
 
 export interface TagListProps {
   scrollingProps: Omit<InfiniteScrollingProps, 'children'>;
@@ -20,6 +21,8 @@ export interface TagListProps {
   placeholderAmount?: number;
   isLoading?: boolean;
   emptyPlaceholder?: JSX.Element;
+  showBlock?: boolean;
+  showFollow?: boolean;
 }
 
 export const TagList = ({
@@ -28,6 +31,8 @@ export const TagList = ({
   tags,
   isLoading,
   emptyPlaceholder,
+  showBlock = false,
+  showFollow = true,
 }: TagListProps): ReactElement => {
   const feedSettingsEditContext = useFeedSettingsEditContext();
   const feed = feedSettingsEditContext?.feed;
@@ -51,15 +56,26 @@ export const TagList = ({
             >
               #{tag.referenceId}
             </Typography>
-            <FollowButton
-              feedId={feed?.id}
-              entityId={tag.referenceId}
-              type={ContentPreferenceType.Keyword}
-              status={tag.status}
-              entityName={`@${tag.referenceId}`}
-              showSubscribe={false}
-              copyType={CopyType.Custom}
-            />
+            {showBlock && (
+              <BlockButton
+                feedId={feed?.id}
+                entityId={tag.referenceId}
+                entityName={`@${tag.referenceId}`}
+                entityType={ContentPreferenceType.Keyword}
+                status={tag.status}
+              />
+            )}
+            {showFollow && (
+              <FollowButton
+                feedId={feed?.id}
+                entityId={tag.referenceId}
+                type={ContentPreferenceType.Keyword}
+                status={tag.status}
+                entityName={`@${tag.referenceId}`}
+                showSubscribe={false}
+                copyType={CopyType.Custom}
+              />
+            )}
           </div>
         ))}
       </InfiniteScrolling>

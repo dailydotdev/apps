@@ -46,7 +46,6 @@ import {
   featureOnboardingAndroid,
   featureOnboardingExtension,
   featureOnboardingDesktopPWA,
-  featureOnboardingPWA,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import {
@@ -69,6 +68,7 @@ import {
   checkIsBrowser,
   getCurrentBrowserName,
   isIOS,
+  isPWA,
   UserAgent,
 } from '@dailydotdev/shared/src/lib/func';
 import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboarding/Extension/useOnboardingExtension';
@@ -197,12 +197,6 @@ export function OnboardPage(): ReactElement {
     feature: featureOnboardingExtension,
     shouldEvaluate: shouldEnrollOnboardingStep && shouldShowExtensionOnboarding,
   });
-
-  const { value: PWAExperiment } = useConditionalFeature({
-    feature: featureOnboardingPWA,
-    shouldEvaluate: shouldEnrollOnboardingStep && isIOS(),
-  });
-
   const { isCurrentPWA, isAvailable: canUserInstallDesktop } = useInstallPWA();
 
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
@@ -278,7 +272,7 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.AndroidApp);
     }
 
-    if (PWAExperiment && activeScreen !== OnboardingStep.PWA) {
+    if (isIOS() && !isPWA() && activeScreen !== OnboardingStep.PWA) {
       return setActiveScreen(OnboardingStep.PWA);
     }
 
