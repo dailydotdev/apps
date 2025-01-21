@@ -8,7 +8,6 @@ import type {
 import AuthOptions, {
   AuthDisplay,
 } from '@dailydotdev/shared/src/components/auth/AuthOptions';
-import type { AuthTriggersType } from '@dailydotdev/shared/src/lib/auth';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
 import {
@@ -145,7 +144,6 @@ const seo: NextSeoProps = {
 
 export function OnboardPage(): ReactElement {
   const params = new URLSearchParams(window.location.search);
-  const authTriggerParam = params.get('authTrigger');
   const {
     isOnboardingReady,
     hasCompletedEditTags,
@@ -378,8 +376,7 @@ export function OnboardPage(): ReactElement {
         ),
         onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
       },
-      trigger:
-        (authTriggerParam as AuthTriggersType) || AuthTriggers.Onboarding,
+      trigger: loginState?.trigger || AuthTriggers.Onboarding,
       formRef,
       defaultDisplay,
       forceDefaultDisplay: !isAuthenticating,
@@ -401,7 +398,7 @@ export function OnboardPage(): ReactElement {
     isLoginFlow,
     isMobile,
     targetId,
-    authTriggerParam,
+    loginState,
   ]);
 
   const customActionName = useMemo(() => {
