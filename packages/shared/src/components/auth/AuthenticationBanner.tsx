@@ -1,7 +1,6 @@
 import type { ReactElement, PropsWithChildren } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { useRouter } from 'next/router';
 import classed from '../../lib/classed';
 import { OnboardingHeadline } from './OnboardingHeadline';
 import AuthOptions, { AuthDisplay } from './AuthOptions';
@@ -22,7 +21,6 @@ const Section = classed('div', 'flex flex-col');
 export function AuthenticationBanner({
   children,
 }: PropsWithChildren): ReactElement {
-  const router = useRouter();
   const { showLogin } = useAuthContext();
 
   return (
@@ -61,12 +59,10 @@ export function AuthenticationBanner({
               onboardingSignup: '!gap-4',
             }}
             onAuthStateUpdate={(props) => {
-              const params = new URLSearchParams(globalThis?.location.search);
-              params.set('afterAuth', window.location.pathname);
-              if (props?.email) {
-                params.set('email', props.email);
-              }
-              router.push(`/onboarding?${params.toString()}`);
+              showLogin({
+                trigger: AuthTriggers.Onboarding,
+                options: { isLogin: true, formValues: props },
+              });
             }}
             onboardingSignupButton={{
               variant: ButtonVariant.Primary,

@@ -144,7 +144,6 @@ const seo: NextSeoProps = {
 
 export function OnboardPage(): ReactElement {
   const params = new URLSearchParams(window.location.search);
-  const emailParam = params.get('email');
   const authTriggerParam = params.get('authTrigger');
   const {
     isOnboardingReady,
@@ -155,7 +154,8 @@ export function OnboardPage(): ReactElement {
   const router = useRouter();
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
-  const { user, isAuthReady, anonymous, isAndroidApp } = useAuthContext();
+  const { user, isAuthReady, anonymous, isAndroidApp, loginState } =
+    useAuthContext();
   const { logSubscriptionEvent, showPlusSubscription: isOnboardingPlusActive } =
     usePlusSubscription();
   const shouldVerify = anonymous?.shouldVerify;
@@ -163,10 +163,12 @@ export function OnboardPage(): ReactElement {
   const { logEvent } = useLogContext();
   const [auth, setAuth] = useState<AuthProps>({
     isAuthenticating:
-      !!storage.getItem(SIGNIN_METHOD_KEY) || shouldVerify || !!emailParam,
+      !!storage.getItem(SIGNIN_METHOD_KEY) ||
+      shouldVerify ||
+      !!loginState?.formValues?.email,
     isLoginFlow: false,
     defaultDisplay: (() => {
-      if (emailParam) {
+      if (loginState?.formValues?.email) {
         return AuthDisplay.Registration;
       }
       if (shouldVerify) {
@@ -174,7 +176,7 @@ export function OnboardPage(): ReactElement {
       }
       return AuthDisplay.OnboardingSignup;
     })(),
-    email: emailParam || anonymous?.email,
+    email: loginState?.formValues?.email || anonymous?.email,
   });
   const {
     isAuthenticating,
