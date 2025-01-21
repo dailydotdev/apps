@@ -48,6 +48,9 @@ describe('LoginButton', () => {
 
     expect(showLogin).toHaveBeenCalledWith({
       trigger: AuthTriggers.MainButton,
+      options: {
+        isLogin: true,
+      },
     });
   });
 
@@ -62,6 +65,9 @@ describe('LoginButton', () => {
 
     expect(showLogin).toHaveBeenCalledWith({
       trigger: AuthTriggers.MainButton,
+      options: {
+        isLogin: false,
+      },
     });
   });
 });
