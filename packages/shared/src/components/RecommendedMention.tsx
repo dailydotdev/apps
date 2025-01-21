@@ -2,14 +2,12 @@ import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React from 'react';
 import { UserShortInfo } from './profile/UserShortInfo';
+import type { PublicProfile } from '../lib/user';
 
-interface RecommendedUser {
-  id: string;
-  image: string;
-  name: string;
-  username: string;
-  permalink: string;
-}
+export type RecommendedUser = Pick<
+  PublicProfile,
+  'id' | 'image' | 'name' | 'username' | 'permalink' | 'reputation'
+>;
 
 interface RecommendedMentionProps {
   users: RecommendedUser[];
