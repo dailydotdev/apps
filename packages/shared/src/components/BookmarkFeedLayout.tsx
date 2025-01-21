@@ -1,5 +1,5 @@
 import type { PropsWithChildren, ReactElement, ReactNode } from 'react';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import {
   BOOKMARKS_FEED_QUERY,
@@ -72,7 +72,6 @@ export default function BookmarkFeedLayout({
     FeedPageLayoutComponent,
     shouldUseListMode,
   } = useFeedLayout();
-  const [isHydrated, setIsHydrated] = useState(false);
   const { showPlusSubscription } = usePlusSubscription();
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
@@ -129,14 +128,6 @@ export default function BookmarkFeedLayout({
       options: { refetchOnMount: true },
     };
   }, [searchQuery, feedQueryKey, listId, isReminderOnly, isFolderPage]);
-
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  if (!isHydrated) {
-    return null;
-  }
 
   return (
     <FeedPageLayoutComponent>
