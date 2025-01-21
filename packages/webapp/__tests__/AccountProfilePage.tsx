@@ -36,6 +36,7 @@ const defaultLoggedUser: LoggedUser = {
   youtube: 'dailydotdev',
   linkedin: 'dailydotdev',
   mastodon: 'https://mastodon.social/@dailydotdev',
+  bluesky: 'https://bsky.app/profile/dailydotdev.bsky.social',
 };
 const updateUser = jest.fn();
 
@@ -122,4 +123,7 @@ it('should show profile social links', () => {
   const mastodon = screen.getByPlaceholderText('Mastodon');
   expect(mastodon).toBeInTheDocument();
   expect(mastodon).toHaveValue(defaultLoggedUser.mastodon);
+  const bluesky = screen.getByPlaceholderText('Bluesky');
+  expect(bluesky).toBeInTheDocument();
+  expect(bluesky).toHaveValue(defaultLoggedUser.bluesky);
 });

@@ -39,6 +39,7 @@ export interface PublicProfile {
   youtube?: string;
   linkedin?: string;
   mastodon?: string;
+  bluesky?: string;
   bio?: string;
   createdAt: string;
   premium: boolean;
@@ -81,6 +82,7 @@ export interface UserProfile {
   youtube?: string;
   linkedin?: string;
   mastodon?: string;
+  bluesky?: string;
   portfolio?: string;
   bio?: string;
   acceptedMarketing?: boolean;
