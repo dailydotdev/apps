@@ -8,6 +8,7 @@ import type { Squad } from '../graphql/sources';
 import { decrypt } from '../components/crypto';
 import type { MarketingCta } from '../components/marketingCta/common';
 import type { Feed } from '../graphql/feed';
+import type { Continent } from './geo';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;
@@ -43,18 +44,6 @@ export enum BootApp {
   Extension = 'extension',
   Test = 'test',
 }
-
-export enum Continent {
-  Africa = 'AF',
-  Antarctica = 'AN',
-  Asia = 'AS',
-  Europe = 'EU',
-  Oceania = 'OC',
-  NorthAmerica = 'NA',
-  SouthAmerica = 'SA',
-}
-
-export const outsideGdpr = ['US', 'IL'];
 
 export type AccessToken = { token: string; expiresIn: string };
 export type Visit = { sessionId: string; visitId: string };

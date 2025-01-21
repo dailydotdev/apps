@@ -13,18 +13,7 @@ import type { AuthTriggersType } from '../lib/auth';
 import { AuthTriggers } from '../lib/auth';
 import type { Squad } from '../graphql/sources';
 import { checkIsExtension, isNullOrUndefined } from '../lib/func';
-
-export enum Continent {
-  Africa = 'AF',
-  Antarctica = 'AN',
-  Asia = 'AS',
-  Europe = 'EU',
-  Oceania = 'OC',
-  NorthAmerica = 'NA',
-  SouthAmerica = 'SA',
-}
-
-export const outsideGdpr = ['US', 'IL'];
+import { Continent, outsideGdpr } from '../lib/geo';
 
 export interface LoginState {
   trigger: AuthTriggersType;
