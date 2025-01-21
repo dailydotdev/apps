@@ -61,6 +61,7 @@ export enum LazyModal {
   MoveBookmark = 'moveBookmark',
   AddToCustomFeed = 'addToCustomFeed',
   ReportUser = 'reportUser',
+  GiftPlus = 'giftPlus',
 }
 
 export type ModalTabItem = {

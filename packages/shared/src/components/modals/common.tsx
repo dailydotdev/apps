@@ -221,6 +221,10 @@ const ReportUserModal = dynamic(
     ),
 );
 
+const GiftPlusModal = dynamic(
+  () => import(/* webpackChunkName: "giftPlusModal" */ '../plus/GiftPlusModal'),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -258,6 +262,7 @@ export const modals = {
   [LazyModal.MoveBookmark]: MoveBookmarkModal,
   [LazyModal.AddToCustomFeed]: AddToCustomFeedModal,
   [LazyModal.ReportUser]: ReportUserModal,
+  [LazyModal.GiftPlus]: GiftPlusModal,
 };
 
 type GetComponentProps<T> = T extends

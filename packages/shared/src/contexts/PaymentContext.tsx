@@ -38,6 +38,7 @@ export interface PaymentContextData {
   paddle?: Paddle | undefined;
   productOptions?: ProductOption[];
   earlyAdopterPlanId?: string | null;
+  oneTimePayment?: ProductOption;
 }
 
 const PaymentContext = React.createContext<PaymentContextData>({});
@@ -194,8 +195,11 @@ export const PaymentContextProvider = ({
       paddle,
       productOptions,
       earlyAdopterPlanId,
+      oneTimePayment: productOptions?.find(
+        (option) => planTypes[option.value] === PlusPriceType.OneTimePayment,
+      ),
     }),
-    [earlyAdopterPlanId, openCheckout, paddle, productOptions],
+    [earlyAdopterPlanId, openCheckout, paddle, productOptions, planTypes],
   );
 
   return (
