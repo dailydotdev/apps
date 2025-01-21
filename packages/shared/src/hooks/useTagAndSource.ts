@@ -6,12 +6,13 @@ import useMutateFilters from './useMutateFilters';
 import type { Source } from '../graphql/sources';
 import AlertContext from '../contexts/AlertContext';
 import type { BooleanPromise } from '../components/filters/common';
-import { generateQueryKey } from '../lib/query';
+import { generateQueryKey, RequestKey } from '../lib/query';
 import useDebounceFn from './useDebounceFn';
 import { SharedFeedPage } from '../components/utilities';
 import type { Origin } from '../lib/log';
 import { LogEvent } from '../lib/log';
 import type { AuthTriggersType } from '../lib/auth';
+import { ContentPreferenceType } from '../graphql/contentPreference';
 
 export interface TagActionArguments {
   tags: Array<string>;
@@ -82,6 +83,29 @@ export default function useTagAndSource({
     });
   }, 100);
 
+  const invalidateContentPreferences = useCallback(
+    ({
+      entity,
+      subQuery,
+    }: {
+      entity: ContentPreferenceType;
+      subQuery: RequestKey;
+    }) => {
+      queryClient.invalidateQueries({
+        queryKey: generateQueryKey(
+          RequestKey.ContentPreference,
+          user,
+          subQuery,
+          {
+            feedId: feedId || user?.id,
+            entity,
+          },
+        ),
+      });
+    },
+    [queryClient, user, feedId],
+  );
+
   const onFollowTags = useCallback(
     async ({ tags, category, requireLogin }: TagActionArguments) => {
       if (shouldShowLogin(requireLogin)) {
@@ -101,6 +125,11 @@ export default function useTagAndSource({
 
       invalidateQueries();
 
+      invalidateContentPreferences({
+        entity: ContentPreferenceType.Keyword,
+        subQuery: RequestKey.UserFollowing,
+      });
+
       return { successful: true };
     },
     [
@@ -115,6 +144,7 @@ export default function useTagAndSource({
       alerts?.filter,
       invalidateQueries,
       shouldUpdateAlerts,
+      invalidateContentPreferences,
     ],
   );
 
@@ -134,6 +164,11 @@ export default function useTagAndSource({
 
       invalidateQueries();
 
+      invalidateContentPreferences({
+        entity: ContentPreferenceType.Keyword,
+        subQuery: RequestKey.UserFollowing,
+      });
+
       return { successful: true };
     },
     [
@@ -144,6 +179,7 @@ export default function useTagAndSource({
       showLogin,
       unfollowTags,
       invalidateQueries,
+      invalidateContentPreferences,
     ],
   );
 
@@ -164,6 +200,11 @@ export default function useTagAndSource({
 
       invalidateQueries();
 
+      invalidateContentPreferences({
+        entity: ContentPreferenceType.Keyword,
+        subQuery: RequestKey.UserBlocked,
+      });
+
       return { successful: true };
     },
     [
@@ -175,6 +216,7 @@ export default function useTagAndSource({
       blockTag,
       postId,
       invalidateQueries,
+      invalidateContentPreferences,
     ],
   );
 
@@ -194,6 +236,11 @@ export default function useTagAndSource({
 
       invalidateQueries();
 
+      invalidateContentPreferences({
+        entity: ContentPreferenceType.Keyword,
+        subQuery: RequestKey.UserBlocked,
+      });
+
       return { successful: true };
     },
     [
@@ -205,6 +252,7 @@ export default function useTagAndSource({
       unblockTag,
       postId,
       invalidateQueries,
+      invalidateContentPreferences,
     ],
   );
 
@@ -225,6 +273,11 @@ export default function useTagAndSource({
 
       invalidateQueries();
 
+      invalidateContentPreferences({
+        entity: ContentPreferenceType.Source,
+        subQuery: RequestKey.UserBlocked,
+      });
+
       return { successful: true };
     },
     [
@@ -236,6 +289,7 @@ export default function useTagAndSource({
       unblockSource,
       postId,
       invalidateQueries,
+      invalidateContentPreferences,
     ],
   );
 
@@ -256,6 +310,11 @@ export default function useTagAndSource({
 
       invalidateQueries();
 
+      invalidateContentPreferences({
+        entity: ContentPreferenceType.Source,
+        subQuery: RequestKey.UserBlocked,
+      });
+
       return { successful: true };
     },
     [
@@ -267,6 +326,7 @@ export default function useTagAndSource({
       blockSource,
       postId,
       invalidateQueries,
+      invalidateContentPreferences,
     ],
   );
 
@@ -288,6 +348,11 @@ export default function useTagAndSource({
 
       invalidateQueries();
 
+      invalidateContentPreferences({
+        entity: ContentPreferenceType.Source,
+        subQuery: RequestKey.UserFollowing,
+      });
+
       return { successful: true };
     },
     [
@@ -299,6 +364,7 @@ export default function useTagAndSource({
       followSource,
       postId,
       invalidateQueries,
+      invalidateContentPreferences,
     ],
   );
 
@@ -320,6 +386,11 @@ export default function useTagAndSource({
 
       invalidateQueries();
 
+      invalidateContentPreferences({
+        entity: ContentPreferenceType.Source,
+        subQuery: RequestKey.UserFollowing,
+      });
+
       return { successful: true };
     },
     [
@@ -331,6 +402,7 @@ export default function useTagAndSource({
       unfollowSource,
       invalidateQueries,
       showLogin,
+      invalidateContentPreferences,
     ],
   );
 
