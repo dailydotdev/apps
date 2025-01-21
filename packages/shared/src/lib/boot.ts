@@ -54,6 +54,8 @@ export enum Continent {
   SouthAmerica = 'SA',
 }
 
+export const outsideGdpr = ['US', 'IL'];
+
 export type AccessToken = { token: string; expiresIn: string };
 export type Visit = { sessionId: string; visitId: string };
 export type Boot = {
