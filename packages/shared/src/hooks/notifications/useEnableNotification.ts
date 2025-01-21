@@ -51,14 +51,14 @@ export const useEnableNotification = ({
   const conditions = [
     isLoaded,
     !subscribed,
-    !isDismissed,
     isInitialized,
     isPushSupported || isExtension,
   ];
 
   const shouldShowCta =
-    conditions.every(Boolean) ||
-    (enabledJustNow && source !== NotificationPromptSource.SquadPostModal);
+    (conditions.every(Boolean) ||
+      (enabledJustNow && source !== NotificationPromptSource.SquadPostModal)) &&
+    !isDismissed;
 
   useEffect(() => {
     if (!shouldShowCta) {

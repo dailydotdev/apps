@@ -197,6 +197,9 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       image
       username
       permalink
+      contentPreference {
+        status
+      }
     }
     type
     tags
@@ -341,7 +344,6 @@ export const USER_STREAK_FRAGMENT = gql`
     total
     current
     lastViewAt
-    lastViewAtTz
     weekStart
   }
 `;

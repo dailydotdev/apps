@@ -51,6 +51,8 @@ export const BlockedTagList = ({
         canFetchMore: checkFetchMore(queryResult),
         fetchNextPage,
       }}
+      showBlock
+      showFollow={false}
     />
   );
 };

@@ -20,6 +20,7 @@ type CustomFeedOptionsMenuProps = {
   onUndo?: (feedId: string) => void;
   className?: string;
   shareProps: UseShareOrCopyLinkProps;
+  additionalOptions?: MenuItemProps[];
 };
 
 const CustomFeedOptionsMenu = ({
@@ -28,6 +29,7 @@ const CustomFeedOptionsMenu = ({
   onAdd,
   onUndo,
   onCreateNewFeed,
+  additionalOptions = [],
 }: CustomFeedOptionsMenuProps): ReactElement => {
   const { showPlusSubscription } = usePlusSubscription();
   const { openModal } = useLazyModal();
@@ -57,14 +59,17 @@ const CustomFeedOptionsMenu = ({
       label: 'Share',
       action: () => onShareOrCopyLink(),
     },
-    {
+  ];
+
+  if (showPlusSubscription) {
+    options.push({
       icon: <MenuIcon Icon={HashtagIcon} />,
       label: 'Add to custom feed',
       action: handleOpenModal,
-    },
-  ];
+    });
+  }
 
-  if (!showPlusSubscription) {
+  if (additionalOptions.length === 0 && !showPlusSubscription) {
     return (
       <Button
         variant={ButtonVariant.Float}
@@ -74,6 +79,8 @@ const CustomFeedOptionsMenu = ({
       />
     );
   }
+
+  options.push(...additionalOptions);
 
   return (
     <>
