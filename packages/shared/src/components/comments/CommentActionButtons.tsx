@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useQueryClient } from '@tanstack/react-query';
-import AuthContext, { useAuthContext } from '../../contexts/AuthContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 import {
   UpvoteIcon,
   DiscussIcon as CommentIcon,
@@ -46,6 +46,7 @@ import { useContentPreference } from '../../hooks/contentPreference/useContentPr
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { isFollowingContent } from '../../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
+import { GiftIcon } from '../icons/gift';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -75,12 +76,11 @@ export default function CommentActionButtons({
   onEdit,
   onShowUpvotes,
 }: Props): ReactElement {
-  const { isLoggedIn } = useAuthContext();
+  const { isLoggedIn, user, showLogin } = useAuthContext();
   const { isCompanion } = useRequestProtocol();
   const client = useQueryClient();
   const id = `comment-actions-menu-${comment.id}`;
   const { onMenuClick, isOpen, onHide } = useContextMenu({ id });
-  const { user, showLogin } = useContext(AuthContext);
   const { openModal } = useLazyModal();
   const { displayToast } = useToastNotification();
   const [voteState, setVoteState] = useState<VoteEntityPayload>(() => {
@@ -258,6 +258,18 @@ export default function CommentActionButtons({
       label: 'Report comment',
       action: openReportCommentModal,
       icon: <FlagIcon />,
+    });
+  }
+
+  if (comment.author.id !== user?.id && !comment.author.isPlus) {
+    commentOptions.push({
+      label: 'Gift daily.dev Plus',
+      action: () =>
+        openModal({
+          type: LazyModal.GiftPlus,
+          props: { user: comment.author },
+        }),
+      icon: <GiftIcon />,
     });
   }
 

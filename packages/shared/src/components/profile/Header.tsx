@@ -25,6 +25,8 @@ import { useContentPreference } from '../../hooks/contentPreference/useContentPr
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { MenuIcon } from '../MenuIcon';
+import { GiftIcon } from '../icons/gift';
+import type { MenuItemProps } from '../fields/ContextMenu';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -72,6 +74,42 @@ export function Header({
   );
 
   const blocked = contentPreference?.status === ContentPreferenceStatus.Blocked;
+
+  const options: MenuItemProps[] = [
+    {
+      icon: <MenuIcon Icon={BlockIcon} />,
+      label: `${blocked ? 'Unblock' : 'Block'} ${user.username}`,
+      action: () =>
+        blocked
+          ? unblock({
+              id: user.id,
+              entity: ContentPreferenceType.User,
+              entityName: user.username,
+            })
+          : block({
+              id: user.id,
+              entity: ContentPreferenceType.User,
+              entityName: user.username,
+            }),
+    },
+    {
+      icon: <MenuIcon Icon={FlagIcon} />,
+      label: 'Report',
+      action: () => onReportUser(),
+    },
+  ];
+
+  if (!blocked && !user.isPlus) {
+    options.push({
+      icon: <MenuIcon Icon={GiftIcon} />,
+      label: 'Gift daily.dev Plus',
+      action: () =>
+        openModal({
+          type: LazyModal.GiftPlus,
+          props: { user },
+        }),
+    });
+  }
 
   return (
     <header
@@ -160,29 +198,7 @@ export function Header({
                 target_id: user.id,
               }),
             }}
-            additionalOptions={[
-              {
-                icon: <MenuIcon Icon={BlockIcon} />,
-                label: `${blocked ? 'Unblock' : 'Block'} ${user.username}`,
-                action: () =>
-                  blocked
-                    ? unblock({
-                        id: user.id,
-                        entity: ContentPreferenceType.User,
-                        entityName: user.username,
-                      })
-                    : block({
-                        id: user.id,
-                        entity: ContentPreferenceType.User,
-                        entityName: user.username,
-                      }),
-              },
-              {
-                icon: <MenuIcon Icon={FlagIcon} />,
-                label: 'Report',
-                action: () => onReportUser(),
-              },
-            ]}
+            additionalOptions={options}
           />
         )}
       </div>

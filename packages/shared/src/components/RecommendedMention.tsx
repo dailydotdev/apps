@@ -6,7 +6,7 @@ import type { PublicProfile } from '../lib/user';
 
 export type RecommendedUser = Pick<
   PublicProfile,
-  'id' | 'image' | 'name' | 'username' | 'permalink' | 'reputation'
+  'id' | 'image' | 'name' | 'username' | 'permalink'
 >;
 
 interface RecommendedMentionProps {

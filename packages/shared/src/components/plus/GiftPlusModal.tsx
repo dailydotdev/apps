@@ -49,10 +49,14 @@ const SelectedUser = ({ user, onClose }: SelectedUserProps) => {
   );
 };
 
-export function GiftPlusModal(props: ModalProps): ReactElement {
-  const { onRequestClose } = props;
+type GiftPlusModalProps = ModalProps & {
+  user?: RecommendedUser;
+};
+
+export function GiftPlusModal(props: GiftPlusModalProps): ReactElement {
+  const { onRequestClose, user } = props;
   const { oneTimePayment } = usePaymentContext();
-  const [selected, setSelected] = useState<RecommendedUser>();
+  const [selected, setSelected] = useState<RecommendedUser>(user);
   const [query, setQuery] = useState('');
   const { getSuggestions } = useSearchProvider();
   const onSearch = useDebounce(setQuery, 500);
