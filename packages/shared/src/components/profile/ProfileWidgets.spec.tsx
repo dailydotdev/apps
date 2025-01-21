@@ -70,7 +70,7 @@ const defaultProfile: PublicProfile = {
   youtube: 'dailydotdev',
   linkedin: 'dailydotdev',
   mastodon: 'https://mastodon.social/@dailydotdev',
-  bluesky: 'https://bsky.app/profile/dailydotdev.bsky.social',
+  bluesky: 'dailydotdev.bsky.social',
 };
 
 const defaultMemberships: Connection<SourceMember> = {
@@ -298,7 +298,7 @@ it('should show bluesky link', () => {
     'href',
     'https://bsky.app/profile/dailydotdev.bsky.social',
   );
-  expect(el).toHaveTextContent('bsky.app/profile/dailydotdev.bsky.social');
+  expect(el).toHaveTextContent('dailydotdev.bsky.social');
 });
 
 it('should show portfolio link', async () => {
