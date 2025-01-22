@@ -117,6 +117,7 @@ export function GiftPlusModal(props: ModalProps): ReactElement {
               onClickOutside={() => setQuery('')}
               visible={isVisible}
               showArrow={false}
+              interactive
               content={
                 <RecommendedMention
                   users={users}
