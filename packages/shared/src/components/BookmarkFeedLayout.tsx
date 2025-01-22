@@ -1,6 +1,7 @@
 import type { PropsWithChildren, ReactElement, ReactNode } from 'react';
 import React, { useContext, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
+import classNames from 'classnames';
 import {
   BOOKMARKS_FEED_QUERY,
   SEARCH_BOOKMARKS_QUERY,
@@ -138,7 +139,10 @@ export default function BookmarkFeedLayout({
         </Typography>
       </FeedPageHeader>
       <CustomFeedHeader
-        className={shouldUseListFeedLayout && !shouldUseListMode && 'px-4'}
+        className={classNames(
+          'mb-6',
+          shouldUseListFeedLayout && !shouldUseListMode && 'px-4',
+        )}
       >
         {searchChildren}
         {!isFolderPage && (
