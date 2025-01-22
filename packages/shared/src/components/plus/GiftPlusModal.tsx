@@ -33,20 +33,20 @@ const SelectedUser = ({ user, onClose }: SelectedUserProps) => {
   const { image, username, name } = user;
 
   return (
-    <div className="flex flex-row bg-surface-float">
-      <Image src={image} alt={username} />
-      <Typography bold type={TypographyType.Callout}>
-        {name}
-      </Typography>
-      <Typography bold type={TypographyType.Callout}>
-        {username}
-      </Typography>
-      <CloseButton
-        type="button"
-        className="ml-auto"
-        onClick={onClose}
-        size={ButtonSize.XSmall}
-      />
+    <div className="flex w-full max-w-full flex-row bg-surface-float">
+      <Image src={image} alt={username} className="set-8" />
+      <span className="flex w-full flex-1 flex-row truncate">
+        <Typography bold type={TypographyType.Callout}>
+          {name}
+        </Typography>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Secondary}
+        >
+          {username}
+        </Typography>
+      </span>
+      <CloseButton type="button" onClick={onClose} size={ButtonSize.XSmall} />
     </div>
   );
 };
