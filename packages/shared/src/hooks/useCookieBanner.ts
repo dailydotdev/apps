@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { CookieOptions } from '../lib/cookie';
-import { expireCookie, setCookie } from '../lib/cookie';
+import { expireCookie, getCookies, setCookie } from '../lib/cookie';
 import { useAuthContext } from '../contexts/AuthContext';
+import { disabledRefetch } from '../lib/func';
 
 export type AcceptCookiesCallback = (
   additional?: string[],
@@ -48,10 +50,17 @@ const cookieOptions: Partial<CookieOptions> = {
 };
 
 const setBrowserCookie = (key: string): void => {
+  globalThis?.localStorage.removeItem(key);
+
+  const cookies = getCookies([key]);
+
+  if (cookies[key]) {
+    return;
+  }
+
   const TEN_YEARS = 60 * 60 * 24 * 365 * 10;
 
   setCookie(key, true, { ...cookieOptions, maxAge: TEN_YEARS });
-  globalThis?.localStorage.removeItem(key);
 };
 
 const expireBrowserCookie = (key: string): void => {
@@ -63,22 +72,35 @@ const getBrowserCookie = (key: string) =>
   globalThis?.document?.cookie.split('; ').find((row) => row.startsWith(key));
 
 export const useConsentCookie = (key: string): UseConsentCookie => {
-  const [exists, setExists] = useState(!!getBrowserCookie(key));
+  const queryKey = useMemo(() => ['cookie', key], [key]);
+  const client = useQueryClient();
+  const { data: exists } = useQuery({
+    queryKey,
+    initialData: () => !!getBrowserCookie(key),
+    ...disabledRefetch,
+  });
+
+  const onCookieAccepted = useCallback(
+    (cacheKey: string) => {
+      setBrowserCookie(cacheKey);
+      client.setQueryData(['cookie', cacheKey], true);
+    },
+    [client],
+  );
 
   const saveCookies: AcceptCookiesCallback = useCallback(
     (additional, toRemove) => {
-      setExists(true);
-      setBrowserCookie(key);
+      onCookieAccepted(key);
 
       if (additional) {
-        additional.forEach(setBrowserCookie);
+        additional.forEach(onCookieAccepted);
       }
 
       if (toRemove) {
         toRemove.forEach(expireBrowserCookie);
       }
     },
-    [key],
+    [key, client, queryKey],
   );
 
   return { saveCookies, cookieExists: exists };
