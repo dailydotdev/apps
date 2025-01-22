@@ -152,8 +152,7 @@ export function OnboardPage(): ReactElement {
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
   const { user, isAuthReady, anonymous, isAndroidApp } = useAuthContext();
-  const { logSubscriptionEvent, showPlusSubscription: isOnboardingPlusActive } =
-    usePlusSubscription();
+  const { logSubscriptionEvent } = usePlusSubscription();
   const shouldVerify = anonymous?.shouldVerify;
   const { growthbook } = useGrowthBookContext();
   const { logEvent } = useLogContext();
@@ -264,7 +263,7 @@ export function OnboardPage(): ReactElement {
       OnboardingStep.ContentTypes,
       OnboardingStep.ReadingReminder,
     ].includes(activeScreen);
-    if (isOnboardingPlusActive && isLastStepBeforePlus) {
+    if (isLastStepBeforePlus) {
       return setActiveScreen(OnboardingStep.Plus);
     }
 
@@ -328,12 +327,10 @@ export function OnboardPage(): ReactElement {
   };
 
   const onClickCreateFeed = () => {
-    if (isOnboardingPlusActive) {
-      logSubscriptionEvent({
-        event_name: LogEvent.OnboardingSkipPlus,
-        target_id: TargetId.Onboarding,
-      });
-    }
+    logSubscriptionEvent({
+      event_name: LogEvent.OnboardingSkipPlus,
+      target_id: TargetId.Onboarding,
+    });
 
     setSettings({
       sidebarExpanded: true,
