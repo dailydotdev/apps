@@ -24,7 +24,7 @@ const Container = classed(
 
 const Background = classed(
   'div',
-  'absolute inset-0 z-1 flex flex-col bg-surface-float p-6',
+  'absolute inset-0 z-1 flex flex-col bg-surface-float p-2 tablet:p-6',
 );
 
 export function YoutubeVideoWithoutConsent({
@@ -43,7 +43,7 @@ export function YoutubeVideoWithoutConsent({
         className="absolute inset-0 z-0 h-full w-full object-cover opacity-[0.08]"
       />
       <Background>
-        <span className="flex flex-row items-center gap-3">
+        <span className="hidden flex-row items-center gap-3 tablet:flex">
           <Image
             src={source.image}
             alt={source.name}

@@ -36,7 +36,6 @@ const setBrowserCookie = (key: string): void => {
 
 const expireBrowserCookie = (key: string): void => {
   expireCookie(key, { ...cookieOptions });
-  globalThis?.localStorage.setItem(key, 'disabled');
 };
 
 const getBrowserCookie = (key: string) =>
