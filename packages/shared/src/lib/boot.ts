@@ -8,6 +8,7 @@ import type { Squad } from '../graphql/sources';
 import { decrypt } from '../components/crypto';
 import type { MarketingCta } from '../components/marketingCta/common';
 import type { Feed } from '../graphql/feed';
+import type { Continent } from './geo';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;
@@ -68,6 +69,7 @@ export type Boot = {
   geo: {
     ip?: string;
     region?: string;
+    continent?: Continent;
   };
   isAndroidApp?: boolean;
 };

@@ -60,6 +60,7 @@ export enum LazyModal {
   ClickbaitShield = 'clickbaitShield',
   MoveBookmark = 'moveBookmark',
   AddToCustomFeed = 'addToCustomFeed',
+  CookieConsent = 'cookieConsent',
   ReportUser = 'reportUser',
   GiftPlus = 'giftPlus',
 }

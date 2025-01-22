@@ -15,6 +15,7 @@ import {
   HammerIcon,
   AppIcon,
   DevPlusIcon,
+  PrivacyIcon,
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
 import {
@@ -41,7 +42,7 @@ import { useConditionalFeature } from '../../hooks';
 import { featureOnboardingAndroid } from '../../lib/featureManagement';
 
 const useMenuItems = (): NavItemProps[] => {
-  const { logout, isAndroidApp } = useAuthContext();
+  const { logout, isAndroidApp, isGdprCovered } = useAuthContext();
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
   const { showPlusSubscription, isPlus, logSubscriptionEvent } =
@@ -92,7 +93,7 @@ const useMenuItems = (): NavItemProps[] => {
         }
       : undefined;
 
-    return [
+    const items = [
       {
         label: 'Profile',
         isHeader: true,
@@ -105,6 +106,14 @@ const useMenuItems = (): NavItemProps[] => {
         href: '/account/invite',
       },
       { label: 'Devcard', icon: <DevCardIcon />, href: '/devcard' },
+    ];
+
+    if (isGdprCovered) {
+      items.push({ label: 'Privacy', icon: <PrivacyIcon />, href: '/privacy' });
+    }
+
+    return [
+      ...items,
       {
         label: 'Logout',
         icon: <ExitIcon />,
@@ -185,6 +194,7 @@ const useMenuItems = (): NavItemProps[] => {
     ].filter(Boolean);
   }, [
     isPlus,
+    isGdprCovered,
     logSubscriptionEvent,
     onLogout,
     openModal,
