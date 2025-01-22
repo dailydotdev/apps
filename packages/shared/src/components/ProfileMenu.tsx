@@ -13,6 +13,7 @@ import {
   PauseIcon,
   EditIcon,
   DevPlusIcon,
+  PrivacyIcon,
 } from './icons';
 import InteractivePopup, {
   InteractivePopupPosition,
@@ -50,7 +51,7 @@ export default function ProfileMenu({
   onClose,
 }: ProfileMenuProps): ReactElement {
   const { openModal } = useLazyModal();
-  const { user, logout } = useAuthContext();
+  const { user, logout, isGdprCovered } = useAuthContext();
   const { isActive: isDndActive, setShowDnd } = useDndContext();
   const { showPlusSubscription, isPlus, logSubscriptionEvent } =
     usePlusSubscription();
@@ -142,6 +143,17 @@ export default function ProfileMenu({
       },
     });
 
+    if (isGdprCovered) {
+      list.push({
+        title: 'Privacy',
+        buttonProps: {
+          tag: 'a',
+          icon: <PrivacyIcon />,
+          href: `${webappUrl}account/privacy`,
+        },
+      });
+    }
+
     list.push({
       title: 'Logout',
       buttonProps: {
@@ -152,6 +164,7 @@ export default function ProfileMenu({
 
     return list.filter(Boolean);
   }, [
+    isGdprCovered,
     isDndActive,
     isPlus,
     logSubscriptionEvent,
