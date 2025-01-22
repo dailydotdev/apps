@@ -88,6 +88,12 @@ export function GiftPlusModal(props: ModalProps): ReactElement {
     }
   };
 
+  const onSelect = (user: UserShortProfile) => {
+    setSelected(user);
+    setIndex(0);
+    setQuery('');
+  };
+
   return (
     <Modal
       {...props}
@@ -122,7 +128,7 @@ export function GiftPlusModal(props: ModalProps): ReactElement {
                 <RecommendedMention
                   users={users}
                   selected={index}
-                  onClick={(user) => setSelected(user)}
+                  onClick={onSelect}
                   onHover={setIndex}
                 />
               }
