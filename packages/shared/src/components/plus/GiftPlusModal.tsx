@@ -67,6 +67,7 @@ export function GiftPlusModal(props: ModalProps): ReactElement {
 
       return result.recommendedMentions;
     },
+    enabled: !!query?.length,
   });
   const isVisible = !!users?.length && !!query?.length;
 
@@ -110,7 +111,7 @@ export function GiftPlusModal(props: ModalProps): ReactElement {
                 fieldType="tertiary"
                 autoComplete="off"
                 label="Select a recipient by name or handle"
-                valueChanged={onSearch}
+                onChange={(e) => onSearch(e.currentTarget.value.trim())}
               />
             </BaseTooltip>
           </div>
