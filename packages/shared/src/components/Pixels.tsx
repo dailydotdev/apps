@@ -6,8 +6,7 @@ import { isProduction } from '../lib/constants';
 import type { UserExperienceLevel } from '../lib/user';
 import { useAuthContext } from '../contexts/AuthContext';
 import { fromCDN } from '../lib';
-import { getCookies } from '../lib/cookie';
-import { GdprConsentKey } from '../hooks/useCookieBanner';
+import { GdprConsentKey, useConsentCookie } from '../hooks/useCookieBanner';
 
 const FB_PIXEL_ID = '519268979315924';
 const GA_TRACKING_ID = 'G-VTGLXD7QSN';
@@ -198,7 +197,9 @@ export const logPixelPayment = (
 };
 
 export const Pixels = ({ hotjarId }: Partial<HotjarProps>): ReactElement => {
-  const acceptedMarketing = !!getCookies([GdprConsentKey.Marketing]);
+  const { cookieExists: acceptedMarketing } = useConsentCookie(
+    GdprConsentKey.Marketing,
+  );
   const { user, anonymous, isAuthReady, isGdprCovered } = useAuthContext();
   const userId = user?.id || anonymous?.id;
 
