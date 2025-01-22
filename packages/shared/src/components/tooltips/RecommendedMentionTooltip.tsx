@@ -10,7 +10,7 @@ interface RecommendedMentionTooltipProps {
   selected?: number;
   mentions?: UserShortProfile[];
   offset?: number[];
-  onMentionClick?: (username: string) => unknown;
+  onMentionClick?: (user: UserShortProfile) => unknown;
   onClickOutside?: () => void;
   appendTo?: () => HTMLElement;
   elementRef: MutableRefObject<HTMLElement>;

@@ -16,14 +16,16 @@ import { Image } from '../image/Image';
 import { usePaymentContext } from '../../contexts/PaymentContext';
 import { plusUrl } from '../../lib/constants';
 import { TextField } from '../fields/TextField';
-import { SearchProviderEnum } from '../../graphql/search';
 import { UserIcon } from '../icons';
-import { useSearchProvider } from '../../hooks/search';
 import useDebounce from '../../hooks/useDebounce';
-import type { RecommendedUser } from '../RecommendedMention';
+import { gqlClient } from '../../graphql/common';
+import { RECOMMEND_MENTIONS_QUERY } from '../../graphql/comments';
+import { RecommendedMention } from '../RecommendedMention';
+import { BaseTooltip } from '../tooltips/BaseTooltip';
+import type { UserShortProfile } from '../../lib/user';
 
 interface SelectedUserProps {
-  user: RecommendedUser;
+  user: UserShortProfile;
   onClose: () => void;
 }
 
@@ -52,24 +54,21 @@ const SelectedUser = ({ user, onClose }: SelectedUserProps) => {
 export function GiftPlusModal(props: ModalProps): ReactElement {
   const { onRequestClose } = props;
   const { oneTimePayment } = usePaymentContext();
-  const [selected, setSelected] = useState<RecommendedUser>();
+  const [selected, setSelected] = useState<UserShortProfile>();
+  const [index] = useState();
   const [query, setQuery] = useState('');
-  const { getSuggestions } = useSearchProvider();
   const onSearch = useDebounce(setQuery, 500);
-  const { data: users } = useQuery({
+  const { data: users } = useQuery<UserShortProfile[]>({
     queryKey: ['search', 'users', query],
     queryFn: async () => {
-      const result = await getSuggestions({
-        // temporary - we need more information like if the user is on plus, etc.
-        // meaning, we can't use this endpoint for now
-        provider: SearchProviderEnum.Users,
+      const result = await gqlClient.request(RECOMMEND_MENTIONS_QUERY, {
         query,
-        limit: 5,
       });
 
-      return result.hits;
+      return result.recommendedMentions;
     },
   });
+  const isVisible = !!users?.length && !!query?.length;
 
   return (
     <Modal
@@ -94,15 +93,26 @@ export function GiftPlusModal(props: ModalProps): ReactElement {
           <SelectedUser user={selected} onClose={() => setSelected(null)} />
         ) : (
           <div className="flex flex-col">
-            <TextField
-              leftIcon={<UserIcon />}
-              inputId="search_user"
-              fieldType="tertiary"
-              autoComplete="off"
-              label="Select a recipient by name or handle"
-              valueChanged={onSearch}
-            />
-            {/* <RecommendedMention users={users} onClick={() => setSelected()} /> */}
+            <BaseTooltip
+              onClickOutside={() => setQuery('')}
+              visible={isVisible}
+              content={
+                <RecommendedMention
+                  users={users}
+                  selected={index}
+                  onClick={(user) => setSelected(user)}
+                />
+              }
+            >
+              <TextField
+                leftIcon={<UserIcon />}
+                inputId="search_user"
+                fieldType="tertiary"
+                autoComplete="off"
+                label="Select a recipient by name or handle"
+                valueChanged={onSearch}
+              />
+            </BaseTooltip>
           </div>
         )}
         <div className="flex w-full flex-row items-center gap-2 rounded-10 bg-surface-float p-2">

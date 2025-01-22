@@ -2,17 +2,12 @@ import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React from 'react';
 import { UserShortInfo } from './profile/UserShortInfo';
-import type { PublicProfile } from '../lib/user';
-
-export type RecommendedUser = Pick<
-  PublicProfile,
-  'id' | 'image' | 'name' | 'username' | 'permalink' | 'reputation'
->;
+import type { UserShortProfile } from '../lib/user';
 
 interface RecommendedMentionProps {
-  users: RecommendedUser[];
+  users: UserShortProfile[];
   selected: number;
-  onClick?: (username: string) => unknown;
+  onClick?: (user: UserShortProfile) => unknown;
 }
 
 export function RecommendedMention({
@@ -41,7 +36,7 @@ export function RecommendedMention({
           }}
           imageSize="large"
           tag="li"
-          onClick={() => onClick(user.username)}
+          onClick={() => onClick(user)}
           aria-selected={index === selected}
           role="option"
           disableTooltip
