@@ -119,6 +119,7 @@ export function GiftPlusModal(props: ModalProps): ReactElement {
                   users={users}
                   selected={index}
                   onClick={(user) => setSelected(user)}
+                  onHover={setIndex}
                 />
               }
               container={{

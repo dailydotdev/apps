@@ -8,12 +8,14 @@ interface RecommendedMentionProps {
   users: UserShortProfile[];
   selected: number;
   onClick?: (user: UserShortProfile) => unknown;
+  onHover?: (index: number) => unknown;
 }
 
 export function RecommendedMention({
   users,
   selected,
   onClick,
+  onHover,
 }: RecommendedMentionProps): ReactElement {
   if (!users?.length) {
     return null;
@@ -41,6 +43,7 @@ export function RecommendedMention({
           role="option"
           disableTooltip
           showDescription={false}
+          onHover={() => onHover?.(index)}
         />
       ))}
     </ul>
