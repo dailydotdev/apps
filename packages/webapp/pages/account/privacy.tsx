@@ -10,11 +10,9 @@ import {
   privacyPolicy,
   termsOfService,
 } from '@dailydotdev/shared/src/lib/constants';
-import {
-  GdprConsentKey,
-  useConsentCookie,
-} from '@dailydotdev/shared/src/hooks/useCookieBanner';
+import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { CookieConsentItem } from '@dailydotdev/shared/src/components/modals/user/CookieConsentItem';
+import { useConsentCookie } from '@dailydotdev/shared/src/hooks/useCookieConsent';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';

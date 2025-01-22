@@ -1,10 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { GdprConsentKey, useConsentCookie } from '../../hooks/useCookieBanner';
+import { GdprConsentKey } from '../../hooks/useCookieBanner';
 import type { Source } from '../../graphql/sources';
 import { YoutubeVideoWithoutConsent } from './YoutubeVideoWithoutConsent';
 import { YoutubeVideoBackground, YoutubeVideoContainer } from './common';
+import { useConsentCookie } from '../../hooks/useCookieConsent';
 
 interface YoutubeVideoProps {
   videoId: string;

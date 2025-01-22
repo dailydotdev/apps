@@ -6,7 +6,8 @@ import { isProduction } from '../lib/constants';
 import type { UserExperienceLevel } from '../lib/user';
 import { useAuthContext } from '../contexts/AuthContext';
 import { fromCDN } from '../lib';
-import { GdprConsentKey, useConsentCookie } from '../hooks/useCookieBanner';
+import { GdprConsentKey } from '../hooks/useCookieBanner';
+import { useConsentCookie } from '../hooks/useCookieConsent';
 
 const FB_PIXEL_ID = '519268979315924';
 const GA_TRACKING_ID = 'G-VTGLXD7QSN';
