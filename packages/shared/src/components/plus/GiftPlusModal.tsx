@@ -52,6 +52,7 @@ const SelectedUser = ({ user, onClose }: SelectedUserProps) => {
 };
 
 export function GiftPlusModal(props: ModalProps): ReactElement {
+  const [overlay, setOverlay] = useState<HTMLElement>();
   const { onRequestClose } = props;
   const { oneTimePayment } = usePaymentContext();
   const [selected, setSelected] = useState<UserShortProfile>();
@@ -93,6 +94,7 @@ export function GiftPlusModal(props: ModalProps): ReactElement {
       isOpen
       kind={Modal.Kind.FixedCenter}
       size={Modal.Size.Small}
+      overlayRef={setOverlay}
     >
       <Modal.Body className="gap-4">
         <div className="flex flex-row justify-between">
@@ -111,7 +113,7 @@ export function GiftPlusModal(props: ModalProps): ReactElement {
         ) : (
           <div className="flex flex-col">
             <BaseTooltip
-              appendTo="parent"
+              appendTo={overlay}
               onClickOutside={() => setQuery('')}
               visible={isVisible}
               showArrow={false}
