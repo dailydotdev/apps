@@ -5,7 +5,7 @@ import { Modal } from '../common/Modal';
 import { Typography, TypographyTag } from '../../typography/Typography';
 import { Divider } from '../../utilities';
 import { cookiePolicy } from '../../../lib/constants';
-import type { AcceptCookiesCallback } from '../../../hooks/useCookieBanner';
+import type { AcceptCookiesCallback } from '../../../hooks/useCookieConsent';
 import {
   GdprConsentKey,
   otherGdprConsents,
