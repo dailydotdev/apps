@@ -71,7 +71,7 @@ export function GiftPlusModal(props: ModalProps): ReactElement {
   });
   const isVisible = !!users?.length && !!query?.length;
   const onKeyDown = (e: React.KeyboardEvent) => {
-    const movement = ['ArrowUp', 'ArrowDown'];
+    const movement = ['ArrowUp', 'ArrowDown', 'Enter'];
     if (!movement.includes(e.key)) {
       return;
     }
@@ -82,6 +82,8 @@ export function GiftPlusModal(props: ModalProps): ReactElement {
       setIndex((prev) => (prev + 1) % users.length);
     } else if (e.key === 'ArrowUp') {
       setIndex((prev) => (prev - 1 + users.length) % users.length);
+    } else {
+      setSelected(users[index]);
     }
   };
 
@@ -111,6 +113,7 @@ export function GiftPlusModal(props: ModalProps): ReactElement {
             <BaseTooltip
               onClickOutside={() => setQuery('')}
               visible={isVisible}
+              showArrow={false}
               content={
                 <RecommendedMention
                   users={users}
@@ -133,7 +136,7 @@ export function GiftPlusModal(props: ModalProps): ReactElement {
                 label="Select a recipient by name or handle"
                 onKeyDown={onKeyDown}
                 onChange={(e) => onSearch(e.currentTarget.value.trim())}
-                onFocus={(e) => onSearch(e.currentTarget.value.trim())}
+                onFocus={(e) => setQuery(e.currentTarget.value.trim())}
               />
             </BaseTooltip>
           </div>
