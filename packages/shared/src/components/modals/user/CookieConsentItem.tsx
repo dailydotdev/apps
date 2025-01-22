@@ -3,7 +3,11 @@ import React, { useState } from 'react';
 import { Switch } from '../../fields/Switch';
 import type { GdprConsentKey } from '../../../hooks/useCookieBanner';
 import { gdprConsentSettings } from '../../../hooks/useCookieBanner';
-import { Typography, TypographyColor } from '../../typography/Typography';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../typography/Typography';
 import { Accordion } from '../../accordion';
 import { getCookies } from '../../../lib/cookie';
 
@@ -62,7 +66,7 @@ export function CookieConsentItem({
       }
     >
       <Typography
-        type={Typography.Type.Callout}
+        type={TypographyType.Callout}
         color={TypographyColor.Tertiary}
       >
         {description}

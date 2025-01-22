@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { Image } from '../image/Image';
-import { Typography } from '../typography/Typography';
+import { Typography, TypographyType } from '../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { PlayIcon } from '../icons';
 import classed from '../../lib/classed';
@@ -49,12 +49,12 @@ export function YoutubeVideoWithoutConsent({
             alt={source.name}
             className="h-10 w-10 rounded-full"
           />
-          <Typography type={Typography.Type.Callout} bold>
+          <Typography type={TypographyType.Callout} bold>
             {source.name}
           </Typography>
         </span>
         <div className="flex flex-1 flex-col items-center justify-center gap-6">
-          <Typography type={Typography.Type.Callout} className="text-center">
+          <Typography type={TypographyType.Callout} className="text-center">
             To play this video here on daily.dev, you’ll need to enable
             marketing cookies, or you can choose to watch it on YouTube.
           </Typography>

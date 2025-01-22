@@ -2,7 +2,12 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
-import { Typography, TypographyTag } from '../../typography/Typography';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+  TypographyType,
+} from '../../typography/Typography';
 import { Divider } from '../../utilities';
 import { cookiePolicy } from '../../../lib/constants';
 import type { AcceptCookiesCallback } from '../../../hooks/useCookieConsent';
@@ -64,19 +69,19 @@ export const CookieConsentModal = ({
     >
       <Modal.Header title="Cookie preferences" />
       <Modal.Body>
-        <Typography type={Typography.Type.Body} bold>
+        <Typography type={TypographyType.Body} bold>
           We value your privacy
         </Typography>
         <Typography
-          type={Typography.Type.Callout}
-          color={Typography.Color.Tertiary}
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
           className="my-1"
         >
           We use cookies to personalize content, improve performance, and
           provide a better experience. Manage your preferences below.
         </Typography>
         <Typography
-          type={Typography.Type.Callout}
+          type={TypographyType.Callout}
           tag={TypographyTag.Link}
           href={cookiePolicy}
           target="_blank"

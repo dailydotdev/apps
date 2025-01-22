@@ -2,7 +2,11 @@ import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
-import { Typography } from '@dailydotdev/shared/src/components/typography/Typography';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
 import {
@@ -59,8 +63,8 @@ const AccountInvitePage = (): ReactElement => {
       >
         <Typography
           href={privacyPolicy}
-          tag={Typography.Tag.Link}
-          type={Typography.Type.Callout}
+          tag={TypographyTag.Link}
+          type={TypographyType.Callout}
           target="_blank"
           rel="noopener"
         >
@@ -74,8 +78,8 @@ const AccountInvitePage = (): ReactElement => {
       >
         <Typography
           href={cookiePolicy}
-          tag={Typography.Tag.Link}
-          type={Typography.Type.Callout}
+          tag={TypographyTag.Link}
+          type={TypographyType.Callout}
           target="_blank"
           rel="noopener"
         >
@@ -95,8 +99,8 @@ const AccountInvitePage = (): ReactElement => {
       >
         <Typography
           href={termsOfService}
-          tag={Typography.Tag.Link}
-          type={Typography.Type.Callout}
+          tag={TypographyTag.Link}
+          type={TypographyType.Callout}
           target="_blank"
           rel="noopener"
         >
@@ -104,8 +108,8 @@ const AccountInvitePage = (): ReactElement => {
         </Typography>
         <Typography
           href={privacyPolicy}
-          tag={Typography.Tag.Link}
-          type={Typography.Type.Callout}
+          tag={TypographyTag.Link}
+          type={TypographyType.Callout}
           target="_blank"
           rel="noopener"
         >
@@ -113,8 +117,8 @@ const AccountInvitePage = (): ReactElement => {
         </Typography>
         <Typography
           href={privacyPolicy}
-          tag={Typography.Tag.Link}
-          type={Typography.Type.Callout}
+          tag={TypographyTag.Link}
+          type={TypographyType.Callout}
           target="_blank"
           rel="noopener"
         >
