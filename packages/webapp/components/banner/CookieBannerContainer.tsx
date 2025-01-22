@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import type { AcceptCookiesCallback } from '@dailydotdev/shared/src/hooks/useCookieBanner';
+import type { AcceptCookiesCallback } from '@dailydotdev/shared/src/hooks/useCookieConsent';
 
 export interface CommonCookieBannerProps {
   onAccepted: AcceptCookiesCallback;
