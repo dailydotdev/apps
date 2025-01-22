@@ -12,7 +12,6 @@ import CloseButton from '../CloseButton';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
 import { PlusTitle } from './PlusTitle';
-import { Image } from '../image/Image';
 import { usePaymentContext } from '../../contexts/PaymentContext';
 import { plusUrl } from '../../lib/constants';
 import { TextField } from '../fields/TextField';
@@ -23,6 +22,7 @@ import { RecommendedMention } from '../RecommendedMention';
 import { BaseTooltip } from '../tooltips/BaseTooltip';
 import type { UserShortProfile } from '../../lib/user';
 import useDebounceFn from '../../hooks/useDebounceFn';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 
 interface SelectedUserProps {
   user: UserShortProfile;
@@ -30,12 +30,12 @@ interface SelectedUserProps {
 }
 
 const SelectedUser = ({ user, onClose }: SelectedUserProps) => {
-  const { image, username, name } = user;
+  const { username, name } = user;
 
   return (
-    <div className="flex w-full max-w-full flex-row bg-surface-float">
-      <Image src={image} alt={username} className="set-8" />
-      <span className="flex w-full flex-1 flex-row truncate">
+    <div className="flex w-full max-w-full flex-row gap-2 bg-surface-float">
+      <ProfilePicture user={user} size={ProfileImageSize.Medium} />
+      <span className="flex w-full flex-1 flex-row gap-2 truncate">
         <Typography bold type={TypographyType.Callout}>
           {name}
         </Typography>
