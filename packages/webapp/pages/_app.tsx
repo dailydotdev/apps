@@ -32,7 +32,6 @@ import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext'
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { fromCDN } from '@dailydotdev/shared/src/lib';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
-import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -75,7 +74,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
   useWebVitals();
   useLogPageView();
-  const { modal, closeModal, openModal } = useLazyModal();
+  const { modal, closeModal } = useLazyModal();
   useConsoleLogo();
 
   useEffect(() => {
@@ -95,7 +94,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   useEffect(() => {
     updateCookieBanner(user);
-    openModal({ type: LazyModal.GiftPlus });
 
     if (
       user &&
