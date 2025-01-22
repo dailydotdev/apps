@@ -15,6 +15,7 @@ import { AuthTriggers } from '../lib/auth';
 import type { Squad } from '../graphql/sources';
 import { checkIsExtension, isNullOrUndefined } from '../lib/func';
 import { AFTER_AUTH_PARAM } from '../components/auth/common';
+import { Continent, outsideGdpr } from '../lib/geo';
 
 export interface LoginState {
   trigger: AuthTriggersType;
@@ -62,6 +63,7 @@ export interface AuthContextData {
   isAuthReady?: boolean;
   geo?: Boot['geo'];
   isAndroidApp?: boolean;
+  isGdprCovered?: boolean;
 }
 const isExtension = checkIsExtension();
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -195,6 +197,9 @@ export const AuthContextProvider = ({
         squads,
         geo,
         isAndroidApp,
+        isGdprCovered:
+          geo?.continent === Continent.Europe ||
+          !outsideGdpr.includes(geo?.region),
       }}
     >
       {children}

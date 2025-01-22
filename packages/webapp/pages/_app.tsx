@@ -8,7 +8,10 @@ import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import { DefaultSeo, NextSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
+import {
+  useCookieBanner,
+  cookieAcknowledgedKey,
+} from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
@@ -39,7 +42,9 @@ structuredCloneJsonPolyfill();
 
 const CookieBanner = dynamic(
   () =>
-    import(/* webpackChunkName: "cookieBanner" */ '../components/CookieBanner'),
+    import(
+      /* webpackChunkName: "cookieBanner" */ '../components/banner/CookieBanner'
+    ),
 );
 
 interface ComponentGetLayout {
@@ -63,8 +68,9 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
-  const { user } = useAuthContext();
-  const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
+  const { user, closeLogin, shouldShowLogin, loginState } = useAuthContext();
+  const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
+    useCookieBanner();
   useWebVitals();
   useLogPageView();
   const { modal, closeModal } = useLazyModal();
@@ -86,8 +92,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   ]);
 
   useEffect(() => {
-    updateCookieBanner(user);
-
     if (
       user &&
       !didRegisterSwRef.current &&
@@ -97,7 +101,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       didRegisterSwRef.current = true;
       window.serwist.register();
     }
-  }, [updateCookieBanner, user]);
+  }, [user]);
 
   useEffect(() => {
     if (!modal) {
@@ -193,7 +197,19 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       <DndContextProvider>
         {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
       </DndContextProvider>
-      {showCookie && <CookieBanner onAccepted={acceptCookies} />}
+      {showBanner && (
+        <CookieBanner
+          onAccepted={onAcceptCookies}
+          onHideBanner={onHideBanner}
+          onModalClose={() => {
+            const interacted = !!localStorage.getItem(cookieAcknowledgedKey);
+
+            if (!interacted) {
+              onOpenBanner();
+            }
+          }}
+        />
+      )}
     </>
   );
 }
