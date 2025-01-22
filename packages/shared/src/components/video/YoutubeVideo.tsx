@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { GdprConsentKey } from '../../hooks/useCookieBanner';
 import type { Source } from '../../graphql/sources';
@@ -29,17 +29,6 @@ const YoutubeVideo = ({
   const { cookieExists, saveCookies } = useConsentCookie(
     GdprConsentKey.Marketing,
   );
-  const hasAcceptedMarketing = useMemo(() => {
-    if (!isAuthReady) {
-      return false;
-    }
-
-    if (!isGdprCovered) {
-      return true;
-    }
-
-    return cookieExists;
-  }, [isAuthReady, isGdprCovered, cookieExists]);
 
   if (!isAuthReady) {
     return (
@@ -49,7 +38,7 @@ const YoutubeVideo = ({
     );
   }
 
-  if (isGdprCovered && !hasAcceptedMarketing) {
+  if (isGdprCovered && !cookieExists) {
     return (
       <YoutubeVideoWithoutConsent
         title={title}
