@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { ModalProps } from '../modals/common/Modal';
 import { Modal } from '../modals/common/Modal';
@@ -52,6 +52,7 @@ const SelectedUser = ({ user, onClose }: SelectedUserProps) => {
 };
 
 export function GiftPlusModal(props: ModalProps): ReactElement {
+  const containerRef = useRef<HTMLDivElement>(null);
   const { onRequestClose } = props;
   const { oneTimePayment } = usePaymentContext();
   const [selected, setSelected] = useState<UserShortProfile>();
@@ -109,8 +110,9 @@ export function GiftPlusModal(props: ModalProps): ReactElement {
         {selected ? (
           <SelectedUser user={selected} onClose={() => setSelected(null)} />
         ) : (
-          <div className="flex flex-col">
+          <div ref={containerRef} className="flex flex-col">
             <BaseTooltip
+              appendTo={containerRef.current}
               onClickOutside={() => setQuery('')}
               visible={isVisible}
               showArrow={false}
