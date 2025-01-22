@@ -23,7 +23,10 @@ import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
-const seo: NextSeoProps = { ...defaultSeo, title: getTemplatedTitle('Invite') };
+const seo: NextSeoProps = {
+  ...defaultSeo,
+  title: getTemplatedTitle('Privacy'),
+};
 
 const AccountInvitePage = (): ReactElement => {
   const router = useRouter();
