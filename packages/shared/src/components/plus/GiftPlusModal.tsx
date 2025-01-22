@@ -55,7 +55,7 @@ export function GiftPlusModal(props: ModalProps): ReactElement {
   const { onRequestClose } = props;
   const { oneTimePayment } = usePaymentContext();
   const [selected, setSelected] = useState<UserShortProfile>();
-  const [index] = useState();
+  const [index, setIndex] = useState(0);
   const [query, setQuery] = useState('');
   const [onSearch] = useDebounceFn(setQuery, 500);
   const { data: users } = useQuery<UserShortProfile[]>({
@@ -70,6 +70,20 @@ export function GiftPlusModal(props: ModalProps): ReactElement {
     enabled: !!query?.length,
   });
   const isVisible = !!users?.length && !!query?.length;
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    const movement = ['ArrowUp', 'ArrowDown'];
+    if (!movement.includes(e.key)) {
+      return;
+    }
+
+    e.preventDefault();
+
+    if (e.key === 'ArrowDown') {
+      setIndex((prev) => (prev + 1) % users.length);
+    } else if (e.key === 'ArrowUp') {
+      setIndex((prev) => (prev - 1 + users.length) % users.length);
+    }
+  };
 
   return (
     <Modal
@@ -104,6 +118,12 @@ export function GiftPlusModal(props: ModalProps): ReactElement {
                   onClick={(user) => setSelected(user)}
                 />
               }
+              container={{
+                className: 'shadow',
+                paddingClassName: 'p-0',
+                roundedClassName: 'rounded-16',
+                bgClassName: 'bg-accent-pepper-subtlest',
+              }}
             >
               <TextField
                 leftIcon={<UserIcon />}
@@ -111,7 +131,9 @@ export function GiftPlusModal(props: ModalProps): ReactElement {
                 fieldType="tertiary"
                 autoComplete="off"
                 label="Select a recipient by name or handle"
+                onKeyDown={onKeyDown}
                 onChange={(e) => onSearch(e.currentTarget.value.trim())}
+                onFocus={(e) => onSearch(e.currentTarget.value.trim())}
               />
             </BaseTooltip>
           </div>
