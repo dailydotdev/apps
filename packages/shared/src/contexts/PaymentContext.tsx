@@ -195,11 +195,17 @@ export const PaymentContextProvider = ({
       paddle,
       productOptions,
       earlyAdopterPlanId,
-      oneTimePayment: productOptions?.find(
-        (option) => planTypes[option.value] === PlusPriceType.OneTimePayment,
-      ),
+      oneTimePayment: {
+        // TODO: MI-756 - Replace with actual one-time payment plan
+        currencyCode: 'USD',
+        priceUnformatted: 88.88,
+        price: '$88.88',
+        label: 'One-time payment',
+        value: 'one-time',
+        extraLabel: '',
+      },
     }),
-    [earlyAdopterPlanId, openCheckout, paddle, productOptions, planTypes],
+    [earlyAdopterPlanId, openCheckout, paddle, productOptions],
   );
 
   return (
