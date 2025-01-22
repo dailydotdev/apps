@@ -9,6 +9,7 @@ interface RecommendedMentionProps {
   selected: number;
   onClick?: (user: UserShortProfile) => unknown;
   onHover?: (index: number) => unknown;
+  checkIsDisabled?: (user: UserShortProfile) => unknown;
 }
 
 export function RecommendedMention({
@@ -16,6 +17,7 @@ export function RecommendedMention({
   selected,
   onClick,
   onHover,
+  checkIsDisabled,
 }: RecommendedMentionProps): ReactElement {
   if (!users?.length) {
     return null;
@@ -33,6 +35,9 @@ export function RecommendedMention({
           className={{
             container: classNames(
               'cursor-pointer p-3',
+              checkIsDisabled?.(user)
+                ? 'pointer-events-none opacity-64'
+                : 'cursor-pointer',
               index === selected && 'bg-theme-active',
             ),
           }}

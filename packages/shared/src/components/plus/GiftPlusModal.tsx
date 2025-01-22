@@ -80,9 +80,21 @@ export function GiftPlusModal(props: ModalProps): ReactElement {
     e.preventDefault();
 
     if (e.key === 'ArrowDown') {
-      setIndex((prev) => (prev + 1) % users.length);
+      setIndex((prev) => {
+        let next = prev + 1;
+        while (users[next % users.length]?.isPlus) {
+          next += 1;
+        }
+        return next % users.length;
+      });
     } else if (e.key === 'ArrowUp') {
-      setIndex((prev) => (prev - 1 + users.length) % users.length);
+      setIndex((prev) => {
+        let next = prev - 1;
+        while (users[(next + users.length) % users.length]?.isPlus) {
+          next -= 1;
+        }
+        return (next + users.length) % users.length;
+      });
     } else {
       setSelected(users[index]);
     }
@@ -130,6 +142,7 @@ export function GiftPlusModal(props: ModalProps): ReactElement {
                   selected={index}
                   onClick={onSelect}
                   onHover={setIndex}
+                  checkIsDisabled={(user) => user.isPlus}
                 />
               }
               container={{
