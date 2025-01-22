@@ -100,7 +100,7 @@ export const useConsentCookie = (key: string): UseConsentCookie => {
         toRemove.forEach(expireBrowserCookie);
       }
     },
-    [key, client, queryKey],
+    [key, onCookieAccepted],
   );
 
   return { saveCookies, cookieExists: exists };
