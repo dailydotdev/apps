@@ -74,7 +74,7 @@ function SquadMemberItemOptionsButton({
       <Button
         size={ButtonSize.Small}
         variant={ButtonVariant.Tertiary}
-        className="m-auto ml-2 mr-0"
+        className="z-1 m-auto ml-2 mr-0"
         onClick={onOptionsClick}
         icon={<MenuIcon />}
       />
