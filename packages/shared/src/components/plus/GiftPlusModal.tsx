@@ -12,7 +12,10 @@ import CloseButton from '../CloseButton';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
 import { PlusTitle } from './PlusTitle';
-import { usePaymentContext } from '../../contexts/PaymentContext';
+import {
+  PaymentContextProvider,
+  usePaymentContext,
+} from '../../contexts/PaymentContext';
 import { plusUrl } from '../../lib/constants';
 import { TextField } from '../fields/TextField';
 import { UserIcon } from '../icons';
@@ -114,88 +117,90 @@ export function GiftPlusModal(props: ModalProps): ReactElement {
       size={Modal.Size.Small}
       overlayRef={setOverlay}
     >
-      <Modal.Body className="gap-4">
-        <div className="flex flex-row justify-between">
-          <PlusTitle type={TypographyType.Callout} bold />
-          <CloseButton
-            type="button"
-            size={ButtonSize.Small}
-            onClick={onRequestClose}
-          />
-        </div>
-        <Typography bold type={TypographyType.Title1}>
-          Gift daily.dev Plus 🎁
-        </Typography>
-        {selected ? (
-          <SelectedUser user={selected} onClose={() => setSelected(null)} />
-        ) : (
-          <div className="flex flex-col">
-            <BaseTooltip
-              appendTo={overlay}
-              onClickOutside={() => setQuery('')}
-              visible={isVisible}
-              showArrow={false}
-              interactive
-              content={
-                <RecommendedMention
-                  users={users}
-                  selected={index}
-                  onClick={onSelect}
-                  onHover={setIndex}
-                  checkIsDisabled={(user) => user.isPlus}
-                />
-              }
-              container={{
-                className: 'shadow',
-                paddingClassName: 'p-0',
-                roundedClassName: 'rounded-16',
-                bgClassName: 'bg-accent-pepper-subtlest',
-              }}
-            >
-              <TextField
-                leftIcon={<UserIcon />}
-                inputId="search_user"
-                fieldType="tertiary"
-                autoComplete="off"
-                label="Select a recipient by name or handle"
-                onKeyDown={onKeyDown}
-                onChange={(e) => onSearch(e.currentTarget.value.trim())}
-                onFocus={(e) => setQuery(e.currentTarget.value.trim())}
-              />
-            </BaseTooltip>
+      <PaymentContextProvider>
+        <Modal.Body className="gap-4">
+          <div className="flex flex-row justify-between">
+            <PlusTitle type={TypographyType.Callout} bold />
+            <CloseButton
+              type="button"
+              size={ButtonSize.Small}
+              onClick={onRequestClose}
+            />
           </div>
-        )}
-        <div className="flex w-full flex-row items-center gap-2 rounded-10 bg-surface-float p-2">
-          <Typography bold type={TypographyType.Callout}>
-            One-year plan
+          <Typography bold type={TypographyType.Title1}>
+            Gift daily.dev Plus 🎁
           </Typography>
-          <Typography
-            bold
-            className="rounded-10 bg-action-upvote-float px-2 py-1"
-            type={TypographyType.Caption1}
-            color={TypographyColor.StatusSuccess}
+          {selected ? (
+            <SelectedUser user={selected} onClose={() => setSelected(null)} />
+          ) : (
+            <div className="flex flex-col">
+              <BaseTooltip
+                appendTo={overlay}
+                onClickOutside={() => setQuery('')}
+                visible={isVisible}
+                showArrow={false}
+                interactive
+                content={
+                  <RecommendedMention
+                    users={users}
+                    selected={index}
+                    onClick={onSelect}
+                    onHover={setIndex}
+                    checkIsDisabled={(user) => user.isPlus}
+                  />
+                }
+                container={{
+                  className: 'shadow',
+                  paddingClassName: 'p-0',
+                  roundedClassName: 'rounded-16',
+                  bgClassName: 'bg-accent-pepper-subtlest',
+                }}
+              >
+                <TextField
+                  leftIcon={<UserIcon />}
+                  inputId="search_user"
+                  fieldType="tertiary"
+                  autoComplete="off"
+                  label="Select a recipient by name or handle"
+                  onKeyDown={onKeyDown}
+                  onChange={(e) => onSearch(e.currentTarget.value.trim())}
+                  onFocus={(e) => setQuery(e.currentTarget.value.trim())}
+                />
+              </BaseTooltip>
+            </div>
+          )}
+          <div className="flex w-full flex-row items-center gap-2 rounded-10 bg-surface-float p-2">
+            <Typography bold type={TypographyType.Callout}>
+              One-year plan
+            </Typography>
+            <Typography
+              bold
+              className="rounded-10 bg-action-upvote-float px-2 py-1"
+              type={TypographyType.Caption1}
+              color={TypographyColor.StatusSuccess}
+            >
+              2 months free
+            </Typography>
+            <Typography type={TypographyType.Body}>
+              <strong className="mr-1">{oneTimePayment?.price}</strong>
+              {oneTimePayment?.currencyCode}
+            </Typography>
+          </div>
+          <Typography type={TypographyType.Callout}>
+            Gift one year of daily.dev Plus for {oneTimePayment?.price}. Once
+            the payment is processed, they’ll be notified of your gift. This is
+            a one-time purchase, not a recurring subscription.
+          </Typography>
+          <Button
+            tag="a"
+            variant={ButtonVariant.Primary}
+            href={`${plusUrl}?giftToUserId=${selected?.id}`}
+            disabled={!selected}
           >
-            2 months free
-          </Typography>
-          <Typography type={TypographyType.Body}>
-            <strong className="mr-1">{oneTimePayment?.price}</strong>
-            {oneTimePayment?.currencyCode}
-          </Typography>
-        </div>
-        <Typography type={TypographyType.Callout}>
-          Gift one year of daily.dev Plus for {oneTimePayment?.price}. Once the
-          payment is processed, they’ll be notified of your gift. This is a
-          one-time purchase, not a recurring subscription.
-        </Typography>
-        <Button
-          tag="a"
-          variant={ButtonVariant.Primary}
-          href={`${plusUrl}?giftToUserId=${selected?.id}`}
-          disabled={!selected}
-        >
-          Gift & Pay {oneTimePayment?.price}
-        </Button>
-      </Modal.Body>
+            Gift & Pay {oneTimePayment?.price}
+          </Button>
+        </Modal.Body>
+      </PaymentContextProvider>
     </Modal>
   );
 }
