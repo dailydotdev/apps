@@ -68,7 +68,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
-  const { user, closeLogin, shouldShowLogin, loginState } = useAuthContext();
+  const { user } = useAuthContext();
   const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
     useCookieBanner();
   useWebVitals();
