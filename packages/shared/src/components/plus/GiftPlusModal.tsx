@@ -17,12 +17,12 @@ import { usePaymentContext } from '../../contexts/PaymentContext';
 import { plusUrl } from '../../lib/constants';
 import { TextField } from '../fields/TextField';
 import { UserIcon } from '../icons';
-import useDebounce from '../../hooks/useDebounce';
 import { gqlClient } from '../../graphql/common';
 import { RECOMMEND_MENTIONS_QUERY } from '../../graphql/comments';
 import { RecommendedMention } from '../RecommendedMention';
 import { BaseTooltip } from '../tooltips/BaseTooltip';
 import type { UserShortProfile } from '../../lib/user';
+import useDebounceFn from '../../hooks/useDebounceFn';
 
 interface SelectedUserProps {
   user: UserShortProfile;
@@ -57,7 +57,7 @@ export function GiftPlusModal(props: ModalProps): ReactElement {
   const [selected, setSelected] = useState<UserShortProfile>();
   const [index] = useState();
   const [query, setQuery] = useState('');
-  const onSearch = useDebounce(setQuery, 500);
+  const [onSearch] = useDebounceFn(setQuery, 500);
   const { data: users } = useQuery<UserShortProfile[]>({
     queryKey: ['search', 'users', query],
     queryFn: async () => {
