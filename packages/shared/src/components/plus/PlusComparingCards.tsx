@@ -23,6 +23,7 @@ import { IconSize } from '../Icon';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { PlusPriceType } from '../../lib/featureValues';
+import { PlusLabelColor, PlusPlanExtraLabel } from './PlusPlanExtraLabel';
 
 export enum OnboardingPlans {
   Free = 'Free',
@@ -122,15 +123,12 @@ const PlusCard = ({
           {heading.label}
         </Typography>
         {hasDiscount && discountPlan?.extraLabel && (
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Caption1}
-            color={TypographyColor.StatusHelp}
-            className="ml-3 rounded-10 bg-action-help-float px-2 py-1"
-            bold
-          >
-            {discountPlan.extraLabel}
-          </Typography>
+          <PlusPlanExtraLabel
+            color={PlusLabelColor.Help}
+            label={discountPlan.extraLabel}
+            className="ml-3"
+            typographyProps={{ color: TypographyColor.StatusHelp }}
+          />
         )}
       </div>
       <div className="flex items-baseline gap-0.5">

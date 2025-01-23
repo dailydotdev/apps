@@ -26,6 +26,7 @@ import { BaseTooltip } from '../tooltips/BaseTooltip';
 import type { UserShortProfile } from '../../lib/user';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { PlusLabelColor, PlusPlanExtraLabel } from './PlusPlanExtraLabel';
 
 interface SelectedUserProps {
   user: UserShortProfile;
@@ -179,14 +180,11 @@ export function GiftPlusModalComponent({
           <Typography bold type={TypographyType.Callout}>
             One-year plan
           </Typography>
-          <Typography
-            bold
-            className="rounded-10 bg-action-upvote-float px-2 py-1"
-            type={TypographyType.Caption1}
-            color={TypographyColor.StatusSuccess}
-          >
-            2 months free
-          </Typography>
+          <PlusPlanExtraLabel
+            color={PlusLabelColor.Success}
+            label={oneTimePayment.extraLabel}
+            typographyProps={{ color: TypographyColor.StatusSuccess }}
+          />
           <Typography type={TypographyType.Body} className="ml-auto mr-1">
             <strong className="mr-1">{oneTimePayment?.price}</strong>
             {oneTimePayment?.currencyCode}
