@@ -60,11 +60,7 @@ export const PaymentContextProvider = ({
   logRef.current = logSubscriptionEvent;
 
   const isPlusAvailable = useMemo(() => {
-    if (!geo?.region) {
-      return false;
-    }
-
-    return !invalidPlusRegions.includes(geo.region);
+    return !invalidPlusRegions.includes(geo?.region);
   }, [geo?.region]);
 
   // Download and initialize Paddle instance from CDN
