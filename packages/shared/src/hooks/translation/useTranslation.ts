@@ -4,8 +4,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import { stream } from 'fetch-event-stream';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { apiUrl } from '../../lib/config';
-import type { FeedData } from '../../graphql/posts';
-import { updateCachedPagePost, findIndexOfPostInData } from '../../lib/query';
+import type { FeedData, Post } from '../../graphql/posts';
+import {
+  updateCachedPagePost,
+  findIndexOfPostInData,
+  updatePostCache,
+} from '../../lib/query';
 
 export enum ServerEvents {
   Connect = 'connect',
@@ -26,39 +30,57 @@ type TranslateEvent = {
   title: string;
 };
 
+const updateTranslation = (post: Post, translation: TranslateEvent): Post => {
+  const updatedPost = post;
+  if (post.title) {
+    updatedPost.title = translation.title;
+    updatedPost.translation = { title: !!translation.title };
+  } else {
+    updatedPost.sharedPost.title = translation.title;
+    updatedPost.sharedPost.translation = { title: !!translation.title };
+  }
+
+  return updatedPost;
+};
+
 export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
   const abort = useRef<AbortController>();
   const { user, accessToken, isLoggedIn } = useAuthContext();
   const queryClient = useQueryClient();
 
-  const { language } = user;
+  const { language } = user || {};
 
   const updateFeed = useCallback(
-    (post: TranslateEvent) => {
+    (translatedPost: TranslateEvent) => {
       const updatePost = updateCachedPagePost(queryKey, queryClient);
       const feedData =
         queryClient.getQueryData<InfiniteData<FeedData>>(queryKey);
       const { pageIndex, index } = findIndexOfPostInData(
         feedData,
-        post.id,
+        translatedPost.id,
         true,
       );
       if (index > -1) {
-        const updatedPost = feedData.pages[pageIndex].page.edges[index].node;
-        if (updatedPost.title) {
-          updatedPost.title = post.title;
-          updatedPost.translation = { title: !!post.title };
-        } else {
-          updatedPost.sharedPost.title = post.title;
-          updatedPost.sharedPost.translation = {
-            title: !!post.title,
-          };
-        }
-
-        updatePost(pageIndex, index, updatedPost);
+        updatePost(
+          pageIndex,
+          index,
+          updateTranslation(
+            feedData.pages[pageIndex].page.edges[index].node,
+            translatedPost,
+          ),
+        );
       }
     },
     [queryKey, queryClient],
+  );
+
+  const updatePost = useCallback(
+    (translatedPost: TranslateEvent) => {
+      updatePostCache(queryClient, translatedPost.id, (post) =>
+        updateTranslation(post, translatedPost),
+      );
+    },
+    [queryClient],
   );
 
   const fetchTranslations = useCallback(
@@ -91,11 +113,20 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
           const post = JSON.parse(message.data) as TranslateEvent;
           if (queryType === 'feed') {
             updateFeed(post);
+          } else {
+            updatePost(post);
           }
         }
       }
     },
-    [accessToken?.token, isLoggedIn, language, queryType, updateFeed],
+    [
+      accessToken?.token,
+      isLoggedIn,
+      language,
+      queryType,
+      updateFeed,
+      updatePost,
+    ],
   );
 
   useEffect(() => {

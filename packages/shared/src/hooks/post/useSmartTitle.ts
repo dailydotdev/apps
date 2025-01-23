@@ -120,7 +120,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     return fetchedSmartTitle
       ? smartTitle
       : post?.title || post?.sharedPost?.title;
-  }, [fetchedSmartTitle, smartTitle, post]);
+  }, [fetchedSmartTitle, smartTitle, post?.title, post?.sharedPost?.title]);
 
   const shieldActive = useMemo(() => {
     return (

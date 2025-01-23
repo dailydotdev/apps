@@ -272,6 +272,9 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     slug
     domain
     clickbaitTitleDetected
+    translation {
+      title
+    }
   }
   ${PRIVILEGED_MEMBERS_FRAGMENT}
   ${SOURCE_BASE_FRAGMENT}
