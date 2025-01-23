@@ -49,6 +49,7 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
   const queryClient = useQueryClient();
 
   const { language } = user || {};
+  const isStreamActive = !isLoggedIn || !language;
 
   const updateFeed = useCallback(
     (translatedPost: TranslateEvent) => {
@@ -85,7 +86,7 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
 
   const fetchTranslations = useCallback(
     async (postIds: string[]) => {
-      if (!isLoggedIn || !language) {
+      if (!isStreamActive) {
         return;
       }
       if (postIds.length === 0) {
@@ -122,7 +123,7 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
     },
     [
       accessToken?.token,
-      isLoggedIn,
+      isStreamActive,
       language,
       queryType,
       updateFeed,
