@@ -26,7 +26,7 @@ import {
   isSameDayInTimezone,
 } from '../../../lib/timezones';
 import { SimpleTooltip } from '../../tooltips';
-import { isTesting } from '../../../lib/constants';
+import { isTesting, webappUrl } from '../../../lib/constants';
 import { useStreakTimezoneOk } from '../../../hooks/streaks/useStreakTimezoneOk';
 import { usePrompt } from '../../../hooks/usePrompt';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -96,7 +96,7 @@ interface ReadingStreakPopupProps {
   fullWidth?: boolean;
 }
 
-const timezoneSettingsHref = '/account/notifications?s=timezone';
+const timezoneSettingsHref = `${webappUrl}account/notifications?s=timezone`;
 
 export function ReadingStreakPopup({
   streak,
