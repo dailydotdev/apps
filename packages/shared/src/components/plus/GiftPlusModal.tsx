@@ -224,7 +224,7 @@ export function GiftPlusModalComponent({
 export function GiftPlusModal(props: ModalProps): ReactElement {
   return (
     <PaymentContextProvider>
-      <GiftPlusModalComponent {...props} />{' '}
+      <GiftPlusModalComponent {...props} />
     </PaymentContextProvider>
   );
 }
