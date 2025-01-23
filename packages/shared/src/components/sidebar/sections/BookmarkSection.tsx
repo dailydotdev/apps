@@ -94,6 +94,7 @@ export const BookmarkSection = ({
       items={menuItems}
       isItemsButton={isItemsButton}
       flag={SidebarSettingsFlags.BookmarksExpanded}
+      isAlwaysOpenOnMobile
     />
   );
 };

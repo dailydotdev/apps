@@ -9,6 +9,7 @@ import { ArrowIcon } from '../icons';
 import type { SettingsFlags } from '../../graphql/settings';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { isNullOrUndefined } from '../../lib/func';
+import useSidebarRendered from '../../hooks/useSidebarRendered';
 
 export interface SectionCommonProps
   extends Pick<ItemInnerProps, 'shouldShowLabel'> {
@@ -22,6 +23,7 @@ interface SectionProps extends SectionCommonProps {
   title?: string;
   items: SidebarMenuItem[];
   isItemsButton: boolean;
+  isAlwaysOpenOnMobile?: boolean;
 }
 
 export function Section({
@@ -33,9 +35,11 @@ export function Section({
   isItemsButton,
   className,
   flag,
+  isAlwaysOpenOnMobile,
 }: SectionProps): ReactElement {
   const { flags, updateFlag } = useSettingsContext();
-
+  const { sidebarRendered } = useSidebarRendered();
+  const shouldAlwaysBeVisible = isAlwaysOpenOnMobile && !sidebarRendered;
   const isVisible = useRef(
     isNullOrUndefined(flags?.[flag]) ? true : flags[flag],
   );
@@ -66,7 +70,7 @@ export function Section({
           />
         </NavHeader>
       )}
-      {isVisible.current &&
+      {(isVisible.current || shouldAlwaysBeVisible) &&
         items.map((item) => (
           <SidebarItem
             key={`${item.title}-${item.path}`}
