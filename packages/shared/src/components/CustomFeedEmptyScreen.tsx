@@ -23,8 +23,7 @@ import { usePlusSubscription } from '../hooks';
 import { IconSize } from './Icon';
 
 export const CustomFeedEmptyScreen = (): ReactElement => {
-  const { logSubscriptionEvent, showPlusSubscription, isPlus } =
-    usePlusSubscription();
+  const { logSubscriptionEvent, isPlus } = usePlusSubscription();
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
     DEFAULT_ALGORITHM_INDEX,
@@ -45,7 +44,7 @@ export const CustomFeedEmptyScreen = (): ReactElement => {
             className={EmptyScreenIcon.className}
             style={EmptyScreenIcon.style}
           />
-          {showPlusSubscription && !isPlus ? (
+          {!isPlus ? (
             <>
               <Typography
                 tag={TypographyTag.Span}

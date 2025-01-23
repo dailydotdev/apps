@@ -17,7 +17,7 @@ import { IconSize } from '../Icon';
 import { RankingAlgorithm } from '../../graphql/feed';
 import SettingsContext from '../../contexts/SettingsContext';
 import { useFeedName } from '../../hooks/feed/useFeedName';
-import { usePlusSubscription, useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
@@ -72,7 +72,6 @@ export const SearchControlHeader = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
-  const { showPlusSubscription } = usePlusSubscription();
   const { user } = useAuthContext();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
 
@@ -135,7 +134,6 @@ export const SearchControlHeader = ({
         drawerProps={{ displayCloseButton: true }}
       />
     ) : null,
-    showPlusSubscription &&
     feedsWithActions.includes(feedName as SharedFeedPage) ? (
       <ToggleClickbaitShield
         origin={

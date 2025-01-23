@@ -8,11 +8,7 @@ import { SourcePermissions, SourceMemberRole } from '../../graphql/sources';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useDeleteSquad } from '../../hooks/useDeleteSquad';
-import {
-  useLeaveSquad,
-  usePlusSubscription,
-  useSquadNavigation,
-} from '../../hooks';
+import { useLeaveSquad, useSquadNavigation } from '../../hooks';
 import { ContextMenuIcon } from '../tooltips/ContextMenuItem';
 import { verifyPermission } from '../../graphql/squads';
 import {
@@ -49,7 +45,6 @@ interface SquadHeaderMenuProps {
 export default function SquadHeaderMenu({
   squad,
 }: SquadHeaderMenuProps): ReactElement {
-  const { showPlusSubscription } = usePlusSubscription();
   const { isLoggedIn } = useAuthContext();
   const { logAndCopyLink } = useSquadInvitation({
     squad,
@@ -81,10 +76,8 @@ export default function SquadHeaderMenu({
     const canEditSquad = verifyPermission(squad, SourcePermissions.Edit);
     const canDeleteSquad = verifyPermission(squad, SourcePermissions.Delete);
 
-    const list: MenuItemProps[] = [];
-
-    if (showPlusSubscription) {
-      list.push({
+    const list: MenuItemProps[] = [
+      {
         icon: <ContextMenuIcon Icon={HashtagIcon} />,
         action: () =>
           openModal({
@@ -111,8 +104,8 @@ export default function SquadHeaderMenu({
             },
           }),
         label: 'Add to custom feed',
-      });
-    }
+      },
+    ];
 
     if (canEditSquad) {
       list.push({
@@ -187,7 +180,6 @@ export default function SquadHeaderMenu({
     follow,
     unfollow,
     router,
-    showPlusSubscription,
   ]);
 
   return (
