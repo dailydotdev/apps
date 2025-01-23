@@ -27,6 +27,7 @@ import type { UserShortProfile } from '../../lib/user';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { PlusLabelColor, PlusPlanExtraLabel } from './PlusPlanExtraLabel';
+import { ArrowKey, KeyboardCommand } from '../../lib/element';
 
 interface SelectedUserProps {
   user: UserShortProfile;
@@ -83,14 +84,14 @@ export function GiftPlusModalComponent({
   });
   const isVisible = !!users?.length && !!query?.length;
   const onKeyDown = (e: React.KeyboardEvent) => {
-    const movement = ['ArrowUp', 'ArrowDown', 'Enter'];
-    if (!movement.includes(e.key)) {
+    const movement = [ArrowKey.Up, ArrowKey.Down, KeyboardCommand.Enter];
+    if (!movement.includes(e.key as (typeof movement)[number])) {
       return;
     }
 
     e.preventDefault();
 
-    if (e.key === 'ArrowDown') {
+    if (e.key === ArrowKey.Down) {
       setIndex((prev) => {
         let next = prev + 1;
         let counter = 0;
@@ -104,7 +105,7 @@ export function GiftPlusModalComponent({
         }
         return next % users.length;
       });
-    } else if (e.key === 'ArrowUp') {
+    } else if (e.key === ArrowKey.Up) {
       setIndex((prev) => {
         let next = prev - 1;
         let counter = 0;
