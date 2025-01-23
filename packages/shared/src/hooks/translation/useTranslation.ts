@@ -100,6 +100,7 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
       const messages = await stream(
         `${apiUrl}/translate/post/title?${params}`,
         {
+          signal: abort.current?.signal,
           headers: {
             Authorization: `Bearer ${accessToken?.token}`,
             'Content-Language': language as string,
