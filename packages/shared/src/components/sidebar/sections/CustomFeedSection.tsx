@@ -76,13 +76,6 @@ export const CustomFeedSection = ({
     onNavTabClick,
   ]);
 
-  /**
-   * If there are no custom feeds and the user is not subscribed to Plus don't show this section
-   */
-  if (!menuItems.length) {
-    return null;
-  }
-
   return (
     <Section
       {...defaultRenderSectionProps}
