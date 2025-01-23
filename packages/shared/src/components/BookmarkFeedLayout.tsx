@@ -1,5 +1,5 @@
 import type { PropsWithChildren, ReactElement, ReactNode } from 'react';
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import {
@@ -63,6 +63,7 @@ export default function BookmarkFeedLayout({
   title = 'Bookmarks',
   isReminderOnly,
 }: BookmarkFeedLayoutProps): ReactElement {
+  const [isHydrated, setIsHydrated] = useState(false);
   const {
     shouldUseListFeedLayout,
     FeedPageLayoutComponent,
@@ -123,6 +124,14 @@ export default function BookmarkFeedLayout({
       options: { refetchOnMount: true },
     };
   }, [searchQuery, feedQueryKey, listId, isReminderOnly, isFolderPage]);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  if (!isHydrated) {
+    return null;
+  }
 
   return (
     <FeedPageLayoutComponent>
