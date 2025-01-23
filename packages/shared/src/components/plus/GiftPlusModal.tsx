@@ -93,16 +93,28 @@ export function GiftPlusModalComponent({
     if (e.key === 'ArrowDown') {
       setIndex((prev) => {
         let next = prev + 1;
+        let counter = 0;
         while (users[next % users.length]?.isPlus) {
           next += 1;
+          counter += 1;
+
+          if (counter > users.length) {
+            return -1;
+          }
         }
         return next % users.length;
       });
     } else if (e.key === 'ArrowUp') {
       setIndex((prev) => {
         let next = prev - 1;
+        let counter = 0;
         while (users[(next + users.length) % users.length]?.isPlus) {
           next -= 1;
+          counter += 1;
+
+          if (counter > users.length) {
+            return -1;
+          }
         }
         return (next + users.length) % users.length;
       });
