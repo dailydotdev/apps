@@ -17,12 +17,7 @@ import type { ButtonProps } from './buttons/Button';
 import { Button, ButtonVariant } from './buttons/Button';
 import { ShareIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
-import {
-  useFeedLayout,
-  usePlusSubscription,
-  useViewSize,
-  ViewSize,
-} from '../hooks';
+import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BookmarkSection } from './sidebar/sections/BookmarkSection';
 import {
   Typography,
@@ -73,7 +68,6 @@ export default function BookmarkFeedLayout({
     FeedPageLayoutComponent,
     shouldUseListMode,
   } = useFeedLayout();
-  const { showPlusSubscription } = usePlusSubscription();
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -166,16 +160,14 @@ export default function BookmarkFeedLayout({
           onRequestClose={() => setShowSharedBookmarks(false)}
         />
       )}
-      {showPlusSubscription && (
-        <div className="mb-4 laptop:hidden">
-          <BookmarkSection
-            isItemsButton={false}
-            sidebarExpanded
-            shouldShowLabel
-            activePage=""
-          />
-        </div>
-      )}
+      <div className="mb-4 laptop:hidden">
+        <BookmarkSection
+          isItemsButton={false}
+          sidebarExpanded
+          shouldShowLabel
+          activePage=""
+        />
+      </div>
       {tokenRefreshed && <Feed {...feedProps} />}
     </FeedPageLayoutComponent>
   );

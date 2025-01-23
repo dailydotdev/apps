@@ -45,8 +45,7 @@ const useMenuItems = (): NavItemProps[] => {
   const { logout, isAndroidApp, isGdprCovered } = useAuthContext();
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
-  const { showPlusSubscription, isPlus, logSubscriptionEvent } =
-    usePlusSubscription();
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { value: appExperiment } = useConditionalFeature({
     feature: featureOnboardingAndroid,
     shouldEvaluate: checkIsBrowser(UserAgent.Android) && !isAndroidApp,
@@ -65,24 +64,6 @@ const useMenuItems = (): NavItemProps[] => {
   }, [logout, showPrompt]);
 
   return useMemo(() => {
-    const plusItem = showPlusSubscription
-      ? {
-          label: isPlus ? 'Manage plus' : 'Upgrade to plus',
-          icon: <DevPlusIcon />,
-          href: isPlus ? managePlusUrl : plusUrl,
-          className: isPlus ? undefined : 'text-action-plus-default',
-          target: isPlus ? '_blank' : undefined,
-          onClick: () => {
-            logSubscriptionEvent({
-              event_name: isPlus
-                ? LogEvent.ManageSubscription
-                : LogEvent.UpgradeSubscription,
-              target_id: TargetId.ProfileDropdown,
-            });
-          },
-        }
-      : undefined;
-
     const downloadAndroidApp = appExperiment
       ? {
           label: 'Download mobile app',
@@ -99,7 +80,21 @@ const useMenuItems = (): NavItemProps[] => {
         isHeader: true,
       },
       { label: 'Edit profile', icon: <EditIcon />, href: '/account/profile' },
-      plusItem,
+      {
+        label: isPlus ? 'Manage plus' : 'Upgrade to plus',
+        icon: <DevPlusIcon />,
+        href: isPlus ? managePlusUrl : plusUrl,
+        className: isPlus ? undefined : 'text-action-plus-default',
+        target: isPlus ? '_blank' : undefined,
+        onClick: () => {
+          logSubscriptionEvent({
+            event_name: isPlus
+              ? LogEvent.ManageSubscription
+              : LogEvent.UpgradeSubscription,
+            target_id: TargetId.ProfileDropdown,
+          });
+        },
+      },
       {
         label: 'Invite friends',
         icon: <AddUserIcon />,
@@ -198,7 +193,6 @@ const useMenuItems = (): NavItemProps[] => {
     logSubscriptionEvent,
     onLogout,
     openModal,
-    showPlusSubscription,
     appExperiment,
   ]);
 };

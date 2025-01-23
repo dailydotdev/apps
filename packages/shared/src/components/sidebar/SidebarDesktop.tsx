@@ -14,7 +14,6 @@ import { CustomFeedSection } from './sections/CustomFeedSection';
 import { DiscoverSection } from './sections/DiscoverSection';
 import { ResourceSection } from './sections/ResourceSection';
 import { BookmarkSection } from './sections/BookmarkSection';
-import { usePlusSubscription } from '../../hooks';
 import { SidebarMenuIcon } from './SidebarMenuIcon';
 import { CreatePostButton } from '../post/write';
 import { ButtonSize } from '../buttons/Button';
@@ -39,7 +38,6 @@ export const SidebarDesktop = ({
   const { isAvailable: isBannerAvailable } = useBanner();
   const { isLoggedIn } = useAuthContext();
   const activePage = activePageProp || router.asPath || router.pathname;
-  const { showPlusSubscription } = usePlusSubscription();
 
   const defaultRenderSectionProps = useMemo(
     () => ({
@@ -92,13 +90,11 @@ export const SidebarDesktop = ({
             title="Custom feeds"
             isItemsButton={false}
           />
-          {showPlusSubscription && (
-            <BookmarkSection
-              {...defaultRenderSectionProps}
-              title="Bookmarks"
-              isItemsButton={false}
-            />
-          )}
+          <BookmarkSection
+            {...defaultRenderSectionProps}
+            title="Bookmarks"
+            isItemsButton={false}
+          />
           <DiscoverSection
             {...defaultRenderSectionProps}
             title="Discover"
