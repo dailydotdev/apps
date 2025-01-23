@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { IconSize } from '../Icon';
-import { SourceIcon } from '../icons';
+import { SitesIcon } from '../icons';
 import {
   TypographyType,
   TypographyColor,
@@ -23,7 +23,7 @@ export const PlusUnavailable = ({
         className,
       )}
     >
-      <SourceIcon size={IconSize.XXXLarge} />
+      <SitesIcon size={IconSize.XXXLarge} />
       <Typography
         type={TypographyType.Callout}
         bold
