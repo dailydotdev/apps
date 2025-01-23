@@ -56,17 +56,17 @@ const SelectedUser = ({ user, onClose }: SelectedUserProps) => {
 };
 
 interface GiftPlusModalProps extends ModalProps {
-  preSelected?: UserShortProfile;
+  preselected?: UserShortProfile;
 }
 
 export function GiftPlusModalComponent({
-  preSelected,
+  preselected,
   ...props
 }: GiftPlusModalProps): ReactElement {
   const [overlay, setOverlay] = useState<HTMLElement>();
   const { onRequestClose } = props;
   const { oneTimePayment } = usePaymentContext();
-  const [selected, setSelected] = useState(preSelected);
+  const [selected, setSelected] = useState(preselected);
   const [index, setIndex] = useState(0);
   const [query, setQuery] = useState('');
   const [onSearch] = useDebounceFn(setQuery, 500);
