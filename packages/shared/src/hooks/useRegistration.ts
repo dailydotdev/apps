@@ -30,6 +30,7 @@ import { getUserDefaultTimezone } from '../lib/timezones';
 import LogContext from '../contexts/LogContext';
 import { Origin } from '../lib/log';
 import { LogoutReason } from '../lib/user';
+import { AFTER_AUTH_PARAM } from '../components/auth/common';
 
 type ParamKeys = keyof RegistrationParameters;
 
@@ -86,11 +87,16 @@ const useRegistration = ({
         origin: Origin.InitializeRegistrationFlow,
       }),
     });
+    const params = new URLSearchParams(window.location.search);
+    const afterAuth = params.get(AFTER_AUTH_PARAM);
     /**
-     * In case a valid session exists on kratos, but not FE we should logout the user
+     * In case a valid session exists on kratos, but not FE we should logout the user.
+     * We ignore it if 'after_auth' param exists, because it means we manually redirected the user here, and that will trigger this error.
      */
     if (
-      registration.error?.id === KRATOS_ERROR_MESSAGE.SESSION_ALREADY_AVAILABLE
+      registration.error?.id ===
+        KRATOS_ERROR_MESSAGE.SESSION_ALREADY_AVAILABLE &&
+      !afterAuth
     ) {
       logout(LogoutReason.KratosSessionAlreadyAvailable);
     }

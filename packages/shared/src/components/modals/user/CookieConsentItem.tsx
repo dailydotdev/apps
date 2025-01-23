@@ -18,9 +18,8 @@ interface CookieConsentItemProps {
 
 const getCookie = (key: GdprConsentKey) => {
   const cookies = getCookies([key]);
-  const disabled = globalThis?.localStorage.getItem(key);
 
-  return !!cookies[key] || !disabled;
+  return !!cookies[key];
 };
 
 export function CookieConsentItem({

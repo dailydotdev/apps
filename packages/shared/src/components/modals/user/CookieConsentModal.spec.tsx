@@ -49,23 +49,24 @@ describe('CookieConsentModal', () => {
     await screen.findByText('Cookie preferences');
   });
 
-  it('should render default value to be true', async () => {
+  it('should render default value to be false', async () => {
     const cookies = getCookies(Object.values(GdprConsentKey));
     expect(cookies.ilikecookies).toBeUndefined();
     expect(cookies.ilikecookies_marketing).toBeUndefined();
 
     renderComponent();
 
-    const options = screen.getAllByRole('checkbox', { hidden: true });
-    const isEveryChecked = options.every(
-      (checkbox) => (checkbox as HTMLInputElement).checked,
-    );
-    expect(isEveryChecked).toBeTruthy();
+    const [necessary, ...others] = screen.getAllByRole('checkbox', {
+      hidden: true,
+    }) as HTMLInputElement[];
+    const isUnchecked = others.every((checkbox) => !checkbox.checked);
+    expect(necessary.checked).toBeTruthy();
+    expect(isUnchecked).toBeTruthy();
     const save = screen.getByText('Save preferences');
     fireEvent.click(save);
     const cookiesAfter = getCookies(Object.values(GdprConsentKey));
     expect(cookiesAfter.ilikecookies).toBeTruthy();
-    expect(cookiesAfter.ilikecookies_marketing).toBeTruthy();
+    expect(cookiesAfter.ilikecookies_marketing).not.toBeTruthy();
   });
 
   it('should allow toggling the other options', async () => {
@@ -76,22 +77,21 @@ describe('CookieConsentModal', () => {
     const [, marketingBefore] = screen.getAllByRole('checkbox', {
       hidden: true,
     });
-    expect(marketingBefore).toBeChecked();
+    expect(marketingBefore).not.toBeChecked();
 
     fireEvent.click(clickable);
 
     const [, marketingAfter] = screen.getAllByRole('checkbox', {
       hidden: true,
     });
-    expect(marketingAfter).not.toBeChecked();
+    expect(marketingAfter).toBeChecked();
     const save = screen.getByText('Save preferences');
     fireEvent.click(save);
     const cookiesAfter = getCookies(Object.values(GdprConsentKey));
-    expect(cookiesAfter.ilikecookies_marketing).not.toBeTruthy();
+    expect(cookiesAfter.ilikecookies_marketing).toBeTruthy();
   });
 
   it('should retain previous option if the item was disabled', async () => {
-    localStorage.setItem(GdprConsentKey.Marketing, 'disabled');
     renderComponent();
     const [, marketing] = screen.getAllByRole('checkbox', {
       hidden: true,
@@ -118,11 +118,12 @@ describe('CookieConsentModal', () => {
 
     renderComponent();
 
-    const options = screen.getAllByRole('checkbox', { hidden: true });
-    const isEveryChecked = options.every(
-      (checkbox) => (checkbox as HTMLInputElement).checked,
-    );
-    expect(isEveryChecked).toBeTruthy();
+    const [necessary, ...others] = screen.getAllByRole('checkbox', {
+      hidden: true,
+    }) as HTMLInputElement[];
+    const isUnchecked = others.every((checkbox) => !checkbox.checked);
+    expect(necessary.checked).toBeTruthy();
+    expect(isUnchecked).toBeTruthy();
     const save = screen.getByText('Accept all');
     fireEvent.click(save);
     const cookiesAfter = getCookies(Object.values(GdprConsentKey));
@@ -137,11 +138,12 @@ describe('CookieConsentModal', () => {
 
     renderComponent();
 
-    const options = screen.getAllByRole('checkbox', { hidden: true });
-    const isEveryChecked = options.every(
-      (checkbox) => (checkbox as HTMLInputElement).checked,
-    );
-    expect(isEveryChecked).toBeTruthy(); // while everything is checked, rejecting all should only save necessary
+    const [necessary, ...others] = screen.getAllByRole('checkbox', {
+      hidden: true,
+    }) as HTMLInputElement[];
+    const isUnchecked = others.every((checkbox) => !checkbox.checked);
+    expect(necessary.checked).toBeTruthy();
+    expect(isUnchecked).toBeTruthy();
     const save = screen.getByText('Reject all');
     fireEvent.click(save);
     const cookiesAfter = getCookies(Object.values(GdprConsentKey));
