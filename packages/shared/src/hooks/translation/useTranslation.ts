@@ -6,7 +6,6 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { apiUrl } from '../../lib/config';
 import type { FeedData } from '../../graphql/posts';
 import { updateCachedPagePost, findIndexOfPostInData } from '../../lib/query';
-import type { LoggedUser } from '../../lib/user';
 
 export enum ServerEvents {
   Connect = 'connect',
@@ -27,8 +26,9 @@ type TranslateEvent = {
 export const useTranslation: UseTranslation = (feedQueryKey) => {
   const abort = useRef<AbortController>();
   const { user, accessToken, isLoggedIn } = useAuthContext();
-
   const queryClient = useQueryClient();
+
+  const { language } = user;
 
   const updatePostTranslation = useCallback(
     (post: TranslateEvent) => {
@@ -60,7 +60,7 @@ export const useTranslation: UseTranslation = (feedQueryKey) => {
 
   const fetchTranslations = useCallback(
     async (postIds: string[]) => {
-      if (!isLoggedIn) {
+      if (!isLoggedIn || !language) {
         return;
       }
       if (postIds.length === 0) {
@@ -77,7 +77,7 @@ export const useTranslation: UseTranslation = (feedQueryKey) => {
         {
           headers: {
             Authorization: `Bearer ${accessToken?.token}`,
-            'Content-Language': (user as LoggedUser).language as string,
+            'Content-Language': language as string,
           },
         },
       );
@@ -90,7 +90,7 @@ export const useTranslation: UseTranslation = (feedQueryKey) => {
         }
       }
     },
-    [accessToken?.token, isLoggedIn, updatePostTranslation, user],
+    [accessToken?.token, isLoggedIn, language, updatePostTranslation],
   );
 
   useEffect(() => {
