@@ -32,11 +32,12 @@ export const UpgradeToPlus = ({
   ...attrs
 }: Props): ReactElement => {
   const { isLoggedIn, showLogin } = useAuthContext();
-  const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
+  const isFullCTAText = !isLaptop || isLaptopXL;
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
 
-  const content = isLaptopXL || isMobile ? 'Upgrade to Plus' : 'Upgrade';
+  const content = isFullCTAText ? 'Upgrade to Plus' : 'Upgrade';
 
   const onClick = useCallback(
     (e: React.MouseEvent) => {
