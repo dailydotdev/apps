@@ -14,7 +14,10 @@ export enum ServerEvents {
   Error = 'error',
 }
 
-type UseTranslation = (feedQueryKey: QueryKey) => {
+type UseTranslation = (props: {
+  queryKey: QueryKey;
+  queryType: 'post' | 'feed';
+}) => {
   fetchTranslations: (id: string[]) => void;
 };
 
@@ -23,18 +26,18 @@ type TranslateEvent = {
   title: string;
 };
 
-export const useTranslation: UseTranslation = (feedQueryKey) => {
+export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
   const abort = useRef<AbortController>();
   const { user, accessToken, isLoggedIn } = useAuthContext();
   const queryClient = useQueryClient();
 
   const { language } = user;
 
-  const updatePostTranslation = useCallback(
+  const updateFeed = useCallback(
     (post: TranslateEvent) => {
-      const updatePost = updateCachedPagePost(feedQueryKey, queryClient);
+      const updatePost = updateCachedPagePost(queryKey, queryClient);
       const feedData =
-        queryClient.getQueryData<InfiniteData<FeedData>>(feedQueryKey);
+        queryClient.getQueryData<InfiniteData<FeedData>>(queryKey);
       const { pageIndex, index } = findIndexOfPostInData(
         feedData,
         post.id,
@@ -55,7 +58,7 @@ export const useTranslation: UseTranslation = (feedQueryKey) => {
         updatePost(pageIndex, index, updatedPost);
       }
     },
-    [feedQueryKey, queryClient],
+    [queryKey, queryClient],
   );
 
   const fetchTranslations = useCallback(
@@ -86,11 +89,13 @@ export const useTranslation: UseTranslation = (feedQueryKey) => {
       for await (const message of messages) {
         if (message.event === ServerEvents.Message) {
           const post = JSON.parse(message.data) as TranslateEvent;
-          updatePostTranslation(post);
+          if (queryType === 'feed') {
+            updateFeed(post);
+          }
         }
       }
     },
-    [accessToken?.token, isLoggedIn, language, updatePostTranslation],
+    [accessToken?.token, isLoggedIn, language, queryType, updateFeed],
   );
 
   useEffect(() => {

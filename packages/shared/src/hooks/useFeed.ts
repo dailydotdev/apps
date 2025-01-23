@@ -102,7 +102,10 @@ export default function useFeed<T>(
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { showPlusSubscription, isPlus } = usePlusSubscription();
   const queryClient = useQueryClient();
-  const { fetchTranslations } = useTranslation(feedQueryKey);
+  const { fetchTranslations } = useTranslation({
+    queryKey: feedQueryKey,
+    queryType: 'feed',
+  });
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
   const avoidRetry =
     params?.settings?.feedName === SharedFeedPage.Custom &&
