@@ -6,11 +6,13 @@ import { useRouter } from 'next/router';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { NextSeo } from 'next-seo';
+import { PlusUnavailable } from '@dailydotdev/shared/src/components/plus/PlusUnavailable';
+
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 
 const PlusPaymentPage = (): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { openCheckout } = usePaymentContext();
+  const { openCheckout, isPlusAvailable } = usePaymentContext();
   const router = useRouter();
   const { pid } = router.query;
 
@@ -36,7 +38,9 @@ const PlusPaymentPage = (): ReactElement => {
             openCheckout({ priceId: pid as string });
           }}
           className="checkout-container h-full w-full bg-background-default p-5"
-        />
+        >
+          {!isPlusAvailable && <PlusUnavailable className="h-full" />}
+        </div>
       </div>
     </>
   );
