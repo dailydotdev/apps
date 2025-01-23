@@ -34,8 +34,8 @@ const feature = {
   onboardingChecklist: new Feature('onboarding_checklist', true),
   showCodeSnippets: new Feature('show_code_snippets', false),
   pricingIds: new Feature('pricing_ids', {
-    pri_01jcdp5ef4yhv00p43hr2knrdg: PlusPriceType.Monthly,
-    pri_01jcdn6enr5ap3ekkddc6fv6tq: PlusPriceType.Yearly,
+    pri_01jbsccbdbcwyhdy8hy3c2etyn: PlusPriceType.Monthly,
+    pri_01jbscda57910yvwjtyapnrrzc: PlusPriceType.Yearly,
   }),
 };
 
