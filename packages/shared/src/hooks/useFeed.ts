@@ -1,9 +1,5 @@
 import { useCallback, useContext, useMemo } from 'react';
-import type {
-  InfiniteData,
-  QueryKey,
-  UseInfiniteQueryOptions,
-} from '@tanstack/react-query';
+import type { QueryKey, UseInfiniteQueryOptions } from '@tanstack/react-query';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import type { ClientError } from 'graphql-request';
 import { useRouter } from 'next/router';
@@ -12,6 +8,7 @@ import { POSTS_ENGAGED_SUBSCRIPTION } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import useSubscription from './useSubscription';
 import {
+  findIndexOfPostInData,
   getNextPageParam,
   removeCachedPagePost,
   RequestKey,
@@ -70,22 +67,6 @@ export type FeedReturnType = {
   isFetching: boolean;
   isInitialLoading: boolean;
   isError: boolean;
-};
-
-const findIndexOfPostInData = (
-  data: InfiniteData<FeedData>,
-  id: string,
-): { pageIndex: number; index: number } => {
-  for (let pageIndex = 0; pageIndex < data.pages.length; pageIndex += 1) {
-    const page = data.pages[pageIndex];
-    for (let index = 0; index < page.page.edges.length; index += 1) {
-      const item = page.page.edges[index];
-      if (item.node.id === id) {
-        return { pageIndex, index };
-      }
-    }
-  }
-  return { pageIndex: -1, index: -1 };
 };
 
 type UseFeedSettingParams = {

@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import type {
   QueryClient,
-  QueryKey,
   QueryObserverOptions,
   UseQueryResult,
 } from '@tanstack/react-query';
@@ -13,7 +12,9 @@ import type { PostCommentsData } from '../graphql/comments';
 import type { RequestKey } from '../lib/query';
 import {
   getAllCommentsQuery,
+  getPostByIdKey,
   StaleTime,
+  updatePostCache,
   updatePostContentPreference,
 } from '../lib/query';
 import type { Connection } from '../graphql/common';
@@ -36,10 +37,6 @@ interface UsePostById extends Pick<UseQueryResult, 'isError' | 'isLoading'> {
   relatedCollectionPosts?: Connection<RelatedPost>;
 }
 
-export const POST_KEY = 'post';
-
-export const getPostByIdKey = (id: string): QueryKey => [POST_KEY, id];
-
 export const invalidatePostCacheById = (
   client: QueryClient,
   id: string,
@@ -49,35 +46,6 @@ export const invalidatePostCacheById = (
   if (postCache) {
     client.invalidateQueries({ queryKey: postQueryKey });
   }
-};
-
-export const updatePostCache = (
-  client: QueryClient,
-  id: string,
-  postUpdate:
-    | Partial<Omit<Post, 'id'>>
-    | ((current: Post) => Partial<Omit<Post, 'id'>>),
-): PostData => {
-  const currentPost = client.getQueryData<PostData>(getPostByIdKey(id));
-
-  if (!currentPost?.post) {
-    return currentPost;
-  }
-
-  return client.setQueryData<PostData>(getPostByIdKey(id), (node) => {
-    const update =
-      typeof postUpdate === 'function' ? postUpdate(node.post) : postUpdate;
-    const updatedPost = { ...node.post, ...update } as Post;
-    const bookmark = updatedPost.bookmark ?? { createdAt: new Date() };
-
-    return {
-      post: {
-        ...updatedPost,
-        id: node.post.id,
-        bookmark: !updatedPost.bookmarked ? null : bookmark,
-      },
-    };
-  });
 };
 
 export const removePostComments = (

@@ -9,7 +9,7 @@ import type { UseBookmarkPost } from '../useBookmarkPost';
 import { mutateBookmarkFeedPost, useBookmarkPost } from '../useBookmarkPost';
 import type { UseBookmarkMutationProps } from './types';
 import { bookmarkMutationMatcher } from './types';
-import { updatePostCache } from '../usePostById';
+import { updatePostCache } from '../../lib/query';
 
 export type UseFeedBookmarkPost = {
   feedName: string;
