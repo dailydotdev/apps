@@ -55,7 +55,7 @@ export const PaymentContextProvider = ({
   const { user, geo } = useAuthContext();
   const planTypes = useFeature(feature.pricingIds);
   const [paddle, setPaddle] = useState<Paddle>();
-  const { logSubscriptionEvent } = usePlusSubscription();
+  const { logSubscriptionEvent, isPlus } = usePlusSubscription();
   const logRef = useRef<typeof logSubscriptionEvent>();
   logRef.current = logSubscriptionEvent;
 
@@ -125,6 +125,10 @@ export const PaymentContextProvider = ({
 
   const openCheckout = useCallback(
     ({ priceId }: { priceId: string }) => {
+      if (isPlus) {
+        return;
+      }
+
       if (!isPlusAvailable) {
         return;
       }
@@ -148,7 +152,7 @@ export const PaymentContextProvider = ({
         },
       });
     },
-    [paddle, user, isPlusAvailable],
+    [paddle, user, isPlusAvailable, isPlus],
   );
 
   const getPrices = useCallback(async () => {
