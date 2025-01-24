@@ -34,16 +34,30 @@ import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopy
 import { InviteLinkInput } from '@dailydotdev/shared/src/components/referral';
 import { TruncateText } from '@dailydotdev/shared/src/components/utilities';
 import type { NextSeoProps } from 'next-seo';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import {
+  Button,
+  ButtonColor,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { GiftIcon } from '@dailydotdev/shared/src/components/icons/gift';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
-import { InviteIcon } from '../../../shared/src/components/icons';
+import { DevPlusIcon, InviteIcon } from '../../../shared/src/components/icons';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
 const seo: NextSeoProps = { ...defaultSeo, title: getTemplatedTitle('Invite') };
 
 const AccountInvitePage = (): ReactElement => {
+  const { openModal } = useLazyModal();
   const { user } = useAuthContext();
   const container = useRef<HTMLDivElement>();
   const referredKey = generateQueryKey(RequestKey.ReferredUsers, user);
@@ -91,6 +105,39 @@ const AccountInvitePage = (): ReactElement => {
 
   return (
     <AccountPageContainer title="Invite friends">
+      <div className="mb-6 flex flex-col gap-4">
+        <div className="space-y-1">
+          <div className="flex gap-0.5">
+            <Typography type={TypographyType.Body} bold>
+              Gift daily.dev Plus
+            </Typography>
+            <DevPlusIcon size={IconSize.XSmall} />
+          </div>
+          <Typography
+            className="border-plus"
+            color={TypographyColor.Tertiary}
+            type={TypographyType.Callout}
+          >
+            Gifting daily.dev Plus to a friend is the ultimate way to say,
+            &apos;I&apos;ve got your back.&apos; It unlocks an ad-free
+            experience, advanced content filtering and customizations, plus AI
+            superpowers to supercharge their daily.dev journey.
+          </Typography>
+        </div>
+        <Button
+          icon={<GiftIcon size={IconSize.Small} secondary />}
+          variant={ButtonVariant.Secondary}
+          color={ButtonColor.Bacon}
+          onClick={() =>
+            openModal({
+              type: LazyModal.GiftPlus,
+            })
+          }
+          className="max-w-fit border-action-plus-default text-action-plus-default"
+        >
+          Buy as gift
+        </Button>
+      </div>
       <InviteLinkInput
         link={inviteLink}
         logProps={{
