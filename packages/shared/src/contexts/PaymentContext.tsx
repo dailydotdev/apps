@@ -38,6 +38,7 @@ export interface PaymentContextData {
   paddle?: Paddle | undefined;
   productOptions?: ProductOption[];
   earlyAdopterPlanId?: string | null;
+  oneTimePayment?: ProductOption;
 }
 
 const PaymentContext = React.createContext<PaymentContextData>({});
@@ -194,6 +195,15 @@ export const PaymentContextProvider = ({
       paddle,
       productOptions,
       earlyAdopterPlanId,
+      oneTimePayment: {
+        // TODO: MI-756 - Replace with actual one-time payment plan
+        currencyCode: 'USD',
+        priceUnformatted: 88.88,
+        price: '$88.88',
+        label: 'One-time payment',
+        value: 'one-time',
+        extraLabel: '2 months free',
+      },
     }),
     [earlyAdopterPlanId, openCheckout, paddle, productOptions],
   );

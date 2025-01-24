@@ -68,7 +68,7 @@ export interface UseMarkdownInput {
   onLinkCommand?: () => Promise<unknown>;
   onMentionCommand?: () => Promise<void>;
   onUploadCommand?: (files: FileList) => void;
-  onApplyMention?: (username: string) => Promise<void>;
+  onApplyMention?: (user: UserShortProfile) => Promise<void>;
   checkMention?: (position?: number[]) => void;
   onCloseMention?: () => void;
   mentions?: UserShortProfile[];
@@ -184,8 +184,8 @@ export const useMarkdownInput = ({
     setQuery(value);
   };
 
-  const onApplyMention = async (username: string) => {
-    const getReplacement = () => ({ replacement: `@${username} ` });
+  const onApplyMention = async (mention: UserShortProfile) => {
+    const getReplacement = () => ({ replacement: `@${mention.username} ` });
     await command.replaceWord(getReplacement, onUpdate, CursorType.Adjacent);
     updateQuery(undefined);
   };
@@ -269,7 +269,7 @@ export const useMarkdownInput = ({
 
     const mention = mentions[selected];
     if (mention && e.key === KeyboardCommand.Enter) {
-      await onApplyMention(mention.username);
+      await onApplyMention(mention);
     }
 
     return null;

@@ -2,25 +2,22 @@ import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React from 'react';
 import { UserShortInfo } from './profile/UserShortInfo';
-
-interface RecommendedUser {
-  id: string;
-  image: string;
-  name: string;
-  username: string;
-  permalink: string;
-}
+import type { UserShortProfile } from '../lib/user';
 
 interface RecommendedMentionProps {
-  users: RecommendedUser[];
+  users: UserShortProfile[];
   selected: number;
-  onClick?: (username: string) => unknown;
+  onClick?: (user: UserShortProfile) => unknown;
+  onHover?: (index: number) => unknown;
+  checkIsDisabled?: (user: UserShortProfile) => unknown;
 }
 
 export function RecommendedMention({
   users,
   selected,
   onClick,
+  onHover,
+  checkIsDisabled,
 }: RecommendedMentionProps): ReactElement {
   if (!users?.length) {
     return null;
@@ -38,16 +35,20 @@ export function RecommendedMention({
           className={{
             container: classNames(
               'cursor-pointer p-3',
+              checkIsDisabled?.(user)
+                ? 'pointer-events-none opacity-64'
+                : 'cursor-pointer',
               index === selected && 'bg-theme-active',
             ),
           }}
           imageSize="large"
           tag="li"
-          onClick={() => onClick(user.username)}
+          onClick={() => onClick(user)}
           aria-selected={index === selected}
           role="option"
           disableTooltip
           showDescription={false}
+          onHover={() => onHover?.(index)}
         />
       ))}
     </ul>
