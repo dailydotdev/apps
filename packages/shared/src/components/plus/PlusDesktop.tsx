@@ -4,11 +4,10 @@ import { useRouter } from 'next/router';
 import { usePaymentContext } from '../../contexts/PaymentContext';
 
 import { PlusInfo } from './PlusInfo';
-import { PlusUnavailable } from './PlusUnavailable';
+import { PlusCheckoutContainer } from './PlusCheckoutContainer';
 
 export const PlusDesktop = (): ReactElement => {
-  const { openCheckout, paddle, productOptions, isPlusAvailable } =
-    usePaymentContext();
+  const { openCheckout, paddle, productOptions } = usePaymentContext();
   const {
     query: { selectedPlan },
   } = useRouter();
@@ -51,12 +50,14 @@ export const PlusDesktop = (): ReactElement => {
           onChange={toggleCheckoutOption}
         />
       </div>
-      <div
-        ref={ref}
-        className="checkout-container min-h-40 w-[28.5rem] rounded-16 border border-border-subtlest-tertiary bg-background-default p-5"
-      >
-        {!isPlusAvailable && <PlusUnavailable className="h-[35rem]" />}
-      </div>
+      <PlusCheckoutContainer
+        checkoutRef={ref}
+        className={{
+          container:
+            'min-h-40 w-[28.5rem] rounded-16 border border-border-subtlest-tertiary bg-background-default p-5',
+          element: 'h-[35rem]',
+        }}
+      />
     </div>
   );
 };

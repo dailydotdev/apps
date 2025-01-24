@@ -8,10 +8,9 @@ import {
   TypographyColor,
   Typography,
 } from '../typography/Typography';
+import type { WithClassNameProps } from '../utilities/common';
 
-export type PlusUnavailableProps = {
-  className?: string;
-};
+export type PlusUnavailableProps = WithClassNameProps;
 
 export const PlusUnavailable = ({
   className,
