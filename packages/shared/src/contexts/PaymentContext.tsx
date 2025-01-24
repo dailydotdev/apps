@@ -202,7 +202,7 @@ export const PaymentContextProvider = ({
         price: '$88.88',
         label: 'One-time payment',
         value: 'one-time',
-        extraLabel: '',
+        extraLabel: '2 months free',
       },
     }),
     [earlyAdopterPlanId, openCheckout, paddle, productOptions],

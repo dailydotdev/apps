@@ -148,7 +148,7 @@ export default function PostOptionsMenu({
   const isCustomFeed = feedQueryKey?.[0] === 'custom';
   const customFeedId = isCustomFeed ? (feedQueryKey?.[2] as string) : undefined;
   const post = loadedPost ?? initialPost;
-  const { showPlusSubscription, isPlus } = usePlusSubscription();
+  const { isPlus } = usePlusSubscription();
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({
       enabled: isPostOptionsOpen,
@@ -419,7 +419,7 @@ export default function PostOptionsMenu({
       });
     }
 
-    if (post?.bookmark && showPlusSubscription) {
+    if (post?.bookmark) {
       postOptions.push({
         icon: <MenuIcon Icon={FolderIcon} />,
         label: 'Move to...',

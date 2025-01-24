@@ -21,17 +21,13 @@ import { webappUrl } from '../../../lib/constants';
 
 export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const { openModal } = useLazyModal();
-  const { isPlus, showPlusSubscription } = usePlusSubscription();
+  const { isPlus } = usePlusSubscription();
   const { checkHasCompleted } = useActions();
   const { fetchSmartTitle, fetchedSmartTitle, shieldActive } =
     useSmartTitle(post);
   const isMobile = useViewSize(ViewSize.MobileL);
   const router = useRouter();
   const { user } = useAuthContext();
-
-  if (!showPlusSubscription) {
-    return null;
-  }
 
   if (!isPlus) {
     const hasUsedFreeTrial = checkHasCompleted(ActionType.FetchedSmartTitle);

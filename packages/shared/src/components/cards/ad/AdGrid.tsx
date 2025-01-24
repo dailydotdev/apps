@@ -18,7 +18,7 @@ export const AdGrid = forwardRef(function AdGrid(
   { ad, onLinkClick, onRefresh, domProps, index, feedIndex }: AdCardProps,
   inViewRef: InViewRef,
 ): ReactElement {
-  const { isEnrolledNotPlus } = usePlusSubscription();
+  const { isPlus } = usePlusSubscription();
   const { ref, refetch, isRefetching } = useAutoRotatingAds(
     ad,
     index,
@@ -48,7 +48,7 @@ export const AdGrid = forwardRef(function AdGrid(
             onClick={onRefreshClick}
             loading={isRefetching}
           />
-          {isEnrolledNotPlus && <RemoveAd size={ButtonSize.Small} />}
+          {!isPlus && <RemoveAd size={ButtonSize.Small} />}
         </div>
       </CardTextContainer>
       <AdPixel pixel={ad.pixel} />
