@@ -16,7 +16,7 @@ import {
 } from '../lib/query';
 import type { MarketingCta } from '../components/marketingCta/common';
 import { FeedItemType } from '../components/cards/common/common';
-import { GARMR_ERROR, gqlClient2 } from '../graphql/common';
+import { GARMR_ERROR, gqlClient } from '../graphql/common';
 import { usePlusSubscription } from './usePlusSubscription';
 import { fetchAd } from '../lib/ads';
 import { LogEvent } from '../lib/log';
@@ -115,7 +115,7 @@ export default function useFeed<T>(
   const feedQuery = useInfiniteQuery<FeedData>({
     queryKey: feedQueryKey,
     queryFn: async ({ pageParam }) => {
-      const res = await gqlClient2.request<FeedData>(query, {
+      const res = await gqlClient.request<FeedData>(query, {
         ...variables,
         first: pageSize,
         after: pageParam,

@@ -149,10 +149,5 @@ export const gqlClient = new GraphQLClient(graphqlUrl, {
   fetch: globalThis.fetch,
 });
 
-export const gqlClient2 = new GraphQLClient(graphqlUrl, {
-  credentials: 'include',
-  fetch: globalThis.fetch,
-});
-
 export const gqlRequest: typeof gqlClient.request = (...args) =>
   gqlClient.request(...args);
