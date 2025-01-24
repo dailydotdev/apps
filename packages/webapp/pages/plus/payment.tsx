@@ -6,6 +6,8 @@ import { useRouter } from 'next/router';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { NextSeo } from 'next-seo';
+
+import { PlusCheckoutContainer } from '@dailydotdev/shared/src/components/plus/PlusCheckoutContainer';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 
 const PlusPaymentPage = (): ReactElement => {
@@ -27,15 +29,18 @@ const PlusPaymentPage = (): ReactElement => {
     <>
       <NextSeo nofollow noindex />
       <div className="flex flex-1 justify-center bg-background-default">
-        <div
-          ref={(element) => {
+        <PlusCheckoutContainer
+          checkoutRef={(element) => {
             if (!element) {
               return;
             }
 
             openCheckout({ priceId: pid as string });
           }}
-          className="checkout-container h-full w-full bg-background-default p-5"
+          className={{
+            container: 'h-full w-full bg-background-default p-5',
+            element: 'h-full',
+          }}
         />
       </div>
     </>
