@@ -192,7 +192,7 @@ export const PaymentContextProvider = ({
   const giftOneYear: ProductOption = useMemo(
     () =>
       productOptions.find(
-        (option) => planTypes[option.value] === PlusPriceType.OneTime,
+        (option) => planTypes[option.value] === PlusPriceType.GiftOneYear,
       ),
     [planTypes, productOptions],
   );
