@@ -29,18 +29,19 @@ const PlusPaymentPage = (): ReactElement => {
     <>
       <NextSeo nofollow noindex />
       <div className="flex flex-1 justify-center bg-background-default">
-        <div
-          ref={(element) => {
+        <PlusCheckoutContainer
+          checkoutRef={(element) => {
             if (!element) {
               return;
             }
 
             openCheckout({ priceId: pid as string });
           }}
-          className="checkout-container h-full w-full bg-background-default p-5"
-        >
-          <PlusCheckoutContainer className="h-full" />
-        </div>
+          className={{
+            container: 'h-full w-full bg-background-default p-5',
+            element: 'h-full',
+          }}
+        />
       </div>
     </>
   );

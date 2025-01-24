@@ -50,12 +50,14 @@ export const PlusDesktop = (): ReactElement => {
           onChange={toggleCheckoutOption}
         />
       </div>
-      <div
-        ref={ref}
-        className="checkout-container min-h-40 w-[28.5rem] rounded-16 border border-border-subtlest-tertiary bg-background-default p-5"
-      >
-        <PlusCheckoutContainer className="h-[35rem]" />
-      </div>
+      <PlusCheckoutContainer
+        checkoutRef={ref}
+        className={{
+          container:
+            'min-h-40 w-[28.5rem] rounded-16 border border-border-subtlest-tertiary bg-background-default p-5',
+          element: 'h-[35rem]',
+        }}
+      />
     </div>
   );
 };
