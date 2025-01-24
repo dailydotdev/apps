@@ -25,6 +25,7 @@ import { GiftingSelectedUser } from './GiftingSelectedUser';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
+import { GiftIcon } from '../icons/gift';
 
 type PlusInfoProps = {
   productOptions: ProductOption[];
@@ -102,6 +103,7 @@ export const PlusInfo = ({
           <div className="mb-4 flex flex-row items-center justify-between">
             <span>{component}</span>
             <Button
+              icon={<GiftIcon />}
               size={ButtonSize.XSmall}
               variant={ButtonVariant.Float}
               onClick={() => openModal({ type: LazyModal.GiftPlus })}
