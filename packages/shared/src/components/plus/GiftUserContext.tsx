@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react';
 import type { UserShortProfile } from '../../lib/user';
 
 export interface GiftUserContextData {
-  giftingUser?: UserShortProfile;
+  giftToUser?: UserShortProfile;
   onUserChange: (user: UserShortProfile) => void;
 }
 export const GiftUserContext = createContext<GiftUserContextData | null>(null);

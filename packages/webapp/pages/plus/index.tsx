@@ -21,14 +21,14 @@ const PlusDesktop = dynamic(() =>
   ).then((mod) => mod.PlusDesktop),
 );
 
-type PlusPageProps = Pick<GiftUserContextData, 'giftingUser'>;
+type PlusPageProps = Pick<GiftUserContextData, 'giftToUser'>;
 
-const PlusPage = ({ giftingUser }: PlusPageProps): ReactElement => {
-  const [userToGift, setUserToGift] = useState(giftingUser);
+const PlusPage = ({ giftToUser }: PlusPageProps): ReactElement => {
+  const [userToGift, setUserToGift] = useState(giftToUser);
   const { isReady } = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const pageProps: GiftUserContextData = {
-    giftingUser: userToGift,
+    giftToUser: userToGift,
     onUserChange: setUserToGift,
   };
 
@@ -57,20 +57,20 @@ export const getServerSideProps: GetServerSideProps<PlusPageProps> = async ({
   query,
 }) => {
   const validateUserId = (value: string) => !!value && value !== '404';
-  const giftUserId = query?.giftUserId as string;
+  const giftToUserId = query?.giftToUserId as string;
 
-  if (!validateUserId(giftUserId)) {
+  if (!validateUserId(giftToUserId)) {
     return { props: {} };
   }
 
   try {
-    const giftingUser = await getUserShortInfo(giftUserId);
+    const giftToUser = await getUserShortInfo(giftToUserId);
 
-    if (giftingUser.isPlus) {
+    if (giftToUser.isPlus) {
       return { props: {} };
     }
 
-    return { props: { giftingUser } };
+    return { props: { giftToUser } };
   } catch (err) {
     return {
       props: {},

@@ -69,9 +69,9 @@ export const PlusInfo = ({
   const { giftOneYear } = usePaymentContext();
   const { openModal } = useLazyModal();
   const { logSubscriptionEvent } = usePlusSubscription();
-  const { giftingUser, onUserChange } = useGiftUserContext();
+  const { giftToUser, onUserChange } = useGiftUserContext();
   const { title, description, subtitle } =
-    copy[giftingUser ? PlusType.Gift : PlusType.Regular];
+    copy[giftToUser ? PlusType.Gift : PlusType.Regular];
 
   return (
     <>
@@ -98,7 +98,7 @@ export const PlusInfo = ({
         {description}
       </Typography>
       <ConditionalWrapper
-        condition={!giftingUser}
+        condition={!giftToUser}
         wrapper={(component) => (
           <div className="mb-4 flex flex-row items-center justify-between">
             <span>{component}</span>
@@ -122,20 +122,20 @@ export const PlusInfo = ({
           tag={TypographyTag.P}
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
-          className={giftingUser && 'mb-4'}
+          className={giftToUser && 'mb-4'}
           bold
         >
           {subtitle}
         </Typography>
       </ConditionalWrapper>
-      {!!giftingUser && (
+      {!!giftToUser && (
         <GiftingSelectedUser
-          user={giftingUser}
+          user={giftToUser}
           onClose={() => onUserChange(null)}
         />
       )}
       <div className="min-h-[6.125rem] rounded-10 border border-border-subtlest-tertiary">
-        {giftingUser ? (
+        {giftToUser ? (
           <PlusOptionRadio
             key={giftOneYear.value}
             option={giftOneYear}
