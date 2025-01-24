@@ -141,7 +141,11 @@ export default function useFeed<T>(
 
       fetchTranslations(
         res.page.edges
-          .filter(({ node }) => !node?.translation?.title)
+          .filter(({ node }) =>
+            node?.title
+              ? !node?.translation?.title
+              : !node?.sharedPost?.translation?.title,
+          )
           .map(({ node }) => (node?.title ? node.id : node?.sharedPost.id)),
       );
 
