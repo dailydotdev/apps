@@ -5,10 +5,9 @@ import { usePaymentContext } from '../../contexts/PaymentContext';
 import { usePlusSubscription } from '../../hooks';
 import { PlusUnavailable } from './PlusUnavailable';
 import { PlusPlus } from './PlusPlus';
+import type { WithClassNameProps } from '../utilities/common';
 
-export type PlusCheckoutContainerProps = {
-  className?: string;
-};
+export type PlusCheckoutContainerProps = WithClassNameProps;
 
 export const PlusCheckoutContainer = ({
   className,

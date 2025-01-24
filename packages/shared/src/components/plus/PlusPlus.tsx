@@ -10,10 +10,9 @@ import { PlusUser } from '../PlusUser';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { IconSize } from '../Icon';
 import { managePlusUrl } from '../../lib/constants';
+import type { WithClassNameProps } from '../utilities/common';
 
-export type PlusPlusProps = {
-  className?: string;
-};
+export type PlusPlusProps = WithClassNameProps;
 
 export const PlusPlus = ({ className }: PlusPlusProps): ReactElement => {
   return (
