@@ -66,6 +66,10 @@ export const getServerSideProps: GetServerSideProps<PlusPageProps> = async ({
   try {
     const giftingUser = await getUserShortInfo(giftUserId);
 
+    if (giftingUser.isPlus) {
+      return { props: {} };
+    }
+
     return { props: { giftingUser } };
   } catch (err) {
     return {
