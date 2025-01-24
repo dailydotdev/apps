@@ -35,8 +35,8 @@ const feature = {
   showCodeSnippets: new Feature('show_code_snippets', false),
   pricingIds: new Feature('pricing_ids', {
     pri_01jjbwd5j7k0nm45k8e07yfmwr: PlusPriceType.GiftOneYear, // TODO: this value is from test env and needs to be updated
-    pri_01jcdp5ef4yhv00p43hr2knrdg: PlusPriceType.Monthly,
-    pri_01jcdn6enr5ap3ekkddc6fv6tq: PlusPriceType.Yearly,
+    pri_01jbsccbdbcwyhdy8hy3c2etyn: PlusPriceType.Monthly,
+    pri_01jbscda57910yvwjtyapnrrzc: PlusPriceType.Yearly,
   }),
 };
 
