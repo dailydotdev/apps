@@ -2,7 +2,7 @@ import type { CSSProperties, ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import type { PublicProfile } from '../../lib/user';
+import type { PublicProfile, UserShortProfile } from '../../lib/user';
 import { BlockIcon, FlagIcon, SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
@@ -106,7 +106,7 @@ export function Header({
       action: () =>
         openModal({
           type: LazyModal.GiftPlus,
-          props: { user },
+          props: { preselected: user as UserShortProfile },
         }),
     });
   }

@@ -219,7 +219,7 @@ export default function SquadMemberMenu({
         action: () =>
           openModal({
             type: LazyModal.GiftPlus,
-            props: { user: member.user },
+            props: { preselected: member.user },
           }),
         icon: <GiftIcon />,
       });

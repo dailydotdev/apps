@@ -15,6 +15,7 @@ import {
   BlockIcon,
 } from '../icons';
 import type { Comment } from '../../graphql/comments';
+import type { UserShortProfile } from '../../lib/user';
 import { Roles } from '../../lib/user';
 import {
   Button,
@@ -267,7 +268,9 @@ export default function CommentActionButtons({
       action: () =>
         openModal({
           type: LazyModal.GiftPlus,
-          props: { user: comment.author },
+          props: {
+            preselected: comment.author as UserShortProfile,
+          },
         }),
       icon: <GiftIcon />,
     });
