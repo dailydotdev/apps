@@ -13,7 +13,6 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { NextSeo } from 'next-seo';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
@@ -44,15 +43,15 @@ const PlusSuccessPage = (): ReactElement => {
           >
             Success! Your payment is complete, you’re all set.
           </Typography>
-          <Link href={webappUrl} passHref>
-            <Button
-              variant={ButtonVariant.Primary}
-              tag="a"
-              size={ButtonSize.Large}
-            >
-              Back to daily.dev
-            </Button>
-          </Link>
+          <Button
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Large}
+            onClick={() => {
+              window.location.href = webappUrl;
+            }}
+          >
+            Back to daily.dev
+          </Button>
         </div>
       </div>
     </>
