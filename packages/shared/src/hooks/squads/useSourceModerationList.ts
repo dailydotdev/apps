@@ -24,6 +24,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
 import type { Post } from '../../graphql/posts';
 import type { Connection } from '../../graphql/common';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 export const rejectReasons: { value: PostModerationReason; label: string }[] = [
   {
@@ -90,20 +91,20 @@ const getLogPostsFromModerationArray = (data: SourcePostModeration[]) => {
 export const useSourceModerationList = ({
   squad,
 }: {
-  squad: Squad;
+  squad?: Squad;
 }): UseSourceModerationList => {
   const { openModal, closeModal } = useLazyModal();
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
   const { logEvent } = useLogContext();
-  const { user } = squad.currentMember;
+  const { user } = useAuthContext();
   const queryClient = useQueryClient();
   const listQueryKey = generateQueryKey(
     RequestKey.SquadPostRequests,
     user,
-    squad.id,
+    squad?.id,
   );
-  const squadQueryKey = generateQueryKey(RequestKey.Squad, user, squad.handle);
+  const squadQueryKey = generateQueryKey(RequestKey.Squad, user, squad?.handle);
 
   const handleOptimistic = useCallback(
     (data: SquadPostModerationProps) => {
