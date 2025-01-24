@@ -221,7 +221,7 @@ export function GiftPlusModalComponent({
   );
 }
 
-export function GiftPlusModal(props: ModalProps): ReactElement {
+export function GiftPlusModal(props: GiftPlusModalProps): ReactElement {
   return (
     <PaymentContextProvider>
       <GiftPlusModalComponent {...props} />

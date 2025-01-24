@@ -15,6 +15,9 @@ import { useToastNotification } from '../../hooks';
 import { verifyPermission } from '../../graphql/squads';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';
 import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
+import { LazyModal } from '../modals/common/types';
+import { GiftIcon } from '../icons/gift';
+import { useLazyModal } from '../../hooks/useLazyModal';
 
 interface SquadMemberMenuProps extends Pick<UseSquadActions, 'onUpdateRole'> {
   squad: Squad;
@@ -120,6 +123,7 @@ export default function SquadMemberMenu({
   onUpdateRole,
   isOpen,
 }: SquadMemberMenuProps): ReactElement {
+  const { openModal } = useLazyModal();
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
   const { displayToast } = useToastNotification();
@@ -206,6 +210,18 @@ export default function SquadMemberMenu({
           SourceMemberRole.Blocked,
           MenuItemTitle.BlockMember,
         ),
+      });
+    }
+
+    if (!member.user.isPlus) {
+      menu.push({
+        label: 'Gift daily.dev Plus',
+        action: () =>
+          openModal({
+            type: LazyModal.GiftPlus,
+            props: { preselected: member.user },
+          }),
+        icon: <GiftIcon />,
       });
     }
 
