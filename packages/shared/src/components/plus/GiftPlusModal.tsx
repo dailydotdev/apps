@@ -26,6 +26,8 @@ import { BaseTooltip } from '../tooltips/BaseTooltip';
 import type { UserShortProfile } from '../../lib/user';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { PlusLabelColor, PlusPlanExtraLabel } from './PlusPlanExtraLabel';
+import { ArrowKey, KeyboardCommand } from '../../lib/element';
 
 interface SelectedUserProps {
   user: UserShortProfile;
@@ -55,17 +57,17 @@ const SelectedUser = ({ user, onClose }: SelectedUserProps) => {
 };
 
 interface GiftPlusModalProps extends ModalProps {
-  preSelected?: UserShortProfile;
+  preselected?: UserShortProfile;
 }
 
 export function GiftPlusModalComponent({
-  preSelected,
+  preselected,
   ...props
 }: GiftPlusModalProps): ReactElement {
   const [overlay, setOverlay] = useState<HTMLElement>();
   const { onRequestClose } = props;
   const { oneTimePayment } = usePaymentContext();
-  const [selected, setSelected] = useState(preSelected);
+  const [selected, setSelected] = useState(preselected);
   const [index, setIndex] = useState(0);
   const [query, setQuery] = useState('');
   const [onSearch] = useDebounceFn(setQuery, 500);
@@ -82,26 +84,38 @@ export function GiftPlusModalComponent({
   });
   const isVisible = !!users?.length && !!query?.length;
   const onKeyDown = (e: React.KeyboardEvent) => {
-    const movement = ['ArrowUp', 'ArrowDown', 'Enter'];
-    if (!movement.includes(e.key)) {
+    const movement = [ArrowKey.Up, ArrowKey.Down, KeyboardCommand.Enter];
+    if (!movement.includes(e.key as (typeof movement)[number])) {
       return;
     }
 
     e.preventDefault();
 
-    if (e.key === 'ArrowDown') {
+    if (e.key === ArrowKey.Down) {
       setIndex((prev) => {
         let next = prev + 1;
+        let counter = 0;
         while (users[next % users.length]?.isPlus) {
           next += 1;
+          counter += 1;
+
+          if (counter > users.length) {
+            return -1;
+          }
         }
         return next % users.length;
       });
-    } else if (e.key === 'ArrowUp') {
+    } else if (e.key === ArrowKey.Up) {
       setIndex((prev) => {
         let next = prev - 1;
+        let counter = 0;
         while (users[(next + users.length) % users.length]?.isPlus) {
           next -= 1;
+          counter += 1;
+
+          if (counter > users.length) {
+            return -1;
+          }
         }
         return (next + users.length) % users.length;
       });
@@ -179,14 +193,11 @@ export function GiftPlusModalComponent({
           <Typography bold type={TypographyType.Callout}>
             One-year plan
           </Typography>
-          <Typography
-            bold
-            className="rounded-10 bg-action-upvote-float px-2 py-1"
-            type={TypographyType.Caption1}
-            color={TypographyColor.StatusSuccess}
-          >
-            2 months free
-          </Typography>
+          <PlusPlanExtraLabel
+            color={PlusLabelColor.Success}
+            label={oneTimePayment.extraLabel}
+            typographyProps={{ color: TypographyColor.StatusSuccess }}
+          />
           <Typography type={TypographyType.Body} className="ml-auto mr-1">
             <strong className="mr-1">{oneTimePayment?.price}</strong>
             {oneTimePayment?.currencyCode}
@@ -213,7 +224,7 @@ export function GiftPlusModalComponent({
 export function GiftPlusModal(props: ModalProps): ReactElement {
   return (
     <PaymentContextProvider>
-      <GiftPlusModalComponent {...props} />{' '}
+      <GiftPlusModalComponent {...props} />
     </PaymentContextProvider>
   );
 }

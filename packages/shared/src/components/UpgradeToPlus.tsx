@@ -33,8 +33,7 @@ export const UpgradeToPlus = ({
 }: Props): ReactElement => {
   const { isLoggedIn, showLogin } = useAuthContext();
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { showPlusSubscription, isPlus, logSubscriptionEvent } =
-    usePlusSubscription();
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
 
   const content = isMobile ? 'Upgrade' : 'Upgrade to plus';
 
@@ -54,7 +53,7 @@ export const UpgradeToPlus = ({
     [isLoggedIn, logSubscriptionEvent, showLogin, target],
   );
 
-  if (!showPlusSubscription || isPlus) {
+  if (isPlus) {
     return null;
   }
 
