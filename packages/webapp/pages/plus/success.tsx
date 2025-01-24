@@ -45,10 +45,9 @@ const PlusSuccessPage = (): ReactElement => {
           </Typography>
           <Button
             variant={ButtonVariant.Primary}
+            tag="a"
+            href={webappUrl}
             size={ButtonSize.Large}
-            onClick={() => {
-              window.location.href = webappUrl;
-            }}
           >
             Back to daily.dev
           </Button>
