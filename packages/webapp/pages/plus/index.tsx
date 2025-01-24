@@ -1,13 +1,12 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 
 import dynamic from 'next/dynamic';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
 import type { GetServerSideProps } from 'next';
 import { getUserShortInfo } from '@dailydotdev/shared/src/graphql/users';
-import type { PlusPageProps } from '@dailydotdev/shared/src/components/plus/common';
-import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
+import type { GiftUserContextData } from '@dailydotdev/shared/src/components/plus/GiftUserContext';
 import { GiftUserContext } from '@dailydotdev/shared/src/components/plus/GiftUserContext';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 
@@ -22,21 +21,15 @@ const PlusDesktop = dynamic(() =>
   ).then((mod) => mod.PlusDesktop),
 );
 
-const PlusPage = ({ giftUser }: PlusPageProps): ReactElement => {
-  const [isGiftingUi, setIsGiftingUi] = useState(!!giftUser);
-  const [userToGift, setUserToGift] = useState(giftUser);
+type PlusPageProps = Pick<GiftUserContextData, 'giftingUser'>;
+
+const PlusPage = ({ giftingUser }: PlusPageProps): ReactElement => {
+  const [userToGift, setUserToGift] = useState(giftingUser);
   const { isReady } = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
-
-  const onUserChange = useCallback((user: UserShortProfile) => {
-    setIsGiftingUi(true);
-    setUserToGift(user);
-  }, []);
-
-  const pageProps: PlusPageProps = {
-    giftUser: userToGift,
-    onUserChange,
-    isGiftingUi,
+  const pageProps: GiftUserContextData = {
+    giftingUser: userToGift,
+    onUserChange: setUserToGift,
   };
 
   if (!isReady) {
@@ -60,9 +53,9 @@ const PlusPage = ({ giftUser }: PlusPageProps): ReactElement => {
 
 PlusPage.getLayout = getPlusLayout;
 
-export const getServerSideProps: GetServerSideProps<
-  Pick<PlusPageProps, 'giftUser'>
-> = async ({ query }) => {
+export const getServerSideProps: GetServerSideProps<PlusPageProps> = async ({
+  query,
+}) => {
   const validateUserId = (value: string) => !!value && value !== '404';
   const giftUserId = query?.giftUserId as string;
 
@@ -71,9 +64,9 @@ export const getServerSideProps: GetServerSideProps<
   }
 
   try {
-    const giftUser = await getUserShortInfo(giftUserId);
+    const giftingUser = await getUserShortInfo(giftUserId);
 
-    return { props: { giftUser } };
+    return { props: { giftingUser } };
   } catch (err) {
     return {
       props: {},

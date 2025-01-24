@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 import type { UserShortProfile } from '../../lib/user';
 
-interface GiftUserContextData {
+export interface GiftUserContextData {
   giftingUser?: UserShortProfile;
   onUserChange: (user: UserShortProfile) => void;
 }
