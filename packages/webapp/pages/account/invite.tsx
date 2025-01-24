@@ -111,7 +111,7 @@ const AccountInvitePage = (): ReactElement => {
             <Typography type={TypographyType.Body} bold>
               Gift daily.dev Plus
             </Typography>
-            <DevPlusIcon size={IconSize.XSmall} color="#FC538D" />
+            <DevPlusIcon size={IconSize.XSmall} />
           </div>
           <Typography
             className="border-plus"
@@ -133,7 +133,7 @@ const AccountInvitePage = (): ReactElement => {
               type: LazyModal.GiftPlus,
             })
           }
-          className="max-w-fit border-[#FC538D] text-[#FC538D]"
+          className="max-w-fit border-action-plus-default text-action-plus-default"
         >
           Buy as gift
         </Button>
