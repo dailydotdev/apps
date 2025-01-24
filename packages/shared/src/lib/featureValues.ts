@@ -9,7 +9,7 @@ export enum ExperimentWinner {
 export enum PlusPriceType {
   Monthly = 'monthly',
   Yearly = 'yearly',
-  OneTimePayment = 'one-time',
+  OneTime = 'one-time',
 }
 
 export interface FeatureThemeVariant {

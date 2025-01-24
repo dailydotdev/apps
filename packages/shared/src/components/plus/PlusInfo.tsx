@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
 import { PlusUser } from '../PlusUser';
 import { IconSize } from '../Icon';
 import {
@@ -9,7 +8,6 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { RadioItem } from '../fields/RadioItem';
 import { PlusList } from './PlusList';
 import type { ProductOption } from '../../contexts/PaymentContext';
 import { usePaymentContext } from '../../contexts/PaymentContext';
@@ -21,6 +19,12 @@ import {
 } from '../buttons/Button';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent } from '../../lib/log';
+import { useGiftUserContext } from './GiftUserContext';
+import { PlusOptionRadio } from './PlusOptionRadio';
+import { GiftingSelectedUser } from './GiftingSelectedUser';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../modals/common/types';
 
 type PlusInfoProps = {
   productOptions: ProductOption[];
@@ -28,14 +32,45 @@ type PlusInfoProps = {
   onChange: (priceId: string) => void;
   onContinue?: () => void;
 };
+
+enum PlusType {
+  Regular = 'regular',
+  Gift = 'gift',
+}
+
+interface PageCopy {
+  title: string;
+  description: string;
+  subtitle: string;
+}
+
+const copy: Record<PlusType, PageCopy> = {
+  [PlusType.Regular]: {
+    title: 'Unlock more with Plus',
+    description:
+      'Upgrade to daily.dev Plus for an enhanced, ad-free experience with exclusive features and perks to level up your game.',
+    subtitle: 'Billing cycle',
+  },
+  [PlusType.Gift]: {
+    title: 'Gift daily.dev Plus 🎁',
+    description:
+      'Gifting daily.dev Plus to a friend is the ultimate way to say, ‘I’ve got your back.’ It unlocks an ad-free experience, advanced content filtering and customizations, plus AI superpowers to supercharge their daily.dev journey.',
+    subtitle: "Who's it for?",
+  },
+};
+
 export const PlusInfo = ({
   productOptions,
   selectedOption,
   onChange,
   onContinue,
 }: PlusInfoProps): ReactElement => {
-  const { earlyAdopterPlanId } = usePaymentContext();
+  const { giftOneYear } = usePaymentContext();
+  const { openModal } = useLazyModal();
   const { logSubscriptionEvent } = usePlusSubscription();
+  const { giftingUser, onUserChange } = useGiftUserContext();
+  const { title, description, subtitle } =
+    copy[giftingUser ? PlusType.Gift : PlusType.Regular];
 
   return (
     <>
@@ -51,7 +86,7 @@ export const PlusInfo = ({
         className="mb-2"
         bold
       >
-        Unlock more with Plus
+        {title}
       </Typography>
       <Typography
         tag={TypographyTag.H2}
@@ -59,97 +94,66 @@ export const PlusInfo = ({
         color={TypographyColor.Secondary}
         className="mb-6"
       >
-        Upgrade to daily.dev Plus for an enhanced, ad-free experience with
-        exclusive features and perks to level up your game.
+        {description}
       </Typography>
-      <Typography
-        tag={TypographyTag.P}
-        type={TypographyType.Callout}
-        color={TypographyColor.Tertiary}
-        className="mb-4"
-        bold
-      >
-        Billing cycle
-      </Typography>
-      <div className="min-h-[6.125rem] rounded-10 border border-border-subtlest-tertiary">
-        {productOptions.map((option) => {
-          const { label, value, price, currencyCode, extraLabel } = option;
-          const checked = selectedOption === value;
-          const isEarlyAccess = value === earlyAdopterPlanId;
-          return (
-            <RadioItem
-              key={label}
-              name={label}
-              id={`${label}-${value}`}
-              value={value}
-              checked={checked}
-              onChange={() => {
-                onChange(value);
-                logSubscriptionEvent({
-                  event_name: LogEvent.SelectBillingCycle,
-                  target_id: label.toLowerCase(),
-                });
-              }}
-              className={{
-                content: classNames(
-                  'min-h-12 rounded-10 !p-2',
-                  checked
-                    ? '-m-px border border-border-subtlest-primary bg-surface-float'
-                    : undefined,
-                ),
-              }}
+      <ConditionalWrapper
+        condition={!giftingUser}
+        wrapper={(component) => (
+          <div className="mb-4 flex flex-row items-center justify-between">
+            <span>{component}</span>
+            <Button
+              size={ButtonSize.XSmall}
+              variant={ButtonVariant.Float}
+              onClick={() => openModal({ type: LazyModal.GiftPlus })}
             >
-              <div className="flex flex-1 flex-wrap items-center gap-x-3 gap-y-1">
-                <Typography
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Primary}
-                >
-                  {option.label}
-                </Typography>
+              Buy as a gift
+            </Button>
+          </div>
+        )}
+      >
+        <Typography
+          tag={TypographyTag.P}
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+          className={giftingUser && 'mb-4'}
+          bold
+        >
+          {subtitle}
+        </Typography>
+      </ConditionalWrapper>
+      {!!giftingUser && (
+        <GiftingSelectedUser
+          user={giftingUser}
+          onClose={() => onUserChange(null)}
+        />
+      )}
+      <div className="min-h-[6.125rem] rounded-10 border border-border-subtlest-tertiary">
+        {giftingUser ? (
+          <PlusOptionRadio
+            key={giftOneYear.value}
+            option={giftOneYear}
+            checked
+          />
+        ) : (
+          productOptions.map((option) => {
+            const { label, value } = option;
 
-                {extraLabel && (
-                  <Typography
-                    tag={TypographyTag.Span}
-                    type={TypographyType.Caption1}
-                    color={
-                      isEarlyAccess
-                        ? TypographyColor.StatusHelp
-                        : TypographyColor.StatusSuccess
-                    }
-                    className={classNames(
-                      'rounded-10 px-2 py-1',
-                      isEarlyAccess
-                        ? 'whitespace-nowrap bg-action-help-float'
-                        : 'bg-action-upvote-float',
-                    )}
-                    bold
-                  >
-                    {extraLabel}
-                  </Typography>
-                )}
-              </div>
-              <div className="ml-auto mr-1 flex items-center gap-1">
-                <Typography
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Body}
-                  color={TypographyColor.Primary}
-                  bold
-                >
-                  {price}
-                </Typography>
-                <Typography
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Body}
-                  color={TypographyColor.Secondary}
-                  className="font-normal"
-                >
-                  {currencyCode}
-                </Typography>
-              </div>
-            </RadioItem>
-          );
-        })}
+            return (
+              <PlusOptionRadio
+                key={value}
+                option={option}
+                checked={selectedOption === value}
+                onChange={() => {
+                  onChange(value);
+                  logSubscriptionEvent({
+                    event_name: LogEvent.SelectBillingCycle,
+                    target_id: label.toLowerCase(),
+                  });
+                }}
+              />
+            );
+          })
+        )}
       </div>
       {onContinue ? (
         <div className="py-6">
