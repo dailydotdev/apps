@@ -10,6 +10,7 @@ import {
 } from '../typography/Typography';
 import CloseButton from '../CloseButton';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
+import type { AllowedTags, ButtonProps } from '../buttons/Button';
 import { Button } from '../buttons/Button';
 import { PlusTitle } from './PlusTitle';
 import {
@@ -31,10 +32,12 @@ import { GiftingSelectedUser } from './GiftingSelectedUser';
 
 interface GiftPlusModalProps extends ModalProps {
   preselected?: UserShortProfile;
+  onSubmit?: (user: UserShortProfile) => void;
 }
 
 export function GiftPlusModalComponent({
   preselected,
+  onSubmit,
   ...props
 }: GiftPlusModalProps): ReactElement {
   const [overlay, setOverlay] = useState<HTMLElement>();
@@ -102,6 +105,18 @@ export function GiftPlusModalComponent({
     setIndex(0);
     setQuery('');
   };
+
+  const submitProps: ButtonProps<AllowedTags> = onSubmit
+    ? {
+        onClick: (event: React.MouseEvent) => {
+          onSubmit(selected);
+          onRequestClose(event);
+        },
+      }
+    : {
+        tag: 'a',
+        href: `${plusUrl}?giftToUserId=${selected?.id}`,
+      };
 
   return (
     <Modal
@@ -185,10 +200,9 @@ export function GiftPlusModalComponent({
           one-time purchase, not a recurring subscription.
         </Typography>
         <Button
-          tag="a"
           variant={ButtonVariant.Primary}
-          href={`${plusUrl}?giftToUserId=${selected?.id}`}
           disabled={!selected}
+          {...submitProps}
         >
           Gift & Pay {giftOneYear?.price}
         </Button>
@@ -197,7 +211,7 @@ export function GiftPlusModalComponent({
   );
 }
 
-export function GiftPlusModal(props: ModalProps): ReactElement {
+export function GiftPlusModal(props: GiftPlusModalProps): ReactElement {
   return (
     <PaymentContextProvider>
       <GiftPlusModalComponent {...props} />

@@ -106,7 +106,12 @@ export const PlusInfo = ({
               icon={<GiftIcon />}
               size={ButtonSize.XSmall}
               variant={ButtonVariant.Float}
-              onClick={() => openModal({ type: LazyModal.GiftPlus })}
+              onClick={() =>
+                openModal({
+                  type: LazyModal.GiftPlus,
+                  props: { onSubmit: onUserChange },
+                })
+              }
             >
               Buy as a gift
             </Button>
