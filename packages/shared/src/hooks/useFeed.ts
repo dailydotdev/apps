@@ -30,6 +30,7 @@ import { useTranslation } from './translation/useTranslation';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
+  dataUpdatedAt: number;
 }
 
 interface AdItem extends FeedItemBase<FeedItemType.Ad> {
@@ -304,6 +305,7 @@ export default function useFeed<T>(
             post: node,
             page: pageIndex,
             index,
+            dataUpdatedAt: feedQuery.dataUpdatedAt,
           });
         });
 
@@ -319,6 +321,7 @@ export default function useFeed<T>(
   }, [
     feedQuery.data,
     feedQuery.isFetching,
+    feedQuery.dataUpdatedAt,
     settings.marketingCta,
     settings.showAcquisitionForm,
     placeholdersPerPage,
