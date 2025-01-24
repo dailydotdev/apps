@@ -1,10 +1,9 @@
 import type { RenderResult } from '@testing-library/react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
 import React from 'react';
 import nock from 'nock';
-import { AuthContextProvider } from '../../contexts/AuthContext';
 import type { AnonymousUser, LoggedUser } from '../../lib/user';
 import type { MockedGraphQLResponse } from '../../../__tests__/helpers/graphql';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
@@ -17,6 +16,7 @@ import user from '../../../__tests__/fixture/loggedUser';
 import { NotificationsContextProvider } from '../../contexts/NotificationsContext';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import Toast from '../notifications/Toast';
+import { TestBootProvider } from '../../../__tests__/helpers/boot';
 
 const onRequestClose = jest.fn();
 
@@ -43,21 +43,22 @@ const renderComponent = (
   const client = new QueryClient();
   mocks.forEach(mockGraphQL);
   return render(
-    <QueryClientProvider client={client}>
-      <AuthContextProvider
-        user={userUpdate}
-        updateUser={jest.fn()}
-        tokenRefreshed
-        getRedirectUri={jest.fn()}
-        loadingUser={false}
-        loadedUserFromCache
-      >
-        <NotificationsContextProvider>
-          <Toast />
-          <SubmitArticleModal isOpen onRequestClose={onRequestClose} />
-        </NotificationsContextProvider>
-      </AuthContextProvider>
-    </QueryClientProvider>,
+    <TestBootProvider
+      client={client}
+      auth={{
+        user: userUpdate,
+        updateUser: jest.fn(),
+        tokenRefreshed: true,
+        getRedirectUri: jest.fn(),
+        loadingUser: false,
+        loadedUserFromCache: true,
+      }}
+    >
+      <NotificationsContextProvider>
+        <Toast />
+        <SubmitArticleModal isOpen onRequestClose={onRequestClose} />
+      </NotificationsContextProvider>
+    </TestBootProvider>,
   );
 };
 

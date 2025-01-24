@@ -162,6 +162,9 @@ export function PostContentRaw({
               title={title}
               videoId={post.videoId}
               className="mb-7"
+              image={post.image}
+              source={post.source}
+              onWatchVideo={onReadArticle}
             />
           )}
           {post.summary && (

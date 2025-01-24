@@ -29,21 +29,15 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
   const { displayToast } = useToastNotification();
   const { user, isLoggedIn } = useAuthContext();
   const { logEvent } = useLogContext();
-  const { isPlus, showPlusSubscription } = usePlusSubscription();
+  const { isPlus } = usePlusSubscription();
   const { completeAction } = useActions();
   const { flags } = useSettingsContext();
 
   const { clickbaitShieldEnabled } = flags || {};
 
   const key = useMemo(
-    () => [
-      ...getPostByIdKey(post?.id),
-      {
-        key: 'title',
-        showPlusSubscription,
-      },
-    ],
-    [post?.id, showPlusSubscription],
+    () => [...getPostByIdKey(post?.id), { key: 'title' }],
+    [post?.id],
   );
   const fetchSmartTitleKey = generateQueryKey(
     RequestKey.FetchedOriginalTitle,
@@ -56,7 +50,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     queryFn: async () => {
       let title = post?.title || post?.sharedPost?.title;
       // Enusre that we don't accidentally fetch the smart title for users outside of the feature flag
-      if (!showPlusSubscription || !isLoggedIn) {
+      if (!isLoggedIn) {
         return title;
       }
 

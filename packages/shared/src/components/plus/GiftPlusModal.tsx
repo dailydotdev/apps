@@ -12,68 +12,123 @@ import CloseButton from '../CloseButton';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
 import { PlusTitle } from './PlusTitle';
-import { Image } from '../image/Image';
-import { usePaymentContext } from '../../contexts/PaymentContext';
+import {
+  PaymentContextProvider,
+  usePaymentContext,
+} from '../../contexts/PaymentContext';
 import { plusUrl } from '../../lib/constants';
 import { TextField } from '../fields/TextField';
-import { SearchProviderEnum } from '../../graphql/search';
 import { UserIcon } from '../icons';
-import { useSearchProvider } from '../../hooks/search';
-import useDebounce from '../../hooks/useDebounce';
-import type { RecommendedUser } from '../RecommendedMention';
+import { gqlClient } from '../../graphql/common';
+import { RECOMMEND_MENTIONS_QUERY } from '../../graphql/comments';
+import { RecommendedMention } from '../RecommendedMention';
+import { BaseTooltip } from '../tooltips/BaseTooltip';
+import type { UserShortProfile } from '../../lib/user';
+import useDebounceFn from '../../hooks/useDebounceFn';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { PlusLabelColor, PlusPlanExtraLabel } from './PlusPlanExtraLabel';
+import { ArrowKey, KeyboardCommand } from '../../lib/element';
 
 interface SelectedUserProps {
-  user: RecommendedUser;
+  user: UserShortProfile;
   onClose: () => void;
 }
 
 const SelectedUser = ({ user, onClose }: SelectedUserProps) => {
-  const { image, username, name } = user;
+  const { username, name } = user;
 
   return (
-    <div className="flex flex-row bg-surface-float">
-      <Image src={image} alt={username} />
-      <Typography bold type={TypographyType.Callout}>
-        {name}
-      </Typography>
-      <Typography bold type={TypographyType.Callout}>
-        {username}
-      </Typography>
-      <CloseButton
-        type="button"
-        className="ml-auto"
-        onClick={onClose}
-        size={ButtonSize.XSmall}
-      />
+    <div className="flex w-full max-w-full flex-row items-center gap-2 rounded-10 bg-surface-float p-2">
+      <ProfilePicture user={user} size={ProfileImageSize.Medium} />
+      <span className="flex w-full flex-1 flex-row items-center gap-2 truncate">
+        <Typography bold type={TypographyType.Callout}>
+          {name}
+        </Typography>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Secondary}
+        >
+          {username}
+        </Typography>
+      </span>
+      <CloseButton type="button" onClick={onClose} size={ButtonSize.XSmall} />
     </div>
   );
 };
 
-type GiftPlusModalProps = ModalProps & {
-  user?: RecommendedUser;
-};
+interface GiftPlusModalProps extends ModalProps {
+  preselected?: UserShortProfile;
+}
 
-export function GiftPlusModal(props: GiftPlusModalProps): ReactElement {
-  const { onRequestClose, user } = props;
+export function GiftPlusModalComponent({
+  preselected,
+  ...props
+}: GiftPlusModalProps): ReactElement {
+  const [overlay, setOverlay] = useState<HTMLElement>();
+  const { onRequestClose } = props;
   const { oneTimePayment } = usePaymentContext();
-  const [selected, setSelected] = useState<RecommendedUser>(user);
+  const [selected, setSelected] = useState(preselected);
+  const [index, setIndex] = useState(0);
   const [query, setQuery] = useState('');
-  const { getSuggestions } = useSearchProvider();
-  const onSearch = useDebounce(setQuery, 500);
-  const { data: users } = useQuery({
+  const [onSearch] = useDebounceFn(setQuery, 500);
+  const { data: users } = useQuery<UserShortProfile[]>({
     queryKey: ['search', 'users', query],
     queryFn: async () => {
-      const result = await getSuggestions({
-        // temporary - we need more information like if the user is on plus, etc.
-        // meaning, we can't use this endpoint for now
-        provider: SearchProviderEnum.Users,
+      const result = await gqlClient.request(RECOMMEND_MENTIONS_QUERY, {
         query,
-        limit: 5,
       });
 
-      return result.hits;
+      return result.recommendedMentions;
     },
+    enabled: !!query?.length,
   });
+  const isVisible = !!users?.length && !!query?.length;
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    const movement = [ArrowKey.Up, ArrowKey.Down, KeyboardCommand.Enter];
+    if (!movement.includes(e.key as (typeof movement)[number])) {
+      return;
+    }
+
+    e.preventDefault();
+
+    if (e.key === ArrowKey.Down) {
+      setIndex((prev) => {
+        let next = prev + 1;
+        let counter = 0;
+        while (users[next % users.length]?.isPlus) {
+          next += 1;
+          counter += 1;
+
+          if (counter > users.length) {
+            return -1;
+          }
+        }
+        return next % users.length;
+      });
+    } else if (e.key === ArrowKey.Up) {
+      setIndex((prev) => {
+        let next = prev - 1;
+        let counter = 0;
+        while (users[(next + users.length) % users.length]?.isPlus) {
+          next -= 1;
+          counter += 1;
+
+          if (counter > users.length) {
+            return -1;
+          }
+        }
+        return (next + users.length) % users.length;
+      });
+    } else {
+      setSelected(users[index]);
+    }
+  };
+
+  const onSelect = (user: UserShortProfile) => {
+    setSelected(user);
+    setIndex(0);
+    setQuery('');
+  };
 
   return (
     <Modal
@@ -81,6 +136,7 @@ export function GiftPlusModal(props: GiftPlusModalProps): ReactElement {
       isOpen
       kind={Modal.Kind.FixedCenter}
       size={Modal.Size.Small}
+      overlayRef={setOverlay}
     >
       <Modal.Body className="gap-4">
         <div className="flex flex-row justify-between">
@@ -98,30 +154,51 @@ export function GiftPlusModal(props: GiftPlusModalProps): ReactElement {
           <SelectedUser user={selected} onClose={() => setSelected(null)} />
         ) : (
           <div className="flex flex-col">
-            <TextField
-              leftIcon={<UserIcon />}
-              inputId="search_user"
-              fieldType="tertiary"
-              autoComplete="off"
-              label="Select a recipient by name or handle"
-              valueChanged={onSearch}
-            />
-            {/* <RecommendedMention users={users} onClick={() => setSelected()} /> */}
+            <BaseTooltip
+              appendTo={overlay}
+              onClickOutside={() => setQuery('')}
+              visible={isVisible}
+              showArrow={false}
+              interactive
+              content={
+                <RecommendedMention
+                  users={users}
+                  selected={index}
+                  onClick={onSelect}
+                  onHover={setIndex}
+                  checkIsDisabled={(user) => user.isPlus}
+                />
+              }
+              container={{
+                className: 'shadow',
+                paddingClassName: 'p-0',
+                roundedClassName: 'rounded-16',
+                bgClassName: 'bg-accent-pepper-subtlest',
+              }}
+            >
+              <TextField
+                leftIcon={<UserIcon />}
+                inputId="search_user"
+                fieldType="tertiary"
+                autoComplete="off"
+                label="Select a recipient by name or handle"
+                onKeyDown={onKeyDown}
+                onChange={(e) => onSearch(e.currentTarget.value.trim())}
+                onFocus={(e) => setQuery(e.currentTarget.value.trim())}
+              />
+            </BaseTooltip>
           </div>
         )}
         <div className="flex w-full flex-row items-center gap-2 rounded-10 bg-surface-float p-2">
           <Typography bold type={TypographyType.Callout}>
             One-year plan
           </Typography>
-          <Typography
-            bold
-            className="rounded-10 bg-action-upvote-float px-2 py-1"
-            type={TypographyType.Caption1}
-            color={TypographyColor.StatusSuccess}
-          >
-            2 months free
-          </Typography>
-          <Typography type={TypographyType.Body}>
+          <PlusPlanExtraLabel
+            color={PlusLabelColor.Success}
+            label={oneTimePayment.extraLabel}
+            typographyProps={{ color: TypographyColor.StatusSuccess }}
+          />
+          <Typography type={TypographyType.Body} className="ml-auto mr-1">
             <strong className="mr-1">{oneTimePayment?.price}</strong>
             {oneTimePayment?.currencyCode}
           </Typography>
@@ -141,6 +218,14 @@ export function GiftPlusModal(props: GiftPlusModalProps): ReactElement {
         </Button>
       </Modal.Body>
     </Modal>
+  );
+}
+
+export function GiftPlusModal(props: ModalProps): ReactElement {
+  return (
+    <PaymentContextProvider>
+      <GiftPlusModalComponent {...props} />
+    </PaymentContextProvider>
   );
 }
 

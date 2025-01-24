@@ -46,7 +46,6 @@ import {
   featureOnboardingAndroid,
   featureOnboardingExtension,
   featureOnboardingDesktopPWA,
-  featureOnboardingPWA,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import {
@@ -69,12 +68,14 @@ import {
   checkIsBrowser,
   getCurrentBrowserName,
   isIOS,
+  isPWA,
   UserAgent,
 } from '@dailydotdev/shared/src/lib/func';
 import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboarding/Extension/useOnboardingExtension';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useInstallPWA } from '@dailydotdev/shared/src/components/onboarding/PWA/useInstallPWA';
+import { AFTER_AUTH_PARAM } from '@dailydotdev/shared/src/components/auth/common';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -142,6 +143,7 @@ const seo: NextSeoProps = {
 };
 
 export function OnboardPage(): ReactElement {
+  const params = new URLSearchParams(window.location.search);
   const {
     isOnboardingReady,
     hasCompletedEditTags,
@@ -151,19 +153,32 @@ export function OnboardPage(): ReactElement {
   const router = useRouter();
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
-  const { user, isAuthReady, anonymous, isAndroidApp } = useAuthContext();
-  const { logSubscriptionEvent, showPlusSubscription: isOnboardingPlusActive } =
-    usePlusSubscription();
+  const { logSubscriptionEvent } = usePlusSubscription();
+  const { user, isAuthReady, anonymous, isAndroidApp, loginState } =
+    useAuthContext();
   const shouldVerify = anonymous?.shouldVerify;
   const { growthbook } = useGrowthBookContext();
   const { logEvent } = useLogContext();
   const [auth, setAuth] = useState<AuthProps>({
-    isAuthenticating: !!storage.getItem(SIGNIN_METHOD_KEY) || shouldVerify,
-    isLoginFlow: false,
-    defaultDisplay: shouldVerify
-      ? AuthDisplay.EmailVerification
-      : AuthDisplay.OnboardingSignup,
-    ...(anonymous?.email && { email: anonymous.email }),
+    isAuthenticating:
+      !!storage.getItem(SIGNIN_METHOD_KEY) ||
+      shouldVerify ||
+      !!loginState?.formValues?.email ||
+      loginState?.isLogin,
+    isLoginFlow: loginState?.isLogin,
+    defaultDisplay: (() => {
+      if (loginState?.formValues?.email) {
+        return AuthDisplay.Registration;
+      }
+      if (shouldVerify) {
+        return AuthDisplay.EmailVerification;
+      }
+      if (loginState?.isLogin) {
+        return AuthDisplay.Default;
+      }
+      return AuthDisplay.OnboardingSignup;
+    })(),
+    email: loginState?.formValues?.email || anonymous?.email,
   });
   const {
     isAuthenticating,
@@ -197,12 +212,6 @@ export function OnboardPage(): ReactElement {
     feature: featureOnboardingExtension,
     shouldEvaluate: shouldEnrollOnboardingStep && shouldShowExtensionOnboarding,
   });
-
-  const { value: PWAExperiment } = useConditionalFeature({
-    feature: featureOnboardingPWA,
-    shouldEvaluate: shouldEnrollOnboardingStep && isIOS(),
-  });
-
   const { isCurrentPWA, isAvailable: canUserInstallDesktop } = useInstallPWA();
 
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
@@ -229,7 +238,9 @@ export function OnboardPage(): ReactElement {
     }
 
     if (user?.infoConfirmed && activeScreen === OnboardingStep.Intro) {
-      router.replace(getPathnameWithQuery(webappUrl, window.location.search));
+      const afterAuth = params.get(AFTER_AUTH_PARAM);
+      params.delete(AFTER_AUTH_PARAM);
+      router.replace(getPathnameWithQuery(afterAuth || webappUrl, params));
       return;
     }
 
@@ -270,7 +281,7 @@ export function OnboardPage(): ReactElement {
       OnboardingStep.ContentTypes,
       OnboardingStep.ReadingReminder,
     ].includes(activeScreen);
-    if (isOnboardingPlusActive && isLastStepBeforePlus) {
+    if (isLastStepBeforePlus) {
       return setActiveScreen(OnboardingStep.Plus);
     }
 
@@ -278,7 +289,7 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.AndroidApp);
     }
 
-    if (PWAExperiment && activeScreen !== OnboardingStep.PWA) {
+    if (isIOS() && !isPWA() && activeScreen !== OnboardingStep.PWA) {
       return setActiveScreen(OnboardingStep.PWA);
     }
 
@@ -325,8 +336,9 @@ export function OnboardPage(): ReactElement {
         : LogEvent.OnboardingSkip,
     });
 
+    const afterAuth = params.get(AFTER_AUTH_PARAM);
     return router.replace({
-      pathname: '/',
+      pathname: afterAuth || '/',
       query: {
         ua: 'true',
       },
@@ -334,12 +346,10 @@ export function OnboardPage(): ReactElement {
   };
 
   const onClickCreateFeed = () => {
-    if (isOnboardingPlusActive) {
-      logSubscriptionEvent({
-        event_name: LogEvent.OnboardingSkipPlus,
-        target_id: TargetId.Onboarding,
-      });
-    }
+    logSubscriptionEvent({
+      event_name: LogEvent.OnboardingSkipPlus,
+      target_id: TargetId.Onboarding,
+    });
 
     setSettings({
       sidebarExpanded: true,
@@ -367,7 +377,7 @@ export function OnboardPage(): ReactElement {
         ),
         onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
       },
-      trigger: AuthTriggers.Onboarding,
+      trigger: loginState?.trigger || AuthTriggers.Onboarding,
       formRef,
       defaultDisplay,
       forceDefaultDisplay: !isAuthenticating,
@@ -389,6 +399,7 @@ export function OnboardPage(): ReactElement {
     isLoginFlow,
     isMobile,
     targetId,
+    loginState,
   ]);
 
   const customActionName = useMemo(() => {
