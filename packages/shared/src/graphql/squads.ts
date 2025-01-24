@@ -633,7 +633,7 @@ const SOURCE_POST_MODERATION_FRAGMENT = gql`
 
 export const SQUAD_PENDING_POSTS_QUERY = gql`
   query sourcePostModerations(
-    $sourceId: ID!
+    $sourceId: ID
     $status: [String]
     $first: Int
     $after: String
