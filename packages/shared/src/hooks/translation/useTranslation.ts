@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import type { InfiniteData, QueryKey } from '@tanstack/react-query';
 import { useQueryClient } from '@tanstack/react-query';
-import { stream } from 'fetch-event-stream';
+import { events } from 'fetch-event-stream';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { apiUrl } from '../../lib/config';
 import type { FeedData, Post } from '../../graphql/posts';
@@ -98,19 +98,21 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
         params.append('id', id);
       });
 
-      const messages = await stream(
-        `${apiUrl}/translate/post/title?${params}`,
-        {
-          signal: abort.current?.signal,
-          headers: {
-            Authorization: `Bearer ${accessToken?.token}`,
-            'Content-Language': language as string,
-          },
+      const response = await fetch(`${apiUrl}/translate/post/title?${params}`, {
+        signal: abort.current?.signal,
+        headers: {
+          Accept: 'text/event-stream',
+          Authorization: `Bearer ${accessToken?.token}`,
+          'Content-Language': language as string,
         },
-      );
+      });
+
+      if (!response.ok) {
+        return;
+      }
 
       // eslint-disable-next-line no-restricted-syntax
-      for await (const message of messages) {
+      for await (const message of events(response)) {
         if (message.event === ServerEvents.Message) {
           const post = JSON.parse(message.data) as TranslateEvent;
           if (queryType === 'feed') {
