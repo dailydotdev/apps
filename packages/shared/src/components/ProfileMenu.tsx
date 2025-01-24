@@ -36,6 +36,7 @@ import { useDndContext } from '../contexts/DndContext';
 import { LazyModal } from './modals/common/types';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../lib/log';
+import { GiftIcon } from './icons/gift';
 
 interface ListItem {
   title: string;
@@ -148,6 +149,14 @@ export default function ProfileMenu({
         },
       });
     }
+
+    list.push({
+      title: 'Gift daily.dev Plus',
+      buttonProps: {
+        icon: <GiftIcon />,
+        onClick: () => openModal({ type: LazyModal.GiftPlus }),
+      },
+    });
 
     list.push({
       title: 'Logout',
