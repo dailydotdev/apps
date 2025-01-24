@@ -172,7 +172,7 @@ const SquadModerationButton = ({ squad }: SquadBarButtonProps<'a'>) => {
   return (
     <Button
       aria-label={`Check ${count} pending ${postLabel}`}
-      href={`/squads/${squad.handle}/moderate`}
+      href={`/squads/moderate?handle=${squad.handle}`}
       icon={<TimerIcon aria-hidden role="presentation" />}
       size={ButtonSize.Small}
       tag="a"
