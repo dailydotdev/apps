@@ -49,7 +49,7 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
   const queryClient = useQueryClient();
 
   const { language } = user || {};
-  const isStreamActive = !isLoggedIn || !language;
+  const isStreamActive = isLoggedIn || !!language;
 
   const updateFeed = useCallback(
     (translatedPost: TranslateEvent) => {
