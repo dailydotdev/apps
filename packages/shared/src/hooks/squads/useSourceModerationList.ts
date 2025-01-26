@@ -113,14 +113,18 @@ export const useSourceModerationList = ({
           InfiniteData<Connection<SourcePostModeration>>
         >(listQueryKey);
 
-      const currentSquad = queryClient.getQueryData<Squad>(squadQueryKey);
-      queryClient.setQueryData<Squad>(squadQueryKey, (sqd) => {
-        return {
-          ...sqd,
-          moderationPostCount:
-            currentSquad.moderationPostCount - data.postIds.length,
-        };
-      });
+      const currentSquad = queryClient.getQueryData<Squad | null>(
+        squadQueryKey,
+      );
+      if (currentSquad) {
+        queryClient.setQueryData<Squad>(squadQueryKey, (sqd) => {
+          return {
+            ...sqd,
+            moderationPostCount:
+              currentSquad.moderationPostCount - data.postIds.length,
+          };
+        });
+      }
 
       queryClient.setQueryData<InfiniteData<Connection<SourcePostModeration>>>(
         listQueryKey,
@@ -169,8 +173,8 @@ export const useSourceModerationList = ({
         );
         return;
       }
-      queryClient.setQueryData(listQueryKey, context.currentData);
-      queryClient.setQueryData(squadQueryKey, context.currentSquad);
+      queryClient.setQueryData(listQueryKey, context?.currentData);
+      queryClient.setQueryData(squadQueryKey, context?.currentSquad);
       displayToast('Failed to approve post(s)');
     },
   });

@@ -7,25 +7,23 @@ import { useSourceModerationList } from '../../../hooks/squads/useSourceModerati
 import { useSquadPendingPosts } from '../../../hooks/squads/useSquadPendingPosts';
 import { SquadModerationItem } from './SquadModerationItem';
 import type { Squad } from '../../../graphql/sources';
-import { SourcePermissions } from '../../../graphql/sources';
-import InfiniteScrolling from '../../containers/InfiniteScrolling';
-import {
-  SourcePostModerationStatus,
-  verifyPermission,
-} from '../../../graphql/squads';
+import { SourcePostModerationStatus } from '../../../graphql/squads';
 import { EmptyModerationList } from './SquadModerationEmptyScreen';
+import InfiniteScrolling from '../../containers/InfiniteScrolling';
 
 interface SquadModerationListProps {
   squad: Squad;
+  isModerator: boolean;
 }
 
 export function SquadModerationList({
   squad,
+  isModerator,
 }: SquadModerationListProps): ReactElement {
   const moderate = useSourceModerationList({
     squad,
   });
-  const isModerator = verifyPermission(squad, SourcePermissions.ModeratePost);
+
   const { data, isFetched, fetchNextPage, hasNextPage, isPending } =
     useSquadPendingPosts(
       squad?.id,
@@ -78,8 +76,8 @@ export function SquadModerationList({
             squad={squad}
             data={item}
             isPending={isPending}
-            onReject={() => moderate.onReject(item.id, squad.id)}
-            onApprove={() => moderate.onApprove([item.id], squad.id)}
+            onReject={() => moderate.onReject(item.id, item.source.id)}
+            onApprove={() => moderate.onApprove([item.id], item.source.id)}
           />
         ))}
       </InfiniteScrolling>

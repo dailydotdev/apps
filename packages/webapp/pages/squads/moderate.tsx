@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
-import type { SquadSettingsProps } from '@dailydotdev/shared/src/components/squads/utils';
 import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
 import {
   SquadTab,
@@ -21,11 +20,12 @@ import { useRouter } from 'next/router';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import { TypographyType } from '@dailydotdev/shared/src/components/typography/Typography';
+import { useSearchParams } from 'next/navigation';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 
-export default function ModerateSquadPage({
-  handle,
-}: SquadSettingsProps): ReactElement {
+export default function ModerateSquadPage(): ReactElement {
+  const searchParams = useSearchParams();
+  const handle = searchParams?.get('handle');
   const router = useRouter();
   const { squad, isLoading, isFetched } = useSquad({
     handle: router.query.handle as string,
@@ -63,7 +63,7 @@ export default function ModerateSquadPage({
         </PageHeaderTitle>
       </PageHeader>
       {handle && <SquadTabs active={SquadTab.PendingPosts} squad={squad} />}
-      <SquadModerationList squad={squad} />
+      <SquadModerationList squad={squad} isModerator={isModerator} />
     </ManageSquadPageContainer>
   );
 }

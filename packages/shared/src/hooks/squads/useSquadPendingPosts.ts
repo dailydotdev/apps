@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import type {
   InfiniteData,
   UseInfiniteQueryResult,
@@ -8,6 +8,7 @@ import type { SourcePostModeration } from '../../graphql/squads';
 import {
   SourcePostModerationStatus,
   SQUAD_PENDING_POSTS_QUERY,
+  verifyPermission,
 } from '../../graphql/squads';
 import {
   generateQueryKey,
@@ -17,6 +18,7 @@ import {
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { Connection } from '../../graphql/common';
 import { gqlClient } from '../../graphql/common';
+import { SourcePermissions } from '../../graphql/sources';
 
 type UseSquadPendingPosts = UseInfiniteQueryResult<
   InfiniteData<Connection<SourcePostModeration[]>>
@@ -26,7 +28,13 @@ export const useSquadPendingPosts = (
   squadId: string,
   status: SourcePostModerationStatus[] = [SourcePostModerationStatus.Pending],
 ): UseSquadPendingPosts => {
-  const { user } = useAuthContext();
+  const { user, squads } = useAuthContext();
+
+  const isModeratorInAnySquad = useMemo(() => {
+    return squads?.some((squad) =>
+      verifyPermission(squad, SourcePermissions.ModeratePost),
+    );
+  }, [squads]);
 
   return useInfiniteQuery<Connection<SourcePostModeration[]>>({
     queryKey: generateQueryKey(RequestKey.SquadPostRequests, user, squadId),
@@ -43,7 +51,7 @@ export const useSquadPendingPosts = (
     },
     initialPageParam: '',
     getNextPageParam: (lastPage) => getNextPageParam(lastPage?.pageInfo),
-    enabled: !!squadId,
+    enabled: !!squadId || isModeratorInAnySquad,
     select: useCallback((res) => {
       if (!res) {
         return undefined;
