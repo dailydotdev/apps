@@ -203,8 +203,8 @@ export function SquadPageHeader({
           'relative bottom-0 flex w-full flex-col bg-background-default pt-8 tablet:absolute tablet:translate-y-1/2 tablet:flex-row tablet:p-0',
           !shouldUseListMode && 'laptopL:px-0',
           allowedToPost && 'items-center justify-center',
-          allowedToPost && !shouldUseListMode && 'laptop:max-w-[41.5rem]',
-          !allowedToPost && !shouldUseListMode && 'laptop:max-w-[38.25rem]',
+          allowedToPost && !shouldUseListMode && 'laptop:max-w-[42.5rem]',
+          !allowedToPost && !shouldUseListMode && 'laptop:max-w-[ 8.25rem]',
         )}
       >
         <ConditionalWrapper
@@ -233,7 +233,7 @@ export function SquadPageHeader({
           <SharePostBar
             className={classNames(
               'w-full',
-              allowedToPost && 'max-w-[30.25rem]',
+              allowedToPost && 'max-w-[32.25rem]',
             )}
             disabled={!allowedToPost}
             disabledText={
