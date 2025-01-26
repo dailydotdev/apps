@@ -13,6 +13,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import type { Squad } from '../../graphql/sources';
 import type { ExternalLinkPreview } from '../../graphql/posts';
+import { Divider } from '../utilities';
 
 export interface SharePostBarProps {
   className?: string;
@@ -86,56 +87,62 @@ function SharePostBar({
     <form
       onSubmit={onSubmit}
       className={classNames(
-        'flex flex-col items-center overflow-hidden rounded-16 border typo-callout tablet:flex-row',
+        'flex flex-col items-center overflow-hidden rounded-16 border p-3 typo-callout tablet:flex-row',
         'border-border-subtlest-tertiary bg-surface-float focus-within:border-border-subtlest-primary hover:border-border-subtlest-primary',
         className,
       )}
     >
       <span className="relative flex w-full flex-row items-center">
-        <ProfilePicture
-          className="m-3"
-          user={user}
-          size={ProfileImageSize.Large}
-          nativeLazyLoading
-        />
-        <input
-          type="url"
-          ref={inputRef}
-          autoComplete="off"
-          name="share-post-bar"
-          placeholder={`Enter URL${isMobile ? '' : ' / Choose from'}`}
-          className={classNames(
-            'w-full flex-1 bg-transparent pl-1 text-text-primary outline-none typo-body hover:placeholder-text-primary focus:placeholder-text-quaternary tablet:w-auto tablet:min-w-[11rem] tablet:flex-none',
-            !shouldRenderReadingHistory && '!flex-1 pr-2',
+        <div className="flex flex-1 gap-4">
+          <ProfilePicture
+            user={user}
+            size={ProfileImageSize.Large}
+            nativeLazyLoading
+          />
+          <input
+            type="url"
+            ref={inputRef}
+            autoComplete="off"
+            name="share-post-bar"
+            placeholder={`Enter URL${isMobile ? '' : ' / Choose from'}`}
+            className={classNames(
+              'w-full flex-1 bg-transparent text-text-primary outline-none typo-body hover:placeholder-text-primary focus:placeholder-text-quaternary tablet:w-auto tablet:min-w-[11rem] tablet:flex-none',
+              !shouldRenderReadingHistory && '!flex-1 pr-2',
+            )}
+            onInput={(e) => setUrl(e.currentTarget.value)}
+            value={url}
+            onBlur={() => toggleUrlFocus(false)}
+            onFocus={() => toggleUrlFocus(true)}
+          />
+        </div>
+        <div className="flex gap-2">
+          {shouldRenderReadingHistory && (
+            <ClickableText
+              className="reading-history ml-1.5 hidden font-bold hover:text-text-primary tablet:flex"
+              inverseUnderline
+              onClick={onOpenHistory}
+              type="button"
+            >
+              reading history
+            </ClickableText>
           )}
-          onInput={(e) => setUrl(e.currentTarget.value)}
-          value={url}
-          onBlur={() => toggleUrlFocus(false)}
-          onFocus={() => toggleUrlFocus(true)}
-        />
-        {shouldRenderReadingHistory && (
-          <ClickableText
-            className="reading-history ml-1.5 hidden font-bold hover:text-text-primary tablet:flex"
-            inverseUnderline
-            onClick={onOpenHistory}
-            type="button"
+          <Button
+            type="submit"
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
+            className="ml-auto"
+            disabled={isLoadingPreview || !url}
+            loading={isLoadingPreview}
           >
-            reading history
-          </ClickableText>
-        )}
-        <Button
-          type="submit"
-          variant={ButtonVariant.Primary}
-          color={ButtonColor.Cabbage}
-          className="mx-3 ml-auto"
-          disabled={isLoadingPreview || !url}
-          loading={isLoadingPreview}
-        >
-          Post
-        </Button>
+            Post
+          </Button>
+        </div>
       </span>
+      {isMobile && (
+        <Divider className="mb-5 mt-3 bg-border-subtlest-tertiary" />
+      )}
       <button
-        className="flex w-full items-center justify-center border-t border-border-subtlest-tertiary py-5 font-bold text-text-tertiary typo-callout tablet:hidden"
+        className="flex w-full items-center justify-center border-border-subtlest-tertiary font-bold text-text-tertiary typo-callout tablet:hidden"
         type="button"
         onClick={onOpenHistory}
       >
