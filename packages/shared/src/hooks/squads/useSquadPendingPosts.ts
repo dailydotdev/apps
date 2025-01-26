@@ -25,7 +25,7 @@ type UseSquadPendingPosts = UseInfiniteQueryResult<
 >;
 
 export const useSquadPendingPosts = (
-  squadId: string,
+  squadId?: string,
   status: SourcePostModerationStatus[] = [SourcePostModerationStatus.Pending],
 ): UseSquadPendingPosts => {
   const { user, squads } = useAuthContext();
