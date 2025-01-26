@@ -99,7 +99,7 @@ function SharePostBar({
             size={ProfileImageSize.Large}
             nativeLazyLoading
           />
-          <div className="flex gap-1.5">
+          <div className="flex gap-1">
             <input
               type="url"
               ref={inputRef}
@@ -107,7 +107,7 @@ function SharePostBar({
               name="share-post-bar"
               placeholder={`Enter URL${isMobile ? '' : ' / Choose from'}`}
               className={classNames(
-                'w-full flex-1 bg-transparent text-text-primary outline-none typo-body hover:placeholder-text-primary focus:placeholder-text-quaternary tablet:w-auto tablet:min-w-[11rem] tablet:flex-none',
+                'w-[12.5rem] bg-transparent text-text-primary outline-none typo-body hover:placeholder-text-primary focus:placeholder-text-quaternary',
                 !shouldRenderReadingHistory && '!flex-1 pr-2',
               )}
               onInput={(e) => setUrl(e.currentTarget.value)}
