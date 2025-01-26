@@ -22,7 +22,10 @@ import { SourcePermissions } from '../../graphql/sources';
 
 type UseSquadPendingPosts = UseInfiniteQueryResult<
   InfiniteData<Connection<SourcePostModeration[]>>
->;
+> & {
+  count: number;
+  isModeratorInAnySquad: boolean;
+};
 
 export const useSquadPendingPosts = (
   squadId?: string,
@@ -36,7 +39,7 @@ export const useSquadPendingPosts = (
     );
   }, [squads]);
 
-  return useInfiniteQuery<Connection<SourcePostModeration[]>>({
+  const query = useInfiniteQuery<Connection<SourcePostModeration[]>>({
     queryKey: generateQueryKey(RequestKey.SquadPostRequests, user, squadId),
     queryFn: async ({ pageParam }) => {
       return gqlClient
@@ -52,6 +55,7 @@ export const useSquadPendingPosts = (
     initialPageParam: '',
     getNextPageParam: (lastPage) => getNextPageParam(lastPage?.pageInfo),
     enabled: !!squadId || isModeratorInAnySquad,
+
     select: useCallback((res) => {
       if (!res) {
         return undefined;
@@ -64,4 +68,10 @@ export const useSquadPendingPosts = (
       };
     }, []),
   });
+
+  return {
+    ...query,
+    count: query?.data?.pages.flatMap((page) => page.edges)?.length || 0,
+    isModeratorInAnySquad,
+  };
 };

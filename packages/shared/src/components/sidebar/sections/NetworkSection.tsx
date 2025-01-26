@@ -24,13 +24,10 @@ export const NetworkSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const { squads } = useAuthContext();
-  const { data: pendingPosts } = useSquadPendingPosts();
+  const { count, isModeratorInAnySquad } = useSquadPendingPosts();
   const { openNewSquad } = useSquadNavigation();
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
-    const pendingPostsCount =
-      pendingPosts?.pages.flatMap((page) => page.edges)?.length || 0;
-
     const squadItems =
       squads?.map((squad) => {
         const { name, image, handle } = squad;
@@ -46,20 +43,21 @@ export const NetworkSection = ({
         };
       }) ?? [];
     return [
-      pendingPostsCount > 0 && {
-        icon: () => <ListIcon Icon={() => <TimerIcon />} />,
-        title: 'Pending Posts',
-        path: `${webappUrl}squads/moderate`,
-        rightIcon: () => (
-          <Typography
-            color={TypographyColor.Secondary}
-            bold
-            className="rounded-6 bg-background-subtle px-1.5"
-          >
-            {pendingPostsCount}
-          </Typography>
-        ),
-      },
+      isModeratorInAnySquad &&
+        count > 0 && {
+          icon: () => <ListIcon Icon={() => <TimerIcon />} />,
+          title: 'Pending Posts',
+          path: `${webappUrl}squads/moderate`,
+          rightIcon: () => (
+            <Typography
+              color={TypographyColor.Secondary}
+              bold
+              className="rounded-6 bg-background-subtle px-1.5"
+            >
+              {count}
+            </Typography>
+          ),
+        },
       {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <SourceIcon secondary={active} />} />
@@ -76,7 +74,7 @@ export const NetworkSection = ({
         requiresLogin: true,
       },
     ].filter(Boolean);
-  }, [openNewSquad, squads, pendingPosts]);
+  }, [openNewSquad, squads, count, isModeratorInAnySquad]);
 
   return (
     <Section
