@@ -99,44 +99,44 @@ function SharePostBar({
             size={ProfileImageSize.Large}
             nativeLazyLoading
           />
-          <input
-            type="url"
-            ref={inputRef}
-            autoComplete="off"
-            name="share-post-bar"
-            placeholder={`Enter URL${isMobile ? '' : ' / Choose from'}`}
-            className={classNames(
-              'w-full flex-1 bg-transparent text-text-primary outline-none typo-body hover:placeholder-text-primary focus:placeholder-text-quaternary tablet:w-auto tablet:min-w-[11rem] tablet:flex-none',
-              !shouldRenderReadingHistory && '!flex-1 pr-2',
+          <div className="flex gap-1.5">
+            <input
+              type="url"
+              ref={inputRef}
+              autoComplete="off"
+              name="share-post-bar"
+              placeholder={`Enter URL${isMobile ? '' : ' / Choose from'}`}
+              className={classNames(
+                'w-full flex-1 bg-transparent text-text-primary outline-none typo-body hover:placeholder-text-primary focus:placeholder-text-quaternary tablet:w-auto tablet:min-w-[11rem] tablet:flex-none',
+                !shouldRenderReadingHistory && '!flex-1 pr-2',
+              )}
+              onInput={(e) => setUrl(e.currentTarget.value)}
+              value={url}
+              onBlur={() => toggleUrlFocus(false)}
+              onFocus={() => toggleUrlFocus(true)}
+            />
+            {shouldRenderReadingHistory && (
+              <ClickableText
+                className="reading-history hidden font-bold hover:text-text-primary tablet:flex"
+                inverseUnderline
+                onClick={onOpenHistory}
+                type="button"
+              >
+                reading history
+              </ClickableText>
             )}
-            onInput={(e) => setUrl(e.currentTarget.value)}
-            value={url}
-            onBlur={() => toggleUrlFocus(false)}
-            onFocus={() => toggleUrlFocus(true)}
-          />
+          </div>
         </div>
-        <div className="flex gap-2">
-          {shouldRenderReadingHistory && (
-            <ClickableText
-              className="reading-history ml-1.5 hidden font-bold hover:text-text-primary tablet:flex"
-              inverseUnderline
-              onClick={onOpenHistory}
-              type="button"
-            >
-              reading history
-            </ClickableText>
-          )}
-          <Button
-            type="submit"
-            variant={ButtonVariant.Primary}
-            color={ButtonColor.Cabbage}
-            className="ml-auto"
-            disabled={isLoadingPreview || !url}
-            loading={isLoadingPreview}
-          >
-            Post
-          </Button>
-        </div>
+        <Button
+          type="submit"
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Cabbage}
+          className="ml-auto"
+          disabled={isLoadingPreview || !url}
+          loading={isLoadingPreview}
+        >
+          Post
+        </Button>
       </span>
       {isMobile && (
         <Divider className="mb-5 mt-3 bg-border-subtlest-tertiary" />
