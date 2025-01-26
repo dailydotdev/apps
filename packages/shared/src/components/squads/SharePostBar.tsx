@@ -99,7 +99,7 @@ function SharePostBar({
             size={ProfileImageSize.Large}
             nativeLazyLoading
           />
-          <div className="flex gap-1">
+          <div className="flex">
             <input
               type="url"
               ref={inputRef}
