@@ -63,12 +63,12 @@ export const rejectReasons: { value: PostModerationReason; label: string }[] = [
 export interface UseSourceModerationList {
   onApprove: (
     ids: string[],
-    sourceId: string,
+    sourceId?: string,
     onSuccess?: MouseEventHandler,
   ) => Promise<void>;
   onReject: (
     id: string,
-    sourceId: string,
+    sourceId?: string,
     onSuccess?: MouseEventHandler,
   ) => void;
   onDelete: (postId: string) => Promise<void>;
@@ -154,11 +154,8 @@ export const useSourceModerationList = ({
     isPending: isPendingApprove,
     isSuccess: isSuccessApprove,
   } = useMutation({
-    mutationFn: ({ postIds, sourceId }: SquadPostModerationProps) =>
-      squadApproveMutation({
-        postIds,
-        sourceId,
-      }),
+    mutationFn: ({ postIds }: SquadPostModerationProps) =>
+      squadApproveMutation(postIds),
     onMutate: (data) => handleOptimistic(data),
     onSuccess: (data) => {
       displayToast('Post(s) approved successfully');

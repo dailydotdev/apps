@@ -55,10 +55,7 @@ export function SquadModerationList({
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
             onClick={() =>
-              moderate.onApprove(
-                list.map((request) => request.id),
-                squad.id,
-              )
+              moderate.onApprove(list.map((request) => request.id))
             }
           >
             Approve all {list.length} posts
