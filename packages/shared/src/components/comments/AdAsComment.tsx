@@ -26,7 +26,7 @@ interface AdAsCommentProps {
 export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
-  const { isEnrolledNotPlus } = usePlusSubscription();
+  const { isPlus } = usePlusSubscription();
 
   const {
     data: ad,
@@ -106,7 +106,7 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
           onClick={onRefreshClick}
           loading={isRefetching}
         />
-        {isEnrolledNotPlus && (
+        {!isPlus && (
           <RemoveAd
             iconOnly
             variant={ButtonVariant.Tertiary}

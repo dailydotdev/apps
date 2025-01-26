@@ -33,7 +33,6 @@ const feature = {
   showRoadmap: new Feature('show_roadmap', true),
   onboardingChecklist: new Feature('onboarding_checklist', true),
   showCodeSnippets: new Feature('show_code_snippets', false),
-  plusSubscription: new Feature('plus_subscription', false),
   pricingIds: new Feature('pricing_ids', {
     pri_01jbsccbdbcwyhdy8hy3c2etyn: PlusPriceType.Monthly,
     pri_01jbscda57910yvwjtyapnrrzc: PlusPriceType.Yearly,
@@ -51,7 +50,6 @@ export const featureOnboardingDesktopPWA = new Feature(
   'onboarding_desktop_pwa',
   false,
 );
-export const featureOnboardingPWA = new Feature('onboarding_pwa', false);
 export const featureOnboardingAndroid = new Feature(
   'onboarding_android',
   false,

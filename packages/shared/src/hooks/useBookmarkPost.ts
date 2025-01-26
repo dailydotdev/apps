@@ -22,7 +22,6 @@ import { useActions } from './useActions';
 import { bookmarkMutationKey } from './bookmark/types';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
-import { usePlusSubscription } from './usePlusSubscription';
 
 export type ToggleBookmarkProps = {
   origin: Origin;
@@ -76,7 +75,6 @@ const useBookmarkPost = ({
   const { logEvent } = useContext(LogContext);
   const { completeAction } = useActions();
   const { openModal } = useLazyModal();
-  const { showPlusSubscription } = usePlusSubscription();
 
   const defaultOnMutate = ({ id }) => {
     updatePostCache(client, id, (post) => ({ bookmarked: !post.bookmarked }));
@@ -152,37 +150,28 @@ const useBookmarkPost = ({
       const result = await addBookmark({ id: post.id });
       const list = result?.addBookmarks?.[0]?.list ?? null;
 
-      if (showPlusSubscription) {
-        displayToast(`Bookmarked! Saved to ${list?.name ?? 'Quick saves'}`, {
-          undoCopy: 'Change folder',
-          onUndo: () => {
-            openModal({
-              type: LazyModal.MoveBookmark,
-              props: {
-                postId: post.id,
-                listId: list?.id,
-                onMoveBookmark: async () => {
-                  logEvent(
-                    postLogEvent(
-                      LogEvent.MoveBookmarkToFolder,
-                      post,
-                      logOptions,
-                    ),
-                  );
-                },
+      displayToast(`Bookmarked! Saved to ${list?.name ?? 'Quick saves'}`, {
+        undoCopy: 'Change folder',
+        onUndo: () => {
+          openModal({
+            type: LazyModal.MoveBookmark,
+            props: {
+              postId: post.id,
+              listId: list?.id,
+              onMoveBookmark: async () => {
+                logEvent(
+                  postLogEvent(LogEvent.MoveBookmarkToFolder, post, logOptions),
+                );
               },
-            });
-          },
-        });
-      } else {
-        displayToast('Post was added to your bookmarks');
-      }
+            },
+          });
+        },
+      });
     },
     [
       user,
       logEvent,
       addBookmark,
-      showPlusSubscription,
       showLogin,
       removeBookmark,
       displayToast,

@@ -7,30 +7,30 @@ import classNames from 'classnames';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
 import type { Post } from '../graphql/posts';
-import { UserVote, isVideoPost } from '../graphql/posts';
+import { isVideoPost, UserVote } from '../graphql/posts';
 import {
-  TrashIcon,
-  HammerIcon,
-  EyeIcon,
-  BlockIcon,
-  FlagIcon,
-  PlusIcon,
-  EditIcon,
-  UpvoteIcon,
-  DownvoteIcon,
-  SendBackwardIcon,
-  BringForwardIcon,
-  PinIcon,
+  AddUserIcon,
+  BellAddIcon,
   BellSubscribedIcon,
-  ShareIcon,
+  BlockIcon,
+  BringForwardIcon,
+  DownvoteIcon,
+  EditIcon,
+  EyeIcon,
+  FlagIcon,
+  FolderIcon,
+  HammerIcon,
   MiniCloseIcon,
   MinusIcon,
-  BellAddIcon,
-  AddUserIcon,
+  PinIcon,
+  PlusIcon,
   RemoveUserIcon,
-  FolderIcon,
+  SendBackwardIcon,
+  ShareIcon,
   ShieldIcon,
   ShieldWarningIcon,
+  TrashIcon,
+  UpvoteIcon,
 } from './icons';
 import type { ReportedCallback } from './modals';
 import useTagAndSource from '../hooks/useTagAndSource';
@@ -46,11 +46,14 @@ import {
   useToastNotification,
 } from '../hooks';
 import type { AllFeedPages } from '../lib/query';
-import { generateQueryKey } from '../lib/query';
+import { generateQueryKey, RequestKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { LogEvent, Origin } from '../lib/log';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
-import usePostById, { getPostByIdKey } from '../hooks/usePostById';
+import usePostById, {
+  getPostByIdKey,
+  invalidatePostCacheById,
+} from '../hooks/usePostById';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { labels } from '../lib';
@@ -63,7 +66,10 @@ import { useBookmarkReminder } from '../hooks/notifications';
 import { BookmarkReminderIcon } from './icons/Bookmark/Reminder';
 import { useSourceActionsFollow } from '../hooks/source/useSourceActionsFollow';
 import { useContentPreference } from '../hooks/contentPreference/useContentPreference';
-import { ContentPreferenceType } from '../graphql/contentPreference';
+import {
+  ContentPreferenceStatus,
+  ContentPreferenceType,
+} from '../graphql/contentPreference';
 import { isFollowingContent } from '../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../hooks/auth/useIsSpecialUser';
 import { useActiveFeedContext } from '../contexts';
@@ -90,6 +96,26 @@ export interface PostOptionsMenuProps {
   origin: Origin;
   allowPin?: boolean;
 }
+
+const getBlockLabel = (
+  name: string,
+  { isCustomFeed, isBlocked }: Record<'isCustomFeed' | 'isBlocked', boolean>,
+) => {
+  const blockLabel = {
+    global: {
+      block: `Block ${name}`,
+      unblock: `Unblock ${name}`,
+    },
+    feed: {
+      block: `Remove ${name} from this feed`,
+      unblock: `Add ${name} to this feed`,
+    },
+  };
+
+  return blockLabel[isCustomFeed ? 'feed' : 'global'][
+    isBlocked ? 'unblock' : 'block'
+  ];
+};
 
 export default function PostOptionsMenu({
   postIndex,
@@ -122,7 +148,7 @@ export default function PostOptionsMenu({
   const isCustomFeed = feedQueryKey?.[0] === 'custom';
   const customFeedId = isCustomFeed ? (feedQueryKey?.[2] as string) : undefined;
   const post = loadedPost ?? initialPost;
-  const { showPlusSubscription, isPlus } = usePlusSubscription();
+  const { isPlus } = usePlusSubscription();
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({
       enabled: isPostOptionsOpen,
@@ -135,8 +161,7 @@ export default function PostOptionsMenu({
   const { logEvent } = useContext(LogContext);
   const { hidePost, unhidePost } = useReportPost();
   const { openSharePost } = useSharePost(origin);
-  const { follow, unfollow } = useContentPreference();
-
+  const { follow, unfollow, unblock, block } = useContentPreference();
   const { openModal } = useLazyModal();
 
   const {
@@ -156,6 +181,8 @@ export default function PostOptionsMenu({
       (excludedSource) => excludedSource.id === post?.source?.id,
     );
   }, [feedSettings?.excludeSources, post?.source?.id]);
+  const isBlockedAuthor =
+    post?.author?.contentPreference?.status === ContentPreferenceStatus.Blocked;
 
   const shouldShowSubscribe =
     isLoggedIn &&
@@ -392,7 +419,7 @@ export default function PostOptionsMenu({
       });
     }
 
-    if (post?.bookmark && showPlusSubscription) {
+    if (post?.bookmark) {
       postOptions.push({
         icon: <MenuIcon Icon={FolderIcon} />,
         label: 'Move to...',
@@ -456,6 +483,7 @@ export default function PostOptionsMenu({
   const shouldShowFollow =
     !useIsSpecialUser({ userId: post?.author?.id }) &&
     post?.author &&
+    !isBlockedAuthor &&
     isLoggedIn;
 
   if (shouldShowFollow) {
@@ -492,13 +520,67 @@ export default function PostOptionsMenu({
     });
   }
 
-  postOptions.push({
-    icon: <MenuIcon Icon={BlockIcon} />,
-    label: isSourceBlocked
-      ? `Show posts from ${post?.source?.name}`
-      : `Don't show posts from ${post?.source?.name}`,
-    action: isSourceBlocked ? onUnblockSourceClick : onBlockSourceClick,
-  });
+  if (post?.source?.name) {
+    postOptions.push({
+      icon: <MenuIcon Icon={BlockIcon} />,
+      label: getBlockLabel(post.source.name, {
+        isCustomFeed,
+        isBlocked: isSourceBlocked,
+      }),
+      action: isSourceBlocked ? onUnblockSourceClick : onBlockSourceClick,
+    });
+  }
+
+  if (post?.author && post?.author?.id !== user?.id) {
+    postOptions.push({
+      icon: <MenuIcon Icon={BlockIcon} />,
+      label: getBlockLabel(post.author.name, {
+        isCustomFeed,
+        isBlocked: isBlockedAuthor,
+      }),
+      action: async () => {
+        const params = {
+          id: post.author.id,
+          entity: ContentPreferenceType.User,
+          entityName: post.author.name,
+          feedId: router.query.slugOrId ? `${router.query.slugOrId}` : null,
+        };
+
+        if (isBlockedAuthor) {
+          await unblock(params);
+        } else {
+          await block({
+            ...params,
+            opts: {
+              hideToast: true,
+            },
+          });
+
+          await showMessageAndRemovePost(
+            `🚫 ${post.author.name} has been ${
+              isCustomFeed ? 'removed' : 'blocked'
+            }`,
+            postIndex,
+            () => unblock(params),
+          );
+        }
+
+        client.invalidateQueries({
+          queryKey: generateQueryKey(
+            RequestKey.ContentPreference,
+            user,
+            RequestKey.UserBlocked,
+            {
+              feedId: customFeedId || user?.id,
+              entity: ContentPreferenceType.User,
+            },
+          ),
+        });
+
+        invalidatePostCacheById(client, post.id);
+      },
+    });
+  }
 
   if (video && isVideoPost(post)) {
     const isEnabled = checkSettingsEnabledState(video.id);

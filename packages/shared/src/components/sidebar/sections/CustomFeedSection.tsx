@@ -4,7 +4,7 @@ import type { SidebarMenuItem } from '../common';
 import { HashtagIcon, PlusIcon } from '../../icons';
 import { Section } from '../Section';
 import { webappUrl } from '../../../lib/constants';
-import { useFeeds, usePlusSubscription } from '../../../hooks';
+import { useFeeds } from '../../../hooks';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import type { SidebarSectionProps } from './common';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
@@ -16,7 +16,6 @@ export const CustomFeedSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const { feeds } = useFeeds();
-  const { showPlusSubscription } = usePlusSubscription();
   const { defaultFeedId } = useCustomDefaultFeed();
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
@@ -58,34 +57,24 @@ export const CustomFeedSection = ({
 
     return [
       ...customFeeds,
-      showPlusSubscription
-        ? {
-            icon: () => (
-              <div className="rounded-6 bg-background-subtle">
-                <PlusIcon />
-              </div>
-            ),
-            title: 'Custom feed',
-            path: `${webappUrl}feeds/new`,
-            requiresLogin: true,
-            isForcedClickable: true,
-          }
-        : undefined,
+      {
+        icon: () => (
+          <div className="rounded-6 bg-background-subtle">
+            <PlusIcon />
+          </div>
+        ),
+        title: 'Custom feed',
+        path: `${webappUrl}feeds/new`,
+        requiresLogin: true,
+        isForcedClickable: true,
+      },
     ].filter(Boolean);
   }, [
     defaultRenderSectionProps.activePage,
     feeds?.edges,
     defaultFeedId,
     onNavTabClick,
-    showPlusSubscription,
   ]);
-
-  /**
-   * If there are no custom feeds and the user is not subscribed to Plus don't show this section
-   */
-  if (!menuItems.length && !showPlusSubscription) {
-    return null;
-  }
 
   return (
     <Section

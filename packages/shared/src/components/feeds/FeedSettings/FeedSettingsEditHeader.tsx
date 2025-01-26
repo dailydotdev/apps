@@ -49,7 +49,7 @@ export const FeedSettingsEditHeader = (): ReactElement => {
   const { onDiscard, onBackToFeed, feed } = useContext(FeedSettingsEditContext);
   const { activeView, setActiveView } = useContext(ModalPropsContext);
   const isMobile = useViewSizeClient(ViewSize.MobileL);
-  const { isEnrolledNotPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
 
   if (!activeView) {
     return null;
@@ -83,7 +83,7 @@ export const FeedSettingsEditHeader = (): ReactElement => {
         >
           Cancel
         </Button>
-        {isEnrolledNotPlus && feed?.type === FeedType.Custom ? (
+        {!isPlus && feed?.type === FeedType.Custom ? (
           <Button
             tag="a"
             type="button"

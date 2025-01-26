@@ -10,7 +10,7 @@ import useContextMenu from '../hooks/useContextMenu';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import type { UseShareOrCopyLinkProps } from '../hooks/useShareOrCopyLink';
 import { useShareOrCopyLink } from '../hooks/useShareOrCopyLink';
-import { useFeeds, usePlusSubscription } from '../hooks';
+import { useFeeds } from '../hooks';
 import { LazyModal } from './modals/common/types';
 import { useLazyModal } from '../hooks/useLazyModal';
 
@@ -20,6 +20,7 @@ type CustomFeedOptionsMenuProps = {
   onUndo?: (feedId: string) => void;
   className?: string;
   shareProps: UseShareOrCopyLinkProps;
+  additionalOptions?: MenuItemProps[];
 };
 
 const CustomFeedOptionsMenu = ({
@@ -28,8 +29,8 @@ const CustomFeedOptionsMenu = ({
   onAdd,
   onUndo,
   onCreateNewFeed,
+  additionalOptions = [],
 }: CustomFeedOptionsMenuProps): ReactElement => {
-  const { showPlusSubscription } = usePlusSubscription();
   const { openModal } = useLazyModal();
   const [, onShareOrCopyLink] = useShareOrCopyLink(shareProps);
   const { isOpen, onMenuClick } = useContextMenu({
@@ -64,16 +65,7 @@ const CustomFeedOptionsMenu = ({
     },
   ];
 
-  if (!showPlusSubscription) {
-    return (
-      <Button
-        variant={ButtonVariant.Float}
-        size={ButtonSize.Small}
-        icon={<ShareIcon />}
-        onClick={() => onShareOrCopyLink()}
-      />
-    );
-  }
+  options.push(...additionalOptions);
 
   return (
     <>

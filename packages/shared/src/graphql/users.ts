@@ -45,6 +45,7 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
       youtube
       linkedin
       mastodon
+      bluesky
       timezone
       portfolio
       reputation
@@ -304,6 +305,7 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
       youtube
       linkedin
       mastodon
+      bluesky
       createdAt
       infoConfirmed
       timezone

@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
@@ -7,8 +7,11 @@ import 'focus-visible';
 import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import { DefaultSeo, NextSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import {
+  useCookieBanner,
+  cookieAcknowledgedKey,
+} from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
@@ -37,15 +40,11 @@ import useWebappVersion from '../hooks/useWebappVersion';
 
 structuredCloneJsonPolyfill();
 
-const AuthModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "authModal" */ '@dailydotdev/shared/src/components/auth/AuthModal'
-    ),
-);
 const CookieBanner = dynamic(
   () =>
-    import(/* webpackChunkName: "cookieBanner" */ '../components/CookieBanner'),
+    import(
+      /* webpackChunkName: "cookieBanner" */ '../components/banner/CookieBanner'
+    ),
 );
 
 interface ComponentGetLayout {
@@ -69,9 +68,9 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
-  const { user, closeLogin, shouldShowLogin, loginState } =
-    useContext(AuthContext);
-  const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
+  const { user } = useAuthContext();
+  const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
+    useCookieBanner();
   useWebVitals();
   useLogPageView();
   const { modal, closeModal } = useLazyModal();
@@ -93,8 +92,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   ]);
 
   useEffect(() => {
-    updateCookieBanner(user);
-
     if (
       user &&
       !didRegisterSwRef.current &&
@@ -104,7 +101,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       didRegisterSwRef.current = true;
       window.serwist.register();
     }
-  }, [updateCookieBanner, user]);
+  }, [user]);
 
   useEffect(() => {
     if (!modal) {
@@ -200,15 +197,19 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       <DndContextProvider>
         {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
       </DndContextProvider>
-      {shouldShowLogin && (
-        <AuthModal
-          isOpen={shouldShowLogin}
-          onRequestClose={closeLogin}
-          contentLabel="Login Modal"
-          {...loginState}
+      {showBanner && (
+        <CookieBanner
+          onAccepted={onAcceptCookies}
+          onHideBanner={onHideBanner}
+          onModalClose={() => {
+            const interacted = !!localStorage.getItem(cookieAcknowledgedKey);
+
+            if (!interacted) {
+              onOpenBanner();
+            }
+          }}
         />
       )}
-      {showCookie && <CookieBanner onAccepted={acceptCookies} />}
     </>
   );
 }

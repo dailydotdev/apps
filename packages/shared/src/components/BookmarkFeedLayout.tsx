@@ -1,5 +1,5 @@
 import type { PropsWithChildren, ReactElement, ReactNode } from 'react';
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import {
@@ -17,12 +17,7 @@ import type { ButtonProps } from './buttons/Button';
 import { Button, ButtonVariant } from './buttons/Button';
 import { ShareIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
-import {
-  useFeedLayout,
-  usePlusSubscription,
-  useViewSize,
-  ViewSize,
-} from '../hooks';
+import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BookmarkSection } from './sidebar/sections/BookmarkSection';
 import {
   Typography,
@@ -68,12 +63,12 @@ export default function BookmarkFeedLayout({
   title = 'Bookmarks',
   isReminderOnly,
 }: BookmarkFeedLayoutProps): ReactElement {
+  const [isHydrated, setIsHydrated] = useState(false);
   const {
     shouldUseListFeedLayout,
     FeedPageLayoutComponent,
     shouldUseListMode,
   } = useFeedLayout();
-  const { showPlusSubscription } = usePlusSubscription();
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -130,6 +125,14 @@ export default function BookmarkFeedLayout({
     };
   }, [searchQuery, feedQueryKey, listId, isReminderOnly, isFolderPage]);
 
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  if (!isHydrated) {
+    return null;
+  }
+
   return (
     <FeedPageLayoutComponent>
       {children}
@@ -166,16 +169,14 @@ export default function BookmarkFeedLayout({
           onRequestClose={() => setShowSharedBookmarks(false)}
         />
       )}
-      {showPlusSubscription && (
-        <div className="mb-4 laptop:hidden">
-          <BookmarkSection
-            isItemsButton={false}
-            sidebarExpanded
-            shouldShowLabel
-            activePage=""
-          />
-        </div>
-      )}
+      <div className="mb-4 laptop:hidden">
+        <BookmarkSection
+          isItemsButton={false}
+          sidebarExpanded
+          shouldShowLabel
+          activePage=""
+        />
+      </div>
       {tokenRefreshed && <Feed {...feedProps} />}
     </FeedPageLayoutComponent>
   );
