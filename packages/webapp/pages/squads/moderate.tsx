@@ -28,7 +28,7 @@ export default function ModerateSquadPage(): ReactElement {
   const handle = searchParams?.get('handle');
   const router = useRouter();
   const { squad, isLoading, isFetched } = useSquad({
-    handle: router.query.handle as string,
+    handle,
   });
   const isModerator =
     verifyPermission(squad, SourcePermissions.ModeratePost) || !handle;
@@ -52,7 +52,7 @@ export default function ModerateSquadPage(): ReactElement {
       <PageHeader className="border-b-0">
         {handle && (
           <Button
-            href={`/squads/${squad.handle}`}
+            href={`/squads/${handle}`}
             icon={<ArrowIcon className="-rotate-90" />}
             tag="a"
             variant={ButtonVariant.Tertiary}

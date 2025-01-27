@@ -33,7 +33,10 @@ export function SquadTabs({ active, squad }: SquadTabsProps): ReactElement {
           },
         ]
       : []),
-    { label: pendingTabLabel, url: `${squadLink}/moderate` },
+    {
+      label: pendingTabLabel,
+      url: `${webappUrl}squads/moderate?handle=${handle}`,
+    },
   ];
 
   const controlledActive =
