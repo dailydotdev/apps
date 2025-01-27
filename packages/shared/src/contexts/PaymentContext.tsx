@@ -202,7 +202,7 @@ export const PaymentContextProvider = ({
       openCheckout,
       paddle,
       productOptions: productOptions.filter(
-        ({ value }) => value !== giftOneYear.value,
+        ({ value }) => value !== giftOneYear?.value,
       ),
       earlyAdopterPlanId,
       giftOneYear,
