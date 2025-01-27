@@ -24,6 +24,7 @@
     "date-fns": "^2.25.0",
     "date-fns-tz": "1.2.2",
     "dompurify": "^2.5.4",
+    "fetch-event-stream": "^0.1.5",
     "focus-visible": "^5.2.1",
     "graphql": "^16.9.0",
     "graphql-request": "^3.6.1",

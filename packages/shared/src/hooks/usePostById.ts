@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import type {
   QueryClient,
-  QueryKey,
   QueryObserverOptions,
   UseQueryResult,
 } from '@tanstack/react-query';
@@ -13,7 +12,9 @@ import type { PostCommentsData } from '../graphql/comments';
 import type { RequestKey } from '../lib/query';
 import {
   getAllCommentsQuery,
+  getPostByIdKey,
   StaleTime,
+  updatePostCache,
   updatePostContentPreference,
 } from '../lib/query';
 import type { Connection } from '../graphql/common';
@@ -25,6 +26,7 @@ import {
   mutationKeyToContentPreferenceStatusMap,
 } from './contentPreference/types';
 import type { PropsParameters } from '../types';
+import { useTranslation } from './translation/useTranslation';
 
 interface UsePostByIdProps {
   id: string;
@@ -36,10 +38,6 @@ interface UsePostById extends Pick<UseQueryResult, 'isError' | 'isLoading'> {
   relatedCollectionPosts?: Connection<RelatedPost>;
 }
 
-export const POST_KEY = 'post';
-
-export const getPostByIdKey = (id: string): QueryKey => [POST_KEY, id];
-
 export const invalidatePostCacheById = (
   client: QueryClient,
   id: string,
@@ -49,35 +47,6 @@ export const invalidatePostCacheById = (
   if (postCache) {
     client.invalidateQueries({ queryKey: postQueryKey });
   }
-};
-
-export const updatePostCache = (
-  client: QueryClient,
-  id: string,
-  postUpdate:
-    | Partial<Omit<Post, 'id'>>
-    | ((current: Post) => Partial<Omit<Post, 'id'>>),
-): PostData => {
-  const currentPost = client.getQueryData<PostData>(getPostByIdKey(id));
-
-  if (!currentPost?.post) {
-    return currentPost;
-  }
-
-  return client.setQueryData<PostData>(getPostByIdKey(id), (node) => {
-    const update =
-      typeof postUpdate === 'function' ? postUpdate(node.post) : postUpdate;
-    const updatedPost = { ...node.post, ...update } as Post;
-    const bookmark = updatedPost.bookmark ?? { createdAt: new Date() };
-
-    return {
-      post: {
-        ...updatedPost,
-        id: node.post.id,
-        bookmark: !updatedPost.bookmarked ? null : bookmark,
-      },
-    };
-  });
 };
 
 export const removePostComments = (
@@ -126,13 +95,24 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
   const { initialData, ...restOptions } = options;
   const { tokenRefreshed } = useAuthContext();
   const key = getPostByIdKey(id);
+  const { fetchTranslations } = useTranslation({
+    queryKey: key,
+    queryType: 'post',
+  });
   const {
     data: postById,
     isError,
     isPending,
   } = useQuery<PostData>({
     queryKey: key,
-    queryFn: () => gqlClient.request(POST_BY_ID_QUERY, { id }),
+    queryFn: async () => {
+      const res = await gqlClient.request<PostData>(POST_BY_ID_QUERY, { id });
+      if (!res.post?.translation?.title) {
+        fetchTranslations([res.post]);
+      }
+
+      return res;
+    },
     ...restOptions,
     staleTime: StaleTime.Default,
     enabled: !!id && tokenRefreshed,

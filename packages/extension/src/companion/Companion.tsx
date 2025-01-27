@@ -17,7 +17,7 @@ import { useBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
 import {
   getPostByIdKey,
   updatePostCache,
-} from '@dailydotdev/shared/src/hooks/usePostById';
+} from '@dailydotdev/shared/src/lib/query';
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
 import CompanionMenu from './CompanionMenu';
 import CompanionContent from './CompanionContent';
