@@ -145,7 +145,7 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
     },
     [
       accessToken?.token,
-      flags.clickbaitShieldEnabled,
+      flags?.clickbaitShieldEnabled,
       isStreamActive,
       language,
       queryType,
