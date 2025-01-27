@@ -55,6 +55,7 @@ const redirect = { destination: '/plus', permanent: false };
 
 export const getServerSideProps: GetServerSideProps<PlusPageProps> = async ({
   params,
+  res,
 }) => {
   const validateUserId = (value: string) => !!value && value !== '404';
   const giftToUserId = params.id as string;
@@ -69,6 +70,11 @@ export const getServerSideProps: GetServerSideProps<PlusPageProps> = async ({
     if (giftToUser.isPlus) {
       return { redirect };
     }
+
+    res.setHeader(
+      'Cache-Control',
+      `public, max-age=0, must-revalidate, s-maxage=${60 * 60}`,
+    );
 
     return { props: { giftToUser } };
   } catch (err) {
