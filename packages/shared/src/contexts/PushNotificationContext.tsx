@@ -11,7 +11,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type OneSignal from 'react-onesignal';
 import type { NotificationPromptSource } from '../lib/log';
 import { LogEvent } from '../lib/log';
-import { checkIsExtension, disabledRefetch } from '../lib/func';
+import { checkIsExtension, disabledRefetch, isIOSNative } from '../lib/func';
 import { useAuthContext } from './AuthContext';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { isTesting } from '../lib/constants';
@@ -276,7 +276,7 @@ export function PushNotificationContextProvider({
     );
   }
 
-  if (globalThis.webkit && globalThis.webkit.messageHandlers) {
+  if (isIOSNative()) {
     return <NativeAppleSubProvider>{children}</NativeAppleSubProvider>;
   }
 
