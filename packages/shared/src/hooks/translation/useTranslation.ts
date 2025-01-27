@@ -102,7 +102,7 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
             : !node?.sharedPost?.translation?.title,
         )
         .filter((node) =>
-          flags.clickbaitShieldEnabled && node?.title
+          flags?.clickbaitShieldEnabled && node?.title
             ? !node.clickbaitTitleDetected
             : !node.sharedPost?.clickbaitTitleDetected,
         )
