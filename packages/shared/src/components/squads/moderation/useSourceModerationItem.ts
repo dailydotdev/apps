@@ -36,10 +36,10 @@ interface UseSourceModerationItem {
 
 export const useSourceModerationItem = ({
   data,
-  squad,
   onApprove,
   onReject,
 }: SquadModerationItemProps): UseSourceModerationItem => {
+  const squad = data.source as Squad;
   const searchParams = useSearchParams();
   const contextMenuId = useId();
   const { isOpen, onMenuClick } = useContextMenu({ id: contextMenuId });
