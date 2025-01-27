@@ -8,7 +8,10 @@ import type { GetServerSideProps } from 'next';
 import { getUserShortInfo } from '@dailydotdev/shared/src/graphql/users';
 import type { GiftUserContextData } from '@dailydotdev/shared/src/components/plus/GiftUserContext';
 import { GiftUserContext } from '@dailydotdev/shared/src/components/plus/GiftUserContext';
+import type { NextSeoProps } from 'next-seo/lib/types';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
+import { getTemplatedTitle } from '../../components/layouts/utils';
+import { defaultOpenGraph } from '../../next-seo';
 
 const PlusMobile = dynamic(() =>
   import(
@@ -22,6 +25,13 @@ const PlusDesktop = dynamic(() =>
 );
 
 type PlusPageProps = Pick<GiftUserContextData, 'giftToUser'>;
+
+const seo: NextSeoProps = {
+  title: getTemplatedTitle('Unlock Premium Developer Features with Plus'),
+  openGraph: { ...defaultOpenGraph },
+  description:
+    'Upgrade to daily.dev Plus for an ad-free experience, custom feeds, bookmark folders, clickbait shield, and more.',
+};
 
 const PlusPage = ({ giftToUser }: PlusPageProps): ReactElement => {
   const [userToGift, setUserToGift] = useState(giftToUser);
@@ -52,6 +62,7 @@ const PlusPage = ({ giftToUser }: PlusPageProps): ReactElement => {
 };
 
 PlusPage.getLayout = getPlusLayout;
+PlusPage.layoutProps = { seo };
 
 export const getServerSideProps: GetServerSideProps<PlusPageProps> = async ({
   query,
