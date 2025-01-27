@@ -10,14 +10,12 @@ import {
 } from '../typography/Typography';
 import CloseButton from '../CloseButton';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
-import type { AllowedTags, ButtonProps } from '../buttons/Button';
 import { Button } from '../buttons/Button';
 import { PlusTitle } from './PlusTitle';
 import {
   PaymentContextProvider,
   usePaymentContext,
 } from '../../contexts/PaymentContext';
-import { plusUrl } from '../../lib/constants';
 import { TextField } from '../fields/TextField';
 import { UserIcon } from '../icons';
 import { gqlClient } from '../../graphql/common';
@@ -29,15 +27,14 @@ import useDebounceFn from '../../hooks/useDebounceFn';
 import { PlusLabelColor, PlusPlanExtraLabel } from './PlusPlanExtraLabel';
 import { ArrowKey, KeyboardCommand } from '../../lib/element';
 import { GiftingSelectedUser } from './GiftingSelectedUser';
+import Link from '../utilities/Link';
 
 interface GiftPlusModalProps extends ModalProps {
   preselected?: UserShortProfile;
-  onSubmit?: (user: UserShortProfile) => void;
 }
 
 export function GiftPlusModalComponent({
   preselected,
-  onSubmit,
   ...props
 }: GiftPlusModalProps): ReactElement {
   const [overlay, setOverlay] = useState<HTMLElement>();
@@ -105,18 +102,6 @@ export function GiftPlusModalComponent({
     setIndex(0);
     setQuery('');
   };
-
-  const submitProps: ButtonProps<AllowedTags> = onSubmit
-    ? {
-        onClick: (event: React.MouseEvent) => {
-          onSubmit(selected);
-          onRequestClose(event);
-        },
-      }
-    : {
-        tag: 'a',
-        href: `${plusUrl}?giftToUserId=${selected?.id}`,
-      };
 
   return (
     <Modal
@@ -199,13 +184,11 @@ export function GiftPlusModalComponent({
           payment is processed, they’ll be notified of your gift. This is a
           one-time purchase, not a recurring subscription.
         </Typography>
-        <Button
-          variant={ButtonVariant.Primary}
-          disabled={!selected}
-          {...submitProps}
-        >
-          Gift & Pay {giftOneYear?.price}
-        </Button>
+        <Link href={`/plus/gift/${selected.id}`} passHref>
+          <Button variant={ButtonVariant.Primary} disabled={!selected} tag="a">
+            Gift & Pay {giftOneYear?.price}
+          </Button>
+        </Link>
       </Modal.Body>
     </Modal>
   );

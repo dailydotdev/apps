@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { useRouter } from 'next/router';
 import { PlusUser } from '../PlusUser';
 import { IconSize } from '../Icon';
 import {
@@ -66,6 +67,7 @@ export const PlusInfo = ({
   onChange,
   onContinue,
 }: PlusInfoProps): ReactElement => {
+  const router = useRouter();
   const { giftOneYear } = usePaymentContext();
   const { openModal } = useLazyModal();
   const { logSubscriptionEvent } = usePlusSubscription();
@@ -106,12 +108,7 @@ export const PlusInfo = ({
               icon={<GiftIcon />}
               size={ButtonSize.XSmall}
               variant={ButtonVariant.Float}
-              onClick={() =>
-                openModal({
-                  type: LazyModal.GiftPlus,
-                  props: { onSubmit: onUserChange },
-                })
-              }
+              onClick={() => openModal({ type: LazyModal.GiftPlus })}
             >
               Buy as a gift
             </Button>

@@ -1,13 +1,9 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React from 'react';
 
 import dynamic from 'next/dynamic';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
-import type { GetServerSideProps } from 'next';
-import { getUserShortInfo } from '@dailydotdev/shared/src/graphql/users';
-import type { GiftUserContextData } from '@dailydotdev/shared/src/components/plus/GiftUserContext';
-import { GiftUserContext } from '@dailydotdev/shared/src/components/plus/GiftUserContext';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -24,8 +20,6 @@ const PlusDesktop = dynamic(() =>
   ).then((mod) => mod.PlusDesktop),
 );
 
-type PlusPageProps = Pick<GiftUserContextData, 'giftToUser'>;
-
 const seo: NextSeoProps = {
   title: getTemplatedTitle('Unlock Premium Developer Features with Plus'),
   openGraph: { ...defaultOpenGraph },
@@ -33,8 +27,7 @@ const seo: NextSeoProps = {
     'Upgrade to daily.dev Plus for an ad-free experience, custom feeds, bookmark folders, clickbait shield, and more.',
 };
 
-const PlusPage = ({ giftToUser }: PlusPageProps): ReactElement => {
-  const [userToGift, setUserToGift] = useState(giftToUser);
+const PlusPage = (): ReactElement => {
   const { isReady } = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
 
@@ -42,44 +35,14 @@ const PlusPage = ({ giftToUser }: PlusPageProps): ReactElement => {
     return null;
   }
 
-  return (
-    <GiftUserContext.Provider
-      value={{
-        giftToUser: userToGift,
-        onUserChange: setUserToGift,
-      }}
-    >
-      {isLaptop ? <PlusDesktop /> : <PlusMobile />}
-    </GiftUserContext.Provider>
-  );
+  if (isLaptop) {
+    return <PlusDesktop />;
+  }
+
+  return <PlusMobile />;
 };
 
 PlusPage.getLayout = getPlusLayout;
 PlusPage.layoutProps = { seo };
-
-export const getServerSideProps: GetServerSideProps<PlusPageProps> = async ({
-  query,
-}) => {
-  const validateUserId = (value: string) => !!value && value !== '404';
-  const giftToUserId = query?.giftToUserId as string;
-
-  if (!validateUserId(giftToUserId)) {
-    return { props: {} };
-  }
-
-  try {
-    const giftToUser = await getUserShortInfo(giftToUserId);
-
-    if (giftToUser.isPlus) {
-      return { props: {} };
-    }
-
-    return { props: { giftToUser } };
-  } catch (err) {
-    return {
-      props: {},
-    };
-  }
-};
 
 export default PlusPage;
