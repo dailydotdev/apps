@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React from 'react';
 
 import dynamic from 'next/dynamic';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
@@ -34,7 +34,6 @@ const seo: NextSeoProps = {
 };
 
 const PlusGiftPage = ({ giftToUser }: PlusPageProps): ReactElement => {
-  const [userToGift, setUserToGift] = useState(giftToUser);
   const { isReady } = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
 
@@ -43,12 +42,7 @@ const PlusGiftPage = ({ giftToUser }: PlusPageProps): ReactElement => {
   }
 
   return (
-    <GiftUserContext.Provider
-      value={{
-        giftToUser: userToGift,
-        onUserChange: setUserToGift,
-      }}
-    >
+    <GiftUserContext.Provider value={{ giftToUser }}>
       {isLaptop ? <PlusDesktop /> : <PlusMobile />}
     </GiftUserContext.Provider>
   );
@@ -60,10 +54,10 @@ PlusGiftPage.layoutProps = { seo };
 const redirect = { destination: '/plus', permanent: false };
 
 export const getServerSideProps: GetServerSideProps<PlusPageProps> = async ({
-  query,
+  params,
 }) => {
   const validateUserId = (value: string) => !!value && value !== '404';
-  const giftToUserId = query?.giftToUserId as string;
+  const giftToUserId = params.id as string;
 
   if (!validateUserId(giftToUserId)) {
     return { redirect };

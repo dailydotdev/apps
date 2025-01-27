@@ -128,13 +128,14 @@ export const PlusInfo = ({
       {!!giftToUser && (
         <GiftingSelectedUser
           user={giftToUser}
+          className="mb-6"
           onClose={() => router.push('/plus')}
         />
       )}
       <div className="min-h-[6.125rem] rounded-10 border border-border-subtlest-tertiary">
         {giftToUser ? (
           <PlusOptionRadio
-            key={giftOneYear.value}
+            key={giftOneYear?.value}
             option={giftOneYear}
             checked
           />
