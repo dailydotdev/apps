@@ -50,19 +50,18 @@ export default function ModerateSquadPage(): ReactElement {
   return (
     <ManageSquadPageContainer>
       <PageHeader className="border-b-0">
-        {handle && (
-          <Button
-            href={`/squads/${handle}`}
-            icon={<ArrowIcon className="-rotate-90" />}
-            tag="a"
-            variant={ButtonVariant.Tertiary}
-          />
-        )}
+        <Button
+          onClick={() =>
+            handle ? router.push(`/squads/${handle}`) : router.back()
+          }
+          icon={<ArrowIcon className="-rotate-90" />}
+          variant={ButtonVariant.Tertiary}
+        />
         <PageHeaderTitle bold type={TypographyType.Title3}>
           {isModerator ? 'Squad settings' : 'Pending posts'}
         </PageHeaderTitle>
       </PageHeader>
-      {handle && <SquadTabs active={SquadTab.PendingPosts} squad={squad} />}
+      {handle && <SquadTabs active={SquadTab.PendingPosts} handle={handle} />}
       <SquadModerationList squad={squad} isModerator={isModerator} />
     </ManageSquadPageContainer>
   );

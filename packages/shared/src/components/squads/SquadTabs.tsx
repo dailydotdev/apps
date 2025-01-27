@@ -2,9 +2,9 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { TabContainer, Tab } from '../tabs/TabContainer';
 import { webappUrl } from '../../lib/constants';
-import type { Squad } from '../../graphql/sources';
 import { SourcePermissions } from '../../graphql/sources';
 import { verifyPermission } from '../../graphql/squads';
+import { useSquad } from '../../hooks';
 
 export enum SquadTab {
   Settings = 'Settings',
@@ -13,15 +13,17 @@ export enum SquadTab {
 
 interface SquadTabsProps {
   active: SquadTab;
-  squad: Squad;
+  handle: string;
 }
 
-export function SquadTabs({ active, squad }: SquadTabsProps): ReactElement {
-  const { handle, moderationPostCount } = squad;
+export function SquadTabs({ active, handle }: SquadTabsProps): ReactElement {
+  const { squad } = useSquad({
+    handle,
+  });
   const isModerator = verifyPermission(squad, SourcePermissions.ModeratePost);
   const squadLink = `${webappUrl}squads/${handle}`;
-  const pendingTabLabel = moderationPostCount
-    ? `${SquadTab.PendingPosts} (${moderationPostCount})`
+  const pendingTabLabel = squad?.moderationPostCount
+    ? `${SquadTab.PendingPosts} (${squad?.moderationPostCount})`
     : SquadTab.PendingPosts;
 
   const links = [
