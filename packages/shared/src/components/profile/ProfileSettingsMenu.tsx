@@ -37,7 +37,7 @@ import { ButtonColor } from '../buttons/Button';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../lib/log';
 import { GooglePlayIcon } from '../icons/Google/Play';
-import { checkIsBrowser, UserAgent } from '../../lib/func';
+import { checkIsBrowser, isIOSNative, UserAgent } from '../../lib/func';
 import { useConditionalFeature } from '../../hooks';
 import { featureOnboardingAndroid } from '../../lib/featureManagement';
 
@@ -74,13 +74,16 @@ const useMenuItems = (): NavItemProps[] => {
         }
       : undefined;
 
-    const items = [
+    const items: NavItemProps[] = [
       {
         label: 'Profile',
         isHeader: true,
       },
       { label: 'Edit profile', icon: <EditIcon />, href: '/account/profile' },
-      {
+    ];
+
+    if (!isIOSNative()) {
+      items.push({
         label: isPlus ? 'Manage plus' : 'Upgrade to plus',
         icon: <DevPlusIcon />,
         href: isPlus ? managePlusUrl : plusUrl,
@@ -94,14 +97,17 @@ const useMenuItems = (): NavItemProps[] => {
             target_id: TargetId.ProfileDropdown,
           });
         },
-      },
+      });
+    }
+
+    items.push(
       {
         label: 'Invite friends',
         icon: <AddUserIcon />,
         href: '/account/invite',
       },
       { label: 'Devcard', icon: <DevCardIcon />, href: '/devcard' },
-    ];
+    );
 
     if (isGdprCovered) {
       items.push({ label: 'Privacy', icon: <PrivacyIcon />, href: '/privacy' });
