@@ -22,7 +22,7 @@ type UseTranslation = (props: {
   queryKey: QueryKey;
   queryType: 'post' | 'feed';
 }) => {
-  fetchTranslations: (id: string[]) => void;
+  fetchTranslations: (id: Post[]) => void;
 };
 
 type TranslateEvent = {
@@ -85,10 +85,28 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
   );
 
   const fetchTranslations = useCallback(
-    async (postIds: string[]) => {
+    async (posts: Post[]) => {
       if (!isStreamActive) {
         return;
       }
+      if (posts.length === 0) {
+        return;
+      }
+
+      const postIds = posts
+        .filter((node) =>
+          node?.title
+            ? !node?.translation?.title
+            : !node?.sharedPost?.translation?.title,
+        )
+        .filter((node) =>
+          node?.title
+            ? !node.clickbaitTitleDetected
+            : !node.sharedPost?.clickbaitTitleDetected,
+        )
+        .filter(Boolean)
+        .map((node) => (node?.title ? node.id : node?.sharedPost.id));
+
       if (postIds.length === 0) {
         return;
       }

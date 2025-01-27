@@ -108,7 +108,7 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
     queryFn: async () => {
       const res = await gqlClient.request<PostData>(POST_BY_ID_QUERY, { id });
       if (!res.post?.translation?.title) {
-        fetchTranslations([res.post.id]);
+        fetchTranslations([res.post]);
       }
 
       return res;
