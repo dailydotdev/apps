@@ -37,26 +37,19 @@ const PlusPage = ({ giftToUser }: PlusPageProps): ReactElement => {
   const [userToGift, setUserToGift] = useState(giftToUser);
   const { isReady } = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const pageProps: GiftUserContextData = {
-    giftToUser: userToGift,
-    onUserChange: setUserToGift,
-  };
 
   if (!isReady) {
     return null;
   }
 
-  if (isLaptop) {
-    return (
-      <GiftUserContext.Provider value={pageProps}>
-        <PlusDesktop />
-      </GiftUserContext.Provider>
-    );
-  }
-
   return (
-    <GiftUserContext.Provider value={pageProps}>
-      <PlusMobile />
+    <GiftUserContext.Provider
+      value={{
+        giftToUser: userToGift,
+        onUserChange: setUserToGift,
+      }}
+    >
+      {isLaptop ? <PlusDesktop /> : <PlusMobile />}
     </GiftUserContext.Provider>
   );
 };
