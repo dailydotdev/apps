@@ -448,7 +448,7 @@ export function OnboardPage(): ReactElement {
           sizes="(max-width: 655px) 450px, 1024px"
         />
       )}
-      <Pixels />
+      <Pixels hotjarId="3871311" />
       {showGenerigLoader && <GenericLoader />}
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}
