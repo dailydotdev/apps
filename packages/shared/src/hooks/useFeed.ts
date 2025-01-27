@@ -26,9 +26,11 @@ import { featureFeedAdTemplate } from '../lib/featureManagement';
 import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
 import { AD_PLACEHOLDER_SOURCE_ID } from '../lib/constants';
 import { SharedFeedPage } from '../components/utilities';
+import { useTranslation } from './translation/useTranslation';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
+  dataUpdatedAt: number;
 }
 
 interface AdItem extends FeedItemBase<FeedItemType.Ad> {
@@ -101,6 +103,10 @@ export default function useFeed<T>(
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { isPlus } = usePlusSubscription();
   const queryClient = useQueryClient();
+  const { fetchTranslations } = useTranslation({
+    queryKey: feedQueryKey,
+    queryType: 'feed',
+  });
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
   const avoidRetry =
     params?.settings?.feedName === SharedFeedPage.Custom && !isPlus;
@@ -108,7 +114,7 @@ export default function useFeed<T>(
   const feedQuery = useInfiniteQuery<FeedData>({
     queryKey: feedQueryKey,
     queryFn: async ({ pageParam }) => {
-      const res = await gqlClient.request(query, {
+      const res = await gqlClient.request<FeedData>(query, {
         ...variables,
         first: pageSize,
         after: pageParam,
@@ -131,6 +137,8 @@ export default function useFeed<T>(
           onEmptyFeed();
         }
       }
+
+      fetchTranslations(res.page.edges.map(({ node }) => node));
 
       return res;
     },
@@ -287,6 +295,7 @@ export default function useFeed<T>(
             post: node,
             page: pageIndex,
             index,
+            dataUpdatedAt: feedQuery.dataUpdatedAt,
           });
         });
 
@@ -302,6 +311,7 @@ export default function useFeed<T>(
   }, [
     feedQuery.data,
     feedQuery.isFetching,
+    feedQuery.dataUpdatedAt,
     settings.marketingCta,
     settings.showAcquisitionForm,
     placeholdersPerPage,

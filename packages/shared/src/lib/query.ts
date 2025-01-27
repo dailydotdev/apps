@@ -11,6 +11,7 @@ import { GARMR_ERROR } from '../graphql/common';
 import type { PageInfo, Connection } from '../graphql/common';
 import type { EmptyObjectLiteral } from './kratos';
 import type { LoggedUser } from './user';
+import { PostType } from '../graphql/posts';
 import type {
   FeedData,
   Post,
@@ -482,12 +483,20 @@ export const getAllCommentsQuery = (postId: string): QueryKeyReturnType[] => {
 export const findIndexOfPostInData = (
   data: InfiniteData<FeedData>,
   id: string,
+  findBySharedPost = false,
 ): { pageIndex: number; index: number } => {
   for (let pageIndex = 0; pageIndex < data.pages.length; pageIndex += 1) {
     const page = data.pages[pageIndex];
     for (let index = 0; index < page.page.edges.length; index += 1) {
       const item = page.page.edges[index];
       if (item.node.id === id) {
+        return { pageIndex, index };
+      }
+      if (
+        findBySharedPost &&
+        item.node.type === PostType.Share &&
+        item.node.sharedPost.id === id
+      ) {
         return { pageIndex, index };
       }
     }

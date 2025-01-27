@@ -38,6 +38,15 @@ Object.defineProperty(global, 'open', {
   value: jest.fn(),
 });
 
+Object.defineProperty(global, 'TransformStream', {
+  writable: true,
+  value: jest.fn().mockImplementation(() => ({
+    backpressure: jest.fn(),
+    readable: jest.fn(),
+    writable: jest.fn(),
+  })),
+});
+
 jest.mock('next/router', () => ({
   useRouter: jest.fn().mockImplementation(
     () =>

@@ -26,6 +26,7 @@ import {
   mutationKeyToContentPreferenceStatusMap,
 } from './contentPreference/types';
 import type { PropsParameters } from '../types';
+import { useTranslation } from './translation/useTranslation';
 
 interface UsePostByIdProps {
   id: string;
@@ -94,13 +95,24 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
   const { initialData, ...restOptions } = options;
   const { tokenRefreshed } = useAuthContext();
   const key = getPostByIdKey(id);
+  const { fetchTranslations } = useTranslation({
+    queryKey: key,
+    queryType: 'post',
+  });
   const {
     data: postById,
     isError,
     isPending,
   } = useQuery<PostData>({
     queryKey: key,
-    queryFn: () => gqlClient.request(POST_BY_ID_QUERY, { id }),
+    queryFn: async () => {
+      const res = await gqlClient.request<PostData>(POST_BY_ID_QUERY, { id });
+      if (!res.post?.translation?.title) {
+        fetchTranslations([res.post]);
+      }
+
+      return res;
+    },
     ...restOptions,
     staleTime: StaleTime.Default,
     enabled: !!id && tokenRefreshed,

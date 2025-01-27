@@ -79,6 +79,9 @@ export const FEED_POST_FRAGMENT = gql`
       }
       slug
       clickbaitTitleDetected
+      translation {
+        title
+      }
     }
     trending
     feedMeta
