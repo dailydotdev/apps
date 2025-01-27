@@ -49,7 +49,7 @@ export const useLanguage = (): UseLanguage => {
         RequestKey.Squad,
         RequestKey.FeedPreview,
         RequestKey.FeedPreviewCustom,
-        RequestKey.PostKey,
+        RequestKey.Post,
         RequestKey.Bookmarks,
         RequestKey.ReadingHistory,
         RequestKey.RelatedPosts,

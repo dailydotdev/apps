@@ -7,7 +7,7 @@ import { postLogEvent } from '../lib/feed';
 import useOnPostClick from './useOnPostClick';
 import useSubscription from './useSubscription';
 import type { PostOrigin } from './log/useLogContextData';
-import { updatePostCache } from './usePostById';
+import { updatePostCache } from '../lib/query';
 import { ReferralCampaignKey } from '../lib';
 import { useGetShortUrl } from './utils/useGetShortUrl';
 import { ShareProvider } from '../lib/share';
