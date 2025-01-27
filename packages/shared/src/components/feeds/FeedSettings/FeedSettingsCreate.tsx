@@ -10,7 +10,6 @@ import type { CreateFeedProps } from '../../../hooks';
 import {
   useActions,
   useFeeds,
-  usePlusSubscription,
   useProgressAnimation,
   useToastNotification,
 } from '../../../hooks';
@@ -44,7 +43,6 @@ export const FeedSettingsCreate = (): ReactElement => {
   const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
-  const { showPlusSubscription } = usePlusSubscription();
   const [data, setData] = useState<CreateFeedProps>(() => ({
     icon: '',
   }));
@@ -164,7 +162,7 @@ export const FeedSettingsCreate = (): ReactElement => {
             >
               New custom feed
             </Typography>
-            {showPlusSubscription && <PlusUser />}
+            <PlusUser />
           </div>
           <div className="flex w-full items-center justify-between gap-2 tablet:hidden">
             <Button

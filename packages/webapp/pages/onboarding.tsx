@@ -153,10 +153,9 @@ export function OnboardPage(): ReactElement {
   const router = useRouter();
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
+  const { logSubscriptionEvent } = usePlusSubscription();
   const { user, isAuthReady, anonymous, isAndroidApp, loginState } =
     useAuthContext();
-  const { logSubscriptionEvent, showPlusSubscription: isOnboardingPlusActive } =
-    usePlusSubscription();
   const shouldVerify = anonymous?.shouldVerify;
   const { growthbook } = useGrowthBookContext();
   const { logEvent } = useLogContext();
@@ -282,7 +281,7 @@ export function OnboardPage(): ReactElement {
       OnboardingStep.ContentTypes,
       OnboardingStep.ReadingReminder,
     ].includes(activeScreen);
-    if (isOnboardingPlusActive && isLastStepBeforePlus) {
+    if (isLastStepBeforePlus) {
       return setActiveScreen(OnboardingStep.Plus);
     }
 
@@ -347,12 +346,10 @@ export function OnboardPage(): ReactElement {
   };
 
   const onClickCreateFeed = () => {
-    if (isOnboardingPlusActive) {
-      logSubscriptionEvent({
-        event_name: LogEvent.OnboardingSkipPlus,
-        target_id: TargetId.Onboarding,
-      });
-    }
+    logSubscriptionEvent({
+      event_name: LogEvent.OnboardingSkipPlus,
+      target_id: TargetId.Onboarding,
+    });
 
     setSettings({
       sidebarExpanded: true,
@@ -451,7 +448,7 @@ export function OnboardPage(): ReactElement {
           sizes="(max-width: 655px) 450px, 1024px"
         />
       )}
-      <Pixels />
+      <Pixels hotjarId="3871311" />
       {showGenerigLoader && <GenericLoader />}
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}
