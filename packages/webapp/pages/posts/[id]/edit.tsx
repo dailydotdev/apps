@@ -12,6 +12,7 @@ import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useDiscardPost } from '@dailydotdev/shared/src/hooks/input/useDiscardPost';
 import type { NextSeoProps } from 'next-seo';
 import { NextSeo } from 'next-seo';
@@ -31,6 +32,8 @@ import { getLayout as getMainLayout } from '../../../components/layouts/MainLayo
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 
 function EditPost(): ReactElement {
+  gqlClient.unsetHeader('content-language');
+
   const { completeAction } = useActions();
   const { query, isReady, push } = useRouter();
   const idQuery = query.id as string;
