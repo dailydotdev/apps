@@ -71,7 +71,7 @@ export const PlusInfo = ({
   const { giftOneYear } = usePaymentContext();
   const { openModal } = useLazyModal();
   const { logSubscriptionEvent } = usePlusSubscription();
-  const { giftToUser, onUserChange } = useGiftUserContext();
+  const { giftToUser } = useGiftUserContext();
   const { title, description, subtitle } =
     copy[giftToUser ? PlusType.Gift : PlusType.Self];
 
@@ -128,7 +128,7 @@ export const PlusInfo = ({
       {!!giftToUser && (
         <GiftingSelectedUser
           user={giftToUser}
-          onClose={() => onUserChange(null)}
+          onClose={() => router.push('/plus')}
         />
       )}
       <div className="min-h-[6.125rem] rounded-10 border border-border-subtlest-tertiary">

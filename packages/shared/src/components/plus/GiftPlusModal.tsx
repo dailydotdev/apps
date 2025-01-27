@@ -184,7 +184,7 @@ export function GiftPlusModalComponent({
           payment is processed, they’ll be notified of your gift. This is a
           one-time purchase, not a recurring subscription.
         </Typography>
-        <Link href={`/plus/gift/${selected.id}`} passHref>
+        <Link href={`/plus/gift/${selected?.id}`} passHref>
           <Button variant={ButtonVariant.Primary} disabled={!selected} tag="a">
             Gift & Pay {giftOneYear?.price}
           </Button>
