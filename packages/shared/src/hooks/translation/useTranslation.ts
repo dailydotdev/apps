@@ -10,6 +10,7 @@ import {
   findIndexOfPostInData,
   updatePostCache,
 } from '../../lib/query';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 
 export enum ServerEvents {
   Connect = 'connect',
@@ -46,6 +47,7 @@ const updateTranslation = (post: Post, translation: TranslateEvent): Post => {
 export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
   const abort = useRef<AbortController>();
   const { user, accessToken, isLoggedIn } = useAuthContext();
+  const { flags } = useSettingsContext();
   const queryClient = useQueryClient();
 
   const { language } = user || {};
@@ -100,7 +102,7 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
             : !node?.sharedPost?.translation?.title,
         )
         .filter((node) =>
-          node?.title
+          flags.clickbaitShieldEnabled && node?.title
             ? !node.clickbaitTitleDetected
             : !node.sharedPost?.clickbaitTitleDetected,
         )
