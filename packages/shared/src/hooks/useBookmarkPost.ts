@@ -10,7 +10,7 @@ import LogContext from '../contexts/LogContext';
 import { useToastNotification } from './useToastNotification';
 import { useRequestProtocol } from './useRequestProtocol';
 import AuthContext from '../contexts/AuthContext';
-import { updatePostCache } from './usePostById';
+import { updatePostCache } from '../lib/query';
 import { AuthTriggers } from '../lib/auth';
 import type { Origin } from '../lib/log';
 import { LogEvent } from '../lib/log';

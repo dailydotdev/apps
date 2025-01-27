@@ -129,6 +129,7 @@ export interface Post {
   bookmarkList?: BookmarkFolder;
   domain?: string;
   clickbaitTitleDetected?: boolean;
+  translation?: { title?: boolean };
 }
 
 export type RelatedPost = Pick<
