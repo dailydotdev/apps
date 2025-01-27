@@ -20,7 +20,6 @@ import { FeedSettingsEditContext } from './FeedSettingsEditContext';
 import { FeedSettingsEditHeader } from './FeedSettingsEditHeader';
 import { FeedSettingsEditBody } from './FeedSettingsEditBody';
 import { FeedSettingsTitle } from './FeedSettingsTitle';
-import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { FeedType } from '../../../graphql/feed';
 
 import { SuspenseLoader } from './components/SuspenseLoader';
@@ -113,7 +112,6 @@ export const FeedSettingsEdit = ({
   const router = useRouter();
   const feedSettingsEditContext = useFeedSettingsEdit({ feedSlugOrId });
   const { feed, onBackToFeed } = feedSettingsEditContext;
-  const { showPlusSubscription } = usePlusSubscription();
 
   const tabs = useMemo(() => {
     const base: TabOptions[] = [
@@ -121,39 +119,38 @@ export const FeedSettingsEdit = ({
         title: feedSettingsMenuTitle.general,
         options: { icon: <EditIcon size={IconSize.Small} /> },
       },
+      {
+        title: feedSettingsMenuTitle.tags,
+        options: { icon: <HashtagIcon size={IconSize.Small} /> },
+      },
+      {
+        title: feedSettingsMenuTitle.sources,
+        options: { icon: <AddUserIcon size={IconSize.Small} /> },
+      },
+      {
+        title: feedSettingsMenuTitle.preferences,
+        options: { icon: <AppIcon size={IconSize.Small} /> },
+      },
+      {
+        title: feedSettingsMenuTitle.ai,
+        options: { icon: <MagicIcon size={IconSize.Small} /> },
+      },
     ];
 
-    if (showPlusSubscription || feed?.type === FeedType.Main) {
-      base.push(
-        {
-          title: feedSettingsMenuTitle.tags,
-          options: { icon: <HashtagIcon size={IconSize.Small} /> },
-        },
-        {
-          title: feedSettingsMenuTitle.sources,
-          options: { icon: <AddUserIcon size={IconSize.Small} /> },
-        },
-        {
-          title: feedSettingsMenuTitle.preferences,
-          options: { icon: <AppIcon size={IconSize.Small} /> },
-        },
-        {
-          title: feedSettingsMenuTitle.ai,
-          options: { icon: <MagicIcon size={IconSize.Small} /> },
-        },
-        feed?.type === FeedType.Custom && {
-          title: feedSettingsMenuTitle.filters,
-          options: { icon: <FilterIcon size={IconSize.Small} /> },
-        },
-        {
-          title: feedSettingsMenuTitle.blocking,
-          options: { icon: <BlockIcon size={IconSize.Small} /> },
-        },
-      );
+    if (feed?.type === FeedType.Custom) {
+      base.push({
+        title: feedSettingsMenuTitle.filters,
+        options: { icon: <FilterIcon size={IconSize.Small} /> },
+      });
     }
 
+    base.push({
+      title: feedSettingsMenuTitle.blocking,
+      options: { icon: <BlockIcon size={IconSize.Small} /> },
+    });
+
     return base.filter(Boolean);
-  }, [feed?.type, showPlusSubscription]);
+  }, [feed?.type]);
 
   const defaultView = useMemo(() => {
     return feedSettingsMenuTitle[router.query.dview as FeedSettingsMenu];

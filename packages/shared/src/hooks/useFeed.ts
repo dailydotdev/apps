@@ -101,7 +101,7 @@ export default function useFeed<T>(
   const { logEvent } = useLogContext();
   const { query, variables, options = {}, settings, onEmptyFeed } = params;
   const { user, tokenRefreshed } = useContext(AuthContext);
-  const { showPlusSubscription, isPlus } = usePlusSubscription();
+  const { isPlus } = usePlusSubscription();
   const queryClient = useQueryClient();
   const { fetchTranslations } = useTranslation({
     queryKey: feedQueryKey,
@@ -109,9 +109,7 @@ export default function useFeed<T>(
   });
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
   const avoidRetry =
-    params?.settings?.feedName === SharedFeedPage.Custom &&
-    showPlusSubscription &&
-    !isPlus;
+    params?.settings?.feedName === SharedFeedPage.Custom && !isPlus;
 
   const feedQuery = useInfiniteQuery<FeedData>({
     queryKey: feedQueryKey,

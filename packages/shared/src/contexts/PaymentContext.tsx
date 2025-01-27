@@ -16,7 +16,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { useAuthContext } from './AuthContext';
-import { plusSuccessUrl } from '../lib/constants';
+import { invalidPlusRegions, plusSuccessUrl } from '../lib/constants';
 import { LogEvent } from '../lib/log';
 import { usePlusSubscription } from '../hooks';
 import { logPixelPayment } from '../components/Pixels';
@@ -38,9 +38,10 @@ export interface PaymentContextData {
   paddle?: Paddle | undefined;
   productOptions?: ProductOption[];
   earlyAdopterPlanId?: string | null;
+  isPlusAvailable: boolean;
 }
 
-const PaymentContext = React.createContext<PaymentContextData>({});
+const PaymentContext = React.createContext<PaymentContextData>(undefined);
 export default PaymentContext;
 
 export type PaymentContextProviderProps = {
@@ -54,9 +55,13 @@ export const PaymentContextProvider = ({
   const { user, geo } = useAuthContext();
   const planTypes = useFeature(feature.pricingIds);
   const [paddle, setPaddle] = useState<Paddle>();
-  const { logSubscriptionEvent } = usePlusSubscription();
+  const { logSubscriptionEvent, isPlus } = usePlusSubscription();
   const logRef = useRef<typeof logSubscriptionEvent>();
   logRef.current = logSubscriptionEvent;
+
+  const isPlusAvailable = useMemo(() => {
+    return !invalidPlusRegions.includes(geo?.region);
+  }, [geo?.region]);
 
   // Download and initialize Paddle instance from CDN
   useEffect(() => {
@@ -120,6 +125,14 @@ export const PaymentContextProvider = ({
 
   const openCheckout = useCallback(
     ({ priceId }: { priceId: string }) => {
+      if (isPlus) {
+        return;
+      }
+
+      if (!isPlusAvailable) {
+        return;
+      }
+
       paddle?.Checkout.open({
         items: [{ priceId, quantity: 1 }],
         customer: {
@@ -139,7 +152,7 @@ export const PaymentContextProvider = ({
         },
       });
     },
-    [paddle, user],
+    [paddle, user, isPlusAvailable, isPlus],
   );
 
   const getPrices = useCallback(async () => {
@@ -194,8 +207,9 @@ export const PaymentContextProvider = ({
       paddle,
       productOptions,
       earlyAdopterPlanId,
+      isPlusAvailable,
     }),
-    [earlyAdopterPlanId, openCheckout, paddle, productOptions],
+    [earlyAdopterPlanId, openCheckout, paddle, productOptions, isPlusAvailable],
   );
 
   return (
