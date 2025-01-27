@@ -35,7 +35,7 @@ type PlusInfoProps = {
 };
 
 enum PlusType {
-  Regular = 'regular',
+  Self = 'self',
   Gift = 'gift',
 }
 
@@ -46,7 +46,7 @@ interface PageCopy {
 }
 
 const copy: Record<PlusType, PageCopy> = {
-  [PlusType.Regular]: {
+  [PlusType.Self]: {
     title: 'Unlock more with Plus',
     description:
       'Upgrade to daily.dev Plus for an enhanced, ad-free experience with exclusive features and perks to level up your game.',
@@ -71,7 +71,7 @@ export const PlusInfo = ({
   const { logSubscriptionEvent } = usePlusSubscription();
   const { giftToUser, onUserChange } = useGiftUserContext();
   const { title, description, subtitle } =
-    copy[giftToUser ? PlusType.Gift : PlusType.Regular];
+    copy[giftToUser ? PlusType.Gift : PlusType.Self];
 
   return (
     <>
