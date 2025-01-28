@@ -13,11 +13,12 @@ const renderComponent = (): RenderResult => {
   return render(
     <TestBootProvider client={client}>
       <YoutubeVideo
-        title="test title"
+        placeholderProps={{
+          post: { ...sharePost, title: 'test title' },
+          onWatchVideo: jest.fn(),
+        }}
         videoId="igZCEr3HwCg"
         data-testid="iframeId"
-        image={sharePost.image}
-        source={sharePost.source}
       />
     </TestBootProvider>,
   );
