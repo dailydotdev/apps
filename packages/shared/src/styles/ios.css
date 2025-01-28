@@ -1,0 +1,29 @@
+.ios {
+  & body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: env(safe-area-inset-top);
+    background: var(--theme-background-default);
+    z-index: 1000;
+  }
+
+  & body {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  & .antialiased > .sticky.top-0,
+  & .fixed.inset-0 {
+    top: env(safe-area-inset-top);
+  }
+
+  & .min-h-dvh {
+    min-height: calc(100dvh - env(safe-area-inset-top));
+  }
+
+  & .max-h-dvh {
+    max-height: calc(100dvh - env(safe-area-inset-top));
+  }
+}
