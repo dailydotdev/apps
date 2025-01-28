@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { HTMLAttributes, ReactElement } from 'react';
 import React from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { GdprConsentKey } from '../../hooks/useCookieBanner';
@@ -7,7 +7,7 @@ import { YoutubeVideoWithoutConsent } from './YoutubeVideoWithoutConsent';
 import { YoutubeVideoBackground, YoutubeVideoContainer } from './common';
 import { useConsentCookie } from '../../hooks/useCookieConsent';
 
-interface YoutubeVideoProps {
+interface YoutubeVideoProps extends HTMLAttributes<HTMLIFrameElement> {
   videoId: string;
   className?: string;
   placeholderProps: Pick<
@@ -20,6 +20,7 @@ const YoutubeVideo = ({
   videoId,
   className,
   placeholderProps,
+  ...props
 }: YoutubeVideoProps): ReactElement => {
   const { title } = placeholderProps.post;
   const { isAuthReady, isGdprCovered } = useAuthContext();
@@ -47,6 +48,7 @@ const YoutubeVideo = ({
   return (
     <YoutubeVideoContainer className={className}>
       <iframe
+        {...props}
         title={title}
         src={`https://www.youtube-nocookie.com/embed/${videoId}`}
         allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
