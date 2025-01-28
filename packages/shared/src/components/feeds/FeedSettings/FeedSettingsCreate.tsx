@@ -42,6 +42,7 @@ export const FeedSettingsCreate = (): ReactElement => {
   const { completeAction } = useActions();
   const { user } = useAuthContext();
   const router = useRouter();
+  const isNewFeedPage = router.pathname.includes('/feeds/new');
   const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
@@ -77,6 +78,10 @@ export const FeedSettingsCreate = (): ReactElement => {
           entityName: entityId,
           feedId: newFeed.id,
         });
+
+        if (isNewFeedPage) {
+          router.back();
+        }
 
         return;
       }
@@ -134,7 +139,11 @@ export const FeedSettingsCreate = (): ReactElement => {
   }, [logEvent]);
 
   const onRequestClose = () => {
-    closeModal();
+    if (isNewFeedPage) {
+      return router.replace(webappUrl);
+    }
+
+    return closeModal();
   };
 
   return (
