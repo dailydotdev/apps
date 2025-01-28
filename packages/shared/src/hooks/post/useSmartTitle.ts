@@ -3,10 +3,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { gqlClient } from '../../graphql/common';
 import type { Post } from '../../graphql/posts';
 import { POST_FETCH_SMART_TITLE_QUERY } from '../../graphql/posts';
-import { getPostByIdKey } from '../usePostById';
 import { usePlusSubscription } from '../usePlusSubscription';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { generateQueryKey, RequestKey } from '../../lib/query';
+import { generateQueryKey, getPostByIdKey, RequestKey } from '../../lib/query';
 import { disabledRefetch } from '../../lib/func';
 import { useActions } from '../useActions';
 import { ActionType } from '../../graphql/actions';
@@ -115,7 +114,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     return fetchedSmartTitle
       ? smartTitle
       : post?.title || post?.sharedPost?.title;
-  }, [fetchedSmartTitle, smartTitle, post]);
+  }, [fetchedSmartTitle, smartTitle, post?.title, post?.sharedPost?.title]);
 
   const shieldActive = useMemo(() => {
     return (

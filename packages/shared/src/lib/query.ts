@@ -11,7 +11,13 @@ import { GARMR_ERROR } from '../graphql/common';
 import type { PageInfo, Connection } from '../graphql/common';
 import type { EmptyObjectLiteral } from './kratos';
 import type { LoggedUser } from './user';
-import type { FeedData, Post, ReadHistoryPost } from '../graphql/posts';
+import { PostType } from '../graphql/posts';
+import type {
+  FeedData,
+  Post,
+  PostData,
+  ReadHistoryPost,
+} from '../graphql/posts';
 import type { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
 import type { SharedFeedPage } from '../components/utilities';
 import type {
@@ -128,7 +134,7 @@ export enum RequestKey {
   FeedPreview = 'feedPreview',
   FeedPreviewCustom = 'feedPreviewCustom',
   ReferredUsers = 'referred',
-  PostKey = 'post',
+  Post = 'post',
   Prompt = 'prompt',
   Comment = 'comment',
   SquadTour = 'squad_tour',
@@ -188,6 +194,8 @@ export enum RequestKey {
   BookmarkFolders = 'bookmark_folders',
   FetchedOriginalTitle = 'fetched_original_title',
 }
+
+export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];
 
 export type HasConnection<
   TEntity,
@@ -470,4 +478,57 @@ export const getAllCommentsQuery = (postId: string): QueryKeyReturnType[] => {
   );
 
   return sorting;
+};
+
+export const findIndexOfPostInData = (
+  data: InfiniteData<FeedData>,
+  id: string,
+  findBySharedPost = false,
+): { pageIndex: number; index: number } => {
+  for (let pageIndex = 0; pageIndex < data.pages.length; pageIndex += 1) {
+    const page = data.pages[pageIndex];
+    for (let index = 0; index < page.page.edges.length; index += 1) {
+      const item = page.page.edges[index];
+      if (item.node.id === id) {
+        return { pageIndex, index };
+      }
+      if (
+        findBySharedPost &&
+        item.node.type === PostType.Share &&
+        item.node.sharedPost.id === id
+      ) {
+        return { pageIndex, index };
+      }
+    }
+  }
+  return { pageIndex: -1, index: -1 };
+};
+
+export const updatePostCache = (
+  client: QueryClient,
+  id: string,
+  postUpdate:
+    | Partial<Omit<Post, 'id'>>
+    | ((current: Post) => Partial<Omit<Post, 'id'>>),
+): PostData => {
+  const currentPost = client.getQueryData<PostData>(getPostByIdKey(id));
+
+  if (!currentPost?.post) {
+    return currentPost;
+  }
+
+  return client.setQueryData<PostData>(getPostByIdKey(id), (node) => {
+    const update =
+      typeof postUpdate === 'function' ? postUpdate(node.post) : postUpdate;
+    const updatedPost = { ...node.post, ...update } as Post;
+    const bookmark = updatedPost.bookmark ?? { createdAt: new Date() };
+
+    return {
+      post: {
+        ...updatedPost,
+        id: node.post.id,
+        bookmark: !updatedPost.bookmarked ? null : bookmark,
+      },
+    };
+  });
 };
