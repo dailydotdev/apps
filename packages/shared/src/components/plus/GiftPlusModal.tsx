@@ -148,6 +148,7 @@ export function GiftPlusModalComponent({
                   onClick={onSelect}
                   onHover={setIndex}
                   checkIsDisabled={(user) => user.isPlus}
+                  disabledTooltip="This user already has daily.dev Plus"
                 />
               }
               container={{
