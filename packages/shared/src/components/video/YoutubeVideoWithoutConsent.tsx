@@ -72,6 +72,7 @@ export function YoutubeVideoWithoutConsent({
           tag="a"
           href={permalink}
           target="_blank"
+          rel={anchorDefaultRel}
         >
           Watch on YouTube
         </Button>
