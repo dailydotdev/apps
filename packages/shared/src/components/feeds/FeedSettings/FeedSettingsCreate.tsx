@@ -80,6 +80,7 @@ export const FeedSettingsCreate = (): ReactElement => {
         });
 
         if (isNewFeedPage) {
+          // go back to entity page that was followed
           router.back();
         }
 
