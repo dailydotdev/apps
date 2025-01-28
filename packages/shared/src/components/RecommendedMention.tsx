@@ -5,6 +5,7 @@ import { UserShortInfo } from './profile/UserShortInfo';
 import type { UserShortProfile } from '../lib/user';
 
 interface RecommendedMentionProps {
+  className?: string;
   users: UserShortProfile[];
   selected: number;
   onClick?: (user: UserShortProfile) => unknown;
@@ -13,6 +14,7 @@ interface RecommendedMentionProps {
 }
 
 export function RecommendedMention({
+  className,
   users,
   selected,
   onClick,
@@ -25,7 +27,10 @@ export function RecommendedMention({
 
   return (
     <ul
-      className="flex w-70 flex-col overflow-hidden rounded-16 border border-border-subtlest-secondary text-text-primary"
+      className={classNames(
+        'flex flex-col overflow-hidden rounded-16 border border-border-subtlest-secondary text-text-primary',
+        className,
+      )}
       role="listbox"
     >
       {users.map((user, index) => (

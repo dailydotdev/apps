@@ -28,6 +28,7 @@ import { PlusLabelColor, PlusPlanExtraLabel } from './PlusPlanExtraLabel';
 import { ArrowKey, KeyboardCommand } from '../../lib/element';
 import { GiftingSelectedUser } from './GiftingSelectedUser';
 import Link from '../utilities/Link';
+import { useViewSize, ViewSize } from '../../hooks';
 
 interface GiftPlusModalProps extends ModalProps {
   preselected?: UserShortProfile;
@@ -103,6 +104,8 @@ export function GiftPlusModalComponent({
     setQuery('');
   };
 
+  const isTablet = useViewSize(ViewSize.Tablet);
+
   return (
     <Modal
       {...props}
@@ -110,6 +113,7 @@ export function GiftPlusModalComponent({
       kind={Modal.Kind.FixedCenter}
       size={Modal.Size.Small}
       overlayRef={setOverlay}
+      isDrawerOnMobile
     >
       <Modal.Body className="gap-4 tablet:!px-4">
         <div className="flex flex-row justify-between">
@@ -131,13 +135,14 @@ export function GiftPlusModalComponent({
         ) : (
           <div className="flex flex-col">
             <BaseTooltip
-              appendTo={overlay}
+              appendTo={isTablet ? overlay : globalThis?.document?.body}
               onClickOutside={() => setQuery('')}
               visible={isVisible}
               showArrow={false}
               interactive
               content={
                 <RecommendedMention
+                  className="w-[24rem]"
                   users={users}
                   selected={index}
                   onClick={onSelect}
