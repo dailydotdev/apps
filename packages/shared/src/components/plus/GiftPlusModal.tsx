@@ -111,7 +111,7 @@ export function GiftPlusModalComponent({
       size={Modal.Size.Small}
       overlayRef={setOverlay}
     >
-      <Modal.Body className="gap-4">
+      <Modal.Body className="gap-4 tablet:!px-4">
         <div className="flex flex-row justify-between">
           <PlusTitle type={TypographyType.Callout} bold />
           <CloseButton
