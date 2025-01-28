@@ -41,6 +41,7 @@ export function RecommendedMentionTooltip({
       appendTo={appendTo || globalThis?.document?.body || 'parent'}
       content={
         <RecommendedMention
+          className="w-70"
           users={typeof query !== 'undefined' && mentions}
           selected={selected}
           onClick={onMentionClick}

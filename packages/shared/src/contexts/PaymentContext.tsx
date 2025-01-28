@@ -38,7 +38,7 @@ export interface PaymentContextData {
   paddle?: Paddle | undefined;
   productOptions?: ProductOption[];
   earlyAdopterPlanId?: string | null;
-  oneTimePayment?: ProductOption;
+  giftOneYear?: ProductOption;
 }
 
 const PaymentContext = React.createContext<PaymentContextData>({});
@@ -189,23 +189,25 @@ export const PaymentContextProvider = ({
       }).value;
     }, [planTypes, productOptions]);
 
+  const giftOneYear: ProductOption = useMemo(
+    () =>
+      productOptions.find(
+        (option) => planTypes[option.value] === PlusPriceType.GiftOneYear,
+      ),
+    [planTypes, productOptions],
+  );
+
   const contextData = useMemo<PaymentContextData>(
     () => ({
       openCheckout,
       paddle,
-      productOptions,
+      productOptions: productOptions.filter(
+        ({ value }) => value !== giftOneYear?.value,
+      ),
       earlyAdopterPlanId,
-      oneTimePayment: {
-        // TODO: MI-756 - Replace with actual one-time payment plan
-        currencyCode: 'USD',
-        priceUnformatted: 88.88,
-        price: '$88.88',
-        label: 'One-time payment',
-        value: 'one-time',
-        extraLabel: '2 months free',
-      },
+      giftOneYear,
     }),
-    [earlyAdopterPlanId, openCheckout, paddle, productOptions],
+    [giftOneYear, earlyAdopterPlanId, openCheckout, paddle, productOptions],
   );
 
   return (

@@ -16,7 +16,6 @@ import {
   PaymentContextProvider,
   usePaymentContext,
 } from '../../contexts/PaymentContext';
-import { plusUrl } from '../../lib/constants';
 import { TextField } from '../fields/TextField';
 import { UserIcon } from '../icons';
 import { gqlClient } from '../../graphql/common';
@@ -25,36 +24,11 @@ import { RecommendedMention } from '../RecommendedMention';
 import { BaseTooltip } from '../tooltips/BaseTooltip';
 import type { UserShortProfile } from '../../lib/user';
 import useDebounceFn from '../../hooks/useDebounceFn';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { PlusLabelColor, PlusPlanExtraLabel } from './PlusPlanExtraLabel';
 import { ArrowKey, KeyboardCommand } from '../../lib/element';
-
-interface SelectedUserProps {
-  user: UserShortProfile;
-  onClose: () => void;
-}
-
-const SelectedUser = ({ user, onClose }: SelectedUserProps) => {
-  const { username, name } = user;
-
-  return (
-    <div className="flex w-full max-w-full flex-row items-center gap-2 rounded-10 bg-surface-float p-2">
-      <ProfilePicture user={user} size={ProfileImageSize.Medium} />
-      <span className="flex w-full flex-1 flex-row items-center gap-2 truncate">
-        <Typography bold type={TypographyType.Callout}>
-          {name}
-        </Typography>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Secondary}
-        >
-          {username}
-        </Typography>
-      </span>
-      <CloseButton type="button" onClick={onClose} size={ButtonSize.XSmall} />
-    </div>
-  );
-};
+import { GiftingSelectedUser } from './GiftingSelectedUser';
+import Link from '../utilities/Link';
+import { useViewSize, ViewSize } from '../../hooks';
 
 interface GiftPlusModalProps extends ModalProps {
   preselected?: UserShortProfile;
@@ -66,7 +40,7 @@ export function GiftPlusModalComponent({
 }: GiftPlusModalProps): ReactElement {
   const [overlay, setOverlay] = useState<HTMLElement>();
   const { onRequestClose } = props;
-  const { oneTimePayment } = usePaymentContext();
+  const { giftOneYear } = usePaymentContext();
   const [selected, setSelected] = useState(preselected);
   const [index, setIndex] = useState(0);
   const [query, setQuery] = useState('');
@@ -130,6 +104,8 @@ export function GiftPlusModalComponent({
     setQuery('');
   };
 
+  const isTablet = useViewSize(ViewSize.Tablet);
+
   return (
     <Modal
       {...props}
@@ -137,8 +113,9 @@ export function GiftPlusModalComponent({
       kind={Modal.Kind.FixedCenter}
       size={Modal.Size.Small}
       overlayRef={setOverlay}
+      isDrawerOnMobile
     >
-      <Modal.Body className="gap-4">
+      <Modal.Body className="gap-4 tablet:!px-4">
         <div className="flex flex-row justify-between">
           <PlusTitle type={TypographyType.Callout} bold />
           <CloseButton
@@ -151,22 +128,27 @@ export function GiftPlusModalComponent({
           Gift daily.dev Plus 🎁
         </Typography>
         {selected ? (
-          <SelectedUser user={selected} onClose={() => setSelected(null)} />
+          <GiftingSelectedUser
+            user={selected}
+            onClose={() => setSelected(null)}
+          />
         ) : (
           <div className="flex flex-col">
             <BaseTooltip
-              appendTo={overlay}
+              appendTo={isTablet ? overlay : globalThis?.document?.body}
               onClickOutside={() => setQuery('')}
               visible={isVisible}
               showArrow={false}
               interactive
               content={
                 <RecommendedMention
+                  className="w-[24rem]"
                   users={users}
                   selected={index}
                   onClick={onSelect}
                   onHover={setIndex}
                   checkIsDisabled={(user) => user.isPlus}
+                  disabledTooltip="This user already has daily.dev Plus"
                 />
               }
               container={{
@@ -195,27 +177,24 @@ export function GiftPlusModalComponent({
           </Typography>
           <PlusPlanExtraLabel
             color={PlusLabelColor.Success}
-            label={oneTimePayment.extraLabel}
+            label={giftOneYear?.extraLabel}
             typographyProps={{ color: TypographyColor.StatusSuccess }}
           />
           <Typography type={TypographyType.Body} className="ml-auto mr-1">
-            <strong className="mr-1">{oneTimePayment?.price}</strong>
-            {oneTimePayment?.currencyCode}
+            <strong className="mr-1">{giftOneYear?.price}</strong>
+            {giftOneYear?.currencyCode}
           </Typography>
         </div>
         <Typography type={TypographyType.Callout}>
-          Gift one year of daily.dev Plus for {oneTimePayment?.price}. Once the
+          Gift one year of daily.dev Plus for {giftOneYear?.price}. Once the
           payment is processed, they’ll be notified of your gift. This is a
           one-time purchase, not a recurring subscription.
         </Typography>
-        <Button
-          tag="a"
-          variant={ButtonVariant.Primary}
-          href={`${plusUrl}?giftToUserId=${selected?.id}`}
-          disabled={!selected}
-        >
-          Gift & Pay {oneTimePayment?.price}
-        </Button>
+        <Link href={`/plus?gift=${selected?.id}`} passHref>
+          <Button variant={ButtonVariant.Primary} disabled={!selected} tag="a">
+            Gift & Pay {giftOneYear?.price}
+          </Button>
+        </Link>
       </Modal.Body>
     </Modal>
   );
