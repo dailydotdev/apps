@@ -6,13 +6,11 @@ import { Typography, TypographyType } from '../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { PlayIcon } from '../icons';
 import classed from '../../lib/classed';
-import type { Source } from '../../graphql/sources';
+import type { Post } from '../../graphql/posts';
 
-interface YoutubeVideoWithoutConsentProps {
+export interface YoutubeVideoWithoutConsentProps {
+  post: Post;
   className?: string;
-  title: string;
-  image: string;
-  source: Source;
   onWatchVideo: () => void;
   onAcceptCookies: () => void;
 }
@@ -29,12 +27,12 @@ const Background = classed(
 
 export function YoutubeVideoWithoutConsent({
   className,
-  image,
-  title,
-  source,
   onWatchVideo,
   onAcceptCookies,
+  post,
 }: YoutubeVideoWithoutConsentProps): ReactElement {
+  const { title, image, source, permalink } = post;
+
   return (
     <Container className={classNames(className, 'relative')}>
       <img
@@ -71,6 +69,9 @@ export function YoutubeVideoWithoutConsent({
           className="mx-auto w-fit"
           size={ButtonSize.Small}
           onClick={onWatchVideo}
+          tag="a"
+          href={permalink}
+          target="_blank"
         >
           Watch on YouTube
         </Button>

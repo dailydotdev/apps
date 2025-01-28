@@ -70,11 +70,11 @@ function ShareYouTubeContent({
         )}
       >
         <YoutubeVideo
-          title={post?.sharedPost?.title}
           videoId={post?.sharedPost?.videoId}
-          image={post?.sharedPost?.image}
-          source={post?.sharedPost?.source}
-          onWatchVideo={onReadArticle}
+          placeholderProps={{
+            post: post.sharedPost,
+            onWatchVideo: onReadArticle,
+          }}
         />
       </SharedLinkContainer>
     </>
