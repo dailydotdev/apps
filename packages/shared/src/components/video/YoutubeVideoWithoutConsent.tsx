@@ -7,6 +7,7 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { PlayIcon } from '../icons';
 import classed from '../../lib/classed';
 import type { Post } from '../../graphql/posts';
+import { anchorDefaultRel } from '../../lib/strings';
 
 export interface YoutubeVideoWithoutConsentProps {
   post: Post;
