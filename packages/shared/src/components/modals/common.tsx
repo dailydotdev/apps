@@ -228,6 +228,12 @@ const ReportUserModal = dynamic(
     ),
 );
 
+const CreateCustomFeedModal = dynamic(() =>
+  import(
+    /* webpackChunkName: "createCustomFeedModal" */ '../feeds/FeedSettings/FeedSettingsCreate'
+  ).then((mod) => mod.FeedSettingsCreate),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -266,6 +272,7 @@ export const modals = {
   [LazyModal.AddToCustomFeed]: AddToCustomFeedModal,
   [LazyModal.CookieConsent]: CookieConsentModal,
   [LazyModal.ReportUser]: ReportUserModal,
+  [LazyModal.CreateCustomFeed]: CreateCustomFeedModal,
 };
 
 type GetComponentProps<T> = T extends

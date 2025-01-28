@@ -9,12 +9,15 @@ import { SidebarSettingsFlags } from '../../../graphql/settings';
 import type { SidebarSectionProps } from './common';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { isExtension } from '../../../lib/func';
+import { useLazyModal } from '../../../hooks/useLazyModal';
+import { LazyModal } from '../../modals/common/types';
 
 export const CustomFeedSection = ({
   isItemsButton,
   onNavTabClick,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
+  const { openModal } = useLazyModal();
   const { feeds } = useFeeds();
   const { defaultFeedId } = useCustomDefaultFeed();
 
@@ -64,7 +67,10 @@ export const CustomFeedSection = ({
           </div>
         ),
         title: 'Custom feed',
-        path: `${webappUrl}feeds/new`,
+        action: () =>
+          openModal({
+            type: LazyModal.CreateCustomFeed,
+          }),
         requiresLogin: true,
         isForcedClickable: true,
       },
@@ -74,6 +80,7 @@ export const CustomFeedSection = ({
     feeds?.edges,
     defaultFeedId,
     onNavTabClick,
+    openModal,
   ]);
 
   return (

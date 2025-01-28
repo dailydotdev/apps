@@ -34,8 +34,10 @@ import { ModalClose } from '../../modals/common/ModalClose';
 import { ActionType } from '../../../graphql/actions';
 import { useContentPreference } from '../../../hooks/contentPreference/useContentPreference';
 import type { ContentPreferenceType } from '../../../graphql/contentPreference';
+import { useLazyModal } from '../../../hooks/useLazyModal';
 
 export const FeedSettingsCreate = (): ReactElement => {
+  const { closeModal } = useLazyModal();
   const [newFeedId] = useState(() => Date.now().toString());
   const { completeAction } = useActions();
   const { user } = useAuthContext();
@@ -75,9 +77,6 @@ export const FeedSettingsCreate = (): ReactElement => {
           entityName: entityId,
           feedId: newFeed.id,
         });
-
-        // go back to entity page that was followed
-        router.back();
 
         return;
       }
@@ -135,7 +134,7 @@ export const FeedSettingsCreate = (): ReactElement => {
   }, [logEvent]);
 
   const onRequestClose = () => {
-    router.replace(webappUrl);
+    closeModal();
   };
 
   return (
