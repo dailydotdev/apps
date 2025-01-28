@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
+import classNames from 'classnames';
 import { PlusUser } from '../PlusUser';
 import { IconSize } from '../Icon';
 import {
@@ -132,7 +133,12 @@ export const PlusInfo = ({
           onClose={() => router.push('/plus')}
         />
       )}
-      <div className="min-h-[6.125rem] rounded-10 border border-border-subtlest-tertiary">
+      <div
+        className={classNames(
+          'rounded-10 border border-border-subtlest-tertiary',
+          giftToUser ? 'min-h-[3rem]' : 'min-h-[6.125rem]',
+        )}
+      >
         {giftToUser ? (
           <PlusOptionRadio
             key={giftOneYear?.value}
