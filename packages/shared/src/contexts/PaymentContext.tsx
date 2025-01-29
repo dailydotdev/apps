@@ -39,6 +39,7 @@ export interface PaymentContextData {
   productOptions?: ProductOption[];
   earlyAdopterPlanId?: string | null;
   isPlusAvailable: boolean;
+  giftOneYear?: ProductOption;
 }
 
 const PaymentContext = React.createContext<PaymentContextData>(undefined);
@@ -201,15 +202,33 @@ export const PaymentContextProvider = ({
       }).value;
     }, [planTypes, productOptions]);
 
+  const giftOneYear: ProductOption = useMemo(
+    () =>
+      productOptions.find(
+        (option) => planTypes[option.value] === PlusPriceType.GiftOneYear,
+      ),
+    [planTypes, productOptions],
+  );
+
   const contextData = useMemo<PaymentContextData>(
     () => ({
       openCheckout,
       paddle,
-      productOptions,
+      productOptions: productOptions.filter(
+        ({ value }) => value !== giftOneYear?.value,
+      ),
       earlyAdopterPlanId,
       isPlusAvailable,
+      giftOneYear,
     }),
-    [earlyAdopterPlanId, openCheckout, paddle, productOptions, isPlusAvailable],
+    [
+      giftOneYear,
+      earlyAdopterPlanId,
+      openCheckout,
+      paddle,
+      productOptions,
+      isPlusAvailable,
+    ],
   );
 
   return (

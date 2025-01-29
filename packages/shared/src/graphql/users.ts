@@ -396,6 +396,14 @@ export const GET_REFERRING_USER_QUERY = gql`
   ${USER_SHORT_INFO_FRAGMENT}
 `;
 
+export const getUserShortInfo = async (
+  id: string,
+): Promise<UserShortProfile> => {
+  const res = await gqlClient.request(GET_REFERRING_USER_QUERY, { id });
+
+  return res.user || null;
+};
+
 export enum UserPersonalizedDigestType {
   Digest = 'digest',
   ReadingReminder = 'reading_reminder',
