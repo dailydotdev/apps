@@ -40,12 +40,20 @@ import { LogEvent, TargetId } from '../../lib/log';
 import { GooglePlayIcon } from '../icons/Google/Play';
 import { checkIsBrowser, isIOSNative, UserAgent } from '../../lib/func';
 import { useConditionalFeature } from '../../hooks';
-import { featureOnboardingAndroid } from '../../lib/featureManagement';
+import {
+  featureAndroidPWA,
+  featureOnboardingAndroid,
+} from '../../lib/featureManagement';
 import { useInstallPWA } from '../onboarding/PWA/useInstallPWA';
 
 const useMenuItems = (): NavItemProps[] => {
-  const { promptToInstall } = useInstallPWA();
+  const { promptToInstall, isAvailable } = useInstallPWA();
   const { logout, isAndroidApp, isGdprCovered } = useAuthContext();
+  const { value: androidPWAExperiment } = useConditionalFeature({
+    feature: featureAndroidPWA,
+    shouldEvaluate:
+      checkIsBrowser(UserAgent.Android) && isAvailable && !isAndroidApp,
+  });
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
@@ -67,11 +75,13 @@ const useMenuItems = (): NavItemProps[] => {
   }, [logout, showPrompt]);
 
   return useMemo(() => {
-    const getAndroidPWA = {
-      label: 'Add to home screen',
-      icon: <DownloadIcon />,
-      onClick: async () => await promptToInstall?.(),
-    };
+    const getAndroidPWA = androidPWAExperiment
+      ? {
+          label: 'Add to home screen',
+          icon: <DownloadIcon />,
+          onClick: async () => await promptToInstall?.(),
+        }
+      : undefined;
 
     const downloadAndroidApp = appExperiment
       ? {
@@ -211,6 +221,7 @@ const useMenuItems = (): NavItemProps[] => {
     openModal,
     appExperiment,
     promptToInstall,
+    androidPWAExperiment,
   ]);
 };
 

@@ -151,6 +151,7 @@ const seo: NextSeoProps = {
 
 export function OnboardPage(): ReactElement {
   const params = new URLSearchParams(window.location.search);
+  const { isAvailable: canUserInstallPWA } = useInstallPWA();
   const {
     isOnboardingReady,
     hasCompletedEditTags,
@@ -212,6 +213,7 @@ export function OnboardPage(): ReactElement {
     shouldEvaluate:
       shouldEnrollOnboardingStep &&
       checkIsBrowser(UserAgent.Android) &&
+      canUserInstallPWA &&
       !isAndroidApp,
   });
   const { value: appExperiment } = useConditionalFeature({
@@ -227,7 +229,6 @@ export function OnboardPage(): ReactElement {
     feature: featureOnboardingExtension,
     shouldEvaluate: shouldEnrollOnboardingStep && shouldShowExtensionOnboarding,
   });
-  const { isCurrentPWA, isAvailable: canUserInstallDesktop } = useInstallPWA();
 
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
   const isCTA = [
@@ -336,8 +337,7 @@ export function OnboardPage(): ReactElement {
 
     if (
       isLaptop &&
-      !isCurrentPWA &&
-      canUserInstallDesktop &&
+      canUserInstallPWA &&
       activeScreen !== OnboardingStep.InstallDesktop &&
       (haveSkippedExtension || browserDontHaveExtension)
     ) {
