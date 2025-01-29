@@ -77,7 +77,7 @@ const useMenuItems = (): NavItemProps[] => {
   return useMemo(() => {
     const getAndroidPWA = androidPWAExperiment
       ? {
-          label: 'Add to home screen',
+          label: 'Add to Home Screen',
           icon: <DownloadIcon />,
           onClick: async () => await promptToInstall?.(),
         }
