@@ -204,7 +204,7 @@ export function OnboardPage(): ReactElement {
   const { isPushSupported } = usePushNotificationContext();
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
-  const [activeScreen, setActiveScreen] = useState(OnboardingStep.AndroidPWA);
+  const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
   const [shouldEnrollOnboardingStep, setShouldEnrollOnboardingStep] =
     useState(false);
   const { value: androidPWAExperiment } = useConditionalFeature({
