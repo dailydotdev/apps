@@ -11,7 +11,7 @@ export const OnboardingAndroidPWA = (): ReactElement => {
   return (
     <>
       <video
-        className="absolute -inset-y-18 max-h-screen w-full"
+        className="absolute bottom-0 max-h-screen w-full"
         poster={cloudinaryAndroidPWA}
         src={cloudinaryAndroidPWAVideo}
         muted
