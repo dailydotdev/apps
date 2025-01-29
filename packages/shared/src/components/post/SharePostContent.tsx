@@ -19,6 +19,13 @@ import { TruncateText } from '../utilities';
 import { LazyImage } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { SharePostTitle } from './share/SharePostTitle';
+import { BlockIcon } from '../icons';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
+import { DeletedPostId } from '../../lib/constants';
 
 export interface CommonSharePostContentProps {
   sharedPost: SharedPost;
@@ -58,6 +65,26 @@ export function CommonSharePostContent({
 
   const shouldUseInternalLink =
     isSharedPostSquadPost({ sharedPost }) || isInternalReadType(sharedPost);
+
+  const isDeleted = sharedPost.id === DeletedPostId;
+
+  if (isDeleted) {
+    return (
+      <SharedLinkContainer summary={sharedPost.summary} className="mb-5 mt-8">
+        <div className="flex flex-row items-center gap-1 px-5 py-4">
+          <BlockIcon />
+          <Typography
+            className="flex-1"
+            type={TypographyType.Subhead}
+            color={TypographyColor.Secondary}
+          >
+            This post is no longer available. It might have been removed or the
+            link has expired.
+          </Typography>
+        </div>
+      </SharedLinkContainer>
+    );
+  }
 
   return (
     <SharedLinkContainer summary={sharedPost.summary} className="mb-5 mt-8">
