@@ -110,8 +110,7 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
         .filter(
           (post) =>
             !(
-              (post.type === PostType.Article ||
-                post.type === PostType.VideoYouTube) &&
+              [PostType.Article, PostType.VideoYouTube].includes(post.type) &&
               post.language === language
             ),
         )
