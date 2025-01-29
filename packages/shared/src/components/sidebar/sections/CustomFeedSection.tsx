@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import type { SidebarMenuItem } from '../common';
-import { HashtagIcon, PlusIcon } from '../../icons';
+import { HashtagIcon, PlusIcon, StarIcon } from '../../icons';
 import { Section } from '../Section';
 import { webappUrl } from '../../../lib/constants';
 import { useFeeds } from '../../../hooks';
@@ -9,6 +9,7 @@ import { SidebarSettingsFlags } from '../../../graphql/settings';
 import type { SidebarSectionProps } from './common';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { isExtension } from '../../../lib/func';
+import { useSortedFeeds } from '../../../hooks/feed/useSortedFeeds';
 
 export const CustomFeedSection = ({
   isItemsButton,
@@ -17,10 +18,11 @@ export const CustomFeedSection = ({
 }: SidebarSectionProps): ReactElement => {
   const { feeds } = useFeeds();
   const { defaultFeedId } = useCustomDefaultFeed();
+  const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     const customFeeds =
-      feeds?.edges?.map((feed) => {
+      sortedFeeds.map((feed) => {
         const isDefaultFeed = defaultFeedId === feed.node.id;
 
         if (isDefaultFeed) {
@@ -37,6 +39,12 @@ export const CustomFeedSection = ({
             action: isExtension ? () => onNavTabClick?.('default') : undefined,
             icon: feed.node.flags.icon || (
               <HashtagIcon secondary={isCustomFeedPageActive} />
+            ),
+            rightIcon: () => (
+              <StarIcon
+                secondary
+                className="text-surface-disabled opacity-[0.8]"
+              />
             ),
             active: isCustomFeedPageActive,
           };
@@ -71,7 +79,7 @@ export const CustomFeedSection = ({
     ].filter(Boolean);
   }, [
     defaultRenderSectionProps.activePage,
-    feeds?.edges,
+    sortedFeeds,
     defaultFeedId,
     onNavTabClick,
   ]);
