@@ -5,6 +5,7 @@ import { events } from 'fetch-event-stream';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { apiUrl } from '../../lib/config';
 import type { FeedData, Post } from '../../graphql/posts';
+import { PostType } from '../../graphql/posts';
 import {
   updateCachedPagePost,
   findIndexOfPostInData,
@@ -105,6 +106,13 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
           flags?.clickbaitShieldEnabled && node?.title
             ? !node.clickbaitTitleDetected
             : !node.sharedPost?.clickbaitTitleDetected,
+        )
+        .filter(
+          (post) =>
+            !(
+              [PostType.Article, PostType.VideoYouTube].includes(post.type) &&
+              post.language === language
+            ),
         )
         .filter(Boolean)
         .map((node) => (node?.title ? node.id : node?.sharedPost.id));
