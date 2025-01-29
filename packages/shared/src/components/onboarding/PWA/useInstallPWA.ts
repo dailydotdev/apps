@@ -1,5 +1,5 @@
 import type { BrowserName } from '../../../lib/func';
-import { getCurrentBrowserName, isPWA } from '../../../lib/func';
+import { getCurrentBrowserName } from '../../../lib/func';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<'accepted' | 'dismissed'>;
@@ -8,7 +8,6 @@ interface BeforeInstallPromptEvent extends Event {
 
 export interface UseInstallPWA {
   isAvailable: boolean;
-  isCurrentPWA: boolean;
   promptToInstall: (() => Promise<null | 'accepted' | 'dismissed'>) | null;
   browserName: BrowserName;
 }
@@ -24,7 +23,6 @@ globalThis?.addEventListener?.(
 );
 
 export const useInstallPWA = (): UseInstallPWA => {
-  const isCurrentPWA = isPWA();
   const isAvailable = !!installEvent;
   const browserName = getCurrentBrowserName();
 
@@ -38,5 +36,5 @@ export const useInstallPWA = (): UseInstallPWA => {
     return null;
   };
 
-  return { isCurrentPWA, isAvailable, promptToInstall, browserName };
+  return { isAvailable, promptToInstall, browserName };
 };
