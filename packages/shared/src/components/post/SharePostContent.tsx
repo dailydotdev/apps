@@ -25,6 +25,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
+import { DeletedPostId } from '../../lib/constants';
 
 export interface CommonSharePostContentProps {
   sharedPost: SharedPost;
@@ -65,7 +66,7 @@ export function CommonSharePostContent({
   const shouldUseInternalLink =
     isSharedPostSquadPost({ sharedPost }) || isInternalReadType(sharedPost);
 
-  const isDeleted = sharedPost.id === '404';
+  const isDeleted = sharedPost.id === DeletedPostId;
 
   if (isDeleted) {
     return (

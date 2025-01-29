@@ -139,3 +139,5 @@ export const invalidPlusRegions = [
   'ZW',
   'RU',
 ];
+
+export const DeletedPostId = '404';

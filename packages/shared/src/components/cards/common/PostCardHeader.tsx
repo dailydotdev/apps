@@ -23,6 +23,7 @@ import {
 import { ProfileTooltip } from '../../profile/ProfileTooltip';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { ProfileImageSize } from '../../ProfilePicture';
+import { DeletedPostId } from '../../../lib/constants';
 
 interface CardHeaderProps {
   post: Post;
@@ -51,7 +52,7 @@ export const PostCardHeader = ({
   showFeedback,
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
-  const isSharedPostDeleted = post.sharedPost?.id === '404';
+  const isSharedPostDeleted = post.sharedPost?.id === DeletedPostId;
 
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: post.bookmarked && !showFeedback,
