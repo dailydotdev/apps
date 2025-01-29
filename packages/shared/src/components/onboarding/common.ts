@@ -18,6 +18,7 @@ export enum OnboardingStep {
   Plus = 'plus',
   Extension = 'extension',
   InstallDesktop = 'install_desktop',
+  AndroidPWA = 'android_pwa',
 }
 
 export const OnboardingTitle = classed(

@@ -61,4 +61,6 @@ export const featureFeedAdTemplate = new Feature('feed_ad_template', {
   },
 } as Record<FeedSettingsKeys, FeedAdTemplate>);
 
+export const featureAndroidPWA = new Feature('android_pwa_onboarding', true);
+
 export { feature };

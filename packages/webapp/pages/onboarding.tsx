@@ -46,6 +46,7 @@ import {
   featureOnboardingAndroid,
   featureOnboardingExtension,
   featureOnboardingDesktopPWA,
+  featureAndroidPWA,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import {
@@ -129,6 +130,12 @@ const OnboardingInstallDesktop = dynamic(() =>
   ).then((mod) => mod.OnboardingInstallDesktop),
 );
 
+const OnboardingAndroidPWA = dynamic(() =>
+  import(
+    /* webpackChunkName: "onboardingAndroidPWA" */ '@dailydotdev/shared/src/components/onboarding/OnboardingAndroidPWA'
+  ).then((mod) => mod.OnboardingAndroidPWA),
+);
+
 type OnboardingVisual = {
   fullBackground?: {
     mobile?: string;
@@ -197,15 +204,23 @@ export function OnboardPage(): ReactElement {
   const { isPushSupported } = usePushNotificationContext();
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
-  const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
+  const [activeScreen, setActiveScreen] = useState(OnboardingStep.AndroidPWA);
   const [shouldEnrollOnboardingStep, setShouldEnrollOnboardingStep] =
     useState(false);
+  const { value: androidPWAExperiment } = useConditionalFeature({
+    feature: featureAndroidPWA,
+    shouldEvaluate:
+      shouldEnrollOnboardingStep &&
+      checkIsBrowser(UserAgent.Android) &&
+      !isAndroidApp,
+  });
   const { value: appExperiment } = useConditionalFeature({
     feature: featureOnboardingAndroid,
     shouldEvaluate:
       shouldEnrollOnboardingStep &&
       checkIsBrowser(UserAgent.Android) &&
-      !isAndroidApp,
+      !isAndroidApp &&
+      !androidPWAExperiment,
   });
   const { shouldShowExtensionOnboarding } = useOnboardingExtension();
   const { value: extensionExperiment } = useConditionalFeature({
@@ -220,6 +235,7 @@ export function OnboardPage(): ReactElement {
     OnboardingStep.PWA,
     OnboardingStep.Extension,
     OnboardingStep.InstallDesktop,
+    OnboardingStep.AndroidPWA,
   ].includes(activeScreen);
 
   useEffect(() => {
@@ -283,6 +299,10 @@ export function OnboardPage(): ReactElement {
     ].includes(activeScreen);
     if (isLastStepBeforePlus) {
       return setActiveScreen(OnboardingStep.Plus);
+    }
+
+    if (androidPWAExperiment && activeScreen !== OnboardingStep.AndroidPWA) {
+      return setActiveScreen(OnboardingStep.AndroidPWA);
     }
 
     if (appExperiment && activeScreen !== OnboardingStep.AndroidApp) {
@@ -521,6 +541,9 @@ export function OnboardPage(): ReactElement {
             )}
             {activeScreen === OnboardingStep.InstallDesktop && (
               <OnboardingInstallDesktop onClickNext={onClickNext} />
+            )}
+            {activeScreen === OnboardingStep.AndroidPWA && (
+              <OnboardingAndroidPWA />
             )}
           </div>
         )}

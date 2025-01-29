@@ -49,6 +49,7 @@ export const OnboardingHeader = ({
     OnboardingStep.Plus,
     OnboardingStep.Extension,
     OnboardingStep.InstallDesktop,
+    OnboardingStep.AndroidPWA,
   ];
 
   if (activeScreen !== OnboardingStep.Intro) {
