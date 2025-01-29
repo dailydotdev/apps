@@ -130,6 +130,7 @@ export interface Post {
   domain?: string;
   clickbaitTitleDetected?: boolean;
   translation?: { title?: boolean };
+  language?: string;
 }
 
 export type RelatedPost = Pick<
