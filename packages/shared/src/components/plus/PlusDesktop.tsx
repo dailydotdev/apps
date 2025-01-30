@@ -5,9 +5,12 @@ import { usePaymentContext } from '../../contexts/PaymentContext';
 
 import { PlusInfo } from './PlusInfo';
 import { PlusCheckoutContainer } from './PlusCheckoutContainer';
+import { useGiftUserContext } from './GiftUserContext';
 
 export const PlusDesktop = (): ReactElement => {
-  const { openCheckout, paddle, productOptions } = usePaymentContext();
+  const { openCheckout, paddle, productOptions, giftOneYear } =
+    usePaymentContext();
+  const { giftToUser } = useGiftUserContext();
   const {
     query: { selectedPlan },
   } = useRouter();
@@ -28,12 +31,26 @@ export const PlusDesktop = (): ReactElement => {
       return;
     }
 
+    if (giftToUser) {
+      if (!giftOneYear || selectedOption) {
+        return;
+      }
+
+      const { value } = giftOneYear;
+      setSelectedOption(value);
+      openCheckout({ priceId: value });
+
+      return;
+    }
+
     const option = initialPaymentOption || productOptions?.[0]?.value;
     if (option && !selectedOption) {
       setSelectedOption(option);
       openCheckout({ priceId: option });
     }
   }, [
+    giftOneYear,
+    giftToUser,
     initialPaymentOption,
     openCheckout,
     paddle,
