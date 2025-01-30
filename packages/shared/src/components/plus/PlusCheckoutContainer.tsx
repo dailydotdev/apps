@@ -25,11 +25,15 @@ export const PlusCheckoutContainer = ({
   const { isPlus } = usePlusSubscription();
 
   const getContainerElement = () => {
+    if (giftToUser) {
+      return null;
+    }
+
     if (!isPlusAvailable) {
       return PlusUnavailable;
     }
 
-    if (isPlus && !giftToUser) {
+    if (isPlus) {
       return PlusPlus;
     }
 
