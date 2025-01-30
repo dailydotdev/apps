@@ -32,15 +32,13 @@ export const PlusDesktop = (): ReactElement => {
     }
 
     if (giftToUser) {
-      if (!giftOneYear) {
+      if (!giftOneYear || selectedOption) {
         return;
       }
 
-      if (!selectedOption) {
-        const { value } = giftOneYear;
-        setSelectedOption(value);
-        openCheckout({ priceId: value });
-      }
+      const { value } = giftOneYear;
+      setSelectedOption(value);
+      openCheckout({ priceId: value });
 
       return;
     }
