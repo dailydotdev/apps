@@ -22,7 +22,7 @@ import { usePlusSubscription } from '../hooks';
 import { logPixelPayment } from '../components/Pixels';
 import { useFeature } from '../components/GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
-import { PlusPriceType } from '../lib/featureValues';
+import { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
 
 export type ProductOption = {
   label: string;
@@ -183,12 +183,21 @@ export const PaymentContextProvider = ({
         priceUnformatted: Number(item.totals.total),
         currencyCode: productPrices?.data.currencyCode as string,
         extraLabel: item.price.customData?.label as string,
+        appsId: item.price.customData?.appsId as string,
       })) ?? [],
     [productPrices?.data.currencyCode, productPrices?.data?.details?.lineItems],
   );
 
   const earlyAdopterPlanId: PaymentContextData['earlyAdopterPlanId'] =
     useMemo(() => {
+      const earlyAdopter = productOptions.find(
+        ({ appsId }) => appsId === PlusPriceTypeAppsId.EarlyAdopter,
+      );
+
+      if (earlyAdopter?.value) {
+        return earlyAdopter.value;
+      }
+
       const monthlyPrices = productOptions.filter(
         (option) => planTypes[option.value] === PlusPriceType.Monthly,
       );
@@ -205,9 +214,9 @@ export const PaymentContextProvider = ({
   const giftOneYear: ProductOption = useMemo(
     () =>
       productOptions.find(
-        (option) => planTypes[option.value] === PlusPriceType.GiftOneYear,
+        ({ appsId }) => appsId === PlusPriceTypeAppsId.GiftOneYear,
       ),
-    [planTypes, productOptions],
+    [productOptions],
   );
 
   const contextData = useMemo<PaymentContextData>(
