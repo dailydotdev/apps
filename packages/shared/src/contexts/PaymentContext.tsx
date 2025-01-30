@@ -124,38 +124,6 @@ export const PaymentContextProvider = ({
     });
   }, [router]);
 
-  const openCheckout = useCallback(
-    ({ priceId }: { priceId: string }) => {
-      if (isPlus) {
-        return;
-      }
-
-      if (!isPlusAvailable) {
-        return;
-      }
-
-      paddle?.Checkout.open({
-        items: [{ priceId, quantity: 1 }],
-        customer: {
-          email: user?.email,
-        },
-        customData: {
-          user_id: user?.id,
-        },
-        settings: {
-          displayMode: 'inline',
-          frameTarget: 'checkout-container',
-          frameInitialHeight: 500,
-          frameStyle:
-            'width: 100%; background-color: transparent; border: none;',
-          theme: 'dark',
-          showAddDiscounts: false,
-        },
-      });
-    },
-    [paddle, user, isPlusAvailable, isPlus],
-  );
-
   const getPrices = useCallback(async () => {
     return paddle?.PricePreview({
       items: Object.keys(planTypes).map((priceId) => ({
@@ -217,6 +185,38 @@ export const PaymentContextProvider = ({
         ({ appsId }) => appsId === PlusPriceTypeAppsId.GiftOneYear,
       ),
     [productOptions],
+  );
+
+  const openCheckout = useCallback(
+    ({ priceId }: { priceId: string }) => {
+      if (isPlus && priceId !== giftOneYear?.value) {
+        return;
+      }
+
+      if (!isPlusAvailable) {
+        return;
+      }
+
+      paddle?.Checkout.open({
+        items: [{ priceId, quantity: 1 }],
+        customer: {
+          email: user?.email,
+        },
+        customData: {
+          user_id: user?.id,
+        },
+        settings: {
+          displayMode: 'inline',
+          frameTarget: 'checkout-container',
+          frameInitialHeight: 500,
+          frameStyle:
+            'width: 100%; background-color: transparent; border: none;',
+          theme: 'dark',
+          showAddDiscounts: false,
+        },
+      });
+    },
+    [paddle, user, giftOneYear, isPlusAvailable, isPlus],
   );
 
   const contextData = useMemo<PaymentContextData>(

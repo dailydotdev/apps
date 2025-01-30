@@ -6,6 +6,7 @@ import { usePaymentContext } from '../../contexts/PaymentContext';
 import { usePlusSubscription } from '../../hooks';
 import { PlusUnavailable } from './PlusUnavailable';
 import { PlusPlus } from './PlusPlus';
+import { useGiftUserContext } from './GiftUserContext';
 
 export type PlusCheckoutContainerProps = {
   checkoutRef?: React.LegacyRef<HTMLDivElement>;
@@ -19,6 +20,7 @@ export const PlusCheckoutContainer = ({
   checkoutRef,
   className,
 }: PlusCheckoutContainerProps): ReactElement => {
+  const { giftToUser } = useGiftUserContext();
   const { isPlusAvailable } = usePaymentContext();
   const { isPlus } = usePlusSubscription();
 
@@ -27,7 +29,7 @@ export const PlusCheckoutContainer = ({
       return PlusUnavailable;
     }
 
-    if (isPlus) {
+    if (isPlus && !giftToUser) {
       return PlusPlus;
     }
 
