@@ -1,30 +1,28 @@
-import type { ReactElement } from 'react';
+import type { HTMLAttributes, ReactElement } from 'react';
 import React from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { GdprConsentKey } from '../../hooks/useCookieBanner';
-import type { Source } from '../../graphql/sources';
+import type { YoutubeVideoWithoutConsentProps } from './YoutubeVideoWithoutConsent';
 import { YoutubeVideoWithoutConsent } from './YoutubeVideoWithoutConsent';
 import { YoutubeVideoBackground, YoutubeVideoContainer } from './common';
 import { useConsentCookie } from '../../hooks/useCookieConsent';
 
-interface YoutubeVideoProps {
+interface YoutubeVideoProps extends HTMLAttributes<HTMLIFrameElement> {
   videoId: string;
   className?: string;
-  title: string;
-  image: string;
-  source: Source;
-  onWatchVideo?: () => void;
+  placeholderProps: Pick<
+    YoutubeVideoWithoutConsentProps,
+    'post' | 'onWatchVideo'
+  >;
 }
 
 const YoutubeVideo = ({
   videoId,
   className,
-  title,
-  image,
-  source,
-  onWatchVideo,
+  placeholderProps,
   ...props
 }: YoutubeVideoProps): ReactElement => {
+  const { title } = placeholderProps.post;
   const { isAuthReady, isGdprCovered } = useAuthContext();
   const { cookieExists, saveCookies } = useConsentCookie(
     GdprConsentKey.Marketing,
@@ -41,10 +39,7 @@ const YoutubeVideo = ({
   if (isGdprCovered && !cookieExists) {
     return (
       <YoutubeVideoWithoutConsent
-        title={title}
-        image={image}
-        source={source}
-        onWatchVideo={onWatchVideo}
+        {...placeholderProps}
         onAcceptCookies={saveCookies}
       />
     );
@@ -53,12 +48,12 @@ const YoutubeVideo = ({
   return (
     <YoutubeVideoContainer className={className}>
       <iframe
+        {...props}
         title={title}
         src={`https://www.youtube-nocookie.com/embed/${videoId}`}
         allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
         allowFullScreen
         className="absolute inset-0 aspect-video w-full border-0"
-        {...props}
       />
     </YoutubeVideoContainer>
   );

@@ -68,6 +68,7 @@ import {
   checkIsBrowser,
   getCurrentBrowserName,
   isIOS,
+  isIOSNative,
   isPWA,
   UserAgent,
 } from '@dailydotdev/shared/src/lib/func';
@@ -281,7 +282,7 @@ export function OnboardPage(): ReactElement {
       OnboardingStep.ContentTypes,
       OnboardingStep.ReadingReminder,
     ].includes(activeScreen);
-    if (isLastStepBeforePlus) {
+    if (isLastStepBeforePlus && !isIOSNative()) {
       return setActiveScreen(OnboardingStep.Plus);
     }
 
@@ -448,7 +449,7 @@ export function OnboardPage(): ReactElement {
           sizes="(max-width: 655px) 450px, 1024px"
         />
       )}
-      <Pixels hotjarId="3871311" />
+      <Pixels />
       {showGenerigLoader && <GenericLoader />}
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}
