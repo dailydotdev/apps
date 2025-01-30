@@ -709,3 +709,19 @@ export const CLEAR_IMAGE_MUTATION = gql`
 export const clearImage = async (presets: string[]): Promise<void> => {
   await gqlClient.request(CLEAR_IMAGE_MUTATION, { presets });
 };
+
+export const GET_PLUS_GIFTER_USER = gql`
+  query PlusGifterUser {
+    plusGifterUser {
+      id
+      name
+      image
+      username
+    }
+  }
+`;
+export const getPlusGifterUser = async (): Promise<UserShortProfile> => {
+  const res = await gqlClient.request(GET_PLUS_GIFTER_USER);
+
+  return res.plusGifterUser;
+};

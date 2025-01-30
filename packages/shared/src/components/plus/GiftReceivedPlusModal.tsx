@@ -1,21 +1,29 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import type { ModalProps } from '../modals/common/Modal';
 import { Modal } from '../modals/common/Modal';
 
 import type { UserShortProfile } from '../../lib/user';
 import { PlusTitle } from './PlusTitle';
-import { Typography, TypographyType } from '../typography/Typography';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
 import CloseButton from '../CloseButton';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { cloudinaryGiftedPlusModalImage } from '../../lib/image';
 import { PlusList } from './PlusList';
 import { PaymentContextProvider } from '../../contexts/PaymentContext';
 import { Button } from '../buttons/Button';
+import { getPlusGifterUser } from '../../graphql/users';
+import { generateQueryKey, RequestKey } from '../../lib/query';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import Link from '../utilities/Link';
 
 interface GiftPlusModalProps extends ModalProps {
   user?: UserShortProfile;
-  gifterId?: string;
 }
 
 const OpenSquadButton = () => (
@@ -29,18 +37,14 @@ const OpenSquadButton = () => (
 
 export function GiftReceivedPlusModal({
   user,
-  gifterId,
   onRequestClose,
   ...props
 }: GiftPlusModalProps): ReactElement {
-  // const { data: gifter, isLoading } = useQuery({
-  //   queryKey: ['user', gifterId],
-  //   queryFn: () => getUserShortInfo(gifterId),
-  //   enabled: Boolean(user.isPlus && gifterId),
-  // });
-
-  const gifter = user;
-  const isLoading = false;
+  const { data: gifter, isLoading } = useQuery({
+    queryKey: generateQueryKey(RequestKey.GifterUser),
+    queryFn: getPlusGifterUser,
+    enabled: Boolean(user.isPlus),
+  });
 
   if (!gifter || isLoading) {
     return null;
@@ -50,13 +54,13 @@ export function GiftReceivedPlusModal({
     <PaymentContextProvider>
       <Modal
         {...props}
-        isOpen
-        kind={Modal.Kind.FixedCenter}
-        size={Modal.Size.Small}
-        isDrawerOnMobile
         drawerProps={{
           displayCloseButton: false,
         }}
+        isDrawerOnMobile
+        kind={Modal.Kind.FixedCenter}
+        onRequestClose={onRequestClose}
+        size={Modal.Size.Small}
       >
         <Modal.Body className="flex flex-1 tablet:!px-4">
           <div className="flex flex-1 flex-col gap-4 overflow-y-auto tablet:overflow-auto">
@@ -68,6 +72,27 @@ export function GiftReceivedPlusModal({
                 onClick={onRequestClose}
               />
             </div>
+            <Link href={`/${gifter.username}`} passHref>
+              <a
+                className="flex items-center gap-2"
+                title={`View ${gifter.username}'s profile`}
+              >
+                <ProfilePicture user={gifter} size={ProfileImageSize.Medium} />
+                <Typography
+                  bold
+                  color={TypographyColor.Primary}
+                  type={TypographyType.Callout}
+                >
+                  {gifter.name}
+                </Typography>
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Secondary}
+                >
+                  @{gifter.username}
+                </Typography>
+              </a>
+            </Link>
             <Typography bold type={TypographyType.Title1}>
               Surprise! 🎁 {gifter.username} thought of you and gifted you a
               one-year daily.dev Plus membership!
