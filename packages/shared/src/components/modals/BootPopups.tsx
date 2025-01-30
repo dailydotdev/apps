@@ -242,6 +242,25 @@ export const BootPopups = (): ReactElement => {
     user,
   ]);
 
+  /**
+   * Received gift plus modal
+   */
+  useEffect(() => {
+    // if (!alerts?.shouldShowGiftPlus || !user.isPlus) {
+    //   return;
+    // }
+
+    addBootPopup({
+      type: LazyModal.ReceivedGiftPlus,
+      props: {
+        user,
+      },
+    });
+  }, [alerts?.shouldShowGiftPlus, user]);
+
+  /**
+   * Top reader badge modal
+   */
   useEffect(() => {
     if (!alerts?.showTopReader) {
       return;
