@@ -235,7 +235,7 @@ const GiftPlusModal = dynamic(
 const GiftReceivedPlusModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "giftPlusModal" */ '../plus/GiftReceivedPlusModal'
+      /* webpackChunkName: "GiftReceivedPlusModal" */ '../plus/GiftReceivedPlusModal'
     ),
 );
 
