@@ -32,7 +32,6 @@ export const useSquadPendingPosts = (
   status: SourcePostModerationStatus[] = [SourcePostModerationStatus.Pending],
 ): UseSquadPendingPosts => {
   const { user, squads } = useAuthContext();
-
   const isModeratorInAnySquad = useMemo(() => {
     return squads?.some((squad) =>
       verifyPermission(squad, SourcePermissions.ModeratePost),
@@ -54,7 +53,7 @@ export const useSquadPendingPosts = (
     },
     initialPageParam: '',
     getNextPageParam: (lastPage) => getNextPageParam(lastPage?.pageInfo),
-    enabled: !!squadId || isModeratorInAnySquad,
+    enabled: Boolean(squadId) || isModeratorInAnySquad,
 
     select: useCallback((res) => {
       if (!res) {

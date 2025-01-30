@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react';
+import type { GetServerSideProps } from 'next';
 import React, { useEffect } from 'react';
 import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
 import {
@@ -20,12 +21,25 @@ import { useRouter } from 'next/router';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import { TypographyType } from '@dailydotdev/shared/src/components/typography/Typography';
-import { useSearchParams } from 'next/navigation';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 
-export default function ModerateSquadPage(): ReactElement {
-  const searchParams = useSearchParams();
-  const handle = searchParams?.get('handle');
+interface ModerateSquadPageProps {
+  handle: string | null;
+}
+
+export const getServerSideProps: GetServerSideProps<
+  ModerateSquadPageProps
+> = async ({ query }) => {
+  return {
+    props: {
+      handle: (query.handle as string) || null,
+    },
+  };
+};
+
+export default function ModerateSquadPage({
+  handle,
+}: ModerateSquadPageProps): ReactElement {
   const router = useRouter();
   const { squad, isLoading, isFetched } = useSquad({
     handle,
