@@ -30,6 +30,11 @@ export const withPostById = <Props, LayoutProps = unknown>(
       return null;
     }
 
+    // Important to maintain the feed meta if it exists
+    if (!post?.feedMeta && initialPost?.feedMeta) {
+      post.feedMeta = initialPost.feedMeta;
+    }
+
     return <WrappedComponent {...props} post={post} />;
   };
 
