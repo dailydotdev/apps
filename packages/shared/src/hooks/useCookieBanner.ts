@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuthContext } from '../contexts/AuthContext';
 import type { AcceptCookiesCallback } from './useCookieConsent';
 import { useConsentCookie } from './useCookieConsent';
+import { isIOSNative } from '../lib/func';
 
 export const cookieAcknowledgedKey = 'cookie_acknowledged';
 
@@ -56,7 +57,7 @@ export function useCookieBanner(): UseCookieBanner {
   );
 
   useEffect(() => {
-    if (!isAuthReady || isOpen || isInitializedRef.current) {
+    if (!isAuthReady || isOpen || isInitializedRef.current || isIOSNative()) {
       return;
     }
 
