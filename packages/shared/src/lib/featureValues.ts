@@ -9,7 +9,11 @@ export enum ExperimentWinner {
 export enum PlusPriceType {
   Monthly = 'monthly',
   Yearly = 'yearly',
+}
+
+export enum PlusPriceTypeAppsId {
   GiftOneYear = 'gift_one_year',
+  EarlyAdopter = 'early_adopter',
 }
 
 export interface FeatureThemeVariant {
