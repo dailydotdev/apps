@@ -61,7 +61,7 @@ export const featureFeedAdTemplate = new Feature('feed_ad_template', {
   },
 } as Record<FeedSettingsKeys, FeedAdTemplate>);
 
-export const featureValidLanguages = new Feature('validLanguages', {
+export const featureValidLanguages = new Feature('valid_languages', {
   en: 'English',
   es: 'Spanish',
   de: 'German',
