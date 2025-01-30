@@ -18,6 +18,7 @@ import InteractivePopup, {
 import { MarketingCtaPopoverSmall } from '../marketingCta/MarketingCtaPopoverSmall';
 import { ButtonVariant } from '../buttons/common';
 import { isNullOrUndefined } from '../../lib/func';
+import useProfileForm from '../../hooks/useProfileForm';
 
 const REP_TRESHOLD = 250;
 
@@ -32,6 +33,7 @@ export const BootPopups = (): ReactElement => {
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const { openModal } = useLazyModal();
   const { user } = useAuthContext();
+  const { updateUserProfile } = useProfileForm();
   const { alerts, loadedAlerts, updateAlerts, updateLastBootPopup } =
     useContext(AlertContext);
   const [bootPopups, setBootPopups] = useState(() => new Map());
@@ -246,17 +248,22 @@ export const BootPopups = (): ReactElement => {
    * Received gift plus modal
    */
   useEffect(() => {
-    // if (!alerts?.shouldShowGiftPlus || !user.isPlus) {
-    //   return;
-    // }
+    if (!alerts?.shouldShowGiftPlus || !user.isPlus) {
+      return;
+    }
 
     addBootPopup({
       type: LazyModal.ReceivedGiftPlus,
       props: {
         user,
+        onAfterClose: () => {
+          updateUserProfile({
+            flags: { showPlusGift: false },
+          });
+        },
       },
     });
-  }, [alerts?.shouldShowGiftPlus, user]);
+  }, [alerts.shouldShowGiftPlus, updateUserProfile, user]);
 
   /**
    * Top reader badge modal

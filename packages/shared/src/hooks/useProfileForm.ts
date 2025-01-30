@@ -30,9 +30,14 @@ export interface ProfileFormHint {
   bluesky?: string;
 }
 
+export type UserFlagsPublic = {
+  showPlusGift: boolean;
+};
+
 export interface UpdateProfileParameters extends Partial<UserProfile> {
   image?: File;
   onUpdateSuccess?: () => void;
+  flags?: Partial<UserFlagsPublic>;
 }
 
 interface UseProfileForm {
