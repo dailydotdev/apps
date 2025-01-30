@@ -50,7 +50,7 @@ export function FeedSettingsButton({
       const subscribeToPlus = await showPrompt(editPlusSubscribePrompt);
 
       if (subscribeToPlus) {
-        router.push(`${webappUrl}plus`);
+        router?.push(`${webappUrl}plus`);
 
         return;
       }
@@ -59,7 +59,7 @@ export function FeedSettingsButton({
         feedId: feed.node.id,
       });
 
-      router.replace(webappUrl);
+      router?.replace(webappUrl);
 
       return;
     }
