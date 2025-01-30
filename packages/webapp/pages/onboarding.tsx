@@ -68,6 +68,7 @@ import {
   checkIsBrowser,
   getCurrentBrowserName,
   isIOS,
+  isIOSNative,
   isPWA,
   UserAgent,
 } from '@dailydotdev/shared/src/lib/func';
@@ -281,7 +282,7 @@ export function OnboardPage(): ReactElement {
       OnboardingStep.ContentTypes,
       OnboardingStep.ReadingReminder,
     ].includes(activeScreen);
-    if (isLastStepBeforePlus) {
+    if (isLastStepBeforePlus && !isIOSNative()) {
       return setActiveScreen(OnboardingStep.Plus);
     }
 
