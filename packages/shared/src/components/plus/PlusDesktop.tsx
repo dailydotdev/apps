@@ -49,10 +49,6 @@ export const PlusDesktop = (): ReactElement => {
     if (option && !selectedOption) {
       setSelectedOption(option);
       openCheckout({ priceId: option });
-    } else if (giftToUser && giftOneYear) {
-      const { value } = giftOneYear;
-      setSelectedOption(value);
-      openCheckout({ priceId: value });
     }
   }, [
     giftOneYear,
