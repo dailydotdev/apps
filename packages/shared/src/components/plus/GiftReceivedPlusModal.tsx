@@ -86,7 +86,7 @@ export function GiftReceivedPlusModal({
     >
       <Modal.Body className="flex flex-1 tablet:!px-4">
         <div className="flex flex-1 flex-col gap-4 overflow-y-auto tablet:overflow-auto">
-          <div className="flex flex-row justify-between ">
+          <div className="flex flex-row justify-between">
             <PlusTitle type={TypographyType.Callout} bold />
             <CloseButton
               type="button"
