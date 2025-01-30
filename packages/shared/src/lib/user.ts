@@ -136,6 +136,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   companies?: Company[];
   contentPreference?: ContentPreference;
   defaultFeedId?: string;
+  shouldShowGiftPlus?: boolean;
 }
 
 interface BaseError {

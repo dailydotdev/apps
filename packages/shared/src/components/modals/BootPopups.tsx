@@ -248,7 +248,7 @@ export const BootPopups = (): ReactElement => {
    * Received gift plus modal
    */
   useEffect(() => {
-    if (!alerts?.shouldShowGiftPlus || !user.isPlus) {
+    if (!user?.shouldShowGiftPlus || !user.isPlus) {
       return;
     }
 
@@ -263,7 +263,7 @@ export const BootPopups = (): ReactElement => {
         },
       },
     });
-  }, [alerts.shouldShowGiftPlus, updateUserProfile, user]);
+  }, [updateUserProfile, user]);
 
   /**
    * Top reader badge modal

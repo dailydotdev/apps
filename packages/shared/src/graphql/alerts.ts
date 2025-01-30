@@ -19,7 +19,6 @@ export type Alerts = {
   bootPopup?: boolean;
   showRecoverStreak?: boolean;
   showTopReader?: boolean;
-  shouldShowGiftPlus?: boolean;
 };
 
 export type AlertsUpdate = Omit<Alerts, 'changelog' | 'banner'>;
