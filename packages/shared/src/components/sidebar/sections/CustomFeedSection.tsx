@@ -41,10 +41,7 @@ export const CustomFeedSection = ({
               <HashtagIcon secondary={isCustomFeedPageActive} />
             ),
             rightIcon: () => (
-              <StarIcon
-                secondary
-                className="text-surface-disabled opacity-[0.8]"
-              />
+              <StarIcon secondary className="text-surface-disabled" />
             ),
             active: isCustomFeedPageActive,
           };
