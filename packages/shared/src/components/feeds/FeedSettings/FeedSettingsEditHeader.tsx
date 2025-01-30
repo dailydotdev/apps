@@ -24,7 +24,9 @@ const SaveButton = ({ activeView }: { activeView: string }): ReactElement => {
         type="submit"
         size={ButtonSize.Small}
         variant={ButtonVariant.Primary}
-        onClick={onBackToFeed}
+        onClick={() => {
+          onBackToFeed({ action: 'save' });
+        }}
       >
         Save
       </Button>
@@ -77,7 +79,7 @@ export const FeedSettingsEditHeader = (): ReactElement => {
             if (isMobile) {
               setActiveView(undefined);
             } else {
-              onBackToFeed();
+              onBackToFeed({ action: 'discard' });
             }
           }}
         >

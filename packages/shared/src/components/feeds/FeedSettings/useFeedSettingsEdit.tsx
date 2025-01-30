@@ -29,8 +29,9 @@ import type {
 import type { Feed } from '../../../graphql/feed';
 import { FeedType } from '../../../graphql/feed';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
+import type { FeedSettingsEditProps } from './FeedSettingsEdit';
 
-const discardPrompt: PromptOptions = {
+const discardEditPrompt: PromptOptions = {
   title: labels.feed.prompt.discard.title,
   description: labels.feed.prompt.discard.description,
   okButton: {
@@ -39,15 +40,27 @@ const discardPrompt: PromptOptions = {
   },
 };
 
-export type UseFeedSettingsEditProps = {
-  feedSlugOrId: string;
+const discardNewPrompt: PromptOptions = {
+  title: labels.feed.prompt.newDiscard.title,
+  description: labels.feed.prompt.newDiscard.description,
+  okButton: {
+    title: labels.feed.prompt.newDiscard.okButton,
+    color: ButtonColor.Ketchup,
+  },
+  cancelButton: {
+    title: labels.feed.prompt.newDiscard.cancelButton,
+  },
 };
+
+export type UseFeedSettingsEditProps = FeedSettingsEditProps;
 
 export type UseFeedSettingsEdit = FeedSettingsEditContextValue;
 
 export const useFeedSettingsEdit = ({
   feedSlugOrId,
+  isNewFeed,
 }: UseFeedSettingsEditProps): UseFeedSettingsEdit => {
+  const discardPrompt = isNewFeed ? discardNewPrompt : discardEditPrompt;
   const router = useRouter();
   const [formState, setFormState] = useState<Partial<FeedSettingsFormData>>();
   const queryClient = useQueryClient();
@@ -96,21 +109,41 @@ export const useFeedSettingsEdit = ({
     onValidateAction,
   });
 
-  const onBackToFeed = useCallback(() => {
-    if (feed?.type === FeedType.Main) {
-      router.replace(`${webappUrl}${isCustomDefaultFeed ? 'my-feed' : ''}`);
+  const onBackToFeed = useCallback(
+    async ({ action }: { action?: 'discard' | 'save' }) => {
+      if (action === 'discard' && isNewFeed) {
+        await deleteFeed({ feedId });
 
-      return;
-    }
+        router.back();
 
-    if (feed?.id === defaultFeedId) {
-      router.replace(webappUrl);
+        return;
+      }
 
-      return;
-    }
+      if (feed?.type === FeedType.Main) {
+        router.replace(`${webappUrl}${isCustomDefaultFeed ? 'my-feed' : ''}`);
 
-    router.replace(`${webappUrl}feeds/${feedSlugOrId}`);
-  }, [feed, router, isCustomDefaultFeed, defaultFeedId, feedSlugOrId]);
+        return;
+      }
+
+      if (feed?.id === defaultFeedId) {
+        router.replace(webappUrl);
+
+        return;
+      }
+
+      router.replace(`${webappUrl}feeds/${feedSlugOrId}`);
+    },
+    [
+      feed,
+      router,
+      isCustomDefaultFeed,
+      defaultFeedId,
+      feedSlugOrId,
+      isNewFeed,
+      deleteFeed,
+      feedId,
+    ],
+  );
 
   const feedData = useMemo<FeedSettingsFormData>(() => {
     return {
@@ -166,7 +199,7 @@ export const useFeedSettingsEdit = ({
 
       onAskConfirmation(false);
 
-      onBackToFeed();
+      onBackToFeed({ action: 'save' });
     },
 
     onError: (error) => {
@@ -288,8 +321,14 @@ export const useFeedSettingsEdit = ({
       }
 
       return shouldDiscard;
-    }, [onValidateAction, showPrompt, onAskConfirmation]),
+    }, [onValidateAction, showPrompt, onAskConfirmation, discardPrompt]),
     isDirty,
     onBackToFeed,
+    isNewFeed,
+    editFeed: (callback) => {
+      setDirty(true);
+
+      return callback();
+    },
   };
 };

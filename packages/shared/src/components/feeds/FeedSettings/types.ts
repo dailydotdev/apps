@@ -24,7 +24,10 @@ export type FeedSettingsEditContextValue = {
   onTagClick: (props: OnSelectTagProps) => void;
   onDiscard: () => Promise<boolean>;
   isDirty: boolean;
-  onBackToFeed: () => void;
+  onBackToFeed: ({ action }: { action: 'discard' | 'save' }) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  editFeed: <T extends (...args: any) => any>(callback: T) => ReturnType<T>;
+  isNewFeed: boolean;
 };
 
 export enum FeedSettingsMenu {

@@ -26,6 +26,7 @@ import { SuspenseLoader } from './components/SuspenseLoader';
 
 export type FeedSettingsEditProps = {
   feedSlugOrId: string;
+  isNewFeed?: boolean;
 };
 
 const FeedSettingsGeneralSection = dynamic(
@@ -106,11 +107,11 @@ type TabOptions = {
   };
 };
 
-export const FeedSettingsEdit = ({
-  feedSlugOrId,
-}: FeedSettingsEditProps): ReactElement => {
+export const FeedSettingsEdit = (
+  props: FeedSettingsEditProps,
+): ReactElement => {
   const router = useRouter();
-  const feedSettingsEditContext = useFeedSettingsEdit({ feedSlugOrId });
+  const feedSettingsEditContext = useFeedSettingsEdit(props);
   const { feed, onBackToFeed } = feedSettingsEditContext;
 
   const tabs = useMemo(() => {
@@ -168,7 +169,9 @@ export const FeedSettingsEdit = ({
         kind={Modal.Kind.FlexibleCenter}
         size={Modal.Size.XLarge}
         tabs={tabs}
-        onRequestClose={onBackToFeed}
+        onRequestClose={() => {
+          onBackToFeed({ action: 'discard' });
+        }}
         defaultView={defaultView}
       >
         <FeedSettingsEditHeader />

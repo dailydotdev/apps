@@ -44,6 +44,13 @@ export const labels = {
         description: 'You have unsaved changes that will be lost',
         okButton: 'Yes, discard',
       },
+      newDiscard: {
+        title: 'Cancel feed creation?',
+        description:
+          "You've made some changes to your feed. If you cancel now, your changes will be lost and the feed will be deleted. Are you sure you want to proceed?",
+        okButton: 'Yes, discard',
+        cancelButton: 'Keep editing',
+      },
       delete: {
         description:
           'Are you sure you want to delete your feed? This action cannot be undone.',
