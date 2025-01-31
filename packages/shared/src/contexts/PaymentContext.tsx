@@ -1,8 +1,8 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, {
+  useEffect,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -89,7 +89,7 @@ export const PaymentContextProvider = ({
             logRef.current({
               event_name: LogEvent.CompleteCheckout,
               extra: {
-                cycle: event?.data.items?.[0]?.billing_cycle.interval,
+                cycle: event?.data.items?.[0]?.billing_cycle?.interval,
                 localCost: event?.data.totals.total,
                 localCurrenct: event?.data.currency_code,
                 payment: event?.data.payment.method_details.type,
@@ -187,6 +187,9 @@ export const PaymentContextProvider = ({
     [productOptions],
   );
 
+  const isGift = !!router.query.gift;
+  const giftToUserId = `${router.query.gift}`;
+
   const openCheckout = useCallback(
     ({ priceId }: { priceId: string }) => {
       if (isPlus && priceId !== giftOneYear?.value) {
@@ -203,7 +206,8 @@ export const PaymentContextProvider = ({
           email: user?.email,
         },
         customData: {
-          user_id: user?.id,
+          user_id: isGift ? giftToUserId : user?.id,
+          ...(isGift && { gifter_id: user?.id }),
         },
         settings: {
           displayMode: 'inline',
@@ -216,7 +220,16 @@ export const PaymentContextProvider = ({
         },
       });
     },
-    [paddle, user, giftOneYear, isPlusAvailable, isPlus],
+    [
+      giftOneYear?.value,
+      giftToUserId,
+      isGift,
+      isPlus,
+      isPlusAvailable,
+      paddle?.Checkout,
+      user?.email,
+      user?.id,
+    ],
   );
 
   const contextData = useMemo<PaymentContextData>(

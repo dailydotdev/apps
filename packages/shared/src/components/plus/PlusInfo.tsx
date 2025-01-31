@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { PlusUser } from '../PlusUser';
@@ -69,12 +69,30 @@ export const PlusInfo = ({
   onContinue,
 }: PlusInfoProps): ReactElement => {
   const router = useRouter();
-  const { giftOneYear } = usePaymentContext();
+  const { giftOneYear, openCheckout, paddle } = usePaymentContext();
   const { openModal } = useLazyModal();
   const { logSubscriptionEvent } = usePlusSubscription();
   const { giftToUser } = useGiftUserContext();
   const { title, description, subtitle } =
     copy[giftToUser ? PlusType.Gift : PlusType.Self];
+
+  useEffect(() => {
+    const firstPriceId = productOptions[0]?.value;
+
+    if (!firstPriceId) {
+      return;
+    }
+
+    const haveSwitched = {
+      toSelf: !giftToUser && selectedOption === giftOneYear?.value,
+      toGift: giftToUser && selectedOption !== giftOneYear?.value,
+    };
+
+    if (haveSwitched.toSelf || haveSwitched.toGift) {
+      const newPriceId = haveSwitched.toSelf ? firstPriceId : giftOneYear.value;
+      onChange(newPriceId);
+    }
+  }, [giftOneYear.value, giftToUser, onChange, productOptions, selectedOption]);
 
   return (
     <>
@@ -148,7 +166,6 @@ export const PlusInfo = ({
         ) : (
           productOptions.map((option) => {
             const { label, value } = option;
-
             return (
               <PlusOptionRadio
                 key={value}
