@@ -13,7 +13,7 @@ import { isCompanionActivated } from '../lib/element';
 import type { AuthTriggersType } from '../lib/auth';
 import { AuthTriggers } from '../lib/auth';
 import type { Squad } from '../graphql/sources';
-import { checkIsExtension, isNullOrUndefined } from '../lib/func';
+import { checkIsExtension, isIOSNative, isNullOrUndefined } from '../lib/func';
 import { AFTER_AUTH_PARAM } from '../components/auth/common';
 import { Continent, outsideGdpr } from '../lib/geo';
 
@@ -199,7 +199,8 @@ export const AuthContextProvider = ({
         isAndroidApp,
         isGdprCovered:
           geo?.continent === Continent.Europe ||
-          !outsideGdpr.includes(geo?.region),
+          !outsideGdpr.includes(geo?.region) ||
+          isIOSNative(),
       }}
     >
       {children}

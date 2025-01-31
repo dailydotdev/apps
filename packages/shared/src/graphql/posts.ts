@@ -105,7 +105,6 @@ export interface Post {
   author?: Author;
   scout?: Scout;
   views?: number;
-  placeholder?: string;
   read?: boolean;
   bookmarked?: boolean;
   trending?: number;
@@ -130,6 +129,7 @@ export interface Post {
   domain?: string;
   clickbaitTitleDetected?: boolean;
   translation?: { title?: boolean };
+  language?: string;
 }
 
 export type RelatedPost = Pick<
@@ -261,7 +261,6 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       title
       permalink
       image
-      placeholder
       createdAt
       readTime
       tags
