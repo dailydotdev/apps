@@ -35,9 +35,8 @@ import { checkIsExtension, isIOSNative } from '../lib/func';
 import { useDndContext } from '../contexts/DndContext';
 import { LazyModal } from './modals/common/types';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
-import { LogEvent, TargetId, TargetType } from '../lib/log';
+import { LogEvent, TargetId } from '../lib/log';
 import { GiftIcon } from './icons/gift';
-import { useLogContext } from '../contexts/LogContext';
 
 interface ListItem {
   title: string;
@@ -56,7 +55,6 @@ export default function ProfileMenu({
   const { user, logout, isGdprCovered } = useAuthContext();
   const { isActive: isDndActive, setShowDnd } = useDndContext();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
-  const { logEvent } = useLogContext();
 
   const items: ListItem[] = useMemo(() => {
     const list: ListItem[] = [
@@ -163,10 +161,9 @@ export default function ProfileMenu({
       buttonProps: {
         icon: <GiftIcon />,
         onClick: () => {
-          logEvent({
+          logSubscriptionEvent({
             event_name: LogEvent.GiftSubscription,
             target_id: TargetId.ProfileDropdown,
-            target_type: TargetType.Plus,
           });
           openModal({ type: LazyModal.GiftPlus });
         },
@@ -190,7 +187,6 @@ export default function ProfileMenu({
     isDndActive,
     setShowDnd,
     openModal,
-    logEvent,
     logout,
   ]);
 

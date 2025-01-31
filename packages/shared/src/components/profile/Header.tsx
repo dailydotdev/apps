@@ -19,7 +19,7 @@ import {
 import { UpgradeToPlus } from '../UpgradeToPlus';
 import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
-import { LogEvent, TargetId, TargetType } from '../../lib/log';
+import { LogEvent, TargetId } from '../../lib/log';
 import CustomFeedOptionsMenu from '../CustomFeedOptionsMenu';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
 import { useLazyModal } from '../../hooks/useLazyModal';
@@ -27,7 +27,6 @@ import { LazyModal } from '../modals/common/types';
 import { MenuIcon } from '../MenuIcon';
 import { GiftIcon } from '../icons/gift';
 import type { MenuItemProps } from '../fields/ContextMenu';
-import { useLogContext } from '../../contexts/LogContext';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -56,7 +55,7 @@ export function Header({
     entity: ContentPreferenceType.User,
   });
   const { unblock, block } = useContentPreference();
-  const { logEvent } = useLogContext();
+  const { logSubscriptionEvent } = usePlusSubscription();
 
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
@@ -106,10 +105,9 @@ export function Header({
       icon: <MenuIcon Icon={GiftIcon} />,
       label: 'Gift daily.dev Plus',
       action: () => {
-        logEvent({
+        logSubscriptionEvent({
           event_name: LogEvent.GiftSubscription,
           target_id: TargetId.ProfilePage,
-          target_type: TargetType.Plus,
         });
         openModal({
           type: LazyModal.GiftPlus,

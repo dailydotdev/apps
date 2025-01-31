@@ -20,7 +20,7 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
-import { LogEvent, TargetId, TargetType } from '../../lib/log';
+import { LogEvent, TargetId } from '../../lib/log';
 import { useGiftUserContext } from './GiftUserContext';
 import { PlusOptionRadio } from './PlusOptionRadio';
 import { GiftingSelectedUser } from './GiftingSelectedUser';
@@ -28,7 +28,6 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { GiftIcon } from '../icons/gift';
-import { useLogContext } from '../../contexts/LogContext';
 
 type PlusInfoProps = {
   productOptions: ProductOption[];
@@ -74,7 +73,6 @@ export const PlusInfo = ({
   const { openModal } = useLazyModal();
   const { logSubscriptionEvent } = usePlusSubscription();
   const { giftToUser } = useGiftUserContext();
-  const { logEvent } = useLogContext();
   const { title, description, subtitle } =
     copy[giftToUser ? PlusType.Gift : PlusType.Self];
 
@@ -112,10 +110,9 @@ export const PlusInfo = ({
               size={ButtonSize.XSmall}
               variant={ButtonVariant.Float}
               onClick={() => {
-                logEvent({
+                logSubscriptionEvent({
                   event_name: LogEvent.GiftSubscription,
                   target_id: TargetId.PlusPage,
-                  target_type: TargetType.Plus,
                 });
                 openModal({ type: LazyModal.GiftPlus });
               }}

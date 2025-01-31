@@ -25,7 +25,7 @@ import {
 } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { LogEvent, Origin, TargetId, TargetType } from '../../lib/log';
+import { LogEvent, Origin, TargetId } from '../../lib/log';
 import type { Post } from '../../graphql/posts';
 import { UserVote } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
@@ -39,7 +39,11 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { labels, largeNumberFormat } from '../../lib';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import type { VoteEntityPayload } from '../../hooks';
-import { useVoteComment, voteMutationHandlers } from '../../hooks';
+import {
+  usePlusSubscription,
+  useVoteComment,
+  voteMutationHandlers,
+} from '../../hooks';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { getCompanionWrapper } from '../../lib/extension';
@@ -48,7 +52,7 @@ import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { isFollowingContent } from '../../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
 import { GiftIcon } from '../icons/gift';
-import { useLogContext } from '../../contexts/LogContext';
+import { usePaymentContext } from '../../contexts/PaymentContext';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -85,7 +89,8 @@ export default function CommentActionButtons({
   const { onMenuClick, isOpen, onHide } = useContextMenu({ id });
   const { openModal } = useLazyModal();
   const { displayToast } = useToastNotification();
-  const { logEvent } = useLogContext();
+  const { isPlusAvailable } = usePaymentContext();
+  const { logSubscriptionEvent } = usePlusSubscription();
   const [voteState, setVoteState] = useState<VoteEntityPayload>(() => {
     return {
       id: comment.id,
@@ -264,14 +269,17 @@ export default function CommentActionButtons({
     });
   }
 
-  if (comment.author.id !== user?.id && !comment.author.isPlus) {
+  if (
+    isPlusAvailable &&
+    comment.author.id !== user?.id &&
+    !comment.author.isPlus
+  ) {
     commentOptions.push({
       label: 'Gift daily.dev Plus',
       action: () => {
-        logEvent({
+        logSubscriptionEvent({
           event_name: LogEvent.GiftSubscription,
           target_id: TargetId.ContextMenu,
-          target_type: TargetType.Plus,
         });
         openModal({
           type: LazyModal.GiftPlus,

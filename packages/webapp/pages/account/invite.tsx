@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useMemo, useRef } from 'react';
 import {
   ReferralCampaignKey,
+  usePlusSubscription,
   useReferralCampaign,
 } from '@dailydotdev/shared/src/hooks';
 import { link } from '@dailydotdev/shared/src/lib/links';
@@ -23,7 +24,6 @@ import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import { format } from 'date-fns';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import {
   LogEvent,
   TargetId,
@@ -47,6 +47,8 @@ import {
 import { GiftIcon } from '@dailydotdev/shared/src/components/icons/gift';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import { usePaymentContext } from '@dailydotdev/shared/src/contexts/PaymentContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
@@ -64,6 +66,8 @@ const AccountInvitePage = (): ReactElement => {
   const { url, referredUsersCount } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Generic,
   });
+  const { isPlusAvailable } = usePaymentContext();
+  const { logSubscriptionEvent } = usePlusSubscription();
   const { logEvent } = useLogContext();
   const inviteLink = url || link.referral.defaultUrl;
   const [, onShareOrCopyLink] = useShareOrCopyLink({
@@ -105,44 +109,45 @@ const AccountInvitePage = (): ReactElement => {
 
   return (
     <AccountPageContainer title="Invite friends">
-      <div className="mb-6 flex flex-col gap-4">
-        <div className="space-y-1">
-          <div className="flex gap-0.5">
-            <Typography type={TypographyType.Body} bold>
-              Gift daily.dev Plus
+      {isPlusAvailable && (
+        <div className="mb-6 flex flex-col gap-4">
+          <div className="space-y-1">
+            <div className="flex gap-0.5">
+              <Typography type={TypographyType.Body} bold>
+                Gift daily.dev Plus
+              </Typography>
+              <DevPlusIcon size={IconSize.XSmall} />
+            </div>
+            <Typography
+              className="border-plus"
+              color={TypographyColor.Tertiary}
+              type={TypographyType.Callout}
+            >
+              Gifting daily.dev Plus to a friend is the ultimate way to say,
+              &apos;I&apos;ve got your back.&apos; It unlocks an ad-free
+              experience, advanced content filtering and customizations, plus AI
+              superpowers to supercharge their daily.dev journey.
             </Typography>
-            <DevPlusIcon size={IconSize.XSmall} />
           </div>
-          <Typography
-            className="border-plus"
-            color={TypographyColor.Tertiary}
-            type={TypographyType.Callout}
+          <Button
+            icon={<GiftIcon size={IconSize.Small} secondary />}
+            variant={ButtonVariant.Secondary}
+            color={ButtonColor.Bacon}
+            onClick={() => {
+              logSubscriptionEvent({
+                event_name: LogEvent.GiftSubscription,
+                target_id: TargetId.InviteFriendsPage,
+              });
+              openModal({
+                type: LazyModal.GiftPlus,
+              });
+            }}
+            className="max-w-fit border-action-plus-default text-action-plus-default"
           >
-            Gifting daily.dev Plus to a friend is the ultimate way to say,
-            &apos;I&apos;ve got your back.&apos; It unlocks an ad-free
-            experience, advanced content filtering and customizations, plus AI
-            superpowers to supercharge their daily.dev journey.
-          </Typography>
+            Buy as gift
+          </Button>
         </div>
-        <Button
-          icon={<GiftIcon size={IconSize.Small} secondary />}
-          variant={ButtonVariant.Secondary}
-          color={ButtonColor.Bacon}
-          onClick={() => {
-            logEvent({
-              event_name: LogEvent.GiftSubscription,
-              target_id: TargetId.InviteFriendsPage,
-              target_type: TargetType.Plus,
-            });
-            openModal({
-              type: LazyModal.GiftPlus,
-            });
-          }}
-          className="max-w-fit border-action-plus-default text-action-plus-default"
-        >
-          Buy as gift
-        </Button>
-      </div>
+      )}
       <InviteLinkInput
         link={inviteLink}
         logProps={{
