@@ -69,7 +69,7 @@ export const PlusInfo = ({
   onContinue,
 }: PlusInfoProps): ReactElement => {
   const router = useRouter();
-  const { giftOneYear, openCheckout, paddle } = usePaymentContext();
+  const { giftOneYear } = usePaymentContext();
   const { openModal } = useLazyModal();
   const { logSubscriptionEvent } = usePlusSubscription();
   const { giftToUser } = useGiftUserContext();
