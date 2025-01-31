@@ -79,16 +79,16 @@ export const SidebarDesktop = ({
             onNavTabClick={onNavTabClick}
             isItemsButton={isNavButtons}
           />
-          <NetworkSection
-            {...defaultRenderSectionProps}
-            title="Network"
-            isItemsButton={isNavButtons}
-          />
           <CustomFeedSection
             {...defaultRenderSectionProps}
             onNavTabClick={onNavTabClick}
             title="Custom feeds"
             isItemsButton={false}
+          />
+          <NetworkSection
+            {...defaultRenderSectionProps}
+            title="Network"
+            isItemsButton={isNavButtons}
           />
           <BookmarkSection
             {...defaultRenderSectionProps}
