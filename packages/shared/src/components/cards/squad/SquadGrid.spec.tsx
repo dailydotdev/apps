@@ -77,8 +77,8 @@ const renderComponent = (): RenderResult => {
         loadedUserFromCache
         squads={squads}
       >
-        <LazyModalElement />
         <PaymentContextProvider>
+          <LazyModalElement />
           <SquadGrid source={admin.source} />
         </PaymentContextProvider>
       </AuthContextProvider>
