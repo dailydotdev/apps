@@ -56,6 +56,13 @@ export const labels = {
           'Are you sure you want to delete your feed? This action cannot be undone.',
         okButton: 'Yes, delete feed',
       },
+      createGenericFeed: {
+        title: 'Create a generic feed?',
+        description:
+          'It looks like you didn’t add any customizations. We’ll create a generic feed for you, are you sure this is what you want? If not, you can go back and customize it or edit it later using the “Feed settings” menu.',
+        okButton: 'Create feed',
+        cancelButton: 'Keep editing',
+      },
     },
     error: {
       feedLimit: {
