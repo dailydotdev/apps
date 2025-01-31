@@ -18,6 +18,8 @@ import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 import { LazyModal } from '../modals/common/types';
 import { GiftIcon } from '../icons/gift';
 import { useLazyModal } from '../../hooks/useLazyModal';
+import { LogEvent, TargetId, TargetType } from '../../lib/log';
+import { useLogContext } from '../../contexts/LogContext';
 
 interface SquadMemberMenuProps extends Pick<UseSquadActions, 'onUpdateRole'> {
   squad: Squad;
@@ -127,6 +129,7 @@ export default function SquadMemberMenu({
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
   const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
   const onUpdateMember = async (
     role: SourceMemberRole,
     title: MenuItemTitle,
@@ -216,11 +219,17 @@ export default function SquadMemberMenu({
     if (!member.user.isPlus) {
       menu.push({
         label: 'Gift daily.dev Plus',
-        action: () =>
+        action: () => {
+          logEvent({
+            event_name: LogEvent.GiftSubscription,
+            target_id: TargetId.Squad,
+            target_type: TargetType.Plus,
+          });
           openModal({
             type: LazyModal.GiftPlus,
             props: { preselected: member.user },
-          }),
+          });
+        },
         icon: <GiftIcon />,
       });
     }

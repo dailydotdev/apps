@@ -128,11 +128,16 @@ const AccountInvitePage = (): ReactElement => {
           icon={<GiftIcon size={IconSize.Small} secondary />}
           variant={ButtonVariant.Secondary}
           color={ButtonColor.Bacon}
-          onClick={() =>
+          onClick={() => {
+            logEvent({
+              event_name: LogEvent.GiftSubscription,
+              target_id: TargetId.InviteFriendsPage,
+              target_type: TargetType.Plus,
+            });
             openModal({
               type: LazyModal.GiftPlus,
-            })
-          }
+            });
+          }}
           className="max-w-fit border-action-plus-default text-action-plus-default"
         >
           Buy as gift

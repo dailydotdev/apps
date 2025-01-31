@@ -25,7 +25,7 @@ import {
 } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { Origin } from '../../lib/log';
+import { LogEvent, Origin, TargetId, TargetType } from '../../lib/log';
 import type { Post } from '../../graphql/posts';
 import { UserVote } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
@@ -48,6 +48,7 @@ import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { isFollowingContent } from '../../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
 import { GiftIcon } from '../icons/gift';
+import { useLogContext } from '../../contexts/LogContext';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -84,6 +85,7 @@ export default function CommentActionButtons({
   const { onMenuClick, isOpen, onHide } = useContextMenu({ id });
   const { openModal } = useLazyModal();
   const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
   const [voteState, setVoteState] = useState<VoteEntityPayload>(() => {
     return {
       id: comment.id,
@@ -265,13 +267,19 @@ export default function CommentActionButtons({
   if (comment.author.id !== user?.id && !comment.author.isPlus) {
     commentOptions.push({
       label: 'Gift daily.dev Plus',
-      action: () =>
+      action: () => {
+        logEvent({
+          event_name: LogEvent.GiftSubscription,
+          target_id: TargetId.ContextMenu,
+          target_type: TargetType.Plus,
+        });
         openModal({
           type: LazyModal.GiftPlus,
           props: {
             preselected: comment.author as UserShortProfile,
           },
-        }),
+        });
+      },
       icon: <GiftIcon />,
     });
   }
