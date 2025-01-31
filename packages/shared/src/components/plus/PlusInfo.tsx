@@ -92,7 +92,13 @@ export const PlusInfo = ({
       const newPriceId = haveSwitched.toSelf ? firstPriceId : giftOneYear.value;
       onChange(newPriceId);
     }
-  }, [giftOneYear.value, giftToUser, onChange, productOptions, selectedOption]);
+  }, [
+    giftOneYear?.value,
+    giftToUser,
+    onChange,
+    productOptions,
+    selectedOption,
+  ]);
 
   return (
     <>
