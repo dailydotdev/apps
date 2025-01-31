@@ -58,13 +58,11 @@ export const FeedSettingsCreate = (): ReactElement => {
     ];
 
     const existingFeedsCount = feeds?.edges?.length || 0;
-    const matchedExistingFeeds =
-      feeds?.edges?.filter((item) => feedNames.includes(item.node.flags?.name))
-        ?.length || 0;
+    const newFeedName = feedNames.find((name) => {
+      return !feeds?.edges?.some((item) => item.node.flags?.name === name);
+    });
 
-    return (
-      feedNames[matchedExistingFeeds] || `New feed ${existingFeedsCount + 1}`
-    );
+    return newFeedName || `New feed ${existingFeedsCount + 1}`;
   }, [feeds]);
 
   const {
