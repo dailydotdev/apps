@@ -110,8 +110,12 @@ export function GiftReceivedPlusModal({
         </div>
         <div className="flex flex-col gap-4 tablet:hidden">
           <OpenSquadButton />
-          <Button type="button" onClick={onRequestClose} variant={ButtonVariant.Float}>
-            Cancel
+          <Button
+            type="button"
+            onClick={onRequestClose}
+            variant={ButtonVariant.Float}
+          >
+            Close
           </Button>
         </div>
       </Modal.Body>
