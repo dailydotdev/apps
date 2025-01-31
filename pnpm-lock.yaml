@@ -101,11 +101,14 @@ importers:
         specifier: ^2.25.0
         version: 2.30.0
       date-fns-tz:
-        specifier: 1.0.0
-        version: 1.0.0(date-fns@2.30.0)
+        specifier: 1.2.2
+        version: 1.2.2(date-fns@2.30.0)
       dompurify:
         specifier: ^2.5.4
         version: 2.5.7
+      fetch-event-stream:
+        specifier: ^0.1.5
+        version: 0.1.5
       focus-visible:
         specifier: ^5.2.1
         version: 5.2.1
@@ -379,6 +382,9 @@ importers:
       '@growthbook/growthbook-react':
         specifier: ^0.17.0
         version: 0.17.0(react@18.3.1)
+      '@marsidev/react-turnstile':
+        specifier: ^1.1.0
+        version: 1.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@paddle/paddle-js':
         specifier: ^1.3.2
         version: 1.3.2
@@ -391,6 +397,9 @@ importers:
       classnames:
         specifier: ^2.3.1
         version: 2.5.1
+      fetch-event-stream:
+        specifier: ^0.1.5
+        version: 0.1.5
       graphql-ws:
         specifier: ^5.5.5
         version: 5.16.0(graphql@16.9.0)
@@ -510,8 +519,8 @@ importers:
         specifier: ^2.25.0
         version: 2.30.0
       date-fns-tz:
-        specifier: 1.0.0
-        version: 1.0.0(date-fns@2.30.0)
+        specifier: 1.2.2
+        version: 1.2.2(date-fns@2.30.0)
       dompurify:
         specifier: ^2.5.4
         version: 2.5.7
@@ -780,6 +789,9 @@ importers:
       '@dailydotdev/shared':
         specifier: workspace:*
         version: link:../shared
+      '@marsidev/react-turnstile':
+        specifier: 1.1.0
+        version: 1.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@paddle/paddle-js':
         specifier: ^1.3.2
         version: 1.3.2
@@ -799,11 +811,14 @@ importers:
         specifier: ^2.28.0
         version: 2.30.0
       date-fns-tz:
-        specifier: 1.0.0
-        version: 1.0.0(date-fns@2.30.0)
+        specifier: 1.2.2
+        version: 1.2.2(date-fns@2.30.0)
       dompurify:
         specifier: ^2.5.4
         version: 2.5.7
+      fetch-event-stream:
+        specifier: ^0.1.5
+        version: 0.1.5
       focus-visible:
         specifier: ^5.2.1
         version: 5.2.1
@@ -2286,6 +2301,12 @@ packages:
 
   '@lit/reactive-element@1.6.3':
     resolution: {integrity: sha512-QuTgnG52Poic7uM1AN5yJ09QMe0O28e10XzSvWDz02TJiiKee4stsiownEIadWm8nYzyDAyT+gKzUoZmiWQtsQ==}
+
+  '@marsidev/react-turnstile@1.1.0':
+    resolution: {integrity: sha512-X7bP9ZYutDd+E+klPYF+/BJHqEyyVkN4KKmZcNRr84zs3DcMoftlMAuoKqNSnqg0HE7NQ1844+TLFSJoztCdSA==}
+    peerDependencies:
+      react: ^17.0.2 || ^18.0.0 || ^19.0
+      react-dom: ^17.0.2 || ^18.0.0 || ^19.0
 
   '@mdx-js/react@3.1.0':
     resolution: {integrity: sha512-QjHtSaoameoalGnKDT3FoIl4+9RwyTmo9ZJGBdLOks/YOiWHoRDI3PUwEzOE7kEmGcV3AFcp9K6dYu9rEuKLAQ==}
@@ -4346,10 +4367,10 @@ packages:
     resolution: {integrity: sha512-t/Ygsytq+R995EJ5PZlD4Cu56sWa8InXySaViRzw9apusqsOO2bQP+SbYzAhR0pFKoB+43lYy8rWban9JSuXnA==}
     engines: {node: '>= 0.4'}
 
-  date-fns-tz@1.0.0:
-    resolution: {integrity: sha512-Vl54KzcZ2zWHQMEkXiEFr4wOR/ok3jX/ANAXXQVsytW+WcOw3kQvqXK7T4KSFGlNSx/S3NEZL4H0t/IUQt340g==}
+  date-fns-tz@1.2.2:
+    resolution: {integrity: sha512-vWtn44eEqnLbkACb7T5G5gPgKR4nY8NkNMOCyoY49NsRGHrcDmY2aysCyzDeA+u+vcDBn/w6nQqEDyouRs4m8w==}
     peerDependencies:
-      date-fns: '>=2.0.0-alpha.13'
+      date-fns: '>=2.0.0'
 
   date-fns@2.30.0:
     resolution: {integrity: sha512-fnULvOpxnC5/Vg3NCiWelDsLiUc9bRwAPs/+LfTLNvetFCtCTN+yQz15C/fs4AwX1R9K5GLtLfn8QW+dWisaAw==}
@@ -5008,6 +5029,9 @@ packages:
     peerDependenciesMeta:
       picomatch:
         optional: true
+
+  fetch-event-stream@0.1.5:
+    resolution: {integrity: sha512-V1PWovkspxQfssq/NnxoEyQo1DV+MRK/laPuPblIZmSjMN8P5u46OhlFQznSr9p/t0Sp8Uc6SbM3yCMfr0KU8g==}
 
   file-entry-cache@6.0.1:
     resolution: {integrity: sha512-7Gps/XWymbLk2QLYK4NzpMOrYjMhdIxXuIvy2QBsLE6ljuodKvdkWs/cpyJJ3CVIVpH0Oi1Hvg1ovbMzLdFBBg==}
@@ -10208,6 +10232,11 @@ snapshots:
     dependencies:
       '@lit-labs/ssr-dom-shim': 1.2.1
 
+  '@marsidev/react-turnstile@1.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
   '@mdx-js/react@3.1.0(@types/react@18.3.12)(react@18.3.1)':
     dependencies:
       '@types/mdx': 2.0.13
@@ -12526,7 +12555,7 @@ snapshots:
       es-errors: 1.3.0
       is-data-view: 1.0.1
 
-  date-fns-tz@1.0.0(date-fns@2.30.0):
+  date-fns-tz@1.2.2(date-fns@2.30.0):
     dependencies:
       date-fns: 2.30.0
 
@@ -13355,6 +13384,8 @@ snapshots:
   fdir@6.4.2(picomatch@4.0.2):
     optionalDependencies:
       picomatch: 4.0.2
+
+  fetch-event-stream@0.1.5: {}
 
   file-entry-cache@6.0.1:
     dependencies:
@@ -14290,7 +14321,11 @@ snapshots:
       pretty-format: 26.6.2
       throat: 5.0.0
     transitivePeerDependencies:
+      - bufferutil
+      - canvas
       - supports-color
+      - ts-node
+      - utf-8-validate
 
   jest-junit@12.3.0:
     dependencies:

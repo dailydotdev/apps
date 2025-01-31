@@ -170,6 +170,7 @@ export enum LogEvent {
   ScheduleStreakReminder = 'schedule streak reminder',
   StreakRecover = 'restore streak',
   DismissStreakRecover = 'dimiss streaks milestone',
+  StreakTimezoneMismatch = 'streak timezone mismatch',
   // 404 page
   View404Page = '404 page',
   // Follow Actions - start
@@ -230,6 +231,7 @@ export enum LogEvent {
   ToggleClickbaitShield = 'toggle clickbait shield',
   ClickbaitShieldTitle = 'clickbait shield title',
   // End Clickbait Shield
+  InstallPWA = 'install pwa',
   // Start Share
   ShareProfile = 'share profile',
   ShareSource = 'share source',
@@ -312,6 +314,8 @@ export enum TargetId {
   BookmarkFolder = 'bookmark folder',
   FeedSettings = 'feed settings',
   ClickbaitShield = 'clickbait shield',
+  StreakTimezoneLabel = 'streak timezone label',
+  StreakTimezoneMismatchPrompt = 'streak timezone mismatch prompt',
 }
 
 export enum NotificationChannel {
@@ -359,4 +363,9 @@ export enum ShortcutsSourceType {
 export enum UserAcquisitionEvent {
   Dismiss = 'dismiss ua',
   Submit = 'choose ua',
+}
+
+export enum StreakTimezonePromptAction {
+  Settings = 'settings',
+  Ignore = 'ignore',
 }

@@ -1,9 +1,5 @@
 import { useCallback, useContext, useMemo } from 'react';
-import type {
-  InfiniteData,
-  QueryKey,
-  UseInfiniteQueryOptions,
-} from '@tanstack/react-query';
+import type { QueryKey, UseInfiniteQueryOptions } from '@tanstack/react-query';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import type { ClientError } from 'graphql-request';
 import { useRouter } from 'next/router';
@@ -12,6 +8,7 @@ import { POSTS_ENGAGED_SUBSCRIPTION } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import useSubscription from './useSubscription';
 import {
+  findIndexOfPostInData,
   getNextPageParam,
   removeCachedPagePost,
   RequestKey,
@@ -29,9 +26,11 @@ import { featureFeedAdTemplate } from '../lib/featureManagement';
 import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
 import { AD_PLACEHOLDER_SOURCE_ID } from '../lib/constants';
 import { SharedFeedPage } from '../components/utilities';
+import { useTranslation } from './translation/useTranslation';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
+  dataUpdatedAt: number;
 }
 
 interface AdItem extends FeedItemBase<FeedItemType.Ad> {
@@ -72,22 +71,6 @@ export type FeedReturnType = {
   isError: boolean;
 };
 
-const findIndexOfPostInData = (
-  data: InfiniteData<FeedData>,
-  id: string,
-): { pageIndex: number; index: number } => {
-  for (let pageIndex = 0; pageIndex < data.pages.length; pageIndex += 1) {
-    const page = data.pages[pageIndex];
-    for (let index = 0; index < page.page.edges.length; index += 1) {
-      const item = page.page.edges[index];
-      if (item.node.id === id) {
-        return { pageIndex, index };
-      }
-    }
-  }
-  return { pageIndex: -1, index: -1 };
-};
-
 type UseFeedSettingParams = {
   adPostLength?: number;
   disableAds?: boolean;
@@ -118,18 +101,20 @@ export default function useFeed<T>(
   const { logEvent } = useLogContext();
   const { query, variables, options = {}, settings, onEmptyFeed } = params;
   const { user, tokenRefreshed } = useContext(AuthContext);
-  const { showPlusSubscription, isPlus } = usePlusSubscription();
+  const { isPlus } = usePlusSubscription();
   const queryClient = useQueryClient();
+  const { fetchTranslations } = useTranslation({
+    queryKey: feedQueryKey,
+    queryType: 'feed',
+  });
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
   const avoidRetry =
-    params?.settings?.feedName === SharedFeedPage.Custom &&
-    showPlusSubscription &&
-    !isPlus;
+    params?.settings?.feedName === SharedFeedPage.Custom && !isPlus;
 
   const feedQuery = useInfiniteQuery<FeedData>({
     queryKey: feedQueryKey,
     queryFn: async ({ pageParam }) => {
-      const res = await gqlClient.request(query, {
+      const res = await gqlClient.request<FeedData>(query, {
         ...variables,
         first: pageSize,
         after: pageParam,
@@ -152,6 +137,8 @@ export default function useFeed<T>(
           onEmptyFeed();
         }
       }
+
+      fetchTranslations(res.page.edges.map(({ node }) => node));
 
       return res;
     },
@@ -308,6 +295,7 @@ export default function useFeed<T>(
             post: node,
             page: pageIndex,
             index,
+            dataUpdatedAt: feedQuery.dataUpdatedAt,
           });
         });
 
@@ -323,6 +311,7 @@ export default function useFeed<T>(
   }, [
     feedQuery.data,
     feedQuery.isFetching,
+    feedQuery.dataUpdatedAt,
     settings.marketingCta,
     settings.showAcquisitionForm,
     placeholdersPerPage,

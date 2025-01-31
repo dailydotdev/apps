@@ -29,3 +29,15 @@ export const geoToCountry = (geo: string): string => {
 
   return country;
 };
+
+export enum Continent {
+  Africa = 'AF',
+  Antarctica = 'AN',
+  Asia = 'AS',
+  Europe = 'EU',
+  Oceania = 'OC',
+  NorthAmerica = 'NA',
+  SouthAmerica = 'SA',
+}
+
+export const outsideGdpr = ['US', 'IL'];

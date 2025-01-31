@@ -1,12 +1,13 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import type { DropdownClassName } from '../fields/Dropdown';
 import { Dropdown } from '../fields/Dropdown';
 import { LanguageIcon } from '../icons';
 import type { BaseFieldProps } from '../fields/BaseFieldContainer';
-import { ContentLanguage, contnetLanguageToLabelMap } from '../../lib/user';
 import type { IconProps } from '../Icon';
+import { featureValidLanguages } from '../../lib/featureManagement';
+import { useFeature } from '../GrowthBookProvider';
 
 type ClassName = {
   hint?: string;
@@ -15,8 +16,8 @@ type ClassName = {
 
 type Props = {
   className?: ClassName;
-  defaultValue?: ContentLanguage;
-  onChange?: (value: ContentLanguage, index: number) => void;
+  defaultValue?: string;
+  onChange?: (value: string, index: number) => void;
   icon?: ReactElement<IconProps>;
 } & Pick<BaseFieldProps, 'name' | 'valid' | 'hint' | 'saveHintSpace'>;
 
@@ -33,8 +34,15 @@ export const LanguageDropdown = ({
   icon = defaultIcon,
 }: Props): ReactElement => {
   const [open, setOpen] = useState(false);
+  const validLanguages = useFeature(featureValidLanguages);
+  const languageOptions = useMemo(() => {
+    return ['Original language', ...Object.values(validLanguages)];
+  }, [validLanguages]);
+  const values = useMemo(() => {
+    return [null, ...Object.keys(validLanguages)];
+  }, [validLanguages]);
   const [selectedIndex, setSelectedIndex] = useState(
-    defaultValue ? Object.values(ContentLanguage).indexOf(defaultValue) : 0,
+    defaultValue ? values.indexOf(defaultValue) : 0,
   );
 
   const {
@@ -63,7 +71,7 @@ export const LanguageDropdown = ({
             !open &&
               !valid &&
               '!shadow-[inset_0.125rem_0_0_var(--status-error)]',
-            selectedIndex > -1 && '!text-text-primary',
+            selectedIndex > 0 && '!text-text-primary',
           ),
           menu: classNames(
             menuClassName,
@@ -73,9 +81,9 @@ export const LanguageDropdown = ({
           container: dropdownClassName,
         }}
         selectedIndex={selectedIndex}
-        options={Object.values(contnetLanguageToLabelMap)}
+        options={languageOptions}
         onChange={(_, index) => {
-          const val = Object.values(ContentLanguage)[index];
+          const val = values[index];
           onChange?.(val, index);
           setSelectedIndex(index);
         }}
@@ -88,7 +96,7 @@ export const LanguageDropdown = ({
           type="text"
           className="hidden"
           name={name}
-          value={Object.values(ContentLanguage)[selectedIndex]}
+          value={values[selectedIndex]}
           readOnly
         />
       )}

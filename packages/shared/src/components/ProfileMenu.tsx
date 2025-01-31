@@ -13,6 +13,7 @@ import {
   PauseIcon,
   EditIcon,
   DevPlusIcon,
+  PrivacyIcon,
 } from './icons';
 import InteractivePopup, {
   InteractivePopupPosition,
@@ -30,7 +31,7 @@ import { HeroImage } from './profile/HeroImage';
 import { anchorDefaultRel } from '../lib/strings';
 import { LogoutReason } from '../lib/user';
 import { useLazyModal } from '../hooks/useLazyModal';
-import { checkIsExtension } from '../lib/func';
+import { checkIsExtension, isIOSNative } from '../lib/func';
 import { useDndContext } from '../contexts/DndContext';
 import { LazyModal } from './modals/common/types';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
@@ -50,33 +51,11 @@ export default function ProfileMenu({
   onClose,
 }: ProfileMenuProps): ReactElement {
   const { openModal } = useLazyModal();
-  const { user, logout } = useAuthContext();
+  const { user, logout, isGdprCovered } = useAuthContext();
   const { isActive: isDndActive, setShowDnd } = useDndContext();
-  const { showPlusSubscription, isPlus, logSubscriptionEvent } =
-    usePlusSubscription();
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
 
   const items: ListItem[] = useMemo(() => {
-    const plusItem: ListItem = showPlusSubscription
-      ? {
-          title: isPlus ? 'Manage plus' : 'Upgrade to plus',
-          buttonProps: {
-            tag: 'a',
-            icon: <DevPlusIcon />,
-            href: isPlus ? managePlusUrl : plusUrl,
-            className: isPlus ? undefined : 'text-action-plus-default',
-            target: isPlus ? '_blank' : undefined,
-            onClick: () => {
-              logSubscriptionEvent({
-                event_name: isPlus
-                  ? LogEvent.ManageSubscription
-                  : LogEvent.UpgradeSubscription,
-                target_id: TargetId.ProfileDropdown,
-              });
-            },
-          },
-        }
-      : undefined;
-
     const list: ListItem[] = [
       {
         title: 'Profile',
@@ -86,7 +65,30 @@ export default function ProfileMenu({
           icon: <UserIcon />,
         },
       },
-      plusItem,
+    ];
+
+    if (!isIOSNative()) {
+      list.push({
+        title: isPlus ? 'Manage plus' : 'Upgrade to plus',
+        buttonProps: {
+          tag: 'a',
+          icon: <DevPlusIcon />,
+          href: isPlus ? managePlusUrl : plusUrl,
+          className: isPlus ? undefined : 'text-action-plus-default',
+          target: isPlus ? '_blank' : undefined,
+          onClick: () => {
+            logSubscriptionEvent({
+              event_name: isPlus
+                ? LogEvent.ManageSubscription
+                : LogEvent.UpgradeSubscription,
+              target_id: TargetId.ProfileDropdown,
+            });
+          },
+        },
+      });
+    }
+
+    list.push(
       {
         title: 'Account details',
         buttonProps: {
@@ -121,7 +123,7 @@ export default function ProfileMenu({
           href: `${webappUrl}account/invite`,
         },
       },
-    ];
+    );
 
     if (checkIsExtension()) {
       const DndIcon = isDndActive ? PlayIcon : PauseIcon;
@@ -142,6 +144,17 @@ export default function ProfileMenu({
       },
     });
 
+    if (isGdprCovered) {
+      list.push({
+        title: 'Privacy',
+        buttonProps: {
+          tag: 'a',
+          icon: <PrivacyIcon />,
+          href: `${webappUrl}account/privacy`,
+        },
+      });
+    }
+
     list.push({
       title: 'Logout',
       buttonProps: {
@@ -152,13 +165,13 @@ export default function ProfileMenu({
 
     return list.filter(Boolean);
   }, [
+    isGdprCovered,
     isDndActive,
     isPlus,
     logSubscriptionEvent,
     logout,
     openModal,
     setShowDnd,
-    showPlusSubscription,
     user.permalink,
   ]);
 

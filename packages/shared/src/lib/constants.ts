@@ -127,3 +127,17 @@ export const feedRangeFilters: RadioItemProps[] = [
 ];
 
 export const customFeedsPlusDate = new Date('2024-12-11');
+
+export const invalidPlusRegions = [
+  'CU',
+  'IR',
+  'MM',
+  'SD',
+  'SY',
+  'KP',
+  'BY',
+  'ZW',
+  'RU',
+];
+
+export const DeletedPostId = '404';

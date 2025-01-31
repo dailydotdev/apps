@@ -45,6 +45,7 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
       youtube
       linkedin
       mastodon
+      bluesky
       timezone
       portfolio
       reputation
@@ -184,7 +185,7 @@ export const USER_READING_HISTORY_QUERY = gql`
       rank
       count
     }
-    userReadHistory(id: $id, after: $after, before: $before) {
+    userReadHistory(id: $id, after: $after, before: $before, grouped: true) {
       date
       reads
     }
@@ -304,6 +305,7 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
       youtube
       linkedin
       mastodon
+      bluesky
       createdAt
       infoConfirmed
       timezone
@@ -511,7 +513,6 @@ export interface UserStreak {
   current: number;
   weekStart: DayOfWeek;
   lastViewAt: Date;
-  lastViewAtTz: Date;
 }
 
 export const getReadingStreak = async (): Promise<UserStreak> => {

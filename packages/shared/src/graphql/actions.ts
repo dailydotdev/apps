@@ -36,6 +36,9 @@ export enum ActionType {
   DigestConfig = 'digest_config',
   StreakMilestone = 'streak_milestone',
   FetchedSmartTitle = 'fetched_smart_title',
+  EditTag = 'edit_tag',
+  ContentTypes = 'content_types',
+  StreakTimezoneMismatch = 'streak_timezone_mismatch',
 }
 
 export interface Action {

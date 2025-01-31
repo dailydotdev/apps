@@ -25,10 +25,9 @@ export const PlusUserBadge = ({
   user,
   tooltip = true,
 }: Props): ReactElement => {
-  const { showPlusSubscription, isPlus, logSubscriptionEvent } =
-    usePlusSubscription();
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
 
-  if (!user.isPlus || !showPlusSubscription) {
+  if (!user.isPlus) {
     return null;
   }
 

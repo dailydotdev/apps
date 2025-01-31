@@ -13,6 +13,7 @@ import { LogEvent } from '../lib/log';
 import { useAuthContext } from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
 import type { WithClassNameProps } from './utilities';
+import { isIOSNative } from '../lib/func';
 
 type Props = {
   iconOnly?: boolean;
@@ -32,11 +33,12 @@ export const UpgradeToPlus = ({
   ...attrs
 }: Props): ReactElement => {
   const { isLoggedIn, showLogin } = useAuthContext();
-  const isMobile = useViewSize(ViewSize.MobileL);
-  const { showPlusSubscription, isPlus, logSubscriptionEvent } =
-    usePlusSubscription();
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const isLaptopXL = useViewSize(ViewSize.LaptopXL);
+  const isFullCTAText = !isLaptop || isLaptopXL;
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
 
-  const content = isMobile ? 'Upgrade' : 'Upgrade to plus';
+  const content = isFullCTAText ? 'Upgrade to Plus' : 'Upgrade';
 
   const onClick = useCallback(
     (e: React.MouseEvent) => {
@@ -54,7 +56,7 @@ export const UpgradeToPlus = ({
     [isLoggedIn, logSubscriptionEvent, showLogin, target],
   );
 
-  if (!showPlusSubscription || isPlus) {
+  if (isPlus || isIOSNative()) {
     return null;
   }
 

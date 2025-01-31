@@ -1,0 +1,21 @@
+{
+    "applinks": {
+        "apps": [],
+        "details": [
+            {
+                "appIDs": ["C97TTQ7W57.dev.daily.app"],
+                "components": [
+                    {
+                        "/": "/callback*",
+                        "exclude": true,
+                        "comment": "Matches any OAuth callback URL"
+                    },
+                    {
+                        "/": "/*",
+                        "comment": "Matches any URL path under app.daily.dev"
+                    }
+                ]
+            }
+        ]
+    }
+}

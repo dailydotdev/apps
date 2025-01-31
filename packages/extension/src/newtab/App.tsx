@@ -1,13 +1,10 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import dynamic from 'next/dynamic';
 import Modal from 'react-modal';
 import 'focus-visible';
 import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
-import AuthContext, {
-  useAuthContext,
-} from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import browser from 'webextension-polyfill';
 import type { BootDataProviderProps } from '@dailydotdev/shared/src/contexts/BootProvider';
@@ -37,6 +34,7 @@ import {
   FIREFOX_ACCEPTED_PERMISSION,
   FirefoxPermissionType,
 } from '@dailydotdev/shared/src/lib/cookie';
+import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
@@ -52,18 +50,12 @@ structuredCloneJsonPolyfill();
 const DEFAULT_TAB_TITLE = 'New Tab';
 const router = new CustomRouter();
 const queryClient = new QueryClient(defaultQueryClientConfig);
-const AuthModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "authModal" */ '@dailydotdev/shared/src/components/auth/AuthModal'
-    ),
-);
-
 Modal.setAppElement('#__next');
 Modal.defaultStyles = {};
 
 const getRedirectUri = () => browser.runtime.getURL('index.html');
 function InternalApp(): ReactElement {
+  const { hasCompletedContentTypes, hasCompletedEditTags } = useOnboarding();
   useError();
   useWebVitals();
   const { setCurrentPage, currentPage } = useExtensionContext();
@@ -73,7 +65,6 @@ function InternalApp(): ReactElement {
       null,
     );
   const { unreadCount } = useNotificationContext();
-  const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useContentScriptStatus();
   const { hostGranted, isFetching: isCheckingHostPermissions } =
     useHostStatus();
@@ -83,7 +74,9 @@ function InternalApp(): ReactElement {
   const { growthbook } = useGrowthBookContext();
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
-  const shouldRedirectOnboarding = !user && isPageReady && !isTesting;
+  const isOnboardingComplete = hasCompletedEditTags && hasCompletedContentTypes;
+  const shouldRedirectOnboarding =
+    isPageReady && (!user || !isOnboardingComplete) && !isTesting;
   const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
 
   useEffect(() => {
@@ -143,14 +136,6 @@ function InternalApp(): ReactElement {
   return (
     <DndContextProvider>
       <MainFeedPage onPageChanged={onPageChanged} />
-      {shouldShowLogin && (
-        <AuthModal
-          isOpen={shouldShowLogin}
-          onRequestClose={closeLogin}
-          contentLabel="Login Modal"
-          {...loginState}
-        />
-      )}
     </DndContextProvider>
   );
 }

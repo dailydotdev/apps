@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { ContentLanguage } from '../lib/user';
 import { useAuthContext } from '../contexts/AuthContext';
 import { UPDATE_USER_PROFILE_MUTATION } from '../graphql/users';
 import { useLogContext } from '../contexts/LogContext';
@@ -11,7 +10,7 @@ import { OtherFeedPage, RequestKey } from '../lib/query';
 import { useToastNotification } from './useToastNotification';
 
 export type UseLanguage = {
-  onLanguageChange: (value?: ContentLanguage) => void;
+  onLanguageChange: (value?: string) => void;
 };
 
 export const useLanguage = (): UseLanguage => {
@@ -21,7 +20,7 @@ export const useLanguage = (): UseLanguage => {
   const { displayToast } = useToastNotification();
 
   const { mutate: onLanguageChange } = useMutation({
-    mutationFn: async (value?: ContentLanguage) => {
+    mutationFn: async (value?: string) => {
       await updateUser({
         ...user,
         language: value,
@@ -49,7 +48,7 @@ export const useLanguage = (): UseLanguage => {
         RequestKey.Squad,
         RequestKey.FeedPreview,
         RequestKey.FeedPreviewCustom,
-        RequestKey.PostKey,
+        RequestKey.Post,
         RequestKey.Bookmarks,
         RequestKey.ReadingHistory,
         RequestKey.RelatedPosts,

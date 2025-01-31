@@ -58,16 +58,12 @@ export function AuthenticationBanner({
             className={{
               onboardingSignup: '!gap-4',
             }}
-            onAuthStateUpdate={(props) =>
+            onAuthStateUpdate={(props) => {
               showLogin({
                 trigger: AuthTriggers.Onboarding,
-                options: {
-                  formValues: {
-                    email: props?.email,
-                  },
-                },
-              })
-            }
+                options: { isLogin: true, formValues: props },
+              });
+            }}
             onboardingSignupButton={{
               variant: ButtonVariant.Primary,
             }}

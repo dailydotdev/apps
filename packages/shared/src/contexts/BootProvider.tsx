@@ -6,7 +6,6 @@ import type { Boot, BootApp, BootCacheData } from '../lib/boot';
 import { getBootData } from '../lib/boot';
 import { AuthContextProvider } from './AuthContext';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
-import { ContentLanguage } from '../lib/user';
 import { AlertContextProvider } from './AlertContext';
 import { generateQueryKey, RequestKey, STALE_TIME } from '../lib/query';
 import {
@@ -242,11 +241,14 @@ export const BootDataProvider = ({
     },
     [cachedBootData],
   );
-
-  gqlClient.setHeader(
-    'content-language',
-    (user as Partial<LoggedUser>)?.language || ContentLanguage.English,
-  );
+  if ((user as Partial<LoggedUser>)?.language) {
+    gqlClient.setHeader(
+      'content-language',
+      (user as Partial<LoggedUser>).language as string,
+    );
+  } else {
+    gqlClient.unsetHeader('content-language');
+  }
 
   useEffect(() => {
     if (remoteData) {

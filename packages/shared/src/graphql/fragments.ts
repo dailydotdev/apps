@@ -197,6 +197,9 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       image
       username
       permalink
+      contentPreference {
+        status
+      }
     }
     type
     tags
@@ -207,6 +210,11 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       permalink
       image
       type
+      currentMember {
+        flags {
+          collapsePinnedPosts
+        }
+      }
     }
     userState {
       vote
@@ -216,6 +224,10 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     }
     slug
     clickbaitTitleDetected
+    language
+    translation {
+      title
+    }
   }
 `;
 
@@ -266,6 +278,10 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     slug
     domain
     clickbaitTitleDetected
+    language
+    translation {
+      title
+    }
   }
   ${PRIVILEGED_MEMBERS_FRAGMENT}
   ${SOURCE_BASE_FRAGMENT}
@@ -341,7 +357,6 @@ export const USER_STREAK_FRAGMENT = gql`
     total
     current
     lastViewAt
-    lastViewAtTz
     weekStart
   }
 `;
