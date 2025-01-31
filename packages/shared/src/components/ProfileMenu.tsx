@@ -183,14 +183,15 @@ export default function ProfileMenu({
 
     return list.filter(Boolean);
   }, [
+    user.permalink,
     isGdprCovered,
-    isDndActive,
     isPlus,
     logSubscriptionEvent,
-    logout,
-    openModal,
+    isDndActive,
     setShowDnd,
-    user.permalink,
+    openModal,
+    logEvent,
+    logout,
   ]);
 
   if (!user) {
