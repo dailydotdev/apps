@@ -29,7 +29,11 @@ import {
   Y_AXIS_KEYS,
 } from '../../lib/element';
 import type { UserShortProfile } from '../../lib/user';
-import { getLinkReplacement, getMentionReplacement } from '../../lib/markdown';
+import {
+  getLinkReplacement,
+  getMentionReplacement,
+  getStyleReplacement,
+} from '../../lib/markdown';
 import { handleRegex } from '../../graphql/users';
 import { UploadState, useSyncUploader } from './useSyncUploader';
 import { useToastNotification } from '../useToastNotification';
@@ -106,24 +110,6 @@ export const useMarkdownInput = ({
   const key = ['user', query, postId, sourceId];
   const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
-
-  const getTextBoundaries = (
-    text: string,
-    selectionStart: number,
-    selectionEnd: number,
-  ) => {
-    const selectedText = text.substring(selectionStart, selectionEnd);
-    const trimmedText = selectedText.trim();
-    const leadingWhitespace =
-      selectedText.length - selectedText.trimStart().length;
-    const trailingWhitespace =
-      selectedText.length - selectedText.trimEnd().length;
-    return {
-      trimmedText,
-      newStart: selectionStart + leadingWhitespace,
-      newEnd: selectionEnd - trailingWhitespace,
-    };
-  };
 
   useEffect(() => {
     if (dirtyRef.current) {
@@ -210,6 +196,12 @@ export const useMarkdownInput = ({
   };
 
   const onLinkCommand = () => command.replaceWord(getLinkReplacement, onUpdate);
+  const onLinkPaste = (pastedLink: string) => {
+    const onLinkPasteCommand: GetReplacementFn = (type, props) =>
+      getLinkReplacement(type, { ...props, url: pastedLink });
+
+    return command.replaceWord(onLinkPasteCommand, onUpdate);
+  };
 
   const onMentionCommand = async () => {
     const { replacement } = await command.replaceWord(
@@ -255,84 +247,23 @@ export const useMarkdownInput = ({
     checkMention([selectionStart, selectionEnd]);
   };
 
-  const handleTextFormatting = (
-    value: string,
-    symbol: string,
-    start: number,
-    end: number,
-  ) => {
-    const { trimmedText, newStart, newEnd } = getTextBoundaries(
-      value,
-      start,
-      end,
-    );
-    const symbolLength = symbol.length;
-    const isFormatted =
-      value.substring(newStart - symbolLength, newStart) === symbol &&
-      value.substring(newEnd, newEnd + symbolLength) === symbol;
-
-    if (isFormatted) {
-      const updatedValue =
-        value.substring(0, newStart - symbolLength) +
-        trimmedText +
-        value.substring(newEnd + symbolLength);
-      return {
-        value: updatedValue,
-        selection: [newStart - symbolLength, newEnd - symbolLength] as const,
-      };
-    }
-
-    const updatedValue =
-      value.substring(0, newStart) +
-      symbol +
-      trimmedText +
-      symbol +
-      value.substring(newEnd);
-    return {
-      value: updatedValue,
-      selection: [newStart + symbolLength, newEnd + symbolLength] as const,
-    };
-  };
-
   const onKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = async (e) => {
     const isSpecialKey = e.ctrlKey || e.metaKey;
-    const textareaLocal = textareaRef.current;
 
     if (isSpecialKey) {
       switch (e.key) {
         case 'b': {
           e.preventDefault();
-          const boldResult = handleTextFormatting(
-            textareaLocal.value,
-            '**',
-            textareaLocal.selectionStart,
-            textareaLocal.selectionEnd,
-          );
-          onUpdate(boldResult.value);
-          requestAnimationFrame(() => {
-            textareaLocal.setSelectionRange(...boldResult.selection);
-          });
-          return;
+          return await command.replaceWord(getStyleReplacement('**'), onUpdate);
         }
         case 'i': {
           e.preventDefault();
-          const italicResult = handleTextFormatting(
-            textareaLocal.value,
-            '_',
-            textareaLocal.selectionStart,
-            textareaLocal.selectionEnd,
-          );
-          onUpdate(italicResult.value);
-          requestAnimationFrame(() => {
-            textareaLocal.setSelectionRange(...italicResult.selection);
-          });
-          return;
+          return await command.replaceWord(getStyleReplacement('_'), onUpdate);
         }
         case 'k': {
           e.preventDefault();
           e.stopPropagation();
-          onLinkCommand?.();
-          return;
+          return await onLinkCommand?.();
         }
         default:
           break;
@@ -417,37 +348,14 @@ export const useMarkdownInput = ({
     startUploading();
   };
 
-  const onPaste: ClipboardEventHandler<HTMLTextAreaElement> = (e) => {
-    const textareaLocal = e.currentTarget;
+  const onPaste: ClipboardEventHandler<HTMLTextAreaElement> = async (e) => {
     const pastedText = e.clipboardData.getData('text');
-    if (
-      isValidHttpUrl(pastedText) &&
-      textareaLocal.selectionStart !== textareaLocal.selectionEnd
-    ) {
+    if (isValidHttpUrl(pastedText)) {
       e.preventDefault();
-      const { trimmedText, newStart, newEnd } = getTextBoundaries(
-        textareaLocal.value,
-        textareaLocal.selectionStart,
-        textareaLocal.selectionEnd,
-      );
-      const newText =
-        isValidHttpUrl(pastedText) && trimmedText
-          ? `${textareaLocal.value.substring(
-              0,
-              newStart,
-            )}[${trimmedText}](${pastedText})${textareaLocal.value.substring(
-              newEnd,
-            )}`
-          : textareaLocal.value.substring(0, textareaLocal.selectionStart) +
-            pastedText +
-            textareaLocal.value.substring(textareaLocal.selectionEnd);
-      const linkEnd = newStart + `[${trimmedText}](${pastedText})`.length;
-      onUpdate(newText);
-      requestAnimationFrame(() => {
-        textareaLocal.setSelectionRange(linkEnd, linkEnd);
-      });
+      await onLinkPaste(pastedText);
       return;
     }
+
     if (e.clipboardData.files?.length && isUploadEnabled) {
       e.preventDefault();
 
