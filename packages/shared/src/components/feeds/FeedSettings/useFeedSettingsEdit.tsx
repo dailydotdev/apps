@@ -14,7 +14,11 @@ import {
   ADD_FILTERS_TO_FEED_MUTATION,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
 } from '../../../graphql/feedSettings';
-import { useFeeds, useToastNotification } from '../../../hooks';
+import {
+  useEventListener,
+  useFeeds,
+  useToastNotification,
+} from '../../../hooks';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import type { PromptOptions } from '../../../hooks/usePrompt';
 import { usePrompt } from '../../../hooks/usePrompt';
@@ -107,6 +111,13 @@ export const useFeedSettingsEdit = ({
   const { onAskConfirmation } = useExitConfirmation({
     message: discardPrompt.description as string,
     onValidateAction,
+  });
+
+  // remove new feed that was not modified by user on page unload
+  useEventListener(globalThis?.window, 'beforeunload', () => {
+    if (isNewFeed && !isDirty) {
+      deleteFeed({ feedId });
+    }
   });
 
   const onBackToFeed = useCallback(
