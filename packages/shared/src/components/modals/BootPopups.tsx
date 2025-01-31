@@ -248,7 +248,7 @@ export const BootPopups = (): ReactElement => {
    * Received gift plus modal
    */
   useEffect(() => {
-    if (!user?.shouldShowGiftPlus || !user.isPlus) {
+    if (!user?.flags?.showPlusGift || !user.isPlus) {
       return;
     }
 
