@@ -17,6 +17,7 @@ import {
 import {
   useEventListener,
   useFeeds,
+  usePlusSubscription,
   useToastNotification,
 } from '../../../hooks';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
@@ -44,18 +45,6 @@ const discardEditPrompt: PromptOptions = {
   },
 };
 
-const discardNewPrompt: PromptOptions = {
-  title: labels.feed.prompt.newDiscard.title,
-  description: labels.feed.prompt.newDiscard.description,
-  okButton: {
-    title: labels.feed.prompt.newDiscard.okButton,
-    color: ButtonColor.Ketchup,
-  },
-  cancelButton: {
-    title: labels.feed.prompt.newDiscard.cancelButton,
-  },
-};
-
 export type UseFeedSettingsEditProps = FeedSettingsEditProps;
 
 export type UseFeedSettingsEdit = FeedSettingsEditContextValue;
@@ -64,6 +53,22 @@ export const useFeedSettingsEdit = ({
   feedSlugOrId,
   isNewFeed,
 }: UseFeedSettingsEditProps): UseFeedSettingsEdit => {
+  const { isPlus } = usePlusSubscription();
+
+  const discardNewPrompt: PromptOptions = {
+    title: labels.feed.prompt.newDiscard.title,
+    description: isPlus
+      ? labels.feed.prompt.newDiscard.descriptionPlus
+      : labels.feed.prompt.newDiscard.description,
+    okButton: {
+      title: labels.feed.prompt.newDiscard.okButton,
+      color: ButtonColor.Ketchup,
+    },
+    cancelButton: {
+      title: labels.feed.prompt.newDiscard.cancelButton,
+    },
+  };
+
   const discardPrompt = isNewFeed ? discardNewPrompt : discardEditPrompt;
   const router = useRouter();
   const [formState, setFormState] = useState<Partial<FeedSettingsFormData>>();
@@ -339,7 +344,11 @@ export const useFeedSettingsEdit = ({
     editFeed: (callback) => {
       setDirty(true);
 
-      return callback();
+      if (typeof callback === 'function') {
+        return callback();
+      }
+
+      return undefined;
     },
   };
 };

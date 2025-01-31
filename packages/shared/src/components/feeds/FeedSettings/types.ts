@@ -26,7 +26,7 @@ export type FeedSettingsEditContextValue = {
   isDirty: boolean;
   onBackToFeed: ({ action }: { action: 'discard' | 'save' }) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  editFeed: <T extends (...args: any) => any>(callback: T) => ReturnType<T>;
+  editFeed: <T extends (...args: any) => any>(callback?: T) => ReturnType<T>;
   isNewFeed: boolean;
 };
 
