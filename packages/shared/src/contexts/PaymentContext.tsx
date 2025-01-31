@@ -17,7 +17,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { useAuthContext } from './AuthContext';
 import { invalidPlusRegions, plusSuccessUrl } from '../lib/constants';
-import { LogEvent } from '../lib/log';
+import { LogEvent, TargetId } from '../lib/log';
 import { usePlusSubscription } from '../hooks';
 import { logPixelPayment } from '../components/Pixels';
 import { useFeature } from '../components/GrowthBookProvider';
@@ -100,6 +100,15 @@ export const PaymentContextProvider = ({
               event?.data.currency_code,
               event?.data?.transaction_id,
             );
+            if ('gifter_id' in event.data.custom_data) {
+              logRef.current({
+                event_name: LogEvent.GiftSubscription,
+                target_id: TargetId.ProfileDropdown,
+                extra: {
+                  cycle: PlusPriceType.Yearly,
+                },
+              });
+            }
             router.push(plusSuccessUrl);
             break;
           // This doesn't exist in the original code
