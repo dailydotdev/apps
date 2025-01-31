@@ -86,7 +86,7 @@ export function GiftReceivedPlusModal({
     >
       <Modal.Body className="flex flex-1 tablet:!px-4">
         <div className="flex flex-1 flex-col gap-4 overflow-y-auto tablet:overflow-auto">
-          <div className="flex flex-row justify-between ">
+          <div className="flex flex-row justify-between">
             <PlusTitle type={TypographyType.Callout} bold />
             <CloseButton
               type="button"
@@ -110,7 +110,7 @@ export function GiftReceivedPlusModal({
         </div>
         <div className="flex flex-col gap-4 tablet:hidden">
           <OpenSquadButton />
-          <Button onClick={onRequestClose} variant={ButtonVariant.Float}>
+          <Button type="button" onClick={onRequestClose} variant={ButtonVariant.Float}>
             Cancel
           </Button>
         </div>
