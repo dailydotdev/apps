@@ -19,6 +19,8 @@ import {
   useFeeds,
   usePlusSubscription,
   useToastNotification,
+  useViewSizeClient,
+  ViewSize,
 } from '../../../hooks';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import type { PromptOptions } from '../../../hooks/usePrompt';
@@ -55,6 +57,7 @@ export const useFeedSettingsEdit = ({
 }: UseFeedSettingsEditProps): UseFeedSettingsEdit => {
   const { isPlus } = usePlusSubscription();
 
+  const isMobile = useViewSizeClient(ViewSize.MobileL);
   const discardNewPrompt: PromptOptions = {
     title: labels.feed.prompt.newDiscard.title,
     description: isPlus
@@ -270,19 +273,6 @@ export const useFeedSettingsEdit = ({
     },
   });
 
-  const shouldRedirectToNewFeed =
-    feeds && feedSlugOrId && deleteStatus === 'idle';
-
-  useEffect(() => {
-    if (!shouldRedirectToNewFeed) {
-      return;
-    }
-
-    if (!feed) {
-      router.push(`${webappUrl}feeds/new`);
-    }
-  }, [shouldRedirectToNewFeed, feed, router]);
-
   const cleanupRef = useRef<() => void>();
   cleanupRef.current = () => {
     queryClient.removeQueries({
@@ -326,23 +316,44 @@ export const useFeedSettingsEdit = ({
         });
       }
     }, []),
-    onDiscard: useCallback(async () => {
-      const shouldDiscard =
-        onValidateAction() || (await showPrompt(discardPrompt));
+    onDiscard: useCallback(
+      async ({ activeView } = {}) => {
+        // on mobile each section has its own state so when going back
+        // we always prompt for discard
+        const showMobileSectionDiscard = isMobile && activeView;
 
-      if (shouldDiscard) {
-        onAskConfirmation(false);
+        const shouldDiscard =
+          onValidateAction() ||
+          (await showPrompt(
+            showMobileSectionDiscard ? discardEditPrompt : discardPrompt,
+          ));
 
-        setDirty(false);
-      }
+        if (shouldDiscard) {
+          onAskConfirmation(false);
 
-      return shouldDiscard;
-    }, [onValidateAction, showPrompt, onAskConfirmation, discardPrompt]),
+          setDirty(false);
+        }
+
+        return shouldDiscard;
+      },
+      [
+        onValidateAction,
+        showPrompt,
+        onAskConfirmation,
+        discardPrompt,
+        isMobile,
+      ],
+    ),
     isDirty,
     onBackToFeed,
     isNewFeed,
-    editFeed: (callback) => {
-      setDirty(true);
+    editFeedSettings: (callback) => {
+      // all async operations usually don't require dirty state
+      // only when we are creating a new feed we log it because
+      // we delete it if user tries to quit without confirmation
+      if (isNewFeed) {
+        setDirty(true);
+      }
 
       if (typeof callback === 'function') {
         return callback();

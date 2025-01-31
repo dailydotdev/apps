@@ -112,7 +112,7 @@ export const FeedSettingsEdit = (
 ): ReactElement => {
   const router = useRouter();
   const feedSettingsEditContext = useFeedSettingsEdit(props);
-  const { feed, onBackToFeed } = feedSettingsEditContext;
+  const { feed, onBackToFeed, onDiscard } = feedSettingsEditContext;
 
   const tabs = useMemo(() => {
     const base: TabOptions[] = [
@@ -169,7 +169,13 @@ export const FeedSettingsEdit = (
         kind={Modal.Kind.FlexibleCenter}
         size={Modal.Size.XLarge}
         tabs={tabs}
-        onRequestClose={() => {
+        onRequestClose={async () => {
+          const shouldDiscard = await onDiscard();
+
+          if (!shouldDiscard) {
+            return;
+          }
+
           onBackToFeed({ action: 'discard' });
         }}
         defaultView={defaultView}

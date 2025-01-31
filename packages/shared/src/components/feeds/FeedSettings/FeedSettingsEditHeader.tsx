@@ -108,7 +108,7 @@ export const FeedSettingsEditHeader = (): ReactElement => {
           size={ButtonSize.Small}
           variant={isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float}
           onClick={async () => {
-            const shouldDiscard = await onDiscard();
+            const shouldDiscard = await onDiscard({ activeView });
 
             if (!shouldDiscard) {
               return;
