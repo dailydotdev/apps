@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
+import classNames from 'classnames';
 import PostSourceInfo from './PostSourceInfo';
 import { ReadArticleButton } from '../cards/common/ReadArticleButton';
 import type { Post, SharedPost } from '../../graphql/posts';
@@ -8,7 +9,9 @@ import {
   isInternalReadType,
   isSharedPostSquadPost,
 } from '../../graphql/posts';
-import SettingsContext from '../../contexts/SettingsContext';
+import SettingsContext, {
+  useSettingsContext,
+} from '../../contexts/SettingsContext';
 import { combinedClicks } from '../../lib/click';
 import { SharedLinkContainer } from './common/SharedLinkContainer';
 import { SharedPostLink } from './common/SharedPostLink';
@@ -53,6 +56,7 @@ export function CommonSharePostContent({
   source,
   onReadArticle,
 }: CommonSharePostContentProps): ReactElement {
+  const { sidebarExpanded } = useSettingsContext();
   const { openNewTab } = useContext(SettingsContext);
   const openArticle = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -88,8 +92,18 @@ export function CommonSharePostContent({
 
   return (
     <SharedLinkContainer summary={sharedPost.summary} className="mb-5 mt-8">
-      <div className="flex max-w-full flex-col p-4 pt-5 laptop:flex-row">
-        <div className="mb-5 flex max-w-full flex-1 flex-col truncate laptop:mb-0">
+      <div
+        className={classNames(
+          'flex max-w-full flex-col gap-2 p-4 pt-5',
+          sidebarExpanded ? 'laptopL:flex-row' : 'laptop:flex-row',
+        )}
+      >
+        <div
+          className={classNames(
+            'mb-5 flex max-w-full flex-1 flex-col truncate',
+            sidebarExpanded ? 'laptopL:mb-0' : 'laptop:mb-0',
+          )}
+        >
           <SharedPostLink
             source={source}
             sharedPost={sharedPost}
@@ -127,7 +141,7 @@ export function CommonSharePostContent({
           source={source}
           sharedPost={sharedPost}
           onGoToLinkProps={combinedClicks(openArticle)}
-          className="ml-2 block h-fit w-70 cursor-pointer overflow-hidden rounded-16"
+          className="mx-auto block h-fit w-70 cursor-pointer overflow-hidden rounded-16"
         >
           <LazyImage
             imgSrc={sharedPost.image}
