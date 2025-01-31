@@ -1,5 +1,5 @@
 import type { FeatureDefinition } from '@growthbook/growthbook';
-import type { AnonymousUser, ContentLanguage, LoggedUser } from './user';
+import type { AnonymousUser, LoggedUser } from './user';
 import { apiUrl } from './config';
 import type { Alerts } from '../graphql/alerts';
 import type { RemoteSettings } from '../graphql/settings';
@@ -65,7 +65,7 @@ export type Boot = {
   };
   marketingCta?: MarketingCta | null;
   feeds: Feed[];
-  language?: ContentLanguage;
+  language?: string;
   geo: {
     ip?: string;
     region?: string;
