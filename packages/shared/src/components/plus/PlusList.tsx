@@ -48,7 +48,7 @@ export const plusFeatureList: Array<PlusItem> = [
   {
     label: 'AI-powered clean titles',
     status: PlusItemStatus.Ready,
-    tooltip: `No more misinformation. AI rewrites titles so you see the real story at a glance and dive in only when it’s relevant.`,
+    tooltip: `No more misinformation. AI rewrites titles so you see the real story at a glance and dive in only when relevant.`,
   },
   {
     label: 'Bookmark folders',
