@@ -51,7 +51,7 @@ export const PlusInfo = ({
         className="mb-2"
         bold
       >
-        Unlock more with Plus
+        Supercharge your feed with Plus
       </Typography>
       <Typography
         tag={TypographyTag.H2}
@@ -59,8 +59,7 @@ export const PlusInfo = ({
         color={TypographyColor.Secondary}
         className="mb-6"
       >
-        Upgrade to daily.dev Plus for an enhanced, ad-free experience with
-        exclusive features and perks to level up your game.
+        Work smarter, learn faster, and stay ahead with AI-powered insights, custom feeds, and premium tools.
       </Typography>
       <Typography
         tag={TypographyTag.P}
