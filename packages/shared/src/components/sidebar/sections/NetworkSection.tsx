@@ -24,7 +24,9 @@ export const NetworkSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const { squads } = useAuthContext();
-  const { count, isModeratorInAnySquad } = useSquadPendingPosts();
+  const { count, isModeratorInAnySquad } = useSquadPendingPosts({
+    enabled: false,
+  });
   const { openNewSquad } = useSquadNavigation();
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {

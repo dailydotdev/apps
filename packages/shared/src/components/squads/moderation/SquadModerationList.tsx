@@ -25,15 +25,15 @@ export function SquadModerationList({
   });
 
   const { data, isFetched, fetchNextPage, hasNextPage, isPending } =
-    useSquadPendingPosts(
-      squad?.id,
-      isModerator
+    useSquadPendingPosts({
+      squadId: squad?.id,
+      status: isModerator
         ? [SourcePostModerationStatus.Pending]
         : [
             SourcePostModerationStatus.Pending,
             SourcePostModerationStatus.Rejected,
           ],
-    );
+    });
 
   const list = useMemo(
     () =>

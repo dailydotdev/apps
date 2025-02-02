@@ -27,10 +27,15 @@ type UseSquadPendingPosts = UseInfiniteQueryResult<
   isModeratorInAnySquad: boolean;
 };
 
-export const useSquadPendingPosts = (
-  squadId?: string,
-  status: SourcePostModerationStatus[] = [SourcePostModerationStatus.Pending],
-): UseSquadPendingPosts => {
+export const useSquadPendingPosts = ({
+  squadId,
+  status = [SourcePostModerationStatus.Pending],
+  enabled = true,
+}: {
+  squadId?: string;
+  status?: SourcePostModerationStatus[];
+  enabled?: boolean;
+} = {}): UseSquadPendingPosts => {
   const { user, squads } = useAuthContext();
   const isModeratorInAnySquad = useMemo(() => {
     return squads?.some((squad) =>
@@ -53,7 +58,7 @@ export const useSquadPendingPosts = (
     },
     initialPageParam: '',
     getNextPageParam: (lastPage) => getNextPageParam(lastPage?.pageInfo),
-    enabled: Boolean(squadId) || isModeratorInAnySquad,
+    enabled: enabled && (Boolean(squadId) || isModeratorInAnySquad),
 
     select: useCallback((res) => {
       if (!res) {
