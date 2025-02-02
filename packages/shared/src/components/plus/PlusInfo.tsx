@@ -59,9 +59,7 @@ export const PlusInfo = ({
         color={TypographyColor.Secondary}
         className="mb-6"
       >
-        Work smarter, learn faster, and stay ahead with
-        AI-powered tools, custom feeds, and premium features.
-        Because copy-pasting code isn’t a long-term strategy.
+        Work smarter, learn faster, and stay ahead with AI tools, custom feeds, and premium features. Because copy-pasting code isn’t a long-term strategy.
       </Typography>
       <Typography
         tag={TypographyTag.P}
