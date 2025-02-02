@@ -96,14 +96,14 @@ export const OnboardingPlusStep = ({
           type={isLaptop ? TypographyType.LargeTitle : TypographyType.Title2}
           className="mb-4 tablet:mb-6"
         >
-          Supercharge your feed with Plus
+          Supercharge your future
         </Typography>
         <Typography
           className="mx-auto text-balance tablet:w-2/3"
           tag={TypographyTag.H2}
           type={isLaptop ? TypographyType.Title3 : TypographyType.Callout}
         >
-          Work smarter, learn faster, and stay ahead with AI-powered insights, custom feeds, and premium tools.
+          Work smarter, learn faster, and stay ahead with AI-powered tools, custom feeds, and premium features. Because copy-pasting code isn’t a long-term strategy.
         </Typography>
       </header>
       {!!items?.length && (

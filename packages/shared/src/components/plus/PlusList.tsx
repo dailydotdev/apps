@@ -43,12 +43,12 @@ export const plusFeatureList: Array<PlusItem> = [
   {
     label: 'Advanced custom feeds',
     status: PlusItemStatus.Ready,
-    tooltip: `Build laser-focused feeds for the tools, languages, and topics you care about. Spend less time searching, more time coding.`,
+    tooltip: `Build laser-focused feeds for the tools, languages, and topics you care about. Search less, learn more.`,
   },
   {
     label: 'AI-powered clean titles',
     status: PlusItemStatus.Ready,
-    tooltip: `No more clickbait. AI rewrites titles so you see the real story at a glance and dive in only when it’s relevant.`,
+    tooltip: `No more misinformation. AI rewrites titles so you see the real story at a glance and dive in only when it’s relevant.`,
   },
   {
     label: 'Bookmark folders',
@@ -58,7 +58,7 @@ export const plusFeatureList: Array<PlusItem> = [
   {
     label: 'Ad-free experience',
     status: PlusItemStatus.Ready,
-    tooltip: `No ads. No clutter. Just pure content. Your feed, distraction-free (if that’s your thing...).`,
+    tooltip: `No ads. No clutter. Just pure content. Your feed, distraction-free.`,
   },
   {
     label: 'Keyword filters',
