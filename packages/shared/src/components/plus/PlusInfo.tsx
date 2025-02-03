@@ -21,6 +21,7 @@ import {
 } from '../buttons/Button';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent } from '../../lib/log';
+import type { CommonPlusPageProps } from './common';
 
 type PlusInfoProps = {
   productOptions: ProductOption[];
@@ -28,22 +29,26 @@ type PlusInfoProps = {
   onChange: (priceId: string) => void;
   onContinue?: () => void;
 };
+
 export const PlusInfo = ({
   productOptions,
   selectedOption,
   onChange,
   onContinue,
-}: PlusInfoProps): ReactElement => {
+  shouldShowPlusHeader = true,
+}: PlusInfoProps & CommonPlusPageProps): ReactElement => {
   const { earlyAdopterPlanId } = usePaymentContext();
   const { logSubscriptionEvent } = usePlusSubscription();
 
   return (
     <>
-      <PlusUser
-        iconSize={IconSize.Large}
-        typographyType={TypographyType.Title1}
-        className="mb-6"
-      />
+      {shouldShowPlusHeader && (
+        <PlusUser
+          iconSize={IconSize.Large}
+          typographyType={TypographyType.Title1}
+          className="mb-6"
+        />
+      )}
       <Typography
         tag={TypographyTag.H1}
         type={TypographyType.Mega2}
