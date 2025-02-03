@@ -63,8 +63,12 @@ const GtagTracking = ({
   useEffect(() => {
     if (typeof globalThis.gtag === 'function') {
       globalThis.gtag('consent', 'update', {
-        analytics_storage: consent ? 'granted' : 'denied',
         ad_storage: consent ? 'granted' : 'denied',
+        analytics_storage: consent ? 'granted' : 'denied',
+        functionality_storage: consent ? 'granted' : 'denied',
+        personalization_storage: consent ? 'granted' : 'denied',
+        ad_user_data: consent ? 'granted' : 'denied',
+        ad_personalization: consent ? 'granted' : 'denied',
       });
     }
   }, [consent]);
