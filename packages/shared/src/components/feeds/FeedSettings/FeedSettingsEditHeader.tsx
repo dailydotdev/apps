@@ -8,7 +8,6 @@ import { Modal } from '../../modals/common/Modal';
 import { ModalPropsContext } from '../../modals/common/types';
 import { FeedSettingsTitle } from './FeedSettingsTitle';
 import { usePlusSubscription } from '../../../hooks';
-import { webappUrl } from '../../../lib/constants';
 import { DevPlusIcon } from '../../icons';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { FeedType } from '../../../graphql/feed';
@@ -86,7 +85,9 @@ const SaveButton = ({ activeView }: { activeView: string }): ReactElement => {
 };
 
 export const FeedSettingsEditHeader = (): ReactElement => {
-  const { onDiscard, onBackToFeed, feed } = useContext(FeedSettingsEditContext);
+  const { onDiscard, onBackToFeed, feed, onSubmit } = useContext(
+    FeedSettingsEditContext,
+  );
   const { activeView, setActiveView } = useContext(ModalPropsContext);
   const isMobile = useViewSizeClient(ViewSize.MobileL);
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
@@ -125,17 +126,17 @@ export const FeedSettingsEditHeader = (): ReactElement => {
         </Button>
         {!isPlus && feed?.type === FeedType.Custom ? (
           <Button
-            tag="a"
             type="button"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
-            href={`${webappUrl}plus`}
             icon={<DevPlusIcon className="text-action-plus-default" />}
             onClick={() => {
               logSubscriptionEvent({
                 event_name: LogEvent.UpgradeSubscription,
                 target_id: TargetId.CustomFeed,
               });
+
+              onSubmit();
             }}
           >
             Upgrade to Plus

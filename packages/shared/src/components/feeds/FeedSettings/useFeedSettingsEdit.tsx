@@ -130,6 +130,15 @@ export const useFeedSettingsEdit = ({
 
   const onBackToFeed = useCallback(
     async ({ action }: { action?: 'discard' | 'save' }) => {
+      if (action === 'save' && isNewFeed && !isPlus) {
+        // for non plus members on confirm we save
+        // and navigate to plus page to upgrade
+
+        router.replace(`${webappUrl}plus`);
+
+        return;
+      }
+
       if (action === 'discard' && isNewFeed) {
         await deleteFeed({ feedId });
 
@@ -161,6 +170,7 @@ export const useFeedSettingsEdit = ({
       isNewFeed,
       deleteFeed,
       feedId,
+      isPlus,
     ],
   );
 
