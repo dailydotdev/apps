@@ -22,9 +22,14 @@ export type FeedSettingsEditContextValue = {
   onDelete: () => Promise<Pick<Feed, 'id'>>;
   deleteStatus: 'idle' | 'pending' | 'success' | 'error';
   onTagClick: (props: OnSelectTagProps) => void;
-  onDiscard: () => Promise<boolean>;
+  onDiscard: ({ activeView }?: { activeView?: string }) => Promise<boolean>;
   isDirty: boolean;
-  onBackToFeed: () => void;
+  onBackToFeed: ({ action }: { action: 'discard' | 'save' }) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  editFeedSettings: <T extends (...args: any) => any>(
+    callback?: T,
+  ) => ReturnType<T>;
+  isNewFeed: boolean;
 };
 
 export enum FeedSettingsMenu {
