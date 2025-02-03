@@ -31,19 +31,19 @@ const seo: NextSeoProps = {
 const AccountInvitePage = (): ReactElement => {
   const router = useRouter();
   const { saveCookies } = useConsentCookie(GdprConsentKey.Marketing);
-  const { user, isGdprCovered, isAuthReady } = useAuthContext();
+  const { user, isAuthReady } = useAuthContext();
 
   useEffect(() => {
     if (!isAuthReady) {
       return;
     }
 
-    if (!user || !isGdprCovered) {
+    if (!user) {
       router.push('/');
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthReady, isGdprCovered, user]);
+  }, [isAuthReady, user]);
 
   if (!isAuthReady) {
     return null;
