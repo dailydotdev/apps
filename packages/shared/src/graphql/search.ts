@@ -397,7 +397,7 @@ export const sendSmartPromptQuery = async ({
   const params = new URLSearchParams({
     prompt: query,
     token,
-    postId: post.id,
+    post_id: post.id,
   });
 
   return sendPrompt(params, smartPromptQueryUrl);
