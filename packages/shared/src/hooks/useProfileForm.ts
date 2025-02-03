@@ -7,7 +7,7 @@ import {
   socialHandleRegex,
   UPDATE_USER_PROFILE_MUTATION,
 } from '../graphql/users';
-import type { LoggedUser, UserProfile } from '../lib/user';
+import type { LoggedUser, UserFlagsPublic, UserProfile } from '../lib/user';
 import { useToastNotification } from './useToastNotification';
 import type { ResponseError } from '../graphql/common';
 import { errorMessage, gqlClient } from '../graphql/common';
@@ -30,14 +30,10 @@ export interface ProfileFormHint {
   bluesky?: string;
 }
 
-export type UserFlagsPublic = {
-  showPlusGift: boolean;
-};
-
 export interface UpdateProfileParameters extends Partial<UserProfile> {
   image?: File;
   onUpdateSuccess?: () => void;
-  flags?: Partial<UserFlagsPublic>;
+  flags?: UserFlagsPublic;
 }
 
 interface UseProfileForm {
