@@ -43,7 +43,6 @@ import {
 } from '@dailydotdev/shared/src/components/Pixels';
 import {
   feature,
-  featureOnboardingAndroid,
   featureOnboardingExtension,
   featureOnboardingDesktopPWA,
   featureAndroidPWA,
@@ -106,12 +105,6 @@ const OnboardingPlusStep = dynamic(() =>
   ).then((mod) => mod.OnboardingPlusStep),
 );
 
-const OnboardingAndroidApp = dynamic(() =>
-  import(
-    /* webpackChunkName: "onboardingAndroidApp" */ '@dailydotdev/shared/src/components/onboarding/OnboardingAndroidApp'
-  ).then((mod) => mod.OnboardingAndroidApp),
-);
-
 const OnboardingPWA = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingPWA" */ '@dailydotdev/shared/src/components/onboarding/OnboardingPWA'
@@ -162,8 +155,7 @@ export function OnboardPage(): ReactElement {
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
   const { logSubscriptionEvent } = usePlusSubscription();
-  const { user, isAuthReady, anonymous, isAndroidApp, loginState } =
-    useAuthContext();
+  const { user, isAuthReady, anonymous, loginState } = useAuthContext();
   const shouldVerify = anonymous?.shouldVerify;
   const { growthbook } = useGrowthBookContext();
   const { logEvent } = useLogContext();
@@ -213,16 +205,7 @@ export function OnboardPage(): ReactElement {
     shouldEvaluate:
       shouldEnrollOnboardingStep &&
       checkIsBrowser(UserAgent.Android) &&
-      canUserInstallPWA &&
-      !isAndroidApp,
-  });
-  const { value: appExperiment } = useConditionalFeature({
-    feature: featureOnboardingAndroid,
-    shouldEvaluate:
-      shouldEnrollOnboardingStep &&
-      checkIsBrowser(UserAgent.Android) &&
-      !isAndroidApp &&
-      !androidPWAExperiment,
+      canUserInstallPWA,
   });
   const { shouldShowExtensionOnboarding } = useOnboardingExtension();
   const { value: extensionExperiment } = useConditionalFeature({
@@ -232,7 +215,6 @@ export function OnboardPage(): ReactElement {
 
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
   const isCTA = [
-    OnboardingStep.AndroidApp,
     OnboardingStep.PWA,
     OnboardingStep.Extension,
     OnboardingStep.InstallDesktop,
@@ -304,10 +286,6 @@ export function OnboardPage(): ReactElement {
 
     if (androidPWAExperiment && activeScreen !== OnboardingStep.AndroidPWA) {
       return setActiveScreen(OnboardingStep.AndroidPWA);
-    }
-
-    if (appExperiment && activeScreen !== OnboardingStep.AndroidApp) {
-      return setActiveScreen(OnboardingStep.AndroidApp);
     }
 
     if (isIOS() && !isPWA() && activeScreen !== OnboardingStep.PWA) {
@@ -531,9 +509,6 @@ export function OnboardPage(): ReactElement {
               <PaymentContextProvider>
                 <OnboardingPlusStep onClickNext={onClickNext} />
               </PaymentContextProvider>
-            )}
-            {activeScreen === OnboardingStep.AndroidApp && (
-              <OnboardingAndroidApp />
             )}
             {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
             {activeScreen === OnboardingStep.Extension && (

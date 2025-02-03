@@ -28,7 +28,6 @@ export const CreateFeedButton = ({
 
   const contentTypeStep = activeScreen === OnboardingStep.ContentTypes;
   const CTAStep = [
-    OnboardingStep.AndroidApp,
     OnboardingStep.PWA,
     OnboardingStep.Extension,
     OnboardingStep.InstallDesktop,
