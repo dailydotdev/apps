@@ -363,7 +363,7 @@ export const getSearchUrl = (params: SearchUrlParams): string => {
   return `${searchUrl}${searchParamsString ? `?${searchParamsString}` : ''}`;
 };
 
-export const smartPromptQueryUrl = `${apiUrl}/prompts`;
+export const smartPromptQueryUrl = `${apiUrl}/search/prompts`;
 export const searchQueryUrl = `${apiUrl}/search/query`;
 
 export const sendPrompt = async (
