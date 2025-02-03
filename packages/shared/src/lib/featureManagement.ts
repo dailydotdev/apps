@@ -41,7 +41,7 @@ const feature = {
 
 export const featureOnboardingPlusCheckout = new Feature(
   'onboarding_plus_checkout',
-  true, // TODO: Change to false after testing
+  false,
 );
 
 export const feedActionSpacing = new Feature('feed_action_spacing', false);
