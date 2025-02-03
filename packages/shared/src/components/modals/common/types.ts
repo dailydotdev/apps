@@ -63,7 +63,7 @@ export enum LazyModal {
   CookieConsent = 'cookieConsent',
   ReportUser = 'reportUser',
   GiftPlus = 'giftPlus',
-  ReceivedGiftPlus = 'receivedGiftPlus',
+  GiftPlusReceived = 'giftPlusReceived',
 }
 
 export type ModalTabItem = {

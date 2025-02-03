@@ -253,7 +253,7 @@ export const BootPopups = (): ReactElement => {
     }
 
     addBootPopup({
-      type: LazyModal.ReceivedGiftPlus,
+      type: LazyModal.GiftPlusReceived,
       props: {
         user,
         onAfterClose: () => {

@@ -20,10 +20,7 @@ import { getPlusGifterUser } from '../../graphql/users';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import Link from '../utilities/Link';
-
-interface GiftPlusModalProps extends ModalProps {
-  user?: UserShortProfile;
-}
+import { useAuthContext } from '../../contexts/AuthContext';
 
 const GifterProfile = ({ gifter }: { gifter: UserShortProfile }) => (
   <Link href={`/${gifter.username}`} passHref>
@@ -49,24 +46,13 @@ const GifterProfile = ({ gifter }: { gifter: UserShortProfile }) => (
   </Link>
 );
 
-const OpenSquadButton = () => (
-  <Button
-    className="w-full"
-    href="/squads/plus"
-    tag="a"
-    variant={ButtonVariant.Primary}
-  >{`See what's inside`}</Button>
-);
-
-export function GiftReceivedPlusModal({
-  user,
-  onRequestClose,
-  ...props
-}: GiftPlusModalProps): ReactElement {
+export function GiftReceivedPlusModal(props: ModalProps): ReactElement {
+  const { onRequestClose } = props;
+  const { user } = useAuthContext();
   const { data: gifter, isLoading } = useQuery({
     queryKey: generateQueryKey(RequestKey.GifterUser),
     queryFn: getPlusGifterUser,
-    enabled: Boolean(user.isPlus),
+    enabled: Boolean(user?.isPlus),
   });
 
   if (!gifter || isLoading) {
@@ -76,16 +62,12 @@ export function GiftReceivedPlusModal({
   return (
     <Modal
       {...props}
-      drawerProps={{
-        displayCloseButton: false,
-      }}
       isDrawerOnMobile
       kind={Modal.Kind.FixedCenter}
-      onRequestClose={onRequestClose}
       size={Modal.Size.Small}
     >
       <Modal.Body className="flex flex-1 tablet:!px-4">
-        <div className="flex flex-1 flex-col gap-4 overflow-y-auto tablet:overflow-auto">
+        <div className="flex flex-1 flex-col gap-4">
           <div className="flex flex-row justify-between">
             <PlusTitle type={TypographyType.Callout} bold />
             <CloseButton
@@ -108,20 +90,13 @@ export function GiftReceivedPlusModal({
           />
           <PlusList className="overflow-clip !py-0" />
         </div>
-        <div className="flex flex-col gap-4 tablet:hidden">
-          <OpenSquadButton />
-          <Button
-            type="button"
-            onClick={onRequestClose}
-            variant={ButtonVariant.Float}
-          >
-            Close
-          </Button>
-        </div>
+        <Button
+          className="mt-4 w-full"
+          href="/squads/plus"
+          tag="a"
+          variant={ButtonVariant.Primary}
+        >{`See what's inside`}</Button>
       </Modal.Body>
-      <Modal.Footer>
-        <OpenSquadButton />
-      </Modal.Footer>
     </Modal>
   );
 }

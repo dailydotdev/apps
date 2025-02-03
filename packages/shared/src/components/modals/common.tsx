@@ -278,7 +278,7 @@ export const modals = {
   [LazyModal.CookieConsent]: CookieConsentModal,
   [LazyModal.ReportUser]: ReportUserModal,
   [LazyModal.GiftPlus]: GiftPlusModal,
-  [LazyModal.ReceivedGiftPlus]: GiftReceivedPlusModal,
+  [LazyModal.GiftPlusReceived]: GiftReceivedPlusModal,
 };
 
 type GetComponentProps<T> = T extends
