@@ -1,6 +1,7 @@
 (function() {
   const PIXEL_ID = document.currentScript.getAttribute('data-pixel-id');
   const userId = document.currentScript.getAttribute('data-user-id');
+  const consent = document.currentScript.getAttribute('data-consent');
 
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
@@ -34,5 +35,6 @@
   if (anonId) {
     args.anon_id = anonId;
   }
+  window.fbq('consent', consent ? 'grant' : 'revoke');
   window.fbq('init', PIXEL_ID, args);
 })();
