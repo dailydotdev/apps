@@ -220,6 +220,20 @@ const SmartPromptModal = dynamic(() =>
   ).then((mod) => mod.SmartPromptModal),
 );
 
+const CookieConsentModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "cookieConsentModal" */ './user/CookieConsentModal'
+    ),
+);
+
+const ReportUserModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "reportUserModal" */ './report/ReportUserModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -257,6 +271,8 @@ export const modals = {
   [LazyModal.MoveBookmark]: MoveBookmarkModal,
   [LazyModal.AddToCustomFeed]: AddToCustomFeedModal,
   [LazyModal.SmartPrompt]: SmartPromptModal,
+  [LazyModal.CookieConsent]: CookieConsentModal,
+  [LazyModal.ReportUser]: ReportUserModal,
 };
 
 type GetComponentProps<T> = T extends

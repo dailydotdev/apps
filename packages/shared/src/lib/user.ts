@@ -39,6 +39,7 @@ export interface PublicProfile {
   youtube?: string;
   linkedin?: string;
   mastodon?: string;
+  bluesky?: string;
   bio?: string;
   createdAt: string;
   premium: boolean;
@@ -81,6 +82,7 @@ export interface UserProfile {
   youtube?: string;
   linkedin?: string;
   mastodon?: string;
+  bluesky?: string;
   portfolio?: string;
   bio?: string;
   acceptedMarketing?: boolean;
@@ -88,7 +90,7 @@ export interface UserProfile {
   timezone?: string;
   cover?: string;
   experienceLevel?: keyof typeof UserExperienceLevel;
-  language?: ContentLanguage;
+  language?: string;
   followingEmail?: boolean;
   followNotifications?: boolean;
   defaultFeedId?: string;
@@ -229,32 +231,6 @@ export enum LogoutReason {
   ManualLogout = 'manual logout',
   KratosSessionAlreadyAvailable = `kratos session already available`,
 }
-
-export enum ContentLanguage {
-  English = 'en',
-  Spanish = 'es',
-  German = 'de',
-  French = 'fr',
-  Italian = 'it',
-  ChineseSimplified = 'zh-Hans',
-  PortugueseBrazil = 'pt-BR',
-  PortuguesePortugal = 'pt-PT',
-  Japanese = 'ja',
-  Korean = 'ko',
-}
-
-export const contnetLanguageToLabelMap = {
-  [ContentLanguage.English]: 'English - Default',
-  [ContentLanguage.Spanish]: 'Spanish',
-  [ContentLanguage.German]: 'German',
-  [ContentLanguage.French]: 'French',
-  [ContentLanguage.Italian]: 'Italian',
-  [ContentLanguage.ChineseSimplified]: 'Chinese (Simplified)',
-  [ContentLanguage.PortugueseBrazil]: 'Portuguese (Brazil)',
-  [ContentLanguage.PortuguesePortugal]: 'Portuguese (Portugal)',
-  [ContentLanguage.Japanese]: 'Japanese',
-  [ContentLanguage.Korean]: 'Korean',
-};
 
 export const isSpecialUser = ({
   userId,

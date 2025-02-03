@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import { ReadingStreakPopup } from './popup';
 import type { ButtonIconPosition } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { ReadingStreakIcon } from '../icons';
+import { ReadingStreakIcon, WarningIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips';
 import type { UserStreak } from '../../graphql/users';
 import { useViewSize, ViewSize } from '../../hooks';
@@ -15,6 +15,10 @@ import { RootPortal } from '../tooltips/Portal';
 import { Drawer } from '../drawers';
 import ConditionalWrapper from '../ConditionalWrapper';
 import type { TooltipPosition } from '../tooltips/BaseTooltipContainer';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { isSameDayInTimezone } from '../../lib/timezones';
+import { IconWrapper } from '../Icon';
+import { useStreakTimezoneOk } from '../../hooks/streaks/useStreakTimezoneOk';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
@@ -68,12 +72,14 @@ export function ReadingStreakButton({
   className,
 }: ReadingStreakButtonProps): ReactElement {
   const { logEvent } = useLogContext();
+  const { user } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
   const hasReadToday =
-    streak?.lastViewAtTz &&
-    new Date(streak.lastViewAtTz).getDate() === new Date().getDate();
+    streak?.lastViewAt &&
+    isSameDayInTimezone(new Date(streak.lastViewAt), new Date(), user.timezone);
+  const isTimezoneOk = useStreakTimezoneOk();
 
   const handleToggle = useCallback(() => {
     setShouldShowStreaks((state) => !state);
@@ -115,7 +121,14 @@ export function ReadingStreakButton({
           id="reading-streak-header-button"
           type="button"
           iconPosition={iconPosition}
-          icon={<ReadingStreakIcon secondary={hasReadToday} />}
+          icon={
+            <IconWrapper wrapperClassName="relative flex items-center gap-2">
+              <ReadingStreakIcon secondary={hasReadToday} />
+              {!isTimezoneOk && (
+                <WarningIcon className="!mr-0 text-raw-cheese-40" secondary />
+              )}
+            </IconWrapper>
+          }
           variant={
             isLaptop || isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float
           }

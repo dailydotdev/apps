@@ -64,7 +64,6 @@ export const SocialRegistrationForm = ({
   const [usernameHint, setUsernameHint] = useState<string>(null);
   const [twitterHint, setTwitterHint] = useState<string>(null);
   const [experienceLevelHint, setExperienceLevelHint] = useState<string>(null);
-  const [languageHint, setLanguageHint] = useState<string>(null);
   const [name, setName] = useState(user?.name);
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { username, setUsername } = useGenerateUsername(name);
@@ -259,18 +258,7 @@ export const SocialRegistrationForm = ({
           hint={experienceLevelHint}
           saveHintSpace
         />
-        <LanguageDropdown
-          className={{ container: 'w-full' }}
-          name="language"
-          onChange={() => {
-            if (languageHint) {
-              setLanguageHint(null);
-            }
-          }}
-          valid={languageHint === null}
-          hint={languageHint}
-          saveHintSpace
-        />
+        <LanguageDropdown className={{ container: 'w-full' }} name="language" />
         <span className="border-b border-border-subtlest-tertiary pb-4 text-text-secondary typo-subhead">
           Your email will be used to send you product and community updates
         </span>

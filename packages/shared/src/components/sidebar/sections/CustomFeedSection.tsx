@@ -1,14 +1,15 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import type { SidebarMenuItem } from '../common';
-import { HashtagIcon, PlusIcon } from '../../icons';
+import { HashtagIcon, PlusIcon, StarIcon } from '../../icons';
 import { Section } from '../Section';
 import { webappUrl } from '../../../lib/constants';
-import { useFeeds, usePlusSubscription } from '../../../hooks';
+import { useFeeds } from '../../../hooks';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import type { SidebarSectionProps } from './common';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { isExtension } from '../../../lib/func';
+import { useSortedFeeds } from '../../../hooks/feed/useSortedFeeds';
 
 export const CustomFeedSection = ({
   isItemsButton,
@@ -16,12 +17,12 @@ export const CustomFeedSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const { feeds } = useFeeds();
-  const { showPlusSubscription } = usePlusSubscription();
   const { defaultFeedId } = useCustomDefaultFeed();
+  const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     const customFeeds =
-      feeds?.edges?.map((feed) => {
+      sortedFeeds.map((feed) => {
         const isDefaultFeed = defaultFeedId === feed.node.id;
 
         if (isDefaultFeed) {
@@ -38,6 +39,9 @@ export const CustomFeedSection = ({
             action: isExtension ? () => onNavTabClick?.('default') : undefined,
             icon: feed.node.flags.icon || (
               <HashtagIcon secondary={isCustomFeedPageActive} />
+            ),
+            rightIcon: () => (
+              <StarIcon secondary className="text-surface-disabled" />
             ),
             active: isCustomFeedPageActive,
           };
@@ -58,34 +62,24 @@ export const CustomFeedSection = ({
 
     return [
       ...customFeeds,
-      showPlusSubscription
-        ? {
-            icon: () => (
-              <div className="rounded-6 bg-background-subtle">
-                <PlusIcon />
-              </div>
-            ),
-            title: 'Custom feed',
-            path: `${webappUrl}feeds/new`,
-            requiresLogin: true,
-            isForcedClickable: true,
-          }
-        : undefined,
+      {
+        icon: () => (
+          <div className="rounded-6 bg-background-subtle">
+            <PlusIcon />
+          </div>
+        ),
+        title: 'Custom feed',
+        path: `${webappUrl}feeds/new`,
+        requiresLogin: true,
+        isForcedClickable: true,
+      },
     ].filter(Boolean);
   }, [
     defaultRenderSectionProps.activePage,
-    feeds?.edges,
+    sortedFeeds,
     defaultFeedId,
     onNavTabClick,
-    showPlusSubscription,
   ]);
-
-  /**
-   * If there are no custom feeds and the user is not subscribed to Plus don't show this section
-   */
-  if (!menuItems.length && !showPlusSubscription) {
-    return null;
-  }
 
   return (
     <Section

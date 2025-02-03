@@ -1,10 +1,10 @@
 import type { UseMutateAsyncFunction } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { getDay } from 'date-fns';
 import { sendViewPost } from '../../graphql/posts';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
-import type { ReadingDay, UserStreak } from '../../graphql/users';
+import type { UserStreak } from '../../graphql/users';
+import { isSameDayInTimezone } from '../../lib/timezones';
 
 export const useViewPost = (): UseMutateAsyncFunction<
   unknown,
@@ -19,17 +19,16 @@ export const useViewPost = (): UseMutateAsyncFunction<
     mutationFn: sendViewPost,
     onSuccess: async () => {
       const streak = client.getQueryData<UserStreak>(streakKey);
-      const isNewStreak = !streak?.lastViewAtTz;
-      const isFirstViewToday =
-        getDay(new Date(streak?.lastViewAtTz)) !== getDay(new Date());
+      const isNewStreak = !streak?.lastViewAt;
+      const isFirstViewToday = !isSameDayInTimezone(
+        new Date(streak?.lastViewAt),
+        new Date(),
+        user.timezone,
+      );
 
       if (isNewStreak || isFirstViewToday) {
         await client.refetchQueries({ queryKey: streakKey });
-      }
 
-      const reading = client.getQueryData<ReadingDay[]>(readKey);
-
-      if (reading) {
         // just mark the query as stale
         await client.invalidateQueries({ queryKey: readKey });
       }

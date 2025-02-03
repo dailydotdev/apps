@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
+import classNames from 'classnames';
 import PostSourceInfo from './PostSourceInfo';
 import { ReadArticleButton } from '../cards/common/ReadArticleButton';
 import type { Post, SharedPost } from '../../graphql/posts';
@@ -8,7 +9,9 @@ import {
   isInternalReadType,
   isSharedPostSquadPost,
 } from '../../graphql/posts';
-import SettingsContext from '../../contexts/SettingsContext';
+import SettingsContext, {
+  useSettingsContext,
+} from '../../contexts/SettingsContext';
 import { combinedClicks } from '../../lib/click';
 import { SharedLinkContainer } from './common/SharedLinkContainer';
 import { SharedPostLink } from './common/SharedPostLink';
@@ -19,6 +22,13 @@ import { TruncateText } from '../utilities';
 import { LazyImage } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { SharePostTitle } from './share/SharePostTitle';
+import { BlockIcon } from '../icons';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
+import { DeletedPostId } from '../../lib/constants';
 
 export interface CommonSharePostContentProps {
   sharedPost: SharedPost;
@@ -46,6 +56,7 @@ export function CommonSharePostContent({
   source,
   onReadArticle,
 }: CommonSharePostContentProps): ReactElement {
+  const { sidebarExpanded } = useSettingsContext();
   const { openNewTab } = useContext(SettingsContext);
   const openArticle = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -59,10 +70,40 @@ export function CommonSharePostContent({
   const shouldUseInternalLink =
     isSharedPostSquadPost({ sharedPost }) || isInternalReadType(sharedPost);
 
+  const isDeleted = sharedPost.id === DeletedPostId;
+
+  if (isDeleted) {
+    return (
+      <SharedLinkContainer summary={sharedPost.summary} className="mb-5 mt-8">
+        <div className="flex flex-row items-center gap-1 px-5 py-4">
+          <BlockIcon />
+          <Typography
+            className="flex-1"
+            type={TypographyType.Subhead}
+            color={TypographyColor.Secondary}
+          >
+            This post is no longer available. It might have been removed or the
+            link has expired.
+          </Typography>
+        </div>
+      </SharedLinkContainer>
+    );
+  }
+
   return (
     <SharedLinkContainer summary={sharedPost.summary} className="mb-5 mt-8">
-      <div className="flex max-w-full flex-col p-4 pt-5 laptop:flex-row">
-        <div className="mb-5 flex max-w-full flex-1 flex-col truncate laptop:mb-0">
+      <div
+        className={classNames(
+          'flex max-w-full flex-col gap-2 p-4 pt-5',
+          sidebarExpanded ? 'laptopL:flex-row' : 'laptop:flex-row',
+        )}
+      >
+        <div
+          className={classNames(
+            'mb-5 flex max-w-full flex-1 flex-col truncate',
+            sidebarExpanded ? 'laptopL:mb-0' : 'laptop:mb-0',
+          )}
+        >
           <SharedPostLink
             source={source}
             sharedPost={sharedPost}
@@ -100,7 +141,7 @@ export function CommonSharePostContent({
           source={source}
           sharedPost={sharedPost}
           onGoToLinkProps={combinedClicks(openArticle)}
-          className="ml-2 block h-fit w-70 cursor-pointer overflow-hidden rounded-16"
+          className="mx-auto block h-fit w-70 cursor-pointer overflow-hidden rounded-16"
         >
           <LazyImage
             imgSrc={sharedPost.image}

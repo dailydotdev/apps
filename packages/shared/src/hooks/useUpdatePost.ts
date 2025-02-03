@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import type { Post, PostData } from '../graphql/posts';
 import type { MutateFunc } from '../lib/query';
-import { getPostByIdKey } from './usePostById';
+import { getPostByIdKey } from '../lib/query';
 
 type UpdateData = { id: string; update?: Partial<Post> };
 type UseBookmarkPostRet = {

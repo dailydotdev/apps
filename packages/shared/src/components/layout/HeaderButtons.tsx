@@ -43,6 +43,7 @@ export function HeaderButtons({
   return (
     <Container>
       <UpgradeToPlus
+        className="whitespace-nowrap"
         color={ButtonColor.Bacon}
         target={TargetId.Header}
         variant={ButtonVariant.Primary}

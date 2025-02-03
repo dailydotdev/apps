@@ -4,6 +4,7 @@ import {
   BellIcon,
   InviteIcon,
   AppIcon,
+  PrivacyIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import {
   ProfileImageSize,
@@ -46,6 +47,7 @@ export enum AccountPage {
   Notifications = 'notifications',
   Integrations = 'integrations',
   InviteFriends = 'invite',
+  Privacy = 'privacy',
 }
 
 export enum AccountSecurityDisplay {
@@ -137,6 +139,16 @@ export const accountPage: Record<AccountPage, AccountPageProps> = {
     href: '/invite',
     getIcon: ({ isActive }) => (
       <InviteIcon
+        secondary={isActive}
+        className={!isActive && 'text-text-secondary'}
+      />
+    ),
+  },
+  privacy: {
+    title: 'Privacy',
+    href: '/privacy',
+    getIcon: ({ isActive }) => (
+      <PrivacyIcon
         secondary={isActive}
         className={!isActive && 'text-text-secondary'}
       />

@@ -23,6 +23,7 @@ import {
 import { ProfileTooltip } from '../../profile/ProfileTooltip';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { ProfileImageSize } from '../../ProfilePicture';
+import { DeletedPostId } from '../../../lib/constants';
 
 interface CardHeaderProps {
   post: Post;
@@ -51,6 +52,7 @@ export const PostCardHeader = ({
   showFeedback,
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
+  const isSharedPostDeleted = post.sharedPost?.id === DeletedPostId;
 
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: post.bookmarked && !showFeedback,
@@ -96,14 +98,16 @@ export const PostCardHeader = ({
         >
           {!isFeedPreview && (
             <>
-              <ReadArticleButton
-                content={getReadPostButtonText(post)}
-                className="mr-2"
-                variant={ButtonVariant.Primary}
-                href={articleLink}
-                onClick={onReadArticleClick}
-                openNewTab={openNewTab}
-              />
+              {!isSharedPostDeleted && (
+                <ReadArticleButton
+                  content={getReadPostButtonText(post)}
+                  className="mr-2"
+                  variant={ButtonVariant.Primary}
+                  href={articleLink}
+                  onClick={onReadArticleClick}
+                  openNewTab={openNewTab}
+                />
+              )}
               <OptionsButton onClick={onMenuClick} tooltipPlacement="top" />
             </>
           )}

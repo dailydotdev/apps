@@ -49,6 +49,13 @@ export const labels = {
           'Are you sure you want to delete your feed? This action cannot be undone.',
         okButton: 'Yes, delete feed',
       },
+      editPlusSubscribe: {
+        title: 'Upgrade to make changes',
+        description:
+          'You are currently on the free version of daily.dev . You need to upgrade to Plus to change the feed settings.',
+        okButton: 'Upgrade to Plus',
+        cancelButton: 'Delete feed',
+      },
     },
     error: {
       feedLimit: {
