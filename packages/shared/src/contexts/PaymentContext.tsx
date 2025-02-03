@@ -89,7 +89,7 @@ export const PaymentContextProvider = ({
             logRef.current({
               event_name: LogEvent.CompleteCheckout,
               extra: {
-                cycle: event?.data.items?.[0]?.billing_cycle?.interval,
+                cycle: event?.data.items?.[0]?.billing_cycle?.interval ?? 'one-off',
                 localCost: event?.data.totals.total,
                 localCurrenct: event?.data.currency_code,
                 payment: event?.data.payment.method_details.type,
