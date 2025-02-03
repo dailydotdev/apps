@@ -81,7 +81,6 @@ import { useInstallPWA } from '@dailydotdev/shared/src/components/onboarding/PWA
 import { AFTER_AUTH_PARAM } from '@dailydotdev/shared/src/components/auth/common';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
-import PlusPage from './plus';
 
 const ContentTypes = dynamic(() =>
   import(
@@ -131,6 +130,10 @@ const OnboardingInstallDesktop = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingInstallDesktopStep" */ '@dailydotdev/shared/src/components/onboarding/PWA/OnboardingInstallDesktop'
   ).then((mod) => mod.OnboardingInstallDesktop),
+);
+
+const PlusPage = dynamic(
+  () => import(/* webpackChunkName: "plusPage" */ './plus'),
 );
 
 type OnboardingVisual = {
