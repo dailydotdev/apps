@@ -109,7 +109,7 @@ function SharePostBar({
               className={classNames(
                 'bg-transparent text-text-primary outline-none typo-body hover:placeholder-text-primary focus:placeholder-text-quaternary',
                 !shouldRenderReadingHistory && '!flex-1 pr-2',
-                !url && 'w-[12.5rem]',
+                (!url || isMobile) && 'w-[12.5rem]',
               )}
               onInput={(e) => setUrl(e.currentTarget.value)}
               value={url}
