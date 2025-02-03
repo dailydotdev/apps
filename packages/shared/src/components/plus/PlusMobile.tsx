@@ -4,8 +4,11 @@ import { useRouter } from 'next/router';
 import { PlusInfo } from './PlusInfo';
 import { usePaymentContext } from '../../contexts/PaymentContext';
 import { webappUrl } from '../../lib/constants';
+import type { CommonPlusPageProps } from './common';
 
-export const PlusMobile = (): ReactElement => {
+export const PlusMobile = ({
+  shouldShowPlusHeader,
+}: CommonPlusPageProps): ReactElement => {
   const router = useRouter();
   const { productOptions } = usePaymentContext();
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -36,6 +39,7 @@ export const PlusMobile = (): ReactElement => {
         selectedOption={selectedOption}
         onChange={selectionChange}
         onContinue={onContinue}
+        shouldShowPlusHeader={shouldShowPlusHeader}
       />
     </div>
   );

@@ -29,6 +29,7 @@ import type { NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import {
   useFeature,
+  useFeaturesReadyContext,
   useGrowthBookContext,
 } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisclaimer';
@@ -46,6 +47,7 @@ import {
   featureOnboardingAndroid,
   featureOnboardingExtension,
   featureOnboardingDesktopPWA,
+  featureOnboardingPlusCheckout,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import {
@@ -79,6 +81,7 @@ import { useInstallPWA } from '@dailydotdev/shared/src/components/onboarding/PWA
 import { AFTER_AUTH_PARAM } from '@dailydotdev/shared/src/components/auth/common';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
+import PlusPage from './plus';
 
 const ContentTypes = dynamic(() =>
   import(
@@ -159,6 +162,7 @@ export function OnboardPage(): ReactElement {
     useAuthContext();
   const shouldVerify = anonymous?.shouldVerify;
   const { growthbook } = useGrowthBookContext();
+  const { getFeatureValue } = useFeaturesReadyContext();
   const { logEvent } = useLogContext();
   const [auth, setAuth] = useState<AuthProps>({
     isAuthenticating:
@@ -214,6 +218,7 @@ export function OnboardPage(): ReactElement {
     shouldEvaluate: shouldEnrollOnboardingStep && shouldShowExtensionOnboarding,
   });
   const { isCurrentPWA, isAvailable: canUserInstallDesktop } = useInstallPWA();
+  const [isPlusCheckout, setIsPlusCheckout] = useState(false);
 
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
   const isCTA = [
@@ -283,6 +288,10 @@ export function OnboardPage(): ReactElement {
       OnboardingStep.ReadingReminder,
     ].includes(activeScreen);
     if (isLastStepBeforePlus && !isIOSNative()) {
+      const isPlusCheckoutExperiment = getFeatureValue(
+        featureOnboardingPlusCheckout,
+      );
+      setIsPlusCheckout(isPlusCheckoutExperiment);
       return setActiveScreen(OnboardingStep.Plus);
     }
 
@@ -426,6 +435,7 @@ export function OnboardPage(): ReactElement {
     isAuthLoading &&
     activeScreen === OnboardingStep.Intro &&
     !isOnboardingReady;
+
   if (!isPageReady) {
     return null;
   }
@@ -457,6 +467,7 @@ export function OnboardPage(): ReactElement {
         customActionName={customActionName}
         onClick={onClickCreateFeed}
         activeScreen={activeScreen}
+        showPlusIcon={isPlusCheckout && activeScreen === OnboardingStep.Plus}
       />
       <div
         className={classNames(
@@ -510,7 +521,11 @@ export function OnboardPage(): ReactElement {
             {activeScreen === OnboardingStep.ContentTypes && <ContentTypes />}
             {activeScreen === OnboardingStep.Plus && (
               <PaymentContextProvider>
-                <OnboardingPlusStep onClickNext={onClickNext} />
+                {isPlusCheckout ? (
+                  <PlusPage shouldShowPlusHeader={false} />
+                ) : (
+                  <OnboardingPlusStep onClickNext={onClickNext} />
+                )}
               </PaymentContextProvider>
             )}
             {activeScreen === OnboardingStep.AndroidApp && (
