@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react';
 import type { ReactElement } from 'react';
 import type { Post } from '../../../graphql/posts';
-import PostSummary from '../../cards/common/PostSummary';
 import { Tab, TabContainer } from '../../tabs/TabContainer';
 import { usePlusSubscription } from '../../../hooks';
 import { PromptButtons } from './PromptButtons';
@@ -13,7 +12,7 @@ import { SmartPromptResponse } from './SmartPromptResponse';
 import { CustomPrompt } from './CustomPrompt';
 
 export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
-  const { isPlus, showPlusSubscription } = usePlusSubscription();
+  const { isPlus } = usePlusSubscription();
   const [activeDisplay, setActiveDisplay] = useState<PromptDisplay>(
     PromptDisplay.TLDR,
   );
@@ -40,10 +39,6 @@ export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
         break;
     }
   };
-
-  if (!showPlusSubscription) {
-    return <PostSummary className="mb-6" summary={post.summary} />;
-  }
 
   return (
     <div

@@ -363,12 +363,14 @@ export const getSearchUrl = (params: SearchUrlParams): string => {
   return `${searchUrl}${searchParamsString ? `?${searchParamsString}` : ''}`;
 };
 
+export const smartPromptQueryUrl = `${apiUrl}/prompts`;
 export const searchQueryUrl = `${apiUrl}/search/query`;
 
 export const sendPrompt = async (
   params: URLSearchParams,
+  url?: string,
 ): Promise<EventSource> => {
-  return new EventSource(`${searchQueryUrl}?${params}`);
+  return new EventSource(`${url || searchQueryUrl}?${params}`);
 };
 
 export const sendSearchQuery = async (
@@ -398,7 +400,7 @@ export const sendSmartPromptQuery = async ({
     postId: post.id,
   });
 
-  return sendPrompt(params);
+  return sendPrompt(params, smartPromptQueryUrl);
 };
 
 export type SearchSuggestion = {
