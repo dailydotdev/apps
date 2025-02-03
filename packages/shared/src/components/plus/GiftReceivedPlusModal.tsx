@@ -21,6 +21,7 @@ import { generateQueryKey, RequestKey } from '../../lib/query';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import Link from '../utilities/Link';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { Loader } from '../Loader';
 
 const GifterProfile = ({ gifter }: { gifter: UserShortProfile }) => (
   <Link href={`/${gifter.username}`} passHref>
@@ -56,7 +57,18 @@ export function GiftReceivedPlusModal(props: ModalProps): ReactElement {
   });
 
   if (!gifter || isLoading) {
-    return null;
+    return (
+      <Modal
+        {...props}
+        isDrawerOnMobile
+        kind={Modal.Kind.FixedCenter}
+        size={Modal.Size.Small}
+      >
+        <Modal.Body className="flex flex-1 tablet:!px-4">
+          <Loader />
+        </Modal.Body>
+      </Modal>
+    );
   }
 
   return (
