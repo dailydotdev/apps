@@ -44,10 +44,33 @@ export const labels = {
         description: 'You have unsaved changes that will be lost',
         okButton: 'Yes, discard',
       },
+      newDiscard: {
+        title: 'Cancel feed creation?',
+        description:
+          "You've started customizing your feed. If you cancel now, your changes will be lost and the feed won't be created. Are you sure you want to proceed?",
+        descriptionPlus:
+          "You've made some changes to your feed. If you cancel now, your changes will be lost and the feed will be deleted. Are you sure you want to proceed?",
+        okButton: 'Yes, discard',
+        cancelButton: 'Keep editing',
+      },
       delete: {
         description:
           'Are you sure you want to delete your feed? This action cannot be undone.',
         okButton: 'Yes, delete feed',
+      },
+      editPlusSubscribe: {
+        title: 'Upgrade to make changes',
+        description:
+          'You are currently on the free version of daily.dev. You need to upgrade to Plus to change the feed settings.',
+        okButton: 'Upgrade to Plus',
+        cancelButton: 'Delete feed',
+      },
+      createGenericFeed: {
+        title: 'Create a generic feed?',
+        description:
+          "It looks like you didn't add any customizations. We'll create a generic feed for you, are you sure this is what you want? If not, you can go back and customize it or edit it later using the “Feed settings” menu.",
+        okButton: 'Create feed',
+        cancelButton: 'Keep editing',
       },
     },
     error: {

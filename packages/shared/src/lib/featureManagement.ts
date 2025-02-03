@@ -39,6 +39,11 @@ const feature = {
   }),
 };
 
+export const featureOnboardingPlusCheckout = new Feature(
+  'onboarding_plus_checkout',
+  false,
+);
+
 export const feedActionSpacing = new Feature('feed_action_spacing', false);
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
@@ -62,5 +67,17 @@ export const featureFeedAdTemplate = new Feature('feed_ad_template', {
 } as Record<FeedSettingsKeys, FeedAdTemplate>);
 
 export const featureAndroidPWA = new Feature('android_pwa_onboarding', false);
+export const featureValidLanguages = new Feature('valid_languages', {
+  en: 'English',
+  es: 'Spanish',
+  de: 'German',
+  fr: 'French',
+  it: 'Italian',
+  'zh-Hans': 'Chinese (Simplified)',
+  'pt-BR': 'Portuguese (Brazil)',
+  'pt-PT': 'Portuguese (Portugal)',
+  ja: 'Japanese',
+  ko: 'Korean',
+});
 
 export { feature };

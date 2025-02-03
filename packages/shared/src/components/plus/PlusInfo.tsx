@@ -21,6 +21,7 @@ import {
 } from '../buttons/Button';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent } from '../../lib/log';
+import type { CommonPlusPageProps } from './common';
 
 type PlusInfoProps = {
   productOptions: ProductOption[];
@@ -28,22 +29,26 @@ type PlusInfoProps = {
   onChange: (priceId: string) => void;
   onContinue?: () => void;
 };
+
 export const PlusInfo = ({
   productOptions,
   selectedOption,
   onChange,
   onContinue,
-}: PlusInfoProps): ReactElement => {
+  shouldShowPlusHeader = true,
+}: PlusInfoProps & CommonPlusPageProps): ReactElement => {
   const { earlyAdopterPlanId } = usePaymentContext();
   const { logSubscriptionEvent } = usePlusSubscription();
 
   return (
     <>
-      <PlusUser
-        iconSize={IconSize.Large}
-        typographyType={TypographyType.Title1}
-        className="mb-6"
-      />
+      {shouldShowPlusHeader && (
+        <PlusUser
+          iconSize={IconSize.Large}
+          typographyType={TypographyType.Title1}
+          className="mb-6"
+        />
+      )}
       <Typography
         tag={TypographyTag.H1}
         type={TypographyType.Mega2}
@@ -51,7 +56,7 @@ export const PlusInfo = ({
         className="mb-2"
         bold
       >
-        Unlock more with Plus
+        Supercharge your future
       </Typography>
       <Typography
         tag={TypographyTag.H2}
@@ -59,8 +64,9 @@ export const PlusInfo = ({
         color={TypographyColor.Secondary}
         className="mb-6"
       >
-        Upgrade to daily.dev Plus for an enhanced, ad-free experience with
-        exclusive features and perks to level up your game.
+        Work smarter, learn faster, and stay ahead with AI tools, custom feeds,
+        and premium features. Because copy-pasting code isn’t a long-term
+        strategy.
       </Typography>
       <Typography
         tag={TypographyTag.P}

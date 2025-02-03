@@ -47,6 +47,7 @@ import {
   featureOnboardingExtension,
   featureOnboardingDesktopPWA,
   featureAndroidPWA,
+  featureOnboardingPlusCheckout,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import {
@@ -69,6 +70,7 @@ import {
   checkIsBrowser,
   getCurrentBrowserName,
   isIOS,
+  isIOSNative,
   isPWA,
   UserAgent,
 } from '@dailydotdev/shared/src/lib/func';
@@ -130,6 +132,10 @@ const OnboardingAndroidPWA = dynamic(() =>
   ).then((mod) => mod.OnboardingAndroidPWA),
 );
 
+const PlusPage = dynamic(
+  () => import(/* webpackChunkName: "plusPage" */ './plus'),
+);
+
 type OnboardingVisual = {
   fullBackground?: {
     mobile?: string;
@@ -160,6 +166,7 @@ export function OnboardPage(): ReactElement {
   const { user, isAuthReady, anonymous, loginState } = useAuthContext();
   const shouldVerify = anonymous?.shouldVerify;
   const { growthbook } = useGrowthBookContext();
+  const { getFeatureValue } = useFeaturesReadyContext();
   const { logEvent } = useLogContext();
   const [auth, setAuth] = useState<AuthProps>({
     isAuthenticating:
@@ -207,6 +214,7 @@ export function OnboardPage(): ReactElement {
     feature: featureOnboardingExtension,
     shouldEvaluate: shouldEnrollOnboardingStep && shouldShowExtensionOnboarding,
   });
+  const [isPlusCheckout, setIsPlusCheckout] = useState(false);
 
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
   const isCTA = [
@@ -275,7 +283,11 @@ export function OnboardPage(): ReactElement {
       OnboardingStep.ContentTypes,
       OnboardingStep.ReadingReminder,
     ].includes(activeScreen);
-    if (isLastStepBeforePlus) {
+    if (isLastStepBeforePlus && !isIOSNative()) {
+      const isPlusCheckoutExperiment = getFeatureValue(
+        featureOnboardingPlusCheckout,
+      );
+      setIsPlusCheckout(isPlusCheckoutExperiment);
       return setActiveScreen(OnboardingStep.Plus);
     }
 
@@ -423,6 +435,7 @@ export function OnboardPage(): ReactElement {
     isAuthLoading &&
     activeScreen === OnboardingStep.Intro &&
     !isOnboardingReady;
+
   if (!isPageReady) {
     return null;
   }
@@ -454,6 +467,7 @@ export function OnboardPage(): ReactElement {
         customActionName={customActionName}
         onClick={onClickCreateFeed}
         activeScreen={activeScreen}
+        showPlusIcon={isPlusCheckout && activeScreen === OnboardingStep.Plus}
       />
       <div
         className={classNames(
@@ -507,7 +521,11 @@ export function OnboardPage(): ReactElement {
             {activeScreen === OnboardingStep.ContentTypes && <ContentTypes />}
             {activeScreen === OnboardingStep.Plus && (
               <PaymentContextProvider>
-                <OnboardingPlusStep onClickNext={onClickNext} />
+                {isPlusCheckout ? (
+                  <PlusPage shouldShowPlusHeader={false} />
+                ) : (
+                  <OnboardingPlusStep onClickNext={onClickNext} />
+                )}
               </PaymentContextProvider>
             )}
             {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
