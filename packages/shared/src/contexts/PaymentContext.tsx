@@ -17,7 +17,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { useAuthContext } from './AuthContext';
 import { invalidPlusRegions, plusSuccessUrl } from '../lib/constants';
-import { LogEvent, TargetId } from '../lib/log';
+import { LogEvent } from '../lib/log';
 import { usePlusSubscription } from '../hooks';
 import { logPixelPayment } from '../components/Pixels';
 import { useFeature } from '../components/GrowthBookProvider';
@@ -87,9 +87,13 @@ export const PaymentContextProvider = ({
             break;
           case CheckoutEventNames.CHECKOUT_COMPLETED:
             logRef.current({
-              event_name: LogEvent.CompleteCheckout,
+              event_name:
+                'gifter_id' in event.data.custom_data
+                  ? LogEvent.GiftSubscription
+                  : LogEvent.CompleteCheckout,
               extra: {
-                cycle: event?.data.items?.[0]?.billing_cycle?.interval ?? 'one-off',
+                cycle:
+                  event?.data.items?.[0]?.billing_cycle?.interval ?? 'one-off',
                 localCost: event?.data.totals.total,
                 localCurrenct: event?.data.currency_code,
                 payment: event?.data.payment.method_details.type,
@@ -100,15 +104,6 @@ export const PaymentContextProvider = ({
               event?.data.currency_code,
               event?.data?.transaction_id,
             );
-            if ('gifter_id' in event.data.custom_data) {
-              logRef.current({
-                event_name: LogEvent.GiftSubscription,
-                target_id: TargetId.ProfileDropdown,
-                extra: {
-                  cycle: PlusPriceType.Yearly,
-                },
-              });
-            }
             router.push(plusSuccessUrl);
             break;
           // This doesn't exist in the original code
