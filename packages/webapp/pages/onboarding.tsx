@@ -29,6 +29,7 @@ import type { NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import {
   useFeature,
+  useFeaturesReadyContext,
   useGrowthBookContext,
 } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisclaimer';
@@ -144,6 +145,7 @@ const seo: NextSeoProps = {
 
 export function OnboardPage(): ReactElement {
   const params = new URLSearchParams(window.location.search);
+  const { getFeatureValue } = useFeaturesReadyContext();
   const { isAvailable: canUserInstallPWA } = useInstallPWA();
   const {
     isOnboardingReady,
@@ -200,13 +202,6 @@ export function OnboardPage(): ReactElement {
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
   const [shouldEnrollOnboardingStep, setShouldEnrollOnboardingStep] =
     useState(false);
-  const { value: androidPWAExperiment } = useConditionalFeature({
-    feature: featureAndroidPWA,
-    shouldEvaluate:
-      shouldEnrollOnboardingStep &&
-      checkIsBrowser(UserAgent.Android) &&
-      canUserInstallPWA,
-  });
   const { shouldShowExtensionOnboarding } = useOnboardingExtension();
   const { value: extensionExperiment } = useConditionalFeature({
     feature: featureOnboardingExtension,
@@ -284,7 +279,12 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.Plus);
     }
 
-    if (androidPWAExperiment && activeScreen !== OnboardingStep.AndroidPWA) {
+    if (
+      activeScreen !== OnboardingStep.AndroidPWA &&
+      checkIsBrowser(UserAgent.Android) &&
+      canUserInstallPWA &&
+      getFeatureValue(featureAndroidPWA)
+    ) {
       return setActiveScreen(OnboardingStep.AndroidPWA);
     }
 
