@@ -148,7 +148,6 @@ export const PaymentContextProvider = ({
           frameStyle:
             'width: 100%; background-color: transparent; border: none;',
           theme: 'dark',
-          showAddDiscounts: true,
         },
       });
     },
