@@ -51,7 +51,7 @@ export default function ProfileMenu({
   onClose,
 }: ProfileMenuProps): ReactElement {
   const { openModal } = useLazyModal();
-  const { user, logout, isGdprCovered } = useAuthContext();
+  const { user, logout } = useAuthContext();
   const { isActive: isDndActive, setShowDnd } = useDndContext();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
 
