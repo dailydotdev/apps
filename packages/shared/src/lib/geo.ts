@@ -40,4 +40,4 @@ export enum Continent {
   SouthAmerica = 'SA',
 }
 
-export const outsideGdpr = ['US'];
+export const outsideGdpr = ['US', 'IL'];
