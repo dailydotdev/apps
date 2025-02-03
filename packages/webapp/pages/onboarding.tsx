@@ -151,7 +151,6 @@ const seo: NextSeoProps = {
 
 export function OnboardPage(): ReactElement {
   const params = new URLSearchParams(window.location.search);
-  const { getFeatureValue } = useFeaturesReadyContext();
   const { isAvailable: canUserInstallPWA } = useInstallPWA();
   const {
     isOnboardingReady,
