@@ -5,8 +5,11 @@ import { usePaymentContext } from '../../contexts/PaymentContext';
 
 import { PlusInfo } from './PlusInfo';
 import { PlusCheckoutContainer } from './PlusCheckoutContainer';
+import type { CommonPlusPageProps } from './common';
 
-export const PlusDesktop = (): ReactElement => {
+export const PlusDesktop = ({
+  shouldShowPlusHeader,
+}: CommonPlusPageProps): ReactElement => {
   const { openCheckout, paddle, productOptions } = usePaymentContext();
   const {
     query: { selectedPlan },
@@ -48,6 +51,7 @@ export const PlusDesktop = (): ReactElement => {
           productOptions={productOptions}
           selectedOption={selectedOption}
           onChange={toggleCheckoutOption}
+          shouldShowPlusHeader={shouldShowPlusHeader}
         />
       </div>
       <PlusCheckoutContainer

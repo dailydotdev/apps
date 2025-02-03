@@ -14,7 +14,14 @@ import {
   ADD_FILTERS_TO_FEED_MUTATION,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
 } from '../../../graphql/feedSettings';
-import { useFeeds, useToastNotification } from '../../../hooks';
+import {
+  useEventListener,
+  useFeeds,
+  usePlusSubscription,
+  useToastNotification,
+  useViewSizeClient,
+  ViewSize,
+} from '../../../hooks';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import type { PromptOptions } from '../../../hooks/usePrompt';
 import { usePrompt } from '../../../hooks/usePrompt';
@@ -29,8 +36,9 @@ import type {
 import type { Feed } from '../../../graphql/feed';
 import { FeedType } from '../../../graphql/feed';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
+import type { FeedSettingsEditProps } from './FeedSettingsEdit';
 
-const discardPrompt: PromptOptions = {
+const discardEditPrompt: PromptOptions = {
   title: labels.feed.prompt.discard.title,
   description: labels.feed.prompt.discard.description,
   okButton: {
@@ -39,15 +47,32 @@ const discardPrompt: PromptOptions = {
   },
 };
 
-export type UseFeedSettingsEditProps = {
-  feedSlugOrId: string;
-};
+export type UseFeedSettingsEditProps = FeedSettingsEditProps;
 
 export type UseFeedSettingsEdit = FeedSettingsEditContextValue;
 
 export const useFeedSettingsEdit = ({
   feedSlugOrId,
+  isNewFeed,
 }: UseFeedSettingsEditProps): UseFeedSettingsEdit => {
+  const { isPlus } = usePlusSubscription();
+
+  const isMobile = useViewSizeClient(ViewSize.MobileL);
+  const discardNewPrompt: PromptOptions = {
+    title: labels.feed.prompt.newDiscard.title,
+    description: isPlus
+      ? labels.feed.prompt.newDiscard.descriptionPlus
+      : labels.feed.prompt.newDiscard.description,
+    okButton: {
+      title: labels.feed.prompt.newDiscard.okButton,
+      color: ButtonColor.Ketchup,
+    },
+    cancelButton: {
+      title: labels.feed.prompt.newDiscard.cancelButton,
+    },
+  };
+
+  const discardPrompt = isNewFeed ? discardNewPrompt : discardEditPrompt;
   const router = useRouter();
   const [formState, setFormState] = useState<Partial<FeedSettingsFormData>>();
   const queryClient = useQueryClient();
@@ -96,21 +121,58 @@ export const useFeedSettingsEdit = ({
     onValidateAction,
   });
 
-  const onBackToFeed = useCallback(() => {
-    if (feed?.type === FeedType.Main) {
-      router.replace(`${webappUrl}${isCustomDefaultFeed ? 'my-feed' : ''}`);
-
-      return;
+  // remove new feed that was not modified by user on page unload
+  useEventListener(globalThis?.window, 'beforeunload', () => {
+    if (isNewFeed && !isDirty) {
+      deleteFeed({ feedId });
     }
+  });
 
-    if (feed?.id === defaultFeedId) {
-      router.replace(webappUrl);
+  const onBackToFeed = useCallback(
+    async ({ action }: { action?: 'discard' | 'save' }) => {
+      if (action === 'save' && isNewFeed && !isPlus) {
+        // for non plus members on confirm we save
+        // and navigate to plus page to upgrade
 
-      return;
-    }
+        router.replace(`${webappUrl}plus`);
 
-    router.replace(`${webappUrl}feeds/${feedSlugOrId}`);
-  }, [feed, router, isCustomDefaultFeed, defaultFeedId, feedSlugOrId]);
+        return;
+      }
+
+      if (action === 'discard' && isNewFeed) {
+        await deleteFeed({ feedId });
+
+        router.back();
+
+        return;
+      }
+
+      if (feed?.type === FeedType.Main) {
+        router.replace(`${webappUrl}${isCustomDefaultFeed ? 'my-feed' : ''}`);
+
+        return;
+      }
+
+      if (feed?.id === defaultFeedId) {
+        router.replace(webappUrl);
+
+        return;
+      }
+
+      router.replace(`${webappUrl}feeds/${feedSlugOrId}`);
+    },
+    [
+      feed,
+      router,
+      isCustomDefaultFeed,
+      defaultFeedId,
+      feedSlugOrId,
+      isNewFeed,
+      deleteFeed,
+      feedId,
+      isPlus,
+    ],
+  );
 
   const feedData = useMemo<FeedSettingsFormData>(() => {
     return {
@@ -166,7 +228,7 @@ export const useFeedSettingsEdit = ({
 
       onAskConfirmation(false);
 
-      onBackToFeed();
+      onBackToFeed({ action: 'save' });
     },
 
     onError: (error) => {
@@ -221,19 +283,6 @@ export const useFeedSettingsEdit = ({
     },
   });
 
-  const shouldRedirectToNewFeed =
-    feeds && feedSlugOrId && deleteStatus === 'idle';
-
-  useEffect(() => {
-    if (!shouldRedirectToNewFeed) {
-      return;
-    }
-
-    if (!feed) {
-      router.push(`${webappUrl}feeds/new`);
-    }
-  }, [shouldRedirectToNewFeed, feed, router]);
-
   const cleanupRef = useRef<() => void>();
   cleanupRef.current = () => {
     queryClient.removeQueries({
@@ -277,19 +326,50 @@ export const useFeedSettingsEdit = ({
         });
       }
     }, []),
-    onDiscard: useCallback(async () => {
-      const shouldDiscard =
-        onValidateAction() || (await showPrompt(discardPrompt));
+    onDiscard: useCallback(
+      async ({ activeView } = {}) => {
+        // on mobile each section has its own state so when going back
+        // we always prompt for discard
+        const showMobileSectionDiscard = isMobile && activeView;
 
-      if (shouldDiscard) {
-        onAskConfirmation(false);
+        const shouldDiscard =
+          onValidateAction() ||
+          (await showPrompt(
+            showMobileSectionDiscard ? discardEditPrompt : discardPrompt,
+          ));
 
-        setDirty(false);
-      }
+        if (shouldDiscard) {
+          onAskConfirmation(false);
 
-      return shouldDiscard;
-    }, [onValidateAction, showPrompt, onAskConfirmation]),
+          setDirty(false);
+        }
+
+        return shouldDiscard;
+      },
+      [
+        onValidateAction,
+        showPrompt,
+        onAskConfirmation,
+        discardPrompt,
+        isMobile,
+      ],
+    ),
     isDirty,
     onBackToFeed,
+    isNewFeed,
+    editFeedSettings: (callback) => {
+      // all async operations usually don't require dirty state
+      // only when we are creating a new feed we log it because
+      // we delete it if user tries to quit without confirmation
+      if (isNewFeed) {
+        setDirty(true);
+      }
+
+      if (typeof callback === 'function') {
+        return callback();
+      }
+
+      return undefined;
+    },
   };
 };

@@ -4,6 +4,7 @@ import React from 'react';
 import dynamic from 'next/dynamic';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
+import type { CommonPlusPageProps } from '@dailydotdev/shared/src/components/plus/common';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 
 const PlusMobile = dynamic(() =>
@@ -17,7 +18,9 @@ const PlusDesktop = dynamic(() =>
   ).then((mod) => mod.PlusDesktop),
 );
 
-const PlusPage = (): ReactElement => {
+const PlusPage = ({
+  shouldShowPlusHeader,
+}: CommonPlusPageProps): ReactElement => {
   const { isReady } = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
 
@@ -26,10 +29,10 @@ const PlusPage = (): ReactElement => {
   }
 
   if (isLaptop) {
-    return <PlusDesktop />;
+    return <PlusDesktop shouldShowPlusHeader={shouldShowPlusHeader} />;
   }
 
-  return <PlusMobile />;
+  return <PlusMobile shouldShowPlusHeader={shouldShowPlusHeader} />;
 };
 
 PlusPage.getLayout = getPlusLayout;

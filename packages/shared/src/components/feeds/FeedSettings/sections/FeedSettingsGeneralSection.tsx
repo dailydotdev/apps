@@ -30,7 +30,9 @@ import { SimpleTooltip } from '../../../tooltips';
 import { usePlusSubscription } from '../../../../hooks';
 
 export const FeedSettingsGeneralSection = (): ReactElement => {
-  const { setData, data, feed, onDelete } = useContext(FeedSettingsEditContext);
+  const { setData, data, feed, onDelete, editFeedSettings } = useContext(
+    FeedSettingsEditContext,
+  );
   const { user } = useAuthContext();
   const { updateUserProfile } = useProfileForm();
   const isMainFeed = feed?.type === FeedType.Main;
@@ -158,9 +160,11 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
             disabled={!isPlus}
             icon={isDefaultFeed ? <VIcon /> : <StarIcon />}
             onClick={async () =>
-              await updateUserProfile({
-                defaultFeedId: isDefaultFeed ? null : feed.id,
-              })
+              editFeedSettings(() =>
+                updateUserProfile({
+                  defaultFeedId: isDefaultFeed ? null : feed.id,
+                }),
+              )
             }
           >
             {isDefaultFeed ? 'Default feed set' : 'Make default'}
@@ -186,9 +190,11 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
                 icon={isDefaultFeed ? <VIcon /> : <StarIcon />}
                 disabled={user.defaultFeedId === null}
                 onClick={async () => {
-                  updateUserProfile({
-                    defaultFeedId: null,
-                  });
+                  editFeedSettings(() =>
+                    updateUserProfile({
+                      defaultFeedId: null,
+                    }),
+                  );
                 }}
               >
                 {isDefaultFeed ? 'Default feed set' : 'Make default'}

@@ -29,7 +29,11 @@ import {
   Y_AXIS_KEYS,
 } from '../../lib/element';
 import type { UserShortProfile } from '../../lib/user';
-import { getLinkReplacement, getMentionReplacement } from '../../lib/markdown';
+import {
+  getLinkReplacement,
+  getMentionReplacement,
+  getStyleReplacement,
+} from '../../lib/markdown';
 import { handleRegex } from '../../graphql/users';
 import { UploadState, useSyncUploader } from './useSyncUploader';
 import { useToastNotification } from '../useToastNotification';
@@ -38,6 +42,7 @@ import {
   allowedFileSize,
   uploadNotAcceptedMessage,
 } from '../../graphql/posts';
+import { isValidHttpUrl } from '../../lib';
 
 export enum MarkdownCommand {
   Upload = 'upload',
@@ -191,6 +196,12 @@ export const useMarkdownInput = ({
   };
 
   const onLinkCommand = () => command.replaceWord(getLinkReplacement, onUpdate);
+  const onLinkPaste = (pastedLink: string) => {
+    const onLinkPasteCommand: GetReplacementFn = (type, props) =>
+      getLinkReplacement(type, { ...props, url: pastedLink });
+
+    return command.replaceWord(onLinkPasteCommand, onUpdate);
+  };
 
   const onMentionCommand = async () => {
     const { replacement } = await command.replaceWord(
@@ -238,6 +249,27 @@ export const useMarkdownInput = ({
 
   const onKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = async (e) => {
     const isSpecialKey = e.ctrlKey || e.metaKey;
+
+    if (isSpecialKey) {
+      switch (e.key) {
+        case 'b': {
+          e.preventDefault();
+          return await command.replaceWord(getStyleReplacement('**'), onUpdate);
+        }
+        case 'i': {
+          e.preventDefault();
+          return await command.replaceWord(getStyleReplacement('_'), onUpdate);
+        }
+        case 'k': {
+          e.preventDefault();
+          e.stopPropagation();
+          return await onLinkCommand?.();
+        }
+        default:
+          break;
+      }
+    }
+
     const isSubmitting =
       isSpecialKey && e.key === KeyboardCommand.Enter && input?.length;
 
@@ -316,16 +348,21 @@ export const useMarkdownInput = ({
     startUploading();
   };
 
-  const onPaste: ClipboardEventHandler<HTMLTextAreaElement> = (e) => {
-    if (!e.clipboardData.files?.length || !isUploadEnabled) {
+  const onPaste: ClipboardEventHandler<HTMLTextAreaElement> = async (e) => {
+    const pastedText = e.clipboardData.getData('text');
+    if (isValidHttpUrl(pastedText)) {
+      e.preventDefault();
+      await onLinkPaste(pastedText);
       return;
     }
 
-    e.preventDefault();
+    if (e.clipboardData.files?.length && isUploadEnabled) {
+      e.preventDefault();
 
-    Array.from(e.clipboardData.files).forEach(verifyFile);
+      Array.from(e.clipboardData.files).forEach(verifyFile);
 
-    startUploading();
+      startUploading();
+    }
   };
 
   const onCloseMention = useCallback(() => setQuery(undefined), []);
@@ -357,7 +394,10 @@ export const useMarkdownInput = ({
       onInput,
       onKeyUp,
       onKeyDown,
+      onPaste,
       ...uploadCommands,
     },
   };
 };
+
+export default useMarkdownInput;
