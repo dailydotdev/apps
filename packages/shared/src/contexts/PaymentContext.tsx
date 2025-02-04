@@ -92,6 +92,11 @@ export const PaymentContextProvider = ({
                   ? LogEvent.CompleteGiftCheckout
                   : LogEvent.CompleteCheckout,
               extra: {
+                user_id:
+                  'gifter_id' in event.data.custom_data &&
+                  'user_id' in event.data.custom_data
+                    ? event.data.custom_data.user_id
+                    : undefined,
                 cycle:
                   event?.data.items?.[0]?.billing_cycle?.interval ?? 'one-off',
                 localCost: event?.data.totals.total,
